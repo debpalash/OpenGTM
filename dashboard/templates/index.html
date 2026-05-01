@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yupcha Lead Command Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">⚡</div>
+                <div>
+                    <h1>Yupcha Lead Command Center</h1>
+                    <p class="subtitle">Lead Generation &amp; Enrichment Pipeline</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-ghost" onclick="refreshData()">↻ Refresh</button>
+                <button class="btn btn-outline" onclick="exportCSV()">📤 Export CSV</button>
+                <button class="btn btn-primary" onclick="showAddModal()">+ Add Lead</button>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <section class="stats-grid" id="statsGrid">
+            <div class="stat-card total">
+                <div class="stat-value" id="statTotal">—</div>
+                <div class="stat-label">Total Leads</div>
+            </div>
+            <div class="stat-card hot">
+                <div class="stat-value" id="statHot">—</div>
+                <div class="stat-label">🔥 Hot Leads</div>
+            </div>
+            <div class="stat-card warm">
+                <div class="stat-value" id="statWarm">—</div>
+                <div class="stat-label">🟡 Warm Leads</div>
+            </div>
+            <div class="stat-card cold">
+                <div class="stat-value" id="statCold">—</div>
+                <div class="stat-label">🔵 Cold Leads</div>
+            </div>
+            <div class="stat-card score">
+                <div class="stat-value" id="statAvgScore">—</div>
+                <div class="stat-label">Avg Score</div>
+            </div>
+            <div class="stat-card enrichment">
+                <div class="stat-value" id="statEnriched">—</div>
+                <div class="stat-label">📧 With Email</div>
+            </div>
+        </section>
+
+        <!-- Charts Row -->
+        <section class="charts-row">
+            <div class="chart-card">
+                <h3>Leads by City</h3>
+                <div id="cityChart" class="bar-chart"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Leads by Source</h3>
+                <div id="sourceChart" class="bar-chart"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Score Distribution</h3>
+                <div id="tierChart" class="donut-chart-container"></div>
+            </div>
+        </section>
+
+        <!-- Filters -->
+        <section class="filters-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search companies..." class="search-input" oninput="debounceSearch()">
+            <select id="filterCity" onchange="loadLeads()"><option value="">All Cities</option></select>
+            <select id="filterTier" onchange="loadLeads()">
+                <option value="">All Tiers</option>
+                <option value="hot">🔥 Hot</option>
+                <option value="warm">🟡 Warm</option>
+                <option value="cold">🔵 Cold</option>
+                <option value="unqualified">⚪ Unqualified</option>
+            </select>
+            <select id="filterStatus" onchange="loadLeads()">
+                <option value="">All Statuses</option>
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="qualified">Qualified</option>
+                <option value="negotiating">Negotiating</option>
+                <option value="converted">Converted</option>
+                <option value="dead">Dead</option>
+            </select>
+            <select id="filterSource" onchange="loadLeads()"><option value="">All Sources</option></select>
+            <select id="sortBy" onchange="loadLeads()">
+                <option value="score DESC">Score ↓</option>
+                <option value="score ASC">Score ↑</option>
+                <option value="company ASC">Name A-Z</option>
+                <option value="company DESC">Name Z-A</option>
+                <option value="created_at DESC">Newest</option>
+                <option value="city ASC">City A-Z</option>
+            </select>
+        </section>
+
+        <!-- Lead Table -->
+        <section class="table-container">
+            <table class="lead-table">
+                <thead>
+                    <tr>
+                        <th>Score</th>
+                        <th>Company</th>
+                        <th>City</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Specialization</th>
+                        <th>Source</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="leadsBody"></tbody>
+            </table>
+            <div class="table-footer">
+                <span id="resultCount">Loading...</span>
+                <div class="pagination">
+                    <button class="btn btn-sm" onclick="prevPage()">← Prev</button>
+                    <span id="pageInfo">Page 1</span>
+                    <button class="btn btn-sm" onclick="nextPage()">Next →</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Lead Detail Modal -->
+    <div class="modal-overlay" id="detailModal" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="modalTitle">Lead Details</h2>
+                <button class="btn-close" onclick="hideModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Add Lead Modal -->
+    <div class="modal-overlay" id="addModal" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Add New Lead</h2>
+                <button class="btn-close" onclick="hideAddModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addForm" onsubmit="submitNewLead(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Company *</label><input name="company" required></div>
+                        <div class="form-group"><label>City</label><input name="city"></div>
+                        <div class="form-group"><label>Website</label><input name="website"></div>
+                        <div class="form-group"><label>Email</label><input name="email" type="email"></div>
+                        <div class="form-group"><label>Phone</label><input name="phone"></div>
+                        <div class="form-group"><label>Specialization</label><input name="specialization"></div>
+                        <div class="form-group"><label>Contact Person</label><input name="contact_person"></div>
+                        <div class="form-group"><label>Contact Title</label><input name="contact_title"></div>
+                        <div class="form-group"><label>LinkedIn URL</label><input name="linkedin_url"></div>
+                        <div class="form-group full-width"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-ghost" onclick="hideAddModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Lead</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
