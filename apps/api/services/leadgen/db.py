@@ -130,6 +130,22 @@ class LeadDB:
                 created_at  TEXT DEFAULT '',
                 updated_at  TEXT DEFAULT ''
             );
+
+            -- Pipeline stages per job
+            CREATE TABLE IF NOT EXISTS job_stages (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                job_id       TEXT NOT NULL,
+                stage        TEXT NOT NULL,
+                status       TEXT DEFAULT 'running',
+                input_count  INTEGER DEFAULT 0,
+                output_count INTEGER DEFAULT 0,
+                rejected_count INTEGER DEFAULT 0,
+                details      TEXT DEFAULT '{}',
+                started_at   TEXT DEFAULT '',
+                completed_at TEXT DEFAULT '',
+                FOREIGN KEY (job_id) REFERENCES jobs(id)
+            );
+            CREATE INDEX IF NOT EXISTS idx_job_stages_job ON job_stages(job_id);
         """)
         self.conn.commit()
 
@@ -439,6 +455,54 @@ class LeadDB:
             rows = self.conn.execute(
                 "SELECT * FROM jobs ORDER BY created_at DESC LIMIT ?", (limit,)
             ).fetchall()
+        return [dict(r) for r in rows]
+
+    # ── Job Stages ─────────────────────────────────────────────────────
+
+    def create_stage(self, job_id: str, stage: str) -> int:
+        """Create a pipeline stage record, return its ID."""
+        now = datetime.utcnow().isoformat()
+        cur = self.conn.execute(
+            "INSERT INTO job_stages (job_id, stage, status, started_at) VALUES (?, ?, 'running', ?)",
+            (job_id, stage, now)
+        )
+        self.conn.commit()
+        return cur.lastrowid or 0
+
+    def complete_stage(self, stage_id: int, input_count: int = 0,
+                       output_count: int = 0, rejected_count: int = 0,
+                       details: str = '{}', status: str = 'done'):
+        """Mark a stage as completed with its metrics."""
+        now = datetime.utcnow().isoformat()
+        self.conn.execute(
+            """UPDATE job_stages SET status = ?, input_count = ?, output_count = ?,
+               rejected_count = ?, details = ?, completed_at = ? WHERE id = ?""",
+            (status, input_count, output_count, rejected_count, details, now, stage_id)
+        )
+        self.conn.commit()
+
+    def get_job_stages(self, job_id: str) -> List[Dict[str, Any]]:
+        """Get all stages for a job, ordered by creation."""
+        rows = self.conn.execute(
+            "SELECT * FROM job_stages WHERE job_id = ? ORDER BY id", (job_id,)
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_job_detail(self, job_id: str) -> Optional[Dict[str, Any]]:
+        """Get a single job with its stages."""
+        row = self.conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+        if not row:
+            return None
+        job = dict(row)
+        job["stages"] = self.get_job_stages(job_id)
+        return job
+
+    def get_job_leads(self, job_id: str, limit: int = 200) -> List[Dict[str, Any]]:
+        """Get leads produced by a specific job."""
+        rows = self.conn.execute(
+            "SELECT * FROM leads WHERE source = ? ORDER BY score DESC LIMIT ?",
+            (f"job:{job_id}", limit)
+        ).fetchall()
         return [dict(r) for r in rows]
 
     # ── Workspaces ─────────────────────────────────────────────────────

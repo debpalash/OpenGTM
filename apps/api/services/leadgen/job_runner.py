@@ -10,6 +10,7 @@ Enhanced with:
 """
 
 import asyncio
+import json
 import re
 import uuid
 from datetime import datetime
@@ -102,48 +103,75 @@ class JobRunner:
                 return_exceptions=True,
             )
 
-            # Collect leads from all strategies
+            # Collect leads from all strategies + persist stage data
             all_leads = []
             for (stage_name, _), result in zip(tasks, results):
+                sid = self.db.create_stage(job_id, stage_name)
                 if isinstance(result, Exception):
+                    self.db.complete_stage(sid, status="failed",
+                        details=json.dumps({"error": str(result)}))
                     progress.emit("job_progress", {
                         "job_id": job_id, "stage": stage_name,
                         "message": f"⚠️ {stage_name} failed: {result}",
                     })
                 elif isinstance(result, list):
+                    samples = [l.company for l in result[:10]]
+                    self.db.complete_stage(sid, output_count=len(result),
+                        details=json.dumps({"samples": samples}))
                     all_leads.extend(result)
                     progress.emit("job_progress", {
                         "job_id": job_id, "stage": stage_name,
                         "message": f"✅ {stage_name}: {len(result)} leads",
                         "leads_found": len(result),
                     })
+                else:
+                    self.db.complete_stage(sid, status="skipped")
 
             # ── Validate: reject garbage ─────────────────────────
+            validate_sid = self.db.create_stage(job_id, "validate")
             progress.emit("job_progress", {
                 "job_id": job_id, "stage": "validate",
                 "message": f"🔍 Validating {len(all_leads)} leads...",
             })
             valid_leads, rejected = validate_and_clean_leads(all_leads)
+            reasons = {}
             if rejected:
-                reasons = {}
                 for _, reason in rejected:
                     reasons[reason] = reasons.get(reason, 0) + 1
                 progress.emit("job_progress", {
                     "job_id": job_id, "stage": "validate",
                     "message": f"🗑️ Rejected {len(rejected)}: {dict(reasons)}",
                 })
+            self.db.complete_stage(validate_sid,
+                input_count=len(all_leads), output_count=len(valid_leads),
+                rejected_count=len(rejected),
+                details=json.dumps({"reasons": reasons,
+                    "rejected_names": [l.company for l, _ in rejected[:20]]}))
 
             # ── Deduplicate ──────────────────────────────────────
+            dedup_sid = self.db.create_stage(job_id, "dedup")
             unique = deduplicate_leads(valid_leads)
+            self.db.complete_stage(dedup_sid,
+                input_count=len(valid_leads), output_count=len(unique),
+                rejected_count=len(valid_leads) - len(unique))
             progress.emit("job_progress", {
                 "job_id": job_id, "stage": "dedup",
                 "message": f"🔄 {len(valid_leads)} → {len(unique)} after dedup",
             })
 
             # ── Score ────────────────────────────────────────────
+            score_sid = self.db.create_stage(job_id, "score")
             scored = score_leads(unique)
+            tiers = {}
+            for l in scored:
+                t = l.score_tier or "unknown"
+                tiers[t] = tiers.get(t, 0) + 1
+            self.db.complete_stage(score_sid,
+                input_count=len(unique), output_count=len(scored),
+                details=json.dumps({"tiers": tiers}))
 
             # ── Store ────────────────────────────────────────────
+            store_sid = self.db.create_stage(job_id, "store")
             count = 0
             for lead in scored:
                 lead.source = f"job:{job_id}"
@@ -163,6 +191,9 @@ class JobRunner:
                         "score_tier": lead.score_tier,
                     },
                 })
+
+            self.db.complete_stage(store_sid,
+                input_count=len(scored), output_count=count)
 
             self.db.complete_job(job_id, leads_found=count)
             progress.emit("job_completed", {
@@ -590,7 +621,8 @@ class JobRunner:
         """Try to derive a company name from a domain.
 
         e.g., 'www.datamatics.com' → 'Datamatics'
-              'talentleads.co.in' → 'Talentleads'
+              'talentleads.co.in' → 'Talent Leads'
+              'v3staffing.in' → 'V3 Staffing'
         """
         if not domain:
             return ""
@@ -606,23 +638,59 @@ class JobRunner:
                 break
 
         # Skip if it looks like a publisher/aggregator
-        if domain in ("clutch", "goodfirms", "softwaresuggest", "g2", "capterra"):
+        if self._is_skip_domain(domain + ".com"):
             return ""
 
-        # Capitalize
-        if domain and len(domain) >= 3:
-            return domain.replace("-", " ").replace("_", " ").title()
+        if not domain or len(domain) < 3:
+            return ""
 
-        return ""
+        # Split on hyphens/underscores
+        parts = re.split(r'[-_]', domain)
+
+        # Also try to split CamelCase or concatenated words
+        expanded = []
+        for part in parts:
+            # Insert spaces before uppercase letters in camelCase
+            # e.g., "claviusSolutions" → "clavius Solutions"
+            split = re.sub(r'([a-z])([A-Z])', r'\1 \2', part)
+            # Split numbers from words: "v3staffing" → "v3 staffing"
+            split = re.sub(r'([a-zA-Z])(\d)', r'\1 \2', split)
+            split = re.sub(r'(\d)([a-zA-Z])', r'\1 \2', split)
+            expanded.append(split)
+
+        name = " ".join(expanded).title()
+        return name
 
     def _is_skip_domain(self, domain: str) -> bool:
-        """Check if a domain should be skipped."""
-        skip = ["wikipedia.org", "youtube.com", "facebook.com",
-                "twitter.com", "instagram.com", "reddit.com",
-                "quora.com", "medium.com", "linkedin.com",
-                "glassdoor.com", "glassdoor.co.in", "ambitionbox.com",
-                "indeed.com", "naukri.com", "shine.com",
-                "pinterest.com", "tiktok.com"]
+        """Check if a domain should be skipped (aggregators, social, directories)."""
+        skip = [
+            # Social media
+            "wikipedia.org", "youtube.com", "facebook.com",
+            "twitter.com", "instagram.com", "reddit.com",
+            "quora.com", "medium.com", "linkedin.com",
+            "pinterest.com", "tiktok.com",
+            # Job boards
+            "glassdoor.com", "glassdoor.co.in", "ambitionbox.com",
+            "indeed.com", "naukri.com", "shine.com",
+            "timesjobs.com", "monster.com", "foundit.in",
+            # Directories / aggregators
+            "clutch.co", "goodfirms.co", "g2.com", "capterra.com",
+            "softwaresuggest.com", "themanifest.com", "techbehemoths.com",
+            "trustpilot.com", "mouthshut.com",
+            # Indian directories
+            "justdial.com", "sulekha.com", "indiamart.com",
+            "placementindia.com", "tradeindia.com", "exportersindia.com",
+            "grotal.com", "fundoodata.com", "freelistingindia.com",
+            "urbanpro.com", "dial4trade.com",
+            # Lead gen tools
+            "aeroleads.com", "lusha.com", "apollo.io", "zoominfo.com",
+            "rocketreach.co", "clearbit.com", "snov.io", "hunter.io",
+            # Startup/VC databases
+            "crunchbase.com", "owler.com", "tracxn.com",
+            "wellfound.com", "angellist.com", "yourstory.com",
+            # News / generic
+            "mordorintelligence.com", "rankexdigital.com",
+        ]
         return any(s in domain for s in skip)
 
     def _is_publisher_email(self, email: str) -> bool:

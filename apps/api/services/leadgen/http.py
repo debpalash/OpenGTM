@@ -195,9 +195,12 @@ class StealthClient:
         return result
 
     async def _fetch_tier2(self, url: str, proxy: Optional[str], timeout: int) -> FetchResult:
-        """Tier 2: stealth HTTP request via stealth_requests (curl_cffi)."""
+        """Tier 2: stealth HTTP request via stealth_requests (curl_cffi).
+        Falls back to aiohttp with realistic headers if stealth_requests is not installed.
+        """
         result = FetchResult(url=url, tier_used=2, proxy_used=proxy or "")
 
+        # Try stealth_requests first
         try:
             from stealth_requests.session import AsyncStealthSession
 
@@ -219,6 +222,32 @@ class StealthClient:
                     result.phones = list(resp.phone_numbers or [])
                 except Exception:
                     pass
+
+            return result
+
+        except ImportError:
+            pass  # Fall through to aiohttp
+        except Exception as e:
+            result.error = str(e)
+            result.status_code = 0
+            return result
+
+        # Fallback: aiohttp with realistic headers
+        try:
+            import aiohttp
+
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept-Encoding": "gzip, deflate",
+                "DNT": "1",
+            }
+            conn = aiohttp.TCPConnector(ssl=False)
+            async with aiohttp.ClientSession(connector=conn, headers=headers) as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=timeout), allow_redirects=True) as resp:
+                    result.status_code = resp.status
+                    result.text = await resp.text(errors="replace")
 
         except Exception as e:
             result.error = str(e)

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -68,6 +69,7 @@ function signals(lead: Lead): string[] {
 }
 
 export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
+  const navigate = useNavigate()
   const handleStatus = async (id: number, status: string) => {
     await updateStatus(id, status)
     onStatusChange()
@@ -169,11 +171,20 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
                 {sigs.length > 0 ? sigs.join("") : <EmptyCell />}
               </TableCell>
 
-              {/* Source */}
+              {/* Source — clickable for pipeline jobs */}
               <TableCell className="py-0.5">
-                <span className="text-[10px] text-muted-foreground/40 font-mono truncate block max-w-20">
-                  {lead.source.startsWith("job:") ? lead.source.slice(0, 12) : lead.source}
-                </span>
+                {lead.source.startsWith("job:") ? (
+                  <button
+                    className="text-[10px] text-primary/60 hover:text-primary font-mono truncate block max-w-20 hover:underline"
+                    onClick={(e) => { e.stopPropagation(); navigate(`/pipeline/${lead.source.replace('job:', '')}`) }}
+                  >
+                    {lead.source.slice(0, 12)}
+                  </button>
+                ) : (
+                  <span className="text-[10px] text-muted-foreground/40 font-mono truncate block max-w-20">
+                    {lead.source}
+                  </span>
+                )}
               </TableCell>
 
               {/* Status */}

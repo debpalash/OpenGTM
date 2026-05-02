@@ -25,6 +25,9 @@ dependencies = [
     "markdownify>=1.2.2",
     "slowapi>=0.1.9",
     "pydantic-settings>=2.0.0",
+    "thefuzz>=0.22.1",
+    "duckduckgo-search>=8.1.1",
+    "ddgs>=9.14.1",
 ]
 
 [tool.logfire]

@@ -252,6 +252,46 @@ def list_jobs(status: Optional[str] = None):
     return jobs
 
 
+@jobs_router.get("/jobs/{job_id}")
+def get_job_detail(job_id: str):
+    """Get a single job with all its pipeline stages."""
+    db = _get_db()
+    job = db.get_job_detail(job_id)
+    db.close()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    # Parse JSON details in stages
+    for stage in job.get("stages", []):
+        try:
+            stage["details"] = json.loads(stage.get("details", "{}"))
+        except Exception:
+            stage["details"] = {}
+    return job
+
+
+@jobs_router.get("/jobs/{job_id}/stages")
+def get_job_stages(job_id: str):
+    """Get pipeline stages for a job."""
+    db = _get_db()
+    stages = db.get_job_stages(job_id)
+    db.close()
+    for s in stages:
+        try:
+            s["details"] = json.loads(s.get("details", "{}"))
+        except Exception:
+            s["details"] = {}
+    return stages
+
+
+@jobs_router.get("/jobs/{job_id}/leads")
+def get_job_leads(job_id: str):
+    """Get leads produced by a specific job."""
+    db = _get_db()
+    leads = db.get_job_leads(job_id)
+    db.close()
+    return leads
+
+
 @jobs_router.get("/system-stats")
 def system_stats():
     from apps.api.services.leadgen.proxy_pool import ProxyPool

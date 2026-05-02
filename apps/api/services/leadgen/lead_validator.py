@@ -29,13 +29,19 @@ _ARTICLE_PATTERNS = [
     r"(?i)\b(list|ranking|review)\s+of\b",
 ]
 
-# Placeholder / generic names
+# Placeholder / generic names (case-insensitive, checked after .lower().strip())
 _PLACEHOLDER_NAMES = {
     "results", "home", "about", "contact", "contact us",
     "search results", "page not found", "404",
     "untitled", "no title", "loading", "error",
     "recruitment firm", "staffing agency", "hr agency",
     "it company", "consulting firm",
+    # Generic industry terms that are NOT company names
+    "human resources", "staffing", "recruitment", "consulting",
+    "outsourcing", "manpower", "placement", "headhunting",
+    "it services", "hr services", "hr solutions", "it solutions",
+    "software development", "web development", "digital marketing",
+    "business consulting", "management consulting",
 }
 
 # Known publisher/aggregator/directory brand names (NOT real companies)
@@ -50,6 +56,14 @@ _PUBLISHER_NAMES = {
     "placementindia", "placement india", "timesjobs", "monster",
     "foundit", "apna", "upwork", "freelancer", "fiverr",
     "mouthshut", "shiksha", "careers360", "collegedunia",
+    # Directory / aggregator / tool sites
+    "the manifest", "manifest", "aeroleads", "lusha", "apollo",
+    "zoominfo", "hunter", "snov", "rocketreach", "clearbit",
+    "freelistingindia", "free listing india", "fundoodata",
+    "grotal", "tradeindia", "exportersindia", "dial4trade",
+    "urbanpro", "bark", "thumbtack", "yelp", "yellowpages",
+    "manta", "crunchbase", "owler", "tracxn", "wellfound",
+    "angellist", "f6s", "startupindia", "yourstory",
 }
 
 # Generic service title patterns (not company names)
@@ -57,7 +71,7 @@ _GENERIC_TITLE_PATTERNS = [
     r"(?i)^(IT|HR|Software|Staffing|Recruitment|Consulting|Consultancy)\s+(Services?|Agency|Firms?)\s+(in|of)\s+",
     r"(?i)^(Best|Top)\s+.*(in|of|for)\s+\w+$",
     r"(?i)\bcompanies?\s+in\s+\w+",
-    r"(?i)\b(staffing|recruitment|consulting)\s+&?\s*(recruitment|staffing)?\s+agency\s+in\b",
+    r"(?i)\b(staffing|recruitment|consulting)\s+\&?\s*(recruitment|staffing)?\s+agency\s+in\b",
     r"(?i)^(ERP|CRM|SAP|IT)\s+\w+\s+(In|Of)\s+",
     # Directory listing/category page titles
     r"(?i)^find\s+",                         # "Find HR Consultants..."
@@ -73,12 +87,12 @@ _GENERIC_TITLE_PATTERNS = [
     r"(?i)^page\s+\d+",                      # "Page 3"
     r"(?i)^multi\s+(recruit|search|find)\b", # "Multi Recruit"
     r"(?i)\b(verified|trusted)\s+(list|suppliers?|vendors?)\b",
-    r"(?i)\b\d+\s+(companies|agencies|firms|suppliers|vendors)\b",   # "10 companies..."
+    r"(?i)\b\d+\s+\w+\s*(companies|agencies|firms|suppliers|vendors|based)\b",  # "52 Bangalore Based Staffing Agency Companies"
     r"(?i)^(placement|recruiting|staffing)\s+(services?|agencies?|companies?)\s+(in|near|at)\s+",
     r"(?i)\b(directory|listing|catalogue|catalog)\b",
     # Service description titles (not a specific company)
     r"(?i)^(HR|IT)\s+(consulting|staffing|outsourcing)\s+(service|firm|company|agency)\s+\w+$",
-    r"(?i)^(HR|IT)\s+(staffing)\s+(&|and)\s+(recruiting|recruitment)\s+",
+    r"(?i)^(HR|IT)\s+(staffing)\s+(\&|and)\s+(recruiting|recruitment)\s+",
     r"(?i)^top\s+.*(firms?|agencies?|companies?)\s+(in|of|for)\s+",
     r"(?i)\.com/",                            # URL fragments as company names
     r"(?i)^(warehouse|construction|manufacturing)\s+(staffing|recruitment)\s+(agency|company|service)\s+(in|of)\s+",
@@ -98,6 +112,24 @@ _GENERIC_TITLE_PATTERNS = [
     r"(?i)^(show|view|see)\s+(more|all|less)",
     # bare domain as company name
     r"(?i)^[a-z]+\.(com|co\.in|org|net|in)(/|$)",
+
+    # ── BROAD patterns for service+location combos ──
+    # "Staffing in Bangalore", "HR Consultancy in Mumbai"
+    r"(?i)^(staffing|recruitment|consulting|consultancy|outsourcing|placement|manpower|headhunting)\s+(in|at|near|for)\s+",
+    # "HR Consultancy in Bangalore" / "IT Services in Delhi"
+    r"(?i)^(HR|IT)\s+.+\s+(in|at|near)\s+[A-Z]",
+    # Any "X in <City>" where X is a service keyword
+    r"(?i)\b(staffing|recruitment|consulting|consultancy|outsourcing|placement|manpower)\s+(services?\s+)?(in|at|near)\s+[A-Z]",
+    # "X & Y in City" pattern — catches "HR Consulting & Career Choice in Bangalore"
+    r"(?i)\b\w+\s*[&]\s*.+\s+(in|at|near)\s+[A-Z]\w+$",
+    # Trailing pipe, dash, or colon (truncated page titles)
+    r"[|:;]\s*$",
+    # "Manufacturers Suppliers" / "Wholesalers Dealers" — directory category keywords
+    r"(?i)\b(manufacturers?|suppliers?|wholesalers?|dealers?|distributors?|exporters?|importers?)\b",
+    # "X Services in Y Manufacturers Suppliers" pattern
+    r"(?i)\bservices?\s+in\s+\w+\s+\w+\s+(manufacturers?|suppliers?)\b",
+    # Generic "X Companies" at end
+    r"(?i)\b(staffing|recruitment|consulting)\s+(agency\s+)?companies$",
 ]
 
 # Publisher / aggregator domains (emails from these are not real leads)
@@ -175,8 +207,8 @@ def validate_lead(lead: Lead) -> tuple[bool, str]:
         if email_domain in _PUBLISHER_DOMAINS:
             lead.email = ""  # Clear the bad email, don't reject the lead
 
-        # Reject if email looks like an image path
-        if any(ext in lead.email.lower() for ext in [".png", ".jpg", ".svg", ".gif"]):
+        # Reject if email looks like an image/asset path
+        if any(ext in lead.email.lower() for ext in [".png", ".jpg", ".svg", ".gif", ".webp", ".css", ".js", ".woff"]):
             lead.email = ""
 
         # Cross-check: if lead has a website, email domain should relate
@@ -218,6 +250,14 @@ def validate_lead(lead: Lead) -> tuple[bool, str]:
         if domain in _PUBLISHER_DOMAINS:
             # Website is a publisher/aggregator page, not the company's site
             lead.website = ""
+
+    # ── Structural quality: a real lead must have a website/domain ──
+    has_website = bool(lead.website and lead.website.strip() and lead.website != "N/A")
+    has_email = bool(lead.email and lead.email.strip() and lead.email != "N/A")
+    has_phone = bool(lead.phone and lead.phone.strip() and lead.phone != "N/A")
+
+    if not has_website and not has_email and not has_phone:
+        return False, "no_contact_data"
 
     return True, ""
 

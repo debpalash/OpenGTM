@@ -10,6 +10,7 @@ import IntelPage from "@/pages/intel"
 import ScraperPage from "@/pages/scraper"
 import DownloadsPage from "@/pages/downloads"
 import SettingsPage from "@/pages/settings"
+import PipelinePage from "@/pages/pipeline"
 
 const NAV_ITEMS = [
   { to: "/leads", icon: Users, label: "Leads" },
@@ -74,6 +75,7 @@ function AppShell() {
           <Route path="/intel" element={<IntelPage />} />
           <Route path="/downloads" element={<DownloadsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/pipeline/:jobId" element={<PipelinePage />} />
           <Route path="*" element={<Navigate to="/leads" replace />} />
         </Routes>
       </main>
