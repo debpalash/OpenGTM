@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: scribd-downloader
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DB_PATH=/app/data/scribd.db
+    restart: unless-stopped
+    networks:
+      - scribd_net
+
+networks:
+  scribd_net:
+    driver: bridge

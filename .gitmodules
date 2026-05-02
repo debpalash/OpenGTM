@@ -1,3 +1,0 @@
-[submodule "proxy-manager"]
-	path = proxy-manager
-	url = git@github.com:debpalash/proxy-manager.git

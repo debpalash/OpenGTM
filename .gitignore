@@ -1,12 +1,56 @@
-.env
-.venv
-__pycache__
+# ── Python ──────────────────────────────────
+__pycache__/
 *.pyc
-data/*.db
-data/*.db-journal
-*.egg-info
+*.pyo
+*.egg-info/
 dist/
 build/
+.venv/
+*.mypy_cache/
+
+# ── Node ────────────────────────────────────
 node_modules/
-research/
+.turbo/
+apps/web/dist/
+
+# ── Lockfiles (regenerated) ─────────────────
 uv.lock
+bun.lock
+bun.lockb
+package-lock.json
+
+# ── Data / DB ───────────────────────────────
+*.db
+*.db-journal
+data/downloads/
+
+# ── HAR captures (large binary) ─────────────
+har/
+
+# ── Research repos (cloned references) ──────
+reference/research/
+research/
+
+# ── Research AI context (regenerated) ───────
+# Keep these tracked — they're small text files
+# research-ai-context/
+
+# ── Research summaries (large) ──────────────
+reference/research-summaries/
+
+# ── Environment / Secrets ───────────────────
+.env
+.env.local
+.env.production
+
+# ── IDE ─────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ── Debug / Temp ────────────────────────────
+*.debug.html
+ddg_output*.txt
+*.log

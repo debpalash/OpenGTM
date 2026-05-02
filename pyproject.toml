@@ -1,19 +1,47 @@
 [project]
-name = "yupcha-leads"
-version = "0.1.0"
-description = "Lead generation & enrichment pipeline for Yupcha"
+name = "yupcha-engine"
+version = "3.0.0"
+description = "Yupcha Engine — Document search, lead generation, and intelligence platform"
 requires-python = ">=3.11"
 dependencies = [
-    "pandas>=2.0",
-    "ddgs>=7.0",
-    "patchright>=0.5",
+    # FastAPI stack
+    "fastapi>=0.128.0",
+    "uvicorn[standard]>=0.40.0",
+    "sqlalchemy>=2.0.45",
+    "pydantic-settings>=2.0.0",
+    "slowapi>=0.1.9",
+    # Scraping & HTTP
     "beautifulsoup4>=4.12",
-    "flask>=3.0",
-    "thefuzz>=0.22",
-    "python-dotenv>=1.0",
-    "stealth-requests>=1.0",
+    "httpx>=0.28",
+    "aiohttp>=3.9",
     "curl-cffi>=0.9",
+    "lxml>=6.0",
+    "markdownify>=1.2",
+    "requests>=2.32",
+    # Browser automation
+    "playwright>=1.57.0",
+    # Lead generation
+    "ddgs>=7.0",
+    "thefuzz>=0.22",
+    "pandas>=2.0",
+    # Auth
+    "passlib[bcrypt]>=1.7.4",
+    "python-jose[cryptography]>=3.5.0",
+    "python-multipart>=0.0.21",
+    # Email validation
+    "dnspython>=2.8.0",
+    "email-validator>=2.3.0",
+    # PDF processing
+    "img2pdf>=0.6.3",
+    # Utilities
+    "python-dotenv>=1.0",
+    "logfire[fastapi]>=0.51.0",
+    "aiofiles>=25.1.0",
+    "duckduckgo-search>=8.1.1",
 ]
 
 [project.scripts]
-leads = "cli:main"
+yupcha = "apps.api.cli:main"
+
+[tool.logfire]
+ignore_no_config = true

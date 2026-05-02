@@ -1,58 +1,46 @@
-# Yupcha Lead Pipeline
+# Yupcha Engine
 
-Lead generation, enrichment & scoring pipeline.
+Enterprise data intelligence platform — document search, lead generation, web scraping, and person intel.
 
-## Setup
+## Architecture
+
+```
+apps/
+├── api/          FastAPI backend (Python)
+│   ├── routers/  API endpoints (auth, leads, search, scraper, intel)
+│   ├── services/ Business logic (leadgen, scraper, queue, person_intel)
+│   ├── sources/  Document source adapters (15+ sources)
+│   └── workers/  Background job processors
+└── web/          React frontend (TypeScript + ShadcnUI)
+```
+
+## Quick Start
 
 ```bash
+# Install Python deps
 uv sync
+
+# Start API server
+uv run uvicorn apps.api.main:app --reload --port 8000
+
+# Build & serve frontend
+cd apps/web && bun install && bun run build
 ```
 
-## Usage
+## Features
 
-```bash
-# Dashboard
-uv run python cli.py dashboard
+- **Document Search** — Search across Scribd, LibGen, arXiv, Gutenberg, PDFDrive, and 10+ more sources
+- **Lead Pipeline** — Automated business lead collection from Google Maps, web directories, and review sites
+- **Web Scraper** — Universal scraper with httpx fast path and Playwright fallback
+- **Person Intel** — LinkedIn profile enrichment via web OSINT
+- **Download Queue** — Background document download with progress tracking
+- **Workspaces** — Campaign-based organization for searches and leads
 
-# Full pipeline (scrape → enrich → score)
-uv run python cli.py pipeline
+## Tech Stack
 
-# Individual commands
-uv run python cli.py scrape --source job_boards
-uv run python cli.py enrich --limit 20
-uv run python cli.py score
-uv run python cli.py export --tier hot
-uv run python cli.py stats
-
-# Import existing CSVs
-uv run python cli.py import
-```
-
-## Dashboard Dev
-
-```bash
-# Build React UI (only needed after frontend changes)
-cd dashboard/web && npm install && npm run build
-
-# Run
-uv run python cli.py dashboard
-# → http://127.0.0.1:5050
-```
-
-## Sources
-
-Job Boards (Naukri, Indeed, Foundit) · Review Dirs (Clutch, GoodFirms, G2) ·
-Google Maps · LinkedIn · Web Directories · Google Search · News
-
-## Structure
-
-```
-cli.py              # CLI entry point
-config.py           # ICP config
-pyproject.toml      # uv deps
-leadgen/            # Core pipeline (scrapers, enrichment, scoring, db)
-dashboard/          # Flask API + React UI
-  app.py            # Flask backend
-  web/              # React + shadcn/ui + Tailwind v4
-data/               # CSVs + SQLite DB
-```
+| Layer | Technology |
+|-------|-----------|
+| API | FastAPI, SQLAlchemy, SQLite |
+| Frontend | React, TypeScript, ShadcnUI, Tailwind, Vite |
+| Scraping | httpx, Playwright, curl-cffi, BeautifulSoup |
+| Monorepo | Turborepo, Bun |

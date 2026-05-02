@@ -1,0 +1,5778 @@
+# sentinelcorp — AI Context File
+# Source: https://github.com/splitfireai-hue/sentinelcorp
+# Generated: 2026-05-02T11:28:33Z
+
+## Directory Structure
+./BILLING.md
+./DEPLOY.md
+./Dockerfile
+./README.md
+./app/__init__.py
+./app/config.py
+./app/data/__init__.py
+./app/data/seed_debarred.py
+./app/database.py
+./app/main.py
+./app/middleware/__init__.py
+./app/middleware/auth.py
+./app/models/__init__.py
+./app/models/base.py
+./app/models/billing.py
+./app/models/company.py
+./app/routers/__init__.py
+./app/routers/billing.py
+./app/routers/company.py
+./app/routers/debarred.py
+./app/routers/health.py
+./app/routers/validate.py
+./app/schemas/__init__.py
+./app/schemas/company.py
+./app/scrapers/__init__.py
+./app/scrapers/sebi_defaulters.py
+./app/services/__init__.py
+./app/services/auth.py
+./app/services/razorpay_service.py
+./app/services/risk_scoring.py
+./app/services/risk_service.py
+./app/services/stripe_service.py
+./app/services/validators.py
+./examples/due_diligence.py
+./integrations/README.md
+./integrations/__init__.py
+./integrations/crewai_tool.py
+./integrations/langchain_tool.py
+./integrations/mcp_server.py
+./integrations/openai_functions.py
+./mcp.json
+./pyproject.toml
+./sdk/README.md
+./sdk/pyproject.toml
+./sdk/sentinelcorp/__init__.py
+./sdk/sentinelcorp/client.py
+./tests/__init__.py
+./tests/conftest.py
+./tests/test_api.py
+./tests/test_billing.py
+./tests/test_risk_scoring.py
+./tests/test_validators.py
+
+================
+File: ./BILLING.md
+================
+# SentinelCorp — Billing & Payments Setup
+
+Turn on paid tiers via Razorpay (India UPI/cards) + Stripe (global cards).
+
+## Tiers
+
+| Tier | INR/mo | USD/mo | Requests/mo | Rate limit |
+|---|---|---|---|---|
+| Free (signup) | ₹0 | $0 | 5,000 | 30 req/min |
+| Dev | ₹499 | $6 | 50,000 | 120 req/min |
+| Startup | ₹2,499 | $30 | 500,000 | 600 req/min |
+| Enterprise | Custom | Custom | Custom | Custom |
+
+Anonymous (no key): 100 req/day per IP — enough to try, not run on.
+
+## Turn billing on
+
+Set in Railway → Variables:
+
+```
+BILLING_ENABLED=true
+ADMIN_SECRET=<long random string>
+PUBLIC_BASE_URL=https://sentinelcorp-production.up.railway.app
+```
+
+Generate `ADMIN_SECRET` with `python3 -c "import secrets; print(secrets.token_urlsafe(32))"`.
+
+Without rails configured, `/signup` still works (free tier) and paid checkout returns 503. Good for a soft launch.
+
+---
+
+## Razorpay (India — UPI/cards/netbanking)
+
+### 1. Create account
+- [dashboard.razorpay.com](https://dashboard.razorpay.com) → sign up
+- Start in **test mode** (toggle top right). Switch to live after KYC.
+
+### 2. Create plans
+- Dashboard → **Subscriptions → Plans → + New Plan**
+- Plan 1: `SentinelCorp Dev` — ₹499/month, billing cycle 1 month
+- Plan 2: `SentinelCorp Startup` — ₹2,499/month, billing cycle 1 month
+- Copy the `plan_id` of each (format `plan_XXXX`)
+
+### 3. Get API keys
+- Dashboard → **Settings → API Keys → Generate**
+- Copy `Key ID` (starts `rzp_test_` or `rzp_live_`) and `Key Secret`
+
+### 4. Configure webhook
+- Dashboard → **Settings → Webhooks → + Add New**
+- URL: `https://sentinelcorp-production.up.railway.app/billing/webhooks/razorpay`
+- Secret: generate a long random string — you'll set it in Railway
+- Active events:
+  - `subscription.activated`
+  - `subscription.charged`
+  - `subscription.cancelled`
+  - `subscription.halted`
+  - `subscription.completed`
+
+### 5. Set Railway env vars
+
+```
+RAZORPAY_KEY_ID=rzp_test_XXXXXXXX
+RAZORPAY_KEY_SECRET=XXXXXXXX
+RAZORPAY_WEBHOOK_SECRET=<what you set in step 4>
+RAZORPAY_PLAN_DEV=plan_XXXX
+RAZORPAY_PLAN_STARTUP=plan_YYYY
+```
+
+### 6. Test
+- Visit `https://YOUR_URL/pricing` → "India (INR)" tab shows Subscribe buttons
+- Click Subscribe → enter test card `4111 1111 1111 1111`, any CVV, any future expiry
+- Razorpay's test UPI: enter `success@razorpay` as VPA
+- Webhook should fire; check Railway logs for `Razorpay: activated sub=...`
+- Confirm with `curl -H "X-API-Key: <your_key>" https://YOUR_URL/billing/me` — tier should be `dev` or `startup`
+
+---
+
+## Stripe (global — cards)
+
+### 1. Create account
+- [dashboard.stripe.com](https://dashboard.stripe.com) → sign up
+- Indian users: Stripe requires a foreign entity (Stripe Atlas, or a Delaware C-Corp) OR use LemonSqueezy as an alternative merchant-of-record
+- Start in **test mode**
+
+### 2. Create products + prices
+- Dashboard → **Products → + Add product**
+- Product 1: `SentinelCorp Dev` — recurring, $6/month USD → copy `price_XXXX`
+- Product 2: `SentinelCorp Startup` — recurring, $30/month USD → copy `price_YYYY`
+
+### 3. Get API keys
+- Dashboard → **Developers → API keys**
+- Copy **Secret key** (`sk_test_...` or `sk_live_...`)
+- (Optional) Copy **Publishable key** for future client-side use
+
+### 4. Configure webhook
+- Dashboard → **Developers → Webhooks → + Add endpoint**
+- URL: `https://sentinelcorp-production.up.railway.app/billing/webhooks/stripe`
+- Events to send:
+  - `checkout.session.completed`
+  - `customer.subscription.created`
+  - `customer.subscription.updated`
+  - `customer.subscription.deleted`
+  - `invoice.payment_failed`
+- After creation, reveal the **Signing secret** (`whsec_...`)
+
+### 5. Set Railway env vars
+
+```
+STRIPE_SECRET_KEY=sk_test_XXXXXXXX
+STRIPE_PUBLISHABLE_KEY=pk_test_XXXXXXXX
+STRIPE_WEBHOOK_SECRET=whsec_XXXXXXXX
+STRIPE_PRICE_DEV=price_XXXX
+STRIPE_PRICE_STARTUP=price_YYYY
+```
+
+### 6. Test
+- Visit `https://YOUR_URL/pricing` → "Global (USD)" tab
+- Click Subscribe → redirected to Stripe Checkout
+- Test card: `4242 4242 4242 4242`, any future expiry, any CVV
+- After success, you'll be redirected back to `/billing/success`
+- Webhook fires; confirm with `/billing/me` that tier upgraded
+
+---
+
+## Ops cheat sheet
+
+### Issue a key manually (give someone a free premium account)
+
+```bash
+curl -X POST https://YOUR_URL/billing/admin/keys \
+  -H "X-Admin-Secret: $ADMIN_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"vip@example.com","tier":"startup","notes":"Partner comp"}'
+```
+
+Response includes the raw key — email it to them, never shown again.
+
+### Upgrade someone's tier
+
+```bash
+curl -X PATCH https://YOUR_URL/billing/admin/keys/42/tier \
+  -H "X-Admin-Secret: $ADMIN_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"tier":"startup"}'
+```
+
+### Revoke a key (abuse, chargeback)
+
+```bash
+curl -X DELETE https://YOUR_URL/billing/admin/keys/42 \
+  -H "X-Admin-Secret: $ADMIN_SECRET"
+```
+
+### Check a customer's usage
+
+```bash
+curl -H "X-API-Key: <their_key>" https://YOUR_URL/billing/me
+```
+
+---
+
+## Gotchas
+
+- **Razorpay subscriptions require KYC** before live mode. Test mode works immediately.
+- **Stripe from India**: direct Stripe India accounts have restrictions (no international cards). Use Stripe Atlas, a foreign entity, or [LemonSqueezy](https://lemonsqueezy.com) as merchant-of-record.
+- **Webhook failures** leave subscriptions in `pending` state — customer has a free-tier key until the webhook lands. Monitor `/billing/admin/keys?status=pending` in logs.
+- **Test mode keys** (`rzp_test_` / `sk_test_`) only work against test mode subscriptions. Don't mix.
+- **Currency**: the system issues ONE key per subscription. A customer subscribing with INR and USD separately gets two keys. Dedup by email if needed.
+
+---
+
+## Monitoring billing
+
+- **Successful activations**: grep logs for `Razorpay: activated` or `Stripe: checkout complete`
+- **Failed webhooks**: both providers retry. Check dashboards for webhook delivery logs.
+- **Revenue**: Razorpay Dashboard → Reports, Stripe Dashboard → Payments
+
+================
+File: ./DEPLOY.md
+================
+# SentinelCorp — Railway Deployment Guide
+
+This guide walks through deploying SentinelCorp to Railway in ~5 minutes.
+
+## Prerequisites
+
+- Railway account (free tier works)
+- GitHub account connected to Railway
+
+## Option A: Deploy in existing Railway project (alongside SentinelX402)
+
+**Recommended** if you already have a Railway project with SentinelX402. You can share the same PostgreSQL instance.
+
+### Step 1: Add new service to existing project
+
+1. Go to [railway.app/dashboard](https://railway.app/dashboard)
+2. Open your existing project (the one running SentinelX402)
+3. Click **"+ New"** in the top-right → **"GitHub Repo"**
+4. Select **`splitfireai-hue/sentinelcorp`**
+5. Railway auto-detects the Dockerfile and starts building
+
+### Step 2: Configure environment variables
+
+Click the **new SentinelCorp service** → **Variables** tab. Add:
+
+```
+ENVIRONMENT=production
+FREE_TIER_ENABLED=true
+FREE_TIER_REQUESTS=1000
+PORT=8080
+```
+
+### Step 3: Connect to shared PostgreSQL (optional but recommended)
+
+If your project already has a Postgres service:
+
+1. In the **SentinelCorp service → Variables** tab
+2. Click **"+ New Variable" → "Reference"**
+3. Select the **Postgres service → DATABASE_URL**
+4. Rename it to `DATABASE_URL`
+5. Change the value prefix from `postgresql://` to `postgresql+asyncpg://`
+
+If you want a **separate database** (cleaner isolation):
+- Use the default SQLite — it writes to a persistent volume
+- Or add a new Postgres service: **+ New → Database → PostgreSQL** (same steps as SentinelX402 setup)
+
+### Step 4: Generate public domain
+
+1. SentinelCorp service → **Settings → Networking**
+2. Click **"Generate Domain"**
+3. Set port to **`8080`**
+4. You'll get a URL like `sentinelcorp-production-xxxx.up.railway.app`
+
+### Step 5: Verify deployment
+
+```bash
+# Replace YOUR_URL with the domain Railway gave you
+curl https://YOUR_URL/health
+curl https://YOUR_URL/info
+curl https://YOUR_URL/api/v1/validate/gstin?gstin=27AAACT1234A1Z1
+curl "https://YOUR_URL/api/v1/company/profile?identifier=Sahara+India&type=name"
+```
+
+Expected:
+- `/health` → `{"status":"ok"}`
+- `/info` → full endpoint list
+- `/api/v1/validate/gstin` → validation result
+- `/api/v1/company/profile?identifier=Sahara+India` → risk score 85.5, level `critical`
+
+### Step 6: Update API_URL in integrations
+
+Once you have the deployed URL, the integrations auto-pick it up via env var. Just set in Railway (or pass to clients):
+
+```
+SENTINELCORP_API_URL=https://YOUR_URL
+```
+
+## Option B: Deploy as separate Railway project
+
+1. Go to [railway.app/dashboard](https://railway.app/dashboard)
+2. Click **"New Project" → "Deploy from GitHub repo"**
+3. Select **`splitfireai-hue/sentinelcorp`**
+4. Railway creates a new project with one service
+5. Follow steps 2-6 above
+
+## Post-deployment checks
+
+- [ ] `/health` returns 200
+- [ ] `/info` shows correct endpoint list
+- [ ] `/docs` Swagger UI loads
+- [ ] `/api/v1/validate/gstin` returns valid parsing
+- [ ] `/api/v1/company/profile?identifier=Sahara+India` returns high risk
+- [ ] `/api/v1/debarred/search?name=mallya` returns matches
+- [ ] `/stats` shows 14,858 debarred entities loaded
+
+## First-boot behavior
+
+The Dockerfile CMD:
+1. Runs `app.scrapers.sebi_defaulters` — fetches fresh OpenSanctions data (~4MB, 14K entities)
+2. Runs `app.data.seed_debarred` — loads data into DB
+3. Starts gunicorn
+
+First boot takes ~30-60 seconds. Subsequent deploys skip re-scraping if file exists.
+
+## Troubleshooting
+
+**Build fails**
+- Check Railway logs for Python version mismatch (project needs 3.9+)
+- Dockerfile uses `python:3.11-slim` — should always work
+
+**Healthcheck fails after deploy**
+- Verify Port is set to 8080 in Networking
+- Check deploy logs for DB connection errors
+
+**Scraper fails**
+- Railway may need egress enabled (usually default)
+- If persistent, the app still boots — just with empty data
+- Run manually: `railway run python -m app.scrapers.sebi_defaulters`
+
+## Auto-deploy on git push
+
+By default Railway auto-deploys on every push to `main`. To disable:
+
+1. Service → **Settings → Source**
+2. Toggle off **"Automatic Deployments"**
+
+## Cost estimate
+
+- **Free tier**: 500 hours/month of compute (enough for ~1 service running 24/7 if under $5 usage)
+- **Hobby plan ($5/mo)**: unlimited compute, better for production
+- **Database**: PostgreSQL is free up to 500MB (enough for SentinelCorp)
+
+Total expected cost: **$0-5/month** for both SentinelX402 and SentinelCorp on the Hobby plan.
+
+================
+File: ./Dockerfile
+================
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+RUN pip install --no-cache-dir --upgrade pip
+
+COPY pyproject.toml .
+RUN pip install --no-cache-dir --prefix=/install . && \
+    pip install --no-cache-dir --prefix=/install gunicorn greenlet asyncpg
+
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY --from=builder /install /usr/local
+COPY . .
+
+RUN rm -rf tests/ .env .env.example .gitignore sdk/ docker-compose.yml
+
+RUN mkdir -p /app/data && chmod 777 /app/data
+
+ENV PORT=8000
+ENV DATABASE_URL=sqlite+aiosqlite:////app/data/sentinelcorp.db
+ENV ENVIRONMENT=production
+ENV FREE_TIER_ENABLED=true
+ENV FREE_TIER_REQUESTS=1000
+ENV ADMIN_SECRET=""
+
+CMD python -m app.scrapers.sebi_defaulters || echo "Scraper skipped" ; \
+    python -m app.data.seed_debarred || echo "Seed skipped" ; \
+    python -m gunicorn app.main:app \
+        --worker-class uvicorn.workers.UvicornWorker \
+        --bind 0.0.0.0:$PORT \
+        --workers 1 \
+        --timeout 60 \
+        --access-logfile - \
+        --error-logfile -
+
+================
+File: ./README.md
+================
+# SentinelCorp
+
+**India Company Risk Profile API for AI Agents.**
+
+Validate GSTIN/CIN/PAN, check SEBI debarred entities, get unified risk scores — all via a free, agent-native API. 1,000 requests, no signup.
+
+Part of the **Sentinel Series** alongside [SentinelX402](https://github.com/splitfireai-hue/sentinelx402) (threat intelligence).
+
+---
+
+## What It Does
+
+| Capability | Endpoint | What You Get |
+|------------|----------|--------------|
+| **GSTIN validation** | `/api/v1/validate/gstin` | Format + checksum + state + PAN extraction (<20ms) |
+| **CIN validation** | `/api/v1/validate/cin` | Listing status, state, year, industry, ownership type |
+| **PAN validation** | `/api/v1/validate/pan` | Format + entity type (Person/Company/HUF/Trust...) |
+| **Company risk profile** | `/api/v1/company/profile` | Unified 0-100 risk score from all signals |
+| **Batch profiling** | `/api/v1/company/batch` | Up to 100 companies in one request |
+| **SEBI debarred search** | `/api/v1/debarred/search` | 14,000+ debarred entities (NSE/BSE/SEBI) |
+
+---
+
+## Why This Exists
+
+Indian fintech, banking, audit firms, and compliance consultants waste hours per day looking up:
+- Is this GSTIN valid?
+- Is this company on a SEBI defaulter list?
+- What's the risk profile of this entity?
+
+AI agents can now do this in one API call.
+
+**Example:**
+```bash
+curl "https://YOUR_API/api/v1/company/profile?identifier=Sahara+India"
+```
+
+Returns:
+```json
+{
+  "query": "Sahara India",
+  "overall_risk_score": 66.5,
+  "risk_level": "high",
+  "is_debarred": true,
+  "debarred_matches": [
+    {"matched_name": "M/s Sahara India (and its constituent partners)", "confidence": 1.0, "source": "opensanctions:nse"}
+  ],
+  "signals": [{"source": "sebi", "signal_type": "sebi_debarred", "severity": "critical"}]
+}
+```
+
+---
+
+## Quickstart
+
+### curl
+
+```bash
+# Validate a GSTIN
+curl "https://YOUR_API/api/v1/validate/gstin?gstin=27AAACT1234A1Z5"
+
+# Get company risk profile (auto-detects CIN/GSTIN/PAN/name)
+curl "https://YOUR_API/api/v1/company/profile?identifier=L17110MH1973PLC019786"
+
+# Search SEBI debarred list
+curl "https://YOUR_API/api/v1/debarred/search?name=sahara"
+
+# Batch 100 companies
+curl -X POST "https://YOUR_API/api/v1/company/batch" \
+  -H "Content-Type: application/json" \
+  -d '{"identifiers": ["Sahara", "Tata", "Reliance"]}'
+```
+
+### Python SDK
+
+```bash
+pip install sentinelcorp
+```
+
+```python
+from sentinelcorp import SentinelCorp
+
+client = SentinelCorp()
+profile = client.profile("Sahara India")
+print(profile["overall_risk_score"])  # 66.5
+print(profile["is_debarred"])          # True
+```
+
+### LangChain
+
+```python
+from integrations.langchain_tool import get_sentinelcorp_tools
+
+tools = get_sentinelcorp_tools()
+agent = initialize_agent(tools, llm)
+agent.run("Is Sahara India a high-risk company for us to partner with?")
+```
+
+### MCP (Claude, Cursor)
+
+```json
+{
+  "mcpServers": {
+    "sentinelcorp": {
+      "command": "python",
+      "args": ["integrations/mcp_server.py"]
+    }
+  }
+}
+```
+
+---
+
+## Use Cases
+
+### 1. KYB Automation (Know Your Business)
+Before onboarding a vendor/customer, check their Indian identifiers and sanction status in one call.
+
+### 2. Due Diligence at Scale
+Batch-check 100 companies against SEBI debarred list in a single request.
+
+### 3. Fraud Detection
+Validate GSTINs on incoming invoices — catch fake GSTINs instantly with checksum verification.
+
+### 4. Compliance Monitoring
+Daily cron job checking your vendor list against updated SEBI debarred entities.
+
+### 5. AI Agent Due Diligence
+Your AI compliance agent can now verify Indian counterparties autonomously.
+
+---
+
+## Data Sources
+
+| Source | Coverage | Legal Status |
+|--------|----------|--------------|
+| **SEBI/NSE/BSE debarred** | 14,858 entities | Public (via OpenSanctions) |
+| **GSTIN validation** | All Indian GSTINs | Pure algorithmic (Luhn mod-36) |
+| **CIN validation** | All Indian companies | Pure algorithmic + metadata extraction |
+| **PAN validation** | All PANs | Pure algorithmic |
+
+Future additions (with proper licensing):
+- MCA V3 lookup (via Surepass/APIclub)
+- Court records (via IndianKanoon API + openjustice-in/ecourts)
+- GSTIN live lookup (via Jamku/KnowYourGST)
+- Udyam MSME registry
+- IBBI/NCLT bankruptcy orders
+
+---
+
+## Architecture
+
+```
+sentinelcorp/
+├── app/
+│   ├── main.py                  # FastAPI app + middleware
+│   ├── config.py                # Environment configuration
+│   ├── database.py              # Async SQLAlchemy
+│   ├── models/                  # DB models
+│   ├── schemas/                 # Pydantic schemas
+│   ├── routers/                 # API endpoints
+│   ├── services/                # Business logic
+│   │   ├── validators.py        # GSTIN/CIN/PAN (pure algorithmic)
+│   │   ├── risk_scoring.py      # Noisy-OR signal combination
+│   │   └── risk_service.py      # Orchestration
+│   ├── scrapers/                # Data ingestion
+│   │   └── sebi_defaulters.py   # OpenSanctions NSE data
+│   └── data/                    # Seed scripts
+├── sdk/sentinelcorp/            # Python SDK (sync + async)
+├── integrations/                # Agent framework integrations
+│   ├── langchain_tool.py
+│   ├── crewai_tool.py
+│   ├── openai_functions.py
+│   └── mcp_server.py
+├── tests/                       # 25 tests
+├── Dockerfile                   # Production container
+└── mcp.json                     # Agent discovery metadata
+```
+
+---
+
+## Tech Stack
+
+- **Backend**: FastAPI + Uvicorn/Gunicorn
+- **Database**: SQLite (dev) / PostgreSQL (prod)
+- **Validation**: Pure Python checksums (no external calls)
+- **Data sources**: OpenSanctions (NSE debarred), scrapers for public gov data
+- **Integrations**: LangChain, CrewAI, OpenAI, MCP, Python SDK
+
+---
+
+## Free Tier
+
+- **1,000 requests** per client — no signup, no API key
+- **60 req/min** rate limit per endpoint
+- **Batch**: 100 identifiers per request
+- After free tier: register for free API key with 10K/month quota
+
+---
+
+## License
+
+AGPL-3.0. The reference risk scoring implementation is public; the production-tuned weights, additional data sources, and proprietary integrations remain on the hosted API.
+
+---
+
+## Related Products
+
+- **[SentinelX402](https://github.com/splitfireai-hue/sentinelx402)** — Threat intelligence API for AI agents, with CERT-In India advisories
+
+Use both together for complete India due diligence coverage (threats + company risk).
+
+================
+File: ./app/__init__.py
+================
+
+================
+File: ./app/config.py
+================
+from __future__ import annotations
+
+import logging
+from typing import List
+
+from pydantic_settings import BaseSettings
+
+
+class Settings(BaseSettings):
+    # Database
+    DATABASE_URL: str = "sqlite+aiosqlite:///./sentinelcorp.db"
+    REDIS_URL: str = ""
+
+    # App
+    ENVIRONMENT: str = "development"
+    LOG_LEVEL: str = "INFO"
+    ALLOWED_ORIGINS: str = ""
+    API_TITLE: str = "SentinelCorp"
+    API_VERSION: str = "0.1.0"
+
+    # Free Tier
+    FREE_TIER_ENABLED: bool = True
+    FREE_TIER_REQUESTS: int = 1000
+
+    # Rate Limiting
+    LOOKUP_RATE_LIMIT: str = "60/minute"
+    SEARCH_RATE_LIMIT: str = "30/minute"
+
+    # Admin
+    ADMIN_SECRET: str = ""
+
+    # Billing
+    BILLING_ENABLED: bool = False
+    BILLING_PRODUCT: str = "sentinelcorp"
+    PUBLIC_BASE_URL: str = ""
+
+    # Razorpay (India — UPI/cards/netbanking)
+    RAZORPAY_KEY_ID: str = ""
+    RAZORPAY_KEY_SECRET: str = ""
+    RAZORPAY_WEBHOOK_SECRET: str = ""
+    RAZORPAY_PLAN_DEV: str = ""
+    RAZORPAY_PLAN_STARTUP: str = ""
+
+    # Stripe (global — cards)
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_PUBLISHABLE_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_PRICE_DEV: str = ""
+    STRIPE_PRICE_STARTUP: str = ""
+
+    # Third-party APIs (optional — use for MCA/GST data)
+    SUREPASS_API_KEY: str = ""
+    JAMKU_API_KEY: str = ""
+    INDIAN_KANOON_API_KEY: str = ""
+
+    @property
+    def is_production(self) -> bool:
+        return self.ENVIRONMENT == "production"
+
+    @property
+    def origins_list(self) -> List[str]:
+        if not self.ALLOWED_ORIGINS:
+            return ["*"] if not self.is_production else []
+        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
+
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "env_ignore_empty": True}
+
+
+settings = Settings()
+
+
+def setup_logging() -> None:
+    level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s %(levelname)-8s [%(name)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+
+================
+File: ./app/data/__init__.py
+================
+
+================
+File: ./app/data/seed_debarred.py
+================
+"""Seed the debarred_entities table from scraped SEBI data."""
+
+from __future__ import annotations
+
+import asyncio
+import json
+from pathlib import Path
+
+from sqlalchemy import select
+
+from app.database import async_session, engine
+from app.models import Base
+from app.models.company import DebarredEntity
+
+
+async def seed() -> None:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    data_file = Path(__file__).parent / "sebi_defaulters.json"
+    if not data_file.exists():
+        print("No scraped data. Run: python -m app.scrapers.sebi_defaulters")
+        return
+
+    with open(data_file) as f:
+        data = json.load(f)
+
+    entities = data.get("entities", [])
+    added = 0
+    async with async_session() as session:
+        for e in entities:
+            name = e.get("name", "").strip()
+            if not name:
+                continue
+            name_norm = name.lower()
+
+            exists = await session.execute(
+                select(DebarredEntity).where(DebarredEntity.name_normalized == name_norm)
+            )
+            if exists.scalar_one_or_none():
+                continue
+
+            record = DebarredEntity(
+                name=name[:500],
+                name_normalized=name_norm[:500],
+                source=e.get("source", "")[:50],
+                entity_type=e.get("entity_type", "")[:100],
+                pan=e.get("pan")[:10] if e.get("pan") else None,
+                debarment_reason=e.get("debarment_reason"),
+                debarment_date=e.get("debarment_date"),
+                order_url=e.get("order_url"),
+            )
+            session.add(record)
+            added += 1
+            if added % 500 == 0:
+                await session.commit()
+                print("Seeded {} so far...".format(added))
+        await session.commit()
+        print("Done. Seeded {} new debarred entities ({} total in dataset).".format(added, len(entities)))
+
+
+if __name__ == "__main__":
+    asyncio.run(seed())
+
+================
+File: ./app/database.py
+================
+from __future__ import annotations
+
+from typing import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+from app.config import settings
+
+engine = create_async_engine(settings.DATABASE_URL, echo=False)
+async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session() as session:
+        yield session
+
+================
+File: ./app/main.py
+================
+from __future__ import annotations
+
+import logging
+import time
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Response
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+
+from app.config import settings, setup_logging
+from app.database import engine
+from app.middleware.auth import BillingAuthMiddleware
+from app.models import Base
+from app.routers import billing, company, debarred, health, validate
+
+logger = logging.getLogger(__name__)
+
+
+async def _migrate_api_keys_if_needed(conn) -> None:
+    """One-shot migration: the legacy api_keys table stored raw keys. Drop it if present
+    so the new billing schema can be created. Safe because the legacy table was never
+    written to in any deployed version."""
+    from sqlalchemy import inspect
+
+    def _inspect(sync_conn):
+        insp = inspect(sync_conn)
+        if not insp.has_table("api_keys"):
+            return False
+        cols = {c["name"] for c in insp.get_columns("api_keys")}
+        return "key_hash" not in cols
+
+    needs_drop = await conn.run_sync(_inspect)
+    if needs_drop:
+        logger.warning("Dropping legacy api_keys table to apply new billing schema")
+        from sqlalchemy import text
+
+        await conn.execute(text("DROP TABLE IF EXISTS api_keys"))
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    setup_logging()
+    logger.info("Starting SentinelCorp (env=%s)", settings.ENVIRONMENT)
+    async with engine.begin() as conn:
+        await _migrate_api_keys_if_needed(conn)
+        await conn.run_sync(Base.metadata.create_all)
+    logger.info("Database tables ready")
+    yield
+    logger.info("SentinelCorp shutdown")
+
+
+app = FastAPI(
+    title=settings.API_TITLE,
+    version=settings.API_VERSION,
+    description="India Company Risk Profile API for AI Agents. Unified risk scoring from MCA, GST, Court, SEBI data.",
+    lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
+
+# Rate limiting — attach shared limiter to app state
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.origins_list,
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    max_age=86400,
+)
+
+# Billing: API key auth + quota (no-op when BILLING_ENABLED=false)
+app.add_middleware(BillingAuthMiddleware, product=settings.BILLING_PRODUCT)
+
+
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    start = time.time()
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception("Unhandled: %s %s", request.method, request.url.path)
+        response = JSONResponse(
+            status_code=500,
+            content={"error": "internal_server_error", "detail": "An unexpected error occurred"},
+        )
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    duration_ms = (time.time() - start) * 1000
+    logger.info("%s %s %d %.1fms", request.method, request.url.path, response.status_code, duration_ms)
+    return response
+
+
+@app.exception_handler(Exception)
+async def global_error_handler(request: Request, exc: Exception):
+    logger.exception("Error on %s %s", request.method, request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content={"error": "internal_server_error", "detail": "An unexpected error occurred"},
+    )
+
+
+# --- Discovery endpoints ---
+
+@app.get("/robots.txt", response_class=PlainTextResponse, include_in_schema=False)
+async def robots_txt():
+    return "User-agent: *\nAllow: /\n"
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return Response(status_code=204)
+
+
+@app.get("/.well-known/mcp", include_in_schema=False)
+async def well_known_mcp():
+    return {
+        "name": "SentinelCorp",
+        "url": "",  # Set this to deployed URL
+        "metadata": "/info",
+        "mcp_config": "https://github.com/splitfireai-hue/sentinelcorp/blob/main/mcp.json",
+    }
+
+
+@app.get("/.well-known/agent.json", include_in_schema=False)
+async def well_known_agent():
+    return {
+        "name": "SentinelCorp",
+        "description": "India Company Risk Profile API for AI Agents. Validate GSTIN/CIN/PAN, check SEBI debarment, get unified risk scores.",
+        "capabilities": [
+            "validate_gstin", "validate_cin", "validate_pan",
+            "company_profile", "batch_profile",
+            "debarred_search",
+        ],
+        "free_tier": {"requests": 1000, "signup_required": False},
+    }
+
+
+# --- Landing page ---
+
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+async def landing():
+    return """<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SentinelCorp — India Company Risk API for AI Agents</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.container{max-width:720px;text-align:center}
+h1{font-size:40px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tagline{font-size:18px;color:#888;margin-bottom:32px}
+.stats{display:flex;gap:16px;justify-content:center;margin-bottom:32px;flex-wrap:wrap}
+.stat{background:#161616;border:1px solid #222;border-radius:8px;padding:14px 20px;min-width:140px}
+.stat .num{font-size:24px;font-weight:700;color:#4ade80}
+.stat .label{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+.try{background:#161616;border:1px solid #222;border-radius:8px;padding:20px;margin-bottom:32px;text-align:left}
+.try code{display:block;background:#0d0d0d;padding:12px;border-radius:4px;font-family:'SF Mono',Monaco,monospace;font-size:13px;color:#60a5fa;overflow-x:auto;margin-top:8px;word-break:break-all}
+.try .label{font-size:13px;color:#888}
+.links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.links a{display:inline-block;padding:10px 24px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:600}
+.primary{background:#3b82f6;color:#fff}
+.secondary{background:#161616;color:#e0e0e0;border:1px solid #333}
+.free{margin-top:24px;font-size:13px;color:#4ade80}
+.footer{margin-top:32px;font-size:12px;color:#444}
+.footer a{color:#888;text-decoration:none}
+</style></head><body><div class="container">
+<h1>SentinelCorp</h1>
+<p class="tagline">India Company Risk Profile API for AI Agents</p>
+<div class="stats">
+  <div class="stat"><div class="num">14K+</div><div class="label">SEBI Debarred</div></div>
+  <div class="stat"><div class="num">&lt;50ms</div><div class="label">Validation</div></div>
+  <div class="stat"><div class="num">FREE</div><div class="label">1,000 Requests</div></div>
+</div>
+<div class="try">
+<span class="label">Try it now:</span>
+<code>curl "https://YOUR_URL/api/v1/company/profile?identifier=27AAAAA0000A1Z5"</code>
+</div>
+<div class="links">
+<a href="/signup" class="primary">Get API Key</a>
+<a href="/docs" class="secondary">API Docs</a>
+<a href="/pricing" class="secondary">Pricing</a>
+<a href="https://github.com/splitfireai-hue/sentinelcorp" class="secondary">GitHub</a>
+</div>
+<p class="free">5,000 free requests/month &mdash; email signup, no credit card</p>
+<div class="footer">
+Part of the Sentinel Series &mdash; <a href="https://sentinelx402-production.up.railway.app">SentinelX402</a> (threat intel) + SentinelCorp (company risk)
+</div>
+</div></body></html>"""
+
+
+# --- Routers ---
+app.include_router(health.router, tags=["Health"])
+app.include_router(billing.router, tags=["Billing"])
+app.include_router(validate.router, prefix="/api/v1/validate", tags=["Format Validation"])
+app.include_router(company.router, prefix="/api/v1/company", tags=["Company Risk Profile"])
+app.include_router(debarred.router, prefix="/api/v1/debarred", tags=["SEBI Debarred Entities"])
+
+================
+File: ./app/middleware/__init__.py
+================
+
+================
+File: ./app/middleware/auth.py
+================
+from __future__ import annotations
+
+import logging
+from typing import Iterable
+
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+
+from app.config import settings
+from app.database import async_session
+from app.services import auth as auth_service
+
+logger = logging.getLogger(__name__)
+
+EXEMPT_PREFIXES: tuple[str, ...] = (
+    "/health",
+    "/info",
+    "/docs",
+    "/redoc",
+    "/openapi.json",
+    "/robots.txt",
+    "/favicon.ico",
+    "/.well-known",
+    "/stats",
+    "/billing",
+    "/pricing",
+    "/signup",
+)
+
+
+def _is_exempt(path: str) -> bool:
+    if path == "/":
+        return True
+    for prefix in EXEMPT_PREFIXES:
+        if path == prefix or path.startswith(prefix + "/") or path.startswith(prefix + "?"):
+            return True
+    return False
+
+
+def _extract_key(request: Request) -> str:
+    key = request.headers.get("x-api-key", "").strip()
+    if key:
+        return key
+    auth = request.headers.get("authorization", "").strip()
+    if auth.lower().startswith("bearer "):
+        return auth[7:].strip()
+    return ""
+
+
+def _client_ip(request: Request) -> str:
+    fwd = request.headers.get("x-forwarded-for", "")
+    if fwd:
+        return fwd.split(",")[0].strip()
+    if request.client and request.client.host:
+        return request.client.host
+    return "unknown"
+
+
+class BillingAuthMiddleware(BaseHTTPMiddleware):
+    """Validates API keys and enforces monthly quota + anon IP trial limit.
+
+    When `BILLING_ENABLED=false` the middleware is a passthrough — used for dev and to
+    let the migration to paid tiers land without breaking existing traffic.
+    """
+
+    def __init__(self, app, product: str = "sentinelcorp"):
+        super().__init__(app)
+        self.product = product
+
+    async def dispatch(self, request: Request, call_next):
+        if not settings.BILLING_ENABLED:
+            return await call_next(request)
+
+        path = request.url.path
+        if _is_exempt(path) or request.method == "OPTIONS":
+            return await call_next(request)
+
+        raw_key = _extract_key(request)
+
+        async with async_session() as session:
+            if raw_key:
+                api_key = await auth_service.lookup_key(session, raw_key)
+                if api_key is None:
+                    return JSONResponse(
+                        status_code=401,
+                        content={
+                            "error": "invalid_api_key",
+                            "detail": "API key not recognized. Get one at /signup.",
+                        },
+                    )
+                if api_key.status != "active":
+                    return JSONResponse(
+                        status_code=403,
+                        content={
+                            "error": "api_key_{}".format(api_key.status),
+                            "detail": "API key is {}. Reactivate at /billing.".format(api_key.status),
+                        },
+                    )
+
+                used = await auth_service.get_monthly_count(session, api_key.id, self.product)
+                if used >= api_key.monthly_quota:
+                    return JSONResponse(
+                        status_code=429,
+                        content={
+                            "error": "quota_exceeded",
+                            "detail": "Monthly quota of {} reached on tier '{}'. Upgrade at /pricing.".format(
+                                api_key.monthly_quota, api_key.tier
+                            ),
+                            "used": used,
+                            "quota": api_key.monthly_quota,
+                            "tier": api_key.tier,
+                        },
+                    )
+
+                request.state.api_key_id = api_key.id
+                request.state.api_key_tier = api_key.tier
+                request.state.api_key_email = api_key.email
+
+                response = await call_next(request)
+                try:
+                    await auth_service.increment_usage(session, api_key.id, self.product)
+                except Exception:
+                    logger.exception("Failed to increment usage for key_id=%s", api_key.id)
+
+                response.headers["X-RateLimit-Tier"] = api_key.tier
+                response.headers["X-RateLimit-Quota"] = str(api_key.monthly_quota)
+                response.headers["X-RateLimit-Used"] = str(used + 1)
+                response.headers["X-RateLimit-Remaining"] = str(max(api_key.monthly_quota - used - 1, 0))
+                return response
+
+            ip = _client_ip(request)
+            count = await auth_service.anon_count_and_increment(session, ip)
+            if count > auth_service.ANON_DAILY_LIMIT:
+                return JSONResponse(
+                    status_code=402,
+                    content={
+                        "error": "trial_limit_reached",
+                        "detail": "Anonymous trial limit of {} req/day reached. Get a free key at /signup for {} req/month.".format(
+                            auth_service.ANON_DAILY_LIMIT,
+                            auth_service.TIERS["free"].monthly_quota,
+                        ),
+                        "signup_url": (settings.PUBLIC_BASE_URL or "") + "/signup",
+                    },
+                )
+
+            request.state.api_key_id = None
+            request.state.api_key_tier = "anon"
+            response = await call_next(request)
+            response.headers["X-RateLimit-Tier"] = "anon"
+            response.headers["X-RateLimit-Quota"] = str(auth_service.ANON_DAILY_LIMIT)
+            response.headers["X-RateLimit-Used"] = str(count)
+            response.headers["X-RateLimit-Remaining"] = str(max(auth_service.ANON_DAILY_LIMIT - count, 0))
+            return response
+
+================
+File: ./app/models/__init__.py
+================
+from app.models.base import Base
+from app.models.billing import APIKey, AnonUsageCounter, Subscription, UsageCounter
+from app.models.company import CompanyProfile, DebarredEntity, LookupHistory
+
+__all__ = [
+    "APIKey",
+    "AnonUsageCounter",
+    "Base",
+    "CompanyProfile",
+    "DebarredEntity",
+    "LookupHistory",
+    "Subscription",
+    "UsageCounter",
+]
+
+================
+File: ./app/models/base.py
+================
+from sqlalchemy.orm import DeclarativeBase
+
+
+class Base(DeclarativeBase):
+    pass
+
+================
+File: ./app/models/billing.py
+================
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Optional
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.base import Base
+
+
+class APIKey(Base):
+    """Issued API key. Only the hash is stored; the raw key is shown once at creation."""
+    __tablename__ = "api_keys"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    key_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    key_prefix: Mapped[str] = mapped_column(String(16), index=True)
+    key_last4: Mapped[str] = mapped_column(String(4))
+    name: Mapped[str] = mapped_column(String(200), default="")
+    email: Mapped[str] = mapped_column(String(200), index=True)
+
+    tier: Mapped[str] = mapped_column(String(32), default="free")
+    status: Mapped[str] = mapped_column(String(32), default="active")
+    monthly_quota: Mapped[int] = mapped_column(Integer, default=5000)
+    rate_limit_per_min: Mapped[int] = mapped_column(Integer, default=30)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    last_used_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    revoked_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+
+class Subscription(Base):
+    """Paid subscription linked to an API key."""
+    __tablename__ = "subscriptions"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    api_key_id: Mapped[int] = mapped_column(ForeignKey("api_keys.id"), index=True)
+
+    rail: Mapped[str] = mapped_column(String(32))
+    plan: Mapped[str] = mapped_column(String(32))
+
+    external_customer_id: Mapped[Optional[str]] = mapped_column(String(200), nullable=True, index=True)
+    external_subscription_id: Mapped[str] = mapped_column(String(200), unique=True, index=True)
+
+    status: Mapped[str] = mapped_column(String(32), default="pending")
+    currency: Mapped[str] = mapped_column(String(8), default="INR")
+    amount_minor: Mapped[int] = mapped_column(Integer, default=0)
+
+    current_period_start: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    current_period_end: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    cancel_at_period_end: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class UsageCounter(Base):
+    """Denormalized monthly counter per API key + product. Used for fast quota checks."""
+    __tablename__ = "usage_counters"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    api_key_id: Mapped[int] = mapped_column(ForeignKey("api_keys.id"), index=True)
+    product: Mapped[str] = mapped_column(String(32), default="sentinelcorp")
+    year_month: Mapped[str] = mapped_column(String(7))
+    count: Mapped[int] = mapped_column(Integer, default=0)
+
+    __table_args__ = (
+        UniqueConstraint("api_key_id", "product", "year_month", name="uq_usage_key_product_month"),
+        Index("ix_usage_month", "year_month"),
+    )
+
+
+class AnonUsageCounter(Base):
+    """Per-IP daily counter for unauthenticated free-trial traffic."""
+    __tablename__ = "anon_usage_counters"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    ip_hash: Mapped[str] = mapped_column(String(64), index=True)
+    day: Mapped[str] = mapped_column(String(10))
+    count: Mapped[int] = mapped_column(Integer, default=0)
+
+    __table_args__ = (
+        UniqueConstraint("ip_hash", "day", name="uq_anon_ip_day"),
+    )
+
+================
+File: ./app/models/company.py
+================
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Optional
+
+from sqlalchemy import DateTime, Float, String, Text, Index
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.models.base import Base
+
+
+class DebarredEntity(Base):
+    """SEBI/NSE/BSE debarred entities — public sanction list."""
+    __tablename__ = "debarred_entities"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(500), index=True)
+    name_normalized: Mapped[str] = mapped_column(String(500), index=True)  # lowercased
+    source: Mapped[str] = mapped_column(String(50))  # nse, bse, sebi
+    entity_type: Mapped[str] = mapped_column(String(100), default="")
+    pan: Mapped[Optional[str]] = mapped_column(String(10), nullable=True, index=True)
+    debarment_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    debarment_date: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    order_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class CompanyProfile(Base):
+    """Cached company profile data.
+
+    Populated from third-party APIs (MCA, GST) when looked up.
+    """
+    __tablename__ = "company_profiles"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    identifier: Mapped[str] = mapped_column(String(50), unique=True, index=True)  # CIN or GSTIN
+    identifier_type: Mapped[str] = mapped_column(String(20))  # cin, gstin, pan
+    company_name: Mapped[str] = mapped_column(String(500), index=True)
+    status: Mapped[str] = mapped_column(String(50), default="active")
+    incorporation_date: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    registered_address: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    state: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    industry: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    paid_up_capital: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    company_type: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    directors: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # JSON array
+    risk_score: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    last_refreshed: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class LookupHistory(Base):
+    """Every company lookup tracked — compounds into historical data over time."""
+    __tablename__ = "lookup_history"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    identifier_type: Mapped[str] = mapped_column(String(20), index=True)
+    identifier_value: Mapped[str] = mapped_column(String(500), index=True)
+    risk_score: Mapped[float] = mapped_column(Float)
+    looked_up_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    client_id: Mapped[str] = mapped_column(String(256), default="")
+
+    __table_args__ = (
+        Index("ix_identifier_lookup", "identifier_type", "identifier_value"),
+    )
+
+
+
+================
+File: ./app/routers/__init__.py
+================
+
+================
+File: ./app/routers/billing.py
+================
+from __future__ import annotations
+
+import json
+import logging
+import secrets
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse
+from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.database import get_db
+from app.services import auth as auth_service
+from app.services import razorpay_service, stripe_service
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter()
+
+
+class IssueKeyRequest(BaseModel):
+    email: EmailStr
+    name: str = Field(default="", max_length=200)
+    tier: str = Field(default="free")
+    notes: Optional[str] = Field(default=None, max_length=1000)
+
+
+class IssueKeyResponse(BaseModel):
+    api_key: str
+    prefix: str
+    last4: str
+    tier: str
+    monthly_quota: int
+    rate_limit_per_min: int
+    email: str
+    note: str = "Store this key securely. It will not be shown again."
+
+
+class KeyInfoResponse(BaseModel):
+    prefix: str
+    last4: str
+    tier: str
+    status: str
+    email: str
+    monthly_quota: int
+    used_this_month: int
+    remaining: int
+    rate_limit_per_min: int
+
+
+class TierInfo(BaseModel):
+    name: str
+    display_name: str
+    monthly_quota: int
+    rate_limit_per_min: int
+    price_inr_monthly: int
+    price_usd_monthly: float
+
+
+def _require_admin(x_admin_secret: str = Header(default="", alias="X-Admin-Secret")):
+    if not settings.ADMIN_SECRET:
+        raise HTTPException(status_code=503, detail="Admin endpoints disabled (ADMIN_SECRET not set)")
+    if not secrets.compare_digest(x_admin_secret, settings.ADMIN_SECRET):
+        raise HTTPException(status_code=403, detail="Invalid admin secret")
+
+
+async def _require_key(
+    request: Request,
+    x_api_key: str = Header(default="", alias="X-API-Key"),
+    authorization: str = Header(default=""),
+    session: AsyncSession = Depends(get_db),
+):
+    raw = x_api_key.strip()
+    if not raw and authorization.lower().startswith("bearer "):
+        raw = authorization[7:].strip()
+    if not raw:
+        raise HTTPException(status_code=401, detail="Provide X-API-Key header")
+    api_key = await auth_service.lookup_key(session, raw)
+    if api_key is None:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    return api_key
+
+
+PRICING_PAGE = """<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pricing — SentinelCorp</title>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh;padding:40px 20px}
+.wrap{max-width:1100px;margin:0 auto}
+h1{text-align:center;font-size:36px;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{text-align:center;color:#888;font-size:15px;margin-bottom:40px}
+.currency{display:flex;justify-content:center;gap:8px;margin-bottom:28px}
+.currency button{background:#161616;border:1px solid #222;color:#888;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px}
+.currency button.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;max-width:980px;margin:0 auto}
+.plan{background:#161616;border:1px solid #222;border-radius:12px;padding:28px;display:flex;flex-direction:column}
+.plan.featured{border-color:#3b82f6}
+.name{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:1px}
+.price{font-size:36px;font-weight:700;margin:8px 0 4px}
+.period{font-size:13px;color:#666;margin-bottom:16px}
+.limit{font-size:14px;color:#4ade80;margin-bottom:16px}
+.features{list-style:none;flex:1;margin-bottom:20px;font-size:13px;color:#aaa}
+.features li{padding:6px 0;border-bottom:1px solid #222}
+.features li::before{content:'OK ';color:#4ade80;font-weight:700}
+button.pay{background:#3b82f6;color:#fff;border:none;padding:12px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;width:100%}
+button.pay:hover{background:#2563eb}
+button.pay:disabled{background:#333;cursor:not-allowed}
+button.pay.secondary{background:#161616;border:1px solid #333;color:#e0e0e0}
+.note{text-align:center;margin-top:24px;font-size:12px;color:#555}
+#form-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;z-index:100;padding:20px}
+#form-modal.show{display:flex}
+.modal-card{background:#161616;border:1px solid #222;border-radius:12px;padding:28px;max-width:420px;width:100%}
+.modal-card h2{font-size:20px;margin-bottom:12px}
+.modal-card label{display:block;font-size:11px;color:#888;text-transform:uppercase;margin-top:12px;margin-bottom:4px}
+.modal-card input{width:100%;padding:10px;background:#0d0d0d;border:1px solid #333;border-radius:6px;color:#fff;font-size:14px}
+.row{display:flex;gap:8px;margin-top:20px}
+.row button{flex:1}
+.error{color:#f87171;font-size:12px;margin-top:8px}
+</style></head><body>
+<div class="wrap">
+<h1>Pricing</h1>
+<p class="sub">Pay with UPI, cards, or netbanking. Cancel anytime.</p>
+<div class="currency">
+<button class="active" id="btn-inr" onclick="setCur('inr')">India (INR)</button>
+<button id="btn-usd" onclick="setCur('usd')">Global (USD)</button>
+</div>
+<div class="grid" id="plans"></div>
+<p class="note">Already have a key? <a href="/billing/me" style="color:#60a5fa">Check usage</a></p>
+</div>
+
+<div id="form-modal">
+<div class="modal-card">
+<h2>Checkout: <span id="selected-tier"></span></h2>
+<label>Email</label>
+<input id="email" type="email" required placeholder="you@company.com">
+<label>Name (optional)</label>
+<input id="name" type="text" placeholder="Company or project">
+<div class="row">
+<button class="pay secondary" onclick="closeModal()">Cancel</button>
+<button class="pay" id="pay-btn" onclick="doPay()">Continue</button>
+</div>
+<div class="error" id="err"></div>
+</div>
+</div>
+
+<script>
+let currency = 'inr';
+let selectedTier = null;
+let pricingData = null;
+
+async function load() {
+  const r = await fetch('/pricing.json');
+  pricingData = await r.json();
+  render();
+}
+
+function setCur(c) {
+  currency = c;
+  document.getElementById('btn-inr').classList.toggle('active', c === 'inr');
+  document.getElementById('btn-usd').classList.toggle('active', c === 'usd');
+  render();
+}
+
+function render() {
+  const paidTiers = pricingData.tiers.filter(t => t.name !== 'enterprise');
+  const grid = document.getElementById('plans');
+  grid.innerHTML = paidTiers.map((t, i) => {
+    const price = currency === 'inr'
+      ? (t.price_inr_monthly === 0 ? 'Free' : '&#8377;' + t.price_inr_monthly)
+      : (t.price_usd_monthly === 0 ? 'Free' : '$' + t.price_usd_monthly);
+    const period = t.price_inr_monthly === 0 ? '' : '/month';
+    const rail = currency === 'inr' ? 'razorpay' : 'stripe';
+    const railAvailable = pricingData.rails[rail];
+    const btnLabel = t.name === 'free' ? 'Get free key' : (railAvailable ? 'Subscribe' : 'Coming soon');
+    const btnAction = t.name === 'free'
+      ? "window.location='/signup'"
+      : "openModal('" + t.name + "')";
+    const btnDisabled = t.name !== 'free' && !railAvailable ? 'disabled' : '';
+    return '<div class="plan ' + (i === 1 ? 'featured' : '') + '">' +
+      '<div class="name">' + t.display_name + '</div>' +
+      '<div class="price">' + price + '</div>' +
+      '<div class="period">' + period + '</div>' +
+      '<div class="limit">' + t.monthly_quota.toLocaleString() + ' requests/month</div>' +
+      '<ul class="features">' +
+      '<li>' + t.rate_limit_per_min + ' req/min rate limit</li>' +
+      '<li>All endpoints included</li>' +
+      '<li>' + (t.name === 'free' ? 'Community support' : 'Email support') + '</li>' +
+      '</ul>' +
+      '<button class="pay" ' + btnDisabled + ' onclick="' + btnAction + '">' + btnLabel + '</button>' +
+      '</div>';
+  }).join('');
+}
+
+function openModal(tier) {
+  selectedTier = tier;
+  document.getElementById('selected-tier').textContent = tier;
+  document.getElementById('err').textContent = '';
+  document.getElementById('form-modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('form-modal').classList.remove('show');
+}
+
+async function doPay() {
+  const email = document.getElementById('email').value.trim();
+  const name = document.getElementById('name').value.trim();
+  const err = document.getElementById('err');
+  const btn = document.getElementById('pay-btn');
+  if (!email) { err.textContent = 'Email is required'; return; }
+  btn.disabled = true; btn.textContent = 'Processing...';
+  try {
+    if (currency === 'inr') {
+      const resp = await fetch('/billing/checkout/razorpay', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email, name, tier: selectedTier}),
+      });
+      const d = await resp.json();
+      if (!resp.ok) throw new Error(d.detail || 'Checkout failed');
+      sessionStorage.setItem('pending_api_key', d.api_key);
+      const opts = {
+        key: d.razorpay_key_id,
+        subscription_id: d.subscription_id,
+        name: 'SentinelCorp',
+        description: selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1) + ' tier',
+        prefill: {email, name},
+        theme: {color: '#3b82f6'},
+        handler: function() { window.location = '/billing/success?api_key=' + encodeURIComponent(d.api_key); },
+      };
+      new Razorpay(opts).open();
+      closeModal();
+    } else {
+      const resp = await fetch('/billing/checkout/stripe', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email, name, tier: selectedTier}),
+      });
+      const d = await resp.json();
+      if (!resp.ok) throw new Error(d.detail || 'Checkout failed');
+      window.location = d.checkout_url;
+    }
+  } catch (e) {
+    err.textContent = e.message;
+    btn.disabled = false; btn.textContent = 'Continue';
+  }
+}
+
+load();
+</script>
+</body></html>"""
+
+
+@router.get("/pricing", response_class=HTMLResponse, include_in_schema=False)
+async def pricing_page(accept: str = Header(default="")):
+    # Respect Accept: application/json for programmatic clients
+    return PRICING_PAGE
+
+
+@router.get("/pricing.json", response_model=dict)
+async def pricing_json():
+    tiers = []
+    for t in auth_service.TIERS.values():
+        tiers.append(
+            TierInfo(
+                name=t.name,
+                display_name=t.display_name,
+                monthly_quota=t.monthly_quota,
+                rate_limit_per_min=t.rate_limit_per_min,
+                price_inr_monthly=t.price_inr_monthly,
+                price_usd_monthly=t.price_usd_monthly,
+            ).model_dump()
+        )
+    return {
+        "tiers": tiers,
+        "anon_daily_limit": auth_service.ANON_DAILY_LIMIT,
+        "billing_enabled": settings.BILLING_ENABLED,
+        "rails": {
+            "razorpay": bool(settings.RAZORPAY_KEY_ID),
+            "stripe": bool(settings.STRIPE_SECRET_KEY),
+        },
+    }
+
+
+@router.post("/billing/signup", response_model=IssueKeyResponse, status_code=201)
+async def self_signup_free_key(body: IssueKeyRequest, session: AsyncSession = Depends(get_db)):
+    """Free-tier self-signup. Always issues a 'free' tier key regardless of requested tier."""
+    raw, row = await auth_service.issue_key(
+        session,
+        email=body.email,
+        name=body.name,
+        tier="free",
+        notes=body.notes,
+    )
+    return IssueKeyResponse(
+        api_key=raw,
+        prefix=row.key_prefix,
+        last4=row.key_last4,
+        tier=row.tier,
+        monthly_quota=row.monthly_quota,
+        rate_limit_per_min=row.rate_limit_per_min,
+        email=row.email,
+    )
+
+
+@router.post(
+    "/billing/admin/keys",
+    response_model=IssueKeyResponse,
+    status_code=201,
+    dependencies=[Depends(_require_admin)],
+)
+async def admin_issue_key(body: IssueKeyRequest, session: AsyncSession = Depends(get_db)):
+    raw, row = await auth_service.issue_key(
+        session,
+        email=body.email,
+        name=body.name,
+        tier=body.tier,
+        notes=body.notes,
+    )
+    return IssueKeyResponse(
+        api_key=raw,
+        prefix=row.key_prefix,
+        last4=row.key_last4,
+        tier=row.tier,
+        monthly_quota=row.monthly_quota,
+        rate_limit_per_min=row.rate_limit_per_min,
+        email=row.email,
+    )
+
+
+class SetTierRequest(BaseModel):
+    tier: str
+
+
+@router.patch(
+    "/billing/admin/keys/{key_id}/tier",
+    dependencies=[Depends(_require_admin)],
+)
+async def admin_set_tier(key_id: int, body: SetTierRequest, session: AsyncSession = Depends(get_db)):
+    try:
+        ok = await auth_service.set_tier(session, key_id, body.tier)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    if not ok:
+        raise HTTPException(status_code=404, detail="Key not found")
+    return {"ok": True, "key_id": key_id, "tier": body.tier}
+
+
+@router.delete(
+    "/billing/admin/keys/{key_id}",
+    dependencies=[Depends(_require_admin)],
+)
+async def admin_revoke_key(key_id: int, session: AsyncSession = Depends(get_db)):
+    ok = await auth_service.revoke_key(session, key_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Key not found")
+    return {"ok": True, "key_id": key_id, "status": "revoked"}
+
+
+@router.get("/billing/me", response_model=KeyInfoResponse)
+async def my_key_info(
+    api_key=Depends(_require_key),
+    session: AsyncSession = Depends(get_db),
+):
+    used = await auth_service.get_monthly_count(session, api_key.id, settings.BILLING_PRODUCT)
+    return KeyInfoResponse(
+        prefix=api_key.key_prefix,
+        last4=api_key.key_last4,
+        tier=api_key.tier,
+        status=api_key.status,
+        email=api_key.email,
+        monthly_quota=api_key.monthly_quota,
+        used_this_month=used,
+        remaining=max(api_key.monthly_quota - used, 0),
+        rate_limit_per_min=api_key.rate_limit_per_min,
+    )
+
+
+SIGNUP_PAGE = """<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SentinelCorp — Get your free API key</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{max-width:480px;width:100%;background:#161616;border:1px solid #222;border-radius:12px;padding:32px}
+h1{font-size:28px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tagline{font-size:14px;color:#888;margin-bottom:24px}
+label{display:block;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;margin-top:16px}
+input{width:100%;padding:12px;background:#0d0d0d;border:1px solid #333;border-radius:6px;color:#fff;font-size:14px}
+input:focus{outline:none;border-color:#3b82f6}
+button{margin-top:24px;width:100%;padding:12px;background:#3b82f6;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer}
+button:hover{background:#2563eb}
+button:disabled{background:#333;cursor:not-allowed}
+.free{margin-top:16px;font-size:12px;color:#4ade80;text-align:center}
+.result{margin-top:20px;padding:16px;background:#0d0d0d;border:1px solid #1f3d1f;border-radius:6px;font-size:13px;display:none}
+.result.show{display:block}
+.key{font-family:'SF Mono',Monaco,monospace;font-size:12px;color:#60a5fa;word-break:break-all;margin-top:8px;padding:8px;background:#000;border-radius:4px}
+.warn{color:#f59e0b;font-size:11px;margin-top:8px}
+a{color:#60a5fa;text-decoration:none}
+.footer{margin-top:20px;font-size:11px;color:#555;text-align:center}
+</style></head><body>
+<div class="card">
+<h1>Get your free API key</h1>
+<p class="tagline">5,000 requests/month. No credit card. Instant.</p>
+<form id="f">
+<label>Email</label>
+<input id="email" type="email" required placeholder="you@company.com">
+<label>Name (optional)</label>
+<input id="name" type="text" placeholder="Your company or project">
+<button type="submit" id="submit">Get API Key</button>
+</form>
+<div id="result" class="result"></div>
+<p class="free">Already have a key? <a href="/billing/me">Check usage →</a></p>
+<div class="footer">Need more? <a href="/pricing">See pricing</a></div>
+</div>
+<script>
+document.getElementById('f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submit');
+  const result = document.getElementById('result');
+  btn.disabled = true; btn.textContent = 'Creating...';
+  try {
+    const resp = await fetch('/billing/signup', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        email: document.getElementById('email').value,
+        name: document.getElementById('name').value,
+      }),
+    });
+    const d = await resp.json();
+    if (!resp.ok) throw new Error(d.detail || 'Signup failed');
+    result.className = 'result show';
+    result.innerHTML = '<b style="color:#4ade80">Your API key</b>' +
+      '<div class="key">' + d.api_key + '</div>' +
+      '<div class="warn">Save this now — it will not be shown again.</div>' +
+      '<div style="margin-top:12px;font-size:12px;color:#888">' +
+      'Tier: ' + d.tier + ' | ' + d.monthly_quota.toLocaleString() + ' requests/month' +
+      '</div>';
+    btn.textContent = 'Created';
+  } catch (err) {
+    result.className = 'result show';
+    result.style.borderColor = '#5c1a1a';
+    result.innerHTML = '<b style="color:#f87171">Error</b><div style="margin-top:6px">' + err.message + '</div>';
+    btn.disabled = false; btn.textContent = 'Get API Key';
+  }
+});
+</script>
+</body></html>"""
+
+
+@router.get("/signup", response_class=HTMLResponse, include_in_schema=False)
+async def signup_page():
+    return SIGNUP_PAGE
+
+
+# ---------- Paid checkout + webhooks ----------
+
+
+class CheckoutRequest(BaseModel):
+    email: EmailStr
+    tier: str = Field(..., description="dev or startup")
+    name: str = Field(default="", max_length=200)
+
+
+class RazorpayCheckoutResponse(BaseModel):
+    subscription_id: str
+    short_url: Optional[str]
+    razorpay_key_id: str
+    api_key: str
+    api_key_last4: str
+    tier: str
+
+
+class StripeCheckoutResponse(BaseModel):
+    checkout_url: str
+    session_id: str
+    tier: str
+
+
+def _public_url(path: str) -> str:
+    base = settings.PUBLIC_BASE_URL.rstrip("/") if settings.PUBLIC_BASE_URL else ""
+    if not base:
+        return path
+    return base + path
+
+
+@router.post("/billing/checkout/razorpay", response_model=RazorpayCheckoutResponse)
+async def razorpay_checkout(body: CheckoutRequest, session: AsyncSession = Depends(get_db)):
+    if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+        raise HTTPException(status_code=503, detail="Razorpay is not configured on this server")
+    if body.tier not in ("dev", "startup"):
+        raise HTTPException(status_code=400, detail="tier must be 'dev' or 'startup'")
+    try:
+        result = await razorpay_service.create_checkout(
+            session=session,
+            email=body.email,
+            tier=body.tier,
+            name=body.name,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+    return RazorpayCheckoutResponse(
+        subscription_id=result.subscription_id,
+        short_url=result.short_url,
+        razorpay_key_id=result.razorpay_key_id,
+        api_key=result.api_key,
+        api_key_last4=result.api_key_last4,
+        tier=result.tier,
+    )
+
+
+@router.post("/billing/checkout/stripe", response_model=StripeCheckoutResponse)
+async def stripe_checkout(body: CheckoutRequest, session: AsyncSession = Depends(get_db)):
+    if not settings.STRIPE_SECRET_KEY:
+        raise HTTPException(status_code=503, detail="Stripe is not configured on this server")
+    if body.tier not in ("dev", "startup"):
+        raise HTTPException(status_code=400, detail="tier must be 'dev' or 'startup'")
+    success_url = _public_url("/billing/success?session_id={CHECKOUT_SESSION_ID}")
+    cancel_url = _public_url("/pricing")
+    try:
+        result = await stripe_service.create_checkout(
+            session=session,
+            email=body.email,
+            tier=body.tier,
+            success_url=success_url,
+            cancel_url=cancel_url,
+            name=body.name,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+    return StripeCheckoutResponse(
+        checkout_url=result.checkout_url,
+        session_id=result.session_id,
+        tier=result.tier,
+    )
+
+
+@router.post("/billing/webhooks/razorpay", include_in_schema=False)
+async def razorpay_webhook(request: Request, session: AsyncSession = Depends(get_db)):
+    body = await request.body()
+    signature = request.headers.get("x-razorpay-signature", "")
+    if not razorpay_service.verify_webhook_signature(body, signature):
+        raise HTTPException(status_code=400, detail="invalid signature")
+    try:
+        payload = json.loads(body.decode("utf-8"))
+    except Exception:
+        raise HTTPException(status_code=400, detail="invalid json")
+    result = await razorpay_service.handle_webhook(session, payload)
+    return JSONResponse(result)
+
+
+@router.post("/billing/webhooks/stripe", include_in_schema=False)
+async def stripe_webhook(request: Request, session: AsyncSession = Depends(get_db)):
+    body = await request.body()
+    signature = request.headers.get("stripe-signature", "")
+    try:
+        event = stripe_service.verify_and_parse_event(body, signature)
+    except Exception as e:
+        logger.warning("Stripe webhook verification failed: %s", e)
+        raise HTTPException(status_code=400, detail="invalid signature")
+    result = await stripe_service.handle_event(session, event)
+    return JSONResponse(result)
+
+
+@router.get("/billing/success", response_class=HTMLResponse, include_in_schema=False)
+async def billing_success(session_id: str = ""):
+    return """<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Payment successful — SentinelCorp</title>
+<style>
+body{{font-family:-apple-system,sans-serif;background:#0a0a0a;color:#e0e0e0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;margin:0}}
+.card{{max-width:520px;background:#161616;border:1px solid #1f3d1f;border-radius:12px;padding:40px;text-align:center}}
+h1{{color:#4ade80;margin:0 0 12px;font-size:26px}}
+p{{color:#888;margin:8px 0;line-height:1.6}}
+a{{color:#60a5fa;text-decoration:none}}
+.tick{{font-size:48px;margin-bottom:12px}}
+</style></head><body>
+<div class="card">
+<div class="tick">OK</div>
+<h1>Payment received</h1>
+<p>Your subscription is being activated. Your API key was emailed / shown at checkout.</p>
+<p>Check it here: <a href="/billing/me">/billing/me</a> (with your key in <code>X-API-Key</code>)</p>
+<p style="margin-top:24px"><a href="/">Back home</a></p>
+</div></body></html>"""
+
+================
+File: ./app/routers/company.py
+================
+"""Main company risk profiling endpoints."""
+
+from __future__ import annotations
+
+import logging
+
+from fastapi import APIRouter, Depends, Query, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.database import get_db
+from app.schemas.company import (
+    BatchRiskRequest,
+    BatchRiskResponse,
+    CompanyRiskProfile,
+)
+from app.services import risk_service
+
+logger = logging.getLogger(__name__)
+router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
+
+
+def _client_id_from_request(request: Request) -> str:
+    """Extract client identifier — API key or IP."""
+    api_key = request.headers.get("x-api-key", "")
+    if api_key:
+        return "key:{}".format(api_key[:12])
+    client_ip = request.client.host if request.client else "unknown"
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        client_ip = forwarded.split(",")[0].strip()
+    return "ip:{}".format(client_ip)
+
+
+@router.get("/profile", response_model=CompanyRiskProfile)
+@limiter.limit(settings.LOOKUP_RATE_LIMIT)
+async def company_profile(
+    request: Request,
+    identifier: str = Query(..., min_length=2, max_length=500, description="CIN, GSTIN, PAN, or company name"),
+    type: str = Query("auto", description="Identifier type: auto, gstin, cin, pan, name"),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get unified company risk profile.
+
+    Accepts CIN, GSTIN, PAN, or company name. Auto-detects type by default.
+
+    Combines:
+    - Format validation (checksum verification)
+    - SEBI/NSE/BSE debarred list match
+    - Risk scoring from all signals
+
+    Returns overall risk score 0-100 with level (critical/high/medium/low/minimal).
+    """
+    client_id = _client_id_from_request(request)
+    return await risk_service.profile_company(
+        identifier=identifier,
+        db=db,
+        identifier_type=type if type != "auto" else None,
+        client_id=client_id,
+    )
+
+
+@router.post("/batch", response_model=BatchRiskResponse)
+@limiter.limit("10/minute")
+async def batch_profile(
+    request: Request,
+    body: BatchRiskRequest,
+):
+    """Batch risk profiling for up to 100 identifiers in one request.
+
+    Uses a fresh DB session per identifier to isolate transaction failures —
+    one bad identifier won't fail the whole batch.
+    """
+    from app.database import async_session
+
+    client_id = _client_id_from_request(request)
+    results = []
+    errors = []
+
+    for ident in body.identifiers:
+        try:
+            async with async_session() as session:
+                profile = await risk_service.profile_company(
+                    identifier=ident,
+                    db=session,
+                    identifier_type=body.identifier_type,
+                    client_id=client_id,
+                )
+                results.append(profile)
+        except Exception as e:
+            # Don't leak stack traces, truncate error
+            err_msg = str(e).split("\n")[0][:200]
+            errors.append({"identifier": ident, "error": err_msg})
+
+    return BatchRiskResponse(
+        total=len(results),
+        results=results,
+        errors=errors,
+    )
+
+================
+File: ./app/routers/debarred.py
+================
+"""SEBI/NSE/BSE debarred entity search endpoints."""
+
+from __future__ import annotations
+
+import logging
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, Query, Request
+from pydantic import BaseModel
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from sqlalchemy import desc, func, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.database import get_db
+from app.models.company import DebarredEntity
+
+logger = logging.getLogger(__name__)
+router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
+
+
+class DebarredEntry(BaseModel):
+    name: str
+    source: str
+    entity_type: str = ""
+    debarment_reason: Optional[str] = None
+    debarment_date: Optional[str] = None
+
+
+class DebarredSearchResponse(BaseModel):
+    query: str
+    total: int
+    matches: List[DebarredEntry]
+
+
+class DebarredListResponse(BaseModel):
+    total: int
+    entities: List[DebarredEntry]
+
+
+@router.get("/search", response_model=DebarredSearchResponse)
+@limiter.limit(settings.SEARCH_RATE_LIMIT)
+async def search_debarred(
+    request: Request,
+    name: str = Query(..., min_length=2, max_length=200),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+):
+    """Search SEBI/NSE/BSE debarred entities by name.
+
+    Matches as whole-word tokens to avoid false positives
+    (e.g. "infosys" won't match "infosystems").
+    """
+    name_lower = name.strip().lower()
+    conditions = [
+        DebarredEntity.name_normalized == name_lower,
+        DebarredEntity.name_normalized.like("{} %".format(name_lower)),
+        DebarredEntity.name_normalized.like("% {}".format(name_lower)),
+        DebarredEntity.name_normalized.like("% {} %".format(name_lower)),
+    ]
+    tokens = [t for t in name_lower.split() if len(t) >= 5]
+    for t in tokens[:5]:
+        conditions.append(DebarredEntity.name_normalized.like("{} %".format(t)))
+        conditions.append(DebarredEntity.name_normalized.like("% {}".format(t)))
+        conditions.append(DebarredEntity.name_normalized.like("% {} %".format(t)))
+    stmt = (
+        select(DebarredEntity)
+        .where(or_(*conditions))
+        .limit(limit)
+    )
+    result = await db.execute(stmt)
+    entities = result.scalars().all()
+
+    return DebarredSearchResponse(
+        query=name,
+        total=len(entities),
+        matches=[
+            DebarredEntry(
+                name=e.name,
+                source=e.source,
+                entity_type=e.entity_type,
+                debarment_reason=e.debarment_reason,
+                debarment_date=e.debarment_date,
+            )
+            for e in entities
+        ],
+    )
+
+
+@router.get("/list", response_model=DebarredListResponse)
+@limiter.limit(settings.SEARCH_RATE_LIMIT)
+async def list_debarred(
+    request: Request,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    db: AsyncSession = Depends(get_db),
+):
+    """List debarred entities (paginated)."""
+    count_result = await db.execute(select(func.count(DebarredEntity.id)))
+    total = count_result.scalar_one()
+
+    result = await db.execute(
+        select(DebarredEntity)
+        .order_by(desc(DebarredEntity.updated_at))
+        .offset(offset)
+        .limit(limit)
+    )
+
+    return DebarredListResponse(
+        total=total,
+        entities=[
+            DebarredEntry(
+                name=e.name,
+                source=e.source,
+                entity_type=e.entity_type,
+                debarment_reason=e.debarment_reason,
+                debarment_date=e.debarment_date,
+            )
+            for e in result.scalars().all()
+        ],
+    )
+
+================
+File: ./app/routers/health.py
+================
+from __future__ import annotations
+
+import logging
+import time
+from datetime import datetime
+
+from fastapi import APIRouter, Depends
+from sqlalchemy import func, select, text
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.database import get_db
+from app.models.company import DebarredEntity, LookupHistory
+
+logger = logging.getLogger(__name__)
+router = APIRouter(tags=["Health"])
+
+_started_at = time.time()
+
+
+@router.get("/health")
+async def health(db: AsyncSession = Depends(get_db)):
+    checks = {"database": "ok"}
+    try:
+        await db.execute(text("SELECT 1"))
+    except Exception as e:
+        logger.error("DB health check failed: %s", e)
+        checks["database"] = "error"
+
+    status = "ok" if all(v == "ok" for v in checks.values()) else "degraded"
+    return {"status": status, "checks": checks}
+
+
+@router.get("/info")
+async def info():
+    from app.services.auth import ANON_DAILY_LIMIT, TIERS
+
+    return {
+        "name": settings.API_TITLE,
+        "version": settings.API_VERSION,
+        "tagline": "India Company Risk Profile API for AI Agents",
+        "description": "Unified risk scoring from MCA, GST, Court records, and SEBI debarred entities. Built for agents.",
+        "sibling_products": [
+            {
+                "name": "SentinelX402",
+                "description": "Threat intelligence API with CERT-In India advisories",
+                "url": "https://sentinelx402-production.up.railway.app",
+            },
+        ],
+        "billing": {
+            "enabled": settings.BILLING_ENABLED,
+            "anon_daily_limit": ANON_DAILY_LIMIT,
+            "free_tier_monthly": TIERS["free"].monthly_quota,
+            "signup_url": "/signup",
+            "pricing_url": "/pricing",
+            "rails": {
+                "razorpay": bool(settings.RAZORPAY_KEY_ID),
+                "stripe": bool(settings.STRIPE_SECRET_KEY),
+            },
+        },
+        "endpoints": [
+            {"path": "/api/v1/validate/gstin", "method": "GET", "description": "Validate GSTIN format and checksum"},
+            {"path": "/api/v1/validate/cin", "method": "GET", "description": "Validate CIN format and extract metadata"},
+            {"path": "/api/v1/validate/pan", "method": "GET", "description": "Validate PAN format"},
+            {"path": "/api/v1/company/profile", "method": "GET", "description": "Get unified company risk profile"},
+            {"path": "/api/v1/company/batch", "method": "POST", "description": "Batch risk profiling (up to 100 identifiers)"},
+            {"path": "/api/v1/debarred/search", "method": "GET", "description": "Search SEBI/NSE/BSE debarred entities"},
+            {"path": "/api/v1/debarred/list", "method": "GET", "description": "List recent debarred entities"},
+            {"path": "/billing/signup", "method": "POST", "description": "Self-serve free-tier API key"},
+            {"path": "/billing/me", "method": "GET", "description": "Current key info and monthly usage"},
+            {"path": "/pricing", "method": "GET", "description": "Tiers and pricing"},
+        ],
+    }
+
+
+@router.get("/stats")
+async def stats(db: AsyncSession = Depends(get_db)):
+    debarred_count = await db.execute(select(func.count(DebarredEntity.id)))
+    lookup_count = await db.execute(select(func.count(LookupHistory.id)))
+    unique_clients = await db.execute(
+        select(func.count(func.distinct(LookupHistory.client_id)))
+        .where(LookupHistory.client_id != "")
+    )
+
+    return {
+        "uptime_seconds": round(time.time() - _started_at),
+        "data_coverage": {
+            "debarred_entities": debarred_count.scalar_one() or 0,
+        },
+        "usage": {
+            "total_lookups": lookup_count.scalar_one() or 0,
+            "unique_clients": unique_clients.scalar_one() or 0,
+        },
+        "performance": {
+            "target_latency_validation": "<20ms",
+            "target_latency_profile": "<300ms",
+        },
+    }
+
+================
+File: ./app/routers/validate.py
+================
+"""Format validation endpoints — fast, free, no external calls."""
+
+from __future__ import annotations
+
+from fastapi import APIRouter, Query, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+from app.config import settings
+from app.schemas.company import IdentifierValidationResponse
+from app.services.validators import validate_cin, validate_gstin, validate_pan
+
+router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
+
+
+@router.get("/gstin", response_model=IdentifierValidationResponse)
+@limiter.limit("120/minute")
+async def validate_gstin_endpoint(
+    request: Request,
+    gstin: str = Query(..., min_length=15, max_length=15),
+):
+    """Validate GSTIN (Goods and Services Tax Identification Number).
+
+    Checks format, state code, and Luhn mod-36 checksum.
+    Pure client-side computation — no external API calls.
+    """
+    v = validate_gstin(gstin)
+    return IdentifierValidationResponse(
+        identifier=gstin.upper(),
+        identifier_type="gstin",
+        is_valid=v.is_valid,
+        parsed={
+            "state_code": v.state_code,
+            "state_name": v.state_name,
+            "pan": v.pan,
+            "entity_number": v.entity_number,
+            "checksum_valid": v.checksum_valid,
+        },
+        error=v.error,
+    )
+
+
+@router.get("/cin", response_model=IdentifierValidationResponse)
+@limiter.limit("120/minute")
+async def validate_cin_endpoint(
+    request: Request,
+    cin: str = Query(..., min_length=21, max_length=21),
+):
+    """Validate CIN (Corporate Identification Number).
+
+    Checks format and extracts metadata: listing status, state, year of incorporation,
+    industry division, company ownership type, registration number.
+    """
+    v = validate_cin(cin)
+    return IdentifierValidationResponse(
+        identifier=cin.upper(),
+        identifier_type="cin",
+        is_valid=v.is_valid,
+        parsed={
+            "listing_status": v.listing_status,
+            "state_code": v.state_code,
+            "state_name": v.state_name,
+            "year_of_incorporation": v.year_of_incorporation,
+            "industry_division": v.industry_division,
+            "company_ownership": v.company_ownership,
+            "registration_number": v.registration_number,
+        },
+        error=v.error,
+    )
+
+
+@router.get("/pan", response_model=IdentifierValidationResponse)
+@limiter.limit("120/minute")
+async def validate_pan_endpoint(
+    request: Request,
+    pan: str = Query(..., min_length=10, max_length=10),
+):
+    """Validate PAN (Permanent Account Number)."""
+    v = validate_pan(pan)
+    return IdentifierValidationResponse(
+        identifier=pan.upper(),
+        identifier_type="pan",
+        is_valid=v.is_valid,
+        parsed={"pan_type": v.pan_type},
+        error=v.error,
+    )
+
+================
+File: ./app/schemas/__init__.py
+================
+
+================
+File: ./app/schemas/company.py
+================
+from __future__ import annotations
+
+from typing import List, Optional
+from pydantic import BaseModel, Field
+
+
+class SuggestedLookup(BaseModel):
+    type: str
+    value: str
+    reason: str
+
+
+class RiskSignal(BaseModel):
+    """A single risk signal contributing to the overall score."""
+    source: str  # "sebi", "gst", "court", "heuristic"
+    signal_type: str  # "debarred", "suspended", "litigation", etc
+    severity: str  # "critical", "high", "medium", "low"
+    description: str
+    weight: float  # 0-1, contribution to overall score
+    details: Optional[dict] = None
+
+
+class IdentifierValidationResponse(BaseModel):
+    """Validation-only response (fast, free, no external calls)."""
+    identifier: str
+    identifier_type: str  # gstin, cin, pan
+    is_valid: bool
+    parsed: dict = Field(default_factory=dict)
+    error: Optional[str] = None
+
+
+class DebarredMatch(BaseModel):
+    """A match against SEBI/NSE/BSE debarred list."""
+    matched_name: str
+    source: str
+    entity_type: str
+    confidence: float  # 0-1
+    debarment_reason: Optional[str] = None
+    debarment_date: Optional[str] = None
+
+
+class CompanyRiskProfile(BaseModel):
+    """Unified company risk profile — the core product."""
+    query: str  # what user searched
+    query_type: str  # gstin, cin, pan, name
+
+    # Identity
+    name: Optional[str] = None
+    status: Optional[str] = None  # active, suspended, unknown
+    state: Optional[str] = None
+    incorporation_date: Optional[str] = None
+    industry: Optional[str] = None
+    company_type: Optional[str] = None
+
+    # Format validation
+    validation: Optional[IdentifierValidationResponse] = None
+
+    # Risk signals
+    overall_risk_score: float = Field(ge=0, le=100)
+    risk_level: str  # critical, high, medium, low, minimal
+    signals: List[RiskSignal] = []
+
+    # Specific risk flags
+    is_debarred: bool = False
+    debarred_matches: List[DebarredMatch] = []
+    is_suspended: bool = False
+    has_active_litigation: bool = False
+    litigation_cases: int = 0
+
+    # Data provenance
+    data_sources: List[str] = []
+    last_refreshed: Optional[str] = None
+    cache_age_seconds: Optional[int] = None
+
+    # Flywheel fields
+    historical_occurrences: int = 0
+    suggested_lookups: List[SuggestedLookup] = []
+
+
+class BatchRiskRequest(BaseModel):
+    identifiers: List[str] = Field(..., min_length=1, max_length=100)
+    identifier_type: Optional[str] = None  # auto-detect if None
+
+
+class BatchRiskResponse(BaseModel):
+    total: int
+    results: List[CompanyRiskProfile]
+    errors: List[dict] = []
+
+
+class TrendingCompany(BaseModel):
+    identifier: str
+    identifier_type: str
+    lookup_count: int
+    max_risk_score: float
+
+================
+File: ./app/scrapers/__init__.py
+================
+
+================
+File: ./app/scrapers/sebi_defaulters.py
+================
+"""SEBI Defaulter & Debarred Entities scraper.
+
+Sources (all public, legally scrapable):
+- NSE: https://www.nseindia.com/regulations/member-sebi-debarred-entities
+- BSE: https://www.bseindia.com/investors/debent.aspx
+- OpenSanctions: https://www.opensanctions.org/datasets/in_nse_debarred/
+
+This is zero-legal-risk data:
+- Published by stock exchanges for public consumption
+- Updated monthly
+- No CAPTCHAs, no rate limits
+- Simple file downloads, not HTML scraping
+
+Run manually: python -m app.scrapers.sebi_defaulters
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+import re
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import List, Optional
+
+import httpx
+
+logger = logging.getLogger(__name__)
+
+USER_AGENT = "SentinelCorp/1.0 (research; github.com/splitfireai-hue/sentinelcorp)"
+
+# OpenSanctions ships a clean, pre-parsed dataset of Indian debarred entities
+OPENSANCTIONS_URL = "https://data.opensanctions.org/datasets/latest/in_nse_debarred/entities.ftm.json"
+# Fallback: direct NSE XLS
+NSE_DEBARRED_URL = "https://www.nseindia.com/api/reports-indices?csv=true&archives=%5B%7B%22name%22%3A%22Members%20-%20SEBI%20Debarred%20Entities%22%2C%22type%22%3A%22equities%22%2C%22category%22%3A%22capital-market%22%2C%22section%22%3A%22equities%22%7D%5D"
+
+OUTPUT_FILE = Path(__file__).parent.parent / "data" / "sebi_defaulters.json"
+
+
+@dataclass
+class DebarredEntity:
+    name: str
+    source: str  # nse, bse, sebi
+    entity_type: str = ""  # Person, Company, Broker, etc
+    pan: Optional[str] = None
+    debarment_reason: Optional[str] = None
+    debarment_date: Optional[str] = None
+    order_url: Optional[str] = None
+    scraped_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+
+def _normalize_name(name: str) -> str:
+    """Clean up entity name for fuzzy matching."""
+    name = name.strip()
+    # Remove trailing punctuation
+    name = re.sub(r"[.,;:]+$", "", name)
+    # Collapse multiple spaces
+    name = re.sub(r"\s+", " ", name)
+    return name
+
+
+async def fetch_opensanctions(client: httpx.AsyncClient) -> List[DebarredEntity]:
+    """Fetch from OpenSanctions — cleanest pre-parsed dataset."""
+    entities: List[DebarredEntity] = []
+    try:
+        resp = await client.get(OPENSANCTIONS_URL, timeout=60)
+        resp.raise_for_status()
+
+        # FTM (Follow The Money) format — one JSON object per line
+        for line in resp.text.strip().split("\n"):
+            try:
+                obj = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            props = obj.get("properties", {})
+            name = props.get("name", [""])[0] if props.get("name") else ""
+            if not name:
+                continue
+
+            schema = obj.get("schema", "")
+            entity_type = {
+                "Person": "Person",
+                "Company": "Company",
+                "Organization": "Organization",
+                "LegalEntity": "Legal Entity",
+            }.get(schema, schema or "Unknown")
+
+            entities.append(DebarredEntity(
+                name=_normalize_name(name),
+                source="opensanctions:nse",
+                entity_type=entity_type,
+                debarment_reason=props.get("notes", [None])[0] if props.get("notes") else None,
+                debarment_date=props.get("modifiedAt", [None])[0] if props.get("modifiedAt") else None,
+            ))
+
+        logger.info("OpenSanctions: loaded %d debarred entities", len(entities))
+    except Exception as e:
+        logger.warning("OpenSanctions fetch failed: %s", e)
+
+    return entities
+
+
+async def scrape_all() -> dict:
+    """Run all SEBI/NSE/BSE scrapers and return unified dataset."""
+    start = datetime.utcnow()
+    async with httpx.AsyncClient(headers={"User-Agent": USER_AGENT}, follow_redirects=True) as client:
+        opensanctions_entities = await fetch_opensanctions(client)
+
+    # Deduplicate by normalized name
+    seen = set()
+    unique: List[DebarredEntity] = []
+    for e in opensanctions_entities:
+        key = e.name.lower()
+        if key and key not in seen:
+            seen.add(key)
+            unique.append(e)
+
+    result = {
+        "scraped_at": start.isoformat(),
+        "total_entities": len(unique),
+        "entities": [asdict(e) for e in unique],
+        "sources_used": ["opensanctions:nse"],
+    }
+
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_FILE.write_text(json.dumps(result, indent=2))
+    logger.info("Saved %d debarred entities to %s", len(unique), OUTPUT_FILE)
+
+    return result
+
+
+def check_debarred(name: str, debarred_list: List[dict]) -> List[dict]:
+    """Check if a company/person name is in the debarred list.
+
+    Uses fuzzy matching (case-insensitive substring).
+    """
+    name_lower = _normalize_name(name).lower()
+    if len(name_lower) < 3:
+        return []
+
+    matches = []
+    for entity in debarred_list:
+        entity_name = entity.get("name", "").lower()
+        if not entity_name:
+            continue
+        # Exact match or substring match (both directions)
+        if name_lower == entity_name or name_lower in entity_name or entity_name in name_lower:
+            matches.append(entity)
+    return matches
+
+
+async def main():
+    logging.basicConfig(level=logging.INFO)
+    logger.info("SEBI Defaulter Scraper starting...")
+    result = await scrape_all()
+    logger.info("Done. %d entities loaded.", result["total_entities"])
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+================
+File: ./app/services/__init__.py
+================
+
+================
+File: ./app/services/auth.py
+================
+from __future__ import annotations
+
+import hashlib
+import logging
+import secrets
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Optional
+
+from sqlalchemy import select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.models.billing import APIKey, AnonUsageCounter, UsageCounter
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class TierConfig:
+    name: str
+    display_name: str
+    monthly_quota: int
+    rate_limit_per_min: int
+    price_inr_monthly: int
+    price_usd_monthly: float
+
+
+TIERS: dict[str, TierConfig] = {
+    "free": TierConfig("free", "Free", 5_000, 30, 0, 0.0),
+    "dev": TierConfig("dev", "Dev", 50_000, 120, 499, 6.0),
+    "startup": TierConfig("startup", "Startup", 500_000, 600, 2_499, 30.0),
+    "enterprise": TierConfig("enterprise", "Enterprise", 10_000_000, 3_000, 0, 0.0),
+}
+
+ANON_DAILY_LIMIT = 100
+KEY_PREFIX_LIVE = "sk_live_"
+KEY_PREFIX_TEST = "sk_test_"
+KEY_BODY_BYTES = 24
+
+
+def _is_sqlite() -> bool:
+    return settings.DATABASE_URL.startswith("sqlite")
+
+
+def _upsert_stmt(table, values: dict, conflict_cols: list[str], update_cols: dict):
+    if _is_sqlite():
+        stmt = sqlite_insert(table).values(**values)
+        return stmt.on_conflict_do_update(index_elements=conflict_cols, set_=update_cols)
+    stmt = pg_insert(table).values(**values)
+    return stmt.on_conflict_do_update(index_elements=conflict_cols, set_=update_cols)
+
+
+def hash_key(raw_key: str) -> str:
+    return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
+
+
+def hash_ip(ip: str) -> str:
+    salt = settings.ADMIN_SECRET or "sentinelcorp"
+    return hashlib.sha256("{}:{}".format(salt, ip).encode("utf-8")).hexdigest()
+
+
+def generate_raw_key(test: bool = False) -> str:
+    prefix = KEY_PREFIX_TEST if test else KEY_PREFIX_LIVE
+    body = secrets.token_urlsafe(KEY_BODY_BYTES).rstrip("=")
+    return prefix + body
+
+
+async def issue_key(
+    session: AsyncSession,
+    email: str,
+    name: str = "",
+    tier: str = "free",
+    notes: Optional[str] = None,
+    test: bool = False,
+) -> tuple[str, APIKey]:
+    if tier not in TIERS:
+        raise ValueError("Unknown tier: {}".format(tier))
+    cfg = TIERS[tier]
+    raw = generate_raw_key(test=test)
+    row = APIKey(
+        key_hash=hash_key(raw),
+        key_prefix=raw[:12],
+        key_last4=raw[-4:],
+        name=name.strip()[:200],
+        email=email.strip().lower()[:200],
+        tier=tier,
+        status="active",
+        monthly_quota=cfg.monthly_quota,
+        rate_limit_per_min=cfg.rate_limit_per_min,
+        notes=notes,
+    )
+    session.add(row)
+    await session.commit()
+    await session.refresh(row)
+    logger.info("Issued API key id=%s tier=%s email=%s", row.id, tier, row.email)
+    return raw, row
+
+
+async def lookup_key(session: AsyncSession, raw_key: str) -> Optional[APIKey]:
+    if not raw_key:
+        return None
+    if not (raw_key.startswith(KEY_PREFIX_LIVE) or raw_key.startswith(KEY_PREFIX_TEST)):
+        return None
+    key_hash = hash_key(raw_key)
+    stmt = select(APIKey).where(APIKey.key_hash == key_hash)
+    result = await session.execute(stmt)
+    return result.scalar_one_or_none()
+
+
+def current_year_month() -> str:
+    return datetime.utcnow().strftime("%Y-%m")
+
+
+def current_day() -> str:
+    return datetime.utcnow().strftime("%Y-%m-%d")
+
+
+async def get_monthly_count(
+    session: AsyncSession, api_key_id: int, product: str = "sentinelcorp"
+) -> int:
+    stmt = select(UsageCounter.count).where(
+        UsageCounter.api_key_id == api_key_id,
+        UsageCounter.product == product,
+        UsageCounter.year_month == current_year_month(),
+    )
+    result = await session.execute(stmt)
+    row = result.scalar_one_or_none()
+    return int(row or 0)
+
+
+async def increment_usage(
+    session: AsyncSession, api_key_id: int, product: str = "sentinelcorp"
+) -> None:
+    ym = current_year_month()
+    values = {
+        "api_key_id": api_key_id,
+        "product": product,
+        "year_month": ym,
+        "count": 1,
+    }
+    stmt = _upsert_stmt(
+        UsageCounter.__table__,
+        values,
+        ["api_key_id", "product", "year_month"],
+        {"count": UsageCounter.__table__.c.count + 1},
+    )
+    try:
+        await session.execute(stmt)
+        await session.execute(
+            update(APIKey).where(APIKey.id == api_key_id).values(last_used_at=datetime.utcnow())
+        )
+        await session.commit()
+    except Exception:
+        logger.exception("increment_usage failed for key_id=%s", api_key_id)
+        await session.rollback()
+
+
+async def anon_count_and_increment(session: AsyncSession, ip: str) -> int:
+    """Return the count AFTER increment for today. Used by middleware to enforce anon limit."""
+    ip_h = hash_ip(ip)
+    day = current_day()
+    values = {"ip_hash": ip_h, "day": day, "count": 1}
+    stmt = _upsert_stmt(
+        AnonUsageCounter.__table__,
+        values,
+        ["ip_hash", "day"],
+        {"count": AnonUsageCounter.__table__.c.count + 1},
+    )
+    try:
+        await session.execute(stmt)
+        await session.commit()
+    except Exception:
+        logger.exception("anon_count_and_increment failed ip_hash=%s", ip_h[:8])
+        await session.rollback()
+        return 0
+    result = await session.execute(
+        select(AnonUsageCounter.count).where(
+            AnonUsageCounter.ip_hash == ip_h, AnonUsageCounter.day == day
+        )
+    )
+    return int(result.scalar_one_or_none() or 0)
+
+
+async def revoke_key(session: AsyncSession, api_key_id: int) -> bool:
+    stmt = (
+        update(APIKey)
+        .where(APIKey.id == api_key_id)
+        .values(status="revoked", revoked_at=datetime.utcnow())
+    )
+    result = await session.execute(stmt)
+    await session.commit()
+    return (result.rowcount or 0) > 0
+
+
+async def set_tier(session: AsyncSession, api_key_id: int, tier: str) -> bool:
+    if tier not in TIERS:
+        raise ValueError("Unknown tier: {}".format(tier))
+    cfg = TIERS[tier]
+    stmt = (
+        update(APIKey)
+        .where(APIKey.id == api_key_id)
+        .values(
+            tier=tier,
+            monthly_quota=cfg.monthly_quota,
+            rate_limit_per_min=cfg.rate_limit_per_min,
+            status="active",
+        )
+    )
+    result = await session.execute(stmt)
+    await session.commit()
+    return (result.rowcount or 0) > 0
+
+================
+File: ./app/services/razorpay_service.py
+================
+from __future__ import annotations
+
+import hmac
+import hashlib
+import json
+import logging
+import time
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Optional
+
+import razorpay
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.models.billing import APIKey, Subscription
+from app.services import auth as auth_service
+
+logger = logging.getLogger(__name__)
+
+
+PLAN_TO_TIER: dict[str, str] = {}
+
+
+def _rebuild_plan_map():
+    PLAN_TO_TIER.clear()
+    if settings.RAZORPAY_PLAN_DEV:
+        PLAN_TO_TIER[settings.RAZORPAY_PLAN_DEV] = "dev"
+    if settings.RAZORPAY_PLAN_STARTUP:
+        PLAN_TO_TIER[settings.RAZORPAY_PLAN_STARTUP] = "startup"
+
+
+_rebuild_plan_map()
+
+
+@dataclass
+class CheckoutResult:
+    subscription_id: str
+    short_url: Optional[str]
+    razorpay_key_id: str
+    api_key: str
+    api_key_last4: str
+    tier: str
+
+
+def _is_configured() -> bool:
+    return bool(settings.RAZORPAY_KEY_ID and settings.RAZORPAY_KEY_SECRET)
+
+
+def _client() -> razorpay.Client:
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    client.set_app_details({"title": "SentinelCorp", "version": settings.API_VERSION})
+    return client
+
+
+def _plan_id_for_tier(tier: str) -> Optional[str]:
+    _rebuild_plan_map()
+    for plan_id, t in PLAN_TO_TIER.items():
+        if t == tier:
+            return plan_id
+    return None
+
+
+def _tier_for_plan(plan_id: str) -> Optional[str]:
+    _rebuild_plan_map()
+    return PLAN_TO_TIER.get(plan_id)
+
+
+async def create_checkout(
+    session: AsyncSession,
+    email: str,
+    tier: str,
+    name: str = "",
+) -> CheckoutResult:
+    """Create a Razorpay subscription + issue a pending APIKey that will be upgraded
+    when the webhook confirms payment."""
+    if not _is_configured():
+        raise RuntimeError("Razorpay is not configured on this server")
+
+    plan_id = _plan_id_for_tier(tier)
+    if not plan_id:
+        raise ValueError("No Razorpay plan configured for tier '{}'".format(tier))
+
+    raw_key, key_row = await auth_service.issue_key(
+        session, email=email, name=name, tier="free", notes="Pending razorpay sub for tier=" + tier
+    )
+
+    client = _client()
+    sub_payload = {
+        "plan_id": plan_id,
+        "total_count": 120,
+        "customer_notify": 1,
+        "notes": {
+            "api_key_id": str(key_row.id),
+            "email": email,
+            "pending_tier": tier,
+        },
+    }
+    try:
+        subscription = client.subscription.create(sub_payload)
+    except Exception as e:
+        logger.exception("Razorpay subscription.create failed")
+        raise RuntimeError("Failed to create subscription: {}".format(e))
+
+    sub_row = Subscription(
+        api_key_id=key_row.id,
+        rail="razorpay",
+        plan=tier,
+        external_subscription_id=subscription["id"],
+        status="pending",
+        currency="INR",
+        amount_minor=auth_service.TIERS[tier].price_inr_monthly * 100,
+    )
+    session.add(sub_row)
+    await session.commit()
+
+    logger.info(
+        "Razorpay checkout: sub=%s key_id=%s tier=%s email=%s",
+        subscription["id"],
+        key_row.id,
+        tier,
+        email,
+    )
+
+    return CheckoutResult(
+        subscription_id=subscription["id"],
+        short_url=subscription.get("short_url"),
+        razorpay_key_id=settings.RAZORPAY_KEY_ID,
+        api_key=raw_key,
+        api_key_last4=key_row.key_last4,
+        tier=tier,
+    )
+
+
+def verify_webhook_signature(body_bytes: bytes, signature: str) -> bool:
+    if not settings.RAZORPAY_WEBHOOK_SECRET or not signature:
+        return False
+    expected = hmac.new(
+        settings.RAZORPAY_WEBHOOK_SECRET.encode("utf-8"),
+        body_bytes,
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature)
+
+
+async def handle_webhook(session: AsyncSession, payload: dict) -> dict:
+    event = payload.get("event", "")
+    sub_payload = (payload.get("payload") or {}).get("subscription", {}).get("entity") or {}
+    sub_id = sub_payload.get("id") or ""
+    plan_id = sub_payload.get("plan_id") or ""
+
+    if not sub_id:
+        return {"ok": False, "reason": "no subscription id in payload"}
+
+    result = await session.execute(
+        select(Subscription).where(Subscription.external_subscription_id == sub_id)
+    )
+    sub = result.scalar_one_or_none()
+    if sub is None:
+        logger.warning("Webhook for unknown subscription %s event=%s", sub_id, event)
+        return {"ok": False, "reason": "unknown subscription"}
+
+    pending_tier = sub.plan or _tier_for_plan(plan_id) or "free"
+
+    now = datetime.utcnow()
+    if event in ("subscription.activated", "subscription.charged", "subscription.authenticated"):
+        sub.status = "active"
+        cps = sub_payload.get("current_start")
+        cpe = sub_payload.get("current_end")
+        if cps:
+            sub.current_period_start = datetime.utcfromtimestamp(int(cps))
+        if cpe:
+            sub.current_period_end = datetime.utcfromtimestamp(int(cpe))
+        await auth_service.set_tier(session, sub.api_key_id, pending_tier)
+        logger.info("Razorpay: activated sub=%s key_id=%s tier=%s", sub_id, sub.api_key_id, pending_tier)
+
+    elif event in ("subscription.halted", "subscription.paused"):
+        sub.status = "halted"
+        await auth_service.set_tier(session, sub.api_key_id, "free")
+        logger.info("Razorpay: halted sub=%s", sub_id)
+
+    elif event == "subscription.cancelled":
+        sub.status = "cancelled"
+        sub.cancel_at_period_end = False
+        await auth_service.set_tier(session, sub.api_key_id, "free")
+        logger.info("Razorpay: cancelled sub=%s", sub_id)
+
+    elif event == "subscription.completed":
+        sub.status = "completed"
+        await auth_service.set_tier(session, sub.api_key_id, "free")
+        logger.info("Razorpay: completed sub=%s", sub_id)
+
+    else:
+        logger.info("Razorpay: ignored event=%s sub=%s", event, sub_id)
+        return {"ok": True, "ignored": True}
+
+    sub.updated_at = now
+    await session.commit()
+    return {"ok": True, "event": event, "subscription_id": sub_id}
+
+================
+File: ./app/services/risk_scoring.py
+================
+"""Risk scoring engine.
+
+Combines signals from multiple sources into a unified 0-100 score.
+
+Reference implementation — production uses proprietary weighting.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import List
+
+from app.schemas.company import RiskSignal
+
+
+@dataclass
+class RiskScoreResult:
+    score: float  # 0-100
+    level: str  # critical, high, medium, low, minimal
+    signals: List[RiskSignal]
+    rationale: str
+
+
+# Signal weights (reference — production has tuned values)
+SIGNAL_WEIGHTS = {
+    "sebi_debarred": 0.95,      # Almost maxes out the score
+    "sebi_fraud_case": 0.85,
+    "gst_suspended": 0.60,
+    "gst_cancelled": 0.75,
+    "active_litigation_high": 0.45,
+    "active_litigation_medium": 0.25,
+    "mca_dormant": 0.30,
+    "mca_struck_off": 0.80,
+    "format_invalid": 0.10,
+    "checksum_invalid": 0.15,
+    "unknown_state": 0.05,
+    "low_paid_up_capital": 0.10,
+    "suspicious_name_pattern": 0.20,
+}
+
+
+def _combine_signals(signals: List[RiskSignal]) -> float:
+    """Combine signals using a noisy-OR model.
+
+    Score = 100 * (1 - prod(1 - signal_weight))
+
+    This way, multiple moderate signals compound, but no single signal
+    over-dominates unless it's critical.
+    """
+    if not signals:
+        return 0.0
+
+    product = 1.0
+    for s in signals:
+        product *= (1.0 - s.weight)
+    score = 100.0 * (1.0 - product)
+    return round(score, 1)
+
+
+def _score_to_level(score: float) -> str:
+    if score >= 85:
+        return "critical"
+    if score >= 65:
+        return "high"
+    if score >= 40:
+        return "medium"
+    if score >= 15:
+        return "low"
+    return "minimal"
+
+
+def compute_risk_score(signals: List[RiskSignal]) -> RiskScoreResult:
+    """Compute unified risk score from signals."""
+    score = _combine_signals(signals)
+    level = _score_to_level(score)
+
+    if not signals:
+        rationale = "No adverse signals found. Company appears clean on public records."
+    else:
+        top = sorted(signals, key=lambda s: s.weight, reverse=True)[:3]
+        rationale = "Top risk factors: " + "; ".join(
+            "{} ({})".format(s.signal_type, s.severity) for s in top
+        )
+
+    return RiskScoreResult(
+        score=score,
+        level=level,
+        signals=signals,
+        rationale=rationale,
+    )
+
+
+def signal_sebi_debarred(entity_name: str, match_confidence: float = 1.0) -> RiskSignal:
+    return RiskSignal(
+        source="sebi",
+        signal_type="sebi_debarred",
+        severity="critical",
+        description="Entity is on SEBI/NSE/BSE debarred list",
+        weight=SIGNAL_WEIGHTS["sebi_debarred"] * match_confidence,
+        details={"matched_name": entity_name, "confidence": match_confidence},
+    )
+
+
+def signal_gst_cancelled() -> RiskSignal:
+    return RiskSignal(
+        source="gst",
+        signal_type="gst_cancelled",
+        severity="high",
+        description="GST registration cancelled by authorities",
+        weight=SIGNAL_WEIGHTS["gst_cancelled"],
+    )
+
+
+def signal_gst_suspended() -> RiskSignal:
+    return RiskSignal(
+        source="gst",
+        signal_type="gst_suspended",
+        severity="high",
+        description="GST registration suspended",
+        weight=SIGNAL_WEIGHTS["gst_suspended"],
+    )
+
+
+def signal_format_invalid(identifier: str, error: str) -> RiskSignal:
+    return RiskSignal(
+        source="validator",
+        signal_type="format_invalid",
+        severity="low",
+        description="Invalid format: {}".format(error),
+        weight=SIGNAL_WEIGHTS["format_invalid"],
+        details={"identifier": identifier, "error": error},
+    )
+
+
+def signal_checksum_invalid() -> RiskSignal:
+    return RiskSignal(
+        source="validator",
+        signal_type="checksum_invalid",
+        severity="low",
+        description="Checksum verification failed — identifier may be fabricated",
+        weight=SIGNAL_WEIGHTS["checksum_invalid"],
+    )
+
+
+def signal_active_litigation(case_count: int) -> RiskSignal:
+    if case_count >= 5:
+        return RiskSignal(
+            source="court",
+            signal_type="active_litigation_high",
+            severity="high",
+            description="{} active court cases".format(case_count),
+            weight=SIGNAL_WEIGHTS["active_litigation_high"],
+            details={"case_count": case_count},
+        )
+    return RiskSignal(
+        source="court",
+        signal_type="active_litigation_medium",
+        severity="medium",
+        description="{} active court cases".format(case_count),
+        weight=SIGNAL_WEIGHTS["active_litigation_medium"],
+        details={"case_count": case_count},
+    )
+
+
+def signal_mca_struck_off() -> RiskSignal:
+    return RiskSignal(
+        source="mca",
+        signal_type="mca_struck_off",
+        severity="critical",
+        description="Company struck off the MCA register — not legally active",
+        weight=SIGNAL_WEIGHTS["mca_struck_off"],
+    )
+
+
+def signal_mca_dormant() -> RiskSignal:
+    return RiskSignal(
+        source="mca",
+        signal_type="mca_dormant",
+        severity="medium",
+        description="Company marked dormant on MCA register",
+        weight=SIGNAL_WEIGHTS["mca_dormant"],
+    )
+
+================
+File: ./app/services/risk_service.py
+================
+"""Core risk profiling service — the main product logic."""
+
+from __future__ import annotations
+
+import logging
+import time
+from typing import List, Optional
+
+from sqlalchemy import and_, func, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.company import DebarredEntity, LookupHistory
+from app.schemas.company import (
+    CompanyRiskProfile,
+    DebarredMatch,
+    IdentifierValidationResponse,
+    RiskSignal,
+    SuggestedLookup,
+)
+from app.services import risk_scoring
+from app.services.validators import (
+    validate_cin,
+    validate_gstin,
+    validate_pan,
+    pan_from_gstin,
+)
+
+logger = logging.getLogger(__name__)
+
+
+def detect_identifier_type(identifier: str) -> str:
+    """Heuristically detect whether input is CIN, GSTIN, PAN, or name."""
+    s = identifier.strip().upper()
+    if len(s) == 15 and s[0:2].isdigit() and not s[0].isalpha():
+        return "gstin"
+    if len(s) == 21 and s[0] in ("L", "U"):
+        return "cin"
+    if len(s) == 10 and s[:3].isalpha() and s[3].isalpha():
+        return "pan"
+    return "name"
+
+
+GENERIC_WORDS = {
+    # Legal suffixes
+    "limited", "ltd", "private", "pvt", "pvt.", "ltd.", "limited.",
+    "llc", "llp", "inc", "inc.", "corporation", "corp", "corp.",
+    "co", "co.", "company", "the", "and", "of", "for", "in", "to",
+    "india", "indian", "mumbai", "delhi", "bangalore", "chennai",
+    # Common business words
+    "services", "service", "group", "holdings", "international", "global",
+    "solutions", "enterprises", "industries", "industry", "technologies",
+    "technology", "systems", "system", "consultancy", "consultants",
+    "consulting", "financial", "finance", "finances", "investment",
+    "investments", "trading", "trade", "traders", "dealers", "distribution",
+    "distributors", "commercial", "business", "businesses", "mrs", "mr",
+    "shri", "smt", "proprietor", "partners", "partnership",
+    "foundation", "society", "trust", "association", "ventures",
+    "retail", "wholesale", "exports", "imports", "import", "export",
+    "broking", "brokers", "agencies", "agency", "associates", "&",
+}
+
+
+def _significant_tokens(text: str) -> set:
+    """Extract significant tokens (3+ chars, not generic stopwords)."""
+    return set(
+        w for w in text.split()
+        if len(w) >= 3 and w not in GENERIC_WORDS
+    )
+
+
+def _confidence_for_match(query_lower: str, entity_name_lower: str) -> float:
+    """Compute match confidence carefully.
+
+    Examples:
+    - "Sahara India Limited" vs "Sahara India Commercial Corporation Limited" → partial overlap on "sahara","india" → 0.5
+    - "Tata" vs "TATA TELESERVICES LIMITED" → short ambiguous → 0.35
+    - "Reliance Industries" vs "Reliance Commercial Finance Limited" → overlap on "reliance" → 0.5
+    - Exact match → 1.0
+    """
+    if query_lower == entity_name_lower:
+        return 1.0
+
+    query_tokens = _significant_tokens(query_lower)
+    entity_tokens = _significant_tokens(entity_name_lower)
+    if not query_tokens:
+        # Fall back to non-filtered tokens
+        query_tokens = set(w for w in query_lower.split() if len(w) >= 3)
+        entity_tokens = set(w for w in entity_name_lower.split() if len(w) >= 3)
+        if not query_tokens:
+            return 0.0
+
+    overlap = query_tokens & entity_tokens
+    if not overlap:
+        return 0.0
+
+    overlap_ratio = len(overlap) / len(query_tokens)
+
+    # All query tokens in entity
+    if overlap_ratio == 1.0:
+        # If entity has significantly more tokens, query is too generic/ambiguous
+        # e.g. "Infosys" matching "Tauras Infosys Ltd" (1 token in 2)
+        size_ratio = len(entity_tokens) / len(query_tokens)
+        if size_ratio >= 2.0:
+            return 0.4
+        if size_ratio >= 1.5:
+            return 0.55  # Could be ambiguous — medium confidence
+        # Query covers most of entity name → likely same entity
+        return 0.9
+
+    # Partial overlap
+    if overlap_ratio >= 0.5:
+        return 0.55
+
+    if overlap_ratio > 0:
+        return 0.3
+
+    return 0.0
+
+
+async def _find_debarred_matches(db: AsyncSession, name: str, pan: Optional[str] = None) -> List[DebarredMatch]:
+    """Find SEBI debarred entries matching a company name or PAN."""
+    matches: List[DebarredMatch] = []
+    if not name and not pan:
+        return matches
+
+    # Require query to be reasonably specific to avoid false positives
+    if name and len(name.strip()) < 5 and not pan:
+        # Query too short/generic — only do exact match
+        name_lower = name.strip().lower()
+        result = await db.execute(
+            select(DebarredEntity)
+            .where(DebarredEntity.name_normalized == name_lower)
+            .limit(5)
+        )
+        for row in result.scalars().all():
+            matches.append(DebarredMatch(
+                matched_name=row.name,
+                source=row.source,
+                entity_type=row.entity_type,
+                confidence=1.0,
+                debarment_reason=row.debarment_reason,
+                debarment_date=row.debarment_date,
+            ))
+        return matches
+
+    conditions = []
+    if pan:
+        conditions.append(DebarredEntity.pan == pan)
+    if name and len(name) >= 3:
+        name_lower = name.strip().lower()
+        # Exact match
+        conditions.append(DebarredEntity.name_normalized == name_lower)
+        # Full-phrase whole-word match (query surrounded by spaces/punctuation)
+        # This catches "sahara india" in "m/s sahara india (and its constituent partners)"
+        # but NOT "infosys" in "infosystems"
+        conditions.append(DebarredEntity.name_normalized.like("{} %".format(name_lower)))
+        conditions.append(DebarredEntity.name_normalized.like("% {}".format(name_lower)))
+        conditions.append(DebarredEntity.name_normalized.like("% {} %".format(name_lower)))
+        # Token-level whole-word match for each significant token
+        sig_tokens = _significant_tokens(name_lower)
+        long_tokens = [t for t in sig_tokens if len(t) >= 5]
+        for token in long_tokens[:5]:
+            conditions.append(DebarredEntity.name_normalized.like("{} %".format(token)))
+            conditions.append(DebarredEntity.name_normalized.like("% {}".format(token)))
+            conditions.append(DebarredEntity.name_normalized.like("% {} %".format(token)))
+
+    if not conditions:
+        return matches
+
+    result = await db.execute(
+        select(DebarredEntity)
+        .where(or_(*conditions))
+        .limit(30)
+    )
+    rows = result.scalars().all()
+
+    name_lower = name.lower() if name else ""
+    for row in rows:
+        if pan and row.pan == pan:
+            confidence = 1.0
+        else:
+            confidence = _confidence_for_match(name_lower, row.name_normalized)
+
+        # Skip very weak matches
+        if confidence < 0.3:
+            continue
+
+        matches.append(DebarredMatch(
+            matched_name=row.name,
+            source=row.source,
+            entity_type=row.entity_type,
+            confidence=round(confidence, 2),
+            debarment_reason=row.debarment_reason,
+            debarment_date=row.debarment_date,
+        ))
+
+    matches.sort(key=lambda m: m.confidence, reverse=True)
+    return matches[:5]
+
+
+async def _record_lookup(db: AsyncSession, identifier_type: str, identifier: str,
+                         risk_score: float, client_id: str = "") -> int:
+    """Record this lookup and return how many times it was looked up before.
+
+    Best-effort: DB failures don't block API responses.
+    """
+    prev = 0
+    try:
+        count_result = await db.execute(
+            select(func.count(LookupHistory.id))
+            .where(
+                and_(
+                    LookupHistory.identifier_type == identifier_type,
+                    LookupHistory.identifier_value == identifier,
+                )
+            )
+        )
+        prev = count_result.scalar_one() or 0
+    except Exception as e:
+        logger.warning("Lookup count failed: %s", str(e)[:120])
+
+    try:
+        db.add(LookupHistory(
+            identifier_type=identifier_type,
+            identifier_value=identifier,
+            risk_score=risk_score,
+            client_id=client_id,
+        ))
+        await db.commit()
+    except Exception as e:
+        logger.warning("Lookup insert failed: %s", str(e)[:120])
+        try:
+            await db.rollback()
+        except Exception:
+            pass
+
+    return prev
+
+
+def _build_suggestions(
+    identifier_type: str,
+    identifier: str,
+    pan: Optional[str],
+    name: Optional[str],
+    has_debarment: bool,
+) -> List[SuggestedLookup]:
+    """Build suggested follow-up queries."""
+    suggestions = []
+
+    if identifier_type == "gstin" and pan:
+        suggestions.append(SuggestedLookup(
+            type="pan",
+            value=pan,
+            reason="Look up PAN — all GSTINs for this PAN share risk signals",
+        ))
+
+    if name and not has_debarment:
+        suggestions.append(SuggestedLookup(
+            type="name",
+            value=name,
+            reason="Search by name to find associated entities",
+        ))
+
+    if has_debarment:
+        suggestions.append(SuggestedLookup(
+            type="endpoint",
+            value="/api/v1/debarred/list",
+            reason="Browse all SEBI/NSE debarred entities",
+        ))
+
+    # Always suggest threat intel cross-check
+    suggestions.append(SuggestedLookup(
+        type="endpoint",
+        value="https://sentinelx402-production.up.railway.app/api/v1/india/advisories/list",
+        reason="Check CERT-In India advisories mentioning this entity",
+    ))
+
+    return suggestions[:4]
+
+
+async def profile_company(
+    identifier: str,
+    db: AsyncSession,
+    identifier_type: Optional[str] = None,
+    client_id: str = "",
+) -> CompanyRiskProfile:
+    """Main risk profiling function.
+
+    Accepts GSTIN, CIN, PAN, or company name.
+    Returns unified risk profile with signals from all available sources.
+    """
+    identifier = identifier.strip()
+    if identifier_type is None or identifier_type == "auto":
+        identifier_type = detect_identifier_type(identifier)
+
+    signals: List[RiskSignal] = []
+    data_sources: List[str] = []
+    validation: Optional[IdentifierValidationResponse] = None
+    name: Optional[str] = None
+    state: Optional[str] = None
+    pan: Optional[str] = None
+
+    # --- Step 1: Validate format ---
+    if identifier_type == "gstin":
+        v = validate_gstin(identifier)
+        validation = IdentifierValidationResponse(
+            identifier=identifier.upper(),
+            identifier_type="gstin",
+            is_valid=v.is_valid,
+            parsed={
+                "state_code": v.state_code,
+                "state_name": v.state_name,
+                "pan": v.pan,
+                "entity_number": v.entity_number,
+                "checksum_valid": v.checksum_valid,
+            },
+            error=v.error,
+        )
+        data_sources.append("format_validator")
+        if not v.is_valid:
+            signals.append(risk_scoring.signal_format_invalid(identifier, v.error or "Invalid format"))
+        elif not v.checksum_valid:
+            signals.append(risk_scoring.signal_checksum_invalid())
+        state = v.state_name
+        pan = v.pan
+
+    elif identifier_type == "cin":
+        v = validate_cin(identifier)
+        validation = IdentifierValidationResponse(
+            identifier=identifier.upper(),
+            identifier_type="cin",
+            is_valid=v.is_valid,
+            parsed={
+                "listing_status": v.listing_status,
+                "state_code": v.state_code,
+                "state_name": v.state_name,
+                "year_of_incorporation": v.year_of_incorporation,
+                "industry_division": v.industry_division,
+                "company_ownership": v.company_ownership,
+                "registration_number": v.registration_number,
+            },
+            error=v.error,
+        )
+        data_sources.append("format_validator")
+        if not v.is_valid:
+            signals.append(risk_scoring.signal_format_invalid(identifier, v.error or "Invalid format"))
+        state = v.state_name
+
+    elif identifier_type == "pan":
+        v = validate_pan(identifier)
+        validation = IdentifierValidationResponse(
+            identifier=identifier.upper(),
+            identifier_type="pan",
+            is_valid=v.is_valid,
+            parsed={"pan_type": v.pan_type},
+            error=v.error,
+        )
+        data_sources.append("format_validator")
+        if not v.is_valid:
+            signals.append(risk_scoring.signal_format_invalid(identifier, v.error or "Invalid format"))
+        pan = identifier.upper() if v.is_valid else None
+
+    elif identifier_type == "name":
+        name = identifier
+
+    # --- Step 2: Check SEBI debarred list ---
+    debarred_matches = await _find_debarred_matches(db, name or "", pan)
+    data_sources.append("sebi_debarred_list")
+
+    # Trigger signal based on match strength
+    # - Exact/near-exact match → strong signal (critical/high risk)
+    # - Many related matches (cluster) → medium signal (warrants review)
+    # - Few weak matches → informational only (shown but no risk score)
+    if debarred_matches:
+        top_match = debarred_matches[0]
+        if top_match.confidence >= 0.8:
+            signals.append(risk_scoring.signal_sebi_debarred(top_match.matched_name, top_match.confidence))
+        elif len(debarred_matches) >= 4 and top_match.confidence >= 0.3:
+            # Cluster signal — 4+ debarred entities share query tokens
+            avg_conf = sum(m.confidence for m in debarred_matches) / len(debarred_matches)
+            signal_confidence = min(0.7, avg_conf * 1.5)
+            signals.append(risk_scoring.signal_sebi_debarred(
+                "{} ({} related entities in enforcement actions)".format(
+                    top_match.matched_name, len(debarred_matches)
+                ),
+                signal_confidence,
+            ))
+        # Fewer than 4 matches with low confidence → no signal
+        # But matches still returned for user inspection (transparency)
+
+    # --- Step 3: Compute overall score ---
+    score_result = risk_scoring.compute_risk_score(signals)
+
+    # --- Step 4: Build suggestions ---
+    suggestions = _build_suggestions(
+        identifier_type,
+        identifier,
+        pan,
+        name,
+        has_debarment=bool(debarred_matches),
+    )
+
+    # --- Step 5: Record in history ---
+    historical = await _record_lookup(db, identifier_type, identifier, score_result.score, client_id)
+
+    return CompanyRiskProfile(
+        query=identifier,
+        query_type=identifier_type,
+        name=name,
+        state=state,
+        validation=validation,
+        overall_risk_score=score_result.score,
+        risk_level=score_result.level,
+        signals=signals,
+        is_debarred=any(m.confidence >= 0.8 for m in debarred_matches) or len(debarred_matches) >= 3,
+        debarred_matches=debarred_matches,
+        data_sources=data_sources,
+        historical_occurrences=historical,
+        suggested_lookups=suggestions,
+    )
+
+================
+File: ./app/services/stripe_service.py
+================
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Optional
+
+import stripe
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.models.billing import Subscription
+from app.services import auth as auth_service
+
+logger = logging.getLogger(__name__)
+
+
+PRICE_TO_TIER: dict[str, str] = {}
+
+
+def _rebuild_price_map():
+    PRICE_TO_TIER.clear()
+    if settings.STRIPE_PRICE_DEV:
+        PRICE_TO_TIER[settings.STRIPE_PRICE_DEV] = "dev"
+    if settings.STRIPE_PRICE_STARTUP:
+        PRICE_TO_TIER[settings.STRIPE_PRICE_STARTUP] = "startup"
+
+
+_rebuild_price_map()
+
+
+@dataclass
+class CheckoutResult:
+    checkout_url: str
+    session_id: str
+    api_key_id: int
+    tier: str
+
+
+def _is_configured() -> bool:
+    return bool(settings.STRIPE_SECRET_KEY)
+
+
+def _configure():
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    stripe.api_version = "2024-06-20"
+
+
+def _price_for_tier(tier: str) -> Optional[str]:
+    _rebuild_price_map()
+    for price_id, t in PRICE_TO_TIER.items():
+        if t == tier:
+            return price_id
+    return None
+
+
+def _tier_for_price(price_id: str) -> Optional[str]:
+    _rebuild_price_map()
+    return PRICE_TO_TIER.get(price_id)
+
+
+async def create_checkout(
+    session: AsyncSession,
+    email: str,
+    tier: str,
+    success_url: str,
+    cancel_url: str,
+    name: str = "",
+) -> CheckoutResult:
+    if not _is_configured():
+        raise RuntimeError("Stripe is not configured on this server")
+    price_id = _price_for_tier(tier)
+    if not price_id:
+        raise ValueError("No Stripe price configured for tier '{}'".format(tier))
+
+    raw_key, key_row = await auth_service.issue_key(
+        session, email=email, name=name, tier="free", notes="Pending stripe sub for tier=" + tier
+    )
+
+    _configure()
+    try:
+        checkout = stripe.checkout.Session.create(
+            mode="subscription",
+            payment_method_types=["card"],
+            line_items=[{"price": price_id, "quantity": 1}],
+            customer_email=email,
+            success_url=success_url,
+            cancel_url=cancel_url,
+            client_reference_id=str(key_row.id),
+            metadata={
+                "api_key_id": str(key_row.id),
+                "pending_tier": tier,
+                "email": email,
+                "raw_key_last4": key_row.key_last4,
+            },
+            subscription_data={
+                "metadata": {
+                    "api_key_id": str(key_row.id),
+                    "pending_tier": tier,
+                    "email": email,
+                },
+            },
+        )
+    except Exception as e:
+        logger.exception("Stripe checkout.Session.create failed")
+        raise RuntimeError("Failed to create Stripe checkout: {}".format(e))
+
+    sub_row = Subscription(
+        api_key_id=key_row.id,
+        rail="stripe",
+        plan=tier,
+        external_subscription_id=checkout.id,
+        status="pending",
+        currency="USD",
+        amount_minor=int(auth_service.TIERS[tier].price_usd_monthly * 100),
+    )
+    session.add(sub_row)
+    await session.commit()
+
+    logger.info(
+        "Stripe checkout: session=%s key_id=%s tier=%s email=%s",
+        checkout.id,
+        key_row.id,
+        tier,
+        email,
+    )
+
+    return CheckoutResult(
+        checkout_url=checkout.url,
+        session_id=checkout.id,
+        api_key_id=key_row.id,
+        tier=tier,
+    )
+
+
+def verify_and_parse_event(body_bytes: bytes, sig_header: str):
+    if not settings.STRIPE_WEBHOOK_SECRET:
+        raise RuntimeError("STRIPE_WEBHOOK_SECRET is not configured")
+    _configure()
+    return stripe.Webhook.construct_event(
+        body_bytes, sig_header, settings.STRIPE_WEBHOOK_SECRET
+    )
+
+
+async def _find_sub_by_external_id(
+    session: AsyncSession, external_id: str
+) -> Optional[Subscription]:
+    result = await session.execute(
+        select(Subscription).where(Subscription.external_subscription_id == external_id)
+    )
+    return result.scalar_one_or_none()
+
+
+async def handle_event(session: AsyncSession, event) -> dict:
+    etype = event.get("type") if isinstance(event, dict) else event["type"]
+    data = event["data"]["object"] if isinstance(event, dict) else event["data"]["object"]
+
+    if etype == "checkout.session.completed":
+        session_id = data.get("id")
+        sub_id = data.get("subscription")
+        meta = data.get("metadata") or {}
+        pending_tier = meta.get("pending_tier", "dev")
+        api_key_id = int(meta.get("api_key_id") or 0)
+
+        existing = await _find_sub_by_external_id(session, session_id)
+        if existing is None:
+            logger.warning("Stripe checkout.completed for unknown session=%s", session_id)
+            return {"ok": False, "reason": "unknown session"}
+        if sub_id:
+            existing.external_subscription_id = sub_id
+        existing.status = "active"
+        existing.external_customer_id = data.get("customer")
+        existing.updated_at = datetime.utcnow()
+        if api_key_id:
+            await auth_service.set_tier(session, api_key_id, pending_tier)
+        await session.commit()
+        logger.info("Stripe: checkout complete key_id=%s tier=%s sub=%s", api_key_id, pending_tier, sub_id)
+        return {"ok": True, "event": etype}
+
+    if etype in ("customer.subscription.updated", "customer.subscription.created"):
+        sub_id = data.get("id")
+        existing = await _find_sub_by_external_id(session, sub_id)
+        if existing is None:
+            return {"ok": True, "ignored": True}
+        existing.status = data.get("status") or existing.status
+        cps = data.get("current_period_start")
+        cpe = data.get("current_period_end")
+        if cps:
+            existing.current_period_start = datetime.utcfromtimestamp(int(cps))
+        if cpe:
+            existing.current_period_end = datetime.utcfromtimestamp(int(cpe))
+        existing.cancel_at_period_end = bool(data.get("cancel_at_period_end"))
+
+        items = (data.get("items") or {}).get("data") or []
+        if items:
+            price_id = (items[0].get("price") or {}).get("id")
+            tier = _tier_for_price(price_id) if price_id else None
+            if tier and existing.status == "active":
+                await auth_service.set_tier(session, existing.api_key_id, tier)
+                existing.plan = tier
+
+        existing.updated_at = datetime.utcnow()
+        await session.commit()
+        return {"ok": True, "event": etype}
+
+    if etype == "customer.subscription.deleted":
+        sub_id = data.get("id")
+        existing = await _find_sub_by_external_id(session, sub_id)
+        if existing is None:
+            return {"ok": True, "ignored": True}
+        existing.status = "cancelled"
+        existing.updated_at = datetime.utcnow()
+        await auth_service.set_tier(session, existing.api_key_id, "free")
+        await session.commit()
+        logger.info("Stripe: cancelled sub=%s", sub_id)
+        return {"ok": True, "event": etype}
+
+    if etype in ("invoice.payment_failed", "invoice.payment_action_required"):
+        sub_id = data.get("subscription")
+        existing = await _find_sub_by_external_id(session, sub_id) if sub_id else None
+        if existing:
+            existing.status = "past_due"
+            existing.updated_at = datetime.utcnow()
+            await session.commit()
+        return {"ok": True, "event": etype}
+
+    return {"ok": True, "ignored": True, "event": etype}
+
+================
+File: ./app/services/validators.py
+================
+"""Format validators for Indian company identifiers.
+
+Pure algorithmic validation — no network calls, no legal risk, no rate limits.
+These are the 'always works' backbone of SentinelCorp.
+"""
+
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass
+from typing import Optional
+
+# Indian state codes (used in GSTIN first 2 digits)
+STATE_CODES = {
+    "01": "Jammu and Kashmir", "02": "Himachal Pradesh", "03": "Punjab",
+    "04": "Chandigarh", "05": "Uttarakhand", "06": "Haryana",
+    "07": "Delhi", "08": "Rajasthan", "09": "Uttar Pradesh",
+    "10": "Bihar", "11": "Sikkim", "12": "Arunachal Pradesh",
+    "13": "Nagaland", "14": "Manipur", "15": "Mizoram",
+    "16": "Tripura", "17": "Meghalaya", "18": "Assam",
+    "19": "West Bengal", "20": "Jharkhand", "21": "Odisha",
+    "22": "Chhattisgarh", "23": "Madhya Pradesh", "24": "Gujarat",
+    "25": "Daman and Diu", "26": "Dadra and Nagar Haveli",
+    "27": "Maharashtra", "28": "Andhra Pradesh (before division)",
+    "29": "Karnataka", "30": "Goa", "31": "Lakshadweep",
+    "32": "Kerala", "33": "Tamil Nadu", "34": "Puducherry",
+    "35": "Andaman and Nicobar Islands", "36": "Telangana",
+    "37": "Andhra Pradesh (after division)", "38": "Ladakh",
+    "97": "Other Territory", "99": "Centre Jurisdiction",
+}
+
+# CIN state codes (first 2 chars)
+CIN_STATE_CODES = {
+    "AP": "Andhra Pradesh", "AR": "Arunachal Pradesh", "AS": "Assam",
+    "BR": "Bihar", "CH": "Chandigarh", "CG": "Chhattisgarh",
+    "DL": "Delhi", "DN": "Dadra and Nagar Haveli", "GA": "Goa",
+    "GJ": "Gujarat", "HP": "Himachal Pradesh", "HR": "Haryana",
+    "JH": "Jharkhand", "JK": "Jammu and Kashmir", "KA": "Karnataka",
+    "KL": "Kerala", "LD": "Lakshadweep", "MH": "Maharashtra",
+    "ML": "Meghalaya", "MN": "Manipur", "MP": "Madhya Pradesh",
+    "MZ": "Mizoram", "NL": "Nagaland", "OR": "Odisha",
+    "PB": "Punjab", "PY": "Puducherry", "RJ": "Rajasthan",
+    "SK": "Sikkim", "TN": "Tamil Nadu", "TR": "Tripura",
+    "UP": "Uttar Pradesh", "UT": "Uttarakhand", "WB": "West Bengal",
+    "TG": "Telangana", "LA": "Ladakh",
+}
+
+# Company class codes (positions 2-5 in CIN for listed/private)
+COMPANY_CLASS = {
+    "L": "Listed (Public)",
+    "U": "Unlisted",
+}
+
+# Industry classification codes (NIC 2008) - major divisions used in CIN
+NIC_DIVISIONS = {
+    "01": "Agriculture", "02": "Forestry", "03": "Fishing",
+    "05": "Mining of coal and lignite", "10": "Manufacture of food products",
+    "13": "Textiles", "14": "Wearing apparel", "20": "Chemicals",
+    "23": "Non-metallic mineral products", "24": "Basic metals",
+    "25": "Fabricated metal products", "26": "Electronic components",
+    "27": "Electrical equipment", "28": "Machinery", "29": "Motor vehicles",
+    "35": "Electricity", "36": "Water supply", "41": "Construction",
+    "45": "Trade/Repair of motor vehicles", "46": "Wholesale trade",
+    "47": "Retail trade", "49": "Land transport", "52": "Warehousing",
+    "58": "Publishing", "61": "Telecommunications",
+    "62": "Computer programming", "63": "Information services",
+    "64": "Financial services", "65": "Insurance", "66": "Financial auxiliary",
+    "68": "Real estate", "69": "Legal and accounting",
+    "70": "Management consultancy", "71": "Architecture/engineering",
+    "72": "Scientific R&D", "73": "Advertising", "74": "Professional",
+    "78": "Employment activities", "85": "Education", "86": "Human health",
+    "90": "Creative arts", "93": "Sports/amusement", "96": "Other services",
+}
+
+
+@dataclass
+class GSTINValidation:
+    gstin: str
+    is_valid: bool
+    state_code: Optional[str] = None
+    state_name: Optional[str] = None
+    pan: Optional[str] = None
+    entity_number: Optional[str] = None
+    checksum_valid: bool = False
+    error: Optional[str] = None
+
+
+@dataclass
+class CINValidation:
+    cin: str
+    is_valid: bool
+    listing_status: Optional[str] = None  # Listed/Unlisted
+    state_code: Optional[str] = None
+    state_name: Optional[str] = None
+    year_of_incorporation: Optional[int] = None
+    industry_division: Optional[str] = None
+    company_ownership: Optional[str] = None  # PLC/PVT/PUB/NPL etc
+    registration_number: Optional[str] = None
+    error: Optional[str] = None
+
+
+@dataclass
+class PANValidation:
+    pan: str
+    is_valid: bool
+    pan_type: Optional[str] = None  # Person/Company/HUF/etc
+    error: Optional[str] = None
+
+
+# ============================================================
+# GSTIN — Format: 22AAAAA0000A1Z5 (15 chars)
+# Position 1-2: State code
+# Position 3-12: PAN
+# Position 13: Entity code (1-9, A-Z)
+# Position 14: Z (default)
+# Position 15: Checksum
+# ============================================================
+
+GSTIN_RE = re.compile(r"^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$")
+
+# Luhn mod 36 checksum chars
+GSTIN_CHECKSUM_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def _gstin_checksum(gstin_first_14: str) -> str:
+    """Calculate Luhn mod 36 checksum for GSTIN."""
+    factor = 2
+    total = 0
+    code_len = len(GSTIN_CHECKSUM_CHARS)
+
+    for ch in reversed(gstin_first_14):
+        digit = GSTIN_CHECKSUM_CHARS.index(ch)
+        digit = digit * factor
+        factor = 1 if factor == 2 else 2
+        digit = (digit // code_len) + (digit % code_len)
+        total += digit
+
+    remainder = total % code_len
+    check_code_point = (code_len - remainder) % code_len
+    return GSTIN_CHECKSUM_CHARS[check_code_point]
+
+
+def validate_gstin(gstin: str) -> GSTINValidation:
+    """Validate GSTIN format and checksum.
+
+    Works entirely client-side — no API calls.
+    """
+    gstin = gstin.strip().upper()
+
+    if len(gstin) != 15:
+        return GSTINValidation(gstin=gstin, is_valid=False, error="GSTIN must be 15 characters")
+
+    if not GSTIN_RE.match(gstin):
+        return GSTINValidation(gstin=gstin, is_valid=False, error="Invalid GSTIN format")
+
+    state_code = gstin[:2]
+    pan = gstin[2:12]
+    entity = gstin[12]
+
+    if state_code not in STATE_CODES:
+        return GSTINValidation(
+            gstin=gstin, is_valid=False,
+            error="Unknown state code: {}".format(state_code),
+        )
+
+    # Verify checksum
+    expected_checksum = _gstin_checksum(gstin[:14])
+    actual_checksum = gstin[14]
+    checksum_ok = expected_checksum == actual_checksum
+
+    return GSTINValidation(
+        gstin=gstin,
+        is_valid=checksum_ok,
+        state_code=state_code,
+        state_name=STATE_CODES[state_code],
+        pan=pan,
+        entity_number=entity,
+        checksum_valid=checksum_ok,
+        error=None if checksum_ok else "Checksum mismatch",
+    )
+
+
+# ============================================================
+# CIN — Format: L/U + 5-digit industry + 2-char state +
+#              4-digit year + 3-char ownership + 6-digit number
+# Example: L17110MH1973PLC019786
+# ============================================================
+
+CIN_RE = re.compile(
+    r"^([LU])"                    # 1: Listed/Unlisted
+    r"(\d{5})"                    # 2-6: Industry NIC code
+    r"([A-Z]{2})"                 # 7-8: State code
+    r"(\d{4})"                    # 9-12: Year of incorporation
+    r"([A-Z]{3})"                 # 13-15: Ownership type
+    r"(\d{6})$"                   # 16-21: Registration number
+)
+
+OWNERSHIP_TYPES = {
+    "PLC": "Public Limited Company",
+    "PTC": "Private Limited Company",
+    "FLC": "Foreign Limited Company",
+    "FTC": "Foreign Trading Company",
+    "GOI": "Government of India",
+    "SGC": "State Government Company",
+    "NPL": "Not For Profit License",
+    "GAP": "General Association Public",
+    "GAT": "General Association Trust",
+    "ULL": "Unlimited Liability",
+    "ULT": "Unlimited Liability with Limited Transferability",
+    "OPC": "One Person Company",
+}
+
+
+def validate_cin(cin: str) -> CINValidation:
+    """Validate CIN format and extract metadata."""
+    cin = cin.strip().upper()
+
+    if len(cin) != 21:
+        return CINValidation(cin=cin, is_valid=False, error="CIN must be 21 characters")
+
+    match = CIN_RE.match(cin)
+    if not match:
+        return CINValidation(cin=cin, is_valid=False, error="Invalid CIN format")
+
+    listing, industry_code, state, year, ownership, reg_number = match.groups()
+
+    if state not in CIN_STATE_CODES:
+        return CINValidation(cin=cin, is_valid=False, error="Unknown state code: {}".format(state))
+
+    year_int = int(year)
+    if year_int < 1850 or year_int > 2100:
+        return CINValidation(cin=cin, is_valid=False, error="Invalid year: {}".format(year))
+
+    # Industry division (first 2 digits of NIC code)
+    industry_div = industry_code[:2]
+    industry_name = NIC_DIVISIONS.get(industry_div, "Unknown/Other")
+
+    return CINValidation(
+        cin=cin,
+        is_valid=True,
+        listing_status=COMPANY_CLASS.get(listing, "Unknown"),
+        state_code=state,
+        state_name=CIN_STATE_CODES[state],
+        year_of_incorporation=year_int,
+        industry_division=industry_name,
+        company_ownership=OWNERSHIP_TYPES.get(ownership, "Unknown ({})".format(ownership)),
+        registration_number=reg_number,
+    )
+
+
+# ============================================================
+# PAN — Format: AAAPL1234C (10 chars)
+# Position 4: Type (P=Person, C=Company, H=HUF, F=Firm, A=AOP, T=Trust, B=BOI, L=Local Auth, J=Artificial, G=Gov)
+# ============================================================
+
+PAN_RE = re.compile(r"^[A-Z]{3}[PCHFATBLJG][A-Z]{1}\d{4}[A-Z]{1}$")
+
+PAN_TYPES = {
+    "P": "Individual",
+    "C": "Company",
+    "H": "Hindu Undivided Family",
+    "F": "Firm/Partnership",
+    "A": "Association of Persons",
+    "T": "Trust",
+    "B": "Body of Individuals",
+    "L": "Local Authority",
+    "J": "Artificial Juridical Person",
+    "G": "Government",
+}
+
+
+def validate_pan(pan: str) -> PANValidation:
+    """Validate PAN format and extract type."""
+    pan = pan.strip().upper()
+
+    if len(pan) != 10:
+        return PANValidation(pan=pan, is_valid=False, error="PAN must be 10 characters")
+
+    if not PAN_RE.match(pan):
+        return PANValidation(pan=pan, is_valid=False, error="Invalid PAN format")
+
+    pan_type = PAN_TYPES.get(pan[3], "Unknown")
+
+    return PANValidation(
+        pan=pan,
+        is_valid=True,
+        pan_type=pan_type,
+    )
+
+
+def pan_from_gstin(gstin: str) -> Optional[str]:
+    """Extract PAN from GSTIN (chars 3-12)."""
+    if len(gstin) != 15:
+        return None
+    return gstin[2:12]
+
+================
+File: ./examples/due_diligence.py
+================
+"""
+Due Diligence Example — Check a batch of companies against SEBI debarred list.
+
+Usage:
+    pip install sentinelcorp
+    python due_diligence.py
+"""
+
+import sys
+sys.path.insert(0, "../sdk")
+
+from sentinelcorp import SentinelCorp
+
+API_URL = "https://sentinelcorp-production.up.railway.app"
+
+companies = [
+    "Sahara India",
+    "Tata Consultancy Services",
+    "Reliance Industries",
+    "27AAACT1234A1Z5",  # GSTIN
+    "L17110MH1973PLC019786",  # CIN (Reliance)
+    "ABCPE1234F",  # PAN
+]
+
+
+def main():
+    client = SentinelCorp(base_url=API_URL)
+
+    print("Due Diligence Report")
+    print("=" * 60)
+
+    high_risk = []
+    for company in companies:
+        profile = client.profile(company)
+        score = profile["overall_risk_score"]
+        level = profile["risk_level"]
+        debarred = profile["is_debarred"]
+
+        flag = "!!" if score >= 65 else " >"
+        print(f"  {flag} {company[:40]:40s}  score: {score:5.1f}  level: {level:8s}  debarred: {debarred}")
+
+        if score >= 65:
+            high_risk.append((company, profile))
+
+    print("=" * 60)
+    if high_risk:
+        print(f"\n{len(high_risk)} HIGH RISK entities found — do NOT proceed:")
+        for name, p in high_risk:
+            print(f"  - {name}")
+            for m in p.get("debarred_matches", [])[:2]:
+                print(f"      Matched: {m['matched_name']}")
+    else:
+        print("\nAll entities cleared. Safe to proceed.")
+
+    client.close()
+
+
+if __name__ == "__main__":
+    main()
+
+================
+File: ./integrations/README.md
+================
+# SentinelCorp Agent Integrations
+
+Drop-in company risk profiling for any AI agent framework.
+
+## LangChain
+
+```python
+from integrations.langchain_tool import get_sentinelcorp_tools
+
+tools = get_sentinelcorp_tools()
+agent = initialize_agent(tools, llm, agent="zero-shot-react-description")
+agent.run("Do due diligence on Sahara India — is it high risk?")
+```
+
+## CrewAI
+
+```python
+from integrations.crewai_tool import SentinelCorpProfileTool, SentinelCorpDebarredTool
+
+compliance_agent = Agent(
+    role="Compliance Analyst",
+    goal="Assess risk of Indian companies",
+    tools=[SentinelCorpProfileTool(), SentinelCorpDebarredTool()],
+)
+```
+
+## OpenAI Function Calling
+
+```python
+from integrations.openai_functions import SENTINELCORP_FUNCTIONS, handle_sentinelcorp_call
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Is Sahara India safe to do business with?"}],
+    functions=SENTINELCORP_FUNCTIONS,
+)
+```
+
+## MCP Server (Claude, Cursor)
+
+```json
+{
+  "mcpServers": {
+    "sentinelcorp": {
+      "command": "python",
+      "args": ["integrations/mcp_server.py"]
+    }
+  }
+}
+```
+
+## Python SDK
+
+```python
+from sentinelcorp import SentinelCorp
+
+client = SentinelCorp()
+profile = client.profile("Sahara India")
+print(profile["overall_risk_score"])  # 66.5
+```
+
+================
+File: ./integrations/__init__.py
+================
+
+================
+File: ./integrations/crewai_tool.py
+================
+"""CrewAI tools for SentinelCorp."""
+
+from __future__ import annotations
+
+import os
+import httpx
+
+try:
+    from crewai.tools import BaseTool
+except ImportError:
+    try:
+        from crewai_tools import BaseTool
+    except ImportError:
+        raise ImportError("Install crewai: pip install crewai")
+
+API_URL = os.getenv("SENTINELCORP_API_URL", "https://sentinelcorp-production.up.railway.app")
+
+
+class SentinelCorpProfileTool(BaseTool):
+    name: str = "India Company Risk Profile"
+    description: str = (
+        "Get unified risk profile for an Indian company. "
+        "Accepts CIN, GSTIN, PAN, or company name. "
+        "Returns risk score 0-100, risk level, SEBI debarment status, and signals."
+    )
+
+    def _run(self, identifier: str) -> str:
+        resp = httpx.get(
+            "{}/api/v1/company/profile".format(API_URL),
+            params={"identifier": identifier.strip(), "type": "auto"},
+            timeout=15,
+        )
+        if resp.status_code != 200:
+            return "Error: {}".format(resp.text)
+        d = resp.json()
+        lines = [
+            "Risk Score: {}/100 ({})".format(d["overall_risk_score"], d["risk_level"]),
+            "SEBI Debarred: {}".format(d["is_debarred"]),
+        ]
+        if d.get("debarred_matches"):
+            lines.append("Debarred matches: {}".format(len(d["debarred_matches"])))
+        if d.get("signals"):
+            lines.append("Signals: {}".format(", ".join(s["signal_type"] for s in d["signals"])))
+        return " | ".join(lines)
+
+
+class SentinelCorpDebarredTool(BaseTool):
+    name: str = "SEBI Debarred Entity Search"
+    description: str = (
+        "Search SEBI/NSE/BSE debarred entity database by name. "
+        "Returns list of matching debarred entities with source and reason."
+    )
+
+    def _run(self, name: str) -> str:
+        resp = httpx.get(
+            "{}/api/v1/debarred/search".format(API_URL),
+            params={"name": name.strip(), "limit": 10},
+            timeout=10,
+        )
+        d = resp.json()
+        if d["total"] == 0:
+            return "No matches for '{}' in debarred database".format(name)
+        return "Found {} matches: {}".format(
+            d["total"],
+            ", ".join(m["name"] for m in d["matches"][:5]),
+        )
+
+================
+File: ./integrations/langchain_tool.py
+================
+"""
+SentinelCorp LangChain Tools.
+
+Usage:
+    from integrations.langchain_tool import get_sentinelcorp_tools
+    tools = get_sentinelcorp_tools()
+    agent = initialize_agent(tools, llm, agent="zero-shot-react-description")
+    agent.run("Is Sahara India a high-risk company?")
+"""
+
+from __future__ import annotations
+
+import os
+import httpx
+from langchain.tools import BaseTool
+
+# Override with SENTINELCORP_API_URL env var if deployed elsewhere
+API_URL = os.getenv("SENTINELCORP_API_URL", "https://sentinelcorp-production.up.railway.app")
+
+
+class SentinelCorpCompanyProfile(BaseTool):
+    name: str = "sentinelcorp_company_profile"
+    description: str = (
+        "Get unified risk profile for an Indian company. "
+        "Input: CIN, GSTIN, PAN, or company name. "
+        "Returns risk score (0-100), risk level, SEBI debarment status, and signals. "
+        "Use to check if a company is legitimate before engaging."
+    )
+
+    def _run(self, identifier: str) -> str:
+        identifier = identifier.strip().strip("'\"")
+        resp = httpx.get(
+            "{}/api/v1/company/profile".format(API_URL),
+            params={"identifier": identifier, "type": "auto"},
+            timeout=15,
+        )
+        if resp.status_code != 200:
+            return "Error: {}".format(resp.text)
+        d = resp.json()
+        lines = [
+            "Company: {}".format(d.get("query")),
+            "Type: {}".format(d.get("query_type")),
+            "Risk Score: {}/100 ({})".format(d["overall_risk_score"], d["risk_level"]),
+            "SEBI Debarred: {}".format(d["is_debarred"]),
+        ]
+        if d.get("debarred_matches"):
+            lines.append("Matches in debarred list:")
+            for m in d["debarred_matches"][:3]:
+                lines.append("  - {} (confidence: {})".format(m["matched_name"], m["confidence"]))
+        if d.get("signals"):
+            lines.append("Risk signals:")
+            for s in d["signals"]:
+                lines.append("  - [{}] {}".format(s["severity"], s["description"]))
+        return "\n".join(lines)
+
+    async def _arun(self, identifier: str) -> str:
+        return self._run(identifier)
+
+
+class SentinelCorpValidate(BaseTool):
+    name: str = "sentinelcorp_validate_identifier"
+    description: str = (
+        "Validate format and checksum of Indian identifiers (GSTIN, CIN, PAN). "
+        "Input format: 'TYPE:VALUE' where TYPE is gstin/cin/pan. Example: 'gstin:27AAACT1234A1Z5'. "
+        "Use before looking up companies to ensure identifier is well-formed."
+    )
+
+    def _run(self, query: str) -> str:
+        parts = query.split(":", 1)
+        if len(parts) != 2:
+            return "Invalid format. Use 'gstin:VALUE' or 'cin:VALUE' or 'pan:VALUE'"
+        id_type, value = parts[0].strip().lower(), parts[1].strip()
+        if id_type not in ("gstin", "cin", "pan"):
+            return "Unknown type: {}".format(id_type)
+        resp = httpx.get("{}/api/v1/validate/{}".format(API_URL, id_type), params={id_type: value}, timeout=10)
+        d = resp.json()
+        return "Valid: {}, Parsed: {}".format(d["is_valid"], d.get("parsed", {}))
+
+    async def _arun(self, query: str) -> str:
+        return self._run(query)
+
+
+class SentinelCorpDebarredSearch(BaseTool):
+    name: str = "sentinelcorp_debarred_search"
+    description: str = (
+        "Search the SEBI/NSE/BSE debarred entities database by name. "
+        "Input: company or person name. "
+        "Returns list of debarred entities matching the name. "
+        "Use for compliance due diligence."
+    )
+
+    def _run(self, name: str) -> str:
+        resp = httpx.get(
+            "{}/api/v1/debarred/search".format(API_URL),
+            params={"name": name.strip(), "limit": 10},
+            timeout=10,
+        )
+        d = resp.json()
+        if d["total"] == 0:
+            return "No matches found for '{}'".format(name)
+        lines = ["Found {} matches:".format(d["total"])]
+        for m in d["matches"][:10]:
+            lines.append("  - {} [{}]".format(m["name"], m["source"]))
+        return "\n".join(lines)
+
+    async def _arun(self, name: str) -> str:
+        return self._run(name)
+
+
+def get_sentinelcorp_tools():
+    """Return all SentinelCorp tools for LangChain agent initialization."""
+    return [
+        SentinelCorpCompanyProfile(),
+        SentinelCorpValidate(),
+        SentinelCorpDebarredSearch(),
+    ]
+
+================
+File: ./integrations/mcp_server.py
+================
+"""SentinelCorp MCP Server — Model Context Protocol server for AI agent discovery.
+
+Allows Claude, Cursor, and MCP-compatible clients to auto-discover and use
+SentinelCorp tools for India company risk profiling.
+
+Add to MCP client config:
+    {
+      "mcpServers": {
+        "sentinelcorp": {
+          "command": "python",
+          "args": ["integrations/mcp_server.py"]
+        }
+      }
+    }
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+from typing import Any
+
+import httpx
+
+API_URL = os.getenv("SENTINELCORP_API_URL", "https://sentinelcorp-production.up.railway.app")
+
+TOOLS = [
+    {
+        "name": "company_risk_profile",
+        "description": "Get unified risk profile for an Indian company. Accepts CIN, GSTIN, PAN, or company name. Returns risk score (0-100), SEBI debarment status, signals, and historical lookup count.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "identifier": {"type": "string", "description": "CIN, GSTIN, PAN, or company name"},
+                "type": {"type": "string", "enum": ["auto", "cin", "gstin", "pan", "name"], "default": "auto"},
+            },
+            "required": ["identifier"],
+        },
+    },
+    {
+        "name": "validate_gstin",
+        "description": "Validate GSTIN format with checksum verification and extract state, PAN, entity details.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"gstin": {"type": "string"}},
+            "required": ["gstin"],
+        },
+    },
+    {
+        "name": "validate_cin",
+        "description": "Validate CIN format and extract metadata (listing status, state, year of incorporation, industry, ownership type).",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"cin": {"type": "string"}},
+            "required": ["cin"],
+        },
+    },
+    {
+        "name": "validate_pan",
+        "description": "Validate PAN format and identify PAN type (Individual, Company, HUF, etc).",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"pan": {"type": "string"}},
+            "required": ["pan"],
+        },
+    },
+    {
+        "name": "search_debarred",
+        "description": "Search SEBI/NSE/BSE debarred entities database by name. Essential for compliance/sanctions screening of Indian entities.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"},
+                "limit": {"type": "integer", "default": 10},
+            },
+            "required": ["name"],
+        },
+    },
+    {
+        "name": "batch_profile",
+        "description": "Risk profile up to 100 Indian companies in one request. Use for due diligence workflows.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "identifiers": {"type": "array", "items": {"type": "string"}, "maxItems": 100},
+            },
+            "required": ["identifiers"],
+        },
+    },
+]
+
+
+def _call(path: str, params: dict = None, method: str = "GET", body: dict = None) -> Any:
+    if method == "GET":
+        resp = httpx.get("{}{}".format(API_URL, path), params=params or {}, timeout=15)
+    else:
+        resp = httpx.post("{}{}".format(API_URL, path), json=body or {}, timeout=15)
+    return resp.json()
+
+
+def handle_tool_call(name: str, arguments: dict) -> Any:
+    if name == "company_risk_profile":
+        return _call("/api/v1/company/profile", {"identifier": arguments["identifier"], "type": arguments.get("type", "auto")})
+    if name == "validate_gstin":
+        return _call("/api/v1/validate/gstin", {"gstin": arguments["gstin"]})
+    if name == "validate_cin":
+        return _call("/api/v1/validate/cin", {"cin": arguments["cin"]})
+    if name == "validate_pan":
+        return _call("/api/v1/validate/pan", {"pan": arguments["pan"]})
+    if name == "search_debarred":
+        return _call("/api/v1/debarred/search", {"name": arguments["name"], "limit": arguments.get("limit", 10)})
+    if name == "batch_profile":
+        return _call("/api/v1/company/batch", method="POST", body={"identifiers": arguments["identifiers"]})
+    return {"error": "Unknown tool: {}".format(name)}
+
+
+def run_stdio():
+    while True:
+        try:
+            line = sys.stdin.readline()
+            if not line:
+                break
+            request = json.loads(line.strip())
+        except (json.JSONDecodeError, KeyboardInterrupt):
+            break
+
+        method = request.get("method", "")
+        req_id = request.get("id")
+
+        if method == "initialize":
+            response = {
+                "jsonrpc": "2.0", "id": req_id,
+                "result": {
+                    "protocolVersion": "2024-11-05",
+                    "serverInfo": {"name": "sentinelcorp", "version": "0.1.0"},
+                    "capabilities": {"tools": {}},
+                },
+            }
+        elif method == "notifications/initialized":
+            continue
+        elif method == "tools/list":
+            response = {"jsonrpc": "2.0", "id": req_id, "result": {"tools": TOOLS}}
+        elif method == "tools/call":
+            params = request.get("params", {})
+            result = handle_tool_call(params.get("name", ""), params.get("arguments", {}))
+            response = {
+                "jsonrpc": "2.0", "id": req_id,
+                "result": {"content": [{"type": "text", "text": json.dumps(result, indent=2)}]},
+            }
+        else:
+            response = {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32601, "message": "Method not found"}}
+
+        sys.stdout.write(json.dumps(response) + "\n")
+        sys.stdout.flush()
+
+
+if __name__ == "__main__":
+    run_stdio()
+
+================
+File: ./integrations/openai_functions.py
+================
+"""OpenAI function calling spec for SentinelCorp."""
+
+from __future__ import annotations
+
+import json
+import os
+import httpx
+
+API_URL = os.getenv("SENTINELCORP_API_URL", "https://sentinelcorp-production.up.railway.app")
+
+SENTINELCORP_FUNCTIONS = [
+    {
+        "name": "company_risk_profile",
+        "description": "Get risk profile for an Indian company. Accepts CIN, GSTIN, PAN, or company name. Returns risk score 0-100, SEBI debarment status, and risk signals.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "identifier": {"type": "string", "description": "CIN, GSTIN, PAN, or company name"},
+                "type": {"type": "string", "enum": ["auto", "cin", "gstin", "pan", "name"], "default": "auto"},
+            },
+            "required": ["identifier"],
+        },
+    },
+    {
+        "name": "validate_gstin",
+        "description": "Validate format and checksum of an Indian GSTIN.",
+        "parameters": {
+            "type": "object",
+            "properties": {"gstin": {"type": "string"}},
+            "required": ["gstin"],
+        },
+    },
+    {
+        "name": "validate_cin",
+        "description": "Validate format of an Indian CIN (Corporate Identification Number) and extract metadata.",
+        "parameters": {
+            "type": "object",
+            "properties": {"cin": {"type": "string"}},
+            "required": ["cin"],
+        },
+    },
+    {
+        "name": "search_debarred",
+        "description": "Search SEBI/NSE/BSE debarred entities database by name.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "Company or person name"},
+                "limit": {"type": "integer", "default": 10},
+            },
+            "required": ["name"],
+        },
+    },
+]
+
+
+def handle_sentinelcorp_call(function_call) -> str:
+    name = function_call["name"] if isinstance(function_call, dict) else function_call.name
+    args_str = function_call["arguments"] if isinstance(function_call, dict) else function_call.arguments
+    args = json.loads(args_str)
+
+    if name == "company_risk_profile":
+        resp = httpx.get(
+            "{}/api/v1/company/profile".format(API_URL),
+            params={"identifier": args["identifier"], "type": args.get("type", "auto")},
+            timeout=15,
+        )
+    elif name == "validate_gstin":
+        resp = httpx.get("{}/api/v1/validate/gstin".format(API_URL), params={"gstin": args["gstin"]}, timeout=10)
+    elif name == "validate_cin":
+        resp = httpx.get("{}/api/v1/validate/cin".format(API_URL), params={"cin": args["cin"]}, timeout=10)
+    elif name == "search_debarred":
+        resp = httpx.get(
+            "{}/api/v1/debarred/search".format(API_URL),
+            params={"name": args["name"], "limit": args.get("limit", 10)},
+            timeout=10,
+        )
+    else:
+        return json.dumps({"error": "Unknown function: {}".format(name)})
+
+    return resp.text
+
+
+SENTINELCORP_TOOLS = [{"type": "function", "function": f} for f in SENTINELCORP_FUNCTIONS]
+
+================
+File: ./mcp.json
+================
+{
+  "name": "SentinelCorp",
+  "tagline": "India company risk profile API for AI agents",
+  "description": "Free API for validating Indian company identifiers (GSTIN, CIN, PAN), checking SEBI debarred entities, and computing unified risk scores. Built for agent workflows with MCP, LangChain, CrewAI, OpenAI integrations.",
+  "category": "compliance",
+  "keywords": [
+    "india company risk API",
+    "GSTIN validator",
+    "CIN validator",
+    "SEBI debarred entities API",
+    "indian compliance API",
+    "KYB India",
+    "due diligence API india",
+    "MCP india compliance",
+    "company verification india",
+    "risk scoring API"
+  ],
+  "data_sources": [
+    "SEBI / NSE / BSE debarred entities (OpenSanctions)",
+    "GSTIN checksum validation (Luhn mod-36)",
+    "CIN format validation + metadata extraction",
+    "PAN format validation"
+  ],
+  "tools": [
+    {
+      "name": "company_risk_profile",
+      "description": "Get unified risk profile for an Indian company from CIN/GSTIN/PAN/name.",
+      "endpoint": "GET /api/v1/company/profile?identifier={value}",
+      "latency": "<300ms"
+    },
+    {
+      "name": "batch_profile",
+      "description": "Risk profile up to 100 Indian companies in one request.",
+      "endpoint": "POST /api/v1/company/batch"
+    },
+    {
+      "name": "validate_gstin",
+      "description": "Validate GSTIN format + checksum, extract state + PAN + entity.",
+      "endpoint": "GET /api/v1/validate/gstin?gstin={value}",
+      "latency": "<20ms"
+    },
+    {
+      "name": "validate_cin",
+      "description": "Validate CIN format and extract listing status, state, year, industry, ownership.",
+      "endpoint": "GET /api/v1/validate/cin?cin={value}",
+      "latency": "<20ms"
+    },
+    {
+      "name": "validate_pan",
+      "description": "Validate PAN format and identify PAN type.",
+      "endpoint": "GET /api/v1/validate/pan?pan={value}",
+      "latency": "<20ms"
+    },
+    {
+      "name": "search_debarred",
+      "description": "Search SEBI/NSE/BSE debarred entities by name (14,000+ entities).",
+      "endpoint": "GET /api/v1/debarred/search?name={value}"
+    }
+  ],
+  "free_tier": {
+    "requests": 1000,
+    "no_signup_required": true
+  },
+  "sibling_products": [
+    {
+      "name": "SentinelX402",
+      "description": "Threat intelligence API for AI agents with CERT-In India advisories",
+      "url": "https://github.com/splitfireai-hue/sentinelx402"
+    }
+  ]
+}
+
+================
+File: ./pyproject.toml
+================
+[project]
+name = "sentinelcorp"
+version = "0.1.0"
+description = "India Company Risk Profile API — unified risk scoring from MCA, GST, Court, SEBI data. Built for AI agents."
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.23.0",
+    "sqlalchemy[asyncio]>=2.0",
+    "aiosqlite>=0.19.0",
+    "greenlet>=3.0",
+    "pydantic-settings>=2.0",
+    "pydantic[email]>=2.0",
+    "slowapi>=0.1.9",
+    "httpx>=0.24.0",
+    "openpyxl>=3.1.0",
+    "beautifulsoup4>=4.12.0",
+    "razorpay>=1.4.0",
+    "stripe>=8.0.0",
+]
+
+[project.optional-dependencies]
+production = [
+    "gunicorn>=21.0",
+    "asyncpg>=0.28.0",
+    "redis>=5.0",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+================
+File: ./sdk/README.md
+================
+# SentinelCorp Python SDK
+
+```python
+from sentinelcorp import SentinelCorp
+
+client = SentinelCorp(base_url="https://sentinelcorp-production.up.railway.app")
+
+# Get company risk profile (auto-detects CIN/GSTIN/PAN/name)
+profile = client.profile("Sahara India")
+print(profile["overall_risk_score"])  # 66.5
+print(profile["risk_level"])          # "high"
+print(profile["is_debarred"])         # True
+
+# Validate formats (fast, no external calls)
+v = client.validate_gstin("27AAACT1234A1Z5")
+print(v["is_valid"], v["parsed"]["state_name"])
+
+# Batch (up to 100 companies)
+result = client.batch(["Sahara", "Tata", "Reliance"])
+
+# Debarred search
+matches = client.search_debarred("sharma")
+```
+
+## Async
+
+```python
+import asyncio
+from sentinelcorp import AsyncSentinelCorp
+
+async def main():
+    async with AsyncSentinelCorp() as client:
+        profile = await client.profile("L17110MH1973PLC019786")
+        print(profile)
+
+asyncio.run(main())
+```
+
+## Install
+
+```bash
+pip install sentinelcorp
+```
+
+## Features
+
+- **Format validation** — GSTIN (with checksum), CIN, PAN
+- **SEBI debarred search** — 14,000+ debarred entities
+- **Unified risk scoring** — 0-100 score combining all signals
+- **Batch processing** — up to 100 lookups per request
+- **Sync & async clients**
+- **Free tier** — 1,000 requests, no signup
+
+Part of the Sentinel Series alongside [SentinelX402](https://github.com/splitfireai-hue/sentinelx402) (threat intel).
+
+================
+File: ./sdk/pyproject.toml
+================
+[project]
+name = "sentinelcorp"
+version = "0.1.0"
+description = "Python SDK for SentinelCorp — India company risk profile API for AI agents"
+requires-python = ">=3.8"
+dependencies = ["httpx>=0.24.0"]
+readme = "README.md"
+license = {text = "MIT"}
+keywords = ["india", "compliance", "gstin", "cin", "pan", "sebi", "risk", "ai-agents", "mcp"]
+
+[project.urls]
+Homepage = "https://github.com/splitfireai-hue/sentinelcorp"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["sentinelcorp*"]
+
+================
+File: ./sdk/sentinelcorp/__init__.py
+================
+"""SentinelCorp — Python SDK for India company risk profiling."""
+
+from sentinelcorp.client import SentinelCorp, AsyncSentinelCorp
+
+__version__ = "0.1.0"
+__all__ = ["SentinelCorp", "AsyncSentinelCorp"]
+
+================
+File: ./sdk/sentinelcorp/client.py
+================
+"""SentinelCorp API client — sync and async."""
+
+from __future__ import annotations
+
+from typing import List, Optional
+
+import httpx
+
+
+class SentinelCorpError(Exception):
+    """Raised when the API returns an error response."""
+    def __init__(self, status_code: int, detail: str):
+        self.status_code = status_code
+        self.detail = detail
+        super().__init__("SentinelCorp API error {}: {}".format(status_code, detail))
+
+
+def _handle(resp: httpx.Response) -> dict:
+    if resp.status_code >= 400:
+        try:
+            detail = resp.json().get("detail", resp.text)
+        except Exception:
+            detail = resp.text
+        raise SentinelCorpError(resp.status_code, str(detail))
+    return resp.json()
+
+
+class SentinelCorp:
+    """Sync client for SentinelCorp API.
+
+    Usage:
+        client = SentinelCorp()
+        profile = client.profile("Sahara India")
+        print(profile["overall_risk_score"])
+    """
+
+    def __init__(
+        self,
+        base_url: str = "http://localhost:8000",
+        timeout: float = 30.0,
+        api_key: Optional[str] = None,
+    ):
+        headers = {"User-Agent": "sentinelcorp-sdk/0.1.0"}
+        if api_key:
+            headers["X-API-Key"] = api_key
+        self._client = httpx.Client(base_url=base_url, timeout=timeout, headers=headers)
+
+    def close(self) -> None:
+        self._client.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+    # Validators
+    def validate_gstin(self, gstin: str) -> dict:
+        return _handle(self._client.get("/api/v1/validate/gstin", params={"gstin": gstin}))
+
+    def validate_cin(self, cin: str) -> dict:
+        return _handle(self._client.get("/api/v1/validate/cin", params={"cin": cin}))
+
+    def validate_pan(self, pan: str) -> dict:
+        return _handle(self._client.get("/api/v1/validate/pan", params={"pan": pan}))
+
+    # Risk profile
+    def profile(self, identifier: str, identifier_type: str = "auto") -> dict:
+        return _handle(self._client.get(
+            "/api/v1/company/profile",
+            params={"identifier": identifier, "type": identifier_type},
+        ))
+
+    def batch(self, identifiers: List[str], identifier_type: Optional[str] = None) -> dict:
+        body = {"identifiers": identifiers}
+        if identifier_type:
+            body["identifier_type"] = identifier_type
+        return _handle(self._client.post("/api/v1/company/batch", json=body))
+
+    # Debarred
+    def search_debarred(self, name: str, limit: int = 20) -> dict:
+        return _handle(self._client.get(
+            "/api/v1/debarred/search",
+            params={"name": name, "limit": limit},
+        ))
+
+    def list_debarred(self, limit: int = 50, offset: int = 0) -> dict:
+        return _handle(self._client.get(
+            "/api/v1/debarred/list",
+            params={"limit": limit, "offset": offset},
+        ))
+
+
+class AsyncSentinelCorp:
+    """Async client for SentinelCorp API."""
+
+    def __init__(
+        self,
+        base_url: str = "http://localhost:8000",
+        timeout: float = 30.0,
+        api_key: Optional[str] = None,
+    ):
+        headers = {"User-Agent": "sentinelcorp-sdk/0.1.0"}
+        if api_key:
+            headers["X-API-Key"] = api_key
+        self._client = httpx.AsyncClient(base_url=base_url, timeout=timeout, headers=headers)
+
+    async def close(self) -> None:
+        await self._client.aclose()
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        await self.close()
+
+    async def validate_gstin(self, gstin: str) -> dict:
+        return _handle(await self._client.get("/api/v1/validate/gstin", params={"gstin": gstin}))
+
+    async def validate_cin(self, cin: str) -> dict:
+        return _handle(await self._client.get("/api/v1/validate/cin", params={"cin": cin}))
+
+    async def validate_pan(self, pan: str) -> dict:
+        return _handle(await self._client.get("/api/v1/validate/pan", params={"pan": pan}))
+
+    async def profile(self, identifier: str, identifier_type: str = "auto") -> dict:
+        return _handle(await self._client.get(
+            "/api/v1/company/profile",
+            params={"identifier": identifier, "type": identifier_type},
+        ))
+
+    async def batch(self, identifiers: List[str], identifier_type: Optional[str] = None) -> dict:
+        body = {"identifiers": identifiers}
+        if identifier_type:
+            body["identifier_type"] = identifier_type
+        return _handle(await self._client.post("/api/v1/company/batch", json=body))
+
+    async def search_debarred(self, name: str, limit: int = 20) -> dict:
+        return _handle(await self._client.get(
+            "/api/v1/debarred/search",
+            params={"name": name, "limit": limit},
+        ))
+
+================
+File: ./tests/__init__.py
+================
+
+================
+File: ./tests/conftest.py
+================
+"""Test fixtures."""
+
+from __future__ import annotations
+
+import os
+from typing import AsyncGenerator
+from unittest.mock import patch
+
+import pytest
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+os.environ["DATABASE_URL"] = "sqlite+aiosqlite://"
+os.environ["ENVIRONMENT"] = "test"
+
+from app.models import Base
+from app.models.company import DebarredEntity
+
+engine = create_async_engine("sqlite+aiosqlite://", echo=False)
+test_session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+
+@pytest.fixture(autouse=True)
+async def setup_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+
+@pytest.fixture
+async def db() -> AsyncGenerator[AsyncSession, None]:
+    async with test_session_factory() as session:
+        yield session
+
+
+@pytest.fixture
+async def seeded_db(db: AsyncSession) -> AsyncSession:
+    """DB with sample debarred entities."""
+    entities = [
+        DebarredEntity(
+            name="Sahara India Limited",
+            name_normalized="sahara india limited",
+            source="opensanctions:nse",
+            entity_type="Company",
+        ),
+        DebarredEntity(
+            name="Rakesh Jhunjhunwala (associated)",
+            name_normalized="rakesh jhunjhunwala (associated)",
+            source="opensanctions:nse",
+            entity_type="Person",
+        ),
+    ]
+    db.add_all(entities)
+    await db.commit()
+    return db
+
+
+@pytest.fixture
+async def client(seeded_db):
+    from httpx import ASGITransport, AsyncClient
+    from app.database import get_db
+    from app.main import app
+
+    async def override_get_db():
+        async with test_session_factory() as session:
+            yield session
+
+    app.dependency_overrides[get_db] = override_get_db
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        yield ac
+    app.dependency_overrides.clear()
+
+================
+File: ./tests/test_api.py
+================
+"""Integration tests for API endpoints."""
+
+from __future__ import annotations
+
+import pytest
+
+
+@pytest.mark.asyncio
+async def test_health(client):
+    r = await client.get("/health")
+    assert r.status_code == 200
+    assert r.json()["status"] == "ok"
+
+
+@pytest.mark.asyncio
+async def test_info(client):
+    r = await client.get("/info")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["name"] == "SentinelCorp"
+
+
+@pytest.mark.asyncio
+async def test_validate_gstin_endpoint(client):
+    from app.services.validators import _gstin_checksum
+    base = "27AAACT1234A1Z"
+    gstin = base + _gstin_checksum(base)
+    r = await client.get("/api/v1/validate/gstin", params={"gstin": gstin})
+    assert r.status_code == 200
+    assert r.json()["is_valid"]
+
+
+@pytest.mark.asyncio
+async def test_validate_cin_endpoint(client):
+    r = await client.get("/api/v1/validate/cin", params={"cin": "L17110MH1973PLC019786"})
+    assert r.status_code == 200
+    assert r.json()["is_valid"]
+
+
+@pytest.mark.asyncio
+async def test_company_profile_clean(client):
+    r = await client.get("/api/v1/company/profile", params={"identifier": "Random Clean Company", "type": "name"})
+    assert r.status_code == 200
+    data = r.json()
+    assert data["overall_risk_score"] == 0.0
+    assert not data["is_debarred"]
+
+
+@pytest.mark.asyncio
+async def test_company_profile_debarred(client):
+    r = await client.get("/api/v1/company/profile", params={"identifier": "Sahara", "type": "name"})
+    assert r.status_code == 200
+    data = r.json()
+    assert data["is_debarred"]
+    assert len(data["debarred_matches"]) > 0
+
+
+@pytest.mark.asyncio
+async def test_debarred_search(client):
+    r = await client.get("/api/v1/debarred/search", params={"name": "sahara"})
+    assert r.status_code == 200
+    assert r.json()["total"] > 0
+
+
+@pytest.mark.asyncio
+async def test_batch_profile(client):
+    r = await client.post(
+        "/api/v1/company/batch",
+        json={"identifiers": ["Company A", "Company B"]},
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert data["total"] == 2
+
+
+@pytest.mark.asyncio
+async def test_stats(client):
+    r = await client.get("/stats")
+    assert r.status_code == 200
+    assert "data_coverage" in r.json()
+
+================
+File: ./tests/test_billing.py
+================
+"""Billing + API key auth tests."""
+
+from __future__ import annotations
+
+import os
+
+import pytest
+
+from app.services import auth
+
+
+@pytest.mark.asyncio
+async def test_hash_and_generate_key():
+    k1 = auth.generate_raw_key()
+    assert k1.startswith("sk_live_")
+    assert len(k1) > 20
+    k2 = auth.generate_raw_key()
+    assert k1 != k2
+    h1 = auth.hash_key(k1)
+    h2 = auth.hash_key(k1)
+    assert h1 == h2
+    assert h1 != auth.hash_key(k2)
+
+
+@pytest.mark.asyncio
+async def test_issue_and_lookup_key(db):
+    raw, row = await auth.issue_key(db, email="alice@example.com", name="Alice", tier="dev")
+    assert row.tier == "dev"
+    assert row.monthly_quota == auth.TIERS["dev"].monthly_quota
+    assert row.email == "alice@example.com"
+    assert row.key_prefix == raw[:12]
+    assert row.key_last4 == raw[-4:]
+
+    found = await auth.lookup_key(db, raw)
+    assert found is not None
+    assert found.id == row.id
+
+    assert await auth.lookup_key(db, "sk_live_invalid") is None
+    assert await auth.lookup_key(db, "") is None
+    assert await auth.lookup_key(db, "not_a_key_format") is None
+
+
+@pytest.mark.asyncio
+async def test_issue_key_invalid_tier(db):
+    with pytest.raises(ValueError):
+        await auth.issue_key(db, email="x@y.com", tier="premium")
+
+
+@pytest.mark.asyncio
+async def test_usage_counter(db):
+    raw, row = await auth.issue_key(db, email="b@c.com", tier="free")
+    assert await auth.get_monthly_count(db, row.id) == 0
+    await auth.increment_usage(db, row.id)
+    await auth.increment_usage(db, row.id)
+    await auth.increment_usage(db, row.id)
+    assert await auth.get_monthly_count(db, row.id) == 3
+
+
+@pytest.mark.asyncio
+async def test_anon_counter(db):
+    n1 = await auth.anon_count_and_increment(db, "9.9.9.9")
+    n2 = await auth.anon_count_and_increment(db, "9.9.9.9")
+    n3 = await auth.anon_count_and_increment(db, "9.9.9.9")
+    assert n1 == 1
+    assert n2 == 2
+    assert n3 == 3
+    other = await auth.anon_count_and_increment(db, "8.8.8.8")
+    assert other == 1
+
+
+@pytest.mark.asyncio
+async def test_tier_upgrade(db):
+    raw, row = await auth.issue_key(db, email="c@d.com", tier="free")
+    assert row.monthly_quota == 5_000
+    ok = await auth.set_tier(db, row.id, "startup")
+    assert ok
+    refreshed = await auth.lookup_key(db, raw)
+    assert refreshed.tier == "startup"
+    assert refreshed.monthly_quota == 500_000
+
+
+@pytest.mark.asyncio
+async def test_revoke(db):
+    raw, row = await auth.issue_key(db, email="d@e.com", tier="free")
+    assert row.status == "active"
+    ok = await auth.revoke_key(db, row.id)
+    assert ok
+    refreshed = await auth.lookup_key(db, raw)
+    assert refreshed.status == "revoked"
+
+
+@pytest.mark.asyncio
+async def test_pricing_json_endpoint(client):
+    r = await client.get("/pricing.json")
+    assert r.status_code == 200
+    d = r.json()
+    assert "tiers" in d
+    names = {t["name"] for t in d["tiers"]}
+    assert {"free", "dev", "startup", "enterprise"}.issubset(names)
+    assert d["anon_daily_limit"] == auth.ANON_DAILY_LIMIT
+
+
+@pytest.mark.asyncio
+async def test_pricing_page_renders(client):
+    r = await client.get("/pricing")
+    assert r.status_code == 200
+    assert "Pricing" in r.text
+    assert "checkout.razorpay.com" in r.text
+
+
+@pytest.mark.asyncio
+async def test_signup_creates_free_tier(client):
+    r = await client.post("/billing/signup", json={"email": "new@user.com", "name": "Tester"})
+    assert r.status_code == 201
+    d = r.json()
+    assert d["tier"] == "free"
+    assert d["monthly_quota"] == 5_000
+    assert d["api_key"].startswith("sk_live_")
+
+
+@pytest.mark.asyncio
+async def test_signup_ignores_requested_tier(client):
+    r = await client.post("/billing/signup", json={"email": "hacker@x.com", "tier": "enterprise"})
+    assert r.status_code == 201
+    assert r.json()["tier"] == "free"
+
+
+@pytest.mark.asyncio
+async def test_admin_endpoint_requires_secret(client, monkeypatch):
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "ADMIN_SECRET", "secret-abc")
+
+    r = await client.post(
+        "/billing/admin/keys",
+        json={"email": "paid@u.com", "tier": "startup"},
+    )
+    assert r.status_code == 403
+
+    r = await client.post(
+        "/billing/admin/keys",
+        headers={"X-Admin-Secret": "wrong"},
+        json={"email": "paid@u.com", "tier": "startup"},
+    )
+    assert r.status_code == 403
+
+    r = await client.post(
+        "/billing/admin/keys",
+        headers={"X-Admin-Secret": "secret-abc"},
+        json={"email": "paid@u.com", "tier": "startup"},
+    )
+    assert r.status_code == 201
+    assert r.json()["tier"] == "startup"
+    assert r.json()["monthly_quota"] == 500_000
+
+
+@pytest.mark.asyncio
+async def test_billing_me_requires_key(client):
+    r = await client.get("/billing/me")
+    assert r.status_code == 401
+
+    r = await client.get("/billing/me", headers={"X-API-Key": "sk_live_invalid"})
+    assert r.status_code == 401
+
+    signup = await client.post("/billing/signup", json={"email": "m@e.com"})
+    key = signup.json()["api_key"]
+
+    r = await client.get("/billing/me", headers={"X-API-Key": key})
+    assert r.status_code == 200
+    d = r.json()
+    assert d["tier"] == "free"
+    assert d["used_this_month"] == 0
+    assert d["remaining"] == 5_000
+
+
+@pytest.mark.asyncio
+async def test_signup_page_renders(client):
+    r = await client.get("/signup")
+    assert r.status_code == 200
+    assert "Get your free API key" in r.text
+
+
+# ---------- Razorpay / Stripe ----------
+
+
+@pytest.mark.asyncio
+async def test_checkout_rejects_when_unconfigured(client):
+    r = await client.post(
+        "/billing/checkout/razorpay",
+        json={"email": "x@y.com", "tier": "dev"},
+    )
+    assert r.status_code == 503
+
+    r = await client.post(
+        "/billing/checkout/stripe",
+        json={"email": "x@y.com", "tier": "dev"},
+    )
+    assert r.status_code == 503
+
+
+@pytest.mark.asyncio
+async def test_checkout_rejects_invalid_tier(client, monkeypatch):
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "RAZORPAY_KEY_ID", "rzp_test_x")
+    monkeypatch.setattr(settings, "RAZORPAY_KEY_SECRET", "secret")
+    r = await client.post(
+        "/billing/checkout/razorpay",
+        json={"email": "x@y.com", "tier": "premium"},
+    )
+    assert r.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_razorpay_webhook_rejects_bad_signature(client, monkeypatch):
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "RAZORPAY_WEBHOOK_SECRET", "whsec_abc")
+    r = await client.post(
+        "/billing/webhooks/razorpay",
+        content=b'{"event":"subscription.activated"}',
+        headers={"x-razorpay-signature": "wrong"},
+    )
+    assert r.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_razorpay_webhook_handles_activated(client, db, monkeypatch):
+    import hmac, hashlib, json as _json
+
+    from app.config import settings
+    from app.models.billing import Subscription
+    from app.services import auth as auth_svc
+
+    monkeypatch.setattr(settings, "RAZORPAY_WEBHOOK_SECRET", "whsec_abc")
+    monkeypatch.setattr(settings, "RAZORPAY_PLAN_DEV", "plan_dev_test")
+    from app.services import razorpay_service as rzp_service
+
+    rzp_service._rebuild_plan_map()
+
+    raw, key_row = await auth_svc.issue_key(db, email="sub@example.com", tier="free")
+    sub = Subscription(
+        api_key_id=key_row.id,
+        rail="razorpay",
+        plan="dev",
+        external_subscription_id="sub_test_123",
+        status="pending",
+        currency="INR",
+        amount_minor=49900,
+    )
+    db.add(sub)
+    await db.commit()
+
+    body = _json.dumps({
+        "event": "subscription.activated",
+        "payload": {
+            "subscription": {
+                "entity": {
+                    "id": "sub_test_123",
+                    "plan_id": "plan_dev_test",
+                    "current_start": 1700000000,
+                    "current_end": 1702592000,
+                }
+            }
+        },
+    }).encode("utf-8")
+    sig = hmac.new(b"whsec_abc", body, hashlib.sha256).hexdigest()
+
+    r = await client.post(
+        "/billing/webhooks/razorpay",
+        content=body,
+        headers={"x-razorpay-signature": sig, "content-type": "application/json"},
+    )
+    assert r.status_code == 200
+    d = r.json()
+    assert d["ok"] is True
+    assert d["event"] == "subscription.activated"
+
+    db.expire_all()
+    refreshed = await auth_svc.lookup_key(db, raw)
+    assert refreshed.tier == "dev"
+    assert refreshed.monthly_quota == auth_svc.TIERS["dev"].monthly_quota
+
+
+@pytest.mark.asyncio
+async def test_razorpay_webhook_handles_cancelled(client, db, monkeypatch):
+    import hmac, hashlib, json as _json
+
+    from app.config import settings
+    from app.models.billing import Subscription
+    from app.services import auth as auth_svc
+
+    monkeypatch.setattr(settings, "RAZORPAY_WEBHOOK_SECRET", "whsec_abc")
+
+    raw, key_row = await auth_svc.issue_key(db, email="cancel@e.com", tier="dev")
+    sub = Subscription(
+        api_key_id=key_row.id,
+        rail="razorpay",
+        plan="dev",
+        external_subscription_id="sub_cancel_1",
+        status="active",
+    )
+    db.add(sub)
+    await db.commit()
+
+    body = _json.dumps({
+        "event": "subscription.cancelled",
+        "payload": {"subscription": {"entity": {"id": "sub_cancel_1"}}},
+    }).encode("utf-8")
+    sig = hmac.new(b"whsec_abc", body, hashlib.sha256).hexdigest()
+
+    r = await client.post(
+        "/billing/webhooks/razorpay",
+        content=body,
+        headers={"x-razorpay-signature": sig},
+    )
+    assert r.status_code == 200
+
+    db.expire_all()
+    refreshed = await auth_svc.lookup_key(db, raw)
+    assert refreshed.tier == "free"
+
+================
+File: ./tests/test_risk_scoring.py
+================
+"""Unit tests for risk scoring engine."""
+
+from __future__ import annotations
+
+from app.services import risk_scoring
+
+
+class TestRiskScoring:
+    def test_no_signals_zero_score(self):
+        result = risk_scoring.compute_risk_score([])
+        assert result.score == 0.0
+        assert result.level == "minimal"
+
+    def test_sebi_debarred_critical(self):
+        signal = risk_scoring.signal_sebi_debarred("Test Ltd", 1.0)
+        result = risk_scoring.compute_risk_score([signal])
+        assert result.score >= 85
+        assert result.level == "critical"
+
+    def test_compound_signals(self):
+        signals = [
+            risk_scoring.signal_checksum_invalid(),
+            risk_scoring.signal_active_litigation(3),
+        ]
+        result = risk_scoring.compute_risk_score(signals)
+        # Noisy-OR: 1 - (1-0.15)(1-0.25) = 1 - 0.6375 = 0.3625
+        assert 30 <= result.score <= 40
+
+    def test_format_invalid_low(self):
+        signal = risk_scoring.signal_format_invalid("X", "bad")
+        result = risk_scoring.compute_risk_score([signal])
+        assert result.level == "minimal"
+
+    def test_gst_cancelled_high(self):
+        signal = risk_scoring.signal_gst_cancelled()
+        result = risk_scoring.compute_risk_score([signal])
+        assert result.level == "high"
+
+================
+File: ./tests/test_validators.py
+================
+"""Unit tests for validators."""
+
+from __future__ import annotations
+
+from app.services.validators import validate_cin, validate_gstin, validate_pan
+
+
+class TestGSTIN:
+    def test_valid_format(self):
+        # Generate a valid one using the checksum algo
+        from app.services.validators import _gstin_checksum
+        base = "27AAACT1234A1Z"
+        checksum = _gstin_checksum(base)
+        result = validate_gstin(base + checksum)
+        assert result.is_valid
+        assert result.state_code == "27"
+        assert result.state_name == "Maharashtra"
+        assert result.pan == "AAACT1234A"
+
+    def test_invalid_format(self):
+        result = validate_gstin("INVALID")
+        assert not result.is_valid
+
+    def test_invalid_checksum(self):
+        result = validate_gstin("27AAACT1234A1Z9")  # Random checksum
+        assert not result.is_valid
+        assert "Checksum" in (result.error or "")
+
+    def test_unknown_state(self):
+        # State code 99 is valid (Centre Jurisdiction), so use something else
+        from app.services.validators import _gstin_checksum
+        base = "88AAACT1234A1Z"  # 88 not in STATE_CODES
+        checksum = _gstin_checksum(base)
+        result = validate_gstin(base + checksum)
+        assert not result.is_valid
+
+
+class TestCIN:
+    def test_valid_listed_company(self):
+        result = validate_cin("L17110MH1973PLC019786")
+        assert result.is_valid
+        assert result.listing_status == "Listed (Public)"
+        assert result.state_name == "Maharashtra"
+        assert result.year_of_incorporation == 1973
+        assert "Public Limited" in result.company_ownership
+
+    def test_valid_unlisted_company(self):
+        result = validate_cin("U74999KA2020PTC123456")
+        assert result.is_valid
+        assert result.listing_status == "Unlisted"
+        assert result.state_name == "Karnataka"
+        assert result.year_of_incorporation == 2020
+
+    def test_invalid_format(self):
+        result = validate_cin("INVALID")
+        assert not result.is_valid
+
+    def test_invalid_state(self):
+        result = validate_cin("L17110ZZ1973PLC019786")
+        assert not result.is_valid
+
+
+class TestPAN:
+    def test_valid_individual(self):
+        result = validate_pan("ABCPE1234F")  # P = Individual
+        assert result.is_valid
+        assert result.pan_type == "Individual"
+
+    def test_valid_company(self):
+        result = validate_pan("ABCCE1234F")  # C = Company
+        assert result.is_valid
+        assert result.pan_type == "Company"
+
+    def test_invalid_format(self):
+        result = validate_pan("INVALID")
+        assert not result.is_valid
+

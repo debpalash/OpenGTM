@@ -1,0 +1,16 @@
+{
+    "name": "yupcha-engine",
+    "private": true,
+    "workspaces": [
+        "apps/*"
+    ],
+    "scripts": {
+        "dev": "turbo run dev --parallel",
+        "build": "turbo run build",
+        "lint": "turbo run lint"
+    },
+    "devDependencies": {
+        "turbo": "^2.9.3"
+    },
+    "packageManager": "bun@1.1.0"
+}

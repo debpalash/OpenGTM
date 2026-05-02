@@ -1,0 +1,283 @@
+# ambitionbox.com — AI Context File (Data Source)
+# Source: https://www.ambitionbox.com
+# HAR: www.ambitionbox.com.har (2,831 entries captured)
+# Generated: 2026-05-02
+# Purpose: Indian company intelligence — ratings, salaries, reviews, benefits, jobs
+# Owner: Info Edge (India) Ltd (same parent as Naukri.com)
+
+## Overview
+
+AmbitionBox is India's largest employer review platform (similar to Glassdoor).
+It covers 6L+ (600K+) companies with employee-submitted reviews, salaries,
+interview questions, and benefits data. The site runs on Next.js with a rich
+internal REST API gateway at `/servicegateway-ambitionbox/`.
+
+**Why it matters for lead gen**: Provides company size, industry classification,
+headquarters, employee ratings, hiring activity, and salary data — enrichment
+signals impossible to get from MCA or Google Maps.
+
+## Data Coverage
+
+- 600K+ companies across all Indian industries
+- 4,096 recruitment companies alone
+- Employee reviews, salary ranges, interview questions
+- Company ratings (overall + 5 sub-categories)
+- Office locations with city-level data
+- Active job listings from Naukri.com integration
+- Company comparisons and competitor graphs
+
+## URL Structure
+
+### Listing Pages (paginated company discovery)
+
+```
+/list-of-companies                              → All companies, paginated
+/{industry}-companies-in-india                  → Industry-specific listing
+/companies-in-{city}                            → City-specific listing
+
+# Examples:
+/recruitment-companies-in-india                 → 4,096 recruitment companies
+/it-services-and-consulting-companies-in-india  → IT services
+/financial-services-companies-in-india          → Finance
+/companies-in-bengaluru                         → Bangalore companies
+/companies-in-mumbai                            → Mumbai companies
+```
+
+### Company Detail Pages
+
+```
+/overview/{slug}-overview                       → Company overview (main profile)
+/reviews/{slug}-reviews                         → Employee reviews
+/salaries/{slug}-salaries                       → Salary data
+/interviews/{slug}-interview-questions          → Interview questions
+/jobs/{slug}-jobs-cmp                           → Job listings
+/benefits/{slug}-benefits                       → Employee benefits
+/photos/{slug}-photos                           → Office photos
+/overview/{slug}-overview/locations             → Office locations
+/overview/{slug}-overview/locations/{city}-offices → City-specific office
+```
+
+### Slug Convention
+Company name → lowercase, hyphenated:
+  `Quess` → `quess`
+  `TeamLease Services` → `team-lease`
+  `Collabera Talent Solutions` → `collabera-talent-solutions`
+
+## Internal JSON API (servicegateway)
+
+Base: `https://www.ambitionbox.com/servicegateway-ambitionbox/`
+
+### Company Listing Search (PRIMARY for bulk discovery)
+```
+POST /company-services/v0/listing/filters/search
+Content-Type: application/json
+
+{
+  "isFilterApplied": true,
+  "limit": 20,
+  "page": 1,
+  "sortBy": "popular",        // or null
+  "type": "all",
+  "industries": ["recruitment"]  // optional filter
+}
+
+Response: Company list with IDs, names, ratings, review/salary counts
+```
+
+### Company Basic Details
+```
+POST /company-services/v0/company/basic-details
+Content-Type: application/json
+
+Response: Full company profile — name, website, HQ, industry, founded year,
+          employee count, revenue, company type
+```
+
+### Company Locations
+```
+GET /company-services/v0/company/{companyId}/sectionalDetails?sections=companyLocations
+Response: All office locations with city/state
+```
+
+### Salary Data
+```
+GET /salaries-services/v0/company/{companyId}/jobProfile/{profileId}/salaryData
+Response: Min/max/avg CTC for specific job profiles
+```
+
+### Review Data
+```
+GET /review-services/v0/review/data/{companyId}?page=1&limit=8
+Response: Employee reviews with ratings, job titles, departments
+```
+
+### Rating Distribution
+```
+GET /review-services/v0/review/distribution/{companyId}
+Response: Rating breakdown (1-5 star distribution)
+```
+
+### Rating Trends
+```
+GET /review-services/v0/employer/static-rating-trend/{companyId}
+Response: Historical rating trends with competitor comparisons
+```
+
+### Jobs
+```
+GET /jobs-services/v0/jobs/filters/company/{companyId}
+Response: Active job listings (from Naukri.com)
+```
+
+### Company Comparisons
+```
+GET /company-services/v0/compare/company/top-comparsions/{companyId}
+Response: Top competitor companies with comparison data
+```
+
+### Company Collections (sidebar interlinking)
+```
+POST /company-services/v0/company-collections/interlinking-widget
+POST /company-services/v0/listing/dream/companies/search
+GET  /company-services/v0/company-collections/filters/search
+Response: Related companies, filter options, dream companies list
+```
+
+## Data Fields (Company Overview Page — SSR)
+
+| Field               | Example (Quess)                    | Extraction Method           |
+|---------------------|------------------------------------|-----------------------------|
+| company_name        | Quess                              | `<h1>` or JSON              |
+| company_id          | 14207                              | From URL or API response     |
+| headquarters        | Bangalore, India                   | "About" section link         |
+| website             | quesscorp.com                      | "About" section link         |
+| industry            | Recruitment                        | "About" section link         |
+| founded_year        | 2007                               | "About" text                 |
+| employee_count      | 480,000+                           | "About" text                 |
+| overall_rating      | 3.4 (approx)                       | Rating section               |
+| review_count        | 9,700                              | Tab counts                   |
+| salary_count        | 31,400                             | Tab counts                   |
+| interview_count     | 547                                | Tab counts                   |
+| job_count           | 31                                 | Tab counts                   |
+| benefits_count      | 440                                | Tab counts                   |
+| office_cities       | Bengaluru, New Delhi, Hyderabad... | Offices section              |
+| competitors         | Randstad, TeamLease, I Process...  | Compare section              |
+
+## Industry Categories (from listing page)
+
+```
+recruitment
+it-services-and-consulting
+engineering-and-construction
+auto-components
+industrial-machinery
+pharma
+real-estate
+food-and-beverages
+power-and-energy
+software-product
+glass-or-ceramics (building material)
+fashion-and-textile
+financial-services
+chemicals
+fmcg
+automobile
+retail
+nbfc
+logistics
+consumer-electronics-and-appliances
+electronics-manufacturing
+internet
+electrical-equipment
+oil-and-gas
+iron-or-steel
+telecom
+```
+
+## City Coverage
+
+```
+bengaluru, mumbai, new-delhi, pune, hyderabad, chennai, gurgaon,
+kolkata, noida, ahmedabad, vadodara, lucknow, jaipur, indore,
+patna, visakhapatnam, nagpur, navi-mumbai, coimbatore, bhubaneswar,
+surat, faridabad, bharuch, guwahati, bhopal
+```
+
+## Scraping Strategy
+
+### Recommended Approach: Hybrid (SSR HTML + JSON API)
+
+1. **Bulk discovery**: Use the listing API POST endpoint to enumerate companies
+   by industry. Paginate through `page=1..N` with `limit=20`.
+2. **Company enrichment**: Fetch `/overview/{slug}-overview` SSR pages for
+   rich profile data. Parse the structured text sections.
+3. **Deep enrichment**: Hit individual API endpoints for salary, review,
+   and job data per company ID.
+
+### Authentication
+- No auth required for read endpoints
+- `accept: application/json` header is sufficient
+- Cookie-based session optional (not required)
+
+### Rate Limiting
+- Site is behind CloudFlare
+- Recommended: 0.5-1 req/sec with randomized delays
+- Use stealth HTTP headers (curl-cffi or similar)
+
+### Company ID Discovery
+Company IDs are embedded in URLs and API calls:
+- Quess = 14207
+- Samsung = 89
+- Extract from listing API response or URL patterns
+
+## Lead Field Mapping
+
+| AmbitionBox Field    | Lead DB Field        | Priority |
+|----------------------|----------------------|----------|
+| company_name         | company              | ★★★      |
+| headquarters city    | city                 | ★★★      |
+| industry             | specialization       | ★★★      |
+| website              | website              | ★★★      |
+| employee_count       | company_size         | ★★★      |
+| overall_rating       | score (enrichment)   | ★★       |
+| review_count         | notes (append)       | ★★       |
+| job_count            | notes (append)       | ★        |
+| founded_year         | description          | ★        |
+| competitors          | notes (append)       | ★        |
+| office_cities        | notes (append)       | ★        |
+
+## Key API Request Headers (from HAR)
+
+```
+accept: application/json, text/plain, */*
+content-type: application/json
+referer: https://www.ambitionbox.com/list-of-companies
+user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ...
+```
+
+## Sample Company Listing (recruitment sector, page 1)
+
+| Rank | Company                    | Reviews | Salaries | Interviews | Jobs |
+|------|----------------------------|---------|----------|------------|------|
+| 1    | Quess                      | 9.7k    | 31.4k    | 547        | 31   |
+| 2    | Randstad                   | 4.7k    | 17k      | 336        | 12   |
+| 3    | TeamLease Services         | 4.4k    | 16.4k    | 255        | --   |
+| 4    | I Process Services         | 3k      | 5.6k     | 138        | --   |
+| 5    | Adecco Group               | 1.9k    | 7.3k     | 120        | --   |
+| 6    | Innovsource Services       | 1.8k    | 4.6k     | 77         | --   |
+| 7    | V5 Global Services         | 1.5k    | 3.7k     | 94         | 7    |
+| 8    | Collabera Talent Solutions  | 1.3k    | 6.9k     | 152        | 7    |
+| 9    | Hire In Global             | 1.3k    | 8        | 292        | --   |
+| 10   | ManpowerGroup              | 1.3k    | 5.1k     | 71         | 194  |
+| 11   | Genius HRTech              | 1.2k    | 3.9k     | 73         | --   |
+| 12   | Aarvi Encon                | 1.1k    | 3k       | 83         | --   |
+| 13   | CIEL HR                    | 920     | 3.2k     | 73         | --   |
+| 14   | LanceSoft                  | 917     | 5.5k     | 70         | 25   |
+| 15   | Experis IT                 | 915     | 3.7k     | 69         | 1    |
+| 16   | Nlb Services               | 864     | 3.1k     | 36         | 1    |
+| 17   | Artech Infosystems         | 825     | 3.9k     | 83         | --   |
+| 18   | Teamware Solutions         | 823     | 3.2k     | 71         | 1    |
+| 19   | eTeam                      | 822     | 3.7k     | 53         | --   |
+| 20   | Careernet                  | 787     | 4.6k     | 49         | --   |
+
+Total: 4,096 recruitment companies across 7+ pages
