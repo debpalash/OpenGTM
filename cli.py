@@ -131,9 +131,67 @@ def cmd_dashboard(args):
 def cmd_collect(args):
     """Submit and run a stealth collection query."""
     from leadgen.job_runner import JobRunner
+    from leadgen.db import LeadDB
+
+    workspace_id = ""
+    if args.workspace:
+        db = LeadDB()
+        # Find or create workspace
+        workspaces = db.get_workspaces()
+        match = [w for w in workspaces if w["name"].lower() == args.workspace.lower()]
+        if match:
+            workspace_id = match[0]["id"]
+        else:
+            workspace_id = db.create_workspace(args.workspace)
+            print(f"  📁 Created workspace: {args.workspace} ({workspace_id})")
+        db.close()
+
     runner = JobRunner()
     print(f"\n  🔍 Collecting: '{args.query}'")
-    asyncio.run(runner.submit(args.query))
+    if workspace_id:
+        print(f"  📁 Workspace: {args.workspace} ({workspace_id})")
+    asyncio.run(runner.submit(args.query, workspace_id=workspace_id))
+
+
+def cmd_cleanup(args):
+    """Purge invalid/garbage leads from database."""
+    from leadgen.db import LeadDB
+    from leadgen.lead_validator import validate_lead
+
+    db = LeadDB()
+    leads = db.get_leads(limit=10000)
+    print(f"\n  🔍 Validating {len(leads)} leads...")
+
+    marked_dead = 0
+    cleaned_emails = 0
+    reasons = {}
+
+    for lead in leads:
+        if lead.status == "dead":
+            continue
+
+        is_valid, reason = validate_lead(lead)
+        if not is_valid:
+            db.update_status(lead.id, "dead", note=f"cleanup:{reason}")
+            marked_dead += 1
+            reasons[reason] = reasons.get(reason, 0) + 1
+        else:
+            # Check if email/phone was cleaned by validator
+            orig = db.get_lead(lead.id)
+            if orig and orig.email != lead.email:
+                db.update_lead_fields(lead.id, {"email": lead.email})
+                cleaned_emails += 1
+            if orig and orig.phone != lead.phone:
+                db.update_lead_fields(lead.id, {"phone": lead.phone})
+
+    print(f"\n  🗑️  Marked {marked_dead} leads as dead:")
+    for reason, count in sorted(reasons.items(), key=lambda x: -x[1]):
+        print(f"      {reason}: {count}")
+    if cleaned_emails:
+        print(f"  🧹 Cleaned {cleaned_emails} publisher emails")
+    print(f"  ✅ {len(leads) - marked_dead} leads remain active")
+
+    db.close()
 
 
 def cmd_jobs(args):
@@ -192,13 +250,17 @@ def main():
     p.add_argument("--port", type=int, default=5050)
     p.add_argument("--debug", action="store_true")
 
-    # collect (NEW — stealth query)
+    # collect
     p = sub.add_parser("collect", help="Run stealth collection query")
     p.add_argument("query", help="Search query, e.g. 'HR staffing agency Bangalore'")
+    p.add_argument("--workspace", "-w", help="Workspace name to collect into")
 
-    # jobs (NEW — queue status)
+    # jobs
     p = sub.add_parser("jobs", help="List collection jobs")
     p.add_argument("--status", help="Filter by status: pending, running, done, failed")
+
+    # cleanup
+    sub.add_parser("cleanup", help="Purge bad/invalid leads from database")
 
     args = parser.parse_args()
     if not args.command:
@@ -209,7 +271,7 @@ def main():
         "import": cmd_import, "scrape": cmd_scrape, "enrich": cmd_enrich,
         "score": cmd_score, "pipeline": cmd_pipeline, "export": cmd_export,
         "stats": cmd_stats, "dashboard": cmd_dashboard,
-        "collect": cmd_collect, "jobs": cmd_jobs,
+        "collect": cmd_collect, "jobs": cmd_jobs, "cleanup": cmd_cleanup,
     }
     cmds[args.command](args)
 

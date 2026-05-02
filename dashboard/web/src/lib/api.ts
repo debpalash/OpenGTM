@@ -16,6 +16,7 @@ export interface Lead {
   linkedin_url: string
   twitter_url: string
   source: string
+  workspace_id: string
   score: number
   score_tier: string
   status: string
@@ -50,6 +51,57 @@ export interface Filters {
   statuses: string[]
   tiers: string[]
 }
+
+export interface Workspace {
+  id: string
+  name: string
+  description: string
+  lead_count: number
+  job_count: number
+  active_lead_count: number
+  created_at: string
+  updated_at: string
+}
+
+export interface Job {
+  id: string
+  query: string
+  status: string
+  tier: number
+  attempts: number
+  max_attempts: number
+  leads_found: number
+  workspace_id: string
+  proxy_used: string
+  error: string
+  created_at: string
+  started_at: string
+  completed_at: string
+}
+
+export interface SystemStats {
+  proxy_pool: {
+    total: number
+    http: number
+    socks5: number
+    socks4: number
+    blocked: number
+    domain_assignments: number
+  }
+  rate_limiter: {
+    tracked_domains: number
+    tripped_domains: string[]
+  }
+  jobs: {
+    total: number
+    pending: number
+    running: number
+    done: number
+    failed: number
+  }
+}
+
+// ── Lead CRUD ───────────────────────────────────────────────────
 
 export async function fetchLeads(params: Record<string, string>): Promise<Lead[]> {
   const qs = new URLSearchParams(params).toString()
@@ -106,50 +158,13 @@ export function exportCSVUrl(params: Record<string, string> = {}): string {
   return `${API_BASE}/api/export/csv?${qs}`
 }
 
-// ── Collection & Jobs ──────────────────────────────────────────
+// ── Collection & Jobs ───────────────────────────────────────────
 
-export interface Job {
-  id: string
-  query: string
-  status: string
-  tier: number
-  attempts: number
-  max_attempts: number
-  leads_found: number
-  proxy_used: string
-  error: string
-  created_at: string
-  started_at: string
-  completed_at: string
-}
-
-export interface SystemStats {
-  proxy_pool: {
-    total: number
-    http: number
-    socks5: number
-    socks4: number
-    blocked: number
-    domain_assignments: number
-  }
-  rate_limiter: {
-    tracked_domains: number
-    tripped_domains: string[]
-  }
-  jobs: {
-    total: number
-    pending: number
-    running: number
-    done: number
-    failed: number
-  }
-}
-
-export async function submitCollect(query: string): Promise<{ ok: boolean; job_id: string; query: string }> {
+export async function submitCollect(query: string, workspace_id?: string): Promise<{ ok: boolean; job_id: string; query: string }> {
   const res = await fetch(`${API_BASE}/api/collect`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify({ query, workspace_id: workspace_id || "" }),
   })
   return res.json()
 }
@@ -165,3 +180,22 @@ export async function fetchSystemStats(): Promise<SystemStats> {
   return res.json()
 }
 
+// ── Workspaces ──────────────────────────────────────────────────
+
+export async function fetchWorkspaces(): Promise<Workspace[]> {
+  const res = await fetch(`${API_BASE}/api/workspaces`)
+  return res.json()
+}
+
+export async function createWorkspace(name: string, description?: string): Promise<{ ok: boolean; id: string }> {
+  const res = await fetch(`${API_BASE}/api/workspaces`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, description: description || "" }),
+  })
+  return res.json()
+}
+
+export async function deleteWorkspace(id: string): Promise<void> {
+  await fetch(`${API_BASE}/api/workspaces/${id}`, { method: "DELETE" })
+}

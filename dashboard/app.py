@@ -46,18 +46,24 @@ def create_app():
     @app.route("/api/leads")
     def api_leads():
         db = get_db()
+        # Hide dead leads by default — only show if explicitly filtered
+        status_filter = _clean(request.args.get("status"))
         leads = db.get_leads(
-            status=_clean(request.args.get("status")),
+            status=status_filter,
             city=_clean(request.args.get("city")),
             source=_clean(request.args.get("source")),
             score_min=int(request.args["score_min"]) if request.args.get("score_min") else None,
             score_max=int(request.args["score_max"]) if request.args.get("score_max") else None,
             score_tier=_clean(request.args.get("tier")),
             search=_clean(request.args.get("search")),
+            workspace_id=_clean(request.args.get("workspace_id")),
             limit=int(request.args.get("limit", 200)),
             offset=int(request.args.get("offset", 0)),
             order_by=request.args.get("order_by", "score DESC"),
         )
+        # Exclude dead leads unless explicitly filtered to dead
+        if status_filter != "dead":
+            leads = [l for l in leads if l.status != "dead"]
         result = [l.to_dict() for l in leads]
         db.close()
         return jsonify(result)
@@ -158,12 +164,19 @@ def create_app():
 
         data = request.json
         query = data.get("query", "").strip()
+        workspace_id = data.get("workspace_id", "")
         if not query:
             return jsonify({"error": "query is required"}), 400
 
         job_id = str(uuid.uuid4())[:8]
         db = get_db()
         db.create_job(job_id, query)
+        if workspace_id:
+            db.conn.execute(
+                "UPDATE jobs SET workspace_id = ? WHERE id = ?",
+                (workspace_id, job_id)
+            )
+            db.conn.commit()
         db.close()
 
         # Run collection in background thread
@@ -171,12 +184,15 @@ def create_app():
             import asyncio
             from leadgen.job_runner import JobRunner
             runner = JobRunner()
-            asyncio.run(runner._process_job({"id": job_id, "query": query, "tier": 1}))
+            asyncio.run(runner._process_job({
+                "id": job_id, "query": query, "tier": 1,
+                "workspace_id": workspace_id,
+            }))
 
         thread = threading.Thread(target=_run_job, daemon=True)
         thread.start()
 
-        return jsonify({"ok": True, "job_id": job_id, "query": query})
+        return jsonify({"ok": True, "job_id": job_id, "query": query, "workspace_id": workspace_id})
 
     @app.route("/api/jobs")
     def api_jobs():
@@ -208,6 +224,36 @@ def create_app():
             "rate_limiter": rl.stats(),
             "jobs": job_stats,
         })
+
+    # ── Workspace API ─────────────────────────────────────────────
+
+    @app.route("/api/workspaces")
+    def api_workspaces():
+        """List all workspaces with stats."""
+        db = get_db()
+        workspaces = db.get_workspaces()
+        db.close()
+        return jsonify(workspaces)
+
+    @app.route("/api/workspaces", methods=["POST"])
+    def api_create_workspace():
+        """Create a new workspace."""
+        data = request.json
+        name = data.get("name", "").strip()
+        if not name:
+            return jsonify({"error": "name is required"}), 400
+        db = get_db()
+        ws_id = db.create_workspace(name, data.get("description", ""))
+        db.close()
+        return jsonify({"ok": True, "id": ws_id, "name": name})
+
+    @app.route("/api/workspaces/<ws_id>", methods=["DELETE"])
+    def api_delete_workspace(ws_id):
+        """Delete a workspace and its data."""
+        db = get_db()
+        db.delete_workspace(ws_id)
+        db.close()
+        return jsonify({"ok": True})
 
     @app.route("/api/events")
     def api_events():

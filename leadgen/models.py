@@ -37,6 +37,7 @@ class Lead:
 
     # ── Pipeline ───────────────────────────────────────────────────────
     source: str = ""               # "csv_import", "google_maps", "linkedin", etc.
+    workspace_id: str = ""         # Workspace campaign this lead belongs to
     score: int = 0                 # 0-100 quality score
     score_tier: str = "unqualified"  # "hot", "warm", "cold", "unqualified"
     status: str = "new"            # "new", "contacted", "qualified", "converted", "dead"

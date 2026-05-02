@@ -121,7 +121,30 @@ class LeadDB:
                 created_at  TEXT DEFAULT '',
                 FOREIGN KEY (lead_id) REFERENCES leads(id)
             );
+
+            -- Workspaces for organizing collection campaigns
+            CREATE TABLE IF NOT EXISTS workspaces (
+                id          TEXT PRIMARY KEY,
+                name        TEXT NOT NULL,
+                description TEXT DEFAULT '',
+                created_at  TEXT DEFAULT '',
+                updated_at  TEXT DEFAULT ''
+            );
         """)
+        self.conn.commit()
+
+        # ── Safe migrations (add columns if missing) ──
+        self._migrate()
+
+    def _migrate(self):
+        """Add new columns to existing tables if they don't exist."""
+        existing_lead_cols = {r[1] for r in self.conn.execute("PRAGMA table_info(leads)").fetchall()}
+        existing_job_cols = {r[1] for r in self.conn.execute("PRAGMA table_info(jobs)").fetchall()}
+
+        if "workspace_id" not in existing_lead_cols:
+            self.conn.execute("ALTER TABLE leads ADD COLUMN workspace_id TEXT DEFAULT ''")
+        if "workspace_id" not in existing_job_cols:
+            self.conn.execute("ALTER TABLE jobs ADD COLUMN workspace_id TEXT DEFAULT ''")
         self.conn.commit()
 
     # ── CRUD ───────────────────────────────────────────────────────────
@@ -184,6 +207,7 @@ class LeadDB:
         score_max: Optional[int] = None,
         score_tier: Optional[str] = None,
         search: Optional[str] = None,
+        workspace_id: Optional[str] = None,
         limit: int = 500,
         offset: int = 0,
         order_by: str = "score DESC",
@@ -215,6 +239,10 @@ class LeadDB:
             # Use FTS for text search
             conditions.append("l.id IN (SELECT rowid FROM leads_fts WHERE leads_fts MATCH ?)")
             params.append(search)
+
+        if workspace_id:
+            conditions.append("l.workspace_id = ?")
+            params.append(workspace_id)
 
         where = " AND ".join(conditions) if conditions else "1=1"
 
@@ -412,6 +440,44 @@ class LeadDB:
                 "SELECT * FROM jobs ORDER BY created_at DESC LIMIT ?", (limit,)
             ).fetchall()
         return [dict(r) for r in rows]
+
+    # ── Workspaces ─────────────────────────────────────────────────────
+
+    def create_workspace(self, name: str, description: str = "") -> str:
+        """Create a new workspace and return its ID."""
+        import uuid
+        ws_id = str(uuid.uuid4())[:8]
+        now = datetime.utcnow().isoformat()
+        self.conn.execute(
+            "INSERT INTO workspaces (id, name, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+            (ws_id, name, description, now, now)
+        )
+        self.conn.commit()
+        return ws_id
+
+    def get_workspaces(self) -> List[Dict[str, Any]]:
+        """List all workspaces with lead/job counts."""
+        rows = self.conn.execute("""
+            SELECT w.*,
+                   (SELECT COUNT(*) FROM leads WHERE workspace_id = w.id) as lead_count,
+                   (SELECT COUNT(*) FROM jobs WHERE workspace_id = w.id) as job_count,
+                   (SELECT COUNT(*) FROM leads WHERE workspace_id = w.id AND status != 'dead') as active_lead_count
+            FROM workspaces w
+            ORDER BY w.updated_at DESC
+        """).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_workspace(self, ws_id: str) -> Optional[Dict[str, Any]]:
+        """Get a single workspace by ID."""
+        row = self.conn.execute("SELECT * FROM workspaces WHERE id = ?", (ws_id,)).fetchone()
+        return dict(row) if row else None
+
+    def delete_workspace(self, ws_id: str):
+        """Delete a workspace and its leads/jobs."""
+        self.conn.execute("DELETE FROM leads WHERE workspace_id = ?", (ws_id,))
+        self.conn.execute("DELETE FROM jobs WHERE workspace_id = ?", (ws_id,))
+        self.conn.execute("DELETE FROM workspaces WHERE id = ?", (ws_id,))
+        self.conn.commit()
 
     # ── Cleanup ────────────────────────────────────────────────────────
 

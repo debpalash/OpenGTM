@@ -14,6 +14,7 @@ import { CommandBar } from "@/components/command-bar"
 import { MetricCards } from "@/components/metric-cards"
 import { LeadsTable } from "@/components/leads-table"
 import { LiveFeed } from "@/components/live-feed"
+import { WorkspacePanel } from "@/components/workspace-panel"
 import { LeadDetailSheet } from "@/components/lead-detail-sheet"
 import { AddLeadDialog } from "@/components/add-lead-dialog"
 import { fetchLeads, fetchStats, fetchFilters, exportCSVUrl, submitCollect, type Lead, type Stats, type Filters } from "@/lib/api"
@@ -37,6 +38,7 @@ export default function App() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [addOpen, setAddOpen] = useState(false)
   const [view, setView] = useState<View>("leads")
+  const [workspaceId, setWorkspaceId] = useState("")
   const searchRef = useRef<HTMLInputElement>(null)
 
   const loadLeads = useCallback(async () => {
@@ -50,9 +52,10 @@ export default function App() {
     if (tier) params.tier = tier
     if (status) params.status = status
     if (source) params.source = source
+    if (workspaceId) params.workspace_id = workspaceId
     const data = await fetchLeads(params)
     setLeads(data)
-  }, [page, search, city, tier, status, source, orderBy])
+  }, [page, search, city, tier, status, source, orderBy, workspaceId])
 
   const loadStats = useCallback(async () => {
     setStats(await fetchStats())
@@ -86,7 +89,7 @@ export default function App() {
   }, [])
 
   const handleCollect = async (query: string) => {
-    const result = await submitCollect(query)
+    const result = await submitCollect(query, workspaceId)
     toast.success(`Collection started: ${result.job_id}`)
     setView("pipeline")
   }
@@ -131,8 +134,16 @@ export default function App() {
 
         {/* ── Main Content ── */}
         <div className="flex-1 flex min-h-0">
+          {/* ── Workspace Sidebar ── */}
+          <div className="w-48 border-r border-border shrink-0 hidden lg:block">
+            <WorkspacePanel
+              activeId={workspaceId}
+              onSelect={(id) => { setWorkspaceId(id); setPage(0) }}
+            />
+          </div>
+
           {/* ── Table ── */}
-          <div className={`flex-1 flex flex-col min-w-0 ${view === "pipeline" ? "hidden lg:flex" : ""}`}>
+          <div className={`flex-1 flex flex-col min-w-0 ${view === "pipeline" && "hidden lg:flex"}`}>
             <ScrollArea className="flex-1">
               <LeadsTable
                 leads={leads}
@@ -145,6 +156,7 @@ export default function App() {
             <div className="flex items-center justify-between px-4 h-9 border-t border-border shrink-0 bg-card/50">
               <span className="text-[11px] text-muted-foreground font-medium tabular-nums">
                 {leads.length} leads · Page {page + 1}
+                {workspaceId && " · Filtered"}
               </span>
               <Pagination className="w-auto mx-0">
                 <PaginationContent className="gap-1">
@@ -170,10 +182,10 @@ export default function App() {
             </div>
           </div>
 
-          {/* ── Pipeline Feed (right panel or full) ── */}
+          {/* ── Pipeline Feed ── */}
           {view === "pipeline" && (
-            <div className="w-full lg:w-[380px] lg:border-l border-border flex flex-col bg-card/30">
-              <LiveFeed onRefresh={refresh} />
+            <div className="w-full lg:w-[400px] lg:border-l border-border flex flex-col bg-card/30">
+              <LiveFeed onRefresh={refresh} workspaceId={workspaceId} />
             </div>
           )}
         </div>
