@@ -9,6 +9,7 @@ import sys
 import os
 import csv
 import io
+import json
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
@@ -208,10 +209,35 @@ def create_app():
             "jobs": job_stats,
         })
 
+    @app.route("/api/events")
+    def api_events():
+        """SSE endpoint for real-time pipeline progress."""
+        import time as _time
+        from leadgen.progress import progress
+
+        def stream():
+            q = progress.subscribe()
+            try:
+                while True:
+                    if q:
+                        while q:
+                            event = q.popleft()
+                            yield f"data: {json.dumps(event)}\n\n"
+                    else:
+                        # Heartbeat
+                        yield f"data: {json.dumps({'type': 'heartbeat'})}\n\n"
+                    _time.sleep(0.5)
+            finally:
+                progress.unsubscribe(q)
+
+        return Response(stream(), mimetype="text/event-stream",
+                       headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
     return app
 
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(host="127.0.0.1", port=5050, debug=True)
+    app.run(host="127.0.0.1", port=5050, debug=True, threaded=True)
+
 
