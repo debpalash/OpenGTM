@@ -94,6 +94,24 @@ class LeadDB:
                 VALUES (new.id, new.company, new.city, new.specialization, new.notes, new.description);
             END;
 
+            -- Jobs queue for async collection queries
+            CREATE TABLE IF NOT EXISTS jobs (
+                id          TEXT PRIMARY KEY,
+                query       TEXT NOT NULL,
+                status      TEXT DEFAULT 'pending',
+                tier        INTEGER DEFAULT 1,
+                attempts    INTEGER DEFAULT 0,
+                max_attempts INTEGER DEFAULT 3,
+                leads_found INTEGER DEFAULT 0,
+                proxy_used  TEXT DEFAULT '',
+                error       TEXT DEFAULT '',
+                created_at  TEXT DEFAULT '',
+                started_at  TEXT DEFAULT '',
+                completed_at TEXT DEFAULT ''
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+
             -- Activity log for pipeline tracking
             CREATE TABLE IF NOT EXISTS activity_log (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -330,6 +348,70 @@ class LeadDB:
             "SELECT DISTINCT source FROM leads WHERE source != '' ORDER BY source"
         ).fetchall()
         return [r["source"] for r in rows]
+
+    # ── Jobs ───────────────────────────────────────────────────────────
+
+    def create_job(self, job_id: str, query: str) -> str:
+        """Create a new collection job."""
+        now = datetime.utcnow().isoformat()
+        self.conn.execute(
+            "INSERT OR IGNORE INTO jobs (id, query, created_at) VALUES (?, ?, ?)",
+            (job_id, query, now)
+        )
+        self.conn.commit()
+        return job_id
+
+    def claim_job(self) -> Optional[Dict[str, Any]]:
+        """Claim the next pending job for processing."""
+        row = self.conn.execute(
+            "SELECT * FROM jobs WHERE status = 'pending' ORDER BY created_at LIMIT 1"
+        ).fetchone()
+        if not row:
+            return None
+        now = datetime.utcnow().isoformat()
+        self.conn.execute(
+            "UPDATE jobs SET status = 'running', started_at = ?, attempts = attempts + 1 WHERE id = ?",
+            (now, row["id"])
+        )
+        self.conn.commit()
+        return dict(row)
+
+    def complete_job(self, job_id: str, leads_found: int = 0):
+        """Mark a job as completed."""
+        now = datetime.utcnow().isoformat()
+        self.conn.execute(
+            "UPDATE jobs SET status = 'done', completed_at = ?, leads_found = ? WHERE id = ?",
+            (now, leads_found, job_id)
+        )
+        self.conn.commit()
+
+    def fail_job(self, job_id: str, error: str):
+        """Mark a job as failed. Re-queues if under max_attempts."""
+        row = self.conn.execute("SELECT attempts, max_attempts FROM jobs WHERE id = ?", (job_id,)).fetchone()
+        if row and row["attempts"] < row["max_attempts"]:
+            self.conn.execute(
+                "UPDATE jobs SET status = 'pending', error = ? WHERE id = ?",
+                (error, job_id)
+            )
+        else:
+            self.conn.execute(
+                "UPDATE jobs SET status = 'failed', error = ?, completed_at = ? WHERE id = ?",
+                (error, datetime.utcnow().isoformat(), job_id)
+            )
+        self.conn.commit()
+
+    def get_jobs(self, status: Optional[str] = None, limit: int = 50) -> List[Dict[str, Any]]:
+        """List jobs, optionally filtered by status."""
+        if status:
+            rows = self.conn.execute(
+                "SELECT * FROM jobs WHERE status = ? ORDER BY created_at DESC LIMIT ?",
+                (status, limit)
+            ).fetchall()
+        else:
+            rows = self.conn.execute(
+                "SELECT * FROM jobs ORDER BY created_at DESC LIMIT ?", (limit,)
+            ).fetchall()
+        return [dict(r) for r in rows]
 
     # ── Cleanup ────────────────────────────────────────────────────────
 

@@ -1,9 +1,8 @@
 """
 Website Scraper — Extract contact info from company websites.
 
-Enhanced version of the original enrich_patchright.py. Navigates to
-company websites and extracts phone numbers, emails, social links,
-and company details from the main page + /contact, /about pages.
+Enhanced version using stealth HTTP client. Tries fast Tier 2 (HTTP) first,
+falls back to browser (Tier 3) only when challenge pages are encountered.
 """
 
 import asyncio
@@ -14,10 +13,8 @@ from urllib.parse import urljoin, urlparse
 from leadgen.models import Lead
 
 try:
-    from patchright.async_api import async_playwright
     from bs4 import BeautifulSoup
 except ImportError:
-    async_playwright = None
     BeautifulSoup = None
 
 
@@ -71,15 +68,8 @@ def _extract_social_links(soup) -> Dict[str, str]:
     return social
 
 
-async def scrape_website(context, url: str) -> Dict:
-    """
-    Scrape a single company website for contact information.
-
-    Checks the main page, then /contact and /about pages for
-    phone numbers, emails, and social links.
-
-    Returns dict with: phones, emails, social, description
-    """
+async def _scrape_via_http(client, url: str) -> Dict:
+    """Tier 2: Scrape website using stealth HTTP (no browser)."""
     result = {
         "phones": [],
         "emails": [],
@@ -87,33 +77,30 @@ async def scrape_website(context, url: str) -> Dict:
         "description": "",
     }
 
-    if not url or url in ("N/A", "nan", ""):
-        return result
-
-    if not url.startswith("http"):
-        url = "https://" + url
-
     pages_to_check = [
         url,
         urljoin(url, "/contact"),
         urljoin(url, "/contact-us"),
         urljoin(url, "/about"),
-        urljoin(url, "/about-us"),
     ]
 
     for page_url in pages_to_check:
-        page = await context.new_page()
-        try:
-            await page.goto(page_url, wait_until="domcontentloaded", timeout=12000)
-            content = await page.content()
-            soup = BeautifulSoup(content, "html.parser")
-            text = soup.get_text(separator=" ")
+        resp = await client.fetch(page_url, tier=2, timeout=12)
+        if not resp.ok:
+            continue
 
-            # Extract phones from text
-            phones = _extract_phones(text)
-            result["phones"].extend(phones)
+        text = resp.text
+        if BeautifulSoup:
+            soup = BeautifulSoup(text, "html.parser")
+            plain_text = soup.get_text(separator=" ")
+        else:
+            plain_text = text
 
-            # Extract phones from tel: links
+        # Extract phones
+        result["phones"].extend(_extract_phones(plain_text))
+
+        # Extract phones from tel: links
+        if BeautifulSoup and soup:
             for a in soup.find_all("a", href=True):
                 if a["href"].startswith("tel:"):
                     phone = a["href"].replace("tel:", "").strip()
@@ -121,30 +108,23 @@ async def scrape_website(context, url: str) -> Dict:
                     if phone:
                         result["phones"].append(phone)
 
-            # Extract emails from text
-            emails = _extract_emails(text)
-            result["emails"].extend(emails)
+        # Extract emails
+        result["emails"].extend(_extract_emails(plain_text))
 
-            # Extract emails from mailto: links
+        # Extract emails from mailto: links
+        if BeautifulSoup and soup:
             for a in soup.find_all("a", href=True):
                 if a["href"].startswith("mailto:"):
                     email = a["href"].replace("mailto:", "").split("?")[0].strip()
                     if email and "@" in email:
                         result["emails"].append(email)
 
-            # Extract social links (only from main page)
-            if page_url == url:
-                result["social"] = _extract_social_links(soup)
-
-                # Try to get meta description
-                meta = soup.find("meta", attrs={"name": "description"})
-                if meta and meta.get("content"):
-                    result["description"] = meta["content"][:300]
-
-        except Exception:
-            pass
-        finally:
-            await page.close()
+        # Social links + description (main page only)
+        if page_url == url and BeautifulSoup and soup:
+            result["social"] = _extract_social_links(soup)
+            meta = soup.find("meta", attrs={"name": "description"})
+            if meta and meta.get("content"):
+                result["description"] = meta["content"][:300]
 
     # Deduplicate
     result["phones"] = list(dict.fromkeys(result["phones"]))[:5]
@@ -161,55 +141,55 @@ async def enrich_leads_from_websites(
     """
     Enrich a batch of leads by scraping their websites for contact info.
 
+    Uses Tier 2 (stealth HTTP) by default — much faster than browser.
     Only scrapes leads that are missing phone or email.
     Updates leads in-place and returns them.
     """
-    if async_playwright is None:
-        print("  ⚠ patchright not installed. Run: pip install patchright")
-        return leads
+    from leadgen.http import StealthClient
+
+    client = StealthClient()
 
     # Filter to leads that need enrichment
     needs_enrichment = [
         l for l in leads
         if l.has_website and (not l.has_phone or not l.has_email)
     ]
-    print(f"  🌐 Enriching {len(needs_enrichment)} leads from websites...")
+    print(f"  🌐 Enriching {len(needs_enrichment)} leads from websites (stealth HTTP)...")
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=headless)
-        context = await browser.new_context(
-            viewport={"width": 1280, "height": 900},
-        )
+    for i in range(0, len(needs_enrichment), batch_size):
+        batch = needs_enrichment[i:i + batch_size]
+        tasks = []
+        for lead in batch:
+            url = lead.website
+            if not url.startswith("http"):
+                url = "https://" + url
+            tasks.append((lead, _scrape_via_http(client, url)))
 
-        for i in range(0, len(needs_enrichment), batch_size):
-            batch = needs_enrichment[i:i + batch_size]
-            tasks = [(lead, scrape_website(context, lead.website)) for lead in batch]
-            results = await asyncio.gather(*(t[1] for t in tasks), return_exceptions=True)
+        results = await asyncio.gather(*(t[1] for t in tasks), return_exceptions=True)
 
-            for (lead, _), result in zip(tasks, results):
-                if isinstance(result, Exception):
-                    print(f"    ⚠ Error scraping {lead.company}: {result}")
-                    continue
+        for (lead, _), result in zip(tasks, results):
+            if isinstance(result, Exception):
+                print(f"    ⚠ Error scraping {lead.company}: {result}")
+                continue
 
-                if result["phones"] and not lead.has_phone:
-                    lead.phone = result["phones"][0]
-                    print(f"    📞 {lead.company}: {lead.phone}")
+            if result["phones"] and not lead.has_phone:
+                lead.phone = result["phones"][0]
+                print(f"    📞 {lead.company}: {lead.phone}")
 
-                if result["emails"] and not lead.has_email:
-                    lead.email = result["emails"][0]
-                    print(f"    📧 {lead.company}: {lead.email}")
+            if result["emails"] and not lead.has_email:
+                lead.email = result["emails"][0]
+                print(f"    📧 {lead.company}: {lead.email}")
 
-                if result["social"].get("linkedin") and not lead.has_linkedin:
-                    lead.linkedin_url = result["social"]["linkedin"]
+            if result["social"].get("linkedin") and not lead.has_linkedin:
+                lead.linkedin_url = result["social"]["linkedin"]
 
-                if result["social"].get("twitter") and not lead.twitter_url:
-                    lead.twitter_url = result["social"]["twitter"]
+            if result["social"].get("twitter") and not lead.twitter_url:
+                lead.twitter_url = result["social"]["twitter"]
 
-                if result["description"] and not lead.description:
-                    lead.description = result["description"]
-
-        await browser.close()
+            if result["description"] and not lead.description:
+                lead.description = result["description"]
 
     enriched_count = sum(1 for l in needs_enrichment if l.has_phone or l.has_email)
     print(f"  ✅ Enriched {enriched_count}/{len(needs_enrichment)} leads with contact info")
     return leads
+

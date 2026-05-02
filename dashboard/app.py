@@ -147,9 +147,71 @@ def create_app():
         return Response(output.getvalue(), mimetype="text/csv",
                         headers={"Content-Disposition": "attachment; filename=yupcha_leads.csv"})
 
+    # ── Collection & Jobs API ─────────────────────────────────────
+
+    @app.route("/api/collect", methods=["POST"])
+    def api_collect():
+        """Submit a stealth collection query."""
+        import uuid
+        import threading
+
+        data = request.json
+        query = data.get("query", "").strip()
+        if not query:
+            return jsonify({"error": "query is required"}), 400
+
+        job_id = str(uuid.uuid4())[:8]
+        db = get_db()
+        db.create_job(job_id, query)
+        db.close()
+
+        # Run collection in background thread
+        def _run_job():
+            import asyncio
+            from leadgen.job_runner import JobRunner
+            runner = JobRunner()
+            asyncio.run(runner._process_job({"id": job_id, "query": query, "tier": 1}))
+
+        thread = threading.Thread(target=_run_job, daemon=True)
+        thread.start()
+
+        return jsonify({"ok": True, "job_id": job_id, "query": query})
+
+    @app.route("/api/jobs")
+    def api_jobs():
+        """List collection jobs."""
+        db = get_db()
+        status = _clean(request.args.get("status"))
+        jobs = db.get_jobs(status=status)
+        db.close()
+        return jsonify(jobs)
+
+    @app.route("/api/system-stats")
+    def api_system_stats():
+        """System stats: proxy pool, rate limiter, pipeline health."""
+        from leadgen.proxy_pool import ProxyPool
+        from leadgen.rate_limiter import RateLimiter
+
+        pp = ProxyPool()
+        rl = RateLimiter()
+        db = get_db()
+        jobs = db.get_jobs(limit=100)
+        db.close()
+
+        job_stats = {"total": len(jobs)}
+        for s in ["pending", "running", "done", "failed"]:
+            job_stats[s] = sum(1 for j in jobs if j["status"] == s)
+
+        return jsonify({
+            "proxy_pool": pp.stats(),
+            "rate_limiter": rl.stats(),
+            "jobs": job_stats,
+        })
+
     return app
 
 
 if __name__ == "__main__":
     app = create_app()
     app.run(host="127.0.0.1", port=5050, debug=True)
+

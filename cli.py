@@ -128,6 +128,29 @@ def cmd_dashboard(args):
     app.run(host="127.0.0.1", port=args.port, debug=args.debug)
 
 
+def cmd_collect(args):
+    """Submit and run a stealth collection query."""
+    from leadgen.job_runner import JobRunner
+    runner = JobRunner()
+    print(f"\n  🔍 Collecting: '{args.query}'")
+    asyncio.run(runner.submit(args.query))
+
+
+def cmd_jobs(args):
+    """List job queue status."""
+    from leadgen.db import LeadDB
+    db = LeadDB()
+    jobs = db.get_jobs(status=args.status)
+    db.close()
+    if not jobs:
+        print("  No jobs found")
+        return
+    print(f"\n  {'ID':<10} {'Status':<10} {'Leads':<7} {'Query'}")
+    print(f"  {'─'*10} {'─'*10} {'─'*7} {'─'*30}")
+    for j in jobs:
+        print(f"  {j['id']:<10} {j['status']:<10} {j['leads_found']:<7} {j['query'][:40]}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Yupcha Lead Generation Pipeline")
     sub = parser.add_subparsers(dest="command", help="Command to run")
@@ -169,6 +192,14 @@ def main():
     p.add_argument("--port", type=int, default=5050)
     p.add_argument("--debug", action="store_true")
 
+    # collect (NEW — stealth query)
+    p = sub.add_parser("collect", help="Run stealth collection query")
+    p.add_argument("query", help="Search query, e.g. 'HR staffing agency Bangalore'")
+
+    # jobs (NEW — queue status)
+    p = sub.add_parser("jobs", help="List collection jobs")
+    p.add_argument("--status", help="Filter by status: pending, running, done, failed")
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -178,9 +209,11 @@ def main():
         "import": cmd_import, "scrape": cmd_scrape, "enrich": cmd_enrich,
         "score": cmd_score, "pipeline": cmd_pipeline, "export": cmd_export,
         "stats": cmd_stats, "dashboard": cmd_dashboard,
+        "collect": cmd_collect, "jobs": cmd_jobs,
     }
     cmds[args.command](args)
 
 
 if __name__ == "__main__":
     main()
+

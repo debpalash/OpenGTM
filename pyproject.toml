@@ -5,12 +5,14 @@ description = "Lead generation & enrichment pipeline for Yupcha"
 requires-python = ">=3.11"
 dependencies = [
     "pandas>=2.0",
-    "duckduckgo-search>=6.0",
+    "ddgs>=7.0",
     "patchright>=0.5",
     "beautifulsoup4>=4.12",
     "flask>=3.0",
     "thefuzz>=0.22",
     "python-dotenv>=1.0",
+    "stealth-requests>=1.0",
+    "curl-cffi>=0.9",
 ]
 
 [project.scripts]

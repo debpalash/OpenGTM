@@ -105,3 +105,63 @@ export function exportCSVUrl(params: Record<string, string> = {}): string {
   const qs = new URLSearchParams(params).toString()
   return `${API_BASE}/api/export/csv?${qs}`
 }
+
+// ── Collection & Jobs ──────────────────────────────────────────
+
+export interface Job {
+  id: string
+  query: string
+  status: string
+  tier: number
+  attempts: number
+  max_attempts: number
+  leads_found: number
+  proxy_used: string
+  error: string
+  created_at: string
+  started_at: string
+  completed_at: string
+}
+
+export interface SystemStats {
+  proxy_pool: {
+    total: number
+    http: number
+    socks5: number
+    socks4: number
+    blocked: number
+    domain_assignments: number
+  }
+  rate_limiter: {
+    tracked_domains: number
+    tripped_domains: string[]
+  }
+  jobs: {
+    total: number
+    pending: number
+    running: number
+    done: number
+    failed: number
+  }
+}
+
+export async function submitCollect(query: string): Promise<{ ok: boolean; job_id: string; query: string }> {
+  const res = await fetch(`${API_BASE}/api/collect`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  })
+  return res.json()
+}
+
+export async function fetchJobs(status?: string): Promise<Job[]> {
+  const qs = status ? `?status=${status}` : ""
+  const res = await fetch(`${API_BASE}/api/jobs${qs}`)
+  return res.json()
+}
+
+export async function fetchSystemStats(): Promise<SystemStats> {
+  const res = await fetch(`${API_BASE}/api/system-stats`)
+  return res.json()
+}
+

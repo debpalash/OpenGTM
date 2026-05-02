@@ -18,6 +18,7 @@ import { LeadsTable } from "@/components/leads-table"
 import { LeadsFilters, type FilterState } from "@/components/leads-filters"
 import { LeadDetailSheet } from "@/components/lead-detail-sheet"
 import { AddLeadDialog } from "@/components/add-lead-dialog"
+import { CollectPanel } from "@/components/collect-panel"
 import { fetchLeads, fetchStats, fetchFilters, exportCSVUrl, type Lead, type Stats, type Filters } from "@/lib/api"
 
 const PAGE_SIZE = 100
@@ -33,6 +34,7 @@ export default function App() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [addOpen, setAddOpen] = useState(false)
+  const [collectOpen, setCollectOpen] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
 
   const loadLeads = useCallback(async () => {
@@ -135,14 +137,25 @@ export default function App() {
               searchRef={searchRef}
             />
             <Separator orientation="vertical" className="h-4 mx-1" />
-            <Button variant="ghost" size="sm" className="h-7 text-xs">
-              <span onClick={handleExport}>Export</span>
+            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={handleExport}>
+              Export
+            </Button>
+            <Button
+              variant={collectOpen ? "default" : "ghost"}
+              size="sm"
+              className="h-7 text-xs"
+              onClick={() => setCollectOpen(o => !o)}
+            >
+              🔍 Collect
             </Button>
             <Button size="sm" className="h-7 text-xs" onClick={() => setAddOpen(true)}>
               + Add
             </Button>
           </div>
         </div>
+
+        {/* ── Collect Panel ── */}
+        {collectOpen && <CollectPanel onCollected={refresh} />}
 
         {/* ── Stats Strip ── */}
         {stats && <StatsStrip stats={stats} />}

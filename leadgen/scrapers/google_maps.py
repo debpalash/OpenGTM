@@ -1,9 +1,11 @@
 """
-Google Maps Scraper — Discover HR/staffing companies via Google Maps.
+Google Maps Scraper — Discover companies via Google Maps.
 
 Uses Patchright (stealth headless browser) to search Google Maps for
 companies matching target queries in target cities. Extracts company name,
 address, phone, website, rating, and review count.
+
+Enhanced with multiple fallback selectors for reliability.
 """
 
 import asyncio
@@ -28,6 +30,43 @@ class MapResult:
     rating: str = ""
     reviews: str = ""
     category: str = ""
+
+
+async def _extract_text(locator, timeout: int = 3000) -> str:
+    """Safely extract text content from a locator."""
+    try:
+        if await locator.count() > 0:
+            return (await locator.first.text_content(timeout=timeout) or "").strip()
+    except Exception:
+        pass
+    return ""
+
+
+async def _extract_attr(locator, attr: str, timeout: int = 3000) -> str:
+    """Safely extract an attribute from a locator."""
+    try:
+        if await locator.count() > 0:
+            return (await locator.first.get_attribute(attr, timeout=timeout) or "").strip()
+    except Exception:
+        pass
+    return ""
+
+
+async def _extract_from_aria(page, keyword: str) -> str:
+    """Extract text from an element with aria-label containing keyword."""
+    try:
+        el = page.locator(f'[aria-label*="{keyword}"]')
+        if await el.count() > 0:
+            label = await el.first.get_attribute("aria-label") or ""
+            # For phone: extract digits
+            if keyword.lower() in ("phone", "call"):
+                match = re.search(r'[\d\-\+\(\)\s]{7,}', label)
+                if match:
+                    return match.group().strip()
+            return label
+    except Exception:
+        pass
+    return ""
 
 
 async def scrape_google_maps(
@@ -70,6 +109,15 @@ async def scrape_google_maps(
             await page.goto(maps_url, wait_until="domcontentloaded", timeout=20000)
             await asyncio.sleep(3)
 
+            # Accept cookies if prompted
+            try:
+                consent = page.locator('button:has-text("Accept all")')
+                if await consent.count() > 0:
+                    await consent.first.click()
+                    await asyncio.sleep(1)
+            except Exception:
+                pass
+
             # Scroll the results panel to load more listings
             results_panel = page.locator('[role="feed"]')
             if await results_panel.count() > 0:
@@ -87,57 +135,61 @@ async def scrape_google_maps(
                     await link.click()
                     await asyncio.sleep(2)
 
-                    # Extract details from the side panel
-                    name = ""
-                    name_el = page.locator('h1')
-                    if await name_el.count() > 0:
-                        name = (await name_el.first.text_content() or "").strip()
-
+                    # ── Name ──────────────────────────────────
+                    name = await _extract_text(page.locator('h1'))
+                    if not name:
+                        name = await _extract_text(page.locator('[data-attrid="title"]'))
                     if not name or name in seen_names:
                         continue
                     seen_names.add(name)
 
-                    # Extract info items (address, phone, website, etc.)
+                    # ── Phone (multiple strategies) ───────────
                     phone = ""
-                    website = ""
-                    address = ""
-                    category = ""
-
-                    # Phone: look for tel: links or phone button
-                    phone_btn = page.locator('[data-tooltip="Copy phone number"]')
-                    if await phone_btn.count() > 0:
-                        phone_text = await phone_btn.first.text_content()
-                        if phone_text:
-                            phone = phone_text.strip()
-
-                    # Phone fallback: aria-label containing phone
+                    # Strategy 1: Copy button
+                    phone = await _extract_text(page.locator('[data-tooltip="Copy phone number"]'))
+                    # Strategy 2: aria-label
                     if not phone:
-                        phone_el = page.locator('[aria-label*="Phone"]')
-                        if await phone_el.count() > 0:
-                            phone_label = await phone_el.first.get_attribute("aria-label") or ""
-                            phone_match = re.search(r'[\d\-\+\(\)\s]{7,}', phone_label)
-                            if phone_match:
-                                phone = phone_match.group().strip()
+                        phone = await _extract_from_aria(page, "Phone")
+                    # Strategy 3: tel: links
+                    if not phone:
+                        phone = await _extract_attr(page.locator('a[href^="tel:"]'), "href")
+                        if phone:
+                            phone = phone.replace("tel:", "").strip()
+                    # Strategy 4: info button text containing digits
+                    if not phone:
+                        info_buttons = await page.locator('button[data-item-id*="phone"]').all()
+                        for btn in info_buttons[:1]:
+                            try:
+                                phone = (await btn.text_content(timeout=2000) or "").strip()
+                            except Exception:
+                                pass
 
-                    # Website
-                    website_btn = page.locator('[data-tooltip="Open website"]')
-                    if await website_btn.count() > 0:
-                        website = await website_btn.first.get_attribute("href") or ""
-
+                    # ── Website (multiple strategies) ──────────
+                    website = ""
+                    website = await _extract_attr(page.locator('[data-tooltip="Open website"]'), "href")
                     if not website:
-                        website_el = page.locator('a[aria-label*="Website"]')
-                        if await website_el.count() > 0:
-                            website = await website_el.first.get_attribute("href") or ""
+                        website = await _extract_attr(page.locator('a[aria-label*="Website"]'), "href")
+                    if not website:
+                        website = await _extract_attr(page.locator('a[data-item-id="authority"]'), "href")
 
-                    # Address
-                    addr_btn = page.locator('[data-tooltip="Copy address"]')
-                    if await addr_btn.count() > 0:
-                        address = (await addr_btn.first.text_content() or "").strip()
+                    # ── Address ────────────────────────────────
+                    address = await _extract_text(page.locator('[data-tooltip="Copy address"]'))
+                    if not address:
+                        address = await _extract_from_aria(page, "Address")
 
-                    # Category/type
-                    cat_el = page.locator('button[jsaction*="category"]')
-                    if await cat_el.count() > 0:
-                        category = (await cat_el.first.text_content() or "").strip()
+                    # ── Category ───────────────────────────────
+                    category = await _extract_text(page.locator('button[jsaction*="category"]'))
+                    if not category:
+                        category = await _extract_text(page.locator('[class*="fontBodyMedium"] button'))
+
+                    # ── Rating ─────────────────────────────────
+                    rating = ""
+                    try:
+                        rating_el = page.locator('[class*="fontDisplayLarge"]')
+                        if await rating_el.count() > 0:
+                            rating = (await rating_el.first.text_content(timeout=2000) or "").strip()
+                    except Exception:
+                        pass
 
                     lead = Lead(
                         company=name,
@@ -178,3 +230,4 @@ async def scrape_maps_multi_city(
             all_leads.extend(leads)
             await asyncio.sleep(3)  # Rate limiting between searches
     return all_leads
+
