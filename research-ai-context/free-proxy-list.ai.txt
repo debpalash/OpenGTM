@@ -1,0 +1,1709 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+by-country/
+  at/
+    socks5.txt
+  au/
+    socks5.txt
+  bd/
+    http.txt
+  be/
+    socks5.txt
+  br/
+    http.txt
+  ca/
+    socks5.txt
+  cn/
+    http.txt
+    socks5.txt
+  co/
+    http.txt
+  cz/
+    http.txt
+  de/
+    http.txt
+    socks5.txt
+  eg/
+    http.txt
+  fi/
+    http.txt
+    socks5.txt
+  fr/
+    http.txt
+    socks5.txt
+  gb/
+    http.txt
+    socks5.txt
+  hk/
+    socks5.txt
+  id/
+    http.txt
+    socks5.txt
+  ie/
+    socks5.txt
+  il/
+    socks5.txt
+  in/
+    socks5.txt
+  it/
+    socks5.txt
+  jp/
+    http.txt
+    socks5.txt
+  kr/
+    http.txt
+    socks5.txt
+  kw/
+    socks5.txt
+  kz/
+    http.txt
+    socks5.txt
+  mk/
+    socks5.txt
+  mn/
+    socks5.txt
+  my/
+    socks5.txt
+  nl/
+    http.txt
+    socks5.txt
+  no/
+    socks5.txt
+  pe/
+    socks5.txt
+  ph/
+    http.txt
+  pk/
+    http.txt
+  pl/
+    socks5.txt
+  ru/
+    socks5.txt
+  se/
+    socks5.txt
+  sg/
+    http.txt
+    socks5.txt
+  tr/
+    http.txt
+    socks5.txt
+  us/
+    http.txt
+    socks5.txt
+  vn/
+    http.txt
+    socks4.txt
+    socks5.txt
+  za/
+    socks5.txt
+.gitignore
+http.txt
+LICENSE
+README.md
+socks4.txt
+socks5.txt
+
+================================================================
+Files
+================================================================
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: by-country/ca/socks5.txt
+================
+206.123.156.215:31368
+206.123.156.236:40318
+206.123.156.207:34244
+206.123.156.236:32110
+206.123.156.217:8911
+206.123.156.217:42493
+206.123.156.231:16345
+206.123.156.231:15714
+206.123.156.207:37361
+206.123.156.204:7728
+206.123.156.227:8594
+206.123.156.204:5296
+206.123.156.204:7365
+206.123.156.215:33720
+206.123.156.215:30391
+206.123.156.231:18152
+206.123.156.217:46362
+206.123.156.227:33219
+206.123.156.236:45542
+206.123.156.201:13322
+206.123.156.207:36826
+206.123.156.211:8489
+206.123.156.236:37354
+206.123.156.231:14521
+
+================
+File: by-country/cn/http.txt
+================
+223.84.151.86:30005
+47.112.25.109:7890
+115.190.91.223:7897
+115.231.181.40:8128
+120.92.211.211:7890
+120.92.212.16:7890
+120.92.212.16:8890
+8.154.21.175:3128
+
+================
+File: by-country/cn/socks5.txt
+================
+203.25.208.163:1111
+112.5.33.179:999
+
+================
+File: by-country/co/http.txt
+================
+45.167.124.71:999
+
+================
+File: by-country/cz/http.txt
+================
+5.43.224.230:3128
+
+================
+File: by-country/de/http.txt
+================
+168.222.254.136:8888
+
+================
+File: by-country/de/socks5.txt
+================
+206.123.156.211:8592
+206.123.156.236:38589
+206.123.156.207:28217
+206.123.156.215:29499
+167.172.161.22:1086
+91.217.81.131:1080
+206.123.156.207:28793
+164.90.187.185:1088
+134.122.76.129:1093
+206.123.156.204:15064
+167.172.161.22:1090
+164.90.237.11:1083
+167.172.161.22:1093
+167.172.161.22:1083
+167.172.161.22:1095
+164.90.185.232:1085
+164.90.185.232:1090
+185.218.137.242:1080
+164.90.185.232:1095
+164.90.185.232:1082
+164.90.185.232:1092
+164.90.185.232:1081
+164.90.185.232:1093
+206.123.156.207:31758
+206.123.156.215:30051
+206.123.156.236:40571
+164.90.187.185:1081
+206.123.156.215:31311
+206.123.156.227:33070
+134.122.76.129:1081
+138.124.114.113:1080
+164.90.221.76:1091
+164.90.185.232:1083
+164.90.185.232:1086
+164.90.237.11:1094
+46.101.184.29:1092
+206.123.156.204:7573
+164.90.185.232:1087
+164.90.185.232:1089
+164.90.221.76:1090
+164.90.221.76:1093
+164.90.221.76:1094
+164.90.221.76:1087
+164.90.237.11:1089
+164.90.237.11:1090
+164.90.237.11:1086
+164.90.237.11:1084
+164.90.237.11:1095
+164.90.237.11:1093
+206.123.156.217:42199
+206.123.156.217:42906
+206.123.156.217:43440
+206.123.156.201:6945
+206.123.156.231:18501
+206.123.156.227:30117
+206.123.156.231:12596
+206.123.156.236:37461
+206.123.156.215:31637
+206.123.156.227:33829
+206.123.156.227:29713
+152.53.144.223:1080
+46.101.184.29:1095
+
+================
+File: by-country/eg/http.txt
+================
+41.33.219.131:1976
+
+================
+File: by-country/fi/http.txt
+================
+178.156.224.42:3128
+
+================
+File: by-country/fi/socks5.txt
+================
+206.123.156.215:31552
+206.123.156.215:30643
+45.94.47.227:1080
+206.123.156.236:39436
+206.123.156.236:40971
+206.123.156.215:32082
+206.123.156.236:42175
+206.123.156.231:5437
+193.221.203.192:1080
+206.123.156.215:31174
+206.123.156.215:33685
+206.123.156.236:42361
+206.123.156.231:18392
+
+================
+File: by-country/fr/http.txt
+================
+92.119.127.211:6005
+
+================
+File: by-country/fr/socks5.txt
+================
+206.123.156.236:44382
+206.123.156.215:36880
+206.123.156.215:38868
+206.123.156.236:5699
+206.123.156.207:35130
+206.123.156.227:31497
+206.123.156.231:22037
+206.123.156.227:9447
+206.123.156.227:28754
+206.123.156.207:13374
+206.123.156.236:36498
+206.123.156.204:7616
+206.123.156.217:9592
+206.123.156.207:27687
+158.178.198.31:1080
+206.123.156.201:37764
+206.123.156.215:19369
+206.123.156.227:4975
+206.123.156.227:35658
+206.123.156.215:30775
+206.123.156.211:13647
+206.123.156.231:4867
+206.123.156.231:20837
+206.123.156.217:8981
+206.123.156.204:8914
+206.123.156.231:20223
+206.123.156.227:29960
+206.123.156.215:32361
+206.123.156.207:34771
+206.123.156.236:4815
+206.123.156.207:27528
+206.123.156.201:7787
+206.123.156.231:20869
+206.123.156.215:38862
+206.123.156.201:39188
+206.123.156.227:8780
+206.123.156.236:7575
+206.123.156.211:6759
+206.123.156.231:7408
+206.123.156.236:41806
+206.123.156.236:44508
+206.123.156.236:38471
+206.123.156.215:38210
+206.123.156.236:6948
+206.123.156.236:5520
+206.123.156.211:8703
+206.123.156.236:36555
+206.123.156.231:16913
+206.123.156.227:33687
+206.123.156.231:20795
+206.123.156.217:46463
+
+================
+File: by-country/gb/http.txt
+================
+46.101.95.183:8888
+
+================
+File: by-country/gb/socks5.txt
+================
+91.184.241.12:443
+85.31.96.136:60030
+206.123.156.236:9456
+
+================
+File: by-country/hk/socks5.txt
+================
+47.238.121.31:1080
+47.79.79.35:10808
+
+================
+File: by-country/id/http.txt
+================
+110.232.85.2:6060
+154.90.48.209:9090
+165.99.192.23:1111
+103.119.229.140:8080
+
+================
+File: by-country/id/socks5.txt
+================
+206.123.156.227:32764
+206.123.156.227:33412
+206.123.156.227:33076
+
+================
+File: by-country/ie/socks5.txt
+================
+206.123.156.211:9171
+206.123.156.207:31797
+
+================
+File: by-country/il/socks5.txt
+================
+206.123.156.227:8658
+206.123.156.201:28064
+206.123.156.236:30982
+206.123.156.201:30304
+206.123.156.201:30936
+206.123.156.211:26477
+206.123.156.201:27312
+206.123.156.188:23743
+206.123.156.236:31043
+206.123.156.211:13260
+206.123.156.211:26613
+206.123.156.227:9508
+206.123.156.201:30048
+206.123.156.236:31057
+206.123.156.215:7592
+206.123.156.236:30988
+206.123.156.201:29405
+
+================
+File: by-country/in/socks5.txt
+================
+206.123.156.204:5868
+206.123.156.236:8844
+206.123.156.231:20133
+206.123.156.231:20668
+206.123.156.188:10891
+206.123.156.227:26764
+206.123.156.227:9292
+206.123.156.215:9534
+206.123.156.236:8828
+64.227.131.240:1080
+206.123.156.231:13292
+206.123.156.207:34285
+206.123.156.231:14091
+206.123.156.231:16074
+206.123.156.207:30519
+206.123.156.207:34608
+206.123.156.207:36216
+206.123.156.236:33951
+206.123.156.236:13695
+206.123.156.236:31870
+
+================
+File: by-country/it/socks5.txt
+================
+206.123.156.204:15013
+
+================
+File: by-country/jp/http.txt
+================
+35.73.28.87:3128
+
+================
+File: by-country/jp/socks5.txt
+================
+66.42.35.216:5555
+103.75.118.84:1080
+206.123.156.207:33183
+206.123.156.227:27834
+
+================
+File: by-country/kr/http.txt
+================
+1.231.81.166:3128
+222.107.27.7:8089
+222.107.27.7:8074
+222.107.27.7:8088
+
+================
+File: by-country/kr/socks5.txt
+================
+206.123.156.236:44736
+121.169.46.116:1090
+206.123.156.231:24817
+206.123.156.201:8092
+206.123.156.236:45709
+206.123.156.236:45671
+
+================
+File: by-country/kw/socks5.txt
+================
+206.123.156.216:14997
+
+================
+File: by-country/kz/http.txt
+================
+2.78.60.10:3129
+
+================
+File: by-country/kz/socks5.txt
+================
+31.130.152.120:443
+198.13.190.60:1080
+
+================
+File: by-country/mk/socks5.txt
+================
+206.123.156.215:31510
+206.123.156.227:30578
+206.123.156.215:33095
+206.123.156.227:31135
+
+================
+File: by-country/mn/socks5.txt
+================
+206.123.156.227:29883
+
+================
+File: by-country/my/socks5.txt
+================
+206.123.156.207:33312
+206.123.156.236:43409
+206.123.156.201:19234
+206.123.156.201:13137
+206.123.156.231:18131
+206.123.156.215:34078
+206.123.156.231:14837
+
+================
+File: by-country/nl/http.txt
+================
+185.125.203.192:3128
+
+================
+File: by-country/nl/socks5.txt
+================
+206.123.156.201:8186
+206.123.156.215:36804
+185.125.201.149:7443
+206.123.156.236:40759
+206.123.156.236:41043
+206.123.156.211:12370
+206.123.156.207:26353
+206.123.156.207:37087
+206.123.156.207:36638
+206.123.156.215:37753
+206.123.156.213:5313
+206.123.156.215:33390
+206.123.156.215:30862
+206.123.156.207:31017
+146.103.125.38:1080
+206.123.156.204:9844
+206.123.156.236:44004
+206.123.156.215:37241
+206.123.156.215:32664
+206.123.156.227:33976
+206.123.156.207:31310
+206.123.156.207:37607
+206.123.156.215:35318
+206.123.156.215:31990
+206.123.156.231:14537
+206.123.156.236:43564
+80.74.24.125:1080
+206.123.156.227:35659
+206.123.156.211:9505
+206.123.156.201:14352
+206.123.156.227:22047
+206.123.156.188:41959
+206.123.156.211:14987
+206.123.156.204:10425
+206.123.156.227:33644
+206.123.156.236:42653
+206.123.156.236:45153
+206.123.156.231:17819
+206.123.156.215:33017
+206.123.156.217:43587
+206.123.156.231:15376
+206.123.156.215:32068
+206.123.156.231:14638
+206.123.156.217:45258
+206.123.156.201:6496
+206.123.156.201:15084
+206.123.156.207:34457
+206.123.156.215:33599
+206.123.156.236:41899
+
+================
+File: by-country/no/socks5.txt
+================
+185.125.171.171:1080
+
+================
+File: by-country/pe/socks5.txt
+================
+206.123.156.236:44786
+
+================
+File: by-country/ph/http.txt
+================
+126.209.18.142:8082
+
+================
+File: by-country/pk/http.txt
+================
+103.157.200.126:3128
+
+================
+File: by-country/pl/socks5.txt
+================
+206.123.156.236:43976
+206.123.156.215:32854
+206.123.156.236:32406
+206.123.156.236:33274
+206.123.156.236:33605
+206.123.156.227:31465
+206.123.156.215:16500
+206.123.156.215:32077
+206.123.156.188:36449
+206.123.156.215:15132
+206.123.156.207:24460
+206.123.156.211:9996
+206.123.156.217:36830
+206.123.156.201:14210
+206.123.156.236:33982
+206.123.156.231:17624
+206.123.156.236:45218
+206.123.156.227:30292
+206.123.156.236:43744
+206.123.156.207:32914
+206.123.156.207:36848
+
+================
+File: by-country/ru/socks5.txt
+================
+185.209.29.226:1080
+206.123.156.201:16977
+206.123.156.227:37435
+206.123.156.215:37045
+95.165.87.233:1080
+81.26.182.195:1080
+206.123.156.201:10159
+206.123.156.207:33822
+206.123.156.236:44161
+206.123.156.236:42051
+
+================
+File: by-country/se/socks5.txt
+================
+206.123.156.236:38321
+206.123.156.231:11033
+
+================
+File: by-country/sg/http.txt
+================
+101.32.243.189:80
+52.74.26.202:8080
+212.58.132.5:8888
+206.206.126.177:2412
+8.219.97.248:80
+120.92.108.86:7890
+
+================
+File: by-country/sg/socks5.txt
+================
+206.123.156.231:7708
+206.123.156.236:10188
+206.123.156.236:18701
+206.123.156.207:27896
+212.58.132.5:1080
+206.123.156.227:18898
+206.123.156.227:9265
+206.123.156.201:23064
+
+================
+File: by-country/tr/http.txt
+================
+45.155.125.199:17391
+
+================
+File: by-country/tr/socks5.txt
+================
+206.123.156.231:13274
+
+================
+File: by-country/us/http.txt
+================
+20.127.128.70:8080
+98.153.152.141:7070
+134.199.192.3:3128
+218.108.131.186:17890
+
+================
+File: by-country/us/socks5.txt
+================
+206.123.156.231:19194
+206.123.156.207:31655
+206.123.156.215:32004
+206.123.156.231:14772
+206.123.156.236:32060
+206.123.156.207:37640
+206.123.156.231:17465
+206.123.156.211:12946
+206.123.156.236:39057
+206.123.156.204:8183
+206.123.156.188:46260
+206.123.156.215:31274
+206.123.156.207:15689
+206.123.156.236:39397
+206.123.156.231:19613
+206.123.156.207:31349
+206.123.156.236:41062
+206.123.156.236:38701
+206.123.156.207:33092
+23.142.84.228:14333
+206.123.156.188:40927
+206.123.156.207:12126
+206.123.156.207:31734
+206.123.156.231:17231
+206.123.156.236:40860
+206.123.156.236:44075
+206.123.156.236:43235
+47.238.79.105:1080
+206.123.156.227:33786
+206.123.156.207:31516
+206.123.156.236:37448
+206.123.156.207:33475
+206.123.156.188:40236
+47.85.51.197:1080
+193.25.215.182:22222
+142.248.80.110:1080
+23.175.248.21:1080
+107.173.51.212:1080
+206.123.156.236:37822
+206.123.156.207:16994
+206.123.156.236:37482
+206.123.156.236:40183
+206.123.156.204:5114
+206.123.156.215:30283
+206.123.156.227:26473
+138.197.234.127:1081
+206.123.156.236:39613
+206.123.156.215:33340
+206.123.156.231:15100
+206.123.156.201:8954
+206.123.156.227:28253
+206.123.156.204:7733
+206.123.156.236:41101
+206.123.156.207:34374
+206.123.156.215:34387
+206.123.156.201:8106
+206.123.156.201:11512
+206.123.156.207:34663
+206.123.156.207:33603
+206.123.156.227:5843
+206.123.156.236:39053
+206.123.156.188:37957
+206.123.156.211:8999
+206.123.156.236:40425
+206.123.156.227:27259
+206.123.156.207:32425
+206.123.156.207:34383
+206.123.156.236:44732
+206.123.156.207:36100
+206.123.156.227:32971
+206.123.156.215:30593
+206.123.156.215:31268
+206.123.156.231:23138
+206.123.156.231:8134
+206.123.156.231:15291
+206.123.156.207:34203
+206.123.156.201:27290
+206.123.156.207:30909
+206.123.156.201:13451
+206.123.156.211:13060
+206.123.156.236:38341
+206.123.156.201:11060
+206.123.156.236:41451
+206.123.156.204:6203
+206.123.156.227:31513
+206.123.156.236:38774
+206.123.156.231:19884
+206.123.156.231:16288
+206.123.156.227:33300
+206.123.156.236:32103
+206.123.156.217:42880
+
+================
+File: by-country/vn/http.txt
+================
+113.160.132.26:8080
+
+================
+File: by-country/vn/socks4.txt
+================
+171.248.209.44:1080
+
+================
+File: by-country/vn/socks5.txt
+================
+206.123.156.236:44664
+206.123.156.207:36138
+206.123.156.207:32325
+206.123.156.215:29870
+206.123.156.188:36252
+206.123.156.236:11185
+206.123.156.227:6183
+206.123.156.236:21755
+206.123.156.236:24327
+206.123.156.201:7627
+206.123.156.207:30648
+206.123.156.207:37729
+206.123.156.216:33622
+206.123.156.236:45376
+206.123.156.227:33284
+206.123.156.227:34082
+206.123.156.207:30614
+206.123.156.236:41228
+206.123.156.236:44425
+206.123.156.236:23866
+206.123.156.217:35691
+
+================
+File: by-country/za/socks5.txt
+================
+206.123.156.227:4589
+206.123.156.204:5901
+206.123.156.201:6593
+
+================
+File: .gitignore
+================
+README.template.md
+
+================
+File: http.txt
+================
+20.127.128.70:8080
+98.153.152.141:7070
+110.232.85.2:6060
+223.84.151.86:30005
+47.112.25.109:7890
+115.190.91.223:7897
+115.231.181.40:8128
+154.90.48.209:9090
+103.159.37.200:3128
+186.225.239.86:3128
+45.155.125.199:17391
+134.199.192.3:3128
+5.43.224.230:3128
+101.32.243.189:80
+120.92.211.211:7890
+2.78.60.10:3129
+120.92.212.16:7890
+120.92.212.16:8890
+35.73.28.87:3128
+52.74.26.202:8080
+165.99.192.23:1111
+212.58.132.5:8888
+218.108.131.186:17890
+113.160.132.26:8080
+119.18.146.65:10001
+103.157.200.126:3128
+206.206.126.177:2412
+200.174.198.32:8888
+8.219.97.248:80
+1.231.81.166:3128
+120.92.108.86:7890
+45.167.124.71:999
+46.101.95.183:8888
+178.156.224.42:3128
+8.154.21.175:3128
+168.222.254.136:8888
+126.209.18.142:8082
+200.9.221.243:3128
+41.33.219.131:1976
+92.119.127.211:6005
+222.107.27.7:8089
+103.119.229.140:8080
+222.107.27.7:8074
+222.107.27.7:8088
+185.125.203.192:3128
+
+================
+File: LICENSE
+================
+MIT License
+
+Copyright (c) 2026 Databay Labs
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================
+File: README.md
+================
+<div align="center">
+
+<a href="https://databay.com/proxies/residential" target="_blank" title="Get Databay Premium Residential Proxies"><img width="100%" alt="Databay logo" src="https://raw.githubusercontent.com/databay-labs/free-proxy-list/master/databay-banner.png"></a>
+
+# 🔄 Free Proxy List by Databay.com | Constantly Updated
+
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Updated every 5 minutes](https://img.shields.io/badge/Updated-Every%205%20mins-brightgreen)
+![Strict SSL Validated](https://img.shields.io/badge/SSL-Strict%20%E2%9C%93%20No%20MITM-success)
+<img src="https://img.shields.io/badge/Last%20Update-4%20minute(s)%20ago-blueviolet">
+<img src="https://img.shields.io/badge/Countries-51%2B-orange">
+
+</br>
+
+<a href="https://github.com/databay-labs/free-proxy-list/raw/refs/heads/master/http.txt">
+  <img src="https://img.shields.io/badge/HTTP-45%20PROXIES-brightgreen">
+</a>
+<a href="https://github.com/databay-labs/free-proxy-list/raw/refs/heads/master/socks4.txt">
+  <img src="https://img.shields.io/badge/SOCKS4-1%20PROXIES-orange">
+</a>
+<a href="https://github.com/databay-labs/free-proxy-list/raw/refs/heads/master/socks5.txt">
+  <img src="https://img.shields.io/badge/SOCKS5-445%20PROXIES-blue">
+</a>
+
+</br>
+
+![Latency](https://img.shields.io/badge/Avg%20Latency-3880ms-yellow)
+![Lowest](https://img.shields.io/badge/Lowest%20Latency-51ms-brightgreen)
+
+**&searr;&nbsp;&nbsp;Browse, filter & download the full list with API access&nbsp;&nbsp;&swarr;**
+
+[**databay.com/free-proxy-list**](https://databay.com/free-proxy-list)
+
+</div>
+
+> [!IMPORTANT]\
+> ⚠️ Free proxies carry risks! Many perform MITM attacks to modify your data. **All proxies in this list have valid SSL certificates** (strict HTTPS — no MITM certificate trust needed). For secure browsing at scale, consider **[Databay's Premium Rotating Proxies](https://databay.com/)**.
+
+---
+
+## 📑 Table of Contents
+
+- [🚀 Features](#-features)
+- [📥 Quick Start — Direct Downloads](#-quick-start--direct-downloads)
+- [🌍 Country-Specific Lists](#-country-specific-lists)
+- [🌐 Free Public API](#-free-public-api)
+  - [Query Parameters](#query-parameters)
+  - [Example Requests](#example-requests)
+  - [Response Schema](#response-schema)
+- [💻 Code Examples](#-code-examples)
+  - [Python](#-python)
+  - [Node.js](#-nodejs)
+  - [Go](#-go)
+  - [PHP](#-php)
+  - [Java](#-java)
+  - [C# / .NET](#-c--net)
+- [🛡️ Why Strict SSL Matters](#%EF%B8%8F-why-strict-ssl-matters)
+- [🚀 Need Premium?](#-need-premium)
+- [📜 License](#-license)
+- [⚠️ Disclaimer](#%EF%B8%8F-disclaimer)
+
+---
+
+## 🚀 Features
+
+- **🔒 Strict SSL Validated**: Every proxy correctly tunnels HTTPS traffic and preserves the target site's SSL certificate (no MITM)
+- **🕒 Refreshed Every 5 Minutes**: Always-fresh, never-stale list
+- **✨ Zero Duplicates**: Each commit is deduplicated and sorted by recency
+- **🌍 Multi-Country**: Proxies from **51+ countries** with per-country breakdowns
+- **🚦 Multi-Protocol**:
+  - **HTTP**: 45 proxies (CONNECT method for HTTPS sites — strict SSL)
+  - **SOCKS4**: 1 proxies
+  - **SOCKS5**: 445 proxies
+- **⚡ Low Latency**: avg 3880ms, best 51ms
+- **🔓 No Auth Required**: All resources are public — no API key needed for the free tier
+
+> **Note on `https.txt`:** there is no separate HTTPS file. Modern HTTP proxies tunnel HTTPS via the `CONNECT` method, and **every proxy in `http.txt` has been verified to do this without breaking SSL certificate trust**. This is the unique guarantee of this list.
+
+---
+
+## 📥 Quick Start — Direct Downloads
+
+Each file is plain text, one `IP:PORT` per line.
+
+### HTTP Proxies (Strict SSL)
+```bash
+curl -O https://cdn.jsdelivr.net/gh/databay-labs/free-proxy-list/http.txt
+```
+
+### SOCKS4 Proxies (Strict SSL)
+```bash
+curl -O https://cdn.jsdelivr.net/gh/databay-labs/free-proxy-list/socks4.txt
+```
+
+### SOCKS5 Proxies (Strict SSL)
+```bash
+curl -O https://cdn.jsdelivr.net/gh/databay-labs/free-proxy-list/socks5.txt
+```
+
+You can also use the raw GitHub URL if you prefer:
+```bash
+curl -O https://raw.githubusercontent.com/databay-labs/free-proxy-list/master/http.txt
+```
+
+---
+
+## 🌍 Country-Specific Lists
+
+Need proxies from a specific country? Browse the [`by-country/`](./by-country/) directory — each country has its own folder with `http.txt`, `socks4.txt`, and `socks5.txt` (only the protocol files that actually have proxies for that country are shipped).
+
+```bash
+# US SOCKS5 proxies
+curl -O https://cdn.jsdelivr.net/gh/databay-labs/free-proxy-list/by-country/us/socks5.txt
+
+# Germany HTTP proxies
+curl -O https://cdn.jsdelivr.net/gh/databay-labs/free-proxy-list/by-country/de/http.txt
+
+# United Kingdom SOCKS4 proxies
+curl -O https://cdn.jsdelivr.net/gh/databay-labs/free-proxy-list/by-country/gb/socks4.txt
+```
+
+Country codes follow the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) standard, lowercased.
+
+---
+
+## 🌐 Free Public API
+
+For richer filtering (anonymity level, Google compatibility, speed, country) and more export formats, hit the **public, unauthenticated** Databay API:
+
+```
+GET https://databay.com/api/v1/proxy-list
+```
+
+No API key. No signup. Just `curl` and go.
+
+### Query Parameters
+
+| Parameter | Accepted Values | Default | Description |
+|-----------|-----------------|---------|-------------|
+| `protocol` | `http`, `https`, `socks5` | all | Filter by protocol |
+| `country` | ISO 2-letter code (`us`, `de`, `cn`, …) | all | Filter by country |
+| `anonymity` | `elite`, `anonymous`, `transparent` | all | Filter by anonymity level |
+| `ssl` | `strict`, `loose` | all | `strict` = no MITM, valid certificate; `loose` includes invalid-cert proxies |
+| `google` | `true` | all | Only proxies that work for Google services |
+| `speed` | `fast`, `medium`, `slow` | all | Latency tier |
+| `format` | `json`, `csv`, `txt` | `json` | Output format |
+| `limit` | `1`–`1000` | `500` | Proxies per page |
+| `page` | `1+` | `1` | Page number for pagination |
+
+**Rate limit:** 50 requests / second. Responses are cached for 10 seconds.
+
+### Example Requests
+
+```bash
+# All strict-SSL proxies as JSON
+curl "https://databay.com/api/v1/proxy-list?ssl=strict"
+
+# Elite SOCKS5 proxies, US only
+curl "https://databay.com/api/v1/proxy-list?protocol=socks5&anonymity=elite&country=us&ssl=strict"
+
+# Google-compatible proxies as plain text
+curl "https://databay.com/api/v1/proxy-list?google=true&ssl=strict&format=txt"
+
+# Fast proxies as CSV (paginated)
+curl "https://databay.com/api/v1/proxy-list?speed=fast&format=csv&limit=100&page=2"
+```
+
+### Response Schema
+
+Each proxy record contains:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `ip` | string | Proxy IPv4 address |
+| `port` | integer | Proxy port |
+| `protocol` | string | `http` / `https` / `socks5` |
+| `country` | string | ISO 2-letter country code |
+| `anonymity` | string | `elite` / `anonymous` / `transparent` |
+| `ssl` | string | `strict` / `loose` |
+| `google` | boolean | Reachable for Google services |
+| `latency_ms` | integer | Last verified latency in ms |
+| `uptime` | float | Lifetime uptime % |
+| `last_checked` | ISO 8601 | Timestamp of last verification |
+
+---
+
+## 💻 Code Examples
+
+All examples below pull the JSON-formatted strict-SSL list from the API. Drop the API call and use the `.txt` direct downloads if you don't need filtering.
+
+### 🐍 Python
+
+```python
+import requests
+
+resp = requests.get(
+    "https://databay.com/api/v1/proxy-list",
+    params={"ssl": "strict", "protocol": "socks5", "format": "json"},
+    timeout=10,
+)
+proxies = resp.json()
+
+for p in proxies:
+    print(f"{p['protocol']}://{p['ip']}:{p['port']}  ({p['country']}, {p['latency_ms']}ms)")
+```
+
+Use one with the `requests` library:
+```python
+proxy = proxies[0]
+url_proxy = f"{proxy['protocol']}://{proxy['ip']}:{proxy['port']}"
+r = requests.get("https://example.com", proxies={"http": url_proxy, "https": url_proxy})
+```
+
+### 🟢 Node.js
+
+```javascript
+const res = await fetch(
+  "https://databay.com/api/v1/proxy-list?ssl=strict&protocol=socks5"
+);
+const proxies = await res.json();
+
+for (const p of proxies) {
+  console.log(`${p.protocol}://${p.ip}:${p.port}  (${p.country}, ${p.latency_ms}ms)`);
+}
+```
+
+### 🐹 Go
+
+```go
+package main
+
+import (
+    "encoding/json"
+    "fmt"
+    "net/http"
+)
+
+type Proxy struct {
+    IP        string `json:"ip"`
+    Port      int    `json:"port"`
+    Protocol  string `json:"protocol"`
+    Country   string `json:"country"`
+    LatencyMs int    `json:"latency_ms"`
+}
+
+func main() {
+    resp, _ := http.Get("https://databay.com/api/v1/proxy-list?ssl=strict")
+    defer resp.Body.Close()
+
+    var proxies []Proxy
+    json.NewDecoder(resp.Body).Decode(&proxies)
+
+    for _, p := range proxies {
+        fmt.Printf("%s://%s:%d (%s, %dms)\n", p.Protocol, p.IP, p.Port, p.Country, p.LatencyMs)
+    }
+}
+```
+
+### 🐘 PHP
+
+```php
+<?php
+$json = file_get_contents("https://databay.com/api/v1/proxy-list?ssl=strict");
+$proxies = json_decode($json, true);
+
+foreach ($proxies as $p) {
+    echo "{$p['protocol']}://{$p['ip']}:{$p['port']} ({$p['country']}, {$p['latency_ms']}ms)\n";
+}
+```
+
+### ☕ Java
+
+```java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest req = HttpRequest.newBuilder()
+    .uri(URI.create("https://databay.com/api/v1/proxy-list?ssl=strict&protocol=socks5"))
+    .build();
+
+HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+System.out.println(resp.body());
+// Parse with Jackson, Gson, or any JSON library
+```
+
+### 🟣 C# / .NET
+
+```csharp
+using System.Net.Http.Json;
+
+var http = new HttpClient();
+var proxies = await http.GetFromJsonAsync<List<Proxy>>(
+    "https://databay.com/api/v1/proxy-list?ssl=strict&protocol=socks5"
+);
+
+foreach (var p in proxies!)
+    Console.WriteLine($"{p.Protocol}://{p.Ip}:{p.Port} ({p.Country}, {p.LatencyMs}ms)");
+
+record Proxy(string Ip, int Port, string Protocol, string Country, int LatencyMs);
+```
+
+---
+
+## 🛡️ Why Strict SSL Matters
+
+Most "free proxy lists" don't validate that the proxies they ship preserve target SSL certificates. A large fraction of free proxies actively **MITM your HTTPS traffic** — they decrypt it, optionally inject content, and re-encrypt with their own certificate. Apps that disable certificate validation (depressingly common in scrapers) leak credentials and private data straight to the proxy operator.
+
+This list ships **only proxies that have been verified end-to-end against a known target with strict SSL certificate validation enabled**. If a proxy attempts to MITM, it's filtered out before it ever lands in `http.txt` / `socks4.txt` / `socks5.txt`.
+
+For production-grade scraping, browsing, or automation, even strict-SSL free proxies are unreliable (low uptime, shared IPs flagged everywhere). Consider Databay's premium rotating proxies for that workload.
+
+---
+
+## 🚀 Need Premium?
+
+Free proxies are great for testing and one-off jobs, but they share IPs with thousands of other users — meaning they're rate-limited, banned, or blacklisted on most major sites.
+
+[**Databay's premium proxies**](https://databay.com/) give you:
+
+- ✅ **34M+ Residential, Mobile & Datacenter IPs** across 200+ countries
+- ✅ **Rotating IPs** — fresh IP per connection
+- ✅ **Zero MITM** — fully encrypted HTTPS traffic
+- ✅ **Expert support** — direct access to engineers
+
+🔗 [**Get Databay Premium Proxies →**](https://databay.com/)
+
+---
+
+## 📜 License
+
+Released under the [MIT License](LICENSE). Use it freely in personal, commercial, or open-source projects. Attribution appreciated but not required.
+
+---
+
+## ⚠️ Disclaimer
+
+**This proxy list is provided "as-is".** We are not responsible for any misuse or damages. Use at your own risk. Always prioritize security and respect the [GitHub Acceptable Use Policy](https://docs.github.com/en/site-policy/acceptable-use-policies/github-acceptable-use-policies) and the laws of your jurisdiction.
+
+================
+File: socks4.txt
+================
+171.248.209.44:1080
+
+================
+File: socks5.txt
+================
+206.123.156.215:31368
+206.123.156.236:40318
+206.123.156.201:8186
+206.123.156.227:8658
+206.123.156.231:19194
+206.123.156.207:31655
+206.123.156.215:31552
+206.123.156.236:44664
+206.123.156.204:5868
+206.123.156.215:32004
+206.123.156.236:44382
+206.123.156.236:8844
+206.123.156.215:36804
+206.123.156.231:14772
+206.123.156.236:32060
+206.123.156.207:37640
+206.123.156.207:33312
+185.125.201.149:7443
+206.123.156.231:17465
+206.123.156.215:36880
+206.123.156.215:30643
+206.123.156.215:38868
+206.123.156.211:12946
+206.123.156.236:5699
+206.123.156.236:39057
+206.123.156.236:40759
+206.123.156.236:41043
+206.123.156.211:8592
+206.123.156.207:35130
+206.123.156.207:36138
+206.123.156.215:31510
+206.123.156.211:12370
+206.123.156.204:8183
+206.123.156.207:26353
+206.123.156.236:38589
+206.123.156.188:46260
+206.123.156.207:32325
+66.42.35.216:5555
+170.64.170.204:1080
+45.94.47.227:1080
+185.125.171.171:1080
+206.123.156.207:34244
+206.123.156.201:28064
+206.123.156.207:28217
+206.123.156.215:31274
+206.123.156.207:15689
+206.123.156.236:30982
+206.123.156.215:29499
+206.123.156.236:39397
+206.123.156.231:7708
+206.123.156.201:30304
+206.123.156.227:31497
+206.123.156.231:20133
+206.123.156.236:43976
+206.123.156.231:22037
+206.123.156.227:9447
+206.123.156.231:19613
+206.123.156.227:28754
+206.123.156.207:37087
+206.123.156.207:13374
+206.123.156.231:20668
+167.172.161.22:1086
+206.123.156.236:39436
+206.123.156.207:31349
+206.123.156.207:36638
+206.123.156.236:36498
+206.123.156.236:43198
+206.123.156.236:40971
+206.123.156.215:37753
+206.123.156.215:32082
+206.123.156.236:10188
+206.123.156.213:5313
+206.123.156.236:41062
+206.123.156.215:32854
+206.123.156.236:32406
+206.123.156.236:38701
+206.123.156.215:33390
+206.123.156.215:30862
+206.123.156.236:33274
+206.123.156.236:43409
+206.123.156.236:32110
+206.123.156.207:33092
+206.123.156.204:7616
+23.142.84.228:14333
+31.130.152.120:443
+91.217.81.131:1080
+206.123.156.207:28793
+164.90.187.185:1088
+134.122.76.129:1093
+206.123.156.201:30936
+206.123.156.201:19234
+206.123.156.207:31017
+206.123.156.188:40927
+206.123.156.211:26477
+206.123.156.217:9592
+206.123.156.207:30876
+206.123.156.207:27687
+206.123.156.207:12126
+206.123.156.236:42175
+206.123.156.204:15064
+103.75.118.84:1080
+203.25.208.163:1111
+158.178.198.31:1080
+146.103.125.38:1080
+185.209.29.226:1080
+167.172.161.22:1090
+164.90.237.11:1083
+167.172.161.22:1093
+167.172.161.22:1083
+167.172.161.22:1095
+164.90.185.232:1085
+164.90.185.232:1090
+185.218.137.242:1080
+164.90.185.232:1095
+164.90.185.232:1082
+164.90.185.232:1092
+164.90.185.232:1081
+164.90.185.232:1093
+206.123.156.215:29870
+206.123.156.236:18701
+206.123.156.231:5437
+206.123.156.204:9844
+206.123.156.207:27896
+206.123.156.217:8911
+206.123.156.217:42493
+206.123.156.236:44004
+206.123.156.201:27312
+206.123.156.207:31734
+206.123.156.201:37764
+206.123.156.207:35862
+206.123.156.215:37241
+206.123.156.215:19369
+206.123.156.215:32664
+206.123.156.201:16977
+206.123.156.201:13137
+206.123.156.231:16345
+206.123.156.236:44736
+206.123.156.231:17231
+206.123.156.227:33976
+206.123.156.207:31758
+206.123.156.227:29883
+206.123.156.215:30051
+206.123.156.236:40860
+206.123.156.236:44075
+206.123.156.236:40571
+206.123.156.207:31310
+206.123.156.188:10891
+206.123.156.236:43235
+206.123.156.188:23743
+47.238.79.105:1080
+121.169.46.116:1090
+112.5.33.179:999
+47.238.121.31:1080
+134.199.159.23:1080
+206.123.156.207:37607
+91.184.241.12:443
+164.90.187.185:1081
+206.123.156.227:4975
+206.123.156.227:26764
+206.123.156.215:35318
+206.123.156.215:31990
+206.123.156.227:33786
+206.123.156.231:15714
+206.123.156.227:35658
+206.123.156.215:31311
+206.123.156.231:14537
+206.123.156.215:30775
+206.123.156.227:9292
+206.123.156.236:43564
+206.123.156.211:13647
+206.123.156.207:31516
+206.123.156.227:37435
+206.123.156.216:14997
+80.74.24.125:1080
+206.123.156.236:33605
+206.123.156.215:9534
+206.123.156.236:37448
+206.123.156.188:36252
+206.123.156.227:31465
+206.123.156.207:33475
+206.123.156.227:33070
+206.123.156.236:8828
+193.221.203.192:1080
+206.123.156.188:40236
+206.123.156.207:37361
+206.123.156.215:37045
+134.122.76.129:1081
+47.79.79.35:10808
+47.85.51.197:1080
+193.25.215.182:22222
+212.58.132.5:1080
+198.13.190.60:1080
+64.227.131.240:1080
+142.248.80.110:1080
+23.175.248.21:1080
+107.173.51.212:1080
+95.165.87.233:1080
+138.124.114.113:1080
+81.26.182.195:1080
+206.123.156.236:37822
+206.123.156.236:31043
+206.123.156.231:13274
+206.123.156.227:35659
+206.123.156.215:31174
+206.123.156.211:9505
+164.90.221.76:1091
+164.90.185.232:1083
+164.90.185.232:1086
+164.90.237.11:1094
+46.101.184.29:1092
+206.123.156.204:15013
+206.123.156.207:16994
+206.123.156.236:11185
+206.123.156.201:14352
+206.123.156.211:13260
+206.123.156.215:16500
+206.123.156.215:32451
+206.123.156.204:7573
+206.123.156.227:18898
+206.123.156.236:37482
+206.123.156.227:22047
+206.123.156.236:40183
+206.123.156.227:6183
+206.123.156.215:32077
+206.123.156.204:7728
+164.90.185.232:1087
+164.90.185.232:1089
+164.90.221.76:1090
+164.90.221.76:1093
+164.90.221.76:1094
+164.90.221.76:1087
+164.90.237.11:1089
+164.90.237.11:1090
+164.90.237.11:1086
+164.90.237.11:1084
+164.90.237.11:1095
+164.90.237.11:1093
+206.123.156.227:4589
+206.123.156.227:8594
+206.123.156.231:13292
+206.123.156.231:4867
+206.123.156.231:20837
+206.123.156.207:33183
+206.123.156.188:41959
+206.123.156.207:34285
+206.123.156.217:42199
+206.123.156.204:5296
+206.123.156.217:8981
+206.123.156.188:36449
+206.123.156.204:5901
+206.123.156.204:5114
+206.123.156.215:30283
+206.123.156.211:14987
+206.123.156.204:10425
+206.123.156.227:33644
+206.123.156.227:26473
+206.123.156.217:42906
+206.123.156.204:7365
+206.123.156.215:15132
+206.123.156.204:8914
+206.123.156.236:21755
+138.197.234.127:1081
+206.123.156.236:42653
+206.123.156.236:39613
+206.123.156.231:20223
+206.123.156.215:33340
+206.123.156.207:24460
+206.123.156.236:38321
+206.123.156.236:45153
+206.123.156.236:24327
+85.31.96.136:60030
+206.123.156.231:15100
+206.123.156.231:24817
+206.123.156.201:10159
+206.123.156.201:7627
+206.123.156.201:8954
+206.123.156.227:28253
+206.123.156.231:17819
+206.123.156.204:7733
+206.123.156.211:26613
+206.123.156.211:9996
+206.123.156.204:8897
+206.123.156.236:41101
+206.123.156.217:36830
+206.123.156.215:33017
+206.123.156.217:43440
+206.123.156.227:29960
+206.123.156.207:34374
+206.123.156.227:9508
+206.123.156.207:33822
+206.123.156.231:14091
+206.123.156.227:9265
+206.123.156.217:43587
+206.123.156.215:34387
+206.123.156.231:15376
+206.123.156.215:32068
+206.123.156.201:6945
+206.123.156.207:30648
+206.123.156.215:33685
+206.123.156.215:37210
+206.123.156.201:8106
+206.123.156.201:11512
+206.123.156.215:33720
+206.123.156.207:34663
+206.123.156.207:37729
+206.123.156.207:33603
+206.123.156.215:32361
+206.123.156.231:16074
+206.123.156.227:5843
+206.123.156.215:30391
+206.123.156.231:11033
+206.123.156.207:34771
+206.123.156.231:18501
+206.123.156.236:39053
+206.123.156.188:37957
+206.123.156.216:33622
+206.123.156.207:30519
+206.123.156.227:32764
+206.123.156.231:18152
+206.123.156.211:8999
+206.123.156.231:14638
+206.123.156.227:29417
+206.123.156.236:40425
+206.123.156.227:30117
+206.123.156.236:4815
+206.123.156.207:27528
+206.123.156.201:7787
+206.123.156.231:18131
+206.123.156.217:46362
+206.123.156.231:20869
+206.123.156.207:34608
+206.123.156.227:33412
+206.123.156.227:33219
+206.123.156.201:8092
+206.123.156.227:27259
+206.123.156.236:45542
+206.123.156.217:45258
+206.123.156.207:32425
+206.123.156.227:30578
+206.123.156.207:34383
+206.123.156.207:36216
+206.123.156.236:44161
+206.123.156.227:33076
+206.123.156.236:44732
+206.123.156.215:38862
+206.123.156.207:36100
+206.123.156.201:39188
+206.123.156.236:45709
+206.123.156.201:6593
+206.123.156.227:32971
+206.123.156.227:8780
+206.123.156.215:30593
+206.123.156.236:45376
+206.123.156.236:7575
+206.123.156.236:33951
+206.123.156.227:27834
+206.123.156.227:33284
+206.123.156.201:23064
+206.123.156.227:34082
+206.123.156.201:30048
+206.123.156.215:31268
+206.123.156.207:30614
+206.123.156.231:23138
+206.123.156.231:8134
+206.123.156.231:12596
+206.123.156.201:14210
+206.123.156.201:13200
+206.123.156.215:33095
+206.123.156.231:15291
+206.123.156.207:36738
+206.123.156.201:6496
+206.123.156.201:15084
+206.123.156.207:34203
+206.123.156.201:27290
+206.123.156.236:33982
+206.123.156.231:17624
+206.123.156.201:13322
+206.123.156.211:6759
+206.123.156.207:36826
+206.123.156.211:9171
+206.123.156.207:31797
+206.123.156.211:8489
+206.123.156.236:44786
+206.123.156.231:7408
+206.123.156.236:41806
+206.123.156.236:44508
+206.123.156.236:37461
+206.123.156.236:13695
+206.123.156.236:37354
+206.123.156.236:31057
+206.123.156.236:45218
+206.123.156.215:31637
+206.123.156.236:38471
+206.123.156.207:30909
+206.123.156.201:13451
+206.123.156.211:13060
+206.123.156.236:38341
+206.123.156.227:30292
+206.123.156.236:41228
+206.123.156.231:14521
+206.123.156.207:34457
+206.123.156.201:11060
+206.123.156.215:34078
+206.123.156.236:44425
+206.123.156.215:33599
+206.123.156.215:38210
+206.123.156.236:41451
+206.123.156.236:23866
+206.123.156.236:45671
+206.123.156.215:7592
+206.123.156.236:31870
+206.123.156.204:6203
+206.123.156.236:42051
+206.123.156.236:9456
+206.123.156.236:6948
+206.123.156.236:5520
+206.123.156.236:41899
+206.123.156.236:42361
+206.123.156.236:30988
+206.123.156.236:43744
+206.123.156.227:31513
+206.123.156.207:32914
+206.123.156.211:8703
+206.123.156.236:36555
+206.123.156.231:13432
+206.123.156.231:16913
+206.123.156.236:38774
+206.123.156.227:33687
+206.123.156.227:33829
+206.123.156.231:20795
+206.123.156.231:14837
+206.123.156.207:36848
+206.123.156.231:19884
+206.123.156.201:29405
+206.123.156.231:16288
+206.123.156.227:33300
+206.123.156.231:18392
+206.123.156.236:32103
+206.123.156.227:29713
+206.123.156.227:31135
+152.53.144.223:1080
+46.101.184.29:1095
+206.123.156.217:35691
+206.123.156.217:42880
+206.123.156.217:46463

@@ -12,20 +12,33 @@ import io
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, send_from_directory, request, jsonify, Response
 from leadgen.db import LeadDB
 from leadgen.models import LEAD_STATUSES
 
 
+def _clean(val):
+    """Strip __all__ sentinel from React Select values."""
+    if val and val != "__all__":
+        return val
+    return None
+
+
 def create_app():
-    app = Flask(__name__)
+    static_dir = os.path.join(os.path.dirname(__file__), "web", "dist")
+    app = Flask(__name__, static_folder=static_dir, static_url_path="")
 
     def get_db():
         return LeadDB()
 
     @app.route("/")
     def index():
-        return render_template("index.html")
+        return send_from_directory(static_dir, "index.html")
+
+    @app.errorhandler(404)
+    def not_found(e):
+        # SPA fallback
+        return send_from_directory(static_dir, "index.html")
 
     # ── API Routes ─────────────────────────────────────────────────
 
@@ -33,13 +46,13 @@ def create_app():
     def api_leads():
         db = get_db()
         leads = db.get_leads(
-            status=request.args.get("status"),
-            city=request.args.get("city"),
-            source=request.args.get("source"),
+            status=_clean(request.args.get("status")),
+            city=_clean(request.args.get("city")),
+            source=_clean(request.args.get("source")),
             score_min=int(request.args["score_min"]) if request.args.get("score_min") else None,
             score_max=int(request.args["score_max"]) if request.args.get("score_max") else None,
-            score_tier=request.args.get("tier"),
-            search=request.args.get("search"),
+            score_tier=_clean(request.args.get("tier")),
+            search=_clean(request.args.get("search")),
             limit=int(request.args.get("limit", 200)),
             offset=int(request.args.get("offset", 0)),
             order_by=request.args.get("order_by", "score DESC"),

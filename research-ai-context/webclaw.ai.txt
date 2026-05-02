@@ -1,0 +1,1269 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+.cargo/
+  config.toml
+.github/
+  workflows/
+    ci.yml
+    deps.yml
+    release.yml
+  banner.png
+  FUNDING.yml
+assets/
+  demo.gif
+  demo.mp4
+benchmarks/
+  results/
+    2026-04-17.json
+  scripts/
+    bench.py
+  facts.json
+  methodology.md
+  README.md
+  run.sh
+  sites.txt
+crates/
+  webclaw-cli/
+    src/
+      bench.rs
+      main.rs
+    Cargo.toml
+  webclaw-core/
+    src/
+      llm/
+        body.rs
+        cleanup.rs
+        images.rs
+        links.rs
+        metadata.rs
+        mod.rs
+      brand.rs
+      data_island.rs
+      diff.rs
+      domain.rs
+      error.rs
+      extractor.rs
+      js_eval.rs
+      lib.rs
+      markdown.rs
+      metadata.rs
+      noise.rs
+      structured_data.rs
+      types.rs
+      youtube.rs
+    testdata/
+      express_test.html
+    Cargo.toml
+  webclaw-fetch/
+    src/
+      extractors/
+        amazon_product.rs
+        arxiv.rs
+        crates_io.rs
+        dev_to.rs
+        docker_hub.rs
+        ebay_listing.rs
+        ecommerce_product.rs
+        etsy_listing.rs
+        github_issue.rs
+        github_pr.rs
+        github_release.rs
+        github_repo.rs
+        hackernews.rs
+        huggingface_dataset.rs
+        huggingface_model.rs
+        instagram_post.rs
+        instagram_profile.rs
+        linkedin_post.rs
+        mod.rs
+        npm.rs
+        pypi.rs
+        reddit.rs
+        shopify_collection.rs
+        shopify_product.rs
+        stackoverflow.rs
+        substack_post.rs
+        trustpilot_reviews.rs
+        woocommerce_product.rs
+        youtube_video.rs
+      browser.rs
+      client.rs
+      cloud.rs
+      crawler.rs
+      document.rs
+      error.rs
+      fetcher.rs
+      lib.rs
+      linkedin.rs
+      locale.rs
+      proxy.rs
+      reddit.rs
+      sitemap.rs
+      tls.rs
+    tests/
+      bench_1k.rs
+    Cargo.toml
+  webclaw-llm/
+    src/
+      providers/
+        anthropic.rs
+        mod.rs
+        ollama.rs
+        openai.rs
+      chain.rs
+      clean.rs
+      error.rs
+      extract.rs
+      lib.rs
+      provider.rs
+      summarize.rs
+      testing.rs
+    Cargo.toml
+  webclaw-mcp/
+    src/
+      main.rs
+      server.rs
+      tools.rs
+    Cargo.toml
+  webclaw-pdf/
+    src/
+      error.rs
+      lib.rs
+    Cargo.toml
+  webclaw-server/
+    src/
+      routes/
+        batch.rs
+        brand.rs
+        crawl.rs
+        diff.rs
+        extract.rs
+        health.rs
+        map.rs
+        mod.rs
+        scrape.rs
+        structured.rs
+        summarize.rs
+      auth.rs
+      error.rs
+      main.rs
+      state.rs
+    Cargo.toml
+deploy/
+  hetzner.sh
+examples/
+  README.md
+packages/
+  create-webclaw/
+    index.mjs
+    package.json
+    README.md
+    server.json
+skill/
+  SKILL.md
+.dockerignore
+.gitignore
+Cargo.toml
+CHANGELOG.md
+CLAUDE.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+docker-compose.yml
+docker-entrypoint.sh
+Dockerfile
+Dockerfile.ci
+env.example
+LICENSE
+proxies.example.txt
+README.md
+rustfmt.toml
+setup.sh
+SKILL.md
+smithery.yaml
+targets_1000.txt
+
+================================================================
+Files
+================================================================
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: smithery.yaml
+================
+# Smithery configuration — https://smithery.ai/docs/build/project-config
+# webclaw MCP server: web extraction for AI agents with bot-protection bypass
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      apiKey:
+        type: string
+        description: >
+          webclaw API key from webclaw.io. Optional — the server works
+          locally without one. Set this for automatic fallback to the
+          webclaw cloud API when a site has bot protection or requires
+          JS rendering.
+        secret: true
+  commandFunction: |
+    (config) => ({
+      command: 'webclaw-mcp',
+      args: [],
+      env: config.apiKey ? { WEBCLAW_API_KEY: config.apiKey } : {}
+    })
+  exampleConfig:
+    apiKey: wc_your_api_key_here
+
+================
+File: targets_1000.txt
+================
+Nike PDP|https://www.nike.com/t/air-force-1-07-mens-shoes-jBrhbr/CW2288-111|nike,air force,cart
+Nike Women|https://www.nike.com/w/womens-running-shoes-37v7jz5e1x6|nike,women,running
+StockX PDP|https://stockx.com/nike-dunk-low-retro-white-black-2021|stockx,dunk,bid
+Amazon US|https://www.amazon.com/dp/B0CX23V2ZK|amazon,price,cart
+Amazon IT|https://www.amazon.it/-/en/Plasters-Superior-Quality-Snoring-Congestion/dp/B0CPSXML6Z|amazon,price,cart
+Amazon DE|https://www.amazon.de/-/en/dp/B09V3KXJPB|amazon,price,kaufen
+Target PDP|https://www.target.com/p/stanley-quencher-h2-0-flowstate-tumbler-40oz/-/A-87790798|target,stanley,price
+Target Electronics|https://www.target.com/c/tvs-home-theater-electronics/-/N-5xtdj|target,tv,electronics
+Walmart PDP|https://www.walmart.com/ip/LEGO-Star-Wars-Imperial-Star-Destroyer-Building-Set-75394/5765038853|walmart,lego,price
+Best Buy|https://www.bestbuy.com/site/apple-iphone-16-pro-128gb-desert-titanium-at-t/6587227.p|bestbuy,iphone,price
+Wayfair|https://www.wayfair.com/furniture/pdp/wade-logan-ailianna-sofa-w007782537.html|wayfair,sofa,price
+Nordstrom|https://www.nordstrom.com/s/nike-dunk-low-retro-sneaker-men/6493703|nordstrom,nike,price
+Etsy listing|https://www.etsy.com/listing/1101392044/personalized-name-necklace|etsy,necklace,price
+eBay item|https://www.ebay.com/itm/267026498131|ebay,price,buy
+Costco|https://www.costco.com/kirkland-signature-golf-gloves-4-pack.product.4000216851.html|costco,golf,price
+Home Depot|https://www.homedepot.com/p/Milwaukee-M18-FUEL-18V-Lithium-Ion-Brushless-Cordless-1-2-in-Hammer-Drill-Driver-Tool-Only-2904-20/305255051|homedepot,milwaukee,price
+Lowes|https://www.lowes.com/pd/CRAFTSMAN-V20-1-2-in-Drill-Driver/5001839543|lowes,craftsman,price
+Macys|https://www.macys.com/shop/product/ralph-lauren-polo-bear-cotton-sweater|macys,ralph,price
+Sephora|https://www.sephora.com/product/mini-good-genes-all-in-one-lactic-acid-treatment-P412533|sephora,treatment,price
+Zillow PDP|https://www.zillow.com/homedetails/1000-5th-Ave-New-York-NY-10028/31522507_zpid/|zillow,zestimate,bed
+Realtor|https://www.realtor.com/realestateandhomes-detail/1000-5th-Ave_New-York_NY_10028_M40761-92731|realtor,bed,bath
+Redfin|https://www.redfin.com/NY/New-York/1000-5th-Ave-10028/unit-492/home/177912139|redfin,bed,price
+Trulia|https://www.trulia.com/home/1000-5th-ave-apt-492-new-york-ny-10028-2061553505|trulia,bed,bath
+Indeed jobs|https://www.indeed.com/jobs?q=software+engineer&l=New+York|indeed,software,apply
+LinkedIn jobs|https://www.linkedin.com/jobs/search/?keywords=rust+developer|linkedin,rust,job
+Glassdoor|https://www.glassdoor.com/Job/new-york-software-engineer-jobs-SRCH_IL.0,8_IC1132348_KO9,26.htm|glassdoor,software,engineer
+ZipRecruiter|https://www.ziprecruiter.com/jobs-search?search=software+engineer&location=new+york|ziprecruiter,software,engineer
+Bloomberg markets|https://www.bloomberg.com/markets|bloomberg,market,stock
+Reuters tech|https://www.reuters.com/technology/|reuters,technology
+WSJ tech|https://www.wsj.com/tech|wsj,tech,news
+NYT technology|https://www.nytimes.com/section/technology|nytimes,technology
+CNN tech|https://edition.cnn.com/business/tech|cnn,tech,news
+BBC News tech|https://www.bbc.com/news/technology|bbc,technology
+CNBC tech|https://www.cnbc.com/technology/|cnbc,technology
+TechCrunch|https://techcrunch.com/|techcrunch,startup,funding
+Cloudflare blog|https://blog.cloudflare.com/|cloudflare,blog,post
+Booking Paris|https://www.booking.com/searchresults.html?ss=Paris|booking,paris,hotel
+Expedia hotels|https://www.expedia.com/Hotel-Search?destination=Paris|expedia,paris,hotel
+Airbnb Paris|https://www.airbnb.com/s/Paris--France/homes|airbnb,paris,stay
+Hotels.com|https://www.hotels.com/Hotel-Search?destination=Paris|hotels,paris,stay
+Kayak flights|https://www.kayak.com/flights/NYC-PAR|kayak,flight,price
+Tripadvisor Paris|https://www.tripadvisor.com/Hotels-g187147-Paris_Ile_de_France-Hotels.html|tripadvisor,paris,hotel
+Viagogo|https://www.viagogo.com/Concert-Tickets/Rock-and-Pop/Coldplay-Tickets|viagogo,coldplay,ticket
+Ticketmaster|https://www.ticketmaster.com/coldplay-tickets/artist/806431|ticketmaster,coldplay,ticket
+StubHub|https://www.stubhub.com/coldplay-tickets/performer/199714/|stubhub,coldplay,ticket
+Eventbrite|https://www.eventbrite.com/d/online/tech/|eventbrite,tech,event
+Instagram Nike|https://www.instagram.com/nike/|instagram,nike,follower
+Reddit programming|https://www.reddit.com/r/programming/|reddit,programming,comment
+Pinterest decor|https://www.pinterest.com/search/pins/?q=home+decor|pinterest,home,decor
+TikTok Nike|https://www.tiktok.com/@nike|tiktok,nike,video
+Yahoo Finance AAPL|https://finance.yahoo.com/quote/AAPL/|yahoo,apple,price
+MarketWatch AAPL|https://www.marketwatch.com/investing/stock/aapl|marketwatch,apple,stock
+Coinbase BTC|https://www.coinbase.com/price/bitcoin|coinbase,bitcoin,price
+Binance BTC|https://www.binance.com/en/price/bitcoin|binance,bitcoin,price
+CoinGecko BTC|https://www.coingecko.com/en/coins/bitcoin|coingecko,bitcoin,price
+Cars.com Tesla|https://www.cars.com/shopping/results/?stock_type=new&makes[]=tesla|cars,tesla,price
+AutoTrader Tesla|https://www.autotrader.com/cars-for-sale/tesla|autotrader,tesla,price
+CarGurus Tesla|https://www.cargurus.com/Cars/l-Used-Tesla-Model-3-d2342|cargurus,tesla,price
+Yelp pizza|https://www.yelp.com/search?find_desc=pizza&find_loc=New+York|yelp,pizza,review
+DoorDash|https://www.doordash.com/food-delivery/new-york-ny-restaurants/|doordash,restaurant,delivery
+UberEats|https://www.ubereats.com/city/new-york-ny|ubereats,restaurant
+Grubhub|https://www.grubhub.com/delivery/new-york-ny|grubhub,restaurant,delivery
+GitHub trending|https://github.com/trending|github,trending,repository
+StackOverflow|https://stackoverflow.com/questions?tab=newest|stackoverflow,question,answer
+HackerNews|https://news.ycombinator.com/|hackernews,point,comment
+Medium programming|https://medium.com/tag/programming|medium,programming,article
+DevTo Rust|https://dev.to/t/rust|devto,rust,article
+Wikipedia Rust|https://en.wikipedia.org/wiki/Rust_(programming_language)|wikipedia,rust,programming
+Craigslist NYC|https://newyork.craigslist.org/search/apa|craigslist,apartment,rent
+Spotify artist|https://open.spotify.com/artist/06HL4z0CvFAxyc27GXpf02|spotify,artist,music
+Twitch directory|https://www.twitch.tv/directory|twitch,live,channel
+Allbirds PDP|https://www.allbirds.com/products/mens-wool-runners|allbirds,wool,price
+Zappos Nike|https://www.zappos.com/nike-shoes|zappos,nike,shoe
+ASOS men shoes|https://www.asos.com/us/men/shoes/cat/?cid=4209|asos,shoe,price
+Zara men shoes|https://www.zara.com/us/en/man-shoes-l769.html|zara,shoe,price
+HM men shoes|https://www2.hm.com/en_us/men/products/shoes.html|hm,shoe,price
+Uniqlo shirts|https://www.uniqlo.com/us/en/men/t-shirts|uniqlo,shirt,price
+Gap men|https://www.gap.com/browse/category.do?cid=5225|gap,men,price
+Under Armour shoes|https://www.underarmour.com/en-us/c/mens/shoes/|underarmour,shoe,price
+New Balance|https://www.newbalance.com/men/shoes/|newbalance,shoe,price
+Adidas men shoes|https://www.adidas.com/us/men-shoes|adidas,shoe,price
+Puma men shoes|https://us.puma.com/us/en/men/shoes|puma,shoe,price
+REI hiking|https://www.rei.com/c/hiking-boots|rei,hiking,boot
+Patagonia jackets|https://www.patagonia.com/shop/mens-jackets-vests|patagonia,jacket,price
+Lululemon men|https://shop.lululemon.com/c/men/_/N-7tu|lululemon,men,price
+GameStop Switch|https://www.gamestop.com/consoles-hardware/nintendo-switch|gamestop,nintendo,price
+Newegg GPU|https://www.newegg.com/GPUs/SubCategory/ID-48|newegg,gpu,price
+BH Photo cameras|https://www.bhphotovideo.com/c/buy/Cameras/ci/9811|bhphoto,camera,price
+Chewy dog food|https://www.chewy.com/b/dog-food-332|chewy,dog,food
+Petco dog food|https://www.petco.com/shop/en/petcostore/category/dog-food|petco,dog,food
+Whole Foods|https://www.wholefoodsmarket.com/products/produce|wholefoods,produce,fresh
+CVS health|https://www.cvs.com/shop/health-medicine|cvs,health,medicine
+Walgreens|https://www.walgreens.com/store/c/vitamins-and-supplements/ID=359434-tier2general|walgreens,vitamin,supplement
+WebMD drugs|https://www.webmd.com/drugs/2/index|webmd,drug,health
+Healthline nutrition|https://www.healthline.com/nutrition|healthline,nutrition,health
+Mayo Clinic|https://www.mayoclinic.org/diseases-conditions|mayoclinic,disease,condition
+Investopedia|https://www.investopedia.com/markets/|investopedia,market,stock
+NerdWallet|https://www.nerdwallet.com/best/credit-cards/overall|nerdwallet,credit,card
+Bankrate|https://www.bankrate.com/mortgages/mortgage-rates/|bankrate,mortgage,rate
+Apartments.com NYC|https://www.apartments.com/new-york-ny/1-bedrooms/|apartments,nyc,1bed
+Apartments.com|https://www.apartments.com/new-york-ny/|apartments,rent,price
+Weather.com|https://weather.com/weather/today/l/40.71,-74.01|weather,temperature,forecast
+AccuWeather|https://www.accuweather.com/en/us/new-york/10007/weather-forecast/349727|accuweather,forecast,temperature
+ESPN NBA|https://www.espn.com/nba/|espn,nba,score
+NFL scores|https://www.nfl.com/scores/|nfl,score,game
+NBA games|https://www.nba.com/games|nba,game,score
+MLB scores|https://www.mlb.com/scores|mlb,score,game
+Transfermarkt|https://www.transfermarkt.com/premier-league/startseite/wettbewerb/GB1|transfermarkt,premier,league
+IMDb top|https://www.imdb.com/chart/top/|imdb,movie,rating
+Rotten Tomatoes|https://www.rottentomatoes.com/browse/movies_at_home/|rottentomatoes,movie,rating
+Bing search|https://www.bing.com/search?q=rust+programming|bing,rust,programming
+DuckDuckGo|https://duckduckgo.com/?q=rust+programming|duckduckgo,rust,search
+Archive.org|https://archive.org/search?query=programming|archive,programming,book
+Figma community|https://www.figma.com/community|figma,community,design
+Dribbble|https://dribbble.com/shots/popular|dribbble,design,shot
+Behance|https://www.behance.net/search/projects?field=ui%2Fux|behance,design,project
+ProductHunt|https://www.producthunt.com/|producthunt,product,launch
+Wellfound|https://wellfound.com/role/r/software-engineer|wellfound,software,engineer
+Upwork|https://www.upwork.com/freelance-jobs/programming/|upwork,programming,freelance
+Fiverr|https://www.fiverr.com/categories/programming-tech|fiverr,programming,service
+Coursera ML|https://www.coursera.org/courses?query=machine%20learning|coursera,machine,learning
+Udemy dev|https://www.udemy.com/courses/development/|udemy,development,course
+edX CS|https://www.edx.org/search?q=computer+science|edx,computer,science
+Khan Academy|https://www.khanacademy.org/computing|khanacademy,computing,course
+Notion templates|https://www.notion.so/templates|notion,template
+Canva templates|https://www.canva.com/templates/|canva,template,design
+DockerHub|https://hub.docker.com/search?q=rust|docker,rust,image
+NPM search|https://www.npmjs.com/search?q=http+client|npm,http,client
+PyPI search|https://pypi.org/search/?q=http+client|pypi,http,client
+Crates.io search|https://crates.io/search?q=http+client|crates,http,client
+Samsung phones|https://www.samsung.com/us/smartphones/|samsung,smartphone,price
+Apple iPhone|https://www.apple.com/shop/buy-iphone|apple,iphone,price
+Google Store|https://store.google.com/us/category/phones|google,phone,pixel
+Microsoft Surface|https://www.microsoft.com/en-us/store/b/surface|microsoft,surface,price
+Lenovo laptops|https://www.lenovo.com/us/en/laptops/|lenovo,laptop,price
+Dell laptops|https://www.dell.com/en-us/shop/dell-laptops/sc/laptops|dell,laptop,price
+HP laptops|https://www.hp.com/us-en/shop/laptops|hp,laptop,price
+ASUS laptops|https://www.asus.com/us/laptops/for-home/all-series/|asus,laptop,price
+Anthropic research|https://www.anthropic.com/research|anthropic,research,safety
+OpenAI research|https://openai.com/research|openai,research,model
+HuggingFace models|https://huggingface.co/models|huggingface,model,transformer
+Kaggle datasets|https://www.kaggle.com/datasets|kaggle,dataset,data
+ArXiv AI|https://arxiv.org/list/cs.AI/recent|arxiv,paper,abstract
+Vercel templates|https://vercel.com/templates|vercel,template,deploy
+Supabase docs|https://supabase.com/docs|supabase,database,postgres
+Firebase docs|https://firebase.google.com/docs|firebase,google,documentation
+AWS docs|https://docs.aws.amazon.com/|aws,documentation,service
+GCP docs|https://cloud.google.com/docs|google,cloud,documentation
+Azure docs|https://learn.microsoft.com/en-us/azure/|microsoft,azure,documentation
+Cloudflare docs|https://developers.cloudflare.com/|cloudflare,documentation,worker
+Stripe docs|https://docs.stripe.com/|stripe,documentation,payment
+Datadog docs|https://docs.datadoghq.com/|datadog,documentation,monitoring
+Grafana docs|https://grafana.com/docs/|grafana,documentation,dashboard
+Salesforce|https://www.salesforce.com/products/|salesforce,product,crm
+Zoom pricing|https://zoom.us/pricing|zoom,pricing,plan
+Slack pricing|https://slack.com/pricing|slack,pricing,plan
+Linear app|https://linear.app/|linear,issue,project
+PostHog|https://posthog.com/|posthog,analytics,open source
+Amazon UK|https://www.amazon.co.uk/dp/B0D1XD1ZV3|amazon,price,basket
+Amazon FR|https://www.amazon.fr/dp/B0D1XD1ZV3|amazon,price,panier
+Amazon JP|https://www.amazon.co.jp/dp/B0D1XD1ZV3|amazon,price,cart
+John Lewis UK|https://www.johnlewis.com/browse/electricals/laptops-macbooks/_/N-abl|johnlewis,laptop,price
+Argos UK|https://www.argos.co.uk/browse/technology/laptops-and-pcs/c:30328/|argos,laptop,price
+Currys UK|https://www.currys.co.uk/laptops|currys,laptop,price
+ASOS UK|https://www.asos.com/men/shoes/cat/?cid=4209|asos,shoe,price
+Tesco groceries|https://www.tesco.com/groceries/en-GB/shop/fresh-food|tesco,fresh,food
+Sainsburys|https://www.sainsburys.co.uk/gol-ui/groceries/fresh-food|sainsburys,fresh,food
+Ocado|https://www.ocado.com/browse/fresh-20002|ocado,fresh,food
+Rightmove|https://www.rightmove.co.uk/property-for-sale/London.html|rightmove,property,price
+Zoopla|https://www.zoopla.co.uk/for-sale/details/london/|zoopla,property,price
+OnTheMarket|https://www.onthemarket.com/for-sale/property/London/|onthemarket,property,price
+Guardian tech|https://www.theguardian.com/uk/technology|guardian,technology,article
+Telegraph tech|https://www.telegraph.co.uk/technology/|telegraph,technology
+Sky News|https://news.sky.com/technology|sky,technology,news
+BBC Sport|https://www.bbc.co.uk/sport|bbc,sport,football
+Sky Sports|https://www.skysports.com/football|sky,football,score
+Premier League|https://www.premierleague.com/tables|premierleague,table,standing
+Autotrader UK|https://www.autotrader.co.uk/car-search?postcode=SW1A+1AA&make=BMW|autotrader,bmw,price
+PistonHeads|https://www.pistonheads.com/buy/cars/bmw|pistonheads,bmw,car
+Trainline|https://www.thetrainline.com/|trainline,train,ticket
+National Rail|https://www.nationalrail.co.uk/|nationalrail,train,fare
+NHS conditions|https://www.nhs.uk/conditions/|nhs,condition,symptom
+DVLA|https://www.gov.uk/browse/driving|govuk,driving,licence
+Companies House|https://find-and-update.company-information.service.gov.uk/|companieshouse,company,search
+Money Saving Expert|https://www.moneysavingexpert.com/|moneysavingexpert,saving,deal
+Compare The Market|https://www.comparethemarket.com/car-insurance/|comparethemarket,insurance,quote
+GoCompare|https://www.gocompare.com/car-insurance/|gocompare,insurance,quote
+Trustpilot|https://www.trustpilot.com/categories/electronics_technology|trustpilot,review,rating
+eBay UK|https://www.ebay.co.uk/b/Laptops-Netbooks/175672/bn_317584|ebay,laptop,price
+Gumtree|https://www.gumtree.com/flats-houses/london|gumtree,flat,london
+SpareRoom|https://www.spareroom.co.uk/flatshare/london|spareroom,room,rent
+Booking London|https://www.booking.com/searchresults.html?ss=London|booking,london,hotel
+Expedia London|https://www.expedia.co.uk/Hotel-Search?destination=London|expedia,london,hotel
+Skyscanner|https://www.skyscanner.net/transport/flights/lond/nyca/|skyscanner,flight,price
+EasyJet|https://www.easyjet.com/en/|easyjet,flight,book
+Ryanair|https://www.ryanair.com/gb/en|ryanair,flight,book
+British Airways|https://www.britishairways.com/travel/home/public/en_gb|britishairways,flight,book
+Lufthansa|https://www.lufthansa.com/de/en/homepage|lufthansa,flight,book
+Air France|https://www.airfrance.fr/|airfrance,flight,vol
+KLM|https://www.klm.com/|klm,flight,book
+SAS|https://www.sas.se/en/|sas,flight,book
+Finnair|https://www.finnair.com/en|finnair,flight,book
+Emirates|https://www.emirates.com/us/english/|emirates,flight,book
+Qatar Airways|https://www.qatarairways.com/en/homepage.html|qatarairways,flight,book
+Cathay Pacific|https://www.cathaypacific.com/cx/en_US.html|cathaypacific,flight,book
+Singapore Airlines|https://www.singaporeair.com/en_UK/us/home|singaporeair,flight,book
+Otto DE|https://www.otto.de/mode/|otto,mode,kaufen
+Zalando DE|https://www.zalando.de/herren-schuhe/|zalando,schuhe,preis
+MediaMarkt DE|https://www.mediamarkt.de/de/category/notebooks-564.html|mediamarkt,notebook,preis
+Saturn DE|https://www.saturn.de/de/category/notebooks-564.html|saturn,notebook,preis
+Idealo DE|https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=laptop|idealo,laptop,preis
+Mobile.de|https://suchen.mobile.de/fahrzeuge/search.html?dam=0&isSearchRequest=true&ms=3500|mobile,bmw,fahrzeug
+AutoScout24 DE|https://www.autoscout24.de/lst/bmw?sort=standard&desc=0|autoscout24,bmw,preis
+ImmobilienScout24|https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mieten|immoscout,wohnung,miete
+Bild DE|https://www.bild.de/politik/|bild,politik,news
+Spiegel DE|https://www.spiegel.de/netzwelt/|spiegel,netzwelt,tech
+Heise DE|https://www.heise.de/newsticker/|heise,newsticker,tech
+Golem DE|https://www.golem.de/|golem,tech,news
+Chip DE|https://www.chip.de/bestenliste/Bestenliste-Laptops--index/index/id/891/|chip,laptop,bestenliste
+Check24|https://www.check24.de/versicherungen/|check24,versicherung,vergleich
+Amazon ES|https://www.amazon.es/dp/B0D1XD1ZV3|amazon,precio,comprar
+El Corte Ingles|https://www.elcorteingles.es/electronica/|elcorteingles,electronica,precio
+PCComponentes|https://www.pccomponentes.com/portatiles|pccomponentes,portatil,precio
+Fnac FR|https://www.fnac.com/informatique/Ordinateur-portable-et-PC/c0076|fnac,ordinateur,prix
+Cdiscount FR|https://www.cdiscount.com/informatique/ordinateurs-pc-portables/l-1071.html|cdiscount,ordinateur,prix
+LeBonCoin FR|https://www.leboncoin.fr/recherche?category=15&locations=Paris|leboncoin,paris,annonce
+SeLoger FR|https://www.seloger.com/immobilier/achat/immo-paris-75/|seloger,paris,immobilier
+Boulanger FR|https://www.boulanger.com/c/ordinateur-portable|boulanger,ordinateur,prix
+Le Monde|https://www.lemonde.fr/pixels/|lemonde,technologie,article
+Le Figaro|https://www.lefigaro.fr/secteur/high-tech|figaro,tech,article
+Les Echos|https://www.lesechos.fr/tech-medias|lesechos,tech,article
+Subito IT|https://www.subito.it/annunci-italia/vendita/informatica/|subito,informatica,annuncio
+IBS IT|https://www.ibs.it/libri/informatica-web-digital-media-l-21.html|ibs,informatica,libro
+Unieuro IT|https://www.unieuro.it/online/Notebook|unieuro,notebook,prezzo
+Mediaworld IT|https://www.mediaworld.it/catalogo/notebook|mediaworld,notebook,prezzo
+Immobiliare IT|https://www.immobiliare.it/vendita-case/roma/|immobiliare,roma,vendita
+Corriere della Sera|https://www.corriere.it/tecnologia/|corriere,tecnologia,articolo
+La Repubblica|https://www.repubblica.it/tecnologia/|repubblica,tecnologia
+Rakuten JP|https://www.rakuten.co.jp/|rakuten,shopping,price
+Mercari JP|https://www.mercari.com/jp/search/?keyword=laptop|mercari,laptop,price
+Yahoo Japan|https://www.yahoo.co.jp/|yahoo,japan,news
+Nikkei|https://www.nikkei.com/|nikkei,economy,market
+Asahi Shimbun|https://www.asahi.com/|asahi,news,japan
+Kakaku JP|https://kakaku.com/pc/note-pc/|kakaku,notebook,price
+Yodobashi|https://www.yodobashi.com/category/19001/19002/|yodobashi,laptop,price
+Alibaba|https://www.alibaba.com/trade/search?SearchText=electronics|alibaba,electronics,wholesale
+AliExpress|https://www.aliexpress.com/wholesale?SearchText=laptop+stand|aliexpress,laptop,stand
+JD.com|https://www.jd.com/|jd,shopping,price
+Flipkart|https://www.flipkart.com/laptops/pr?sid=6bo%2Cb5g|flipkart,laptop,price
+Snapdeal|https://www.snapdeal.com/products/electronics-laptops|snapdeal,laptop,price
+Times of India|https://timesofindia.indiatimes.com/technology|timesofindia,technology,news
+NDTV tech|https://www.ndtv.com/india|ndtv,india,news
+Naver KR|https://www.naver.com/|naver,korea,search
+Coupang KR|https://www.coupang.com/|coupang,korea,shopping
+Mercado Libre|https://www.mercadolibre.com.ar/|mercadolibre,argentina,comprar
+OLX BR|https://www.olx.com.br/|olx,brasil,anuncio
+Magazine Luiza|https://www.magazineluiza.com.br/notebook/informatica/s/in/note/|magazineluiza,notebook,preco
+Americanas BR|https://www.americanas.com.br/|americanas,brasil,preco
+Folha de SP|https://www.folha.uol.com.br/tec/|folha,tecnologia,materia
+Globo|https://www.globo.com/|globo,brasil,noticia
+Catch AU|https://www.catch.com.au/category/electronics/|catch,electronics,price
+Kogan AU|https://www.kogan.com/au/shop/computers/laptops/|kogan,laptop,price
+JB HiFi AU|https://www.jbhifi.com.au/collections/computers-tablets/laptops|jbhifi,laptop,price
+Harvey Norman AU|https://www.harveynorman.com.au/products/computers-tablets/laptops|harveynorman,laptop,price
+Domain AU|https://www.domain.com.au/sale/sydney-nsw-2000/|domain,sydney,property
+REA AU|https://www.realestate.com.au/buy/in-sydney,+nsw+2000/|realestate,sydney,property
+News.com.au|https://www.news.com.au/technology|newscomau,technology
+SMH|https://www.smh.com.au/technology|smh,technology,article
+ABC AU|https://www.abc.net.au/news/science|abc,science,australia
+Trade Me NZ|https://www.trademe.co.nz/a/marketplace/computers/laptops|trademe,laptop,price
+Mighty Ape NZ|https://www.mightyape.co.nz/computers/laptops|mightyape,laptop,price
+Stuff NZ|https://www.stuff.co.nz/technology|stuff,technology,nz
+NZHerald|https://www.nzherald.co.nz/business/technology/|nzherald,technology
+Takealot ZA|https://www.takealot.com/all?qsearch=laptop|takealot,laptop,price
+Jumia NG|https://www.jumia.com.ng/computing/laptops/|jumia,laptop,price
+Souq (Amazon AE)|https://www.amazon.ae/s?k=laptop|amazon,laptop,uae
+Noon AE|https://www.noon.com/uae-en/electronics-and-mobiles/computers-and-accessories/laptops/|noon,laptop,price
+Shopee SG|https://shopee.sg/search?keyword=laptop|shopee,laptop,price
+Lazada SG|https://www.lazada.sg/catalog/?q=laptop|lazada,laptop,price
+Tokopedia ID|https://www.tokopedia.com/search?q=laptop|tokopedia,laptop,harga
+Bukalapak ID|https://www.bukalapak.com/products?search[keywords]=laptop|bukalapak,laptop,harga
+Rust docs|https://doc.rust-lang.org/book/|rust,book,programming
+Rust std|https://doc.rust-lang.org/std/|rust,standard,library
+Tokio docs|https://docs.rs/tokio/latest/tokio/|tokio,async,runtime
+Serde docs|https://docs.rs/serde/latest/serde/|serde,serialize,deserialize
+Reqwest docs|https://docs.rs/reqwest/latest/reqwest/|reqwest,http,client
+Lib.rs|https://lib.rs/crates/axum|librs,axum,crate
+Hyper crate|https://hyper.rs/guides/1/|hyper,http,guide
+Rustls site|https://rustls.dev/|rustls,tls,modern
+Tower HTTP|https://tower-rs.github.io/|tower,service,middleware
+Clap GitHub|https://clap.rs/|clap,cli,argument
+MDN Web docs|https://developer.mozilla.org/en-US/docs/Web/HTTP|mdn,http,protocol
+Go docs|https://pkg.go.dev/std|go,standard,library
+Python docs|https://docs.python.org/3/library/|python,library,reference
+TypeScript docs|https://www.typescriptlang.org/docs/|typescript,documentation,types
+React docs|https://react.dev/reference/react|react,reference,hook
+Next.js docs|https://nextjs.org/docs|nextjs,documentation,app
+Tailwind docs|https://tailwindcss.com/docs|tailwind,css,utility
+Vue docs|https://vuejs.org/guide/|vue,guide,component
+Svelte docs|https://svelte.dev/docs|svelte,documentation,component
+Angular docs|https://angular.io/docs|angular,documentation,component
+Django docs|https://docs.djangoproject.com/en/5.0/|django,documentation,python
+FastAPI docs|https://fastapi.tiangolo.com/|fastapi,documentation,python
+Express docs|https://expressjs.com/en/guide/routing.html|express,routing,middleware
+PostgreSQL docs|https://www.postgresql.org/docs/current/|postgresql,documentation,sql
+Redis docs|https://redis.io/docs/|redis,documentation,cache
+MongoDB docs|https://www.mongodb.com/docs/manual/|mongodb,documentation,database
+Docker docs|https://docs.docker.com/|docker,documentation,container
+Kubernetes docs|https://kubernetes.io/docs/home/|kubernetes,documentation,cluster
+Terraform docs|https://developer.hashicorp.com/terraform/docs|terraform,documentation,infrastructure
+Nginx docs|https://nginx.org/en/docs/|nginx,documentation,server
+GitHub docs|https://docs.github.com/en|github,documentation,git
+GitLab docs|https://docs.gitlab.com/|gitlab,documentation,cicd
+Bitbucket|https://bitbucket.org/product|bitbucket,repository,git
+Jira|https://www.atlassian.com/software/jira|jira,issue,project
+Confluence|https://www.atlassian.com/software/confluence|confluence,wiki,documentation
+CircleCI docs|https://circleci.com/docs/|circleci,documentation,cicd
+Travis CI docs|https://docs.travis-ci.com/|travisci,documentation,cicd
+Jenkins|https://www.jenkins.io/doc/|jenkins,documentation,cicd
+Terraform Registry|https://registry.terraform.io/|terraform,registry,module
+Ansible docs|https://docs.ansible.com/|ansible,documentation,automation
+Prometheus docs|https://prometheus.io/docs/introduction/overview/|prometheus,documentation,monitoring
+InfluxDB docs|https://docs.influxdata.com/influxdb/|influxdb,documentation,timeseries
+Sentry docs|https://docs.sentry.io/|sentry,documentation,error
+New Relic docs|https://docs.newrelic.com/|newrelic,documentation,monitoring
+PagerDuty|https://www.pagerduty.com/|pagerduty,incident,alerting
+OpsGenie|https://www.atlassian.com/software/opsgenie|opsgenie,incident,alerting
+HashiCorp Vault|https://developer.hashicorp.com/vault/docs|vault,documentation,secrets
+Auth0 docs|https://auth0.com/docs|auth0,documentation,authentication
+Okta|https://developer.okta.com/docs/|okta,documentation,identity
+Twilio|https://www.twilio.com/docs/sms|twilio,sms,documentation
+SendGrid docs|https://docs.sendgrid.com/|sendgrid,email,documentation
+Mailgun|https://documentation.mailgun.com/|mailgun,email,api
+Algolia docs|https://www.algolia.com/doc/|algolia,search,documentation
+Elasticsearch guide|https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html|elasticsearch,reference,guide
+Meilisearch docs|https://www.meilisearch.com/docs|meilisearch,search,documentation
+Typesense docs|https://typesense.org/docs/|typesense,search,documentation
+RabbitMQ docs|https://www.rabbitmq.com/documentation.html|rabbitmq,documentation,messaging
+Apache Kafka|https://kafka.apache.org/documentation/|kafka,documentation,streaming
+Pulsar|https://pulsar.apache.org/docs/|pulsar,documentation,messaging
+NATS docs|https://docs.nats.io/|nats,documentation,messaging
+gRPC docs|https://grpc.io/docs/|grpc,documentation,rpc
+GraphQL|https://graphql.org/learn/|graphql,learn,query
+Apollo GraphQL|https://www.apollographql.com/docs/|apollo,graphql,documentation
+Prisma docs|https://www.prisma.io/docs|prisma,documentation,orm
+Drizzle docs|https://orm.drizzle.team/docs/overview|drizzle,documentation,orm
+SQLAlchemy docs|https://docs.sqlalchemy.org/|sqlalchemy,documentation,orm
+Diesel docs|https://diesel.rs/guides/|diesel,rust,orm
+SeaORM docs|https://www.sea-ql.org/SeaORM/docs/introduction/|seaorm,rust,orm
+Vite docs|https://vitejs.dev/guide/|vite,guide,build
+Webpack docs|https://webpack.js.org/concepts/|webpack,concepts,bundle
+Turbopack|https://turbo.build/pack/docs|turbopack,documentation,build
+ESBuild|https://esbuild.github.io/|esbuild,build,fast
+Rollup|https://rollupjs.org/introduction/|rollup,introduction,bundle
+SWC|https://swc.rs/docs/getting-started|swc,documentation,compiler
+Biome|https://biomejs.dev/guides/getting-started/|biome,linter,formatter
+Rome tools|https://rome.tools/|rome,linter,formatter
+Prettier|https://prettier.io/docs/en/index.html|prettier,documentation,formatter
+ESLint|https://eslint.org/docs/latest/|eslint,documentation,linter
+Clippy lints|https://rust-lang.github.io/rust-clippy/master/|clippy,lint,rust
+Rustfmt|https://rust-lang.github.io/rustfmt/|rustfmt,format,style
+Jest docs|https://jestjs.io/docs/getting-started|jest,documentation,testing
+Vitest docs|https://vitest.dev/guide/|vitest,guide,testing
+Playwright docs|https://playwright.dev/docs/intro|playwright,documentation,testing
+Cypress docs|https://docs.cypress.io/guides/overview/why-cypress|cypress,documentation,testing
+Selenium docs|https://www.selenium.dev/documentation/|selenium,documentation,testing
+Puppeteer docs|https://pptr.dev/|puppeteer,documentation,browser
+Storybook docs|https://storybook.js.org/docs|storybook,documentation,component
+Chromatic|https://www.chromatic.com/docs/|chromatic,documentation,visual
+Figma dev|https://www.figma.com/developers/api|figma,api,developer
+Sketch|https://www.sketch.com/|sketch,design,tool
+Framer|https://www.framer.com/|framer,design,motion
+Webflow|https://webflow.com/|webflow,design,nocode
+Squarespace|https://www.squarespace.com/templates|squarespace,template,website
+Wix|https://www.wix.com/website/templates|wix,template,website
+Ghost|https://ghost.org/|ghost,blog,publishing
+WordPress|https://wordpress.org/themes/|wordpress,theme,blog
+Shopify themes|https://themes.shopify.com/|shopify,theme,ecommerce
+WooCommerce|https://woocommerce.com/|woocommerce,ecommerce,wordpress
+BigCommerce|https://www.bigcommerce.com/|bigcommerce,ecommerce,platform
+Magento|https://business.adobe.com/products/magento/magento-commerce.html|magento,ecommerce,adobe
+PrestaShop|https://www.prestashop.com/en|prestashop,ecommerce,open source
+Saleor|https://saleor.io/|saleor,ecommerce,graphql
+Medusa|https://medusajs.com/|medusa,ecommerce,headless
+Contentful|https://www.contentful.com/|contentful,cms,headless
+Sanity|https://www.sanity.io/|sanity,cms,structured
+Strapi|https://strapi.io/|strapi,cms,open source
+Directus|https://directus.io/|directus,cms,database
+PayPal|https://www.paypal.com/us/digital-wallet/manage-money/crypto|paypal,crypto,payment
+Wise|https://wise.com/us/currency-converter/|wise,currency,exchange
+Revolut|https://www.revolut.com/en-US/|revolut,banking,fintech
+N26|https://n26.com/en-eu|n26,banking,fintech
+Monzo|https://monzo.com/|monzo,banking,fintech
+Starling|https://www.starlingbank.com/|starling,banking,fintech
+Robinhood|https://robinhood.com/us/en/|robinhood,trading,stocks
+Fidelity|https://www.fidelity.com/trading/overview|fidelity,trading,invest
+Schwab|https://www.schwab.com/trading|schwab,trading,invest
+Vanguard|https://investor.vanguard.com/investment-products/etfs|vanguard,etf,invest
+Interactive Brokers|https://www.interactivebrokers.com/en/trading/products-invest-invest.php|ibkr,trading,invest
+CoinMarketCap|https://coinmarketcap.com/|coinmarketcap,crypto,market
+Kraken|https://www.kraken.com/prices|kraken,crypto,price
+Gemini|https://www.gemini.com/prices|gemini,crypto,price
+Uniswap|https://app.uniswap.org/|uniswap,defi,swap
+Aave|https://aave.com/|aave,defi,lending
+OpenSea|https://opensea.io/|opensea,nft,marketplace
+Rarible|https://rarible.com/|rarible,nft,marketplace
+Etherscan|https://etherscan.io/|etherscan,ethereum,explorer
+Solscan|https://solscan.io/|solscan,solana,explorer
+CoinDesk|https://www.coindesk.com/|coindesk,crypto,news
+The Block|https://www.theblock.co/|theblock,crypto,news
+Forbes|https://www.forbes.com/innovation/|forbes,innovation,business
+Fortune|https://fortune.com/section/tech/|fortune,tech,business
+Inc|https://www.inc.com/technology|inc,technology,business
+Fast Company|https://www.fastcompany.com/technology|fastcompany,technology
+Wired|https://www.wired.com/|wired,technology,culture
+The Verge|https://www.theverge.com/|verge,technology,review
+Ars Technica|https://arstechnica.com/|arstechnica,technology,science
+Engadget|https://www.engadget.com/|engadget,technology,review
+Tom's Hardware|https://www.tomshardware.com/|tomshardware,hardware,review
+AnandTech|https://www.anandtech.com/|anandtech,hardware,benchmark
+PCMag|https://www.pcmag.com/picks/the-best-laptops|pcmag,laptop,review
+CNET|https://www.cnet.com/tech/|cnet,tech,review
+Tom's Guide|https://www.tomsguide.com/best-picks/best-laptops|tomsguide,laptop,review
+Wirecutter|https://www.nytimes.com/wirecutter/reviews/best-laptops/|wirecutter,laptop,review
+TrustRadius|https://www.trustradius.com/|trustradius,software,review
+G2|https://www.g2.com/categories/crm|g2,crm,review
+Capterra|https://www.capterra.com/project-management-software/|capterra,project,software
+Software Advice|https://www.softwareadvice.com/crm/|softwareadvice,crm,software
+Gartner|https://www.gartner.com/reviews/market/crm-lead-management|gartner,crm,review
+Forrester|https://www.forrester.com/research/|forrester,research,analyst
+MIT News|https://news.mit.edu/topic/artificial-intelligence2|mit,artificial,intelligence
+Stanford AI|https://ai.stanford.edu/|stanford,ai,research
+Berkeley AI|https://bair.berkeley.edu/blog/|berkeley,ai,blog
+DeepMind|https://deepmind.google/research/|deepmind,research,ai
+Meta AI|https://ai.meta.com/research/|metaai,research,paper
+Google AI|https://ai.google/research/|googleai,research,paper
+Microsoft Research|https://www.microsoft.com/en-us/research/|msresearch,research,paper
+Apple ML|https://machinelearning.apple.com/|appleml,machine,learning
+NVIDIA research|https://www.nvidia.com/en-us/research/|nvidia,research,gpu
+AMD|https://www.amd.com/en/products/processors/desktops.html|amd,processor,desktop
+Intel|https://www.intel.com/content/www/us/en/products/sku/236847/intel-core-ultra-9-processor-285k/specifications.html|intel,processor,spec
+ARM|https://www.arm.com/products/silicon-ip-cpu|arm,processor,architecture
+Qualcomm|https://www.qualcomm.com/products/mobile/snapdragon|qualcomm,snapdragon,mobile
+Tesla|https://www.tesla.com/model3|tesla,model3,price
+Ford|https://www.ford.com/suvs/mustang-mach-e/|ford,mustang,electric
+BMW|https://www.bmw.com/en/models.html|bmw,model,price
+Mercedes|https://www.mercedes-benz.com/en/vehicles/|mercedes,vehicle,class
+Porsche|https://www.porsche.com/usa/models/|porsche,model,price
+Toyota|https://www.toyota.com/configurator/|toyota,build,price
+Honda|https://automobiles.honda.com/|honda,vehicle,price
+Hyundai|https://www.hyundai.com/us/en/vehicles.html|hyundai,vehicle,price
+Rivian|https://rivian.com/r1s|rivian,r1s,electric
+Lucid|https://www.lucidmotors.com/air|lucid,air,electric
+Volkswagen|https://www.vw.com/en/models.html|vw,model,price
+Audi|https://www.audiusa.com/us/web/en/models.html|audi,model,price
+Volvo|https://www.volvocars.com/us/cars/|volvo,car,safety
+Mazda|https://www.mazdausa.com/vehicles|mazda,vehicle,price
+Subaru|https://www.subaru.com/vehicles.html|subaru,vehicle,price
+CarMax|https://www.carmax.com/cars|carmax,car,price
+Vroom|https://www.vroom.com/cars|vroom,car,price
+KBB|https://www.kbb.com/best-cars/|kbb,car,value
+Edmunds|https://www.edmunds.com/best-cars/|edmunds,car,review
+MotorTrend|https://www.motortrend.com/news/|motortrend,car,news
+Jalopnik|https://jalopnik.com/|jalopnik,car,news
+Road & Track|https://www.roadandtrack.com/|roadtrack,car,review
+Car and Driver|https://www.caranddriver.com/|caranddriver,car,review
+Kelley Blue Book EV|https://www.kbb.com/electric-cars/|kbb,electric,car
+InsideEVs|https://insideevs.com/|insideevs,electric,news
+Electrek|https://electrek.co/|electrek,electric,green
+CleanTechnica|https://cleantechnica.com/|cleantechnica,clean,energy
+Solar Reviews|https://www.solarreviews.com/|solarreviews,solar,panel
+EnergySage|https://www.energysage.com/|energysage,solar,quote
+Sunrun|https://www.sunrun.com/|sunrun,solar,home
+Peloton|https://www.onepeloton.com/bike|peloton,bike,fitness
+Tonal|https://www.tonal.com/|tonal,fitness,strength
+Mirror|https://www.mirror.co/|mirror,fitness,workout
+MyFitnessPal|https://www.myfitnesspal.com/|myfitnesspal,calorie,nutrition
+Strava|https://www.strava.com/|strava,running,cycling
+Garmin|https://www.garmin.com/en-US/c/sports-fitness/|garmin,fitness,watch
+Fitbit|https://www.fitbit.com/global/us/products|fitbit,tracker,health
+Whoop|https://www.whoop.com/|whoop,recovery,strain
+Nike Run Club|https://www.nike.com/nrc-app|nike,running,app
+AllTrails|https://www.alltrails.com/|alltrails,trail,hiking
+Wikiloc|https://www.wikiloc.com/trails|wikiloc,trail,route
+Komoot|https://www.komoot.com/discover|komoot,route,outdoor
+OpenStreetMap|https://www.openstreetmap.org/|openstreetmap,map,open
+Google Maps|https://www.google.com/maps/place/New+York|googlemaps,newyork,map
+Waze|https://www.waze.com/live-map/|waze,traffic,map
+Rome2Rio|https://www.rome2rio.com/|rome2rio,travel,route
+Lonely Planet|https://www.lonelyplanet.com/japan/tokyo|lonelyplanet,tokyo,travel
+Culture Trip|https://theculturetrip.com/asia/japan|culturetrip,japan,travel
+Atlas Obscura|https://www.atlasobscura.com/things-to-do/new-york|atlasobscura,newyork,places
+GetYourGuide|https://www.getyourguide.com/new-york-l59/|getyourguide,newyork,tour
+Viator|https://www.viator.com/New-York-City/d687-ttd|viator,newyork,tour
+Klook|https://www.klook.com/en-US/city/4-tokyo-things-to-do/|klook,tokyo,activity
+TripAdvisor restaurants|https://www.tripadvisor.com/Restaurants-g60763-New_York_City_New_York.html|tripadvisor,restaurant,newyork
+OpenTable|https://www.opentable.com/new-york-restaurant-listings|opentable,restaurant,reservation
+Resy|https://resy.com/cities/ny|resy,restaurant,reservation
+TheFork|https://www.thefork.com/city/paris/415144|thefork,paris,restaurant
+Yelp London|https://www.yelp.co.uk/search?find_desc=restaurant&find_loc=London|yelp,london,restaurant
+Zomato|https://www.zomato.com/mumbai|zomato,mumbai,restaurant
+Swiggy|https://www.swiggy.com/|swiggy,india,delivery
+Deliveroo|https://deliveroo.co.uk/|deliveroo,london,delivery
+Just Eat|https://www.just-eat.co.uk/|justeat,london,delivery
+HelloFresh|https://www.hellofresh.com/menus|hellofresh,meal,recipe
+Blue Apron|https://www.blueapron.com/pages/menu|blueapron,meal,recipe
+Instacart|https://www.instacart.com/|instacart,grocery,delivery
+FreshDirect|https://www.freshdirect.com/|freshdirect,grocery,delivery
+Gopuff|https://gopuff.com/|gopuff,delivery,snack
+Allrecipes|https://www.allrecipes.com/recipes/|allrecipes,recipe,cooking
+Food Network|https://www.foodnetwork.com/recipes|foodnetwork,recipe,chef
+Bon Appetit|https://www.bonappetit.com/recipes|bonappetit,recipe,food
+Epicurious|https://www.epicurious.com/recipes-menus|epicurious,recipe,food
+Serious Eats|https://www.seriouseats.com/|seriouseats,recipe,technique
+NYT Cooking|https://cooking.nytimes.com/|nytcooking,recipe,food
+BBC Good Food|https://www.bbcgoodfood.com/recipes|bbcgoodfood,recipe,food
+Jamie Oliver|https://www.jamieoliver.com/recipes/|jamieoliver,recipe,food
+Tasty|https://tasty.co/|tasty,recipe,video
+Cookie and Kate|https://cookieandkate.com/|cookieandkate,vegetarian,recipe
+MinimalistBaker|https://minimalistbaker.com/|minimalistbaker,vegan,recipe
+Smitten Kitchen|https://smittenkitchen.com/|smittenkitchen,recipe,baking
+King Arthur|https://www.kingarthurbaking.com/recipes|kingarthur,baking,bread
+Sally's Baking|https://sallysbakingaddiction.com/|sallysbaking,cookie,recipe
+Goodreads|https://www.goodreads.com/choiceawards/best-books-2024|goodreads,book,award
+Amazon books|https://www.amazon.com/best-sellers-books-Amazon/zgbs/books|amazon,book,bestseller
+Barnes Noble|https://www.barnesandnoble.com/b/books/_/N-1fZ29Z8q8|barnesnoble,book,fiction
+ThriftBooks|https://www.thriftbooks.com/browse/#b.s=mostPopular-desc&b.p=1&b.pp=30|thriftbooks,book,cheap
+Audible|https://www.audible.com/adblbestsellers|audible,audiobook,bestseller
+Kindle Store|https://www.amazon.com/Kindle-Store/b?node=133140011|kindle,ebook,store
+Project Gutenberg|https://www.gutenberg.org/ebooks/search/?sort_order=downloads|gutenberg,ebook,free
+LibriVox|https://librivox.org/|librivox,audiobook,free
+MIT OCW|https://ocw.mit.edu/search/?t=Computer%20Science|mitocw,computer,course
+Stanford Online|https://online.stanford.edu/courses|stanford,course,online
+Harvard Online|https://pll.harvard.edu/catalog|harvard,course,catalog
+Yale Open|https://oyc.yale.edu/courses|yale,course,open
+Codecademy|https://www.codecademy.com/catalog|codecademy,coding,course
+FreeCodeCamp|https://www.freecodecamp.org/learn|freecodecamp,coding,free
+Pluralsight|https://www.pluralsight.com/browse|pluralsight,course,skill
+Skillshare|https://www.skillshare.com/browse|skillshare,class,creative
+LinkedIn Learning|https://www.linkedin.com/learning/|linkedinlearning,course,professional
+Brilliant|https://brilliant.org/courses/|brilliant,math,science
+Duolingo|https://www.duolingo.com/|duolingo,language,learn
+Babbel|https://www.babbel.com/|babbel,language,learn
+Rosetta Stone|https://www.rosettastone.com/|rosettastone,language,learn
+Quizlet|https://quizlet.com/|quizlet,flashcard,study
+Chegg|https://www.chegg.com/homework-help|chegg,homework,tutor
+Wolfram Alpha|https://www.wolframalpha.com/|wolframalpha,computation,math
+Symbolab|https://www.symbolab.com/|symbolab,math,solver
+Desmos|https://www.desmos.com/calculator|desmos,graphing,calculator
+GeoGebra|https://www.geogebra.org/|geogebra,math,geometry
+Movoto search|https://www.movoto.com/san-francisco-ca/|movoto,sanfrancisco,home
+Compass|https://www.compass.com/homes-for-sale/manhattan-ny/|compass,manhattan,home
+Coldwell Banker|https://www.coldwellbanker.com/homes-for-sale/New-York-NY|coldwellbanker,newyork,home
+Century 21|https://www.century21.com/real-estate/new-york-ny/|century21,newyork,home
+RE/MAX|https://www.remax.com/homes-for-sale/NY/New-York|remax,newyork,home
+Sothebys Realty|https://www.sothebysrealty.com/eng/sales/new-york-ny-usa|sothebys,newyork,luxury
+Christie's Realty|https://www.christiesrealestate.com/search/list/new-york|christies,newyork,luxury
+LoopNet commercial|https://www.loopnet.com/search/commercial-real-estate/new-york-ny/for-lease/|loopnet,commercial,lease
+CoStar|https://www.costar.com/|costar,commercial,data
+Houzz|https://www.houzz.com/photos|houzz,design,home
+Architectural Digest|https://www.architecturaldigest.com/|archdigest,design,architecture
+Dwell|https://www.dwell.com/|dwell,design,modern
+Dezeen|https://www.dezeen.com/|dezeen,architecture,design
+ArchDaily|https://www.archdaily.com/|archdaily,architecture,project
+Apartment Therapy|https://www.apartmenttherapy.com/|apartmenttherapy,home,decor
+The Spruce|https://www.thespruce.com/|thespruce,home,improvement
+Bob Vila|https://www.bobvila.com/|bobvila,home,repair
+This Old House|https://www.thisoldhouse.com/|thisoldhouse,home,renovation
+Family Handyman|https://www.familyhandyman.com/|familyhandyman,diy,repair
+IKEA|https://www.ikea.com/us/en/cat/sofas-fu003/|ikea,sofa,furniture
+West Elm|https://www.westelm.com/shop/furniture/sofas-sectionals/|westelm,sofa,furniture
+CB2|https://www.cb2.com/furniture/sofas/1|cb2,sofa,modern
+Crate Barrel|https://www.crateandbarrel.com/furniture/sofas/1|cratebarrel,sofa,furniture
+Pottery Barn|https://www.potterybarn.com/shop/furniture/sofas-loveseats/|potterybarn,sofa,furniture
+Restoration Hardware|https://rh.com/catalog/category/products.jsp?categoryId=cat160024|rh,furniture,luxury
+Article|https://www.article.com/sofas|article,sofa,modern
+Joybird|https://joybird.com/sofas/|joybird,sofa,custom
+Interior Define|https://www.interiordefine.com/sofas|interiordefine,sofa,custom
+Burrow|https://burrow.com/sofas|burrow,sofa,modular
+Floyd|https://floydhome.com/products/the-sofa|floyd,sofa,modular
+US Gov|https://www.usa.gov/|usagov,government,services
+IRS|https://www.irs.gov/filing|irs,tax,filing
+SSA|https://www.ssa.gov/benefits/|ssa,social,security
+Medicare|https://www.medicare.gov/|medicare,health,insurance
+CDC|https://www.cdc.gov/|cdc,health,prevention
+FDA|https://www.fda.gov/|fda,food,drug
+EPA|https://www.epa.gov/|epa,environment,protection
+USDA|https://www.usda.gov/|usda,agriculture,food
+NIH|https://www.nih.gov/|nih,health,research
+NASA|https://www.nasa.gov/|nasa,space,exploration
+NOAA|https://www.noaa.gov/|noaa,weather,ocean
+USGS|https://www.usgs.gov/|usgs,geological,survey
+SEC filings|https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&type=10-K&dateb=&owner=include&count=40|sec,edgar,filing
+USPTO patents|https://www.uspto.gov/patents|uspto,patent,invention
+FCC|https://www.fcc.gov/|fcc,communication,regulation
+NIST|https://www.nist.gov/|nist,standard,measurement
+Census|https://data.census.gov/|census,data,population
+BLS|https://www.bls.gov/|bls,labor,statistics
+Fed Reserve|https://www.federalreserve.gov/|fedreserve,monetary,policy
+Treasury|https://home.treasury.gov/|treasury,fiscal,policy
+White House|https://www.whitehouse.gov/|whitehouse,president,policy
+Congress|https://www.congress.gov/|congress,bill,legislation
+UK Gov|https://www.gov.uk/|govuk,government,services
+EU Portal|https://europa.eu/|europa,european,union
+UN|https://www.un.org/en/|un,united,nations
+WHO|https://www.who.int/|who,health,global
+World Bank data|https://data.worldbank.org/|worldbank,data,development
+IMF|https://www.imf.org/en/Data|imf,data,economy
+OECD data|https://data.oecd.org/|oecd,data,economy
+UEFA|https://www.uefa.com/uefachampionsleague/|uefa,champions,league
+FIFA|https://www.fifa.com/fifaplus/en/tournaments/mens/worldcup/qatar2022|fifa,worldcup,football
+Olympics|https://olympics.com/en/|olympics,sport,medal
+Formula 1|https://www.formula1.com/en/results|formula1,race,result
+MotoGP|https://www.motogp.com/en/Results|motogp,race,result
+UFC|https://www.ufc.com/events|ufc,fight,event
+WWE|https://www.wwe.com/events|wwe,wrestling,event
+PGA Tour|https://www.pgatour.com/leaderboard|pga,golf,leaderboard
+ATP Tour|https://www.atptour.com/en/rankings/singles|atp,tennis,ranking
+WTA Tennis|https://www.wtatennis.com/rankings/singles|wta,tennis,ranking
+Cricket ESPN|https://www.espncricinfo.com/|espncricinfo,cricket,score
+Rugby World|https://www.world.rugby/tournaments/rankings|worldrugby,ranking,team
+NHL|https://www.nhl.com/scores|nhl,hockey,score
+MLS|https://www.mlssoccer.com/standings/|mls,soccer,standing
+Bundesliga|https://www.bundesliga.com/en/bundesliga/table|bundesliga,table,standing
+La Liga|https://www.laliga.com/en-GB/laliga-easports/standing|laliga,table,standing
+Serie A|https://www.legaseriea.it/en/serie-a/classifica|seriea,classifica,standing
+Ligue 1|https://www.ligue1.com/ranking|ligue1,classement,standing
+Eredivisie|https://www.eredivisie.nl/stand|eredivisie,stand,standing
+FanDuel|https://www.fanduel.com/|fanduel,fantasy,sports
+DraftKings|https://www.draftkings.com/|draftkings,fantasy,sports
+BetMGM|https://sports.betmgm.com/en/sports|betmgm,sports,betting
+FiveThirtyEight|https://projects.fivethirtyeight.com/|fivethirtyeight,prediction,data
+Sports Reference|https://www.sports-reference.com/|sportsreference,stats,database
+Netflix|https://www.netflix.com/browse|netflix,movie,series
+Disney Plus|https://www.disneyplus.com/|disneyplus,movie,series
+HBO Max|https://play.max.com/|hbomax,movie,series
+Tubi|https://tubitv.com/home|tubi,movie,free
+Hulu shows|https://www.hulu.com/hub/tv|hulu,tv,show
+Apple TV shows|https://tv.apple.com/us/shows|appletv,show,series
+Peacock shows|https://www.peacocktv.com/explore/tv|peacock,tv,show
+YouTube trending|https://www.youtube.com/feed/trending|youtube,trending,video
+Vimeo staff|https://vimeo.com/channels/staffpicks|vimeo,video,creative
+Letterboxd|https://letterboxd.com/films/popular/|letterboxd,film,rating
+Metacritic|https://www.metacritic.com/browse/game/|metacritic,game,score
+IGN reviews|https://www.ign.com/reviews|ign,review,game
+GameSpot|https://www.gamespot.com/reviews/|gamespot,review,game
+Polygon|https://www.polygon.com/reviews|polygon,review,game
+Kotaku|https://kotaku.com/|kotaku,game,news
+Steam|https://store.steampowered.com/specials|steam,game,sale
+Epic Games|https://store.epicgames.com/en-US/free-games|epicgames,free,game
+GOG|https://www.gog.com/games|gog,game,drm
+Humble Bundle|https://www.humblebundle.com/store|humblebundle,game,deal
+Green Man Gaming|https://www.greenmangaming.com/|greenmangaming,game,key
+PlayStation Store|https://store.playstation.com/en-us/pages/latest|playstation,game,ps5
+Xbox Store|https://www.xbox.com/en-US/games/all-games|xbox,game,store
+Nintendo eShop|https://www.nintendo.com/us/store/games/|nintendo,game,switch
+Twitch VODs|https://www.twitch.tv/directory/all|twitch,stream,vod
+Discord servers|https://discord.com/servers/gaming|discord,gaming,server
+Kick|https://kick.com/categories|kick,stream,live
+Imgur|https://imgur.com/|imgur,image,meme
+Giphy|https://giphy.com/trending|giphy,gif,trending
+DeviantArt|https://www.deviantart.com/|deviantart,art,digital
+ArtStation|https://www.artstation.com/|artstation,art,portfolio
+Pixiv|https://www.pixiv.net/|pixiv,illustration,art
+Bandcamp|https://bandcamp.com/|bandcamp,music,independent
+Apple Music|https://music.apple.com/us/browse|applemusic,album,playlist
+Amazon Music|https://music.amazon.com/|amazonmusic,music,stream
+Tidal|https://tidal.com/browse|tidal,music,hifi
+YouTube Music|https://music.youtube.com/|youtubemusic,music,playlist
+Pandora|https://www.pandora.com/|pandora,music,station
+SoundCloud trending|https://soundcloud.com/charts/top|soundcloud,chart,trending
+Last.fm|https://www.last.fm/music|lastfm,music,scrobble
+Discogs|https://www.discogs.com/|discogs,vinyl,record
+Pitchfork|https://pitchfork.com/reviews/albums/|pitchfork,album,review
+Consequence|https://consequence.net/|consequence,music,news
+Rolling Stone|https://www.rollingstone.com/music/|rollingstone,music,review
+Billboard|https://www.billboard.com/charts/hot-100/|billboard,chart,top
+Setlist.fm|https://www.setlist.fm/|setlistfm,setlist,concert
+Songkick|https://www.songkick.com/|songkick,concert,tour
+Bandsintown|https://www.bandsintown.com/|bandsintown,concert,tour
+SeatGeek|https://seatgeek.com/|seatgeek,ticket,event
+Vivid Seats|https://www.vividseats.com/|vividseats,ticket,event
+AXS|https://www.axs.com/|axs,ticket,event
+Dice.fm|https://dice.fm/|dicefm,ticket,music
+ResidentAdvisor|https://ra.co/events|residentadvisor,electronic,event
+Mixcloud|https://www.mixcloud.com/|mixcloud,dj,mix
+Beatport|https://www.beatport.com/|beatport,electronic,track
+Homes.com|https://www.homes.com/new-york-ny/|homes,newyork,listing
+Redfin estimate|https://www.redfin.com/what-is-my-home-worth|redfin,estimate,home
+Opendoor|https://www.opendoor.com/|opendoor,sell,home
+Offerpad|https://www.offerpad.com/|offerpad,sell,home
+Rocket Mortgage|https://www.rocketmortgage.com/|rocketmortgage,mortgage,rate
+LendingTree|https://www.lendingtree.com/|lendingtree,mortgage,compare
+Better.com|https://better.com/|better,mortgage,digital
+SoFi|https://www.sofi.com/home-loans/|sofi,mortgage,refinance
+Quicken Loans|https://www.quickenloans.com/|quickenloans,mortgage,rate
+Credit Karma|https://www.creditkarma.com/|creditkarma,credit,score
+Experian|https://www.experian.com/|experian,credit,report
+TransUnion|https://www.transunion.com/|transunion,credit,report
+Equifax|https://www.equifax.com/|equifax,credit,report
+Mint|https://mint.intuit.com/|mint,budget,finance
+YNAB|https://www.ynab.com/|ynab,budget,finance
+Personal Capital|https://www.personalcapital.com/|personalcapital,wealth,invest
+Wealthfront|https://www.wealthfront.com/|wealthfront,invest,portfolio
+Betterment|https://www.betterment.com/|betterment,invest,robo
+Acorns|https://www.acorns.com/|acorns,invest,roundup
+Stash|https://www.stash.com/|stash,invest,beginner
+Public.com|https://public.com/|public,invest,social
+eToro|https://www.etoro.com/|etoro,trading,social
+Trading 212|https://www.trading212.com/|trading212,invest,commission
+Freetrade|https://freetrade.io/|freetrade,invest,uk
+Degiro|https://www.degiro.com/|degiro,invest,europe
+Scalable Capital|https://www.scalable.capital/|scalable,invest,europe
+Trade Republic|https://traderepublic.com/|traderepublic,invest,europe
+ZocDoc|https://www.zocdoc.com/|zocdoc,doctor,appointment
+Teladoc|https://www.teladoc.com/|teladoc,telehealth,doctor
+One Medical|https://www.onemedical.com/|onemedical,primary,care
+GoodRx|https://www.goodrx.com/|goodrx,drug,price
+Drugs.com|https://www.drugs.com/|drugs,medication,information
+RxList|https://www.rxlist.com/|rxlist,drug,side effect
+Cleveland Clinic|https://my.clevelandclinic.org/health|clevelandclinic,health,condition
+Johns Hopkins|https://www.hopkinsmedicine.org/health|hopkinsmedicine,health,condition
+Mount Sinai|https://www.mountsinai.org/health-library|mountsinai,health,library
+Kaiser Health|https://healthy.kaiserpermanente.org/|kaiser,health,wellness
+Calm|https://www.calm.com/|calm,meditation,sleep
+Headspace|https://www.headspace.com/|headspace,meditation,mindfulness
+BetterHelp|https://www.betterhelp.com/|betterhelp,therapy,online
+Talkspace|https://www.talkspace.com/|talkspace,therapy,online
+Psychology Today|https://www.psychologytoday.com/us/therapists|psychologytoday,therapist,find
+Noom|https://www.noom.com/|noom,weight,health
+WW|https://www.weightwatchers.com/us/|weightwatchers,weight,program
+Hims|https://www.forhims.com/|hims,health,men
+Hers|https://www.forhers.com/|hers,health,women
+Roman|https://www.getroman.com/|roman,health,prescription
+Capsule pharmacy|https://www.capsule.com/|capsule,pharmacy,delivery
+Alto pharmacy|https://www.alto.com/|alto,pharmacy,delivery
+Oscar health|https://www.hioscar.com/|oscar,health,insurance
+Bright Health|https://www.brighthealthplan.com/|brighthealth,health,insurance
+Devoted Health|https://www.devoted.com/|devoted,health,senior
+Clover Health|https://www.cloverhealth.com/en/|cloverhealth,health,insurance
+Ro|https://ro.co/|ro,health,telemedicine
+Thirty Madison|https://www.thirtymadison.com/|thirtymadison,health,brand
+Carbon Health|https://carbonhealth.com/|carbonhealth,primary,care
+Forward|https://goforward.com/|forward,primary,preventive
+Parsley Health|https://www.parsleyhealth.com/|parsleyhealth,holistic,care
+Hinge Health|https://www.hingehealth.com/|hingehealth,musculoskeletal,care
+Omada Health|https://www.omadahealth.com/|omadahealth,digital,chronic
+Sword Health|https://swordhealth.com/|swordhealth,physical,therapy
+Vida Health|https://www.vida.com/|vidahealth,chronic,management
+Thirty Madison Nurx|https://www.nurx.com/|nurx,prescription,online
+Canva design|https://www.canva.com/design/play|canva,design,create
+Adobe Creative|https://www.adobe.com/creativecloud.html|adobe,creative,cloud
+Affinity|https://affinity.serif.com/en-us/|affinity,design,photo
+Procreate|https://procreate.com/|procreate,ipad,illustration
+InVision|https://www.invisionapp.com/|invision,prototype,design
+Marvel App|https://marvelapp.com/|marvelapp,prototype,design
+Miro|https://miro.com/|miro,whiteboard,collaboration
+FigJam|https://www.figma.com/figjam/|figjam,whiteboard,brainstorm
+Whimsical|https://whimsical.com/|whimsical,diagram,flowchart
+Lucidchart|https://www.lucidchart.com/|lucidchart,diagram,flowchart
+Draw.io|https://app.diagrams.net/|drawio,diagram,free
+Excalidraw|https://excalidraw.com/|excalidraw,whiteboard,sketch
+Loom|https://www.loom.com/|loom,video,screen
+Calendly|https://calendly.com/|calendly,scheduling,meeting
+Cal.com|https://cal.com/|calcom,scheduling,open source
+Doodle|https://doodle.com/en/|doodle,scheduling,poll
+Typeform|https://www.typeform.com/|typeform,form,survey
+Tally|https://tally.so/|tally,form,free
+JotForm|https://www.jotform.com/|jotform,form,builder
+SurveyMonkey|https://www.surveymonkey.com/|surveymonkey,survey,research
+Google Forms|https://docs.google.com/forms/|googleforms,form,survey
+Airtable templates|https://www.airtable.com/templates|airtable,template,base
+Coda|https://coda.io/|coda,document,automation
+ClickUp|https://clickup.com/|clickup,project,management
+Basecamp|https://basecamp.com/|basecamp,project,management
+Teamwork|https://www.teamwork.com/|teamwork,project,management
+Wrike|https://www.wrike.com/|wrike,project,management
+Smartsheet|https://www.smartsheet.com/|smartsheet,project,sheet
+Height|https://height.app/|height,project,task
+Shortcut|https://shortcut.com/|shortcut,project,engineering
+Todoist|https://todoist.com/|todoist,task,productivity
+TickTick|https://ticktick.com/|ticktick,task,productivity
+Things app|https://culturedcode.com/things/|things,task,mac
+OmniFocus|https://www.omnigroup.com/omnifocus/|omnifocus,task,gtd
+Obsidian|https://obsidian.md/|obsidian,note,knowledge
+Logseq|https://logseq.com/|logseq,note,graph
+Roam Research|https://roamresearch.com/|roam,note,bidirectional
+Bear app|https://bear.app/|bear,note,markdown
+Craft docs|https://www.craft.do/|craft,document,note
+Mem AI|https://get.mem.ai/|memai,note,ai
+Reflect|https://reflect.app/|reflect,note,thinking
+Capacities|https://capacities.io/|capacities,note,object
+Tana|https://tana.inc/|tana,note,supertag
+Anytype|https://anytype.io/|anytype,note,local
+Apple Notes|https://support.apple.com/en-us/108996|applenotes,note,sync
+Google Keep|https://keep.google.com/|googlekeep,note,simple
+Evernote|https://evernote.com/|evernote,note,organize
+OneNote|https://www.onenote.com/|onenote,note,microsoft
+Standard Notes|https://standardnotes.com/|standardnotes,note,encrypted
+Simplenote|https://simplenote.com/|simplenote,note,sync
+1Password|https://1password.com/|1password,password,security
+Bitwarden|https://bitwarden.com/|bitwarden,password,open source
+LastPass|https://www.lastpass.com/|lastpass,password,vault
+Dashlane|https://www.dashlane.com/|dashlane,password,security
+NordPass|https://nordpass.com/|nordpass,password,manager
+NordVPN|https://nordvpn.com/|nordvpn,vpn,privacy
+ExpressVPN|https://www.expressvpn.com/|expressvpn,vpn,speed
+Surfshark|https://surfshark.com/|surfshark,vpn,unlimited
+ProtonVPN|https://protonvpn.com/|protonvpn,vpn,swiss
+Mullvad|https://mullvad.net/en|mullvad,vpn,anonymous
+Proton Mail|https://proton.me/mail|protonmail,email,encrypted
+Tutanota|https://tuta.com/|tutanota,email,encrypted
+Fastmail|https://www.fastmail.com/|fastmail,email,privacy
+Hey email|https://www.hey.com/|hey,email,basecamp
+Superhuman|https://superhuman.com/|superhuman,email,fast
+Mailspring|https://getmailspring.com/|mailspring,email,client
+Thunderbird|https://www.thunderbird.net/|thunderbird,email,open source
+Spark mail|https://sparkmailapp.com/|spark,email,smart
+Clean Email|https://clean.email/|cleanemail,inbox,organize
+Unroll.me|https://unroll.me/|unrollme,unsubscribe,email
+Cloudflare radar|https://radar.cloudflare.com/|cloudflare,internet,traffic
+Akamai status|https://www.akamai.com/internet-station|akamai,internet,status
+Fastly status|https://status.fastly.com/|fastly,status,cdn
+AWS status|https://health.aws.amazon.com/health/status|aws,status,service
+GCP status|https://status.cloud.google.com/|gcp,status,service
+Azure status|https://status.azure.com/en-us/status|azure,status,service
+GitHub status|https://www.githubstatus.com/|github,status,incident
+Vercel status|https://www.vercel-status.com/|vercel,status,deploy
+Netlify status|https://www.netlifystatus.com/|netlify,status,deploy
+Heroku status|https://status.heroku.com/|heroku,status,service
+DownDetector|https://downdetector.com/|downdetector,outage,status
+IsItDown|https://www.isitdownrightnow.com/|isitdown,check,website
+BuiltWith|https://builtwith.com/|builtwith,technology,profile
+SimilarWeb|https://www.similarweb.com/|similarweb,traffic,analytics
+Semrush|https://www.semrush.com/|semrush,seo,keyword
+Ahrefs|https://ahrefs.com/|ahrefs,seo,backlink
+Moz|https://moz.com/|moz,seo,domain
+Majestic|https://majestic.com/|majestic,backlink,trust
+SpyFu|https://www.spyfu.com/|spyfu,keyword,competitor
+BuzzSumo|https://buzzsumo.com/|buzzsumo,content,social
+Brandwatch|https://www.brandwatch.com/|brandwatch,social,listening
+Sprout Social|https://sproutsocial.com/|sproutsocial,social,management
+Buffer|https://buffer.com/|buffer,social,scheduling
+Hootsuite|https://www.hootsuite.com/|hootsuite,social,management
+Later|https://later.com/|later,social,scheduling
+Tailwind app|https://www.tailwindapp.com/|tailwindapp,pinterest,scheduling
+Mailchimp|https://mailchimp.com/|mailchimp,email,marketing
+ConvertKit|https://convertkit.com/|convertkit,email,creator
+Beehiiv|https://www.beehiiv.com/|beehiiv,newsletter,growth
+Substack|https://substack.com/|substack,newsletter,writing
+Ghost newsletter|https://ghost.org/newsletter/|ghost,newsletter,publishing
+Revue|https://www.getrevue.co/|revue,newsletter,twitter
+ConstantContact|https://www.constantcontact.com/|constantcontact,email,marketing
+AWeber|https://www.aweber.com/|aweber,email,marketing
+ActiveCampaign|https://www.activecampaign.com/|activecampaign,automation,crm
+Drip|https://www.drip.com/|drip,ecommerce,email
+Klaviyo|https://www.klaviyo.com/|klaviyo,ecommerce,marketing
+Attentive|https://www.attentivemobile.com/|attentive,sms,marketing
+Braze|https://www.braze.com/|braze,engagement,mobile
+Iterable|https://iterable.com/|iterable,marketing,cross-channel
+Customer.io|https://customer.io/|customerio,messaging,automation
+Rudderstack|https://www.rudderstack.com/|rudderstack,cdp,data
+mParticle|https://www.mparticle.com/|mparticle,cdp,data
+Snowflake|https://www.snowflake.com/en/|snowflake,data,warehouse
+Databricks|https://www.databricks.com/|databricks,data,lakehouse
+Fivetran|https://www.fivetran.com/|fivetran,data,connector
+Airbyte|https://airbyte.com/|airbyte,data,integration
+dbt|https://www.getdbt.com/|dbt,data,transform
+Looker|https://cloud.google.com/looker|looker,data,visualization
+Tableau|https://www.tableau.com/|tableau,visualization,analytics
+Power BI|https://powerbi.microsoft.com/|powerbi,dashboard,analytics
+Metabase|https://www.metabase.com/|metabase,analytics,open source
+Apache Superset|https://superset.apache.org/|superset,analytics,visualization
+Redash|https://redash.io/|redash,dashboard,query
+Mode Analytics|https://mode.com/|mode,analytics,sql
+Hex|https://hex.tech/|hex,notebook,analytics
+Observable|https://observablehq.com/|observable,notebook,data
+Deepnote|https://deepnote.com/|deepnote,notebook,collaboration
+Google Colab|https://colab.research.google.com/|colab,notebook,python
+Weights Biases|https://wandb.ai/|wandb,mlops,experiment
+MLflow|https://mlflow.org/|mlflow,mlops,tracking
+Hugging Face Hub|https://huggingface.co/spaces|huggingface,spaces,demo
+Replicate|https://replicate.com/|replicate,model,api
+Modal|https://modal.com/|modal,compute,serverless
+Together AI|https://www.together.ai/|togetherai,inference,model
+Anyscale|https://www.anyscale.com/|anyscale,ray,compute
+Lightning AI|https://lightning.ai/|lightningai,training,pytorch
+Paperspace|https://www.paperspace.com/|paperspace,gpu,cloud
+Lambda Labs|https://lambdalabs.com/|lambdalabs,gpu,cloud
+CoreWeave|https://www.coreweave.com/|coreweave,gpu,cloud
+RunPod|https://www.runpod.io/|runpod,gpu,serverless
+Vast.ai|https://vast.ai/|vastai,gpu,marketplace
+Cursor IDE|https://cursor.com/|cursor,ide,ai
+Windsurf|https://codeium.com/windsurf|windsurf,ide,ai
+GitHub Copilot|https://github.com/features/copilot|copilot,ai,code
+Tabnine|https://www.tabnine.com/|tabnine,ai,autocomplete
+Amazon CodeWhisperer|https://aws.amazon.com/codewhisperer/|codewhisperer,ai,code
+Replit|https://replit.com/|replit,ide,cloud
+CodeSandbox|https://codesandbox.io/|codesandbox,ide,browser
+StackBlitz|https://stackblitz.com/|stackblitz,ide,webcontainer
+Gitpod|https://www.gitpod.io/|gitpod,ide,cloud
+Codespaces|https://github.dev/|codespaces,ide,browser
+VSCode marketplace|https://marketplace.visualstudio.com/vscode|vscode,extension,marketplace
+JetBrains|https://www.jetbrains.com/|jetbrains,ide,intellij
+Sublime Text|https://www.sublimetext.com/|sublime,editor,fast
+Neovim|https://neovim.io/|neovim,editor,vim
+Zed editor|https://zed.dev/|zed,editor,fast
+Helix editor|https://helix-editor.com/|helix,editor,modal
+Lapce|https://lapce.dev/|lapce,editor,rust
+Warp terminal|https://www.warp.dev/|warp,terminal,ai
+iTerm2|https://iterm2.com/|iterm2,terminal,mac
+Alacritty|https://alacritty.org/|alacritty,terminal,gpu
+Kitty terminal|https://sw.kovidgoyal.net/kitty/|kitty,terminal,fast
+WezTerm|https://wezfurlong.org/wezterm/|wezterm,terminal,gpu
+Ghostty|https://ghostty.org/|ghostty,terminal,zig
+Rio terminal|https://raphamorim.io/rio/|rio,terminal,rust
+Starship prompt|https://starship.rs/|starship,prompt,cross-platform
+Oh My Zsh|https://ohmyz.sh/|ohmyzsh,zsh,framework
+Fish shell|https://fishshell.com/|fish,shell,friendly
+Nushell|https://www.nushell.sh/|nushell,shell,structured
+Fig|https://fig.io/|fig,terminal,autocomplete
+Atuin|https://atuin.sh/|atuin,shell,history
+Homebrew|https://brew.sh/|homebrew,package,mac
+MacPorts|https://www.macports.org/|macports,package,mac
+Chocolatey|https://chocolatey.org/|chocolatey,package,windows
+Scoop|https://scoop.sh/|scoop,package,windows
+Nix|https://nixos.org/|nix,package,reproducible
+Guix|https://guix.gnu.org/|guix,package,functional
+Flatpak|https://flatpak.org/|flatpak,package,linux
+Snap|https://snapcraft.io/|snap,package,linux
+AppImage|https://appimage.org/|appimage,package,portable
+Setapp|https://setapp.com/|setapp,subscription,mac
+CleanMyMac|https://macpaw.com/cleanmymac|cleanmymac,utility,mac
+Alfred|https://www.alfredapp.com/|alfred,productivity,mac
+Raycast|https://www.raycast.com/|raycast,launcher,mac
+BetterTouchTool|https://folivora.ai/|bettertouchtool,customize,mac
+Bartender|https://www.macbartender.com/|bartender,menubar,mac
+Fantastical|https://flexibits.com/fantastical|fantastical,calendar,mac
+Cardhop|https://flexibits.com/cardhop|cardhop,contacts,mac
+Spark Desktop|https://sparkmailapp.com/|spark,email,desktop
+Notion Desktop|https://www.notion.so/desktop|notion,desktop,productivity
+Obsidian Desktop|https://obsidian.md/download|obsidian,desktop,note
+Linear Desktop|https://linear.app/download|linear,desktop,issue
+Arc browser|https://arc.net/|arc,browser,modern
+Brave browser|https://brave.com/|brave,browser,privacy
+Firefox|https://www.mozilla.org/en-US/firefox/new/|firefox,browser,privacy
+Vivaldi|https://vivaldi.com/|vivaldi,browser,customizable
+Opera|https://www.opera.com/|opera,browser,vpn
+Tor|https://www.torproject.org/|tor,browser,anonymous
+Orion browser|https://browser.kagi.com/|orion,browser,webkit
+Kagi search|https://kagi.com/|kagi,search,premium
+You.com|https://you.com/|youcom,search,ai
+Perplexity|https://www.perplexity.ai/|perplexity,search,ai
+Phind|https://www.phind.com/|phind,search,developer
+Tavily|https://tavily.com/|tavily,search,api
+Exa|https://exa.ai/|exa,search,semantic
+SerpApi|https://serpapi.com/|serpapi,search,api
+ScraperAPI|https://www.scraperapi.com/|scraperapi,scraping,proxy
+Bright Data|https://brightdata.com/|brightdata,proxy,data
+Oxylabs|https://oxylabs.io/|oxylabs,proxy,scraping
+Smartproxy|https://smartproxy.com/|smartproxy,proxy,residential
+IPRoyal|https://iproyal.com/|iproyal,proxy,residential
+Zyte|https://www.zyte.com/|zyte,scraping,extraction
+Apify|https://apify.com/|apify,scraping,automation
+Crawlee|https://crawlee.dev/|crawlee,scraping,library
+Scrapy|https://scrapy.org/|scrapy,crawling,python
+Cheerio|https://cheerio.js.org/|cheerio,parsing,html
+Beautiful Soup|https://www.crummy.com/software/BeautifulSoup/|beautifulsoup,parsing,python
+Distill.io|https://distill.io/|distill,monitor,change
+Visualping|https://visualping.io/|visualping,monitor,change
+ChangeTower|https://changetower.com/|changetower,monitor,website
+Sken.io|https://www.sken.io/|skenio,monitor,visual
+Hexowatch|https://hexowatch.com/|hexowatch,monitor,ai
+Diffbot|https://www.diffbot.com/|diffbot,extraction,knowledge
+Import.io|https://www.import.io/|importio,extraction,data
+ParseHub|https://www.parsehub.com/|parsehub,scraping,visual
+Octoparse|https://www.octoparse.com/|octoparse,scraping,nocode
+PhantomBuster|https://phantombuster.com/|phantombuster,automation,lead
+Snyk|https://snyk.io/|snyk,security,vulnerability
+Sonar|https://www.sonarsource.com/|sonar,quality,static analysis
+Checkmarx|https://checkmarx.com/|checkmarx,security,sast
+Veracode|https://www.veracode.com/|veracode,security,appsec
+Cloudflare Workers|https://workers.cloudflare.com/|cloudflare,workers,edge
+Deno Deploy|https://deno.com/deploy|deno,deploy,edge
+Bun|https://bun.sh/|bun,runtime,fast
+Node.js docs|https://nodejs.org/en/docs|nodejs,documentation,runtime
+Zig lang|https://ziglang.org/|zig,language,systems
+Gleam lang|https://gleam.run/|gleam,language,beam
+Elixir lang|https://elixir-lang.org/|elixir,language,functional
+Haskell|https://www.haskell.org/|haskell,language,functional
+OCaml|https://ocaml.org/|ocaml,language,functional
+Kotlin|https://kotlinlang.org/|kotlin,language,jvm
+Scala|https://www.scala-lang.org/|scala,language,jvm
+Clojure|https://clojure.org/|clojure,language,lisp
+Julia lang|https://julialang.org/|julia,language,scientific
+R Project|https://www.r-project.org/|r,language,statistical
+MATLAB|https://www.mathworks.com/products/matlab.html|matlab,computing,numerical
+Wolfram Language|https://www.wolfram.com/language/|wolfram,language,symbolic
+Unreal Engine|https://www.unrealengine.com/|unreal,engine,game
+Unity|https://unity.com/|unity,engine,game

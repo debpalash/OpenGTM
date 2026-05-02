@@ -1,0 +1,1442 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+.cargo/
+  audit.toml
+.github/
+  ISSUE_TEMPLATE/
+    bug_report.yml
+    config.yml
+    feature_request.yml
+  workflows/
+    audit.yml
+    bench.yml
+    lint.yml
+    release.yml
+    rust.yml
+    stale.yml
+  dependabot.yml
+  PULL_REQUEST_TEMPLATE.md
+benches/
+  .gitignore
+  BENCHMARKS.md
+  build.rs
+  Cargo.toml
+  core.rs
+  crawl.rs
+  go_colly.rs
+  node_crawler.rs
+  README.md
+examples/
+  advanced_configuration.rs
+  anti_bots.rs
+  auto_encoding.rs
+  blacklist.rs
+  budget.rs
+  cache_chrome_hybrid.rs
+  cache_remote_skip_browser.rs
+  cache.rs
+  callback.rs
+  Cargo.toml
+  chrome_remote_tls.rs
+  chrome_remote.rs
+  chrome_screenshot_with_config.rs
+  chrome_screenshot.rs
+  chrome_sendable.rs
+  chrome_single_page.rs
+  chrome_viewport.rs
+  chrome_web_automation.rs
+  chrome.rs
+  concurrent_profiles.rs
+  configuration.rs
+  cron.rs
+  css_scrape.rs
+  debug.rs
+  depth.rs
+  download_to_react.rs
+  download.rs
+  encoding.rs
+  example.rs
+  gemini.rs
+  loop.rs
+  not_a_robot_chrome_ai.rs
+  not_a_robot_haiku.rs
+  not_a_robot.rs
+  openai_cache.rs
+  openai_extra.rs
+  openai_multi.rs
+  openai.rs
+  parallel_backends_chrome.rs
+  parallel_backends.rs
+  queue.rs
+  README.md
+  real_world.rs
+  remote_multimodal_benchmark.rs
+  remote_multimodal_dual_automation.rs
+  remote_multimodal_dual.rs
+  remote_multimodal_listing.rs
+  remote_multimodal_multi.rs
+  remote_multimodal_quotes.rs
+  remote_multimodal_scrape.rs
+  remote_multimodal.rs
+  rss.rs
+  scrape.rs
+  serde.rs
+  sitemap_only.rs
+  sitemap.rs
+  smart.rs
+  spider_browser_cloud.rs
+  spider_cloud_markdown.rs
+  subscribe_download.rs
+  subscribe_multiple.rs
+  subscribe.rs
+  transform_markdown.rs
+  url_glob_subdomains.rs
+  url_glob.rs
+  warc_chrome.rs
+  warc.rs
+  webdriver_remote.rs
+  webdriver_screenshot.rs
+  webdriver.rs
+  whitelist.rs
+spider/
+  benches/
+    allocator_bench.rs
+    streaming_link_extraction.rs
+  src/
+    features/
+      search_providers/
+        bing.rs
+        brave.rs
+        mod.rs
+        serper.rs
+        tavily.rs
+      automation.rs
+      chrome_args.rs
+      chrome_common.rs
+      chrome_viewport.rs
+      chrome.rs
+      decentralized_headers.rs
+      disk.rs
+      gemini_common.rs
+      gemini.rs
+      glob.rs
+      mod.rs
+      openai_common.rs
+      openai.rs
+      search.rs
+      solvers.rs
+      webdriver_args.rs
+      webdriver_common.rs
+      webdriver.rs
+    packages/
+      robotparser/
+        mod.rs
+        parser.rs
+      mod.rs
+    utils/
+      abs.rs
+      adaptive_concurrency.rs
+      auto_throttle.rs
+      backoff.rs
+      bloom.rs
+      coalesce.rs
+      connect.rs
+      css_selectors.rs
+      detect_chrome.rs
+      detect_system.rs
+      dns_cache.rs
+      etag_cache.rs
+      frontier.rs
+      h2_tracker.rs
+      header_utils.rs
+      hedge.rs
+      html_spool.rs
+      interner.rs
+      mod.rs
+      numa.rs
+      parallel_backends.rs
+      rate_limiter.rs
+      robots_cache.rs
+      tab_pool.rs
+      templates.rs
+      trie.rs
+      uring_fs.rs
+      validation.rs
+      vitals.rs
+      wait_guard.rs
+      warc.rs
+      zero_copy.rs
+    client.rs
+    configuration.rs
+    lib.rs
+    page.rs
+    retry_strategy.rs
+    traits.rs
+    website.rs
+  tests/
+    crawler_test_com/
+      canonical_tags.rs
+      content.rs
+      description_tags.rs
+      encoding.rs
+      helpers.rs
+      javascript.rs
+      links.rs
+      main.rs
+      mobile.rs
+      other.rs
+      redirects.rs
+      robots_protocol.rs
+      social_tags.rs
+      status_codes.rs
+      titles.rs
+      urls.rs
+    chrome_first_byte_timing.rs
+    chrome_intercept_e2e.rs
+    chrome_intercept_flags.rs
+    chrome_intercept_goto_sequence.rs
+    chrome_intercept_handler_race.rs
+    chunk_idle_timeout.rs
+    hedge_parallel_chrome_e2e.rs
+    live_spider_agent_cloud.rs
+    parallel_backends.rs
+    smart_smoke_v117.rs
+    smart_vs_chrome.rs
+  Cargo.toml
+  LICENSE
+  README.md
+spider_agent/
+  examples/
+    basic_search.rs
+    concurrent.rs
+    extract.rs
+    extraction.rs
+    multimodal.rs
+    open_page_concurrent.rs
+    research.rs
+    spider_browser_cloud.rs
+    spider_cloud_ecommerce_competitor.rs
+    spider_cloud_end_to_end.rs
+    spider_cloud_jobs_pipeline.rs
+    spider_cloud_prompt_flows.rs
+  src/
+    automation/
+      browser.rs
+      cache.rs
+      concurrent_chain.rs
+      config.rs
+      engine_error.rs
+      engine.rs
+      executor.rs
+      helpers.rs
+      long_term_memory.rs
+      mod.rs
+      router.rs
+      skills.rs
+    llm/
+      mod.rs
+      openai.rs
+    search/
+      bing.rs
+      brave.rs
+      mod.rs
+      serper.rs
+      tavily.rs
+    agent.rs
+    browser.rs
+    config.rs
+    error.rs
+    lib.rs
+    memory.rs
+    temp.rs
+    tools.rs
+    webdriver.rs
+  tests/
+    action_feedback_integration.rs
+    live_env_smoke.rs
+    live_spider_browser.rs
+    live_spider_cloud.rs
+    thinking_integration.rs
+  Cargo.toml
+  README.md
+  SKILLS.md
+spider_agent_html/
+  src/
+    cleaning.rs
+    lib.rs
+  Cargo.toml
+  README.md
+  SKILLS.md
+spider_agent_types/
+  src/
+    actions.rs
+    chain.rs
+    concurrent_chain.rs
+    confidence.rs
+    config.rs
+    content.rs
+    helpers.rs
+    html_diff.rs
+    lib.rs
+    map_result.rs
+    memory_ops.rs
+    observation.rs
+    planning.rs
+    prompts.rs
+    schema_gen.rs
+    selector_cache.rs
+    self_healing.rs
+    synthesis.rs
+    tool_calling.rs
+  Cargo.toml
+  README.md
+  SKILLS.md
+spider_cli/
+  src/
+    options/
+      args.rs
+      mod.rs
+      sub_command.rs
+    build_folders.rs
+    main.rs
+  Cargo.toml
+  LICENSE
+  README.md
+spider_mcp/
+  src/
+    tools/
+      crawl.rs
+      links.rs
+      mod.rs
+      scrape.rs
+      transform.rs
+    main.rs
+    server.rs
+    state.rs
+  Cargo.toml
+  README.md
+spider_utils/
+  src/
+    lib.rs
+  Cargo.toml
+  README.md
+spider_worker/
+  src/
+    main.rs
+  Cargo.toml
+  LICENSE
+  README.md
+.editorconfig
+.gitignore
+Cargo.toml
+CHANGELOG.md
+CLAUDE.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+default.nix
+LICENSE
+README.md
+release.sh
+SECURITY.md
+
+================================================================
+Files
+================================================================
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: CLAUDE.md
+================
+# Spider - Development Guide
+
+The fastest web crawler and scraper for Rust. Workspace: `spider`, `spider_cli`, `spider_agent`, `spider_agent_types`, `spider_agent_html`, `spider_utils`, `spider_worker`, `spider_mcp`.
+
+## Quick Reference
+
+```
+docs.rs/spider          # API docs
+spider.cloud            # Website & managed cloud
+spider.cloud/guides     # Guides
+discord.spider.cloud    # Community
+```
+
+## Getting Started
+
+```toml
+[dependencies]
+spider = { version = "2", features = ["spider_cloud"] }
+```
+
+### Spider Cloud (recommended)
+
+Sign up at <https://spider.cloud> for a free API key, then:
+
+```rust
+use spider::tokio;
+use spider::website::Website;
+
+#[tokio::main]
+async fn main() {
+    let mut website = Website::new("https://example.com");
+    website.with_spider_cloud("YOUR_API_KEY");
+
+    let mut rx = website.subscribe(16);
+    tokio::spawn(async move {
+        while let Ok(page) = rx.recv().await {
+            println!("{} - {}", page.get_url(), page.get_content());
+        }
+    });
+
+    website.crawl().await;
+    website.unsubscribe();
+}
+```
+
+### Local crawl (no API key)
+
+```rust
+let mut website = Website::new("https://example.com");
+website.crawl().await;
+for link in website.get_links() {
+    println!("{link}");
+}
+```
+
+---
+
+## Spider Cloud
+
+Spider Cloud offloads crawling to managed infrastructure with anti-bot bypass, proxies, and browser rendering. All Spider Cloud features require `features = ["spider_cloud"]`.
+
+### Cloud Modes (`SpiderCloudMode`)
+
+| Mode | Description | When to use |
+|------|-------------|-------------|
+| **Proxy** (default) | Routes HTTP through `proxy.spider.cloud` | General crawling, transparent |
+| **Api** | `POST /crawl` per page | Need API-level control |
+| **Unblocker** | `POST /unblocker` per page | Sites with heavy bot protection |
+| **Fallback** | Direct fetch first, cloud on 403/429/503 | Cost-conscious, mostly unprotected sites |
+| **Smart** | Proxy default, auto-fallback to `/unblocker` on bot detection | **Production recommended** |
+
+### Configuration
+
+```rust
+use spider::configuration::{SpiderCloudConfig, SpiderCloudMode};
+
+// Full control via SpiderCloudConfig
+let config = SpiderCloudConfig::new("sk-...")
+    .with_mode(SpiderCloudMode::Smart)       // proxy + auto unblocker fallback
+    .with_return_format("raw");              // "raw" = original HTML
+
+let mut website = Website::new("https://example.com")
+    .with_spider_cloud_config(config)
+    .build()
+    .unwrap();
+
+// Or shorthand — defaults to Proxy mode
+let mut website = Website::new("https://example.com");
+website.with_spider_cloud("sk-...");
+```
+
+**Smart mode** auto-detects bot protection via status codes (403, 429, 503, 520-530) and content markers (Cloudflare challenge, CAPTCHA, Distil, Imperva, Akamai). When detected, it falls back from proxy to `/unblocker` API automatically.
+
+### Browser Cloud (remote headless Chrome via CDP)
+
+Requires `features = ["spider_cloud", "chrome"]` (both).
+
+```rust
+use spider::configuration::SpiderBrowserConfig;
+
+let browser = SpiderBrowserConfig::new("sk-...")
+    .with_stealth(true)          // anti-fingerprinting
+    .with_country("us");         // geo-targeting
+
+let mut website = Website::new("https://example.com")
+    .with_limit(10)
+    .with_spider_browser_config(browser)
+    .build()
+    .unwrap();
+
+website.crawl().await;
+```
+
+Connects via `wss://browser.spider.cloud/v1/browser`. Use `.connection_url()` on `SpiderBrowserConfig` to see the full URL with auth params.
+
+### CLI
+
+```bash
+# Store API key
+spider authenticate sk-...
+
+# Crawl with cloud
+spider crawl --url https://example.com --spider-cloud-mode smart
+
+# Browser cloud
+spider crawl --url https://example.com --spider-cloud-browser
+```
+
+**Key resolution order:** `--spider-cloud-key` flag > `SPIDER_CLOUD_API_KEY` env > `~/.spider/credentials`
+
+### Environment Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `SPIDER_CLOUD_API_KEY` | API key |
+| `SPIDER_CLOUD_API_URL` | Custom API URL (default: `https://api.spider.cloud`) |
+| `SPIDER_CLOUD_RETURN_FORMAT` | `raw\|markdown\|commonmark\|text\|bytes` |
+| `SPIDER_CLOUD_FORCE_UNBLOCKER` | Always use unblocker (`1`/`true`) |
+| `SPIDER_BROWSER_STEALTH` | Enable stealth mode (`1`/`true`) |
+| `SPIDER_BROWSER_COUNTRY` | Country code (e.g. `us`, `gb`) |
+
+---
+
+## Core Configuration
+
+`Configuration` in `spider/src/configuration.rs` — all fields have sensible defaults.
+
+### Builder Pattern
+
+```rust
+use spider::website::Website;
+
+let mut website = Website::new("https://example.com")
+    .with_limit(50)                                    // concurrency
+    .with_depth(10)                                    // max link depth
+    .with_delay(500)                                   // ms between requests
+    .with_request_timeout(Some(Duration::from_secs(30)))
+    .with_respect_robots_txt(true)
+    .with_subdomains(true)
+    .with_user_agent(Some("MyBot/1.0"))
+    .with_blacklist_url(Some(vec!["/admin".into()]))
+    .with_whitelist_url(Some(vec!["/blog".into()]))
+    .with_headers(Some(headers))
+    .with_proxies(Some(vec!["http://proxy:8080".into()]))
+    .with_external_domains(Some(vec!["https://cdn.example.com".to_string()].into_iter()))
+    .with_budget(Some(HashMap::from([("/blog", 100)])))
+    .with_caching(true)
+    .with_stealth(true)
+    .build()
+    .unwrap();
+```
+
+### Chrome Rendering
+
+Requires `features = ["chrome"]`. Use the [headless-browser](https://github.com/spider-rs/headless-browser) Docker image or local `chrome-headless-shell`.
+
+```rust
+// features = ["chrome"]
+use spider::configuration::RequestInterceptConfiguration;
+
+let mut website = Website::new("https://spa-app.com")
+    .with_chrome_intercept(RequestInterceptConfiguration::new(true))  // block ads/analytics/stylesheets
+    .with_stealth(true)
+    .with_wait_for_idle_network(Some(WaitForIdleNetwork::new(Some(Duration::from_secs(30)))))
+    .build()
+    .unwrap();
+website.crawl().await;
+```
+
+For remote Chrome: `.with_chrome_connection(Some("ws://localhost:9222".into()))`
+
+Related features: `chrome_headed` (visible window), `chrome_stealth` (anti-fingerprinting), `chrome_screenshot` (page capture), `chrome_intercept` (network blocking), `chrome_headless_new` (uses `--headless=new`), `chrome_cpu` (disable GPU)
+
+### Smart Mode
+
+Starts with HTTP, upgrades to Chrome only when JavaScript rendering is detected.
+
+```rust
+// features = ["smart"]
+let mut website = Website::new("https://example.com")
+    .build()
+    .unwrap();
+website.crawl_smart().await;
+```
+
+### Subscription (streaming pages)
+
+Requires `features = ["sync"]` (included in `basic`).
+
+```rust
+let mut website = Website::new("https://example.com");
+let mut rx = website.subscribe(16);
+
+tokio::spawn(async move {
+    while let Ok(page) = rx.recv().await {
+        let url = page.get_url();
+        let html = page.get_html();
+        let status = page.status_code;
+    }
+});
+
+website.crawl().await;
+website.unsubscribe();
+```
+
+### Wait Conditions
+
+Requires `features = ["chrome"]`. Use the `with_wait_for_*` methods on `Website` (or `Configuration`):
+
+```rust
+use spider::configuration::{WaitForIdleNetwork, WaitForSelector, WaitForDelay};  // re-exported from chrome_common
+use std::time::Duration;
+
+let mut website = Website::new("https://example.com")
+    // Wait for network idle (500ms no connections)
+    .with_wait_for_idle_network(Some(WaitForIdleNetwork::new(Some(Duration::from_secs(30)))))
+    // Wait for a CSS selector to appear
+    .with_wait_for_selector(Some(WaitForSelector::new(
+        Some(Duration::from_secs(10)),
+        "div.loaded".into(),
+    )))
+    // Wait with a fixed delay (testing only)
+    .with_wait_for_delay(Some(WaitForDelay::new(Some(Duration::from_millis(2000)))))
+    .build()
+    .unwrap();
+```
+
+There is also `with_wait_for_idle_network0` (waits for zero outstanding requests) and `with_wait_for_idle_dom` (waits for DOM mutations to stop on a selector).
+
+---
+
+## Feature Flags
+
+### Essentials
+
+| Feature | What it does |
+|---------|-------------|
+| `basic` | Full default crawling (cookies, UA, encoding, caching, rate limiting, etc.) |
+| `spider_cloud` | Spider Cloud integration |
+| `chrome` | Headless Chrome rendering |
+| `smart` | Hybrid HTTP + Chrome |
+| `serde` | Serialization support |
+| `sync` | Broadcast channels for page streaming |
+
+### Chrome Variants
+
+`chrome_headed`, `chrome_stealth`, `chrome_screenshot`, `chrome_intercept`, `chrome_headless_new`, `chrome_cpu`, `chrome_remote_cache`
+
+### Caching
+
+| Feature | Backend |
+|---------|---------|
+| `cache` | Disk (cacache) |
+| `cache_mem` | In-memory |
+| `cache_chrome_hybrid` | Chrome + HTTP to disk |
+| `cache_openai` / `cache_gemini` | LLM response caching |
+| `etag_cache` | ETag-based cache |
+
+### Networking
+
+`socks`, `reqwest_rustls_tls`, `reqwest_native_tls`, `reqwest_hickory_dns`, `h2_multiplex`, `wreq`
+
+### Performance
+
+`io_uring` (Linux, default), `tcp_fastopen`, `splice`, `numa`, `zero_copy`, `simd`, `inline-more`, `bloom`
+
+### AI / LLM
+
+`openai`, `gemini`, `agent`, `agent_chrome`, `agent_skills`, `agent_full`
+
+### Advanced
+
+`rate_limit`, `adaptive_concurrency`, `request_coalesce`, `auto_throttle`, `priority_frontier`, `hedge`, `parallel_backends`, `firewall`, `cron`, `sitemap`, `webdriver`, `decentralized`, `disk`
+
+---
+
+## Spider Agent
+
+AI-powered autonomous browsing agent. Located in `spider_agent/`.
+
+### With Spider Cloud Tools
+
+```rust
+use spider_agent::{Agent, SpiderCloudToolConfig};
+
+// Full config
+let agent = Agent::builder()
+    .with_spider_cloud_config(
+        SpiderCloudToolConfig::new("sk-...")
+            .with_enable_ai_routes(true)  // paid plan — enables /ai/* routes
+    )
+    .build()?;
+
+// Or shorthand (defaults)
+let agent = Agent::builder()
+    .with_spider_cloud("sk-...")
+    .build()?;
+
+// Available tools: spider_cloud_crawl, spider_cloud_scrape,
+// spider_cloud_search, spider_cloud_links, spider_cloud_transform,
+// spider_cloud_unblocker
+// AI tools (paid): spider_cloud_ai_crawl, spider_cloud_ai_scrape,
+// spider_cloud_ai_search, spider_cloud_ai_browser, spider_cloud_ai_links
+```
+
+### With Browser Cloud Tools
+
+```rust
+use spider_agent::{Agent, SpiderBrowserToolConfig};
+
+// Full config
+let agent = Agent::builder()
+    .with_spider_browser_config(
+        SpiderBrowserToolConfig::new("sk-...")
+            .with_stealth(true)
+            .with_country("us")
+    )
+    .build()?;
+
+// Or shorthand
+let agent = Agent::builder()
+    .with_spider_browser("sk-...")
+    .build()?;
+
+// Available tools: spider_browser_navigate, spider_browser_html,
+// spider_browser_screenshot, spider_browser_evaluate,
+// spider_browser_click, spider_browser_fill, spider_browser_wait
+```
+
+### Agent Examples
+
+```bash
+# End-to-end pipeline
+SPIDER_CLOUD_API_KEY=sk-... cargo run -p spider_agent --example spider_cloud_end_to_end \
+  -- "Find top travel books on https://books.toscrape.com"
+
+# Prompt-driven flows (crawl, scrape, search, transform, unblocker)
+SPIDER_CLOUD_API_KEY=sk-... cargo run -p spider_agent --example spider_cloud_prompt_flows \
+  -- "run all flows for https://books.toscrape.com/"
+
+# Jobs pipeline
+SPIDER_CLOUD_API_KEY=sk-... cargo run -p spider_agent --example spider_cloud_jobs_pipeline \
+  -- "rust engineer remote" "https://remoteok.com/remote-rust-jobs"
+
+# Browser cloud
+SPIDER_CLOUD_API_KEY=sk-... cargo run -p spider_agent --example spider_browser_cloud
+```
+
+---
+
+## Running Examples
+
+```bash
+git clone https://github.com/spider-rs/spider.git && cd spider
+
+# Basic crawl
+cargo run --example example
+
+# With Chrome
+cargo run --example chrome --features chrome
+
+# Smart mode
+cargo run --example smart --features smart
+
+# Spider Cloud (browser)
+SPIDER_CLOUD_API_KEY=sk-... cargo run --example spider_browser_cloud --features "chrome spider_cloud"
+
+# AI automation (OpenAI vision)
+OPENAI_API_KEY=sk-... cargo run --example openai --features "chrome openai"
+
+# Remote multimodal (any LLM)
+cargo run --example remote_multimodal --features "chrome openai"
+
+# Advanced configuration (reusable config across sites)
+cargo run --example advanced_configuration
+
+# Anti-bot / stealth
+cargo run --example anti_bots --features "chrome chrome_stealth"
+
+# Cache + Chrome hybrid
+cargo run --example cache_chrome_hybrid --features "cache_chrome_hybrid chrome"
+
+# See all examples (48+ files)
+ls examples/
+```
+
+Use `--release` for production-level performance.
+
+Full examples list in [examples/README.md](./examples/README.md).
+
+---
+
+## Testing
+
+### Unit tests
+
+```bash
+cargo test -p spider
+cargo test -p spider_agent
+```
+
+### Live integration tests
+
+Require network access and optional API keys:
+
+```bash
+# Core crawler tests against crawler-test.com
+RUN_LIVE_TESTS=1 cargo test -p spider --test crawler_test_com
+
+# Spider Cloud integration
+SPIDER_CLOUD_API_KEY=sk-... RUN_LIVE_TESTS=1 cargo test -p spider_agent --test live_spider_cloud
+
+# Spider Browser integration
+SPIDER_CLOUD_API_KEY=sk-... RUN_LIVE_TESTS=1 cargo test -p spider_agent --test live_spider_browser
+
+# Agent cloud integration
+SPIDER_CLOUD_API_KEY=sk-... RUN_LIVE_TESTS=1 cargo test -p spider --test live_spider_agent_cloud
+```
+
+### Feature-specific tests
+
+```bash
+# Smart vs Chrome comparison
+cargo test -p spider --test smart_vs_chrome --features "smart chrome"
+
+# Parallel backends
+cargo test -p spider --test parallel_backends --features parallel_backends
+
+# io_uring
+cargo test -p spider uring_fs --features io_uring
+```
+
+---
+
+## CLI
+
+```bash
+cargo install spider_cli
+
+# Basic crawl
+spider crawl --url https://example.com
+
+# With Spider Cloud
+spider authenticate sk-...
+spider crawl --url https://example.com --spider-cloud-mode smart
+
+# Browser cloud
+spider crawl --url https://example.com --spider-cloud-browser
+
+# Scrape
+spider scrape --url https://example.com
+
+# Download
+spider download --url https://example.com
+```
+
+---
+
+## Key Architecture Notes
+
+- `spider/src/configuration.rs` — All config structs (`Configuration`, `SpiderCloudConfig`, `SpiderBrowserConfig`)
+- `spider/src/website.rs` — Core `Website` struct with crawl methods
+- `spider/src/page.rs` — `Page` struct (URL, HTML, status, headers, metadata)
+- `spider/src/features/` — Feature-gated modules (chrome, webdriver, openai, etc.)
+- `spider_agent/src/tools.rs` — Spider Cloud + Browser tool configs for agents
+- `spider_agent/src/agent.rs` — Agent builder
+- `spider_cli/src/main.rs` — CLI entry point and auth handling
+- `spider_cli/src/options/args.rs` — CLI flags
+
+### Crate dependency order
+
+`spider_agent_types` -> `spider_agent_html` -> `spider_agent` -> `spider` -> `spider_cli` / `spider_utils` / `spider_worker` / `spider_mcp`
+
+### Publishing
+
+```bash
+# Release script publishes in dependency order (--no-verify for cli/utils/worker)
+./release.sh
+```
+
+---
+
+## Common Patterns
+
+### Reusable config across multiple sites
+
+```rust
+use spider::{configuration::Configuration, website::Website};
+
+let config = Configuration::new()
+    .with_user_agent(Some("MyBot/1.0"))
+    .with_respect_robots_txt(true)
+    .with_subdomains(false)
+    .build();
+
+for url in ["https://a.com", "https://b.com", "https://c.com"] {
+    match Website::new(url).with_config(config.to_owned()).build() {
+        Ok(mut site) => {
+            site.crawl().await;
+            let links = site.get_all_links_visited().await;
+            println!("{url}: {} pages", links.len());
+        }
+        Err(e) => println!("Invalid URL: {:?}", e.get_url()),
+    }
+}
+```
+
+### Collect pages into a Vec
+
+```rust
+let mut website = Website::new("https://example.com");
+website.crawl().await;
+if let Some(pages) = website.get_pages() {
+    for page in pages {
+        println!("{}: {} bytes", page.get_url(), page.get_html_bytes_u8().len());
+    }
+}
+```
+
+### Custom HTTP client headers
+
+```rust
+use spider::reqwest::header::{HeaderMap, HeaderValue};
+
+let mut headers = HeaderMap::new();
+headers.insert("X-Custom", HeaderValue::from_static("value"));
+
+let mut website = Website::new("https://example.com")
+    .with_headers(Some(headers))
+    .build()
+    .unwrap();
+```
+
+### Budget limiting
+
+```rust
+use std::collections::HashMap;
+
+let mut website = Website::new("https://example.com")
+    .with_budget(Some(HashMap::from([
+        ("/blog", 50),   // max 50 pages under /blog
+        ("*", 200),      // max 200 pages total
+    ])))
+    .build()
+    .unwrap();
+```
+
+### Screenshots
+
+```rust
+// features = ["chrome", "chrome_screenshot"]
+use spider::configuration::{ScreenShotConfig, ScreenshotParams};
+
+let screenshot_params = ScreenshotParams::new(Default::default(), Some(true), Some(true));
+// ScreenShotConfig::new(params, bytes, save, output_dir)
+let screenshot_config = ScreenShotConfig::new(screenshot_params, true, true, None);
+
+let mut website = Website::new("https://example.com")
+    .with_screenshot(Some(screenshot_config))
+    .build()
+    .unwrap();
+```
+
+### OpenAI integration
+
+```rust
+// features = ["chrome", "openai"]
+use spider::configuration::GPTConfigs;
+
+let gpt_config = GPTConfigs::new("gpt-4o", "Extract the main content", 512);
+
+let mut website = Website::new("https://example.com")
+    .with_chrome_intercept(RequestInterceptConfiguration::new(true))
+    .with_wait_for_idle_network(Some(WaitForIdleNetwork::new(Some(Duration::from_secs(30)))))
+    .with_screenshot(Some(screenshot_config))
+    .with_openai(Some(gpt_config))
+    .build()
+    .unwrap();
+```
+
+### Cron scheduled crawl
+
+```rust
+// features = ["cron"]
+let mut config = Configuration::new();
+config.cron_str = "0 */6 * * *".into(); // every 6 hours (https://crontab.guru)
+```
+
+### WARC output
+
+```rust
+// features = ["warc"]
+use spider::utils::warc::WarcConfig;
+
+let mut config = Configuration::new();
+config.warc = Some(WarcConfig {
+    path: "output.warc.gz".to_string(),
+    ..Default::default()
+});
+```
+
+================
+File: CODE_OF_CONDUCT.md
+================
+# Contributor Covenant Code of Conduct
+
+## Our Commitment
+
+We as members, contributors, and leaders are committed to making participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, caste, color, religion, or sexual identity and orientation.
+
+We are dedicated to acting and interacting in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.
+
+## Our Standards
+
+Examples of behavior that contributes to a positive environment for our community include:
+
+* Demonstrating empathy and kindness toward other people
+* Being respectful of differing opinions, viewpoints, and experiences
+* Giving and gracefully accepting constructive feedback
+* Accepting responsibility and apologizing to those affected by our mistakes, and learning from the experience
+* Focusing on what is best not just for us as individuals, but for the overall community
+
+Examples of unacceptable behavior include:
+
+* The use of sexualized language or imagery, and sexual attention or advances of any kind
+* Trolling, insulting or derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or email address, without their explicit permission
+* Other conduct which could reasonably be considered inappropriate in a professional setting
+
+## Enforcement Responsibilities
+
+Community leaders are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.
+
+Community leaders have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, and will communicate reasons for moderation decisions when appropriate.
+
+## Scope
+
+This Code of Conduct applies within all community spaces, and also applies when an individual is officially representing the community in public spaces. Examples of representing our community include using an official e-mail address, posting via an official social media account, or acting as an appointed representative at an online or offline event.
+
+## Enforcement
+
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at support@spider.cloud. All complaints will be reviewed and investigated promptly and fairly.
+
+All community leaders are obligated to respect the privacy and security of the reporter of any incident.
+
+## Enforcement Guidelines
+
+Community leaders will follow these Community Impact Guidelines in determining the consequences for any action they deem in violation of this Code of Conduct:
+
+### 1. Correction
+
+**Community Impact**: Use of inappropriate language or other behavior deemed unprofessional or unwelcome in the community.
+
+**Consequence**: A private, written warning from community leaders, providing clarity around the nature of the violation and an explanation of why the behavior was inappropriate. A public apology may be requested.
+
+### 2. Warning
+
+**Community Impact**: A violation through a single incident or series of actions.
+
+**Consequence**: A warning with consequences for continued behavior. No interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, for a specified period of time. This includes avoiding interactions in community spaces as well as external channels like social media. Violating these terms may lead to a temporary or permanent ban.
+
+### 3. Temporary Ban
+
+**Community Impact**: A serious violation of community standards, including sustained inappropriate behavior.
+
+**Consequence**: A temporary ban from any sort of interaction or public communication with the community for a specified period of time. No public or private interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, is allowed during this period. Violating these terms may lead to a permanent ban.
+
+### 4. Permanent Ban
+
+**Community Impact**: Demonstrating a pattern of violation of community standards, including sustained inappropriate behavior, harassment of an individual, or aggression toward or disparagement of classes of individuals.
+
+**Consequence**: A permanent ban from any sort of public interaction within the community.
+
+## Attribution
+
+This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 2.1, available at [https://www.contributor-covenant.org/version/2/1/code_of_conduct.html][v2.1].
+
+Community Impact Guidelines were inspired by [Mozilla's code of conduct enforcement ladder][Mozilla CoC].
+
+For answers to common questions about this code of conduct, see the FAQ at [https://www.contributor-covenant.org/faq][FAQ]. Translations are available at [https://www.contributor-covenant.org/translations][translations].
+
+[homepage]: https://www.contributor-covenant.org
+[v2.1]: https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
+[Mozilla CoC]: https://github.com/mozilla/diversity
+[FAQ]: https://www.contributor-covenant.org/faq
+[translations]: https://www.contributor-covenant.org/translations
+
+================
+File: CONTRIBUTING.md
+================
+# Contributing to Spider
+
+Thanks for taking the time to contribute! Spider is an open-source web crawler and scraper built in Rust, and contributions of all kinds are welcome — bug fixes, new features, documentation improvements, and performance optimizations.
+
+## Getting Started
+
+### Prerequisites
+
+- [**Rust**](https://rustup.rs/) (edition 2021, stable toolchain)
+- **Git**
+- For Chrome/CDP features: a local Chrome or Chromium installation
+
+### Setup
+
+```bash
+git clone https://github.com/spider-rs/spider.git
+cd spider
+cargo build
+```
+
+Run the test suite:
+
+```bash
+cargo test
+```
+
+For Chrome-specific tests:
+
+```bash
+cargo test --features chrome
+```
+
+### Project Structure
+
+```
+spider/              Core crawling library (Website, Page, Configuration)
+spider_agent/        AI-powered web automation agent (LLM integration, skills)
+spider_cli/          Command-line interface
+spider_worker/       Distributed crawling worker
+spider_utils/        CSS/XPath scraping utilities
+spider_agent_html/   HTML extraction for agent pipelines
+spider_agent_types/  Shared types for the agent crate
+examples/            64 runnable examples covering most features
+benches/             Criterion benchmarks
+```
+
+## How to Contribute
+
+### Reporting Bugs
+
+Open an issue at [github.com/spider-rs/spider/issues](https://github.com/spider-rs/spider/issues) with:
+
+- Steps to reproduce
+- Expected vs. actual behavior
+- Spider version, Rust version, and OS
+- A minimal code example or URL that triggers the bug
+
+### Suggesting Features
+
+Open an issue describing:
+
+- The use case and why it matters
+- A proposed API or behavior
+- A practical example showing how it would be used
+
+### Pull Requests
+
+1. Fork the repo and create a branch from `master`
+2. Make your changes
+3. Add or update tests for your changes
+4. Run `cargo test` and ensure everything passes
+5. Run `cargo fmt` to format your code
+6. Open a pull request against `master`
+
+#### PR Guidelines
+
+- **One PR per feature or fix** — keep changes focused
+- **Add tests** — new features and bug fixes need test coverage. If testing is difficult, mention it in the PR and we'll help
+- **Update docs** — if your change affects public API or behavior, update the relevant README or doc comments
+- **Write clear commit messages** — describe what changed and why
+- **Keep PRs small** — smaller PRs are easier to review and merge faster
+
+### Feature Flags
+
+Spider uses feature flags extensively. When adding new functionality:
+
+- Gate optional dependencies behind a feature flag
+- Add the flag to `spider/Cargo.toml` with a descriptive comment
+- Document the flag in the crate's README if it's user-facing
+- Make sure the default feature set still compiles: `cargo check --no-default-features`
+
+### Testing
+
+```bash
+# Run all tests
+cargo test
+
+# Run tests for a specific crate
+cargo test -p spider
+cargo test -p spider_cli
+
+# Run tests with a specific feature
+cargo test --features chrome
+cargo test --features cache
+
+# Run benchmarks
+cargo bench
+```
+
+## Code Style
+
+- Follow standard Rust conventions (`cargo fmt`, `cargo clippy`)
+- Use descriptive variable and function names
+- Keep functions focused — prefer small functions over large ones
+- Add doc comments (`///`) to public APIs
+
+## Questions?
+
+- Open a [GitHub Discussion](https://github.com/spider-rs/spider/discussions) for questions or ideas
+- Join [Discord](https://discord.spider.cloud) for real-time help
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+
+================
+File: default.nix
+================
+{ pkgs ? import <nixpkgs> {} }:
+
+let
+  spider = pkgs.rustPlatform.buildRustPackage {
+    pname = "spider";
+    version = "2.43.20";
+
+    src = ./.;
+
+    cargoLock = {
+      lockFile = ./Cargo.lock;
+    };
+
+    nativeBuildInputs = [];
+
+    meta = with pkgs.lib; {
+      description = "A web crawler and scraper, building blocks for data curation workloads.";
+      homepage = "https://github.com/spider-rs/spider";
+      license = licenses.mit;
+      maintainers = with maintainers; [ j-mendez ];
+      platforms = platforms.all;
+    };
+  };
+in
+{
+  inherit spider;
+}
+
+================
+File: LICENSE
+================
+MIT License
+
+Copyright (c) 2026 Spider Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================
+File: README.md
+================
+# Spider
+
+[![Crates.io](https://img.shields.io/crates/v/spider.svg)](https://crates.io/crates/spider)
+[![Downloads](https://img.shields.io/crates/d/spider.svg)](https://crates.io/crates/spider)
+[![Documentation](https://docs.rs/spider/badge.svg)](https://docs.rs/spider)
+
+[Website](https://spider.cloud) |
+[Guides](https://spider.cloud/guides) |
+[API](https://docs.rs/spider/latest/spider) |
+[Examples](./examples/) |
+[Discord](https://discord.spider.cloud)
+
+The fastest web crawler and scraper for Rust.
+
+## Quick Start
+
+```toml
+[dependencies]
+spider = { version = "2", features = ["spider_cloud"] }
+```
+
+```rust
+use spider::{
+    configuration::{SpiderCloudConfig, SpiderCloudMode, SpiderCloudReturnFormat},
+    tokio, // re-export
+    website::Website,
+};
+
+#[tokio::main]
+async fn main() {
+    // Get your API key free at https://spider.cloud
+    let config = SpiderCloudConfig::new("YOUR_API_KEY")
+        .with_mode(SpiderCloudMode::Smart)
+        .with_return_format(SpiderCloudReturnFormat::Markdown);
+
+    let mut website = Website::new("https://example.com")
+        .with_limit(10)
+        .with_spider_cloud_config(config)
+        .build()
+        .unwrap();
+
+    let mut rx = website.subscribe(16);
+
+    tokio::spawn(async move {
+        while let Ok(page) = rx.recv().await {
+            let url = page.get_url();
+            let markdown = page.get_content();
+            let status = page.status_code;
+
+            println!("[{status}] {url}\n---\n{markdown}\n");
+        }
+    });
+
+    website.crawl().await;
+    website.unsubscribe();
+}
+```
+
+Also supports [headless Chrome](./examples/chrome.rs), [WebDriver](./examples/webdriver.rs), and [AI automation](./spider_agent/).
+
+## Install
+
+| Package | Command |
+|---------|---------|
+| [spider](https://crates.io/crates/spider) | `cargo add spider` |
+| [spider_cli](./spider_cli/) | `cargo install spider_cli` |
+| [spider-nodejs](https://github.com/spider-rs/spider-nodejs) | `npm i @spider-rs/spider-rs` |
+| [spider-py](https://github.com/spider-rs/spider-py) | `pip install spider_rs` |
+| [Spider Cloud](https://spider.cloud) | Managed crawling — free credits on signup |
+
+## License
+
+[MIT](LICENSE)
+
+================
+File: release.sh
+================
+#!/bin/sh
+set -e
+
+# ── Extract version from spider/Cargo.toml (the source of truth) ──
+VERSION=$(grep '^version' spider/Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+if [ -z "$VERSION" ]; then
+  echo "ERROR: could not read version from spider/Cargo.toml"
+  exit 1
+fi
+echo "Publishing workspace at v${VERSION}"
+
+# ── Sync internal cross-crate dependency versions ──
+# spider_agent_html depends on spider_agent_types
+sed -i.bak "s/spider_agent_types = { version = \"[^\"]*\"/spider_agent_types = { version = \"${VERSION}\"/" spider_agent_html/Cargo.toml
+# spider_agent depends on spider_agent_types and spider_agent_html
+sed -i.bak "s/spider_agent_types = { version = \"[^\"]*\"/spider_agent_types = { version = \"${VERSION}\"/" spider_agent/Cargo.toml
+sed -i.bak "s/spider_agent_html = { version = \"[^\"]*\"/spider_agent_html = { version = \"${VERSION}\"/" spider_agent/Cargo.toml
+# Clean up sed backup files
+rm -f spider_agent_html/Cargo.toml.bak spider_agent/Cargo.toml.bak
+
+echo "Internal deps synced to v${VERSION}"
+
+# ── Commit + push the sync before publishing ──
+# `cargo publish` (without --no-verify) refuses to package a crate whose
+# Cargo.toml has uncommitted changes. Stage only the two files we just
+# sed'd so unrelated working-tree changes don't get pulled into the sync
+# commit.
+if ! git diff --quiet -- spider_agent_html/Cargo.toml spider_agent/Cargo.toml; then
+  git add spider_agent_html/Cargo.toml spider_agent/Cargo.toml
+  git commit -m "chore(release): sync internal cross-crate deps to v${VERSION}"
+  git push
+fi
+
+# ── Publish in dependency order ──
+cd spider_agent_types && cargo publish; cd ../
+cd spider_agent_html && cargo publish; cd ../
+cd spider_agent && cargo publish; cd ../
+cd spider && cargo publish --no-verify; cd ../
+cd spider_cli && cargo publish --no-verify; cd ../
+cd spider_utils && cargo publish --no-verify; cd ../
+cd spider_worker && cargo publish --no-verify; cd ../
+cd spider_mcp && cargo publish --no-verify; cd ../
+
+git push
+
+================
+File: SECURITY.md
+================
+# Security Policy
+
+## Reporting a Vulnerability
+
+If you discover a security vulnerability in Spider, please report it responsibly.
+
+**Email:** [security@spider.cloud](mailto:security@spider.cloud)
+
+Please include:
+
+- Description of the vulnerability
+- Steps to reproduce
+- Affected versions
+- Any potential impact
+
+We will acknowledge your report within 48 hours and aim to release a fix within 7 days for critical issues.
+
+## Scope
+
+This policy covers the `spider`, `spider_agent`, `spider_cli`, `spider_utils`, `spider_worker`, and related crates in this repository.
+
+## Supported Versions
+
+Security fixes are applied to the latest release only. We recommend always using the most recent version.

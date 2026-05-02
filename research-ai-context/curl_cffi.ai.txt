@@ -1,0 +1,1734 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+.githooks/
+  pre-commit
+.github/
+  ISSUE_TEMPLATE/
+    bug_report.md
+    feature_request.md
+    fingerprint_report.md
+    question.md
+  workflows/
+    build-and-test.yaml
+    pr-checklist.yaml
+    release.yaml
+    test-pro.yaml
+  pull_request_template.md
+assets/
+  hypersolutions.png
+  scrapfly.png
+  thordata.png
+  yescaptcha.png
+benchmark/
+  benchmark.py
+  hardware.txt
+  multiple_workers.csv
+  README.md
+  requirements.txt
+  server.py
+  single_worker.csv
+  ws_bench_1_client.py
+  ws_bench_1_server.py
+  ws_bench_2.py
+  ws_bench_utils.py
+curl_cffi/
+  cli/
+    __init__.py
+    doctor.py
+    output.py
+    parse.py
+    pro.py
+    request.py
+    run.py
+  requests/
+    __init__.py
+    cookies.py
+    errors.py
+    exceptions.py
+    headers.py
+    impersonate.py
+    models.py
+    session.py
+    utils.py
+    websockets.py
+  __init__.py
+  __main__.py
+  __version__.py
+  _asyncio_selector.py
+  aio.py
+  const.py
+  curl.py
+  fingerprints.py
+  py.typed
+  utils.py
+docs/
+  cli/
+    _index.rst
+    doctor.rst
+    options.rst
+    pro.rst
+    request_params.rst
+    run.rst
+    vs_others.rst
+  impersonate/
+    _index.rst
+    customize.rst
+    faq.rst
+    fingerprint.rst
+    ja4.rst
+    psk.rst
+    targets.rst
+  advanced.rst
+  api.rst
+  asyncio.rst
+  changelog.rst
+  community.rst
+  conf.py
+  cookies.rst
+  dev.rst
+  faq.rst
+  fingerprints.rst
+  index.rst
+  make.bat
+  Makefile
+  quick_start.rst
+  requirements.txt
+  security.rst
+  vs-requests.rst
+  websockets.rst
+examples/
+  websockets/
+    long_running_async.py
+    long_running.py
+    short_running.py
+    simple_echo_async.py
+    simple_hft_async.py
+    simple_sub_async.py
+  async_session.py
+  curl_like.py
+  custom_response_class.py
+  impersonate.py
+  requests_like.py
+  scrapy_integration.py
+  stream.py
+  upload.py
+ffi/
+  cdef.c
+  shim.c
+  shim.h
+scripts/
+  build.py
+  bump_version.sh
+  check_preset.py
+  download_curl.sh
+  generate_consts.py
+  homebrew.py
+skills/
+  imp-fetch/
+    SKILL.md
+tests/
+  integration/
+    test_fingerprints.py
+    test_httpbin.py
+    test_real_world.py
+    test_response_class.py
+  pro/
+    conftest.py
+    test_fp_verify.py
+    test_pro.py
+  threads/
+    test_eventlet.py
+    test_gevent.py
+  unittest/
+    cli/
+      test_doctor.py
+      test_output.py
+      test_parse.py
+      test_pro_command.py
+      test_request.py
+      test_run.py
+    conftest.py
+    test_async_session.py
+    test_async_websockets.py
+    test_async.py
+    test_cookies.py
+    test_curl.py
+    test_fingerprint_application.py
+    test_fingerprints.py
+    test_headers.py
+    test_impersonate.py
+    test_requests.py
+    test_smoke.py
+    test_upload.py
+    test_websockets.py
+.gitignore
+.readthedocs.yaml
+AGENTS.md
+FUNDING.yml
+LICENSE
+Makefile
+MANIFEST.in
+pyproject.toml
+README.md
+setup.py
+
+================================================================
+Files
+================================================================
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: tests/unittest/test_impersonate.py
+================
+sent_frames = response_json["http2"]["sent_frames"]
+⋮----
+required_suffix = f" containing {required_key!r}" if required_key else ""
+⋮----
+def test_impersonate_with_version(server)
+⋮----
+# the test server does not understand http/2
+r = requests.get(
+⋮----
+def test_impersonate_with_version_v1_1_string(server)
+⋮----
+r = requests.get(str(server.url), impersonate="chrome120", http_version="v1")
+⋮----
+def test_impersonate_without_version(server)
+⋮----
+def test_impersonate_non_exist(server)
+⋮----
+# TODO: implement local ja3/akamai verification server with th1.
+⋮----
+@pytest.mark.skip(reason="warning is used")
+def test_costomized_no_impersonate_coexist(server)
+⋮----
+@pytest.mark.skip(reason="website is down")
+def test_customized_ja3_chrome126()
+⋮----
+url = "https://tls.browserleaks.com/json"
+ja3 = (
+r = requests.get(url, ja3=ja3).json()
+⋮----
+@pytest.mark.skip(reason="not working")
+def test_customized_ja3_tls_version()
+⋮----
+@pytest.mark.skip(reason="website is down")
+def test_customized_ja3_ciphers()
+⋮----
+# TODO: change to parameterized test
+⋮----
+@pytest.mark.skip(reason="website is down")
+def test_customized_ja3_extensions()
+⋮----
+# removed enable session_ticket()
+⋮----
+# new alps code point
+⋮----
+@pytest.mark.skip(reason="website is down")
+def test_customized_ja3_curves()
+⋮----
+@pytest.mark.skip(reason="website is down")
+def test_customized_akamai_chrome126()
+⋮----
+akamai = "1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p"
+r = requests.get(url, akamai=akamai).json()
+⋮----
+@pytest.mark.skip(reason="website is down")
+def test_customized_akamai_safari()
+⋮----
+akamai = "2:0;4:4194304;3:100|10485760|0|m,s,p,a"
+⋮----
+# test_peet.impersonate.pro_settings
+r = requests.get(url, akamai=akamai.replace(";", ",")).json()
+⋮----
+@pytest.mark.skip(reason="Unstable API")
+def test_customized_extra_fp_sig_hash_algs()
+⋮----
+url = "https://peet.impersonate.pro/api/all"
+safari_algs = [
+fp = requests.ExtraFingerprints(tls_signature_algorithms=safari_algs)
+r = requests.get(url, extra_fp=fp).json()
+result_algs = []
+⋮----
+result_algs = ex["signature_algorithms"]
+⋮----
+@pytest.mark.skip(reason="Unstable API")
+def test_customized_extra_fp_tls_min_version()
+⋮----
+safari_min_version = CurlSslVersion.TLSv1_0
+fp = requests.ExtraFingerprints(tls_min_version=safari_min_version)
+⋮----
+# TLS 1.0 1.1, 1.2, 1.3
+⋮----
+@pytest.mark.skip(reason="Unstable API")
+def test_customized_extra_fp_grease()
+⋮----
+fp = requests.ExtraFingerprints(tls_grease=True)
+⋮----
+@pytest.mark.skip(reason="website is down")
+def test_customized_extra_fp_permute()
+⋮----
+@pytest.mark.skip(reason="Unstable API")
+def test_customized_extra_fp_cert_compression()
+⋮----
+fp = requests.ExtraFingerprints(tls_cert_compression="zlib")
+⋮----
+result_algs = ex["algorithms"]
+⋮----
+@pytest.mark.skip(reason="Unstable API")
+def test_customized_extra_fp_stream_weight()
+⋮----
+fp = requests.ExtraFingerprints(http2_stream_weight=64)
+⋮----
+headers_frame = _find_http2_frame(r, frame_type="HEADERS", required_key="priority")
+⋮----
+@pytest.mark.skip(reason="Unstable API")
+def test_customized_extra_fp_stream_exclusive()
+⋮----
+fp = requests.ExtraFingerprints(http2_stream_exclusive=0)
+
+================
+File: tests/unittest/test_requests.py
+================
+def test_head(server)
+⋮----
+r = requests.head(str(server.url))
+⋮----
+def test_get(server)
+⋮----
+r = requests.get(str(server.url))
+⋮----
+def test_direct_import(server)
+⋮----
+r = curl_cffi.get(str(server.url))
+⋮----
+def test_post_dict(server)
+⋮----
+r = requests.post(str(server.url.copy_with(path="/echo_body")), data={"foo": "bar"})
+⋮----
+def test_response_request_body(server)
+⋮----
+r = requests.post(str(server.url.copy_with(path="/echo_body")), json={"foo": "bar"})
+⋮----
+def test_callback(server)
+⋮----
+buffer = BytesIO()
+r = requests.post(
+⋮----
+def test_post_large_body(server)
+⋮----
+bar = "a" * 100000
+r = requests.post(str(server.url.copy_with(path="/echo_body")), json={"foo": bar})
+⋮----
+def test_post_str(server)
+⋮----
+def test_post_no_body(server)
+⋮----
+r = requests.post(str(server.url), headers={"Content-Type": "application/json"})
+⋮----
+r = requests.post(str(server.url), headers={"Content-Length": "0"})
+⋮----
+def test_post_json(server)
+⋮----
+r = requests.post(str(server.url.copy_with(path="/echo_body")), json={})
+⋮----
+def test_post_form(server)
+⋮----
+data = [("foo", 7), ("foo", 8), ("bar", 9)]
+r = requests.post(str(server.url.copy_with(path="/echo_body")), data=data)
+⋮----
+data = [("foo[]", 7), ("foo[]", 8), ("bar", 9)]
+⋮----
+def test_post_redirect_to_get(server)
+⋮----
+url = str(server.url.copy_with(path="/redirect_then_echo_headers"))
+r = requests.post(url, data={"foo": "bar"}, allow_redirects=True, debug=True)
+headers = r.json()
+# print(headers)
+⋮----
+def test_put_json(server)
+⋮----
+r = requests.put(str(server.url.copy_with(path="/echo_body")), json={"foo": "bar"})
+⋮----
+def test_delete(server)
+⋮----
+r = requests.delete(str(server.url.copy_with(path="/echo_body")))
+⋮----
+def test_non_post_with_bodies(server)
+⋮----
+r = requests.get(str(server.url.copy_with(path="/echo_path")), data="foo")
+⋮----
+r = requests.put(str(server.url.copy_with(path="/echo_path")), data="foo")
+⋮----
+r = requests.delete(str(server.url.copy_with(path="/echo_path")), data="foo")
+⋮----
+def test_options(server)
+⋮----
+r = requests.options(str(server.url.copy_with(path="/echo_body")))
+⋮----
+def test_params(server)
+⋮----
+r = requests.get(
+⋮----
+def test_update_params(server)
+⋮----
+# The param is new, just append it
+⋮----
+# The old param is already multiple, append it, too
+⋮----
+# 1 to 1 mapping, we have to update it.
+⋮----
+# does not break old ones
+⋮----
+# empty values should be kept
+⋮----
+def test_url_encode(server)
+⋮----
+# https://github.com/lexiforest/curl_cffi/issues/394
+⋮----
+# FIXME: should use server.url, but it always encode
+⋮----
+# should not change
+url = "http://127.0.0.1:8008/%2f%2f%2f"
+r = requests.get(url)
+⋮----
+url = "http://127.0.0.1:8008/imaginary-pagination:7"
+r = requests.get(str(url))
+⋮----
+url = "http://127.0.0.1:8008/post.json?limit=1&tags=foo&page=0"
+⋮----
+# Non-ASCII URL should be percent encoded as UTF-8 sequence
+non_ascii_url = "http://127.0.0.1:8008/search?q=测试"
+encoded_non_ascii_url = "http://127.0.0.1:8008/search?q=%E6%B5%8B%E8%AF%95"
+⋮----
+r = requests.get(non_ascii_url)
+⋮----
+r = requests.get(encoded_non_ascii_url)
+⋮----
+# should be quoted
+url = "http://127.0.0.1:8008/e x a m p l e"
+quoted = "http://127.0.0.1:8008/e%20x%20a%20m%20p%20l%20e"
+⋮----
+# I have seen discussions that ask how to prevent requests from quoting unwanted
+# parts, like `:`. So, let's make it explicit that you want to quote some chars.
+#
+# See:
+# 1. https://stackoverflow.com/q/57365497/1061155
+# 2. https://stackoverflow.com/q/23496750/1061155
+⋮----
+quoted = "http://127.0.0.1:8008/imaginary-pagination%3A7"
+r = requests.get(url, quote=":")
+⋮----
+url = "http://127.0.0.1:8008/post.json?limit=1&tags=id:<1000&page=0"
+quoted = "http://127.0.0.1:8008/post.json?limit=1&tags=id%3A%3C1000&page=0"
+⋮----
+# Do not quote at all
+url = "http://127.0.0.1:8008/query={}"
+quoted = "http://127.0.0.1:8008/query=%7B%7D"
+⋮----
+r = requests.get(url, quote=False)
+⋮----
+# Do not unquote
+url = "http://127.0.0.1:8008/path?token=example%7C2024-10-20T10%3A00%3A00Z"
+⋮----
+url = "http://127.0.0.1:8008/api?param1=value1&param2=&param3=value3"
+⋮----
+# path should not be unquoted when params supplied
+url = "http://127.0.0.1:8008/anything/%2F%3Dsilly%3D%2F"
+⋮----
+params = {"foo": "bar"}
+r = requests.get(url, params=params)
+⋮----
+def test_headers(server)
+⋮----
+def test_empty_header_included(server)
+⋮----
+def test_explict_remove_header(server)
+⋮----
+def test_expect_header_omitted(server)
+⋮----
+def test_accept_header_not_added(server)
+⋮----
+r = requests.get(str(server.url.copy_with(path="/echo_headers")))
+⋮----
+def test_charset_parse(server)
+⋮----
+r = requests.get(str(server.url.copy_with(path="/gbk")))
+⋮----
+def test_charset_default_encoding(server)
+⋮----
+def test_charset_default_encoding_autodetect(server)
+⋮----
+def autodetect(content)
+⋮----
+def test_content_type_header_with_json(server)
+⋮----
+# FIXME: this actually does not work, because the test server uvicorn will merge
+# Content-Type headers, so it always works even if there is duplicate headers.
+⋮----
+def test_cookies(server)
+⋮----
+cookies = r.json()
+⋮----
+def test_cookies_update_disabled(server)
+⋮----
+s = requests.Session()
+⋮----
+set_url = str(server.url.copy_with(path="/unique_cookie"))
+⋮----
+r = s.get(set_url)
+⋮----
+old_cookie = r.cookies["foo"]
+⋮----
+# Let's start discarding cookies
+⋮----
+# The behavior can be reverted
+⋮----
+# Also works as request parameter
+r = s.get(set_url, discard_cookies=True)
+⋮----
+def test_secure_cookies(server)
+⋮----
+def test_auth(server)
+⋮----
+def test_timeout(server)
+⋮----
+def test_session_timeout(server)
+⋮----
+def test_session_retry(server)
+⋮----
+fail_key = uuid4().hex
+fail_url = str(
+with pytest.raises(HTTPError):  # noqa: SIM117
+⋮----
+retry_key = uuid4().hex
+retry_url = str(
+⋮----
+r = s.get(retry_url)
+⋮----
+def test_post_timeout(server)
+⋮----
+def test_not_follow_redirects(server)
+⋮----
+def test_follow_redirects(server)
+⋮----
+def test_too_many_redirects(server)
+⋮----
+def test_safe_redirect_blocks_private_ip(server)
+⋮----
+"""CurlFollow.SAFE should reject redirects to private/loopback IPs."""
+target = str(server.url.copy_with(path="/"))
+url = str(server.url.copy_with(path="/redirect_to")) + f"?to={target}"
+r = requests.get(url, allow_redirects=True)
+⋮----
+url = str(server.url.copy_with(path="/redirect_to")) + "?to=http://10.0.0.1/"
+⋮----
+def test_safe_redirect_string(server)
+⋮----
+"""The string 'safe' should behave the same as CurlFollow.SAFE."""
+⋮----
+def test_verify(https_server)
+⋮----
+def test_verify_false(https_server)
+⋮----
+r = requests.get(str(https_server.url), verify=False)
+⋮----
+def test_verify_false_skips_cainfo(https_server, tmp_path)
+⋮----
+cacert_path = tmp_path / "custom_ca.pem"
+⋮----
+curl = Curl(cacert=str(cacert_path))
+⋮----
+r = s.get(str(https_server.url))
+⋮----
+def test_referer(server)
+⋮----
+#######################################################################################
+# testing response
+⋮----
+def test_redirect_url(server)
+⋮----
+def test_response_headers(server)
+⋮----
+r = requests.get(str(server.url.copy_with(path="/set_headers")))
+⋮----
+def test_response_cookies(server)
+⋮----
+s = requests.Session(cookies={"old": "bar"})
+r = s.get(str(server.url.copy_with(path="/set_cookies")))
+⋮----
+# set-cookies from response
+⋮----
+# session cookies not in response object
+⋮----
+# non-exist cookies
+⋮----
+def test_elapsed(server)
+⋮----
+r = requests.get(str(server.url.copy_with(path="/slow_response")))
+⋮----
+def test_reason(server)
+⋮----
+def test_raise_for_status(server)
+⋮----
+r = requests.get(str(server.url.copy_with(path="/status/400")))
+⋮----
+assert e.response.status_code == 400  # type: ignore
+⋮----
+# testing session
+⋮----
+def test_session_explicitly(server)
+⋮----
+r = s.get(str(server.url))
+⋮----
+def test_session_options(server)
+⋮----
+r = s.options(str(server.url))
+⋮----
+def test_session_base_url(server)
+⋮----
+s = requests.Session(
+⋮----
+# target path is empty
+r = s.get("")
+⋮----
+# target path only has params
+r = s.get("", params={"hello": "world"})
+⋮----
+# target path is a relative path without starting /
+r = s.get("x")
+⋮----
+r = s.get("x", params={"hello": "world"})
+⋮----
+# target path is a relative path with starting /
+r = s.get("/x")
+⋮----
+r = s.get("/x", params={"hello": "world"})
+⋮----
+# target path is an absolute url
+r = s.get(str(server.url.copy_with(path="/x/y")))
+⋮----
+def test_session_update_parms(server)
+⋮----
+s = requests.Session(params={"old": "day"})
+r = s.get(str(server.url.copy_with(path="/echo_params")), params={"foo": "bar"})
+⋮----
+def test_session_preset_cookies(server)
+⋮----
+s = requests.Session(cookies={"foo": "bar"})
+# send requests with other cookies
+r = s.get(
+⋮----
+# old cookies should be persisted
+⋮----
+# new cookies should be added
+⋮----
+# XXX: request cookies will always be added to the entire session
+# request cookies should not be added to session cookiejar
+# assert s.cookies.get("hello") is None
+⋮----
+# but you can override
+⋮----
+def test_delete_cookies(server)
+⋮----
+def test_cookie_domains(server)
+⋮----
+# only specific domains should be there
+⋮----
+def test_session_cookies(server)
+⋮----
+# let the server set cookies
+⋮----
+def test_cookies_after_redirect(server)
+⋮----
+s = requests.Session(debug=True)
+⋮----
+def test_cookies_with_special_chars(server)
+⋮----
+r = s.get(str(server.url.copy_with(path="/set_special_cookies")))
+⋮----
+r = s.get(str(server.url.copy_with(path="/echo_cookies")))
+⋮----
+# https://github.com/lexiforest/curl_cffi/issues/119
+def test_cookies_mislead_by_host(server)
+⋮----
+# TODO: replace hard-coded url with server.url.replace(host="example.com")
+r = s.get("http://example.com:8008", headers={"Host": "example.com"})
+⋮----
+def test_cookies_redirect_to_another_domain(server)
+⋮----
+def test_cookies_wo_hostname_redirect_to_another_domain(server)
+⋮----
+# str(server.url.copy_with(path="/redirect_to")),
+⋮----
+# cookies without domains are bound to the first domain, which is example.com in
+# this case.
+⋮----
+# https://github.com/lexiforest/curl_cffi/issues/39
+def test_post_body_cleaned(server)
+⋮----
+# POST with body
+r = s.post(str(server.url), json={"foo": "bar"})
+# GET request with echo_body
+⋮----
+r = s.get(str(server.url.copy_with(path="/echo_body")))
+# ensure body is empty
+⋮----
+# https://github.com/lexiforest/curl_cffi/issues/16
+def test_session_with_headers(server)
+⋮----
+r = s.get(str(server.url), headers={"Foo": "bar"})
+r = s.get(str(server.url), headers={"Foo": "baz"})
+⋮----
+# https://github.com/lexiforest/curl_cffi/pull/171
+def test_session_with_hostname_proxies(server, proxy_server)
+⋮----
+proxies = {
+s = requests.Session(proxies=proxies)
+url = str(server.url.copy_with(path="/echo_headers"))
+r = s.get(url)
+⋮----
+def test_session_with_http_proxies(server, proxy_server)
+⋮----
+def test_session_with_all_proxies(server, proxy_server)
+⋮----
+proxies = {"all": f"http://{proxy_server.flags.hostname}:{proxy_server.flags.port}"}
+⋮----
+# https://github.com/lexiforest/curl_cffi/issues/222
+def test_closed_session_throws_error()
+⋮----
+def test_stream_iter_content(server)
+⋮----
+url = str(server.url.copy_with(path="/stream"))
+⋮----
+def test_stream_iter_content_break(server)
+⋮----
+def test_stream_iter_lines(server)
+⋮----
+data = json.loads(chunk)
+⋮----
+def test_stream_status_code(server)
+⋮----
+def test_stream_empty_body(server)
+⋮----
+url = str(server.url.copy_with(path="/empty_body"))
+⋮----
+# def test_stream_large_body(server):
+#     with requests.Session() as s:
+#         url = str(server.url.copy_with(path="/stream"))
+#         with s.stream("GET", url, params={"n": "100000"}) as r:
+#             for chunk in r.iter_lines():
+#                 data = json.loads(chunk)
+#                 assert data["path"] == "/stream"
+#                 # print(data["path"])
+#             assert r.status_code == 200
+⋮----
+def test_stream_incomplete_read(server)
+⋮----
+url = str(server.url.copy_with(path="/incomplete_read"))
+with pytest.raises(requests.RequestsError) as e:  # noqa: SIM117
+⋮----
+def test_stream_incomplete_read_without_close(server)
+⋮----
+r = s.get(url, stream=True)
+⋮----
+# The error will only be raised when you try to read it.
+⋮----
+def test_stream_redirect_loop(server)
+⋮----
+url = str(server.url.copy_with(path="/redirect_loop"))
+⋮----
+def test_stream_redirect_loop_without_close(server)
+⋮----
+# if the error happens receiving header, it's raised right away
+⋮----
+def test_stream_auto_close_plain(server)
+⋮----
+url = str(server.url.copy_with(path="/"))
+⋮----
+def test_stream_auto_close_with_content_errors(server)
+⋮----
+# Silently fails, since the content is not read at all.
+⋮----
+def test_stream_auto_close_with_header_errors(server)
+⋮----
+def test_stream_options_persist(server)
+⋮----
+# set here instead of when requesting
+⋮----
+buffer = []
+⋮----
+data = json.loads(b"".join(buffer))
+⋮----
+@pytest.mark.skip(reason="External url unstable")
+def test_stream_close_early(server)
+⋮----
+# url = str(server.url.copy_with(path="/large"))
+# from http://xcal1.vodafone.co.uk/
+url = "http://212.183.159.230/200MB.zip"
+r = s.get(url, max_recv_speed=1024 * 1024, stream=True)
+start = time.time()
+⋮----
+end = time.time()
+⋮----
+@pytest.mark.skip(reason="External url unstable")
+def test_max_recv_speed(server)
+⋮----
+url = str(server.url.copy_with(path="/large"))
+⋮----
+r = s.get(url, max_recv_speed=10 * 1024 * 1024)  # noqa F841
+⋮----
+# assert len(r.content) == 20 * 1024 * 1024
+⋮----
+def test_curl_infos(server)
+⋮----
+s = requests.Session(curl_infos=[CurlInfo.PRIMARY_IP, CurlInfo.PRIMARY_PORT])
+⋮----
+assert r.infos[CurlInfo.PRIMARY_IP] == b"127.0.0.1"  # pyright: ignore
+⋮----
+def test_response_ip_and_port(server)
+⋮----
+def test_http_version(server)
+⋮----
+r = requests.get(str(server.url), http_version="v1")
+⋮----
+def test_session_auto_raise_for_status_enabled(server)
+⋮----
+"""Test that Session automatically raises HTTPError for error status codes
+    when raise_for_status=True"""
+s = requests.Session(raise_for_status=True)
+⋮----
+assert e.response.status_code == 404  # type: ignore
+⋮----
+def test_session_auto_raise_for_status_disabled(server)
+⋮----
+"""Test that Session does NOT raise HTTPError when raise_for_status=False
+    (default)"""
+s = requests.Session(raise_for_status=False)
+r = s.get(str(server.url.copy_with(path="/status/404")))
+⋮----
+# Should not raise an exception
+
+================
+File: tests/unittest/test_smoke.py
+================
+# Simple smoke test to real world websites
+⋮----
+URLS = [
+⋮----
+def test_without_impersonate()
+⋮----
+r = requests.get(url)
+⋮----
+def test_with_impersonate()
+⋮----
+r = requests.get(url, impersonate="chrome")
+⋮----
+async def test_async()
+⋮----
+r = await s.get(url)
+
+================
+File: tests/unittest/test_upload.py
+================
+ASSET_FOLDER = Path(__file__).parent.parent.parent / "assets"
+⋮----
+def test_upload_single_file(file_server)
+⋮----
+multipart = CurlMime.from_list(
+⋮----
+r = requests.post(file_server.url + "/file", multipart=multipart)
+data = r.json()
+⋮----
+def test_upload_with_text_fields(file_server)
+⋮----
+r = requests.post(
+⋮----
+def test_upload_multiple_files(file_server)
+⋮----
+r = requests.post(file_server.url + "/files", multipart=multipart)
+⋮----
+def test_upload_multiple_files_different_name(file_server)
+⋮----
+r = requests.post(file_server.url + "/two-files", multipart=multipart)
+
+================
+File: tests/unittest/test_websockets.py
+================
+def test_websocket(ws_server)
+⋮----
+ws = WebSocket()
+⋮----
+# deprecated
+⋮----
+def test_hello(ws_server)
+⋮----
+ws = s.ws_connect(ws_server.url)
+⋮----
+def test_hello_twice(ws_server)
+⋮----
+reply = ws.recv_str()
+⋮----
+def test_receive_large_messages(ws_server)
+⋮----
+def test_receive_large_messages_run_forever(ws_server)
+⋮----
+def on_open(ws: WebSocket)
+⋮----
+chunk_counter = 0
+⋮----
+def on_data(ws: WebSocket, data, frame)
+⋮----
+message = ""
+⋮----
+def on_message(ws: WebSocket, msg)
+⋮----
+message = msg
+# Gracefully close the connection to exit the run_forever loop
+⋮----
+ws = WebSocket(
+⋮----
+def test_on_data_callback(ws_server)
+⋮----
+on_data_called = False
+⋮----
+on_data_called = True
+⋮----
+ws = WebSocket(on_data=on_data)
+⋮----
+async def test_hello_twice_async(ws_server)
+⋮----
+reply = await ws.recv_str()
+
+================
+File: .gitignore
+================
+.idea
+.pytest_cache
+Release
+*.pyc
+*.pyd
+*.so
+*.o
+**/__pycache__
+.venv
+
+build/
+dist/
+wheelhouse/
+curl.egg-info/
+curl_cffi.egg-info/
+# curl_cffi/const.py
+curl-*/
+*.tar.xz
+*.tar.gz
+.preprocessed
+include/
+.DS_Store
+
+.mypy_cache/
+.ruff_cache/
+.aider*
+docs/_build/
+.claude
+uv.lock
+
+================
+File: .readthedocs.yaml
+================
+# Required
+version: 2
+
+# Set the OS, Python version and other tools you might need
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.11"
+  apt_packages:
+    - build-essential
+    - libtool
+  jobs:
+    pre_install:
+      - make preprocess
+      - python -m pip install -e .
+
+# Optionally declare the Python requirements required to build your docs
+python:
+   install:
+   - requirements: docs/requirements.txt
+
+sphinx:
+  configuration: docs/conf.py
+
+formats:
+  - pdf
+  - epub
+
+================
+File: AGENTS.md
+================
+# Repository Guidelines
+
+This is the curl_cffi project, a python binding to curl-impersonate. The project is based
+on cffi for interfacing between python and libcurl.
+
+## Project Structure & Module Organization
+
+`curl_cffi/` contains the Python package, including the low-level bindings in `curl.py` and the higher-level `requests/` API. Tests live under `tests/` and are split by scope: `tests/unittest/`, `tests/integration/`, and `tests/threads/`. Supporting material is kept in `docs/` (Sphinx docs), `examples/`, `benchmark/`, `scripts/`, `ffi/`, and `assets/`.
+
+`curl_cffi/cli` contains the CLI implementation.
+
+## Build, Test, and Development Commands
+
+Install editable dependencies with `pip install -e .[test]` and `pip install -e .[dev]`. Use `make preprocess` before source builds; it fetches and patches the bundled libcurl headers. Common commands:
+
+- `make test` runs the unit suite (`python -bb -m pytest tests/unittest`).
+- `python -m pytest tests/integration` runs integration coverage separately.
+- `make lint` runs `ruff check --exclude issues`.
+- `ruff format --exclude issues` formats Python files.
+- `make build` preprocesses and builds a wheel into `dist/`.
+
+## Coding Style & Naming Conventions
+
+Target Python 3.10+ and follow existing Python conventions: 4-space indentation, `snake_case` for functions/modules, `CapWords` for classes, and concise docstrings/comments only where they clarify non-obvious logic. Keep line length at 88 characters to match Ruff. Prefer small, focused changes in `curl_cffi/` and keep public API names consistent with the existing `requests`-style surface.
+
+## Testing Guidelines
+
+Pytest is the test runner; async coverage uses `pytest-asyncio` and `pytest-trio`. Add or update tests with every behavior change. Name files `test_*.py` and mirror the affected module or feature, for example `tests/unittest/test_websockets.py`. Run the smallest relevant test target locally first, then `make test` before opening a PR.
+
+## Commit & Pull Request Guidelines
+
+Recent history favors short, imperative commit subjects, often with a type or scope prefix, for example `feat: add support for loongarch64` or `ws: fix BufferError crash`. Keep commits focused and easy to review. For pull requests, open from a branch other than `main`, enable "Allow edits by maintainers", describe the user-visible change, link related issues, and note platform-specific build or test impact when relevant.
+
+## Configuration Notes
+- `make preprocess` and `make build` download upstream sources; ensure network access is available.
+
+================
+File: FUNDING.yml
+================
+github: lexiforest
+buy_me_a_coffee: yifei
+
+================
+File: LICENSE
+================
+MIT License
+
+
+Copyright (c) 2018 multippt
+Copyright (c) 2022 curl_cffi developers
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================
+File: Makefile
+================
+.ONESHELL:
+SHELL := bash
+
+PYTHON ?= python3
+PIP ?= $(PYTHON) -m pip
+
+# this is the upstream libcurl-impersonate version
+VERSION := 1.5.5
+CURL_VERSION := curl-8_15_0
+
+ifeq ($(OS),Windows_NT)
+    CURRENT_USER := $(shell echo %USERNAME%)
+else
+    CURRENT_USER := $(shell whoami)
+endif
+
+$(CURL_VERSION):
+	curl -L https://github.com/curl/curl/archive/$(CURL_VERSION).zip -o curl.zip
+	unzip -q -o curl.zip
+	mv curl-$(CURL_VERSION) $(CURL_VERSION)
+
+curl-impersonate-$(VERSION)/patches: $(CURL_VERSION)
+	curl -L "https://github.com/lexiforest/curl-impersonate/archive/refs/tags/v$(VERSION).tar.gz" \
+		-o "curl-impersonate-$(VERSION).tar.gz"
+	tar -xf curl-impersonate-$(VERSION).tar.gz
+
+.preprocessed: curl-impersonate-$(VERSION)/patches
+	cd $(CURL_VERSION)
+	# for p in $</curl*.patch; do patch -p1 < ../$$p; done
+	patch -p1 < ../$</curl.patch
+	# Re-generate the configure script
+	autoreconf -fi
+	mkdir -p ../include/curl
+	cp -R include/curl/* ../include/curl/
+	# Sentinel files: https://tech.davis-hansson.com/p/make/
+	cd ..
+	touch .preprocessed
+
+local-curl: $(CURL_VERSION)
+	cp /usr/local/lib/libcurl-impersonate* /Users/$(CURRENT_USER)/work/_temp/install/lib/
+	cd $(CURL_VERSION)
+	for p in ../curl-impersonate/patches/curl*.patch; do patch -p1 < ../$$p; done
+	# Re-generate the configure script
+	autoreconf -fi
+	mkdir -p ../include/curl
+	cp -R include/curl/* ../include/curl/
+	# Sentinel files: https://tech.davis-hansson.com/p/make/
+	touch .preprocessed
+
+gen-const:
+	$(PYTHON) scripts/generate_consts.py $(CURL_VERSION)
+
+preprocess: .preprocessed
+	@echo generating patched libcurl header files
+
+install-editable:
+	$(PIP) install -e .
+
+build: .preprocessed
+	rm -rf dist/
+	$(PIP) install build
+	$(PYTHON) -m build --wheel
+
+lint:
+	uv run ruff check --exclude issues
+
+format:
+	uv run ruff format --exclude issues
+
+test:
+	$(PYTHON) -bb -m pytest tests/unittest
+
+clean:
+	rm -rf build/ dist/ curl_cffi.egg-info/ $(CURL_VERSION)/ curl-impersonate-$(VERSION)/
+	rm -rf curl_cffi/*.o curl_cffi/*.so curl_cffi/_wrapper.c
+	rm -rf .preprocessed $(CURL_VERSION).tar.xz curl-impersonate-$(VERSION).tar.gz
+	rm -rf include/
+
+.PHONY: clean build test install-editable preprocess gen-const
+
+================
+File: MANIFEST.in
+================
+recursive-include tests *
+
+include ffi/*
+include include/curl/*
+include scripts/build.py
+include Makefile
+include libs.json
+
+================
+File: pyproject.toml
+================
+[project]
+name = "curl_cffi"
+version = "0.15.1b1"
+authors = [{ name = "lexiforest", email = "infinitesheldon@gmail.com" }]
+description = "libcurl ffi bindings for Python, with impersonation support."
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = ["cffi>=2.0.0", "certifi>=2024.2.2"]
+readme = "README.md"
+requires-python = ">=3.10"
+urls = { "repository" = "https://github.com/lexiforest/curl_cffi" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Free Threading",
+]
+
+
+[project.optional-dependencies]
+extra = ["readability-lxml>=0.8.1", "markdownify>=1.1.0", "lxml_html_clean"]
+cli = ["rich"]
+dev = [
+    "charset_normalizer>=3.3.2,<4.0",
+    "coverage>=6.4.1,<7.0",
+    "cryptography>=46.0.4,<47.0",
+    "httpx==0.23.1",                  # don't change, tests will raise "httpx.InvalidURL: Invalid URL component 'path'"
+    "mypy>=1.9.0,<2.0",
+    "pytest>=8.1.1,<9.0",
+    "pytest-asyncio>=0.23.6,<1.0",
+    "pytest-trio>=0.8.0,<1.0",
+    "ruff>=0.3.5,<1.0",
+    "trio>=0.25.0,<1.0",
+    "trustme>=1.1.0,<2.0",
+    "uvicorn>=0.29.0,<1.0",
+    "websockets>=14.0",
+    "typing_extensions",
+]
+build = ["cibuildwheel", "wheel"]
+test = [
+    "charset_normalizer>=3.3.2,<4.0",
+    "cryptography>=46.0.4,<47.0",
+    "litestar>=2.19.0,<3.0",
+    "httpx==0.23.1",                  # don't change, tests will raise "httpx.InvalidURL: Invalid URL component 'path'"
+    "proxy.py>=2.4.3,<3.0",
+    "pytest>=8.1.1,<9.0",
+    "pytest-asyncio>=0.23.6,<1.0",
+    "pytest-trio>=0.8.0,<1.0",
+    "python-multipart>=0.0.9,<1.0",
+    "trio>=0.25.0,<1.0",
+    "trustme>=1.1.0,<2.0",
+    "uvicorn>=0.29.0,<1.0",
+    "websockets>=14.0",
+    "typing_extensions",
+]
+
+[project.scripts]
+curl-cffi = "curl_cffi.cli:main"
+
+[build-system]
+requires = ["wheel", "setuptools", "cffi>=2.0.0"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools]
+packages = ["curl_cffi", "curl_cffi.cli", "curl_cffi.requests"]
+package-data = { curl_cffi = ["libcurl.dll"] }
+
+
+[tool.cibuildwheel]
+# Building for these platforms is enough since we are using abi3 packages
+build = [
+    "cp310-macosx_x86_64",
+    "cp310-macosx_arm64",
+    "cp310-win_amd64",
+    "cp310-win_arm64",
+    "cp310-manylinux_x86_64",
+    "cp310-manylinux_aarch64",
+    "cp310-manylinux_riscv64",
+    "cp310-manylinux_i686",
+    "cp310-manylinux_armv7l",
+    "cp310-musllinux_x86_64",
+    "cp310-musllinux_aarch64",
+    # Free-threaded (PEP 703) wheels
+    "cp314t-macosx_x86_64",
+    "cp314t-macosx_arm64",
+    "cp314t-win_amd64",
+    "cp314t-win_arm64",
+    "cp314t-manylinux_x86_64",
+    "cp314t-manylinux_aarch64",
+    "cp314t-musllinux_x86_64",
+    "cp314t-musllinux_aarch64",
+]
+before-all = "make preprocess"
+test-requires = "pytest"
+test-command = "python -bb -m pytest {project}/tests/unittest"
+test-extras = ["test"]
+# trustme not available for these images
+test-skip = [
+    "cp310-manylinux_i686",
+    "cp310-win_arm64",
+    "cp314t-win_arm64",
+    "cp310-manylinux_armv7l",
+    "cp310-manylinux_riscv64",
+]
+build-verbosity = 1
+
+
+# configure cibuildwheel to build native archs ('auto'), and some emulated ones
+[tool.cibuildwheel.linux]
+archs = ["auto", "aarch64", "riscv64", "i686", "armv7l"]
+manylinux-x86_64-image = "manylinux2014"
+manylinux-aarch64-image = "manylinux2014"
+manylinux-i686-image = "manylinux2014"
+environment = { LD_LIBRARY_PATH = "$HOME/.local/lib" }
+environment-pass = ["LD_LIBRARY_PATH"]
+
+[tool.cibuildwheel.android]
+archs = ["arm64_v8a", "x86_64"]
+
+
+[tool.cibuildwheel.macos]
+before-all = "gmake preprocess"
+
+[tool.cibuildwheel.windows]
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair --add-path ./lib64;./lib32;./libarm64 -w {dest_dir} {wheel}"
+
+
+[tool.pytest.ini_options]
+# pythonpath = [ "." ]
+asyncio_mode = "auto"
+
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "UP007",
+    "UP045", # X | None
+]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+#warn_unused_ignores = true
+#strict = true
+exclude = ["benchmark/", "docs/", "examples/", "scripts/", "tests/", "build/"]
+
+================
+File: README.md
+================
+# curl_cffi
+
+[![PyPI Downloads](https://static.pepy.tech/badge/curl-cffi/week)](https://pepy.tech/projects/curl-cffi)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/curl_cffi)
+[![PyPI version](https://badge.fury.io/py/curl-cffi.svg)](https://badge.fury.io/py/curl-cffi)
+[![Generic badge](https://img.shields.io/badge/Telegram%20Channel-join-blue?logo=telegram)](https://t.me/impersonate_pro)
+[![Generic badge](https://img.shields.io/badge/Discord-join-purple?logo=blue)](https://discord.gg/kJqMHHgdn2)
+
+[Documentation](https://curl-cffi.readthedocs.io)
+
+Python binding for [curl-impersonate fork](https://github.com/lexiforest/curl-impersonate)
+via [cffi](https://cffi.readthedocs.io/en/latest/). For commercial support, visit [impersonate.pro](https://impersonate.pro).
+
+`curl_cffi` is the most popular Python binding for `curl`. Unlike other pure
+python http clients like `httpx` or `requests`, `curl_cffi` can impersonate
+browsers' TLS/JA3 and HTTP/2 fingerprints. If you are blocked by some
+website for no obvious reason, you can give `curl_cffi` a try.
+
+Python 3.10 is the minimum supported version since v0.14.
+
+## Recent highlights
+
+- 💨 http/3 fingerprints and UDP socks5 proxy support was added in `v0.15.0`!
+- 🦞 Added `curl-cffi` CLI and skills for debugging and for claws/agents.
+
+## Recall.ai - API for meeting recordings
+
+<a href="https://www.recall.ai/?utm_source=github&utm_medium=sponsorship&utm_campaign=lexiforest-curl_cffi" target="_blank"><img src="https://cdn.prod.website-files.com/620d732b1f1f7b244ac89f0e/66b294e51ee15f18dd2b171e_recall-logo.svg" alt="Recall.ai" height="47" width="149"></a>
+
+If you’re looking for a meeting recording API, consider checking out [Recall.ai](https://www.recall.ai/?utm_source=github&utm_medium=sponsorship&utm_campaign=lexiforest-curl_cffi), an API that records Zoom, Google Meet, Microsoft Teams, in-person meetings, and more.
+
+## Residential Proxies
+
+<a href="https://www.thordata.com/?ls=github&lk=curl_" target="_blank"><img src="https://raw.githubusercontent.com/lexiforest/curl_cffi/main/assets/thordata.png" alt="Thordata" height="126" width="240"></a>
+
+Thordata: A reliable and cost-effective proxy service provider. One-click collection of public network data, providing enterprises and developers with stable, efficient, and compliant global proxy IP services. Register for a free trial of [residential proxies](https://www.thordata.com/?ls=github&lk=curl_) and receive 2000 free SERP API calls.
+
+## Sponsors
+
+Maintenance of this project is made possible by all the <a href="https://github.com/lexiforest/curl_cffi/graphs/contributors">contributors</a> and <a href="https://github.com/sponsors/lexiforest">sponsors</a>. If you'd like to sponsor this project and have your avatar or company logo appear below <a href="https://github.com/sponsors/lexiforest">click here</a>. 💖
+
+------
+
+### Bypass Cloudflare with API
+
+<a href="https://yescaptcha.com/i/stfnIO" target="_blank"><img src="https://raw.githubusercontent.com/lexiforest/curl_cffi/main/assets/yescaptcha.png" alt="Yes Captcha!" height="47" width="149"></a>
+
+Yescaptcha is a proxy service that bypasses Cloudflare and uses the API interface to
+obtain verified cookies (e.g. `cf_clearance`). Click [here](https://yescaptcha.com/i/stfnIO)
+to register: <https://yescaptcha.com/i/stfnIO>
+
+------
+
+<a href="https://hypersolutions.co/?utm_source=github&utm_medium=readme&utm_campaign=curl_cffi" target="_blank"><img src="https://raw.githubusercontent.com/lexiforest/curl_cffi/main/assets/hypersolutions.png" height="47" width="149"></a>
+
+TLS fingerprinting alone isn't enough for modern bot protection. [Hyper Solutions](https://hypersolutions.co?utm_source=github&utm_medium=readme&utm_campaign=curl_cffi) provides the missing piece - API endpoints that generate valid antibot tokens for:
+
+Akamai • DataDome • Kasada • Incapsula
+
+No browser automation. Just simple API calls that return the exact cookies and headers these systems require.
+
+🚀 [Get Your API Key](https://hypersolutions.co?utm_source=github&utm_medium=readme&utm_campaign=curl_cffi) | 📖 [Docs](https://docs.justhyped.dev) | 💬 [Discord](https://discord.gg/akamai)
+
+------
+
+## Impersonate Suite
+
+`curl-cffi` is part of the impersonate suite.
+
+- [curl-impersonate](https://github.com/lexiforest/curl-impersonate). A curl distribution that impersonates browsers.
+- [curl_cffi](https://github.com/lexiforest/curl_cffi). Python binding to curl-impersonate.
+- [impers](https://github.com/lexiforest/impers). Node.js binding to curl-impersonate.
+- [impersonate.pro](https://impersonate.pro). Commercial support, more fingerprints and integrated solutions.
+
+## Features
+
+- Supports JA3/TLS and http2 fingerprints impersonation, including recent browsers and custom fingerprints.
+- Much faster than requests/httpx, on par with aiohttp/pycurl, see [benchmarks](https://github.com/lexiforest/curl_cffi/tree/main/benchmark).
+- Mimics the requests API, no need to learn another one.
+- Pre-compiled, so you don't have to compile on your machine.
+- Supports `asyncio` with proxy rotation on each request.
+- Supports http 2.0, which requests does not.
+- Supports http 3.0, with fingerprints and udp proxy.
+- Supports websocket.
+- MIT licensed.
+
+||requests|aiohttp|httpx|pycurl|curl_cffi|
+|---|---|---|---|---|---|
+|http/2|❌|❌|✅|✅|✅|
+|http/3|❌|❌|❌|☑️<sup>1</sup>|✅<sup>2</sup>|
+|sync|✅|❌|✅|✅|✅|
+|async|❌|✅|✅|❌|✅|
+|websocket|❌|✅|❌|❌|✅|
+|native retry|❌|❌|❌|❌|✅|
+|fingerprints|❌|❌|❌|❌|✅|
+|speed|🐇|🐇🐇|🐇|🐇🐇|🐇🐇|
+
+Notes:
+
+1. For pycurl, http/3 is usually disabled at compile time by default.
+2. http/3 support since v0.11.4, http/3 proxy and fingerprints since v0.15.0.
+
+### curl-cffi CLI(new)
+
+Since v0.15, `curl_cffi` comes with a CLI called `curl-cffi`, you can use it for debugging
+a certain url with the `--impersonate` option. It can also serve as a `web_fetch`
+replacement for "claws" and "agents".
+
+||curl|httpie|curl-cffi|
+|---|---|---|---|
+|http/2|✅|❌|✅|
+|http/3|☑️<sup>1</sup>|❌|✅|
+|human-friendly|☑️<sup>2</sup>|✅|✅|
+|colorful|❌|✅|✅<sup>3</sup>|
+|fingerprints|❌|❌|✅|
+
+Notes:
+
+1. You need an http/3 enabled curl build, it's not enabled by default, at leat on my machine.
+2. As a long time command line user, I personally feel very comfortable using `curl -X POST httpbin.org`, but some users may prefer `http GET httpbin.org` syntax. If you prefer the curl syntax, you can keep using `curl-impersonate`.
+3. Install `curl_cffi[cli]` for colorful CLI output. Without `rich`, the CLI uses plain text output.
+
+## Install
+
+    pip install curl_cffi --upgrade
+
+This should work on Linux, macOS and Windows out of the box.
+
+On macOS, you can also install via Homebrew:
+
+    brew install lexiforest/tap/curl-cffi
+
+<small>Android support, including Termux, is currently in beta, you can install the beta release for testing.
+For BSD systems, we need to get libcurl-impersonate compile first, and then add support in curl_cffi.
+If you are using these OSes, please lend an hand.</small>
+
+To install beta releases:
+
+    pip install curl_cffi --upgrade --pre
+
+To install unstable version from GitHub:
+
+    git clone https://github.com/lexiforest/curl_cffi/
+    cd curl_cffi
+    make preprocess
+    pip install .
+
+## Usage
+
+`curl_cffi` comes with a low-level `curl` API and a high-level `requests`-like API.
+`curl_cffi` also bundles with a CLI called `curl-cffi`.
+
+### CLI
+
+```sh
+curl-cffi get tls.browserleaks.com/json
+
+# curl-cffi can be hard to type, use an alias if you want
+alias imp=curl-cffi
+imp get tls.browserleaks.com/json --impersonate chrome
+```
+
+For a complete CLI guide, see [docs](https://curl-cffi.readthedocs.io).
+
+### requests-like
+
+```python
+import curl_cffi
+
+# Notice the impersonate parameter
+r = curl_cffi.get("https://tls.browserleaks.com/json", impersonate="chrome")
+
+print(r.json())
+# output: {..., "ja3n_hash": "aa56c057ad164ec4fdcb7a5a283be9fc", ...}
+# the js3n fingerprint should be the same as target browser
+
+# To keep using the latest browser version as `curl_cffi` updates,
+# simply set impersonate="chrome" without specifying a version.
+# Other similar values are: "safari" and "safari_ios"
+r = curl_cffi.get("https://tls.browserleaks.com/json", impersonate="chrome")
+
+# Use http/3 with impersonation
+r = curl_cffi.get(
+    "https://fp.impersonate.pro/api/http3",
+    http_version="v3",
+    impersonate="chrome"
+)
+
+# To pin a specific version, use version numbers together.
+r = curl_cffi.get("https://tls.browserleaks.com/json", impersonate="chrome124")
+
+# To impersonate other than browsers, bring your own ja3/akamai strings
+# See examples directory for details.
+r = curl_cffi.get("https://tls.browserleaks.com/json", ja3=..., akamai=...)
+
+# http/socks proxies are supported
+proxies = {"https": "http://localhost:3128"}
+r = curl_cffi.get("https://tls.browserleaks.com/json", impersonate="chrome", proxies=proxies)
+
+proxies = {"https": "socks://localhost:3128"}
+r = curl_cffi.get("https://tls.browserleaks.com/json", impersonate="chrome", proxies=proxies)
+```
+
+### Sessions
+
+```python
+s = curl_cffi.Session()
+
+# httpbin is a http test website, this endpoint makes the server set cookies
+s.get("https://httpbin.org/cookies/set/foo/bar")
+print(s.cookies)
+# <Cookies[<Cookie foo=bar for httpbin.org />]>
+
+# retrieve cookies again to verify
+r = s.get("https://httpbin.org/cookies")
+print(r.json())
+# {'cookies': {'foo': 'bar'}}
+```
+
+### Supported impersonate browsers
+
+`curl_cffi` supports the same browser versions as supported by my [fork](https://github.com/lexiforest/curl-impersonate) of [curl-impersonate](https://github.com/lwthiker/curl-impersonate):
+
+The open source version of curl_cffi includes versions whose fingerprints differ from previous versions.
+If you see a version, e.g. `chrome135`, was skipped, you can simply impersonate it with your own headers and the previous version.
+
+If you don't want to look up the headers/etc by yourself, consider buying commercial support from [impersonate.pro](https://impersonate.pro).
+We have comprehensive browser fingerprints database for almost all the browser versions on various platforms.
+
+If you are trying to impersonate a target other than a browser, use `ja3=...` and `akamai=...`
+to specify your own customized fingerprints. See the [docs on impersonation](https://curl-cffi.readthedocs.io/en/latest/impersonate/_index.html) for details.
+
+To see the complete list of fingerprints, use the command line:
+
+```sh
+curl-cffi list
+```
+
+Since v0.15.1, you can use `curl-cffi update` to retrieve the latest fingerprints, without updating to a new version.
+We offer the Safari, Chrome, Firefox updates for free and others as part of the [commercial plan](https://impersonate.pro).
+
+The following table is the builtin fingerprints bundled with current version.
+
+|Browser|Open Source| Pro version|
+|---|---|---|
+|Chrome|chrome99, chrome100, chrome101, chrome104, chrome107, chrome110, chrome116<sup>[1]</sup>, chrome119<sup>[1]</sup>, chrome120<sup>[1]</sup>, chrome123<sup>[3]</sup>, chrome124<sup>[3]</sup>, chrome131<sup>[5]</sup>, chrome133a<sup>[5][6]</sup>, chrome136<sup>[8]</sup>, chrome142<sup>[11]</sup>, chrome145<sup>[13][14]</sup>, chrome146<sup>[13][14]</sup>|chrome132, chrome134, chrome135|
+|Chrome Android| chrome99_android, chrome131_android<sup>[5]</sup>|chrome132_android, chrome133_android, chrome134_android, chrome135_android|
+|Chrome iOS|N/A|coming soon|
+|Safari<sup>[9]</sup>|safari153<sup>[2]</sup>, safari155<sup>[2]</sup>, safari170<sup>[1]</sup>, safari180<sup>[4]</sup>, safari184<sup>[8]</sup>, safari260<sup>[10]</sup>, safari2601<sup>[11]</sup>|coming soon|
+|Safari iOS<sup>[9]</sup>| safari172_ios<sup>[1]</sup>, safari180_ios<sup>[4]</sup>, safari184_ios<sup>[8]</sup>, safari260_ios<sup>[10]</sup>|coming soon|
+|Firefox|firefox133<sup>[5]</sup>, firefox135<sup>[7]</sup>, firefox144<sup>[11][12]</sup>, firefox147<sup>[13][14]</sup>|coming soon|
+|Firefox Android|N/A|firefox135_android|
+|Tor|tor145<sup>[8]</sup>|coming soon|
+|Edge|edge99, edge101|edge133, edge135|
+|Opera|N/A|coming soon|
+|Brave|N/A|coming soon|
+
+
+Notes:
+
+1. Added in version `0.6.0`.
+2. Fixed in version `0.6.0`, previous http2 fingerprints were [not correct](https://github.com/lwthiker/curl-impersonate/issues/215).
+3. Added in version `0.7.0`.
+4. Added in version `0.8.0`.
+5. Added in version `0.9.0`.
+6. The version suffix `a`(e.g. `chrome133a`) means that this is an alternative version, i.e. the fingerprint has not been officially updated by browser, but has been observed because of A/B testing.
+7. Added in version `0.10.0`.
+8. Added in version `0.11.0`.
+9. Since `0.11.0`, the format `safari184_ios` is preferred over `safari18_4_ios`, both are supported, but the latter is quite confusing and hard to parse.
+10. Added in version `0.12.0`.
+11. Added in version `0.14.0`.
+12. Fixed in version `0.15.0`, previous User-Agent header was [not correct](https://github.com/lexiforest/curl-impersonate/issues/234).
+13. Added in version `0.15.0`.
+14. http3 support included.
+
+### Asyncio
+
+```python
+from curl_cffi import AsyncSession
+
+async with AsyncSession() as s:
+    r = await s.get("https://example.com")
+```
+
+More concurrency:
+
+```python
+import asyncio
+from curl_cffi import AsyncSession
+
+urls = [
+    "https://google.com/",
+    "https://facebook.com/",
+    "https://twitter.com/",
+]
+
+async with AsyncSession() as s:
+    tasks = []
+    for url in urls:
+        task = s.get(url)
+        tasks.append(task)
+    results = await asyncio.gather(*tasks)
+```
+
+For low-level APIs, Scrapy integration and other advanced topics, see the
+[docs](https://curl-cffi.readthedocs.io) for more details.
+
+### WebSockets
+
+```python
+from curl_cffi import WebSocket
+
+def on_message(ws: WebSocket, message: str | bytes):
+    print(message)
+
+ws = WebSocket(on_message=on_message)
+ws.run_forever("wss://api.gemini.com/v1/marketdata/BTCUSD")
+```
+
+### Asyncio WebSockets
+
+```python
+import asyncio
+from curl_cffi import AsyncSession
+
+async with AsyncSession() as session:
+    async with session.ws_connect("wss://echo.websocket.org") as ws:
+        await asyncio.gather(*[ws.send_str("Hello, World!") for _ in range(10)])
+        async for message in ws:
+            print(message)
+```
+
+See the WebSocket [docs](https://curl-cffi.readthedocs.io/en/latest/websockets.html) for full details and advanced options.
+
+## Ecosystem
+
+- Integrating with Scrapy: [divtiply/scrapy-curl-cffi](https://github.com/divtiply/scrapy-curl-cffi), [jxlil/scrapy-impersonate](https://github.com/jxlil/scrapy-impersonate) and [tieyongjie/scrapy-fingerprint](https://github.com/tieyongjie/scrapy-fingerprint).
+- Integrating with [requests](https://github.com/el1s7/curl-adapter), [httpx](https://github.com/vgavro/httpx-curl-cffi) as adapter.
+- Integrating with captcha resolvers: [YesCaptcha](https://yescaptcha.com/i/stfnIO).
+
+## Acknowledgement
+
+- Originally forked from [multippt/python_curl_cffi](https://github.com/multippt/python_curl_cffi), which is under the MIT license.
+- Headers/Cookies files are copied from [httpx](https://github.com/encode/httpx/blob/master/httpx/_models.py), which is under the BSD license.
+- Asyncio support is inspired by Tornado's curl http client.
+- The synchronous WebSocket API is inspired by [websocket_client](https://github.com/websocket-client/websocket-client).
+- The asynchronous WebSocket API is inspired by [aiohttp](https://github.com/aio-libs/aiohttp).
+
+## Contributing
+
+When submitting an PR, please use a different branch other than `main` and check the
+"Allow edits by maintainers" box, so I can update your PR with lint or style fixes. Thanks!
+
+### AI Policy
+
+- Using AI is neither encouraged nor discouraged, use it by your own choice.
+- The bottom line here is that every line of code should be **reviewed by human**, and should be [proven to work](https://simonwillison.net/2025/Dec/18/code-proven-to-work/).
+- It's not guaranteed that AI will come up with the cleanest solution, you are responsible to guide it to the right way you know.
+- Fix any lint errors, make sure your code follows the established convention in this project.
+- LLM tends to generate extensive or none comments, revise the comments and make sure they are concise and helpful.
+- It's absolutely **not acceptable** to generate the entire PR summary by LLM. To communicate with other human, use words from a human.
+- The only acceptable exception is to fix grammar issues if you are not a native English speaker.
+- The essence here is to keep [Human in the loop](https://discourse.llvm.org/t/rfc-llvm-ai-tool-policy-human-in-the-loop/89159)
+
+You can even feed the policy above to your "copilot" to let it adjust the style for you. :P
+
+================
+File: setup.py
+================
+class bdist_wheel_abi3(bdist_wheel)
+⋮----
+def get_tag(self)
+⋮----
+# cibuildwheel supports android since cp313, so we can't mark it as 310
+⋮----
+# On CPython, our wheels are abi3 and compatible back to 3.10.
+# Free-threaded builds ("t" tag) must keep their original tags (PEP 803).
+# Once PEP 803 is accepted, we may be able to build abi3t wheels.
+⋮----
+# this option is only valid in setup.py

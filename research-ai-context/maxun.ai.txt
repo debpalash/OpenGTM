@@ -1,0 +1,1859 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+.github/
+  ISSUE_TEMPLATE/
+    bug_report.yml
+  CODE_OF_CONDUCT.md
+  COMMIT_CONVENTION.md
+browser/
+  .dockerignore
+  Dockerfile
+  package.json
+  server.ts
+  tsconfig.json
+docs/
+  nginx.conf
+  self-hosting-docker.md
+legacy/
+  server/
+    worker.ts
+  src/
+    AddWhatCondModal.tsx
+    AddWhereCondModal.tsx
+    Canvas.tsx
+    coordinateMapper.ts
+    DisplayWhereConditionSettings.tsx
+    Highlighter.tsx
+    inputHelpers.ts
+    LeftSidePanel.tsx
+    LeftSidePanelContent.tsx
+    LeftSidePanelSettings.tsx
+    Pair.tsx
+    PairDetail.tsx
+    PairDisplayDiv.tsx
+    PairEditForm.tsx
+    Renderer.tsx
+    RobotEdit.tsx
+    RobotSettings.tsx
+    ScheduleSettings.tsx
+maxun-core/
+  src/
+    browserSide/
+      scraper.js
+    types/
+      logic.ts
+      workflow.ts
+    utils/
+      concurrency.ts
+      logger.ts
+      utils.ts
+    index.ts
+    interpret.ts
+    preprocessor.ts
+  .gitignore
+  package.json
+  README.md
+  tsconfig.json
+public/
+  locales/
+    de.json
+    en.json
+    es.json
+    ja.json
+    tr.json
+    zh.json
+  svg/
+    airtable.svg
+    claude.svg
+    gsheet.svg
+    langchain.svg
+    langgraph.svg
+    llamaindex.svg
+    mastra.svg
+    mcp.svg
+    openai.svg
+    openclaw.svg
+    vercel.svg
+    webhook.svg
+server/
+  config/
+    config.json
+  src/
+    api/
+      record.ts
+      sdk.ts
+    browser-management/
+      classes/
+        BrowserPool.ts
+        RemoteBrowser.ts
+      browserConnection.ts
+      controller.ts
+      inputHandlers.ts
+    constants/
+      config.ts
+      output-formats.ts
+    db/
+      config/
+        database.js
+      migrations/
+        20250327111003-add-airtable-columns.js
+        20250527105655-add-webhooks.js
+        20250612000000-add-robot-name-unique-index.js
+      models/
+        index.js
+      migrate.js
+    markdownify/
+      markdown.ts
+      scrape.ts
+    middlewares/
+      api.ts
+      auth.ts
+    models/
+      associations.ts
+      Robot.ts
+      Run.ts
+      User.ts
+    routes/
+      auth.ts
+      index.ts
+      proxy.ts
+      record.ts
+      storage.ts
+      webhook.ts
+      workflow.ts
+    sdk/
+      browserSide/
+        pageAnalyzer.js
+      browserAgent.ts
+      selectorValidator.ts
+      workflowEnricher.ts
+    socket-connection/
+      connection.ts
+    storage/
+      db.ts
+      mino.ts
+      pgboss.ts
+      schedule.ts
+    swagger/
+      config.ts
+    types/
+      index.ts
+    utils/
+      analytics.ts
+      api.ts
+      auth.ts
+      env.ts
+      output-post-processor.ts
+      output-validation.ts
+      schedule.ts
+    workflow-management/
+      classes/
+        Generator.ts
+        Interpreter.ts
+      integrations/
+        airtable.ts
+        gsheet.ts
+      scheduler/
+        index.ts
+      selector.ts
+      storage.ts
+      utils.ts
+    index.ts
+    logger.ts
+    mcp-worker.ts
+    pgboss-worker.ts
+    schedule-worker.ts
+    server.ts
+  .gitignore
+  docker-entrypoint.sh
+  start.sh
+  tsconfig.json
+  tsconfig.mcp.json
+src/
+  api/
+    auth.ts
+    integration.ts
+    proxy.ts
+    recording.ts
+    storage.ts
+    webhook.ts
+    workflow.ts
+  assets/
+    maxunlogo.png
+  components/
+    action/
+      action-settings/
+        index.ts
+        Scrape.tsx
+        ScrapeSchema.tsx
+        Screenshot.tsx
+        Scroll.tsx
+      ActionDescriptionBox.tsx
+      ActionSettings.tsx
+    api/
+      ApiKey.tsx
+    browser/
+      BrowserContent.tsx
+      BrowserNavBar.tsx
+      BrowserRecordingSave.tsx
+      BrowserTabs.tsx
+      BrowserWindow.tsx
+      UrlForm.tsx
+    dashboard/
+      MainMenu.tsx
+      NavBar.tsx
+      NotFound.tsx
+    icons/
+      DiscordIcon.tsx
+      RecorderIcon.tsx
+    integration/
+      IntegrationSettings.tsx
+    pickers/
+      DatePicker.tsx
+      DateTimeLocalPicker.tsx
+      Dropdown.tsx
+      TimePicker.tsx
+    proxy/
+      ProxyForm.tsx
+    recorder/
+      DOMBrowserRenderer.tsx
+      KeyValueForm.tsx
+      KeyValuePair.tsx
+      RightSidePanel.tsx
+      SaveRecording.tsx
+      SidePanelHeader.tsx
+    robot/
+      pages/
+        RobotConfigPage.tsx
+        RobotCreate.tsx
+        RobotDuplicatePage.tsx
+        RobotEditPage.tsx
+        RobotIntegrationPage.tsx
+        RobotSettingsPage.tsx
+        ScheduleSettingsPage.tsx
+      Recordings.tsx
+      RecordingsTable.tsx
+      ToggleButton.tsx
+    run/
+      ColapsibleRow.tsx
+      InterpretationButtons.tsx
+      InterpretationLog.tsx
+      RunContent.tsx
+      Runs.tsx
+      RunSettings.tsx
+      RunsTable.tsx
+    ui/
+      buttons/
+        AddButton.tsx
+        BreakpointButton.tsx
+        Buttons.tsx
+        ClearButton.tsx
+        EditButton.tsx
+        RemoveButton.tsx
+      AlertSnackbar.tsx
+      Box.tsx
+      ConfirmationBox.tsx
+      DropdownMui.tsx
+      Form.tsx
+      GenericModal.tsx
+      Loader.tsx
+      texts.tsx
+  constants/
+    const.ts
+    outputFormats.ts
+  context/
+    auth.tsx
+    browserActions.tsx
+    browserDimensions.tsx
+    browserSteps.tsx
+    globalInfo.tsx
+    socket.tsx
+    theme-provider.tsx
+  helpers/
+    capturedElementHighlighter.ts
+    clientListExtractor.ts
+    clientPaginationDetector.ts
+    clientSelectorGenerator.ts
+    dimensionUtils.ts
+    uuid.ts
+  pages/
+    Login.tsx
+    MainPage.tsx
+    PageWrapper.tsx
+    RecordingPage.tsx
+    Register.tsx
+  routes/
+    userRoute.tsx
+  shared/
+    constants.ts
+    types.ts
+  apiConfig.js
+  App.tsx
+  i18n.ts
+  index.css
+  index.tsx
+.dockerignore
+.gitignore
+.sequelizerc
+CONTRIBUTING.md
+docker-compose.yml
+docker-entrypoint.sh
+Dockerfile.backend
+Dockerfile.frontend
+ENVEXAMPLE
+index.html
+LICENSE
+nginx.conf
+README.md
+SETUP.md
+vite-env.d.ts
+vite.config.js
+
+================================================================
+Files
+================================================================
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: src/pages/RecordingPage.tsx
+================
+import React, { useCallback, useEffect, useState } from 'react';
+import { Grid } from '@mui/material';
+import { BrowserContent } from "../components/browser/BrowserContent";
+import { InterpretationLog } from "../components/run/InterpretationLog";
+import { startRecording, getActiveBrowserId } from "../api/recording";
+import { RightSidePanel } from "../components/recorder/RightSidePanel";
+import { Loader } from "../components/ui/Loader";
+import { useSocketStore } from "../context/socket";
+import { useBrowserDimensionsStore } from "../context/browserDimensions";
+import { ActionProvider } from "../context/browserActions"
+import { BrowserStepsProvider } from '../context/browserSteps';
+import { useGlobalInfoStore } from "../context/globalInfo";
+import { editRecordingFromStorage } from "../api/storage";
+import { WhereWhatPair } from "maxun-core";
+import styled from "styled-components";
+import BrowserRecordingSave from '../components/browser/BrowserRecordingSave';
+import { useThemeMode } from '../context/theme-provider';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+⋮----
+interface RecordingPageProps {
+  recordingName?: string;
+}
+⋮----
+export interface PairForEdit {
+  pair: WhereWhatPair | null,
+  index: number,
+}
+⋮----
+const handleRecordingTimeout = () =>
+⋮----
+// Fallback: if window.close() is blocked by the browser, navigate away
+⋮----
+const handleSelectPairForEdit = (pair: WhereWhatPair, index: number) =>
+⋮----
+const handleRecording = async () =>
+
+================
+File: src/pages/Register.tsx
+================
+import axios from "axios";
+import { useState, useContext, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { AuthContext } from "../context/auth";
+import { Box, Typography, TextField, Button, CircularProgress } from "@mui/material";
+import { useGlobalInfoStore } from "../context/globalInfo";
+import { apiUrl } from "../apiConfig";
+import { useThemeMode } from "../context/theme-provider";
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
+⋮----
+const handleChange = (e: any) =>
+⋮----
+const submitForm = async (e: any) =>
+⋮----
+label=
+
+================
+File: src/routes/userRoute.tsx
+================
+import React, { useEffect, useState } from 'react';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../context/auth';
+import { useGlobalInfoStore } from '../context/globalInfo';
+
+================
+File: src/shared/constants.ts
+================
+import { WorkflowFile } from "maxun-core";
+
+================
+File: src/shared/types.ts
+================
+import { WorkflowFile } from "maxun-core";
+import { Locator } from "playwright-core";
+⋮----
+export type Workflow = WorkflowFile["workflow"];
+⋮----
+export interface ScreenshotSettings {
+  animations?: "disabled" | "allow";
+  caret?: "hide" | "initial";
+  clip?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  fullPage?: boolean;
+  mask?: Locator[];
+  omitBackground?: boolean;
+  // is this still needed? - maxun-core outputs to a binary output
+  path?: string;
+  quality?: number;
+  scale?: "css" | "device";
+  timeout?: number;
+  type?: "jpeg" | "png";
+};
+⋮----
+// is this still needed? - maxun-core outputs to a binary output
+⋮----
+export declare type CustomActions = 'scrape' | 'scrapeSchema' | 'scroll' | 'screenshot' | 'script' | 'enqueueLinks' | 'flag' | 'scrapeList' | 'scrapeListAuto';
+
+================
+File: src/apiConfig.js
+================
+
+================
+File: src/App.tsx
+================
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import { GlobalInfoProvider } from "./context/globalInfo";
+import { PageWrapper } from "./pages/PageWrapper";
+import i18n from "./i18n";
+import ThemeModeProvider from './context/theme-provider';
+⋮----
+function App()
+
+================
+File: src/i18n.ts
+================
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import Backend from 'i18next-http-backend';
+import LanguageDetector from 'i18next-browser-languagedetector';
+⋮----
+escapeValue: false, // React already escapes
+
+================
+File: src/index.css
+================
+/* Base styles */
+body {
+⋮----
+html {
+⋮----
+/* Form element autofill styles */
+input:-webkit-autofill,
+⋮----
+a {
+⋮----
+a:hover {
+⋮----
+code {
+⋮----
+/* Browser-specific elements */
+#browser-actions {
+⋮----
+#browser-recorder {
+⋮----
+#browser-content {
+⋮----
+#browser-window {
+⋮----
+.right-side-panel {
+⋮----
+.MuiButton-root[sx*="position: 'absolute'"] {
+
+================
+File: src/index.tsx
+================
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+⋮----
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+import i18n from "./i18n"
+
+================
+File: .dockerignore
+================
+node_modules
+npm-debug.log
+dist
+.git
+.gitignore
+.md
+.vscode
+coverage
+docker-compose.yml
+Dockerfile
+Dockerfile.frontend
+Dockerfile.backend
+
+================
+File: .gitignore
+================
+# dependencies
+/node_modules
+/browser/node_modules
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env
+
+/.idea
+
+/server/logs
+
+/build
+
+package-lock.json
+
+================
+File: .sequelizerc
+================
+const path = require('path');
+
+module.exports = {
+  'config': path.resolve('server/src/db/config', 'database.js'),
+  'models-path': path.resolve('server/src/db/models'),
+  'seeders-path': path.resolve('server/src/db/seeders'),
+  'migrations-path': path.resolve('server/src/db/migrations')
+};
+
+================
+File: CONTRIBUTING.md
+================
+# Contributing
+
+## Local Setup
+Read local installation instructions here: <a href="https://docs.maxun.dev/installation/local">Local Installation</a>
+
+## Open Your First Pull Request
+
+### 1. Create a new branch
+
+Create a new branch from the develop branch. Use a descriptive name for your branch, such as `feature/new-feature` or `fix/bug-fix`. This makes it easier to understand the purpose of the changes.
+
+
+### 2. Make your changes
+
+Make the necessary code changes and commit them to your local branch.
+
+Follow Conventional Commits: Use the format `<type>(<scope>): <short description>[optional body][optional footer]` for your commit messages.
+
+Example: `feat(api): Add new endpoint for user data`
+
+### 3. Push your changes
+Push your local branch to the remote repository:
+```git push origin <your-branch-name>```
+
+
+### 4. Create a Pull Request
+
+1. Go to the repository on GitHub and navigate to the `Pull Requests` tab.
+2. Click `New pull request`.
+3. Select your branch as the "compare" branch and develop as the "base" branch.
+4. Give your PR a descriptive title that summarizes the changes.
+5. Write a clear and concise description of the changes you made and why they are necessary.
+6. Add any relevant screenshots or GIFs to help visualize the changes.
+
+
+### 5. Review and Merge
+
+1. Once you submit the PR, it will be reviewed by other developers.
+2. Address any comments or requested changes from the reviewers.
+3. Once the PR is approved, it will be merged into the develop branch.
+
+### 6. Remember
+
+1. Always test your changes thoroughly before submitting a PR.
+2. Keep your PRs focused on a single feature or bug fix.
+3. Be respectful and responsive to feedback from reviewers.
+
+### 7. AI-Assisted Contributions
+
+AI-assisted contributions are welcome. If you use AI tools to generate code, please ensure that:
+
+1. The changes fully address the issue or feature request.
+2. The code is tested and works as expected.
+3. The implementation follows the existing project structure and conventions.
+4. You understand the code you are submitting and can respond to review feedback.
+
+Low-quality, unverified, or blindly generated patches will not be merged.
+
+================
+File: docker-compose.yml
+================
+services:
+  postgres:
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT:-5432}:${DB_PORT:-5432}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    command: server /data --console-address :${MINIO_CONSOLE_PORT:-9001}
+    ports:
+      - "${MINIO_PORT:-9000}:${MINIO_PORT:-9000}"  # API port
+      - "${MINIO_CONSOLE_PORT:-9001}:${MINIO_CONSOLE_PORT:-9001}"  # WebUI port
+    volumes:
+      - minio_data:/data
+
+  backend:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.backend
+    image: getmaxun/maxun-backend:latest
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8080}:${BACKEND_PORT:-8080}"
+    env_file: .env
+    environment:
+      BACKEND_URL: ${BACKEND_URL}
+      # to ensure Playwright works in Docker
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 0
+      # Force container/CI detection for headless mode
+      CI: "true"
+      CONTAINER: "true"
+      # DEBUG: pw:api
+      # PWDEBUG: 1  # Enables debugging
+      CHROMIUM_FLAGS: '--disable-gpu --no-sandbox --headless=new'
+    security_opt:
+    - seccomp=unconfined  # This might help with browser sandbox issues
+    shm_size: '2gb' # Increase shared memory size for Chromium
+    mem_limit: 6g   # Set 6GB memory limit
+    depends_on:
+      - postgres
+      - minio
+    volumes:
+      - /var/run/dbus:/var/run/dbus
+
+  frontend:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.frontend 
+    image: getmaxun/maxun-frontend:latest
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:${FRONTEND_PORT:-5173}"
+    env_file: .env
+    environment:
+      PUBLIC_URL: ${PUBLIC_URL}
+      BACKEND_URL: ${BACKEND_URL}
+    depends_on:
+      - backend
+
+  browser:
+    build:
+      context: .
+      dockerfile: browser/Dockerfile
+      args:
+        BROWSER_WS_PORT: ${BROWSER_WS_PORT:-3001}
+        BROWSER_HEALTH_PORT: ${BROWSER_HEALTH_PORT:-3002}
+    ports:
+      - "${BROWSER_WS_PORT:-3001}:${BROWSER_WS_PORT:-3001}"
+      - "${BROWSER_HEALTH_PORT:-3002}:${BROWSER_HEALTH_PORT:-3002}"
+    environment:
+      - NODE_ENV=production
+      - DEBUG=pw:browser*
+      - BROWSER_WS_PORT=${BROWSER_WS_PORT:-3001}
+      - BROWSER_HEALTH_PORT=${BROWSER_HEALTH_PORT:-3002}
+      - BROWSER_WS_HOST=${BROWSER_WS_HOST:-browser}
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${BROWSER_HEALTH_PORT:-3002}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.5'
+        reservations:
+          memory: 1G
+          cpus: '1.0'
+    security_opt:
+      - seccomp:unconfined
+    shm_size: 2gb
+    cap_add:
+      - SYS_ADMIN
+
+volumes:
+  postgres_data:
+  minio_data:
+
+================
+File: docker-entrypoint.sh
+================
+#!/bin/sh
+
+# Start backend server
+cd /app && npm run start:server -- --host 0.0.0.0 &
+
+# Start nginx
+nginx -g 'daemon off;'
+
+================
+File: Dockerfile.backend
+================
+FROM node:20-slim
+
+# Set working directory
+WORKDIR /app
+
+COPY .sequelizerc .sequelizerc
+
+# Install node dependencies
+COPY package*.json ./
+COPY src ./src
+COPY public ./public
+COPY server ./server
+COPY tsconfig.json ./
+COPY server/tsconfig.json ./server/
+# COPY server/start.sh ./
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Build TypeScript server
+RUN npm run build:server
+
+# Expose backend port
+EXPOSE ${BACKEND_PORT:-8080}
+
+# Run migrations & start backend using plain node
+CMD ["npm", "run", "server"]
+# CMD ["sh", "-c", "npm run migrate && npm run server"]
+
+================
+File: Dockerfile.frontend
+================
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Copy frontend source code and config
+COPY src ./src
+COPY public ./public 
+COPY index.html ./
+COPY vite.config.js ./
+COPY tsconfig.json ./
+
+# Expose the frontend port
+EXPOSE ${FRONTEND_PORT:-5173}
+
+# Start the frontend using the client script
+CMD ["npm", "run", "client", "--", "--host"]
+
+================
+File: ENVEXAMPLE
+================
+# App Setup
+NODE_ENV=production                     # Set to 'development' or 'production' as required
+JWT_SECRET=a9Z$kLq7^f03GzNw!bP9dH4xV6sT2yXl3O8vR@uYq3          # Replace with a secure JWT secret key
+DB_NAME=maxun                           # Your PostgreSQL database name
+DB_USER=postgres                        # PostgreSQL username
+DB_PASSWORD=postgres                    # PostgreSQL password
+DB_HOST=postgres                        # Host for PostgreSQL in Docker
+DB_PORT=5432                            # Port for PostgreSQL (default: 5432)
+ENCRYPTION_KEY=      # Key for encrypting sensitive data (passwords and proxies)
+SESSION_SECRET=maxun_session # A strong, random string used to sign session cookies. Recommended to define your own session secret to avoid session hijacking.
+
+MINIO_ENDPOINT=minio                    # MinIO endpoint in Docker
+MINIO_PORT=9000                         # Port for MinIO (default: 9000)
+MINIO_CONSOLE_PORT=9001                 # Web UI Port for MinIO (default: 9001)
+MINIO_ACCESS_KEY=minio_access_key       # MinIO access key
+MINIO_SECRET_KEY=minio_secret_key       # MinIO secret key
+REDIS_HOST=redis                        # Redis host in Docker
+REDIS_PORT=6379                         # Redis port (default: 6379)
+REDIS_PASSWORD=redis_password           # Redis password (This is optional. Needed to authenticate with a password-protected Redis instance; if not set, Redis will connect without authentication.)
+
+# Backend and Frontend URLs and Ports
+BACKEND_PORT=8080 # Port to run backend on. Needed for Docker setup 
+FRONTEND_PORT=5173 # Port to run frontend on. Needed for Docker setup 
+BACKEND_URL=http://localhost:8080       # URL on which the backend runs. You can change it based on your needs. 
+PUBLIC_URL=http://localhost:5173        # URL on which the frontend runs. You can change it based on your needs. 
+VITE_BACKEND_URL=http://localhost:8080  # URL used by frontend to connect to backend. It should always have the same value as BACKEND_URL
+VITE_PUBLIC_URL=http://localhost:5173   # URL used by backend to connect to frontend. It should always have the same value as PUBLIC_URL
+
+# Optional Google OAuth settings for Google Sheet Integration
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_REDIRECT_URI=your_google_redirect_uri
+
+# Optional Airtable OAuth settings for Airtable Integration
+
+AIRTABLE_CLIENT_ID=your_airtable_client_id
+AIRTABLE_REDIRECT_URI=http://localhost:8080/auth/airtable/callback
+
+# Telemetry Settings - Please keep it enabled. Keeping it enabled helps us understand how the product is used and assess the impact of any new changes. 
+MAXUN_TELEMETRY=true
+
+# WebSocket port for browser CDP connections
+BROWSER_WS_PORT=3001
+BROWSER_HEALTH_PORT=3002
+BROWSER_WS_HOST=browser
+
+================
+File: index.html
+================
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Maxun is an open-source no-code web data extraction platform. Train a robot in 2 minutes to extract data on auto-pilot!"
+    />
+    <link rel="icon" type="image/png" href="src/assets/maxunlogo.png">
+    <title>Maxun • Turn Websites To APIs • Open Source</title>
+  </head>
+  <body>
+  <script type="module" src="/src/index.tsx"></script>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!-- Vite will automatically inject the necessary scripts here during the build -->
+  </body>
+</html>
+
+================
+File: LICENSE
+================
+GNU AFFERO GENERAL PUBLIC LICENSE
+                       Version 3, 19 November 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+                            Preamble
+
+  The GNU Affero General Public License is a free, copyleft license for
+software and other kinds of works, specifically designed to ensure
+cooperation with the community in the case of network server software.
+
+  The licenses for most software and other practical works are designed
+to take away your freedom to share and change the works.  By contrast,
+our General Public Licenses are intended to guarantee your freedom to
+share and change all versions of a program--to make sure it remains free
+software for all its users.
+
+  When we speak of free software, we are referring to freedom, not
+price.  Our General Public Licenses are designed to make sure that you
+have the freedom to distribute copies of free software (and charge for
+them if you wish), that you receive source code or can get it if you
+want it, that you can change the software or use pieces of it in new
+free programs, and that you know you can do these things.
+
+  Developers that use our General Public Licenses protect your rights
+with two steps: (1) assert copyright on the software, and (2) offer
+you this License which gives you legal permission to copy, distribute
+and/or modify the software.
+
+  A secondary benefit of defending all users' freedom is that
+improvements made in alternate versions of the program, if they
+receive widespread use, become available for other developers to
+incorporate.  Many developers of free software are heartened and
+encouraged by the resulting cooperation.  However, in the case of
+software used on network servers, this result may fail to come about.
+The GNU General Public License permits making a modified version and
+letting the public access it on a server without ever releasing its
+source code to the public.
+
+  The GNU Affero General Public License is designed specifically to
+ensure that, in such cases, the modified source code becomes available
+to the community.  It requires the operator of a network server to
+provide the source code of the modified version running there to the
+users of that server.  Therefore, public use of a modified version, on
+a publicly accessible server, gives the public access to the source
+code of the modified version.
+
+  An older license, called the Affero General Public License and
+published by Affero, was designed to accomplish similar goals.  This is
+a different license, not a version of the Affero GPL, but Affero has
+released a new version of the Affero GPL which permits relicensing under
+this license.
+
+  The precise terms and conditions for copying, distribution and
+modification follow.
+
+                       TERMS AND CONDITIONS
+
+  0. Definitions.
+
+  "This License" refers to version 3 of the GNU Affero General Public License.
+
+  "Copyright" also means copyright-like laws that apply to other kinds of
+works, such as semiconductor masks.
+
+  "The Program" refers to any copyrightable work licensed under this
+License.  Each licensee is addressed as "you".  "Licensees" and
+"recipients" may be individuals or organizations.
+
+  To "modify" a work means to copy from or adapt all or part of the work
+in a fashion requiring copyright permission, other than the making of an
+exact copy.  The resulting work is called a "modified version" of the
+earlier work or a work "based on" the earlier work.
+
+  A "covered work" means either the unmodified Program or a work based
+on the Program.
+
+  To "propagate" a work means to do anything with it that, without
+permission, would make you directly or secondarily liable for
+infringement under applicable copyright law, except executing it on a
+computer or modifying a private copy.  Propagation includes copying,
+distribution (with or without modification), making available to the
+public, and in some countries other activities as well.
+
+  To "convey" a work means any kind of propagation that enables other
+parties to make or receive copies.  Mere interaction with a user through
+a computer network, with no transfer of a copy, is not conveying.
+
+  An interactive user interface displays "Appropriate Legal Notices"
+to the extent that it includes a convenient and prominently visible
+feature that (1) displays an appropriate copyright notice, and (2)
+tells the user that there is no warranty for the work (except to the
+extent that warranties are provided), that licensees may convey the
+work under this License, and how to view a copy of this License.  If
+the interface presents a list of user commands or options, such as a
+menu, a prominent item in the list meets this criterion.
+
+  1. Source Code.
+
+  The "source code" for a work means the preferred form of the work
+for making modifications to it.  "Object code" means any non-source
+form of a work.
+
+  A "Standard Interface" means an interface that either is an official
+standard defined by a recognized standards body, or, in the case of
+interfaces specified for a particular programming language, one that
+is widely used among developers working in that language.
+
+  The "System Libraries" of an executable work include anything, other
+than the work as a whole, that (a) is included in the normal form of
+packaging a Major Component, but which is not part of that Major
+Component, and (b) serves only to enable use of the work with that
+Major Component, or to implement a Standard Interface for which an
+implementation is available to the public in source code form.  A
+"Major Component", in this context, means a major essential component
+(kernel, window system, and so on) of the specific operating system
+(if any) on which the executable work runs, or a compiler used to
+produce the work, or an object code interpreter used to run it.
+
+  The "Corresponding Source" for a work in object code form means all
+the source code needed to generate, install, and (for an executable
+work) run the object code and to modify the work, including scripts to
+control those activities.  However, it does not include the work's
+System Libraries, or general-purpose tools or generally available free
+programs which are used unmodified in performing those activities but
+which are not part of the work.  For example, Corresponding Source
+includes interface definition files associated with source files for
+the work, and the source code for shared libraries and dynamically
+linked subprograms that the work is specifically designed to require,
+such as by intimate data communication or control flow between those
+subprograms and other parts of the work.
+
+  The Corresponding Source need not include anything that users
+can regenerate automatically from other parts of the Corresponding
+Source.
+
+  The Corresponding Source for a work in source code form is that
+same work.
+
+  2. Basic Permissions.
+
+  All rights granted under this License are granted for the term of
+copyright on the Program, and are irrevocable provided the stated
+conditions are met.  This License explicitly affirms your unlimited
+permission to run the unmodified Program.  The output from running a
+covered work is covered by this License only if the output, given its
+content, constitutes a covered work.  This License acknowledges your
+rights of fair use or other equivalent, as provided by copyright law.
+
+  You may make, run and propagate covered works that you do not
+convey, without conditions so long as your license otherwise remains
+in force.  You may convey covered works to others for the sole purpose
+of having them make modifications exclusively for you, or provide you
+with facilities for running those works, provided that you comply with
+the terms of this License in conveying all material for which you do
+not control copyright.  Those thus making or running the covered works
+for you must do so exclusively on your behalf, under your direction
+and control, on terms that prohibit them from making any copies of
+your copyrighted material outside their relationship with you.
+
+  Conveying under any other circumstances is permitted solely under
+the conditions stated below.  Sublicensing is not allowed; section 10
+makes it unnecessary.
+
+  3. Protecting Users' Legal Rights From Anti-Circumvention Law.
+
+  No covered work shall be deemed part of an effective technological
+measure under any applicable law fulfilling obligations under article
+11 of the WIPO copyright treaty adopted on 20 December 1996, or
+similar laws prohibiting or restricting circumvention of such
+measures.
+
+  When you convey a covered work, you waive any legal power to forbid
+circumvention of technological measures to the extent such circumvention
+is effected by exercising rights under this License with respect to
+the covered work, and you disclaim any intention to limit operation or
+modification of the work as a means of enforcing, against the work's
+users, your or third parties' legal rights to forbid circumvention of
+technological measures.
+
+  4. Conveying Verbatim Copies.
+
+  You may convey verbatim copies of the Program's source code as you
+receive it, in any medium, provided that you conspicuously and
+appropriately publish on each copy an appropriate copyright notice;
+keep intact all notices stating that this License and any
+non-permissive terms added in accord with section 7 apply to the code;
+keep intact all notices of the absence of any warranty; and give all
+recipients a copy of this License along with the Program.
+
+  You may charge any price or no price for each copy that you convey,
+and you may offer support or warranty protection for a fee.
+
+  5. Conveying Modified Source Versions.
+
+  You may convey a work based on the Program, or the modifications to
+produce it from the Program, in the form of source code under the
+terms of section 4, provided that you also meet all of these conditions:
+
+    a) The work must carry prominent notices stating that you modified
+    it, and giving a relevant date.
+
+    b) The work must carry prominent notices stating that it is
+    released under this License and any conditions added under section
+    7.  This requirement modifies the requirement in section 4 to
+    "keep intact all notices".
+
+    c) You must license the entire work, as a whole, under this
+    License to anyone who comes into possession of a copy.  This
+    License will therefore apply, along with any applicable section 7
+    additional terms, to the whole of the work, and all its parts,
+    regardless of how they are packaged.  This License gives no
+    permission to license the work in any other way, but it does not
+    invalidate such permission if you have separately received it.
+
+    d) If the work has interactive user interfaces, each must display
+    Appropriate Legal Notices; however, if the Program has interactive
+    interfaces that do not display Appropriate Legal Notices, your
+    work need not make them do so.
+
+  A compilation of a covered work with other separate and independent
+works, which are not by their nature extensions of the covered work,
+and which are not combined with it such as to form a larger program,
+in or on a volume of a storage or distribution medium, is called an
+"aggregate" if the compilation and its resulting copyright are not
+used to limit the access or legal rights of the compilation's users
+beyond what the individual works permit.  Inclusion of a covered work
+in an aggregate does not cause this License to apply to the other
+parts of the aggregate.
+
+  6. Conveying Non-Source Forms.
+
+  You may convey a covered work in object code form under the terms
+of sections 4 and 5, provided that you also convey the
+machine-readable Corresponding Source under the terms of this License,
+in one of these ways:
+
+    a) Convey the object code in, or embodied in, a physical product
+    (including a physical distribution medium), accompanied by the
+    Corresponding Source fixed on a durable physical medium
+    customarily used for software interchange.
+
+    b) Convey the object code in, or embodied in, a physical product
+    (including a physical distribution medium), accompanied by a
+    written offer, valid for at least three years and valid for as
+    long as you offer spare parts or customer support for that product
+    model, to give anyone who possesses the object code either (1) a
+    copy of the Corresponding Source for all the software in the
+    product that is covered by this License, on a durable physical
+    medium customarily used for software interchange, for a price no
+    more than your reasonable cost of physically performing this
+    conveying of source, or (2) access to copy the
+    Corresponding Source from a network server at no charge.
+
+    c) Convey individual copies of the object code with a copy of the
+    written offer to provide the Corresponding Source.  This
+    alternative is allowed only occasionally and noncommercially, and
+    only if you received the object code with such an offer, in accord
+    with subsection 6b.
+
+    d) Convey the object code by offering access from a designated
+    place (gratis or for a charge), and offer equivalent access to the
+    Corresponding Source in the same way through the same place at no
+    further charge.  You need not require recipients to copy the
+    Corresponding Source along with the object code.  If the place to
+    copy the object code is a network server, the Corresponding Source
+    may be on a different server (operated by you or a third party)
+    that supports equivalent copying facilities, provided you maintain
+    clear directions next to the object code saying where to find the
+    Corresponding Source.  Regardless of what server hosts the
+    Corresponding Source, you remain obligated to ensure that it is
+    available for as long as needed to satisfy these requirements.
+
+    e) Convey the object code using peer-to-peer transmission, provided
+    you inform other peers where the object code and Corresponding
+    Source of the work are being offered to the general public at no
+    charge under subsection 6d.
+
+  A separable portion of the object code, whose source code is excluded
+from the Corresponding Source as a System Library, need not be
+included in conveying the object code work.
+
+  A "User Product" is either (1) a "consumer product", which means any
+tangible personal property which is normally used for personal, family,
+or household purposes, or (2) anything designed or sold for incorporation
+into a dwelling.  In determining whether a product is a consumer product,
+doubtful cases shall be resolved in favor of coverage.  For a particular
+product received by a particular user, "normally used" refers to a
+typical or common use of that class of product, regardless of the status
+of the particular user or of the way in which the particular user
+actually uses, or expects or is expected to use, the product.  A product
+is a consumer product regardless of whether the product has substantial
+commercial, industrial or non-consumer uses, unless such uses represent
+the only significant mode of use of the product.
+
+  "Installation Information" for a User Product means any methods,
+procedures, authorization keys, or other information required to install
+and execute modified versions of a covered work in that User Product from
+a modified version of its Corresponding Source.  The information must
+suffice to ensure that the continued functioning of the modified object
+code is in no case prevented or interfered with solely because
+modification has been made.
+
+  If you convey an object code work under this section in, or with, or
+specifically for use in, a User Product, and the conveying occurs as
+part of a transaction in which the right of possession and use of the
+User Product is transferred to the recipient in perpetuity or for a
+fixed term (regardless of how the transaction is characterized), the
+Corresponding Source conveyed under this section must be accompanied
+by the Installation Information.  But this requirement does not apply
+if neither you nor any third party retains the ability to install
+modified object code on the User Product (for example, the work has
+been installed in ROM).
+
+  The requirement to provide Installation Information does not include a
+requirement to continue to provide support service, warranty, or updates
+for a work that has been modified or installed by the recipient, or for
+the User Product in which it has been modified or installed.  Access to a
+network may be denied when the modification itself materially and
+adversely affects the operation of the network or violates the rules and
+protocols for communication across the network.
+
+  Corresponding Source conveyed, and Installation Information provided,
+in accord with this section must be in a format that is publicly
+documented (and with an implementation available to the public in
+source code form), and must require no special password or key for
+unpacking, reading or copying.
+
+  7. Additional Terms.
+
+  "Additional permissions" are terms that supplement the terms of this
+License by making exceptions from one or more of its conditions.
+Additional permissions that are applicable to the entire Program shall
+be treated as though they were included in this License, to the extent
+that they are valid under applicable law.  If additional permissions
+apply only to part of the Program, that part may be used separately
+under those permissions, but the entire Program remains governed by
+this License without regard to the additional permissions.
+
+  When you convey a copy of a covered work, you may at your option
+remove any additional permissions from that copy, or from any part of
+it.  (Additional permissions may be written to require their own
+removal in certain cases when you modify the work.)  You may place
+additional permissions on material, added by you to a covered work,
+for which you have or can give appropriate copyright permission.
+
+  Notwithstanding any other provision of this License, for material you
+add to a covered work, you may (if authorized by the copyright holders of
+that material) supplement the terms of this License with terms:
+
+    a) Disclaiming warranty or limiting liability differently from the
+    terms of sections 15 and 16 of this License; or
+
+    b) Requiring preservation of specified reasonable legal notices or
+    author attributions in that material or in the Appropriate Legal
+    Notices displayed by works containing it; or
+
+    c) Prohibiting misrepresentation of the origin of that material, or
+    requiring that modified versions of such material be marked in
+    reasonable ways as different from the original version; or
+
+    d) Limiting the use for publicity purposes of names of licensors or
+    authors of the material; or
+
+    e) Declining to grant rights under trademark law for use of some
+    trade names, trademarks, or service marks; or
+
+    f) Requiring indemnification of licensors and authors of that
+    material by anyone who conveys the material (or modified versions of
+    it) with contractual assumptions of liability to the recipient, for
+    any liability that these contractual assumptions directly impose on
+    those licensors and authors.
+
+  All other non-permissive additional terms are considered "further
+restrictions" within the meaning of section 10.  If the Program as you
+received it, or any part of it, contains a notice stating that it is
+governed by this License along with a term that is a further
+restriction, you may remove that term.  If a license document contains
+a further restriction but permits relicensing or conveying under this
+License, you may add to a covered work material governed by the terms
+of that license document, provided that the further restriction does
+not survive such relicensing or conveying.
+
+  If you add terms to a covered work in accord with this section, you
+must place, in the relevant source files, a statement of the
+additional terms that apply to those files, or a notice indicating
+where to find the applicable terms.
+
+  Additional terms, permissive or non-permissive, may be stated in the
+form of a separately written license, or stated as exceptions;
+the above requirements apply either way.
+
+  8. Termination.
+
+  You may not propagate or modify a covered work except as expressly
+provided under this License.  Any attempt otherwise to propagate or
+modify it is void, and will automatically terminate your rights under
+this License (including any patent licenses granted under the third
+paragraph of section 11).
+
+  However, if you cease all violation of this License, then your
+license from a particular copyright holder is reinstated (a)
+provisionally, unless and until the copyright holder explicitly and
+finally terminates your license, and (b) permanently, if the copyright
+holder fails to notify you of the violation by some reasonable means
+prior to 60 days after the cessation.
+
+  Moreover, your license from a particular copyright holder is
+reinstated permanently if the copyright holder notifies you of the
+violation by some reasonable means, this is the first time you have
+received notice of violation of this License (for any work) from that
+copyright holder, and you cure the violation prior to 30 days after
+your receipt of the notice.
+
+  Termination of your rights under this section does not terminate the
+licenses of parties who have received copies or rights from you under
+this License.  If your rights have been terminated and not permanently
+reinstated, you do not qualify to receive new licenses for the same
+material under section 10.
+
+  9. Acceptance Not Required for Having Copies.
+
+  You are not required to accept this License in order to receive or
+run a copy of the Program.  Ancillary propagation of a covered work
+occurring solely as a consequence of using peer-to-peer transmission
+to receive a copy likewise does not require acceptance.  However,
+nothing other than this License grants you permission to propagate or
+modify any covered work.  These actions infringe copyright if you do
+not accept this License.  Therefore, by modifying or propagating a
+covered work, you indicate your acceptance of this License to do so.
+
+  10. Automatic Licensing of Downstream Recipients.
+
+  Each time you convey a covered work, the recipient automatically
+receives a license from the original licensors, to run, modify and
+propagate that work, subject to this License.  You are not responsible
+for enforcing compliance by third parties with this License.
+
+  An "entity transaction" is a transaction transferring control of an
+organization, or substantially all assets of one, or subdividing an
+organization, or merging organizations.  If propagation of a covered
+work results from an entity transaction, each party to that
+transaction who receives a copy of the work also receives whatever
+licenses to the work the party's predecessor in interest had or could
+give under the previous paragraph, plus a right to possession of the
+Corresponding Source of the work from the predecessor in interest, if
+the predecessor has it or can get it with reasonable efforts.
+
+  You may not impose any further restrictions on the exercise of the
+rights granted or affirmed under this License.  For example, you may
+not impose a license fee, royalty, or other charge for exercise of
+rights granted under this License, and you may not initiate litigation
+(including a cross-claim or counterclaim in a lawsuit) alleging that
+any patent claim is infringed by making, using, selling, offering for
+sale, or importing the Program or any portion of it.
+
+  11. Patents.
+
+  A "contributor" is a copyright holder who authorizes use under this
+License of the Program or a work on which the Program is based.  The
+work thus licensed is called the contributor's "contributor version".
+
+  A contributor's "essential patent claims" are all patent claims
+owned or controlled by the contributor, whether already acquired or
+hereafter acquired, that would be infringed by some manner, permitted
+by this License, of making, using, or selling its contributor version,
+but do not include claims that would be infringed only as a
+consequence of further modification of the contributor version.  For
+purposes of this definition, "control" includes the right to grant
+patent sublicenses in a manner consistent with the requirements of
+this License.
+
+  Each contributor grants you a non-exclusive, worldwide, royalty-free
+patent license under the contributor's essential patent claims, to
+make, use, sell, offer for sale, import and otherwise run, modify and
+propagate the contents of its contributor version.
+
+  In the following three paragraphs, a "patent license" is any express
+agreement or commitment, however denominated, not to enforce a patent
+(such as an express permission to practice a patent or covenant not to
+sue for patent infringement).  To "grant" such a patent license to a
+party means to make such an agreement or commitment not to enforce a
+patent against the party.
+
+  If you convey a covered work, knowingly relying on a patent license,
+and the Corresponding Source of the work is not available for anyone
+to copy, free of charge and under the terms of this License, through a
+publicly available network server or other readily accessible means,
+then you must either (1) cause the Corresponding Source to be so
+available, or (2) arrange to deprive yourself of the benefit of the
+patent license for this particular work, or (3) arrange, in a manner
+consistent with the requirements of this License, to extend the patent
+license to downstream recipients.  "Knowingly relying" means you have
+actual knowledge that, but for the patent license, your conveying the
+covered work in a country, or your recipient's use of the covered work
+in a country, would infringe one or more identifiable patents in that
+country that you have reason to believe are valid.
+
+  If, pursuant to or in connection with a single transaction or
+arrangement, you convey, or propagate by procuring conveyance of, a
+covered work, and grant a patent license to some of the parties
+receiving the covered work authorizing them to use, propagate, modify
+or convey a specific copy of the covered work, then the patent license
+you grant is automatically extended to all recipients of the covered
+work and works based on it.
+
+  A patent license is "discriminatory" if it does not include within
+the scope of its coverage, prohibits the exercise of, or is
+conditioned on the non-exercise of one or more of the rights that are
+specifically granted under this License.  You may not convey a covered
+work if you are a party to an arrangement with a third party that is
+in the business of distributing software, under which you make payment
+to the third party based on the extent of your activity of conveying
+the work, and under which the third party grants, to any of the
+parties who would receive the covered work from you, a discriminatory
+patent license (a) in connection with copies of the covered work
+conveyed by you (or copies made from those copies), or (b) primarily
+for and in connection with specific products or compilations that
+contain the covered work, unless you entered into that arrangement,
+or that patent license was granted, prior to 28 March 2007.
+
+  Nothing in this License shall be construed as excluding or limiting
+any implied license or other defenses to infringement that may
+otherwise be available to you under applicable patent law.
+
+  12. No Surrender of Others' Freedom.
+
+  If conditions are imposed on you (whether by court order, agreement or
+otherwise) that contradict the conditions of this License, they do not
+excuse you from the conditions of this License.  If you cannot convey a
+covered work so as to satisfy simultaneously your obligations under this
+License and any other pertinent obligations, then as a consequence you may
+not convey it at all.  For example, if you agree to terms that obligate you
+to collect a royalty for further conveying from those to whom you convey
+the Program, the only way you could satisfy both those terms and this
+License would be to refrain entirely from conveying the Program.
+
+  13. Remote Network Interaction; Use with the GNU General Public License.
+
+  Notwithstanding any other provision of this License, if you modify the
+Program, your modified version must prominently offer all users
+interacting with it remotely through a computer network (if your version
+supports such interaction) an opportunity to receive the Corresponding
+Source of your version by providing access to the Corresponding Source
+from a network server at no charge, through some standard or customary
+means of facilitating copying of software.  This Corresponding Source
+shall include the Corresponding Source for any work covered by version 3
+of the GNU General Public License that is incorporated pursuant to the
+following paragraph.
+
+  Notwithstanding any other provision of this License, you have
+permission to link or combine any covered work with a work licensed
+under version 3 of the GNU General Public License into a single
+combined work, and to convey the resulting work.  The terms of this
+License will continue to apply to the part which is the covered work,
+but the work with which it is combined will remain governed by version
+3 of the GNU General Public License.
+
+  14. Revised Versions of this License.
+
+  The Free Software Foundation may publish revised and/or new versions of
+the GNU Affero General Public License from time to time.  Such new versions
+will be similar in spirit to the present version, but may differ in detail to
+address new problems or concerns.
+
+  Each version is given a distinguishing version number.  If the
+Program specifies that a certain numbered version of the GNU Affero General
+Public License "or any later version" applies to it, you have the
+option of following the terms and conditions either of that numbered
+version or of any later version published by the Free Software
+Foundation.  If the Program does not specify a version number of the
+GNU Affero General Public License, you may choose any version ever published
+by the Free Software Foundation.
+
+  If the Program specifies that a proxy can decide which future
+versions of the GNU Affero General Public License can be used, that proxy's
+public statement of acceptance of a version permanently authorizes you
+to choose that version for the Program.
+
+  Later license versions may give you additional or different
+permissions.  However, no additional obligations are imposed on any
+author or copyright holder as a result of your choosing to follow a
+later version.
+
+  15. Disclaimer of Warranty.
+
+  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
+APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
+HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY
+OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
+IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
+ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+
+  16. Limitation of Liability.
+
+  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS
+THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
+GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
+USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
+DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
+PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+
+  17. Interpretation of Sections 15 and 16.
+
+  If the disclaimer of warranty and limitation of liability provided
+above cannot be given local legal effect according to their terms,
+reviewing courts shall apply local law that most closely approximates
+an absolute waiver of all civil liability in connection with the
+Program, unless a warranty or assumption of liability accompanies a
+copy of the Program in return for a fee.
+
+                     END OF TERMS AND CONDITIONS
+
+            How to Apply These Terms to Your New Programs
+
+  If you develop a new program, and you want it to be of the greatest
+possible use to the public, the best way to achieve this is to make it
+free software which everyone can redistribute and change under these terms.
+
+  To do so, attach the following notices to the program.  It is safest
+to attach them to the start of each source file to most effectively
+state the exclusion of warranty; and each file should have at least
+the "copyright" line and a pointer to where the full notice is found.
+
+    <one line to give the program's name and a brief idea of what it does.>
+    Copyright (C) <year>  <name of author>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Also add information on how to contact you by electronic and paper mail.
+
+  If your software can interact with users remotely through a computer
+network, you should also make sure that it provides a way for users to
+get its source.  For example, if your program is a web application, its
+interface could display a "Source" link that leads users to an archive
+of the code.  There are many ways you could offer source, and different
+solutions will be better for different programs; see section 13 for the
+specific requirements.
+
+  You should also get your employer (if you work as a programmer) or school,
+if any, to sign a "copyright disclaimer" for the program, if necessary.
+For more information on this, and how to apply and follow the GNU AGPL, see
+<http://www.gnu.org/licenses/>.
+
+================
+File: nginx.conf
+================
+server {
+    listen 80;
+    server_name _;
+
+    root /var/www/maxun;
+    index index.html;
+
+    # Serve the frontend
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    
+    # Proxy for backend 
+    location  ~ ^/(auth|storage|record|workflow|robot|proxy|api-docs|api|webhook)(/|$) {
+        proxy_pass http://localhost:8080; # change as per your setup
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    	proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+================
+File: README.md
+================
+<h2 align="center">
+    <div>
+        <a href="https://www.maxun.dev/?ref=ghread">
+            <img src="/src/assets/maxunlogo.png" width="70" />
+            <br>
+            Maxun
+        </a>
+    </div>
+    Turn Any Website Into A Structured API
+<br>
+</h2>
+
+<p align="center">
+✨ The unified open-source no-code platform for real-time web scraping, crawling, search and AI data extraction ✨
+
+<p align="center">
+    <a href="https://app.maxun.dev/?ref=ghread"><b>Go To App</b></a> •
+    <a href="https://docs.maxun.dev/?ref=ghread"><b>Documentation</b></a> •
+    <a href="https://www.maxun.dev/?ref=ghread"><b>Website</b></a> •
+    <a href="https://discord.gg/5GbPjBUkws"><b>Discord</b></a> •
+    <a href="https://www.youtube.com/@MaxunOSS?ref=ghread"><b>Watch Tutorials</b></a>
+    <br />
+    <br />
+<a href="https://trendshift.io/repositories/12113" target="_blank"><img src="https://trendshift.io/api/badge/repositories/12113" alt="getmaxun%2Fmaxun | Trendshift" style="width: 250px; height: 55px; margin-top: 10px;" width="250" height="55"/></a>
+</p>
+
+## What is Maxun?
+
+Maxun is an open-source no-code web data platform for turning the web into structured, reliable data.
+It supports extraction, crawling, scraping, and search — designed to scale from simple use cases to complex, automated workflows.
+
+### Ecosystem
+
+1. **[Extract](https://docs.maxun.dev/category/extract)** – Emulate real user behavior and collect structured data from any website.
+   * **[Recorder Mode](https://docs.maxun.dev/robot/extract/robot-actions)** – Record your actions as you browse; Maxun turns them into a reusable extraction robot.
+   * **[AI Mode](https://docs.maxun.dev/robot/extract/llm-extraction)** – Describe what you want in natural language and let LLM-powered extraction do the rest.
+
+2. **[Scrape](https://docs.maxun.dev/robot/scrape/scrape-robots)** – Convert full webpages into clean Markdown or HTML and capture screenshots.
+3. **[Crawl](https://docs.maxun.dev/robot/crawl/crawl-introduction)** – Crawl entire websites and extract content from every relevant page, with full control over scope and discovery.
+4. **[Search](https://docs.maxun.dev/robot/search/search-introduction)** – Run automated web searches to discover or scrape results, with support for time-based filters.
+5. **[SDK](https://docs.maxun.dev/category/sdk)** – A complete developer toolkit for scraping, extraction, scheduling, and end-to-end data automation.
+6. **[CLI](https://docs.maxun.dev/category/cli)** – Create robots, trigger runs, and retrieve extracted data from your terminal.
+
+
+## How Does It Work?
+
+Maxun robots are automated tools that help you collect data from websites without writing any code. Think of them as your personal web assistants that can navigate websites, extract information, and organize data just like you would manually - but faster and more efficiently.
+
+There are four types of robots, each designed for a different job.
+
+### 1. Extract
+Extract emulates real user behavior and captures structured data.
+- <a href="/robot/extract/robot-actions">Recorder Mode</a> - Record your actions as you browse; Maxun turns them into a reusable extraction robot.
+### Example: Extract 10 Property Listings from Airbnb
+
+[https://github.com/user-attachments/assets/recorder-mode-demo-video](https://github.com/user-attachments/assets/c6baa75f-b950-482c-8d26-8a8b6c5382c3)
+- <a href="/robot/extract/llm-extraction">AI Mode</a> - Describe what you want in natural language and let LLM-powered extraction do the rest.
+### Example: Extract Names, Rating & Duration of Top 50 Movies from IMDb
+
+https://github.com/user-attachments/assets/f714e860-58d6-44ed-bbcd-c9374b629384
+
+Learn more <a href="/category/extract">here</a>.
+
+### 2. Scrape
+Scrape converts full webpages into clean Markdown, HTML and can capture screenshots. Ideal for AI workflows, agents, and document processing. 
+
+Learn more <a href="https://docs.maxun.dev/robot/scrape/scrape-robots">here</a>.
+
+### 3. Crawl
+Crawl entire websites and extract content from every relevant page, with full control over scope and discovery.
+
+Learn more <a href="https://docs.maxun.dev/robot/crawl/crawl-introduction">here</a>.
+
+### 4. Search
+Run automated web searches to discover or scrape results, with support for time-based filters.
+
+Learn more <a href="https://docs.maxun.dev/robot/search/search-introduction">here</a>.
+
+## Quick Start
+
+### Getting Started
+The simplest & fastest way to get started is to use the hosted version: https://app.maxun.dev. You can self-host if you prefer!
+
+### Installation
+Maxun can run locally with or without Docker
+1. [Setup with Docker Compose](https://docs.maxun.dev/installation/docker)
+2. [Setup without Docker](https://docs.maxun.dev/installation/local)
+3. [Environment Variables](https://docs.maxun.dev/installation/environment_variables)
+4. [SDK](https://github.com/getmaxun/node-sdk)
+
+### Upgrading & Self Hosting
+1. [Self Host Maxun With Docker & Portainer](https://docs.maxun.dev/self-host)
+2. [Upgrade Maxun With Docker Compose Setup](https://docs.maxun.dev/installation/upgrade#upgrading-with-docker-compose)
+3. [Upgrade Maxun Without Docker Compose Setup](https://docs.maxun.dev/installation/upgrade#upgrading-with-local-setup)
+4. [Self Host With Neon](https://docs.maxun.dev/self-host/neon)
+
+## Sponsors
+<table>
+  <tr>
+  <td width="229">
+      <br/>
+      <a href="https://www.testmuai.com/?utm_medium=sponsor&utm_source=maxun" target="_blank">
+        <img src="https://github.com/user-attachments/assets/6c96005b-85df-43e0-9b63-96aaca676c11" /><br/><br/>
+        <b>TestMu AI</b>
+      </a>
+      <br/>
+      <sub>The Native AI-Agentic Cloud Platform to Supercharge Quality Engineering. Test Intelligently and Ship Faster.
+      </sub>
+    </td>
+  </tr>
+</table>
+
+## Features
+
+- ✨ **Extract Data With No-Code** – Point and click interface
+- ✨ **LLM-Powered Extraction** – Describe what you want; use LLMs to scrape structured data
+- ✨ **Developer SDK** – Programmatic extraction, scheduling, and robot management
+- ✨ **Handle Pagination & Scrolling** – Automatic navigation
+- ✨ **Run Robots On Schedules** – Set it and forget it
+- ✨ **Turn Websites to APIs** – RESTful endpoints from any site
+- ✨ **Turn Websites to Spreadsheets** – Direct data export to Google Sheets & Airtable
+- ✨ **Adapt To Website Layout Changes** – Auto-recovery from site updates
+- ✨ **Extract Behind Login** – Handle authentication seamlessly
+- ✨ **Integrations** – Connect with your favorite tools
+- ✨ **MCP Support** – Model Context Protocol integration
+- ✨ **LLM-Ready Data** – Clean Markdown for AI applications
+- ✨ **Self-Hostable** – Full control over your infrastructure
+- ✨ **Open Source** – Transparent and community-driven
+
+## Demos
+Maxun can be used for various use-cases, including lead generation, market research, content aggregation and more.
+View demos here: https://www.maxun.dev/usecases
+
+## Note
+This project is in early stages of development. Your feedback is very important for us - we're actively working on improvements. </a>
+
+## License
+<p>
+This project is licensed under <a href="./LICENSE">AGPLv3</a>. 
+</p>
+
+## Project Values
+
+We believe in fair and responsible use of open source.
+If you rely on this project commercially, please consider contributing back
+or supporting its development.
+
+## Support Us
+Star the repository, contribute if you love what we’re building, or [sponsor us](https://github.com/sponsors/amhsirak). 
+
+## Contributors
+Thank you to the combined efforts of everyone who contributes!
+
+<a href="https://github.com/getmaxun/maxun/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=getmaxun/maxun" />
+</a>
+
+================
+File: SETUP.md
+================
+# Local Installation
+1. Create a root folder for your project (e.g. 'maxun')
+2. Create a file named `.env` in the root folder of the project
+3. Example env file can be viewed [here](https://github.com/getmaxun/maxun/blob/master/ENVEXAMPLE). Copy all content of example env to your `.env` file.
+4. Choose your installation method below
+
+### Docker Compose
+1. Copy paste the [docker-compose.yml file](https://github.com/getmaxun/maxun/blob/master/docker-compose.yml) into your root folder 
+2. Ensure you have setup the `.env` file in that same folder
+3. Run the command below from a terminal
+```
+docker-compose up -d
+```
+You can access the frontend at http://localhost:5173/ and backend at http://localhost:8080/
+
+### Without Docker
+1. Ensure you have Node.js, PostgreSQL, MinIO and Redis installed on your system.
+2. Run the commands below
+```
+git clone https://github.com/getmaxun/maxun
+
+# change directory to the project root
+cd maxun
+
+# install dependencies
+npm install
+
+# change directory to maxun-core to install dependencies
+cd maxun-core 
+npm install
+
+# get back to the root directory
+cd ..
+
+# install chromium and its dependencies
+npx playwright install --with-deps chromium
+
+# get back to the root directory
+cd ..
+
+# start frontend and backend together
+npm run start
+```
+You can access the frontend at http://localhost:5173/ and backend at http://localhost:8080/
+
+
+# Environment Variables
+1. Create a file named `.env` in the root folder of the project
+2. Example env file can be viewed [here](https://github.com/getmaxun/maxun/blob/master/ENVEXAMPLE).
+
+| Variable              | Mandatory | Description                                                                                  | If Not Set                                                   |
+|-----------------------|-----------|----------------------------------------------------------------------------------------------|--------------------------------------------------------------|
+| `BACKEND_PORT`            | Yes       | Port to run backend on. Needed for Docker setup                                          | Default value: 8080 |
+| `FRONTEND_PORT`            | Yes       | Port to run frontend on. Needed for Docker setup                                        | Default value: 5173 |
+| `BACKEND_URL`            | Yes       | URL to run backend on.                                                                    | Default value: http://localhost:8080 |
+| `VITE_BACKEND_URL`            | Yes       | URL used by frontend to connect to backend                                           | Default value: http://localhost:8080 |
+| `PUBLIC_URL`            | Yes       | URL to run frontend on.                                                                    | Default value: http://localhost:5173 |
+| `VITE_PUBLIC_URL`            | Yes       | URL used by backend to connect to frontend                                           | Default value: http://localhost:5173 |
+| `JWT_SECRET`          | Yes       | Secret key used to sign and verify JSON Web Tokens (JWTs) for authentication.                | JWT authentication will not work.                            |
+| `DB_NAME`             | Yes       | Name of the Postgres database to connect to.                                                 | Database connection will fail.                               |
+| `DB_USER`             | Yes       | Username for Postgres database authentication.                                               | Database connection will fail.                               |
+| `DB_PASSWORD`         | Yes       | Password for Postgres database authentication.                                               | Database connection will fail.                               |
+| `DB_HOST`             | Yes       | Host address where the Postgres database server is running.                                  | Database connection will fail.                               |
+| `DB_PORT`             | Yes       | Port number used to connect to the Postgres database server.                                 | Database connection will fail.                               |
+| `ENCRYPTION_KEY`      | Yes       | Key used for encrypting sensitive data (proxies, passwords).                                 | Encryption functionality will not work.                      |
+| `SESSION_SECRET`      | No       | A strong, random string used to sign session cookies                                          | Uses default secret. Recommended to define your own session secret to avoid session hijacking.  |
+| `MINIO_ENDPOINT`      | Yes       | Endpoint URL for MinIO, to store Robot Run Screenshots.                                      | Connection to MinIO storage will fail.                       |
+| `MINIO_PORT`          | Yes       | Port number for MinIO service.                                                               | Connection to MinIO storage will fail.                       |
+| `MINIO_CONSOLE_PORT`          | No       | Port number for MinIO WebUI service. Needed for Docker setup.                         | Cannot access MinIO Web UI. |
+| `MINIO_ACCESS_KEY`    | Yes       | Access key for authenticating with MinIO.                                                    | MinIO authentication will fail.                              |
+| `GOOGLE_CLIENT_ID`    | No       | Client ID for Google OAuth. Used for Google Sheet integration authentication.                 | Google login will not work.                                  |
+| `GOOGLE_CLIENT_SECRET`| No       | Client Secret for Google OAuth. Used for Google Sheet integration authentication.            | Google login will not work.   |
+| `GOOGLE_REDIRECT_URI` | No       | Redirect URI for handling Google OAuth responses.                                            | Google login will not work.                                  |
+| `AIRTABLE_CLIENT_ID` | No       | Client ID for Airtable, used for Airtable integration authentication.                         | Airtable login will not work.  |
+| `AIRTABLE_REDIRECT_URI` | No    | Redirect URI for handling Airtable OAuth responses.                                           | Airtable login will not work.  |
+| `MAXUN_TELEMETRY`     | No        | Disables telemetry to stop sending anonymous usage data. Keeping it enabled helps us understand how the product is used and assess the impact of any new changes. Please keep it enabled. | Telemetry data will not be collected. |
+
+================
+File: vite-env.d.ts
+================
+interface ImportMetaEnv {
+    readonly VITE_BACKEND_URL: string;
+}
+⋮----
+interface ImportMeta {
+    readonly env: ImportMetaEnv;
+}
+
+================
+File: vite.config.js
+================

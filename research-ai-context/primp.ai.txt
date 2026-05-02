@@ -1,0 +1,1995 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files and files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: **/*.py, **/*.ts, **/*.tsx, **/*.js, **/*.jsx, **/*.go, **/*.rs, **/*.toml, **/*.yaml, **/*.yml, **/*.md, **/*.sh, **/*.cfg, **/Dockerfile, **/Makefile
+- Files matching these patterns are excluded: **/*.ipynb, **/node_modules/**, **/__pycache__/**, **/results/**, **/mocks/**, **/test-site/**, **/dist/**, **/build/**, **/.next/**, settings/**
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+.github/
+  workflows/
+    ci.yml
+crates/
+  primp/
+    benches/
+      client_creation.rs
+    examples/
+      impersonate.rs
+    src/
+      imp/
+        chrome/
+          mod.rs
+        edge/
+          mod.rs
+        firefox/
+          mod.rs
+        opera/
+          mod.rs
+        safari/
+          mod.rs
+        mod.rs
+      lib.rs
+    Cargo.toml
+    README.md
+  primp-h2/
+    fixtures/
+      hpack/
+        README.md
+    src/
+      codec/
+        error.rs
+        framed_read.rs
+        framed_write.rs
+        mod.rs
+      frame/
+        data.rs
+        go_away.rs
+        head.rs
+        headers.rs
+        mod.rs
+        ping.rs
+        priority.rs
+        reason.rs
+        reset.rs
+        settings.rs
+        stream_id.rs
+        util.rs
+        window_update.rs
+      hpack/
+        huffman/
+          mod.rs
+          table.rs
+        test/
+          fixture.rs
+          fuzz.rs
+          mod.rs
+        decoder.rs
+        encoder.rs
+        header.rs
+        mod.rs
+        table.rs
+      proto/
+        streams/
+          buffer.rs
+          counts.rs
+          flow_control.rs
+          mod.rs
+          prioritize.rs
+          recv.rs
+          send.rs
+          state.rs
+          store.rs
+          stream.rs
+          streams.rs
+        connection.rs
+        error.rs
+        go_away.rs
+        mod.rs
+        peer.rs
+        ping_pong.rs
+        settings.rs
+      client.rs
+      error.rs
+      ext.rs
+      fuzz_bridge.rs
+      lib.rs
+      macros.rs
+      server.rs
+      share.rs
+    tests/
+      h2-support/
+        src/
+          assert.rs
+          client_ext.rs
+          frames.rs
+          future_ext.rs
+          lib.rs
+          mock.rs
+          prelude.rs
+          raw.rs
+          trace.rs
+          util.rs
+        Cargo.toml
+        README.md
+      h2-tests/
+        tests/
+          client_request.rs
+          codec_read.rs
+          codec_write.rs
+          flow_control.rs
+          hammer.rs
+          informational_responses.rs
+          ping_pong.rs
+          prioritization.rs
+          push_promise.rs
+          server.rs
+          stream_states.rs
+          trailers.rs
+        Cargo.toml
+        README.md
+    Cargo.toml
+    README.md
+  primp-hyper/
+    src/
+      body/
+        incoming.rs
+        length.rs
+        mod.rs
+      client/
+        conn/
+          http1.rs
+          http2.rs
+          mod.rs
+        dispatch.rs
+        mod.rs
+        tests.rs
+      common/
+        io/
+          compat.rs
+          mod.rs
+          rewind.rs
+        buf.rs
+        date.rs
+        either.rs
+        future.rs
+        mod.rs
+        task.rs
+        time.rs
+        watch.rs
+      ext/
+        h1_reason_phrase.rs
+        informational.rs
+        mod.rs
+      ffi/
+        body.rs
+        client.rs
+        error.rs
+        http_types.rs
+        io.rs
+        macros.rs
+        mod.rs
+        task.rs
+      proto/
+        h1/
+          conn.rs
+          decode.rs
+          dispatch.rs
+          encode.rs
+          io.rs
+          mod.rs
+          role.rs
+        h2/
+          client.rs
+          mod.rs
+          ping.rs
+          server.rs
+          upgrade.rs
+        mod.rs
+      rt/
+        bounds.rs
+        io.rs
+        mod.rs
+        timer.rs
+      server/
+        conn/
+          http1.rs
+          http2.rs
+          mod.rs
+        mod.rs
+      service/
+        http.rs
+        mod.rs
+        service.rs
+        util.rs
+      cfg.rs
+      error.rs
+      headers.rs
+      lib.rs
+      mock.rs
+      trace.rs
+      upgrade.rs
+    tests/
+      support/
+        mod.rs
+        tokiort.rs
+        trailers.rs
+      client.rs
+      integration.rs
+      server.rs
+    Cargo.toml
+    README.md
+  primp-hyper-rustls/
+    src/
+      connector/
+        builder.rs
+      config.rs
+      connector.rs
+      lib.rs
+      stream.rs
+    Cargo.toml
+    README.md
+  primp-hyper-util/
+    examples/
+      client.rs
+      server_graceful.rs
+      server.rs
+    src/
+      client/
+        legacy/
+          connect/
+            proxy/
+              socks/
+                v4/
+                  errors.rs
+                  messages.rs
+                  mod.rs
+                v5/
+                  errors.rs
+                  messages.rs
+                  mod.rs
+                mod.rs
+              mod.rs
+              tunnel.rs
+            capture.rs
+            dns.rs
+            http.rs
+            mod.rs
+          client.rs
+          mod.rs
+          pool.rs
+        pool/
+          cache.rs
+          map.rs
+          mod.rs
+          negotiate.rs
+          singleton.rs
+        proxy/
+          matcher.rs
+          mod.rs
+        mod.rs
+      common/
+        exec.rs
+        future.rs
+        lazy.rs
+        mod.rs
+        rewind.rs
+        sync.rs
+        timer.rs
+      rt/
+        tokio/
+          with_hyper_io.rs
+          with_tokio_io.rs
+        io.rs
+        mod.rs
+        tokio.rs
+      server/
+        conn/
+          auto/
+            mod.rs
+            upgrade.rs
+          mod.rs
+        graceful.rs
+        mod.rs
+      service/
+        glue.rs
+        mod.rs
+        oneshot.rs
+      error.rs
+      lib.rs
+    tests/
+      test_utils/
+        mod.rs
+      legacy_client.rs
+      proxy.rs
+    Cargo.toml
+    README.md
+  primp-python/
+    benchmark/
+      benchmark.py
+      README.md
+      run.py
+      server.py
+    docs/
+      async_client.md
+      client.md
+      exceptions.md
+      impersonate.md
+      response.md
+    examples/
+      async_usage.py
+      authentication.py
+      basic_usage.py
+      cookies.py
+      error_handling.py
+      html_conversion.py
+      post_requests.py
+      proxy.py
+      streaming.py
+    src/
+      async/
+        client.rs
+        mod.rs
+        response.rs
+      client_builder.rs
+      error.rs
+      impersonate.rs
+      lib.rs
+      response.rs
+      traits.rs
+      utils.rs
+    tests/
+      __init__.py
+      conftest.py
+      server.py
+      test_client.py
+      test_exceptions.py
+      test_header_order.py
+      test_http_methods.py
+      test_impersonate.py
+      test_parallel_client.py
+      test_request_params.py
+      test_response.py
+      test_streaming.py
+    Cargo.toml
+    pyproject.toml
+    README.md
+  primp-reqwest/
+    src/
+      async_impl/
+        h3_client/
+          connect.rs
+          dns.rs
+          mod.rs
+          pool.rs
+        body.rs
+        client.rs
+        mod.rs
+        multipart.rs
+        request.rs
+        response.rs
+        upgrade.rs
+      blocking/
+        body.rs
+        client.rs
+        mod.rs
+        multipart.rs
+        request.rs
+        response.rs
+        wait.rs
+      dns/
+        cache.rs
+        gai.rs
+        hickory.rs
+        mod.rs
+        resolve.rs
+      wasm/
+        body.rs
+        client.rs
+        mod.rs
+        multipart.rs
+        request.rs
+        response.rs
+      config.rs
+      connect.rs
+      cookie.rs
+      error.rs
+      into_url.rs
+      lib.rs
+      proxy.rs
+      redirect.rs
+      response.rs
+      retry.rs
+      tls.rs
+      util.rs
+    tests/
+      support/
+        delay_layer.rs
+        delay_server.rs
+        error.rs
+        mod.rs
+        not_tcp.rs
+        server.rs
+      badssl.rs
+      blocking.rs
+      brotli.rs
+      ci.rs
+      client.rs
+      connector_layers.rs
+      cookie.rs
+      deflate.rs
+      gzip.rs
+      http3.rs
+      multipart.rs
+      not_tcp.rs
+      proxy.rs
+      redirect.rs
+      retry.rs
+      timeouts.rs
+      upgrade.rs
+      wasm_simple.rs
+      zstd.rs
+    Cargo.toml
+    README.md
+  primp-rustls/
+    rustls/
+      src/
+        client/
+          builder.rs
+          client_conn.rs
+          client_emulator.rs
+          common.rs
+          ech.rs
+          handy.rs
+          hs.rs
+          test.rs
+          tls12.rs
+          tls13.rs
+        conn/
+          kernel.rs
+          unbuffered.rs
+        crypto/
+          aws_lc_rs/
+            pq/
+              hybrid.rs
+              mlkem.rs
+              mod.rs
+            hpke.rs
+            mod.rs
+            sign.rs
+... (Header / Directory Structure truncated)
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: crates/primp-tokio-rustls/src/common/mod.rs
+================
+use std::pin::Pin;
+⋮----
+mod handshake;
+⋮----
+pub(crate) enum TlsState {
+⋮----
+impl TlsState {
+⋮----
+pub(crate) fn shutdown_read(&mut self) {
+⋮----
+pub(crate) fn shutdown_write(&mut self) {
+⋮----
+pub(crate) fn writeable(&self) -> bool {
+!matches!(*self, Self::WriteShutdown | Self::FullyShutdown)
+⋮----
+pub(crate) fn readable(&self) -> bool {
+!matches!(*self, Self::ReadShutdown | Self::FullyShutdown)
+⋮----
+pub(crate) fn is_early_data(&self) -> bool {
+matches!(self, Self::EarlyData(..))
+⋮----
+pub(crate) const fn is_early_data(&self) -> bool {
+⋮----
+pub(crate) struct Stream<'a, IO, C> {
+⋮----
+pub(crate) fn new(io: &'a mut IO, session: &'a mut C) -> Self {
+⋮----
+// The state so far is only used to detect EOF, so either Stream
+// or EarlyData state should both be all right.
+⋮----
+// Whether a previous flush returned pending, or a write occured without a flush.
+⋮----
+pub(crate) fn set_eof(mut self, eof: bool) -> Self {
+⋮----
+pub(crate) fn set_need_flush(mut self, need_flush: bool) -> Self {
+⋮----
+pub(crate) fn as_mut_pin(&mut self) -> Pin<&mut Self> {
+⋮----
+pub(crate) fn read_io(&mut self, cx: &mut Context) -> Poll<io::Result<usize>> {
+⋮----
+let n = match self.session.read_tls(&mut reader) {
+⋮----
+Err(ref err) if err.kind() == io::ErrorKind::WouldBlock => return Poll::Pending,
+Err(err) => return Poll::Ready(Err(err)),
+⋮----
+self.session.process_new_packets().map_err(|err| {
+// In case we have an alert to send describing this error,
+// try a last-gasp write -- but don't predate the primary
+// error.
+let _ = self.write_io(cx);
+⋮----
+Poll::Ready(Ok(n))
+⋮----
+pub(crate) fn write_io(&mut self, cx: &mut Context) -> Poll<io::Result<usize>> {
+⋮----
+match self.session.write_tls(&mut writer) {
+Err(ref err) if err.kind() == io::ErrorKind::WouldBlock => Poll::Pending,
+⋮----
+pub(crate) fn handshake(&mut self, cx: &mut Context) -> Poll<io::Result<(usize, usize)>> {
+⋮----
+while self.session.wants_write() {
+match self.write_io(cx) {
+Poll::Ready(Ok(0)) => return Poll::Ready(Err(io::ErrorKind::WriteZero.into())),
+⋮----
+Poll::Ready(Err(err)) => return Poll::Ready(Err(err)),
+⋮----
+match Pin::new(&mut self.io).poll_flush(cx) {
+⋮----
+while !self.eof && self.session.wants_read() {
+match self.read_io(cx) {
+⋮----
+return match (self.eof, self.session.is_handshaking()) {
+⋮----
+Poll::Ready(Err(err))
+⋮----
+(_, false) => Poll::Ready(Ok((rdlen, wrlen))),
+⋮----
+Poll::Ready(Ok((rdlen, wrlen)))
+⋮----
+pub(crate) fn poll_fill_buf(mut self, cx: &mut Context<'_>) -> Poll<io::Result<&'a [u8]>>
+⋮----
+// read a packet
+⋮----
+match self.session.reader().into_first_chunk() {
+⋮----
+// Note that this could be empty (i.e. EOF) if a `CloseNotify` has been
+// received and there is no more buffered data.
+Poll::Ready(Ok(buf))
+⋮----
+Err(e) if e.kind() == io::ErrorKind::WouldBlock => {
+⋮----
+// If `wants_read()` is satisfied, rustls will not return `WouldBlock`.
+// but if it does, we can try again.
+//
+// If the rustls state is abnormal, it may cause a cyclic wakeup.
+// but tokio's cooperative budget will prevent infinite wakeup.
+cx.waker().wake_by_ref();
+⋮----
+Err(e) => Poll::Ready(Err(e)),
+⋮----
+impl<'a, IO: AsyncRead + AsyncWrite + Unpin, C, SD> AsyncRead for Stream<'a, IO, C>
+⋮----
+fn poll_read(
+⋮----
+let data = ready!(self.as_mut().poll_fill_buf(cx))?;
+let amount = buf.remaining().min(data.len());
+buf.put_slice(&data[..amount]);
+self.session.reader().consume(amount);
+Poll::Ready(Ok(()))
+⋮----
+impl<'a, IO: AsyncRead + AsyncWrite + Unpin, C, SD> AsyncBufRead for Stream<'a, IO, C>
+⋮----
+fn poll_fill_buf(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<&[u8]>> {
+let this = self.get_mut();
+⋮----
+// reborrow
+⋮----
+.poll_fill_buf(cx)
+⋮----
+fn consume(mut self: Pin<&mut Self>, amt: usize) {
+self.session.reader().consume(amt);
+⋮----
+impl<IO: AsyncRead + AsyncWrite + Unpin, C, SD> AsyncWrite for Stream<'_, IO, C>
+⋮----
+fn poll_write(
+⋮----
+while pos != buf.len() {
+⋮----
+match self.session.writer().write(&buf[pos..]) {
+⋮----
+(n, true) => Poll::Ready(Ok(n)),
+⋮----
+Poll::Ready(Ok(pos))
+⋮----
+fn poll_write_vectored(
+⋮----
+if bufs.iter().all(|buf| buf.is_empty()) {
+return Poll::Ready(Ok(0));
+⋮----
+let written = self.session.writer().write_vectored(bufs)?;
+⋮----
+(n, _) => Poll::Ready(Ok(n)),
+⋮----
+fn is_write_vectored(&self) -> bool {
+⋮----
+fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context) -> Poll<io::Result<()>> {
+self.session.writer().flush()?;
+⋮----
+if ready!(self.write_io(cx))? == 0 {
+return Poll::Ready(Err(io::ErrorKind::WriteZero.into()));
+⋮----
+Pin::new(&mut self.io).poll_flush(cx)
+⋮----
+fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+⋮----
+Poll::Ready(match ready!(Pin::new(&mut self.io).poll_shutdown(cx)) {
+Ok(()) => Ok(()),
+// When trying to shutdown, not being connected seems fine
+Err(err) if err.kind() == io::ErrorKind::NotConnected => Ok(()),
+Err(err) => Err(err),
+⋮----
+/// An adapter that implements a [`Read`] interface for [`AsyncRead`] types and an
+/// associated [`Context`].
+⋮----
+/// associated [`Context`].
+///
+⋮----
+///
+/// Turns `Poll::Pending` into `WouldBlock`.
+⋮----
+/// Turns `Poll::Pending` into `WouldBlock`.
+pub(crate) struct SyncReadAdapter<'a, 'b, T> {
+⋮----
+pub(crate) struct SyncReadAdapter<'a, 'b, T> {
+⋮----
+impl<T: AsyncRead + Unpin> Read for SyncReadAdapter<'_, '_, T> {
+⋮----
+fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+⋮----
+match Pin::new(&mut self.io).poll_read(self.cx, &mut buf) {
+Poll::Ready(Ok(())) => Ok(buf.filled().len()),
+Poll::Ready(Err(err)) => Err(err),
+Poll::Pending => Err(io::ErrorKind::WouldBlock.into()),
+⋮----
+/// An adapter that implements a [`Write`] interface for [`AsyncWrite`] types and an
+/// associated [`Context`].
+⋮----
+/// Turns `Poll::Pending` into `WouldBlock`.
+pub(crate) struct SyncWriteAdapter<'a, 'b, T> {
+⋮----
+pub(crate) struct SyncWriteAdapter<'a, 'b, T> {
+⋮----
+fn poll_with<U>(
+⋮----
+match f(Pin::new(self.io), self.cx) {
+⋮----
+impl<T: AsyncWrite + Unpin> Write for SyncWriteAdapter<'_, '_, T> {
+⋮----
+fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+self.poll_with(|io, cx| io.poll_write(cx, buf))
+⋮----
+fn write_vectored(&mut self, bufs: &[IoSlice<'_>]) -> io::Result<usize> {
+self.poll_with(|io, cx| io.poll_write_vectored(cx, bufs))
+⋮----
+fn flush(&mut self) -> io::Result<()> {
+self.poll_with(|io, cx| io.poll_flush(cx))
+⋮----
+mod test_stream;
+
+================
+File: crates/primp-tokio-rustls/src/common/test_stream.rs
+================
+use std::pin::Pin;
+use std::sync::Arc;
+⋮----
+use futures_util::future::poll_fn;
+use futures_util::task::noop_waker_ref;
+use rustls::pki_types::ServerName;
+⋮----
+use super::Stream;
+⋮----
+struct Good<'a>(&'a mut Connection);
+⋮----
+impl AsyncRead for Good<'_> {
+fn poll_read(
+⋮----
+let mut buf2 = buf.initialize_unfilled();
+⋮----
+Poll::Ready(match self.0.write_tls(buf2.by_ref()) {
+⋮----
+buf.advance(n);
+Ok(())
+⋮----
+Err(err) => Err(err),
+⋮----
+impl AsyncWrite for Good<'_> {
+fn poll_write(
+⋮----
+let len = self.0.read_tls(buf.by_ref())?;
+⋮----
+.process_new_packets()
+.map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?;
+Poll::Ready(Ok(len))
+⋮----
+fn poll_flush(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+⋮----
+Poll::Ready(Ok(()))
+⋮----
+fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+self.0.send_close_notify();
+dbg!("sent close notify");
+self.poll_flush(cx)
+⋮----
+struct Pending;
+⋮----
+impl AsyncRead for Pending {
+⋮----
+impl AsyncWrite for Pending {
+⋮----
+fn poll_flush(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+⋮----
+fn poll_shutdown(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+⋮----
+struct Expected(Cursor<Vec<u8>>);
+⋮----
+impl AsyncRead for Expected {
+⋮----
+let this = self.get_mut();
+let n = std::io::Read::read(&mut this.0, buf.initialize_unfilled())?;
+⋮----
+impl AsyncWrite for Expected {
+⋮----
+Poll::Ready(Ok(buf.len()))
+⋮----
+struct Eof;
+⋮----
+impl AsyncRead for Eof {
+⋮----
+impl AsyncWrite for Eof {
+⋮----
+Poll::Ready(Ok(0))
+⋮----
+async fn stream_good() -> io::Result<()> {
+stream_good_impl(false, false).await
+⋮----
+async fn stream_good_vectored() -> io::Result<()> {
+stream_good_impl(true, false).await
+⋮----
+async fn stream_good_bufread() -> io::Result<()> {
+stream_good_impl(false, true).await
+⋮----
+async fn stream_good_impl(vectored: bool, bufread: bool) -> io::Result<()> {
+const FILE: &[u8] = include_bytes!("../../README.md");
+⋮----
+let (server, mut client) = make_pair();
+⋮----
+poll_fn(|cx| do_handshake(&mut client, &mut server, cx)).await?;
+⋮----
+io::copy(&mut Cursor::new(FILE), &mut server.writer())?;
+server.send_close_notify();
+⋮----
+let mut good = Good(&mut server);
+⋮----
+dbg!(tokio::io::copy_buf(&mut stream, &mut buf).await)?;
+⋮----
+dbg!(stream.read_to_end(&mut buf).await)?;
+⋮----
+assert_eq!(buf, FILE);
+⋮----
+dbg!(utils::write(&mut stream, b"Hello World!", vectored).await)?;
+stream.session.send_close_notify();
+⋮----
+dbg!(stream.shutdown().await)?;
+⋮----
+dbg!(server.process_new_packets()).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+dbg!(server.reader().read_to_string(&mut buf))?;
+assert_eq!(buf, "Hello World!");
+⋮----
+Ok(()) as io::Result<()>
+⋮----
+async fn stream_bad() -> io::Result<()> {
+⋮----
+client.set_buffer_limit(Some(1024));
+⋮----
+assert_eq!(
+⋮----
+let r = poll_fn(|cx| stream.as_mut_pin().poll_write(cx, &[0x00; 1024])).await?; // fill buffer
+assert!(r < 1024);
+⋮----
+let mut cx = Context::from_waker(noop_waker_ref());
+let ret = stream.as_mut_pin().poll_write(&mut cx, &[0x01]);
+assert!(ret.is_pending());
+⋮----
+async fn stream_handshake() -> io::Result<()> {
+⋮----
+let (r, w) = poll_fn(|cx| stream.handshake(cx)).await?;
+⋮----
+assert!(r > 0);
+assert!(w > 0);
+⋮----
+poll_fn(|cx| stream.handshake(cx)).await?; // finish server handshake
+⋮----
+assert!(!server.is_handshaking());
+assert!(!client.is_handshaking());
+⋮----
+async fn stream_buffered_handshake() -> io::Result<()> {
+use tokio::io::BufWriter;
+⋮----
+let mut good = BufWriter::new(Good(&mut server));
+⋮----
+async fn stream_handshake_eof() -> io::Result<()> {
+let (_, mut client) = make_pair();
+⋮----
+let mut bad = Expected(Cursor::new(Vec::new()));
+⋮----
+let r = stream.handshake(&mut cx);
+⋮----
+async fn stream_handshake_write_eof() -> io::Result<()> {
+⋮----
+// see https://github.com/tokio-rs/tls/issues/77
+⋮----
+async fn stream_handshake_regression_issues_77() -> io::Result<()> {
+⋮----
+let mut bad = Expected(Cursor::new(b"\x15\x03\x01\x00\x02\x02\x00".to_vec()));
+⋮----
+async fn stream_eof() -> io::Result<()> {
+⋮----
+let result = stream.read_to_end(&mut buf).await;
+⋮----
+async fn stream_write_zero() -> io::Result<()> {
+⋮----
+stream.write_all(b"1").await.unwrap();
+let result = stream.flush().await;
+⋮----
+fn make_pair() -> (ServerConnection, ClientConnection) {
+⋮----
+let server = ServerConnection::new(Arc::new(sconfig)).unwrap();
+⋮----
+let domain = ServerName::try_from("foobar.com").unwrap();
+let client = ClientConnection::new(Arc::new(cconfig), domain).unwrap();
+⋮----
+fn do_handshake(
+⋮----
+let mut good = Good(server);
+⋮----
+while stream.session.is_handshaking() {
+ready!(stream.handshake(cx))?;
+⋮----
+while stream.session.wants_write() {
+ready!(stream.write_io(cx))?;
+⋮----
+// Share `utils` module with integration tests
+include!("../../tests/utils.rs");
+
+================
+File: crates/primp-tokio-rustls/src/client.rs
+================
+use std::future::Future;
+⋮----
+use std::pin::Pin;
+⋮----
+use std::task::Waker;
+⋮----
+/// A wrapper around a `rustls::ClientConfig`, providing an async `connect` method.
+#[derive(Clone)]
+pub struct TlsConnector {
+⋮----
+impl TlsConnector {
+/// Enable 0-RTT.
+    ///
+⋮----
+///
+    /// If you want to use 0-RTT,
+⋮----
+/// If you want to use 0-RTT,
+    /// You must also set `ClientConfig.enable_early_data` to `true`.
+⋮----
+/// You must also set `ClientConfig.enable_early_data` to `true`.
+    #[cfg(feature = "early-data")]
+pub fn early_data(mut self, flag: bool) -> Self {
+⋮----
+pub fn connect<IO>(&self, domain: ServerName<'static>, stream: IO) -> Connect<IO>
+⋮----
+self.connect_impl(domain, stream, None, |_| ())
+⋮----
+pub fn connect_with<IO, F>(&self, domain: ServerName<'static>, stream: IO, f: F) -> Connect<IO>
+⋮----
+self.connect_impl(domain, stream, None, f)
+⋮----
+fn connect_impl<IO, F>(
+⋮----
+let alpn = alpn_protocols.unwrap_or_else(|| self.inner.alpn_protocols.clone());
+let mut session = match ClientConnection::new_with_alpn(self.inner.clone(), domain, alpn) {
+⋮----
+return Connect(MidHandshake::Error {
+⋮----
+// TODO(eliza): should this really return an `io::Error`?
+// Probably not...
+⋮----
+f(&mut session);
+⋮----
+Connect(MidHandshake::Handshaking(TlsStream {
+⋮----
+state: if self.early_data && session.early_data().is_some() {
+⋮----
+pub fn with_alpn(&self, alpn_protocols: Vec<Vec<u8>>) -> TlsConnectorWithAlpn<'_> {
+⋮----
+/// Get a read-only reference to underlying config
+    pub fn config(&self) -> &Arc<ClientConfig> {
+⋮----
+pub fn config(&self) -> &Arc<ClientConfig> {
+⋮----
+fn from(inner: Arc<ClientConfig>) -> Self {
+⋮----
+pub struct TlsConnectorWithAlpn<'c> {
+⋮----
+pub fn connect<IO>(self, domain: ServerName<'static>, stream: IO) -> Connect<IO>
+⋮----
+.connect_impl(domain, stream, Some(self.alpn_protocols), |_| ())
+⋮----
+pub fn connect_with<IO, F>(self, domain: ServerName<'static>, stream: IO, f: F) -> Connect<IO>
+⋮----
+.connect_impl(domain, stream, Some(self.alpn_protocols), f)
+⋮----
+/// Future returned from `TlsConnector::connect` which will resolve
+/// once the connection handshake has finished.
+⋮----
+/// once the connection handshake has finished.
+pub struct Connect<IO>(MidHandshake<TlsStream<IO>>);
+⋮----
+pub struct Connect<IO>(MidHandshake<TlsStream<IO>>);
+⋮----
+pub fn into_fallible(self) -> FallibleConnect<IO> {
+FallibleConnect(self.0)
+⋮----
+pub fn get_ref(&self) -> Option<&IO> {
+⋮----
+MidHandshake::Handshaking(sess) => Some(sess.get_ref().0),
+MidHandshake::SendAlert { io, .. } => Some(io),
+MidHandshake::Error { io, .. } => Some(io),
+⋮----
+pub fn get_mut(&mut self) -> Option<&mut IO> {
+⋮----
+MidHandshake::Handshaking(sess) => Some(sess.get_mut().0),
+⋮----
+impl<IO: AsyncRead + AsyncWrite + Unpin> Future for Connect<IO> {
+type Output = io::Result<TlsStream<IO>>;
+⋮----
+fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+Pin::new(&mut self.0).poll(cx).map_err(|(err, _)| err)
+⋮----
+impl<IO: AsyncRead + AsyncWrite + Unpin> Future for FallibleConnect<IO> {
+type Output = Result<TlsStream<IO>, (io::Error, IO)>;
+⋮----
+Pin::new(&mut self.0).poll(cx)
+⋮----
+/// Like [Connect], but returns `IO` on failure.
+pub struct FallibleConnect<IO>(MidHandshake<TlsStream<IO>>);
+⋮----
+pub struct FallibleConnect<IO>(MidHandshake<TlsStream<IO>>);
+⋮----
+/// A wrapper around an underlying raw stream which implements the TLS or SSL
+/// protocol.
+⋮----
+/// protocol.
+#[derive(Debug)]
+pub struct TlsStream<IO> {
+⋮----
+pub fn get_ref(&self) -> (&IO, &ClientConnection) {
+⋮----
+pub fn get_mut(&mut self) -> (&mut IO, &mut ClientConnection) {
+⋮----
+pub fn into_inner(self) -> (IO, ClientConnection) {
+⋮----
+impl<S> AsRawFd for TlsStream<S>
+⋮----
+fn as_raw_fd(&self) -> RawFd {
+self.get_ref().0.as_raw_fd()
+⋮----
+impl<S> AsRawSocket for TlsStream<S>
+⋮----
+fn as_raw_socket(&self) -> RawSocket {
+self.get_ref().0.as_raw_socket()
+⋮----
+impl<IO> IoSession for TlsStream<IO> {
+type Io = IO;
+type Session = ClientConnection;
+⋮----
+fn skip_handshake(&self) -> bool {
+self.state.is_early_data()
+⋮----
+fn get_mut(&mut self) -> (&mut TlsState, &mut Self::Io, &mut Self::Session, &mut bool) {
+⋮----
+fn into_io(self) -> Self::Io {
+⋮----
+fn poll_early_data(&mut self, cx: &mut Context<'_>) {
+// In the EarlyData state, we have not really established a Tls connection.
+// Before writing data through `AsyncWrite` and completing the tls handshake,
+// we ignore read readiness and return to pending.
+//
+// In order to avoid event loss,
+// we need to register a waker and wake it up after tls is connected.
+⋮----
+.as_ref()
+.filter(|waker| cx.waker().will_wake(waker))
+.is_none()
+⋮----
+self.early_waker = Some(cx.waker().clone());
+⋮----
+impl<IO> AsyncRead for TlsStream<IO>
+⋮----
+fn poll_read(
+⋮----
+let data = ready!(self.as_mut().poll_fill_buf(cx))?;
+let len = data.len().min(buf.remaining());
+buf.put_slice(&data[..len]);
+self.consume(len);
+Poll::Ready(Ok(()))
+⋮----
+impl<IO> AsyncBufRead for TlsStream<IO>
+⋮----
+fn poll_fill_buf(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<&[u8]>> {
+⋮----
+self.get_mut().poll_early_data(cx);
+⋮----
+let this = self.get_mut();
+⋮----
+Stream::new(&mut this.io, &mut this.session).set_eof(!this.state.readable());
+⋮----
+match stream.poll_fill_buf(cx) {
+⋮----
+if buf.is_empty() {
+this.state.shutdown_read();
+⋮----
+Poll::Ready(Ok(buf))
+⋮----
+Poll::Ready(Err(err)) if err.kind() == io::ErrorKind::ConnectionAborted => {
+⋮----
+Poll::Ready(Err(err))
+⋮----
+TlsState::ReadShutdown | TlsState::FullyShutdown => Poll::Ready(Ok(&[])),
+⋮----
+fn consume(mut self: Pin<&mut Self>, amt: usize) {
+self.session.reader().consume(amt);
+⋮----
+impl<IO> AsyncWrite for TlsStream<IO>
+⋮----
+/// Note: that it does not guarantee the final data to be sent.
+    /// To be cautious, you must manually call `flush`.
+⋮----
+/// To be cautious, you must manually call `flush`.
+    fn poll_write(
+⋮----
+fn poll_write(
+⋮----
+.set_eof(!this.state.readable())
+.set_need_flush(this.need_flush);
+⋮----
+let written = poll_handle_early_data(
+⋮----
+Poll::Ready(written) => return Poll::Ready(Ok(written)),
+⋮----
+stream.as_mut_pin().poll_write(cx, buf)
+⋮----
+/// To be cautious, you must manually call `flush`.
+    fn poll_write_vectored(
+⋮----
+fn poll_write_vectored(
+⋮----
+stream.as_mut_pin().poll_write_vectored(cx, bufs)
+⋮----
+fn is_write_vectored(&self) -> bool {
+⋮----
+fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+⋮----
+if written.is_pending() {
+⋮----
+stream.as_mut_pin().poll_flush(cx)
+⋮----
+fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+⋮----
+// complete handshake
+if matches!(self.state, TlsState::EarlyData(..)) {
+ready!(self.as_mut().poll_flush(cx))?;
+⋮----
+if self.state.writeable() {
+self.session.send_close_notify();
+self.state.shutdown_write();
+⋮----
+stream.as_mut_pin().poll_shutdown(cx)
+⋮----
+fn poll_handle_early_data<IO>(
+⋮----
+use std::io::Write;
+⋮----
+// write early data
+if let Some(mut early_data) = stream.session.early_data() {
+⋮----
+let len = match early_data.write(buf) {
+⋮----
+Err(err) => return Poll::Ready(Err(err)),
+⋮----
+data.extend_from_slice(&buf[..len]);
+⋮----
+if len < buf.len() {
+⋮----
+return Poll::Ready(Ok(written));
+⋮----
+while stream.session.is_handshaking() {
+ready!(stream.handshake(cx))?;
+⋮----
+// write early data (fallback)
+if !stream.session.is_early_data_accepted() {
+while *pos < data.len() {
+let len = ready!(stream.as_mut_pin().poll_write(cx, &data[*pos..]))?;
+⋮----
+// end
+⋮----
+if let Some(waker) = early_waker.take() {
+waker.wake();
+⋮----
+Poll::Ready(Ok(0))
+
+================
+File: crates/primp-tokio-rustls/src/lib.rs
+================
+//! Asynchronous TLS/SSL streams for Tokio using [Rustls](https://github.com/rustls/rustls).
+//!
+⋮----
+//!
+//! # Why do I need to call `poll_flush`?
+⋮----
+//! # Why do I need to call `poll_flush`?
+//!
+⋮----
+//!
+//! Most TLS implementations will have an internal buffer to improve throughput,
+⋮----
+//! Most TLS implementations will have an internal buffer to improve throughput,
+//! and rustls is no exception.
+⋮----
+//! and rustls is no exception.
+//!
+⋮----
+//!
+//! When we write data to `TlsStream`, we always write rustls buffer first,
+⋮----
+//! When we write data to `TlsStream`, we always write rustls buffer first,
+//! then take out rustls encrypted data packet, and write it to data channel (like TcpStream).
+⋮----
+//! then take out rustls encrypted data packet, and write it to data channel (like TcpStream).
+//! When data channel is pending, some data may remain in rustls buffer.
+⋮----
+//! When data channel is pending, some data may remain in rustls buffer.
+//!
+⋮----
+//!
+//! `tokio-rustls` To keep it simple and correct, [TlsStream] will behave like `BufWriter`.
+⋮----
+//! `tokio-rustls` To keep it simple and correct, [TlsStream] will behave like `BufWriter`.
+//! For `TlsStream<TcpStream>`, this means that data written by `poll_write` is not guaranteed to be written to `TcpStream`.
+⋮----
+//! For `TlsStream<TcpStream>`, this means that data written by `poll_write` is not guaranteed to be written to `TcpStream`.
+//! You must call `poll_flush` to ensure that it is written to `TcpStream`.
+⋮----
+//! You must call `poll_flush` to ensure that it is written to `TcpStream`.
+//!
+⋮----
+//!
+//! You should call `poll_flush` at the appropriate time,
+⋮----
+//! You should call `poll_flush` at the appropriate time,
+//! such as when a period of `poll_write` write is complete and there is no more data to write.
+⋮----
+//! such as when a period of `poll_write` write is complete and there is no more data to write.
+//!
+⋮----
+//!
+//! ## Why don't we write during `poll_read`?
+⋮----
+//! ## Why don't we write during `poll_read`?
+//!
+⋮----
+//!
+//! We did this in the early days of `tokio-rustls`, but it caused some bugs.
+⋮----
+//! We did this in the early days of `tokio-rustls`, but it caused some bugs.
+//! We can solve these bugs through some solutions, but this will cause performance degradation (reverse false wakeup).
+⋮----
+//! We can solve these bugs through some solutions, but this will cause performance degradation (reverse false wakeup).
+//!
+⋮----
+//!
+//! And reverse write will also prevent us implement full duplex in the future.
+⋮----
+//! And reverse write will also prevent us implement full duplex in the future.
+//!
+⋮----
+//!
+//! see <https://github.com/tokio-rs/tls/issues/40>
+⋮----
+//! see <https://github.com/tokio-rs/tls/issues/40>
+//!
+⋮----
+//!
+//! ## Why can't we handle it like `native-tls`?
+⋮----
+//! ## Why can't we handle it like `native-tls`?
+//!
+⋮----
+//!
+//! When data channel returns to pending, `native-tls` will falsely report the number of bytes it consumes.
+⋮----
+//! When data channel returns to pending, `native-tls` will falsely report the number of bytes it consumes.
+//! This means that if data written by `poll_write` is not actually written to data channel, it will not return `Ready`.
+⋮----
+//! This means that if data written by `poll_write` is not actually written to data channel, it will not return `Ready`.
+//! Thus avoiding the call of `poll_flush`.
+⋮----
+//! Thus avoiding the call of `poll_flush`.
+//!
+⋮----
+//!
+//! but which does not conform to convention of `AsyncWrite` trait.
+⋮----
+//! but which does not conform to convention of `AsyncWrite` trait.
+//! This means that if you give inconsistent data in two `poll_write`, it may cause unexpected behavior.
+⋮----
+//! This means that if you give inconsistent data in two `poll_write`, it may cause unexpected behavior.
+//!
+⋮----
+//!
+//! see <https://github.com/tokio-rs/tls/issues/41>
+⋮----
+//! see <https://github.com/tokio-rs/tls/issues/41>
+⋮----
+use std::io;
+⋮----
+use std::pin::Pin;
+⋮----
+pub use rustls;
+⋮----
+use rustls::CommonState;
+⋮----
+macro_rules! ready {
+⋮----
+pub mod client;
+⋮----
+mod common;
+pub mod server;
+⋮----
+/// Unified TLS stream type
+///
+⋮----
+///
+/// This abstracts over the inner `client::TlsStream` and `server::TlsStream`, so you can use
+⋮----
+/// This abstracts over the inner `client::TlsStream` and `server::TlsStream`, so you can use
+/// a single type to keep both client- and server-initiated TLS-encrypted connections.
+⋮----
+/// a single type to keep both client- and server-initiated TLS-encrypted connections.
+#[allow(clippy::large_enum_variant)] // https://github.com/rust-lang/rust-clippy/issues/9798
+⋮----
+#[allow(clippy::large_enum_variant)] // https://github.com/rust-lang/rust-clippy/issues/9798
+⋮----
+pub enum TlsStream<T> {
+⋮----
+pub fn get_ref(&self) -> (&T, &CommonState) {
+⋮----
+let (io, session) = io.get_ref();
+⋮----
+pub fn get_mut(&mut self) -> (&mut T, &mut CommonState) {
+⋮----
+let (io, session) = io.get_mut();
+⋮----
+fn from(s: client::TlsStream<T>) -> Self {
+⋮----
+fn from(s: server::TlsStream<T>) -> Self {
+⋮----
+impl<S> AsRawFd for TlsStream<S>
+⋮----
+fn as_raw_fd(&self) -> RawFd {
+self.get_ref().0.as_raw_fd()
+⋮----
+impl<S> AsRawSocket for TlsStream<S>
+⋮----
+fn as_raw_socket(&self) -> RawSocket {
+self.get_ref().0.as_raw_socket()
+⋮----
+impl<T> AsyncRead for TlsStream<T>
+⋮----
+fn poll_read(
+⋮----
+match self.get_mut() {
+Self::Client(x) => Pin::new(x).poll_read(cx, buf),
+Self::Server(x) => Pin::new(x).poll_read(cx, buf),
+⋮----
+impl<T> AsyncBufRead for TlsStream<T>
+⋮----
+fn poll_fill_buf(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<&[u8]>> {
+⋮----
+Self::Client(x) => Pin::new(x).poll_fill_buf(cx),
+Self::Server(x) => Pin::new(x).poll_fill_buf(cx),
+⋮----
+fn consume(self: Pin<&mut Self>, amt: usize) {
+⋮----
+Self::Client(x) => Pin::new(x).consume(amt),
+Self::Server(x) => Pin::new(x).consume(amt),
+⋮----
+impl<T> AsyncWrite for TlsStream<T>
+⋮----
+fn poll_write(
+⋮----
+Self::Client(x) => Pin::new(x).poll_write(cx, buf),
+Self::Server(x) => Pin::new(x).poll_write(cx, buf),
+⋮----
+fn poll_write_vectored(
+⋮----
+Self::Client(x) => Pin::new(x).poll_write_vectored(cx, bufs),
+Self::Server(x) => Pin::new(x).poll_write_vectored(cx, bufs),
+⋮----
+fn is_write_vectored(&self) -> bool {
+⋮----
+Self::Client(x) => x.is_write_vectored(),
+Self::Server(x) => x.is_write_vectored(),
+⋮----
+fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+⋮----
+Self::Client(x) => Pin::new(x).poll_flush(cx),
+Self::Server(x) => Pin::new(x).poll_flush(cx),
+⋮----
+fn poll_shutdown(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+⋮----
+Self::Client(x) => Pin::new(x).poll_shutdown(cx),
+Self::Server(x) => Pin::new(x).poll_shutdown(cx),
+
+================
+File: crates/primp-tokio-rustls/src/server.rs
+================
+use std::future::Future;
+⋮----
+use std::pin::Pin;
+use std::sync::Arc;
+⋮----
+use rustls::server::AcceptedAlert;
+⋮----
+/// A wrapper around a `rustls::ServerConfig`, providing an async `accept` method.
+#[derive(Clone)]
+pub struct TlsAcceptor {
+⋮----
+fn from(inner: Arc<ServerConfig>) -> Self {
+⋮----
+impl TlsAcceptor {
+⋮----
+pub fn accept<IO>(&self, stream: IO) -> Accept<IO>
+⋮----
+self.accept_with(stream, |_| ())
+⋮----
+pub fn accept_with<IO, F>(&self, stream: IO, f: F) -> Accept<IO>
+⋮----
+let mut session = match ServerConnection::new(self.inner.clone()) {
+⋮----
+return Accept(MidHandshake::Error {
+⋮----
+// TODO(eliza): should this really return an `io::Error`?
+// Probably not...
+⋮----
+f(&mut session);
+⋮----
+Accept(MidHandshake::Handshaking(TlsStream {
+⋮----
+/// Get a read-only reference to underlying config
+    pub fn config(&self) -> &Arc<ServerConfig> {
+⋮----
+pub fn config(&self) -> &Arc<ServerConfig> {
+⋮----
+pub struct LazyConfigAcceptor<IO> {
+⋮----
+pub fn new(acceptor: rustls::server::Acceptor, io: IO) -> Self {
+⋮----
+io: Some(io),
+⋮----
+/// Takes back the client connection. Will return `None` if called more than once or if the
+    /// connection has been accepted.
+⋮----
+/// connection has been accepted.
+    ///
+⋮----
+///
+    /// # Example
+⋮----
+/// # Example
+    ///
+⋮----
+///
+    /// ```no_run
+⋮----
+/// ```no_run
+    /// # fn choose_server_config(
+⋮----
+/// # fn choose_server_config(
+    /// #     _: rustls::server::ClientHello,
+⋮----
+/// #     _: rustls::server::ClientHello,
+    /// # ) -> std::sync::Arc<rustls::ServerConfig> {
+⋮----
+/// # ) -> std::sync::Arc<rustls::ServerConfig> {
+    /// #     unimplemented!();
+⋮----
+/// #     unimplemented!();
+    /// # }
+⋮----
+/// # }
+    /// # #[allow(unused_variables)]
+⋮----
+/// # #[allow(unused_variables)]
+    /// # async fn listen() {
+⋮----
+/// # async fn listen() {
+    /// use tokio::io::AsyncWriteExt;
+⋮----
+/// use tokio::io::AsyncWriteExt;
+    /// let listener = tokio::net::TcpListener::bind("127.0.0.1:4443").await.unwrap();
+⋮----
+/// let listener = tokio::net::TcpListener::bind("127.0.0.1:4443").await.unwrap();
+    /// let (stream, _) = listener.accept().await.unwrap();
+⋮----
+/// let (stream, _) = listener.accept().await.unwrap();
+    ///
+⋮----
+///
+    /// let acceptor = tokio_rustls::LazyConfigAcceptor::new(rustls::server::Acceptor::default(), stream);
+⋮----
+/// let acceptor = tokio_rustls::LazyConfigAcceptor::new(rustls::server::Acceptor::default(), stream);
+    /// tokio::pin!(acceptor);
+⋮----
+/// tokio::pin!(acceptor);
+    ///
+⋮----
+///
+    /// match acceptor.as_mut().await {
+⋮----
+/// match acceptor.as_mut().await {
+    ///     Ok(start) => {
+⋮----
+///     Ok(start) => {
+    ///         let clientHello = start.client_hello();
+⋮----
+///         let clientHello = start.client_hello();
+    ///         let config = choose_server_config(clientHello);
+⋮----
+///         let config = choose_server_config(clientHello);
+    ///         let stream = start.into_stream(config).await.unwrap();
+⋮----
+///         let stream = start.into_stream(config).await.unwrap();
+    ///         // Proceed with handling the ServerConnection...
+⋮----
+///         // Proceed with handling the ServerConnection...
+    ///     }
+⋮----
+///     }
+    ///     Err(err) => {
+⋮----
+///     Err(err) => {
+    ///         if let Some(mut stream) = acceptor.take_io() {
+⋮----
+///         if let Some(mut stream) = acceptor.take_io() {
+    ///             stream
+⋮----
+///             stream
+    ///                 .write_all(
+⋮----
+///                 .write_all(
+    ///                     format!("HTTP/1.1 400 Invalid Input\r\n\r\n\r\n{:?}\n", err)
+⋮----
+///                     format!("HTTP/1.1 400 Invalid Input\r\n\r\n\r\n{:?}\n", err)
+    ///                         .as_bytes()
+⋮----
+///                         .as_bytes()
+    ///                 )
+⋮----
+///                 )
+    ///                 .await
+⋮----
+///                 .await
+    ///                 .unwrap();
+⋮----
+///                 .unwrap();
+    ///         }
+⋮----
+///         }
+    ///     }
+⋮----
+///     }
+    /// }
+⋮----
+/// }
+    /// # }
+⋮----
+/// # }
+    /// ```
+⋮----
+/// ```
+    pub fn take_io(&mut self) -> Option<IO> {
+⋮----
+pub fn take_io(&mut self) -> Option<IO> {
+self.io.take()
+⋮----
+impl<IO> Future for LazyConfigAcceptor<IO>
+⋮----
+type Output = Result<StartHandshake<IO>, io::Error>;
+⋮----
+fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+let this = self.get_mut();
+⋮----
+let io = match this.io.as_mut() {
+⋮----
+return Poll::Ready(Err(io::Error::other(
+⋮----
+if let Some((err, mut alert)) = this.alert.take() {
+match alert.write(&mut SyncWriteAdapter { io, cx }) {
+Err(e) if e.kind() == io::ErrorKind::WouldBlock => {
+this.alert = Some((err, alert));
+⋮----
+return Poll::Ready(Err(io::Error::new(io::ErrorKind::InvalidData, err)))
+⋮----
+match this.acceptor.read_tls(&mut reader) {
+Ok(0) => return Err(io::ErrorKind::UnexpectedEof.into()).into(),
+⋮----
+Err(e) if e.kind() == io::ErrorKind::WouldBlock => return Poll::Pending,
+Err(e) => return Err(e).into(),
+⋮----
+match this.acceptor.accept() {
+⋮----
+let io = this.io.take().unwrap();
+return Poll::Ready(Ok(StartHandshake { accepted, io }));
+⋮----
+/// An incoming connection received through [`LazyConfigAcceptor`].
+///
+⋮----
+///
+/// This contains the generic `IO` asynchronous transport,
+⋮----
+/// This contains the generic `IO` asynchronous transport,
+/// [`ClientHello`](rustls::server::ClientHello) data,
+⋮----
+/// [`ClientHello`](rustls::server::ClientHello) data,
+/// and all the state required to continue the TLS handshake (e.g. via
+⋮----
+/// and all the state required to continue the TLS handshake (e.g. via
+/// [`StartHandshake::into_stream`]).
+⋮----
+/// [`StartHandshake::into_stream`]).
+#[non_exhaustive]
+⋮----
+pub struct StartHandshake<IO> {
+⋮----
+/// Create a new object from an `IO` transport and prior TLS metadata.
+    pub fn from_parts(accepted: rustls::server::Accepted, transport: IO) -> Self {
+⋮----
+pub fn from_parts(accepted: rustls::server::Accepted, transport: IO) -> Self {
+⋮----
+pub fn client_hello(&self) -> rustls::server::ClientHello<'_> {
+self.accepted.client_hello()
+⋮----
+pub fn into_stream(self, config: Arc<ServerConfig>) -> Accept<IO> {
+self.into_stream_with(config, |_| ())
+⋮----
+pub fn into_stream_with<F>(self, config: Arc<ServerConfig>, f: F) -> Accept<IO>
+⋮----
+let mut conn = match self.accepted.into_connection(config) {
+⋮----
+return Accept(MidHandshake::SendAlert {
+⋮----
+f(&mut conn);
+⋮----
+/// Future returned from `TlsAcceptor::accept` which will resolve
+/// once the accept handshake has finished.
+⋮----
+/// once the accept handshake has finished.
+pub struct Accept<IO>(MidHandshake<TlsStream<IO>>);
+⋮----
+pub struct Accept<IO>(MidHandshake<TlsStream<IO>>);
+⋮----
+pub fn into_fallible(self) -> FallibleAccept<IO> {
+FallibleAccept(self.0)
+⋮----
+pub fn get_ref(&self) -> Option<&IO> {
+⋮----
+MidHandshake::Handshaking(sess) => Some(sess.get_ref().0),
+MidHandshake::SendAlert { io, .. } => Some(io),
+MidHandshake::Error { io, .. } => Some(io),
+⋮----
+pub fn get_mut(&mut self) -> Option<&mut IO> {
+⋮----
+MidHandshake::Handshaking(sess) => Some(sess.get_mut().0),
+⋮----
+impl<IO: AsyncRead + AsyncWrite + Unpin> Future for Accept<IO> {
+type Output = io::Result<TlsStream<IO>>;
+⋮----
+fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+Pin::new(&mut self.0).poll(cx).map_err(|(err, _)| err)
+⋮----
+/// Like [Accept], but returns `IO` on failure.
+pub struct FallibleAccept<IO>(MidHandshake<TlsStream<IO>>);
+⋮----
+pub struct FallibleAccept<IO>(MidHandshake<TlsStream<IO>>);
+⋮----
+impl<IO: AsyncRead + AsyncWrite + Unpin> Future for FallibleAccept<IO> {
+type Output = Result<TlsStream<IO>, (io::Error, IO)>;
+⋮----
+Pin::new(&mut self.0).poll(cx)
+⋮----
+/// A wrapper around an underlying raw stream which implements the TLS or SSL
+/// protocol.
+⋮----
+/// protocol.
+#[derive(Debug)]
+pub struct TlsStream<IO> {
+⋮----
+pub fn get_ref(&self) -> (&IO, &ServerConnection) {
+⋮----
+pub fn get_mut(&mut self) -> (&mut IO, &mut ServerConnection) {
+⋮----
+pub fn into_inner(self) -> (IO, ServerConnection) {
+⋮----
+impl<IO> IoSession for TlsStream<IO> {
+type Io = IO;
+type Session = ServerConnection;
+⋮----
+fn skip_handshake(&self) -> bool {
+⋮----
+fn get_mut(&mut self) -> (&mut TlsState, &mut Self::Io, &mut Self::Session, &mut bool) {
+⋮----
+fn into_io(self) -> Self::Io {
+⋮----
+impl<IO> AsyncRead for TlsStream<IO>
+⋮----
+fn poll_read(
+⋮----
+let data = ready!(self.as_mut().poll_fill_buf(cx))?;
+let len = data.len().min(buf.remaining());
+buf.put_slice(&data[..len]);
+self.consume(len);
+Poll::Ready(Ok(()))
+⋮----
+impl<IO> AsyncBufRead for TlsStream<IO>
+⋮----
+fn poll_fill_buf(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<&[u8]>> {
+⋮----
+Stream::new(&mut this.io, &mut this.session).set_eof(!this.state.readable());
+⋮----
+match stream.poll_fill_buf(cx) {
+⋮----
+if buf.is_empty() {
+this.state.shutdown_read();
+⋮----
+Poll::Ready(Ok(buf))
+⋮----
+Poll::Ready(Err(err)) if err.kind() == io::ErrorKind::ConnectionAborted => {
+⋮----
+Poll::Ready(Err(err))
+⋮----
+TlsState::ReadShutdown | TlsState::FullyShutdown => Poll::Ready(Ok(&[])),
+⋮----
+ref s => unreachable!("server TLS can not hit this state: {:?}", s),
+⋮----
+fn consume(mut self: Pin<&mut Self>, amt: usize) {
+self.session.reader().consume(amt);
+⋮----
+impl<IO> AsyncWrite for TlsStream<IO>
+⋮----
+/// Note: that it does not guarantee the final data to be sent.
+    /// To be cautious, you must manually call `flush`.
+⋮----
+/// To be cautious, you must manually call `flush`.
+    fn poll_write(
+⋮----
+fn poll_write(
+⋮----
+stream.as_mut_pin().poll_write(cx, buf)
+⋮----
+/// To be cautious, you must manually call `flush`.
+    fn poll_write_vectored(
+⋮----
+fn poll_write_vectored(
+⋮----
+stream.as_mut_pin().poll_write_vectored(cx, bufs)
+⋮----
+fn is_write_vectored(&self) -> bool {
+⋮----
+fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+⋮----
+stream.as_mut_pin().poll_flush(cx)
+⋮----
+fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+if self.state.writeable() {
+self.session.send_close_notify();
+self.state.shutdown_write();
+⋮----
+stream.as_mut_pin().poll_shutdown(cx)
+⋮----
+impl<IO> AsRawFd for TlsStream<IO>
+⋮----
+fn as_raw_fd(&self) -> RawFd {
+self.get_ref().0.as_raw_fd()
+⋮----
+impl<IO> AsRawSocket for TlsStream<IO>
+⋮----
+fn as_raw_socket(&self) -> RawSocket {
+self.get_ref().0.as_raw_socket()
+
+================
+File: crates/primp-tokio-rustls/tests/utils.rs
+================
+mod utils {
+use std::collections::VecDeque;
+use std::io::IoSlice;
+use std::pin::Pin;
+⋮----
+pub(crate) fn make_configs() -> (ServerConfig, ClientConfig) {
+// A test root certificate that is the trust anchor for the CHAIN.
+⋮----
+include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/certs/root.pem"));
+// A server certificate chain that includes both an end-entity server certificate
+// and the intermediate certificate that issued it. The ROOT is configured
+// out-of-band.
+const CHAIN: &str = include_str!(concat!(
+⋮----
+// A private key corresponding to the end-entity server certificate in CHAIN.
+⋮----
+include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/certs/end.key"));
+⋮----
+let cert = CertificateDer::pem_slice_iter(CHAIN.as_bytes())
+⋮----
+.unwrap();
+let key = PrivateKeyDer::from_pem_slice(EE_KEY.as_bytes()).unwrap();
+⋮----
+.with_no_client_auth()
+.with_single_cert(cert, key)
+⋮----
+for root in CertificateDer::pem_slice_iter(ROOT.as_bytes()) {
+client_root_cert_store.add(root.unwrap()).unwrap();
+⋮----
+.with_root_certificates(client_root_cert_store)
+.with_no_client_auth();
+⋮----
+pub(crate) async fn write<W: AsyncWrite + Unpin>(
+⋮----
+return w.write_all(data).await;
+⋮----
+while !data.is_empty() {
+let chunk_size = (data.len() / 4).max(1);
+⋮----
+.chunks(chunk_size)
+.map(IoSlice::new)
+⋮----
+let written = w.write_vectored(&vectors).await?;
+⋮----
+Ok(())
+⋮----
+/// An IO wrapper that never flushes when writing, and always returns pending on first flush.
+    ///
+⋮----
+///
+    /// This is used to test that rustls always flushes to completion during handshake.
+⋮----
+/// This is used to test that rustls always flushes to completion during handshake.
+    pub(crate) struct FlushWrapper<S> {
+⋮----
+pub(crate) struct FlushWrapper<S> {
+⋮----
+pub(crate) fn new(stream: S) -> Self {
+⋮----
+impl<S: AsyncRead + Unpin> AsyncRead for FlushWrapper<S> {
+fn poll_read(
+⋮----
+Pin::new(&mut self.get_mut().stream).poll_read(cx, buf)
+⋮----
+fn poll_flush_inner<F>(
+⋮----
+if !self.queued.is_empty() {
+// write out the queued data
+⋮----
+self.queued = self.queued[n..].to_vec();
+} else if let Some(buf) = self.buf.pop_front() {
+// queue the flush, but don't trigger the write immediately.
+⋮----
+cx.waker().wake_by_ref();
+⋮----
+// nothing more to flush to the inner stream, flush the inner stream instead.
+return flush_inner(stream, cx);
+⋮----
+impl<S: AsyncWrite + Unpin> AsyncWrite for FlushWrapper<S> {
+fn poll_write(
+⋮----
+self.get_mut().buf.push_back(buf.to_vec());
+Poll::Ready(Ok(buf.len()))
+⋮----
+fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), io::Error>> {
+self.get_mut()
+.poll_flush_inner(cx, |s, cx| s.poll_flush(cx))
+⋮----
+fn poll_shutdown(
+⋮----
+.poll_flush_inner(cx, |s, cx| s.poll_shutdown(cx))
+
+================
+File: crates/primp-tokio-rustls/Cargo.toml
+================
+[package]
+name = "primp-tokio-rustls"
+version = "0.26.4"
+license = "MIT OR Apache-2.0"
+description = "Fork of tokio-rustls"
+categories = ["asynchronous", "cryptography", "network-programming"]
+edition = "2021"
+rust-version = "1.84"
+
+# Aliases
+[lib]
+name = "tokio_rustls"
+path = "src/lib.rs"
+
+[dependencies]
+rustls = { version = "0.23", path = "../primp-rustls/rustls", package = "primp-rustls", default-features = false, features = ["std"] }
+tokio = "1.0"
+
+[features]
+default = ["logging", "tls12", "aws_lc_rs"]
+aws_lc_rs = ["rustls/aws_lc_rs"]
+aws-lc-rs = ["aws_lc_rs"]
+brotli = ["rustls/brotli"]
+early-data = []
+fips = ["rustls/fips"]
+logging = ["rustls/logging"]
+ring = ["rustls/ring"]
+tls12 = ["rustls/tls12"]
+zlib = ["rustls/zlib"]
+
+[dev-dependencies]
+argh = "0.1.1"
+futures-util = "0.3.1"
+lazy_static = "1.1"
+rcgen = { version = "0.14", features = ["pem"] }
+tokio = { version = "1.0", features = ["full"] }
+webpki-roots = "1"
+
+================
+File: crates/primp-tokio-rustls/README.md
+================
+# primp-tokio-rustls
+
+> This is a fork of the original [tokio-rustls](https://github.com/rustls/tokio-rustls) crate.
+
+================
+File: Cargo.toml
+================
+[workspace]
+resolver = "3"
+members = [
+    "crates/primp",
+    "crates/primp-reqwest",
+    "crates/primp-hyper",
+    "crates/primp-hyper-util",
+    "crates/primp-hyper-rustls",
+    "crates/primp-tokio-rustls",
+    "crates/primp-rustls/rustls",
+    "crates/primp-h2",
+    "crates/primp-python",
+]
+
+[workspace.package]
+version = "1.2.3"
+edition = "2021"
+rust-version = "1.84"
+license = "MIT"
+repository = "https://github.com/deedy5/primp"
+authors = ["deedy5"]
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+opt-level = 3
+panic = "abort"
+strip = "symbols"
+
+================
+File: README.md
+================
+# 🪞 PRIMP 🦀🐍
+
+> HTTP client that can impersonate web browsers
+
+## Quick Start
+
+### 🦀 Rust → [/crates/primp](./crates/primp)
+
+```toml
+[dependencies]
+primp = "1.2.3"
+```
+
+```rust
+use primp::{Client, Impersonate};
+
+#[tokio::main]
+async fn main() -> Result<(), primp::Error> {
+    let client = Client::builder()
+        .impersonate(Impersonate::ChromeV146)
+        .build()?;
+    let resp = client.get("https://tls.peet.ws/api/all").send().await?;
+    println!("Body: {}", resp.text().await?);
+    Ok(())
+}
+```
+
+### 🐍 Python → [/crates/primp-python](./crates/primp-python)
+
+```bash
+pip install primp
+```
+
+```python
+import primp
+
+client = primp.Client(impersonate="chrome_146")
+resp = client.get("https://tls.peet.ws/api/all")
+print(resp.text)
+```
+
+## Browser profiles
+
+| Browser | Profiles |
+|:--------|:---------|
+| Chrome | `chrome_144`, `chrome_145`, `chrome_146`, `chrome` |
+| Safari | `safari_18.5`, `safari_26`, `safari_26.3`, `safari` |
+| Edge | `edge_144`, `edge_145`, `edge_146`, `edge` |
+| Firefox | `firefox_140`, `firefox_146`, `firefox_147`, `firefox_148`, `firefox` |
+| Opera | `opera_126`, `opera_127`, `opera_128`, `opera_129`, `opera` |
+| Random | `random` |
+
+**OS:** `android`, `ios`, `linux`, `macos`, `windows`, `random`
+____
+### Disclaimer
+
+This tool is for educational purposes only. Use it at your own risk.

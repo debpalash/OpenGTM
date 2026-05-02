@@ -1,0 +1,1712 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+assets/
+  create_success_zh-cn.png
+  create_zh-cn.png
+  create.png
+  createsuccess.png
+  img
+  launch.png
+  logo.png
+  VirtualBrowser-qq-group.png
+  WeChat.png
+  welcome_zh-cn.png
+  welcome.png
+automation/
+  .gitignore
+  index.js
+  package.json
+  README.md
+  requirements.txt
+  test-api.js
+  test-api.py
+server/
+  public/
+    favicon.ico
+    index.html
+  src/
+    api/
+      article.js
+      native.js
+      remote-search.js
+      role.js
+      user.js
+    assets/
+      401_images/
+        401.gif
+      404_images/
+        404_cloud.png
+        404.png
+      custom-theme/
+        fonts/
+          element-icons.ttf
+          element-icons.woff
+        index.css
+      img/
+        64.png
+      VirtualBrowser-qq-group.png
+    components/
+      BackToTop/
+        index.vue
+      Breadcrumb/
+        index.vue
+      Charts/
+        mixins/
+          resize.js
+        Keyboard.vue
+        LineMarker.vue
+        MixChart.vue
+      DndList/
+        index.vue
+      DragSelect/
+        index.vue
+      Dropzone/
+        index.vue
+      ErrorLog/
+        index.vue
+      GithubCorner/
+        index.vue
+      Hamburger/
+        index.vue
+      HeaderSearch/
+        index.vue
+      ImageCropper/
+        utils/
+          data2blob.js
+          effectRipple.js
+          language.js
+          mimes.js
+        index.vue
+      JsonEditor/
+        index.vue
+      Kanban/
+        index.vue
+      LangSelect/
+        index.vue
+      MarkdownEditor/
+        default-options.js
+        index.vue
+      MDinput/
+        index.vue
+      Pagination/
+        index.vue
+      PanThumb/
+        index.vue
+      RightPanel/
+        index.vue
+      Screenfull/
+        index.vue
+      Share/
+        DropdownMenu.vue
+      SizeSelect/
+        index.vue
+      Sticky/
+        index.vue
+      SvgIcon/
+        index.vue
+      TextHoverEffect/
+        Mallki.vue
+      ThemePicker/
+        index.vue
+      Tinymce/
+        components/
+          EditorImage.vue
+        dynamicLoadScript.js
+        index.vue
+        plugins.js
+        toolbar.js
+      Upload/
+        SingleImage.vue
+        SingleImage2.vue
+        SingleImage3.vue
+      UploadExcel/
+        index.vue
+    directive/
+      clipboard/
+        clipboard.js
+        index.js
+      el-drag-dialog/
+        drag.js
+        index.js
+      el-table/
+        adaptive.js
+        index.js
+      permission/
+        index.js
+        permission.js
+      waves/
+        index.js
+        waves.css
+        waves.js
+      sticky.js
+    filters/
+      index.js
+    icons/
+      svg/
+        404.svg
+        bug.svg
+        chart.svg
+        clipboard.svg
+        component.svg
+        dashboard.svg
+        documentation.svg
+        drag.svg
+        edit.svg
+        education.svg
+        email.svg
+        example.svg
+        excel.svg
+        exit-fullscreen.svg
+        eye-open.svg
+        eye.svg
+        form.svg
+        fullscreen.svg
+        guide.svg
+        icon.svg
+        international.svg
+        language.svg
+        link.svg
+        list.svg
+        lock.svg
+        message.svg
+        money.svg
+        nested.svg
+        password.svg
+        pdf.svg
+        people.svg
+        peoples.svg
+        qq.svg
+        search.svg
+        shopping.svg
+        size.svg
+        skill.svg
+        star.svg
+        tab.svg
+        table.svg
+        theme.svg
+        tree-table.svg
+        tree.svg
+        user.svg
+        wechat.svg
+        zip.svg
+      index.js
+      svgo.yml
+    lang/
+      en.js
+      index.js
+      zh.js
+    layout/
+      components/
+        Settings/
+          index.vue
+        Sidebar/
+          FixiOSBug.js
+          index.vue
+          Item.vue
+          Link.vue
+          Logo.vue
+          SidebarItem.vue
+        TagsView/
+          index.vue
+          ScrollPane.vue
+        AppMain.vue
+        index.js
+        Navbar.vue
+      mixin/
+        ResizeHandler.js
+      index.vue
+    router/
+      index.js
+    store/
+      modules/
+        app.js
+        errorLog.js
+        permission.js
+        settings.js
+        tagsView.js
+        user.js
+      getters.js
+      index.js
+    styles/
+      btn.scss
+      element-ui.scss
+      element-variables.scss
+      index.scss
+      mixin.scss
+      sidebar.scss
+      transition.scss
+      variables.scss
+    utils/
+      auth.js
+      clipboard.js
+      error-log.js
+      fonts.js
+      get-page-title.js
+      i18n.js
+      index.js
+      languages.json
+      open-window.js
+      permission.js
+      request.js
+      scroll-to.js
+      speech-voices.json
+      ssl.json
+      timezones.json
+      ua-full-versions.json
+      validate.js
+      versions.json
+      webgl.json
+    vendor/
+      Export2Excel.js
+      Export2Zip.js
+    views/
+      browser/
+        group.vue
+        index.vue
+      crx/
+        list.vue
+        store.vue
+      error-page/
+        401.vue
+        404.vue
+      login/
+        components/
+          SocialSignin.vue
+        auth-redirect.vue
+        index.vue
+      redirect/
+        index.vue
+    App.vue
+    main.js
+    permission.js
+    settings.js
+  .editorconfig
+  .env.development
+  .env.production
+  .env.staging
+  .eslintignore
+  .eslintrc.js
+  .gitignore
+  .prettierrc.js
+  .travis.yml
+  babel.config.js
+  jsconfig.json
+  LICENSE
+  package.json
+  plopfile.js
+  postcss.config.js
+  README.md
+  vue.config.js
+worker/
+  .vscode/
+    settings.json
+  public/
+    favicon.ico
+    index.html
+  src/
+    assets/
+      128.png
+      96.png
+      VirtualBrowser-qq-group.png
+    utils/
+      index.js
+      native.js
+    App.vue
+    main.ts
+    shims-vue.d.ts
+  .gitignore
+  .prettierrc.js
+  auto-imports.d.ts
+  babel.config.js
+  components.d.ts
+  package.json
+  README.md
+  tsconfig.json
+  vue.config.js
+.prettierrc.js
+LICENSE
+README_EN.md
+README.md
+
+================================================================
+Files
+================================================================
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: server/src/views/redirect/index.vue
+================
+<script>
+export default {
+  created() {
+    const { params, query } = this.$route
+    const { path } = params
+    this.$router.replace({ path: '/' + path, query })
+  },
+  render: function (h) {
+    return h() // avoid warning message
+  }
+}
+</script>
+
+================
+File: server/src/App.vue
+================
+<template>
+  <div id="app">
+    <router-view />
+  </div>
+</template>
+⋮----
+<script>
+export default {
+  name: 'App'
+}
+</script>
+
+================
+File: server/src/main.js
+================
+import 'normalize.css/normalize.css' // a modern alternative to CSS resets
+⋮----
+import '@/styles/index.scss' // global css
+⋮----
+import i18n from './lang' // internationalization
+import './icons' // icon
+import './permission' // permission control
+import './utils/error-log' // error log
+⋮----
+import * as filters from './filters' // global filters
+⋮----
+/**
+ * If you don't want to use mock-server
+ * you want to use MockJs for mock api
+ * you can execute: mockXHR()
+ *
+ * Currently MockJs will be used in the production environment,
+ * please remove it before going online ! ! !
+ */
+⋮----
+size: localStorage.getItem('size') || 'mini', // set element-ui default size
+i18n: (key, value)
+⋮----
+// register global utility filters
+⋮----
+render: h
+
+================
+File: server/src/permission.js
+================
+import NProgress from 'nprogress' // progress bar
+import 'nprogress/nprogress.css' // progress bar style
+import { getToken } from '@/utils/auth' // get token from cookie
+⋮----
+NProgress.configure({ showSpinner: false }) // NProgress Configuration
+⋮----
+const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
+⋮----
+// start progress bar
+⋮----
+// set page title
+⋮----
+// determine whether the user has logged in
+⋮----
+// if is logged in, redirect to the home page
+⋮----
+NProgress.done() // hack: https://github.com/PanJiaChen/vue-element-admin/pull/2939
+⋮----
+// determine whether the user has obtained his permission roles through getInfo
+⋮----
+// get user info
+// note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
+⋮----
+// generate accessible routes map based on roles
+⋮----
+// dynamically add accessible routes
+⋮----
+// hack method to ensure that addRoutes is complete
+// set the replace: true, so the navigation will not leave a history record
+⋮----
+// remove token and go to login page to re-login
+⋮----
+/* has no token*/
+⋮----
+// in the free login whitelist, go directly
+⋮----
+// other pages that do not have permission to access are redirected to the login page.
+⋮----
+// finish progress bar
+
+================
+File: server/src/settings.js
+================
+/**
+   * @type {boolean} true | false
+   * @description Whether show the settings right-panel
+   */
+⋮----
+/**
+   * @type {boolean} true | false
+   * @description Whether need tagsView
+   */
+⋮----
+/**
+   * @type {boolean} true | false
+   * @description Whether fix the header
+   */
+⋮----
+/**
+   * @type {boolean} true | false
+   * @description Whether show the logo in sidebar
+   */
+⋮----
+/**
+   * @type {boolean} true | false
+   * @description Whether support pinyin search in headerSearch
+   * Bundle size minified 47.3kb,minified + gzipped 63kb
+   */
+⋮----
+/**
+   * @type {string | array} 'production' | ['production', 'development']
+   * @description Need show err logs component.
+   * The default is only used in the production env
+   * If you want to also use it in dev, you can pass ['production', 'development']
+   */
+
+================
+File: server/.editorconfig
+================
+# https://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+================
+File: server/.env.development
+================
+# just a flag
+ENV = 'development'
+
+# base api
+VUE_APP_BASE_API = '/dev-api'
+
+================
+File: server/.env.production
+================
+# just a flag
+ENV = 'production'
+
+# base api
+VUE_APP_BASE_API = '/prod-api'
+
+================
+File: server/.env.staging
+================
+NODE_ENV = production
+
+# just a flag
+ENV = 'staging'
+
+# base api
+VUE_APP_BASE_API = '/stage-api'
+
+================
+File: server/.eslintignore
+================
+build/*.js
+src/assets
+public
+dist
+
+================
+File: server/.eslintrc.js
+================
+// add your custom rules here
+// it is base on https://github.com/vuejs/eslint-config-vue
+
+================
+File: server/.gitignore
+================
+.DS_Store
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+**/*.log
+
+tests/**/coverage/
+tests/e2e/reports
+selenium-debug.log
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.local
+
+================
+File: server/.prettierrc.js
+================
+printWidth: 100, //单行长度
+tabWidth: 2, //缩进长度
+useTabs: false, //使用空格代替tab缩进
+semi: false, //句末使用分号
+singleQuote: true, //使用单引号
+quoteProps: 'as-needed', //仅在必需时为对象的key添加引号
+trailingComma: 'none', //多行时尽可能打印尾随逗号
+bracketSpacing: true, //在对象前后添加空格
+arrowParens: 'avoid', //单参数箭头函数参数周围使用圆括号
+requirePragma: false, //无需顶部注释即可格式化
+insertPragma: false, //在已被preitter格式化的文件顶部加上标注
+proseWrap: 'preserve', //不知道怎么翻译
+htmlWhitespaceSensitivity: 'ignore', //对HTML全局空白不敏感
+vueIndentScriptAndStyle: false, //不对vue中的script及style标签缩进
+endOfLine: 'auto', //结束行形式
+
+================
+File: server/.travis.yml
+================
+language: node_js
+node_js: 10
+script: npm run test
+notifications:
+  email: false
+
+================
+File: server/babel.config.js
+================
+// https://github.com/vuejs/vue-cli/tree/master/packages/@vue/babel-preset-app
+⋮----
+// babel-plugin-dynamic-import-node plugin only does one thing by converting all import() to require().
+// This plugin can significantly increase the speed of hot updates, when you have a large number of pages.
+// https://panjiachen.github.io/vue-element-admin-site/guide/advanced/lazy-loading.html
+
+================
+File: server/jsconfig.json
+================
+{ 
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+        "@/*": ["src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}
+
+================
+File: server/LICENSE
+================
+MIT License
+
+Copyright (c) 2017-present PanJiaChen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================
+File: server/package.json
+================
+{
+  "name": "virtual-browser-control",
+  "version": "0.1.0",
+  "description": "A magical vue admin. An out-of-box UI solution for enterprise applications. Newest development stack of vue. Lots of awesome features",
+  "author": "Pan <panfree23@gmail.com>",
+  "scripts": {
+    "dev": "vue-cli-service serve",
+    "lint": "eslint --ext .js,.vue src",
+    "build": "vue-cli-service build",
+    "build:stage": "vue-cli-service build --mode staging",
+    "preview": "node build/index.js --preview",
+    "new": "plop",
+    "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml"
+  },
+  "dependencies": {
+    "axios": "^1.3.4",
+    "clipboard": "^2.0.11",
+    "compare-versions": "^6.1.0",
+    "core-js": "3.6.5",
+    "element-ui": "2.13.2",
+    "file-saver": "^2.0.5",
+    "fuse.js": "3.4.4",
+    "js-cookie": "^3.0.1",
+    "normalize.css": "7.0.0",
+    "nprogress": "^0.2.0",
+    "path-to-regexp": "^6.2.1",
+    "pinyin": "^2.11.2",
+    "random": "^4.1.0",
+    "screenfull": "^4.2.1",
+    "uuid": "^9.0.0",
+    "v-clipboard": "^3.0.0-next.1",
+    "vue": "2.6.10",
+    "vue-i18n": "7.3.2",
+    "vue-router": "3.0.2",
+    "vuex": "3.1.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "4.4.4",
+    "@vue/cli-plugin-eslint": "4.4.4",
+    "@vue/cli-service": "4.4.4",
+    "autoprefixer": "9.5.1",
+    "babel-eslint": "10.1.0",
+    "babel-plugin-dynamic-import-node": "2.3.3",
+    "chalk": "2.4.2",
+    "chokidar": "2.1.5",
+    "connect": "3.6.6",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-vue": "^8.0.3",
+    "html-webpack-plugin": "3.2.0",
+    "husky": "1.3.1",
+    "lint-staged": "8.1.5",
+    "mockjs": "1.0.1-beta3",
+    "plop": "2.3.0",
+    "prettier": "^2.8.8",
+    "runjs": "4.3.2",
+    "sass": "1.26.2",
+    "sass-loader": "8.0.2",
+    "script-ext-html-webpack-plugin": "2.1.3",
+    "serve-static": "1.13.2",
+    "svg-sprite-loader": "4.1.3",
+    "svgo": "1.2.0",
+    "vue-template-compiler": "2.6.10"
+  },
+  "browserslist": [
+    "chrome > 100"
+  ],
+  "engines": {
+    "node": ">=8.9",
+    "npm": ">= 3.0.0"
+  },
+  "keywords": [
+    "vue",
+    "admin",
+    "dashboard",
+    "element-ui",
+    "boilerplate",
+    "admin-template",
+    "management-system"
+  ],
+  "license": "MIT",
+  "lint-staged": {
+    "src/**/*.{js,vue}": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PanJiaChen/vue-element-admin.git"
+  }
+}
+
+================
+File: server/plopfile.js
+================
+
+================
+File: server/postcss.config.js
+================
+
+================
+File: server/README.md
+================
+# VirtualBrowser - server
+
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run dev
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
+
+================
+File: server/vue.config.js
+================
+function resolve(dir)
+⋮----
+const name = defaultSettings.title || 'vue Element Admin' // page title
+⋮----
+// If your port is set to 80,
+// use administrator privileges to execute the command line.
+// For example, Mac: sudo npm run
+// You can change the port by the following method:
+// port = 9527 npm run dev OR npm run dev --port = 9527
+const port = process.env.port || process.env.npm_config_port || 9527 // dev port
+⋮----
+// All configuration item explanations can be find in https://cli.vuejs.org/config/
+⋮----
+/**
+   * You will need to set publicPath if you plan to deploy your site under a sub path,
+   * for example GitHub Pages. If you plan to deploy your site to https://foo.github.io/bar/,
+   * then publicPath should be set to "/bar/".
+   * In most cases please use '/' !!!
+   * Detail: https://cli.vuejs.org/config/#publicpath
+   */
+⋮----
+// provide the app's title in webpack's name field, so that
+// it can be accessed in index.html to inject the correct title.
+⋮----
+chainWebpack(config)
+⋮----
+// it can improve the speed of the first screen, it is recommended to turn on preload
+// it can improve the speed of the first screen, it is recommended to turn on preload
+⋮----
+// to ignore runtime.js
+// https://github.com/vuejs/vue-cli/blob/dev/packages/@vue/cli-service/lib/config/app.js#L171
+⋮----
+// when there are many pages, it will cause too many meaningless requests
+⋮----
+// set svg-sprite-loader
+⋮----
+// `runtime` must same as runtimeChunk name. default is `runtime`
+⋮----
+chunks: 'initial', // only package third parties that are initially dependent
+⋮----
+name: 'chunk-elementUI', // split elementUI into a single package
+priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+test: /[\\/]node_modules[\\/]_?element-ui(.*)/, // in order to adapt to cnpm
+⋮----
+test: resolve('src/components'), // can customize your rules
+minChunks: 3, //  minimum common number
+⋮----
+// webpack.js.org/configuration/optimization/#optimizationruntimechunk
+
+================
+File: worker/.vscode/settings.json
+================
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "files.associations": {
+    "*.template": "html",
+    "*.deploy": "html"
+  }
+}
+
+================
+File: worker/public/index.html
+================
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
+    <title>Virtual Browser</title>
+  </head>
+  <body>
+    <noscript>
+      <strong>
+        We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without
+        JavaScript enabled. Please enable it to continue.
+      </strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>
+
+================
+File: worker/src/utils/index.js
+================
+export function loadScript(src)
+
+================
+File: worker/src/utils/native.js
+================
+/* eslint-disable */
+⋮----
+export async function chromeSend(name, ...params)
+⋮----
+const pTimeOut = timeout => {
+return new Promise((resolve, reject) =>
+⋮----
+export async function getGlobalData()
+⋮----
+//
+
+================
+File: worker/src/App.vue
+================
+<template>
+  <section class="container">
+    <header>
+      <img src="./assets/96.png" />
+      <h1>Virtual Browser</h1>
+    </header>
+    <main>
+      <div class="geo" v-show="geo.ip">
+        <h3>{{ geo.ip }}</h3>
+        <p>
+          <span class="item country">
+            <span>(For reference only)</span>
+            <span>
+              <img :src="geo.country_flag" />
+              {{ geo.country_name }}({{ geo.country_code2 }})
+            </span>
+            {{ geo.city ? '/' : '' }}
+            <span>{{ geo.city }}</span>
+          </span>
+        </p>
+        <p>
+          <span class="item">
+            <span>
+              <b>Time Zone:</b>
+              {{ geo.time_zone.name }}
+            </span>
+            <span>
+              <b>Coordinates:</b>
+              {{ geo.longitude }}/{{ geo.latitude }}
+            </span>
+          </span>
+        </p>
+        <p>
+          <span class="item">
+            <span>
+              <b>Fingerprint Hash:</b>
+              {{ visitorId }}
+            </span>
+          </span>
+        </p>
+        <p>
+          <img src="./assets/VirtualBrowser-qq-group.png" />
+          <br />
+          QQ Group:
+          <code>564142956</code>
+        </p>
+      </div>
+      <div v-if="!apiLinkIsValid" class="api-link-warning">
+        <h2>API链接未设置</h2>
+        <p>请在设置中配置API链接。</p>
+      </div>
+      <div class="network-error" v-if="networkErr">
+        <h1>未连接到互联网</h1>
+        <p>请检查您的网络或代理设置</p>
+      </div>
+      <div v-if="showLimitError" class="LimitError">
+        <h2>IP查询Key超出限制</h2>
+        <p>请检查您的API Key</p>
+      </div>
+      <el-timeline v-if="false" class="timeline">
+        <el-timeline-item
+          v-for="(value, key, index) in fingerprint"
+          :key="index"
+          :timestamp="key"
+          placement="top"
+        >
+          <el-card class="card">
+            <pre v-html="formatResult(value.value)"></pre>
+          </el-card>
+        </el-timeline-item>
+      </el-timeline>
+    </main>
+  </section>
+</template>
+⋮----
+<h3>{{ geo.ip }}</h3>
+⋮----
+{{ geo.country_name }}({{ geo.country_code2 }})
+⋮----
+{{ geo.city ? '/' : '' }}
+<span>{{ geo.city }}</span>
+⋮----
+{{ geo.time_zone.name }}
+⋮----
+{{ geo.longitude }}/{{ geo.latitude }}
+⋮----
+{{ visitorId }}
+⋮----
+<script lang="ts" setup>
+import FingerprintJS from '@fingerprintjs/fingerprintjs'
+import { onMounted, ref, computed } from 'vue'
+import formatHighlight from 'json-format-highlight'
+import { chromeSend, getGlobalData } from '@/utils/native.js'
+import { loadScript } from '@/utils/index.js'
+import random from 'random'
+
+const geo = ref({
+  ip: '',
+  country_flag: '',
+  country_name: '',
+  country_code2: '',
+  city: '',
+  time_zone: { name: '' },
+  longitude: '',
+  latitude: ''
+})
+const fingerprint = ref()
+const visitorId = ref('')
+const networkErr = ref(false)
+let apiLink = ref('')
+const showLimitError = ref(false)
+
+const apiLinkIsValid = computed(() => apiLink.value !== '')
+
+onMounted(async () => {
+  const store = await getGlobalData()
+  const storedApiLink = store.apiLink
+  if (storedApiLink) {
+    apiLink.value = storedApiLink
+  }
+  if (!apiLink.value) {
+    return
+  }
+  let req = await fetch(apiLink.value).catch(err => {
+    console.log(err)
+    networkErr.value = true
+  })
+  if (!req) {
+    return
+  }
+
+  const res = await req.json()
+  const apiResponse = res
+  if (
+    apiResponse.code === -13 ||
+    (apiResponse.msg && apiResponse.msg.includes('limit')) ||
+    (apiResponse.message && apiResponse.message.includes('limit'))
+  ) {
+    showLimitError.value = true
+    return
+  }
+  geo.value = res
+
+  const ipGeo = {
+    'time-zone': {
+      zone: getZone(res.time_zone.offset_with_dst || 0),
+      locale: res.languages?.split(',')[0] || '',
+      utc: res.time_zone.name
+      // value: res.time_zone.offset,
+    },
+    location: {
+      longitude: parseFloat(res.longitude),
+      latitude: parseFloat(res.latitude),
+      precision: random.int(10, 5000)
+    },
+    'ua-language': {
+      // language: res.languages?.split(',')[0],
+      value: res.languages?.split(',')[0] || ''
+    }
+  }
+
+  await chromeSend('setIpGeo', ipGeo).catch((err: Error) => {
+    console.warn(err)
+  })
+
+  const fp = await FingerprintJS.load()
+  const result = await fp.get()
+  visitorId.value = result.visitorId
+  fingerprint.value = result.components
+})
+
+const getZone = (offset: number) => {
+  const sign = offset > 0 ? '+' : '-'
+  const hours = Math.floor(Math.abs(offset))
+  const decimal = Math.abs(offset) - hours
+  const minutes = Math.round(decimal * 60)
+  const paddedMinutes = minutes < 10 ? '0' + minutes : minutes.toString()
+  return `UTC${sign}${hours}:${paddedMinutes}`
+}
+
+const formatResult = (json: JSON) => {
+  let colorJson = formatHighlight(json)
+  colorJson = colorJson.replace(/"data:image\/.+?"/g, ($0: string) => {
+    return `<img src=${$0} style="vertical-align: text-top;" />`
+  })
+
+  return colorJson
+}
+</script>
+⋮----
+<style lang="scss">
+.container {
+  width: 1000px;
+  margin: auto;
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    & > * {
+      margin: 10px 10px 15px;
+    }
+  }
+
+  main {
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    padding: 15px 30px 20px;
+
+    .geo {
+      text-align: center;
+
+      h3 {
+        font-size: 36px;
+        margin: 5px;
+      }
+      code {
+        padding: 0.2em 0.4em;
+        margin: 0;
+        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono,
+          monospace;
+        font-size: 120%;
+        white-space: break-spaces;
+        background-color: rgba(175, 184, 193, 0.2);
+        border-radius: 6px;
+      }
+      .item {
+        border: 1px dashed rgba(128, 128, 128, 0.4);
+        border-radius: 6px;
+        line-height: 30px;
+        padding: 5px 10px;
+
+        span {
+          margin: 0 5px;
+        }
+
+        &.country {
+          color: #2c9100;
+          font-weight: bold;
+
+          img {
+            height: 31px;
+            vertical-align: top;
+          }
+        }
+      }
+    }
+
+    .card {
+      --el-card-padding: 10px;
+      pre {
+        margin: 0;
+      }
+    }
+
+    .network-error {
+      max-width: 200px;
+      margin: auto;
+
+      h1 {
+        color: rgb(32, 33, 36);
+        font-weight: 500;
+      }
+      p {
+        color: rgb(95, 99, 104);
+      }
+    }
+  }
+
+  .timeline {
+    padding: 0;
+  }
+}
+</style>
+
+================
+File: worker/src/main.ts
+================
+import { createApp } from 'vue'
+import App from './App.vue'
+
+================
+File: worker/src/shims-vue.d.ts
+================
+/* eslint-disable */
+⋮----
+import type { DefineComponent } from 'vue'
+
+================
+File: worker/.gitignore
+================
+.DS_Store
+node_modules
+/dist
+
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+================
+File: worker/.prettierrc.js
+================
+printWidth: 100, //单行长度
+tabWidth: 2, //缩进长度
+useTabs: false, //使用空格代替tab缩进
+semi: false, //句末使用分号
+singleQuote: true, //使用单引号
+quoteProps: 'as-needed', //仅在必需时为对象的key添加引号
+trailingComma: 'none', //多行时尽可能打印尾随逗号
+bracketSpacing: true, //在对象前后添加空格
+arrowParens: 'avoid', //单参数箭头函数参数周围使用圆括号
+requirePragma: false, //无需顶部注释即可格式化
+insertPragma: false, //在已被preitter格式化的文件顶部加上标注
+proseWrap: 'preserve', //不知道怎么翻译
+htmlWhitespaceSensitivity: 'ignore', //对HTML全局空白不敏感
+vueIndentScriptAndStyle: false, //不对vue中的script及style标签缩进
+endOfLine: 'auto', //结束行形式
+
+================
+File: worker/auto-imports.d.ts
+================
+/* eslint-disable */
+/* prettier-ignore */
+// @ts-nocheck
+// Generated by unplugin-auto-import
+
+================
+File: worker/babel.config.js
+================
+
+================
+File: worker/components.d.ts
+================
+/* eslint-disable */
+/* prettier-ignore */
+// @ts-nocheck
+// Generated by unplugin-vue-components
+// Read more: https://github.com/vuejs/core/pull/3399
+⋮----
+export interface GlobalComponents {
+    ElCard: typeof import('element-plus/es')['ElCard']
+    ElTimeline: typeof import('element-plus/es')['ElTimeline']
+    ElTimelineItem: typeof import('element-plus/es')['ElTimelineItem']
+  }
+
+================
+File: worker/package.json
+================
+{
+  "name": "fingerprint",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run serve",
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^3.4.0",
+    "core-js": "^3.8.3",
+    "element-plus": "^2.3.3",
+    "json-format-highlight": "^1.0.4",
+    "random": "^4.1.0",
+    "uuid": "^9.0.0",
+    "vue": "^3.2.13"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-plugin-typescript": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "@vue/eslint-config-typescript": "^9.1.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-vue": "^8.0.3",
+    "prettier": "^2.4.1",
+    "sass": "^1.32.7",
+    "sass-loader": "^12.0.0",
+    "typescript": "~4.5.5",
+    "unplugin-auto-import": "^0.15.2",
+    "unplugin-vue-components": "^0.24.1"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true,
+      "webextensions": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended",
+      "@vue/typescript/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2020
+    },
+    "rules": {
+      "no-debugger": "warn"
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}
+
+================
+File: worker/README.md
+================
+# VirtualBrowser - worker
+
+## Project setup
+```
+npm install
+```
+
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
+
+### Compiles and minifies for production
+```
+npm run build
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
+
+================
+File: worker/tsconfig.json
+================
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "types": [
+      "webpack-env"
+    ],
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
+
+================
+File: worker/vue.config.js
+================
+
+================
+File: .prettierrc.js
+================
+printWidth: 100, //单行长度
+tabWidth: 2, //缩进长度
+useTabs: false, //使用空格代替tab缩进
+semi: false, //句末使用分号
+singleQuote: true, //使用单引号
+quoteProps: 'as-needed', //仅在必需时为对象的key添加引号
+trailingComma: 'none', //多行时尽可能打印尾随逗号
+bracketSpacing: true, //在对象前后添加空格
+arrowParens: 'avoid', //单参数箭头函数参数周围使用圆括号
+requirePragma: false, //无需顶部注释即可格式化
+insertPragma: false, //在已被preitter格式化的文件顶部加上标注
+proseWrap: 'preserve', //不知道怎么翻译
+htmlWhitespaceSensitivity: 'ignore', //对HTML全局空白不敏感
+vueIndentScriptAndStyle: false, //不对vue中的script及style标签缩进
+endOfLine: 'auto', //结束行形式
+
+================
+File: LICENSE
+================
+BSD 3-Clause License
+
+Copyright (c) 2023, Virtual-Browser
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+================
+File: README_EN.md
+================
+<p align="center">
+  <img src="assets/logo.png">
+</p>
+
+## <p align="center"><b><a href="README.md">简体中文</a> | <a href="README_EN.md">English</a></b></p>
+
+# Introduction
+
+Browser fingerprinting refers to the process of identifying and recording various factors, such as the browser itself, the operating system, and hardware configurations, to generate a unique identifier. It is a digital signature obtained through the collection of various features of the browser, such as user agent, language, screen size, plugin version, font, time settings, etc., and a comprehensive analysis. As everyone's browser configurations differ, browser fingerprints can be used to track user behavior, identify identity, monitor online activities, and even for illegal purposes such as fraud and phishing.
+
+VirtualBrowser is a fingerprint browser based on [Chromium](https://dev.chromium.org), which supports Windows 10 and above operating systems, and plans to support Mac, Android, Linux, and other operating systems in the future.
+
+Compared with Chromium, VirtualBrowser has two advantages:
+
+1. Support for creating multiple fingerprint information browser environments on one machine.
+2. Support for managing multiple browser environments.
+
+# Preparation
+
+First, download the latest VirtualBrowser installation package from the [release page]() or [official website](http://virtualbrowser.cc) and install it on your computer.
+
+## Creating a new browser environment
+
+1. Open VirtualBrowser and select Create Browser.
+   ![Image text](https://github.com/Virtual-Browser/VirtualBrowser/blob/main/assets/welcome.png)
+2. Modify the configuration information in the pop-up dialog or use the default settings.
+   ![Image text](https://github.com/Virtual-Browser/VirtualBrowser/blob/main/assets/create.png)
+   ![Image text](https://github.com/Virtual-Browser/VirtualBrowser/blob/main/assets/createsuccess.png)
+
+## Starting the browser environment
+
+1. Click the Start button in the created environment to open the newly created browser environment.
+2. The newly started browser is the new fingerprint environment.
+   ![Image text](https://github.com/Virtual-Browser/VirtualBrowser/blob/main/assets/launch.png)
+
+# Tested and Effective Fingerprint Modifications
+
+You can test fingerprint modifications using [fingerprintjs](https://fingerprintjs.github.io/fingerprintjs/) and [browserleaks](https://browserleaks.com/).
+
+- Operating System: Modify the operating system part in `userAgent`.
+- Browser version: Modify the browser version in `userAgent`.
+- Proxy settings: Modify the browser proxy which supports "Default", "Do not use proxy", "Custom".
+- User Agent: Modify `userAgent`.
+- Language: Modify `navigator.language`, `navigator.languages`, and it can be automatically matched based on IP.
+- Time zone: Modify the time zone in `new Date()`, and it can be automatically matched based on IP.
+- WebRTC
+- Geolocation: Modify the latitude and longitude in `navigator.geolocation.getCurrentPosition()`, and it can be automatically matched based on IP.
+- Resolution: Modify `screen.width`/`screen.height`.
+- Font: Randomly modify the supported font list.
+- Canvas: Randomly modify Canvas 2D drawing differential pixels.
+- WebGL image: Randomly modify WebGL drawing differential pixels.
+- WebGL metadata: WebGL vendor, WebGL rendering, etc.
+- AudioContext: Randomly modify the differential data of `getChannelData` and `getFloatFrequencyData` in AudioContext.
+- ClientRects
+- Speech voices
+- CPU: Modify `navigator.hardwareConcurrency` CPU core count.
+- Memory
+- Device name
+- MAC address
+- Do Not Track
+- SSL
+- Port scan protection
+- Hardware acceleration
+
+# Automation
+
+VirtualBrowser is base on Chromium, you can use playwright or other tools.
+demo(https://github.com/Virtual-Browser/VirtualBrowser/tree/main/automation)
+
+# Support and Joining
+
+VirtualBrowser is not perfect yet. If you are interested in VirtualBrowser, you are welcome to join us through the following ways:
+
+1. Directly contribute code, provide features, and fix bugs.
+2. Install VirtualBrowser, visit your frequently used websites, and provide feedback on unusable situations to help solve compatibility issues.
+3. Provide experience, functional suggestions to help improve VirtualBrowser.
+
+# Disclaimer
+
+The purpose of this disclaimer is to explicitly clarify that the VirtualBrowser project is for technology exchange, learning, and research purposes and that the technology of this project should not be used for any illicit purposes or destructive behaviors. The author is not responsible for any damage caused to others or systems by the use of this project.
+When using this project, you must be clear and promise not to utilize this technology to carry out illegal activities, infringe upon the rights of others, or attack systems. Any accidents, losses, or damages resulting from the use of the technologies in this project, including but not limited to data loss, property loss, legal liabilities, etc., are not related to the author of this project.
+The technical information provided in this text is for learning and reference purposes only and does not constitute any form of warranty or guarantee. The author of this project makes no representations or warranties as to the accuracy, validity, or applicability of the technology.
+
+# Contact Us
+
+- Email: [virtual.browser.2020@gmail.com](mailto:virtual.browser.2020@gmail.com)
+- Official website: [http://virtualbrowser.cc](http://virtualbrowser.cc)
+- QQ Group: `564142956`
+
+![Join QQ Group](assets/VirtualBrowser-qq-group.png)
+Wechat Group:
+![Join Wechat Group](assets/WeChat.png)
+
+# Acknowledgments
+
+1. [fingerprintjs](https://fingerprintjs.github.io/fingerprintjs/)
+2. [browserleaks](https://browserleaks.com/)
+3. [Chromium](https://dev.chromium.org)
+4. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+
+================
+File: README.md
+================
+<p align="center">
+  <img src="assets/logo.png">
+</p>
+
+## <p align="center"><b><a href="README.md">简体中文</a> | <a href="README_EN.md">English</a></b></p>
+
+# 简介
+
+VirtualBrowser 是基于 [Chromium](https://dev.chromium.org) 的指纹浏览器，支持 Windows 7 及以上操作系统，并计划在未来支持 Mac、Android、Linux 等操作系统。
+
+浏览器指纹识别是指通过识别和记录浏览器本身、操作系统和硬件配置等各种因素，生成一个唯一的标识符的过程。它是通过收集浏览器的各种特征（如用户代理、语言、屏幕大小、插件版本、字体、时间设置等）和综合分析得出的数字签名。由于每个人的浏览器配置不同，所以可以使用浏览器指纹来跟踪用户行为、识别身份、监视在线活动，甚至用于非法目的，如欺诈和网络钓鱼。
+
+与 Chromium 相比，VirtualBrowser 具有两个优点：
+
+1. 支持在一台机器上创建多个指纹信息浏览器环境。
+2. 支持管理多个浏览器环境。
+
+# 准备工作
+
+首先，从[发布页面]()或[官网](http://virtualbrowser.cc)下载最新的 VirtualBrowser 安装包并将其安装到计算机上。
+
+## 创建新的浏览器环境
+
+1. 打开 VirtualBrowser 并选择“创建浏览器”。
+   ![Image text](https://github.com/Virtual-Browser/VirtualBrowser/blob/main/assets/welcome_zh-cn.png)
+2. 修改弹出对话框中的配置信息或使用默认设置。
+   ![Image text](https://github.com/Virtual-Browser/VirtualBrowser/blob/main/assets/create_zh-cn.png)
+   ![Image text](https://github.com/Virtual-Browser/VirtualBrowser/blob/main/assets/create_success_zh-cn.png)
+
+## 启动浏览器环境
+
+1. 单击已创建环境中的“启动”按钮，以打开新创建的浏览器环境。
+2. 新启动的浏览器即为新的指纹环境。
+   ![Image text](https://github.com/Virtual-Browser/VirtualBrowser/blob/main/assets/launch.png)
+
+# 亲测可用的指纹修改
+
+可以使用 [fingerprintjs](https://fingerprintjs.github.io/fingerprintjs/) 和 [browserleaks](https://browserleaks.com/) 来测试指纹修改效果。
+
+- 操作系统：修改 `userAgent` 中的操作系统部分。
+- 浏览器版本：修改 `userAgent` 中的浏览器版本。
+- 代理设置：修改支持“默认”、“不使用代理”、“自定义”的浏览器代理。
+- 用户代理：修改 `userAgent`。
+- 语言：修改 `navigator.language`、`navigator.languages`，也可以根据 IP 自动匹配。
+- 时区：修改 `new Date()` 中的时区，也可以根据 IP 自动匹配。
+- WebRTC
+- 地理位置：修改 `navigator.geolocation.getCurrentPosition()` 中的经度和纬度，也可以根据 IP 自动匹配。
+- 分辨率：修改 `screen.width`/`screen.height`。
+- 字体：随机修改支持的字体列表。
+- Canvas：随机修改 Canvas 2D 绘制差分像素。
+- WebGL 图像：随机修改 WebGL 绘制差分像素。
+- WebGL 元数据：WebGL 厂商、WebGL 渲染等。
+- AudioContext：随机修改 AudioContext 中的 `getChannelData` 和 `getFloatFrequencyData` 的差异数据。
+- ClientRects
+- Speech Voices
+- CPU：修改 `navigator.hardwareConcurrency` 的 CPU 核心数。
+- 内存
+- 设备名称
+- MAC 地址
+- Do Not Track
+- SSL
+- 端口扫描保护
+- 硬件加速
+
+# 自动化
+
+VirtualBrowser 基于 Chromium 开发，可以使用 playwright 或者其他 chromium 的自动化测试工具进行开发。 demo(https://github.com/Virtual-Browser/VirtualBrowser/tree/main/automation)
+
+# 支持和加入
+
+VirtualBrowser 还不完善。如果您对 VirtualBrowser 感兴趣，可以通过以下方式加入我们：
+
+1. 直接贡献代码、提供功能和修复错误。
+2. 安装 VirtualBrowser，访问您经常使用的网站，并提供有关无法使用的情况的反馈，以帮助解
+3. 提供有关 VirtualBrowser 的反馈和建议，以帮助我们改进产品和增强用户体验。
+4. 在社交媒体上分享您对 VirtualBrowser 的看法和使用体验，并向其他人推荐该产品。
+5. 加入 VirtualBrowser 的开发者社区，与其他用户和开发人员进行交流和讨论。
+
+# 免责声明
+
+本免责声明旨在明确指出，VirtualBrowser 项目为技术交流、学习和研究之用，不得将本项目技术用于任何非法目的或破坏行为。作者对于任何使用本项目对他人或系统造成的损害概不负责。
+
+使用本项目时，您必须明确并承诺，不会利用该技术来实施非法活动、侵犯他人的权益或对系统进行攻击。任何使用本项目中的技术所导致的任何意外、损失或损害，包括但不限于数据损失、财产损失、法律责任等问题，都与发表本项目的作者无关。
+
+本文提供的技术信息仅供学习和参考之用，不构成任何形式的担保或保证。发表本项目的作者不对技术的准确性、有效性或适用性做任何声明或保证。
+
+# 联系我们
+
+- email: [virtual.browser.2020@gmail.com](mailto:virtual.browser.2020@gmail.com)
+- 官网: [http://virtualbrowser.cc](http://virtualbrowser.cc)
+- QQ 群: `564142956`
+
+![Join QQ Group](assets/VirtualBrowser-qq-group.png)
+微信群：
+![Join Wechat Group](assets/WeChat.png)
+
+# 致谢
+
+1. [fingerprintjs](https://fingerprintjs.github.io/fingerprintjs/)
+2. [browserleaks](https://browserleaks.com/)
+3. [Chromium](https://dev.chromium.org)
+4. [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)

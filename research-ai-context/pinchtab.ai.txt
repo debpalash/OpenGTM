@@ -1,0 +1,1978 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+.devcontainer/
+  devcontainer.json
+.github/
+  ISSUE_TEMPLATE/
+    bug_report.md
+    feature_request.md
+  workflows/
+    ci-branch-naming.yml
+    ci-dashboard.yml
+    ci-docs.yml
+    ci-e2e.yml
+    ci-go.yml
+    ci-npm.yml
+    ci-plugin.yml
+    ci-smoke.yml
+    release-manual-publish.yml
+    release-post-verify.yml
+    release.yml
+    reusable-dashboard.yml
+    reusable-docs.yml
+    reusable-e2e.yml
+    reusable-go.yml
+    reusable-npm.yml
+    reusable-plugin.yml
+    reusable-publish-plugin.yml
+    reusable-publish-skill.yml
+    reusable-release-publish.yml
+    reusable-smoke.yml
+    reusable-validate-release-secrets.yml
+    reusable-validate-release.yml
+  DEFINITION_OF_DONE.md
+  DOCUMENTATION_REVIEW.md
+  GOVERNANCE.md
+  LABELING_GUIDE.md
+  PULL_REQUEST_TEMPLATE.md
+  RELEASING.md
+assets/
+  docs-no-background-256.png
+  favicon.png
+  pinchtab-headless.png
+cmd/
+  pinchtab/
+    build_test.go
+    cmd_bridge_test.go
+    cmd_bridge.go
+    cmd_cli_autostart_test.go
+    cmd_cli_browser_actions.go
+    cmd_cli_browser_inspect.go
+    cmd_cli_browser_nav.go
+    cmd_cli_cache.go
+    cmd_cli_clipboard.go
+    cmd_cli_console.go
+    cmd_cli_current_tab_test.go
+    cmd_cli_management.go
+    cmd_cli_network_route.go
+    cmd_cli_register.go
+    cmd_cli_runtime_test.go
+    cmd_cli_runtime.go
+    cmd_cli_state.go
+    cmd_cli_storage.go
+    cmd_cli_test.go
+    cmd_cli.go
+    cmd_completion.go
+    cmd_config_test.go
+    cmd_config.go
+    cmd_daemon_test.go
+    cmd_daemon.go
+    cmd_dashboard_test.go
+    cmd_dashboard.go
+    cmd_mcp_test.go
+    cmd_mcp_unix.go
+    cmd_mcp_windows.go
+    cmd_mcp.go
+    cmd_security_test.go
+    cmd_security.go
+    cmd_server_ensure.go
+    cmd_server.go
+    cmd_session_test.go
+    cmd_session.go
+    cmd_terminal.go
+    cmd_wizard_test.go
+    cmd_wizard.go
+    config_load_test.go
+    config_load.go
+    main.go
+    prompt_test.go
+    prompt.go
+    root.go
+dashboard/
+  public/
+    favicon.png
+  src/
+    activities/
+      ActiveFilterBar.tsx
+      ActivityExplorer.tsx
+      ActivityFilterMenu.tsx
+      ActivityItemLine.tsx
+      ActivityLine.tsx
+      ActivityPage.test.tsx
+      ActivityPage.tsx
+      ActivityTimeline.tsx
+      AgentActivityWorkspace.tsx
+      AgentsPage.test.tsx
+      AgentsPage.tsx
+      AgentStreamPanel.tsx
+      AgentWorkspaceSidebar.tsx
+      api.ts
+      CopyIdPill.tsx
+      FilterPill.tsx
+      handoffState.ts
+      helpers.ts
+      index.ts
+      SessionDivider.tsx
+      StreamRow.tsx
+      types.ts
+    components/
+      atoms/
+        Badge.test.tsx
+        Badge.tsx
+        Button.test.tsx
+        Button.tsx
+        Card.tsx
+        DebugPanel.tsx
+        EmptyState.tsx
+        ErrorBoundary.tsx
+        Icon.tsx
+        index.ts
+        Input.tsx
+        Modal.tsx
+        Select.tsx
+        StatusDot.test.tsx
+        StatusDot.tsx
+        Toolbar.tsx
+      molecules/
+        AgentItem.tsx
+        CreateProfileModal.test.tsx
+        CreateProfileModal.tsx
+        EmptyView.tsx
+        HandoffNotifications.tsx
+        IdBadge.test.tsx
+        IdBadge.tsx
+        index.ts
+        InstanceStats.tsx
+        NavBar.css
+        NavBar.test.tsx
+        NavBar.tsx
+        ServerStatusBadge.test.tsx
+        ServerStatusBadge.tsx
+        ServerSummary.tsx
+        SidebarPanel.tsx
+        SidebarPanelFooterActions.tsx
+        SidebarPanelHeader.tsx
+        StartInstanceModal.test.tsx
+        StartInstanceModal.tsx
+        TabsChart.test.tsx
+        TabsChart.tsx
+        TabsLayout.tsx
+      screencast/
+        ScreencastStatusBar.tsx
+        ScreencastTile.test.tsx
+        ScreencastTile.tsx
+    generated/
+      types.ts
+    instances/
+      InstanceCard.tsx
+      InstanceListItem.tsx
+    pages/
+      settings/
+        AutoSolverSettingsSection.tsx
+        BrowserSettingsSection.tsx
+        DashboardSettingsSection.tsx
+        DefaultsSettingsSection.tsx
+        NetworkSettingsSection.tsx
+        ObservabilitySettingsSection.tsx
+        OrchestrationSettingsSection.tsx
+        ProfilesSettingsSection.tsx
+        SecurityIdpiSettingsSection.tsx
+        SecuritySettingsSection.tsx
+        settingsShared.ts
+        SettingsSharedComponents.tsx
+        TimeoutsSettingsSection.tsx
+      index.ts
+      LoginPage.tsx
+      MonitoringPage.test.tsx
+      MonitoringPage.tsx
+      ProfilesPage.test.tsx
+      ProfilesPage.tsx
+      SettingsPage.test.tsx
+      SettingsPage.tsx
+    profiles/
+      InstanceLogsPanel.test.tsx
+      InstanceLogsPanel.tsx
+      ProfileBasicInfoPanel.tsx
+      ProfileCard.test.tsx
+      ProfileCard.tsx
+      ProfileDetailsPanel.tsx
+      ProfileLiveViewPanel.tsx
+      ProfileMetaInfoPanel.tsx
+      ProfileToolbarButtons.tsx
+    services/
+      api.test.ts
+      api.ts
+      auth.test.ts
+      auth.ts
+      dashboardRealtime.ts
+    stores/
+      useAppStore.test.ts
+      useAppStore.ts
+    tabs/
+      ConsolePanel.tsx
+      ErrorsPanel.tsx
+      index.ts
+      InstanceTabsPanel.test.tsx
+      InstanceTabsPanel.tsx
+      SelectedTabPanel.tsx
+      SelectedTabTitle.tsx
+      TabBar.tsx
+      TabItem.tsx
+    test/
+      setup.ts
+    types/
+      index.ts
+    App.tsx
+    index.css
+    main.tsx
+  .gitignore
+  eslint.config.js
+  index.html
+  package.json
+  README.md
+  tsconfig.app.json
+  tsconfig.json
+  tsconfig.node.json
+  tsconfig.test.json
+  tygo.yaml
+  vite.config.ts
+docs/
+  architecture/
+    autosolver.md
+    find.md
+    index.md
+    instance-charts.md
+    mcp.md
+    orchestration.md
+    scheduler.md
+    system-charts.md
+  deep-dive/
+    logs/
+      la1.txt
+      la2.txt
+      la3.txt
+      la4.txt
+      la5.txt
+      lae1-sonnet46-1.txt
+      lae1.txt
+      lae2-sonnet46-2.txt
+      lae2.txt
+      lae3.txt
+      lp1.txt
+      lp2.txt
+      lp3.txt
+      lp4.txt
+      lp5.txt
+      lpe-sonnet46-1.txt
+      lpe-sonnet46-2.txt
+      lpe1.txt
+      lpe2.txt
+      lpe3.txt
+    benchmark.md
+    lite-engin-prototype.md
+  guides/
+    agent-identity.md
+    attach-chrome.md
+    contributing.md
+    daemon.md
+    data-storage.md
+    docker.md
+    identifying-instances.md
+    mcp-agents.md
+    memory-monitoring.md
+    multi-instance.md
+    raspberry-pi.md
+    remote-bridge-orchestrator.md
+    security.md
+    tailscale-bridge-orchestrator.md
+  implementations/
+    chrome-files.md
+    chrome-profile-lock-recovery.md
+    docker-local-testing.md
+    index.md
+    lite-engine.md
+    managed-bridge-vs-managed-direct-cdp.md
+    parallel-tab-execution.md
+  media/
+    chart-redesign-preview.png
+    dashboard-instances.jpeg
+    dashboard-profiles.jpeg
+    dashboard-settings.jpeg
+    pdev-menu.jpg
+  reference/
+    cache.md
+    cli.md
+    click.md
+    config.md
+    eval.md
+    fill.md
+    find.md
+    focus.md
+    frame.md
+    handoff.md
+    health.md
+    hover.md
+    index.md
+    instances.md
+    keyboard.md
+    mcp-tools.md
+    mouse.md
+    navigate.md
+    pdf.md
+    press.md
+    profiles.md
+    scheduler.md
+    screenshot.md
+    scroll.md
+    select.md
+    sessions.md
+    snapshot.md
+    solve.md
+    strategies.md
+    tabs.md
+    text.md
+    type.md
+  benchmark.md
+  commands.md
+  core-concepts.md
+  dashboard.md
+  endpoints.md
+  get-started.md
+  headless-vs-headed.md
+  index.json
+  mcp.md
+  pinchtab.md
+  showcase.md
+internal/
+  activity/
+    activity_test.go
+    activity.go
+    api_test.go
+    api.go
+    context_test.go
+    context.go
+    url_sanitize.go
+  api/
+    types/
+      types.go
+  assets/
+    assets.go
+    popup_guard.js
+    readability.js
+    screencast_repaint_start.js
+    screencast_repaint_stop.js
+    stealth.js
+  authn/
+    audit.go
+    cookie_test.go
+    cookie.go
+    rate_limit_test.go
+    rate_limit.go
+    request_test.go
+    request_wire_test.go
+    request.go
+  autosolver/
+    adapters/
+      pinchtab.go
+    external/
+      capsolver.go
+      twocaptcha.go
+    llm/
+      llm.go
+      trim.go
+    semantic/
+      adapter.go
+    solvers/
+      cloudflare.go
+      jschallenge_test.go
+      jschallenge.go
+      legacy.go
+    autosolver_test.go
+    autosolver.go
+    challenge_detection_test.go
+    challenge_detection.go
+    heuristics.go
+    interfaces.go
+    registry_test.go
+    registry.go
+    types.go
+  bridge/
+    cdpops/
+      element_ops.go
+      geometry.go
+      navigation.go
+      pointer_test.go
+      pointer.go
+      resource_blocking.go
+      validation.go
+    observe/
+      format_har.go
+      format_ndjson.go
+      metrics.go
+      network_export_test.go
+      network_export.go
+      network_inflight_test.go
+      network.go
+      snapshot_format.go
+      snapshot.go
+    runtime/
+      init_test.go
+      init.go
+    tabs/
+      dialog_test.go
+      dialog.go
+      lock.go
+      tab_executor.go
+    action_common.go
+    action_form.go
+    action_pointer.go
+    action_registry.go
+    action_request.go
+    action_resolve_test.go
+    action_resolve.go
+    action_text.go
+    actions_test.go
+    adblock_test.go
+    adblock.go
+    animations_test.go
+    animations.go
+    api_test.go
+    api.go
+    bridge_cleanup_test.go
+    bridge_lifecycle.go
+    bridge_test.go
+    bridge_types.go
+    bridge.go
+    cache_test.go
+    cache.go
+    cdp_element_ops_test.go
+    cdp_geometry_test.go
+    cdp_keyboard_test.go
+    cdp_keyboard.go
+    cdp_navigation_test.go
+    cdp_pointer_test.go
+... (Header / Directory Structure truncated)
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: install.sh
+================
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Pinchtab Installer for macOS and Linux
+# Usage: curl -fsSL https://pinchtab.com/install.sh | bash
+
+BOLD='\033[1m'
+ACCENT='\033[38;2;251;191;36m'      # yellow #fbbf24
+INFO='\033[38;2;136;146;176m'       # muted #8892b0
+SUCCESS='\033[38;2;0;229;204m'      # cyan #00e5cc
+ERROR='\033[38;2;230;57;70m'        # red #e63946
+MUTED='\033[38;2;90;100;128m'       # text-muted #5a6480
+NC='\033[0m' # No Color
+
+TAGLINE="Small binary. Zero config. Accessibility-first browser control."
+
+cleanup_tmpfiles() {
+    local f
+    for f in "${TMPFILES[@]:-}"; do
+        rm -rf "$f" 2>/dev/null || true
+    done
+}
+trap cleanup_tmpfiles EXIT
+
+TMPFILES=()
+LOGFILE=""
+
+mktempfile() {
+    local f
+    f="$(mktemp)"
+    TMPFILES+=("$f")
+    echo "$f"
+}
+
+setup_logfile() {
+    LOGFILE="$(mktempfile)"
+}
+
+ui_info() {
+    local msg="$*"
+    echo -e "${MUTED}·${NC} ${msg}"
+}
+
+ui_success() {
+    local msg="$*"
+    echo -e "${SUCCESS}✓${NC} ${msg}"
+}
+
+ui_error() {
+    local msg="$*"
+    echo -e "${ERROR}✗${NC} ${msg}"
+}
+
+ui_section() {
+    local title="$1"
+    echo ""
+    echo -e "${ACCENT}${BOLD}${title}${NC}"
+}
+
+detect_os() {
+    OS="unknown"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        OS="macos"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ -n "${WSL_DISTRO_NAME:-}" ]]; then
+        OS="linux"
+    fi
+
+    if [[ "$OS" == "unknown" ]]; then
+        ui_error "Unsupported operating system"
+        echo "This installer supports macOS and Linux (including WSL)."
+        exit 1
+    fi
+
+    ui_success "Detected: $OS"
+}
+
+print_banner() {
+    echo -e "${ACCENT}${BOLD}"
+    echo "  🦀 Pinchtab Installer"
+    echo -e "${NC}${INFO}  ${TAGLINE}${NC}"
+    echo ""
+}
+
+check_node() {
+    if ! command -v node &> /dev/null; then
+        ui_error "Node.js 18+ is required but not found"
+        echo "Install from https://nodejs.org or via your package manager"
+        exit 1
+    fi
+
+    local version
+    version="$(node -v 2>/dev/null | cut -dv -f2 | cut -d. -f1)"
+    if [[ -z "$version" || "$version" -lt 18 ]]; then
+        ui_error "Node.js 18+ is required, but found $(node -v)"
+        exit 1
+    fi
+
+    ui_success "Node.js $(node -v) found"
+}
+
+check_npm() {
+    if ! command -v npm &> /dev/null; then
+        ui_error "npm is required but not found"
+        exit 1
+    fi
+    ui_success "npm $(npm -v) found"
+}
+
+check_chrome() {
+    local chrome_found=false
+    local chrome_path=""
+
+    # Check common Chrome/Chromium locations
+    local candidates=(
+        "google-chrome"
+        "google-chrome-stable"
+        "chromium"
+        "chromium-browser"
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+        "/Applications/Chromium.app/Contents/MacOS/Chromium"
+        "/usr/bin/google-chrome"
+        "/usr/bin/google-chrome-stable"
+        "/usr/bin/chromium"
+        "/usr/bin/chromium-browser"
+    )
+
+    for candidate in "${candidates[@]}"; do
+        if command -v "$candidate" &> /dev/null || [[ -f "$candidate" ]]; then
+            chrome_found=true
+            chrome_path="$candidate"
+            break
+        fi
+    done
+
+    if [[ "$chrome_found" == true ]]; then
+        ui_success "Chrome/Chromium found: $chrome_path"
+    else
+        ui_error "Chrome or Chromium not found"
+        echo ""
+        echo "Pinchtab requires Chrome or Chromium to be installed."
+        echo ""
+        if [[ "$OS" == "macos" ]]; then
+            echo "Install Chrome or Chromium:"
+            echo "  • Chrome: https://www.google.com/chrome/"
+            echo "  • Chromium (via Homebrew): brew install chromium"
+        else
+            echo "Install Chrome or Chromium:"
+            echo ""
+            echo "  Debian/Ubuntu/Raspberry Pi:"
+            echo "    sudo apt update && sudo apt install -y chromium-browser"
+            echo ""
+            echo "  Fedora/RHEL:"
+            echo "    sudo dnf install -y chromium"
+            echo ""
+            echo "  Arch Linux:"
+            echo "    sudo pacman -S chromium"
+            echo ""
+            echo "  Or download Chrome: https://www.google.com/chrome/"
+        fi
+        echo ""
+        echo "After installing Chrome/Chromium, run this installer again."
+        exit 1
+    fi
+}
+
+install_pinchtab() {
+    ui_section "Installing Pinchtab"
+
+    if npm install -g pinchtab > "$LOGFILE" 2>&1; then
+        ui_success "Pinchtab installed successfully"
+        return 0
+    else
+        local exit_code=$?
+        ui_error "npm install failed"
+        echo ""
+
+        # Check for permission error
+        if grep -q "EACCES\|permission denied" "$LOGFILE"; then
+            echo "This is a permission error. Try one of these:"
+            echo ""
+            echo "  Option 1: Use nvm (recommended)"
+            echo "    curl https://github.com/nvm-sh/nvm/raw/master/install.sh | bash"
+            echo "    nvm install node"
+            echo "    npm install -g pinchtab"
+            echo ""
+            echo "  Option 2: Use user prefix (no sudo needed)"
+            echo "    npm install -g --prefix \"\$HOME/.local\" pinchtab"
+            echo "    export PATH=\"\$HOME/.local/bin:\$PATH\"  # Add to ~/.bashrc or ~/.zshrc"
+            echo ""
+            echo "  Option 3: Fix npm permissions globally"
+            echo "    mkdir ~/.npm-global"
+            echo "    npm config set prefix '~/.npm-global'"
+            echo "    export PATH=~/.npm-global/bin:\$PATH  # Add to ~/.bashrc or ~/.zshrc"
+            echo ""
+        else
+            echo "Install log:"
+            cat "$LOGFILE"
+        fi
+        exit 1
+    fi
+}
+
+verify_installation() {
+    if ! command -v pinchtab &> /dev/null; then
+        ui_error "Pinchtab binary not found in PATH after install"
+        echo "Try: npm install -g pinchtab"
+        exit 1
+    fi
+
+    local version
+    version="$(pinchtab --version 2>/dev/null || echo 'unknown')"
+    ui_success "Pinchtab ready: $version"
+}
+
+show_next_steps() {
+    ui_section "Next steps"
+    echo ""
+    echo "  Start the server:"
+    echo -e "    ${MUTED}pinchtab${NC}"
+    echo ""
+    echo "  In another terminal, test it:"
+    echo -e "    ${MUTED}curl http://localhost:9867/health${NC}"
+    echo ""
+    echo "  Or navigate & snapshot:"
+    echo -e "    ${MUTED}pinchtab nav https://httpbin.org/html${NC}"
+    echo -e "    ${MUTED}pinchtab snap${NC}  (pipe to 'jq .count' if you have jq installed)"
+    echo ""
+    echo "  Documentation:"
+    echo -e "    ${MUTED}https://pinchtab.com${NC}"
+    echo ""
+}
+
+main() {
+    print_banner
+    setup_logfile
+
+    detect_os
+    check_node
+    check_npm
+    check_chrome
+    install_pinchtab
+    verify_installation
+    show_next_steps
+
+    ui_section "Installation complete!"
+    echo -e "Run ${ACCENT}${BOLD}pinchtab${NC} to start 🦀"
+    echo ""
+}
+
+main "$@"
+
+================
+File: LICENSE
+================
+MIT License
+
+Copyright (c) 2026 Luigi Agosti
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================
+File: README.md
+================
+<p align="center">
+  <img src="assets/pinchtab-headless.png" alt="PinchTab" width="200"/>
+</p>
+
+<p align="center">
+  <strong>PinchTab</strong><br/>
+  <strong>Browser control for AI agents</strong><br/>
+  Small Go binary • HTTP API • Token-efficient
+</p>
+
+
+<table align="center">
+  <tr>
+    <td align="center" valign="middle">
+      <a href="https://pinchtab.com/docs"><img src="assets/docs-no-background-256.png" alt="Full Documentation" width="92"/></a>
+    </td>
+    <td align="left" valign="middle">
+      <a href="https://github.com/pinchtab/pinchtab/releases/latest"><img src="https://img.shields.io/github/v/release/pinchtab/pinchtab?style=flat-square&color=FFD700" alt="Release"/></a><br/>
+      <a href="https://github.com/pinchtab/pinchtab/actions/workflows/ci-go.yml"><img src="https://img.shields.io/github/actions/workflow/status/pinchtab/pinchtab/ci-go.yml?branch=main&style=flat-square&label=Go%20CI" alt="Go CI"/></a><br/>
+      <img src="https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat-square&logo=go&logoColor=white" alt="Go 1.25+"/><br/>
+      <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square" alt="License"/></a>
+    </td>
+  </tr>
+</table>
+
+---
+
+## What is PinchTab?
+
+PinchTab is a **standalone HTTP server** that gives AI agents direct control over Chrome.
+
+For day-to-day local use, the server is typically installed as a user-level daemon, allowing agent tools to reuse the same browser control plane running in the background.
+
+```bash
+curl -fsSL https://pinchtab.com/install.sh | bash
+# or
+pinchtab daemon install
+```
+
+This installs the control-plane server and starts a default headless Chrome instance, ready to accept requests from agents or manual API calls.
+
+PinchTab is designed first for local, single-user control on a machine you manage. Remote and distributed layouts are supported, but they are advanced operator-managed deployments. If you bind beyond loopback, publish ports, or attach remote bridges, you are responsible for tokens, network boundaries, TLS or reverse proxying, and which endpoint families you expose.
+
+If you run PinchTab on a different machine, do it only when you understand the security model. Keep it on a private or otherwise closed network, avoid exposing it directly to the public internet, and keep high-risk endpoint families disabled unless you explicitly need them. If you do enable them, lock them down so only the systems that need them can reach them.
+
+> [!WARNING]
+> The dashboard, HTTP API, MCP server, and remote CLI integrations are privileged operator control surfaces. They are not designed for untrusted users, multi-tenant exposure, or direct public-internet access. If you are unsure how to secure a non-local deployment, review [docs/guides/security.md](docs/guides/security.md) and use the private security contact path in [SECURITY.md](SECURITY.md) before exposing the service.
+
+
+If you prefer not to run a daemon, or if you're on Windows, you can instead run:
+
+`pinchtab server` — runs the control-plane server directly
+`pinchtab bridge` — runs a single browser instance as a lightweight runtime
+
+PinchTab also provides a CLI with an interactive entry point for local setup and common tasks:
+
+`pinchtab`
+
+## Security
+
+PinchTab defaults to a **local-first security posture**:
+
+- `server.bind = 127.0.0.1`
+- dashboard session cookies are `Secure` only when the dashboard is actually served over HTTPS
+- sensitive endpoint families are disabled by default
+- `attach` is disabled by default
+- IDPI is enabled with a **local-only website allowlist**
+
+If you intentionally access the dashboard over plain HTTP on a non-loopback
+address, PinchTab now warns in the UI that the session is running without
+transport encryption. Prefer HTTPS or localhost when possible. If you force
+`server.cookieSecure = true`, dashboard login requires HTTPS and will fail
+explicitly on plain HTTP instead of looping silently.
+
+> [!CAUTION]
+> By default, IDPI restricts browsing to **locally hosted websites only**.
+> This prevents agents from navigating the public internet until you explicitly allow it.
+> The restriction exists to make the security implications of browser automation clear before enabling wider access.
+>
+> Expanding browsing to non-local or non-trusted websites is a security-reducing choice. Hostile pages can still increase browser attack surface and interact badly with enabled automation features even when PinchTab's content defenses are on.
+
+See the full guide: [docs/guides/security.md](docs/guides/security.md)
+
+Remote, container, and distributed setups are possible, but PinchTab is not positioned as a turnkey internet-facing browser service. Treat any non-local deployment as an advanced setup that you must secure explicitly.
+
+## What can you use it for
+
+### Headless navigation
+
+With the daemon installed and an agent skill configured, an agent can execute tasks like:
+
+```
+"What are the main news about aliens on news.com?"
+```
+
+PinchTab exposes browser tools that allow agents to navigate pages, extract structured content, and interact with the DOM without wasting tokens on raw HTML or images.
+
+### Headed navigation
+
+In addition to headless automation, PinchTab supports headed Chrome profiles.
+
+You can create profiles configured with authentication, cookies, extensions, or specific environments. Each profile can have a name and description.
+
+For example, an agent request like:
+
+```
+"Log into my work profile and download the weekly report"
+```
+
+can automatically select the appropriate profile and perform the action.
+
+### Local container isolation
+
+If you prefer stronger isolation, PinchTab can run inside Docker.
+
+This allows agents to control browsers in a sandboxed environment, reducing risk when running automation tasks locally.
+
+### Distributed automation
+
+PinchTab can manage multiple Chrome instances (headless or headed) across containers or remote machines.
+
+Typical use cases include:
+
+- QA automation
+- testing environments
+- distributed browsing tasks
+- development tooling
+
+You can connect to multiple PinchTab servers, or attach to Chrome instances running in remote debug mode.
+
+## Process Model
+
+PinchTab is server-first:
+1. install the daemon or run `pinchtab server` for the full control plane
+2. let the server manage profiles and instances
+3. let each managed instance run behind a lightweight `pinchtab bridge` runtime
+
+In practice:
+- Server — the main product entry point and control plane
+- Bridge — the runtime that manages a single browser instance
+- Attach — an advanced mode for registering externally managed Chrome instances
+
+### Primary Usage
+
+The primary user journey is:
+
+1. install Pinchtab
+2. install and start the daemon with `pinchtab daemon install`
+3. point your agent or tool at `http://localhost:9867`
+4. let PinchTab act as your local browser service
+
+That is the default “replace the browser runtime” scenario.
+Most users should not need to think about `pinchtab bridge` directly, and only need `pinchtab` when they want the local interactive menu.
+
+### Key Features
+
+- **CLI or Curl** — Control via command-line or HTTP API
+- **Token-efficient** — 800 tokens/page with text extraction (5-13x cheaper than screenshots)
+- **Headless or Headed** — Run without a window or with visible Chrome
+- **Multi-instance** — Run multiple parallel Chrome processes with isolated profiles
+- **Self-contained** — ~15MB binary, no external dependencies
+- **Accessibility-first** — Stable element refs instead of fragile coordinates
+- **ARM64-optimized** — First-class Raspberry Pi support with automatic Chromium detection
+
+---
+
+## Quick Start
+
+### Installation
+
+**macOS / Linux:**
+```bash
+curl -fsSL https://pinchtab.com/install.sh | bash
+```
+
+**Homebrew (macOS / Linux):**
+```bash
+brew install pinchtab/tap/pinchtab
+```
+
+**npm:**
+```bash
+npm install -g pinchtab
+```
+
+### Platform Support
+
+PinchTab's primary tested operator workflow is local macOS and Linux.
+
+Windows binaries are published, but Windows support is currently limited and best-effort because the project does not have the same level of automated and manual coverage there. On Windows, prefer running `pinchtab server` or `pinchtab bridge` directly instead of relying on the daemon workflow.
+
+### Shell Completion
+
+Generate and install shell completions after `pinchtab` is on your `PATH`:
+
+```bash
+# Generate and install zsh completions
+pinchtab completion zsh > "${fpath[1]}/_pinchtab"
+
+# Generate bash completions
+pinchtab completion bash > /etc/bash_completion.d/pinchtab
+
+# Generate fish completions
+pinchtab completion fish > ~/.config/fish/completions/pinchtab.fish
+```
+
+**Docker:**
+```bash
+docker run -d \
+  --name pinchtab \
+  -p 127.0.0.1:9867:9867 \
+  -v pinchtab-data:/data \
+  --shm-size=2g \
+  pinchtab/pinchtab
+```
+
+The bundled container persists its managed config at `/data/.config/pinchtab/config.json`.
+If you want to supply your own config file instead, mount it and point `PINCHTAB_CONFIG` at it:
+
+```bash
+docker run -d \
+  --name pinchtab \
+  -p 127.0.0.1:9867:9867 \
+  -e PINCHTAB_CONFIG=/config/config.json \
+  -v "$PWD/config.json:/config/config.json:ro" \
+  -v pinchtab-data:/data \
+  --shm-size=2g \
+  pinchtab/pinchtab
+```
+
+### Use It
+
+**First useful command — auto-starts the local server if needed:**
+```bash
+pinchtab nav https://pinchtab.com --snap
+```
+
+**Or start the server explicitly when you want foreground logs:**
+```bash
+pinchtab server
+```
+
+**Recommended for daily local use — install the daemon once:**
+```bash
+pinchtab daemon install
+pinchtab daemon
+```
+
+That keeps PinchTab running in the background so your agent tools can reuse it without an open terminal.
+
+**Terminal 2 — Control the browser:**
+```bash
+# Navigate; starts the server automatically if needed
+pinchtab nav https://pinchtab.com
+
+# Get page structure
+pinchtab snap -i -c
+
+# Click an element
+pinchtab click e5
+
+# Extract text
+pinchtab text
+```
+
+Or use the HTTP API directly:
+```bash
+# Create a profile first (returns profile id)
+PROF=$(curl -s -X POST http://localhost:9867/profiles \
+  -H "Content-Type: application/json" \
+  -d '{"name":"work"}' | jq -r '.id')
+
+# Start an instance for that profile (returns instance id)
+INST=$(curl -s -X POST http://localhost:9867/instances/start \
+  -H "Content-Type: application/json" \
+  -d "{\"profileId\":\"$PROF\",\"mode\":\"headless\"}" | jq -r '.id')
+
+# Open a tab in that instance
+TAB=$(curl -s -X POST http://localhost:9867/instances/$INST/tabs/open \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://pinchtab.com"}' | jq -r '.tabId')
+
+# Get snapshot
+curl "http://localhost:9867/tabs/$TAB/snapshot?filter=interactive"
+
+# Click element
+curl -X POST "http://localhost:9867/tabs/$TAB/action" \
+  -H "Content-Type: application/json" \
+  -d '{"kind":"click","ref":"e5"}'
+```
+
+---
+
+## Core Concepts
+
+**Server** — The main PinchTab process. It manages profiles, instances, routing, and the dashboard.
+
+**Instance** — A running Chrome process. Each instance can have one profile.
+
+**Profile** — Browser state (cookies, history, local storage). Log in once, stay logged in across restarts.
+
+**Tab** — A single webpage. Each instance can have multiple tabs.
+
+**Bridge** — The single-instance runtime behind a managed instance. Usually spawned by the server, not started manually.
+
+Read more in the [Core Concepts](https://pinchtab.com/docs/core-concepts) guide.
+
+---
+
+## Why PinchTab?
+
+| Aspect | PinchTab |
+|--------|----------|
+| **Tokens performance** | ✅ |
+| **Headless and Headed** | ✅ |
+| **Profile** | ✅ |
+| **Advanced CDP control** | ✅ |
+| **Persistent sessions** | ✅ |
+| **Binary size** | ✅ |
+| **Multi-instance** | ✅ |
+| **External Chrome attach** | ✅ |
+
+### Benchmark: PinchTab vs agent-browser
+
+Measured end-to-end agent-loop token cost (Anthropic API), percentages
+read as "PinchTab is N% cheaper than agent-browser on this metric":
+
+| Scope                     | Cost cheaper | Fewer requests | Fewer tokens |
+|---------------------------|-------------:|---------------:|-------------:|
+| Basic Haiku (10 steps)    | **9.5%**     | 23.0%          | 17.9%        |
+| Extended Haiku (24 steps) | **19.6%**    | 31.1%          | 26.2%        |
+| Extended Sonnet (24 steps)| **20.3%**    | 29.4%          | 25.3%        |
+
+The cost gap widens with workload length (click→snapshot round trips
+compound) and is roughly model-invariant at extended scope.
+
+See the [benchmark summary](./docs/benchmark.md) for an overview, or the
+[benchmark deep dive](./docs/deep-dive/benchmark.md) for full
+methodology, per-run tables, and raw logs.
+
+---
+
+## Privacy
+
+PinchTab is a fully open-source, local-first tool. No telemetry, no analytics, and no required outbound service dependency. The binary binds to `127.0.0.1` by default. Persistent profiles store browser sessions locally on your machine, similar to how a human reuses their browser. Remote and distributed deployments are available for advanced use cases, but they are explicit operator-managed setups rather than the default posture. The single Go binary (~16 MB) is fully verifiable: build from source at [github.com/pinchtab/pinchtab](https://github.com/pinchtab/pinchtab).
+
+---
+
+## Documentation
+
+Full docs at **[pinchtab.com/docs](https://pinchtab.com/docs)**
+
+## Examples
+
+### AI Agent Automation
+
+```bash
+# Your AI agent can:
+pinchtab nav https://pinchtab.com
+pinchtab snap -i  # Get clickable elements
+pinchtab click e5 # Click by ref
+pinchtab fill e3 "user@pinchtab.com"  # Fill input
+pinchtab press e7 Enter              # Submit form
+```
+
+### Data Extraction
+
+```bash
+# Extract text (token-efficient)
+pinchtab nav https://pinchtab.com/article
+pinchtab text  # ~800 tokens instead of 10,000
+```
+
+### Multi-Instance Workflows
+
+```bash
+# Run multiple instances in parallel
+curl -s -X POST http://localhost:9867/instances/start \
+  -H "Content-Type: application/json" \
+  -d '{"profileId":"alice","mode":"headless"}'
+
+curl -s -X POST http://localhost:9867/instances/start \
+  -H "Content-Type: application/json" \
+  -d '{"profileId":"bob","mode":"headless"}'
+
+# Each instance is isolated
+curl http://localhost:9867/instances
+```
+
+See [chrome-files.md](chrome-files.md) for technical details on how PinchTab manages Chrome user data directories and ensures isolation between parallel instances.
+
+---
+
+## Development
+
+Want to contribute? Start with [CONTRIBUTING.md](CONTRIBUTING.md).
+The full setup and workflow guide lives at [docs/guides/contributing.md](docs/guides/contributing.md).
+
+**Quick start:**
+```bash
+git clone https://github.com/pinchtab/pinchtab.git
+cd pinchtab
+./dev doctor                # Verifies environment, offers hooks/deps setup
+./dev --help                # Shows the developer toolkit commands
+go build ./cmd/pinchtab     # Build pinchtab binary
+```
+
+---
+
+## License
+
+MIT — Free and open source.
+
+---
+
+**Get started:** [pinchtab.com/docs](https://pinchtab.com/docs)
+
+================
+File: RELEASE.md
+================
+# Release Process
+
+**⚠️ CRITICAL:** The npm package depends on Go binaries being in the GitHub release. The release pipeline will fail hard if goreleaser doesn't upload binaries — npm users won't get a working binary.
+
+Pinchtab uses an automated CI/CD pipeline triggered by Git tags. When you push a tag like `v0.7.0`, GitHub Actions:
+
+1. **Builds Go binaries** — darwin-arm64, darwin-x64, linux-x64, linux-arm64, windows-x64
+2. **Creates GitHub release** — with checksums.txt for integrity verification
+3. **Publishes to npm** — TypeScript SDK with auto-download postinstall script
+4. **Builds Docker images** — linux/amd64, linux/arm64
+5. **Publishes ClawHub packages** — the skill and OpenClaw plugin publish in parallel after npm succeeds
+
+## Prerequisites
+
+### Secrets (configure once in GitHub)
+
+Go to **Settings → Secrets and variables → Actions** and add:
+
+- **NPM_TOKEN** — npm authentication token
+  - Create at https://npmjs.com/settings/~/tokens
+  - Scope: `automation` (publish + read)
+
+- **DOCKERHUB_USER** — Docker Hub username (if using Docker Hub)
+- **DOCKERHUB_TOKEN** — Docker Hub personal access token
+- **CLAWHUB_TOKEN** — ClawHub authentication token for publishing the skill and OpenClaw plugin
+
+### Local setup
+
+```bash
+# 1. Ensure main branch is up to date
+git checkout main && git pull origin main
+
+# 2. Merge feature branches
+# (all features should be on main before tagging)
+
+# 3. Verify version consistency
+cat npm/package.json | jq .version # npm package
+cat go.mod | grep "module"         # Go module
+git describe --tags                # latest tag
+```
+
+## Pre-Release Checklist
+
+Goreleaser is already configured correctly. Verify before tagging:
+
+```bash
+# 1. Check builds section (compiles for all platforms)
+grep -A 8 "^builds:" .goreleaser.yml
+# Should output: linux/darwin/windows + amd64/arm64
+
+# 2. Check archives use binary format (required for npm)
+grep -A 5 "^archives:" .goreleaser.yml
+# Should show: format: binary (not tar/zip)
+
+# 3. Verify checksums enabled
+grep "checksum:" .goreleaser.yml
+# Should output: name_template: checksums.txt
+
+# 4. Check release config
+grep -A 2 "^release:" .goreleaser.yml
+# Should output: GitHub owner/repo
+```
+
+**Configuration status:**
+- ✅ `builds:` section compiles all platforms (darwin-arm64, darwin-amd64, linux-arm64, linux-amd64, windows-amd64, windows-arm64)
+- ✅ `archives:` outputs binaries directly: `pinchtab-darwin-arm64`, `pinchtab-linux-x64`, etc.
+- ✅ `checksum:` generates `checksums.txt` (used by npm postinstall verification)
+- ✅ `release:` points to GitHub (uploads everything automatically)
+
+**Ready to release.** The recommended path is now the manual `Release` workflow, which runs the full verification suite, pauses for approval, creates the tag, and then finishes publishing in the same run.
+
+## Releasing
+
+## Manual Release Flow
+
+1. Choose the branch, tag, or SHA you want to release.
+   `Release` now validates the requested version format and tag availability, then rewrites the npm package version inside the CI workspace for the dry-run steps.
+2. Open **Actions → Release**.
+3. Run it with:
+   - `version`: the release version, for example `0.8.0`
+   - `ref`: the branch, tag, or SHA you want to release
+4. The workflow runs:
+   - Go checks
+   - dashboard checks
+   - npm package verification
+   - OpenClaw plugin verification
+   - docs verification
+   - full release E2E
+   - Docker bootstrap smoke test
+   - GoReleaser snapshot
+   - `npm publish --dry-run`
+5. After those pass, GitHub pauses at the `release-approval` environment gate.
+6. Approve the run. The workflow creates and pushes `v0.8.0` from the exact tested commit SHA, then continues publishing from that tag in the same run.
+7. Monitor the remaining publish jobs in the same workflow run:
+   - GitHub release binaries
+   - npm publish
+   - Docker image publish
+   - ClawHub skill publish
+   - ClawHub plugin publish
+
+### Required GitHub setup
+
+Configure a protected environment named `release-approval` with the required reviewers for the manual gate to be effective.
+
+### Recovery publish
+
+If a tag already exists and you need to retry publishing, use **Actions → Release / Manual Publish** with the existing tag, for example `v0.8.0`.
+
+## Pipeline details
+
+### 1. Goreleaser (Go binary) — CRITICAL for npm
+
+Triggered on `v*` tag push. Builds binaries and creates GitHub release.
+
+**What it does:**
+- ✅ Compiles for all platforms (darwin-arm64, darwin-x64, linux-x64, linux-arm64, windows-x64)
+- ✅ Generates `checksums.txt` (SHA256)
+- ✅ **Uploads binaries to GitHub Releases** ← Required by npm postinstall!
+- Also: Docker images, changelog, etc.
+
+**⚠️ CRITICAL:** npm postinstall script downloads binaries from GitHub Releases. If the release doesn't have the binaries (e.g., only Docker images), `npm install pinchtab` will fail silently and the binary won't be available.
+
+**Configured in:** `.goreleaser.yml`
+
+**Verify release has binaries:**
+```bash
+curl -s https://api.github.com/repos/pinchtab/pinchtab/releases/v0.7.0 | jq '.assets[].name'
+# Should output: pinchtab-darwin-arm64, pinchtab-darwin-x64, etc.
+```
+
+### 2. npm publish
+
+Depends on: `release` job (waits for goreleaser to finish)
+
+**What it does:**
+- Syncs version from tag (v0.7.0 → 0.7.0)
+- Builds TypeScript (`npm run build`)
+- Publishes to npm registry
+- Users get postinstall script that downloads binaries from GitHub Releases
+
+**User flow on `npm install pinchtab`:**
+```
+1. npm downloads @pinchtab/cli package
+2. Runs postinstall script
+3. Script detects OS/arch (darwin-arm64, linux-x64, etc.)
+4. Downloads binary from GitHub release
+5. Verifies SHA256 checksum
+6. Stores in ~/.pinchtab/bin/0.7.0/pinchtab-<os>-<arch>
+7. Makes executable
+8. If ANY STEP fails → npm install fails (exit 1)
+```
+
+**⚠️ REQUIRES:** Goreleaser must have successfully uploaded binaries to GitHub release. The npm postinstall will verify this and fail hard if binaries are missing.
+
+### 3. Docker
+
+Depends on: `release` and `npm`
+
+GitHub Actions builds the release image directly from the tagged source with `docker buildx`.
+The workflow pushes the same multi-arch build to both GHCR and Docker Hub, but only after npm has already published successfully.
+
+### 4. ClawHub packages
+
+Depends on: `release` and `npm`
+
+The main `Release` workflow publishes the Pinchtab skill and OpenClaw plugin to ClawHub automatically after npm succeeds.
+They run as separate jobs at the same dependency level, so the plugin publish happens in parallel with the skill publish.
+Neither ClawHub publish consumes npm artifacts or GitHub release binaries directly; the ordering is a policy choice so npm stays the first irreversible publish step.
+The standalone publish workflows remain available for retries or one-off recovery publishes.
+
+## Troubleshooting
+
+### npm publish fails (403)
+
+- Check **NPM_TOKEN** is set in secrets
+- Verify token has `automation` scope
+- Check you're not already published (can't overwrite existing version)
+
+### Binary checksum mismatch
+
+- goreleaser must generate `checksums.txt`
+- Verify `.goreleaser.yml` has `checksum:` section
+- Check GitHub release includes `checksums.txt`
+
+### Docker push fails
+
+- Verify DOCKERHUB_USER and DOCKERHUB_TOKEN
+- Check token has permission to push
+
+## Rolling back
+
+If something goes wrong:
+
+```bash
+# Delete the tag locally and on GitHub
+git tag -d v0.7.1
+git push origin :refs/tags/v0.7.1
+
+# Delete npm version (requires owner permission)
+npm unpublish pinchtab@0.7.1
+
+# Revert any commits
+git revert <commit>
+git push origin main
+
+# Retag when ready
+git tag v0.7.1
+git push origin v0.7.1
+```
+
+## Version strategy
+
+- Use **semantic versioning**: v0.7.0 (major.minor.patch)
+- Tag on main branch only
+- One tag = one release (all artifacts)
+- npm version must match Go binary tag
+
+## See also
+
+- `.github/workflows/release.yml` — GitHub Actions workflow
+- `.goreleaser.yml` — Go binary release config
+- `npm/package.json` — npm package metadata
+
+================
+File: SECURITY.md
+================
+# Security Policy
+
+For the user-facing security guide, see
+[docs/guides/security.md](./docs/guides/security.md).
+
+## Supported Versions
+
+We currently support the following versions of Pinchtab with security updates:
+
+| Version | Supported          |
+| ------- | ------------------ |
+| v0.10.0+ | :white_check_mark: |
+| < v0.10.0 | :x: |
+
+## Current Posture
+
+The current codebase has the following security controls in place:
+
+- query-string token auth has been removed
+- browser dashboard auth uses a server-side `HttpOnly` session cookie instead
+  of raw-token URL or browser-storage flows
+- cookie-authenticated browser requests are same-origin enforced
+- sensitive dashboard actions use elevation rather than normal browser session
+  auth alone
+- login attempts are rate-limited and important auth/admin actions are audited
+- current-tab domain policy is enforced after load, not only at initial
+  navigation time
+- popup/opener abuse is hardened in the browser runtime
+- safer default Chrome flags are used than in the earlier posture
+- scheduler callback destinations are validated before use
+- attach is disabled by default
+
+## Reporting a Vulnerability
+
+We take the security of our browser automation bridge seriously. If you believe you have found a security vulnerability, please do not report it via a public GitHub issue.
+
+Instead, please report vulnerabilities privately by:
+
+1.  Opening a **Private Vulnerability Report** on GitHub (if available for this repo).
+2.  Or emailing the project team directly at [admin@pinchtab.com](mailto:admin@pinchtab.com).
+
+Please include:
+- A description of the vulnerability.
+- Steps to reproduce (proof of concept).
+- Potential impact.
+
+We will acknowledge receipt of your report within 48 hours and provide a timeline for a fix if necessary.
+
+================
+File: smoke-e2e.md
+================
+# Smoke E2E Plan
+
+> Historical implementation plan. The canonical operating contract now lives in
+> `TESTING.md` and `tests/e2e/README.md`.
+
+## Goal
+
+Create a proper slow smoke lane so default e2e stays fast, while expensive topology and lifecycle tests remain easy to run deliberately.
+
+## Target Shape
+
+Keep three layers:
+
+| Layer | Purpose | Command |
+|---|---|---|
+| Fast gate | PR-safe, common regressions | `go run ./tests/tools/runner e2e --suite basic` |
+| Core extended | Broad coverage without costly topology tests | `go run ./tests/tools/runner e2e --suite extended` |
+| Smoke | Slow real-world and topology checks | `go run ./tests/tools/runner e2e --suite smoke` |
+
+Expose narrower smoke commands as needed:
+
+```bash
+go run ./tests/tools/runner e2e --suite smoke-orchestrator
+go run ./tests/tools/runner e2e --suite smoke-security
+go run ./tests/tools/runner e2e --suite smoke-lifecycle
+go run ./tests/tools/runner e2e --suite smoke-docker
+```
+
+## Phase 1: Add First-Class Smoke Support
+
+Update the Go e2e runner so it selects a third scenario suffix:
+
+```text
+*-basic.sh
+*-extended.sh
+*-smoke.sh
+```
+
+Expected behavior:
+
+| Suite | Scenario Files |
+|---|---|
+| `api`, `cli`, `infra` | `*-basic.sh` |
+| `api-extended`, `cli-extended`, `infra-extended` | `*-basic.sh` + `*-extended.sh`, excluding smoke |
+| `*-smoke` | smoke scenarios only, plus required setup |
+| `basic` | API basic + CLI basic + infra basic |
+| `extended` | API extended + CLI extended + infra extended + plugin, excluding smoke |
+
+Expose these directly in `internal/e2e`:
+
+```bash
+smoke
+smoke-orchestrator
+smoke-security
+smoke-lifecycle
+```
+
+## Phase 2: Move Obvious Slow Candidates
+
+### Orchestrator Topology Smoke
+
+Move from `tests/e2e/scenarios/infra/orchestrator-extended.sh`:
+
+- ports, isolation, and cleanup
+- real launch/stop/relaunch multi-instance flow
+- bridge attach proxy, if we want it in the same topology smoke
+
+New file:
+
+```text
+tests/e2e/scenarios/infra/orchestrator-smoke.sh
+```
+
+### Security Child-Instance Smoke
+
+Move or reduce from `tests/e2e/scenarios/infra/security-extended.sh`:
+
+- instance-scoped `allowedDomains`
+- wildcard scoped policy
+
+New file:
+
+```text
+tests/e2e/scenarios/infra/security-smoke.sh
+```
+
+### Lifecycle And Timing Smoke
+
+Move from `tests/e2e/scenarios/api/tabs-autoclose-extended.sh` and `tests/e2e/scenarios/api/tabs-extended.sh`:
+
+- auto-close full matrix
+- LRU eviction matrix
+- handoff timeout auto-expiry
+
+New file:
+
+```text
+tests/e2e/scenarios/api/tabs-smoke.sh
+```
+
+## Phase 3: Backfill Unit And Integration Coverage
+
+Before removing slow checks from default extended, make sure lower-level tests cover the logic.
+
+Already covered reasonably well:
+
+- Security policy merge: `internal/orchestrator/handlers_instances_test.go`
+- Orchestrator launch/stop/ports: `internal/orchestrator/orchestrator_test.go`
+- Bridge proxy auth: `internal/orchestrator/proxy_test.go`
+- Auto-close timer mechanics: `internal/bridge/tab_autoclose_test.go`
+
+Likely backfill needed:
+
+- LRU eviction ordering without sleeps
+- child instance security policy enforcement boundary, mocked at orchestrator or handler level
+- multi-instance tab locator behavior without launching real Chrome
+
+## Phase 4: Add A Real All-Smoke Command
+
+Implemented as:
+
+```bash
+./dev e2e smoke
+```
+
+This routes through the Go e2e runner and runs the smoke tier plus host Docker smoke checks:
+
+```bash
+go run ./tests/tools/runner e2e --suite smoke
+```
+
+Docker-only smoke remains available as:
+
+```bash
+./dev e2e smoke-docker
+```
+
+which maps to the runner's host Docker smoke bundle.
+
+## Phase 5: CI Layout
+
+Add or modify a workflow:
+
+```text
+.github/workflows/ci-smoke.yml
+```
+
+Suggested triggers:
+
+- `workflow_dispatch`
+- optional nightly or weekly `schedule`
+- optional release preflight
+
+Make it blocking only for release, or at least visible in release approval. For PRs, keep it manual unless touched files are specifically in orchestrator, security, or lifecycle areas.
+
+## Phase 6: Metrics And Acceptance
+
+Before and after, compare:
+
+```bash
+go run ./tests/tools/runner e2e --suite extended
+go run ./tests/tools/runner e2e --suite smoke
+go run ./tests/tools/runner e2e --suite basic
+```
+
+Acceptance criteria:
+
+- `go run ./tests/tools/runner e2e --suite basic` is unchanged or faster.
+- `go run ./tests/tools/runner e2e --suite extended` no longer runs real multi-instance topology or lifecycle smoke.
+- `go run ./tests/tools/runner e2e --suite smoke` runs all moved expensive checks.
+- reports clearly distinguish `core` from `smoke`.
+- no slow test disappears without either unit coverage or smoke coverage.
+
+## Recommended Starting Point
+
+Start with orchestrator and security smoke first. They are the cleanest split and should give the most obvious speed win without changing normal product coverage semantics.
+
+================
+File: TESTING.md
+================
+# Testing
+
+## Quick Start with dev
+
+The `dev` developer toolkit is the easiest way to run checks and tests:
+
+```bash
+./dev                    # Interactive picker
+./dev test               # All tests (unit + E2E)
+./dev test unit          # Unit tests only
+./dev e2e                # Extended suite (all extended tests)
+./dev e2e basic          # Basic suite (api + cli + infra)
+./dev e2e extended       # Extended suite
+./dev e2e smoke          # Smoke suite (smoke scenarios + Docker smoke)
+./dev e2e smoke-docker   # Host Docker smoke only
+./dev e2e api            # API basic tests
+./dev e2e cli            # CLI basic tests
+./dev e2e infra          # Infra basic tests
+./dev e2e api-extended   # API extended, multi-instance
+./dev e2e cli-extended   # CLI extended tests
+./dev e2e infra-extended # Infra extended, multi-instance
+./dev e2e infra-extended --filter auth  # Extended infra suite filtered to "auth"
+./dev check              # All checks (format, vet, build, lint)
+./dev check go           # Go checks only
+./dev check security     # Gosec security scan
+./dev format dashboard   # Run Prettier on dashboard sources
+./dev doctor             # Setup dev environment
+```
+
+E2E summaries and markdown reports prefix each test with its scenario filename, for example `[auth-extended] auth: login sets session cookie`, so it is easy to see which filename filter to use.
+
+## Unit Tests
+
+```bash
+go test ./...
+# or
+./dev test unit
+```
+
+Unit tests are standard Go tests that validate individual packages and functions without launching a full server.
+
+## E2E Tests
+
+End-to-end tests launch a real pinchtab server with Chrome and run e2e-level tests against it. Tests are organized into three parallel groups:
+
+- **api** — Browser control and page interaction (tabs, actions, files)
+- **cli** — CLI command tests
+- **infra** — System, network, security, stealth, orchestration
+
+### E2E Boundary
+
+The Go runner is the execution boundary for E2E. `go run ./tests/tools/runner e2e ...` owns suite expansion, scenario discovery, manifest metadata, compose service selection, readiness waits, container arguments, host Docker smoke checks, logs, reports, failure accounting, and GitHub Actions outputs. Scenario files and helpers own the actual assertions and API or CLI interactions.
+
+`tests/e2e/scenarios/manifest.json` is metadata, not a scenario list. It only overrides tier, helper, required compose services, readiness targets, and tags. Filename suffixes provide the default tier: `*-basic.sh` is `basic`, `*-smoke.sh` is `smoke`, and every other scenario is `extended`.
+
+Tier meanings:
+- `basic` is the fast PR happy path
+- `extended` is deeper coverage and includes matching `basic` scenarios
+- `smoke` is separate high-setup coverage and does not include `basic` or `extended`
+
+Add new scenarios under `tests/e2e/scenarios/<group>/`, choose the tier by filename, add manifest metadata only for non-default service/readiness/helper/tags, and verify selection with `go run ./tests/tools/runner e2e --suite <suite> --filter <name> --dry-run`.
+
+`--filter` is a case-sensitive scenario selector over file name, manifest key, group, tier, helper, and tags. It runs before compose planning, so unmatched suites are skipped and only required services start. `--test` is narrower: it runs one matching `start_test` block inside the already-selected scenarios.
+
+CI uses `.github/workflows/reusable-e2e.yml` and `.github/workflows/reusable-smoke.yml`, both calling the Go runner directly. The workflow layer decides when to run; the Go layer decides what to run and how to report it.
+
+### Basic Suites
+
+```bash
+./dev e2e basic
+./dev e2e api
+./dev e2e cli
+./dev e2e infra
+```
+
+Use these on pull requests and during normal development:
+
+- `basic` runs all three basic suites (same as CI PR workflow)
+- `api` runs the API `*-basic.sh` groups on the single-instance stack
+- `cli` runs the CLI `*-basic.sh` groups on the single-instance stack
+- `infra` runs the Infra `*-basic.sh` groups on the single-instance stack
+
+### Extended Suites
+
+```bash
+./dev e2e api-extended
+./dev e2e cli-extended
+./dev e2e infra-extended
+```
+
+Extended suites run both `*-basic.sh` and `*-extended.sh` scenarios plus standalone scripts. `api-extended` and `infra-extended` use the multi-instance stack for orchestration coverage.
+
+### Extended Meta-Suite
+
+```bash
+./dev e2e
+./dev e2e extended
+```
+
+Runs `api-extended`, `cli-extended`, `infra-extended`, and `plugin` in sequence. Extended suites include both `*-basic.sh` and `*-extended.sh` scenarios.
+
+### Smoke Suite
+
+```bash
+./dev e2e smoke
+./dev e2e smoke-orchestrator
+./dev e2e smoke-security
+./dev e2e smoke-docker
+```
+
+Smoke is its own tier: it runs `*-smoke.sh` scenarios plus host-level Docker smoke checks, and it does not include basic or extended scenarios. Use the filtered smoke suites when you only need one smoke lane.
+
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `CI` | _(unset)_ | Set to `true` for longer health check timeouts (60s vs 30s) |
+
+### Temp Directory Layout
+
+Each E2E test run creates a single temp directory under `/tmp/pinchtab-test-*/`:
+
+```
+/tmp/pinchtab-test-123456789/
+├── pinchtab          # Compiled test binary
+├── state/            # Dashboard state (profiles, instances)
+└── profiles/         # Chrome user-data directories
+```
+
+Everything is cleaned up automatically when tests finish.
+
+## Test File Structure
+
+E2E tests are organized by group and feature:
+
+```
+tests/e2e/scenarios/
+├── api/           # Browser control, tabs, actions, files
+│   ├── browser-basic.sh
+│   ├── browser-extended.sh
+│   ├── tabs-basic.sh
+│   └── ...
+├── cli/           # CLI command tests
+│   ├── browser-basic.sh
+│   ├── browser-extended.sh
+│   └── ...
+└── infra/         # System, network, security, stealth
+    ├── system-basic.sh
+    ├── system-extended.sh
+    ├── stealth-basic.sh
+    ├── orchestrator-extended.sh
+    └── ...
+```
+
+- `*-basic.sh` is the PR happy-path layer
+- `*-extended.sh` adds extra and edge-case coverage
+- `*-smoke.sh` covers slow or high-setup production smoke checks
+- Standalone scripts (no suffix) run only in extended mode
+
+Docker Compose files:
+- `tests/e2e/docker-compose.yml` — single-instance stack for basic tests
+- `tests/e2e/docker-compose-multi.yml` — multi-instance stack for extended tests
+
+## E2E Results
+
+The Go e2e runner captures suite output, prints the final suite summary, and writes each suite's summary and markdown report under `tests/e2e/results/`:
+
+- `summary-api.txt` / `report-api.md`
+- `summary-api-extended.txt` / `report-api-extended.md`
+- `summary-cli.txt` / `report-cli.md`
+- `summary-cli-extended.txt` / `report-cli-extended.md`
+- `summary-infra.txt` / `report-infra.md`
+- `summary-infra-extended.txt` / `report-infra-extended.md`
+- `summary-api-smoke.txt` / `report-api-smoke.md`
+- `summary-cli-smoke.txt` / `report-cli-smoke.md`
+- `summary-infra-smoke.txt` / `report-infra-smoke.md`
+- `summary-plugin-smoke.txt` / `report-plugin-smoke.md`
+- `summary-docker-smoke.txt` / `report-docker-smoke.md`
+
+The runner clears the target suite files before each run so stale results do not survive into the next suite. It also saves the captured suite output as `output-*.log`, captures compose service logs on failure, and writes GitHub Actions outputs and step summaries when running in CI.
+
+## Writing New E2E Tests
+
+Add new coverage directly to a grouped entrypoint in `tests/e2e/scenarios/api/`, `tests/e2e/scenarios/cli/`, `tests/e2e/scenarios/infra/`, or `tests/e2e/scenarios/plugin/`. Keep `*-basic.sh` focused on the PR happy path, put deeper coverage in the matching `*-extended.sh`, and put slow/high-setup checks in `*-smoke.sh`. Add manifest metadata only when the scenario needs non-default services, readiness targets, helper, tier, or tags.
+
+### Example: Grouped API Entrypoint
+
+```bash
+#!/bin/bash
+
+# tests/e2e/scenarios/api/tabs-basic.sh
+GROUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${GROUP_DIR}/../../helpers/api.sh"
+
+start_test "tab-scoped snapshot"
+# ...
+
+start_test "tab focus"
+# ...
+end_test
+```
+
+## Coverage
+
+Generate coverage for unit tests:
+
+```bash
+go test ./... -coverprofile=coverage.out
+go tool cover -html=coverage.out
+```
+
+Note: E2E tests are black-box tests and don't contribute to code coverage metrics directly.
+
+================
+File: THIRD_PARTY_LICENSES.md
+================
+# Third-Party Licenses
+
+Pinchtab depends on the following open-source packages. All are compatible with MIT licensing.
+
+## Direct Dependencies
+
+### chromedp/chromedp
+- **License:** MIT
+- **Copyright:** (c) 2016-2025 Kenneth Shaw
+- **URL:** https://github.com/chromedp/chromedp
+- **Purpose:** Chrome DevTools Protocol driver — launches and controls Chrome
+
+### chromedp/cdproto
+- **License:** MIT
+- **Copyright:** (c) 2016-2025 Kenneth Shaw
+- **URL:** https://github.com/chromedp/cdproto
+- **Purpose:** Generated Go types for the Chrome DevTools Protocol
+
+## Transitive Dependencies
+
+### chromedp/sysutil
+- **License:** MIT
+- **Copyright:** (c) 2016-2017 Kenneth Shaw
+- **URL:** https://github.com/chromedp/sysutil
+- **Purpose:** System utilities for chromedp (finding Chrome binary)
+
+### go-json-experiment/json
+- **License:** BSD 3-Clause
+- **Copyright:** (c) 2020 The Go Authors
+- **URL:** https://github.com/go-json-experiment/json
+- **Purpose:** Experimental JSON library used by cdproto
+
+### gobwas/ws
+- **License:** MIT
+- **Copyright:** (c) 2017-2021 Sergey Kamardin
+- **URL:** https://github.com/gobwas/ws
+- **Purpose:** WebSocket implementation for CDP communication
+
+### gobwas/httphead
+- **License:** MIT
+- **Copyright:** (c) 2017 Sergey Kamardin
+- **URL:** https://github.com/gobwas/httphead
+- **Purpose:** HTTP header parsing (ws dependency)
+
+### gobwas/pool
+- **License:** MIT
+- **Copyright:** (c) 2017-2019 Sergey Kamardin
+- **URL:** https://github.com/gobwas/pool
+- **Purpose:** Pool utilities (ws dependency)
+
+### golang.org/x/sys
+- **License:** BSD 3-Clause
+- **Copyright:** (c) 2009 The Go Authors
+- **URL:** https://github.com/golang/sys
+- **Purpose:** Go system call wrappers
+
+### github.com/ledongthuc/pdf
+- **License:** BSD 3-Clause
+- **Copyright:** (c) 2009 The Go Authors
+- **URL:** https://github.com/ledongthuc/pdf
+- **Purpose:** Transitive dependency in module graph (test tooling chain)
+
+### github.com/orisano/pixelmatch
+- **License:** MIT
+- **Copyright:** (c) 2022 orisano
+- **URL:** https://github.com/orisano/pixelmatch
+- **Purpose:** Transitive dependency in module graph (test tooling chain)
+
+### gopkg.in/check.v1
+- **License:** BSD-style
+- **Copyright:** (c) 2010-2013 Gustavo Niemeyer
+- **URL:** https://gopkg.in/check.v1
+- **Purpose:** Transitive dependency in module graph (test tooling chain)
+
+### gopkg.in/yaml.v3
+- **License:** Apache 2.0 / MIT
+- **Copyright:** (c) 2006-2011 Kirill Simonov, (c) 2011-2019 Canonical Ltd
+- **URL:** https://github.com/go-yaml/yaml
+- **Purpose:** YAML output format for snapshots
+
+## Summary
+
+| Package | License | Compatible |
+|---------|---------|------------|
+| chromedp/chromedp | MIT | ✅ |
+| chromedp/cdproto | MIT | ✅ |
+| chromedp/sysutil | MIT | ✅ |
+| go-json-experiment/json | BSD 3-Clause | ✅ |
+| gobwas/ws | MIT | ✅ |
+| gobwas/httphead | MIT | ✅ |
+| gobwas/pool | MIT | ✅ |
+| golang.org/x/sys | BSD 3-Clause | ✅ |
+| github.com/ledongthuc/pdf | BSD 3-Clause | ✅ |
+| github.com/orisano/pixelmatch | MIT | ✅ |
+| gopkg.in/check.v1 | BSD-style | ✅ |
+| gopkg.in/yaml.v3 | Apache 2.0 / MIT | ✅ |
+
+All dependencies are MIT, BSD-style, or Apache 2.0 licensed, compatible with Pinchtab's MIT license.

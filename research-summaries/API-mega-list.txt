@@ -1,0 +1,200 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files and files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: **/*.py, **/*.ts, **/*.tsx, **/*.js, **/*.jsx, **/*.go, **/*.rs, **/*.toml, **/*.yaml, **/*.yml, **/*.md, **/*.sh, **/*.cfg, **/Dockerfile, **/Makefile
+- Files matching these patterns are excluded: **/*.ipynb, **/node_modules/**, **/__pycache__/**, **/results/**, **/mocks/**, **/test-site/**, **/dist/**, **/build/**, **/.next/**, settings/**
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+agents-apis-697/
+  README.md
+ai-apis-1208/
+  README.md
+automation-apis-4825/
+  README.md
+business-apis-2/
+  README.md
+developer-tools-apis-2652/
+  README.md
+ecommerce-apis-2440/
+  README.md
+integrations-apis-890/
+  README.md
+jobs-apis-848/
+  README.md
+lead-generation-apis-3452/
+  README.md
+mcp-servers-apis-131/
+  README.md
+news-apis-590/
+  README.md
+open-source-apis-768/
+  README.md
+other-apis-1297/
+  README.md
+real-estate-apis-851/
+  README.md
+seo-tools-apis-710/
+  README.md
+social-media-apis-3268/
+  README.md
+travel-apis-397/
+  README.md
+videos-apis-979/
+  README.md
+FOLLOW_CREATOR.md
+README.md
+
+================================================================
+Files
+================================================================
+
+================
+File: agents-apis-697/README.md
+================
+# Agents
+
+<p align="right"><a href="../README.md#-table-of-contents">← Back to main list</a></p>
+
+**Organized APIs by Category**
+
+**697 APIs in this category**
+
+| API Name | Description |
+|----------|-------------|
+| [▶️ YouTube Channel Comment Collector](https://apify.com/n.nobar/youtube-channel-comment-collector?fpr=p2hrc6) | Collect recent comments, authors, and likes from the latest videos on any public YouTube channel. Specify the number of latest videos to check (e.g., last 5, 10, or 20). Get comments in bulk from an... |
+| [✨Leads Finder - $1.5/1k leads with Emails [Apollo Alternative]](https://apify.com/code_crafter/leads-finder?fpr=p2hrc6) | ✅ Affordable alternative to ZoomInfo, Lusha & Apollo. ✅ Get Business email, 📞Mobile Number, Personal email, LinkedIn profiles, company details etc.. |
+| [🌟 Youtube Transcript Scraper - $0.5 per 1k](https://apify.com/supreme_coder/youtube-transcript-scraper?fpr=p2hrc6) | Scrape youtube transcripts in bulk. Provides videos details and transcript in different formats |
+| [🌸 Tweets / X - Scraper](https://apify.com/mikolabs/x-scraper?fpr=p2hrc6) | Extract anything from X (Twitter) with speed and precision. This smart scraper auto-detects what to collect—tweets, profiles, users, lists, or media—and delivers clean, structured data instantly. Just... |
+| [🎙️ Podcast Episode Ideas Creator](https://apify.com/powerai/podcast-episode-ideas-creator?fpr=p2hrc6) | Transform your podcast content strategy with AI-powered episode ideas! This intelligent tool analyzes your podcast theme and target audience to generate comprehensive episode plans, including topic... |
+| [🎙️ Podcast Episode Ideas Creator(Rental)](https://apify.com/powerai/podcast-episode-ideas-creator-rental?fpr=p2hrc6) | Transform your podcast content strategy with AI-powered episode ideas! This intelligent tool analyzes your podcast theme and target audience to generate comprehensive episode plans, including topic... |
+| [🎯 Emotion-Focused Taglines Creator](https://apify.com/powerai/emotion-focused-taglines-creator?fpr=p2hrc6) | Transform your brand messaging with AI-powered emotional taglines! Analyzes your business strategy to generate compelling, emotionally resonant taglines that drive engagement and strengthen brand... |
+| [🎯 Emotion-Focused Taglines Creator(Rental)](https://apify.com/powerai/emotion-focused-taglines-creator-rental?fpr=p2hrc6) | Transform your brand messaging with AI-powered emotional taglines! Analyzes your business strategy to generate compelling, emotionally resonant taglines that drive engagement and strengthen brand... |
+| [🎯 Facebook Ad Copywriter Creator](https://apify.com/powerai/facebook-ad-copywriter-creator?fpr=p2hrc6) | Transform your Facebook ad campaigns with AI-powered copywriting! Creates engaging, conversion-focused ad copy tailored to your target audience, complete with compelling headlines, persuasive body... |
+| [🎯 Facebook Ad Copywriter Creator(Rental)](https://apify.com/powerai/facebook-ad-copywriter-creator-rental?fpr=p2hrc6) | Transform your Facebook ad campaigns with AI-powered copywriting! Creates engaging, conversion-focused ad copy tailored to your target audience, complete with compelling headlines, persuasive body... |
+| [🎯 Instagram Ad Copywriter Creator](https://apify.com/powerai/instagram-ad-copywriter-creator?fpr=p2hrc6) | Transform your Instagram marketing with AI-powered ad copy! This intelligent tool analyzes your product and target audience to generate compelling, conversion-focused Instagram ad content with... |
+| [🎯 Instagram Ad Copywriter Creator(Rental)](https://apify.com/powerai/instagram-ad-copywriter-creator-rental?fpr=p2hrc6) | Transform your Instagram marketing with AI-powered ad copy! This intelligent tool analyzes your product and target audience to generate compelling, conversion-focused Instagram ad content with... |
+| [🎯 LinkedIn Profile & Content Creator](https://apify.com/powerai/linkedin-profiles-and-content-creator?fpr=p2hrc6) | Transform your LinkedIn presence with AI-powered profile optimization and content creation! This actor generates comprehensive LinkedIn profiles and company pages tailored to your target audience,... |
+| [🎯 LinkedIn Profile & Content Creator(Rental)](https://apify.com/powerai/linkedin-profiles-and-content-creator-rental?fpr=p2hrc6) | Transform your LinkedIn presence with AI-powered profile optimization and content creation! This actor generates comprehensive LinkedIn profiles and company pages tailored to your target audience,... |
+| [📧 Email Campaign Creator](https://apify.com/easyapi/email-campaign-creator?fpr=p2hrc6) | Transform your product promotion into compelling email campaigns! Create perfectly structured marketing emails with attention-grabbing subject lines, persuasive content, and effective CTAs. Perfect... |
+| [📧 Email Campaign Creator(Rental)](https://apify.com/easyapi/email-campaign-creator-rental?fpr=p2hrc6) | Transform your product promotion into compelling email campaigns! Create perfectly structured marketing emails with attention-grabbing subject lines, persuasive content, and effective CTAs. Perfect... |
+| [📧 Hiring Email Templates Creator](https://apify.com/easyapi/hiring-email-templates-creator?fpr=p2hrc6) | Transform your hiring process, generate professional, personalized templates for every stage of recruitment - from interview invitations to onboarding welcomes. Save time and maintain consistency in... |
+| [📧 Hiring Email Templates Creator(Rental)](https://apify.com/easyapi/hiring-email-templates-creator-rental?fpr=p2hrc6) | Transform your hiring process, generate professional, personalized templates for every stage of recruitment - from interview invitations to onboarding welcomes. Save time and maintain consistency in... |
+| [🔍 Find My Influencers](https://apify.com/easyapi/find-my-influencers?fpr=p2hrc6) | Discover influential people in your niche! Find the perfect social media influencers to promote your products or services based on your URL. Connect with industry leaders who can amplify your message... |
+| [🔍 Long-Tail Keyword Discovery](https://apify.com/powerai/long-tail-keyword-discovery?fpr=p2hrc6) | Harness the power of AI to discover high-potential long-tail keywords for your SEO strategy. Get comprehensive keyword analysis with search volume, competition metrics, and ranking difficulty in... |
+| [🔍 Long-Tail Keyword Discovery(Rental)](https://apify.com/powerai/long-tail-keyword-discovery-rental?fpr=p2hrc6) | Harness the power of AI to discover high-potential long-tail keywords for your SEO strategy. Get comprehensive keyword analysis with search volume, competition metrics, and ranking difficulty in... |
+| [🔍 SWOT Business Analysis Tool](https://apify.com/powerai/swot-business-analysis-tool?fpr=p2hrc6) | 🔍 Unlock your business potential with our AI-powered SWOT analysis tool! Get comprehensive insights into Strengths, Weaknesses, Opportunities, and Threats with actionable recommendations for... |
+| [🔍 SWOT Business Analysis Tool(Rental)](https://apify.com/powerai/swot-business-analysis-tool-rental?fpr=p2hrc6) | 🔍 Unlock your business potential with our AI-powered SWOT analysis tool! Get comprehensive insights into Strengths, Weaknesses, Opportunities, and Threats with actionable recommendations for... |
+| [🔒 NDA Agreements Creator](https://apify.com/easyapi/nda-agreements-creator?fpr=p2hrc6) | Create professional, legally-binding Non-Disclosure Agreements (NDAs) instantly with AI. Get comprehensive agreements in multiple formats (PDF, HTML, Markdown) with all essential components customized... |
+| [🔒 NDA Agreements Creator(Rental)](https://apify.com/easyapi/nda-agreements-creator-rental?fpr=p2hrc6) | Create professional, legally-binding Non-Disclosure Agreements (NDAs) instantly with AI. Get comprehensive agreements in multiple formats (PDF, HTML, Markdown) with all essential components customized... |
+| [🤖 Budget Plan Creator](https://apify.com/easyapi/budget-plan-creator?fpr=p2hrc6) | Make your business financial planning with AI-powered budget allocation strategies! Get comprehensive reports with detailed recommendations for investments, savings, and cutbacks - all tailored to... |
+| [🤖 Budget Plan Creator(Rental)](https://apify.com/easyapi/budget-plan-creator-rental?fpr=p2hrc6) | Make your business financial planning with AI-powered budget allocation strategies! Get comprehensive reports with detailed recommendations for investments, savings, and cutbacks - all tailored to... |
+| [🤖 Job Description Writing](https://apify.com/easyapi/job-description-writing?fpr=p2hrc6) | Transform your hiring process with AI-powered job descriptions! This powerful tool helps HR professionals and recruiters create comprehensive, professional job descriptions with perfect structure,... |
+| [🤖 Job Description Writing(Rental)](https://apify.com/easyapi/job-description-writing-rental?fpr=p2hrc6) | Transform your hiring process with AI-powered job descriptions! This powerful tool helps HR professionals and recruiters create comprehensive, professional job descriptions with perfect structure,... |
+| [🤖 Lead Nurturing Emails Creator](https://apify.com/powerai/lead-nurturing-emails-creator?fpr=p2hrc6) | Transform your email marketing strategy with AI-powered lead nurturing campaigns! This powerful tool creates comprehensive email sequences with personalized content, subject lines, and CTAs to... |
+| [🤖 Lead Nurturing Emails Creator(Rental)](https://apify.com/powerai/lead-nurturing-emails-creator-rental?fpr=p2hrc6) | Transform your email marketing strategy with AI-powered lead nurturing campaigns! This powerful tool creates comprehensive email sequences with personalized content, subject lines, and CTAs to... |
+| [🤖 Onboarding Feedback Form Creator](https://apify.com/easyapi/onboarding-feedback-form-creator?fpr=p2hrc6) | Transform your onboarding process with AI-powered feedback forms! Automatically generates comprehensive, role-specific questionnaires to gather valuable insights from new hires. Perfect for HR... |
+| [🤖 Onboarding Feedback Form Creator(Rental)](https://apify.com/easyapi/onboarding-feedback-form-creator-rental?fpr=p2hrc6) | Transform your onboarding process with AI-powered feedback forms! Automatically generates comprehensive, role-specific questionnaires to gather valuable insights from new hires. Perfect for HR... |
+| [🤖 Trading Performance Analyst](https://apify.com/easyapi/trading-performance-analyst?fpr=p2hrc6) | Transform your trading performance data into actionable insights with AI! Get comprehensive analysis of your trading metrics, strategies, and risk management approach. Perfect for day traders,... |
+| [🤖 Trading Performance Analyst(Rental)](https://apify.com/easyapi/trading-performance-analyst-rental?fpr=p2hrc6) | Transform your trading performance data into actionable insights with AI! Get comprehensive analysis of your trading metrics, strategies, and risk management approach. Perfect for day traders,... |
+| [🤖 Transcript to LinkedIn Posts Converter](https://apify.com/powerai/transcript-to-linkedin-posts-converter?fpr=p2hrc6) | Transform your transcripts into engaging LinkedIn posts with AI! This powerful tool analyzes your content and generates 10 professional LinkedIn posts using the "Hook-Contrarian-In... |
+| [🤖 Transcript to LinkedIn Posts Converter(Rental)](https://apify.com/powerai/transcript-to-linkedin-posts-converter-rental?fpr=p2hrc6) | Transform your transcripts into engaging LinkedIn posts with AI! This powerful tool analyzes your content and generates 10 professional LinkedIn posts using the "Hook-Contrarian-In... |
+| [🤝 Partnership Strategy Builder](https://apify.com/easyapi/partnership-strategy-builder?fpr=p2hrc6) | Build your business partnership strategy with AI! Generates comprehensive, customized partnership strategies covering partner identification, compatibility evaluation, outreach methods, and... |
+| [🤝 Partnership Strategy Builder(Rental)](https://apify.com/easyapi/partnership-strategy-builder-rental?fpr=p2hrc6) | Build your business partnership strategy with AI! Generates comprehensive, customized partnership strategies covering partner identification, compatibility evaluation, outreach methods, and... |
+| [🧠 Trading Mindset Improvement Assistant](https://apify.com/easyapi/trading-mindset-improvement-assistant?fpr=p2hrc6) | Transform your trading psychology with AI-powered insights! Get personalized analysis of common emotional challenges, along with actionable strategies for maintaining mental resilience. Perfect for... |
+| [🧠 Trading Mindset Improvement Assistant(Rental)](https://apify.com/easyapi/trading-mindset-improvement-assistant-rental?fpr=p2hrc6) | Transform your trading psychology with AI-powered insights! Get personalized analysis of common emotional challenges, along with actionable strategies for maintaining mental resilience. Perfect for... |
+| [🚀 LinkedIn Posts Generator](https://apify.com/easyapi/linkedin-posts-generator?fpr=p2hrc6) | Transform your LinkedIn marketing strategy with AI-powered post generation! Create engaging, optimized content with multiple variations, complete hooks, CTAs, and hashtags. Perfect for marketers,... |
+| [🚀 LinkedIn Posts Generator(Rental)](https://apify.com/easyapi/linkedin-posts-generator-rental?fpr=p2hrc6) | Transform your LinkedIn marketing strategy with AI-powered post generation! Create engaging, optimized content with multiple variations, complete hooks, CTAs, and hashtags. Perfect for marketers,... |
+| [🚀 Sales Playbook Creator](https://apify.com/easyapi/sales-playbook-creator?fpr=p2hrc6) | Transform your sales process with AI-powered Sales Playbook generation! Get comprehensive, customized playbooks covering sales stages, roles, best practices, tools, metrics, and training - all... |
+| [🚀 Sales Playbook Creator(Rental)](https://apify.com/easyapi/sales-playbook-creator-rental?fpr=p2hrc6) | Transform your sales process with AI-powered Sales Playbook generation! Get comprehensive, customized playbooks covering sales stages, roles, best practices, tools, metrics, and training - all... |
+| [🚀 Twitter Thread Generator](https://apify.com/easyapi/twitter-thread-generator?fpr=p2hrc6) | 🤖 Transform your business insights into viral Twitter threads! Crafts engaging, data-driven marketing threads with perfect structure, hooks, and CTAs. Get PDF, HTML, and Markdown reports instantly.... |
+| [🚀 Twitter Thread Generator(Rental)](https://apify.com/easyapi/twitter-thread-generator-rental?fpr=p2hrc6) | 🤖 Transform your business insights into viral Twitter threads! Crafts engaging, data-driven marketing threads with perfect structure, hooks, and CTAs. Get PDF, HTML, and Markdown reports instantly.... |
+| [🚀 USP-Driven Taglines Creator](https://apify.com/powerai/usp-driven-taglines-creator?fpr=p2hrc6) | Elevate your brand messaging with AI-powered taglines that highlight your unique selling propositions. Our USP-Driven Taglines Creator analyzes your business to craft memorable, high-impact taglines... |
+| [🚀 USP-Driven Taglines Creator(Tental)](https://apify.com/powerai/usp-driven-taglines-creator-rental?fpr=p2hrc6) | Elevate your brand messaging with AI-powered taglines that highlight your unique selling propositions. Our USP-Driven Taglines Creator analyzes your business to craft memorable, high-impact taglines... |
+| [Accessibility MCP](https://apify.com/accessibility_team/accessibility-mcp?fpr=p2hrc6) | (Almost) Every accessibility issue. Found in seconds. Zero bullshit. |
+| [Acehardware Category Scraper](https://apify.com/getdataforme/acehardware-category-scraper?fpr=p2hrc6) | Effortlessly scrape detailed product data from Ace Hardware using keyword searches. Leverages PlaywrightCrawler for fast, reliable extraction of names, prices, stock, UPCs, brands, and images. Outputs... |
+| [Acehardware Profile Scraper](https://apify.com/getdataforme/acehardware-profile-scraper?fpr=p2hrc6) | Extract detailed product data from Ace Hardware's website, including descriptions, pricing, specs, and images. Features scalable crawling, error-resilient performance, and structured JSON output with... |
+| [Acehardware Reviews Scraper](https://apify.com/getdataforme/acehardware-reviews-scraper?fpr=p2hrc6) | Extract customer reviews from Ace Hardware product pages using Playwright for reliable scraping. Capture ratings, text, timestamps, author details, and media attachments in structured JSON.... |
+| [Acquire.com Scraper](https://apify.com/lexis-solutions/acquire-scraper?fpr=p2hrc6) | Extract public startup listings from Acquire.com—get financial performance, customer metrics, company overviews, and acquisition details. Ideal for acquirers, investors, analysts, and market... |
+| [Actor Builder](https://apify.com/handleco-app/actor-builder?fpr=p2hrc6) | - |
+| [Actor Inspector Agent](https://apify.com/jakub.kopecky/actor-inspector-agent?fpr=p2hrc6) | Agent Actor Inspector 🕵️‍♂️: An Apify Actor that rates others on docs 📝, inputs 🔍, code 💻, functionality ⚙️, performance ⏱️, and uniqueness 🌟. Config with actorId array, run, and review results.... |
+| [Actor README Generator Agent](https://apify.com/jkuzz/actor-readme-generator-agent?fpr=p2hrc6) | Generates a README for an Apify Actor using an AI Agent. You only need to provide the actor id to generate a readable and SEO optimized README for the Actor. The generation process utilizes Apify's... |
+| [Adlibrary Scraper](https://apify.com/bockmurat/adlibrary-scraper?fpr=p2hrc6) | Gets all adlibrary.com ads results including reach and creative (without account and without cookie).  Results are combined ads and statistics from all social media platforms adlibrary.com supports... |
+| [Advanced Social Media Agent](https://apify.com/fiery_dream/advanced-social-media-agent?fpr=p2hrc6) | A production-grade AI agent built on cutting-edge research patterns for intelligent social media analysis on the Apify platform. |
+| [Adzuna Job Scraper 🔍💼 - Rental](https://apify.com/scrapestorm/adzuna-job-scraper---rental?fpr=p2hrc6) | 💼 Easily collect job listings from Adzuna, biggest leading job search platform  Just enter a job search URL to extract key details like job title, company, location, and description 🔍 Seamlessly... |
+| [Agentic AI For Good](https://apify.com/transparent_flea/agentic-ai-explorer-developer?fpr=p2hrc6) | Fetches the latest agentic AI tools, models, frameworks, and research from top developer sources, then delivers structured insights and examples that keep you up to date every day |
+| [Agentic Stock Actor](https://apify.com/luxurious_gel/agentic-stock-actor?fpr=p2hrc6) | Agentic Stock Actor is an AI trading assistant for swing traders. It tracks real-time data from Yahoo Finance, Reddit, Truth Social, and GPT-4 to spot buy-the-dip and sell-the-spike signals from... |
+| [AgentikIG](https://apify.com/andrian1023xa/agentikig?fpr=p2hrc6) | ss |
+| [AI AGENT SEARCH](https://apify.com/naz_here/ai-agent-search?fpr=p2hrc6) | A small fast and simple search facility for ai agents |
+| [AI Agent Web Fetcher](https://apify.com/abotapi/ai-fetch-python?fpr=p2hrc6) | An advanced web fetcher that can fetch almost all websites and convert them to LLM-friendly Markdown format. Perfect for AI agents, RAG systems, and integration with search actors. |
+| [Ai Candidate Screener](https://apify.com/seoulcommerce/ai-candidate-screener?fpr=p2hrc6) | An Apify Actor that evaluates English/ESL teacher candidates using AI by analyzing employer criteria against candidate responses. Features comprehensive evaluation including audio quality assessment... |
+| [Ai Code Review Agent](https://apify.com/fiery_dream/ai-code-review-agent?fpr=p2hrc6) | GPT-4 powered automated code reviews. Find bugs, security issues, and improvement opportunities in seconds. |
+| [AI Company Researcher](https://apify.com/bala-ceg/ai-company-researcher?fpr=p2hrc6) | AI Company Researcher is an Apify Actor that automates company research using Tavily Search API and AI-powered insights. It gathers company details, financials, products, leadership insights, and... |
+| [AI Company Researcher Agent](https://apify.com/louisdeconinck/ai-company-researcher-agent?fpr=p2hrc6) | AI-powered agent that performs comprehensive company research and generates detailed business reports. |
+| [AI Content Processor](https://apify.com/valid_headlamp/ai-content-processor?fpr=p2hrc6) | Unlock powerful text processing with this AI actor. Using GPT-4o-mini, it handles summarization, sentiment, NER, and translation. Offers dual modes: batch for bulk tasks and standby server for... |
+| [AI Content Writer](https://apify.com/erinle_sam/ai-content-writer?fpr=p2hrc6) | Automatically research and write high-quality articles using AI. Searches Google, extracts content from 12+ sources, and generates human-like articles in 7 languages. Multiple formats (MD, DOCX, HTML)... |
+| [AI Document Assistant](https://apify.com/devninja/ai-document-assistant?fpr=p2hrc6) | This actor analyzes uploaded documents using AI to extract and process information. It helps businesses quickly get answers from their documents and automate decision-making. |
+| [AI Finance Monitoring Agent](https://apify.com/louisdeconinck/ai-finance-monitoring-agent?fpr=p2hrc6) | A powerful AI-driven financial research and monitoring tool. This agent automatically generates comprehensive financial analysis reports for publicly traded companies by aggregating data from multiple... |
+| [AI Google Maps Extractor](https://apify.com/raizen/ai-google-maps-extractor?fpr=p2hrc6) | AI Google Maps Extractor helps you extract business details, reviews, ratings, contact info, menus, working hours, and more from Google Maps. Automate local business research, analyze trends, or... |
+| [AI Hype Tracker - Daily Trending AI Dashboard](https://apify.com/wheat_tourist/ai-hype-tracker?fpr=p2hrc6) | Scrapes GitHub trending repos, Hugging Face models, and AI news. Ranks by virality score. Perfect for newsletters, YouTube content, and trend analysis. |
+| [Ai Instagram Influencer](https://apify.com/mohamedgb00714/ai-instagram-influencer?fpr=p2hrc6) | Automate Instagram tasks—monitor posts, publish images, fetch profile data, follow users, or drive custom agent workflows—directly from the Apify platform. |
+| [AI Job Search Agent](https://apify.com/louisdeconinck/ai-job-search-agent?fpr=p2hrc6) | The AI Job Search Agent automates job hunting by analyzing your LinkedIn profile, identifying relevant roles, searching for matches, and generating personalized cover letters using AI and web... |
+| [Ai Logo Generator](https://apify.com/dxbear/ai-logo-generator?fpr=p2hrc6) | 🎨 Create logo with custom colors & styles⚡ No rate limits – generate in no time. 🤖 Powered by multiple online tools, fully automated. 🔌 Easy API integration for your app or service.  Perfect for... |
+| [AI Markdown Maker](https://apify.com/onescales/bulk-ai-markdown-maker?fpr=p2hrc6) | Convert any web page into clean, AI ready markdown format in seconds. Perfect for feeding content to AI models, creating documentation, or archiving web content in a portable format. In addition it... |
+| [AI Model Comparison](https://apify.com/onescales/ai-model-comparison?fpr=p2hrc6) | Compare responses from multiple AI models side by side and let AI analyze them to deliver the single best answer. |
+| [AI Newsletter](https://apify.com/bala-ceg/ai-newsletter?fpr=p2hrc6) | AI Newsletter Generator is an Apify Actor that automatically curates and generates professional AI and Data Analytics newsletters using Tavily Search and LLM-powered content creation. |
+| [AI Newsletter Agent](https://apify.com/louisdeconinck/ai-newsletter-agent?fpr=p2hrc6) | An intelligent agent that automatically generates curated newsletters on any topic by collecting and aggregating content from multiple sources. |
+| [AI Product Recommendation Agent](https://apify.com/matymar/ai-product-recommendation-agent?fpr=p2hrc6) | The AI Product Recommendation Agent helps users find the best products based on their needs using a simple query. It analyzes product listings, reviews, and ratings to provide well-informed... |
+| [Ai Question Generator](https://apify.com/sunvic567/ai-question-generator?fpr=p2hrc6) | Generate educational questions from any document automatically. AI-powered quiz maker creates multiple choice, true/false, essay questions from PDFs and DOCX files. Perfect for teachers, trainers, and... |
+| [AI Quiz Maker](https://apify.com/harvestlabs/ai-quiz-maker?fpr=p2hrc6) | Transforms user input into a structured study quiz. Given a user's request, the agent extracts the core topic, and generates a multi-difficulty quiz in various formats (Markdown, HTML, JSON). |
+| [AI Real Estate Agent](https://apify.com/harvestlabs/ai-real-estate-agent?fpr=p2hrc6) | Given a user's input the agent extracts key criteria, searches relevant real estate listings, and outputs a multi-format report. |
+| [Ai Recommender Engine](https://apify.com/exuberant_zapper/ai-recommender-engine?fpr=p2hrc6) | AI-powered analysis agent that helps you choose the best AI tool or model for your project. Whether you’re generating images, writing code, or summarizing long research texts, this actor provides... |
+| [AI Search Tool - Real-Time Web Search](https://apify.com/abotapi/ai-web-search-tool?fpr=p2hrc6) | Give your AI agents real-world knowledge.  This Actor provides high-quality web, news, image, video, and book search results using a multi-backend DuckDuckGo–powered infrastructure, with automatic... |
+| [Ai Training Data Enricher](https://apify.com/fiery_dream/ai-training-data-enricher?fpr=p2hrc6) | Production-grade data enrichment and validation for LLM training datasets. Automatically clean, enrich, deduplicate, and validate your AI training data before fine-tuning. |
+| [AI Travel Agent](https://apify.com/harvestlabs/ai-travel-agent?fpr=p2hrc6) | Helps users plan their trips - simply provide your travel request, and the AI will generate structured recommendations, including flights and accommodations, to suit your needs |
+| [AI Travel Agent](https://apify.com/danrizea/ai-travel-agent?fpr=p2hrc6) | This Apify actor helps you quickly find accommodation listings from top travel websites like Booking.com and Airbnb. Get the best options that match your preferences—without the hassle of manually... |
+| [AI Travel Agent](https://apify.com/logical_scrapers/ai-travel-agent?fpr=p2hrc6) | This agent helps you find suitable travel options by filtering and presenting information about accommodations based on your-defined criteria. |
+| [AI Web Agent](https://apify.com/apify/ai-web-agent?fpr=p2hrc6) | Use natural language prompts to browse the web, click on elements, fill and submit forms, extract data, and take screenshots using the OpenAI API. |
+| [Ai Web Scraper - Extract Data With Ease](https://apify.com/eloquent_mountain/ai-web-scraper-extract-data-with-ease?fpr=p2hrc6) | Ai Web Scraper enables scraping for everyone, including non-techies! It uses Google's Gemini LLM to scrape websites with natural language commands. It dynamically extracts data, no selector input... |

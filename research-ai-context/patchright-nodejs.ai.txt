@@ -1,0 +1,960 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+client_patches/
+  browserContextPatch.ts
+  clientHelperPatch.ts
+  clockPatch.ts
+  framePatch.ts
+  jsHandlePatch.ts
+  locatorPatch.ts
+  networkPatch.ts
+  pagePatch.ts
+  tracingPatch.ts
+  utils.ts
+  workerPatch.ts
+.gitignore
+index.ts
+LICENSE
+patchright_rebranding.ts
+README.md
+
+================================================================
+Files
+================================================================
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: client_patches/browserContextPatch.ts
+================
+import type { Project } from "ts-morph";
+⋮----
+// ------------------------
+// client/browserContext.ts
+// ------------------------
+export function patchBrowserContext(project: Project)
+⋮----
+// Add source file to the project
+⋮----
+// ------- BrowserContext Class -------
+⋮----
+// -- addInitScript Method --
+⋮----
+// -- exposeBinding Method --
+⋮----
+// -- exposeFunction Method --
+⋮----
+// -- installInjectRoute Method --
+⋮----
+// -- constructor: wrap auto-dismiss dialog in internal zone to avoid trace pollution --
+// Patchright always dispatches dialog events to the client (server patch). When no listener
+// is attached, the client auto-dismisses. Without this patch, the auto-dismiss creates a
+// "Dismiss dialog" trace entry. Wrapping in _wrapApiCall({ internal: true }) suppresses it.
+
+================
+File: client_patches/clientHelperPatch.ts
+================
+import type { Project } from "ts-morph";
+⋮----
+// ----------------------
+// client/clientHelper.ts
+// ----------------------
+export function patchClientHelper(project: Project)
+⋮----
+// Add source file to the project
+⋮----
+// ------- addSourceUrlToScript Function -------
+
+================
+File: client_patches/clockPatch.ts
+================
+import type { Project } from "ts-morph";
+⋮----
+// ---------------
+// client/clock.ts
+// ---------------
+export function patchClock(project: Project)
+⋮----
+// Add source file to the project
+⋮----
+// ------- Page Class -------
+⋮----
+// -- install Method --
+
+================
+File: client_patches/framePatch.ts
+================
+import { type Project, SyntaxKind } from "ts-morph";
+import { assertDefined } from "./utils.ts";
+⋮----
+// ---------------
+// client/frame.ts
+// ---------------
+export function patchFrame(project: Project)
+⋮----
+// Add source file to the project
+⋮----
+// ------- Frame Class -------
+⋮----
+// -- waitForURL Method --
+⋮----
+// -- evaluate Method --
+⋮----
+// Modify the function call inside the return statement to include 'isolatedContext'
+⋮----
+// -- evaluateHandle Method --
+⋮----
+// Modify the function call inside the return statement to include 'isolatedContext'
+⋮----
+// -- $$eval Method --
+⋮----
+// Modify the function call inside the return statement to include 'isolatedContext'
+
+================
+File: client_patches/jsHandlePatch.ts
+================
+import type { Project } from "ts-morph";
+⋮----
+// ------------------
+// client/jsHandle.ts
+// ------------------
+export function patchJsHandle(project: Project)
+⋮----
+// Add source file to the project
+⋮----
+// ------- JSHandle Class -------
+⋮----
+// -- evaluate Method --
+⋮----
+// -- evaluateHandle Method --
+
+================
+File: client_patches/locatorPatch.ts
+================
+import type { Project } from "ts-morph";
+⋮----
+// -----------------
+// client/locator.ts
+// -----------------
+export function patchLocator(project: Project)
+⋮----
+// Add source file to the project
+⋮----
+// Add the custom import and comment at the start of the file
+⋮----
+// ------- Locator Class -------
+⋮----
+// -- evaluate Method --
+⋮----
+// -- evaluateHandle Method --
+⋮----
+// -- evaluateAll Method --
+
+================
+File: client_patches/networkPatch.ts
+================
+import { type Project, SyntaxKind } from "ts-morph";
+import { assertDefined } from "./utils.ts";
+⋮----
+// -----------------
+// client/network.ts
+// -----------------
+export function patchNetwork(project: Project)
+⋮----
+// Add source file to the project
+⋮----
+// Imports
+⋮----
+// ------- Request Class -------
+⋮----
+// -- allHeaders Method --
+
+================
+File: client_patches/pagePatch.ts
+================
+import { type Project, SyntaxKind } from "ts-morph";
+import { assertDefined } from "./utils.ts";
+⋮----
+// --------------
+// client/page.ts
+// --------------
+export function patchPage(project: Project)
+⋮----
+// Add source file to the project
+⋮----
+// ------- Page Class -------
+⋮----
+// -- addInitScript Method --
+⋮----
+// -- exposeBinding Method --
+⋮----
+// -- exposeFunction Method --
+⋮----
+// -- installInjectRoute Method --
+⋮----
+// -- evaluate Method --
+⋮----
+// Modify the function call inside the return statement to include 'isolatedContext'
+⋮----
+// -- evaluateHandle Method --
+⋮----
+// Modify the function call inside the return statement to include 'isolatedContext'
+
+================
+File: client_patches/tracingPatch.ts
+================
+import type { Project } from "ts-morph";
+⋮----
+// ----------------------
+// client/tracing.ts
+// ----------------------
+export function patchTracing(project: Project)
+⋮----
+// Add source file to the project
+⋮----
+// ------- Tracing Class -------
+⋮----
+// -- start Method --
+
+================
+File: client_patches/utils.ts
+================
+export function assertDefined<T>(value: T | undefined | null, name?: string): T
+
+================
+File: client_patches/workerPatch.ts
+================
+import { type Project, SyntaxKind } from "ts-morph";
+import { assertDefined } from "./utils.ts";
+⋮----
+// ----------------
+// client/worker.ts
+// ----------------
+export function patchWorker(project: Project)
+⋮----
+// Add source file to the project
+⋮----
+// ------- Worker Class -------
+⋮----
+// -- evaluate Method --
+⋮----
+// Modify the function call inside the return statement to include 'isolatedContext'
+⋮----
+// -- evaluateHandle Method --
+⋮----
+// Modify the function call inside the return statement to include 'isolatedContext'
+
+================
+File: .gitignore
+================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#pdm.lock
+#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
+#   in version control.
+#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+.idea/
+.DS_Store
+
+# Node.js
+node_modules/
+package-lock.json
+playwright/
+patchright_nodejs_patch.js
+
+================
+File: index.ts
+================
+
+================
+File: LICENSE
+================
+Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright 2024 Vinyzu
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+================
+File: patchright_rebranding.ts
+================
+import {
+	IndentationText,
+	type MethodSignature,
+	Project,
+	type SourceFile,
+	SyntaxKind,
+} from "ts-morph";
+⋮----
+function addIsolatedContextParameter(typesSourceFile: SourceFile, interfaceName: string, methodNames: string[]): void
+⋮----
+function patchTypesDeclarations(): void
+⋮----
+function getAllJsTsFiles(dir: string): string[]
+⋮----
+function renameImportsAndExportsInDirectory(directoryPath: string): void
+⋮----
+export function patchRebranding(): void
+
+================
+File: README.md
+================
+<h1 align="center">
+    🎭 Patchright NodeJS
+</h1>
+
+
+<p align="center">
+    <a href="https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-nodejs/blob/main/LICENSE">
+        <img src="https://img.shields.io/badge/License-Apache%202.0-green">
+    </a>
+    <a>
+        <img src="https://img.shields.io/badge/Based%20on-Playwright-goldenrod">
+    </a>
+    <a>
+        <img src="https://img.shields.io/badge/Driver-Patched-blue">
+    </a>
+    <img src="https://img.shields.io/github/actions/workflow/status/Kaliiiiiiiiii-Vinyzu/patchright/patchright_tests.yml?label=Patchright%20Driver%20Tests">
+    <br/>
+    <a href="https://www.npmjs.com/package/patchright">
+        <img alt="npm version" src="https://img.shields.io/npm/v/patchright.svg">
+    </a>
+    <a href="https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-nodejs">
+        <img src="https://img.shields.io/badge/Package-NodeJS-seagreen">
+    </a>
+    <a href="https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-nodejs/releases">
+        <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/npm/d18m/patchright?color=red">
+    </a>
+</p>
+
+#### Patchright is a patched and undetected version of the Playwright Testing and Automation Framework. </br> It can be used as a drop-in replacement for Playwright.
+
+> [!NOTE]  
+> This repository serves the Patchright-NodeJS Package. To use Patchright with Python, check out the [Python Package](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python).
+> Also check out the main [Patchright Driver Repository](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright)
+
+---
+
+<details open>
+    <summary><h3>Sponsors</h1></summary>
+
+<sup>Want to Sponsor this Project? [Contact Me](https://discordapp.com/users/935224495126487150)!</sup>
+
+</br>
+
+[<img height="100" alt="swiftproxy banner" src="https://github.com/user-attachments/assets/123ac558-f99f-4c59-b826-b86822f2c92a" />](https://www.swiftproxy.net/?ref=Vinyzu)
+
+#### [Swiftproxy](https://www.swiftproxy.net/?ref=Vinyzu): High-Performance Residential Proxies for Scalable Data Collection
+
+Built for developers who need **reliable**, anti-detection proxy infrastructure. [Swiftproxy](https://www.swiftproxy.net/?ref=Vinyzu) delivers **stable connections**, **high success rates**, and flexible control for **large-scale scraping and automation**.
+
+- 🌍 195+ locations with ethically sourced residential IPs
+- 🔄 **Rotating** & **sticky sessions** with precise geo-targeting
+- ⚡ Optimized for **anti-ban** & **high success rate**
+- 🔌 HTTP / HTTPS / SOCKS5 support
+- 🧪 **Free 500MB trial** for testing
+- 💸 **Special discount** code for Patchright users: **PROXY90 - 10%**
+
+<sup> Best for: Web scraping, automation, multi-accounting, and large-scale data extraction </sup>
+
+---
+
+[<img height="90" alt="rapidproxy banner" src="https://github.com/user-attachments/assets/bb771788-5c99-4e22-be40-c99cca95db22" />](https://www.rapidproxy.io/?ref=Vinyzu)
+
+
+#### [RapidProxy](https://www.rapidproxy.io/?ref=Vinyzu) provides a stable and high-performance proxy network built for large-scale data operations.
+
+[RapidProxy](https://www.rapidproxy.io/?ref=Vinyzu) delivers:
+- 🌍 90M+ Residential IPs (200+ locations)
+- 🔄 **Rotating Residential Proxies** — from **$0.65/GB** (non-expiring traffic)
+- 🧩 **Static Residential IPs** — **$5/IP** (30 days, unlimited traffic)
+- 🎯 Precise geo-targeting
+- ⚡ **Free Trial Available** — test proxy performance risk-free
+- Built for scraping, automation, and high-performance data workflows.
+- 🔥 Special Offer: Use code **RAPID10** to get **10% off**
+
+<sup> Start fast. Scale globally. Stay stable with [RapidProxy](https://www.rapidproxy.io/?ref=Vinyzu). </sup>
+
+</details>
+
+---
+
+## Install it from NPM
+
+```bash
+# Install Patchright from NPM
+npm i patchright
+```
+
+```bash
+# Install Chromium-Driver for Patchright
+npx patchright install chromium
+```
+
+---
+
+## Usage
+#### Just change the import and use it like playwright. Patchright is a drop-in-replacement for Playwright!
+
+> [!IMPORTANT]  
+> Patchright only patches CHROMIUM based browsers. Firefox and Webkit are not supported.
+
+```js
+// patchright here!
+const { chromium } = require('patchright');
+
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.goto('http://example.com');
+  // other actions...
+  await browser.close();
+})();
+```
+
+### Best Practice  - use Chrome without Fingerprint Injection
+
+To be completely undetected, use the following configuration:
+```js
+chromium.launchPersistentContext("...", {
+    channel: "chrome",
+    headless: false,
+    viewport: null,
+    // do NOT add custom browser headers or userAgent
+});
+```
+
+> [!NOTE]
+> We recommend using Google Chrome instead of Chromium.
+> You can install it via `npx patchright install chrome` (or via any other installation method) and use it with `channel: "chrome"`.
+
+
+---
+
+## Patches
+
+### [Runtime.enable](https://vanilla.aslushnikov.com/?Runtime.enable) Leak
+This is the biggest Patch Patchright uses. To avoid detection by this leak, patchright avoids using [Runtime.enable](https://vanilla.aslushnikov.com/?Runtime.enable) by executing Javascript in (isolated) ExecutionContexts.
+
+### [Console.enable](https://vanilla.aslushnikov.com/?Console.enable) Leak
+Patchright patches this leak by disabling the Console API all together. This means, console functionality will not work in Patchright. If you really need the console, you might be better off using Javascript loggers, although they also can be easily detected.
+
+### Command Flags Leaks
+Patchright tweaks the Playwright Default Args to avoid detection by Command Flag Leaks. This (most importantly) affects:
+- `--disable-blink-features=AutomationControlled` (added) to avoid navigator.webdriver detection.
+- `--enable-automation` (removed) to avoid navigator.webdriver detection.
+- `--disable-popup-blocking` (removed) to avoid popup crashing.
+- `--disable-component-update` (removed) to avoid detection as a Stealth Driver.
+- `--disable-default-apps` (removed) to enable default apps.
+- `--disable-extensions` (removed) to enable extensions
+
+### General Leaks
+Patchright patches some general leaks in the Playwright codebase. This mainly includes poor setups and obvious detection points.
+
+### Closed Shadow Roots
+Patchright is able to interact with elements in Closed Shadow Roots. Just use normal locators and Patchright will do the rest.
+<br/>
+Patchright is now also able to use XPaths in Closed Shadow Roots.
+
+---
+
+## Stealth
+
+With the right setup, Patchright currently is considered undetectable.
+Patchright passes:
+- [Brotector](https://kaliiiiiiiiii.github.io/brotector/) ✅ (with [CDP-Patches](https://github.com/Kaliiiiiiiiii-Vinyzu/CDP-Patches/))
+- [Cloudflare](https://cloudflare.com/) ✅
+- [Kasada](https://www.kasada.io/) ✅
+- [Akamai](https://www.akamai.com/products/bot-manager/) ✅
+- [Shape/F5](https://www.f5.com/) ✅
+- [Bet365](https://bet365.com/) ✅
+- [Datadome](https://datadome.co/products/bot-protection/) ✅
+- [Fingerprint.com](https://fingerprint.com/products/bot-detection/) ✅
+- [CreepJS](https://abrahamjuliot.github.io/creepjs/) ✅
+- [Sannysoft](https://bot.sannysoft.com/) ✅
+- [Incolumitas](https://bot.incolumitas.com/) ✅
+- [IPHey](https://iphey.com/) ✅
+- [Browserscan](https://browserscan.net/) ✅
+- [Pixelscan](https://pixelscan.net/) ✅
+
+---
+
+## Documentation and API Reference
+See the original [Playwright Documentation](https://playwright.dev/docs/intro) and [API Reference](https://playwright.dev/docs/api/class-playwright)
+
+## Extended Patchright API
+#### **`evaluate`** Method <sub>([`Frame.evaluate`](https://playwright.dev/docs/api/class-frame#frame-evaluate), [`Page.evaluate`](https://playwright.dev/docs/api/class-page#page-evaluate),  [`Locator.evaluate`](https://playwright.dev/docs/api/class-locator#locator-evaluate),  [`Worker.evaluate`](https://playwright.dev/docs/api/class-worker#worker-evaluate),  [`JSHandle.evaluate`](https://playwright.dev/docs/api/class-jshandle#js-handle-evaluate))</sub>
+- Added `isolatedContext`  to choose Execution Context (Main/Isolated). `Bool` (*optional*, Defaults to `true`)
+```diff
+object.evaluate(
+    pageFunction: Function | string,
+    arg?: Arg,
+    ...,
++   isolatedContext: boolean = true
+)
+```
+
+#### **`evaluateHandle`** Method <sub>([`Frame.evaluateHandle`](https://playwright.dev/docs/api/class-frame#frame-evaluate-handle), [`Page.evaluateHandle`](https://playwright.dev/docs/api/class-page#page-evaluate-handle), [`Locator.evaluateHandle`](https://playwright.dev/docs/api/class-locator#locator-evaluate-handle), [`Worker.evaluateHandle`](https://playwright.dev/docs/api/class-worker#worker-evaluate-handle), [`JSHandle.evaluateHandle`](https://playwright.dev/docs/api/class-jshandle#js-handle-evaluate-handle))</sub>
+- Added `isolatedContext`  to choose Execution Context (Main/Isolated). `Bool` (*optional*, Defaults to `true`)
+```diff
+object.evaluateHandle(
+    pageFunction: Function | string,
+    arg?: Arg,
+    ...,
++   isolatedContext: boolean = true
+)
+```
+
+#### **`evaluateAll`** Method <sub>([`Locator.evaluateAll`](https://playwright.dev/docs/api/class-locator#locator-evaluate-all))</sub>
+- Added `isolated_context`  to choose Execution Context (Main/Isolated). `Bool` (*optional*, Defaults to `True`)
+```diff
+Locator.evaluateAll(
+    pageFunction: Function | string,
+    arg?: Arg,
+    ...,
++   isolatedContext: boolean = true
+)
+```
+
+---
+
+## Bugs
+#### The bugs are documented in the [Patchright Driver Repository](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright#bugs).
+
+---
+
+### TODO
+#### The TODO is documented in the [Patchright Driver Repository](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright#todo).
+
+
+---
+
+## Development
+
+Deployment of new Patchright versions are automatic, but bugs due to Playwright codebase changes may occur. Fixes for these bugs might take a few days to be released. 
+
+---
+
+## Support our work
+
+If you choose to support our work, please contact [@vinyzu](https://discord.com/users/935224495126487150) or [@steve_abcdef](https://discord.com/users/936292409426477066) on Discord.
+
+---
+
+## Copyright and License
+© [Vinyzu](https://github.com/Vinyzu/)
+
+Patchright is licensed [Apache 2.0](https://choosealicense.com/licenses/apache-2.0/)
+
+---
+
+## Disclaimer
+
+This repository is provided for **educational purposes only**. \
+No warranties are provided regarding accuracy, completeness, or suitability for any purpose. **Use at your own risk**—the authors and maintainers assume **no liability** for **any damages**, **legal issues**, or **warranty breaches** resulting from use, modification, or distribution of this code.\
+**Any misuse or legal violations are the sole responsibility of the user**. 
+
+---
+
+## Authors
+
+#### Active Maintainer: [Vinyzu](https://github.com/Vinyzu/) </br> Co-Maintainer: [Kaliiiiiiiiii](https://github.com/kaliiiiiiiiii/)

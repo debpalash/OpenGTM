@@ -1,0 +1,1847 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+.claude/
+  launch.json
+.claude-plugin/
+  marketplace.json
+  plugin.json
+.github/
+  ISSUE_TEMPLATE/
+    bug_report.yml
+    config.yml
+    feature_request.yml
+  workflows/
+    codeql.yml
+    manavarya-bot.yml
+  FUNDING.yml
+  og-preview.png
+bin/
+  design-extract.js
+chrome-extension/
+  icons/
+    favicon.svg
+    icon-128.png
+    icon-16.png
+    icon-32.png
+    icon-48.png
+  manifest.json
+  popup.html
+  popup.js
+  PRIVACY.md
+  README.md
+  STORE_LISTING.md
+docs/
+  superpowers/
+    plans/
+      2026-04-18-designlang-v7.md
+    specs/
+      2026-04-18-designlang-v7-design.md
+      2026-04-18-website-redesign-design.md
+      2026-04-19-designlang-v7-1-design.md
+      2026-04-22-v10-intent-release-design.md
+      2026-04-22-v10.1-component-screenshots-design.md
+  demo.tape
+  LAUNCH.md
+  MCP-REGISTRY.md
+figma-plugin/
+  code.js
+  manifest.json
+  README.md
+  ui.html
+github-action/
+  action.yml
+  diff-tokens.cjs
+  README.md
+marketplace/
+  chrome-listing.md
+  claude-code-skill.md
+  cursor-listing.md
+  figma-listing.md
+  raycast-listing.md
+  SUBMISSION-PLAYBOOK.md
+  vscode-listing.md
+raycast-extension/
+  assets/
+    icon.png
+  scripts/
+    dev-setup.sh
+  src/
+    copy-cli.tsx
+    extract.tsx
+    score.tsx
+  CHANGELOG.md
+  package.json
+  README.md
+  tsconfig.json
+skills/
+  extract-design/
+    SKILL.md
+src/
+  classifiers/
+    smart.js
+  extractors/
+    a11y-remediation.js
+    accessibility.js
+    animations.js
+    background-patterns.js
+    borders.js
+    breakpoints.js
+    colors.js
+    component-anatomy.js
+    component-clusters.js
+    component-library.js
+    component-screenshots.js
+    components.js
+    css-health.js
+    dark-mode-pair.js
+    fonts.js
+    form-states.js
+    gradients.js
+    icon-system.js
+    icons.js
+    imagery-style.js
+    images.js
+    interaction-states.js
+    interactions.js
+    layout.js
+    logo.js
+    material-language.js
+    modern-css.js
+    motion.js
+    page-intent.js
+    perf.js
+    responsive-screenshots.js
+    responsive.js
+    scoring.js
+    section-roles.js
+    semantic-regions.js
+    seo.js
+    shadows.js
+    spacing.js
+    stack-fingerprint.js
+    stack-intel.js
+    token-sources.js
+    typography.js
+    variables.js
+    voice.js
+    wide-gamut.js
+    zindex.js
+  formatters/
+    _token-ref.js
+    agent-rules.js
+    android-compose.js
+    css-vars.js
+    design-md.js
+    dtcg-tokens.js
+    figma.js
+    flutter-dart.js
+    grade.js
+    ios-swiftui.js
+    markdown.js
+    motion-tokens.js
+    preview.js
+    prompt-pack.js
+    routes-reconciliation.js
+    storybook.js
+    svelte-theme.js
+    tailwind.js
+    theme.js
+    tokens.js
+    vue-theme.js
+    wordpress.js
+  mcp/
+    resources.js
+    server.js
+    tools.js
+  utils/
+    color-gamut.js
+  apply.js
+  chat.js
+  ci.js
+  clone.js
+  config.js
+  crawler.js
+  darkdiff.js
+  diff.js
+  drift.js
+  history.js
+  index.js
+  lint.js
+  multibrand.js
+  multipage.js
+  replay.js
+  studio.js
+  sync.js
+  utils-cookies.js
+  utils.js
+  visual-diff.js
+  watch.js
+  widgets.js
+tests/
+  cli.test.js
+  cookies.test.js
+  extractors.test.js
+  formatters.test.js
+  interaction-states.test.js
+  mcp.test.js
+  modern-css.test.js
+  routes-reconciliation.test.js
+  utils.test.js
+  v10-features.test.js
+  v10.1-features.test.js
+  v10.2-features.test.js
+  v10.3-features.test.js
+  v10.4-features.test.js
+  v10.5-features.test.js
+  v9-features.test.js
+  wide-gamut.test.js
+vscode-extension/
+  .vscodeignore
+  extension.js
+  icon.png
+  package.json
+  README.md
+website/
+  .claude/
+    launch.json
+  app/
+    api/
+      extract/
+        route.js
+    components/
+      A11ySlider.js
+      Comparison.js
+      CssHealth.js
+      Extractor.js
+      HeroExtractor.js
+      Marginalia.js
+      McpSection.js
+      PlatformTabs.js
+      RegionsComponents.js
+      ResultViewer.js
+      Rule.js
+      Specimens.js
+      StructuredData.js
+      token-browser-sample.js
+      TokenBrowser.js
+    features/
+      page.js
+    gallery/
+      page.js
+    spec/
+      page.js
+    vs/
+      design-extractor/
+        page.js
+    x/
+      [hash]/
+        page.js
+        PermalinkViewer.js
+    globals.css
+    icon.svg
+    layout.js
+    opengraph-image.js
+    page.js
+    robots.js
+    seo-config.js
+    sitemap.js
+  lib/
+    build-files.js
+    cache.js
+    rate-limit.js
+    rate-limit.test.js
+    specimens.json
+    token-helpers.js
+    url-safety.js
+    url-safety.test.js
+    zip-files.js
+  public/
+    badge.svg
+    BingSiteAuth.xml
+    favicon.svg
+    llms.txt
+    logo-specimen.svg
+    mark.svg
+    site.webmanifest
+  .gitignore
+  AGENTS.md
+  CLAUDE.md
+  jsconfig.json
+  next.config.mjs
+  package.json
+  README.md
+.gitignore
+.npmignore
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
+README.md
+SECURITY.md
+smithery.dockerfile
+smithery.yaml
+
+================================================================
+Files
+================================================================
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: website/app/icon.svg
+================
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="designlang">
+  <title>designlang</title>
+  <rect width="32" height="32" fill="#F3F1EA"/>
+  <circle cx="13" cy="20" r="7.5" fill="none" stroke="#0A0908" stroke-width="4.5"/>
+  <rect x="19" y="4" width="4.5" height="25" fill="#0A0908"/>
+  <rect x="25" y="25" width="4" height="4" fill="#FF4800"/>
+</svg>
+
+================
+File: website/app/layout.js
+================
+export default function RootLayout(
+
+================
+File: website/app/opengraph-image.js
+================
+export default async function OpengraphImage()
+⋮----
+{/* top caption strip */}
+⋮----
+{/* wordmark row */}
+⋮----
+{/* mark */}
+⋮----
+{/* counter ring */}
+⋮----
+{/* stem */}
+⋮----
+{/* extracted token */}
+⋮----
+{/* word + tagline */}
+⋮----
+{/* bottom: palette + command */}
+
+================
+File: website/app/page.js
+================
+export default function Home()
+⋮----
+{/* ── HEAD SLUG ─────────────────────────────────────── */}
+⋮----
+{/* eslint-disable-next-line @next/next/no-img-element */}
+⋮----
+{/* ── HERO — single anchor, paste a URL, see the system ─ */}
+⋮----
+{/* ── CTA STRIP — three doors into the deeper site ─── */}
+⋮----
+export function InstallTracks()
+⋮----
+{/* CLI */}
+⋮----
+{/* MCP */}
+⋮----
+{/* Agent rules */}
+⋮----
+{/* Chrome extension */}
+⋮----
+export function SiteFooter()
+⋮----
+export function V9Capabilities()
+⋮----
+export function V11Showcase()
+⋮----
+export function V10Capabilities()
+⋮----
+// v10 is now supporting intelligence beneath the v11 trio. Compact
+// editorial strip — not a uniform card grid.
+
+================
+File: website/app/robots.js
+================
+// Explicit AI-crawler allowances. By 2026 these matter as much as Googlebot —
+// being indexable by ChatGPT, Claude, Perplexity, and Google AI Overviews is
+// the new SEO. We say YES to all of them; the content is documentation we want
+// quoted in answers.
+⋮----
+'GPTBot',                // OpenAI training/answers
+'OAI-SearchBot',         // OpenAI live search
+'ChatGPT-User',          // ChatGPT browsing
+'ClaudeBot',             // Anthropic training
+'Claude-Web',            // Anthropic browsing
+'anthropic-ai',          // legacy Anthropic UA
+'PerplexityBot',         // Perplexity search
+'Perplexity-User',       // Perplexity user-fetch
+'Google-Extended',       // Google AI training (separate from Googlebot)
+'Applebot-Extended',     // Apple Intelligence
+'Bytespider',            // ByteDance / Doubao
+'CCBot',                 // Common Crawl
+'cohere-ai',             // Cohere
+'meta-externalagent',    // Meta AI
+'FacebookBot',           // Meta
+'Amazonbot',             // Alexa / Rufus
+'DuckAssistBot',         // DuckDuckGo AI
+'mistral-ai-user',       // Mistral
+⋮----
+export default function robots()
+⋮----
+// Standard search engines + everyone else.
+⋮----
+// Each AI bot gets its own explicit ALLOW rule. Some operators only
+// honour their named UA, not '*'. Listing them individually also signals
+// intent to publishers tracking AI-readiness.
+
+================
+File: website/app/seo-config.js
+================
+
+================
+File: website/app/sitemap.js
+================
+export default function sitemap()
+
+================
+File: website/lib/build-files.js
+================
+// Shared file-builder used by /api/extract (streaming) and /x/[hash]
+// (permalink page). Pure function over a `design` object.
+⋮----
+export function buildFiles(design, targetUrl)
+⋮----
+export function buildSummary(design)
+
+================
+File: website/lib/cache.js
+================
+// Vercel Blob-backed cache for extraction payloads.
+//
+// TTL: 24h, enforced on read by checking `generatedAt` in the stored payload.
+// Key: normalized URL → SHA-256 hex.
+// Gracefully no-ops when BLOB_READ_WRITE_TOKEN is absent (local dev).
+⋮----
+export function cacheKey(url)
+⋮----
+function hasBlob()
+⋮----
+function blobPath(key)
+⋮----
+export async function getCached(key)
+⋮----
+export async function putCached(key,
+⋮----
+// ─── Public permalink helpers — used by /x/[hash] and /gallery ───
+//
+// Permalinks are forever (well, 24h while the Blob entry exists). The page
+// re-derives files from the cached `design` object on each request — same
+// pipeline the streaming /api/extract uses on a cache hit.
+⋮----
+export async function getCachedByHash(hash)
+⋮----
+export async function listRecent(limit = 24)
+⋮----
+// Pull more than we need so we can drop expired ones.
+
+================
+File: website/lib/rate-limit.js
+================
+// Per-key in-memory rate limiter.
+//
+// Vercel Fluid Compute reuses function instances across concurrent requests
+// within a region, so this Map is *per-instance*, not global. An attacker can
+// spread requests across regions to bypass it — that's acceptable for Wave 2
+// because we pair this at the middleware layer with Vercel BotID (out of scope
+// for PR B). The per-instance bound still blunts accidental hammering.
+⋮----
+export function checkRate(key,
+⋮----
+// Test-only: wipe state. Safe to call from production code — no-op effect.
+export function _resetRateLimit()
+⋮----
+// ─── Blob-backed persistent rate limiter ─────────────────────
+//
+// The in-memory limiter above resets on every cold start, so on Vercel Fluid
+// it doesn't actually bound traffic. checkRateBlob persists per-key state in
+// Vercel Blob (already used for the extraction cache), giving a real
+// cross-instance counter without adding Upstash/KV.
+//
+// Layout: ratelimit/{sha256(key)}.json containing { count, firstAt }.
+// Cost: a few hundred bytes per IP per day. Negligible.
+⋮----
+function rlPath(key)
+⋮----
+async function readBlobJson(path)
+⋮----
+async function writeBlobJson(path, payload)
+⋮----
+} catch { /* swallow — better to allow than 500 on Blob outage */ }
+⋮----
+export async function checkRateBlob(
+  key,
+  { limit = 1, windowMs = 24 * 60 * 60 * 1000 } = {}
+)
+⋮----
+// No Blob configured (local dev) → permissive fallback.
+⋮----
+// Only write back if we're allowing — denies don't need state updates.
+
+================
+File: website/lib/rate-limit.test.js
+================
+
+================
+File: website/lib/specimens.json
+================
+[
+  {
+    "host": "stripe.com",
+    "display": "Stripe",
+    "year": 2026,
+    "framework": "Next.js",
+    "accent": "#635BFF",
+    "palette": ["#635BFF", "#0A2540", "#F7FAFC", "#1A1F36", "#F6F9FC"],
+    "fontDisplay": "Sohne Breit",
+    "fontBody": "Sohne",
+    "radius": "8px",
+    "a11y": 94,
+    "designScore": 91,
+    "note": "Tight palette, disciplined spacing scale. The gradient hero is one of the few remaining brand indulgences."
+  },
+  {
+    "host": "vercel.com",
+    "display": "Vercel",
+    "year": 2026,
+    "framework": "Next.js",
+    "accent": "#0A0A0A",
+    "palette": ["#0A0A0A", "#FAFAFA", "#EAEAEA", "#A1A1A1", "#0070F3"],
+    "fontDisplay": "Geist",
+    "fontBody": "Geist",
+    "radius": "6px",
+    "a11y": 92,
+    "designScore": 88,
+    "note": "A monochrome system with a single blue for links. Geist carries almost the entire identity."
+  },
+  {
+    "host": "linear.app",
+    "display": "Linear",
+    "year": 2026,
+    "framework": "Next.js",
+    "accent": "#5E6AD2",
+    "palette": ["#5E6AD2", "#08090A", "#1C1D1F", "#D2D4E6", "#F7F8F8"],
+    "fontDisplay": "Inter Tight",
+    "fontBody": "Inter",
+    "radius": "8px",
+    "a11y": 90,
+    "designScore": 89,
+    "note": "Dark-first marketing with a precise purple. Every surface has been rounded to exactly 8px."
+  },
+  {
+    "host": "github.com",
+    "display": "GitHub",
+    "year": 2026,
+    "framework": "Rails",
+    "accent": "#0969DA",
+    "palette": ["#0969DA", "#0D1117", "#F6F8FA", "#1F2328", "#D0D7DE"],
+    "fontDisplay": "Mona Sans",
+    "fontBody": "Mona Sans",
+    "radius": "6px",
+    "a11y": 96,
+    "designScore": 82,
+    "note": "Primer is the reason. Densely informational and accessible — but the marketing pages drift."
+  },
+  {
+    "host": "figma.com",
+    "display": "Figma",
+    "year": 2026,
+    "framework": "Ember",
+    "accent": "#F24E1E",
+    "palette": ["#F24E1E", "#0D0D0D", "#FFFFFF", "#A259FF", "#1ABCFE"],
+    "fontDisplay": "Whyte",
+    "fontBody": "Whyte",
+    "radius": "5px",
+    "a11y": 88,
+    "designScore": 85,
+    "note": "The only site where the brand colors from the logo are still visible across the whole product."
+  },
+  {
+    "host": "apple.com",
+    "display": "Apple",
+    "year": 2026,
+    "framework": "Custom",
+    "accent": "#0071E3",
+    "palette": ["#0071E3", "#1D1D1F", "#F5F5F7", "#86868B", "#FBFBFD"],
+    "fontDisplay": "SF Pro Display",
+    "fontBody": "SF Pro Text",
+    "radius": "12px",
+    "a11y": 93,
+    "designScore": 94,
+    "note": "Four grays, one blue, SF Pro. The spacing and type ramp is the most imitated system on the web."
+  }
+]
+
+================
+File: website/lib/token-helpers.js
+================
+// Browser-friendly DTCG helpers — mirrors src/formatters/_token-ref.js contract.
+// resolveRef: follow {ref} chains, guard cycles.
+// flattenTokens: walk primitive.*/semantic.* into a flat row list.
+⋮----
+function parseRef(value)
+⋮----
+function getAtPath(tokens, path)
+⋮----
+export function resolveRef(tokens, pathOrRefString, seen = new Set())
+⋮----
+// Walk a DTCG subtree and collect every leaf token (one with $value).
+function walk(node, prefix, out, layer)
+⋮----
+export function flattenTokens(tokens, opts =
+
+================
+File: website/lib/url-safety.js
+================
+// URL safety guard for the extraction endpoint.
+//
+// Validates a raw user-supplied URL against common SSRF vectors. Pure function —
+// no DNS lookups (deferred to Wave 3 when we pair with BotID at middleware).
+//
+// Allowed: http(s) URLs on port 80/443, public hostnames.
+// Rejected: private IPs (v4 + v6), loopback, link-local, localhost, *.local,
+// *.localhost, non-http(s) schemes, non-standard ports.
+⋮----
+function isPrivateIPv4(host)
+⋮----
+if (a === 10) return true;                                  // 10.0.0.0/8
+if (a === 127) return true;                                 // 127.0.0.0/8
+if (a === 169 && b === 254) return true;                    // 169.254.0.0/16
+if (a === 172 && b >= 16 && b <= 31) return true;           // 172.16.0.0/12
+if (a === 192 && b === 168) return true;                    // 192.168.0.0/16
+if (a === 0) return true;                                   // 0.0.0.0/8
+⋮----
+// Normalize an IPv6 literal: strip surrounding brackets, lowercase.
+function stripV6Brackets(host)
+⋮----
+function isIPv6Literal(host)
+⋮----
+// Very loose — anything with a colon that isn't a port-suffixed hostname.
+⋮----
+// Expand an IPv6 host string to its eight 16-bit pieces. Inlines a dotted-IPv4
+// tail (the WHATWG URL parser may also serialize this back to hex, but we
+// accept either) and resolves "::" by inserting the right number of zero pieces.
+// Returns null on malformed input.
+function expandIPv6(host)
+⋮----
+function piecesAllZero(parts, start, endExclusive)
+⋮----
+function isPrivateIPv6(rawHost)
+⋮----
+// Loopback ::1 and unspecified ::
+⋮----
+// fc00::/7 — unique local addresses
+⋮----
+// fe80::/10 — link-local
+⋮----
+// Embedded IPv4 in the low 32 bits — IPv4-mapped (::ffff:a.b.c.d),
+// IPv4-compatible (::a.b.c.d, deprecated), NAT64 (64:ff9b::a.b.c.d).
+// Node's WHATWG URL parser re-serializes the dotted tail as two hex pieces,
+// so "[::ffff:127.0.0.1]" reaches us as "[::ffff:7f00:1]". The previous
+// dotted-only regex missed every one of these encodings.
+⋮----
+function isLocalHostname(host)
+⋮----
+export function validateTargetUrl(rawUrl)
+⋮----
+// Port check: URL leaves `port` empty for defaults (80 for http, 443 for https).
+// Explicit 80/443 are fine; anything else is rejected.
+
+================
+File: website/lib/url-safety.test.js
+================
+// WHATWG URL parser re-serializes "::ffff:127.0.0.1" as "::ffff:7f00:1".
+
+================
+File: website/lib/zip-files.js
+================
+// Client-side helper — turns a {filename: string} map into a Blob URL.
+// The caller is responsible for calling URL.revokeObjectURL on the returned url.
+⋮----
+export async function zipFilesToUrl(files,
+
+================
+File: website/public/badge.svg
+================
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="28" viewBox="0 0 160 28" role="img" aria-label="DESIGN.md verified">
+  <title>DESIGN.md verified</title>
+  <rect width="100" height="28" fill="#0a0908"/>
+  <rect x="100" width="60" height="28" fill="#ff4800"/>
+  <g font-family="ui-monospace, SFMono-Regular, 'JetBrains Mono', monospace" font-size="11" font-weight="500">
+    <text x="50" y="18" fill="#f3f1ea" text-anchor="middle" letter-spacing="0.06em">DESIGN.md</text>
+    <text x="130" y="18" fill="#0a0908" text-anchor="middle" letter-spacing="0.1em">VERIFIED</text>
+  </g>
+</svg>
+
+================
+File: website/public/BingSiteAuth.xml
+================
+<?xml version="1.0"?>
+<users>
+	<user>383CEAB8D2B9C142B79AF14CD0017598</user>
+</users>
+
+================
+File: website/public/favicon.svg
+================
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="designlang">
+  <title>designlang</title>
+  <rect width="32" height="32" fill="#F3F1EA"/>
+  <circle cx="13" cy="20" r="7.5" fill="none" stroke="#0A0908" stroke-width="4.5"/>
+  <rect x="19" y="4" width="4.5" height="25" fill="#0A0908"/>
+  <rect x="25" y="25" width="4" height="4" fill="#FF4800"/>
+</svg>
+
+================
+File: website/public/llms.txt
+================
+# designlang
+
+> Open-source CLI that reverse-engineers any website into a complete design system. Outputs DTCG W3C tokens, Tailwind config, CSS variables, Figma variables, motion tokens, typed component anatomy, brand voice, and a single agent-native DESIGN.md. Multi-platform emitters for iOS SwiftUI, Android Compose, Flutter, and WordPress. Ships a stdio MCP server, a CI drift bot, a clone command that generates a working Next.js repo, and a local studio. $0, MIT, no signup.
+
+## Primary surfaces
+
+- [Homepage](https://designlang.app/): paste a URL, see the extraction live.
+- [Features](https://designlang.app/features): every capability on one page — v11 (clone · ci · studio), v10 (intent · sections · material · library), v9 (motion · anatomy · voice), DTCG token browser, MCP server, multi-platform emitters, CSS health audit, A11y remediation, region + component clustering, install tracks.
+- [vs design-extractor.com](https://designlang.app/vs/design-extractor): honest feature comparison — designlang ships their DESIGN.md format too, plus everything else, with no signup.
+
+## Install in one command
+
+```
+npx designlang <url>                          # extract everything
+npx designlang clone <url>                    # generate a working Next.js repo
+npx designlang ci <url> --tokens ./tokens.json  # PR-comment regression bot
+npx designlang studio                         # local web studio at localhost:4837
+npx designlang replay <url>                   # WebM motion replay
+npx designlang mcp                            # stdio MCP server for Claude Code / Cursor
+npx designlang widgets                        # print the curated widget-ignore list
+```
+
+## Output formats
+
+- `*-DESIGN.md` — single-file, 8-section, YAML front matter (Overview · Colors · Typography · Layout · Elevation and Depth · Shapes · Components · Do's and Don'ts)
+- `*-design-tokens.json` — W3C DTCG (primitive, semantic, composite)
+- `*-tailwind.config.js` — Tailwind v4 ready
+- `*-variables.css` — CSS custom properties
+- `*-figma-variables.json` — importable via the bundled Figma plugin
+- `*-shadcn-theme.css`, `*-theme.js`, `*-vue-theme.js`, `*-svelte-theme.css`
+- `ios/DesignTokens.swift`, `android/Color.kt + Type.kt + Theme.kt`, `flutter/design_tokens.dart`
+- `wordpress-theme/` — full block-theme scaffold
+- `*-anatomy.tsx` — typed React stubs derived from variant × size × state matrices
+- `*-motion-tokens.json` — easings, durations, springs
+- `*-voice.json` — tone, pronoun posture, CTA verbs, heading style
+- `*-intent.json` — page type classifier (landing · pricing · docs · blog · product)
+- `*-visual-dna.json` — material language (brutalist · glass · flat · soft-ui · …) and imagery style
+- `*-library.json` — detected component library (shadcn/ui · Radix · MUI · Chakra · Mantine · Ant · Tailwind UI)
+- `*-mcp.json` — companion served by the MCP server
+- `*-prompts/` — ready-to-paste prompts for v0, Lovable, Cursor, Claude Artifacts
+
+## Source
+
+- [GitHub](https://github.com/Manavarya09/design-extract): MIT-licensed source, issues, releases.
+- [npm](https://www.npmjs.com/package/designlang): published as `designlang`.
+- [CHANGELOG](https://github.com/Manavarya09/design-extract/blob/main/CHANGELOG.md)
+
+## Running on your own machine
+
+```
+node >= 20
+npx designlang <url>
+```
+
+First run downloads Chromium (~150MB via Playwright). 3–6 seconds per page on a modern laptop. Auth-gated pages supported via `--cookie-file`.
+
+## Compared to design-extractor.com
+
+design-extractor.com pioneered the single-file `DESIGN.md` agent artifact. designlang ships that exact format and adds: CLI, MCP server, multi-platform emitters, anatomy stubs, motion tokens, voice classification, CI drift bot, clone-to-Next.js, local studio, and a Figma plugin. No signup. Free forever.
+
+## Author
+
+Manav Arya Singh — <https://manavaryasingh.com>
+
+================
+File: website/public/logo-specimen.svg
+================
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-label="designlang — reads a website the way a developer reads a stylesheet">
+  <title>designlang</title>
+  <desc>Museum specimen label for designlang. A lowercase d constructed from a ring, a stem, and one extracted orange token, set on warm paper with a palette strip.</desc>
+
+  <!-- Paper card -->
+  <rect width="1200" height="420" fill="#F3F1EA"/>
+  <rect x="1" y="1" width="1198" height="418" fill="none" stroke="#0A0908" stroke-width="2"/>
+
+  <!-- Top caption strip -->
+  <g font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="13" fill="#403C34" letter-spacing="1.4">
+    <text x="40" y="40">SPECIMEN / 01</text>
+    <text x="40" y="58">EXTRACTED 2026</text>
+  </g>
+  <g font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="13" fill="#403C34" letter-spacing="1.4" text-anchor="end">
+    <text x="1160" y="40">v7.0</text>
+    <text x="1160" y="58">W3C DTCG</text>
+  </g>
+
+  <!-- Top hairline -->
+  <line x1="40" y1="82" x2="1160" y2="82" stroke="#0A0908" stroke-width="1"/>
+
+  <!-- Mark: lowercase d with extracted token. Fits inside the band 100-300 (200px tall). -->
+  <g transform="translate(64, 116)">
+    <circle cx="58" cy="120" r="50" fill="none" stroke="#0A0908" stroke-width="24"/>
+    <rect x="94" y="20" width="24" height="164" fill="#0A0908"/>
+    <rect x="124" y="156" width="28" height="28" fill="#FF4800"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="260" y="216"
+        font-family="'Fraunces', 'Iowan Old Style', Georgia, serif"
+        font-size="128" fill="#0A0908" letter-spacing="-3"
+        text-rendering="geometricPrecision">designlang<tspan fill="#FF4800">.</tspan></text>
+
+  <!-- Tagline -->
+  <text x="260" y="268"
+        font-family="'Instrument Sans', 'Helvetica Neue', sans-serif"
+        font-size="18" fill="#403C34" font-style="italic">
+    reads a website the way a developer reads a stylesheet.
+  </text>
+
+  <!-- Bottom hairline -->
+  <line x1="40" y1="308" x2="1160" y2="308" stroke="#0A0908" stroke-width="1"/>
+
+  <!-- Palette strip -->
+  <g transform="translate(40, 344)">
+    <g font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="10" fill="#403C34" letter-spacing="0.7">
+      <g>
+        <rect width="42" height="42" fill="#0A0908"/>
+        <text x="0" y="56">#0A0908</text>
+      </g>
+      <g transform="translate(58, 0)">
+        <rect width="42" height="42" fill="#403C34"/>
+        <text x="0" y="56">#403C34</text>
+      </g>
+      <g transform="translate(116, 0)">
+        <rect width="42" height="42" fill="#8B8778"/>
+        <text x="0" y="56">#8B8778</text>
+      </g>
+      <g transform="translate(174, 0)">
+        <rect width="42" height="42" fill="#D8D3C5"/>
+        <text x="0" y="56">#D8D3C5</text>
+      </g>
+      <g transform="translate(232, 0)">
+        <rect width="42" height="42" fill="#FF4800"/>
+        <text x="0" y="56">#FF4800</text>
+      </g>
+    </g>
+
+    <!-- Right caption -->
+    <g font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="12" fill="#403C34" letter-spacing="1" text-anchor="end">
+      <text x="1120" y="16">$ npx designlang &lt;url&gt;</text>
+      <text x="1120" y="34" fill="#8B8778">MIT / Node ≥ 20 / Playwright</text>
+    </g>
+  </g>
+</svg>
+
+================
+File: website/public/mark.svg
+================
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="designlang">
+  <title>designlang</title>
+  <!-- Token grid scaffold, set in a 10×10 specimen field. -->
+  <!-- Mark = a lowercase d constructed from two primitives (counter, stem) + one orange token. -->
+  <rect width="120" height="120" fill="transparent"/>
+  <!-- counter: a ring, ink -->
+  <circle cx="50" cy="74" r="30" fill="none" stroke="#0A0908" stroke-width="16"/>
+  <!-- stem: a bar right of counter, ink -->
+  <rect x="72" y="10" width="16" height="100" fill="#0A0908"/>
+  <!-- token: the extracted primary, accent -->
+  <rect x="92" y="92" width="18" height="18" fill="#FF4800"/>
+</svg>
+
+================
+File: website/public/site.webmanifest
+================
+{
+  "name": "designlang",
+  "short_name": "designlang",
+  "description": "Extract any website's complete design system as W3C DTCG tokens, Tailwind, Figma variables, shadcn, iOS, Android, Flutter, WordPress, plus an MCP server.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F3F1EA",
+  "theme_color": "#F3F1EA",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
+
+================
+File: website/.gitignore
+================
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+================
+File: website/AGENTS.md
+================
+<!-- BEGIN:nextjs-agent-rules -->
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+<!-- END:nextjs-agent-rules -->
+
+================
+File: website/CLAUDE.md
+================
+@AGENTS.md
+
+================
+File: website/jsconfig.json
+================
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}
+
+================
+File: website/next.config.mjs
+================
+/** @type {import('next').NextConfig} */
+⋮----
+webpack: (config,
+⋮----
+// Don't bundle playwright — emit require('playwright-core') at runtime instead
+
+================
+File: website/package.json
+================
+{
+  "name": "website",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "^147.0.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/blob": "^2.3.3",
+    "jszip": "^3.10.1",
+    "next": "16.2.3",
+    "playwright-core": "^1.59.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "overrides": {
+    "postcss": ">=8.5.10"
+  }
+}
+
+================
+File: website/README.md
+================
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+================
+File: .gitignore
+================
+node_modules/
+design-extract-output/
+test-output/
+*.log
+.DS_Store
+.vercel/
+.vercel
+
+================
+File: .npmignore
+================
+designlang.png
+test-output/
+design-extract-output/
+design-diff-output/
+design-brands-output/
+*.log
+.DS_Store
+
+# Companion surfaces — each publishes to its own registry (VS Code Marketplace,
+# Raycast Store, Figma Community, GitHub Marketplace, Chrome Web Store,
+# Smithery). Keep them out of the npm tarball.
+vscode-extension/
+raycast-extension/
+figma-plugin/
+github-action/
+chrome-extension/
+smithery.yaml
+smithery.dockerfile
+website/
+docs/LAUNCH.md
+docs/MCP-REGISTRY.md
+docs/demo.tape
+docs/superpowers/
+tests/
+.github/
+
+================
+File: CHANGELOG.md
+================
+# Changelog
+
+## [12.1.0] — 2026-04-29
+
+**Design Report Card — a shareable audit page, generated from any URL.**
+
+### Added
+
+- **`designlang grade <url>`** — produces a standalone, self-contained HTML
+  "Design Report Card" alongside JSON and Markdown variants. Letter grade
+  (A–F) hero, eight scored dimensions with arc gauges, evidence pulled from
+  the audited site itself (palette swatches, type specimen, spacing rhythm),
+  and a strengths / what-to-fix ledger. Editorial layout, paper/ink theme
+  with a dark toggle, print-ready, OG-meta for shareable links.
+- New formatter: **`src/formatters/grade.js`** with `formatGrade` (HTML) and
+  `formatGradeMarkdown` exports. Reuses the existing `scoreDesignSystem`
+  output — no scoring changes.
+- Flags: `--format html|md|json|all`, `--open` to launch the report in your
+  browser when it finishes.
+
+Why this exists: html.to.design, Locofy, Builder, Polypane all ship
+extraction or layout cloning. None of them grade the design system itself
+in a form you can post on Twitter or email to a client. This is that.
+
+## [10.5.0] — 2026-04-22
+
+**The states LLMs always botch.**
+
+### Added
+
+- **`src/extractors/form-states.js`** — surfaces forms (input count + style families), modal/dialog/sheet containers, skeleton and spinner loading indicators, empty-state and error-state placeholders, and detects which toast library is on the page (Sonner, react-hot-toast, react-toastify, Radix Toast, Chakra Toast, Notistack).
+- New output: `*-form-states.json`.
+
+Closes the v10.x minor-release series started in v10.1. Everything the
+v10 spec deferred for v11 is now shipped as minor releases — with no
+breaking changes along the way.
+
+## [10.4.0] — 2026-04-22
+
+**Identification trio: icon system, background patterns, stack intel.**
+
+### Added
+
+- **`src/extractors/icon-system.js`** — fingerprints the icon library (Lucide / Heroicons outline+solid / Phosphor / Tabler / Feather / Remix / Material) from stroke vs fill dominance, stroke width, grid size, and rounded-caps presence. Emits per-icon hints agents can act on.
+- **`src/extractors/background-patterns.js`** — classifies noise / dot-grid / line-grid / gradient-mesh / svg-pattern / plain from computed `background-image` values. Merged into `*-visual-dna.json`.
+- **`src/extractors/stack-intel.js`** — extends the existing stack-fingerprint with 12 CMSs (Webflow, Framer, Shopify, Ghost, Sanity, Contentful, Wix, Squarespace, WordPress, Hashnode, Notion, Bubble), 13 analytics platforms, and 7 experimentation platforms.
+- Bin reads its own version from `package.json` — no more per-release version drift in the CLI.
+- New outputs: `*-icon-system.json`, `*-stack-intel.json`.
+
+## [10.3.0] — 2026-04-22
+
+**Perf + SEO.** designlang now doubles as a lightweight auditor.
+
+### Added
+
+- **`src/extractors/perf.js`** — `captureCoreWebVitals(url)` opens a fresh Playwright context, measures LCP / CLS / INP via PerformanceObserver, categorises every network response into JS / CSS / font / image / document / other, counts third-party requests against a known-host list, and synthesises an interaction so INP reports. Returns grade buckets (good / needs-improvement / poor) per vital.
+- **`src/extractors/seo.js`** — pure extractor for Open Graph, Twitter cards, canonical, manifest, theme-color, viewport, every favicon, and inline JSON-LD blocks (schema.org structured data).
+- Crawler now captures `favicons`, `manifest`, and `<script type="application/ld+json">` content.
+- New flag `--perf`. Auto-on with `--full`.
+- New outputs: `*-seo.json`, `*-perf.json`.
+
+## [10.2.0] — 2026-04-22
+
+**Dark mode pairing + responsive screenshots.** Joins the light & dark extractor passes into semantic pairs, and adds full-page captures at 4 breakpoints × (light, dark).
+
+### Added
+
+- **`src/extractors/dark-mode-pair.js`** — pure function that maps light ↔ dark pairs for primary/secondary/accent/background/text roles and every CSS variable that actually differs between themes. Emits a drop-in Tailwind `darkMode: 'class'` config plus an audit (tokens missing from either pass).
+- **`src/extractors/responsive-screenshots.js`** — full-page PNGs at mobile / tablet / desktop / wide × (light, dark). Writes to `screenshots/responsive/<breakpoint>-<scheme>.png` with an index.
+- New flag `--responsive-shots`. Auto-on with `--full`.
+- New outputs: `*-dark-mode.json`, `*-responsive.json`.
+
+### Changed
+
+- CLI version test now reads from `package.json` instead of a hardcoded string — no per-release test churn going forward.
+
+## [10.1.0] — 2026-04-22
+
+**Component screenshots.** The existing `--screenshots` flag now emits cluster-aware, retina (2×), multi-variant PNGs instead of five hardcoded selectors and a full-page image.
+
+### Added
+
+- **`src/extractors/component-screenshots.js`** — queries the live DOM with the same candidate selector the crawler uses, groups matches by `kind + variantHint + sizeHint`, and captures up to three representatives per group. Falls back to the v9 hardcoded list when no clusters produced anything (auth / docs pages).
+- Retina capture via a dedicated Playwright context at `deviceScaleFactor: 2`.
+- **`*-screenshots.json`** — index file mapping every cropped PNG to its cluster name, variant, bounds, and fallback flag.
+- Markdown formatter gains a **Component Screenshots** section listing the first 20 crops.
+
+### Behaviour
+
+- No new CLI flags. `--screenshots` and `--full` continue to opt into capture.
+- Backward compatible — when no clusters match, the v9 hardcoded selector set still fires.
+
+### Tests
+
+297 → **299** passing.
+
+## [10.0.0] — 2026-04-22
+
+**The Intent Release.** v9 captured *how* a site looks; v10 captures *what it is* — the semantic layer LLM agents need to rebuild a site faithfully, not just restyle a generic scaffold. Six new extractors, a multi-page crawl orchestrator, an optional smart-classifier LLM fallback, and a ready-to-paste prompt pack. 297/297 tests passing.
+
+### Added — extraction
+
+- **Page Intent classifier** (`src/extractors/page-intent.js`) — labels the crawled URL as `landing` / `pricing` / `docs` / `blog` / `blog-post` / `product` / `about` / `dashboard` / `auth` / `legal`, with URL + title + meta + DOM-shape signals, a confidence score, and ranked alternates.
+- **Section Roles** (`src/extractors/section-roles.js`) — annotates every semantic region with a role (`hero`, `feature-grid`, `logo-wall`, `stats`, `testimonial`, `pricing-table`, `faq`, `steps`, `comparison`, `gallery`, `bento`, `cta`, `footer`), extracts slot copy (headings, lede, CTA counts), and emits reading order.
+- **Material Language** (`src/extractors/material-language.js`) — classifies the visual vocabulary (`glassmorphism` / `neumorphism` / `flat` / `brutalist` / `skeuomorphic` / `material-you` / `soft-ui` / `mixed`) from shadow complexity, backdrop-filter usage, saturation, and geometry.
+- **Imagery Style** (`src/extractors/imagery-style.js`) — fingerprints the imagery (`photography` / `3d-render` / `isometric` / `flat-illustration` / `gradient-mesh` / `icon-only` / `screenshot` / `mixed`), plus dominant aspect ratio and image-radius profile.
+- **Component Library detector** (`src/extractors/component-library.js`) — identifies shadcn/ui, Radix, Headless UI, MUI, Chakra, Mantine, Ant Design, Bootstrap, HeroUI/NextUI, Tailwind UI, Vuetify, or plain Tailwind, with evidence and alternates.
+- **Logo extractor** (`src/extractors/logo.js`) — pulls the site's logo (SVG source or `<img>` bytes) and samples clearspace; writes `*-logo.svg` or `.png` plus `*-logo.json`.
+
+### Added — orchestration
+
+- **Multi-page crawl** (`src/multipage.js`) — `--full` or `--pages <n>` auto-discovers canonical pages from nav (pricing/docs/blog/about/product), runs the full extractor pipeline on each, and emits a cross-page consistency report with shared tokens, per-page uniques, and pairwise Jaccard scores.
+- **Smart classifier fallback** (`src/classifiers/smart.js`) — opt-in `--smart` flag routes low-confidence classifications through the OpenAI or Anthropic API (via `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`). Gracefully no-ops when no key is set. Zero-dep — uses global `fetch`.
+
+### Added — LLM-native outputs
+
+- **Prompt pack** (`src/formatters/prompt-pack.js`) — writes a `*-prompts/` directory with `v0.txt`, `lovable.txt`, `cursor.md`, `claude-artifacts.md`, and atomic `recipe-<component>.md` cards. Tokens, section order, voice, and library guidance are all inlined so one paste is enough.
+- **Markdown sections** (`src/formatters/markdown.js`) — adds Page Intent, Section Roles, Material Language, Imagery Style, Component Library, and (when `--full`) Multi-Page Map sections to `*-design-language.md`.
+
+### Added — output files
+
+- `*-intent.json` — page-type + section-role map
+- `*-visual-dna.json` — material language + imagery style
+- `*-library.json` — component library detection + evidence
+- `*-logo.svg` | `*-logo.png` + `*-logo.json` (with `--full`)
+- `*-multipage.json` — per-page design languages + consistency (with `--full` / `--pages`)
+- `*-prompts/` — prompt pack directory
+
+### New CLI flags
+
+- `--smart` — enable optional LLM refinement for low-confidence classifiers
+- `--pages <n>` — explicitly crawl N canonical pages
+- `--no-prompts` — skip the prompt-pack directory
+
+### Tests
+
+- `tests/v10-features.test.js` — 15 new subtests covering page intent, section roles, component library, material language, imagery style, multi-page discovery, cross-page consistency, and prompt pack. Full suite: 297 passing.
+
+## [9.0.0] — 2026-04-21
+
+**The Motion & Voice release.** Six new capabilities that push designlang past "extract the paint" and into "extract the *feel*, the *anatomy*, and the *voice*." No competing tool does any of these. All work ships with tests (282/282 passing).
+
+### Added — extraction
+
+- **Motion language extractor** (`src/extractors/motion.js`) — easings are classified into families (`ease-in`, `ease-in-out`, `ease-out`, `linear`, `steps`, `spring`, `custom`) via cubic-bezier geometry, durations are bucketed into a named scale (`instant`/`xs`/`sm`/`md`/`lg`/`xl`/`xxl`), spring/overshoot cubic-beziers are surfaced, scroll-linked animation usage is detected via `animation-timeline` / `view-timeline-name` / `scroll-timeline-name`, and each `@keyframes` rule is classified by kind (`slide-x`, `slide-y`, `fade`, `reveal`, `rotate`, `scale`, `pulse`, `custom`). A one-word `feel` fingerprint (`springy`/`responsive`/`smooth`/`mechanical`/`mixed`) summarizes the whole system.
+- **Motion tokens formatter** (`src/formatters/motion-tokens.js`) — emits `*-motion-tokens.json` in a DTCG-flavored shape with `$type: duration` / `$type: cubicBezier`.
+- **Component Anatomy v2** (`src/extractors/component-anatomy.js`) — groups components by variant-class hints, infers slot roles (icon / label / badge / heading / media / footer), builds a variant × size × state matrix, captures sample button labels, and emits typed React stubs via `formatAnatomyStubs`. Output: `*-anatomy.tsx`.
+- **Brand voice extractor** (`src/extractors/voice.js`) — classifies tone (friendly / formal / technical / playful / neutral) from lexical markers, picks pronoun posture (`we→you`, `you-only`, `we-only`, `third-person`), detects heading style, top CTA verbs, and microcopy patterns. Output: `*-voice.json`.
+- **Crawler extensions** (`src/crawler.js`) — per-element `animation-timeline`, view/scroll timeline names; per-candidate `text`, `slots[]`, `disabled`, `variantHint`, `sizeHint` to feed anatomy + voice.
+
+### Added — new commands
+
+- **`designlang lint <file>`** — audits DTCG / flat-JSON / CSS-vars token files for color sprawl, spacing-scale drift, radius/shadow bloat, and WCAG AA fg/bg contrast. Exits non-zero on `error`-level findings. CI-ready.
+- **`designlang drift <url> --tokens <file>`** — compares local tokens against a live site, reports `in-sync` / `minor-drift` / `notable-drift` / `major-drift` with a drift ratio. `--fail-on <level>` controls CI exit code.
+- **`designlang visual-diff <before> <after>`** — single-file HTML side-by-side report with embedded base64 screenshots, file-size deltas, and a changed-color-tokens table.
+
+### Added — markdown output
+
+Three new sections in `*-design-language.md`: **Motion Language**, **Component Anatomy**, **Brand Voice**.
+
+### Changed
+
+- Default extraction now writes **11+ files** (up from 8): `*-motion-tokens.json`, `*-anatomy.tsx` (when candidates exist), `*-voice.json`.
+- `bin/design-extract.js` version → `9.0.0`.
+- `package.json` — description refreshed; new keywords: `motion`, `animation`, `component-anatomy`, `brand-voice`, `token-lint`, `visual-diff`.
+- README: "What's New in v9" hero block, new feature sections 24-29, new CLI entries (`lint`, `drift`, `visual-diff`).
+
+### Tests
+
+- New `tests/v9-features.test.js` — 7 suites, 21 assertions across motion, anatomy, voice, and lint.
+- Full suite: **282/282 passing**.
+
+## [8.0.0] — 2026-04-20
+
+A credibility-and-distribution release. Three reliability bugs that hurt trust on real sites are fixed; three DX flags close the most-requested CLI gaps; five new surfaces (VS Code, Raycast, Figma, GitHub Actions, MCP registry) ship alongside.
+
+### Reliability
+
+- **Brand / primary color detection rewritten** — the extractor now ranks chromatic clusters by `interactiveBg × 100 + saturation × 2 + log(usage)` and requires either HSL saturation > 25 or an interactive-bg hit to qualify as chromatic. Previously the extractor picked the most-counted color, which on neutral-heavy sites like Linear meant the "Primary" was a pale gray (`#d0d6e0`). v8 correctly picks Linear's lime CTA (`#e4f222`) and Stripe's purple (`#533afd`). `src/extractors/colors.js`.
+- **Accessibility scoring defused** — the crawler now emits a `hasText` boolean per element (a direct text-node child with visible characters), and the WCAG extractor filters out decorative glyph wrappers, transparent/overlay pairs, and non-text containers. Linear's WCAG score moved from 25% (171 failing pairs) to 83% (1 failing pair). `src/extractors/accessibility.js`, `src/crawler.js`.
+- **Design-system score recalibrated** — thresholds for color count, shadow count, border-radii count, typography weight, and type-scale size were re-fit against ground-truth sites (Stripe, Linear, Vercel, GitHub, Apple). `cssHealth` is now weighted in the overall (8/100). Linear 47→76, Stripe 81→88, Apple 83→86, Vercel 64→76. `src/extractors/scoring.js`.
+
+### Added
+
+- **`--selector <css>`** — scopes extraction to a DOM subtree (e.g. `designlang https://stripe.com --selector "footer"`). Stripe full-page extraction drops from 2,409 elements to 112 when scoped to the footer. Falls back to the full document if the selector is invalid or empty.
+- **`--system-chrome`** — forces Playwright to use the locally installed Chrome (`channel: 'chrome'`) instead of the ~150 MB bundled Chromium, for faster `npx` first-runs in environments that already have Chrome.
+- **`--json` output mode** — full extraction payload written to stdout (suppresses progress UI) for piping into other tools. This was a partial implementation in v7; v8 makes it first-class and adds it to the CLI reference.
+- **VS Code extension** (`vscode-extension/`) — `designlang: Extract design from URL` and `designlang: Extract and inject into workspace` commands.
+- **Raycast extension** (`raycast-extension/`) — Extract, Score, and "Copy CLI command for URL" commands.
+- **Figma plugin** (`figma-plugin/`) — URL or paste-JSON → Figma Variables collections (MV for Figma's `figma.variables` API, with multi-mode support).
+- **GitHub Action** (`github-action/`) — "Design regression guard": runs `designlang` on a URL, diffs tokens vs a committed baseline, and comments the delta on the pull request. Optional `fail-on-change`.
+- **Smithery + MCP registry** (`smithery.yaml`, `smithery.dockerfile`, `docs/MCP-REGISTRY.md`) — one-command install in Smithery; checklist for the official MCP registry, Cursor, and Claude Desktop.
+- **Chrome Web Store + Firefox + Edge listing prep** (`chrome-extension/PRIVACY.md`, `chrome-extension/STORE_LISTING.md`) — privacy policy and store copy.
+- **README hero demo tape** (`docs/demo.tape`) — VHS script that renders an animated terminal GIF into `website/public/demo.gif`.
+- **Launch kit** (`docs/LAUNCH.md`) — Product Hunt / Show HN / Twitter copy + day-of checklist.
+
+### Changed
+
+- README: hero image now references the animated demo (with static PNG fallback), adds an "Install everywhere" table covering all surfaces, documents `--selector`, `--system-chrome`, and `--json`.
+- `.npmignore`: excludes all companion-surface directories (`vscode-extension/`, `raycast-extension/`, `figma-plugin/`, `github-action/`, `chrome-extension/`, `website/`) and test fixtures so the npm tarball stays small — each surface publishes to its own registry.
+- `bin/design-extract.js`: reports `8.0.0` from `--version`.
+- `src/config.js`: whitelists `selector` and `systemChrome` from CLI/config.
+
+### Thanks
+
+- To everyone who flagged that Linear's primary was coming out as light gray — that single complaint drove the brand-color rewrite.
+
+## [7.2.0] — 2026-04-19
+
+### Added
+
+- **Modern CSS surfacing (Tier 1a)** — crawler now captures pseudo-elements, variable-font axes (`font-variation-settings`), `@container` queries, and `env()` usage. Surfaced on `design.modernCss`. (#33)
+- **Wide-gamut color + CSS source attribution (Tier 1b)** — `oklch()`, `oklab()`, `color-mix()`, `light-dark()`, Display P3, and Rec2020 references are collected on `design.wideGamut`. A new `design.tokenSources` maps each extracted token to the stylesheet URL it first appeared in. (#34)
+- **Auto-interact pass (Tier 2)** — new `--deep-interact` flag (implied by `--full`) runs an interaction pass before extraction: full-page scroll in 4 steps, menu/dropdown opens, hover snapshots for the first batch of buttons/links with computed-style diffs, accordion clicks, and first-match modal trigger. Results populate `design.interactionStates` (hover deltas, menu/modal snapshots). Every step is wrapped in try/catch with per-step timeouts so interaction failures never kill the crawl.
+- **Multi-page token reconciliation (Tier 2)** — when `--depth >= 1` the extractor now emits three new artifacts alongside the merged baseline: `*-tokens-shared.json` (tokens shared across every route), `*-tokens-routes/<slug>.json` (per-route `added` and `changed` deltas), and `*-routes-report.md` (readable summary). Slugs are derived from the route path (`/` → `index`) with automatic collision handling.
+
+### Changed
+
+- `--full` now also enables `--deep-interact`.
+- `--depth <n>` description updated to mention the new reconciliation outputs.
+
+## [7.1.0] — 2026-04-19
+
+### Added
+
+- **Cookie file support** — `--cookie-file <path>` loads cookies from a JSON array, a Playwright `storageState.json`, or a Netscape `cookies.txt` (browser extensions, curl exports). The new loader lives in `src/utils-cookies.js` and merges cleanly with the existing `--cookie name=value` flag.
+- **`--insecure`** — ignores HTTPS/SSL certificate errors. Useful for self-signed dev servers, internal staging environments behind corporate proxies, and local extraction through MITM tools. Passes `ignoreHTTPSErrors: true` to the Playwright context plus the matching Chromium launch flags.
+- **`--user-agent <ua>`** — override the browser User-Agent string for extraction.
+- **Chrome extension** — `chrome-extension/` ships a Manifest v3 popup that hands the current tab off to [designlang.manavaryasingh.com](https://designlang.manavaryasingh.com) with the URL prefilled. Also emits a "Copy CLI" button that drops `npx designlang <url>` into the clipboard. Developer-mode install for now; Chrome Web Store listing pending.
+- **Website URL query parameter** — the extractor input on the hosted site now honours `?url=<encoded>` so the Chrome extension (and any deep link) can prefill.
+- **CONTRIBUTING**: "Good first issues" and "Credits" sections.
+
+### Thanks
+
+- A developer from China opened a conversation proposing cookie-file handling, SSL bypass, and a Chrome packaging story — this release ships all three.
+
+## [7.0.0] — 2026-04-18
+
+### Breaking
+
+- **Design token JSON format** — the default `*-design-tokens.json` now follows the W3C Design Tokens Community Group (DTCG) v1 spec: every leaf is `{ "$value": ..., "$type": ... }`, with two layers (`primitive.*` and `semantic.*`) and composite tokens for typography, shadow, border, and gradient. If a downstream consumer expects the pre-v7 flat shape, pass `--tokens-legacy` to preserve it.
+
+  Before (v6):
+  ```json
+  { "color": { "primary": "#3b82f6" }, "fontFamily": { "sans": "Inter" } }
+  ```
+
+  After (v7, default):
+  ```json
+  {
+    "$metadata": { "generator": "designlang", "version": "7.0.0" },
+    "primitive": { "color": { "brand": { "primary": { "$value": "#3b82f6", "$type": "color" } } } },
+    "semantic":  { "color": { "action": { "primary": { "$value": "{primitive.color.brand.primary}", "$type": "color" } } } }
+  }
+  ```
+
+  Migration: either (a) update consumers to read the DTCG shape (recommended — long-term stable, ecosystem-compatible), or (b) add `--tokens-legacy` to the CLI invocation.
+
+### Added
+
+- **MCP server** — new `designlang mcp --output-dir <dir>` subcommand. Stdio JSON-RPC. Resources: `designlang://tokens/primitive`, `designlang://tokens/semantic`, `designlang://regions`, `designlang://components`, `designlang://health`. Tools: `search_tokens`, `find_nearest_color`, `get_region`, `get_component`, `list_failing_contrast_pairs`.
+- **Agent rules emitter** — `--emit-agent-rules` writes `.cursor/rules/designlang.mdc`, `.claude/skills/designlang/SKILL.md`, `CLAUDE.md.fragment`, and `agents.md`. All four template from the resolved semantic tokens.
+- **Multi-platform emitters** — `--platforms <csv>` (values `web`, `ios`, `android`, `flutter`, `wordpress`, `all`). Additive to default web output. Emits iOS SwiftUI, Android Compose + XML, Flutter Dart + ThemeData, and a full WordPress block-theme skeleton (`theme.json` v3, `style.css`, `functions.php`, `index.php`, `templates/index.html`).
+- **Stack + Tailwind fingerprint** — framework detection, Tailwind utility-class frequency map, analytics stack inventory. Surfaced on `design.stack`.
+- **CSS health audit** — specificity distribution, `!important` count, duplicate declarations, unused CSS via Playwright Coverage API, `@keyframes` catalog, vendor-prefix audit. Surfaced on `design.cssHealth` and added as an additive `cssHealth` dimension in the design score.
+- **A11y remediation** — for every failing WCAG contrast pair, suggests the nearest palette color that passes AA (4.5:1 / 3:1) or AAA (7:1 / 4.5:1). Surfaced on `design.accessibility.remediation`.
+- **Semantic regions** — classifies page sections into `nav`, `hero`, `features`, `pricing`, `testimonials`, `cta`, `footer`, `sidebar`, `content`. Surfaced on `design.regions`.
+- **Reusable component detection** — DOM subtree structural hash + cosine-similarity style vector clustering with variant detection. Surfaced on `design.componentClusters` and rendered in the markdown output.
+- **MCP companion file** — `*-mcp.json` written at extract time so later `designlang mcp` invocations can serve regions / components / health / remediation from disk, not just memory.
+
+### Dependencies
+
+- Added `@modelcontextprotocol/sdk` (runtime).
+
+### Tests
+
+- 241/241 passing (baseline 186 + 55 new tests).
+
+================
+File: CONTRIBUTING.md
+================
+# Contributing to design-ex
+
+Thanks for your interest in contributing! Here's how to get started.
+
+## Development Setup
+
+```bash
+git clone https://github.com/Manavarya09/design-extract.git
+cd design-extract
+npm install
+```
+
+This installs dependencies and Playwright's Chromium browser.
+
+## Running Locally
+
+```bash
+node bin/design-extract.js https://example.com --out ./test-output
+```
+
+## Project Structure
+
+```
+src/
+  crawler.js          # Playwright page.evaluate extraction
+  index.js            # Orchestrator
+  utils.js            # Color parsing, clustering, helpers
+  extractors/         # 9 modules that process raw style data
+    colors.js         # Color palette extraction
+    typography.js     # Font and type scale extraction
+    spacing.js        # Spacing scale detection
+    shadows.js        # Box shadow parsing
+    borders.js        # Border radius extraction
+    variables.js      # CSS custom property categorization
+    breakpoints.js    # Media query extraction
+    animations.js     # Transition and keyframe extraction
+    components.js     # UI component pattern detection
+  formatters/         # 4 output format generators
+    markdown.js       # AI-optimized markdown (hero output)
+    tokens.js         # W3C Design Tokens JSON
+    tailwind.js       # Tailwind CSS config
+    css-vars.js       # CSS custom properties file
+```
+
+## Guidelines
+
+- Keep dependencies minimal — prefer pure JS over adding a package
+- Test changes against at least 2-3 real websites
+- Follow the existing code style (ES modules, no semicolons in some files)
+- The markdown formatter is the most important output — keep it rich and AI-friendly
+
+## Reporting Issues
+
+When filing a bug, please include:
+- The URL you tried to extract from
+- The error message or unexpected output
+- Your Node.js version (`node --version`)
+
+## Pull Requests
+
+- One feature/fix per PR
+- Keep PRs focused and small when possible
+- Add a brief description of what changed and why
+
+## Good first issues
+
+Some work that's already scoped and ready for someone to pick up:
+
+- **Extra cookie formats** — add support for browser-specific exports (EditThisCookie, Cookie-Editor) on top of the existing JSON / Playwright / Netscape loaders in `src/utils-cookies.js`.
+- **Proxy support** — add `--proxy <url>` that passes through to Playwright's `proxy` launch option, paired with the existing `--insecure` flag for corporate networks.
+- **Chrome extension: DevTools panel** — extend `chrome-extension/` with a DevTools panel that shows tokens for the current tab without leaving the browser. See the roadmap in `chrome-extension/README.md`.
+- **Firefox + Edge packaging** — the manifest v3 extension already works in both; we just need store listings and icons.
+- **Additional CSS-in-JS emitters** — Emotion, Stitches, Vanilla Extract, Panda, styled-components. Each is a thin formatter module under `src/formatters/`.
+
+## Credits
+
+Shipped thanks to a few specific contributors — PRs welcome for the list:
+
+- [@Manavarya09](https://github.com/Manavarya09) — author, maintainer.
+- Community suggestions that landed as features: cookie-file loading, `--insecure` SSL bypass, and the first Chrome extension popup came from an external developer's proposal in mid-April 2026.
+
+If you open a PR or file an issue that materially shapes a release, we'll add you here.
+
+## Code of conduct
+
+Be decent. Disagreements about design, code, or approach are welcome — personal
+attacks are not. Maintainer reserves the right to close issues and PRs that
+don't engage in good faith.
+
+================
+File: LICENSE
+================
+MIT License
+
+Copyright (c) 2024 Manavarya Singh
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================
+File: README.md
+================
+<p align="center">
+  <img src="website/public/logo-specimen.svg" alt="designlang — reads a website the way a developer reads a stylesheet" width="900">
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/designlang"><img src="https://img.shields.io/npm/v/designlang?color=0A0908&labelColor=F3F1EA&label=npm" alt="npm version"></a>
+  <a href="https://github.com/Manavarya09/design-extract/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Manavarya09/design-extract?color=0A0908&labelColor=F3F1EA" alt="license"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/node/v/designlang?color=0A0908&labelColor=F3F1EA" alt="node version"></a>
+  <a href="https://designlang.manavaryasingh.com/"><img src="https://img.shields.io/badge/website-live-FF4800?labelColor=F3F1EA" alt="website"></a>
+
+</p>
+
+---
+
+<p align="center">
+  <img src="designlang.png" alt="designlang in action" width="100%">
+</p>
+
+[![designlang on npm](https://pkgfolio.vercel.app/embed/pkg/designlang?v=2)](https://www.npmjs.com/package/designlang)
+
+**designlang** points a headless browser at any URL and reads the design system off the live DOM. One command emits 17+ files — DTCG tokens, Tailwind config, shadcn theme, Figma variables, motion tokens, typed component anatomy, brand voice, page-intent labels, and a paste-ready prompt pack for v0 / Lovable / Cursor / Claude Artifacts.
+
+It also goes where extractors don't: **layout patterns**, **responsive behavior across 4 breakpoints**, **hover / focus / active states**, **WCAG contrast scoring**, **multi-page consistency**, **drift checks against a live source-of-truth**, **visual-diffs**, and a **shareable graded report card**.
+
+## Quick start
+
+```bash
+npx designlang https://stripe.com           # extract everything
+npx designlang grade https://stripe.com     # shareable HTML report card  ← v12.1
+npx designlang clone https://stripe.com     # working Next.js starter
+npx designlang --full https://stripe.com    # screenshots + responsive + interactions
+```
+
+## Install
+
+```bash
+npm i -g designlang                         # global
+npx skills add Manavarya09/design-extract   # as an agent skill (40+ agents)
+```
+
+## What you get
+
+Each run writes 17+ files to `./design-extract-output/`. The headline outputs:
+
+| File | What it is |
+|---|---|
+| `*-design-language.md` | 19-section markdown — feed any LLM to recreate the design |
+| `*-design-tokens.json` | W3C DTCG tokens (primitive + semantic + composite layers) |
+| `*-tailwind.config.js` | Drop-in Tailwind theme |
+| `*-shadcn-theme.css` | shadcn/ui `globals.css` variables |
+| `*-figma-variables.json` | Figma Variables import (light + dark) |
+| `*-variables.css` | CSS custom properties |
+| `*-anatomy.tsx` | Typed React stubs for every detected component + variants |
+| `*-motion-tokens.json` | Durations, easings, springs, scroll-linked flag |
+| `*-voice.json` | Brand voice — tone, pronoun posture, CTA verbs |
+| `*-prompts/` | Paste-ready prompts for v0, Lovable, Cursor, Claude Artifacts |
+| `*-mcp.json` | Disk-backed MCP server payload |
+| `*-grade.html` | **v12.1** Shareable Design Report Card (letter grade + evidence) |
+
+Multi-platform (`--platforms web,ios,android,flutter,wordpress,all`) adds `ios/`, `android/`, `flutter/`, and a WordPress block theme. `--emit-agent-rules` adds Cursor / Claude Code / generic agent rule files.
+
+## Why designlang vs anything else
+
+Other tools give you the paint. designlang reads the architecture:
+
+- **Layout system** — grids, flex containers, container widths, gaps — not just tokens.
+- **Responsive** — crawls 4 breakpoints and reports what changes (`--responsive`).
+- **Interaction states** — programmatically hovers and focuses, captures the deltas (`--interactions`, `--deep-interact`).
+- **Motion language** — durations, easing families, spring detection, scroll-linked flag, `feel` fingerprint (springy / smooth / mechanical / mixed).
+- **Component anatomy** — slot trees with variant × size × state matrices, emitted as typed `.tsx`.
+- **Brand voice** — tone, pronoun posture, heading style, CTA verb inventory.
+- **Page intent + section roles** — `landing` / `pricing` / `docs` etc., with semantic regions (`hero`, `feature-grid`, `pricing-table`, `cta`…).
+- **Multi-page consistency** — auto-discovers canonical pages, reconciles shared vs per-route tokens.
+- **WCAG** — every fg/bg pair scored, with a remediation palette suggesting nearest passing colors.
+- **Drift + lint + visual-diff** — `designlang drift`, `lint`, `visual-diff` all CI-ready, exit non-zero on failure.
+- **Live-site sync** — treat the deployed site as source of truth (`designlang sync`).
+- **MCP server** — `designlang mcp` exposes tokens, regions, components, and contrast pairs to any MCP-aware agent.
+
+```bash
+designlang grade https://stripe.com         # ← v12.1: shareable report card
+designlang clone https://stripe.com         # → working Next.js app
+designlang apply https://stripe.com -d ./app   # auto-detect framework, write tokens
+designlang brands stripe.com vercel.com linear.app   # N-brand matrix
+designlang drift https://yourapp.com --tokens ./src/tokens.json
+designlang lint ./src/tokens/design-tokens.json     # CI-ready linter
+designlang visual-diff https://staging.app https://app   # single-file HTML diff
+designlang mcp                              # stdio MCP server for Cursor / Claude Code
+```
+
+## All features
+
+| Feature | Flag / Command | Description |
+|---------|---------------|-------------|
+| Base extraction | `designlang <url>` | Colors, typography, spacing, shadows, radii, CSS vars, breakpoints, animations, components |
+| Layout system | automatic | Grid patterns, flex usage, container widths, gap values |
+| Accessibility | automatic | WCAG 2.1 contrast ratios for all fg/bg pairs |
+| Design scoring | automatic | 7-category quality rating (A-F) with actionable issues |
+| Gradients | automatic | Gradient type, direction, stops, classification |
+| Z-index map | automatic | Layer hierarchy, z-index wars detection |
+| SVG icons | automatic | Deduplicated icons, size/style classification, color palette |
+| Font files | automatic | Source detection (Google/self-hosted/CDN/system), @font-face CSS |
+| Image styles | automatic | Aspect ratios, shapes, filters, pattern classification |
+| Dark mode | `--dark` | Extracts dark color scheme + light/dark diff |
+| Auth pages | `--cookie`, `--cookie-file`, `--header` | Extract from authenticated/protected pages; cookie files in JSON / Playwright storageState / Netscape formats |
+| Self-signed / dev TLS | `--insecure` | Ignore HTTPS/SSL certificate errors |
+| User-Agent override | `--user-agent <ua>` | Set a custom User-Agent string |
+| Chrome extension | `chrome-extension/` | One-click handoff from any tab, MV3, `activeTab` only |
+| Multi-page | `--depth <n>` | Crawl N internal pages; emits shared-vs-per-route token reconciliation (`*-tokens-shared.json`, `*-tokens-routes/<slug>.json`, `*-routes-report.md`) |
+| Screenshots | `--screenshots` | Capture buttons, cards, inputs, nav, hero, full page |
+| Responsive | `--responsive` | Crawl at 4 viewports, map breakpoint changes |
+| Interactions | `--interactions` | Capture hover/focus/active state transitions |
+| Auto-interact | `--deep-interact` | Scroll, open menus/modals/accordions, hover CTAs before extraction |
+| Everything | `--full` | Enable screenshots + responsive + interactions + deep-interact |
+| Apply | `designlang apply <url>` | Auto-detect framework and write tokens to your project |
+| Clone | `designlang clone <url>` | Generate a working Next.js starter with extracted design |
+| Score | `designlang score <url>` | Rate design quality with visual bar chart breakdown |
+| Grade (NEW v12.1) | `designlang grade <url>` | Generate a shareable HTML "Design Report Card" — letter grade, 8 dimensions, evidence (palette, type, rhythm), strengths + fixes |
+| Watch | `designlang watch <url>` | Monitor for design changes on interval |
+| Diff | `designlang diff <A> <B>` | Compare two sites (MD + HTML) |
+| Multi-brand | `designlang brands <urls...>` | N-site comparison matrix |
+| Sync | `designlang sync <url>` | Update local tokens from live site |
+| History | `designlang history <url>` | Track design changes over time |
+| MCP server | `designlang mcp` | Expose extraction as MCP resources + tools |
+| Multi-platform | `--platforms <csv>` | Emit iOS / Android / Flutter / WordPress outputs |
+| Agent rules | `--emit-agent-rules` | Cursor, Claude Code, generic agent rule files |
+| Stack fingerprint | automatic | Framework + Tailwind + analytics detection |
+| CSS health | automatic | Specificity, !important, unused CSS, keyframes |
+| A11y remediation | automatic | Nearest palette color passing AA / AAA for every failing pair |
+| Semantic regions | automatic | nav / hero / pricing / testimonials / cta / footer classification |
+| Reusable components | automatic | DOM subtree + style-vector clustering with variants |
+| DTCG tokens | default | W3C Design Tokens v1 with semantic + composite layers (`--tokens-legacy` for pre-v7) |
+
+## Full CLI Reference
+
+```
+designlang <url> [options]
+
+Options:
+  -o, --out <dir>         Output directory (default: ./design-extract-output)
+  -n, --name <name>       Output file prefix (default: derived from URL)
+  -w, --width <px>        Viewport width (default: 1280)
+  --height <px>           Viewport height (default: 800)
+  --wait <ms>             Wait after page load for SPAs (default: 0)
+  --dark                  Also extract dark mode styles
+  --depth <n>             Internal pages to crawl (default: 0)
+  --screenshots           Capture component screenshots
+  --responsive            Capture at multiple breakpoints
+  --interactions          Capture hover/focus/active states
+  --deep-interact         Auto-interact pass (scroll, menus, modals, accordions, hover CTAs)
+  --full                  Enable all captures (implies --deep-interact)
+  --cookie <cookies...>   Cookies for authenticated pages (name=value)
+  --cookie-file <path>    Load cookies from JSON / storageState / Netscape cookies.txt
+  --header <headers...>   Custom headers (name:value)
+  --user-agent <ua>       Override the browser User-Agent string
+  --insecure              Ignore HTTPS/SSL certificate errors (self-signed, dev, proxies)
+  --selector <css>        Only extract from elements matching this CSS selector (e.g. ".pricing-card")
+  --system-chrome         Use the system Chrome install instead of the bundled Chromium (skips 150MB download)
+  --json                  Print full extraction as JSON to stdout (for piping into other tools)
+  --framework <type>      Only generate specific theme (react, shadcn)
+  --platforms <csv>       Additional platforms: web,ios,android,flutter,wordpress,all (additive)
+  --emit-agent-rules      Emit Cursor / Claude Code / CLAUDE.md / agents.md rule files
+  --tokens-legacy         Emit pre-v7 flat design-tokens.json shape (backward compat)
+  --no-history            Skip saving to history
+  --verbose               Detailed progress output
+
+Commands:
+  apply <url>                       Extract and apply design directly to your project
+  clone <url>                       Generate a working Next.js starter from extracted design
+  score <url>                       Rate design quality (7 categories, A-F, bar chart)
+  grade <url>                       Generate a shareable HTML Design Report Card (--format html|md|json|all, --open)
+  watch <url>                       Monitor for design changes on interval
+  diff <urlA> <urlB>                Compare two sites' design languages
+  brands <urls...>                  Multi-brand comparison matrix
+  sync <url>                        Sync local tokens with live site
+  history <url>                     View design change history
+  mcp                               Launch stdio MCP server (--output-dir <dir>)
+  lint <file>                       (v9) Audit a local token file (.json/.css) — CI-ready
+  drift <url> --tokens <file>       (v9) Check local tokens for drift against a live site
+  visual-diff <before> <after>      (v9) Side-by-side HTML diff of two URLs
+```
+
+## Example output
+
+`designlang https://vercel.com --full` →
+
+```
+Colors: 27 · Fonts: Geist + Geist Mono · Spacing: 18 (base 2px)
+Shadows: 11 · Radii: 10 · CSS vars: 407 · Layout: 55 grids / 492 flex
+Responsive: 4 viewports, 3 breakpoint changes · Interactions: 8 transitions
+A11y: 94% WCAG · Score: 68/100 (D) · 4 issues
+
+→ 17 files written to ./design-extract-output/
+→ Run `designlang grade https://vercel.com` for a shareable report card
+```
+
+## How it works
+
+1. **Crawl** — Headless Chromium via Playwright, waits for network idle and fonts
+2. **Extract** — One `page.evaluate()` walks up to 5,000 DOM elements, collecting 25+ computed properties, inline SVGs, font sources, and image metadata
+3. **Process** — 17 extractor modules parse, deduplicate, cluster, and classify the raw data
+4. **Format** — 12+ formatter modules emit the output files
+5. **Score** — Accessibility extractor calculates WCAG contrast ratios for all color pairs
+6. **Capture** — Optional: screenshots, responsive viewport crawling, interaction state recording
+
+## Install Everywhere
+
+designlang ships surfaces beyond the CLI:
+
+| Surface | Path | Description |
+|---------|------|-------------|
+| **CLI** | `npx designlang <url>` | Main entry point. |
+| **VS Code extension** | [`vscode-extension/`](vscode-extension/) | "Extract design from URL" command + auto-inject into workspace. |
+| **Raycast extension** | [`raycast-extension/`](raycast-extension/) | Extract, score, and "copy CLI command" from Raycast. |
+| **Figma plugin** | [`figma-plugin/`](figma-plugin/) | Paste a URL inside Figma, get a full Variables collection. |
+| **GitHub Action** | [`github-action/`](github-action/) | "Design regression guard" — diffs tokens on every PR and comments. |
+| **Chrome extension** | [`chrome-extension/`](chrome-extension/) | One-click handoff from any tab (MV3, `activeTab` only). |
+| **MCP server** | `npx designlang mcp` | Exposes the extracted design as MCP resources + tools for Cursor, Claude Code, Windsurf, etc. See [`docs/MCP-REGISTRY.md`](docs/MCP-REGISTRY.md). |
+
+## Agent Skill
+
+Works with **Claude Code, Cursor, Codex, and 40+ AI coding agents** via the skills ecosystem:
+
+```bash
+npx skills add Manavarya09/design-extract
+```
+
+In Claude Code, use `/extract-design <url>`.
+
+## Website
+
+**[https://designlang.manavaryasingh.com](https://designlang.manavaryasingh.com/)** — the brutalist product page.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). PRs welcome!
+
+## License
+
+[MIT](LICENSE) - Manav Arya Singh
+
+================
+File: SECURITY.md
+================
+# Security Policy
+
+## Supported versions
+
+| Version | Supported          |
+| ------- | ------------------ |
+| 11.x    | :white_check_mark: |
+| 10.x    | :white_check_mark: (critical only) |
+| < 10    | :x:                |
+
+Only the latest minor of each supported major receives fixes.
+
+## Reporting a vulnerability
+
+**Please don't open a public issue.** Use GitHub's private vulnerability reporting instead:
+
+👉 <https://github.com/Manavarya09/design-extract/security/advisories/new>
+
+What to include:
+
+- A description of the issue and its impact.
+- A minimal repro (URL being extracted, CLI flags, OS + Node version).
+- Suggested severity and, if you have one, a proposed fix.
+
+### What to expect
+
+- Acknowledgement within **72 hours**.
+- A triage verdict (accepted / needs info / out of scope) within **7 days**.
+- Public disclosure coordinated with you after a fix ships — usually as part of a patch release.
+
+## Scope
+
+In scope:
+
+- The `designlang` CLI and all subcommands (`extract`, `clone`, `ci`, `studio`, `replay`, `mcp`, etc.).
+- The MCP server (`src/mcp/server.js`).
+- The hosted extractor website (`website/`) when used at its canonical URL.
+- The Figma, Chrome, Raycast, and VS Code extensions shipped in this repo.
+
+Out of scope:
+
+- Vulnerabilities that require the user to run `designlang` against a page **they themselves control** (i.e. self-owned XSS in content they feed us).
+- Denial of service via crafted sites that simply take a long time to extract — we already time-bound Playwright operations.
+- Browser-level shadow-DOM opacity (closed shadow roots are unreachable by web platform design, not a designlang bug).
+
+Thanks for taking the time to report responsibly.
+
+================
+File: smithery.dockerfile
+================
+FROM node:20-slim
+
+# Playwright chromium deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 \
+      libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 \
+      libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 \
+      libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 \
+      libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 \
+      libxss1 libxtst6 wget \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g designlang && npx playwright install chromium
+
+WORKDIR /app
+ENTRYPOINT ["npx", "designlang", "mcp"]
+
+================
+File: smithery.yaml
+================
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      outputDir:
+        type: string
+        default: ./design-extract-output
+        description: "Directory containing files produced by `designlang <url>` (must include *-mcp.json)."
+    required: []
+  commandFunction: |-
+    (config) => ({
+      command: 'npx',
+      args: ['-y', 'designlang', 'mcp', '--output-dir', config.outputDir || './design-extract-output'],
+    })
+
+build:
+  dockerfile: smithery.dockerfile

@@ -1,0 +1,1834 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+.github/
+  ISSUE_TEMPLATE/
+    01-bug_report.yml
+    02-feature_request.yml
+    03-other.yml
+    04-docs_issue.yml
+    config.yml
+  workflows/
+    code-quality.yml
+    docker-build.yml
+    release-and-publish.yml
+    tests.yml
+  FUNDING.yml
+  PULL_REQUEST_TEMPLATE.md
+agent-skill/
+  Scrapling-Skill/
+    examples/
+      01_fetcher_session.py
+      02_dynamic_session.py
+      03_stealthy_session.py
+      04_spider.py
+      README.md
+    references/
+      fetching/
+        choosing.md
+        dynamic.md
+        static.md
+        stealthy.md
+      parsing/
+        adaptive.md
+        main_classes.md
+        selection.md
+      spiders/
+        advanced.md
+        architecture.md
+        getting-started.md
+        proxy-blocking.md
+        requests-responses.md
+        sessions.md
+      mcp-server.md
+      migrating_from_beautifulsoup.md
+    LICENSE.txt
+    SKILL.md
+  README.md
+  Scrapling-Skill.zip
+docs/
+  ai/
+    mcp-server.md
+  api-reference/
+    custom-types.md
+    fetchers.md
+    mcp-server.md
+    proxy-rotation.md
+    response.md
+    selector.md
+    spiders.md
+  assets/
+    cover_dark.png
+    cover_dark.svg
+    cover_light.png
+    cover_light.svg
+    favicon.ico
+    logo.png
+    main_cover.png
+    scrapling_shell_curl.png
+    spider_architecture.png
+  cli/
+    extract-commands.md
+    interactive-shell.md
+    overview.md
+  development/
+    adaptive_storage_system.md
+    scrapling_custom_types.md
+  fetching/
+    choosing.md
+    dynamic.md
+    static.md
+    stealthy.md
+  overrides/
+    main.html
+  parsing/
+    adaptive.md
+    main_classes.md
+    selection.md
+  spiders/
+    advanced.md
+    architecture.md
+    getting-started.md
+    proxy-blocking.md
+    requests-responses.md
+    sessions.md
+  stylesheets/
+    extra.css
+  tutorials/
+    migrating_from_beautifulsoup.md
+    replacing_ai.md
+  benchmarks.md
+  donate.md
+  index.md
+  overview.md
+  README_AR.md
+  README_CN.md
+  README_DE.md
+  README_ES.md
+  README_FR.md
+  README_JP.md
+  README_KR.md
+  README_PT_BR.md
+  README_RU.md
+  requirements.txt
+images/
+  BirdProxies.jpg
+  crawleo.png
+  DataImpulse.png
+  decodo.png
+  evomi.png
+  hasdata.png
+  HyperSolutions.png
+  IPCook.png
+  IPFoxy.jpg
+  MangoProxy.png
+  nsocks.png
+  petrosky.png
+  ProxyEmpire.png
+  rapidproxy.jpg
+  SerpApi.png
+  SwiftProxy.png
+  TikHub.jpg
+  TWSC.png
+  webshare.png
+scrapling/
+  core/
+    utils/
+      __init__.py
+      _shell.py
+      _utils.py
+    __init__.py
+    _shell_signatures.py
+    _types.py
+    ai.py
+    custom_types.py
+    mixins.py
+    shell.py
+    storage.py
+    translator.py
+  engines/
+    _browsers/
+      __init__.py
+      _base.py
+      _config_tools.py
+      _controllers.py
+      _page.py
+      _stealth.py
+      _types.py
+      _validators.py
+    toolbelt/
+      __init__.py
+      ad_domains.py
+      convertor.py
+      custom.py
+      fingerprints.py
+      navigation.py
+      proxy_rotation.py
+    __init__.py
+    constants.py
+    static.py
+  fetchers/
+    __init__.py
+    chrome.py
+    requests.py
+    stealth_chrome.py
+  spiders/
+    __init__.py
+    cache.py
+    checkpoint.py
+    engine.py
+    request.py
+    result.py
+    robotstxt.py
+    scheduler.py
+    session.py
+    spider.py
+  __init__.py
+  cli.py
+  parser.py
+  py.typed
+tests/
+  ai/
+    __init__.py
+    test_ai_mcp.py
+  cli/
+    __init__.py
+    test_cli.py
+    test_shell_functionality.py
+  core/
+    __init__.py
+    test_shell_core.py
+    test_storage_core.py
+  fetchers/
+    async/
+      __init__.py
+      test_dynamic_session.py
+      test_dynamic.py
+      test_requests_session.py
+      test_requests.py
+      test_stealth_session.py
+      test_stealth.py
+    sync/
+      __init__.py
+      test_dynamic.py
+      test_requests_session.py
+      test_requests.py
+      test_stealth_session.py
+    __init__.py
+    test_base.py
+    test_constants.py
+    test_impersonate_list.py
+    test_merge_request_args.py
+    test_pages.py
+    test_proxy_rotation.py
+    test_response_handling.py
+    test_utils.py
+    test_validator.py
+  parser/
+    __init__.py
+    test_adaptive.py
+    test_ancestor_navigation.py
+    test_attributes_handler.py
+    test_find_similar_advanced.py
+    test_general.py
+    test_parser_advanced.py
+    test_selectors_filter.py
+  spiders/
+    __init__.py
+    test_cache.py
+    test_checkpoint.py
+    test_engine.py
+    test_force_stop_checkpoint.py
+    test_request.py
+    test_result.py
+    test_robotstxt.py
+    test_scheduler.py
+    test_session.py
+    test_spider.py
+  __init__.py
+  requirements.txt
+.bandit.yml
+.dockerignore
+.gitignore
+.pre-commit-config.yaml
+.readthedocs.yaml
+benchmarks.py
+cleanup.py
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+Dockerfile
+LICENSE
+MANIFEST.in
+pyproject.toml
+pytest.ini
+README.md
+ROADMAP.md
+ruff.toml
+setup.cfg
+tox.ini
+zensical.toml
+
+================================================================
+Files
+================================================================
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: .readthedocs.yaml
+================
+# See https://docs.readthedocs.com/platform/stable/intro/zensical.html for details
+# Example: https://github.com/readthedocs/test-builds/tree/zensical
+
+version: 2
+
+build:
+  os: ubuntu-24.04
+  apt_packages:
+    - pngquant
+  tools:
+    python: "3.13"
+  jobs:
+    install:
+      - pip install -r docs/requirements.txt
+      - pip install ".[all]"
+    build:
+      html:
+        - zensical build
+    post_build:
+      - mkdir -p $READTHEDOCS_OUTPUT/html/
+      - cp --recursive site/* $READTHEDOCS_OUTPUT/html/
+
+================
+File: benchmarks.py
+================
+large_html = (
+⋮----
+def benchmark(func)
+⋮----
+@functools.wraps(func)
+    def wrapper(*args, **kwargs)
+⋮----
+benchmark_name = func.__name__.replace("test_", "").replace("_", " ")
+⋮----
+# Warm-up phase
+⋮----
+# Measure time (1 run, repeat 100 times, take average)
+times = timeit.repeat(
+min_time = round(mean(times) * 1000, 2)  # Convert to milliseconds
+⋮----
+@benchmark
+def test_lxml()
+⋮----
+# Scrapling and Parsel use the same parser inside, so this is just to make it fair
+⋮----
+@benchmark
+def test_bs4_lxml()
+⋮----
+@benchmark
+def test_bs4_html5lib()
+⋮----
+@benchmark
+def test_pyquery()
+⋮----
+@benchmark
+def test_scrapling()
+⋮----
+# No need to do `.extract()` like parsel to extract text
+# Also, this is faster than `[t.text for t in Selector(large_html, adaptive=False).css('.item')]`
+# for obvious reasons, of course.
+⋮----
+@benchmark
+def test_parsel()
+⋮----
+@benchmark
+def test_mechanicalsoup()
+⋮----
+browser = StatefulBrowser()
+⋮----
+@benchmark
+def test_selectolax()
+⋮----
+def display(results)
+⋮----
+# Sort and display results
+sorted_results = sorted(results.items(), key=lambda x: x[1])  # Sort by time
+scrapling_time = results["Scrapling"]
+⋮----
+compare = round(test_time / scrapling_time, 3)
+⋮----
+@benchmark
+def test_scrapling_text(request_html)
+⋮----
+@benchmark
+def test_autoscraper(request_html)
+⋮----
+# autoscraper by default returns elements text
+⋮----
+results1 = {
+⋮----
+req = requests.get("https://books.toscrape.com/index.html")
+⋮----
+results2 = {
+
+================
+File: cleanup.py
+================
+# Clean up after installing for local development
+def clean()
+⋮----
+# Get the current directory
+base_dir = Path.cwd()
+⋮----
+# Directories and patterns to clean
+cleanup_patterns = [
+⋮----
+# Clean directories
+⋮----
+# Remove compiled Python files
+
+================
+File: CODE_OF_CONDUCT.md
+================
+# Contributor Covenant Code of Conduct
+
+## Our Pledge
+
+We as members, contributors, and leaders pledge to make participation in our
+community a harassment-free experience for everyone, regardless of age, body
+size, visible or invisible disability, ethnicity, sex characteristics, gender
+identity and expression, level of experience, education, socio-economic status,
+nationality, personal appearance, race, religion, or sexual identity
+and orientation.
+
+We pledge to act and interact in ways that contribute to an open, welcoming,
+diverse, inclusive, and healthy community.
+
+## Our Standards
+
+Examples of behavior that contributes to a positive environment for our
+community include:
+
+* Demonstrating empathy and kindness toward other people
+* Being respectful of differing opinions, viewpoints, and experiences
+* Giving and gracefully accepting constructive feedback
+* Accepting responsibility and apologizing to those affected by our mistakes,
+  and learning from the experience
+* Focusing on what is best not just for us as individuals, but for the
+  overall community
+
+Examples of unacceptable behavior include:
+
+* The use of sexualized language or imagery, and sexual attention or
+  advances of any kind
+* Trolling, insulting or derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or email
+  address, without their explicit permission
+* Other conduct which could reasonably be considered inappropriate in a
+  professional setting
+
+## Enforcement Responsibilities
+
+Community leaders are responsible for clarifying and enforcing our standards of
+acceptable behavior and will take appropriate and fair corrective action in
+response to any behavior that they deem inappropriate, threatening, offensive,
+or harmful.
+
+Community leaders have the right and responsibility to remove, edit, or reject
+comments, commits, code, wiki edits, issues, and other contributions that are
+not aligned to this Code of Conduct, and will communicate reasons for moderation
+decisions when appropriate.
+
+## Scope
+
+This Code of Conduct applies within all community spaces, and also applies when
+an individual is officially representing the community in public spaces.
+Examples of representing our community include using an official e-mail address,
+posting via an official social media account, or acting as an appointed
+representative at an online or offline event.
+
+## Enforcement
+
+Instances of abusive, harassing, or otherwise unacceptable behavior may be
+reported to the community leaders responsible for enforcement at
+karim.shoair@pm.me.
+All complaints will be reviewed and investigated promptly and fairly.
+
+All community leaders are obligated to respect the privacy and security of the
+reporter of any incident.
+
+## Enforcement Guidelines
+
+Community leaders will follow these Community Impact Guidelines in determining
+the consequences for any action they deem in violation of this Code of Conduct:
+
+### 1. Correction
+
+**Community Impact**: Use of inappropriate language or other behavior deemed
+unprofessional or unwelcome in the community.
+
+**Consequence**: A private, written warning from community leaders, providing
+clarity around the nature of the violation and an explanation of why the
+behavior was inappropriate. A public apology may be requested.
+
+### 2. Warning
+
+**Community Impact**: A violation through a single incident or series
+of actions.
+
+**Consequence**: A warning with consequences for continued behavior. No
+interaction with the people involved, including unsolicited interaction with
+those enforcing the Code of Conduct, for a specified period of time. This
+includes avoiding interactions in community spaces as well as external channels
+like social media. Violating these terms may lead to a temporary or
+permanent ban.
+
+### 3. Temporary Ban
+
+**Community Impact**: A serious violation of community standards, including
+sustained inappropriate behavior.
+
+**Consequence**: A temporary ban from any sort of interaction or public
+communication with the community for a specified period of time. No public or
+private interaction with the people involved, including unsolicited interaction
+with those enforcing the Code of Conduct, is allowed during this period.
+Violating these terms may lead to a permanent ban.
+
+### 4. Permanent Ban
+
+**Community Impact**: Demonstrating a pattern of violation of community
+standards, including sustained inappropriate behavior,  harassment of an
+individual, or aggression toward or disparagement of classes of individuals.
+
+**Consequence**: A permanent ban from any sort of public interaction within
+the community.
+
+## Attribution
+
+This Code of Conduct is adapted from the [Contributor Covenant][homepage],
+version 2.0, available at
+https://www.contributor-covenant.org/version/2/0/code_of_conduct.html.
+
+Community Impact Guidelines were inspired by [Mozilla's code of conduct
+enforcement ladder](https://github.com/mozilla/diversity).
+
+[homepage]: https://www.contributor-covenant.org
+
+For answers to common questions about this code of conduct, see the FAQ at
+https://www.contributor-covenant.org/faq. Translations are available at
+https://www.contributor-covenant.org/translations.
+
+================
+File: CONTRIBUTING.md
+================
+# Contributing to Scrapling
+
+Thank you for your interest in contributing to Scrapling! 
+
+Everybody is invited and welcome to contribute to Scrapling. 
+
+Minor changes are more likely to be included promptly. Adding unit tests for new features or test cases for bugs you've fixed helps us ensure that the Pull Request (PR) is acceptable.
+
+There are many ways to contribute to Scrapling. Here are some of them:
+
+- Report bugs and request features using the [GitHub issues](https://github.com/D4Vinci/Scrapling/issues). Please follow the issue template to help us resolve your issue quickly.
+- Blog about Scrapling. Tell the world how you’re using Scrapling. This will help newcomers with more examples and increase the Scrapling project's visibility.
+- Join the [Discord community](https://discord.gg/EMgGbDceNQ) and share your ideas on how to improve Scrapling. We’re always open to suggestions.
+- If you are not a developer, perhaps you would like to help with translating the [documentation](https://github.com/D4Vinci/Scrapling/tree/docs)?
+
+## Making a Pull Request
+To ensure that your PR gets accepted, please make sure that your PR is based on the latest changes from the dev branch and that it satisfies the following requirements:
+
+- **The PR must be made against the [**dev**](https://github.com/D4Vinci/Scrapling/tree/dev) branch of Scrapling. Any PR made against the main branch will be rejected.**
+- **The code should be passing all available tests. We use tox with GitHub's CI to run the current tests on all supported Python versions for every code-related commit.**
+- **The code should be passing all code quality checks like `mypy` and `pyright`. We are using GitHub's CI to enforce code style checks as well.**
+- **Make your changes, keep the code clean with an explanation of any part that might be vague, and remember to create a separate virtual environment for this project.**
+- If you are adding a new feature, please add tests for it.
+- If you are fixing a bug, please add code with the PR that reproduces the bug.
+- Please follow the rules and coding style rules we explain below.
+
+
+## Finding work
+
+If you have decided to make a contribution to Scrapling, but you do not know what to contribute, here are some ways to find pending work:
+
+- Check out the [contribution](https://github.com/D4Vinci/Scrapling/contribute) GitHub page, which lists open issues tagged as `good first issue`. These issues provide a good starting point.
+- There are also the [help wanted](https://github.com/D4Vinci/Scrapling/issues?q=is%3Aissue%20label%3A%22help%20wanted%22%20state%3Aopen) issues, but know that some may require familiarity with the Scrapling code base first. You can also target any other issue, provided it is not tagged as `invalid`, `wontfix`, or similar tags.
+- If you enjoy writing automated tests, you can work on increasing our test coverage. Currently, the test coverage is around 90–92%.
+- Join the [Discord community](https://discord.gg/EMgGbDceNQ) and ask questions in the `#help` channel.
+
+## Coding style
+Please follow these coding conventions as we do when writing code for Scrapling:
+- We use [pre-commit](https://pre-commit.com/) to automatically address simple code issues before every commit, so please install it and run `pre-commit install` to set it up. This will install hooks to run [ruff](https://docs.astral.sh/ruff/), [bandit](https://github.com/PyCQA/bandit), and [vermin](https://github.com/netromdk/vermin) on every commit. We are currently using a workflow to automatically run these tools on every PR, so if your code doesn't pass these checks, the PR will be rejected.
+- We use type hints for better code clarity and [pyright](https://github.com/microsoft/pyright)/[mypy](https://github.com/python/mypy) for static type checking. If your code isn't acceptable by those tools, your PR won't pass the code quality rule.
+- We use the conventional commit messages format as [here](https://gist.github.com/qoomon/5dfcdf8eec66a051ecd85625518cfd13#types), so for example, we use the following prefixes for commit messages:
+   
+   | Prefix      | When to use it           |
+   |-------------|--------------------------|
+   | `feat:`     | New feature added        |
+   | `fix:`      | Bug fix                  |
+   | `docs:`     | Documentation change/add |
+   | `test:`     | Tests                    |
+   | `refactor:` | Code refactoring         |
+   | `chore:`    | Maintenance tasks        |
+    
+    Then include the details of the change in the commit message body/description.
+
+   Example:
+   ```
+   feat: add `adaptive` for similar elements
+   
+   - Added find_similar() method
+   - Implemented pattern matching
+   - Added tests and documentation
+   ```
+
+> Please don’t put your name in the code you contribute; git provides enough metadata to identify the author of the code.
+
+## Development
+
+### Getting started
+
+1. Fork the repository and clone your fork:
+   ```bash
+   git clone https://github.com/<your-username>/Scrapling.git
+   cd Scrapling
+   git checkout dev
+   ```
+
+2. Create a virtual environment and install dependencies:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   pip install -e ".[all]"
+   pip install -r tests/requirements.txt
+   ```
+
+3. Install browser dependencies:
+   ```bash
+   scrapling install
+   ```
+
+4. Set up pre-commit hooks:
+   ```bash
+   pip install pre-commit
+   pre-commit install
+   ```
+
+### Tips
+
+Setting the scrapling logging level to `debug` makes it easier to know what's happening in the background.
+```python
+import logging
+logging.getLogger("scrapling").setLevel(logging.DEBUG)
+```
+Bonus: You can install the beta of the upcoming update from the dev branch as follows
+```commandline
+pip3 install git+https://github.com/D4Vinci/Scrapling.git@dev
+```
+
+## Tests
+Scrapling includes a comprehensive test suite that can be executed with pytest. However, first, you need to install all libraries and `pytest-plugins` listed in `tests/requirements.txt`. Then, running the tests will result in an output like this:
+   ```bash
+   $ pytest tests -n auto
+   =============================== test session starts ===============================
+   platform darwin -- Python 3.13.8, pytest-8.4.2, pluggy-1.6.0 -- /Users/<redacted>/.venv/bin/python3.13
+   cachedir: .pytest_cache
+   rootdir: /Users/<redacted>/scrapling
+   configfile: pytest.ini
+   plugins: asyncio-1.2.0, anyio-4.11.0, xdist-3.8.0, httpbin-2.1.0, cov-7.0.0
+   asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+   10 workers [515 items]
+   scheduling tests via LoadScheduling
+
+   ...<shortened>...
+
+   =============================== 271 passed in 52.68s ==============================
+   ```
+Here, `-n auto` runs tests in parallel across multiple processes to increase speed.
+
+**Note:** You may need to run browser tests sequentially (`DynamicFetcher`/`StealthyFetcher`) to avoid conflicts. To run non-browser tests in parallel and browser tests separately:
+```bash
+# Non-browser tests (parallel)
+pytest tests/ -k "not (DynamicFetcher or StealthyFetcher)" -n auto
+
+# Browser tests (sequential)
+pytest tests/ -k "DynamicFetcher or StealthyFetcher"
+```
+
+Bonus: You can also see the test coverage with the `pytest` plugin below
+```bash
+pytest --cov=scrapling tests/
+```
+
+## Building Documentation
+Documentation is built using [Zensical](https://zensical.org/). You can build it locally using the following commands:
+```bash
+pip install zensical
+pip install -r docs/requirements.txt
+zensical build --clean  # Build the static site
+zensical serve          # Local preview
+```
+
+================
+File: Dockerfile
+================
+FROM python:3.12-slim-trixie
+
+LABEL io.modelcontextprotocol.server.name="io.github.D4Vinci/Scrapling"
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+
+# Copy dependency file first for better layer caching
+COPY pyproject.toml ./
+
+# Install dependencies only
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --no-install-project --all-extras --compile-bytecode
+
+# Copy source code
+COPY . .
+
+# Install browsers and project in one optimized layer
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt \
+    apt-get update && \
+    uv run playwright install-deps chromium && \
+    uv run playwright install chromium && \
+    uv sync --all-extras --compile-bytecode && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Expose port for MCP server HTTP transport
+EXPOSE 8000
+
+# Set entrypoint to run scrapling
+ENTRYPOINT ["uv", "run", "scrapling"]
+
+# Default command (can be overridden)
+CMD ["--help"]
+
+================
+File: LICENSE
+================
+BSD 3-Clause License
+
+Copyright (c) 2024, Karim shoair
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+================
+File: MANIFEST.in
+================
+include LICENSE
+include *.db
+include *.js
+include scrapling/*.db
+include scrapling/*.db*
+include scrapling/*.db-*
+include scrapling/py.typed
+include scrapling/.scrapling_dependencies_installed
+include .scrapling_dependencies_installed
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+
+================
+File: pyproject.toml
+================
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scrapling"
+# Static version instead of a dynamic version so we can get better layer caching while building docker, check the docker file to understand
+version = "0.4.7"
+description = "Scrapling is an undetectable, powerful, flexible, high-performance Python library that makes Web Scraping easy and effortless as it should be!"
+readme = {file = "README.md", content-type = "text/markdown"}
+license = {file = "LICENSE"}
+authors = [
+    {name = "Karim Shoair", email = "karim.shoair@pm.me"}
+]
+maintainers = [
+    {name = "Karim Shoair", email = "karim.shoair@pm.me"}
+]
+keywords = [
+    "web-scraping",
+    "scraping",
+    "automation",
+    "browser-automation",
+    "data-extraction",
+    "html-parsing",
+    "undetectable",
+    "playwright",
+    "selenium-alternative",
+    "web-crawler",
+    "browser",
+    "crawling",
+    "headless",
+    "scraper",
+    "chrome",
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    # "Development Status :: 5 - Production/Stable",
+    # "Development Status :: 6 - Mature",
+    # "Development Status :: 7 - Inactive",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Browsers",
+    "Topic :: Text Processing :: Markup",
+    "Topic :: Text Processing :: Markup :: HTML",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Typing :: Typed",
+]
+dependencies = [
+    "lxml>=6.0.3",
+    "cssselect>=1.4.0",
+    "orjson>=3.11.8",
+    "tld>=0.13.2",
+    "w3lib>=2.4.1",
+    "typing_extensions"
+]
+
+[project.optional-dependencies]
+fetchers = [
+    "click>=8.3.0",
+    "curl_cffi>=0.15.0",
+    "playwright==1.58.0",
+    "patchright==1.58.2",
+    "browserforge>=1.2.4",
+    "apify-fingerprint-datapoints>=0.12.0",
+    "msgspec>=0.21.1",
+    "anyio>=4.13.0",
+    "protego>=0.6.0",
+]
+ai = [
+    "mcp>=1.27.0",
+    "markdownify>=1.2.0",
+    "scrapling[fetchers]",
+]
+shell = [
+    "IPython>=8.37",  # The last version that supports Python 3.10
+    "markdownify>=1.2.0",
+    "scrapling[fetchers]",
+]
+all = [
+    "scrapling[ai,shell]",
+]
+
+[project.urls]
+Homepage = "https://github.com/D4Vinci/Scrapling"
+Changelog = "https://github.com/D4Vinci/Scrapling/releases"
+Documentation = "https://scrapling.readthedocs.io/en/latest/"
+Repository = "https://github.com/D4Vinci/Scrapling"
+"Bug Tracker" = "https://github.com/D4Vinci/Scrapling/issues"
+"Discord" = "https://discord.gg/EMgGbDceNQ"
+"Release Notes" = "https://github.com/D4Vinci/Scrapling/releases"
+
+[project.scripts]
+scrapling = "scrapling.cli:main"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scrapling*"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+ignore_missing_imports = true
+check_untyped_defs = true
+
+[tool.pyright]
+pythonVersion = "3.10"
+typeCheckingMode = "basic"
+include = ["scrapling"]
+ignore = ["tests", "benchmarks.py"]
+
+================
+File: pytest.ini
+================
+[pytest]
+asyncio_mode = strict
+asyncio_default_fixture_loop_scope = function
+addopts = -p no:warnings --doctest-modules --ignore=setup.py --verbose
+markers =
+    asyncio: marks tests as async
+asyncio_fixture_scope = function
+
+================
+File: README.md
+================
+<!-- mcp-name: io.github.D4Vinci/Scrapling -->
+
+<h1 align="center">
+    <a href="https://scrapling.readthedocs.io">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/docs/assets/cover_dark.svg?sanitize=true">
+          <img alt="Scrapling Poster" src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/docs/assets/cover_light.svg?sanitize=true">
+        </picture>
+    </a>
+    <br>
+    <small>Effortless Web Scraping for the Modern Web</small>
+</h1>
+
+<p align="center">
+    <a href="https://trendshift.io/repositories/14244" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14244" alt="D4Vinci%2FScrapling | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+    <br/>
+    <a href="https://github.com/D4Vinci/Scrapling/blob/main/docs/README_AR.md">العربيه</a> | <a href="https://github.com/D4Vinci/Scrapling/blob/main/docs/README_ES.md">Español</a> | <a href="https://github.com/D4Vinci/Scrapling/blob/main/docs/README_PT_BR.md">Português (Brasil)</a> | <a href="https://github.com/D4Vinci/Scrapling/blob/main/docs/README_FR.md">Français</a> | <a href="https://github.com/D4Vinci/Scrapling/blob/main/docs/README_DE.md">Deutsch</a> | <a href="https://github.com/D4Vinci/Scrapling/blob/main/docs/README_CN.md">简体中文</a> | <a href="https://github.com/D4Vinci/Scrapling/blob/main/docs/README_JP.md">日本語</a> |  <a href="https://github.com/D4Vinci/Scrapling/blob/main/docs/README_RU.md">Русский</a> | <a href="https://github.com/D4Vinci/Scrapling/blob/main/docs/README_KR.md">한국어</a>
+    <br/>
+    <a href="https://github.com/D4Vinci/Scrapling/actions/workflows/tests.yml" alt="Tests">
+        <img alt="Tests" src="https://github.com/D4Vinci/Scrapling/actions/workflows/tests.yml/badge.svg"></a>
+    <a href="https://badge.fury.io/py/Scrapling" alt="PyPI version">
+        <img alt="PyPI version" src="https://badge.fury.io/py/Scrapling.svg"></a>
+    <a href="https://clickpy.clickhouse.com/dashboard/scrapling" rel="nofollow"><img src="https://img.shields.io/pypi/dm/scrapling" alt="PyPI package downloads"></a>
+    <a href="https://github.com/D4Vinci/Scrapling/tree/main/agent-skill" alt="AI Agent Skill directory">
+        <img alt="Static Badge" src="https://img.shields.io/badge/Skill-black?style=flat&label=Agent&link=https%3A%2F%2Fgithub.com%2FD4Vinci%2FScrapling%2Ftree%2Fmain%2Fagent-skill"></a>
+    <a href="https://clawhub.ai/D4Vinci/scrapling-official" alt="OpenClaw Skill">
+        <img alt="OpenClaw Skill" src="https://img.shields.io/badge/Clawhub-darkred?style=flat&label=OpenClaw&link=https%3A%2F%2Fclawhub.ai%2FD4Vinci%2Fscrapling-official"></a>
+    <br/>
+    <a href="https://discord.gg/EMgGbDceNQ" alt="Discord" target="_blank">
+      <img alt="Discord" src="https://img.shields.io/discord/1360786381042880532?style=social&logo=discord&link=https%3A%2F%2Fdiscord.gg%2FEMgGbDceNQ">
+    </a>
+    <a href="https://x.com/Scrapling_dev" alt="X (formerly Twitter)">
+      <img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/Scrapling_dev?style=social&logo=x&link=https%3A%2F%2Fx.com%2FScrapling_dev">
+    </a>
+    <br/>
+    <a href="https://pypi.org/project/scrapling/" alt="Supported Python versions">
+        <img alt="Supported Python versions" src="https://img.shields.io/pypi/pyversions/scrapling.svg"></a>
+</p>
+
+<p align="center">
+    <a href="https://scrapling.readthedocs.io/en/latest/parsing/selection.html"><strong>Selection methods</strong></a>
+    &middot;
+    <a href="https://scrapling.readthedocs.io/en/latest/fetching/choosing.html"><strong>Fetchers</strong></a>
+    &middot;
+    <a href="https://scrapling.readthedocs.io/en/latest/spiders/architecture.html"><strong>Spiders</strong></a>
+    &middot;
+    <a href="https://scrapling.readthedocs.io/en/latest/spiders/proxy-blocking.html"><strong>Proxy Rotation</strong></a>
+    &middot;
+    <a href="https://scrapling.readthedocs.io/en/latest/cli/overview.html"><strong>CLI</strong></a>
+    &middot;
+    <a href="https://scrapling.readthedocs.io/en/latest/ai/mcp-server.html"><strong>MCP</strong></a>
+</p>
+
+Scrapling is an adaptive Web Scraping framework that handles everything from a single request to a full-scale crawl.
+
+Its parser learns from website changes and automatically relocates your elements when pages update. Its fetchers bypass anti-bot systems like Cloudflare Turnstile out of the box. And its spider framework lets you scale up to concurrent, multi-session crawls with pause/resume and automatic proxy rotation - all in a few lines of Python. One library, zero compromises.
+
+Blazing fast crawls with real-time stats and streaming. Built by Web Scrapers for Web Scrapers and regular users, there's something for everyone.
+
+```python
+from scrapling.fetchers import Fetcher, AsyncFetcher, StealthyFetcher, DynamicFetcher
+StealthyFetcher.adaptive = True
+p = StealthyFetcher.fetch('https://example.com', headless=True, network_idle=True)  # Fetch website under the radar!
+products = p.css('.product', auto_save=True)                                        # Scrape data that survives website design changes!
+products = p.css('.product', adaptive=True)                                         # Later, if the website structure changes, pass `adaptive=True` to find them!
+```
+Or scale up to full crawls
+```python
+from scrapling.spiders import Spider, Response
+
+class MySpider(Spider):
+  name = "demo"
+  start_urls = ["https://example.com/"]
+
+  async def parse(self, response: Response):
+      for item in response.css('.product'):
+          yield {"title": item.css('h2::text').get()}
+
+MySpider().start()
+```
+
+<p align="center">
+    <a href="https://dataimpulse.com/?utm_source=scrapling&utm_medium=banner&utm_campaign=scrapling" target="_blank" style="display:flex; justify-content:center; padding:4px 0;">
+        <img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/DataImpulse.png" alt="At DataImpulse, we specialize in developing custom proxy services for your business. Make requests from anywhere, collect data, and enjoy fast connections with our premium proxies." style="max-height:60px;">
+    </a>
+</p>
+
+# Platinum Sponsors
+<table>
+  <tr>
+    <td width="200">
+      <a href="https://hypersolutions.co/?utm_source=github&utm_medium=readme&utm_campaign=scrapling" target="_blank" title="Bot Protection Bypass API for Akamai, DataDome, Incapsula & Kasada">
+        <img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/HyperSolutions.png">
+      </a>
+    </td>
+    <td> Scrapling handles Cloudflare Turnstile. For enterprise-grade protection, <a href="https://hypersolutions.co?utm_source=github&utm_medium=readme&utm_campaign=scrapling">
+        <b>Hyper Solutions</b>
+      </a> provides API endpoints that generate valid antibot tokens for <b>Akamai</b>, <b>DataDome</b>, <b>Kasada</b>, and <b>Incapsula</b>. Simple API calls, no browser automation required. </td>
+  </tr>
+  <tr>
+    <td width="200">
+      <a href="https://birdproxies.com/t/scrapling" target="_blank" title="At Bird Proxies, we eliminate your pains such as banned IPs, geo restriction, and high costs so you can focus on your work.">
+        <img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/BirdProxies.jpg">
+      </a>
+    </td>
+    <td>Hey, we built <a href="https://birdproxies.com/t/scrapling">
+        <b>BirdProxies</b>
+      </a> because proxies shouldn't be complicated or overpriced. Fast residential and ISP proxies in 195+ locations, fair pricing, and real support. <br />
+      <b>Try our FlappyBird game on the landing page for free data!</b>
+    </td>
+  </tr>
+  <tr>
+    <td width="200">
+      <a href="https://evomi.com?utm_source=github&utm_medium=banner&utm_campaign=d4vinci-scrapling" target="_blank" title="Evomi is your Swiss Quality Proxy Provider, starting at $0.49/GB">
+        <img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/evomi.png">
+      </a>
+    </td>
+    <td>
+      <a href="https://evomi.com?utm_source=github&utm_medium=banner&utm_campaign=d4vinci-scrapling">
+        <b>Evomi</b>
+      </a>: residential proxies from $0.49/GB. Scraping browser with fully spoofed Chromium, residential IPs, auto CAPTCHA solving, and anti-bot bypass. </br>
+      <b>Scraper API for hassle-free results. MCP and N8N integrations are available.</b>
+    </td>
+  </tr>
+  <tr>
+    <td width="200">
+      <a href="https://tikhub.io/?utm_source=github.com/D4Vinci/Scrapling&utm_medium=marketing_social&utm_campaign=retargeting&utm_content=carousel_ad" target="_blank" title="Unlock the Power of Social Media Data & AI">
+        <img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/TikHub.jpg">
+      </a>
+    </td>
+    <td>
+      <a href="https://tikhub.io/?utm_source=github.com/D4Vinci/Scrapling&utm_medium=marketing_social&utm_campaign=retargeting&utm_content=carousel_ad" target="_blank">TikHub.io</a> provides 900+ stable APIs across 16+ platforms including TikTok, X, YouTube & Instagram, with 40M+ datasets. <br /> Also offers <a href="https://ai.tikhub.io/?ref=KarimShoair" target="_blank">DISCOUNTED AI models</a> - Claude, GPT, GEMINI & more up to 71% off.
+    </td>
+  </tr>
+  <tr>
+    <td width="200">
+      <a href="https://www.nsocks.com/?keyword=2p67aivg" target="_blank" title="Scalable Web Data Access for AI Applications">
+        <img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/nsocks.png">
+      </a>
+    </td>
+    <td>
+    <a href="https://www.nsocks.com/?keyword=2p67aivg" target="_blank">Nsocks</a> provides fast Residential and ISP proxies for developers and scrapers. Global IP coverage, high anonymity, smart rotation, and reliable performance for automation and data extraction. Use <a href="https://www.xcrawl.com/?keyword=2p67aivg" target="_blank">Xcrawl</a> to simplify large-scale web crawling.
+    </td>
+  </tr>
+  <tr>
+    <td width="200">
+      <a href="https://petrosky.io/d4vinci" target="_blank" title="PetroSky delivers cutting-edge VPS hosting.">
+        <img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/petrosky.png">
+      </a>
+    </td>
+    <td>
+    Close your laptop. Your scrapers keep running. <br />
+    <a href="https://petrosky.io/d4vinci" target="_blank">PetroSky VPS</a> - cloud servers built for nonstop automation. Windows and Linux machines with full control. From €6.99/mo.
+    </td>
+  </tr>
+  <tr>
+    <td width="200">
+      <a href="https://substack.thewebscraping.club/p/scrapling-hands-on-guide?utm_source=github&utm_medium=repo&utm_campaign=scrapling" target="_blank" title="The #1 newsletter dedicated to Web Scraping">
+        <img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/TWSC.png">
+      </a>
+    </td>
+    <td>
+    Read a full review of <a href="https://substack.thewebscraping.club/p/scrapling-hands-on-guide?utm_source=github&utm_medium=repo&utm_campaign=scrapling" target="_blank">Scrapling on The Web Scraping Club</a> (Nov 2025), the #1 newsletter dedicated to Web Scraping.
+    </td>
+  </tr>
+  <tr>
+    <td width="200">
+      <a href="http://mangoproxy.com/?utm_source=D4Vinci&utm_medium=GitHub&utm_campaign=D4Vinci" target="_blank" title="Proxies You Can Rely On: Residential, Server, and Mobile">
+        <img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/MangoProxy.png">
+      </a>
+    </td>
+    <td>
+    <a href="http://mangoproxy.com/?utm_source=D4Vinci&utm_medium=GitHub&utm_campaign=D4Vinci" target="_blank">Stable proxies</a> for scraping, automation, and multi-accounting. Clean IPs, fast response, and reliable performance under load. Built for scalable workflows.
+    </td>
+  </tr>
+  <tr>
+    <td width="200">
+      <a href="https://www.swiftproxy.net/?ref=D4Vinci" target="_blank" title="Scalable Solutions for Web Data Access">
+        <img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/SwiftProxy.png">
+      </a>
+    </td>
+    <td>
+    <a href="https://www.swiftproxy.net/?ref=D4Vinci" target="_blank">Swiftproxy</a> provides scalable residential proxies with 80M+ IPs across 195+ countries, delivering fast, reliable connections, automatic rotation, and strong anti-block performance. Free trial available.
+    </td>
+  </tr>
+</table>
+
+<i><sub>Do you want to show your ad here? Click [here](https://github.com/sponsors/D4Vinci/sponsorships?tier_id=586646)</sub></i>
+# Sponsors 
+
+<!-- sponsors -->
+<a href="https://www.crawleo.dev/?utm_source=github&utm_medium=sponsor&utm_campaign=scrapling" target="_blank" title="Supercharge your AI with Real-Time Web Intelligence"><img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/crawleo.png"></a>
+<br/>
+
+<a href="https://serpapi.com/?utm_source=scrapling" target="_blank" title="Scrape Google and other search engines with SerpApi"><img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/SerpApi.png"></a>
+<a href="https://visit.decodo.com/Dy6W0b" target="_blank" title="Try the Most Efficient Residential Proxies for Free"><img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/decodo.png"></a>
+<a href="https://hasdata.com/?utm_source=github&utm_medium=banner&utm_campaign=D4Vinci" target="_blank" title="The web scraping service that actually beats anti-bot systems!"><img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/hasdata.png"></a>
+<a href="https://proxyempire.io/?ref=scrapling&utm_source=scrapling" target="_blank" title="Collect The Data Your Project Needs with the Best Residential Proxies"><img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/ProxyEmpire.png"></a>
+<a href="https://www.webshare.io/?referral_code=48r2m2cd5uz1" target="_blank" title="The Most Reliable Proxy with Unparalleled Performance"><img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/webshare.png"></a>
+<a href="https://www.rapidproxy.io/?ref=d4v" target="_blank" title="Affordable Access to the Proxy World – bypass CAPTCHAs blocks, and avoid additional costs."><img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/rapidproxy.jpg"></a>
+<a href="https://www.ipfoxy.com/?r=scrapling" target="_blank" title="Unlock the Full Potential of Global Business with IPFoxy's High-Quality Rotating and Dedicated Proxy Services."><img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/IPFoxy.jpg"></a>
+<a href="https://www.ipcook.com/?ref=EAENO9&utm_source=github&utm_medium=referral&utm_campaign=d4vinci_scrapling" target="_blank" title="Fast Proxies. Smart Pricing. Premium Performance."><img src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/images/IPCook.png"></a>
+
+
+<!-- /sponsors -->
+
+<i><sub>Do you want to show your ad here? Click [here](https://github.com/sponsors/D4Vinci) and choose the tier that suites you!</sub></i>
+
+---
+
+## Key Features
+
+### Spiders - A Full Crawling Framework
+- 🕷️ **Scrapy-like Spider API**: Define spiders with `start_urls`, async `parse` callbacks, and `Request`/`Response` objects.
+- ⚡ **Concurrent Crawling**: Configurable concurrency limits, per-domain throttling, and download delays.
+- 🔄 **Multi-Session Support**: Unified interface for HTTP requests, and stealthy headless browsers in a single spider - route requests to different sessions by ID.
+- 💾 **Pause & Resume**: Checkpoint-based crawl persistence. Press Ctrl+C for a graceful shutdown; restart to resume from where you left off.
+- 📡 **Streaming Mode**: Stream scraped items as they arrive via `async for item in spider.stream()` with real-time stats - ideal for UI, pipelines, and long-running crawls.
+- 🛡️ **Blocked Request Detection**: Automatic detection and retry of blocked requests with customizable logic.
+- 🤖 **Robots.txt Compliance**: Optional `robots_txt_obey` flag that respects `Disallow`, `Crawl-delay`, and `Request-rate` directives with per-domain caching.
+- 🧪 **Development Mode**: Cache responses to disk on the first run and replay them on subsequent runs - iterate on your `parse()` logic without re-hitting the target servers.
+- 📦 **Built-in Export**: Export results through hooks and your own pipeline or the built-in JSON/JSONL with `result.items.to_json()` / `result.items.to_jsonl()` respectively.
+
+### Advanced Websites Fetching with Session Support
+- **HTTP Requests**: Fast and stealthy HTTP requests with the `Fetcher` class. Can impersonate browsers' TLS fingerprint, headers, and use HTTP/3.
+- **Dynamic Loading**: Fetch dynamic websites with full browser automation through the `DynamicFetcher` class supporting Playwright's Chromium and Google's Chrome.
+- **Anti-bot Bypass**: Advanced stealth capabilities with `StealthyFetcher` and fingerprint spoofing. Can easily bypass all types of Cloudflare's Turnstile/Interstitial with automation.
+- **Session Management**: Persistent session support with `FetcherSession`, `StealthySession`, and `DynamicSession` classes for cookie and state management across requests.
+- **Proxy Rotation**: Built-in `ProxyRotator` with cyclic or custom rotation strategies across all session types, plus per-request proxy overrides.
+- **Domain & Ad Blocking**: Block requests to specific domains (and their subdomains) or enable built-in ad blocking (~3,500 known ad/tracker domains) in browser-based fetchers.
+- **DNS Leak Prevention**: Optional DNS-over-HTTPS support to route DNS queries through Cloudflare's DoH, preventing DNS leaks when using proxies.
+- **Async Support**: Complete async support across all fetchers and dedicated async session classes.
+
+### Adaptive Scraping & AI Integration
+- 🔄 **Smart Element Tracking**: Relocate elements after website changes using intelligent similarity algorithms.
+- 🎯 **Smart Flexible Selection**: CSS selectors, XPath selectors, filter-based search, text search, regex search, and more.
+- 🔍 **Find Similar Elements**: Automatically locate elements similar to found elements.
+- 🤖 **MCP Server to be used with AI**: Built-in MCP server for AI-assisted Web Scraping and data extraction. The MCP server features powerful, custom capabilities that leverage Scrapling to extract targeted content before passing it to the AI (Claude/Cursor/etc), thereby speeding up operations and reducing costs by minimizing token usage. ([demo video](https://www.youtube.com/watch?v=qyFk3ZNwOxE))
+
+### High-Performance & battle-tested Architecture
+- 🚀 **Lightning Fast**: Optimized performance outperforming most Python scraping libraries.
+- 🔋 **Memory Efficient**: Optimized data structures and lazy loading for a minimal memory footprint.
+- ⚡ **Fast JSON Serialization**: 10x faster than the standard library.
+- 🏗️ **Battle tested**: Not only does Scrapling have 92% test coverage and full type hints coverage, but it has been used daily by hundreds of Web Scrapers over the past year.
+
+### Developer/Web Scraper Friendly Experience
+- 🎯 **Interactive Web Scraping Shell**: Optional built-in IPython shell with Scrapling integration, shortcuts, and new tools to speed up Web Scraping scripts development, like converting curl requests to Scrapling requests and viewing requests results in your browser.
+- 🚀 **Use it directly from the Terminal**: Optionally, you can use Scrapling to scrape a URL without writing a single line of code!
+- 🛠️ **Rich Navigation API**: Advanced DOM traversal with parent, sibling, and child navigation methods.
+- 🧬 **Enhanced Text Processing**: Built-in regex, cleaning methods, and optimized string operations.
+- 📝 **Auto Selector Generation**: Generate robust CSS/XPath selectors for any element.
+- 🔌 **Familiar API**: Similar to Scrapy/BeautifulSoup with the same pseudo-elements used in Scrapy/Parsel.
+- 📘 **Complete Type Coverage**: Full type hints for excellent IDE support and code completion. The entire codebase is automatically scanned with **PyRight** and **MyPy** with each change.
+- 🔋 **Ready Docker image**: With each release, a Docker image containing all browsers is automatically built and pushed.
+
+## Getting Started
+
+Let's give you a quick glimpse of what Scrapling can do without deep diving.
+
+### Basic Usage
+HTTP requests with session support
+```python
+from scrapling.fetchers import Fetcher, FetcherSession
+
+with FetcherSession(impersonate='chrome') as session:  # Use latest version of Chrome's TLS fingerprint
+    page = session.get('https://quotes.toscrape.com/', stealthy_headers=True)
+    quotes = page.css('.quote .text::text').getall()
+
+# Or use one-off requests
+page = Fetcher.get('https://quotes.toscrape.com/')
+quotes = page.css('.quote .text::text').getall()
+```
+Advanced stealth mode
+```python
+from scrapling.fetchers import StealthyFetcher, StealthySession
+
+with StealthySession(headless=True, solve_cloudflare=True) as session:  # Keep the browser open until you finish
+    page = session.fetch('https://nopecha.com/demo/cloudflare', google_search=False)
+    data = page.css('#padded_content a').getall()
+
+# Or use one-off request style, it opens the browser for this request, then closes it after finishing
+page = StealthyFetcher.fetch('https://nopecha.com/demo/cloudflare')
+data = page.css('#padded_content a').getall()
+```
+Full browser automation
+```python
+from scrapling.fetchers import DynamicFetcher, DynamicSession
+
+with DynamicSession(headless=True, disable_resources=False, network_idle=True) as session:  # Keep the browser open until you finish
+    page = session.fetch('https://quotes.toscrape.com/', load_dom=False)
+    data = page.xpath('//span[@class="text"]/text()').getall()  # XPath selector if you prefer it
+
+# Or use one-off request style, it opens the browser for this request, then closes it after finishing
+page = DynamicFetcher.fetch('https://quotes.toscrape.com/')
+data = page.css('.quote .text::text').getall()
+```
+
+### Spiders
+Build full crawlers with concurrent requests, multiple session types, and pause/resume:
+```python
+from scrapling.spiders import Spider, Request, Response
+
+class QuotesSpider(Spider):
+    name = "quotes"
+    start_urls = ["https://quotes.toscrape.com/"]
+    concurrent_requests = 10
+    
+    async def parse(self, response: Response):
+        for quote in response.css('.quote'):
+            yield {
+                "text": quote.css('.text::text').get(),
+                "author": quote.css('.author::text').get(),
+            }
+            
+        next_page = response.css('.next a')
+        if next_page:
+            yield response.follow(next_page[0].attrib['href'])
+
+result = QuotesSpider().start()
+print(f"Scraped {len(result.items)} quotes")
+result.items.to_json("quotes.json")
+```
+Use multiple session types in a single spider:
+```python
+from scrapling.spiders import Spider, Request, Response
+from scrapling.fetchers import FetcherSession, AsyncStealthySession
+
+class MultiSessionSpider(Spider):
+    name = "multi"
+    start_urls = ["https://example.com/"]
+    
+    def configure_sessions(self, manager):
+        manager.add("fast", FetcherSession(impersonate="chrome"))
+        manager.add("stealth", AsyncStealthySession(headless=True), lazy=True)
+    
+    async def parse(self, response: Response):
+        for link in response.css('a::attr(href)').getall():
+            # Route protected pages through the stealth session
+            if "protected" in link:
+                yield Request(link, sid="stealth")
+            else:
+                yield Request(link, sid="fast", callback=self.parse)  # explicit callback
+```
+Pause and resume long crawls with checkpoints by running the spider like this:
+```python
+QuotesSpider(crawldir="./crawl_data").start()
+```
+Press Ctrl+C to pause gracefully - progress is saved automatically. Later, when you start the spider again, pass the same `crawldir`, and it will resume from where it stopped.
+
+### Advanced Parsing & Navigation
+```python
+from scrapling.fetchers import Fetcher
+
+# Rich element selection and navigation
+page = Fetcher.get('https://quotes.toscrape.com/')
+
+# Get quotes with multiple selection methods
+quotes = page.css('.quote')  # CSS selector
+quotes = page.xpath('//div[@class="quote"]')  # XPath
+quotes = page.find_all('div', {'class': 'quote'})  # BeautifulSoup-style
+# Same as
+quotes = page.find_all('div', class_='quote')
+quotes = page.find_all(['div'], class_='quote')
+quotes = page.find_all(class_='quote')  # and so on...
+# Find element by text content
+quotes = page.find_by_text('quote', tag='div')
+
+# Advanced navigation
+quote_text = page.css('.quote')[0].css('.text::text').get()
+quote_text = page.css('.quote').css('.text::text').getall()  # Chained selectors
+first_quote = page.css('.quote')[0]
+author = first_quote.next_sibling.css('.author::text')
+parent_container = first_quote.parent
+
+# Element relationships and similarity
+similar_elements = first_quote.find_similar()
+below_elements = first_quote.below_elements()
+```
+You can use the parser right away if you don't want to fetch websites like below:
+```python
+from scrapling.parser import Selector
+
+page = Selector("<html>...</html>")
+```
+And it works precisely the same way!
+
+### Async Session Management Examples
+```python
+import asyncio
+from scrapling.fetchers import FetcherSession, AsyncStealthySession, AsyncDynamicSession
+
+async with FetcherSession(http3=True) as session:  # `FetcherSession` is context-aware and can work in both sync/async patterns
+    page1 = session.get('https://quotes.toscrape.com/')
+    page2 = session.get('https://quotes.toscrape.com/', impersonate='firefox135')
+
+# Async session usage
+async with AsyncStealthySession(max_pages=2) as session:
+    tasks = []
+    urls = ['https://example.com/page1', 'https://example.com/page2']
+    
+    for url in urls:
+        task = session.fetch(url)
+        tasks.append(task)
+    
+    print(session.get_pool_stats())  # Optional - The status of the browser tabs pool (busy/free/error)
+    results = await asyncio.gather(*tasks)
+    print(session.get_pool_stats())
+```
+
+## CLI & Interactive Shell
+
+Scrapling includes a powerful command-line interface:
+
+[![asciicast](https://asciinema.org/a/736339.svg)](https://asciinema.org/a/736339)
+
+Launch the interactive Web Scraping shell
+```bash
+scrapling shell
+```
+Extract pages to a file directly without programming (Extracts the content inside the `body` tag by default). If the output file ends with `.txt`, then the text content of the target will be extracted. If it ends in `.md`, it will be a Markdown representation of the HTML content; if it ends in `.html`, it will be the HTML content itself.
+```bash
+scrapling extract get 'https://example.com' content.md
+scrapling extract get 'https://example.com' content.txt --css-selector '#fromSkipToProducts' --impersonate 'chrome'  # All elements matching the CSS selector '#fromSkipToProducts'
+scrapling extract fetch 'https://example.com' content.md --css-selector '#fromSkipToProducts' --no-headless
+scrapling extract stealthy-fetch 'https://nopecha.com/demo/cloudflare' captchas.html --css-selector '#padded_content a' --solve-cloudflare
+```
+
+> [!NOTE]
+> There are many additional features, but we want to keep this page concise, including the MCP server and the interactive Web Scraping Shell. Check out the full documentation [here](https://scrapling.readthedocs.io/en/latest/)
+
+## Performance Benchmarks
+
+Scrapling isn't just powerful-it's also blazing fast. The following benchmarks compare Scrapling's parser with the latest versions of other popular libraries.
+
+### Text Extraction Speed Test (5000 nested elements)
+
+| # |      Library      | Time (ms) | vs Scrapling | 
+|---|:-----------------:|:---------:|:------------:|
+| 1 |     Scrapling     |   2.02    |     1.0x     |
+| 2 |   Parsel/Scrapy   |   2.04    |     1.01     |
+| 3 |     Raw Lxml      |   2.54    |    1.257     |
+| 4 |      PyQuery      |   24.17   |     ~12x     |
+| 5 |    Selectolax     |   82.63   |     ~41x     |
+| 6 |  MechanicalSoup   |  1549.71  |   ~767.1x    |
+| 7 |   BS4 with Lxml   |  1584.31  |   ~784.3x    |
+| 8 | BS4 with html5lib |  3391.91  |   ~1679.1x   |
+
+
+### Element Similarity & Text Search Performance
+
+Scrapling's adaptive element finding capabilities significantly outperform alternatives:
+
+| Library     | Time (ms) | vs Scrapling |
+|-------------|:---------:|:------------:|
+| Scrapling   |   2.39    |     1.0x     |
+| AutoScraper |   12.45   |    5.209x    |
+
+
+> All benchmarks represent averages of 100+ runs. See [benchmarks.py](https://github.com/D4Vinci/Scrapling/blob/main/benchmarks.py) for methodology.
+
+## Installation
+
+Scrapling requires Python 3.10 or higher:
+
+```bash
+pip install scrapling
+```
+
+This installation only includes the parser engine and its dependencies, without any fetchers or commandline dependencies.
+
+### Optional Dependencies
+
+1. If you are going to use any of the extra features below, the fetchers, or their classes, you will need to install fetchers' dependencies and their browser dependencies as follows:
+    ```bash
+    pip install "scrapling[fetchers]"
+    
+    scrapling install           # normal install
+    scrapling install  --force  # force reinstall
+    ```
+
+    This downloads all browsers, along with their system dependencies and fingerprint manipulation dependencies.
+
+    Or you can install them from the code instead of running a command like this:
+    ```python
+    from scrapling.cli import install
+    
+    install([], standalone_mode=False)          # normal install
+    install(["--force"], standalone_mode=False) # force reinstall
+    ```
+
+2. Extra features:
+   - Install the MCP server feature:
+       ```bash
+       pip install "scrapling[ai]"
+       ```
+   - Install shell features (Web Scraping shell and the `extract` command): 
+       ```bash
+       pip install "scrapling[shell]"
+       ```
+   - Install everything: 
+       ```bash
+       pip install "scrapling[all]"
+       ```
+   Remember that you need to install the browser dependencies with `scrapling install` after any of these extras (if you didn't already)
+
+### Docker
+You can also install a Docker image with all extras and browsers with the following command from DockerHub:
+```bash
+docker pull pyd4vinci/scrapling
+```
+Or download it from the GitHub registry:
+```bash
+docker pull ghcr.io/d4vinci/scrapling:latest
+```
+This image is automatically built and pushed using GitHub Actions and the repository's main branch.
+
+## Contributing
+
+We welcome contributions! Please read our [contributing guidelines](https://github.com/D4Vinci/Scrapling/blob/main/CONTRIBUTING.md) before getting started.
+
+## Disclaimer
+
+> [!CAUTION]
+> This library is provided for educational and research purposes only. By using this library, you agree to comply with local and international data scraping and privacy laws. The authors and contributors are not responsible for any misuse of this software. Always respect the terms of service of websites and robots.txt files.
+
+## 🎓 Citations
+If you have used our library for research purposes please quote us with the following reference:
+```text
+  @misc{scrapling,
+    author = {Karim Shoair},
+    title = {Scrapling},
+    year = {2024},
+    url = {https://github.com/D4Vinci/Scrapling},
+    note = {An adaptive Web Scraping framework that handles everything from a single request to a full-scale crawl!}
+  }
+```
+
+## License
+
+This work is licensed under the BSD-3-Clause License.
+
+## Acknowledgments
+
+This project includes code adapted from:
+- Parsel (BSD License)-Used for [translator](https://github.com/D4Vinci/Scrapling/blob/main/scrapling/core/translator.py) submodule
+
+---
+<div align="center"><small>Designed & crafted with ❤️ by Karim Shoair.</small></div><br>
+
+================
+File: ROADMAP.md
+================
+## TODOs
+- [x] Add more tests and increase the code coverage.
+- [x] Structure the tests folder in a better way.
+- [x] Add more documentation.
+- [x] Add the browsing ability.
+- [x] Create detailed documentation for the 'readthedocs' website, preferably add GitHub action for deploying it.
+- [ ] Create a Scrapy plugin/decorator to make it replace parsel in the response argument when needed.
+- [x] Need to add more functionality to `AttributesHandler` and more navigation functions to `Selector` object (ex: functions similar to map, filter, and reduce functions but here pass it to the element and the function is executed on children, siblings, next elements, etc...)
+- [x] Add `.filter` method to `Selectors` object and other similar methods.
+- [ ] Add functionality to automatically detect pagination URLs
+- [ ] Add the ability to auto-detect schemas in pages and manipulate them.
+- [ ] Add `analyzer` ability that tries to learn about the page through meta-elements and return what it learned
+- [ ] Add the ability to generate a regex from a group of elements (Like for all href attributes)
+-
+
+================
+File: ruff.toml
+================
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "docs",
+    ".github",
+    "build",
+    "dist",
+    "tests",
+    "benchmarks.py",
+]
+
+# Assume Python 3.10
+target-version = "py310"
+# Allow lines to be as long as 120.
+line-length = 120
+
+[lint]
+select = ["E", "F", "W"]
+ignore = ["E501", "F401", "F811"]
+
+[format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+================
+File: setup.cfg
+================
+[metadata]
+name = scrapling
+version = 0.4.7
+author = Karim Shoair
+author_email = karim.shoair@pm.me
+description = Scrapling is an undetectable, powerful, flexible, high-performance Python library that makes Web Scraping easy and effortless as it should be!
+license = BSD
+home_page = https://github.com/D4Vinci/Scrapling
+
+================
+File: tox.ini
+================
+# Tox (https://tox.readthedocs.io/) is a tool for running tests
+# in multiple virtualenvs. This configuration file will run the
+# test suite on all supported python versions. To use it, "pip install tox"
+# and then run "tox" from this directory.
+
+[tox]
+envlist = pre-commit,py{310,311,312,313}
+
+[testenv]
+usedevelop = True
+changedir = tests
+deps =
+    playwright==1.58.0
+    patchright==1.58.2
+    -r{toxinidir}/tests/requirements.txt
+extras = ai,shell
+commands =
+    # Run browser tests without parallelization (avoid browser conflicts)
+    pytest --cov=scrapling --cov-report=xml -k "DynamicFetcher or StealthyFetcher" --verbose
+    # Run asyncio tests without parallelization (avoid GitHub CI nested loop issues)
+    pytest --cov=scrapling --cov-report=xml -m "asyncio" -k "not (DynamicFetcher or StealthyFetcher)" --verbose --cov-append
+    # Run everything else with parallelization (for speed)
+    pytest --cov=scrapling --cov-report=xml -m "not asyncio" -k "not (DynamicFetcher or StealthyFetcher)" -n auto --cov-append
+
+[testenv:pre-commit]
+basepython = python3
+deps = pre-commit
+commands = pre-commit run --all-files --show-diff-on-failure
+skip_install = true
+
+================
+File: zensical.toml
+================
+[project]
+site_name = "Scrapling"
+site_description = "Scrapling - Effortless Web Scraping for the Modern Web!"
+site_author = "Karim Shoair"
+repo_url = "https://github.com/D4Vinci/Scrapling"
+site_url = "https://scrapling.readthedocs.io/en/latest/"
+repo_name = "D4Vinci/Scrapling"
+copyright = "Copyright &copy; 2025 Karim Shoair - <a href=\"#__consent\">Change cookie settings</a>"
+docs_dir = "docs"
+use_directory_urls = false
+exclude_docs = """
+README*.md
+"""
+extra_css = ["stylesheets/extra.css"]
+
+nav = [
+    {Introduction = "index.md"},
+    {Overview = "overview.md"},
+    {"Performance Benchmarks" = "benchmarks.md"},
+    {"User Guide" = [
+        {Parsing = [
+            {"Querying elements" = "parsing/selection.md"},
+            {"Main classes" = "parsing/main_classes.md"},
+            {"Adaptive scraping" = "parsing/adaptive.md"}
+        ]},
+        {Fetching = [
+            {"Fetchers basics" = "fetching/choosing.md"},
+            {"HTTP requests" = "fetching/static.md"},
+            {"Dynamic websites" = "fetching/dynamic.md"},
+            {"Dynamic websites with hard protections" = "fetching/stealthy.md"}
+        ]},
+        {Spiders = [
+            {"Architecture" = "spiders/architecture.md"},
+            {"Getting started" = "spiders/getting-started.md"},
+            {"Requests & Responses" = "spiders/requests-responses.md"},
+            {"Sessions" = "spiders/sessions.md"},
+            {"Proxy management & Blocking" = "spiders/proxy-blocking.md"},
+            {"Advanced features" = "spiders/advanced.md"}
+        ]},
+        {"Command Line Interface" = [
+            {Overview = "cli/overview.md"},
+            {"Interactive shell" = "cli/interactive-shell.md"},
+            {"Extract commands" = "cli/extract-commands.md"}
+        ]},
+        {Integrations = [
+            {"AI MCP server" = "ai/mcp-server.md"}
+        ]}
+    ]},
+    {Tutorials = [
+        {"A Free Alternative to AI for Robust Web Scraping" = "tutorials/replacing_ai.md"},
+        {"Migrating from BeautifulSoup" = "tutorials/migrating_from_beautifulsoup.md"}
+    ]},
+    {Development = [
+        {"API Reference" = [
+            {Selector = "api-reference/selector.md"},
+            {Fetchers = "api-reference/fetchers.md"},
+            {"MCP Server" = "api-reference/mcp-server.md"},
+            {"Custom Types" = "api-reference/custom-types.md"},
+            {Response = "api-reference/response.md"},
+            {Spiders = "api-reference/spiders.md"},
+            {"Proxy Rotation" = "api-reference/proxy-rotation.md"}
+        ]},
+        {"Writing your retrieval system" = "development/adaptive_storage_system.md"},
+        {"Using Scrapling's custom types" = "development/scrapling_custom_types.md"}
+    ]},
+    {"Support and Advertisement" = "donate.md"},
+    {Contributing = "https://github.com/D4Vinci/Scrapling/blob/main/CONTRIBUTING.md"},
+    {Changelog = "https://github.com/D4Vinci/Scrapling/releases"}
+]
+
+[project.theme]
+language = "en"
+custom_dir = "docs/overrides"
+logo = "assets/logo.png"
+favicon = "assets/favicon.ico"
+features = [
+    "navigation.path",
+#    "announce.dismiss",
+    "navigation.top",
+    "navigation.footer",
+    "navigation.indexes",
+    "navigation.sections",
+    "navigation.tracking",
+    "navigation.instant",
+    "navigation.instant.prefetch",
+    "navigation.instant.progress",
+#    "navigation.tabs",
+#    "navigation.expand",
+#    "toc.integrate",
+    "search.share",
+    "search.suggest",
+    "search.highlight",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+accent = "green"
+primary = "deep purple"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+accent = "light green"
+primary = "deep purple"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to light mode"
+
+# Uncomment if needed:
+# [project.theme.font]
+# text = "Open Sans"
+# code = "JetBrains Mono"
+
+[project.markdown_extensions.pymdownx.caret]
+[project.markdown_extensions.pymdownx.mark]
+[project.markdown_extensions.pymdownx.tilde]
+[project.markdown_extensions.admonition]
+[project.markdown_extensions.abbr]
+#[project.markdown_extensions.mkautodoc]
+[project.markdown_extensions.pymdownx.details]
+[project.markdown_extensions.pymdownx.superfences]
+custom_fences = [
+    {name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format"}
+]
+[project.markdown_extensions.pymdownx.inlinehilite]
+[project.markdown_extensions.pymdownx.snippets]
+[project.markdown_extensions.tables]
+
+[project.markdown_extensions.pymdownx.emoji]
+emoji_index = "zensical.extensions.emoji.twemoji"
+emoji_generator = "zensical.extensions.emoji.to_svg"
+
+[project.markdown_extensions.pymdownx.highlight]
+pygments_lang_class = true
+anchor_linenums = true
+line_spans = "__span"
+
+[project.markdown_extensions.pymdownx.tabbed]
+alternate_style = true
+
+[project.markdown_extensions.codehilite]
+css_class = "highlight"
+
+[project.markdown_extensions.toc]
+title = "On this page"
+permalink = true
+toc_depth = 3
+
+[project.plugins.mkdocstrings.handlers.python]
+inventories = ["https://docs.python.org/3/objects.inv"]
+paths = ["scrapling"]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "sphinx"
+show_source = true
+show_root_heading = true
+show_if_no_docstring = true
+inherited_members = true
+members_order = "source"
+separate_signature = true
+unwrap_annotated = true
+filters = "public"
+merge_init_into_class = true
+docstring_section_style = "spacy"
+signature_crossrefs = true
+show_symbol_type_heading = true
+show_symbol_type_toc = true
+show_inheritance_diagram = true
+modernize_annotations = true
+extensions = [
+    "griffe_runtime_objects",
+    "griffe_sphinx",
+    {griffe_inherited_docstrings = {merge = true}}
+]
+
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/D4Vinci/Scrapling"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/x-twitter"
+link = "https://x.com/Scrapling_dev"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/discord"
+link = "https://discord.gg/EMgGbDceNQ"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/python"
+link = "https://pypi.org/project/scrapling/"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/docker"
+link = "https://hub.docker.com/r/pyd4vinci/scrapling"
+
+[project.extra.analytics]
+provider = "google"
+property = "G-CS3DKLY73Z"
+
+[project.extra.analytics.feedback]
+title = "Was this page helpful?"
+
+[[project.extra.analytics.feedback.ratings]]
+icon = "material/heart"
+name = "This page was helpful"
+data = 1
+note = "Thanks for your feedback!"
+
+[[project.extra.analytics.feedback.ratings]]
+icon = "material/heart-broken"
+name = "This page could be improved"
+data = 0
+note = """
+Thanks for your feedback! Help us improve this page by
+<a href="https://github.com/D4Vinci/Scrapling/issues/new?template=04-docs_issue.yml" target="_blank" rel="noopener">opening a documentation issue</a>.
+"""
+
+[project.extra.consent]
+title = "Cookie consent"
+description = """
+We use cookies to recognize your repeated visits and preferences, as well
+as to measure the effectiveness of our documentation and whether users
+find what they're searching for. With your consent, you're helping us to
+make our documentation better.
+"""
+actions = [
+    "accept",
+    "reject",
+    "manage"
+]

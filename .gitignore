@@ -8,4 +8,5 @@ data/*.db-journal
 dist/
 build/
 node_modules/
-research
+research/
+uv.lock

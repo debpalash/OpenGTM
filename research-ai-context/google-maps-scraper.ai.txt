@@ -1,0 +1,1730 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+.github/
+  workflows/
+    build.yml
+    publish.yml
+  FUNDING.yaml
+admin/
+  postgres/
+    postgres.go
+  static/
+    pico.min.css
+    styles.css
+    xterm-addon-fit.min.js
+    xterm.css
+    xterm.min.js
+  templates/
+    _head.html
+    _navbar.html
+    2fa_prompt.html
+    2fa_setup.html
+    2fa_verify.html
+    api_keys.html
+    dashboard.html
+    jobs.html
+    login.html
+    settings.html
+    terminal.html
+    workers.html
+  admin.go
+  constants.go
+  handlers_2fa.go
+  handlers_apikeys.go
+  handlers_auth.go
+  handlers_dashboard.go
+  handlers_jobs.go
+  handlers_settings.go
+  handlers_terminal.go
+  handlers_workers.go
+  middleware.go
+  render.go
+  routes.go
+  state.go
+api/
+  docs/
+    docs.go
+    swagger.json
+    swagger.yaml
+  postgres/
+    postgres.go
+  api.go
+  doc.go
+  middleware.go
+  responses.go
+cli/
+  prompt.go
+  ui.go
+cmd/
+  gmapssaas/
+    cmdadmin/
+      cmd_admin.go
+    cmdcommon/
+      common.go
+    cmdprovision/
+      provision.go
+      state.go
+    cmdserve/
+      cmd_serve.go
+    cmdupdate/
+      cmd_update_test.go
+      cmd_update.go
+    cmdworker/
+      cmd_worker.go
+    main.go
+  tools/
+    tools.go
+cryptoext/
+  cryptoext.go
+deduper/
+  deduper.go
+  hashmap.go
+docs/
+  development-saas.md
+  proxies.md
+  recipes.md
+  saas.md
+env/
+  env.go
+examples/
+  examples-api/
+    go/
+      main.go
+    python/
+      scrape.py
+    typescript/
+      scrape.ts
+    keywords.txt
+    README.md
+  plugins/
+    example_writer.go
+exiter/
+  exiter.go
+gmaps/
+  emailjob.go
+  entry_test.go
+  entry.go
+  job.go
+  multiple.go
+  place.go
+  reviews_test.go
+  reviews.go
+  searchjob.go
+grid/
+  grid_test.go
+  grid.go
+httpext/
+  httpext.go
+  middleware.go
+img/
+  capsolver-banner.png
+  example.gif
+  gmaps-extractor-banner.png
+  gmaps-extractor-logo.png
+  hd-gm-banner.png
+  leadsdb-banner.png
+  legion-proxy.png
+  premium_scrap_io_demo.gif
+  premium_scrap_io.png
+  rapidproxy-banner.png
+  scrapeless_dark.png
+  scrapeless_light.png
+  searchapi_google_maps.png
+  SerpApi-banner.png
+  SerpApi-logo-w.png
+  webshare-banner.png
+  webshare-logo.png
+infra/
+  cloudinit/
+    cloudinit_test.go
+    cloudinit.go
+  digitalocean/
+    appplatform.go
+    digitalocean.go
+  hetzner/
+    hetzner.go
+  planetscale/
+    planetscale.go
+  vps/
+    provisioner_test.go
+    provisioner.go
+    scripts.go
+  infra.go
+  ssh_tofu.go
+  worker.go
+internal/
+  jsonbsanitize/
+    entry_test.go
+    entry.go
+leadsdb/
+  leadsdb.go
+local/
+  cloud-init-test.yaml
+  test_ssh_key
+  test_ssh_key.pub
+log/
+  log.go
+migrations/
+  20260123144521_river_tables.sql
+  20260123155521_scrape_results.sql
+  20260124164611-admin_and_provisioning.sql
+  20260124213201-add_totp_2fa.sql
+  20260130100000-create_rate_limits.sql
+  20260208150322-add_dashboard_indexes.sql
+  20260208160000-add_missing_indexes.sql
+  dbconfig.yml
+  migrations.go
+postgres/
+  pool.go
+  provider.go
+  resultwriter.go
+ratelimit/
+  postgres/
+    postgres.go
+  ratelimit.go
+rqueue/
+  jobs.go
+  rqueue_test.go
+  rqueue.go
+  ui.go
+  worker_jobs.go
+runner/
+  databaserunner/
+    databaserunner.go
+  filerunner/
+    filerunner.go
+  installplaywright/
+    installplaywright.go
+  lambdaaws/
+    invoker.go
+    io.go
+    lambdaaws.go
+  webrunner/
+    webrunner.go
+  jobs_test.go
+  jobs.go
+  runner.go
+s3uploader/
+  s3uploader.go
+saas/
+  constants.go
+scraper/
+  centralwriter_test.go
+  centralwriter.go
+  provider_test.go
+  provider.go
+  scraper_test.go
+  scraper.go
+scripts/
+  migrations/
+    0001_create_tables.down.sql
+    0001_create_tables.up.sql
+    0002_add_lat_lon_results.down.sql
+    0002_add_lat_lon_results.up.sql
+    0003_results_jsonb.down.sql
+    0003_results_jsonb.up.sql
+    0004_add-index-gmaps_jobs.down.sql
+    0004_add-index-gmaps_jobs.up.sql
+skills/
+  google-maps-scraper/
+    SKILL.md
+sponsors/
+  hasdata.md
+testdata/
+  output.json
+  panic.json
+  panic2.json
+  raw.json
+  raw2.json
+tlmt/
+  gonoop/
+    gonoop.go
+  goposthog/
+    goposthog.go
+  tlmt.go
+web/
+  sqlite/
+    sqlite.go
+  static/
+    css/
+      main.css
+    spec/
+      spec.yaml
+    templates/
+      index.html
+      job_row.html
+      job_rows.html
+      redoc.html
+  errors.go
+  job.go
+  service.go
+  web.go
+.gitignore
+.golangci.yaml
+.pre-commit-config.yaml
+AGENTS.md
+docker-compose.dev.yaml
+docker-compose.saas.yaml
+Dockerfile
+Dockerfile.saas
+example-queries.txt
+gmaps-extractor.md
+go.mod
+LICENSE
+lint.go
+MacOS instructions.md
+main.go
+Makefile
+migration-pro.md
+PROVISION
+README.md
+scrap_io.md
+serpapi.md
+webshare.md
+
+================================================================
+Files
+================================================================
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: .gitignore
+================
+cache/
+vendor
+bin
+webdata/
+examples/examples-api/map-outputs
+examples/examples-api/**/__pycache__/
+examples/examples-api/**/*.py[cod]
+gmaps-output
+
+================
+File: .golangci.yaml
+================
+run:
+  issues-exit-code: 1
+  timeout: 3m
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+  goconst:
+    min-len: 2
+    min-occurrences: 3
+    gci:
+    sections:
+      - prefix(github.com/gosom/ledger)
+    custom-order: true
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+  govet:
+    shadow: true
+  nolintlint:
+    require-explanation: true
+    require-specific: true
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - dogsled
+    - dupl
+    - errcheck
+    - copyloopvar
+    - exhaustive
+    - goconst
+    - gocritic
+    - gofmt
+    - goimports
+    - gocyclo
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - nolintlint
+    - nakedret
+    - prealloc
+    - predeclared
+    - revive
+    - staticcheck
+    - stylecheck
+    - testpackage
+    - thelper
+    - tparallel
+    - typecheck
+    - unconvert
+    - unparam
+    - whitespace
+    - wsl
+
+================
+File: .pre-commit-config.yaml
+================
+repos:
+-   repo: local
+    hooks:
+    - id: gobuild
+      name: gobuild
+      entry: go build -v -o /dev/null ./...
+      language: golang
+      types: [go]
+      require_serial: true
+      pass_filenames: false
+    - id: golangci-lint
+      name: golangci-lint
+      entry: make lint
+      language: golang
+      types: [go]
+      require_serial: true
+      pass_filenames: false
+    - id: gotest
+      name: gotest
+      entry: go test -v -race ./...
+      language: golang
+      types: [go]
+      require_serial: true
+      pass_filenames: false
+
+================
+File: AGENTS.md
+================
+# Development Guide for Agents
+
+## Build/Test Commands
+- `make test` - Run all unit tests with race detection
+- `make test-cover` - Run tests with coverage statistics  
+- `make lint` - Run golangci-lint with project configuration
+- `make vet` - Run go vet static analysis
+- `make format` - Format code with gofmt
+- `go test ./path/to/package` - Run tests for a specific package
+
+## Code Style Guidelines
+- Use `gofmt` for formatting (spaces, not tabs)
+- Import order: standard library, third-party, local packages (prefix: github.com/gosom/google-maps-scraper)
+- Use descriptive variable names (e.g., `entry`, `cfg`, `ctx`)
+- Error handling: return errors, use `fmt.Errorf` with wrapping (`%w`)
+- Use struct tags for JSON marshaling: `json:"field_name"`
+- Constants use CamelCase (e.g., `RunModeFile`)
+- Interface names end with -er suffix (e.g., `Runner`, `S3Uploader`)
+- Use context.Context as first parameter in functions
+- Prefer early returns to reduce nesting
+- Use meaningful package names that reflect their purpose
+- Add godoc comments for exported types and functions
+- Use `nolint` comments sparingly with explanations
+- Avoid magic numbers, use named constants or comment them
+
+================
+File: docker-compose.saas.yaml
+================
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gmapssaas
+    ports:
+      - "5432:5432"
+    volumes:
+      - saas_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  saas_pgdata:
+
+================
+File: Dockerfile
+================
+# Build stage for Playwright dependencies
+FROM ubuntu:20.04 AS playwright-deps
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/browsers
+#ENV PLAYWRIGHT_DRIVER_PATH=/opt/
+ARG TARGETARCH
+
+RUN export PATH=$PATH:/usr/local/go/bin:/root/go/bin \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl wget \
+    # Architektur-Logik für den Go-Download
+    && if [ "$TARGETARCH" = "arm64" ]; then \
+         GO_ARCH="arm64"; \
+       else \
+         GO_ARCH="amd64"; \
+       fi \
+    && wget -q "https://go.dev/dl/go1.26.2.linux-${GO_ARCH}.tar.gz" \
+    && tar -C /usr/local -xzf "go1.26.2.linux-${GO_ARCH}.tar.gz" \
+    && rm "go1.26.2.linux-${GO_ARCH}.tar.gz" \
+    # ... (Rest des ursprünglichen RUN-Befehls: Nodejs, Playwright, etc.)
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && go install github.com/playwright-community/playwright-go/cmd/playwright@latest \
+    && mkdir -p /opt/browsers \
+    && playwright install chromium --with-deps
+
+# Build stage
+FROM golang:1.26.2-trixie AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /usr/bin/google-maps-scraper
+
+# Final stage
+FROM debian:trixie-slim
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/browsers
+ENV PLAYWRIGHT_DRIVER_PATH=/opt
+
+# Install only the necessary dependencies in a single layer
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libdbus-1-3 \
+    libxkbcommon0 \
+    libatspi2.0-0 \
+    libx11-6 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libpango-1.0-0 \
+    libcairo2 \
+    libasound2 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=playwright-deps /opt/browsers /opt/browsers
+COPY --from=playwright-deps /root/.cache/ms-playwright-go /opt/ms-playwright-go
+
+RUN chmod -R 755 /opt/browsers \
+    && chmod -R 755 /opt/ms-playwright-go
+
+COPY --from=builder /usr/bin/google-maps-scraper /usr/bin/
+
+ENTRYPOINT ["google-maps-scraper"]
+
+================
+File: Dockerfile.saas
+================
+# Build stage
+FROM golang:1.26.2-alpine AS builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache git ca-certificates
+
+# Copy go mod files
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build the gmapssaas binary (stripped and optimized)
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /gmapssaas ./cmd/gmapssaas
+
+# Final stage - Debian slim with Playwright Chromium dependencies
+FROM debian:bookworm-slim
+LABEL org.opencontainers.image.source=https://github.com/gosom/google-maps-scraper
+
+WORKDIR /app
+
+# Install Playwright dependencies for Chromium only + cleanup in same layer
+# These are the system libraries that Playwright's Chromium needs to run
+# The browser itself is downloaded at runtime by playwright-go
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libdbus-1-3 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libpango-1.0-0 \
+    libcairo2 \
+    fonts-liberation \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
+    && rm -rf /usr/share/doc /usr/share/man /usr/share/locale
+
+# Copy binary from builder
+COPY --from=builder /gmapssaas /app/gmapssaas
+
+# Copy migrations (needed for server mode)
+COPY --from=builder /app/migrations /app/migrations
+
+EXPOSE 8080
+
+# Default to serve mode, can be overridden with "worker" argument
+ENTRYPOINT ["/app/gmapssaas"]
+CMD ["serve"]
+
+================
+File: example-queries.txt
+================
+cafe in athens
+restaurant in athens
+restaurant in rome
+restaurant in paris
+restaurant in madrid
+restaurant in berln
+restaurant in bari
+
+================
+File: gmaps-extractor.md
+================
+**G Maps Extractor**  
+A no-code Google Maps scraper that pulls business leads from Google Maps in one click.
+
+- 📇 **Includes** emails, social profiles, phone numbers, addresses, reviews, images and more.
+- 📥 **Export** to CSV · Excel · JSON  
+- 🎁 **Free**: Get your first **1,000 leads** today  
+[Get Started for Free](https://gmapsextractor.com?utm_source=github&utm_medium=banner&utm_campaign=gosom)
+
+================
+File: go.mod
+================
+module github.com/gosom/google-maps-scraper
+
+go 1.26.2
+
+require (
+	github.com/PuerkitoBio/goquery v1.12.0
+	github.com/aws/aws-lambda-go v1.48.0
+	github.com/aws/aws-sdk-go-v2 v1.36.3
+	github.com/aws/aws-sdk-go-v2/config v1.29.14
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.67
+	github.com/aws/aws-sdk-go-v2/service/lambda v1.71.2
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.79.3
+	github.com/digitalocean/godo v1.173.0
+	github.com/go-chi/chi/v5 v5.2.4
+	github.com/golangci/golangci-lint v1.64.8
+	github.com/google/open-location-code/go v0.0.0-20250415120251-fa6d7f9d4765
+	github.com/google/uuid v1.6.0
+	github.com/gorilla/websocket v1.5.3
+	github.com/gosom/go-leadsdb v0.0.0-20251228094956-ed313efc171f
+	github.com/gosom/scrapemate v1.1.0
+	github.com/hetznercloud/hcloud-go/v2 v2.36.0
+	github.com/jackc/pgx/v5 v5.9.0
+	github.com/mattn/go-runewidth v0.0.16
+	github.com/mcnijman/go-emailaddress v1.1.1
+	github.com/playwright-community/playwright-go v0.5700.1
+	github.com/posthog/posthog-go v1.5.2
+	github.com/pquerna/otp v1.5.0
+	github.com/riverqueue/river v0.30.1
+	github.com/riverqueue/river/riverdriver/riverpgxv5 v0.30.1
+	github.com/riverqueue/river/rivertype v0.30.1
+	github.com/rubenv/sql-migrate v1.8.1
+	github.com/shirou/gopsutil/v4 v4.25.4
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
+	github.com/speps/go-hashids/v2 v2.0.1
+	github.com/stretchr/testify v1.11.1
+	github.com/swaggo/http-swagger/v2 v2.0.2
+	github.com/swaggo/swag v1.16.6
+	github.com/urfave/cli/v3 v3.6.2
+	golang.org/x/crypto v0.50.0
+	golang.org/x/sync v0.20.0
+	golang.org/x/term v0.42.0
+	modernc.org/sqlite v1.37.0
+	riverqueue.com/riverui v0.14.0
+)
+
+require (
+	4d63.com/gocheckcompilerdirectives v1.3.0 // indirect
+	4d63.com/gochecknoglobals v0.2.2 // indirect
+	github.com/4meepo/tagalign v1.4.2 // indirect
+	github.com/Abirdcfly/dupword v0.1.3 // indirect
+	github.com/Antonboom/errname v1.0.0 // indirect
+	github.com/Antonboom/nilnil v1.0.1 // indirect
+	github.com/Antonboom/testifylint v1.5.2 // indirect
+	github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c // indirect
+	github.com/Crocmagnon/fatcontext v0.7.1 // indirect
+	github.com/Djarvur/go-err113 v0.0.0-20210108212216-aea10b59be24 // indirect
+	github.com/GaijinEntertainment/go-exhaustruct/v3 v3.3.1 // indirect
+	github.com/KyleBanks/depth v1.2.1 // indirect
+	github.com/Masterminds/semver/v3 v3.4.0 // indirect
+	github.com/Noooste/azuretls-client v1.12.12 // indirect
+	github.com/Noooste/fhttp v1.0.15 // indirect
+	github.com/Noooste/go-socks4 v0.0.2 // indirect
+	github.com/Noooste/uquic-go v1.0.5 // indirect
+	github.com/Noooste/utls v1.3.21 // indirect
+	github.com/Noooste/websocket v1.0.3 // indirect
+	github.com/OpenPeeDeeP/depguard/v2 v2.2.1 // indirect
+	github.com/alecthomas/go-check-sumtype v0.3.1 // indirect
+	github.com/alexkohler/nakedret/v2 v2.0.5 // indirect
+	github.com/alexkohler/prealloc v1.0.0 // indirect
+	github.com/alingse/asasalint v0.0.11 // indirect
+	github.com/alingse/nilnesserr v0.1.2 // indirect
+	github.com/andybalholm/brotli v1.2.1 // indirect
+	github.com/andybalholm/cascadia v1.3.3 // indirect
+	github.com/ashanbrown/forbidigo v1.6.0 // indirect
+	github.com/ashanbrown/makezero v1.2.0 // indirect
+	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.10 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.30 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.34 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.34 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.3 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.34 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.12.3 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.7.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.15 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.18.15 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.25.3 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.30.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.33.19 // indirect
+	github.com/aws/smithy-go v1.22.3 // indirect
+	github.com/bdandy/go-errors v1.2.2 // indirect
+	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/bkielbasa/cyclop v1.2.3 // indirect
+	github.com/blizzy78/varnamelen v0.8.0 // indirect
+	github.com/bombsimon/wsl/v4 v4.5.0 // indirect
+	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
+	github.com/breml/bidichk v0.3.2 // indirect
+	github.com/breml/errchkjson v0.4.0 // indirect
+	github.com/butuzov/ireturn v0.3.1 // indirect
+	github.com/butuzov/mirror v1.3.0 // indirect
+	github.com/catenacyber/perfsprint v0.8.2 // indirect
+	github.com/ccojocar/zxcvbn-go v1.0.2 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/charithe/durationcheck v0.0.10 // indirect
+	github.com/chavacava/garif v0.1.0 // indirect
+	github.com/ckaznocha/intrange v0.3.0 // indirect
+	github.com/cloudflare/circl v1.6.3 // indirect
+	github.com/curioswitch/go-reassign v0.3.0 // indirect
+	github.com/daixiang0/gci v0.13.5 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/deckarep/golang-set/v2 v2.8.0 // indirect
+	github.com/denis-tingaikin/go-header v0.5.0 // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/ebitengine/purego v0.8.3-0.20250507171810-1638563e3615 // indirect
+	github.com/ettle/strcase v0.2.0 // indirect
+	github.com/fatih/color v1.19.0 // indirect
+	github.com/fatih/structtag v1.2.0 // indirect
+	github.com/firefart/nonamedreturns v1.0.5 // indirect
+	github.com/fsnotify/fsnotify v1.5.4 // indirect
+	github.com/fzipp/gocyclo v0.6.0 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
+	github.com/gaukas/clienthellod v0.4.2 // indirect
+	github.com/gaukas/godicttls v0.0.4 // indirect
+	github.com/ghostiam/protogetter v0.3.9 // indirect
+	github.com/go-critic/go-critic v0.12.0 // indirect
+	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
+	github.com/go-jose/go-jose/v3 v3.0.5 // indirect
+	github.com/go-ole/go-ole v1.3.0 // indirect
+	github.com/go-openapi/jsonpointer v0.19.5 // indirect
+	github.com/go-openapi/jsonreference v0.20.0 // indirect
+	github.com/go-openapi/spec v0.20.6 // indirect
+	github.com/go-openapi/swag v0.19.15 // indirect
+	github.com/go-playground/locales v0.14.1 // indirect
+	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/validator/v10 v10.30.2 // indirect
+	github.com/go-stack/stack v1.8.1 // indirect
+	github.com/go-toolsmith/astcast v1.1.0 // indirect
+	github.com/go-toolsmith/astcopy v1.1.0 // indirect
+	github.com/go-toolsmith/astequal v1.2.0 // indirect
+	github.com/go-toolsmith/astfmt v1.1.0 // indirect
+	github.com/go-toolsmith/astp v1.1.0 // indirect
+	github.com/go-toolsmith/strparse v1.1.0 // indirect
+	github.com/go-toolsmith/typep v1.1.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
+	github.com/go-xmlfmt/xmlfmt v1.1.3 // indirect
+	github.com/gobwas/glob v0.2.3 // indirect
+	github.com/gofrs/flock v0.12.1 // indirect
+	github.com/golang/snappy v1.0.0 // indirect
+	github.com/golangci/dupl v0.0.0-20250308024227-f665c8d69b32 // indirect
+	github.com/golangci/go-printf-func-name v0.1.0 // indirect
+	github.com/golangci/gofmt v0.0.0-20250106114630-d62b90e6713d // indirect
+	github.com/golangci/misspell v0.6.0 // indirect
+	github.com/golangci/plugin-module-register v0.1.1 // indirect
+	github.com/golangci/revgrep v0.8.0 // indirect
+	github.com/golangci/unconvert v0.0.0-20240309020433-c5143eacb3ed // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/gopacket v1.1.19 // indirect
+	github.com/gordonklaus/ineffassign v0.1.0 // indirect
+	github.com/gosom/kit v0.0.0-20230309082109-543b32ac686a // indirect
+	github.com/gostaticanalysis/analysisutil v0.7.1 // indirect
+	github.com/gostaticanalysis/comment v1.5.0 // indirect
+	github.com/gostaticanalysis/forcetypeassert v0.2.0 // indirect
+	github.com/gostaticanalysis/nilerr v0.1.1 // indirect
+	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
+	github.com/hashicorp/go-immutable-radix/v2 v2.1.0 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
+	github.com/hashicorp/go-version v1.7.0 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
+	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/hexops/gotextdiff v1.0.3 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/jackc/pgerrcode v0.0.0-20250907135507-afb5586c32a6 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/jgautheron/goconst v1.7.1 // indirect
+	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
+	github.com/jjti/go-spancheck v0.6.4 // indirect
+	github.com/josharian/intern v1.0.0 // indirect
+	github.com/julz/importas v0.2.0 // indirect
+	github.com/karamaru-alpha/copyloopvar v1.2.1 // indirect
+	github.com/kisielk/errcheck v1.9.0 // indirect
+	github.com/kkHAIKE/contextcheck v1.1.6 // indirect
+	github.com/klauspost/compress v1.18.5 // indirect
+	github.com/kulti/thelper v0.6.3 // indirect
+	github.com/kunwardeep/paralleltest v1.0.10 // indirect
+	github.com/lasiar/canonicalheader v1.1.2 // indirect
+	github.com/ldez/exptostd v0.4.2 // indirect
+	github.com/ldez/gomoddirectives v0.6.1 // indirect
+	github.com/ldez/grignotin v0.9.0 // indirect
+	github.com/ldez/tagliatelle v0.7.1 // indirect
+	github.com/ldez/usetesting v0.4.2 // indirect
+	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/leonklingele/grouper v1.1.2 // indirect
+	github.com/lufia/plan9stats v0.0.0-20250317134145-8bc96cf8fc35 // indirect
+	github.com/macabu/inamedparam v0.1.3 // indirect
+	github.com/magiconair/properties v1.8.6 // indirect
+	github.com/mailru/easyjson v0.7.6 // indirect
+	github.com/maratori/testableexamples v1.0.0 // indirect
+	github.com/maratori/testpackage v1.1.1 // indirect
+	github.com/matoous/godox v1.1.0 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
+	github.com/mattn/go-isatty v0.0.21 // indirect
+	github.com/mgechev/revive v1.7.0 // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/moricho/tparallel v0.3.2 // indirect
+	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/nakabonne/nestif v0.3.1 // indirect
+	github.com/ncruces/go-strftime v0.1.9 // indirect
+	github.com/nishanths/exhaustive v0.12.0 // indirect
+	github.com/nishanths/predeclared v0.2.2 // indirect
+	github.com/nunnatsa/ginkgolinter v0.19.1 // indirect
+	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/pelletier/go-toml v1.9.5 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/polyfloyd/go-errorlint v1.7.1 // indirect
+	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
+	github.com/prometheus/client_golang v1.23.2 // indirect
+	github.com/prometheus/client_model v0.6.2 // indirect
+	github.com/prometheus/common v0.66.1 // indirect
+	github.com/prometheus/procfs v0.16.1 // indirect
+	github.com/quasilyte/go-ruleguard v0.4.3-0.20240823090925-0fe6f58b47b1 // indirect
+	github.com/quasilyte/go-ruleguard/dsl v0.3.22 // indirect
+	github.com/quasilyte/gogrep v0.5.0 // indirect
+	github.com/quasilyte/regex/syntax v0.0.0-20210819130434-b3f0c404a727 // indirect
+	github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567 // indirect
+	github.com/quic-go/qpack v0.6.0 // indirect
+	github.com/raeperd/recvcheck v0.2.0 // indirect
+	github.com/refraction-networking/utls v1.8.2 // indirect
+	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+	github.com/riverqueue/apiframe v0.0.0-20251229202423-2b52ce1c482e // indirect
+	github.com/riverqueue/river/riverdriver v0.30.1 // indirect
+	github.com/riverqueue/river/rivershared v0.30.1 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/rogpeppe/go-internal v1.14.1 // indirect
+	github.com/rs/zerolog v1.35.0 // indirect
+	github.com/ryancurrah/gomodguard v1.3.5 // indirect
+	github.com/ryanrolds/sqlclosecheck v0.5.1 // indirect
+	github.com/sanposhiho/wastedassign/v2 v2.1.0 // indirect
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.1 // indirect
+	github.com/sashamelentyev/interfacebloat v1.1.0 // indirect
+	github.com/sashamelentyev/usestdlibvars v1.28.0 // indirect
+	github.com/securego/gosec/v2 v2.22.2 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/sivchari/containedctx v1.0.3 // indirect
+	github.com/sivchari/tenv v1.12.1 // indirect
+	github.com/sonatard/noctx v0.1.0 // indirect
+	github.com/sourcegraph/go-diff v0.7.0 // indirect
+	github.com/spf13/afero v1.12.0 // indirect
+	github.com/spf13/cast v1.5.0 // indirect
+	github.com/spf13/cobra v1.9.1 // indirect
+	github.com/spf13/jwalterweatherman v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/spf13/viper v1.12.0 // indirect
+	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
+	github.com/stbenjam/no-sprintf-host-port v0.2.0 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
+	github.com/subosito/gotenv v1.4.1 // indirect
+	github.com/swaggo/files/v2 v2.0.0 // indirect
+	github.com/syndtr/goleveldb v1.0.0 // indirect
+	github.com/tdakkota/asciicheck v0.4.1 // indirect
+	github.com/tetafro/godot v1.5.0 // indirect
+	github.com/tidwall/gjson v1.18.0 // indirect
+	github.com/tidwall/match v1.2.0 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
+	github.com/timakin/bodyclose v0.0.0-20241017074812-ed6a65f985e3 // indirect
+	github.com/timonwong/loggercheck v0.10.1 // indirect
+	github.com/tklauser/go-sysconf v0.3.15 // indirect
+	github.com/tklauser/numcpus v0.10.0 // indirect
+	github.com/tomarrell/wrapcheck/v2 v2.10.0 // indirect
+	github.com/tommy-muehle/go-mnd/v2 v2.5.1 // indirect
+	github.com/ultraware/funlen v0.2.0 // indirect
+	github.com/ultraware/whitespace v0.2.0 // indirect
+	github.com/uudashr/gocognit v1.2.0 // indirect
+	github.com/uudashr/iface v1.3.1 // indirect
+	github.com/xen0n/gosmopolitan v1.2.2 // indirect
+	github.com/yagipy/maintidx v1.0.0 // indirect
+	github.com/yeya24/promlinter v0.3.0 // indirect
+	github.com/ykadowak/zerologlint v0.1.5 // indirect
+	github.com/yusufpapurcu/wmi v1.2.4 // indirect
+	gitlab.com/bosi/decorder v0.4.2 // indirect
+	go-simpler.org/musttag v0.13.0 // indirect
+	go-simpler.org/sloglint v0.9.0 // indirect
+	go.uber.org/automaxprocs v1.6.0 // indirect
+	go.uber.org/goleak v1.3.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	go.uber.org/zap v1.26.0 // indirect
+	go.yaml.in/yaml/v2 v2.4.2 // indirect
+	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
+	golang.org/x/exp/typeparams v0.0.0-20250210185358-939b2ce775ac // indirect
+	golang.org/x/mod v0.35.0 // indirect
+	golang.org/x/net v0.53.0 // indirect
+	golang.org/x/oauth2 v0.30.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/telemetry v0.0.0-20260409153401-be6f6cb8b1fa // indirect
+	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/time v0.10.0 // indirect
+	golang.org/x/tools v0.44.0 // indirect
+	golang.org/x/vuln v1.1.4 // indirect
+	google.golang.org/protobuf v1.36.8 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+	honnef.co/go/tools v0.6.1 // indirect
+	modernc.org/libc v1.65.3 // indirect
+	modernc.org/mathutil v1.7.1 // indirect
+	modernc.org/memory v1.10.0 // indirect
+	mvdan.cc/gofumpt v0.7.0 // indirect
+	mvdan.cc/unparam v0.0.0-20240528143540-8a5130ca722f // indirect
+)
+
+tool (
+	github.com/golangci/golangci-lint/cmd/golangci-lint
+	golang.org/x/vuln/cmd/govulncheck
+)
+
+//replace github.com/gosom/scrapemate v1.0.0 => ../scrapemate
+
+================
+File: LICENSE
+================
+MIT License
+
+Copyright (c) 2023 Georgios Komninos
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================
+File: lint.go
+================
+//go:build lint
+// +build lint
+⋮----
+package main
+⋮----
+//go:generate go run "github.com/golangci/golangci-lint/cmd/golangci-lint" -v run
+
+================
+File: MacOS instructions.md
+================
+**1. Install Homebrew**
+
+Open the Terminal and run:
+
+`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+
+After installation, add Homebrew to your PATH (if it doesn’t happen automatically). Run:
+
+```
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+Now, check if Homebrew is installed correctly:
+
+`brew --version
+`
+
+**2. Install Go Using Homebrew**
+
+Once Homebrew is installed, install Go with:
+
+`brew install go`
+
+After installing Go, verify it:
+
+`go version`
+
+**3. Clone the Repository**
+
+Open your terminal and clone the repository:
+
+```
+git clone https://github.com/gosom/google-maps-scraper.git
+cd google-maps-scraper
+```
+
+**4. Build for macOS**
+
+The repository provides a Makefile, but you can manually compile the project for macOS:
+
+`go build -o google_maps_scraper`
+
+Create a macOS application structure:
+
+```
+mkdir -p GoogleMapsScraper.app/Contents/MacOS
+mv google_maps_scraper GoogleMapsScraper.app/Contents/MacOS/
+```
+
+Convert the App to a GUI Application
+
+Create a new script inside MacOS/:
+
+`nano GoogleMapsScraper.app/Contents/MacOS/start.sh`
+
+Paste this inside:
+
+```
+#!/bin/bash
+DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$HOME"
+
+# Run scraper in background and get its PID
+"$DIR/google_maps_scraper" > "$HOME/google_maps_scraper.log" 2>&1 &
+SCRAPER_PID=$!
+
+# Open browser
+sleep 2
+open http://localhost:8080
+
+# Idle timeout in seconds
+IDLE_TIMEOUT=6000
+
+# Wait and kill
+sleep $IDLE_TIMEOUT
+
+# Check if still running, and kill it
+if ps -p $SCRAPER_PID > /dev/null; then
+  echo "Stopping scraper after $IDLE_TIMEOUT seconds of idle time."
+  kill $SCRAPER_PID
+fi
+```
+Save and exit 
+
+Now make it executable:
+
+`chmod +x GoogleMapsScraper.app/Contents/MacOS/start.sh`
+
+Add a Info.plist inside GoogleMapsScraper.app/Contents/:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>CFBundleExecutable</key>
+        <string>start.sh</string>
+        <key>CFBundleIdentifier</key>
+        <string>com.yourcompany.googlemapsscraper</string>
+        <key>CFBundleName</key>
+        <string>Google Maps Scraper</string>
+        <key>CFBundleVersion</key>
+        <string>1.0</string>
+    </dict>
+</plist>
+```
+
+**5. Run the Application**
+
+`open GoogleMapsScraper.app`
+
+**6. Code Sign the App (Optional but Recommended)**
+
+`codesign --force --deep --sign - GoogleMapsScraper.app`
+
+If you plan to distribute it, you’ll need an Apple Developer ID to properly sign it.
+
+**6. Create a .dmg Installer (Optional)**
+
+```
+mkdir -p ~/dmg-tmp/GoogleMapsScraper
+cp -R /path/to/GoogleMapsScraper.app ~/dmg-tmp/GoogleMapsScraper/
+```
+Replace /path/to/GoogleMapsScraper.app with your actual path (e.g. ~/Desktop/GoogleMapsScraper.app)
+
+Create the .dmg
+
+```
+hdiutil create -volname "GoogleMapsScraper" -srcfolder ~/dmg-tmp/GoogleMapsScraper -ov -format UDZO GoogleMapsScraper.dmg
+```
+You’ll now have a file named GoogleMapsScraper.dmg in the current folder.
+
+An example of the built .app can be seen here: https://github.com/melogabriel/google-maps-scraper/releases/tag/v1.0.0
+
+================
+File: main.go
+================
+package main
+⋮----
+import (
+	"context"
+	"errors"
+	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/gosom/google-maps-scraper/runner"
+	"github.com/gosom/google-maps-scraper/runner/databaserunner"
+	"github.com/gosom/google-maps-scraper/runner/filerunner"
+	"github.com/gosom/google-maps-scraper/runner/installplaywright"
+	"github.com/gosom/google-maps-scraper/runner/lambdaaws"
+	"github.com/gosom/google-maps-scraper/runner/webrunner"
+)
+⋮----
+"context"
+"errors"
+"fmt"
+"log"
+"os"
+"os/signal"
+"syscall"
+⋮----
+"github.com/gosom/google-maps-scraper/runner"
+"github.com/gosom/google-maps-scraper/runner/databaserunner"
+"github.com/gosom/google-maps-scraper/runner/filerunner"
+"github.com/gosom/google-maps-scraper/runner/installplaywright"
+"github.com/gosom/google-maps-scraper/runner/lambdaaws"
+"github.com/gosom/google-maps-scraper/runner/webrunner"
+⋮----
+func main()
+⋮----
+func runnerFactory(cfg *runner.Config) (runner.Runner, error)
+
+================
+File: Makefile
+================
+APP_NAME := google_maps_scraper
+VERSION := 1.12.1
+
+default: help
+
+# generate help info from comments: thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
+help: ## help information about make commands
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+vet: ## runs go vet
+	go vet ./...
+
+format: ## runs go fmt
+	gofmt -s -w .
+
+test: ## runs the unit tests
+	go test -v -race -timeout 5m ./...
+
+test-cover: ## outputs the coverage statistics
+	go test -v -race -timeout 5m ./... -coverprofile coverage.out
+	go tool cover -func coverage.out
+	rm coverage.out
+
+test-cover-report: ## an html report of the coverage statistics
+	go test -v ./... -covermode=count -coverpkg=./... -coverprofile coverage.out
+	go tool cover -html coverage.out -o coverage.html
+	open coverage.html
+
+vuln: ## runs vulnerability checks
+	go tool govulncheck -C . -show verbose -format text -scan symbol ./...
+
+lint: ## runs the linter
+	go tool golangci-lint -v run ./...
+
+cross-compile: ## cross compiles the application
+	GOOS=linux GOARCH=amd64 go build -o bin/$(APP_NAME)-${VERSION}-linux-amd64
+	GOOS=darwin GOARCH=amd64 go build -o bin/$(APP_NAME)-${VERSION}-darwin-amd64
+	GOOS=windows GOARCH=amd64 go build -o bin/$(APP_NAME)-${VERSION}-windows-amd64.exe
+
+build: ## builds the application (default: playwright)
+	go build -o bin/$(APP_NAME) .
+
+docker: ## builds docker image with playwright (default)
+	docker build -t $(APP_NAME):$(VERSION) .
+
+# --- SaaS targets ---
+
+build-saas: ## builds the SaaS binary (API server, worker, admin)
+	go build -o bin/gmapssaas ./cmd/gmapssaas/
+
+docker-saas: ## builds docker image for SaaS
+	docker build -f Dockerfile.saas -t gmapssaas:$(VERSION) .
+
+SAAS_IMAGE ?= ghcr.io/gosom/google-maps-scraper-saas:latest
+
+saas-docker-push: docker-saas ## builds and pushes the SaaS docker image
+	docker tag gmapssaas:$(VERSION) $(SAAS_IMAGE)
+	docker push $(SAAS_IMAGE)
+
+provision: ## run the provisioning wizard via Docker (state persisted to ~/.gmapssaas)
+	docker run --rm -it \
+	  -v "$(HOME)/.gmapssaas:/root/.gmapssaas" \
+	  -v /var/run/docker.sock:/var/run/docker.sock \
+	  -v "$(HOME)/.ssh:/root/.ssh:ro" \
+	  gmapssaas:$(VERSION) provision
+
+saas-dev: ## start SaaS development environment (postgres + migrations + admin user + hot reload)
+	@docker compose -f docker-compose.saas.yaml up -d postgres
+	@echo "Waiting for postgres..."
+	@until docker compose -f docker-compose.saas.yaml exec -T postgres pg_isready -U postgres > /dev/null 2>&1; do sleep 1; done
+	@echo "Running migrations..."
+	@sql-migrate up -config=migrations/dbconfig.yml
+	@echo "Creating admin user..."
+	@go run ./cmd/gmapssaas admin create-user -u admin -p '1234#abcd'
+	@echo "Starting server with hot reload on :8080..."
+	@air
+
+saas-dev-stop: ## stop SaaS development environment
+	@docker compose -f docker-compose.saas.yaml down
+
+saas-dev-reset: ## reset SaaS development environment (drops all data)
+	@docker compose -f docker-compose.saas.yaml down -v
+
+saas-run-server: ## run the SaaS API server locally
+	@go run ./cmd/gmapssaas serve
+
+saas-run-worker: ## run the SaaS worker locally
+	@go run ./cmd/gmapssaas worker
+
+saas-provision: ## run infrastructure provisioning wizard
+	@go run ./cmd/gmapssaas provision
+
+saas-migrate-up: ## run all pending SaaS database migrations
+	@sql-migrate up -config=migrations/dbconfig.yml
+
+saas-migrate-down: ## rollback the last SaaS migration
+	@sql-migrate down -config=migrations/dbconfig.yml -limit=1
+
+saas-migrate-status: ## show SaaS migration status
+	@sql-migrate status -config=migrations/dbconfig.yml
+
+saas-migrate-new: ## create a new SaaS migration (usage: make saas-migrate-new name=xxx)
+	@if [ -z "$(name)" ]; then echo "Error: name required. Usage: make saas-migrate-new name=xxx"; exit 1; fi
+	@sql-migrate new -config=migrations/dbconfig.yml $(name)
+
+saas-gen: ## regenerate swagger docs for the SaaS API
+	@swag init -g api/doc.go -o api/docs
+
+gen: saas-gen ## generate swagger docs
+
+saas-psql: ## connect to SaaS development database
+	PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres gmapssaas
+
+clean: ## clean build artifacts
+	@rm -rf bin/ tmp/
+
+================
+File: migration-pro.md
+================
+# Migration Plan: Merge maps-scraper-pro into google-maps-scraper
+
+## Context
+`maps-scraper-pro` is a SaaS layer built on top of `google-maps-scraper`. It adds a REST API,
+admin dashboard, River job queue, cloud provisioning, and multi-user auth. Both repos are open
+source and being merged into a single module (`github.com/gosom/google-maps-scraper`) with one
+`go.mod`. SaaS packages are merged INTO existing packages where they overlap, and added as new
+top-level packages where they don't.
+
+---
+
+## Final Directory Layout
+
+```
+google-maps-scraper/
+  # Existing packages — extended, not replaced
+  gmaps/              ← unchanged
+  runner/             ← unchanged
+  web/                ← unchanged
+  webdata/            ← unchanged
+  postgres/           ← extended: SaaS Connect/pgxpool merged in as pool.go
+  deduper/            ← unchanged
+  exiter/             ← unchanged
+  leadsdb/            ← unchanged
+  s3uploader/         ← unchanged
+  tlmt/               ← unchanged
+  main.go             ← unchanged (existing CLI)
+
+  # New packages from SaaS layer (no overlap with existing)
+  admin/              ← admin dashboard, templates/, static/ (embedded)
+  api/                ← REST API + api/docs/ (swagger, embedded)
+  cli/                ← CLI prompt/UI utilities
+  cryptoext/          ← encryption utilities
+  env/                ← environment variable handling
+  httpext/            ← HTTP utilities & middleware
+  infra/              ← cloud provisioning (digitalocean, hetzner, planetscale, vps, cloudinit)
+  log/                ← structured logging
+  migrations/         ← SQL migrations (embedded *.sql files)
+  saas/               ← root constants (package saas, env var names)
+  ratelimit/          ← rate limiting + ratelimit/postgres
+  rqueue/             ← River job queue integration
+  scraper/            ← scraper manager (provider, writer, lifecycle)
+
+  # New binary
+  cmd/
+    gmapssaas/        ← SaaS binary (serve, worker, provision, update, admin subcommands)
+
+  go.mod              ← merged single go.mod
+  # go.work + go.work.sum → DELETED
+```
+
+---
+
+## Steps
+
+### 1. Create a feature branch
+```bash
+git checkout -b feature/merge-saas
+```
+
+### 2. Delete go.work and go.work.sum
+The existing `go.work` only contains `use .` and is no longer needed.
+
+### 3. Copy packages from maps-scraper-pro
+
+```bash
+PRO=/home/giorgos/Development/github.com/gosom/maps-scraper-pro
+DST=/home/giorgos/Development/github.com/gosom/google-maps-scraper
+
+# Merge SaaS postgres into existing postgres/ (add as a new file, same package)
+cp $PRO/postgres/postgres.go $DST/postgres/pool.go
+
+# New packages (no overlap — recursive copy includes embedded assets)
+cp -r $PRO/admin       $DST/admin
+cp -r $PRO/api         $DST/api
+cp -r $PRO/cli         $DST/cli
+cp -r $PRO/cryptoext   $DST/cryptoext
+cp -r $PRO/env         $DST/env
+cp -r $PRO/httpext     $DST/httpext
+cp -r $PRO/infra       $DST/infra
+cp -r $PRO/log         $DST/log
+cp -r $PRO/migrations  $DST/migrations
+cp -r $PRO/ratelimit   $DST/ratelimit
+cp -r $PRO/rqueue      $DST/rqueue
+cp -r $PRO/scraper     $DST/scraper
+
+# Root constants → saas/ subdirectory (package saas)
+mkdir -p $DST/saas
+cp $PRO/constants.go $DST/saas/constants.go
+
+# New binary (rename gmapspro → gmapssaas)
+mkdir -p $DST/cmd
+cp -r $PRO/cmd/gmapspro $DST/cmd/gmapssaas
+```
+
+### 4. Rename package declaration and directory references
+
+Change `package mapspro` to `package saas` in constants file:
+```bash
+sed -i 's|^package mapspro|package saas|' saas/constants.go
+```
+
+### 5. Rewrite import paths in all copied files
+
+Run across all newly added directories. **Apply longest paths first** to avoid partial matches.
+
+```bash
+find admin api cli cryptoext env httpext infra log migrations ratelimit rqueue scraper saas cmd/gmapssaas postgres/pool.go -name "*.go" | \
+xargs sed -i \
+  -e 's|github.com/gosom/maps-scraper-pro/cmd/gmapspro/cmdadmin|github.com/gosom/google-maps-scraper/cmd/gmapssaas/cmdadmin|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/cmd/gmapspro/cmdcommon|github.com/gosom/google-maps-scraper/cmd/gmapssaas/cmdcommon|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/cmd/gmapspro/cmdprovision|github.com/gosom/google-maps-scraper/cmd/gmapssaas/cmdprovision|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/cmd/gmapspro/cmdserve|github.com/gosom/google-maps-scraper/cmd/gmapssaas/cmdserve|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/cmd/gmapspro/cmdupdate|github.com/gosom/google-maps-scraper/cmd/gmapssaas/cmdupdate|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/cmd/gmapspro/cmdworker|github.com/gosom/google-maps-scraper/cmd/gmapssaas/cmdworker|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/admin/postgres|github.com/gosom/google-maps-scraper/admin/postgres|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/api/docs|github.com/gosom/google-maps-scraper/api/docs|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/api/postgres|github.com/gosom/google-maps-scraper/api/postgres|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/infra/cloudinit|github.com/gosom/google-maps-scraper/infra/cloudinit|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/infra/digitalocean|github.com/gosom/google-maps-scraper/infra/digitalocean|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/infra/hetzner|github.com/gosom/google-maps-scraper/infra/hetzner|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/infra/planetscale|github.com/gosom/google-maps-scraper/infra/planetscale|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/infra/vps|github.com/gosom/google-maps-scraper/infra/vps|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/ratelimit/postgres|github.com/gosom/google-maps-scraper/ratelimit/postgres|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/admin|github.com/gosom/google-maps-scraper/admin|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/api|github.com/gosom/google-maps-scraper/api|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/cli|github.com/gosom/google-maps-scraper/cli|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/cryptoext|github.com/gosom/google-maps-scraper/cryptoext|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/env|github.com/gosom/google-maps-scraper/env|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/httpext|github.com/gosom/google-maps-scraper/httpext|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/infra|github.com/gosom/google-maps-scraper/infra|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/log|github.com/gosom/google-maps-scraper/log|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/migrations|github.com/gosom/google-maps-scraper/migrations|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/postgres|github.com/gosom/google-maps-scraper/postgres|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/ratelimit|github.com/gosom/google-maps-scraper/ratelimit|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/rqueue|github.com/gosom/google-maps-scraper/rqueue|g' \
+  -e 's|github.com/gosom/maps-scraper-pro/scraper|github.com/gosom/google-maps-scraper/scraper|g' \
+  -e 's|"github.com/gosom/maps-scraper-pro"|"github.com/gosom/google-maps-scraper/saas"|g'
+```
+
+Also update the import alias used in `cmd/gmapssaas/cmdserve/cmd_serve.go` (was `gmapspro`, now refers to `saas` package):
+```bash
+sed -i 's|gmapspro "github.com/gosom/google-maps-scraper/saas"|saas "github.com/gosom/google-maps-scraper/saas"|g' \
+  cmd/gmapssaas/cmdserve/cmd_serve.go
+```
+
+Then grep every file that uses the old alias `gmapspro.` to reference constants and update to `saas.`:
+```bash
+find cmd/gmapssaas -name "*.go" | xargs sed -i 's|gmapspro\.|saas.|g'
+```
+
+> **Notes:**
+> - `rqueue/rqueue.go` already imports `github.com/gosom/google-maps-scraper/gmaps` and `.../exiter` — those stay unchanged.
+> - `postgres/pool.go` already has `package postgres` — no package declaration change needed.
+> - `saas/constants.go` package declaration is changed from `package mapspro` to `package saas` in step 4.
+
+### 6. Update swagger contact URL and regenerate docs
+
+`api/doc.go` line 8 contains `@contact.url https://github.com/gosom/maps-scraper-pro` — this is a
+URL (not a Go import), so the sed in step 5 won't catch it. Fix manually:
+```bash
+sed -i 's|https://github.com/gosom/maps-scraper-pro|https://github.com/gosom/google-maps-scraper|g' api/doc.go
+```
+
+Then regenerate swagger docs (requires `swag` CLI):
+```bash
+swag init -g api/doc.go -o api/docs
+```
+
+### 7. Merge go.mod
+
+Add new **direct** dependencies from SaaS layer:
+```
+github.com/digitalocean/godo                        v1.173.0
+github.com/go-chi/chi/v5                            v5.2.4
+github.com/hetznercloud/hcloud-go/v2                v2.36.0
+github.com/pquerna/otp                              v1.5.0
+github.com/riverqueue/river                         v0.30.1
+github.com/riverqueue/river/riverdriver/riverpgxv5  v0.30.1
+github.com/riverqueue/river/rivertype               v0.30.1
+github.com/rubenv/sql-migrate                       v1.8.1
+github.com/skip2/go-qrcode                          v0.0.0-20200617195104-da1b6568686e
+github.com/speps/go-hashids/v2                      v2.0.1
+github.com/swaggo/http-swagger/v2                   v2.0.2
+github.com/swaggo/swag                              v1.16.6
+github.com/urfave/cli/v3                            v3.6.2
+riverqueue.com/riverui                              v0.14.0
+```
+
+Promote `golang.org/x/crypto` from indirect to **direct** (used by `rqueue/worker_jobs.go` for SSH):
+```
+golang.org/x/crypto                                 v0.47.0
+```
+
+Bump conflicting packages to the higher version:
+- `github.com/jackc/pgx/v5`: v5.7.4 → v5.8.0
+- `github.com/prometheus/client_golang`: v1.19.1 → v1.23.2
+- `github.com/gabriel-vasile/mimetype`: v1.4.9 → v1.4.12
+- `github.com/go-playground/validator/v10`: v10.26.0 → v10.30.1
+- `github.com/stretchr/testify`: v1.10.0 → v1.11.1
+- `golang.org/x/sync`: v0.16.0 → v0.19.0
+- `golang.org/x/net`: v0.42.0 → v0.49.0
+- `golang.org/x/sys`: v0.39.0 → v0.40.0
+- `golang.org/x/text`: v0.27.0 → v0.33.0
+- `golang.org/x/mod`: v0.25.0 → v0.32.0
+- `golang.org/x/tools`: v0.34.0 → v0.41.0
+- `google.golang.org/protobuf`: v1.36.6 → v1.36.8
+
+Remove `github.com/gosom/google-maps-scraper` from require (SaaS layer used it as external dep; now it's local).
+
+Then run: `go mod tidy`
+
+### 8. Build verification
+```bash
+go build ./...
+go build -o bin/google-maps-scraper .
+go build -o bin/gmapssaas ./cmd/gmapssaas/
+go test ./...
+```
+
+---
+
+## Critical Files
+- `go.mod` — merged deps + version bumps
+- `postgres/pool.go` — SaaS Connect() added to existing postgres package; no symbol clash (verified: existing package only exports NewProvider, NewResultWriter, ProviderOption, WithBatchSize using `*sql.DB`)
+- `cmd/gmapssaas/cmdserve/cmd_serve.go` — most import-dense file (13 internal imports); first to validate
+- `rqueue/rqueue.go` — imports both SaaS packages AND existing gmaps/exiter; verify no rewrites break it
+- `rqueue/worker_jobs.go` — imports cryptoext, infra, infra/cloudinit, log from SaaS layer
+- `saas/constants.go` — verify package declaration is `package saas`
+- `admin/state.go` — contains `//go:embed templates/*.html` and `//go:embed static/*`; verify embedded assets copied correctly
+- `migrations/migrations.go` — contains `//go:embed *.sql`; verify SQL files are in place
+
+## Embedded Assets Checklist
+These files travel with their packages via `cp -r` but must be present for `//go:embed` to work:
+- `admin/templates/` — 12 HTML files (dashboard, login, 2fa, jobs, workers, etc.)
+- `admin/static/` — 5 files (pico.min.css, styles.css, xterm.css, xterm.min.js, xterm-addon-fit.min.js)
+- `migrations/*.sql` — 7 SQL migration files
+
+## Out of Scope (handle separately)
+- **Dockerfile**: Target repo already has its own. Consider adding `Dockerfile.saas` for the SaaS binary.
+- **Makefile**: Target repo already has its own. Merge SaaS targets (dev, migrate, gen) as needed.
+- **docker-compose**: Target repo has `docker-compose.dev.yaml`. Merge postgres service from SaaS compose.
+- **examples-api/**: API usage examples from the SaaS repo — copy if desired.
+
+================
+File: PROVISION
+================
+#!/bin/sh
+set -e
+
+IMAGE="ghcr.io/gosom/google-maps-scraper-saas:latest"
+STATE_DIR="$HOME/.gmapssaas"
+
+# --- helpers ---
+info()  { printf '\033[1;32m✓\033[0m %s\n' "$1"; }
+fail()  { printf '\033[1;31m✗\033[0m %s\n' "$1" >&2; exit 1; }
+
+# --- preflight checks ---
+command -v docker >/dev/null 2>&1 || fail "Docker is required but not installed. See https://docs.docker.com/get-docker/"
+docker info >/dev/null 2>&1      || fail "Docker daemon is not running. Please start Docker and try again."
+info "Docker is available"
+
+# --- prepare state directory ---
+mkdir -p "$STATE_DIR"
+info "State directory ready ($STATE_DIR)"
+
+# --- determine command (default: provision) ---
+CMD="${1:-provision}"
+
+# --- run (attach /dev/tty so interactive prompts work even via curl|sh) ---
+exec docker run --rm -it \
+  -e HOME="$HOME" \
+  -e XDG_CACHE_HOME=/tmp/.cache \
+  -e GMAPSSAAS_IMAGE="$IMAGE" \
+  -v "$STATE_DIR:$STATE_DIR" \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v "$HOME/.ssh:$HOME/.ssh:ro" \
+  --user "$(id -u):$(id -g)" \
+  "$IMAGE" "$CMD" < /dev/tty
+
+================
+File: scrap_io.md
+================
+# Scrap.io: Google Maps Scraping Premium
+
+[![No time for code? Extract all Google Maps listings at country-scale in 2 clicks without keywords or limits](img/premium_scrap_io.png)](https://scrap.io?utm_medium=ads&utm_source=github_gosom_gmap_scraper)
+
+## 🚀 Why Choose Scrap.io?
+
+### Country-Wide Scraping Without The Hassle
+- Get **all businesses** in an entire country instantly
+- No keyword-by-keyword searches
+- No results limitations per search
+- Complete data without technical overhead
+
+### Zero Setup Required
+- No code to install
+- No configuration needed
+- Start scraping immediately
+- Premium support included
+
+## 🎯 Get Started
+Stop wasting time with technical setups and get your Google Maps data instantly.
+
+[Let's go →](https://scrap.io?utm_medium=ads&utm_source=github_gosom_gmap_scraper/)
+
+[![Scrape a full country in just 2 clicks](img/premium_scrap_io_demo.gif)](https://scrap.io?utm_medium=ads&utm_source=github_gosom_gmap_scraper)
+
+================
+File: serpapi.md
+================
+# SerpApi
+
+At [SerpApi](https://serpapi.com/?utm_source=google-maps-scraper), we scrape public data not only from Google but from all other top search engines, as well as Home Depot and Walmart product catalogs. You can check the full list of our APIs on the left panel under the following link:
+
+<https://serpapi.com/search-api>
+
+If you want to get a sense of what SerpApi can accomplish, I would suggest checking out our Playground, where you can try out our API and experiment with many of the search engines and parameters we support:
+
+<https://serpapi.com/playground>
+
+We offer the best response times and success rates on the market. You can refer to it here:
+
+<https://serpapi.com/status>
+
+SerpApi manages the intricacies of scraping and returns structured JSON results. Search Engines constantly experiment with new layouts, new elements, and other changes. We do all the work to maintain all of our parsers and adapt them to respond to changes quickly. By taking care of this for you, we eliminate a lot of time and complexity from your workflow.
+
+We are a subscription-based company, and we offer a wide variety of plans. You can view all of our self-serve plans by registering a free account at serpapi.com and checking the following link:
+
+<https://serpapi.com/change-plan>
+
+​If you need a higher volume, custom features, payment by wire transfer, custom contracts, or have any questions please reach out to us at <contact@serpapi.com>. We will be happy to help you get started.
+
+### About our Google Maps API
+
+This API makes it easy to scrape information, photos, and reviews of businesses and locations on Google Maps. Whether you want to get data for a location by its name, or are doing a keyword search for a list of related businesses, you can scrape Google Maps data for any query with our Google Maps API.
+
+This can be a powerful tool for content aggregators, business owners, entrepreneurs, and others. To see this in action, head to the Playground: <https://serpapi.com/playground?engine=google_maps>
+
+You can find the documentation for our Google Maps API here: <https://serpapi.com/google-maps-api>
+
+### Other Relevant APIs
+
+We offer a couple of APIs which allow you to scrape specific information from Google Maps:
+
+[Google Maps Autocomplete API](https://serpapi.com/google-maps-autocomplete-api): Allows you to get suggestions for a keyword in Google Maps.
+
+[Google Maps Contributor Review API](https://serpapi.com/google-maps-contributor-reviews-api): Allows you to scrape all the reviews from a Google Maps user.
+
+[Google Maps Directions API](https://serpapi.com/google-maps-directions-api): Allows you to scrape directions results from Google Maps.
+
+[Google Maps Local Results API](https://serpapi.com/maps-local-results): Allows you to scrape the results of a local Google Maps Search.
+
+[Google Maps Photo Meta API](https://serpapi.com/google-maps-photo-meta-api): Allows you to scrape information like location, user and date of photos available on Google Maps. 
+
+[Google Maps Photos API](https://serpapi.com/google-maps-photos-api): Allows you to scrape photos from Google Maps.
+
+[Google Maps Place Results API](https://serpapi.com/maps-place-results): Allows you to scrape data about a particular place on Google Maps.
+
+[Google Maps Review API](https://serpapi.com/google-maps-reviews-api): Allows you to scrape reviews from Google Maps.
+
+We also offer additional APIs which allow you to scrape maps data from other search engines:
+
+[Bing Maps API](https://serpapi.com/bing-maps-api): Allows you to scrape results from Bing Maps.
+
+[DuckDuckGo Maps API](https://serpapi.com/duckduckgo-maps-api): Allows you to scrape results from the DuckDuckGo Maps search page.
+
+If you have any questions please reach out to us at <contact@serpapi.com>. Our team will be happy to help you.
+
+================
+File: webshare.md
+================
+# Webshare.io: The Most Affordable Premium Proxies on the Market
+
+<p align="center">
+  <a href="https://www.webshare.io/?referral_code=0q3l81eet8mp">
+    <img src="./img/webshare-logo.png" alt="Webshare logo" width="140">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://www.webshare.io/?referral_code=0q3l81eet8mp">
+    <img src="./img/webshare-banner.png" alt="Webshare premium proxies banner" width="900">
+  </a>
+</p>
+
+## Why Choose Webshare? ✅
+
+---
+
+### Robust Performance & Features at a Fraction of the Price
+
+* 195+ country coverage & 80,000,000+ IPs
+* 99.97% uptime guarantee
+* IP/password authentication
+* IP rotation & backbone connectivity
+* API integration
+* HTTP/SOCKS5 protocol support
+
+### Ultimate Flexibility
+
+* Choose between Shared, Private, and Dedicated tiers for Datacenter & ISP plans
+* New users start completely FREE with 10 proxies & 1 GB
+* FREE Chrome browser extension
+* Advanced dashboard for proxy usage tracking and management
+
+## Get Started 🚀
+
+---
+
+New to Webshare? Start completely FREE by creating an account: you'll get 10 proxies + 1 GB/mo of bandwidth to use for as long as you like, no credit card required.
+
+[Start Now](https://www.webshare.io/?referral_code=0q3l81eet8mp)

@@ -1,0 +1,2377 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where content has been compressed (code blocks are separated by ⋮---- delimiter).
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.ipynb, *.json, *.csv, *.svg, *.png, *.jpg, *.gif, *.ico, *.lock, *.map, *.min.js, *.min.css, yarn.lock, package-lock.json, pnpm-lock.yaml, *.snap, *.fixture*, __fixtures__/**, __mocks__/**, **/mock*/**, dist/**, build/**, .next/**, coverage/**, *.test.*, *.spec.*
+- Files matching default ignore patterns are excluded
+- Content has been compressed - code blocks are separated by ⋮---- delimiter
+- Files are sorted by Git change count (files with more changes are at the bottom)
+
+
+================================================================
+Directory Structure
+================================================================
+.github/
+  workflows/
+    auto-close-old-reports.yml
+    ci.yml
+    clawhub-publish.yml
+    docker.yml
+    publish.yml
+    telemetry-deploy.yml
+  CODEOWNERS
+  FUNDING.yml
+changelog/
+  1.4.0.md
+docs/
+  api.html
+  fox.png
+  openapi.json
+lib/
+  auth.js
+  config.js
+  cookies.js
+  downloads.js
+  extract.js
+  fly.js
+  images.js
+  inflight.js
+  launcher.js
+  macros.js
+  metrics.js
+  openapi.js
+  persistence.js
+  plugins.js
+  proxy.js
+  reporter.js
+  request-utils.js
+  resources.js
+  snapshot.js
+  tmp-cleanup.js
+  tracing.js
+plugins/
+  persistence/
+    AGENTS.md
+    index.js
+    persistence.test.js
+    plugin.test.js
+    README.md
+  vnc/
+    AGENTS.md
+    apt.txt
+    index.js
+    README.md
+    spawn.js
+    vnc-launcher.js
+    vnc-watcher.sh
+    vnc.test.js
+  youtube/
+    AGENTS.md
+    apt.txt
+    index.js
+    post-install.sh
+    youtube.js
+    youtube.test.js
+scripts/
+  exec.js
+  generate-openapi.js
+  install-plugin-deps.sh
+  plugin.js
+  plugin.test.js
+  sync-version.js
+tests/
+  e2e/
+    concurrency.test.js
+    downloadsImages.test.js
+    formSubmission.test.js
+    globalSetup.js
+    globalTeardown.js
+    macroNavigation.test.js
+    navigation.test.js
+    screenshot.test.js
+    scroll.test.js
+    sharedEnv.js
+    snapshot-truncation.test.js
+    snapshotLinks.test.js
+    snapshotScreenshot.test.js
+    tabLifecycle.test.js
+    typingEnter.test.js
+  helpers/
+    client.js
+    startServer.js
+    test-env.js
+    testSite.js
+  live/
+    googleSearch.test.js
+    macroExpansion.test.js
+  unit/
+    accessKey.test.js
+    auth.test.js
+    autoCookieImport.test.js
+    cookies.test.js
+    crashRelay.test.js
+    crashRelayWorker.test.js
+    downloads.test.js
+    extract.test.js
+    flyReplay.test.js
+    inflight.test.js
+    macros.test.js
+    memoryPressure.test.js
+    navigateAbort.test.js
+    netscapeParser.test.js
+    noSecrets.test.js
+    openapi.test.js
+    plugins.test.js
+    proxy.test.js
+    proxyRotation.test.js
+    reporter.test.js
+    screenshotToolResult.test.js
+    security.test.js
+    sessionCleanup.test.js
+    sessionDestroyingEvent.test.js
+    snapshot.test.js
+    tabRecycling.test.js
+    tmpCleanup.test.js
+    tracing.test.js
+    tracingApi.test.js
+    typeKeyboardMode.test.js
+workers/
+  crash-reporter/
+    index.ts
+    wrangler.toml
+.gitignore
+AGENTS.md
+CONTRIBUTING.md
+Dockerfile
+Dockerfile.ci
+jest.config.cjs
+jest.config.e2e.cjs
+LICENSE
+Makefile
+plugin.ts
+railway.toml
+README.md
+release.sh
+run.sh
+server.js
+
+================================================================
+Files
+================================================================
+
+================================================================
+Files (Truncated to most frequently changed / important files for AI context)
+
+================
+File: server.js
+================
+// --- Crash reporter (opt-in, anonymized GitHub issues) ---
+⋮----
+function _countTabs()
+function _browserPid()
+function _resourceOpts()
+⋮----
+// --- Plugin event bus ---
+⋮----
+// --- Shared auth middleware ---
+const authMiddleware = ()
+⋮----
+// --- Structured logging ---
+function log(level, msg, fields =
+⋮----
+// Request logging + metrics middleware
+⋮----
+// --- Horizontal scaling (Fly.io multi-machine) ---
+⋮----
+// Route tab requests to the owning machine via fly-replay header.
+⋮----
+// Access-key middleware: gates every route when CAMOFOX_ACCESS_KEY is set.
+// Exempts /health (Docker healthcheck) and routes that have their own
+// dedicated keys (cookie import -> CAMOFOX_API_KEY, /stop -> CAMOFOX_ADMIN_KEY)
+// so each key gates a distinct surface. When unset, behavior is unchanged.
+⋮----
+// Interactive roles to include - exclude combobox to avoid opening complex widgets
+// (date pickers, dropdowns) that can interfere with navigation
+⋮----
+// 'combobox' excluded - can trigger date pickers and complex dropdowns
+⋮----
+// Patterns to skip (date pickers, calendar widgets)
+⋮----
+// timingSafeCompare and isLoopbackAddress imported from lib/auth.js
+⋮----
+// Custom error for stale/unknown element refs -- returned as 422 instead of 500
+class StaleRefsError extends Error
+⋮----
+function safeError(err)
+⋮----
+// Send error response with appropriate status code (422 for stale refs, 500 otherwise)
+function sendError(res, err, extraFields =
+⋮----
+function validateUrl(url)
+⋮----
+// isLoopbackAddress -- now imported from lib/auth.js (see top of file)
+⋮----
+// Import cookies into a user's browser context (Playwright cookies format)
+// POST /sessions/:userId/cookies { cookies: Cookie[] }
+//
+// SECURITY:
+// Cookie injection moves this from "anonymous browsing" to "authenticated browsing".
+/**
+ * @openapi
+ * /sessions/{userId}/cookies:
+ *   post:
+ *     tags: [Sessions]
+ *     summary: Import cookies into a user session
+ *     description: Import cookies for authenticated browsing. Requires BearerAuth in production.
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Session owner identifier.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [cookies]
+ *             properties:
+ *               cookies:
+ *                 type: array
+ *                 maxItems: 500
+ *                 items:
+ *                   type: object
+ *                   required: [name, value, domain]
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                     value:
+ *                       type: string
+ *                     domain:
+ *                       type: string
+ *                     path:
+ *                       type: string
+ *                     expires:
+ *                       type: number
+ *                     httpOnly:
+ *                       type: boolean
+ *                     secure:
+ *                       type: boolean
+ *                     sameSite:
+ *                       type: string
+ *                       enum: [Strict, Lax, None]
+ *     responses:
+ *       200:
+ *         description: Cookies imported.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 userId:
+ *                   type: string
+ *                 count:
+ *                   type: integer
+ *       400:
+ *         description: Invalid cookie data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Forbidden.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+let _lastBrowserPid = null; // Track PID independently for force-kill after close
+let _browserClosePromise = null; // Shared promise for concurrent close serialization
+// userId -> { context, tabGroups: Map<sessionKey, Map<tabId, TabState>>, lastAccess }
+// TabState = { page, refs: Map<refId, {role, name, nth}>, visitedUrls: Set, downloads: Array, toolCalls: number }
+// Note: sessionKey was previously called listItemId - both are accepted for backward compatibility
+⋮----
+let _nativeMemBaseline = null; // RSS - heapUsed at first idle measurement
+⋮----
+const TAB_LOCK_TIMEOUT_MS = 35000; // Must be > HANDLER_TIMEOUT_MS so active op times out first
+⋮----
+// Proper mutex for tab serialization. The old Promise-chain lock on timeout proceeded
+// WITHOUT the lock, allowing concurrent Playwright operations that corrupt CDP state.
+class TabLock
+⋮----
+acquire(timeoutMs)
+⋮----
+release()
+⋮----
+_tryNext()
+⋮----
+drain()
+⋮----
+// Per-tab locks to serialize operations on the same tab
+const tabLocks = new Map(); // tabId -> TabLock
+⋮----
+function getTabLock(tabId)
+⋮----
+// Timeout is INSIDE the lock so each operation gets its full budget
+// regardless of how long it waited in the queue.
+async function withTabLock(tabId, operation, timeoutMs = HANDLER_TIMEOUT_MS)
+⋮----
+function withTimeout(promise, ms, label)
+⋮----
+function requestTimeoutMs(baseMs = HANDLER_TIMEOUT_MS)
+⋮----
+async function withUserLimit(userId, operation)
+⋮----
+async function safePageClose(page)
+⋮----
+// Detect host OS for fingerprint generation
+function getHostOS()
+⋮----
+// Proxy strategy for outbound browsing.
+⋮----
+function scheduleBrowserIdleShutdown()
+⋮----
+function clearBrowserIdleTimer()
+⋮----
+function scheduleBrowserWarmRetry(delayMs = 5000)
+⋮----
+// --- Browser health tracking ---
+⋮----
+function recordNavSuccess()
+⋮----
+function recordNavFailure()
+⋮----
+async function restartBrowser(reason)
+⋮----
+function getTotalTabCount()
+⋮----
+// Virtual display for WebGL support and anti-detection.
+// Xvfb gives Firefox a real X display with GLX, enabling software-rendered WebGL
+// via Mesa llvmpipe. Without this, WebGL returns "no context" -- a massive bot signal.
+⋮----
+async function probeGoogleSearch(candidateBrowser)
+⋮----
+function attachBrowserCleanup(candidateBrowser, localVirtualDisplay)
+⋮----
+candidateBrowser.close = async (...args) =>
+⋮----
+/**
+ * Close browser with full process-tree cleanup. Handles the race where
+ * browser.close() fails/hangs but process tree survives.
+ *
+ * Serialized: concurrent callers await the same promise (no double-close).
+ *
+ * Order: capture PID -> close browser -> force-kill survivors ->
+ * clean temp profiles -> verify FD/handle drop.
+ */
+async function closeBrowserFully(reason)
+⋮----
+async function _closeBrowserFullyImpl(reason)
+⋮----
+// Capture PID before nulling browser ref -- we need it for force-kill
+⋮----
+// Null the ref so new requests don't use a dying browser
+⋮----
+// Close through Playwright (sends CDP Browser.close, then SIGKILL process group)
+⋮----
+// Force-kill the entire process tree if any survivors
+⋮----
+// Clean up stale Firefox temp profiles (enable_cache: true accumulates data)
+⋮----
+} catch { /* best effort */ }
+⋮----
+// Reset native memory baseline so next browser measures from fresh
+⋮----
+// Verify cleanup: check FD/handle counts dropped (after force-kill completes)
+⋮----
+// After close we expect fewer FDs. If more leaked, warn.
+⋮----
+/**
+ * Force-kill a browser process tree by PID. On Linux, kills the process group
+ * (SIGKILL -pid) then scans /proc for any orphaned children.
+ */
+async function _forceKillProcessTree(pid, reason)
+⋮----
+// Kill the specific browser process first (positive PID = single process)
+⋮----
+// Then try the process group (Playwright launches with detached:true on Linux,
+// making the browser a process group leader)
+⋮----
+// ESRCH = group doesn't exist (browser wasn't a group leader), which is fine
+⋮----
+// Wait for kernel to reparent children to PID 1 before scanning
+⋮----
+// On Linux: scan /proc for orphaned children that escaped the process group
+// (reparented to PID 1 by init/systemd, common with Firefox content processes).
+// Also checks PPid === Node PID for containerized environments without init.
+⋮----
+// Snapshot the current browser PID to avoid killing a newly launched browser
+⋮----
+// Never kill ourselves, the old PID (already killed), or the new browser
+⋮----
+// Orphaned to init (PID 1) or reparented to us (Node is PID 1 in containers)
+⋮----
+// Firefox-specific: binary name or Gecko child process marker
+⋮----
+} catch { /* process vanished or permission denied */ }
+⋮----
+try { process.kill(orphanPid, 'SIGKILL'); } catch { /* already dead */ }
+⋮----
+// Give the OS a moment to reclaim resources
+⋮----
+function _countOpenFds()
+⋮----
+} catch { /* unavailable */ }
+⋮----
+function _countActiveHandles()
+⋮----
+async function launchBrowserInstance()
+⋮----
+// Last attempt: accept browser in degraded mode rather than death-spiraling.
+// Non-Google sites will still work; Google requests will get blocked responses.
+⋮----
+browser = candidateBrowser; // publish AFTER PID is captured
+⋮----
+async function ensureBrowser()
+⋮----
+// Helper to normalize userId to string (JSON body may parse as number)
+function normalizeUserId(userId)
+⋮----
+function clearSessionLocks(session)
+⋮----
+async function closeSession(userId, session, {
+  reason = 'session_closed',
+  clearDownloads = true,
+  clearLocks = true,
+} =
+⋮----
+async function closeAllSessions(reason,
+⋮----
+async function getSession(userId,
+⋮----
+// Check if existing session's context is still alive
+⋮----
+// Session is being torn down by reaper/expiry -- treat as dead
+⋮----
+// Lightweight probe: pages() is synchronous-ish and throws if context is dead
+⋮----
+// When geoip is active (proxy configured), camoufox auto-configures
+// locale/timezone/geolocation from the proxy IP. Without proxy, use defaults.
+⋮----
+function getTabGroup(session, listItemId)
+⋮----
+function isDeadContextError(err)
+⋮----
+function isTimeoutError(err)
+⋮----
+function isTabLockQueueTimeout(err)
+⋮----
+function isTabDestroyedError(err)
+⋮----
+// Centralized error handler for route catch blocks.
+// Auto-destroys dead browser sessions and returns appropriate status codes.
+function isProxyError(err)
+⋮----
+function handleRouteError(err, req, res, extraFields =
+⋮----
+// Proxy errors mean the session is dead -- rotate at context level.
+// Destroy the user's session so the next request gets a fresh context with a new proxy.
+⋮----
+// Track consecutive timeouts per tab and auto-destroy stuck tabs
+⋮----
+// Lock queue timeout = tab is stuck. Destroy immediately.
+⋮----
+// Tab was destroyed while this request was queued in the lock
+⋮----
+// --- Frustration detection: report when a tab hits a streak of failures ---
+// Individual failures are noise. 3+ consecutive = the site is persistently broken.
+⋮----
+function destroyTab(session, tabId, reason, userId)
+⋮----
+/**
+ * Recycle the oldest (least-used) tab in a session to free a slot.
+ * Closes the old tab's page and removes it from its group.
+ * Returns { recycledTabId, recycledFromGroup } or null if no tab to recycle.
+ */
+async function recycleOldestTab(session, reqId, userId)
+⋮----
+function destroySession(userId)
+⋮----
+function findTab(session, tabId)
+⋮----
+function createTabState(page)
+⋮----
+async function isGoogleUnavailable(page)
+⋮----
+async function rotateGoogleTab(userId, sessionKey, tabId, previousTabState, reason, reqId)
+⋮----
+browserRestartsTotal.labels(reason).inc(); // track rotation events (not a full restart)
+⋮----
+// Rotate at context level -- create a fresh context with a new proxy session
+// instead of restarting the entire browser (which kills ALL sessions/tabs).
+⋮----
+function refreshActiveTabsGauge()
+⋮----
+function refreshTabLockQueueDepth()
+⋮----
+async function withPageLoadDuration(action, fn)
+⋮----
+async function waitForPageReady(page, options =
+⋮----
+// Auto-dismiss common consent/privacy dialogs
+⋮----
+async function dismissConsentDialogs(page)
+⋮----
+// Common consent/privacy dialog selectors (matches Swift WebView.swift patterns)
+⋮----
+// OneTrust (very common)
+⋮----
+// Generic patterns
+⋮----
+// Dialog close buttons
+⋮----
+// GDPR/CCPA specific
+⋮----
+// Overlay close buttons
+⋮----
+await page.waitForTimeout(300); // Brief pause after dismiss
+break; // Only dismiss one dialog per page load
+⋮----
+// Selector not found or not clickable, continue
+⋮----
+// --- Google SERP detection ---
+function isGoogleSerp(url)
+⋮----
+function isGoogleSearchUrl(url)
+⋮----
+async function isGoogleSearchBlocked(page)
+⋮----
+// --- Google SERP: combined extraction (refs + snapshot in one DOM pass) ---
+// Returns { refs: Map, snapshot: string }
+async function extractGoogleSerp(page)
+⋮----
+function addRef(role, name)
+⋮----
+async function buildRefs(page)
+⋮----
+// Google SERP fast path -- skip ariaSnapshot entirely
+⋮----
+// Hard total timeout on the entire buildRefs operation
+⋮----
+async function _buildRefsInner(page, refs, start)
+⋮----
+// Budget remaining time for ariaSnapshot
+⋮----
+// Track occurrences of each role+name combo for nth disambiguation
+const seenCounts = new Map(); // "role:name" -> count
+⋮----
+// Get current count and increment
+⋮----
+async function getAriaSnapshot(page)
+⋮----
+function refToLocator(page, ref, refs)
+⋮----
+// Always use .nth() to disambiguate duplicate role+name combinations
+// This avoids "strict mode violation" when multiple elements match
+⋮----
+async function refreshTabRefs(tabState, options =
+⋮----
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     tags: [System]
+ *     summary: Health check
+ *     description: Detailed health with tab/session counts and failure tracking.
+ *     responses:
+ *       200:
+ *         description: Healthy.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 engine:
+ *                   type: string
+ *                 browserConnected:
+ *                   type: boolean
+ *                 browserRunning:
+ *                   type: boolean
+ *                 activeTabs:
+ *                   type: integer
+ *                 activeSessions:
+ *                   type: integer
+ *                 consecutiveFailures:
+ *                   type: integer
+ *       503:
+ *         description: Unhealthy or recovering.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 recovering:
+ *                   type: boolean
+ */
+⋮----
+/**
+ * @openapi
+ * /metrics:
+ *   get:
+ *     tags: [System]
+ *     summary: Prometheus metrics
+ *     description: Returns Prometheus text exposition format. Requires PROMETHEUS_ENABLED=1.
+ *     responses:
+ *       200:
+ *         description: Prometheus metrics.
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *       404:
+ *         description: Metrics disabled.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Create new tab
+/**
+ * @openapi
+ * /tabs:
+ *   post:
+ *     tags: [Tabs]
+ *     summary: Create a new tab
+ *     description: Creates a tab in the given session. Optionally navigates to an initial URL.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId, sessionKey]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: Session owner.
+ *               sessionKey:
+ *                 type: string
+ *                 description: Tab group identifier.
+ *               listItemId:
+ *                 type: string
+ *                 description: Legacy alias for sessionKey.
+ *               url:
+ *                 type: string
+ *                 description: Optional initial URL.
+ *               trace:
+ *                 type: boolean
+ *                 description: Enable Playwright tracing for this session (screenshots, DOM snapshots, network). Must be set on first tab creation; cannot be added to an existing session.
+ *     responses:
+ *       200:
+ *         description: Tab created.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 tabId:
+ *                   type: string
+ *                 url:
+ *                   type: string
+ *       400:
+ *         description: Missing required fields.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       429:
+ *         description: Tab limit reached.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       409:
+ *         description: Cannot enable tracing on an existing session.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Accept both sessionKey (preferred) and listItemId (legacy) for backward compatibility
+⋮----
+// Recycle oldest tab when limits are reached instead of rejecting
+⋮----
+// Navigate
+/**
+ * @openapi
+ * /tabs/{tabId}/navigate:
+ *   post:
+ *     tags: [Navigation]
+ *     summary: Navigate a tab to a URL or macro
+ *     description: Navigate to a URL or expand a search macro. Auto-creates tab if not found.
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *               macro:
+ *                 type: string
+ *                 description: Search macro (e.g. @google_search).
+ *               query:
+ *                 type: string
+ *                 description: Search query for macro.
+ *               sessionKey:
+ *                 type: string
+ *               listItemId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Navigation result with snapshot.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Recycle oldest tab to free a slot, then create new page
+⋮----
+const navigateCurrentPage = async () =>
+⋮----
+gotoP.catch(() => {}); // suppress unhandled rejection from still-pending goto
+⋮----
+const prewarmGoogleHome = async () =>
+⋮----
+const recreateTabOnFreshContext = async () =>
+⋮----
+// Rotate at context level -- destroy this user's session and create
+// a fresh one with a new proxy session. Does NOT restart the browser.
+⋮----
+// For Google SERP: skip eager ref building during navigate.
+// Results render asynchronously after DOMContentLoaded -- the snapshot
+// call will wait for and extract them.
+⋮----
+// Snapshot
+/**
+ * @openapi
+ * /tabs/{tabId}/snapshot:
+ *   get:
+ *     tags: [Content]
+ *     summary: Accessibility snapshot
+ *     description: Returns accessibility tree with element refs. Supports pagination via offset.
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: userId
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: format
+ *         in: query
+ *         schema:
+ *           type: string
+ *           enum: [text, json]
+ *           default: text
+ *       - name: offset
+ *         in: query
+ *         schema:
+ *           type: integer
+ *         description: Character offset for paginated retrieval.
+ *       - name: includeScreenshot
+ *         in: query
+ *         schema:
+ *           type: string
+ *           enum: ['true', 'false']
+ *     responses:
+ *       200:
+ *         description: Snapshot.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 url:
+ *                   type: string
+ *                 snapshot:
+ *                   type: string
+ *                 refsCount:
+ *                   type: integer
+ *                 truncated:
+ *                   type: boolean
+ *                 totalChars:
+ *                   type: integer
+ *                 hasMore:
+ *                   type: boolean
+ *                 nextOffset:
+ *                   type: integer
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Cached chunk retrieval for offset>0 requests
+⋮----
+// Google SERP fast path -- DOM extraction instead of ariaSnapshot
+⋮----
+// Wait for page ready
+/**
+ * @openapi
+ * /tabs/{tabId}/wait:
+ *   post:
+ *     tags: [Interaction]
+ *     summary: Wait for a selector or timeout
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               selector:
+ *                 type: string
+ *               timeout:
+ *                 type: integer
+ *                 description: Max wait in ms.
+ *     responses:
+ *       200:
+ *         description: Wait completed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Click
+/**
+ * @openapi
+ * /tabs/{tabId}/click:
+ *   post:
+ *     tags: [Interaction]
+ *     summary: Click an element
+ *     description: Click by element ref, CSS selector, or coordinates.
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               ref:
+ *                 type: string
+ *                 description: Element ref ID (e.g. "e3").
+ *               selector:
+ *                 type: string
+ *                 description: CSS selector fallback.
+ *               doubleClick:
+ *                 type: boolean
+ *               coordinates:
+ *                 type: object
+ *                 properties:
+ *                   x:
+ *                     type: number
+ *                   y:
+ *                     type: number
+ *     responses:
+ *       200:
+ *         description: Click result with optional post-action snapshot.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+const remainingBudget = ()
+// Full mouse event sequence for stubborn JS click handlers (mirrors Swift WebView.swift)
+// Dispatches: mouseover -> mouseenter -> mousedown -> mouseup -> click
+const dispatchMouseSequence = async (locator) =>
+⋮----
+// Move mouse to element (triggers mouseover/mouseenter)
+⋮----
+// Full click sequence
+⋮----
+// On Google SERPs, skip the normal click attempt (always intercepted by overlays)
+// and go directly to force click -- saves 5s timeout per click
+⋮----
+const doClick = async (locatorOrSelector, isLocator) =>
+⋮----
+// First try normal click (respects visibility, enabled, not-obscured)
+⋮----
+// Fallback 1: If intercepted by overlay, retry with force
+⋮----
+// Fallback 2: Full mouse event sequence for stubborn JS handlers
+⋮----
+// Fallback 2: Element not responding to click, try mouse sequence
+⋮----
+// Use tight timeout (4s max) to leave budget for click + post-click buildRefs
+⋮----
+// If clicking on a Google SERP, wait for potential navigation to complete
+⋮----
+// Skip buildRefs here -- SERP clicks typically navigate to a new page,
+// and the caller always requests /snapshot next which rebuilds refs.
+⋮----
+// buildRefs after click -- use remaining budget (min 2s) so we don't blow the handler timeout.
+// If it times out, return without refs (caller's next /snapshot will rebuild them).
+⋮----
+// Type
+/**
+ * @openapi
+ * /tabs/{tabId}/type:
+ *   post:
+ *     tags: [Interaction]
+ *     summary: Type text into an element
+ *     description: Types text into a focused element or a specific ref/selector.
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId, text]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               ref:
+ *                 type: string
+ *               selector:
+ *                 type: string
+ *               text:
+ *                 type: string
+ *               clear:
+ *                 type: boolean
+ *                 description: Clear field before typing.
+ *               submit:
+ *                 type: boolean
+ *                 description: Press Enter after typing.
+ *     responses:
+ *       200:
+ *         description: Type result.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// keyboard mode: ref/selector are optional (types into current focus)
+⋮----
+// Resolve and focus the target if ref/selector provided
+⋮----
+// keyboard mode -- char-by-char real key events (required for Ember/contenteditable)
+⋮----
+// Press key
+/**
+ * @openapi
+ * /tabs/{tabId}/press:
+ *   post:
+ *     tags: [Interaction]
+ *     summary: Press a keyboard key
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId, key]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               key:
+ *                 type: string
+ *                 description: Key name (e.g. "Enter", "Escape", "Tab").
+ *     responses:
+ *       200:
+ *         description: Key pressed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Scroll
+/**
+ * @openapi
+ * /tabs/{tabId}/scroll:
+ *   post:
+ *     tags: [Interaction]
+ *     summary: Scroll the page
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               direction:
+ *                 type: string
+ *                 description: '"up" or "down" (default "down").'
+ *               amount:
+ *                 type: integer
+ *                 description: Pixels to scroll.
+ *     responses:
+ *       200:
+ *         description: Scroll result.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Back
+/**
+ * @openapi
+ * /tabs/{tabId}/back:
+ *   post:
+ *     tags: [Navigation]
+ *     summary: Go back
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Navigated back.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 url:
+ *                   type: string
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// NS_BINDING_CANCELLED_OLD_LOAD: Firefox cancels the old load when going back.
+// The navigation itself succeeded -- just the prior page's load was interrupted.
+⋮----
+// Forward
+/**
+ * @openapi
+ * /tabs/{tabId}/forward:
+ *   post:
+ *     tags: [Navigation]
+ *     summary: Go forward
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Navigated forward.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 url:
+ *                   type: string
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Refresh
+/**
+ * @openapi
+ * /tabs/{tabId}/refresh:
+ *   post:
+ *     tags: [Navigation]
+ *     summary: Refresh page
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Page refreshed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 url:
+ *                   type: string
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Get links
+/**
+ * @openapi
+ * /tabs/{tabId}/links:
+ *   get:
+ *     tags: [Content]
+ *     summary: Extract page links
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: userId
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Links extracted.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 links:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       text:
+ *                         type: string
+ *                       href:
+ *                         type: string
+ *                       ref:
+ *                         type: string
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Get captured downloads
+/**
+ * @openapi
+ * /tabs/{tabId}/downloads:
+ *   get:
+ *     tags: [Content]
+ *     summary: List tab downloads
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: userId
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Downloads list.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 downloads:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       filename:
+ *                         type: string
+ *                       url:
+ *                         type: string
+ *                       state:
+ *                         type: string
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Get image elements from current page
+/**
+ * @openapi
+ * /tabs/{tabId}/images:
+ *   get:
+ *     tags: [Content]
+ *     summary: Extract page images
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: userId
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Images extracted.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 images:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       src:
+ *                         type: string
+ *                       alt:
+ *                         type: string
+ *                       width:
+ *                         type: integer
+ *                       height:
+ *                         type: integer
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Screenshot
+/**
+ * @openapi
+ * /tabs/{tabId}/screenshot:
+ *   get:
+ *     tags: [Content]
+ *     summary: Take a screenshot
+ *     description: Returns a base64-encoded PNG screenshot.
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: userId
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Screenshot.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 screenshot:
+ *                   type: object
+ *                   properties:
+ *                     data:
+ *                       type: string
+ *                     mimeType:
+ *                       type: string
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Stats
+/**
+ * @openapi
+ * /tabs/{tabId}/stats:
+ *   get:
+ *     tags: [Tabs]
+ *     summary: Tab statistics
+ *     description: Returns tab metadata including URL, tool call count, visited URLs, download/failure counts.
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: userId
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Tab stats.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 tabId:
+ *                   type: string
+ *                 url:
+ *                   type: string
+ *                 toolCalls:
+ *                   type: integer
+ *                 visitedUrls:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                 downloadCount:
+ *                   type: integer
+ *                 consecutiveFailures:
+ *                   type: integer
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+listItemId, // Legacy compatibility
+⋮----
+// Evaluate JavaScript in page context
+/**
+ * @openapi
+ * /tabs/{tabId}/evaluate:
+ *   post:
+ *     tags: [Interaction]
+ *     summary: Evaluate JavaScript in tab
+ *     description: Runs arbitrary JS in the page context and returns the result.
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId, expression]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               expression:
+ *                 type: string
+ *                 description: JavaScript expression to evaluate.
+ *     responses:
+ *       200:
+ *         description: Evaluation result.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 result: {}
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Structured extraction using JSON Schema with x-ref hints
+/**
+ * @openapi
+ * /tabs/{tabId}/extract:
+ *   post:
+ *     tags: [Content]
+ *     summary: Structured data extraction via JSON Schema
+ *     description: |
+ *       Extracts structured data from the current page using a JSON Schema whose properties
+ *       carry `x-ref` hints pointing at snapshot element refs (e.g. `e1`, `e2`).  
+ *       Call `GET /tabs/{tabId}/snapshot` first to populate the ref table.
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId, schema]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               schema:
+ *                 type: object
+ *                 description: |
+ *                   JSON Schema with `type: "object"` and a `properties` map.  
+ *                   Each property may include `x-ref` (a snapshot element ref) and an optional
+ *                   `type` (`string`, `number`, `integer`, `boolean`).
+ *                 required: [type, properties]
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     enum: [object]
+ *                   properties:
+ *                     type: object
+ *                     additionalProperties:
+ *                       type: object
+ *                       properties:
+ *                         type:
+ *                           type: string
+ *                           enum: [string, number, integer, boolean, object, "null"]
+ *                         x-ref:
+ *                           type: string
+ *                           description: Snapshot element ref (e.g. `e1`).
+ *                   required:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     description: Property names that must resolve to a non-null value.
+ *     responses:
+ *       200:
+ *         description: Extraction succeeded.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   description: Extracted key-value pairs matching the input schema.
+ *       400:
+ *         description: Missing userId, missing schema, or invalid schema.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       409:
+ *         description: No refs available -- call snapshot first.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                 snapshot:
+ *                   type: string
+ *                   nullable: true
+ *       422:
+ *         description: Extraction failed (e.g. required ref not found).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 error:
+ *                   type: string
+ *                 snapshot:
+ *                   type: string
+ *                   nullable: true
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Close tab
+/**
+ * @openapi
+ * /tabs/{tabId}:
+ *   delete:
+ *     tags: [Tabs]
+ *     summary: Close a tab
+ *     parameters:
+ *       - name: tabId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: userId
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Tab closed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Close tab group
+/**
+ * @openapi
+ * /tabs/group/{listItemId}:
+ *   delete:
+ *     tags: [Tabs]
+ *     summary: Close all tabs in a group
+ *     parameters:
+ *       - name: listItemId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: userId
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Group closed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 closed:
+ *                   type: integer
+ *       404:
+ *         description: Session not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// List trace files for a session
+/**
+ * @openapi
+ * /sessions/{userId}/traces:
+ *   get:
+ *     tags: [Sessions]
+ *     summary: List trace files
+ *     description: Returns all Playwright trace zip files for the given user session, sorted newest first.
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Session owner identifier.
+ *     responses:
+ *       200:
+ *         description: Trace list.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 traces:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       filename:
+ *                         type: string
+ *                       sizeBytes:
+ *                         type: integer
+ *                       createdAt:
+ *                         type: number
+ *                       modifiedAt:
+ *                         type: number
+ *       403:
+ *         description: Forbidden.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Stream one trace file
+/**
+ * @openapi
+ * /sessions/{userId}/traces/{filename}:
+ *   get:
+ *     tags: [Sessions]
+ *     summary: Download a trace file
+ *     description: Streams a Playwright trace zip for viewing in trace.playwright.dev.
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Session owner identifier.
+ *       - name: filename
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Trace zip filename.
+ *     responses:
+ *       200:
+ *         description: Trace zip stream.
+ *         content:
+ *           application/zip:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Invalid filename.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Trace not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Forbidden.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Delete one trace file
+/**
+ * @openapi
+ * /sessions/{userId}/traces/{filename}:
+ *   delete:
+ *     tags: [Sessions]
+ *     summary: Delete a trace file
+ *     description: Removes a specific Playwright trace zip from the server.
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Session owner identifier.
+ *       - name: filename
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Trace zip filename.
+ *     responses:
+ *       200:
+ *         description: Trace deleted.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *       400:
+ *         description: Invalid filename.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Trace not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Forbidden.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Close session
+/**
+ * @openapi
+ * /sessions/{userId}:
+ *   delete:
+ *     tags: [Sessions]
+ *     summary: Destroy a user session
+ *     description: Closes all tabs and cleans up state for the given userId.
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Session destroyed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 closed:
+ *                   type: integer
+ *       404:
+ *         description: Session not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Cleanup stale sessions
+⋮----
+// When all sessions gone, start idle timer to kill browser
+⋮----
+// Per-tab inactivity reaper -- close tabs idle for TAB_INACTIVITY_MS
+⋮----
+// Clean up sessions with zero tabs remaining -- free browser context memory
+⋮----
+// Native memory pressure restart -- when all sessions are gone and Firefox's
+// native memory has grown beyond threshold, kill the browser immediately instead
+// of waiting for the idle timer. Firefox/Camoufox doesn't fully reclaim native
+// memory after context.close() due to jemalloc fragmentation, JIT caches, and
+// NSS/TLS session caches. See #1032.
+⋮----
+// =============================================================================
+// OpenClaw-compatible endpoint aliases
+// These allow camoufox to be used as a profile backend for OpenClaw's browser tool
+// =============================================================================
+⋮----
+// GET / - Status (passive -- does not launch browser)
+/**
+ * @openapi
+ * /:
+ *   get:
+ *     tags: [System]
+ *     summary: Server status
+ *     description: Returns basic server liveness and browser state.
+ *     responses:
+ *       200:
+ *         description: Server status.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 enabled:
+ *                   type: boolean
+ *                 running:
+ *                   type: boolean
+ *                 engine:
+ *                   type: string
+ *                 browserConnected:
+ *                   type: boolean
+ *                 browserRunning:
+ *                   type: boolean
+ */
+⋮----
+// GET /tabs - List all tabs (OpenClaw expects this)
+/**
+ * @openapi
+ * /tabs:
+ *   get:
+ *     tags: [Tabs]
+ *     summary: List open tabs
+ *     description: Returns all tabs for a given userId.
+ *     parameters:
+ *       - name: userId
+ *         in: query
+ *         schema:
+ *           type: string
+ *         description: Filter by session owner.
+ *     responses:
+ *       200:
+ *         description: Tab list.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 running:
+ *                   type: boolean
+ *                 tabs:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       tabId:
+ *                         type: string
+ *                       targetId:
+ *                         type: string
+ *                       url:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       listItemId:
+ *                         type: string
+ */
+⋮----
+// POST /tabs/open - Open tab (alias for POST /tabs, OpenClaw format)
+/**
+ * @openapi
+ * /tabs/open:
+ *   post:
+ *     tags: [Legacy]
+ *     summary: Open tab (OpenClaw format)
+ *     deprecated: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId, url]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *               listItemId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Tab opened.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Recycle oldest tab when limits are reached instead of rejecting
+⋮----
+// POST /start - Start browser (OpenClaw expects this)
+/**
+ * @openapi
+ * /start:
+ *   post:
+ *     tags: [Browser]
+ *     summary: Start browser
+ *     description: Ensures the browser process is running. Idempotent.
+ *     responses:
+ *       200:
+ *         description: Browser started.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 profile:
+ *                   type: string
+ *       500:
+ *         description: Launch failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// POST /stop - Stop browser (OpenClaw expects this)
+/**
+ * @openapi
+ * /stop:
+ *   post:
+ *     tags: [Browser]
+ *     summary: Stop browser
+ *     description: Stops the browser and closes all sessions. Requires x-admin-key header.
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Browser stopped.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 stopped:
+ *                   type: boolean
+ *                 profile:
+ *                   type: string
+ *       403:
+ *         description: Forbidden.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// POST /navigate - Navigate (OpenClaw format with targetId in body)
+/**
+ * @openapi
+ * /navigate:
+ *   post:
+ *     tags: [Legacy]
+ *     summary: Navigate (OpenClaw format)
+ *     description: Navigate with targetId in body instead of path param.
+ *     deprecated: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId, url]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               targetId:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Navigation result.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Google SERP: defer extraction to snapshot call
+⋮----
+// GET /snapshot - Snapshot (OpenClaw format with query params)
+/**
+ * @openapi
+ * /snapshot:
+ *   get:
+ *     tags: [Legacy]
+ *     summary: Snapshot (OpenClaw format)
+ *     description: Snapshot with targetId/userId as query params.
+ *     deprecated: true
+ *     parameters:
+ *       - name: targetId
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: userId
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: format
+ *         in: query
+ *         schema:
+ *           type: string
+ *       - name: offset
+ *         in: query
+ *         schema:
+ *           type: integer
+ *       - name: includeScreenshot
+ *         in: query
+ *         schema:
+ *           type: string
+ *           enum: ['true', 'false']
+ *     responses:
+ *       200:
+ *         description: Snapshot.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Cached chunk retrieval
+⋮----
+// Google SERP fast path
+⋮----
+// Annotate YAML with ref IDs
+⋮----
+// POST /act - Combined action endpoint (OpenClaw format)
+// Routes to click/type/scroll/press/etc based on 'kind' parameter
+/**
+ * @openapi
+ * /act:
+ *   post:
+ *     tags: [Legacy]
+ *     summary: Combined action (OpenClaw format)
+ *     description: Routes to click/type/scroll/press/etc based on "kind" parameter.
+ *     deprecated: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [userId, kind]
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               kind:
+ *                 type: string
+ *                 description: 'Action kind: click, type, scroll, press, key, select_option, drag, hover, screenshot, wait, back, forward.'
+ *               targetId:
+ *                 type: string
+ *               ref:
+ *                 type: string
+ *               selector:
+ *                 type: string
+ *               text:
+ *                 type: string
+ *               key:
+ *                 type: string
+ *               direction:
+ *                 type: string
+ *               url:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Action result.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Bad request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Tab not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+⋮----
+// Periodic stats beacon (every 5 min)
+⋮----
+// Active health probe -- detect hung browser even when isConnected() lies
+⋮----
+// Skip probe if operations are in flight AND last success was recent.
+// If it's been >120s since any successful operation, probe anyway --
+// active ops are likely stuck on a frozen browser and will time out eventually.
+⋮----
+// Crash logging
+⋮----
+// Graceful shutdown
+⋮----
+async function gracefulShutdown(signal)
+⋮----
+// Idle self-shutdown REMOVED -- it was racing with min_machines_running=2
+// and stopping machines that Fly couldn't auto-restart fast enough, leaving
+// only 1 machine to handle all browser traffic (causing timeouts for users).
+// Fly's auto_stop_machines=false + min_machines_running=2 handles scaling.
+⋮----
+// Load plugins before starting the server
+⋮----
+/** Factory for Xvfb virtual display. Plugins can replace this to customise resolution/args. */
+createVirtualDisplay: ()
+/** The upstream VirtualDisplay class -- plugins can subclass it. */
+⋮----
+// --- OpenAPI docs (after all routes are registered) ---
+⋮----
+// Periodic temp profile cleanup every 10 minutes
+⋮----
+} catch { /* best effort */ }
+⋮----
+// Pre-warm browser so first request doesn't eat a 6-7s cold start
+⋮----
+// Idle self-shutdown removed -- Fly manages machine lifecycle via fly.toml.
