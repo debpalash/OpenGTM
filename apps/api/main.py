@@ -13,6 +13,7 @@ import os
 # Routers
 from apps.api.routers import auth, users, tasks, crm, system, scraper, websockets, person_intel, settings
 from apps.api.routers.leads import router as leads_router, workspace_router, jobs_router, events_router, search_router
+from apps.api.routers.copilotkit import router as copilotkit_router
 from apps.api.services.queue_service import queue_service
 from apps.api.workers.download import handle_download_link
 
@@ -73,6 +74,7 @@ app.include_router(workspace_router)
 app.include_router(jobs_router)
 app.include_router(events_router)
 app.include_router(search_router)
+app.include_router(copilotkit_router)
 
 
 # Serve frontend static files (if built)

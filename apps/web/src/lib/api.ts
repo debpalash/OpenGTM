@@ -153,6 +153,39 @@ export async function addLead(data: Partial<Lead>): Promise<{ ok: boolean; id: n
   return res.json()
 }
 
+export type EnrichAction = "web_research" | "find_emails" | "scrape_website"
+
+export async function enrichLead(
+  id: number,
+  action: EnrichAction,
+  onEvent: (event: Record<string, unknown>) => void,
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/lead/${id}/enrich?action=${action}`, {
+    method: "POST",
+  })
+  if (!res.ok || !res.body) throw new Error(`Enrich failed: ${res.status}`)
+
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ""
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    const lines = buffer.split("\n")
+    buffer = lines.pop() || ""
+    for (const line of lines) {
+      if (line.startsWith("data: ")) {
+        try {
+          const data = JSON.parse(line.slice(6))
+          onEvent(data)
+        } catch { /* skip */ }
+      }
+    }
+  }
+}
+
 export function exportCSVUrl(params: Record<string, string> = {}): string {
   const qs = new URLSearchParams(params).toString()
   return `${API_BASE}/api/export/csv?${qs}`
@@ -198,4 +231,82 @@ export async function createWorkspace(name: string, description?: string): Promi
 
 export async function deleteWorkspace(id: string): Promise<void> {
   await fetch(`${API_BASE}/api/workspaces/${id}`, { method: "DELETE" })
+}
+
+// ── Chat / Conversations ────────────────────────────────────────
+
+export interface Conversation {
+  id: string
+  title: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ChatMessage {
+  id: string
+  conversation_id: string
+  role: "user" | "assistant" | "system" | "tool"
+  content: string
+  tool_data: string | null
+  created_at: string
+}
+
+export async function fetchConversations(): Promise<Conversation[]> {
+  const res = await fetch(`${API_BASE}/api/copilotkit/conversations`)
+  const data = await res.json()
+  return data.conversations || []
+}
+
+export async function fetchConversationMessages(id: string): Promise<{ conversation: Conversation; messages: ChatMessage[] }> {
+  const res = await fetch(`${API_BASE}/api/copilotkit/conversations/${id}`)
+  return res.json()
+}
+
+export async function deleteConversation(id: string): Promise<void> {
+  await fetch(`${API_BASE}/api/copilotkit/conversations/${id}`, { method: "DELETE" })
+}
+
+export interface ChatStreamEvent {
+  conversation_id?: string
+  content?: string
+  tool_call?: { name: string; args: Record<string, unknown> }
+  tool_result?: { name: string; result: Record<string, unknown> }
+  error?: string
+}
+
+export async function streamChat(
+  messages: Array<{ role: string; content: string }>,
+  conversationId: string | null,
+  onEvent: (event: ChatStreamEvent) => void,
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/copilotkit`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messages,
+      conversation_id: conversationId,
+    }),
+  })
+  if (!res.ok || !res.body) throw new Error(`Chat failed: ${res.status}`)
+
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ""
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    const lines = buffer.split("\n")
+    buffer = lines.pop() || ""
+    for (const line of lines) {
+      if (line.startsWith("data: ")) {
+        const raw = line.slice(6)
+        if (raw === "[DONE]") return
+        try {
+          onEvent(JSON.parse(raw))
+        } catch { /* skip */ }
+      }
+    }
+  }
 }

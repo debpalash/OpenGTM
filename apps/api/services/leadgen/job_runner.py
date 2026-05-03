@@ -26,6 +26,11 @@ from apps.api.services.leadgen.pipeline import deduplicate_leads
 from apps.api.services.leadgen.scoring import score_leads
 from apps.api.services.leadgen.progress import progress
 from apps.api.services.leadgen.lead_validator import validate_lead, validate_and_clean_leads
+from apps.api.services.leadgen.llm import LLMClient
+from apps.api.services.leadgen.ai_stages import (
+    ai_expand_query, ai_extract_company, ai_score_leads,
+    clean_page_text,
+)
 
 
 class JobRunner:
@@ -39,6 +44,7 @@ class JobRunner:
             proxy_pool=self.proxy_pool,
             rate_limiter=self.rate_limiter,
         )
+        self.llm = LLMClient()
 
     async def submit(self, query: str, workspace_id: str = "") -> str:
         """Submit a new collection job and process it."""
@@ -159,16 +165,29 @@ class JobRunner:
                 "message": f"🔄 {len(valid_leads)} → {len(unique)} after dedup",
             })
 
-            # ── Score ────────────────────────────────────────────
+            # ── AI Score (replaces heuristic scoring) ────────────
             score_sid = self.db.create_stage(job_id, "score")
-            scored = score_leads(unique)
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "score",
+                "message": f"🤖 AI scoring {len(unique)} leads...",
+            })
+            try:
+                from apps.api.services.leadgen.config import ICP
+                scored = await ai_score_leads(self.llm, unique, ICP)
+            except Exception as e:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "score",
+                    "message": f"⚠️ AI scoring failed, using heuristic: {e}",
+                })
+                scored = score_leads(unique)
             tiers = {}
             for l in scored:
                 t = l.score_tier or "unknown"
                 tiers[t] = tiers.get(t, 0) + 1
             self.db.complete_stage(score_sid,
                 input_count=len(unique), output_count=len(scored),
-                details=json.dumps({"tiers": tiers}))
+                details=json.dumps({"tiers": tiers, "ai": True,
+                    "tokens": self.llm.usage.to_dict()}))
 
             # ── Store ────────────────────────────────────────────
             store_sid = self.db.create_stage(job_id, "store")
@@ -244,9 +263,18 @@ class JobRunner:
     # ── Strategy: Web Search ─────────────────────────────────────────
 
     async def _search_and_scrape(self, job_id: str, query: str) -> list[Lead]:
-        """Search the web and extract real business data from company websites."""
+        """Search the web and extract real business data using AI."""
         leads = []
-        expanded = self._expand_query(query)
+
+        # AI-powered query expansion
+        try:
+            expanded = await ai_expand_query(self.llm, query)
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "web",
+                "message": f"🤖 AI generated {len(expanded)} search queries",
+            })
+        except Exception:
+            expanded = self._expand_query(query)
 
         progress.emit("job_progress", {
             "job_id": job_id, "stage": "web",
@@ -278,47 +306,70 @@ class JobRunner:
                         if self._is_skip_domain(domain):
                             continue
 
-                        # Try to extract a real company name from the domain
-                        company_name = self._company_from_domain(domain)
-
-                        # If domain-based name looks bad, try title-based extraction
-                        if not company_name or len(company_name) < 3:
-                            company_name = self._extract_business_name(title)
-
-                        if not company_name or len(company_name) < 3:
-                            continue
-
-                        # Fetch the page with stealth to get real contact data
+                        # Fetch the page to get real content
                         try:
                             resp = await self.client.fetch(url, tier=2, timeout=10)
                             if not resp.ok:
                                 continue
 
-                            emails = resp.extract_emails()
-                            phones = resp.extract_phones()
+                            # AI extraction from page HTML
+                            ai_data = await ai_extract_company(
+                                self.llm, resp.text, url, query
+                            )
 
-                            # Filter out publisher/aggregator emails
-                            emails = [e for e in emails if not self._is_publisher_email(e)]
-                            phones = [p for p in phones if self._is_valid_phone(p)]
+                            if ai_data and ai_data.get("is_real_company", True):
+                                company_name = ai_data.get("company_name", "")
+                                if not company_name or len(company_name) < 3:
+                                    company_name = self._company_from_domain(domain)
+
+                                if not company_name or len(company_name) < 3:
+                                    continue
+
+                                city = ai_data.get("city") or self._extract_city(query)
+                                lead = Lead(
+                                    company=company_name,
+                                    website=url,
+                                    email=ai_data.get("email") or "",
+                                    phone=ai_data.get("phone") or "",
+                                    city=city,
+                                    description=ai_data.get("description") or body[:300],
+                                    specialization=ai_data.get("specialization") or "",
+                                    company_size=ai_data.get("employee_count") or "",
+                                    contact_person=ai_data.get("contact_person") or "",
+                                    source="web_search",
+                                )
+                                leads.append(lead)
+                                progress.emit("lead_discovered", {
+                                    "job_id": job_id, "stage": "web",
+                                    "lead": {"company": lead.company, "email": lead.email, "phone": lead.phone},
+                                })
+                            else:
+                                # AI said it's not a real company — fallback to regex extraction
+                                emails = resp.extract_emails()
+                                phones = resp.extract_phones()
+                                emails = [e for e in emails if not self._is_publisher_email(e)]
+                                phones = [p for p in phones if self._is_valid_phone(p)]
+                                company_name = self._company_from_domain(domain)
+                                if company_name and len(company_name) >= 3 and (emails or phones):
+                                    city = self._extract_city(query)
+                                    lead = Lead(
+                                        company=company_name,
+                                        website=url,
+                                        email=emails[0] if emails else "",
+                                        phone=phones[0] if phones else "",
+                                        city=city,
+                                        description=body[:300],
+                                        source="web_search",
+                                    )
+                                    leads.append(lead)
+                                    progress.emit("lead_discovered", {
+                                        "job_id": job_id, "stage": "web",
+                                        "lead": {"company": lead.company, "email": lead.email, "phone": lead.phone},
+                                    })
 
                         except Exception:
-                            emails, phones = [], []
-
-                        city = self._extract_city(query)
-                        lead = Lead(
-                            company=company_name,
-                            website=url,
-                            email=emails[0] if emails else "",
-                            phone=phones[0] if phones else "",
-                            city=city,
-                            description=body[:300],
-                            source="web_search",
-                        )
-                        leads.append(lead)
-                        progress.emit("lead_discovered", {
-                            "job_id": job_id, "stage": "web",
-                            "lead": {"company": lead.company, "email": lead.email, "phone": lead.phone},
-                        })
+                            # Total page fetch failure — skip
+                            continue
 
                     await asyncio.sleep(1.5)
 

@@ -164,6 +164,169 @@ def add_lead(body: AddLeadRequest):
     return {"ok": True, "id": lead_id}
 
 
+# ── AI Enrichment ──────────────────────────────────────────────
+
+
+@router.post("/lead/{lead_id}/enrich")
+async def enrich_lead(lead_id: int, action: str = "web_research"):
+    """AI-powered lead enrichment. Streams SSE progress events.
+
+    Actions:
+    - web_research: Use LLM + web search to gather company intel
+    - find_emails: Discover email patterns for the company
+    - scrape_website: Extract data from the company's website
+    """
+    db = _get_db()
+    lead = db.get_lead(lead_id)
+    if not lead:
+        db.close()
+        raise HTTPException(status_code=404, detail="Lead not found")
+
+    async def _stream():
+        try:
+            if action == "web_research":
+                yield f"data: {json.dumps({'step': 'start', 'action': 'web_research', 'message': f'Researching {lead.company}...'})}\n\n"
+
+                # Use the configured LLM to research
+                from apps.api.routers.copilotkit import _get_active_provider
+                import httpx
+
+                provider = _get_active_provider()
+                if not provider["api_key"]:
+                    yield f"data: {json.dumps({'step': 'error', 'message': 'No AI provider configured. Go to Settings.'})}\n\n"
+                    return
+
+                prompt = f"""Research this company and provide a comprehensive analysis:
+
+Company: {lead.company}
+City: {lead.city or 'Unknown'}
+Website: {lead.website or 'Unknown'}
+Specialization: {lead.specialization or 'Unknown'}
+Current description: {lead.description or 'None'}
+
+Provide:
+1. **Company Overview** (2-3 sentences about what they do)
+2. **Key Services/Products** they offer
+3. **Company Size** estimate if possible
+4. **Industry/Niche** they operate in
+5. **Potential Needs** — what problems they likely face
+6. **Outreach Angle** — best way to approach them as a lead
+
+Format as clean text with section headers. Be specific and actionable."""
+
+                headers = {
+                    "Authorization": f"Bearer {provider['api_key']}",
+                    "Content-Type": "application/json",
+                }
+                body = {
+                    "model": provider["model"],
+                    "messages": [
+                        {"role": "system", "content": "You are a business analyst who researches companies for sales intelligence. Be concise and specific."},
+                        {"role": "user", "content": prompt},
+                    ],
+                    "stream": True,
+                    "temperature": 0.5,
+                }
+                url = f"{provider['base_url'].rstrip('/')}/chat/completions"
+
+                full_content = ""
+                async with httpx.AsyncClient(timeout=60.0) as client:
+                    async with client.stream("POST", url, json=body, headers=headers) as resp:
+                        if resp.status_code != 200:
+                            err = await resp.aread()
+                            yield f"data: {json.dumps({'step': 'error', 'message': f'LLM error: {err.decode()[:200]}'})}\n\n"
+                            return
+
+                        async for line in resp.aiter_lines():
+                            if not line.startswith("data: "):
+                                continue
+                            data = line[6:]
+                            if data == "[DONE]":
+                                break
+                            try:
+                                chunk = json.loads(data)
+                                delta = chunk.get("choices", [{}])[0].get("delta", {})
+                                if delta.get("content"):
+                                    token = delta["content"]
+                                    full_content += token
+                                    yield f"data: {json.dumps({'step': 'token', 'content': token})}\n\n"
+                            except json.JSONDecodeError:
+                                continue
+
+                # Save to lead
+                if full_content:
+                    edb = _get_db()
+                    edb.update_lead_fields(lead_id, {
+                        "description": full_content[:2000],
+                        "last_enriched_at": "now",
+                    })
+                    edb.close()
+                    yield f"data: {json.dumps({'step': 'saved', 'message': 'Research saved to lead'})}\n\n"
+
+                yield f"data: {json.dumps({'step': 'done', 'action': 'web_research'})}\n\n"
+
+            elif action == "find_emails":
+                yield f"data: {json.dumps({'step': 'start', 'action': 'find_emails', 'message': 'Finding emails...'})}\n\n"
+
+                from apps.api.services.leadgen.enrichment.email_finder import enrich_emails
+                enriched = enrich_emails([lead], delay=0.5)
+                if enriched and enriched[0].email:
+                    edb = _get_db()
+                    edb.update_lead_fields(lead_id, {"email": enriched[0].email, "last_enriched_at": "now"})
+                    edb.close()
+                    yield f"data: {json.dumps({'step': 'result', 'email': enriched[0].email})}\n\n"
+                else:
+                    yield f"data: {json.dumps({'step': 'result', 'message': 'No email found'})}\n\n"
+
+                yield f"data: {json.dumps({'step': 'done', 'action': 'find_emails'})}\n\n"
+
+            elif action == "scrape_website":
+                if not lead.website:
+                    yield f"data: {json.dumps({'step': 'error', 'message': 'No website URL on this lead'})}\n\n"
+                    return
+
+                yield f"data: {json.dumps({'step': 'start', 'action': 'scrape_website', 'message': f'Scraping {lead.website}...'})}\n\n"
+
+                from apps.api.services.leadgen.enrichment.website_scraper import enrich_leads_from_websites
+                enriched = await enrich_leads_from_websites([lead])
+                if enriched:
+                    updated = enriched[0]
+                    fields = {}
+                    if updated.email and updated.email != lead.email:
+                        fields["email"] = updated.email
+                    if updated.phone and updated.phone != lead.phone:
+                        fields["phone"] = updated.phone
+                    if updated.description and updated.description != lead.description:
+                        fields["description"] = updated.description
+                    if updated.contact_person and updated.contact_person != lead.contact_person:
+                        fields["contact_person"] = updated.contact_person
+
+                    if fields:
+                        fields["last_enriched_at"] = "now"
+                        edb = _get_db()
+                        edb.update_lead_fields(lead_id, fields)
+                        edb.close()
+                        yield f"data: {json.dumps({'step': 'result', 'fields_updated': list(fields.keys())})}\n\n"
+                    else:
+                        yield f"data: {json.dumps({'step': 'result', 'message': 'No new data found'})}\n\n"
+
+                yield f"data: {json.dumps({'step': 'done', 'action': 'scrape_website'})}\n\n"
+
+            else:
+                yield f"data: {json.dumps({'step': 'error', 'message': f'Unknown action: {action}'})}\n\n"
+
+        except Exception as e:
+            yield f"data: {json.dumps({'step': 'error', 'message': str(e)})}\n\n"
+        finally:
+            db.close()
+
+    return StreamingResponse(
+        _stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
 # ── CSV Export ─────────────────────────────────────────────────
 
 

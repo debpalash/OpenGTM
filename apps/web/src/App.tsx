@@ -1,87 +1,161 @@
-import { BrowserRouter, Routes, Route, NavLink, Navigate } from "react-router-dom"
+import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom"
 import { Toaster } from "sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { Search, Users, Globe, Download, Briefcase, LayoutDashboard, Settings2 } from "lucide-react"
+import {
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
+  SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton,
+  SidebarMenuItem, SidebarProvider, SidebarInset, SidebarTrigger,
+} from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import {
+  MessageSquare, Users, Search, Bot, Send, Database,
+  Settings, Zap, Circle,
+} from "lucide-react"
+import { useSSE, useJobs } from "@/lib/hooks"
+import { CommandMenu } from "@/components/command-menu"
 
 // Pages
+import ChatPage from "@/pages/chat"
 import LeadsPage from "@/pages/leads"
+import LeadDetailPage from "@/pages/lead-detail"
 import SearchPage from "@/pages/search"
-import IntelPage from "@/pages/intel"
-import ScraperPage from "@/pages/scraper"
-import DownloadsPage from "@/pages/downloads"
+import AgentsPage from "@/pages/agents"
+import CampaignsPage from "@/pages/campaigns"
+import SourcesPage from "@/pages/sources"
 import SettingsPage from "@/pages/settings"
-import PipelinePage from "@/pages/pipeline"
 
 const NAV_ITEMS = [
-  { to: "/leads", icon: Users, label: "Leads" },
-  { to: "/search", icon: Search, label: "Search" },
-  { to: "/scraper", icon: Globe, label: "Scraper" },
-  { to: "/intel", icon: Briefcase, label: "Intel" },
-  { to: "/downloads", icon: Download, label: "Downloads" },
+  { to: "/chat",      icon: MessageSquare, label: "Chat" },
+  { to: "/leads",     icon: Users,         label: "Leads" },
+  { to: "/search",    icon: Search,        label: "Search" },
+  { to: "/agents",    icon: Bot,           label: "Agents" },
+  { to: "/campaigns", icon: Send,          label: "Campaigns" },
+  { to: "/sources",   icon: Database,      label: "Sources" },
 ]
 
-function AppShell() {
+function AppSidebar() {
+  const location = useLocation()
+  const { connected } = useSSE()
+  const { data: jobs } = useJobs()
+  const activeJobs = jobs?.filter(j => j.status === "running" || j.status === "pending").length ?? 0
+
   return (
-    <div className="h-screen flex bg-background text-foreground">
-      {/* ─── Sidebar ─── */}
-      <nav className="w-14 border-r border-border flex flex-col items-center py-3 gap-1 shrink-0 bg-card/50">
-        {/* Logo */}
-        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
-          <LayoutDashboard size={16} className="text-primary" />
-        </div>
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size="lg"
+              render={<NavLink to="/chat" />}
+            >
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Zap className="size-4" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">LeadEngine</span>
+                <span className="truncate text-xs text-muted-foreground">AI-powered leads</span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
 
-        {NAV_ITEMS.map(item => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              `w-10 h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group relative ${
-                isActive
-                  ? "bg-primary/15 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-card"
-              }`
-            }
-          >
-            <item.icon size={16} />
-            <span className="text-[8px] font-medium leading-none">{item.label}</span>
-          </NavLink>
-        ))}
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {NAV_ITEMS.map((item) => (
+                <SidebarMenuItem key={item.to}>
+                  <SidebarMenuButton
+                    isActive={location.pathname.startsWith(item.to)}
+                    tooltip={item.label}
+                    render={<NavLink to={item.to} />}
+                  >
+                    <item.icon />
+                    <span>{item.label}</span>
+                    {item.to === "/agents" && activeJobs > 0 && (
+                      <Badge variant="secondary" className="ml-auto text-xs">
+                        {activeJobs}
+                      </Badge>
+                    )}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
-        {/* Spacer */}
-        <div className="flex-1" />
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              isActive={location.pathname.startsWith("/settings")}
+              tooltip="Settings"
+              render={<NavLink to="/settings" />}
+            >
+              <Settings />
+              <span>Settings</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton tooltip="Status">
+              <Circle
+                className={`size-2 fill-current ${connected ? "text-green-500" : "text-muted-foreground"}`}
+              />
+              <span className="text-xs text-muted-foreground">
+                {connected ? "Connected" : "Disconnected"}
+              </span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
+  )
+}
 
-        {/* Settings at bottom */}
-        <NavLink
-          to="/settings"
-          className={({ isActive }) =>
-            `w-10 h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all mb-1 ${
-              isActive
-                ? "bg-primary/15 text-primary"
-                : "text-muted-foreground hover:text-foreground hover:bg-card"
-            }`
-          }
-        >
-          <Settings2 size={16} />
-          <span className="text-[8px] font-medium leading-none">Settings</span>
-        </NavLink>
-      </nav>
+function PageHeader({ title }: { title: string }) {
+  return (
+    <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+      <SidebarTrigger className="-ml-1" />
+      <Separator orientation="vertical" className="mr-2 h-4" />
+      <h1 className="text-sm font-medium">{title}</h1>
+    </header>
+  )
+}
 
-      {/* ─── Main Content ─── */}
-      <main className="flex-1 flex flex-col min-w-0 min-h-0">
+function AppContent() {
+  const location = useLocation()
+
+  const getTitle = () => {
+    if (location.pathname.startsWith("/chat")) return "Chat"
+    if (location.pathname.startsWith("/leads")) return "Leads"
+    if (location.pathname.startsWith("/search")) return "Search"
+    if (location.pathname.startsWith("/agents")) return "Agents"
+    if (location.pathname.startsWith("/campaigns")) return "Campaigns"
+    if (location.pathname.startsWith("/sources")) return "Sources"
+    if (location.pathname.startsWith("/settings")) return "Settings"
+    return "LeadEngine"
+  }
+
+  return (
+    <SidebarInset>
+      <PageHeader title={getTitle()} />
+      <div className="flex-1 overflow-auto">
         <Routes>
-          <Route path="/leads/*" element={<LeadsPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/scraper" element={<ScraperPage />} />
-          <Route path="/intel" element={<IntelPage />} />
-          <Route path="/downloads" element={<DownloadsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/pipeline/:jobId" element={<PipelinePage />} />
-          <Route path="*" element={<Navigate to="/leads" replace />} />
+          <Route path="/chat/*" element={<ChatPage />} />
+          <Route path="/leads/:id" element={<LeadDetailPage />} />
+          <Route path="/leads" element={<LeadsPage />} />
+          <Route path="/search/*" element={<SearchPage />} />
+          <Route path="/agents/*" element={<AgentsPage />} />
+          <Route path="/campaigns/*" element={<CampaignsPage />} />
+          <Route path="/sources/*" element={<SourcesPage />} />
+          <Route path="/settings/*" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate to="/chat" replace />} />
         </Routes>
-      </main>
-
-      <Toaster position="bottom-right" theme="dark" />
-    </div>
+      </div>
+    </SidebarInset>
   )
 }
 
@@ -89,7 +163,12 @@ export default function App() {
   return (
     <TooltipProvider>
       <BrowserRouter>
-        <AppShell />
+        <SidebarProvider>
+          <AppSidebar />
+          <AppContent />
+        </SidebarProvider>
+        <CommandMenu />
+        <Toaster />
       </BrowserRouter>
     </TooltipProvider>
   )
