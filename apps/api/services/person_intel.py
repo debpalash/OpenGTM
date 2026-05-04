@@ -132,6 +132,11 @@ class PersonIntelService:
             self._extract_social_links(profile, social_results)
             await notify("socials_found", {"social_links": profile.social_links})
 
+            # Fetch GitHub API data if GitHub profile found
+            if "github" in profile.social_links:
+                await notify("github_api", {"message": "Fetching GitHub API data..."})
+                await self._enrich_from_github_api(profile)
+
             # Step 5: Collect articles and mentions
             self._extract_articles_and_mentions(
                 profile,
@@ -503,6 +508,71 @@ class PersonIntelService:
                 continue
             if email not in profile.emails:
                 profile.emails.append(email)
+
+    async def _enrich_from_github_api(self, profile: PersonProfile):
+        """Fetch structured data from GitHub API if a GitHub profile exists."""
+        github_url = profile.social_links.get("github", "")
+        if not github_url:
+            return
+            
+        match = re.search(r"github\.com/([a-zA-Z0-9_-]+)", github_url)
+        if not match:
+            return
+            
+        username = match.group(1)
+        
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                # Get User Profile
+                res = await client.get(
+                    f"https://api.github.com/users/{username}",
+                    headers={"Accept": "application/vnd.github.v3+json", "User-Agent": "Yupcha-Engine"}
+                )
+                if res.status_code == 200:
+                    data = res.json()
+                    
+                    # Extract public email
+                    email = data.get("email")
+                    if email and email not in profile.emails:
+                        profile.emails.append(email)
+                        
+                    # Extract bio to summary if empty
+                    bio = data.get("bio")
+                    if bio and not profile.summary:
+                        profile.summary = bio
+                        
+                    # Extract location if empty
+                    location = data.get("location")
+                    if location and not profile.location:
+                        profile.location = location
+                        
+                    # Extract company
+                    company = data.get("company")
+                    if company:
+                        company = company.lstrip('@')
+                        if company not in profile.companies:
+                            profile.companies.append(company)
+                            
+                # Get User Repos to infer skills
+                repo_res = await client.get(
+                    f"https://api.github.com/users/{username}/repos?sort=updated&per_page=10",
+                    headers={"Accept": "application/vnd.github.v3+json", "User-Agent": "Yupcha-Engine"}
+                )
+                if repo_res.status_code == 200:
+                    repos = repo_res.json()
+                    languages = set()
+                    for repo in repos:
+                        lang = repo.get("language")
+                        if lang:
+                            languages.add(lang)
+                    
+                    for lang in languages:
+                        if lang not in profile.skills:
+                            profile.skills.append(lang)
+                            
+        except Exception as e:
+            logger.error(f"GitHub API enrichment failed for {username}: {e}")
 
 
 # Singleton instance

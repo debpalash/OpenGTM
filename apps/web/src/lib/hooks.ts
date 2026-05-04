@@ -5,6 +5,7 @@ import {
   fetchLeads, fetchStats, fetchFilters, fetchJobs,
   fetchSystemStats, fetchWorkspaces, submitCollect,
   updateStatus, updateLead, deleteLead, addLead, fetchLead,
+  fetchConversations, fetchConversationMessages,
   type Lead,
 } from "./api"
 
@@ -216,5 +217,22 @@ export function useProviders() {
       return res.json()
     },
     staleTime: 60 * 1000,
+  })
+}
+
+// ── Conversations ───────────────────────────────────────────────
+
+export function useConversations() {
+  return useQuery({
+    queryKey: queryKeys.conversations.list(),
+    queryFn: fetchConversations,
+  })
+}
+
+export function useConversationMessages(id: string | null) {
+  return useQuery({
+    queryKey: id ? queryKeys.conversations.detail(id) : [],
+    queryFn: () => (id ? fetchConversationMessages(id) : null),
+    enabled: !!id,
   })
 }

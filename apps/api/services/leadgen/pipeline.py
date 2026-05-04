@@ -41,7 +41,7 @@ async def run_scrapers(sources=None, cities=None, queries=None):
         cities = ICP["target_cities"]
     if queries is None:
         queries = SCRAPER_CONFIG["google_maps_queries"]
-    all_sources = sources or ["csv", "job_boards", "review_dirs", "directories", "linkedin", "google_search", "news"]
+    all_sources = sources or ["csv", "job_boards", "review_dirs", "directories", "linkedin", "google_search", "news", "crunchbase"]
     all_leads = []
     for source in all_sources:
         print(f"\n{'='*50}\n  🚀 Scraper: {source}\n{'='*50}")
@@ -77,6 +77,9 @@ async def run_scrapers(sources=None, cities=None, queries=None):
             elif source == "news":
                 from apps.api.services.leadgen.scrapers.google_search import scrape_news_mentions
                 all_leads.extend(scrape_news_mentions(["staffing company India", "HR tech startup India"]))
+            elif source == "crunchbase":
+                from apps.api.services.leadgen.scrapers.crunchbase import scrape_via_search as scrape_crunchbase
+                all_leads.extend(scrape_crunchbase(queries[:3], cities[:5]))
         except Exception as e:
             print(f"  ❌ Scraper '{source}' failed: {e}")
     print(f"\n📊 Total raw leads: {len(all_leads)}")

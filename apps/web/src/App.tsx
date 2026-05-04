@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation } from "react-router-dom"
+import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { Toaster } from "sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import {
-  Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel,
   SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton,
   SidebarMenuItem, SidebarProvider, SidebarInset, SidebarTrigger,
 } from "@/components/ui/sidebar"
@@ -10,9 +10,11 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
-  Settings, Zap, Circle,
+  Settings, Zap, Circle, Plus, Trash2,
 } from "lucide-react"
-import { useSSE, useJobs } from "@/lib/hooks"
+import { useSSE, useJobs, useConversations } from "@/lib/hooks"
+import { deleteConversation } from "@/lib/api"
+import { queryClient, queryKeys } from "@/lib/query-client"
 import { CommandMenu } from "@/components/command-menu"
 
 // Pages
@@ -36,9 +38,33 @@ const NAV_ITEMS = [
 
 function AppSidebar() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const activeChatId = searchParams.get("id")
   const { connected } = useSSE()
   const { data: jobs } = useJobs()
+  const { data: conversations } = useConversations()
   const activeJobs = jobs?.filter(j => j.status === "running" || j.status === "pending").length ?? 0
+
+  const handleNewChat = (e: React.MouseEvent) => {
+    e.preventDefault()
+    navigate("/chat")
+  }
+
+  const handleDeleteChat = async (id: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!confirm("Delete this conversation?")) return
+    try {
+      await deleteConversation(id)
+      queryClient.invalidateQueries({ queryKey: queryKeys.conversations.all })
+      if (activeChatId === id) {
+        navigate("/chat")
+      }
+    } catch {
+      // ignore
+    }
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -82,6 +108,49 @@ function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
+        {/* Chat History Group */}
+        <SidebarGroup className="pt-2">
+          <SidebarGroupLabel className="flex justify-between items-center group/label">
+            Recent Chats
+            <button
+              onClick={handleNewChat}
+              className="opacity-0 group-hover/label:opacity-100 hover:text-foreground transition-opacity"
+              title="New Chat"
+            >
+              <Plus className="size-4" />
+            </button>
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {conversations?.map((conv) => (
+                <SidebarMenuItem key={conv.id}>
+                  <SidebarMenuButton
+                    isActive={location.pathname === "/chat" && activeChatId === conv.id}
+                    tooltip={conv.title}
+                    render={<NavLink to={`/chat?id=${conv.id}`} />}
+                    className="group/item"
+                  >
+                    <MessageSquare className="size-4 opacity-70" />
+                    <span className="truncate">{conv.title}</span>
+                    <button
+                      onClick={(e) => handleDeleteChat(conv.id, e)}
+                      className="ml-auto opacity-0 group-hover/item:opacity-100 hover:text-destructive"
+                      title="Delete"
+                    >
+                      <Trash2 className="size-3" />
+                    </button>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+              {!conversations?.length && (
+                <div className="px-4 py-2 text-xs text-muted-foreground">
+                  No recent chats
+                </div>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -140,9 +209,9 @@ function AppContent() {
   }
 
   return (
-    <SidebarInset>
+    <SidebarInset className="h-screen overflow-hidden flex flex-col">
       <PageHeader title={getTitle()} />
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 flex flex-col min-h-0 relative">
         <Routes>
           <Route path="/chat/*" element={<ChatPage />} />
           <Route path="/leads/:id" element={<LeadDetailPage />} />
@@ -163,10 +232,12 @@ export default function App() {
   return (
     <TooltipProvider>
       <BrowserRouter>
-        <SidebarProvider>
-          <AppSidebar />
-          <AppContent />
-        </SidebarProvider>
+        <div className="h-screen w-full overflow-hidden flex">
+          <SidebarProvider>
+            <AppSidebar />
+            <AppContent />
+          </SidebarProvider>
+        </div>
         <CommandMenu />
         <Toaster />
       </BrowserRouter>

@@ -21,6 +21,8 @@ from .pubmed import PubMedSource
 from .legacy import SlideShareSource, ArchiveSource, GoogleBooksSource
 from .scribd import ScribdSource
 from .annas_archive import AnnasArchiveSource
+from .semantic_scholar import SemanticScholarSource
+from .crossref import CrossrefSource
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +42,8 @@ class SourceRegistry:
         self.sources["doaj"] = DOAJSource()
         self.sources["openlibrary"] = OpenLibrarySource()
         self.sources["pubmed"] = PubMedSource()
+        self.sources["semantic_scholar"] = SemanticScholarSource()
+        self.sources["crossref"] = CrossrefSource()
 
         # New Plugins (Migrated)
         self.sources["scribd"] = ScribdSource()
