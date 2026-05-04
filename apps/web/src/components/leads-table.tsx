@@ -203,7 +203,7 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
               <TableCell className="py-0.5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
-                    <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-[10px] text-muted-foreground">⋯</Button>
+                    <span className="inline-flex items-center justify-center rounded-md h-5 w-5 text-[10px] text-muted-foreground hover:bg-muted transition-colors cursor-pointer">⋯</span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-36">
                     {STATUSES.map((s) => (

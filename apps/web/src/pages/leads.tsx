@@ -151,12 +151,12 @@ export default function LeadsPage() {
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <button
-              className="inline-flex items-center justify-center rounded-md p-1 hover:bg-muted transition-colors"
+            <span
+              className="inline-flex items-center justify-center rounded-md p-1 hover:bg-muted transition-colors cursor-pointer"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="size-4" />
-            </button>
+            </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => {

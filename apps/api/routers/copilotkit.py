@@ -24,23 +24,74 @@ from apps.api.services import chat_history, memory
 router = APIRouter(prefix="/api/copilotkit", tags=["CopilotKit"])
 
 
-def _get_active_provider() -> dict:
-    """Get the currently configured AI provider and its credentials."""
-    default_id = _db_get("LLM_DEFAULT_PROVIDER", "openrouter")
-    prov = PROVIDERS.get(default_id)
+def _resolve_provider(provider_id: str) -> dict:
+    """Resolve a provider ID into a full config dict with credentials."""
+    prov = PROVIDERS.get(provider_id)
     if not prov:
-        prov = PROVIDERS.get("openrouter", PROVIDERS[list(PROVIDERS.keys())[0]])
-        default_id = "openrouter"
+        return None
 
     api_key = _db_get(prov["env_key"], "")
     base_url = _db_get(prov.get("env_url", ""), "") or prov.get("default_url", "")
     model = _db_get(prov.get("env_model", ""), "") or prov.get("default_model", "")
 
+    if not api_key or not base_url:
+        return None
+
     return {
-        "id": default_id,
+        "id": provider_id,
+        "name": prov.get("name", provider_id),
         "api_key": api_key,
         "base_url": base_url,
         "model": model,
+        "openai_compatible": prov.get("openai_compatible", True),
+    }
+
+
+def _get_provider_chain() -> list:
+    """Get all configured providers in priority order (active first, then fallbacks).
+
+    Returns a list of provider dicts, each with API keys and URLs resolved.
+    Only includes providers that have an API key configured.
+    """
+    default_id = _db_get("LLM_DEFAULT_PROVIDER", "openrouter")
+    chain = []
+    seen = set()
+
+    # Active provider first
+    active = _resolve_provider(default_id)
+    if active:
+        chain.append(active)
+        seen.add(default_id)
+
+    # Then all other configured providers as fallbacks
+    for pid in PROVIDERS:
+        if pid in seen:
+            continue
+        prov = PROVIDERS[pid]
+        if not prov.get("openai_compatible", True):
+            continue  # Skip non-OpenAI-compatible providers for failover
+        resolved = _resolve_provider(pid)
+        if resolved:
+            chain.append(resolved)
+            seen.add(pid)
+
+    return chain
+
+
+def _get_active_provider() -> dict:
+    """Get the primary configured AI provider (backward compat)."""
+    chain = _get_provider_chain()
+    if chain:
+        return chain[0]
+    # Absolute fallback — return openrouter even without a key
+    default_id = _db_get("LLM_DEFAULT_PROVIDER", "openrouter")
+    prov = PROVIDERS.get(default_id, PROVIDERS["openrouter"])
+    return {
+        "id": default_id,
+        "name": prov.get("name", default_id),
+        "api_key": "",
+        "base_url": prov.get("default_url", ""),
+        "model": prov.get("default_model", ""),
         "openai_compatible": prov.get("openai_compatible", True),
     }
 
@@ -577,11 +628,21 @@ def _execute_tool(name: str, args: dict) -> str:
 
 # ── Chat completion proxy ────────────────────────────────────────
 
-async def _stream_chat(messages: list, tools: list, provider: dict) -> AsyncGenerator[str, None]:
-    """Stream chat completion from the configured AI provider."""
+async def _stream_chat(
+    messages: list,
+    tools: list,
+    provider: dict,
+    fallback_providers: list = None,
+) -> AsyncGenerator[str, None]:
+    """Stream chat completion from the configured AI provider.
+
+    On 429/rate-limit errors, automatically fails over to the next provider
+    in fallback_providers.
+    """
     api_key = provider["api_key"]
     base_url = provider["base_url"].rstrip("/")
     model = provider["model"]
+    provider_name = provider.get("name", provider.get("id", "unknown"))
 
     if not api_key:
         yield f'data: {json.dumps({"error": "No AI provider configured. Go to Settings to add an API key."})}\n\n'
@@ -605,9 +666,44 @@ async def _stream_chat(messages: list, tools: list, provider: dict) -> AsyncGene
     try:
         async with httpx.AsyncClient(timeout=90.0) as client:
             async with client.stream("POST", url, json=body, headers=headers) as response:
+                # ── Handle rate limits with auto-failover ────────
+                if response.status_code == 429:
+                    error_body = await response.aread()
+                    error_text = error_body.decode()[:200]
+
+                    # Try fallback providers
+                    if fallback_providers:
+                        next_prov = fallback_providers[0]
+                        remaining = fallback_providers[1:]
+                        next_name = next_prov.get("name", next_prov.get("id", "?"))
+
+                        yield f'data: {json.dumps({"content": f"\n\n> ⚡ *{provider_name} rate limited — switching to {next_name}...*\n\n"})}\n\n'
+
+                        async for chunk in _stream_chat(messages, tools, next_prov, remaining):
+                            yield chunk
+                        return
+
+                    # No fallbacks left
+                    yield f'data: {json.dumps({"error": f"Rate limited by {provider_name} and no fallback providers available. Add more API keys in Settings, or wait and retry. ({error_text})"})}\n\n'
+                    return
+
                 if response.status_code != 200:
                     error_body = await response.aread()
-                    yield f'data: {json.dumps({"error": f"Provider error {response.status_code}: {error_body.decode()[:200]}"})}\n\n'
+                    error_text = error_body.decode()[:200]
+
+                    # Also try failover on 5xx server errors
+                    if response.status_code >= 500 and fallback_providers:
+                        next_prov = fallback_providers[0]
+                        remaining = fallback_providers[1:]
+                        next_name = next_prov.get("name", next_prov.get("id", "?"))
+
+                        yield f'data: {json.dumps({"content": f"\n\n> ⚡ *{provider_name} is down — switching to {next_name}...*\n\n"})}\n\n'
+
+                        async for chunk in _stream_chat(messages, tools, next_prov, remaining):
+                            yield chunk
+                        return
+
+                    yield f'data: {json.dumps({"error": f"Provider error {response.status_code}: {error_text}"})}\n\n'
                     return
 
                 accumulated_tool_calls = {}
@@ -673,17 +769,31 @@ async def _stream_chat(messages: list, tools: list, provider: dict) -> AsyncGene
                                 *tool_results,
                             ]
 
-                            async for chunk_line in _stream_chat(follow_up, tools, provider):
+                            async for chunk_line in _stream_chat(follow_up, tools, provider, fallback_providers):
                                 yield chunk_line
                             return
 
                     except json.JSONDecodeError:
                         continue
 
-    except httpx.ConnectError:
-        yield f'data: {json.dumps({"error": "Cannot reach AI provider. Check your API key and network connection in Settings."})}\n\n'
-    except httpx.TimeoutException:
-        yield f'data: {json.dumps({"error": "AI provider timed out. The service may be overloaded — try again in a moment."})}\n\n'
+    except (httpx.ConnectError, httpx.TimeoutException) as e:
+        # Connection/timeout errors — try failover before giving up
+        if fallback_providers:
+            next_prov = fallback_providers[0]
+            remaining = fallback_providers[1:]
+            next_name = next_prov.get("name", next_prov.get("id", "?"))
+            error_type = "unreachable" if isinstance(e, httpx.ConnectError) else "timed out"
+
+            yield f'data: {json.dumps({"content": f"\n\n> ⚡ *{provider_name} {error_type} — switching to {next_name}...*\n\n"})}\n\n'
+
+            async for chunk in _stream_chat(messages, tools, next_prov, remaining):
+                yield chunk
+            return
+
+        if isinstance(e, httpx.ConnectError):
+            yield f'data: {json.dumps({"error": "Cannot reach AI provider. Check your API key and network connection in Settings."})}\n\n'
+        else:
+            yield f'data: {json.dumps({"error": "AI provider timed out. The service may be overloaded — try again in a moment."})}\n\n'
     except Exception as e:
         yield f'data: {json.dumps({"error": f"AI provider error: {str(e)[:200]}"})}\n\n'
 
@@ -736,7 +846,14 @@ async def copilot_chat(request: Request):
             if memory_texts:
                 memory_context = "Relevant memories from past conversations:\n" + "\n".join(f"- {t}" for t in memory_texts)
 
-    provider = _get_active_provider()
+    # Build provider chain: active + all configured fallbacks
+    provider_chain = _get_provider_chain()
+    if not provider_chain:
+        provider_chain = [_get_active_provider()]
+
+    provider = provider_chain[0]
+    fallbacks = provider_chain[1:]  # Remaining providers for failover
+
     tools = _build_tools()
 
     messages = [{"role": "system", "content": _build_system_prompt()}]
@@ -765,7 +882,7 @@ async def copilot_chat(request: Request):
         # Send conversation_id first
         yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
 
-        async for chunk in _stream_chat(messages, tools, provider):
+        async for chunk in _stream_chat(messages, tools, provider, fallbacks):
             yield chunk
 
             # Parse content from the chunk for storage
