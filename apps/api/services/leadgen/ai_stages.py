@@ -72,7 +72,8 @@ async def ai_extract_company(client: LLMClient, page_text: str, url: str, search
     """Extract structured company data from a webpage using LLM.
 
     Returns a dict with company_name, description, email, phone, city,
-    specialization, employee_count, contact_person — or None if not a company page.
+    specialization, employee_count, contact_person, revenue, founded_year,
+    industry_tags, technologies, address — or None if not a company page.
     """
     clean = clean_page_text(page_text)
     if len(clean) < 50:
@@ -88,20 +89,31 @@ Page content:
 Return JSON with these fields (use null for fields you're not confident about):
 {{
   "company_name": "Official registered company name (not a tagline or slogan)",
-  "description": "What the company does in 1 sentence",
+  "description": "What the company does in 1-2 sentences",
   "email": "Primary business email address (not personal gmail/yahoo)",
   "phone": "Primary phone number with country code",
   "city": "City where the company is headquartered",
-  "specialization": "Industry or service type (e.g. IT Staffing, HR Consulting)",
+  "state": "State or region",
+  "address": "Full registered office address if mentioned",
+  "specialization": "Primary service type (e.g. IT Staffing, HR Consulting, RPO)",
+  "industry_tags": "Comma-separated industry tags (e.g. IT Staffing, Payroll, Contract Staffing)",
   "employee_count": "Approximate employee count or range like '50-200'",
-  "contact_person": "Name and title of a key contact if mentioned",
+  "employee_count_exact": null,
+  "revenue_range": "Annual revenue if mentioned (e.g. ₹10-50 Cr, $5M-10M)",
+  "founded_year": "Year the company was founded/established",
+  "technologies": "Key technologies, platforms, or tools mentioned (e.g. SAP, Workday, Oracle HCM)",
+  "funding_stage": "Funding stage if mentioned (Bootstrapped, Seed, Series A, etc.)",
+  "contact_person": "Name and title of a key contact if mentioned (e.g. 'Rahul Sharma, CEO')",
+  "secondary_emails": "Any additional email addresses found, pipe-separated",
+  "secondary_phones": "Any additional phone numbers found, pipe-separated",
+  "glassdoor_rating": "Company rating if mentioned on the page",
   "is_real_company": true
 }}
 
 If this is NOT a real company page (it's a directory, article, blog, or listing site), return:
 {{"is_real_company": false}}""",
-        system="You are a data extraction expert. Extract only factual information visible on the page. Never guess or hallucinate.",
-        max_tokens=400,
+        system="You are a data extraction expert. Extract only factual information visible on the page. Never guess or hallucinate. For fields not found on the page, use null.",
+        max_tokens=600,
     )
 
     if not data or not data.get("is_real_company", False):

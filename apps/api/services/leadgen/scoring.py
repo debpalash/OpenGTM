@@ -59,6 +59,16 @@ def score_lead(lead: Lead) -> int:
                     score += SCORING_WEIGHTS["specialization_match"] // 2
                     break
 
+    # Industry tags match (bonus for multiple tag matches)
+    if lead.industry_tags:
+        tags_lower = lead.industry_tags.lower()
+        tag_matches = sum(
+            1 for pref in ICP["preferred_specializations"]
+            if pref.lower() in tags_lower
+        )
+        if tag_matches >= 2:
+            score += 5  # Bonus for multi-tag match
+
     # City signal
     if lead.city in ICP.get("tier1_cities", []):
         score += SCORING_WEIGHTS["tier1_city"]
@@ -69,6 +79,16 @@ def score_lead(lead: Lead) -> int:
     if lead.has_contact_person:
         score += SCORING_WEIGHTS["decision_maker_found"]
 
+    # Decision makers JSON (structured contacts = higher quality)
+    if lead.decision_makers:
+        try:
+            import json
+            dms = json.loads(lead.decision_makers)
+            if len(dms) >= 2:
+                score += 5  # Multiple decision makers found
+        except (json.JSONDecodeError, TypeError):
+            pass
+
     # Multiple contacts signal
     contact_count = sum([
         lead.has_email,
@@ -78,6 +98,16 @@ def score_lead(lead: Lead) -> int:
     ])
     if contact_count >= 3:
         score += SCORING_WEIGHTS["multiple_contacts"]
+
+    # Established company signals
+    if lead.founded_year:
+        score += 3  # Knowing founding year = more data = better lead
+
+    if lead.revenue_range:
+        score += 3  # Revenue data available
+
+    if lead.glassdoor_rating:
+        score += 2  # Has review presence
 
     # Cap at 100
     return min(score, 100)

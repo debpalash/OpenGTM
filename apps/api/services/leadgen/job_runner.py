@@ -81,7 +81,7 @@ class JobRunner:
                 "message": f"🚀 Starting collection: '{query}'",
             })
 
-            # ── Run all 3 strategies in PARALLEL ─────────────────
+            # ── Run all 6 strategies in PARALLEL ─────────────────
             is_location = self._is_location_query(query)
 
             tasks = []
@@ -97,6 +97,15 @@ class JobRunner:
 
             # Directory task
             tasks.append(("directories", self._search_directories(job_id, query)))
+
+            # LinkedIn company discovery
+            tasks.append(("linkedin", self._search_linkedin(job_id, query)))
+
+            # Job boards (companies actively hiring = buying signal)
+            tasks.append(("job_boards", self._search_job_boards(job_id, query)))
+
+            # Review sites (AmbitionBox — established employers)
+            tasks.append(("review_sites", self._search_review_sites(job_id, query)))
 
             progress.emit("job_progress", {
                 "job_id": job_id, "stage": "parallel",
@@ -188,6 +197,48 @@ class JobRunner:
                 input_count=len(unique), output_count=len(scored),
                 details=json.dumps({"tiers": tiers, "ai": True,
                     "tokens": self.llm.usage.to_dict()}))
+
+            # ── Enrich: scrape websites for missing data ─────────
+            enrich_sid = self.db.create_stage(job_id, "enrich")
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "enrich",
+                "message": f"🌐 Enriching {len(scored)} leads from websites...",
+            })
+            try:
+                from apps.api.services.leadgen.enrichment.website_scraper import enrich_leads_from_websites
+                scored = await enrich_leads_from_websites(scored, batch_size=5)
+            except Exception as e:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "enrich",
+                    "message": f"⚠️ Website enrichment error: {e}",
+                })
+            self.db.complete_stage(enrich_sid,
+                input_count=len(scored), output_count=len(scored))
+
+            # ── Decision Makers ───────────────────────────────────
+            dm_sid = self.db.create_stage(job_id, "decision_makers")
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "decision_makers",
+                "message": f"👤 Finding decision makers...",
+            })
+            try:
+                from apps.api.services.leadgen.enrichment.decision_maker_finder import enrich_decision_makers
+                # Only find DMs for top-scored leads to save API calls
+                top_leads = [l for l in scored if l.score >= 40][:15]
+                if top_leads:
+                    await enrich_decision_makers(top_leads, concurrency=2, max_contacts=2)
+                    dm_found = sum(1 for l in top_leads if l.decision_makers)
+                    progress.emit("job_progress", {
+                        "job_id": job_id, "stage": "decision_makers",
+                        "message": f"👤 Found decision makers for {dm_found}/{len(top_leads)} leads",
+                    })
+            except Exception as e:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "decision_makers",
+                    "message": f"⚠️ Decision maker search error: {e}",
+                })
+            self.db.complete_stage(dm_sid,
+                input_count=len(scored), output_count=len(scored))
 
             # ── Store ────────────────────────────────────────────
             store_sid = self.db.create_stage(job_id, "store")
@@ -332,10 +383,21 @@ class JobRunner:
                                     email=ai_data.get("email") or "",
                                     phone=ai_data.get("phone") or "",
                                     city=city,
+                                    state=ai_data.get("state") or "",
+                                    address=ai_data.get("address") or "",
                                     description=ai_data.get("description") or body[:300],
                                     specialization=ai_data.get("specialization") or "",
+                                    industry_tags=ai_data.get("industry_tags") or "",
                                     company_size=ai_data.get("employee_count") or "",
+                                    employee_count_exact=ai_data.get("employee_count_exact") or 0,
+                                    revenue_range=ai_data.get("revenue_range") or "",
+                                    founded_year=ai_data.get("founded_year") or "",
+                                    technologies=ai_data.get("technologies") or "",
+                                    funding_stage=ai_data.get("funding_stage") or "",
                                     contact_person=ai_data.get("contact_person") or "",
+                                    secondary_emails=ai_data.get("secondary_emails") or "",
+                                    secondary_phones=ai_data.get("secondary_phones") or "",
+                                    glassdoor_rating=ai_data.get("glassdoor_rating") or "",
                                     source="web_search",
                                 )
                                 leads.append(lead)
@@ -569,6 +631,271 @@ class JobRunner:
                 "job_id": job_id, "stage": "directories",
                 "message": f"⚠️ Directory page parse error: {e}",
             })
+
+        return leads
+
+    # ── Strategy: LinkedIn Company Discovery ─────────────────────────────
+
+    async def _search_linkedin(self, job_id: str, query: str) -> list[Lead]:
+        """Search DDG for LinkedIn company pages matching the query."""
+        leads = []
+        city = self._extract_city(query)
+
+        progress.emit("job_progress", {
+            "job_id": job_id, "stage": "linkedin",
+            "message": f"🔗 Searching LinkedIn companies...",
+        })
+
+        try:
+            from ddgs import DDGS
+
+            linkedin_queries = [
+                f'site:linkedin.com/company "{query}"',
+                f'site:linkedin.com/company "{query}" {city}' if city else f'site:linkedin.com/company "{query}" India',
+            ]
+
+            seen_urls = set()
+            for lq in linkedin_queries:
+                try:
+                    with DDGS() as ddgs:
+                        results = list(ddgs.text(lq, max_results=10))
+
+                    for r in results:
+                        href = r.get("href", "")
+                        title = r.get("title", "")
+                        body = r.get("body", "")
+
+                        if "/company/" not in href:
+                            continue
+
+                        # Normalize URL
+                        from urllib.parse import urlparse
+                        parsed = urlparse(href)
+                        company_path = parsed.path.rstrip("/")
+                        linkedin_url = f"https://www.linkedin.com{company_path}"
+
+                        if linkedin_url in seen_urls:
+                            continue
+                        seen_urls.add(linkedin_url)
+
+                        # Extract company name from title
+                        company_name = title.split(" | ")[0].split(" - ")[0].strip()
+                        if not company_name or company_name.lower() == "linkedin":
+                            continue
+
+                        # Extract employee count if mentioned
+                        company_size = ""
+                        size_match = re.search(r'(\d[\d,]+)\s*(?:employees|followers)', body, re.IGNORECASE)
+                        if size_match:
+                            count = int(size_match.group(1).replace(",", ""))
+                            if count < 50:
+                                company_size = "1-50"
+                            elif count < 200:
+                                company_size = "51-200"
+                            elif count < 500:
+                                company_size = "201-500"
+                            else:
+                                company_size = "500+"
+
+                        lead = Lead(
+                            company=company_name,
+                            city=city or "India",
+                            linkedin_url=linkedin_url,
+                            company_size=company_size,
+                            description=body[:300] if body else "",
+                            specialization=query,
+                            source="linkedin",
+                        )
+                        leads.append(lead)
+                        progress.emit("lead_discovered", {
+                            "job_id": job_id, "stage": "linkedin",
+                            "lead": {"company": lead.company, "linkedin": linkedin_url},
+                        })
+
+                    await asyncio.sleep(1.5)
+                except Exception:
+                    continue
+
+        except ImportError:
+            pass
+
+        return leads
+
+    # ── Strategy: Job Boards ─────────────────────────────────────────────
+
+    async def _search_job_boards(self, job_id: str, query: str) -> list[Lead]:
+        """Find companies actively hiring via Naukri/Indeed — strong buying signal."""
+        leads = []
+        city = self._extract_city(query)
+
+        progress.emit("job_progress", {
+            "job_id": job_id, "stage": "job_boards",
+            "message": f"💼 Searching job boards for employers...",
+        })
+
+        try:
+            from ddgs import DDGS
+
+            board_queries = [
+                f'site:naukri.com "{query}" employer {city or "India"}',
+                f'site:indeed.com "{query}" company {city or "India"}',
+            ]
+
+            seen = set()
+            for bq in board_queries:
+                try:
+                    with DDGS() as ddgs:
+                        results = list(ddgs.text(bq, max_results=10))
+
+                    for r in results:
+                        title = r.get("title", "")
+                        body = r.get("body", "")
+
+                        # Extract employer name from job board title patterns
+                        name = title.split(" Jobs")[0].split(" Careers")[0].split(" - ")[0].split(" | ")[0].strip()
+                        name = re.sub(r'\s*(Pvt|Ltd|Private|Limited|India)\.?\s*$', '', name, flags=re.IGNORECASE).strip()
+
+                        if not name or name in seen or len(name) < 3:
+                            continue
+                        if name.lower() in ("naukri", "indeed", "jobs", "careers"):
+                            continue
+
+                        # Pre-validate
+                        test_lead = Lead(company=name)
+                        from apps.api.services.leadgen.lead_validator import validate_lead
+                        is_valid, _ = validate_lead(test_lead)
+                        if not is_valid:
+                            continue
+
+                        seen.add(name)
+
+                        # Try to extract employee count
+                        company_size = ""
+                        size_match = re.search(r'(\d[\d,]+)\s*(?:employees|people)', body, re.IGNORECASE)
+                        if size_match:
+                            count = int(size_match.group(1).replace(",", ""))
+                            if count < 50:
+                                company_size = "1-50"
+                            elif count < 200:
+                                company_size = "51-200"
+                            elif count < 500:
+                                company_size = "201-500"
+                            else:
+                                company_size = "500+"
+
+                        lead = Lead(
+                            company=name,
+                            city=city or "India",
+                            company_size=company_size,
+                            specialization=query,
+                            description=body[:200] if body else "",
+                            source="job_board",
+                        )
+                        leads.append(lead)
+                        progress.emit("lead_discovered", {
+                            "job_id": job_id, "stage": "job_boards",
+                            "lead": {"company": lead.company},
+                        })
+
+                    await asyncio.sleep(1.5)
+                except Exception:
+                    continue
+
+        except ImportError:
+            pass
+
+        return leads
+
+    # ── Strategy: Review Sites ───────────────────────────────────────────
+
+    async def _search_review_sites(self, job_id: str, query: str) -> list[Lead]:
+        """Find companies on AmbitionBox/Glassdoor — established employers."""
+        leads = []
+        city = self._extract_city(query)
+
+        progress.emit("job_progress", {
+            "job_id": job_id, "stage": "review_sites",
+            "message": f"⭐ Searching review sites...",
+        })
+
+        try:
+            from ddgs import DDGS
+
+            review_queries = [
+                f'site:ambitionbox.com "{query}" {city or "India"} reviews',
+                f'site:glassdoor.co.in "{query}" {city or "India"} reviews',
+            ]
+
+            seen = set()
+            for rq in review_queries:
+                try:
+                    with DDGS() as ddgs:
+                        results = list(ddgs.text(rq, max_results=10))
+
+                    for r in results:
+                        title = r.get("title", "")
+                        body = r.get("body", "")
+                        href = r.get("href", "")
+
+                        name = title.split(" Reviews")[0].split(" | ")[0].split(" - ")[0].strip()
+                        name = re.sub(r'\s*(Pvt|Ltd|Private|Limited|India)\.?\s*$', '', name, flags=re.IGNORECASE).strip()
+
+                        if not name or name in seen or len(name) < 3:
+                            continue
+                        if name.lower() in ("ambitionbox", "glassdoor"):
+                            continue
+
+                        # Pre-validate
+                        test_lead = Lead(company=name)
+                        from apps.api.services.leadgen.lead_validator import validate_lead
+                        is_valid, _ = validate_lead(test_lead)
+                        if not is_valid:
+                            continue
+
+                        seen.add(name)
+
+                        # Extract rating
+                        rating = ""
+                        rating_match = re.search(r'(\d\.\d)\s*(?:/5|out of 5|stars?|rating)', body, re.IGNORECASE)
+                        if rating_match:
+                            rating = rating_match.group(1)
+
+                        # Extract employee count
+                        company_size = ""
+                        size_match = re.search(r'(\d[\d,]+)\s*(?:employees|people)', body, re.IGNORECASE)
+                        if size_match:
+                            count = int(size_match.group(1).replace(",", ""))
+                            if count < 50:
+                                company_size = "1-50"
+                            elif count < 200:
+                                company_size = "51-200"
+                            elif count < 500:
+                                company_size = "201-500"
+                            else:
+                                company_size = "500+"
+
+                        lead = Lead(
+                            company=name,
+                            city=city or "India",
+                            company_size=company_size,
+                            glassdoor_rating=rating,
+                            specialization=query,
+                            description=body[:200] if body else "",
+                            notes=f"Review profile: {href}",
+                            source="review_site",
+                        )
+                        leads.append(lead)
+                        progress.emit("lead_discovered", {
+                            "job_id": job_id, "stage": "review_sites",
+                            "lead": {"company": lead.company, "rating": rating},
+                        })
+
+                    await asyncio.sleep(1.5)
+                except Exception:
+                    continue
+
+        except ImportError:
+            pass
 
         return leads
 

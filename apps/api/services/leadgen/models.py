@@ -25,15 +25,28 @@ class Lead:
     # ── Location ───────────────────────────────────────────────────────
     city: str = ""
     state: str = ""
+    address: str = ""              # Full registered address
 
     # ── Company Info ───────────────────────────────────────────────────
     specialization: str = ""       # e.g. "IT Staffing", "Executive Search"
     company_size: str = ""         # "1-50", "51-200", "201-500", "500+"
+    employee_count_exact: int = 0  # Numeric headcount if known
     description: str = ""          # Short company description
+    revenue_range: str = ""        # e.g. "₹1-5 Cr", "$1M-5M"
+    founded_year: str = ""         # Year the company was established
+    industry_tags: str = ""        # Comma-separated: "IT Staffing, RPO, Payroll"
+    technologies: str = ""         # Key tech stack / platforms
+    funding_stage: str = ""        # "Bootstrapped", "Seed", "Series A", etc.
 
     # ── Social ─────────────────────────────────────────────────────────
     linkedin_url: str = ""
     twitter_url: str = ""
+
+    # ── Extended Contact ───────────────────────────────────────────────
+    secondary_emails: str = ""     # Pipe-separated additional emails
+    secondary_phones: str = ""     # Pipe-separated additional phones
+    decision_makers: str = ""      # JSON: [{"name":"X","title":"CEO","linkedin":"..."}]
+    glassdoor_rating: str = ""     # Company rating from review sites
 
     # ── Pipeline ───────────────────────────────────────────────────────
     source: str = ""               # "csv_import", "google_maps", "linkedin", etc.

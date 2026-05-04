@@ -157,8 +157,26 @@ class LeadDB:
         existing_lead_cols = {r[1] for r in self.conn.execute("PRAGMA table_info(leads)").fetchall()}
         existing_job_cols = {r[1] for r in self.conn.execute("PRAGMA table_info(jobs)").fetchall()}
 
-        if "workspace_id" not in existing_lead_cols:
-            self.conn.execute("ALTER TABLE leads ADD COLUMN workspace_id TEXT DEFAULT ''")
+        # New columns to add to leads table
+        new_lead_columns = {
+            "workspace_id": "TEXT DEFAULT ''",
+            "address": "TEXT DEFAULT ''",
+            "employee_count_exact": "INTEGER DEFAULT 0",
+            "revenue_range": "TEXT DEFAULT ''",
+            "founded_year": "TEXT DEFAULT ''",
+            "industry_tags": "TEXT DEFAULT ''",
+            "technologies": "TEXT DEFAULT ''",
+            "funding_stage": "TEXT DEFAULT ''",
+            "secondary_emails": "TEXT DEFAULT ''",
+            "secondary_phones": "TEXT DEFAULT ''",
+            "decision_makers": "TEXT DEFAULT ''",
+            "glassdoor_rating": "TEXT DEFAULT ''",
+        }
+
+        for col, col_type in new_lead_columns.items():
+            if col not in existing_lead_cols:
+                self.conn.execute(f"ALTER TABLE leads ADD COLUMN {col} {col_type}")
+
         if "workspace_id" not in existing_job_cols:
             self.conn.execute("ALTER TABLE jobs ADD COLUMN workspace_id TEXT DEFAULT ''")
         self.conn.commit()

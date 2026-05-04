@@ -54,3 +54,5 @@ reference/research-summaries/
 *.debug.html
 ddg_output*.txt
 *.log
+apps/api/services/leadgen/data/leads.db-shm
+apps/api/services/leadgen/data/leads.db-wal

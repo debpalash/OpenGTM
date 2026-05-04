@@ -10,6 +10,61 @@ import { useConversationMessages } from "@/lib/hooks"
 import { streamChat, type ChatMessage } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { toast } from "sonner"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+
+function MarkdownMessage({ content }: { content: string }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        table: ({ children }) => (
+          <div className="overflow-x-auto my-2 rounded-lg border border-border/50">
+            <table className="w-full text-sm">{children}</table>
+          </div>
+        ),
+        thead: ({ children }) => (
+          <thead className="bg-muted/50 text-xs uppercase tracking-wider">{children}</thead>
+        ),
+        th: ({ children }) => (
+          <th className="px-3 py-2 text-left font-medium text-muted-foreground whitespace-nowrap">{children}</th>
+        ),
+        td: ({ children }) => (
+          <td className="px-3 py-2 border-t border-border/30 whitespace-nowrap">{children}</td>
+        ),
+        strong: ({ children }) => (
+          <strong className="font-semibold text-foreground">{children}</strong>
+        ),
+        a: ({ href, children }) => (
+          <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:text-primary/80">
+            {children}
+          </a>
+        ),
+        ul: ({ children }) => <ul className="list-disc list-inside space-y-0.5 my-1">{children}</ul>,
+        ol: ({ children }) => <ol className="list-decimal list-inside space-y-0.5 my-1">{children}</ol>,
+        code: ({ children, className }) => {
+          const isInline = !className
+          return isInline ? (
+            <code className="bg-muted px-1.5 py-0.5 rounded text-[13px] font-mono">{children}</code>
+          ) : (
+            <pre className="bg-muted/70 rounded-lg p-3 overflow-x-auto my-2">
+              <code className="text-[13px] font-mono">{children}</code>
+            </pre>
+          )
+        },
+        h1: ({ children }) => <h1 className="text-lg font-bold mt-3 mb-1">{children}</h1>,
+        h2: ({ children }) => <h2 className="text-base font-semibold mt-2 mb-1">{children}</h2>,
+        h3: ({ children }) => <h3 className="text-sm font-semibold mt-2 mb-0.5">{children}</h3>,
+        p: ({ children }) => <p className="mb-1.5 last:mb-0">{children}</p>,
+        blockquote: ({ children }) => (
+          <blockquote className="border-l-2 border-primary/30 pl-3 my-2 text-muted-foreground italic">{children}</blockquote>
+        ),
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+  )
+}
 
 const EXAMPLES = [
   "Find 50 IT staffing companies in Bangalore",
@@ -171,7 +226,11 @@ export default function ChatPage() {
                         : "text-foreground"
                     }`}
                   >
-                    {msg.content}
+                    {msg.role === "assistant" ? (
+                      <MarkdownMessage content={msg.content || ""} />
+                    ) : (
+                      msg.content
+                    )}
                   </div>
                 </div>
               </div>
@@ -184,8 +243,10 @@ export default function ChatPage() {
                   <Bot className="size-5" />
                 </div>
                 <div className="max-w-[85%] md:max-w-[75%]">
-                  <div className="px-4 py-3 text-base whitespace-pre-wrap leading-relaxed text-foreground">
-                    {streamingContent}
+                  <div className="px-4 py-3 text-base leading-relaxed text-foreground">
+                    {streamingContent && (
+                      <MarkdownMessage content={streamingContent} />
+                    )}
                     {!streamingContent && streamingTool && (
                       <span className="text-muted-foreground flex items-center gap-2 text-sm mt-1">
                         <Loader2 className="size-4 animate-spin" />
