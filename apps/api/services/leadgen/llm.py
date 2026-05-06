@@ -270,11 +270,31 @@ class LLMClient:
 
                 # Track token usage
                 usage = data.get("usage", {})
+                prompt_tok = usage.get("prompt_tokens", 0)
+                completion_tok = usage.get("completion_tokens", 0)
                 self.usage.add(
-                    prompt=usage.get("prompt_tokens", 0),
-                    completion=usage.get("completion_tokens", 0),
+                    prompt=prompt_tok,
+                    completion=completion_tok,
                     provider=prov["id"],
                 )
+
+                # Persist to DB + capture rate limit headers
+                try:
+                    from apps.api.services.leadgen.db import LeadDB
+                    db = LeadDB()
+                    # Capture rate limit headers (most providers send these)
+                    rate_limit = int(resp.headers.get("X-RateLimit-Limit", 0) or
+                                    resp.headers.get("x-ratelimit-limit-requests", 0) or 0)
+                    rate_remaining = int(resp.headers.get("X-RateLimit-Remaining", 0) or
+                                        resp.headers.get("x-ratelimit-remaining-requests", 0) or 0)
+                    rate_reset = resp.headers.get("X-RateLimit-Reset", "") or resp.headers.get("x-ratelimit-reset-requests", "")
+                    db.record_llm_usage(
+                        prov["id"], prov["model"], prompt_tok, completion_tok,
+                        rate_limit=rate_limit, rate_remaining=rate_remaining, rate_reset=str(rate_reset),
+                    )
+                    db.close()
+                except Exception:
+                    pass  # Don't fail the call over tracking
 
                 # Extract response text
                 choices = data.get("choices", [])

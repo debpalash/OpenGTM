@@ -146,6 +146,23 @@ class LeadDB:
                 FOREIGN KEY (job_id) REFERENCES jobs(id)
             );
             CREATE INDEX IF NOT EXISTS idx_job_stages_job ON job_stages(job_id);
+
+            CREATE TABLE IF NOT EXISTS llm_usage (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                provider TEXT NOT NULL,
+                model TEXT DEFAULT '',
+                calls INTEGER DEFAULT 0,
+                prompt_tokens INTEGER DEFAULT 0,
+                completion_tokens INTEGER DEFAULT 0,
+                total_tokens INTEGER DEFAULT 0,
+                rate_limit INTEGER DEFAULT 0,
+                rate_remaining INTEGER DEFAULT 0,
+                rate_reset TEXT DEFAULT '',
+                date TEXT NOT NULL,
+                updated_at TEXT DEFAULT ''
+            );
+            CREATE INDEX IF NOT EXISTS idx_llm_usage_date ON llm_usage(date);
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_llm_usage_provider_date ON llm_usage(provider, date);
         """)
         self.conn.commit()
 
@@ -179,6 +196,16 @@ class LeadDB:
 
         if "workspace_id" not in existing_job_cols:
             self.conn.execute("ALTER TABLE jobs ADD COLUMN workspace_id TEXT DEFAULT ''")
+
+        # Migrate llm_usage table
+        try:
+            existing_usage_cols = {r[1] for r in self.conn.execute("PRAGMA table_info(llm_usage)").fetchall()}
+            for col, col_type in [("rate_limit", "INTEGER DEFAULT 0"), ("rate_remaining", "INTEGER DEFAULT 0"), ("rate_reset", "TEXT DEFAULT ''")]:
+                if existing_usage_cols and col not in existing_usage_cols:
+                    self.conn.execute(f"ALTER TABLE llm_usage ADD COLUMN {col} {col_type}")
+        except Exception:
+            pass  # Table may not exist yet
+
         self.conn.commit()
 
     # ── CRUD ───────────────────────────────────────────────────────────
@@ -462,6 +489,40 @@ class LeadDB:
             )
         self.conn.commit()
 
+    def cancel_job(self, job_id: str):
+        """Cancel a running/pending job by marking it as cancelled."""
+        self.conn.execute(
+            "UPDATE jobs SET status = 'cancelled', error = 'Cancelled by user', completed_at = ? WHERE id = ? AND status IN ('running', 'pending')",
+            (datetime.utcnow().isoformat(), job_id)
+        )
+        self.conn.commit()
+
+    def delete_job(self, job_id: str, keep_leads: bool = False):
+        """Delete a job and optionally its associated leads.
+
+        Args:
+            job_id: The job ID to delete.
+            keep_leads: If True, keeps the leads but removes the job record.
+        """
+        if not keep_leads:
+            # Delete leads that were created by this job
+            self.conn.execute(
+                "DELETE FROM leads WHERE source = ?", (f"job:{job_id}",)
+            )
+        # Delete stages
+        self.conn.execute("DELETE FROM job_stages WHERE job_id = ?", (job_id,))
+        # Delete the job itself
+        self.conn.execute("DELETE FROM jobs WHERE id = ?", (job_id,))
+        self.conn.commit()
+
+    def retry_job(self, job_id: str):
+        """Reset a failed/cancelled job to pending for re-processing."""
+        self.conn.execute(
+            "UPDATE jobs SET status = 'pending', error = '', completed_at = '', attempts = 0 WHERE id = ? AND status IN ('failed', 'cancelled')",
+            (job_id,)
+        )
+        self.conn.commit()
+
     def get_jobs(self, status: Optional[str] = None, limit: int = 50) -> List[Dict[str, Any]]:
         """List jobs, optionally filtered by status."""
         if status:
@@ -522,6 +583,48 @@ class LeadDB:
             (f"job:{job_id}", limit)
         ).fetchall()
         return [dict(r) for r in rows]
+
+    # ── LLM Usage Tracking ─────────────────────────────────────────────
+
+    def record_llm_usage(self, provider: str, model: str, prompt_tokens: int, completion_tokens: int,
+                         rate_limit: int = 0, rate_remaining: int = 0, rate_reset: str = ""):
+        """Accumulate LLM usage for a provider on today's date."""
+        today = datetime.utcnow().strftime("%Y-%m-%d")
+        now = datetime.utcnow().isoformat()
+        self.conn.execute("""
+            INSERT INTO llm_usage (provider, model, calls, prompt_tokens, completion_tokens, total_tokens,
+                                   rate_limit, rate_remaining, rate_reset, date, updated_at)
+            VALUES (?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(provider, date) DO UPDATE SET
+                calls = calls + 1,
+                prompt_tokens = prompt_tokens + excluded.prompt_tokens,
+                completion_tokens = completion_tokens + excluded.completion_tokens,
+                total_tokens = total_tokens + excluded.total_tokens,
+                rate_limit = CASE WHEN excluded.rate_limit > 0 THEN excluded.rate_limit ELSE llm_usage.rate_limit END,
+                rate_remaining = CASE WHEN excluded.rate_limit > 0 THEN excluded.rate_remaining ELSE llm_usage.rate_remaining END,
+                rate_reset = CASE WHEN excluded.rate_reset != '' THEN excluded.rate_reset ELSE llm_usage.rate_reset END,
+                model = excluded.model,
+                updated_at = excluded.updated_at
+        """, (provider, model, prompt_tokens, completion_tokens, prompt_tokens + completion_tokens,
+              rate_limit, rate_remaining, rate_reset, today, now))
+        self.conn.commit()
+
+    def get_llm_usage(self, date: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Get LLM usage stats, optionally for a specific date (default: today)."""
+        if not date:
+            date = datetime.utcnow().strftime("%Y-%m-%d")
+        rows = self.conn.execute(
+            "SELECT * FROM llm_usage WHERE date = ? ORDER BY calls DESC",
+            (date,)
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_llm_usage_total(self) -> Dict[str, Any]:
+        """Get total LLM usage across all time."""
+        row = self.conn.execute(
+            "SELECT SUM(calls) as total_calls, SUM(total_tokens) as total_tokens FROM llm_usage"
+        ).fetchone()
+        return dict(row) if row else {"total_calls": 0, "total_tokens": 0}
 
     # ── Workspaces ─────────────────────────────────────────────────────
 

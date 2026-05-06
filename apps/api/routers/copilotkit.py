@@ -185,7 +185,7 @@ def _build_system_prompt() -> str:
     except Exception:
         stats_text = "Pipeline stats unavailable"
 
-    return f"""You are LeadEngine AI, an expert B2B sales intelligence assistant for Yupcha.
+    return f"""You are Yupcha Sales AI, an expert B2B sales intelligence assistant for Yupcha.
 
 ## Your Ideal Customer Profile (ICP)
 {icp_text}
@@ -205,6 +205,8 @@ You have powerful tools to interact with the lead database. Use them proactively
 - **get_enrichment_gaps** — Show leads missing email/phone/linkedin
 - **suggest_outreach** — Generate personalized outreach messages
 - **compare_leads** — Side-by-side comparison of leads
+- **ambitionbox_search** — Search AmbitionBox for Indian companies with ratings, reviews, employee counts, industry data. Use for market research, competitor analysis, finding hiring companies
+- **ambitionbox_jobs** — Get current job listings for a company from AmbitionBox (requires company_id from ambitionbox_search)
 
 ## Response Guidelines
 - Use **markdown formatting**: tables for data, bold for metrics, bullet lists for recommendations
@@ -362,6 +364,39 @@ def _build_tools():
                         "lead_ids": {"type": "array", "items": {"type": "integer"}, "description": "List of 2-3 lead IDs to compare"},
                     },
                     "required": ["lead_ids"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "ambitionbox_search",
+                "description": "Search AmbitionBox for Indian companies with ratings, reviews, employee counts, industry, and job data. Use for company research, market analysis, competitor intel. Supports filters: industry, location, rating.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "industry": {"type": "string", "description": "Industry filter, e.g. 'IT Services & Consulting', 'Banking', 'BPO'"},
+                        "location": {"type": "string", "description": "City filter, e.g. 'Bangalore/Bengaluru', 'Mumbai', 'Pune'"},
+                        "sort_by": {"type": "string", "enum": ["popular", "rating", "reviews"], "description": "Sort order", "default": "popular"},
+                        "page": {"type": "integer", "description": "Page number (1-indexed)", "default": 1},
+                        "limit": {"type": "integer", "description": "Results per page (max 20)", "default": 10},
+                    },
+                    "required": [],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "ambitionbox_jobs",
+                "description": "Get current job listings for a specific company from AmbitionBox. Includes job titles, skills, experience, locations.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "company_id": {"type": "integer", "description": "AmbitionBox company ID (get from ambitionbox_search results)"},
+                        "page": {"type": "integer", "description": "Page number", "default": 1},
+                    },
+                    "required": ["company_id"],
                 },
             },
         },
@@ -621,6 +656,47 @@ def _execute_tool(name: str, args: dict) -> str:
 
             return json.dumps({"comparison": leads_data, "count": len(leads_data)})
 
+        elif name == "ambitionbox_search":
+            # Run async AmbitionBox search in a new event loop
+            from apps.api.services.leadgen.ambitionbox import ambitionbox
+            import asyncio as _aio
+
+            industry = [args["industry"]] if args.get("industry") else None
+            location = [args["location"]] if args.get("location") else None
+
+            loop = _aio.new_event_loop()
+            try:
+                result = loop.run_until_complete(
+                    ambitionbox.search_companies(
+                        page=args.get("page", 1),
+                        limit=args.get("limit", 10),
+                        sort_by=args.get("sort_by", "popular"),
+                        industry=industry,
+                        location=location,
+                    )
+                )
+            finally:
+                loop.close()
+
+            return json.dumps(result)
+
+        elif name == "ambitionbox_jobs":
+            from apps.api.services.leadgen.ambitionbox import ambitionbox
+            import asyncio as _aio
+
+            loop = _aio.new_event_loop()
+            try:
+                result = loop.run_until_complete(
+                    ambitionbox.get_company_jobs(
+                        company_id=args["company_id"],
+                        page=args.get("page", 1),
+                    )
+                )
+            finally:
+                loop.close()
+
+            return json.dumps(result)
+
         return json.dumps({"error": f"Unknown tool: {name}"})
     finally:
         db.close()
@@ -677,7 +753,9 @@ async def _stream_chat(
                         remaining = fallback_providers[1:]
                         next_name = next_prov.get("name", next_prov.get("id", "?"))
 
-                        yield f'data: {json.dumps({"content": f"\n\n> ⚡ *{provider_name} rate limited — switching to {next_name}...*\n\n"})}\n\n'
+                        nl = "\n"
+                        msg = f"{nl}{nl}> ⚡ *{provider_name} rate limited — switching to {next_name}...*{nl}{nl}"
+                        yield f'data: {json.dumps({"content": msg})}\n\n'
 
                         async for chunk in _stream_chat(messages, tools, next_prov, remaining):
                             yield chunk
@@ -697,7 +775,9 @@ async def _stream_chat(
                         remaining = fallback_providers[1:]
                         next_name = next_prov.get("name", next_prov.get("id", "?"))
 
-                        yield f'data: {json.dumps({"content": f"\n\n> ⚡ *{provider_name} is down — switching to {next_name}...*\n\n"})}\n\n'
+                        nl = "\n"
+                        msg = f"{nl}{nl}> ⚡ *{provider_name} is down — switching to {next_name}...*{nl}{nl}"
+                        yield f'data: {json.dumps({"content": msg})}\n\n'
 
                         async for chunk in _stream_chat(messages, tools, next_prov, remaining):
                             yield chunk
@@ -784,7 +864,9 @@ async def _stream_chat(
             next_name = next_prov.get("name", next_prov.get("id", "?"))
             error_type = "unreachable" if isinstance(e, httpx.ConnectError) else "timed out"
 
-            yield f'data: {json.dumps({"content": f"\n\n> ⚡ *{provider_name} {error_type} — switching to {next_name}...*\n\n"})}\n\n'
+            nl = "\n"
+            msg = f"{nl}{nl}> ⚡ *{provider_name} {error_type} — switching to {next_name}...*{nl}{nl}"
+            yield f'data: {json.dumps({"content": msg})}\n\n'
 
             async for chunk in _stream_chat(messages, tools, next_prov, remaining):
                 yield chunk
@@ -891,6 +973,16 @@ async def copilot_chat(request: Request):
                     data = json.loads(chunk[6:])
                     if "content" in data:
                         full_response.append(data["content"])
+                    # Persist tool results that contain a job_id (for task progress cards)
+                    if "tool_result" in data:
+                        tr = data["tool_result"]
+                        result_data = tr.get("result", {})
+                        if isinstance(result_data, dict) and result_data.get("job_id"):
+                            chat_history.add_message(
+                                conv_id, "tool",
+                                f"Started collection: {result_data.get('query', '')}",
+                                tool_data=json.dumps(result_data),
+                            )
                 except (json.JSONDecodeError, KeyError):
                     pass
 

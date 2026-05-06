@@ -31,7 +31,7 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
+    <div className="p-6 space-y-6">
       <div>
         <h2 className="text-lg font-semibold">Search</h2>
         <p className="text-sm text-muted-foreground">

@@ -2,7 +2,9 @@ import { useState } from "react"
 import { toast } from "sonner"
 import {
   ExternalLink, Check, X, Loader2, TestTube2,
-  Eye, EyeOff, Star,
+  Eye, EyeOff, Star, Globe, Diamond, Leaf, Zap,
+  Brain, Sparkles, Shell, Hexagon, Cloud, Smile, Flame, Waves,
+  Search, Bot, BarChart3, Radio, Mail,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,6 +17,27 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useProviders, type Provider } from "@/lib/hooks"
 import { useQueryClient } from "@tanstack/react-query"
 import { queryKeys } from "@/lib/query-client"
+
+// Map provider emoji icons from the API to Lucide components
+const PROVIDER_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  "🌐": Globe,
+  "🔷": Diamond,
+  "💚": Leaf,
+  "⚡": Zap,
+  "🧠": Brain,
+  "🔮": Sparkles,
+  "🐚": Shell,
+  "🐙": Hexagon,
+  "☁️": Cloud,
+  "🤗": Smile,
+  "🔥": Flame,
+  "🌊": Waves,
+}
+
+function ProviderIcon({ icon }: { icon: string }) {
+  const Icon = PROVIDER_ICON_MAP[icon] || Globe
+  return <Icon className="size-5 text-muted-foreground" />
+}
 
 function ProviderCard({ provider }: { provider: Provider }) {
   const [apiKey, setApiKey] = useState("")
@@ -73,7 +96,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <span className="text-lg">{provider.icon}</span>
+            <ProviderIcon icon={provider.icon} />
             {provider.name}
             {provider.is_default && (
               <Badge variant="default" className="text-xs gap-1">
@@ -155,10 +178,11 @@ export default function SettingsPage() {
   const { data, isLoading } = useProviders()
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 space-y-6">
       <Tabs defaultValue="providers">
         <TabsList>
           <TabsTrigger value="providers">AI Providers</TabsTrigger>
+          <TabsTrigger value="agents">Agents</TabsTrigger>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
         </TabsList>
@@ -183,6 +207,52 @@ export default function SettingsPage() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="agents" className="mt-4 space-y-4">
+          <div>
+            <h3 className="text-sm font-medium">Agent Configuration</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Control which AI agents are active in the lead pipeline. Disabled agents will be skipped during collection.
+            </p>
+          </div>
+          <Separator />
+          <div className="grid gap-4 md:grid-cols-2">
+            {[
+              { id: "source_agent", name: "Source Agent", Icon: Search, desc: "Searches DDG, Maps, and directories for company URLs", default: true },
+              { id: "enrichment_agent", name: "Enrichment Agent", Icon: Bot, desc: "Extracts company data, emails, phones from websites using AI", default: true },
+              { id: "scoring_agent", name: "Scoring Agent", Icon: BarChart3, desc: "Scores leads against your ICP using LLM reasoning", default: true },
+              { id: "signal_agent", name: "Signal Agent", Icon: Radio, desc: "Monitors hiring, funding, and growth signals", default: false },
+              { id: "outreach_agent", name: "Outreach Agent", Icon: Mail, desc: "Generates and sends personalized outreach messages", default: false },
+            ].map((agent) => (
+              <Card key={agent.id}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <agent.Icon className="size-5 text-muted-foreground" />
+                      {agent.name}
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id={`agent-${agent.id}`}
+                        defaultChecked={agent.default}
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                    </div>
+                  </div>
+                  <CardDescription className="text-xs">
+                    {agent.desc}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Badge variant={agent.default ? "outline" : "secondary"} className="text-xs">
+                    {agent.default ? "Active" : "Idle"}
+                  </Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
 
         <TabsContent value="pipeline" className="mt-4 space-y-4">

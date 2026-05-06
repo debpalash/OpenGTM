@@ -33,8 +33,25 @@ from apps.api.services.leadgen.ai_stages import (
 )
 
 
+def _ddg_text_sync(query: str, max_results: int = 15) -> list:
+    """Synchronous DDG text search — meant to be called via asyncio.to_thread."""
+    from ddgs import DDGS
+    with DDGS() as ddgs:
+        return list(ddgs.text(query, max_results=max_results))
+
+
+async def _ddg_search(query: str, max_results: int = 15) -> list:
+    """Async DDG search that doesn't block the event loop."""
+    try:
+        return await asyncio.to_thread(_ddg_text_sync, query, max_results)
+    except Exception:
+        return []
+
+
 class JobRunner:
     """Processes collection jobs with parallel strategies and quality validation."""
+
+    _cancelled: set[str] = set()  # class-level cancel registry
 
     def __init__(self, db: Optional[LeadDB] = None):
         self.db = db or LeadDB()
@@ -45,6 +62,22 @@ class JobRunner:
             rate_limiter=self.rate_limiter,
         )
         self.llm = LLMClient()
+
+    def _is_cancelled(self, job_id: str) -> bool:
+        """Check if job was cancelled (checks both memory flag and DB)."""
+        if job_id in self._cancelled:
+            return True
+        # Also check DB in case cancel came from API
+        try:
+            row = self.db.conn.execute(
+                "SELECT status FROM jobs WHERE id = ?", (job_id,)
+            ).fetchone()
+            if row and row["status"] in ("cancelled",):
+                self._cancelled.add(job_id)
+                return True
+        except Exception:
+            pass
+        return False
 
     async def submit(self, query: str, workspace_id: str = "") -> str:
         """Submit a new collection job and process it."""
@@ -76,6 +109,14 @@ class JobRunner:
         workspace_id = job.get("workspace_id", "")
 
         try:
+            # Mark job as running
+            from datetime import datetime
+            self.db.conn.execute(
+                "UPDATE jobs SET status = 'running', started_at = ?, attempts = attempts + 1 WHERE id = ?",
+                (datetime.utcnow().isoformat(), job_id)
+            )
+            self.db.conn.commit()
+
             progress.emit("job_started", {
                 "job_id": job_id, "query": query,
                 "message": f"🚀 Starting collection: '{query}'",
@@ -84,37 +125,64 @@ class JobRunner:
             # ── Run all 6 strategies in PARALLEL ─────────────────
             is_location = self._is_location_query(query)
 
+            # Check which sources are enabled
+            from apps.api.routers.settings import get_source_enabled
+
             tasks = []
 
             # Maps task (only for location queries)
-            if is_location:
+            if is_location and get_source_enabled("google_maps"):
                 tasks.append(("maps", self._search_maps(job_id, query)))
             else:
                 tasks.append(("maps", self._noop_strategy("maps")))
 
             # Web search task
-            tasks.append(("web", self._search_and_scrape(job_id, query)))
+            if get_source_enabled("duckduckgo"):
+                tasks.append(("web", self._search_and_scrape(job_id, query)))
+            else:
+                tasks.append(("web", self._noop_strategy("web")))
 
             # Directory task
-            tasks.append(("directories", self._search_directories(job_id, query)))
+            if get_source_enabled("directories"):
+                tasks.append(("directories", self._search_directories(job_id, query)))
+            else:
+                tasks.append(("directories", self._noop_strategy("directories")))
 
             # LinkedIn company discovery
-            tasks.append(("linkedin", self._search_linkedin(job_id, query)))
+            if get_source_enabled("linkedin"):
+                tasks.append(("linkedin", self._search_linkedin(job_id, query)))
+            else:
+                tasks.append(("linkedin", self._noop_strategy("linkedin")))
 
             # Job boards (companies actively hiring = buying signal)
-            tasks.append(("job_boards", self._search_job_boards(job_id, query)))
+            if get_source_enabled("job_boards"):
+                tasks.append(("job_boards", self._search_job_boards(job_id, query)))
+            else:
+                tasks.append(("job_boards", self._noop_strategy("job_boards")))
 
             # Review sites (AmbitionBox — established employers)
-            tasks.append(("review_sites", self._search_review_sites(job_id, query)))
+            if get_source_enabled("ambitionbox"):
+                tasks.append(("review_sites", self._search_review_sites(job_id, query)))
+            else:
+                tasks.append(("review_sites", self._noop_strategy("review_sites")))
 
             progress.emit("job_progress", {
                 "job_id": job_id, "stage": "parallel",
                 "message": f"⚡ Running {len(tasks)} strategies in parallel...",
             })
 
-            # Execute all in parallel
+            # Execute all in parallel with per-strategy timeout (3 min each)
+            STRATEGY_TIMEOUT = 180
+
+            async def _run_strategy(coro):
+                """Wrap each strategy with its own timeout."""
+                try:
+                    return await asyncio.wait_for(coro, timeout=STRATEGY_TIMEOUT)
+                except asyncio.TimeoutError:
+                    return TimeoutError(f"Strategy timed out after {STRATEGY_TIMEOUT}s")
+
             results = await asyncio.gather(
-                *[t[1] for t in tasks],
+                *[_run_strategy(t[1]) for t in tasks],
                 return_exceptions=True,
             )
 
@@ -142,6 +210,11 @@ class JobRunner:
                 else:
                     self.db.complete_stage(sid, status="skipped")
 
+            # ── Check cancellation ────────────────────────────────
+            if self._is_cancelled(job_id):
+                progress.emit("job_progress", {"job_id": job_id, "stage": "cancelled", "message": "🛑 Job cancelled by user"})
+                return
+
             # ── Validate: reject garbage ─────────────────────────
             validate_sid = self.db.create_stage(job_id, "validate")
             progress.emit("job_progress", {
@@ -163,16 +236,45 @@ class JobRunner:
                 details=json.dumps({"reasons": reasons,
                     "rejected_names": [l.company for l, _ in rejected[:20]]}))
 
-            # ── Deduplicate ──────────────────────────────────────
+            # ── Deduplicate (in-batch + cross-job) ────────────────
             dedup_sid = self.db.create_stage(job_id, "dedup")
             unique = deduplicate_leads(valid_leads)
+
+            # Cross-job dedup: remove leads already in the database
+            existing_names = set()
+            try:
+                existing = self.db.get_leads(limit=10000)
+                existing_names = {l.company.lower().strip() for l in existing if l.company}
+            except Exception:
+                pass
+            if existing_names:
+                pre_count = len(unique)
+                dedup_removed_names = [l.company for l in unique if l.company.lower().strip() in existing_names]
+                unique = [l for l in unique if l.company.lower().strip() not in existing_names]
+                cross_removed = pre_count - len(unique)
+            else:
+                cross_removed = 0
+                dedup_removed_names = []
+
+            # Names removed in in-batch dedup
+            unique_set = {l.company.lower().strip() for l in unique}
+            batch_removed = [l.company for l in valid_leads if l.company.lower().strip() not in unique_set and l.company not in dedup_removed_names]
+
+            all_dedup_rejected = (batch_removed + dedup_removed_names)[:20]
+
             self.db.complete_stage(dedup_sid,
                 input_count=len(valid_leads), output_count=len(unique),
-                rejected_count=len(valid_leads) - len(unique))
+                rejected_count=len(valid_leads) - len(unique),
+                details=json.dumps({"cross_job_removed": cross_removed,
+                    "rejected_names": all_dedup_rejected}))
             progress.emit("job_progress", {
                 "job_id": job_id, "stage": "dedup",
-                "message": f"🔄 {len(valid_leads)} → {len(unique)} after dedup",
+                "message": f"🔄 {len(valid_leads)} → {len(unique)} after dedup ({cross_removed} already in DB)",
             })
+
+            if self._is_cancelled(job_id):
+                progress.emit("job_progress", {"job_id": job_id, "stage": "cancelled", "message": "🛑 Job cancelled by user"})
+                return
 
             # ── AI Score (replaces heuristic scoring) ────────────
             score_sid = self.db.create_stage(job_id, "score")
@@ -198,12 +300,51 @@ class JobRunner:
                 details=json.dumps({"tiers": tiers, "ai": True,
                     "tokens": self.llm.usage.to_dict()}))
 
-            # ── Enrich: scrape websites for missing data ─────────
+            # ── Enrich: discover websites for leads without one ──
             enrich_sid = self.db.create_stage(job_id, "enrich")
             progress.emit("job_progress", {
                 "job_id": job_id, "stage": "enrich",
-                "message": f"🌐 Enriching {len(scored)} leads from websites...",
+                "message": f"🌐 Enriching {len(scored)} leads...",
             })
+
+            # Step 1: DDG website discovery for leads missing a website
+            needs_website = [l for l in scored if not l.website or "linkedin.com" in (l.website or "")]
+            if needs_website:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "enrich",
+                    "message": f"🔍 Finding websites for {len(needs_website)} leads...",
+                })
+                for lead in needs_website[:15]:  # Cap at 15 to avoid rate limits
+                    try:
+                        search_q = f'"{lead.company}" official website'
+                        if lead.city:
+                            search_q += f' {lead.city}'
+                        results = await _ddg_search(search_q, max_results=3)
+                        for r in results:
+                            href = r.get("href", "")
+                            if not href:
+                                continue
+                            domain = urlparse(href).netloc.lower()
+                            if not self._is_skip_domain(domain):
+                                lead.website = href
+                                # Also try to extract emails/phones from the page
+                                try:
+                                    resp = await self.client.fetch(href, tier=2, timeout=8)
+                                    if resp.ok:
+                                        found_emails = self._extract_emails_from_html(resp.text)
+                                        found_phones = self._extract_phones_from_html(resp.text)
+                                        if found_emails and not lead.email:
+                                            lead.email = found_emails[0]
+                                        if found_phones and not lead.phone:
+                                            lead.phone = found_phones[0]
+                                except Exception:
+                                    pass
+                                break
+                        await asyncio.sleep(0.5)
+                    except Exception:
+                        continue
+
+            # Step 2: Website enrichment (scrape contact/about pages)
             try:
                 from apps.api.services.leadgen.enrichment.website_scraper import enrich_leads_from_websites
                 scored = await enrich_leads_from_websites(scored, batch_size=5)
@@ -314,12 +455,22 @@ class JobRunner:
     # ── Strategy: Web Search ─────────────────────────────────────────
 
     async def _search_and_scrape(self, job_id: str, query: str) -> list[Lead]:
-        """Search the web and extract real business data using AI."""
-        leads = []
+        """Search the web and extract company data.
 
-        # AI-powered query expansion
+        Uses regex-first approach: extract emails/phones from HTML directly.
+        AI extraction is only used on the first few high-value pages to stay
+        within rate limits and avoid timeouts.
+        """
+        leads = []
+        city = self._extract_city(query)
+        AI_BUDGET = 3  # Max pages to run through AI extraction
+        ai_used = 0
+
+        # AI-powered query expansion (with fast fallback)
         try:
-            expanded = await ai_expand_query(self.llm, query)
+            expanded = await asyncio.wait_for(
+                ai_expand_query(self.llm, query), timeout=15
+            )
             progress.emit("job_progress", {
                 "job_id": job_id, "stage": "web",
                 "message": f"🤖 AI generated {len(expanded)} search queries",
@@ -332,17 +483,16 @@ class JobRunner:
             "message": f"🔍 Web search: {len(expanded)} queries...",
         })
 
-        try:
-            from ddgs import DDGS
+        seen_domains = set()
 
+        try:
             for i, q in enumerate(expanded):
                 progress.emit("job_progress", {
                     "job_id": job_id, "stage": "web",
                     "message": f"🔎 [{i+1}/{len(expanded)}] '{q}'",
                 })
                 try:
-                    with DDGS() as ddgs:
-                        results = list(ddgs.text(q, max_results=15))
+                    results = await _ddg_search(q, max_results=15)
 
                     for result in results:
                         url = result.get("href", "")
@@ -352,52 +502,40 @@ class JobRunner:
                             continue
 
                         domain = urlparse(url).netloc.lower()
+                        base_domain = ".".join(domain.split(".")[-2:])
 
-                        # Skip aggregators, social media, etc.
+                        # Skip aggregators, social media, already seen
                         if self._is_skip_domain(domain):
                             continue
+                        if base_domain in seen_domains:
+                            continue
+                        seen_domains.add(base_domain)
 
-                        # Fetch the page to get real content
+                        # Fetch the page
                         try:
-                            resp = await self.client.fetch(url, tier=2, timeout=10)
+                            resp = await self.client.fetch(url, tier=2, timeout=8)
                             if not resp.ok:
                                 continue
 
-                            # AI extraction from page HTML
-                            ai_data = await ai_extract_company(
-                                self.llm, resp.text, url, query
-                            )
+                            html = resp.text
 
-                            if ai_data and ai_data.get("is_real_company", True):
-                                company_name = ai_data.get("company_name", "")
-                                if not company_name or len(company_name) < 3:
-                                    company_name = self._company_from_domain(domain)
+                            # ── Regex-first extraction ───────────────
+                            emails = self._extract_emails_from_html(html)
+                            phones = self._extract_phones_from_html(html)
+                            company_name = self._company_from_domain(domain)
 
-                                if not company_name or len(company_name) < 3:
-                                    continue
-
-                                city = ai_data.get("city") or self._extract_city(query)
+                            # If regex found contact data, use it directly (fast path)
+                            if company_name and len(company_name) >= 3 and (emails or phones):
                                 lead = Lead(
                                     company=company_name,
                                     website=url,
-                                    email=ai_data.get("email") or "",
-                                    phone=ai_data.get("phone") or "",
-                                    city=city,
-                                    state=ai_data.get("state") or "",
-                                    address=ai_data.get("address") or "",
-                                    description=ai_data.get("description") or body[:300],
-                                    specialization=ai_data.get("specialization") or "",
-                                    industry_tags=ai_data.get("industry_tags") or "",
-                                    company_size=ai_data.get("employee_count") or "",
-                                    employee_count_exact=ai_data.get("employee_count_exact") or 0,
-                                    revenue_range=ai_data.get("revenue_range") or "",
-                                    founded_year=ai_data.get("founded_year") or "",
-                                    technologies=ai_data.get("technologies") or "",
-                                    funding_stage=ai_data.get("funding_stage") or "",
-                                    contact_person=ai_data.get("contact_person") or "",
-                                    secondary_emails=ai_data.get("secondary_emails") or "",
-                                    secondary_phones=ai_data.get("secondary_phones") or "",
-                                    glassdoor_rating=ai_data.get("glassdoor_rating") or "",
+                                    email=emails[0] if emails else "",
+                                    phone=phones[0] if phones else "",
+                                    city=city or "",
+                                    description=body[:300],
+                                    specialization=query,
+                                    secondary_emails=", ".join(emails[1:4]) if len(emails) > 1 else "",
+                                    secondary_phones=", ".join(phones[1:3]) if len(phones) > 1 else "",
                                     source="web_search",
                                 )
                                 leads.append(lead)
@@ -405,35 +543,51 @@ class JobRunner:
                                     "job_id": job_id, "stage": "web",
                                     "lead": {"company": lead.company, "email": lead.email, "phone": lead.phone},
                                 })
-                            else:
-                                # AI said it's not a real company — fallback to regex extraction
-                                emails = resp.extract_emails()
-                                phones = resp.extract_phones()
-                                emails = [e for e in emails if not self._is_publisher_email(e)]
-                                phones = [p for p in phones if self._is_valid_phone(p)]
-                                company_name = self._company_from_domain(domain)
-                                if company_name and len(company_name) >= 3 and (emails or phones):
-                                    city = self._extract_city(query)
-                                    lead = Lead(
-                                        company=company_name,
-                                        website=url,
-                                        email=emails[0] if emails else "",
-                                        phone=phones[0] if phones else "",
-                                        city=city,
-                                        description=body[:300],
-                                        source="web_search",
+
+                            # For pages without regex hits, try AI (within budget)
+                            elif ai_used < AI_BUDGET:
+                                try:
+                                    ai_data = await asyncio.wait_for(
+                                        ai_extract_company(self.llm, html, url, query),
+                                        timeout=20,
                                     )
-                                    leads.append(lead)
-                                    progress.emit("lead_discovered", {
-                                        "job_id": job_id, "stage": "web",
-                                        "lead": {"company": lead.company, "email": lead.email, "phone": lead.phone},
-                                    })
+                                    ai_used += 1
+
+                                    if ai_data and ai_data.get("is_real_company", True):
+                                        ai_name = ai_data.get("company_name", "")
+                                        if not ai_name or len(ai_name) < 3:
+                                            ai_name = company_name
+                                        if ai_name and len(ai_name) >= 3:
+                                            lead = Lead(
+                                                company=ai_name,
+                                                website=url,
+                                                email=ai_data.get("email") or "",
+                                                phone=ai_data.get("phone") or "",
+                                                city=ai_data.get("city") or city or "",
+                                                state=ai_data.get("state") or "",
+                                                address=ai_data.get("address") or "",
+                                                description=ai_data.get("description") or body[:300],
+                                                specialization=ai_data.get("specialization") or query,
+                                                industry_tags=ai_data.get("industry_tags") or "",
+                                                company_size=ai_data.get("employee_count") or "",
+                                                employee_count_exact=ai_data.get("employee_count_exact") or 0,
+                                                founded_year=ai_data.get("founded_year") or "",
+                                                technologies=ai_data.get("technologies") or "",
+                                                contact_person=ai_data.get("contact_person") or "",
+                                                source="web_search",
+                                            )
+                                            leads.append(lead)
+                                            progress.emit("lead_discovered", {
+                                                "job_id": job_id, "stage": "web",
+                                                "lead": {"company": lead.company, "email": lead.email},
+                                            })
+                                except (asyncio.TimeoutError, Exception):
+                                    ai_used += 1  # Count failed attempts too
 
                         except Exception:
-                            # Total page fetch failure — skip
                             continue
 
-                    await asyncio.sleep(1.5)
+                    await asyncio.sleep(0.5)
 
                 except Exception as e:
                     progress.emit("job_progress", {
@@ -441,13 +595,63 @@ class JobRunner:
                         "message": f"⚠️ Search error: {e}",
                     })
 
-        except ImportError:
-            progress.emit("job_progress", {
-                "job_id": job_id, "stage": "web",
-                "message": "⚠️ ddgs not installed",
-            })
+        except Exception:
+            pass
 
+        progress.emit("job_progress", {
+            "job_id": job_id, "stage": "web",
+            "message": f"🔍 Web search done: {len(leads)} leads ({ai_used} AI calls)",
+        })
         return leads
+
+    def _extract_emails_from_html(self, html: str) -> list[str]:
+        """Extract emails from HTML via regex, filtering out junk."""
+        raw = re.findall(r'[\w.\-+]+@[\w.\-]+\.\w{2,}', html)
+        seen = set()
+        good = []
+        skip_domains = {
+            "example.com", "domain.com", "email.com", "sentry.io",
+            "wixpress.com", "w3.org", "schema.org", "googleapis.com",
+            "gravatar.com", "wordpress.org", "cloudflare.com",
+        }
+        skip_ext = {".png", ".jpg", ".svg", ".gif", ".css", ".js", ".woff", ".webp"}
+        for e in raw:
+            low = e.lower()
+            domain = low.split("@")[-1]
+            if domain in skip_domains:
+                continue
+            if any(low.endswith(ext) for ext in skip_ext):
+                continue
+            if self._is_publisher_email(e):
+                continue
+            if low not in seen:
+                seen.add(low)
+                good.append(e)
+        return good[:5]
+
+    def _extract_phones_from_html(self, html: str) -> list[str]:
+        """Extract Indian phone numbers from HTML via regex."""
+        patterns = [
+            r'\+?91[\-\s]?\d{5}[\-\s]?\d{5}',
+            r'\+?91[\-\s]?\d{10}',
+            r'1800[\-\s]?\d{2,3}[\-\s]?\d{4,6}',
+            r'0\d{2,4}[\-\s]?\d{6,8}',
+        ]
+        # Also check tel: links
+        tel_pattern = r'tel:([+\d\-\s]{7,15})'
+        phones = []
+        seen = set()
+        for pat in patterns + [tel_pattern]:
+            for m in re.finditer(pat, html):
+                phone = m.group(1) if m.lastindex else m.group()
+                phone = phone.strip().replace("tel:", "")
+                digits = re.sub(r'\D', '', phone)
+                if 7 <= len(digits) <= 13 and digits not in seen:
+                    if not self._is_valid_phone(phone):
+                        continue
+                    seen.add(digits)
+                    phones.append(phone)
+        return phones[:5]
 
     # ── Strategy: Directory Search ───────────────────────────────────
 
@@ -466,20 +670,25 @@ class JobRunner:
             "message": f"📂 Searching directories...",
         })
 
+        core_query = query.lower()
+        if city:
+            core_query = core_query.replace(city.lower(), '').replace(' in ', ' ').strip()
+
         directory_queries = [
             f"{query} site:clutch.co",
             f"{query} site:goodfirms.co",
+            f"site:clutch.co {core_query} companies {city or 'India'}",
+            f"site:goodfirms.co {core_query} companies {city or 'India'}",
             f"{query} companies list India",
             f"{query} top firms {city}" if city else f"{query} top firms India",
+            f"site:justdial.com {core_query} {city}" if city else "",
         ]
+        directory_queries = [q for q in directory_queries if q]  # filter empties
 
         try:
-            from ddgs import DDGS
-
             for dq in directory_queries:
                 try:
-                    with DDGS() as ddgs:
-                        results = list(ddgs.text(dq, max_results=10))
+                    results = await _ddg_search(dq, max_results=10)
 
                     for result in results:
                         url = result.get("href", "")
@@ -647,8 +856,6 @@ class JobRunner:
         })
 
         try:
-            from ddgs import DDGS
-
             linkedin_queries = [
                 f'site:linkedin.com/company "{query}"',
                 f'site:linkedin.com/company "{query}" {city}' if city else f'site:linkedin.com/company "{query}" India',
@@ -657,8 +864,7 @@ class JobRunner:
             seen_urls = set()
             for lq in linkedin_queries:
                 try:
-                    with DDGS() as ddgs:
-                        results = list(ddgs.text(lq, max_results=10))
+                    results = await _ddg_search(lq, max_results=10)
 
                     for r in results:
                         href = r.get("href", "")
@@ -734,54 +940,62 @@ class JobRunner:
         })
 
         try:
-            from ddgs import DDGS
+            core_query = query.lower()
+            if city:
+                core_query = core_query.replace(city.lower(), '').replace(' in ', ' ').strip()
 
             board_queries = [
-                f'site:naukri.com "{query}" employer {city or "India"}',
-                f'site:indeed.com "{query}" company {city or "India"}',
+                f'site:naukri.com {core_query} jobs {city or "India"}',
+                f'site:indeed.com {core_query} company {city or "India"}',
+                f'naukri.com {core_query} employer {city or "India"}',
+                f'{core_query} hiring {city or "India"} company',
+                f'site:foundit.in {core_query} {city or "India"}',
             ]
 
             seen = set()
+            skip_words = {"naukri", "indeed", "jobs", "careers", "foundit", "hiring",
+                          "search", "results", "apply", "login", "register", "salary"}
+
             for bq in board_queries:
                 try:
-                    with DDGS() as ddgs:
-                        results = list(ddgs.text(bq, max_results=10))
+                    results = await _ddg_search(bq, max_results=10)
 
                     for r in results:
                         title = r.get("title", "")
                         body = r.get("body", "")
+                        href = r.get("href", "")
 
-                        # Extract employer name from job board title patterns
-                        name = title.split(" Jobs")[0].split(" Careers")[0].split(" - ")[0].split(" | ")[0].strip()
-                        name = re.sub(r'\s*(Pvt|Ltd|Private|Limited|India)\.?\s*$', '', name, flags=re.IGNORECASE).strip()
+                        # Try URL-based extraction first (most reliable)
+                        name = ""
+                        if href:
+                            parsed_url = urlparse(href)
+                            path = parsed_url.path.strip("/")
+                            # naukri.com/company-name-jobs-123456
+                            if "naukri" in parsed_url.netloc:
+                                slug = path.split("/")[-1] if path else ""
+                                slug = re.sub(r'-jobs?-?\d*$', '', slug)
+                                slug = re.sub(r'-careers?$', '', slug)
+                                name = slug.replace("-", " ").title().strip()
+                            # indeed.com/cmp/Company-Name
+                            elif "indeed" in parsed_url.netloc and "/cmp/" in path:
+                                slug = path.split("/cmp/")[-1].split("/")[0]
+                                name = slug.replace("-", " ").title().strip()
 
-                        if not name or name in seen or len(name) < 3:
+                        # Fall back to title parsing
+                        if not name or len(name) < 3:
+                            name = title.split(" Jobs")[0].split(" Careers")[0].split(" Hiring")[0]
+                            name = name.split(" - ")[0].split(" | ")[0].strip()
+                            name = re.sub(r'\s*(Pvt|Ltd|Private|Limited|India)\.?\s*$', '', name, flags=re.IGNORECASE).strip()
+
+                        if not name or len(name) < 3:
                             continue
-                        if name.lower() in ("naukri", "indeed", "jobs", "careers"):
+                        if name.lower() in skip_words or name.lower() in seen:
                             continue
 
-                        # Pre-validate
-                        test_lead = Lead(company=name)
-                        from apps.api.services.leadgen.lead_validator import validate_lead
-                        is_valid, _ = validate_lead(test_lead)
-                        if not is_valid:
-                            continue
+                        seen.add(name.lower())
 
-                        seen.add(name)
-
-                        # Try to extract employee count
-                        company_size = ""
-                        size_match = re.search(r'(\d[\d,]+)\s*(?:employees|people)', body, re.IGNORECASE)
-                        if size_match:
-                            count = int(size_match.group(1).replace(",", ""))
-                            if count < 50:
-                                company_size = "1-50"
-                            elif count < 200:
-                                company_size = "51-200"
-                            elif count < 500:
-                                company_size = "201-500"
-                            else:
-                                company_size = "500+"
+                        # Extract employee count
+                        company_size = self._extract_size(body)
 
                         lead = Lead(
                             company=name,
@@ -797,11 +1011,11 @@ class JobRunner:
                             "lead": {"company": lead.company},
                         })
 
-                    await asyncio.sleep(1.5)
+                    await asyncio.sleep(1)
                 except Exception:
                     continue
 
-        except ImportError:
+        except Exception:
             pass
 
         return leads
@@ -819,60 +1033,66 @@ class JobRunner:
         })
 
         try:
-            from ddgs import DDGS
+            core_query = query.lower()
+            if city:
+                core_query = core_query.replace(city.lower(), '').replace(' in ', ' ').strip()
 
             review_queries = [
-                f'site:ambitionbox.com "{query}" {city or "India"} reviews',
-                f'site:glassdoor.co.in "{query}" {city or "India"} reviews',
+                f'site:ambitionbox.com {core_query} {city or "India"} reviews',
+                f'ambitionbox.com {core_query} company reviews {city or "India"}',
+                f'site:glassdoor.co.in {core_query} {city or "India"}',
+                f'{core_query} company reviews {city or "India"}',
             ]
 
             seen = set()
+            skip_words = {"ambitionbox", "glassdoor", "reviews", "review", "salary",
+                          "interview", "questions", "jobs", "login", "compare"}
+
             for rq in review_queries:
                 try:
-                    with DDGS() as ddgs:
-                        results = list(ddgs.text(rq, max_results=10))
+                    results = await _ddg_search(rq, max_results=10)
 
                     for r in results:
                         title = r.get("title", "")
                         body = r.get("body", "")
                         href = r.get("href", "")
 
-                        name = title.split(" Reviews")[0].split(" | ")[0].split(" - ")[0].strip()
-                        name = re.sub(r'\s*(Pvt|Ltd|Private|Limited|India)\.?\s*$', '', name, flags=re.IGNORECASE).strip()
+                        # Try URL-based extraction (most reliable)
+                        name = ""
+                        if href:
+                            parsed_url = urlparse(href)
+                            path = parsed_url.path.strip("/")
+                            # ambitionbox.com/reviews/company-name-reviews
+                            if "ambitionbox" in parsed_url.netloc and "/reviews/" in path:
+                                slug = path.split("/reviews/")[-1].split("/")[0]
+                                slug = re.sub(r'-reviews?$', '', slug)
+                                name = slug.replace("-", " ").title().strip()
+                            # glassdoor.co.in/Reviews/Company-Name-Reviews-EXXXXX
+                            elif "glassdoor" in parsed_url.netloc and "/Reviews/" in path:
+                                slug = path.split("/Reviews/")[-1].split("/")[0]
+                                slug = re.sub(r'-Reviews?-E\d+.*$', '', slug)
+                                name = slug.replace("-", " ").title().strip()
 
-                        if not name or name in seen or len(name) < 3:
+                        # Fall back to title parsing
+                        if not name or len(name) < 3:
+                            name = title.split(" Reviews")[0].split(" Review")[0]
+                            name = name.split(" | ")[0].split(" - ")[0].strip()
+                            name = re.sub(r'\s*(Pvt|Ltd|Private|Limited|India)\.?\s*$', '', name, flags=re.IGNORECASE).strip()
+
+                        if not name or len(name) < 3:
                             continue
-                        if name.lower() in ("ambitionbox", "glassdoor"):
+                        if name.lower() in skip_words or name.lower() in seen:
                             continue
 
-                        # Pre-validate
-                        test_lead = Lead(company=name)
-                        from apps.api.services.leadgen.lead_validator import validate_lead
-                        is_valid, _ = validate_lead(test_lead)
-                        if not is_valid:
-                            continue
-
-                        seen.add(name)
+                        seen.add(name.lower())
 
                         # Extract rating
                         rating = ""
-                        rating_match = re.search(r'(\d\.\d)\s*(?:/5|out of 5|stars?|rating)', body, re.IGNORECASE)
+                        rating_match = re.search(r'(\d\.\d)\s*(?:/5|out of 5|stars?|rating|★)', body, re.IGNORECASE)
                         if rating_match:
                             rating = rating_match.group(1)
 
-                        # Extract employee count
-                        company_size = ""
-                        size_match = re.search(r'(\d[\d,]+)\s*(?:employees|people)', body, re.IGNORECASE)
-                        if size_match:
-                            count = int(size_match.group(1).replace(",", ""))
-                            if count < 50:
-                                company_size = "1-50"
-                            elif count < 200:
-                                company_size = "51-200"
-                            elif count < 500:
-                                company_size = "201-500"
-                            else:
-                                company_size = "500+"
+                        company_size = self._extract_size(body)
 
                         lead = Lead(
                             company=name,
@@ -881,7 +1101,7 @@ class JobRunner:
                             glassdoor_rating=rating,
                             specialization=query,
                             description=body[:200] if body else "",
-                            notes=f"Review profile: {href}",
+                            notes=f"Review profile: {href}" if href else "",
                             source="review_site",
                         )
                         leads.append(lead)
@@ -890,16 +1110,31 @@ class JobRunner:
                             "lead": {"company": lead.company, "rating": rating},
                         })
 
-                    await asyncio.sleep(1.5)
+                    await asyncio.sleep(1)
                 except Exception:
                     continue
 
-        except ImportError:
+        except Exception:
             pass
 
         return leads
 
     # ── Helpers ───────────────────────────────────────────────────────
+
+    def _extract_size(self, text: str) -> str:
+        """Extract employee count from text and bucket it."""
+        size_match = re.search(r'(\d[\d,]+)\s*(?:employees|people|staff|workers)', text, re.IGNORECASE)
+        if size_match:
+            count = int(size_match.group(1).replace(",", ""))
+            if count < 50:
+                return "1-50"
+            elif count < 200:
+                return "51-200"
+            elif count < 500:
+                return "201-500"
+            else:
+                return "500+"
+        return ""
 
     def _is_location_query(self, query: str) -> bool:
         """Check if query mentions a city/location."""

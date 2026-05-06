@@ -14,7 +14,7 @@ const NAV_ITEMS = [
   { label: "Chat",      to: "/chat",      icon: MessageSquare },
   { label: "Leads",     to: "/leads",     icon: Users },
   { label: "Search",    to: "/search",    icon: Search },
-  { label: "Agents",    to: "/agents",    icon: Bot },
+  { label: "Tasks",     to: "/agents",    icon: Bot },
   { label: "Campaigns", to: "/campaigns", icon: Send },
   { label: "Sources",   to: "/sources",   icon: Database },
   { label: "Settings",  to: "/settings",  icon: Settings },

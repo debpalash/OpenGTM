@@ -12,7 +12,7 @@ import {
   MessageSquare, Users, Search, Bot, Send, Database,
   Settings, Zap, Circle, Plus, Trash2,
 } from "lucide-react"
-import { useSSE, useJobs, useConversations } from "@/lib/hooks"
+import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { CommandMenu } from "@/components/command-menu"
@@ -23,6 +23,7 @@ import LeadsPage from "@/pages/leads"
 import LeadDetailPage from "@/pages/lead-detail"
 import SearchPage from "@/pages/search"
 import AgentsPage from "@/pages/agents"
+import TaskDetailPage from "@/pages/task-detail"
 import CampaignsPage from "@/pages/campaigns"
 import SourcesPage from "@/pages/sources"
 import SettingsPage from "@/pages/settings"
@@ -31,7 +32,7 @@ const NAV_ITEMS = [
   { to: "/chat",      icon: MessageSquare, label: "Chat" },
   { to: "/leads",     icon: Users,         label: "Leads" },
   { to: "/search",    icon: Search,        label: "Search" },
-  { to: "/agents",    icon: Bot,           label: "Agents" },
+  { to: "/agents",    icon: Bot,           label: "Tasks" },
   { to: "/campaigns", icon: Send,          label: "Campaigns" },
   { to: "/sources",   icon: Database,      label: "Sources" },
 ]
@@ -75,11 +76,11 @@ function AppSidebar() {
               size="lg"
               render={<NavLink to="/chat" />}
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Zap className="size-4" />
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden bg-background">
+                <img src="/logo.svg" alt="Yupcha" className="size-7" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">LeadEngine</span>
+                <span className="truncate font-semibold">Yupcha Sales</span>
                 <span className="truncate text-xs text-muted-foreground">AI-powered leads</span>
               </div>
             </SidebarMenuButton>
@@ -185,11 +186,39 @@ function AppSidebar() {
 }
 
 function PageHeader({ title }: { title: string }) {
+  const { data: usage } = useLLMUsage()
+  const activeProvider = usage?.providers?.[0]
+
   return (
     <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="mr-2 h-4" />
       <h1 className="text-sm font-medium">{title}</h1>
+
+      <div className="flex-1" />
+
+      {/* LLM Usage */}
+      {usage && (
+        <div className="flex items-center gap-2">
+          {activeProvider ? (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground capitalize">{activeProvider.provider}</span>
+              <span className="tabular-nums">{activeProvider.calls}/{activeProvider.daily_limit}</span>
+              <div className="w-12 h-1.5 rounded-full bg-muted overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${activeProvider.pct > 80 ? 'bg-destructive' : activeProvider.pct > 50 ? 'bg-yellow-500' : 'bg-primary'}`}
+                  style={{ width: `${activeProvider.pct}%` }}
+                />
+              </div>
+            </div>
+          ) : null}
+          {usage.today_calls > 0 && (
+            <span className="text-[10px] text-muted-foreground tabular-nums">
+              {usage.today_calls} calls · {(usage.today_tokens / 1000).toFixed(1)}k tok
+            </span>
+          )}
+        </div>
+      )}
     </header>
   )
 }
@@ -201,23 +230,24 @@ function AppContent() {
     if (location.pathname.startsWith("/chat")) return "Chat"
     if (location.pathname.startsWith("/leads")) return "Leads"
     if (location.pathname.startsWith("/search")) return "Search"
-    if (location.pathname.startsWith("/agents")) return "Agents"
+    if (location.pathname.startsWith("/agents")) return "Tasks"
     if (location.pathname.startsWith("/campaigns")) return "Campaigns"
     if (location.pathname.startsWith("/sources")) return "Sources"
     if (location.pathname.startsWith("/settings")) return "Settings"
-    return "LeadEngine"
+    return "Yupcha Sales"
   }
 
   return (
     <SidebarInset className="h-screen overflow-hidden flex flex-col">
       <PageHeader title={getTitle()} />
-      <div className="flex-1 flex flex-col min-h-0 relative">
+      <div className="flex-1 min-h-0 overflow-y-auto relative">
         <Routes>
           <Route path="/chat/*" element={<ChatPage />} />
           <Route path="/leads/:id" element={<LeadDetailPage />} />
           <Route path="/leads" element={<LeadsPage />} />
           <Route path="/search/*" element={<SearchPage />} />
-          <Route path="/agents/*" element={<AgentsPage />} />
+          <Route path="/agents/:jobId" element={<TaskDetailPage />} />
+          <Route path="/agents" element={<AgentsPage />} />
           <Route path="/campaigns/*" element={<CampaignsPage />} />
           <Route path="/sources/*" element={<SourcesPage />} />
           <Route path="/settings/*" element={<SettingsPage />} />

@@ -98,7 +98,7 @@ export default function LeadDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="p-6 space-y-6 max-w-6xl mx-auto">
+      <div className="p-6 space-y-6">
         <div className="flex items-center gap-4">
           <Skeleton className="h-10 w-10 rounded-full" />
           <Skeleton className="h-8 w-64" />
@@ -125,7 +125,7 @@ export default function LeadDetailPage() {
   const tier = lead.score_tier || "cold"
 
   return (
-    <div className="p-6 space-y-6 max-w-6xl mx-auto">
+    <div className="p-6 space-y-6">
       {/* ── Header ──────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4 min-w-0">
@@ -248,7 +248,45 @@ export default function LeadDetailPage() {
                 <InfoRow icon={<Zap className="size-4" />} label="Specialization">
                   <EditableCell value={lead.specialization || ""} onSave={(v) => saveField("specialization", v)} placeholder="Add specialization" />
                 </InfoRow>
+                {lead.address && (
+                  <div className="sm:col-span-2">
+                    <InfoRow icon={<MapPin className="size-4" />} label="Address">
+                      <span className="text-sm">{lead.address}</span>
+                    </InfoRow>
+                  </div>
+                )}
               </div>
+
+              {/* Google Maps embed */}
+              {(() => {
+                const mapQuery = [lead.company, lead.address, lead.city, lead.state].filter(Boolean).join(", ")
+                if (!mapQuery || (!lead.city && !lead.address)) return null
+                const encodedQuery = encodeURIComponent(mapQuery)
+                return (
+                  <div className="mt-3 space-y-2">
+                    <div className="rounded-xl overflow-hidden border border-border/40 shadow-sm">
+                      <iframe
+                        title="Location"
+                        width="100%"
+                        height="200"
+                        style={{ border: 0 }}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        src={`https://www.google.com/maps?q=${encodedQuery}&output=embed`}
+                        allowFullScreen
+                      />
+                    </div>
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodedQuery}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <ExternalLink className="size-3" /> Open in Google Maps
+                    </a>
+                  </div>
+                )
+              })()}
             </CardContent>
           </Card>
 
@@ -333,6 +371,22 @@ export default function LeadDetailPage() {
                 loading={enriching === "scrape_website"}
                 disabled={!!enriching || !lead.website}
                 onClick={() => handleEnrich("scrape_website")}
+              />
+              <EnrichButton
+                icon={<Phone className="size-4" />}
+                label="Find Phone"
+                description="Search web for contact number"
+                loading={enriching === "find_phone"}
+                disabled={!!enriching}
+                onClick={() => handleEnrich("find_phone")}
+              />
+              <EnrichButton
+                icon={<MapPin className="size-4" />}
+                label="Find Address"
+                description="OpenStreetMap + web search"
+                loading={enriching === "find_address"}
+                disabled={!!enriching}
+                onClick={() => handleEnrich("find_address")}
               />
 
               {/* Enrichment Log */}

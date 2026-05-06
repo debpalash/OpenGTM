@@ -251,12 +251,13 @@ def validate_lead(lead: Lead) -> tuple[bool, str]:
             # Website is a publisher/aggregator page, not the company's site
             lead.website = ""
 
-    # ── Structural quality: a real lead must have a website/domain ──
+    # ── Structural quality: a real lead must have some contact info ──
     has_website = bool(lead.website and lead.website.strip() and lead.website != "N/A")
     has_email = bool(lead.email and lead.email.strip() and lead.email != "N/A")
     has_phone = bool(lead.phone and lead.phone.strip() and lead.phone != "N/A")
+    has_linkedin = bool(lead.linkedin_url and lead.linkedin_url.strip() and lead.linkedin_url != "N/A")
 
-    if not has_website and not has_email and not has_phone:
+    if not has_website and not has_email and not has_phone and not has_linkedin:
         return False, "no_contact_data"
 
     return True, ""

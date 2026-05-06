@@ -220,6 +220,36 @@ export function useProviders() {
   })
 }
 
+export interface LLMUsageProvider {
+  provider: string
+  model: string
+  calls: number
+  tokens: number
+  daily_limit: number
+  limit_label: string
+  remaining: number
+  pct: number
+}
+
+export interface LLMUsageData {
+  providers: LLMUsageProvider[]
+  today_calls: number
+  today_tokens: number
+  all_time_calls: number
+  all_time_tokens: number
+}
+
+export function useLLMUsage() {
+  return useQuery({
+    queryKey: ["llm-usage"],
+    queryFn: async (): Promise<LLMUsageData> => {
+      const res = await fetch("/api/settings/llm-usage")
+      return res.json()
+    },
+    refetchInterval: 30 * 1000, // refresh every 30s
+  })
+}
+
 // ── Conversations ───────────────────────────────────────────────
 
 export function useConversations() {

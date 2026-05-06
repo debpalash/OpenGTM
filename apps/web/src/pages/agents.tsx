@@ -1,158 +1,399 @@
+import React, { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 import {
-  Activity, CheckCircle2, XCircle,
-  Clock, Loader2,
+  CheckCircle2, XCircle, Clock, Loader2, Play,
+  LayoutList, LayoutGrid, Zap, MoreHorizontal,
+  StopCircle, Trash2, RefreshCw, FileX2,
 } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useJobs } from "@/lib/hooks"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useJobs, useCollect } from "@/lib/hooks"
+import { TaskDetailCard } from "@/components/task-detail-card"
+import type { Job } from "@/lib/api"
+import { cn } from "@/lib/utils"
+import { queryClient, queryKeys } from "@/lib/query-client"
 
-const AGENT_DEFS = [
-  {
-    id: "source_agent",
-    name: "Source Agent",
-    description: "Searches DDG, Maps, and directories for company URLs",
-    icon: "🔍",
-  },
-  {
-    id: "enrichment_agent",
-    name: "Enrichment Agent",
-    description: "Extracts company data, emails, phones from websites using AI",
-    icon: "🤖",
-  },
-  {
-    id: "scoring_agent",
-    name: "Scoring Agent",
-    description: "Scores leads against your ICP using LLM reasoning",
-    icon: "📊",
-  },
-  {
-    id: "signal_agent",
-    name: "Signal Agent",
-    description: "Monitors hiring, funding, and growth signals",
-    icon: "📡",
-  },
-  {
-    id: "outreach_agent",
-    name: "Outreach Agent",
-    description: "Generates and sends personalized outreach messages",
-    icon: "✉️",
-  },
-]
+// ── Task Actions ─────────────────────────────────────────────────
+
+async function cancelJob(jobId: string) {
+  await fetch(`/api/jobs/${jobId}/cancel`, { method: "POST" })
+  queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
+  toast.success("Task cancelled")
+}
+
+async function deleteJob(jobId: string, keepLeads: boolean) {
+  await fetch(`/api/jobs/${jobId}?keep_leads=${keepLeads}`, { method: "DELETE" })
+  queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
+  if (!keepLeads) {
+    queryClient.invalidateQueries({ queryKey: queryKeys.leads.all })
+    queryClient.invalidateQueries({ queryKey: queryKeys.stats.all })
+  }
+  toast.success(keepLeads ? "Task removed (leads kept)" : "Task and leads deleted")
+}
+
+async function retryJob(jobId: string) {
+  await fetch(`/api/jobs/${jobId}/retry`, { method: "POST" })
+  queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
+  toast.success("Task queued for retry")
+}
+
+// ── Status Helpers ───────────────────────────────────────────────
 
 const STATUS_ICON: Record<string, typeof CheckCircle2> = {
   done: CheckCircle2,
   running: Loader2,
   pending: Clock,
   failed: XCircle,
+  cancelled: StopCircle,
 }
 
-const STATUS_COLOR: Record<string, string> = {
+const STATUS_COLORS: Record<string, string> = {
   done: "text-green-500",
   running: "text-blue-500",
   pending: "text-muted-foreground",
   failed: "text-destructive",
+  cancelled: "text-orange-500",
 }
 
-export default function AgentsPage() {
-  const { data: jobs, isLoading } = useJobs()
+const STATUS_BG: Record<string, string> = {
+  running: "border-l-blue-500",
+  done: "border-l-green-500",
+  failed: "border-l-destructive",
+  pending: "border-l-muted-foreground",
+  cancelled: "border-l-orange-500",
+}
 
-  const runningJobs = jobs?.filter(j => j.status === "running") ?? []
-  const recentJobs = jobs?.slice(0, 10) ?? []
+type FilterStatus = "all" | "running" | "done" | "failed"
+
+// ── List Row ─────────────────────────────────────────────────────
+
+function TaskListRow({ job, onClick }: { job: Job; onClick: () => void }) {
+  const Icon = STATUS_ICON[job.status] || Clock
+  const isRunning = job.status === "running"
+
+  // Server stores UTC timestamps without 'Z' suffix
+  const utc = (ts: string) => ts && !ts.endsWith("Z") ? ts + "Z" : ts
+
+  const duration = job.completed_at && job.started_at
+    ? Math.round((new Date(utc(job.completed_at)).getTime() - new Date(utc(job.started_at)).getTime()) / 1000)
+    : job.started_at
+      ? Math.round((Date.now() - new Date(utc(job.started_at)).getTime()) / 1000)
+      : 0
+
+  const formatDuration = (s: number) => {
+    if (s < 60) return `${s}s`
+    return `${Math.floor(s / 60)}m ${s % 60}s`
+  }
 
   return (
-    <div className="flex h-full">
-      {/* Agent Definitions */}
-      <div className="flex-1 p-6 overflow-auto">
-        <div className="max-w-3xl mx-auto space-y-6">
-          <div>
-            <h2 className="text-lg font-semibold">Agents</h2>
-            <p className="text-sm text-muted-foreground">
-              Control your AI agents. Each agent handles a specific stage of the lead pipeline.
-            </p>
-          </div>
+    <div
+      className={cn(
+        "w-full flex items-center gap-2 px-3 py-2 rounded-lg",
+        "border-l-2 hover:bg-muted/50 transition-all duration-200 group",
+        STATUS_BG[job.status] || "border-l-transparent",
+        isRunning && "bg-blue-500/[0.03]",
+      )}
+    >
+      <button onClick={onClick} className="flex items-center gap-2.5 flex-1 min-w-0 text-left">
+        <Icon className={cn(
+          "size-4 shrink-0",
+          STATUS_COLORS[job.status],
+          isRunning && "animate-spin",
+        )} />
 
-          <Separator />
+        <span className="text-sm font-medium truncate flex-1 min-w-0">{job.query}</span>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {AGENT_DEFS.map((agent) => (
-              <Card key={agent.id}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2">
-                      <span className="text-lg">{agent.icon}</span>
-                      {agent.name}
-                    </CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        id={`agent-${agent.id}`}
-                        defaultChecked={["source_agent", "enrichment_agent", "scoring_agent"].includes(agent.id)}
-                      />
-                    </div>
-                  </div>
-                  <CardDescription className="text-xs">
-                    {agent.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">
-                      {["source_agent", "enrichment_agent", "scoring_agent"].includes(agent.id) ? "Active" : "Idle"}
-                    </Badge>
-                    {runningJobs.length > 0 && ["source_agent", "enrichment_agent", "scoring_agent"].includes(agent.id) && (
-                      <Badge variant="secondary" className="text-xs gap-1">
-                        <Loader2 className="size-3 animate-spin" />
-                        Working
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
+        <Badge variant="outline" className="text-[10px] py-0 shrink-0 tabular-nums w-16 justify-center">
+          {job.leads_found} leads
+        </Badge>
 
-      {/* Job Queue Sidebar */}
-      <div className="w-72 border-l flex flex-col shrink-0">
-        <div className="p-3 border-b">
-          <h3 className="text-sm font-medium flex items-center gap-2">
-            <Activity className="size-4" />
-            Task Queue
-          </h3>
-        </div>
-        <ScrollArea className="flex-1">
-          <div className="p-2 space-y-1">
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-14 w-full" />)
-            ) : recentJobs.length > 0 ? (
-              recentJobs.map((job) => {
-                const Icon = STATUS_ICON[job.status] || Clock
-                return (
-                  <div key={job.id} className="p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex items-start gap-2">
-                      <Icon className={`size-4 mt-0.5 shrink-0 ${STATUS_COLOR[job.status]} ${job.status === "running" ? "animate-spin" : ""}`} />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-medium truncate">{job.query}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {job.leads_found} leads · {new Date(job.created_at).toLocaleTimeString()}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })
-            ) : (
-              <div className="text-center text-xs text-muted-foreground py-8">
-                No tasks. Start a collection from Chat.
-              </div>
+        <span className="text-xs text-muted-foreground shrink-0 tabular-nums w-14 text-right">
+          {duration > 0 ? formatDuration(duration) : "—"}
+        </span>
+
+        <span className="text-xs text-muted-foreground shrink-0 tabular-nums w-12 text-right">
+          {new Date(job.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </span>
+      </button>
+
+      {/* Actions dropdown */}
+      <TaskActionsMenu job={job} />
+    </div>
+  )
+}
+
+// ── Card View ────────────────────────────────────────────────────
+
+function TaskCard({ job, onClick }: { job: Job; onClick: () => void }) {
+  return <TaskDetailCard jobId={job.id} compact />
+}
+
+// ── Main Page ────────────────────────────────────────────────────
+
+export default function AgentsPage() {
+  const navigate = useNavigate()
+  const [view, setView] = useState<"list" | "cards">(() => {
+    return (localStorage.getItem("task-view") as "list" | "cards") || "list"
+  })
+  const [filter, setFilter] = useState<FilterStatus>("all")
+  const [collectQuery, setCollectQuery] = useState("")
+  const { data: jobs, isLoading } = useJobs()
+  const collect = useCollect()
+
+  useEffect(() => {
+    localStorage.setItem("task-view", view)
+  }, [view])
+
+  const handleCollect = () => {
+    if (!collectQuery.trim()) return
+    collect.mutate({ query: collectQuery })
+    toast.success(`Pipeline started: "${collectQuery}"`)
+    setCollectQuery("")
+  }
+
+  const filtered = React.useMemo(() => {
+    if (!jobs) return []
+    if (filter === "all") return jobs
+    return jobs.filter(j => j.status === filter)
+  }, [jobs, filter])
+
+  const runningCount = jobs?.filter(j => j.status === "running").length ?? 0
+  const doneCount = jobs?.filter(j => j.status === "done").length ?? 0
+  const failedCount = jobs?.filter(j => j.status === "failed").length ?? 0
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header Bar */}
+      <div className="shrink-0 border-b px-4 py-3 space-y-3">
+        {/* Top row: title + controls */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <Zap className="size-4 text-primary shrink-0" />
+            <h2 className="text-sm font-semibold">Task Queue</h2>
+            {runningCount > 0 && (
+              <Badge variant="secondary" className="text-[10px] gap-1">
+                <Loader2 className="size-2.5 animate-spin" />
+                {runningCount} running
+              </Badge>
             )}
           </div>
-        </ScrollArea>
+
+          {/* View Toggle */}
+          <ToggleGroup type="single" value={view} onValueChange={(v) => v && setView(v as "list" | "cards")} size="sm">
+            <ToggleGroupItem value="list" aria-label="List view">
+              <LayoutList className="size-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="cards" aria-label="Card view">
+              <LayoutGrid className="size-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+
+        {/* Filter chips + new collection */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <FilterChip label="All" count={jobs?.length ?? 0} active={filter === "all"} onClick={() => setFilter("all")} />
+            <FilterChip label="Running" count={runningCount} active={filter === "running"} onClick={() => setFilter("running")} variant="running" />
+            <FilterChip label="Done" count={doneCount} active={filter === "done"} onClick={() => setFilter("done")} variant="done" />
+            <FilterChip label="Failed" count={failedCount} active={filter === "failed"} onClick={() => setFilter("failed")} variant="failed" />
+          </div>
+
+          <div className="flex-1" />
+
+          {/* Bulk cleanup */}
+          {(jobs?.length ?? 0) > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className="inline-flex items-center justify-center gap-1 h-8 px-2 text-xs rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
+              >
+                <Trash2 className="size-3.5" /> Clean up
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={async () => {
+                  const empty = jobs?.filter(j => j.status === "done" && j.leads_found === 0) || []
+                  if (!empty.length) { toast.info("No empty tasks to clear"); return }
+                  if (!confirm(`Delete ${empty.length} completed tasks with 0 leads?`)) return
+                  await Promise.all(empty.map(j => fetch(`/api/jobs/${j.id}?keep_leads=false`, { method: "DELETE" })))
+                  queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
+                  toast.success(`Cleared ${empty.length} empty tasks`)
+                }}>
+                  <FileX2 className="size-4 mr-2" />
+                  Clear empty tasks (0 leads)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={async () => {
+                  const done = jobs?.filter(j => j.status === "done") || []
+                  if (!done.length) { toast.info("No completed tasks"); return }
+                  if (!confirm(`Remove ${done.length} completed tasks? Leads will be kept.`)) return
+                  await Promise.all(done.map(j => fetch(`/api/jobs/${j.id}?keep_leads=true`, { method: "DELETE" })))
+                  queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
+                  toast.success(`Cleared ${done.length} completed tasks (leads kept)`)
+                }}>
+                  <CheckCircle2 className="size-4 mr-2" />
+                  Clear all completed (keep leads)
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={async () => {
+                    if (!confirm(`DELETE ALL ${jobs?.length} tasks and their leads? This cannot be undone.`)) return
+                    await Promise.all((jobs || []).map(j => fetch(`/api/jobs/${j.id}?keep_leads=false`, { method: "DELETE" })))
+                    queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
+                    queryClient.invalidateQueries({ queryKey: queryKeys.leads.all })
+                    queryClient.invalidateQueries({ queryKey: queryKeys.stats.all })
+                    toast.success("All tasks deleted")
+                  }}
+                >
+                  <Trash2 className="size-4 mr-2" />
+                  Delete everything
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          <div className="flex items-center gap-1">
+            <Input
+              placeholder="New collection..."
+              value={collectQuery}
+              onChange={(e) => setCollectQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleCollect()}
+              className="h-8 w-52 text-xs"
+            />
+            <Button size="sm" className="h-8 px-2.5" onClick={handleCollect} disabled={collect.isPending}>
+              {collect.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
+            </Button>
+          </div>
+        </div>
       </div>
+
+      {/* Task List/Grid */}
+      <ScrollArea className="flex-1">
+        <div className="p-3">
+          {isLoading ? (
+            <div className={cn(
+              view === "cards" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" : "space-y-0.5"
+            )}>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className={view === "cards" ? "h-28" : "h-11"} />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-16 space-y-3">
+              <Zap className="size-12 mx-auto text-muted-foreground/20" />
+              <p className="text-sm text-muted-foreground">
+                {filter !== "all" ? "No tasks match this filter" : "No tasks yet. Start a collection above."}
+              </p>
+            </div>
+          ) : view === "list" ? (
+            <div className="space-y-0.5">
+              {filtered.map(job => (
+                <TaskListRow
+                  key={job.id}
+                  job={job}
+                  onClick={() => navigate(`/agents/${job.id}`)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filtered.map(job => (
+                <TaskCard key={job.id} job={job} onClick={() => navigate(`/agents/${job.id}`)} />
+              ))}
+            </div>
+          )}
+        </div>
+      </ScrollArea>
     </div>
+  )
+}
+
+// ── Filter Chip ──────────────────────────────────────────────────
+
+function FilterChip({ label, count, active, onClick, variant }: {
+  label: string
+  count: number
+  active: boolean
+  onClick: () => void
+  variant?: "running" | "done" | "failed"
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "text-[11px] px-2 py-1 rounded-md font-medium transition-colors",
+        active
+          ? "bg-primary text-primary-foreground"
+          : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+      )}
+    >
+      {label}
+      {count > 0 && (
+        <span className={cn("ml-1", active ? "opacity-80" : "opacity-60")}>{count}</span>
+      )}
+    </button>
+  )
+}
+
+// ── Task Actions Menu ────────────────────────────────────────────
+
+function TaskActionsMenu({ job }: { job: Job }) {
+  const isActive = job.status === "running" || job.status === "pending"
+  const isFailed = job.status === "failed" || job.status === "cancelled"
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className="size-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+      >
+        <MoreHorizontal className="size-4" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        {isActive && (
+          <DropdownMenuItem
+            onClick={(e) => { e.stopPropagation(); cancelJob(job.id) }}
+            className="text-destructive focus:text-destructive"
+          >
+            <StopCircle className="size-4 mr-2" />
+            Stop Task
+          </DropdownMenuItem>
+        )}
+        {isFailed && (
+          <DropdownMenuItem
+            onClick={(e) => { e.stopPropagation(); retryJob(job.id) }}
+          >
+            <RefreshCw className="size-4 mr-2" />
+            Retry Task
+          </DropdownMenuItem>
+        )}
+        {(isActive || isFailed) && <DropdownMenuSeparator />}
+        <DropdownMenuItem
+          onClick={(e) => { e.stopPropagation(); deleteJob(job.id, true) }}
+        >
+          <FileX2 className="size-4 mr-2" />
+          Remove Task (Keep Leads)
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={(e) => {
+            e.stopPropagation()
+            if (confirm(`Delete task "${job.query}" and all its leads?`)) {
+              deleteJob(job.id, false)
+            }
+          }}
+          className="text-destructive focus:text-destructive"
+        >
+          <Trash2 className="size-4 mr-2" />
+          Delete Task & Leads
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

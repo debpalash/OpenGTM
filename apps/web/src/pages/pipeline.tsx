@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useState } from "react"
 import { toast } from "sonner"
 import {
   CheckCircle2, XCircle, Clock, Loader2, ChevronDown,
@@ -159,6 +159,23 @@ export default function PipelinePage() {
       setStages([])
     }
   }
+
+  // Auto-refresh stages every 3s for running jobs
+  React.useEffect(() => {
+    if (!selectedJob || selectedJob.status !== "running") return
+    const interval = setInterval(() => loadStages(selectedJob.id), 3000)
+    return () => clearInterval(interval)
+  }, [selectedJob?.id, selectedJob?.status])
+
+  // Auto-select newly created running job
+  React.useEffect(() => {
+    if (!jobs?.length) return
+    const running = jobs.find(j => j.status === "running")
+    if (running && !selectedJobId) {
+      setSelectedJobId(running.id)
+      loadStages(running.id)
+    }
+  }, [jobs])
 
   const handleSelectJob = (job: Job) => {
     setSelectedJobId(job.id)

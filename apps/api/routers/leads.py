@@ -312,6 +312,116 @@ Format as clean text with section headers. Be specific and actionable."""
 
                 yield f"data: {json.dumps({'step': 'done', 'action': 'scrape_website'})}\n\n"
 
+            elif action == "find_phone":
+                yield f"data: {json.dumps({'step': 'start', 'action': 'find_phone', 'message': f'Searching phone for {lead.company}...'})}\n\n"
+
+                from apps.api.services.leadgen.enrichment.search_enricher import _extract_phone
+                from ddgs import DDGS
+
+                queries = [
+                    f"{lead.company} {lead.city or ''} contact number phone",
+                    f"{lead.company} {lead.city or ''} office phone number",
+                ]
+                found_phone = ""
+                for q in queries:
+                    try:
+                        with DDGS() as ddgs:
+                            results = list(ddgs.text(q.strip(), max_results=5))
+                            for r in results:
+                                text = f"{r.get('title', '')} {r.get('body', '')}"
+                                phone = _extract_phone(text)
+                                if phone:
+                                    found_phone = phone
+                                    break
+                        if found_phone:
+                            break
+                    except Exception:
+                        continue
+
+                if found_phone:
+                    edb = _get_db()
+                    edb.update_lead_fields(lead_id, {"phone": found_phone, "last_enriched_at": "now"})
+                    edb.close()
+                    yield f"data: {json.dumps({'step': 'result', 'message': f'Phone found: {found_phone}', 'phone': found_phone})}\n\n"
+                else:
+                    yield f"data: {json.dumps({'step': 'result', 'message': 'No phone number found'})}\n\n"
+
+                yield f"data: {json.dumps({'step': 'done', 'action': 'find_phone'})}\n\n"
+
+            elif action == "find_address":
+                yield f"data: {json.dumps({'step': 'start', 'action': 'find_address', 'message': f'Looking up address for {lead.company}...'})}\n\n"
+
+                import aiohttp
+
+                address_found = ""
+                lat, lon = "", ""
+
+                # Strategy 1: OpenStreetMap Nominatim (free, no auth)
+                search_q = f"{lead.company}, {lead.city or 'India'}"
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(
+                            "https://nominatim.openstreetmap.org/search",
+                            params={"q": search_q, "format": "json", "limit": 3, "addressdetails": 1},
+                            headers={"User-Agent": "LeadEngine/1.0"},
+                            timeout=aiohttp.ClientTimeout(total=10),
+                        ) as resp:
+                            if resp.status == 200:
+                                results = await resp.json()
+                                if results:
+                                    best = results[0]
+                                    address_found = best.get("display_name", "")
+                                    lat = str(best.get("lat", ""))
+                                    lon = str(best.get("lon", ""))
+                                    yield f"data: {json.dumps({'step': 'result', 'message': f'OSM: {address_found[:100]}', 'source': 'openstreetmap'})}\n\n"
+                except Exception as e:
+                    yield f"data: {json.dumps({'step': 'result', 'message': f'OSM lookup failed: {str(e)[:80]}'})}\n\n"
+
+                # Strategy 2: DDG search fallback
+                if not address_found:
+                    try:
+                        from ddgs import DDGS
+                        import re as _re2
+                        with DDGS() as ddgs:
+                            q = f"{lead.company} {lead.city or ''} office address location"
+                            results = list(ddgs.text(q.strip(), max_results=5))
+                            for r in results:
+                                body = r.get("body", "")
+                                addr_match = _re2.search(
+                                    r'(?:address|located|office)[:\s]+([^.]+)',
+                                    body, _re2.IGNORECASE
+                                )
+                                if addr_match:
+                                    address_found = addr_match.group(1).strip()[:200]
+                                    yield f"data: {json.dumps({'step': 'result', 'message': f'Search: {address_found[:100]}', 'source': 'web_search'})}\n\n"
+                                    break
+                    except Exception:
+                        pass
+
+                if address_found:
+                    fields_to_update = {"last_enriched_at": "now"}
+                    addr_note = f"\n\n📍 Address: {address_found[:300]}"
+                    if lat and lon:
+                        addr_note += f"\n🗺️ Map: https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=16/{lat}/{lon}"
+                    fields_to_update["notes"] = (lead.notes or "").rstrip() + addr_note
+                    if not lead.state:
+                        indian_states = ["Maharashtra", "Karnataka", "Tamil Nadu", "Delhi", "Telangana",
+                                         "Gujarat", "Rajasthan", "Uttar Pradesh", "West Bengal", "Kerala",
+                                         "Madhya Pradesh", "Haryana", "Punjab", "Andhra Pradesh", "Bihar"]
+                        for st in indian_states:
+                            if st.lower() in address_found.lower():
+                                fields_to_update["state"] = st
+                                break
+
+                    edb = _get_db()
+                    edb.update_lead_fields(lead_id, fields_to_update)
+                    edb.close()
+                    yield f"data: {json.dumps({'step': 'saved', 'message': 'Address saved'})}\n\n"
+                else:
+                    yield f"data: {json.dumps({'step': 'result', 'message': 'No address found'})}\n\n"
+
+                yield f"data: {json.dumps({'step': 'done', 'action': 'find_address'})}\n\n"
+
             else:
                 yield f"data: {json.dumps({'step': 'error', 'message': f'Unknown action: {action}'})}\n\n"
 
@@ -351,14 +461,27 @@ def export_csv(
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow([
-        "Company", "Website", "Email", "Phone", "City", "Specialization",
-        "Score", "Tier", "Status", "Source", "LinkedIn", "Contact", "Notes",
+        "Company", "Website", "Email", "Phone", "City", "State", "Address",
+        "Specialization", "Description", "Industry Tags",
+        "Score", "Tier", "Status", "Source",
+        "LinkedIn", "Contact Person", "Company Size", "Employee Count",
+        "Founded Year", "Technologies", "Funding Stage", "Revenue Range",
+        "Glassdoor Rating", "Decision Makers",
+        "Secondary Emails", "Secondary Phones", "Notes",
     ])
     for l in leads:
         writer.writerow([
             l.company, l.website, l.email, l.phone, l.city,
-            l.specialization, l.score, l.score_tier, l.status,
-            l.source, l.linkedin_url, l.contact_person, l.notes,
+            l.state, l.address, l.specialization, l.description,
+            l.industry_tags, l.score, l.score_tier, l.status,
+            l.source, l.linkedin_url, l.contact_person,
+            l.company_size, getattr(l, 'employee_count_exact', ''),
+            l.founded_year, l.technologies, l.funding_stage,
+            l.revenue_range, l.glassdoor_rating,
+            getattr(l, 'decision_makers', ''),
+            getattr(l, 'secondary_emails', ''),
+            getattr(l, 'secondary_phones', ''),
+            l.notes,
         ])
 
     return Response(
@@ -453,6 +576,33 @@ def get_job_leads(job_id: str):
     leads = db.get_job_leads(job_id)
     db.close()
     return leads
+
+
+@jobs_router.post("/jobs/{job_id}/cancel")
+def cancel_job(job_id: str):
+    """Cancel a running or pending job."""
+    db = _get_db()
+    db.cancel_job(job_id)
+    db.close()
+    return {"ok": True, "message": f"Job {job_id} cancelled"}
+
+
+@jobs_router.delete("/jobs/{job_id}")
+def delete_job(job_id: str, keep_leads: bool = False):
+    """Delete a job and its data. If keep_leads=true, keeps the leads."""
+    db = _get_db()
+    db.delete_job(job_id, keep_leads=keep_leads)
+    db.close()
+    return {"ok": True, "message": f"Job {job_id} deleted", "leads_kept": keep_leads}
+
+
+@jobs_router.post("/jobs/{job_id}/retry")
+def retry_job(job_id: str):
+    """Reset a failed/cancelled job to pending for re-processing."""
+    db = _get_db()
+    db.retry_job(job_id)
+    db.close()
+    return {"ok": True, "message": f"Job {job_id} queued for retry"}
 
 
 @jobs_router.get("/system-stats")

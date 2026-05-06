@@ -153,7 +153,7 @@ export async function addLead(data: Partial<Lead>): Promise<{ ok: boolean; id: n
   return res.json()
 }
 
-export type EnrichAction = "web_research" | "find_emails" | "scrape_website"
+export type EnrichAction = "web_research" | "find_emails" | "scrape_website" | "find_phone" | "find_address"
 
 export async function enrichLead(
   id: number,

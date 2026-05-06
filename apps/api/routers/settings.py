@@ -517,3 +517,122 @@ async def _fetch_openrouter_models(free_only: bool = False):
 
     except Exception as e:
         return {"models": [], "error": str(e)}
+
+
+# ── LLM Usage Stats ───────────────────────────────────────────
+
+@router.get("/llm-usage")
+def get_llm_usage(date: Optional[str] = None):
+    """Get LLM usage stats per provider for today (or a specific date)."""
+    from apps.api.services.leadgen.db import LeadDB
+    db = LeadDB()
+    usage = db.get_llm_usage(date)
+    totals = db.get_llm_usage_total()
+    db.close()
+
+    # Map provider names to their daily limits (approximate)
+    DAILY_LIMITS = {
+        "cerebras": {"calls": 50, "label": "50 RPD"},
+        "groq": {"calls": 1000, "label": "1K RPD"},
+        "sambanova": {"calls": 1000, "label": "~1K RPD"},
+        "nvidia": {"calls": 1000, "label": "1K RPD"},
+        "mistral": {"calls": 14400, "label": "14.4K RPD"},
+        "openrouter": {"calls": 50, "label": "50 RPD"},
+        "github_models": {"calls": 1000, "label": "1K RPD"},
+        "siliconflow": {"calls": 150, "label": "150 RPD"},
+    }
+
+    providers = []
+    for u in usage:
+        pid = u["provider"]
+        fallback = DAILY_LIMITS.get(pid, {"calls": 0, "label": "Unknown"})
+
+        # Prefer actual rate limit from provider API headers
+        api_limit = u.get("rate_limit", 0) or 0
+        api_remaining = u.get("rate_remaining", 0) or 0
+        api_reset = u.get("rate_reset", "") or ""
+
+        if api_limit > 0:
+            # Use real data from provider headers
+            daily_limit = api_limit
+            remaining = api_remaining
+            limit_label = f"{api_limit} RPD (live)"
+        else:
+            # Fall back to hardcoded estimates
+            daily_limit = fallback["calls"]
+            remaining = max(0, daily_limit - u["calls"])
+            limit_label = fallback["label"]
+
+        pct = min(100, round((u["calls"] / daily_limit) * 100)) if daily_limit > 0 else 0
+
+        providers.append({
+            "provider": pid,
+            "model": u.get("model", ""),
+            "calls": u["calls"],
+            "tokens": u["total_tokens"],
+            "daily_limit": daily_limit,
+            "limit_label": limit_label,
+            "remaining": remaining,
+            "pct": pct,
+            "rate_reset": api_reset,
+            "live": api_limit > 0,
+        })
+
+    return {
+        "providers": providers,
+        "today_calls": sum(u["calls"] for u in usage),
+        "today_tokens": sum(u["total_tokens"] for u in usage),
+        "all_time_calls": totals.get("total_calls", 0) or 0,
+        "all_time_tokens": totals.get("total_tokens", 0) or 0,
+    }
+
+
+# ── Data Sources ─────────────────────────────────────────────────
+
+DATA_SOURCES = [
+    {"id": "duckduckgo", "name": "DuckDuckGo", "icon": "search", "description": "Web search for company websites", "default_enabled": True, "strategy": "web"},
+    {"id": "google_maps", "name": "Google Maps", "icon": "map-pin", "description": "Local business listings with reviews", "default_enabled": True, "strategy": "maps"},
+    {"id": "directories", "name": "Business Directories", "icon": "book-open", "description": "Clutch, GoodFirms, JustDial, etc.", "default_enabled": True, "strategy": "directories"},
+    {"id": "linkedin", "name": "LinkedIn", "icon": "briefcase", "description": "Professional network profiles via DDG", "default_enabled": True, "strategy": "linkedin"},
+    {"id": "ambitionbox", "name": "AmbitionBox", "icon": "bar-chart-3", "description": "Company reviews, salaries, interviews", "default_enabled": True, "strategy": "review_sites"},
+    {"id": "job_boards", "name": "Job Boards", "icon": "users", "description": "Companies actively hiring (Indeed, Naukri)", "default_enabled": True, "strategy": "job_boards"},
+    {"id": "crunchbase", "name": "Crunchbase", "icon": "rocket", "description": "Startup funding and company data", "default_enabled": False, "strategy": "crunchbase"},
+]
+
+
+def get_source_enabled(source_id: str) -> bool:
+    """Check if a data source is enabled."""
+    src = next((s for s in DATA_SOURCES if s["id"] == source_id), None)
+    default = src["default_enabled"] if src else False
+    val = _db_get(f"SOURCE_{source_id.upper()}_ENABLED", "")
+    if val == "":
+        return default
+    return val == "1"
+
+
+@router.get("/sources")
+def list_sources():
+    """Get all data sources with their enabled/disabled status."""
+    result = []
+    for src in DATA_SOURCES:
+        enabled = get_source_enabled(src["id"])
+        result.append({
+            "id": src["id"],
+            "name": src["name"],
+            "icon": src["icon"],
+            "description": src["description"],
+            "enabled": enabled,
+            "strategy": src["strategy"],
+        })
+    return result
+
+
+@router.put("/sources/{source_id}")
+def toggle_source(source_id: str, enabled: bool = True):
+    """Enable or disable a data source."""
+    src = next((s for s in DATA_SOURCES if s["id"] == source_id), None)
+    if not src:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=f"Source '{source_id}' not found")
+    _db_set(f"SOURCE_{source_id.upper()}_ENABLED", "1" if enabled else "0")
+    return {"id": source_id, "enabled": enabled}

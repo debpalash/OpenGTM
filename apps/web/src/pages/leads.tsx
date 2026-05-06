@@ -4,7 +4,7 @@ import { type ColumnDef } from "@tanstack/react-table"
 import { toast } from "sonner"
 import {
   ArrowUpDown, ExternalLink, Mail, Phone, MoreHorizontal,
-  Plus, Download, RefreshCw, Globe,
+  Plus, Download, RefreshCw, Globe, Flame, Sun, Snowflake,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -196,21 +196,25 @@ export default function LeadsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
-      {/* Stats Bar */}
-      <div className="flex items-center gap-4 text-sm">
+    <div className="flex flex-col gap-4 p-6">
+      {/* Row 1 — Stats */}
+      <div className="flex items-center gap-3 text-sm">
         {stats ? (
           <>
-            <div><span className="font-medium">{stats.total}</span> <span className="text-muted-foreground">leads</span></div>
-            <Separator orientation="vertical" className="h-4" />
-            <div className="text-muted-foreground">
-              🔥 {stats.by_tier?.hot ?? 0} ·{" "}
-              🟡 {stats.by_tier?.warm ?? 0} ·{" "}
-              🔵 {stats.by_tier?.cold ?? 0}
+            <div className="flex items-center gap-1.5">
+              <span className="font-semibold text-base">{stats.total}</span>
+              <span className="text-muted-foreground">leads</span>
             </div>
             <Separator orientation="vertical" className="h-4" />
-            <div className="text-muted-foreground">
-              📧 {stats.enrichment?.with_email ?? 0} · 📞 {stats.enrichment?.with_phone ?? 0}
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <span className="flex items-center gap-1"><Flame className="size-3.5 text-red-500" />{stats.by_tier?.hot ?? 0}</span>
+              <span className="flex items-center gap-1"><Sun className="size-3.5 text-orange-400" />{stats.by_tier?.warm ?? 0}</span>
+              <span className="flex items-center gap-1"><Snowflake className="size-3.5 text-blue-400" />{stats.by_tier?.cold ?? 0}</span>
+            </div>
+            <Separator orientation="vertical" className="h-4" />
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <span className="flex items-center gap-1"><Mail className="size-3.5 text-emerald-500" />{stats.enrichment?.with_email ?? 0}</span>
+              <span className="flex items-center gap-1"><Phone className="size-3.5 text-sky-500" />{stats.enrichment?.with_phone ?? 0}</span>
             </div>
           </>
         ) : (
@@ -218,7 +222,7 @@ export default function LeadsPage() {
         )}
       </div>
 
-      {/* Collect + Filters Bar */}
+      {/* Row 2 — Collect + Filters */}
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1 flex-1 max-w-md">
           <Input
@@ -226,8 +230,9 @@ export default function LeadsPage() {
             value={collectQuery}
             onChange={(e) => setCollectQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleCollect()}
+            className="h-8 text-xs"
           />
-          <Button size="sm" onClick={handleCollect} disabled={collect.isPending || !collectQuery.trim()}>
+          <Button size="sm" onClick={handleCollect} disabled={collect.isPending || !collectQuery.trim()} className="h-8">
             <Plus className="size-4" />
             Collect
           </Button>
@@ -259,11 +264,11 @@ export default function LeadsPage() {
               </SelectContent>
             </Select>
           )}
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="h-8">
             <RefreshCw className="size-3" />
           </Button>
           <a href={exportCSVUrl(filters)} download>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="h-8">
               <Download className="size-3" />
             </Button>
           </a>
