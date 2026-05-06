@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import {
   ExternalLink, Check, X, Loader2, TestTube2,
@@ -32,6 +32,11 @@ const PROVIDER_ICON_MAP: Record<string, React.ComponentType<{ className?: string
   "🤗": Smile,
   "🔥": Flame,
   "🌊": Waves,
+  "🎯": Search,
+  "🚀": Zap,
+  "📧": Mail,
+  "📱": Radio,
+  "🌍": Globe,
 }
 
 function ProviderIcon({ icon }: { icon: string }) {
@@ -182,6 +187,7 @@ export default function SettingsPage() {
       <Tabs defaultValue="providers">
         <TabsList>
           <TabsTrigger value="providers">AI Providers</TabsTrigger>
+          <TabsTrigger value="enrichment">Enrichment</TabsTrigger>
           <TabsTrigger value="agents">Agents</TabsTrigger>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
@@ -207,6 +213,10 @@ export default function SettingsPage() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="enrichment" className="mt-4 space-y-4">
+          <EnrichmentProvidersTab />
         </TabsContent>
 
         <TabsContent value="agents" className="mt-4 space-y-4">
@@ -292,5 +302,133 @@ export default function SettingsPage() {
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+// ── Enrichment Providers Tab ─────────────────────────────────────
+
+interface EnrichmentProvider {
+  id: string
+  name: string
+  icon: string
+  capability: string
+  configured: boolean
+  api_key_masked: string
+  free_tier: string
+  docs_url: string
+}
+
+function EnrichmentProvidersTab() {
+  const [providers, setProviders] = useState<EnrichmentProvider[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchProviders = async () => {
+    try {
+      const res = await fetch("/api/settings/enrichment-providers")
+      const data = await res.json()
+      setProviders(data.providers || [])
+    } catch { /* ignore */ }
+    setLoading(false)
+  }
+
+  useEffect(() => { fetchProviders() }, [])
+
+  return (
+    <>
+      <div>
+        <h3 className="text-sm font-medium">Enrichment API Keys (BYOK)</h3>
+        <p className="text-xs text-muted-foreground mt-1">
+          Configure third-party enrichment providers. These are used in workbook waterfall columns to find emails, phone numbers, and company data.
+        </p>
+      </div>
+      <Separator />
+      {loading ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-36" />)}
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {providers.map(p => (
+            <EnrichmentProviderCard key={p.id} provider={p} onSaved={fetchProviders} />
+          ))}
+        </div>
+      )}
+    </>
+  )
+}
+
+function EnrichmentProviderCard({ provider, onSaved }: { provider: EnrichmentProvider; onSaved: () => void }) {
+  const [apiKey, setApiKey] = useState("")
+  const [showKey, setShowKey] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const handleSave = async () => {
+    if (!apiKey) return
+    setSaving(true)
+    try {
+      await fetch(`/api/settings/enrichment-providers/${provider.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ api_key: apiKey }),
+      })
+      toast.success(`${provider.name} key saved`)
+      setApiKey("")
+      onSaved()
+    } catch {
+      toast.error("Failed to save")
+    }
+    setSaving(false)
+  }
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <ProviderIcon icon={provider.icon} />
+            {provider.name}
+          </CardTitle>
+          <div className="flex items-center gap-1">
+            {provider.configured ? (
+              <Badge variant="outline" className="text-xs text-green-600 border-green-600/20">
+                <Check className="size-3 mr-1" /> Configured
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-xs text-muted-foreground">
+                <X className="size-3 mr-1" /> Not set
+              </Badge>
+            )}
+          </div>
+        </div>
+        <CardDescription className="text-xs">
+          {provider.capability} · {provider.free_tier}
+          <a href={provider.docs_url} target="_blank" rel="noopener noreferrer" className="ml-2 inline-flex items-center gap-0.5 hover:underline">
+            Docs <ExternalLink className="size-3" />
+          </a>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="space-y-1.5">
+          <Label className="text-xs">API Key</Label>
+          <div className="flex items-center gap-1">
+            <Input
+              type={showKey ? "text" : "password"}
+              placeholder={provider.api_key_masked || "Enter API key..."}
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              className="font-mono text-xs"
+            />
+            <Button variant="ghost" size="sm" onClick={() => setShowKey(!showKey)}>
+              {showKey ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </Button>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 pt-1">
+          <Button size="sm" onClick={handleSave} disabled={saving || !apiKey}>
+            {saving ? <Loader2 className="size-3 animate-spin" /> : "Save"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

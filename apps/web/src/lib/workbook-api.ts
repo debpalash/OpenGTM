@@ -213,6 +213,13 @@ export async function stopWorkbook(workbookId: string): Promise<void> {
   await fetch(`${API}/api/workbooks/${workbookId}/stop`, { method: "POST" })
 }
 
+export async function deleteLeads(leadIds: number[]): Promise<{ deleted: number }> {
+  const results = await Promise.all(
+    leadIds.map(id => fetch(`${API}/api/lead/${id}`, { method: "DELETE" }))
+  )
+  return { deleted: results.filter(r => r.ok).length }
+}
+
 // ── Meta ─────────────────────────────────────────────────────────────────
 
 export async function fetchFilterOptions(): Promise<FilterOptions> {

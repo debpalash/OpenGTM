@@ -1,19 +1,44 @@
-version: '3.8'
+
 
 services:
-  app:
-    build: .
-    container_name: scribd-downloader
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./data:/app/data
+  # ── API (FastAPI backend) ──────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lead-data-api
+    env_file: .env
     environment:
-      - DB_PATH=/app/data/scribd.db
+      - DB_PATH=/app/data/data.db
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data  # SQLite persistence
+    ports:
+      - "8000:8000"       # Direct API access (optional, nginx proxies this)
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - lead_net
+
+  # ── Nginx (reverse proxy + static files) ───────────────
+  nginx:
+    image: nginx:alpine
+    container_name: lead-data-web
+    ports:
+      - "${PORT:-3000}:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
     restart: unless-stopped
     networks:
-      - scribd_net
+      - lead_net
 
 networks:
-  scribd_net:
+  lead_net:
     driver: bridge

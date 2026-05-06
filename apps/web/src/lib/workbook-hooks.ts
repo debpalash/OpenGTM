@@ -8,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useCallback, useState } from "react"
 import {
   fetchWorkbooks, fetchWorkbook, createWorkbook, updateWorkbook,
-  deleteWorkbook, updateLeadField, importLeads,
+  deleteWorkbook, updateLeadField, importLeads, deleteLeads,
   addColumn, deleteColumn, runWorkbook, stopWorkbook,
   fetchProviders, fetchFilterOptions, createWorkbookSocket,
   type Workbook, type WorkbookLeadRow, type FilterCriteria,
@@ -113,6 +113,14 @@ export function useStopWorkbook(workbookId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: () => stopWorkbook(workbookId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
+  })
+}
+
+export function useDeleteLeads(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (leadIds: number[]) => deleteLeads(leadIds),
     onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
   })
 }

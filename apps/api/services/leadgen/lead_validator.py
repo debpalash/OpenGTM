@@ -246,6 +246,8 @@ def validate_lead(lead: Lead) -> tuple[bool, str]:
     # ── Website checks ─────────────────────────────────────────────
 
     if lead.website:
+        # Normalize to root domain (strip paths like /about-us/locations/bangalore/)
+        lead.website = _normalize_url(lead.website)
         domain = _extract_domain(lead.website)
         if domain in _PUBLISHER_DOMAINS:
             # Website is a publisher/aggregator page, not the company's site
@@ -273,6 +275,23 @@ def _extract_domain(url: str) -> str:
         return domain
     except Exception:
         return ""
+
+
+def _normalize_url(url: str) -> str:
+    """Normalize website URL to root domain (strip paths/query/fragments).
+    
+    'https://dexian.com/about-us/locations/bangalore/' → 'https://dexian.com'
+    """
+    if not url:
+        return url
+    url = url.strip()
+    if not url.startswith("http"):
+        url = "https://" + url
+    try:
+        parsed = urlparse(url)
+        return f"{parsed.scheme}://{parsed.netloc}"
+    except Exception:
+        return url
 
 
 # Common email providers (Gmail, Yahoo, etc. are OK for small businesses)

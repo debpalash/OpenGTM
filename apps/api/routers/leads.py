@@ -703,7 +703,9 @@ async def public_unified_search(
     if not q:
         return {"query": "", "total": 0, "results": []}
     from apps.api.sources.registry import SourceRegistry
-    registry = SourceRegistry()
+    if not hasattr(public_unified_search, "_registry"):
+        public_unified_search._registry = SourceRegistry()
+    registry = public_unified_search._registry
     source_list = [s.strip() for s in sources.split(",") if s.strip()] or None
     result = await registry.search_unified(
         query=q,
@@ -736,18 +738,4 @@ async def public_scrape(body: dict):
     except Exception as e:
         return {"url": url, "status": "error", "error": str(e)}
 
-
-@search_router.post("/v2/person-intel/search")
-async def public_person_search(body: dict):
-    """Public endpoint — person intelligence search."""
-    query = body.get("query", "").strip()
-    if not query:
-        return {"results": []}
-    from apps.api.services.person_intel import PersonIntelService
-    service = PersonIntelService()
-    try:
-        results = await service.search(query, max_results=body.get("max_results", 10))
-        return {"results": results}
-    except Exception as e:
-        return {"results": [], "error": str(e)}
 

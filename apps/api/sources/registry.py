@@ -75,10 +75,6 @@ class SourceRegistry:
             f"Registered {len(self.sources)} document sources: {list(self.sources.keys())}"
         )
 
-        logger.info(
-            f"Registered {len(self.sources)} document sources: {list(self.sources.keys())}"
-        )
-
     async def search_all(
         self,
         query: str,

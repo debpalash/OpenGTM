@@ -18,6 +18,26 @@ except ImportError:
     BeautifulSoup = None
 
 
+def normalize_website_url(url: str) -> str:
+    """Normalize a website URL to its root domain.
+    
+    Strips paths, query strings, and fragments to get the main domain.
+    e.g. 'https://dexian.com/about-us/locations/bangalore/' → 'https://dexian.com'
+    """
+    if not url:
+        return url
+    url = url.strip()
+    if not url.startswith("http"):
+        url = "https://" + url
+    try:
+        parsed = urlparse(url)
+        # Reconstruct with just scheme + netloc (no path/query/fragment)
+        root = f"{parsed.scheme}://{parsed.netloc}"
+        return root
+    except Exception:
+        return url
+
+
 def _extract_phones(text: str) -> List[str]:
     """Extract all phone numbers from text."""
     patterns = [
@@ -69,7 +89,11 @@ def _extract_social_links(soup) -> Dict[str, str]:
 
 
 async def _scrape_via_http(client, url: str) -> Dict:
-    """Tier 2: Scrape website using stealth HTTP (no browser)."""
+    """Tier 2: Scrape website using stealth HTTP (no browser).
+    
+    Checks homepage, /contact, /contact-us, /about pages.
+    Extracts footer content specifically for phones that are often only in footers.
+    """
     result = {
         "phones": [],
         "emails": [],
@@ -90,17 +114,18 @@ async def _scrape_via_http(client, url: str) -> Dict:
             continue
 
         text = resp.text
+        soup = None
         if BeautifulSoup:
             soup = BeautifulSoup(text, "html.parser")
             plain_text = soup.get_text(separator=" ")
         else:
             plain_text = text
 
-        # Extract phones
+        # Extract phones from full page text
         result["phones"].extend(_extract_phones(plain_text))
 
-        # Extract phones from tel: links
-        if BeautifulSoup and soup:
+        # Extract phones from tel: links (anywhere on page)
+        if soup:
             for a in soup.find_all("a", href=True):
                 if a["href"].startswith("tel:"):
                     phone = a["href"].replace("tel:", "").strip()
@@ -108,11 +133,31 @@ async def _scrape_via_http(client, url: str) -> Dict:
                     if phone:
                         result["phones"].append(phone)
 
-        # Extract emails
+        # ── Footer-specific extraction (phones are often ONLY in footer) ──
+        if soup and not result["phones"]:
+            footer_elements = soup.find_all(["footer"])
+            # Also check divs/sections with footer-like IDs or classes
+            for attr in ["id", "class"]:
+                for el in soup.find_all(attrs={attr: re.compile(r'footer|bottom|contact-bar', re.I)}):
+                    if el not in footer_elements:
+                        footer_elements.append(el)
+            
+            for footer in footer_elements:
+                footer_text = footer.get_text(separator=" ")
+                result["phones"].extend(_extract_phones(footer_text))
+                # Also get tel: links from footer
+                for a in footer.find_all("a", href=True):
+                    if a["href"].startswith("tel:"):
+                        phone = a["href"].replace("tel:", "").strip()
+                        phone = re.sub(r'[^\d\+\-\s]', '', phone)
+                        if phone:
+                            result["phones"].append(phone)
+
+        # Extract emails from page text
         result["emails"].extend(_extract_emails(plain_text))
 
         # Extract emails from mailto: links
-        if BeautifulSoup and soup:
+        if soup:
             for a in soup.find_all("a", href=True):
                 if a["href"].startswith("mailto:"):
                     email = a["href"].replace("mailto:", "").split("?")[0].strip()
@@ -120,7 +165,7 @@ async def _scrape_via_http(client, url: str) -> Dict:
                         result["emails"].append(email)
 
         # Social links + description (main page only)
-        if page_url == url and BeautifulSoup and soup:
+        if page_url == url and soup:
             result["social"] = _extract_social_links(soup)
             meta = soup.find("meta", attrs={"name": "description"})
             if meta and meta.get("content"):
@@ -160,9 +205,9 @@ async def enrich_leads_from_websites(
         batch = needs_enrichment[i:i + batch_size]
         tasks = []
         for lead in batch:
-            url = lead.website
-            if not url.startswith("http"):
-                url = "https://" + url
+            # Normalize URL to root domain (strip paths like /about-us/locations/bangalore/)
+            url = normalize_website_url(lead.website)
+            lead.website = url  # Update lead with clean URL
             tasks.append((lead, _scrape_via_http(client, url)))
 
         results = await asyncio.gather(*(t[1] for t in tasks), return_exceptions=True)

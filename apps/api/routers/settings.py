@@ -255,6 +255,51 @@ PROVIDERS = {
     },
 }
 
+# ── Enrichment Provider Registry ───────────────────────
+
+ENRICHMENT_PROVIDERS = {
+    "hunter_io": {
+        "name": "Hunter.io",
+        "env_key": "HUNTER_API_KEY",
+        "capability": "Email Finder + Verifier",
+        "free_tier": "25 lookups/mo",
+        "docs": "https://hunter.io/api-documentation/v2",
+        "icon": "🎯",
+    },
+    "apollo_io": {
+        "name": "Apollo.io",
+        "env_key": "APOLLO_API_KEY",
+        "capability": "People + Company Enrichment",
+        "free_tier": "50 credits/mo",
+        "docs": "https://apolloio.github.io/apollo-api-docs/",
+        "icon": "🚀",
+    },
+    "abstract_api": {
+        "name": "AbstractAPI",
+        "env_key": "ABSTRACT_API_KEY",
+        "capability": "Email Validation + Deliverability",
+        "free_tier": "100/mo",
+        "docs": "https://www.abstractapi.com/api/email-verification-validation-api",
+        "icon": "📧",
+    },
+    "numverify": {
+        "name": "NumVerify",
+        "env_key": "NUMVERIFY_API_KEY",
+        "capability": "Phone Number Validation",
+        "free_tier": "100/mo",
+        "docs": "https://numverify.com/documentation",
+        "icon": "📱",
+    },
+    "ipinfo": {
+        "name": "IPInfo",
+        "env_key": "IPINFO_TOKEN",
+        "capability": "Company Data from Domain",
+        "free_tier": "50K/mo",
+        "docs": "https://ipinfo.io/developers",
+        "icon": "🌍",
+    },
+}
+
 # Seed on module load
 _seed_from_env()
 
@@ -585,6 +630,38 @@ def get_llm_usage(date: Optional[str] = None):
         "all_time_calls": totals.get("total_calls", 0) or 0,
         "all_time_tokens": totals.get("total_tokens", 0) or 0,
     }
+
+
+# ── Enrichment Provider API ──────────────────────────────────────
+
+@router.get("/enrichment-providers")
+def list_enrichment_providers():
+    """List all enrichment providers and their configuration status."""
+    result = []
+    for pid, prov in ENRICHMENT_PROVIDERS.items():
+        api_key = _db_get(prov["env_key"], "")
+        result.append({
+            "id": pid,
+            "name": prov["name"],
+            "icon": prov["icon"],
+            "capability": prov["capability"],
+            "configured": bool(api_key),
+            "api_key_masked": _mask_key(api_key),
+            "free_tier": prov["free_tier"],
+            "docs_url": prov["docs"],
+        })
+    return {"providers": result}
+
+
+@router.put("/enrichment-providers/{provider_id}")
+def update_enrichment_provider(provider_id: str, body: ProviderUpdate):
+    """Update an enrichment provider's API key."""
+    if provider_id not in ENRICHMENT_PROVIDERS:
+        raise HTTPException(status_code=404, detail=f"Enrichment provider '{provider_id}' not found")
+    prov = ENRICHMENT_PROVIDERS[provider_id]
+    if body.api_key is not None:
+        _db_set(prov["env_key"], body.api_key)
+    return {"status": "ok", "provider": provider_id}
 
 
 # ── Data Sources ─────────────────────────────────────────────────

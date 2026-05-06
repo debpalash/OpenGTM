@@ -6,11 +6,39 @@ All data is stored in a single SQLite file at config.DB_PATH.
 """
 
 import sqlite3
-from datetime import datetime
+import threading
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 
+
+def _utcnow() -> datetime:
+    """Return current UTC time (non-deprecated alternative to datetime.utcnow())."""
+    return datetime.now(timezone.utc)
+
 from apps.api.services.leadgen.models import Lead
+
+# Thread-local singleton so each thread reuses one connection
+_thread_local = threading.local()
+
+
+def get_db(db_path: Optional[str] = None) -> "LeadDB":
+    """Get a thread-local LeadDB singleton.
+    
+    Reuses the existing connection for the current thread instead of
+    opening a new one on every call. Safe for SQLite in WAL mode.
+    """
+    if db_path is None:
+        from apps.api.services.leadgen.config import DB_PATH
+        db_path = str(DB_PATH)
+    
+    existing = getattr(_thread_local, "lead_db", None)
+    if existing is not None and existing.db_path == db_path:
+        return existing
+    
+    instance = LeadDB(db_path)
+    _thread_local.lead_db = instance
+    return instance
 
 
 class LeadDB:
@@ -219,7 +247,7 @@ class LeadDB:
 
     def upsert_lead(self, lead: Lead) -> int:
         """Insert or update a lead. Deduplicates by (company, city)."""
-        lead.updated_at = datetime.utcnow().isoformat()
+        lead.updated_at = _utcnow().isoformat()
 
         existing = self.conn.execute(
             "SELECT id FROM leads WHERE company = ? AND city = ?",
@@ -346,7 +374,7 @@ class LeadDB:
 
     def update_status(self, lead_id: int, status: str, note: str = "") -> None:
         """Update lead status and log the activity."""
-        now = datetime.utcnow().isoformat()
+        now = _utcnow().isoformat()
         self.conn.execute(
             "UPDATE leads SET status = ?, updated_at = ? WHERE id = ?",
             (status, now, lead_id)
@@ -359,7 +387,7 @@ class LeadDB:
 
     def update_lead_fields(self, lead_id: int, fields: Dict[str, Any]) -> None:
         """Update specific fields on a lead."""
-        fields["updated_at"] = datetime.utcnow().isoformat()
+        fields["updated_at"] = _utcnow().isoformat()
         set_clause = ", ".join(f"{k} = ?" for k in fields)
         self.conn.execute(
             f"UPDATE leads SET {set_clause} WHERE id = ?",
@@ -449,7 +477,7 @@ class LeadDB:
 
     def create_job(self, job_id: str, query: str) -> str:
         """Create a new collection job."""
-        now = datetime.utcnow().isoformat()
+        now = _utcnow().isoformat()
         self.conn.execute(
             "INSERT OR IGNORE INTO jobs (id, query, created_at) VALUES (?, ?, ?)",
             (job_id, query, now)
@@ -464,7 +492,7 @@ class LeadDB:
         ).fetchone()
         if not row:
             return None
-        now = datetime.utcnow().isoformat()
+        now = _utcnow().isoformat()
         self.conn.execute(
             "UPDATE jobs SET status = 'running', started_at = ?, attempts = attempts + 1 WHERE id = ?",
             (now, row["id"])
@@ -474,7 +502,7 @@ class LeadDB:
 
     def complete_job(self, job_id: str, leads_found: int = 0):
         """Mark a job as completed."""
-        now = datetime.utcnow().isoformat()
+        now = _utcnow().isoformat()
         self.conn.execute(
             "UPDATE jobs SET status = 'done', completed_at = ?, leads_found = ? WHERE id = ?",
             (now, leads_found, job_id)
@@ -492,7 +520,7 @@ class LeadDB:
         else:
             self.conn.execute(
                 "UPDATE jobs SET status = 'failed', error = ?, completed_at = ? WHERE id = ?",
-                (error, datetime.utcnow().isoformat(), job_id)
+                (error, _utcnow().isoformat(), job_id)
             )
         self.conn.commit()
 
@@ -500,7 +528,7 @@ class LeadDB:
         """Cancel a running/pending job by marking it as cancelled."""
         self.conn.execute(
             "UPDATE jobs SET status = 'cancelled', error = 'Cancelled by user', completed_at = ? WHERE id = ? AND status IN ('running', 'pending')",
-            (datetime.utcnow().isoformat(), job_id)
+            (_utcnow().isoformat(), job_id)
         )
         self.conn.commit()
 
@@ -547,7 +575,7 @@ class LeadDB:
 
     def create_stage(self, job_id: str, stage: str) -> int:
         """Create a pipeline stage record, return its ID."""
-        now = datetime.utcnow().isoformat()
+        now = _utcnow().isoformat()
         cur = self.conn.execute(
             "INSERT INTO job_stages (job_id, stage, status, started_at) VALUES (?, ?, 'running', ?)",
             (job_id, stage, now)
@@ -559,7 +587,7 @@ class LeadDB:
                        output_count: int = 0, rejected_count: int = 0,
                        details: str = '{}', status: str = 'done'):
         """Mark a stage as completed with its metrics."""
-        now = datetime.utcnow().isoformat()
+        now = _utcnow().isoformat()
         self.conn.execute(
             """UPDATE job_stages SET status = ?, input_count = ?, output_count = ?,
                rejected_count = ?, details = ?, completed_at = ? WHERE id = ?""",
@@ -596,8 +624,8 @@ class LeadDB:
     def record_llm_usage(self, provider: str, model: str, prompt_tokens: int, completion_tokens: int,
                          rate_limit: int = 0, rate_remaining: int = 0, rate_reset: str = ""):
         """Accumulate LLM usage for a provider on today's date."""
-        today = datetime.utcnow().strftime("%Y-%m-%d")
-        now = datetime.utcnow().isoformat()
+        today = _utcnow().strftime("%Y-%m-%d")
+        now = _utcnow().isoformat()
         self.conn.execute("""
             INSERT INTO llm_usage (provider, model, calls, prompt_tokens, completion_tokens, total_tokens,
                                    rate_limit, rate_remaining, rate_reset, date, updated_at)
@@ -619,7 +647,7 @@ class LeadDB:
     def get_llm_usage(self, date: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get LLM usage stats, optionally for a specific date (default: today)."""
         if not date:
-            date = datetime.utcnow().strftime("%Y-%m-%d")
+            date = _utcnow().strftime("%Y-%m-%d")
         rows = self.conn.execute(
             "SELECT * FROM llm_usage WHERE date = ? ORDER BY calls DESC",
             (date,)
@@ -639,7 +667,7 @@ class LeadDB:
         """Create a new workspace and return its ID."""
         import uuid
         ws_id = str(uuid.uuid4())[:8]
-        now = datetime.utcnow().isoformat()
+        now = _utcnow().isoformat()
         self.conn.execute(
             "INSERT INTO workspaces (id, name, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
             (ws_id, name, description, now, now)

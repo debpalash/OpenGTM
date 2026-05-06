@@ -9,21 +9,22 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import {
-  useReactTable, getCoreRowModel, flexRender,
-  type ColumnDef, type CellContext,
+  useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel,
+  flexRender, type ColumnDef, type CellContext, type SortingState,
 } from "@tanstack/react-table"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   useWorkbook, useUpdateWorkbook, useUpdateLeadField,
   useImportLeads, useRunWorkbook, useStopWorkbook,
-  useWorkbookSocket,
+  useDeleteLeads, useWorkbookSocket,
 } from "@/lib/workbook-hooks"
 import type { WorkbookLeadRow, ColumnConfig, EnrichmentOverlay } from "@/lib/workbook-api"
 import {
   ArrowLeft, Plus, Play, Square, Download, Upload,
   Sparkles, Type, Layers, Brain, GitBranch, Send,
   Loader2, Check, X, AlertCircle, Clock, MoreHorizontal,
-  FileSpreadsheet, ExternalLink, Filter,
+  FileSpreadsheet, ExternalLink, Filter, Search, Trash2, Copy,
+  ArrowUpDown, ArrowUp, ArrowDown, EyeOff, Pencil,
 } from "lucide-react"
 import { toast } from "sonner"
 import Papa from "papaparse"
@@ -120,6 +121,19 @@ function EditableCell({
       <span className="truncate text-sm flex-1 min-w-0">
         {displayValue}
       </span>
+      {displayValue && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            navigator.clipboard.writeText(displayValue)
+            toast.success("Copied", { duration: 1200 })
+          }}
+          className="hidden group-hover/cell:inline-flex p-0.5 rounded hover:bg-muted shrink-0"
+          title="Copy"
+        >
+          <Copy className="size-3 text-muted-foreground" />
+        </button>
+      )}
       {provider && status === "complete" && (
         <span className="hidden group-hover/cell:inline text-[10px] text-muted-foreground/50 shrink-0">
           {provider}
@@ -198,6 +212,7 @@ export default function WorkbookEditorPage() {
   const importLeadsMut = useImportLeads(id!)
   const runMut = useRunWorkbook(id!)
   const stopMut = useStopWorkbook(id!)
+  const deleteMut = useDeleteLeads(id!)
   const { connected } = useWorkbookSocket(id)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -207,6 +222,11 @@ export default function WorkbookEditorPage() {
   const [newColLeadField, setNewColLeadField] = useState("")
   const [newColPrompt, setNewColPrompt] = useState("")
   const [newColCondition, setNewColCondition] = useState("")
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({})
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [globalFilter, setGlobalFilter] = useState("")
+  const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(new Set())
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; colId: string } | null>(null)
 
   // Column resize state — uses a ref to avoid re-rendering entire table on drag
   const columnWidthsRef = useRef<Record<string, number>>({})
@@ -271,14 +291,39 @@ export default function WorkbookEditorPage() {
 
   const tableColumns = useMemo<ColumnDef<WorkbookLeadRow>[]>(() => {
     const cols: ColumnDef<WorkbookLeadRow>[] = [
+      // Checkbox column
+      {
+        id: "_select",
+        header: ({ table }) => (
+          <div className="flex items-center justify-center px-1">
+            <input
+              type="checkbox"
+              className="size-3.5 rounded border-border accent-primary cursor-pointer"
+              checked={table.getIsAllRowsSelected()}
+              onChange={table.getToggleAllRowsSelectedHandler()}
+            />
+          </div>
+        ),
+        size: 36,
+        cell: ({ row }) => (
+          <div className="flex items-center justify-center px-1">
+            <input
+              type="checkbox"
+              className="size-3.5 rounded border-border accent-primary cursor-pointer"
+              checked={row.getIsSelected()}
+              onChange={row.getToggleSelectedHandler()}
+            />
+          </div>
+        ),
+      },
       // Row number column
       {
         id: "_index",
         header: "#",
-        size: 50,
+        size: 40,
         cell: ({ row }) => (
-          <div className="flex items-center gap-1 px-2">
-            <span className="text-xs text-muted-foreground tabular-nums">
+          <div className="flex items-center gap-1 px-1.5">
+            <span className="text-[10px] text-muted-foreground tabular-nums">
               {row.index + 1}
             </span>
             <a
@@ -293,18 +338,37 @@ export default function WorkbookEditorPage() {
         ),
       },
       // Dynamic columns from workbook config
-      ...columns.map((col) => {
+      ...columns.filter(col => !hiddenColumns.has(col.id)).map((col) => {
         const meta = COL_TYPE_META[col.type] || COL_TYPE_META.lead_field
         const Icon = meta.icon
 
         return {
           id: col.id,
-          header: () => (
-            <div className={`flex items-center gap-1.5 px-2 h-full ${meta.headerBg}`}>
-              <Icon className={`size-3.5 ${meta.color} shrink-0`} />
-              <span className="truncate text-xs font-medium">{col.name}</span>
-            </div>
-          ),
+          accessorFn: (row: WorkbookLeadRow) => {
+            if (col.type === "lead_field" || col.type === "input") {
+              return row.lead[col.lead_field || col.id] ?? ""
+            }
+            return row.enrichments?.[col.id]?.value ?? ""
+          },
+          header: ({ column }: any) => {
+            const sort = column.getIsSorted()
+            return (
+              <div
+                className={`flex items-center gap-1 px-2 h-full cursor-pointer select-none ${meta.headerBg}`}
+                onClick={column.getToggleSortingHandler()}
+                onContextMenu={(e) => {
+                  e.preventDefault()
+                  setCtxMenu({ x: e.clientX, y: e.clientY, colId: col.id })
+                }}
+              >
+                <Icon className={`size-3 ${meta.color} shrink-0`} />
+                <span className="truncate text-xs font-medium flex-1">{col.name}</span>
+                {sort === "asc" && <ArrowUp className="size-3 text-primary shrink-0" />}
+                {sort === "desc" && <ArrowDown className="size-3 text-primary shrink-0" />}
+                {!sort && <ArrowUpDown className="size-3 text-muted-foreground/30 shrink-0 opacity-0 group-hover/th:opacity-100 transition-opacity" />}
+              </div>
+            )
+          },
           cell: ({ row }: CellContext<WorkbookLeadRow, unknown>) => {
             // For lead_field columns (or legacy "input" type), get value from lead data
             if (col.type === "lead_field" || col.type === "input") {
@@ -369,7 +433,89 @@ export default function WorkbookEditorPage() {
     data: rows,
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: { rowSelection, sorting, globalFilter },
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, columnId, filterValue) => {
+      const search = String(filterValue).toLowerCase()
+      // Search across all lead fields + enrichments
+      const lead = row.original.lead
+      for (const v of Object.values(lead)) {
+        if (v && String(v).toLowerCase().includes(search)) return true
+      }
+      for (const e of Object.values(row.original.enrichments || {})) {
+        if ((e as any)?.value && String((e as any).value).toLowerCase().includes(search)) return true
+      }
+      return false
+    },
+    getRowId: (row) => String(row.lead_id),
   })
+
+  const selectedCount = Object.keys(rowSelection).filter(k => rowSelection[k]).length
+
+  const handleExportSelected = useCallback(() => {
+    const selectedRows = table.getSelectedRowModel().rows.map(r => r.original)
+    if (!selectedRows.length) return
+    const headers = columns.map(c => c.name)
+    const csvRows = selectedRows.map(row =>
+      columns.map(col => {
+        if (col.type === "lead_field") return row.lead[col.lead_field || col.id] ?? ""
+        return row.enrichments?.[col.id]?.value ?? ""
+      })
+    )
+    const csv = Papa.unparse({ fields: headers, data: csvRows })
+    const blob = new Blob([csv], { type: "text/csv" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${workbook?.name || "export"}_selected.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast.success(`Exported ${selectedRows.length} rows`)
+  }, [table, columns, workbook])
+
+  const handleDeleteSelected = useCallback(() => {
+    const selectedRows = table.getSelectedRowModel().rows.map(r => r.original)
+    if (!selectedRows.length) return
+    if (!confirm(`Delete ${selectedRows.length} leads permanently?`)) return
+    deleteMut.mutate(
+      selectedRows.map(r => r.lead_id),
+      {
+        onSuccess: (data) => {
+          toast.success(`Deleted ${data.deleted} leads`)
+          setRowSelection({})
+        },
+        onError: () => toast.error("Failed to delete leads"),
+      }
+    )
+  }, [table, deleteMut])
+
+  const handleDeleteColumn = useCallback((colId: string) => {
+    const col = columns.find(c => c.id === colId)
+    if (!col) return
+    if (!confirm(`Delete column "${col.name}"?`)) return
+    updateWb.mutate({
+      id: workbook!.id,
+      columns_config: columns.filter(c => c.id !== colId) as any,
+    })
+    setCtxMenu(null)
+  }, [columns, updateWb, workbook])
+
+  const handleHideColumn = useCallback((colId: string) => {
+    setHiddenColumns(prev => new Set([...prev, colId]))
+    setCtxMenu(null)
+  }, [])
+
+  // Close context menu on click outside
+  useEffect(() => {
+    if (!ctxMenu) return
+    const close = () => setCtxMenu(null)
+    window.addEventListener("click", close)
+    return () => window.removeEventListener("click", close)
+  }, [ctxMenu])
 
   // ── Virtual scrolling ──────────────────────────────────────────────────
 
@@ -464,6 +610,31 @@ export default function WorkbookEditorPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
+      {/* ── Selection Toolbar ─────────────────────────────────────────── */}
+      {selectedCount > 0 && (
+        <div className="flex items-center gap-3 px-4 py-1.5 border-b bg-primary/5 shrink-0">
+          <span className="text-xs font-medium text-primary tabular-nums">{selectedCount} selected</span>
+          <button
+            onClick={handleExportSelected}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] hover:bg-primary/10 text-primary transition-colors"
+          >
+            <Download className="size-3" /> Export Selected
+          </button>
+          <button
+            onClick={handleDeleteSelected}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] hover:bg-destructive/10 text-destructive transition-colors"
+          >
+            <Trash2 className="size-3" /> Delete
+          </button>
+          <button
+            onClick={() => setRowSelection({})}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] hover:bg-muted text-muted-foreground transition-colors"
+          >
+            <X className="size-3" /> Deselect
+          </button>
+        </div>
+      )}
+
       {/* ── Toolbar ─────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3 px-4 py-2 border-b bg-background/95 backdrop-blur-sm shrink-0">
         <button
@@ -486,6 +657,39 @@ export default function WorkbookEditorPage() {
             <span>{columns.length} columns</span>
           </div>
         </div>
+
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search rows..."
+            value={globalFilter}
+            onChange={e => setGlobalFilter(e.target.value)}
+            className="w-44 pl-7 pr-2 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground/50"
+          />
+          {globalFilter && (
+            <button
+              onClick={() => setGlobalFilter("")}
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-muted"
+            >
+              <X className="size-3 text-muted-foreground" />
+            </button>
+          )}
+        </div>
+
+        {/* Hidden columns pills */}
+        {hiddenColumns.size > 0 && (
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-muted-foreground">{hiddenColumns.size} hidden</span>
+            <button
+              onClick={() => setHiddenColumns(new Set())}
+              className="text-[10px] text-primary hover:underline"
+            >
+              Show all
+            </button>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex items-center gap-1.5">
@@ -783,6 +987,48 @@ export default function WorkbookEditorPage() {
           </div>
         )}
       </div>
+
+      {/* ── Column Context Menu ─────────────────────────────────────── */}
+      {ctxMenu && (() => {
+        const col = columns.find(c => c.id === ctxMenu.colId)
+        if (!col) return null
+        const tableCol = table.getColumn(ctxMenu.colId)
+        return (
+          <div
+            className="fixed z-[100] min-w-[160px] rounded-lg border bg-card shadow-xl py-1 animate-in fade-in zoom-in-95 duration-150"
+            style={{ left: ctxMenu.x, top: ctxMenu.y }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="px-3 py-1.5 text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{col.name}</div>
+            <button
+              onClick={() => { tableCol?.toggleSorting(false); setCtxMenu(null) }}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+            >
+              <ArrowUp className="size-3.5" /> Sort Ascending
+            </button>
+            <button
+              onClick={() => { tableCol?.toggleSorting(true); setCtxMenu(null) }}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+            >
+              <ArrowDown className="size-3.5" /> Sort Descending
+            </button>
+            <div className="h-px bg-border mx-2 my-1" />
+            <button
+              onClick={() => handleHideColumn(ctxMenu.colId)}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+            >
+              <EyeOff className="size-3.5" /> Hide Column
+            </button>
+            <div className="h-px bg-border mx-2 my-1" />
+            <button
+              onClick={() => handleDeleteColumn(ctxMenu.colId)}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <Trash2 className="size-3.5" /> Delete Column
+            </button>
+          </div>
+        )
+      })()}
 
       {/* ── Status Bar ───────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-4 py-1 border-t text-[11px] text-muted-foreground bg-muted/30 shrink-0">

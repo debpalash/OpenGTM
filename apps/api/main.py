@@ -7,11 +7,14 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from apps.api.core.config import settings
 from apps.api.database import Base, engine, check_and_migrate_db
+from contextlib import asynccontextmanager
 import logfire
+import logging
 import os
 
 # Routers
-from apps.api.routers import auth, users, tasks, crm, system, scraper, websockets, person_intel, settings
+from apps.api.routers import auth, users, tasks, crm, system, scraper, websockets, person_intel
+from apps.api.routers import settings as settings_router
 from apps.api.routers.analytics import router as analytics_router
 from apps.api.routers.leads import router as leads_router, workspace_router, jobs_router, events_router, search_router
 from apps.api.routers.copilotkit import router as copilotkit_router
@@ -19,6 +22,8 @@ from apps.api.routers.campaigns import router as campaigns_router
 from apps.api.routers.workbooks import router as workbooks_router
 from apps.api.services.queue_service import queue_service
 from apps.api.workers.download import handle_download_link
+
+logger = logging.getLogger(__name__)
 
 # Database Migration
 check_and_migrate_db()
@@ -30,7 +35,27 @@ Base.metadata.create_all(bind=engine)
 
 # Initialize Limiter
 limiter = Limiter(key_func=get_remote_address)
-app = FastAPI(title="Yupcha Engine", version="3.0.0")
+
+
+# Lifespan — replaces deprecated @app.on_event("startup") / @app.on_event("shutdown")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # ── Startup ──
+    if "INSECURE_FALLBACK" in settings.SECRET_KEY:
+        logger.warning(
+            "⚠ Using INSECURE default SECRET_KEY! Set SECRET_KEY in .env for production."
+        )
+    queue_service.register_handler("download_link", handle_download_link)
+    await queue_service.start_worker()
+    print("✓ Queue Worker Started")
+    print("✓ Yupcha Engine v3.0 Ready")
+    yield
+    # ── Shutdown ──
+    await queue_service.stop_worker()
+    print("✓ Queue Worker Stopped")
+
+
+app = FastAPI(title="Yupcha Engine", version="3.0.0", lifespan=lifespan)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -42,27 +67,10 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# Startup
-@app.on_event("startup")
-async def startup_event():
-    # Register Workers
-    queue_service.register_handler("download_link", handle_download_link)
-    await queue_service.start_worker()
-    print("✓ Queue Worker Started")
-    print("✓ Yupcha Engine v3.0 Ready")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    await queue_service.stop_worker()
-    print("✓ Queue Worker Stopped")
-
 
 # Include Routers — Existing
 app.include_router(auth.router)
@@ -73,7 +81,7 @@ app.include_router(system.router)
 app.include_router(scraper.router)
 app.include_router(websockets.router)
 app.include_router(person_intel.router)
-app.include_router(settings.router)
+app.include_router(settings_router.router)
 app.include_router(analytics_router)
 
 # Include Routers — Lead Pipeline
@@ -91,12 +99,6 @@ from apps.api.routers.ambitionbox import router as ambitionbox_router
 app.include_router(ambitionbox_router)
 
 
-# Serve frontend static files (if built)
-web_dist = os.path.join(os.path.dirname(__file__), "..", "web", "dist")
-if os.path.isdir(web_dist):
-    app.mount("/", StaticFiles(directory=web_dist, html=True), name="frontend")
-
-
 @app.get("/api")
 def api_root():
     return {"status": "ok", "engine": "Yupcha Engine", "version": "3.0.0"}
@@ -105,4 +107,11 @@ def api_root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "engine": "Yupcha Engine", "version": "3.0.0"}
+
+
+# Serve frontend static files (if built) — MUST be after all API routes
+# because it mounts at "/" and would swallow unmatched paths
+web_dist = os.path.join(os.path.dirname(__file__), "..", "web", "dist")
+if os.path.isdir(web_dist):
+    app.mount("/", StaticFiles(directory=web_dist, html=True), name="frontend")
 

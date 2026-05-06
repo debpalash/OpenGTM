@@ -106,7 +106,7 @@ class CrossrefSource(DocumentSource):
                                 download_url=pdf_link,
                                 author=author_str if authors else None,
                                 year=year,
-                                file_type=FileType.PDF if pdf_link else FileType.UNKNOWN,
+                                file_type=FileType.PDF if pdf_link else FileType.OTHER,
                                 snippet=snippet
                             )
                             results.append(result)
