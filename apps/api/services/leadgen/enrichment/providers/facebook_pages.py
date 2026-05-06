@@ -79,6 +79,7 @@ class FacebookPageProvider(EnrichmentProvider):
     async def _search_facebook_page(self, company: str, city: str = "") -> Optional[dict]:
         """Search DDG for Facebook page and extract contact info from snippet."""
         from ddgs import DDGS
+        from apps.api.services.leadgen.proxy_client import get_ddgs
 
         query = f'site:facebook.com "{company}"'
         if city:
@@ -87,7 +88,7 @@ class FacebookPageProvider(EnrichmentProvider):
 
         def _search():
             try:
-                with DDGS() as ddgs:
+                with get_ddgs() as ddgs:
                     return list(ddgs.text(query, max_results=5))
             except Exception:
                 return []

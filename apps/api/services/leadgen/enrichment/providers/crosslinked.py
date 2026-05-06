@@ -108,9 +108,10 @@ def _extract_linkedin_url(href: str) -> str:
 async def _ddg_linkedin_search(query: str, max_results: int = 10) -> list:
     """Search DDG for LinkedIn profiles."""
     from ddgs import DDGS
+    from apps.api.services.leadgen.proxy_client import get_ddgs
 
     def _search():
-        with DDGS() as ddgs:
+        with get_ddgs() as ddgs:
             return list(ddgs.text(query, max_results=max_results))
 
     try:

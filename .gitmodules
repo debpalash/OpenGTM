@@ -1,0 +1,4 @@
+[submodule "packages/proxy-manager"]
+	path = packages/proxy-manager
+	url = git@github.com:debpalash/proxy-manager.git
+	ignore = dirty

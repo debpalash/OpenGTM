@@ -13,6 +13,7 @@ from typing import List, Optional, Tuple
 from urllib.parse import urlparse
 
 from ddgs import DDGS
+from apps.api.services.leadgen.proxy_client import get_ddgs
 from apps.api.services.leadgen.models import Lead
 
 
@@ -123,7 +124,7 @@ def find_personal_email_via_search(
     query = " ".join(query_parts)
 
     try:
-        with DDGS() as ddgs:
+        with get_ddgs() as ddgs:
             results = list(ddgs.text(query, max_results=5))
             for r in results:
                 text = f"{r.get('title', '')} {r.get('body', '')}"
@@ -202,7 +203,7 @@ def find_email_via_search(
     query = " ".join(query_parts)
 
     try:
-        with DDGS() as ddgs:
+        with get_ddgs() as ddgs:
             results = list(ddgs.text(query, max_results=5))
             for r in results:
                 text = f"{r.get('title', '')} {r.get('body', '')}"

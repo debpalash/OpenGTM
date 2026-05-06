@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import {
   Send, Loader2, Bot, Pencil, RotateCcw, Copy, Check, X,
-  Sparkles, ArrowUp, Search, Building2, Zap, Globe, BarChart3
+  Sparkles, ArrowUp, Search, Building2, Zap, Globe, BarChart3, Database
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -334,6 +334,47 @@ export default function ChatPage() {
           )}
 
           {/* ── Messages ── */}
+
+          {/* Collect all job IDs from tool messages for "merge all" */}
+          {(() => {
+            const allJobIds = displayMessages
+              .filter(m => m.role === "tool" && m.tool_data)
+              .map(m => {
+                try {
+                  const d = typeof m.tool_data === "string" ? JSON.parse(m.tool_data) : m.tool_data
+                  return d?.job_id || d?.result?.job_id || null
+                } catch { return null }
+              })
+              .filter(Boolean) as string[]
+
+            if (allJobIds.length < 2) return null
+
+            return (
+              <div className="flex items-center justify-between p-2.5 rounded-xl border border-primary/10 bg-primary/5 mb-4 animate-in fade-in duration-300">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Database className="size-4 text-primary" />
+                  <span>{allJobIds.length} tasks in this chat</span>
+                </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      const { createWorkbookFromJobs } = await import("@/lib/workbook-api")
+                      const wb = await createWorkbookFromJobs({ job_ids: allJobIds })
+                      toast.success(`Workbook "${wb.name}" created with ${wb.total_rows} leads`)
+                      navigate(`/workbooks/${wb.id}`)
+                    } catch {
+                      toast.error("Failed to create workbook")
+                    }
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                  <Database className="size-3" />
+                  Merge all to Workbook
+                </button>
+              </div>
+            )
+          })()}
+
           <div className="space-y-5">
             {displayMessages.map((msg, idx) => {
               const isUser = msg.role === "user"

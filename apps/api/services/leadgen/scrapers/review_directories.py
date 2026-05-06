@@ -10,6 +10,7 @@ import time
 from typing import List
 
 from ddgs import DDGS
+from apps.api.services.leadgen.proxy_client import get_ddgs
 from apps.api.services.leadgen.models import Lead
 
 
@@ -26,7 +27,7 @@ def scrape_clutch(
     leads = []
     seen = set()
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for query in queries:
             search = f'site:clutch.co "{query}" India staffing HR'
             print(f"  ⭐ Clutch search: {search}")
@@ -88,7 +89,7 @@ def scrape_goodfirms(
     leads = []
     seen = set()
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for query in queries:
             search = f'site:goodfirms.co "{query}" India'
             print(f"  ⭐ GoodFirms search: {search}")
@@ -147,7 +148,7 @@ def scrape_g2(
     leads = []
     seen = set()
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for query in queries:
             search = f'site:g2.com "{query}" India staffing recruitment'
             print(f"  ⭐ G2 search: {search}")
@@ -201,7 +202,7 @@ def scrape_ambitionbox(
     leads = []
     seen = set()
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for city in cities:
             for query in queries:
                 search = f'site:ambitionbox.com "{query}" "{city}" reviews'

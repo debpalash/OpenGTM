@@ -16,11 +16,16 @@ from apps.api.routers.analytics import router as analytics_router
 from apps.api.routers.leads import router as leads_router, workspace_router, jobs_router, events_router, search_router
 from apps.api.routers.copilotkit import router as copilotkit_router
 from apps.api.routers.campaigns import router as campaigns_router
+from apps.api.routers.workbooks import router as workbooks_router
 from apps.api.services.queue_service import queue_service
 from apps.api.workers.download import handle_download_link
 
 # Database Migration
 check_and_migrate_db()
+
+# Import all models so Base.metadata knows about them
+from apps.api.services.workbook.models import Workbook, WorkbookEnrichment  # noqa: E402
+
 Base.metadata.create_all(bind=engine)
 
 # Initialize Limiter
@@ -79,6 +84,7 @@ app.include_router(events_router)
 app.include_router(search_router)
 app.include_router(copilotkit_router)
 app.include_router(campaigns_router)
+app.include_router(workbooks_router)
 
 # Include Routers — Data Sources
 from apps.api.routers.ambitionbox import router as ambitionbox_router
@@ -94,4 +100,9 @@ if os.path.isdir(web_dist):
 @app.get("/api")
 def api_root():
     return {"status": "ok", "engine": "Yupcha Engine", "version": "3.0.0"}
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "engine": "Yupcha Engine", "version": "3.0.0"}
 

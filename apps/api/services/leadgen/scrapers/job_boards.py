@@ -11,6 +11,7 @@ from typing import List
 from urllib.parse import urlparse
 
 from ddgs import DDGS
+from apps.api.services.leadgen.proxy_client import get_ddgs
 from apps.api.services.leadgen.models import Lead
 
 
@@ -44,7 +45,7 @@ def scrape_naukri_employers(
     leads = []
     seen = set()
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for city in cities:
             for query in queries:
                 search = f'site:naukri.com "{query}" "{city}" company reviews hiring'
@@ -97,7 +98,7 @@ def scrape_indeed_employers(
     leads = []
     seen = set()
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for city in cities:
             for query in queries:
                 search = f'site:indeed.co.in/cmp "{query}" "{city}"'
@@ -147,7 +148,7 @@ def scrape_foundit_employers(
     leads = []
     seen = set()
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for city in cities:
             for query in queries:
                 search = f'site:foundit.in "{query}" "{city}" company'

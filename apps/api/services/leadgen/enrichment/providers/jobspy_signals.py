@@ -151,6 +151,7 @@ class JobSpySignalProvider(EnrichmentProvider):
     async def _search_jobs(self, company: str, city: str = "") -> List[Dict]:
         """Search for job postings using DDG (lightweight approach)."""
         from ddgs import DDGS
+        from apps.api.services.leadgen.proxy_client import get_ddgs
 
         jobs = []
         queries = [
@@ -163,7 +164,7 @@ class JobSpySignalProvider(EnrichmentProvider):
 
         def _search(query: str):
             try:
-                with DDGS() as ddgs:
+                with get_ddgs() as ddgs:
                     return list(ddgs.text(query, max_results=self.max_jobs))
             except Exception:
                 return []

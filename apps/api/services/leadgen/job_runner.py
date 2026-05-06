@@ -36,7 +36,8 @@ from apps.api.services.leadgen.ai_stages import (
 def _ddg_text_sync(query: str, max_results: int = 15) -> list:
     """Synchronous DDG text search — meant to be called via asyncio.to_thread."""
     from ddgs import DDGS
-    with DDGS() as ddgs:
+    from apps.api.services.leadgen.proxy_client import get_ddgs
+    with get_ddgs() as ddgs:
         return list(ddgs.text(query, max_results=max_results))
 
 

@@ -13,6 +13,7 @@ from typing import List
 from urllib.parse import urlparse
 
 from ddgs import DDGS
+from apps.api.services.leadgen.proxy_client import get_ddgs
 from apps.api.services.leadgen.models import Lead
 
 
@@ -52,7 +53,7 @@ def scrape_google_search(
     leads = []
     seen = set()
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for city in cities:
             for query in queries:
                 search = f'"{query}" "{city}" India contact email phone'
@@ -125,7 +126,7 @@ def scrape_news_mentions(
     leads = []
     seen = set()
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for query in queries:
             search = f'"{query}" India funding OR expansion OR launched OR partnership 2025 2026'
             print(f"  📰 News search: {search}")

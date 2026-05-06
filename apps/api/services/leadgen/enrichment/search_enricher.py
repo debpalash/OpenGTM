@@ -10,6 +10,7 @@ import time
 from typing import List
 
 from ddgs import DDGS
+from apps.api.services.leadgen.proxy_client import get_ddgs
 from apps.api.services.leadgen.models import Lead
 
 
@@ -58,7 +59,7 @@ def enrich_via_search(
     ]
     print(f"  🔍 Search-enriching {len(needs_enrichment)} leads...")
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for lead in needs_enrichment:
             parts = [lead.company]
             if lead.city:

@@ -10,6 +10,7 @@ import time
 from typing import List
 
 from ddgs import DDGS
+from apps.api.services.leadgen.proxy_client import get_ddgs
 from apps.api.services.leadgen.models import Lead
 
 
@@ -27,7 +28,7 @@ def find_social_profiles(
 
     found = 0
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for lead in needs_social:
             # LinkedIn
             if not lead.has_linkedin:

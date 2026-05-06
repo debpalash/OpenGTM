@@ -67,6 +67,23 @@ class EnrichmentProvider(ABC):
     - name: unique identifier (e.g. "crosslinked", "mailscout")
     - capabilities: list of fields it can provide (e.g. ["email", "phone"])
     - default_confidence: baseline confidence for this provider's results
+
+    DATA CONTRACT — Cell Value Rules:
+      ┌──────────────────────────────────────────────────────────────────┐
+      │ Every value in EnrichmentResult.fields MUST be a flat scalar    │
+      │ (string, number, bool). JSON arrays/objects MUST be stored as   │
+      │ JSON strings in their designated Lead fields (decision_makers,  │
+      │ hiring_signals, etc.) but NEVER surfaced directly in a workbook │
+      │ cell.                                                           │
+      │                                                                 │
+      │ The enrichment engine enforces this: structured fields are      │
+      │ written back to the Lead record, and workbook cells receive     │
+      │ only the targeted scalar field (e.g. email, phone, name).       │
+      │                                                                 │
+      │ If a provider returns {"decision_makers": "[{...}]",            │
+      │   "contact_person": "John"}, only "contact_person" will appear  │
+      │   in the cell. "decision_makers" writes to the Lead record.     │
+      └──────────────────────────────────────────────────────────────────┘
     """
 
     name: str = "base"

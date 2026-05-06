@@ -11,6 +11,7 @@ from typing import List
 from urllib.parse import urlparse
 
 from ddgs import DDGS
+from apps.api.services.leadgen.proxy_client import get_ddgs
 from apps.api.services.leadgen.models import Lead
 
 
@@ -26,7 +27,7 @@ def scrape_via_search(
     leads = []
     seen_companies = set()
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for city in cities:
             for query in queries:
                 search_query = f"{query} {city} site:crunchbase.com/organization"

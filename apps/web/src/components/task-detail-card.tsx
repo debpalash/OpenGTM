@@ -320,6 +320,18 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
 
   // ── Compact mode (chat / list cards) ───────────────────────────
   if (compact) {
+    const handleOpenInWorkbook = async (e: React.MouseEvent) => {
+      e.stopPropagation()
+      try {
+        const { createWorkbookFromJobs } = await import("@/lib/workbook-api")
+        const wb = await createWorkbookFromJobs({ job_ids: [job.id] })
+        toast.success(`Workbook "${wb.name}" created with ${wb.total_rows} leads`)
+        navigate(`/workbooks/${wb.id}`)
+      } catch (err) {
+        toast.error("Failed to create workbook")
+      }
+    }
+
     return (
       <Card
         className="cursor-pointer hover:bg-accent/50 transition-colors border-l-2"
@@ -341,7 +353,18 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
                 )}
               </div>
             </div>
-            <ExternalLink className="size-3.5 text-muted-foreground shrink-0 mt-1" />
+            <div className="flex items-center gap-1 shrink-0 mt-1">
+              {job.status === "done" && job.leads_found > 0 && (
+                <button
+                  onClick={handleOpenInWorkbook}
+                  className="p-1 rounded-md hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+                  title="Open in Workbook"
+                >
+                  <Database className="size-3.5" />
+                </button>
+              )}
+              <ExternalLink className="size-3.5 text-muted-foreground" />
+            </div>
           </div>
           {job.stages?.length > 0 && <CompactStageProgress stages={job.stages} />}
         </CardContent>
@@ -387,6 +410,20 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
                 fetchData()
               }}>
                 <RefreshCw className="size-3.5" /> Retry
+              </Button>
+            )}
+            {job.status === "done" && job.leads_found > 0 && (
+              <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={async () => {
+                try {
+                  const { createWorkbookFromJobs } = await import("@/lib/workbook-api")
+                  const wb = await createWorkbookFromJobs({ job_ids: [job.id] })
+                  toast.success(`Workbook "${wb.name}" created`)
+                  navigate(`/workbooks/${wb.id}`)
+                } catch {
+                  toast.error("Failed to create workbook")
+                }
+              }}>
+                <Database className="size-3.5" /> Open in Workbook
               </Button>
             )}
             <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={async () => {

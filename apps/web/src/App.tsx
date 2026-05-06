@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
-  Settings, Zap, Circle, Plus, Trash2, BarChart3,
+  Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2,
 } from "lucide-react"
 import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
@@ -28,15 +28,18 @@ import CampaignsPage from "@/pages/campaigns"
 import SourcesPage from "@/pages/sources"
 import SettingsPage from "@/pages/settings"
 import AnalyticsPage from "@/pages/analytics"
+import WorkbooksPage from "@/pages/workbooks"
+import WorkbookEditorPage from "@/pages/workbook-editor"
 
 const NAV_ITEMS = [
-  { to: "/chat",      icon: MessageSquare, label: "Chat" },
-  { to: "/leads",     icon: Users,         label: "Leads" },
-  { to: "/search",    icon: Search,        label: "Search" },
-  { to: "/agents",    icon: Bot,           label: "Tasks" },
-  { to: "/campaigns", icon: Send,          label: "Campaigns" },
-  { to: "/sources",   icon: Database,      label: "Sources" },
-  { to: "/analytics", icon: BarChart3,      label: "Analytics" },
+  { to: "/chat",       icon: MessageSquare, label: "Chat" },
+  { to: "/leads",      icon: Users,         label: "Leads" },
+  { to: "/workbooks",  icon: Table2,        label: "Workbooks" },
+  { to: "/search",     icon: Search,        label: "Search" },
+  { to: "/agents",     icon: Bot,           label: "Tasks" },
+  { to: "/campaigns",  icon: Send,          label: "Campaigns" },
+  { to: "/sources",    icon: Database,      label: "Sources" },
+  { to: "/analytics",  icon: BarChart3,     label: "Analytics" },
 ]
 
 function AppSidebar() {
@@ -231,6 +234,7 @@ function AppContent() {
   const getTitle = () => {
     if (location.pathname.startsWith("/chat")) return "Chat"
     if (location.pathname.startsWith("/leads")) return "Leads"
+    if (location.pathname.startsWith("/workbooks")) return "Workbooks"
     if (location.pathname.startsWith("/search")) return "Search"
     if (location.pathname.startsWith("/agents")) return "Tasks"
     if (location.pathname.startsWith("/campaigns")) return "Campaigns"
@@ -248,6 +252,8 @@ function AppContent() {
           <Route path="/chat/*" element={<ChatPage />} />
           <Route path="/leads/:id" element={<LeadDetailPage />} />
           <Route path="/leads" element={<LeadsPage />} />
+          <Route path="/workbooks/:id" element={<div className="h-full overflow-hidden"><WorkbookEditorPage /></div>} />
+          <Route path="/workbooks" element={<WorkbooksPage />} />
           <Route path="/search/*" element={<SearchPage />} />
           <Route path="/agents/:jobId" element={<TaskDetailPage />} />
           <Route path="/agents" element={<AgentsPage />} />

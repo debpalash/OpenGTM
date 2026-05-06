@@ -12,6 +12,7 @@ from typing import List
 from urllib.parse import urlparse
 
 from ddgs import DDGS
+from apps.api.services.leadgen.proxy_client import get_ddgs
 from apps.api.services.leadgen.models import Lead
 
 try:
@@ -57,7 +58,7 @@ def scrape_via_search(
         "site:indiamart.com",
     ]
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for city in cities:
             for query in queries:
                 for site_filter in directory_sites:

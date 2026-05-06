@@ -11,6 +11,7 @@ from typing import List
 from urllib.parse import urlparse
 
 from ddgs import DDGS
+from apps.api.services.leadgen.proxy_client import get_ddgs
 from apps.api.services.leadgen.models import Lead
 
 
@@ -35,7 +36,7 @@ def discover_linkedin_companies(
     leads = []
     seen_urls = set()
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for city in cities:
             for query in queries:
                 search_query = f'site:linkedin.com/company "{query}" "{city}" India'
@@ -123,7 +124,7 @@ def find_decision_makers(
 
     people = []
 
-    with DDGS() as ddgs:
+    with get_ddgs() as ddgs:
         for title in titles:
             query = f'site:linkedin.com/in "{company_name}" "{title}" India'
             try:

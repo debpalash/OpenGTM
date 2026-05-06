@@ -2,7 +2,8 @@
     "name": "yupcha-engine",
     "private": true,
     "workspaces": [
-        "apps/*"
+        "apps/*",
+        "packages/*"
     ],
     "scripts": {
         "dev": "turbo run dev --parallel",
