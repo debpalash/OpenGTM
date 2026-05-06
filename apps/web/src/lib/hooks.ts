@@ -6,6 +6,8 @@ import {
   fetchSystemStats, fetchWorkspaces, submitCollect,
   updateStatus, updateLead, deleteLead, addLead, fetchLead,
   fetchConversations, fetchConversationMessages,
+  fetchAnalyticsOverview, fetchAnalyticsPipeline,
+  fetchAnalyticsCollection, fetchAnalyticsEnrichment, fetchAnalyticsLLM,
   type Lead,
 } from "./api"
 
@@ -265,4 +267,22 @@ export function useConversationMessages(id: string | null) {
     queryFn: () => (id ? fetchConversationMessages(id) : null),
     enabled: !!id,
   })
+}
+
+// ── Analytics ───────────────────────────────────────────────────
+
+export function useAnalyticsOverview() {
+  return useQuery({ queryKey: ["analytics", "overview"], queryFn: fetchAnalyticsOverview, staleTime: 30_000 })
+}
+export function useAnalyticsPipeline() {
+  return useQuery({ queryKey: ["analytics", "pipeline"], queryFn: fetchAnalyticsPipeline, staleTime: 30_000 })
+}
+export function useAnalyticsCollection() {
+  return useQuery({ queryKey: ["analytics", "collection"], queryFn: fetchAnalyticsCollection, staleTime: 30_000 })
+}
+export function useAnalyticsEnrichment() {
+  return useQuery({ queryKey: ["analytics", "enrichment"], queryFn: fetchAnalyticsEnrichment, staleTime: 30_000 })
+}
+export function useAnalyticsLLM() {
+  return useQuery({ queryKey: ["analytics", "llm"], queryFn: fetchAnalyticsLLM, staleTime: 30_000 })
 }

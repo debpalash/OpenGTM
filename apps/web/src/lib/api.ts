@@ -5,6 +5,7 @@ export interface Lead {
   company: string
   website: string
   email: string
+  email_confidence: string
   phone: string
   contact_person: string
   contact_title: string
@@ -310,3 +311,71 @@ export async function streamChat(
     }
   }
 }
+
+// ── Analytics ────────────────────────────────────────────────────
+
+export interface AnalyticsOverview {
+  total_leads: number
+  leads_this_week: number
+  leads_this_month: number
+  avg_score: number
+  tiers: Record<string, number>
+  enrichment: {
+    total: number
+    with_email: number
+    with_phone: number
+    with_website: number
+    with_contact: number
+    with_linkedin: number
+    email_pct: number
+    phone_pct: number
+    website_pct: number
+    contact_pct: number
+  }
+  email_confidence: Record<string, number>
+  jobs: {
+    total: number
+    completed: number
+    failed: number
+    success_rate: number
+  }
+}
+
+export interface AnalyticsPipeline {
+  statuses: Record<string, number>
+  status_tiers: Record<string, Record<string, number>>
+}
+
+export interface AnalyticsCollection {
+  jobs_by_day: Array<{ day: string; jobs: number; leads: number; completed: number }>
+  leads_by_day: Array<{ day: string; count: number }>
+  avg_leads_per_job: number
+}
+
+export interface AnalyticsEnrichment {
+  source_quality: Array<{ source: string; count: number; avg_score: number; with_email: number; with_phone: number; with_contact: number }>
+  by_city: Array<{ city: string; count: number; avg_score: number }>
+  score_distribution: Array<{ range: string; count: number }>
+}
+
+export interface AnalyticsLLM {
+  by_day: Array<{ day: string; tokens: number; calls: number; providers: string }>
+  by_provider: Array<{ provider: string; tokens: number; calls: number }>
+  total_tokens: number
+  total_calls: number
+}
+
+export const fetchAnalyticsOverview = (): Promise<AnalyticsOverview> =>
+  fetch(`${API_BASE}/api/analytics/overview`).then(r => r.json())
+
+export const fetchAnalyticsPipeline = (): Promise<AnalyticsPipeline> =>
+  fetch(`${API_BASE}/api/analytics/pipeline`).then(r => r.json())
+
+export const fetchAnalyticsCollection = (): Promise<AnalyticsCollection> =>
+  fetch(`${API_BASE}/api/analytics/collection`).then(r => r.json())
+
+export const fetchAnalyticsEnrichment = (): Promise<AnalyticsEnrichment> =>
+  fetch(`${API_BASE}/api/analytics/enrichment`).then(r => r.json())
+
+export const fetchAnalyticsLLM = (): Promise<AnalyticsLLM> =>
+  fetch(`${API_BASE}/api/analytics/llm`).then(r => r.json())

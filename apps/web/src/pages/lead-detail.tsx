@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import {
@@ -16,6 +16,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
 import { EditableCell } from "@/components/editable-cell"
+import { MarkdownContent } from "@/components/markdown-content"
 import { useLead, useUpdateLead, useUpdateStatus, useDeleteLead } from "@/lib/hooks"
 import { enrichLead, type EnrichAction } from "@/lib/api"
 import { useQueryClient } from "@tanstack/react-query"
@@ -36,6 +37,102 @@ const TIER_GLOW: Record<string, string> = {
 }
 
 const STATUS_OPTIONS = ["new", "contacted", "qualified", "dead"]
+
+// ── Leaflet Map with geocoded pin ────────────────────────────────
+import L from "leaflet"
+import "leaflet/dist/leaflet.css"
+
+// Fix default marker icon paths (Vite doesn't bundle them correctly)
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png"
+import markerIcon from "leaflet/dist/images/marker-icon.png"
+import markerShadow from "leaflet/dist/images/marker-shadow.png"
+delete (L.Icon.Default.prototype as any)._getIconUrl
+L.Icon.Default.mergeOptions({ iconUrl: markerIcon, iconRetinaUrl: markerIcon2x, shadowUrl: markerShadow })
+
+function LeafletMap({ query, show, label, fallbackQueries = [] }: { query: string; show: boolean; label?: string; fallbackQueries?: string[] }) {
+  const mapRef = useRef<HTMLDivElement>(null)
+  const mapInstanceRef = useRef<L.Map | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    if (!show || !query || !mapRef.current) return
+    const controller = new AbortController()
+
+    // Try queries in order: full → fallbacks
+    const queries = [query, ...fallbackQueries].filter(Boolean)
+
+    async function geocodeAndRender() {
+      for (const q of queries) {
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`,
+            { signal: controller.signal, headers: { Accept: "application/json" } }
+          )
+          const data = await res.json()
+          if (data?.[0] && mapRef.current) {
+            const lat = parseFloat(data[0].lat)
+            const lon = parseFloat(data[0].lon)
+
+            if (mapInstanceRef.current) { mapInstanceRef.current.remove(); mapInstanceRef.current = null }
+
+            const map = L.map(mapRef.current, { zoomControl: false, attributionControl: false }).setView([lat, lon], 14)
+            L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+              attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            }).addTo(map)
+            L.control.zoom({ position: "bottomright" }).addTo(map)
+
+            const marker = L.marker([lat, lon]).addTo(map)
+            if (label) marker.bindPopup(`<b>${label}</b>`).openPopup()
+
+            mapInstanceRef.current = map
+            setLoading(false)
+            return
+          }
+        } catch {
+          if (controller.signal.aborted) return
+        }
+      }
+      setFailed(true)
+      setLoading(false)
+    }
+
+    geocodeAndRender()
+
+    return () => {
+      controller.abort()
+      if (mapInstanceRef.current) { mapInstanceRef.current.remove(); mapInstanceRef.current = null }
+    }
+  }, [query, show, label, fallbackQueries.join(",")])
+
+  if (!show || !query) return null
+
+  return (
+    <div className="mt-3 space-y-2">
+      <div className="rounded-xl overflow-hidden border border-border/40 shadow-sm relative">
+        {loading && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center text-xs text-muted-foreground bg-muted/40">
+            Loading map…
+          </div>
+        )}
+        {failed && (
+          <div className="h-[200px] flex items-center justify-center text-xs text-muted-foreground bg-muted/20">
+            Could not locate address on map
+          </div>
+        )}
+        <div ref={mapRef} style={{ height: 200, width: "100%" }} className={failed ? "hidden" : ""} />
+      </div>
+      <a
+        href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(query)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ExternalLink className="size-3" /> Open in OpenStreetMap
+      </a>
+    </div>
+  )
+}
 
 export default function LeadDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -203,6 +300,18 @@ export default function LeadDetailPage() {
                       <ExternalLink className="size-3" />
                     </a>
                   )}
+                  {lead.email_confidence && (
+                    <Badge
+                      variant={lead.email_confidence === "verified" ? "default" : "secondary"}
+                      className={`ml-1.5 text-[10px] px-1.5 py-0 ${
+                        lead.email_confidence === "verified" ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" :
+                        lead.email_confidence === "pattern" ? "bg-amber-500/15 text-amber-600 border-amber-500/30" :
+                        "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {lead.email_confidence}
+                    </Badge>
+                  )}
                 </InfoRow>
                 <InfoRow icon={<Phone className="size-4" />} label="Phone">
                   <EditableCell value={lead.phone || ""} onSave={(v) => saveField("phone", v)} placeholder="Add phone" />
@@ -257,36 +366,16 @@ export default function LeadDetailPage() {
                 )}
               </div>
 
-              {/* Google Maps embed */}
-              {(() => {
-                const mapQuery = [lead.company, lead.address, lead.city, lead.state].filter(Boolean).join(", ")
-                if (!mapQuery || (!lead.city && !lead.address)) return null
-                const encodedQuery = encodeURIComponent(mapQuery)
-                return (
-                  <div className="mt-3 space-y-2">
-                    <div className="rounded-xl overflow-hidden border border-border/40 shadow-sm">
-                      <iframe
-                        title="Location"
-                        width="100%"
-                        height="200"
-                        style={{ border: 0 }}
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                        src={`https://www.google.com/maps?q=${encodedQuery}&output=embed`}
-                        allowFullScreen
-                      />
-                    </div>
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodedQuery}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <ExternalLink className="size-3" /> Open in Google Maps
-                    </a>
-                  </div>
-                )
-              })()}
+              {/* OpenStreetMap embed */}
+              <LeafletMap
+                query={[lead.address, lead.city, lead.state].filter(Boolean).join(", ")}
+                fallbackQueries={[
+                  [lead.city, lead.state].filter(Boolean).join(", "),
+                  lead.city || "",
+                ]}
+                show={!!(lead.city || lead.address)}
+                label={lead.company}
+              />
             </CardContent>
           </Card>
 
@@ -306,8 +395,8 @@ export default function LeadDetailPage() {
             </CardHeader>
             <CardContent>
               {(researchContent || lead.description) ? (
-                <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                  {researchContent || lead.description}
+                <div className="text-sm leading-relaxed">
+                  <MarkdownContent content={researchContent || lead.description} />
                   {enriching === "web_research" && (
                     <span className="inline-block w-2 h-4 bg-foreground/60 animate-pulse ml-0.5" />
                   )}
@@ -443,7 +532,7 @@ export default function LeadDetailPage() {
                 <CardTitle className="text-sm font-medium">Value Proposition</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">{lead.yupcha_value_prop}</p>
+                <MarkdownContent content={lead.yupcha_value_prop} className="text-sm text-muted-foreground" />
               </CardContent>
             </Card>
           )}
@@ -455,7 +544,7 @@ export default function LeadDetailPage() {
                 <CardTitle className="text-sm font-medium">Company Need</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">{lead.company_need}</p>
+                <MarkdownContent content={lead.company_need} className="text-sm text-muted-foreground" />
               </CardContent>
             </Card>
           )}

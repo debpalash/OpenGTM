@@ -381,6 +381,31 @@ class JobRunner:
             self.db.complete_stage(dm_sid,
                 input_count=len(scored), output_count=len(scored))
 
+            # ── Personal Emails ───────────────────────────────────
+            pe_sid = self.db.create_stage(job_id, "personal_emails")
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "personal_emails",
+                "message": f"📧 Finding personal emails...",
+            })
+            try:
+                from apps.api.services.leadgen.enrichment.email_finder import enrich_personal_emails
+                scored = enrich_personal_emails(scored, delay=1.0)
+                pe_found = sum(1 for l in scored if l.email_confidence in ("verified", "pattern"))
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "personal_emails",
+                    "message": f"📧 Found {pe_found} personal emails",
+                })
+            except Exception as e:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "personal_emails",
+                    "message": f"⚠️ Personal email search error: {e}",
+                })
+            pe_count = sum(1 for l in scored if l.email_confidence in ("verified", "pattern"))
+            self.db.complete_stage(pe_sid,
+                input_count=len(scored), output_count=pe_count,
+                details=json.dumps({"verified": sum(1 for l in scored if l.email_confidence == "verified"),
+                                    "pattern": sum(1 for l in scored if l.email_confidence == "pattern")}))
+
             # ── Store ────────────────────────────────────────────
             store_sid = self.db.create_stage(job_id, "store")
             count = 0

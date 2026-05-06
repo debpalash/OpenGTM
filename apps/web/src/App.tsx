@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
-  Settings, Zap, Circle, Plus, Trash2,
+  Settings, Zap, Circle, Plus, Trash2, BarChart3,
 } from "lucide-react"
 import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
@@ -27,6 +27,7 @@ import TaskDetailPage from "@/pages/task-detail"
 import CampaignsPage from "@/pages/campaigns"
 import SourcesPage from "@/pages/sources"
 import SettingsPage from "@/pages/settings"
+import AnalyticsPage from "@/pages/analytics"
 
 const NAV_ITEMS = [
   { to: "/chat",      icon: MessageSquare, label: "Chat" },
@@ -35,6 +36,7 @@ const NAV_ITEMS = [
   { to: "/agents",    icon: Bot,           label: "Tasks" },
   { to: "/campaigns", icon: Send,          label: "Campaigns" },
   { to: "/sources",   icon: Database,      label: "Sources" },
+  { to: "/analytics", icon: BarChart3,      label: "Analytics" },
 ]
 
 function AppSidebar() {
@@ -233,6 +235,7 @@ function AppContent() {
     if (location.pathname.startsWith("/agents")) return "Tasks"
     if (location.pathname.startsWith("/campaigns")) return "Campaigns"
     if (location.pathname.startsWith("/sources")) return "Sources"
+    if (location.pathname.startsWith("/analytics")) return "Analytics"
     if (location.pathname.startsWith("/settings")) return "Settings"
     return "Yupcha Sales"
   }
@@ -250,6 +253,7 @@ function AppContent() {
           <Route path="/agents" element={<AgentsPage />} />
           <Route path="/campaigns/*" element={<CampaignsPage />} />
           <Route path="/sources/*" element={<SourcesPage />} />
+          <Route path="/analytics/*" element={<AnalyticsPage />} />
           <Route path="/settings/*" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/chat" replace />} />
         </Routes>

@@ -12,6 +12,7 @@ import os
 
 # Routers
 from apps.api.routers import auth, users, tasks, crm, system, scraper, websockets, person_intel, settings
+from apps.api.routers.analytics import router as analytics_router
 from apps.api.routers.leads import router as leads_router, workspace_router, jobs_router, events_router, search_router
 from apps.api.routers.copilotkit import router as copilotkit_router
 from apps.api.routers.campaigns import router as campaigns_router
@@ -68,6 +69,7 @@ app.include_router(scraper.router)
 app.include_router(websockets.router)
 app.include_router(person_intel.router)
 app.include_router(settings.router)
+app.include_router(analytics_router)
 
 # Include Routers — Lead Pipeline
 app.include_router(leads_router)

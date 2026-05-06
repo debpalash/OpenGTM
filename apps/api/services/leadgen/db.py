@@ -188,6 +188,7 @@ class LeadDB:
             "secondary_phones": "TEXT DEFAULT ''",
             "decision_makers": "TEXT DEFAULT ''",
             "glassdoor_rating": "TEXT DEFAULT ''",
+            "email_confidence": "TEXT DEFAULT ''",
         }
 
         for col, col_type in new_lead_columns.items():

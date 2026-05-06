@@ -4,7 +4,7 @@ import {
   CheckCircle2, XCircle, Clock, Loader2, ChevronDown, ChevronRight,
   Brain, ExternalLink, MapPin, Globe, Link2, Briefcase, Star,
   FileSearch, Users, Shield, Layers, Sparkles, Zap, ArrowRight,
-  StopCircle, Trash2, RefreshCw, FileX2,
+  StopCircle, Trash2, RefreshCw, FileX2, Mail, Database,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -86,6 +86,8 @@ const STAGE_META: Record<string, { icon: typeof Globe; label: string; color: str
   score:            { icon: Brain,      label: "AI Scoring",        color: "text-purple-500" },
   enrich:           { icon: Sparkles,   label: "Enrichment",        color: "text-cyan-500" },
   decision_makers:  { icon: Users,      label: "Decision Makers",   color: "text-pink-500" },
+  personal_emails:  { icon: Mail,       label: "Personal Emails",   color: "text-teal-500" },
+  store:            { icon: Database,   label: "Storage",            color: "text-slate-500" },
 }
 
 // ── Stage Component ──────────────────────────────────────────────

@@ -18,6 +18,7 @@ class Lead:
 
     # ── Contact ────────────────────────────────────────────────────────
     email: str = ""
+    email_confidence: str = ""     # "verified", "pattern", "guessed", "generic"
     phone: str = ""
     contact_person: str = ""       # Decision-maker name
     contact_title: str = ""        # e.g. "CEO", "HR Director"
