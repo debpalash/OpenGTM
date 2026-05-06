@@ -400,11 +400,132 @@ class JobRunner:
                     "job_id": job_id, "stage": "personal_emails",
                     "message": f"⚠️ Personal email search error: {e}",
                 })
-            pe_count = sum(1 for l in scored if l.email_confidence in ("verified", "pattern"))
+            pe_count = sum(1 for l in scored if l.email_confidence in ("verified", "pattern", "smtp_verified"))
             self.db.complete_stage(pe_sid,
                 input_count=len(scored), output_count=pe_count,
                 details=json.dumps({"verified": sum(1 for l in scored if l.email_confidence == "verified"),
-                                    "pattern": sum(1 for l in scored if l.email_confidence == "pattern")}))
+                                    "pattern": sum(1 for l in scored if l.email_confidence == "pattern"),
+                                    "smtp_verified": sum(1 for l in scored if l.email_confidence == "smtp_verified")}))
+
+            # ── CrossLinked: LinkedIn People Discovery ─────────────
+            cl_sid = self.db.create_stage(job_id, "crosslinked")
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "crosslinked",
+                "message": f"🔗 Finding LinkedIn people...",
+            })
+            try:
+                from apps.api.services.leadgen.enrichment.providers.crosslinked import CrossLinkedProvider
+                cl_provider = CrossLinkedProvider(max_people=3, delay=1.5)
+                cl_found = 0
+                # Only enrich top leads that don't already have decision makers
+                cl_candidates = [l for l in scored if l.score >= 40 and not l.decision_makers][:10]
+                for lead in cl_candidates:
+                    try:
+                        result = await cl_provider.enrich(lead)
+                        if result.success:
+                            if result.fields.get("decision_makers"):
+                                lead.decision_makers = result.fields["decision_makers"]
+                            if result.fields.get("contact_person") and not lead.contact_person:
+                                lead.contact_person = result.fields["contact_person"]
+                            if result.fields.get("contact_title") and not lead.contact_title:
+                                lead.contact_title = result.fields["contact_title"]
+                            cl_found += 1
+                        await asyncio.sleep(0.5)
+                    except Exception:
+                        continue
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "crosslinked",
+                    "message": f"🔗 Found LinkedIn people for {cl_found}/{len(cl_candidates)} leads",
+                })
+            except Exception as e:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "crosslinked",
+                    "message": f"⚠️ CrossLinked error: {e}",
+                })
+            self.db.complete_stage(cl_sid,
+                input_count=len(scored), output_count=len(scored))
+
+            # ── JobSpy: Hiring Signal Detection ────────────────────
+            js_sid = self.db.create_stage(job_id, "hiring_signals")
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "hiring_signals",
+                "message": f"📊 Detecting hiring signals...",
+            })
+            try:
+                from apps.api.services.leadgen.enrichment.providers.jobspy_signals import JobSpySignalProvider
+                js_provider = JobSpySignalProvider(max_jobs=3, delay=1.5)
+                js_found = 0
+                js_candidates = [l for l in scored if l.score >= 50][:8]
+                for lead in js_candidates:
+                    try:
+                        result = await js_provider.enrich(lead)
+                        if result.success and result.fields.get("hiring_signals"):
+                            lead.hiring_signals = result.fields["hiring_signals"]
+                            # Apply score boost from hiring signals
+                            import json as _json
+                            try:
+                                signals = _json.loads(lead.hiring_signals)
+                                boost = signals.get("score_boost", 0)
+                                lead.score = min(100, lead.score + boost)
+                            except Exception:
+                                pass
+                            js_found += 1
+                        await asyncio.sleep(0.5)
+                    except Exception:
+                        continue
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "hiring_signals",
+                    "message": f"📊 Found hiring signals for {js_found}/{len(js_candidates)} leads",
+                })
+            except Exception as e:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "hiring_signals",
+                    "message": f"⚠️ JobSpy error: {e}",
+                })
+            self.db.complete_stage(js_sid,
+                input_count=len(scored), output_count=len(scored))
+
+            # ── SMTP Email Verification ────────────────────────────
+            smtp_sid = self.db.create_stage(job_id, "smtp_verify")
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "smtp_verify",
+                "message": f"✉️ Verifying emails via SMTP...",
+            })
+            try:
+                from apps.api.services.leadgen.enrichment.providers.mailscout_verify import MailScoutVerifyProvider
+                smtp_provider = MailScoutVerifyProvider(timeout=5, max_verify=2)
+                smtp_verified_count = 0
+                # Only verify top leads with emails not yet SMTP-verified
+                smtp_candidates = [l for l in scored
+                    if l.email and '@' in l.email
+                    and l.email_confidence != "smtp_verified"
+                    and l.score >= 40][:10]
+                for lead in smtp_candidates:
+                    try:
+                        result = await smtp_provider.enrich(lead)
+                        if result.success:
+                            if result.fields.get("email"):
+                                lead.email = result.fields["email"]
+                            if result.fields.get("email_confidence"):
+                                lead.email_confidence = result.fields["email_confidence"]
+                                lead.email_provider = "mailscout"
+                            if lead.email_confidence == "smtp_verified":
+                                smtp_verified_count += 1
+                    except Exception:
+                        continue
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "smtp_verify",
+                    "message": f"✉️ SMTP verified {smtp_verified_count}/{len(smtp_candidates)} emails",
+                })
+            except Exception as e:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "smtp_verify",
+                    "message": f"⚠️ SMTP verification error: {e}",
+                })
+            smtp_total = sum(1 for l in scored if l.email_confidence == "smtp_verified")
+            self.db.complete_stage(smtp_sid,
+                input_count=len(scored), output_count=smtp_total,
+                details=json.dumps({"smtp_verified": smtp_total}))
 
             # ── Store ────────────────────────────────────────────
             store_sid = self.db.create_stage(job_id, "store")

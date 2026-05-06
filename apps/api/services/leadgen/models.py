@@ -18,8 +18,10 @@ class Lead:
 
     # ── Contact ────────────────────────────────────────────────────────
     email: str = ""
-    email_confidence: str = ""     # "verified", "pattern", "guessed", "generic"
+    email_confidence: str = ""     # "smtp_verified", "verified", "pattern", "guessed", "generic"
+    email_provider: str = ""       # Which provider found the email (waterfall provenance)
     phone: str = ""
+    phone_provider: str = ""       # Which provider found the phone
     contact_person: str = ""       # Decision-maker name
     contact_title: str = ""        # e.g. "CEO", "HR Director"
 
@@ -42,12 +44,18 @@ class Lead:
     # ── Social ─────────────────────────────────────────────────────────
     linkedin_url: str = ""
     twitter_url: str = ""
+    facebook_url: str = ""
 
     # ── Extended Contact ───────────────────────────────────────────────
     secondary_emails: str = ""     # Pipe-separated additional emails
     secondary_phones: str = ""     # Pipe-separated additional phones
     decision_makers: str = ""      # JSON: [{"name":"X","title":"CEO","linkedin":"..."}]
     glassdoor_rating: str = ""     # Company rating from review sites
+    hiring_signals: str = ""       # JSON: {total_jobs, growth_signal, gtm_expansion, ...}
+
+    # ── Enrichment Provenance ──────────────────────────────────────────
+    enrichment_attempts: int = 0   # Total provider calls during waterfall
+    enrichment_waterfall: str = "" # JSON log of provider chain results
 
     # ── Pipeline ───────────────────────────────────────────────────────
     source: str = ""               # "csv_import", "google_maps", "linkedin", etc.
@@ -111,3 +119,4 @@ class Lead:
 # ── Status constants ───────────────────────────────────────────────────
 LEAD_STATUSES = ["new", "contacted", "qualified", "negotiating", "converted", "dead"]
 LEAD_SOURCES = ["csv_import", "google_maps", "web_directory", "linkedin", "manual", "referral"]
+EMAIL_CONFIDENCE_LEVELS = ["smtp_verified", "verified", "pattern", "guessed", "generic"]

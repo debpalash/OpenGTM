@@ -5,7 +5,7 @@ import {
   ArrowLeft, Mail, Phone, Globe, Link2, AtSign,
   MapPin, Building2, User, Calendar, Sparkles, Search,
   FileText, Loader2, CheckCircle, AlertCircle, Pencil,
-  Trash2, ExternalLink, Zap,
+  Trash2, ExternalLink, Zap, TrendingUp,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -302,15 +302,21 @@ export default function LeadDetailPage() {
                   )}
                   {lead.email_confidence && (
                     <Badge
-                      variant={lead.email_confidence === "verified" ? "default" : "secondary"}
+                      variant={lead.email_confidence === "smtp_verified" || lead.email_confidence === "verified" ? "default" : "secondary"}
                       className={`ml-1.5 text-[10px] px-1.5 py-0 ${
+                        lead.email_confidence === "smtp_verified" ? "bg-emerald-600/20 text-emerald-500 border-emerald-500/40 font-semibold" :
                         lead.email_confidence === "verified" ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" :
                         lead.email_confidence === "pattern" ? "bg-amber-500/15 text-amber-600 border-amber-500/30" :
                         "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {lead.email_confidence}
+                      {lead.email_confidence === "smtp_verified" ? "✓ SMTP verified" : lead.email_confidence}
                     </Badge>
+                  )}
+                  {(lead as any).email_provider && (
+                    <span className="ml-1 text-[10px] text-muted-foreground">
+                      via {(lead as any).email_provider}
+                    </span>
                   )}
                 </InfoRow>
                 <InfoRow icon={<Phone className="size-4" />} label="Phone">
@@ -378,6 +384,65 @@ export default function LeadDetailPage() {
               />
             </CardContent>
           </Card>
+
+          {/* Hiring Signals Card */}
+          {(lead as any).hiring_signals && (() => {
+            try {
+              const signals = JSON.parse((lead as any).hiring_signals)
+              if (!signals || signals.total_jobs === 0) return null
+              const growthColors: Record<string, string> = {
+                hypergrowth: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40",
+                rapid_growth: "bg-green-500/20 text-green-400 border-green-500/40",
+                growing: "bg-blue-500/20 text-blue-400 border-blue-500/40",
+                hiring: "bg-amber-500/20 text-amber-400 border-amber-500/40",
+              }
+              return (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <TrendingUp className="size-4 text-green-500" /> Hiring Signals
+                      <Badge className={`ml-auto text-[10px] px-1.5 py-0 ${growthColors[signals.growth_signal] || "bg-muted"}`}>
+                        {signals.growth_signal?.replace("_", " ")}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="text-muted-foreground">Open positions:</span>
+                      <span className="font-medium">{signals.total_jobs}</span>
+                    </div>
+                    {signals.gtm_expansion && (
+                      <Badge variant="outline" className="text-[10px] bg-purple-500/10 text-purple-400 border-purple-500/30">
+                        🎯 GTM Expansion
+                      </Badge>
+                    )}
+                    {signals.tech_hiring && (
+                      <Badge variant="outline" className="text-[10px] bg-cyan-500/10 text-cyan-400 border-cyan-500/30 ml-1">
+                        💻 Tech Hiring
+                      </Badge>
+                    )}
+                    {signals.roles?.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-xs text-muted-foreground mb-1">Open roles:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {signals.roles.map((role: string, i: number) => (
+                            <Badge key={i} variant="secondary" className="text-[10px] px-1.5 py-0">
+                              {role}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {signals.score_boost > 0 && (
+                      <p className="text-[11px] text-emerald-500 mt-1">
+                        +{signals.score_boost} score boost from hiring signals
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            } catch { return null }
+          })()}
 
           {/* Description / AI Research */}
           <Card className={`${TIER_GLOW[tier]} transition-shadow`}>

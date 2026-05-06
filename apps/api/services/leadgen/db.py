@@ -189,6 +189,12 @@ class LeadDB:
             "decision_makers": "TEXT DEFAULT ''",
             "glassdoor_rating": "TEXT DEFAULT ''",
             "email_confidence": "TEXT DEFAULT ''",
+            "email_provider": "TEXT DEFAULT ''",
+            "phone_provider": "TEXT DEFAULT ''",
+            "facebook_url": "TEXT DEFAULT ''",
+            "hiring_signals": "TEXT DEFAULT ''",
+            "enrichment_attempts": "INTEGER DEFAULT 0",
+            "enrichment_waterfall": "TEXT DEFAULT ''",
         }
 
         for col, col_type in new_lead_columns.items():

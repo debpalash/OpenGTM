@@ -5,6 +5,7 @@ import {
   Brain, ExternalLink, MapPin, Globe, Link2, Briefcase, Star,
   FileSearch, Users, Shield, Layers, Sparkles, Zap, ArrowRight,
   StopCircle, Trash2, RefreshCw, FileX2, Mail, Database,
+  TrendingUp, ShieldCheck,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -87,6 +88,9 @@ const STAGE_META: Record<string, { icon: typeof Globe; label: string; color: str
   enrich:           { icon: Sparkles,   label: "Enrichment",        color: "text-cyan-500" },
   decision_makers:  { icon: Users,      label: "Decision Makers",   color: "text-pink-500" },
   personal_emails:  { icon: Mail,       label: "Personal Emails",   color: "text-teal-500" },
+  crosslinked:      { icon: Link2,     label: "LinkedIn People",   color: "text-blue-600" },
+  hiring_signals:   { icon: TrendingUp, label: "Hiring Signals",    color: "text-green-500" },
+  smtp_verify:      { icon: ShieldCheck, label: "SMTP Verification", color: "text-indigo-500" },
   store:            { icon: Database,   label: "Storage",            color: "text-slate-500" },
 }
 
