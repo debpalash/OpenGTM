@@ -229,15 +229,26 @@ async def create_workbook_from_jobs(body: CreateFromJobsRequest, db: Session = D
             finally:
                 lead_db.close()
 
-        # Default columns: company, email, phone, website, city, score
+        # Default columns: comprehensive lead view
         default_columns = [
             {"id": "company", "name": "Company", "type": "lead_field", "lead_field": "company", "width": 220},
+            {"id": "specialization", "name": "Specialization", "type": "lead_field", "lead_field": "specialization", "width": 180},
+            {"id": "contact_person", "name": "Contact", "type": "lead_field", "lead_field": "contact_person", "width": 180},
+            {"id": "contact_title", "name": "Title", "type": "lead_field", "lead_field": "contact_title", "width": 150},
             {"id": "email", "name": "Email", "type": "lead_field", "lead_field": "email", "width": 220},
             {"id": "phone", "name": "Phone", "type": "lead_field", "lead_field": "phone", "width": 160},
-            {"id": "website", "name": "Website", "type": "lead_field", "lead_field": "website", "width": 200},
-            {"id": "city", "name": "City", "type": "lead_field", "lead_field": "city", "width": 140},
-            {"id": "score", "name": "Score", "type": "lead_field", "lead_field": "score", "width": 100},
-            {"id": "contact_person", "name": "Contact", "type": "lead_field", "lead_field": "contact_person", "width": 180},
+            {"id": "website", "name": "Website", "type": "lead_field", "lead_field": "website", "width": 180},
+            {"id": "linkedin_url", "name": "LinkedIn", "type": "lead_field", "lead_field": "linkedin_url", "width": 180},
+            {"id": "city", "name": "City", "type": "lead_field", "lead_field": "city", "width": 130},
+            {"id": "state", "name": "State", "type": "lead_field", "lead_field": "state", "width": 120},
+            {"id": "company_size", "name": "Size", "type": "lead_field", "lead_field": "company_size", "width": 100},
+            {"id": "industry_tags", "name": "Industry", "type": "lead_field", "lead_field": "industry_tags", "width": 180},
+            {"id": "description", "name": "Description", "type": "lead_field", "lead_field": "description", "width": 250},
+            {"id": "score", "name": "Score", "type": "lead_field", "lead_field": "score", "width": 80},
+            {"id": "status", "name": "Status", "type": "lead_field", "lead_field": "status", "width": 100},
+            {"id": "source", "name": "Source", "type": "lead_field", "lead_field": "source", "width": 120},
+            {"id": "notes", "name": "Notes", "type": "lead_field", "lead_field": "notes", "width": 200},
+            {"id": "created_at", "name": "Created", "type": "lead_field", "lead_field": "created_at", "width": 140},
         ]
 
         wb = Workbook(

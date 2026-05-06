@@ -74,22 +74,6 @@ function EditableCell({
     setDraft(String(value ?? ""))
   }, [value])
 
-  if (editing && isEditable) {
-    return (
-      <input
-        ref={inputRef}
-        value={draft}
-        onChange={e => setDraft(e.target.value)}
-        onBlur={() => { onSave(draft); setEditing(false) }}
-        onKeyDown={e => {
-          if (e.key === "Enter") { onSave(draft); setEditing(false) }
-          if (e.key === "Escape") setEditing(false)
-        }}
-        className="w-full h-full px-2 py-1 text-sm bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-primary/50 rounded"
-      />
-    )
-  }
-
   const displayValue = useMemo(() => {
     if (value == null || value === "") return ""
     const str = typeof value === "string" ? value : JSON.stringify(value)
@@ -109,6 +93,22 @@ function EditableCell({
     }
     return str
   }, [value])
+
+  if (editing && isEditable) {
+    return (
+      <input
+        ref={inputRef}
+        value={draft}
+        onChange={e => setDraft(e.target.value)}
+        onBlur={() => { onSave(draft); setEditing(false) }}
+        onKeyDown={e => {
+          if (e.key === "Enter") { onSave(draft); setEditing(false) }
+          if (e.key === "Escape") setEditing(false)
+        }}
+        className="w-full h-full px-2 py-1 text-sm bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-primary/50 rounded"
+      />
+    )
+  }
 
   return (
     <div
@@ -621,9 +621,18 @@ export default function WorkbookEditorPage() {
                             className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
                           >
                             <option value="">Select field...</option>
-                            {["company", "website", "email", "phone", "contact_person", "contact_title",
-                              "city", "state", "specialization", "company_size", "description",
-                              "linkedin_url", "score", "status", "notes", "industry_tags"].map(f => (
+                            {["company", "website", "email", "phone",
+                              "contact_person", "contact_title", "decision_makers",
+                              "city", "state", "address",
+                              "specialization", "company_size", "employee_count_exact",
+                              "description", "revenue_range", "founded_year",
+                              "industry_tags", "technologies", "funding_stage",
+                              "linkedin_url", "twitter_url", "facebook_url",
+                              "secondary_emails", "secondary_phones",
+                              "glassdoor_rating", "hiring_signals",
+                              "score", "score_tier", "status", "source",
+                              "yupcha_value_prop", "company_need", "notes",
+                              "created_at", "updated_at", "last_enriched_at"].map(f => (
                               <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
                             ))}
                           </select>
@@ -792,15 +801,39 @@ export default function WorkbookEditorPage() {
           {connected && (
             <span className="inline-flex items-center gap-1 text-emerald-400">
               <span className="size-1.5 rounded-full bg-emerald-400" />
-              Connected
+              Live
             </span>
           )}
-          {workbook?.status === "running" && (
-            <span className="inline-flex items-center gap-1 text-blue-400">
-              <Loader2 className="size-3 animate-spin" />
-              Enriching...
-            </span>
-          )}
+          {workbook?.status === "running" && (() => {
+            // Compute enrichment stats from row overlays
+            const enrichCols = columns.filter(c => c.type === "waterfall" || c.type === "enrichment" || c.type === "ai_formula")
+            const totalCells = rows.length * enrichCols.length
+            let complete = 0, errors = 0, running = 0, pending = 0
+            for (const row of rows) {
+              for (const col of enrichCols) {
+                const s = row.enrichments?.[col.id]?.status
+                if (s === "complete") complete++
+                else if (s === "error" || s === "skipped") errors++
+                else if (s === "running") running++
+                else pending++
+              }
+            }
+            const pct = totalCells > 0 ? Math.round(((complete + errors) / totalCells) * 100) : 0
+            return (
+              <span className="inline-flex items-center gap-2 text-blue-400">
+                <Loader2 className="size-3 animate-spin" />
+                <span className="tabular-nums">{complete}/{totalCells} cells</span>
+                {errors > 0 && <span className="text-red-400 tabular-nums">{errors} err</span>}
+                {running > 0 && <span className="text-amber-400 tabular-nums">{running} active</span>}
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
+                    <span className="h-full rounded-full bg-blue-400 transition-all duration-300" style={{ width: `${pct}%` }} />
+                  </span>
+                  <span className="tabular-nums">{pct}%</span>
+                </span>
+              </span>
+            )
+          })()}
         </div>
       </div>
     </div>

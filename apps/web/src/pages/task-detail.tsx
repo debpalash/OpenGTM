@@ -16,15 +16,15 @@ export default function TaskDetailPage() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 space-y-3 max-w-5xl">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => navigate("/agents")}
-          className="gap-1 -ml-2 text-muted-foreground hover:text-foreground"
+          className="gap-1 -ml-2 h-7 text-xs text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="size-4" />
-          Back to Tasks
+          <ArrowLeft className="size-3.5" />
+          Tasks
         </Button>
 
         <TaskDetailCard jobId={jobId} compact={false} />
