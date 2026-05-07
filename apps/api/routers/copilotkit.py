@@ -843,6 +843,10 @@ async def _stream_chat(
 
     url = f"{base_url}/chat/completions"
 
+    with open("/Users/user4/Desktop/lead-data/debug_copilotkit.json", "w") as f:
+        import json as _json
+        _json.dump(body, f, indent=2)
+
     try:
         async with httpx.AsyncClient(timeout=90.0) as client:
             async with client.stream("POST", url, json=body, headers=headers) as response:

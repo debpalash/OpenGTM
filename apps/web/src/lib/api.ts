@@ -209,6 +209,20 @@ export function exportCSVUrl(params: Record<string, string> = {}): string {
   return `${API_BASE}/api/export/csv?${qs}`
 }
 
+// ── Data Collector Import ───────────────────────────────────
+
+export async function importDataCollector(
+  module: string = "all",
+  limit?: number,
+): Promise<{ ok: boolean; job_id: string; module: string; limit: number | null; message: string }> {
+  const params = new URLSearchParams({ module })
+  if (limit) params.set("limit", String(limit))
+  const res = await fetch(`${API_BASE}/api/leads/import/data-collector?${params}`, {
+    method: "POST",
+  })
+  return res.json()
+}
+
 // ── Collection & Jobs ───────────────────────────────────────────
 
 export async function submitCollect(query: string, workspace_id?: string): Promise<{ ok: boolean; job_id: string; query: string }> {

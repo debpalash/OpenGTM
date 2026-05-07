@@ -797,6 +797,69 @@ def merge_duplicates(body: dict):
     }
 
 
+
+# ── Data Collector Import ─────────────────────────────────────────────────
+
+@router.post("/leads/import/data-collector")
+def import_data_collector(
+    module: str = Query("all", description="Module to import: cnpj, github, or all"),
+    limit: Optional[int] = Query(None, description="Max leads to import (for testing)"),
+    reset: bool = Query(False, description="Reset checkpoint to start from scratch"),
+):
+    """Import leads from the Brazil data_collector submodule.
+
+    Streams CSV row-by-row (low memory). Checkpoints after every batch.
+    Auto-resumes from last position on crash/restart.
+
+    - module=cnpj  — Import ~666K CNPJ government leads
+    - module=github — Import ~30 GitHub miner leads
+    - module=all   — Import both
+    - reset=true   — Clear checkpoint and start from row 0
+    """
+    if module not in ("cnpj", "github", "all"):
+        raise HTTPException(status_code=400, detail="module must be cnpj, github, or all")
+
+    from apps.api.services.leadgen.scrapers.data_collector_import import (
+        run_import_background, reset_checkpoint, _load_checkpoint,
+    )
+
+    if reset:
+        reset_checkpoint()
+
+    checkpoint = _load_checkpoint()
+    job_id = run_import_background(module=module, limit=limit)
+
+    return {
+        "ok": True,
+        "job_id": job_id,
+        "module": module,
+        "limit": limit,
+        "resuming_from_row": checkpoint.get("cnpj_row", 0),
+        "message": f"Import started in background (module={module}, limit={limit})",
+    }
+
+
+@router.get("/leads/import/data-collector/status")
+def import_data_collector_status():
+    """Check the current checkpoint status of the data_collector import."""
+    from apps.api.services.leadgen.scrapers.data_collector_import import (
+        _load_checkpoint, CNPJ_CSV,
+    )
+    checkpoint = _load_checkpoint()
+    total_rows = 0
+    if CNPJ_CSV.exists():
+        # Fast line count without loading file contents
+        with open(CNPJ_CSV, "rb") as f:
+            total_rows = sum(1 for _ in f) - 1  # minus header
+
+    return {
+        "cnpj_rows_processed": checkpoint.get("cnpj_row", 0),
+        "cnpj_total_rows": total_rows,
+        "cnpj_pct": round(checkpoint.get("cnpj_row", 0) / max(total_rows, 1) * 100, 1),
+        "github_done": checkpoint.get("github_done", False),
+    }
+
+
 # ── Domain Intelligence ───────────────────────────────────────────────────
 
 @router.post("/leads/domain-intel")
