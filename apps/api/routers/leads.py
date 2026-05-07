@@ -739,3 +739,79 @@ async def public_scrape(body: dict):
         return {"url": url, "status": "error", "error": str(e)}
 
 
+# ── Deduplication ─────────────────────────────────────────────────────────
+
+@router.post("/leads/dedup")
+def run_dedup(threshold: float = Query(0.85, ge=0.5, le=1.0)):
+    """Analyze leads for duplicates using fuzzy matching."""
+    from apps.api.services.dedup import LeadDeduplicator
+
+    db = LeadDB()
+    leads = db.get_all()  # Returns list of dicts
+    if not leads:
+        return {"stats": {"total_leads": 0, "duplicates_found": 0}, "pairs": [], "clusters": {}}
+
+    dedup = LeadDeduplicator(threshold=threshold)
+    result = dedup.find_duplicates(leads)
+    return result
+
+
+@router.post("/leads/dedup/merge")
+def merge_duplicates(body: dict):
+    """Merge duplicate leads — keep master, delete duplicates."""
+    from apps.api.services.dedup import LeadDeduplicator
+
+    master_id = body.get("master_id")
+    duplicate_ids = body.get("duplicate_ids", [])
+    if not master_id or not duplicate_ids:
+        raise HTTPException(400, "master_id and duplicate_ids required")
+
+    db = LeadDB()
+    master = db.get(master_id)
+    if not master:
+        raise HTTPException(404, f"Master lead {master_id} not found")
+
+    duplicates = [db.get(did) for did in duplicate_ids if db.get(did)]
+    if not duplicates:
+        raise HTTPException(404, "No valid duplicate leads found")
+
+    dedup = LeadDeduplicator()
+    merged = dedup.merge_leads(master, duplicates)
+
+    # Update master with merged data
+    db.update(master_id, merged)
+
+    # Delete duplicates
+    deleted = 0
+    for dup in duplicates:
+        dup_id = dup.get("id")
+        if dup_id:
+            db.delete(dup_id)
+            deleted += 1
+
+    return {
+        "status": "merged",
+        "master_id": master_id,
+        "duplicates_deleted": deleted,
+        "merged_lead": merged,
+    }
+
+
+# ── Domain Intelligence ───────────────────────────────────────────────────
+
+@router.post("/leads/domain-intel")
+async def domain_intelligence(body: dict):
+    """Analyze a domain — RDAP registration, DNS, hosting, email provider, legitimacy score."""
+    domain = body.get("domain", "").strip()
+    if not domain:
+        raise HTTPException(400, "domain is required")
+
+    # Strip protocol/path if provided as URL
+    if "://" in domain:
+        from urllib.parse import urlparse
+        domain = urlparse(domain).hostname or domain
+    domain = domain.replace("www.", "").strip("/")
+
+    from apps.api.services.leadgen.enrichment.domain_intel import analyze_domain
+    result = await analyze_domain(domain)
+    return result

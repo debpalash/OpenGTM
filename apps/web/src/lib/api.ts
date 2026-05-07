@@ -6,16 +6,33 @@ export interface Lead {
   website: string
   email: string
   email_confidence: string
+  email_provider: string
   phone: string
+  phone_provider: string
   contact_person: string
   contact_title: string
   city: string
   state: string
+  address: string
   specialization: string
   company_size: string
+  employee_count_exact: number
   description: string
+  revenue_range: string
+  founded_year: string
+  industry_tags: string
+  technologies: string
+  funding_stage: string
   linkedin_url: string
   twitter_url: string
+  facebook_url: string
+  secondary_emails: string
+  secondary_phones: string
+  decision_makers: string
+  glassdoor_rating: string
+  hiring_signals: string
+  enrichment_attempts: number
+  enrichment_waterfall: string
   source: string
   workspace_id: string
   score: number

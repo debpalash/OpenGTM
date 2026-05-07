@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/command"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
-  Settings, Download, Moon, Plus,
+  Settings, Download, Moon, Sun, Plus,
 } from "lucide-react"
 import { useLeads } from "@/lib/hooks"
 
@@ -42,8 +42,17 @@ export function CommandMenu() {
     setOpen(false)
   }
 
-  const toggleDark = () => {
-    document.documentElement.classList.toggle("dark")
+  const isDark = document.documentElement.classList.contains("dark")
+
+  const toggleTheme = () => {
+    const html = document.documentElement
+    if (html.classList.contains("dark")) {
+      html.classList.remove("dark")
+      localStorage.setItem("theme", "light")
+    } else {
+      html.classList.add("dark")
+      localStorage.setItem("theme", "dark")
+    }
     setOpen(false)
   }
 
@@ -84,9 +93,9 @@ export function CommandMenu() {
             <Download className="mr-2 size-4" />
             Export CSV
           </CommandItem>
-          <CommandItem onSelect={toggleDark}>
-            <Moon className="mr-2 size-4" />
-            Toggle dark mode
+          <CommandItem onSelect={toggleTheme}>
+            {isDark ? <Sun className="mr-2 size-4" /> : <Moon className="mr-2 size-4" />}
+            {isDark ? "Switch to light mode" : "Switch to dark mode"}
           </CommandItem>
         </CommandGroup>
 

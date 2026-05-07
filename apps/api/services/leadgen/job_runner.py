@@ -167,6 +167,10 @@ class JobRunner:
             else:
                 tasks.append(("review_sites", self._noop_strategy("review_sites")))
 
+            # Registry sources — 30+ directories, B2B marketplaces, startup trackers
+            if get_source_enabled("directories"):
+                tasks.append(("registry_sources", self._search_registry_sources(job_id, query)))
+
             progress.emit("job_progress", {
                 "job_id": job_id, "stage": "parallel",
                 "message": f"⚡ Running {len(tasks)} strategies in parallel...",
@@ -1265,6 +1269,162 @@ class JobRunner:
             pass
 
         return leads
+
+    # ── Strategy: Registry Sources (30+ directories) ────────────────────
+
+    async def _search_registry_sources(self, job_id: str, query: str) -> list[Lead]:
+        """Search 30+ directories/marketplaces from the source registry.
+
+        Uses the source_registry module for data-driven source definitions.
+        Runs sources in batched parallel to avoid rate limits.
+        """
+        from apps.api.services.leadgen.source_registry import get_all_sources, build_queries
+
+        leads = []
+        city = self._extract_city(query)
+
+        # Get all enabled sources (auto-detect region from city/query)
+        region = self._detect_region(query, city)
+        sources = get_all_sources(region=region)
+
+        # Also include global sources
+        if region != "global":
+            global_sources = get_all_sources(region="global")
+            seen_names = {s["name"] for s in sources}
+            for gs in global_sources:
+                if gs["name"] not in seen_names:
+                    sources.append(gs)
+
+        # Skip sources that overlap with existing strategies
+        skip_names = {"clutch", "goodfirms", "ambitionbox", "linkedin_companies"}
+        sources = [s for s in sources if s["name"] not in skip_names]
+
+        progress.emit("job_progress", {
+            "job_id": job_id, "stage": "registry_sources",
+            "message": f"🌐 Scanning {len(sources)} directories & marketplaces...",
+        })
+
+        # Run in batches of 5 to respect DDG rate limits
+        BATCH_SIZE = 5
+        for batch_idx in range(0, len(sources), BATCH_SIZE):
+            batch = sources[batch_idx:batch_idx + BATCH_SIZE]
+
+            async def _search_single_source(source):
+                """Search a single registry source."""
+                source_leads = []
+                try:
+                    queries = build_queries(source, query, city)
+                    for dq in queries[:2]:  # Max 2 queries per source
+                        try:
+                            results = await _ddg_search(dq, max_results=8)
+                            for result in results:
+                                href = result.get("href", "")
+                                title = result.get("title", "")
+                                body = result.get("body", "")
+                                if not href or not title:
+                                    continue
+
+                                domain = urlparse(href).netloc.lower()
+                                site_domain = source.get("site_domain", "")
+
+                                # Extract company name
+                                company = self._extract_business_name(title)
+                                if not company or len(company) < 3:
+                                    continue
+
+                                # Validate
+                                from apps.api.services.leadgen.lead_validator import validate_lead
+                                test_lead = Lead(company=company)
+                                is_valid, _ = validate_lead(test_lead)
+                                if not is_valid:
+                                    continue
+
+                                lead = Lead(
+                                    company=company,
+                                    website=href if not site_domain or site_domain not in domain else "",
+                                    city=city,
+                                    description=body[:300],
+                                    source=f"registry:{source['name']}",
+                                    specialization=query,
+                                )
+
+                                # Try to extract contact info from body text
+                                emails = self._extract_emails_from_html(body)
+                                phones = self._extract_phones_from_html(body)
+                                if emails:
+                                    lead.email = emails[0]
+                                if phones:
+                                    lead.phone = phones[0]
+
+                                source_leads.append(lead)
+
+                            await asyncio.sleep(0.5)
+                        except Exception:
+                            continue
+                except Exception as e:
+                    logger.debug(f"Source {source['name']} error: {e}")
+                return source_leads
+
+            # Run batch in parallel
+            batch_results = await asyncio.gather(
+                *[_search_single_source(s) for s in batch],
+                return_exceptions=True,
+            )
+
+            batch_count = 0
+            for source, result in zip(batch, batch_results):
+                if isinstance(result, list):
+                    leads.extend(result)
+                    batch_count += len(result)
+
+            if batch_count > 0:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "registry_sources",
+                    "message": f"📂 Batch {batch_idx // BATCH_SIZE + 1}: +{batch_count} leads from {', '.join(s['label'] for s in batch[:3])}...",
+                })
+
+            # Brief pause between batches
+            await asyncio.sleep(1)
+
+        progress.emit("job_progress", {
+            "job_id": job_id, "stage": "registry_sources",
+            "message": f"🌐 Registry sources done: {len(leads)} leads from {len(sources)} sources",
+        })
+
+        return leads
+
+    def _detect_region(self, query: str, city: str = "") -> str:
+        """Detect target region from query and city."""
+        text = f"{query} {city}".lower()
+
+        indian_cities = {
+            "mumbai", "delhi", "bangalore", "bengaluru", "hyderabad", "chennai",
+            "kolkata", "pune", "ahmedabad", "jaipur", "lucknow", "kanpur",
+            "nagpur", "indore", "thane", "bhopal", "visakhapatnam", "patna",
+            "vadodara", "ghaziabad", "ludhiana", "agra", "nashik", "faridabad",
+            "meerut", "rajkot", "varanasi", "srinagar", "noida", "gurgaon",
+            "gurugram", "coimbatore", "kochi", "chandigarh", "mysore", "mysuru",
+            "surat", "ranchi", "bhubaneswar", "tiruchirappalli", "trivandrum",
+            "thiruvananthapuram", "salem", "hubli", "mangalore",
+        }
+        indian_keywords = {"india", "indian", "pvt ltd", "private limited", "nse", "bse"}
+
+        us_cities = {
+            "new york", "los angeles", "chicago", "houston", "phoenix", "philadelphia",
+            "san antonio", "san diego", "dallas", "san jose", "austin", "seattle",
+            "denver", "boston", "nashville", "portland", "las vegas", "atlanta",
+            "miami", "san francisco", "charlotte", "minneapolis",
+        }
+
+        eu_keywords = {"london", "berlin", "paris", "amsterdam", "munich", "barcelona", "europe", "uk", "germany", "france"}
+
+        if any(c in text for c in indian_cities) or any(k in text for k in indian_keywords):
+            return "india"
+        if any(c in text for c in us_cities) or "usa" in text or "united states" in text:
+            return "us"
+        if any(k in text for k in eu_keywords):
+            return "eu"
+        return "global"
 
     # ── Helpers ───────────────────────────────────────────────────────
 

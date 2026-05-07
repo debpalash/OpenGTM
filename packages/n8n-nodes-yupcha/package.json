@@ -1,0 +1,47 @@
+{
+  "name": "n8n-nodes-yupcha",
+  "version": "0.1.0",
+  "description": "n8n community node for Yupcha — self-hosted GTM engine. Source leads, enrich companies, verify emails, detect tech stacks.",
+  "keywords": [
+    "n8n-community-node-package",
+    "lead-generation",
+    "b2b",
+    "enrichment",
+    "sales",
+    "gtm",
+    "yupcha"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Yupcha",
+    "url": "https://github.com/yupcha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yupcha/n8n-nodes-yupcha.git"
+  },
+  "main": "index.js",
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/YupchaApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Yupcha/Yupcha.node.js"
+    ]
+  },
+  "scripts": {
+    "build": "tsc && gulp build:icons",
+    "lint": "eslint nodes credentials --ext .ts",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "gulp": "^4.0.2",
+    "n8n-workflow": "*",
+    "typescript": "^5.0.0"
+  }
+}

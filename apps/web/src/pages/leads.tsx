@@ -84,18 +84,34 @@ export default function LeadsPage() {
           Company <ArrowUpDown className="ml-1 size-3" />
         </Button>
       ),
-      cell: ({ row }) => (
-        <div className="max-w-[180px] truncate">
-          <EditableCell
-            value={row.original.company}
-            onSave={(v) => updateLeadMut.mutate({ id: row.original.id, fields: { company: v } })}
-            className="font-medium text-xs"
-          />
-          {row.original.specialization && (
-            <span className="text-[10px] text-muted-foreground/60 ml-1 truncate">{row.original.specialization}</span>
-          )}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const website = row.original.website
+        let domain: string | undefined
+        if (website) {
+          try { domain = new URL(website.startsWith('http') ? website : `https://${website}`).hostname.replace('www.', '') } catch {}
+        }
+        return (
+          <div className="max-w-[200px] flex items-center gap-1.5 truncate">
+            {domain && (
+              <img
+                src={`https://www.google.com/s2/favicons?domain=${domain}&sz=16`}
+                alt="" className="size-4 rounded shrink-0" loading="lazy"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+              />
+            )}
+            <div className="min-w-0 truncate">
+              <EditableCell
+                value={row.original.company}
+                onSave={(v) => updateLeadMut.mutate({ id: row.original.id, fields: { company: v } })}
+                className="font-medium text-xs"
+              />
+              {row.original.specialization && (
+                <span className="text-[10px] text-muted-foreground/60 ml-1 truncate">{row.original.specialization}</span>
+              )}
+            </div>
+          </div>
+        )
+      },
       size: 200,
     },
     {
@@ -207,51 +223,50 @@ export default function LeadsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4">
-      {/* Row 1 — Stats */}
-      <div className="flex items-center gap-3 text-sm">
-        {stats ? (
-          <>
-            <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-base">{stats.total}</span>
-              <span className="text-muted-foreground">leads</span>
-            </div>
-            <Separator orientation="vertical" className="h-4" />
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <span className="flex items-center gap-1"><Flame className="size-3.5 text-red-500" />{stats.by_tier?.hot ?? 0}</span>
-              <span className="flex items-center gap-1"><Sun className="size-3.5 text-orange-400" />{stats.by_tier?.warm ?? 0}</span>
-              <span className="flex items-center gap-1"><Snowflake className="size-3.5 text-blue-400" />{stats.by_tier?.cold ?? 0}</span>
-            </div>
-            <Separator orientation="vertical" className="h-4" />
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <span className="flex items-center gap-1"><Mail className="size-3.5 text-emerald-500" />{stats.enrichment?.with_email ?? 0}</span>
-              <span className="flex items-center gap-1"><Phone className="size-3.5 text-sky-500" />{stats.enrichment?.with_phone ?? 0}</span>
-            </div>
-          </>
-        ) : (
-          <Skeleton className="h-4 w-64" />
-        )}
-      </div>
-
-      {/* Row 2 — Collect + Filters */}
+    <div className="flex flex-col gap-1.5 p-2 h-full overflow-hidden">
+      {/* Row 1 — Stats + Collect + Filters (compact single row) */}
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1 flex-1 max-w-md">
+        {/* Stats */}
+        {stats ? (
+          <div className="flex items-center gap-2 text-sm shrink-0">
+            <span className="font-semibold">{stats.total}</span>
+            <span className="text-muted-foreground text-xs">leads</span>
+            <Separator orientation="vertical" className="h-3.5" />
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-0.5"><Flame className="size-3 text-red-500" />{stats.by_tier?.hot ?? 0}</span>
+              <span className="flex items-center gap-0.5"><Sun className="size-3 text-orange-400" />{stats.by_tier?.warm ?? 0}</span>
+              <span className="flex items-center gap-0.5"><Snowflake className="size-3 text-blue-400" />{stats.by_tier?.cold ?? 0}</span>
+            </div>
+            <Separator orientation="vertical" className="h-3.5" />
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-0.5"><Mail className="size-3 text-emerald-500" />{stats.enrichment?.with_email ?? 0}</span>
+              <span className="flex items-center gap-0.5"><Phone className="size-3 text-sky-500" />{stats.enrichment?.with_phone ?? 0}</span>
+            </div>
+          </div>
+        ) : (
+          <Skeleton className="h-4 w-48" />
+        )}
+
+        {/* Collect */}
+        <div className="flex items-center gap-1 flex-1 max-w-sm ml-2">
           <Input
-            placeholder="Collect leads... (e.g. IT staffing companies Pune)"
+            placeholder="Collect leads… (e.g. IT staffing Pune)"
             value={collectQuery}
             onChange={(e) => setCollectQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleCollect()}
-            className="h-8 text-xs"
+            className="h-7 text-xs"
           />
-          <Button size="sm" onClick={handleCollect} disabled={collect.isPending || !collectQuery.trim()} className="h-8">
-            <Plus className="size-4" />
+          <Button size="sm" onClick={handleCollect} disabled={collect.isPending || !collectQuery.trim()} className="h-7 text-xs px-2">
+            <Plus className="size-3" />
             Collect
           </Button>
         </div>
-        <div className="flex items-center gap-1 ml-auto">
+
+        {/* Filters + Actions */}
+        <div className="flex items-center gap-1 ml-auto shrink-0">
           {filterOptions?.cities && (
             <Select value={city || "all"} onValueChange={(v) => setCity(v === "all" ? "" : v ?? "")}>
-              <SelectTrigger className="w-[130px] h-8 text-xs">
+              <SelectTrigger className="w-[110px] h-7 text-xs">
                 <SelectValue placeholder="All cities" />
               </SelectTrigger>
               <SelectContent>
@@ -264,7 +279,7 @@ export default function LeadsPage() {
           )}
           {filterOptions?.tiers && (
             <Select value={tier || "all"} onValueChange={(v) => setTier(v === "all" ? "" : v ?? "")}>
-              <SelectTrigger className="w-[110px] h-8 text-xs">
+              <SelectTrigger className="w-[100px] h-7 text-xs">
                 <SelectValue placeholder="All tiers" />
               </SelectTrigger>
               <SelectContent>
@@ -275,11 +290,11 @@ export default function LeadsPage() {
               </SelectContent>
             </Select>
           )}
-          <Button variant="outline" size="sm" onClick={() => refetch()} className="h-8">
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="h-7 w-7 p-0">
             <RefreshCw className="size-3" />
           </Button>
           <a href={exportCSVUrl(filters)} download>
-            <Button variant="outline" size="sm" className="h-8">
+            <Button variant="outline" size="sm" className="h-7 w-7 p-0">
               <Download className="size-3" />
             </Button>
           </a>
@@ -287,23 +302,25 @@ export default function LeadsPage() {
       </div>
 
       {/* Data Table */}
-      {isLoading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <Skeleton key={i} className="h-10 w-full" />
-          ))}
-        </div>
-      ) : (
-        <DataTable
-          columns={columns}
-          data={leads ?? []}
-          searchKey="company"
-          searchPlaceholder="Filter companies..."
-          onRowClick={(lead) => navigate(`/leads/${lead.id}`)}
-          enableSelection
-          onSelectionChange={setSelectedRows}
-        />
-      )}
+      <div className="flex-1 min-h-0">
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 w-full" />
+            ))}
+          </div>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={leads ?? []}
+            searchKey="company"
+            searchPlaceholder="Filter companies..."
+            onRowClick={(lead) => navigate(`/leads/${lead.id}`)}
+            enableSelection
+            onSelectionChange={setSelectedRows}
+          />
+        )}
+      </div>
 
       {/* Bulk Actions Bar */}
       {selectedRows.length > 0 && (

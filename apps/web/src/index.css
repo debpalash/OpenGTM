@@ -48,40 +48,65 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* ── shadcn neutral defaults (light mode — unchanged) ── */
+/*
+ * ── WARM CREAM LIGHT THEME ──
+ * A soft, warm-gray palette with cream undertones.
+ *
+ * Design principles:
+ *   • Never pure white — backgrounds have a warm cream hue (85–90° in oklch)
+ *   • Text is warm charcoal (not pure black) for comfortable reading
+ *   • Borders and muted surfaces carry subtle warmth
+ *   • Inspired by Notion, Stripe Dashboard, premium stationery
+ */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
+    /* ─ Surfaces ─ */
+    --background: oklch(0.98 0.005 85);          /* Warm cream — the base canvas            */
+    --foreground: oklch(0.18 0.01 60);            /* Warm charcoal — never pure black         */
+    --card: oklch(0.995 0.003 85);                /* Slightly lighter cream for cards          */
+    --card-foreground: oklch(0.18 0.01 60);
+    --popover: oklch(0.997 0.002 85);             /* Near-white cream for floating panels      */
+    --popover-foreground: oklch(0.15 0.01 60);    /* Deepest text for focus context            */
+
+    /* ─ Primary action ─ */
+    --primary: oklch(0.25 0.015 60);              /* Warm near-black for buttons               */
+    --primary-foreground: oklch(0.97 0.005 85);   /* Cream text on primary                     */
+
+    /* ─ Secondary / muted ─ */
+    --secondary: oklch(0.94 0.008 85);            /* Warm light gray for chips/tags             */
+    --secondary-foreground: oklch(0.25 0.015 60);
+    --muted: oklch(0.94 0.008 85);                /* Same warmth for muted surfaces             */
+    --muted-foreground: oklch(0.50 0.01 60);      /* Mid-tone warm gray — metadata, hints       */
+
+    /* ─ Accent ─ */
+    --accent: oklch(0.94 0.008 85);
+    --accent-foreground: oklch(0.25 0.015 60);
+
+    /* ─ Destructive ─ */
+    --destructive: oklch(0.55 0.22 27);           /* Warm, muted red                           */
+
+    /* ─ Chrome ─ */
+    --border: oklch(0.90 0.01 85);                /* Warm border — structural, gentle           */
+    --input: oklch(0.90 0.01 85);                 /* Input border — matches border              */
+    --ring: oklch(0.60 0.01 60);                  /* Focus ring — warm mid-gray                 */
+
+    /* ─ Charts — earthy, warm palette ─ */
+    --chart-1: oklch(0.58 0.18 45);               /* Terracotta                                */
+    --chart-2: oklch(0.55 0.12 160);              /* Muted teal                                */
+    --chart-3: oklch(0.45 0.08 250);              /* Slate blue                                */
+    --chart-4: oklch(0.70 0.16 80);               /* Warm amber                                */
+    --chart-5: oklch(0.62 0.15 20);               /* Muted coral                               */
+
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+
+    /* ─ Sidebar — slightly warmer/darker panel ─ */
+    --sidebar: oklch(0.96 0.007 85);              /* Warmer than main — recessed feel           */
+    --sidebar-foreground: oklch(0.22 0.01 60);
+    --sidebar-primary: oklch(0.25 0.015 60);
+    --sidebar-primary-foreground: oklch(0.97 0.005 85);
+    --sidebar-accent: oklch(0.92 0.01 85);        /* Hover/active — slightly darker             */
+    --sidebar-accent-foreground: oklch(0.22 0.01 60);
+    --sidebar-border: oklch(0.88 0.012 85);       /* Warm dividers                              */
+    --sidebar-ring: oklch(0.60 0.01 60);
 }
 
 /*
@@ -157,14 +182,37 @@
 }
 
 /* ── Pro typography dimming layers ──
- * Utility classes for manual luminance control in components.
- * Use when the default foreground/muted hierarchy isn't enough.
+ * Theme-aware utility classes for manual luminance control.
+ * Light mode: warm charcoal cascade · Dark mode: soft white cascade
  */
 @layer utilities {
-  .text-dim-1 { color: oklch(0.88 0 0); }  /* Primary content       */
-  .text-dim-2 { color: oklch(0.72 0 0); }  /* Secondary labels      */
-  .text-dim-3 { color: oklch(0.52 0 0); }  /* Tertiary / metadata   */
-  .text-dim-4 { color: oklch(0.36 0 0); }  /* Ghost / watermarks    */
+  /* Dark mode defaults */
+  .text-dim-1 { color: oklch(0.88 0 0); }
+  .text-dim-2 { color: oklch(0.72 0 0); }
+  .text-dim-3 { color: oklch(0.52 0 0); }
+  .text-dim-4 { color: oklch(0.36 0 0); }
+}
+
+/* Light mode overrides — warm charcoal cascade */
+:root:not(.dark) .text-dim-1 { color: oklch(0.22 0.01 60); }
+:root:not(.dark) .text-dim-2 { color: oklch(0.38 0.01 60); }
+:root:not(.dark) .text-dim-3 { color: oklch(0.55 0.01 60); }
+:root:not(.dark) .text-dim-4 { color: oklch(0.72 0.008 85); }
+
+/* ── Scrollbar — warm cream for light theme ── */
+:root:not(.dark) ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+:root:not(.dark) ::-webkit-scrollbar-track {
+  background: transparent;
+}
+:root:not(.dark) ::-webkit-scrollbar-thumb {
+  background: oklch(0.82 0.01 85);
+  border-radius: 3px;
+}
+:root:not(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.72 0.01 60);
 }
 
 /* ── Scrollbar — blends into dark theme ── */
@@ -184,6 +232,128 @@
 }
 
 /* ── Smooth transitions on theme-driven colors ── */
-.dark * {
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/*
+ * ══════════════════════════════════════════════════════════════════════
+ *  SPRINT A — "FEEL PREMIUM" TABLE POLISH
+ *  Zebra striping, row hover, cell flash, row stagger, column progress
+ * ══════════════════════════════════════════════════════════════════════
+ */
+
+/* ── Zebra striping — subtle alternating row backgrounds ── */
+.dark [data-slot="table-body"] tr:nth-child(even) td,
+.dark tbody tr:nth-child(even) td {
+  background-color: oklch(0.10 0 0);
+}
+:root:not(.dark) [data-slot="table-body"] tr:nth-child(even) td,
+:root:not(.dark) tbody tr:nth-child(even) td {
+  background-color: oklch(0.965 0.004 85);
+}
+
+/* ── Row hover — accent tint that overrides zebra ── */
+.dark [data-slot="table-body"] tr:hover td,
+.dark tbody tr:hover td {
+  background-color: oklch(0.13 0.008 250) !important;
+}
+:root:not(.dark) [data-slot="table-body"] tr:hover td,
+:root:not(.dark) tbody tr:hover td {
+  background-color: oklch(0.95 0.012 220) !important;
+}
+
+/* ── Cell flash — fires when enrichment data arrives ── */
+@keyframes cell-flash-dark {
+  0%   { background-color: oklch(0.25 0.12 160); }
+  100% { background-color: transparent; }
+}
+@keyframes cell-flash-light {
+  0%   { background-color: oklch(0.88 0.10 160); }
+  100% { background-color: transparent; }
+}
+.cell-updated {
+  animation: cell-flash-dark 1.4s ease-out;
+}
+:root:not(.dark) .cell-updated {
+  animation: cell-flash-light 1.4s ease-out;
+}
+
+/* ── Staggered row fade-in — rows appear sequentially ── */
+@keyframes row-fade-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.row-stagger {
+  animation: row-fade-in 0.25s ease-out both;
+}
+.row-stagger:nth-child(1)  { animation-delay: 0ms; }
+.row-stagger:nth-child(2)  { animation-delay: 15ms; }
+.row-stagger:nth-child(3)  { animation-delay: 30ms; }
+.row-stagger:nth-child(4)  { animation-delay: 45ms; }
+.row-stagger:nth-child(5)  { animation-delay: 60ms; }
+.row-stagger:nth-child(6)  { animation-delay: 75ms; }
+.row-stagger:nth-child(7)  { animation-delay: 90ms; }
+.row-stagger:nth-child(8)  { animation-delay: 105ms; }
+.row-stagger:nth-child(9)  { animation-delay: 120ms; }
+.row-stagger:nth-child(10) { animation-delay: 135ms; }
+.row-stagger:nth-child(n+11) { animation-delay: 150ms; }
+
+/* ── Column progress bar — thin bar under enrichment headers ── */
+.col-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: oklch(0.16 0 0);
+  overflow: hidden;
+}
+:root:not(.dark) .col-progress {
+  background: oklch(0.92 0.006 85);
+}
+.col-progress-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.4s ease;
+  background: oklch(0.60 0.18 250);
+}
+:root:not(.dark) .col-progress-fill {
+  background: oklch(0.50 0.16 250);
+}
+
+/* ── Running column header glow ── */
+@keyframes col-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1; }
+}
+.col-running {
+  animation: col-pulse 2s ease-in-out infinite;
+}
+
+/* ── Button shimmer — loading state gradient sweep ── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.btn-shimmer {
+  background: linear-gradient(90deg, transparent 30%, oklch(1 0 0 / 0.08) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* ── Skeleton shimmer for table cells ── */
+@keyframes skeleton-wave {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-cell {
+  background: linear-gradient(90deg, oklch(0.14 0 0) 25%, oklch(0.18 0 0) 50%, oklch(0.14 0 0) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-wave 1.8s ease-in-out infinite;
+  border-radius: 3px;
+}
+:root:not(.dark) .skeleton-cell {
+  background: linear-gradient(90deg, oklch(0.93 0.005 85) 25%, oklch(0.90 0.008 85) 50%, oklch(0.93 0.005 85) 75%);
+  background-size: 200% 100%;
 }

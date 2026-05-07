@@ -521,13 +521,17 @@ async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Se
                 )
                 if success:
                     enqueued += 1
-        return RunWorkbookResponse(
-            status="started",
-            total_jobs=enqueued,
-            message=f"Enqueued {enqueued} enrichment jobs",
-        )
+        if enqueued > 0:
+            return RunWorkbookResponse(
+                status="started",
+                total_jobs=enqueued,
+                message=f"Enqueued {enqueued} enrichment jobs",
+            )
+        # If nothing was enqueued (Redis unavailable), fall through to inline
+        raise RuntimeError("No jobs enqueued — falling through to inline execution")
     except Exception as e:
-        # Inline fallback
+        # Inline fallback — runs enrichment directly in-process
+        logger.info(f"Running inline enrichment: {e}")
         from apps.api.services.workbook.enrichment import enrich_workbook_leads
         result = await enrich_workbook_leads(
             db=db,

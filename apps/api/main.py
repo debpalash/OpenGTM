@@ -25,6 +25,11 @@ from apps.api.workers.download import handle_download_link
 
 logger = logging.getLogger(__name__)
 
+# Suppress noisy 3rd-party search engine logs (DDG tries 7 engines, logs every failure)
+logging.getLogger("ddgs").setLevel(logging.WARNING)
+logging.getLogger("ddgs.ddgs").setLevel(logging.WARNING)
+logging.getLogger("primp").setLevel(logging.WARNING)
+
 # Database Migration
 check_and_migrate_db()
 

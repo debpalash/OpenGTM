@@ -214,29 +214,26 @@ function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              isActive={location.pathname.startsWith("/settings")}
-              tooltip="Settings"
-              render={<NavLink to="/settings" />}
-            >
-              <Settings />
-              <span>Settings</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Status">
-              <Circle
-                className={`size-2 fill-current ${connected ? "text-green-500" : "text-muted-foreground"}`}
-              />
-              <span className="text-xs text-muted-foreground">
-                {connected ? "Connected" : "Disconnected"}
-              </span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <SidebarFooter className="border-t pt-2 mt-2">
+        <div className="flex items-center justify-between px-2 py-1">
+          <SidebarMenuButton
+            isActive={location.pathname.startsWith("/settings")}
+            tooltip="Settings"
+            render={<NavLink to="/settings" />}
+            className="w-auto flex-none"
+          >
+            <Settings />
+            <span>Settings</span>
+          </SidebarMenuButton>
+          <div className="flex items-center gap-1.5 px-2" title={connected ? "SSE connected" : "SSE disconnected"}>
+            <Circle
+              className={`size-2 fill-current ${connected ? "text-green-500" : "text-muted-foreground"}`}
+            />
+            <span className="text-[11px] text-muted-foreground">
+              {connected ? "Connected" : "Offline"}
+            </span>
+          </div>
+        </div>
       </SidebarFooter>
     </Sidebar>
   )

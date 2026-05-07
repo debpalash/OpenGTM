@@ -108,13 +108,14 @@ export function useJobs(status?: string) {
   return useQuery({
     queryKey: queryKeys.jobs.list(status),
     queryFn: () => fetchJobs(status),
-    // Poll fast (5s) when active jobs exist, slow (30s) when idle
+    // SSE handles real-time updates via query invalidation.
+    // Polling is just a safety net — 15s for active jobs, 60s idle.
     refetchInterval: (query) => {
       const jobs = query.state.data as Job[] | undefined
       const hasActive = jobs?.some(
         (j: Job) => j.status === "running" || j.status === "pending"
       )
-      return hasActive ? 5000 : 30000
+      return hasActive ? 15000 : 60000
     },
   })
 }

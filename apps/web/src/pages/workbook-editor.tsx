@@ -64,6 +64,37 @@ function CellStatus({ status }: { status?: string }) {
   return null
 }
 
+// ── Favicon helper ─────────────────────────────────────────────────────
+function Favicon({ domain }: { domain?: string }) {
+  if (!domain) return null
+  return (
+    <img
+      src={`https://www.google.com/s2/favicons?domain=${domain}&sz=16`}
+      alt=""
+      className="size-4 rounded shrink-0"
+      loading="lazy"
+      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+    />
+  )
+}
+
+// ── Column Progress Bar ────────────────────────────────────────────────
+function ColumnProgressBar({ rows, colId }: { rows: WorkbookLeadRow[]; colId: string }) {
+  const total = rows.length
+  if (total === 0) return null
+  const completed = rows.filter(r => {
+    const overlay = r.enrichments?.[colId]
+    return overlay?.status === 'complete' || overlay?.value
+  }).length
+  const pct = Math.round((completed / total) * 100)
+  if (pct === 0) return null
+  return (
+    <div className="col-progress">
+      <div className="col-progress-fill" style={{ width: `${pct}%` }} />
+    </div>
+  )
+}
+
 // ── Editable Cell ────────────────────────────────────────────────────────
 
 function EditableCell({
@@ -156,7 +187,7 @@ function EditableCell({
 function TypedCellValue({ value, fieldName }: { value: string; fieldName: string }) {
   if (!value || value === "") return <span className="text-muted-foreground/30">—</span>
 
-  // URL fields → clickable link showing domain only
+  // URL fields → clickable link with favicon showing domain only
   if (fieldName === "website" || fieldName === "linkedin_url" || fieldName === "twitter_url" || fieldName === "facebook_url") {
     try {
       const url = value.startsWith("http") ? value : `https://${value}`
@@ -165,10 +196,13 @@ function TypedCellValue({ value, fieldName }: { value: string; fieldName: string
         : fieldName.includes("twitter") ? domain.replace("twitter.com/", "@")
         : domain
       return (
-        <a href={url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}
-          className="text-blue-400 hover:text-blue-300 hover:underline truncate text-sm">
-          {display}
-        </a>
+        <span className="inline-flex items-center gap-1.5 min-w-0">
+          <Favicon domain={domain} />
+          <a href={url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}
+            className="text-blue-400 hover:text-blue-300 hover:underline truncate text-sm">
+            {display}
+          </a>
+        </span>
       )
     } catch { /* fall through */ }
   }
@@ -882,7 +916,7 @@ export default function WorkbookEditorPage() {
                 })
               }}
               disabled={runMut.isPending}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors relative overflow-hidden ${runMut.isPending ? 'btn-shimmer' : ''}`}
             >
               {runMut.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
               Run Enrichment
@@ -922,11 +956,17 @@ export default function WorkbookEditorPage() {
                       id={header.id}
                       w={w}
                       data-col-id={header.id}
-                      className="text-left font-normal border-b border-r last:border-r-0 h-8 whitespace-nowrap overflow-hidden relative group/th"
+                      className={`text-left font-normal border-b border-r last:border-r-0 h-8 whitespace-nowrap overflow-hidden relative group/th ${
+                        isRunning && colConfig && (colConfig.type === 'enrichment' || colConfig.type === 'waterfall' || colConfig.type === 'ai_formula') ? 'col-running' : ''
+                      }`}
                     >
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
+                      {/* Column progress bar for enrichment columns */}
+                      {colConfig && (colConfig.type === 'enrichment' || colConfig.type === 'waterfall' || colConfig.type === 'ai_formula') && (
+                        <ColumnProgressBar rows={rows} colId={header.id} />
+                      )}
                       <div
                         onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(header.id, e) }}
                         className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/40 active:bg-primary/60 transition-colors z-[5]"
@@ -944,233 +984,191 @@ export default function WorkbookEditorPage() {
                     <Plus className="size-3.5 text-muted-foreground" />
                   </button>
                   {showColPicker && (
-                    <div className="absolute right-0 top-8 z-50 w-72 rounded-xl border bg-card shadow-xl p-3 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="absolute right-0 top-8 z-50 w-80 rounded-xl border bg-card shadow-xl p-3 space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[80vh] overflow-y-auto">
                       <div className="text-xs font-medium text-muted-foreground">Add Column</div>
+
+                      {/* ── Quick Presets (Clay-style) ── */}
+                      <div className="space-y-1.5">
+                        <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Quick Add — Enrichment</div>
+                        <div className="grid grid-cols-2 gap-1">
+                          {[
+                            { label: "Find Email", icon: "📧", target: "email", providers: ["hunter_io", "apollo_io", "crosslinked", "ddg_email"], desc: "4-provider waterfall" },
+                            { label: "Find Phone", icon: "📱", target: "phone", providers: ["apollo_io", "website_scraper"], desc: "2-provider waterfall" },
+                            { label: "Find LinkedIn", icon: "💼", target: "linkedin_url", providers: ["social_finder", "crosslinked"], desc: "Profile lookup" },
+                            { label: "Verify Email", icon: "✅", target: "email", providers: ["mailscout"], desc: "SMTP verification" },
+                            { label: "Company Info", icon: "🏢", target: "description", providers: ["website_scraper", "ddg_company"], desc: "Website + DDG" },
+                            { label: "Decision Makers", icon: "👤", target: "decision_makers", providers: ["crosslinked", "decision_maker"], desc: "Find contacts" },
+                            { label: "Hiring Signals", icon: "📊", target: "hiring_signals", providers: ["jobspy_signals"], desc: "Job postings" },
+                            { label: "Social Profiles", icon: "🌐", target: "facebook_url", providers: ["social_finder", "facebook_pages"], desc: "FB + socials" },
+                          ].map(preset => (
+                            <button
+                              key={preset.label}
+                              onClick={() => {
+                                const colId = preset.label.toLowerCase().replace(/\s+/g, "_")
+                                const newCol: any = {
+                                  id: colId, name: preset.label, type: "waterfall",
+                                  width: 200, waterfall: preset.providers,
+                                  target_field: preset.target,
+                                }
+                                updateWb.mutate({ id: workbook!.id, columns_config: [...columns, newCol] as any })
+                                setShowColPicker(false)
+                              }}
+                              className="flex items-start gap-1.5 p-2 rounded-lg text-left hover:bg-muted/60 border border-transparent hover:border-primary/20 transition-all"
+                            >
+                              <span className="text-sm mt-0.5">{preset.icon}</span>
+                              <div className="min-w-0">
+                                <div className="text-[11px] font-medium truncate">{preset.label}</div>
+                                <div className="text-[9px] text-muted-foreground">{preset.desc}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* ── AI Presets ── */}
+                      <div className="space-y-1.5">
+                        <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">AI Columns</div>
+                        <div className="grid grid-cols-2 gap-1">
+                          {[
+                            { label: "AI Research", prompt: "Research {company} at {website}. Write a 2-sentence summary of what they do, their size, and key products.", icon: "🧠" },
+                            { label: "ICP Match", prompt: "Score how well {company} ({specialization}, {company_size}) matches an ideal customer profile for a B2B SaaS tool. Return: High/Medium/Low with one reason.", icon: "🎯" },
+                            { label: "Personalized Intro", prompt: "Write a personalized 1-sentence intro for a cold email to {contact_person} at {company}. Reference their {specialization} work.", icon: "✍️" },
+                            { label: "Pain Points", prompt: "Based on {company}'s industry ({specialization}) and size ({company_size}), list their top 3 likely business pain points in bullet form.", icon: "💡" },
+                          ].map(preset => (
+                            <button
+                              key={preset.label}
+                              onClick={() => {
+                                const colId = preset.label.toLowerCase().replace(/\s+/g, "_")
+                                const newCol: any = {
+                                  id: colId, name: preset.label, type: "ai_formula",
+                                  width: 300, prompt: preset.prompt,
+                                }
+                                updateWb.mutate({ id: workbook!.id, columns_config: [...columns, newCol] as any })
+                                setShowColPicker(false)
+                              }}
+                              className="flex items-start gap-1.5 p-2 rounded-lg text-left hover:bg-muted/60 border border-transparent hover:border-amber-500/20 transition-all"
+                            >
+                              <span className="text-sm mt-0.5">{preset.icon}</span>
+                              <div className="text-[11px] font-medium truncate">{preset.label}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* ── Divider ── */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-px bg-border" />
+                        <span className="text-[9px] text-muted-foreground uppercase">or build custom</span>
+                        <div className="flex-1 h-px bg-border" />
+                      </div>
+
+                      {/* ── Custom Column Builder ── */}
                       <input
-                        autoFocus
                         placeholder="Column name..."
                         value={newColName}
                         onChange={e => setNewColName(e.target.value)}
                         className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
                       />
 
-                      {/* Column Type Picker */}
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {(["lead_field", "ai_formula", "waterfall", "enrichment"] as const).map(t => {
+                      <div className="grid grid-cols-2 gap-1">
+                        {(["lead_field", "enrichment", "waterfall", "ai_formula"] as const).map(t => {
                           const m = COL_TYPE_META[t]
                           const Icon = m.icon
                           return (
-                            <button
-                              key={t}
-                              onClick={() => setNewColType(t)}
-                              className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs transition-colors ${
+                            <button key={t} onClick={() => setNewColType(t)}
+                              className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] transition-colors ${
                                 newColType === t ? "bg-primary/10 border border-primary/30" : "hover:bg-muted border border-transparent"
                               }`}
                             >
-                              <Icon className={`size-3.5 ${m.color}`} />
+                              <Icon className={`size-3 ${m.color}`} />
                               {m.label}
                             </button>
                           )
                         })}
                       </div>
 
-                      {/* Lead field selector (for lead_field type) */}
                       {newColType === "lead_field" && (
-                        <div className="space-y-1.5">
-                          <label className="text-[11px] text-muted-foreground">Map to Lead field</label>
-                          <select
-                            value={newColLeadField}
-                            onChange={e => setNewColLeadField(e.target.value)}
-                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
-                          >
-                            <option value="">Select field...</option>
-                            {["company", "website", "email", "phone",
-                              "contact_person", "contact_title", "decision_makers",
-                              "city", "state", "address",
-                              "specialization", "company_size", "employee_count_exact",
-                              "description", "revenue_range", "founded_year",
-                              "industry_tags", "technologies", "funding_stage",
-                              "linkedin_url", "twitter_url", "facebook_url",
-                              "secondary_emails", "secondary_phones",
-                              "glassdoor_rating", "hiring_signals",
-                              "score", "score_tier", "status", "source",
-                              "yupcha_value_prop", "company_need", "notes",
-                              "created_at", "updated_at", "last_enriched_at"].map(f => (
-                              <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
-                            ))}
-                          </select>
-                        </div>
+                        <select value={newColLeadField} onChange={e => setNewColLeadField(e.target.value)}
+                          className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                          <option value="">Map to field...</option>
+                          {["company","website","email","phone","contact_person","contact_title","decision_makers","city","state","address","specialization","company_size","description","linkedin_url","twitter_url","facebook_url","hiring_signals","score","score_tier","status","notes"].map(f => (
+                            <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
+                          ))}
+                        </select>
                       )}
 
-                      {/* AI Prompt (only for ai_formula) */}
                       {newColType === "ai_formula" && (
-                        <div className="space-y-1.5">
-                          <label className="text-[11px] text-muted-foreground">
-                            AI Prompt — use {"{column_name}"} for placeholders
-                          </label>
-                          <textarea
-                            value={newColPrompt}
-                            onChange={e => setNewColPrompt(e.target.value)}
-                            placeholder="Summarize what {company} does based on {website}"
-                            rows={3}
-                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 resize-none"
-                          />
-                        </div>
+                        <textarea value={newColPrompt} onChange={e => setNewColPrompt(e.target.value)}
+                          placeholder="Summarize what {company} does based on {website}"
+                          rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs resize-none" />
                       )}
 
-                      {/* Condition (for enrichment/waterfall/ai) */}
-                      {newColType !== "lead_field" && (
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] text-muted-foreground">Only Run If (optional)</label>
-                          <input
-                            value={newColCondition}
-                            onChange={e => setNewColCondition(e.target.value)}
-                            placeholder='{email} == "" AND {website} != ""'
-                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
-                          />
-                        </div>
-                      )}
-
-                      {/* Provider Selector (for enrichment type) */}
                       {newColType === "enrichment" && (
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] text-muted-foreground">Provider</label>
-                          <select
-                            value={newColProvider}
-                            onChange={e => setNewColProvider(e.target.value)}
-                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
-                          >
-                            <option value="">Select provider...</option>
-                            {availableProviders.map(p => (
-                              <option key={p.name} value={p.name}>
-                                {p.name} ({p.capabilities.join(", ")})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                        <select value={newColProvider} onChange={e => setNewColProvider(e.target.value)}
+                          className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                          <option value="">Select provider...</option>
+                          {availableProviders.map(p => (
+                            <option key={p.name} value={p.name}>{p.name} ({p.capabilities.join(", ")})</option>
+                          ))}
+                        </select>
                       )}
 
-                      {/* Waterfall Chain Builder (for waterfall type) */}
                       {newColType === "waterfall" && (
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] text-muted-foreground">
-                            Provider Chain (first match wins)
-                          </label>
-                          {/* Selected providers */}
-                          <div className="space-y-1">
-                            {newColWaterfall.map((pName, i) => (
-                              <div key={pName} className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/50 text-xs">
-                                <span className="text-[10px] text-muted-foreground tabular-nums w-4">{i + 1}.</span>
-                                <span className="flex-1 truncate">{pName}</span>
-                                <button
-                                  onClick={() => setNewColWaterfall(prev => prev.filter((_, j) => j !== i))}
-                                  className="p-0.5 rounded hover:bg-destructive/10 hover:text-destructive"
-                                >
-                                  <X className="size-3" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                          {/* Add provider */}
-                          <select
-                            value=""
-                            onChange={e => {
-                              if (e.target.value && !newColWaterfall.includes(e.target.value)) {
-                                setNewColWaterfall(prev => [...prev, e.target.value])
-                              }
-                            }}
-                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
-                          >
+                        <div className="space-y-1">
+                          {newColWaterfall.map((pName, i) => (
+                            <div key={pName} className="flex items-center gap-1 px-2 py-0.5 rounded bg-muted/50 text-[11px]">
+                              <span className="text-muted-foreground w-3">{i+1}.</span>
+                              <span className="flex-1 truncate">{pName}</span>
+                              <button onClick={() => setNewColWaterfall(prev => prev.filter((_, j) => j !== i))} className="p-0.5 hover:text-destructive"><X className="size-2.5" /></button>
+                            </div>
+                          ))}
+                          <select value="" onChange={e => { if (e.target.value && !newColWaterfall.includes(e.target.value)) setNewColWaterfall(prev => [...prev, e.target.value]) }}
+                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
                             <option value="">+ Add provider...</option>
-                            {availableProviders
-                              .filter(p => !newColWaterfall.includes(p.name))
-                              .map(p => (
-                                <option key={p.name} value={p.name}>
-                                  {p.name} ({p.capabilities.join(", ")})
-                                </option>
-                              ))}
-                          </select>
-                        </div>
-                      )}
-
-                      {/* Target Field (for enrichment/waterfall — which Lead field to write to) */}
-                      {(newColType === "enrichment" || newColType === "waterfall") && (
-                        <div className="space-y-1.5">
-                          <label className="text-[10px] text-muted-foreground">
-                            Target Lead Field
-                            <span className="text-muted-foreground/50 ml-1">(writes result back to Lead)</span>
-                          </label>
-                          <select
-                            value={newColTargetField}
-                            onChange={e => setNewColTargetField(e.target.value)}
-                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
-                          >
-                            <option value="">Same as column name</option>
-                            {["email", "phone", "website", "contact_person", "contact_title",
-                              "linkedin_url", "twitter_url", "facebook_url",
-                              "description", "company_size", "industry_tags",
-                              "decision_makers", "hiring_signals"].map(f => (
-                              <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
+                            {availableProviders.filter(p => !newColWaterfall.includes(p.name)).map(p => (
+                              <option key={p.name} value={p.name}>{p.name}</option>
                             ))}
                           </select>
                         </div>
                       )}
 
-                      {/* Actions */}
-                      <div className="flex gap-2 justify-end pt-1">
-                        <button
-                          onClick={() => { setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition(""); setNewColLeadField("") }}
-                          className="px-2.5 py-1 text-xs rounded-md hover:bg-muted transition-colors"
-                        >
-                          Cancel
-                        </button>
+                      {(newColType === "enrichment" || newColType === "waterfall") && (
+                        <select value={newColTargetField} onChange={e => setNewColTargetField(e.target.value)}
+                          className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                          <option value="">Target field (writes to Lead)...</option>
+                          {["email","phone","website","contact_person","contact_title","linkedin_url","twitter_url","facebook_url","description","company_size","decision_makers","hiring_signals"].map(f => (
+                            <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
+                          ))}
+                        </select>
+                      )}
+
+                      {newColType !== "lead_field" && (
+                        <input value={newColCondition} onChange={e => setNewColCondition(e.target.value)}
+                          placeholder='Run if: {email} == "" AND {website} != ""'
+                          className="w-full px-2.5 py-1 rounded-md border bg-background text-[10px] font-mono" />
+                      )}
+
+                      <div className="flex gap-2 justify-end pt-0.5">
+                        <button onClick={() => { setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition(""); setNewColLeadField("") }}
+                          className="px-2.5 py-1 text-xs rounded-md hover:bg-muted">Cancel</button>
                         <button
                           onClick={() => {
                             if (!newColName.trim()) return
                             const colId = newColName.toLowerCase().replace(/\s+/g, "_")
-                            const newCol: any = {
-                              id: colId,
-                              name: newColName.trim(),
-                              type: newColType,
-                              width: newColType === "ai_formula" ? 300 : 200,
-                            }
-                            if (newColType === "lead_field" && newColLeadField) {
-                              newCol.lead_field = newColLeadField
-                            }
-                            if (newColType === "enrichment" && newColProvider) {
-                              newCol.provider = newColProvider
-                            }
-                            if (newColType === "waterfall" && newColWaterfall.length > 0) {
-                              newCol.waterfall = newColWaterfall
-                            }
-                            if ((newColType === "enrichment" || newColType === "waterfall") && newColTargetField) {
-                              newCol.target_field = newColTargetField
-                            }
-                            if (newColType === "ai_formula" && newColPrompt.trim()) {
-                              newCol.prompt = newColPrompt.trim()
-                            }
-                            if (newColCondition.trim()) {
-                              newCol.condition = newColCondition.trim()
-                            }
-                            updateWb.mutate({
-                              id: workbook.id,
-                              columns_config: [...columns, newCol] as any,
-                            })
-                            setShowColPicker(false)
-                            setNewColName("")
-                            setNewColPrompt("")
-                            setNewColCondition("")
-                            setNewColLeadField("")
-                            setNewColType("lead_field")
-                            setNewColProvider("")
-                            setNewColWaterfall([])
-                            setNewColTargetField("")
+                            const newCol: any = { id: colId, name: newColName.trim(), type: newColType, width: newColType === "ai_formula" ? 300 : 200 }
+                            if (newColType === "lead_field" && newColLeadField) newCol.lead_field = newColLeadField
+                            if (newColType === "enrichment" && newColProvider) newCol.provider = newColProvider
+                            if (newColType === "waterfall" && newColWaterfall.length > 0) newCol.waterfall = newColWaterfall
+                            if ((newColType === "enrichment" || newColType === "waterfall") && newColTargetField) newCol.target_field = newColTargetField
+                            if (newColType === "ai_formula" && newColPrompt.trim()) newCol.prompt = newColPrompt.trim()
+                            if (newColCondition.trim()) newCol.condition = newColCondition.trim()
+                            updateWb.mutate({ id: workbook!.id, columns_config: [...columns, newCol] as any })
+                            setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition("")
+                            setNewColLeadField(""); setNewColType("lead_field"); setNewColProvider(""); setNewColWaterfall([]); setNewColTargetField("")
                           }}
                           disabled={!newColName.trim()}
-                          className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
-                        >
-                          Add Column
-                        </button>
+                          className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                        >Add Column</button>
                       </div>
                     </div>
                   )}
@@ -1191,7 +1189,7 @@ export default function WorkbookEditorPage() {
               return (
                 <tr
                   key={row.id}
-                  className="group hover:bg-muted/30 transition-colors"
+                  className="group row-stagger"
                 >
                   {row.getVisibleCells().map(cell => {
                     const colConfig = columns.find(c => c.id === cell.column.id)

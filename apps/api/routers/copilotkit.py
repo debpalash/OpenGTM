@@ -714,7 +714,6 @@ async def _execute_tool(name: str, args: dict) -> str:
             return json.dumps(result)
 
         elif name == "create_workbook":
-            import uuid
             description = args["description"]
             wb_name = args.get("name", f"Workbook — {description[:40]}")
 

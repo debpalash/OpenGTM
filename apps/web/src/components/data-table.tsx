@@ -136,7 +136,7 @@ export function DataTable<TData, TValue>({
   const selectedCount = table.getFilteredSelectedRowModel().rows.length
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2 h-full">
       {/* Toolbar */}
       <div className="flex items-center gap-2">
         {searchKey && (
@@ -190,8 +190,7 @@ export function DataTable<TData, TValue>({
       {/* Table */}
       <div
         ref={tableContainerRef}
-        className="rounded-md border overflow-auto"
-        style={enableVirtualization ? { maxHeight: "calc(100vh - 280px)" } : undefined}
+        className="flex-1 min-h-0 rounded-md border overflow-auto"
       >
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-background">
@@ -265,7 +264,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between shrink-0 py-1">
         <div className="text-xs text-muted-foreground">
           {selectedCount > 0 && (
             <>{selectedCount} of{" "}</>

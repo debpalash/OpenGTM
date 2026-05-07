@@ -148,6 +148,12 @@ def _init_providers():
     except Exception as e:
         logger.warning(f"Failed to register lead_scorer: {e}")
 
+    try:
+        from apps.api.services.leadgen.enrichment.providers.tech_stack_provider import TechStackProvider
+        register_provider(TechStackProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register tech_stack: {e}")
+
     logger.info(f"Provider registry initialized: {len(_registry)} providers loaded")
 
 
