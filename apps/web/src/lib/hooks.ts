@@ -8,6 +8,7 @@ import {
   fetchConversations, fetchConversationMessages,
   fetchAnalyticsOverview, fetchAnalyticsPipeline,
   fetchAnalyticsCollection, fetchAnalyticsEnrichment, fetchAnalyticsLLM,
+  importDataCollector,
   type Lead, type Job,
 } from "./api"
 
@@ -98,6 +99,19 @@ export function useCollect() {
       submitCollect(query, workspace_id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.jobs.all })
+    },
+  })
+}
+
+export function useImportDataCollector() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ module, limit }: { module?: string; limit?: number } = {}) =>
+      importDataCollector(module || "all", limit),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.leads.all })
+      qc.invalidateQueries({ queryKey: queryKeys.stats.all })
+      qc.invalidateQueries({ queryKey: queryKeys.filters })
     },
   })
 }

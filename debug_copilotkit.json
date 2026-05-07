@@ -1,0 +1,413 @@
+{
+  "model": "gemini-2.5-flash",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are Yupcha Sales AI, an expert B2B sales intelligence assistant for Yupcha.\n\n## Your Ideal Customer Profile (ICP)\n**Value Proposition:** Yupcha Superadmin Console \u2014 Unified multi-database CRM for candidate tracking, attendance, client management, and automated reporting\n**Target Industries:** HR Services, IT Staffing, Recruitment, Workforce Solutions, Payroll, Recruitment Process Outsourcing, Contract Staffing, Executive Search\n**Target Cities:** Bangalore, Mumbai, Delhi, Hyderabad, Pune, Chennai, Noida, Gurgaon\n**Preferred Size:** 10+ employees\n**Preferred Specializations:** IT Staffing, Workforce Management, Recruitment Process Outsourcing, HR SaaS, Staffing & Payroll\n\n## Current Pipeline Stats\n**Total Leads:** 646913\n**By Tier:** Hot: 21, Warm: 97, Cold: 142, Unqualified: 646653\n\n## Your Capabilities\nYou have powerful tools to interact with the lead database. Use them proactively:\n- **search_leads** \u2014 Find leads by name, city, status, industry\n- **get_lead_detail** \u2014 Get full profile with decision makers, enrichment data\n- **get_lead_stats** \u2014 Pipeline overview and metrics\n- **update_lead_status** \u2014 Move leads through the pipeline\n- **start_collection** \u2014 Trigger new lead collection from 6 sources\n- **enrich_lead** \u2014 Trigger on-demand enrichment (website scrape + contact discovery)\n- **find_similar_leads** \u2014 Find leads similar to a given company\n- **get_enrichment_gaps** \u2014 Show leads missing email/phone/linkedin\n- **suggest_outreach** \u2014 Generate personalized outreach messages\n- **compare_leads** \u2014 Side-by-side comparison of leads\n- **ambitionbox_search** \u2014 Search AmbitionBox for Indian companies with ratings, reviews, employee counts, industry data. Use for market research, competitor analysis, finding hiring companies\n- **ambitionbox_jobs** \u2014 Get current job listings for a company from AmbitionBox (requires company_id from ambitionbox_search)\n\n## Response Guidelines\n- Use **markdown formatting**: tables for data, bold for metrics, bullet lists for recommendations\n- When showing leads, format as a table with company, city, score, tier, contact info\n- Be **actionable**: don't just show data, suggest specific next steps\n- When asked to find/collect leads, use start_collection tool\n- Keep responses concise but data-rich\n- Score context: Hot (75-100), Warm (50-74), Cold (25-49), Unqualified (0-24)\n"
+    },
+    {
+      "role": "user",
+      "content": "Find 50 IT staffing companies in Bangalore"
+    },
+    {
+      "role": "assistant",
+      "tool_calls": [
+        {
+          "id": "function-call-1910459046684443463",
+          "type": "function",
+          "function": {
+            "name": "start_collection",
+            "arguments": "{\"query\":\"IT staffing companies in Bangalore\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "function-call-1910459046684443463",
+      "content": "{\"ok\": true, \"job_id\": \"73f863db\", \"query\": \"IT staffing companies in Bangalore\", \"message\": \"Collection started with 6 strategies: Maps, Web, Directories, LinkedIn, Job Boards, Review Sites\"}"
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "search_leads",
+        "description": "Search for leads in the database by company name, city, status, tier, or any keyword. Returns matching leads with contact info and scores.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Search query (company name, keyword, industry)"
+            },
+            "city": {
+              "type": "string",
+              "description": "Filter by city"
+            },
+            "status": {
+              "type": "string",
+              "description": "Filter by status: new, contacted, qualified, dead"
+            },
+            "score_tier": {
+              "type": "string",
+              "description": "Filter by tier: hot, warm, cold, unqualified"
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Max results to return",
+              "default": 10
+            }
+          },
+          "required": [
+            "query"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "get_lead_detail",
+        "description": "Get complete detailed profile of a specific lead by ID, including decision makers, enrichment data, all contact info, and company details",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "lead_id": {
+              "type": "integer",
+              "description": "The lead ID"
+            }
+          },
+          "required": [
+            "lead_id"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "get_lead_stats",
+        "description": "Get comprehensive pipeline statistics: total leads, breakdown by tier/status/city/source, enrichment coverage",
+        "parameters": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "update_lead_status",
+        "description": "Update the status of a lead by ID",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "lead_id": {
+              "type": "integer",
+              "description": "The lead ID"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "new",
+                "contacted",
+                "qualified",
+                "negotiating",
+                "converted",
+                "dead"
+              ]
+            },
+            "note": {
+              "type": "string",
+              "description": "Optional note about the status change"
+            }
+          },
+          "required": [
+            "lead_id",
+            "status"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "start_collection",
+        "description": "Start collecting new leads for a search query. Runs 6 strategies in parallel: Maps, Web, Directories, LinkedIn, Job Boards, Review Sites. Example: 'IT staffing companies in Pune'",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "The lead collection query"
+            }
+          },
+          "required": [
+            "query"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "enrich_lead",
+        "description": "Trigger on-demand enrichment for a specific lead: scrape their website for contact info, find social profiles",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "lead_id": {
+              "type": "integer",
+              "description": "The lead ID to enrich"
+            }
+          },
+          "required": [
+            "lead_id"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "find_similar_leads",
+        "description": "Find leads similar to a given lead by matching industry/specialization and city",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "lead_id": {
+              "type": "integer",
+              "description": "The reference lead ID"
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Max similar leads to return",
+              "default": 10
+            }
+          },
+          "required": [
+            "lead_id"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "get_enrichment_gaps",
+        "description": "Show leads that are missing key data: email, phone, LinkedIn, or decision makers. Helps prioritize enrichment.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "missing_field": {
+              "type": "string",
+              "enum": [
+                "email",
+                "phone",
+                "linkedin",
+                "decision_makers",
+                "any"
+              ],
+              "description": "Which field is missing"
+            },
+            "min_score": {
+              "type": "integer",
+              "description": "Only show leads with score >= this",
+              "default": 30
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Max results",
+              "default": 15
+            }
+          },
+          "required": [
+            "missing_field"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "suggest_outreach",
+        "description": "Generate a personalized cold outreach message (email or LinkedIn) for a specific lead",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "lead_id": {
+              "type": "integer",
+              "description": "The lead ID"
+            },
+            "channel": {
+              "type": "string",
+              "enum": [
+                "email",
+                "linkedin"
+              ],
+              "description": "Outreach channel",
+              "default": "email"
+            }
+          },
+          "required": [
+            "lead_id"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "compare_leads",
+        "description": "Compare 2-3 leads side-by-side with scoring breakdown, data completeness, and recommendation",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "lead_ids": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "description": "List of 2-3 lead IDs to compare"
+            }
+          },
+          "required": [
+            "lead_ids"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "ambitionbox_search",
+        "description": "Search AmbitionBox for Indian companies with ratings, reviews, employee counts, industry, and job data. Use for company research, market analysis, competitor intel. Supports filters: industry, location, rating.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "industry": {
+              "type": "string",
+              "description": "Industry filter, e.g. 'IT Services & Consulting', 'Banking', 'BPO'"
+            },
+            "location": {
+              "type": "string",
+              "description": "City filter, e.g. 'Bangalore/Bengaluru', 'Mumbai', 'Pune'"
+            },
+            "sort_by": {
+              "type": "string",
+              "enum": [
+                "popular",
+                "rating",
+                "reviews"
+              ],
+              "description": "Sort order",
+              "default": "popular"
+            },
+            "page": {
+              "type": "integer",
+              "description": "Page number (1-indexed)",
+              "default": 1
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Results per page (max 20)",
+              "default": 10
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "ambitionbox_jobs",
+        "description": "Get current job listings for a specific company from AmbitionBox. Includes job titles, skills, experience, locations.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "company_id": {
+              "type": "integer",
+              "description": "AmbitionBox company ID (get from ambitionbox_search results)"
+            },
+            "page": {
+              "type": "integer",
+              "description": "Page number",
+              "default": 1
+            }
+          },
+          "required": [
+            "company_id"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "create_workbook",
+        "description": "Create a new workbook from a natural language description. Auto-generates columns based on the user's intent. Example: 'Find SaaS CTOs in SF with email and LinkedIn' \u2192 workbook with company, contact, email, linkedin, title columns.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Natural language description of what the workbook should do"
+            },
+            "name": {
+              "type": "string",
+              "description": "Name for the workbook"
+            }
+          },
+          "required": [
+            "description"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "add_workbook_column",
+        "description": "Add a new column to an existing workbook. Supports enrichment columns (email finder, phone validator, etc.) and computed columns.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "workbook_id": {
+              "type": "string",
+              "description": "The workbook UUID"
+            },
+            "column_name": {
+              "type": "string",
+              "description": "Display name for the column"
+            },
+            "column_type": {
+              "type": "string",
+              "enum": [
+                "text",
+                "email",
+                "phone",
+                "url",
+                "number",
+                "enrichment"
+              ],
+              "description": "Column data type"
+            },
+            "provider": {
+              "type": "string",
+              "description": "For enrichment columns: provider name (hunter_io, apollo_io, etc.)"
+            }
+          },
+          "required": [
+            "workbook_id",
+            "column_name",
+            "column_type"
+          ]
+        }
+      }
+    }
+  ],
+  "stream": true,
+  "temperature": 0.7
+}

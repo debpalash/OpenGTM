@@ -31,6 +31,7 @@
     ]
   },
   "scripts": {
+    "dev": "echo 'n8n-nodes-yupcha — no dev server'",
     "build": "tsc && gulp build:icons",
     "lint": "eslint nodes credentials --ext .ts",
     "prepublishOnly": "npm run build"
