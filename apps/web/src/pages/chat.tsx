@@ -11,14 +11,10 @@ import { useConversationMessages } from "@/lib/hooks"
 import { streamChat, type ChatMessage } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { TaskDetailCard } from "@/components/task-detail-card"
-import { MarkdownContent } from "@/components/markdown-content"
+import { HybridMessage } from "@/components/openui-renderer"
 import { toast } from "sonner"
 
-// ── Markdown Renderer (thin wrapper) ──────────────────────────────
 
-function MarkdownMessage({ content }: { content: string }) {
-  return <MarkdownContent content={content} />
-}
 
 // ── Tool Result Card ──────────────────────────────────────────────
 
@@ -239,6 +235,7 @@ export default function ChatPage() {
         if (event.confirmation_required) {
           setConfirmations(prev => [...prev, event.confirmation_required as ConfirmationInfo])
         }
+        if (event.warning) toast.warning(event.warning)
         if (event.error) toast.error(event.error)
       })
 
@@ -343,7 +340,7 @@ export default function ChatPage() {
    return (
     <div className="h-full min-h-0 relative bg-background w-full overflow-hidden flex flex-col">
       <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth" ref={scrollRef}>
-        <div className="max-w-3xl mx-auto pb-36 pt-6 px-4">
+        <div className="max-w-4xl mx-auto pb-36 pt-6 px-4">
 
           {/* ── Landing ── */}
           {!activeConvId && displayMessages.length === 0 && (
@@ -503,7 +500,7 @@ export default function ChatPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-[15px] leading-relaxed">
-                          <MarkdownMessage content={msg.content || ""} />
+                          <HybridMessage content={msg.content || ""} />
                         </div>
                         {!isLoading && isServerMsg && (
                           <ActionBar>
@@ -547,7 +544,7 @@ export default function ChatPage() {
                 )}
                 {streamingContent && (
                   <div className="text-[15px] leading-relaxed">
-                    <MarkdownMessage content={streamingContent} />
+                    <HybridMessage content={streamingContent} isStreaming={true} />
                     <span className="inline-block w-[3px] h-[18px] ml-0.5 bg-primary/50 animate-pulse align-middle rounded-full" />
                   </div>
                 )}
@@ -588,7 +585,7 @@ export default function ChatPage() {
 
       {/* ── Input Area ── */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background from-60% to-transparent pointer-events-none">
-        <div className="max-w-3xl mx-auto px-4 pb-4 pt-8 pointer-events-auto">
+        <div className="max-w-4xl mx-auto px-4 pb-4 pt-8 pointer-events-auto">
           <div className="relative flex items-end w-full bg-muted/30 backdrop-blur-sm border border-border/40 rounded-[24px] focus-within:ring-2 focus-within:ring-primary/15 focus-within:border-primary/20 focus-within:bg-background/80 transition-all duration-300 shadow-lg shadow-black/[0.03]">
             <Textarea
               ref={inputRef}

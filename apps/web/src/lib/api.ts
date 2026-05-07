@@ -310,6 +310,7 @@ export interface ChatStreamEvent {
     level: "high" | "medium" | "low"
     label: string
   }
+  warning?: string
   error?: string
 }
 

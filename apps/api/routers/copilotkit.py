@@ -159,6 +159,15 @@ def list_memories():
 
 def _build_system_prompt() -> str:
     """Build a dynamic system prompt with ICP and live pipeline stats."""
+    
+    # Load OpenUI Lang spec
+    openui_spec = ""
+    try:
+        with open("data/openui_system_prompt.txt", "r") as f:
+            openui_spec = f.read()
+    except Exception:
+        pass
+
     try:
         from apps.api.services.leadgen.config import ICP
         icp_text = (
@@ -209,12 +218,19 @@ You have powerful tools to interact with the lead database. Use them proactively
 - **ambitionbox_jobs** — Get current job listings for a company from AmbitionBox (requires company_id from ambitionbox_search)
 
 ## Response Guidelines
-- Use **markdown formatting**: tables for data, bold for metrics, bullet lists for recommendations
-- When showing leads, format as a table with company, city, score, tier, contact info
+- For conversational text, explanations, or simple answers, respond in plain markdown.
+- Only use OpenUI Lang when displaying structured data (leads, stats, comparisons).
 - Be **actionable**: don't just show data, suggest specific next steps
 - When asked to find/collect leads, use start_collection tool
 - Keep responses concise but data-rich
 - Score context: Hot (75-100), Warm (50-74), Cold (25-49), Unqualified (0-24)
+
+## OpenUI UI Generation (STRICT SYNTAX REQUIRED)
+You MUST use the custom OpenUI Lang syntax below when generating structured UI. 
+**NEVER use XML, HTML, or JSON for the UI.** Do not use `<vertical_sequence>`, `<card>`, or any angle brackets.
+You must use exact assignment syntax like `root = Root([chart1, chart2])` and `chart1 = SimplePieChart(...)`.
+
+{openui_spec}
 """
 
 
@@ -923,9 +939,8 @@ async def _stream_chat(
                         remaining = fallback_providers[1:]
                         next_name = next_prov.get("name", next_prov.get("id", "?"))
 
-                        nl = "\n"
-                        msg = f"{nl}{nl}> ⚡ *{provider_name} rate limited — switching to {next_name}...*{nl}{nl}"
-                        yield f'data: {json.dumps({"content": msg})}\n\n'
+                        msg = f"⚡ {provider_name} rate limited — switching to {next_name}..."
+                        yield f'data: {json.dumps({"warning": msg})}\n\n'
 
                         async for chunk in _stream_chat(messages, tools, next_prov, remaining):
                             yield chunk
@@ -945,9 +960,8 @@ async def _stream_chat(
                         remaining = fallback_providers[1:]
                         next_name = next_prov.get("name", next_prov.get("id", "?"))
 
-                        nl = "\n"
-                        msg = f"{nl}{nl}> ⚡ *{provider_name} is down — switching to {next_name}...*{nl}{nl}"
-                        yield f'data: {json.dumps({"content": msg})}\n\n'
+                        msg = f"⚡ {provider_name} error — switching to {next_name}..."
+                        yield f'data: {json.dumps({"warning": msg})}\n\n'
 
                         async for chunk in _stream_chat(messages, tools, next_prov, remaining):
                             yield chunk
