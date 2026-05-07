@@ -8,7 +8,7 @@ Uses the same data/ directory as LeadDB.
 import sqlite3
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 
@@ -65,7 +65,7 @@ def create_conversation(title: str = "New Chat") -> dict:
             (conv_id, title),
         )
         conn.commit()
-        return {"id": conv_id, "title": title, "created_at": datetime.utcnow().isoformat(), "updated_at": datetime.utcnow().isoformat()}
+        return {"id": conv_id, "title": title, "created_at": datetime.now(timezone.utc).isoformat(), "updated_at": datetime.now(timezone.utc).isoformat()}
     finally:
         conn.close()
 

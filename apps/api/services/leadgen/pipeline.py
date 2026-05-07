@@ -3,7 +3,7 @@ Pipeline Orchestrator — End-to-end lead generation pipeline.
 Coordinates: SCRAPE → DEDUPE → ENRICH → SCORE → STORE → REPORT
 """
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 from thefuzz import fuzz
 from apps.api.services.leadgen.models import Lead
@@ -110,7 +110,7 @@ async def run_enrichment(db, limit=None):
         leads = find_social_profiles(leads)
     except Exception as e:
         print(f"  ⚠ Social enrichment: {e}")
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     for lead in leads:
         if lead.id:
             db.update_lead_fields(lead.id, {

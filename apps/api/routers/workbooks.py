@@ -9,7 +9,7 @@ Key principles:
   5. CSV import creates new leads in the DB
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 import json
 import logging
@@ -205,7 +205,7 @@ async def create_workbook_from_jobs(body: CreateFromJobsRequest, db: Session = D
         existing_job_ids.update(body.job_ids)
         fc["job_ids"] = sorted(existing_job_ids)
         wb.filter_criteria = fc
-        wb.updated_at = datetime.utcnow()
+        wb.updated_at = datetime.now(timezone.utc)
         db.commit()
         db.refresh(wb)
     else:
@@ -382,7 +382,7 @@ async def update_lead_field(workbook_id: str, lead_id: int, body: dict):
         values = list(updates.values()) + [lead_id]
         lead_db.conn.execute(
             f"UPDATE leads SET {set_clause}, updated_at = ? WHERE id = ?",
-            list(updates.values()) + [datetime.utcnow().isoformat(), lead_id],
+            list(updates.values()) + [datetime.now(timezone.utc).isoformat(), lead_id],
         )
         lead_db.conn.commit()
         return {"status": "updated", "lead_id": lead_id, "fields": list(updates.keys())}
@@ -501,7 +501,7 @@ async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Se
 
     # Update workbook status
     wb.status = "running"
-    wb.last_run_at = datetime.utcnow()
+    wb.last_run_at = datetime.now(timezone.utc)
     db.commit()
 
     total_jobs = len(leads) * len(enrichment_cols)

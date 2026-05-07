@@ -33,7 +33,7 @@ export function CollectPanel({ onCollected }: { onCollected?: () => void }) {
     const interval = setInterval(() => {
       loadJobs()
       loadSystem()
-    }, 5000)
+    }, 15000)
     return () => clearInterval(interval)
   }, [loadJobs, loadSystem])
 

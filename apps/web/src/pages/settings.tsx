@@ -188,6 +188,7 @@ export default function SettingsPage() {
         <TabsList>
           <TabsTrigger value="providers">AI Providers</TabsTrigger>
           <TabsTrigger value="enrichment">Enrichment</TabsTrigger>
+          <TabsTrigger value="email">Email</TabsTrigger>
           <TabsTrigger value="agents">Agents</TabsTrigger>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
@@ -283,21 +284,31 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="email" className="mt-4 space-y-4">
+          <SMTPConfigTab />
+        </TabsContent>
+
         <TabsContent value="integrations" className="mt-4 space-y-4">
           <div>
             <h3 className="text-sm font-medium">Integrations</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Connect email, CRM, and messaging platforms.
+              Connect CRM and messaging platforms.
             </p>
           </div>
           <Separator />
           <Card>
-            <CardContent className="pt-6">
-              <Badge variant="secondary">Coming soon</Badge>
-              <p className="text-sm text-muted-foreground mt-2">
-                SMTP, SendGrid, HubSpot, Salesforce, Slack integrations.
-              </p>
-            </CardContent>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Globe className="size-4" />
+                  HubSpot CRM
+                </CardTitle>
+                <Badge variant="secondary" className="text-xs">Coming soon</Badge>
+              </div>
+              <CardDescription className="text-xs">
+                Push leads to HubSpot as contacts. Bidirectional sync with field mapping.
+              </CardDescription>
+            </CardHeader>
           </Card>
         </TabsContent>
       </Tabs>
@@ -430,5 +441,180 @@ function EnrichmentProviderCard({ provider, onSaved }: { provider: EnrichmentPro
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+// ── SMTP Config Tab ──────────────────────────────────────────────
+
+function SMTPConfigTab() {
+  const [host, setHost] = useState("")
+  const [port, setPort] = useState("587")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [fromName, setFromName] = useState("Yupcha")
+  const [maxPerHour, setMaxPerHour] = useState("50")
+  const [saving, setSaving] = useState(false)
+  const [testing, setTesting] = useState(false)
+  const [testEmail, setTestEmail] = useState("")
+  const [configured, setConfigured] = useState(false)
+
+  useEffect(() => {
+    fetch("/api/outreach/smtp/status")
+      .then(r => r.json())
+      .then(data => {
+        setConfigured(data.configured)
+        if (data.host) setHost(data.host)
+        if (data.email) setEmail(data.email)
+        if (data.from_name) setFromName(data.from_name)
+        if (data.max_per_hour) setMaxPerHour(String(data.max_per_hour))
+      })
+      .catch(() => {})
+  }, [])
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      await fetch("/api/outreach/smtp/config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          smtp_host: host,
+          smtp_port: parseInt(port),
+          smtp_email: email,
+          ...(password && { smtp_password: password }),
+          smtp_from_name: fromName,
+          smtp_max_per_hour: parseInt(maxPerHour),
+        }),
+      })
+      toast.success("SMTP configuration saved")
+      setPassword("")
+      setConfigured(true)
+    } catch {
+      toast.error("Failed to save SMTP config")
+    }
+    setSaving(false)
+  }
+
+  const handleTest = async () => {
+    if (!testEmail) { toast.error("Enter test email address"); return }
+    setTesting(true)
+    try {
+      const res = await fetch("/api/outreach/smtp/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to_email: testEmail }),
+      })
+      if (res.ok) {
+        toast.success(`Test email sent to ${testEmail}`)
+      } else {
+        const data = await res.json()
+        toast.error(data.detail || "Test failed")
+      }
+    } catch {
+      toast.error("Test failed")
+    }
+    setTesting(false)
+  }
+
+  return (
+    <>
+      <div>
+        <h3 className="text-sm font-medium">SMTP Configuration</h3>
+        <p className="text-xs text-muted-foreground mt-1">
+          Configure your email server for outreach sequences. Works with Gmail, SendGrid, Mailgun, or any SMTP provider.
+        </p>
+      </div>
+      <Separator />
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">SMTP Host</Label>
+              <Input
+                placeholder="smtp.gmail.com"
+                value={host}
+                onChange={(e) => setHost(e.target.value)}
+                className="text-xs"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Port</Label>
+              <Input
+                placeholder="587"
+                value={port}
+                onChange={(e) => setPort(e.target.value)}
+                className="text-xs"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Email Address</Label>
+              <Input
+                placeholder="you@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="text-xs"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Password / App Password</Label>
+              <Input
+                type="password"
+                placeholder={configured ? "••••••••" : "Enter password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="text-xs font-mono"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">From Name</Label>
+              <Input
+                placeholder="Yupcha"
+                value={fromName}
+                onChange={(e) => setFromName(e.target.value)}
+                className="text-xs"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Max Emails/Hour</Label>
+              <Input
+                type="number"
+                placeholder="50"
+                value={maxPerHour}
+                onChange={(e) => setMaxPerHour(e.target.value)}
+                className="text-xs"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={handleSave} disabled={saving || !host || !email}>
+              {saving ? <Loader2 className="size-3 animate-spin mr-1" /> : null}
+              Save
+            </Button>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-2">
+            <Label className="text-xs">Test Email</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder="test@example.com"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                className="text-xs max-w-xs"
+              />
+              <Button size="sm" variant="outline" onClick={handleTest} disabled={testing || !configured}>
+                {testing ? <Loader2 className="size-3 animate-spin mr-1" /> : <Mail className="size-3 mr-1" />}
+                Send Test
+              </Button>
+            </div>
+            {!configured && (
+              <p className="text-[11px] text-muted-foreground">Save SMTP config first to send test emails.</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </>
   )
 }

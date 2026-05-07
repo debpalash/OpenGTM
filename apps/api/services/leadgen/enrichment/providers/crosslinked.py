@@ -106,19 +106,35 @@ def _extract_linkedin_url(href: str) -> str:
 
 
 async def _ddg_linkedin_search(query: str, max_results: int = 10) -> list:
-    """Search DDG for LinkedIn profiles."""
+    """Search DDG for LinkedIn profiles with retry + proxy rotation."""
     from ddgs import DDGS
-    from apps.api.services.leadgen.proxy_client import get_ddgs
+    from apps.api.services.leadgen.proxy_client import get_proxy
 
-    def _search():
-        with get_ddgs() as ddgs:
-            return list(ddgs.text(query, max_results=max_results))
+    MAX_ATTEMPTS = 3
 
-    try:
-        return await asyncio.to_thread(_search)
-    except Exception as e:
-        logger.warning(f"DDG search failed: {e}")
-        return []
+    for attempt in range(MAX_ATTEMPTS):
+        # Attempt 0: use proxy client (may or may not have proxy)
+        # Attempt 1: use a fresh proxy
+        # Attempt 2: direct connection (no proxy)
+        proxy = None
+        if attempt < MAX_ATTEMPTS - 1:
+            proxy = get_proxy()
+        
+        def _search():
+            ddgs = DDGS(proxy=proxy) if proxy else DDGS()
+            with ddgs:
+                return list(ddgs.text(query, max_results=max_results))
+
+        try:
+            return await asyncio.to_thread(_search)
+        except Exception as e:
+            is_connect_error = "ConnectError" in str(type(e).__name__) or "ConnectError" in str(e)
+            if is_connect_error and attempt < MAX_ATTEMPTS - 1:
+                logger.debug(f"DDG search attempt {attempt + 1} failed (ConnectError), retrying...")
+                await asyncio.sleep(0.5 * (attempt + 1))
+                continue
+            logger.warning(f"DDG search failed after {attempt + 1} attempts: {e}")
+            return []
 
 
 class CrossLinkedProvider(EnrichmentProvider):

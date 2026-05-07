@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 from apps.api.database import get_db
 from apps.api.models import User
 from apps.api.schemas.auth import Token
@@ -30,7 +30,7 @@ async def login_for_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     # Update last_login
-    user.last_login = datetime.utcnow()
+    user.last_login = datetime.now(timezone.utc)
     db.commit()
     return {"access_token": access_token, "token_type": "bearer"}
 

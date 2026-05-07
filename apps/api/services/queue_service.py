@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import traceback
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional, Callable, Awaitable
 
 from sqlalchemy import select, update, or_
@@ -33,8 +33,8 @@ class QueueService:
             payload=payload,
             priority=priority,
             status="pending",
-            created_at=datetime.utcnow(),
-            next_run_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            next_run_at=datetime.now(timezone.utc),
             max_retries=3,
         )
         db.add(job)
@@ -58,7 +58,7 @@ class QueueService:
                         job.error = "Recovered from crash"
                         # Increment retry count to avoid infinite crash loops
                         job.retry_count = (job.retry_count or 0) + 1
-                        job.next_run_at = datetime.utcnow() + timedelta(minutes=1)
+                        job.next_run_at = datetime.now(timezone.utc) + timedelta(minutes=1)
                     db.commit()
         except Exception as e:
             logger.error(f"Failed to recover jobs: {e}")
@@ -97,7 +97,7 @@ class QueueService:
                         .filter(
                             Job.status == "pending",
                             or_(
-                                Job.next_run_at <= datetime.utcnow(),
+                                Job.next_run_at <= datetime.now(timezone.utc),
                                 Job.next_run_at == None,
                             ),
                         )
@@ -108,8 +108,8 @@ class QueueService:
                     if job:
                         # Mark as processing
                         job.status = "processing"
-                        job.started_at = datetime.utcnow()
-                        job.last_heartbeat = datetime.utcnow()
+                        job.started_at = datetime.now(timezone.utc)
+                        job.last_heartbeat = datetime.now(timezone.utc)
                         db.commit()
 
                         job_id = job.id
@@ -163,7 +163,7 @@ class QueueService:
                             job.retry_count = (job.retry_count or 0) + 1
                             # Exponential Backoff: 1min, 2min, 4min...
                             backoff_minutes = 2 ** (job.retry_count - 1)
-                            job.next_run_at = datetime.utcnow() + timedelta(
+                            job.next_run_at = datetime.now(timezone.utc) + timedelta(
                                 minutes=backoff_minutes
                             )
                             job.error = f"Retry {job.retry_count}: {error}"
@@ -172,11 +172,11 @@ class QueueService:
                             )
                         else:
                             job.status = "failed"
-                            job.completed_at = datetime.utcnow()
+                            job.completed_at = datetime.now(timezone.utc)
                             job.error = f"Final Failure: {error}"
                     else:
                         job.status = "completed"
-                        job.completed_at = datetime.utcnow()
+                        job.completed_at = datetime.now(timezone.utc)
                         job.error = None
 
                     db.commit()
@@ -190,7 +190,7 @@ class QueueService:
                 with SessionLocal() as db:
                     job = db.query(Job).filter(Job.id == job_id).first()
                     if job and job.status == "processing":
-                        job.last_heartbeat = datetime.utcnow()
+                        job.last_heartbeat = datetime.now(timezone.utc)
                         db.commit()
             except asyncio.CancelledError:
                 break
@@ -205,7 +205,7 @@ class QueueService:
                 with SessionLocal() as db:
                     # Find jobs processing > 5 mins ago with no heartbeat update
                     # Assuming heartbeat is every 30s. Allow 5 mins grace.
-                    threshold = datetime.utcnow() - timedelta(minutes=5)
+                    threshold = datetime.now(timezone.utc) - timedelta(minutes=5)
                     dead_jobs = (
                         db.query(Job)
                         .filter(
@@ -229,7 +229,7 @@ class QueueService:
                         # Actually we should increment retry here to avoid loops
                         job.retry_count = (job.retry_count or 0) + 1
                         job.error = "Heartbeat Timeout"
-                        job.next_run_at = datetime.utcnow() + timedelta(minutes=1)
+                        job.next_run_at = datetime.now(timezone.utc) + timedelta(minutes=1)
 
                     if dead_jobs:
                         db.commit()

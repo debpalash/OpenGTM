@@ -2,3 +2,6 @@
 	path = packages/proxy-manager
 	url = git@github.com:debpalash/proxy-manager.git
 	ignore = dirty
+[submodule "data_collector"]
+	path = data_collector
+	url = https://github.com/ai-v99/data_collector.git

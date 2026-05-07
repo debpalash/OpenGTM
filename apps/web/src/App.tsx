@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom"
+import { useState, useRef, useEffect } from "react"
 import { Toaster } from "sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import {
@@ -10,7 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
-  Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2,
+  Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2, X, Activity,
 } from "lucide-react"
 import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
@@ -25,11 +26,13 @@ import SearchPage from "@/pages/search"
 import AgentsPage from "@/pages/agents"
 import TaskDetailPage from "@/pages/task-detail"
 import CampaignsPage from "@/pages/campaigns"
+import OutreachPage from "@/pages/outreach"
 import SourcesPage from "@/pages/sources"
 import SettingsPage from "@/pages/settings"
 import AnalyticsPage from "@/pages/analytics"
 import WorkbooksPage from "@/pages/workbooks"
 import WorkbookEditorPage from "@/pages/workbook-editor"
+import SignalsPage from "@/pages/signals"
 
 const NAV_ITEMS = [
   { to: "/chat",       icon: MessageSquare, label: "Chat" },
@@ -37,7 +40,8 @@ const NAV_ITEMS = [
   { to: "/workbooks",  icon: Table2,        label: "Workbooks" },
   { to: "/search",     icon: Search,        label: "Search" },
   { to: "/agents",     icon: Bot,           label: "Tasks" },
-  { to: "/campaigns",  icon: Send,          label: "Campaigns" },
+  { to: "/outreach",   icon: Send,          label: "Outreach" },
+  { to: "/signals",    icon: Activity,      label: "Signals" },
   { to: "/sources",    icon: Database,      label: "Sources" },
   { to: "/analytics",  icon: BarChart3,     label: "Analytics" },
 ]
@@ -51,6 +55,17 @@ function AppSidebar() {
   const { data: jobs } = useJobs()
   const { data: conversations } = useConversations()
   const activeJobs = jobs?.filter(j => j.status === "running" || j.status === "pending").length ?? 0
+  const [chatSearch, setChatSearch] = useState("")
+  const [isSearching, setIsSearching] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  const filteredConversations = conversations?.filter(c =>
+    !chatSearch || c.title.toLowerCase().includes(chatSearch.toLowerCase())
+  )
+
+  useEffect(() => {
+    if (isSearching) searchInputRef.current?.focus()
+  }, [isSearching])
 
   const handleNewChat = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -121,18 +136,53 @@ function AppSidebar() {
         {/* Chat History Group */}
         <SidebarGroup className="pt-2">
           <SidebarGroupLabel className="flex justify-between items-center group/label">
-            Recent Chats
-            <button
-              onClick={handleNewChat}
-              className="opacity-0 group-hover/label:opacity-100 hover:text-foreground transition-opacity"
-              title="New Chat"
-            >
-              <Plus className="size-4" />
-            </button>
+            {isSearching ? (
+              <input
+                ref={searchInputRef}
+                value={chatSearch}
+                onChange={(e) => setChatSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    setChatSearch("")
+                    setIsSearching(false)
+                  }
+                }}
+                placeholder="Search chats…"
+                onBlur={() => { setChatSearch(""); setIsSearching(false) }}
+                className="bg-transparent border-none outline-none text-xs text-sidebar-foreground placeholder:text-muted-foreground w-full"
+              />
+            ) : (
+              <span>Recent Chats</span>
+            )}
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={() => {
+                  if (isSearching) {
+                    setChatSearch("")
+                    setIsSearching(false)
+                  } else {
+                    setIsSearching(true)
+                  }
+                }}
+                className={`hover:text-foreground transition-opacity ${
+                  isSearching ? "opacity-100" : "opacity-0 group-hover/label:opacity-100"
+                }`}
+                title={isSearching ? "Close search" : "Search chats"}
+              >
+                {isSearching ? <X className="size-3.5" /> : <Search className="size-3.5" />}
+              </button>
+              <button
+                onClick={handleNewChat}
+                className="opacity-0 group-hover/label:opacity-100 hover:text-foreground transition-opacity"
+                title="New Chat"
+              >
+                <Plus className="size-4" />
+              </button>
+            </div>
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {conversations?.map((conv) => (
+              {filteredConversations?.map((conv) => (
                 <SidebarMenuItem key={conv.id}>
                   <SidebarMenuButton
                     isActive={location.pathname === "/chat" && activeChatId === conv.id}
@@ -237,6 +287,8 @@ function AppContent() {
     if (location.pathname.startsWith("/workbooks")) return "Workbooks"
     if (location.pathname.startsWith("/search")) return "Search"
     if (location.pathname.startsWith("/agents")) return "Tasks"
+    if (location.pathname.startsWith("/outreach")) return "Outreach"
+    if (location.pathname.startsWith("/signals")) return "Signals"
     if (location.pathname.startsWith("/campaigns")) return "Campaigns"
     if (location.pathname.startsWith("/sources")) return "Sources"
     if (location.pathname.startsWith("/analytics")) return "Analytics"
@@ -257,6 +309,8 @@ function AppContent() {
           <Route path="/search/*" element={<SearchPage />} />
           <Route path="/agents/:jobId" element={<TaskDetailPage />} />
           <Route path="/agents" element={<AgentsPage />} />
+          <Route path="/outreach/*" element={<OutreachPage />} />
+          <Route path="/signals/*" element={<SignalsPage />} />
           <Route path="/campaigns/*" element={<CampaignsPage />} />
           <Route path="/sources/*" element={<SourcesPage />} />
           <Route path="/analytics/*" element={<AnalyticsPage />} />

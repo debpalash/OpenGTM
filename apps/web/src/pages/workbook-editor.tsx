@@ -16,7 +16,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   useWorkbook, useUpdateWorkbook, useUpdateLeadField,
   useImportLeads, useRunWorkbook, useStopWorkbook,
-  useDeleteLeads, useWorkbookSocket,
+  useDeleteLeads, useWorkbookSocket, useProviders,
 } from "@/lib/workbook-hooks"
 import type { WorkbookLeadRow, ColumnConfig, EnrichmentOverlay } from "@/lib/workbook-api"
 import {
@@ -24,10 +24,19 @@ import {
   Sparkles, Type, Layers, Brain, GitBranch, Send,
   Loader2, Check, X, AlertCircle, Clock, MoreHorizontal,
   FileSpreadsheet, ExternalLink, Filter, Search, Trash2, Copy,
-  ArrowUpDown, ArrowUp, ArrowDown, EyeOff, Pencil,
+  ArrowUpDown, ArrowUp, ArrowDown, EyeOff, Eye, Pencil, Settings, GripVertical,
+  ChevronDown, ChevronRight, Zap, Columns3,
 } from "lucide-react"
 import { toast } from "sonner"
 import Papa from "papaparse"
+import {
+  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core"
+import {
+  SortableContext, horizontalListSortingStrategy, useSortable,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 
 // ── Column Type Metadata ─────────────────────────────────────────────────
 
@@ -200,6 +209,43 @@ function TypedCellValue({ value, fieldName }: { value: string; fieldName: string
   return null // fallback to default EditableCell display
 }
 
+// ── Sortable Column Header (DnD wrapper) ─────────────────────────────────
+
+function SortableColumnHeader({ id, w, className, children, ...rest }: {
+  id: string; w: number; className?: string; children: React.ReactNode;
+  [key: string]: any;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    width: w,
+    maxWidth: w,
+  }
+
+  return (
+    <th
+      ref={setNodeRef}
+      style={style}
+      className={className}
+      {...attributes}
+      {...listeners}
+      {...rest}
+    >
+      {children}
+    </th>
+  )
+}
+
 // ── Main Editor Page ─────────────────────────────────────────────────────
 
 export default function WorkbookEditorPage() {
@@ -214,6 +260,7 @@ export default function WorkbookEditorPage() {
   const stopMut = useStopWorkbook(id!)
   const deleteMut = useDeleteLeads(id!)
   const { connected } = useWorkbookSocket(id)
+  const { data: providersData } = useProviders()
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showColPicker, setShowColPicker] = useState(false)
@@ -227,6 +274,15 @@ export default function WorkbookEditorPage() {
   const [globalFilter, setGlobalFilter] = useState("")
   const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(new Set())
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; colId: string } | null>(null)
+  const [configPanelColId, setConfigPanelColId] = useState<string | null>(null)
+  const [renamingColId, setRenamingColId] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState("")
+  const [newColProvider, setNewColProvider] = useState("")
+  const [newColWaterfall, setNewColWaterfall] = useState<string[]>([])
+  const [newColTargetField, setNewColTargetField] = useState("")
+  const [showColumnVisibility, setShowColumnVisibility] = useState(false)
+  const availableProviders = providersData?.providers ?? []
+
 
   // Column resize state — uses a ref to avoid re-rendering entire table on drag
   const columnWidthsRef = useRef<Record<string, number>>({})
@@ -236,6 +292,27 @@ export default function WorkbookEditorPage() {
   const workbook = data?.workbook
   const rows = data?.rows ?? []
   const columns = workbook?.columns_config ?? []
+
+  // ── DnD sensors for column reorder ──
+  const dndSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor),
+  )
+
+  const handleColumnDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = columns.findIndex(c => c.id === active.id)
+    const newIndex = columns.findIndex(c => c.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    const reordered = [...columns]
+    const [moved] = reordered.splice(oldIndex, 1)
+    reordered.splice(newIndex, 0, moved)
+
+    updateWb.mutate({ id: workbook!.id, columns_config: reordered as any })
+  }, [columns, updateWb, workbook])
 
   // Initialize column widths from config (once)
   useEffect(() => {
@@ -361,6 +438,7 @@ export default function WorkbookEditorPage() {
                   setCtxMenu({ x: e.clientX, y: e.clientY, colId: col.id })
                 }}
               >
+                <GripVertical className="size-3 text-muted-foreground/20 shrink-0 opacity-0 group-hover/th:opacity-100 transition-opacity cursor-grab active:cursor-grabbing" />
                 <Icon className={`size-3 ${meta.color} shrink-0`} />
                 <span className="truncate text-xs font-medium flex-1">{col.name}</span>
                 {sort === "asc" && <ArrowUp className="size-3 text-primary shrink-0" />}
@@ -508,6 +586,32 @@ export default function WorkbookEditorPage() {
     setHiddenColumns(prev => new Set([...prev, colId]))
     setCtxMenu(null)
   }, [])
+
+  const handleRenameColumn = useCallback((colId: string) => {
+    const col = columns.find(c => c.id === colId)
+    if (!col) return
+    setRenamingColId(colId)
+    setRenameValue(col.name)
+    setCtxMenu(null)
+  }, [columns])
+
+  const handleRenameSubmit = useCallback(() => {
+    if (!renamingColId || !renameValue.trim()) return
+    const updated = columns.map(c =>
+      c.id === renamingColId ? { ...c, name: renameValue.trim() } : c
+    )
+    updateWb.mutate({ id: workbook!.id, columns_config: updated as any })
+    setRenamingColId(null)
+    setRenameValue("")
+  }, [renamingColId, renameValue, columns, updateWb, workbook])
+
+  const handleRunSingleColumn = useCallback((colId: string) => {
+    runMut.mutate({ column_ids: [colId] }, {
+      onSuccess: (data) => toast.success(data.message),
+      onError: () => toast.error("Failed to start enrichment"),
+    })
+    setCtxMenu(null)
+  }, [runMut])
 
   // Close context menu on click outside
   useEffect(() => {
@@ -678,16 +782,49 @@ export default function WorkbookEditorPage() {
           )}
         </div>
 
-        {/* Hidden columns pills */}
+        {/* Column Visibility Toggle */}
         {hiddenColumns.size > 0 && (
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] text-muted-foreground">{hiddenColumns.size} hidden</span>
+          <div className="relative">
             <button
-              onClick={() => setHiddenColumns(new Set())}
-              className="text-[10px] text-primary hover:underline"
+              onClick={() => setShowColumnVisibility(!showColumnVisibility)}
+              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] text-muted-foreground hover:bg-muted transition-colors"
             >
-              Show all
+              <Columns3 className="size-3" />
+              {hiddenColumns.size} hidden
+              <ChevronDown className="size-2.5" />
             </button>
+            {showColumnVisibility && (
+              <div className="absolute right-0 top-7 z-50 w-52 rounded-lg border bg-card shadow-xl py-1 animate-in fade-in zoom-in-95 duration-150">
+                <div className="px-3 py-1.5 text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Hidden Columns</div>
+                {[...hiddenColumns].map(colId => {
+                  const col = columns.find(c => c.id === colId)
+                  if (!col) return null
+                  return (
+                    <button
+                      key={colId}
+                      onClick={() => {
+                        setHiddenColumns(prev => {
+                          const next = new Set(prev)
+                          next.delete(colId)
+                          return next
+                        })
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+                    >
+                      <Eye className="size-3 text-muted-foreground" />
+                      <span className="truncate">{col.name}</span>
+                    </button>
+                  )
+                })}
+                <div className="h-px bg-border mx-2 my-1" />
+                <button
+                  onClick={() => { setHiddenColumns(new Set()); setShowColumnVisibility(false) }}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-primary hover:bg-muted transition-colors"
+                >
+                  <Eye className="size-3" /> Show All
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -747,32 +884,46 @@ export default function WorkbookEditorPage() {
       </div>
 
       {/* ── Table ───────────────────────────────────────────────────────── */}
+      <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleColumnDragEnd}>
+        <SortableContext
+          items={columns.filter(c => !hiddenColumns.has(c.id)).map(c => c.id)}
+          strategy={horizontalListSortingStrategy}
+        >
       <div ref={tableContainerRef} className="flex-1 overflow-auto pl-2">
         <table className="border-collapse text-sm" style={{ tableLayout: "fixed", minWidth: "100%" }}>
           <thead className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm">
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => {
+                {headerGroup.headers.filter(h => h.id === "_select" || h.id === "_index").map(header => {
                   const colConfig = columns.find(c => c.id === header.id)
-                  const w = header.id === "_index" ? 50 : getColWidth(header.id, colConfig?.width || 180)
+                  const w = header.id === "_index" ? 50 : (header.id === "_select" ? 36 : getColWidth(header.id, colConfig?.width || 180))
                   return (
-                  <th
-                    key={header.id}
-                    data-col-id={header.id}
-                    className="text-left font-normal border-b border-r last:border-r-0 h-8 whitespace-nowrap overflow-hidden relative group/th"
-                    style={{ width: w, maxWidth: w }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                    {/* Resize handle */}
-                    {header.id !== "_index" && (
+                    <th key={header.id} data-col-id={header.id}
+                      className="text-left font-normal border-b border-r h-8 whitespace-nowrap overflow-hidden relative"
+                      style={{ width: w, maxWidth: w }}>
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  )
+                })}
+                {headerGroup.headers.filter(h => h.id !== "_select" && h.id !== "_index").map(header => {
+                  const colConfig = columns.find(c => c.id === header.id)
+                  const w = getColWidth(header.id, colConfig?.width || 180)
+                  return (
+                    <SortableColumnHeader
+                      key={header.id}
+                      id={header.id}
+                      w={w}
+                      data-col-id={header.id}
+                      className="text-left font-normal border-b border-r last:border-r-0 h-8 whitespace-nowrap overflow-hidden relative group/th"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                       <div
-                        onMouseDown={(e) => handleResizeStart(header.id, e)}
-                        className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/40 active:bg-primary/60 transition-colors"
+                        onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(header.id, e) }}
+                        className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/40 active:bg-primary/60 transition-colors z-[5]"
                       />
-                    )}
-                  </th>
+                    </SortableColumnHeader>
                   )
                 })}
                 {/* Add Column Button + Picker */}
@@ -862,13 +1013,98 @@ export default function WorkbookEditorPage() {
                       {/* Condition (for enrichment/waterfall/ai) */}
                       {newColType !== "lead_field" && (
                         <div className="space-y-1.5">
-                          <label className="text-[11px] text-muted-foreground">Only Run If (optional)</label>
+                          <label className="text-[10px] text-muted-foreground">Only Run If (optional)</label>
                           <input
                             value={newColCondition}
                             onChange={e => setNewColCondition(e.target.value)}
                             placeholder='{email} == "" AND {website} != ""'
                             className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
                           />
+                        </div>
+                      )}
+
+                      {/* Provider Selector (for enrichment type) */}
+                      {newColType === "enrichment" && (
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] text-muted-foreground">Provider</label>
+                          <select
+                            value={newColProvider}
+                            onChange={e => setNewColProvider(e.target.value)}
+                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                          >
+                            <option value="">Select provider...</option>
+                            {availableProviders.map(p => (
+                              <option key={p.name} value={p.name}>
+                                {p.name} ({p.capabilities.join(", ")})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Waterfall Chain Builder (for waterfall type) */}
+                      {newColType === "waterfall" && (
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] text-muted-foreground">
+                            Provider Chain (first match wins)
+                          </label>
+                          {/* Selected providers */}
+                          <div className="space-y-1">
+                            {newColWaterfall.map((pName, i) => (
+                              <div key={pName} className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/50 text-xs">
+                                <span className="text-[10px] text-muted-foreground tabular-nums w-4">{i + 1}.</span>
+                                <span className="flex-1 truncate">{pName}</span>
+                                <button
+                                  onClick={() => setNewColWaterfall(prev => prev.filter((_, j) => j !== i))}
+                                  className="p-0.5 rounded hover:bg-destructive/10 hover:text-destructive"
+                                >
+                                  <X className="size-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          {/* Add provider */}
+                          <select
+                            value=""
+                            onChange={e => {
+                              if (e.target.value && !newColWaterfall.includes(e.target.value)) {
+                                setNewColWaterfall(prev => [...prev, e.target.value])
+                              }
+                            }}
+                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
+                          >
+                            <option value="">+ Add provider...</option>
+                            {availableProviders
+                              .filter(p => !newColWaterfall.includes(p.name))
+                              .map(p => (
+                                <option key={p.name} value={p.name}>
+                                  {p.name} ({p.capabilities.join(", ")})
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Target Field (for enrichment/waterfall — which Lead field to write to) */}
+                      {(newColType === "enrichment" || newColType === "waterfall") && (
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] text-muted-foreground">
+                            Target Lead Field
+                            <span className="text-muted-foreground/50 ml-1">(writes result back to Lead)</span>
+                          </label>
+                          <select
+                            value={newColTargetField}
+                            onChange={e => setNewColTargetField(e.target.value)}
+                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                          >
+                            <option value="">Same as column name</option>
+                            {["email", "phone", "website", "contact_person", "contact_title",
+                              "linkedin_url", "twitter_url", "facebook_url",
+                              "description", "company_size", "industry_tags",
+                              "decision_makers", "hiring_signals"].map(f => (
+                              <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
+                            ))}
+                          </select>
                         </div>
                       )}
 
@@ -893,6 +1129,15 @@ export default function WorkbookEditorPage() {
                             if (newColType === "lead_field" && newColLeadField) {
                               newCol.lead_field = newColLeadField
                             }
+                            if (newColType === "enrichment" && newColProvider) {
+                              newCol.provider = newColProvider
+                            }
+                            if (newColType === "waterfall" && newColWaterfall.length > 0) {
+                              newCol.waterfall = newColWaterfall
+                            }
+                            if ((newColType === "enrichment" || newColType === "waterfall") && newColTargetField) {
+                              newCol.target_field = newColTargetField
+                            }
                             if (newColType === "ai_formula" && newColPrompt.trim()) {
                               newCol.prompt = newColPrompt.trim()
                             }
@@ -909,6 +1154,9 @@ export default function WorkbookEditorPage() {
                             setNewColCondition("")
                             setNewColLeadField("")
                             setNewColType("lead_field")
+                            setNewColProvider("")
+                            setNewColWaterfall([])
+                            setNewColTargetField("")
                           }}
                           disabled={!newColName.trim()}
                           className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
@@ -987,19 +1235,35 @@ export default function WorkbookEditorPage() {
           </div>
         )}
       </div>
+        </SortableContext>
+      </DndContext>
 
       {/* ── Column Context Menu ─────────────────────────────────────── */}
       {ctxMenu && (() => {
         const col = columns.find(c => c.id === ctxMenu.colId)
         if (!col) return null
         const tableCol = table.getColumn(ctxMenu.colId)
+        const isEnrichable = ["enrichment", "waterfall", "ai_formula"].includes(col.type)
         return (
           <div
-            className="fixed z-[100] min-w-[160px] rounded-lg border bg-card shadow-xl py-1 animate-in fade-in zoom-in-95 duration-150"
+            className="fixed z-[100] min-w-[180px] rounded-lg border bg-card shadow-xl py-1 animate-in fade-in zoom-in-95 duration-150"
             style={{ left: ctxMenu.x, top: ctxMenu.y }}
             onClick={e => e.stopPropagation()}
           >
             <div className="px-3 py-1.5 text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{col.name}</div>
+            <button
+              onClick={() => handleRenameColumn(ctxMenu.colId)}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+            >
+              <Pencil className="size-3.5" /> Rename
+            </button>
+            <button
+              onClick={() => { setConfigPanelColId(ctxMenu.colId); setCtxMenu(null) }}
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+            >
+              <Settings className="size-3.5" /> Configure
+            </button>
+            <div className="h-px bg-border mx-2 my-1" />
             <button
               onClick={() => { tableCol?.toggleSorting(false); setCtxMenu(null) }}
               className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-muted transition-colors"
@@ -1012,6 +1276,17 @@ export default function WorkbookEditorPage() {
             >
               <ArrowDown className="size-3.5" /> Sort Descending
             </button>
+            {isEnrichable && (
+              <>
+                <div className="h-px bg-border mx-2 my-1" />
+                <button
+                  onClick={() => handleRunSingleColumn(ctxMenu.colId)}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-blue-400 hover:bg-blue-500/10 transition-colors"
+                >
+                  <Zap className="size-3.5" /> Run This Column
+                </button>
+              </>
+            )}
             <div className="h-px bg-border mx-2 my-1" />
             <button
               onClick={() => handleHideColumn(ctxMenu.colId)}
@@ -1026,6 +1301,247 @@ export default function WorkbookEditorPage() {
             >
               <Trash2 className="size-3.5" /> Delete Column
             </button>
+          </div>
+        )
+      })()}
+
+      {/* ── Inline Rename Overlay ────────────────────────────────────── */}
+      {renamingColId && (() => {
+        const col = columns.find(c => c.id === renamingColId)
+        if (!col) return null
+        return (
+          <div className="fixed inset-0 z-[200] flex items-start justify-center pt-32 bg-black/30 backdrop-blur-sm"
+            onClick={() => { setRenamingColId(null); setRenameValue("") }}>
+            <div className="w-72 rounded-xl border bg-card shadow-2xl p-4 space-y-3 animate-in fade-in zoom-in-95 duration-200"
+              onClick={e => e.stopPropagation()}>
+              <div className="text-xs font-medium text-muted-foreground">Rename Column</div>
+              <input
+                autoFocus
+                value={renameValue}
+                onChange={e => setRenameValue(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") handleRenameSubmit(); if (e.key === "Escape") { setRenamingColId(null); setRenameValue("") } }}
+                className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+              />
+              <div className="flex gap-2 justify-end">
+                <button onClick={() => { setRenamingColId(null); setRenameValue("") }}
+                  className="px-2.5 py-1 text-xs rounded-md hover:bg-muted">Cancel</button>
+                <button onClick={handleRenameSubmit} disabled={!renameValue.trim()}
+                  className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50">Rename</button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* ── Column Config Side Panel ─────────────────────────────────── */}
+      {configPanelColId && (() => {
+        const col = columns.find(c => c.id === configPanelColId)
+        if (!col) return null
+        const meta = COL_TYPE_META[col.type] || COL_TYPE_META.lead_field
+        const Icon = meta.icon
+
+        const updateCol = (updates: Partial<typeof col>) => {
+          const updated = columns.map(c =>
+            c.id === configPanelColId ? { ...c, ...updates } : c
+          )
+          updateWb.mutate({ id: workbook!.id, columns_config: updated as any })
+        }
+
+        return (
+          <div className="fixed top-0 right-0 bottom-0 z-[150] w-80 border-l bg-card shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <div className="flex items-center gap-2">
+                <Icon className={`size-4 ${meta.color}`} />
+                <span className="text-sm font-semibold truncate">{col.name}</span>
+              </div>
+              <button onClick={() => setConfigPanelColId(null)}
+                className="p-1 rounded hover:bg-muted"><X className="size-4" /></button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {/* Type badge */}
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${meta.color} bg-muted/50`}>
+                  <Icon className="size-3" /> {meta.label}
+                </span>
+                <span className="text-[10px] text-muted-foreground">ID: {col.id}</span>
+              </div>
+
+              {/* Column Name */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-muted-foreground font-medium">Column Name</label>
+                <input
+                  defaultValue={col.name}
+                  onBlur={e => { if (e.target.value.trim() && e.target.value !== col.name) updateCol({ name: e.target.value.trim() }) }}
+                  className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                />
+              </div>
+
+              {/* Lead Field mapping */}
+              {(col.type === "lead_field" || col.type === "input") && (
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-muted-foreground font-medium">Mapped Lead Field</label>
+                  <select
+                    defaultValue={col.lead_field || ""}
+                    onChange={e => updateCol({ lead_field: e.target.value })}
+                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                  >
+                    <option value="">None</option>
+                    {["company", "website", "email", "phone", "contact_person", "contact_title",
+                      "city", "state", "specialization", "company_size", "description",
+                      "linkedin_url", "twitter_url", "facebook_url", "score", "score_tier",
+                      "status", "source", "notes"].map(f => (
+                      <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Provider (enrichment) */}
+              {col.type === "enrichment" && (
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-muted-foreground font-medium">Provider</label>
+                  <select
+                    defaultValue={col.provider || ""}
+                    onChange={e => updateCol({ provider: e.target.value })}
+                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                  >
+                    <option value="">Select provider...</option>
+                    {availableProviders.map(p => (
+                      <option key={p.name} value={p.name}>{p.name} ({p.capabilities.join(", ")})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Waterfall chain (waterfall) */}
+              {col.type === "waterfall" && (
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-muted-foreground font-medium">
+                    Provider Chain <span className="text-muted-foreground/50">(first match wins)</span>
+                  </label>
+                  <div className="space-y-1">
+                    {(col.waterfall || []).map((pName: string, i: number) => (
+                      <div key={pName} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-muted/50 text-xs">
+                        <GripVertical className="size-3 text-muted-foreground/40 shrink-0" />
+                        <span className="text-[10px] text-muted-foreground tabular-nums w-4">{i + 1}.</span>
+                        <span className="flex-1 truncate">{pName}</span>
+                        <button
+                          onClick={() => {
+                            const chain = [...(col.waterfall || [])]
+                            chain.splice(i, 1)
+                            updateCol({ waterfall: chain })
+                          }}
+                          className="p-0.5 rounded hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <select
+                    value=""
+                    onChange={e => {
+                      if (e.target.value) {
+                        updateCol({ waterfall: [...(col.waterfall || []), e.target.value] })
+                      }
+                    }}
+                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
+                  >
+                    <option value="">+ Add provider...</option>
+                    {availableProviders
+                      .filter(p => !(col.waterfall || []).includes(p.name))
+                      .map(p => (
+                        <option key={p.name} value={p.name}>{p.name} ({p.capabilities.join(", ")})</option>
+                      ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Target field (enrichment/waterfall) */}
+              {(col.type === "enrichment" || col.type === "waterfall") && (
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-muted-foreground font-medium">Target Lead Field</label>
+                  <select
+                    defaultValue={col.target_field || ""}
+                    onChange={e => updateCol({ target_field: e.target.value || undefined })}
+                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                  >
+                    <option value="">Same as column name</option>
+                    {["email", "phone", "website", "contact_person", "contact_title",
+                      "linkedin_url", "twitter_url", "facebook_url",
+                      "description", "company_size", "industry_tags",
+                      "decision_makers", "hiring_signals"].map(f => (
+                      <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* AI Prompt (ai_formula) */}
+              {col.type === "ai_formula" && (
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-muted-foreground font-medium">
+                    AI Prompt <span className="text-muted-foreground/50">— use {"{column}"} placeholders</span>
+                  </label>
+                  <textarea
+                    defaultValue={col.prompt || ""}
+                    onBlur={e => updateCol({ prompt: e.target.value })}
+                    placeholder="Summarize what {company} does based on {website}"
+                    rows={4}
+                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 resize-none font-mono text-xs"
+                  />
+                </div>
+              )}
+
+              {/* Condition (all non-lead_field) */}
+              {col.type !== "lead_field" && col.type !== "input" && (
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-muted-foreground font-medium">Only Run If</label>
+                  <input
+                    defaultValue={col.condition || ""}
+                    onBlur={e => updateCol({ condition: e.target.value || undefined })}
+                    placeholder='{email} == "" AND {website} != ""'
+                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
+                  />
+                  <p className="text-[10px] text-muted-foreground/50">
+                    Leave empty to always run. Supports ==, !=, &gt;, &lt;, AND, OR.
+                  </p>
+                </div>
+              )}
+
+              {/* Column Width */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-muted-foreground font-medium">Width (px)</label>
+                <input
+                  type="number"
+                  defaultValue={col.width || 200}
+                  min={80} max={600}
+                  onBlur={e => { const w = parseInt(e.target.value); if (w >= 80 && w <= 600) updateCol({ width: w }) }}
+                  className="w-24 px-2.5 py-1.5 rounded-md border bg-background text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-primary/50"
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-4 py-3 border-t flex items-center justify-between">
+              <button
+                onClick={() => handleDeleteColumn(configPanelColId)}
+                className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <Trash2 className="size-3" /> Delete
+              </button>
+              {["enrichment", "waterfall", "ai_formula"].includes(col.type) && (
+                <button
+                  onClick={() => { handleRunSingleColumn(configPanelColId); setConfigPanelColId(null) }}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                  <Zap className="size-3" /> Run Column
+                </button>
+              )}
+            </div>
           </div>
         )
       })()}

@@ -94,6 +94,18 @@ app.include_router(copilotkit_router)
 app.include_router(campaigns_router)
 app.include_router(workbooks_router)
 
+# Include Routers — Outreach
+from apps.api.routers.outreach import router as outreach_router
+app.include_router(outreach_router)
+
+# Include Routers — CRM
+from apps.api.routers.hubspot import router as hubspot_router
+app.include_router(hubspot_router)
+
+# Include Routers — Signals
+from apps.api.routers.signals import router as signals_router
+app.include_router(signals_router)
+
 # Include Routers — Data Sources
 from apps.api.routers.ambitionbox import router as ambitionbox_router
 app.include_router(ambitionbox_router)

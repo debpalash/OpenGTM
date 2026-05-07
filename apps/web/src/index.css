@@ -48,7 +48,7 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* ── shadcn neutral defaults ── */
+/* ── shadcn neutral defaults (light mode — unchanged) ── */
 :root {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -84,38 +84,64 @@
     --sidebar-ring: oklch(0.708 0 0);
 }
 
+/*
+ * ── PRO DARK THEME ──
+ * Intentional dimming + luminance hierarchy for extended viewing.
+ *
+ * Design principles:
+ *   • Nothing is ever pure white — max text luminance is 0.88 (soft white)
+ *   • Surface elevation via subtle luminance steps (0.07 → 0.09 → 0.11 → 0.13)
+ *   • Muted text at 0.52 — visible but recessive, never competing with content
+ *   • Borders at 0.20 — structural without visual noise
+ *   • Inspired by Linear, Raycast, Bloomberg Terminal
+ */
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(0.269 0 0);
-    --input: oklch(0.269 0 0);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.17 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.205 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.556 0 0);
+    /* ─ Surfaces ─ */
+    --background: oklch(0.09 0 0);           /* Deep near-black base                */
+    --foreground: oklch(0.88 0 0);           /* Soft white — never glaring           */
+    --card: oklch(0.11 0 0);                 /* Slightly elevated surface            */
+    --card-foreground: oklch(0.88 0 0);
+    --popover: oklch(0.13 0 0);              /* Floating panels — highest elevation  */
+    --popover-foreground: oklch(0.90 0 0);   /* Slightly brighter for focus context  */
+
+    /* ─ Primary action ─ */
+    --primary: oklch(0.88 0 0);              /* Matches text — clean, no contrast jump */
+    --primary-foreground: oklch(0.12 0 0);   /* Dark text on primary buttons           */
+
+    /* ─ Secondary / muted ─ */
+    --secondary: oklch(0.16 0 0);            /* Subtle surface for chips, tags         */
+    --secondary-foreground: oklch(0.82 0 0);
+    --muted: oklch(0.16 0 0);
+    --muted-foreground: oklch(0.52 0 0);     /* Intentionally dim — metadata, hints    */
+
+    /* ─ Accent ─ */
+    --accent: oklch(0.16 0 0);
+    --accent-foreground: oklch(0.82 0 0);
+
+    /* ─ Destructive ─ */
+    --destructive: oklch(0.65 0.20 25);      /* Slightly muted red — less alarming     */
+
+    /* ─ Chrome ─ */
+    --border: oklch(0.20 0 0);               /* Dim borders — structural, not loud     */
+    --input: oklch(0.16 0 0);                /* Input bg slightly lifted               */
+    --ring: oklch(0.40 0 0);                 /* Focus ring — visible but calm          */
+
+    /* ─ Charts — pro-grade teal/amber palette ─ */
+    --chart-1: oklch(0.55 0.18 250);         /* Teal-blue                              */
+    --chart-2: oklch(0.62 0.14 170);         /* Seafoam                                */
+    --chart-3: oklch(0.72 0.16 80);          /* Warm amber                             */
+    --chart-4: oklch(0.58 0.22 290);         /* Violet                                 */
+    --chart-5: oklch(0.60 0.20 20);          /* Coral                                  */
+
+    /* ─ Sidebar — recessed panel effect ─ */
+    --sidebar: oklch(0.07 0 0);              /* Darker than main content               */
+    --sidebar-foreground: oklch(0.78 0 0);   /* Dimmer text — secondary reading zone   */
+    --sidebar-primary: oklch(0.88 0 0);
+    --sidebar-primary-foreground: oklch(0.12 0 0);
+    --sidebar-accent: oklch(0.14 0 0);       /* Hover/active state                     */
+    --sidebar-accent-foreground: oklch(0.88 0 0);
+    --sidebar-border: oklch(0.16 0 0);       /* Barely-there dividers                  */
+    --sidebar-ring: oklch(0.40 0 0);
 }
 
 @layer base {
@@ -128,4 +154,36 @@
   html {
     @apply font-sans;
   }
+}
+
+/* ── Pro typography dimming layers ──
+ * Utility classes for manual luminance control in components.
+ * Use when the default foreground/muted hierarchy isn't enough.
+ */
+@layer utilities {
+  .text-dim-1 { color: oklch(0.88 0 0); }  /* Primary content       */
+  .text-dim-2 { color: oklch(0.72 0 0); }  /* Secondary labels      */
+  .text-dim-3 { color: oklch(0.52 0 0); }  /* Tertiary / metadata   */
+  .text-dim-4 { color: oklch(0.36 0 0); }  /* Ghost / watermarks    */
+}
+
+/* ── Scrollbar — blends into dark theme ── */
+.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: oklch(0.22 0 0);
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.30 0 0);
+}
+
+/* ── Smooth transitions on theme-driven colors ── */
+.dark * {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }

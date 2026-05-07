@@ -4,7 +4,7 @@ Provides REST + WebSocket endpoints for LinkedIn profile enrichment.
 """
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, Query
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 from pydantic import BaseModel
 
@@ -105,7 +105,7 @@ async def websocket_person_enrich(websocket: WebSocket, token: str = Query(None)
                 skills=profile.skills,
                 raw_sources=profile.raw_sources,
                 status=profile.status,
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             )
             db.add(record)
             db.commit()
@@ -170,7 +170,7 @@ async def enrich_person(
             skills=profile.skills,
             raw_sources=profile.raw_sources,
             status=profile.status,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
         db.add(record)
         db.commit()

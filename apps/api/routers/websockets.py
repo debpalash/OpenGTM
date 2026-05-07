@@ -62,7 +62,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         else:
                             # Restart logic
                             existing.status = "Pending"
-                            existing.created_at = datetime.datetime.utcnow().isoformat()
+                            existing.created_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
                             db.commit()
                             task_id = existing.id
                             queue_service.add_job(
@@ -83,7 +83,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     new_link = Link(
                         url=url,
                         status="Pending",
-                        created_at=datetime.datetime.utcnow().isoformat(),
+                        created_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                     )
                     db.add(new_link)
                     db.commit()

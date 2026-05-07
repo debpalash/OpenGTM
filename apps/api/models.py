@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, JSON
-from datetime import datetime
+from datetime import datetime, timezone
 from apps.api.database import Base
 
 
@@ -14,7 +14,7 @@ class User(Base):
     role = Column(String, default="user")  # 'admin', 'editor', 'user', 'viewer'
     profile_image = Column(String, nullable=True)
     last_login = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class Link(Base):
@@ -22,7 +22,7 @@ class Link(Base):
     id = Column(Integer, primary_key=True, index=True)
     url = Column(String, unique=True, index=True)
     status = Column(String, default="Pending")  # Pending, Processing, Completed, Failed
-    created_at = Column(String, default=datetime.utcnow().isoformat)
+    created_at = Column(String, default=lambda: datetime.now(timezone.utc).isoformat())
     source = Column(String, nullable=True)  # Added source column for tracking
     updated_at = Column(String, nullable=True)  # Added updated_at
 
@@ -34,7 +34,7 @@ class Job(Base):
     payload = Column(JSON)
     status = Column(String, default="pending", index=True)
     priority = Column(Integer, default=1)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     started_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
     error = Column(String, nullable=True)
@@ -43,7 +43,7 @@ class Job(Base):
     max_retries = Column(Integer, default=3)
     last_heartbeat = Column(DateTime, nullable=True)
     worker_id = Column(String, nullable=True)
-    next_run_at = Column(DateTime, default=datetime.utcnow)
+    next_run_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class ScrapeHistory(Base):
@@ -66,7 +66,7 @@ class EmailData(Base):
     name = Column(String)
     email = Column(String)
     source_link_id = Column(Integer)
-    created_at = Column(String, default=datetime.utcnow().isoformat)
+    created_at = Column(String, default=lambda: datetime.now(timezone.utc).isoformat())
     is_used = Column(Boolean, default=False)
     # CRM Fields
     tags = Column(String, nullable=True)  # Comma-separated tags
@@ -91,5 +91,5 @@ class PersonIntel(Base):
     skills = Column(JSON, default=list)
     raw_sources = Column(JSON, default=list)
     status = Column(String, default="pending")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, nullable=True)

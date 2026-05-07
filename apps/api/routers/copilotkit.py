@@ -400,10 +400,42 @@ def _build_tools():
                 },
             },
         },
+        {
+            "type": "function",
+            "function": {
+                "name": "create_workbook",
+                "description": "Create a new workbook from a natural language description. Auto-generates columns based on the user's intent. Example: 'Find SaaS CTOs in SF with email and LinkedIn' → workbook with company, contact, email, linkedin, title columns.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "description": {"type": "string", "description": "Natural language description of what the workbook should do"},
+                        "name": {"type": "string", "description": "Name for the workbook"},
+                    },
+                    "required": ["description"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "add_workbook_column",
+                "description": "Add a new column to an existing workbook. Supports enrichment columns (email finder, phone validator, etc.) and computed columns.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "workbook_id": {"type": "string", "description": "The workbook UUID"},
+                        "column_name": {"type": "string", "description": "Display name for the column"},
+                        "column_type": {"type": "string", "enum": ["text", "email", "phone", "url", "number", "enrichment"], "description": "Column data type"},
+                        "provider": {"type": "string", "description": "For enrichment columns: provider name (hunter_io, apollo_io, etc.)"},
+                    },
+                    "required": ["workbook_id", "column_name", "column_type"],
+                },
+            },
+        },
     ]
 
 
-def _execute_tool(name: str, args: dict) -> str:
+async def _execute_tool(name: str, args: dict) -> str:
     """Execute a backend tool and return the result as a string."""
     db = LeadDB()
     try:
@@ -502,11 +534,11 @@ def _execute_tool(name: str, args: dict) -> str:
 
             # Save enriched data
             if enriched_fields:
-                from datetime import datetime
+                from datetime import datetime, timezone
                 db.update_lead_fields(lead.id, {
                     "email": lead.email, "phone": lead.phone,
                     "linkedin_url": lead.linkedin_url, "description": lead.description,
-                    "last_enriched_at": datetime.utcnow().isoformat(),
+                    "last_enriched_at": datetime.now(timezone.utc).isoformat(),
                 })
 
             return json.dumps({
@@ -657,45 +689,118 @@ def _execute_tool(name: str, args: dict) -> str:
             return json.dumps({"comparison": leads_data, "count": len(leads_data)})
 
         elif name == "ambitionbox_search":
-            # Run async AmbitionBox search in a new event loop
             from apps.api.services.leadgen.ambitionbox import ambitionbox
-            import asyncio as _aio
 
             industry = [args["industry"]] if args.get("industry") else None
             location = [args["location"]] if args.get("location") else None
 
-            loop = _aio.new_event_loop()
-            try:
-                result = loop.run_until_complete(
-                    ambitionbox.search_companies(
+            result = await ambitionbox.search_companies(
                         page=args.get("page", 1),
                         limit=args.get("limit", 10),
                         sort_by=args.get("sort_by", "popular"),
                         industry=industry,
                         location=location,
                     )
-                )
-            finally:
-                loop.close()
 
             return json.dumps(result)
 
         elif name == "ambitionbox_jobs":
             from apps.api.services.leadgen.ambitionbox import ambitionbox
-            import asyncio as _aio
-
-            loop = _aio.new_event_loop()
-            try:
-                result = loop.run_until_complete(
-                    ambitionbox.get_company_jobs(
+            result = await ambitionbox.get_company_jobs(
                         company_id=args["company_id"],
                         page=args.get("page", 1),
                     )
-                )
-            finally:
-                loop.close()
 
             return json.dumps(result)
+
+        elif name == "create_workbook":
+            import uuid
+            description = args["description"]
+            wb_name = args.get("name", f"Workbook — {description[:40]}")
+
+            # Infer columns from description using keyword matching
+            column_defs = [
+                {"key": "company", "name": "Company", "type": "text"},
+            ]
+
+            desc_lower = description.lower()
+
+            if any(w in desc_lower for w in ["email", "contact", "reach"]):
+                column_defs.append({"key": "email", "name": "Email", "type": "email"})
+            if any(w in desc_lower for w in ["phone", "call", "number"]):
+                column_defs.append({"key": "phone", "name": "Phone", "type": "phone"})
+            if any(w in desc_lower for w in ["linkedin", "social", "profile"]):
+                column_defs.append({"key": "linkedin_url", "name": "LinkedIn", "type": "url"})
+            if any(w in desc_lower for w in ["title", "cto", "ceo", "vp", "founder", "decision maker", "role"]):
+                column_defs.append({"key": "contact_person", "name": "Contact", "type": "text"})
+                column_defs.append({"key": "contact_title", "name": "Title", "type": "text"})
+            if any(w in desc_lower for w in ["website", "domain", "url"]):
+                column_defs.append({"key": "website", "name": "Website", "type": "url"})
+            if any(w in desc_lower for w in ["city", "location", "where"]):
+                column_defs.append({"key": "city", "name": "City", "type": "text"})
+            if any(w in desc_lower for w in ["score", "qualify", "rank"]):
+                column_defs.append({"key": "score", "name": "Score", "type": "number"})
+            if any(w in desc_lower for w in ["size", "employees", "headcount"]):
+                column_defs.append({"key": "company_size", "name": "Size", "type": "text"})
+
+            # Ensure at least email + contact columns
+            keys = [c["key"] for c in column_defs]
+            if "email" not in keys:
+                column_defs.append({"key": "email", "name": "Email", "type": "email"})
+            if "contact_person" not in keys:
+                column_defs.append({"key": "contact_person", "name": "Contact", "type": "text"})
+
+            wb_id = str(uuid.uuid4())
+            from apps.api.routers.workbooks import _get_db as get_wb_db
+            conn = get_wb_db()
+            import time as _time
+            now = _time.time()
+            conn.execute(
+                "INSERT INTO workbooks (id, name, description, columns_config, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                (wb_id, wb_name, description, json.dumps(column_defs), now, now),
+            )
+            conn.commit()
+            conn.close()
+
+            return json.dumps({
+                "workbook_id": wb_id,
+                "name": wb_name,
+                "columns": [c["name"] for c in column_defs],
+                "message": f"Created workbook '{wb_name}' with {len(column_defs)} columns. Open it at /workbooks/{wb_id}",
+            })
+
+        elif name == "add_workbook_column":
+            wb_id = args["workbook_id"]
+            col_name = args["column_name"]
+            col_type = args["column_type"]
+            provider = args.get("provider", "")
+
+            from apps.api.routers.workbooks import _get_db as get_wb_db
+            conn = get_wb_db()
+            row = conn.execute("SELECT columns_config FROM workbooks WHERE id = ?", (wb_id,)).fetchone()
+            if not row:
+                conn.close()
+                return json.dumps({"error": "Workbook not found"})
+
+            columns = json.loads(row["columns_config"] or "[]")
+            new_key = col_name.lower().replace(" ", "_").replace("-", "_")
+            new_col = {"key": new_key, "name": col_name, "type": col_type}
+            if provider:
+                new_col["provider"] = provider
+            columns.append(new_col)
+
+            conn.execute(
+                "UPDATE workbooks SET columns_config = ?, updated_at = ? WHERE id = ?",
+                (json.dumps(columns), __import__("time").time(), wb_id),
+            )
+            conn.commit()
+            conn.close()
+
+            return json.dumps({
+                "added": col_name,
+                "type": col_type,
+                "total_columns": len(columns),
+            })
 
         return json.dumps({"error": f"Unknown tool: {name}"})
     finally:
@@ -835,7 +940,7 @@ async def _stream_chat(
                                     fn_args = {}
 
                                 yield f"data: {json.dumps({'tool_call': {'name': fn_name, 'args': fn_args}})}\n\n"
-                                result = _execute_tool(fn_name, fn_args)
+                                result = await _execute_tool(fn_name, fn_args)
                                 yield f"data: {json.dumps({'tool_result': {'name': fn_name, 'result': json.loads(result)}})}\n\n"
 
                                 tool_results.append({

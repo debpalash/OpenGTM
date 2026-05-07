@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 from apps.api.database import get_db
 from apps.api.models import Link, User
@@ -40,7 +40,7 @@ async def add_to_queue(
     new_link = Link(
         url=link.url,
         status="Pending",
-        created_at=datetime.utcnow().isoformat(),
+        created_at=datetime.now(timezone.utc).isoformat(),
     )
     db.add(new_link)
     db.commit()

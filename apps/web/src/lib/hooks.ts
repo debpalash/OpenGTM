@@ -8,7 +8,7 @@ import {
   fetchConversations, fetchConversationMessages,
   fetchAnalyticsOverview, fetchAnalyticsPipeline,
   fetchAnalyticsCollection, fetchAnalyticsEnrichment, fetchAnalyticsLLM,
-  type Lead,
+  type Lead, type Job,
 } from "./api"
 
 // ── Leads ───────────────────────────────────────────────────────
@@ -108,7 +108,14 @@ export function useJobs(status?: string) {
   return useQuery({
     queryKey: queryKeys.jobs.list(status),
     queryFn: () => fetchJobs(status),
-    refetchInterval: 5000, // Poll every 5s for active jobs
+    // Poll fast (5s) when active jobs exist, slow (30s) when idle
+    refetchInterval: (query) => {
+      const jobs = query.state.data as Job[] | undefined
+      const hasActive = jobs?.some(
+        (j: Job) => j.status === "running" || j.status === "pending"
+      )
+      return hasActive ? 5000 : 30000
+    },
   })
 }
 

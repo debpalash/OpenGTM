@@ -11,7 +11,7 @@ Can be called directly (sync) or via the BullMQ worker (async).
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
@@ -247,7 +247,7 @@ def _write_back_to_lead(lead_id: int, field: str, value: str, provider: str = No
     """Write an enrichment result back to the Lead record (source of truth)."""
     try:
         lead_db = LeadDB()
-        updates = {field: value, "updated_at": datetime.utcnow().isoformat()}
+        updates = {field: value, "updated_at": datetime.now(timezone.utc).isoformat()}
         # Also store provenance
         if provider and field == "email":
             updates["email_provider"] = provider

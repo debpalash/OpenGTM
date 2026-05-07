@@ -3,7 +3,7 @@ Lead data model — dataclass representing a lead in the pipeline.
 """
 
 from dataclasses import dataclass, field, asdict
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 
@@ -75,7 +75,7 @@ class Lead:
     last_enriched_at: str = ""
 
     def __post_init__(self):
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         if not self.created_at:
             self.created_at = now
         if not self.updated_at:

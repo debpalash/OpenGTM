@@ -45,7 +45,7 @@ async def handle_download_link(job_id: int, payload: dict):
                 if link:
                     link.status = status
                     if status == "Completed":
-                        link.updated_at = datetime.datetime.utcnow().isoformat()
+                        link.updated_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
                     db.commit()
             except Exception as e:
                 print(f"Failed to update link status: {e}")
@@ -144,7 +144,7 @@ async def handle_download_link(job_id: int, payload: dict):
                                     name=item["Name"],
                                     email=item["Email"],
                                     source_link_id=link_id,
-                                    created_at=datetime.datetime.utcnow().isoformat(),
+                                    created_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                                 )
                                 for item in valid_data
                             ]

@@ -25,7 +25,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { ChevronLeft, ChevronRight, Columns3, Search } from "lucide-react"
 
-const ROW_HEIGHT = 44
+const ROW_HEIGHT = 36
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]

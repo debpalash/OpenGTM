@@ -13,7 +13,7 @@ import asyncio
 import json
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from urllib.parse import urlparse
 
@@ -114,7 +114,7 @@ class JobRunner:
             from datetime import datetime
             self.db.conn.execute(
                 "UPDATE jobs SET status = 'running', started_at = ?, attempts = attempts + 1 WHERE id = ?",
-                (datetime.utcnow().isoformat(), job_id)
+                (datetime.now(timezone.utc).isoformat(), job_id)
             )
             self.db.conn.commit()
 

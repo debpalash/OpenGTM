@@ -7,7 +7,6 @@ import {
   Plus, Download, RefreshCw, Globe, Flame, Sun, Snowflake,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -24,17 +23,24 @@ import { exportCSVUrl, type Lead } from "@/lib/api"
 import { EditableCell } from "@/components/editable-cell"
 
 const TIER_COLORS: Record<string, string> = {
-  hot:          "bg-red-500/10 text-red-500 border-red-500/20",
-  warm:         "bg-orange-500/10 text-orange-500 border-orange-500/20",
-  cold:         "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  unqualified:  "bg-muted text-muted-foreground",
+  hot:          "text-red-400",
+  warm:         "text-amber-400",
+  cold:         "text-blue-400",
+  unqualified:  "text-zinc-500",
+}
+
+const STATUS_DOT: Record<string, string> = {
+  new:        "bg-blue-400",
+  contacted:  "bg-amber-400",
+  qualified:  "bg-emerald-400",
+  lost:       "bg-red-400",
 }
 
 function ScoreBadge({ score, tier }: { score: number; tier: string }) {
   return (
-    <Badge variant="outline" className={TIER_COLORS[tier] || TIER_COLORS.cold}>
+    <span className={`text-xs font-semibold tabular-nums ${TIER_COLORS[tier] || TIER_COLORS.cold}`}>
       {score}
-    </Badge>
+    </span>
   )
 }
 
@@ -69,7 +75,7 @@ export default function LeadsPage() {
         </Button>
       ),
       cell: ({ row }) => <ScoreBadge score={row.original.score} tier={row.original.score_tier} />,
-      size: 80,
+      size: 56,
     },
     {
       accessorKey: "company",
@@ -79,23 +85,24 @@ export default function LeadsPage() {
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="max-w-[200px]">
+        <div className="max-w-[180px] truncate">
           <EditableCell
             value={row.original.company}
             onSave={(v) => updateLeadMut.mutate({ id: row.original.id, fields: { company: v } })}
-            className="font-medium"
+            className="font-medium text-xs"
           />
           {row.original.specialization && (
-            <div className="text-xs text-muted-foreground truncate">{row.original.specialization}</div>
+            <span className="text-[10px] text-muted-foreground/60 ml-1 truncate">{row.original.specialization}</span>
           )}
         </div>
       ),
+      size: 200,
     },
     {
       accessorKey: "city",
       header: "City",
-      cell: ({ row }) => <span className="text-sm">{row.original.city || "—"}</span>,
-      size: 100,
+      cell: ({ row }) => <span className="text-xs text-muted-foreground">{row.original.city || "—"}</span>,
+      size: 90,
     },
     {
       accessorKey: "email",
@@ -139,12 +146,16 @@ export default function LeadsPage() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => (
-        <Badge variant="outline" className="text-xs">
-          {row.original.status || "new"}
-        </Badge>
-      ),
-      size: 80,
+      cell: ({ row }) => {
+        const s = row.original.status || "new"
+        return (
+          <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <span className={`size-1.5 rounded-full ${STATUS_DOT[s] || STATUS_DOT.new}`} />
+            {s}
+          </span>
+        )
+      },
+      size: 72,
     },
     {
       id: "actions",
@@ -196,7 +207,7 @@ export default function LeadsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-6">
+    <div className="flex flex-col gap-3 p-4">
       {/* Row 1 — Stats */}
       <div className="flex items-center gap-3 text-sm">
         {stats ? (

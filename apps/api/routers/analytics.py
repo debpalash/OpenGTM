@@ -5,7 +5,7 @@ Aggregates data from leads, jobs, job_stages, and llm_usage tables
 to power the analytics dashboard.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter
 from apps.api.services.leadgen.db import LeadDB
 
@@ -28,7 +28,7 @@ async def analytics_overview():
     total = c.execute("SELECT COUNT(*) FROM leads").fetchone()[0]
 
     # Leads this week / month
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     week_ago = (now - timedelta(days=7)).isoformat()
     month_ago = (now - timedelta(days=30)).isoformat()
 
@@ -134,7 +134,7 @@ async def analytics_collection():
     c = db.conn.cursor()
 
     # Jobs per day (last 30 days)
-    cutoff = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%d")
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
     jobs_by_day = []
     for row in c.execute("""
         SELECT DATE(created_at) as day, COUNT(*) as count,
@@ -252,7 +252,7 @@ async def analytics_llm():
     c = db.conn.cursor()
 
     # Usage by day (last 30 days)
-    cutoff = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%d")
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
     by_day = []
     for row in c.execute("""
         SELECT date, SUM(total_tokens) as tokens, SUM(calls) as calls,

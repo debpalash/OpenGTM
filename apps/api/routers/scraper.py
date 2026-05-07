@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, Query
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 from pydantic import BaseModel
 from apps.api.database import get_db
@@ -83,7 +83,7 @@ async def scrape_url(
             existing_link = Link(
                 url=request.url,
                 status="Completed",
-                created_at=datetime.utcnow().isoformat(),
+                created_at=datetime.now(timezone.utc).isoformat(),
                 source="Scraper V2",
             )
             db.add(existing_link)
