@@ -1,0 +1,49 @@
+{
+  "source": "techbehemoths",
+  "label": "TechBehemoths",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "global",
+    "india",
+    "eu"
+  ],
+  "site_domain": "techbehemoths.com",
+  "test_query": "digital marketing agency",
+  "test_city": "",
+  "built_queries": [
+    "site:techbehemoths.com digital marketing agency"
+  ],
+  "executed_query": "site:techbehemoths.com digital marketing agency",
+  "results_count": 5,
+  "time_ms": 2362,
+  "errors": null,
+  "results": [
+    {
+      "title": "Top 20+ Digital Marketing Agencies in United States (2026) -",
+      "href": "https://techbehemoths.com/companies/digital-marketing/united-states",
+      "body": "Web Design Stop is a web development, design, and digital marketing agency, dedicated to turn your business into a success!"
+    },
+    {
+      "title": "Andava Digital Marketing Agency Company Profile - TechBehemoths",
+      "href": "https://techbehemoths.com/company/andava-digital-marketing-agency",
+      "body": "Partner with a proven and trusted digital marketing agency and start overtaking your competitors with SEO, PPC, web design, content marketing, and so ..."
+    },
+    {
+      "title": "Mediaforce Digital Marketing Agency Company Profile -",
+      "href": "https://techbehemoths.com/company/mediaforce-digital-marketing-agency",
+      "body": "Mediaforce Digital Marketing Agency may not be a bad company, but the lack of a complete company profile (weak portfolio, no client reviews and ..."
+    },
+    {
+      "title": "Digital Braino - Digital Marketing Agency in Indore Company",
+      "href": "https://techbehemoths.com/company/digital-braino-digital-marketing-agency-in-indore",
+      "body": "Digital Braino - Digital Marketing Agency in Indore lacks more convincing data about their portfolio, has no or less client reviews and an incomplete ..."
+    },
+    {
+      "title": "Digital agency DigitalSpring Company Profile - TechBehemoths",
+      "href": "https://techbehemoths.com/company/digital-agency-digitalspring",
+      "body": "DigitalSpring is a digital agency with more ... Compared to other companies, Digital agency DigitalSpring is relatively established in the market."
+    }
+  ]
+}

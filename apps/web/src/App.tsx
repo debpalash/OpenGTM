@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
-  Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2, X, Activity, Building2,
+  Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2, X, Activity,
 } from "lucide-react"
 import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
@@ -43,8 +43,7 @@ const NAV_ITEMS = [
   { to: "/agents",     icon: Bot,           label: "Tasks" },
   { to: "/outreach",   icon: Send,          label: "Outreach" },
   { to: "/signals",    icon: Activity,      label: "Signals" },
-  { to: "/sources",    icon: Database,      label: "Sources" },
-  { to: "/agency",     icon: Building2,     label: "Agency" },
+  { to: "/sources",    icon: Database,       label: "Sources" },
   { to: "/analytics",  icon: BarChart3,     label: "Analytics" },
 ]
 

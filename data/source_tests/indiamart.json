@@ -1,0 +1,49 @@
+{
+  "source": "indiamart",
+  "label": "IndiaMart",
+  "status": "ok",
+  "enabled": true,
+  "category": "b2b_marketplace",
+  "region": [
+    "india"
+  ],
+  "site_domain": "indiamart.com",
+  "test_query": "packaging machinery manufacturers",
+  "test_city": "mumbai",
+  "built_queries": [
+    "site:indiamart.com packaging machinery manufacturers",
+    "site:indiamart.com packaging machinery manufacturers mumbai manufacturers suppliers",
+    "site:indiamart.com packaging machinery manufacturers companies mumbai"
+  ],
+  "executed_query": "site:indiamart.com packaging machinery manufacturers",
+  "results_count": 5,
+  "time_ms": 5893,
+  "errors": null,
+  "results": [
+    {
+      "title": "indiamart.com",
+      "href": "https://www.indiamart.com/",
+      "body": "Picknpack (A Brand of Delhi Packaging)."
+    },
+    {
+      "title": "dir.indiamart.com/ahmedabad/packaging-machine.html",
+      "href": "https://dir.indiamart.com/ahmedabad/packaging-machine.html",
+      "body": "Packaging Machine Packaging Machine in Ahmedabad Get Quote."
+    },
+    {
+      "title": "Single Phase Full Automatic Namkeen Packaging Machine, 1000",
+      "href": "https://www.indiamart.com/proddetail/full-automatic-namkeen-packaging-machine-2852492668791.html",
+      "body": "Asian Food Packaging Machinery\" - Manufacturer of Extruder Machine, Food Processing Machine Nitrogen Plants since 2017 in Noida, Uttar Pradesh."
+    },
+    {
+      "title": "Packaging Machinery,Packaging Machinery Manufacturers,Automated",
+      "href": "https://dir.indiamart.com/indianexporters/m_packmc.html",
+      "body": "... Packaging Machines & Goods > Packaging & Lamination ... Film Lamination and Packaging, Paper, Plastic and Industrial Packaging Machinery"
+    },
+    {
+      "title": "Manufacturer of Pouch Packaging Machine & Puff Snacks Food",
+      "href": "https://www.indiamart.com/creatorsfood-process-machinery/",
+      "body": "Established in the year of 2013, We \u201c Creators Food Process Machinery \u201d are Manufacturer of an Pouch Packaging Machine, Puff Snacks Food ..."
+    }
+  ]
+}

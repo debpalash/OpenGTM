@@ -1,0 +1,47 @@
+{
+  "source": "brownbook",
+  "label": "BrownBook",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "global"
+  ],
+  "site_domain": "brownbook.net",
+  "test_query": "digital marketing agency",
+  "test_city": "",
+  "built_queries": [
+    "site:brownbook.net digital marketing agency"
+  ],
+  "executed_query": "site:brownbook.net digital marketing agency",
+  "results_count": 5,
+  "time_ms": 6364,
+  "errors": null,
+  "results": [
+    {
+      "title": "Brownbook",
+      "href": "https://www.brownbook.net/business/40146672/metric-marketing",
+      "body": "Metric Marketing is a leading digital marketing agency specializing in website design, SEO, content marketing, graphic design and social media for growing businesses, from law firms to nonprofits to startups."
+    },
+    {
+      "title": "Find Dubai%2C in Brownbook.net",
+      "href": "https://www.brownbook.net/search/ae/Dubai,/?page=1&tags=digital+marketing+agency+in+Dubai,Ac+repair+services+dubai,ac+services&ltags=jumeirah+lake+towers",
+      "body": "additional filtered tags:digital marketing agency in DubaiAc repair services dubaiac servicesjumeirah lake towers"
+    },
+    {
+      "title": "JOL Digital - Sacramento SEO Agency 3420 Harmony ln , CA 95821",
+      "href": "https://www.brownbook.net/business/49184831/jol-digital-sacramento-seo-agency",
+      "body": "Business profile: JOL Digital - Sacramento SEO Agency, 3420 Harmony ln , CA, US, 95821, marketing"
+    },
+    {
+      "title": "Exclusive Leads Agency Norwalk, Connecticut, United States 06001",
+      "href": "https://www.brownbook.net/business/49554873/exclusive-leads-agency/",
+      "body": "Business profile: Exclusive Leads Agency, Norwalk, Connecticut, United States, us, 06001, marketing analytics, marketing services, marketing strategy, united states, connecticut, Norwalk"
+    },
+    {
+      "title": "SEO Agency Bangladesh Office: 103, 6th Floor, Muktobangla Shopping Complex Mirpur-1 1216",
+      "href": "https://www.brownbook.net/business/49749853/seo-agency-bangladesh/",
+      "body": "Business profile: SEO Agency Bangladesh, Office: 103, 6th Floor, Muktobangla Shopping Complex Mirpur-1, BD, 1216"
+    }
+  ]
+}

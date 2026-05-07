@@ -1,0 +1,49 @@
+{
+  "source": "amazon_sellers",
+  "label": "Amazon Sellers",
+  "status": "ok",
+  "enabled": true,
+  "category": "ecommerce",
+  "region": [
+    "global",
+    "india"
+  ],
+  "site_domain": null,
+  "test_query": "DTC brand",
+  "test_city": "",
+  "built_queries": [
+    "site:amazon.in dtc brand seller",
+    "site:amazon.com dtc brand seller brand"
+  ],
+  "executed_query": "site:amazon.in dtc brand seller",
+  "results_count": 5,
+  "time_ms": 1689,
+  "errors": null,
+  "results": [
+    {
+      "title": "Amazon.in: Dbrand",
+      "href": "https://www.amazon.in/dbrand/s?k=dbrand",
+      "body": "Discover Dbrand premium vinyl skins for your device. Fingerprint-resistant designs protect from scratches and dirt."
+    },
+    {
+      "title": "Amazon.in: DTC: Jewellery",
+      "href": "https://www.amazon.in/Jewellery-DTC/s?rh=n:1951048031,p_4:DTC",
+      "body": "Seller \u00b7 Deepika and trading \u00b7 Discount \u00b7 10% Off or more \u00b7 25% Off or more \u00b7 35% Off or more \u00b7 50% Off or more \u00b7 60% Off or more \u00b7 70% Off or more \u00b7 Pay On Delivery \u00b7 Eligible for Pay On Delivery \u00b7 Availability \u00b7 Include Out of Stock \u00b7 Metal \u00b7 Silver \u00b7"
+    },
+    {
+      "title": "Amazon.in: Dc Shoes",
+      "href": "https://www.amazon.in/Dc-Shoes/s?k=Dc+Shoes",
+      "body": "Amazon.in: Dc Shoes"
+    },
+    {
+      "title": "Dc Shoes: Buy Dc Shoes online at best prices in India - Amazon.in",
+      "href": "https://www.amazon.in/DC-Shoes/b?ie=UTF8&node=7008883031",
+      "body": "Dc Shoes: Shop for Dc Shoes online at best prices in India. Choose from a wide range of Dc Shoes at Amazon.in. Get Free 1 or 2 day delivery with Amazon Prime, EMI offers, Cash on Delivery on eligible purchases."
+    },
+    {
+      "title": "DTC Shirt (Large) Sky Blue : Amazon.in: Clothing & Accessories",
+      "href": "https://www.amazon.in/Generic-DTC-Shirt/dp/B0D1NXCNPR",
+      "body": "DTC Shirt (Large) Sky Blue : Amazon.in: Clothing & Accessories"
+    }
+  ]
+}

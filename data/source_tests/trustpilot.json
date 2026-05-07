@@ -1,0 +1,49 @@
+{
+  "source": "trustpilot",
+  "label": "Trustpilot",
+  "status": "ok",
+  "enabled": true,
+  "category": "review",
+  "region": [
+    "global",
+    "us",
+    "eu"
+  ],
+  "site_domain": "trustpilot.com",
+  "test_query": "project management software",
+  "test_city": "",
+  "built_queries": [
+    "site:trustpilot.com/review project management software"
+  ],
+  "executed_query": "site:trustpilot.com/review project management software",
+  "results_count": 5,
+  "time_ms": 2258,
+  "errors": null,
+  "results": [
+    {
+      "title": "ProjectManager Reviews | Read Customer Service Reviews of projectmanager.com",
+      "href": "https://www.trustpilot.com/review/projectmanager.com",
+      "body": "February 21, 2026 - ProjectManager is a project and portfolio management software that offers unparalleled control, in-depth project data and the most comprehensive planning features on the market. With advanced scheduling, automated cost and time tracking, risk analysis and resource management, our platform ensures flawless execution while providing unbeatable insights at every stage."
+    },
+    {
+      "title": "CoConstruct | Construction Management Software Reviews | Read Customer Service Reviews of www.coconstruct.com",
+      "href": "https://www.trustpilot.com/review/www.coconstruct.com",
+      "body": "August 23, 2024 - CoConstruct combines the best single-entry estimating software, client proposal software, contract management tools, construction project management software, construction scheduling software, builder client communication portal, client invoicing + payments platform, subcontractor communication app, and a bi-directional QuickBooks construction accounting integration into one powerhouse toolset."
+    },
+    {
+      "title": "OpenProject Reviews | Read Customer Service Reviews of www.openproject.org",
+      "href": "https://uk.trustpilot.com/review/www.openproject.org",
+      "body": "January 28, 2026 - To protect platform integrity, every review on our platform\u2014verified or not\u2014is screened by our 24/7 automated software. This technology is designed to identify and remove content that breaches our guidelines, including reviews that are not based on a genuine experience. We recognise we may not catch everything, and you can flag anything you think we may have missed. Read more ... OpenProject is a web-based open source project management software."
+    },
+    {
+      "title": "Projectworks Reviews | Read Customer Service Reviews of projectworks.com",
+      "href": "https://www.trustpilot.com/review/projectworks.com",
+      "body": "December 4, 2025 - Grow your firm - and your impact Projectworks is professional services automation software built for consulting firms that want to grow - and make a difference. As a project intelligence platform, Projectworks connects time tracking, expense tracking, resource management, invoicing, and financial reporting in one live system."
+    },
+    {
+      "title": "Project Management Academy Reviews | Read Customer Service Reviews of projectmanagementacademy.net",
+      "href": "https://www.trustpilot.com/review/projectmanagementacademy.net",
+      "body": "3 weeks ago - I just completed the 4-day long ... participants, which included people from construction, military, ERP, and software backgrounds. It was valuable to dive into both adaptive and predictive project management principles...."
+    }
+  ]
+}

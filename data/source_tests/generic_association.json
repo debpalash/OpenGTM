@@ -1,0 +1,49 @@
+{
+  "source": "generic_association",
+  "label": "Industry Associations",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "global",
+    "india"
+  ],
+  "site_domain": null,
+  "test_query": "digital marketing agency",
+  "test_city": "",
+  "built_queries": [
+    "digital marketing agency association members  directory",
+    "digital marketing agency chamber of commerce  members list"
+  ],
+  "executed_query": "digital marketing agency association members  directory",
+  "results_count": 5,
+  "time_ms": 7126,
+  "errors": null,
+  "results": [
+    {
+      "title": "Digital Marketing Association",
+      "href": "https://www.dmaglobal.com/community/directory/",
+      "body": "Welcoming all Digital Marketing Professionals... We are here to support the young industry of digital marketing to forge the digital agenda for a bright future. The Digital Marketing Association"
+    },
+    {
+      "title": "Find Advertising Agencies Near You | 4As Agency Search",
+      "href": "https://www.aaaa.org/resources/agency-search/",
+      "body": "Navigate to the respective sections below to find 4As member agencies, relevant resources and agency search consultants."
+    },
+    {
+      "title": "Member Directory - IAB",
+      "href": "https://www.iab.com/member-directory/",
+      "body": "The official IAB member directory. Corporate entities or standalone divisions of a corporate entity whose revenue is significantly based on the sale, delivery or optimization of digital advertising or marketing campaigns."
+    },
+    {
+      "title": "Search Our Member Directory | MMA / Marketing + Media Alliance",
+      "href": "https://www.mmaglobal.com/members",
+      "body": "Search Our Member Directory The MMA Member Directory is sorted alphabetically. You can use the filters below to narrow your search results."
+    },
+    {
+      "title": "23 Can\u2019t-Miss Marketing Agency Directories for 2025 - Databox",
+      "href": "https://databox.com/marketing-agency-directories",
+      "body": "Jul 2, 2025 \u00b7 List your agency in these top marketing agency directories and connect with highly qualified prospects who are ready to hire."
+    }
+  ]
+}

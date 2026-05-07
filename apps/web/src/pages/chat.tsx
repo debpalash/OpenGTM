@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import {
   Send, Loader2, Bot, Pencil, RotateCcw, Copy, Check, X,
-  Sparkles, ArrowUp, Search, Building2, Zap, Globe, BarChart3, Database
+  Sparkles, ArrowUp, Search, Building2, Zap, Globe, BarChart3, Database,
+  ShieldAlert, ShieldCheck, AlertTriangle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -61,6 +62,45 @@ function ToolIndicator({ toolName }: { toolName: string }) {
       </div>
       <span className="text-muted-foreground capitalize">{label}</span>
       <Loader2 className="size-3.5 animate-spin text-primary/60" />
+    </div>
+  )
+}
+
+// ── Confirmation Gate ─────────────────────────────────────────────
+
+interface ConfirmationInfo {
+  name: string
+  label: string
+  description: string
+  level: "high" | "medium" | "low"
+}
+
+function ConfirmationGate({ info }: { info: ConfirmationInfo }) {
+  const levelColors = {
+    high: "border-red-500/30 bg-red-500/5 text-red-400",
+    medium: "border-amber-500/30 bg-amber-500/5 text-amber-400",
+    low: "border-blue-500/30 bg-blue-500/5 text-blue-400",
+  }
+  const LevelIcon = info.level === "high" ? AlertTriangle : info.level === "medium" ? ShieldAlert : ShieldCheck
+  const lines = info.description.split("\n").filter(Boolean)
+
+  return (
+    <div className={`flex items-start gap-3 p-3.5 rounded-xl border ${levelColors[info.level]} animate-in fade-in slide-in-from-bottom-1 duration-300`}>
+      <LevelIcon className="size-5 shrink-0 mt-0.5" />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-sm font-medium">{lines[0] || info.label}</span>
+          <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded-full uppercase tracking-wider ${
+            info.level === "high" ? "bg-red-500/20 text-red-300"
+            : info.level === "medium" ? "bg-amber-500/20 text-amber-300"
+            : "bg-blue-500/20 text-blue-300"
+          }`}>{info.level} risk</span>
+        </div>
+        {lines.slice(1).map((line, i) => (
+          <div key={i} className="text-xs text-muted-foreground">{line}</div>
+        ))}
+        <div className="text-[10px] text-muted-foreground/60 mt-1.5 italic">Action executed — confirmation UI coming in Phase 2</div>
+      </div>
     </div>
   )
 }
@@ -139,6 +179,7 @@ export default function ChatPage() {
   const [editingMsgId, setEditingMsgId] = useState<string | null>(null)
   const [editText, setEditText] = useState("")
   const [streamingJobIds, setStreamingJobIds] = useState<string[]>([])
+  const [confirmations, setConfirmations] = useState<ConfirmationInfo[]>([])
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -176,6 +217,7 @@ export default function ChatPage() {
     setStreamingContent("")
     setStreamingTool(null)
     setStreamingJobIds([])
+    setConfirmations([])
 
     let currentConvId = activeConvId
 
@@ -194,6 +236,9 @@ export default function ChatPage() {
           const jobId = event.tool_result?.result?.job_id
           if (jobId) setStreamingJobIds(prev => [...prev, jobId])
         }
+        if (event.confirmation_required) {
+          setConfirmations(prev => [...prev, event.confirmation_required as ConfirmationInfo])
+        }
         if (event.error) toast.error(event.error)
       })
 
@@ -208,6 +253,7 @@ export default function ChatPage() {
       setStreamingContent("")
       setStreamingTool(null)
       setStreamingJobIds([])
+      setConfirmations([])
       setOptimisticMessages([])
       inputRef.current?.focus()
     }
@@ -275,6 +321,7 @@ export default function ChatPage() {
     setStreamingContent("")
     setStreamingTool(null)
     setEditingMsgId(null)
+    setConfirmations([])
   }, [activeConvId])
 
   // Last assistant index for regenerate button
@@ -510,6 +557,18 @@ export default function ChatPage() {
               </div>
             </div>
           )}
+
+          {/* ── Confirmation Gates ── */}
+          {confirmations.map((conf, i) => (
+            <div key={`conf-${i}`} className="flex gap-3 mt-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/10 to-amber-500/5 text-amber-500 mt-1 ring-1 ring-amber-500/10">
+                <ShieldAlert className="size-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <ConfirmationGate info={conf} />
+              </div>
+            </div>
+          ))}
 
           {/* ── Inline Task Progress Cards (from streaming) ── */}
           {streamingJobIds.map((jid) => (

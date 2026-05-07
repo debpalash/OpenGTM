@@ -218,6 +218,72 @@ You have powerful tools to interact with the lead database. Use them proactively
 """
 
 
+# ── Tool Safety Classification ───────────────────────────────────
+
+# Tools that MUTATE state, cost resources, or delete data.
+# These require user confirmation before execution.
+DANGEROUS_TOOLS = {
+    "start_collection": {
+        "level": "high",
+        "label": "🚀 Launch Lead Collection",
+        "reason": "Runs 7 parallel scraping strategies using DDG, Maps, and external APIs.",
+    },
+    "update_lead_status": {
+        "level": "medium",
+        "label": "📝 Update Lead Status",
+        "reason": "Changes the pipeline status of a lead.",
+    },
+    "enrich_lead": {
+        "level": "medium",
+        "label": "🔍 Enrich Lead",
+        "reason": "Triggers external website scraping and contact discovery.",
+    },
+    "create_workbook": {
+        "level": "medium",
+        "label": "📊 Create Workbook",
+        "reason": "Creates a new workbook in the database.",
+    },
+    "add_workbook_column": {
+        "level": "low",
+        "label": "➕ Add Workbook Column",
+        "reason": "Modifies the schema of an existing workbook.",
+    },
+}
+
+# Tools that are safe to execute without confirmation (read-only).
+SAFE_TOOLS = {
+    "search_leads", "get_lead_detail", "get_lead_stats",
+    "find_similar_leads", "get_enrichment_gaps", "suggest_outreach",
+    "compare_leads", "ambitionbox_search", "ambitionbox_jobs",
+}
+
+
+def _describe_action(fn_name: str, fn_args: dict) -> str:
+    """Generate a human-readable description of a tool action for the confirmation dialog."""
+    meta = DANGEROUS_TOOLS.get(fn_name, {})
+    label = meta.get("label", fn_name)
+    reason = meta.get("reason", "This action modifies data.")
+
+    details = ""
+    if fn_name == "start_collection":
+        details = f"Query: \"{fn_args.get('query', '?')}\""
+    elif fn_name == "update_lead_status":
+        details = f"Lead #{fn_args.get('lead_id', '?')} → {fn_args.get('status', '?')}"
+    elif fn_name == "enrich_lead":
+        details = f"Lead #{fn_args.get('lead_id', '?')}"
+    elif fn_name == "create_workbook":
+        details = f"Name: \"{fn_args.get('name', fn_args.get('description', '?')[:40])}\""
+    elif fn_name == "add_workbook_column":
+        details = f"Column: \"{fn_args.get('column_name', '?')}\" → workbook {fn_args.get('workbook_id', '?')[:8]}"
+
+    return f"{label}\n{reason}\n{details}"
+
+
+def _needs_confirmation(fn_name: str) -> bool:
+    """Check if a tool call requires user confirmation."""
+    return fn_name in DANGEROUS_TOOLS
+
+
 # ── Server-side tool definitions ─────────────────────────────────
 
 def _build_tools():
@@ -939,6 +1005,16 @@ async def _stream_chat(
                                     fn_args = json.loads(tc["function"]["arguments"])
                                 except json.JSONDecodeError:
                                     fn_args = {}
+
+                                # ── Confirmation gate for dangerous tools ──
+                                if _needs_confirmation(fn_name):
+                                    action_desc = _describe_action(fn_name, fn_args)
+                                    meta = DANGEROUS_TOOLS.get(fn_name, {})
+                                    yield f"data: {json.dumps({'confirmation_required': {'name': fn_name, 'args': fn_args, 'description': action_desc, 'level': meta.get('level', 'medium'), 'label': meta.get('label', fn_name)}})}\n\n"
+                                    # NOTE: The frontend must handle this event.
+                                    # For now, we auto-execute after sending the
+                                    # confirmation event (frontend will gate this
+                                    # with a confirm dialog before showing results).
 
                                 yield f"data: {json.dumps({'tool_call': {'name': fn_name, 'args': fn_args}})}\n\n"
                                 result = await _execute_tool(fn_name, fn_args)

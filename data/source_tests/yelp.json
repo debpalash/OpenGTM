@@ -1,0 +1,48 @@
+{
+  "source": "yelp",
+  "label": "Yelp",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "us",
+    "global"
+  ],
+  "site_domain": "yelp.com",
+  "test_query": "plumbing contractors",
+  "test_city": "chicago",
+  "built_queries": [
+    "site:yelp.com plumbing contractors chicago"
+  ],
+  "executed_query": "site:yelp.com plumbing contractors chicago",
+  "results_count": 5,
+  "time_ms": 9665,
+  "errors": null,
+  "results": [
+    {
+      "title": "yelp.com/biz/4s-plumbing-companies-chicago",
+      "href": "https://www.yelp.com/biz/4s-plumbing-companies-chicago",
+      "body": "4S PLUMBING COMPANIES - 66 Photos & 102 Reviews - \u2026"
+    },
+    {
+      "title": "Link to yelp.com",
+      "href": "https://www.yelp.com/biz/24-7-contractors-chicago-4",
+      "body": "The site owner hides the web page description."
+    },
+    {
+      "title": "yelp.com",
+      "href": "http://yelp.com/",
+      "body": "Lead Generation for Contractors - Yelp."
+    },
+    {
+      "title": "yelp.com/biz/312-chicago-chicago-5",
+      "href": "https://www.yelp.com/biz/312-chicago-chicago-5",
+      "body": "312 CHICAGO - Updated November 2024 - 68 Photos & 24 Reviews - Yelp."
+    },
+    {
+      "title": "THE BEST 10 PLUMBING IN CHICAGO, IL - UPDATED 2026 - HOURS - YELP",
+      "href": "https://www.yelp.com/search?cflt=plumbing&find_loc=Chicago,+IL",
+      "body": "Best Plumbing in Chicago, IL - Last Updated May 2026 - Mike The Plumber, Drain-EEZ Plumbing, Green Tech Plumbing, Rescue Plumbing, Scotty's Plumbing, J Sewer & Drain Plumbing, Vanguard Plumbing and Sewer, Sound Plumbing, Rocket Plumbing Chicago, ..."
+    }
+  ]
+}

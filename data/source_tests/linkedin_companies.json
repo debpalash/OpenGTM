@@ -1,0 +1,47 @@
+{
+  "source": "linkedin_companies",
+  "label": "LinkedIn Companies",
+  "status": "ok",
+  "enabled": true,
+  "category": "social",
+  "region": [
+    "global"
+  ],
+  "site_domain": "linkedin.com/company",
+  "test_query": "tech company",
+  "test_city": "",
+  "built_queries": [
+    "site:linkedin.com/company tech company"
+  ],
+  "executed_query": "site:linkedin.com/company tech company",
+  "results_count": 5,
+  "time_ms": 3156,
+  "errors": null,
+  "results": [
+    {
+      "title": "Techy | LinkedIn",
+      "href": "https://www.linkedin.com/company/techycompany",
+      "body": "Today, as Techy, we operate over 250 stores worldwide, providing comprehensive tech solutions including device repairs, certified pre-owned devices, and accessories."
+    },
+    {
+      "title": "BlaBlaCar | LinkedIn",
+      "href": "https://www.linkedin.com/company/blablacar?comuto_cmkt=RU_YANDEX_ACQ_ALL_WEB_OT-DSA_NONE?comuto_cmkt=RU_YANDEX_ACQ_ALL_WEB_OT-DSA_NONE?comuto_cmkt=RU_YANDEX_ACQ_ALL_WEB_OT-DSA_NONE?comuto_cmkt=RU_YANDEX_ACQ_ALL_WEB_OT-DSA_NONE?comuto_cmkt=RU_YANDEX_ACQ_ALL_WEB_OT-DSA_NONE?comuto_cmkt=RU_YANDEX_ACQ_ALL_WEB_OT-DSA_NONE?comuto_cmkt=RU_YANDEX_ACQ_ALL_WEB_OT-DSA_NONE?comuto_cmkt=RU_YANDEX_ACQ_ALL_WEB_OT-DSA_NONE",
+      "body": "External link for BlaBlaCar. Industry. Technology, Information and Internet. Company size. 501-1,000 employees. Headquarters."
+    },
+    {
+      "title": "Dell Technologies | LinkedIn",
+      "href": "https://www.linkedin.com/company/delltechnologies",
+      "body": "Dell Technologies. Computer Hardware Manufacturing. Round Rock, Texas 5,510,664 followers. Shaping the future with technology that's built for you."
+    },
+    {
+      "title": "Huawei | LinkedIn",
+      "href": "https://www.linkedin.com/company/huawei",
+      "body": "Huawei | 5,427,776 followers on LinkedIn. Huawei is a leading global provider of information and communications technology (ICT) infrastructure and smart devices."
+    },
+    {
+      "title": "Kalibrr | LinkedIn",
+      "href": "https://www.linkedin.com/company/kalibrr-technology-ventures?user_ref=www.kalibrr.id_organic_c__moka-pos__jobs__80296__sales-executive-pekanbaru",
+      "body": "Kalibrr is a technology company that transforms the way companies hire the best talents and candidates find meaningful careers."
+    }
+  ]
+}

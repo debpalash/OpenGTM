@@ -1,0 +1,47 @@
+{
+  "source": "ambitionbox",
+  "label": "AmbitionBox",
+  "status": "ok",
+  "enabled": true,
+  "category": "review",
+  "region": [
+    "india"
+  ],
+  "site_domain": "ambitionbox.com",
+  "test_query": "software companies",
+  "test_city": "bangalore",
+  "built_queries": [
+    "site:ambitionbox.com software companies companies bangalore"
+  ],
+  "executed_query": "site:ambitionbox.com software companies companies bangalore",
+  "results_count": 5,
+  "time_ms": 3135,
+  "errors": null,
+  "results": [
+    {
+      "title": "Top 30 Companies in Bangalore / Bengaluru | AmbitionBox",
+      "href": "https://www.ambitionbox.com/companies-in-bengaluru",
+      "body": "Top Software Product Companies in Bangalore / Bengaluru ... Top Companies for Software Engineer in Bangalore / Bengaluru"
+    },
+    {
+      "title": "4.8k Software Product Companies in India | AmbitionBox",
+      "href": "https://www.ambitionbox.com/software-product-companies-in-india",
+      "body": "Software Product | Bangalore / Bengaluru +53 other locations ... Software Product Companies in Bangalore / Bengaluru"
+    },
+    {
+      "title": "Top 10 Real Estate Companies in Bangalore / Bengaluru |",
+      "href": "https://www.ambitionbox.com/real-estate-companies-in-bengaluru",
+      "body": "Top 10 Real Estate Companies in Bangalore / Bengaluru ... Real Estate Companies in Bangalore ... Top Software Product Companies in Bengaluru"
+    },
+    {
+      "title": "Bangalore Data Analyst job hunt\u2014still searching! | AmbitionBox",
+      "href": "https://www.ambitionbox.com/p/bangalore-data-analyst-job-hunt-still-searching-0IvQULcR-8",
+      "body": "Hey everyone, I've been grinding for 5 months to land a Data Analyst role in Bangalore. ... someone who can refer me to one of the Big 4 companies."
+    },
+    {
+      "title": "9.3k Companies in Chandigarh | AmbitionBox",
+      "href": "https://www.ambitionbox.com/companies-in-chandigarh",
+      "body": "Read reviews for 6L+ companies ... Read interviews for 40K+ companies ... Companies in Bangalore / Bengaluru"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "source": "yourstory",
+  "label": "YourStory",
+  "status": "ok",
+  "enabled": true,
+  "category": "startup",
+  "region": [
+    "india"
+  ],
+  "site_domain": "yourstory.com",
+  "test_query": "fintech startup",
+  "test_city": "bangalore",
+  "built_queries": [
+    "site:yourstory.com fintech startup bangalore startup"
+  ],
+  "executed_query": "site:yourstory.com fintech startup bangalore startup",
+  "results_count": 5,
+  "time_ms": 2707,
+  "errors": null,
+  "results": [
+    {
+      "title": "How Bengaluru-based fintech startup Zeta provides online",
+      "href": "https://yourstory.com/2020/06/bengaluru-fintech-startup-zeta-online-banking-solution",
+      "body": "One such startup is Bengaluru-headquartered Zeta India which provides digitised solutions to banks and fintech businesses ."
+    },
+    {
+      "title": "yourstory.com/2025/11/kotak-bizlabs-accelerator-programme-is-back-with-season-2",
+      "href": "https://yourstory.com/2025/11/kotak-bizlabs-accelerator-programme-is-back-with-season-2",
+      "body": "These funded startups span sectors including agritech, climatetech, fintech, edtech, healthcare, indigenous art and craft, deeptech, cleantech, and ..."
+    },
+    {
+      "title": "Fintech startup Clear aims to propel SaaS business after $75M",
+      "href": "https://yourstory.com/2021/11/bengaluru-fintech-startup-clear-propel-saas-business-policybazaar",
+      "body": "At present, the fintech startup plans to include more financial services on its platform, with a focus on invoicing as it will be a huge opportunity ..."
+    },
+    {
+      "title": "yourstory.com/tag/bangalore-based-startups",
+      "href": "https://yourstory.com/tag/bangalore-based-startups",
+      "body": "Start your day with impactful startup stories and ... Funding News In-Focus Fintech News Startup News Opinion Daily Capsule FoodTech Technology News"
+    },
+    {
+      "title": "This fintech startup is ensuring access to earned income before",
+      "href": "https://yourstory.com/herstory/2021/12/fintech-startup-earned-wage-access-women-entrepreneur",
+      "body": "The rise of fintech startups is changing the way Indians work with money, but most innovations are focussed on enabling digital payments and ..."
+    }
+  ]
+}

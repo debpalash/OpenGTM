@@ -25,7 +25,7 @@ from apps.api.services.leadgen.rate_limiter import RateLimiter
 from apps.api.services.leadgen.pipeline import deduplicate_leads
 from apps.api.services.leadgen.scoring import score_leads
 from apps.api.services.leadgen.progress import progress
-from apps.api.services.leadgen.lead_validator import validate_lead, validate_and_clean_leads
+from apps.api.services.leadgen.lead_validator import validate_lead, validate_and_clean_leads, validate_and_clean_leads_light
 from apps.api.services.leadgen.llm import LLMClient
 from apps.api.services.leadgen.ai_stages import (
     ai_expand_query, ai_extract_company, ai_score_leads,
@@ -176,64 +176,81 @@ class JobRunner:
                 "message": f"⚡ Running {len(tasks)} strategies in parallel...",
             })
 
+            # ── Pre-create all stages so UI shows them as "running" immediately ──
+            stage_ids = {}
+            for stage_name, _ in tasks:
+                sid = self.db.create_stage(job_id, stage_name)
+                stage_ids[stage_name] = sid
+
             # Execute all in parallel with per-strategy timeout (3 min each)
             STRATEGY_TIMEOUT = 180
 
-            async def _run_strategy(coro):
-                """Wrap each strategy with its own timeout."""
+            async def _run_strategy(stage_name: str, coro):
+                """Wrap each strategy with timeout and immediately persist results."""
+                sid = stage_ids[stage_name]
                 try:
-                    return await asyncio.wait_for(coro, timeout=STRATEGY_TIMEOUT)
+                    result = await asyncio.wait_for(coro, timeout=STRATEGY_TIMEOUT)
+                    if isinstance(result, list):
+                        samples = [l.company for l in result[:10]]
+                        self.db.complete_stage(sid, output_count=len(result),
+                            details=json.dumps({"samples": samples}))
+                        progress.emit("job_progress", {
+                            "job_id": job_id, "stage": stage_name,
+                            "message": f"✅ {stage_name}: {len(result)} leads",
+                            "leads_found": len(result),
+                        })
+                        return result
+                    else:
+                        self.db.complete_stage(sid, status="skipped")
+                        return []
                 except asyncio.TimeoutError:
-                    return TimeoutError(f"Strategy timed out after {STRATEGY_TIMEOUT}s")
+                    self.db.complete_stage(sid, status="failed",
+                        details=json.dumps({"error": f"Timed out after {STRATEGY_TIMEOUT}s"}))
+                    progress.emit("job_progress", {
+                        "job_id": job_id, "stage": stage_name,
+                        "message": f"⚠️ {stage_name} timed out",
+                    })
+                    return []
+                except Exception as e:
+                    self.db.complete_stage(sid, status="failed",
+                        details=json.dumps({"error": str(e)}))
+                    progress.emit("job_progress", {
+                        "job_id": job_id, "stage": stage_name,
+                        "message": f"⚠️ {stage_name} failed: {e}",
+                    })
+                    return []
 
             results = await asyncio.gather(
-                *[_run_strategy(t[1]) for t in tasks],
+                *[_run_strategy(name, coro) for name, coro in tasks],
                 return_exceptions=True,
             )
 
-            # Collect leads from all strategies + persist stage data
+            # Collect leads from all strategies
             all_leads = []
-            for (stage_name, _), result in zip(tasks, results):
-                sid = self.db.create_stage(job_id, stage_name)
-                if isinstance(result, Exception):
-                    self.db.complete_stage(sid, status="failed",
-                        details=json.dumps({"error": str(result)}))
-                    progress.emit("job_progress", {
-                        "job_id": job_id, "stage": stage_name,
-                        "message": f"⚠️ {stage_name} failed: {result}",
-                    })
-                elif isinstance(result, list):
-                    samples = [l.company for l in result[:10]]
-                    self.db.complete_stage(sid, output_count=len(result),
-                        details=json.dumps({"samples": samples}))
+            for result in results:
+                if isinstance(result, list):
                     all_leads.extend(result)
-                    progress.emit("job_progress", {
-                        "job_id": job_id, "stage": stage_name,
-                        "message": f"✅ {stage_name}: {len(result)} leads",
-                        "leads_found": len(result),
-                    })
-                else:
-                    self.db.complete_stage(sid, status="skipped")
 
             # ── Check cancellation ────────────────────────────────
             if self._is_cancelled(job_id):
                 progress.emit("job_progress", {"job_id": job_id, "stage": "cancelled", "message": "🛑 Job cancelled by user"})
                 return
 
-            # ── Validate: reject garbage ─────────────────────────
+            # ── Light Validate: reject garbage names only ─────────
+            # (keeps leads without contact data — they'll be enriched)
             validate_sid = self.db.create_stage(job_id, "validate")
             progress.emit("job_progress", {
                 "job_id": job_id, "stage": "validate",
-                "message": f"🔍 Validating {len(all_leads)} leads...",
+                "message": f"🔍 Light-validating {len(all_leads)} leads (names only)...",
             })
-            valid_leads, rejected = validate_and_clean_leads(all_leads)
+            valid_leads, rejected = validate_and_clean_leads_light(all_leads)
             reasons = {}
             if rejected:
                 for _, reason in rejected:
                     reasons[reason] = reasons.get(reason, 0) + 1
                 progress.emit("job_progress", {
                     "job_id": job_id, "stage": "validate",
-                    "message": f"🗑️ Rejected {len(rejected)}: {dict(reasons)}",
+                    "message": f"🗑️ Rejected {len(rejected)} garbage: {dict(reasons)}",
                 })
             self.db.complete_stage(validate_sid,
                 input_count=len(all_leads), output_count=len(valid_leads),
@@ -281,29 +298,41 @@ class JobRunner:
                 progress.emit("job_progress", {"job_id": job_id, "stage": "cancelled", "message": "🛑 Job cancelled by user"})
                 return
 
-            # ── AI Score (replaces heuristic scoring) ────────────
+            # ── AI Score + heuristic fallback ─────────────────────
             score_sid = self.db.create_stage(job_id, "score")
             progress.emit("job_progress", {
                 "job_id": job_id, "stage": "score",
                 "message": f"🤖 AI scoring {len(unique)} leads...",
             })
+            ai_used = False
             try:
                 from apps.api.services.leadgen.config import ICP
                 scored = await ai_score_leads(self.llm, unique, ICP)
+                ai_used = True
             except Exception as e:
                 progress.emit("job_progress", {
                     "job_id": job_id, "stage": "score",
                     "message": f"⚠️ AI scoring failed, using heuristic: {e}",
                 })
                 scored = score_leads(unique)
+
+            # Always apply heuristic as fallback for any leads that scored 0
+            zero_scored = [l for l in scored if l.score == 0]
+            if zero_scored:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "score",
+                    "message": f"📊 Heuristic fallback for {len(zero_scored)} zero-scored leads...",
+                })
+                score_leads(zero_scored)  # mutates in-place
+
             tiers = {}
             for l in scored:
                 t = l.score_tier or "unknown"
                 tiers[t] = tiers.get(t, 0) + 1
             self.db.complete_stage(score_sid,
                 input_count=len(unique), output_count=len(scored),
-                details=json.dumps({"tiers": tiers, "ai": True,
-                    "tokens": self.llm.usage.to_dict()}))
+                details=json.dumps({"tiers": tiers, "ai": ai_used,
+                    "tokens": self.llm.usage.to_dict() if ai_used else {}}))
 
             # ── Enrich: discover websites for leads without one ──
             enrich_sid = self.db.create_stage(job_id, "enrich")
@@ -361,22 +390,40 @@ class JobRunner:
             self.db.complete_stage(enrich_sid,
                 input_count=len(scored), output_count=len(scored))
 
+            # ── Post-enrichment validation: reject leads still without contact ──
+            post_val_sid = self.db.create_stage(job_id, "post_validate")
+            pre_count = len(scored)
+            scored_valid, post_rejected = validate_and_clean_leads(scored)
+            post_reasons = {}
+            if post_rejected:
+                for _, reason in post_rejected:
+                    post_reasons[reason] = post_reasons.get(reason, 0) + 1
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "post_validate",
+                    "message": f"🔍 Post-enrichment: removed {len(post_rejected)} leads still without contact data",
+                })
+            scored = scored_valid
+            self.db.complete_stage(post_val_sid,
+                input_count=pre_count, output_count=len(scored),
+                rejected_count=len(post_rejected),
+                details=json.dumps({"reasons": post_reasons}))
+
             # ── Decision Makers ───────────────────────────────────
             dm_sid = self.db.create_stage(job_id, "decision_makers")
             progress.emit("job_progress", {
                 "job_id": job_id, "stage": "decision_makers",
-                "message": f"👤 Finding decision makers...",
+                "message": f"👤 Finding decision makers for {len(scored)} leads...",
             })
             try:
                 from apps.api.services.leadgen.enrichment.decision_maker_finder import enrich_decision_makers
-                # Only find DMs for top-scored leads to save API calls
-                top_leads = [l for l in scored if l.score >= 40][:15]
-                if top_leads:
-                    await enrich_decision_makers(top_leads, concurrency=2, max_contacts=2)
-                    dm_found = sum(1 for l in top_leads if l.decision_makers)
+                # Find DMs for all leads that have a website (lowered from score >= 40)
+                dm_candidates = [l for l in scored if l.has_website][:15]
+                if dm_candidates:
+                    await enrich_decision_makers(dm_candidates, concurrency=2, max_contacts=2)
+                    dm_found = sum(1 for l in dm_candidates if l.decision_makers)
                     progress.emit("job_progress", {
                         "job_id": job_id, "stage": "decision_makers",
-                        "message": f"👤 Found decision makers for {dm_found}/{len(top_leads)} leads",
+                        "message": f"👤 Found decision makers for {dm_found}/{len(dm_candidates)} leads",
                     })
             except Exception as e:
                 progress.emit("job_progress", {
@@ -1304,8 +1351,16 @@ class JobRunner:
             "message": f"🌐 Scanning {len(sources)} directories & marketplaces...",
         })
 
-        # Run in batches of 5 to respect DDG rate limits
-        BATCH_SIZE = 5
+        # Limit to top-20 highest-priority sources to avoid timeout
+        sources = sorted(sources, key=lambda s: s.get("priority", 999))[:20]
+
+        progress.emit("job_progress", {
+            "job_id": job_id, "stage": "registry_sources",
+            "message": f"🌐 Narrowed to top {len(sources)} sources by priority...",
+        })
+
+        # Run in batches of 10 with 1 query per source
+        BATCH_SIZE = 10
         for batch_idx in range(0, len(sources), BATCH_SIZE):
             batch = sources[batch_idx:batch_idx + BATCH_SIZE]
 
@@ -1314,7 +1369,7 @@ class JobRunner:
                 source_leads = []
                 try:
                     queries = build_queries(source, query, city)
-                    for dq in queries[:2]:  # Max 2 queries per source
+                    for dq in queries[:1]:  # Max 1 query per source (speed)
                         try:
                             results = await _ddg_search(dq, max_results=8)
                             for result in results:

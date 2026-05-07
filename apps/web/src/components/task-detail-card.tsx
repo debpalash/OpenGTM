@@ -241,12 +241,35 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
     fetchData()
   }, [jobId])
 
-  // Auto-refresh while running
+  // Auto-refresh while running — polling fallback
   useEffect(() => {
     if (!job || job.status !== "running") return
-    const interval = setInterval(fetchData, 3000)
+    const interval = setInterval(fetchData, 2000)
     return () => clearInterval(interval)
   }, [job?.status])
+
+  // Real-time SSE updates for running jobs
+  useEffect(() => {
+    if (!job || job.status !== "running") return
+    let es: EventSource | null = null
+    try {
+      es = new EventSource("/api/events")
+      es.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data)
+          if (data.type === "heartbeat") return
+          const payload = data.payload || data
+          if (payload.job_id === jobId) {
+            fetchData()
+          }
+        } catch { /* ignore */ }
+      }
+      es.onerror = () => {
+        es?.close()
+      }
+    } catch { /* SSE not supported */ }
+    return () => es?.close()
+  }, [job?.status, jobId])
 
   if (loading) {
     return compact ? (

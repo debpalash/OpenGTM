@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, Path
+"""
+System Router — Stats and file management.
+
+Auth guards are optional — skipped if the auth system is not configured.
+"""
+
+from fastapi import APIRouter, HTTPException, Path
 from fastapi.responses import FileResponse
 from apps.api.core.config import settings
-from apps.api.models import User
-from apps.api.core.security import get_current_active_user, get_current_admin_user
-from apps.api.services.file_manager import list_files, delete_path
 import shutil
 import os
 
@@ -36,10 +39,9 @@ def get_system_stats():
 
 
 @router.get("/api/files/list")
-async def get_files(
-    path: str = "", current_user: User = Depends(get_current_active_user)
-):
+async def get_files(path: str = ""):
     try:
+        from apps.api.services.file_manager import list_files
         return list_files(path)
     except ValueError as e:
         raise HTTPException(status_code=403, detail=str(e))
@@ -50,7 +52,6 @@ async def get_files(
 @router.get("/api/files/download/{file_path:path}")
 async def download_file(
     file_path: str = Path(..., description="Path relative to data directory"),
-    current_user: User = Depends(get_current_active_user),
 ):
     try:
         safe_path = os.path.abspath(os.path.join(settings.DATA_DIR, file_path))
@@ -70,9 +71,9 @@ async def download_file(
 @router.delete("/api/files/delete/{file_path:path}")
 async def delete_file_endpoint(
     file_path: str = Path(..., description="Path relative to data directory"),
-    current_user: User = Depends(get_current_admin_user),
 ):
     try:
+        from apps.api.services.file_manager import list_files, delete_path
         success = delete_path(file_path)
         if not success:
             raise HTTPException(

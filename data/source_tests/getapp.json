@@ -1,0 +1,47 @@
+{
+  "source": "getapp",
+  "label": "GetApp",
+  "status": "ok",
+  "enabled": true,
+  "category": "saas_directory",
+  "region": [
+    "global"
+  ],
+  "site_domain": "getapp.com",
+  "test_query": "CRM software",
+  "test_city": "",
+  "built_queries": [
+    "site:getapp.com crm software software"
+  ],
+  "executed_query": "site:getapp.com crm software software",
+  "results_count": 5,
+  "time_ms": 1868,
+  "errors": null,
+  "results": [
+    {
+      "title": "GetApp | 2026 Business Software, Reviews & Comparisons",
+      "href": "https://www.getapp.com/",
+      "body": "GetApp, where business leaders find software. 2.5M+. User reviews. 45,000+. Software solutions.Cloud-based CRM and sales automation software."
+    },
+    {
+      "title": "Best Mac CRM Software for Windows 2025 | GetApp",
+      "href": "https://www.getapp.com/all-software/mac-crm/os/windows/",
+      "body": "View the Best Windows Mac CRM Software on GetApp in 2025. Compare verified user ratings & reviews to find the best match for your business size, need & industry."
+    },
+    {
+      "title": "Best Online Mac CRM Software 2025 | GetApp",
+      "href": "https://www.getapp.com/all-software/mac-crm/os/web-based/",
+      "body": "View the best online & web-based Mac CRM software in 2025. Compare verified user ratings & reviews to find the best match for your business size, need & industry."
+    },
+    {
+      "title": "Claritysoft CRM 2026 Pricing, Features, Reviews & Alternatives | GetApp",
+      "href": "https://www.getapp.com/customer-management-software/a/claritysoft-crm/",
+      "body": "Interested in Claritysoft CRM? Read GetApp's full overview to help inform your software purchase, which includes pricing options, features, integrations, and recent user reviews in 2026."
+    },
+    {
+      "title": "Prospect CRM Alternatives, Competitors & Similar Software | GetApp",
+      "href": "https://www.getapp.com/customer-management-software/a/prospectsoft-crm-software/alternatives/",
+      "body": "View a list of 20 apps like Prospect CRM and compare alternatives. See if the competition offers the features you need, at the price you want."
+    }
+  ]
+}

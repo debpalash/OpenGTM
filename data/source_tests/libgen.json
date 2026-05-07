@@ -1,0 +1,10 @@
+{
+  "source": "libgen",
+  "display_name": "Library Genesis",
+  "status": "timeout",
+  "results_count": 0,
+  "time_ms": 20003,
+  "query": "machine learning",
+  "error": "Timeout after 20s",
+  "results": []
+}

@@ -1,0 +1,47 @@
+{
+  "source": "g2",
+  "label": "G2",
+  "status": "ok",
+  "enabled": true,
+  "category": "review",
+  "region": [
+    "global"
+  ],
+  "site_domain": "g2.com",
+  "test_query": "project management software",
+  "test_city": "",
+  "built_queries": [
+    "site:g2.com project management software software companies"
+  ],
+  "executed_query": "site:g2.com project management software software companies",
+  "results_count": 5,
+  "time_ms": 3129,
+  "errors": null,
+  "results": [
+    {
+      "title": "How Project-Based Software Helps Companies",
+      "href": "https://www.g2.com/articles/how-project-based-software-helps-companies",
+      "body": "... on enterprise solutions such as product and portfolio management (PPM) software , capital project management , as well as industry-specific software ..."
+    },
+    {
+      "title": "Project Management - Which project management software are",
+      "href": "https://www.g2.com/discussions/which-project-management-software-are-teams-using-in-2025",
+      "body": "I also found this article on the best project management software: https://learn.g2.com/best-project-management-software"
+    },
+    {
+      "title": "Most Popular Project Management Software for Consulting Firms |",
+      "href": "https://www.g2.com/discussions/most-popular-project-management-software-for-consulting-firms",
+      "body": "... software development, Jira\u2019s detailed issue tracking, agile boards, and workflow customization are now leveraged by many consulting teams managing ..."
+    },
+    {
+      "title": "Best Enterprise Project Management Software in 2026 | G2",
+      "href": "https://www.g2.com/categories/project-management/enterprise",
+      "body": "... qualifying for inclusion in the Project Management Software category, to qualify for inclusion in the Enterprise Business Project Management Software ..."
+    },
+    {
+      "title": "Best Project Management Software Products for 2026 | G2",
+      "href": "https://www.g2.com/best-software-companies/top-project-management",
+      "body": "Smartsheet is a modern work management platform that helps teams manage projects, automate processes, and scale workflows all in one central platform."
+    }
+  ]
+}

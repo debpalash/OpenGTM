@@ -301,6 +301,61 @@ _KNOWN_EMAIL_PROVIDERS = {
 }
 
 
+def validate_lead_light(lead: Lead) -> tuple[bool, str]:
+    """
+    Light validation — only reject obvious garbage (names, titles).
+    Does NOT reject leads for missing contact data.
+    Use this BEFORE enrichment; use validate_lead() AFTER enrichment.
+    """
+    name = (lead.company or "").strip()
+
+    if not name:
+        return False, "empty_name"
+    if len(name) < 2:
+        return False, "name_too_short"
+    if len(name) > 60:
+        return False, "name_too_long_likely_headline"
+    if name.lower() in _PLACEHOLDER_NAMES:
+        return False, "placeholder_name"
+    if name.lower().replace(" ", "") in {n.replace(" ", "") for n in _PUBLISHER_NAMES}:
+        return False, "publisher_name"
+    for pattern in _ARTICLE_PATTERNS:
+        if re.search(pattern, name):
+            return False, "article_title_pattern"
+    for pattern in _GENERIC_TITLE_PATTERNS:
+        if re.search(pattern, name):
+            return False, "generic_service_title"
+    alpha_count = sum(1 for c in name if c.isalpha())
+    if alpha_count < 3:
+        return False, "insufficient_alpha_chars"
+    words = name.split()
+    if len(words) >= 5 and all(w[0].isupper() for w in words if w.isalpha()):
+        if len(name) > 50:
+            return False, "likely_headline"
+
+    # Clean bad emails/phones but don't reject for missing them
+    if lead.email:
+        email_domain = lead.email.split("@")[-1].lower() if "@" in lead.email else ""
+        if email_domain in _PUBLISHER_DOMAINS:
+            lead.email = ""
+        if any(ext in lead.email.lower() for ext in [".png", ".jpg", ".svg", ".gif", ".webp", ".css", ".js", ".woff"]):
+            lead.email = ""
+    if lead.phone:
+        phone = lead.phone.strip()
+        if phone in ("1234567890", "0000000000", "9999999999"):
+            lead.phone = ""
+        clean_digits = re.sub(r"[^\d]", "", phone)
+        if len(clean_digits) > 12:
+            lead.phone = ""
+    if lead.website:
+        lead.website = _normalize_url(lead.website)
+        domain = _extract_domain(lead.website)
+        if domain in _PUBLISHER_DOMAINS:
+            lead.website = ""
+
+    return True, ""
+
+
 def validate_and_clean_leads(leads: list[Lead]) -> tuple[list[Lead], list[tuple[Lead, str]]]:
     """
     Validate a batch of leads, returning (valid_leads, rejected_leads_with_reasons).
@@ -310,6 +365,24 @@ def validate_and_clean_leads(leads: list[Lead]) -> tuple[list[Lead], list[tuple[
 
     for lead in leads:
         is_valid, reason = validate_lead(lead)
+        if is_valid:
+            valid.append(lead)
+        else:
+            rejected.append((lead, reason))
+
+    return valid, rejected
+
+
+def validate_and_clean_leads_light(leads: list[Lead]) -> tuple[list[Lead], list[tuple[Lead, str]]]:
+    """
+    Light validation — only reject garbage names/titles.
+    Keeps leads without contact data (they'll be enriched later).
+    """
+    valid = []
+    rejected = []
+
+    for lead in leads:
+        is_valid, reason = validate_lead_light(lead)
         if is_valid:
             valid.append(lead)
         else:

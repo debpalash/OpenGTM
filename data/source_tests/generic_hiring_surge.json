@@ -1,0 +1,47 @@
+{
+  "source": "generic_hiring_surge",
+  "label": "Hiring Surge Detection",
+  "status": "ok",
+  "enabled": true,
+  "category": "jobs",
+  "region": [
+    "global"
+  ],
+  "site_domain": null,
+  "test_query": "software company hiring",
+  "test_city": "",
+  "built_queries": [
+    "\"software company hiring\" company  \"we are hiring\" OR \"join our team\""
+  ],
+  "executed_query": "\"software company hiring\" company  \"we are hiring\" OR \"join our team\"",
+  "results_count": 5,
+  "time_ms": 1558,
+  "errors": null,
+  "results": [
+    {
+      "title": "73,000 Software Companies Hiring Job Vacancies | Indeed",
+      "href": "https://in.indeed.com/q-software-companies-hiring-jobs.html",
+      "body": "About the Team The PayU Payments ... ensuring seamless and secure payment experiences. About the Role We're seeking a talented and curious Software Engineer eager to join our dynamic engineering team...."
+    },
+    {
+      "title": "Silicon Labs | Silicon Labs Hiring: Associate Engineer/Engineer 1 - Software Design (1\u20134 Years Experience)",
+      "href": "https://www.interviewchacha.com/referral-jobs/17211/silicon-labs-hiring-associate-engineer-engineer-1-software-design-1-4-years-experience",
+      "body": "6 days ago - We\u2019re Hiring: Associate Engineer/Engineer 1 - Software Design (1\u20134 Years Experience) Silicon Labs is seeking passionate engineers to join our team in developing next-generation Bluetooth Classic & BLE stack solutions."
+    },
+    {
+      "title": "Atlassian Careers: Join the Team | Atlassian",
+      "href": "https://www.atlassian.com/company/careers",
+      "body": "And stay connected on team and company updates relevant to your career by joining our Talent Community. ... We\u2019ve got an ambitious road ahead. Join our team and help us shape the future. Our products help teams of all sizes do amazing things. As we build the future of work, we're scaling our cloud platform to deliver mission-critical team collaboration software to over 240,000 customers."
+    },
+    {
+      "title": "53,000+ Software Companies Hiring Jobs, Employment 29 June 2024| Indeed.com",
+      "href": "https://in.indeed.com/Software-Companies-Hiring-jobs",
+      "body": "As a leading technology company, ... exceptional individuals who are passionate about technology, creativity, and problem-solving. Join us at ProtoTech Solutions and be part of a dynamic team that\u2019s shaping the future of technology...."
+    },
+    {
+      "title": "Top Software Companies Hiring Remote 2026 | Built In",
+      "href": "https://builtin.com/companies/hiring/remote/type/software-companies",
+      "body": "Data is at the heart of Kensho, and it\u2019s our technology. We build and deploy solutions that make that data accessible, insightful, relevant and transformative. ... Aerospace \u2022 Hardware \u2022 Information Technology \u2022 Security \u2022 Software \u2022 Cybersecurity \u2022 Defense ... Where purpose connects. Improving the future and protecting lives is an ambitious mission, but it\u2019s what we do. As a leading aerospace, defense, and security company, we work together to deliver a full range of products and services for air, land, space, and naval forces, as well as advanced electronics, security, information technology solutions and customer support services."
+    }
+  ]
+}

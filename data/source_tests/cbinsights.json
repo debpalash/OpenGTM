@@ -1,0 +1,47 @@
+{
+  "source": "cbinsights",
+  "label": "CB Insights",
+  "status": "ok",
+  "enabled": true,
+  "category": "startup",
+  "region": [
+    "global"
+  ],
+  "site_domain": "cbinsights.com",
+  "test_query": "AI startup funding 2024",
+  "test_city": "",
+  "built_queries": [
+    "site:cbinsights.com ai startup funding 2024 companies"
+  ],
+  "executed_query": "site:cbinsights.com ai startup funding 2024 companies",
+  "results_count": 5,
+  "time_ms": 3998,
+  "errors": null,
+  "results": [
+    {
+      "title": "AI 100: The most promising artificial intelligence startups ...",
+      "href": "https://www.cbinsights.com/research/report/artificial-intelligence-top-startups-2024/",
+      "body": "Apr 2, 2024 \u00b7 AI 100: The most promising artificial intelligence startups of 2024 The AI 100 is CB Insights' annual list of the top private AI companies in the world. From new AI architectures to precision manufacturing, this year\u2019s winners are tackling some of the hardest challenges across industries."
+    },
+    {
+      "title": "AI 100: Top AI companies in 2024 | CB Insights",
+      "href": "https://www.cbinsights.com/learn/ai-100-2024",
+      "body": "Mar 26, 2024 \u00b7 The top AI companies in 2024 The CB Insights AI 100 ranks the most promising private artificial intelligence companies worldwide. This 8th annual ranking highlights companies from 16 countries working across a range of AI applications, from large language models to protein design."
+    },
+    {
+      "title": "AI 100: The most promising artificial intelligence startups ...",
+      "href": "https://www.cbinsights.com/research/report/artificial-intelligence-top-startups-2025/",
+      "body": "Apr 24, 2025 \u00b7 The AI space is evolving at an unprecedented rate. Since the start of 2024, thousands of new AI companies have formed, and funding to AI companies has surpassed $170B, primarily driven by titans like OpenAI and Anthropic. Given this momentum, the ecosystem is larger and more challenging to navigate than ever. Our annual AI 100 list is designed to cut through this noise and highlight the next ..."
+    },
+    {
+      "title": "State of CVC 2024 Report - CB Insights Research",
+      "href": "https://www.cbinsights.com/research/report/corporate-venture-capital-trends-2024/",
+      "body": "Feb 4, 2025 \u00b7 Global CVC-backed funding rebounded 20% YoY to $65.9B in 2024, fueled by increased attention to US startups \u2014 especially AI companies, which drew record-high shares of both CVC-backed deals and funding. However, global CVC deal count dropped to its lowest level since 2018 as CVCs become more selective. Download the full report to access comprehensive data and charts on the evolving state of ..."
+    },
+    {
+      "title": "State of AI Q1\u201924 Report - CB Insights Research",
+      "href": "https://www.cbinsights.com/research/report/ai-trends-q1-2024/",
+      "body": "May 8, 2024 \u00b7 After declining for 3 consecutive quarters, AI funding rebounded by 24% QoQ to reach $13.1B in Q1\u201924. This outpaced the growth in broader venture funding (+11% QoQ). Massive rounds to players like generative AI startup Anthropic were key drivers behind the jump, as overall AI deal volume dipped for the fourth straight quarter in Q1\u201924."
+    }
+  ]
+}

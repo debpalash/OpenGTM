@@ -1,0 +1,47 @@
+{
+  "source": "bbb",
+  "label": "Better Business Bureau",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "us"
+  ],
+  "site_domain": "bbb.org",
+  "test_query": "plumbing contractors",
+  "test_city": "chicago",
+  "built_queries": [
+    "site:bbb.org plumbing contractors chicago"
+  ],
+  "executed_query": "site:bbb.org plumbing contractors chicago",
+  "results_count": 5,
+  "time_ms": 2558,
+  "errors": null,
+  "results": [
+    {
+      "title": "Chicagoland Quality Plumbing, Inc. | BBB Business Profile |",
+      "href": "https://www.bbb.org/us/il/chicago/profile/plumber/chicagoland-quality-plumbing-inc-0654-88365998",
+      "body": "Chicagoland Quality Plumbing is a plumbing company which provides sewer and drain services for residential and commercial customers."
+    },
+    {
+      "title": "Ex-Stink Plumbing & Sewer | BBB Business Profile | Better",
+      "href": "https://www.bbb.org/us/il/fox-lake/profile/plumber/ex-stink-plumbing-sewer-0654-88661710",
+      "body": "Ex-Stink Plumbing & Sewer is a plumbing contractor that installs, maintains, and repairs plumbing and ... City of Chicago Plumbing Contractor"
+    },
+    {
+      "title": "Sump Pump Contractors near Carol Stream, IL | Better Business",
+      "href": "https://www.bbb.org/us/il/carol-stream/category/sump-pump-contractors",
+      "body": "Plumber, Drainage Contractors, Sewer Cleaning ... ... Heating and Air Conditioning, Plumber, Air Conditioning Contractors ..."
+    },
+    {
+      "title": "MLS Construction & Roofing, Inc. | BBB Business Profile |",
+      "href": "https://www.bbb.org/us/il/alsip/profile/general-contractor/mls-construction-roofing-inc-0654-88600129",
+      "body": "General Contractor , Roofing Contractors , Construction Services , Concrete Contractors , Plumber , Painting Contractors , Electrician , Drywall ..."
+    },
+    {
+      "title": "Aaron\u2019s Plumbing & Sewer | BBB Business Profile |",
+      "href": "https://www.bbb.org/us/il/chicago/profile/plumber/aarons-plumbing-sewer-0654-12006360",
+      "body": "Plumber , Sewer Cleaning , Sewer Contractors , Irrigation Repair , Sump Pump Contractors , Irrigation Installation , Water and Sewer Line Protection ..."
+    }
+  ]
+}

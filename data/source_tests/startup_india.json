@@ -1,0 +1,47 @@
+{
+  "source": "startup_india",
+  "label": "Startup India",
+  "status": "ok",
+  "enabled": true,
+  "category": "startup",
+  "region": [
+    "india"
+  ],
+  "site_domain": "startupindia.gov.in",
+  "test_query": "fintech startup",
+  "test_city": "bangalore",
+  "built_queries": [
+    "site:startupindia.gov.in fintech startup bangalore"
+  ],
+  "executed_query": "site:startupindia.gov.in fintech startup bangalore",
+  "results_count": 5,
+  "time_ms": 7673,
+  "errors": null,
+  "results": [
+    {
+      "title": "Indian Startup Ecosystem",
+      "href": "https://www.startupindia.gov.in/content/sih/en/about-startup-india-initiative/Indo-Protugal/indian-startup-ecosystem.html",
+      "body": "Bangalore, Mumbai and NCR top startup destinations with over 65% of the total Indian startups.IBM is partnering with 100 Indian big data and IoT start-ups"
+    },
+    {
+      "title": "Startup India",
+      "href": "https://www.startupindia.gov.in/",
+      "body": "Startup India is an e-platform for startups and entrepreneurs; with various stakeholders such as investors, incubators, startups in its network to collaborate."
+    },
+    {
+      "title": "Indian Startup Ecosystem",
+      "href": "https://www.startupindia.gov.in/content/sih/en/startup-scheme/international/go-to-market-guide/indian-startup-ecosystem.html",
+      "body": "Bangalore, Mumbai and NCR top startup destinations with over 65% of the total Indian startups.IBM is partnering with 100 Indian big data and IoT start-ups"
+    },
+    {
+      "title": "AFFLUENCEIT FINTECH PRIVATE LIMITED | Startup India",
+      "href": "https://www.startupindia.gov.in/content/sih/en/profile.Startup.67611762e4b011954bcea623.html",
+      "body": "SAVEIT is a new-age fintech e-commerce platform based in India. It is designed to streamline financial management and maximize consumers' SAVINGS & OP."
+    },
+    {
+      "title": "Indian Startup Ecosystem",
+      "href": "https://www.startupindia.gov.in/content/sih/en/startup-scheme/international/indo-sweden-hub/indian-startup-ecosystem.html",
+      "body": "Bangalore, Mumbai and NCR top startup destinations with over 65% of the total Indian startups.IBM is partnering with 100 Indian big data and IoT start-ups"
+    }
+  ]
+}

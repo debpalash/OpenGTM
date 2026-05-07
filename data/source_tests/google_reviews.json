@@ -1,0 +1,47 @@
+{
+  "source": "google_reviews",
+  "label": "Google Reviews",
+  "status": "ok",
+  "enabled": true,
+  "category": "review",
+  "region": [
+    "global"
+  ],
+  "site_domain": null,
+  "test_query": "project management software",
+  "test_city": "",
+  "built_queries": [
+    "project management software  \"google reviews\" company"
+  ],
+  "executed_query": "project management software  \"google reviews\" company",
+  "results_count": 5,
+  "time_ms": 7683,
+  "errors": null,
+  "results": [
+    {
+      "title": "Working as a Project Manager at Google: Employee Reviews",
+      "href": "https://www.indeed.com/cmp/Google/reviews?fcountry=ALL&fjobtitle=Project+Manager",
+      "body": "Reviews from Google employees about working as a Project Manager at Google. Learn about Google culture, salaries, benefits, work-life balance, management, job security, and more.Google Employee Reviews for Project Manager. Updated April 17, 2025."
+    },
+    {
+      "title": "6 Of The Best Google Review Management Software... | HackerNoon",
+      "href": "https://hackernoon.com/6-of-the-best-google-review-management-software-tools-in-2025-tried-and-tested",
+      "body": "Multi-Location Management: Easily manage reviews across multiple business locations from a single dashboard. Review Protection: Monitors and alerts you to potentially damaging changes to your Google Business Profile."
+    },
+    {
+      "title": "Google Review Management Software | Revyoo",
+      "href": "https://revyoo.paintedpixels.co.uk/google-review-management-software/",
+      "body": "Boost your Google reviews with Revyoo's Google Management Software. Our platform effortlessly integrates with 20+ review sites, including Google, to get more reviews, improve customer perception, and improve your rankings in search engine results."
+    },
+    {
+      "title": "How to Delete Negative Google Reviews \u2013 It\u2019s Easier Than... - YouTube",
+      "href": "https://www.youtube.com/watch?v=75mGym7-hUA",
+      "body": "\u00a9 2026 Google LLC."
+    },
+    {
+      "title": "What A Google Review Management Software... - PC Tech Magazine",
+      "href": "https://pctechmag.com/2026/03/what-a-google-review-management-software-optimizes-that-humans-dont/",
+      "body": "Humans manage reviews reactively. Google review management software manages systems, timing, patterns, and risk simultaneously. The difference is not speed alone. It is consistency."
+    }
+  ]
+}

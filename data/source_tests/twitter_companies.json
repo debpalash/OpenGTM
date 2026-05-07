@@ -1,0 +1,47 @@
+{
+  "source": "twitter_companies",
+  "label": "Twitter/X Companies",
+  "status": "ok",
+  "enabled": true,
+  "category": "social",
+  "region": [
+    "global"
+  ],
+  "site_domain": null,
+  "test_query": "tech company",
+  "test_city": "",
+  "built_queries": [
+    "site:twitter.com tech company  company official"
+  ],
+  "executed_query": "site:twitter.com tech company  company official",
+  "results_count": 5,
+  "time_ms": 7075,
+  "errors": null,
+  "results": [
+    {
+      "title": "Tech Company News (@TechCompanyNews) \u00b7 X",
+      "href": "https://twitter.com/TechCompanyNews",
+      "body": "JavaScript is not available \u00b7 We\u2019ve detected that JavaScript is disabled in this browser. Please enable JavaScript or switch to a supported browser to continue using twitter.com. You can see a list of supported browsers in our Help Center \u00b7 Help Center \u00b7 Terms of Service Privacy Policy ..."
+    },
+    {
+      "title": "Tech.co (@TechCoHQ) / Posts / X",
+      "href": "https://twitter.com/techcohq",
+      "body": "JavaScript is not available \u00b7 We\u2019ve detected that JavaScript is disabled in this browser. Please enable JavaScript or switch to a supported browser to continue using twitter.com. You can see a list of supported browsers in our Help Center \u00b7 Help Center \u00b7 Terms of Service Privacy Policy ..."
+    },
+    {
+      "title": "Bloomberg Technology",
+      "href": "https://twitter.com/technology",
+      "body": "JavaScript is not available \u00b7 We\u2019ve detected that JavaScript is disabled in this browser. Please enable JavaScript or switch to a supported browser to continue using twitter.com. You can see a list of supported browsers in our Help Center \u00b7 Help Center \u00b7 Terms of Service Privacy Policy ..."
+    },
+    {
+      "title": "Tech Nation (@TechNation) / X",
+      "href": "https://twitter.com/technation?lang=en",
+      "body": "JavaScript is not available \u00b7 We\u2019ve detected that JavaScript is disabled in this browser. Please enable JavaScript or switch to a supported browser to continue using twitter.com. You can see a list of supported browsers in our Help Center \u00b7 Help Center \u00b7 Terms of Service Privacy Policy ..."
+    },
+    {
+      "title": "Tech & Co (@techandco) / X",
+      "href": "https://twitter.com/techandco",
+      "body": "JavaScript is not available \u00b7 We\u2019ve detected that JavaScript is disabled in this browser. Please enable JavaScript or switch to a supported browser to continue using twitter.com. You can see a list of supported browsers in our Help Center \u00b7 Help Center \u00b7 Terms of Service Privacy Policy ..."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "source": "toptal",
+  "label": "Toptal",
+  "status": "disabled",
+  "enabled": false,
+  "category": "freelance",
+  "region": [
+    "global"
+  ],
+  "test_query": "",
+  "test_city": "",
+  "built_queries": [],
+  "executed_query": "",
+  "results_count": 0,
+  "time_ms": 0,
+  "results": []
+}

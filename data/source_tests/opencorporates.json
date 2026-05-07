@@ -1,0 +1,48 @@
+{
+  "source": "opencorporates",
+  "label": "OpenCorporates",
+  "status": "ok",
+  "enabled": true,
+  "category": "government",
+  "region": [
+    "global",
+    "eu"
+  ],
+  "site_domain": "opencorporates.com",
+  "test_query": "technology company",
+  "test_city": "uk",
+  "built_queries": [
+    "site:opencorporates.com technology company uk"
+  ],
+  "executed_query": "site:opencorporates.com technology company uk",
+  "results_count": 5,
+  "time_ms": 7466,
+  "errors": null,
+  "results": [
+    {
+      "title": "OpenCorporates :: The Open Database Of The Corporate World",
+      "href": "https://opencorporates.com/",
+      "body": "Our custom-built data collection, QA and reconciliation technology gives us a significant competitive advantage over legacy business information companies."
+    },
+    {
+      "title": "CELEROS FLOW TECHNOLOGY UK LIMITED :: United Kingdom :: OpenCorporates",
+      "href": "https://assets.opencorporates.com/companies/gb/12417351",
+      "body": "Free and open company data on United Kingdom company CELEROS FLOW TECHNOLOGY UK LIMITED (company number 12417351), 2 New Bailey 6 Stanley Street, Salford, Greater Manchester, M3 5GS"
+    },
+    {
+      "title": "WEBB TECHNOLOGY LIMITED :: United Kingdom",
+      "href": "https://opencorporates.com/companies/gb/11663507",
+      "body": "January 23, 2024 - Free and open company data on United Kingdom company WEBB TECHNOLOGY LIMITED (company number 11663507), 483 Green Lanes, Enfield, London, N13 4BS"
+    },
+    {
+      "title": "HAPPENING TECHNOLOGY LTD :: United Kingdom",
+      "href": "https://opencorporates.com/companies/gb/10547853",
+      "body": "Private Limited Company \u00b7 Jurisdiction \u00b7 United Kingdom \u00b7 Ultimate Beneficial Owners \u00b7 1 UBO listed, please log in to see this data \u00b7 Registered Address \u00b7 T/A Superbet 111 Buckingham Palace Road \u00b7 London \u00b7 SW1W 0SR \u00b7 England \u00b7 Industry Codes \u00b7 62.01/1: Ready-made interactive leisure and entertainment software development (UK SIC Classification 2007) 62.01/2: Business and domestic software development (UK SIC Classification 2007) 62.02: Computer consultancy activities (UK SIC Classification 2007) 70.22/9: Management consultancy activities (other than financial management) (UK SIC Cla"
+    },
+    {
+      "title": "STECH TECHNOLOGY UK LIMITED :: United Kingdom :: OpenCorporates",
+      "href": "https://opencorporates.com/companies/gb/10897880",
+      "body": "Free and open company data on United Kingdom company STECH TECHNOLOGY UK LIMITED (company number 10897880), 77 Marsh Wall, London, E14 9SH"
+    }
+  ]
+}

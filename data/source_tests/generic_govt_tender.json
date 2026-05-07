@@ -1,0 +1,47 @@
+{
+  "source": "generic_govt_tender",
+  "label": "Government Tenders",
+  "status": "ok",
+  "enabled": true,
+  "category": "government",
+  "region": [
+    "india"
+  ],
+  "site_domain": null,
+  "test_query": "private limited company",
+  "test_city": "delhi",
+  "built_queries": [
+    "private limited company government tender delhi vendor supplier list"
+  ],
+  "executed_query": "private limited company government tender delhi vendor supplier list",
+  "results_count": 5,
+  "time_ms": 1824,
+  "errors": null,
+  "results": [
+    {
+      "title": "eProcurement System Government of India",
+      "href": "https://eprocure.gov.in/eprocure/app",
+      "body": "Debarment List. Announcements. Recognitions.The eProcurement System of India enables the Tenderers to download the Tender Schedule free of cost and then submit the bids online through this portal."
+    },
+    {
+      "title": "Tenders | South African Government",
+      "href": "https://www.gov.za/tenders",
+      "body": "Tenders. Please visit National's Treasury eTender portal for tender information. The Tender bulletin was published by the Government Printing Works. Extraction from NATIONAL TREASURY INSTRUCTION NO. 12 OF 2020/2021."
+    },
+    {
+      "title": "Global Tenders - Latest Government Tenders Contracts... - Bid Detail",
+      "href": "https://www.biddetail.com/",
+      "body": "Latest global tenders government tenders bids and contracts opportunities worldwide. Bid Detail offers for global tenders, RFPs, and RFQs, Find government bids. Stay updated with local and international government contracts today."
+    },
+    {
+      "title": "Allanasons Private Limited - Supplier of Chuck Tender New Delhi India",
+      "href": "https://www.exporthub.com/allanasons/",
+      "body": "Supplier of Chuck Tender, Beef Pot Roast & Chuck Steak offered by Allanasons Private Limited from New Delhi, Delhi, India.ALLANASONS PRIVATE LIMITED is a leading venture located in India. ALLANASONS PRIVATE LIMITED Facts Name: Mr. Padmanabhan Nair."
+    },
+    {
+      "title": "TendersGo | Latest Global Tenders | Tender Notice | Bids",
+      "href": "https://www.tendersgo.com/",
+      "body": "Free Global Tenders List.As a supplier of medical equipment, finding the right tenders quickly is crucial for us, and TendersGo delivers every time. The platform is easy to use, the alerts are accurate, and the coverage of opportunities is outstanding."
+    }
+  ]
+}

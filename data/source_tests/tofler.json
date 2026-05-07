@@ -1,0 +1,47 @@
+{
+  "source": "tofler",
+  "label": "Tofler (Company Data)",
+  "status": "ok",
+  "enabled": true,
+  "category": "government",
+  "region": [
+    "india"
+  ],
+  "site_domain": "tofler.in",
+  "test_query": "private limited company",
+  "test_city": "delhi",
+  "built_queries": [
+    "site:tofler.in private limited company delhi"
+  ],
+  "executed_query": "site:tofler.in private limited company delhi",
+  "results_count": 5,
+  "time_ms": 8716,
+  "errors": null,
+  "results": [
+    {
+      "title": "tofler.in",
+      "href": "https://www.tofler.in/",
+      "body": "HEERA GOLD EXIM LIMITED - Company Profile, Directors."
+    },
+    {
+      "title": "Link to tofler.in",
+      "href": "https://www.tofler.in/delhi-watch-marketing-private-limited/company/U33301DL1997PTC085324",
+      "body": "The site owner hides the web page description."
+    },
+    {
+      "title": "Link to tofler.in",
+      "href": "https://www.tofler.in/delhi-public-school-private-limited/company/U80212BR2007PTC013022",
+      "body": "The site owner hides the web page description."
+    },
+    {
+      "title": "Link to tofler.in",
+      "href": "https://www.tofler.in/gc-web-ventures-private-limited/company/U74999DL2013PTC249324",
+      "body": "The site owner hides the web page description."
+    },
+    {
+      "title": "Link to tofler.in",
+      "href": "https://www.tofler.in/north-delhi-diabetes-centre-private-limited/company/U74999DL2016PTC306171",
+      "body": "The site owner hides the web page description."
+    }
+  ]
+}

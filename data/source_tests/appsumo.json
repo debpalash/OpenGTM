@@ -1,0 +1,47 @@
+{
+  "source": "appsumo",
+  "label": "AppSumo",
+  "status": "ok",
+  "enabled": true,
+  "category": "saas_directory",
+  "region": [
+    "global"
+  ],
+  "site_domain": "appsumo.com",
+  "test_query": "CRM software",
+  "test_city": "",
+  "built_queries": [
+    "site:appsumo.com crm software"
+  ],
+  "executed_query": "site:appsumo.com crm software",
+  "results_count": 5,
+  "time_ms": 1550,
+  "errors": null,
+  "results": [
+    {
+      "title": "Shop CRM software | AppSumo",
+      "href": "https://appsumo.com/software/marketing-sales/crm/",
+      "body": "Top software deals for entrepreneurs at incredible prices. Discover the latest productivity, marketing, and content tools for your business with no monthly fees."
+    },
+    {
+      "title": "Best CRM Software for Startups in 2023",
+      "href": "https://blog.appsumo.com/crm-software/",
+      "body": "February 28, 2023 - Monday.com has a visual and intuitive interface with pronounced project management and CRM features. Price: $30, $36 and $60 per month. Free and enterprise plans are also available. ... Visual interface helps envisage the sales pipeline. ... Integrates with dozens of apps and software like Trello, Slack, and Typeform."
+    },
+    {
+      "title": "AppSumo - Discover products. Stay weird. | AppSumo",
+      "href": "https://appsumo.com/",
+      "body": "Monitor your entire business with this AI-driven CRM and sales platform \u00b7 76 reviews \u00b7 76 reviews \u00b7 $69/lifetime$588 \u00b7 5 \u00b7 Resell a white-label AI sales agent to your clients and keep 100% of the profit \u00b7 44 reviews \u00b7 44 reviews \u00b7 $59/lifetime$804 \u00b7 6 \u00b7 Analyze any page, benchmark competitors, and get SEO and GEO recommendations that boost rankings \u00b7"
+    },
+    {
+      "title": "Deskera Redefines \u201cEnd-to-End\u201d Business Software for SMBs (True Story) | AppSumo Blog",
+      "href": "https://appsumo.com/blog/deskera-ceo-interview",
+      "body": "October 19, 2020 - Because under the hood of each of these products is all the accounting, payroll, inventory, invoicing, CRM, helpdesk, and HR tools that a modern SMB needs to grow. Deskera is an all-in-one suite of cloud-based business software that\u2019s fully integrated and ready for SMBs right out of the box."
+    },
+    {
+      "title": "Shop software | AppSumo",
+      "href": "https://appsumo.com/software/?query=crm",
+      "body": "All-in-one tool for scheduling, time tracking, tasking, PTO, team chat, CRM, and payroll integration"
+    }
+  ]
+}

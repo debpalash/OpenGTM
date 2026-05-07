@@ -1,0 +1,48 @@
+{
+  "source": "glassdoor",
+  "label": "Glassdoor",
+  "status": "ok",
+  "enabled": true,
+  "category": "review",
+  "region": [
+    "global",
+    "us"
+  ],
+  "site_domain": "glassdoor.com",
+  "test_query": "project management software",
+  "test_city": "",
+  "built_queries": [
+    "site:glassdoor.com project management software companies  reviews"
+  ],
+  "executed_query": "site:glassdoor.com project management software companies  reviews",
+  "results_count": 5,
+  "time_ms": 1852,
+  "errors": null,
+  "results": [
+    {
+      "title": "glassdoor.com",
+      "href": "https://glassdoor.com/",
+      "body": "Manager, Software Engineer (remote-eligible) Capital One - Plano, TX."
+    },
+    {
+      "title": "glassdoor.com/Reviews/Google-Reviews-E9079.htm",
+      "href": "https://www.glassdoor.com/Reviews/Google-Reviews-E9079.htm",
+      "body": "Google Software Engineer."
+    },
+    {
+      "title": "glassdoor.com/Community/index.htm",
+      "href": "https://www.glassdoor.com/Community/index.htm",
+      "body": "I am a software development project manager at a 60 person company but..."
+    },
+    {
+      "title": "glassdoor.com/Award/index.htm",
+      "href": "https://www.glassdoor.com/Award/index.htm",
+      "body": "Top-Five CEOs at Small & Medium Companies in 2019."
+    },
+    {
+      "title": "glassdoor.com/Award/Highest-Rated-CEOs-LST_KQ0,18.htm",
+      "href": "https://www.glassdoor.com/Award/Highest-Rated-CEOs-LST_KQ0,18.htm",
+      "body": "top-rated CEO of a large company in the U.S."
+    }
+  ]
+}

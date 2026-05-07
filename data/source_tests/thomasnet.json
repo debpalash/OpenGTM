@@ -1,0 +1,47 @@
+{
+  "source": "thomasnet",
+  "label": "ThomasNet",
+  "status": "ok",
+  "enabled": true,
+  "category": "b2b_marketplace",
+  "region": [
+    "us"
+  ],
+  "site_domain": "thomasnet.com",
+  "test_query": "industrial valves manufacturer",
+  "test_city": "houston",
+  "built_queries": [
+    "site:thomasnet.com industrial valves manufacturer suppliers manufacturers"
+  ],
+  "executed_query": "site:thomasnet.com industrial valves manufacturer suppliers manufacturers",
+  "results_count": 5,
+  "time_ms": 2500,
+  "errors": null,
+  "results": [
+    {
+      "title": "Valve Replacement Parts Suppliers",
+      "href": "https://www.thomasnet.com/suppliers/usa/valve-replacement-parts-97003307",
+      "body": "Distributor of valve components and parts for the oil, power, and refinery industries. ... manufacturer of components & replacement parts for gate ..."
+    },
+    {
+      "title": "Italian Industrial Hub: Chicago, IL 60611",
+      "href": "https://www.thomasnet.com/company/italian-industrial-hub-30868477/profile",
+      "body": "... industrial and manufacturing technology ecosystem in partnership with sixteen Italian machinery-manufacturing associations representing over 10,000 ..."
+    },
+    {
+      "title": "U.S. Thermoplastic Ball Valve Manufacturer Achieves Industry",
+      "href": "https://www.thomasnet.com/insights/u-s-thermoplastic-ball-valve-manufacturer-achieves-industry-first-with-uhmwhdpe-seat-material/",
+      "body": "They were one of the original manufacturers of industrial thermoplastic ball valves, growing to serve global markets and industries with a range of ..."
+    },
+    {
+      "title": "Chemical Pumps Manufacturers and Suppliers in the USA and Canada",
+      "href": "https://www.thomasnet.com/suppliers/usa/chemical-pumps-64370455",
+      "body": "Manufacturer of pumps for agriculture, aquaculture, beverage, brewing, chemical , environmental, food, marine, and other industries."
+    },
+    {
+      "title": "Cryogenic Solenoids Manufacturers and Suppliers in the USA and",
+      "href": "https://www.thomasnet.com/suppliers/usa/cryogenic-solenoids-76430206",
+      "body": "Distributor , Custom Manufacturer, Finishing Service Company, Manufacturer, Service Company \u2022 Under $1 Mil Revenue \u2022 Est."
+    }
+  ]
+}

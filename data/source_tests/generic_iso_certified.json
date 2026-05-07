@@ -1,0 +1,48 @@
+{
+  "source": "generic_iso_certified",
+  "label": "ISO Certified Companies",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "global",
+    "india"
+  ],
+  "site_domain": null,
+  "test_query": "digital marketing agency",
+  "test_city": "",
+  "built_queries": [
+    "\"digital marketing agency\" \"ISO certified\" companies"
+  ],
+  "executed_query": "\"digital marketing agency\" \"ISO certified\" companies",
+  "results_count": 5,
+  "time_ms": 1878,
+  "errors": null,
+  "results": [
+    {
+      "title": "Digital Marketing Agency - ISO Certified - SRV Media, Pune",
+      "href": "https://www.srvmedia.com/",
+      "body": "We are an award-winning digital marketing company in India that helps brands amplify their online presence with end-to-end digital services.We are pleased to see the team accomplishing the goal. I am extremely pleased to have SRV on board as agency partner."
+    },
+    {
+      "title": "Web & Salesforce Development, Design & Digital Marketing...",
+      "href": "https://www.minddigital.com/",
+      "body": "A leading digital company for offshore web development, salesforce development, website design & development, SEO and digital marketing services, analytics and data studio setup."
+    },
+    {
+      "title": "OnlineSyndrome | AI Enabled Digital Marketing Agency In Delhi",
+      "href": "https://onlinesyndrome.com/",
+      "body": "Not Just A Marketing Agency.Transform your digital marketing strategy with the power of AI and automation. By leveraging intelligent algorithms and automated processes, you can enhance targeting precision, personalize customer experiences, and drive better results."
+    },
+    {
+      "title": "Top 10 Digital Marketing Companies in Chandigarh - 2026",
+      "href": "https://www.thinknexttraining.com/top-10-digital-marketing-companies-chandigarh.aspx",
+      "body": "Digital Series is a Digital Marketing Agency located in Chandigarh which develops a comprehensive plan for your company's content that incorporates high-level messages. Our digital marketing team is responsible for the entire web and social media campaigns on behalf of our customers."
+    },
+    {
+      "title": "5 Best Digital Marketing Services In Vizag - 2026",
+      "href": "https://iide.co/blog/digital-marketing-services-in-vizag/",
+      "body": "Leadraft marketing is a new-age digital marketing service provider based in Vizag. They are experts in providing cutting edge digital marketing services in Vizag which aim at giving a more significant return on digital spendings."
+    }
+  ]
+}

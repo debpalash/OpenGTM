@@ -2,6 +2,8 @@
 import sys
 import os
 import sqlite3
+import secrets
+import string
 
 # Add the project root to the python path so imports work
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -29,18 +31,19 @@ def reset_password():
         
         if not user:
             print("User 'admin' not found. Creating it...")
-            new_password = "admin123"
+            new_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
             hashed_password = get_password_hash(new_password)
             cursor.execute(
                 "INSERT INTO users (username, hashed_password, is_active, is_admin) VALUES (?, ?, ?, ?)",
                 ("admin", hashed_password, True, True)
             )
             conn.commit()
-            print("Admin user created with password: admin123")
+            print(f"Admin user created with password: {new_password}")
+            print("⚠ Save this password — it won't be shown again.")
             return
 
         print(f"Resetting password for user: admin")
-        new_password = "admin123"
+        new_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
         hashed_password = get_password_hash(new_password)
         
         cursor.execute("UPDATE users SET hashed_password = ? WHERE username = ?", (hashed_password, "admin"))

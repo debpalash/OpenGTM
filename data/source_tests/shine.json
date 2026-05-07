@@ -1,0 +1,47 @@
+{
+  "source": "shine",
+  "label": "Shine Jobs",
+  "status": "ok",
+  "enabled": true,
+  "category": "jobs",
+  "region": [
+    "india"
+  ],
+  "site_domain": "shine.com",
+  "test_query": "software engineer hiring",
+  "test_city": "hyderabad",
+  "built_queries": [
+    "site:shine.com software engineer hiring companies hyderabad"
+  ],
+  "executed_query": "site:shine.com software engineer hiring companies hyderabad",
+  "results_count": 5,
+  "time_ms": 2098,
+  "errors": null,
+  "results": [
+    {
+      "title": "6,685 Software Engineering Jobs in Hyderabad - Shine.com",
+      "href": "https://www.shine.com/job-search/software-engineering-jobs-in-hyderabad",
+      "body": "Explore Software Engineering Jobs in Hyderabad at Shine.com. Discover 6,685 Software Engineering job openings in Hyderabad at top companies. Apply now and land your dream job. Explore exciting opportunities!"
+    },
+    {
+      "title": "23,246 Software Engineers Jobs in Hyderabad - Software ...",
+      "href": "https://www.shine.com/job-search/software-engineer-jobs-in-hyderabad",
+      "body": "Explore Software Engineers Jobs in Hyderabad at Shine.com. Discover 23,246 Software Engineers job openings in Hyderabad at top companies. Apply now and land your dream job. Explore exciting opportunities!"
+    },
+    {
+      "title": "22,877 Software Jobs in Hyderabad - Software Job Vacancies in ...",
+      "href": "https://www.shine.com/job-search/software-jobs-in-hyderabad",
+      "body": "Explore Software Jobs in Hyderabad at Shine.com. Discover 22,877 Software job openings in Hyderabad at top companies. Apply now and land your dream job. Explore exciting opportunities!"
+    },
+    {
+      "title": "1,472 Software Engineer Fresher Jobs in Hyderabad - Shine.com",
+      "href": "https://www.shine.com/job-search/software-engineer-fresher-jobs-in-hyderabad",
+      "body": "Apply to 1472 new Software Engineer Fresher Jobs in Hyderabad across India. Search latest Software Engineer Fresher Jobs in Hyderabad openings with salary, requirements, free alerts on Shine.com"
+    },
+    {
+      "title": "15,016 Software Jobs in Hyderabad - Software Openings in ...",
+      "href": "https://www.shine.com/job-search/software-tesster-jobs-in-hyderabad",
+      "body": "Explore 15,016 Software Jobs in Hyderabad. Discover Software openings in Hyderabad in top companies. Apply now and land your dream job. Explore exciting opportunities!"
+    }
+  ]
+}

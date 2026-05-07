@@ -1,0 +1,48 @@
+{
+  "source": "softwaresuggest",
+  "label": "SoftwareSuggest",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "global",
+    "india"
+  ],
+  "site_domain": "softwaresuggest.com",
+  "test_query": "digital marketing agency",
+  "test_city": "",
+  "built_queries": [
+    "site:softwaresuggest.com digital marketing agency"
+  ],
+  "executed_query": "site:softwaresuggest.com digital marketing agency",
+  "results_count": 5,
+  "time_ms": 9488,
+  "errors": null,
+  "results": [
+    {
+      "title": "Top Digital Marketing Agencies in India for 2025",
+      "href": "https://www.softwaresuggest.com/services/digital-marketing-agencies",
+      "body": "Viseo is a leading digital marketing agency dedicated to helping businesses enhance their online presence and drive growth through expert SEO and SEM ..."
+    },
+    {
+      "title": "Top 12 Digital Marketing Agencies in India for 2025",
+      "href": "https://www.softwaresuggest.com/blog/top-digital-marketing-agencies-india/",
+      "body": "WatConsult is a well-known full-service digital marketing agency that boasts of delivering services right from brand launches to building the digital ..."
+    },
+    {
+      "title": "Top 10 Growth Marketing Agencies in India for 2026",
+      "href": "https://www.softwaresuggest.com/blog/top-growth-marketing-agencies-in-india/",
+      "body": "Looking for Digital Marketing Agencies? Check out SoftwareSuggest\u2019s list of the best Digital Marketing Agencies solutions."
+    },
+    {
+      "title": "Digital Marts - 2025 Top Reviews, Portfolio, Pricing | Request",
+      "href": "https://www.softwaresuggest.com/services/digital-marts",
+      "body": "Digital Marketing Agencies ... Digital Marts is a top digital marketing agency that helps businesses grow online. ... innovative digital marketing ..."
+    },
+    {
+      "title": "Top Market Research Companies in India for 2025",
+      "href": "https://www.softwaresuggest.com/services/market-research-companies",
+      "body": "Navicosoft Pty Ltd is a dynamic digital marketing agency dedicated to empowering businesses with comprehensive online solutions."
+    }
+  ]
+}

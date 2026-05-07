@@ -1,0 +1,47 @@
+{
+  "source": "glassdoor_in",
+  "label": "Glassdoor India",
+  "status": "ok",
+  "enabled": true,
+  "category": "review",
+  "region": [
+    "india"
+  ],
+  "site_domain": "glassdoor.co.in",
+  "test_query": "software companies",
+  "test_city": "bangalore",
+  "built_queries": [
+    "site:glassdoor.co.in software companies bangalore company reviews"
+  ],
+  "executed_query": "site:glassdoor.co.in software companies bangalore company reviews",
+  "results_count": 5,
+  "time_ms": 3450,
+  "errors": null,
+  "results": [
+    {
+      "title": "Safran hiring Senior Engineer - Lead Engineer - Software",
+      "href": "https://www.glassdoor.co.in/job-listing/senior-engineer-lead-engineer-software-platform-mf-for-bangalore-safran-JV_IC2940587_KO0,64_KE65,71.htm?jl=1009854595059",
+      "body": "Company : Safran Electronics & Defense Job field : Software Location : Bangalore , India Contract type : Permanent Contract duration : Full-time ..."
+    },
+    {
+      "title": "McAfee hiring QA Engineer Job in India | Glassdoor",
+      "href": "https://www.glassdoor.co.in/job-listing/qa-engineer-mcafee-JV_KO0,11_KE12,18.htm?jl=1010075322171",
+      "body": "We are only considering candidates within a commutable distance to our Bangalore office and are not offering relocation assistance at this time."
+    },
+    {
+      "title": "IBM Reviews | Glassdoor",
+      "href": "https://www.glassdoor.co.in/Reviews/IBM-Reviews-E354.htm",
+      "body": "Is IBM a good company to work for? IBM has an overall rating of 3.9 out of 5, based on over 1,30,480 reviews left anonymously by employees."
+    },
+    {
+      "title": "McAfee Reviews | Glassdoor",
+      "href": "https://www.glassdoor.co.in/Reviews/McAfee-Reviews-E2244.htm",
+      "body": "The best reviews about McAfee have been left by employees working as Software Development Engineer In Test (SDET) , Software Developer and Software ..."
+    },
+    {
+      "title": "Newgen Software Reviews | Glassdoor",
+      "href": "https://www.glassdoor.co.in/Reviews/Newgen-Software-Reviews-E32186.htm",
+      "body": "Newgen Software has an employee rating of 4.3 out of 5 stars, based on 3,409 company reviews on Glassdoor which indicates that most employees have an ..."
+    }
+  ]
+}

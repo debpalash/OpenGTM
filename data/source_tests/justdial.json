@@ -1,0 +1,48 @@
+{
+  "source": "justdial",
+  "label": "JustDial",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "india"
+  ],
+  "site_domain": "justdial.com",
+  "test_query": "IT services companies",
+  "test_city": "pune",
+  "built_queries": [
+    "site:justdial.com IT services companies",
+    "site:justdial.com it services companies pune"
+  ],
+  "executed_query": "site:justdial.com IT services companies",
+  "results_count": 5,
+  "time_ms": 2626,
+  "errors": null,
+  "results": [
+    {
+      "title": "Top IT Solution Providers for Business Software & Cloud Solutions in Hyderabad - Justdial",
+      "href": "https://www.justdial.com/Hyderabad/IT-Solution-Providers/nct-10278073",
+      "body": "Comprehensive IT solutions including software development, cloud services, and cybersecurity for enterprises and startups in Hyderabad \u2013 Justdial"
+    },
+    {
+      "title": "Top Information Service Companies in Bangalore - Best Information New Company near me - Justdial",
+      "href": "https://www.justdial.com/Bangalore/Information-Service-Companies/nct-10265542",
+      "body": "797 Information Service Companies in Bangalore. Find \u2713Online Websites, \u2713Software Companies, \u2713Internet Website Developers, \u2713Online Shopping Websites, \u2713Digital Marketing Services in Bangalore. Get Phone Numbers, Address, Reviews, Photos, Maps , FAQs for top Information Service Companies ..."
+    },
+    {
+      "title": "Top Information Service Companies in Delhi - Best Information New Company near me - Justdial",
+      "href": "https://www.justdial.com/Delhi/Information-Service-Companies/nct-10265542",
+      "body": "1329 Information Service Companies in Delhi. Find \u2713Internet Website Developers, \u2713Digital Marketing Services, \u2713Share Brokers, \u2713Internet Website Designers, \u2713Cloud Hosting Services in Delhi. Get Phone Numbers, Address, Reviews, Photos, Maps , FAQs for top Information Service Companies ..."
+    },
+    {
+      "title": "Top Information Service Companies in Chennai - Best Information New Company near me - Justdial",
+      "href": "https://www.justdial.com/Chennai/Information-Service-Companies/nct-10265542",
+      "body": "412 Information Service Companies in Chennai. Find \u2713Digital Marketing Services, \u2713Internet Website Developers, \u2713Online Websites, \u2713Computer Software Developers, \u2713Mutual Fund Agents in Chennai. Get Phone Numbers, Address, Reviews, Photos, Maps , FAQs for top Information Service Companies ..."
+    },
+    {
+      "title": "Top It Outsourcing Services in Vadodara - Best Information & Technology Outsourcing Services near me - Justdial",
+      "href": "https://www.justdial.com/Vadodara/IT-Outsourcing-Services/nct-11472080",
+      "body": "IT Consultants \u00b7 Show Number \u00b7 WhatsApp \u00b7 Get Best Price \u00b7 4.4 \u00b7 5 Ratings \u00b7 This business Information is verified by Justdial. Vadodara \u00b7 8 Years \u00b7 in Business \u00b7 Internet Website Developers \u00b7 Software Companies \u00b7 Show Number \u00b7 Get Best Price \u00b7 5.0 \u00b7 4 Ratings \u00b7"
+    }
+  ]
+}
