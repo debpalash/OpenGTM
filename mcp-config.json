@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "yupcha": {
+      "command": "python",
+      "args": ["-m", "apps.mcp.server"],
+      "cwd": "/path/to/lead-data",
+      "env": {}
+    }
+  }
+}

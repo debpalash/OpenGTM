@@ -291,7 +291,15 @@ export default function WorkbookEditorPage() {
 
   const workbook = data?.workbook
   const rows = data?.rows ?? []
-  const columns = workbook?.columns_config ?? []
+  // Normalize columns — ensure every column has an `id` (templates use `key`)
+  const columns = (workbook?.columns_config ?? []).map((col: any, idx: number) => ({
+    ...col,
+    id: col.id || col.key || `col_${idx}`,
+    lead_field: col.lead_field || col.key || col.id || "",
+    type: col.type === "lead_field" || col.type === "input" || col.type === "enrichment" || col.type === "waterfall" || col.type === "ai_formula" || col.type === "conditional" || col.type === "output"
+      ? col.type
+      : "lead_field",
+  }))
 
   // ── DnD sensors for column reorder ──
   const dndSensors = useSensors(

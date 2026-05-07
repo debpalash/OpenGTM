@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
-  Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2, X, Activity,
+  Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2, X, Activity, Building2,
 } from "lucide-react"
 import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
@@ -33,6 +33,7 @@ import AnalyticsPage from "@/pages/analytics"
 import WorkbooksPage from "@/pages/workbooks"
 import WorkbookEditorPage from "@/pages/workbook-editor"
 import SignalsPage from "@/pages/signals"
+import WorkspacesManagerPage from "@/pages/workspaces-manager"
 
 const NAV_ITEMS = [
   { to: "/chat",       icon: MessageSquare, label: "Chat" },
@@ -43,6 +44,7 @@ const NAV_ITEMS = [
   { to: "/outreach",   icon: Send,          label: "Outreach" },
   { to: "/signals",    icon: Activity,      label: "Signals" },
   { to: "/sources",    icon: Database,      label: "Sources" },
+  { to: "/agency",     icon: Building2,     label: "Agency" },
   { to: "/analytics",  icon: BarChart3,     label: "Analytics" },
 ]
 
@@ -289,6 +291,7 @@ function AppContent() {
     if (location.pathname.startsWith("/agents")) return "Tasks"
     if (location.pathname.startsWith("/outreach")) return "Outreach"
     if (location.pathname.startsWith("/signals")) return "Signals"
+    if (location.pathname.startsWith("/agency")) return "Agency"
     if (location.pathname.startsWith("/campaigns")) return "Campaigns"
     if (location.pathname.startsWith("/sources")) return "Sources"
     if (location.pathname.startsWith("/analytics")) return "Analytics"
@@ -311,6 +314,7 @@ function AppContent() {
           <Route path="/agents" element={<AgentsPage />} />
           <Route path="/outreach/*" element={<OutreachPage />} />
           <Route path="/signals/*" element={<SignalsPage />} />
+          <Route path="/agency/*" element={<WorkspacesManagerPage />} />
           <Route path="/campaigns/*" element={<CampaignsPage />} />
           <Route path="/sources/*" element={<SourcesPage />} />
           <Route path="/analytics/*" element={<AnalyticsPage />} />

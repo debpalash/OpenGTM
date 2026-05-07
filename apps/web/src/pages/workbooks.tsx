@@ -2,10 +2,13 @@
  * Workbooks List Page — create, list, and navigate to workbooks.
  */
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useWorkbooks, useCreateWorkbook, useDeleteWorkbook } from "@/lib/workbook-hooks"
-import { Plus, Table2, Trash2, Play, Pause, Clock, MoreHorizontal, FileSpreadsheet, Sparkles } from "lucide-react"
+import {
+  Plus, Table2, Trash2, Play, Pause, Clock, MoreHorizontal, FileSpreadsheet, Sparkles,
+  LayoutTemplate, Target, Users, Search, Building2, Activity, ChevronRight, Loader2,
+} from "lucide-react"
 import { toast } from "sonner"
 
 const STATUS_COLORS: Record<string, string> = {
@@ -29,6 +32,33 @@ export default function WorkbooksPage() {
   const deleteMutation = useDeleteWorkbook()
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState("")
+  const [showTemplates, setShowTemplates] = useState(false)
+  const [templates, setTemplates] = useState<any[]>([])
+  const [templateCategory, setTemplateCategory] = useState<string | null>(null)
+  const [creatingTemplate, setCreatingTemplate] = useState("")
+
+  useEffect(() => {
+    if (showTemplates) {
+      const params = templateCategory ? `?category=${templateCategory}` : ""
+      fetch(`/api/templates${params}`)
+        .then(r => r.json())
+        .then(d => setTemplates(d.templates || []))
+        .catch(() => {})
+    }
+  }, [showTemplates, templateCategory])
+
+  const createFromTemplate = async (templateId: string) => {
+    setCreatingTemplate(templateId)
+    try {
+      const res = await fetch(`/api/templates/${templateId}/create`, { method: "POST" })
+      const data = await res.json()
+      toast.success(`Workbook created from template`)
+      navigate(`/workbooks/${data.id}`)
+    } catch {
+      toast.error("Failed to create from template")
+    }
+    setCreatingTemplate("")
+  }
 
   const handleCreate = async () => {
     if (!newName.trim()) return
@@ -111,6 +141,81 @@ export default function WorkbooksPage() {
             >
               {createMutation.isPending ? "Creating..." : "Create"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Template Gallery Toggle */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setShowTemplates(!showTemplates)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground rounded-md border hover:border-primary/30 transition-colors"
+        >
+          <LayoutTemplate className="size-3.5" />
+          {showTemplates ? "Hide Templates" : "Browse Templates"}
+          <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">20+</span>
+        </button>
+      </div>
+
+      {/* Template Gallery */}
+      {showTemplates && (
+        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          {/* Category Tabs */}
+          <div className="flex items-center gap-1.5 text-xs overflow-x-auto">
+            {[
+              { key: null, label: "All", icon: LayoutTemplate },
+              { key: "sales", label: "Sales", icon: Target },
+              { key: "recruiting", label: "Recruiting", icon: Users },
+              { key: "research", label: "Research", icon: Search },
+              { key: "agency", label: "Agency", icon: Building2 },
+              { key: "signals", label: "Signals", icon: Activity },
+            ].map(cat => {
+              const Icon = cat.icon
+              return (
+                <button
+                  key={cat.key || "all"}
+                  onClick={() => setTemplateCategory(cat.key)}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors ${
+                    templateCategory === cat.key
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <Icon className="size-3" />
+                  {cat.label}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Template Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            {templates.map(t => (
+              <div
+                key={t.id}
+                className="flex items-start gap-3 p-3 rounded-lg border hover:border-primary/30 cursor-pointer transition-colors group"
+                onClick={() => createFromTemplate(t.id)}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-medium truncate">{t.name}</span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">
+                    {t.description}
+                  </p>
+                  <span className="text-[10px] text-muted-foreground/50 mt-1 inline-block">
+                    {t.columns?.length || 0} columns
+                  </span>
+                </div>
+                <div className="shrink-0 mt-1">
+                  {creatingTemplate === t.id ? (
+                    <Loader2 className="size-3.5 animate-spin text-primary" />
+                  ) : (
+                    <ChevronRight className="size-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

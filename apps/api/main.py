@@ -106,6 +106,16 @@ app.include_router(hubspot_router)
 from apps.api.routers.signals import router as signals_router
 app.include_router(signals_router)
 
+# Include Routers — Workspace Manager
+from apps.api.routers.workspace_manager import router as ws_manager_router
+app.include_router(ws_manager_router)
+
+# Include Routers — Templates & Functions
+from apps.api.routers.templates import router as templates_router
+from apps.api.routers.functions import router as functions_router
+app.include_router(templates_router)
+app.include_router(functions_router)
+
 # Include Routers — Data Sources
 from apps.api.routers.ambitionbox import router as ambitionbox_router
 app.include_router(ambitionbox_router)
