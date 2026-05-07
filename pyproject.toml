@@ -38,6 +38,8 @@ dependencies = [
     "logfire[fastapi]>=0.51.0",
     "aiofiles>=25.1.0",
     "duckduckgo-search>=8.1.1",
+    "redis>=6.4.0",
+    "bullmq>=2.25.1",
 ]
 
 [project.scripts]
