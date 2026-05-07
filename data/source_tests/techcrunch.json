@@ -1,0 +1,47 @@
+{
+  "source": "techcrunch",
+  "label": "TechCrunch",
+  "status": "ok",
+  "enabled": true,
+  "category": "news",
+  "region": [
+    "global"
+  ],
+  "site_domain": "techcrunch.com",
+  "test_query": "tech startup funding",
+  "test_city": "",
+  "built_queries": [
+    "site:techcrunch.com tech startup funding  startup funding"
+  ],
+  "executed_query": "site:techcrunch.com tech startup funding  startup funding",
+  "results_count": 5,
+  "time_ms": 2615,
+  "errors": null,
+  "results": [
+    {
+      "title": "Startup Funding For New Business - Get Funded | Angel Investors",
+      "href": "https://www.bing.com/aclick?ld=e8WUfC9p8UKfum_jyML07ziDVUCUz7Kyi-Y1Sf-KdBmgBYjAtKBWbmShqhhI4xWsP44ggetGbB2a-XB-EhGRfo9S7PwbT7_hIIhW9na2QxTl2mfhzpvQFubw6zmnp09g7WaZNBxYNKFOR1GjNaanyd8OfabXmSCcpwRlM9QIXqaBMUo0834v21uUV5MkyDacZm2RK8f2X5ICKVQq3pYVH6o8LvJbY&u=aHR0cHMlM2ElMmYlMmZ3d3cuRnVuZGVkLmNvbSUzZnV0bV9zb3VyY2UlM2R5YiUyNnV0bV9tZWRpdW0lM2RsaXZlJTI2dXRtX3Rlcm0lM2RmdW5kZWQlMjZ1dG1fY2FtcGFpZ24lM2R5YmZ1bmRlZC5jb20lMjZodHRwcyUzYSUyZiUyZnd3dy5mdW5kZWQuY29tJTNmdXRtX3NvdXJjZSUzZHliJTI2dXRtX21lZGl1bSUzZGxpdmUlMjZ1dG1fdGVybSUzZGZ1bmRlZCUyNnV0bV9jYW1wYWlnbiUzZHliZnVuZGVkLmNvbSUyNm1zY2xraWQlM2Q5NzU2NDNlMTUwYTcxZDRiMGI3NzJhMWQ5MTkwNDk5NSUyNnV0bV9jb250ZW50JTNkQW5nZWwlMjUyMEludmVzdG9ycw&rlid=975643e150a71d4b0b772a1d91904995",
+      "body": "Worlds Leading Investor Network. Get Connected. Get Funded.com\u00ae. Funded.com\u00ae Official Website. Continuously in Operation Since 2008. Free Trial Available. Sign Up Online \u00b7 Read Our Blog \u00b7 A+ Better Business Bureau \u00b7 10 Years Of Experience Services: Angel Investor Network, Business Plans, Lender Match"
+    },
+    {
+      "title": "Funding Made Easy. - You Need Our Angel Investors.",
+      "href": "https://www.bing.com/aclick?ld=e8bqXpnhoCoKXnVNmiBlIgxDVUCUzrcTvF9OvxdwzV-Ro5CuYGTYaeBKvQfeTFQUnjk9aHSL-Z_Mz1li4OSJNZ3XKiD8OOJEkJJI4r4tZXugZmJrUokjC1g_dpOT6_lhKTIk98WpAsvR8rfyc2JhAB32b2eJ7JXI_yfOOxuG7HqkN_X1j7LgehzDxk7oJXffjIreBoT7s82zjJ_9Aj9XZwser2-bA&u=aHR0cHMlM2ElMmYlMmZ3d3cuYW5nZWxpbnZlc3RtZW50bmV0d29yay51cyUyZmVudHJlcHJlbmV1cnMtaG9tZSUzZm1zY2xraWQlM2Q0ODg5NjFmMGNkOWUxZmNkZjkyMjA4MGMwY2E5MmZhZiUyNnV0bV9zb3VyY2UlM2RiaW5nJTI2dXRtX21lZGl1bSUzZGNwYyUyNnV0bV9jYW1wYWlnbiUzZFVTQSUyNnV0bV90ZXJtJTNkYnVzaW5lc3MlMjUyMGludmVzdG9ycyUyNnV0bV9jb250ZW50JTNkQnVzaW5lc3MlMjUyMEludmVzdG9ycw&rlid=488961f0cd9e1fcdf922080c0ca92faf",
+      "body": "With Over 160,000 Business Investors Registered, Get In Touch & Find Start Up Capital. With Over $300 Million Raised Worldwide For Some Of The Coolest Startups. Sign Up Today. 6500+ Connections A Month \u00b7 Angel Funding Made Easy \u00b7 Quick & Easy Registration \u00b7 Stay Ambitious"
+    },
+    {
+      "title": "Funding news and analysis | TechCrunch",
+      "href": "https://techcrunch.com/tag/funding/",
+      "body": "Jan 21, 2026 \u00b7 TechCrunch covers the latest funding news across the tech ecosystem\u2014from unicorns to the hottest new AI startup, TechCrunch analyzes every round."
+    },
+    {
+      "title": "startup funding - TechCrunch",
+      "href": "https://techcrunch.com/tag/startup-funding/",
+      "body": "Jul 31, 2024 \u00b7 Read the latest news about startup funding on TechCrunch"
+    },
+    {
+      "title": "TechCrunch | Startup and Technology News",
+      "href": "https://techcrunch.com/",
+      "body": "TechCrunch | Reporting on the business of technology, startups, venture capital funding, and Silicon Valley"
+    }
+  ]
+}

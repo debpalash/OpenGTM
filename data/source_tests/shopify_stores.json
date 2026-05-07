@@ -1,0 +1,47 @@
+{
+  "source": "shopify_stores",
+  "label": "Shopify Stores",
+  "status": "ok",
+  "enabled": true,
+  "category": "ecommerce",
+  "region": [
+    "global"
+  ],
+  "site_domain": null,
+  "test_query": "DTC brand",
+  "test_city": "",
+  "built_queries": [
+    "\"powered by shopify\" dtc brand"
+  ],
+  "executed_query": "\"powered by shopify\" dtc brand",
+  "results_count": 5,
+  "time_ms": 9509,
+  "errors": null,
+  "results": [
+    {
+      "title": "DTC Trends: 9 Tips, Insights & Notable Stats for 2025 - Shopify",
+      "href": "https://www.shopify.com/enterprise/blog/dtc-trends",
+      "body": "July 3, 2025 - DTC children\u2019s sleep brand Moonboon, for example, has an affiliate program with more than 300 creators across five European markets. These micro-influencers have driven over $1 million in affiliate sales, accounting for approximately 10% of their monthly net sales with an average ROI of 6.5x. Moonboon\u2019s affiliate program is powered by ..."
+    },
+    {
+      "title": "Direct to Consumer (DTC) Sales: Tips and Examples to Sell More (2025) - Shopify India",
+      "href": "https://www.shopify.com/in/enterprise/blog/direct-to-consumer",
+      "body": "February 24, 2025 - Alongside their direct consumer retail (online and in-store), The Conran Shop launched a dedicated B2B site powered by Shopify\u2019s B2B commerce tools, targeted at trade customers like interior designers, architects, and other businesses."
+    },
+    {
+      "title": "From Beauty to Fitness: 14 Big Brands Powered by Shopify \u2013 Noughts & Ones",
+      "href": "https://noughtsandones.com/blogs/news/from-beauty-to-fitness-14-big-brands-powered-by-shopify",
+      "body": "August 12, 2025 - Charlotte Tilbury\u2019s Ecommerce site supports product launches, loyalty rewards, virtual try-ons and even in-store events, all powered through Shopify\u2019s backend. Headquartered in Hertfordshire, Huel (short for \u201cHuman Fuel\u201d) has become ..."
+    },
+    {
+      "title": "Top 12 Clothing Brands Powered by Shopify",
+      "href": "https://hypereffekt.com/blog/top-12-clothing-brands-powered-by-shopify",
+      "body": "April 14, 2025 - Alo Yoga combines mindfulness, movement, and high-end athleisure. The brand is loved by celebrities and yogis alike, offering a premium range of yoga apparel, gear, and lifestyle content."
+    },
+    {
+      "title": "Shopify Help Center | Remove 'Powered by Shopify' from your online store",
+      "href": "https://help.shopify.com/en/manual/online-store/themes/customizing-themes/common-customizations/remove-powered-by-shopify-message",
+      "body": "In the Filter items search box, enter powered. This will bring up both the Powered by Shopify and Powered by Shopify HTML boxes."
+    }
+  ]
+}

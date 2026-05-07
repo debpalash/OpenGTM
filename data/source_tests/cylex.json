@@ -1,0 +1,48 @@
+{
+  "source": "cylex",
+  "label": "Cylex",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "global",
+    "eu"
+  ],
+  "site_domain": "cylex.us.com",
+  "test_query": "digital marketing agency",
+  "test_city": "",
+  "built_queries": [
+    "site:cylex.us.com digital marketing agency"
+  ],
+  "executed_query": "site:cylex.us.com digital marketing agency",
+  "results_count": 5,
+  "time_ms": 2634,
+  "errors": null,
+  "results": [
+    {
+      "title": "Marketing Agencies in San Diego, CA - Cylex Local Search",
+      "href": "https://www.cylex.us.com/san-diego/marketing-agencies/",
+      "body": "We are a relationship-oriented web design and digital marketing agency in San Diego\u2019s historic downtown.We make marketing easy and affordable ..."
+    },
+    {
+      "title": "\u25b7 TK Digitals | Marketing Agencies, League City, TX",
+      "href": "https://www.cylex.us.com/company/tk-digitals-33280782.html",
+      "body": "TKDigitals is a full-service digital agency located in Texas, USA. TKDigitals\u2019 team of nearly 100 employees provides social media marketing ..."
+    },
+    {
+      "title": "\u25b7 Provaro Marketing, Santa Rosa, CA",
+      "href": "https://www.cylex.us.com/company/provaro-marketing-25241589.html",
+      "body": "Provaro Marketing is a Digital Marketing Agency with more than 20 years of experience in local marketing and SEO. ... Policy Digital Products Agency ..."
+    },
+    {
+      "title": "Internet Services in Wilmington, DE - Cylex Local Search",
+      "href": "https://www.cylex.us.com/wilmington/internet-services/",
+      "body": "A multi-location digital agency focused on website, mobile and cloud application development, branding & design, and online marketing and PR."
+    },
+    {
+      "title": "\u25b7 PLM Motorsports LLC | Marketing Agencies, Phoenix, AZ",
+      "href": "https://www.cylex.us.com/company/plm-motorsports-llc-29932474.html",
+      "body": "Automate and scale your business with AI-powered tools for reputation AI, social media, local SEO, lead generation, and marketing automation."
+    }
+  ]
+}

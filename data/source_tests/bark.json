@@ -1,0 +1,48 @@
+{
+  "source": "bark",
+  "label": "Bark",
+  "status": "ok",
+  "enabled": true,
+  "category": "freelance",
+  "region": [
+    "global",
+    "us"
+  ],
+  "site_domain": "bark.com",
+  "test_query": "web development agency",
+  "test_city": "",
+  "built_queries": [
+    "site:bark.com web development agency"
+  ],
+  "executed_query": "site:bark.com web development agency",
+  "results_count": 5,
+  "time_ms": 2662,
+  "errors": null,
+  "results": [
+    {
+      "title": "Find Web Designers | Get Free Quotes | Bark",
+      "href": "https://www.bark.com/en/gb/web-design/",
+      "body": "Bark connects you with qualified web designers and agencies across the United Kingdom who want to work on your project."
+    },
+    {
+      "title": "Find Web Designers | Get Free Quotes | Bark US",
+      "href": "https://www.bark.com/en/us/web-design/",
+      "body": "Bark connects you with qualified web designers and agencies across the United States who want to work on your project."
+    },
+    {
+      "title": "Website Design | Web Designers UK | Freelance & Agency",
+      "href": "https://www.bark.com/en/ie/web-design/",
+      "body": "Make sure you have understood if they are offering web design or development, or both. ... Working with a Web Design agency Web design agencies may ..."
+    },
+    {
+      "title": "Find A Web Designer Near Me | Web Design Australia | Web Design",
+      "href": "https://www.bark.com/en/au/web-design/",
+      "body": "Make sure you have understood if they are offering web design or development, or both. ... Working with a Web Design agency Web design agencies may ..."
+    },
+    {
+      "title": "Website Design | Web Designers UK | Freelance & Agency",
+      "href": "https://www.bark.com/en/za/web-design/",
+      "body": "Make sure you have understood if they are offering web design or development, or both. ... Working with a Web Design agency Web design agencies may ..."
+    }
+  ]
+}

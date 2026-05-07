@@ -1,0 +1,47 @@
+{
+  "source": "manta",
+  "label": "Manta",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "us"
+  ],
+  "site_domain": "manta.com",
+  "test_query": "plumbing contractors",
+  "test_city": "chicago",
+  "built_queries": [
+    "site:manta.com plumbing contractors chicago"
+  ],
+  "executed_query": "site:manta.com plumbing contractors chicago",
+  "results_count": 5,
+  "time_ms": 2355,
+  "errors": null,
+  "results": [
+    {
+      "title": "Consumer Products and Services | Chicago, IL - Manta.com",
+      "href": "https://www.manta.com/mb_53_B8_4C6/consumer_products_and_services/chicago_il",
+      "body": "Andres Plumbing Repair is a professional plumber in Chicago, IL. With our years of experience, we always maintain high-quality standards and consistently place customer satisfaction..."
+    },
+    {
+      "title": "Plumbers and Plumbing Contractors | East Chicago, IN - Manta.com",
+      "href": "https://www.manta.com/mb_55_B82C705K_5BW/plumbing_contractors/east_chicago_in",
+      "body": "Lassie Plumbing. 1006 Carroll Street. East Chicago, IN. (219) 932-5661. Visit Website. Categorized under Plumbers and Plumbing Contractors."
+    },
+    {
+      "title": "Horver LLC - Chicago, IL - Plumbers in Chicago, Illinois",
+      "href": "https://www.manta.com/c/mmsn0rn/horver-llc",
+      "body": "Horver LLC: Trusted licensed gas contractor in Chicago for leak repair, line installations, and more. Reliable, budget-friendly, and safety-focused services."
+    },
+    {
+      "title": "Contractors | Chicago, IL - Manta.com",
+      "href": "https://www.manta.com/mb_55_E031F000_4C6/special_trade_contractors_nec/chicago_il",
+      "body": "Carmona, in Chicago, IL, is the leading contractor serving Skokie, Glenview, Des Plaines, Elk Grove, Niles, and surrounding areas since 2015.CLAIMED. Plumber. Plumbing Services."
+    },
+    {
+      "title": "Arzet Heating & Air Cond Chicago IL, 60657 \u2013 Manta.com",
+      "href": "https://www.manta.com/c/mb8k132/arzet-heating-air-cond-inc",
+      "body": "Get information, directions, products, services, phone numbers, and reviews on Arzet Heating & Air Cond in Chicago, undefined Discover more Plumbing, Heating, and..."
+    }
+  ]
+}

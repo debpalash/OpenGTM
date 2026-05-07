@@ -1,0 +1,47 @@
+{
+  "source": "stackoverflow_jobs",
+  "label": "StackOverflow Companies",
+  "status": "ok",
+  "enabled": true,
+  "category": "developer",
+  "region": [
+    "global"
+  ],
+  "site_domain": "stackoverflow.com",
+  "test_query": "open source company",
+  "test_city": "",
+  "built_queries": [
+    "site:stackoverflow.com/jobs/companies open source company"
+  ],
+  "executed_query": "site:stackoverflow.com/jobs/companies open source company",
+  "results_count": 5,
+  "time_ms": 2331,
+  "errors": null,
+  "results": [
+    {
+      "title": "Balena Jobs & Careers - Stack Overflow",
+      "href": "https://www.stackoverflow.com/jobs/companies/balena",
+      "body": "Our core product is the balenaCloud platform, but we also maintain a variety of successful open source projects including Etcher, openBalena, balenaOS, and balenaEngine, and made contributions to high-exposure projects such as Docker, Electron, and AppImage. We've also recently released our first hardware product, the balenaFin."
+    },
+    {
+      "title": "Giant Swarm GmbH - Stack Overflow",
+      "href": "https://stackoverflow.com/jobs/companies/giant-swarm-gmbh",
+      "body": "Giant Swarm is a fast-growing open-source infrastructure management platform used by modern enterprises. Our vision is to empower developers around the world to ship great products."
+    },
+    {
+      "title": "Intuit - Stack Overflow",
+      "href": "https://stackoverflow.com/jobs/companies/intuit",
+      "body": "Multiple pillars across the company\u2019s platform teams power the Intuit stack, end-to-end: Developer experiences - supports DevOps, runtime, self-serve testing, design, development tools, and design systems. Open source infrastructure tools built on cloud-native technologies, such as Kubernetes, Argo, OpenTelemetry, Envoy and GraphQL, plus a custom-built infrastructure to support abstracted ..."
+    },
+    {
+      "title": "OMICRON electronics GmbH - Stack Overflow",
+      "href": "https://www.stackoverflow.com/jobs/companies/omicron-electronics-gmbh",
+      "body": "Review OMICRON electronics GmbH job openings and career opportunities on Stack Overflow Jobs. Learn more about OMICRON electronics GmbH employee benefits, their tech stack and more."
+    },
+    {
+      "title": "Stack Overflow",
+      "href": "https://stackoverflow.com/jobs/companies/stack-overflow",
+      "body": "Review Stack Overflow job openings and career opportunities on Stack Overflow Jobs. Learn more about Stack Overflow employee benefits, their tech stack and more."
+    }
+  ]
+}

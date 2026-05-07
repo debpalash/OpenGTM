@@ -1,0 +1,47 @@
+{
+  "source": "fundoodata",
+  "label": "FundooData",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "india"
+  ],
+  "site_domain": "fundoodata.com",
+  "test_query": "IT services companies",
+  "test_city": "pune",
+  "built_queries": [
+    "site:fundoodata.com it services companies companies pune"
+  ],
+  "executed_query": "site:fundoodata.com it services companies companies pune",
+  "results_count": 5,
+  "time_ms": 8311,
+  "errors": null,
+  "results": [
+    {
+      "title": "Services Companies in Pune, Services Companies Database in Pune, List of Top Services Companies in Pune",
+      "href": "https://www.fundoodata.com/citiesindustry/1003/7/list-of-services-companies-in-pune",
+      "body": "\u2022 Pearson India Education Services Pvt Ltd has appointed Vinay Kumar Swamy as Country Head-India. \u2022 UNIVO has appointed Siddharth Banerjee as CEO. \u2022 Motilal Oswal Home Finance Limited has appointed Sukesh Bhowal as the Chief Executive Officer. \u2022 Realme India CEO Madhav Sheth has moved on from the company. \u2022 Dr Lal PathLabs has appointed Munender Soperna as Chief Information & Digital Officer. \u2022 Axis Bank has appointed Manjunath Kashi as SVP and Head of IT Infrastructure."
+    },
+    {
+      "title": "List of Services Companies in Pune - Fundoodata.com",
+      "href": "https://www.fundoodata.com/citiesindustry/1003/7/list-of--companies-in-pune",
+      "body": "\u2022 FanBuff Technology India Pvt Ltd (FanClash) has raised $40 Million from Sequoia, Falcon Edge, Info Edge, Matic Networks \u2022 Space Matrix has acquired Pursuite for an undisclosed sum. \u2022 Tata CLiQ has teamed up with Salesforce to offer enhanced and personalized customer experience. \u2022 Lenovo has acquired a $614 million stakes in PCCW digital units for IT services growth."
+    },
+    {
+      "title": "List of Companies in Pune, Top Companies List in Pune, Industries in Pune",
+      "href": "https://www.fundoodata.com/companies-in/pune-l7",
+      "body": "FD For All A Free Search Tool for Refining Companies ... Services Advertising (3494) BFSI (3617) Consulting (3887) Courier, Logistics (4232) E-Commerce (1578) Hospitals (6382) Hotels (5622) IT (12278) Institutes (12551) ITES-BPO (519) View more Manufacturing Airlines, Defense (514) Cement, Marble (1519) Chemical (6251) Construction (7303) Consumer Durables (676) Engineering (12351) Food, FMCG (6528) Pharmaceuticals (4528) Gems, Jewellery (1393) View more"
+    },
+    {
+      "title": "IT - Hardware Companies in Pune, IT - Hardware Companies Database in Pune, List of Top IT - Hardware Companies in Pune",
+      "href": "https://www.fundoodata.com/citiesindustry/128/7/list-of-it-hardware-companies-in-pune",
+      "body": "\u2022 Pearson India Education Services Pvt Ltd has appointed Vinay Kumar Swamy as Country Head-India. \u2022 UNIVO has appointed Siddharth Banerjee as CEO. \u2022 Motilal Oswal Home Finance Limited has appointed Sukesh Bhowal as the Chief Executive Officer. \u2022 Realme India CEO Madhav Sheth has moved on from the company. \u2022 Dr Lal PathLabs has appointed Munender Soperna as Chief Information & Digital Officer. \u2022 Axis Bank has appointed Manjunath Kashi as SVP and Head of IT Infrastructure."
+    },
+    {
+      "title": "List of Services Companies in India , Delhi NCR, Noida, Gurgaon Mumbai, Hyderabad, Chennai, Bangalore, Pune",
+      "href": "https://www.fundoodata.com/companies-in/list-of--companies-in-india-i1003",
+      "body": "September 19, 2022 - \u2022 DotPe has raised $55 million in a round led by Temasek \u2022 Unisys India has tied up with 1E to expand its digital employee experience. \u2022 Rephrase AI has raised $10.6 Million in funding led by Red Ventures \u2022 Ivyclique AI has raised an undisclosed amount led by angel investors. \u2022 EarlySalary and Finzy have partnered with SanKash to provide Travel Now Pay Later services."
+    }
+  ]
+}

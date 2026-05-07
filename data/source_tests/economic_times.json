@@ -1,0 +1,47 @@
+{
+  "source": "economic_times",
+  "label": "Economic Times",
+  "status": "ok",
+  "enabled": true,
+  "category": "news",
+  "region": [
+    "india"
+  ],
+  "site_domain": "economictimes.com",
+  "test_query": "startup funding",
+  "test_city": "bangalore",
+  "built_queries": [
+    "site:economictimes.indiatimes.com startup funding companies bangalore"
+  ],
+  "executed_query": "site:economictimes.indiatimes.com startup funding companies bangalore",
+  "results_count": 5,
+  "time_ms": 1484,
+  "errors": null,
+  "results": [
+    {
+      "title": "Bangalore-based Ok! Acquired invests $1,30,000 in EdTech, NFT startups - The Economic Times",
+      "href": "https://economictimes.indiatimes.com/tech/funding/bangalore-based-ok-acquired-invests-115000-in-edtech-nft-startup/articleshow/90269218.cms",
+      "body": "March 16, 2022 - The firm said it has invested $1,00,000 in Uppskill, a Web 2.0 EdTech startup and $30,000 in Bliv.Club, a Web 3.0 NFT derivative startup. ... New Delhi: Ok! Acquired, a Bangalore-headquartered investment tech firm Wednesday revealed that it has cumulatively invested $1,30,000 in two startups, one each working in EdTech and Non-fungible Token (NFT) Derivative industries."
+    },
+    {
+      "title": "bangalore startups: Latest News & Videos, Photos about bangalore startups | The Economic Times - Page 1",
+      "href": "https://economictimes.indiatimes.com/topic/bangalore-startups",
+      "body": "Taking cue from IIT Madras, several ... ventures scale and raise funding. The list includes coveted names like IIT Bombay, IIM Bangalore, IIM Ahmedabad and IIIT Hyderabad ......"
+    },
+    {
+      "title": "Bangalore based startup Practo targets fresh funding round - The Economic Times",
+      "href": "https://economictimes.indiatimes.com/small-biz/startups/bangalore-based-startup-practo-targets-fresh-funding-round/articleshow/39784387.cms?from=mdr",
+      "body": "August 6, 2014 - NEW DELHI/BANGALORE: Healthcare appointments platform Practo Technologies is expected to raise about $20 million in fresh funding from existing and new investors. The Bangalore-based startup founded in 2008 by two graduates from the National ..."
+    },
+    {
+      "title": "ApartmentADDA: Silicon Valley investors back Bangalore online startup - The Economic Times",
+      "href": "https://economictimes.indiatimes.com/small-biz/startups/apartmentadda-silicon-valley-investors-back-bangalore-online-startup/articleshow/25719698.cms?from=mdr",
+      "body": "November 13, 2013 - BANGALORE: A group of Silicon Valley and Indian investors is backing a Bangalore-based startup ApartmentADDA that provides online software to manage residential complexes. The company and the investors decline to disclose financial details. \"Increasing migration to urban areas will continue to bring tremendous growth in new townships, apartments and villa communities,\" said Bhupen Shah, a Silicon Valley angel investor who teamed up with others including Sharad Sharma, Raghu Tarra, Vijay Anand and Zaheer Rattonsey to fund the five-year old company."
+    },
+    {
+      "title": "Bengaluru Startups: With $10.8 billion, Bengaluru top city on startup funding in 2022 - The Economic Times",
+      "href": "https://economictimes.indiatimes.com/tech/funding/with-10-8-billion-bengaluru-top-city-on-startup-funding-in-2022/articleshow/96859580.cms",
+      "body": "January 9, 2023 - It raised over $1.2 billion in 2022 from existing investors. This amounted to almost 50 per cent of the total funding received in the edtech sector. Bengaluru Startupsunicornpunegurugramdelhiverychennaibyju stracxnbengaluru"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "source": "urbanpro",
+  "label": "UrbanPro",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "india"
+  ],
+  "site_domain": "urbanpro.com",
+  "test_query": "IT services companies",
+  "test_city": "pune",
+  "built_queries": [
+    "site:urbanpro.com it services companies pune"
+  ],
+  "executed_query": "site:urbanpro.com it services companies pune",
+  "results_count": 5,
+  "time_ms": 7659,
+  "errors": null,
+  "results": [
+    {
+      "title": "Top 10 Software Training Institutes in Pune, India",
+      "href": "https://www.urbanpro.com/pune/software-training-institutes",
+      "body": "Also teaches: API & Web Service Testing, Microsoft Azure Training and more ... QuickITDotNet, Pune based leading Software and IT Training company provide software training to IT Professionals, Corporate and IT Students in cutting edge technologies under expert faculties who have 12+experience ..."
+    },
+    {
+      "title": "Top 10 Computer Training Institutes in Pune, India",
+      "href": "https://www.urbanpro.com/pune/computer-training-institutes",
+      "body": "Innovative ideas, strict quality ... customer service constitute the foundation of Innovatus Technologies. Skills: Software Programming , Training in Computer tools usage ... Innovatus Technologies institute with the aim to be a global leader ..."
+    },
+    {
+      "title": "IT Service Management Trainings near me in Pune - UrbanPro",
+      "href": "https://www.urbanpro.com/pune/it-service-management-trainings/1208036",
+      "body": "Find IT Service Management Trainings in Pune by checking \u2714Reviews \u2714Addresses \u2714Ratings \u2714Contact Details \u2714Fee Details and choose from the best IT Service Management providers matching your requirements."
+    },
+    {
+      "title": "Software Professional Tech Institute in Magarpatta City, Pune",
+      "href": "https://www.urbanpro.com/pune/software-professional-tech-institute-magarpatta-city/14592223",
+      "body": "Please tell us about the problem and we will fix it. ... Struts, Servlet, Core Java, JSP (Java Server Pages), Spring, J2EE, Web services, Hibernate, Java Real Time Projects, Java Full Stack Developer"
+    },
+    {
+      "title": "Top 10 ITIL V3 Foundation Training in Pune, India",
+      "href": "https://www.urbanpro.com/pune/itil-v3-foundation-training/1208040",
+      "body": "We conduct corporate trainings ... IT Service Management, IT Governance, IT Infrastructure Library, Project Management, Behavioral and Management Solutions; and Foreign Languages for enterprises and governments worldwide. Also teaches: ITIL Certification, ITIL V3 Intermediate and more ... Browse hundreds of experienced dance tutors across Pune..."
+    }
+  ]
+}

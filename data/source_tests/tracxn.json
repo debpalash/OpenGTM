@@ -1,0 +1,48 @@
+{
+  "source": "tracxn",
+  "label": "Tracxn",
+  "status": "ok",
+  "enabled": true,
+  "category": "startup",
+  "region": [
+    "global",
+    "india"
+  ],
+  "site_domain": "tracxn.com",
+  "test_query": "AI startup funding 2024",
+  "test_city": "",
+  "built_queries": [
+    "site:tracxn.com ai startup funding 2024  startups"
+  ],
+  "executed_query": "site:tracxn.com ai startup funding 2024  startups",
+  "results_count": 5,
+  "time_ms": 3628,
+  "errors": null,
+  "results": [
+    {
+      "title": "Technology & Data for Venture Capital, Corp Dev, Investment... | Tracxn",
+      "href": "https://tracxn.com/",
+      "body": "Venture Capital Funds. Discover high-potential startups and track your portfolio growth. Features. Curated daily deal flow across sectors and geographies."
+    },
+    {
+      "title": "Top Artificial Intelligence Companies in Search Engines in... - Tracxn",
+      "href": "https://tracxn.com/d/artificial-intelligence/ai-startups-in-search-engines-in-north-america/__ZkGhoeGnj-PE2gXxRqI4zDW9-0QdSx0DcVPsHsOnCTI/companies",
+      "body": "There are 11 Artificial Intelligence companies in Search Engines in North America which include Perplexity, Vectara, ChatGPT, Frase, Trieve. Out of these, 6 startups are funded, with 4 having secured Series A+ funding, and 1 achieving unicorn status."
+    },
+    {
+      "title": "Top Artificial Intelligence Companies in EdTech globally... - Tracxn",
+      "href": "https://tracxn.com/d/artificial-intelligence/ai-startups-in-edtech/__QuCGS8Wr7o7nqH_khQHH0aMvuySUSok8xr3uWXiaOXE/companies",
+      "body": "There are 876 Artificial Intelligence companies in EdTech which include Buddy, Stimuler, ELSA Speak, Socratic, Amira Learning. Out of these, 125 startups are funded, with 47 having secured Series A+ funding, and 1 achieving unicorn status."
+    },
+    {
+      "title": "Top Artificial Intelligence Companies in Mining globally... - Tracxn",
+      "href": "https://tracxn.com/d/artificial-intelligence/ai-startups-in-mining/__OmNBGMfRGiRfA4MeatN6JRacsczjc50QfVP-U5E4bBE/companies",
+      "body": "Out of these, 8 startups are funded, with 4 having secured Series A+ funding. 2025 has seen the creation of 1 Artificial Intelligence companies in Mining.Total Funding till date: $175M. Investors: Zeev Ventures, 10D and 7 Others. Latest Funding Round: Series A, Feb 27, 2024, $105M."
+    },
+    {
+      "title": "Top Artificial Intelligence Companies in Construction Tech... - Tracxn",
+      "href": "https://tracxn.com/d/artificial-intelligence/ai-startups-in-construction-tech/__mjhJjnDC8VQbXInWbcIGjds3Baz_AxP1Od18xQOqxmQ/companies",
+      "body": "Explore AI Solutions. AI-powered market intelligence across companies, investors, and sectors. Get Started.Out of these, 63 startups are funded, with 26 having secured Series A+ funding. Over the past 10 years, an average of 11 new companies have been launched annually."
+    }
+  ]
+}

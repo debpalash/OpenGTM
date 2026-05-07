@@ -1,0 +1,47 @@
+{
+  "source": "sourceforge",
+  "label": "SourceForge",
+  "status": "ok",
+  "enabled": true,
+  "category": "saas_directory",
+  "region": [
+    "global"
+  ],
+  "site_domain": "sourceforge.net",
+  "test_query": "CRM software",
+  "test_city": "",
+  "built_queries": [
+    "site:sourceforge.net crm software software"
+  ],
+  "executed_query": "site:sourceforge.net crm software software",
+  "results_count": 5,
+  "time_ms": 7586,
+  "errors": null,
+  "results": [
+    {
+      "title": "Best Free CRM Software of 2026 - Reviews & Comparison",
+      "href": "https://sourceforge.net/software/crm/free-version/",
+      "body": "Compare the best Free CRM software of 2026 for your business. Find the highest rated Free CRM software pricing, reviews, free demos, trials, and more."
+    },
+    {
+      "title": "Best On-Premises CRM Software of 2026 - Reviews & Comparison",
+      "href": "https://sourceforge.net/software/crm/on-premise/",
+      "body": "Compare the best On-Premises CRM software of 2026 for your business. Find the highest rated self-hosted CRM software pricing, reviews, free demos, trials, and more."
+    },
+    {
+      "title": "Best CRM Software for Windows of 2026 - Reviews & Comparison",
+      "href": "https://sourceforge.net/software/crm/windows/",
+      "body": "Compare the best CRM software for Windows of 2026 for your business. Find the highest rated CRM software for Windows pricing, reviews, free demos, trials, and more."
+    },
+    {
+      "title": "Best Open Source Windows CRM Software 2026 - SourceForge",
+      "href": "https://sourceforge.net/directory/crm/windows/",
+      "body": "Apr 4, 2026 \u00b7 Browse free open source CRM software and projects for Windows below. Use the toggles on the left to filter open source CRM software by OS, license, language, programming language, and project status."
+    },
+    {
+      "title": "Best CRM Software with a Free Trial of 2026 - Reviews ...",
+      "href": "https://sourceforge.net/software/crm/free-trial/",
+      "body": "What is CRM Software with a Free Trial? CRM software is a type of software that businesses use to manage and analyze customer interactions and data. It helps businesses improve customer service by tracking customer information, analyzing trends, and providing customized communications for customers."
+    }
+  ]
+}

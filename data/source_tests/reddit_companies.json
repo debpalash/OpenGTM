@@ -1,0 +1,47 @@
+{
+  "source": "reddit_companies",
+  "label": "Reddit Mentions",
+  "status": "ok",
+  "enabled": true,
+  "category": "social",
+  "region": [
+    "global"
+  ],
+  "site_domain": "reddit.com",
+  "test_query": "tech company",
+  "test_city": "",
+  "built_queries": [
+    "site:reddit.com \"best tech company companies\""
+  ],
+  "executed_query": "site:reddit.com \"best tech company companies\"",
+  "results_count": 5,
+  "time_ms": 2268,
+  "errors": null,
+  "results": [
+    {
+      "title": "Best companies to work for ? \ud83d\udc41\ufe0f : techsales",
+      "href": "https://www.reddit.com/r/techsales/comments/14uc3b6/best_companies_to_work_for/",
+      "body": "... people making a ton of money and moving up the ladder at large private companies, series A startups, series D startups, and large public companies."
+    },
+    {
+      "title": "Tech companies make the world a better place. : atayls",
+      "href": "https://www.reddit.com/r/atayls/comments/qqoxzk/tech_companies_make_the_world_a_better_place/",
+      "body": "A safe haven for all things \ud83c\udf08\ud83d\udc3b. ... Tech companies make the world a better place. ... best"
+    },
+    {
+      "title": "Discuss the Most Valuable Tech Stocks : StockMarket",
+      "href": "https://www.reddit.com/r/StockMarket/comments/10n8r8p/discuss_the_most_valuable_tech_stocks/",
+      "body": "Technology companies of all sizes continually push boundaries to be first to market with game-changing technology, whether it be Apple Inc."
+    },
+    {
+      "title": "What % of CS grads make it into top tech companies? : unsw",
+      "href": "https://www.reddit.com/r/unsw/comments/117wpeb/what_of_cs_grads_make_it_into_top_tech_companies/",
+      "body": "Curious as to if anyone had a rough percentage for the amount of people graduating from UNSW CS that get into the top tech companies like google ..."
+    },
+    {
+      "title": "Which company or brand no longer has the quality they were",
+      "href": "https://www.reddit.com/r/AskReddit/comments/3o7p5z/which_company_or_brand_no_longer_has_the_quality/",
+      "body": "As a teen learning to use technology more than just the basics, I used to gobble up their stuff; their downloads, their reviews, their tech news ..."
+    }
+  ]
+}

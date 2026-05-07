@@ -1,0 +1,48 @@
+{
+  "source": "yellowpages",
+  "label": "Yellow Pages",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "us",
+    "global"
+  ],
+  "site_domain": "yellowpages.com",
+  "test_query": "plumbing contractors",
+  "test_city": "chicago",
+  "built_queries": [
+    "site:yellowpages.com plumbing contractors chicago"
+  ],
+  "executed_query": "site:yellowpages.com plumbing contractors chicago",
+  "results_count": 5,
+  "time_ms": 4282,
+  "errors": null,
+  "results": [
+    {
+      "title": "Top Local Building Contractors in Chicago, IL with Reviews |",
+      "href": "https://www.yellowpages.com/chicago-il/building-contractors",
+      "body": "From Business: Welcome to General Contractor Chicago, your premier choice for all your residential and commercial construction needs in Chicago and ..."
+    },
+    {
+      "title": "Best 30 Plumbing Contractors Commercial Industrial in",
+      "href": "https://www.yellowpages.com/philadelphia-pa/plumbing-contractors-commercial-industrial",
+      "body": "Plumbing Contractors-Commercial & Industrial Water Heaters Sewer Cleaners & Repairers ... Plumbers Plumbing-Drain & Sewer Cleaning Heating ..."
+    },
+    {
+      "title": "Altitude Contractors",
+      "href": "https://www.yellowpages.com/nationwide/mip/altitude-contractors-475591859",
+      "body": "Altitude Contractors offers outstanding services with owner involvement all the way through. ... living place looking good with Altitude Contractors ..."
+    },
+    {
+      "title": "Best 30 Plumbing Contractors Commercial Industrial in Los",
+      "href": "https://www.yellowpages.com/los-angeles-ca/plumbing-contractors-commercial-industrial",
+      "body": "Plumbing Contractors-Commercial & Industrial Plumbing-Drain & Sewer Cleaning Sewer Cleaners & Repairers"
+    },
+    {
+      "title": "Best 30 Plumbing Contractors Commercial Industrial in Atlanta,",
+      "href": "https://www.yellowpages.com/atlanta-ga/plumbing-contractors-commercial-industrial",
+      "body": "From Business: \u00c2 Plumbing Contractor serving Atlanta GA, Marietta GA and nearby towns; Plumbing, Drain Cleaning, Piping, Faucet Repair, Shower ..."
+    }
+  ]
+}

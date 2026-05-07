@@ -1,0 +1,49 @@
+{
+  "source": "indeed",
+  "label": "Indeed",
+  "status": "ok",
+  "enabled": true,
+  "category": "jobs",
+  "region": [
+    "global",
+    "india",
+    "us"
+  ],
+  "site_domain": null,
+  "test_query": "software company hiring",
+  "test_city": "",
+  "built_queries": [
+    "site:indeed.com software company hiring  company hiring"
+  ],
+  "executed_query": "site:indeed.com software company hiring  company hiring",
+  "results_count": 5,
+  "time_ms": 1959,
+  "errors": null,
+  "results": [
+    {
+      "title": "software companies that are currently hiring jobs - Indeed",
+      "href": "https://www.indeed.com/q-software-companies-that-are-currently-hiring-jobs.html",
+      "body": "33,615 Software Companies That Are Currently Hiring jobs available on Indeed.com. Apply to Pharmacist, Junior Software Engineer, Licensed Clinical Social Worker and more!"
+    },
+    {
+      "title": "Software Companies Jobs, Employment | Indeed",
+      "href": "https://www.indeed.com/q-Software-companies-jobs.html",
+      "body": "502,240 Software Companies jobs available on Indeed.com. Apply to Senior Associate Engineer, Security Engineer, Modeling & Simulation Engineer and more!"
+    },
+    {
+      "title": "Software Jobs, Employment | Indeed",
+      "href": "https://www.indeed.com/q-Software-jobs.html",
+      "body": "354,378 Software jobs available on Indeed.com. Apply to Senior Software Engineer, Firmware Engineer, Software Engineer and more!"
+    },
+    {
+      "title": "Job Search | Indeed",
+      "href": "https://www.indeed.com/",
+      "body": "With Indeed, you can search millions of jobs online to find the next step in your career. With tools for job search, resumes, company reviews and more, we're with you every step of the way."
+    },
+    {
+      "title": "software engineering staffing companies jobs - Indeed",
+      "href": "https://www.indeed.com/q-software-engineering-staffing-companies-jobs.html",
+      "body": "34,283 Software Engineering Staffing Companies jobs available on Indeed.com. Apply to Staff Software Engineer, Civil Supervisor, Senior Software Engineer and more!"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "source": "sulekha",
+  "label": "Sulekha",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "india"
+  ],
+  "site_domain": "sulekha.com",
+  "test_query": "IT services companies",
+  "test_city": "pune",
+  "built_queries": [
+    "site:sulekha.com it services companies pune"
+  ],
+  "executed_query": "site:sulekha.com it services companies pune",
+  "results_count": 5,
+  "time_ms": 2205,
+  "errors": null,
+  "results": [
+    {
+      "title": "Top IT Job Consultants in Pune, Recruiters | Sulekha PuneIT Consultancy Sevices in Pune - Sulekha PuneSelect your city to find the IT Companies Near Me - SulekhaSoftware Development Services in Pune, Software ... - SulekhaIT Infrastructure Services in Pune - SulekhaSoftware Testing Services in Pune - SulekhaIT Engineering Job Consultants in Pune - Sulekha",
+      "href": "https://www.sulekha.com/it-recruitment-consultants/pune",
+      "body": "IT Job Consultants in Pune. Find the best IT placement consultants, recruitment companies, job agencies, IT jobs in Pune and get IT job consultancy, recruiters, recruitment firms contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. IT Consultancy Sevices in Pune - Find the best informatioin technology consultants in Pune for small, large business and get IT couselling companies, agents contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. Sulekha IT Companies Near Me in Your City - Select your city to find IT Companies Near Me in Your City and get their contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. Software Development Services in Pune - List of software development companies in Pune and get software developers, solution providers contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. IT Infrastructure Services in Pune - Get best price quotes from IT Infrastructure Services in Pune, IT Infrastructure Service Providers Pune, IT Infrastructure Management Pune also download Pune IT Infrastructure Services contact addresses and phone numbers to your mobile from Sulekha.com Pune. Software Testing Services in Pune - List of software testing companies in Pune and get manual, automated software testing service providers contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. IT Engineering Job Consultants in Pune. Find the best IT engineering placement consultants, recruitment companies, job agencies, IT engineering jobs in Pune and get IT engineer job consultancy, recruiters contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile."
+    },
+    {
+      "title": "IT Consultancy Sevices in Pune - Sulekha PuneSelect your city to find the IT Companies Near Me - SulekhaSoftware Development Services in Pune, Software ... - SulekhaIT Infrastructure Services in Pune - SulekhaSoftware Testing Services in Pune - SulekhaIT Engineering Job Consultants in Pune - Sulekha",
+      "href": "https://www.sulekha.com/it-consultancy-sevices/pune",
+      "body": "IT Consultancy Sevices in Pune - Find the best informatioin technology consultants in Pune for small, large business and get IT couselling companies, agents contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. Sulekha IT Companies Near Me in Your City - Select your city to find IT Companies Near Me in Your City and get their contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. Software Development Services in Pune - List of software development companies in Pune and get software developers, solution providers contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. IT Infrastructure Services in Pune - Get best price quotes from IT Infrastructure Services in Pune, IT Infrastructure Service Providers Pune, IT Infrastructure Management Pune also download Pune IT Infrastructure Services contact addresses and phone numbers to your mobile from Sulekha.com Pune. Software Testing Services in Pune - List of software testing companies in Pune and get manual, automated software testing service providers contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. IT Engineering Job Consultants in Pune. Find the best IT engineering placement consultants, recruitment companies, job agencies, IT engineering jobs in Pune and get IT engineer job consultancy, recruiters contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile."
+    },
+    {
+      "title": "Select your city to find the IT Companies Near Me - Sulekha",
+      "href": "https://www.sulekha.com/software-companies/all-cities",
+      "body": "Sulekha IT Companies Near Me in Your City - Select your city to find IT Companies Near Me in Your City and get their contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile."
+    },
+    {
+      "title": "Software Development Services in Pune, Software ... - SulekhaIT Infrastructure Services in Pune - SulekhaSoftware Testing Services in Pune - SulekhaIT Engineering Job Consultants in Pune - Sulekha",
+      "href": "https://www.sulekha.com/software-development-services/pune",
+      "body": "Software Development Services in Pune - List of software development companies in Pune and get software developers, solution providers contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. IT Infrastructure Services in Pune - Get best price quotes from IT Infrastructure Services in Pune, IT Infrastructure Service Providers Pune, IT Infrastructure Management Pune also download Pune IT Infrastructure Services contact addresses and phone numbers to your mobile from Sulekha.com Pune. Software Testing Services in Pune - List of software testing companies in Pune and get manual, automated software testing service providers contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. IT Engineering Job Consultants in Pune. Find the best IT engineering placement consultants, recruitment companies, job agencies, IT engineering jobs in Pune and get IT engineer job consultancy, recruiters contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile."
+    },
+    {
+      "title": "IT Infrastructure Services in Pune - SulekhaSoftware Testing Services in Pune - SulekhaIT Engineering Job Consultants in Pune - Sulekha",
+      "href": "https://www.sulekha.com/it-infrastructure-services/pune",
+      "body": "IT Infrastructure Services in Pune - Get best price quotes from IT Infrastructure Services in Pune, IT Infrastructure Service Providers Pune, IT Infrastructure Management Pune also download Pune IT Infrastructure Services contact addresses and phone numbers to your mobile from Sulekha.com Pune. Software Testing Services in Pune - List of software testing companies in Pune and get manual, automated software testing service providers contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile. IT Engineering Job Consultants in Pune. Find the best IT engineering placement consultants, recruitment companies, job agencies, IT engineering jobs in Pune and get IT engineer job consultancy, recruiters contact addresses, phone numbers, ratings, reviews and Sulekha score instantly to your mobile."
+    }
+  ]
+}

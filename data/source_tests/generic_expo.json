@@ -1,0 +1,48 @@
+{
+  "source": "generic_expo",
+  "label": "Trade Shows & Expos",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "global",
+    "india"
+  ],
+  "site_domain": null,
+  "test_query": "digital marketing agency",
+  "test_city": "",
+  "built_queries": [
+    "digital marketing agency expo exhibitors  2024 2025 list"
+  ],
+  "executed_query": "digital marketing agency expo exhibitors  2024 2025 list",
+  "results_count": 5,
+  "time_ms": 3540,
+  "errors": null,
+  "results": [
+    {
+      "title": "2024 Small Business Forum & Expo: Exhibitor Resources |",
+      "href": "https://www.energy.gov/osdbu/2024-small-business-forum-expo-exhibitor-resources",
+      "body": "... 2024 Small Business Forum & Expo exhibitor, use these tools to get ready for the show\u2014from upcoming deadlines and service forms to marketing ..."
+    },
+    {
+      "title": "CEDIA Expo 2022 Announces Over 15,000 Attendees and 300+",
+      "href": "https://www.industryanalysts.com/101122_cedia_hytec/",
+      "body": "CEDIA Expo brings together thousands of home tech pros and hundreds of exhibitors to the leading event for smart home technology."
+    },
+    {
+      "title": "Don't miss these amazing expo 2021 exhibitors!",
+      "href": "https://exoticdancer.com/special-focus-the-companies-that-support-you/",
+      "body": "Why you can\u2019t miss their EXPO booth: Billionaire\u2019s Row is a global luxury brand which designs, develops and markets luxury goods for the modern ..."
+    },
+    {
+      "title": "2024 Exhibitors - LeadingAge Texas - Solutions EXPO - 2024",
+      "href": "https://www.leadingagetexas.org/page/2024Exhibitors",
+      "body": "Join us amidst the vibrant atmosphere of the Solutions EXPO to enjoy a delicious meal while networking with industry experts and exploring innovative ..."
+    },
+    {
+      "title": "Exhibitor Fees - AMP 2024 Expo",
+      "href": "https://amp24expo.amp.org/expo-information/exhibitor-fees/",
+      "body": "AMP will provide exhibitors with year-round exposure through various marketing channels, including website visibility, newsletter highlights and ..."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "source": "instagram_business",
+  "label": "Instagram Business",
+  "status": "ok",
+  "enabled": true,
+  "category": "social",
+  "region": [
+    "global",
+    "india"
+  ],
+  "site_domain": null,
+  "test_query": "tech company",
+  "test_city": "",
+  "built_queries": [
+    "site:instagram.com tech company  company"
+  ],
+  "executed_query": "site:instagram.com tech company  company",
+  "results_count": 5,
+  "time_ms": 7157,
+  "errors": null,
+  "results": [
+    {
+      "title": "Link to instagram.com",
+      "href": "https://www.instagram.com/techcompany.in/",
+      "body": "The site owner hides the web page description."
+    },
+    {
+      "title": "Link to instagram.com",
+      "href": "https://www.instagram.com/techy_company/",
+      "body": "The site owner hides the web page description."
+    },
+    {
+      "title": "Link to instagram.com",
+      "href": "https://www.instagram.com/ronakmarketing/",
+      "body": "The site owner hides the web page description."
+    },
+    {
+      "title": "Link to instagram.com",
+      "href": "https://www.instagram.com/ltvco/?hl=en",
+      "body": "The site owner hides the web page description."
+    },
+    {
+      "title": "Link to instagram.com",
+      "href": "https://www.instagram.com/p/CJc3LebDyq7/",
+      "body": "The site owner hides the web page description."
+    }
+  ]
+}

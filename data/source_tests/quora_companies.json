@@ -1,0 +1,48 @@
+{
+  "source": "quora_companies",
+  "label": "Quora Mentions",
+  "status": "ok",
+  "enabled": true,
+  "category": "social",
+  "region": [
+    "global",
+    "india"
+  ],
+  "site_domain": "quora.com",
+  "test_query": "tech company",
+  "test_city": "",
+  "built_queries": [
+    "site:quora.com \"best tech company companies\""
+  ],
+  "executed_query": "site:quora.com \"best tech company companies\"",
+  "results_count": 5,
+  "time_ms": 2940,
+  "errors": null,
+  "results": [
+    {
+      "title": "Quora",
+      "href": "https://www.quora.com/What-is-the-best-tech-company",
+      "body": "We would like to show you a description here but the site won\u2019t allow us."
+    },
+    {
+      "title": "Consumer Electronics Advertising | Quora for Business",
+      "href": "https://business.quora.com/industries/consumer-electronics",
+      "body": "Tech buyers turn to Quora to ask detailed questions about product specifications, compatibility, real-world performance, and value comparison ..."
+    },
+    {
+      "title": "Reach tech savvy Quora users",
+      "href": "https://business.quora.com/resources/reach-tech-savvy-quora-users",
+      "body": "For technology brands, this is a high-intent audience that rewards substance. ... Answers that are genuinely helpful perform best."
+    },
+    {
+      "title": "AI Industry Advertising | Quora for Business",
+      "href": "https://business.quora.com/industries/artificial-intelligence",
+      "body": "Across diverse sectors like retail, healthcare, financial services, agriculture and more, companies are ramping up investments in AI technology."
+    },
+    {
+      "title": "Quora Agency Partners | Quora for Business",
+      "href": "https://business.quora.com/agency-partners",
+      "body": "DEPT\u00ae is a pioneering technology and marketing services company that creates end-to-end digital experiences for brands such as Google, KFC, Philips ..."
+    }
+  ]
+}

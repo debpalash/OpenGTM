@@ -1,0 +1,47 @@
+{
+  "source": "zaubacorp",
+  "label": "Zauba Corp (MCA)",
+  "status": "ok",
+  "enabled": true,
+  "category": "government",
+  "region": [
+    "india"
+  ],
+  "site_domain": "zaubacorp.com",
+  "test_query": "private limited company",
+  "test_city": "delhi",
+  "built_queries": [
+    "site:zaubacorp.com private limited company delhi active company"
+  ],
+  "executed_query": "site:zaubacorp.com private limited company delhi active company",
+  "results_count": 5,
+  "time_ms": 1865,
+  "errors": null,
+  "results": [
+    {
+      "title": "Companies Incorpated in India having status of: Active",
+      "href": "https://www.zaubacorp.com/companies-list/status-Active-company.html",
+      "body": "Company. Director. Trademark. Address. Submit. Browse Companies by Activity, Age and Location.Akhealth business solution private limited. Active. 100,000."
+    },
+    {
+      "title": "ACTIVE FINVEST PRIVATE LIMITED | ZaubaCorp",
+      "href": "https://www.zaubacorp.com/ACTIVE-FINVEST-PRIVATE-LIMITED-U65921DL1996PTC077639",
+      "body": "ACTIVE FINVEST PRIVATE LIMITED (CIN: U65921DL1996PTC077639) is a Private company incorporated on 27 Dec 1996. It is classified as Non-government company and is registered at Registrar of Companies, Delhi. Its authorized share capital is Rs."
+    },
+    {
+      "title": "ACTIVE MOTORS PRIVATE LIMITED | ZaubaCorp",
+      "href": "https://www.zaubacorp.com/ACTIVE-MOTORS-PRIVATE-LIMITED-U50400DL2015PTC279626",
+      "body": "ACTIVE MOTORS PRIVATE LIMITED (CIN: U50400DL2015PTC279626) is a Private company incorporated on 29 Dec 2015. It is classified as Non-government company and is registered at Registrar of Companies, Delhi. Its authorized share capital is Rs."
+    },
+    {
+      "title": "3S ACTIVE SERVICES PRIVATE LIMITED | ZaubaCorp",
+      "href": "https://www.zaubacorp.com/3S-ACTIVE-SERVICES-PRIVATE-LIMITED-U74999DL2016PTC300288",
+      "body": "3S ACTIVE SERVICES PRIVATE LIMITED (CIN: U74999DL2016PTC300288) is a Private company incorporated on 24 Dec 2016. It is classified as Non-government company and is registered at Registrar of Companies, Delhi."
+    },
+    {
+      "title": "ACTIVE MONEY ADVISORS PRIVATE LIMITED | ZaubaCorp",
+      "href": "https://www.zaubacorp.com/ACTIVE-MONEY-ADVISORS-PRIVATE-LIMITED-U74140DL2014PTC271959",
+      "body": "Registered address of ACTIVE MONEY ADVISORS PRIVATE LIMITED is W-6, OFFICE NO. 4, SECOND FLOOR WEST PATEL NAGAR , NEW DELHI, Delhi, India - 110008.Company limited by shares. Company Sub Category. Non-government company. Class of Company."
+    }
+  ]
+}

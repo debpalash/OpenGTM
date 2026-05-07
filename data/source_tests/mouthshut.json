@@ -1,0 +1,47 @@
+{
+  "source": "mouthshut",
+  "label": "MouthShut",
+  "status": "ok",
+  "enabled": true,
+  "category": "review",
+  "region": [
+    "india"
+  ],
+  "site_domain": "mouthshut.com",
+  "test_query": "software companies",
+  "test_city": "bangalore",
+  "built_queries": [
+    "site:mouthshut.com software companies bangalore"
+  ],
+  "executed_query": "site:mouthshut.com software companies bangalore",
+  "results_count": 5,
+  "time_ms": 1775,
+  "errors": null,
+  "results": [
+    {
+      "title": "SOFTWARE COMPANIES IN BANGALORE list in India | Employers Reviews and Ratings - MouthShut.com",
+      "href": "https://www.mouthshut.com/software-companies-in-bangalore-proid-926082342",
+      "body": "Employee reviews on SOFTWARE COMPANIES IN BANGALORE. Know more about SOFTWARE COMPANIES IN BANGALORE profile, complaints, jobs, career, salary and hiring interviews."
+    },
+    {
+      "title": "Best Software Company in Bangalore - FASTSTREAM TECHNOLOGIES Employee Review - MouthShut.com",
+      "href": "https://www.mouthshut.com/review/Faststream-Technologies-review-qqoqllsmms",
+      "body": "July 22, 2014 - Home > Employer > Information Technology Companies > Faststream Technologies > Best Software Company in Bangalore"
+    },
+    {
+      "title": "CRANES SOFTWARE INTERNATIONAL LTD Reviews: Employee Reviews, Work Culture | MouthShut",
+      "href": "https://m.mouthshut.com/product-reviews/cranes-software-international-ltd-reviews-925100372",
+      "body": "Cranes Varsity division of Cranes software International located in Domlur, One of the best place to get trained for Embeded, DSP & MATLAB Courses in Bangalore. Quality teaching & opprotunities provided they even provide real-time training on Embe"
+    },
+    {
+      "title": "BANGALORE SOFTWARE SERVICES Reviews: Employee Reviews, Work Culture | MouthShut",
+      "href": "http://m.mouthshut.com/product-reviews/bangalore-software-services-reviews-926026290",
+      "body": "Read genuine employee reviews on BANGALORE SOFTWARE SERVICES. Explore insights on work culture, salary, benefits, and overall employee experiences."
+    },
+    {
+      "title": "ROBERT BOSCH INDIA LTD Reviews, Employee Reviews, Careers, Recruitment, Jobs, Salaries, Contact Number, Address \u2013 MouthShut.com",
+      "href": "https://m.mouthshut.com/product-reviews/Robert-Bosch-India-Ltd-reviews-925101389",
+      "body": "Few of the employees in Robert Bosch aka Bosch Global Software in Coimbatore including few leaders who have spend 20+years in Robert Bosch and moved to coimbatore from Bangalore are part of the larger electronic harassment criminal network leveragin"
+    }
+  ]
+}

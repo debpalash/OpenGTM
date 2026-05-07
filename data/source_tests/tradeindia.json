@@ -1,0 +1,47 @@
+{
+  "source": "tradeindia",
+  "label": "TradeIndia",
+  "status": "ok",
+  "enabled": true,
+  "category": "b2b_marketplace",
+  "region": [
+    "india"
+  ],
+  "site_domain": "tradeindia.com",
+  "test_query": "packaging machinery manufacturers",
+  "test_city": "mumbai",
+  "built_queries": [
+    "site:tradeindia.com packaging machinery manufacturers mumbai manufacturers exporters"
+  ],
+  "executed_query": "site:tradeindia.com packaging machinery manufacturers mumbai manufacturers exporters",
+  "results_count": 5,
+  "time_ms": 3746,
+  "errors": null,
+  "results": [
+    {
+      "title": "Packaging Equipment Manufacturers, Suppliers, Dealers &",
+      "href": "https://www.tradeindia.com/manufacturers/packaging-equipment.html",
+      "body": "PACKAGING MACHINE - Stainless Steel, 20X30X15 Cm | Consistent Results, Double Waffle, Durable Design, Easy Cleaning, Fast Heating, Temperature Control"
+    },
+    {
+      "title": "Food Packaging Machines Manufacturers, Suppliers & Exporters",
+      "href": "https://www.tradeindia.com/manufacturers/food-packaging-machines.html",
+      "body": "Multi Track Packaging Machine - MS with Powder Coating and SS Cladding | Up to Tracks for Liquid, Semi-Liquid, and Paste, 1 Year Warranty, Servo ..."
+    },
+    {
+      "title": "Food Packaging Machines In Mumbai (Bombay) - Prices",
+      "href": "https://www.tradeindia.com/mumbai/food-packaging-machines-city-207486.html",
+      "body": "Product Description We are instrumental in manufacturing exporting and supplying a broad variety of Packaging Machine in Mumbai Maharashtra India."
+    },
+    {
+      "title": "Bottle Packaging Machines In Mumbai (Bombay) - Prices",
+      "href": "https://www.tradeindia.com/mumbai/bottle-packaging-machines-city-207486.html",
+      "body": "... packaging machines manufacturers ... The delivery time for bottle packaging machines in Mumbai can vary depending on the manufacturer and the product."
+    },
+    {
+      "title": "Beverage Packaging Machine - Manufacturers, Suppliers and",
+      "href": "https://www.tradeindia.com/manufacturers/beverage-packaging-machine.html",
+      "body": "Automatic Beverage Packaging Machine - Ce Certified, Electric Drive, Human Machine Interface | Smooth Functioning, Easy Maintenance, Long Service Life"
+    }
+  ]
+}

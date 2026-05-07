@@ -1,0 +1,48 @@
+{
+  "source": "kompass",
+  "label": "Kompass",
+  "status": "ok",
+  "enabled": true,
+  "category": "b2b_marketplace",
+  "region": [
+    "eu",
+    "global"
+  ],
+  "site_domain": "kompass.com",
+  "test_query": "automotive parts supplier",
+  "test_city": "germany",
+  "built_queries": [
+    "site:kompass.com automotive parts supplier germany"
+  ],
+  "executed_query": "site:kompass.com automotive parts supplier germany",
+  "results_count": 5,
+  "time_ms": 8156,
+  "errors": null,
+  "results": [
+    {
+      "title": "Electrical and Electronics Companies in India - Kompass",
+      "href": "https://in.kompass.com/s/electrical-electronics-optical/08/",
+      "body": "Nexco Automation Technologies Private Limited, located in Vadodara, Gujarat, is a leading manufacturer and supplier specializing in advanced ..."
+    },
+    {
+      "title": "Top Companies in Maharashtra | Kompass Business Directory",
+      "href": "https://in.kompass.com/r/maharashtra/in_inmh/",
+      "body": "Avinash Trade Overseas is a verified exporter and supplier based in Navi Mumbai, India, serving global buyers with high-quality agricultural products ..."
+    },
+    {
+      "title": "Retail and Trading Companies in India - Kompass",
+      "href": "https://in.kompass.com/s/retail-traders/13/",
+      "body": "BluePill Export is a globally recognised Exporter, Supplier, and Contract Manufacturer of premium-quality Active Pharmaceutical Ingredients (APIs ..."
+    },
+    {
+      "title": "Companies - Chemicals, Pharmaceuticals & Plastics - Saudi",
+      "href": "https://sa.kompass.com/s/chemicals-pharmaceuticals-plastics/04/",
+      "body": "Ahmed Afifi Melamine Board Factory Company Located in Dammam, Saudi Arabia As a leading manufacturer and supplier of premium-quality melamine boards ..."
+    },
+    {
+      "title": "Organic products Companies in India | Find Suppliers | Kompass",
+      "href": "https://in.kompass.com/a/organic-products/05/",
+      "body": "Eurotrade Textiles Private Limited Is Manufacturer, Supplier & Exporters of Yarn Metric Fabric, Table Linen, Kitchen Linen, Bed Linen & Terry ..."
+    }
+  ]
+}

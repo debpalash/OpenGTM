@@ -1,0 +1,47 @@
+{
+  "source": "monsterindia",
+  "label": "Monster India",
+  "status": "ok",
+  "enabled": true,
+  "category": "jobs",
+  "region": [
+    "india"
+  ],
+  "site_domain": "monsterindia.com",
+  "test_query": "software engineer hiring",
+  "test_city": "hyderabad",
+  "built_queries": [
+    "site:monsterindia.com software engineer hiring companies hyderabad"
+  ],
+  "executed_query": "site:monsterindia.com software engineer hiring companies hyderabad",
+  "results_count": 5,
+  "time_ms": 3859,
+  "errors": null,
+  "results": [
+    {
+      "title": "Salary Index - media.monsterindia.com",
+      "href": "https://media.monsterindia.com/logos/research_report/MSI_FINAL.pdf",
+      "body": "Headquartered in Hyderabad, the company has presence in 11 other cities of India viz., Mumbai, Delhi, Bangalore, Chennai, Pune, Kolkata, Ahmedabad, Baroda, Chandigarh, Jaipur and Cochin. In 2014, Monster mPower Search was voted Product of the Year under the \u2018Online Job Portals category\u2019 in a survey of over 18000 people."
+    },
+    {
+      "title": "MonsterIndia.com - More jobs for Indians.",
+      "href": "https://newsletter.monsterindia.com/files/reward_points5109/",
+      "body": "And that's not all; experience the all new Enhanced Monster Job Postings with 3 Layer Quality Check - Profile targeting, Barrier prompt and MagicFilter and loaded features such as Monster JP rewards program, choice of two category and two locations and many more!"
+    },
+    {
+      "title": "Loading...",
+      "href": "https://assess.monsterindia.com/",
+      "body": "Learning And Assessment. Please use latest version of Google Chrome or Mozilla Firefox for better compatibility. This Browser will be supported soon."
+    },
+    {
+      "title": "Monster Employment Index - India",
+      "href": "https://media.monsterindia.com/logos/mei/moin/MEI_IN_Oct18.pdf",
+      "body": "Hiring demand in Production and Manufacturing sector was upbeat in all key cites this month. Hyderabad (up eight percent) and Chennai (up eight percent) saw the steepest rise in demand followed by Bangalore (up four percent)."
+    },
+    {
+      "title": "Please login to your account: - Monster India",
+      "href": "https://monitor.monsterindia.com/seekerservices/staff.php?tpl=search_tickets&lang=en",
+      "body": "Please login to your account: Username: Password: Set cookie? [Info]"
+    }
+  ]
+}

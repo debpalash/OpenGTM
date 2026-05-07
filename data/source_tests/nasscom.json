@@ -1,0 +1,47 @@
+{
+  "source": "nasscom",
+  "label": "NASSCOM",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "india"
+  ],
+  "site_domain": "nasscom.in",
+  "test_query": "IT services companies",
+  "test_city": "pune",
+  "built_queries": [
+    "site:nasscom.in it services companies member companies"
+  ],
+  "executed_query": "site:nasscom.in it services companies member companies",
+  "results_count": 5,
+  "time_ms": 4403,
+  "errors": null,
+  "results": [
+    {
+      "title": "nasscom.in",
+      "href": "https://nasscom.in/",
+      "body": "The National Association of Software and Service Companies (NASSCOM)."
+    },
+    {
+      "title": "nasscom.in/members-listing",
+      "href": "https://nasscom.in/members-listing",
+      "body": "National Association of Software and Service Companies."
+    },
+    {
+      "title": "Membership | NASSCOM",
+      "href": "http://old.nasscom.in/membership-landing",
+      "body": "Annual Membership Subs. (in Rs.)* Companies which are not directly in the business of technology products and services but provide support solutions / services to the sector eg: HR Firms, VCs, Academic Institutes, background check companies, Real estate providers. X. 55,000."
+    },
+    {
+      "title": "nasscom.in/about-us",
+      "href": "https://nasscom.in/about-us",
+      "body": "National Association of Software and Services Companies."
+    },
+    {
+      "title": "nasscom.in/membership",
+      "href": "https://www.nasscom.in/membership",
+      "body": "If you are a company registered in India and are focused on providing IT-BPM..."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "source": "goodfirms",
+  "label": "GoodFirms",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "global",
+    "india",
+    "us"
+  ],
+  "site_domain": "goodfirms.co",
+  "test_query": "digital marketing agency",
+  "test_city": "",
+  "built_queries": [
+    "site:goodfirms.co digital marketing agency companies",
+    "site:goodfirms.co digital marketing agency"
+  ],
+  "executed_query": "site:goodfirms.co digital marketing agency companies",
+  "results_count": 5,
+  "time_ms": 1743,
+  "errors": null,
+  "results": [
+    {
+      "title": "Full-Service Digital Marketing - Globally Acclaimed Agency",
+      "href": "https://www.bing.com/aclick?ld=e8AVqFh_TQKDF56XDQDIHOhjVUCUwR1yU6gLg11zSuRCq4A-ZEs2a_mvxaLBz0CX6OXCWBRBtgE7mNuJomoojDHMjK5Do6F5ybi3bTsYI-iAlr9qqjdHmQ88AC8K34nYvp5BOPvSXf_dH-UaJRGhOdOTdGLdSgvWu3drl2DfhN-cTB2d83QcSFMMTSbiRic2hqp99QrHijobblvJPqelRhircMFqg&u=aHR0cHMlM2ElMmYlMmZ3d3cuaW50ZXJvZGlnaXRhbC5jb20lMmYlM2Z1dG1fY2FtcGFpZ24lM2RkaWdpdGFsX21hcmtldGluZ19rZXl3b3JkcyUyNnV0bV9zb3VyY2UlM2RwcGMlMjZ1dG1fbWVkaXVtJTNkYmluZyUyNnV0bV90ZXJtJTNkJTI1N0JrZXl3b3JkJTI1N0QlMjZtc2Nsa2lkJTNkMDg4ZDQ2ZGY2YjQ1MWZjYWJjNGUyZjIzYWI2MGJhNzMlMjZ1dG1fY29udGVudCUzZGJlc3QlMjUyMGRpZ2l0YWwlMjUyMG1hcmtldGluZyUyNTIwc2VydmljZXM&rlid=088d46df6b451fcabc4e2f23ab60ba73",
+      "body": "We Combine Deep Roots In Digital Marketing & Patented Technology To Make Bottomline Impact. Help Your Business Reach Its Full Potential With Full-Service Digital Marketing Solutions."
+    },
+    {
+      "title": "Top Digital Marketing Companies - 2026 Reviews | Goodfirms",
+      "href": "https://www.goodfirms.co/directory/marketing-services/top-digital-marketing-companies",
+      "body": "3 days ago \u00b7 Looking for top digital marketing agencies? Explore top digital marketing companies, compare services, budgets, and verified reviews to find the right partner."
+    },
+    {
+      "title": "Top Digital Marketing Agencies in the USA - GoodFirms",
+      "href": "https://www.goodfirms.co/directory/country/top-digital-marketing-companies/us",
+      "body": "1 day ago \u00b7 Find a list of top digital marketing agencies in USA. Select the top digital marketing companies in USA based on verified client reviews, service offerings, and budgets."
+    },
+    {
+      "title": "Top 100+ Content Marketing Agencies - 2026 Reviews | Goodfirms",
+      "href": "https://www.goodfirms.co/directory/marketing-services/top-digital-marketing-companies/content-marketing",
+      "body": "1 day ago \u00b7 Find a list of top content marketing agencies. Select the best content marketing companies based on verified client reviews, service offers & budgets. Choose the best company now."
+    },
+    {
+      "title": "Top 10+ Branding Agencies - 2026 Reviews | Goodfirms",
+      "href": "https://www.goodfirms.co/directory/marketing-services/top-digital-marketing-companies/branding",
+      "body": "Apr 28, 2026 \u00b7 SEOValley is a custom digital marketing company headquartered in India and recognized among the top branding agencies for delivering results-driven strategies. Founded in 2000, the company offers comprehensive branding services alongside digital marketing solutions such as eCommerce SEO, link acquisition, PPC, social media marketing, online reputation management, Google Ads management ..."
+    }
+  ]
+}

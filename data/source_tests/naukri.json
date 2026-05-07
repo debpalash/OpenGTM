@@ -1,0 +1,47 @@
+{
+  "source": "naukri",
+  "label": "Naukri",
+  "status": "ok",
+  "enabled": true,
+  "category": "jobs",
+  "region": [
+    "india"
+  ],
+  "site_domain": "naukri.com",
+  "test_query": "software engineer hiring",
+  "test_city": "hyderabad",
+  "built_queries": [
+    "site:naukri.com software engineer hiring companies hyderabad jobs"
+  ],
+  "executed_query": "site:naukri.com software engineer hiring companies hyderabad jobs",
+  "results_count": 5,
+  "time_ms": 2173,
+  "errors": null,
+  "results": [
+    {
+      "title": "Senior Software Development Engineer Jobs in Hyderabad Secunderabad - 81 Senior Software Development Engineer Openings in Hyderabad Secunderabad - Naukri.com",
+      "href": "https://www.naukri.com/senior-software-development-engineer-jobs-in-hyderabad-secunderabad",
+      "body": "Hiring- **java Developer Mantra Technologies Pvt Ltd ( AgileCRM subsidiary in India). 4-7 yrs Hyderabad(Madhapur) Java, J2Ee, Spring, Rest, Linux, Software Developer, Software Engineer..."
+    },
+    {
+      "title": "Hybris Sso Jobs in Hyderabad - 50 Hybris Sso Openings in Hyderabad - Naukri.com",
+      "href": "https://www.naukri.com/hybris-sso-jobs-in-hyderabad",
+      "body": "4-9 yrs Bengaluru, Hyderabad \u00b7 Java, Struts, Javascript, Spring Mvc, J2Ee, JSP, Servlets, Ajax... INR 4,25,000 - 9,25,000 P.A. ... Javascript, HTML, JSP, jQuery, Apache, Tomcat, SAP CRM, CMS... o Good knowledge of design patterns and software development best practices;o Experience developing web - based , e - commerce applications ... ... Hybris, Java, Hybris Developer, hybris programmer, hybris software engineer..."
+    },
+    {
+      "title": "Software Engineer Jobs In Hyderabad Secunderabad",
+      "href": "https://www.naukri.com/software-engineer-jobs-in-hyderabad-secunderabad",
+      "body": "1 month ago - We cannot provide a description for this page right now"
+    },
+    {
+      "title": "Software Developer Jobs In Hyderabad Secunderabad",
+      "href": "https://www.naukri.com/software-developer-jobs-in-hyderabad-secunderabad",
+      "body": "We cannot provide a description for this page right now"
+    },
+    {
+      "title": "Software Jobs In Hyderabad Secunderabad",
+      "href": "https://www.naukri.com/software-jobs-in-hyderabad-secunderabad",
+      "body": "We cannot provide a description for this page right now"
+    }
+  ]
+}

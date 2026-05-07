@@ -1,0 +1,48 @@
+{
+  "source": "generic_incubator",
+  "label": "Incubator/Accelerator",
+  "status": "ok",
+  "enabled": true,
+  "category": "startup",
+  "region": [
+    "global",
+    "india"
+  ],
+  "site_domain": null,
+  "test_query": "AI startup funding 2024",
+  "test_city": "",
+  "built_queries": [
+    "ai startup funding 2024 startup incubator accelerator  portfolio companies"
+  ],
+  "executed_query": "ai startup funding 2024 startup incubator accelerator  portfolio companies",
+  "results_count": 5,
+  "time_ms": 7612,
+  "errors": null,
+  "results": [
+    {
+      "title": "Top 20 AI Accelerators, Incubators & Startup Programs in 2024",
+      "href": "https://www.startupblink.com/blog/ai-accelerators-incubators-and-startup-programs/",
+      "body": "Sep 25, 2024 \u00b7 Explore our list of AI accelerators, incubators, and startup programs offering funding, mentorship, and resources to help AI startups grow and scale worldwide."
+    },
+    {
+      "title": "The Largest AI Startup Funding Deals Of 2024Top AI Accelerators, Incubators, and Programs in 2024 (Who ...AI (Artificial Intelligence) Startups funded by Y Combinator ...Antler | Where Founders Go Further, FasterThe State of the Funding Market for AI Companies: A 2024 ...",
+      "href": "https://news.crunchbase.com/ai/largest-ai-startup-funding-deals-2024/",
+      "body": "Jan 2, 2025 \u00b7 Artificial intelligence dominated the venture landscape last year. That\u2019s especially clear when you consider how many startups in the industry raised nine- or even 10-figure funding rounds in 2024. Feb 1, 2022 \u00b7 The accelerator helps entrepreneurs create AI-first startups through world-leading AI research, support and funding. AI2 Incubator brings together world-class engineers, researchers, and entrepreneurs to create new companies together from scratch. Browse 1443 of the top AI startups funded by Y Combinator. We also have a Startup Directory where you can search through over 5,000 companies. Antler is the world\u2019s most active early-stage investor, backing exceptional founders from inception. Mar 10, 2025 \u00b7 In 2024, these AI-driven companies captured a substantial share of venture capital funding. Overall, venture capital investment in healthcare rose to $23 billion, up from $20 billion in 2023, with nearly 30% of the 2024 funding directed toward AI-focused startups. What is AI2 incubator? AI2 Incubator is run by the Allen Institute for AI in the U.S. The incubator focuses on helping founders create AI-first startups with access to world-class research, resources, and funding. AI2 Incubator emphasizes building startups from scratch, offering significant funding and technical support from the AI2 research team. How VC investment in AI companies grew in 2024? Global VC investment in AI companies saw remarkable growth in 2024, as funding to AI-related companies exceeded $100 billion, an increase of over 80% from $55.6 billion in 2023. Nearly 33% of all global venture funding was directed to AI companies, making artificial intelligence the leading sector for investments. What fueled the surge in venture capital funding for AI companies in 2024? The surge in global venture capital funding for AI companies in 2024 was driven by diverse industries adopting AI to innovate and solve complex problems. This section explores some of the industries that captured significant investments and highlights their transformative potential. What is AI startup incubator? 11. AI Startup Incubator The AI Startup Incubator (AISI) is dedicated to early-stage AI startups, offering tailored solutions to help startups scale. This ai startup incubator provides financial backing and mentoring through a network of 70 mentors across different industries."
+    },
+    {
+      "title": "Top AI Accelerators, Incubators, and Programs in 2024 (Who ...",
+      "href": "https://www.omdena.com/blog/top-ai-accelerators-incubators-and-programs",
+      "body": "Feb 1, 2022 \u00b7 The accelerator helps entrepreneurs create AI-first startups through world-leading AI research, support and funding. AI2 Incubator brings together world-class engineers, researchers, and entrepreneurs to create new companies together from scratch."
+    },
+    {
+      "title": "AI (Artificial Intelligence) Startups funded by Y Combinator ...",
+      "href": "https://www.ycombinator.com/companies/industry/ai",
+      "body": "Browse 1443 of the top AI startups funded by Y Combinator. We also have a Startup Directory where you can search through over 5,000 companies."
+    },
+    {
+      "title": "The State of the Funding Market for AI Companies: A 2024 ...",
+      "href": "https://www.mintz.com/insights-center/viewpoints/2166/2025-03-10-state-funding-market-ai-companies-2024-2025-outlook",
+      "body": "Mar 10, 2025 \u00b7 In 2024, these AI-driven companies captured a substantial share of venture capital funding. Overall, venture capital investment in healthcare rose to $23 billion, up from $20 billion in 2023, with nearly 30% of the 2024 funding directed toward AI-focused startups."
+    }
+  ]
+}

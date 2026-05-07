@@ -303,6 +303,13 @@ export interface ChatStreamEvent {
   content?: string
   tool_call?: { name: string; args: Record<string, unknown> }
   tool_result?: { name: string; result: Record<string, unknown> }
+  confirmation_required?: {
+    name: string
+    args: Record<string, unknown>
+    description: string
+    level: "high" | "medium" | "low"
+    label: string
+  }
   error?: string
 }
 

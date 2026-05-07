@@ -1,0 +1,47 @@
+{
+  "source": "alternativeto",
+  "label": "AlternativeTo",
+  "status": "ok",
+  "enabled": true,
+  "category": "saas_directory",
+  "region": [
+    "global"
+  ],
+  "site_domain": "alternativeto.net",
+  "test_query": "CRM software",
+  "test_city": "",
+  "built_queries": [
+    "site:alternativeto.net crm software"
+  ],
+  "executed_query": "site:alternativeto.net crm software",
+  "results_count": 5,
+  "time_ms": 1830,
+  "errors": null,
+  "results": [
+    {
+      "title": "Self-Hosted CRM Systems | AlternativeTo",
+      "href": "https://alternativeto.net/browse/all/?platform=self-hosted&tag=customer-relationship-manager",
+      "body": "EspoCRM is an Open Source CRM (Customer Relationship Management) software that allows you to see, enter and evaluate all your company relationships regardless of the type."
+    },
+    {
+      "title": "Free CRM Systems | AlternativeTo",
+      "href": "https://alternativeto.net/category/business-and-commerce/customer-relationship-manager/?license=free",
+      "body": "Integrates enterprise resource planning, CRM, and more, eliminating the need for multiple software with open-source solutions developed in Python."
+    },
+    {
+      "title": "Open Source CRM Systems | AlternativeTo",
+      "href": "https://alternativeto.net/category/business-and-commerce/customer-relationship-manager/?license=opensource",
+      "body": "EspoCRM is an Open Source CRM (Customer Relationship Management) software that allows you to see, enter and evaluate all your company relationships regardless of the type."
+    },
+    {
+      "title": "SaaS Apps tagged with 'CRM' | AlternativeTo",
+      "href": "https://alternativeto.net/browse/all/?platform=software-as-a-service&tag=customer-relationship-manager",
+      "body": "Open-source CRM with advanced features, intuitive design, secure data management, user-driven customization, and collaboration, avoiding vendor lock-in."
+    },
+    {
+      "title": "Online CRM Systems | AlternativeTo",
+      "href": "https://alternativeto.net/category/business-and-commerce/customer-relationship-manager/?platform=online",
+      "body": "Online CRM Systems. Customer relationship management software can help take your engagement with customers to the next level. The best way to get customers invested..."
+    }
+  ]
+}

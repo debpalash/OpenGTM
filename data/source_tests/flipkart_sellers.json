@@ -1,0 +1,47 @@
+{
+  "source": "flipkart_sellers",
+  "label": "Flipkart Sellers",
+  "status": "ok",
+  "enabled": true,
+  "category": "ecommerce",
+  "region": [
+    "india"
+  ],
+  "site_domain": "flipkart.com",
+  "test_query": "electronics seller",
+  "test_city": "delhi",
+  "built_queries": [
+    "site:flipkart.com electronics seller seller delhi"
+  ],
+  "executed_query": "site:flipkart.com electronics seller seller delhi",
+  "results_count": 5,
+  "time_ms": 2110,
+  "errors": null,
+  "results": [
+    {
+      "title": "Online Shopping India Mobile, Cameras, Lifestyle & more Online @ Flipkart.com",
+      "href": "https://www.flipkart.com/",
+      "body": "Flipkart.com - India's best website to buy wide range of products including Electronics, Books, Cloths, Accessories, Home furnishing and much more. CoD & Free Shipping. Also try Our APP for seamless Online Shopping experience."
+    },
+    {
+      "title": "Sell Online on Flipkart | Grow your business with the leader in Indian e-commerce",
+      "href": "https://seller.flipkart.com/sell-online/sell-electronics-online",
+      "body": "Register & Grow your business today with best online selling platform for e-commerce solutions. Sell products Online and reach out to millions of customers with Flipkart India services."
+    },
+    {
+      "title": "Best Electronics Store - Buy Online Electronics Products, Get Upto 70% Off",
+      "href": "https://www.flipkart.com/flipkart-electronics-new-store",
+      "body": "Become a Seller \u00b7 More \u00b7 Cart \u00b7 Innovative products that simplify your lives are easily available at an electronics store online."
+    },
+    {
+      "title": "\u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092c\u0947\u0938\u094d\u091f \u0926\u093e\u092e\u094b\u0902 \u092a\u0930 \u0911\u0928\u0932\u093e\u0907\u0928 \u092a\u094d\u0930\u094b\u0921\u0915\u094d\u091f \u0916\u0930\u0940\u0926\u0947\u0902 - \u0938\u092d\u0940 \u0915\u0948\u091f\u0947\u0917\u0930\u0940 | Flipkart.com",
+      "href": "https://www.flipkart.com/hi/artificial-intelligence-class-9-ver-3-0/p/itmee949ce926fbe",
+      "body": "Shop for electronics, apparels & more using our Flipkart app Free shipping & COD."
+    },
+    {
+      "title": "Online Shopping India | Buy Mobiles, Electronics, Appliances, Clothing and More Online at Flipkart.com",
+      "href": "https://www.flipkart.com/delhi-durbar/p/itmdfgh7mgwhzmwe",
+      "body": "Shop for electronics, apparels & more using our Flipkart app Free shipping & COD."
+    }
+  ]
+}

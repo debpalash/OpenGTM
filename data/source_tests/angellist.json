@@ -1,0 +1,47 @@
+{
+  "source": "angellist",
+  "label": "AngelList / Wellfound",
+  "status": "ok",
+  "enabled": true,
+  "category": "startup",
+  "region": [
+    "global"
+  ],
+  "site_domain": "wellfound.com",
+  "test_query": "AI startup funding 2024",
+  "test_city": "",
+  "built_queries": [
+    "site:wellfound.com ai startup funding 2024  startups"
+  ],
+  "executed_query": "site:wellfound.com ai startup funding 2024  startups",
+  "results_count": 5,
+  "time_ms": 8337,
+  "errors": null,
+  "results": [
+    {
+      "title": "wellfound.com/startups/industry/artificial-intelligence",
+      "href": "https://wellfound.com/startups/industry/artificial-intelligence",
+      "body": "Best Artificial Intelligence Companies and Startups to Work for in 2025."
+    },
+    {
+      "title": "wellfound.com/10-of-10-in-2025",
+      "href": "https://wellfound.com/10-of-10-in-2025",
+      "body": "A badge from Wellfound naming Beautiful.ai as one of the top startups of 2025."
+    },
+    {
+      "title": "Numiro Funding Information | Wellfound (formerly AngelList Talent)",
+      "href": "https://wellfound.com/company/numiro/funding",
+      "body": "Numiro is an AI tech startup that automates tax preparation for US CPA firms. Recently funded.$600,000. Pre-SeedAug 2024$10M valuation. About Numiro."
+    },
+    {
+      "title": "wellfound.com/startups/location/united-states",
+      "href": "https://wellfound.com/startups/location/united-states",
+      "body": "Best Tech Companies and Startups in United States 2024."
+    },
+    {
+      "title": "Wellfound - Startup Job Search",
+      "href": "https://wellfound.com/",
+      "body": "Where startups and job seekers connect.10M+. Startup Ready Candidates. Peleton, Roblox, Airtable, Postmates, Doordash, Nerdwallet, Plaid, IFTTT logos. Startups who used our platform."
+    }
+  ]
+}

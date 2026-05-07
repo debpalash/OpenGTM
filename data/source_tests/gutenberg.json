@@ -1,0 +1,75 @@
+{
+  "source": "gutenberg",
+  "display_name": "Project Gutenberg",
+  "status": "ok",
+  "results_count": 5,
+  "time_ms": 1402,
+  "query": "machine learning",
+  "results": [
+    {
+      "id": "gutenberg_7213",
+      "title": "My Life and Work",
+      "url": "https://www.gutenberg.org/ebooks/7213",
+      "source": "gutenberg",
+      "download_url": "https://www.gutenberg.org/files/7213/7213-pdf.pdf",
+      "thumbnail": null,
+      "author": "Henry Ford and Samuel Crowther",
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Public domain classic"
+    },
+    {
+      "id": "gutenberg_54193",
+      "title": "The Jacquard Machine Analyzed and Explained",
+      "url": "https://www.gutenberg.org/ebooks/54193",
+      "source": "gutenberg",
+      "download_url": "https://www.gutenberg.org/files/54193/54193-pdf.pdf",
+      "thumbnail": null,
+      "author": "E. A. Posselt",
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Public domain classic"
+    },
+    {
+      "id": "gutenberg_4065",
+      "title": "Side-Lights on Astronomy and Kindred Fields of Popular Science",
+      "url": "https://www.gutenberg.org/ebooks/4065",
+      "source": "gutenberg",
+      "download_url": "https://www.gutenberg.org/files/4065/4065-pdf.pdf",
+      "thumbnail": null,
+      "author": "Simon Newcomb",
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Public domain classic"
+    },
+    {
+      "id": "gutenberg_66286",
+      "title": "Self-Organizing Systems, 1963",
+      "url": "https://www.gutenberg.org/ebooks/66286",
+      "source": "gutenberg",
+      "download_url": "https://www.gutenberg.org/files/66286/66286-pdf.pdf",
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Public domain classic"
+    },
+    {
+      "id": "gutenberg_57120",
+      "title": "The Economy of Workshop Manipulation",
+      "url": "https://www.gutenberg.org/ebooks/57120",
+      "source": "gutenberg",
+      "download_url": "https://www.gutenberg.org/files/57120/57120-pdf.pdf",
+      "thumbnail": null,
+      "author": "John Richards",
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Public domain classic"
+    }
+  ]
+}

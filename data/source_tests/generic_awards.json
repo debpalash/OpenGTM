@@ -1,0 +1,48 @@
+{
+  "source": "generic_awards",
+  "label": "Award Winners",
+  "status": "ok",
+  "enabled": true,
+  "category": "directory",
+  "region": [
+    "global"
+  ],
+  "site_domain": null,
+  "test_query": "digital marketing agency",
+  "test_city": "",
+  "built_queries": [
+    "best digital marketing agency companies  awards 2024 2025",
+    "\"fastest growing\" digital marketing agency companies"
+  ],
+  "executed_query": "best digital marketing agency companies  awards 2024 2025",
+  "results_count": 5,
+  "time_ms": 2614,
+  "errors": null,
+  "results": [
+    {
+      "title": "Brrandom - Digital Marketing, Branding & Creative Ad Agency...",
+      "href": "https://techbehemoths.com/company/brrandom-digital-marketing-branding-creative-ad-agency",
+      "body": "reviewed on 9/5/2025. Best Digital Marketing Company in Kolkata.reviewed on 19/11/2024. Best online marketing company in Kolkata. Brrandom is a great place to advance your career without compromising work-life balance."
+    },
+    {
+      "title": "10 Best Digital Marketing Agencies in Johor Bahru 2025 | Latest",
+      "href": "https://www.mybizhub.my/10-best-digital-marketing-agencies-in-johor-bahru-2024/",
+      "body": "Discover the top 10 digital marketing agencies in Johor Bahru for 2025. Boost your online presence and grow your business."
+    },
+    {
+      "title": "The 10 Best Marketing Agencies in Gurugram - 2026 Reviews",
+      "href": "https://www.sortlist.com/l/gurgaon-in",
+      "body": "Find & hire the best Marketing Agencies in Gurugram. Here are the best ones listed just for you based on verified client reviews."
+    },
+    {
+      "title": "20 Best Digital Marketing Agencies In Mumbai: 2026 Updated",
+      "href": "https://iide.co/blog/digital-marketing-agencies-in-mumbai/",
+      "body": "This digital marketing agency in Mumbai is dedicated to delivering impactful results, making them a trusted partner for brands seeking to elevate their digital footprint. Services Offered. Why do clients consider it the best digital marketing company in Mumbai?"
+    },
+    {
+      "title": "Top 5 Digital Marketing Agencies in Gurgaon 2025 | 88gravity",
+      "href": "https://www.88gravity.com/blog/top-5-digital-marketing-agencies-in-gurgaon-2025",
+      "body": "26 Feb, 2025. Top 5 Digital Marketing Agencies in Gurgaon 2025. Digital marketing has now become one of the crucial pillars upon which organizations build their online presence and engage with their target audiences."
+    }
+  ]
+}

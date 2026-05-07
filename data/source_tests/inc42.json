@@ -1,0 +1,47 @@
+{
+  "source": "inc42",
+  "label": "Inc42",
+  "status": "ok",
+  "enabled": true,
+  "category": "startup",
+  "region": [
+    "india"
+  ],
+  "site_domain": "inc42.com",
+  "test_query": "fintech startup",
+  "test_city": "bangalore",
+  "built_queries": [
+    "site:inc42.com fintech startup startups bangalore"
+  ],
+  "executed_query": "site:inc42.com fintech startup startups bangalore",
+  "results_count": 5,
+  "time_ms": 2000,
+  "errors": null,
+  "results": [
+    {
+      "title": "inc42.com/startups/bangalore-startups",
+      "href": "https://inc42.com/startups/bangalore-startups/",
+      "body": "60+ Bangalore Startups To Look Out For (2018 Updated): Indian Startup..."
+    },
+    {
+      "title": "inc42.com/startups/bangalore-startups-series-a-above",
+      "href": "https://inc42.com/startups/bangalore-startups-series-a-above/",
+      "body": "amazing startups from the Bangalore startup community."
+    },
+    {
+      "title": "Link to inc42.com",
+      "href": "https://inc42.com/buzz/startuppulse-bangalore/",
+      "body": "The site owner hides the web page description."
+    },
+    {
+      "title": "inc42.com/buzz/india-home-to-3085-dpiit-recognised-fintech-startups...",
+      "href": "https://inc42.com/buzz/india-home-to-3085-dpiit-recognised-fintech-startups-govt/",
+      "body": "India Home To 3,085 DPIIT-Recognised Fintech Startups: Govt."
+    },
+    {
+      "title": "Link to inc42.com",
+      "href": "https://inc42.com/buzz/14-startups-pitched-startupdash-bangalore-today/",
+      "body": "The site owner hides the web page description."
+    }
+  ]
+}

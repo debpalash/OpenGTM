@@ -1,0 +1,48 @@
+{
+  "source": "crunchbase",
+  "label": "Crunchbase",
+  "status": "ok",
+  "enabled": true,
+  "category": "startup",
+  "region": [
+    "global"
+  ],
+  "site_domain": "crunchbase.com",
+  "test_query": "AI startup funding 2024",
+  "test_city": "",
+  "built_queries": [
+    "site:crunchbase.com/organization ai startup funding 2024",
+    "site:crunchbase.com AI startup funding 2024 funding"
+  ],
+  "executed_query": "site:crunchbase.com/organization ai startup funding 2024",
+  "results_count": 5,
+  "time_ms": 1495,
+  "errors": null,
+  "results": [
+    {
+      "title": "Stealth AI Startup - Crunchbase Company Profile & Funding",
+      "href": "https://www.crunchbase.com/organization/stealth-ai-startup-b573",
+      "body": "Stealth AI Startup focuses on advancing Artificial General Intelligence through innovative technology and research. The company comprises a team of experts dedicated to creating transformative AI solutions that impact various industries."
+    },
+    {
+      "title": "OpenAI Startup Fund - Crunchbase Company Profile & Funding",
+      "href": "https://www.crunchbase.com/organization/openai-startup-fund",
+      "body": "OpenAI Startup Fund invests in startups, specially in artificial intelligence companies."
+    },
+    {
+      "title": "H Company - Crunchbase Company Profile & Funding",
+      "href": "https://www.crunchbase.com/organization/holistic-ai-0946",
+      "body": "... H Company, formerly known as ... The Paris-based AI company founded by Charles Kantor raised a record-breaking $220M seed round in 2024......"
+    },
+    {
+      "title": "Scale - Crunchbase Company Profile & Funding",
+      "href": "https://www.crunchbase.com/organization/scale-2",
+      "body": "1 day ago - The company's LiDAR, video, and image annotation APIs allow self-driving, drone, and robotics teams at companies like Lyft, OpenAI, Zoox, Pinterest, and Airbnb to focus on building differentiated models vs."
+    },
+    {
+      "title": "LightWork AI - Crunchbase Company Profile & Funding",
+      "href": "https://www.crunchbase.com/organization/lightwork-ai",
+      "body": "LightWork AI is a London-based PropTech start-up founded in 2024, focused on transforming property management through intelligent automation. Its agentic AI platform automates compliance, maintenance coordination, and communication between property ..."
+    }
+  ]
+}
