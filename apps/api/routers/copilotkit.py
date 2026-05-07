@@ -843,10 +843,6 @@ async def _stream_chat(
 
     url = f"{base_url}/chat/completions"
 
-    with open("/Users/user4/Desktop/lead-data/debug_copilotkit.json", "w") as f:
-        import json as _json
-        _json.dump(body, f, indent=2)
-
     try:
         async with httpx.AsyncClient(timeout=90.0) as client:
             async with client.stream("POST", url, json=body, headers=headers) as response:
@@ -937,6 +933,8 @@ async def _stream_chat(
                             for idx in sorted(accumulated_tool_calls.keys()):
                                 tc = accumulated_tool_calls[idx]
                                 fn_name = tc["function"]["name"]
+                                if not tc["function"]["arguments"]:
+                                    tc["function"]["arguments"] = "{}"
                                 try:
                                     fn_args = json.loads(tc["function"]["arguments"])
                                 except json.JSONDecodeError:
@@ -949,11 +947,12 @@ async def _stream_chat(
                                 tool_results.append({
                                     "role": "tool",
                                     "tool_call_id": tc["id"],
+                                    "name": fn_name,
                                     "content": result,
                                 })
 
                             follow_up = messages + [
-                                {"role": "assistant", "tool_calls": list(accumulated_tool_calls.values())},
+                                {"role": "assistant", "content": "", "tool_calls": list(accumulated_tool_calls.values())},
                                 *tool_results,
                             ]
 
@@ -1062,6 +1061,48 @@ async def copilot_chat(request: Request):
 
     messages.extend(user_messages)
 
+    # Sanitize messages for strict providers (like Gemini)
+    is_gemini = "google" in provider.get("id", "") or "gemini" in provider.get("model", "").lower()
+    cleaned_messages = []
+    
+    for m in messages:
+        role = m.get("role", "user")
+        
+        # Only keep fields allowed by OpenAI specification
+        clean_m = {"role": role}
+        
+        if "content" in m and m["content"] is not None:
+            content = str(m["content"])
+        else:
+            content = ""
+
+        # Gemini rejects completely empty content strings unless it's a tool call
+        if not content and not m.get("tool_calls") and is_gemini:
+            content = " "
+
+        clean_m["content"] = content
+            
+        if "tool_calls" in m and m["tool_calls"]:
+            clean_m["tool_calls"] = m["tool_calls"]
+            
+        if "tool_call_id" in m:
+            clean_m["tool_call_id"] = m["tool_call_id"]
+            
+        if "name" in m:
+            clean_m["name"] = m["name"]
+            
+        # Map function role to tool if needed
+        if role == "function":
+            clean_m["role"] = "tool"
+            if "name" in m and "tool_call_id" not in clean_m:
+                clean_m["tool_call_id"] = m["name"] # Fake it for old format
+                
+        # Skip tool messages without tool_call_id
+        if clean_m["role"] == "tool" and "tool_call_id" not in clean_m:
+            continue
+            
+        cleaned_messages.append(clean_m)
+
     # Collect the full response for storage
     full_response = []
 
@@ -1072,7 +1113,7 @@ async def copilot_chat(request: Request):
         # Send conversation_id first
         yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
 
-        async for chunk in _stream_chat(messages, tools, provider, fallbacks):
+        async for chunk in _stream_chat(cleaned_messages, tools, provider, fallbacks):
             yield chunk
 
             # Parse content from the chunk for storage

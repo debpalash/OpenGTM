@@ -103,9 +103,10 @@ def _query_leads(db: LeadDB, filter_criteria: dict, page: int = 1, page_size: in
 
     # Full-text search
     if fc.get("search"):
-        # Use FTS
+        # Use parameterized FTS query, wrapping in quotes to prevent syntax errors with special chars
         fts_query = fc["search"].replace('"', '""')
-        where_clause = f"id IN (SELECT rowid FROM leads_fts WHERE leads_fts MATCH '\"{fts_query}\"') AND {where_clause}"
+        where_clause = f"id IN (SELECT rowid FROM leads_fts WHERE leads_fts MATCH ?) AND {where_clause}"
+        params.insert(0, f'"{fts_query}"')
 
     # Count
     count_sql = f"SELECT COUNT(*) FROM leads WHERE {where_clause}"

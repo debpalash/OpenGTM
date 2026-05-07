@@ -332,9 +332,10 @@ class LeadDB:
             params.append(score_tier)
 
         if search:
-            # Use FTS for text search
+            # Use FTS for text search, wrapping in quotes to prevent FTS5 syntax errors with special chars
+            clean_search = search.replace('"', '""')
             conditions.append("l.id IN (SELECT rowid FROM leads_fts WHERE leads_fts MATCH ?)")
-            params.append(search)
+            params.append(f'"{clean_search}"')
 
         if workspace_id:
             conditions.append("l.workspace_id = ?")
