@@ -1,17 +1,12 @@
 """
-Workbook models — SQLAlchemy ORM for the hybrid workbook engine.
+Workbook models — SQLAlchemy ORM for Clay-style self-contained tables.
 
-Architecture (Hybrid Model):
-  - Leads DB (SQLite) = the single source of truth
-  - Workbook = a "smart playlist" / filtered view on leads
-  - WorkbookEnrichment = overlay table for AI/computed columns that don't map to Lead fields
-
-Key principles:
-  1. Workbook rows ARE leads — they come from the leads table via filter_criteria
-  2. Enrichment of known fields (email, phone, etc.) writes BACK to the Lead record
-  3. AI columns / custom columns store results in WorkbookEnrichment
-  4. Multiple workbooks can reference the same leads
-  5. CSV import creates new leads in the DB and tags them for the workbook
+Architecture (v2 — Clay-inspired):
+  - Each workbook has its OWN rows (WorkbookRow) — not live views on leads DB
+  - Rows are snapshots: data imported from CSV, leads DB, job results, or added manually
+  - Enrichment results stored inline in WorkbookRow.enrichments JSON
+  - Optional lead_id link for syncing back to leads DB
+  - WorkbookEnrichment overlay table kept for backward compat (migrated to inline)
 """
 
 from sqlalchemy import (
@@ -105,7 +100,7 @@ LEAD_FIELD_MAP = {
 # ── Workbook Model ────────────────────────────────────────────────────────
 
 class Workbook(Base):
-    """A filtered workspace on the Leads DB — a 'smart playlist' with enrichment columns."""
+    """A self-contained workbook table — Clay-style independent execution environment."""
     __tablename__ = "workbooks"
 
     id = Column(String, primary_key=True, default=generate_uuid)
@@ -113,20 +108,24 @@ class Workbook(Base):
     description = Column(Text, default="")
     status = Column(String(50), default="draft")  # draft, running, paused, complete
 
-    # Filter criteria — which leads appear in this workbook
-    # e.g. {"city": "Pune", "score_tier": "hot", "specialization": "IT Staffing"}
-    # Empty = all leads
+    # Source type — how this workbook was created
+    # empty, csv, leads_filter, job_results
+    source_type = Column(String(50), default="empty")
+    # Source config — filter criteria, job IDs, etc. for refresh
+    source_config = Column(JSON, default=dict)
+
+    # Legacy — kept for backward compat, migrated workbooks use source_config
     filter_criteria = Column(JSON, default=dict)
 
     # Column definitions — ordered list of column configs
-    # Each entry: {id, name, type, lead_field, width, provider, waterfall, prompt, condition, ...}
-    # type="lead_field" columns map to a Lead field and are editable
-    # type="ai_formula" columns store results in WorkbookEnrichment
     columns_config = Column(JSON, default=list)
 
-    # Stats (computed on read, cached)
+    # Stats (computed on read from WorkbookRow count)
     total_rows = Column(Integer, default=0)
     completed_rows = Column(Integer, default=0)
+
+    # Sync enrichments back to leads DB (optional per-workbook toggle)
+    sync_to_leads = Column(Boolean, default=True)
 
     # Timestamps
     created_at = Column(DateTime, server_default=func.now())
@@ -140,9 +139,15 @@ class Workbook(Base):
         cascade="all, delete-orphan",
         lazy="dynamic",
     )
+    rows = relationship(
+        "WorkbookRow",
+        back_populates="workbook",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+    )
 
     def __repr__(self):
-        return f"<Workbook {self.name} (filter={self.filter_criteria})>"
+        return f"<Workbook {self.name} (source={self.source_type})>"
 
 
 # ── WorkbookEnrichment Model ──────────────────────────────────────────────
@@ -176,3 +181,53 @@ class WorkbookEnrichment(Base):
 
     def __repr__(self):
         return f"<WorkbookEnrichment wb={self.workbook_id} lead={self.lead_id} col={self.column_id}>"
+
+
+# ── WorkbookRow Model ─────────────────────────────────────────────────────
+
+class WorkbookRow(Base):
+    """Self-contained row within a workbook — Clay-style independent data.
+
+    Each workbook has its own rows. Data is snapshotted at import time,
+    not a live reference to the leads DB.
+    """
+    __tablename__ = "workbook_rows"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    workbook_id = Column(String, ForeignKey("workbooks.id", ondelete="CASCADE"), nullable=False, index=True)
+    position = Column(Integer, default=0)  # Row ordering
+
+    # Denormalized lead data (snapshot at import time)
+    # e.g. {"company": "Acme", "website": "acme.com", "email": "", ...}
+    data = Column(JSON, default=dict)
+
+    # Enrichment results stored INLINE — no separate overlay table needed
+    # e.g. {"find_email": {"status": "complete", "value": "...", "provider": "hunter_io"},
+    #        "company_info": {"status": "error", "error": "timeout"}}
+    enrichments = Column(JSON, default=dict)
+
+    # Optional link back to leads DB (for CRM sync, dedup)
+    lead_id = Column(Integer, nullable=True, index=True)
+
+    # Timestamps
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    workbook = relationship("Workbook", back_populates="rows")
+
+    def __repr__(self):
+        company = (self.data or {}).get("company", "?")
+        return f"<WorkbookRow wb={self.workbook_id} #{self.position} '{company}'>"
+
+    def to_api_row(self) -> dict:
+        """Convert to API-compatible row format."""
+        return {
+            "row_id": self.id,
+            "lead_id": self.lead_id or self.id,
+            "position": self.position,
+            "data": self.data or {},
+            "enrichments": self.enrichments or {},
+            # Flatten lead data fields for column rendering
+            **(self.data or {}),
+        }

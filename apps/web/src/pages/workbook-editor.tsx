@@ -467,7 +467,7 @@ export default function WorkbookEditorPage() {
           id: col.id,
           accessorFn: (row: WorkbookLeadRow) => {
             if (col.type === "lead_field" || col.type === "input") {
-              return row.lead[col.lead_field || col.id] ?? ""
+                        return (row.data || row.lead)[col.lead_field || col.id] ?? ""
             }
             return row.enrichments?.[col.id]?.value ?? ""
           },
@@ -584,7 +584,7 @@ export default function WorkbookEditorPage() {
     const headers = columns.map(c => c.name)
     const csvRows = selectedRows.map(row =>
       columns.map(col => {
-        if (col.type === "lead_field") return row.lead[col.lead_field || col.id] ?? ""
+        if (col.type === "lead_field")           return (row.data || row.lead)[col.lead_field || col.id] ?? ""
         return row.enrichments?.[col.id]?.value ?? ""
       })
     )
@@ -712,7 +712,7 @@ export default function WorkbookEditorPage() {
     const csvRows = rows.map(row =>
       columns.map(col => {
         if (col.type === "lead_field") {
-          return row.lead[col.lead_field || col.id] ?? ""
+                    return (row.data || row.lead)[col.lead_field || col.id] ?? ""
         }
         return row.enrichments?.[col.id]?.value ?? ""
       })

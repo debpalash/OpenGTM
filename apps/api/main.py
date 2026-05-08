@@ -34,7 +34,7 @@ logging.getLogger("primp").setLevel(logging.WARNING)
 check_and_migrate_db()
 
 # Import all models so Base.metadata knows about them
-from apps.api.services.workbook.models import Workbook, WorkbookEnrichment  # noqa: E402
+from apps.api.services.workbook.models import Workbook, WorkbookEnrichment, WorkbookRow  # noqa: E402
 
 Base.metadata.create_all(bind=engine)
 
