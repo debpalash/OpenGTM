@@ -1,11 +1,19 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Yupcha Sales</title>
     <meta name="description" content="Enterprise data intelligence — document search, lead generation, web scraping, and person intel." />
+    <script>
+      // Apply saved theme immediately to prevent flash
+      (function() {
+        var t = localStorage.getItem('theme');
+        if (t === 'light') { document.documentElement.classList.remove('dark'); }
+        else { document.documentElement.classList.add('dark'); }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

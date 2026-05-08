@@ -28,6 +28,56 @@ from apps.api.services.leadgen.db import LeadDB
 
 logger = logging.getLogger("workbook.enrichment")
 
+# ── Default waterfall chains per target field ────────────────────────────
+# Free OSS scrapers first, paid APIs as fallback.
+# When a workbook column doesn't define a custom waterfall, this is used.
+DEFAULT_WATERFALLS = {
+    # Email: website crawl → search engine → pattern gen → paid APIs
+    "email": [
+        "deep_scraper", "website_scraper", "email_harvester",
+        "ddg_email", "mailscout",
+        "hunter_io", "apollo_io", "snovio", "prospeo",
+    ],
+    # Email verification: SMTP → holehe (120+ site check) → paid verify
+    "email_confidence": ["mailscout", "holehe", "abstract_api", "debounce"],
+    "email_verify": ["mailscout", "holehe", "abstract_api", "debounce"],
+    # Phone: website crawl → local business dirs → paid APIs
+    "phone": [
+        "deep_scraper", "website_scraper", "local_business",
+        "ddg_company", "facebook_pages",
+        "apollo_io", "people_data_labs",
+    ],
+    # Company description / info
+    "description": [
+        "deep_scraper", "website_scraper", "ddg_company",
+        "company_intel",
+    ],
+    # Decision makers / contacts
+    "decision_makers": ["deep_scraper", "crosslinked", "decision_maker"],
+    "contact_person": ["deep_scraper", "crosslinked", "decision_maker", "people_data_labs"],
+    "contact_title": ["deep_scraper", "crosslinked", "decision_maker"],
+    # Social links
+    "linkedin_url": ["deep_scraper", "website_scraper", "social_finder"],
+    "twitter_url": ["deep_scraper", "website_scraper", "social_finder"],
+    "facebook_url": ["deep_scraper", "website_scraper", "social_finder"],
+    # Company metadata
+    "company_size": ["deep_scraper", "website_scraper", "company_intel", "people_data_labs"],
+    "industry_tags": ["deep_scraper", "website_scraper", "local_business", "company_intel"],
+    "address": ["deep_scraper", "local_business", "google_maps"],
+    "founding_year": ["deep_scraper", "company_intel"],
+    # Funding & intelligence
+    "funding_stage": ["company_intel"],
+    "last_funding_amount": ["company_intel"],
+    "investors": ["company_intel"],
+    "recent_news": ["company_intel"],
+    # Tech stack
+    "technologies": ["tech_stack"],
+    # Hiring signals
+    "hiring_signals": ["jobspy"],
+    # Scoring
+    "score": ["lead_scorer"],
+}
+
 
 def _lead_dict_to_lead(lead_data: dict) -> Lead:
     """Convert a lead dict from SQLite into a Lead dataclass."""
@@ -117,11 +167,23 @@ async def enrich_cell(
     else:
         # Enrichment/Waterfall → provider chain
         lead = _lead_dict_to_lead(lead_data)
-        provider_chain = col_config.get("waterfall") or ([col_config.get("provider")] if col_config.get("provider") else [])
+        explicit_chain = col_config.get("waterfall") or ([col_config.get("provider")] if col_config.get("provider") else [])
 
         # The target_field tells us which Lead field this column is enriching (e.g. "email")
         # If set, we ONLY extract that specific field from the provider result.
         target_field = col_config.get("target_field") or col_config.get("lead_field") or col_id
+
+        # ── Resolve provider chain with DEFAULT_WATERFALLS ──
+        # If the column has an explicit waterfall, use it but prepend any
+        # OSS providers from the default chain that are missing.
+        # If no explicit chain, use the full default.
+        if explicit_chain:
+            default_chain = DEFAULT_WATERFALLS.get(target_field, [])
+            # Prepend default OSS providers that aren't already in the explicit chain
+            oss_additions = [p for p in default_chain if p not in explicit_chain]
+            provider_chain = oss_additions + explicit_chain
+        else:
+            provider_chain = DEFAULT_WATERFALLS.get(target_field, [])
 
         result_value = None
         result_provider = None

@@ -223,6 +223,15 @@ class LeadDB:
             "hiring_signals": "TEXT DEFAULT ''",
             "enrichment_attempts": "INTEGER DEFAULT 0",
             "enrichment_waterfall": "TEXT DEFAULT ''",
+            # ── OSS Enrichment Fields ──
+            "founding_year": "TEXT DEFAULT ''",
+            "last_funding_amount": "TEXT DEFAULT ''",
+            "investors": "TEXT DEFAULT ''",
+            "recent_news": "TEXT DEFAULT ''",
+            "google_rating": "TEXT DEFAULT ''",
+            "revenue_estimate": "TEXT DEFAULT ''",
+            "email_verify": "TEXT DEFAULT ''",
+            "email_presence": "TEXT DEFAULT ''",
         }
 
         for col, col_type in new_lead_columns.items():

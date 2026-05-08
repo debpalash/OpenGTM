@@ -32,29 +32,22 @@ except ImportError:
 logger = logging.getLogger("leadgen.company_intel")
 
 
-async def _search_ddg(query: str, max_results: int = 10) -> List[Dict]:
-    """DuckDuckGo search with proxy rotation."""
+async def _search_ddg(query: str, max_results: int = 8) -> List[Dict]:
+    """DuckDuckGo search with timeout."""
     from ddgs import DDGS
     from apps.api.services.leadgen.proxy_client import get_proxy
 
     proxy = get_proxy()
-
     def _do():
-        ddgs = DDGS(proxy=proxy) if proxy else DDGS()
+        ddgs = DDGS(proxy=proxy, timeout=8) if proxy else DDGS(timeout=8)
         with ddgs:
             return list(ddgs.text(query, max_results=max_results))
 
     try:
-        return await asyncio.to_thread(_do)
-    except Exception:
-        try:
-            def _direct():
-                with DDGS() as ddgs:
-                    return list(ddgs.text(query, max_results=max_results))
-            return await asyncio.to_thread(_direct)
-        except Exception as e:
-            logger.debug(f"DDG search failed: {e}")
-            return []
+        return await asyncio.wait_for(asyncio.to_thread(_do), timeout=10)
+    except (asyncio.TimeoutError, Exception) as e:
+        logger.debug(f"DDG search failed: {e}")
+        return []
 
 
 async def _scrape_page(url: str, timeout: int = 12) -> Optional[str]:
@@ -191,60 +184,34 @@ class CompanyIntelProvider(EnrichmentProvider):
 
         fields = {}
         all_text = ""
+        company_lower = company.lower()
 
-        # ── Search 1: Crunchbase public page ──
+        # ── Search 1: Crunchbase snippets (skip page scraping, too slow) ──
         cb_results = await _search_ddg(
             f'site:crunchbase.com "{company}"', max_results=3
         )
         for r in cb_results:
             body = r.get("body", "")
             title = r.get("title", "")
-            all_text += f" {title} {body}"
-
-            # Try to scrape the actual Crunchbase page for structured data
-            href = r.get("href", "")
-            if "crunchbase.com/organization" in href:
-                page = await _scrape_page(href)
-                if page and BeautifulSoup:
-                    soup = BeautifulSoup(page, "html.parser")
-                    page_text = soup.get_text(separator=" ", strip=True)
-                    all_text += f" {page_text[:5000]}"
-
-                    # Extract from structured data
-                    for script in soup.find_all("script", type="application/ld+json"):
-                        try:
-                            ld = json.loads(script.string or "")
-                            if isinstance(ld, dict):
-                                if ld.get("description"):
-                                    fields.setdefault("description", str(ld["description"])[:500])
-                                if ld.get("foundingDate"):
-                                    fields["founding_year"] = str(ld["foundingDate"])[:4]
-                                if ld.get("numberOfEmployees"):
-                                    emp = ld["numberOfEmployees"]
-                                    if isinstance(emp, dict):
-                                        fields["company_size"] = str(emp.get("value", ""))
-                                    else:
-                                        fields["company_size"] = str(emp)
-                        except Exception:
-                            continue
-                break  # Only scrape first CB result
+            # Only use results that mention the company name
+            if company_lower in title.lower() or company_lower in body.lower():
+                all_text += f" {title} {body}"
 
         await asyncio.sleep(0.3)
 
-        # ── Search 2: Funding & news ──
+        # ── Search 2: Funding + news combined ──
         funding_results = await _search_ddg(
-            f'"{company}" funding OR raised OR series OR investment',
-            max_results=10,
+            f'"{company}" funding OR raised OR series OR news',
+            max_results=8,
         )
         for r in funding_results:
-            all_text += f" {r.get('title', '')} {r.get('body', '')}"
+            body = r.get("body", "")
+            title = r.get("title", "")
+            # Only use results that actually mention the target company
+            if company_lower in title.lower() or company_lower in body.lower():
+                all_text += f" {title} {body}"
 
-        # ── Search 3: Company news ──
-        news_results = await _search_ddg(
-            f'"{company}" news announcement 2025 OR 2026',
-            max_results=5,
-        )
-        news_headlines = _extract_news_from_results(news_results, company)
+        news_headlines = _extract_news_from_results(funding_results, company)
 
         # ── Extract structured data from all collected text ──
         funding_info = _extract_funding_from_text(all_text)

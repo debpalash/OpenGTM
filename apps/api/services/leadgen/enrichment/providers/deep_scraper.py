@@ -242,6 +242,17 @@ def _extract_team_members(soup, text: str) -> List[Dict[str, str]]:
             name = name_el.get_text(strip=True)
             if not name or len(name) > 60 or len(name.split()) < 2:
                 continue
+            # Filter out non-person names (navigation items, CTA buttons, etc.)
+            noise_words = ['explore', 'learn', 'discover', 'see', 'view', 'our', 'your',
+                          'read', 'more', 'find', 'get', 'try', 'start', 'click', 'download',
+                          'subscribe', 'join', 'sign', 'products', 'services', 'solutions',
+                          'contact', 'flagship', 'features', 'platform']
+            name_lower = name.lower()
+            if any(w in name_lower for w in noise_words):
+                continue
+            # Name should start with a capital letter and have at least one space
+            if not name[0].isupper() or not any(c == ' ' for c in name):
+                continue
 
             # Look for title in p, span, or following text
             title = ""
@@ -558,7 +569,7 @@ class DeepScraperProvider(EnrichmentProvider):
                     1 if any(p in e for p in ["info@", "contact@", "hello@", "sales@"]) else
                     2 if any(p in e for p in ["support@", "help@", "admin@"]) else 3
                 ))
-                fields["email"] = ranked[0]
+                fields["email"] = ranked[0].rstrip('.')
 
             # Phone
             if structured.get("phone"):
@@ -568,7 +579,19 @@ class DeepScraperProvider(EnrichmentProvider):
 
             # Company size
             if structured.get("employee_count"):
-                fields["company_size"] = structured["employee_count"]
+                emp_val = structured["employee_count"]
+                # Validate: reject unreasonable counts (Schema.org sometimes has huge numbers)
+                try:
+                    if isinstance(emp_val, (int, float)):
+                        count = int(emp_val)
+                    elif isinstance(emp_val, str) and emp_val.replace(',', '').isdigit():
+                        count = int(emp_val.replace(',', ''))
+                    else:
+                        count = None
+                    if count and count <= 500_000:
+                        fields["company_size"] = str(count)
+                except (ValueError, TypeError):
+                    fields["company_size"] = str(emp_val)[:20]
             else:
                 size = _extract_company_size(all_text)
                 if size:

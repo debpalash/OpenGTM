@@ -86,31 +86,23 @@ def _rank_email(email: str, target_domain: str) -> int:
         return 10  # Off-domain
 
 
-async def _ddg_search(query: str, max_results: int = 20) -> List[Dict]:
-    """Search DuckDuckGo for results."""
+async def _ddg_search(query: str, max_results: int = 8) -> List[Dict]:
+    """Search DuckDuckGo for results with timeout."""
     from ddgs import DDGS
     from apps.api.services.leadgen.proxy_client import get_proxy
 
     proxy = get_proxy()
 
     def _search():
-        ddgs = DDGS(proxy=proxy) if proxy else DDGS()
+        ddgs = DDGS(proxy=proxy, timeout=8) if proxy else DDGS(timeout=8)
         with ddgs:
             return list(ddgs.text(query, max_results=max_results))
 
     try:
-        return await asyncio.to_thread(_search)
-    except Exception as e:
-        # Retry without proxy
-        try:
-            def _search_direct():
-                ddgs = DDGS()
-                with ddgs:
-                    return list(ddgs.text(query, max_results=max_results))
-            return await asyncio.to_thread(_search_direct)
-        except Exception as e2:
-            logger.debug(f"DDG search failed: {e2}")
-            return []
+        return await asyncio.wait_for(asyncio.to_thread(_search), timeout=10)
+    except (asyncio.TimeoutError, Exception) as e:
+        logger.debug(f"DDG search failed: {e}")
+        return []
 
 
 async def _harvest_emails_from_search(
@@ -129,37 +121,26 @@ async def _harvest_emails_from_search(
     all_emails: Set[str] = set()
     all_names: List[Dict] = []
 
+    # Only 2 queries (highest yield), keep fast
     queries = [
-        # Strategy 1: Find emails published on the company's own pages
         f'site:{domain} email OR contact OR "@{domain}"',
-        # Strategy 2: Find emails mentioned anywhere on the web
         f'"@{domain}" -site:{domain}',
-        # Strategy 3: Find emails in public documents
-        f'"{domain}" email filetype:pdf OR filetype:doc',
-        # Strategy 4: Find contact pages with email
-        f'"{domain}" "contact us" OR "get in touch" email',
     ]
 
-    # If we have a company name, also search for that
-    if company:
-        queries.append(f'"{company}" email "@{domain}"')
-
     for query in queries:
-        results = await _ddg_search(query, max_results=15)
+        results = await _ddg_search(query, max_results=8)
 
         for r in results:
-            # Extract emails from title + body
             text = f"{r.get('title', '')} {r.get('body', '')}"
             emails = EMAIL_RE.findall(text)
             for email in emails:
                 if _is_valid_email(email, domain):
-                    all_emails.add(email.lower())
+                    all_emails.add(email.lower().rstrip('.'))
 
-            # Also try to extract person names near emails
+            # Extract person names near emails
             body = r.get("body", "")
             for email in emails:
                 if _is_valid_email(email, domain):
-                    # Look for "Name - Title" patterns near the email
                     name_match = re.search(
                         r'([A-Z][a-z]+ [A-Z][a-z]+)',
                         body[:body.find(email)] if email in body else "",
@@ -170,8 +151,7 @@ async def _harvest_emails_from_search(
                             "email": email.lower(),
                         })
 
-        # Small delay between queries to avoid rate limiting
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.3)
 
     return {
         "emails": sorted(all_emails, key=lambda e: _rank_email(e, domain)),
