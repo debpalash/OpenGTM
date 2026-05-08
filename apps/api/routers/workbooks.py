@@ -1,13 +1,4 @@
-"""
-Workbook API router — Hybrid model where workbooks are filtered views on the Leads DB.
-
-Key principles:
-  1. Leads DB is the source of truth — workbook rows ARE leads
-  2. filter_criteria determines which leads appear in a workbook
-  3. Enrichment of known Lead fields writes BACK to the Lead record
-  4. AI/computed columns store results in WorkbookEnrichment overlay
-  5. CSV import creates new leads in the DB
-"""
+"""Workbook API router — Clay-style self-contained tables with WorkbookRow."""
 
 from datetime import datetime, timezone
 from typing import Optional
@@ -17,10 +8,11 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
+from sqlalchemy import func as sa_func
 
 from apps.api.database import get_db
 from apps.api.services.workbook.models import (
-    Workbook, WorkbookEnrichment, COLUMN_TYPES, LEAD_FIELD_MAP,
+    Workbook, WorkbookEnrichment, WorkbookRow, COLUMN_TYPES, LEAD_FIELD_MAP,
 )
 from apps.api.services.workbook.schemas import (
     WorkbookCreate, WorkbookUpdate, WorkbookResponse,
@@ -28,6 +20,7 @@ from apps.api.services.workbook.schemas import (
     WorkbookLeadRow, EnrichmentOverlay,
     RunWorkbookRequest, RunWorkbookResponse,
     AddColumnRequest, ExportRequest,
+    AddRowsRequest, DeleteRowsRequest,
 )
 from apps.api.services.leadgen.db import LeadDB
 
@@ -122,23 +115,38 @@ def _query_leads(db: LeadDB, filter_criteria: dict, page: int = 1, page_size: in
 
 
 def _workbook_response(wb: Workbook, lead_db: LeadDB = None) -> WorkbookResponse:
-    """Build a WorkbookResponse, computing total_rows from the filter."""
+    """Build a WorkbookResponse, computing total_rows from WorkbookRow or leads DB."""
+    from apps.api.database import SessionLocal
     total = 0
-    if lead_db:
-        try:
-            _, total = _query_leads(lead_db, wb.filter_criteria or {}, page=1, page_size=1)
-        except Exception:
-            pass
+    session = SessionLocal()
+    try:
+        row_count = session.query(sa_func.count(WorkbookRow.id)).filter(
+            WorkbookRow.workbook_id == wb.id
+        ).scalar() or 0
+        if row_count > 0:
+            total = row_count
+        elif lead_db:
+            try:
+                _, total = _query_leads(lead_db, wb.filter_criteria or {}, page=1, page_size=1)
+            except Exception:
+                pass
+    except Exception:
+        total = wb.total_rows or 0
+    finally:
+        session.close()
 
     return WorkbookResponse(
         id=wb.id,
         name=wb.name,
         description=wb.description or "",
         status=wb.status or "draft",
+        source_type=getattr(wb, 'source_type', None) or "leads_filter",
+        source_config=getattr(wb, 'source_config', None) or {},
         filter_criteria=wb.filter_criteria,
         columns_config=wb.columns_config or [],
         total_rows=total,
         completed_rows=wb.completed_rows or 0,
+        sync_to_leads=getattr(wb, 'sync_to_leads', True),
         created_at=wb.created_at,
         updated_at=wb.updated_at,
         last_run_at=wb.last_run_at,
@@ -161,22 +169,86 @@ async def list_workbooks(db: Session = Depends(get_db)):
 
 @router.post("/", response_model=WorkbookResponse, status_code=201)
 async def create_workbook(body: WorkbookCreate, db: Session = Depends(get_db)):
-    """Create a new workbook with filter criteria."""
+    """Create a new workbook — Clay-style with source selection.
+
+    source="empty": blank table
+    source="leads_filter": snapshot leads matching filter into WorkbookRow
+    source="csv": rows provided in source_config.rows
+    source="job_results": snapshot leads from specific jobs
+    """
+    # Determine source type
+    source = body.source or "empty"
+    filter_criteria = body.filter_criteria.model_dump(exclude_none=True) if body.filter_criteria else {}
+    source_config = body.source_config or {}
+
+    # Legacy compat: if filter_criteria provided but source not set, treat as leads_filter
+    if filter_criteria and source == "empty":
+        source = "leads_filter"
+        source_config = filter_criteria
+
     wb = Workbook(
         name=body.name,
         description=body.description,
-        filter_criteria=body.filter_criteria.model_dump(exclude_none=True) if body.filter_criteria else {},
+        source_type=source,
+        source_config=source_config,
+        filter_criteria=filter_criteria,
         columns_config=[c.model_dump(exclude_none=True) for c in body.columns_config],
     )
     db.add(wb)
     db.commit()
     db.refresh(wb)
 
-    lead_db = _get_lead_db()
-    try:
-        return _workbook_response(wb, lead_db)
-    finally:
-        lead_db.close()
+    # Snapshot rows based on source type
+    max_rows = body.max_rows or 1000
+
+    if source == "leads_filter":
+        lead_db = _get_lead_db()
+        try:
+            leads, total = _query_leads(lead_db, filter_criteria, page=1, page_size=max_rows)
+            for i, lead in enumerate(leads):
+                db.add(WorkbookRow(
+                    workbook_id=wb.id,
+                    position=i,
+                    data=lead,
+                    lead_id=lead.get("id"),
+                    enrichments={},
+                ))
+            db.commit()
+            logger.info(f"Snapshotted {len(leads)} leads into workbook {wb.id}")
+        finally:
+            lead_db.close()
+
+    elif source == "csv" and source_config.get("rows"):
+        for i, row in enumerate(source_config["rows"][:max_rows]):
+            db.add(WorkbookRow(
+                workbook_id=wb.id,
+                position=i,
+                data=row,
+                enrichments={},
+            ))
+        db.commit()
+
+    elif source == "job_results":
+        job_ids = source_config.get("job_ids", [])
+        if job_ids:
+            lead_db = _get_lead_db()
+            try:
+                leads, _ = _query_leads(lead_db, {"job_ids": job_ids}, page=1, page_size=max_rows)
+                for i, lead in enumerate(leads):
+                    db.add(WorkbookRow(
+                        workbook_id=wb.id,
+                        position=i,
+                        data=lead,
+                        lead_id=lead.get("id"),
+                        enrichments={},
+                    ))
+                db.commit()
+            finally:
+                lead_db.close()
+
+    # source="empty" → no rows created
+
+    return _workbook_response(wb)
 
 
 class CreateFromJobsRequest(BaseModel):
@@ -255,6 +327,8 @@ async def create_workbook_from_jobs(body: CreateFromJobsRequest, db: Session = D
         wb = Workbook(
             name=auto_name,
             description=f"Created from {len(body.job_ids)} chat task(s)",
+            source_type="job_results",
+            source_config={"job_ids": body.job_ids},
             filter_criteria={"job_ids": body.job_ids},
             columns_config=default_columns,
         )
@@ -262,8 +336,30 @@ async def create_workbook_from_jobs(body: CreateFromJobsRequest, db: Session = D
         db.commit()
         db.refresh(wb)
 
+    # Snapshot leads into WorkbookRow
     lead_db = _get_lead_db()
     try:
+        fc = wb.filter_criteria or {}
+        leads, _ = _query_leads(lead_db, fc, page=1, page_size=5000)
+        # Get existing row count for position offset
+        existing_count = db.query(sa_func.count(WorkbookRow.id)).filter(
+            WorkbookRow.workbook_id == wb.id
+        ).scalar() or 0
+        for i, lead in enumerate(leads):
+            # Skip if already exists (dedup by lead_id)
+            exists = db.query(WorkbookRow.id).filter(
+                WorkbookRow.workbook_id == wb.id,
+                WorkbookRow.lead_id == lead.get("id"),
+            ).first()
+            if not exists:
+                db.add(WorkbookRow(
+                    workbook_id=wb.id,
+                    position=existing_count + i,
+                    data=lead,
+                    lead_id=lead.get("id"),
+                    enrichments={},
+                ))
+        db.commit()
         return _workbook_response(wb, lead_db)
     finally:
         lead_db.close()
@@ -273,54 +369,84 @@ async def create_workbook_from_jobs(body: CreateFromJobsRequest, db: Session = D
 async def get_workbook(
     workbook_id: str,
     page: int = Query(1, ge=1),
-    page_size: int = Query(100, ge=1, le=1000),
+    page_size: int = Query(100, ge=1, le=5000),
     db: Session = Depends(get_db),
 ):
-    """Get workbook with paginated lead rows + enrichment overlay."""
+    """Get workbook with paginated rows. Uses WorkbookRow (v2) or falls back to leads DB."""
     wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
     if not wb:
         raise HTTPException(status_code=404, detail="Workbook not found")
 
+    # ── v2: Read from WorkbookRow table ──
+    v2_count = db.query(sa_func.count(WorkbookRow.id)).filter(
+        WorkbookRow.workbook_id == workbook_id
+    ).scalar() or 0
+
+    if v2_count > 0:
+        offset = (page - 1) * page_size
+        wb_rows = db.query(WorkbookRow).filter(
+            WorkbookRow.workbook_id == workbook_id
+        ).order_by(WorkbookRow.position).offset(offset).limit(page_size).all()
+
+        rows = []
+        for r in wb_rows:
+            enrichments_dict = {}
+            for col_id, overlay in (r.enrichments or {}).items():
+                if isinstance(overlay, dict):
+                    enrichments_dict[col_id] = EnrichmentOverlay(**overlay)
+                else:
+                    enrichments_dict[col_id] = EnrichmentOverlay(value=overlay, status="complete")
+
+            rows.append(WorkbookLeadRow(
+                lead_id=r.lead_id or r.id,
+                row_id=r.id,
+                position=r.position,
+                lead=r.data or {},
+                data=r.data or {},
+                enrichments=enrichments_dict,
+            ))
+
+        return WorkbookWithLeadsResponse(
+            workbook=_workbook_response(wb),
+            rows=rows,
+            total_rows=v2_count,
+            page=page,
+            page_size=page_size,
+        )
+
+    # ── v1 Legacy: Read from leads DB ──
     lead_db = _get_lead_db()
     try:
         leads, total = _query_leads(lead_db, wb.filter_criteria or {}, page, page_size)
     finally:
         lead_db.close()
 
-    # Load enrichment overlay for these leads
     lead_ids = [l["id"] for l in leads]
     enrichments = db.query(WorkbookEnrichment).filter(
         WorkbookEnrichment.workbook_id == workbook_id,
         WorkbookEnrichment.lead_id.in_(lead_ids),
     ).all() if lead_ids else []
 
-    # Build enrichment lookup: {lead_id: {col_id: overlay}}
     enrich_map: dict[int, dict[str, EnrichmentOverlay]] = {}
     for e in enrichments:
         if e.lead_id not in enrich_map:
             enrich_map[e.lead_id] = {}
         enrich_map[e.lead_id][e.column_id] = EnrichmentOverlay(
-            value=e.value,
-            status=e.status or "pending",
-            provider=e.provider,
-            error=e.error,
+            value=e.value, status=e.status or "pending",
+            provider=e.provider, error=e.error,
         )
 
-    # Build rows
     rows = []
     for lead in leads:
         rows.append(WorkbookLeadRow(
-            lead_id=lead["id"],
-            lead=lead,
+            lead_id=lead["id"], lead=lead, data=lead,
             enrichments=enrich_map.get(lead["id"], {}),
         ))
 
     return WorkbookWithLeadsResponse(
         workbook=_workbook_response(wb),
-        rows=rows,
-        total_rows=total,
-        page=page,
-        page_size=page_size,
+        rows=rows, total_rows=total,
+        page=page, page_size=page_size,
     )
 
 
@@ -469,7 +595,7 @@ async def remove_column(workbook_id: str, column_id: str, db: Session = Depends(
 
 @router.post("/{workbook_id}/run", response_model=RunWorkbookResponse)
 async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Session = Depends(get_db)):
-    """Run enrichment on workbook leads."""
+    """Run enrichment on workbook rows (v2: WorkbookRow, v1 fallback: leads DB)."""
     if body is None:
         body = RunWorkbookRequest()
 
@@ -487,18 +613,32 @@ async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Se
     if not enrichment_cols:
         return RunWorkbookResponse(status="skipped", total_jobs=0, message="No enrichment columns to run")
 
-    # Get leads matching filter
-    lead_db = _get_lead_db()
-    try:
-        leads, total = _query_leads(lead_db, wb.filter_criteria or {}, page=1, page_size=10000)
-    finally:
-        lead_db.close()
+    # ── Get rows from WorkbookRow (v2) or leads DB (v1) ──
+    v2_count = db.query(sa_func.count(WorkbookRow.id)).filter(
+        WorkbookRow.workbook_id == workbook_id
+    ).scalar() or 0
 
-    if body.lead_ids:
-        leads = [l for l in leads if l["id"] in body.lead_ids]
+    if v2_count > 0:
+        # v2: read from WorkbookRow
+        query = db.query(WorkbookRow).filter(WorkbookRow.workbook_id == workbook_id)
+        if body.row_ids:
+            query = query.filter(WorkbookRow.id.in_(body.row_ids))
+        elif body.lead_ids:
+            query = query.filter(WorkbookRow.lead_id.in_(body.lead_ids))
+        wb_rows = query.all()
+        leads = [{"id": r.lead_id or r.id, **r.data} for r in wb_rows]
+    else:
+        # v1 legacy: read from leads DB
+        lead_db = _get_lead_db()
+        try:
+            leads, _ = _query_leads(lead_db, wb.filter_criteria or {}, page=1, page_size=10000)
+        finally:
+            lead_db.close()
+        if body.lead_ids:
+            leads = [l for l in leads if l["id"] in body.lead_ids]
 
     if not leads:
-        return RunWorkbookResponse(status="skipped", total_jobs=0, message="No leads to process")
+        return RunWorkbookResponse(status="skipped", total_jobs=0, message="No rows to process")
 
     # Update workbook status
     wb.status = "running"
@@ -516,7 +656,7 @@ async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Se
                 chain = col.get("waterfall") or ([col.get("provider")] if col.get("provider") else [])
                 success = await enqueue_enrichment_job(
                     workbook_id=workbook_id,
-                    row_id=lead["id"],  # lead_id
+                    row_id=lead["id"],
                     col_id=col["id"],
                     provider_chain=chain,
                 )
@@ -524,14 +664,11 @@ async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Se
                     enqueued += 1
         if enqueued > 0:
             return RunWorkbookResponse(
-                status="started",
-                total_jobs=enqueued,
+                status="started", total_jobs=enqueued,
                 message=f"Enqueued {enqueued} enrichment jobs",
             )
-        # If nothing was enqueued (Redis unavailable), fall through to inline
         raise RuntimeError("No jobs enqueued — falling through to inline execution")
     except Exception as e:
-        # Inline fallback — runs enrichment directly in-process
         logger.info(f"Running inline enrichment: {e}")
         from apps.api.services.workbook.enrichment import enrich_workbook_leads
         result = await enrich_workbook_leads(
@@ -544,8 +681,7 @@ async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Se
         wb.status = "complete"
         db.commit()
         return RunWorkbookResponse(
-            status="complete",
-            total_jobs=result.get("total", 0),
+            status="complete", total_jobs=result.get("total", 0),
             message=f"Inline: {result.get('completed', 0)} completed, {result.get('errors', 0)} errors",
         )
 
@@ -559,6 +695,114 @@ async def stop_workbook(workbook_id: str, db: Session = Depends(get_db)):
     wb.status = "paused"
     db.commit()
     return {"status": "paused"}
+
+
+# ── Row Management (v2) ──────────────────────────────────────────────────
+
+@router.post("/{workbook_id}/rows")
+async def add_rows(workbook_id: str, body: AddRowsRequest, db: Session = Depends(get_db)):
+    """Add rows to a workbook."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+
+    max_pos = db.query(sa_func.max(WorkbookRow.position)).filter(
+        WorkbookRow.workbook_id == workbook_id
+    ).scalar() or 0
+
+    added = 0
+    for i, row_data in enumerate(body.rows):
+        db.add(WorkbookRow(
+            workbook_id=workbook_id,
+            position=max_pos + i + 1,
+            data=row_data,
+            lead_id=row_data.get("id"),
+            enrichments={},
+        ))
+        added += 1
+    db.commit()
+    return {"added": added, "total_rows": max_pos + added + 1}
+
+
+@router.delete("/{workbook_id}/rows")
+async def delete_rows(workbook_id: str, body: DeleteRowsRequest, db: Session = Depends(get_db)):
+    """Delete rows from a workbook."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+
+    deleted = db.query(WorkbookRow).filter(
+        WorkbookRow.workbook_id == workbook_id,
+        WorkbookRow.id.in_(body.row_ids),
+    ).delete(synchronize_session=False)
+    db.commit()
+    return {"deleted": deleted}
+
+
+@router.post("/{workbook_id}/migrate")
+async def migrate_workbook_to_v2(workbook_id: str, db: Session = Depends(get_db)):
+    """Migrate a v1 workbook to v2 by snapshotting leads into WorkbookRow."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+
+    # Check if already migrated
+    existing = db.query(sa_func.count(WorkbookRow.id)).filter(
+        WorkbookRow.workbook_id == workbook_id
+    ).scalar() or 0
+    if existing > 0:
+        return {"status": "already_migrated", "rows": existing}
+
+    # Snapshot leads — limited to 500 to avoid OOM
+    lead_db = _get_lead_db()
+    try:
+        leads, total = _query_leads(lead_db, wb.filter_criteria or {}, page=1, page_size=500)
+    finally:
+        lead_db.close()
+
+    # Trim lead data to only fields used by workbook columns
+    col_fields = set()
+    for c in (wb.columns_config or []):
+        if c.get("lead_field"):
+            col_fields.add(c["lead_field"])
+    col_fields.update(["id", "company", "website", "email", "phone", "city"])  # essentials
+
+    def _trim(lead: dict) -> dict:
+        if not col_fields:
+            return lead
+        return {k: v for k, v in lead.items() if k in col_fields}
+
+    # Copy existing enrichment overlay into inline JSON
+    enrichments = db.query(WorkbookEnrichment).filter(
+        WorkbookEnrichment.workbook_id == workbook_id,
+    ).all()
+    enrich_map: dict[int, dict] = {}
+    for e in enrichments:
+        if e.lead_id not in enrich_map:
+            enrich_map[e.lead_id] = {}
+        enrich_map[e.lead_id][e.column_id] = {
+            "value": e.value, "status": e.status or "pending",
+            "provider": e.provider, "error": e.error,
+        }
+
+    # Insert in batches with commits to reduce memory
+    for i, lead in enumerate(leads):
+        db.add(WorkbookRow(
+            workbook_id=workbook_id,
+            position=i,
+            data=_trim(lead),
+            lead_id=lead.get("id"),
+            enrichments=enrich_map.get(lead.get("id"), {}),
+        ))
+        if (i + 1) % 50 == 0:
+            db.commit()
+
+    # Update workbook metadata
+    wb.source_type = "leads_filter"
+    wb.source_config = wb.filter_criteria or {}
+    db.commit()
+
+    return {"status": "migrated", "rows": len(leads), "enrichments_migrated": len(enrichments)}
 
 
 # ── WebSocket ─────────────────────────────────────────────────────────────

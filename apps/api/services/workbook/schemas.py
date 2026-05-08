@@ -1,11 +1,12 @@
 """
-Workbook Pydantic schemas — request/response validation for the hybrid Workbook API.
+Workbook Pydantic schemas — request/response validation for Clay-style workbook API.
 
-The key difference from v1: rows are leads, not separate entities.
+v2: Workbooks are self-contained tables with their own rows (WorkbookRow),
+not live views on the leads database.
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional, Any
+from typing import Optional, Any, Literal
 from datetime import datetime
 
 
@@ -42,7 +43,7 @@ class ColumnConfig(BaseModel):
 # ── Filter Criteria ───────────────────────────────────────────────────────
 
 class FilterCriteria(BaseModel):
-    """Filter to select which leads appear in this workbook."""
+    """Filter to select which leads to snapshot into a workbook."""
     city: Optional[str] = None
     state: Optional[str] = None
     score_tier: Optional[str] = None
@@ -62,11 +63,16 @@ class FilterCriteria(BaseModel):
 # ── Workbook Schemas ──────────────────────────────────────────────────────
 
 class WorkbookCreate(BaseModel):
-    """Create a new workbook."""
+    """Create a new workbook — Clay-style with source selection."""
     name: str = Field(..., min_length=1, max_length=255)
     description: str = Field("", max_length=2000)
-    filter_criteria: Optional[FilterCriteria] = None
+    source: str = Field("empty", description="Source type: empty, csv, leads_filter, job_results")
+    source_config: Optional[dict] = Field(None, description="Source config: filter criteria, job IDs, CSV rows, etc.")
     columns_config: list[ColumnConfig] = Field(default_factory=list)
+    # Legacy compat
+    filter_criteria: Optional[FilterCriteria] = None
+    # Row limit for leads_filter source
+    max_rows: int = Field(1000, description="Max rows to snapshot from source", ge=1, le=50000)
 
 
 class WorkbookUpdate(BaseModel):
@@ -76,6 +82,7 @@ class WorkbookUpdate(BaseModel):
     filter_criteria: Optional[FilterCriteria] = None
     columns_config: Optional[list[ColumnConfig]] = None
     status: Optional[str] = None
+    sync_to_leads: Optional[bool] = None
 
 
 class WorkbookResponse(BaseModel):
@@ -84,10 +91,13 @@ class WorkbookResponse(BaseModel):
     name: str
     description: str
     status: str
+    source_type: str = "empty"
+    source_config: Optional[dict] = None
     filter_criteria: Optional[dict] = None
     columns_config: list[dict]
     total_rows: int
     completed_rows: int
+    sync_to_leads: bool = True
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     last_run_at: Optional[datetime] = None
@@ -101,7 +111,7 @@ class WorkbookListResponse(BaseModel):
     total: int
 
 
-# ── Lead Row (how leads appear in workbook context) ───────────────────────
+# ── Row schemas (v2 — self-contained rows) ────────────────────────────────
 
 class EnrichmentOverlay(BaseModel):
     """Enrichment data for a single cell (AI/computed columns)."""
@@ -112,14 +122,33 @@ class EnrichmentOverlay(BaseModel):
 
 
 class WorkbookLeadRow(BaseModel):
-    """A lead row as it appears in a workbook — lead data + enrichment overlay."""
+    """A row as it appears in a workbook — lead data + enrichment overlay.
+
+    Compatible with both v1 (leads DB) and v2 (WorkbookRow).
+    """
     lead_id: int
-    lead: dict  # Full lead data
+    row_id: Optional[int] = None  # WorkbookRow.id (v2)
+    position: Optional[int] = None
+    lead: dict = {}  # Legacy — full lead data
+    data: dict = {}  # v2 — self-contained row data (same shape as lead)
     enrichments: dict[str, EnrichmentOverlay] = {}  # {column_id: enrichment_data}
+
+    # Convenience: merge lead and data so columns can read from either
+    @property
+    def merged_data(self) -> dict:
+        return {**(self.lead or {}), **(self.data or {})}
+
+    # Flatten lead data fields into top-level for backward compat
+    def __getattr__(self, name: str):
+        if name in (self.data or {}):
+            return self.data[name]
+        if name in (self.lead or {}):
+            return self.lead[name]
+        raise AttributeError(f"'{type(self).__name__}' has no attribute '{name}'")
 
 
 class WorkbookWithLeadsResponse(BaseModel):
-    """Full workbook with paginated lead rows."""
+    """Full workbook with paginated rows."""
     workbook: WorkbookResponse
     rows: list[WorkbookLeadRow]
     total_rows: int
@@ -132,7 +161,9 @@ class WorkbookWithLeadsResponse(BaseModel):
 class RunWorkbookRequest(BaseModel):
     """Request to run enrichment on a workbook."""
     column_ids: Optional[list[str]] = Field(None, description="Specific columns to run. None = all enrichment columns")
-    lead_ids: Optional[list[int]] = Field(None, description="Specific leads to run. None = all matching leads")
+    row_ids: Optional[list[int]] = Field(None, description="Specific row IDs to run. None = all rows")
+    # Legacy compat
+    lead_ids: Optional[list[int]] = Field(None, description="Legacy: specific leads to run")
 
 
 class RunWorkbookResponse(BaseModel):
@@ -147,6 +178,18 @@ class RunWorkbookResponse(BaseModel):
 class AddColumnRequest(BaseModel):
     """Add a new column to a workbook."""
     column: ColumnConfig
+
+
+# ── Row Management ───────────────────────────────────────────────────────
+
+class AddRowsRequest(BaseModel):
+    """Add rows to a workbook."""
+    rows: list[dict] = Field(..., min_length=1, description="List of row data dicts")
+
+
+class DeleteRowsRequest(BaseModel):
+    """Delete rows from a workbook."""
+    row_ids: list[int] = Field(..., min_length=1, description="Row IDs to delete")
 
 
 # ── Export ────────────────────────────────────────────────────────────────

@@ -136,6 +136,22 @@ def check_and_migrate_db():
                     conn.execute(text("ALTER TABLE person_intel ADD COLUMN updated_at DATETIME"))
                     conn.commit()
 
+            # Workbooks Table — Clay v2 migration (source_type, source_config, sync_to_leads)
+            if "workbooks" in inspector.get_table_names():
+                wb_columns = [c["name"] for c in inspector.get_columns("workbooks")]
+                if "source_type" not in wb_columns:
+                    print("Migrating workbooks: adding source_type...")
+                    conn.execute(text("ALTER TABLE workbooks ADD COLUMN source_type VARCHAR(50) DEFAULT 'leads_filter'"))
+                    conn.commit()
+                if "source_config" not in wb_columns:
+                    print("Migrating workbooks: adding source_config...")
+                    conn.execute(text("ALTER TABLE workbooks ADD COLUMN source_config JSON DEFAULT '{}'"))
+                    conn.commit()
+                if "sync_to_leads" not in wb_columns:
+                    print("Migrating workbooks: adding sync_to_leads...")
+                    conn.execute(text("ALTER TABLE workbooks ADD COLUMN sync_to_leads BOOLEAN DEFAULT 1"))
+                    conn.commit()
+
         print("✓ Database migration completed successfully")
 
     except Exception as e:

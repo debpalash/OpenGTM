@@ -1,8 +1,8 @@
 /**
- * Workbook API client — Hybrid model.
+ * Workbook API client — Clay-style self-contained tables.
  *
- * Workbooks are filtered views on the Leads DB.
- * Rows are leads. AI/enrichment results overlay on top.
+ * Workbooks have their own rows (WorkbookRow), not live views on leads DB.
+ * Enrichment results stored inline per row.
  */
 
 const API = ""
@@ -54,19 +54,25 @@ export interface Workbook {
   name: string
   description: string
   status: "draft" | "running" | "paused" | "complete"
+  source_type?: "empty" | "csv" | "leads_filter" | "job_results"
+  source_config?: Record<string, any> | null
   filter_criteria: FilterCriteria | null
   columns_config: ColumnConfig[]
   total_rows: number
   completed_rows: number
+  sync_to_leads?: boolean
   created_at: string
   updated_at: string
   last_run_at: string | null
 }
 
-/** A lead row as it appears in a workbook */
+/** A row as it appears in a workbook (v2: self-contained, v1 compat) */
 export interface WorkbookLeadRow {
   lead_id: number
-  lead: Record<string, any>  // Full lead data
+  row_id?: number  // WorkbookRow.id (v2)
+  position?: number
+  lead: Record<string, any>  // Full lead data (v1) or empty (v2)
+  data?: Record<string, any>  // Self-contained row data (v2)
   enrichments: Record<string, EnrichmentOverlay>  // {column_id: overlay}
 }
 
@@ -104,8 +110,11 @@ export async function fetchWorkbook(id: string, page = 1, pageSize = 100): Promi
 export async function createWorkbook(data: {
   name: string
   description?: string
+  source?: "empty" | "csv" | "leads_filter" | "job_results"
+  source_config?: Record<string, any>
   filter_criteria?: FilterCriteria
   columns_config?: Partial<ColumnConfig>[]
+  max_rows?: number
 }): Promise<Workbook> {
   const res = await fetch(`${API}/api/workbooks/`, {
     method: "POST",
