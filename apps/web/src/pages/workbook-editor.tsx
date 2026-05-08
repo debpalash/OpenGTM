@@ -25,8 +25,9 @@ import {
   Loader2, Check, X, AlertCircle, Clock, MoreHorizontal,
   FileSpreadsheet, ExternalLink, Filter, Search, Trash2, Copy,
   ArrowUpDown, ArrowUp, ArrowDown, EyeOff, Eye, Pencil, Settings, GripVertical,
-  ChevronDown, ChevronRight, Zap, Columns3,
+  ChevronDown, ChevronUp, ChevronRight, Zap, Columns3,
 } from "lucide-react"
+import { ActivityDrawer, useActivityStats } from "@/components/activity-drawer"
 import { toast } from "sonner"
 import Papa from "papaparse"
 import {
@@ -315,6 +316,7 @@ export default function WorkbookEditorPage() {
   const [newColWaterfall, setNewColWaterfall] = useState<string[]>([])
   const [newColTargetField, setNewColTargetField] = useState("")
   const [showColumnVisibility, setShowColumnVisibility] = useState(false)
+  const [activityOpen, setActivityOpen] = useState(false)
   const availableProviders = providersData?.providers ?? []
 
 
@@ -1552,6 +1554,16 @@ export default function WorkbookEditorPage() {
         )
       })()}
 
+      {/* ── Activity Drawer (slides up from status bar) ─────────────── */}
+      <ActivityDrawer
+        rows={rows}
+        columns={columns}
+        isRunning={workbook?.status === "running"}
+        connected={connected}
+        isOpen={activityOpen}
+        onToggle={() => setActivityOpen(!activityOpen)}
+      />
+
       {/* ── Status Bar ───────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-4 py-1 border-t text-[11px] text-muted-foreground bg-muted/30 shrink-0">
         <div className="flex items-center gap-3">
@@ -1565,7 +1577,7 @@ export default function WorkbookEditorPage() {
             </>
           )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 h-full">
           {connected && (
             <span className="inline-flex items-center gap-1 text-emerald-400">
               <span className="size-1.5 rounded-full bg-emerald-400" />
@@ -1573,7 +1585,6 @@ export default function WorkbookEditorPage() {
             </span>
           )}
           {workbook?.status === "running" && (() => {
-            // Compute enrichment stats from row overlays
             const enrichCols = columns.filter(c => c.type === "waterfall" || c.type === "enrichment" || c.type === "ai_formula")
             const totalCells = rows.length * enrichCols.length
             let complete = 0, errors = 0, running = 0, pending = 0
@@ -1602,6 +1613,17 @@ export default function WorkbookEditorPage() {
               </span>
             )
           })()}
+          {/* Activity drawer toggle — inline in status bar */}
+          {columns.filter(c => c.type === "waterfall" || c.type === "enrichment" || c.type === "ai_formula").length > 0 && (
+            <button
+              className="activity-drawer-trigger"
+              onClick={() => setActivityOpen(!activityOpen)}
+              title={activityOpen ? "Collapse activity panel" : "Expand activity panel"}
+            >
+              {activityOpen ? <ChevronDown className="size-3" /> : <ChevronUp className="size-3" />}
+              Activity
+            </button>
+          )}
         </div>
       </div>
     </div>

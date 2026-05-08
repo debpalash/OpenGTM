@@ -357,3 +357,365 @@
   background: linear-gradient(90deg, oklch(0.93 0.005 85) 25%, oklch(0.90 0.008 85) 50%, oklch(0.93 0.005 85) 75%);
   background-size: 200% 100%;
 }
+
+/*
+ * ══════════════════════════════════════════════════════════════════════
+ *  ACTIVITY DRAWER — Bottom-up collapsible panel for enrichment logs
+ * ══════════════════════════════════════════════════════════════════════
+ */
+
+/* ── Drawer container ── */
+.activity-drawer {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  animation: drawer-slide-up 0.25s ease-out;
+}
+
+@keyframes drawer-slide-up {
+  from { opacity: 0; max-height: 0; }
+  to   { opacity: 1; max-height: 400px; }
+}
+
+/* ── Resize handle ── */
+.activity-drawer-resize {
+  height: 6px;
+  cursor: ns-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.activity-drawer:hover .activity-drawer-resize {
+  opacity: 1;
+}
+.activity-drawer-resize-bar {
+  width: 36px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--muted-foreground);
+  opacity: 0.3;
+}
+
+/* ── Tab bar ── */
+.activity-drawer-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  height: 32px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  gap: 8px;
+}
+.activity-drawer-tab-list {
+  display: flex;
+  gap: 2px;
+}
+.activity-drawer-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  border-radius: 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.activity-drawer-tab:hover {
+  background: var(--accent);
+  color: var(--foreground);
+}
+.activity-drawer-tab.active {
+  background: var(--accent);
+  color: var(--foreground);
+  font-weight: 600;
+}
+.activity-drawer-badge-error {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 8px;
+  background: oklch(0.55 0.22 27 / 0.15);
+  color: oklch(0.65 0.20 25);
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* ── Tab actions area ── */
+.activity-drawer-tab-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.activity-drawer-filter {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--muted);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.activity-drawer-filter-input {
+  font-size: 11px;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--foreground);
+  width: 120px;
+}
+.activity-drawer-filter-input::placeholder {
+  color: var(--muted-foreground);
+}
+.activity-drawer-clear,
+.activity-drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: none;
+  background: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.activity-drawer-clear:hover,
+.activity-drawer-close:hover {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+/* ── Content area ── */
+.activity-drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* ── Empty state ── */
+.activity-drawer-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  opacity: 0.6;
+}
+
+/* ── Live feed ── */
+.activity-drawer-feed {
+  padding: 4px 8px;
+}
+
+.activity-event {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 8px;
+  font-size: 11px;
+  border-radius: 4px;
+  transition: background 0.15s;
+  animation: event-slide-in 0.2s ease-out;
+}
+.activity-event:hover {
+  background: var(--accent);
+}
+
+@keyframes event-slide-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.activity-event-time {
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  color: var(--muted-foreground);
+  opacity: 0.5;
+  width: 60px;
+  flex-shrink: 0;
+}
+.activity-event-icon {
+  flex-shrink: 0;
+  width: 14px;
+  display: flex;
+  align-items: center;
+}
+.activity-event-company {
+  font-weight: 500;
+  color: var(--foreground);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.activity-event-column {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+.activity-event-provider {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+.activity-event-value {
+  font-size: 10px;
+  color: oklch(0.70 0.14 160);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+.activity-event-error {
+  font-size: 10px;
+  color: oklch(0.65 0.20 25);
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Error row highlight */
+.activity-event.enrich_error {
+  background: oklch(0.55 0.22 27 / 0.06);
+}
+.activity-event.enrich_error:hover {
+  background: oklch(0.55 0.22 27 / 0.10);
+}
+
+/* ── Columns tab ── */
+.activity-drawer-columns {
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 6px;
+}
+.activity-col-card {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.activity-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.activity-col-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.activity-col-provider {
+  font-size: 9px;
+  color: var(--muted-foreground);
+  opacity: 0.6;
+}
+.activity-col-bar {
+  height: 4px;
+  border-radius: 4px;
+  background: var(--muted);
+  overflow: hidden;
+  position: relative;
+}
+.activity-col-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: oklch(0.60 0.18 160);
+  transition: width 0.4s ease;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.activity-col-bar-error {
+  height: 100%;
+  border-radius: 4px;
+  background: oklch(0.55 0.20 25);
+  transition: width 0.4s ease;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.activity-col-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+}
+.activity-col-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ── Trigger button (inline in status bar) ── */
+.activity-drawer-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 1px solid var(--border);
+  height: 100%;
+}
+.activity-drawer-trigger:hover {
+  color: var(--foreground);
+  background: var(--accent);
+}
+
+/* ── Light theme adjustments ── */
+:root:not(.dark) .activity-event-value {
+  color: oklch(0.40 0.14 160);
+}
+:root:not(.dark) .activity-event-error {
+  color: oklch(0.45 0.20 25);
+}
+:root:not(.dark) .activity-col-bar-fill {
+  background: oklch(0.50 0.18 160);
+}
+:root:not(.dark) .activity-col-bar-error {
+  background: oklch(0.50 0.20 25);
+}
+:root:not(.dark) .activity-drawer-badge-error {
+  background: oklch(0.55 0.22 27 / 0.10);
+  color: oklch(0.50 0.22 25);
+}
