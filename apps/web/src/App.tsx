@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Toaster } from "sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import {
@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
   Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2, X, Activity,
+  Moon, Sun,
 } from "lucide-react"
 import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
@@ -52,7 +53,7 @@ function AppSidebar() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const activeChatId = searchParams.get("id")
-  const { connected } = useSSE()
+  useSSE()
   const { data: jobs } = useJobs()
   const { data: conversations } = useConversations()
   const activeJobs = jobs?.filter(j => j.status === "running" || j.status === "pending").length ?? 0
@@ -224,14 +225,6 @@ function AppSidebar() {
             <Settings />
             <span>Settings</span>
           </SidebarMenuButton>
-          <div className="flex items-center gap-1.5 px-2" title={connected ? "SSE connected" : "SSE disconnected"}>
-            <Circle
-              className={`size-2 fill-current ${connected ? "text-green-500" : "text-muted-foreground"}`}
-            />
-            <span className="text-[11px] text-muted-foreground">
-              {connected ? "Connected" : "Offline"}
-            </span>
-          </div>
         </div>
       </SidebarFooter>
     </Sidebar>
@@ -240,7 +233,22 @@ function AppSidebar() {
 
 function PageHeader({ title }: { title: string }) {
   const { data: usage } = useLLMUsage()
+  const { connected } = useSSE()
   const activeProvider = usage?.providers?.[0]
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"))
+
+  const toggleTheme = useCallback(() => {
+    const html = document.documentElement
+    if (html.classList.contains("dark")) {
+      html.classList.remove("dark")
+      localStorage.setItem("theme", "light")
+      setIsDark(false)
+    } else {
+      html.classList.add("dark")
+      localStorage.setItem("theme", "dark")
+      setIsDark(true)
+    }
+  }, [])
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
@@ -272,6 +280,32 @@ function PageHeader({ title }: { title: string }) {
           )}
         </div>
       )}
+
+      <Separator orientation="vertical" className="mx-1 h-4" />
+
+      {/* Connection status */}
+      <div
+        className="flex items-center gap-1.5"
+        title={connected ? "SSE connected" : "SSE disconnected"}
+      >
+        <Circle
+          className={`size-2 fill-current ${
+            connected ? "text-green-500" : "text-muted-foreground"
+          }`}
+        />
+        <span className="text-[11px] text-muted-foreground">
+          {connected ? "Connected" : "Offline"}
+        </span>
+      </div>
+
+      {/* Theme toggle */}
+      <button
+        onClick={toggleTheme}
+        className="ml-1 flex items-center justify-center size-8 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+        title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      >
+        {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      </button>
     </header>
   )
 }

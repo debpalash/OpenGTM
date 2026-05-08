@@ -94,6 +94,18 @@ LEAD_FIELD_MAP = {
     "industry_tags": "industry_tags",
     "hiring_signals": "hiring_signals",
     "decision_makers": "decision_makers",
+    # ── OSS Enrichment Fields ──
+    "founding_year": "founding_year",
+    "funding_stage": "funding_stage",
+    "last_funding_amount": "last_funding_amount",
+    "investors": "investors",
+    "recent_news": "recent_news",
+    "google_rating": "google_rating",
+    "technologies": "technologies",
+    "email_verify": "email_verify",
+    "email_presence": "email_presence",
+    "secondary_emails": "secondary_emails",
+    "revenue_estimate": "revenue_estimate",
 }
 
 

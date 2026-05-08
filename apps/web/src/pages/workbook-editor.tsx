@@ -904,7 +904,7 @@ export default function WorkbookEditorPage() {
           {isRunning ? (
             <button
               onClick={() => stopMut.mutate()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-destructive text-white hover:bg-destructive/90 transition-colors"
             >
               <Square className="size-3.5" />
               Stop
