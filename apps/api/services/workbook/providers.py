@@ -154,6 +154,72 @@ def _init_providers():
     except Exception as e:
         logger.warning(f"Failed to register tech_stack: {e}")
 
+    # ── Phase 1: Clay-tier API Providers (free tiers available) ──
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.snovio import SnovioProvider
+        register_provider(SnovioProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register snovio: {e}")
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.people_data_labs import PeopleDataLabsProvider
+        register_provider(PeopleDataLabsProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register people_data_labs: {e}")
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.prospeo import ProspeoProvider
+        register_provider(ProspeoProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register prospeo: {e}")
+
+    # ── Phase 2: Deep Scrapers + Cheap APIs ──
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.deep_scraper import DeepScraperProvider
+        register_provider(DeepScraperProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register deep_scraper: {e}")
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.google_maps import GoogleMapsProvider
+        register_provider(GoogleMapsProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register google_maps: {e}")
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.debounce import DebounceProvider
+        register_provider(DebounceProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register debounce: {e}")
+
+    # ── Phase 3: OSS-Powered Scrapers (zero cost, no API keys) ──
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.holehe_verify import HoleheProvider
+        register_provider(HoleheProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register holehe: {e}")
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.email_harvester import EmailHarvesterProvider
+        register_provider(EmailHarvesterProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register email_harvester: {e}")
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.company_intel import CompanyIntelProvider
+        register_provider(CompanyIntelProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register company_intel: {e}")
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.local_business import LocalBusinessProvider
+        register_provider(LocalBusinessProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register local_business: {e}")
+
     logger.info(f"Provider registry initialized: {len(_registry)} providers loaded")
 
 
