@@ -782,6 +782,18 @@ class JobRunner:
                                 except (asyncio.TimeoutError, Exception):
                                     ai_used += 1  # Count failed attempts too
 
+                            # Fallback: keep the lead with just website (enrichment will fill contact data)
+                            elif company_name and len(company_name) >= 3:
+                                lead = Lead(
+                                    company=company_name,
+                                    website=url,
+                                    city=city or "",
+                                    description=body[:300],
+                                    specialization=query,
+                                    source="web_search",
+                                )
+                                leads.append(lead)
+
                         except Exception:
                             continue
 
@@ -920,8 +932,8 @@ class JobRunner:
 
                         # Pre-validate before adding
                         test_lead = Lead(company=company)
-                        from apps.api.services.leadgen.lead_validator import validate_lead
-                        is_valid, _ = validate_lead(test_lead)
+                        from apps.api.services.leadgen.lead_validator import validate_lead_light
+                        is_valid, _ = validate_lead_light(test_lead)
                         if not is_valid:
                             continue
 
@@ -1282,6 +1294,24 @@ class JobRunner:
                         if name.lower() in skip_words or name.lower() in seen:
                             continue
 
+                        # Reject page/listing titles that slipped through
+                        name_lower = name.lower()
+                        if re.search(r'(?i)\b(companies|agencies|firms|jobs?)\s+(in|near|of|for)\s+', name):
+                            continue
+                        if re.search(r'(?i)^\d+\s+\w+\s+jobs?\s+in', name):
+                            continue
+                        if re.search(r'(?i)^top\s+', name):
+                            continue
+                        if any(kw in name_lower for kw in ['hiring for', 'companies in', 'agencies in', 'looking for']):
+                            continue
+
+                        # Final validation
+                        from apps.api.services.leadgen.lead_validator import validate_lead_light
+                        test_lead = Lead(company=name)
+                        is_valid, _ = validate_lead_light(test_lead)
+                        if not is_valid:
+                            continue
+
                         seen.add(name.lower())
 
                         # Extract rating
@@ -1382,21 +1412,38 @@ class JobRunner:
                                 domain = urlparse(href).netloc.lower()
                                 site_domain = source.get("site_domain", "")
 
-                                # Extract company name
-                                company = self._extract_business_name(title)
+                                company = ""
+                                company_website = ""
+
+                                # Strategy 1: If link goes to a company's OWN site
+                                # (not the registry), derive name from domain
+                                if site_domain and site_domain not in domain:
+                                    # Link is to a company website, not the registry
+                                    company = self._company_from_domain(domain)
+                                    company_website = href
+                                elif not site_domain:
+                                    # No site_domain = generic search, try domain
+                                    if not self._is_skip_domain(domain):
+                                        company = self._company_from_domain(domain)
+                                        company_website = href
+
+                                # Strategy 2: Extract from title
+                                if not company or len(company) < 3:
+                                    company = self._extract_business_name(title)
+
                                 if not company or len(company) < 3:
                                     continue
 
-                                # Validate
-                                from apps.api.services.leadgen.lead_validator import validate_lead
+                                # Use light validation (don't require contact data yet)
+                                from apps.api.services.leadgen.lead_validator import validate_lead_light
                                 test_lead = Lead(company=company)
-                                is_valid, _ = validate_lead(test_lead)
+                                is_valid, _ = validate_lead_light(test_lead)
                                 if not is_valid:
                                     continue
 
                                 lead = Lead(
                                     company=company,
-                                    website=href if not site_domain or site_domain not in domain else "",
+                                    website=company_website or (href if not site_domain or site_domain not in domain else ""),
                                     city=city,
                                     description=body[:300],
                                     source=f"registry:{source['name']}",
