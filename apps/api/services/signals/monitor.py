@@ -208,12 +208,58 @@ async def run_signal_scan() -> Dict[str, int]:
     for s in all_signals:
         add_signal(s)
 
-    logger.info(f"Signal scan complete: {len(all_leads)} leads scanned, {len(all_signals)} signals found")
+    # ── signal → score: boost leads with fresh buying signals ──
+    boosted = _apply_signal_boosts(all_signals)
+
+    logger.info(
+        f"Signal scan complete: {len(all_leads)} leads scanned, "
+        f"{len(all_signals)} signals found, {boosted} leads boosted"
+    )
 
     return {
         "scanned": len(all_leads),
         "signals_found": len(all_signals),
+        "leads_boosted": boosted,
         "by_type": {
             "hiring": len([s for s in all_signals if s.signal_type == "hiring"]),
         },
     }
+
+
+def _apply_signal_boosts(signals) -> int:
+    """Bump lead scores for leads with new signals (capped at 100), recompute tier."""
+    if not signals:
+        return 0
+    from apps.api.services.leadgen.db import LeadDB
+
+    # Aggregate weight per lead (a lead may fire multiple signals)
+    by_lead: Dict[int, int] = {}
+    for s in signals:
+        if s.lead_id:
+            by_lead[s.lead_id] = by_lead.get(s.lead_id, 0) + int(s.weight or 0)
+
+    if not by_lead:
+        return 0
+
+    db = LeadDB()
+    boosted = 0
+    try:
+        for lead_id, weight in by_lead.items():
+            row = db.conn.execute(
+                "SELECT score FROM leads WHERE id = ?", (lead_id,)
+            ).fetchone()
+            if not row:
+                continue
+            cur = row[0] or 0
+            new_score = min(100, cur + weight)
+            if new_score == cur:
+                continue
+            tier = ("hot" if new_score >= 75 else "warm" if new_score >= 50
+                    else "cold" if new_score >= 25 else "unqualified")
+            db.update_lead_fields(lead_id, {"score": new_score, "score_tier": tier})
+            boosted += 1
+    except Exception as e:
+        logger.warning(f"signal score boost failed: {e}")
+    finally:
+        db.close()
+    return boosted

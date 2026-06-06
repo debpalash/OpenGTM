@@ -155,6 +155,40 @@ def check_and_migrate_db():
                     print("Migrating workbooks: adding workspace_id (tenancy)...")
                     conn.execute(text("ALTER TABLE workbooks ADD COLUMN workspace_id VARCHAR"))
                     conn.commit()
+                # Pillar 2: budget ceiling
+                if "budget_max_usd" not in wb_columns:
+                    print("Migrating workbooks: adding budget_max_usd...")
+                    conn.execute(text("ALTER TABLE workbooks ADD COLUMN budget_max_usd FLOAT DEFAULT 0"))
+                    conn.commit()
+                if "budget_spent_usd" not in wb_columns:
+                    print("Migrating workbooks: adding budget_spent_usd...")
+                    conn.execute(text("ALTER TABLE workbooks ADD COLUMN budget_spent_usd FLOAT DEFAULT 0"))
+                    conn.commit()
+                # Pillar 3: living refresh policy
+                if "refresh_policy" not in wb_columns:
+                    print("Migrating workbooks: adding refresh_policy...")
+                    conn.execute(text("ALTER TABLE workbooks ADD COLUMN refresh_policy JSON DEFAULT '{}'"))
+                    conn.commit()
+
+            # CompanyEntity — tenant isolation column (added after first release)
+            if "company_entities" in inspector.get_table_names():
+                ce_columns = [c["name"] for c in inspector.get_columns("company_entities")]
+                if "workspace_id" not in ce_columns:
+                    print("Migrating company_entities: adding workspace_id...")
+                    conn.execute(text("ALTER TABLE company_entities ADD COLUMN workspace_id VARCHAR DEFAULT ''"))
+                    conn.commit()
+
+            # WorkbookRow — Pillar 1: canonical entity binding
+            if "workbook_rows" in inspector.get_table_names():
+                wr_columns = [c["name"] for c in inspector.get_columns("workbook_rows")]
+                if "canonical_entity_id" not in wr_columns:
+                    print("Migrating workbook_rows: adding canonical_entity_id...")
+                    conn.execute(text("ALTER TABLE workbook_rows ADD COLUMN canonical_entity_id VARCHAR"))
+                    conn.commit()
+                if "corroboration_count" not in wr_columns:
+                    print("Migrating workbook_rows: adding corroboration_count...")
+                    conn.execute(text("ALTER TABLE workbook_rows ADD COLUMN corroboration_count INTEGER DEFAULT 1"))
+                    conn.commit()
 
         print("✓ Database migration completed successfully")
 

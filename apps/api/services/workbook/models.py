@@ -31,6 +31,13 @@ COLUMN_TYPES = {
         "editable": True,
         "has_config": False,
     },
+    "source": {
+        "description": "Materializes NEW rows from the source engine via an ICP query",
+        "icon": "Radar",
+        "editable": False,
+        "has_config": True,
+        "emits_rows": True,  # this column creates rows, not cells
+    },
     "enrichment": {
         "description": "Single provider enrichment",
         "icon": "Sparkles",
@@ -48,6 +55,12 @@ COLUMN_TYPES = {
         "icon": "Brain",
         "editable": False,
         "has_config": True,
+    },
+    "agent": {
+        "description": "Goal-directed enrichment — agent picks tools dynamically, with a reasoning trace",
+        "icon": "Bot",
+        "editable": False,
+        "has_config": True,  # goal, tools, policy {max_steps, max_cost_usd, prefer}
     },
     "conditional": {
         "description": "Only runs if condition is met",
@@ -148,6 +161,14 @@ class Workbook(Base):
     # Sync enrichments back to leads DB (optional per-workbook toggle)
     sync_to_leads = Column(Boolean, default=True)
 
+    # ── Pillar 2: budget ceiling (0 = unlimited) ──
+    budget_max_usd = Column(Float, default=0.0)
+    budget_spent_usd = Column(Float, default=0.0)
+
+    # ── Pillar 3: living-workbook refresh policy ──
+    # {interval, on_signal:[...], staleness_ttl_days:{field:days}, enabled}
+    refresh_policy = Column(JSON, default=dict)
+
     # Timestamps
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
@@ -229,6 +250,12 @@ class WorkbookRow(Base):
 
     # Optional link back to leads DB (for CRM sync, dedup)
     lead_id = Column(Integer, nullable=True, index=True)
+
+    # ── Pillar 1: canonical entity binding ──
+    # The resolved company this row represents (cross-source dedup target).
+    canonical_entity_id = Column(String, nullable=True, index=True)
+    # Distinct sources that have corroborated this entity (trust signal).
+    corroboration_count = Column(Integer, default=1)
 
     # Timestamps
     created_at = Column(DateTime, server_default=func.now())

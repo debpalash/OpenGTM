@@ -134,6 +134,9 @@ class WorkbookLeadRow(BaseModel):
     lead: dict = {}  # Legacy — full lead data
     data: dict = {}  # v2 — self-contained row data (same shape as lead)
     enrichments: dict[str, EnrichmentOverlay] = {}  # {column_id: enrichment_data}
+    # Pillar 1: canonical entity binding + cross-source trust signal
+    canonical_entity_id: Optional[str] = None
+    corroboration_count: Optional[int] = None
 
     # Convenience: merge lead and data so columns can read from either
     @property

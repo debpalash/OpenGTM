@@ -90,6 +90,11 @@ class EnrichmentProvider(ABC):
     capabilities: List[str] = []
     default_confidence: float = 0.5
 
+    # ── Pillar 2: cost metadata (defaults = free OSS provider) ──
+    requires_api_key: bool = False
+    free_tier_limit: int = 0       # 0 = unlimited
+    cost_per_lookup: float = 0.0   # USD per successful lookup (override or see planner.PROVIDER_COST)
+
     @abstractmethod
     async def enrich(self, lead: Lead) -> EnrichmentResult:
         """Run enrichment for a lead. Return an EnrichmentResult with discovered fields."""

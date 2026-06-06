@@ -141,7 +141,47 @@ _PUBLISHER_DOMAINS = {
     "wikipedia.org", "quora.com", "reddit.com", "medium.com",
     "mordorintelligence.com", "rankexdigital.com",
     "g2.com", "capterra.com", "trustpilot.com",
+    # Search engines / email providers — never a sourced company's own site
+    "bing.com", "google.com", "google.co.in", "microsoft.com",
+    "yahoo.com", "duckduckgo.com", "baidu.com", "yandex.com",
 }
+
+# Job-title words — a name ending in one of these (≤3 words) is a title, not a company
+_JOB_TITLE_TERMS = {
+    "executive", "manager", "director", "officer", "president", "founder",
+    "cofounder", "ceo", "cto", "coo", "cfo", "cmo", "cio", "vp", "svp", "evp",
+    "head", "lead", "recruiter", "consultant", "analyst", "engineer",
+    "developer", "designer", "intern", "associate", "specialist",
+    "coordinator", "administrator", "representative", "agent", "principal",
+    "supervisor", "strategist", "architect",
+}
+
+# Search engine / email-provider brands that leak in as company names (e.g. from
+# a pattern email like name@bing.com). Pure brand-as-company → reject.
+_SEARCH_EMAIL_BRANDS = {
+    "bing", "google", "microsoft", "yahoo", "outlook", "gmail", "hotmail",
+    "duckduckgo", "baidu", "yandex", "rediffmail",
+}
+
+
+def _name_rejection(name: str) -> str:
+    """Return a rejection reason for junk company names, else ''.
+
+    Catches gaps the pattern lists miss: pure job titles ('Sales Executive',
+    'Managing Director') and search/email brands ('Bing') derived from pattern
+    emails. Shared by validate_lead and validate_lead_light.
+    """
+    low = name.lower().strip()
+    words = [w for w in re.split(r"[^a-z0-9]+", low) if w]
+    if not words:
+        return ""
+    # Pure job title: short name whose last word is a title term.
+    if len(words) <= 3 and words[-1] in _JOB_TITLE_TERMS:
+        return "job_title_not_company"
+    # Search engine / email-provider brand as the whole company name.
+    if low.replace(" ", "") in _SEARCH_EMAIL_BRANDS:
+        return "search_or_email_brand"
+    return ""
 
 # Non-India phone prefixes (for India-focused queries)
 _NON_INDIA_PREFIXES = ["+1", "+44", "+61", "+49", "+33", "+971"]
@@ -184,6 +224,11 @@ def validate_lead(lead: Lead) -> tuple[bool, str]:
     for pattern in _GENERIC_TITLE_PATTERNS:
         if re.search(pattern, name):
             return False, "generic_service_title"
+
+    # Job titles / search-engine brands masquerading as company names
+    nr = _name_rejection(name)
+    if nr:
+        return False, nr
 
     # Name must contain at least some alpha characters
     alpha_count = sum(1 for c in name if c.isalpha())
@@ -325,6 +370,9 @@ def validate_lead_light(lead: Lead) -> tuple[bool, str]:
     for pattern in _GENERIC_TITLE_PATTERNS:
         if re.search(pattern, name):
             return False, "generic_service_title"
+    nr = _name_rejection(name)
+    if nr:
+        return False, nr
     alpha_count = sum(1 for c in name if c.isalpha())
     if alpha_count < 3:
         return False, "insufficient_alpha_chars"

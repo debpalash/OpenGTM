@@ -20,6 +20,7 @@ from apps.api.routers.leads import router as leads_router, workspace_router, job
 from apps.api.routers.copilotkit import router as copilotkit_router
 from apps.api.routers.campaigns import router as campaigns_router
 from apps.api.routers.workbooks import router as workbooks_router
+from apps.api.routers.entities import router as entities_router
 from apps.api.services.queue_service import queue_service
 from apps.api.workers.download import handle_download_link
 
@@ -35,6 +36,14 @@ check_and_migrate_db()
 
 # Import all models so Base.metadata knows about them
 from apps.api.services.workbook.models import Workbook, WorkbookEnrichment, WorkbookRow  # noqa: E402
+# Pillar 1: canonical entity graph tables
+from apps.api.services.entities import models as _entity_models  # noqa: E402,F401
+# Pillar 2: provider performance ledger
+from apps.api.services.workbook import planner_models as _planner_models  # noqa: E402,F401
+# Pillar 3: living-workbook activity feed
+from apps.api.services.workbook import activity_models as _activity_models  # noqa: E402,F401
+# Pillar 4: agent column reasoning traces
+from apps.api.services.workbook import trace_models as _trace_models  # noqa: E402,F401
 
 Base.metadata.create_all(bind=engine)
 
@@ -89,7 +98,23 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Tenancy backfill skipped: {e}")
     queue_service.register_handler("download_link", handle_download_link)
+    # Workbook enrichment runs on the durable queue worker (P-1): concurrent,
+    # heartbeat-tracked, reaper-recoverable. See workbook/enrichment.py.
+    from apps.api.services.workbook.enrichment import handle_run_workbook
+    queue_service.register_handler("run_workbook", handle_run_workbook)
+    # Source columns (P0): materialize rows from the source engine on the queue.
+    from apps.api.services.workbook.source_engine import handle_source_workbook
+    queue_service.register_handler("source_workbook", handle_source_workbook)
+    # Living workbooks (P3): recurring refresh + signal-triggered refresh.
+    from apps.api.services.workbook.refresh import handle_refresh_workbook, handle_signal_scan, bootstrap_signal_scan
+    queue_service.register_handler("refresh_workbook", handle_refresh_workbook)
+    queue_service.register_handler("signal_scan", handle_signal_scan)
     await queue_service.start_worker()
+    # Kick off the recurring signal scan (idempotent; no-op if already pending).
+    try:
+        bootstrap_signal_scan()
+    except Exception as e:
+        logger.warning(f"signal_scan bootstrap skipped: {e}")
     print("✓ Queue Worker Started")
     print("✓ Yupcha Engine v3.0 Ready")
     yield
@@ -138,6 +163,7 @@ app.include_router(search_router)
 app.include_router(copilotkit_router)
 app.include_router(campaigns_router)
 app.include_router(workbooks_router)
+app.include_router(entities_router)
 
 # Include Routers — Outreach
 from apps.api.routers.outreach import router as outreach_router

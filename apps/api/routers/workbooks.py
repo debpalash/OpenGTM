@@ -432,6 +432,8 @@ async def get_workbook(
                 lead=r.data or {},
                 data=r.data or {},
                 enrichments=enrichments_dict,
+                canonical_entity_id=r.canonical_entity_id,
+                corroboration_count=r.corroboration_count,
             ))
 
         return WorkbookWithLeadsResponse(
@@ -658,7 +660,7 @@ async def run_workbook(
     columns = wb.columns_config or []
     enrichment_cols = [
         c for c in columns
-        if c.get("type") in ("enrichment", "waterfall", "ai_formula", "output", "research")
+        if c.get("type") in ("enrichment", "waterfall", "ai_formula", "output", "research", "agent")
         and (body.column_ids is None or c.get("id") in body.column_ids)
     ]
     # Output columns push the (enriched) row somewhere, so run them last.
@@ -694,50 +696,36 @@ async def run_workbook(
     if not leads:
         return RunWorkbookResponse(status="skipped", total_jobs=0, message="No rows to process")
 
-    # Update workbook status
+    # Update workbook status + reset progress for this run
     wb.status = "running"
     wb.last_run_at = datetime.now(timezone.utc)
+    wb.total_rows = len(leads)
+    wb.completed_rows = 0
     db.commit()
 
     total_jobs = len(leads) * len(enrichment_cols)
 
-    # Try BullMQ, fall back to inline
-    try:
-        from apps.api.services.workbook.worker import enqueue_enrichment_job
-        enqueued = 0
-        for lead in leads:
-            for col in enrichment_cols:
-                chain = col.get("waterfall") or ([col.get("provider")] if col.get("provider") else [])
-                success = await enqueue_enrichment_job(
-                    workbook_id=workbook_id,
-                    row_id=lead["id"],
-                    col_id=col["id"],
-                    provider_chain=chain,
-                )
-                if success:
-                    enqueued += 1
-        if enqueued > 0:
-            return RunWorkbookResponse(
-                status="started", total_jobs=enqueued,
-                message=f"Enqueued {enqueued} enrichment jobs",
-            )
-        raise RuntimeError("No jobs enqueued — falling through to inline execution")
-    except Exception as e:
-        logger.info(f"Running inline enrichment: {e}")
-        from apps.api.services.workbook.enrichment import enrich_workbook_leads
-        result = await enrich_workbook_leads(
-            db=db,
-            workbook_id=workbook_id,
-            leads=leads,
-            columns=enrichment_cols,
-            columns_config=wb.columns_config or [],
-        )
-        wb.status = "complete"
-        db.commit()
-        return RunWorkbookResponse(
-            status="complete", total_jobs=result.get("total", 0),
-            message=f"Inline: {result.get('completed', 0)} completed, {result.get('errors', 0)} errors",
-        )
+    # P-1: enqueue ONE durable job on queue_service (DB-polling worker with
+    # heartbeat + dead-job reaper + retry). The handler runs cells concurrently
+    # off the request thread, so /run returns immediately and the workbook can
+    # never get stuck in `running` (the reaper recovers a crashed run).
+    # See features/workbook-v2-source-engine-spec.md §1.5.
+    from apps.api.services.queue_service import queue_service
+    queue_service.add_job(
+        db,
+        "run_workbook",
+        {
+            "workbook_id": workbook_id,
+            "column_ids": [c["id"] for c in enrichment_cols],
+            "row_ids": body.row_ids,
+            "lead_ids": body.lead_ids,
+        },
+    )
+    return RunWorkbookResponse(
+        status="started",
+        total_jobs=total_jobs,
+        message=f"Enqueued run: {len(leads)} rows × {len(enrichment_cols)} columns",
+    )
 
 
 @router.post("/{workbook_id}/stop")
@@ -751,6 +739,168 @@ async def stop_workbook(
     wb.status = "paused"
     db.commit()
     return {"status": "paused"}
+
+
+# ── Source Columns (P0) — sourcing as a workbook primitive ───────────────
+
+class SourceColumnRequest(BaseModel):
+    name: str = "Source"
+    icp: dict = Field(default_factory=dict)        # {description, industry, geo, size, keywords_any, exclude}
+    channels: dict = Field(default_factory=dict)   # {categories, regions, explicit_sources}
+    target_rows: int = 0                            # 0 = unlimited
+
+
+@router.post("/{workbook_id}/sources")
+async def add_source_column(workbook_id: str, body: SourceColumnRequest, db: Session = Depends(get_db)):
+    """Add a `source` column (ICP-driven) to a workbook."""
+    import uuid
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+
+    col = {
+        "id": f"src_{uuid.uuid4().hex[:8]}",
+        "name": body.name,
+        "type": "source",
+        "icp": body.icp,
+        "channels": body.channels,
+        "target_rows": body.target_rows,
+    }
+    cfg = list(wb.columns_config or [])
+    cfg.append(col)
+    wb.columns_config = cfg
+    db.commit()
+    return {"column": col}
+
+
+@router.post("/{workbook_id}/sources/{col_id}/run")
+async def run_source_column(workbook_id: str, col_id: str, db: Session = Depends(get_db)):
+    """Materialize rows from a source column — runs on the durable queue worker."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    col = next((c for c in (wb.columns_config or [])
+                if c.get("id") == col_id and c.get("type") == "source"), None)
+    if not col:
+        raise HTTPException(status_code=404, detail="Source column not found")
+
+    from apps.api.services.queue_service import queue_service
+    queue_service.add_job(db, "source_workbook", {"workbook_id": workbook_id, "column_id": col_id})
+    return {"status": "started", "column_id": col_id, "message": "Sourcing started"}
+
+
+@router.get("/{workbook_id}/sources/{col_id}/preview")
+async def preview_source_column(workbook_id: str, col_id: str, db: Session = Depends(get_db)):
+    """Dry-run: the query that would run + which sources it would hit. No write."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    col = next((c for c in (wb.columns_config or [])
+                if c.get("id") == col_id and c.get("type") == "source"), None)
+    if not col:
+        raise HTTPException(status_code=404, detail="Source column not found")
+
+    from apps.api.services.workbook.source_engine import preview_source
+    return preview_source(col.get("icp") or {}, col.get("channels") or {})
+
+
+# ── Cost & provider stats (P2) ───────────────────────────────────────────
+
+class BudgetRequest(BaseModel):
+    max_usd: float = 0.0  # 0 = unlimited
+
+
+@router.put("/{workbook_id}/budget")
+async def set_budget(workbook_id: str, body: BudgetRequest, db: Session = Depends(get_db)):
+    """Set a workbook's spend ceiling. Paid providers are skipped once exhausted."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb.budget_max_usd = max(0.0, body.max_usd)
+    db.commit()
+    return {"budget_max_usd": wb.budget_max_usd, "budget_spent_usd": wb.budget_spent_usd or 0.0}
+
+
+@router.get("/{workbook_id}/cost")
+async def get_cost(workbook_id: str, db: Session = Depends(get_db)):
+    """Spend-to-date + budget headroom for a workbook."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    spent = wb.budget_spent_usd or 0.0
+    cap = wb.budget_max_usd or 0.0
+    return {
+        "budget_max_usd": cap,
+        "budget_spent_usd": round(spent, 4),
+        "remaining_usd": round(cap - spent, 4) if cap > 0 else None,
+        "unlimited": cap <= 0,
+    }
+
+
+@router.get("/meta/provider-stats")
+async def provider_stats(db: Session = Depends(get_db)):
+    """Learned per-provider/-field yield, latency, cost ledger (feeds the planner)."""
+    from apps.api.services.workbook.planner_models import ProviderStat
+    rows = db.query(ProviderStat).order_by(ProviderStat.attempts.desc()).all()
+    return {"stats": [r.to_api() for r in rows]}
+
+
+# ── Living workbooks (P3) ────────────────────────────────────────────────
+
+class RefreshPolicyRequest(BaseModel):
+    enabled: bool = True
+    interval: Optional[str] = None            # "hourly" | "daily" | "weekly" | minutes (int)
+    on_signal: list = Field(default_factory=list)        # ["hiring","funding",...]
+    staleness_ttl_days: dict = Field(default_factory=dict)  # {field: days}
+
+
+@router.put("/{workbook_id}/refresh-policy")
+async def update_refresh_policy(workbook_id: str, body: RefreshPolicyRequest, db: Session = Depends(get_db)):
+    """Make a workbook 'living': schedule recurring refresh and/or signal triggers."""
+    from apps.api.services.workbook.refresh import set_refresh_policy
+    result = set_refresh_policy(db, workbook_id, body.model_dump())
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
+
+
+@router.post("/{workbook_id}/refresh")
+async def refresh_now(workbook_id: str, db: Session = Depends(get_db)):
+    """Trigger one refresh cycle immediately (source new rows + re-enrich stale)."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    from apps.api.services.queue_service import queue_service
+    queue_service.add_job(db, "refresh_workbook", {"workbook_id": workbook_id, "reason": "manual"})
+    return {"status": "refreshing"}
+
+
+@router.get("/{workbook_id}/rows/{lead_id}/cells/{col_id}/trace")
+async def get_cell_trace(workbook_id: str, lead_id: int, col_id: str, db: Session = Depends(get_db)):
+    """The agent column's reasoning trace for a cell (which tools, why, cost)."""
+    from apps.api.services.workbook.trace_models import CellTrace
+    t = db.query(CellTrace).filter(
+        CellTrace.workbook_id == workbook_id,
+        CellTrace.lead_id == lead_id,
+        CellTrace.column_id == col_id,
+    ).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="No trace for this cell")
+    return t.to_api()
+
+
+@router.get("/{workbook_id}/activity")
+async def get_activity(workbook_id: str, limit: int = Query(50, le=500), db: Session = Depends(get_db)):
+    """Event feed: rows added, refreshes, signals fired, re-enrichments."""
+    from apps.api.services.workbook.activity_models import WorkbookActivity
+    rows = (
+        db.query(WorkbookActivity)
+        .filter(WorkbookActivity.workbook_id == workbook_id)
+        .order_by(WorkbookActivity.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    return {"activity": [r.to_api() for r in rows]}
 
 
 # ── Row Management (v2) ──────────────────────────────────────────────────

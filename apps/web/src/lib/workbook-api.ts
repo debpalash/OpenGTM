@@ -21,7 +21,7 @@ export interface EnrichmentOverlay {
 export interface ColumnConfig {
   id: string
   name: string
-  type: "lead_field" | "enrichment" | "waterfall" | "ai_formula" | "conditional" | "output"
+  type: "lead_field" | "source" | "enrichment" | "waterfall" | "ai_formula" | "conditional" | "agent" | "output"
   width: number
   lead_field?: string | null
   provider?: string | null
@@ -32,6 +32,14 @@ export interface ColumnConfig {
   condition?: string | null
   destination?: string | null
   destination_config?: Record<string, any> | null
+  // Pillar 0 — source column
+  icp?: { description?: string; industry?: string; geo?: string[]; size?: { min?: number; max?: number } } | null
+  channels?: { categories?: string[]; regions?: string[]; explicit_sources?: string[] } | null
+  target_rows?: number | null
+  // Pillar 4 — agent column
+  goal?: string | null
+  tools?: string[] | null
+  policy?: { max_steps?: number; max_cost_usd?: number; prefer?: string } | null
 }
 
 export interface FilterCriteria {
@@ -63,6 +71,9 @@ export interface Workbook {
   total_rows: number
   completed_rows: number
   sync_to_leads?: boolean
+  budget_max_usd?: number
+  budget_spent_usd?: number
+  refresh_policy?: RefreshPolicy | null
   created_at: string
   updated_at: string
   last_run_at: string | null
@@ -76,6 +87,9 @@ export interface WorkbookLeadRow {
   lead: Record<string, any>  // Full lead data (v1) or empty (v2)
   data?: Record<string, any>  // Self-contained row data (v2)
   enrichments: Record<string, EnrichmentOverlay>  // {column_id: overlay}
+  // Pillar 1 — canonical entity binding + cross-source trust signal
+  canonical_entity_id?: string | null
+  corroboration_count?: number | null
 }
 
 export interface WorkbookWithLeads {
@@ -262,4 +276,165 @@ export function createWorkbookSocket(workbookId: string): WebSocket {
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
   const host = window.location.host
   return new WebSocket(`${protocol}//${host}/api/workbooks/${workbookId}/ws${authQuery()}`)
+}
+
+// ── Pillar 0: Source columns (live sourcing) ─────────────────────────────
+
+export interface SourcePreview {
+  query: string
+  source_count: number
+  sources: Array<{ name: string; label: string; category?: string; region?: string[] }>
+}
+
+export async function addSourceColumn(
+  workbookId: string,
+  body: { name?: string; icp: Record<string, any>; channels?: Record<string, any>; target_rows?: number },
+): Promise<{ column: ColumnConfig }> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/sources`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+  })
+  if (!res.ok) throw new Error("Failed to add source column")
+  return res.json()
+}
+
+export async function runSourceColumn(workbookId: string, colId: string): Promise<{ status: string }> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/sources/${colId}/run`, { method: "POST" })
+  if (!res.ok) throw new Error("Failed to run source column")
+  return res.json()
+}
+
+export async function previewSourceColumn(workbookId: string, colId: string): Promise<SourcePreview> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/sources/${colId}/preview`)
+  if (!res.ok) throw new Error("Failed to preview source")
+  return res.json()
+}
+
+// ── Pillar 2: Cost & provider stats ──────────────────────────────────────
+
+export interface CostInfo {
+  budget_max_usd: number
+  budget_spent_usd: number
+  remaining_usd: number | null
+  unlimited: boolean
+}
+
+export async function fetchWorkbookCost(workbookId: string): Promise<CostInfo> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/cost`)
+  if (!res.ok) throw new Error("Failed to fetch cost")
+  return res.json()
+}
+
+export async function setWorkbookBudget(workbookId: string, maxUsd: number): Promise<CostInfo> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/budget`, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ max_usd: maxUsd }),
+  })
+  if (!res.ok) throw new Error("Failed to set budget")
+  return res.json()
+}
+
+export interface ProviderStat {
+  provider: string; field: string; attempts: number; hits: number
+  hit_rate: number; avg_confidence: number; avg_latency_ms: number
+  total_cost_usd: number; cooldown_until: string | null
+}
+
+export async function fetchProviderStats(): Promise<{ stats: ProviderStat[] }> {
+  const res = await fetch(`${API}/api/workbooks/meta/provider-stats`)
+  if (!res.ok) throw new Error("Failed to fetch provider stats")
+  return res.json()
+}
+
+// ── Pillar 3: Living workbooks ───────────────────────────────────────────
+
+export interface RefreshPolicy {
+  enabled?: boolean
+  interval?: "hourly" | "daily" | "weekly" | null
+  on_signal?: string[]
+  staleness_ttl_days?: Record<string, number>
+}
+
+export async function setRefreshPolicy(workbookId: string, policy: RefreshPolicy): Promise<any> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/refresh-policy`, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(policy),
+  })
+  if (!res.ok) throw new Error("Failed to set refresh policy")
+  return res.json()
+}
+
+export async function refreshWorkbook(workbookId: string): Promise<{ status: string }> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/refresh`, { method: "POST" })
+  if (!res.ok) throw new Error("Failed to refresh workbook")
+  return res.json()
+}
+
+export interface ActivityItem { id: number; kind: string; message: string; created_at: string | null }
+
+export async function fetchActivity(workbookId: string, limit = 50): Promise<{ activity: ActivityItem[] }> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/activity?limit=${limit}`)
+  if (!res.ok) throw new Error("Failed to fetch activity")
+  return res.json()
+}
+
+// ── Pillar 4: Agent column reasoning trace ───────────────────────────────
+
+export interface CellTrace {
+  workbook_id: string; lead_id: number; column_id: string; goal: string
+  steps: Array<{ step: number; provider: string; success: boolean; value?: string; cost?: number; reason: string }>
+  outcome: string; total_cost_usd: Record<string, number>
+}
+
+export async function fetchCellTrace(workbookId: string, leadId: number, colId: string): Promise<CellTrace> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/rows/${leadId}/cells/${colId}/trace`)
+  if (!res.ok) throw new Error("No trace for this cell")
+  return res.json()
+}
+
+// ── Pillar 1: Entity graph ───────────────────────────────────────────────
+
+export interface CompanyEntity {
+  id: string; workspace_id: string; canonical_name: string
+  primary_domain: string; corroboration_count: number; observation_count: number
+  sources: string[]; fields: Record<string, Array<{ value: string; source: string; observed_at: string }>>
+  source_agreement: Record<string, number>
+}
+
+export async function fetchEntity(entityId: string): Promise<CompanyEntity> {
+  const res = await fetch(`${API}/api/entities/company/${entityId}`)
+  if (!res.ok) throw new Error("Entity not found")
+  return res.json()
+}
+
+export async function fetchEntities(opts?: { min_corroboration?: number; workspace_id?: string }): Promise<{ entities: CompanyEntity[] }> {
+  const p = new URLSearchParams()
+  if (opts?.min_corroboration) p.set("min_corroboration", String(opts.min_corroboration))
+  if (opts?.workspace_id != null) p.set("workspace_id", opts.workspace_id)
+  const res = await fetch(`${API}/api/entities/company?${p.toString()}`)
+  if (!res.ok) throw new Error("Failed to fetch entities")
+  return res.json()
+}
+
+export async function mergeEntities(keptId: string, mergedId: string): Promise<any> {
+  const res = await fetch(`${API}/api/entities/merge`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kept_id: keptId, merged_id: mergedId }),
+  })
+  if (!res.ok) throw new Error("Failed to merge entities")
+  return res.json()
+}
+
+export interface ReviewPair { id: number; entity_id: string; candidate: Record<string, any>; score: number; reason: string; status: string }
+
+export async function fetchReviewQueue(): Promise<{ pairs: ReviewPair[] }> {
+  const res = await fetch(`${API}/api/entities/review-queue`)
+  if (!res.ok) throw new Error("Failed to fetch review queue")
+  return res.json()
+}
+
+export async function decideReview(pairId: number, decision: "merge" | "reject"): Promise<any> {
+  const res = await fetch(`${API}/api/entities/review-queue/decide`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pair_id: pairId, decision }),
+  })
+  if (!res.ok) throw new Error("Failed to decide review")
+  return res.json()
 }
