@@ -2,7 +2,7 @@
 Signals Router — Buying signal feed and management.
 """
 
-from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 
@@ -31,19 +31,19 @@ def list_signals(
 
 
 @router.post("/scan")
-async def trigger_scan(
-    background_tasks: BackgroundTasks,
-    ctx: WorkspaceCtx = Depends(current_workspace),
-):
-    """Trigger a signal scan in the background.
+def trigger_scan(ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Trigger a signal scan on the durable queue worker.
 
     The scan fans out to job-board providers (JobSpy etc.) per lead, which can
-    take a long time — running it inline blocked the request (and the single dev
-    worker) until it finished. We enqueue it and return immediately; the client
-    polls GET /api/signals for the results.
+    take a long time and do blocking I/O — running it inline (or as a main-loop
+    BackgroundTask) froze the API. We enqueue it on the queue worker (which runs
+    handlers off the event loop in their own thread) and return immediately; the
+    client polls GET /api/signals for results.
     """
-    from apps.api.services.signals.monitor import run_signal_scan
-    background_tasks.add_task(run_signal_scan)
+    from apps.api.database import SessionLocal
+    from apps.api.services.queue_service import queue_service
+    with SessionLocal() as db:
+        queue_service.add_job(db, "signal_scan", {})
     return {"status": "started"}
 
 
