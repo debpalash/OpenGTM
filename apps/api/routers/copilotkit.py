@@ -514,6 +514,71 @@ def _build_tools():
                 },
             },
         },
+        {
+            "type": "function",
+            "function": {
+                "name": "create_source_workbook",
+                "description": "Create a LIVE-sourcing workbook that finds NEW leads from scratch via the 91-source engine. Use when the user wants to FIND/SOURCE companies (not enrich a list they have). Example: 'Build a workbook of IT staffing companies in Pune'. Optionally auto-runs sourcing immediately.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "icp_description": {"type": "string", "description": "Who to find, incl. geo. e.g. 'IT staffing companies in Pune, 50-500 employees'"},
+                        "name": {"type": "string", "description": "Workbook name"},
+                        "target_rows": {"type": "integer", "description": "Max rows to source (0 = unlimited)"},
+                        "auto_run": {"type": "boolean", "description": "Start sourcing immediately (default true)"},
+                    },
+                    "required": ["icp_description"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "set_workbook_refresh",
+                "description": "Make a workbook 'living' — re-source new matches and re-enrich stale data on a schedule. Example: 'refresh this weekly'.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "workbook_id": {"type": "string"},
+                        "interval": {"type": "string", "enum": ["hourly", "daily", "weekly"], "description": "Refresh cadence"},
+                    },
+                    "required": ["workbook_id", "interval"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "add_agent_column",
+                "description": "Add a goal-directed AGENT column that dynamically picks tools to achieve a goal per row (e.g. 'find the verified CEO email'), with a cost/step budget and reasoning trace.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "workbook_id": {"type": "string"},
+                        "column_name": {"type": "string"},
+                        "goal": {"type": "string", "description": "What the agent should find, e.g. 'Find the verified email of the CEO'"},
+                        "target_field": {"type": "string", "description": "Field to populate, e.g. 'email'"},
+                        "max_cost_usd": {"type": "number", "description": "Per-cell spend cap (default 0.10)"},
+                    },
+                    "required": ["workbook_id", "column_name", "goal", "target_field"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "add_signal_trigger",
+                "description": "Trigger a workbook to refresh when buying signals fire (hiring, funding, tech change, news). Example: 'when any of these start hiring, refresh and find the hiring manager'.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "workbook_id": {"type": "string"},
+                        "signals": {"type": "array", "items": {"type": "string", "enum": ["hiring", "funding", "tech_change", "news"]}, "description": "Signal types that trigger a refresh"},
+                    },
+                    "required": ["workbook_id", "signals"],
+                },
+            },
+        },
     ]
 
 
@@ -882,6 +947,81 @@ async def _execute_tool(name: str, args: dict) -> str:
                 "type": col_type,
                 "total_columns": len(columns),
             })
+
+        # ── P5: chat authors the source engine (ORM + P0–P4 services) ──
+        elif name == "create_source_workbook":
+            from apps.api.database import SessionLocal
+            from apps.api.services.workbook.models import Workbook
+            from apps.api.services.queue_service import queue_service
+            icp_desc = args["icp_description"]
+            wb_name = args.get("name") or f"Source — {icp_desc[:40]}"
+            target_rows = int(args.get("target_rows", 0) or 0)
+            auto_run = args.get("auto_run", True)
+            src_col = {
+                "id": f"src_{uuid.uuid4().hex[:8]}", "name": "Source", "type": "source",
+                "icp": {"description": icp_desc}, "channels": {}, "target_rows": target_rows,
+            }
+            base_cols = [
+                {"id": "company", "name": "Company", "type": "lead_field", "lead_field": "company"},
+                {"id": "website", "name": "Website", "type": "lead_field", "lead_field": "website"},
+                {"id": "city", "name": "City", "type": "lead_field", "lead_field": "city"},
+                src_col,
+            ]
+            with SessionLocal() as wdb:
+                wb = Workbook(name=wb_name, description=icp_desc, status="draft",
+                              source_type="empty", columns_config=base_cols)
+                wdb.add(wb); wdb.commit(); wdb.refresh(wb)
+                wb_id = wb.id
+                if auto_run:
+                    queue_service.add_job(wdb, "source_workbook",
+                                          {"workbook_id": wb_id, "column_id": src_col["id"]})
+            return json.dumps({
+                "workbook_id": wb_id, "name": wb_name, "sourcing": bool(auto_run),
+                "message": f"Created live-sourcing workbook '{wb_name}'."
+                           + (" Sourcing started — rows will stream in." if auto_run else "")
+                           + f" Open at /workbooks/{wb_id}",
+            })
+
+        elif name == "set_workbook_refresh":
+            from apps.api.database import SessionLocal
+            from apps.api.services.workbook.refresh import set_refresh_policy
+            with SessionLocal() as wdb:
+                res = set_refresh_policy(wdb, args["workbook_id"],
+                                         {"enabled": True, "interval": args["interval"]})
+            if "error" in res:
+                return json.dumps(res)
+            return json.dumps({"message": f"Workbook will refresh {args['interval']}.", **res})
+
+        elif name == "add_agent_column":
+            from apps.api.database import SessionLocal
+            from apps.api.services.workbook.models import Workbook
+            with SessionLocal() as wdb:
+                wb = wdb.query(Workbook).filter(Workbook.id == args["workbook_id"]).first()
+                if not wb:
+                    return json.dumps({"error": "Workbook not found"})
+                col = {
+                    "id": f"agent_{uuid.uuid4().hex[:8]}", "name": args["column_name"],
+                    "type": "agent", "goal": args["goal"], "target_field": args["target_field"],
+                    "policy": {"max_steps": 6, "max_cost_usd": float(args.get("max_cost_usd", 0.10))},
+                }
+                cfg = list(wb.columns_config or []); cfg.append(col)
+                wb.columns_config = cfg; wdb.commit()
+            return json.dumps({"added": args["column_name"], "type": "agent",
+                               "message": f"Added agent column '{args['column_name']}' (goal: {args['goal']})."})
+
+        elif name == "add_signal_trigger":
+            from apps.api.database import SessionLocal
+            from apps.api.services.workbook.refresh import set_refresh_policy
+            with SessionLocal() as wdb:
+                from apps.api.services.workbook.models import Workbook
+                wb = wdb.query(Workbook).filter(Workbook.id == args["workbook_id"]).first()
+                if not wb:
+                    return json.dumps({"error": "Workbook not found"})
+                policy = dict(wb.refresh_policy or {})
+                policy["enabled"] = True
+                policy["on_signal"] = args["signals"]
+                res = set_refresh_policy(wdb, args["workbook_id"], policy)
+            return json.dumps({"message": f"Workbook will refresh on signals: {', '.join(args['signals'])}.", **res})
 
         return json.dumps({"error": f"Unknown tool: {name}"})
     finally:

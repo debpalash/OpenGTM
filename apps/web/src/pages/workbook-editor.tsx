@@ -28,6 +28,7 @@ import {
   ChevronDown, ChevronUp, ChevronRight, Zap, Columns3,
 } from "lucide-react"
 import { ActivityDrawer, useActivityStats } from "@/components/activity-drawer"
+import { SourceEnginePanel } from "@/components/source-engine-panel"
 import { toast } from "sonner"
 import Papa from "papaparse"
 import {
@@ -301,6 +302,7 @@ export default function WorkbookEditorPage() {
   const { data: providersData } = useProviders()
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [showSourcePanel, setShowSourcePanel] = useState(false)
   const [showColPicker, setShowColPicker] = useState(false)
   const [newColName, setNewColName] = useState("")
   const [newColType, setNewColType] = useState<"lead_field" | "ai_formula" | "waterfall" | "enrichment" | "output" | "research">("lead_field")
@@ -928,6 +930,21 @@ export default function WorkbookEditorPage() {
           </button>
 
           <div className="w-px h-5 bg-border mx-1" />
+
+          <button
+            onClick={() => setShowSourcePanel(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border bg-background hover:bg-accent transition-colors"
+            title="Source leads, set a budget, make this workbook living"
+          >
+            <Zap className="size-3.5" />
+            Source Engine
+          </button>
+          <SourceEnginePanel
+            workbookId={id!}
+            open={showSourcePanel}
+            onOpenChange={setShowSourcePanel}
+            onChanged={() => refetch()}
+          />
 
           {isRunning ? (
             <button
