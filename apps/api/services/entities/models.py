@@ -29,6 +29,9 @@ class CompanyEntity(Base):
     __tablename__ = "company_entities"
 
     id = Column(String, primary_key=True, default=_uuid)
+    # Tenant isolation: entities never resolve/corroborate across workspaces.
+    # "" = global/unscoped (matches today's not-yet-partitioned leads).
+    workspace_id = Column(String, default="", index=True)
     canonical_name = Column(String(512), nullable=False)
     # Convenience "winning" values (for fast compare/display); full provenance in `fields`
     primary_domain = Column(String(255), index=True, default="")
@@ -65,6 +68,7 @@ class CompanyEntity(Base):
     def to_api(self) -> dict:
         return {
             "id": self.id,
+            "workspace_id": self.workspace_id or "",
             "canonical_name": self.canonical_name,
             "primary_domain": self.primary_domain,
             "primary_phone": self.primary_phone,

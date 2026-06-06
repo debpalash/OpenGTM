@@ -166,6 +166,14 @@ def check_and_migrate_db():
                     conn.execute(text("ALTER TABLE workbooks ADD COLUMN refresh_policy JSON DEFAULT '{}'"))
                     conn.commit()
 
+            # CompanyEntity — tenant isolation column (added after first release)
+            if "company_entities" in inspector.get_table_names():
+                ce_columns = [c["name"] for c in inspector.get_columns("company_entities")]
+                if "workspace_id" not in ce_columns:
+                    print("Migrating company_entities: adding workspace_id...")
+                    conn.execute(text("ALTER TABLE company_entities ADD COLUMN workspace_id VARCHAR DEFAULT ''"))
+                    conn.commit()
+
             # WorkbookRow — Pillar 1: canonical entity binding
             if "workbook_rows" in inspector.get_table_names():
                 wr_columns = [c["name"] for c in inspector.get_columns("workbook_rows")]

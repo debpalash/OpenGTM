@@ -68,10 +68,15 @@ async def lifespan(app: FastAPI):
     from apps.api.services.workbook.source_engine import handle_source_workbook
     queue_service.register_handler("source_workbook", handle_source_workbook)
     # Living workbooks (P3): recurring refresh + signal-triggered refresh.
-    from apps.api.services.workbook.refresh import handle_refresh_workbook, handle_signal_scan
+    from apps.api.services.workbook.refresh import handle_refresh_workbook, handle_signal_scan, bootstrap_signal_scan
     queue_service.register_handler("refresh_workbook", handle_refresh_workbook)
     queue_service.register_handler("signal_scan", handle_signal_scan)
     await queue_service.start_worker()
+    # Kick off the recurring signal scan (idempotent; no-op if already pending).
+    try:
+        bootstrap_signal_scan()
+    except Exception as e:
+        logger.warning(f"signal_scan bootstrap skipped: {e}")
     print("✓ Queue Worker Started")
     print("✓ Yupcha Engine v3.0 Ready")
     yield
