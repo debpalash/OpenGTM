@@ -70,8 +70,13 @@ export default function SignalsPage() {
     try {
       const res = await fetch("/api/signals/scan", { method: "POST" })
       const data = await res.json()
-      toast.success(`Scan complete: ${data.signals_found} signals found`)
-      fetchSignals()
+      if (data.status === "started") {
+        toast.success("Signal scan started — checking job boards for new signals…")
+        setTimeout(fetchSignals, 8000)
+      } else {
+        toast.success(`Scan complete: ${data.signals_found ?? 0} signals found`)
+        fetchSignals()
+      }
     } catch {
       toast.error("Scan failed")
     }
