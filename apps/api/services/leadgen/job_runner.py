@@ -57,6 +57,29 @@ async def _ddg_search(query: str, max_results: int = 15) -> list:
         return []
 
 
+# Result URLs that are assets / ads / media rather than company pages. These
+# pollute noisy registry sources (IndiaMart .swf objects, ad banners, CDN files).
+_JUNK_EXTENSIONS = (
+    ".swf", ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg",
+    ".css", ".js", ".zip", ".rar", ".mp4", ".mp3", ".xml", ".ico", ".woff",
+)
+_JUNK_SUBSTRINGS = (
+    "doubleclick.net", "googlesyndication.com", "/cdn-cgi/", "/wp-content/uploads/",
+    "media.", "/ads/", "adservice.", "/advertisement",
+)
+
+
+def _is_junk_url(href: str) -> bool:
+    """True for asset/ad/media URLs that aren't company pages."""
+    if not href:
+        return True
+    low = href.lower()
+    path = urlparse(low).path
+    if path.endswith(_JUNK_EXTENSIONS):
+        return True
+    return any(s in low for s in _JUNK_SUBSTRINGS)
+
+
 class JobRunner:
     """Processes collection jobs with parallel strategies and quality validation."""
 
@@ -1415,6 +1438,8 @@ class JobRunner:
                                 title = result.get("title", "")
                                 body = result.get("body", "")
                                 if not href or not title:
+                                    continue
+                                if _is_junk_url(href):
                                     continue
 
                                 domain = urlparse(href).netloc.lower()
