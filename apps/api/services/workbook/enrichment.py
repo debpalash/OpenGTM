@@ -35,39 +35,41 @@ logger = logging.getLogger("workbook.enrichment")
 # Free OSS scrapers first, paid APIs as fallback.
 # When a workbook column doesn't define a custom waterfall, this is used.
 DEFAULT_WATERFALLS = {
-    # Email: website crawl → search engine → pattern gen → paid APIs
+    # Email: structured page data → website crawl → search → pattern gen → paid APIs
     "email": [
-        "deep_scraper", "website_scraper", "email_harvester",
+        "deep_scraper", "jsonld_firmographics", "website_scraper", "email_harvester",
         "ddg_email", "mailscout",
         "hunter_io", "apollo_io", "snovio", "prospeo",
     ],
     # Email verification: SMTP → holehe (120+ site check) → paid verify
     "email_confidence": ["mailscout", "holehe", "abstract_api", "debounce"],
     "email_verify": ["mailscout", "holehe", "abstract_api", "debounce"],
-    # Phone: website crawl → local business dirs → paid APIs
+    # Phone: structured page data → website crawl → local dirs → paid APIs
     "phone": [
-        "deep_scraper", "website_scraper", "local_business",
+        "deep_scraper", "jsonld_firmographics", "website_scraper", "local_business",
         "ddg_company", "facebook_pages",
         "apollo_io", "people_data_labs",
     ],
     # Company description / info
     "description": [
-        "deep_scraper", "website_scraper", "ddg_company",
+        "deep_scraper", "jsonld_firmographics", "website_scraper", "ddg_company",
         "company_intel",
     ],
-    # Decision makers / contacts
-    "decision_makers": ["deep_scraper", "crosslinked", "decision_maker"],
-    "contact_person": ["deep_scraper", "crosslinked", "decision_maker", "people_data_labs"],
-    "contact_title": ["deep_scraper", "crosslinked", "decision_maker"],
-    # Social links
-    "linkedin_url": ["deep_scraper", "website_scraper", "social_finder"],
-    "twitter_url": ["deep_scraper", "website_scraper", "social_finder"],
-    "facebook_url": ["deep_scraper", "website_scraper", "social_finder"],
+    # Decision makers / contacts (staffspy = full roster; gated, fails over gracefully)
+    "decision_makers": ["staffspy", "deep_scraper", "crosslinked", "decision_maker"],
+    "contact_person": ["deep_scraper", "crosslinked", "decision_maker", "staffspy", "people_data_labs"],
+    "contact_title": ["deep_scraper", "crosslinked", "decision_maker", "staffspy"],
+    # Social links — schema.org sameAs is authoritative, try it first
+    "linkedin_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder"],
+    "twitter_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder"],
+    "facebook_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder"],
     # Company metadata
     "company_size": ["deep_scraper", "website_scraper", "company_intel", "people_data_labs"],
     "industry_tags": ["deep_scraper", "website_scraper", "local_business", "company_intel"],
-    "address": ["deep_scraper", "local_business", "google_maps"],
-    "founding_year": ["deep_scraper", "company_intel"],
+    # Address — PostalAddress schema is authoritative, try it first
+    "address": ["jsonld_firmographics", "deep_scraper", "local_business", "google_maps"],
+    "founding_year": ["jsonld_firmographics", "deep_scraper", "company_intel"],
+    "founded_year": ["jsonld_firmographics", "deep_scraper", "company_intel"],
     # Funding & intelligence
     "funding_stage": ["company_intel"],
     "last_funding_amount": ["company_intel"],

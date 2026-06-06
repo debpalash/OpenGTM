@@ -220,6 +220,21 @@ def _init_providers():
     except Exception as e:
         logger.warning(f"Failed to register local_business: {e}")
 
+    # ── Phase 4: Free firmographics + roster (from research/ goldmine clones) ──
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.jsonld_firmographics import JsonLdFirmographicsProvider
+        register_provider(JsonLdFirmographicsProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register jsonld_firmographics: {e}")
+
+    try:
+        # Inert unless STAFFSPY_SESSION_FILE is set + `pip install staffspy`.
+        from apps.api.services.leadgen.enrichment.providers.staffspy_provider import StaffSpyRosterProvider
+        register_provider(StaffSpyRosterProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register staffspy: {e}")
+
     logger.info(f"Provider registry initialized: {len(_registry)} providers loaded")
 
 
