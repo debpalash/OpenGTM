@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import {
   Search as SearchIcon, Globe, MapPin, BookOpen,
@@ -22,12 +23,20 @@ const PRESETS = [
 export default function SearchPage() {
   const [query, setQuery] = useState("")
   const collect = useCollect()
+  const navigate = useNavigate()
+
+  const startSearch = (q: string) => {
+    collect.mutate({ query: q })
+    toast.success(`Search started: "${q}" — tracking progress in Tasks`)
+    setQuery("")
+    // The collection runs as a background job; send the user to the live
+    // Task Queue so they can watch progress instead of staring at a static page.
+    navigate("/agents")
+  }
 
   const handleSearch = () => {
     if (!query.trim()) return
-    collect.mutate({ query })
-    toast.success(`Search started: "${query}"`)
-    setQuery("")
+    startSearch(query)
   }
 
   return (
@@ -106,10 +115,7 @@ export default function SearchPage() {
             <button
               key={preset.query}
               className="text-left p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-              onClick={() => {
-                collect.mutate({ query: preset.query })
-                toast.success(`Started: "${preset.query}"`)
-              }}
+              onClick={() => startSearch(preset.query)}
             >
               <div className="text-sm font-medium">{preset.label}</div>
               <div className="text-xs text-muted-foreground mt-0.5 truncate">{preset.query}</div>

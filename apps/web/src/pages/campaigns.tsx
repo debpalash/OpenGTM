@@ -25,6 +25,7 @@ export default function CampaignsPage() {
   const [selectedTier, setSelectedTier] = useState("hot")
   const [tone, setTone] = useState("professional")
   const [valueProp, setValueProp] = useState("")
+  const [context, setContext] = useState("")
   const [generating, setGenerating] = useState(false)
   const [emails, setEmails] = useState<GeneratedEmail[]>([])
   const [copied, setCopied] = useState<number | null>(null)
@@ -34,7 +35,8 @@ export default function CampaignsPage() {
     fetch(`/api/leads?limit=100&tier=${selectedTier}`)
       .then(r => r.json())
       .then(data => {
-        const withEmail = (data.leads || []).filter((l: Record<string, string>) => l.email && l.email.includes("@"))
+        const rows = Array.isArray(data) ? data : (data.leads || [])
+        const withEmail = rows.filter((l: Record<string, string>) => l.email && l.email.includes("@"))
         setLeads(withEmail.slice(0, 20))
       })
       .catch(() => {})
@@ -59,7 +61,7 @@ export default function CampaignsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lead_ids: leads.slice(0, 5).map(l => l.id),
-          value_proposition: valueProp,
+          value_proposition: context.trim() ? `${valueProp}\n\n${context}` : valueProp,
           tone,
         }),
       })
@@ -141,8 +143,8 @@ export default function CampaignsPage() {
       <Textarea
         placeholder="Optional: Add more context about your product, target persona, or specific pain points you solve..."
         className="min-h-[80px]"
-        value={valueProp.includes("\n") ? valueProp : ""}
-        onChange={(e) => setValueProp(e.target.value)}
+        value={context}
+        onChange={(e) => setContext(e.target.value)}
       />
 
       <Button
