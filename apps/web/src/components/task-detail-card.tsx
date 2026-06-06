@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   CheckCircle2, XCircle, Clock, Loader2, ChevronDown, ChevronRight,
   Brain, ExternalLink, MapPin, Globe, Link2, Briefcase, Star,
   FileSearch, Users, Shield, Layers, Sparkles, Zap, ArrowRight,
   StopCircle, Trash2, RefreshCw, FileX2, Mail, Database,
-  TrendingUp, ShieldCheck,
+  TrendingUp, ShieldCheck, Activity,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -204,6 +204,48 @@ function CompactStageProgress({ stages }: { stages: JobStage[] }) {
   )
 }
 
+// ── Live Activity Feed ───────────────────────────────────────────
+
+interface ActivityEvent { ts: number; stage: string; message: string }
+
+function LiveActivityFeed({ events, isRunning }: { events: ActivityEvent[]; isRunning: boolean }) {
+  const endRef = useRef<HTMLDivElement>(null)
+  // Auto-scroll to the newest line as events stream in.
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }) }, [events.length])
+  if (!events.length) return null
+  return (
+    <div>
+      <h3 className="text-xs font-medium mb-1.5 flex items-center gap-1.5 text-muted-foreground">
+        {isRunning ? (
+          <span className="relative flex size-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
+            <span className="relative inline-flex size-2 rounded-full bg-green-500" />
+          </span>
+        ) : <Activity className="size-3" />}
+        Live Activity
+        <span className="text-muted-foreground/60 tabular-nums">({events.length})</span>
+      </h3>
+      <ScrollArea className="h-44 rounded-md border bg-muted/20">
+        <div className="p-2 space-y-0.5 font-mono text-[11px] leading-relaxed">
+          {events.map((e, i) => {
+            const meta = STAGE_META[e.stage]
+            return (
+              <div key={`${e.ts}-${i}`} className="flex items-start gap-2">
+                <span className="text-muted-foreground/50 tabular-nums shrink-0">
+                  {new Date(e.ts * 1000).toLocaleTimeString([], { hour12: false })}
+                </span>
+                {meta && <span className={cn("shrink-0 font-medium", meta.color)}>{meta.label}</span>}
+                <span className="text-foreground/90 break-words min-w-0">{e.message}</span>
+              </div>
+            )
+          })}
+          <div ref={endRef} />
+        </div>
+      </ScrollArea>
+    </div>
+  )
+}
+
 // ── Main Export ──────────────────────────────────────────────────
 
 export interface TaskDetailCardProps {
@@ -215,6 +257,8 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
   const navigate = useNavigate()
   const [job, setJob] = useState<JobDetail | null>(null)
   const [leads, setLeads] = useState<JobLead[]>([])
+  const [activity, setActivity] = useState<ActivityEvent[]>([])
+  const [, setTick] = useState(0)  // forces a re-render each second for the live elapsed timer
   const [loading, setLoading] = useState(true)
 
   const fetchData = async () => {
@@ -242,11 +286,34 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
     fetchData()
   }, [jobId])
 
+  // Backfill the activity feed with events that already happened for this job.
+  useEffect(() => {
+    let cancelled = false
+    fetch(`/api/jobs/${jobId}/events`)
+      .then(r => (r.ok ? r.json() : { events: [] }))
+      .then(d => {
+        if (cancelled) return
+        const evs: ActivityEvent[] = (d.events || []).map((e: Record<string, unknown>) => ({
+          ts: Number(e.ts) || 0, stage: String(e.stage || ""), message: String(e.message || ""),
+        }))
+        setActivity(evs)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [jobId])
+
   // Auto-refresh while running — polling fallback
   useEffect(() => {
     if (!job || job.status !== "running") return
     const interval = setInterval(fetchData, 2000)
     return () => clearInterval(interval)
+  }, [job?.status])
+
+  // Tick once a second while running so the elapsed timer counts up live.
+  useEffect(() => {
+    if (!job || job.status !== "running") return
+    const id = setInterval(() => setTick(t => t + 1), 1000)
+    return () => clearInterval(id)
   }, [job?.status])
 
   // Real-time SSE updates for running jobs
@@ -261,6 +328,18 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
           if (data.type === "heartbeat") return
           const payload = data.payload || data
           if (payload.job_id === jobId) {
+            // Stream the human-readable message into the live activity feed.
+            if (payload.message) {
+              setActivity(prev => {
+                const last = prev[prev.length - 1]
+                if (last && last.ts === (payload.ts || 0) && last.message === payload.message) return prev
+                return [...prev, {
+                  ts: payload.ts || Date.now() / 1000,
+                  stage: payload.stage || "",
+                  message: payload.message,
+                }].slice(-300)
+              })
+            }
             fetchData()
           }
         } catch { /* ignore */ }
@@ -476,6 +555,14 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
       </div>
 
       <Separator />
+
+      {/* ── Live Activity: streamed per-stage messages ── */}
+      {activity.length > 0 && (
+        <>
+          <LiveActivityFeed events={activity} isRunning={isRunning} />
+          <Separator />
+        </>
+      )}
 
       {/* ── Pipeline Stages: 2-column grid ── */}
       <div>
