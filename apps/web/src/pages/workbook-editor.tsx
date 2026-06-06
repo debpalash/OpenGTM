@@ -21,7 +21,7 @@ import {
 import type { WorkbookLeadRow, ColumnConfig, EnrichmentOverlay } from "@/lib/workbook-api"
 import {
   ArrowLeft, Plus, Play, Square, Download, Upload,
-  Sparkles, Type, Layers, Brain, GitBranch, Send,
+  Sparkles, Type, Layers, Brain, GitBranch, Send, Globe,
   Loader2, Check, X, AlertCircle, Clock, MoreHorizontal,
   FileSpreadsheet, ExternalLink, Filter, Search, Trash2, Copy,
   ArrowUpDown, ArrowUp, ArrowDown, EyeOff, Eye, Pencil, Settings, GripVertical,
@@ -49,6 +49,7 @@ const COL_TYPE_META: Record<string, { icon: typeof Type; color: string; label: s
   ai_formula: { icon: Brain, color: "text-amber-400", label: "AI Formula", headerBg: "bg-amber-500/5" },
   conditional: { icon: GitBranch, color: "text-emerald-400", label: "Conditional", headerBg: "bg-emerald-500/5" },
   output: { icon: Send, color: "text-rose-400", label: "Output", headerBg: "bg-rose-500/5" },
+  research: { icon: Globe, color: "text-cyan-400", label: "Research", headerBg: "bg-cyan-500/5" },
 }
 
 // Fields that get type-aware rendering (module-level constant)
@@ -302,7 +303,7 @@ export default function WorkbookEditorPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showColPicker, setShowColPicker] = useState(false)
   const [newColName, setNewColName] = useState("")
-  const [newColType, setNewColType] = useState<"lead_field" | "ai_formula" | "waterfall" | "enrichment" | "output">("lead_field")
+  const [newColType, setNewColType] = useState<"lead_field" | "ai_formula" | "waterfall" | "enrichment" | "output" | "research">("lead_field")
   const [newColLeadField, setNewColLeadField] = useState("")
   const [newColPrompt, setNewColPrompt] = useState("")
   const [newColCondition, setNewColCondition] = useState("")
@@ -322,6 +323,7 @@ export default function WorkbookEditorPage() {
   const [newColWebhookUrl, setNewColWebhookUrl] = useState("")
   const [newColWebhookBody, setNewColWebhookBody] = useState("")
   const [newColSequenceId, setNewColSequenceId] = useState("")
+  const [newColMaxSteps, setNewColMaxSteps] = useState(4)
   const [showColumnVisibility, setShowColumnVisibility] = useState(false)
   const [activityOpen, setActivityOpen] = useState(false)
   const availableProviders = providersData?.providers ?? []
@@ -1094,7 +1096,7 @@ export default function WorkbookEditorPage() {
                       />
 
                       <div className="grid grid-cols-2 gap-1">
-                        {(["lead_field", "enrichment", "waterfall", "ai_formula", "output"] as const).map(t => {
+                        {(["lead_field", "enrichment", "waterfall", "ai_formula", "research", "output"] as const).map(t => {
                           const m = COL_TYPE_META[t]
                           const Icon = m.icon
                           return (
@@ -1124,6 +1126,21 @@ export default function WorkbookEditorPage() {
                         <textarea value={newColPrompt} onChange={e => setNewColPrompt(e.target.value)}
                           placeholder="Summarize what {company} does based on {website}"
                           rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs resize-none" />
+                      )}
+
+                      {newColType === "research" && (
+                        <div className="space-y-1">
+                          <textarea value={newColPrompt} onChange={e => setNewColPrompt(e.target.value)}
+                            placeholder="Does {company} use Kubernetes? Cite a source."
+                            rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs resize-none" />
+                          <label className="flex items-center justify-between text-[11px] text-muted-foreground px-0.5">
+                            <span>Max web steps (search/fetch)</span>
+                            <input type="number" min={1} max={6} value={newColMaxSteps}
+                              onChange={e => setNewColMaxSteps(Math.max(1, Math.min(6, Number(e.target.value) || 4)))}
+                              className="w-14 px-1.5 py-0.5 rounded border bg-background text-xs text-right" />
+                          </label>
+                          <p className="px-0.5 text-[10px] text-muted-foreground">Agent searches the web + reads pages to answer per row. Higher steps = deeper but slower/costlier.</p>
+                        </div>
                       )}
 
                       {newColType === "enrichment" && (
@@ -1213,6 +1230,11 @@ export default function WorkbookEditorPage() {
                             if (newColType === "waterfall" && newColWaterfall.length > 0) newCol.waterfall = newColWaterfall
                             if ((newColType === "enrichment" || newColType === "waterfall") && newColTargetField) newCol.target_field = newColTargetField
                             if (newColType === "ai_formula" && newColPrompt.trim()) newCol.prompt = newColPrompt.trim()
+                            if (newColType === "research") {
+                              newCol.prompt = newColPrompt.trim()
+                              newCol.max_steps = newColMaxSteps
+                              newCol.width = 320
+                            }
                             if (newColType === "output") {
                               newCol.destination = newColDest
                               if (newColDest === "webhook") {
@@ -1231,7 +1253,7 @@ export default function WorkbookEditorPage() {
                             updateWb.mutate({ id: workbook!.id, columns_config: [...columns, newCol] as any })
                             setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition("")
                             setNewColLeadField(""); setNewColType("lead_field"); setNewColProvider(""); setNewColWaterfall([]); setNewColTargetField("")
-                            setNewColDest("webhook"); setNewColWebhookUrl(""); setNewColWebhookBody(""); setNewColSequenceId("")
+                            setNewColDest("webhook"); setNewColWebhookUrl(""); setNewColWebhookBody(""); setNewColSequenceId(""); setNewColMaxSteps(4)
                           }}
                           disabled={!newColName.trim()}
                           className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
@@ -1316,7 +1338,7 @@ export default function WorkbookEditorPage() {
         const col = columns.find(c => c.id === ctxMenu.colId)
         if (!col) return null
         const tableCol = table.getColumn(ctxMenu.colId)
-        const isEnrichable = ["enrichment", "waterfall", "ai_formula", "output"].includes(col.type)
+        const isEnrichable = ["enrichment", "waterfall", "ai_formula", "output", "research"].includes(col.type)
         return (
           <div
             className="fixed z-[100] min-w-[180px] rounded-lg border bg-card shadow-xl py-1 animate-in fade-in zoom-in-95 duration-150"
