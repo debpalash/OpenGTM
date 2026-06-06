@@ -319,7 +319,12 @@ export default function WorkbookEditorPage() {
   const [newColWaterfall, setNewColWaterfall] = useState<string[]>([])
   const [newColTargetField, setNewColTargetField] = useState("")
   // Output-column config
-  const [newColDest, setNewColDest] = useState<"webhook" | "crm" | "sequencer">("webhook")
+  const [newColDest, setNewColDest] = useState<"webhook" | "crm" | "sequencer" | "airtable" | "sheets">("webhook")
+  const [newColCrmType, setNewColCrmType] = useState<"hubspot" | "salesforce">("hubspot")
+  const [newColAirtableBase, setNewColAirtableBase] = useState("")
+  const [newColAirtableTable, setNewColAirtableTable] = useState("")
+  const [newColSheetId, setNewColSheetId] = useState("")
+  const [newColSheetRange, setNewColSheetRange] = useState("Sheet1")
   const [newColWebhookUrl, setNewColWebhookUrl] = useState("")
   const [newColWebhookBody, setNewColWebhookBody] = useState("")
   const [newColSequenceId, setNewColSequenceId] = useState("")
@@ -1187,8 +1192,10 @@ export default function WorkbookEditorPage() {
                           <select value={newColDest} onChange={e => setNewColDest(e.target.value as any)}
                             className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
                             <option value="webhook">Webhook (HTTP POST)</option>
-                            <option value="crm">CRM — HubSpot</option>
+                            <option value="crm">CRM (HubSpot / Salesforce)</option>
                             <option value="sequencer">Email sequencer</option>
+                            <option value="airtable">Airtable</option>
+                            <option value="sheets">Google Sheets</option>
                           </select>
                           {newColDest === "webhook" && (
                             <>
@@ -1201,12 +1208,43 @@ export default function WorkbookEditorPage() {
                             </>
                           )}
                           {newColDest === "crm" && (
-                            <p className="px-1 text-[10px] text-muted-foreground">Pushes the row to HubSpot as a contact (requires a HubSpot token in Settings; the lead must have an email).</p>
+                            <>
+                              <select value={newColCrmType} onChange={e => setNewColCrmType(e.target.value as any)}
+                                className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                                <option value="hubspot">HubSpot</option>
+                                <option value="salesforce">Salesforce</option>
+                              </select>
+                              <p className="px-1 text-[10px] text-muted-foreground">
+                                Pushes the row as a {newColCrmType === "hubspot" ? "HubSpot contact" : "Salesforce lead"} (set the token in Settings).
+                              </p>
+                            </>
                           )}
                           {newColDest === "sequencer" && (
                             <input value={newColSequenceId} onChange={e => setNewColSequenceId(e.target.value)}
                               placeholder="Sequence ID to enroll the lead into"
                               className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
+                          )}
+                          {newColDest === "airtable" && (
+                            <>
+                              <input value={newColAirtableBase} onChange={e => setNewColAirtableBase(e.target.value)}
+                                placeholder="Base ID (appXXXXXXXX)"
+                                className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
+                              <input value={newColAirtableTable} onChange={e => setNewColAirtableTable(e.target.value)}
+                                placeholder="Table name or ID"
+                                className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
+                              <p className="px-1 text-[10px] text-muted-foreground">Appends Company/Email/Phone/Website/City (set AIRTABLE_TOKEN in Settings).</p>
+                            </>
+                          )}
+                          {newColDest === "sheets" && (
+                            <>
+                              <input value={newColSheetId} onChange={e => setNewColSheetId(e.target.value)}
+                                placeholder="Spreadsheet ID"
+                                className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
+                              <input value={newColSheetRange} onChange={e => setNewColSheetRange(e.target.value)}
+                                placeholder="Sheet/tab name (e.g. Sheet1)"
+                                className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
+                              <p className="px-1 text-[10px] text-muted-foreground">Appends a row (set GOOGLE_SHEETS_TOKEN in Settings).</p>
+                            </>
                           )}
                         </div>
                       )}
@@ -1244,9 +1282,13 @@ export default function WorkbookEditorPage() {
                                 }
                                 newCol.destination_config = cfg
                               } else if (newColDest === "crm") {
-                                newCol.destination_config = { type: "hubspot" }
+                                newCol.destination_config = { type: newColCrmType }
                               } else if (newColDest === "sequencer") {
                                 newCol.destination_config = { sequence_id: newColSequenceId.trim() }
+                              } else if (newColDest === "airtable") {
+                                newCol.destination_config = { base_id: newColAirtableBase.trim(), table: newColAirtableTable.trim() }
+                              } else if (newColDest === "sheets") {
+                                newCol.destination_config = { spreadsheet_id: newColSheetId.trim(), range: newColSheetRange.trim() || "Sheet1" }
                               }
                             }
                             if (newColCondition.trim()) newCol.condition = newColCondition.trim()
@@ -1254,6 +1296,7 @@ export default function WorkbookEditorPage() {
                             setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition("")
                             setNewColLeadField(""); setNewColType("lead_field"); setNewColProvider(""); setNewColWaterfall([]); setNewColTargetField("")
                             setNewColDest("webhook"); setNewColWebhookUrl(""); setNewColWebhookBody(""); setNewColSequenceId(""); setNewColMaxSteps(4)
+                            setNewColCrmType("hubspot"); setNewColAirtableBase(""); setNewColAirtableTable(""); setNewColSheetId(""); setNewColSheetRange("Sheet1")
                           }}
                           disabled={!newColName.trim()}
                           className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"

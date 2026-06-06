@@ -142,25 +142,53 @@ async def _send_webhook(cfg: dict, lead_data: dict, columns_config: list) -> Dic
 
 async def _push_crm(cfg: dict, lead_data: dict, workspace_id: Optional[str]) -> Dict[str, Any]:
     crm_type = (cfg.get("type") or "hubspot").lower()
-    if crm_type != "hubspot":
+    if crm_type == "hubspot":
+        from apps.api.services.crm import hubspot as crm
+        label, id_key = "HubSpot", "hubspot_id"
+    elif crm_type == "salesforce":
+        from apps.api.services.crm import salesforce as crm
+        label, id_key = "Salesforce", "salesforce_id"
+    else:
         return {"success": False, "value": "", "error": f"unsupported crm '{crm_type}'"}
 
-    from apps.api.services.crm.hubspot import push_lead_as_contact, is_connected
-    if not is_connected():
-        return {"success": False, "value": "", "error": "HubSpot not connected (set HUBSPOT_TOKEN)"}
+    if not crm.is_connected():
+        return {"success": False, "value": "", "error": f"{label} not connected"}
 
     # push_lead_as_contact reads attributes off a Lead object.
     from apps.api.services.workbook.enrichment import _lead_dict_to_lead
     lead = _lead_dict_to_lead(lead_data)
 
-    res = await push_lead_as_contact(lead, cfg.get("field_map"))
+    res = await crm.push_lead_as_contact(lead, cfg.get("field_map"))
     if res.get("success"):
         return {
             "success": True,
-            "value": f"HubSpot: {res.get('action', 'synced')} {res.get('hubspot_id', '')}".strip(),
+            "value": f"{label}: {res.get('action', 'synced')} {res.get(id_key, '')}".strip(),
             "error": None,
         }
-    return {"success": False, "value": "", "error": res.get("error", "hubspot push failed")}
+    return {"success": False, "value": "", "error": res.get("error", f"{label} push failed")}
+
+
+async def _push_airtable(cfg: dict, lead_data: dict) -> Dict[str, Any]:
+    from apps.api.services.integrations.airtable import push_record
+    fmap = cfg.get("field_map") or {
+        "company": "Company", "email": "Email", "phone": "Phone",
+        "website": "Website", "city": "City",
+    }
+    fields = {col: lead_data.get(lf) for lf, col in fmap.items()}
+    res = await push_record(fields, cfg.get("base_id", ""), cfg.get("table", ""))
+    if res.get("success"):
+        return {"success": True, "value": f"Airtable: {res.get('record_id', 'created')}", "error": None}
+    return {"success": False, "value": "", "error": res.get("error", "airtable push failed")}
+
+
+async def _push_sheets(cfg: dict, lead_data: dict) -> Dict[str, Any]:
+    from apps.api.services.integrations.sheets import append_row
+    columns = cfg.get("columns") or ["company", "email", "phone", "website", "city"]
+    values = [lead_data.get(c, "") for c in columns]
+    res = await append_row(cfg.get("spreadsheet_id", ""), values, cfg.get("range", "Sheet1"))
+    if res.get("success"):
+        return {"success": True, "value": f"Sheets: {res.get('range', 'appended')}", "error": None}
+    return {"success": False, "value": "", "error": res.get("error", "sheets append failed")}
 
 
 def _enroll_sequence(cfg: dict, lead_id: int) -> Dict[str, Any]:
@@ -199,4 +227,8 @@ async def execute_output_column(
         return await _push_crm(cfg, lead_data, workspace_id)
     if dest == "sequencer":
         return _enroll_sequence(cfg, lead_id)
+    if dest == "airtable":
+        return await _push_airtable(cfg, lead_data)
+    if dest == "sheets":
+        return await _push_sheets(cfg, lead_data)
     return {"success": False, "value": "", "error": f"unknown destination '{dest}'"}
