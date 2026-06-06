@@ -431,7 +431,8 @@ function SequenceDetailView({ sequence, onBack, onRefresh }: {
     try {
       const leadsRes = await fetch(`/api/leads?limit=100&tier=${enrollTier}`)
       const leadsData = await leadsRes.json()
-      const withEmail = (leadsData.leads || []).filter((l: any) => l.email?.includes("@"))
+      const leadRows = Array.isArray(leadsData) ? leadsData : (leadsData.leads || [])
+      const withEmail = leadRows.filter((l: any) => l.email?.includes("@"))
       const ids = withEmail.map((l: any) => l.id)
 
       if (ids.length === 0) {
