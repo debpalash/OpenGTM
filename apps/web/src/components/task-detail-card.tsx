@@ -14,6 +14,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { authQuery } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { toast } from "sonner"
@@ -253,7 +254,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
     if (!job || job.status !== "running") return
     let es: EventSource | null = null
     try {
-      es = new EventSource("/api/events")
+      es = new EventSource(`/api/events${authQuery()}`)
       es.onmessage = (e) => {
         try {
           const data = JSON.parse(e.data)

@@ -71,16 +71,19 @@ class NumVerifyProvider(EnrichmentProvider):
                     }
                     return EnrichmentResult(
                         success=True,
-                        data=result,
+                        fields={
+                            "phone": result["number"],
+                            "phone_carrier": result.get("carrier", ""),
+                            "phone_line_type": result.get("line_type", ""),
+                        },
                         provider="numverify",
                         confidence=0.90,
                     )
                 else:
                     return EnrichmentResult(
-                        success=True,
-                        data={"valid": False, "number": clean_phone},
+                        success=False,
+                        error="Number not valid",
                         provider="numverify",
-                        confidence=0.90,
                     )
 
         except httpx.TimeoutException:

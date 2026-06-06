@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { fetchJobs, fetchSystemStats, type Job, type SystemStats } from "@/lib/api"
+import { authQuery } from "@/lib/auth"
 
 interface SSEEvent {
   type: string
@@ -32,7 +33,7 @@ export function LiveFeed({ onRefresh, workspaceId: _workspaceId }: Props) {
 
   // SSE connection
   useEffect(() => {
-    const es = new EventSource("/api/events")
+    const es = new EventSource(`/api/events${authQuery()}`)
     es.onopen = () => setConnected(true)
     es.onerror = () => setConnected(false)
     es.onmessage = (e) => {

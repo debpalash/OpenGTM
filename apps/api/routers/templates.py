@@ -5,6 +5,7 @@ Templates Router — Workbook template gallery.
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from apps.api.database import get_db
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 
 router = APIRouter(prefix="/api/templates", tags=["templates"])
 
@@ -22,8 +23,12 @@ def list_templates(category: str = None):
 
 
 @router.post("/{template_id}/create")
-def create_from_template(template_id: str, db: Session = Depends(get_db)):
-    """Create a new workbook from a template."""
+def create_from_template(
+    template_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Create a new workbook from a template (scoped to the caller's workspace)."""
     from apps.api.services.workbook.templates import get_template
     from apps.api.services.workbook.models import Workbook
     import json
@@ -49,6 +54,7 @@ def create_from_template(template_id: str, db: Session = Depends(get_db)):
         description=template["description"],
         columns_config=editor_columns,
         filter_criteria=template.get("filter", {}),
+        workspace_id=ctx.workspace_id,
     )
     db.add(workbook)
     db.commit()

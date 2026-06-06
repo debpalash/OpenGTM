@@ -11,6 +11,7 @@ Enhanced with:
 
 import asyncio
 import json
+import os
 import re
 import uuid
 from datetime import datetime, timezone
@@ -33,20 +34,50 @@ from apps.api.services.leadgen.ai_stages import (
 )
 
 
+# Hard ceiling on a single search, in case a proxy ignores the DDGS HTTP
+# timeout (the underlying thread may linger, but the pipeline moves on).
+_DDG_SEARCH_TIMEOUT = int(os.getenv("DDG_SEARCH_TIMEOUT", "25"))
+
+
 def _ddg_text_sync(query: str, max_results: int = 15) -> list:
     """Synchronous DDG text search — meant to be called via asyncio.to_thread."""
-    from ddgs import DDGS
     from apps.api.services.leadgen.proxy_client import get_ddgs
-    with get_ddgs() as ddgs:
+    with get_ddgs() as ddgs:  # get_ddgs sets a per-request HTTP timeout
         return list(ddgs.text(query, max_results=max_results))
 
 
 async def _ddg_search(query: str, max_results: int = 15) -> list:
-    """Async DDG search that doesn't block the event loop."""
+    """Async DDG search that doesn't block the event loop or stall forever."""
     try:
-        return await asyncio.to_thread(_ddg_text_sync, query, max_results)
-    except Exception:
+        return await asyncio.wait_for(
+            asyncio.to_thread(_ddg_text_sync, query, max_results),
+            timeout=_DDG_SEARCH_TIMEOUT,
+        )
+    except (asyncio.TimeoutError, Exception):
         return []
+
+
+# Result URLs that are assets / ads / media rather than company pages. These
+# pollute noisy registry sources (IndiaMart .swf objects, ad banners, CDN files).
+_JUNK_EXTENSIONS = (
+    ".swf", ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg",
+    ".css", ".js", ".zip", ".rar", ".mp4", ".mp3", ".xml", ".ico", ".woff",
+)
+_JUNK_SUBSTRINGS = (
+    "doubleclick.net", "googlesyndication.com", "/cdn-cgi/", "/wp-content/uploads/",
+    "media.", "/ads/", "adservice.", "/advertisement",
+)
+
+
+def _is_junk_url(href: str) -> bool:
+    """True for asset/ad/media URLs that aren't company pages."""
+    if not href:
+        return True
+    low = href.lower()
+    path = urlparse(low).path
+    if path.endswith(_JUNK_EXTENSIONS):
+        return True
+    return any(s in low for s in _JUNK_SUBSTRINGS)
 
 
 class JobRunner:
@@ -1376,18 +1407,36 @@ class JobRunner:
         skip_names = {"clutch", "goodfirms", "ambitionbox", "linkedin_companies"}
         sources = [s for s in sources if s["name"] not in skip_names]
 
-        progress.emit("job_progress", {
-            "job_id": job_id, "stage": "registry_sources",
-            "message": f"🌐 Scanning {len(sources)} directories & marketplaces...",
-        })
-
-        # Limit to top-20 highest-priority sources to avoid timeout
-        sources = sorted(sources, key=lambda s: s.get("priority", 999))[:20]
+        # Per-source toggle: honor each source's individual enabled state from
+        # the Sources UI (was previously all-or-nothing behind "directories").
+        from apps.api.routers.settings import get_source_enabled
+        sources = [s for s in sources if get_source_enabled(s["name"])]
 
         progress.emit("job_progress", {
             "job_id": job_id, "stage": "registry_sources",
-            "message": f"🌐 Narrowed to top {len(sources)} sources by priority...",
+            "message": f"🌐 Scanning {len(sources)} enabled directories & marketplaces...",
         })
+
+        # Cap by priority to bound runtime. Make the cap configurable and SURFACE
+        # what gets skipped instead of silently dropping it.
+        cap = int(os.getenv("REGISTRY_SOURCE_CAP", "20"))
+        sources_sorted = sorted(sources, key=lambda s: s.get("priority", 999))
+        skipped = sources_sorted[cap:]
+        sources = sources_sorted[:cap]
+        if skipped:
+            preview = ", ".join(s["name"] for s in skipped[:8])
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "registry_sources",
+                "message": (
+                    f"🌐 Running top {len(sources)} of {len(sources_sorted)} sources by priority "
+                    f"(skipped {len(skipped)}: {preview}{'…' if len(skipped) > 8 else ''})"
+                ),
+            })
+        else:
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "registry_sources",
+                "message": f"🌐 Running all {len(sources)} sources by priority...",
+            })
 
         # Run in batches of 10 with 1 query per source
         BATCH_SIZE = 10
@@ -1408,6 +1457,8 @@ class JobRunner:
                                 body = result.get("body", "")
                                 if not href or not title:
                                     continue
+                                if _is_junk_url(href):
+                                    continue
 
                                 domain = urlparse(href).netloc.lower()
                                 site_domain = source.get("site_domain", "")
@@ -1427,8 +1478,16 @@ class JobRunner:
                                         company = self._company_from_domain(domain)
                                         company_website = href
 
-                                # Strategy 2: Extract from title
-                                if not company or len(company) < 3:
+                                # Strategy 2: Extract from title — but NOT for
+                                # listing/aggregator pages, whose titles are
+                                # categories ("Best CRM Software 2026 | Capterra"),
+                                # not companies. extract_from_listing sources need
+                                # real card scraping (not yet implemented); until
+                                # then only accept their external company links.
+                                on_aggregator = bool(site_domain and site_domain in domain)
+                                if (not company or len(company) < 3) and not (
+                                    source.get("extract_from_listing") and on_aggregator
+                                ):
                                     company = self._extract_business_name(title)
 
                                 if not company or len(company) < 3:

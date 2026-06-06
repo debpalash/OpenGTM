@@ -292,24 +292,11 @@ export default function SettingsPage() {
           <div>
             <h3 className="text-sm font-medium">Integrations</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Connect CRM and messaging platforms.
+              Connect CRM and export destinations used by workbook output columns.
             </p>
           </div>
           <Separator />
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Globe className="size-4" />
-                  HubSpot CRM
-                </CardTitle>
-                <Badge variant="secondary" className="text-xs">Coming soon</Badge>
-              </div>
-              <CardDescription className="text-xs">
-                Push leads to HubSpot as contacts. Bidirectional sync with field mapping.
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          <IntegrationsTab />
         </TabsContent>
       </Tabs>
     </div>
@@ -445,6 +432,114 @@ function EnrichmentProviderCard({ provider, onSaved }: { provider: EnrichmentPro
 }
 
 // ── SMTP Config Tab ──────────────────────────────────────────────
+
+// ── Integrations Tab (output destinations) ───────────────────────
+interface IntegrationField {
+  key: string; label: string; secret: boolean; placeholder: string
+  set: boolean; value: string; masked: string
+}
+interface Integration {
+  id: string; name: string; icon: string; description: string
+  connected: boolean; fields: IntegrationField[]
+}
+
+function IntegrationsTab() {
+  const [integrations, setIntegrations] = useState<Integration[]>([])
+  const [loading, setLoading] = useState(true)
+  const [edits, setEdits] = useState<Record<string, string>>({})
+  const [savingId, setSavingId] = useState<string | null>(null)
+
+  const load = () => {
+    setLoading(true)
+    fetch("/api/settings/integrations")
+      .then(r => r.json())
+      .then(d => {
+        const list: Integration[] = d.integrations || []
+        setIntegrations(list)
+        // Seed non-secret values (e.g. instance URL) so they show in the field.
+        const seed: Record<string, string> = {}
+        for (const it of list) for (const f of it.fields) if (!f.secret && f.value) seed[f.key] = f.value
+        setEdits(seed)
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }
+  useEffect(load, [])
+
+  const save = async (it: Integration) => {
+    setSavingId(it.id)
+    try {
+      const values: Record<string, string> = {}
+      for (const f of it.fields) {
+        const v = edits[f.key]
+        if (v !== undefined && v !== "") values[f.key] = v
+      }
+      const res = await fetch(`/api/settings/integrations/${it.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ values }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success(`${it.name} saved`)
+      // Clear secret inputs (they're never echoed back).
+      setEdits(prev => {
+        const n = { ...prev }
+        for (const f of it.fields) if (f.secret) delete n[f.key]
+        return n
+      })
+      load()
+    } catch {
+      toast.error(`Failed to save ${it.name}`)
+    } finally {
+      setSavingId(null)
+    }
+  }
+
+  if (loading) return <Skeleton className="h-40 w-full" />
+
+  return (
+    <div className="space-y-3">
+      {integrations.map(it => (
+        <Card key={it.id}>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Globe className="size-4" />
+                {it.name}
+              </CardTitle>
+              <Badge variant={it.connected ? "default" : "secondary"} className="text-xs">
+                {it.connected ? "Connected" : "Not connected"}
+              </Badge>
+            </div>
+            <CardDescription className="text-xs">{it.description}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {it.fields.map(f => (
+              <div key={f.key} className="space-y-1">
+                <Label className="text-xs">
+                  {f.label}
+                  {f.set && f.secret && (
+                    <span className="ml-2 text-[10px] text-muted-foreground">saved {f.masked}</span>
+                  )}
+                </Label>
+                <Input
+                  type={f.secret ? "password" : "text"}
+                  value={edits[f.key] ?? ""}
+                  placeholder={f.set && f.secret ? "•••••• (saved — leave blank to keep)" : f.placeholder}
+                  onChange={e => setEdits(prev => ({ ...prev, [f.key]: e.target.value }))}
+                  className="text-xs"
+                />
+              </div>
+            ))}
+            <Button size="sm" onClick={() => save(it)} disabled={savingId === it.id} className="mt-1">
+              {savingId === it.id ? "Saving…" : "Save"}
+            </Button>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  )
+}
 
 function SMTPConfigTab() {
   const [host, setHost] = useState("")

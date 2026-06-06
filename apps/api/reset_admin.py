@@ -34,8 +34,8 @@ def reset_password():
             new_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(16))
             hashed_password = get_password_hash(new_password)
             cursor.execute(
-                "INSERT INTO users (username, hashed_password, is_active, is_admin) VALUES (?, ?, ?, ?)",
-                ("admin", hashed_password, True, True)
+                "INSERT INTO users (username, hashed_password, is_active, is_admin, role) VALUES (?, ?, ?, ?, ?)",
+                ("admin", hashed_password, True, True, "admin")
             )
             conn.commit()
             print(f"Admin user created with password: {new_password}")

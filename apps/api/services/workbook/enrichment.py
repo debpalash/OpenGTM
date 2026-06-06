@@ -9,8 +9,10 @@ Orchestrates enrichment for workbook leads:
 Can be called directly (sync) or via the BullMQ worker (async).
 """
 
+import asyncio
 import json
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -19,6 +21,7 @@ from sqlalchemy.orm import Session
 from apps.api.services.workbook.models import Workbook, WorkbookEnrichment, LEAD_FIELD_MAP
 from apps.api.services.workbook.providers import get_provider, list_providers
 from apps.api.services.workbook.ai_column import execute_ai_column
+from apps.api.services.workbook.output import execute_output_column
 from apps.api.services.workbook.conditions import evaluate_condition
 from apps.api.services.leadgen.enrichment.provider import (
     EnrichmentProvider, EnrichmentResult, WaterfallEnricher,
@@ -137,6 +140,19 @@ async def enrich_cell(
                 })
             return {"success": False, "value": None, "error": "condition_not_met"}
 
+    # ── Output columns are side-effecting → run-once by default ────────
+    # Don't re-push to a webhook/CRM/sequencer on a re-run unless the column
+    # explicitly opts out (run_once=False) or the cell isn't already complete.
+    if col_type == "output" and col_config.get("run_once", True):
+        prior = db.query(WorkbookEnrichment).filter(
+            WorkbookEnrichment.workbook_id == workbook_id,
+            WorkbookEnrichment.lead_id == lead_id,
+            WorkbookEnrichment.column_id == col_id,
+        ).first()
+        if prior and prior.status == "complete":
+            return {"success": True, "value": prior.value, "provider": prior.provider,
+                    "error": None, "skipped": True}
+
     # Mark as running
     _set_enrichment(db, workbook_id, lead_id, col_id, None, "running")
     if redis_client:
@@ -163,6 +179,39 @@ async def enrich_cell(
         result_value = ai_result.get("value")
         result_provider = "ai"
         result_error = ai_result.get("error")
+
+    elif col_type == "output":
+        # Output Column → push the row to an external destination
+        out = await execute_output_column(
+            col_config=col_config,
+            lead_data=lead_data,
+            columns_config=columns_config,
+            workbook_id=workbook_id,
+            lead_id=lead_id,
+        )
+        result_value = out.get("value")
+        result_provider = col_config.get("destination", "output")
+        result_error = out.get("error")
+
+    elif col_type == "research":
+        # Research Column → bounded web-research agent (Claygent-style).
+        # Lazy import to avoid a circular import (research_column imports helpers
+        # from this module).
+        from apps.api.services.workbook.research_column import execute_research_column
+        prompt = col_config.get("prompt", "")
+        if not prompt:
+            _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error="no_prompt")
+            return {"success": False, "value": None, "error": "no_prompt"}
+        res = await execute_research_column(
+            prompt_template=prompt,
+            lead_data=lead_data,
+            columns_config=columns_config,
+            max_steps=col_config.get("max_steps", 4),
+            output_format=col_config.get("output_format", "text"),
+        )
+        result_value = res.get("value")
+        result_provider = "research"
+        result_error = res.get("error")
 
     else:
         # Enrichment/Waterfall → provider chain
@@ -199,7 +248,12 @@ async def enrich_cell(
                 continue
 
             try:
-                result = await provider.enrich(lead)
+                # Per-provider timeout so a slow provider (e.g. holehe's 120-site
+                # check, deep_scraper's 8-page crawl) can't stall the waterfall.
+                result = await asyncio.wait_for(
+                    provider.enrich(lead),
+                    timeout=float(os.getenv("WORKBOOK_PROVIDER_TIMEOUT", "30")),
+                )
                 if result.success and result.fields:
                     # ── Write back ALL scalar Lead fields from the result ──
                     for field_name, value in result.fields.items():
@@ -243,6 +297,9 @@ async def enrich_cell(
 
                 if result_value:
                     break  # Waterfall: stop at first success
+            except asyncio.TimeoutError:
+                logger.warning(f"Provider {provider_name} timed out for lead {lead_id}")
+                result_error = "timeout"
             except Exception as e:
                 logger.error(f"Provider {provider_name} failed for lead {lead_id}: {e}")
                 result_error = str(e)[:200]
