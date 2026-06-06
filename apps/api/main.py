@@ -51,6 +51,13 @@ async def lifespan(app: FastAPI):
             "⚠ Using INSECURE default SECRET_KEY! Set SECRET_KEY in .env for production."
         )
     queue_service.register_handler("download_link", handle_download_link)
+    # Workbook enrichment runs on the durable queue worker (P-1): concurrent,
+    # heartbeat-tracked, reaper-recoverable. See workbook/enrichment.py.
+    from apps.api.services.workbook.enrichment import handle_run_workbook
+    queue_service.register_handler("run_workbook", handle_run_workbook)
+    # Source columns (P0): materialize rows from the source engine on the queue.
+    from apps.api.services.workbook.source_engine import handle_source_workbook
+    queue_service.register_handler("source_workbook", handle_source_workbook)
     await queue_service.start_worker()
     print("✓ Queue Worker Started")
     print("✓ Yupcha Engine v3.0 Ready")
