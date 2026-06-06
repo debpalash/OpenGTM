@@ -153,7 +153,7 @@ function CompanyAvatar({ company, website }: { company: string; website?: string
   if (website) {
     try { domain = new URL(website.startsWith("http") ? website : `https://${website}`).hostname.replace("www.", "") } catch {}
   }
-  const initials = company.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase()
+  const initials = (company || "?").split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase()
   const [imgFailed, setImgFailed] = useState(false)
   return (
     <div className="size-10 rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden border">

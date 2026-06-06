@@ -139,6 +139,7 @@ export async function fetchFilters(): Promise<Filters> {
 
 export async function fetchLead(id: number): Promise<Lead> {
   const res = await fetch(`${API_BASE}/api/lead/${id}`)
+  if (!res.ok) throw new Error(`Lead ${id} not found (${res.status})`)
   return res.json()
 }
 
