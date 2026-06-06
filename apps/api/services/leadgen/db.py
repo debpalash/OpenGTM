@@ -54,6 +54,11 @@ class LeadDB:
         self.conn = sqlite3.connect(db_path)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA journal_mode=WAL")
+        # Wait (up to 30s) for a lock instead of erroring immediately, and skip
+        # the per-write fsync — so a running collection job doesn't starve
+        # concurrent API reads/writes of the leads DB.
+        self.conn.execute("PRAGMA busy_timeout=30000")
+        self.conn.execute("PRAGMA synchronous=NORMAL")
         self.conn.execute("PRAGMA foreign_keys=ON")
         self.create_tables()
 
