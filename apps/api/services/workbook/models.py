@@ -74,6 +74,12 @@ COLUMN_TYPES = {
         "editable": False,
         "has_config": True,
     },
+    "research": {
+        "description": "Web-research agent — browses to answer a question per row",
+        "icon": "Globe",
+        "editable": False,
+        "has_config": True,
+    },
 }
 
 # ── Constants ─────────────────────────────────────────────────────────────
@@ -132,6 +138,9 @@ class Workbook(Base):
     name = Column(String(255), nullable=False)
     description = Column(Text, default="")
     status = Column(String(50), default="draft")  # draft, running, paused, complete
+
+    # Tenancy — which workspace owns this workbook (scopes all access)
+    workspace_id = Column(String, index=True, nullable=True)
 
     # Source type — how this workbook was created
     # empty, csv, leads_filter, job_results

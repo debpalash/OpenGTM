@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useCallback, useState } from "react"
 import { queryKeys } from "./query-client"
+import { authQuery } from "./auth"
 import {
   fetchLeads, fetchStats, fetchFilters, fetchJobs,
   fetchSystemStats, fetchWorkspaces, submitCollect,
@@ -171,7 +172,7 @@ export function useSSE(url = "/api/events") {
       esRef.current.close()
     }
 
-    const es = new EventSource(url)
+    const es = new EventSource(`${url}${authQuery()}`)
     esRef.current = es
 
     es.onopen = () => setConnected(true)

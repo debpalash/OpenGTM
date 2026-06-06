@@ -195,12 +195,67 @@ async def get_dns_records(domain: str) -> Dict:
     return result
 
 
+# Subdomain prefixes that signal contactable / hiring infrastructure.
+INTERESTING_SUBDOMAINS = ("mail", "careers", "jobs", "hr", "recruit", "apply", "portal", "app", "shop", "store")
+
+
+async def get_crtsh_subdomains(domain: str, timeout: float = 12.0) -> Dict:
+    """Discover subdomains from Certificate Transparency logs (crt.sh) — no API key.
+
+    Ported from theHarvester's SearchCrtsh. Subdomains reveal a company's real
+    web/mail footprint (careers.*, jobs.*, mail.*) — extra hosts to crawl for
+    contacts and a hiring/size signal.
+    """
+    import httpx
+
+    result = {"subdomains": [], "subdomain_count": 0, "interesting": []}
+    url = f"https://crt.sh/?q=%25.{domain}&exclude=expired&deduplicate=Y&output=json"
+    rows = None
+    # crt.sh frequently 502s under load — retry briefly before giving up.
+    try:
+        async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+            for attempt in range(3):
+                try:
+                    resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+                except Exception:
+                    resp = None
+                if resp is not None and resp.status_code == 200 and resp.text.strip():
+                    rows = resp.json()
+                    break
+                if attempt < 2:
+                    await asyncio.sleep(1.5 * (attempt + 1))
+    except Exception as e:
+        logger.debug("crt.sh lookup failed for %s: %s", domain, e)
+    if not rows:
+        return result
+
+    names = set()
+    for row in rows if isinstance(rows, list) else []:
+        for nv in str(row.get("name_value", "")).splitlines():
+            nv = nv.strip().lower().lstrip("*.")
+            # Keep real subdomains of the target domain only; drop wildcards/IPs.
+            if nv.endswith("." + domain) and not nv[:1].isdigit() and " " not in nv:
+                names.add(nv)
+
+    subs = sorted(names)
+    result["subdomains"] = subs[:200]
+    result["subdomain_count"] = len(subs)
+    result["interesting"] = sorted(
+        s for s in subs
+        if s.split(".")[0] in INTERESTING_SUBDOMAINS
+    )[:25]
+    return result
+
+
 async def analyze_domain(domain: str) -> Dict:
-    """Full domain intelligence analysis — RDAP + DNS combined."""
+    """Full domain intelligence analysis — RDAP + DNS + Certificate Transparency."""
     rdap_task = get_rdap_info(domain)
     dns_task = get_dns_records(domain)
+    crt_task = get_crtsh_subdomains(domain)
 
-    rdap_data, dns_data = await asyncio.gather(rdap_task, dns_task)
+    rdap_data, dns_data, crt_data = await asyncio.gather(
+        rdap_task, dns_task, crt_task, return_exceptions=False,
+    )
 
     # Legitimacy score (0-100) based on domain signals
     legitimacy = 0
@@ -218,11 +273,14 @@ async def analyze_domain(domain: str) -> Dict:
         legitimacy += 10
     if dns_data.get("hosting_provider"):
         legitimacy += 10
+    if crt_data.get("subdomain_count", 0) > 5:  # real infra footprint
+        legitimacy += 5
 
     return {
         "domain": domain,
         "rdap": rdap_data,
         "dns": dns_data,
+        "cert_transparency": crt_data,
         "legitimacy_score": min(legitimacy, 100),
         "summary": {
             "registrar": rdap_data.get("registrar", "Unknown"),
@@ -230,5 +288,7 @@ async def analyze_domain(domain: str) -> Dict:
             "hosting": dns_data.get("hosting_provider", "Unknown"),
             "email_service": dns_data.get("email_provider", "Unknown"),
             "has_email_auth": dns_data.get("has_spf") and dns_data.get("has_dmarc"),
+            "subdomains": crt_data.get("subdomain_count", 0),
+            "interesting_subdomains": crt_data.get("interesting", []),
         },
     }

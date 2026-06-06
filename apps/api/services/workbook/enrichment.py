@@ -22,6 +22,7 @@ from apps.api.database import SessionLocal
 from apps.api.services.workbook.models import Workbook, WorkbookEnrichment, WorkbookRow, LEAD_FIELD_MAP
 from apps.api.services.workbook.providers import get_provider, list_providers
 from apps.api.services.workbook.ai_column import execute_ai_column
+from apps.api.services.workbook.output import execute_output_column
 from apps.api.services.workbook.conditions import evaluate_condition
 from apps.api.services.leadgen.enrichment.provider import (
     EnrichmentProvider, EnrichmentResult, WaterfallEnricher,
@@ -35,39 +36,41 @@ logger = logging.getLogger("workbook.enrichment")
 # Free OSS scrapers first, paid APIs as fallback.
 # When a workbook column doesn't define a custom waterfall, this is used.
 DEFAULT_WATERFALLS = {
-    # Email: website crawl → search engine → pattern gen → paid APIs
+    # Email: structured page data → website crawl → search → pattern gen → paid APIs
     "email": [
-        "deep_scraper", "website_scraper", "email_harvester",
+        "deep_scraper", "jsonld_firmographics", "website_scraper", "email_harvester",
         "ddg_email", "mailscout",
         "hunter_io", "apollo_io", "snovio", "prospeo",
     ],
     # Email verification: SMTP → holehe (120+ site check) → paid verify
     "email_confidence": ["mailscout", "holehe", "abstract_api", "debounce"],
     "email_verify": ["mailscout", "holehe", "abstract_api", "debounce"],
-    # Phone: website crawl → local business dirs → paid APIs
+    # Phone: structured page data → website crawl → local dirs → paid APIs
     "phone": [
-        "deep_scraper", "website_scraper", "local_business",
+        "deep_scraper", "jsonld_firmographics", "website_scraper", "local_business",
         "ddg_company", "facebook_pages",
         "apollo_io", "people_data_labs",
     ],
     # Company description / info
     "description": [
-        "deep_scraper", "website_scraper", "ddg_company",
+        "deep_scraper", "jsonld_firmographics", "website_scraper", "ddg_company",
         "company_intel",
     ],
-    # Decision makers / contacts
-    "decision_makers": ["deep_scraper", "crosslinked", "decision_maker"],
-    "contact_person": ["deep_scraper", "crosslinked", "decision_maker", "people_data_labs"],
-    "contact_title": ["deep_scraper", "crosslinked", "decision_maker"],
-    # Social links
-    "linkedin_url": ["deep_scraper", "website_scraper", "social_finder"],
-    "twitter_url": ["deep_scraper", "website_scraper", "social_finder"],
-    "facebook_url": ["deep_scraper", "website_scraper", "social_finder"],
+    # Decision makers / contacts (staffspy = full roster; gated, fails over gracefully)
+    "decision_makers": ["staffspy", "deep_scraper", "crosslinked", "decision_maker"],
+    "contact_person": ["deep_scraper", "crosslinked", "decision_maker", "staffspy", "people_data_labs"],
+    "contact_title": ["deep_scraper", "crosslinked", "decision_maker", "staffspy"],
+    # Social links — schema.org sameAs is authoritative, try it first
+    "linkedin_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder"],
+    "twitter_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder"],
+    "facebook_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder"],
     # Company metadata
     "company_size": ["deep_scraper", "website_scraper", "company_intel", "people_data_labs"],
     "industry_tags": ["deep_scraper", "website_scraper", "local_business", "company_intel"],
-    "address": ["deep_scraper", "local_business", "google_maps"],
-    "founding_year": ["deep_scraper", "company_intel"],
+    # Address — PostalAddress schema is authoritative, try it first
+    "address": ["jsonld_firmographics", "deep_scraper", "local_business", "google_maps"],
+    "founding_year": ["jsonld_firmographics", "deep_scraper", "company_intel"],
+    "founded_year": ["jsonld_firmographics", "deep_scraper", "company_intel"],
     # Funding & intelligence
     "funding_stage": ["company_intel"],
     "last_funding_amount": ["company_intel"],
@@ -140,6 +143,19 @@ async def enrich_cell(
                 })
             return {"success": False, "value": None, "error": "condition_not_met"}
 
+    # ── Output columns are side-effecting → run-once by default ────────
+    # Don't re-push to a webhook/CRM/sequencer on a re-run unless the column
+    # explicitly opts out (run_once=False) or the cell isn't already complete.
+    if col_type == "output" and col_config.get("run_once", True):
+        prior = db.query(WorkbookEnrichment).filter(
+            WorkbookEnrichment.workbook_id == workbook_id,
+            WorkbookEnrichment.lead_id == lead_id,
+            WorkbookEnrichment.column_id == col_id,
+        ).first()
+        if prior and prior.status == "complete":
+            return {"success": True, "value": prior.value, "provider": prior.provider,
+                    "error": None, "skipped": True}
+
     # Mark as running
     _set_enrichment(db, workbook_id, lead_id, col_id, None, "running")
     if redis_client:
@@ -166,6 +182,39 @@ async def enrich_cell(
         result_value = ai_result.get("value")
         result_provider = "ai"
         result_error = ai_result.get("error")
+
+    elif col_type == "output":
+        # Output Column → push the row to an external destination
+        out = await execute_output_column(
+            col_config=col_config,
+            lead_data=lead_data,
+            columns_config=columns_config,
+            workbook_id=workbook_id,
+            lead_id=lead_id,
+        )
+        result_value = out.get("value")
+        result_provider = col_config.get("destination", "output")
+        result_error = out.get("error")
+
+    elif col_type == "research":
+        # Research Column → bounded web-research agent (Claygent-style).
+        # Lazy import to avoid a circular import (research_column imports helpers
+        # from this module).
+        from apps.api.services.workbook.research_column import execute_research_column
+        prompt = col_config.get("prompt", "")
+        if not prompt:
+            _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error="no_prompt")
+            return {"success": False, "value": None, "error": "no_prompt"}
+        res = await execute_research_column(
+            prompt_template=prompt,
+            lead_data=lead_data,
+            columns_config=columns_config,
+            max_steps=col_config.get("max_steps", 4),
+            output_format=col_config.get("output_format", "text"),
+        )
+        result_value = res.get("value")
+        result_provider = "research"
+        result_error = res.get("error")
 
     elif col_type == "agent":
         # Goal-directed enrichment — agent picks tools dynamically (Pillar 4).
@@ -223,7 +272,12 @@ async def enrich_cell(
 
             _t0 = _time.monotonic()
             try:
-                result = await provider.enrich(lead)
+                # Per-provider timeout so a slow provider (e.g. holehe's 120-site
+                # check, deep_scraper's 8-page crawl) can't stall the waterfall.
+                result = await asyncio.wait_for(
+                    provider.enrich(lead),
+                    timeout=float(os.getenv("WORKBOOK_PROVIDER_TIMEOUT", "30")),
+                )
                 _latency_ms = (_time.monotonic() - _t0) * 1000.0
                 _planner.record_attempt(
                     db, provider_name, target_field,
@@ -282,6 +336,9 @@ async def enrich_cell(
                             synchronize_session=False,
                         )
                     break  # Waterfall: stop at first success
+            except asyncio.TimeoutError:
+                logger.warning(f"Provider {provider_name} timed out for lead {lead_id}")
+                result_error = "timeout"
             except Exception as e:
                 _latency_ms = (_time.monotonic() - _t0) * 1000.0
                 logger.error(f"Provider {provider_name} failed for lead {lead_id}: {e}")
