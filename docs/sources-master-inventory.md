@@ -178,9 +178,24 @@ in **`services/workbook/enrichment.py`** (16 target fields).
 # PART 2 — ENHANCEMENT PLAN
 
 ## ✅ Already done this session
-Multi-engine + proxy→direct fallback search (`proxy_client.py`) — took registry
-coverage 26/89 → 91/91 and removed the dead-proxy stalls. **Every source below
-inherits this.** So the remaining work is *quality* and *config*, not reachability.
+
+**Search reliability:** multi-engine + proxy→direct fallback (`proxy_client.py`) —
+registry coverage 26/89 → 91/91, dead-proxy stalls gone. Every source inherits it.
+
+**P1 (committed):** config gaps fixed (`mouthshut_biz`→`yellowpages_in`, registry ↔
+UI aligned); weak templates rewritten (forbes/reddit/quora 1–2/4 → 4/4); junk-URL
+filter (`_is_junk_url`); browser tier installed (patchright+curl_cffi+chromium →
+`google_maps` live).
+
+**P2 (committed):** per-source registry toggles (X2); visible priority cap (X4,
+`REGISTRY_SOURCE_CAP`); listing-page junk suppressed for `extract_from_listing`
+sources (the flag was a **no-op** — real card scraping deferred to P3);
+per-provider timeout in the workbook waterfall (`WORKBOOK_PROVIDER_TIMEOUT`).
+**Found + fixed 3 DEAD providers** — `numverify`, `ipinfo`, `lead_scorer` all
+passed `data=` to `EnrichmentResult` (only accepts `fields=`) → `TypeError` caught
+→ always failed. Now mapped to `fields=` correctly.
+
+So the remaining work (P3) is *depth*, not reachability or basic correctness.
 
 ## Cross-cutting (do once — helps everything)
 
