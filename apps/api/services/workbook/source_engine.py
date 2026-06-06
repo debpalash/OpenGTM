@@ -17,12 +17,12 @@ the same substrate that P-1 put under enrichment.
 import dataclasses
 import logging
 import os
-import re
 from typing import Any, Dict, List, Optional
 
 from apps.api.database import SessionLocal
 from apps.api.services.workbook.models import Workbook, WorkbookRow
 from apps.api.services.workbook.enrichment import _make_redis, _broadcast
+from apps.api.services.entities.graph import resolve_company
 
 logger = logging.getLogger("workbook.source_engine")
 
@@ -57,36 +57,6 @@ def build_query(icp: dict) -> str:
     if geo:
         parts.append("in " + ", ".join(str(g) for g in geo))
     return " ".join(parts).strip()
-
-
-# ── Dedup helpers (naive for P0; Pillar 1 upgrades to LeadDeduplicator) ───
-
-def _norm_name(s: Any) -> str:
-    s = str(s or "").lower()
-    s = re.sub(r"\b(pvt|private|ltd|limited|llc|inc|corp|co|company|gmbh|plc|llp)\b", "", s)
-    return re.sub(r"[^a-z0-9]", "", s)
-
-
-def _norm_domain(url: Any) -> str:
-    s = str(url or "").lower()
-    s = re.sub(r"^https?://", "", s)
-    s = re.sub(r"^www\.", "", s)
-    return s.split("/")[0].strip()
-
-
-def _existing_keys(db, workbook_id: str) -> tuple[set, set]:
-    """Normalized company-name and domain keys already in the workbook."""
-    names, domains = set(), set()
-    rows = db.query(WorkbookRow.data).filter(WorkbookRow.workbook_id == workbook_id).all()
-    for (data,) in rows:
-        data = data or {}
-        nk = _norm_name(data.get("company"))
-        if nk:
-            names.add(nk)
-        dk = _norm_domain(data.get("website"))
-        if dk:
-            domains.add(dk)
-    return names, domains
 
 
 # ── Materialization ──────────────────────────────────────────────────────
@@ -155,7 +125,14 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
 
     try:
         with SessionLocal() as db:
-            names, domains = _existing_keys(db, workbook_id)
+            # Entities already represented in THIS workbook (cross-run idempotency).
+            present = {
+                eid for (eid,) in db.query(WorkbookRow.canonical_entity_id)
+                .filter(
+                    WorkbookRow.workbook_id == workbook_id,
+                    WorkbookRow.canonical_entity_id.isnot(None),
+                ).all()
+            }
             max_pos = (
                 db.query(WorkbookRow.position)
                 .filter(WorkbookRow.workbook_id == workbook_id)
@@ -168,23 +145,20 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
                 if target_rows and added >= target_rows:
                     break
                 d = dataclasses.asdict(lead) if dataclasses.is_dataclass(lead) else dict(lead)
-
-                nk = _norm_name(d.get("company"))
-                dk = _norm_domain(d.get("website"))
-                # Dedup vs existing rows AND within this batch
-                if (nk and nk in names) or (dk and dk in domains):
+                if not str(d.get("company") or "").strip():
                     skipped += 1
                     continue
-                if nk:
-                    names.add(nk)
-                if dk:
-                    domains.add(dk)
+
+                # ── Pillar 1: resolve to a canonical entity (cross-source dedup) ──
+                entity, _created = resolve_company(db, d, observation_source=d.get("source"))
+
+                # Same company already a row in this workbook → corroborate, don't duplicate
+                if entity.id in present:
+                    skipped += 1
+                    continue
+                present.add(entity.id)
 
                 row_data = {k: d.get(k) for k in _ROW_FIELDS if d.get(k) not in (None, "")}
-                if not row_data.get("company"):
-                    skipped += 1
-                    continue
-
                 max_pos += 1
                 row = WorkbookRow(
                     workbook_id=workbook_id,
@@ -192,6 +166,8 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
                     data=row_data,
                     lead_id=d.get("id"),
                     enrichments={},
+                    canonical_entity_id=entity.id,
+                    corroboration_count=entity.corroboration_count,
                 )
                 db.add(row)
                 db.flush()  # get row.id
@@ -202,6 +178,8 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
                         "type": "row_added",
                         "rowId": row.id,
                         "data": row_data,
+                        "entityId": entity.id,
+                        "corroboration": entity.corroboration_count,
                     })
 
             db.commit()
