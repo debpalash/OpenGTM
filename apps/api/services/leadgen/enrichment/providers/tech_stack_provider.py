@@ -10,15 +10,21 @@ Free, unlimited, no API key needed.
 Based on Wappalyzer fingerprint patterns (lightweight subset).
 """
 
+import json
 import re
 import time
 import logging
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from apps.api.services.leadgen.enrichment.provider import EnrichmentProvider, EnrichmentResult
 from apps.api.services.leadgen.models import Lead
 
 logger = logging.getLogger("leadgen.tech_stack")
+
+# Full webappanalyzer (open Wappalyzer) fingerprint DB, compiled to this provider's
+# format. ~5k passive fingerprints vs the curated subset (FINGERPRINTS) below.
+_DB_PATH = Path(__file__).parent.parent / "data" / "tech_fingerprints.json"
 
 # ── Technology Fingerprints ──────────────────────────────────────────────
 # Lightweight subset of Wappalyzer patterns — covers the most common
@@ -101,53 +107,123 @@ FINGERPRINTS: List[Dict] = [
 ]
 
 
+# ── Compiled fingerprint index (curated subset + full webappanalyzer DB) ──
+# Built lazily on first detection so unused imports stay cheap. Curated entries
+# win on name collision (they carry better category labels).
+
+_COMPILED: Optional[List[Dict]] = None
+
+
+def _load_db() -> Dict[str, Dict]:
+    try:
+        with open(_DB_PATH, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except FileNotFoundError:
+        logger.warning("tech_stack: fingerprint DB missing at %s — using curated subset only", _DB_PATH)
+        return {}
+    except Exception as e:  # pragma: no cover
+        logger.warning("tech_stack: failed to load fingerprint DB: %s", e)
+        return {}
+
+
+def _build_compiled() -> List[Dict]:
+    merged: Dict[str, Dict] = {}
+    # Full DB first, then curated overrides (curated has cleaner categories).
+    for name, spec in _load_db().items():
+        merged[name] = {**spec, "name": name}
+    for fp in FINGERPRINTS:
+        existing = merged.get(fp["name"])
+        if existing:
+            # Curated wins on signals/category, but inherit the DB's `implies`
+            # (e.g. curated WordPress lacks implies; the DB entry implies PHP+MySQL).
+            fp = {**fp, "implies": fp.get("implies") or existing.get("implies", [])}
+        merged[fp["name"]] = fp
+
+    compiled: List[Dict] = []
+    for fp in merged.values():
+        try:
+            entry = {
+                "name": fp["name"],
+                "cat": fp.get("cat", "Other"),
+                "implies": fp.get("implies", []) or [],
+                "headers": [(h.lower(), re.compile(p or ".", re.I)) for h, p in fp.get("headers", {}).items()],
+                "html": [re.compile(p, re.I) for p in fp.get("html", [])],
+                "meta": [(m, re.compile(p or ".", re.I)) for m, p in fp.get("meta", {}).items()],
+                "cookies": [c.lower() for c in fp.get("cookies", [])],
+            }
+        except re.error:
+            continue
+        compiled.append(entry)
+    logger.info("tech_stack: compiled %d fingerprints", len(compiled))
+    return compiled
+
+
+def _get_compiled() -> List[Dict]:
+    global _COMPILED
+    if _COMPILED is None:
+        _COMPILED = _build_compiled()
+    return _COMPILED
+
+
 def detect_tech_from_response(
     headers: Dict[str, str],
     html: str,
     cookies: List[str],
 ) -> List[Dict[str, str]]:
     """Detect technologies from HTTP response data."""
-    detected = []
     html_lower = html.lower() if html else ""
     headers_lower = {k.lower(): v.lower() for k, v in headers.items()}
     cookies_lower = [c.lower() for c in cookies]
 
-    for fp in FINGERPRINTS:
-        found = False
+    # Pre-extract meta name→content once (instead of a regex per fingerprint).
+    meta_tags: Dict[str, str] = {}
+    for m in re.finditer(
+        r'<meta\s[^>]*name=["\']?([\w:-]+)["\']?[^>]*content=["\']([^"\']*)["\']',
+        html_lower, re.I,
+    ):
+        meta_tags.setdefault(m.group(1).lower(), m.group(2))
 
-        # Check headers
-        for hdr, pattern in fp.get("headers", {}).items():
-            if hdr in headers_lower and re.search(pattern, headers_lower[hdr], re.I):
-                found = True
+    found_names: Dict[str, str] = {}  # name → category
+
+    for fp in _get_compiled():
+        if fp["name"] in found_names:
+            continue
+        hit = False
+        for hdr, rx in fp["headers"]:
+            if hdr in headers_lower and rx.search(headers_lower[hdr]):
+                hit = True
                 break
-
-        # Check HTML patterns
-        if not found:
-            for pattern in fp.get("html", []):
-                if re.search(pattern, html_lower, re.I):
-                    found = True
+        if not hit:
+            for rx in fp["html"]:
+                if rx.search(html_lower):
+                    hit = True
                     break
-
-        # Check meta tags
-        if not found:
-            for meta_name, pattern in fp.get("meta", {}).items():
-                meta_re = rf'<meta\s[^>]*name=["\']?{meta_name}["\']?\s[^>]*content=["\']([^"\']+)["\']'
-                m = re.search(meta_re, html_lower, re.I)
-                if m and re.search(pattern, m.group(1), re.I):
-                    found = True
+        if not hit:
+            for meta_name, rx in fp["meta"]:
+                content = meta_tags.get(meta_name.lower())
+                if content is not None and rx.search(content):
+                    hit = True
                     break
-
-        # Check cookies
-        if not found:
-            for cookie_name in fp.get("cookies", []):
-                if cookie_name.lower() in cookies_lower:
-                    found = True
+        if not hit:
+            for cookie_name in fp["cookies"]:
+                if cookie_name in cookies_lower:
+                    hit = True
                     break
+        if hit:
+            found_names[fp["name"]] = fp["cat"]
 
-        if found:
-            detected.append({"name": fp["name"], "category": fp["cat"]})
+    # Resolve `implies` (e.g. WooCommerce ⇒ WordPress ⇒ PHP).
+    by_name = {fp["name"]: fp for fp in _get_compiled()}
+    queue = list(found_names.keys())
+    while queue:
+        cur = queue.pop()
+        for imp in by_name.get(cur, {}).get("implies", []):
+            imp = imp.split("\\;")[0]
+            if imp and imp not in found_names:
+                found_names[imp] = by_name.get(imp, {}).get("cat", "Other")
+                queue.append(imp)
 
-    return detected
+    return [{"name": n, "category": c} for n, c in found_names.items()]
 
 
 class TechStackProvider(EnrichmentProvider):

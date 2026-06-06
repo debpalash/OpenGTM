@@ -152,7 +152,9 @@ def find_personal_email(
     Strategy:
     1. Search DDG for the person's email → "verified"
     2. Check domain MX records exist
-    3. Generate pattern-based email → "pattern"
+    3. Generate pattern candidates, then SMTP-probe them and return the one that
+       actually exists → "smtp_verified". Falls back to the top pattern ("pattern")
+       only when the mailserver is a catch-all or unreachable (e.g. port 25 blocked).
 
     Returns (email, confidence).
     """
@@ -168,14 +170,22 @@ def find_personal_email(
     if not verify_email_mx(domain):
         return ("", "")
 
-    # 3. Generate most likely pattern
+    # 3. Generate candidates and let SMTP pick the real mailbox.
     first, last = _split_name(name)
     patterns = generate_personal_patterns(first, last, domain)
-    if patterns:
-        # Return the most common pattern (first.last@domain)
-        return (patterns[0], "pattern")
+    if not patterns:
+        return ("", "")
 
-    return ("", "")
+    from apps.api.services.leadgen.enrichment.email_verify import pick_best_email
+
+    result = pick_best_email(patterns)
+    if result.email and result.confidence:
+        return (result.email, result.confidence)
+    if result.deliverable is False:
+        # Server answered and rejected every pattern — don't ship a known-bad guess.
+        return ("", "")
+    # Unreachable / could not determine → fall back to the most common pattern.
+    return (patterns[0], "pattern")
 
 
 # ── Company Email Finder (existing) ──────────────────────────────
@@ -234,6 +244,10 @@ def enrich_emails(leads: List[Lead], delay: float = 1.5) -> List[Lead]:
 
     Updates leads in-place.
     """
+    from apps.api.services.leadgen.enrichment.email_verify import (
+        classify_email, verify_email,
+    )
+
     needs_email = [l for l in leads if not l.has_email and l.company]
     print(f"  📧 Finding emails for {len(needs_email)} leads...")
 
@@ -243,15 +257,32 @@ def enrich_emails(leads: List[Lead], delay: float = 1.5) -> List[Lead]:
         email = find_email_via_search(lead.company, lead.city, domain)
 
         if email:
+            # Drop throwaway domains — they're junk leads, not contacts.
+            cls = classify_email(email)
+            if cls.is_disposable:
+                print(f"    🗑️  {lead.company}: {email} (disposable, skipped)")
+                time.sleep(delay)
+                continue
             lead.email = email
             lead.email_confidence = "verified"
             found += 1
             print(f"    ✅ {lead.company}: {email}")
         elif domain:
-            # Use most common pattern as fallback
-            lead.email = f"info@{domain}"
-            lead.email_confidence = "generic"
-            print(f"    🔮 {lead.company}: info@{domain} (guessed)")
+            # Verify the generic guess over SMTP before shipping it.
+            guess = f"info@{domain}"
+            result = verify_email(guess)
+            if result.deliverable is False:
+                print(f"    ❌ {lead.company}: {guess} (rejected by server)")
+            else:
+                lead.email = guess
+                # smtp_verified if the mailbox really answered; else honest "generic".
+                lead.email_confidence = (
+                    "smtp_verified" if result.deliverable is True else "generic"
+                )
+                if result.deliverable is True:
+                    found += 1
+                tag = "✅ verified" if result.deliverable is True else "🔮 guessed"
+                print(f"    {tag} {lead.company}: {guess} ({lead.email_confidence})")
 
         time.sleep(delay)
 
