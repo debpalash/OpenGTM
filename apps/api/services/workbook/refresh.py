@@ -182,7 +182,38 @@ async def handle_signal_scan(job_id: int, payload: dict):
                 log_activity(db, wb.id, "signal", f"signal trigger → refresh ({', '.join(on_signal & set(fired_types))})")
                 triggered += 1
         db.commit()
-    logger.info(f"[job {job_id}] signal_scan: {scan}, triggered {triggered} workbooks")
+
+    # Self-re-enqueue the next periodic scan (default daily).
+    interval_min = int(payload.get("interval_minutes", INTERVAL_MINUTES["daily"]))
+    with SessionLocal() as db:
+        from apps.api.models import Job
+        db.add(Job(
+            type="signal_scan", payload={"interval_minutes": interval_min},
+            status="pending", priority=1,
+            next_run_at=_now() + timedelta(minutes=interval_min), max_retries=3,
+        ))
+        db.commit()
+    logger.info(f"[job {job_id}] signal_scan: {scan}, triggered {triggered} workbooks, next in {interval_min}m")
+
+
+def bootstrap_signal_scan(interval_minutes: int = None):
+    """Enqueue the recurring signal scan once, if no scan job is already pending."""
+    interval_minutes = interval_minutes or INTERVAL_MINUTES["daily"]
+    with SessionLocal() as db:
+        from apps.api.models import Job
+        pending = db.query(Job).filter(
+            Job.type == "signal_scan", Job.status.in_(["pending", "processing"])
+        ).count()
+        if pending:
+            return False
+        db.add(Job(
+            type="signal_scan", payload={"interval_minutes": interval_minutes},
+            status="pending", priority=1,
+            next_run_at=_now() + timedelta(minutes=interval_minutes), max_retries=3,
+        ))
+        db.commit()
+    logger.info(f"bootstrapped recurring signal_scan (every {interval_minutes}m)")
+    return True
 
 
 def _enqueue_next_now(db, workbook_id: str, reason: str):

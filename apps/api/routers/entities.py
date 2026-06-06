@@ -1,6 +1,7 @@
 """Entity graph API (Pillar 1) — canonical companies, corroboration, merge/split."""
 
 import logging
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -18,16 +19,15 @@ router = APIRouter(prefix="/api/entities", tags=["entities"])
 @router.get("/company")
 async def list_companies(
     min_corroboration: int = Query(1, ge=1),
+    workspace_id: Optional[str] = Query(None),
     limit: int = Query(100, le=1000),
     db: Session = Depends(get_db),
 ):
-    """List canonical companies, most-corroborated first."""
-    q = (
-        db.query(CompanyEntity)
-        .filter(CompanyEntity.corroboration_count >= min_corroboration)
-        .order_by(CompanyEntity.corroboration_count.desc())
-        .limit(limit)
-    )
+    """List canonical companies, most-corroborated first (optionally tenant-scoped)."""
+    q = db.query(CompanyEntity).filter(CompanyEntity.corroboration_count >= min_corroboration)
+    if workspace_id is not None:
+        q = q.filter(CompanyEntity.workspace_id == workspace_id)
+    q = q.order_by(CompanyEntity.corroboration_count.desc()).limit(limit)
     return {"entities": [e.to_api() for e in q.all()]}
 
 

@@ -107,7 +107,7 @@ def _recompute(entity: CompanyEntity):
     entity.corroboration_count = len(set(sources))
 
 
-def _create_entity(db: Session, lead: dict, source: str) -> CompanyEntity:
+def _create_entity(db: Session, lead: dict, source: str, workspace_id: str = "") -> CompanyEntity:
     fields = {}
     for f in _PROV_FIELDS:
         v = lead.get(f)
@@ -116,6 +116,7 @@ def _create_entity(db: Session, lead: dict, source: str) -> CompanyEntity:
 
     domain = normalize_domain(lead.get("website", ""))
     entity = CompanyEntity(
+        workspace_id=workspace_id or "",
         canonical_name=str(lead.get("company") or "").strip() or "(unknown)",
         primary_domain=domain,
         primary_phone=str(lead.get("phone") or ""),
@@ -173,20 +174,23 @@ def _record_observation(db: Session, entity: CompanyEntity, lead: dict, source: 
 
 
 def resolve_company(
-    db: Session, lead: dict, observation_source: Optional[str] = None
+    db: Session, lead: dict, observation_source: Optional[str] = None,
+    workspace_id: str = "",
 ) -> Tuple[CompanyEntity, bool]:
     """Resolve a sourced lead to a canonical CompanyEntity (matching or new).
 
     Returns (entity, created). Records the observation either way. Grey-band near
     misses create a new entity AND an EntityReviewPair (conservative — no auto-merge).
+    Matching is scoped to `workspace_id` — entities never cross tenants.
     """
     source = observation_source or str(lead.get("source") or "") or "unknown"
+    ws = workspace_id or ""
     keys = _blocking_keys(lead)
     best, best_score = None, 0.0
     for eid in _candidate_ids(db, keys):
         ent = db.get(CompanyEntity, eid)
-        if not ent:
-            continue
+        if not ent or (ent.workspace_id or "") != ws:
+            continue  # tenant isolation
         res = compare_leads(lead, ent.repr_dict())
         if res.score > best_score:
             best, best_score = ent, res.score
@@ -198,7 +202,7 @@ def resolve_company(
         db.flush()
         return best, False
 
-    entity = _create_entity(db, lead, source)
+    entity = _create_entity(db, lead, source, workspace_id=ws)
     if best is not None and GREY_BAND <= best_score < MATCH_THRESHOLD:
         db.add(EntityReviewPair(
             entity_id=best.id,

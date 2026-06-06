@@ -150,7 +150,11 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
                     continue
 
                 # ── Pillar 1: resolve to a canonical entity (cross-source dedup) ──
-                entity, _created = resolve_company(db, d, observation_source=d.get("source"))
+                # Scope to the lead's workspace so tenants never share entities.
+                entity, _created = resolve_company(
+                    db, d, observation_source=d.get("source"),
+                    workspace_id=str(d.get("workspace_id") or ""),
+                )
 
                 # Same company already a row in this workbook → corroborate, don't duplicate
                 if entity.id in present:
