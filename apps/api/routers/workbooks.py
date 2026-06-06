@@ -23,6 +23,7 @@ from apps.api.services.workbook.schemas import (
     AddRowsRequest, DeleteRowsRequest,
 )
 from apps.api.services.leadgen.db import LeadDB
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 
 logger = logging.getLogger("workbook.api")
 router = APIRouter(prefix="/api/workbooks", tags=["workbooks"])
@@ -31,8 +32,20 @@ router = APIRouter(prefix="/api/workbooks", tags=["workbooks"])
 # ── Helpers ───────────────────────────────────────────────────────────────
 
 def _get_lead_db() -> LeadDB:
-    """Get a LeadDB connection."""
+    """Get a LeadDB connection (default/main workspace file)."""
     return LeadDB()
+
+
+def _owned_workbook(db: Session, workbook_id: str, ctx: WorkspaceCtx) -> Workbook:
+    """Fetch a workbook scoped to the caller's workspace.
+
+    Returns 404 (not 403) for workbooks in other workspaces so we don't leak
+    which ids exist outside the caller's tenant.
+    """
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb or wb.workspace_id != ctx.workspace_id:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    return wb
 
 
 def _query_leads(db: LeadDB, filter_criteria: dict, page: int = 1, page_size: int = 100) -> tuple[list[dict], int]:
@@ -156,10 +169,18 @@ def _workbook_response(wb: Workbook, lead_db: LeadDB = None) -> WorkbookResponse
 # ── CRUD ──────────────────────────────────────────────────────────────────
 
 @router.get("/", response_model=WorkbookListResponse)
-async def list_workbooks(db: Session = Depends(get_db)):
-    """List all workbooks with live lead counts."""
-    workbooks = db.query(Workbook).order_by(Workbook.updated_at.desc()).all()
-    lead_db = _get_lead_db()
+async def list_workbooks(
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """List workbooks in the caller's active workspace, with live lead counts."""
+    workbooks = (
+        db.query(Workbook)
+        .filter(Workbook.workspace_id == ctx.workspace_id)
+        .order_by(Workbook.updated_at.desc())
+        .all()
+    )
+    lead_db = ctx.lead_db()
     try:
         result = [_workbook_response(wb, lead_db) for wb in workbooks]
     finally:
@@ -168,7 +189,11 @@ async def list_workbooks(db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=WorkbookResponse, status_code=201)
-async def create_workbook(body: WorkbookCreate, db: Session = Depends(get_db)):
+async def create_workbook(
+    body: WorkbookCreate,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Create a new workbook — Clay-style with source selection.
 
     source="empty": blank table
@@ -189,6 +214,7 @@ async def create_workbook(body: WorkbookCreate, db: Session = Depends(get_db)):
     wb = Workbook(
         name=body.name,
         description=body.description,
+        workspace_id=ctx.workspace_id,
         source_type=source,
         source_config=source_config,
         filter_criteria=filter_criteria,
@@ -202,7 +228,7 @@ async def create_workbook(body: WorkbookCreate, db: Session = Depends(get_db)):
     max_rows = body.max_rows or 1000
 
     if source == "leads_filter":
-        lead_db = _get_lead_db()
+        lead_db = ctx.lead_db()
         try:
             leads, total = _query_leads(lead_db, filter_criteria, page=1, page_size=max_rows)
             for i, lead in enumerate(leads):
@@ -231,7 +257,7 @@ async def create_workbook(body: WorkbookCreate, db: Session = Depends(get_db)):
     elif source == "job_results":
         job_ids = source_config.get("job_ids", [])
         if job_ids:
-            lead_db = _get_lead_db()
+            lead_db = ctx.lead_db()
             try:
                 leads, _ = _query_leads(lead_db, {"job_ids": job_ids}, page=1, page_size=max_rows)
                 for i, lead in enumerate(leads):
@@ -259,7 +285,11 @@ class CreateFromJobsRequest(BaseModel):
 
 
 @router.post("/from-jobs", response_model=WorkbookResponse, status_code=201)
-async def create_workbook_from_jobs(body: CreateFromJobsRequest, db: Session = Depends(get_db)):
+async def create_workbook_from_jobs(
+    body: CreateFromJobsRequest,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Create a workbook from job results, or merge new jobs into an existing workbook.
 
     The workbook filter_criteria uses job_ids to show leads from those specific jobs.
@@ -268,9 +298,7 @@ async def create_workbook_from_jobs(body: CreateFromJobsRequest, db: Session = D
 
     if body.workbook_id:
         # ── Merge into existing workbook ──
-        wb = db.query(Workbook).filter(Workbook.id == body.workbook_id).first()
-        if not wb:
-            raise HTTPException(status_code=404, detail="Workbook not found")
+        wb = _owned_workbook(db, body.workbook_id, ctx)
 
         # Merge job_ids into existing filter
         fc = wb.filter_criteria or {}
@@ -286,7 +314,7 @@ async def create_workbook_from_jobs(body: CreateFromJobsRequest, db: Session = D
         # Auto-generate name from job queries
         auto_name = body.name
         if not auto_name:
-            lead_db = _get_lead_db()
+            lead_db = ctx.lead_db()
             try:
                 job_queries = []
                 for jid in body.job_ids[:3]:
@@ -327,6 +355,7 @@ async def create_workbook_from_jobs(body: CreateFromJobsRequest, db: Session = D
         wb = Workbook(
             name=auto_name,
             description=f"Created from {len(body.job_ids)} chat task(s)",
+            workspace_id=ctx.workspace_id,
             source_type="job_results",
             source_config={"job_ids": body.job_ids},
             filter_criteria={"job_ids": body.job_ids},
@@ -337,7 +366,7 @@ async def create_workbook_from_jobs(body: CreateFromJobsRequest, db: Session = D
         db.refresh(wb)
 
     # Snapshot leads into WorkbookRow
-    lead_db = _get_lead_db()
+    lead_db = ctx.lead_db()
     try:
         fc = wb.filter_criteria or {}
         leads, _ = _query_leads(lead_db, fc, page=1, page_size=5000)
@@ -371,11 +400,10 @@ async def get_workbook(
     page: int = Query(1, ge=1),
     page_size: int = Query(100, ge=1, le=5000),
     db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
 ):
     """Get workbook with paginated rows. Uses WorkbookRow (v2) or falls back to leads DB."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
 
     # ── v2: Read from WorkbookRow table ──
     v2_count = db.query(sa_func.count(WorkbookRow.id)).filter(
@@ -415,7 +443,7 @@ async def get_workbook(
         )
 
     # ── v1 Legacy: Read from leads DB ──
-    lead_db = _get_lead_db()
+    lead_db = ctx.lead_db()
     try:
         leads, total = _query_leads(lead_db, wb.filter_criteria or {}, page, page_size)
     finally:
@@ -451,11 +479,14 @@ async def get_workbook(
 
 
 @router.put("/{workbook_id}", response_model=WorkbookResponse)
-async def update_workbook(workbook_id: str, body: WorkbookUpdate, db: Session = Depends(get_db)):
+async def update_workbook(
+    workbook_id: str,
+    body: WorkbookUpdate,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Update workbook metadata, filter, or columns."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
 
     if body.name is not None:
         wb.name = body.name
@@ -471,7 +502,7 @@ async def update_workbook(workbook_id: str, body: WorkbookUpdate, db: Session = 
     db.commit()
     db.refresh(wb)
 
-    lead_db = _get_lead_db()
+    lead_db = ctx.lead_db()
     try:
         return _workbook_response(wb, lead_db)
     finally:
@@ -479,11 +510,13 @@ async def update_workbook(workbook_id: str, body: WorkbookUpdate, db: Session = 
 
 
 @router.delete("/{workbook_id}")
-async def delete_workbook(workbook_id: str, db: Session = Depends(get_db)):
+async def delete_workbook(
+    workbook_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Delete a workbook and its enrichment overlay data."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
     db.delete(wb)
     db.commit()
     return {"status": "deleted"}
@@ -492,13 +525,20 @@ async def delete_workbook(workbook_id: str, db: Session = Depends(get_db)):
 # ── Lead Field Update (edit a lead from workbook context) ──────────────────
 
 @router.put("/{workbook_id}/leads/{lead_id}")
-async def update_lead_field(workbook_id: str, lead_id: int, body: dict):
+async def update_lead_field(
+    workbook_id: str,
+    lead_id: int,
+    body: dict,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Update a Lead's field from the workbook context.
 
     Writes directly to the leads DB (source of truth).
     Body: {"field": "value", ...}
     """
-    lead_db = _get_lead_db()
+    _owned_workbook(db, workbook_id, ctx)  # authorize: workbook must be in caller's workspace
+    lead_db = ctx.lead_db()
     try:
         # Only allow updating known lead fields
         updates = {k: v for k, v in body.items() if k in LEAD_FIELD_MAP}
@@ -520,21 +560,24 @@ async def update_lead_field(workbook_id: str, lead_id: int, body: dict):
 # ── CSV Import (creates leads + adds to workbook filter) ──────────────────
 
 @router.post("/{workbook_id}/import")
-async def import_csv_leads(workbook_id: str, body: dict, db: Session = Depends(get_db)):
+async def import_csv_leads(
+    workbook_id: str,
+    body: dict,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Import rows as new leads in the DB.
 
     Body: {"rows": [{"company": "Acme", "website": "acme.com", ...}, ...]}
     The workbook's filter should match the imported leads.
     """
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
 
     rows = body.get("rows", [])
     if not rows:
         raise HTTPException(status_code=400, detail="No rows provided")
 
-    lead_db = _get_lead_db()
+    lead_db = ctx.lead_db()
     created = 0
     try:
         for row in rows:
@@ -557,11 +600,14 @@ async def import_csv_leads(workbook_id: str, body: dict, db: Session = Depends(g
 # ── Column Management ────────────────────────────────────────────────────
 
 @router.post("/{workbook_id}/columns", response_model=WorkbookResponse)
-async def add_column(workbook_id: str, body: AddColumnRequest, db: Session = Depends(get_db)):
+async def add_column(
+    workbook_id: str,
+    body: AddColumnRequest,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Add a new column to the workbook."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
 
     cols = list(wb.columns_config or [])
     cols.append(body.column.model_dump(exclude_none=True))
@@ -572,11 +618,14 @@ async def add_column(workbook_id: str, body: AddColumnRequest, db: Session = Dep
 
 
 @router.delete("/{workbook_id}/columns/{column_id}", response_model=WorkbookResponse)
-async def remove_column(workbook_id: str, column_id: str, db: Session = Depends(get_db)):
+async def remove_column(
+    workbook_id: str,
+    column_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Remove a column and its enrichment data."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
 
     wb.columns_config = [c for c in (wb.columns_config or []) if c.get("id") != column_id]
 
@@ -594,21 +643,26 @@ async def remove_column(workbook_id: str, column_id: str, db: Session = Depends(
 # ── Run Enrichment ────────────────────────────────────────────────────────
 
 @router.post("/{workbook_id}/run", response_model=RunWorkbookResponse)
-async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Session = Depends(get_db)):
+async def run_workbook(
+    workbook_id: str,
+    body: RunWorkbookRequest = None,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Run enrichment on workbook rows (v2: WorkbookRow, v1 fallback: leads DB)."""
     if body is None:
         body = RunWorkbookRequest()
 
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
 
     columns = wb.columns_config or []
     enrichment_cols = [
         c for c in columns
-        if c.get("type") in ("enrichment", "waterfall", "ai_formula")
+        if c.get("type") in ("enrichment", "waterfall", "ai_formula", "output", "research")
         and (body.column_ids is None or c.get("id") in body.column_ids)
     ]
+    # Output columns push the (enriched) row somewhere, so run them last.
+    enrichment_cols.sort(key=lambda c: 1 if c.get("type") == "output" else 0)
 
     if not enrichment_cols:
         return RunWorkbookResponse(status="skipped", total_jobs=0, message="No enrichment columns to run")
@@ -629,7 +683,7 @@ async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Se
         leads = [{"id": r.lead_id or r.id, **r.data} for r in wb_rows]
     else:
         # v1 legacy: read from leads DB
-        lead_db = _get_lead_db()
+        lead_db = ctx.lead_db()
         try:
             leads, _ = _query_leads(lead_db, wb.filter_criteria or {}, page=1, page_size=10000)
         finally:
@@ -687,11 +741,13 @@ async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Se
 
 
 @router.post("/{workbook_id}/stop")
-async def stop_workbook(workbook_id: str, db: Session = Depends(get_db)):
+async def stop_workbook(
+    workbook_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Stop a running workbook."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
     wb.status = "paused"
     db.commit()
     return {"status": "paused"}
@@ -700,11 +756,14 @@ async def stop_workbook(workbook_id: str, db: Session = Depends(get_db)):
 # ── Row Management (v2) ──────────────────────────────────────────────────
 
 @router.post("/{workbook_id}/rows")
-async def add_rows(workbook_id: str, body: AddRowsRequest, db: Session = Depends(get_db)):
+async def add_rows(
+    workbook_id: str,
+    body: AddRowsRequest,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Add rows to a workbook."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
 
     max_pos = db.query(sa_func.max(WorkbookRow.position)).filter(
         WorkbookRow.workbook_id == workbook_id
@@ -725,11 +784,14 @@ async def add_rows(workbook_id: str, body: AddRowsRequest, db: Session = Depends
 
 
 @router.delete("/{workbook_id}/rows")
-async def delete_rows(workbook_id: str, body: DeleteRowsRequest, db: Session = Depends(get_db)):
+async def delete_rows(
+    workbook_id: str,
+    body: DeleteRowsRequest,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Delete rows from a workbook."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
 
     deleted = db.query(WorkbookRow).filter(
         WorkbookRow.workbook_id == workbook_id,
@@ -740,11 +802,13 @@ async def delete_rows(workbook_id: str, body: DeleteRowsRequest, db: Session = D
 
 
 @router.post("/{workbook_id}/migrate")
-async def migrate_workbook_to_v2(workbook_id: str, db: Session = Depends(get_db)):
+async def migrate_workbook_to_v2(
+    workbook_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Migrate a v1 workbook to v2 by snapshotting leads into WorkbookRow."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
 
     # Check if already migrated
     existing = db.query(sa_func.count(WorkbookRow.id)).filter(
@@ -754,7 +818,7 @@ async def migrate_workbook_to_v2(workbook_id: str, db: Session = Depends(get_db)
         return {"status": "already_migrated", "rows": existing}
 
     # Snapshot leads — limited to 500 to avoid OOM
-    lead_db = _get_lead_db()
+    lead_db = ctx.lead_db()
     try:
         leads, total = _query_leads(lead_db, wb.filter_criteria or {}, page=1, page_size=500)
     finally:
@@ -807,9 +871,48 @@ async def migrate_workbook_to_v2(workbook_id: str, db: Session = Depends(get_db)
 
 # ── WebSocket ─────────────────────────────────────────────────────────────
 
+def _ws_authorize(token: Optional[str], workbook_id: str) -> bool:
+    """Validate a WS JWT and confirm the user can access this workbook's workspace."""
+    if not token:
+        return False
+    try:
+        from jose import jwt, JWTError
+        from apps.api.core.config import settings as _settings
+        from apps.api.database import SessionLocal
+        from apps.api.models import User
+        from apps.api.services.workspace import manager as _ws
+
+        try:
+            payload = jwt.decode(token, _settings.SECRET_KEY, algorithms=[_settings.ALGORITHM])
+        except JWTError:
+            return False
+        username = payload.get("sub")
+        if not username:
+            return False
+
+        sess = SessionLocal()
+        try:
+            user = sess.query(User).filter(User.username == username).first()
+            if not user or not user.is_active:
+                return False
+            wb = sess.query(Workbook).filter(Workbook.id == workbook_id).first()
+            if not wb or not wb.workspace_id:
+                return False
+            return _ws.is_member(wb.workspace_id, user.id)
+        finally:
+            sess.close()
+    except Exception:
+        return False
+
+
 @router.websocket("/{workbook_id}/ws")
-async def workbook_websocket(websocket: WebSocket, workbook_id: str):
-    """WebSocket for live enrichment updates."""
+async def workbook_websocket(
+    websocket: WebSocket, workbook_id: str, token: Optional[str] = Query(default=None)
+):
+    """WebSocket for live enrichment updates (auth via ?token=<jwt>)."""
+    if not _ws_authorize(token, workbook_id):
+        await websocket.close(code=4403)
+        return
     await websocket.accept()
     try:
         import redis.asyncio as aioredis
@@ -851,19 +954,19 @@ async def workbook_websocket(websocket: WebSocket, workbook_id: str):
 # ── Meta ──────────────────────────────────────────────────────────────────
 
 @router.get("/meta/column-types")
-async def get_column_types():
+async def get_column_types(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get available column types."""
     return COLUMN_TYPES
 
 
 @router.get("/meta/lead-fields")
-async def get_lead_fields():
+async def get_lead_fields(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get available Lead fields for column mapping."""
     return {"fields": list(LEAD_FIELD_MAP.keys())}
 
 
 @router.get("/meta/providers")
-async def get_providers():
+async def get_providers(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get available enrichment providers."""
     from apps.api.services.workbook.providers import list_providers
     providers = list_providers()
@@ -874,9 +977,9 @@ async def get_providers():
 
 
 @router.get("/meta/filter-options")
-async def get_filter_options():
+async def get_filter_options(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get available filter values from the leads DB."""
-    lead_db = _get_lead_db()
+    lead_db = ctx.lead_db()
     try:
         cities = [r[0] for r in lead_db.conn.execute(
             "SELECT DISTINCT city FROM leads WHERE city != '' ORDER BY city"

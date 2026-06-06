@@ -5,6 +5,8 @@
  * Enrichment results stored inline per row.
  */
 
+import { authQuery } from "./auth"
+
 const API = ""
 
 // ── Types ────────────────────────────────────────────────────────────────
@@ -103,7 +105,13 @@ export async function fetchWorkbooks(): Promise<{ workbooks: Workbook[]; total: 
 
 export async function fetchWorkbook(id: string, page = 1, pageSize = 100): Promise<WorkbookWithLeads> {
   const res = await fetch(`${API}/api/workbooks/${id}?page=${page}&page_size=${pageSize}`)
-  if (!res.ok) throw new Error("Failed to fetch workbook")
+  if (!res.ok) {
+    const err = new Error(
+      res.status === 404 ? "Workbook not found or no access" : "Failed to fetch workbook",
+    ) as Error & { status?: number }
+    err.status = res.status
+    throw err
+  }
   return res.json()
 }
 
@@ -253,5 +261,5 @@ export async function fetchLeadFields(): Promise<{ fields: string[] }> {
 export function createWorkbookSocket(workbookId: string): WebSocket {
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
   const host = window.location.host
-  return new WebSocket(`${protocol}//${host}/api/workbooks/${workbookId}/ws`)
+  return new WebSocket(`${protocol}//${host}/api/workbooks/${workbookId}/ws${authQuery()}`)
 }

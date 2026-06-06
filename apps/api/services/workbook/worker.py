@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from apps.api.database import SessionLocal
 from apps.api.services.workbook.enrichment import enrich_cell
+from apps.api.services.workbook.models import Workbook, WorkbookRow
 
 logger = logging.getLogger("workbook.worker")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
@@ -53,20 +54,37 @@ async def process_enrich_cell(job_data: dict, redis_client=None) -> dict:
     workbook_id = job_data.get("workbook_id")
     row_id = job_data.get("row_id")
     col_id = job_data.get("col_id")
-    provider_chain = job_data.get("provider_chain", [])
 
-    if not all([workbook_id, row_id, col_id, provider_chain]):
+    if not all([workbook_id is not None, row_id is not None, col_id]):
         return {"success": False, "error": "missing_fields"}
 
     # Create a new DB session for this job
     db = SessionLocal()
     try:
+        # ── Reconstruct enrich_cell args from the workbook definition ──
+        # The job payload only carries identifiers; enrich_cell needs the
+        # full column config, the row's lead data, and the columns list.
+        wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+        if not wb:
+            return {"success": False, "error": "workbook_not_found"}
+
+        columns_config = wb.columns_config or []
+        col_config = next((c for c in columns_config if c.get("id") == col_id), None)
+        if not col_config:
+            return {"success": False, "error": f"column_not_found:{col_id}"}
+
+        lead_data = _load_row_data(db, workbook_id, row_id)
+        if lead_data is None:
+            return {"success": False, "error": f"row_not_found:{row_id}"}
+
         result = await enrich_cell(
             db=db,
             workbook_id=workbook_id,
-            row_id=row_id,
+            lead_id=lead_data["id"],
             col_id=col_id,
-            provider_chain=provider_chain,
+            col_config=col_config,
+            lead_data=lead_data,
+            columns_config=columns_config,
             redis_client=redis_client,
         )
         return result
@@ -75,6 +93,41 @@ async def process_enrich_cell(job_data: dict, redis_client=None) -> dict:
         return {"success": False, "error": str(e)[:200]}
     finally:
         db.close()
+
+
+def _load_row_data(db, workbook_id: str, row_id: int) -> dict | None:
+    """Resolve the row's data dict for enrichment.
+
+    `row_id` is the lead id used by the API (WorkbookRow.lead_id, or the row's
+    own id when there is no backing lead — see routers/workbooks.py run_workbook).
+    Mirrors the inline path's `{"id": ..., **row.data}` shape.
+    """
+    # v2: WorkbookRow store
+    row = (
+        db.query(WorkbookRow)
+        .filter(
+            WorkbookRow.workbook_id == workbook_id,
+            (WorkbookRow.lead_id == row_id) | (WorkbookRow.id == row_id),
+        )
+        .first()
+    )
+    if row is not None:
+        return {"id": row.lead_id or row.id, **(row.data or {})}
+
+    # v1 legacy: read straight from the leads DB
+    try:
+        from apps.api.services.leadgen.db import LeadDB
+
+        lead_db = LeadDB()
+        try:
+            lead = lead_db.get_lead(row_id)
+        finally:
+            lead_db.close()
+        if lead is not None:
+            return lead.to_dict()
+    except Exception as e:
+        logger.warning(f"Failed to load v1 lead {row_id}: {e}")
+    return None
 
 
 # ── Worker Runner ─────────────────────────────────────────────────────────
