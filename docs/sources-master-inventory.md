@@ -197,6 +197,33 @@ passed `data=` to `EnrichmentResult` (only accepts `fields=`) → `TypeError` ca
 
 So the remaining work (P3) is *depth*, not reachability or basic correctness.
 
+### P3 investigation (2026-06-06) — findings & status
+
+Scoped/attempted P3; most of it is blocked or out of scope:
+
+- **Listing-card scraping (clutch/goodfirms/g2/capterra/getapp/softwaresuggest) —
+  NOT FEASIBLE generically.** Verified twice: (a) fetching a Clutch listing page
+  returns an anti-bot/JS shell (only "Site Feedback" extractable); (b) DDG for
+  `site:capterra.com {industry} software` etc. returns **only category/listicle
+  pages** ("Best CRM Software 2026", "Page 4 | …"), never vendor profiles. So
+  there's nothing to title-extract (the P2 junk-guard is correct), and the pages
+  can't be parsed without per-site browser scrapers + anti-bot bypass, or the
+  vendors' **official APIs** (paid accounts). Both are sizeable separate efforts.
+- **API upgrades (Crunchbase/LinkedIn/Capterra)** — blocked on paid accounts /
+  no public company-search API (LinkedIn).
+- **Per-workspace BYOK keys (WI-6)** — this is tenancy work, deferred by the
+  user to "after maturity."
+- **Legacy stubs (SlideShare/Archive/GoogleBooks)** — these live in the SEPARATE
+  document-download subsystem (`apps/api/sources/`, arxiv/pubmed/scribd/…), not
+  lead-gen; imported by `sources/registry.py`. Out of scope here.
+- **Confidence-based provider merge** — the `WaterfallEnricher` path is largely
+  unused (the live path is `enrich_cell`'s deliberate OSS-first first-success);
+  changing it raises API cost for debatable gain. Left as-is.
+
+**Net:** P3 needs external resources (API accounts) or large per-site scraper
+work — not a code change that can be landed safely right now. Decision deferred
+to the user (which API to wire / whether per-site scrapers are worth it).
+
 ## Cross-cutting (do once — helps everything)
 
 | # | Action | Files | Why |
