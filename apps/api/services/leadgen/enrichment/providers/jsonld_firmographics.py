@@ -184,7 +184,8 @@ class JsonLdFirmographicsProvider(EnrichmentProvider):
     name = "jsonld_firmographics"
     capabilities = [
         "company", "address", "phone", "email", "city", "state",
-        "founded_year", "linkedin_url", "twitter_url", "facebook_url", "description",
+        "founded_year", "founding_year",  # codebase uses both names for the field
+        "linkedin_url", "twitter_url", "facebook_url", "description",
     ]
     default_confidence = 0.85  # schema.org data is publisher-declared → high trust
 
@@ -218,6 +219,9 @@ class JsonLdFirmographicsProvider(EnrichmentProvider):
             # Don't overwrite an existing, more-specific company name with a generic one.
             if lead.company and "company" in fields:
                 fields.pop("company", None)
+            # The codebase targets this field under both names — expose both.
+            if "founded_year" in fields:
+                fields["founding_year"] = fields["founded_year"]
 
             if fields:
                 return EnrichmentResult(
