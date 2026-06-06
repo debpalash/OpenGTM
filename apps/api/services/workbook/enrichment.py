@@ -193,6 +193,26 @@ async def enrich_cell(
         result_provider = col_config.get("destination", "output")
         result_error = out.get("error")
 
+    elif col_type == "research":
+        # Research Column → bounded web-research agent (Claygent-style).
+        # Lazy import to avoid a circular import (research_column imports helpers
+        # from this module).
+        from apps.api.services.workbook.research_column import execute_research_column
+        prompt = col_config.get("prompt", "")
+        if not prompt:
+            _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error="no_prompt")
+            return {"success": False, "value": None, "error": "no_prompt"}
+        res = await execute_research_column(
+            prompt_template=prompt,
+            lead_data=lead_data,
+            columns_config=columns_config,
+            max_steps=col_config.get("max_steps", 4),
+            output_format=col_config.get("output_format", "text"),
+        )
+        result_value = res.get("value")
+        result_provider = "research"
+        result_error = res.get("error")
+
     else:
         # Enrichment/Waterfall → provider chain
         lead = _lead_dict_to_lead(lead_data)

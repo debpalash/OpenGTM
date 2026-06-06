@@ -61,6 +61,12 @@ COLUMN_TYPES = {
         "editable": False,
         "has_config": True,
     },
+    "research": {
+        "description": "Web-research agent — browses to answer a question per row",
+        "icon": "Globe",
+        "editable": False,
+        "has_config": True,
+    },
 }
 
 # ── Constants ─────────────────────────────────────────────────────────────
