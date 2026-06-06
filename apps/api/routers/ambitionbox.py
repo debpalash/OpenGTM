@@ -3,7 +3,9 @@ AmbitionBox Router — Search companies and jobs via AmbitionBox data.
 """
 
 from typing import Optional
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 
 router = APIRouter(prefix="/api/ambitionbox", tags=["AmbitionBox"])
 
@@ -17,6 +19,7 @@ async def search_companies(
     location: Optional[str] = None,
     company_type: Optional[str] = None,
     rating: Optional[str] = None,
+    ctx: WorkspaceCtx = Depends(current_workspace),
 ):
     """Search AmbitionBox companies with filters.
 
@@ -43,21 +46,21 @@ async def search_companies(
 
 
 @router.get("/companies/{company_id}/jobs")
-async def get_company_jobs(company_id: int, page: int = 1):
+async def get_company_jobs(company_id: int, page: int = 1, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get job listings for a specific company."""
     from apps.api.services.leadgen.ambitionbox import ambitionbox
     return await ambitionbox.get_company_jobs(company_id, page)
 
 
 @router.get("/companies/{company_id}/detail")
-async def get_company_detail(company_id: int):
+async def get_company_detail(company_id: int, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get detailed company info (ratings, benefits, etc.)."""
     from apps.api.services.leadgen.ambitionbox import ambitionbox
     return await ambitionbox.get_company_detail(company_id)
 
 
 @router.get("/companies/{company_id}/similar")
-async def get_similar_companies(company_id: int):
+async def get_similar_companies(company_id: int, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get companies similar to the given one."""
     from apps.api.services.leadgen.ambitionbox import ambitionbox
     return await ambitionbox.get_similar_companies(company_id)
@@ -68,6 +71,7 @@ async def collect_companies(
     pages: int = 5,
     industry: Optional[str] = None,
     location: Optional[str] = None,
+    ctx: WorkspaceCtx = Depends(current_workspace),
 ):
     """Collect companies across multiple pages.
 
