@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 from apps.api.services.workbook.models import Workbook, WorkbookEnrichment, LEAD_FIELD_MAP
 from apps.api.services.workbook.providers import get_provider, list_providers
 from apps.api.services.workbook.ai_column import execute_ai_column
+from apps.api.services.workbook.output import execute_output_column
 from apps.api.services.workbook.conditions import evaluate_condition
 from apps.api.services.leadgen.enrichment.provider import (
     EnrichmentProvider, EnrichmentResult, WaterfallEnricher,
@@ -137,6 +138,19 @@ async def enrich_cell(
                 })
             return {"success": False, "value": None, "error": "condition_not_met"}
 
+    # ── Output columns are side-effecting → run-once by default ────────
+    # Don't re-push to a webhook/CRM/sequencer on a re-run unless the column
+    # explicitly opts out (run_once=False) or the cell isn't already complete.
+    if col_type == "output" and col_config.get("run_once", True):
+        prior = db.query(WorkbookEnrichment).filter(
+            WorkbookEnrichment.workbook_id == workbook_id,
+            WorkbookEnrichment.lead_id == lead_id,
+            WorkbookEnrichment.column_id == col_id,
+        ).first()
+        if prior and prior.status == "complete":
+            return {"success": True, "value": prior.value, "provider": prior.provider,
+                    "error": None, "skipped": True}
+
     # Mark as running
     _set_enrichment(db, workbook_id, lead_id, col_id, None, "running")
     if redis_client:
@@ -163,6 +177,19 @@ async def enrich_cell(
         result_value = ai_result.get("value")
         result_provider = "ai"
         result_error = ai_result.get("error")
+
+    elif col_type == "output":
+        # Output Column → push the row to an external destination
+        out = await execute_output_column(
+            col_config=col_config,
+            lead_data=lead_data,
+            columns_config=columns_config,
+            workbook_id=workbook_id,
+            lead_id=lead_id,
+        )
+        result_value = out.get("value")
+        result_provider = col_config.get("destination", "output")
+        result_error = out.get("error")
 
     else:
         # Enrichment/Waterfall → provider chain

@@ -287,20 +287,22 @@ export default function WorkbookEditorPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const PAGE_SIZE = 1000
-  const { data, isLoading, error } = useWorkbook(id!)
+  const { data, isLoading, error, refetch } = useWorkbook(id!)
   const updateWb = useUpdateWorkbook()
   const updateLeadField = useUpdateLeadField(id!)
   const importLeadsMut = useImportLeads(id!)
   const runMut = useRunWorkbook(id!)
   const stopMut = useStopWorkbook(id!)
   const deleteMut = useDeleteLeads(id!)
-  const { connected } = useWorkbookSocket(id)
+  // Only open the live socket once the workbook has actually loaded — a 404/403
+  // workbook should never spawn a doomed WebSocket that just 403s in a loop.
+  const { connected } = useWorkbookSocket(data?.workbook ? id : undefined)
   const { data: providersData } = useProviders()
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showColPicker, setShowColPicker] = useState(false)
   const [newColName, setNewColName] = useState("")
-  const [newColType, setNewColType] = useState<"lead_field" | "ai_formula" | "waterfall" | "enrichment">("lead_field")
+  const [newColType, setNewColType] = useState<"lead_field" | "ai_formula" | "waterfall" | "enrichment" | "output">("lead_field")
   const [newColLeadField, setNewColLeadField] = useState("")
   const [newColPrompt, setNewColPrompt] = useState("")
   const [newColCondition, setNewColCondition] = useState("")
@@ -315,6 +317,11 @@ export default function WorkbookEditorPage() {
   const [newColProvider, setNewColProvider] = useState("")
   const [newColWaterfall, setNewColWaterfall] = useState<string[]>([])
   const [newColTargetField, setNewColTargetField] = useState("")
+  // Output-column config
+  const [newColDest, setNewColDest] = useState<"webhook" | "crm" | "sequencer">("webhook")
+  const [newColWebhookUrl, setNewColWebhookUrl] = useState("")
+  const [newColWebhookBody, setNewColWebhookBody] = useState("")
+  const [newColSequenceId, setNewColSequenceId] = useState("")
   const [showColumnVisibility, setShowColumnVisibility] = useState(false)
   const [activityOpen, setActivityOpen] = useState(false)
   const availableProviders = providersData?.providers ?? []
@@ -740,13 +747,27 @@ export default function WorkbookEditorPage() {
   }
 
   if (error || !workbook) {
+    const status = (error as (Error & { status?: number }) | null)?.status
+    const notFound = status === 404 || status === 403 || (!error && !workbook)
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4">
         <AlertCircle className="size-8 text-destructive" />
-        <p className="text-sm text-muted-foreground">Workbook not found</p>
-        <button onClick={() => navigate("/workbooks")} className="text-sm text-primary hover:underline">
-          ← Back to workbooks
-        </button>
+        <p className="text-sm text-muted-foreground">
+          {notFound ? "Workbook not found or you don't have access" : "Couldn't load this workbook"}
+        </p>
+        <div className="flex items-center gap-4">
+          {!notFound && (
+            <button
+              onClick={() => refetch()}
+              className="text-sm text-primary hover:underline"
+            >
+              Retry
+            </button>
+          )}
+          <button onClick={() => navigate("/workbooks")} className="text-sm text-primary hover:underline">
+            ← Back to workbooks
+          </button>
+        </div>
       </div>
     )
   }
@@ -1073,7 +1094,7 @@ export default function WorkbookEditorPage() {
                       />
 
                       <div className="grid grid-cols-2 gap-1">
-                        {(["lead_field", "enrichment", "waterfall", "ai_formula"] as const).map(t => {
+                        {(["lead_field", "enrichment", "waterfall", "ai_formula", "output"] as const).map(t => {
                           const m = COL_TYPE_META[t]
                           const Icon = m.icon
                           return (
@@ -1144,6 +1165,35 @@ export default function WorkbookEditorPage() {
                         </select>
                       )}
 
+                      {newColType === "output" && (
+                        <div className="space-y-1">
+                          <select value={newColDest} onChange={e => setNewColDest(e.target.value as any)}
+                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                            <option value="webhook">Webhook (HTTP POST)</option>
+                            <option value="crm">CRM — HubSpot</option>
+                            <option value="sequencer">Email sequencer</option>
+                          </select>
+                          {newColDest === "webhook" && (
+                            <>
+                              <input value={newColWebhookUrl} onChange={e => setNewColWebhookUrl(e.target.value)}
+                                placeholder="https://hooks.example.com/{company}"
+                                className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
+                              <textarea value={newColWebhookBody} onChange={e => setNewColWebhookBody(e.target.value)}
+                                placeholder={'Optional JSON body, e.g. {"co": "{company}", "email": "{email}"}'}
+                                rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-[10px] font-mono resize-none" />
+                            </>
+                          )}
+                          {newColDest === "crm" && (
+                            <p className="px-1 text-[10px] text-muted-foreground">Pushes the row to HubSpot as a contact (requires a HubSpot token in Settings; the lead must have an email).</p>
+                          )}
+                          {newColDest === "sequencer" && (
+                            <input value={newColSequenceId} onChange={e => setNewColSequenceId(e.target.value)}
+                              placeholder="Sequence ID to enroll the lead into"
+                              className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
+                          )}
+                        </div>
+                      )}
+
                       {newColType !== "lead_field" && (
                         <input value={newColCondition} onChange={e => setNewColCondition(e.target.value)}
                           placeholder='Run if: {email} == "" AND {website} != ""'
@@ -1163,10 +1213,25 @@ export default function WorkbookEditorPage() {
                             if (newColType === "waterfall" && newColWaterfall.length > 0) newCol.waterfall = newColWaterfall
                             if ((newColType === "enrichment" || newColType === "waterfall") && newColTargetField) newCol.target_field = newColTargetField
                             if (newColType === "ai_formula" && newColPrompt.trim()) newCol.prompt = newColPrompt.trim()
+                            if (newColType === "output") {
+                              newCol.destination = newColDest
+                              if (newColDest === "webhook") {
+                                const cfg: any = { url: newColWebhookUrl.trim() }
+                                if (newColWebhookBody.trim()) {
+                                  try { cfg.body = JSON.parse(newColWebhookBody) } catch { cfg.body = newColWebhookBody }
+                                }
+                                newCol.destination_config = cfg
+                              } else if (newColDest === "crm") {
+                                newCol.destination_config = { type: "hubspot" }
+                              } else if (newColDest === "sequencer") {
+                                newCol.destination_config = { sequence_id: newColSequenceId.trim() }
+                              }
+                            }
                             if (newColCondition.trim()) newCol.condition = newColCondition.trim()
                             updateWb.mutate({ id: workbook!.id, columns_config: [...columns, newCol] as any })
                             setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition("")
                             setNewColLeadField(""); setNewColType("lead_field"); setNewColProvider(""); setNewColWaterfall([]); setNewColTargetField("")
+                            setNewColDest("webhook"); setNewColWebhookUrl(""); setNewColWebhookBody(""); setNewColSequenceId("")
                           }}
                           disabled={!newColName.trim()}
                           className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
@@ -1251,7 +1316,7 @@ export default function WorkbookEditorPage() {
         const col = columns.find(c => c.id === ctxMenu.colId)
         if (!col) return null
         const tableCol = table.getColumn(ctxMenu.colId)
-        const isEnrichable = ["enrichment", "waterfall", "ai_formula"].includes(col.type)
+        const isEnrichable = ["enrichment", "waterfall", "ai_formula", "output"].includes(col.type)
         return (
           <div
             className="fixed z-[100] min-w-[180px] rounded-lg border bg-card shadow-xl py-1 animate-in fade-in zoom-in-95 duration-150"

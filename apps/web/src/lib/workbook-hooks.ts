@@ -40,6 +40,13 @@ export function useWorkbook(id: string, pageSize = 1000) {
     queryKey: workbookKeys.detail(id),
     queryFn: () => fetchWorkbook(id, 1, pageSize),
     enabled: !!id,
+    // Don't retry client errors (404 not-found / 403 no-access won't resolve on
+    // their own); only retry transient/server errors once.
+    retry: (count, err) => {
+      const status = (err as { status?: number })?.status
+      if (status && status >= 400 && status < 500) return false
+      return count < 1
+    },
   })
 }
 
