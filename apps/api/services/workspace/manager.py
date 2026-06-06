@@ -366,11 +366,14 @@ def get_agency_dashboard() -> Dict[str, Any]:
 # ── Helpers ───────────────────────────────────────────────────
 
 def _count_workspace_leads(slug: str) -> int:
-    """Count leads in a workspace's DB."""
-    if slug == "main":
-        db_path = _project_root() / "data" / "leads.db"
-    else:
-        db_path = _project_root() / "data" / "workspaces" / slug / "leads.db"
+    """Count leads in a workspace's DB.
+
+    Resolves the path the SAME way as workspace_leads_db_path() (and thus the
+    LeadDB the /leads and /analytics endpoints actually query). For the "main"
+    workspace that is the leadgen canonical DB_PATH, NOT data/leads.db — using
+    a different file here is what made the badge count diverge from the list.
+    """
+    db_path = Path(workspace_leads_db_path(slug))
 
     if not db_path.exists():
         return 0
