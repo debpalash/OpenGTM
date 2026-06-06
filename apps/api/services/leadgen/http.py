@@ -182,6 +182,13 @@ class StealthClient:
         elif tier == 3:
             result = await self._fetch_tier3(url, proxy, timeout)
 
+        # Tier 3.5: FlareSolverr — last resort for Cloudflare/DDoS-Guard challenges.
+        # Inert unless FLARESOLVERR_URL is set; only fires when still challenged.
+        if (not result.ok) and _is_challenge(result.status_code, result.text):
+            fs_result = await self._fetch_flaresolverr(url, proxy)
+            if fs_result is not None:
+                result = fs_result
+
         # Report results
         if result.ok:
             self.rate_limiter.report_success(domain)
@@ -253,6 +260,26 @@ class StealthClient:
             result.error = str(e)
             result.status_code = 0
 
+        return result
+
+    async def _fetch_flaresolverr(self, url: str, proxy: Optional[str]) -> Optional[FetchResult]:
+        """Tier 3.5: solve a Cloudflare/DDoS-Guard challenge via FlareSolverr.
+
+        Returns None when the service isn't configured (callers keep the prior result).
+        """
+        try:
+            from apps.api.services.leadgen.scrapers import flaresolverr_client as fs
+        except Exception:
+            return None
+        if not fs.is_available():
+            return None
+
+        sol = await fs.solve(url, proxy=proxy)
+        if not sol.ok:
+            return None
+        result = FetchResult(url=sol.url or url, tier_used=4, proxy_used=proxy or "")
+        result.status_code = sol.status_code or 200
+        result.text = sol.html
         return result
 
     async def _fetch_tier3(self, url: str, proxy: Optional[str], timeout: int) -> FetchResult:
