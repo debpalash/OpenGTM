@@ -590,6 +590,18 @@ def get_job_leads(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     return leads
 
 
+@jobs_router.get("/jobs/{job_id}/events")
+def get_job_events(job_id: str, limit: int = 100, ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Recent progress events for a job — backfills the live activity feed so a
+    freshly opened task page shows what already happened, not just future events."""
+    from apps.api.services.leadgen.progress import progress
+    events = [
+        e for e in progress.recent(500)
+        if e.get("job_id") == job_id and e.get("message")
+    ]
+    return {"events": events[-limit:]}
+
+
 @jobs_router.post("/jobs/{job_id}/cancel")
 def cancel_job(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Cancel a running or pending job."""
