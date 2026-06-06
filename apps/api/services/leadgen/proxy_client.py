@@ -77,22 +77,119 @@ def get_proxy(protocol: str = None) -> Optional[str]:
     return f"{proto}://{proxy['host']}:{proxy['port']}"
 
 
-def get_ddgs(proxy: str = None):
-    """Get a DDGS instance with proxy rotation.
+# Per-request HTTP timeout for DDG searches. Without this, a dead SOCKS proxy
+# leaves connections stuck in SYN_SENT and a search stage stalls for many
+# minutes. Keep it short so a bad proxy fails fast and the pipeline moves on.
+DDGS_TIMEOUT = int(os.getenv("DDGS_TIMEOUT", "10"))
 
-    If proxy manager is available, uses a rotating proxy.
-    Falls back to direct connection if unavailable.
+# Engines to query. ddgs aggregates across these keyless backends, so one
+# engine's blind spot (e.g. DDG not indexing site:crunchbase.com) is covered by
+# the others. Set SEARCH_BACKENDS="" to fall back to the ddgs default.
+SEARCH_BACKENDS = os.getenv("SEARCH_BACKENDS", "duckduckgo, google, bing, brave, mojeek, yahoo")
+
+# Order in which we attempt each search. "direct" = the server's own IP (fast and
+# reliable); "proxy" = a rotating SOCKS proxy (anti-block, but useless when the
+# pool is full of dead proxies). Direct-first means a dead proxy never blackholes
+# a search; the proxy is only tried if direct returns nothing. Flip to
+# "proxy,direct" via env to prioritise IP rotation under heavy volume.
+SEARCH_ATTEMPT_ORDER = [
+    s.strip() for s in os.getenv("SEARCH_ATTEMPT_ORDER", "direct,proxy").split(",") if s.strip()
+]
+
+
+def _report_proxy_url(proxy_url: str, success: bool) -> None:
+    """Score a proxy by its URL (parses host:port for report_proxy)."""
+    try:
+        from urllib.parse import urlparse
+        u = urlparse(proxy_url)
+        if u.hostname and u.port:
+            report_proxy(u.hostname, u.port, success)
+    except Exception:
+        pass
+
+
+class _ResilientDDGS:
+    """A drop-in DDGS replacement returned by get_ddgs().
+
+    Adds two robustness layers, transparently, to every caller that does
+    `with get_ddgs() as ddgs: ddgs.text(...)`:
+
+      1. Multi-engine — text()/news() default to several keyless engines
+         (google, bing, brave, …) instead of one, so a single engine's gap is
+         covered by the rest.
+      2. Connection fallback — each query is attempted over a sequence of
+         connections (direct, then a rotating proxy by default). The first
+         attempt that returns results wins; a dead proxy can no longer turn a
+         perfectly good query into an empty result.
     """
-    from ddgs import DDGS
 
+    def __init__(self, proxy: Optional[str]):
+        self._proxy = proxy
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def _attempts(self) -> list:
+        seq = []
+        for mode in SEARCH_ATTEMPT_ORDER:
+            if mode == "direct":
+                seq.append(None)
+            elif mode == "proxy" and self._proxy:
+                seq.append(self._proxy)
+        return seq or [None]
+
+    def _run(self, method: str, query: str, **kwargs) -> list:
+        from ddgs import DDGS
+
+        if SEARCH_BACKENDS:
+            kwargs.setdefault("backend", SEARCH_BACKENDS)
+
+        last_exc = None
+        for proxy in self._attempts():
+            try:
+                with DDGS(proxy=proxy, timeout=DDGS_TIMEOUT) as d:
+                    results = list(getattr(d, method)(query, **kwargs))
+                if results:
+                    if proxy:
+                        _report_proxy_url(proxy, True)
+                    return results
+            except Exception as e:
+                last_exc = e
+                if proxy:
+                    _report_proxy_url(proxy, False)
+                continue
+        if last_exc:
+            logger.debug(f"search '{query[:40]}' exhausted all backends: {last_exc}")
+        return []
+
+    def text(self, query, **kwargs):
+        return self._run("text", query, **kwargs)
+
+    def news(self, query, **kwargs):
+        return self._run("news", query, **kwargs)
+
+    def __getattr__(self, name):
+        # Any other DDGS method (images, videos, …): direct connection only.
+        def _method(*args, **kwargs):
+            from ddgs import DDGS
+            with DDGS(timeout=DDGS_TIMEOUT) as d:
+                return getattr(d, name)(*args, **kwargs)
+        return _method
+
+
+def get_ddgs(proxy: str = None):
+    """Return a resilient, multi-engine search client (see _ResilientDDGS).
+
+    Every search call site uses `with get_ddgs() as ddgs: ddgs.text(...)`, so
+    wrapping here upgrades the whole codebase at once: multi-engine backends plus
+    direct/proxy connection fallback.
+    """
     if proxy is None:
         proxy = get_proxy()
-
-    if proxy:
-        logger.debug(f"DDGS using proxy: {proxy}")
-        return DDGS(proxy=proxy)
-    else:
-        return DDGS()
+    return _ResilientDDGS(proxy)
 
 
 def report_proxy(host: str, port: int, success: bool = True):

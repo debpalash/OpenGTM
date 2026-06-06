@@ -11,6 +11,7 @@ Enhanced with:
 
 import asyncio
 import json
+import os
 import re
 import uuid
 from datetime import datetime, timezone
@@ -33,19 +34,26 @@ from apps.api.services.leadgen.ai_stages import (
 )
 
 
+# Hard ceiling on a single search, in case a proxy ignores the DDGS HTTP
+# timeout (the underlying thread may linger, but the pipeline moves on).
+_DDG_SEARCH_TIMEOUT = int(os.getenv("DDG_SEARCH_TIMEOUT", "25"))
+
+
 def _ddg_text_sync(query: str, max_results: int = 15) -> list:
     """Synchronous DDG text search — meant to be called via asyncio.to_thread."""
-    from ddgs import DDGS
     from apps.api.services.leadgen.proxy_client import get_ddgs
-    with get_ddgs() as ddgs:
+    with get_ddgs() as ddgs:  # get_ddgs sets a per-request HTTP timeout
         return list(ddgs.text(query, max_results=max_results))
 
 
 async def _ddg_search(query: str, max_results: int = 15) -> list:
-    """Async DDG search that doesn't block the event loop."""
+    """Async DDG search that doesn't block the event loop or stall forever."""
     try:
-        return await asyncio.to_thread(_ddg_text_sync, query, max_results)
-    except Exception:
+        return await asyncio.wait_for(
+            asyncio.to_thread(_ddg_text_sync, query, max_results),
+            timeout=_DDG_SEARCH_TIMEOUT,
+        )
+    except (asyncio.TimeoutError, Exception):
         return []
 
 
