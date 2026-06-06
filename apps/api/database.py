@@ -151,6 +151,20 @@ def check_and_migrate_db():
                     print("Migrating workbooks: adding sync_to_leads...")
                     conn.execute(text("ALTER TABLE workbooks ADD COLUMN sync_to_leads BOOLEAN DEFAULT 1"))
                     conn.commit()
+                # Pillar 2: budget ceiling
+                if "budget_max_usd" not in wb_columns:
+                    print("Migrating workbooks: adding budget_max_usd...")
+                    conn.execute(text("ALTER TABLE workbooks ADD COLUMN budget_max_usd FLOAT DEFAULT 0"))
+                    conn.commit()
+                if "budget_spent_usd" not in wb_columns:
+                    print("Migrating workbooks: adding budget_spent_usd...")
+                    conn.execute(text("ALTER TABLE workbooks ADD COLUMN budget_spent_usd FLOAT DEFAULT 0"))
+                    conn.commit()
+                # Pillar 3: living refresh policy
+                if "refresh_policy" not in wb_columns:
+                    print("Migrating workbooks: adding refresh_policy...")
+                    conn.execute(text("ALTER TABLE workbooks ADD COLUMN refresh_policy JSON DEFAULT '{}'"))
+                    conn.commit()
 
             # WorkbookRow — Pillar 1: canonical entity binding
             if "workbook_rows" in inspector.get_table_names():

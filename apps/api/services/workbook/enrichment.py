@@ -167,6 +167,14 @@ async def enrich_cell(
         result_provider = "ai"
         result_error = ai_result.get("error")
 
+    elif col_type == "agent":
+        # Goal-directed enrichment — agent picks tools dynamically (Pillar 4).
+        from apps.api.services.workbook.agent_column import run_agent_cell
+        agent_result = await run_agent_cell(db, workbook_id, lead_id, col_config, lead_data)
+        result_value = agent_result.get("value")
+        result_provider = agent_result.get("provider") or "agent"
+        result_error = agent_result.get("error")
+
     else:
         # Enrichment/Waterfall → provider chain
         lead = _lead_dict_to_lead(lead_data)
@@ -191,18 +199,38 @@ async def enrich_cell(
         result_value = None
         result_provider = None
         result_error = None
+        result_confidence = 0.0
+
+        # ── Pillar 2: cost-aware ordering + budget ceiling ──
+        from apps.api.services.workbook import planner as _planner
+        wb_row = db.query(Workbook.budget_max_usd, Workbook.budget_spent_usd).filter(
+            Workbook.id == workbook_id
+        ).first()
+        budget_max = (wb_row[0] or 0.0) if wb_row else 0.0
+        budget_spent = (wb_row[1] or 0.0) if wb_row else 0.0
+        budget_remaining = (budget_max - budget_spent) if budget_max > 0 else None
+        provider_chain = _planner.order_chain(db, target_field, provider_chain, budget_remaining)
 
         # Fields that are structured/JSON — NEVER put in a cell, always write-back only
         STRUCTURED_FIELDS = {"decision_makers", "hiring_signals", "secondary_emails", "secondary_phones"}
 
+        import time as _time
         for provider_name in provider_chain:
             provider = get_provider(provider_name)
             if not provider:
                 logger.warning(f"Provider '{provider_name}' not found, skipping")
                 continue
 
+            _t0 = _time.monotonic()
             try:
                 result = await provider.enrich(lead)
+                _latency_ms = (_time.monotonic() - _t0) * 1000.0
+                _planner.record_attempt(
+                    db, provider_name, target_field,
+                    success=bool(result.success and result.fields),
+                    confidence=(result.confidence or provider.default_confidence),
+                    latency_ms=_latency_ms,
+                )
                 if result.success and result.fields:
                     # ── Write back ALL scalar Lead fields from the result ──
                     for field_name, value in result.fields.items():
@@ -243,12 +271,26 @@ async def enrich_cell(
                             else:
                                 result_value = sv
                             result_provider = provider_name
+                            result_confidence = result.confidence or provider.default_confidence
 
                 if result_value:
+                    # ── Charge budget for a successful PAID provider ──
+                    if _planner.is_paid(provider_name):
+                        cost = _planner.provider_cost(provider_name)
+                        db.query(Workbook).filter(Workbook.id == workbook_id).update(
+                            {Workbook.budget_spent_usd: (Workbook.budget_spent_usd + cost)},
+                            synchronize_session=False,
+                        )
                     break  # Waterfall: stop at first success
             except Exception as e:
+                _latency_ms = (_time.monotonic() - _t0) * 1000.0
                 logger.error(f"Provider {provider_name} failed for lead {lead_id}: {e}")
                 result_error = str(e)[:200]
+                _planner.record_attempt(
+                    db, provider_name, target_field,
+                    success=False, latency_ms=_latency_ms,
+                    rate_limited=_planner.looks_rate_limited(result_error),
+                )
 
     # ── Write results ─────────────────────────────────────────────────
     if result_value:
@@ -376,7 +418,7 @@ async def enrich_workbook_leads(
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 DEFAULT_CONCURRENCY = int(os.getenv("WORKBOOK_RUN_CONCURRENCY", "8"))
 
-ENRICHMENT_COL_TYPES = ("enrichment", "waterfall", "ai_formula")
+ENRICHMENT_COL_TYPES = ("enrichment", "waterfall", "ai_formula", "agent")
 
 
 def _make_redis():

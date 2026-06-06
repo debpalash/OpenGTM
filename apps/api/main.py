@@ -38,6 +38,12 @@ check_and_migrate_db()
 from apps.api.services.workbook.models import Workbook, WorkbookEnrichment, WorkbookRow  # noqa: E402
 # Pillar 1: canonical entity graph tables
 from apps.api.services.entities import models as _entity_models  # noqa: E402,F401
+# Pillar 2: provider performance ledger
+from apps.api.services.workbook import planner_models as _planner_models  # noqa: E402,F401
+# Pillar 3: living-workbook activity feed
+from apps.api.services.workbook import activity_models as _activity_models  # noqa: E402,F401
+# Pillar 4: agent column reasoning traces
+from apps.api.services.workbook import trace_models as _trace_models  # noqa: E402,F401
 
 Base.metadata.create_all(bind=engine)
 
@@ -61,6 +67,10 @@ async def lifespan(app: FastAPI):
     # Source columns (P0): materialize rows from the source engine on the queue.
     from apps.api.services.workbook.source_engine import handle_source_workbook
     queue_service.register_handler("source_workbook", handle_source_workbook)
+    # Living workbooks (P3): recurring refresh + signal-triggered refresh.
+    from apps.api.services.workbook.refresh import handle_refresh_workbook, handle_signal_scan
+    queue_service.register_handler("refresh_workbook", handle_refresh_workbook)
+    queue_service.register_handler("signal_scan", handle_signal_scan)
     await queue_service.start_worker()
     print("✓ Queue Worker Started")
     print("✓ Yupcha Engine v3.0 Ready")

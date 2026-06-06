@@ -606,7 +606,7 @@ async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Se
     columns = wb.columns_config or []
     enrichment_cols = [
         c for c in columns
-        if c.get("type") in ("enrichment", "waterfall", "ai_formula")
+        if c.get("type") in ("enrichment", "waterfall", "ai_formula", "agent")
         and (body.column_ids is None or c.get("id") in body.column_ids)
     ]
 
@@ -744,6 +744,105 @@ async def preview_source_column(workbook_id: str, col_id: str, db: Session = Dep
 
     from apps.api.services.workbook.source_engine import preview_source
     return preview_source(col.get("icp") or {}, col.get("channels") or {})
+
+
+# ── Cost & provider stats (P2) ───────────────────────────────────────────
+
+class BudgetRequest(BaseModel):
+    max_usd: float = 0.0  # 0 = unlimited
+
+
+@router.put("/{workbook_id}/budget")
+async def set_budget(workbook_id: str, body: BudgetRequest, db: Session = Depends(get_db)):
+    """Set a workbook's spend ceiling. Paid providers are skipped once exhausted."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb.budget_max_usd = max(0.0, body.max_usd)
+    db.commit()
+    return {"budget_max_usd": wb.budget_max_usd, "budget_spent_usd": wb.budget_spent_usd or 0.0}
+
+
+@router.get("/{workbook_id}/cost")
+async def get_cost(workbook_id: str, db: Session = Depends(get_db)):
+    """Spend-to-date + budget headroom for a workbook."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    spent = wb.budget_spent_usd or 0.0
+    cap = wb.budget_max_usd or 0.0
+    return {
+        "budget_max_usd": cap,
+        "budget_spent_usd": round(spent, 4),
+        "remaining_usd": round(cap - spent, 4) if cap > 0 else None,
+        "unlimited": cap <= 0,
+    }
+
+
+@router.get("/meta/provider-stats")
+async def provider_stats(db: Session = Depends(get_db)):
+    """Learned per-provider/-field yield, latency, cost ledger (feeds the planner)."""
+    from apps.api.services.workbook.planner_models import ProviderStat
+    rows = db.query(ProviderStat).order_by(ProviderStat.attempts.desc()).all()
+    return {"stats": [r.to_api() for r in rows]}
+
+
+# ── Living workbooks (P3) ────────────────────────────────────────────────
+
+class RefreshPolicyRequest(BaseModel):
+    enabled: bool = True
+    interval: Optional[str] = None            # "hourly" | "daily" | "weekly" | minutes (int)
+    on_signal: list = Field(default_factory=list)        # ["hiring","funding",...]
+    staleness_ttl_days: dict = Field(default_factory=dict)  # {field: days}
+
+
+@router.put("/{workbook_id}/refresh-policy")
+async def update_refresh_policy(workbook_id: str, body: RefreshPolicyRequest, db: Session = Depends(get_db)):
+    """Make a workbook 'living': schedule recurring refresh and/or signal triggers."""
+    from apps.api.services.workbook.refresh import set_refresh_policy
+    result = set_refresh_policy(db, workbook_id, body.model_dump())
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
+
+
+@router.post("/{workbook_id}/refresh")
+async def refresh_now(workbook_id: str, db: Session = Depends(get_db)):
+    """Trigger one refresh cycle immediately (source new rows + re-enrich stale)."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    from apps.api.services.queue_service import queue_service
+    queue_service.add_job(db, "refresh_workbook", {"workbook_id": workbook_id, "reason": "manual"})
+    return {"status": "refreshing"}
+
+
+@router.get("/{workbook_id}/rows/{lead_id}/cells/{col_id}/trace")
+async def get_cell_trace(workbook_id: str, lead_id: int, col_id: str, db: Session = Depends(get_db)):
+    """The agent column's reasoning trace for a cell (which tools, why, cost)."""
+    from apps.api.services.workbook.trace_models import CellTrace
+    t = db.query(CellTrace).filter(
+        CellTrace.workbook_id == workbook_id,
+        CellTrace.lead_id == lead_id,
+        CellTrace.column_id == col_id,
+    ).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="No trace for this cell")
+    return t.to_api()
+
+
+@router.get("/{workbook_id}/activity")
+async def get_activity(workbook_id: str, limit: int = Query(50, le=500), db: Session = Depends(get_db)):
+    """Event feed: rows added, refreshes, signals fired, re-enrichments."""
+    from apps.api.services.workbook.activity_models import WorkbookActivity
+    rows = (
+        db.query(WorkbookActivity)
+        .filter(WorkbookActivity.workbook_id == workbook_id)
+        .order_by(WorkbookActivity.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    return {"activity": [r.to_api() for r in rows]}
 
 
 # ── Row Management (v2) ──────────────────────────────────────────────────
