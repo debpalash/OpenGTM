@@ -148,6 +148,13 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
                 if not str(d.get("company") or "").strip():
                     skipped += 1
                     continue
+                # Quality gate: don't materialize junk names (job titles, brands, etc.)
+                if dataclasses.is_dataclass(lead):
+                    from apps.api.services.leadgen.lead_validator import validate_lead_light
+                    ok, _reason = validate_lead_light(lead)
+                    if not ok:
+                        skipped += 1
+                        continue
 
                 # ── Pillar 1: resolve to a canonical entity (cross-source dedup) ──
                 # Scope to the lead's workspace so tenants never share entities.
