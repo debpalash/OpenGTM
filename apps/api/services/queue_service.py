@@ -137,7 +137,13 @@ class QueueService:
 
         try:
             if handler:
-                await handler(job_id, payload)
+                # Isolate handler execution in its own thread + event loop.
+                # Handlers do heavy provider/LLM I/O and CPU-bound parsing; running
+                # them on the API's main event loop froze EVERY request (even non-DB
+                # routes like /docs). Each handler is self-contained — it creates its
+                # own DB sessions (check_same_thread=False) and clients from the
+                # payload — so running it off-loop in a worker thread is safe.
+                await asyncio.to_thread(lambda: asyncio.run(handler(job_id, payload)))
             else:
                 raise Exception(f"No handler for job type {job_type}")
 
