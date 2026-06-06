@@ -404,6 +404,8 @@ async def get_workbook(
                 lead=r.data or {},
                 data=r.data or {},
                 enrichments=enrichments_dict,
+                canonical_entity_id=r.canonical_entity_id,
+                corroboration_count=r.corroboration_count,
             ))
 
         return WorkbookWithLeadsResponse(
