@@ -80,9 +80,16 @@ class IPInfoProvider(EnrichmentProvider):
                         "company_domain": company_info.get("domain", ""),
                         "company_type": company_info.get("type", ""),
                     }
+                    fields = {}
+                    if result["city"]:
+                        fields["city"] = result["city"]
+                    if result["region"]:
+                        fields["state"] = result["region"]
+                    if not fields:
+                        return EnrichmentResult(success=False, error="No usable geo data for IP", provider="ipinfo")
                     return EnrichmentResult(
                         success=True,
-                        data=result,
+                        fields=fields,
                         provider="ipinfo",
                         confidence=0.70,
                     )

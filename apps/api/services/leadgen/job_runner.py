@@ -1407,18 +1407,36 @@ class JobRunner:
         skip_names = {"clutch", "goodfirms", "ambitionbox", "linkedin_companies"}
         sources = [s for s in sources if s["name"] not in skip_names]
 
-        progress.emit("job_progress", {
-            "job_id": job_id, "stage": "registry_sources",
-            "message": f"🌐 Scanning {len(sources)} directories & marketplaces...",
-        })
-
-        # Limit to top-20 highest-priority sources to avoid timeout
-        sources = sorted(sources, key=lambda s: s.get("priority", 999))[:20]
+        # Per-source toggle: honor each source's individual enabled state from
+        # the Sources UI (was previously all-or-nothing behind "directories").
+        from apps.api.routers.settings import get_source_enabled
+        sources = [s for s in sources if get_source_enabled(s["name"])]
 
         progress.emit("job_progress", {
             "job_id": job_id, "stage": "registry_sources",
-            "message": f"🌐 Narrowed to top {len(sources)} sources by priority...",
+            "message": f"🌐 Scanning {len(sources)} enabled directories & marketplaces...",
         })
+
+        # Cap by priority to bound runtime. Make the cap configurable and SURFACE
+        # what gets skipped instead of silently dropping it.
+        cap = int(os.getenv("REGISTRY_SOURCE_CAP", "20"))
+        sources_sorted = sorted(sources, key=lambda s: s.get("priority", 999))
+        skipped = sources_sorted[cap:]
+        sources = sources_sorted[:cap]
+        if skipped:
+            preview = ", ".join(s["name"] for s in skipped[:8])
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "registry_sources",
+                "message": (
+                    f"🌐 Running top {len(sources)} of {len(sources_sorted)} sources by priority "
+                    f"(skipped {len(skipped)}: {preview}{'…' if len(skipped) > 8 else ''})"
+                ),
+            })
+        else:
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "registry_sources",
+                "message": f"🌐 Running all {len(sources)} sources by priority...",
+            })
 
         # Run in batches of 10 with 1 query per source
         BATCH_SIZE = 10
@@ -1460,8 +1478,16 @@ class JobRunner:
                                         company = self._company_from_domain(domain)
                                         company_website = href
 
-                                # Strategy 2: Extract from title
-                                if not company or len(company) < 3:
+                                # Strategy 2: Extract from title — but NOT for
+                                # listing/aggregator pages, whose titles are
+                                # categories ("Best CRM Software 2026 | Capterra"),
+                                # not companies. extract_from_listing sources need
+                                # real card scraping (not yet implemented); until
+                                # then only accept their external company links.
+                                on_aggregator = bool(site_domain and site_domain in domain)
+                                if (not company or len(company) < 3) and not (
+                                    source.get("extract_from_listing") and on_aggregator
+                                ):
                                     company = self._extract_business_name(title)
 
                                 if not company or len(company) < 3:

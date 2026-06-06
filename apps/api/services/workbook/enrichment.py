@@ -9,8 +9,10 @@ Orchestrates enrichment for workbook leads:
 Can be called directly (sync) or via the BullMQ worker (async).
 """
 
+import asyncio
 import json
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -226,7 +228,12 @@ async def enrich_cell(
                 continue
 
             try:
-                result = await provider.enrich(lead)
+                # Per-provider timeout so a slow provider (e.g. holehe's 120-site
+                # check, deep_scraper's 8-page crawl) can't stall the waterfall.
+                result = await asyncio.wait_for(
+                    provider.enrich(lead),
+                    timeout=float(os.getenv("WORKBOOK_PROVIDER_TIMEOUT", "30")),
+                )
                 if result.success and result.fields:
                     # ── Write back ALL scalar Lead fields from the result ──
                     for field_name, value in result.fields.items():
@@ -270,6 +277,9 @@ async def enrich_cell(
 
                 if result_value:
                     break  # Waterfall: stop at first success
+            except asyncio.TimeoutError:
+                logger.warning(f"Provider {provider_name} timed out for lead {lead_id}")
+                result_error = "timeout"
             except Exception as e:
                 logger.error(f"Provider {provider_name} failed for lead {lead_id}: {e}")
                 result_error = str(e)[:200]
