@@ -640,50 +640,36 @@ async def run_workbook(workbook_id: str, body: RunWorkbookRequest = None, db: Se
     if not leads:
         return RunWorkbookResponse(status="skipped", total_jobs=0, message="No rows to process")
 
-    # Update workbook status
+    # Update workbook status + reset progress for this run
     wb.status = "running"
     wb.last_run_at = datetime.now(timezone.utc)
+    wb.total_rows = len(leads)
+    wb.completed_rows = 0
     db.commit()
 
     total_jobs = len(leads) * len(enrichment_cols)
 
-    # Try BullMQ, fall back to inline
-    try:
-        from apps.api.services.workbook.worker import enqueue_enrichment_job
-        enqueued = 0
-        for lead in leads:
-            for col in enrichment_cols:
-                chain = col.get("waterfall") or ([col.get("provider")] if col.get("provider") else [])
-                success = await enqueue_enrichment_job(
-                    workbook_id=workbook_id,
-                    row_id=lead["id"],
-                    col_id=col["id"],
-                    provider_chain=chain,
-                )
-                if success:
-                    enqueued += 1
-        if enqueued > 0:
-            return RunWorkbookResponse(
-                status="started", total_jobs=enqueued,
-                message=f"Enqueued {enqueued} enrichment jobs",
-            )
-        raise RuntimeError("No jobs enqueued — falling through to inline execution")
-    except Exception as e:
-        logger.info(f"Running inline enrichment: {e}")
-        from apps.api.services.workbook.enrichment import enrich_workbook_leads
-        result = await enrich_workbook_leads(
-            db=db,
-            workbook_id=workbook_id,
-            leads=leads,
-            columns=enrichment_cols,
-            columns_config=wb.columns_config or [],
-        )
-        wb.status = "complete"
-        db.commit()
-        return RunWorkbookResponse(
-            status="complete", total_jobs=result.get("total", 0),
-            message=f"Inline: {result.get('completed', 0)} completed, {result.get('errors', 0)} errors",
-        )
+    # P-1: enqueue ONE durable job on queue_service (DB-polling worker with
+    # heartbeat + dead-job reaper + retry). The handler runs cells concurrently
+    # off the request thread, so /run returns immediately and the workbook can
+    # never get stuck in `running` (the reaper recovers a crashed run).
+    # See features/workbook-v2-source-engine-spec.md §1.5.
+    from apps.api.services.queue_service import queue_service
+    queue_service.add_job(
+        db,
+        "run_workbook",
+        {
+            "workbook_id": workbook_id,
+            "column_ids": [c["id"] for c in enrichment_cols],
+            "row_ids": body.row_ids,
+            "lead_ids": body.lead_ids,
+        },
+    )
+    return RunWorkbookResponse(
+        status="started",
+        total_jobs=total_jobs,
+        message=f"Enqueued run: {len(leads)} rows × {len(enrichment_cols)} columns",
+    )
 
 
 @router.post("/{workbook_id}/stop")
@@ -695,6 +681,69 @@ async def stop_workbook(workbook_id: str, db: Session = Depends(get_db)):
     wb.status = "paused"
     db.commit()
     return {"status": "paused"}
+
+
+# ── Source Columns (P0) — sourcing as a workbook primitive ───────────────
+
+class SourceColumnRequest(BaseModel):
+    name: str = "Source"
+    icp: dict = Field(default_factory=dict)        # {description, industry, geo, size, keywords_any, exclude}
+    channels: dict = Field(default_factory=dict)   # {categories, regions, explicit_sources}
+    target_rows: int = 0                            # 0 = unlimited
+
+
+@router.post("/{workbook_id}/sources")
+async def add_source_column(workbook_id: str, body: SourceColumnRequest, db: Session = Depends(get_db)):
+    """Add a `source` column (ICP-driven) to a workbook."""
+    import uuid
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+
+    col = {
+        "id": f"src_{uuid.uuid4().hex[:8]}",
+        "name": body.name,
+        "type": "source",
+        "icp": body.icp,
+        "channels": body.channels,
+        "target_rows": body.target_rows,
+    }
+    cfg = list(wb.columns_config or [])
+    cfg.append(col)
+    wb.columns_config = cfg
+    db.commit()
+    return {"column": col}
+
+
+@router.post("/{workbook_id}/sources/{col_id}/run")
+async def run_source_column(workbook_id: str, col_id: str, db: Session = Depends(get_db)):
+    """Materialize rows from a source column — runs on the durable queue worker."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    col = next((c for c in (wb.columns_config or [])
+                if c.get("id") == col_id and c.get("type") == "source"), None)
+    if not col:
+        raise HTTPException(status_code=404, detail="Source column not found")
+
+    from apps.api.services.queue_service import queue_service
+    queue_service.add_job(db, "source_workbook", {"workbook_id": workbook_id, "column_id": col_id})
+    return {"status": "started", "column_id": col_id, "message": "Sourcing started"}
+
+
+@router.get("/{workbook_id}/sources/{col_id}/preview")
+async def preview_source_column(workbook_id: str, col_id: str, db: Session = Depends(get_db)):
+    """Dry-run: the query that would run + which sources it would hit. No write."""
+    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    if not wb:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    col = next((c for c in (wb.columns_config or [])
+                if c.get("id") == col_id and c.get("type") == "source"), None)
+    if not col:
+        raise HTTPException(status_code=404, detail="Source column not found")
+
+    from apps.api.services.workbook.source_engine import preview_source
+    return preview_source(col.get("icp") or {}, col.get("channels") or {})
 
 
 # ── Row Management (v2) ──────────────────────────────────────────────────

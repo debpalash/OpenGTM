@@ -31,6 +31,13 @@ COLUMN_TYPES = {
         "editable": True,
         "has_config": False,
     },
+    "source": {
+        "description": "Materializes NEW rows from the source engine via an ICP query",
+        "icon": "Radar",
+        "editable": False,
+        "has_config": True,
+        "emits_rows": True,  # this column creates rows, not cells
+    },
     "enrichment": {
         "description": "Single provider enrichment",
         "icon": "Sparkles",
