@@ -5,10 +5,11 @@ Persists settings to SQLite database. Seeds from .env on first run.
 
 import os
 import sqlite3
-from typing import Optional
+from typing import Optional, Dict
 from pathlib import Path
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
+from apps.api.core.security import get_current_active_user
 
 # Load .env into os.environ so we can seed DB from it
 _env_path = Path(__file__).resolve().parents[3] / ".env"
@@ -858,3 +859,89 @@ def list_registry_sources():
         return get_source_summary()
     except Exception as e:
         return {"total": 0, "error": str(e)}
+
+
+# ── Integration Destinations (CRM / export connectors) ────────────────────
+# BYOK credentials for the workbook output-column destinations. Data-driven so
+# the Settings UI renders one card per integration with the right fields.
+
+INTEGRATIONS = [
+    {
+        "id": "hubspot", "name": "HubSpot CRM", "icon": "hubspot",
+        "description": "Push leads as HubSpot contacts (output column → CRM).",
+        "fields": [
+            {"key": "HUBSPOT_TOKEN", "label": "Private App Token", "secret": True, "placeholder": "pat-na1-..."},
+        ],
+    },
+    {
+        "id": "salesforce", "name": "Salesforce", "icon": "salesforce",
+        "description": "Push leads as Salesforce Lead records (upsert by email).",
+        "fields": [
+            {"key": "SALESFORCE_INSTANCE_URL", "label": "Instance URL", "secret": False, "placeholder": "https://your.my.salesforce.com"},
+            {"key": "SALESFORCE_ACCESS_TOKEN", "label": "Access Token", "secret": True, "placeholder": "00D..."},
+        ],
+    },
+    {
+        "id": "airtable", "name": "Airtable", "icon": "airtable",
+        "description": "Append rows to an Airtable base (output column → Airtable).",
+        "fields": [
+            {"key": "AIRTABLE_TOKEN", "label": "Personal Access Token", "secret": True, "placeholder": "pat..."},
+        ],
+    },
+    {
+        "id": "sheets", "name": "Google Sheets", "icon": "sheets",
+        "description": "Append rows to a Google Sheet via an OAuth2 access token.",
+        "fields": [
+            {"key": "GOOGLE_SHEETS_TOKEN", "label": "OAuth2 Access Token", "secret": True, "placeholder": "ya29..."},
+        ],
+    },
+]
+
+
+class IntegrationUpdate(BaseModel):
+    values: Dict[str, str]
+
+
+def _integration_view(it: dict) -> dict:
+    """Serialize an integration with connection status, never echoing secrets."""
+    fields = []
+    connected = True
+    for f in it["fields"]:
+        val = _db_get(f["key"], "")
+        is_set = bool(val)
+        connected = connected and is_set
+        fields.append({
+            "key": f["key"], "label": f["label"], "secret": f["secret"],
+            "placeholder": f.get("placeholder", ""),
+            "set": is_set,
+            # Non-secret values (instance URL) are echoed; secrets never are.
+            "value": "" if f["secret"] else val,
+            "masked": (f"…{val[-4:]}" if (f["secret"] and is_set and len(val) >= 4) else ("set" if is_set else "")),
+        })
+    return {
+        "id": it["id"], "name": it["name"], "icon": it["icon"],
+        "description": it["description"], "connected": connected, "fields": fields,
+    }
+
+
+@router.get("/integrations")
+def list_integrations(user=Depends(get_current_active_user)):
+    """List destination integrations with connection status (secrets masked)."""
+    return {"integrations": [_integration_view(it) for it in INTEGRATIONS]}
+
+
+@router.put("/integrations/{integration_id}")
+def update_integration(integration_id: str, body: IntegrationUpdate,
+                       user=Depends(get_current_active_user)):
+    """Save credentials for one integration. Blank values are ignored so a
+    saved secret is never clobbered by an empty field."""
+    it = next((x for x in INTEGRATIONS if x["id"] == integration_id), None)
+    if not it:
+        raise HTTPException(status_code=404, detail="Integration not found")
+    allowed = {f["key"] for f in it["fields"]}
+    saved = []
+    for key, value in (body.values or {}).items():
+        if key in allowed and value and value.strip():
+            _db_set(key, value.strip())
+            saved.append(key)
+    return {"status": "ok", "saved": saved, "integration": _integration_view(it)}

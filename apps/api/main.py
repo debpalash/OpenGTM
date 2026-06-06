@@ -59,6 +59,44 @@ async def lifespan(app: FastAPI):
         logger.warning(
             "⚠ Using INSECURE default SECRET_KEY! Set SECRET_KEY in .env for production."
         )
+    # Tenancy backfill — assign owner-less workspaces to the first admin so
+    # existing data stays accessible after per-workspace isolation is enabled.
+    try:
+        from apps.api.database import SessionLocal
+        from apps.api.models import User
+        from apps.api.services.workspace.manager import ensure_tenancy_backfill
+
+        _db = SessionLocal()
+        try:
+            admin = (
+                _db.query(User)
+                .filter((User.is_admin == True) | (User.role.in_(["admin", "superadmin"])))  # noqa: E712
+                .order_by(User.id.asc())
+                .first()
+            )
+            if admin:
+                ensure_tenancy_backfill(admin.id)
+                # Assign owner-less workbooks to the admin's main workspace.
+                from apps.api.services.workspace.manager import _get_db as _ws_db
+                from sqlalchemy import text as _text
+
+                _wsconn = _ws_db()
+                _main = _wsconn.execute(
+                    "SELECT id FROM workspaces WHERE slug = 'main'"
+                ).fetchone()
+                _wsconn.close()
+                if _main:
+                    _db.execute(
+                        _text("UPDATE workbooks SET workspace_id = :wid WHERE workspace_id IS NULL"),
+                        {"wid": _main["id"]},
+                    )
+                    _db.commit()
+            else:
+                logger.warning("No admin user found — skipping tenancy backfill until one exists.")
+        finally:
+            _db.close()
+    except Exception as e:
+        logger.warning(f"Tenancy backfill skipped: {e}")
     queue_service.register_handler("download_link", handle_download_link)
     # Workbook enrichment runs on the durable queue worker (P-1): concurrent,
     # heartbeat-tracked, reaper-recoverable. See workbook/enrichment.py.
@@ -116,7 +154,9 @@ app.include_router(analytics_router)
 
 # Include Routers — Lead Pipeline
 app.include_router(leads_router)
-app.include_router(workspace_router)
+# NOTE: leads_router.workspace_router (legacy, leads.db-backed) is intentionally
+# NOT mounted — the canonical /api/workspaces is ws_manager_router (tenant-aware,
+# workspaces.db with ownership + membership). See routers/workspace_manager.py.
 app.include_router(jobs_router)
 app.include_router(events_router)
 app.include_router(search_router)

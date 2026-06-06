@@ -6,22 +6,19 @@ to power the analytics dashboard.
 """
 
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from apps.api.services.leadgen.db import LeadDB
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 
 router = APIRouter(prefix="/api/analytics", tags=["Analytics"])
-
-
-def _db() -> LeadDB:
-    return LeadDB()
 
 
 # ── Overview KPIs ────────────────────────────────────────────────
 
 @router.get("/overview")
-async def analytics_overview():
+async def analytics_overview(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Top-level KPI metrics for the dashboard."""
-    db = _db()
+    db = ctx.lead_db()
     c = db.conn.cursor()
 
     # Total leads
@@ -100,9 +97,9 @@ async def analytics_overview():
 # ── Pipeline Funnel ──────────────────────────────────────────────
 
 @router.get("/pipeline")
-async def analytics_pipeline():
+async def analytics_pipeline(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Lead pipeline funnel — statuses and conversion."""
-    db = _db()
+    db = ctx.lead_db()
     c = db.conn.cursor()
 
     # Status distribution
@@ -128,9 +125,9 @@ async def analytics_pipeline():
 # ── Collection Trends ────────────────────────────────────────────
 
 @router.get("/collection")
-async def analytics_collection():
+async def analytics_collection(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Collection job trends over last 30 days."""
-    db = _db()
+    db = ctx.lead_db()
     c = db.conn.cursor()
 
     # Jobs per day (last 30 days)
@@ -179,9 +176,9 @@ async def analytics_collection():
 # ── Enrichment Quality ──────────────────────────────────────────
 
 @router.get("/enrichment")
-async def analytics_enrichment():
+async def analytics_enrichment(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Enrichment quality and source comparison."""
-    db = _db()
+    db = ctx.lead_db()
     c = db.conn.cursor()
 
     # Source quality — avg score by source
@@ -246,9 +243,9 @@ async def analytics_enrichment():
 # ── LLM Usage ────────────────────────────────────────────────────
 
 @router.get("/llm")
-async def analytics_llm():
+async def analytics_llm(ctx: WorkspaceCtx = Depends(current_workspace)):
     """LLM token usage and cost trends."""
-    db = _db()
+    db = ctx.lead_db()
     c = db.conn.cursor()
 
     # Usage by day (last 30 days)

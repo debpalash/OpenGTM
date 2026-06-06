@@ -33,7 +33,7 @@ class LeadScorerProvider(EnrichmentProvider):
 
             return EnrichmentResult(
                 success=True,
-                data={
+                fields={
                     "score": score,
                     "score_tier": tier,
                 },

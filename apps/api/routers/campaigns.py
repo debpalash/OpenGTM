@@ -4,9 +4,11 @@ Campaigns Router — AI-powered outreach email generation.
 Uses the LLM client to generate personalized cold emails based on lead data.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import List, Optional
+
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 
 router = APIRouter(prefix="/api/campaigns", tags=["campaigns"])
 
@@ -29,12 +31,11 @@ class GenerateResponse(BaseModel):
 
 
 @router.post("/generate", response_model=GenerateResponse)
-async def generate_outreach(req: GenerateRequest):
+async def generate_outreach(req: GenerateRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Generate personalized outreach emails for the given lead IDs."""
-    from apps.api.services.leadgen.db import LeadDB
     from apps.api.services.leadgen.llm import llm
 
-    db = LeadDB()
+    db = ctx.lead_db()
     emails = []
 
     for lead_id in req.lead_ids[:10]:  # Cap at 10

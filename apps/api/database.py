@@ -151,6 +151,10 @@ def check_and_migrate_db():
                     print("Migrating workbooks: adding sync_to_leads...")
                     conn.execute(text("ALTER TABLE workbooks ADD COLUMN sync_to_leads BOOLEAN DEFAULT 1"))
                     conn.commit()
+                if "workspace_id" not in wb_columns:
+                    print("Migrating workbooks: adding workspace_id (tenancy)...")
+                    conn.execute(text("ALTER TABLE workbooks ADD COLUMN workspace_id VARCHAR"))
+                    conn.commit()
                 # Pillar 2: budget ceiling
                 if "budget_max_usd" not in wb_columns:
                     print("Migrating workbooks: adding budget_max_usd...")

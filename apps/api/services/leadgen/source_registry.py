@@ -567,12 +567,12 @@ SOURCES: List[Dict] = [
     {"name": "business_standard", "label": "Business Standard", "region": ["india"], "category": "news", "site_domain": "business-standard.com", "query_templates": ["site:business-standard.com {industry} {city} company"], "extract_from_listing": False, "priority": 152, "enabled": True},
     {"name": "livemint", "label": "Livemint", "region": ["india"], "category": "news", "site_domain": "livemint.com", "query_templates": ["site:livemint.com {industry} {city} company startup"], "extract_from_listing": False, "priority": 153, "enabled": True},
     {"name": "techcrunch", "label": "TechCrunch", "region": ["global"], "category": "news", "site_domain": "techcrunch.com", "query_templates": ["site:techcrunch.com {industry} {city} startup funding"], "extract_from_listing": False, "priority": 154, "enabled": True},
-    {"name": "forbes", "label": "Forbes", "region": ["global"], "category": "news", "site_domain": "forbes.com", "query_templates": ['site:forbes.com "best {industry} companies" {city}'], "extract_from_listing": False, "priority": 155, "enabled": True},
+    {"name": "forbes", "label": "Forbes", "region": ["global"], "category": "news", "site_domain": "forbes.com", "query_templates": ["site:forbes.com {industry} companies {city}", "site:forbes.com top {industry} companies"], "extract_from_listing": False, "priority": 155, "enabled": True},
 
     # ══════════════════════════════════════════════════════════════════════
     # INDIA — More directories & platforms
     # ══════════════════════════════════════════════════════════════════════
-    {"name": "mouthshut_biz", "label": "India Yellow Pages", "region": ["india"], "category": "directory", "site_domain": "yellowpages.in", "query_templates": ["site:yellowpages.in {industry} {city}"], "extract_from_listing": False, "priority": 15, "enabled": True},
+    {"name": "yellowpages_in", "label": "India Yellow Pages", "region": ["india"], "category": "directory", "site_domain": "yellowpages.in", "query_templates": ["site:yellowpages.in {industry} {city}", "site:yellowpages.in {industry} companies {city}"], "extract_from_listing": False, "priority": 15, "enabled": True},
     {"name": "grotal", "label": "Grotal", "region": ["india"], "category": "directory", "site_domain": "grotal.com", "query_templates": ["site:grotal.com {industry} {city}"], "extract_from_listing": False, "priority": 16, "enabled": True},
     {"name": "urbanpro", "label": "UrbanPro", "region": ["india"], "category": "directory", "site_domain": "urbanpro.com", "query_templates": ["site:urbanpro.com {industry} {city}"], "extract_from_listing": False, "priority": 17, "enabled": True},
     {"name": "dial4trade", "label": "Dial4Trade", "region": ["india"], "category": "b2b_marketplace", "site_domain": "dial4trade.com", "query_templates": ["site:dial4trade.com {industry} {city}"], "extract_from_listing": False, "priority": 18, "enabled": True},
@@ -601,8 +601,8 @@ SOURCES: List[Dict] = [
     # ══════════════════════════════════════════════════════════════════════
     {"name": "twitter_companies", "label": "Twitter/X Companies", "region": ["global"], "category": "social", "site_domain": None, "query_templates": ["site:twitter.com {industry} {city} company official"], "extract_from_listing": False, "priority": 82, "enabled": True},
     {"name": "instagram_business", "label": "Instagram Business", "region": ["global", "india"], "category": "social", "site_domain": None, "query_templates": ["site:instagram.com {industry} {city} company"], "extract_from_listing": False, "priority": 83, "enabled": True},
-    {"name": "reddit_companies", "label": "Reddit Mentions", "region": ["global"], "category": "social", "site_domain": "reddit.com", "query_templates": ['site:reddit.com "best {industry} companies" {city}'], "extract_from_listing": False, "priority": 84, "enabled": True},
-    {"name": "quora_companies", "label": "Quora Mentions", "region": ["global", "india"], "category": "social", "site_domain": "quora.com", "query_templates": ['site:quora.com "best {industry} companies" {city}'], "extract_from_listing": False, "priority": 85, "enabled": True},
+    {"name": "reddit_companies", "label": "Reddit Mentions", "region": ["global"], "category": "social", "site_domain": "reddit.com", "query_templates": ["site:reddit.com {industry} companies {city}", "site:reddit.com {industry} {city} recommendations"], "extract_from_listing": False, "priority": 84, "enabled": True},
+    {"name": "quora_companies", "label": "Quora Mentions", "region": ["global", "india"], "category": "social", "site_domain": "quora.com", "query_templates": ["site:quora.com {industry} companies {city}", "site:quora.com best {industry} {city}"], "extract_from_listing": False, "priority": 85, "enabled": True},
 
     # ══════════════════════════════════════════════════════════════════════
     # E-COMMERCE & MARKETPLACE SELLERS (buying signals)

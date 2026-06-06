@@ -28,9 +28,11 @@ class ColumnConfig(BaseModel):
     # Which Lead field to write the enrichment result to (e.g. waterfall email → writes to lead.email)
     target_field: Optional[str] = Field(None, description="Lead field to write enrichment results back to")
 
-    # AI formula config
-    prompt: Optional[str] = Field(None, description="LLM prompt template for ai_formula columns")
+    # AI formula / research config
+    prompt: Optional[str] = Field(None, description="LLM prompt template for ai_formula / research columns")
     input_columns: Optional[list[str]] = Field(None, description="Column IDs to use as input for the prompt")
+    max_steps: Optional[int] = Field(None, description="Research column: max search/fetch steps (1-6)")
+    output_format: Optional[str] = Field(None, description="Research/AI column output: 'text' or 'json'")
 
     # Conditional config
     condition: Optional[str] = Field(None, description="Expression to evaluate (e.g. '{email} == \"\"')")

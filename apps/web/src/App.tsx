@@ -12,12 +12,14 @@ import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
   Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2, X, Activity,
-  Moon, Sun,
+  Moon, Sun, LogOut, Building2,
 } from "lucide-react"
 import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { CommandMenu } from "@/components/command-menu"
+import { AuthProvider, useAuth } from "@/lib/auth-context"
+import LoginPage from "@/pages/login"
 
 // Pages
 import ChatPage from "@/pages/chat"
@@ -56,7 +58,9 @@ function AppSidebar() {
   useSSE()
   const { data: jobs } = useJobs()
   const { data: conversations } = useConversations()
-  const activeJobs = jobs?.filter(j => j.status === "running" || j.status === "pending").length ?? 0
+  const { user, workspaces, activeWorkspaceId, switchWorkspace, logout } = useAuth()
+  const jobList = Array.isArray(jobs) ? jobs : []
+  const activeJobs = jobList.filter(j => j.status === "running" || j.status === "pending").length
   const [chatSearch, setChatSearch] = useState("")
   const [isSearching, setIsSearching] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -215,6 +219,23 @@ function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t pt-2 mt-2">
+        {/* Active workspace switcher */}
+        {workspaces.length > 0 && (
+          <div className="px-2 pb-1 group-data-[collapsible=icon]:hidden">
+            <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground mb-1">
+              <Building2 className="size-3" /> Workspace
+            </label>
+            <select
+              value={activeWorkspaceId ?? ""}
+              onChange={(e) => { switchWorkspace(e.target.value).catch(() => {}) }}
+              className="w-full rounded-md border bg-background px-2 py-1 text-xs text-foreground outline-none focus:ring-1 focus:ring-ring"
+            >
+              {workspaces.map((w) => (
+                <option key={w.id} value={w.id}>{w.icon ? `${w.icon} ` : ""}{w.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="flex items-center justify-between px-2 py-1">
           <SidebarMenuButton
             isActive={location.pathname.startsWith("/settings")}
@@ -224,6 +245,14 @@ function AppSidebar() {
           >
             <Settings />
             <span>Settings</span>
+          </SidebarMenuButton>
+          <SidebarMenuButton
+            tooltip={user ? `Sign out (${user.username})` : "Sign out"}
+            onClick={logout}
+            className="w-auto flex-none"
+          >
+            <LogOut />
+            <span>Sign out</span>
           </SidebarMenuButton>
         </div>
       </SidebarFooter>
@@ -356,18 +385,51 @@ function AppContent() {
   )
 }
 
+function FullScreenSpinner({ label }: { label?: string }) {
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <Circle className="size-5 animate-spin" />
+        <span className="text-sm">{label ?? "Loading…"}</span>
+      </div>
+    </div>
+  )
+}
+
+function Shell() {
+  return (
+    <>
+      <div className="h-screen w-full overflow-hidden flex">
+        <SidebarProvider>
+          <AppSidebar />
+          <AppContent />
+        </SidebarProvider>
+      </div>
+      <CommandMenu />
+    </>
+  )
+}
+
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const { user, loading, activeWorkspaceId } = useAuth()
+  const location = useLocation()
+  if (loading) return <FullScreenSpinner />
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  if (!activeWorkspaceId) return <FullScreenSpinner label="Loading workspace…" />
+  return <>{children}</>
+}
+
 export default function App() {
   return (
     <TooltipProvider>
       <BrowserRouter>
-        <div className="h-screen w-full overflow-hidden flex">
-          <SidebarProvider>
-            <AppSidebar />
-            <AppContent />
-          </SidebarProvider>
-        </div>
-        <CommandMenu />
-        <Toaster />
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/*" element={<RequireAuth><Shell /></RequireAuth>} />
+          </Routes>
+          <Toaster />
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   )

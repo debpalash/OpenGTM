@@ -58,6 +58,9 @@ ddg_output*.txt
 *.log
 apps/api/services/leadgen/data/leads.db-shm
 apps/api/services/leadgen/data/leads.db-wal
+# SQLite runtime artifacts (transient; never track)
+*.db-shm
+*.db-wal
 
 # ── Data Collector (private) ────────────────
 data_collector/proxys.txt

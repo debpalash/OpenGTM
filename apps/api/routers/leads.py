@@ -14,12 +14,13 @@ import threading
 import time as _time
 from typing import Optional
 
-from fastapi import APIRouter, Query, HTTPException, Request
+from fastapi import APIRouter, Query, HTTPException, Request, Depends
 from fastapi.responses import StreamingResponse, Response
 from pydantic import BaseModel
 
 from apps.api.services.leadgen.db import LeadDB
 from apps.api.services.leadgen.models import Lead, LEAD_STATUSES
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 
 router = APIRouter(prefix="/api", tags=["Leads"])
 
@@ -56,8 +57,9 @@ def list_leads(
     limit: int = 200,
     offset: int = 0,
     order_by: str = "score DESC",
+    ctx: WorkspaceCtx = Depends(current_workspace),
 ):
-    db = _get_db()
+    db = ctx.lead_db()
     status_filter = _clean(status)
     leads = db.get_leads(
         status=status_filter,
@@ -81,8 +83,8 @@ def list_leads(
 
 @router.get("/stats")
 # Mounted at /api/stats — matches frontend expectation
-def lead_stats():
-    db = _get_db()
+def lead_stats(ctx: WorkspaceCtx = Depends(current_workspace)):
+    db = ctx.lead_db()
     stats = db.get_stats()
     db.close()
     return stats
@@ -90,8 +92,8 @@ def lead_stats():
 
 @router.get("/filters")
 # Mounted at /api/filters — matches frontend expectation
-def lead_filters():
-    db = _get_db()
+def lead_filters(ctx: WorkspaceCtx = Depends(current_workspace)):
+    db = ctx.lead_db()
     data = {
         "cities": db.get_cities(),
         "sources": db.get_sources(),
@@ -103,8 +105,8 @@ def lead_filters():
 
 
 @router.get("/lead/{lead_id}")
-def get_lead(lead_id: int):
-    db = _get_db()
+def get_lead(lead_id: int, ctx: WorkspaceCtx = Depends(current_workspace)):
+    db = ctx.lead_db()
     lead = db.get_lead(lead_id)
     db.close()
     if lead:
@@ -118,24 +120,24 @@ class StatusUpdate(BaseModel):
 
 
 @router.post("/lead/{lead_id}/status")
-def update_lead_status(lead_id: int, body: StatusUpdate):
-    db = _get_db()
+def update_lead_status(lead_id: int, body: StatusUpdate, ctx: WorkspaceCtx = Depends(current_workspace)):
+    db = ctx.lead_db()
     db.update_status(lead_id, body.status, body.note)
     db.close()
     return {"ok": True}
 
 
 @router.put("/lead/{lead_id}")
-def update_lead(lead_id: int, body: dict):
-    db = _get_db()
+def update_lead(lead_id: int, body: dict, ctx: WorkspaceCtx = Depends(current_workspace)):
+    db = ctx.lead_db()
     db.update_lead_fields(lead_id, body)
     db.close()
     return {"ok": True}
 
 
 @router.delete("/lead/{lead_id}")
-def delete_lead(lead_id: int):
-    db = _get_db()
+def delete_lead(lead_id: int, ctx: WorkspaceCtx = Depends(current_workspace)):
+    db = ctx.lead_db()
     db.delete_lead(lead_id)
     db.close()
     return {"ok": True}
@@ -155,10 +157,10 @@ class AddLeadRequest(BaseModel):
 
 
 @router.post("/lead")
-def add_lead(body: AddLeadRequest):
+def add_lead(body: AddLeadRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
     lead = Lead.from_dict(body.model_dump())
     lead.source = body.source
-    db = _get_db()
+    db = ctx.lead_db()
     lead_id = db.upsert_lead(lead)
     db.close()
     return {"ok": True, "id": lead_id}
@@ -168,7 +170,11 @@ def add_lead(body: AddLeadRequest):
 
 
 @router.post("/lead/{lead_id}/enrich")
-async def enrich_lead(lead_id: int, action: str = "web_research"):
+async def enrich_lead(
+    lead_id: int,
+    action: str = "web_research",
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """AI-powered lead enrichment. Streams SSE progress events.
 
     Actions:
@@ -176,7 +182,9 @@ async def enrich_lead(lead_id: int, action: str = "web_research"):
     - find_emails: Discover email patterns for the company
     - scrape_website: Extract data from the company's website
     """
-    db = _get_db()
+    from apps.api.services.workspace.manager import workspace_leads_db_path as _wpath
+    _ws_path = _wpath(ctx.slug)
+    db = LeadDB(_ws_path)
     lead = db.get_lead(lead_id)
     if not lead:
         db.close()
@@ -255,7 +263,7 @@ Format as clean text with section headers. Be specific and actionable."""
 
                 # Save to lead
                 if full_content:
-                    edb = _get_db()
+                    edb = LeadDB(_ws_path)
                     edb.update_lead_fields(lead_id, {
                         "description": full_content[:2000],
                         "last_enriched_at": "now",
@@ -271,7 +279,7 @@ Format as clean text with section headers. Be specific and actionable."""
                 from apps.api.services.leadgen.enrichment.email_finder import enrich_emails
                 enriched = enrich_emails([lead], delay=0.5)
                 if enriched and enriched[0].email:
-                    edb = _get_db()
+                    edb = LeadDB(_ws_path)
                     edb.update_lead_fields(lead_id, {"email": enriched[0].email, "last_enriched_at": "now"})
                     edb.close()
                     yield f"data: {json.dumps({'step': 'result', 'email': enriched[0].email})}\n\n"
@@ -303,7 +311,7 @@ Format as clean text with section headers. Be specific and actionable."""
 
                     if fields:
                         fields["last_enriched_at"] = "now"
-                        edb = _get_db()
+                        edb = LeadDB(_ws_path)
                         edb.update_lead_fields(lead_id, fields)
                         edb.close()
                         yield f"data: {json.dumps({'step': 'result', 'fields_updated': list(fields.keys())})}\n\n"
@@ -339,7 +347,7 @@ Format as clean text with section headers. Be specific and actionable."""
                         continue
 
                 if found_phone:
-                    edb = _get_db()
+                    edb = LeadDB(_ws_path)
                     edb.update_lead_fields(lead_id, {"phone": found_phone, "last_enriched_at": "now"})
                     edb.close()
                     yield f"data: {json.dumps({'step': 'result', 'message': f'Phone found: {found_phone}', 'phone': found_phone})}\n\n"
@@ -413,7 +421,7 @@ Format as clean text with section headers. Be specific and actionable."""
                                 fields_to_update["state"] = st
                                 break
 
-                    edb = _get_db()
+                    edb = LeadDB(_ws_path)
                     edb.update_lead_fields(lead_id, fields_to_update)
                     edb.close()
                     yield f"data: {json.dumps({'step': 'saved', 'message': 'Address saved'})}\n\n"
@@ -447,8 +455,9 @@ def export_csv(
     city: Optional[str] = None,
     tier: Optional[str] = None,
     score_min: Optional[int] = None,
+    ctx: WorkspaceCtx = Depends(current_workspace),
 ):
-    db = _get_db()
+    db = ctx.lead_db()
     leads = db.get_leads(
         status=status,
         city=city,
@@ -500,12 +509,15 @@ class CollectRequest(BaseModel):
 
 
 @jobs_router.post("/collect")
-def start_collection(body: CollectRequest):
+def start_collection(body: CollectRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
     query = body.query.strip()
     if not query:
         raise HTTPException(status_code=400, detail="query is required")
 
     job_id = str(uuid.uuid4())[:8]
+    # Jobs run through the shared pipeline DB (the background runner is bound to
+    # it); tag the job with the caller's workspace for later scoping.
+    body.workspace_id = body.workspace_id or ctx.workspace_id
     db = _get_db()
     db.create_job(job_id, query)
     if body.workspace_id:
@@ -531,7 +543,7 @@ def start_collection(body: CollectRequest):
 
 
 @jobs_router.get("/jobs")
-def list_jobs(status: Optional[str] = None):
+def list_jobs(status: Optional[str] = None, ctx: WorkspaceCtx = Depends(current_workspace)):
     db = _get_db()
     jobs = db.get_jobs(status=_clean(status))
     db.close()
@@ -539,7 +551,7 @@ def list_jobs(status: Optional[str] = None):
 
 
 @jobs_router.get("/jobs/{job_id}")
-def get_job_detail(job_id: str):
+def get_job_detail(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get a single job with all its pipeline stages."""
     db = _get_db()
     job = db.get_job_detail(job_id)
@@ -556,7 +568,7 @@ def get_job_detail(job_id: str):
 
 
 @jobs_router.get("/jobs/{job_id}/stages")
-def get_job_stages(job_id: str):
+def get_job_stages(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get pipeline stages for a job."""
     db = _get_db()
     stages = db.get_job_stages(job_id)
@@ -570,7 +582,7 @@ def get_job_stages(job_id: str):
 
 
 @jobs_router.get("/jobs/{job_id}/leads")
-def get_job_leads(job_id: str):
+def get_job_leads(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get leads produced by a specific job."""
     db = _get_db()
     leads = db.get_job_leads(job_id)
@@ -579,7 +591,7 @@ def get_job_leads(job_id: str):
 
 
 @jobs_router.post("/jobs/{job_id}/cancel")
-def cancel_job(job_id: str):
+def cancel_job(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Cancel a running or pending job."""
     db = _get_db()
     db.cancel_job(job_id)
@@ -588,7 +600,7 @@ def cancel_job(job_id: str):
 
 
 @jobs_router.delete("/jobs/{job_id}")
-def delete_job(job_id: str, keep_leads: bool = False):
+def delete_job(job_id: str, keep_leads: bool = False, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Delete a job and its data. If keep_leads=true, keeps the leads."""
     db = _get_db()
     db.delete_job(job_id, keep_leads=keep_leads)
@@ -597,7 +609,7 @@ def delete_job(job_id: str, keep_leads: bool = False):
 
 
 @jobs_router.post("/jobs/{job_id}/retry")
-def retry_job(job_id: str):
+def retry_job(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Reset a failed/cancelled job to pending for re-processing."""
     db = _get_db()
     db.retry_job(job_id)
@@ -606,7 +618,7 @@ def retry_job(job_id: str):
 
 
 @jobs_router.get("/system-stats")
-def system_stats():
+def system_stats(ctx: WorkspaceCtx = Depends(current_workspace)):
     from apps.api.services.leadgen.proxy_pool import ProxyPool
     from apps.api.services.leadgen.rate_limiter import RateLimiter
 
@@ -631,7 +643,7 @@ def system_stats():
 
 
 @workspace_router.get("")
-def list_workspaces():
+def list_workspaces(ctx: WorkspaceCtx = Depends(current_workspace)):
     db = _get_db()
     workspaces = db.get_workspaces()
     db.close()
@@ -644,7 +656,7 @@ class CreateWorkspaceRequest(BaseModel):
 
 
 @workspace_router.post("")
-def create_workspace(body: CreateWorkspaceRequest):
+def create_workspace(body: CreateWorkspaceRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
     name = body.name.strip()
     if not name:
         raise HTTPException(status_code=400, detail="name is required")
@@ -655,7 +667,7 @@ def create_workspace(body: CreateWorkspaceRequest):
 
 
 @workspace_router.delete("/{ws_id}")
-def delete_workspace(ws_id: str):
+def delete_workspace(ws_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     db = _get_db()
     db.delete_workspace(ws_id)
     db.close()
@@ -665,8 +677,38 @@ def delete_workspace(ws_id: str):
 # ── SSE Events ─────────────────────────────────────────────────
 
 
+def _authenticate_query_token(token: Optional[str]):
+    """Authenticate an SSE/WS request whose token rides in the query string
+    (EventSource/WebSocket cannot send an Authorization header). Returns the
+    User on success; raises 401 otherwise."""
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing token")
+    from jose import jwt, JWTError
+    from apps.api.core.config import settings as _settings
+    from apps.api.database import SessionLocal
+    from apps.api.models import User as _User
+
+    try:
+        payload = jwt.decode(token, _settings.SECRET_KEY, algorithms=[_settings.ALGORITHM])
+        username = payload.get("sub")
+        if not username:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    _db = SessionLocal()
+    try:
+        user = _db.query(_User).filter(_User.username == username).first()
+        if not user or not user.is_active:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return user
+    finally:
+        _db.close()
+
+
 @events_router.get("/api/events")
-def sse_events():
+def sse_events(token: Optional[str] = Query(default=None)):
+    _authenticate_query_token(token)
     from apps.api.services.leadgen.progress import progress
 
     def stream():
@@ -689,7 +731,7 @@ def sse_events():
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 
-# ── Public Search & Scraper (no auth) ─────────────────────────
+# ── Search & Scraper (authenticated) ─────────────────────────
 
 @search_router.get("/v2/search/unified")
 async def public_unified_search(
@@ -698,8 +740,9 @@ async def public_unified_search(
     limit: int = 20,
     sort: str = "relevance",
     file_type: str = "",
+    ctx: WorkspaceCtx = Depends(current_workspace),
 ):
-    """Public endpoint — unified multi-source document search."""
+    """Unified multi-source document search (auth required)."""
     if not q:
         return {"query": "", "total": 0, "results": []}
     from apps.api.sources.registry import SourceRegistry
@@ -725,8 +768,8 @@ async def public_unified_search(
 
 
 @search_router.post("/v2/scraper/scrape")
-async def public_scrape(body: dict):
-    """Public endpoint — scrape a single URL."""
+async def public_scrape(body: dict, ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Scrape a single URL (auth required). NOTE: SSRF allowlist still TODO."""
     url = body.get("url", "").strip()
     if not url:
         raise HTTPException(status_code=400, detail="url is required")
@@ -742,11 +785,11 @@ async def public_scrape(body: dict):
 # ── Deduplication ─────────────────────────────────────────────────────────
 
 @router.post("/leads/dedup")
-def run_dedup(threshold: float = Query(0.85, ge=0.5, le=1.0)):
+def run_dedup(threshold: float = Query(0.85, ge=0.5, le=1.0), ctx: WorkspaceCtx = Depends(current_workspace)):
     """Analyze leads for duplicates using fuzzy matching."""
     from apps.api.services.dedup import LeadDeduplicator
 
-    db = LeadDB()
+    db = ctx.lead_db()
     leads = db.get_all()  # Returns list of dicts
     if not leads:
         return {"stats": {"total_leads": 0, "duplicates_found": 0}, "pairs": [], "clusters": {}}
@@ -757,7 +800,7 @@ def run_dedup(threshold: float = Query(0.85, ge=0.5, le=1.0)):
 
 
 @router.post("/leads/dedup/merge")
-def merge_duplicates(body: dict):
+def merge_duplicates(body: dict, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Merge duplicate leads — keep master, delete duplicates."""
     from apps.api.services.dedup import LeadDeduplicator
 
@@ -766,7 +809,7 @@ def merge_duplicates(body: dict):
     if not master_id or not duplicate_ids:
         raise HTTPException(400, "master_id and duplicate_ids required")
 
-    db = LeadDB()
+    db = ctx.lead_db()
     master = db.get(master_id)
     if not master:
         raise HTTPException(404, f"Master lead {master_id} not found")
@@ -805,6 +848,7 @@ def import_data_collector(
     module: str = Query("all", description="Module to import: cnpj, github, or all"),
     limit: Optional[int] = Query(None, description="Max leads to import (for testing)"),
     reset: bool = Query(False, description="Reset checkpoint to start from scratch"),
+    ctx: WorkspaceCtx = Depends(current_workspace),
 ):
     """Import leads from the Brazil data_collector submodule.
 
@@ -840,7 +884,7 @@ def import_data_collector(
 
 
 @router.get("/leads/import/data-collector/status")
-def import_data_collector_status():
+def import_data_collector_status(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Check the current checkpoint status of the data_collector import."""
     from apps.api.services.leadgen.scrapers.data_collector_import import (
         _load_checkpoint, CNPJ_CSV,
@@ -863,7 +907,7 @@ def import_data_collector_status():
 # ── Domain Intelligence ───────────────────────────────────────────────────
 
 @router.post("/leads/domain-intel")
-async def domain_intelligence(body: dict):
+async def domain_intelligence(body: dict, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Analyze a domain — RDAP registration, DNS, hosting, email provider, legitimacy score."""
     domain = body.get("domain", "").strip()
     if not domain:
