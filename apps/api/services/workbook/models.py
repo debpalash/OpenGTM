@@ -228,6 +228,12 @@ class WorkbookRow(Base):
     # Optional link back to leads DB (for CRM sync, dedup)
     lead_id = Column(Integer, nullable=True, index=True)
 
+    # ── Pillar 1: canonical entity binding ──
+    # The resolved company this row represents (cross-source dedup target).
+    canonical_entity_id = Column(String, nullable=True, index=True)
+    # Distinct sources that have corroborated this entity (trust signal).
+    corroboration_count = Column(Integer, default=1)
+
     # Timestamps
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

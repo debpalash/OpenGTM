@@ -152,6 +152,18 @@ def check_and_migrate_db():
                     conn.execute(text("ALTER TABLE workbooks ADD COLUMN sync_to_leads BOOLEAN DEFAULT 1"))
                     conn.commit()
 
+            # WorkbookRow — Pillar 1: canonical entity binding
+            if "workbook_rows" in inspector.get_table_names():
+                wr_columns = [c["name"] for c in inspector.get_columns("workbook_rows")]
+                if "canonical_entity_id" not in wr_columns:
+                    print("Migrating workbook_rows: adding canonical_entity_id...")
+                    conn.execute(text("ALTER TABLE workbook_rows ADD COLUMN canonical_entity_id VARCHAR"))
+                    conn.commit()
+                if "corroboration_count" not in wr_columns:
+                    print("Migrating workbook_rows: adding corroboration_count...")
+                    conn.execute(text("ALTER TABLE workbook_rows ADD COLUMN corroboration_count INTEGER DEFAULT 1"))
+                    conn.commit()
+
         print("✓ Database migration completed successfully")
 
     except Exception as e:

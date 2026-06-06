@@ -20,6 +20,7 @@ from apps.api.routers.leads import router as leads_router, workspace_router, job
 from apps.api.routers.copilotkit import router as copilotkit_router
 from apps.api.routers.campaigns import router as campaigns_router
 from apps.api.routers.workbooks import router as workbooks_router
+from apps.api.routers.entities import router as entities_router
 from apps.api.services.queue_service import queue_service
 from apps.api.workers.download import handle_download_link
 
@@ -35,6 +36,8 @@ check_and_migrate_db()
 
 # Import all models so Base.metadata knows about them
 from apps.api.services.workbook.models import Workbook, WorkbookEnrichment, WorkbookRow  # noqa: E402
+# Pillar 1: canonical entity graph tables
+from apps.api.services.entities import models as _entity_models  # noqa: E402,F401
 
 Base.metadata.create_all(bind=engine)
 
@@ -105,6 +108,7 @@ app.include_router(search_router)
 app.include_router(copilotkit_router)
 app.include_router(campaigns_router)
 app.include_router(workbooks_router)
+app.include_router(entities_router)
 
 # Include Routers — Outreach
 from apps.api.routers.outreach import router as outreach_router
