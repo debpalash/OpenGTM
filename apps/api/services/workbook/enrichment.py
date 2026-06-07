@@ -366,10 +366,27 @@ async def enrich_cell(
                     rate_limited=_planner.looks_rate_limited(result_error),
                 )
 
+    # ── Auto-verify email cells ───────────────────────────────────────
+    # When an email column produces a value, run the verify cascade and attach
+    # the 4-status result as cell metadata (badge in the UI). Best-effort: never
+    # fails the cell on a verify error. Opt out with col_config verify=False.
+    cell_metadata = None
+    _verify_target = col_config.get("target_field") or col_config.get("lead_field")
+    if (result_value and col_type in ("enrichment", "waterfall")
+            and _verify_target == "email" and col_config.get("verify", True)):
+        try:
+            from apps.api.services.leadgen.enrichment.email_verify_cascade import verify_email
+            vr = await verify_email(str(result_value))
+            cell_metadata = {"verify": {"status": vr.status, "confidence": vr.confidence,
+                                        "source": vr.source}}
+        except Exception as e:
+            logger.debug(f"email verify failed for {result_value}: {e}")
+
     # ── Write results ─────────────────────────────────────────────────
     if result_value:
         # Always store in enrichment overlay (value is already scalar/summary)
-        _set_enrichment(db, workbook_id, lead_id, col_id, result_value, "complete", provider=result_provider)
+        _set_enrichment(db, workbook_id, lead_id, col_id, result_value, "complete",
+                        provider=result_provider, metadata=cell_metadata)
     else:
         _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error=result_error or "no_data")
 
@@ -398,6 +415,7 @@ async def enrich_cell(
 def _set_enrichment(
     db: Session, workbook_id: str, lead_id: int, column_id: str,
     value: Any, status: str, provider: str = None, error: str = None,
+    metadata: dict = None,
 ):
     """Upsert a WorkbookEnrichment record.
 
@@ -429,6 +447,8 @@ def _set_enrichment(
         existing.status = status
         existing.provider = provider
         existing.error = error
+        if metadata is not None:
+            existing.cell_metadata = metadata
     else:
         db.add(WorkbookEnrichment(
             workbook_id=workbook_id,
@@ -438,7 +458,33 @@ def _set_enrichment(
             status=status,
             provider=provider,
             error=error,
+            cell_metadata=metadata,
         ))
+
+    # Mirror into the v2 WorkbookRow.enrichments JSON so the value (and verify
+    # badge) survive a page reload — the rows endpoint reads that JSON, not the
+    # WorkbookEnrichment table. (Without this, enriched cells only showed live
+    # via WebSocket and vanished on refresh.)
+    try:
+        from sqlalchemy.orm.attributes import flag_modified
+        wr = db.query(WorkbookRow).filter(
+            WorkbookRow.workbook_id == workbook_id, WorkbookRow.lead_id == lead_id
+        ).first()
+        if wr is None:
+            wr = db.query(WorkbookRow).filter(
+                WorkbookRow.workbook_id == workbook_id, WorkbookRow.id == lead_id
+            ).first()
+        if wr is not None:
+            overlay = dict(wr.enrichments or {})
+            cell = {"value": value, "status": status, "provider": provider, "error": error}
+            vstatus = (metadata or {}).get("verify", {}).get("status") if metadata else None
+            if vstatus:
+                cell["verify_status"] = vstatus
+            overlay[column_id] = cell
+            wr.enrichments = overlay
+            flag_modified(wr, "enrichments")
+    except Exception as e:
+        logger.debug(f"row enrichments mirror failed: {e}")
     # Note: caller is responsible for db.commit()
 
 

@@ -195,6 +195,11 @@ def check_and_migrate_db():
             # any pre-existing duplicates (stale "running" rows from concurrent
             # runs/retries) then add the unique index. Guarded so it runs once.
             if "workbook_enrichments" in inspector.get_table_names():
+                we_columns = [c["name"] for c in inspector.get_columns("workbook_enrichments")]
+                if "cell_metadata" not in we_columns:
+                    print("Migrating workbook_enrichments: adding cell_metadata (verify status)...")
+                    conn.execute(text("ALTER TABLE workbook_enrichments ADD COLUMN cell_metadata JSON"))
+                    conn.commit()
                 has_uq = conn.execute(text(
                     "SELECT 1 FROM sqlite_master WHERE type='index' AND name='uq_enrichment_cell'"
                 )).fetchone()

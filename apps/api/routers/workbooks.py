@@ -461,9 +461,12 @@ async def get_workbook(
     for e in enrichments:
         if e.lead_id not in enrich_map:
             enrich_map[e.lead_id] = {}
+        vstatus = None
+        if isinstance(e.cell_metadata, dict):
+            vstatus = (e.cell_metadata.get("verify") or {}).get("status")
         enrich_map[e.lead_id][e.column_id] = EnrichmentOverlay(
             value=e.value, status=e.status or "pending",
-            provider=e.provider, error=e.error,
+            provider=e.provider, error=e.error, verify_status=vstatus,
         )
 
     rows = []
