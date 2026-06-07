@@ -41,6 +41,13 @@ class ColumnConfig(BaseModel):
     destination: Optional[str] = Field(None, description="Output destination type: webhook, crm, sequencer")
     destination_config: Optional[dict] = Field(None, description="Config for the output destination")
 
+    # HTTP action column config (type='http')
+    http_url: Optional[str] = Field(None, description="URL template with {column} placeholders")
+    http_method: Optional[str] = Field(None, description="GET | POST | PUT | PATCH (default GET)")
+    http_headers: Optional[dict] = Field(None, description="Request headers (values are {column} templates)")
+    http_body: Optional[Any] = Field(None, description="Request body template (dict/str) for POST/PUT")
+    http_extract: Optional[str] = Field(None, description="JSONPath-lite expr for the cell value, e.g. $.data.email")
+
 
 # ── Filter Criteria ───────────────────────────────────────────────────────
 
