@@ -69,6 +69,12 @@ def _init_providers():
         logger.warning(f"Failed to register facebook_pages: {e}")
 
     try:
+        from apps.api.services.leadgen.enrichment.providers.ats_hiring import AtsHiringProvider
+        register_provider(AtsHiringProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register ats_hiring: {e}")
+
+    try:
         from apps.api.services.leadgen.enrichment.providers.jobspy_signals import JobSpySignalProvider
         register_provider(JobSpySignalProvider())
     except Exception as e:
