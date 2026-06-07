@@ -200,6 +200,7 @@ class AddColumnRequest(BaseModel):
 class AddRowsRequest(BaseModel):
     """Add rows to a workbook."""
     rows: list[dict] = Field(..., min_length=1, description="List of row data dicts")
+    dedupe: bool = Field(True, description="Skip rows whose identity (domain/company) already exists or repeats")
 
 
 class DeleteRowsRequest(BaseModel):
