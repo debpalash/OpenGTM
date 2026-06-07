@@ -953,8 +953,38 @@ async def add_rows(
         WorkbookRow.workbook_id == workbook_id
     ).scalar() or 0
 
+    incoming = body.rows
+    skipped = 0
+    if body.dedupe:
+        from apps.api.services.leadgen.dedup import normalize_domain, normalize_company
+
+        def _identity(d: dict) -> str:
+            dom = normalize_domain(d.get("website") or d.get("domain") or "")
+            if dom:
+                return f"d:{dom}"
+            comp = normalize_company(d.get("company") or "")
+            return f"n:{comp}" if comp else ""
+
+        # identities already present in the workbook
+        seen = set()
+        for (data,) in db.query(WorkbookRow.data).filter(WorkbookRow.workbook_id == workbook_id):
+            ident = _identity(data or {})
+            if ident:
+                seen.add(ident)
+
+        deduped = []
+        for row in incoming:
+            ident = _identity(row)
+            if ident and ident in seen:
+                skipped += 1
+                continue
+            if ident:
+                seen.add(ident)
+            deduped.append(row)
+        incoming = deduped
+
     added = 0
-    for i, row_data in enumerate(body.rows):
+    for i, row_data in enumerate(incoming):
         db.add(WorkbookRow(
             workbook_id=workbook_id,
             position=max_pos + i + 1,
@@ -964,7 +994,7 @@ async def add_rows(
         ))
         added += 1
     db.commit()
-    return {"added": added, "total_rows": max_pos + added + 1}
+    return {"added": added, "skipped_duplicates": skipped, "total_rows": max_pos + added + 1}
 
 
 @router.delete("/{workbook_id}/rows")
