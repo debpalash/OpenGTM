@@ -232,6 +232,7 @@ class WorkbookEnrichment(Base):
     status = Column(String(50), default="pending")  # pending, running, complete, error, skipped
     provider = Column(String(100), nullable=True)  # Which provider/model produced this
     error = Column(Text, nullable=True)  # Error message if status=error
+    cell_metadata = Column(JSON, nullable=True)  # Extra per-cell info: {verify:{status,confidence,source}, ...}
 
     # Timestamps
     created_at = Column(DateTime, server_default=func.now())

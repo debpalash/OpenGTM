@@ -131,6 +131,8 @@ class EnrichmentOverlay(BaseModel):
     status: str = "pending"
     provider: Optional[str] = None
     error: Optional[str] = None
+    # 4-status email verification: "valid" | "invalid" | "catch_all" | "unknown"
+    verify_status: Optional[str] = None
 
 
 class WorkbookLeadRow(BaseModel):
