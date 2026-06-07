@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 from apps.api.services.leadgen.models import Lead
+from apps.api.services.leadgen.enrichment.validate import validate_field
 
 logger = logging.getLogger("leadgen.waterfall")
 
@@ -120,6 +121,11 @@ class WaterfallEnricher:
         result = await waterfall.enrich(lead)
     """
 
+    # Stop the chain as soon as a result clears this confidence (we trust it
+    # enough to not spend more providers). Ported from masteranime/enrichment-kit
+    # (earlyExitOnConfidence). Below this, we keep going and remember best-of-N.
+    EARLY_EXIT_CONFIDENCE: float = 0.85
+
     def __init__(self):
         self._chains: Dict[str, List[EnrichmentProvider]] = {}
         self._timeout: float = 15.0  # per-provider timeout in seconds
@@ -138,8 +144,21 @@ class WaterfallEnricher:
         results: Dict[str, Any] = {}
         logs: List[WaterfallLog] = []
 
+        # company domain (for the email accept-gate) — best-effort from the lead
+        company_domain = None
+        for attr in ("website", "domain", "company_domain"):
+            v = getattr(lead, attr, None)
+            if v:
+                company_domain = v
+                break
+
         for field_name, providers in self._chains.items():
             log = WaterfallLog(field_name=field_name)
+            # Best-of-N: keep the highest-confidence VALID result seen so far,
+            # short-circuit when one clears EARLY_EXIT_CONFIDENCE. (Was: accept
+            # and break on the first non-empty value, ignoring confidence/quality.)
+            best_value = None
+            best_conf = -1.0
 
             for provider in providers:
                 attempt = {"provider": provider.name, "success": False}
@@ -151,16 +170,28 @@ class WaterfallEnricher:
                     attempt["duration_ms"] = result.duration_ms
 
                     if result.has_value(field_name):
+                        value = result.get(field_name)
+                        # Accept-gate: reject role/placeholder/sentinel/mismatch
+                        # values so we don't store or stop on garbage.
+                        if not validate_field(field_name, value, company_domain=company_domain):
+                            attempt["error"] = "rejected_invalid"
+                            log.attempts.append(attempt)
+                            continue
+
+                        conf = result.confidence or provider.default_confidence
                         attempt["success"] = True
-                        attempt["confidence"] = result.confidence or provider.default_confidence
-
-                        log.winner = provider.name
-                        log.final_value = result.get(field_name)
-                        log.final_confidence = attempt["confidence"]
-
-                        results[field_name] = log.final_value
+                        attempt["confidence"] = conf
                         log.attempts.append(attempt)
-                        break  # Stop at first success
+
+                        if conf > best_conf:
+                            best_value, best_conf = value, conf
+                            log.winner = provider.name
+                            log.final_value = value
+                            log.final_confidence = conf
+
+                        if conf >= self.EARLY_EXIT_CONFIDENCE:
+                            break  # confident enough — stop spending providers
+                        continue
                     else:
                         attempt["error"] = result.error or "no_data"
 
@@ -170,6 +201,9 @@ class WaterfallEnricher:
                     attempt["error"] = str(e)[:100]
 
                 log.attempts.append(attempt)
+
+            if best_value is not None:
+                results[field_name] = best_value
 
             logs.append(log)
 
