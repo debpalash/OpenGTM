@@ -87,6 +87,12 @@ COLUMN_TYPES = {
         "editable": False,
         "has_config": True,  # http_url, http_method, http_headers, http_body, http_extract
     },
+    "formula": {
+        "description": "Compute a value from other columns with a safe expression (e.g. {Email}.split(\"@\")[1])",
+        "icon": "Calculator",
+        "editable": False,
+        "has_config": True,  # formula
+    },
 }
 
 # ── Constants ─────────────────────────────────────────────────────────────
