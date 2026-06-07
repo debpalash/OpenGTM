@@ -1160,6 +1160,14 @@ async def get_providers(ctx: WorkspaceCtx = Depends(current_workspace)):
     ]}
 
 
+@router.get("/meta/ai-column-presets")
+async def get_ai_column_presets(category: Optional[str] = None, ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Ready-to-ship AI-column prompt presets (qualification / personalization /
+    research) the UI can offer when adding an AI column."""
+    from apps.api.services.workbook.ai_column_presets import list_presets, categories
+    return {"presets": list_presets(category), "categories": categories()}
+
+
 @router.get("/meta/filter-options")
 async def get_filter_options(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get available filter values from the leads DB."""
