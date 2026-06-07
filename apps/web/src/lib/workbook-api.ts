@@ -16,6 +16,7 @@ export interface EnrichmentOverlay {
   status: "pending" | "running" | "complete" | "error" | "skipped"
   provider?: string | null
   error?: string | null
+  verify_status?: "valid" | "invalid" | "catch_all" | "unknown" | null
 }
 
 export interface ColumnConfig {
