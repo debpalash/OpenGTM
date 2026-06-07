@@ -12,6 +12,18 @@ from apps.api.models import Job
 
 logger = logging.getLogger(__name__)
 
+# Per-job-type wall-clock ceiling. The worker runs jobs sequentially, so a
+# handler that hangs would block the queue; on timeout we fail the job and move
+# on. run_workbook can be a large LLM run, so it gets the most headroom.
+DEFAULT_JOB_TIMEOUT = 600  # seconds
+JOB_TIMEOUTS = {
+    "run_workbook": 1800,
+    "source_workbook": 900,
+    "refresh_workbook": 900,
+    "signal_scan": 300,
+    "download_link": 600,
+}
+
 
 class QueueService:
     def __init__(self):
@@ -143,9 +155,23 @@ class QueueService:
                 # routes like /docs). Each handler is self-contained — it creates its
                 # own DB sessions (check_same_thread=False) and clients from the
                 # payload — so running it off-loop in a worker thread is safe.
-                await asyncio.to_thread(lambda: asyncio.run(handler(job_id, payload)))
+                #
+                # Bound it with a timeout: the worker processes jobs sequentially,
+                # so a handler that hangs (e.g. a JobSpy scan that never returns)
+                # would otherwise block the whole queue. On timeout we move on; the
+                # orphaned thread is daemonic and will not keep the process alive.
+                timeout = JOB_TIMEOUTS.get(job_type, DEFAULT_JOB_TIMEOUT)
+                await asyncio.wait_for(
+                    asyncio.to_thread(lambda: asyncio.run(handler(job_id, payload))),
+                    timeout=timeout,
+                )
             else:
                 raise Exception(f"No handler for job type {job_type}")
+
+        except asyncio.TimeoutError:
+            logger.error(f"Job {job_id} ({job_type}) timed out after {JOB_TIMEOUTS.get(job_type, DEFAULT_JOB_TIMEOUT)}s")
+            error = "job timed out"
+            status = "failed"
 
         except Exception as e:
             logger.error(f"Job {job_id} failed: {e}")
