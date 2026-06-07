@@ -225,6 +225,14 @@ async def enrich_cell(
         result_provider = agent_result.get("provider") or "agent"
         result_error = agent_result.get("error")
 
+    elif col_type == "http":
+        # HTTP action column — call an arbitrary API per row, extract via JSONPath.
+        from apps.api.services.workbook.http_column import execute_http_column
+        http_result = await execute_http_column(col_config, lead_data, columns_config)
+        result_value = http_result.get("value")
+        result_provider = "http"
+        result_error = http_result.get("error")
+
     else:
         # Enrichment/Waterfall → provider chain
         lead = _lead_dict_to_lead(lead_data)
@@ -494,7 +502,7 @@ async def enrich_workbook_leads(
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 DEFAULT_CONCURRENCY = int(os.getenv("WORKBOOK_RUN_CONCURRENCY", "8"))
 
-ENRICHMENT_COL_TYPES = ("enrichment", "waterfall", "ai_formula", "agent")
+ENRICHMENT_COL_TYPES = ("enrichment", "waterfall", "ai_formula", "agent", "http")
 
 
 def _make_redis():
