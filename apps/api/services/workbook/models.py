@@ -10,7 +10,8 @@ Architecture (v2 — Clay-inspired):
 """
 
 from sqlalchemy import (
-    Column, String, Integer, Text, DateTime, ForeignKey, JSON, Float, Boolean
+    Column, String, Integer, Text, DateTime, ForeignKey, JSON, Float, Boolean,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -202,6 +203,12 @@ class WorkbookEnrichment(Base):
     AI columns, custom formulas, etc. store results here.
     """
     __tablename__ = "workbook_enrichments"
+    # One enrichment row per (workbook, lead, column). Without this, concurrent
+    # run batches / retries could insert duplicates, leaving stale "running"
+    # rows that make a finished run look stuck.
+    __table_args__ = (
+        UniqueConstraint("workbook_id", "lead_id", "column_id", name="uq_enrichment_cell"),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     workbook_id = Column(String, ForeignKey("workbooks.id", ondelete="CASCADE"), nullable=False, index=True)
