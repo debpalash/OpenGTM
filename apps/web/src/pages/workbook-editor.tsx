@@ -25,7 +25,7 @@ import {
   Loader2, Check, X, AlertCircle, Clock, MoreHorizontal,
   FileSpreadsheet, ExternalLink, Filter, Search, Trash2, Copy,
   ArrowUpDown, ArrowUp, ArrowDown, EyeOff, Eye, Pencil, Settings, GripVertical,
-  ChevronDown, ChevronUp, ChevronRight, Zap, Columns3,
+  ChevronDown, ChevronUp, ChevronRight, Zap, Columns3, Webhook, Calculator,
 } from "lucide-react"
 import { ActivityDrawer, useActivityStats } from "@/components/activity-drawer"
 import { SourceEnginePanel } from "@/components/source-engine-panel"
@@ -51,6 +51,8 @@ const COL_TYPE_META: Record<string, { icon: typeof Type; color: string; label: s
   conditional: { icon: GitBranch, color: "text-emerald-400", label: "Conditional", headerBg: "bg-emerald-500/5" },
   output: { icon: Send, color: "text-rose-400", label: "Output", headerBg: "bg-rose-500/5" },
   research: { icon: Globe, color: "text-cyan-400", label: "Research", headerBg: "bg-cyan-500/5" },
+  http: { icon: Webhook, color: "text-teal-400", label: "HTTP API", headerBg: "bg-teal-500/5" },
+  formula: { icon: Calculator, color: "text-orange-400", label: "Formula", headerBg: "bg-orange-500/5" },
 }
 
 // Fields that get type-aware rendering (module-level constant)
@@ -305,7 +307,12 @@ export default function WorkbookEditorPage() {
   const [showSourcePanel, setShowSourcePanel] = useState(false)
   const [showColPicker, setShowColPicker] = useState(false)
   const [newColName, setNewColName] = useState("")
-  const [newColType, setNewColType] = useState<"lead_field" | "ai_formula" | "waterfall" | "enrichment" | "output" | "research">("lead_field")
+  const [newColType, setNewColType] = useState<"lead_field" | "ai_formula" | "waterfall" | "enrichment" | "output" | "research" | "http" | "formula">("lead_field")
+  const [newColHttpUrl, setNewColHttpUrl] = useState("")
+  const [newColHttpMethod, setNewColHttpMethod] = useState<"GET" | "POST">("GET")
+  const [newColHttpExtract, setNewColHttpExtract] = useState("")
+  const [newColHttpBody, setNewColHttpBody] = useState("")
+  const [newColFormula, setNewColFormula] = useState("")
   const [newColLeadField, setNewColLeadField] = useState("")
   const [newColPrompt, setNewColPrompt] = useState("")
   const [newColCondition, setNewColCondition] = useState("")
@@ -1118,7 +1125,7 @@ export default function WorkbookEditorPage() {
                       />
 
                       <div className="grid grid-cols-2 gap-1">
-                        {(["lead_field", "enrichment", "waterfall", "ai_formula", "research", "output"] as const).map(t => {
+                        {(["lead_field", "enrichment", "waterfall", "ai_formula", "research", "formula", "http", "output"] as const).map(t => {
                           const m = COL_TYPE_META[t]
                           const Icon = m.icon
                           return (
@@ -1162,6 +1169,39 @@ export default function WorkbookEditorPage() {
                               className="w-14 px-1.5 py-0.5 rounded border bg-background text-xs text-right" />
                           </label>
                           <p className="px-0.5 text-[10px] text-muted-foreground">Agent searches the web + reads pages to answer per row. Higher steps = deeper but slower/costlier.</p>
+                        </div>
+                      )}
+
+                      {newColType === "formula" && (
+                        <div className="space-y-1">
+                          <input value={newColFormula} onChange={e => setNewColFormula(e.target.value)}
+                            placeholder={'{Email}.split("@")[1]'}
+                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
+                          <p className="px-0.5 text-[10px] text-muted-foreground">Compute from other columns. Supports split/upper/lower/replace/default()/concat + math. Safe — no code execution.</p>
+                        </div>
+                      )}
+
+                      {newColType === "http" && (
+                        <div className="space-y-1">
+                          <div className="flex gap-1">
+                            <select value={newColHttpMethod} onChange={e => setNewColHttpMethod(e.target.value as any)}
+                              className="px-2 py-1.5 rounded-md border bg-background text-xs">
+                              <option value="GET">GET</option>
+                              <option value="POST">POST</option>
+                            </select>
+                            <input value={newColHttpUrl} onChange={e => setNewColHttpUrl(e.target.value)}
+                              placeholder="https://api.example.com/find?domain={website}"
+                              className="flex-1 px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
+                          </div>
+                          {newColHttpMethod === "POST" && (
+                            <textarea value={newColHttpBody} onChange={e => setNewColHttpBody(e.target.value)}
+                              placeholder='JSON body, e.g. {"company": "{company}"}'
+                              rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono resize-none" />
+                          )}
+                          <input value={newColHttpExtract} onChange={e => setNewColHttpExtract(e.target.value)}
+                            placeholder="Extract: $.data.email (JSONPath; blank = raw text)"
+                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
+                          <p className="px-0.5 text-[10px] text-muted-foreground">Calls an API per row. {'{column}'} placeholders resolve to row values. URLs are SSRF-guarded.</p>
                         </div>
                       )}
 
@@ -1290,6 +1330,15 @@ export default function WorkbookEditorPage() {
                               newCol.max_steps = newColMaxSteps
                               newCol.width = 320
                             }
+                            if (newColType === "formula" && newColFormula.trim()) newCol.formula = newColFormula.trim()
+                            if (newColType === "http" && newColHttpUrl.trim()) {
+                              newCol.http_url = newColHttpUrl.trim()
+                              newCol.http_method = newColHttpMethod
+                              if (newColHttpExtract.trim()) newCol.http_extract = newColHttpExtract.trim()
+                              if (newColHttpMethod === "POST" && newColHttpBody.trim()) {
+                                try { newCol.http_body = JSON.parse(newColHttpBody) } catch { newCol.http_body = newColHttpBody }
+                              }
+                            }
                             if (newColType === "output") {
                               newCol.destination = newColDest
                               if (newColDest === "webhook") {
@@ -1311,6 +1360,7 @@ export default function WorkbookEditorPage() {
                             if (newColCondition.trim()) newCol.condition = newColCondition.trim()
                             updateWb.mutate({ id: workbook!.id, columns_config: [...columns, newCol] as any })
                             setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition("")
+                            setNewColFormula(""); setNewColHttpUrl(""); setNewColHttpExtract(""); setNewColHttpBody("")
                             setNewColLeadField(""); setNewColType("lead_field"); setNewColProvider(""); setNewColWaterfall([]); setNewColTargetField("")
                             setNewColDest("webhook"); setNewColWebhookUrl(""); setNewColWebhookBody(""); setNewColSequenceId(""); setNewColMaxSteps(4)
                             setNewColCrmType("hubspot"); setNewColAirtableBase(""); setNewColAirtableTable(""); setNewColSheetId(""); setNewColSheetRange("Sheet1")
