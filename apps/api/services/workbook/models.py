@@ -81,6 +81,12 @@ COLUMN_TYPES = {
         "editable": False,
         "has_config": True,
     },
+    "http": {
+        "description": "Call any HTTP API per row and extract a value via JSONPath",
+        "icon": "Webhook",
+        "editable": False,
+        "has_config": True,  # http_url, http_method, http_headers, http_body, http_extract
+    },
 }
 
 # ── Constants ─────────────────────────────────────────────────────────────
