@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from apps.api.services.leadgen.models import Lead
 from apps.api.services.leadgen.enrichment.validate import validate_field
+from apps.api.services.leadgen.enrichment.cache import canonical_key, get_cache
 
 logger = logging.getLogger("leadgen.waterfall")
 
@@ -126,9 +127,10 @@ class WaterfallEnricher:
     # (earlyExitOnConfidence). Below this, we keep going and remember best-of-N.
     EARLY_EXIT_CONFIDENCE: float = 0.85
 
-    def __init__(self):
+    def __init__(self, cache_enabled: bool = True):
         self._chains: Dict[str, List[EnrichmentProvider]] = {}
         self._timeout: float = 15.0  # per-provider timeout in seconds
+        self._cache_enabled = cache_enabled
 
     def register_chain(self, field_name: str, providers: List[EnrichmentProvider]):
         """Register a chain of providers for a specific field."""
@@ -154,11 +156,29 @@ class WaterfallEnricher:
 
         for field_name, providers in self._chains.items():
             log = WaterfallLog(field_name=field_name)
+
+            # ── Cross-provider cache: if a prior run (this lead or any lead with
+            # the same identity) already found this field, reuse it and spend
+            # zero providers. Keyed by identity, not provider. ──
+            ck = canonical_key(field_name, lead) if self._cache_enabled else None
+            if ck:
+                hit = get_cache().get(ck, field_name)
+                if hit and validate_field(field_name, hit["value"], company_domain=company_domain):
+                    log.winner = f"cache:{hit.get('provider') or '?'}"
+                    log.final_value = hit["value"]
+                    log.final_confidence = hit["confidence"]
+                    log.attempts.append({"provider": "cache", "success": True,
+                                         "confidence": hit["confidence"]})
+                    results[field_name] = hit["value"]
+                    logs.append(log)
+                    continue
+
             # Best-of-N: keep the highest-confidence VALID result seen so far,
             # short-circuit when one clears EARLY_EXIT_CONFIDENCE. (Was: accept
             # and break on the first non-empty value, ignoring confidence/quality.)
             best_value = None
             best_conf = -1.0
+            best_provider = ""
 
             for provider in providers:
                 attempt = {"provider": provider.name, "success": False}
@@ -185,6 +205,7 @@ class WaterfallEnricher:
 
                         if conf > best_conf:
                             best_value, best_conf = value, conf
+                            best_provider = provider.name
                             log.winner = provider.name
                             log.final_value = value
                             log.final_confidence = conf
@@ -204,6 +225,13 @@ class WaterfallEnricher:
 
             if best_value is not None:
                 results[field_name] = best_value
+                # Cache the winner under the identity key for future runs.
+                if ck:
+                    try:
+                        get_cache().set(ck, field_name, best_value,
+                                        confidence=best_conf, provider=best_provider)
+                    except Exception as e:
+                        logger.debug(f"cache set failed for {field_name}: {e}")
 
             logs.append(log)
 
