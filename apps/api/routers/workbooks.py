@@ -694,7 +694,7 @@ async def run_workbook(
     columns = wb.columns_config or []
     enrichment_cols = [
         c for c in columns
-        if c.get("type") in ("enrichment", "waterfall", "ai_formula", "output", "research", "agent", "http")
+        if c.get("type") in ("enrichment", "waterfall", "ai_formula", "output", "research", "agent", "http", "formula")
         and (body.column_ids is None or c.get("id") in body.column_ids)
     ]
     # Output columns push the (enriched) row somewhere, so run them last.

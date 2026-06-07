@@ -48,6 +48,9 @@ class ColumnConfig(BaseModel):
     http_body: Optional[Any] = Field(None, description="Request body template (dict/str) for POST/PUT")
     http_extract: Optional[str] = Field(None, description="JSONPath-lite expr for the cell value, e.g. $.data.email")
 
+    # Formula action column config (type='formula')
+    formula: Optional[str] = Field(None, description="Safe expression over {column} refs, e.g. {Email}.split(\"@\")[1]")
+
 
 # ── Filter Criteria ───────────────────────────────────────────────────────
 

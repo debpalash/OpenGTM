@@ -233,6 +233,14 @@ async def enrich_cell(
         result_provider = "http"
         result_error = http_result.get("error")
 
+    elif col_type == "formula":
+        # Formula action column — safe-evaluated expression over row values.
+        from apps.api.services.workbook.formula_column import execute_formula_column
+        f_result = await execute_formula_column(col_config, lead_data, columns_config)
+        result_value = f_result.get("value")
+        result_provider = "formula"
+        result_error = f_result.get("error")
+
     else:
         # Enrichment/Waterfall → provider chain
         lead = _lead_dict_to_lead(lead_data)
@@ -502,7 +510,7 @@ async def enrich_workbook_leads(
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 DEFAULT_CONCURRENCY = int(os.getenv("WORKBOOK_RUN_CONCURRENCY", "8"))
 
-ENRICHMENT_COL_TYPES = ("enrichment", "waterfall", "ai_formula", "agent", "http")
+ENRICHMENT_COL_TYPES = ("enrichment", "waterfall", "ai_formula", "agent", "http", "formula")
 
 
 def _make_redis():

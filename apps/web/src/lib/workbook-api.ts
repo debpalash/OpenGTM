@@ -21,7 +21,7 @@ export interface EnrichmentOverlay {
 export interface ColumnConfig {
   id: string
   name: string
-  type: "lead_field" | "source" | "enrichment" | "waterfall" | "ai_formula" | "conditional" | "agent" | "output" | "http"
+  type: "lead_field" | "source" | "enrichment" | "waterfall" | "ai_formula" | "conditional" | "agent" | "output" | "http" | "formula"
   width: number
   lead_field?: string | null
   provider?: string | null
@@ -46,6 +46,8 @@ export interface ColumnConfig {
   http_headers?: Record<string, string> | null
   http_body?: any | null
   http_extract?: string | null
+  // Formula action column
+  formula?: string | null
 }
 
 export interface FilterCriteria {
