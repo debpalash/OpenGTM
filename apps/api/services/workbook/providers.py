@@ -235,6 +235,13 @@ def _init_providers():
     except Exception as e:
         logger.warning(f"Failed to register staffspy: {e}")
 
+    # ── Declarative (YAML-manifest) providers — add a provider as a manifest ──
+    try:
+        from apps.api.services.leadgen.enrichment.declarative.registry import register_declarative_manifests
+        register_declarative_manifests()
+    except Exception as e:
+        logger.warning(f"Failed to register declarative manifests: {e}")
+
     logger.info(f"Provider registry initialized: {len(_registry)} providers loaded")
 
 
