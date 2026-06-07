@@ -79,7 +79,8 @@ DEFAULT_WATERFALLS = {
     # Tech stack
     "technologies": ["tech_stack"],
     # Hiring signals
-    "hiring_signals": ["jobspy"],
+    # Free, reliable public ATS boards first; jobspy aggregator as fallback.
+    "hiring_signals": ["ats_hiring", "jobspy"],
     # Scoring
     "score": ["lead_scorer"],
 }
