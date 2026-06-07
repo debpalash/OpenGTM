@@ -32,6 +32,9 @@ export default function WorkbooksPage() {
   const deleteMutation = useDeleteWorkbook()
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState("")
+  const [sourceMode, setSourceMode] = useState<"empty" | "leads">("empty")
+  const [leadTier, setLeadTier] = useState("all")
+  const [maxRows, setMaxRows] = useState(500)
   const [showTemplates, setShowTemplates] = useState(false)
   const [templates, setTemplates] = useState<any[]>([])
   const [templateCategory, setTemplateCategory] = useState<string | null>(null)
@@ -62,10 +65,14 @@ export default function WorkbooksPage() {
 
   const handleCreate = async () => {
     if (!newName.trim()) return
+    const fromLeads = sourceMode === "leads"
     try {
       const wb = await createMutation.mutateAsync({
         name: newName.trim(),
         description: "",
+        source: fromLeads ? "leads_filter" : "empty",
+        filter_criteria: fromLeads && leadTier !== "all" ? { score_tier: leadTier } : undefined,
+        max_rows: fromLeads ? maxRows : undefined,
         columns_config: [
           { id: "company", name: "Company", type: "lead_field", width: 200, lead_field: "company" },
           { id: "website", name: "Website", type: "lead_field", width: 200, lead_field: "website" },
@@ -75,9 +82,10 @@ export default function WorkbooksPage() {
           { id: "score", name: "Score", type: "lead_field", width: 80, lead_field: "score" },
         ],
       })
-      toast.success("Workbook created")
+      toast.success(fromLeads ? `Workbook created from your leads` : "Workbook created")
       setShowCreate(false)
       setNewName("")
+      setSourceMode("empty")
       navigate(`/workbooks/${wb.id}`)
     } catch {
       toast.error("Failed to create workbook")
@@ -127,6 +135,54 @@ export default function WorkbooksPage() {
             placeholder="Workbook name..."
             className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
           />
+
+          {/* Source selector */}
+          <div className="space-y-2">
+            <div className="text-xs font-medium text-muted-foreground">Starting rows</div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setSourceMode("empty")}
+                className={`rounded-lg border px-3 py-2 text-left text-sm transition-colors ${sourceMode === "empty" ? "border-primary bg-primary/5 ring-1 ring-primary/30" : "hover:bg-muted"}`}
+              >
+                <div className="font-medium">Start empty</div>
+                <div className="text-xs text-muted-foreground">Add rows later</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSourceMode("leads")}
+                className={`rounded-lg border px-3 py-2 text-left text-sm transition-colors ${sourceMode === "leads" ? "border-primary bg-primary/5 ring-1 ring-primary/30" : "hover:bg-muted"}`}
+              >
+                <div className="font-medium">From my leads</div>
+                <div className="text-xs text-muted-foreground">Snapshot existing leads</div>
+              </button>
+            </div>
+            {sourceMode === "leads" && (
+              <div className="flex items-center gap-2 pt-1 animate-in fade-in duration-150">
+                <select
+                  value={leadTier}
+                  onChange={(e) => setLeadTier(e.target.value)}
+                  className="px-2 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                >
+                  <option value="all">All tiers</option>
+                  <option value="hot">🔥 Hot</option>
+                  <option value="warm">🟡 Warm</option>
+                  <option value="cold">🔵 Cold</option>
+                </select>
+                <span className="text-xs text-muted-foreground">top</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={5000}
+                  value={maxRows}
+                  onChange={(e) => setMaxRows(Math.max(1, Math.min(5000, Number(e.target.value) || 1)))}
+                  className="w-20 px-2 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+                <span className="text-xs text-muted-foreground">rows (by score)</span>
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => { setShowCreate(false); setNewName("") }}

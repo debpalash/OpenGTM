@@ -300,16 +300,18 @@ export default function LeadsPage() {
             </Button>
           </a>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 text-xs px-2 gap-1"
-                disabled={importBR.isPending}
-              >
-                <Upload className="size-3" />
-                🇧🇷
-              </Button>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs px-2 gap-1"
+                  disabled={importBR.isPending}
+                />
+              }
+            >
+              <Upload className="size-3" />
+              🇧🇷
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => {
