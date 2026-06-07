@@ -587,6 +587,30 @@ async def _run_one_cell(workbook_id, lead_data, col, columns_config, redis_clien
         return {"success": False, "error": str(e)[:200]}
 
 
+async def _run_one_row(workbook_id, lead, ordered_cols, columns_config, redis_client) -> dict:
+    """Run all columns for ONE row, sequentially in dependency order.
+
+    Each successful cell value is threaded back into a local copy of the row so
+    that a downstream column referencing {this_column} sees the produced value.
+    Returns {completed, errors}. Rows are run concurrently by the caller.
+    """
+    row = dict(lead)  # local, mutable: downstream cols read earlier results
+    completed = errors = 0
+    for col in ordered_cols:
+        res = await _run_one_cell(workbook_id, row, col, columns_config, redis_client)
+        if isinstance(res, dict) and res.get("success"):
+            completed += 1
+            val = res.get("value")
+            if val is not None:
+                # expose under both id and display name for {ref} resolution
+                row[col["id"]] = val
+                if col.get("name"):
+                    row[col["name"]] = val
+        else:
+            errors += 1
+    return {"completed": completed, "errors": errors}
+
+
 async def run_workbook_enrichment(
     workbook_id: str,
     column_ids: Optional[list] = None,
@@ -621,15 +645,19 @@ async def run_workbook_enrichment(
                 db.commit()
         return {"completed": 0, "errors": 0, "total": 0, "rows": len(leads)}
 
-    cells = [(lead, col) for lead in leads for col in enrichment_cols]
-    total = len(cells)
-    n_cols = len(enrichment_cols)
-    completed = errors = done = 0
+    # Order columns so a column referencing {another} runs AFTER it; then run
+    # row-major (columns sequential per row, threading results) with rows
+    # concurrent. This makes derived columns (formula/http/ai) see their inputs.
+    from apps.api.services.workbook.column_deps import topo_sort_columns
+    ordered_cols = topo_sort_columns(enrichment_cols)
+
+    total = len(leads) * len(enrichment_cols)
+    completed = errors = rows_done = 0
     stopped = False
     redis_client = _make_redis()
 
     try:
-        for i in range(0, total, concurrency):
+        for i in range(0, len(leads), concurrency):
             # Cooperative stop: /stop sets status=paused
             with SessionLocal() as sdb:
                 cur = sdb.query(Workbook.status).filter(Workbook.id == workbook_id).scalar()
@@ -637,25 +665,26 @@ async def run_workbook_enrichment(
                 stopped = True
                 break
 
-            batch = cells[i:i + concurrency]
+            batch = leads[i:i + concurrency]
             results = await asyncio.gather(
-                *[_run_one_cell(workbook_id, lead, col, columns_config, redis_client)
-                  for lead, col in batch],
+                *[_run_one_row(workbook_id, lead, ordered_cols, columns_config, redis_client)
+                  for lead in batch],
                 return_exceptions=True,
             )
             for r in results:
-                done += 1
-                if isinstance(r, dict) and r.get("success"):
-                    completed += 1
+                rows_done += 1
+                if isinstance(r, dict):
+                    completed += r.get("completed", 0)
+                    errors += r.get("errors", 0)
                 else:
-                    errors += 1
+                    errors += len(enrichment_cols)
 
-            # Progress: completed_rows = fully-processed rows so far
+            # Progress: completed_rows = rows fully processed so far
             with SessionLocal() as sdb:
                 w = sdb.query(Workbook).filter(Workbook.id == workbook_id).first()
                 if w:
                     w.total_rows = len(leads)
-                    w.completed_rows = min(len(leads), done // max(1, n_cols))
+                    w.completed_rows = min(len(leads), rows_done)
                     sdb.commit()
     finally:
         # ── Finalize status (never leave it stuck in running) ──
