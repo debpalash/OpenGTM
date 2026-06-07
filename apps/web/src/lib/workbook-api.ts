@@ -278,6 +278,36 @@ export async function fetchLeadFields(): Promise<{ fields: string[] }> {
   return res.json()
 }
 
+export interface AiColumnPreset {
+  id: string
+  name: string
+  category: string
+  column_type: "ai_formula" | "research"
+  output_format: string
+  description: string
+  prompt: string
+}
+
+export async function fetchAiColumnPresets(): Promise<{ presets: AiColumnPreset[]; categories: string[] }> {
+  const res = await fetch(`${API}/api/workbooks/meta/ai-column-presets`)
+  if (!res.ok) return { presets: [], categories: [] }
+  return res.json()
+}
+
+export interface RunCostEstimate {
+  rows: number
+  worst_usd: number
+  best_usd: number
+  breakdown: Array<{ column: string; paid_providers: string[]; worst_usd: number; best_usd: number }>
+  note: string
+}
+
+export async function fetchRunEstimate(workbookId: string): Promise<RunCostEstimate | null> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/run/estimate`)
+  if (!res.ok) return null
+  return res.json()
+}
+
 // ── WebSocket ────────────────────────────────────────────────────────────
 
 export function createWorkbookSocket(workbookId: string): WebSocket {
