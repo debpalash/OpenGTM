@@ -18,7 +18,8 @@ import {
   useImportLeads, useRunWorkbook, useStopWorkbook,
   useDeleteLeads, useWorkbookSocket, useProviders,
 } from "@/lib/workbook-hooks"
-import type { WorkbookLeadRow, ColumnConfig, EnrichmentOverlay } from "@/lib/workbook-api"
+import type { WorkbookLeadRow, ColumnConfig, EnrichmentOverlay, AiColumnPreset } from "@/lib/workbook-api"
+import { fetchAiColumnPresets, fetchRunEstimate } from "@/lib/workbook-api"
 import {
   ArrowLeft, Plus, Play, Square, Download, Upload,
   Sparkles, Type, Layers, Brain, GitBranch, Send, Globe,
@@ -306,6 +307,8 @@ export default function WorkbookEditorPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showSourcePanel, setShowSourcePanel] = useState(false)
   const [showColPicker, setShowColPicker] = useState(false)
+  const [aiPresets, setAiPresets] = useState<AiColumnPreset[]>([])
+  useEffect(() => { fetchAiColumnPresets().then(d => setAiPresets(d.presets || [])).catch(() => {}) }, [])
   const [newColName, setNewColName] = useState("")
   const [newColType, setNewColType] = useState<"lead_field" | "ai_formula" | "waterfall" | "enrichment" | "output" | "research" | "http" | "formula">("lead_field")
   const [newColHttpUrl, setNewColHttpUrl] = useState("")
@@ -963,7 +966,19 @@ export default function WorkbookEditorPage() {
             </button>
           ) : (
             <button
-              onClick={() => {
+              onClick={async () => {
+                // Spend gate: if this run will hit paid providers, confirm first.
+                try {
+                  const est = await fetchRunEstimate(id!)
+                  if (est && est.worst_usd > 0) {
+                    const ok = window.confirm(
+                      `This run may cost up to $${est.worst_usd.toFixed(2)} ` +
+                      `(best case ~$${est.best_usd.toFixed(2)}) across ${est.rows} rows ` +
+                      `using paid providers. Cross-provider cache + early-exit reduce actual spend.\n\nProceed?`
+                    )
+                    if (!ok) return
+                  }
+                } catch { /* estimate is best-effort; never block the run on it */ }
                 runMut.mutate(undefined, {
                   onSuccess: (data) => toast.success(data.message),
                   onError: () => toast.error("Failed to start enrichment"),
@@ -1152,13 +1167,37 @@ export default function WorkbookEditorPage() {
                       )}
 
                       {newColType === "ai_formula" && (
-                        <textarea value={newColPrompt} onChange={e => setNewColPrompt(e.target.value)}
-                          placeholder="Summarize what {company} does based on {website}"
-                          rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs resize-none" />
+                        <div className="space-y-1">
+                          {aiPresets.filter(p => p.column_type === "ai_formula").length > 0 && (
+                            <select value="" onChange={e => {
+                              const p = aiPresets.find(x => x.id === e.target.value)
+                              if (p) { setNewColPrompt(p.prompt); if (!newColName.trim()) setNewColName(p.name) }
+                            }} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                              <option value="">Start from a preset…</option>
+                              {aiPresets.filter(p => p.column_type === "ai_formula").map(p => (
+                                <option key={p.id} value={p.id}>{p.name} — {p.description}</option>
+                              ))}
+                            </select>
+                          )}
+                          <textarea value={newColPrompt} onChange={e => setNewColPrompt(e.target.value)}
+                            placeholder="Summarize what {company} does based on {website}"
+                            rows={3} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs resize-none" />
+                        </div>
                       )}
 
                       {newColType === "research" && (
                         <div className="space-y-1">
+                          {aiPresets.filter(p => p.column_type === "research").length > 0 && (
+                            <select value="" onChange={e => {
+                              const p = aiPresets.find(x => x.id === e.target.value)
+                              if (p) { setNewColPrompt(p.prompt); if (!newColName.trim()) setNewColName(p.name) }
+                            }} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                              <option value="">Start from a preset…</option>
+                              {aiPresets.filter(p => p.column_type === "research").map(p => (
+                                <option key={p.id} value={p.id}>{p.name} — {p.description}</option>
+                              ))}
+                            </select>
+                          )}
                           <textarea value={newColPrompt} onChange={e => setNewColPrompt(e.target.value)}
                             placeholder="Does {company} use Kubernetes? Cite a source."
                             rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs resize-none" />
