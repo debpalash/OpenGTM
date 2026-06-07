@@ -103,11 +103,28 @@ function ColumnProgressBar({ rows, colId }: { rows: WorkbookLeadRow[]; colId: st
 
 // ── Editable Cell ────────────────────────────────────────────────────────
 
+function VerifyBadge({ verify }: { verify?: string | null }) {
+  if (!verify || verify === "unknown") return null
+  const meta: Record<string, { label: string; cls: string; title: string }> = {
+    valid:     { label: "✓", cls: "text-green-500 bg-green-500/10",  title: "Email verified deliverable" },
+    catch_all: { label: "≈", cls: "text-amber-500 bg-amber-500/10",  title: "Catch-all domain (risky but usable)" },
+    invalid:   { label: "✗", cls: "text-red-500 bg-red-500/10",      title: "Email undeliverable" },
+  }
+  const m = meta[verify]
+  if (!m) return null
+  return (
+    <span title={m.title}
+      className={`shrink-0 inline-flex items-center justify-center size-4 rounded text-[10px] font-bold ${m.cls}`}>
+      {m.label}
+    </span>
+  )
+}
+
 function EditableCell({
-  value, status, provider, error, isEditable, onSave,
+  value, status, provider, error, verify, isEditable, onSave,
 }: {
   value: any; status?: string; provider?: string | null; error?: string | null
-  isEditable: boolean; onSave: (v: string) => void
+  verify?: string | null; isEditable: boolean; onSave: (v: string) => void
 }) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(String(value ?? ""))
@@ -167,6 +184,7 @@ function EditableCell({
       <span className="truncate text-sm flex-1 min-w-0">
         {displayValue}
       </span>
+      {displayValue && <VerifyBadge verify={verify} />}
       {displayValue && (
         <button
           onClick={(e) => {
@@ -566,6 +584,7 @@ export default function WorkbookEditorPage() {
                 status={displayStatus}
                 provider={overlay.value ? overlay.provider : (leadFallback ? "lead" : null)}
                 error={leadFallback ? null : overlay.error}
+                verify={overlay.value ? overlay.verify_status : null}
                 isEditable={false}
                 onSave={() => {}}
               />
