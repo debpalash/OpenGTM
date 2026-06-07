@@ -19,22 +19,22 @@ from apps.api.services.workbook.planner_models import ProviderStat
 
 logger = logging.getLogger("workbook.planner")
 
-# Estimated USD/lookup for BYOK paid providers (free providers default to 0.0).
-PROVIDER_COST = {
-    "hunter_io": 0.04, "apollo_io": 0.03, "snovio": 0.03, "prospeo": 0.02,
-    "people_data_labs": 0.03, "abstract_api": 0.01, "debounce": 0.008,
-    "numverify": 0.005, "google_maps": 0.005,
-}
+# Provider economics now live in the vendor_catalog (single source of truth:
+# built-in paid table + each provider's declared cost_per_lookup, incl.
+# declarative YAML manifests). PROVIDER_COST kept as a back-compat alias.
+from apps.api.services.workbook import vendor_catalog
+
+PROVIDER_COST = {n: v.base_cost for n, v in vendor_catalog.VENDORS.items() if v.base_cost > 0}
 
 COOLDOWN_SECONDS = 300  # how long a rate-limited provider is benched
 
 
 def provider_cost(name: str) -> float:
-    return PROVIDER_COST.get(name, 0.0)
+    return vendor_catalog.base_cost(name)
 
 
 def is_paid(name: str) -> bool:
-    return provider_cost(name) > 0.0
+    return vendor_catalog.is_paid(name)
 
 
 def _now() -> datetime:
