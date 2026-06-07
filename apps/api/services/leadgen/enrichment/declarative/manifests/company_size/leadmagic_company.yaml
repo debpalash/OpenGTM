@@ -1,0 +1,27 @@
+# LeadMagic company-search — declarative provider manifest.
+# Spec: LeadMagic/leadmagic-openapi (POST /company-search). Cost: 1 credit.
+# Returns DetailedCompany; we map employee_count + industry. Inert until
+# LEADMAGIC_API_KEY is set.
+name: leadmagic_company
+capability: company_size
+capabilities: [company_size, description]
+description: LeadMagic /company-search — domain → firmographics (employee count, industry).
+default_confidence: 0.8
+cost_per_lookup: 0.05
+auth:
+  type: header
+  param: X-API-Key
+  env_var: LEADMAGIC_API_KEY
+request:
+  method: POST
+  url: https://api.leadmagic.io/company-search
+  headers:
+    Content-Type: application/json
+  body:
+    company_domain: "{{input.domain}}"
+    company_name: "{{input.company}}"
+  timeout: 20
+response:
+  mappings:
+    company_size: "$.employee_count"
+    description: "$.description"
