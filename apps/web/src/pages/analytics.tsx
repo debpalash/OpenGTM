@@ -142,6 +142,9 @@ export default function AnalyticsPage() {
   const dataQuality = overview?.enrichment ? Math.round(((overview.enrichment.with_email + overview.enrichment.with_contact + overview.enrichment.with_linkedin) / (overview.enrichment.total * 3 || 1)) * 100) : 0
   const conversionRate = pipeline?.statuses ? Math.round(((pipeline.statuses["qualified"] || 0) + (pipeline.statuses["converted"] || 0)) / (totalLeads || 1) * 100) : 0
   const avgLeadsPerJob = collection?.avg_leads_per_job || 0
+  // Avoid a misleading "0%" when a real (but tiny vs the total) count exists.
+  const softPct = (pct: number, count: number) => (pct <= 0 && count > 0 ? "<1%" : `${pct}%`)
+  const qualifiedCount = (pipeline?.statuses?.["qualified"] || 0) + (pipeline?.statuses?.["converted"] || 0)
 
   if (isLoading) return (
     <div className="p-4 space-y-3">
@@ -175,9 +178,9 @@ export default function AnalyticsPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
           <Metric label="Total Leads" value={fmt(totalLeads)} icon={Database} delta={overview?.leads_this_week} sub={`${overview?.leads_this_month || 0} this month`} />
           <Metric label="Avg Score" value={overview?.avg_score || 0} icon={Target} color="text-amber-500" sub={`${overview?.tiers?.hot || 0} hot · ${overview?.tiers?.warm || 0} warm`} />
-          <Metric label="Email Rate" value={`${overview?.enrichment?.email_pct || 0}%`} icon={Mail} color="text-emerald-500" sub={`${overview?.enrichment?.with_email || 0} verified`} />
-          <Metric label="Conversion" value={`${conversionRate}%`} icon={TrendingUp} color="text-violet-500" sub={`${pipeline?.statuses?.qualified || 0} qualified`} />
-          <Metric label="Data Quality" value={`${dataQuality}%`} icon={Shield} color="text-cyan-500" sub="email+contact+linkedin" />
+          <Metric label="Email Rate" value={softPct(overview?.enrichment?.email_pct || 0, overview?.enrichment?.with_email || 0)} icon={Mail} color="text-emerald-500" sub={`${fmt(overview?.enrichment?.with_email || 0)} verified`} />
+          <Metric label="Conversion" value={softPct(conversionRate, qualifiedCount)} icon={TrendingUp} color="text-violet-500" sub={`${fmt(qualifiedCount)} qualified`} />
+          <Metric label="Data Quality" value={softPct(dataQuality, overview?.enrichment?.with_contact || 0)} icon={Shield} color="text-cyan-500" sub="email+contact+linkedin" />
           <Metric label="Job Success" value={`${overview?.jobs?.success_rate || 0}%`} icon={Zap} color="text-orange-500" sub={`${overview?.jobs?.completed || 0}/${overview?.jobs?.total || 0} done`} />
         </div>
 

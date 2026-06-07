@@ -102,7 +102,7 @@ function SourceTab({ workbookId, onChanged }: { workbookId: string; onChanged?: 
         Source leads
       </Button>
       <p className="text-xs text-muted-foreground">
-        Fans out across the 91-source engine, entity-resolves results, and appends new rows live.
+        Fans out across the multi-source engine, entity-resolves results, and appends new rows live.
       </p>
     </div>
   )

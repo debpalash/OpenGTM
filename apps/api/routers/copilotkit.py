@@ -1061,6 +1061,10 @@ async def _stream_chat(
         "tools": tools,
         "stream": True,
         "temperature": 0.7,
+        # Generative-UI responses embed lead data as OpenUI Lang and can be long;
+        # give the model room so the DSL isn't cut off mid-structure (a truncated
+        # response can't be parsed and renders as nothing).
+        "max_tokens": 4096,
     }
 
     url = f"{base_url}/chat/completions"

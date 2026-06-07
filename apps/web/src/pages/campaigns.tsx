@@ -66,8 +66,13 @@ export default function CampaignsPage() {
         }),
       })
       const data = await res.json()
-      setEmails(data.emails || [])
-      toast.success(`Generated ${data.emails?.length || 0} personalized emails`)
+      const generated = data.emails || []
+      setEmails(generated)
+      if (generated.length > 0) {
+        toast.success(`Generated ${generated.length} personalized emails`)
+      } else {
+        toast.error("No emails generated — configure an AI provider in Settings → AI Providers")
+      }
     } catch {
       toast.error("Failed to generate emails")
     } finally {
