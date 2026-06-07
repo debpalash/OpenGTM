@@ -644,6 +644,40 @@ async def remove_column(
 
 # ── Run Enrichment ────────────────────────────────────────────────────────
 
+@router.get("/{workbook_id}/run/estimate")
+def estimate_run(
+    workbook_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Estimate the spend of running this workbook BEFORE running it.
+
+    Returns worst/best USD + a per-column breakdown of paid providers, so the UI
+    can show a spend-confirmation gate ("N rows × providers = $X, proceed?").
+    """
+    from apps.api.services.workbook import vendor_catalog
+    from apps.api.services.workbook.enrichment import DEFAULT_WATERFALLS, ENRICHMENT_COL_TYPES
+
+    wb = _owned_workbook(db, workbook_id, ctx)
+    num_rows = db.query(sa_func.count(WorkbookRow.id)).filter(
+        WorkbookRow.workbook_id == wb.id
+    ).scalar() or 0
+
+    providers_by_col = {}
+    for c in (wb.columns_config or []):
+        if c.get("type") not in ENRICHMENT_COL_TYPES:
+            continue
+        target = c.get("target_field") or c.get("lead_field") or c.get("id")
+        chain = c.get("waterfall") or ([c["provider"]] if c.get("provider") else [])
+        if not chain:
+            chain = DEFAULT_WATERFALLS.get(target, [])
+        providers_by_col[c.get("id") or target] = chain
+
+    est = vendor_catalog.estimate_run_cost(num_rows, providers_by_col)
+    est["workbook_id"] = workbook_id
+    return est
+
+
 @router.post("/{workbook_id}/run", response_model=RunWorkbookResponse)
 async def run_workbook(
     workbook_id: str,
