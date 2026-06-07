@@ -191,6 +191,39 @@ def check_and_migrate_db():
                     conn.execute(text("ALTER TABLE workbook_rows ADD COLUMN corroboration_count INTEGER DEFAULT 1"))
                     conn.commit()
 
+            # WorkbookEnrichment — one row per (workbook, lead, column). Dedupe
+            # any pre-existing duplicates (stale "running" rows from concurrent
+            # runs/retries) then add the unique index. Guarded so it runs once.
+            if "workbook_enrichments" in inspector.get_table_names():
+                has_uq = conn.execute(text(
+                    "SELECT 1 FROM sqlite_master WHERE type='index' AND name='uq_enrichment_cell'"
+                )).fetchone()
+                if not has_uq:
+                    print("Migrating workbook_enrichments: dedupe + unique cell index...")
+                    # Keep the best row per cell: prefer a real value, then a
+                    # terminal status, then the most recent id.
+                    conn.execute(text("""
+                        DELETE FROM workbook_enrichments
+                        WHERE id NOT IN (
+                          SELECT id FROM (
+                            SELECT id, ROW_NUMBER() OVER (
+                              PARTITION BY workbook_id, lead_id, column_id
+                              ORDER BY (value IS NOT NULL AND value != '') DESC,
+                                       CASE status WHEN 'complete' THEN 4 WHEN 'error' THEN 3
+                                                   WHEN 'skipped' THEN 2 ELSE 1 END DESC,
+                                       id DESC
+                            ) AS rn
+                            FROM workbook_enrichments
+                          ) WHERE rn = 1
+                        )
+                    """))
+                    conn.commit()
+                    conn.execute(text(
+                        "CREATE UNIQUE INDEX IF NOT EXISTS uq_enrichment_cell "
+                        "ON workbook_enrichments (workbook_id, lead_id, column_id)"
+                    ))
+                    conn.commit()
+
         print("✓ Database migration completed successfully")
 
     except Exception as e:

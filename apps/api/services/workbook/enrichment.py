@@ -382,12 +382,30 @@ def _set_enrichment(
     db: Session, workbook_id: str, lead_id: int, column_id: str,
     value: Any, status: str, provider: str = None, error: str = None,
 ):
-    """Upsert a WorkbookEnrichment record."""
+    """Upsert a WorkbookEnrichment record.
+
+    enrich_cell calls this twice per cell in one session ("running" then the
+    result) and commits once at the end. The session uses autoflush=False, so a
+    plain SELECT won't see the still-pending "running" row — we'd insert a second
+    row (duplicate / unique-constraint violation). So also check the session's
+    pending inserts. We deliberately do NOT flush here: flushing would acquire
+    the DB write lock early and hold it across the provider/LLM call.
+    """
     existing = db.query(WorkbookEnrichment).filter(
         WorkbookEnrichment.workbook_id == workbook_id,
         WorkbookEnrichment.lead_id == lead_id,
         WorkbookEnrichment.column_id == column_id,
     ).first()
+
+    if existing is None:
+        # Match a not-yet-flushed row added earlier in this same session.
+        for obj in db.new:
+            if (isinstance(obj, WorkbookEnrichment)
+                    and obj.workbook_id == workbook_id
+                    and obj.lead_id == lead_id
+                    and obj.column_id == column_id):
+                existing = obj
+                break
 
     if existing:
         existing.value = value
