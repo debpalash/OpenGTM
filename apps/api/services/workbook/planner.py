@@ -27,6 +27,11 @@ from apps.api.services.workbook import vendor_catalog
 PROVIDER_COST = {n: v.base_cost for n, v in vendor_catalog.VENDORS.items() if v.base_cost > 0}
 
 COOLDOWN_SECONDS = 300  # how long a rate-limited provider is benched
+# Circuit breaker: a provider that hard-times-out (dead host, down API, no key,
+# unreachable source like a blocked DDG) is benched so we stop paying its full
+# timeout on every subsequent cell. Shorter than the rate-limit cooldown because
+# a timeout can be transient; the provider is retried once it expires.
+TIMEOUT_COOLDOWN_SECONDS = 180
 
 
 def provider_cost(name: str) -> float:
@@ -87,9 +92,11 @@ def order_chain(db: Session, field: str, chain: List[str], budget_remaining: Opt
 def record_attempt(
     db: Session, provider: str, field: str, *,
     success: bool, confidence: float = 0.0, latency_ms: float = 0.0,
-    rate_limited: bool = False,
+    rate_limited: bool = False, timed_out: bool = False,
 ):
-    """Upsert ProviderStat after a provider call. Sets cooldown on rate-limit."""
+    """Upsert ProviderStat after a provider call. Benches the provider (cooldown)
+    on a rate-limit or a hard timeout — the circuit breaker that keeps a dead
+    source from costing every cell its full timeout."""
     st = _stat(db, provider, field)
     if not st:
         st = ProviderStat(provider=provider, field=field)
@@ -103,6 +110,8 @@ def record_attempt(
         st.total_cost_usd = (st.total_cost_usd or 0.0) + provider_cost(provider)
     if rate_limited:
         st.cooldown_until = _now() + timedelta(seconds=COOLDOWN_SECONDS)
+    elif timed_out:
+        st.cooldown_until = _now() + timedelta(seconds=TIMEOUT_COOLDOWN_SECONDS)
 
 
 def looks_rate_limited(error: str) -> bool:
