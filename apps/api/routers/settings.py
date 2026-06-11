@@ -81,9 +81,10 @@ _ENRICHMENT_DEFAULTS = {
     "row_concurrency": 12,    # rows enriched in parallel
     "provider_workers": 8,    # killable subprocess workers for provider calls
     "provider_timeout": 10,   # seconds before a provider's worker is killed
-    "max_providers": 5,       # waterfall depth cap per cell (0 = full chain) —
-                              # past ~5 the remaining providers are dead/keyless
-                              # for most leads, so deeper just costs time.
+    "max_providers": 8,       # waterfall depth cap per cell (0 = full chain). 8
+                              # keeps the website-independent fallbacks (registry
+                              # / knowledge-graph) reachable for dead-site leads;
+                              # live-site cells still short-circuit on first hit.
     "retry_passes": 1,        # extra passes over cells still failing
 }
 

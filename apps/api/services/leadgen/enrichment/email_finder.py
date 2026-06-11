@@ -12,8 +12,7 @@ import time
 from typing import List, Optional, Tuple
 from urllib.parse import urlparse
 
-from ddgs import DDGS
-from apps.api.services.leadgen.proxy_client import get_ddgs
+from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG poolfrom apps.api.services.leadgen.proxy_client import get_ddgs
 from apps.api.services.leadgen.models import Lead
 
 

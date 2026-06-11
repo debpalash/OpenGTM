@@ -107,7 +107,7 @@ def _extract_linkedin_url(href: str) -> str:
 
 async def _ddg_linkedin_search(query: str, max_results: int = 10) -> list:
     """Search DDG for LinkedIn profiles with retry + proxy rotation."""
-    from ddgs import DDGS
+    from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG pool
     from apps.api.services.leadgen.proxy_client import get_proxy
 
     MAX_ATTEMPTS = 3
