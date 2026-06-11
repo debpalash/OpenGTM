@@ -220,7 +220,13 @@ obscure-SMB segment Clay-style vendors charge the most to reach.
 ---
 
 ## Status
-- ✅ P0 built: `infra/searxng/`, `apps/searxng-pool/` (Go, verified), `sync-fork.sh`.
-- ⬜ P1 next: `searxng_search()` + repoint providers.
+- ✅ P0: `infra/searxng/`, `apps/searxng-pool/` (Go), `sync-fork.sh`.
+- ✅ P1: `web_search.py` shim → repointed 10 providers (search off DDG).
+- ✅ P2: `wikidata` + `mca_registry` providers, wired into the waterfalls.
+- ✅ P3: qwant **spam filter** in the pool (drops single-engine http junk),
+  **multi-instance `docker-compose.yml`** + pool `Dockerfile` (distroless,
+  proxy-ready), and a documented **keyed Serper engine** + proxy scale path.
+- ⬜ Activation (config, not code): `DATA_GOV_IN_KEY`, Apollo/Hunter keys,
+  egress proxies / Serper key for premium engines.
 - Refs: `reference/research/searxng-search-backend-eval.md`,
   `reference/research/enrichment-data-sources-deep-research.json`.

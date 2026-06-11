@@ -1,0 +1,49 @@
+# Production search substrate: a horizontally-scaled pool of self-hosted SearXNG
+# instances behind the Go gateway. Scale by adding searxng-N services and seeding
+# them into SEARXPOOL_SEED.
+#
+#   docker compose -f infra/searxng/docker-compose.yml up -d
+#   curl 'http://localhost:8889/search?q=acme+corp'
+#
+# IP DIVERSITY (the real scale lever): each SearXNG instance only sees the egress
+# IP it's given. On one host IP, Google/DDG/Brave engines CAPTCHA (Bing/Qwant/
+# Yahoo still work). Put each instance behind a DIFFERENT egress proxy
+# (HTTP(S)_PROXY below) and those premium engines come back — and the pool load-
+# balances across them. Uncomment + set the proxies to enable.
+name: yupcha-search
+
+x-searxng: &searxng
+  image: searxng/searxng:latest
+  restart: unless-stopped
+  volumes:
+    - ./settings.yml:/etc/searxng/settings.yml:ro
+  expose:
+    - "8080"
+
+services:
+  searxng-1:
+    <<: *searxng
+    # environment:
+    #   HTTP_PROXY: http://user:pass@proxy-a:8080
+    #   HTTPS_PROXY: http://user:pass@proxy-a:8080
+
+  searxng-2:
+    <<: *searxng
+    # environment:
+    #   HTTP_PROXY: http://user:pass@proxy-b:8080
+    #   HTTPS_PROXY: http://user:pass@proxy-b:8080
+
+  searxng-pool:
+    build: ../../apps/searxng-pool
+    restart: unless-stopped
+    ports:
+      - "8889:8889"
+    environment:
+      SEARXPOOL_SEED: "http://searxng-1:8080,http://searxng-2:8080"
+      SEARXPOOL_PUBLIC_FEED: "false"          # our own instances only (public ones JSON-block)
+      SEARXPOOL_DEFAULT_ENGINES: "bing,qwant,yahoo"
+      SEARXPOOL_FANOUT: "4"
+      SEARXPOOL_MIN_RESPONSES: "2"
+    depends_on:
+      - searxng-1
+      - searxng-2

@@ -123,9 +123,60 @@ func (p *Pool) Search(ctx context.Context, query, engines string, fanout int) Se
 
 	out := SearchOutcome{Query: query, InstancesUsed: used, ElapsedMs: time.Since(start).Milliseconds()}
 	for _, k := range order {
-		out.Results = append(out.Results, *merged[k])
+		if keepResult(*merged[k]) {
+			out.Results = append(out.Results, *merged[k])
+		}
 	}
 	return out
+}
+
+// keepResult drops the SEO-spam some engines (notably qwant) inject: gibberish
+// titles on random short http:// domains with odd TLDs. The reliable signal —
+// real company hits are https and/or corroborated by more than one engine,
+// spam is single-engine + http + a junk domain. Keep when EITHER holds.
+func keepResult(r Result) bool {
+	if len(r.Engines) > 1 {
+		return true // corroborated by multiple engines → trustworthy
+	}
+	u, err := url.Parse(r.URL)
+	if err != nil || u.Host == "" {
+		return false
+	}
+	if u.Scheme != "https" {
+		return false // observed spam was all http://
+	}
+	if suspiciousHost(u.Host) {
+		return false
+	}
+	return true
+}
+
+// suspiciousHost flags short, vowel-starved, odd-TLD registrable names typical of
+// throwaway spam domains (e.g. "kupijur.sn", "tedborre.af", "oc.bf").
+func suspiciousHost(host string) bool {
+	host = strings.ToLower(host)
+	if i := strings.LastIndex(host, ":"); i >= 0 {
+		host = host[:i]
+	}
+	parts := strings.Split(host, ".")
+	if len(parts) < 2 {
+		return true
+	}
+	tld := parts[len(parts)-1]
+	label := parts[len(parts)-2] // registrable name
+	common := map[string]bool{"com": true, "org": true, "net": true, "io": true,
+		"co": true, "in": true, "ai": true, "gov": true, "edu": true, "info": true,
+		"biz": true, "us": true, "uk": true}
+	if common[tld] {
+		return false // mainstream TLD → trust it
+	}
+	// uncommon TLD + a short/vowel-starved label = throwaway spam domain
+	vowels := strings.Count(label, "a") + strings.Count(label, "e") +
+		strings.Count(label, "i") + strings.Count(label, "o") + strings.Count(label, "u")
+	if len(label) <= 8 || (len(label) > 0 && float64(vowels)/float64(len(label)) < 0.25) {
+		return true
+	}
+	return false
 }
 
 // canonURL normalizes for dedup: lowercase host, strip trailing slash + fragment.
