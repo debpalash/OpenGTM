@@ -268,20 +268,14 @@ export default function SettingsPage() {
 
         <TabsContent value="pipeline" className="mt-4 space-y-4">
           <div>
-            <h3 className="text-sm font-medium">Pipeline Configuration</h3>
+            <h3 className="text-sm font-medium">Enrichment Performance</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Configure scraping, validation, and scoring behavior.
+              Tune parallelism and retries. Higher concurrency/workers = faster (more CPU/RAM);
+              more retry passes = higher fill rate.
             </p>
           </div>
           <Separator />
-          <Card>
-            <CardContent className="pt-6">
-              <Badge variant="secondary">Coming soon</Badge>
-              <p className="text-sm text-muted-foreground mt-2">
-                ICP configuration, scraper settings, validation rules, and scoring weights.
-              </p>
-            </CardContent>
-          </Card>
+          <EnrichmentPerfTab />
         </TabsContent>
 
         <TabsContent value="email" className="mt-4 space-y-4">
@@ -300,6 +294,79 @@ export default function SettingsPage() {
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+// ── Enrichment Performance Tab ───────────────────────────────────
+
+interface EnrichmentPerf {
+  row_concurrency: number
+  provider_workers: number
+  provider_timeout: number
+  max_providers: number
+  retry_passes: number
+}
+
+const PERF_FIELDS: { key: keyof EnrichmentPerf; label: string; hint: string; min: number; max: number }[] = [
+  { key: "row_concurrency", label: "Row concurrency", hint: "Rows enriched in parallel", min: 1, max: 64 },
+  { key: "provider_workers", label: "Provider workers", hint: "Killable subprocesses for provider calls", min: 1, max: 64 },
+  { key: "provider_timeout", label: "Provider timeout (s)", hint: "Kill a provider after this many seconds", min: 3, max: 120 },
+  { key: "max_providers", label: "Max providers / cell", hint: "Waterfall depth cap (0 = full chain)", min: 0, max: 20 },
+  { key: "retry_passes", label: "Retry passes", hint: "Extra passes over cells still failing", min: 0, max: 5 },
+]
+
+function EnrichmentPerfTab() {
+  const [perf, setPerf] = useState<EnrichmentPerf | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    fetch("/api/settings/enrichment-perf")
+      .then(r => r.json())
+      .then(d => setPerf({
+        row_concurrency: d.row_concurrency, provider_workers: d.provider_workers,
+        provider_timeout: d.provider_timeout, max_providers: d.max_providers,
+        retry_passes: d.retry_passes,
+      }))
+      .catch(() => {})
+  }, [])
+
+  async function save() {
+    if (!perf) return
+    setSaving(true)
+    try {
+      const res = await fetch("/api/settings/enrichment-perf", {
+        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(perf),
+      })
+      if (!res.ok) throw new Error("save failed")
+      const d = await res.json()
+      setPerf(d)
+      toast.success("Enrichment settings saved — applies to the next run")
+    } catch { toast.error("Failed to save") }
+    finally { setSaving(false) }
+  }
+
+  if (!perf) return <Skeleton className="h-40 w-full" />
+
+  return (
+    <Card>
+      <CardContent className="pt-6 space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {PERF_FIELDS.map(f => (
+            <div key={f.key} className="space-y-1">
+              <Label className="text-xs">{f.label}</Label>
+              <Input
+                type="number" min={f.min} max={f.max} value={perf[f.key]}
+                onChange={e => setPerf({ ...perf, [f.key]: Number(e.target.value) })}
+              />
+              <p className="text-[11px] text-muted-foreground">{f.hint}</p>
+            </div>
+          ))}
+        </div>
+        <Button onClick={save} disabled={saving} size="sm">
+          {saving ? "Saving…" : "Save"}
+        </Button>
+      </CardContent>
+    </Card>
   )
 }
 

@@ -3,23 +3,38 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from apps.api.core.config import settings
 import logging
 
-# Database Setup
-engine = create_engine(
-    settings.DATABASE_URL,
-    connect_args={"check_same_thread": False, "timeout": 30},
-    pool_pre_ping=True,
-)
+# Database Setup — backend-aware. SQLite needs per-connection pragmas and a
+# single-writer lock workaround; Postgres handles concurrent writers natively
+# (MVCC), so the workbook enrichment run no longer hits "database is locked".
+IS_SQLITE = settings.DATABASE_URL.startswith("sqlite")
 
-# Enable WAL mode for concurrent reads/writes
-from sqlalchemy import event
+if IS_SQLITE:
+    engine = create_engine(
+        settings.DATABASE_URL,
+        connect_args={"check_same_thread": False, "timeout": 30},
+        pool_pre_ping=True,
+    )
 
-@event.listens_for(engine, "connect")
-def _set_sqlite_pragma(dbapi_connection, connection_record):
-    cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA journal_mode=WAL")
-    cursor.execute("PRAGMA busy_timeout=30000")
-    cursor.execute("PRAGMA synchronous=NORMAL")
-    cursor.close()
+    # Enable WAL mode for concurrent reads/writes
+    from sqlalchemy import event
+
+    @event.listens_for(engine, "connect")
+    def _set_sqlite_pragma(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA busy_timeout=30000")
+        cursor.execute("PRAGMA synchronous=NORMAL")
+        cursor.close()
+else:
+    # Postgres (or any non-sqlite). pool_pre_ping recycles dropped connections;
+    # a modest pool comfortably covers the concurrent enrichment workers.
+    engine = create_engine(
+        settings.DATABASE_URL,
+        pool_pre_ping=True,
+        pool_size=10,
+        max_overflow=20,
+    )
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -33,6 +48,13 @@ def get_db():
 
 
 def check_and_migrate_db():
+    # These are incremental ALTER-based migrations for the legacy SQLite file.
+    # On Postgres the schema is built fresh by Base.metadata.create_all() with
+    # all columns/constraints already present, so there is nothing to migrate
+    # (and the sqlite_master probe below would error). Skip entirely.
+    if not IS_SQLITE:
+        print("✓ Postgres backend — schema managed by create_all(), no migration needed")
+        return
     try:
         inspector = inspect(engine)
 
