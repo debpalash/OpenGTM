@@ -711,6 +711,13 @@ async def run_workbook(
         WorkbookRow.workbook_id == workbook_id
     ).scalar() or 0
 
+    # Resolve the EXACT set of rows this run covers here, once, and pass their
+    # ids to the worker. The worker must not re-derive the set from a different
+    # code path: its v1 loader only honors a subset of filter fields, so a
+    # filter like {"specialization": "SaaS"} would silently collapse to "all
+    # leads" and enrich the whole table instead of the rows shown here.
+    resolved_row_ids = None
+    resolved_lead_ids = None
     if v2_count > 0:
         # v2: read from WorkbookRow
         query = db.query(WorkbookRow).filter(WorkbookRow.workbook_id == workbook_id)
@@ -720,6 +727,7 @@ async def run_workbook(
             query = query.filter(WorkbookRow.lead_id.in_(body.lead_ids))
         wb_rows = query.all()
         leads = [{"id": r.lead_id or r.id, **r.data} for r in wb_rows]
+        resolved_row_ids = [r.id for r in wb_rows]
     else:
         # v1 legacy: read from leads DB
         lead_db = ctx.lead_db()
@@ -729,6 +737,7 @@ async def run_workbook(
             lead_db.close()
         if body.lead_ids:
             leads = [l for l in leads if l["id"] in body.lead_ids]
+        resolved_lead_ids = [l["id"] for l in leads]
 
     if not leads:
         return RunWorkbookResponse(status="skipped", total_jobs=0, message="No rows to process")
@@ -742,11 +751,33 @@ async def run_workbook(
 
     total_jobs = len(leads) * len(enrichment_cols)
 
+    # Supersede any in-flight run for THIS workbook so runs don't stack (the
+    # worker is sequential — a stale run would block this one and re-enrich).
+    # The handler polls its own job status and stops promptly when cancelled.
+    from apps.api.models import Job as _Job
+    active_runs = (
+        db.query(_Job)
+        .filter(_Job.type == "run_workbook", _Job.status.in_(["pending", "processing"]))
+        .all()
+    )
+    for j in active_runs:
+        if (j.payload or {}).get("workbook_id") == workbook_id:
+            j.status = "cancelled"
+            j.error = "superseded by a newer run"
+    if active_runs:
+        db.commit()
+
     # P-1: enqueue ONE durable job on queue_service (DB-polling worker with
     # heartbeat + dead-job reaper + retry). The handler runs cells concurrently
     # off the request thread, so /run returns immediately and the workbook can
     # never get stuck in `running` (the reaper recovers a crashed run).
     # See features/workbook-v2-source-engine-spec.md §1.5.
+    # Performance knobs come from Settings (user-configurable), with env/default
+    # fallback. Concurrency = how many rows run at once; retry_passes re-runs the
+    # cells still failing (lifts fill rate); max_providers caps waterfall depth
+    # (0 = full chain). See settings.get_enrichment_settings.
+    from apps.api.routers.settings import get_enrichment_settings
+    _es = get_enrichment_settings()
     from apps.api.services.queue_service import queue_service
     queue_service.add_job(
         db,
@@ -754,8 +785,17 @@ async def run_workbook(
         {
             "workbook_id": workbook_id,
             "column_ids": [c["id"] for c in enrichment_cols],
-            "row_ids": body.row_ids,
-            "lead_ids": body.lead_ids,
+            # Pass the resolved ids (not the raw request) so the worker enriches
+            # exactly the rows resolved above — the single source of truth for
+            # this run's scope.
+            "row_ids": resolved_row_ids if resolved_row_ids is not None else body.row_ids,
+            "lead_ids": resolved_lead_ids if resolved_lead_ids is not None else body.lead_ids,
+            "concurrency": _es["row_concurrency"],
+            "max_providers": _es["max_providers"],
+            "retry_passes": _es["retry_passes"],
+            "provider_workers": _es["provider_workers"],
+            "provider_timeout": _es["provider_timeout"],
+            "fill_missing": bool(body.fill_missing),
         },
     )
     return RunWorkbookResponse(
@@ -771,9 +811,24 @@ async def stop_workbook(
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(current_workspace),
 ):
-    """Stop a running workbook."""
+    """Stop a running workbook.
+
+    Sets the workbook to `paused` (the run handler polls this and halts within a
+    couple seconds, before its next cell) and cancels the in-flight job so the
+    sequential worker is freed immediately instead of waiting out the run.
+    """
     wb = _owned_workbook(db, workbook_id, ctx)
     wb.status = "paused"
+    from apps.api.models import Job as _Job
+    active_runs = (
+        db.query(_Job)
+        .filter(_Job.type == "run_workbook", _Job.status.in_(["pending", "processing"]))
+        .all()
+    )
+    for j in active_runs:
+        if (j.payload or {}).get("workbook_id") == workbook_id:
+            j.status = "cancelled"
+            j.error = "stopped by user"
     db.commit()
     return {"status": "paused"}
 

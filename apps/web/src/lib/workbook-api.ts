@@ -238,7 +238,7 @@ export async function deleteColumn(workbookId: string, colId: string): Promise<W
 
 export async function runWorkbook(
   workbookId: string,
-  opts?: { column_ids?: string[]; lead_ids?: number[] },
+  opts?: { column_ids?: string[]; lead_ids?: number[]; fill_missing?: boolean },
 ): Promise<{ status: string; total_jobs: number; message: string }> {
   const res = await fetch(`${API}/api/workbooks/${workbookId}/run`, {
     method: "POST",

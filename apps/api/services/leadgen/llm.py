@@ -171,14 +171,29 @@ class LLMClient:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
 
+        import asyncio as _asyncio
         for prov in providers[:3]:  # Try up to 3 providers
-            try:
-                result = await self._call_provider(prov, messages, max_tokens, temperature)
-                if result:
-                    return result
-            except Exception as e:
-                self.usage.errors.append(f"{prov['id']}: {str(e)[:100]}")
-                continue
+            # Retry each provider with exponential backoff + jitter on a
+            # rate-limit (429). Under high row-concurrency many AI cells call the
+            # LLM at once and a free tier throttles — without this the call just
+            # returns empty ("llm_returned_empty") and the cell fails. Backoff
+            # staggers the retries so they succeed instead of all failing.
+            for attempt in range(4):
+                try:
+                    result = await self._call_provider(prov, messages, max_tokens, temperature)
+                    if result:
+                        return result
+                    break  # empty but no error → try the next provider
+                except Exception as e:
+                    msg = str(e)
+                    self.usage.errors.append(f"{prov['id']}: {msg[:100]}")
+                    rate_limited = any(s in msg.lower() for s in ("429", "rate", "quota", "too many"))
+                    if rate_limited and attempt < 3:
+                        # 0.5·2^n seconds + jitter derived from the attempt (no RNG).
+                        delay = 0.5 * (2 ** attempt) + (attempt * 0.37)
+                        await _asyncio.sleep(delay)
+                        continue
+                    break  # non-rate-limit error or out of attempts → next provider
 
         return ""
 
@@ -259,7 +274,7 @@ class LLMClient:
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 url, headers=headers, json=body,
-                timeout=aiohttp.ClientTimeout(total=30),
+                timeout=aiohttp.ClientTimeout(total=int(os.getenv("LLM_HTTP_TIMEOUT", "60"))),
             ) as resp:
                 data = await resp.json()
 

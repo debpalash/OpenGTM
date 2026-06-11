@@ -18,8 +18,8 @@ import {
   useImportLeads, useRunWorkbook, useStopWorkbook,
   useDeleteLeads, useWorkbookSocket, useProviders,
 } from "@/lib/workbook-hooks"
-import type { WorkbookLeadRow, ColumnConfig, EnrichmentOverlay, AiColumnPreset } from "@/lib/workbook-api"
-import { fetchAiColumnPresets, fetchRunEstimate } from "@/lib/workbook-api"
+import type { WorkbookLeadRow, ColumnConfig, EnrichmentOverlay, AiColumnPreset, CostInfo, RunCostEstimate } from "@/lib/workbook-api"
+import { fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost } from "@/lib/workbook-api"
 import {
   ArrowLeft, Plus, Play, Square, Download, Upload,
   Sparkles, Type, Layers, Brain, GitBranch, Send, Globe,
@@ -27,6 +27,7 @@ import {
   FileSpreadsheet, ExternalLink, Filter, Search, Trash2, Copy,
   ArrowUpDown, ArrowUp, ArrowDown, EyeOff, Eye, Pencil, Settings, GripVertical,
   ChevronDown, ChevronUp, ChevronRight, Zap, Columns3, Webhook, Calculator,
+  DollarSign,
 } from "lucide-react"
 import { ActivityDrawer, useActivityStats } from "@/components/activity-drawer"
 import { SourceEnginePanel } from "@/components/source-engine-panel"
@@ -301,6 +302,50 @@ function SortableColumnHeader({ id, w, className, children, ...rest }: {
     >
       {children}
     </th>
+  )
+}
+
+// ── Inline cost chip ─────────────────────────────────────────────────────
+// Replaces the old blocking window.confirm() spend gate. Always-visible:
+// shows spend-to-date (polled live while a run is active) and, on hover, the
+// estimated cost of the next run. Click opens the Source Engine cost tab to set
+// a budget ceiling. Free OSS providers cost $0, so most runs read "$0.000".
+function CostChip({ workbookId, isRunning, onClick }: {
+  workbookId: string; isRunning: boolean; onClick: () => void
+}) {
+  const [cost, setCost] = useState<CostInfo | null>(null)
+  const [est, setEst] = useState<RunCostEstimate | null>(null)
+
+  useEffect(() => {
+    let alive = true
+    const load = () => fetchWorkbookCost(workbookId).then(c => { if (alive) setCost(c) }).catch(() => {})
+    load()
+    fetchRunEstimate(workbookId).then(e => { if (alive) setEst(e) }).catch(() => {})
+    // Poll spend live during a run so the number climbs as paid providers charge.
+    const iv = isRunning ? setInterval(load, 3000) : null
+    return () => { alive = false; if (iv) clearInterval(iv) }
+  }, [workbookId, isRunning])
+
+  const spent = cost?.budget_spent_usd ?? 0
+  const cap = cost?.budget_max_usd ?? 0
+  const overCap = cap > 0 && spent >= cap
+  const title = [
+    `Spent: $${spent.toFixed(3)}`,
+    cap > 0 ? `Budget: $${cap.toFixed(2)}` : "Budget: unlimited",
+    est ? `Next run est: $${est.best_usd.toFixed(2)}–$${est.worst_usd.toFixed(2)} (${est.rows} rows)` : "",
+    "Click to set a budget",
+  ].filter(Boolean).join("\n")
+
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      className={`inline-flex items-center gap-1 px-2 py-1.5 rounded-md text-xs tabular-nums transition-colors hover:bg-muted ${overCap ? "text-destructive" : "text-muted-foreground"}`}
+    >
+      <DollarSign className="size-3.5" />
+      <span>{spent.toFixed(3)}</span>
+      {cap > 0 && <span className="opacity-60">/ {cap.toFixed(0)}</span>}
+    </button>
   )
 }
 
@@ -960,6 +1005,8 @@ export default function WorkbookEditorPage() {
 
           <div className="w-px h-5 bg-border mx-1" />
 
+          <CostChip workbookId={id!} isRunning={isRunning} onClick={() => setShowSourcePanel(true)} />
+
           <button
             onClick={() => setShowSourcePanel(true)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border bg-background hover:bg-accent transition-colors"
@@ -984,31 +1031,39 @@ export default function WorkbookEditorPage() {
               Stop
             </button>
           ) : (
-            <button
-              onClick={async () => {
-                // Spend gate: if this run will hit paid providers, confirm first.
-                try {
-                  const est = await fetchRunEstimate(id!)
-                  if (est && est.worst_usd > 0) {
-                    const ok = window.confirm(
-                      `This run may cost up to $${est.worst_usd.toFixed(2)} ` +
-                      `(best case ~$${est.best_usd.toFixed(2)}) across ${est.rows} rows ` +
-                      `using paid providers. Cross-provider cache + early-exit reduce actual spend.\n\nProceed?`
-                    )
-                    if (!ok) return
-                  }
-                } catch { /* estimate is best-effort; never block the run on it */ }
-                runMut.mutate(undefined, {
-                  onSuccess: (data) => toast.success(data.message),
-                  onError: () => toast.error("Failed to start enrichment"),
-                })
-              }}
-              disabled={runMut.isPending}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors relative overflow-hidden ${runMut.isPending ? 'btn-shimmer' : ''}`}
-            >
-              {runMut.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
-              Run Enrichment
-            </button>
+            <>
+              <button
+                onClick={() => {
+                  // Only (re)run cells that aren't already complete — fills gaps
+                  // without clobbering good values.
+                  runMut.mutate({ fill_missing: true }, {
+                    onSuccess: (data) => toast.success(data.message),
+                    onError: () => toast.error("Failed to start fill"),
+                  })
+                }}
+                disabled={runMut.isPending}
+                title="Enrich only the empty / errored cells, keeping good values"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border bg-background hover:bg-accent disabled:opacity-50 transition-colors"
+              >
+                <Sparkles className="size-3.5" />
+                Fill missing
+              </button>
+              <button
+                onClick={() => {
+                  // No blocking spend-confirm dialog — the live cost is shown
+                  // inline in the toolbar/status bar instead (see CostChip).
+                  runMut.mutate(undefined, {
+                    onSuccess: (data) => toast.success(data.message),
+                    onError: () => toast.error("Failed to start enrichment"),
+                  })
+                }}
+                disabled={runMut.isPending}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors relative overflow-hidden ${runMut.isPending ? 'btn-shimmer' : ''}`}
+              >
+                {runMut.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
+                Run Enrichment
+              </button>
+            </>
           )}
         </div>
       </div>
