@@ -242,6 +242,19 @@ def _init_providers():
         logger.warning(f"Failed to register staffspy: {e}")
 
     # ── Declarative (YAML-manifest) providers — add a provider as a manifest ──
+    # ── Registry / knowledge-graph firmographics (website-independent) ──
+    try:
+        from apps.api.services.leadgen.enrichment.providers.wikidata_provider import WikidataProvider
+        register_provider(WikidataProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register wikidata: {e}")
+
+    try:
+        from apps.api.services.leadgen.enrichment.providers.mca_registry import MCARegistryProvider
+        register_provider(MCARegistryProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register mca_registry: {e}")
+
     try:
         from apps.api.services.leadgen.enrichment.declarative.registry import register_declarative_manifests
         register_declarative_manifests()
