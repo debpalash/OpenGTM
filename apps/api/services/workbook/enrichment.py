@@ -57,26 +57,28 @@ DEFAULT_WATERFALLS = {
         "ddg_company", "facebook_pages",
         "apollo_io", "people_data_labs",
     ],
-    # Company description / info
+    # Company description / info. mca_registry + wikidata are website-independent:
+    # they answer from the company NAME even when the site is dead.
     "description": [
         "deep_scraper", "jsonld_firmographics", "website_scraper", "ddg_company",
-        "company_intel",
+        "company_intel", "wikidata", "mca_registry",
     ],
     # Decision makers / contacts (staffspy = full roster; gated, fails over gracefully)
     "decision_makers": ["staffspy", "deep_scraper", "crosslinked", "decision_maker"],
     "contact_person": ["deep_scraper", "crosslinked", "decision_maker", "staffspy", "people_data_labs"],
     "contact_title": ["deep_scraper", "crosslinked", "decision_maker", "staffspy"],
-    # Social links — schema.org sameAs is authoritative, try it first
-    "linkedin_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder"],
-    "twitter_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder"],
-    "facebook_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder"],
+    # Social links — schema.org sameAs is authoritative; wikidata is a keyless,
+    # website-independent fallback (official LinkedIn/Twitter/Facebook IDs).
+    "linkedin_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder", "wikidata"],
+    "twitter_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder", "wikidata"],
+    "facebook_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder", "wikidata"],
     # Company metadata
-    "company_size": ["deep_scraper", "website_scraper", "company_intel", "people_data_labs"],
-    "industry_tags": ["deep_scraper", "website_scraper", "local_business", "company_intel"],
-    # Address — PostalAddress schema is authoritative, try it first
-    "address": ["jsonld_firmographics", "deep_scraper", "local_business", "google_maps"],
-    "founding_year": ["jsonld_firmographics", "deep_scraper", "company_intel"],
-    "founded_year": ["jsonld_firmographics", "deep_scraper", "company_intel"],
+    "company_size": ["deep_scraper", "website_scraper", "company_intel", "wikidata", "people_data_labs"],
+    "industry_tags": ["deep_scraper", "website_scraper", "local_business", "company_intel", "mca_registry", "wikidata"],
+    # Address — schema first; mca_registry = authoritative registered office (India).
+    "address": ["jsonld_firmographics", "deep_scraper", "local_business", "mca_registry", "wikidata", "google_maps"],
+    "founding_year": ["jsonld_firmographics", "deep_scraper", "company_intel", "mca_registry", "wikidata"],
+    "founded_year": ["jsonld_firmographics", "deep_scraper", "company_intel", "mca_registry", "wikidata"],
     # Funding & intelligence
     "funding_stage": ["company_intel"],
     "last_funding_amount": ["company_intel"],

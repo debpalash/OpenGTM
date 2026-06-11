@@ -1,0 +1,12 @@
+# Local SearXNG for Yupcha enrichment — inherits all upstream defaults,
+# overrides only what we need for a programmatic JSON backend.
+use_default_settings: true
+server:
+  secret_key: "REPLACE_WITH_64_HEX_RUN_openssl_rand_-hex_32"
+  limiter: false          # off → allow API/programmatic requests (no bot gate)
+  image_proxy: false
+search:
+  formats:
+    - html
+    - json                # enable the JSON API the enrichment providers will call
+  safe_search: 0
