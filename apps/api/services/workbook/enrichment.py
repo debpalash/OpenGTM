@@ -32,6 +32,12 @@ from apps.api.services.leadgen.db import LeadDB
 
 logger = logging.getLogger("workbook.enrichment")
 
+# Provider calls run in KILLABLE subprocesses (provider_runner) so a provider
+# that blocks past its deadline gets its worker process killed instead of leaking
+# an un-killable thread that eventually wedges the run.
+from apps.api.services.workbook.provider_runner import run_provider
+
+
 # ── Default waterfall chains per target field ────────────────────────────
 # Free OSS scrapers first, paid APIs as fallback.
 # When a workbook column doesn't define a custom waterfall, this is used.
@@ -175,14 +181,22 @@ async def enrich_cell(
 
         # Build cells dict for AI template resolution
         cells = {k: {"value": v} for k, v in lead_data.items()}
-        ai_result = await execute_ai_column(
-            prompt_template=prompt,
-            row_cells=cells,
-            columns_config=columns_config,
-        )
-        result_value = ai_result.get("value")
+        # Bound the LLM call — a hung/rate-limited provider must not wedge the row.
+        try:
+            ai_result = await asyncio.wait_for(
+                execute_ai_column(
+                    prompt_template=prompt,
+                    row_cells=cells,
+                    columns_config=columns_config,
+                ),
+                timeout=float(os.getenv("WORKBOOK_AI_TIMEOUT", "45")),
+            )
+            result_value = ai_result.get("value")
+            result_error = ai_result.get("error")
+        except asyncio.TimeoutError:
+            result_value = None
+            result_error = "ai_timeout"
         result_provider = "ai"
-        result_error = ai_result.get("error")
 
     elif col_type == "output":
         # Output Column → push the row to an external destination
@@ -277,6 +291,14 @@ async def enrich_cell(
         budget_remaining = (budget_max - budget_spent) if budget_max > 0 else None
         provider_chain = _planner.order_chain(db, target_field, provider_chain, budget_remaining)
 
+        # Optional waterfall-depth cap (0 = unlimited). With killable workers a
+        # hung provider can't wedge the run, so we default to NO cap — trying the
+        # full chain (different sources/strategies) is exactly what lifts the hit
+        # rate toward the success target. Set a cap only to trade recall for speed.
+        _max_providers = _RUN_CONFIG.get("max_providers", 0)
+        if _max_providers and len(provider_chain) > _max_providers:
+            provider_chain = provider_chain[:_max_providers]
+
         # Fields that are structured/JSON — NEVER put in a cell, always write-back only
         STRUCTURED_FIELDS = {"decision_makers", "hiring_signals", "secondary_emails", "secondary_phones"}
 
@@ -289,12 +311,16 @@ async def enrich_cell(
 
             _t0 = _time.monotonic()
             try:
-                # Per-provider timeout so a slow provider (e.g. holehe's 120-site
-                # check, deep_scraper's 8-page crawl) can't stall the waterfall.
-                result = await asyncio.wait_for(
-                    provider.enrich(lead),
-                    timeout=float(os.getenv("WORKBOOK_PROVIDER_TIMEOUT", "30")),
+                # Run the provider in a KILLABLE subprocess (see provider_runner).
+                # A provider that blocks past its deadline gets its worker process
+                # SIGKILLed and replaced — so a hung provider can never leak a
+                # thread and wedge the run. This is what makes the waterfall safe.
+                _rd = await run_provider(
+                    provider_name, lead,
+                    timeout=_RUN_CONFIG.get("provider_timeout", 10.0),
                 )
+                result = (EnrichmentResult(**_rd) if _rd
+                          else EnrichmentResult(provider=provider_name, success=False))
                 _latency_ms = (_time.monotonic() - _t0) * 1000.0
                 _planner.record_attempt(
                     db, provider_name, target_field,
@@ -356,6 +382,13 @@ async def enrich_cell(
             except asyncio.TimeoutError:
                 logger.warning(f"Provider {provider_name} timed out for lead {lead_id}")
                 result_error = "timeout"
+                # Trip the circuit breaker so the next cell skips this dead/slow
+                # provider instead of eating its full timeout again.
+                _planner.record_attempt(
+                    db, provider_name, target_field,
+                    success=False, latency_ms=(_time.monotonic() - _t0) * 1000.0,
+                    timed_out=True,
+                )
             except Exception as e:
                 _latency_ms = (_time.monotonic() - _t0) * 1000.0
                 logger.error(f"Provider {provider_name} failed for lead {lead_id}: {e}")
@@ -554,7 +587,14 @@ async def enrich_workbook_leads(
 # workbook completes off the request thread and never sticks in `running`.
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
-DEFAULT_CONCURRENCY = int(os.getenv("WORKBOOK_RUN_CONCURRENCY", "8"))
+DEFAULT_CONCURRENCY = int(os.getenv("WORKBOOK_RUN_CONCURRENCY", "12"))
+
+# Per-run knobs read by enrich_cell (set by run_workbook_enrichment at run start;
+# runs are sequential so a module-level dict is safe). max_providers: 0 = no cap.
+_RUN_CONFIG = {
+    "max_providers": int(os.getenv("WORKBOOK_MAX_PROVIDERS_PER_CELL", "0")),
+    "provider_timeout": float(os.getenv("WORKBOOK_PROVIDER_TIMEOUT", "10")),
+}
 
 ENRICHMENT_COL_TYPES = ("enrichment", "waterfall", "ai_formula", "agent", "http", "formula")
 
@@ -589,16 +629,24 @@ def _load_workbook_leads(
             query = query.filter(WorkbookRow.lead_id.in_(lead_ids))
         return [{"id": r.lead_id or r.id, **(r.data or {})} for r in query.all()]
 
-    # v1 legacy — leads DB filtered by the workbook's saved criteria
+    # v1 legacy — leads DB. The /run endpoint already resolved the workbook's
+    # filter into an explicit lead_ids list and passes it in, so prefer fetching
+    # exactly those by id. (get_leads only honors status/city/source/score_tier,
+    # so re-deriving from filter_criteria here would drop fields like
+    # "specialization" and enrich the whole table — see workbooks.run_workbook.)
     import dataclasses
     fc = wb.filter_criteria or {}
     lead_db = LeadDB()
     try:
-        rows = lead_db.get_leads(
-            status=fc.get("status"), city=fc.get("city"),
-            source=fc.get("source"), score_tier=fc.get("score_tier"),
-            limit=10000,
-        )
+        if lead_ids:
+            rows = [lead_db.get_lead(i) for i in lead_ids]
+            rows = [r for r in rows if r is not None]
+        else:
+            rows = lead_db.get_leads(
+                status=fc.get("status"), city=fc.get("city"),
+                source=fc.get("source"), score_tier=fc.get("score_tier"),
+                limit=10000,
+            )
     except Exception as e:
         logger.warning(f"v1 lead load failed for {wb.id}: {e}")
         rows = []
@@ -609,8 +657,6 @@ def _load_workbook_leads(
     for r in rows:
         d = dataclasses.asdict(r) if dataclasses.is_dataclass(r) else dict(r)
         leads.append(d)
-    if lead_ids:
-        leads = [l for l in leads if l.get("id") in lead_ids]
     return leads
 
 
@@ -633,16 +679,22 @@ async def _run_one_cell(workbook_id, lead_data, col, columns_config, redis_clien
         return {"success": False, "error": str(e)[:200]}
 
 
-async def _run_one_row(workbook_id, lead, ordered_cols, columns_config, redis_client) -> dict:
+async def _run_one_row(workbook_id, lead, ordered_cols, columns_config, redis_client,
+                       should_stop=None) -> dict:
     """Run all columns for ONE row, sequentially in dependency order.
 
     Each successful cell value is threaded back into a local copy of the row so
     that a downstream column referencing {this_column} sees the produced value.
     Returns {completed, errors}. Rows are run concurrently by the caller.
+
+    should_stop() is checked before each cell so a /stop (or a cancelled job)
+    halts the run within a couple seconds instead of only at batch boundaries.
     """
     row = dict(lead)  # local, mutable: downstream cols read earlier results
     completed = errors = 0
     for col in ordered_cols:
+        if should_stop is not None and should_stop():
+            break
         res = await _run_one_cell(workbook_id, row, col, columns_config, redis_client)
         if isinstance(res, dict) and res.get("success"):
             completed += 1
@@ -663,12 +715,22 @@ async def run_workbook_enrichment(
     row_ids: Optional[list] = None,
     lead_ids: Optional[list] = None,
     concurrency: int = DEFAULT_CONCURRENCY,
+    job_id: Optional[int] = None,
+    max_providers: int = 0,
+    retry_passes: int = 1,
+    provider_timeout: float = 10.0,
+    fill_missing: bool = False,
 ) -> Dict[str, Any]:
     """Concurrent, pause-aware, crash-recoverable workbook run.
 
     Self-contained (own sessions) so it can run under the queue worker. Updates
     workbook status/progress and derives `complete` from cell completion, so the
     workbook can never be left stuck in `running` by a dropped request.
+
+    Honors two stop signals (checked before every cell, throttled to one DB read
+    every ~2s): the workbook being set to `paused` by /stop, and this run's Job
+    being cancelled (e.g. superseded by a newer run). Either halts promptly so a
+    Stop click and a re-run don't leave a zombie run grinding in the background.
     """
     # ── Load config + rows ──
     with SessionLocal() as db:
@@ -691,30 +753,86 @@ async def run_workbook_enrichment(
                 db.commit()
         return {"completed": 0, "errors": 0, "total": 0, "rows": len(leads)}
 
+    # Re-assert ownership: a prior superseded run's finalize may have just set
+    # this workbook to `complete`; mark it running again so the UI reflects THIS
+    # run. (The worker is sequential, so the old run has already stopped here.)
+    with SessionLocal() as sdb:
+        w0 = sdb.query(Workbook).filter(Workbook.id == workbook_id).first()
+        if w0 and w0.status != "paused":
+            w0.status = "running"
+            sdb.commit()
+
     # Order columns so a column referencing {another} runs AFTER it; then run
     # row-major (columns sequential per row, threading results) with rows
     # concurrent. This makes derived columns (formula/http/ai) see their inputs.
     from apps.api.services.workbook.column_deps import topo_sort_columns
     ordered_cols = topo_sort_columns(enrichment_cols)
+    _RUN_CONFIG["max_providers"] = max_providers      # read by enrich_cell
+    _RUN_CONFIG["provider_timeout"] = provider_timeout
 
-    total = len(leads) * len(enrichment_cols)
+    # Build the work list: (lead, columns_to_run). In fill-missing mode only the
+    # cells that aren't already complete are run — gaps get filled, good values
+    # are preserved (a re-run won't clobber a complete cell with a fresh miss).
+    if fill_missing:
+        with SessionLocal() as sdb:
+            done = sdb.query(
+                WorkbookEnrichment.lead_id, WorkbookEnrichment.column_id
+            ).filter(
+                WorkbookEnrichment.workbook_id == workbook_id,
+                WorkbookEnrichment.status == "complete",
+                WorkbookEnrichment.value.isnot(None),
+            ).all()
+        done_set = {(lid, cid) for lid, cid in done}
+        work_items = [
+            (lead, cols)
+            for lead in leads
+            for cols in [[c for c in ordered_cols if (lead["id"], c["id"]) not in done_set]]
+            if cols
+        ]
+        logger.info(f"fill_missing: {sum(len(c) for _, c in work_items)} gaps across "
+                    f"{len(work_items)} rows (of {len(leads)})")
+    else:
+        work_items = [(lead, ordered_cols) for lead in leads]
+
+    total = sum(len(cols) for _, cols in work_items)
     completed = errors = rows_done = 0
     stopped = False
     redis_client = _make_redis()
 
+    # Cooperative-stop probe. Checked before every cell and every batch, but the
+    # underlying DB read is throttled to once per ~2s so an 11-column run on one
+    # row doesn't spam queries. Latches once true so we stop everywhere at once.
+    import time as _time
+    _stop_state = {"stopped": False, "checked_at": 0.0}
+
+    def _should_stop() -> bool:
+        if _stop_state["stopped"]:
+            return True
+        now = _time.monotonic()
+        if now - _stop_state["checked_at"] < 2.0:
+            return False
+        _stop_state["checked_at"] = now
+        with SessionLocal() as sdb:
+            wstatus = sdb.query(Workbook.status).filter(Workbook.id == workbook_id).scalar()
+            jstatus = None
+            if job_id is not None:
+                from apps.api.models import Job
+                jstatus = sdb.query(Job.status).filter(Job.id == job_id).scalar()
+        if wstatus == "paused" or jstatus in ("cancelled", "failed"):
+            _stop_state["stopped"] = True
+        return _stop_state["stopped"]
+
     try:
-        for i in range(0, len(leads), concurrency):
-            # Cooperative stop: /stop sets status=paused
-            with SessionLocal() as sdb:
-                cur = sdb.query(Workbook.status).filter(Workbook.id == workbook_id).scalar()
-            if cur == "paused":
+        for i in range(0, len(work_items), concurrency):
+            if _should_stop():
                 stopped = True
                 break
 
-            batch = leads[i:i + concurrency]
+            batch = work_items[i:i + concurrency]
             results = await asyncio.gather(
-                *[_run_one_row(workbook_id, lead, ordered_cols, columns_config, redis_client)
-                  for lead in batch],
+                *[_run_one_row(workbook_id, lead, cols, columns_config,
+                               redis_client, should_stop=_should_stop)
+                  for lead, cols in batch],
                 return_exceptions=True,
             )
             for r in results:
@@ -732,6 +850,50 @@ async def run_workbook_enrichment(
                     w.total_rows = len(leads)
                     w.completed_rows = min(len(leads), rows_done)
                     sdb.commit()
+
+        # ── Retry passes: re-run only the cells still in `error`. Transient
+        # failures (LLM rate-limit, momentary network) recover, and the full
+        # waterfall gets another shot at the hard cells. This is what pushes the
+        # fill rate up toward the success target. Bounded by retry_passes. ──
+        lead_by_id = {l["id"]: l for l in leads}
+        for _pass in range(max(0, retry_passes)):
+            if stopped or _should_stop():
+                break
+            with SessionLocal() as sdb:
+                err_cells = sdb.query(
+                    WorkbookEnrichment.lead_id, WorkbookEnrichment.column_id
+                ).filter(
+                    WorkbookEnrichment.workbook_id == workbook_id,
+                    WorkbookEnrichment.status == "error",
+                    WorkbookEnrichment.column_id.in_([c["id"] for c in ordered_cols]),
+                ).all()
+            err_by_lead: Dict[int, set] = {}
+            for lid, cid in err_cells:
+                if lid in lead_by_id:
+                    err_by_lead.setdefault(lid, set()).add(cid)
+            if not err_by_lead:
+                break
+            targets = [
+                (lead_by_id[lid], [c for c in ordered_cols if c["id"] in cols])
+                for lid, cols in err_by_lead.items()
+            ]
+            n_cells = sum(len(cols) for _, cols in targets)
+            logger.info(f"[retry pass {_pass + 1}/{retry_passes}] re-running {n_cells} error cells")
+            for i in range(0, len(targets), concurrency):
+                if _should_stop():
+                    stopped = True
+                    break
+                chunk = targets[i:i + concurrency]
+                fixed = await asyncio.gather(
+                    *[_run_one_row(workbook_id, lead, cols, columns_config,
+                                   redis_client, should_stop=_should_stop)
+                      for lead, cols in chunk],
+                    return_exceptions=True,
+                )
+                for r in fixed:
+                    if isinstance(r, dict):
+                        completed += r.get("completed", 0)
+                        errors -= r.get("completed", 0)  # moved error → complete
     finally:
         # ── Finalize status (never leave it stuck in running) ──
         with SessionLocal() as sdb:
@@ -762,12 +924,23 @@ async def run_workbook_enrichment(
 async def handle_run_workbook(job_id: int, payload: dict):
     """queue_service handler for the 'run_workbook' job type."""
     logger.info(f"[job {job_id}] run_workbook {payload.get('workbook_id')}")
+    # Size the killable worker pool to the configured count before running.
+    try:
+        from apps.api.services.workbook import provider_runner
+        provider_runner.ensure_workers(payload.get("provider_workers"))
+    except Exception as e:
+        logger.warning(f"provider pool sizing skipped: {e}")
     result = await run_workbook_enrichment(
         workbook_id=payload["workbook_id"],
         column_ids=payload.get("column_ids"),
         row_ids=payload.get("row_ids"),
         lead_ids=payload.get("lead_ids"),
         concurrency=payload.get("concurrency", DEFAULT_CONCURRENCY),
+        job_id=job_id,
+        max_providers=payload.get("max_providers", 0),
+        retry_passes=payload.get("retry_passes", 1),
+        provider_timeout=float(payload.get("provider_timeout", 10)),
+        fill_missing=bool(payload.get("fill_missing", False)),
     )
     logger.info(f"[job {job_id}] run_workbook done: {result}")
 

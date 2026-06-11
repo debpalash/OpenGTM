@@ -181,6 +181,7 @@ class RunWorkbookRequest(BaseModel):
     row_ids: Optional[list[int]] = Field(None, description="Specific row IDs to run. None = all rows")
     # Legacy compat
     lead_ids: Optional[list[int]] = Field(None, description="Legacy: specific leads to run")
+    fill_missing: bool = Field(False, description="Only enrich cells not already complete — fills gaps, preserves good values")
 
 
 class RunWorkbookResponse(BaseModel):

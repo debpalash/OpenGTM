@@ -40,6 +40,7 @@ dependencies = [
     "duckduckgo-search>=8.1.1",
     "redis>=6.4.0",
     "bullmq>=2.25.1",
+    "pebble>=5.2.0",
 ]
 
 [project.scripts]

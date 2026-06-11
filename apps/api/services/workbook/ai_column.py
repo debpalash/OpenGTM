@@ -76,7 +76,7 @@ async def execute_ai_column(
     row_cells: dict,
     columns_config: list,
     output_format: str = "text",
-    max_tokens: int = 512,
+    max_tokens: int = 1500,  # reasoning models (e.g. zai-glm, gpt-oss) spend
 ) -> Dict[str, Any]:
     """Execute an AI column for a single row.
 

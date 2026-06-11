@@ -74,6 +74,33 @@ def _db_set(key: str, value: str):
     os.environ[key] = value
 
 
+# ── Enrichment performance (user-configurable parallelism + retry) ──────────
+# Defaults chosen for a good speed/cost balance; raise concurrency/workers to go
+# faster (more RAM/CPU), raise retry_passes to push fill rate toward 100%.
+_ENRICHMENT_DEFAULTS = {
+    "row_concurrency": 12,    # rows enriched in parallel
+    "provider_workers": 8,    # killable subprocess workers for provider calls
+    "provider_timeout": 10,   # seconds before a provider's worker is killed
+    "max_providers": 5,       # waterfall depth cap per cell (0 = full chain) —
+                              # past ~5 the remaining providers are dead/keyless
+                              # for most leads, so deeper just costs time.
+    "retry_passes": 1,        # extra passes over cells still failing
+}
+
+
+def _int_setting(key: str, default: int) -> int:
+    try:
+        v = _db_get(f"ENRICH_{key.upper()}", "")
+        return int(v) if v else default
+    except (ValueError, TypeError):
+        return default
+
+
+def get_enrichment_settings() -> Dict[str, int]:
+    """Current enrichment performance config (DB-backed, with defaults)."""
+    return {k: _int_setting(k, d) for k, d in _ENRICHMENT_DEFAULTS.items()}
+
+
 def _seed_from_env():
     """Sync .env keys into the settings DB (insert missing, don't overwrite existing)."""
     try:
@@ -437,6 +464,34 @@ async def test_provider(provider_id: str):
 
     except Exception as e:
         return {"status": "error", "error": str(e)}
+
+
+class EnrichmentPerfBody(BaseModel):
+    row_concurrency: Optional[int] = None
+    provider_workers: Optional[int] = None
+    provider_timeout: Optional[int] = None
+    max_providers: Optional[int] = None
+    retry_passes: Optional[int] = None
+
+
+@router.get("/enrichment-perf")
+def get_enrichment_perf():
+    """Read the enrichment parallelism + retry settings."""
+    return {**get_enrichment_settings(), "defaults": _ENRICHMENT_DEFAULTS}
+
+
+@router.put("/enrichment-perf")
+def set_enrichment_perf(body: EnrichmentPerfBody):
+    """Update enrichment parallelism + retry settings (clamped to sane ranges)."""
+    bounds = {
+        "row_concurrency": (1, 64), "provider_workers": (1, 64),
+        "provider_timeout": (3, 120), "max_providers": (0, 20), "retry_passes": (0, 5),
+    }
+    for key, (lo, hi) in bounds.items():
+        val = getattr(body, key, None)
+        if val is not None:
+            _db_set(f"ENRICH_{key.upper()}", str(max(lo, min(hi, int(val)))))
+    return get_enrichment_settings()
 
 
 @router.get("/system")
