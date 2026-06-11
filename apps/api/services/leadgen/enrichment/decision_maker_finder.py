@@ -24,7 +24,8 @@ TARGET_TITLES = [
 async def _search_decision_maker(company: str, title: str) -> Optional[dict]:
     """Search DDG for a decision maker at a company."""
     try:
-        from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG pool        from apps.api.services.leadgen.proxy_client import get_ddgs
+        from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG pool
+        from apps.api.services.leadgen.proxy_client import get_ddgs
         query = f'site:linkedin.com/in "{company}" "{title}" India'
         with get_ddgs() as ddgs:
             results = list(ddgs.text(query, max_results=2))

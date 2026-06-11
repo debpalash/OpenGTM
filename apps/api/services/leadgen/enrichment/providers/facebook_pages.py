@@ -78,7 +78,8 @@ class FacebookPageProvider(EnrichmentProvider):
 
     async def _search_facebook_page(self, company: str, city: str = "") -> Optional[dict]:
         """Search DDG for Facebook page and extract contact info from snippet."""
-        from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG pool        from apps.api.services.leadgen.proxy_client import get_ddgs
+        from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG pool
+        from apps.api.services.leadgen.proxy_client import get_ddgs
 
         query = f'site:facebook.com "{company}"'
         if city:

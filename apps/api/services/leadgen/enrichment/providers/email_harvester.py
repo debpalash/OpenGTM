@@ -88,7 +88,8 @@ def _rank_email(email: str, target_domain: str) -> int:
 
 async def _ddg_search(query: str, max_results: int = 8) -> List[Dict]:
     """Search DuckDuckGo for results with timeout."""
-    from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG pool    from apps.api.services.leadgen.proxy_client import get_proxy
+    from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG pool
+    from apps.api.services.leadgen.proxy_client import get_proxy
 
     proxy = get_proxy()
 
