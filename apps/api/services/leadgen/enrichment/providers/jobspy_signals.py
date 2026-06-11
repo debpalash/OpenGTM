@@ -150,8 +150,7 @@ class JobSpySignalProvider(EnrichmentProvider):
 
     async def _search_jobs(self, company: str, city: str = "") -> List[Dict]:
         """Search for job postings using DDG (lightweight approach)."""
-        from ddgs import DDGS
-        from apps.api.services.leadgen.proxy_client import get_ddgs
+        from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG pool        from apps.api.services.leadgen.proxy_client import get_ddgs
 
         jobs = []
         queries = [

@@ -66,3 +66,10 @@ apps/api/services/leadgen/data/leads.db-wal
 data_collector/proxys.txt
 data_collector/checkpoint.json
 data_collector/*.db
+
+# SearXNG local instance secret (use settings.yml.example as template)
+infra/searxng/settings.yml
+
+# Local data symlink + Go build artifacts
+apps/api/data
+apps/searxng-pool/searxng-pool
