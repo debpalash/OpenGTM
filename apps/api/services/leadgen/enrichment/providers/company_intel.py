@@ -34,7 +34,8 @@ logger = logging.getLogger("leadgen.company_intel")
 
 async def _search_ddg(query: str, max_results: int = 8) -> List[Dict]:
     """DuckDuckGo search with timeout."""
-    from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG pool    from apps.api.services.leadgen.proxy_client import get_proxy
+    from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG pool
+    from apps.api.services.leadgen.proxy_client import get_proxy
 
     proxy = get_proxy()
     def _do():
