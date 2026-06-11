@@ -36,6 +36,8 @@ _RESOURCE = os.getenv("MCA_RESOURCE_ID", "4dbe5667-7b6b-41d7-82af-211562424d9a")
 _API = f"https://api.data.gov.in/resource/{_RESOURCE}"
 # data.gov.in public sample key works out of the box (rate-limited); override for prod.
 _KEY = os.getenv("DATA_GOV_IN_KEY", "579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b")
+# CIN-via-web-search fallback is opt-in (it can exceed the per-provider budget).
+_CIN_SEARCH = os.getenv("MCA_CIN_SEARCH", "").lower() in ("1", "true", "yes")
 
 # CIN = 1 letter (Listing) + 5-digit industry + 2-letter state + 4-digit year
 #       + 3-letter ownership + 6-digit registration number  (21 chars).
@@ -84,8 +86,10 @@ class MCARegistryProvider(EnrichmentProvider):
             if rec:
                 return rec, 0.8
 
-        # 2) CIN-via-search fallback — only if there's budget left.
-        if _time.monotonic() < deadline:
+        # 2) CIN-via-search fallback. Off by default: the web search inside a
+        #    killable worker can exceed the time budget and expire the worker.
+        #    Enable with MCA_CIN_SEARCH=1 (best with a real DATA_GOV_IN_KEY).
+        if _CIN_SEARCH and _time.monotonic() < deadline:
             cin = await self._find_cin(company, city)
             if cin:
                 rec = await self._mca_query("CIN", cin)
