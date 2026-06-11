@@ -10,3 +10,30 @@ search:
     - html
     - json                # enable the JSON API the enrichment providers will call
   safe_search: 0
+
+# ── Keyed search engine (optional, recommended for production) ───────────────
+# From a server IP, Google/DDG/Brave engines CAPTCHA; Bing/Qwant/Yahoo work. To
+# get Google-quality results without proxies, add a KEYED engine — keyed APIs
+# don't CAPTCHA. Example: Serper (Google results as JSON, free tier) wired via
+# SearXNG's generic json_engine. Uncomment, add your key, then query the pool
+# with engines=serper (or add it to SEARXPOOL_DEFAULT_ENGINES).
+#
+# engines:
+#   - name: serper
+#     engine: json_engine
+#     shortcut: srp
+#     categories: [general]
+#     search_url: https://google.serper.dev/search
+#     method: POST
+#     headers:
+#       X-API-KEY: "YOUR_SERPER_KEY"
+#       Content-Type: application/json
+#     request_body: '{{"q": "{query}", "num": 10}}'
+#     results_query: organic
+#     url_query: link
+#     title_query: title
+#     content_query: snippet
+#
+# Alternative scale lever (no key): put each SearXNG instance behind a different
+# egress proxy (see docker-compose.yml HTTP(S)_PROXY) so the free Google/DDG/
+# Brave scraper engines work from diverse IPs.
