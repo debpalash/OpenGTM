@@ -57,13 +57,17 @@ def draft_plan(goal: str, target_count: int = 0) -> Dict:
     report. Returns a plan dict that execute_plan() can run.
     """
     g = (goal or "").strip()
+    fields = _detect_fields(g)
     steps: List[Dict] = [{
         "kind": "create_source_workbook",
         "description": f"Create a live-sourcing workbook for: {g}"
                        + (f" (target {target_count} rows)" if target_count else ""),
-        "params": {"icp_description": g, "target_rows": int(target_count or 0), "auto_run": True},
+        # auto_enrich chains run_workbook after sourcing so the agent columns
+        # below actually execute (only when there are enrichment fields to fill).
+        "params": {"icp_description": g, "target_rows": int(target_count or 0),
+                   "auto_run": True, "auto_enrich": bool(fields)},
     }]
-    for f in _detect_fields(g):
+    for f in fields:
         steps.append({
             "kind": "add_agent_column",
             "description": f"Add an agent column \"{f['label']}\" — {f['goal']}",
