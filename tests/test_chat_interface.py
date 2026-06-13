@@ -255,6 +255,19 @@ def test_autopilot_drafts_plan_from_compound_goal():
     assert plan["estimated_rows"] == 50
 
 
+def test_autopilot_sets_auto_enrich_when_fields_requested():
+    from apps.api.services.agent import autopilot
+    # Goal with an enrichment field → chain enrichment after sourcing.
+    p1 = autopilot.draft_plan("50 IT staffing firms in Pune, founders' emails", 50)
+    create = next(s for s in p1["steps"] if s["kind"] == "create_source_workbook")
+    assert create["params"]["auto_enrich"] is True
+    # Goal with no enrichment field → just source, no auto-enrich, no agent column.
+    p2 = autopilot.draft_plan("list of IT staffing firms in Pune", 50)
+    create2 = next(s for s in p2["steps"] if s["kind"] == "create_source_workbook")
+    assert create2["params"]["auto_enrich"] is False
+    assert not any(s["kind"] == "add_agent_column" for s in p2["steps"])
+
+
 def test_autopilot_dedupes_email_field():
     from apps.api.services.agent import autopilot
     # "founders' emails" should yield ONE email column (Founder Email), not two.

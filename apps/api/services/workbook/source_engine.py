@@ -226,11 +226,24 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
 async def handle_source_workbook(job_id: int, payload: dict):
     """queue_service handler for the 'source_workbook' job type."""
     logger.info(f"[job {job_id}] source_workbook {payload.get('workbook_id')}")
+    wb_id = payload["workbook_id"]
     result = await materialize_source(
-        workbook_id=payload["workbook_id"],
+        workbook_id=wb_id,
         column_id=payload["column_id"],
     )
     logger.info(f"[job {job_id}] source_workbook done: {result}")
+
+    # Opt-in: chain enrichment so agent/enrichment columns actually run after
+    # sourcing (used by autopilot). The manual UI flow leaves enrich_after unset
+    # so users still review + click "Run Enrichment" themselves.
+    if payload.get("enrich_after") and result.get("added"):
+        try:
+            from apps.api.services.queue_service import queue_service
+            with SessionLocal() as db:
+                queue_service.add_job(db, "run_workbook", {"workbook_id": wb_id})
+            logger.info(f"[job {job_id}] enqueued run_workbook for {wb_id} (enrich_after)")
+        except Exception as e:
+            logger.warning(f"[job {job_id}] failed to chain run_workbook: {e}")
 
 
 # ── Preview (no write, no sourcing) ──────────────────────────────────────
