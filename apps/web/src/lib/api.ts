@@ -176,6 +176,19 @@ export async function runDedup(params: Record<string, string>): Promise<DedupRes
   return res.json()
 }
 
+export async function bulkEnrich(
+  lead_ids: number[],
+  action: "find_emails" | "scrape_website",
+): Promise<{ ok: boolean; job_id: string; count: number; action: string }> {
+  const res = await fetch(`${API_BASE}/api/leads/bulk-enrich`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ lead_ids, action }),
+  })
+  if (!res.ok) throw new Error(`Bulk enrich failed (${res.status})`)
+  return res.json()
+}
+
 export async function mergeDuplicates(master_id: number, duplicate_ids: number[]): Promise<void> {
   const res = await fetch(`${API_BASE}/api/leads/dedup/merge`, {
     method: "POST",
