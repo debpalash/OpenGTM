@@ -143,6 +143,18 @@ export async function fetchLead(id: number): Promise<Lead> {
   return res.json()
 }
 
+export interface SimilarLeads {
+  reference: string
+  count: number
+  similar_leads: Lead[]
+}
+
+export async function fetchSimilarLeads(id: number, limit = 10): Promise<SimilarLeads> {
+  const res = await fetch(`${API_BASE}/api/lead/${id}/similar?limit=${limit}`)
+  if (!res.ok) throw new Error(`Similar lookup failed (${res.status})`)
+  return res.json()
+}
+
 export async function updateStatus(id: number, status: string, note = ""): Promise<void> {
   await fetch(`${API_BASE}/api/lead/${id}/status`, {
     method: "POST",
