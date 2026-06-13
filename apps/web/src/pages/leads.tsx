@@ -5,7 +5,7 @@ import { toast } from "sonner"
 import {
   ArrowUpDown, Mail, Phone, MoreHorizontal,
   Plus, Download, RefreshCw, Globe, Flame, Sun, Snowflake, Upload,
-  SlidersHorizontal, Bookmark, X, GitMerge, Loader2,
+  SlidersHorizontal, Bookmark, X, GitMerge, Loader2, Sparkles,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,7 +28,7 @@ import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/data-table"
 import { useLeads, useStats, useFilters, useUpdateStatus, useUpdateLead, useDeleteLead, useCollect, useImportDataCollector } from "@/lib/hooks"
 import {
-  exportCSVUrl, fetchSimilarLeads, runDedup, mergeDuplicates,
+  exportCSVUrl, fetchSimilarLeads, runDedup, mergeDuplicates, bulkEnrich,
   type Lead, type SimilarLeads, type DedupResult, type DedupSuggestion,
 } from "@/lib/api"
 import { EditableCell } from "@/components/editable-cell"
@@ -637,6 +637,29 @@ export default function LeadsPage() {
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-lg border bg-background px-4 py-2 shadow-lg">
           <span className="text-sm font-medium">{selectedRows.length} selected</span>
           <Separator orientation="vertical" className="h-4" />
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button variant="outline" size="sm" className="gap-1" />}>
+              <Sparkles className="size-3.5" /> Enrich
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={() => {
+                const ids = selectedRows.map(r => r.id)
+                bulkEnrich(ids, "find_emails")
+                  .then(res => toast.success(`Finding emails for ${res.count} leads…`))
+                  .catch(() => toast.error("Bulk enrich failed"))
+              }}>
+                Find emails
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                const ids = selectedRows.map(r => r.id)
+                bulkEnrich(ids, "scrape_website")
+                  .then(res => toast.success(`Scraping websites for ${res.count} leads…`))
+                  .catch(() => toast.error("Bulk enrich failed"))
+              }}>
+                Scrape websites
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button
             variant="outline"
             size="sm"
