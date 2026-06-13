@@ -291,6 +291,26 @@ def test_execute_plan_is_gated_draft_plan_is_not():
     assert not ck._needs_confirmation("draft_plan")
 
 
+# ── Offline: cross-conversation memory (dependency-free builtin backend) ──
+
+def test_builtin_memory_recall(tmp_path):
+    from apps.api.services import memory as mem
+    store = mem._BuiltinMemory(str(tmp_path / "m.db"))
+    store.add("User asked about IT staffing firms in Pune; found 12 leads", user_id="u1")
+    store.add("User prefers concise answers", user_id="u1")
+    hits = store.search("staffing companies in pune", user_id="u1", limit=3)
+    assert any("Pune" in h["memory"] for h in hits)
+    # No keyword overlap → no recall (avoids injecting irrelevant memories).
+    assert store.search("weather forecast tomorrow", user_id="u1") == []
+    # Per-user isolation.
+    assert store.search("staffing", user_id="someone_else") == []
+
+
+def test_memory_is_available_without_openmemory():
+    from apps.api.services import memory as mem
+    assert mem.is_available() is True  # builtin backend always available
+
+
 # ── Live: end-to-end SSE streaming (opt-in) ───────────────────────────────
 
 async def _run_chat(client, prompt, timeout=60):
