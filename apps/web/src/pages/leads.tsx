@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 import { toast } from "sonner"
@@ -16,6 +16,9 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover"
 import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
+import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -24,7 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/data-table"
 import { useLeads, useStats, useFilters, useUpdateStatus, useUpdateLead, useDeleteLead, useCollect, useImportDataCollector } from "@/lib/hooks"
-import { exportCSVUrl, type Lead } from "@/lib/api"
+import { exportCSVUrl, fetchSimilarLeads, type Lead, type SimilarLeads } from "@/lib/api"
 import { EditableCell } from "@/components/editable-cell"
 
 const TIER_COLORS: Record<string, string> = {
@@ -73,6 +76,15 @@ export default function LeadsPage() {
   const [collectQuery, setCollectQuery] = useState("")
   const [selectedRows, setSelectedRows] = useState<Lead[]>([])
   const [segments, setSegments] = useState(loadSegments)
+  const [similar, setSimilar] = useState<SimilarLeads | null>(null)
+  const [similarOpen, setSimilarOpen] = useState(false)
+
+  const openSimilar = useCallback(async (lead: Lead) => {
+    setSimilarOpen(true)
+    setSimilar(null)
+    try { setSimilar(await fetchSimilarLeads(lead.id)) }
+    catch { toast.error("Couldn't find similar leads") }
+  }, [])
 
   // Map UI filters → GET /api/leads query params (only non-empty).
   const filters: Record<string, string> = {
@@ -298,6 +310,9 @@ export default function LeadsPage() {
             }}>
               Mark qualified
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openSimilar(row.original)}>
+              Find similar
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive"
@@ -313,7 +328,7 @@ export default function LeadsPage() {
       ),
       size: 50,
     },
-  ], [updateStatusMut, deleteLeadMut])
+  ], [updateStatusMut, deleteLeadMut, updateLeadMut, openSimilar])
 
   const handleCollect = () => {
     if (!collectQuery.trim()) return
@@ -618,6 +633,43 @@ export default function LeadsPage() {
           </Button>
         </div>
       )}
+
+      {/* Similar leads dialog */}
+      <Dialog open={similarOpen} onOpenChange={setSimilarOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-sm">
+              {similar ? `Leads similar to ${similar.reference}` : "Finding similar leads…"}
+            </DialogTitle>
+          </DialogHeader>
+          {!similar ? (
+            <div className="space-y-2 py-2">
+              {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-8 w-full" />)}
+            </div>
+          ) : similar.similar_leads.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">No similar leads found.</p>
+          ) : (
+            <div className="max-h-[60vh] overflow-auto divide-y">
+              {similar.similar_leads.map(l => (
+                <button
+                  key={l.id}
+                  onClick={() => { setSimilarOpen(false); navigate(`/leads/${l.id}`) }}
+                  className="flex items-center gap-3 w-full text-left py-2 px-1 hover:bg-muted/50 rounded transition-colors"
+                >
+                  <ScoreBadge score={l.score} tier={l.score_tier} />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-medium truncate">{l.company}</div>
+                    <div className="text-[10px] text-muted-foreground truncate">
+                      {[l.city, l.specialization].filter(Boolean).join(" · ") || "—"}
+                    </div>
+                  </div>
+                  {l.email && <Mail className="size-3 text-emerald-500 shrink-0" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
