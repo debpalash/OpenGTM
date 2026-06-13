@@ -318,6 +318,8 @@ class LeadDB:
         score_tier: Optional[str] = None,
         search: Optional[str] = None,
         workspace_id: Optional[str] = None,
+        has_email: Optional[bool] = None,
+        has_phone: Optional[bool] = None,
         limit: int = 500,
         offset: int = 0,
         order_by: str = "score DESC",
@@ -325,6 +327,14 @@ class LeadDB:
         """Query leads with filters."""
         conditions = []
         params = []
+
+        # Tri-state presence filters (True = present, False = missing, None = any).
+        if has_email is not None:
+            conditions.append("(l.email IS NOT NULL AND l.email != '')" if has_email
+                              else "(l.email IS NULL OR l.email = '')")
+        if has_phone is not None:
+            conditions.append("(l.phone IS NOT NULL AND l.phone != '')" if has_phone
+                              else "(l.phone IS NULL OR l.phone = '')")
 
         if status:
             conditions.append("l.status = ?")

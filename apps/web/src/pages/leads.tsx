@@ -3,14 +3,18 @@ import { useNavigate } from "react-router-dom"
 import { type ColumnDef } from "@tanstack/react-table"
 import { toast } from "sonner"
 import {
-  ArrowUpDown, ExternalLink, Mail, Phone, MoreHorizontal,
+  ArrowUpDown, Mail, Phone, MoreHorizontal,
   Plus, Download, RefreshCw, Globe, Flame, Sun, Snowflake, Upload,
+  SlidersHorizontal, Bookmark, X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
+import {
+  Popover, PopoverContent, PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
@@ -44,19 +48,45 @@ function ScoreBadge({ score, tier }: { score: number; tier: string }) {
   )
 }
 
+// ── Saved segments (named filter sets), persisted in localStorage ──
+type LeadFilters = {
+  city: string; tier: string; status: string; source: string
+  scoreMin: string; scoreMax: string; hasEmail: string; hasPhone: string
+}
+const EMPTY_FILTERS: LeadFilters = {
+  city: "", tier: "", status: "", source: "",
+  scoreMin: "", scoreMax: "", hasEmail: "", hasPhone: "",
+}
+const SEGMENTS_KEY = "yupcha:leadSegments"
+function loadSegments(): { name: string; filters: LeadFilters }[] {
+  try { return JSON.parse(localStorage.getItem(SEGMENTS_KEY) || "[]") } catch { return [] }
+}
+function saveSegments(segs: { name: string; filters: LeadFilters }[]) {
+  localStorage.setItem(SEGMENTS_KEY, JSON.stringify(segs))
+}
+
 export default function LeadsPage() {
   const navigate = useNavigate()
-  const [city, setCity] = useState("")
-  const [tier, setTier] = useState("")
+  const [f, setF] = useState<LeadFilters>(EMPTY_FILTERS)
+  const setFilter = (k: keyof LeadFilters, v: string) => setF(prev => ({ ...prev, [k]: v }))
   const [collectQuery, setCollectQuery] = useState("")
   const [selectedRows, setSelectedRows] = useState<Lead[]>([])
+  const [segments, setSegments] = useState(loadSegments)
 
+  // Map UI filters → GET /api/leads query params (only non-empty).
   const filters: Record<string, string> = {
     limit: "500",
     order_by: "score DESC",
-    ...(city && { city }),
-    ...(tier && { tier }),
+    ...(f.city && { city: f.city }),
+    ...(f.tier && { tier: f.tier }),
+    ...(f.status && { status: f.status }),
+    ...(f.source && { source: f.source }),
+    ...(f.scoreMin && { score_min: f.scoreMin }),
+    ...(f.scoreMax && { score_max: f.scoreMax }),
+    ...(f.hasEmail && { has_email: f.hasEmail }),   // "true" | "false"
+    ...(f.hasPhone && { has_phone: f.hasPhone }),
   }
+  const activeFilterCount = Object.values(f).filter(Boolean).length
 
   const { data: leads, isLoading, refetch } = useLeads(filters)
   const { data: stats } = useStats()
@@ -223,6 +253,22 @@ export default function LeadsPage() {
     setCollectQuery("")
   }
 
+  const saveCurrentSegment = () => {
+    const name = window.prompt("Name this segment:")?.trim()
+    if (!name) return
+    const next = [...segments.filter(s => s.name !== name), { name, filters: f }]
+    setSegments(next); saveSegments(next)
+    toast.success(`Saved segment "${name}"`)
+  }
+  const applySegment = (name: string) => {
+    const seg = segments.find(s => s.name === name)
+    if (seg) setF({ ...EMPTY_FILTERS, ...seg.filters })
+  }
+  const deleteSegment = (name: string) => {
+    const next = segments.filter(s => s.name !== name)
+    setSegments(next); saveSegments(next)
+  }
+
   return (
     <div className="flex flex-col gap-1.5 p-2 h-full overflow-hidden">
       {/* Row 1 — Stats + Collect + Filters (compact single row) */}
@@ -266,7 +312,7 @@ export default function LeadsPage() {
         {/* Filters + Actions */}
         <div className="flex items-center gap-1 ml-auto shrink-0">
           {filterOptions?.cities && (
-            <Select value={city || "all"} onValueChange={(v) => setCity(v === "all" ? "" : v ?? "")}>
+            <Select value={f.city || "all"} onValueChange={(v) => setFilter("city", v === "all" ? "" : v ?? "")}>
               <SelectTrigger className="w-[110px] h-7 text-xs">
                 <SelectValue placeholder="All cities" />
               </SelectTrigger>
@@ -279,7 +325,7 @@ export default function LeadsPage() {
             </Select>
           )}
           {filterOptions?.tiers && (
-            <Select value={tier || "all"} onValueChange={(v) => setTier(v === "all" ? "" : v ?? "")}>
+            <Select value={f.tier || "all"} onValueChange={(v) => setFilter("tier", v === "all" ? "" : v ?? "")}>
               <SelectTrigger className="w-[100px] h-7 text-xs">
                 <SelectValue placeholder="All tiers" />
               </SelectTrigger>
@@ -291,6 +337,108 @@ export default function LeadsPage() {
               </SelectContent>
             </Select>
           )}
+
+          {/* Advanced filters */}
+          <Popover>
+            <PopoverTrigger
+              render={<Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1" />}
+            >
+              <SlidersHorizontal className="size-3" />
+              Filters
+              {activeFilterCount > 0 && (
+                <span className="ml-0.5 rounded-full bg-primary/15 text-primary px-1.5 text-[10px] font-medium">{activeFilterCount}</span>
+              )}
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-64 space-y-2.5 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Filters</span>
+                {activeFilterCount > 0 && (
+                  <button className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+                          onClick={() => setF(EMPTY_FILTERS)}>
+                    <X className="size-3" /> Clear
+                  </button>
+                )}
+              </div>
+
+              <label className="block">Status
+                <Select value={f.status || "all"} onValueChange={(v) => setFilter("status", v === "all" ? "" : (v ?? ""))}>
+                  <SelectTrigger className="h-7 mt-0.5"><SelectValue placeholder="Any" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Any</SelectItem>
+                    {(filterOptions?.statuses ?? ["new","contacted","qualified","negotiating","converted","dead"]).map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </label>
+
+              {filterOptions?.sources && (
+                <label className="block">Source
+                  <Select value={f.source || "all"} onValueChange={(v) => setFilter("source", v === "all" ? "" : (v ?? ""))}>
+                    <SelectTrigger className="h-7 mt-0.5"><SelectValue placeholder="Any" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Any</SelectItem>
+                      {filterOptions.sources.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </label>
+              )}
+
+              <div className="flex gap-2">
+                <label className="flex-1">Score ≥
+                  <Input type="number" min={0} max={100} value={f.scoreMin}
+                         onChange={e => setFilter("scoreMin", e.target.value)} className="h-7 mt-0.5" />
+                </label>
+                <label className="flex-1">Score ≤
+                  <Input type="number" min={0} max={100} value={f.scoreMax}
+                         onChange={e => setFilter("scoreMax", e.target.value)} className="h-7 mt-0.5" />
+                </label>
+              </div>
+
+              <label className="block">Email
+                <Select value={f.hasEmail || "any"} onValueChange={(v) => setFilter("hasEmail", v === "any" ? "" : (v ?? ""))}>
+                  <SelectTrigger className="h-7 mt-0.5"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    <SelectItem value="true">Has email</SelectItem>
+                    <SelectItem value="false">Missing email</SelectItem>
+                  </SelectContent>
+                </Select>
+              </label>
+
+              <label className="block">Phone
+                <Select value={f.hasPhone || "any"} onValueChange={(v) => setFilter("hasPhone", v === "any" ? "" : (v ?? ""))}>
+                  <SelectTrigger className="h-7 mt-0.5"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any</SelectItem>
+                    <SelectItem value="true">Has phone</SelectItem>
+                    <SelectItem value="false">Missing phone</SelectItem>
+                  </SelectContent>
+                </Select>
+              </label>
+            </PopoverContent>
+          </Popover>
+
+          {/* Saved segments */}
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1" />}>
+              <Bookmark className="size-3" /> Segments
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={saveCurrentSegment} disabled={activeFilterCount === 0}>
+                Save current as segment…
+              </DropdownMenuItem>
+              {segments.length > 0 && <DropdownMenuSeparator />}
+              {segments.map(s => (
+                <DropdownMenuItem key={s.name} onClick={() => applySegment(s.name)} className="justify-between gap-4">
+                  <span className="truncate">{s.name}</span>
+                  <X className="size-3 text-muted-foreground hover:text-destructive"
+                     onClick={(e) => { e.stopPropagation(); deleteSegment(s.name) }} />
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button variant="outline" size="sm" onClick={() => refetch()} className="h-7 w-7 p-0">
             <RefreshCw className="size-3" />
           </Button>
