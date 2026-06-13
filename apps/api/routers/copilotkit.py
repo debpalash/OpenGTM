@@ -228,6 +228,7 @@ You have powerful tools to interact with the lead database. Use them proactively
 - **compare_leads** — Side-by-side comparison of leads
 - **ambitionbox_search** — Search AmbitionBox for Indian companies with ratings, reviews, employee counts, industry data. Use for market research, competitor analysis, finding hiring companies
 - **ambitionbox_jobs** — Get current job listings for a company from AmbitionBox (requires company_id from ambitionbox_search)
+- **draft_plan / execute_plan** — Autopilot for COMPOUND goals (e.g. "build a list of 50 IT staffing firms in Pune and find their founders' emails"): call draft_plan to produce a step-by-step plan, show it to the user, then call execute_plan with that plan (the user approves before anything runs). Use this instead of many manual tool calls for multi-step build-a-list-and-enrich requests.
 
 ## Response Guidelines
 - For conversational text, explanations, or simple answers, respond in plain markdown.
@@ -285,6 +286,11 @@ DANGEROUS_TOOLS = {
         "label": "➕ Add Workbook Column",
         "reason": "Modifies the schema of an existing workbook.",
     },
+    "execute_plan": {
+        "level": "high",
+        "label": "🤖 Run Autopilot Plan",
+        "reason": "Builds a workbook and runs sourcing + agent-column enrichment (spends resources).",
+    },
 }
 
 # Tools that are safe to execute without confirmation (read-only).
@@ -292,6 +298,7 @@ SAFE_TOOLS = {
     "search_leads", "get_lead_detail", "get_lead_stats",
     "find_similar_leads", "get_enrichment_gaps", "suggest_outreach",
     "compare_leads", "ambitionbox_search", "ambitionbox_jobs",
+    "draft_plan",
 }
 
 
@@ -300,6 +307,13 @@ def _describe_action(fn_name: str, fn_args: dict) -> str:
     meta = DANGEROUS_TOOLS.get(fn_name, {})
     label = meta.get("label", fn_name)
     reason = meta.get("reason", "This action modifies data.")
+
+    # The autopilot plan describes itself (one step per line) — render it
+    # directly so the confirmation gate shows the full plan for approval.
+    if fn_name == "execute_plan":
+        from apps.api.services.agent import autopilot
+        plan = fn_args.get("plan") or {}
+        return autopilot.describe_plan(plan) if plan.get("steps") else f"{label}\n{reason}"
 
     details = ""
     if fn_name == "start_collection":
@@ -597,6 +611,35 @@ def _build_tools():
                         "signals": {"type": "array", "items": {"type": "string", "enum": ["hiring", "funding", "tech_change", "news"]}, "description": "Signal types that trigger a refresh"},
                     },
                     "required": ["workbook_id", "signals"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "draft_plan",
+                "description": "For COMPOUND goals that need several steps (e.g. 'build a list of 50 IT staffing firms in Pune and find their founders' emails'), draft a step-by-step plan WITHOUT executing it. Returns the plan for the user to review. Do not use for single actions.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "goal": {"type": "string", "description": "The high-level goal in the user's words"},
+                        "target_count": {"type": "integer", "description": "How many companies/leads, if specified"},
+                    },
+                    "required": ["goal"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "execute_plan",
+                "description": "Execute a plan previously produced by draft_plan. Pass the plan object back verbatim. This builds the workbook, sources companies, and runs agent-column enrichment. Requires user approval.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "plan": {"type": "object", "description": "The plan object returned by draft_plan"},
+                    },
+                    "required": ["plan"],
                 },
             },
         },
@@ -1046,6 +1089,23 @@ async def _execute_tool(name: str, args: dict) -> str:
                 policy["on_signal"] = args["signals"]
                 res = set_refresh_policy(wdb, args["workbook_id"], policy)
             return json.dumps({"message": f"Workbook will refresh on signals: {', '.join(args['signals'])}.", **res})
+
+        # ── Autopilot: goal → plan → execute (orchestrates the tools above) ──
+        elif name == "draft_plan":
+            from apps.api.services.agent import autopilot
+            plan = autopilot.draft_plan(args["goal"], int(args.get("target_count", 0) or 0))
+            return json.dumps({
+                "plan": plan,
+                "message": "Drafted a plan. Call execute_plan with this plan to run it (the user will be asked to approve).",
+            })
+
+        elif name == "execute_plan":
+            from apps.api.services.agent import autopilot
+            plan = args.get("plan") or {}
+            if not plan.get("steps"):
+                return json.dumps({"error": "No plan provided. Call draft_plan first."})
+            result = await autopilot.execute_plan(plan, _execute_tool)
+            return json.dumps(result)
 
         return json.dumps({"error": f"Unknown tool: {name}"})
     finally:
