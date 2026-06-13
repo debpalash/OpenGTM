@@ -15,33 +15,33 @@
   ],
   "executed_query": "site:stackoverflow.com/jobs/companies open source company",
   "results_count": 5,
-  "time_ms": 2331,
+  "time_ms": 2761,
   "errors": null,
   "results": [
     {
-      "title": "Balena Jobs & Careers - Stack Overflow",
-      "href": "https://www.stackoverflow.com/jobs/companies/balena",
-      "body": "Our core product is the balenaCloud platform, but we also maintain a variety of successful open source projects including Etcher, openBalena, balenaOS, and balenaEngine, and made contributions to high-exposure projects such as Docker, Electron, and AppImage. We've also recently released our first hardware product, the balenaFin."
+      "title": "Mimacom Jobs & Careers - Stack Overflow",
+      "href": "https://stackoverflow.com/jobs/companies/mimacom",
+      "body": "We use innovative open source technologies for the development of your individual mobile apps, such as Ionic 3.0 based on the Angular2 framework for app development and IntelliJ IDEA as integrated development environment."
     },
     {
-      "title": "Giant Swarm GmbH - Stack Overflow",
-      "href": "https://stackoverflow.com/jobs/companies/giant-swarm-gmbh",
-      "body": "Giant Swarm is a fast-growing open-source infrastructure management platform used by modern enterprises. Our vision is to empower developers around the world to ship great products."
-    },
-    {
-      "title": "Intuit - Stack Overflow",
-      "href": "https://stackoverflow.com/jobs/companies/intuit",
-      "body": "Multiple pillars across the company\u2019s platform teams power the Intuit stack, end-to-end: Developer experiences - supports DevOps, runtime, self-serve testing, design, development tools, and design systems. Open source infrastructure tools built on cloud-native technologies, such as Kubernetes, Argo, OpenTelemetry, Envoy and GraphQL, plus a custom-built infrastructure to support abstracted ..."
-    },
-    {
-      "title": "OMICRON electronics GmbH - Stack Overflow",
-      "href": "https://www.stackoverflow.com/jobs/companies/omicron-electronics-gmbh",
-      "body": "Review OMICRON electronics GmbH job openings and career opportunities on Stack Overflow Jobs. Learn more about OMICRON electronics GmbH employee benefits, their tech stack and more."
+      "title": "Root Insurance Company Jobs & Careers - Stack Overflow",
+      "href": "https://stackoverflow.com/jobs/companies/root",
+      "body": "Review Root Insurance Company job openings and career opportunities on Stack Overflow Jobs. Learn more about Root Insurance Company employee benefits, their tech stack and more."
     },
     {
       "title": "Stack Overflow",
       "href": "https://stackoverflow.com/jobs/companies/stack-overflow",
-      "body": "Review Stack Overflow job openings and career opportunities on Stack Overflow Jobs. Learn more about Stack Overflow employee benefits, their tech stack and more."
+      "body": "Groups meet regularly, plan company-wide programming, and give feedback to leadership. Recruiting & retention We seek people from a diversity of backgrounds and experiences, particularly from those that are underrepresented at Stack Overflow and our hiring policies and practices reflect this. Advancement opportunities"
+    },
+    {
+      "title": "Intuit - Stack Overflow",
+      "href": "https://stackoverflow.com/jobs/companies/intuit",
+      "body": "Open source infrastructure tools built on cloud-native technologies, such as Kubernetes, Argo, OpenTelemetry, Envoy and GraphQL, plus a custom-built infrastructure to support abstracted development."
+    },
+    {
+      "title": "Arm - Stack Overflow",
+      "href": "https://stackoverflow.com/jobs/companies/arm",
+      "body": "We believe in open collaboration, intellectual curiosity, and technology that advances humanity. Join us to work alongside world-class technologists and contribute to projects that set industry standards, from Arm Neoverse and Cortex to AI toolchains and cloud-native optimization."
     }
   ]
 }

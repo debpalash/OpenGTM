@@ -15,33 +15,33 @@
   ],
   "executed_query": "site:news.ycombinator.com \"Show HN\" open source company",
   "results_count": 5,
-  "time_ms": 2471,
+  "time_ms": 1862,
   "errors": null,
   "results": [
     {
-      "title": "Show HN: We released an open-source platform for... | Hacker News",
-      "href": "https://news.ycombinator.com/item?id=40039893",
-      "body": "It's a bit surreal writing a Show HN post, being a HN member since 2012, but I'm still excited to be here. We are Arek and Michal (hn: mgl), and we have published Openkoda - an open-source low-code platform for the rapid development of SaaS and enterprise applications."
+      "title": "Show HN: Scout \u2013 open-source Company Brain | Hacker News",
+      "href": "https://news.ycombinator.com/item?id=47953523",
+      "body": "Apr 29, 2026 \u00b7 Show HN: Scout \u2013 open-source Company Brain (github.com/agno-agi) 1 point by ashpreet-bedi 34 minutes ago | hide | past | favorite | discuss help"
     },
     {
-      "title": "Show HN: Omi \u2013 Open-source AI wearable for... | Hacker News",
-      "href": "https://news.ycombinator.com/item?id=41333648",
-      "body": "Hi, HN! I built a proactive open-source AI necklace that transforms your conversations into summaries, proactive feedback, and insights. I built this because I want to use it myself: many companies are advertising such technology but no one is shipping."
+      "title": "Show HN: An open source tool that checks for post-quantum ...",
+      "href": "https://news.ycombinator.com/item?id=48233866",
+      "body": "May 22, 2026 \u00b7 Anyway, in case it's useful, here's a small tool that can either scan a host and port, or check for open connections and attempt to identify if they offer post-quantum algorithms."
     },
     {
-      "title": "Show HN: Open-source conversational platform and... | Hacker News",
-      "href": "https://news.ycombinator.com/item?id=27446200",
-      "body": "Airy is an Open Source Conversational Platform to store, structure and utilize conversational data in a secure and privacy-compliant way. With Airy, you can integrate with Conversational AI like Rasa to train smarter models based on actual conversations."
+      "title": "Show | Hacker News",
+      "href": "https://news.ycombinator.com/show",
+      "body": "Please read the Show HN rules and tips before posting. You can browse the newest Show HNs here."
     },
     {
-      "title": "Show HN: Someday, Open-Source Calendly... | Hacker News",
-      "href": "https://news.ycombinator.com/item?id=42027187",
-      "body": "Free and open-source. Simple alternative to cal.com / calendly, built on Google-App-Script for Gmail users. Built with modern technologies like React, TypeScript, Shadcn/UI, and Vite."
+      "title": "Show HN: Open-source AI assistant for interview reasoning ...",
+      "href": "https://news.ycombinator.com/item?id=46923304",
+      "body": "Feb 7, 2026 \u00b7 I built an open source desktop AI assistant after getting frustrated with how brittle most tools feel once questions go beyond basic Q and A. The goal was to explore whether an assistant could reliably handle interview style interactions such as system design discussions, multi step coding problems, and deeper follow up questioning without ..."
     },
     {
-      "title": "Show HN: Open-source Deep Research across... | Hacker News",
-      "href": "https://news.ycombinator.com/item?id=43242551",
-      "body": "Deep research on both ChatGPT and Perplexity gave really high quality responses with ChatGPT siding on slightly larger scaleups and Perplexity siding more on up and coming companies. Given how useful AI research agents are across the internet, we decided to build an open-source..."
+      "title": "Show HN: Pro Health Ledger \u2013 An open-source, net-neutral ...",
+      "href": "https://news.ycombinator.com/item?id=48257073",
+      "body": "May 24, 2026 \u00b7 I wondered if there was somewhere to look up the reputation of this person and the treatment he meted out to reportees, I'd never have joined this company. This is where I thought we have glassdoor and ambitionbox for companies, but are companies inherently bad or good? No, they aren't."
     }
   ]
 }

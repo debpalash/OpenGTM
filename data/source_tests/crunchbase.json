@@ -16,33 +16,33 @@
   ],
   "executed_query": "site:crunchbase.com/organization ai startup funding 2024",
   "results_count": 5,
-  "time_ms": 1495,
+  "time_ms": 2438,
   "errors": null,
   "results": [
     {
-      "title": "Stealth AI Startup - Crunchbase Company Profile & Funding",
-      "href": "https://www.crunchbase.com/organization/stealth-ai-startup-b573",
-      "body": "Stealth AI Startup focuses on advancing Artificial General Intelligence through innovative technology and research. The company comprises a team of experts dedicated to creating transformative AI solutions that impact various industries."
+      "title": "Element AI - Crunchbase Company Profile & Funding",
+      "href": "https://www.crunchbase.com/organization/element-ai",
+      "body": "Element AI is an artificial intelligence company that gives organizations unparalleled access to cutting-edge technology."
     },
     {
-      "title": "OpenAI Startup Fund - Crunchbase Company Profile & Funding",
-      "href": "https://www.crunchbase.com/organization/openai-startup-fund",
-      "body": "OpenAI Startup Fund invests in startups, specially in artificial intelligence companies."
+      "title": "FoolFarm - Crunchbase Company Profile & Funding",
+      "href": "https://www.crunchbase.com/organization/foolfarm",
+      "body": "With \u20ac5.6M raised, a \u20ac21.5M valuation, and plans for a \u20ac9M Series A at a \u20ac30M valuation in 2024, it focuses on innovation and talent in Generative AI."
     },
     {
-      "title": "H Company - Crunchbase Company Profile & Funding",
-      "href": "https://www.crunchbase.com/organization/holistic-ai-0946",
-      "body": "... H Company, formerly known as ... The Paris-based AI company founded by Charles Kantor raised a record-breaking $220M seed round in 2024......"
+      "title": "Kintsugi AI - Recent News & Activity - Crunchbase",
+      "href": "https://www.crunchbase.com/organization/kintsugi-0524/company_overview/overview_timeline",
+      "body": "Kintsugi is an AI-based tax assistant platform. Startup Accelerator Discover more funding rounds. Funding Round\u2022 Nov 19, 2024 financial or investment advice."
     },
     {
-      "title": "Scale - Crunchbase Company Profile & Funding",
-      "href": "https://www.crunchbase.com/organization/scale-2",
-      "body": "1 day ago - The company's LiDAR, video, and image annotation APIs allow self-driving, drone, and robotics teams at companies like Lyft, OpenAI, Zoox, Pinterest, and Airbnb to focus on building differentiated models vs."
+      "title": "AI tech - Crunchbase Company Profile & Funding",
+      "href": "https://www.crunchbase.com/organization/ai-tech-6e44",
+      "body": "AI tech is funded by Algerian Startup Fund . AI tech closed its last funding round on obfuscated obfuscation from a Pre-Seed round."
     },
     {
-      "title": "LightWork AI - Crunchbase Company Profile & Funding",
-      "href": "https://www.crunchbase.com/organization/lightwork-ai",
-      "body": "LightWork AI is a London-based PropTech start-up founded in 2024, focused on transforming property management through intelligent automation. Its agentic AI platform automates compliance, maintenance coordination, and communication between property ..."
+      "title": "SEMRON - News & Analysis - Crunchbase",
+      "href": "https://www.crunchbase.com/organization/semron/news_and_analysis",
+      "body": "Sep 16, 2025. AI Chips Market Forecast 2026-2036: Report Highlights $7.6B in Startup Funding and Rapid Tech Innovation ... Jun 21, 2024 ... Edge AI startup Semron ..."
     }
   ]
 }

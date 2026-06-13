@@ -48,3 +48,8 @@ yupcha = "apps.api.cli:main"
 
 [tool.logfire]
 ignore_no_config = true
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]

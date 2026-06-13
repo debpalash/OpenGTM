@@ -1,12 +1,12 @@
 {
-  "tested_at": "2026-05-07T22:16:53.952924",
+  "tested_at": "2026-06-13T13:19:12.948545",
   "total_sources": 91,
   "enabled": 83,
-  "ok": 83,
+  "ok": 82,
   "empty": 0,
-  "errors": 0,
+  "errors": 1,
   "disabled": 8,
-  "total_results": 415,
+  "total_results": 409,
   "sources": [
     {
       "source": "indiamart",
@@ -21,7 +21,7 @@
       "test_city": "mumbai",
       "executed_query": "site:indiamart.com packaging machinery manufacturers",
       "results_count": 5,
-      "time_ms": 5893,
+      "time_ms": 2798,
       "errors": null
     },
     {
@@ -37,7 +37,7 @@
       "test_city": "pune",
       "executed_query": "site:justdial.com IT services companies",
       "results_count": 5,
-      "time_ms": 2626,
+      "time_ms": 7030,
       "errors": null
     },
     {
@@ -53,7 +53,7 @@
       "test_city": "mumbai",
       "executed_query": "site:tradeindia.com packaging machinery manufacturers mumbai manufacturers exporters",
       "results_count": 5,
-      "time_ms": 3746,
+      "time_ms": 1762,
       "errors": null
     },
     {
@@ -69,7 +69,7 @@
       "test_city": "pune",
       "executed_query": "site:sulekha.com it services companies pune",
       "results_count": 5,
-      "time_ms": 2205,
+      "time_ms": 2132,
       "errors": null
     },
     {
@@ -85,7 +85,7 @@
       "test_city": "mumbai",
       "executed_query": "site:exportersindia.com packaging machinery manufacturers mumbai",
       "results_count": 5,
-      "time_ms": 3064,
+      "time_ms": 1782,
       "errors": null
     },
     {
@@ -101,7 +101,7 @@
       "test_city": "bangalore",
       "executed_query": "site:ambitionbox.com software companies companies bangalore",
       "results_count": 5,
-      "time_ms": 3135,
+      "time_ms": 1718,
       "errors": null
     },
     {
@@ -117,7 +117,7 @@
       "test_city": "bangalore",
       "executed_query": "site:glassdoor.co.in software companies bangalore company reviews",
       "results_count": 5,
-      "time_ms": 3450,
+      "time_ms": 4240,
       "errors": null
     },
     {
@@ -133,7 +133,7 @@
       "test_city": "hyderabad",
       "executed_query": "site:naukri.com software engineer hiring companies hyderabad jobs",
       "results_count": 5,
-      "time_ms": 2173,
+      "time_ms": 5177,
       "errors": null
     },
     {
@@ -149,7 +149,7 @@
       "test_city": "delhi",
       "executed_query": "site:zaubacorp.com private limited company delhi active company",
       "results_count": 5,
-      "time_ms": 1865,
+      "time_ms": 2724,
       "errors": null
     },
     {
@@ -165,7 +165,7 @@
       "test_city": "delhi",
       "executed_query": "site:tofler.in private limited company delhi",
       "results_count": 5,
-      "time_ms": 8716,
+      "time_ms": 2921,
       "errors": null
     },
     {
@@ -184,7 +184,7 @@
       "test_city": "",
       "executed_query": "site:clutch.co digital marketing agency companies",
       "results_count": 5,
-      "time_ms": 6816,
+      "time_ms": 5676,
       "errors": null
     },
     {
@@ -202,7 +202,7 @@
       "test_city": "",
       "executed_query": "site:goodfirms.co digital marketing agency companies",
       "results_count": 5,
-      "time_ms": 1743,
+      "time_ms": 5000,
       "errors": null
     },
     {
@@ -218,7 +218,7 @@
       "test_city": "",
       "executed_query": "site:g2.com project management software software companies",
       "results_count": 5,
-      "time_ms": 3129,
+      "time_ms": 1858,
       "errors": null
     },
     {
@@ -235,7 +235,7 @@
       "test_city": "",
       "executed_query": "site:softwaresuggest.com digital marketing agency",
       "results_count": 5,
-      "time_ms": 9488,
+      "time_ms": 5015,
       "errors": null
     },
     {
@@ -253,7 +253,7 @@
       "test_city": "",
       "executed_query": "site:techbehemoths.com digital marketing agency",
       "results_count": 5,
-      "time_ms": 2362,
+      "time_ms": 3957,
       "errors": null
     },
     {
@@ -270,7 +270,7 @@
       "test_city": "chicago",
       "executed_query": "site:yellowpages.com plumbing contractors chicago",
       "results_count": 5,
-      "time_ms": 4282,
+      "time_ms": 2788,
       "errors": null
     },
     {
@@ -287,7 +287,7 @@
       "test_city": "chicago",
       "executed_query": "site:yelp.com plumbing contractors chicago",
       "results_count": 5,
-      "time_ms": 9665,
+      "time_ms": 4386,
       "errors": null
     },
     {
@@ -303,7 +303,7 @@
       "test_city": "chicago",
       "executed_query": "site:bbb.org plumbing contractors chicago",
       "results_count": 5,
-      "time_ms": 2558,
+      "time_ms": 1916,
       "errors": null
     },
     {
@@ -319,7 +319,7 @@
       "test_city": "houston",
       "executed_query": "site:thomasnet.com industrial valves manufacturer suppliers manufacturers",
       "results_count": 5,
-      "time_ms": 2500,
+      "time_ms": 1974,
       "errors": null
     },
     {
@@ -335,7 +335,7 @@
       "test_city": "",
       "executed_query": "site:crunchbase.com/organization ai startup funding 2024",
       "results_count": 5,
-      "time_ms": 1495,
+      "time_ms": 2438,
       "errors": null
     },
     {
@@ -352,7 +352,7 @@
       "test_city": "",
       "executed_query": "site:tracxn.com ai startup funding 2024  startups",
       "results_count": 5,
-      "time_ms": 3628,
+      "time_ms": 7162,
       "errors": null
     },
     {
@@ -368,7 +368,7 @@
       "test_city": "",
       "executed_query": "site:wellfound.com ai startup funding 2024  startups",
       "results_count": 5,
-      "time_ms": 8337,
+      "time_ms": 3802,
       "errors": null
     },
     {
@@ -384,7 +384,7 @@
       "test_city": "bangalore",
       "executed_query": "site:yourstory.com fintech startup bangalore startup",
       "results_count": 5,
-      "time_ms": 2707,
+      "time_ms": 2710,
       "errors": null
     },
     {
@@ -400,7 +400,7 @@
       "test_city": "bangalore",
       "executed_query": "site:inc42.com fintech startup startups bangalore",
       "results_count": 5,
-      "time_ms": 2000,
+      "time_ms": 2306,
       "errors": null
     },
     {
@@ -416,7 +416,7 @@
       "test_city": "",
       "executed_query": "site:linkedin.com/company tech company",
       "results_count": 5,
-      "time_ms": 3156,
+      "time_ms": 3961,
       "errors": null
     },
     {
@@ -433,7 +433,7 @@
       "test_city": "",
       "executed_query": "site:facebook.com tech company  company",
       "results_count": 5,
-      "time_ms": 2443,
+      "time_ms": 3303,
       "errors": null
     },
     {
@@ -451,7 +451,7 @@
       "test_city": "",
       "executed_query": "site:indeed.com software company hiring  company hiring",
       "results_count": 5,
-      "time_ms": 1959,
+      "time_ms": 6002,
       "errors": null
     },
     {
@@ -468,7 +468,7 @@
       "test_city": "",
       "executed_query": "site:glassdoor.com project management software companies  reviews",
       "results_count": 5,
-      "time_ms": 1852,
+      "time_ms": 4572,
       "errors": null
     },
     {
@@ -484,7 +484,7 @@
       "test_city": "germany",
       "executed_query": "site:europages.co.uk automotive parts supplier",
       "results_count": 5,
-      "time_ms": 1972,
+      "time_ms": 2347,
       "errors": null
     },
     {
@@ -501,7 +501,7 @@
       "test_city": "germany",
       "executed_query": "site:kompass.com automotive parts supplier germany",
       "results_count": 5,
-      "time_ms": 8156,
+      "time_ms": 6377,
       "errors": null
     },
     {
@@ -517,7 +517,7 @@
       "test_city": "",
       "executed_query": "\"digital marketing agency\" companies  list email contact",
       "results_count": 5,
-      "time_ms": 8211,
+      "time_ms": 4982,
       "errors": null
     },
     {
@@ -534,7 +534,7 @@
       "test_city": "",
       "executed_query": "digital marketing agency association members  directory",
       "results_count": 5,
-      "time_ms": 7126,
+      "time_ms": 2805,
       "errors": null
     },
     {
@@ -550,7 +550,7 @@
       "test_city": "",
       "executed_query": "best digital marketing agency companies  awards 2024 2025",
       "results_count": 5,
-      "time_ms": 2614,
+      "time_ms": 3663,
       "errors": null
     },
     {
@@ -566,7 +566,7 @@
       "test_city": "",
       "executed_query": "site:capterra.com crm software software",
       "results_count": 5,
-      "time_ms": 1860,
+      "time_ms": 5171,
       "errors": null
     },
     {
@@ -582,7 +582,7 @@
       "test_city": "",
       "executed_query": "site:getapp.com crm software software",
       "results_count": 5,
-      "time_ms": 1868,
+      "time_ms": 2644,
       "errors": null
     },
     {
@@ -598,7 +598,7 @@
       "test_city": "",
       "executed_query": "site:producthunt.com/products crm software",
       "results_count": 5,
-      "time_ms": 1612,
+      "time_ms": 7438,
       "errors": null
     },
     {
@@ -614,7 +614,7 @@
       "test_city": "",
       "executed_query": "site:sourceforge.net crm software software",
       "results_count": 5,
-      "time_ms": 7586,
+      "time_ms": 7248,
       "errors": null
     },
     {
@@ -630,7 +630,7 @@
       "test_city": "",
       "executed_query": "site:alternativeto.net crm software",
       "results_count": 5,
-      "time_ms": 1830,
+      "time_ms": 3839,
       "errors": null
     },
     {
@@ -646,7 +646,7 @@
       "test_city": "",
       "executed_query": "site:saashub.com crm software",
       "results_count": 5,
-      "time_ms": 1516,
+      "time_ms": 8378,
       "errors": null
     },
     {
@@ -662,7 +662,7 @@
       "test_city": "",
       "executed_query": "site:stackshare.io crm software companies",
       "results_count": 5,
-      "time_ms": 7982,
+      "time_ms": 1691,
       "errors": null
     },
     {
@@ -678,7 +678,7 @@
       "test_city": "",
       "executed_query": "site:appsumo.com crm software",
       "results_count": 5,
-      "time_ms": 1550,
+      "time_ms": 2844,
       "errors": null
     },
     {
@@ -696,7 +696,7 @@
       "test_city": "",
       "executed_query": "site:trustpilot.com/review project management software",
       "results_count": 5,
-      "time_ms": 2258,
+      "time_ms": 2383,
       "errors": null
     },
     {
@@ -728,7 +728,7 @@
       "test_city": "",
       "executed_query": "project management software  \"google reviews\" company",
       "results_count": 5,
-      "time_ms": 7683,
+      "time_ms": 5616,
       "errors": null
     },
     {
@@ -744,7 +744,7 @@
       "test_city": "bangalore",
       "executed_query": "site:mouthshut.com software companies bangalore",
       "results_count": 5,
-      "time_ms": 1775,
+      "time_ms": 2536,
       "errors": null
     },
     {
@@ -759,8 +759,8 @@
       "test_query": "web development agency",
       "test_city": "",
       "executed_query": "site:upwork.com/agencies web development agency",
-      "results_count": 5,
-      "time_ms": 11138,
+      "results_count": 4,
+      "time_ms": 8209,
       "errors": null
     },
     {
@@ -825,7 +825,7 @@
       "test_city": "",
       "executed_query": "site:bark.com web development agency",
       "results_count": 5,
-      "time_ms": 2662,
+      "time_ms": 8525,
       "errors": null
     },
     {
@@ -841,7 +841,7 @@
       "test_city": "",
       "executed_query": "site:github.com open source company company organization",
       "results_count": 5,
-      "time_ms": 1799,
+      "time_ms": 3509,
       "errors": null
     },
     {
@@ -857,7 +857,7 @@
       "test_city": "",
       "executed_query": "site:stackoverflow.com/jobs/companies open source company",
       "results_count": 5,
-      "time_ms": 2331,
+      "time_ms": 2761,
       "errors": null
     },
     {
@@ -873,7 +873,7 @@
       "test_city": "",
       "executed_query": "site:news.ycombinator.com \"Show HN\" open source company",
       "results_count": 5,
-      "time_ms": 2471,
+      "time_ms": 1862,
       "errors": null
     },
     {
@@ -905,7 +905,7 @@
       "test_city": "",
       "executed_query": "\"tech startup funding\" company  site:news.google.com",
       "results_count": 5,
-      "time_ms": 7687,
+      "time_ms": 7064,
       "errors": null
     },
     {
@@ -921,7 +921,7 @@
       "test_city": "bangalore",
       "executed_query": "site:economictimes.indiatimes.com startup funding companies bangalore",
       "results_count": 5,
-      "time_ms": 1484,
+      "time_ms": 4816,
       "errors": null
     },
     {
@@ -937,7 +937,7 @@
       "test_city": "bangalore",
       "executed_query": "site:business-standard.com startup funding bangalore company",
       "results_count": 5,
-      "time_ms": 7174,
+      "time_ms": 3702,
       "errors": null
     },
     {
@@ -953,7 +953,7 @@
       "test_city": "bangalore",
       "executed_query": "site:livemint.com startup funding bangalore company startup",
       "results_count": 5,
-      "time_ms": 2360,
+      "time_ms": 2098,
       "errors": null
     },
     {
@@ -969,7 +969,7 @@
       "test_city": "",
       "executed_query": "site:techcrunch.com tech startup funding  startup funding",
       "results_count": 5,
-      "time_ms": 2615,
+      "time_ms": 2612,
       "errors": null
     },
     {
@@ -983,13 +983,13 @@
       ],
       "test_query": "tech startup funding",
       "test_city": "",
-      "executed_query": "site:forbes.com \"best tech startup funding companies\"",
+      "executed_query": "site:forbes.com tech startup funding companies",
       "results_count": 5,
-      "time_ms": 7324,
+      "time_ms": 3542,
       "errors": null
     },
     {
-      "source": "mouthshut_biz",
+      "source": "yellowpages_in",
       "label": "India Yellow Pages",
       "status": "ok",
       "enabled": true,
@@ -1001,7 +1001,7 @@
       "test_city": "pune",
       "executed_query": "site:yellowpages.in it services companies pune",
       "results_count": 5,
-      "time_ms": 1941,
+      "time_ms": 3265,
       "errors": null
     },
     {
@@ -1017,7 +1017,7 @@
       "test_city": "pune",
       "executed_query": "site:grotal.com it services companies pune",
       "results_count": 5,
-      "time_ms": 2091,
+      "time_ms": 2725,
       "errors": null
     },
     {
@@ -1033,7 +1033,7 @@
       "test_city": "pune",
       "executed_query": "site:urbanpro.com it services companies pune",
       "results_count": 5,
-      "time_ms": 7659,
+      "time_ms": 2777,
       "errors": null
     },
     {
@@ -1049,7 +1049,7 @@
       "test_city": "mumbai",
       "executed_query": "site:dial4trade.com packaging machinery manufacturers mumbai",
       "results_count": 5,
-      "time_ms": 2229,
+      "time_ms": 2097,
       "errors": null
     },
     {
@@ -1065,7 +1065,7 @@
       "test_city": "pune",
       "executed_query": "site:fundoodata.com it services companies companies pune",
       "results_count": 5,
-      "time_ms": 8311,
+      "time_ms": 7376,
       "errors": null
     },
     {
@@ -1081,7 +1081,7 @@
       "test_city": "bangalore",
       "executed_query": "site:startupindia.gov.in fintech startup bangalore",
       "results_count": 5,
-      "time_ms": 7673,
+      "time_ms": 4196,
       "errors": null
     },
     {
@@ -1097,7 +1097,7 @@
       "test_city": "pune",
       "executed_query": "site:nasscom.in it services companies member companies",
       "results_count": 5,
-      "time_ms": 4403,
+      "time_ms": 5856,
       "errors": null
     },
     {
@@ -1113,7 +1113,7 @@
       "test_city": "hyderabad",
       "executed_query": "site:shine.com software engineer hiring companies hyderabad",
       "results_count": 5,
-      "time_ms": 2098,
+      "time_ms": 3322,
       "errors": null
     },
     {
@@ -1129,7 +1129,7 @@
       "test_city": "hyderabad",
       "executed_query": "site:monsterindia.com software engineer hiring companies hyderabad",
       "results_count": 5,
-      "time_ms": 3859,
+      "time_ms": 5466,
       "errors": null
     },
     {
@@ -1145,7 +1145,7 @@
       "test_city": "chicago",
       "executed_query": "site:manta.com plumbing contractors chicago",
       "results_count": 5,
-      "time_ms": 2355,
+      "time_ms": 1865,
       "errors": null
     },
     {
@@ -1179,7 +1179,7 @@
       "test_city": "uk",
       "executed_query": "site:opencorporates.com technology company uk",
       "results_count": 5,
-      "time_ms": 7466,
+      "time_ms": 6041,
       "errors": null
     },
     {
@@ -1212,7 +1212,7 @@
       "test_city": "",
       "executed_query": "site:dealroom.co ai startup funding 2024  companies",
       "results_count": 5,
-      "time_ms": 3156,
+      "time_ms": 4892,
       "errors": null
     },
     {
@@ -1228,7 +1228,7 @@
       "test_city": "",
       "executed_query": "site:cbinsights.com ai startup funding 2024 companies",
       "results_count": 5,
-      "time_ms": 3998,
+      "time_ms": 2430,
       "errors": null
     },
     {
@@ -1261,7 +1261,7 @@
       "test_city": "",
       "executed_query": "site:hotfrog.com digital marketing agency",
       "results_count": 5,
-      "time_ms": 2804,
+      "time_ms": 3547,
       "errors": null
     },
     {
@@ -1277,7 +1277,7 @@
       "test_city": "",
       "executed_query": "site:brownbook.net digital marketing agency",
       "results_count": 5,
-      "time_ms": 6364,
+      "time_ms": 4357,
       "errors": null
     },
     {
@@ -1294,7 +1294,7 @@
       "test_city": "",
       "executed_query": "site:cylex.us.com digital marketing agency",
       "results_count": 5,
-      "time_ms": 2634,
+      "time_ms": 1910,
       "errors": null
     },
     {
@@ -1310,7 +1310,7 @@
       "test_city": "",
       "executed_query": "site:twitter.com tech company  company official",
       "results_count": 5,
-      "time_ms": 7075,
+      "time_ms": 1953,
       "errors": null
     },
     {
@@ -1327,7 +1327,7 @@
       "test_city": "",
       "executed_query": "site:instagram.com tech company  company",
       "results_count": 5,
-      "time_ms": 7157,
+      "time_ms": 1841,
       "errors": null
     },
     {
@@ -1341,9 +1341,9 @@
       ],
       "test_query": "tech company",
       "test_city": "",
-      "executed_query": "site:reddit.com \"best tech company companies\"",
+      "executed_query": "site:reddit.com tech company companies",
       "results_count": 5,
-      "time_ms": 2268,
+      "time_ms": 2827,
       "errors": null
     },
     {
@@ -1358,9 +1358,9 @@
       ],
       "test_query": "tech company",
       "test_city": "",
-      "executed_query": "site:quora.com \"best tech company companies\"",
+      "executed_query": "site:quora.com tech company companies",
       "results_count": 5,
-      "time_ms": 2940,
+      "time_ms": 1938,
       "errors": null
     },
     {
@@ -1377,7 +1377,7 @@
       "test_city": "",
       "executed_query": "site:amazon.in dtc brand seller",
       "results_count": 5,
-      "time_ms": 1689,
+      "time_ms": 2489,
       "errors": null
     },
     {
@@ -1393,7 +1393,7 @@
       "test_city": "delhi",
       "executed_query": "site:flipkart.com electronics seller seller delhi",
       "results_count": 5,
-      "time_ms": 2110,
+      "time_ms": 1934,
       "errors": null
     },
     {
@@ -1409,7 +1409,7 @@
       "test_city": "",
       "executed_query": "\"powered by shopify\" dtc brand",
       "results_count": 5,
-      "time_ms": 9509,
+      "time_ms": 1964,
       "errors": null
     },
     {
@@ -1426,7 +1426,7 @@
       "test_city": "",
       "executed_query": "digital marketing agency expo exhibitors  2024 2025 list",
       "results_count": 5,
-      "time_ms": 3540,
+      "time_ms": 4833,
       "errors": null
     },
     {
@@ -1443,7 +1443,7 @@
       "test_city": "",
       "executed_query": "ai startup funding 2024 startup incubator accelerator  portfolio companies",
       "results_count": 5,
-      "time_ms": 7612,
+      "time_ms": 3678,
       "errors": null
     },
     {
@@ -1459,7 +1459,7 @@
       "test_city": "delhi",
       "executed_query": "private limited company government tender delhi vendor supplier list",
       "results_count": 5,
-      "time_ms": 1824,
+      "time_ms": 2027,
       "errors": null
     },
     {
@@ -1476,13 +1476,13 @@
       "test_city": "",
       "executed_query": "\"digital marketing agency\" \"ISO certified\" companies",
       "results_count": 5,
-      "time_ms": 1878,
+      "time_ms": 5891,
       "errors": null
     },
     {
       "source": "generic_hiring_surge",
       "label": "Hiring Surge Detection",
-      "status": "ok",
+      "status": "error",
       "enabled": true,
       "category": "jobs",
       "region": [
@@ -1491,9 +1491,11 @@
       "test_query": "software company hiring",
       "test_city": "",
       "executed_query": "\"software company hiring\" company  \"we are hiring\" OR \"join our team\"",
-      "results_count": 5,
-      "time_ms": 1558,
-      "errors": null
+      "results_count": 0,
+      "time_ms": 8224,
+      "errors": [
+        "DDGSException: No results found."
+      ]
     }
   ]
 }

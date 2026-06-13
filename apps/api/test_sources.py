@@ -83,19 +83,20 @@ def get_test_query(source: Dict) -> tuple:
 
 
 def _ddg_search_sync(query: str, max_results: int = 5) -> list:
-    """Synchronous DDG search using ddgs library with proxy fallback."""
-    from ddgs import DDGS
+    """Synchronous search via the production resilient client.
+
+    Uses the same get_ddgs() the live pipeline uses (multi-engine backends +
+    direct/proxy connection fallback), so the test measures the real path.
+    """
     try:
-        from apps.api.services.leadgen.proxy_client import get_proxy_url
-        proxy = get_proxy_url()
-        if proxy:
-            with DDGS(proxy=proxy) as d:
-                return list(d.text(query, max_results=max_results))
+        from apps.api.services.leadgen.proxy_client import get_ddgs
+        with get_ddgs() as d:
+            return list(d.text(query, max_results=max_results))
     except Exception:
-        pass
-    # Fallback: no proxy
-    with DDGS() as d:
-        return list(d.text(query, max_results=max_results))
+        # Last-resort fallback: bare ddgs
+        from ddgs import DDGS
+        with DDGS() as d:
+            return list(d.text(query, max_results=max_results))
 
 
 async def ddg_search(query: str, max_results: int = 5) -> list:
