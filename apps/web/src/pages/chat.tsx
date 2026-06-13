@@ -245,7 +245,7 @@ function CopyBtn({ content }: { content: string }) {
 // ── Quick Actions (landing page) ──────────────────────────────────
 
 const QUICK_ACTIONS = [
-  { icon: <Search className="size-4" />, text: "Find 50 IT staffing companies in Bangalore", color: "text-blue-400" },
+  { icon: <Zap className="size-4" />, text: "Build a list of 50 IT staffing firms in Pune and find their founders' emails", color: "text-rose-400" },
   { icon: <Building2 className="size-4" />, text: "Search AmbitionBox for SaaS companies", color: "text-emerald-400" },
   { icon: <BarChart3 className="size-4" />, text: "Show me my pipeline stats", color: "text-amber-400" },
   { icon: <Sparkles className="size-4" />, text: "Find hot leads missing email", color: "text-purple-400" },
