@@ -561,6 +561,7 @@ def _build_tools():
                         "name": {"type": "string", "description": "Workbook name"},
                         "target_rows": {"type": "integer", "description": "Max rows to source (0 = unlimited)"},
                         "auto_run": {"type": "boolean", "description": "Start sourcing immediately (default true)"},
+                        "auto_enrich": {"type": "boolean", "description": "After sourcing, automatically run enrichment/agent columns (default false)"},
                     },
                     "required": ["icp_description"],
                 },
@@ -1024,6 +1025,7 @@ async def _execute_tool(name: str, args: dict) -> str:
             wb_name = args.get("name") or f"Source — {icp_desc[:40]}"
             target_rows = int(args.get("target_rows", 0) or 0)
             auto_run = args.get("auto_run", True)
+            auto_enrich = bool(args.get("auto_enrich", False))
             src_col = {
                 "id": f"src_{uuid.uuid4().hex[:8]}", "name": "Source", "type": "source",
                 "icp": {"description": icp_desc}, "channels": {}, "target_rows": target_rows,
@@ -1041,7 +1043,8 @@ async def _execute_tool(name: str, args: dict) -> str:
                 wb_id = wb.id
                 if auto_run:
                     queue_service.add_job(wdb, "source_workbook",
-                                          {"workbook_id": wb_id, "column_id": src_col["id"]})
+                                          {"workbook_id": wb_id, "column_id": src_col["id"],
+                                           "enrich_after": auto_enrich})
             return json.dumps({
                 "workbook_id": wb_id, "name": wb_name, "sourcing": bool(auto_run),
                 "message": f"Created live-sourcing workbook '{wb_name}'."
