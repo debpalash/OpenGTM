@@ -671,19 +671,22 @@ async def _execute_tool(name: str, args: dict) -> str:
 
             enriched_fields = []
 
-            # Website enrichment
+            # Website enrichment.
+            # NOTE: _execute_tool runs ON the request's event loop. The previous
+            # code spun up a NEW event loop and ran it synchronously
+            # (loop.run_until_complete), which blocks the *entire* server loop —
+            # freezing all requests — for the scrape duration. Awaiting the
+            # coroutine directly (with a timeout guard so a slow site can't hang
+            # the turn) is correct and only suspends this turn.
             if lead.has_website and (not lead.has_email or not lead.has_phone):
                 try:
                     from apps.api.services.leadgen.enrichment.website_scraper import _scrape_via_http
                     from apps.api.services.leadgen.http import StealthClient
-                    import asyncio as _aio
 
                     client = StealthClient()
                     url = lead.website if lead.website.startswith("http") else f"https://{lead.website}"
 
-                    loop = _aio.new_event_loop()
-                    result = loop.run_until_complete(_scrape_via_http(client, url))
-                    loop.close()
+                    result = await asyncio.wait_for(_scrape_via_http(client, url), timeout=30.0)
 
                     if result.get("emails") and not lead.has_email:
                         lead.email = result["emails"][0]
