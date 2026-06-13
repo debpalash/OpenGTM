@@ -15,33 +15,33 @@
   ],
   "executed_query": "site:github.com open source company company organization",
   "results_count": 5,
-  "time_ms": 1799,
+  "time_ms": 3509,
   "errors": null,
   "results": [
     {
-      "title": "GitHub - anhtho-lago/awesome-opensource-company",
-      "href": "https://github.com/anhtho-lago/awesome-opensource-company",
-      "body": "Awesome Open Source Company.[Strapi] Company handbook. Tools and databases. [Posthog] Should open-source projects track you? - An ethical framework. [COSS] $100M Revenue Commercial Open Source Index - A list of mature commercial OSS companies."
+      "title": "How companies are investing in open source | The State of the",
+      "href": "https://octoverse.github.com/2022/how-companies-invest-in-open-source",
+      "body": "On GitHub, the companies behind the most successful commercially backed open source projects have their salaried developers regularly contribute to ..."
     },
     {
-      "title": "GitHub \u00b7 Change is constant. GitHub keeps you ahead. \u00b7 GitHub",
-      "href": "https://github.com/",
-      "body": "Join the world's most widely adopted, AI-powered developer platform where millions of developers, businesses, and the largest open source community build software that advances humanity."
+      "title": "Open Source Together \u00b7 GitHub",
+      "href": "https://github.com/OpenSourceTogether",
+      "body": "Welcome to Open-source! Simply add your details to contributors | Repo for Hacktoberfest 2020 \u2705 ... see who \u2019 s a part of this organization ..."
     },
     {
-      "title": "GitHub - KaplanOpenSource/israeli-opensource-companies: Israeli...",
-      "href": "https://github.com/KaplanOpenSource/israeli-opensource-companies",
-      "body": "As an Israeli Open Source consulting company, we are proud to present the eco system of Israeli companies which create Open Source projects. The list is curated under Creative Commons License. Israeli Open Source Companies."
+      "title": "GitHub - tsteenbe/tsteenbe \u00b7 GitHub",
+      "href": "https://github.com/tsteenbe/tsteenbe",
+      "body": "I help organizations manage open source in a strategic, safe and efficient manner that meets their business needs. ... open source supply chain ..."
     },
     {
-      "title": "Analog Devices, Inc. \u00b7 GitHub",
-      "href": "https://github.com/analogdevicesinc",
-      "body": "Solutions. By company size.Analog Devices develops open-source software to bring choice, technology and community to our customers, partners and others. You will find both original source code created by ADI Engineers, and forks of various existing open-source projects..."
+      "title": "OpenCX \u00b7 GitHub",
+      "href": "https://github.com/openchatai",
+      "body": "This organization has no public repositories. ... You must be a member to see who \u2019 s a part of this organization."
     },
     {
-      "title": "JetBrains Open Source. JetBrains has 811 repositories available.",
-      "href": "https://github.com/JetBrains",
-      "body": "By company size.This organization houses many of the Open Source projects we work on and provide to the community. Each one has a label that categorises the type of project it is"
+      "title": "Collection: Open source organizations \u00b7 GitHub",
+      "href": "https://github.com/collections/open-source-organizations",
+      "body": "The Open Source Geospatial Foundation is not-for-profit organization to empower everyone with open source geospatial."
     }
   ]
 }

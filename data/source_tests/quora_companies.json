@@ -12,37 +12,38 @@
   "test_query": "tech company",
   "test_city": "",
   "built_queries": [
-    "site:quora.com \"best tech company companies\""
+    "site:quora.com tech company companies",
+    "site:quora.com best tech company"
   ],
-  "executed_query": "site:quora.com \"best tech company companies\"",
+  "executed_query": "site:quora.com tech company companies",
   "results_count": 5,
-  "time_ms": 2940,
+  "time_ms": 1938,
   "errors": null,
   "results": [
     {
-      "title": "Quora",
-      "href": "https://www.quora.com/What-is-the-best-tech-company",
-      "body": "We would like to show you a description here but the site won\u2019t allow us."
+      "title": "Quora - A place to share knowledge and better understand the world",
+      "href": "https://www.quora.com/",
+      "body": "Quora is a place to gain and share knowledge. It's a platform to ask questions and connect with people who contribute unique insights and quality answers. This empowers people to learn from..."
     },
     {
-      "title": "Consumer Electronics Advertising | Quora for Business",
-      "href": "https://business.quora.com/industries/consumer-electronics",
-      "body": "Tech buyers turn to Quora to ask detailed questions about product specifications, compatibility, real-world performance, and value comparison ..."
+      "title": "aeologic.quora.com",
+      "href": "https://aeologic.quora.com/",
+      "body": "Aeolgic Technologies."
     },
     {
-      "title": "Reach tech savvy Quora users",
-      "href": "https://business.quora.com/resources/reach-tech-savvy-quora-users",
-      "body": "For technology brands, this is a high-intent audience that rewards substance. ... Answers that are genuinely helpful perform best."
+      "title": "acsius.quora.com",
+      "href": "https://acsius.quora.com/",
+      "body": "ACSIUS - Best SEO Services Company In India."
     },
     {
-      "title": "AI Industry Advertising | Quora for Business",
-      "href": "https://business.quora.com/industries/artificial-intelligence",
-      "body": "Across diverse sectors like retail, healthcare, financial services, agriculture and more, companies are ramping up investments in AI technology."
+      "title": "3plcompanies.quora.com",
+      "href": "https://3plcompanies.quora.com/",
+      "body": "3PL Companies."
     },
     {
-      "title": "Quora Agency Partners | Quora for Business",
-      "href": "https://business.quora.com/agency-partners",
-      "body": "DEPT\u00ae is a pioneering technology and marketing services company that creates end-to-end digital experiences for brands such as Google, KFC, Philips ..."
+      "title": "aboutitech.quora.com",
+      "href": "https://aboutitech.quora.com/",
+      "body": "ERP Software Company."
     }
   ]
 }

@@ -16,33 +16,33 @@
   ],
   "executed_query": "site:glassdoor.com project management software companies  reviews",
   "results_count": 5,
-  "time_ms": 1852,
+  "time_ms": 4572,
   "errors": null,
   "results": [
     {
-      "title": "glassdoor.com",
-      "href": "https://glassdoor.com/",
-      "body": "Manager, Software Engineer (remote-eligible) Capital One - Plano, TX."
-    },
-    {
-      "title": "glassdoor.com/Reviews/Google-Reviews-E9079.htm",
-      "href": "https://www.glassdoor.com/Reviews/Google-Reviews-E9079.htm",
-      "body": "Google Software Engineer."
-    },
-    {
-      "title": "glassdoor.com/Community/index.htm",
-      "href": "https://www.glassdoor.com/Community/index.htm",
-      "body": "I am a software development project manager at a 60 person company but..."
-    },
-    {
       "title": "glassdoor.com/Award/index.htm",
       "href": "https://www.glassdoor.com/Award/index.htm",
-      "body": "Top-Five CEOs at Small & Medium Companies in 2019."
+      "body": "interview reviews determine who makes the list."
     },
     {
-      "title": "glassdoor.com/Award/Highest-Rated-CEOs-LST_KQ0,18.htm",
-      "href": "https://www.glassdoor.com/Award/Highest-Rated-CEOs-LST_KQ0,18.htm",
-      "body": "top-rated CEO of a large company in the U.S."
+      "title": "Glassdoor | Job Search & Career Community",
+      "href": "https://www.glassdoor.com/",
+      "body": "Search millions of jobs, salaries and company reviews, and chat anonymously about worklife."
+    },
+    {
+      "title": "Meta Project Manager Reviews | Glassdoor",
+      "href": "https://www.glassdoor.com/Reviews/Meta-Project-Manager-Reviews-EI_IE40772.0,4_KO5,20.htm",
+      "body": "Meta Project Manager reviews. 4.0. 65% would recommend to a friend. (202 total reviews).Project Manager employees have rated Meta with 4.0 out of 5 stars, based on 202 company reviews on Glassdoor."
+    },
+    {
+      "title": "SCC Soft Computer Inc. Reviews (167): Pros & Cons of... | Glassdoor",
+      "href": "https://www.glassdoor.com/Reviews/SCC-Soft-Computer-Inc-Reviews-E16996.htm",
+      "body": "SCC Soft Computer Inc. Add a review. Is this your company? About. Reviews.SCC Soft Computer Inc. has an employee rating of 3.1 out of 5 stars, based on 167 company reviews on Glassdoor which indicates that most employees have a good working experience there."
+    },
+    {
+      "title": "ViewSonic \"manager\" Reviews | Glassdoor",
+      "href": "https://www.glassdoor.com/Reviews/ViewSonic-manager-Reviews-EI_IE4118.0,9_KH10,17.htm",
+      "body": "A free inside look at company reviews and salaries posted anonymously by employees.As a project manager, I've had the opportunity to learn a great deal from colleagues in various departments, giving me a more comprehensive understanding of project management."
     }
   ]
 }
