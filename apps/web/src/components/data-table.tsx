@@ -37,6 +37,10 @@ interface DataTableProps<TData, TValue> {
   enableVirtualization?: boolean
   enableSelection?: boolean
   onSelectionChange?: (selectedRows: TData[]) => void
+  /** Default visibility for columns (e.g. hide rich/optional columns by default). */
+  initialColumnVisibility?: VisibilityState
+  /** localStorage key to persist column visibility across reloads. */
+  columnVisibilityKey?: string
 }
 
 export function DataTable<TData, TValue>({
@@ -49,10 +53,20 @@ export function DataTable<TData, TValue>({
   enableVirtualization = true,
   enableSelection = false,
   onSelectionChange,
+  initialColumnVisibility,
+  columnVisibilityKey,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => {
+    if (columnVisibilityKey) {
+      try {
+        const saved = localStorage.getItem(columnVisibilityKey)
+        if (saved) return JSON.parse(saved)
+      } catch { /* ignore */ }
+    }
+    return initialColumnVisibility ?? {}
+  })
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const tableContainerRef = useRef<HTMLDivElement>(null)
 
@@ -96,7 +110,15 @@ export function DataTable<TData, TValue>({
     ...(enableVirtualization ? {} : { getPaginationRowModel: getPaginationRowModel() }),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
+    onColumnVisibilityChange: (updater) => {
+      setColumnVisibility((prev) => {
+        const next = typeof updater === "function" ? updater(prev) : updater
+        if (columnVisibilityKey) {
+          try { localStorage.setItem(columnVisibilityKey, JSON.stringify(next)) } catch { /* ignore */ }
+        }
+        return next
+      })
+    },
     onRowSelectionChange: (updater) => {
       setRowSelection(updater)
       // Notify parent of selection changes
