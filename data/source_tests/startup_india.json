@@ -15,33 +15,33 @@
   ],
   "executed_query": "site:startupindia.gov.in fintech startup bangalore",
   "results_count": 5,
-  "time_ms": 7673,
+  "time_ms": 4196,
   "errors": null,
   "results": [
     {
-      "title": "Indian Startup Ecosystem",
-      "href": "https://www.startupindia.gov.in/content/sih/en/about-startup-india-initiative/Indo-Protugal/indian-startup-ecosystem.html",
-      "body": "Bangalore, Mumbai and NCR top startup destinations with over 65% of the total Indian startups.IBM is partnering with 100 Indian big data and IoT start-ups"
+      "title": "National Startup Awards 5.0 Results",
+      "href": "https://www.startupindia.gov.in/nsa5.0results/index.html",
+      "body": "The National Startup Awards (NSA), a flagship initiative spearheaded by the Government ... Head of Fintech and Startups, Reserve Bank Innovation Hub"
     },
     {
       "title": "Startup India",
       "href": "https://www.startupindia.gov.in/",
-      "body": "Startup India is an e-platform for startups and entrepreneurs; with various stakeholders such as investors, incubators, startups in its network to collaborate."
+      "body": "May 4, 2026 \u00b7 Under the Startup India initiative, eligible companies can get recognised as Startups by DPIIT, in order to access a host of tax benefits, easier compliance, IPR fast-tracking and more."
+    },
+    {
+      "title": "Startup India - Digital Maps",
+      "href": "https://www.startupindia.gov.in/digital-map/maps",
+      "body": "Web site created using create-react-app"
+    },
+    {
+      "title": "th S ta es' S tar up Ecosystem Ra nki g Karnataka - Startup India",
+      "href": "https://www.startupindia.gov.in/srf/portal/SRF_2026_Result_page/Karnataka_State_Report.pdf",
+      "body": "Under the Karnataka ESDM Policy, incentives to startups include reimbursement of testing/ certification charges from domestic or international labs, interest subsidy on term loans for five years, and reimbursement of prototype development costs."
     },
     {
       "title": "Indian Startup Ecosystem",
       "href": "https://www.startupindia.gov.in/content/sih/en/startup-scheme/international/go-to-market-guide/indian-startup-ecosystem.html",
-      "body": "Bangalore, Mumbai and NCR top startup destinations with over 65% of the total Indian startups.IBM is partnering with 100 Indian big data and IoT start-ups"
-    },
-    {
-      "title": "AFFLUENCEIT FINTECH PRIVATE LIMITED | Startup India",
-      "href": "https://www.startupindia.gov.in/content/sih/en/profile.Startup.67611762e4b011954bcea623.html",
-      "body": "SAVEIT is a new-age fintech e-commerce platform based in India. It is designed to streamline financial management and maximize consumers' SAVINGS & OP."
-    },
-    {
-      "title": "Indian Startup Ecosystem",
-      "href": "https://www.startupindia.gov.in/content/sih/en/startup-scheme/international/indo-sweden-hub/indian-startup-ecosystem.html",
-      "body": "Bangalore, Mumbai and NCR top startup destinations with over 65% of the total Indian startups.IBM is partnering with 100 Indian big data and IoT start-ups"
+      "body": "While eCommerce and Aggregators have become mature; Fintech, Edutech and Healthtech are emerging verticals Bangalore, Mumbai and NCR top startup destinations with over 65% of the total Indian startups."
     }
   ]
 }

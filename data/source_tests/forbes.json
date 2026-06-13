@@ -11,37 +11,38 @@
   "test_query": "tech startup funding",
   "test_city": "",
   "built_queries": [
-    "site:forbes.com \"best tech startup funding companies\""
+    "site:forbes.com tech startup funding companies",
+    "site:forbes.com top tech startup funding companies"
   ],
-  "executed_query": "site:forbes.com \"best tech startup funding companies\"",
+  "executed_query": "site:forbes.com tech startup funding companies",
   "results_count": 5,
-  "time_ms": 7324,
+  "time_ms": 3542,
   "errors": null,
   "results": [
     {
-      "title": "Forbes 2026 America's Best Startup Employers - Ranked List",
-      "href": "https://www.forbes.com/lists/americas-best-startup-employers/",
-      "body": "3 days ago - The Forbes Best Startup Employers of 2026 list features the top innovative startup employers in America offering exciting opportunities. See who made the list."
+      "title": "Fintech Takes Pole Position Again As U.K. Startup Funding",
+      "href": "https://www.forbes.com/sites/trevorclawson/2024/04/17/fintech-takes-pole-position-again-as-uk-startup-funding-stabilizes/",
+      "body": "Overall, it doesn\u2019t appear that Britain\u2019s startup companies are likely to see rocketing investment in 2024, but after a tough period, stability ..."
     },
     {
-      "title": "Not All Startups Need VC. Here Are 6 Other Viable Funding Sources",
-      "href": "https://www.forbes.com/sites/truetamplin/2024/09/12/not-all-startups-need-vc-funding-here-are-6-other-sources/",
-      "body": "September 16, 2024 - Non-dilutive funding, such as government grants and SBA loans, is another excellent option for startups looking to raise capital without giving up equity. This type of funding is particularly common in industries like tech, clean energy, and healthcare, where innovation is often supported by public or private grants. Government grants provide funds to companies that meet specific criteria, such as those developing new technologies or addressing social challenges."
-    },
-    {
-      "title": "The Best Startup Advice From 14 Tech Heroes",
-      "href": "https://www.forbes.com/sites/kateharrison/2014/01/09/the-best-startup-advice-from-14-tech-heroes/",
-      "body": "For this reason, it is common practice for startups to have an advisory board \u2014 a group of smart people they trust to help steer them through"
-    },
-    {
-      "title": "Venture Capital Is Not The Funding Reality Of Most",
-      "href": "https://www.forbes.com/sites/hollyeve/2020/07/06/venture-capital-is-not-the-funding-reality-of-most-startups-heres-what-is/",
-      "body": "When Teens Fundraise To End Blood Cancer, They Change Lives, Including Their Own | Paid Program ... Tech? Take This Quiz To Find Out | Paid Program"
+      "title": "Supporting Startups: Does Taxpayer Funding Deliver Value For",
+      "href": "https://www.forbes.com/sites/trevorclawson/2024/11/13/supporting-startups-does-taxpayer-funding-deliver-value-for-money/",
+      "body": "... funded programs are increasingly focused on ways to ensure that research, science and technology-driven businesses progress to the stage where they ..."
     },
     {
       "title": "A Guide To Funding Your Greentech Startup",
       "href": "https://www.forbes.com/sites/jaimecatmull/2022/05/11/a-guide-to-funding-your-greentech-startup/",
       "body": "Tech companies in this space face unique challenges with fundraising , but with the right strategy in place, the capital is often there."
+    },
+    {
+      "title": "Not All Startups Need VC. Here Are 6 Other Viable Funding",
+      "href": "https://www.forbes.com/sites/truetamplin/2024/09/12/not-all-startups-need-vc-funding-here-are-6-other-sources/",
+      "body": "Venture capital is often considered the ultimate funding source for startups, especially in the tech world. ... funds provided to startups and ..."
+    },
+    {
+      "title": "Silicon Alley Rising: New York Startup Funding Applications",
+      "href": "https://www.forbes.com/sites/groupthink/2015/04/28/silicon-alley-rising-new-york-startup-funding-applications-trump-the-long-reigning-valley/",
+      "body": "Elsewhere in the United States, Florida remains a strong contender in the tech startup arena despite a decline in the state\u2019s share of funding ..."
     }
   ]
 }

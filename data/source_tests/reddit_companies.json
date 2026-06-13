@@ -11,11 +11,12 @@
   "test_query": "tech company",
   "test_city": "",
   "built_queries": [
-    "site:reddit.com \"best tech company companies\""
+    "site:reddit.com tech company companies",
+    "site:reddit.com tech company  recommendations"
   ],
-  "executed_query": "site:reddit.com \"best tech company companies\"",
+  "executed_query": "site:reddit.com tech company companies",
   "results_count": 5,
-  "time_ms": 2268,
+  "time_ms": 2827,
   "errors": null,
   "results": [
     {
@@ -26,22 +27,22 @@
     {
       "title": "Tech companies make the world a better place. : atayls",
       "href": "https://www.reddit.com/r/atayls/comments/qqoxzk/tech_companies_make_the_world_a_better_place/",
-      "body": "A safe haven for all things \ud83c\udf08\ud83d\udc3b. ... Tech companies make the world a better place. ... best"
+      "body": "A safe haven for all things \ud83c\udf08\ud83d\udc3b. ... Tech companies make the world a better place."
     },
     {
-      "title": "Discuss the Most Valuable Tech Stocks : StockMarket",
-      "href": "https://www.reddit.com/r/StockMarket/comments/10n8r8p/discuss_the_most_valuable_tech_stocks/",
-      "body": "Technology companies of all sizes continually push boundaries to be first to market with game-changing technology, whether it be Apple Inc."
+      "title": "Private Equity Keeps Buying Tech Companies, and They\u2019re Not",
+      "href": "https://www.reddit.com/r/finance/comments/17h5b5x/private_equity_keeps_buying_tech_companies_and/",
+      "body": "It gives the impression that massively overpaid and no regard to profitability of the company is what most tech employees expect."
+    },
+    {
+      "title": "Tech companies are probably in cooperation with the government",
+      "href": "https://www.reddit.com/r/conspiracy/duplicates/lqqqha/tech_companies_are_probably_in_cooperation_with/",
+      "body": "Tech companies are probably in cooperation with the government to deliberately limit the information you receive and disseminate! ( i.redd.it )"
     },
     {
       "title": "What % of CS grads make it into top tech companies? : unsw",
       "href": "https://www.reddit.com/r/unsw/comments/117wpeb/what_of_cs_grads_make_it_into_top_tech_companies/",
       "body": "Curious as to if anyone had a rough percentage for the amount of people graduating from UNSW CS that get into the top tech companies like google ..."
-    },
-    {
-      "title": "Which company or brand no longer has the quality they were",
-      "href": "https://www.reddit.com/r/AskReddit/comments/3o7p5z/which_company_or_brand_no_longer_has_the_quality/",
-      "body": "As a teen learning to use technology more than just the basics, I used to gobble up their stuff; their downloads, their reviews, their tech news ..."
     }
   ]
 }

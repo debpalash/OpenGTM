@@ -15,14 +15,9 @@
   ],
   "executed_query": "site:zaubacorp.com private limited company delhi active company",
   "results_count": 5,
-  "time_ms": 1865,
+  "time_ms": 2724,
   "errors": null,
   "results": [
-    {
-      "title": "Companies Incorpated in India having status of: Active",
-      "href": "https://www.zaubacorp.com/companies-list/status-Active-company.html",
-      "body": "Company. Director. Trademark. Address. Submit. Browse Companies by Activity, Age and Location.Akhealth business solution private limited. Active. 100,000."
-    },
     {
       "title": "ACTIVE FINVEST PRIVATE LIMITED | ZaubaCorp",
       "href": "https://www.zaubacorp.com/ACTIVE-FINVEST-PRIVATE-LIMITED-U65921DL1996PTC077639",
@@ -34,14 +29,19 @@
       "body": "ACTIVE MOTORS PRIVATE LIMITED (CIN: U50400DL2015PTC279626) is a Private company incorporated on 29 Dec 2015. It is classified as Non-government company and is registered at Registrar of Companies, Delhi. Its authorized share capital is Rs."
     },
     {
+      "title": "ACTIVE HEALTHY FOODS PRIVATE LIMITED | ZaubaCorp",
+      "href": "https://www.zaubacorp.com/ACTIVE-HEALTHY-FOODS-PRIVATE-LIMITED-U15400DL2011PTC215712",
+      "body": "Registered address of ACTIVE HEALTHY FOODS PRIVATE LIMITED is A-172, PREET VIHAR , DELHI, Delhi, India - 110092.Company Sub Category. Non-government company. Class of Company. Private. Date of Incorporation."
+    },
+    {
       "title": "3S ACTIVE SERVICES PRIVATE LIMITED | ZaubaCorp",
       "href": "https://www.zaubacorp.com/3S-ACTIVE-SERVICES-PRIVATE-LIMITED-U74999DL2016PTC300288",
       "body": "3S ACTIVE SERVICES PRIVATE LIMITED (CIN: U74999DL2016PTC300288) is a Private company incorporated on 24 Dec 2016. It is classified as Non-government company and is registered at Registrar of Companies, Delhi."
     },
     {
-      "title": "ACTIVE MONEY ADVISORS PRIVATE LIMITED | ZaubaCorp",
-      "href": "https://www.zaubacorp.com/ACTIVE-MONEY-ADVISORS-PRIVATE-LIMITED-U74140DL2014PTC271959",
-      "body": "Registered address of ACTIVE MONEY ADVISORS PRIVATE LIMITED is W-6, OFFICE NO. 4, SECOND FLOOR WEST PATEL NAGAR , NEW DELHI, Delhi, India - 110008.Company limited by shares. Company Sub Category. Non-government company. Class of Company."
+      "title": "Companies located in India and involved in hotels and restaurants",
+      "href": "https://www.zaubacorp.com/company-list/nic-H-company.html",
+      "body": "Bebe de chole bhature private limited. Delhi. Active.Public Limited Company (1,656). One Person Company (747). Subsidiary of a Foreign Company (87). Companies owned by State Government (51). Not For Profit License Company (9)."
     }
   ]
 }

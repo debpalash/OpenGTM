@@ -16,33 +16,33 @@
   ],
   "executed_query": "site:dealroom.co ai startup funding 2024  companies",
   "results_count": 5,
-  "time_ms": 3156,
+  "time_ms": 4892,
   "errors": null,
   "results": [
     {
-      "title": "Generative AI startups list",
-      "href": "https://app.dealroom.co/lists/33530",
-      "body": "1 week ago - Global data platform for intelligence on startups, innovation, high-growth companies, ecosystems and investment strategies"
+      "title": "app.dealroom.co/companies.startups/f/employees_max/anyof_100...",
+      "href": "https://app.dealroom.co/companies.startups/f/employees_max/anyof_100/launch_year_min/anyof_2019/startup_ranking_rating_min/anyof_1/total_funding_max/anyof_1000000?sort=startup_ranking_runners_up_rank",
+      "body": "Rising Stars Pre-Series A, $1-4M funding, refreshes every day."
     },
     {
-      "title": "Turiyam AI company information, funding & investors | Dealroom.co",
-      "href": "https://app.dealroom.co/companies/turiyam_ai",
-      "body": "The startup secured $4 million in a pre-seed funding round led by Ankur Capital and Micelio Fund to accelerate product development, expand its team, and support early commercial deployments."
+      "title": "Anthropic company information, funding & investors | Dealroom.co",
+      "href": "https://app.dealroom.co/companies/anthropic1",
+      "body": "Anthropic, ai safety and research company that\u2019s working to build reliable, interpretable, and steerable ai systems. Here you'll find information about their funding, investors and team.$15.0b (Public information from Feb 2024). San Francisco California (HQ)."
     },
     {
-      "title": "Top 50 Generative AI Startups to Watch list",
-      "href": "https://app.dealroom.co/lists/34947",
-      "body": "June 11, 2024 - 1. Compare funding and valuation of this entity's competitors2. What is the competitive advantage of this entity?3. Who are the top competitors of this entity?4. What are the backgrounds of this entity's founders? ... All answers are AI generated."
+      "title": "app.dealroom.co/companies.startups/f/employees_max/anyof_100...",
+      "href": "https://app.dealroom.co/companies.startups/f/employees_max/anyof_100/launch_year_min/anyof_2021/startup_ranking_min/anyof_1/total_funding_max/anyof_1000000",
+      "body": "Global data platform for intelligence on startups, innovation, high-growth companies, ecosystems and investment strategies."
     },
     {
-      "title": "Solomon Labs Secures $6.8M Funding | Dealroom.co",
-      "href": "https://app.dealroom.co/news/feed/solomon-labs-secures-6-8m-funding",
-      "body": "Solomon Labs, a tax AI startup, secured $6.8 million in seed funding from Bessemer Venture Partners, bringing its total funding to $10 million. Founded in 2024 and based in New York, the company offers AI-driven tax automation solutions to U.S. ..."
+      "title": "Anthology Fund company information, funding... | Dealroom.co",
+      "href": "https://app.dealroom.co/companies/anthology_fund",
+      "body": "Anthology Fund, a $100 million partnership between menlo ventures and anthropic aims to fuel the next generation of ai startups. Here you'll find information about their funding, investors and team."
     },
     {
-      "title": "Profound company information, funding & investors | Dealroom.co",
-      "href": "https://app.dealroom.co/companies/profound1",
-      "body": "Search for companies, investors, people, lists & innovations \u00b7 LoginBook a Demo \u00b7 Save \u00b7 Save \u00b7 Marketing platform for AI answer engine optimization. HQ location \u00b7 New York City, United States \u00b7 Website \u00b7 tryprofound.com \u00b7 Launch date \u00b7 2024 \u00b7 Employees \u00b7 201-500 people \u00b7"
+      "title": "AiDash company information, funding & investors | Dealroom.co",
+      "href": "https://app.dealroom.co/companies/aidash",
+      "body": "AiDash, an ai-first vertical saas company enabling satellite-powered operations and maintenance for utility, energy, and other core industries with geographically distributed assets. Here you'll find information about their funding, investors and team."
     }
   ]
 }
