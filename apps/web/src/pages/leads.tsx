@@ -5,7 +5,7 @@ import { toast } from "sonner"
 import {
   ArrowUpDown, Mail, Phone, MoreHorizontal,
   Plus, Download, RefreshCw, Globe, Flame, Sun, Snowflake, Upload,
-  SlidersHorizontal, Bookmark, X,
+  SlidersHorizontal, Bookmark, X, GitMerge, Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,7 +27,10 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/data-table"
 import { useLeads, useStats, useFilters, useUpdateStatus, useUpdateLead, useDeleteLead, useCollect, useImportDataCollector } from "@/lib/hooks"
-import { exportCSVUrl, fetchSimilarLeads, type Lead, type SimilarLeads } from "@/lib/api"
+import {
+  exportCSVUrl, fetchSimilarLeads, runDedup, mergeDuplicates,
+  type Lead, type SimilarLeads, type DedupResult, type DedupSuggestion,
+} from "@/lib/api"
 import { EditableCell } from "@/components/editable-cell"
 
 const TIER_COLORS: Record<string, string> = {
@@ -85,6 +88,12 @@ export default function LeadsPage() {
     try { setSimilar(await fetchSimilarLeads(lead.id)) }
     catch { toast.error("Couldn't find similar leads") }
   }, [])
+
+  // ── Dedup ──
+  const [dedupOpen, setDedupOpen] = useState(false)
+  const [dedupData, setDedupData] = useState<DedupResult | null>(null)
+  const [dedupRunning, setDedupRunning] = useState(false)
+  const [mergingId, setMergingId] = useState<number | null>(null)
 
   // Map UI filters → GET /api/leads query params (only non-empty).
   const filters: Record<string, string> = {
@@ -353,6 +362,31 @@ export default function LeadsPage() {
     setSegments(next); saveSegments(next)
   }
 
+  const runDedupNow = async () => {
+    setDedupRunning(true); setDedupData(null)
+    const params: Record<string, string> = { limit: "2000" }
+    if (f.city) params.city = f.city
+    if (f.source) params.source = f.source
+    if (f.tier) params.tier = f.tier
+    try { setDedupData(await runDedup(params)) }
+    catch { toast.error("Dedup failed") }
+    finally { setDedupRunning(false) }
+  }
+  const openDedup = () => { setDedupOpen(true); runDedupNow() }
+  const doMerge = async (s: DedupSuggestion) => {
+    setMergingId(s.master_id)
+    try {
+      await mergeDuplicates(s.master_id, s.duplicate_ids)
+      setDedupData(prev => prev && {
+        ...prev,
+        merge_suggestions: prev.merge_suggestions.filter(x => x.master_id !== s.master_id),
+      })
+      toast.success(`Merged ${s.duplicate_ids.length} into ${s.master_company}`)
+      refetch()
+    } catch { toast.error("Merge failed") }
+    finally { setMergingId(null) }
+  }
+
   return (
     <div className="flex flex-col gap-1.5 p-2 h-full overflow-hidden">
       {/* Row 1 — Stats + Collect + Filters (compact single row) */}
@@ -523,6 +557,9 @@ export default function LeadsPage() {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          <Button variant="outline" size="sm" onClick={openDedup} className="h-7 text-xs px-2 gap-1">
+            <GitMerge className="size-3" /> Dedup
+          </Button>
           <Button variant="outline" size="sm" onClick={() => refetch()} className="h-7 w-7 p-0">
             <RefreshCw className="size-3" />
           </Button>
@@ -633,6 +670,55 @@ export default function LeadsPage() {
           </Button>
         </div>
       )}
+
+      {/* Dedup dialog */}
+      <Dialog open={dedupOpen} onOpenChange={setDedupOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="text-sm">Find &amp; merge duplicates</DialogTitle>
+          </DialogHeader>
+          <p className="text-[11px] text-muted-foreground -mt-1">
+            Scans a bounded subset (current city/source/tier filters, up to 2,000 rows). Filter first to target a region.
+          </p>
+          {dedupRunning ? (
+            <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground justify-center">
+              <Loader2 className="size-4 animate-spin" /> Scanning for duplicates…
+            </div>
+          ) : !dedupData ? null : dedupData.merge_suggestions.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4">
+              No duplicates found in {dedupData.scanned ?? dedupData.stats.total_leads} scanned leads. 🎉
+            </p>
+          ) : (
+            <>
+              <div className="text-xs text-muted-foreground">
+                {dedupData.stats.duplicates_found} duplicates in {dedupData.stats.clusters} clusters
+                {" · "}scanned {dedupData.scanned ?? dedupData.stats.total_leads}
+              </div>
+              <div className="max-h-[55vh] overflow-auto space-y-1.5">
+                {dedupData.merge_suggestions.map(s => (
+                  <div key={s.master_id} className="flex items-center gap-2 rounded-md border p-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-medium truncate">
+                        {s.master_company}
+                        <span className="ml-1.5 text-[10px] text-emerald-400">{Math.round(s.confidence * 100)}% match</span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground truncate">
+                        merges {s.duplicate_ids.length}: {s.duplicate_companies.join(", ")}
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" className="h-7 text-xs px-2 shrink-0"
+                            disabled={mergingId === s.master_id}
+                            onClick={() => doMerge(s)}>
+                      {mergingId === s.master_id ? <Loader2 className="size-3 animate-spin" /> : <GitMerge className="size-3" />}
+                      Merge
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Similar leads dialog */}
       <Dialog open={similarOpen} onOpenChange={setSimilarOpen}>
