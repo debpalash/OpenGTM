@@ -1,17 +1,18 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import {
-  Send, Loader2, Bot, Pencil, RotateCcw, Copy, Check, X,
+  Send, Loader2, Bot, Pencil, RotateCcw, Copy, Check, X, Square,
   Sparkles, ArrowUp, Search, Building2, Zap, Globe, BarChart3, Database,
-  ShieldAlert, ShieldCheck, AlertTriangle
+  ShieldAlert, ShieldCheck, AlertTriangle, ChevronDown, ChevronRight
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useConversationMessages } from "@/lib/hooks"
-import { streamChat, type ChatMessage } from "@/lib/api"
+import { streamChat, type ChatMessage, type ToolCall, type ApprovedToolCall } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { TaskDetailCard } from "@/components/task-detail-card"
 import { HybridMessage } from "@/components/openui-renderer"
+import { AutopilotPlanCard, type AutopilotPlan } from "@/components/autopilot-plan-card"
 import { toast } from "sonner"
 
 
@@ -65,23 +66,30 @@ function ToolIndicator({ toolName }: { toolName: string }) {
 // ── Confirmation Gate ─────────────────────────────────────────────
 
 interface ConfirmationInfo {
+  confirmation_id: string
+  tool_call: ToolCall
   name: string
+  args: Record<string, unknown>
   label: string
   description: string
   level: "high" | "medium" | "low"
 }
 
-function ConfirmationGate({ info }: { info: ConfirmationInfo }) {
-  const levelColors = {
-    high: "border-red-500/30 bg-red-500/5 text-red-400",
-    medium: "border-amber-500/30 bg-amber-500/5 text-amber-400",
-    low: "border-blue-500/30 bg-blue-500/5 text-blue-400",
+const LEVEL_COLORS = {
+  high: "border-red-500/30 bg-red-500/5 text-red-400",
+  medium: "border-amber-500/30 bg-amber-500/5 text-amber-400",
+  low: "border-blue-500/30 bg-blue-500/5 text-blue-400",
+} as const
+
+function ConfirmationItem({ info }: { info: ConfirmationInfo }) {
+  // Autopilot plans get a richer, structured card instead of plain text lines.
+  if (info.name === "execute_plan" && info.args?.plan) {
+    return <AutopilotPlanCard plan={info.args.plan as AutopilotPlan} />
   }
   const LevelIcon = info.level === "high" ? AlertTriangle : info.level === "medium" ? ShieldAlert : ShieldCheck
   const lines = info.description.split("\n").filter(Boolean)
-
   return (
-    <div className={`flex items-start gap-3 p-3.5 rounded-xl border ${levelColors[info.level]} animate-in fade-in slide-in-from-bottom-1 duration-300`}>
+    <div className={`flex items-start gap-3 p-3.5 rounded-xl border ${LEVEL_COLORS[info.level]}`}>
       <LevelIcon className="size-5 shrink-0 mt-0.5" />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
@@ -95,8 +103,119 @@ function ConfirmationGate({ info }: { info: ConfirmationInfo }) {
         {lines.slice(1).map((line, i) => (
           <div key={i} className="text-xs text-muted-foreground">{line}</div>
         ))}
-        <div className="text-[10px] text-muted-foreground/60 mt-1.5 italic">Action executed — confirmation UI coming in Phase 2</div>
       </div>
+    </div>
+  )
+}
+
+// Blocking human-in-the-loop gate: the turn paused awaiting approval. Resolving
+// resubmits the chat with the per-call approve/deny decisions so the backend
+// executes (or skips) each dangerous tool.
+function ConfirmationGate({
+  confirmations, onResolve, disabled,
+}: {
+  confirmations: ConfirmationInfo[]
+  onResolve: (decisions: Record<string, "approve" | "deny">) => void
+  disabled?: boolean
+}) {
+  const resolveAll = (decision: "approve" | "deny") =>
+    onResolve(Object.fromEntries(confirmations.map(c => [c.confirmation_id, decision])))
+
+  return (
+    <div className="space-y-2 animate-in fade-in slide-in-from-bottom-1 duration-300">
+      <div className="text-xs text-muted-foreground">
+        {confirmations.length > 1
+          ? `${confirmations.length} actions need your approval before they run:`
+          : "This action needs your approval before it runs:"}
+      </div>
+      {confirmations.map(c => <ConfirmationItem key={c.confirmation_id} info={c} />)}
+      <div className="flex items-center gap-2 pt-0.5">
+        <Button size="sm" onClick={() => resolveAll("approve")} disabled={disabled} className="gap-1.5">
+          <Check className="size-3.5" /> {confirmations.length > 1 ? "Approve all" : "Approve"}
+        </Button>
+        <Button size="sm" variant="ghost" onClick={() => resolveAll("deny")} disabled={disabled} className="gap-1.5">
+          <X className="size-3.5" /> {confirmations.length > 1 ? "Deny all" : "Deny"}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// ── Reasoning / Steps Timeline ────────────────────────────────────
+// A live view of the agent's multi-step tool use this turn, built from the
+// tool_call / tool_result / tool_denied stream events.
+
+interface ReasoningStep {
+  id: string
+  title: string
+  status: "running" | "done" | "denied"
+  detail?: string
+}
+
+// One-line summary of a tool call's arguments, for the reasoning trace.
+function summarizeArgs(args: Record<string, unknown> | undefined): string {
+  if (!args) return ""
+  // Prefer the most informative common args, then fall back to the first value.
+  const pref = ["goal", "query", "icp_description", "company", "column_name", "status", "interval"]
+  for (const k of pref) {
+    const v = args[k]
+    if (typeof v === "string" && v.trim()) return v.length > 60 ? v.slice(0, 57) + "…" : v
+  }
+  const lead = args["lead_id"]
+  if (lead !== undefined) return `lead #${lead}`
+  for (const v of Object.values(args)) {
+    if (typeof v === "string" && v.trim()) return v.length > 60 ? v.slice(0, 57) + "…" : v
+    if (typeof v === "number") return String(v)
+  }
+  return ""
+}
+
+// Mark the most recently-started running step with a terminal status. Tools
+// run sequentially server-side, so events arrive in order and the last running
+// step is the one this result/denial belongs to.
+function markLastRunning(steps: ReasoningStep[], status: "done" | "denied"): ReasoningStep[] {
+  for (let i = steps.length - 1; i >= 0; i--) {
+    if (steps[i].status === "running") {
+      const next = [...steps]
+      next[i] = { ...next[i], status }
+      return next
+    }
+  }
+  return steps
+}
+
+function ReasoningTimeline({ steps }: { steps: ReasoningStep[] }) {
+  const [open, setOpen] = useState(true)
+  if (steps.length === 0) return null
+  const working = steps.some(s => s.status === "running")
+  const label = working ? "Working…" : `Used ${steps.length} tool${steps.length > 1 ? "s" : ""}`
+  return (
+    <div className="rounded-xl border border-border/40 bg-muted/20 mb-2">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 w-full px-3 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {open ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+        <span>{label}</span>
+        {working && <Loader2 className="size-3 animate-spin ml-auto text-primary/60" />}
+      </button>
+      {open && (
+        <div className="px-3 pb-2.5 space-y-1.5">
+          {steps.map(s => (
+            <div key={s.id} className="flex items-start gap-2 text-xs">
+              {s.status === "running"
+                ? <Loader2 className="size-3 shrink-0 animate-spin text-primary mt-0.5" />
+                : s.status === "denied"
+                  ? <X className="size-3 shrink-0 text-red-400 mt-0.5" />
+                  : <Check className="size-3 shrink-0 text-emerald-500 mt-0.5" />}
+              <span className="min-w-0">
+                <span className="text-muted-foreground capitalize">{s.title}</span>
+                {s.detail && <span className="text-muted-foreground/50"> — {s.detail}</span>}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -153,7 +272,7 @@ function CopyBtn({ content }: { content: string }) {
 // ── Quick Actions (landing page) ──────────────────────────────────
 
 const QUICK_ACTIONS = [
-  { icon: <Search className="size-4" />, text: "Find 50 IT staffing companies in Bangalore", color: "text-blue-400" },
+  { icon: <Zap className="size-4" />, text: "Build a list of 50 IT staffing firms in Pune and find their founders' emails", color: "text-rose-400" },
   { icon: <Building2 className="size-4" />, text: "Search AmbitionBox for SaaS companies", color: "text-emerald-400" },
   { icon: <BarChart3 className="size-4" />, text: "Show me my pipeline stats", color: "text-amber-400" },
   { icon: <Sparkles className="size-4" />, text: "Find hot leads missing email", color: "text-purple-400" },
@@ -176,11 +295,15 @@ export default function ChatPage() {
   const [editText, setEditText] = useState("")
   const [streamingJobIds, setStreamingJobIds] = useState<string[]>([])
   const [confirmations, setConfirmations] = useState<ConfirmationInfo[]>([])
+  const [reasoningSteps, setReasoningSteps] = useState<ReasoningStep[]>([])
+  // History of the turn that paused for confirmation, replayed on approve/deny.
+  const [pausedHistory, setPausedHistory] = useState<Array<{ role: string; content: string }>>([])
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const editRef = useRef<HTMLTextAreaElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   const { data: detailData, isLoading: isLoadingMessages } = useConversationMessages(activeConvId)
 
@@ -207,6 +330,7 @@ export default function ChatPage() {
   const sendMessages = useCallback(async (
     history: Array<{ role: string; content: string }>,
     optimistic: ChatMessage[],
+    opts: { approvedToolCalls?: ApprovedToolCall[] } = {},
   ) => {
     setOptimisticMessages(optimistic)
     setIsLoading(true)
@@ -214,8 +338,16 @@ export default function ChatPage() {
     setStreamingTool(null)
     setStreamingJobIds([])
     setConfirmations([])
+    setReasoningSteps([])
+    setPausedHistory(history)  // replayed if the turn pauses for confirmation
+
+    const ac = new AbortController()
+    abortRef.current = ac
 
     let currentConvId = activeConvId
+    let paused = false   // turn ended awaiting confirmation — keep gate visible
+    let aborted = false
+    let partialContent = ""  // mirror of streamingContent for the abort path
 
     try {
       await streamChat(history, currentConvId, (event) => {
@@ -224,35 +356,76 @@ export default function ChatPage() {
           navigate(`/chat?id=${currentConvId}`, { replace: true })
           queryClient.invalidateQueries({ queryKey: queryKeys.conversations.all })
         }
-        if (event.content) setStreamingContent(prev => prev + event.content)
-        if (event.tool_call) setStreamingTool(`Running tool: ${event.tool_call.name}...`)
+        if (event.content) { partialContent += event.content; setStreamingContent(prev => prev + event.content) }
+        if (event.tool_call) {
+          const tname = event.tool_call.name
+          setStreamingTool(`Running tool: ${tname}...`)
+          const detail = summarizeArgs(event.tool_call.args)
+          setReasoningSteps(prev => [...prev, {
+            id: `${tname}-${prev.length}`, title: tname.replace(/_/g, " "), status: "running", detail,
+          }])
+        }
         if (event.tool_result) {
           setStreamingTool(null)
-          // Capture job_id for inline task card
-          const jobId = event.tool_result?.result?.job_id
+          // Mark the most recent running step done (tools run sequentially).
+          setReasoningSteps(prev => markLastRunning(prev, "done"))
+          const jobId = event.tool_result?.result?.job_id as string | undefined
           if (jobId) setStreamingJobIds(prev => [...prev, jobId])
         }
+        if (event.tool_denied) {
+          setReasoningSteps(prev => markLastRunning(prev, "denied"))
+        }
         if (event.confirmation_required) {
+          paused = true
           setConfirmations(prev => [...prev, event.confirmation_required as ConfirmationInfo])
         }
         if (event.warning) toast.warning(event.warning)
         if (event.error) toast.error(event.error)
-      })
+      }, { signal: ac.signal, approvedToolCalls: opts.approvedToolCalls })
 
       if (currentConvId) {
         await queryClient.invalidateQueries({ queryKey: queryKeys.conversations.detail(currentConvId) })
         queryClient.invalidateQueries({ queryKey: queryKeys.conversations.all })
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Chat failed")
+      if (err instanceof DOMException && err.name === "AbortError") {
+        aborted = true
+        toast("Stopped")
+      } else {
+        toast.error(err instanceof Error ? err.message : "Chat failed")
+      }
     } finally {
+      abortRef.current = null
       setIsLoading(false)
-      setStreamingContent("")
       setStreamingTool(null)
-      setStreamingJobIds([])
-      setConfirmations([])
-      setOptimisticMessages([])
       inputRef.current?.focus()
+      if (paused) {
+        // Leave streamingContent + confirmations visible; the gate drives the
+        // next step. Do NOT clear them here.
+      } else if (aborted) {
+        // Keep the partial answer in the transcript instead of discarding it.
+        const partial = partialContent
+        if (partial.trim()) {
+          setOptimisticMessages(prev => [...prev, {
+            id: crypto.randomUUID(),
+            conversation_id: currentConvId || "",
+            role: "assistant",
+            content: partial,
+            tool_data: null,
+            created_at: new Date().toISOString(),
+          }])
+        }
+        setStreamingContent("")
+        setStreamingJobIds([])
+        setConfirmations([])
+        setReasoningSteps([])
+      } else {
+        setStreamingContent("")
+        setStreamingJobIds([])
+        setConfirmations([])
+        setReasoningSteps([])
+        setOptimisticMessages([])
+      }
     }
   }, [activeConvId, navigate])
 
@@ -313,12 +486,33 @@ export default function ChatPage() {
     await sendMessages(history, [])
   }, [isLoading, serverMessages, sendMessages])
 
+  // ── Stop the in-flight stream ──
+  const handleStop = useCallback(() => {
+    abortRef.current?.abort()
+  }, [])
+
+  // ── Resolve a confirmation gate (approve/deny) → resubmit the paused turn ──
+  const handleConfirmationResolve = useCallback(async (
+    decisions: Record<string, "approve" | "deny">,
+  ) => {
+    const approvedToolCalls: ApprovedToolCall[] = confirmations.map(c => ({
+      tool_call: c.tool_call,
+      decision: decisions[c.confirmation_id] ?? "deny",
+    }))
+    const history = pausedHistory
+    setConfirmations([])
+    setStreamingContent("")
+    await sendMessages(history, [], { approvedToolCalls })
+  }, [confirmations, pausedHistory, sendMessages])
+
   useEffect(() => {
     setOptimisticMessages([])
     setStreamingContent("")
     setStreamingTool(null)
     setEditingMsgId(null)
     setConfirmations([])
+    setReasoningSteps([])
+    setPausedHistory([])
   }, [activeConvId])
 
   // Last assistant index for regenerate button
@@ -533,12 +727,13 @@ export default function ChatPage() {
           </div>
 
           {/* ── Streaming Response ── */}
-          {(streamingContent || streamingTool || (isLoading && !streamingContent && !streamingTool)) && (
+          {(streamingContent || streamingTool || reasoningSteps.length > 0 || (isLoading && !streamingContent && !streamingTool)) && (
             <div className="flex gap-3 mt-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/10 to-primary/5 text-primary mt-1 ring-1 ring-primary/10">
                 <Bot className="size-4" />
               </div>
               <div className="flex-1 min-w-0">
+                <ReasoningTimeline steps={reasoningSteps} />
                 {streamingTool && !streamingContent && (
                   <ToolIndicator toolName={streamingTool} />
                 )}
@@ -555,17 +750,21 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* ── Confirmation Gates ── */}
-          {confirmations.map((conf, i) => (
-            <div key={`conf-${i}`} className="flex gap-3 mt-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          {/* ── Confirmation Gate (human-in-the-loop) ── */}
+          {confirmations.length > 0 && (
+            <div className="flex gap-3 mt-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/10 to-amber-500/5 text-amber-500 mt-1 ring-1 ring-amber-500/10">
                 <ShieldAlert className="size-4" />
               </div>
               <div className="flex-1 min-w-0">
-                <ConfirmationGate info={conf} />
+                <ConfirmationGate
+                  confirmations={confirmations}
+                  onResolve={handleConfirmationResolve}
+                  disabled={isLoading}
+                />
               </div>
             </div>
-          ))}
+          )}
 
           {/* ── Inline Task Progress Cards (from streaming) ── */}
           {streamingJobIds.map((jid) => (
@@ -603,17 +802,27 @@ export default function ChatPage() {
               rows={1}
             />
             <div className="flex shrink-0 p-2.5">
-              <button
-                onClick={handleSend}
-                disabled={isLoading || !input.trim()}
-                className={`flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200 ${
-                  input.trim()
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-105 active:scale-95"
-                    : "bg-muted text-muted-foreground"
-                } disabled:opacity-40`}
-              >
-                {isLoading ? <Loader2 className="size-4 animate-spin" /> : <ArrowUp className="size-4" />}
-              </button>
+              {isLoading ? (
+                <button
+                  onClick={handleStop}
+                  title="Stop generating"
+                  className="flex items-center justify-center h-8 w-8 rounded-full bg-foreground text-background shadow-md hover:scale-105 active:scale-95 transition-all duration-200"
+                >
+                  <Square className="size-3.5 fill-current" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleSend}
+                  disabled={!input.trim()}
+                  className={`flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200 ${
+                    input.trim()
+                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-105 active:scale-95"
+                      : "bg-muted text-muted-foreground"
+                  } disabled:opacity-40`}
+                >
+                  <ArrowUp className="size-4" />
+                </button>
+              )}
             </div>
           </div>
           <div className="text-center mt-2.5 text-[10px] text-muted-foreground/40 select-none">

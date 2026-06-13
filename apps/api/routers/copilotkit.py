@@ -24,6 +24,18 @@ from apps.api.services import chat_history, memory
 router = APIRouter(prefix="/api/copilotkit", tags=["CopilotKit"])
 
 
+def _max_tool_rounds() -> int:
+    """Max ReAct tool-use rounds per turn before the model is forced to answer.
+
+    DB-tunable (settings key CHAT_MAX_TOOL_ROUNDS) so it can change without a
+    redeploy, matching the provider-config pattern.
+    """
+    try:
+        return max(1, int(_db_get("CHAT_MAX_TOOL_ROUNDS", "8")))
+    except (ValueError, TypeError):
+        return 8
+
+
 def _resolve_provider(provider_id: str) -> dict:
     """Resolve a provider ID into a full config dict with credentials."""
     prov = PROVIDERS.get(provider_id)
@@ -216,6 +228,7 @@ You have powerful tools to interact with the lead database. Use them proactively
 - **compare_leads** — Side-by-side comparison of leads
 - **ambitionbox_search** — Search AmbitionBox for Indian companies with ratings, reviews, employee counts, industry data. Use for market research, competitor analysis, finding hiring companies
 - **ambitionbox_jobs** — Get current job listings for a company from AmbitionBox (requires company_id from ambitionbox_search)
+- **draft_plan / execute_plan** — Autopilot for COMPOUND goals (e.g. "build a list of 50 IT staffing firms in Pune and find their founders' emails"): call draft_plan to produce a step-by-step plan, show it to the user, then call execute_plan with that plan (the user approves before anything runs). Use this instead of many manual tool calls for multi-step build-a-list-and-enrich requests.
 
 ## Response Guidelines
 - For conversational text, explanations, or simple answers, respond in plain markdown.
@@ -224,6 +237,15 @@ You have powerful tools to interact with the lead database. Use them proactively
 - When asked to find/collect leads, use start_collection tool
 - Keep responses concise but data-rich
 - Score context: Hot (75-100), Warm (50-74), Cold (25-49), Unqualified (0-24)
+
+## Action Safety (human-in-the-loop)
+Read-only tools (search_leads, get_lead_detail, get_lead_stats, find_similar_leads,
+get_enrichment_gaps, suggest_outreach, compare_leads, ambitionbox_*) run immediately.
+Tools that mutate data or spend resources (update_lead_status, start_collection,
+enrich_lead, create_workbook, add_workbook_column) require explicit user approval:
+when you call one, the system pauses and asks the user to confirm before it runs.
+So propose the action with a one-line rationale and let the gate handle approval —
+do not claim the action is done until you receive its tool result.
 
 ## OpenUI UI Generation (STRICT SYNTAX REQUIRED)
 You MUST use the custom OpenUI Lang syntax below when generating structured UI. 
@@ -264,6 +286,11 @@ DANGEROUS_TOOLS = {
         "label": "➕ Add Workbook Column",
         "reason": "Modifies the schema of an existing workbook.",
     },
+    "execute_plan": {
+        "level": "high",
+        "label": "🤖 Run Autopilot Plan",
+        "reason": "Builds a workbook and runs sourcing + agent-column enrichment (spends resources).",
+    },
 }
 
 # Tools that are safe to execute without confirmation (read-only).
@@ -271,6 +298,7 @@ SAFE_TOOLS = {
     "search_leads", "get_lead_detail", "get_lead_stats",
     "find_similar_leads", "get_enrichment_gaps", "suggest_outreach",
     "compare_leads", "ambitionbox_search", "ambitionbox_jobs",
+    "draft_plan",
 }
 
 
@@ -279,6 +307,13 @@ def _describe_action(fn_name: str, fn_args: dict) -> str:
     meta = DANGEROUS_TOOLS.get(fn_name, {})
     label = meta.get("label", fn_name)
     reason = meta.get("reason", "This action modifies data.")
+
+    # The autopilot plan describes itself (one step per line) — render it
+    # directly so the confirmation gate shows the full plan for approval.
+    if fn_name == "execute_plan":
+        from apps.api.services.agent import autopilot
+        plan = fn_args.get("plan") or {}
+        return autopilot.describe_plan(plan) if plan.get("steps") else f"{label}\n{reason}"
 
     details = ""
     if fn_name == "start_collection":
@@ -579,6 +614,35 @@ def _build_tools():
                 },
             },
         },
+        {
+            "type": "function",
+            "function": {
+                "name": "draft_plan",
+                "description": "For COMPOUND goals that need several steps (e.g. 'build a list of 50 IT staffing firms in Pune and find their founders' emails'), draft a step-by-step plan WITHOUT executing it. Returns the plan for the user to review. Do not use for single actions.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "goal": {"type": "string", "description": "The high-level goal in the user's words"},
+                        "target_count": {"type": "integer", "description": "How many companies/leads, if specified"},
+                    },
+                    "required": ["goal"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "execute_plan",
+                "description": "Execute a plan previously produced by draft_plan. Pass the plan object back verbatim. This builds the workbook, sources companies, and runs agent-column enrichment. Requires user approval.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "plan": {"type": "object", "description": "The plan object returned by draft_plan"},
+                    },
+                    "required": ["plan"],
+                },
+            },
+        },
     ]
 
 
@@ -650,19 +714,22 @@ async def _execute_tool(name: str, args: dict) -> str:
 
             enriched_fields = []
 
-            # Website enrichment
+            # Website enrichment.
+            # NOTE: _execute_tool runs ON the request's event loop. The previous
+            # code spun up a NEW event loop and ran it synchronously
+            # (loop.run_until_complete), which blocks the *entire* server loop —
+            # freezing all requests — for the scrape duration. Awaiting the
+            # coroutine directly (with a timeout guard so a slow site can't hang
+            # the turn) is correct and only suspends this turn.
             if lead.has_website and (not lead.has_email or not lead.has_phone):
                 try:
                     from apps.api.services.leadgen.enrichment.website_scraper import _scrape_via_http
                     from apps.api.services.leadgen.http import StealthClient
-                    import asyncio as _aio
 
                     client = StealthClient()
                     url = lead.website if lead.website.startswith("http") else f"https://{lead.website}"
 
-                    loop = _aio.new_event_loop()
-                    result = loop.run_until_complete(_scrape_via_http(client, url))
-                    loop.close()
+                    result = await asyncio.wait_for(_scrape_via_http(client, url), timeout=30.0)
 
                     if result.get("emails") and not lead.has_email:
                         lead.email = result["emails"][0]
@@ -1023,6 +1090,23 @@ async def _execute_tool(name: str, args: dict) -> str:
                 res = set_refresh_policy(wdb, args["workbook_id"], policy)
             return json.dumps({"message": f"Workbook will refresh on signals: {', '.join(args['signals'])}.", **res})
 
+        # ── Autopilot: goal → plan → execute (orchestrates the tools above) ──
+        elif name == "draft_plan":
+            from apps.api.services.agent import autopilot
+            plan = autopilot.draft_plan(args["goal"], int(args.get("target_count", 0) or 0))
+            return json.dumps({
+                "plan": plan,
+                "message": "Drafted a plan. Call execute_plan with this plan to run it (the user will be asked to approve).",
+            })
+
+        elif name == "execute_plan":
+            from apps.api.services.agent import autopilot
+            plan = args.get("plan") or {}
+            if not plan.get("steps"):
+                return json.dumps({"error": "No plan provided. Call draft_plan first."})
+            result = await autopilot.execute_plan(plan, _execute_tool)
+            return json.dumps(result)
+
         return json.dumps({"error": f"Unknown tool: {name}"})
     finally:
         db.close()
@@ -1035,12 +1119,24 @@ async def _stream_chat(
     tools: list,
     provider: dict,
     fallback_providers: list = None,
+    round_idx: int = 0,
+    max_rounds: int = None,
+    seen_calls: dict = None,
 ) -> AsyncGenerator[str, None]:
     """Stream chat completion from the configured AI provider.
 
     On 429/rate-limit errors, automatically fails over to the next provider
-    in fallback_providers.
+    in fallback_providers (failover does NOT consume the tool-round budget).
+
+    The agentic tool loop is bounded by `max_rounds`: each round of tool calls
+    increments `round_idx`, and on the final round the model is re-issued with
+    no tools so it cannot loop again. `seen_calls` dedupes identical tool calls
+    within a turn to break no-progress cycles.
     """
+    if max_rounds is None:
+        max_rounds = _max_tool_rounds()
+    if seen_calls is None:
+        seen_calls = {}
     api_key = provider["api_key"]
     base_url = provider["base_url"].rstrip("/")
     model = provider["model"]
@@ -1086,7 +1182,8 @@ async def _stream_chat(
                         msg = f"⚡ {provider_name} rate limited — switching to {next_name}..."
                         yield f'data: {json.dumps({"warning": msg})}\n\n'
 
-                        async for chunk in _stream_chat(messages, tools, next_prov, remaining):
+                        async for chunk in _stream_chat(messages, tools, next_prov, remaining,
+                                                        round_idx, max_rounds, seen_calls):
                             yield chunk
                         return
 
@@ -1107,7 +1204,8 @@ async def _stream_chat(
                         msg = f"⚡ {provider_name} error — switching to {next_name}..."
                         yield f'data: {json.dumps({"warning": msg})}\n\n'
 
-                        async for chunk in _stream_chat(messages, tools, next_prov, remaining):
+                        async for chunk in _stream_chat(messages, tools, next_prov, remaining,
+                                                        round_idx, max_rounds, seen_calls):
                             yield chunk
                         return
 
@@ -1153,9 +1251,13 @@ async def _stream_chat(
                         # Detect finish_reason for tool calls
                         finish = chunk.get("choices", [{}])[0].get("finish_reason")
                         if finish == "tool_calls" and accumulated_tool_calls:
-                            tool_results = []
-                            for idx in sorted(accumulated_tool_calls.keys()):
-                                tc = accumulated_tool_calls[idx]
+                            calls = [accumulated_tool_calls[i] for i in sorted(accumulated_tool_calls.keys())]
+
+                            # Parse args once; partition into safe (run inline) and
+                            # dangerous (gate — do NOT execute, end the turn for approval).
+                            parsed = []          # (tc, fn_name, fn_args)
+                            dangerous = []       # subset needing confirmation
+                            for tc in calls:
                                 fn_name = tc["function"]["name"]
                                 if not tc["function"]["arguments"]:
                                     tc["function"]["arguments"] = "{}"
@@ -1163,34 +1265,65 @@ async def _stream_chat(
                                     fn_args = json.loads(tc["function"]["arguments"])
                                 except json.JSONDecodeError:
                                     fn_args = {}
-
-                                # ── Confirmation gate for dangerous tools ──
+                                parsed.append((tc, fn_name, fn_args))
                                 if _needs_confirmation(fn_name):
-                                    action_desc = _describe_action(fn_name, fn_args)
-                                    meta = DANGEROUS_TOOLS.get(fn_name, {})
-                                    yield f"data: {json.dumps({'confirmation_required': {'name': fn_name, 'args': fn_args, 'description': action_desc, 'level': meta.get('level', 'medium'), 'label': meta.get('label', fn_name)}})}\n\n"
-                                    # NOTE: The frontend must handle this event.
-                                    # For now, we auto-execute after sending the
-                                    # confirmation event (frontend will gate this
-                                    # with a confirm dialog before showing results).
+                                    dangerous.append((tc, fn_name, fn_args))
 
+                            # Execute SAFE (read-only) calls inline, with per-turn dedup.
+                            tool_results = []
+                            for tc, fn_name, fn_args in parsed:
+                                if _needs_confirmation(fn_name):
+                                    continue  # gated below — never executed here
+                                sig = fn_name + "|" + json.dumps(fn_args, sort_keys=True, default=str)
                                 yield f"data: {json.dumps({'tool_call': {'name': fn_name, 'args': fn_args}})}\n\n"
-                                result = await _execute_tool(fn_name, fn_args)
+                                if sig in seen_calls:
+                                    result = seen_calls[sig]  # no-progress guard: reuse prior result
+                                else:
+                                    result = await _execute_tool(fn_name, fn_args)
+                                    seen_calls[sig] = result
                                 yield f"data: {json.dumps({'tool_result': {'name': fn_name, 'result': json.loads(result)}})}\n\n"
-
                                 tool_results.append({
-                                    "role": "tool",
-                                    "tool_call_id": tc["id"],
-                                    "name": fn_name,
-                                    "content": result,
+                                    "role": "tool", "tool_call_id": tc["id"],
+                                    "name": fn_name, "content": result,
                                 })
 
+                            # ── Real human-in-the-loop gate ──
+                            # If any dangerous call is proposed, do NOT execute it.
+                            # Emit a confirmation event per call and END the turn; the
+                            # frontend resubmits with approved_tool_calls to execute.
+                            if dangerous:
+                                for tc, fn_name, fn_args in dangerous:
+                                    meta = DANGEROUS_TOOLS.get(fn_name, {})
+                                    yield f"data: {json.dumps({'confirmation_required': {'confirmation_id': tc.get('id', ''), 'tool_call': tc, 'name': fn_name, 'args': fn_args, 'description': _describe_action(fn_name, fn_args), 'level': meta.get('level', 'medium'), 'label': meta.get('label', fn_name)}})}\n\n"
+                                yield f"data: {json.dumps({'awaiting_confirmation': True})}\n\n"
+                                yield "data: [DONE]\n\n"
+                                return
+
+                            # No dangerous calls — continue the loop under the round budget.
                             follow_up = messages + [
-                                {"role": "assistant", "content": "", "tool_calls": list(accumulated_tool_calls.values())},
+                                {"role": "assistant", "content": "", "tool_calls": calls},
                                 *tool_results,
                             ]
-
-                            async for chunk_line in _stream_chat(follow_up, tools, provider, fallback_providers):
+                            next_round = round_idx + 1
+                            if next_round >= max_rounds:
+                                # Hard stop: re-issue with NO tools so the model must
+                                # answer from what it has and cannot loop again.
+                                follow_up.append({
+                                    "role": "system",
+                                    "content": (
+                                        f"You have reached the maximum of {max_rounds} tool-use rounds. "
+                                        "Do NOT call any more tools. Summarize what you found and the "
+                                        "next step the user can take."
+                                    ),
+                                })
+                                async for chunk_line in _stream_chat(
+                                    follow_up, [], provider, fallback_providers,
+                                    next_round, max_rounds, seen_calls):
+                                    yield chunk_line
+                                return
+                            async for chunk_line in _stream_chat(
+                                follow_up, tools, provider, fallback_providers,
+                                next_round, max_rounds, seen_calls):
                                 yield chunk_line
                             return
 
@@ -1209,7 +1342,8 @@ async def _stream_chat(
             msg = f"{nl}{nl}> ⚡ *{provider_name} {error_type} — switching to {next_name}...*{nl}{nl}"
             yield f'data: {json.dumps({"content": msg})}\n\n'
 
-            async for chunk in _stream_chat(messages, tools, next_prov, remaining):
+            async for chunk in _stream_chat(messages, tools, next_prov, remaining,
+                                            round_idx, max_rounds, seen_calls):
                 yield chunk
             return
 
@@ -1219,6 +1353,55 @@ async def _stream_chat(
             yield f'data: {json.dumps({"error": "AI provider timed out. The service may be overloaded — try again in a moment."})}\n\n'
     except Exception as e:
         yield f'data: {json.dumps({"error": f"AI provider error: {str(e)[:200]}"})}\n\n'
+
+
+async def _resolve_approved_calls(cleaned_messages: list, approved: list) -> AsyncGenerator[str, None]:
+    """Execute user-approved (or denied) dangerous tool calls before resuming.
+
+    Part of the human-in-the-loop gate: when the previous turn ended awaiting
+    confirmation, the frontend resubmits with `approved_tool_calls`. We replay
+    the assistant tool_calls message the model proposed (synthesized from the
+    echoed tool_call so OpenAI message ordering stays valid), then for each call
+    either execute it (approve) or record a denial (deny), appending tool-role
+    messages to `cleaned_messages`. Yields SSE lines for tool_call/tool_result so
+    the client sees the action happen.
+    """
+    if not approved:
+        return
+
+    tool_calls = [a["tool_call"] for a in approved if a.get("tool_call")]
+    if not tool_calls:
+        return
+    cleaned_messages.append({"role": "assistant", "content": "", "tool_calls": tool_calls})
+
+    for a in approved:
+        tc = a.get("tool_call")
+        if not tc:
+            continue
+        decision = a.get("decision", "approve")
+        fn_name = tc["function"]["name"]
+        try:
+            fn_args = json.loads(tc["function"].get("arguments") or "{}")
+        except json.JSONDecodeError:
+            fn_args = {}
+
+        if decision == "approve":
+            yield f"data: {json.dumps({'tool_call': {'name': fn_name, 'args': fn_args}})}\n\n"
+            result = await _execute_tool(fn_name, fn_args)
+            try:
+                parsed_result = json.loads(result)
+            except json.JSONDecodeError:
+                parsed_result = {"raw": result}
+            yield f"data: {json.dumps({'tool_result': {'name': fn_name, 'result': parsed_result}})}\n\n"
+            content = result
+        else:
+            content = json.dumps({"denied": True, "reason": "User declined this action."})
+            yield f"data: {json.dumps({'tool_denied': {'name': fn_name}})}\n\n"
+
+        cleaned_messages.append({
+            "role": "tool", "tool_call_id": tc.get("id", ""),
+            "name": fn_name, "content": content,
+        })
 
 
 # ── Main chat endpoint ───────────────────────────────────────────
@@ -1237,6 +1420,8 @@ async def copilot_chat(request: Request):
     user_messages = body.get("messages", [])
     context = body.get("context", "")
     conv_id = body.get("conversation_id")
+    # Pre-approved (or denied) dangerous tool calls from a confirmation resubmit.
+    approved_tool_calls = body.get("approved_tool_calls", []) or []
 
     # Get the last user message for memory operations
     last_user_msg = ""
@@ -1347,7 +1532,15 @@ async def copilot_chat(request: Request):
         # Send conversation_id first
         yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
 
-        async for chunk in _stream_chat(cleaned_messages, tools, provider, fallbacks):
+        async def _events():
+            # Resolve any pre-approved dangerous tool calls from a confirmation
+            # resubmit, then run the normal bounded agentic loop.
+            async for line in _resolve_approved_calls(cleaned_messages, approved_tool_calls):
+                yield line
+            async for line in _stream_chat(cleaned_messages, tools, provider, fallbacks):
+                yield line
+
+        async for chunk in _events():
             yield chunk
 
             # Parse content from the chunk for storage
