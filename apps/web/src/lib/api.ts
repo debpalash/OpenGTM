@@ -299,33 +299,57 @@ export async function deleteConversation(id: string): Promise<void> {
   await fetch(`${API_BASE}/api/copilotkit/conversations/${id}`, { method: "DELETE" })
 }
 
+// Verbatim OpenAI-style tool call echoed by the server in a confirmation event.
+export interface ToolCall {
+  id: string
+  type: string
+  function: { name: string; arguments: string }
+}
+
+export interface ApprovedToolCall {
+  tool_call: ToolCall
+  decision: "approve" | "deny"
+}
+
 export interface ChatStreamEvent {
   conversation_id?: string
   content?: string
   tool_call?: { name: string; args: Record<string, unknown> }
   tool_result?: { name: string; result: Record<string, unknown> }
+  tool_denied?: { name: string }
   confirmation_required?: {
+    confirmation_id: string
+    tool_call: ToolCall
     name: string
     args: Record<string, unknown>
     description: string
     level: "high" | "medium" | "low"
     label: string
   }
+  awaiting_confirmation?: boolean
   warning?: string
   error?: string
+}
+
+export interface StreamChatOpts {
+  signal?: AbortSignal
+  approvedToolCalls?: ApprovedToolCall[]
 }
 
 export async function streamChat(
   messages: Array<{ role: string; content: string }>,
   conversationId: string | null,
   onEvent: (event: ChatStreamEvent) => void,
+  opts: StreamChatOpts = {},
 ): Promise<void> {
   const res = await fetch(`${API_BASE}/api/copilotkit`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    signal: opts.signal,
     body: JSON.stringify({
       messages,
       conversation_id: conversationId,
+      ...(opts.approvedToolCalls?.length ? { approved_tool_calls: opts.approvedToolCalls } : {}),
     }),
   })
   if (!res.ok || !res.body) throw new Error(`Chat failed: ${res.status}`)
