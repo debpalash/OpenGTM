@@ -618,7 +618,7 @@ SOURCES: List[Dict] = [
     {"name": "generic_incubator", "label": "Incubator/Accelerator", "region": ["global", "india"], "category": "startup", "site_domain": None, "query_templates": ["{industry} startup incubator accelerator {city} portfolio companies"], "extract_from_listing": False, "priority": 204, "enabled": True},
     {"name": "generic_govt_tender", "label": "Government Tenders", "region": ["india"], "category": "government", "site_domain": None, "query_templates": ["{industry} government tender {city} vendor supplier list"], "extract_from_listing": False, "priority": 205, "enabled": True},
     {"name": "generic_iso_certified", "label": "ISO Certified Companies", "region": ["global", "india"], "category": "directory", "site_domain": None, "query_templates": ['"{industry}" "ISO certified" companies {city}'], "extract_from_listing": False, "priority": 206, "enabled": True},
-    {"name": "generic_hiring_surge", "label": "Hiring Surge Detection", "region": ["global"], "category": "jobs", "site_domain": None, "query_templates": ['"{industry}" company {city} "we are hiring" OR "join our team"'], "extract_from_listing": False, "priority": 207, "enabled": True},
+    {"name": "generic_hiring_surge", "label": "Hiring Surge Detection", "region": ["global"], "category": "jobs", "site_domain": None, "query_templates": ['{industry} {city} "we are hiring"'], "extract_from_listing": False, "priority": 207, "enabled": True},
 ]
 
 
