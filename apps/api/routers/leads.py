@@ -118,6 +118,25 @@ def get_lead(lead_id: int, ctx: WorkspaceCtx = Depends(current_workspace)):
     raise HTTPException(status_code=404, detail="Lead not found")
 
 
+@router.get("/lead/{lead_id}/similar")
+def similar_leads(lead_id: int, limit: int = 10, ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Find leads similar to a given lead (by specialization, then city)."""
+    db = ctx.lead_db()
+    lead = db.get_lead(lead_id)
+    if not lead:
+        db.close()
+        raise HTTPException(status_code=404, detail="Lead not found")
+    similar = []
+    if lead.specialization:
+        similar = db.get_leads(search=lead.specialization, limit=limit + 1)
+    if not similar and lead.city:
+        similar = db.get_leads(city=lead.city, limit=limit + 1)
+    similar = [l for l in similar if l.id != lead.id][:limit]
+    db.close()
+    return {"reference": lead.company, "count": len(similar),
+            "similar_leads": [l.to_dict() for l in similar]}
+
+
 class StatusUpdate(BaseModel):
     status: str
     note: str = ""
@@ -801,17 +820,37 @@ async def public_scrape(body: dict, ctx: WorkspaceCtx = Depends(current_workspac
 # ── Deduplication ─────────────────────────────────────────────────────────
 
 @router.post("/leads/dedup")
-def run_dedup(threshold: float = Query(0.85, ge=0.5, le=1.0), ctx: WorkspaceCtx = Depends(current_workspace)):
-    """Analyze leads for duplicates using fuzzy matching."""
+def run_dedup(
+    threshold: float = Query(0.85, ge=0.5, le=1.0),
+    city: Optional[str] = None,
+    source: Optional[str] = None,
+    tier: Optional[str] = None,
+    search: Optional[str] = None,
+    limit: int = Query(2000, ge=1, le=5000),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Analyze a BOUNDED, filtered subset of leads for duplicates (fuzzy match).
+
+    Fuzzy dedup is ~O(n^2); running it over the full DB (hundreds of thousands
+    of rows) would hang/OOM the server. Callers scope it with filters
+    (city/source/tier/search) and a hard `limit` (default 2000, max 5000), e.g.
+    "dedup within Pune" or "dedup this source". The UI nudges users to filter
+    first for large datasets.
+    """
     from apps.api.services.dedup import LeadDeduplicator
 
     db = ctx.lead_db()
-    leads = db.get_all()  # Returns list of dicts
+    leads = [l.to_dict() for l in db.get_leads(
+        city=_clean(city), source=_clean(source), score_tier=_clean(tier),
+        search=_clean(search), limit=limit,
+    )]
+    db.close()
     if not leads:
-        return {"stats": {"total_leads": 0, "duplicates_found": 0}, "pairs": [], "clusters": {}}
+        return {"stats": {"total_leads": 0, "duplicates_found": 0}, "pairs": [], "clusters": {}, "scanned": 0}
 
     dedup = LeadDeduplicator(threshold=threshold)
     result = dedup.find_duplicates(leads)
+    result["scanned"] = len(leads)
     return result
 
 
