@@ -39,9 +39,10 @@ RUN_LIVE = os.environ.get("RUN_LIVE_LLM") == "1"
 def test_tool_registry_exposes_expected_tools():
     tools = ck._build_tools()
     names = {t["function"]["name"] for t in tools}
-    assert len(tools) == 18, f"expected 18 tools, got {len(tools)}"
+    assert len(tools) == 20, f"expected 20 tools, got {len(tools)}"
     assert ck.SAFE_TOOLS <= names
     assert set(ck.DANGEROUS_TOOLS) <= names
+    assert {"draft_plan", "execute_plan"} <= names
     for t in tools:
         assert t["type"] == "function"
         fn = t["function"]
@@ -240,6 +241,54 @@ def test_bounded_tool_loop_caps_rounds(monkeypatch):
     assert exec_count["n"] == max_rounds, f"expected {max_rounds} executions, got {exec_count['n']}"
     assert rec["bodies"][-1]["tools"] == [], "final round must be issued with no tools"
     assert any("Final answer." in ln for ln in lines)
+
+
+# ── Offline: autopilot (goal → plan → execute) ────────────────────────────
+
+def test_autopilot_drafts_plan_from_compound_goal():
+    from apps.api.services.agent import autopilot
+    plan = autopilot.draft_plan("build a list of 50 IT staffing firms in Pune and find founders' emails", 50)
+    kinds = [s["kind"] for s in plan["steps"]]
+    assert kinds[0] == "create_source_workbook"
+    assert "add_agent_column" in kinds          # detected the "founders' emails" ask
+    assert kinds[-1] == "report"
+    assert plan["estimated_rows"] == 50
+
+
+def test_autopilot_dedupes_email_field():
+    from apps.api.services.agent import autopilot
+    # "founders' emails" should yield ONE email column (Founder Email), not two.
+    plan = autopilot.draft_plan("find founder emails and contact emails", 0)
+    email_cols = [s for s in plan["steps"]
+                  if s["kind"] == "add_agent_column" and s["params"]["target_field"] == "email"]
+    assert len(email_cols) == 1
+
+
+def test_autopilot_execute_orchestrates_existing_tools():
+    from apps.api.services.agent import autopilot
+    calls = []
+
+    async def fake_tool(name, params):
+        calls.append((name, params))
+        if name == "create_source_workbook":
+            return json.dumps({"workbook_id": "wb_123"})
+        return json.dumps({"ok": True})
+
+    plan = autopilot.draft_plan("50 IT staffing firms in Pune, founders' emails", 50)
+    result = asyncio.run(autopilot.execute_plan(plan, fake_tool))
+
+    assert result["workbook_id"] == "wb_123"
+    tool_names = [c[0] for c in calls]
+    assert tool_names[0] == "create_source_workbook"
+    assert "add_agent_column" in tool_names
+    # The agent column was attached to the workbook created in step 1.
+    agent_call = next(c for c in calls if c[0] == "add_agent_column")
+    assert agent_call[1]["workbook_id"] == "wb_123"
+
+
+def test_execute_plan_is_gated_draft_plan_is_not():
+    assert ck._needs_confirmation("execute_plan")
+    assert not ck._needs_confirmation("draft_plan")
 
 
 # ── Live: end-to-end SSE streaming (opt-in) ───────────────────────────────
