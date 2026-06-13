@@ -15,33 +15,33 @@
   ],
   "executed_query": "site:twitter.com tech company  company official",
   "results_count": 5,
-  "time_ms": 7075,
+  "time_ms": 1953,
   "errors": null,
   "results": [
     {
-      "title": "Tech Company News (@TechCompanyNews) \u00b7 X",
-      "href": "https://twitter.com/TechCompanyNews",
-      "body": "JavaScript is not available \u00b7 We\u2019ve detected that JavaScript is disabled in this browser. Please enable JavaScript or switch to a supported browser to continue using twitter.com. You can see a list of supported browsers in our Help Center \u00b7 Help Center \u00b7 Terms of Service Privacy Policy ..."
+      "title": "Cisco (@Cisco) / Twitter",
+      "href": "https://twitter.com/Cisco",
+      "body": "Official info on Cisco news, events and technology innovation. For help, reach out to.What should be the focus when you're making massive shifts in the way your company is working?"
     },
     {
-      "title": "Tech.co (@TechCoHQ) / Posts / X",
-      "href": "https://twitter.com/techcohq",
-      "body": "JavaScript is not available \u00b7 We\u2019ve detected that JavaScript is disabled in this browser. Please enable JavaScript or switch to a supported browser to continue using twitter.com. You can see a list of supported browsers in our Help Center \u00b7 Help Center \u00b7 Terms of Service Privacy Policy ..."
+      "title": "Yandex (@yandexcom) on X",
+      "href": "https://twitter.com/YandexCom",
+      "body": "Yandex (@yandexcom) on X. Official English account for Yandex, a technology company that builds intelligent products and services powered by machine learning."
     },
     {
-      "title": "Bloomberg Technology",
-      "href": "https://twitter.com/technology",
-      "body": "JavaScript is not available \u00b7 We\u2019ve detected that JavaScript is disabled in this browser. Please enable JavaScript or switch to a supported browser to continue using twitter.com. You can see a list of supported browsers in our Help Center \u00b7 Help Center \u00b7 Terms of Service Privacy Policy ..."
+      "title": "twitter.com/Dell",
+      "href": "https://twitter.com/Dell",
+      "body": "Empowering progress with tech built for you. Real-world solutions, bold ideas, and a future driven by innovation. Need support? Contact @DellCares."
     },
     {
-      "title": "Tech Nation (@TechNation) / X",
-      "href": "https://twitter.com/technation?lang=en",
-      "body": "JavaScript is not available \u00b7 We\u2019ve detected that JavaScript is disabled in this browser. Please enable JavaScript or switch to a supported browser to continue using twitter.com. You can see a list of supported browsers in our Help Center \u00b7 Help Center \u00b7 Terms of Service Privacy Policy ..."
+      "title": "twitter.com/AMD",
+      "href": "https://twitter.com/AMD",
+      "body": "together we advance..."
     },
     {
-      "title": "Tech & Co (@techandco) / X",
-      "href": "https://twitter.com/techandco",
-      "body": "JavaScript is not available \u00b7 We\u2019ve detected that JavaScript is disabled in this browser. Please enable JavaScript or switch to a supported browser to continue using twitter.com. You can see a list of supported browsers in our Help Center \u00b7 Help Center \u00b7 Terms of Service Privacy Policy ..."
+      "title": "twitter.com/BITMAINtech",
+      "href": "https://twitter.com/BITMAINtech",
+      "body": "The world's leading manufacturer of cryptocurrency mining servers through its brand ANTMINER..."
     }
   ]
 }

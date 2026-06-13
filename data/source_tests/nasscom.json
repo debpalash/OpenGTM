@@ -15,19 +15,9 @@
   ],
   "executed_query": "site:nasscom.in it services companies member companies",
   "results_count": 5,
-  "time_ms": 4403,
+  "time_ms": 5856,
   "errors": null,
   "results": [
-    {
-      "title": "nasscom.in",
-      "href": "https://nasscom.in/",
-      "body": "The National Association of Software and Service Companies (NASSCOM)."
-    },
-    {
-      "title": "nasscom.in/members-listing",
-      "href": "https://nasscom.in/members-listing",
-      "body": "National Association of Software and Service Companies."
-    },
     {
       "title": "Membership | NASSCOM",
       "href": "http://old.nasscom.in/membership-landing",
@@ -39,9 +29,19 @@
       "body": "National Association of Software and Services Companies."
     },
     {
-      "title": "nasscom.in/membership",
-      "href": "https://www.nasscom.in/membership",
-      "body": "If you are a company registered in India and are focused on providing IT-BPM..."
+      "title": "nasscom.in/knowledge-center/publications/technology-sector-india...",
+      "href": "https://nasscom.in/knowledge-center/publications/technology-sector-india-2022-strategic-review",
+      "body": "National Association of Software and Services Companies, NASSCOM."
+    },
+    {
+      "title": "nasscom | The trade association of Indian IT BPM industry",
+      "href": "https://www.nasscom.in/?option=com_eventlist&Itemid=163&qt-events_home_page=1",
+      "body": "Nasscom is the premier trade body and chamber of commerce of the Tech industry in India and comprises over 3000 member companies including both Indian and multinational organisations that have a presence in India."
+    },
+    {
+      "title": "community.nasscom.in/communities/it-services/indian-technology...",
+      "href": "https://community.nasscom.in/communities/it-services/indian-technology-sector-top-10-technology-companies-performance-analysis",
+      "body": "Indian technology sector: Top 10 technology companies performance..."
     }
   ]
 }

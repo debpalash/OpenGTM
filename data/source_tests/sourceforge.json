@@ -15,33 +15,33 @@
   ],
   "executed_query": "site:sourceforge.net crm software software",
   "results_count": 5,
-  "time_ms": 7586,
+  "time_ms": 7248,
   "errors": null,
   "results": [
     {
+      "title": "Best CRM Software of 2026 - Reviews & Comparison",
+      "href": "https://sourceforge.net/software/crm/",
+      "body": "CRM software is a type of software that businesses use to manage and analyze customer interactions and data. ... Management (CRM) software can help ..."
+    },
+    {
+      "title": "Best Open Source PHP CRM Software",
+      "href": "https://sourceforge.net/directory/crm/php/",
+      "body": "Dolibarr ERP - CRM is an easy to use ERP and CRM open source software package (run with a web php server or as standalone software) for businesses ..."
+    },
+    {
       "title": "Best Free CRM Software of 2026 - Reviews & Comparison",
       "href": "https://sourceforge.net/software/crm/free-version/",
-      "body": "Compare the best Free CRM software of 2026 for your business. Find the highest rated Free CRM software pricing, reviews, free demos, trials, and more."
+      "body": "CRM software is a type of software that businesses use to manage and analyze customer interactions and data. ... CRM software also helps ..."
     },
     {
-      "title": "Best On-Premises CRM Software of 2026 - Reviews & Comparison",
-      "href": "https://sourceforge.net/software/crm/on-premise/",
-      "body": "Compare the best On-Premises CRM software of 2026 for your business. Find the highest rated self-hosted CRM software pricing, reviews, free demos, trials, and more."
-    },
-    {
-      "title": "Best CRM Software for Windows of 2026 - Reviews & Comparison",
-      "href": "https://sourceforge.net/software/crm/windows/",
-      "body": "Compare the best CRM software for Windows of 2026 for your business. Find the highest rated CRM software for Windows pricing, reviews, free demos, trials, and more."
-    },
-    {
-      "title": "Best Open Source Windows CRM Software 2026 - SourceForge",
-      "href": "https://sourceforge.net/directory/crm/windows/",
-      "body": "Apr 4, 2026 \u00b7 Browse free open source CRM software and projects for Windows below. Use the toggles on the left to filter open source CRM software by OS, license, language, programming language, and project status."
-    },
-    {
-      "title": "Best CRM Software with a Free Trial of 2026 - Reviews ...",
+      "title": "Best CRM Software with a Free Trial of 2026 - Reviews &",
       "href": "https://sourceforge.net/software/crm/free-trial/",
-      "body": "What is CRM Software with a Free Trial? CRM software is a type of software that businesses use to manage and analyze customer interactions and data. It helps businesses improve customer service by tracking customer information, analyzing trends, and providing customized communications for customers."
+      "body": "CRM software is a type of software that businesses use to manage and analyze customer interactions and data. ... CRM software also helps ..."
+    },
+    {
+      "title": "Best Real Estate CRM Software of 2026 - Reviews & Comparison",
+      "href": "https://sourceforge.net/software/real-estate-crm/",
+      "body": "Real estate customer relationship management (CRM) software is a tool used by real estate professionals to manage day-to-day interactions with ..."
     }
   ]
 }

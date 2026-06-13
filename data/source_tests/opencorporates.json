@@ -16,33 +16,33 @@
   ],
   "executed_query": "site:opencorporates.com technology company uk",
   "results_count": 5,
-  "time_ms": 7466,
+  "time_ms": 6041,
   "errors": null,
   "results": [
     {
-      "title": "OpenCorporates :: The Open Database Of The Corporate World",
-      "href": "https://opencorporates.com/",
-      "body": "Our custom-built data collection, QA and reconciliation technology gives us a significant competitive advantage over legacy business information companies."
+      "title": "Entity Details :: OpenCorporates",
+      "href": "https://opencorporates.com/companies/gb/05224904",
+      "body": "Appointment of Liquidators Name of Company: NETWORK TECHNOLOGY SOLUTIONS (UK)... ... to Creditors NETWORK TECHNOLOGY SOLUTIONS (UK) LIMITED (Company ..."
     },
     {
-      "title": "CELEROS FLOW TECHNOLOGY UK LIMITED :: United Kingdom :: OpenCorporates",
-      "href": "https://assets.opencorporates.com/companies/gb/12417351",
-      "body": "Free and open company data on United Kingdom company CELEROS FLOW TECHNOLOGY UK LIMITED (company number 12417351), 2 New Bailey 6 Stanley Street, Salford, Greater Manchester, M3 5GS"
+      "title": "Entity Details :: OpenCorporates",
+      "href": "https://opencorporates.com/companies/gb/06815480",
+      "body": "nonprofit THE MANUFACTURING TECHNOLOGY CENTRE LIMITED (United Kingdom) controls POWERBUILD REGISTRY LIMITED (United Kingdom)"
     },
     {
-      "title": "WEBB TECHNOLOGY LIMITED :: United Kingdom",
-      "href": "https://opencorporates.com/companies/gb/11663507",
-      "body": "January 23, 2024 - Free and open company data on United Kingdom company WEBB TECHNOLOGY LIMITED (company number 11663507), 483 Green Lanes, Enfield, London, N13 4BS"
+      "title": "Entity Details :: OpenCorporates",
+      "href": "https://opencorporates.com/companies/gb/08311009",
+      "body": "Resolutions for Winding-up 16S TECHNOLOGIES LTD (Company Number ... Appointment of Liquidators Name of Company: 16S TECHNOLOGIES LTD Company Numb..."
     },
     {
-      "title": "HAPPENING TECHNOLOGY LTD :: United Kingdom",
-      "href": "https://opencorporates.com/companies/gb/10547853",
-      "body": "Private Limited Company \u00b7 Jurisdiction \u00b7 United Kingdom \u00b7 Ultimate Beneficial Owners \u00b7 1 UBO listed, please log in to see this data \u00b7 Registered Address \u00b7 T/A Superbet 111 Buckingham Palace Road \u00b7 London \u00b7 SW1W 0SR \u00b7 England \u00b7 Industry Codes \u00b7 62.01/1: Ready-made interactive leisure and entertainment software development (UK SIC Classification 2007) 62.01/2: Business and domestic software development (UK SIC Classification 2007) 62.02: Computer consultancy activities (UK SIC Classification 2007) 70.22/9: Management consultancy activities (other than financial management) (UK SIC Cla"
+      "title": "Entity Details :: OpenCorporates",
+      "href": "https://opencorporates.com/companies/gb/02719704",
+      "body": "While we strive to keep this information correct and up-to-date, it is not the primary source, and the company registry should always be referred to ..."
     },
     {
-      "title": "STECH TECHNOLOGY UK LIMITED :: United Kingdom :: OpenCorporates",
-      "href": "https://opencorporates.com/companies/gb/10897880",
-      "body": "Free and open company data on United Kingdom company STECH TECHNOLOGY UK LIMITED (company number 10897880), 77 Marsh Wall, London, E14 9SH"
+      "title": "Entity Details :: OpenCorporates",
+      "href": "https://opencorporates.com/companies/gb/02778084",
+      "body": "branch Premier Technologies Sweden, filial till Xpedite Systems Limited (UK) (Sweden) ... up-to-date, it is not the primary source, and the company ..."
     }
   ]
 }
