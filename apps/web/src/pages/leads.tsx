@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/data-table"
 import { useLeads, useStats, useFilters, useUpdateStatus, useUpdateLead, useDeleteLead, useCollect, useImportDataCollector } from "@/lib/hooks"
 import { exportCSVUrl, type Lead } from "@/lib/api"
@@ -203,6 +204,74 @@ export default function LeadsPage() {
         )
       },
       size: 72,
+    },
+    // ── Optional / rich columns (hidden by default; toggle via "Columns") ──
+    {
+      id: "industry",
+      header: "Industry",
+      cell: ({ row }) => <span className="text-xs text-muted-foreground truncate">{row.original.industry_tags || "—"}</span>,
+      size: 130,
+    },
+    {
+      id: "size",
+      header: "Size",
+      cell: ({ row }) => {
+        const s = row.original.company_size || (row.original.employee_count_exact ? `${row.original.employee_count_exact}` : "")
+        return <span className="text-xs text-muted-foreground">{s || "—"}</span>
+      },
+      size: 80,
+    },
+    {
+      id: "founded",
+      header: "Founded",
+      cell: ({ row }) => <span className="text-xs text-muted-foreground tabular-nums">{row.original.founded_year || "—"}</span>,
+      size: 70,
+    },
+    {
+      id: "revenue",
+      header: "Revenue",
+      cell: ({ row }) => <span className="text-xs text-muted-foreground">{row.original.revenue_range || "—"}</span>,
+      size: 100,
+    },
+    {
+      id: "glassdoor",
+      header: "Glassdoor",
+      cell: ({ row }) => {
+        const g = row.original.glassdoor_rating
+        return g ? <span className="text-xs text-amber-400 tabular-nums">★ {g}</span> : <span className="text-xs text-muted-foreground">—</span>
+      },
+      size: 80,
+    },
+    {
+      id: "contact",
+      header: "Contact",
+      cell: ({ row }) => <span className="text-xs text-muted-foreground truncate">{row.original.contact_person || "—"}</span>,
+      size: 120,
+    },
+    {
+      id: "linkedin",
+      header: "LinkedIn",
+      cell: ({ row }) => row.original.linkedin_url ? (
+        <a href={row.original.linkedin_url} target="_blank" rel="noopener noreferrer"
+           className="text-sky-500 hover:text-sky-400 text-xs" onClick={(e) => e.stopPropagation()}>in</a>
+      ) : <span className="text-xs text-muted-foreground">—</span>,
+      size: 60,
+    },
+    {
+      id: "signals",
+      header: "Signals",
+      cell: ({ row }) => {
+        const raw = row.original.hiring_signals
+        let count = 0
+        if (raw) {
+          try { const v = JSON.parse(raw); count = Array.isArray(v) ? v.length : (typeof v === "object" && v ? Object.keys(v).length : (v ? 1 : 0)) }
+          catch { count = String(raw).trim() ? 1 : 0 }
+        }
+        return count > 0
+          ? <Badge variant="secondary" className="text-[10px] gap-0.5"><Flame className="size-2.5 text-red-400" />{count}</Badge>
+          : <span className="text-xs text-muted-foreground">—</span>
+      },
+      size: 80,
     },
     {
       id: "actions",
@@ -502,6 +571,11 @@ export default function LeadsPage() {
             onRowClick={(lead) => navigate(`/leads/${lead.id}`)}
             enableSelection
             onSelectionChange={setSelectedRows}
+            columnVisibilityKey="yupcha:leadCols"
+            initialColumnVisibility={{
+              industry: false, size: false, founded: false, revenue: false,
+              glassdoor: false, contact: false, linkedin: false, signals: false,
+            }}
           />
         )}
       </div>
