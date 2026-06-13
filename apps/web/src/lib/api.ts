@@ -143,6 +143,48 @@ export async function fetchLead(id: number): Promise<Lead> {
   return res.json()
 }
 
+export interface SimilarLeads {
+  reference: string
+  count: number
+  similar_leads: Lead[]
+}
+
+export async function fetchSimilarLeads(id: number, limit = 10): Promise<SimilarLeads> {
+  const res = await fetch(`${API_BASE}/api/lead/${id}/similar?limit=${limit}`)
+  if (!res.ok) throw new Error(`Similar lookup failed (${res.status})`)
+  return res.json()
+}
+
+export interface DedupSuggestion {
+  master_id: number
+  master_company: string
+  duplicate_ids: number[]
+  duplicate_companies: string[]
+  confidence: number
+}
+export interface DedupResult {
+  stats: { total_leads: number; duplicates_found: number; clusters: number }
+  merge_suggestions: DedupSuggestion[]
+  scanned?: number
+}
+
+/** Run dedup over a bounded, filtered subset (city/source/tier/search). */
+export async function runDedup(params: Record<string, string>): Promise<DedupResult> {
+  const qs = new URLSearchParams(params).toString()
+  const res = await fetch(`${API_BASE}/api/leads/dedup?${qs}`, { method: "POST" })
+  if (!res.ok) throw new Error(`Dedup failed (${res.status})`)
+  return res.json()
+}
+
+export async function mergeDuplicates(master_id: number, duplicate_ids: number[]): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/leads/dedup/merge`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ master_id, duplicate_ids }),
+  })
+  if (!res.ok) throw new Error(`Merge failed (${res.status})`)
+}
+
 export async function updateStatus(id: number, status: string, note = ""): Promise<void> {
   await fetch(`${API_BASE}/api/lead/${id}/status`, {
     method: "POST",
