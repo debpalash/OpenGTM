@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom"
 import {
   Send, Loader2, Bot, Pencil, RotateCcw, Copy, Check, X, Square,
   Sparkles, ArrowUp, Search, Building2, Zap, Globe, BarChart3, Database,
-  ShieldAlert, ShieldCheck, AlertTriangle
+  ShieldAlert, ShieldCheck, AlertTriangle, ChevronDown, ChevronRight
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -136,6 +136,63 @@ function ConfirmationGate({
   )
 }
 
+// ── Reasoning / Steps Timeline ────────────────────────────────────
+// A live view of the agent's multi-step tool use this turn, built from the
+// tool_call / tool_result / tool_denied stream events.
+
+interface ReasoningStep {
+  id: string
+  title: string
+  status: "running" | "done" | "denied"
+}
+
+// Mark the most recently-started running step with a terminal status. Tools
+// run sequentially server-side, so events arrive in order and the last running
+// step is the one this result/denial belongs to.
+function markLastRunning(steps: ReasoningStep[], status: "done" | "denied"): ReasoningStep[] {
+  for (let i = steps.length - 1; i >= 0; i--) {
+    if (steps[i].status === "running") {
+      const next = [...steps]
+      next[i] = { ...next[i], status }
+      return next
+    }
+  }
+  return steps
+}
+
+function ReasoningTimeline({ steps }: { steps: ReasoningStep[] }) {
+  const [open, setOpen] = useState(true)
+  if (steps.length === 0) return null
+  const working = steps.some(s => s.status === "running")
+  const label = working ? "Working…" : `Used ${steps.length} tool${steps.length > 1 ? "s" : ""}`
+  return (
+    <div className="rounded-xl border border-border/40 bg-muted/20 mb-2">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 w-full px-3 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {open ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+        <span>{label}</span>
+        {working && <Loader2 className="size-3 animate-spin ml-auto text-primary/60" />}
+      </button>
+      {open && (
+        <div className="px-3 pb-2.5 space-y-1.5">
+          {steps.map(s => (
+            <div key={s.id} className="flex items-center gap-2 text-xs">
+              {s.status === "running"
+                ? <Loader2 className="size-3 shrink-0 animate-spin text-primary" />
+                : s.status === "denied"
+                  ? <X className="size-3 shrink-0 text-red-400" />
+                  : <Check className="size-3 shrink-0 text-emerald-500" />}
+              <span className="text-muted-foreground capitalize">{s.title}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Typing Indicator ──────────────────────────────────────────────
 
 function TypingIndicator() {
@@ -211,6 +268,7 @@ export default function ChatPage() {
   const [editText, setEditText] = useState("")
   const [streamingJobIds, setStreamingJobIds] = useState<string[]>([])
   const [confirmations, setConfirmations] = useState<ConfirmationInfo[]>([])
+  const [reasoningSteps, setReasoningSteps] = useState<ReasoningStep[]>([])
   // History of the turn that paused for confirmation, replayed on approve/deny.
   const [pausedHistory, setPausedHistory] = useState<Array<{ role: string; content: string }>>([])
 
@@ -253,6 +311,7 @@ export default function ChatPage() {
     setStreamingTool(null)
     setStreamingJobIds([])
     setConfirmations([])
+    setReasoningSteps([])
     setPausedHistory(history)  // replayed if the turn pauses for confirmation
 
     const ac = new AbortController()
@@ -271,11 +330,22 @@ export default function ChatPage() {
           queryClient.invalidateQueries({ queryKey: queryKeys.conversations.all })
         }
         if (event.content) { partialContent += event.content; setStreamingContent(prev => prev + event.content) }
-        if (event.tool_call) setStreamingTool(`Running tool: ${event.tool_call.name}...`)
+        if (event.tool_call) {
+          const tname = event.tool_call.name
+          setStreamingTool(`Running tool: ${tname}...`)
+          setReasoningSteps(prev => [...prev, {
+            id: `${tname}-${prev.length}`, title: tname.replace(/_/g, " "), status: "running",
+          }])
+        }
         if (event.tool_result) {
           setStreamingTool(null)
+          // Mark the most recent running step done (tools run sequentially).
+          setReasoningSteps(prev => markLastRunning(prev, "done"))
           const jobId = event.tool_result?.result?.job_id as string | undefined
           if (jobId) setStreamingJobIds(prev => [...prev, jobId])
+        }
+        if (event.tool_denied) {
+          setReasoningSteps(prev => markLastRunning(prev, "denied"))
         }
         if (event.confirmation_required) {
           paused = true
@@ -320,10 +390,12 @@ export default function ChatPage() {
         setStreamingContent("")
         setStreamingJobIds([])
         setConfirmations([])
+        setReasoningSteps([])
       } else {
         setStreamingContent("")
         setStreamingJobIds([])
         setConfirmations([])
+        setReasoningSteps([])
         setOptimisticMessages([])
       }
     }
@@ -411,6 +483,7 @@ export default function ChatPage() {
     setStreamingTool(null)
     setEditingMsgId(null)
     setConfirmations([])
+    setReasoningSteps([])
     setPausedHistory([])
   }, [activeConvId])
 
@@ -626,12 +699,13 @@ export default function ChatPage() {
           </div>
 
           {/* ── Streaming Response ── */}
-          {(streamingContent || streamingTool || (isLoading && !streamingContent && !streamingTool)) && (
+          {(streamingContent || streamingTool || reasoningSteps.length > 0 || (isLoading && !streamingContent && !streamingTool)) && (
             <div className="flex gap-3 mt-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/10 to-primary/5 text-primary mt-1 ring-1 ring-primary/10">
                 <Bot className="size-4" />
               </div>
               <div className="flex-1 min-w-0">
+                <ReasoningTimeline steps={reasoningSteps} />
                 {streamingTool && !streamingContent && (
                   <ToolIndicator toolName={streamingTool} />
                 )}
