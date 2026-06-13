@@ -64,6 +64,30 @@ function fallbackText(text: string): string {
   return extracted.length > 0 ? extracted : text
 }
 
+/**
+ * Is an OpenUI Lang block structurally complete? The stream can be cut
+ * mid-structure (truncated past the model's max_tokens), leaving unbalanced
+ * brackets that make the Renderer choke or emit nothing. We balance ()/[]
+ * (ignoring string contents) and require the DSL to end on a closing paren.
+ * Used to fall back to readable prose instead of rendering broken DSL.
+ */
+function isDslComplete(text: string): boolean {
+  const start = text.indexOf("root = Root")
+  if (start < 0) return false
+  const dsl = text.slice(start)
+  let round = 0, square = 0, inStr = false
+  for (let i = 0; i < dsl.length; i++) {
+    const c = dsl[i]
+    if (c === '"' && dsl[i - 1] !== "\\") { inStr = !inStr; continue }
+    if (inStr) continue
+    if (c === "(") round++
+    else if (c === ")") round--
+    else if (c === "[") square++
+    else if (c === "]") square--
+  }
+  return round === 0 && square === 0 && /\)\s*$/.test(dsl.trim())
+}
+
 interface HybridMessageProps {
   content: string
   isStreaming?: boolean
@@ -78,14 +102,22 @@ interface HybridMessageProps {
  */
 export function HybridMessage({ content, isStreaming = false }: HybridMessageProps) {
   const isOpenUI = useMemo(() => detectOpenUILang(content), [content])
+  const dslComplete = useMemo(() => isDslComplete(content), [content])
   const [fellBack, setFellBack] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Reset whenever the message changes.
   useEffect(() => { setFellBack(false) }, [content])
 
-  // Once streaming is done, if the OpenUI container rendered no visible
-  // content, fall back to plain text so the message is never blank.
+  // Once streaming is done, if the DSL is structurally incomplete (truncated
+  // past max_tokens), fall back immediately — don't hand broken DSL to the
+  // Renderer and wait for it to come up empty.
+  useEffect(() => {
+    if (isOpenUI && !isStreaming && !dslComplete) setFellBack(true)
+  }, [isOpenUI, isStreaming, dslComplete])
+
+  // Belt-and-suspenders: even for complete DSL, if the container renders no
+  // visible content, fall back to plain text so the message is never blank.
   useEffect(() => {
     if (!isOpenUI || isStreaming || fellBack) return
     const id = setTimeout(() => {
