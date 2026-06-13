@@ -18,7 +18,11 @@ logger = logging.getLogger(__name__)
 DEFAULT_JOB_TIMEOUT = 600  # seconds
 JOB_TIMEOUTS = {
     "run_workbook": 1800,
-    "source_workbook": 900,
+    # source_workbook runs a full multi-strategy leadgen collection INLINE
+    # (source_engine.materialize_source → JobRunner.submit → _process_job), which
+    # routinely exceeds 900s for real queries; give it the same headroom as
+    # run_workbook so it isn't killed mid-collection and retried forever.
+    "source_workbook": 1800,
     "refresh_workbook": 900,
     "signal_scan": 300,
     "download_link": 600,
