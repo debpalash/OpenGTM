@@ -133,5 +133,7 @@ async def execute_plan(
            f"running in the background — open /workbooks/{wb_id} to watch rows "
            f"and agent columns fill in.") if wb_id else \
           "Autopilot could not create the workbook."
-    return {"ok": bool(wb_id), "job_id": wb_id, "workbook_id": wb_id,
+    # NOTE: no `job_id` here — wb_id is a workbook id, not a leadgen job id, so
+    # it must not trigger the chat's TaskDetailCard (which polls /api/jobs/{id}).
+    return {"ok": bool(wb_id), "workbook_id": wb_id,
             "goal": plan.get("goal", ""), "steps_done": steps_done, "message": msg}

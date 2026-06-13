@@ -12,6 +12,7 @@ import { streamChat, type ChatMessage, type ToolCall, type ApprovedToolCall } fr
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { TaskDetailCard } from "@/components/task-detail-card"
 import { HybridMessage } from "@/components/openui-renderer"
+import { AutopilotPlanCard, type AutopilotPlan } from "@/components/autopilot-plan-card"
 import { toast } from "sonner"
 
 
@@ -81,6 +82,10 @@ const LEVEL_COLORS = {
 } as const
 
 function ConfirmationItem({ info }: { info: ConfirmationInfo }) {
+  // Autopilot plans get a richer, structured card instead of plain text lines.
+  if (info.name === "execute_plan" && info.args?.plan) {
+    return <AutopilotPlanCard plan={info.args.plan as AutopilotPlan} />
+  }
   const LevelIcon = info.level === "high" ? AlertTriangle : info.level === "medium" ? ShieldAlert : ShieldCheck
   const lines = info.description.split("\n").filter(Boolean)
   return (
@@ -144,6 +149,25 @@ interface ReasoningStep {
   id: string
   title: string
   status: "running" | "done" | "denied"
+  detail?: string
+}
+
+// One-line summary of a tool call's arguments, for the reasoning trace.
+function summarizeArgs(args: Record<string, unknown> | undefined): string {
+  if (!args) return ""
+  // Prefer the most informative common args, then fall back to the first value.
+  const pref = ["goal", "query", "icp_description", "company", "column_name", "status", "interval"]
+  for (const k of pref) {
+    const v = args[k]
+    if (typeof v === "string" && v.trim()) return v.length > 60 ? v.slice(0, 57) + "…" : v
+  }
+  const lead = args["lead_id"]
+  if (lead !== undefined) return `lead #${lead}`
+  for (const v of Object.values(args)) {
+    if (typeof v === "string" && v.trim()) return v.length > 60 ? v.slice(0, 57) + "…" : v
+    if (typeof v === "number") return String(v)
+  }
+  return ""
 }
 
 // Mark the most recently-started running step with a terminal status. Tools
@@ -178,13 +202,16 @@ function ReasoningTimeline({ steps }: { steps: ReasoningStep[] }) {
       {open && (
         <div className="px-3 pb-2.5 space-y-1.5">
           {steps.map(s => (
-            <div key={s.id} className="flex items-center gap-2 text-xs">
+            <div key={s.id} className="flex items-start gap-2 text-xs">
               {s.status === "running"
-                ? <Loader2 className="size-3 shrink-0 animate-spin text-primary" />
+                ? <Loader2 className="size-3 shrink-0 animate-spin text-primary mt-0.5" />
                 : s.status === "denied"
-                  ? <X className="size-3 shrink-0 text-red-400" />
-                  : <Check className="size-3 shrink-0 text-emerald-500" />}
-              <span className="text-muted-foreground capitalize">{s.title}</span>
+                  ? <X className="size-3 shrink-0 text-red-400 mt-0.5" />
+                  : <Check className="size-3 shrink-0 text-emerald-500 mt-0.5" />}
+              <span className="min-w-0">
+                <span className="text-muted-foreground capitalize">{s.title}</span>
+                {s.detail && <span className="text-muted-foreground/50"> — {s.detail}</span>}
+              </span>
             </div>
           ))}
         </div>
@@ -333,8 +360,9 @@ export default function ChatPage() {
         if (event.tool_call) {
           const tname = event.tool_call.name
           setStreamingTool(`Running tool: ${tname}...`)
+          const detail = summarizeArgs(event.tool_call.args)
           setReasoningSteps(prev => [...prev, {
-            id: `${tname}-${prev.length}`, title: tname.replace(/_/g, " "), status: "running",
+            id: `${tname}-${prev.length}`, title: tname.replace(/_/g, " "), status: "running", detail,
           }])
         }
         if (event.tool_result) {
