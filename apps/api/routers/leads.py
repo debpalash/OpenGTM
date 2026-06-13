@@ -895,6 +895,78 @@ def merge_duplicates(body: dict, ctx: WorkspaceCtx = Depends(current_workspace))
     }
 
 
+# ── Bulk enrichment ───────────────────────────────────────────────────────
+
+class BulkEnrichBody(BaseModel):
+    lead_ids: list[int]
+    action: str = "find_emails"   # find_emails | scrape_website
+
+
+@router.post("/leads/bulk-enrich")
+def bulk_enrich(body: BulkEnrichBody, ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Enrich a batch of leads in the background; returns a job_id immediately.
+
+    Reuses the batchable enrichment services (email_finder / website_scraper).
+    Capped at 100 leads per call so a huge selection can't hammer providers.
+    Progress streams over ProgressBus (/api/events) keyed by job_id.
+    """
+    import uuid as _uuid
+    import threading
+    from apps.api.services.workspace.manager import workspace_leads_db_path as _wpath
+
+    ids = list(dict.fromkeys(body.lead_ids))[:100]
+    action = body.action
+    if not ids:
+        raise HTTPException(400, "lead_ids required")
+    if action not in ("find_emails", "scrape_website"):
+        raise HTTPException(400, "action must be 'find_emails' or 'scrape_website'")
+
+    ws_path = _wpath(ctx.slug)
+    job_id = str(_uuid.uuid4())[:8]
+
+    def _run():
+        import asyncio as _aio
+        from apps.api.services.leadgen.progress import progress
+        db = LeadDB(ws_path)
+        leads = [l for l in (db.get_lead(i) for i in ids) if l]
+        progress.emit("bulk_enrich_started", {"job_id": job_id, "action": action, "total": len(leads)})
+        done = updated = 0
+        try:
+            if action == "find_emails":
+                from apps.api.services.leadgen.enrichment.email_finder import enrich_emails
+                enriched = enrich_emails(leads, delay=0.5)
+                for orig, en in zip(leads, enriched):
+                    if getattr(en, "email", None) and en.email != orig.email:
+                        db.update_lead_fields(orig.id, {"email": en.email, "last_enriched_at": "now"})
+                        updated += 1
+                    done += 1
+                    progress.emit("bulk_enrich_progress", {"job_id": job_id, "done": done, "total": len(leads)})
+            else:  # scrape_website
+                from apps.api.services.leadgen.enrichment.website_scraper import enrich_leads_from_websites
+                targets = [l for l in leads if l.website]
+                enriched = _aio.run(enrich_leads_from_websites(targets))
+                for orig, en in zip(targets, enriched):
+                    fields = {}
+                    for fld in ("email", "phone", "description", "contact_person"):
+                        v = getattr(en, fld, None)
+                        if v and v != getattr(orig, fld, None):
+                            fields[fld] = v
+                    if fields:
+                        fields["last_enriched_at"] = "now"
+                        db.update_lead_fields(orig.id, fields)
+                        updated += 1
+                    done += 1
+                    progress.emit("bulk_enrich_progress", {"job_id": job_id, "done": done, "total": len(targets)})
+        except Exception as e:
+            progress.emit("bulk_enrich_error", {"job_id": job_id, "error": str(e)[:200]})
+        finally:
+            db.close()
+            progress.emit("bulk_enrich_done", {"job_id": job_id, "updated": updated, "total": len(leads)})
+
+    threading.Thread(target=_run, daemon=True).start()
+    return {"ok": True, "job_id": job_id, "count": len(ids), "action": action}
+
+
 
 # ── Data Collector Import ─────────────────────────────────────────────────
 
