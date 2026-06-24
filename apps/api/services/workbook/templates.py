@@ -3,9 +3,104 @@ Workbook Templates — Pre-built workbook configurations for common use cases.
 
 Each template defines columns_config, filter_criteria, and metadata.
 Users can create workbooks from templates in one click.
+
+Two kinds of columns may be declared per template:
+  - "columns"            : display fields (mapped to Lead fields, type=lead_field)
+  - "enrichment_columns" : REAL runnable enrichment columns (waterfall /
+                           enrichment / ai_formula / research / ...). These are
+                           materialized verbatim into the workbook's
+                           columns_config so the enrichment engine runs them.
+                           They use the same shape a user-built column has
+                           (see apps/api/services/workbook/schemas.py:ColumnConfig)
+                           and prefer ZERO-KEY OSS providers so the workbook is
+                           immediately runnable without any API keys.
+
+`enrichment_columns` is OPTIONAL — templates without it behave exactly as before.
 """
 
 from typing import List, Dict, Any
+
+
+# ── Reusable enrichment-column building blocks (zero-key OSS providers) ─────
+# These match the ColumnConfig shape consumed by the enrichment engine
+# (apps/api/services/workbook/enrichment.py:enrich_cell). Every provider listed
+# here is registered with requires_api_key=False, so the columns RUN with no
+# API keys configured. Callers copy these dicts into a template's
+# `enrichment_columns`; ids are unique within a template.
+
+def _email_waterfall_column() -> Dict[str, Any]:
+    """Find a contact email via a chain of zero-key web providers, then verify."""
+    return {
+        "id": "enrich_email",
+        "name": "Email (waterfall)",
+        "type": "waterfall",
+        "target_field": "email",
+        # Ordered chain of zero-key providers. The engine also prepends its
+        # DEFAULT_WATERFALLS for "email", so BYOK providers slot in automatically
+        # if the user later adds keys.
+        "waterfall": ["deep_scraper", "jsonld_firmographics", "email_harvester", "ddg_email"],
+        "condition": "{email} == \"\"",  # only spend work when email is missing
+        "verify": True,                   # auto-verify discovered emails
+        "width": 220,
+    }
+
+
+def _firmographics_column() -> Dict[str, Any]:
+    """Pull a company description / firmographics blurb from the web (zero-key)."""
+    return {
+        "id": "enrich_company_info",
+        "name": "Company Info",
+        "type": "waterfall",
+        "target_field": "description",
+        "waterfall": ["deep_scraper", "jsonld_firmographics", "ddg_company"],
+        "width": 280,
+    }
+
+
+def _company_size_column() -> Dict[str, Any]:
+    """Estimate company size / headcount from public signals (zero-key)."""
+    return {
+        "id": "enrich_company_size",
+        "name": "Headcount",
+        "type": "waterfall",
+        "target_field": "company_size",
+        "waterfall": ["deep_scraper", "jsonld_firmographics", "ddg_company"],
+        "width": 140,
+    }
+
+
+def _hiring_signals_column() -> Dict[str, Any]:
+    """Detect open roles / hiring activity from public ATS boards (zero-key)."""
+    return {
+        "id": "enrich_hiring",
+        "name": "Hiring Signals",
+        "type": "waterfall",
+        "target_field": "hiring_signals",
+        "waterfall": ["ats_hiring", "deep_scraper", "ddg_company"],
+        "width": 200,
+    }
+
+
+def _account_brief_research_column() -> Dict[str, Any]:
+    """A bounded web-research column (Claygent-style) producing a pre-call brief."""
+    return {
+        "id": "enrich_account_brief",
+        "name": "Account Brief",
+        "type": "research",
+        "output_format": "text",
+        "max_steps": 4,
+        "prompt": (
+            "ROLE: You are an SDR prepping for an account.\n"
+            "CONTEXT: Company: {company}. Website: {website}. Notes: {description}.\n"
+            "TASK: Research this company and produce a 3-bullet brief: (1) what they do, "
+            "(2) one recent, concrete signal (hiring, funding, launch, news), (3) a relevant "
+            "outreach angle. Cite the source for the signal.\n"
+            "FORMAT: Exactly 3 bullets.\n"
+            "FALLBACK: If you can't find a concrete recent signal, still give bullets 1 and 3 "
+            "and write 'no recent signal found' for bullet 2."
+        ),
+        "width": 320,
+    }
 
 
 TEMPLATE_CATEGORIES = {
@@ -33,6 +128,14 @@ TEMPLATES: List[Dict[str, Any]] = [
             {"key": "city", "name": "City", "type": "text"},
             {"key": "company_size", "name": "Size", "type": "text"},
             {"key": "score", "name": "Score", "type": "number"},
+        ],
+        # Runnable enrichment columns — zero-key, so the workbook enriches
+        # immediately with no API keys configured.
+        "enrichment_columns": [
+            _email_waterfall_column(),
+            _firmographics_column(),
+            _company_size_column(),
+            _account_brief_research_column(),
         ],
         "filter": {"specialization": "SaaS"},
     },
@@ -104,6 +207,12 @@ TEMPLATES: List[Dict[str, Any]] = [
             {"key": "hiring_signals", "name": "Hiring", "type": "text"},
             {"key": "score", "name": "Score", "type": "number"},
         ],
+        "enrichment_columns": [
+            _email_waterfall_column(),
+            _firmographics_column(),
+            _hiring_signals_column(),
+            _account_brief_research_column(),
+        ],
         "filter": {},
     },
 
@@ -122,6 +231,11 @@ TEMPLATES: List[Dict[str, Any]] = [
             {"key": "company_size", "name": "Size", "type": "text"},
             {"key": "hiring_signals", "name": "Hiring Signals", "type": "text"},
             {"key": "city", "name": "City", "type": "text"},
+        ],
+        "enrichment_columns": [
+            _hiring_signals_column(),
+            _email_waterfall_column(),
+            _firmographics_column(),
         ],
         "filter": {},
     },
@@ -345,6 +459,13 @@ TEMPLATES: List[Dict[str, Any]] = [
             {"key": "hiring_signals", "name": "Hiring", "type": "text"},
             {"key": "score", "name": "Score", "type": "number"},
             {"key": "score_tier", "name": "Tier", "type": "text"},
+        ],
+        "enrichment_columns": [
+            _email_waterfall_column(),
+            _firmographics_column(),
+            _company_size_column(),
+            _hiring_signals_column(),
+            _account_brief_research_column(),
         ],
         "filter": {},
     },
