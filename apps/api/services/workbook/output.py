@@ -12,10 +12,11 @@ Destinations (col_config["destination"]):
 Output columns are side-effecting, so the engine treats them as run-once by
 default (see enrich_cell's run_once guard).
 
-NOTE: integration credentials (HubSpot token, SMTP) are read from GLOBAL
-settings for now — per-workspace credentials are deferred (spec WI-6) until
-multi-tenancy matures. The `workspace_id` arg is threaded through so that
-becomes a localized change later.
+Integration credentials (HubSpot/Salesforce tokens, SMTP) are resolved
+PER-WORKSPACE via services/workspace/secrets.get_secret(workspace_id, key)
+(spec WI-6): the per-workspace encrypted secret is used when present, otherwise
+we fall back to the existing GLOBAL setting so single-tenant installs are
+unaffected. The `workspace_id` arg is threaded through to the CRM/SMTP clients.
 """
 
 import ipaddress
@@ -151,14 +152,14 @@ async def _push_crm(cfg: dict, lead_data: dict, workspace_id: Optional[str]) -> 
     else:
         return {"success": False, "value": "", "error": f"unsupported crm '{crm_type}'"}
 
-    if not crm.is_connected():
+    if not crm.is_connected(workspace_id):
         return {"success": False, "value": "", "error": f"{label} not connected"}
 
     # push_lead_as_contact reads attributes off a Lead object.
     from apps.api.services.workbook.enrichment import _lead_dict_to_lead
     lead = _lead_dict_to_lead(lead_data)
 
-    res = await crm.push_lead_as_contact(lead, cfg.get("field_map"))
+    res = await crm.push_lead_as_contact(lead, cfg.get("field_map"), workspace_id=workspace_id)
     if res.get("success"):
         return {
             "success": True,

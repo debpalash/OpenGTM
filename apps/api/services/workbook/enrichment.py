@@ -201,13 +201,21 @@ async def enrich_cell(
         result_provider = "ai"
 
     elif col_type == "output":
-        # Output Column → push the row to an external destination
+        # Output Column → push the row to an external destination.
+        # Resolve the workbook's workspace so CRM/SMTP credentials are selected
+        # per-workspace (spec WI-6), falling back to global when unset.
+        workspace_id = (
+            db.query(Workbook.workspace_id)
+            .filter(Workbook.id == workbook_id)
+            .scalar()
+        )
         out = await execute_output_column(
             col_config=col_config,
             lead_data=lead_data,
             columns_config=columns_config,
             workbook_id=workbook_id,
             lead_id=lead_id,
+            workspace_id=workspace_id,
         )
         result_value = out.get("value")
         result_provider = col_config.get("destination", "output")

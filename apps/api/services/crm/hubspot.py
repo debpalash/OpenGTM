@@ -19,18 +19,24 @@ logger = logging.getLogger("crm.hubspot")
 BASE_URL = "https://api.hubapi.com"
 
 
-def _get_token() -> str:
-    """Read HubSpot token from settings DB or environment."""
+def _get_token(workspace_id: Optional[str] = None) -> str:
+    """Read HubSpot token.
+
+    When ``workspace_id`` is given, resolve the per-workspace encrypted secret
+    first (spec WI-6), falling back to the global settings DB / environment so
+    single-tenant installs are unaffected.
+    """
     try:
-        from apps.api.routers.settings import _db_get
-        return _db_get("HUBSPOT_TOKEN", "") or os.getenv("HUBSPOT_TOKEN", "")
+        # get_secret() already does per-workspace → global settings → env.
+        from apps.api.services.workspace.secrets import get_secret
+        return get_secret(workspace_id, "HUBSPOT_TOKEN", "")
     except Exception:
         return os.getenv("HUBSPOT_TOKEN", "")
 
 
-def is_connected() -> bool:
-    """Check if HubSpot token is configured."""
-    return bool(_get_token())
+def is_connected(workspace_id: Optional[str] = None) -> bool:
+    """Check if a HubSpot token is configured (per-workspace, else global)."""
+    return bool(_get_token(workspace_id))
 
 
 # ── Default Field Mapping ─────────────────────────────────────
@@ -86,9 +92,13 @@ async def test_connection() -> Dict[str, Any]:
         return {"connected": False, "error": str(e)}
 
 
-async def push_lead_as_contact(lead, field_map: Dict[str, str] = None) -> Dict[str, Any]:
-    """Push a single lead to HubSpot as a contact."""
-    token = _get_token()
+async def push_lead_as_contact(lead, field_map: Dict[str, str] = None,
+                               workspace_id: Optional[str] = None) -> Dict[str, Any]:
+    """Push a single lead to HubSpot as a contact.
+
+    ``workspace_id`` selects the per-workspace token when set (spec WI-6).
+    """
+    token = _get_token(workspace_id)
     if not token:
         return {"success": False, "error": "No HubSpot token"}
 

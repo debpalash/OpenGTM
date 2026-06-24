@@ -1045,3 +1045,90 @@ def update_integration(integration_id: str, body: IntegrationUpdate,
             _db_set(key, value.strip())
             saved.append(key)
     return {"status": "ok", "saved": saved, "integration": _integration_view(it)}
+
+
+# ── Per-workspace integration secrets (spec WI-6) ──────────────────────────
+# Same integration cards, but credentials are stored ENCRYPTED per workspace via
+# services/workspace/secrets. Reads are write-only / masked: plaintext is never
+# returned. A field shows source="workspace" (per-workspace secret set),
+# "global" (falls back to the shared setting), or "unset".
+
+def _resolve_active_workspace(user, workspace_id: Optional[str]) -> str:
+    """Return a workspace id the user may access (explicit or their active one)."""
+    from apps.api.services.workspace import manager as ws
+    target = workspace_id or ws.get_user_active_workspace(user.id)
+    if not target:
+        raise HTTPException(status_code=400, detail="No active workspace")
+    if not ws.is_member(target, user.id):
+        raise HTTPException(status_code=403, detail="Not a member of this workspace")
+    return target
+
+
+def _workspace_integration_view(it: dict, workspace_id: str) -> dict:
+    """Serialize one integration for a workspace — never echoing any plaintext.
+
+    Each field reports whether a per-workspace secret is set, or whether it
+    would fall back to the global setting, without revealing the value.
+    """
+    from apps.api.services.workspace.secrets import has_workspace_secret
+    fields = []
+    connected = True
+    for f in it["fields"]:
+        ws_set = has_workspace_secret(workspace_id, f["key"])
+        global_set = bool(_db_get(f["key"], ""))
+        if ws_set:
+            source = "workspace"
+        elif global_set:
+            source = "global"
+        else:
+            source = "unset"
+        connected = connected and (ws_set or global_set)
+        fields.append({
+            "key": f["key"], "label": f["label"], "secret": f["secret"],
+            "placeholder": f.get("placeholder", ""),
+            "set": ws_set or global_set,
+            "source": source,
+            # Never echo any value (workspace or global) on this scoped endpoint.
+            "value": "",
+            "masked": "set" if (ws_set or global_set) else "",
+        })
+    return {
+        "id": it["id"], "name": it["name"], "icon": it["icon"],
+        "description": it["description"], "connected": connected, "fields": fields,
+    }
+
+
+@router.get("/workspace-integrations")
+def list_workspace_integrations(workspace_id: Optional[str] = None,
+                                user=Depends(get_current_active_user)):
+    """List integrations for the active (or given) workspace, secrets masked."""
+    ws_id = _resolve_active_workspace(user, workspace_id)
+    return {
+        "workspace_id": ws_id,
+        "integrations": [_workspace_integration_view(it, ws_id) for it in INTEGRATIONS],
+    }
+
+
+@router.put("/workspace-integrations/{integration_id}")
+def update_workspace_integration(integration_id: str, body: IntegrationUpdate,
+                                 workspace_id: Optional[str] = None,
+                                 user=Depends(get_current_active_user)):
+    """Save ENCRYPTED per-workspace credentials for one integration.
+
+    Write-only: blank values are ignored (a saved secret is never clobbered) and
+    no plaintext is ever returned. Values are encrypted at rest (Fernet)."""
+    from apps.api.services.workspace.secrets import set_secret
+    it = next((x for x in INTEGRATIONS if x["id"] == integration_id), None)
+    if not it:
+        raise HTTPException(status_code=404, detail="Integration not found")
+    ws_id = _resolve_active_workspace(user, workspace_id)
+    allowed = {f["key"] for f in it["fields"]}
+    saved = []
+    for key, value in (body.values or {}).items():
+        if key in allowed and value and value.strip():
+            set_secret(ws_id, key, value.strip())
+            saved.append(key)
+    return {
+        "status": "ok", "saved": saved, "workspace_id": ws_id,
+        "integration": _workspace_integration_view(it, ws_id),
+    }

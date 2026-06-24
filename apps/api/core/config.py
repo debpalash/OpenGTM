@@ -59,6 +59,13 @@ class Settings(BaseSettings):
     # socket, so it works for a stock local Postgres without baking in a username.
     DATABASE_URL: str = "postgresql+psycopg://localhost:5432/yupcha"
 
+    # Envelope-encryption master key for per-workspace integration secrets
+    # (spec WI-6). A urlsafe-base64 32-byte Fernet key. When unset we DERIVE a
+    # key from SECRET_KEY so dev/test work out of the box; production must set a
+    # real SECRETS_MASTER_KEY (see services/workspace/secrets.py, which fails
+    # closed when this is empty AND SECRET_KEY is the insecure default).
+    SECRETS_MASTER_KEY: str = ""
+
     # Optional integrations
     SCRIBD_COOKIES: str = ""
     GOOGLE_API_KEY: str = ""

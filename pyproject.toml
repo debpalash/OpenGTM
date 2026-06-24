@@ -29,6 +29,8 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "python-jose[cryptography]>=3.5.0",
     "python-multipart>=0.0.21",
+    # Envelope encryption for per-workspace integration secrets (spec WI-6)
+    "cryptography>=43.0.0",
     # Email validation
     "dnspython>=2.8.0",
     "email-validator>=2.3.0",
