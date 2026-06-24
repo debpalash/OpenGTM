@@ -9,7 +9,7 @@ Docs: https://developer.salesforce.com/docs/api-explorer/sobject/Lead
 
 import os
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 import httpx
 
@@ -18,20 +18,24 @@ logger = logging.getLogger("crm.salesforce")
 API_VERSION = "v59.0"
 
 
-def _creds() -> tuple[str, str]:
-    """(instance_url, access_token) from settings DB or environment."""
+def _creds(workspace_id: Optional[str] = None) -> tuple[str, str]:
+    """(instance_url, access_token).
+
+    When ``workspace_id`` is given, resolve the per-workspace encrypted secrets
+    first (spec WI-6), falling back to the global settings DB / environment.
+    """
     try:
-        from apps.api.routers.settings import _db_get
-        inst = _db_get("SALESFORCE_INSTANCE_URL", "") or os.getenv("SALESFORCE_INSTANCE_URL", "")
-        tok = _db_get("SALESFORCE_ACCESS_TOKEN", "") or os.getenv("SALESFORCE_ACCESS_TOKEN", "")
+        from apps.api.services.workspace.secrets import get_secret
+        inst = get_secret(workspace_id, "SALESFORCE_INSTANCE_URL", "")
+        tok = get_secret(workspace_id, "SALESFORCE_ACCESS_TOKEN", "")
     except Exception:
         inst = os.getenv("SALESFORCE_INSTANCE_URL", "")
         tok = os.getenv("SALESFORCE_ACCESS_TOKEN", "")
     return inst.rstrip("/"), tok
 
 
-def is_connected() -> bool:
-    inst, tok = _creds()
+def is_connected(workspace_id: Optional[str] = None) -> bool:
+    inst, tok = _creds(workspace_id)
     return bool(inst and tok)
 
 
@@ -46,9 +50,13 @@ DEFAULT_FIELD_MAP = {
 }
 
 
-async def push_lead_as_contact(lead, field_map: Dict[str, str] = None) -> Dict[str, Any]:
-    """Push a single lead to Salesforce as a Lead record (upsert by email)."""
-    inst, token = _creds()
+async def push_lead_as_contact(lead, field_map: Dict[str, str] = None,
+                               workspace_id: Optional[str] = None) -> Dict[str, Any]:
+    """Push a single lead to Salesforce as a Lead record (upsert by email).
+
+    ``workspace_id`` selects the per-workspace credentials when set (spec WI-6).
+    """
+    inst, token = _creds(workspace_id)
     if not (inst and token):
         return {"success": False, "error": "Salesforce not connected (set SALESFORCE_INSTANCE_URL + SALESFORCE_ACCESS_TOKEN)"}
 

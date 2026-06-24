@@ -35,26 +35,35 @@ class SendResult:
     timestamp: float = field(default_factory=time.time)
 
 
-def get_smtp_config() -> SMTPConfig:
-    """Load SMTP config from settings DB."""
+def get_smtp_config(workspace_id: Optional[str] = None) -> SMTPConfig:
+    """Load SMTP config.
+
+    When ``workspace_id`` is given, each field resolves to the per-workspace
+    encrypted secret first (spec WI-6), falling back to the global settings DB /
+    environment so single-tenant installs are unaffected.
+    """
     try:
-        from apps.api.routers.settings import _db_get
+        from apps.api.services.workspace.secrets import get_secret
+
+        def _g(key: str, default: str = "") -> str:
+            return get_secret(workspace_id, key, default)
+
         return SMTPConfig(
-            host=_db_get("SMTP_HOST", ""),
-            port=int(_db_get("SMTP_PORT", "587")),
-            email=_db_get("SMTP_EMAIL", ""),
-            password=_db_get("SMTP_PASSWORD", ""),
-            from_name=_db_get("SMTP_FROM_NAME", "Yupcha"),
-            use_tls=_db_get("SMTP_USE_TLS", "1") == "1",
-            max_per_hour=int(_db_get("SMTP_MAX_PER_HOUR", "50")),
+            host=_g("SMTP_HOST", ""),
+            port=int(_g("SMTP_PORT", "587") or "587"),
+            email=_g("SMTP_EMAIL", ""),
+            password=_g("SMTP_PASSWORD", ""),
+            from_name=_g("SMTP_FROM_NAME", "Yupcha"),
+            use_tls=_g("SMTP_USE_TLS", "1") == "1",
+            max_per_hour=int(_g("SMTP_MAX_PER_HOUR", "50") or "50"),
         )
     except Exception:
         return SMTPConfig()
 
 
-def is_smtp_configured() -> bool:
-    """Check if SMTP is properly configured."""
-    cfg = get_smtp_config()
+def is_smtp_configured(workspace_id: Optional[str] = None) -> bool:
+    """Check if SMTP is properly configured (per-workspace, else global)."""
+    cfg = get_smtp_config(workspace_id)
     return bool(cfg.host and cfg.email and cfg.password)
 
 
