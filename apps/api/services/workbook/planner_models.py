@@ -27,6 +27,15 @@ class ProviderStat(Base):
     cooldown_until = Column(DateTime, nullable=True)  # set on rate-limit; skipped while in future
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
+    # ── Correctness prior (provider accuracy eval harness) ──
+    # hit_rate measures "did it return SOMETHING"; accuracy_score measures "was
+    # what it returned CORRECT" (vs a golden dataset). A provider that confidently
+    # returns wrong data has a high hit_rate but a low accuracy_score, so the
+    # planner can stop ranking it well. NULL = never evaluated (graceful default).
+    accuracy_score = Column(Float, nullable=True)   # combined correctness prior in [0,1]
+    accuracy_samples = Column(Integer, default=0)   # golden field-values scored against
+    accuracy_updated_at = Column(DateTime, nullable=True)
+
     @property
     def hit_rate(self) -> float:
         return (self.hits / self.attempts) if self.attempts else 0.0
@@ -47,5 +56,7 @@ class ProviderStat(Base):
             "avg_confidence": round(self.avg_confidence, 3),
             "avg_latency_ms": round(self.avg_latency_ms, 1),
             "total_cost_usd": round(self.total_cost_usd, 4),
+            "accuracy_score": round(self.accuracy_score, 3) if self.accuracy_score is not None else None,
+            "accuracy_samples": self.accuracy_samples or 0,
             "cooldown_until": self.cooldown_until.isoformat() if self.cooldown_until else None,
         }

@@ -251,6 +251,19 @@ def check_and_migrate_db():
                     ))
                     conn.commit()
 
+            # provider_stats: correctness-prior columns (accuracy eval harness).
+            if inspector.has_table("provider_stats"):
+                ps_columns = [c["name"] for c in inspector.get_columns("provider_stats")]
+                for col, ddl in (
+                    ("accuracy_score", "ALTER TABLE provider_stats ADD COLUMN accuracy_score FLOAT"),
+                    ("accuracy_samples", "ALTER TABLE provider_stats ADD COLUMN accuracy_samples INTEGER DEFAULT 0"),
+                    ("accuracy_updated_at", "ALTER TABLE provider_stats ADD COLUMN accuracy_updated_at DATETIME"),
+                ):
+                    if col not in ps_columns:
+                        print(f"Migrating DB: Adding '{col}' column to provider_stats")
+                        conn.execute(text(ddl))
+                        conn.commit()
+
         print("✓ Database migration completed successfully")
 
     except Exception as e:
