@@ -1,0 +1,26 @@
+{
+  "_about": "Recorded (mocked/captured) provider outputs per golden case, used to score providers OFFLINE and deterministically. In production these are produced by replaying the golden inputs through the live waterfall and snapshotting EnrichmentResult.fields; here they are hand-seeded so the unit path never hits the network. Shape: outputs[case_id][provider_name] = {fields:{...}, asof:'YYYY-MM-DD'?}.",
+  "version": 1,
+  "outputs": {
+    "spacex": {
+      "wikidata": {"fields": {"website": "spacex.com", "linkedin_url": "https://www.linkedin.com/company/spacex", "founding_year": "2002", "twitter_url": "https://twitter.com/spacex"}, "asof": "2024-12-01"},
+      "jsonld_firmographics": {"fields": {"website": "spacex.com", "linkedin_url": "https://www.linkedin.com/company/spacex", "twitter_url": "https://twitter.com/spacex"}, "asof": "2024-06-01"},
+      "company_intel": {"fields": {"founding_year": "1999", "industry_tags": "manufacturing"}, "asof": "2020-01-01"}
+    },
+    "stripe": {
+      "wikidata": {"fields": {"website": "stripe.com", "linkedin_url": "https://www.linkedin.com/company/stripe", "founding_year": "2010", "twitter_url": "https://twitter.com/stripe"}, "asof": "2024-12-01"},
+      "jsonld_firmographics": {"fields": {"website": "stripe.com", "twitter_url": "https://twitter.com/stripe"}, "asof": "2024-06-01"},
+      "company_intel": {"fields": {"founding_year": "2011", "industry_tags": "payments"}, "asof": "2021-01-01"}
+    },
+    "github": {
+      "wikidata": {"fields": {"website": "github.com", "linkedin_url": "https://www.linkedin.com/company/github", "founding_year": "2008", "twitter_url": "https://twitter.com/github"}, "asof": "2024-12-01"},
+      "jsonld_firmographics": {"fields": {"website": "github.com"}, "asof": "2024-06-01"},
+      "company_intel": {"fields": {"founding_year": "2010"}, "asof": "2019-01-01"}
+    },
+    "mongodb": {
+      "wikidata": {"fields": {"website": "mongodb.com", "linkedin_url": "https://www.linkedin.com/company/mongodbinc", "founding_year": "2007"}, "asof": "2024-12-01"},
+      "jsonld_firmographics": {"fields": {"website": "mongodb.com"}, "asof": "2024-06-01"},
+      "company_intel": {"fields": {"founding_year": "2009"}, "asof": "2018-01-01"}
+    }
+  }
+}

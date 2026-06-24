@@ -64,13 +64,52 @@ def in_cooldown(db: Session, provider: str, field: str) -> bool:
     return cd > _now()
 
 
+# How strongly the correctness prior bends ordering. The prior is applied as a
+# multiplier in [1-CORRECTNESS_WEIGHT, 1]: a provider scored fully accurate keeps
+# its yield/cost score unchanged; a confidently-wrong provider (accuracy→0) is
+# knocked down by up to this fraction. Tuned so accuracy can reorder providers of
+# similar yield/cost without ever fully zeroing an otherwise-useful provider.
+CORRECTNESS_WEIGHT = 0.6
+
+
+def correctness_prior(db: Session, provider: str, field: str) -> float:
+    """Per-provider correctness multiplier in (0, 1], from the accuracy eval
+    harness (golden-dataset scoring persisted onto ProviderStat).
+
+    Returns 1.0 (no effect) when the provider has never been evaluated — this is
+    the graceful default that keeps existing ordering intact until accuracy data
+    exists. Accuracy is learned per provider (golden set spans company fields),
+    so the same prior applies across that provider's fields.
+    """
+    score = None
+    st = _stat(db, provider, field)
+    if st and st.accuracy_score is not None:
+        score = st.accuracy_score
+    else:
+        # fall back to any field's accuracy for this provider (provider-level prior)
+        other = (
+            db.query(ProviderStat)
+            .filter(ProviderStat.provider == provider, ProviderStat.accuracy_score.isnot(None))
+            .first()
+        )
+        if other is not None:
+            score = other.accuracy_score
+    if score is None:
+        return 1.0  # never evaluated → no effect (graceful default)
+    return (1.0 - CORRECTNESS_WEIGHT) + CORRECTNESS_WEIGHT * max(0.0, min(1.0, score))
+
+
 def _score(db: Session, provider: str, field: str) -> float:
-    """Expected yield ÷ cost. Unseen providers get an optimistic prior so they
-    get tried; free providers are effectively divided by a tiny cost."""
+    """Expected yield ÷ cost, bent by the correctness prior. Unseen providers get
+    an optimistic hit-rate prior so they get tried; free providers are effectively
+    divided by a tiny cost. The correctness prior multiplies the result so a
+    provider that returns confident WRONG data (high hit-rate, low accuracy) no
+    longer ranks above an accurate one — without it the planner ordered purely on
+    hit-rate. Defaults to a no-op multiplier when no accuracy data exists."""
     st = _stat(db, provider, field)
     hit_rate = st.hit_rate if (st and st.attempts >= 3) else 0.5  # prior until we have data
     cost = provider_cost(provider)
-    return hit_rate / (cost + 0.001)
+    return (hit_rate / (cost + 0.001)) * correctness_prior(db, provider, field)
 
 
 def order_chain(db: Session, field: str, chain: List[str], budget_remaining: Optional[float] = None) -> List[str]:

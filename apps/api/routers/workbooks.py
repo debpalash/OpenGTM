@@ -941,6 +941,26 @@ async def provider_stats(db: Session = Depends(get_db)):
     return {"stats": [r.to_api() for r in rows]}
 
 
+@router.get("/meta/provider-accuracy")
+async def provider_accuracy(persist: bool = False, db: Session = Depends(get_db)):
+    """Public per-provider CORRECTNESS ranking from the accuracy/freshness eval
+    harness (scored offline against a golden dataset). This is the signal the
+    hit-rate ledger is missing: a provider that returns confident WRONG data
+    ranks low here. Pass ?persist=true to also write the correctness prior onto
+    the ProviderStat ledger so it feeds the waterfall planner's ordering."""
+    if persist:
+        from apps.api.services.leadgen.enrichment.eval.persist import run_and_persist
+        ranking = run_and_persist(db)
+        db.commit()
+    else:
+        from apps.api.services.leadgen.enrichment.eval.scorer import run_eval
+        ranking = run_eval()
+    return {
+        "ranking": [s.to_api() for s in ranking],
+        "persisted": persist,
+    }
+
+
 # ── Living workbooks (P3) ────────────────────────────────────────────────
 
 class RefreshPolicyRequest(BaseModel):
