@@ -5,7 +5,7 @@ from typing import Optional
 import json
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Query
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from sqlalchemy import func as sa_func
@@ -24,6 +24,7 @@ from apps.api.services.workbook.schemas import (
 )
 from apps.api.services.leadgen.db import LeadDB
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace
+from apps.api.core.ratelimit import limiter
 
 logger = logging.getLogger("workbook.api")
 router = APIRouter(prefix="/api/workbooks", tags=["workbooks"])
@@ -682,7 +683,9 @@ def estimate_run(
 
 
 @router.post("/{workbook_id}/run", response_model=RunWorkbookResponse)
+@limiter.limit("20/minute")
 async def run_workbook(
+    request: Request,
     workbook_id: str,
     body: RunWorkbookRequest = None,
     db: Session = Depends(get_db),
@@ -866,7 +869,8 @@ async def add_source_column(workbook_id: str, body: SourceColumnRequest, db: Ses
 
 
 @router.post("/{workbook_id}/sources/{col_id}/run")
-async def run_source_column(workbook_id: str, col_id: str, db: Session = Depends(get_db)):
+@limiter.limit("20/minute")
+async def run_source_column(request: Request, workbook_id: str, col_id: str, db: Session = Depends(get_db)):
     """Materialize rows from a source column — runs on the durable queue worker."""
     wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
     if not wb:

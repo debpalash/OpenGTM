@@ -3,6 +3,8 @@ HTTP action column (Phase 4, PR A): templating + SSRF guard + JSONPath extract.
 Network is mocked via httpx.MockTransport.
 """
 import asyncio
+import socket
+
 import httpx
 import pytest
 
@@ -11,7 +13,12 @@ from apps.api.services.workbook.http_column import execute_http_column
 
 
 def _patch_transport(monkeypatch, handler):
-    """Make httpx.AsyncClient use a mock transport for the duration of a call."""
+    """Make httpx.AsyncClient use a mock transport for the duration of a call.
+
+    Also stub socket.getaddrinfo so the SSRF guard's resolve=True check sees a
+    public IP for the test host (the guard now resolves hostnames; without this
+    the offline test box can't resolve api.example.com and the guard would
+    rightly block the request before the mock transport is reached)."""
     real_init = httpx.AsyncClient.__init__
 
     def init(self, *a, **kw):
@@ -20,6 +27,10 @@ def _patch_transport(monkeypatch, handler):
         real_init(self, *a, **kw)
 
     monkeypatch.setattr(httpx.AsyncClient, "__init__", init)
+    monkeypatch.setattr(
+        socket, "getaddrinfo",
+        lambda *a, **k: [(socket.AF_INET, None, None, "", ("93.184.216.34", 0))],
+    )
 
 
 COLS = [

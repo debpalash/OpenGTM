@@ -22,6 +22,10 @@ async def get_current_user(
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
+        # Refresh tokens carry type="refresh" and must NOT be accepted as
+        # access tokens. Legacy access tokens (no "type" claim) stay valid.
+        if payload.get("type") == "refresh":
+            raise credentials_exception
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception

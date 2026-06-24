@@ -131,9 +131,14 @@ def check_url(url: str, *, allow_http: bool = True, resolve: bool = False) -> st
             raise BlockedUrlError(f"cannot resolve host: {e}")
         for info in infos:
             addr = info[4][0]
+            # NB: BlockedUrlError subclasses ValueError, so we must NOT wrap the
+            # block-check in `except ValueError` — that would swallow our own
+            # raise and silently defeat the rebinding guard. Only the
+            # ip_address() parse can raise a (non-blocking) ValueError.
             try:
-                if _ip_is_blocked(ipaddress.ip_address(addr)):
-                    raise BlockedUrlError(f"host resolves to private ip {addr}")
+                parsed_ip = ipaddress.ip_address(addr)
             except ValueError:
                 continue
+            if _ip_is_blocked(parsed_ip):
+                raise BlockedUrlError(f"host resolves to private ip {addr}")
     return url
