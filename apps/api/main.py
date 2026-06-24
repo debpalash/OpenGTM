@@ -6,7 +6,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from apps.api.core.config import settings
 from apps.api.core.ratelimit import limiter
-from apps.api.database import Base, engine, check_and_migrate_db
+from apps.api.database import check_and_migrate_db
 from contextlib import asynccontextmanager
 import logfire
 import logging
@@ -31,9 +31,6 @@ logging.getLogger("ddgs").setLevel(logging.WARNING)
 logging.getLogger("ddgs.ddgs").setLevel(logging.WARNING)
 logging.getLogger("primp").setLevel(logging.WARNING)
 
-# Database Migration
-check_and_migrate_db()
-
 # Import all models so Base.metadata knows about them
 from apps.api.services.workbook.models import Workbook, WorkbookEnrichment, WorkbookRow  # noqa: E402
 # Pillar 1: canonical entity graph tables
@@ -45,7 +42,19 @@ from apps.api.services.workbook import activity_models as _activity_models  # no
 # Pillar 4: agent column reasoning traces
 from apps.api.services.workbook import trace_models as _trace_models  # noqa: E402,F401
 
-Base.metadata.create_all(bind=engine)
+# Schema evolution is owned by Alembic: `alembic upgrade head` creates a fresh
+# schema AND applies pending migrations on an existing DB. create_all() is only
+# a guarded dev/test fallback (it never ALTERs existing tables). See db_init.py
+# and MIGRATIONS.md.
+from apps.api.db_init import init_db  # noqa: E402
+
+init_db()
+
+# Legacy SQLite-file migration. Now redundant for fresh DBs (Alembic's baseline
+# already includes every column it adds) but kept idempotent + guarded so a
+# pre-Alembic SQLite file picked up before this migration still gets its missing
+# columns. Runs AFTER init_db so the tables it inspects already exist.
+check_and_migrate_db()
 
 # Lifespan — replaces deprecated @app.on_event("startup") / @app.on_event("shutdown")
 @asynccontextmanager
