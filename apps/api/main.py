@@ -201,6 +201,10 @@ app.include_router(functions_router)
 from apps.api.routers.ambitionbox import router as ambitionbox_router
 app.include_router(ambitionbox_router)
 
+# Billing — credit ledger + Stripe top-ups (WI-9)
+from apps.api.routers.billing import router as billing_router
+app.include_router(billing_router)
+
 
 @app.get("/api")
 def api_root():

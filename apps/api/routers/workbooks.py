@@ -745,6 +745,37 @@ async def run_workbook(
     if not leads:
         return RunWorkbookResponse(status="skipped", total_jobs=0, message="No rows to process")
 
+    # ── Billing enforcement (WI-9) ──────────────────────────────────────
+    # Same chokepoint that computes "N rows × providers = $X": debit the
+    # platform-billed (non-BYOK) portion from the workspace's credit balance.
+    # A no-op when BILLING_ENABLED is off (self-host), so runs are never blocked.
+    # The debit is idempotent per run_id; we generate the run_id here and pass it
+    # to the worker so a retried/superseded enqueue can't double-charge.
+    import uuid as _uuid
+    from apps.api.services.billing import service as _billing
+    run_id = _uuid.uuid4().hex
+    if _billing.billing_enabled():
+        providers_by_col = {}
+        for c in enrichment_cols:
+            target = c.get("target_field") or c.get("lead_field") or c.get("id")
+            chain = c.get("waterfall") or ([c["provider"]] if c.get("provider") else [])
+            if not chain:
+                from apps.api.services.workbook.enrichment import DEFAULT_WATERFALLS
+                chain = DEFAULT_WATERFALLS.get(target, [])
+            providers_by_col[c.get("id") or target] = chain
+        projected = _billing.projected_platform_cost(len(leads), providers_by_col)
+        try:
+            _billing.check_and_debit(db, ctx.workspace_id, projected, run_id=run_id)
+        except _billing.InsufficientCreditsError as e:
+            raise HTTPException(
+                status_code=402,
+                detail={
+                    "message": str(e),
+                    "balance_usd": e.balance_usd,
+                    "required_usd": e.required_usd,
+                },
+            )
+
     # Update workbook status + reset progress for this run
     wb.status = "running"
     wb.last_run_at = datetime.now(timezone.utc)
@@ -787,6 +818,7 @@ async def run_workbook(
         "run_workbook",
         {
             "workbook_id": workbook_id,
+            "run_id": run_id,
             "column_ids": [c["id"] for c in enrichment_cols],
             # Pass the resolved ids (not the raw request) so the worker enriches
             # exactly the rows resolved above — the single source of truth for

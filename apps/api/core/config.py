@@ -66,6 +66,15 @@ class Settings(BaseSettings):
     # closed when this is empty AND SECRET_KEY is the insecure default).
     SECRETS_MASTER_KEY: str = ""
 
+    # ── Billing / credit ledger (WI-9) ─────────────────────────────────
+    # Master switch. OFF by default so self-host deployments are unaffected:
+    # when disabled, runs are NEVER blocked and no debits happen. Operators who
+    # want platform billing set BILLING_ENABLED=true.
+    BILLING_ENABLED: bool = False
+    # Stripe keys for credit top-ups. Read from env/.env; never hardcode.
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+
     # Optional integrations
     SCRIBD_COOKIES: str = ""
     GOOGLE_API_KEY: str = ""

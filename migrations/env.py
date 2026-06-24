@@ -36,6 +36,7 @@ from apps.api.services.workbook import planner_models as _planner_models  # noqa
 from apps.api.services.workbook import activity_models as _activity_models  # noqa: E402,F401
 from apps.api.services.workbook import trace_models as _trace_models  # noqa: E402,F401
 from apps.api.services.entities import models as _entity_models  # noqa: E402,F401
+from apps.api.services.billing import models as _billing_models  # noqa: E402,F401
 from apps.api.core.config import settings  # noqa: E402
 
 target_metadata = Base.metadata

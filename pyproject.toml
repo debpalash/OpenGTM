@@ -46,6 +46,8 @@ dependencies = [
     "redis>=6.4.0",
     "bullmq>=2.25.1",
     "pebble>=5.2.0",
+    # Billing — Stripe credit top-ups (WI-9)
+    "stripe>=11.0.0",
 ]
 
 [project.scripts]
