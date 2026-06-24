@@ -21,6 +21,7 @@ from pydantic import BaseModel
 from apps.api.services.leadgen.db import LeadDB
 from apps.api.services.leadgen.models import Lead, LEAD_STATUSES
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace
+from apps.api.core.ratelimit import limiter
 
 router = APIRouter(prefix="/api", tags=["Leads"])
 
@@ -193,7 +194,9 @@ def add_lead(body: AddLeadRequest, ctx: WorkspaceCtx = Depends(current_workspace
 
 
 @router.post("/lead/{lead_id}/enrich")
+@limiter.limit("30/minute")
 async def enrich_lead(
+    request: Request,
     lead_id: int,
     action: str = "web_research",
     ctx: WorkspaceCtx = Depends(current_workspace),
@@ -532,7 +535,8 @@ class CollectRequest(BaseModel):
 
 
 @jobs_router.post("/collect")
-def start_collection(body: CollectRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
+@limiter.limit("20/minute")
+def start_collection(request: Request, body: CollectRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
     query = body.query.strip()
     if not query:
         raise HTTPException(status_code=400, detail="query is required")
@@ -769,7 +773,9 @@ def sse_events(token: Optional[str] = Query(default=None)):
 # ── Search & Scraper (authenticated) ─────────────────────────
 
 @search_router.get("/v2/search/unified")
+@limiter.limit("60/minute")
 async def public_unified_search(
+    request: Request,
     q: str = "",
     sources: str = "",
     limit: int = 20,
@@ -803,7 +809,8 @@ async def public_unified_search(
 
 
 @search_router.post("/v2/scraper/scrape")
-async def public_scrape(body: dict, ctx: WorkspaceCtx = Depends(current_workspace)):
+@limiter.limit("30/minute")
+async def public_scrape(request: Request, body: dict, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Scrape a single user-supplied URL (auth required).
 
     The URL passes through the SSRF guard before any server-side fetch so a

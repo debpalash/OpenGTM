@@ -2,10 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from apps.api.core.config import settings
+from apps.api.core.ratelimit import limiter
 from apps.api.database import Base, engine, check_and_migrate_db
 from contextlib import asynccontextmanager
 import logfire
@@ -47,17 +47,18 @@ from apps.api.services.workbook import trace_models as _trace_models  # noqa: E4
 
 Base.metadata.create_all(bind=engine)
 
-# Initialize Limiter
-limiter = Limiter(key_func=get_remote_address)
-
-
 # Lifespan — replaces deprecated @app.on_event("startup") / @app.on_event("shutdown")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ── Startup ──
-    if "INSECURE_FALLBACK" in settings.SECRET_KEY:
+    # In a real deployment get_settings() has already raised on the insecure
+    # default key (fail-closed). Reaching here with it means we're in a tolerated
+    # dev/test/local environment — warn loudly so it's never shipped silently.
+    if settings.secret_key_is_insecure:
         logger.warning(
-            "⚠ Using INSECURE default SECRET_KEY! Set SECRET_KEY in .env for production."
+            "⚠ Using INSECURE default SECRET_KEY (APP_ENV=%s)! Set SECRET_KEY "
+            "in .env before deploying to production.",
+            settings.APP_ENV,
         )
     # Tenancy backfill — assign owner-less workspaces to the first admin so
     # existing data stays accessible after per-workspace isolation is enabled.

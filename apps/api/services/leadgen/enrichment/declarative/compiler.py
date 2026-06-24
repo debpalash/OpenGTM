@@ -110,21 +110,25 @@ class DeclarativeProvider(EnrichmentProvider):
         req = self.manifest.request
 
         url = render_string(req.url, ctx, self._env)
-        # SSRF guard: a manifest may template lead-controlled data (domain, etc.)
-        # into the URL; never let that point us at a private/metadata host.
-        try:
-            from apps.api.core.url_guard import check_url
-            check_url(url, allow_http=True)
-        except Exception as e:
-            return EnrichmentResult(success=False, error=f"blocked_url: {str(e)[:60]}")
         headers = {k: render_string(str(v), ctx, self._env) for k, v in (req.headers or {}).items()}
         params = {k: render_string(str(v), ctx, self._env) for k, v in (req.query or {}).items()}
         body = render_template(req.body_template, ctx, self._env) if req.body_template is not None else None
 
+        # Fail fast on a config error (missing key) before any network/DNS work.
         try:
             self._build_auth(headers, params)
         except MissingApiKeyError as e:
             return EnrichmentResult(success=False, error=str(e))
+
+        # SSRF guard: a manifest may template lead-controlled data (domain, etc.)
+        # into the URL; never let that point us at a private/metadata host.
+        # resolve=True also resolves the host and rejects if it maps to a
+        # private/metadata IP (closes most of the DNS-rebinding gap).
+        try:
+            from apps.api.core.url_guard import check_url
+            check_url(url, allow_http=True, resolve=True)
+        except Exception as e:
+            return EnrichmentResult(success=False, error=f"blocked_url: {str(e)[:60]}")
 
         try:
             async with httpx.AsyncClient(timeout=req.timeout) as client:

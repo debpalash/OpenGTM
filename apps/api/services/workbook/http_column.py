@@ -62,8 +62,10 @@ async def execute_http_column(
         return {"success": False, "value": None, "error": "unresolved_url_placeholder"}
 
     # SSRF guard — never let a row value point us at a private/metadata host.
+    # resolve=True: also resolve the host and reject if it maps to a private/
+    # metadata IP (closes most of the DNS-rebinding gap).
     try:
-        check_url(url, allow_http=True)
+        check_url(url, allow_http=True, resolve=True)
     except BlockedUrlError as e:
         return {"success": False, "value": None, "error": f"blocked_url: {str(e)[:60]}"}
 
