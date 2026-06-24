@@ -804,10 +804,21 @@ async def public_unified_search(
 
 @search_router.post("/v2/scraper/scrape")
 async def public_scrape(body: dict, ctx: WorkspaceCtx = Depends(current_workspace)):
-    """Scrape a single URL (auth required). NOTE: SSRF allowlist still TODO."""
+    """Scrape a single user-supplied URL (auth required).
+
+    The URL passes through the SSRF guard before any server-side fetch so a
+    caller cannot point us at internal/loopback/metadata endpoints. Note the
+    scraper follows redirects, so a public URL could still redirect to a private
+    host — full closure requires re-checking at connect time.
+    """
     url = body.get("url", "").strip()
     if not url:
         raise HTTPException(status_code=400, detail="url is required")
+    from apps.api.core.url_guard import check_url, BlockedUrlError
+    try:
+        check_url(url, resolve=True)
+    except BlockedUrlError as e:
+        raise HTTPException(status_code=400, detail=f"url not allowed: {e}")
     from apps.api.services.scraper import UniversalScraper
     scraper = UniversalScraper()
     try:
