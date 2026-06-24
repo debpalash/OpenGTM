@@ -598,7 +598,7 @@ _RUN_CONFIG = {
     "provider_timeout": float(os.getenv("WORKBOOK_PROVIDER_TIMEOUT", "10")),
 }
 
-ENRICHMENT_COL_TYPES = ("enrichment", "waterfall", "ai_formula", "agent", "http", "formula")
+ENRICHMENT_COL_TYPES = ("enrichment", "waterfall", "ai_formula", "research", "agent", "http", "formula")
 
 
 def _make_redis():

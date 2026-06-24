@@ -40,6 +40,7 @@ def create_from_template(
     # Transform template columns into the workbook editor's expected format
     # Template columns: {key, name, type} → Editor columns: {id, name, type: "lead_field", lead_field, width}
     editor_columns = []
+    seen_ids = set()
     for col in template["columns"]:
         editor_columns.append({
             "id": col["key"],
@@ -48,6 +49,28 @@ def create_from_template(
             "lead_field": col["key"],
             "width": 180,
         })
+        seen_ids.add(col["key"])
+
+    # Materialize REAL enrichment columns (waterfall / enrichment / ai_formula /
+    # research / ...). These are stored verbatim — they already match the
+    # ColumnConfig shape the enrichment engine consumes — so the workbook is
+    # immediately runnable. Backward compatible: templates without
+    # `enrichment_columns` simply add nothing here.
+    enrichment_count = 0
+    for ecol in template.get("enrichment_columns", []):
+        # Copy so we never mutate the shared template definition.
+        ecol = dict(ecol)
+        # Guarantee a unique, non-colliding column id within this workbook.
+        base_id = ecol.get("id") or f"enrich_{enrichment_count}"
+        col_id = base_id
+        suffix = 1
+        while col_id in seen_ids:
+            col_id = f"{base_id}_{suffix}"
+            suffix += 1
+        ecol["id"] = col_id
+        seen_ids.add(col_id)
+        editor_columns.append(ecol)
+        enrichment_count += 1
 
     workbook = Workbook(
         name=template["name"],
@@ -65,4 +88,5 @@ def create_from_template(
         "name": workbook.name,
         "template": template_id,
         "columns_count": len(editor_columns),
+        "enrichment_columns_count": enrichment_count,
     }
