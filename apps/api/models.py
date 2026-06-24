@@ -42,7 +42,12 @@ class Job(Base):
     retry_count = Column(Integer, default=0)
     max_retries = Column(Integer, default=3)
     last_heartbeat = Column(DateTime, nullable=True)
+    # worker_id: identity of the worker that currently owns the job (set when a
+    # worker atomically claims it). next_run_at gates when a queued/retry job is
+    # eligible. locked_at records the moment a worker claimed the job — used by
+    # the stale-claim reaper to recover jobs whose worker died mid-flight.
     worker_id = Column(String, nullable=True)
+    locked_at = Column(DateTime, nullable=True)
     next_run_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 

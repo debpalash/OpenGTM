@@ -37,6 +37,11 @@ services:
       - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
       - PYTHONPATH=/app
       - REDIS_URL=redis://redis:6379
+      # Job processing is owned by the standalone `worker` service below, which
+      # claims jobs atomically (FOR UPDATE SKIP LOCKED) and is safe to scale to
+      # N replicas. Turn OFF the in-API worker so the API only enqueues — this is
+      # what makes horizontal scaling double-charge-safe.
+      - RUN_INLINE_WORKER=0
     volumes:
       # data/ still holds the workspaces.db (sqlite meta) + per-workspace leads;
       # the primary store is Postgres.
@@ -86,12 +91,15 @@ services:
     networks:
       - lead_net
 
-  # ── Enrichment Worker (BullMQ) ─────────────────────────
+  # ── Job Worker (durable SQL queue, FOR UPDATE SKIP LOCKED) ─────
+  # Standalone processor for the `jobs` table. Claims jobs atomically so it is
+  # safe to scale horizontally: `docker compose up --scale worker=N`. Each
+  # replica grabs each queued job exactly once (no double-grab / double-charge).
   worker:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: lead-data-worker
+    # NOTE: no fixed container_name so `--scale worker=N` can run multiple.
     env_file: .env
     environment:
       - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
@@ -99,7 +107,7 @@ services:
       - REDIS_URL=redis://redis:6379
     volumes:
       - ./data:/app/data
-    command: python -m apps.api.services.workbook.worker
+    command: python -m apps.api.worker
     depends_on:
       postgres:
         condition: service_healthy
