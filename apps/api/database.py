@@ -151,6 +151,11 @@ def check_and_migrate_db():
                 conn.execute(text("ALTER TABLE jobs ADD COLUMN worker_id VARCHAR"))
                 conn.commit()
 
+            if "locked_at" not in job_columns:
+                print("Migrating jobs table: adding locked_at...")
+                conn.execute(text("ALTER TABLE jobs ADD COLUMN locked_at TIMESTAMP"))
+                conn.commit()
+
             # PersonIntel Table — check existence and add any new columns
             if "person_intel" in inspector.get_table_names():
                 pi_columns = [c["name"] for c in inspector.get_columns("person_intel")]

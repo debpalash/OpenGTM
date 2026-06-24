@@ -119,18 +119,35 @@ async def lifespan(app: FastAPI):
     from apps.api.services.workbook.refresh import handle_refresh_workbook, handle_signal_scan, bootstrap_signal_scan
     queue_service.register_handler("refresh_workbook", handle_refresh_workbook)
     queue_service.register_handler("signal_scan", handle_signal_scan)
-    await queue_service.start_worker()
+
+    # Horizontal scaling: job processing is now safe to run in a SEPARATE worker
+    # process (apps/api/worker.py) with an atomic FOR UPDATE SKIP LOCKED claim.
+    # The in-API background worker is OPT-IN via RUN_INLINE_WORKER so we can turn
+    # it OFF in production (where the standalone worker replicas own processing)
+    # while keeping the single-process dev/test experience working by default.
+    #   RUN_INLINE_WORKER unset / "1" / "true" → run the in-API worker (default)
+    #   RUN_INLINE_WORKER "0" / "false"        → don't; rely on the worker service
+    _inline = os.getenv("RUN_INLINE_WORKER", "1").strip().lower()
+    run_inline_worker = _inline not in ("0", "false", "no", "off")
+    if run_inline_worker:
+        await queue_service.start_worker()
+        print("✓ Queue Worker Started (in-API)")
+    else:
+        print("✓ In-API worker disabled (RUN_INLINE_WORKER=0) — using separate worker process")
+
     # Kick off the recurring signal scan (idempotent; no-op if already pending).
+    # Safe regardless of who processes it — it just enqueues a durable job that
+    # the in-API worker OR a standalone worker replica will pick up.
     try:
         bootstrap_signal_scan()
     except Exception as e:
         logger.warning(f"signal_scan bootstrap skipped: {e}")
-    print("✓ Queue Worker Started")
     print("✓ Yupcha Engine v3.0 Ready")
     yield
     # ── Shutdown ──
-    await queue_service.stop_worker()
-    print("✓ Queue Worker Stopped")
+    if run_inline_worker:
+        await queue_service.stop_worker()
+        print("✓ Queue Worker Stopped")
 
 
 app = FastAPI(title="Yupcha Engine", version="3.0.0", lifespan=lifespan)
