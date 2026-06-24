@@ -1,6 +1,28 @@
-
-
 services:
+  # ── Postgres (primary store — MVCC, real concurrent writers) ───
+  # The workbook enrichment run depends on concurrent writers; SQLite would
+  # hit "database is locked". This is the documented Postgres default actually
+  # wired up. Credentials below match the DATABASE_URL the api/worker use.
+  postgres:
+    image: postgres:16-alpine
+    container_name: lead-data-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-yupcha}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-yupcha}
+      - POSTGRES_DB=${POSTGRES_DB:-yupcha}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-yupcha} -d ${POSTGRES_DB:-yupcha}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - lead_net
+
   # ── API (FastAPI backend) ──────────────────────────────
   api:
     build:
@@ -9,15 +31,22 @@ services:
     container_name: lead-data-api
     env_file: .env
     environment:
-      - DB_PATH=/app/data/data.db
+      # Postgres is the source of truth. This overrides any SQLite DB_PATH and
+      # makes the documented Postgres default take effect. ${VAR:-default} lets
+      # .env override without editing this file.
+      - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
       - PYTHONPATH=/app
       - REDIS_URL=redis://redis:6379
     volumes:
-      - ./data:/app/data  # SQLite persistence
+      # data/ still holds the workspaces.db (sqlite meta) + per-workspace leads;
+      # the primary store is Postgres.
+      - ./data:/app/data
       - frontend_dist:/app/apps/web/dist  # Share built frontend with nginx
     ports:
       - "8000:8000"       # Direct API access (optional, nginx proxies this)
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     restart: unless-stopped
@@ -29,6 +58,34 @@ services:
     networks:
       - lead_net
 
+  # ── Seed (first-run demo: admin + populated zero-key workbook) ──
+  # Runs once after Postgres is healthy, creates the demo workspace/workbook
+  # and enqueues the first enrichment run. Idempotent — safe on every restart.
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lead-data-seed
+    env_file: .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
+      - PYTHONPATH=/app
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./data:/app/data
+    command: python -m apps.api.scripts.seed_demo
+    depends_on:
+      postgres:
+        condition: service_healthy
+      # Wait for the API so the schema is created (api runs create_all on boot)
+      # and the in-process queue worker is live to pick up the demo run we
+      # enqueue. Avoids a concurrent create_all race and a stranded job.
+      api:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - lead_net
+
   # ── Enrichment Worker (BullMQ) ─────────────────────────
   worker:
     build:
@@ -37,13 +94,15 @@ services:
     container_name: lead-data-worker
     env_file: .env
     environment:
-      - DB_PATH=/app/data/data.db
+      - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
       - PYTHONPATH=/app
       - REDIS_URL=redis://redis:6379
     volumes:
       - ./data:/app/data
     command: python -m apps.api.services.workbook.worker
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
       api:
@@ -86,6 +145,7 @@ services:
       - lead_net
 
 volumes:
+  pgdata:
   redisdata:
   frontend_dist:
 

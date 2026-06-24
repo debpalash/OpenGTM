@@ -40,7 +40,10 @@ COPY --from=frontend-builder /app/apps/web/dist ./apps/web/dist
 # Set environment
 ENV PYTHONPATH=/app
 ENV ROOT_DIR=/app
-ENV DB_PATH=/app/data/data.db
+# NOTE: Do NOT hardcode a SQLite DB_PATH here — it would shadow the documented
+# Postgres default. The database is selected via DATABASE_URL (see
+# docker-compose.yml / .env.example). Legacy code that still reads DB_PATH falls
+# back to its own default for the sqlite meta files under /app/data.
 
 # Create data directory
 RUN mkdir -p /app/data

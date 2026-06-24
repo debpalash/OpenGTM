@@ -30,6 +30,8 @@ dependencies = [
     "ddgs>=9.14.1",
     "psycopg[binary]>=3.3.4",
     "pebble>=5.2.0",
+    "redis>=6.4.0",
+    "bullmq>=2.25.1",
 ]
 
 [tool.logfire]
