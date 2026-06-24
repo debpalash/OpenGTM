@@ -138,6 +138,18 @@ def _seed_from_env():
 # ── Provider Registry ──────────────────────────────────
 
 PROVIDERS = {
+    "anthropic": {
+        "name": "Anthropic (Claude)",
+        "env_key": "ANTHROPIC_API_KEY",
+        "env_url": "ANTHROPIC_BASE_URL",
+        "env_model": "ANTHROPIC_MODEL",
+        "default_url": "https://api.anthropic.com",
+        "default_model": "claude-opus-4-8",
+        "docs": "https://console.anthropic.com/settings/keys",
+        "free_tier": "Paid (Opus 4.8: $5 / $25 per 1M tok)",
+        "icon": "🪄",
+        "openai_compatible": False,
+    },
     "openrouter": {
         "name": "OpenRouter",
         "env_key": "OPENROUTER_API_KEY",
@@ -447,7 +459,33 @@ async def test_provider(provider_id: str):
                         err_msg = resp.text[:200]
                     return {"status": "error", "error": err_msg or "Provider returned error"}
             else:
-                if provider_id == "google_ai":
+                if provider_id == "anthropic":
+                    # Native Anthropic Messages API (not OpenAI-compatible).
+                    resp = await client.post(
+                        f"{base_url.rstrip('/')}/v1/messages",
+                        headers={
+                            "x-api-key": api_key,
+                            "anthropic-version": "2023-06-01",
+                            "Content-Type": "application/json",
+                        },
+                        json={
+                            "model": model,
+                            "max_tokens": 50,
+                            "messages": [{"role": "user", "content": "Say 'hello' in exactly one word."}],
+                        },
+                    )
+                    data = resp.json()
+                    if resp.status_code == 200:
+                        text = "".join(
+                            b.get("text", "") for b in data.get("content", [])
+                            if b.get("type") == "text"
+                        )
+                        return {"status": "ok", "response": text.strip()[:200], "model": data.get("model", model)}
+                    else:
+                        err = data.get("error", {})
+                        err_msg = err.get("message", "") if isinstance(err, dict) else str(err)
+                        return {"status": "error", "error": err_msg or resp.text[:200]}
+                elif provider_id == "google_ai":
                     resp = await client.post(
                         f"{base_url}/models/{model}:generateContent?key={api_key}",
                         json={
@@ -516,7 +554,13 @@ async def list_models(provider_id: str, free_only: bool = False):
     if provider_id not in PROVIDERS:
         raise HTTPException(status_code=404, detail=f"Provider '{provider_id}' not found")
 
-    if provider_id == "openrouter":
+    if provider_id == "anthropic":
+        return {"models": [
+            {"id": "claude-opus-4-8", "name": "Claude Opus 4.8", "context": 1000000, "free": False},
+            {"id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6", "context": 1000000, "free": False},
+            {"id": "claude-haiku-4-5", "name": "Claude Haiku 4.5", "context": 200000, "free": False},
+        ]}
+    elif provider_id == "openrouter":
         return await _fetch_openrouter_models(free_only)
     elif provider_id == "google_ai":
         return {"models": [

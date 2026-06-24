@@ -2,8 +2,11 @@
 LLM Client — Provider-agnostic wrapper for AI-powered pipeline stages.
 
 Reads the user's configured default provider from the settings DB and makes
-OpenAI-compatible chat completion calls. Automatically fails over to the next
-configured provider on error.
+chat completion calls. Most providers speak the OpenAI-compatible HTTP contract;
+Anthropic (Claude) is a first-class provider that uses the native Messages API
+via the official `anthropic` SDK. Automatically fails over to the next
+configured provider on error, so Claude and the free Llama/Qwen/Gemini tier
+back each other up.
 
 Usage:
     from apps.api.services.leadgen.llm import llm
@@ -25,13 +28,24 @@ import aiohttp
 
 
 # ── Provider Registry (mirrors settings.py) ─────────────────────────
-# Ordered by speed for failover priority
+# Ordered by speed for failover priority. Anthropic (Claude) is first-class but
+# kept LAST in this priority list so the free OSS tier is never displaced as a
+# *fallback*: Claude only leads when it's the configured/auto-selected default
+# (see _get_providers). The free Llama/Qwen/Gemini chain remains intact behind it.
 PROVIDER_ORDER = [
     "cerebras", "groq", "sambanova", "nvidia",
     "mistral", "openrouter", "github_models", "siliconflow",
+    "anthropic",
 ]
 
+# Anthropic is NOT OpenAI-compatible — it uses the native Messages API via the
+# official `anthropic` SDK. _call_provider branches on this id. The model id
+# defaults to Claude Opus 4.8 (latest), overridable via ANTHROPIC_MODEL.
+ANTHROPIC_PROVIDER_ID = "anthropic"
+ANTHROPIC_DEFAULT_MODEL = "claude-opus-4-8"
+
 PROVIDER_CONFIG = {
+    "anthropic":     {"env_key": "ANTHROPIC_API_KEY",     "env_url": "ANTHROPIC_BASE_URL",     "env_model": "ANTHROPIC_MODEL",     "default_url": "https://api.anthropic.com",            "default_model": ANTHROPIC_DEFAULT_MODEL,      "token_param": "max_tokens", "native": "anthropic"},
     "cerebras":      {"env_key": "CEREBRAS_API_KEY",      "env_url": "CEREBRAS_BASE_URL",      "env_model": "CEREBRAS_MODEL",      "default_url": "https://api.cerebras.ai/v1",           "default_model": "llama-3.3-70b",              "token_param": "max_completion_tokens"},
     "groq":          {"env_key": "GROQ_API_KEY",          "env_url": "GROQ_BASE_URL",          "env_model": "GROQ_MODEL",          "default_url": "https://api.groq.com/openai/v1",       "default_model": "llama-3.3-70b-versatile",    "token_param": "max_tokens"},
     "sambanova":     {"env_key": "SAMBANOVA_API_KEY",     "env_url": "SAMBANOVA_BASE_URL",     "env_model": "SAMBANOVA_MODEL",     "default_url": "https://api.sambanova.ai/v1",          "default_model": "Meta-Llama-3.3-70B-Instruct","token_param": "max_tokens"},
@@ -118,7 +132,33 @@ class LLMClient:
             "base_url": _read_setting(cfg.get("env_url", ""), cfg["default_url"]),
             "model": _read_setting(cfg.get("env_model", ""), cfg["default_model"]),
             "token_param": cfg.get("token_param", "max_tokens"),
+            "native": cfg.get("native", ""),  # "" = OpenAI-compatible; "anthropic" = native SDK
         }
+
+    def _resolve_default_provider(self) -> str:
+        """Pick the default provider id.
+
+        Precedence:
+          1. An explicit LLM_DEFAULT_PROVIDER setting always wins (user choice).
+          2. Otherwise, if an Anthropic key is present AND this is a cloud
+             deployment (YUPCHA_CLOUD truthy), Claude becomes the default.
+             Self-hosted/OSS installs stay opt-in: without the cloud flag the
+             free chain leads, so the OSS base is never silently switched to a
+             paid model.
+          3. Fallback to "cerebras" (the historical free default).
+
+        Either way the *fallback chain* is unaffected — Claude failing over to
+        the free providers (and vice-versa) is handled in _get_providers.
+        """
+        explicit = _read_setting("LLM_DEFAULT_PROVIDER", "")
+        if explicit:
+            return explicit
+
+        cloud = str(_read_setting("YUPCHA_CLOUD", "")).strip().lower() in ("1", "true", "yes", "on")
+        if cloud and self._get_provider_config(ANTHROPIC_PROVIDER_ID):
+            return ANTHROPIC_PROVIDER_ID
+
+        return "cerebras"
 
     def _get_providers(self) -> list[dict]:
         """Get ordered list of configured providers, default first."""
@@ -126,7 +166,7 @@ class LLMClient:
         if self._provider_cache and now - self._cache_time < 60:
             return self._provider_cache.get("providers", [])
 
-        default_id = _read_setting("LLM_DEFAULT_PROVIDER", "cerebras")
+        default_id = self._resolve_default_provider()
 
         # Build ordered list: default first, then by speed priority
         providers = []
@@ -251,6 +291,106 @@ class LLMClient:
         return None
 
     async def _call_provider(
+        self,
+        prov: dict,
+        messages: list,
+        max_tokens: int,
+        temperature: float,
+    ) -> str:
+        """Dispatch one completion to a provider.
+
+        Anthropic (Claude) uses the native Messages API via the official SDK;
+        every other provider speaks the OpenAI-compatible chat-completions HTTP
+        contract handled by _call_openai_compatible.
+        """
+        if prov.get("native") == "anthropic":
+            return await self._call_anthropic(prov, messages, max_tokens)
+        return await self._call_openai_compatible(prov, messages, max_tokens, temperature)
+
+    async def _call_anthropic(
+        self,
+        prov: dict,
+        messages: list,
+        max_tokens: int,
+    ) -> str:
+        """Make a single Claude call via the official `anthropic` SDK.
+
+        The shared message list uses OpenAI's {"role","content"} shape with an
+        optional leading "system" message. Anthropic takes the system prompt as a
+        separate top-level argument and only user/assistant turns in `messages`,
+        so we split them out. Uses adaptive thinking (recommended for Opus 4.8)
+        and the async client so we don't block the event loop.
+        """
+        try:
+            from anthropic import AsyncAnthropic
+        except ImportError as e:
+            raise RuntimeError(f"anthropic SDK not installed: {e}")
+
+        # Split the OpenAI-style messages into Anthropic's system + turns.
+        system_parts: list[str] = []
+        turns: list[dict] = []
+        for m in messages:
+            role = m.get("role")
+            content = m.get("content", "")
+            if role == "system":
+                if content:
+                    system_parts.append(content)
+            else:
+                # Anthropic accepts only "user"/"assistant" roles.
+                turns.append({"role": "user" if role == "user" else "assistant", "content": content})
+        if not turns:
+            turns = [{"role": "user", "content": ""}]
+
+        client_kwargs: dict = {"api_key": prov["api_key"]}
+        base_url = (prov.get("base_url") or "").strip()
+        # Only pass base_url if it's a real override (not the default api host),
+        # so the SDK's own default/versioning is used in the common case.
+        if base_url and base_url not in ("https://api.anthropic.com", "https://api.anthropic.com/v1"):
+            client_kwargs["base_url"] = base_url
+
+        timeout = float(os.getenv("LLM_HTTP_TIMEOUT", "60"))
+        client = AsyncAnthropic(**client_kwargs)
+        try:
+            create_kwargs: dict = {
+                "model": prov["model"],
+                "max_tokens": max_tokens,
+                "messages": turns,
+                # Adaptive thinking is the recommended mode on Opus 4.8 / 4.7.
+                "thinking": {"type": "adaptive"},
+            }
+            if system_parts:
+                create_kwargs["system"] = "\n\n".join(system_parts)
+
+            resp = await client.with_options(timeout=timeout).messages.create(**create_kwargs)
+
+            # Track token usage in the same shape as OpenAI usage.
+            usage = getattr(resp, "usage", None)
+            prompt_tok = getattr(usage, "input_tokens", 0) or 0
+            completion_tok = getattr(usage, "output_tokens", 0) or 0
+            self.usage.add(prompt=prompt_tok, completion=completion_tok, provider=prov["id"])
+
+            try:
+                from apps.api.services.leadgen.db import LeadDB
+                db = LeadDB()
+                db.record_llm_usage(prov["id"], prov["model"], prompt_tok, completion_tok)
+                db.close()
+            except Exception:
+                pass  # never fail the call over tracking
+
+            # Concatenate text blocks (skip thinking blocks).
+            parts = [
+                getattr(b, "text", "")
+                for b in (getattr(resp, "content", None) or [])
+                if getattr(b, "type", "") == "text"
+            ]
+            return "".join(parts).strip()
+        finally:
+            try:
+                await client.close()
+            except Exception:
+                pass
+
+    async def _call_openai_compatible(
         self,
         prov: dict,
         messages: list,
