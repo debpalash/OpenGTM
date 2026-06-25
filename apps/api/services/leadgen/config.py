@@ -106,6 +106,9 @@ DASHBOARD_PORT = 5050
 # provider and degrades gracefully (regex/scrape still runs with no keys).
 HUNTER_API_KEY = os.getenv("HUNTER_API_KEY", "")
 SNOVIO_CLIENT_ID = os.getenv("SNOVIO_CLIENT_ID", "")
+# UK Companies House Public Data API key (free, BYOK). When blank, the
+# CompaniesHouseProvider skips gracefully and makes no network call.
+COMPANIES_HOUSE_API_KEY = os.getenv("COMPANIES_HOUSE_API_KEY", "")
 SNOVIO_CLIENT_SECRET = os.getenv("SNOVIO_CLIENT_SECRET", "")
 
 # Optional keyed search engines used as a fallback chain behind DuckDuckGo
