@@ -145,16 +145,22 @@ def _validate_and_pin(url: str) -> tuple[str, str, int, bool]:
     return pinned, host, port, is_https
 
 
-async def _send_webhook_pinned(
-    url: str, method: str, headers: dict, kwargs: dict
-) -> dict:
-    """Send the request connecting ONLY to the validated, pinned IP.
+async def pinned_get(
+    url: str, headers: Optional[dict] = None, *, method: str = "GET",
+    timeout: float = 15.0, kwargs: Optional[dict] = None,
+) -> httpx.Response:
+    """One audited SSRF-pinned sender shared by webhooks AND the RSS fetcher.
 
-    DNS is resolved + every record validated inside ``_validate_and_pin``; we
-    then rewrite the request URL to the pinned IP so httpx connects to THAT IP
-    (no second, attacker-controllable resolution), preserving the ``Host`` header
-    for vhost routing and the original hostname for TLS SNI/verification. This
-    closes the TOCTOU/DNS-rebinding window the static guard leaves open.
+    DNS is resolved + every record validated inside ``_validate_and_pin`` (ANY
+    private A/AAAA blocks the whole send — DNS rebinding), then the request URL
+    is rewritten to the validated, pinned IP so httpx connects to THAT IP (no
+    second, attacker-controllable resolution), preserving the ``Host`` header
+    for vhost routing and the original hostname for TLS SNI/verification.
+    ``follow_redirects=False`` so a 30x to a private host is never chased.
+
+    Raises :class:`BlockedUrlError` when the URL is unsafe. Returns the raw
+    ``httpx.Response`` so callers can inspect status (e.g. 304) + headers
+    (ETag / Last-Modified) for conditional GET. The webhook path wraps this.
     """
     pinned_ip, host, port, is_https = _validate_and_pin(url)
 
@@ -162,17 +168,27 @@ async def _send_webhook_pinned(
     netloc_ip = f"[{pinned_ip}]" if ":" in pinned_ip else pinned_ip
     pinned_url = parsed._replace(netloc=f"{netloc_ip}:{port}").geturl()
 
-    send_headers = dict(headers)
+    send_headers = dict(headers or {})
     send_headers["Host"] = host if port in (80, 443) else f"{host}:{port}"
 
-    # Build a request whose connection target is the pinned IP, but whose TLS SNI
-    # / cert verification + Host use the ORIGINAL hostname.
-    async with httpx.AsyncClient(timeout=15, follow_redirects=False, verify=True) as client:
-        request = client.build_request(method, pinned_url, headers=send_headers, **kwargs)
+    async with httpx.AsyncClient(timeout=timeout, follow_redirects=False, verify=True) as client:
+        request = client.build_request(method, pinned_url, headers=send_headers, **(kwargs or {}))
         # Override SNI / TLS server hostname to the validated hostname (httpx
         # honours the sni_hostname extension for the TLS handshake).
         request.extensions = {**request.extensions, "sni_hostname": host}
-        resp = await client.send(request)
+        return await client.send(request)
+
+
+async def _send_webhook_pinned(
+    url: str, method: str, headers: dict, kwargs: dict
+) -> dict:
+    """Send a webhook via the shared :func:`pinned_get` audited sender.
+
+    Connects ONLY to the validated, pinned IP with the ``Host``/SNI preserved and
+    ``follow_redirects=False``. This closes the TOCTOU/DNS-rebinding window the
+    static guard leaves open. Behaviour is unchanged from the prior inline impl.
+    """
+    resp = await pinned_get(url, headers, method=method, kwargs=kwargs)
     ok = 200 <= resp.status_code < 300
     return {
         "success": ok,

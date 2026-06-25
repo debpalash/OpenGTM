@@ -49,6 +49,12 @@ class Job(Base):
     worker_id = Column(String, nullable=True)
     locked_at = Column(DateTime, nullable=True)
     next_run_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    # Single-flight key (intent-poller §3.4). Nullable so existing job types are
+    # unaffected. A partial unique index on active rows (status in
+    # pending/processing) — created in the intent_poller migration — turns the
+    # DB-level guarantee on for Postgres; SQLite gets a plain index + best-effort
+    # read. Most jobs leave this NULL (a partial unique index ignores NULLs).
+    fire_key = Column(String, nullable=True)
 
 
 class ScrapeHistory(Base):

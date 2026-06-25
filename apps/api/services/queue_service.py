@@ -44,6 +44,8 @@ JOB_TIMEOUTS = {
     "trigger_eval": 600,
     # Outreach: one email send (SMTP handoff). Bounded I/O.
     "send": 300,
+    # Intent poller: one watch poll (SEC/JobSpy/RSS fan-in, bounded fetches).
+    "watch_poll": 600,
 }
 
 

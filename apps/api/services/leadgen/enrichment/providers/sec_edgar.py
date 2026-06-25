@@ -42,6 +42,7 @@ import logging
 import os
 import re
 import time as _time
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 from xml.etree import ElementTree as ET
 
@@ -97,6 +98,23 @@ class _RateLimiter:
 
 # Module-level singleton so the limit is global, not per-instance.
 _LIMITER = _RateLimiter(max_per_sec=8.0)
+
+
+@dataclass
+class FormDFiling:
+    """One Form D / D-A filing, returned by :meth:`list_form_d_since`.
+
+    ``accession`` is the dashless accession number (monotonic by SEC issuance, so
+    a string compare orders filings). ``fields`` is the parsed Form D scalar map
+    (funding_amount, funding_date, …). ``related_persons`` are the named
+    officers/directors with titles — the executive_hired source (spec §3.6)."""
+
+    cik: str
+    accession: str
+    form: str = "D"
+    filing_date: str = ""
+    fields: Dict[str, object] = field(default_factory=dict)
+    related_persons: List[Dict[str, str]] = field(default_factory=list)
 
 
 class SecEdgarProvider(EnrichmentProvider):
@@ -211,6 +229,84 @@ class SecEdgarProvider(EnrichmentProvider):
         if not xml:
             return {}
         return _parse_form_d(xml)
+
+    # ── Incremental Form D enumeration (intent-poller funding/exec, §3.6) ─────
+
+    async def resolve_cik(self, company_or_cik: str) -> Optional[str]:
+        """Public CIK resolver. Accepts a ``sec_cik:<cik>`` literal, a bare CIK,
+        or a company name/domain-derived name. Returns the 10-digit padded CIK or
+        None. Used by the poller to cache ``resolved_cik`` on the watch."""
+        s = (company_or_cik or "").strip()
+        if not s:
+            return None
+        low = s.lower()
+        if low.startswith("sec_cik:"):
+            return _pad_cik(low.split(":", 1)[1].strip())
+        # A bare numeric CIK.
+        if re.fullmatch(r"\d{1,10}", s):
+            return _pad_cik(s)
+        async with httpx.AsyncClient(timeout=_HTTP_TIMEOUT, headers=_HEADERS,
+                                     follow_redirects=True) as client:
+            return await self._resolve_cik(client, s)
+
+    async def list_form_d_since(
+        self, company_or_cik: str, since_accession: Optional[str] = None
+    ) -> List[FormDFiling]:
+        """All "D"/"D-A" filings strictly NEWER than ``since_accession`` (spec §3.6).
+
+        Walks ``submissions.recent`` parallel arrays (newest-first), collecting
+        every Form D/D-A whose dashless accession compares strictly greater than
+        the dashless ``since_accession`` cursor; stops at the cursor (accessions
+        are monotonic by SEC issuance). Fetches + parses each ``primary_doc.xml``
+        and returns the accession + filing_date + parsed fields + related persons.
+        Returns ``[]`` (newest-first order preserved) and NEVER raises — a 5xx /
+        parse error degrades to an empty list (caller treats as "no change").
+        """
+        cik = await self.resolve_cik(company_or_cik)
+        if not cik:
+            return []
+        cursor = (since_accession or "").replace("-", "")
+        out: List[FormDFiling] = []
+        try:
+            async with httpx.AsyncClient(timeout=_HTTP_TIMEOUT, headers=_HEADERS,
+                                         follow_redirects=True) as client:
+                data = await self._get_json(client, _SUBMISSIONS_URL.format(cik=cik))
+                if not data:
+                    return []
+                recent = (((data or {}).get("filings") or {}).get("recent")) or {}
+                forms = recent.get("form") or []
+                accs = recent.get("accessionNumber") or []
+                dates = recent.get("filingDate") or []
+                for i, form in enumerate(forms):
+                    if form not in ("D", "D/A"):
+                        continue
+                    acc_raw = accs[i] if i < len(accs) else ""
+                    acc = (acc_raw or "").replace("-", "")
+                    if not acc:
+                        continue
+                    # Newest-first; stop once we reach/pass the cursor.
+                    if cursor and acc <= cursor:
+                        break
+                    filing_date = dates[i] if i < len(dates) else ""
+                    xml = await self._get_text(
+                        client, _ARCHIVES_BASE.format(cik=int(cik), acc=acc)
+                    )
+                    fields = _parse_form_d(xml) if xml else {}
+                    persons = []
+                    if xml:
+                        try:
+                            persons = _extract_related_persons(ET.fromstring(xml))
+                        except ET.ParseError:
+                            persons = []
+                    out.append(FormDFiling(
+                        cik=cik, accession=acc, form=form,
+                        filing_date=filing_date, fields=fields,
+                        related_persons=persons,
+                    ))
+        except Exception as e:  # never crash the poller
+            logger.debug("list_form_d_since failed for %r: %s", company_or_cik, e)
+            return out
+        return out
 
     # ── Rate-limited HTTP helpers (graceful on any non-200 / error) ─────────
 
