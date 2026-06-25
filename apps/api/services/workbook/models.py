@@ -152,8 +152,10 @@ class Workbook(Base):
     description = Column(Text, default="")
     status = Column(String(50), default="draft")  # draft, running, paused, complete
 
-    # Tenancy — which workspace owns this workbook (scopes all access)
-    workspace_id = Column(String, index=True, nullable=True)
+    # Tenancy — which workspace owns this workbook (scopes all access).
+    # NOT NULL since the workbooks RLS migration (e5f6a7b8c9d0): every row must
+    # have a definite tenant for the fail-closed RLS policy to bind.
+    workspace_id = Column(String, index=True, nullable=False)
 
     # Source type — how this workbook was created
     # empty, csv, leads_filter, job_results
@@ -223,6 +225,9 @@ class WorkbookEnrichment(Base):
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    # Denormalized tenant (RLS migration e5f6a7b8c9d0). Always set from the parent
+    # workbook's workspace_id so the fail-closed RLS policy + WITH CHECK bind.
+    workspace_id = Column(String, nullable=False, index=True)
     workbook_id = Column(String, ForeignKey("workbooks.id", ondelete="CASCADE"), nullable=False, index=True)
     lead_id = Column(Integer, nullable=False, index=True)  # References leads.id in SQLite
     column_id = Column(String(100), nullable=False)  # Which column this enrichment is for
@@ -256,6 +261,9 @@ class WorkbookRow(Base):
     __tablename__ = "workbook_rows"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    # Denormalized tenant (RLS migration e5f6a7b8c9d0). Always set from the parent
+    # workbook's workspace_id so the fail-closed RLS policy + WITH CHECK bind.
+    workspace_id = Column(String, nullable=False, index=True)
     workbook_id = Column(String, ForeignKey("workbooks.id", ondelete="CASCADE"), nullable=False, index=True)
     position = Column(Integer, default=0)  # Row ordering
 

@@ -260,7 +260,8 @@ def test_on_signal_fires_once_and_dedup_noop(app_engine, owner_engine, monkeypat
             "(:id, :w, 'sig', true, 'on_signal', "
             """'{"signal_types": ["company_funded"]}', '[]', '[]')"""
         ), {"id": str(uuid.uuid4()), "w": ws})
-    # workbook + row are non-RLS app tables → seed via owner.
+    # workbook + row are RLS-protected (workbooks RLS migration e5f6a7b8c9d0) →
+    # seed via the owner engine (superuser bypasses RLS).
     wb_id = str(uuid.uuid4())
     with owner_engine.begin() as c:
         c.execute(text("DELETE FROM workbook_rows WHERE lead_id IN (4242, 9999)"))
@@ -270,9 +271,9 @@ def test_on_signal_fires_once_and_dedup_noop(app_engine, owner_engine, monkeypat
             "VALUES (:id, :w, 'wb', '[]')"
         ), {"id": wb_id, "w": ws})
         c.execute(text(
-            "INSERT INTO workbook_rows (workbook_id, lead_id, data, enrichments) "
-            "VALUES (:wb, 4242, '{}', '{}')"
-        ), {"wb": wb_id})
+            "INSERT INTO workbook_rows (workbook_id, workspace_id, lead_id, data, enrichments) "
+            "VALUES (:wb, :w, 4242, '{}', '{}')"
+        ), {"wb": wb_id, "w": ws})
 
     from apps.api.core.tenancy import workspace_scope
     from apps.api.services.leadgen.store import PgLeadStore

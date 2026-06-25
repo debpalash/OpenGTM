@@ -198,6 +198,7 @@ def seed_demo_workbook(db, workspace_id: str) -> bool:
     for i, (name, domain) in enumerate(DEMO_COMPANIES):
         db.add(WorkbookRow(
             workbook_id=DEMO_WORKBOOK_ID,
+            workspace_id=workspace_id,
             position=i,
             data={"company": name, "website": domain},
             enrichments={},

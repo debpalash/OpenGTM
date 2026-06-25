@@ -1027,9 +1027,9 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
             ]
             with SessionLocal() as wdb:
                 # STAMP workspace_id on the row AND in source_config so the
-                # downstream source engine sources into the right tenant
-                # (source_engine reads source_config.workspace_id). workbooks have
-                # NO RLS backstop, so this app-layer stamp is the only guard.
+                # downstream source engine sources into the right tenant. This
+                # runs inside workspace_scope, so the workbooks RLS policy +
+                # WITH CHECK (migration e5f6a7b8c9d0) back this app-layer stamp.
                 wb = Workbook(name=wb_name, description=icp_desc, status="draft",
                               source_type="empty", columns_config=base_cols,
                               workspace_id=workspace_id,

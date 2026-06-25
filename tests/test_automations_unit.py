@@ -98,7 +98,7 @@ def _mk_workbook(db, ws=WS, columns=None):
 
 
 def _mk_row(db, wb, data, enrichments=None, lead_id=None):
-    r = WorkbookRow(workbook_id=wb.id, position=0, data=data,
+    r = WorkbookRow(workbook_id=wb.id, workspace_id=wb.workspace_id, position=0, data=data,
                     enrichments=enrichments or {}, lead_id=lead_id)
     db.add(r)
     db.commit()

@@ -375,7 +375,10 @@ def _log_activity(db, candidates, trigger, run):
         f"${round(run.total_charged_usd or 0.0, 4)}"
     )
     for wb_id in wbs:
-        db.add(WorkbookActivity(workbook_id=wb_id, kind="automation", message=msg))
+        db.add(WorkbookActivity(
+            workbook_id=wb_id, workspace_id=trigger.workspace_id,
+            kind="automation", message=msg,
+        ))
     db.commit()
 
 

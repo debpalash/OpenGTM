@@ -194,6 +194,7 @@ async def _materialize_source_impl(
                 max_pos += 1
                 row = WorkbookRow(
                     workbook_id=workbook_id,
+                    workspace_id=workspace_id,
                     position=max_pos,
                     data=row_data,
                     lead_id=d.get("id"),

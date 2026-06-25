@@ -61,8 +61,10 @@ if not IS_SQLITE:
             # No tenant bound. Leave the GUC unset → RLS returns zero rows
             # (fail closed). Background code that needs rows must wrap work in
             # tenancy.workspace_scope(...). We do NOT raise here because plenty
-            # of ORM sessions touch non-RLS tables (users, jobs, workbooks…)
-            # with no workspace bound and must keep working.
+            # of ORM sessions touch non-RLS tables (users, jobs, provider_stats…)
+            # with no workspace bound and must keep working. (workbooks + its
+            # child tables ARE RLS since migration e5f6a7b8c9d0 — their callers
+            # always bind a workspace via the request dep or workspace_scope.)
             return
         # Parameterised via set_config to avoid any SQL injection through ws.
         connection.exec_driver_sql(

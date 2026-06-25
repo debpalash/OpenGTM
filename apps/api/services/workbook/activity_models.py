@@ -10,6 +10,9 @@ class WorkbookActivity(Base):
     __tablename__ = "workbook_activity"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    # Denormalized tenant (RLS migration e5f6a7b8c9d0). Always set from the parent
+    # workbook's workspace_id so the fail-closed RLS policy + WITH CHECK bind.
+    workspace_id = Column(String, nullable=False, index=True)
     workbook_id = Column(String, index=True, nullable=False)
     kind = Column(String(50), default="info")  # source_run | refresh | signal | rows_added | reenrich
     message = Column(Text, default="")

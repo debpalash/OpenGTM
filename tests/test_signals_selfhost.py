@@ -171,7 +171,7 @@ def _seed_workbook_row(session_factory, ws_id, lead_id):
     s.add(wb)
     s.commit()
     wid = wb.id
-    s.add(WorkbookRow(workbook_id=wid, position=0, lead_id=lead_id, data={}))
+    s.add(WorkbookRow(workbook_id=wid, workspace_id=ws_id, position=0, lead_id=lead_id, data={}))
     s.commit()
     s.close()
     return wid

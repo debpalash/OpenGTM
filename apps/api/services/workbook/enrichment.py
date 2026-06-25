@@ -515,8 +515,13 @@ def _set_enrichment(
         if metadata is not None:
             existing.cell_metadata = metadata
     else:
+        from apps.api.core.tenancy import current_workspace_var
         db.add(WorkbookEnrichment(
             workbook_id=workbook_id,
+            # Denormalized tenant from the active workspace scope (set by the
+            # request dep / worker workspace_scope). Matches the RLS GUC so the
+            # WITH CHECK passes; under SQLite it's the same value, just stored.
+            workspace_id=current_workspace_var.get(),
             lead_id=lead_id,
             column_id=column_id,
             value=value,
