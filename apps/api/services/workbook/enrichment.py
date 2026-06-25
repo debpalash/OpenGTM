@@ -610,22 +610,48 @@ def flush_row_change_emits(workspace_id: str):
 
 
 def _write_back_to_lead(lead_id: int, field: str, value: str, provider: str = None):
-    """Write an enrichment result back to the Lead record (source of truth)."""
+    """Write an enrichment result back to the Lead record (source of truth).
+
+    Uses the tenant-scoped lead store resolved from the active
+    ``workspace_scope`` (set by ``run_workbook_enrichment``), so the write lands
+    in the correct per-workspace store and passes RLS ``WITH CHECK`` on Postgres
+    — never a bare default-path LeadDB. Falls back to the legacy default path only
+    for an unscoped caller (preserves prior behaviour).
+    """
     try:
-        lead_db = LeadDB()
-        updates = {field: value, "updated_at": datetime.now(timezone.utc).isoformat()}
-        # Also store provenance
+        from apps.api.core.tenancy import current_workspace_var
+
+        updates = {field: value}
         if provider and field == "email":
             updates["email_provider"] = provider
         elif provider and field == "phone":
             updates["phone_provider"] = provider
 
-        set_clause = ", ".join(f"{k} = ?" for k in updates)
-        values = list(updates.values()) + [lead_id]
-        lead_db.conn.execute(f"UPDATE leads SET {set_clause} WHERE id = ?", values)
-        lead_db.conn.commit()
-        lead_db.close()
-        logger.info(f"Wrote {field}={value[:50]} back to lead {lead_id}")
+        ws = current_workspace_var.get()
+        if ws:
+            from apps.api.services.leadgen.store import get_lead_store
+            from apps.api.services.workspace import manager as ws_manager
+
+            slug = ws_manager.workspace_slug(ws) or ""
+            store = get_lead_store(ws, slug)
+            try:
+                store.update_lead_fields(lead_id, updates)  # adds updated_at
+            finally:
+                store.close()
+        else:
+            # Unscoped legacy caller — preserve prior default-path behaviour.
+            lead_db = LeadDB()
+            try:
+                updates["updated_at"] = datetime.now(timezone.utc).isoformat()
+                set_clause = ", ".join(f"{k} = ?" for k in updates)
+                lead_db.conn.execute(
+                    f"UPDATE leads SET {set_clause} WHERE id = ?",
+                    list(updates.values()) + [lead_id],
+                )
+                lead_db.conn.commit()
+            finally:
+                lead_db.close()
+        logger.info(f"Wrote {field}={str(value)[:50]} back to lead {lead_id}")
     except Exception as e:
         logger.warning(f"Failed to write back to lead {lead_id}: {e}")
 
@@ -703,7 +729,6 @@ def _load_workbook_leads(
 ) -> list[dict]:
     """Load rows to enrich — v2 WorkbookRow, falling back to v1 leads-DB filter."""
     from sqlalchemy import func as sa_func
-    from apps.api.services.leadgen.db import LeadDB
 
     v2_count = db.query(sa_func.count(WorkbookRow.id)).filter(
         WorkbookRow.workbook_id == wb.id
@@ -723,8 +748,17 @@ def _load_workbook_leads(
     # so re-deriving from filter_criteria here would drop fields like
     # "specialization" and enrich the whole table — see workbooks.run_workbook.)
     import dataclasses
+    from apps.api.core.tenancy import current_workspace_var
+    from apps.api.services.leadgen.store import get_lead_store
+    from apps.api.services.workspace import manager as ws_manager
+
     fc = wb.filter_criteria or {}
-    lead_db = LeadDB()
+    # Scoped lead store (not a bare default-path LeadDB) so the v1 read is correct
+    # under per-workspace SQLite and RLS-protected Postgres. The run is already
+    # inside workspace_scope(workspace_id); use that active tenant (== wb's).
+    _ws = current_workspace_var.get() or wb.workspace_id or ""
+    _slug = ws_manager.workspace_slug(_ws) or "" if _ws else ""
+    lead_db = get_lead_store(_ws, _slug)
     try:
         if lead_ids:
             rows = [lead_db.get_lead(i) for i in lead_ids]
@@ -918,6 +952,45 @@ def _apply_batch_handled(work_items: list, handled: set) -> list:
 
 
 async def run_workbook_enrichment(
+    workbook_id: str,
+    column_ids: Optional[list] = None,
+    row_ids: Optional[list] = None,
+    lead_ids: Optional[list] = None,
+    concurrency: int = DEFAULT_CONCURRENCY,
+    job_id: Optional[int] = None,
+    max_providers: int = 0,
+    retry_passes: int = 1,
+    provider_timeout: float = 10.0,
+    fill_missing: bool = False,
+    workspace_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Run a workbook enrichment under its tenant scope.
+
+    ``workspace_id`` is the tenant this run belongs to; it arrives out-of-band
+    (job payload / caller), never read back off the workbook row. We enter
+    ``workspace_scope`` FIRST (fail-loud on empty) so every session opened by the
+    run — including the concurrent per-cell sessions and the lead-store read-backs
+    — is bound to the correct tenant for RLS. Safe to nest when a caller (worker
+    handler / refresh / automation) has already scoped to the same workspace.
+    """
+    from apps.api.core.tenancy import workspace_scope
+
+    with workspace_scope(workspace_id):
+        return await _run_workbook_enrichment_impl(
+            workbook_id=workbook_id,
+            column_ids=column_ids,
+            row_ids=row_ids,
+            lead_ids=lead_ids,
+            concurrency=concurrency,
+            job_id=job_id,
+            max_providers=max_providers,
+            retry_passes=retry_passes,
+            provider_timeout=provider_timeout,
+            fill_missing=fill_missing,
+        )
+
+
+async def _run_workbook_enrichment_impl(
     workbook_id: str,
     column_ids: Optional[list] = None,
     row_ids: Optional[list] = None,
@@ -1156,27 +1229,37 @@ async def run_workbook_enrichment(
 
 
 async def handle_run_workbook(job_id: int, payload: dict):
-    """queue_service handler for the 'run_workbook' job type."""
+    """queue_service handler for the 'run_workbook' job type.
+
+    Worker tenant signal comes from the payload (OD-4): enter ``workspace_scope``
+    first and fail loud if ``workspace_id`` is absent — never run a workbook
+    enrichment unscoped/global.
+    """
+    from apps.api.core.tenancy import workspace_scope
+
     logger.info(f"[job {job_id}] run_workbook {payload.get('workbook_id')}")
-    # Size the killable worker pool to the configured count before running.
-    try:
-        from apps.api.services.workbook import provider_runner
-        provider_runner.ensure_workers(payload.get("provider_workers"))
-    except Exception as e:
-        logger.warning(f"provider pool sizing skipped: {e}")
-    result = await run_workbook_enrichment(
-        workbook_id=payload["workbook_id"],
-        column_ids=payload.get("column_ids"),
-        row_ids=payload.get("row_ids"),
-        lead_ids=payload.get("lead_ids"),
-        concurrency=payload.get("concurrency", DEFAULT_CONCURRENCY),
-        job_id=job_id,
-        max_providers=payload.get("max_providers", 0),
-        retry_passes=payload.get("retry_passes", 1),
-        provider_timeout=float(payload.get("provider_timeout", 10)),
-        fill_missing=bool(payload.get("fill_missing", False)),
-    )
-    logger.info(f"[job {job_id}] run_workbook done: {result}")
+    workspace_id = payload.get("workspace_id")
+    with workspace_scope(workspace_id):
+        # Size the killable worker pool to the configured count before running.
+        try:
+            from apps.api.services.workbook import provider_runner
+            provider_runner.ensure_workers(payload.get("provider_workers"))
+        except Exception as e:
+            logger.warning(f"provider pool sizing skipped: {e}")
+        result = await run_workbook_enrichment(
+            workbook_id=payload["workbook_id"],
+            column_ids=payload.get("column_ids"),
+            row_ids=payload.get("row_ids"),
+            lead_ids=payload.get("lead_ids"),
+            concurrency=payload.get("concurrency", DEFAULT_CONCURRENCY),
+            job_id=job_id,
+            max_providers=payload.get("max_providers", 0),
+            retry_passes=payload.get("retry_passes", 1),
+            provider_timeout=float(payload.get("provider_timeout", 10)),
+            fill_missing=bool(payload.get("fill_missing", False)),
+            workspace_id=workspace_id,
+        )
+        logger.info(f"[job {job_id}] run_workbook done: {result}")
 
 
 async def _broadcast(redis_client, workbook_id: str, message: dict):

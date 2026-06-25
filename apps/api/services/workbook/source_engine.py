@@ -61,11 +61,27 @@ def build_query(icp: dict) -> str:
 
 # ── Materialization ──────────────────────────────────────────────────────
 
-async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]:
+async def materialize_source(
+    workbook_id: str, column_id: str, workspace_id: str
+) -> Dict[str, Any]:
     """Run a workbook's source column: source leads and append new rows.
 
-    Returns a summary {found, added, skipped, query}.
+    ``workspace_id`` is the tenant this run belongs to. It arrives out-of-band
+    (job payload / caller) — never read back off the workbook row — and binds the
+    RLS scope for the whole run, so the wb/row reads and the lead-store read-back
+    are all tenant-correct. Returns a summary {found, added, skipped, query}.
     """
+    from apps.api.core.tenancy import workspace_scope
+
+    # Enter the tenant scope FIRST (fail-loud on empty) so every query below is
+    # scoped; safe to nest when a caller (refresh / handler) already scoped.
+    with workspace_scope(workspace_id):
+        return await _materialize_source_impl(workbook_id, column_id, workspace_id)
+
+
+async def _materialize_source_impl(
+    workbook_id: str, column_id: str, workspace_id: str
+) -> Dict[str, Any]:
     # Load workbook + source column config
     with SessionLocal() as db:
         wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
@@ -80,7 +96,6 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
             return {"error": "source_column_not_found"}
         icp = col.get("icp") or {}
         target_rows = int(col.get("target_rows") or 0)
-        workspace_id = (wb.source_config or {}).get("workspace_id", "") if wb.source_config else ""
         wb.status = "running"
         db.commit()
 
@@ -95,7 +110,6 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
 
     # ── Run the existing sourcing pipeline (writes to leads DB) ──
     from apps.api.services.leadgen.job_runner import JobRunner
-    from apps.api.services.leadgen.db import LeadDB
 
     runner = JobRunner()
     try:
@@ -109,8 +123,14 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
                 db.commit()
         return {"error": str(e)[:200], "found": 0, "added": 0, "query": query}
 
-    # ── Fetch the leads this job produced ──
-    lead_db = LeadDB()
+    # ── Fetch the leads this job produced (from the tenant-scoped store, not a
+    # bare default-path LeadDB) so reads are correct under per-workspace SQLite
+    # and RLS-protected Postgres alike. ──
+    from apps.api.services.leadgen.store import get_lead_store
+    from apps.api.services.workspace import manager as ws_manager
+
+    slug = ws_manager.workspace_slug(workspace_id) or ""
+    lead_db = get_lead_store(workspace_id, slug)
     try:
         leads = lead_db.get_leads(source=f"job:{job_id}", limit=10000)
     except Exception as e:
@@ -234,26 +254,41 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
 
 
 async def handle_source_workbook(job_id: int, payload: dict):
-    """queue_service handler for the 'source_workbook' job type."""
-    logger.info(f"[job {job_id}] source_workbook {payload.get('workbook_id')}")
-    wb_id = payload["workbook_id"]
-    result = await materialize_source(
-        workbook_id=wb_id,
-        column_id=payload["column_id"],
-    )
-    logger.info(f"[job {job_id}] source_workbook done: {result}")
+    """queue_service handler for the 'source_workbook' job type.
 
-    # Opt-in: chain enrichment so agent/enrichment columns actually run after
-    # sourcing (used by autopilot). The manual UI flow leaves enrich_after unset
-    # so users still review + click "Run Enrichment" themselves.
-    if payload.get("enrich_after") and result.get("added"):
-        try:
-            from apps.api.services.queue_service import queue_service
-            with SessionLocal() as db:
-                queue_service.add_job(db, "run_workbook", {"workbook_id": wb_id})
-            logger.info(f"[job {job_id}] enqueued run_workbook for {wb_id} (enrich_after)")
-        except Exception as e:
-            logger.warning(f"[job {job_id}] failed to chain run_workbook: {e}")
+    The worker learns its tenant from the job payload (OD-4): enter
+    ``workspace_scope`` FIRST so every workbook query runs scoped, and fail loud
+    if the payload is missing ``workspace_id`` (never silently fall back to a
+    global/unscoped run that would corrupt or leak across tenants).
+    """
+    from apps.api.core.tenancy import workspace_scope
+
+    logger.info(f"[job {job_id}] source_workbook {payload.get('workbook_id')}")
+    workspace_id = payload.get("workspace_id")
+    wb_id = payload["workbook_id"]
+    with workspace_scope(workspace_id):
+        result = await materialize_source(
+            workbook_id=wb_id,
+            column_id=payload["column_id"],
+            workspace_id=workspace_id,
+        )
+        logger.info(f"[job {job_id}] source_workbook done: {result}")
+
+        # Opt-in: chain enrichment so agent/enrichment columns actually run after
+        # sourcing (used by autopilot). The manual UI flow leaves enrich_after unset
+        # so users still review + click "Run Enrichment" themselves. Stamp
+        # workspace_id so the chained run is itself tenant-scoped (OD-4).
+        if payload.get("enrich_after") and result.get("added"):
+            try:
+                from apps.api.services.queue_service import queue_service
+                with SessionLocal() as db:
+                    queue_service.add_job(
+                        db, "run_workbook",
+                        {"workbook_id": wb_id, "workspace_id": workspace_id},
+                    )
+                logger.info(f"[job {job_id}] enqueued run_workbook for {wb_id} (enrich_after)")
+            except Exception as e:
+                logger.warning(f"[job {job_id}] failed to chain run_workbook: {e}")
 
 
 # ── Preview (no write, no sourcing) ──────────────────────────────────────

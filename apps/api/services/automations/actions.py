@@ -298,11 +298,14 @@ async def _act_re_enrich(ws_id: str, cfg: dict, workbook_id: str, row_id: str, c
 
     try:
         # Single-row, bounded provider timeout (§4 nested-timeout safety).
+        # Pass the tenant explicitly (OD-4) so the run scopes correctly even
+        # though this already executes inside the engine's workspace_scope.
         result = await run_workbook_enrichment(
             workbook_id=workbook_id,
             column_ids=present,
             row_ids=[int(row_id)] if str(row_id).isdigit() else [row_id],
             provider_timeout=10.0,
+            workspace_id=ws_id,
         )
     except Exception as e:
         return ActionResult("failed", error=str(e)[:200])

@@ -78,8 +78,23 @@ def _stale_lead_ids(db, workbook_id: str, enrichment_cols: List[dict], ttl_map: 
     return list(stale)
 
 
-async def refresh_workbook(workbook_id: str, reason: str = "scheduled") -> dict:
-    """One refresh cycle: source new rows + re-enrich stale fields."""
+async def refresh_workbook(
+    workbook_id: str, reason: str = "scheduled", workspace_id: str = None
+) -> dict:
+    """One refresh cycle: source new rows + re-enrich stale fields.
+
+    ``workspace_id`` is the tenant this refresh belongs to; it arrives out-of-band
+    (job payload / caller), never read off the row. Enter ``workspace_scope``
+    FIRST (fail-loud on empty) so the wb/row reads and the chained source/enrich
+    work are tenant-scoped for RLS.
+    """
+    from apps.api.core.tenancy import workspace_scope
+
+    with workspace_scope(workspace_id):
+        return await _refresh_workbook_impl(workbook_id, reason, workspace_id)
+
+
+async def _refresh_workbook_impl(workbook_id: str, reason: str, workspace_id: str) -> dict:
     from apps.api.services.workbook.source_engine import materialize_source
     from apps.api.services.workbook.enrichment import run_workbook_enrichment
 
@@ -96,7 +111,7 @@ async def refresh_workbook(workbook_id: str, reason: str = "scheduled") -> dict:
     # 1) Re-source (append-only via entity dedup)
     sourced = 0
     for col in source_cols:
-        res = await materialize_source(workbook_id, col["id"])
+        res = await materialize_source(workbook_id, col["id"], workspace_id)
         sourced += res.get("added", 0)
 
     # 2) Re-enrich stale rows only
@@ -104,7 +119,7 @@ async def refresh_workbook(workbook_id: str, reason: str = "scheduled") -> dict:
     with SessionLocal() as db:
         stale = _stale_lead_ids(db, workbook_id, enrichment_cols, ttl_map) if enrichment_cols else []
     if stale:
-        result = await run_workbook_enrichment(workbook_id, lead_ids=stale)
+        result = await run_workbook_enrichment(workbook_id, lead_ids=stale, workspace_id=workspace_id)
         reenriched = result.get("completed", 0)
 
     with SessionLocal() as db:
@@ -116,12 +131,16 @@ async def refresh_workbook(workbook_id: str, reason: str = "scheduled") -> dict:
     return {"sourced": sourced, "reenriched": reenriched, "stale_rows": len(stale)}
 
 
-def _enqueue_next(db, workbook_id: str, minutes: int):
-    """Self-re-enqueue the next refresh via queue_service.next_run_at."""
+def _enqueue_next(db, workbook_id: str, minutes: int, workspace_id: str):
+    """Self-re-enqueue the next refresh via queue_service.next_run_at.
+
+    Stamp ``workspace_id`` into the payload (OD-4) so the handler that picks this
+    job up can enter the correct tenant scope.
+    """
     from apps.api.models import Job
     job = Job(
         type="refresh_workbook",
-        payload={"workbook_id": workbook_id},
+        payload={"workbook_id": workbook_id, "workspace_id": workspace_id},
         status="pending",
         priority=1,
         next_run_at=_now() + timedelta(minutes=minutes),
@@ -132,18 +151,28 @@ def _enqueue_next(db, workbook_id: str, minutes: int):
 
 
 async def handle_refresh_workbook(job_id: int, payload: dict):
-    """queue_service handler — runs a refresh, then schedules the next if enabled."""
+    """queue_service handler — runs a refresh, then schedules the next if enabled.
+
+    Worker tenant signal comes from the payload (OD-4): enter ``workspace_scope``
+    first and fail loud if ``workspace_id`` is absent.
+    """
+    from apps.api.core.tenancy import workspace_scope
+
     workbook_id = payload["workbook_id"]
-    await refresh_workbook(workbook_id, reason=payload.get("reason", "scheduled"))
-    with SessionLocal() as db:
-        wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-        if not wb:
-            return
-        policy = wb.refresh_policy or {}
-        minutes = _interval_minutes(policy)
-        if policy.get("enabled") and minutes:
-            _enqueue_next(db, workbook_id, minutes)
-            logger.info(f"[job {job_id}] next refresh for {workbook_id} in {minutes}m")
+    workspace_id = payload.get("workspace_id")
+    with workspace_scope(workspace_id):
+        await refresh_workbook(
+            workbook_id, reason=payload.get("reason", "scheduled"), workspace_id=workspace_id
+        )
+        with SessionLocal() as db:
+            wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+            if not wb:
+                return
+            policy = wb.refresh_policy or {}
+            minutes = _interval_minutes(policy)
+            if policy.get("enabled") and minutes:
+                _enqueue_next(db, workbook_id, minutes, workspace_id)
+                logger.info(f"[job {job_id}] next refresh for {workbook_id} in {minutes}m")
 
 
 def set_refresh_policy(db, workbook_id: str, policy: dict) -> dict:
@@ -155,14 +184,28 @@ def set_refresh_policy(db, workbook_id: str, policy: dict) -> dict:
     db.commit()
     minutes = _interval_minutes(policy)
     if policy.get("enabled") and minutes:
-        _enqueue_next(db, workbook_id, minutes)
+        # Called from request/copilotkit paths with the workbook loaded; the
+        # workbook's own workspace is the tenant for the recurring chain.
+        _enqueue_next(db, workbook_id, minutes, wb.workspace_id)
     return {"refresh_policy": policy, "next_in_minutes": minutes if policy.get("enabled") else None}
 
 
 # ── Signals → score → action ─────────────────────────────────────────────
 
 async def handle_signal_scan(job_id: int, payload: dict):
-    """Run the signal monitor, then trigger workbooks subscribed to fired signals."""
+    """Run the signal monitor, then trigger workbooks subscribed to fired signals.
+
+    The signal_scan job itself is GLOBAL (it touches only the non-RLS ``jobs``
+    table and runs the per-workspace ``run_signal_scan`` from #89). The workbook
+    trigger pass must NOT enumerate workbooks globally (``Workbook.all()`` is
+    structurally incompatible with per-tenant RLS — it returns zero rows once
+    FORCE RLS lands). Instead enumerate workspaces and, per workspace, scope to
+    that tenant and trigger only its workbooks (mirrors run_signal_scan's
+    per-workspace loop). One workspace failing must not abort the rest.
+    """
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.workspace import manager as ws_manager
+
     try:
         from apps.api.services.signals.monitor import run_signal_scan
         scan = await run_signal_scan()
@@ -172,16 +215,37 @@ async def handle_signal_scan(job_id: int, payload: dict):
 
     fired_types = payload.get("signal_types") or ["hiring", "funding", "tech_change", "news"]
     triggered = 0
-    with SessionLocal() as db:
-        wbs = db.query(Workbook).all()
-        for wb in wbs:
-            policy = wb.refresh_policy or {}
-            on_signal = set(policy.get("on_signal") or [])
-            if policy.get("enabled") and on_signal & set(fired_types):
-                _enqueue_next_now(db, wb.id, reason="signal")
-                log_activity(db, wb.id, "signal", f"signal trigger → refresh ({', '.join(on_signal & set(fired_types))})")
-                triggered += 1
-        db.commit()
+    try:
+        workspaces = ws_manager.list_workspaces()
+    except Exception as e:
+        logger.warning(f"signal_scan: could not list workspaces: {e}")
+        workspaces = []
+
+    for ws in workspaces:
+        try:
+            with workspace_scope(ws.id):
+                with SessionLocal() as db:
+                    # Belt (explicit workspace filter) + suspenders (RLS once on).
+                    # With RLS off this filter is what keeps the per-workspace
+                    # loop from re-triggering every tenant's workbooks N times.
+                    wbs = (
+                        db.query(Workbook)
+                        .filter(Workbook.workspace_id == ws.id)
+                        .all()
+                    )
+                    for wb in wbs:
+                        policy = wb.refresh_policy or {}
+                        on_signal = set(policy.get("on_signal") or [])
+                        if policy.get("enabled") and on_signal & set(fired_types):
+                            _enqueue_next_now(db, wb.id, reason="signal", workspace_id=ws.id)
+                            log_activity(
+                                db, wb.id, "signal",
+                                f"signal trigger → refresh ({', '.join(on_signal & set(fired_types))})",
+                            )
+                            triggered += 1
+                    db.commit()
+        except Exception as e:
+            logger.warning(f"signal_scan: workspace {ws.id} trigger pass failed: {e}")
 
     # Self-re-enqueue the next periodic scan (default daily).
     interval_min = int(payload.get("interval_minutes", INTERVAL_MINUTES["daily"]))
@@ -216,10 +280,10 @@ def bootstrap_signal_scan(interval_minutes: int = None):
     return True
 
 
-def _enqueue_next_now(db, workbook_id: str, reason: str):
+def _enqueue_next_now(db, workbook_id: str, reason: str, workspace_id: str):
     from apps.api.models import Job
     db.add(Job(
         type="refresh_workbook",
-        payload={"workbook_id": workbook_id, "reason": reason},
+        payload={"workbook_id": workbook_id, "reason": reason, "workspace_id": workspace_id},
         status="pending", priority=2, next_run_at=_now(), max_retries=3,
     ))
