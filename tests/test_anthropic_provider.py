@@ -195,7 +195,12 @@ def test_native_anthropic_call_returns_text(fake_anthropic):
     assert kw["model"] == "claude-opus-4-8"
     assert kw["max_tokens"] == 64
     assert kw["thinking"] == {"type": "adaptive"}   # adaptive thinking on Opus 4.8
-    assert kw["system"] == "You are terse."          # system split out of messages
+    # system is split out of messages AND carries a prompt-cache breakpoint so the
+    # static prefix is reused across the many per-row AI-column calls.
+    assert kw["system"] == [{
+        "type": "text", "text": "You are terse.",
+        "cache_control": {"type": "ephemeral"},
+    }]
     assert kw["messages"] == [{"role": "user", "content": "hi"}]
     # token usage tracked
     assert c.usage.total_tokens == 18
@@ -210,3 +215,193 @@ def test_complete_routes_to_native_path(fake_anthropic, monkeypatch):
     assert out == "Hello from Claude"
     # the default-selected provider was anthropic, dispatched natively
     assert _FakeAsyncAnthropic.last_instance is not None
+
+
+# ── Prompt caching (cost lever A) ────────────────────────────────────
+
+def _prov():
+    return {
+        "id": "anthropic", "api_key": "sk-ant-xyz",
+        "base_url": "https://api.anthropic.com", "model": "claude-opus-4-8",
+        "token_param": "max_tokens", "native": "anthropic",
+    }
+
+
+def test_cache_control_on_system_prefix(fake_anthropic):
+    c = L.LLMClient()
+    asyncio.run(c._call_anthropic(
+        _prov(),
+        [{"role": "system", "content": "STATIC PREFIX"}, {"role": "user", "content": "row data"}],
+        max_tokens=64,
+    ))
+    sys_blocks = _FakeAsyncAnthropic.last_instance._rec["create_kwargs"]["system"]
+    assert sys_blocks == [{
+        "type": "text", "text": "STATIC PREFIX",
+        "cache_control": {"type": "ephemeral"},
+    }]
+
+
+def test_cache_control_disabled_via_env(fake_anthropic, monkeypatch):
+    monkeypatch.setenv("LLM_PROMPT_CACHE", "0")
+    c = L.LLMClient()
+    asyncio.run(c._call_anthropic(
+        _prov(),
+        [{"role": "system", "content": "STATIC"}, {"role": "user", "content": "x"}],
+        max_tokens=8,
+    ))
+    sys_blocks = _FakeAsyncAnthropic.last_instance._rec["create_kwargs"]["system"]
+    # still a block (so the prefix is well-formed) but no cache_control breakpoint
+    assert sys_blocks == [{"type": "text", "text": "STATIC"}]
+
+
+def test_no_system_means_no_system_kwarg(fake_anthropic):
+    c = L.LLMClient()
+    asyncio.run(c._call_anthropic(_prov(), [{"role": "user", "content": "x"}], max_tokens=8))
+    assert "system" not in _FakeAsyncAnthropic.last_instance._rec["create_kwargs"]
+
+
+def test_cache_tokens_tracked(fake_anthropic, monkeypatch):
+    # usage object reports cache read/write; client must accumulate both.
+    class _CacheUsage:
+        input_tokens = 5
+        output_tokens = 3
+        cache_creation_input_tokens = 100
+        cache_read_input_tokens = 900
+
+    class _Msg:
+        content = [_FakeTextBlock("ok")]
+        usage = _CacheUsage()
+        model = "claude-opus-4-8"
+
+    class _Messages:
+        def __init__(self, rec):
+            self._rec = rec
+
+        async def create(self, **kwargs):
+            return _Msg()
+
+    class _Client(_FakeAsyncAnthropic):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.messages = _Messages(self._rec)
+
+    monkeypatch.setattr(fake_anthropic, "AsyncAnthropic", _Client)
+    c = L.LLMClient()
+    asyncio.run(c._call_anthropic(_prov(), [{"role": "user", "content": "x"}], max_tokens=8))
+    assert c.usage.cache_write_tokens == 100
+    assert c.usage.cache_read_tokens == 900
+    assert c.usage.to_dict()["cache_read_tokens"] == 900
+
+
+# ── Message Batches (cost lever B) ───────────────────────────────────
+
+class _BatchResult:
+    def __init__(self, custom_id, text=None, kind="succeeded"):
+        self.custom_id = custom_id
+        self.type = kind
+        if text is not None:
+            msg = types.SimpleNamespace(
+                content=[_FakeTextBlock(text)],
+                usage=_FakeUsage(2, 1),
+            )
+            self.result = types.SimpleNamespace(type=kind, message=msg)
+        else:
+            self.result = types.SimpleNamespace(type=kind)
+
+
+class _Batches:
+    """Records submitted requests; returns canned out-of-order results."""
+
+    submitted = None
+
+    def __init__(self, result_items):
+        self._items = result_items
+
+    async def create(self, requests):
+        _Batches.submitted = requests
+        return types.SimpleNamespace(id="batch_abc", processing_status="ended")
+
+    async def retrieve(self, batch_id):
+        return types.SimpleNamespace(id=batch_id, processing_status="ended")
+
+    async def cancel(self, batch_id):
+        return types.SimpleNamespace(processing_status="canceling")
+
+    async def results(self, batch_id):
+        async def _gen():
+            for it in self._items:
+                yield it
+        return _gen()
+
+
+@pytest.fixture
+def fake_anthropic_batch(monkeypatch):
+    """anthropic module with AsyncAnthropic.messages.batches + batch param types."""
+    result_items = [
+        # deliberately out of order vs. request order, plus one error result
+        _BatchResult("2::col", "answer two"),
+        _BatchResult("1::col", "answer one"),
+        _BatchResult("3::col", kind="errored"),
+    ]
+
+    class _BatchClient(_FakeAsyncAnthropic):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.messages = types.SimpleNamespace(batches=_Batches(result_items))
+
+    mod = types.ModuleType("anthropic")
+    mod.AsyncAnthropic = _BatchClient
+
+    # Provide the batch param type modules the SDK call path imports.
+    types_mod = types.ModuleType("anthropic.types")
+    mcp_mod = types.ModuleType("anthropic.types.message_create_params")
+    mcp_mod.MessageCreateParamsNonStreaming = lambda **kw: dict(kw)
+    msgs_mod = types.ModuleType("anthropic.types.messages")
+    bcp_mod = types.ModuleType("anthropic.types.messages.batch_create_params")
+    bcp_mod.Request = lambda custom_id, params: {"custom_id": custom_id, "params": params}
+
+    monkeypatch.setitem(sys.modules, "anthropic", mod)
+    monkeypatch.setitem(sys.modules, "anthropic.types", types_mod)
+    monkeypatch.setitem(sys.modules, "anthropic.types.message_create_params", mcp_mod)
+    monkeypatch.setitem(sys.modules, "anthropic.types.messages", msgs_mod)
+    monkeypatch.setitem(sys.modules, "anthropic.types.messages.batch_create_params", bcp_mod)
+    monkeypatch.setattr(L, "LeadDB", None, raising=False)
+    _Batches.submitted = None
+    return mod
+
+
+def test_batch_maps_results_by_custom_id(fake_anthropic_batch):
+    c = L.LLMClient()
+    reqs = [
+        {"custom_id": "1::col", "prompt": "p1", "system": "SYS", "max_tokens": 100},
+        {"custom_id": "2::col", "prompt": "p2", "system": "SYS", "max_tokens": 100},
+        {"custom_id": "3::col", "prompt": "p3", "system": "SYS", "max_tokens": 100},
+    ]
+    out = asyncio.run(c.batch_complete_anthropic(reqs, prov=_prov(), poll_interval=0))
+    # keyed strictly by custom_id (results came back out of order); errored absent
+    assert out == {"1::col": "answer one", "2::col": "answer two"}
+    # the shared system prefix is cache-breakpointed inside each batched request
+    sub = _Batches.submitted
+    assert len(sub) == 3
+    assert sub[0]["params"]["system"] == [{
+        "type": "text", "text": "SYS", "cache_control": {"type": "ephemeral"},
+    }]
+    assert sub[0]["params"]["thinking"] == {"type": "adaptive"}
+    # batch usage (incl. cache) is tracked on the client
+    assert c.usage.calls == 2
+
+
+def test_batch_empty_requests_short_circuits(fake_anthropic_batch):
+    c = L.LLMClient()
+    assert asyncio.run(c.batch_complete_anthropic([], prov=_prov())) == {}
+    assert _Batches.submitted is None
+
+
+def test_batch_cancels_on_stop(fake_anthropic_batch):
+    # When should_stop() is true up front, no results are mapped back.
+    c = L.LLMClient()
+    reqs = [{"custom_id": "1::col", "prompt": "p", "system": "S", "max_tokens": 10}]
+    out = asyncio.run(c.batch_complete_anthropic(
+        reqs, prov=_prov(), poll_interval=0, should_stop=lambda: True,
+    ))
+    assert out == {}

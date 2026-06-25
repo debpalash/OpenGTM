@@ -97,3 +97,38 @@ def topo_sort_columns(cols: List[dict]) -> List[dict]:
         logger.warning("column dependency cycle detected — falling back to config order")
         return list(cols)
     return [cols[i] for i in out]
+
+
+def independent_columns(cols: List[dict]) -> List[dict]:
+    """Columns with no dependency edges to/from any other column in the set.
+
+    A column is "independent" iff it neither references another run column nor is
+    referenced by one. These are safe to run out-of-band (e.g. as a batch
+    pre-pass) without breaking the row-major value-threading the runner relies on
+    for derived columns. References resolve by id OR display name, matching the
+    {column} resolver.
+    """
+    if not cols:
+        return []
+
+    id_of: Dict[str, int] = {}
+    for i, c in enumerate(cols):
+        cid = c.get("id")
+        if cid:
+            id_of[cid] = i
+            id_of[cid.lower()] = i
+        name = c.get("name")
+        if name:
+            id_of.setdefault(name.lower(), i)
+
+    n = len(cols)
+    refs_out = [set() for _ in range(n)]   # cols i depends on
+    refs_in = [False] * n                  # whether some col references i
+    for i, c in enumerate(cols):
+        for ref in _refs_in(c):
+            j = id_of.get(ref, id_of.get(ref.lower()))
+            if j is not None and j != i:
+                refs_out[i].add(j)
+                refs_in[j] = True
+
+    return [cols[i] for i in range(n) if not refs_out[i] and not refs_in[i]]

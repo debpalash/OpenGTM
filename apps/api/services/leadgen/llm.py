@@ -16,6 +16,7 @@ Usage:
 """
 
 import json
+import logging
 import os
 import re
 import sqlite3
@@ -25,6 +26,8 @@ from pathlib import Path
 from typing import Optional
 
 import aiohttp
+
+logger = logging.getLogger("leadgen.llm")
 
 
 # ── Provider Registry (mirrors settings.py) ─────────────────────────
@@ -86,11 +89,19 @@ class TokenUsage:
     calls: int = 0
     provider: str = ""
     errors: list = field(default_factory=list)
+    # Anthropic prompt-caching accounting. cache_write tokens bill at ~1.25x of
+    # input; cache_read tokens bill at ~0.1x — so a high read count is the signal
+    # that the static AI-column prefix is being reused across rows for cheap.
+    cache_write_tokens: int = 0
+    cache_read_tokens: int = 0
 
-    def add(self, prompt: int, completion: int, provider: str = ""):
+    def add(self, prompt: int, completion: int, provider: str = "",
+            cache_write: int = 0, cache_read: int = 0):
         self.prompt_tokens += prompt
         self.completion_tokens += completion
         self.total_tokens += prompt + completion
+        self.cache_write_tokens += cache_write
+        self.cache_read_tokens += cache_read
         self.calls += 1
         if provider:
             self.provider = provider
@@ -100,6 +111,8 @@ class TokenUsage:
             "prompt_tokens": self.prompt_tokens,
             "completion_tokens": self.completion_tokens,
             "total_tokens": self.total_tokens,
+            "cache_write_tokens": self.cache_write_tokens,
+            "cache_read_tokens": self.cache_read_tokens,
             "calls": self.calls,
             "provider": self.provider,
             "errors": self.errors[-5:],  # Keep last 5 errors
@@ -307,26 +320,14 @@ class LLMClient:
             return await self._call_anthropic(prov, messages, max_tokens)
         return await self._call_openai_compatible(prov, messages, max_tokens, temperature)
 
-    async def _call_anthropic(
-        self,
-        prov: dict,
-        messages: list,
-        max_tokens: int,
-    ) -> str:
-        """Make a single Claude call via the official `anthropic` SDK.
+    @staticmethod
+    def _split_anthropic_messages(messages: list) -> tuple[list[str], list[dict]]:
+        """Split OpenAI-style messages into Anthropic's (system_parts, turns).
 
         The shared message list uses OpenAI's {"role","content"} shape with an
         optional leading "system" message. Anthropic takes the system prompt as a
-        separate top-level argument and only user/assistant turns in `messages`,
-        so we split them out. Uses adaptive thinking (recommended for Opus 4.8)
-        and the async client so we don't block the event loop.
+        separate top-level argument and only user/assistant turns in `messages`.
         """
-        try:
-            from anthropic import AsyncAnthropic
-        except ImportError as e:
-            raise RuntimeError(f"anthropic SDK not installed: {e}")
-
-        # Split the OpenAI-style messages into Anthropic's system + turns.
         system_parts: list[str] = []
         turns: list[dict] = []
         for m in messages:
@@ -340,6 +341,38 @@ class LLMClient:
                 turns.append({"role": "user" if role == "user" else "assistant", "content": content})
         if not turns:
             turns = [{"role": "user", "content": ""}]
+        return system_parts, turns
+
+    @staticmethod
+    def _anthropic_system_blocks(system_parts: list[str]) -> Optional[list]:
+        """Build a cache-breakpointed `system` value from joined system parts.
+
+        Prompt caching is a prefix match: the AI-column system prompt is
+        byte-identical across every row of a column, so a single
+        `cache_control: {type: "ephemeral"}` breakpoint on it lets the first row
+        write the prefix and every subsequent row read it at ~10% of input cost.
+        Returns None when there's no system prompt (nothing to cache).
+
+        Disable via LLM_PROMPT_CACHE=0 (then we fall back to a plain string).
+        """
+        if not system_parts:
+            return None
+        text = "\n\n".join(system_parts)
+        cache_on = str(os.getenv("LLM_PROMPT_CACHE", "1")).strip().lower() not in ("0", "false", "no", "off")
+        if not cache_on:
+            return [{"type": "text", "text": text}]
+        return [{"type": "text", "text": text, "cache_control": {"type": "ephemeral"}}]
+
+    @staticmethod
+    def _anthropic_cache_tokens(usage) -> tuple[int, int]:
+        """Pull (cache_write, cache_read) token counts off an Anthropic usage obj."""
+        cache_write = getattr(usage, "cache_creation_input_tokens", 0) or 0
+        cache_read = getattr(usage, "cache_read_input_tokens", 0) or 0
+        return cache_write, cache_read
+
+    def _make_anthropic_client(self, prov: dict):
+        """Construct an AsyncAnthropic client for a resolved provider config."""
+        from anthropic import AsyncAnthropic  # caller handles ImportError
 
         client_kwargs: dict = {"api_key": prov["api_key"]}
         base_url = (prov.get("base_url") or "").strip()
@@ -347,9 +380,30 @@ class LLMClient:
         # so the SDK's own default/versioning is used in the common case.
         if base_url and base_url not in ("https://api.anthropic.com", "https://api.anthropic.com/v1"):
             client_kwargs["base_url"] = base_url
+        return AsyncAnthropic(**client_kwargs)
+
+    async def _call_anthropic(
+        self,
+        prov: dict,
+        messages: list,
+        max_tokens: int,
+    ) -> str:
+        """Make a single Claude call via the official `anthropic` SDK.
+
+        Uses adaptive thinking (recommended for Opus 4.8) and the async client so
+        we don't block the event loop. A `cache_control` breakpoint is placed on
+        the system prompt so the static AI-column prefix is cached across the many
+        per-row calls that share it (see _anthropic_system_blocks).
+        """
+        try:
+            from anthropic import AsyncAnthropic  # noqa: F401  (import-presence check)
+        except ImportError as e:
+            raise RuntimeError(f"anthropic SDK not installed: {e}")
+
+        system_parts, turns = self._split_anthropic_messages(messages)
 
         timeout = float(os.getenv("LLM_HTTP_TIMEOUT", "60"))
-        client = AsyncAnthropic(**client_kwargs)
+        client = self._make_anthropic_client(prov)
         try:
             create_kwargs: dict = {
                 "model": prov["model"],
@@ -358,16 +412,19 @@ class LLMClient:
                 # Adaptive thinking is the recommended mode on Opus 4.8 / 4.7.
                 "thinking": {"type": "adaptive"},
             }
-            if system_parts:
-                create_kwargs["system"] = "\n\n".join(system_parts)
+            system_blocks = self._anthropic_system_blocks(system_parts)
+            if system_blocks is not None:
+                create_kwargs["system"] = system_blocks
 
             resp = await client.with_options(timeout=timeout).messages.create(**create_kwargs)
 
-            # Track token usage in the same shape as OpenAI usage.
+            # Track token usage in the same shape as OpenAI usage, plus cache hits.
             usage = getattr(resp, "usage", None)
             prompt_tok = getattr(usage, "input_tokens", 0) or 0
             completion_tok = getattr(usage, "output_tokens", 0) or 0
-            self.usage.add(prompt=prompt_tok, completion=completion_tok, provider=prov["id"])
+            cache_write, cache_read = self._anthropic_cache_tokens(usage)
+            self.usage.add(prompt=prompt_tok, completion=completion_tok, provider=prov["id"],
+                           cache_write=cache_write, cache_read=cache_read)
 
             try:
                 from apps.api.services.leadgen.db import LeadDB
@@ -389,6 +446,135 @@ class LLMClient:
                 await client.close()
             except Exception:
                 pass
+
+    # ── Message Batches (Anthropic-only, bulk per-row column runs) ──────
+
+    def anthropic_provider(self) -> Optional[dict]:
+        """Return the resolved Anthropic provider config iff it's the default.
+
+        Batch submission only makes sense when Anthropic is the provider actually
+        serving the run (it's the default-selected provider), so the bulk path
+        keys off this. Returns None for non-Anthropic defaults / no key, in which
+        case callers fall back to the synchronous per-row path.
+        """
+        providers = self._get_providers()
+        if providers and providers[0].get("native") == "anthropic":
+            return providers[0]
+        return None
+
+    async def batch_complete_anthropic(
+        self,
+        requests: list[dict],
+        prov: Optional[dict] = None,
+        poll_interval: float = 5.0,
+        max_wait: float = 24 * 3600.0,
+        should_stop=None,
+    ) -> dict:
+        """Run many completions as ONE Anthropic Message Batch (~50% cost, async).
+
+        Each entry in `requests` is {"custom_id", "prompt", "system", "max_tokens"}.
+        Returns {custom_id: text} for every request that succeeded; failed/errored
+        custom_ids are simply absent so the caller can fall back per-row.
+
+        Prompt caching applies inside the batch too — the shared system prefix is
+        cache-breakpointed once per request, so identical AI-column system prompts
+        are deduplicated across the batch. Results arrive in any order, so we key
+        strictly by custom_id (never by position).
+
+        `should_stop` (optional, sync callable) is polled while waiting; if it
+        returns True we cancel the batch and return whatever has completed.
+        """
+        if not requests:
+            return {}
+        try:
+            from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
+            from anthropic.types.messages.batch_create_params import Request
+        except ImportError as e:
+            raise RuntimeError(f"anthropic SDK missing batch types: {e}")
+
+        prov = prov or self.anthropic_provider()
+        if not prov:
+            raise RuntimeError("anthropic provider not configured for batch run")
+
+        model = prov["model"]
+        batch_reqs = []
+        for r in requests:
+            system_blocks = self._anthropic_system_blocks(
+                [r["system"]] if r.get("system") else []
+            )
+            params: dict = {
+                "model": model,
+                "max_tokens": int(r.get("max_tokens", 1024)),
+                "messages": [{"role": "user", "content": r.get("prompt", "")}],
+                "thinking": {"type": "adaptive"},
+            }
+            if system_blocks is not None:
+                params["system"] = system_blocks
+            batch_reqs.append(Request(
+                custom_id=str(r["custom_id"]),
+                params=MessageCreateParamsNonStreaming(**params),
+            ))
+
+        import asyncio as _asyncio
+        client = self._make_anthropic_client(prov)
+        results: dict = {}
+        try:
+            batch = await client.messages.batches.create(requests=batch_reqs)
+            batch_id = batch.id
+
+            cancelled = False
+            waited = 0.0
+            while True:
+                if should_stop is not None and should_stop():
+                    try:
+                        await client.messages.batches.cancel(batch_id)
+                    except Exception:
+                        pass
+                    cancelled = True
+                    break
+                batch = await client.messages.batches.retrieve(batch_id)
+                if getattr(batch, "processing_status", "") == "ended":
+                    break
+                if waited >= max_wait:
+                    logger.warning(f"anthropic batch {batch_id} exceeded max_wait; abandoning")
+                    break
+                await _asyncio.sleep(poll_interval)
+                waited += poll_interval
+
+            if cancelled:
+                return results  # stopped mid-run → don't map partial results back
+
+            # Stream results; key by custom_id. Track usage incl. cache reads.
+            try:
+                async for item in await client.messages.batches.results(batch_id):
+                    res = getattr(item, "result", None)
+                    if getattr(res, "type", "") != "succeeded":
+                        continue
+                    msg = getattr(res, "message", None)
+                    usage = getattr(msg, "usage", None)
+                    if usage is not None:
+                        cw, cr = self._anthropic_cache_tokens(usage)
+                        self.usage.add(
+                            prompt=getattr(usage, "input_tokens", 0) or 0,
+                            completion=getattr(usage, "output_tokens", 0) or 0,
+                            provider=prov["id"], cache_write=cw, cache_read=cr,
+                        )
+                    parts = [
+                        getattr(b, "text", "")
+                        for b in (getattr(msg, "content", None) or [])
+                        if getattr(b, "type", "") == "text"
+                    ]
+                    text = "".join(parts).strip()
+                    if text:
+                        results[str(getattr(item, "custom_id", ""))] = text
+            except Exception as e:
+                logger.warning(f"anthropic batch {batch_id} results read failed: {e}")
+        finally:
+            try:
+                await client.close()
+            except Exception:
+                pass
+        return results
 
     async def _call_openai_compatible(
         self,

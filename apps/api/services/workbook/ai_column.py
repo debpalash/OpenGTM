@@ -71,6 +71,22 @@ def _get_row_values(cells: dict, columns_config: list) -> Dict[str, str]:
     return values
 
 
+# System prompt for AI columns. Kept module-level and frozen so it is
+# byte-identical across every row — that stability is what makes the Anthropic
+# prompt cache (and batch system-prompt dedup) actually hit.
+AI_COLUMN_SYSTEM = (
+    "You are a data enrichment AI assistant working in a lead generation workbook. "
+    "You receive row data and must produce the requested output concisely. "
+    "Be direct — no preamble, no explanations unless asked."
+)
+
+
+def build_ai_prompt(prompt_template: str, row_cells: dict, columns_config: list) -> str:
+    """Resolve an AI column's per-row prompt (shared by the sync + batch paths)."""
+    row_values = _get_row_values(row_cells, columns_config)
+    return _resolve_prompt(prompt_template, row_values)
+
+
 async def execute_ai_column(
     prompt_template: str,
     row_cells: dict,
@@ -92,19 +108,13 @@ async def execute_ai_column(
     """
     try:
         # Resolve placeholders
-        row_values = _get_row_values(row_cells, columns_config)
-        resolved_prompt = _resolve_prompt(prompt_template, row_values)
+        resolved_prompt = build_ai_prompt(prompt_template, row_cells, columns_config)
 
         # Check if all placeholders were resolved
         if "[not found]" in resolved_prompt:
             logger.warning(f"Unresolved placeholders in prompt: {resolved_prompt[:100]}")
 
-        # Build system prompt
-        system = (
-            "You are a data enrichment AI assistant working in a lead generation workbook. "
-            "You receive row data and must produce the requested output concisely. "
-            "Be direct — no preamble, no explanations unless asked."
-        )
+        system = AI_COLUMN_SYSTEM
 
         if output_format == "json":
             result = await llm.extract_json(

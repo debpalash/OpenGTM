@@ -29,6 +29,7 @@ from apps.api.services.leadgen.enrichment.provider import (
 )
 from apps.api.services.leadgen.models import Lead
 from apps.api.services.leadgen.db import LeadDB
+from apps.api.services.leadgen.llm import llm  # for the Message Batches pre-pass
 
 logger = logging.getLogger("workbook.enrichment")
 
@@ -719,6 +720,126 @@ async def _run_one_row(workbook_id, lead, ordered_cols, columns_config, redis_cl
     return {"completed": completed, "errors": errors}
 
 
+# ── Message Batches pre-pass (Anthropic bulk AI-column cost lever) ──────
+# When Anthropic is the serving provider and a workbook run has independent
+# ai_formula columns over many rows, submitting those per-row prompts as ONE
+# Anthropic Message Batch runs at ~50% cost (async). This is opt-in/graceful:
+# only independent ai_formula columns are eligible (no dependency threading to
+# break), small runs and non-Anthropic providers keep the synchronous path, and
+# any custom_id the batch doesn't return falls through to the normal per-row run.
+
+BATCH_ENABLED = str(os.getenv("WORKBOOK_BATCH_ENABLED", "1")).strip().lower() not in ("0", "false", "no", "off")
+BATCH_MIN_ROWS = int(os.getenv("WORKBOOK_BATCH_MIN_ROWS", "20"))
+
+
+def _batch_eligible_columns(ordered_cols: list) -> list:
+    """The ai_formula columns safe to batch: independent + text output.
+
+    JSON-output AI columns go through llm.extract_json (parse + retry on the
+    sync path) — we keep those synchronous rather than reimplement that loop in
+    the batch path. Independence (no {ref} edges) guarantees batching them out of
+    band can't starve a downstream column of its input.
+    """
+    from apps.api.services.workbook.column_deps import independent_columns
+    indep_ids = {c["id"] for c in independent_columns(ordered_cols)}
+    return [
+        c for c in ordered_cols
+        if c.get("type") == "ai_formula"
+        and c["id"] in indep_ids
+        and (c.get("output_format") or "text") != "json"
+        and (c.get("prompt") or "").strip()
+    ]
+
+
+async def _run_ai_batch_prepass(
+    workbook_id: str,
+    work_items: list,
+    columns_config: list,
+    redis_client,
+    should_stop=None,
+) -> tuple[set, int]:
+    """Submit eligible ai_formula cells as one Anthropic batch; write results.
+
+    Mutates nothing; returns ({(lead_id, col_id) handled}, completed_count). The
+    caller removes the handled pairs from work_items so the sync loop runs only
+    the remainder (non-AI cols, JSON AI cols, and any cell the batch didn't
+    return). Returns an empty set when batching isn't applicable (non-Anthropic,
+    disabled, too few rows, no eligible columns) so the caller no-ops cleanly.
+    """
+    if not BATCH_ENABLED:
+        return set(), 0
+
+    prov = llm.anthropic_provider()
+    if not prov:
+        return set(), 0  # Anthropic isn't the serving provider → sync path
+
+    # Gather the (lead, col) cells eligible for batching across all rows.
+    from apps.api.services.workbook.ai_column import build_ai_prompt, AI_COLUMN_SYSTEM
+
+    requests: list[dict] = []
+    index: dict[str, tuple] = {}  # custom_id → (lead_id, col_id)
+    for lead, cols in work_items:
+        eligible = _batch_eligible_columns(cols)
+        for col in eligible:
+            cells = {k: {"value": v} for k, v in lead.items()}
+            prompt = build_ai_prompt(col.get("prompt", ""), cells, columns_config)
+            cid = f"{lead['id']}::{col['id']}"
+            index[cid] = (lead["id"], col["id"])
+            requests.append({
+                "custom_id": cid,
+                "prompt": prompt,
+                "system": AI_COLUMN_SYSTEM,
+                "max_tokens": int(col.get("max_tokens", 1500)),
+            })
+
+    if len(requests) < BATCH_MIN_ROWS:
+        return set(), 0  # too small to be worth the async round-trip
+
+    logger.info(f"[batch] submitting {len(requests)} ai_formula cells to Anthropic Message Batch")
+    try:
+        results = await llm.batch_complete_anthropic(requests, prov=prov, should_stop=should_stop)
+    except Exception as e:
+        logger.warning(f"[batch] submission failed, falling back to sync per-row: {e}")
+        return set(), 0
+
+    handled: set = set()
+    completed = 0
+    # Persist each returned cell exactly like enrich_cell's ai path (provider="ai").
+    for cid, text in results.items():
+        if cid not in index:
+            continue
+        lead_id, col_id = index[cid]
+        with SessionLocal() as cdb:
+            _set_enrichment(cdb, workbook_id, lead_id, col_id, text, "complete", provider="ai")
+            cdb.commit()
+        handled.add((lead_id, col_id))
+        completed += 1
+        if redis_client is not None:
+            try:
+                await _broadcast(redis_client, workbook_id, {
+                    "type": "cell_update", "leadId": lead_id, "colId": col_id,
+                    "value": text, "status": "complete", "provider": "ai", "error": None,
+                })
+            except Exception:
+                pass
+
+    logger.info(f"[batch] {completed}/{len(requests)} cells filled via batch; "
+                f"{len(requests) - completed} fall through to sync")
+    return handled, completed
+
+
+def _apply_batch_handled(work_items: list, handled: set) -> list:
+    """Drop batch-handled (lead, col) pairs from work_items; prune empty rows."""
+    if not handled:
+        return work_items
+    out = []
+    for lead, cols in work_items:
+        remaining = [c for c in cols if (lead["id"], c["id"]) not in handled]
+        if remaining:
+            out.append((lead, remaining))
+    return out
+
+
 async def run_workbook_enrichment(
     workbook_id: str,
     column_ids: Optional[list] = None,
@@ -831,6 +952,23 @@ async def run_workbook_enrichment(
         if wstatus == "paused" or jstatus in ("cancelled", "failed"):
             _stop_state["stopped"] = True
         return _stop_state["stopped"]
+
+    # ── Cost lever: batch eligible AI cells before the sync per-row loop. ──
+    # Independent text ai_formula columns over many rows go to the Anthropic
+    # Message Batch API (~50% cost). Handled cells are removed from work_items so
+    # the sync loop runs only the remainder; non-Anthropic/small runs no-op here.
+    if not _should_stop():
+        try:
+            handled, batch_completed = await _run_ai_batch_prepass(
+                workbook_id, work_items, columns_config, redis_client,
+                should_stop=_should_stop,
+            )
+            if handled:
+                work_items = _apply_batch_handled(work_items, handled)
+                completed += batch_completed
+                total = sum(len(cols) for _, cols in work_items) + batch_completed
+        except Exception as e:
+            logger.warning(f"[batch] pre-pass errored, continuing with sync run: {e}")
 
     try:
         for i in range(0, len(work_items), concurrency):
