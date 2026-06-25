@@ -96,6 +96,37 @@ class RateLimiter:
 _rate_limiter = RateLimiter()
 
 
+# ── Header-injection hardening (spec §6.5.1) ──────────────────────────────────
+
+import re as _re
+
+# A pragmatic single-address email regex (post-normalization). Rejects control
+# chars / multiple addresses. Not a full RFC 5322 parser — defense in depth on
+# top of canonical normalization.
+_EMAIL_RE = _re.compile(r"^[^\s@,;<>\r\n]+@[^\s@,;<>\r\n]+\.[^\s@,;<>\r\n]+$")
+
+
+def sanitize_header_value(value: str, max_len: int = 998) -> str:
+    """Strip CR/LF (and other control chars) and bound length for a MIME header.
+
+    Header injection (CAN-SPAM/SMTP) flows through ``from_name``/``subject``;
+    we collapse any CRLF or embedded newlines and truncate (RFC 5322 line cap).
+    """
+    if value is None:
+        return ""
+    # Drop all C0 control chars including CR/LF/TAB-as-fold attempts.
+    cleaned = "".join(ch for ch in str(value) if ch == " " or (ord(ch) >= 32 and ord(ch) != 127))
+    cleaned = cleaned.replace("\r", " ").replace("\n", " ").strip()
+    return cleaned[:max_len]
+
+
+def validate_recipient(to_email: str) -> bool:
+    """True when ``to_email`` is a single, control-char-free address."""
+    if not to_email or "\r" in to_email or "\n" in to_email:
+        return False
+    return bool(_EMAIL_RE.match(to_email.strip()))
+
+
 def render_template(template: str, variables: Dict[str, Any]) -> str:
     """Render a template string with lead variables.
 
@@ -134,6 +165,7 @@ async def send_email(
     body_html: str,
     body_text: Optional[str] = None,
     config: Optional[SMTPConfig] = None,
+    headers: Optional[Dict[str, str]] = None,
 ) -> SendResult:
     """Send a single email via SMTP.
 
@@ -141,8 +173,15 @@ async def send_email(
         to_email: Recipient email address
         subject: Email subject line
         body_html: HTML body content
-        body_text: Plain text fallback (auto-generated if not provided)
-        config: SMTP configuration (loaded from DB if not provided)
+        body_text: Plain text fallback (auto-generated if not provided). When the
+            caller (``handle_send``) supplies it, it carries the conspicuous
+            unsubscribe link + footer in BOTH parts (spec §6.5) — we DO NOT
+            re-derive plaintext from HTML in that case.
+        config: SMTP configuration. When provided (the handler is the rate
+            authority, spec §6.3) the process-global ``_rate_limiter`` is
+            BYPASSED so one workspace never blocks another.
+        headers: Extra MIME headers (e.g. List-Unsubscribe / -Post). Values are
+            CRLF-sanitized (spec §6.5.1).
 
     Returns:
         SendResult with success status and message ID or error
@@ -152,7 +191,17 @@ async def send_email(
     if not cfg.host or not cfg.email or not cfg.password:
         return SendResult(success=False, error="SMTP not configured")
 
-    if not _rate_limiter.can_send():
+    # Header-injection hardening (§6.5.1): validate the recipient and CRLF-strip
+    # everything that lands in a header.
+    if not validate_recipient(to_email):
+        return SendResult(success=False, error="invalid recipient address")
+    safe_from_name = sanitize_header_value(cfg.from_name, max_len=200) or "Yupcha"
+    safe_subject = sanitize_header_value(subject)
+
+    # The process-global limiter is ONLY consulted when no explicit per-workspace
+    # config was passed (legacy single-tenant path). The handler owns durable,
+    # per-workspace rate limiting and passes a config → bypass here.
+    if config is None and not _rate_limiter.can_send():
         return SendResult(
             success=False,
             error=f"Rate limit reached ({cfg.max_per_hour}/hr). {_rate_limiter.remaining} remaining."
@@ -160,11 +209,13 @@ async def send_email(
 
     # Build MIME message
     msg = MIMEMultipart("alternative")
-    msg["From"] = f"{cfg.from_name} <{cfg.email}>"
+    msg["From"] = f"{safe_from_name} <{cfg.email}>"
     msg["To"] = to_email
-    msg["Subject"] = subject
+    msg["Subject"] = safe_subject
+    for hk, hv in (headers or {}).items():
+        msg[hk] = sanitize_header_value(hv, max_len=2000)
 
-    # Plain text fallback
+    # Plain text fallback (only auto-derived when the caller didn't supply one).
     if not body_text:
         import re
         body_text = re.sub(r"<[^>]+>", "", body_html)
@@ -189,9 +240,10 @@ async def send_email(
         response = await smtp.send_message(msg)
         await smtp.quit()
 
-        _rate_limiter.record_send()
+        if config is None:
+            _rate_limiter.record_send()
         message_id = msg.get("Message-ID", "")
-        logger.info(f"Email sent to {to_email}: {subject[:50]}")
+        logger.info(f"Email sent to {to_email}: {safe_subject[:50]}")
 
         return SendResult(success=True, message_id=str(message_id))
 
@@ -209,7 +261,8 @@ async def send_email(
 
         try:
             await asyncio.to_thread(_send_sync)
-            _rate_limiter.record_send()
+            if config is None:
+                _rate_limiter.record_send()
             logger.info(f"Email sent (sync fallback) to {to_email}")
             return SendResult(success=True, message_id="sync")
         except Exception as e:

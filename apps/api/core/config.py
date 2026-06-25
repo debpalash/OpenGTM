@@ -108,6 +108,30 @@ class Settings(BaseSettings):
     # Cloud deployments may populate this; comma-separated when set via env.
     AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST: list[str] = []
 
+    # ── Outreach (RLS-hardened email sending) ───────────────────────────
+    # Platform-billed cost per metered send (USD). Default 0.0 → free on
+    # self-host (caps/billing bypassed; the in_flight marker is still written).
+    OUTREACH_SEND_COST_USD: float = 0.0
+    # Autonomous ticker interval (seconds). Default 15 min.
+    OUTREACH_TICK_INTERVAL: int = 900
+    # Per-tick enqueue cap (bounds throughput against a sequential worker).
+    OUTREACH_TICK_MAX_ENQUEUE: int = 200
+    # Unsubscribe HMAC token TTL (days). Tokens older than this reject on POST.
+    OUTREACH_UNSUB_TTL_DAYS: int = 90
+    # Async soft-bounce threshold → suppress + terminal enrollment.
+    OUTREACH_SOFT_BOUNCE_MAX: int = 3
+    # Circuit-breaker thresholds (LOCKED SCOPE decision 2): auto-pause a
+    # sequence at >5% bounce OR >0.3% complaint (rates over sent volume).
+    OUTREACH_BOUNCE_PAUSE_RATE: float = 0.05
+    OUTREACH_COMPLAINT_PAUSE_RATE: float = 0.003
+    # Minimum sent volume before the circuit breaker can trip (avoid pausing on
+    # tiny samples where a single bounce is >5%).
+    OUTREACH_CIRCUIT_MIN_SENDS: int = 20
+    # Public base URL used to build the unsubscribe one-click link.
+    OUTREACH_PUBLIC_BASE_URL: str = "http://localhost:8000"
+    # Platform-global bounce/complaint webhook shared secret (cloud).
+    OUTREACH_BOUNCE_WEBHOOK_SECRET: str = ""
+
     # Optional integrations
     SCRIBD_COOKIES: str = ""
     GOOGLE_API_KEY: str = ""

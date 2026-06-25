@@ -42,6 +42,8 @@ JOB_TIMEOUTS = {
     # Automations: one rule evaluation over a bounded row set; re_enrich runs
     # single-row with a bounded provider timeout, so 600s is ample headroom.
     "trigger_eval": 600,
+    # Outreach: one email send (SMTP handoff). Bounded I/O.
+    "send": 300,
 }
 
 

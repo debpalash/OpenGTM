@@ -41,6 +41,8 @@ from apps.api.services.workbook import planner_models as _planner_models  # noqa
 from apps.api.services.workbook import activity_models as _activity_models  # noqa: E402,F401
 # Pillar 4: agent column reasoning traces
 from apps.api.services.workbook import trace_models as _trace_models  # noqa: E402,F401
+# Outreach RLS-hardened tenant tables (+ non-RLS ticker mirror).
+from apps.api.services.outreach import orm_models as _outreach_models  # noqa: E402,F401
 
 # Schema evolution is owned by Alembic: `alembic upgrade head` creates a fresh
 # schema AND applies pending migrations on an existing DB. create_all() is only
@@ -136,6 +138,9 @@ async def lifespan(app: FastAPI):
     # Automations / Trigger Engine: tenant-scoped rule evaluation on the queue.
     from apps.api.services.automations.engine import handle_trigger_eval, bootstrap_schedules
     queue_service.register_handler("trigger_eval", handle_trigger_eval)
+    # Outreach: tenant-scoped email send on the queue (at-most-once §6.2.1).
+    from apps.api.services.outreach.sending import handle_send, bootstrap_outreach_schedules
+    queue_service.register_handler("send", handle_send)
 
     # Horizontal scaling: job processing is now safe to run in a SEPARATE worker
     # process (apps/api/worker.py) with an atomic FOR UPDATE SKIP LOCKED claim.
@@ -165,6 +170,12 @@ async def lifespan(app: FastAPI):
         bootstrap_schedules()
     except Exception as e:
         logger.warning(f"trigger schedule bootstrap skipped: {e}")
+    # Cold-start the autonomous outreach ticker from its non-RLS mirror (no-op
+    # when AUTOMATIONS_ENABLED is off). Survives restarts; single-flight guarded.
+    try:
+        bootstrap_outreach_schedules()
+    except Exception as e:
+        logger.warning(f"outreach schedule bootstrap skipped: {e}")
     print("✓ Yupcha Engine v3.0 Ready")
     yield
     # ── Shutdown ──

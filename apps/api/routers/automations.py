@@ -122,10 +122,32 @@ def _validate_rule(db: Session, ws_id: str, *, trigger_type: str, trigger_config
         atype = action.get("type")
         cfg = action.get("config") or {}
         if atype in ACTION_TYPES_LEGACY:
-            # Deferred WI — rejected in v1 regardless of the flag per LOCKED SCOPE.
+            # Outreach actions are ACCEPTED types now, but the flag check lives
+            # HERE in their validation branch (spec §11) — they are NOT moved into
+            # ACTION_TYPES_V1 (which would skip this gate). The flag is consulted
+            # on EVERY create, so AC10 holds.
             if not getattr(settings, "AUTOMATIONS_ALLOW_LEGACY_OUTREACH", False):
                 raise HTTPException(status_code=409, detail="legacy_outreach_disabled")
-            raise HTTPException(status_code=409, detail="legacy_outreach_disabled")
+            if atype == "sequencer":
+                seq_id = (cfg.get("sequence_id") or "").strip()
+                if not seq_id:
+                    raise HTTPException(status_code=422, detail=f"sequencer action {i}: sequence_id required")
+                from apps.api.services.outreach.store import get_outreach_store
+                if not get_outreach_store(ws_id).sequence_exists(seq_id):
+                    raise HTTPException(status_code=404, detail=f"sequencer action {i}: sequence not found")
+            elif atype == "send_email":
+                from apps.api.services.outreach.sender import is_smtp_configured
+                from apps.api.services.workspace.secrets import get_secret
+                if not is_smtp_configured(ws_id):
+                    raise HTTPException(status_code=400, detail=f"send_email action {i}: SMTP not configured")
+                if not (get_secret(ws_id, "OUTREACH_FOOTER", "") or "").strip():
+                    raise HTTPException(status_code=400, detail=f"send_email action {i}: OUTREACH_FOOTER required")
+                seq_id = (cfg.get("sequence_id") or "").strip()
+                if seq_id:
+                    from apps.api.services.outreach.store import get_outreach_store
+                    if not get_outreach_store(ws_id).sequence_exists(seq_id):
+                        raise HTTPException(status_code=404, detail=f"send_email action {i}: sequence not found")
+            continue  # validated; skip the V1-type checks below
         if atype not in ACTION_TYPES_V1:
             raise HTTPException(status_code=422, detail=f"invalid action type '{atype}' at index {i}")
         if atype == "re_enrich":
