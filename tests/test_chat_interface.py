@@ -34,12 +34,28 @@ from apps.api.routers import copilotkit as ck  # noqa: E402
 RUN_LIVE = os.environ.get("RUN_LIVE_LLM") == "1"
 
 
+def _main_store():
+    """Resolve the self-host `main` workspace + its tenant-scoped store.
+
+    Mirrors what _resolve_chat_workspace returns on self-host so direct
+    _execute_tool calls in tests use the same (store, workspace_id, slug) shape
+    as the live chat path.
+    """
+    from apps.api.services.workspace import manager as ws
+    from apps.api.services.leadgen.store import get_lead_store
+    ws_id = ws._get_active_workspace_id() or "main"
+    slug = ws.workspace_slug(ws_id) or "main"
+    return get_lead_store(ws_id, slug), ws_id, slug
+
+
 # ── Offline: tool registry ────────────────────────────────────────────────
 
 def test_tool_registry_exposes_expected_tools():
     tools = ck._build_tools()
     names = {t["function"]["name"] for t in tools}
-    assert len(tools) == 20, f"expected 20 tools, got {len(tools)}"
+    assert len(tools) == 18, f"expected 18 tools, got {len(tools)}"
+    # The dead create_workbook / add_workbook_column tools were removed.
+    assert "create_workbook" not in names and "add_workbook_column" not in names
     assert ck.SAFE_TOOLS <= names
     assert set(ck.DANGEROUS_TOOLS) <= names
     assert {"draft_plan", "execute_plan"} <= names
@@ -77,7 +93,10 @@ def test_describe_action_renders_label_and_detail():
     ("search_leads", {"query": "", "limit": 3}, "leads"),
 ])
 def test_readonly_tool_execution(tool, args, expect_key):
-    res = json.loads(asyncio.run(ck._execute_tool(tool, args)))
+    store, ws_id, slug = _main_store()
+    res = json.loads(asyncio.run(
+        ck._execute_tool(tool, args, store=store, workspace_id=ws_id, slug=slug)
+    ))
     assert isinstance(res, dict)
     assert expect_key in res, f"{tool} result missing {expect_key!r}: {list(res)[:6]}"
 
@@ -115,7 +134,7 @@ def _events_to_objs(lines):
 def test_resolve_approved_calls_executes_on_approve(monkeypatch):
     calls = []
 
-    async def fake_exec(name, args):
+    async def fake_exec(name, args, **kwargs):
         calls.append((name, args))
         return json.dumps({"ok": True, "lead_id": args.get("lead_id")})
 
@@ -127,7 +146,8 @@ def test_resolve_approved_calls_executes_on_approve(monkeypatch):
                                    "arguments": json.dumps({"lead_id": 5, "status": "qualified"})}},
         "decision": "approve",
     }]
-    objs = _events_to_objs(_collect(ck._resolve_approved_calls(msgs, approved)))
+    objs = _events_to_objs(_collect(ck._resolve_approved_calls(
+        msgs, approved, store=object(), workspace_id="main", slug="main")))
 
     # Tool executed exactly once, events emitted, history is OpenAI-valid.
     assert calls == [("update_lead_status", {"lead_id": 5, "status": "qualified"})]
@@ -140,7 +160,7 @@ def test_resolve_approved_calls_executes_on_approve(monkeypatch):
 def test_resolve_approved_calls_skips_on_deny(monkeypatch):
     calls = []
 
-    async def fake_exec(name, args):
+    async def fake_exec(name, args, **kwargs):
         calls.append(name)
         return json.dumps({"ok": True})
 
@@ -152,7 +172,8 @@ def test_resolve_approved_calls_skips_on_deny(monkeypatch):
                                    "arguments": json.dumps({"query": "x"})}},
         "decision": "deny",
     }]
-    objs = _events_to_objs(_collect(ck._resolve_approved_calls(msgs, approved)))
+    objs = _events_to_objs(_collect(ck._resolve_approved_calls(
+        msgs, approved, store=object(), workspace_id="main", slug="main")))
 
     assert calls == [], "denied tool must NOT execute"
     assert any("tool_denied" in o for o in objs)
@@ -222,7 +243,7 @@ def test_bounded_tool_loop_caps_rounds(monkeypatch):
     rec = {"bodies": []}
     exec_count = {"n": 0}
 
-    async def fake_exec(name, args):
+    async def fake_exec(name, args, **kwargs):
         exec_count["n"] += 1
         return json.dumps({"total": 1})
 
@@ -234,7 +255,8 @@ def test_bounded_tool_loop_caps_rounds(monkeypatch):
     max_rounds = 3
     lines = _collect(ck._stream_chat(
         [{"role": "user", "content": "keep going forever"}],
-        ck._build_tools(), provider, [], round_idx=0, max_rounds=max_rounds, seen_calls={}))
+        ck._build_tools(), provider, [], round_idx=0, max_rounds=max_rounds, seen_calls={},
+        store=object(), workspace_id="main", slug="main"))
 
     # The model "always wants tools", so the loop must cap executions at
     # max_rounds and then re-issue with NO tools (final body has tools == []).
@@ -364,11 +386,11 @@ def test_live_streaming_and_tool_use():
     real_execute = ck._execute_tool
     attempted = []
 
-    async def safe_execute(name, args):
+    async def safe_execute(name, args, **kwargs):
         if name in ck.DANGEROUS_TOOLS:
             attempted.append(name)
             return json.dumps({"stubbed": True, "tool": name})
-        return await real_execute(name, args)
+        return await real_execute(name, args, **kwargs)
 
     ck._execute_tool = safe_execute
     try:

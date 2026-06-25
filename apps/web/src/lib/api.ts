@@ -1,3 +1,5 @@
+import { getToken, getActiveWorkspace } from "./auth"
+
 const API_BASE = ""
 
 export interface Lead {
@@ -397,9 +399,19 @@ export async function streamChat(
   onEvent: (event: ChatStreamEvent) => void,
   opts: StreamChatOpts = {},
 ): Promise<void> {
+  // Cloud chat (CHAT_REQUIRE_AUTH) fails closed: send Authorization + the active
+  // workspace explicitly so enabling cloud auth does not 401 the real client.
+  // (The global fetch interceptor in auth.ts also attaches these to /api/*; we
+  // set them here too so the chat client's tenancy is explicit and robust.)
+  const headers: Record<string, string> = { "Content-Type": "application/json" }
+  const token = getToken()
+  if (token) headers["Authorization"] = `Bearer ${token}`
+  const ws = getActiveWorkspace()
+  if (ws) headers["X-Workspace-Id"] = ws
+
   const res = await fetch(`${API_BASE}/api/copilotkit`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     signal: opts.signal,
     body: JSON.stringify({
       messages,

@@ -382,7 +382,9 @@ class PgLeadStore:
                     "with_website": _nonempty(LeadRow.website),
                     "with_linkedin": _nonempty(LeadRow.linkedin_url),
                     "with_contact": _nonempty(LeadRow.contact_person),
-                    "avg_score": round(avg_score or 0, 1),
+                    # PG returns avg() as Decimal — cast to float so the dict is
+                    # JSON-serializable (the chat tool json.dumps()'s this).
+                    "avg_score": round(float(avg_score or 0), 1),
                 },
             }
 

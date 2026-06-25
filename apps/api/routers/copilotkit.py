@@ -9,16 +9,20 @@ Includes: conversation history, OpenMemory integration, tool execution.
 
 import json
 import os
+import functools
 import httpx
 import uuid
 import asyncio
 import threading
-from typing import AsyncGenerator, Optional
-from fastapi import APIRouter, Request
+from typing import AsyncGenerator, Optional, Tuple
+from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 
 from apps.api.routers.settings import _db_get, PROVIDERS
-from apps.api.services.leadgen.db import LeadDB
+from apps.api.core.config import settings
+from apps.api.core.tenancy import workspace_scope
+from apps.api.services.leadgen.store import get_lead_store
+from apps.api.services.workspace import manager as ws_manager
 from apps.api.services import chat_history, memory
 
 router = APIRouter(prefix="/api/copilotkit", tags=["CopilotKit"])
@@ -169,8 +173,13 @@ def list_memories():
     })
 
 
-def _build_system_prompt() -> str:
-    """Build a dynamic system prompt with ICP and live pipeline stats."""
+def _build_system_prompt(store=None) -> str:
+    """Build a dynamic system prompt with ICP and live pipeline stats.
+
+    ``store`` is the request's tenant-scoped lead store; the pipeline stats are
+    read from it so the prompt reflects THIS workspace's data, not a global
+    cross-tenant view.
+    """
     
     # Load OpenUI Lang spec
     openui_spec = ""
@@ -193,9 +202,7 @@ def _build_system_prompt() -> str:
         icp_text = "B2B SaaS targeting HR/staffing companies in India"
 
     try:
-        db = LeadDB()
-        stats = db.get_stats()
-        db.close()
+        stats = store.get_stats() if store is not None else {}
         total = stats.get("total", 0)
         by_tier = stats.get("by_tier", {})
         stats_text = (
@@ -242,7 +249,7 @@ You have powerful tools to interact with the lead database. Use them proactively
 Read-only tools (search_leads, get_lead_detail, get_lead_stats, find_similar_leads,
 get_enrichment_gaps, suggest_outreach, compare_leads, ambitionbox_*) run immediately.
 Tools that mutate data or spend resources (update_lead_status, start_collection,
-enrich_lead, create_workbook, add_workbook_column) require explicit user approval:
+enrich_lead, execute_plan) require explicit user approval:
 when you call one, the system pauses and asks the user to confirm before it runs.
 So propose the action with a one-line rationale and let the gate handle approval —
 do not claim the action is done until you receive its tool result.
@@ -276,16 +283,6 @@ DANGEROUS_TOOLS = {
         "label": "🔍 Enrich Lead",
         "reason": "Triggers external website scraping and contact discovery.",
     },
-    "create_workbook": {
-        "level": "medium",
-        "label": "📊 Create Workbook",
-        "reason": "Creates a new workbook in the database.",
-    },
-    "add_workbook_column": {
-        "level": "low",
-        "label": "➕ Add Workbook Column",
-        "reason": "Modifies the schema of an existing workbook.",
-    },
     "execute_plan": {
         "level": "high",
         "label": "🤖 Run Autopilot Plan",
@@ -302,28 +299,78 @@ SAFE_TOOLS = {
 }
 
 
-def _autopilot_ws() -> Optional[str]:
-    """Resolve the active workspace for autopilot plan-store / memory scoping.
+def _resolve_chat_workspace(request: Request) -> Tuple[str, Optional[int], str]:
+    """Resolve (and authorize) the workspace for a chat request.
 
-    The chat endpoint is single-tenant/self-host-first (no per-request auth dep
-    yet — tracked as a follow-up), so this reads the tenancy contextvar if one is
-    set, else None. The plan store keys consistently on whatever this returns, so
-    nonce binding holds within a session regardless. A future auth dep on the
-    chat endpoint makes this a real per-request workspace.
+    Returns ``(workspace_id, user_id, slug)``. This is the single tenant
+    decision point for the whole chat tool path — everything downstream scopes
+    to whatever this returns, so it MUST fail closed in cloud.
+
+    * Cloud / multi-tenant (``settings.CHAT_REQUIRE_AUTH`` true): authenticate
+      exactly like the ``current_workspace`` dependency — read the
+      ``Authorization: Bearer`` token + ``X-Workspace-Id`` header, resolve the
+      user, and enforce ``ws_manager.is_member``. Missing/invalid auth → 401;
+      non-member (or no resolvable) workspace → 403. NEVER falls through to a
+      default workspace.
+    * Self-host (SQLite / ``CHAT_REQUIRE_AUTH`` false): keyless. Binds to the
+      ``main`` default workspace via ``ws_manager._get_active_workspace_id()``.
+      ``user_id`` is None.
     """
+    if not settings.CHAT_REQUIRE_AUTH:
+        ws_id = ws_manager._get_active_workspace_id()
+        slug = ws_manager.workspace_slug(ws_id) or "main"
+        return ws_id, None, slug
+
+    # ── Cloud: fail-closed authentication ──
+    from jose import JWTError, jwt
+    from apps.api.database import SessionLocal as AppSessionLocal
+    from apps.api.models import User
+
+    _unauth = HTTPException(
+        status_code=401,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    auth_header = request.headers.get("Authorization", "")
+    scheme, _, token = auth_header.partition(" ")
+    if scheme.lower() != "bearer" or not token:
+        raise _unauth
     try:
-        from apps.api.core.tenancy import current_workspace_var
-        return current_workspace_var.get()
-    except Exception:
-        return None
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
+        # Refresh tokens must NOT be accepted as access tokens.
+        if payload.get("type") == "refresh":
+            raise _unauth
+        username = payload.get("sub")
+        if not username:
+            raise _unauth
+    except JWTError:
+        raise _unauth
+
+    with AppSessionLocal() as s:
+        user = s.query(User).filter(User.username == username).first()
+        if user is None or not user.is_active:
+            raise _unauth
+        user_id = user.id
+
+    ws_id = request.headers.get("X-Workspace-Id") or ws_manager.get_user_active_workspace(user_id)
+    if not ws_id:
+        raise HTTPException(
+            status_code=403,
+            detail="No accessible workspace. Ask an admin to add you to one.",
+        )
+    if not ws_manager.is_member(ws_id, user_id):
+        # Don't leak existence — same response whether missing or not the caller's.
+        raise HTTPException(status_code=403, detail="Workspace access denied")
+    slug = ws_manager.workspace_slug(ws_id)
+    if not slug:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+    return ws_id, user_id, slug
 
 
-def _autopilot_user() -> Optional[str]:
-    """Resolve the drafting user id (None until the chat endpoint is authed)."""
-    return None
-
-
-def _describe_action(fn_name: str, fn_args: dict) -> str:
+def _describe_action(fn_name: str, fn_args: dict, workspace_id: Optional[str] = None) -> str:
     """Generate a human-readable description of a tool action for the confirmation dialog."""
     meta = DANGEROUS_TOOLS.get(fn_name, {})
     label = meta.get("label", fn_name)
@@ -336,7 +383,7 @@ def _describe_action(fn_name: str, fn_args: dict) -> str:
     if fn_name == "execute_plan":
         from apps.api.services.agent import autopilot, autopilot_plan_store
         plan_id = fn_args.get("plan_id")
-        plan = autopilot_plan_store.peek(_autopilot_ws(), plan_id) if plan_id else None
+        plan = autopilot_plan_store.peek(workspace_id, plan_id) if plan_id else None
         if not plan:
             plan = fn_args.get("plan") or {}
         return autopilot.describe_plan(plan) if plan.get("steps") else f"{label}\n{reason}"
@@ -348,10 +395,6 @@ def _describe_action(fn_name: str, fn_args: dict) -> str:
         details = f"Lead #{fn_args.get('lead_id', '?')} → {fn_args.get('status', '?')}"
     elif fn_name == "enrich_lead":
         details = f"Lead #{fn_args.get('lead_id', '?')}"
-    elif fn_name == "create_workbook":
-        details = f"Name: \"{fn_args.get('name', fn_args.get('description', '?')[:40])}\""
-    elif fn_name == "add_workbook_column":
-        details = f"Column: \"{fn_args.get('column_name', '?')}\" → workbook {fn_args.get('workbook_id', '?')[:8]}"
 
     return f"{label}\n{reason}\n{details}"
 
@@ -546,38 +589,6 @@ def _build_tools():
         {
             "type": "function",
             "function": {
-                "name": "create_workbook",
-                "description": "Create a new workbook from a natural language description. Auto-generates columns based on the user's intent. Example: 'Find SaaS CTOs in SF with email and LinkedIn' → workbook with company, contact, email, linkedin, title columns.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "description": {"type": "string", "description": "Natural language description of what the workbook should do"},
-                        "name": {"type": "string", "description": "Name for the workbook"},
-                    },
-                    "required": ["description"],
-                },
-            },
-        },
-        {
-            "type": "function",
-            "function": {
-                "name": "add_workbook_column",
-                "description": "Add a new column to an existing workbook. Supports enrichment columns (email finder, phone validator, etc.) and computed columns.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "workbook_id": {"type": "string", "description": "The workbook UUID"},
-                        "column_name": {"type": "string", "description": "Display name for the column"},
-                        "column_type": {"type": "string", "enum": ["text", "email", "phone", "url", "number", "enrichment"], "description": "Column data type"},
-                        "provider": {"type": "string", "description": "For enrichment columns: provider name (hunter_io, apollo_io, etc.)"},
-                    },
-                    "required": ["workbook_id", "column_name", "column_type"],
-                },
-            },
-        },
-        {
-            "type": "function",
-            "function": {
                 "name": "create_source_workbook",
                 "description": "Create a LIVE-sourcing workbook that finds NEW leads from scratch via the 91-source engine. Use when the user wants to FIND/SOURCE companies (not enrich a list they have). Example: 'Build a workbook of IT staffing companies in Pune'. Optionally auto-runs sourcing immediately.",
                 "parameters": {
@@ -675,9 +686,19 @@ def _build_tools():
     ]
 
 
-async def _execute_tool(name: str, args: dict) -> str:
-    """Execute a backend tool and return the result as a string."""
-    db = LeadDB()
+async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug: str,
+                        user_id: Optional[int] = None) -> str:
+    """Execute a backend tool and return the result as a string.
+
+    Tenant-scoped: ``store`` is the request's workspace-scoped lead store
+    (``PgLeadStore`` on cloud, per-workspace ``LeadDB`` on self-host) — there is
+    NO bare ``LeadDB()`` here, so every lead/signal read/write is filtered and
+    stamped by ``workspace_id`` (RLS is the DB backstop on PG). Workbook ORM
+    tools (which have no RLS backstop) explicitly filter + stamp ``workspace_id``.
+    The caller runs this inside ``workspace_scope(workspace_id)`` so PG sessions
+    get the RLS GUC; ``store`` is shared across a turn, so we never close it here.
+    """
+    db = store
     try:
         if name == "search_leads":
             leads = db.get_leads(
@@ -716,21 +737,49 @@ async def _execute_tool(name: str, args: dict) -> str:
 
         elif name == "get_lead_stats":
             stats = db.get_stats()
-            return json.dumps(stats)
+            # default=str so any backend-specific scalar (e.g. PG Decimal) is
+            # serializable rather than blowing up the whole turn.
+            return json.dumps(stats, default=str)
 
         elif name == "update_lead_status":
             db.update_status(args["lead_id"], args["status"], args.get("note", ""))
             return json.dumps({"ok": True, "lead_id": args["lead_id"], "new_status": args["status"]})
 
         elif name == "start_collection":
+            from apps.api.services.leadgen.db import LeadDB as _LeadDB
             job_id = str(uuid.uuid4())[:8]
             query = args["query"]
-            db.create_job(job_id, query)
+            ws_id = workspace_id
+
+            # Create + stamp the job row NOW (request thread, own connection) so a
+            # client can poll /api/jobs/{id} immediately. Job/stage bookkeeping
+            # lives in the legacy leadgen SQLite file (NOT the scoped store / not
+            # PG), so use a bare LeadDB here — never the passed store.
+            _jobdb = _LeadDB()
+            _jobdb.create_job(job_id, query)
+            if ws_id:
+                _jobdb.conn.execute(
+                    "UPDATE jobs SET workspace_id = ? WHERE id = ?", (ws_id, job_id)
+                )
+                _jobdb.conn.commit()
+            _jobdb.close()
 
             def _run():
+                # Runs in a daemon thread: contextvars do NOT propagate across
+                # threading.Thread, so we own a fresh JobRunner here (SQLite
+                # connections are not shareable across threads) and pass
+                # workspace_id EXPLICITLY into _process_job + bind workspace_scope
+                # so sourced leads land in the right tenant (PgLeadStore is built
+                # per-workspace inside the runner; the scope sets the RLS GUC).
                 from apps.api.services.leadgen.job_runner import JobRunner
+                from apps.api.core.tenancy import workspace_scope as _ws_scope
                 runner = JobRunner()
-                asyncio.run(runner._process_job({"id": job_id, "query": query, "tier": 1}))
+                job = {"id": job_id, "query": query, "tier": 1, "workspace_id": ws_id}
+                if ws_id:
+                    with _ws_scope(ws_id):
+                        asyncio.run(runner._process_job(job))
+                else:
+                    asyncio.run(runner._process_job(job))
 
             threading.Thread(target=_run, daemon=True).start()
             return json.dumps({"ok": True, "job_id": job_id, "query": query,
@@ -956,94 +1005,6 @@ async def _execute_tool(name: str, args: dict) -> str:
 
             return json.dumps(result)
 
-        elif name == "create_workbook":
-            description = args["description"]
-            wb_name = args.get("name", f"Workbook — {description[:40]}")
-
-            # Infer columns from description using keyword matching
-            column_defs = [
-                {"key": "company", "name": "Company", "type": "text"},
-            ]
-
-            desc_lower = description.lower()
-
-            if any(w in desc_lower for w in ["email", "contact", "reach"]):
-                column_defs.append({"key": "email", "name": "Email", "type": "email"})
-            if any(w in desc_lower for w in ["phone", "call", "number"]):
-                column_defs.append({"key": "phone", "name": "Phone", "type": "phone"})
-            if any(w in desc_lower for w in ["linkedin", "social", "profile"]):
-                column_defs.append({"key": "linkedin_url", "name": "LinkedIn", "type": "url"})
-            if any(w in desc_lower for w in ["title", "cto", "ceo", "vp", "founder", "decision maker", "role"]):
-                column_defs.append({"key": "contact_person", "name": "Contact", "type": "text"})
-                column_defs.append({"key": "contact_title", "name": "Title", "type": "text"})
-            if any(w in desc_lower for w in ["website", "domain", "url"]):
-                column_defs.append({"key": "website", "name": "Website", "type": "url"})
-            if any(w in desc_lower for w in ["city", "location", "where"]):
-                column_defs.append({"key": "city", "name": "City", "type": "text"})
-            if any(w in desc_lower for w in ["score", "qualify", "rank"]):
-                column_defs.append({"key": "score", "name": "Score", "type": "number"})
-            if any(w in desc_lower for w in ["size", "employees", "headcount"]):
-                column_defs.append({"key": "company_size", "name": "Size", "type": "text"})
-
-            # Ensure at least email + contact columns
-            keys = [c["key"] for c in column_defs]
-            if "email" not in keys:
-                column_defs.append({"key": "email", "name": "Email", "type": "email"})
-            if "contact_person" not in keys:
-                column_defs.append({"key": "contact_person", "name": "Contact", "type": "text"})
-
-            wb_id = str(uuid.uuid4())
-            from apps.api.routers.workbooks import _get_db as get_wb_db
-            conn = get_wb_db()
-            import time as _time
-            now = _time.time()
-            conn.execute(
-                "INSERT INTO workbooks (id, name, description, columns_config, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-                (wb_id, wb_name, description, json.dumps(column_defs), now, now),
-            )
-            conn.commit()
-            conn.close()
-
-            return json.dumps({
-                "workbook_id": wb_id,
-                "name": wb_name,
-                "columns": [c["name"] for c in column_defs],
-                "message": f"Created workbook '{wb_name}' with {len(column_defs)} columns. Open it at /workbooks/{wb_id}",
-            })
-
-        elif name == "add_workbook_column":
-            wb_id = args["workbook_id"]
-            col_name = args["column_name"]
-            col_type = args["column_type"]
-            provider = args.get("provider", "")
-
-            from apps.api.routers.workbooks import _get_db as get_wb_db
-            conn = get_wb_db()
-            row = conn.execute("SELECT columns_config FROM workbooks WHERE id = ?", (wb_id,)).fetchone()
-            if not row:
-                conn.close()
-                return json.dumps({"error": "Workbook not found"})
-
-            columns = json.loads(row["columns_config"] or "[]")
-            new_key = col_name.lower().replace(" ", "_").replace("-", "_")
-            new_col = {"key": new_key, "name": col_name, "type": col_type}
-            if provider:
-                new_col["provider"] = provider
-            columns.append(new_col)
-
-            conn.execute(
-                "UPDATE workbooks SET columns_config = ?, updated_at = ? WHERE id = ?",
-                (json.dumps(columns), __import__("time").time(), wb_id),
-            )
-            conn.commit()
-            conn.close()
-
-            return json.dumps({
-                "added": col_name,
-                "type": col_type,
-                "total_columns": len(columns),
-            })
-
         # ── P5: chat authors the source engine (ORM + P0–P4 services) ──
         elif name == "create_source_workbook":
             from apps.api.database import SessionLocal
@@ -1065,8 +1026,14 @@ async def _execute_tool(name: str, args: dict) -> str:
                 src_col,
             ]
             with SessionLocal() as wdb:
+                # STAMP workspace_id on the row AND in source_config so the
+                # downstream source engine sources into the right tenant
+                # (source_engine reads source_config.workspace_id). workbooks have
+                # NO RLS backstop, so this app-layer stamp is the only guard.
                 wb = Workbook(name=wb_name, description=icp_desc, status="draft",
-                              source_type="empty", columns_config=base_cols)
+                              source_type="empty", columns_config=base_cols,
+                              workspace_id=workspace_id,
+                              source_config={"workspace_id": workspace_id})
                 wdb.add(wb); wdb.commit(); wdb.refresh(wb)
                 wb_id = wb.id
                 if auto_run:
@@ -1082,8 +1049,17 @@ async def _execute_tool(name: str, args: dict) -> str:
 
         elif name == "set_workbook_refresh":
             from apps.api.database import SessionLocal
+            from apps.api.services.workbook.models import Workbook
             from apps.api.services.workbook.refresh import set_refresh_policy
             with SessionLocal() as wdb:
+                # FILTER by workspace_id (no RLS on workbooks) — a miss is "not
+                # found", never an existence leak / cross-tenant mutation.
+                wb = wdb.query(Workbook).filter(
+                    Workbook.id == args["workbook_id"],
+                    Workbook.workspace_id == workspace_id,
+                ).first()
+                if not wb:
+                    return json.dumps({"error": "Workbook not found"})
                 res = set_refresh_policy(wdb, args["workbook_id"],
                                          {"enabled": True, "interval": args["interval"]})
             if "error" in res:
@@ -1094,7 +1070,10 @@ async def _execute_tool(name: str, args: dict) -> str:
             from apps.api.database import SessionLocal
             from apps.api.services.workbook.models import Workbook
             with SessionLocal() as wdb:
-                wb = wdb.query(Workbook).filter(Workbook.id == args["workbook_id"]).first()
+                wb = wdb.query(Workbook).filter(
+                    Workbook.id == args["workbook_id"],
+                    Workbook.workspace_id == workspace_id,
+                ).first()
                 if not wb:
                     return json.dumps({"error": "Workbook not found"})
                 col = {
@@ -1109,10 +1088,13 @@ async def _execute_tool(name: str, args: dict) -> str:
 
         elif name == "add_signal_trigger":
             from apps.api.database import SessionLocal
+            from apps.api.services.workbook.models import Workbook
             from apps.api.services.workbook.refresh import set_refresh_policy
             with SessionLocal() as wdb:
-                from apps.api.services.workbook.models import Workbook
-                wb = wdb.query(Workbook).filter(Workbook.id == args["workbook_id"]).first()
+                wb = wdb.query(Workbook).filter(
+                    Workbook.id == args["workbook_id"],
+                    Workbook.workspace_id == workspace_id,
+                ).first()
                 if not wb:
                     return json.dumps({"error": "Workbook not found"})
                 policy = dict(wb.refresh_policy or {})
@@ -1124,8 +1106,7 @@ async def _execute_tool(name: str, args: dict) -> str:
         # ── Autopilot: goal → plan → execute (orchestrates the tools above) ──
         elif name == "draft_plan":
             from apps.api.services.agent import autopilot, autopilot_plan_store
-            ws_id = _autopilot_ws()
-            user_id = _autopilot_user()
+            ws_id = workspace_id
             plan = await autopilot.draft_plan(
                 args["goal"], int(args.get("target_count", 0) or 0), workspace_id=ws_id,
             )
@@ -1146,8 +1127,7 @@ async def _execute_tool(name: str, args: dict) -> str:
             # nonce) and re-validates. A call WITHOUT a valid nonce is rejected —
             # we never execute a client-supplied plan body.
             from apps.api.services.agent import autopilot, autopilot_plan_store
-            ws_id = _autopilot_ws()
-            user_id = _autopilot_user()
+            ws_id = workspace_id
             plan_id = args.get("plan_id")
             nonce = args.get("nonce")
             stored = autopilot_plan_store.consume(ws_id, user_id, plan_id, nonce) if plan_id else None
@@ -1155,7 +1135,13 @@ async def _execute_tool(name: str, args: dict) -> str:
                 return json.dumps({"error": "Plan not found or already executed. "
                                             "Re-draft and approve the plan."})
             plan = autopilot._validate_plan(stored) or stored
-            result = await autopilot.execute_plan(plan, _execute_tool)
+            # Bind the tenant-scoped tools so Autopilot's recursion into
+            # _execute_tool inherits this workspace's store/scope (no cross-tenant
+            # reach even with the LLM planner on).
+            bound_execute_tool = functools.partial(
+                _execute_tool, store=store, workspace_id=workspace_id, slug=slug
+            )
+            result = await autopilot.execute_plan(plan, bound_execute_tool)
             # Best-effort memory write (idempotent on (ws, workbook_id)).
             try:
                 from apps.api.services.agent import autopilot_memory
@@ -1168,8 +1154,8 @@ async def _execute_tool(name: str, args: dict) -> str:
             return json.dumps(result)
 
         return json.dumps({"error": f"Unknown tool: {name}"})
-    finally:
-        db.close()
+    except Exception as e:
+        return json.dumps({"error": f"Tool '{name}' failed: {str(e)[:300]}"})
 
 
 # ── Chat completion proxy ────────────────────────────────────────
@@ -1182,6 +1168,11 @@ async def _stream_chat(
     round_idx: int = 0,
     max_rounds: int = None,
     seen_calls: dict = None,
+    *,
+    store=None,
+    workspace_id: str = "",
+    slug: str = "",
+    user_id: Optional[int] = None,
 ) -> AsyncGenerator[str, None]:
     """Stream chat completion from the configured AI provider.
 
@@ -1243,7 +1234,8 @@ async def _stream_chat(
                         yield f'data: {json.dumps({"warning": msg})}\n\n'
 
                         async for chunk in _stream_chat(messages, tools, next_prov, remaining,
-                                                        round_idx, max_rounds, seen_calls):
+                                                        round_idx, max_rounds, seen_calls,
+                                                        store=store, workspace_id=workspace_id, slug=slug, user_id=user_id):
                             yield chunk
                         return
 
@@ -1265,7 +1257,8 @@ async def _stream_chat(
                         yield f'data: {json.dumps({"warning": msg})}\n\n'
 
                         async for chunk in _stream_chat(messages, tools, next_prov, remaining,
-                                                        round_idx, max_rounds, seen_calls):
+                                                        round_idx, max_rounds, seen_calls,
+                                                        store=store, workspace_id=workspace_id, slug=slug, user_id=user_id):
                             yield chunk
                         return
 
@@ -1339,7 +1332,14 @@ async def _stream_chat(
                                 if sig in seen_calls:
                                     result = seen_calls[sig]  # no-progress guard: reuse prior result
                                 else:
-                                    result = await _execute_tool(fn_name, fn_args)
+                                    # Run the tool inside the request's tenant scope so PG
+                                    # txns (PgLeadStore + workbook SessionLocal) get the RLS GUC.
+                                    with workspace_scope(workspace_id):
+                                        result = await _execute_tool(
+                                            fn_name, fn_args, store=store,
+                                            workspace_id=workspace_id, slug=slug,
+                                            user_id=user_id,
+                                        )
                                     seen_calls[sig] = result
                                 yield f"data: {json.dumps({'tool_result': {'name': fn_name, 'result': json.loads(result)}})}\n\n"
                                 tool_results.append({
@@ -1354,7 +1354,7 @@ async def _stream_chat(
                             if dangerous:
                                 for tc, fn_name, fn_args in dangerous:
                                     meta = DANGEROUS_TOOLS.get(fn_name, {})
-                                    yield f"data: {json.dumps({'confirmation_required': {'confirmation_id': tc.get('id', ''), 'tool_call': tc, 'name': fn_name, 'args': fn_args, 'description': _describe_action(fn_name, fn_args), 'level': meta.get('level', 'medium'), 'label': meta.get('label', fn_name)}})}\n\n"
+                                    yield f"data: {json.dumps({'confirmation_required': {'confirmation_id': tc.get('id', ''), 'tool_call': tc, 'name': fn_name, 'args': fn_args, 'description': _describe_action(fn_name, fn_args, workspace_id), 'level': meta.get('level', 'medium'), 'label': meta.get('label', fn_name)}})}\n\n"
                                 yield f"data: {json.dumps({'awaiting_confirmation': True})}\n\n"
                                 yield "data: [DONE]\n\n"
                                 return
@@ -1378,12 +1378,14 @@ async def _stream_chat(
                                 })
                                 async for chunk_line in _stream_chat(
                                     follow_up, [], provider, fallback_providers,
-                                    next_round, max_rounds, seen_calls):
+                                    next_round, max_rounds, seen_calls,
+                                    store=store, workspace_id=workspace_id, slug=slug, user_id=user_id):
                                     yield chunk_line
                                 return
                             async for chunk_line in _stream_chat(
                                 follow_up, tools, provider, fallback_providers,
-                                next_round, max_rounds, seen_calls):
+                                next_round, max_rounds, seen_calls,
+                                    store=store, workspace_id=workspace_id, slug=slug, user_id=user_id):
                                 yield chunk_line
                             return
 
@@ -1403,7 +1405,8 @@ async def _stream_chat(
             yield f'data: {json.dumps({"content": msg})}\n\n'
 
             async for chunk in _stream_chat(messages, tools, next_prov, remaining,
-                                            round_idx, max_rounds, seen_calls):
+                                            round_idx, max_rounds, seen_calls,
+                                                        store=store, workspace_id=workspace_id, slug=slug, user_id=user_id):
                 yield chunk
             return
 
@@ -1415,7 +1418,10 @@ async def _stream_chat(
         yield f'data: {json.dumps({"error": f"AI provider error: {str(e)[:200]}"})}\n\n'
 
 
-async def _resolve_approved_calls(cleaned_messages: list, approved: list) -> AsyncGenerator[str, None]:
+async def _resolve_approved_calls(
+    cleaned_messages: list, approved: list, *, store=None, workspace_id: str = "", slug: str = "",
+    user_id: Optional[int] = None,
+) -> AsyncGenerator[str, None]:
     """Execute user-approved (or denied) dangerous tool calls before resuming.
 
     Part of the human-in-the-loop gate: when the previous turn ended awaiting
@@ -1447,7 +1453,11 @@ async def _resolve_approved_calls(cleaned_messages: list, approved: list) -> Asy
 
         if decision == "approve":
             yield f"data: {json.dumps({'tool_call': {'name': fn_name, 'args': fn_args}})}\n\n"
-            result = await _execute_tool(fn_name, fn_args)
+            with workspace_scope(workspace_id):
+                result = await _execute_tool(
+                    fn_name, fn_args, store=store, workspace_id=workspace_id, slug=slug,
+                    user_id=user_id,
+                )
             try:
                 parsed_result = json.loads(result)
             except json.JSONDecodeError:
@@ -1475,6 +1485,14 @@ async def copilot_chat(request: Request):
         conversation_id: optional, to continue an existing conversation
         context: optional application context
     """
+    # Resolve + authorize the tenant FIRST (before any side effects). In cloud
+    # this fails closed (401/403) — no conversation is created and no tool runs
+    # for an unauthenticated / non-member request. Self-host binds to `main`.
+    workspace_id, _chat_user_id, slug = _resolve_chat_workspace(request)
+    # One tenant-scoped store for the whole turn (PgLeadStore on cloud, the
+    # per-workspace LeadDB on self-host). Threaded into every tool call.
+    store = get_lead_store(workspace_id, slug)
+
     body = await request.json()
 
     user_messages = body.get("messages", [])
@@ -1524,7 +1542,7 @@ async def copilot_chat(request: Request):
 
     tools = _build_tools()
 
-    messages = [{"role": "system", "content": _build_system_prompt()}]
+    messages = [{"role": "system", "content": _build_system_prompt(store)}]
 
     if memory_context:
         messages.append({
@@ -1595,9 +1613,15 @@ async def copilot_chat(request: Request):
         async def _events():
             # Resolve any pre-approved dangerous tool calls from a confirmation
             # resubmit, then run the normal bounded agentic loop.
-            async for line in _resolve_approved_calls(cleaned_messages, approved_tool_calls):
+            async for line in _resolve_approved_calls(
+                cleaned_messages, approved_tool_calls,
+                store=store, workspace_id=workspace_id, slug=slug, user_id=_chat_user_id,
+            ):
                 yield line
-            async for line in _stream_chat(cleaned_messages, tools, provider, fallbacks):
+            async for line in _stream_chat(
+                cleaned_messages, tools, provider, fallbacks,
+                store=store, workspace_id=workspace_id, slug=slug, user_id=_chat_user_id,
+            ):
                 yield line
 
         async for chunk in _events():
