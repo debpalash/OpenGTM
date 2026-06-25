@@ -27,6 +27,8 @@ from apps.api.database import IS_SQLITE, SessionLocal
 from apps.api.services.outreach.normalize import normalize_email, suppression_match_keys
 from apps.api.services.outreach.orm_models import (
     OutreachEnrollment,
+    OutreachInboundMessage,
+    OutreachInboundSchedule,
     OutreachSchedule,
     OutreachSend,
     OutreachSequence,
@@ -311,6 +313,70 @@ class PgOutreachStore:
                 .first()
             )
 
+    def get_send_by_message_id(self, message_id: str) -> Optional[dict]:
+        """Most-recent send in THIS workspace with this server Message-ID.
+
+        Workspace-scoped (no cross-tenant lookup): the mailbox belongs to this
+        workspace. A hard Message-ID match is the v1 anti-spoof basis.
+        """
+        mid = (message_id or "").strip()
+        if not mid:
+            return None
+        with self._session() as s:
+            row = (
+                s.query(OutreachSend)
+                .filter(
+                    OutreachSend.workspace_id == self.workspace_id,
+                    OutreachSend.message_id == mid,
+                )
+                .order_by(OutreachSend.id.desc())
+                .first()
+            )
+            return self._send_to_dict(row) if row else None
+
+    def get_recent_send_to(self, email: str) -> Optional[dict]:
+        """Most-recent send to ``email`` in this workspace (non-terminal preferred).
+
+        Recipient-only fallback used for LEDGER annotation only — v1 never feeds
+        the breaker/suppression off a recipient-only match (anti-spoof decision).
+        """
+        canonical = normalize_email(email)
+        if not canonical:
+            return None
+        with self._session() as s:
+            base = s.query(OutreachSend).filter(
+                OutreachSend.workspace_id == self.workspace_id,
+                OutreachSend.to_email == canonical,
+            )
+            row = (
+                base.filter(OutreachSend.status.in_(("sent", "in_flight")))
+                .order_by(OutreachSend.id.desc())
+                .first()
+            )
+            if row is None:
+                row = base.order_by(OutreachSend.id.desc()).first()
+            return self._send_to_dict(row) if row else None
+
+    def mark_send_bounced(self, send_id: int, error: str = "") -> bool:
+        """Set status='bounced' + bounced_at on a send row (set-idempotent)."""
+        with self._session() as s, s.begin():
+            row = (
+                s.query(OutreachSend)
+                .filter(
+                    OutreachSend.workspace_id == self.workspace_id,
+                    OutreachSend.id == send_id,
+                )
+                .first()
+            )
+            if row is None:
+                return False
+            row.status = "bounced"
+            if row.bounced_at is None:
+                row.bounced_at = _utcnow()
+            if error:
+                row.error = error[:500]
+            return True
+
     def list_sends(self, seq_id: Optional[str] = None, limit: int = 200) -> List[dict]:
         with self._session() as s:
             q = s.query(OutreachSend).filter(
@@ -502,6 +568,154 @@ class PgOutreachStore:
                 seq.status = "paused"
                 return True
             return False
+
+    # ════════════════════ Shared bounce/complaint application ═══════════════
+
+    def apply_bounce(
+        self,
+        *,
+        send_id: Optional[int],
+        sequence_id: Optional[str],
+        enrollment_id: Optional[int],
+        to_email: str,
+        kind: str,
+        diagnostic: str = "",
+        source: str = "",
+    ) -> None:
+        """The single idempotent-on-effect bounce/complaint applier (spec §design 5).
+
+        BOTH the IMAP poller and the ``bounce_webhook`` route through this. It is
+        safe to call once per inbound message — the CALLER (ledger insert) is the
+        idempotency gate, because the breaker counter is NOT itself idempotent.
+
+          * ``hard``      → mark send bounced + ``bounce`` suppression + advance
+                            enrollment ``bounced`` + bounce breaker.
+          * ``complaint`` → mark send bounced + LOCKED ``complaint`` suppression +
+                            advance enrollment ``bounced`` + complaint breaker.
+          * ``soft``      → increment the per-enrollment soft counter; suppress +
+                            terminal only at ``OUTREACH_SOFT_BOUNCE_MAX`` (no
+                            breaker, matches the webhook soft path).
+        """
+        src = source or "inbound"
+        if kind == "complaint":
+            if send_id is not None:
+                self.mark_send_bounced(send_id, diagnostic or "complaint")
+            self.add_suppression(to_email, reason="complaint", source=src, locked=True)
+            if enrollment_id is not None:
+                self.advance_enrollment(enrollment_id, status="bounced", error="complaint")
+            self.record_bounce_and_maybe_pause(sequence_id, complaint=True)
+        elif kind == "soft":
+            if enrollment_id is not None:
+                count = self.increment_soft_bounce(enrollment_id)
+                if count >= settings.OUTREACH_SOFT_BOUNCE_MAX:
+                    self.add_suppression(to_email, reason="bounce", source=src, locked=False)
+                    if send_id is not None:
+                        self.mark_send_bounced(send_id, diagnostic or "soft_bounce_max")
+                    self.advance_enrollment(enrollment_id, status="bounced", error="soft_bounce_max")
+        else:  # hard (default)
+            if send_id is not None:
+                self.mark_send_bounced(send_id, diagnostic or "hard_bounce")
+            self.add_suppression(to_email, reason="bounce", source=src, locked=False)
+            if enrollment_id is not None:
+                self.advance_enrollment(enrollment_id, status="bounced", error="hard_bounce")
+            self.record_bounce_and_maybe_pause(sequence_id, complaint=False)
+
+    # ════════════════════ Inbound dedup ledger (RLS) ═══════════════════════
+
+    def record_inbound_processed(
+        self,
+        *,
+        imap_uid: str,
+        uidvalidity: str,
+        source_message_id: str,
+        matched_send_id: Optional[int],
+        kind: str,
+        recipient: str = "",
+        diagnostic: str = "",
+    ) -> bool:
+        """Idempotent insert into the inbound ledger.
+
+        Returns True when a NEW row was created (caller may then ``apply_bounce``),
+        False when this message was already processed (unique conflict on either
+        ``(ws, uidvalidity, imap_uid)`` or ``(ws, source_message_id)``).
+        """
+        # Never let an empty source_message_id collide across distinct messages —
+        # synthesize a per-uid key so the secondary unique stays meaningful.
+        src_mid = (source_message_id or "").strip() or f"uid:{uidvalidity}:{imap_uid}"
+        with self._session() as s:
+            try:
+                with s.begin():
+                    s.add(OutreachInboundMessage(
+                        workspace_id=self.workspace_id,
+                        imap_uid=str(imap_uid),
+                        uidvalidity=str(uidvalidity or ""),
+                        source_message_id=src_mid,
+                        matched_send_id=matched_send_id,
+                        kind=kind,
+                        recipient=(recipient or "")[:320],
+                        diagnostic=(diagnostic or "")[:500],
+                        processed_at=_utcnow(),
+                    ))
+                return True
+            except IntegrityError:
+                s.rollback()
+                return False  # already processed
+
+    def inbound_message_count(self) -> int:
+        with self._session() as s:
+            return (
+                s.query(OutreachInboundMessage)
+                .filter(OutreachInboundMessage.workspace_id == self.workspace_id)
+                .count()
+            )
+
+    # ════════════════════ Inbound schedule mirror (non-RLS) ════════════════
+
+    def get_inbound_schedule(self) -> Optional[OutreachInboundSchedule]:
+        with self._session() as s:
+            return (
+                s.query(OutreachInboundSchedule)
+                .filter(OutreachInboundSchedule.workspace_id == self.workspace_id)
+                .first()
+            )
+
+    def upsert_inbound_schedule(
+        self,
+        *,
+        next_poll_at: Optional[datetime],
+        enabled: bool,
+        consecutive_failures: Optional[int] = None,
+        uidvalidity: Optional[str] = None,
+        last_uid: Optional[str] = None,
+    ) -> None:
+        with self._session() as s, s.begin():
+            row = (
+                s.query(OutreachInboundSchedule)
+                .filter(OutreachInboundSchedule.workspace_id == self.workspace_id)
+                .first()
+            )
+            if row is None:
+                row = OutreachInboundSchedule(workspace_id=self.workspace_id)
+                s.add(row)
+            row.next_poll_at = next_poll_at
+            row.enabled = enabled
+            if consecutive_failures is not None:
+                row.consecutive_failures = consecutive_failures
+            if uidvalidity is not None:
+                row.uidvalidity = uidvalidity
+            if last_uid is not None:
+                row.last_uid = last_uid
+
+    def disable_inbound_schedule(self) -> None:
+        with self._session() as s, s.begin():
+            row = (
+                s.query(OutreachInboundSchedule)
+                .filter(OutreachInboundSchedule.workspace_id == self.workspace_id)
+                .first()
+            )
+            if row:
+                row.enabled = False
+                row.next_poll_at = None
 
     # ════════════════════════ Schedule mirror (non-RLS) ════════════════════
 

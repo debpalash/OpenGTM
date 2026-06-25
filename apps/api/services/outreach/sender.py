@@ -67,6 +67,50 @@ def is_smtp_configured(workspace_id: Optional[str] = None) -> bool:
     return bool(cfg.host and cfg.email and cfg.password)
 
 
+# ── IMAP (BYO-SMTP inbound bounce/complaint ingestion, WI-6) ──────────────────
+
+@dataclass
+class IMAPConfig:
+    host: str = ""
+    port: int = 993
+    user: str = ""
+    password: str = ""
+    folder: str = "INBOX"
+    use_ssl: bool = True
+
+
+def get_imap_config(workspace_id: Optional[str] = None) -> IMAPConfig:
+    """Load IMAP config for the inbound bounce/complaint poller (spec §inbound).
+
+    Mirrors :func:`get_smtp_config`: every field resolves to the per-workspace
+    encrypted secret first (WI-6), falling back to the global setting / env.
+    ``IMAP_USER`` / ``IMAP_PASSWORD`` default to the workspace SMTP credentials
+    so a BYO-SMTP mailbox needs no extra config to poll its own DSN inbox.
+    """
+    try:
+        from apps.api.services.workspace.secrets import get_secret
+
+        def _g(key: str, default: str = "") -> str:
+            return get_secret(workspace_id, key, default)
+
+        return IMAPConfig(
+            host=_g("IMAP_HOST", ""),
+            port=int(_g("IMAP_PORT", "993") or "993"),
+            user=_g("IMAP_USER", "") or _g("SMTP_EMAIL", ""),
+            password=_g("IMAP_PASSWORD", "") or _g("SMTP_PASSWORD", ""),
+            folder=_g("IMAP_FOLDER", "INBOX") or "INBOX",
+            use_ssl=_g("IMAP_USE_SSL", "1") == "1",
+        )
+    except Exception:
+        return IMAPConfig()
+
+
+def is_imap_configured(workspace_id: Optional[str] = None) -> bool:
+    """True when the workspace has enough IMAP creds to poll its DSN inbox."""
+    cfg = get_imap_config(workspace_id)
+    return bool(cfg.host and cfg.user and cfg.password)
+
+
 # ── Rate Limiter ──────────────────────────────────────────────
 
 class RateLimiter:
@@ -224,6 +268,18 @@ async def send_email(
     msg.attach(MIMEText(body_text, "plain"))
     msg.attach(MIMEText(body_html, "html"))
 
+    # Generate a stable, high-entropy server Message-ID BEFORE handoff and set it
+    # on the MIME message, so async DSNs/complaints (which echo this header back)
+    # can be matched to this send (sender.py used to return msg.get("Message-ID")
+    # which was always "" — neither smtplib nor aiosmtplib inject one). The
+    # high-entropy local-part is also the v1 anti-spoof basis (only hard
+    # Message-ID matches to our own ids are acted on downstream).
+    import email.utils
+
+    from_domain = cfg.email.rsplit("@", 1)[-1] if "@" in cfg.email else None
+    message_id = email.utils.make_msgid(domain=from_domain)
+    msg["Message-ID"] = message_id
+
     try:
         import aiosmtplib
 
@@ -242,7 +298,6 @@ async def send_email(
 
         if config is None:
             _rate_limiter.record_send()
-        message_id = msg.get("Message-ID", "")
         logger.info(f"Email sent to {to_email}: {safe_subject[:50]}")
 
         return SendResult(success=True, message_id=str(message_id))
@@ -264,7 +319,7 @@ async def send_email(
             if config is None:
                 _rate_limiter.record_send()
             logger.info(f"Email sent (sync fallback) to {to_email}")
-            return SendResult(success=True, message_id="sync")
+            return SendResult(success=True, message_id=message_id)
         except Exception as e:
             logger.error(f"SMTP sync send failed: {e}")
             return SendResult(success=False, error=str(e))

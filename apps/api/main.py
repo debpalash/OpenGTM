@@ -143,6 +143,10 @@ async def lifespan(app: FastAPI):
     # Outreach: tenant-scoped email send on the queue (at-most-once §6.2.1).
     from apps.api.services.outreach.sending import handle_send, bootstrap_outreach_schedules
     queue_service.register_handler("send", handle_send)
+    # Outreach inbound: per-workspace IMAP poll for async DSN/complaint ingestion
+    # (default OFF behind OUTREACH_INBOUND_POLL_ENABLED + per-ws IMAP creds).
+    from apps.api.services.outreach.inbound import handle_inbound_poll, bootstrap_inbound_schedules
+    queue_service.register_handler("outreach_inbound_poll", handle_inbound_poll)
     # Intent poller: tenant-scoped watch poll on the queue (default OFF).
     from apps.api.services.poller.engine import handle_watch_poll, bootstrap_watch_schedules
     queue_service.register_handler("watch_poll", handle_watch_poll)
@@ -181,6 +185,12 @@ async def lifespan(app: FastAPI):
         bootstrap_outreach_schedules()
     except Exception as e:
         logger.warning(f"outreach schedule bootstrap skipped: {e}")
+    # Cold-start the inbound bounce/complaint IMAP poller from its non-RLS mirror
+    # (no-op when OUTREACH_INBOUND_POLL_ENABLED is off). Survives restarts.
+    try:
+        bootstrap_inbound_schedules()
+    except Exception as e:
+        logger.warning(f"outreach inbound bootstrap skipped: {e}")
     # Cold-start the intent poller from its non-RLS mirror (no-op when
     # INTENT_POLLER_ENABLED is off / not PG). Survives restarts; single-flight.
     try:
