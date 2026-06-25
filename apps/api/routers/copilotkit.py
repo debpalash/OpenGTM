@@ -140,33 +140,42 @@ async def copilot_info_post():
 
 
 @router.get("/conversations")
-def list_conversations():
-    """List all chat conversations."""
-    convs = chat_history.list_conversations()
+def list_conversations(request: Request):
+    """List the caller's chat conversations (scoped to workspace + user).
+
+    Authorizes via the same fail-closed path as the chat endpoint: cloud
+    requires a valid token + member workspace (401/403 otherwise); self-host
+    binds to the keyless `main` workspace.
+    """
+    workspace_id, user_id, _slug = _resolve_chat_workspace(request)
+    convs = chat_history.list_conversations(workspace_id, user_id)
     return JSONResponse(content={"conversations": convs})
 
 
 @router.get("/conversations/{conv_id}")
-def get_conversation(conv_id: str):
-    """Get messages for a conversation."""
-    conv = chat_history.get_conversation(conv_id)
+def get_conversation(conv_id: str, request: Request):
+    """Get messages for a conversation the caller owns."""
+    workspace_id, user_id, _slug = _resolve_chat_workspace(request)
+    conv = chat_history.get_conversation(conv_id, workspace_id, user_id)
     if not conv:
         return JSONResponse(content={"error": "Not found"}, status_code=404)
-    messages = chat_history.get_messages(conv_id)
+    messages = chat_history.get_messages(conv_id, workspace_id, user_id)
     return JSONResponse(content={"conversation": conv, "messages": messages})
 
 
 @router.delete("/conversations/{conv_id}")
-def delete_conversation(conv_id: str):
-    """Delete a conversation."""
-    chat_history.delete_conversation(conv_id)
+def delete_conversation(conv_id: str, request: Request):
+    """Delete a conversation the caller owns (no-op cross-tenant)."""
+    workspace_id, user_id, _slug = _resolve_chat_workspace(request)
+    chat_history.delete_conversation(conv_id, workspace_id, user_id)
     return JSONResponse(content={"ok": True})
 
 
 @router.get("/memories")
-def list_memories():
-    """List all stored memories (debug/transparency)."""
-    memories = memory.get_all_memories()
+def list_memories(request: Request):
+    """List the caller's stored memories (debug/transparency), scoped to tenant."""
+    workspace_id, user_id, _slug = _resolve_chat_workspace(request)
+    memories = memory.get_all_memories(workspace_id, user_id)
     return JSONResponse(content={
         "memories": memories,
         "available": memory.is_available(),
@@ -1511,10 +1520,15 @@ async def copilot_chat(request: Request):
             last_user_msg = m.get("content", "")
             break
 
-    # Create or continue conversation
+    # Create or continue conversation — both scoped to (workspace, user). A
+    # body-supplied conversation_id that isn't owned by this tenant is treated
+    # as missing and a fresh conversation is started, so a forged id can never
+    # append to or read another tenant's chat.
+    if conv_id and not chat_history.get_conversation(conv_id, workspace_id, _chat_user_id):
+        conv_id = None
     if not conv_id:
         title = chat_history.auto_title_from_message(last_user_msg)
-        conv = chat_history.create_conversation(title)
+        conv = chat_history.create_conversation(workspace_id, _chat_user_id, title=title)
         conv_id = conv["id"]
 
     # Store user message in history
@@ -1524,7 +1538,7 @@ async def copilot_chat(request: Request):
     # Search memory for relevant context
     memory_context = ""
     if last_user_msg and memory.is_available():
-        memories = memory.search_memory(last_user_msg, user_id="default", limit=5)
+        memories = memory.search_memory(last_user_msg, workspace_id, user_id=_chat_user_id, limit=5)
         if memories:
             memory_texts = []
             for m in memories:
@@ -1660,7 +1674,8 @@ async def copilot_chat(request: Request):
                     # Store the exchange as episodic memory
                     memory.add_memory(
                         f"User asked: {last_user_msg[:200]}\nAssistant answered about: {response_text[:200]}",
-                        user_id="default",
+                        workspace_id,
+                        user_id=_chat_user_id,
                         metadata={"conversation_id": conv_id, "type": "episodic"},
                     )
                 except Exception:
