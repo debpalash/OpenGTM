@@ -255,6 +255,13 @@ def _init_providers():
     except Exception as e:
         logger.warning(f"Failed to register mca_registry: {e}")
 
+    # ── US funding/intent + decision-makers from SEC EDGAR (keyless, free) ──
+    try:
+        from apps.api.services.leadgen.enrichment.providers.sec_edgar import SecEdgarProvider
+        register_provider(SecEdgarProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register sec_edgar: {e}")
+
     try:
         from apps.api.services.leadgen.enrichment.declarative.registry import register_declarative_manifests
         register_declarative_manifests()
