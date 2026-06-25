@@ -9,16 +9,25 @@ Enhanced with multiple fallback selectors for reliability.
 """
 
 import asyncio
+import logging
 import re
 from typing import List, Optional
 from dataclasses import dataclass
 
 from apps.api.services.leadgen.models import Lead
 
+logger = logging.getLogger("leadgen.scrapers.google_maps")
+
+# Prefer patchright (stealth-patched Playwright). Fall back to vanilla
+# playwright (a root dependency) when patchright isn't installed, so Google Maps
+# scraping still works on a stock install instead of silently returning nothing.
 try:
     from patchright.async_api import async_playwright
 except ImportError:
-    async_playwright = None
+    try:
+        from playwright.async_api import async_playwright
+    except ImportError:
+        async_playwright = None
 
 
 @dataclass
@@ -88,7 +97,11 @@ async def scrape_google_maps(
         List of Lead objects with data from Maps
     """
     if async_playwright is None:
-        print("  ⚠ patchright not installed. Run: pip install patchright")
+        logger.warning(
+            "No headless browser available (patchright/playwright not installed) — "
+            "skipping Google Maps scrape. Install with: uv add patchright && "
+            "uv run patchright install chromium"
+        )
         return []
 
     search_term = f"{query} in {city}"

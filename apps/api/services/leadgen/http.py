@@ -1,20 +1,32 @@
 """
-Stealth HTTP Client — Unified fetch with automatic tier escalation.
+Stealth HTTP Client — Unified fetch with automatic browser-tier escalation.
 
 Usage:
     from apps.api.services.leadgen.http import StealthClient
 
     client = StealthClient()
     resp = await client.fetch("https://example.com")
-    print(resp.text, resp.emails, resp.status_code)
+    print(resp.text, resp.emails, resp.status_code, resp.tier_used)
 
-Tier 2 (default): stealth_requests — Chrome TLS impersonation via curl_cffi
-Tier 3 (fallback): patchright browser — full JS rendering for challenge pages
+Tiers (auto-escalating, Tier1 → Tier2 → Tier3):
+    Tier 1: plain HTTP (httpx/aiohttp) with realistic headers — fast, cheap.
+    Tier 2: curl_cffi — real Chrome TLS/JA3 fingerprint (defeats fingerprint
+            blocks). Falls back to stealth_requests, then plain requests/httpx
+            if curl_cffi isn't installed.
+    Tier 3: headless browser (patchright/playwright) — full JS rendering for
+            JS-empty / challenge pages. OPTIONAL: if the library or browser
+            binary is missing, we log ONCE and degrade gracefully (the caller
+            keeps the best lower-tier result rather than crashing).
+    Tier 3.5: FlareSolverr — last-resort Cloudflare/DDoS-Guard solver, inert
+            unless FLARESOLVERR_URL is set.
 
-Challenge detection: Cloudflare, Datadome, reCAPTCHA markers
+Escalation triggers (see ``_is_challenge``): blocked status codes, Cloudflare /
+Datadome / reCAPTCHA markers, "enable javascript" pages, and suspiciously tiny
+HTML bodies (JS-rendered shells that returned almost no content).
 """
 
 import asyncio
+import logging
 import re
 from dataclasses import dataclass, field
 from typing import Optional
@@ -22,6 +34,19 @@ from urllib.parse import urlparse
 
 from apps.api.services.leadgen.proxy_pool import ProxyPool
 from apps.api.services.leadgen.rate_limiter import RateLimiter
+
+logger = logging.getLogger("leadgen.http")
+
+# Optional-dependency "log once" guard. We never want to spam logs (or crash)
+# when an optional browser/TLS library is absent on a given deployment.
+_warned_missing: set[str] = set()
+
+
+def _warn_once(key: str, message: str) -> None:
+    """Emit ``message`` at most once per process for a given ``key``."""
+    if key not in _warned_missing:
+        _warned_missing.add(key)
+        logger.warning(message)
 
 
 # ── Challenge Detection ──────────────────────────────────────────────
@@ -40,16 +65,51 @@ CHALLENGE_MARKERS = [
     "geo.captcha-delivery.com",
 ]
 
+# Markers that signal a JS-gated page that returned no usable content over HTTP.
+# These require a real browser (Tier 3) to render.
+JS_REQUIRED_MARKERS = [
+    "enable javascript",
+    "please enable javascript",
+    "javascript is required",
+    "javascript is disabled",
+    "you need to enable javascript",
+    "<noscript>",
+]
+
 BLOCKED_STATUS_CODES = {403, 429, 503, 520, 521, 522, 523, 524}
+
+# Below this body size, a 2xx HTML response is almost certainly a JS shell /
+# bot wall rather than real content — worth escalating to a browser.
+TINY_BODY_THRESHOLD = 500
 
 
 def _is_challenge(status_code: int, text: str) -> bool:
-    """Detect if response is a bot challenge page."""
+    """Detect a bot-challenge or JS-empty page that warrants browser escalation.
+
+    Returns True when:
+      * the status code is a known block (403/429/503/52x), OR
+      * the body contains a Cloudflare/Datadome/captcha marker, OR
+      * the body contains an "enable javascript" marker, OR
+      * a 2xx response has a suspiciously tiny body (JS-rendered shell).
+    """
     if status_code in BLOCKED_STATUS_CODES:
         return True
+
+    head = text[:5000]
     for marker in CHALLENGE_MARKERS:
-        if marker in text[:5000]:
+        if marker in head:
             return True
+
+    lower = head.lower()
+    for marker in JS_REQUIRED_MARKERS:
+        if marker in lower:
+            return True
+
+    # Tiny-body heuristic: a 2xx HTML page with almost no content is usually a
+    # JS shell that needs a browser to populate the DOM.
+    if 200 <= status_code < 300 and 0 < len(text.strip()) < TINY_BODY_THRESHOLD:
+        return True
+
     return False
 
 
@@ -109,14 +169,28 @@ class FetchResult:
 
 # ── Stealth Client ───────────────────────────────────────────────────
 
+_DEFAULT_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate",
+    "DNT": "1",
+}
+
+
 class StealthClient:
     """
-    Unified stealth HTTP client with tier escalation.
+    Unified stealth HTTP client with automatic browser-tier escalation.
 
-    Tier 2: stealth_requests (curl_cffi) — fast, no browser
-    Tier 3: patchright browser — full JS rendering
+    Tier 1: plain HTTP (httpx/aiohttp) with realistic headers — fast, cheap.
+    Tier 2: curl_cffi — real Chrome TLS/JA3 fingerprint (stealth_requests and
+            plain requests/httpx as graceful fallbacks).
+    Tier 3: patchright/playwright headless browser — full JS rendering.
 
-    Auto-escalates from Tier 2 → Tier 3 on challenge detection.
+    ``fetch`` tries each tier in order and escalates only when a tier returns a
+    challenge / JS-empty page (see ``_is_challenge``). The browser tier is
+    OPTIONAL: when the library or browser binary is missing it is skipped with a
+    one-time log line, and the best lower-tier result is returned.
     """
 
     def __init__(
@@ -137,16 +211,20 @@ class StealthClient:
         timeout: int = 15,
     ) -> FetchResult:
         """
-        Fetch a URL with stealth.
+        Fetch a URL, escalating Tier1 → Tier2 → Tier3 as needed.
 
         Args:
-            url: Target URL
-            tier: Starting tier (2=HTTP, 3=browser)
-            use_proxy: Whether to use proxy rotation
-            timeout: Request timeout in seconds
+            url: Target URL.
+            tier: Highest tier to start at. ``tier<=2`` runs the cheap HTTP
+                tiers first and escalates to the browser on a challenge.
+                ``tier>=3`` jumps straight to the browser.
+            use_proxy: Whether to use proxy rotation.
+            timeout: Per-tier request timeout, in seconds. The browser tier
+                gets a slightly larger budget since it must render JS.
 
         Returns:
-            FetchResult with response data
+            FetchResult with response data and ``tier_used`` set to whichever
+            tier produced the returned body.
         """
         domain = urlparse(url).netloc
         result = FetchResult(url=url)
@@ -163,26 +241,36 @@ class StealthClient:
         if use_proxy and self.proxy_pool and len(self.proxy_pool) > 0:
             proxy = self.proxy_pool.get_proxy(domain, tier=tier)
 
-        # Tier 2: HTTP stealth
+        # ── Tiers 1 & 2: cheap HTTP, escalate on challenge ──────────────
         if tier <= 2:
-            result = await self._fetch_tier2(url, proxy, timeout)
-            if result.ok:
-                self.rate_limiter.report_success(domain)
-                if proxy:
-                    self.proxy_pool.report_success(proxy, domain)
+            result = await self._fetch_http(url, proxy, timeout)
+            if result.ok and not _is_challenge(result.status_code, result.text):
+                logger.debug("fetch %s succeeded at tier %d", url, result.tier_used)
+                self._report_ok(domain, proxy)
                 return result
 
-            # Challenge detected — escalate to Tier 3
+            # Challenge / JS-empty detected — escalate to the browser tier.
             if _is_challenge(result.status_code, result.text):
+                logger.info(
+                    "fetch %s: tier %d hit a challenge/JS-empty page (status=%s) — "
+                    "escalating to browser tier 3",
+                    url, result.tier_used, result.status_code,
+                )
+                browser_proxy = proxy
                 if proxy:
-                    proxy = self.proxy_pool.get_proxy(domain, tier=3)
-                result = await self._fetch_tier3(url, proxy, timeout)
+                    browser_proxy = self.proxy_pool.get_proxy(domain, tier=3)
+                browser_result = await self._fetch_tier3(url, browser_proxy, timeout + 10)
+                # Only adopt the browser result if it actually improved things;
+                # otherwise keep the lower-tier body for the caller to inspect.
+                if browser_result.ok or not result.text:
+                    result = browser_result
+                proxy = browser_proxy
 
-        # Tier 3: Browser
-        elif tier == 3:
-            result = await self._fetch_tier3(url, proxy, timeout)
+        # ── Tier 3: browser only ────────────────────────────────────────
+        else:
+            result = await self._fetch_tier3(url, proxy, timeout + 10)
 
-        # Tier 3.5: FlareSolverr — last resort for Cloudflare/DDoS-Guard challenges.
+        # ── Tier 3.5: FlareSolverr — last resort for Cloudflare/DDoS-Guard.
         # Inert unless FLARESOLVERR_URL is set; only fires when still challenged.
         if (not result.ok) and _is_challenge(result.status_code, result.text):
             fs_result = await self._fetch_flaresolverr(url, proxy)
@@ -191,36 +279,106 @@ class StealthClient:
 
         # Report results
         if result.ok:
-            self.rate_limiter.report_success(domain)
-            if proxy:
-                self.proxy_pool.report_success(proxy, domain)
+            logger.debug("fetch %s succeeded at tier %d", url, result.tier_used)
+            self._report_ok(domain, proxy)
         else:
+            logger.info(
+                "fetch %s failed at all tiers (last tier=%d status=%s error=%s)",
+                url, result.tier_used, result.status_code, result.error or "-",
+            )
             self.rate_limiter.report_failure(domain)
             if proxy:
                 self.proxy_pool.report_blocked(proxy, domain)
 
         return result
 
-    async def _fetch_tier2(self, url: str, proxy: Optional[str], timeout: int) -> FetchResult:
-        """Tier 2: stealth HTTP request via stealth_requests (curl_cffi).
-        Falls back to aiohttp with realistic headers if stealth_requests is not installed.
+    def _report_ok(self, domain: str, proxy: Optional[str]) -> None:
+        self.rate_limiter.report_success(domain)
+        if proxy:
+            self.proxy_pool.report_success(proxy, domain)
+
+    async def _fetch_http(self, url: str, proxy: Optional[str], timeout: int) -> FetchResult:
+        """Tiers 1-2: HTTP fetch with the best available TLS-fingerprint stack.
+
+        Order of preference (all optional except the final httpx fallback):
+          1. curl_cffi  — impersonates a real Chrome TLS/JA3 handshake (Tier 2).
+          2. stealth_requests — curl_cffi-based session with built-in extractors.
+          3. requests / httpx / aiohttp — plain HTTP with realistic headers (Tier 1).
+
+        We degrade silently (one-time log) so deployments without curl_cffi keep
+        working via plain HTTP.
         """
+        # 1) curl_cffi — real browser TLS/JA3 fingerprint. (Tier 2)
+        cffi_result = await self._fetch_curl_cffi(url, proxy, timeout)
+        if cffi_result is not None:
+            return cffi_result
+
+        # 2) stealth_requests — curl_cffi session wrapper with email/phone extractors.
+        sr_result = await self._fetch_stealth_requests(url, proxy, timeout)
+        if sr_result is not None:
+            return sr_result
+
+        # 3) plain HTTP fallback. (Tier 1)
+        return await self._fetch_plain(url, proxy, timeout)
+
+    async def _fetch_curl_cffi(self, url: str, proxy: Optional[str], timeout: int) -> Optional[FetchResult]:
+        """Tier 2: fetch via curl_cffi with a Chrome TLS/JA3 impersonation.
+
+        Returns None when curl_cffi isn't installed (so the caller can fall
+        back to a cheaper tier). curl_cffi is a synchronous client, so we run it
+        in a thread to keep the event loop responsive.
+        """
+        try:
+            from curl_cffi import requests as cffi_requests
+        except ImportError:
+            _warn_once(
+                "curl_cffi",
+                "curl_cffi not installed — Tier 2 TLS impersonation unavailable; "
+                "falling back to plain HTTP. Install with: uv add curl-cffi",
+            )
+            return None
+
         result = FetchResult(url=url, tier_used=2, proxy_used=proxy or "")
 
-        # Try stealth_requests first
+        def _do_request() -> tuple[int, str]:
+            proxies = {"http": proxy, "https": proxy} if proxy else None
+            resp = cffi_requests.get(
+                url,
+                impersonate="chrome",
+                timeout=timeout,
+                proxies=proxies,
+                allow_redirects=True,
+            )
+            return resp.status_code, resp.text
+
+        try:
+            status_code, text = await asyncio.to_thread(_do_request)
+            result.status_code = status_code
+            result.text = text
+        except Exception as e:  # network error, bad proxy, etc.
+            result.error = str(e)
+            result.status_code = 0
+        return result
+
+    async def _fetch_stealth_requests(self, url: str, proxy: Optional[str], timeout: int) -> Optional[FetchResult]:
+        """Optional Tier 2 variant: stealth_requests (curl_cffi session wrapper).
+
+        Returns None when not installed.
+        """
         try:
             from stealth_requests.session import AsyncStealthSession
+        except ImportError:
+            return None
 
+        result = FetchResult(url=url, tier_used=2, proxy_used=proxy or "")
+        try:
             async with AsyncStealthSession(timeout=timeout) as session:
                 kwargs = {}
                 if proxy:
                     kwargs["proxy"] = proxy
                 resp = await session.get(url, retry=self.max_retries, **kwargs)
-
                 result.status_code = resp.status_code
                 result.text = resp.text
-
-                # Use built-in extractors if available
                 try:
                     result.emails = list(resp.emails or [])
                 except Exception:
@@ -229,38 +387,60 @@ class StealthClient:
                     result.phones = list(resp.phone_numbers or [])
                 except Exception:
                     pass
+        except Exception as e:
+            result.error = str(e)
+            result.status_code = 0
+        return result
 
+    async def _fetch_plain(self, url: str, proxy: Optional[str], timeout: int) -> FetchResult:
+        """Tier 1: plain HTTP with realistic headers via httpx, then aiohttp."""
+        result = FetchResult(url=url, tier_used=1, proxy_used=proxy or "")
+
+        # Prefer httpx (a root dependency).
+        try:
+            import httpx
+
+            async with httpx.AsyncClient(
+                headers=_DEFAULT_HEADERS,
+                timeout=timeout,
+                follow_redirects=True,
+                proxy=proxy or None,
+                verify=False,
+            ) as client:
+                resp = await client.get(url)
+                result.status_code = resp.status_code
+                result.text = resp.text
             return result
-
         except ImportError:
-            pass  # Fall through to aiohttp
+            pass
         except Exception as e:
             result.error = str(e)
             result.status_code = 0
             return result
 
-        # Fallback: aiohttp with realistic headers
+        # Final fallback: aiohttp.
         try:
             import aiohttp
 
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                "Accept-Language": "en-US,en;q=0.9",
-                "Accept-Encoding": "gzip, deflate",
-                "DNT": "1",
-            }
             conn = aiohttp.TCPConnector(ssl=False)
-            async with aiohttp.ClientSession(connector=conn, headers=headers) as session:
-                async with session.get(url, timeout=aiohttp.ClientTimeout(total=timeout), allow_redirects=True) as resp:
+            async with aiohttp.ClientSession(connector=conn, headers=_DEFAULT_HEADERS) as session:
+                async with session.get(
+                    url,
+                    timeout=aiohttp.ClientTimeout(total=timeout),
+                    allow_redirects=True,
+                    proxy=proxy or None,
+                ) as resp:
                     result.status_code = resp.status
                     result.text = await resp.text(errors="replace")
-
         except Exception as e:
             result.error = str(e)
             result.status_code = 0
-
         return result
+
+    # Backwards-compatible alias — older callers / tests may reference _fetch_tier2.
+    async def _fetch_tier2(self, url: str, proxy: Optional[str], timeout: int) -> FetchResult:
+        """Deprecated alias for the HTTP tier stack (Tiers 1-2)."""
+        return await self._fetch_http(url, proxy, timeout)
 
     async def _fetch_flaresolverr(self, url: str, proxy: Optional[str]) -> Optional[FetchResult]:
         """Tier 3.5: solve a Cloudflare/DDoS-Guard challenge via FlareSolverr.
@@ -282,13 +462,46 @@ class StealthClient:
         result.text = sol.html
         return result
 
-    async def _fetch_tier3(self, url: str, proxy: Optional[str], timeout: int) -> FetchResult:
-        """Tier 3: browser-based fetch via patchright."""
-        result = FetchResult(url=url, tier_used=3, proxy_used=proxy or "")
+    @staticmethod
+    def _load_async_playwright():
+        """Return an ``async_playwright`` callable, preferring patchright.
 
+        Patchright is a stealth-patched Playwright fork; if it isn't installed we
+        fall back to vanilla playwright (a root dependency). Returns None when
+        neither is available so the caller can degrade gracefully.
+        """
         try:
             from patchright.async_api import async_playwright
+            return async_playwright
+        except ImportError:
+            pass
+        try:
+            from playwright.async_api import async_playwright
+            return async_playwright
+        except ImportError:
+            return None
 
+    async def _fetch_tier3(self, url: str, proxy: Optional[str], timeout: int) -> FetchResult:
+        """Tier 3: headless-browser fetch via patchright (or playwright).
+
+        OPTIONAL tier. If neither browser library is importable, or the browser
+        binary hasn't been installed, we log ONCE and return an errored result
+        (status 0) — never raising — so the caller keeps its lower-tier body.
+        """
+        result = FetchResult(url=url, tier_used=3, proxy_used=proxy or "")
+
+        async_playwright = self._load_async_playwright()
+        if async_playwright is None:
+            _warn_once(
+                "browser",
+                "No headless browser available (patchright/playwright not installed) — "
+                "Tier 3 escalation disabled; keeping HTTP-tier results. "
+                "Install with: uv add patchright && uv run patchright install chromium",
+            )
+            result.error = "browser not installed"
+            return result
+
+        try:
             async with async_playwright() as p:
                 launch_args = {}
                 if proxy:
@@ -320,10 +533,17 @@ class StealthClient:
                 finally:
                     await browser.close()
 
-        except ImportError:
-            result.error = "patchright not installed"
         except Exception as e:
-            result.error = str(e)
+            # Most commonly the browser *binary* isn't installed (the Python lib
+            # is). Log once so we don't crash the whole fetch on every URL.
+            msg = str(e)
+            if "Executable doesn't exist" in msg or "playwright install" in msg:
+                _warn_once(
+                    "browser_binary",
+                    "Headless browser binary missing — Tier 3 disabled. "
+                    "Run: uv run patchright install chromium",
+                )
+            result.error = msg
 
         return result
 
