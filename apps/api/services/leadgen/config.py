@@ -103,3 +103,12 @@ DASHBOARD_PORT = 5050
 
 # ── API Keys (optional, loaded from .env) ──────────────────────────────
 HUNTER_API_KEY = os.getenv("HUNTER_API_KEY", "")
+
+# Optional keyed search engines used as a fallback chain behind DuckDuckGo
+# (see services/leadgen/search_engines.py). All optional: with none set, web
+# search behaves exactly as today (keyless DDG / SearXNG only).
+SERPAPI_KEY = os.getenv("SERPAPI_KEY", "")
+BING_SEARCH_KEY = os.getenv("BING_SEARCH_KEY", "")
+GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID", "")
+GOOGLE_CSE_KEY = os.getenv("GOOGLE_CSE_KEY", "")
+BRAVE_SEARCH_KEY = os.getenv("BRAVE_SEARCH_KEY", "")
