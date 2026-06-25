@@ -140,7 +140,7 @@ export default function SignalsPage() {
           {counts.total || 0} total signals
         </span>
         <div className="ml-auto">
-          <Select value={filter} onValueChange={setFilter}>
+          <Select value={filter} onValueChange={(v) => setFilter(v ?? "all")}>
             <SelectTrigger className="w-[140px] h-7 text-xs">
               <Filter className="size-3 mr-1" />
               <SelectValue />

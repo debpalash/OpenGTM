@@ -2,8 +2,8 @@ import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import {
   Send, Plus, Play, Pause, Trash2, MoreHorizontal, Clock,
-  Mail, Users, BarChart3, CheckCircle2, AlertCircle, Loader2,
-  ChevronRight, Settings2, Zap, ArrowRight, Eye, MousePointerClick,
+  Mail, Users, CheckCircle2, AlertCircle, Loader2,
+  ChevronRight, Zap, Eye, MousePointerClick,
   XCircle, Timer, Hash,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -65,7 +65,6 @@ export default function OutreachPage() {
   const [sequences, setSequences] = useState<Sequence[]>([])
   const [loading, setLoading] = useState(true)
   const [smtpStatus, setSmtpStatus] = useState<SMTPStatus | null>(null)
-  const [showCreate, setShowCreate] = useState(false)
   const [selectedSeq, setSelectedSeq] = useState<SequenceDetail | null>(null)
   const [view, setView] = useState<"list" | "detail" | "create">("list")
 
@@ -526,7 +525,7 @@ function SequenceDetailView({ sequence, onBack, onRefresh }: {
 
       {/* Enroll Leads */}
       <div className="flex items-center gap-2">
-        <Select value={enrollTier} onValueChange={setEnrollTier}>
+        <Select value={enrollTier} onValueChange={(v) => setEnrollTier(v ?? "")}>
           <SelectTrigger className="w-[120px] h-7 text-xs">
             <SelectValue />
           </SelectTrigger>

@@ -5,10 +5,37 @@
  * The LLM generates OpenUI Lang that maps to these React components.
  */
 
-import { defineComponent, createLibrary } from "@openuidev/react-lang"
+import type { ReactNode } from "react"
+import {
+  defineComponent as defineComponentBase,
+  createLibrary,
+  type DefinedComponent,
+} from "@openuidev/react-lang"
 import { z } from "zod"
 import { useNavigate } from "react-router-dom"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from "recharts"
+
+/**
+ * Typed wrapper around `defineComponent`.
+ *
+ * The library's `ComponentRenderProps<P>` type does not surface the declared
+ * prop fields (its underlying `@openuidev/lang-core` type erases the generic
+ * payload), so the render function would otherwise receive an opaque wrapper
+ * type instead of the schema's data shape. At runtime the evaluated props ARE
+ * passed straight through as the inferred data shape, so we type the render
+ * function as `(props: z.infer<T>) => ReactNode` — no runtime change, just an
+ * accurate type for the props.
+ */
+function defineComponent<T extends z.ZodObject<z.ZodRawShape>>(config: {
+  name: string
+  description: string
+  props: T
+  component: (props: z.infer<T>) => ReactNode
+}): DefinedComponent<T> {
+  return defineComponentBase(
+    config as unknown as Parameters<typeof defineComponentBase<T>>[0],
+  )
+}
 
 /* ── Shared helpers ─────────────────────────────────────────────── */
 
@@ -46,16 +73,9 @@ function TierBadge({ tier }: { tier: string }) {
 
 /* ── ScoreBar ───────────────────────────────────────────────────── */
 
-const ScoreBar = defineComponent({
-  name: "ScoreBar",
-  description: "Visual score indicator with tier coloring (0-100)",
-  props: z.object({
-    score: z.number().describe("Lead score 0-100"),
-    tier: z.string().describe("Score tier: hot, warm, cold, unqualified"),
-  }),
-  component: ({ score, tier }) => {
-    const color = tierColor[tier] || "#6b7280"
-    return (
+function ScoreBarView({ score, tier }: { score: number; tier: string }) {
+  const color = tierColor[tier] || "#6b7280"
+  return (
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <div
           style={{
@@ -79,7 +99,16 @@ const ScoreBar = defineComponent({
         <span style={{ fontSize: 13, fontWeight: 700, color, minWidth: 28 }}>{score}</span>
       </div>
     )
-  },
+}
+
+const ScoreBar = defineComponent({
+  name: "ScoreBar",
+  description: "Visual score indicator with tier coloring (0-100)",
+  props: z.object({
+    score: z.number().describe("Lead score 0-100"),
+    tier: z.string().describe("Score tier: hot, warm, cold, unqualified"),
+  }),
+  component: ({ score, tier }) => <ScoreBarView score={score} tier={tier} />,
 })
 
 /* ── LeadCard ───────────────────────────────────────────────────── */
@@ -138,7 +167,7 @@ const LeadCard = defineComponent({
 
         {/* Score */}
         {props.score != null && props.tier && (
-          <ScoreBar.component score={props.score} tier={props.tier} />
+          <ScoreBarView score={props.score} tier={props.tier} />
         )}
 
         {/* Details */}

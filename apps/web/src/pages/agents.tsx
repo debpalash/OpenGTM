@@ -133,7 +133,7 @@ function TaskListRow({ job, onClick }: { job: Job; onClick: () => void }) {
 
 // ── Card View ────────────────────────────────────────────────────
 
-function TaskCard({ job, onClick }: { job: Job; onClick: () => void }) {
+function TaskCard({ job }: { job: Job; onClick: () => void }) {
   return <TaskDetailCard jobId={job.id} compact />
 }
 
@@ -188,7 +188,7 @@ export default function AgentsPage() {
           </div>
 
           {/* View Toggle */}
-          <ToggleGroup type="single" value={view} onValueChange={(v) => v && setView(v as "list" | "cards")} size="sm">
+          <ToggleGroup value={[view]} onValueChange={(v) => { const next = v[0]; if (next) setView(next as "list" | "cards") }} size="sm">
             <ToggleGroupItem value="list" aria-label="List view">
               <LayoutList className="size-4" />
             </ToggleGroupItem>
@@ -317,7 +317,7 @@ export default function AgentsPage() {
 
 // ── Filter Chip ──────────────────────────────────────────────────
 
-function FilterChip({ label, count, active, onClick, variant }: {
+function FilterChip({ label, count, active, onClick }: {
   label: string
   count: number
   active: boolean
