@@ -20,6 +20,9 @@ from typing import Dict, List, Optional
 from apps.api.services.leadgen.enrichment.provider import (
     EnrichmentProvider, EnrichmentResult,
 )
+from apps.api.services.leadgen.enrichment.providers.job_tech_intent import (
+    analyze_job_text,
+)
 from apps.api.services.leadgen.models import Lead
 
 logger = logging.getLogger("leadgen.jobspy")
@@ -48,6 +51,8 @@ def _analyze_jobs(jobs_data: list) -> Dict:
         "tech_hiring": False,
         "roles": [],
         "score_boost": 0,
+        "technologies": [],
+        "tech_adoption_signal": [],
     }
 
     if not jobs_data:
@@ -95,6 +100,22 @@ def _analyze_jobs(jobs_data: list) -> Dict:
     if signals["tech_hiring"]:
         signals["score_boost"] += 5
 
+    # ── Tech-adoption intent (free technographic on the text we already have).
+    # Concatenate all titles + descriptions and run the keyword/regex parser.
+    # NO new network — pure analysis of the fetched snippets.
+    job_text = " \n ".join(
+        f"{j.get('title') or ''} {j.get('description') or ''}" for j in jobs_data
+    )
+    intent = analyze_job_text(job_text, open_roles=total)
+    signals["technologies"] = intent["technologies"]
+    signals["tech_adoption_signal"] = intent["tech_adoption_signal"]
+    if "hiring_velocity" in intent:
+        signals["hiring_velocity"] = intent["hiring_velocity"]
+    # Extra boost when a competitor / data-enrichment tool shows up — high
+    # displacement intent.
+    if any(s["category"] == "Competitor Tools" for s in signals["tech_adoption_signal"]):
+        signals["score_boost"] += 5
+
     # Cap roles list
     signals["roles"] = signals["roles"][:5]
 
@@ -109,7 +130,7 @@ class JobSpySignalProvider(EnrichmentProvider):
     """
 
     name = "jobspy"
-    capabilities = ["hiring_signals"]
+    capabilities = ["hiring_signals", "technologies"]
     default_confidence = 0.7
 
     def __init__(self, max_jobs: int = 5, delay: float = 1.0):
@@ -138,13 +159,18 @@ class JobSpySignalProvider(EnrichmentProvider):
                 duration_ms=(time() - start) * 1000,
             )
 
+        fields = {"hiring_signals": json.dumps(signals)}
+        # Surface the detected stack as a flat scalar cell value too (data
+        # contract: the JSON detail lives in hiring_signals; the cell gets a
+        # comma-joined string). Only when we actually found technologies.
+        if signals.get("technologies"):
+            fields["technologies"] = ", ".join(signals["technologies"])
+
         return EnrichmentResult(
             provider=self.name,
             success=True,
             confidence=0.7,
-            fields={
-                "hiring_signals": json.dumps(signals),
-            },
+            fields=fields,
             duration_ms=(time() - start) * 1000,
         )
 
