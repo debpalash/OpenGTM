@@ -97,10 +97,17 @@ def test_firstrun_seed_against_postgres(throwaway_db):
     assert proc.returncode == 0, f"seed failed:\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
 
     with psycopg.connect(db["libpq_url"]) as conn:
-        # Schema came up via Alembic and is STAMPED (the create_all-without-stamp
-        # bug would leave this table absent).
+        # Schema came up via Alembic and is STAMPED at the CURRENT head (the
+        # create_all-without-stamp bug would leave this table absent). Derive the
+        # head dynamically so new migrations don't break this test.
+        import os
+        from alembic.config import Config
+        from alembic.script import ScriptDirectory
+
+        _ini = os.path.join(os.path.dirname(__file__), "..", "alembic.ini")
+        head = ScriptDirectory.from_config(Config(_ini)).get_current_head()
         ver = conn.execute("SELECT version_num FROM alembic_version").fetchone()
-        assert ver and ver[0] == "f7274d0aacd9", f"unexpected alembic stamp: {ver}"
+        assert ver and ver[0] == head, f"alembic stamp {ver} != current head {head}"
 
         # Admin user exists so the login screen is usable out of the box.
         admin = conn.execute(
