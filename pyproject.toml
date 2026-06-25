@@ -57,6 +57,19 @@ dependencies = [
     "stripe>=11.0.0",
 ]
 
+[project.optional-dependencies]
+# Browser-tier escalation for the lead-sourcing fetch path (apps/api/services/
+# leadgen/http.py). These are OPTIONAL: the default fetch path degrades to plain
+# HTTP when they're absent. Install with: `uv sync --extra browser` followed by
+# `uv run patchright install chromium` for the browser binary.
+#   - patchright: stealth-patched Playwright fork (Tier 3 headless browser).
+#   - stealth-requests: curl_cffi session wrapper with built-in extractors (Tier 2).
+# curl-cffi itself is a core dependency above (Tier 2 TLS/JA3 impersonation).
+browser = [
+    "patchright>=1.52.0",
+    "stealth-requests>=1.2.0",
+]
+
 [project.scripts]
 yupcha = "apps.api.cli:main"
 
