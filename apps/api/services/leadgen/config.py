@@ -102,7 +102,11 @@ DASHBOARD_HOST = "127.0.0.1"
 DASHBOARD_PORT = 5050
 
 # ── API Keys (optional, loaded from .env) ──────────────────────────────
+# All optional/BYOK. When blank, the email-finder waterfall simply skips that
+# provider and degrades gracefully (regex/scrape still runs with no keys).
 HUNTER_API_KEY = os.getenv("HUNTER_API_KEY", "")
+SNOVIO_CLIENT_ID = os.getenv("SNOVIO_CLIENT_ID", "")
+SNOVIO_CLIENT_SECRET = os.getenv("SNOVIO_CLIENT_SECRET", "")
 
 # Optional keyed search engines used as a fallback chain behind DuckDuckGo
 # (see services/leadgen/search_engines.py). All optional: with none set, web

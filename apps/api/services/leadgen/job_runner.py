@@ -11,12 +11,15 @@ Enhanced with:
 
 import asyncio
 import json
+import logging
 import os
 import re
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
 from urllib.parse import urlparse
+
+logger = logging.getLogger("leadgen.job_runner")
 
 from apps.api.services.leadgen.db import LeadDB
 from apps.api.services.leadgen.http import StealthClient
@@ -466,10 +469,38 @@ class JobRunner:
             })
             try:
                 from apps.api.services.leadgen.enrichment.decision_maker_finder import enrich_decision_makers
-                # Find DMs for all leads that have a website (lowered from score >= 40)
-                dm_candidates = [l for l in scored if l.has_website][:15]
+                # Budget-limit decision-maker discovery to the leads worth the
+                # (slow, rate-limited) LinkedIn lookups: scored hot/warm leads.
+                # Cap the total to keep runtime bounded even on big batches.
+                dm_budget = int(os.getenv("DM_DISCOVERY_BUDGET", "15"))
+                dm_candidates = [
+                    l for l in scored
+                    if l.score_tier in ("hot", "warm") and not l.decision_makers
+                ][:dm_budget]
                 if dm_candidates:
                     await enrich_decision_makers(dm_candidates, concurrency=2, max_contacts=2)
+
+                    # Sync fallback: for hot/warm leads the async finder couldn't
+                    # crack, try scrapers.linkedin.find_decision_makers (DDG
+                    # site:linkedin.com/in). Tightly capped — it's blocking.
+                    fallback = [l for l in dm_candidates if not l.decision_makers][:5]
+                    if fallback:
+                        from apps.api.services.leadgen.scrapers.linkedin import find_decision_makers
+                        for lead in fallback:
+                            try:
+                                people = await asyncio.to_thread(
+                                    find_decision_makers, lead.company, None, 3
+                                )
+                            except Exception:
+                                people = []
+                            if people:
+                                lead.decision_makers = json.dumps(people)
+                                if not lead.contact_person:
+                                    lead.contact_person = people[0].get("name", "")
+                                    lead.contact_title = people[0].get("title", "")
+                                if not lead.linkedin_url and people[0].get("linkedin_url"):
+                                    lead.linkedin_url = people[0]["linkedin_url"]
+
                     dm_found = sum(1 for l in dm_candidates if l.decision_makers)
                     progress.emit("job_progress", {
                         "job_id": job_id, "stage": "decision_makers",
@@ -480,8 +511,58 @@ class JobRunner:
                     "job_id": job_id, "stage": "decision_makers",
                     "message": f"⚠️ Decision maker search error: {e}",
                 })
+
+            # Re-score so the decision-maker / contact bonus is reflected in the
+            # final score & tier (scoring.score_lead rewards decision_makers).
+            try:
+                from apps.api.services.leadgen.scoring import score_lead, get_tier
+                for lead in scored:
+                    if lead.decision_makers or lead.has_contact_person:
+                        lead.score = score_lead(lead)
+                        lead.score_tier = get_tier(lead.score)
+            except Exception as e:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "decision_makers",
+                    "message": f"⚠️ Re-score after decision makers failed: {e}",
+                })
             self.db.complete_stage(dm_sid,
                 input_count=len(scored), output_count=len(scored))
+
+            # ── Email-Finder Waterfall ────────────────────────────
+            # For leads that STILL have no email after website discovery, try
+            # providers in order: website regex/scrape → Hunter.io → Snov.io.
+            # Provider keys are optional; with none configured only the free
+            # website step runs and the rest no-op. Provenance is recorded on
+            # each lead's email_provider + enrichment_waterfall fields.
+            ew_sid = self.db.create_stage(job_id, "email_waterfall")
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "email_waterfall",
+                "message": f"📨 Email-finder waterfall...",
+            })
+            ew_found = 0
+            try:
+                from apps.api.services.leadgen.enrichment.email_waterfall import (
+                    enrich_emails_waterfall,
+                )
+                ew_budget = int(os.getenv("EMAIL_WATERFALL_BUDGET", "15"))
+                # Prioritize hot/warm leads missing an email.
+                ew_candidates = sorted(
+                    [l for l in scored if l.company and not l.has_email],
+                    key=lambda l: l.score, reverse=True,
+                )
+                await enrich_emails_waterfall(ew_candidates, limit=ew_budget)
+                ew_found = sum(1 for l in ew_candidates[:ew_budget] if l.email_provider)
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "email_waterfall",
+                    "message": f"📨 Waterfall found {ew_found} emails",
+                })
+            except Exception as e:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "email_waterfall",
+                    "message": f"⚠️ Email waterfall error: {e}",
+                })
+            self.db.complete_stage(ew_sid,
+                input_count=len(scored), output_count=ew_found)
 
             # ── Personal Emails ───────────────────────────────────
             pe_sid = self.db.create_stage(job_id, "personal_emails")
@@ -628,6 +709,56 @@ class JobRunner:
             self.db.complete_stage(smtp_sid,
                 input_count=len(scored), output_count=smtp_total,
                 details=json.dumps({"smtp_verified": smtp_total}))
+
+            # ── Deliverability Tag (verified / risky / unknown) ────
+            # Normalize email_confidence into the 3-state contract the workbook
+            # badge consumes, using MX + SMTP cascade + catch-all/role/disposable
+            # detection. Leaves the stronger "smtp_verified" tag alone; drops
+            # hard-invalid / disposable addresses. Degrades to "unknown" when
+            # SMTP is blocked and no HTTP verifier key is present.
+            del_sid = self.db.create_stage(job_id, "deliverability")
+            progress.emit("job_progress", {
+                "job_id": job_id, "stage": "deliverability",
+                "message": f"🏷️ Tagging email deliverability...",
+            })
+            del_counts = {"verified": 0, "risky": 0, "unknown": 0, "dropped": 0}
+            try:
+                from apps.api.services.leadgen.enrichment.email_deliverability import (
+                    tag_email_confidence,
+                )
+                del_budget = int(os.getenv("DELIVERABILITY_BUDGET", "20"))
+                del_candidates = [
+                    l for l in scored
+                    if l.has_email and l.email_confidence != "smtp_verified"
+                ][:del_budget]
+                for lead in del_candidates:
+                    try:
+                        res = await tag_email_confidence(lead)
+                    except Exception:
+                        res = None
+                    if res is None:
+                        continue
+                    if not res.keep:
+                        del_counts["dropped"] += 1
+                    elif res.confidence in del_counts:
+                        del_counts[res.confidence] += 1
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "deliverability",
+                    "message": (
+                        f"🏷️ verified={del_counts['verified']} "
+                        f"risky={del_counts['risky']} unknown={del_counts['unknown']} "
+                        f"dropped={del_counts['dropped']}"
+                    ),
+                })
+            except Exception as e:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "deliverability",
+                    "message": f"⚠️ Deliverability tagging error: {e}",
+                })
+            self.db.complete_stage(del_sid,
+                input_count=len(scored),
+                output_count=del_counts["verified"] + del_counts["risky"],
+                details=json.dumps(del_counts))
 
             # ── Store ────────────────────────────────────────────
             store_sid = self.db.create_stage(job_id, "store")
