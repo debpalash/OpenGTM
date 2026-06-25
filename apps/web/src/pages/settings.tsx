@@ -17,6 +17,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useProviders, type Provider } from "@/lib/hooks"
 import { useQueryClient } from "@tanstack/react-query"
 import { queryKeys } from "@/lib/query-client"
+import { useSmtpStatus, useUpdateSmtp, useTestSmtp } from "@/lib/automation-hooks"
+import { Gate } from "@/components/gate"
 
 // Map provider emoji icons from the API to Lucide components
 const PROVIDER_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -609,74 +611,53 @@ function IntegrationsTab() {
 }
 
 function SMTPConfigTab() {
+  // Rewired onto the scaffold React Query hooks (spec §1.1 / §10). Status reads
+  // through useSmtpStatus; save/test go through useUpdateSmtp/useTestSmtp which
+  // route 403 (admin-only) + 400 errors through the shared ApiError mapper.
+  const status = useSmtpStatus()
+  const update = useUpdateSmtp({ onSuccess: () => { toast.success("SMTP configuration saved"); setPassword("") } })
+  const test = useTestSmtp({ onSuccess: () => toast.success(`Test email sent to ${testEmail}`) })
+
   const [host, setHost] = useState("")
   const [port, setPort] = useState("587")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [fromName, setFromName] = useState("Yupcha")
   const [maxPerHour, setMaxPerHour] = useState("50")
-  const [saving, setSaving] = useState(false)
-  const [testing, setTesting] = useState(false)
   const [testEmail, setTestEmail] = useState("")
-  const [configured, setConfigured] = useState(false)
+  // Seed inputs from the loaded status exactly once per loaded payload.
+  const [seeded, setSeeded] = useState(false)
+
+  const configured = status.data?.configured ?? false
 
   useEffect(() => {
-    fetch("/api/outreach/smtp/status")
-      .then(r => r.json())
-      .then(data => {
-        setConfigured(data.configured)
-        if (data.host) setHost(data.host)
-        if (data.email) setEmail(data.email)
-        if (data.from_name) setFromName(data.from_name)
-        if (data.max_per_hour) setMaxPerHour(String(data.max_per_hour))
-      })
-      .catch(() => {})
-  }, [])
+    if (seeded || !status.data) return
+    const d = status.data
+    if (d.host) setHost(d.host)
+    if (d.email) setEmail(d.email)
+    if (d.from_name) setFromName(d.from_name)
+    if (d.max_per_hour) setMaxPerHour(String(d.max_per_hour))
+    setSeeded(true)
+  }, [status.data, seeded])
 
-  const handleSave = async () => {
-    setSaving(true)
-    try {
-      await fetch("/api/outreach/smtp/config", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          smtp_host: host,
-          smtp_port: parseInt(port),
-          smtp_email: email,
-          ...(password && { smtp_password: password }),
-          smtp_from_name: fromName,
-          smtp_max_per_hour: parseInt(maxPerHour),
-        }),
-      })
-      toast.success("SMTP configuration saved")
-      setPassword("")
-      setConfigured(true)
-    } catch {
-      toast.error("Failed to save SMTP config")
-    }
-    setSaving(false)
+  const handleSave = () => {
+    update.mutate({
+      smtp_host: host,
+      smtp_port: parseInt(port),
+      smtp_email: email,
+      ...(password && { smtp_password: password }),
+      smtp_from_name: fromName,
+      smtp_max_per_hour: parseInt(maxPerHour),
+    })
   }
 
-  const handleTest = async () => {
+  const handleTest = () => {
     if (!testEmail) { toast.error("Enter test email address"); return }
-    setTesting(true)
-    try {
-      const res = await fetch("/api/outreach/smtp/test", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ to_email: testEmail }),
-      })
-      if (res.ok) {
-        toast.success(`Test email sent to ${testEmail}`)
-      } else {
-        const data = await res.json()
-        toast.error(data.detail || "Test failed")
-      }
-    } catch {
-      toast.error("Test failed")
-    }
-    setTesting(false)
+    test.mutate(testEmail)
   }
+
+  const saving = update.isPending
+  const testing = test.isPending
 
   return (
     <>
@@ -749,10 +730,12 @@ function SMTPConfigTab() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button size="sm" onClick={handleSave} disabled={saving || !host || !email}>
-              {saving ? <Loader2 className="size-3 animate-spin mr-1" /> : null}
-              Save
-            </Button>
+            <Gate need="admin">
+              <Button size="sm" onClick={handleSave} disabled={saving || !host || !email}>
+                {saving ? <Loader2 className="size-3 animate-spin mr-1" /> : null}
+                Save
+              </Button>
+            </Gate>
           </div>
 
           <Separator />
@@ -766,10 +749,12 @@ function SMTPConfigTab() {
                 onChange={(e) => setTestEmail(e.target.value)}
                 className="text-xs max-w-xs"
               />
-              <Button size="sm" variant="outline" onClick={handleTest} disabled={testing || !configured}>
-                {testing ? <Loader2 className="size-3 animate-spin mr-1" /> : <Mail className="size-3 mr-1" />}
-                Send Test
-              </Button>
+              <Gate need="admin">
+                <Button size="sm" variant="outline" onClick={handleTest} disabled={testing || !configured}>
+                  {testing ? <Loader2 className="size-3 animate-spin mr-1" /> : <Mail className="size-3 mr-1" />}
+                  Send Test
+                </Button>
+              </Gate>
             </div>
             {!configured && (
               <p className="text-[11px] text-muted-foreground">Save SMTP config first to send test emails.</p>
