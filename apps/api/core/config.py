@@ -1,4 +1,6 @@
 import os
+from typing import Optional
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 
@@ -90,6 +92,15 @@ class Settings(BaseSettings):
     # is superuser/BYPASSRLS (RLS would be off). If False, log CRITICAL and fall
     # back to disabling the PG store. Default True = fail fast (recommended).
     PG_RLS_REQUIRE_SAFE_ROLE: bool = True
+
+    # ── Legacy chat-agent (CopilotKit) tenancy ─────────────────────────
+    # Whether the /api/copilotkit chat endpoint REQUIRES per-request auth
+    # (Authorization bearer + X-Workspace-Id, membership enforced, fail-closed).
+    # Defaults to PG_LEAD_STORE's value (see _default_chat_require_auth): cloud /
+    # multi-tenant Postgres deployments require auth; self-host SQLite stays
+    # keyless, binding chat to the `main` default workspace. Set explicitly to
+    # override the coupling.
+    CHAT_REQUIRE_AUTH: Optional[bool] = None
 
     # ── Automations / Trigger Engine (Signal->Action) ──────────────────
     # Master switch. OFF: router 404s, event emitters no-op, the trigger_eval
@@ -197,6 +208,17 @@ class Settings(BaseSettings):
         env_file = _ENV_FILES
         env_file_encoding = "utf-8"
         extra = "ignore"
+
+    @model_validator(mode="after")
+    def _default_chat_require_auth(self):
+        """CHAT_REQUIRE_AUTH defaults to PG_LEAD_STORE when not set explicitly.
+
+        Keeps the cloud (PG) chat path auth-gated and the self-host (SQLite)
+        path keyless without forcing operators to set two coupled flags.
+        """
+        if self.CHAT_REQUIRE_AUTH is None:
+            self.CHAT_REQUIRE_AUTH = bool(self.PG_LEAD_STORE)
+        return self
 
     # ── Security helpers ────────────────────────────────────────────────
     @property

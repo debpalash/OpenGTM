@@ -367,6 +367,11 @@ async def execute_plan(
     `execute_tool` is the chat's _execute_tool — passed in to avoid a circular
     import and to reuse the exact tool logic (workbook creation, agent columns,
     refresh), including their queue jobs and progress events.
+
+    TENANCY: the caller binds `execute_tool` to the resolved workspace via
+    ``functools.partial(_execute_tool, store=..., workspace_id=..., slug=...)``
+    (copilotkit.py execute_plan branch), so every step here inherits the same
+    tenant-scoped store + RLS scope — the planner cannot reach another workspace.
     """
     wb_id: Optional[str] = None
     steps_done: List[Dict] = []
