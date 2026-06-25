@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
   Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2, X, Activity,
-  Moon, Sun, LogOut, Building2,
+  Moon, Sun, LogOut, Building2, Radar,
 } from "lucide-react"
 import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
@@ -37,6 +37,8 @@ import WorkbooksPage from "@/pages/workbooks"
 import WorkbookEditorPage from "@/pages/workbook-editor"
 import SignalsPage from "@/pages/signals"
 import WorkspacesManagerPage from "@/pages/workspaces-manager"
+import AutomationsPage from "@/pages/automations"
+import WatchesPage from "@/pages/watches"
 
 const NAV_ITEMS = [
   { to: "/chat",       icon: MessageSquare, label: "Chat" },
@@ -45,6 +47,8 @@ const NAV_ITEMS = [
   { to: "/search",     icon: Search,        label: "Search" },
   { to: "/agents",     icon: Bot,           label: "Tasks" },
   { to: "/outreach",   icon: Send,          label: "Outreach" },
+  { to: "/automations", icon: Zap,          label: "Automations" },
+  { to: "/watches",    icon: Radar,         label: "Watches" },
   { to: "/signals",    icon: Activity,      label: "Signals" },
   { to: "/sources",    icon: Database,       label: "Sources" },
   { to: "/analytics",  icon: BarChart3,     label: "Analytics" },
@@ -349,6 +353,8 @@ function AppContent() {
     if (location.pathname.startsWith("/search")) return "Search"
     if (location.pathname.startsWith("/agents")) return "Tasks"
     if (location.pathname.startsWith("/outreach")) return "Outreach"
+    if (location.pathname.startsWith("/automations")) return "Automations"
+    if (location.pathname.startsWith("/watches")) return "Watches"
     if (location.pathname.startsWith("/signals")) return "Signals"
     if (location.pathname.startsWith("/agency")) return "Agency"
     if (location.pathname.startsWith("/campaigns")) return "Campaigns"
@@ -372,6 +378,8 @@ function AppContent() {
           <Route path="/agents/:jobId" element={<TaskDetailPage />} />
           <Route path="/agents" element={<AgentsPage />} />
           <Route path="/outreach/*" element={<OutreachPage />} />
+          <Route path="/automations/*" element={<AutomationsPage />} />
+          <Route path="/watches/*" element={<WatchesPage />} />
           <Route path="/signals/*" element={<SignalsPage />} />
           <Route path="/agency/*" element={<WorkspacesManagerPage />} />
           <Route path="/campaigns/*" element={<CampaignsPage />} />

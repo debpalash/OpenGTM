@@ -498,3 +498,568 @@ export const fetchAnalyticsEnrichment = (): Promise<AnalyticsEnrichment> =>
 
 export const fetchAnalyticsLLM = (): Promise<AnalyticsLLM> =>
   fetch(`${API_BASE}/api/analytics/llm`).then(r => r.json())
+
+// ════════════════════════════════════════════════════════════════════════════
+// GTM Automation UI — Outreach · Automations · Watches + meta (role/flags)
+//
+// All fetch fns below route errors through `ApiError`/`jsonOrThrow` so 4xx/5xx
+// `detail` strings surface to the UI instead of being swallowed. No auth or
+// workspace headers are set here — the fetch interceptor in `auth.ts` attaches
+// Authorization + X-Workspace-Id to every `/api/*` request.
+// ════════════════════════════════════════════════════════════════════════════
+
+/** Typed error carrying the backend `detail` + HTTP status for reactive gating. */
+export class ApiError extends Error {
+  status: number
+  detail: string
+  body?: unknown
+  constructor(status: number, detail: string, body?: unknown) {
+    super(detail)
+    this.name = "ApiError"
+    this.status = status
+    this.detail = detail
+    this.body = body
+  }
+}
+
+async function jsonOrThrow<T>(res: Response): Promise<T> {
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    const detail =
+      (data as { detail?: unknown })?.detail
+    throw new ApiError(
+      res.status,
+      typeof detail === "string" ? detail : `HTTP ${res.status}`,
+      data,
+    )
+  }
+  return data as T
+}
+
+const JSON_HEADERS = { "Content-Type": "application/json" }
+
+/** GET helper. */
+function apiGet<T>(path: string): Promise<T> {
+  return fetch(`${API_BASE}${path}`).then(jsonOrThrow<T>)
+}
+
+/** Mutation helper (POST/PUT/PATCH/DELETE) with JSON body + error surfacing. */
+function apiSend<T>(
+  path: string,
+  method: "POST" | "PUT" | "PATCH" | "DELETE",
+  body?: unknown,
+): Promise<T> {
+  return fetch(`${API_BASE}${path}`, {
+    method,
+    headers: JSON_HEADERS,
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+  }).then(jsonOrThrow<T>)
+}
+
+// ── Meta: per-workspace role + feature flags ────────────────────────────────
+
+export type WorkspaceRole = "owner" | "admin" | "editor" | "member"
+
+export interface MeContext {
+  user_id: string
+  workspace_id: string
+  role: WorkspaceRole
+  is_owner: boolean
+}
+
+export interface FeatureFlags {
+  automations_enabled: boolean
+  intent_poller_enabled: boolean
+  pg_lead_store: boolean
+  allow_legacy_outreach: boolean
+}
+
+export const fetchMeContext = (): Promise<MeContext> =>
+  apiGet<MeContext>("/api/me/context")
+
+export const fetchFlags = (): Promise<FeatureFlags> =>
+  apiGet<FeatureFlags>("/api/flags")
+
+// ════════════════════════════ Outreach types ═══════════════════════════════
+
+export interface SeqStep {
+  step_number: number
+  subject: string
+  body_html: string
+  delay_hours: number
+}
+
+export interface Sequence {
+  id: string
+  workspace_id: string
+  name: string
+  description: string
+  steps: SeqStep[]
+  status: string
+  daily_limit: number
+  send_window_start: number
+  send_window_end: number
+  send_window_tz: string
+  consent_basis: string
+  bounce_count: number
+  complaint_count: number
+  auto_paused: boolean
+  created_at: string
+  updated_at: string
+}
+
+// Known per-status keys are explicit (the loose index sig only covers extras),
+// so a typo'd known stat key fails typecheck.
+export interface SeqStats {
+  total: number
+  emails_sent: number
+  bounce_count: number
+  complaint_count: number
+  auto_paused: boolean
+  pending?: number
+  scheduled?: number
+  sent?: number
+  opened?: number
+  replied?: number
+  bounced?: number
+  failed?: number
+  skipped?: number
+  suppressed?: number
+  completed?: number
+  [status: string]: number | boolean | undefined
+}
+
+export interface SeqSend {
+  id: string
+  sequence_id: string
+  enrollment_id: string
+  lead_id: number
+  step_number: number
+  to_email: string
+  subject: string
+  status: string
+  skip_reason: string | null
+  message_id: string | null
+  charged_usd: number
+  migrated: boolean
+  error: string | null
+  sent_at: string | null
+  created_at: string
+}
+
+export interface Suppression {
+  id: string
+  email: string
+  reason: string
+  source: string
+  locked: boolean
+  created_at: string
+}
+
+export interface SmtpStatus {
+  configured: boolean
+  host: string | null
+  email: string | null
+  from_name: string
+  max_per_hour: number
+}
+
+export interface CreateSequenceRequest {
+  name: string
+  description?: string
+  steps: SeqStep[]
+  daily_limit?: number
+  send_window_start?: number
+  send_window_end?: number
+  send_window_tz?: string
+  consent_basis: string
+}
+
+export interface EnrollLeadsRequest {
+  lead_ids: number[]
+  consent_source: string
+}
+
+export interface EnrollResult {
+  enrolled: number
+  skipped: { lead_id: number; reason: string }[]
+  total_lead_ids: number
+}
+
+// ═══════════════════════════ Automations types ═════════════════════════════
+
+export type TriggerType =
+  | "on_signal"
+  | "on_row_changed"
+  | "on_row_added"
+  | "on_schedule"
+
+export type ActionType =
+  | "re_enrich"
+  | "push_crm"
+  | "webhook"
+  | "sequencer"
+  | "send_email"
+
+export interface RuleAction {
+  type: ActionType
+  config: Record<string, unknown>
+}
+
+export interface Trigger {
+  id: string
+  workspace_id: string
+  name: string
+  enabled: boolean
+  trigger_type: TriggerType
+  trigger_config: Record<string, unknown>
+  condition: string
+  actions: RuleAction[]
+  scope_workbook_ids: string[]
+  stop_on_error: boolean
+  max_spend_usd_per_day: number | null
+  max_actions_per_day: number | null
+  next_run_at: string | null
+  schedule_anchor: string | null
+  last_fired_at: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export interface TriggerRun {
+  id: string
+  trigger_id: string
+  trigger_name_snapshot: string
+  job_id: string | null
+  status: string
+  fire_source: string
+  fire_key: string
+  matched_rows: number
+  actions_attempted: number
+  actions_succeeded: number
+  actions_skipped: number
+  actions_failed: number
+  total_charged_usd: number
+  error: string | null
+  started_at: string | null
+  finished_at: string | null
+}
+
+export interface ActionResult {
+  id: string
+  run_id: string
+  trigger_id: string
+  workbook_id: string
+  row_id: string
+  lead_id: number | null
+  action_index: number
+  action_type: ActionType
+  status: string
+  skip_reason: string | null
+  charged_usd: number
+  result_summary: string
+  error: string | null
+  created_at: string
+}
+
+export interface PreviewResult {
+  matched: number
+  projected_total_usd: number
+  sample: {
+    row_id: string
+    workbook_id: string
+    condition_pass: boolean
+    actions: {
+      type: ActionType
+      would_charge_usd: number
+      resolved_payload_preview: unknown
+    }[]
+  }[]
+}
+
+/** `POST /run` is async and returns NO run_id — resolve the run via fire_key. */
+export interface RunHandle {
+  job_id: string
+  fire_key: string
+  dry_run: boolean
+}
+
+export interface CreateTriggerRequest {
+  name: string
+  trigger_type: TriggerType
+  trigger_config?: Record<string, unknown>
+  condition?: string
+  actions: RuleAction[]
+  scope_workbook_ids?: string[]
+  stop_on_error?: boolean
+  max_spend_usd_per_day?: number | null
+  max_actions_per_day?: number | null
+}
+
+// ═══════════════════════════════ Watches types ═════════════════════════════
+
+export type WatchKind = "funding" | "hiring" | "feed" | "company"
+export type WatchInterval = "hourly" | "daily" | "weekly"
+
+export interface Watch {
+  id: string
+  workspace_id: string
+  kind: WatchKind
+  target: string
+  resolved_cik: string | null
+  lead_id: number | null
+  signal_types: string[]
+  interval: WatchInterval
+  enabled: boolean
+  next_poll_at: string | null
+  last_polled_at: string | null
+  last_error: string | null
+  consecutive_failures: number
+  cursor: Record<string, unknown>
+  created_at: string
+}
+
+// `/signals` returns the FULL signal dict; created_at is a NUMBER (epoch),
+// read is 0|1 — matching signals.tsx.
+export interface WatchSignal {
+  id: string
+  workspace_id: string
+  lead_id: number | null
+  company: string
+  signal_type: string
+  title: string
+  description: string
+  source: string
+  source_url: string | null
+  weight: number
+  created_at: number
+  read: number
+}
+
+export interface WatchCreate {
+  kind: WatchKind
+  target: string
+  lead_id?: number
+  signal_types?: string[]
+  interval?: WatchInterval
+  create_webhook_rule?: boolean
+  webhook_url?: string
+  webhook_secret_ref?: string
+}
+
+export interface PollResult {
+  status: "queued" | "already_queued"
+  fire_key: string
+  job_id?: string
+}
+
+// ═══════════════════════════ Outreach fetch fns ════════════════════════════
+
+const OUT = "/api/outreach"
+
+export const listSequences = (): Promise<{ sequences: Sequence[] }> =>
+  apiGet(`${OUT}/sequences`)
+
+export const createSequence = (
+  b: CreateSequenceRequest,
+): Promise<{ id: string; name: string; status: string }> =>
+  apiSend(`${OUT}/sequences`, "POST", b)
+
+export const getSequence = (
+  id: string,
+): Promise<Sequence & { stats: SeqStats }> =>
+  apiGet(`${OUT}/sequences/${id}`)
+
+export const updateSequence = (
+  id: string,
+  b: Partial<CreateSequenceRequest> & { status?: string },
+): Promise<{ status: string; id: string }> =>
+  apiSend(`${OUT}/sequences/${id}`, "PUT", b)
+
+export const deleteSequence = (id: string): Promise<{ status: string }> =>
+  apiSend(`${OUT}/sequences/${id}`, "DELETE")
+
+export const startSequence = (id: string): Promise<{ status: string }> =>
+  apiSend(`${OUT}/sequences/${id}/start`, "POST")
+
+export const pauseSequence = (id: string): Promise<{ status: string }> =>
+  apiSend(`${OUT}/sequences/${id}/pause`, "POST")
+
+export const enrollLeads = (
+  id: string,
+  b: EnrollLeadsRequest,
+): Promise<EnrollResult> =>
+  apiSend(`${OUT}/sequences/${id}/enroll`, "POST", b)
+
+export const executeSequence = (
+  id: string,
+): Promise<{ enqueued: number }> =>
+  apiSend(`${OUT}/sequences/${id}/execute`, "POST")
+
+export const getSequenceStats = (id: string): Promise<SeqStats> =>
+  apiGet(`${OUT}/sequences/${id}/stats`)
+
+export const listSends = (id: string): Promise<{ sends: SeqSend[] }> =>
+  apiGet(`${OUT}/sequences/${id}/sends`)
+
+export const getSmtpStatus = (): Promise<SmtpStatus> =>
+  apiGet(`${OUT}/smtp/status`)
+
+export const updateSmtp = (
+  b: Record<string, unknown>,
+): Promise<{ status: string }> =>
+  apiSend(`${OUT}/smtp/config`, "PUT", b)
+
+export const testSmtp = (
+  to_email: string,
+): Promise<{ status: string; message: string }> =>
+  apiSend(`${OUT}/smtp/test`, "POST", { to_email })
+
+export const listSuppressions = (): Promise<{ suppressions: Suppression[] }> =>
+  apiGet(`${OUT}/suppressions`)
+
+export const addSuppression = (
+  email: string,
+): Promise<{ status: string; added: boolean }> =>
+  apiSend(`${OUT}/suppressions`, "POST", { email })
+
+export const removeSuppression = (
+  email: string,
+): Promise<{ status: string }> =>
+  apiSend(`${OUT}/suppressions/${encodeURIComponent(email)}`, "DELETE")
+
+// ══════════════════════════ Automations fetch fns ══════════════════════════
+
+const AUTO = "/api/automations"
+
+export const listTriggers = (p?: {
+  enabled?: boolean
+  trigger_type?: TriggerType
+}): Promise<Trigger[]> => {
+  const qs = new URLSearchParams()
+  if (p?.enabled !== undefined) qs.set("enabled", String(p.enabled))
+  if (p?.trigger_type) qs.set("trigger_type", p.trigger_type)
+  const suffix = qs.toString() ? `?${qs}` : ""
+  return apiGet(`${AUTO}/triggers${suffix}`)
+}
+
+export const createTrigger = (b: CreateTriggerRequest): Promise<Trigger> =>
+  apiSend(`${AUTO}/triggers`, "POST", b)
+
+export const getTrigger = (
+  id: string,
+): Promise<Trigger & { recent_runs: TriggerRun[] }> =>
+  apiGet(`${AUTO}/triggers/${id}`)
+
+export const patchTrigger = (
+  id: string,
+  b: Partial<CreateTriggerRequest>,
+): Promise<Trigger> =>
+  apiSend(`${AUTO}/triggers/${id}`, "PATCH", b)
+
+export const deleteTrigger = (id: string): Promise<{ deleted: boolean }> =>
+  apiSend(`${AUTO}/triggers/${id}`, "DELETE")
+
+export const pauseTrigger = (id: string): Promise<{ enabled: boolean }> =>
+  apiSend(`${AUTO}/triggers/${id}/pause`, "POST")
+
+export const resumeTrigger = (
+  id: string,
+): Promise<{ enabled: boolean; next_run_at: string | null }> =>
+  apiSend(`${AUTO}/triggers/${id}/resume`, "POST")
+
+export const previewTrigger = (
+  id: string,
+  b: { row_ids?: string[]; limit?: number },
+): Promise<PreviewResult> =>
+  apiSend(`${AUTO}/triggers/${id}/preview`, "POST", b)
+
+export const runTrigger = (
+  id: string,
+  b: { row_ids?: string[]; dry_run: boolean },
+): Promise<RunHandle> =>
+  apiSend(`${AUTO}/triggers/${id}/run`, "POST", b)
+
+export const listRuns = (
+  id: string,
+  limit?: number,
+): Promise<TriggerRun[]> => {
+  const suffix = limit ? `?limit=${limit}` : ""
+  return apiGet(`${AUTO}/triggers/${id}/runs${suffix}`)
+}
+
+export const getRun = (
+  runId: string,
+): Promise<TriggerRun & { action_results: ActionResult[] }> =>
+  apiGet(`${AUTO}/runs/${runId}`)
+
+// ════════════════════════════ Watches fetch fns ════════════════════════════
+
+const WATCH = "/api/watches"
+
+export const listWatches = (p?: {
+  limit?: number
+  offset?: number
+}): Promise<{ watches: Watch[]; limit: number; offset: number }> => {
+  const qs = new URLSearchParams()
+  if (p?.limit !== undefined) qs.set("limit", String(p.limit))
+  if (p?.offset !== undefined) qs.set("offset", String(p.offset))
+  const suffix = qs.toString() ? `?${qs}` : ""
+  return apiGet(`${WATCH}${suffix}`)
+}
+
+export const createWatch = (
+  b: WatchCreate,
+): Promise<Watch & { webhook_rule_id?: string }> =>
+  apiSend(`${WATCH}`, "POST", b)
+
+export const getWatch = (id: string): Promise<Watch> =>
+  apiGet(`${WATCH}/${id}`)
+
+export const patchWatch = (
+  id: string,
+  b: Partial<WatchCreate> & { enabled?: boolean },
+): Promise<Watch> =>
+  apiSend(`${WATCH}/${id}`, "PATCH", b)
+
+export const deleteWatch = (
+  id: string,
+): Promise<{ deleted: boolean; id: string }> =>
+  apiSend(`${WATCH}/${id}`, "DELETE")
+
+export const pollWatch = (id: string): Promise<PollResult> =>
+  apiSend(`${WATCH}/${id}/poll`, "POST")
+
+export const listWatchSignals = (
+  id: string,
+  p?: { signal_type?: string; limit?: number; offset?: number },
+): Promise<{ signals: WatchSignal[] }> => {
+  const qs = new URLSearchParams()
+  if (p?.signal_type) qs.set("signal_type", p.signal_type)
+  if (p?.limit !== undefined) qs.set("limit", String(p.limit))
+  if (p?.offset !== undefined) qs.set("offset", String(p.offset))
+  const suffix = qs.toString() ? `?${qs}` : ""
+  return apiGet(`${WATCH}/${id}/signals${suffix}`)
+}
+
+/** signal_types each watch kind may emit (mirrors backend watches.py:41). */
+export const WATCH_KIND_SIGNAL_TYPES: Record<WatchKind, string[]> = {
+  funding: ["company_funded", "executive_hired"],
+  hiring: ["hiring_surge", "new_tech_adopted"],
+  feed: ["news"],
+  company: [
+    "company_funded",
+    "executive_hired",
+    "hiring_surge",
+    "new_tech_adopted",
+  ],
+}
+
+/** Action types offered in the builder by default (legacy types omitted). */
+export const DEFAULT_ACTION_TYPES: ActionType[] = [
+  "re_enrich",
+  "push_crm",
+  "webhook",
+]
+export const LEGACY_ACTION_TYPES: ActionType[] = ["sequencer", "send_email"]
