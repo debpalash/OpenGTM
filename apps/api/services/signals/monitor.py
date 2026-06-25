@@ -34,6 +34,7 @@ SIGNAL_TYPES = {
 @dataclass
 class Signal:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    workspace_id: str = ""
     lead_id: int = 0
     company: str = ""
     signal_type: str = ""
@@ -58,6 +59,7 @@ def _get_db():
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS signals (
             id TEXT PRIMARY KEY,
+            workspace_id TEXT DEFAULT '',
             lead_id INTEGER DEFAULT 0,
             company TEXT DEFAULT '',
             signal_type TEXT DEFAULT '',
@@ -73,7 +75,12 @@ def _get_db():
         CREATE INDEX IF NOT EXISTS idx_signals_type ON signals(signal_type);
         CREATE INDEX IF NOT EXISTS idx_signals_lead ON signals(lead_id);
         CREATE INDEX IF NOT EXISTS idx_signals_created ON signals(created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_signals_ws ON signals(workspace_id);
     """)
+    # Safe migration: add workspace_id to a pre-existing signals.db file.
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(signals)").fetchall()}
+    if "workspace_id" not in cols:
+        conn.execute("ALTER TABLE signals ADD COLUMN workspace_id TEXT DEFAULT ''")
     conn.commit()
     return conn
 
@@ -81,13 +88,17 @@ def _get_db():
 # ── Signal CRUD ───────────────────────────────────────────────
 
 def add_signal(signal: Signal) -> str:
-    """Store a new signal."""
+    """Store a new signal (legacy SQLite file path).
+
+    ``signal.workspace_id`` is persisted so the file path is also tenant-scoped;
+    the Postgres path uses :meth:`PgLeadStore.add_signal` instead.
+    """
     conn = _get_db()
     conn.execute(
-        """INSERT OR IGNORE INTO signals (id, lead_id, company, signal_type, title,
+        """INSERT OR IGNORE INTO signals (id, workspace_id, lead_id, company, signal_type, title,
            description, source, source_url, weight, created_at, read)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (signal.id, signal.lead_id, signal.company, signal.signal_type,
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (signal.id, signal.workspace_id, signal.lead_id, signal.company, signal.signal_type,
          signal.title, signal.description, signal.source, signal.source_url,
          signal.weight, signal.created_at, 0),
     )
@@ -101,12 +112,17 @@ def get_signals(
     lead_id: Optional[int] = None,
     limit: int = 50,
     offset: int = 0,
+    workspace_id: Optional[str] = None,
 ) -> List[dict]:
-    """Get recent signals, optionally filtered."""
+    """Get recent signals, optionally filtered. Scoped to ``workspace_id`` when
+    given (always pass it from a request so the file path is tenant-isolated)."""
     conn = _get_db()
     query = "SELECT * FROM signals WHERE 1=1"
     params: list = []
 
+    if workspace_id is not None:
+        query += " AND workspace_id = ?"
+        params.append(workspace_id)
     if signal_type:
         query += " AND signal_type = ?"
         params.append(signal_type)
@@ -122,14 +138,19 @@ def get_signals(
     return [dict(r) for r in rows]
 
 
-def get_signal_counts() -> Dict[str, int]:
-    """Get signal counts by type."""
+def get_signal_counts(workspace_id: Optional[str] = None) -> Dict[str, int]:
+    """Get signal counts by type, scoped to ``workspace_id`` when given."""
     conn = _get_db()
+    ws = "" if workspace_id is None else " WHERE workspace_id = ?"
+    wp: list = [] if workspace_id is None else [workspace_id]
     rows = conn.execute(
-        "SELECT signal_type, COUNT(*) as c FROM signals GROUP BY signal_type"
+        f"SELECT signal_type, COUNT(*) as c FROM signals{ws} GROUP BY signal_type", wp
     ).fetchall()
-    total = conn.execute("SELECT COUNT(*) as c FROM signals").fetchone()
-    unread = conn.execute("SELECT COUNT(*) as c FROM signals WHERE read = 0").fetchone()
+    total = conn.execute(f"SELECT COUNT(*) as c FROM signals{ws}", wp).fetchone()
+    unread_clause = (ws + " AND read = 0") if ws else " WHERE read = 0"
+    unread = conn.execute(
+        f"SELECT COUNT(*) as c FROM signals{unread_clause}", wp
+    ).fetchone()
     conn.close()
     result = {r["signal_type"]: r["c"] for r in rows}
     result["total"] = total["c"] if total else 0
@@ -137,11 +158,17 @@ def get_signal_counts() -> Dict[str, int]:
     return result
 
 
-def mark_read(signal_ids: List[str]):
-    """Mark signals as read."""
+def mark_read(signal_ids: List[str], workspace_id: Optional[str] = None):
+    """Mark signals as read, scoped to ``workspace_id`` when given."""
     conn = _get_db()
     for sid in signal_ids:
-        conn.execute("UPDATE signals SET read = 1 WHERE id = ?", (sid,))
+        if workspace_id is None:
+            conn.execute("UPDATE signals SET read = 1 WHERE id = ?", (sid,))
+        else:
+            conn.execute(
+                "UPDATE signals SET read = 1 WHERE id = ? AND workspace_id = ?",
+                (sid, workspace_id),
+            )
     conn.commit()
     conn.close()
 

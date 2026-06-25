@@ -75,6 +75,22 @@ class Settings(BaseSettings):
     STRIPE_SECRET_KEY: str = ""
     STRIPE_WEBHOOK_SECRET: str = ""
 
+    # ── Postgres multi-tenant leads/signals store (RLS) ─────────────────
+    # When DATABASE_URL is Postgres, leads/signals live in ONE shared,
+    # RLS-protected table instead of per-workspace SQLite files. This is the
+    # default on Postgres; set to False to force the legacy SQLite path even on
+    # Postgres (escape hatch). Ignored on SQLite (always uses LeadDB).
+    PG_LEAD_STORE: bool = True
+    # The non-superuser, non-BYPASSRLS role the runtime should connect as for the
+    # PG store. Must match the role created by the tenancy Alembic migration. At
+    # startup we verify current_user is NOT superuser/BYPASSRLS (RLS is silently
+    # inert otherwise); see services/leadgen/store.py:assert_rls_role.
+    APP_DB_ROLE: str = "yupcha_app"
+    # If True, REFUSE TO BOOT when the PG store is active but the connection role
+    # is superuser/BYPASSRLS (RLS would be off). If False, log CRITICAL and fall
+    # back to disabling the PG store. Default True = fail fast (recommended).
+    PG_RLS_REQUIRE_SAFE_ROLE: bool = True
+
     # Optional integrations
     SCRIBD_COOKIES: str = ""
     GOOGLE_API_KEY: str = ""

@@ -35,6 +35,7 @@ def _import_all_models() -> None:
     from apps.api.services.workbook import activity_models as _act  # noqa: F401
     from apps.api.services.workbook import trace_models as _tr  # noqa: F401
     from apps.api.services.entities import models as _ent  # noqa: F401
+    from apps.api.services.leadgen import orm_models as _leadgen_orm  # noqa: F401
 
 
 def _create_all() -> None:

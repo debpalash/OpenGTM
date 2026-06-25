@@ -37,6 +37,7 @@ from apps.api.services.workbook import activity_models as _activity_models  # no
 from apps.api.services.workbook import trace_models as _trace_models  # noqa: E402,F401
 from apps.api.services.entities import models as _entity_models  # noqa: E402,F401
 from apps.api.services.billing import models as _billing_models  # noqa: E402,F401
+from apps.api.services.leadgen import orm_models as _leadgen_orm_models  # noqa: E402,F401
 from apps.api.core.config import settings  # noqa: E402
 
 target_metadata = Base.metadata
@@ -58,6 +59,27 @@ if config.config_file_name is not None:
 _render_as_batch = _db_url.startswith("sqlite")
 
 
+# Postgres-only objects that are hand-authored in the tenancy migration and are
+# NOT modelled on the ORM Base (so autogenerate would otherwise try to DROP
+# them). Tell autogenerate/`alembic check` to ignore them so the check stays
+# clean. The names match the DDL in the c42d0273d9bd migration.
+_IGNORED_PG_OBJECTS = {
+    ("column", "leads.search_tsv"),
+    ("index", "ix_leads_search_tsv"),
+}
+
+
+def _include_object(obj, name, type_, reflected, compare_to):
+    """Skip the hand-authored Postgres-only FTS objects during autogenerate."""
+    if type_ == "column" and getattr(obj, "table", None) is not None:
+        key = ("column", f"{obj.table.name}.{name}")
+        if key in _IGNORED_PG_OBJECTS:
+            return False
+    if type_ == "index" and ("index", name) in _IGNORED_PG_OBJECTS:
+        return False
+    return True
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode (emit SQL, no DBAPI needed)."""
     context.configure(
@@ -67,6 +89,7 @@ def run_migrations_offline() -> None:
         dialect_opts={"paramstyle": "named"},
         render_as_batch=_render_as_batch,
         compare_type=True,
+        include_object=_include_object,
     )
 
     with context.begin_transaction():
@@ -87,6 +110,7 @@ def run_migrations_online() -> None:
             target_metadata=target_metadata,
             render_as_batch=_render_as_batch,
             compare_type=True,
+            include_object=_include_object,
         )
 
         with context.begin_transaction():

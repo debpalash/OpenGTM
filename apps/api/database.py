@@ -39,6 +39,37 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+# ── Postgres RLS: set app.workspace_id per transaction (defense in depth) ──
+# On Postgres we publish the active workspace (from the `current_workspace_var`
+# contextvar) into a transaction-local GUC via `set_config(..., is_local=true)`,
+# i.e. SET LOCAL semantics. is_local=true is CRITICAL on a pooled connection:
+# the setting is scoped to the current transaction and is reset at COMMIT/
+# ROLLBACK, so it can NEVER leak to the next request that reuses the same
+# pooled connection (a bare `SET` would). The RLS policies read this GUC; if it
+# is absent the policy yields zero rows (fail closed), never a cross-tenant leak.
+if not IS_SQLITE:
+    from sqlalchemy import event as _event
+
+    @_event.listens_for(SessionLocal, "after_begin")
+    def _set_workspace_guc(session, transaction, connection):
+        # Import here to avoid a circular import at module load (tenancy imports
+        # models which import database).
+        from apps.api.core.tenancy import current_workspace_var
+
+        ws = current_workspace_var.get()
+        if not ws:
+            # No tenant bound. Leave the GUC unset → RLS returns zero rows
+            # (fail closed). Background code that needs rows must wrap work in
+            # tenancy.workspace_scope(...). We do NOT raise here because plenty
+            # of ORM sessions touch non-RLS tables (users, jobs, workbooks…)
+            # with no workspace bound and must keep working.
+            return
+        # Parameterised via set_config to avoid any SQL injection through ws.
+        connection.exec_driver_sql(
+            "SELECT set_config('app.workspace_id', %s, true)", (ws,)
+        )
+
+
 def get_db():
     db = SessionLocal()
     try:
@@ -49,11 +80,12 @@ def get_db():
 
 def check_and_migrate_db():
     # These are incremental ALTER-based migrations for the legacy SQLite file.
-    # On Postgres the schema is built fresh by Base.metadata.create_all() with
-    # all columns/constraints already present, so there is nothing to migrate
-    # (and the sqlite_master probe below would error). Skip entirely.
+    # On Postgres the schema (including the shared RLS-protected leads/signals
+    # tables) is owned by Alembic — `alembic upgrade head` runs in db_init.init_db()
+    # BEFORE this. So there is nothing to ALTER here (and the sqlite_master probe
+    # below would error on PG). Skip entirely.
     if not IS_SQLITE:
-        print("✓ Postgres backend — schema managed by create_all(), no migration needed")
+        print("✓ Postgres backend — schema managed by Alembic (alembic upgrade head), no SQLite migration needed")
         return
     try:
         inspector = inspect(engine)

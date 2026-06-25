@@ -3,14 +3,29 @@ Analytics Router — Dashboard metrics and trend data.
 
 Aggregates data from leads, jobs, job_stages, and llm_usage tables
 to power the analytics dashboard.
+
+Backend note: the lead metrics work on either store. The jobs/llm-usage trends
+live in the legacy per-file SQLite schema (they are NOT part of the shared,
+RLS-protected Postgres `leads`/`signals` tables). When the active store is the
+Postgres lead store (no raw `.conn`), the lead metrics are served from the
+tenant-scoped store and the file-only jobs/llm sections degrade to empty —
+migrating those trends onto the ORM is tracked as follow-up.
 """
 
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends
-from apps.api.services.leadgen.db import LeadDB
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 
 router = APIRouter(prefix="/api/analytics", tags=["Analytics"])
+
+
+def _raw_conn(db):
+    """Return the legacy SQLite connection if this store has one, else None.
+
+    The Postgres lead store (:class:`PgLeadStore`) has no `.conn`; callers use
+    this to fall back to store-level structured methods.
+    """
+    return getattr(db, "conn", None)
 
 
 # ── Overview KPIs ────────────────────────────────────────────────
@@ -19,7 +34,36 @@ router = APIRouter(prefix="/api/analytics", tags=["Analytics"])
 async def analytics_overview(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Top-level KPI metrics for the dashboard."""
     db = ctx.lead_db()
-    c = db.conn.cursor()
+    c = _raw_conn(db)
+    if c is None:
+        # Postgres lead store: serve lead metrics from the tenant-scoped store;
+        # jobs/llm trends are file-only and reported empty here.
+        stats = db.get_stats()
+        enr = stats["enrichment"]
+        total = stats["total"]
+        return {
+            "total_leads": total,
+            "leads_this_week": 0,
+            "leads_this_month": 0,
+            "avg_score": enr["avg_score"],
+            "tiers": stats["by_tier"],
+            "enrichment": {
+                "total": total,
+                "with_email": enr["with_email"],
+                "with_phone": enr["with_phone"],
+                "with_website": enr["with_website"],
+                "with_contact": enr["with_contact"],
+                "with_linkedin": enr["with_linkedin"],
+                "email_pct": round(enr["with_email"] / total * 100, 1) if total else 0,
+                "phone_pct": round(enr["with_phone"] / total * 100, 1) if total else 0,
+                "website_pct": round(enr["with_website"] / total * 100, 1) if total else 0,
+                "contact_pct": round(enr["with_contact"] / total * 100, 1) if total else 0,
+            },
+            "email_confidence": {},
+            "jobs": {"total": 0, "completed": 0, "failed": 0, "success_rate": 0},
+        }
+
+    c = c.cursor()
 
     # Total leads
     total = c.execute("SELECT COUNT(*) FROM leads").fetchone()[0]
@@ -100,7 +144,12 @@ async def analytics_overview(ctx: WorkspaceCtx = Depends(current_workspace)):
 async def analytics_pipeline(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Lead pipeline funnel — statuses and conversion."""
     db = ctx.lead_db()
-    c = db.conn.cursor()
+    c = _raw_conn(db)
+    if c is None:
+        stats = db.get_stats()
+        return {"statuses": stats["by_status"], "status_tiers": {}}
+
+    c = c.cursor()
 
     # Status distribution
     statuses = {}
@@ -128,7 +177,12 @@ async def analytics_pipeline(ctx: WorkspaceCtx = Depends(current_workspace)):
 async def analytics_collection(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Collection job trends over last 30 days."""
     db = ctx.lead_db()
-    c = db.conn.cursor()
+    c = _raw_conn(db)
+    if c is None:
+        # jobs trends are file-only; nothing to report on the PG lead store.
+        return {"jobs_by_day": [], "leads_by_day": [], "avg_leads_per_job": 0}
+
+    c = c.cursor()
 
     # Jobs per day (last 30 days)
     cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
@@ -179,7 +233,21 @@ async def analytics_collection(ctx: WorkspaceCtx = Depends(current_workspace)):
 async def analytics_enrichment(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Enrichment quality and source comparison."""
     db = ctx.lead_db()
-    c = db.conn.cursor()
+    c = _raw_conn(db)
+    if c is None:
+        stats = db.get_stats()
+        by_city = [
+            {"city": city, "count": cnt, "avg_score": None}
+            for city, cnt in stats["by_city"].items()
+        ]
+        source_quality = [
+            {"source": src or "unknown", "count": cnt, "avg_score": None,
+             "with_email": None, "with_phone": None, "with_contact": None}
+            for src, cnt in stats["by_source"].items()
+        ]
+        return {"source_quality": source_quality, "by_city": by_city, "score_distribution": []}
+
+    c = c.cursor()
 
     # Source quality — avg score by source
     source_quality = []
@@ -246,7 +314,12 @@ async def analytics_enrichment(ctx: WorkspaceCtx = Depends(current_workspace)):
 async def analytics_llm(ctx: WorkspaceCtx = Depends(current_workspace)):
     """LLM token usage and cost trends."""
     db = ctx.lead_db()
-    c = db.conn.cursor()
+    c = _raw_conn(db)
+    if c is None:
+        # llm_usage is file-only; nothing to report on the PG lead store.
+        return {"by_day": [], "by_provider": [], "total_tokens": 0, "total_calls": 0}
+
+    c = c.cursor()
 
     # Usage by day (last 30 days)
     cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
