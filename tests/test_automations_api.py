@@ -123,15 +123,19 @@ def test_invalid_action_type_rejected(client):
     assert r.status_code == 422
 
 
-def test_on_signal_rejected_without_pg(client):
-    """AC-1/AC-4: on_signal requires PG_LEAD_STORE → 409."""
+def test_on_signal_allowed_without_pg(client):
+    """Self-host on_signal: on_signal rules are now allowed on SQLite (no 409).
+
+    The scanner + poller write through the shared ORM signal store so
+    emit_signal_matches fires on SQLite too; the signals table is present on both
+    backends. (Previously gated 409 when PG_LEAD_STORE was off — gate removed.)"""
     tc, _ = client
     r = tc.post("/api/automations/triggers", json={
         "name": "sig", "trigger_type": "on_signal",
         "trigger_config": {"signal_types": ["hiring"]}, "actions": [],
     })
-    assert r.status_code == 409
-    assert r.json()["detail"] == "on_signal_requires_pg_lead_store"
+    assert r.status_code == 200, r.text
+    assert r.json()["trigger_type"] == "on_signal"
 
 
 def test_legacy_outreach_rejected(client):

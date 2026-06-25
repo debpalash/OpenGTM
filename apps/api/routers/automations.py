@@ -103,9 +103,10 @@ def _validate_rule(db: Session, ws_id: str, *, trigger_type: str, trigger_config
     if trigger_type not in TRIGGER_TYPES:
         raise HTTPException(status_code=422, detail=f"invalid trigger_type '{trigger_type}'")
 
-    # on_signal requires PG_LEAD_STORE
-    if trigger_type == "on_signal" and not getattr(settings, "PG_LEAD_STORE", False):
-        raise HTTPException(status_code=409, detail="on_signal_requires_pg_lead_store")
+    # on_signal works on BOTH backends now: scanner + poller write through the
+    # shared ORM signal store, so emit_signal_matches fires on SQLite too. The
+    # signals table is guaranteed present on both backends. Gated only by
+    # AUTOMATIONS_ENABLED (emit is a no-op when off). No PG_LEAD_STORE gate.
 
     # on_schedule interval validation
     if trigger_type == "on_schedule":

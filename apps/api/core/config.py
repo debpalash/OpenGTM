@@ -108,6 +108,17 @@ class Settings(BaseSettings):
     # Cloud deployments may populate this; comma-separated when set via env.
     AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST: list[str] = []
 
+    # ── Signal scanner (legacy hiring/JobSpy scan → unified ORM signals) ──
+    # The scanner now iterates EVERY workspace and fans out provider I/O per
+    # lead, so per-workspace and global caps keep a multi-tenant scan polite.
+    # Per-workspace: hot+warm leads pulled, and the JobSpy enrichment sub-cap.
+    SIGNAL_SCAN_MAX_HOT_LEADS: int = 50
+    SIGNAL_SCAN_MAX_WARM_LEADS: int = 30
+    SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE: int = 20  # JobSpy enrich cap per ws
+    # Global ceiling on leads enriched across ALL workspaces in one scan run
+    # (0 = unlimited). Stops a many-tenant deployment from exploding provider I/O.
+    SIGNAL_SCAN_GLOBAL_MAX_LEADS: int = 500
+
     # ── Outreach (RLS-hardened email sending) ───────────────────────────
     # Platform-billed cost per metered send (USD). Default 0.0 → free on
     # self-host (caps/billing bypassed; the in_flight marker is still written).

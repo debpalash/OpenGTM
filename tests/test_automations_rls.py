@@ -189,7 +189,11 @@ def test_on_signal_real_path_enqueues_once(app_engine, owner_engine, monkeypatch
 
     # Point the leadgen store + events at the app-role session.
     import apps.api.services.leadgen.store as store_mod
+    import apps.api.services.signals.store as sig_store_mod
     monkeypatch.setattr(store_mod, "SessionLocal", AppSession)
+    # PgLeadStore.add_signal now delegates to the shared SignalStore — bind its
+    # SessionLocal to the app-role engine too so write+emit run under RLS.
+    monkeypatch.setattr(sig_store_mod, "SessionLocal", AppSession)
 
     # Capture enqueued jobs instead of writing to the (RLS-less) jobs table.
     from apps.api.services.queue_service import QueueService
