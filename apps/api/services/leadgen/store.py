@@ -410,43 +410,16 @@ class PgLeadStore:
 
     # ── signals (tenant-scoped) ──
     def add_signal(self, signal) -> str:
-        inserted = False
-        with self._session() as s, s.begin():
-            exists = s.get(SignalRow, signal.id)
-            if exists is None:
-                s.add(
-                    SignalRow(
-                        id=signal.id,
-                        workspace_id=self.workspace_id,
-                        lead_id=signal.lead_id,
-                        company=signal.company,
-                        signal_type=signal.signal_type,
-                        title=signal.title,
-                        description=signal.description,
-                        source=signal.source,
-                        source_url=signal.source_url,
-                        weight=signal.weight,
-                        created_at=signal.created_at,
-                        read=False,
-                    )
-                )
-                inserted = True
-            # Automations (§3.4): the ONLY signal event source with a real
-            # workspace_id. Fire on_signal rules for the matched lead's workbook
-            # rows. fire_key="signal:<pk>" → idempotent across re-inserts. No-op
-            # when AUTOMATIONS_ENABLED is off. Inside the same RLS-scoped session.
-            if inserted:
-                try:
-                    from apps.api.services.automations import events as _auto_events
+        """Idempotent write + exactly-once on_signal emit.
 
-                    _auto_events.emit_signal_matches(
-                        s, self.workspace_id,
-                        [{"signal_pk": signal.id, "signal_type": signal.signal_type,
-                          "lead_id": signal.lead_id}],
-                    )
-                except Exception as _e:  # never break the signal write path
-                    logger.warning("automations signal emit failed: %s", _e)
-        return signal.id
+        Delegates to the shared :class:`~apps.api.services.signals.store.SignalStore`
+        so PG and SQLite share ONE write+emit code path (the deterministic
+        ``signals.id`` makes re-inserts a no-op; emit fires only on insert, in
+        the same RLS-scoped transaction). Public signature/idempotency unchanged.
+        """
+        from apps.api.services.signals.store import get_signal_store
+
+        return get_signal_store(self.workspace_id).add_signal(signal)
 
     def get_signals(
         self,

@@ -1,5 +1,11 @@
 """
 Signals Router — Buying signal feed and management.
+
+Reads/writes go through the unified, workspace-scoped ORM signal store
+(:func:`apps.api.services.signals.store.get_signal_store`) on BOTH backends —
+Postgres (RLS-protected ``signals`` table) and SQLite/self-host (same ORM table,
+``workspace_id`` belt filter is the isolation). The legacy ``data/signals.db``
+file path is no longer read or written by the feed.
 """
 
 from fastapi import APIRouter, Depends
@@ -11,14 +17,6 @@ from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 router = APIRouter(prefix="/api/signals", tags=["signals"])
 
 
-def _signal_backend(ctx: WorkspaceCtx):
-    """Return (store_or_None) — the PgLeadStore when active, else None (use the
-    workspace-scoped legacy SQLite monitor functions)."""
-    store = ctx.lead_db()
-    # PgLeadStore implements signal methods; LeadDB does not.
-    return store if hasattr(store, "add_signal") and store.db_path is None else None
-
-
 @router.get("")
 def list_signals(
     signal_type: Optional[str] = None,
@@ -28,19 +26,14 @@ def list_signals(
     ctx: WorkspaceCtx = Depends(current_workspace),
 ):
     """Get recent signals for THIS workspace, optionally filtered by type or lead."""
-    from apps.api.services.signals.monitor import get_signals, get_signal_counts, SIGNAL_TYPES
-    store = _signal_backend(ctx)
-    if store is not None:
-        signals = store.get_signals(
-            signal_type=signal_type, lead_id=lead_id, limit=limit, offset=offset
-        )
-        counts = store.get_signal_counts()
-    else:
-        signals = get_signals(
-            signal_type=signal_type, lead_id=lead_id, limit=limit, offset=offset,
-            workspace_id=ctx.workspace_id,
-        )
-        counts = get_signal_counts(workspace_id=ctx.workspace_id)
+    from apps.api.services.signals.monitor import SIGNAL_TYPES
+    from apps.api.services.signals.store import get_signal_store
+
+    store = get_signal_store(ctx.workspace_id)
+    signals = store.get_signals(
+        signal_type=signal_type, lead_id=lead_id, limit=limit, offset=offset
+    )
+    counts = store.get_signal_counts()
     return {
         "signals": signals,
         "counts": counts,
@@ -72,20 +65,15 @@ class MarkReadRequest(BaseModel):
 @router.post("/mark-read")
 def mark_signals_read(req: MarkReadRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Mark signals as read (within this workspace)."""
-    from apps.api.services.signals.monitor import mark_read
-    store = _signal_backend(ctx)
-    if store is not None:
-        store.mark_signals_read(req.signal_ids)
-    else:
-        mark_read(req.signal_ids, workspace_id=ctx.workspace_id)
+    from apps.api.services.signals.store import get_signal_store
+
+    get_signal_store(ctx.workspace_id).mark_signals_read(req.signal_ids)
     return {"status": "ok", "count": len(req.signal_ids)}
 
 
 @router.get("/counts")
 def signal_counts(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get signal counts by type (within this workspace)."""
-    from apps.api.services.signals.monitor import get_signal_counts
-    store = _signal_backend(ctx)
-    if store is not None:
-        return store.get_signal_counts()
-    return get_signal_counts(workspace_id=ctx.workspace_id)
+    from apps.api.services.signals.store import get_signal_store
+
+    return get_signal_store(ctx.workspace_id).get_signal_counts()

@@ -3,17 +3,29 @@ Signal Monitor — Detect buying signals from leads.
 
 Runs periodically to check for hiring activity, website changes,
 funding news, and technology adoption signals.
-Stores signals in SQLite for feed display.
+
+CUTOVER NOTE (self-host on_signal): ``run_signal_scan`` now writes detected
+signals through the shared, workspace-scoped ORM signal store
+(:mod:`apps.api.services.signals.store`) on BOTH backends, so ``on_signal``
+automations fire on SQLite/self-host too (not just Postgres). The legacy
+per-file ``data/signals.db`` store is NO LONGER written or read by the feed —
+its rows are intentionally NOT backfilled into the ORM ``signals`` table
+(feed signals are ephemeral). The legacy file CRUD below is retained only as a
+back-compat shim for any out-of-band reader; it is off the main path.
 """
 
+import hashlib
 import json
 import time
 import logging
 import sqlite3
 import uuid
+from datetime import datetime, timezone
 from typing import List, Dict, Optional, Any
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
+
+from apps.api.core.config import settings
 
 logger = logging.getLogger("signals.monitor")
 
@@ -173,25 +185,106 @@ def mark_read(signal_ids: List[str], workspace_id: Optional[str] = None):
     conn.close()
 
 
+# ── Deterministic signal id (dedup → exactly-once on_signal) ──────────────────
+#
+# Root cause of duplicate fires on the legacy path was ``uuid4`` per scan → a new
+# PK every run → emit on every scan. We mirror the intent-poller's deterministic
+# id (services/poller/keys.py): the natural key is a COARSE per-state value, not
+# the raw job count, so an unchanged company does not re-fire on every scan.
+# ``add_signal`` is idempotent on this id (insert-only-when-absent) and emits
+# on_signal only on the inserted path → a re-scan of the same underlying event
+# produces no new row and no second fire.
+
+SCAN_KEY_SCHEMA_VERSION = 1
+
+
+def _hiring_band(total_jobs: int) -> str:
+    """Coarse open-positions band (NOT raw counts) so small count jitter between
+    scans does not churn the dedup key / re-fire on_signal."""
+    if total_jobs >= 51:
+        return "surge"
+    if total_jobs >= 21:
+        return "high"
+    if total_jobs >= 6:
+        return "moderate"
+    return "low"
+
+
+def _period_bucket(ts: Optional[float] = None) -> str:
+    """ISO year-week bucket. Re-scans within the same week dedup to one signal;
+    a genuinely fresh week is allowed to re-fire once (a new buying signal)."""
+    dt = datetime.fromtimestamp(ts if ts is not None else time.time(), tz=timezone.utc)
+    iso = dt.isocalendar()
+    return f"{iso[0]}-W{iso[1]:02d}"
+
+
+def scan_signal_id(workspace_id: str, lead_id: int, signal_type: str, natural_key: str) -> str:
+    """Deterministic sha256 id for a scanner-detected signal (mirrors §8.2).
+
+        sha256(f"scan|v{V}|{ws}|{lead_id}|{signal_type}|{natural_key}")
+    """
+    raw = (
+        f"scan|v{SCAN_KEY_SCHEMA_VERSION}|{workspace_id}|{lead_id}"
+        f"|{signal_type}|{natural_key}"
+    )
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
 # ── Signal Detection ─────────────────────────────────────────
 
-async def detect_hiring_signals(leads) -> List[Signal]:
-    """Detect hiring activity using the JobSpy provider."""
-    signals = []
+def _extract_hiring_data(result) -> Optional[dict]:
+    """Pull the hiring-signals dict off a provider result, tolerating both shapes:
+
+      * the real :class:`EnrichmentResult` — ``fields["hiring_signals"]`` (a JSON
+        string produced by ``JobSpySignalProvider.enrich``), and
+      * a plain ``.data`` dict (test doubles / legacy callers).
+
+    Returns the dict or ``None`` when no hiring data is present.
+    """
+    data = getattr(result, "data", None)
+    if isinstance(data, dict):
+        return data
+    fields = getattr(result, "fields", None)
+    if isinstance(fields, dict) and fields.get("hiring_signals"):
+        raw = fields["hiring_signals"]
+        if isinstance(raw, dict):
+            return raw
+        try:
+            parsed = json.loads(raw)
+            return parsed if isinstance(parsed, dict) else None
+        except (ValueError, TypeError):
+            return None
+    return None
+
+
+async def detect_hiring_signals(leads, workspace_id: str = "", *, max_leads: Optional[int] = None) -> List[Signal]:
+    """Detect hiring activity using the JobSpy provider.
+
+    Stamps each signal with ``workspace_id`` and a DETERMINISTIC id keyed on a
+    coarse hiring band + week bucket (so re-scans of unchanged state dedup).
+    """
+    signals: List[Signal] = []
+    cap = max_leads if max_leads is not None else int(
+        getattr(settings, "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE", 20)
+    )
     try:
         from apps.api.services.leadgen.enrichment.providers.jobspy_signals import JobSpySignalProvider
         provider = JobSpySignalProvider()
 
-        for lead in leads[:20]:  # Cap per run
+        for lead in leads[:cap]:  # Cap per run (per workspace)
             if not lead.company:
                 continue
             try:
                 result = await provider.enrich(lead)
-                if result.success and result.data:
-                    jobs_data = result.data
-                    if isinstance(jobs_data, dict) and jobs_data.get("total_jobs", 0) > 0:
+                jobs_data = _extract_hiring_data(result) if getattr(result, "success", False) else None
+                if jobs_data:
+                    if jobs_data.get("total_jobs", 0) > 0:
                         total = jobs_data.get("total_jobs", 0)
+                        band = _hiring_band(total)
+                        natural_key = f"{band}|{_period_bucket()}"
                         signals.append(Signal(
+                            id=scan_signal_id(workspace_id, lead.id, "hiring", natural_key),
+                            workspace_id=workspace_id,
                             lead_id=lead.id,
                             company=lead.company,
                             signal_type="hiring",
@@ -210,54 +303,105 @@ async def detect_hiring_signals(leads) -> List[Signal]:
 
 
 async def run_signal_scan() -> Dict[str, int]:
-    """Run a full signal scan across all hot/warm leads.
+    """Run a full signal scan across all hot/warm leads, PER WORKSPACE.
 
-    This is the main entry point called by the scheduler.
+    This is the main entry point called by the scheduler. Self-host has a single
+    'main' workspace → the loop runs once. Multi-tenant SQLite / Postgres → one
+    scoped pass per workspace. Each workspace's signals are written through the
+    shared ORM store (``get_signal_store``) so ``on_signal`` automations fire on
+    BOTH backends. One workspace failing does not abort the rest (AC-7).
     """
-    from apps.api.services.leadgen.db import LeadDB
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.leadgen.store import get_lead_store
+    from apps.api.services.signals.store import get_signal_store
+    from apps.api.services.workspace import manager as ws_manager
 
-    db = LeadDB()
-    hot_leads = db.get_leads(score_tier="hot", limit=50)
-    warm_leads = db.get_leads(score_tier="warm", limit=30)
-    all_leads = hot_leads + warm_leads
-    db.close()
+    hot_cap = int(getattr(settings, "SIGNAL_SCAN_MAX_HOT_LEADS", 50))
+    warm_cap = int(getattr(settings, "SIGNAL_SCAN_MAX_WARM_LEADS", 30))
+    per_ws_cap = int(getattr(settings, "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE", 20))
+    global_cap = int(getattr(settings, "SIGNAL_SCAN_GLOBAL_MAX_LEADS", 500))
 
-    if not all_leads:
-        return {"scanned": 0, "signals_found": 0}
+    try:
+        workspaces = ws_manager.list_workspaces()
+    except Exception as e:
+        logger.warning(f"signal scan: could not list workspaces: {e}")
+        return {"scanned": 0, "signals_found": 0, "workspaces": 0}
 
-    all_signals = []
+    total_scanned = 0
+    total_signals = 0
+    total_boosted = 0
+    ws_done = 0
+    ws_failed = 0
+    global_budget = global_cap if global_cap > 0 else None
 
-    # Detect hiring signals
-    hiring = await detect_hiring_signals(all_leads)
-    all_signals.extend(hiring)
+    for ws in workspaces:
+        if global_budget is not None and global_budget <= 0:
+            logger.info("signal scan: global lead cap reached, stopping workspace loop")
+            break
+        try:
+            with workspace_scope(ws.id):
+                store = get_lead_store(ws.id, ws.slug)
+                try:
+                    hot_leads = store.get_leads(score_tier="hot", limit=hot_cap)
+                    warm_leads = store.get_leads(score_tier="warm", limit=warm_cap)
+                    all_leads = hot_leads + warm_leads
+                finally:
+                    store.close()
 
-    # Store all detected signals
-    for s in all_signals:
-        add_signal(s)
+                if not all_leads:
+                    ws_done += 1
+                    continue
 
-    # ── signal → score: boost leads with fresh buying signals ──
-    boosted = _apply_signal_boosts(all_signals)
+                # Politeness: clamp per-workspace enrich count to the per-ws cap
+                # AND the remaining global budget.
+                cap = per_ws_cap
+                if global_budget is not None:
+                    cap = min(cap, global_budget)
+                if cap <= 0:
+                    break
+
+                signals = await detect_hiring_signals(all_leads, ws.id, max_leads=cap)
+
+                sig_store = get_signal_store(ws.id)
+                for s in signals:
+                    sig_store.add_signal(s)
+
+                boosted = _apply_signal_boosts(signals, ws.id, ws.slug)
+
+                processed = min(len(all_leads), cap)
+                total_scanned += len(all_leads)
+                total_signals += len(signals)
+                total_boosted += boosted
+                if global_budget is not None:
+                    global_budget -= processed
+                ws_done += 1
+        except Exception as e:
+            ws_failed += 1
+            logger.warning(f"signal scan failed for workspace {ws.id}: {e}")
+            continue
 
     logger.info(
-        f"Signal scan complete: {len(all_leads)} leads scanned, "
-        f"{len(all_signals)} signals found, {boosted} leads boosted"
+        f"Signal scan complete: {ws_done} workspaces scanned ({ws_failed} failed), "
+        f"{total_scanned} leads, {total_signals} signals, {total_boosted} leads boosted"
     )
 
     return {
-        "scanned": len(all_leads),
-        "signals_found": len(all_signals),
-        "leads_boosted": boosted,
-        "by_type": {
-            "hiring": len([s for s in all_signals if s.signal_type == "hiring"]),
-        },
+        "scanned": total_scanned,
+        "signals_found": total_signals,
+        "leads_boosted": total_boosted,
+        "workspaces": ws_done,
+        "workspaces_failed": ws_failed,
+        "by_type": {"hiring": total_signals},
     }
 
 
-def _apply_signal_boosts(signals) -> int:
-    """Bump lead scores for leads with new signals (capped at 100), recompute tier."""
+def _apply_signal_boosts(signals, workspace_id: str, slug: str) -> int:
+    """Bump lead scores for leads with new signals (capped at 100), recompute
+    tier — within the given workspace's scoped lead store."""
     if not signals:
         return 0
-    from apps.api.services.leadgen.db import LeadDB
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.leadgen.store import get_lead_store
 
     # Aggregate weight per lead (a lead may fire multiple signals)
     by_lead: Dict[int, int] = {}
@@ -268,25 +412,25 @@ def _apply_signal_boosts(signals) -> int:
     if not by_lead:
         return 0
 
-    db = LeadDB()
     boosted = 0
     try:
-        for lead_id, weight in by_lead.items():
-            row = db.conn.execute(
-                "SELECT score FROM leads WHERE id = ?", (lead_id,)
-            ).fetchone()
-            if not row:
-                continue
-            cur = row[0] or 0
-            new_score = min(100, cur + weight)
-            if new_score == cur:
-                continue
-            tier = ("hot" if new_score >= 75 else "warm" if new_score >= 50
-                    else "cold" if new_score >= 25 else "unqualified")
-            db.update_lead_fields(lead_id, {"score": new_score, "score_tier": tier})
-            boosted += 1
+        with workspace_scope(workspace_id):
+            store = get_lead_store(workspace_id, slug)
+            try:
+                for lead_id, weight in by_lead.items():
+                    lead = store.get_lead(lead_id)
+                    if not lead:
+                        continue
+                    cur = lead.score or 0
+                    new_score = min(100, cur + weight)
+                    if new_score == cur:
+                        continue
+                    tier = ("hot" if new_score >= 75 else "warm" if new_score >= 50
+                            else "cold" if new_score >= 25 else "unqualified")
+                    store.update_lead_fields(lead_id, {"score": new_score, "score_tier": tier})
+                    boosted += 1
+            finally:
+                store.close()
     except Exception as e:
         logger.warning(f"signal score boost failed: {e}")
-    finally:
-        db.close()
     return boosted

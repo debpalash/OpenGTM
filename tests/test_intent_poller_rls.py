@@ -230,7 +230,11 @@ def test_on_signal_fires_once_and_dedup_noop(app_engine, owner_engine, monkeypat
 
     AppSession = _bind_app_session(app_engine)
     import apps.api.services.leadgen.store as store_mod
+    import apps.api.services.signals.store as sig_store_mod
     monkeypatch.setattr(store_mod, "SessionLocal", AppSession)
+    # PgLeadStore.add_signal now delegates to the shared SignalStore — bind its
+    # SessionLocal to the app-role engine too so the write+emit run under RLS.
+    monkeypatch.setattr(sig_store_mod, "SessionLocal", AppSession)
 
     from apps.api.services.queue_service import QueueService
     enqueued = []
@@ -303,7 +307,10 @@ def test_on_signal_fires_once_and_dedup_noop(app_engine, owner_engine, monkeypat
 def test_add_signal_stamps_workspace_and_isolated(app_engine, monkeypatch):
     AppSession = _bind_app_session(app_engine)
     import apps.api.services.leadgen.store as store_mod
+    import apps.api.services.signals.store as sig_store_mod
     monkeypatch.setattr(store_mod, "SessionLocal", AppSession)
+    # add_signal delegates to the shared SignalStore → bind its SessionLocal too.
+    monkeypatch.setattr(sig_store_mod, "SessionLocal", AppSession)
     from apps.api.core.config import settings as app_settings
     monkeypatch.setattr(app_settings, "AUTOMATIONS_ENABLED", False, raising=False)
 
