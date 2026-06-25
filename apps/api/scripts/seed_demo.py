@@ -256,18 +256,21 @@ def trigger_first_run(db) -> None:
 
 
 def main() -> int:
-    # 1. Schema. create_all is a no-op for tables that already exist.
-    from apps.api.database import Base, engine, SessionLocal
-    # Import every model module so Base.metadata is complete (mirrors main.py).
-    import apps.api.models  # noqa: F401
-    from apps.api.services.workbook import models as _wb_models  # noqa: F401
-    from apps.api.services.entities import models as _ent  # noqa: F401
-    from apps.api.services.workbook import planner_models as _pl  # noqa: F401
-    from apps.api.services.workbook import activity_models as _act  # noqa: F401
-    from apps.api.services.workbook import trace_models as _tr  # noqa: F401
+    # 1. Schema. Use the SAME path the app boots with (db_init.init_db) so the
+    #    DB is brought up via Alembic (and gets the alembic_version stamp).
+    #    Calling Base.metadata.create_all() directly here was a bug: when the
+    #    seed runs on a FRESH Postgres BEFORE the API has booted (the documented
+    #    "safe to run by hand" path, or any deploy that seeds first), create_all
+    #    builds every table WITHOUT stamping alembic_version. A later
+    #    `alembic upgrade head` (e.g. the API booting afterwards) then fails with
+    #    DuplicateTable because it tries to CREATE tables that already exist.
+    #    init_db() runs `alembic upgrade head` (idempotent on an already-migrated
+    #    DB) and only falls back to create_all() when Alembic is unavailable.
+    from apps.api.database import SessionLocal
+    from apps.api.db_init import init_db
 
-    Base.metadata.create_all(bind=engine)
-    log.info("Schema ensured (create_all).")
+    init_db()
+    log.info("Schema ensured (db_init / alembic upgrade head).")
 
     db = SessionLocal()
     try:

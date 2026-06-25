@@ -12,7 +12,9 @@ dependencies = [
     # Postgres driver (psycopg3). Required for the default Postgres DATABASE_URL
     # and the shared, RLS-protected multi-tenant leads/signals store. The URL
     # must use the 'postgresql+psycopg://' scheme (psycopg3), not bare
-    # 'postgresql://' (which would need psycopg2).
+    # 'postgresql://' (which would need psycopg2). Also lets plain `uv run
+    # alembic ...` / `uv run python -m apps.api.scripts.seed_demo` work without
+    # an ad-hoc `--with psycopg[binary]`. Mirrors apps/api/pyproject.toml.
     "psycopg[binary]>=3.3.4",
     "pydantic-settings>=2.0.0",
     "slowapi>=0.1.9",
