@@ -88,6 +88,11 @@ def _mk_active_seq(store):
     seq = store.create_sequence(
         "S", steps=[{"step_number": 0, "subject": "Hi", "body_html": "<p>Hi</p>", "delay_hours": 0},
                     {"step_number": 1, "subject": "Bump", "body_html": "<p>Bump</p>", "delay_hours": 24}],
+        # All-day window so send-path tests are deterministic regardless of the
+        # wall-clock hour they run at (the default 9-18 UTC window otherwise
+        # reschedules the send outside business hours). Tests that exercise the
+        # window gate monkeypatch _in_send_window explicitly.
+        send_window_start=0, send_window_end=24,
         consent_basis="legit")
     store.set_sequence_status(seq["id"], "active")
     return seq
