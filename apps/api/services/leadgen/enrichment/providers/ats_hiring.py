@@ -20,6 +20,7 @@ from typing import Dict, List, Optional
 import httpx
 
 from apps.api.services.leadgen.enrichment.provider import EnrichmentProvider, EnrichmentResult
+from apps.api.services.leadgen.enrichment.providers.job_tech_intent import analyze_job_text
 from apps.api.services.leadgen.models import Lead
 
 logger = logging.getLogger("leadgen.ats_hiring")
@@ -84,6 +85,11 @@ def _titles_to_signals(titles: List[str]) -> Dict:
         for tk in _TECH_KEYWORDS:
             if tk in tl:
                 tech.add(tk.strip())
+    # Tech-adoption intent from the role titles we already fetched (no new
+    # network). Titles carry less context than full descriptions, so most
+    # detections land as intent "using"/"expanding".
+    intent = analyze_job_text(" \n ".join(titles), open_roles=len(titles))
+
     return {
         "open_roles": len(titles),
         "departments": depts,
@@ -91,6 +97,9 @@ def _titles_to_signals(titles: List[str]) -> Dict:
         "is_hiring": len(titles) > 0,
         "eng_hiring": depts.get("engineering", 0) > 0,
         "sample_titles": titles[:8],
+        "technologies": intent["technologies"],
+        "tech_adoption_signal": intent["tech_adoption_signal"],
+        "hiring_velocity": intent["hiring_velocity"],
     }
 
 
