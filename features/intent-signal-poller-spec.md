@@ -1,5 +1,13 @@
 <!-- Auto-generated design spec (2026-06-25). Review verdict: needs-revisions. -->
 
+## ✅ LOCKED SCOPE DECISIONS (owner-approved)
+
+1. **v1 signal types = ALL of:** `company_funded` (SEC Form D), `new_tech_adopted` (jobs, intent-tiered), `hiring_surge` (coarse growth-band crossing only — magnitude is directional, NOT a real open-role count), `executive_hired` (new officer/director on a NEW Form D filing — narrow, accurate; NOT general 'new VP' news), plus generic `news`/RSS signals. All free/keyless sources.
+2. **Cadence = daily default, hourly opt-in** (per watch). Idle polls short-circuit via conditional GET (304 / submissions-equality) so steady-state cost is near zero.
+3. **Manual 'poll now' = its OWN small per-workspace/day quota**, separate from the scheduled-poll daily budget, plus a per-watch rate limit. Poll-now reuses the scheduled fire_key when a poll is already due/in-flight (single-flight preserved).
+4. Defaults accepted as-is: ambiguous lead → SKIP emission + `last_error='ambiguous_lead'` (never mis-route email); KEY_SCHEMA_VERSION=1 dedup-key scheme frozen (CIK-canonical, lead_id excluded, intent-tier aware); webhook delivery ONLY via on_signal→webhook rules (no second sender); gated behind a default-OFF flag, PG-only (on_signal requires PG_LEAD_STORE=true).
+
+
 ＃ Production Spec — Scheduled Intent-Signal Poller (v2, post-review)
 
 ## Changes after review (read first)
