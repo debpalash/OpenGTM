@@ -132,6 +132,19 @@ class Settings(BaseSettings):
     # Platform-global bounce/complaint webhook shared secret (cloud).
     OUTREACH_BOUNCE_WEBHOOK_SECRET: str = ""
 
+    # ── Async bounce/complaint feedback-loop ingestion (BYO-SMTP IMAP) ──
+    # Feature switch (default OFF — dark launch). Even when ON, a workspace must
+    # have per-workspace IMAP creds (WI-6) before any inbound job is scheduled.
+    OUTREACH_INBOUND_POLL_ENABLED: bool = False
+    # Self-scheduling inbound poll interval (seconds). Default 15 min.
+    OUTREACH_INBOUND_POLL_INTERVAL: int = 900
+    # Per-tick cap on messages fetched from the mailbox (bounds slow IMAP).
+    OUTREACH_INBOUND_MAX_FETCH: int = 100
+    # Hard auto-disable after this many consecutive IMAP failures (backoff first).
+    OUTREACH_INBOUND_MAX_CONSECUTIVE_FAILURES: int = 10
+    # Server-side SINCE floor (days) for the UNSEEN search (≥1; date-granular).
+    OUTREACH_INBOUND_LOOKBACK_DAYS: int = 3
+
     # ── Scheduled Intent-Signal Poller (v1) ────────────────────────────
     # Master switch. OFF: /api/watches router 404s, handle_watch_poll early-
     # exits, bootstrap_watch_schedules no-ops. PG-only (requires use_pg_store()).

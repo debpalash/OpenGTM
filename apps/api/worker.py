@@ -71,6 +71,7 @@ def _register_handlers() -> None:
     )
     from apps.api.services.automations.engine import handle_trigger_eval
     from apps.api.services.outreach.sending import handle_send
+    from apps.api.services.outreach.inbound import handle_inbound_poll
     from apps.api.services.poller.engine import handle_watch_poll
 
     queue_service.register_handler("download_link", handle_download_link)
@@ -80,6 +81,7 @@ def _register_handlers() -> None:
     queue_service.register_handler("signal_scan", handle_signal_scan)
     queue_service.register_handler("trigger_eval", handle_trigger_eval)
     queue_service.register_handler("send", handle_send)
+    queue_service.register_handler("outreach_inbound_poll", handle_inbound_poll)
     queue_service.register_handler("watch_poll", handle_watch_poll)
 
 

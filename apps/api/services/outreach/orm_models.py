@@ -141,6 +141,69 @@ class OutreachSuppression(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
+class OutreachInboundMessage(Base):
+    """Inbound DSN/complaint dedup ledger (RLS). NEW (bounce-ingestion spec).
+
+    One row per inbound message we have *seen* in a workspace mailbox. The insert
+    is the idempotency gate for ``apply_bounce`` — the breaker/suppression effect
+    runs only when this row is newly created, so a re-fetch (retry / restart /
+    mailbox UID churn) never double-counts. Two unique gates:
+
+      * ``(workspace_id, uidvalidity, imap_uid)`` — IMAP server identity.
+      * ``(workspace_id, source_message_id)`` — survives UID churn (the inbound
+        message's own Message-ID; the webhook path reuses this with the event's
+        message_id so a webhook replay is also a no-op).
+
+    Stores only the recipient + a bounded diagnostic — never the raw message body
+    (PII minimization).
+    """
+
+    __tablename__ = "outreach_inbound_messages"
+    __table_args__ = (
+        UniqueConstraint(
+            "workspace_id", "uidvalidity", "imap_uid", name="uq_inbound_ws_uid"
+        ),
+        UniqueConstraint(
+            "workspace_id", "source_message_id", name="uq_inbound_ws_srcmid"
+        ),
+        Index("ix_inbound_ws_created", "workspace_id", "created_at"),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    workspace_id = Column(String(64), nullable=False)
+    imap_uid = Column(String(64), nullable=False, default="")  # 'webhook' for the ESP path
+    uidvalidity = Column(String(64), nullable=False, default="")
+    source_message_id = Column(String, nullable=False, default="")  # the DSN's own Message-ID
+    matched_send_id = Column(Integer, nullable=True)
+    kind = Column(String(20), default="unknown")  # hard/soft/complaint/unmatched/unknown
+    recipient = Column(String, default="")
+    diagnostic = Column(Text, default="")
+    processed_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class OutreachInboundSchedule(Base):
+    """Non-RLS mirror driving the per-workspace inbound IMAP poll (bounce spec).
+
+    DELIBERATELY NOT RLS — read at cold-start WITHOUT a workspace GUC, exactly
+    like :class:`OutreachSchedule`. Carries only the workspace id + scheduling /
+    IMAP-cursor bookkeeping, no recipient PII.
+    """
+
+    __tablename__ = "outreach_inbound_schedules"
+    __table_args__ = (
+        Index("ix_inbound_sched_due", "enabled", "next_poll_at"),
+    )
+
+    workspace_id = Column(String(64), primary_key=True)
+    next_poll_at = Column(DateTime(timezone=True), nullable=True)
+    enabled = Column(Boolean, nullable=False, default=False)
+    consecutive_failures = Column(Integer, nullable=False, default=0)
+    uidvalidity = Column(String(64), nullable=True)
+    last_uid = Column(String(64), nullable=True)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
 class OutreachSchedule(Base):
     """Non-RLS mirror driving the autonomous ticker (spec §3.5).
 

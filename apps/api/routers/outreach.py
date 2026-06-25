@@ -410,25 +410,41 @@ def bounce_webhook(event: BounceEvent, request: Request):
         seq_id = send.sequence_id
         enrollment_id = send.enrollment_id
         to_email = send.to_email
+        send_id = send.id
 
-    complaint = event.event == "complaint"
+    # Map the ESP event to the shared bounce kind.
+    if event.event == "complaint":
+        kind = "complaint"
+    elif event.hard:
+        kind = "hard"
+    else:
+        kind = "soft"
+
     with workspace_scope(ws_id):
         store = get_outreach_store(ws_id)
-        if complaint:
-            store.add_suppression(to_email, reason="complaint", source="webhook", locked=True)
-            if enrollment_id is not None:
-                store.advance_enrollment(enrollment_id, status="bounced", error="complaint")
-            store.record_bounce_and_maybe_pause(seq_id, complaint=True)
-        elif event.hard:
-            store.add_suppression(to_email, reason="bounce", source="webhook", locked=False)
-            if enrollment_id is not None:
-                store.advance_enrollment(enrollment_id, status="bounced", error="hard_bounce")
-            store.record_bounce_and_maybe_pause(seq_id, complaint=False)
-        else:
-            # Soft bounce → increment counter; threshold → suppress.
-            if enrollment_id is not None:
-                count = store.increment_soft_bounce(enrollment_id)
-                if count >= settings.OUTREACH_SOFT_BOUNCE_MAX:
-                    store.add_suppression(to_email, reason="bounce", source="webhook", locked=False)
-                    store.advance_enrollment(enrollment_id, status="bounced", error="soft_bounce_max")
+        # Idempotency gate (fixes the historical double-count on replay): the
+        # ledger insert keyed on the event message_id runs apply_bounce once. A
+        # replay conflicts on (workspace_id, source_message_id) → no-op.
+        created = store.record_inbound_processed(
+            imap_uid=event.message_id,
+            uidvalidity="webhook",
+            source_message_id=event.message_id,
+            matched_send_id=send_id,
+            kind=kind,
+            recipient=to_email,
+            diagnostic="webhook",
+        )
+        if not created:
+            return {"status": "duplicate"}
+        # Now also marks the send row bounced (the other historical defect) via
+        # the shared applier used by the IMAP path.
+        store.apply_bounce(
+            send_id=send_id,
+            sequence_id=seq_id,
+            enrollment_id=enrollment_id,
+            to_email=to_email,
+            kind=kind,
+            diagnostic="webhook",
+            source="webhook",
+        )
     return {"status": "ok"}

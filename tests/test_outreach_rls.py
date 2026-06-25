@@ -69,7 +69,7 @@ def schema(owner_engine):
     # Seed one sequence + enrollment + send + suppression per tenant (as owner,
     # GUC per batch so FORCE RLS WITH CHECK passes).
     with owner_engine.begin() as c:
-        for t in _TENANT_TABLES:
+        for t in _TENANT_TABLES + ("outreach_inbound_messages",):
             c.execute(text(f"DELETE FROM {t}"))
     for ws in (W1, W2):
         with owner_engine.begin() as c:
@@ -91,6 +91,20 @@ def schema(owner_engine):
                 "INSERT INTO outreach_suppressions (workspace_id, email, reason) "
                 "VALUES (:w, :em, 'manual')"
             ), {"w": ws, "em": f"sup@{ws}.com"})
+            # Inbound ledger row (RLS) + inbound schedule mirror (non-RLS).
+            c.execute(text(
+                "INSERT INTO outreach_inbound_messages "
+                "(workspace_id, imap_uid, uidvalidity, source_message_id, kind) "
+                "VALUES (:w, '1', '100', :smid, 'hard')"
+            ), {"w": ws, "smid": f"<dsn-{ws}@mx>"})
+    # Schedule mirror is NON-RLS → seed without a GUC.
+    with owner_engine.begin() as c:
+        c.execute(text("DELETE FROM outreach_inbound_schedules"))
+        for ws in (W1, W2):
+            c.execute(text(
+                "INSERT INTO outreach_inbound_schedules (workspace_id, enabled) "
+                "VALUES (:w, true)"
+            ), {"w": ws})
     yield
 
 
@@ -284,3 +298,61 @@ def test_i7_data_migration_idempotent(owner_engine, tmp_path, monkeypatch):
     assert l1 == 1, "unresolved lead send marked lead_not_found"
     assert ch1 == 0.0 and ch2 == 0.0, "migrated sends never charged"
     assert led1 == 0 and led2 == 0, "migration never touches the ledger"
+
+
+# ── Inbound bounce-ingestion: ledger RLS + non-RLS schedule mirror ───────────
+
+def test_inbound_messages_select_isolation(app_engine):
+    with app_engine.connect() as c:
+        with c.begin():
+            _set_ws(c, W1)
+            wss = {r[0] for r in c.execute(text(
+                "SELECT DISTINCT workspace_id FROM outreach_inbound_messages"))}
+            assert wss == {W1}
+        with c.begin():
+            _set_ws(c, W2)
+            wss = {r[0] for r in c.execute(text(
+                "SELECT DISTINCT workspace_id FROM outreach_inbound_messages"))}
+            assert wss == {W2}
+
+
+def test_inbound_messages_fail_closed_no_guc(app_engine):
+    with app_engine.connect() as c, c.begin():
+        n = c.execute(text("SELECT count(*) FROM outreach_inbound_messages")).scalar()
+    assert n == 0, "inbound ledger leaked with no app.workspace_id (must fail closed)"
+
+
+def test_inbound_messages_cross_tenant_insert_rejected(app_engine):
+    from sqlalchemy.exc import ProgrammingError, DBAPIError
+    with app_engine.connect() as c, c.begin():
+        _set_ws(c, W1)
+        with pytest.raises((ProgrammingError, DBAPIError)):
+            c.execute(text(
+                "INSERT INTO outreach_inbound_messages "
+                "(workspace_id, imap_uid, uidvalidity, source_message_id, kind) "
+                "VALUES (:w, '9', '100', '<x@mx>', 'hard')"
+            ), {"w": W2})
+
+
+def test_inbound_messages_force_rls(owner_engine):
+    with owner_engine.connect() as c, c.begin():
+        row = c.execute(text(
+            "SELECT c.relrowsecurity, c.relforcerowsecurity FROM pg_class c "
+            "JOIN pg_namespace n ON n.oid=c.relnamespace "
+            "WHERE c.relname='outreach_inbound_messages' AND n.nspname='public'"
+        )).first()
+    assert row == (True, True), "outreach_inbound_messages must have ENABLE+FORCE RLS"
+
+
+def test_inbound_schedules_not_rls_and_guc_less_readable(owner_engine, app_engine):
+    # Not RLS-enabled.
+    with owner_engine.connect() as c, c.begin():
+        rel = c.execute(text(
+            "SELECT c.relrowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
+            "WHERE c.relname='outreach_inbound_schedules' AND n.nspname='public'"
+        )).scalar()
+    assert rel is False, "outreach_inbound_schedules must NOT have RLS (it's the mirror)"
+    # The app role reads ALL rows GUC-less (cold-start bootstrap path).
+    with app_engine.connect() as c, c.begin():
+        n = c.execute(text("SELECT count(*) FROM outreach_inbound_schedules")).scalar()
+    assert n == 2, "inbound schedule mirror must be readable without a workspace GUC"
