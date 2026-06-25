@@ -830,6 +830,9 @@ async def run_workbook(
         "run_workbook",
         {
             "workbook_id": workbook_id,
+            # OD-4: stamp the tenant into the payload so the worker enters the
+            # right workspace_scope (it must never read the row to learn its ws).
+            "workspace_id": ctx.workspace_id,
             "run_id": run_id,
             "column_ids": [c["id"] for c in enrichment_cols],
             # Pass the resolved ids (not the raw request) so the worker enriches
@@ -925,7 +928,12 @@ async def run_source_column(request: Request, workbook_id: str, col_id: str, db:
         raise HTTPException(status_code=404, detail="Source column not found")
 
     from apps.api.services.queue_service import queue_service
-    queue_service.add_job(db, "source_workbook", {"workbook_id": workbook_id, "column_id": col_id})
+    # OD-4: the workbook row carries its tenant; stamp it into the payload so the
+    # worker can enter workspace_scope (never reads the row to discover its ws).
+    queue_service.add_job(
+        db, "source_workbook",
+        {"workbook_id": workbook_id, "column_id": col_id, "workspace_id": wb.workspace_id},
+    )
     return {"status": "started", "column_id": col_id, "message": "Sourcing started"}
 
 
@@ -1031,7 +1039,11 @@ async def refresh_now(workbook_id: str, db: Session = Depends(get_db)):
     if not wb:
         raise HTTPException(status_code=404, detail="Workbook not found")
     from apps.api.services.queue_service import queue_service
-    queue_service.add_job(db, "refresh_workbook", {"workbook_id": workbook_id, "reason": "manual"})
+    # OD-4: stamp the workbook's tenant so the refresh worker scopes correctly.
+    queue_service.add_job(
+        db, "refresh_workbook",
+        {"workbook_id": workbook_id, "reason": "manual", "workspace_id": wb.workspace_id},
+    )
     return {"status": "refreshing"}
 
 
@@ -1222,13 +1234,22 @@ async def migrate_workbook_to_v2(
 
 # ── WebSocket ─────────────────────────────────────────────────────────────
 
-def _ws_authorize(token: Optional[str], workbook_id: str) -> bool:
-    """Validate a WS JWT and confirm the user can access this workbook's workspace."""
-    if not token:
+def _ws_authorize(token: Optional[str], workbook_id: str, workspace_id: Optional[str]) -> bool:
+    """Validate a WS JWT and confirm the user can access this workbook's workspace.
+
+    OD-5: the tenant arrives OUT-OF-BAND as a ws query param (the frontend always
+    knows the active workspace) — we never read the workbook row to discover its
+    workspace, because under FORCE RLS that read happens before any scope is set
+    and would return nothing. We enter ``workspace_scope(workspace_id)`` first,
+    then look up the workbook (now RLS-scoped) and confirm both that it exists in
+    that tenant (belt) and that the user is a member of it.
+    """
+    if not token or not workspace_id:
         return False
     try:
         from jose import jwt, JWTError
         from apps.api.core.config import settings as _settings
+        from apps.api.core.tenancy import workspace_scope
         from apps.api.database import SessionLocal
         from apps.api.models import User
         from apps.api.services.workspace import manager as _ws
@@ -1241,27 +1262,39 @@ def _ws_authorize(token: Optional[str], workbook_id: str) -> bool:
         if not username:
             return False
 
-        sess = SessionLocal()
-        try:
-            user = sess.query(User).filter(User.username == username).first()
-            if not user or not user.is_active:
-                return False
-            wb = sess.query(Workbook).filter(Workbook.id == workbook_id).first()
-            if not wb or not wb.workspace_id:
-                return False
-            return _ws.is_member(wb.workspace_id, user.id)
-        finally:
-            sess.close()
+        with workspace_scope(workspace_id):
+            sess = SessionLocal()
+            try:
+                user = sess.query(User).filter(User.username == username).first()
+                if not user or not user.is_active:
+                    return False
+                # Membership in the CLAIMED workspace — a forged/wrong ws fails here.
+                if not _ws.is_member(workspace_id, user.id):
+                    return False
+                # The workbook must belong to that workspace (belt; RLS suspenders).
+                wb = sess.query(Workbook).filter(Workbook.id == workbook_id).first()
+                if not wb or wb.workspace_id != workspace_id:
+                    return False
+                return True
+            finally:
+                sess.close()
     except Exception:
         return False
 
 
 @router.websocket("/{workbook_id}/ws")
 async def workbook_websocket(
-    websocket: WebSocket, workbook_id: str, token: Optional[str] = Query(default=None)
+    websocket: WebSocket,
+    workbook_id: str,
+    token: Optional[str] = Query(default=None),
+    workspace_id: Optional[str] = Query(default=None),
 ):
-    """WebSocket for live enrichment updates (auth via ?token=<jwt>)."""
-    if not _ws_authorize(token, workbook_id):
+    """WebSocket for live enrichment updates (auth via ?token=<jwt>&workspace_id=<ws>).
+
+    OD-5: the workspace is passed out-of-band as a query param so authorization
+    can scope to the tenant before touching the (RLS-protected) workbook row.
+    """
+    if not _ws_authorize(token, workbook_id, workspace_id):
         await websocket.close(code=4403)
         return
     await websocket.accept()

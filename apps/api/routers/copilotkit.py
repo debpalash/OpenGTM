@@ -1037,9 +1037,12 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 wdb.add(wb); wdb.commit(); wdb.refresh(wb)
                 wb_id = wb.id
                 if auto_run:
+                    # OD-4: stamp the tenant into the payload so the source worker
+                    # enters workspace_scope (never reads the row to learn its ws).
                     queue_service.add_job(wdb, "source_workbook",
                                           {"workbook_id": wb_id, "column_id": src_col["id"],
-                                           "enrich_after": auto_enrich})
+                                           "enrich_after": auto_enrich,
+                                           "workspace_id": workspace_id})
             return json.dumps({
                 "workbook_id": wb_id, "name": wb_name, "sourcing": bool(auto_run),
                 "message": f"Created live-sourcing workbook '{wb_name}'."

@@ -85,8 +85,10 @@ uv run uvicorn apps.api.main:app --reload --port 8000       # API
 cd apps/web && bun install && bun run dev                    # frontend
 ```
 
-Background enrichment needs **Redis** running and the worker:
-`python -m apps.api.services.workbook.worker`.
+Background enrichment runs on the durable SQL-queue worker:
+`python -m apps.api.worker` (claims `jobs` atomically; scale with
+`docker compose up --scale worker=N`). Redis is optional — only used for live
+WebSocket cell-update broadcasts.
 
 ---
 
