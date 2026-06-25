@@ -13,7 +13,7 @@ import httpx
 import uuid
 import asyncio
 import threading
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Optional
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse, JSONResponse
 
@@ -302,17 +302,43 @@ SAFE_TOOLS = {
 }
 
 
+def _autopilot_ws() -> Optional[str]:
+    """Resolve the active workspace for autopilot plan-store / memory scoping.
+
+    The chat endpoint is single-tenant/self-host-first (no per-request auth dep
+    yet — tracked as a follow-up), so this reads the tenancy contextvar if one is
+    set, else None. The plan store keys consistently on whatever this returns, so
+    nonce binding holds within a session regardless. A future auth dep on the
+    chat endpoint makes this a real per-request workspace.
+    """
+    try:
+        from apps.api.core.tenancy import current_workspace_var
+        return current_workspace_var.get()
+    except Exception:
+        return None
+
+
+def _autopilot_user() -> Optional[str]:
+    """Resolve the drafting user id (None until the chat endpoint is authed)."""
+    return None
+
+
 def _describe_action(fn_name: str, fn_args: dict) -> str:
     """Generate a human-readable description of a tool action for the confirmation dialog."""
     meta = DANGEROUS_TOOLS.get(fn_name, {})
     label = meta.get("label", fn_name)
     reason = meta.get("reason", "This action modifies data.")
 
-    # The autopilot plan describes itself (one step per line) — render it
-    # directly so the confirmation gate shows the full plan for approval.
+    # The autopilot plan describes itself (one step per line) — render the
+    # SERVER-STORED plan (by plan_id), NOT the client args, so the gate displays
+    # exactly what will execute (approval-integrity). Fall back to the echoed
+    # plan body for older clients that don't thread plan_id.
     if fn_name == "execute_plan":
-        from apps.api.services.agent import autopilot
-        plan = fn_args.get("plan") or {}
+        from apps.api.services.agent import autopilot, autopilot_plan_store
+        plan_id = fn_args.get("plan_id")
+        plan = autopilot_plan_store.peek(_autopilot_ws(), plan_id) if plan_id else None
+        if not plan:
+            plan = fn_args.get("plan") or {}
         return autopilot.describe_plan(plan) if plan.get("steps") else f"{label}\n{reason}"
 
     details = ""
@@ -634,13 +660,15 @@ def _build_tools():
             "type": "function",
             "function": {
                 "name": "execute_plan",
-                "description": "Execute a plan previously produced by draft_plan. Pass the plan object back verbatim. This builds the workbook, sources companies, and runs agent-column enrichment. Requires user approval.",
+                "description": "Execute a plan previously produced by draft_plan. Pass the plan_id and nonce returned by draft_plan (the server executes the plan it stored under that plan_id). This builds the workbook, sources companies, and runs agent-column enrichment. Requires user approval.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "plan": {"type": "object", "description": "The plan object returned by draft_plan"},
+                        "plan_id": {"type": "string", "description": "The plan_id returned by draft_plan"},
+                        "nonce": {"type": "string", "description": "The single-use nonce returned by draft_plan"},
+                        "plan": {"type": "object", "description": "(Optional, for display only) the plan object returned by draft_plan; the server executes the stored plan by plan_id, not this body"},
                     },
-                    "required": ["plan"],
+                    "required": ["plan_id", "nonce"],
                 },
             },
         },
@@ -1095,19 +1123,48 @@ async def _execute_tool(name: str, args: dict) -> str:
 
         # ── Autopilot: goal → plan → execute (orchestrates the tools above) ──
         elif name == "draft_plan":
-            from apps.api.services.agent import autopilot
-            plan = autopilot.draft_plan(args["goal"], int(args.get("target_count", 0) or 0))
+            from apps.api.services.agent import autopilot, autopilot_plan_store
+            ws_id = _autopilot_ws()
+            user_id = _autopilot_user()
+            plan = await autopilot.draft_plan(
+                args["goal"], int(args.get("target_count", 0) or 0), workspace_id=ws_id,
+            )
+            # Persist server-side at draft time → the gate executes EXACTLY this
+            # plan (approval-integrity). Client echoes plan_id + nonce on approve.
+            plan_id, nonce = autopilot_plan_store.put(ws_id, user_id, plan)
             return json.dumps({
                 "plan": plan,
-                "message": "Drafted a plan. Call execute_plan with this plan to run it (the user will be asked to approve).",
+                "plan_id": plan_id,
+                "nonce": nonce,
+                "message": "Drafted a plan. Call execute_plan with {plan_id, nonce} to run it "
+                           "(the user will be asked to approve).",
             })
 
         elif name == "execute_plan":
-            from apps.api.services.agent import autopilot
-            plan = args.get("plan") or {}
-            if not plan.get("steps"):
-                return json.dumps({"error": "No plan provided. Call draft_plan first."})
+            # Reached via the gate replay (_resolve_approved_calls), which
+            # resolves the server-stored plan by (workspace_id, user_id, plan_id,
+            # nonce) and re-validates. A call WITHOUT a valid nonce is rejected —
+            # we never execute a client-supplied plan body.
+            from apps.api.services.agent import autopilot, autopilot_plan_store
+            ws_id = _autopilot_ws()
+            user_id = _autopilot_user()
+            plan_id = args.get("plan_id")
+            nonce = args.get("nonce")
+            stored = autopilot_plan_store.consume(ws_id, user_id, plan_id, nonce) if plan_id else None
+            if not stored:
+                return json.dumps({"error": "Plan not found or already executed. "
+                                            "Re-draft and approve the plan."})
+            plan = autopilot._validate_plan(stored) or stored
             result = await autopilot.execute_plan(plan, _execute_tool)
+            # Best-effort memory write (idempotent on (ws, workbook_id)).
+            try:
+                from apps.api.services.agent import autopilot_memory
+                autopilot_memory.record(
+                    ws_id, plan.get("goal", ""), plan,
+                    result.get("workbook_id"), "ok" if result.get("ok") else "failed",
+                )
+            except Exception:
+                pass
             return json.dumps(result)
 
         return json.dumps({"error": f"Unknown tool: {name}"})

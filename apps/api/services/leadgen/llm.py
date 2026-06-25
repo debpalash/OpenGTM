@@ -447,6 +447,146 @@ class LLMClient:
             except Exception:
                 pass
 
+    # ── Native tool-use (Anthropic-only manual agentic loop) ───────────
+
+    async def anthropic_tool_call(
+        self,
+        messages: list,
+        *,
+        system=None,
+        tools: Optional[list] = None,
+        tool_choice: Optional[dict] = None,
+        output_format: Optional[dict] = None,
+        max_tokens: int = 1024,
+        prov: Optional[dict] = None,
+    ):
+        """One native Messages-API turn with tools / tool_choice / structured output.
+
+        Returns the **raw** Anthropic response object (content blocks +
+        stop_reason + usage) so the CALLER can append the full `response.content`
+        back to history unchanged — preserving `thinking` and `tool_use` blocks
+        (the API rejects *modified* thinking blocks on the same model). This is a
+        new low-level method: `complete`/`extract_json`/`_call_anthropic` are left
+        untouched.
+
+        `messages` is the Anthropic-native turn list ([{"role","content"},...])
+        where `content` may already be a list of blocks (assistant turns) or a
+        string/blocks (user turns). `system` may be a string or a list of system
+        blocks; we cache-breakpoint a string for the static research/plan prefix.
+        Raises RuntimeError when the SDK is missing (callers catch → fallback).
+        """
+        try:
+            from anthropic import AsyncAnthropic  # noqa: F401  (presence check)
+        except ImportError as e:
+            raise RuntimeError(f"anthropic SDK not installed: {e}")
+
+        prov = prov or self.anthropic_provider()
+        if not prov:
+            raise RuntimeError("anthropic provider not configured")
+
+        timeout = float(os.getenv("LLM_HTTP_TIMEOUT", "60"))
+        client = self._make_anthropic_client(prov)
+        try:
+            create_kwargs: dict = {
+                "model": prov["model"],
+                "max_tokens": max_tokens,
+                "messages": messages,
+                "thinking": {"type": "adaptive"},
+            }
+            if system is not None:
+                if isinstance(system, str):
+                    blocks = self._anthropic_system_blocks([system])
+                    if blocks is not None:
+                        create_kwargs["system"] = blocks
+                else:
+                    create_kwargs["system"] = system
+            if tools:
+                create_kwargs["tools"] = tools
+            if tool_choice is not None:
+                create_kwargs["tool_choice"] = tool_choice
+            if output_format is not None:
+                # output_config.format is incompatible with forced tool_choice /
+                # prefilling; synthesis callers pass no tool_choice.
+                create_kwargs["output_config"] = {"format": output_format}
+
+            resp = await client.with_options(timeout=timeout).messages.create(**create_kwargs)
+
+            # Usage accounting — read the FINAL response usage ONCE (SDK retries
+            # return one final usage; never per-attempt → no double counting).
+            usage = getattr(resp, "usage", None)
+            prompt_tok = getattr(usage, "input_tokens", 0) or 0
+            completion_tok = getattr(usage, "output_tokens", 0) or 0
+            cache_write, cache_read = self._anthropic_cache_tokens(usage)
+            self.usage.add(prompt=prompt_tok, completion=completion_tok, provider=prov["id"],
+                           cache_write=cache_write, cache_read=cache_read)
+            try:
+                from apps.api.services.leadgen.db import LeadDB
+                db = LeadDB()
+                db.record_llm_usage(prov["id"], prov["model"], prompt_tok, completion_tok)
+                db.close()
+            except Exception:
+                pass  # never fail the call over tracking
+            return resp
+        finally:
+            try:
+                await client.close()
+            except Exception:
+                pass
+
+    # Per-MTok pricing resolved from the model registry / known tiers. Failing
+    # CLOSED (unknown model → most-expensive tier) means an overridden/unknown
+    # ANTHROPIC_MODEL trips the per-cell budget EARLY (conservative), never runs
+    # away. (USD per 1M tokens.)
+    _ANTHROPIC_PRICES: dict = {
+        "claude-opus-4-8": (5.0, 25.0),
+        "claude-opus-4-7": (5.0, 25.0),
+        "claude-opus-4-6": (5.0, 25.0),
+        "claude-opus-4-5": (5.0, 25.0),
+        "claude-sonnet-4-6": (3.0, 15.0),
+        "claude-haiku-4-5": (1.0, 5.0),
+        "claude-fable-5": (10.0, 50.0),
+        "claude-mythos-5": (10.0, 50.0),
+    }
+    # Most-expensive known tier — the fail-closed default.
+    _ANTHROPIC_MAX_PRICE = (10.0, 50.0)
+
+    def _anthropic_price_for_model(self, model: str) -> tuple[float, float]:
+        """(input_$/MTok, output_$/MTok) for a model id; fail closed on unknown.
+
+        Match on a known prefix so date-suffixed ids resolve; otherwise price at
+        the most-expensive known tier so the budget never under-counts.
+        """
+        m = (model or "").strip()
+        if m in self._ANTHROPIC_PRICES:
+            return self._ANTHROPIC_PRICES[m]
+        for key, price in self._ANTHROPIC_PRICES.items():
+            if m.startswith(key):
+                return price
+        return self._ANTHROPIC_MAX_PRICE
+
+    def anthropic_cost_usd(self, usage, prov: Optional[dict] = None) -> float:
+        """USD cost of one Anthropic turn from its `usage`, fail-closed pricing.
+
+        Prices input/output (+ cache read at ~0.1x, cache write at ~1.25x) using
+        the active model's per-MTok rate. Reads usage ONCE from the final
+        response (callers pass `resp.usage`), so a retried turn neither inflates
+        nor under-counts spend. Unknown/overridden model → most-expensive tier.
+        """
+        if usage is None:
+            return 0.0
+        model = (prov or self.anthropic_provider() or {}).get("model") or ANTHROPIC_DEFAULT_MODEL
+        in_rate, out_rate = self._anthropic_price_for_model(model)
+        input_tok = getattr(usage, "input_tokens", 0) or 0
+        output_tok = getattr(usage, "output_tokens", 0) or 0
+        cache_write, cache_read = self._anthropic_cache_tokens(usage)
+        cost = (
+            input_tok * in_rate
+            + output_tok * out_rate
+            + cache_write * in_rate * 1.25
+            + cache_read * in_rate * 0.1
+        ) / 1_000_000.0
+        return cost
+
     # ── Message Batches (Anthropic-only, bulk per-row column runs) ──────
 
     def anthropic_provider(self) -> Optional[dict]:
