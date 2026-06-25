@@ -235,6 +235,7 @@ async def create_workbook(
             for i, lead in enumerate(leads):
                 db.add(WorkbookRow(
                     workbook_id=wb.id,
+                    workspace_id=ctx.workspace_id,
                     position=i,
                     data=lead,
                     lead_id=lead.get("id"),
@@ -249,6 +250,7 @@ async def create_workbook(
         for i, row in enumerate(source_config["rows"][:max_rows]):
             db.add(WorkbookRow(
                 workbook_id=wb.id,
+                workspace_id=ctx.workspace_id,
                 position=i,
                 data=row,
                 enrichments={},
@@ -264,6 +266,7 @@ async def create_workbook(
                 for i, lead in enumerate(leads):
                     db.add(WorkbookRow(
                         workbook_id=wb.id,
+                        workspace_id=ctx.workspace_id,
                         position=i,
                         data=lead,
                         lead_id=lead.get("id"),
@@ -396,6 +399,7 @@ async def create_workbook_from_jobs(
             if not exists:
                 db.add(WorkbookRow(
                     workbook_id=wb.id,
+                    workspace_id=ctx.workspace_id,
                     position=existing_count + i,
                     data=lead,
                     lead_id=lead.get("id"),
@@ -893,7 +897,12 @@ class SourceColumnRequest(BaseModel):
 
 
 @router.post("/{workbook_id}/sources")
-async def add_source_column(workbook_id: str, body: SourceColumnRequest, db: Session = Depends(get_db)):
+async def add_source_column(
+    workbook_id: str,
+    body: SourceColumnRequest,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Add a `source` column (ICP-driven) to a workbook."""
     import uuid
     wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
@@ -917,7 +926,13 @@ async def add_source_column(workbook_id: str, body: SourceColumnRequest, db: Ses
 
 @router.post("/{workbook_id}/sources/{col_id}/run")
 @limiter.limit("20/minute")
-async def run_source_column(request: Request, workbook_id: str, col_id: str, db: Session = Depends(get_db)):
+async def run_source_column(
+    request: Request,
+    workbook_id: str,
+    col_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Materialize rows from a source column — runs on the durable queue worker."""
     wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
     if not wb:
@@ -938,7 +953,12 @@ async def run_source_column(request: Request, workbook_id: str, col_id: str, db:
 
 
 @router.get("/{workbook_id}/sources/{col_id}/preview")
-async def preview_source_column(workbook_id: str, col_id: str, db: Session = Depends(get_db)):
+async def preview_source_column(
+    workbook_id: str,
+    col_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Dry-run: the query that would run + which sources it would hit. No write."""
     wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
     if not wb:
@@ -959,7 +979,12 @@ class BudgetRequest(BaseModel):
 
 
 @router.put("/{workbook_id}/budget")
-async def set_budget(workbook_id: str, body: BudgetRequest, db: Session = Depends(get_db)):
+async def set_budget(
+    workbook_id: str,
+    body: BudgetRequest,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Set a workbook's spend ceiling. Paid providers are skipped once exhausted."""
     wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
     if not wb:
@@ -970,7 +995,11 @@ async def set_budget(workbook_id: str, body: BudgetRequest, db: Session = Depend
 
 
 @router.get("/{workbook_id}/cost")
-async def get_cost(workbook_id: str, db: Session = Depends(get_db)):
+async def get_cost(
+    workbook_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Spend-to-date + budget headroom for a workbook."""
     wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
     if not wb:
@@ -1023,7 +1052,12 @@ class RefreshPolicyRequest(BaseModel):
 
 
 @router.put("/{workbook_id}/refresh-policy")
-async def update_refresh_policy(workbook_id: str, body: RefreshPolicyRequest, db: Session = Depends(get_db)):
+async def update_refresh_policy(
+    workbook_id: str,
+    body: RefreshPolicyRequest,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Make a workbook 'living': schedule recurring refresh and/or signal triggers."""
     from apps.api.services.workbook.refresh import set_refresh_policy
     result = set_refresh_policy(db, workbook_id, body.model_dump())
@@ -1033,7 +1067,11 @@ async def update_refresh_policy(workbook_id: str, body: RefreshPolicyRequest, db
 
 
 @router.post("/{workbook_id}/refresh")
-async def refresh_now(workbook_id: str, db: Session = Depends(get_db)):
+async def refresh_now(
+    workbook_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Trigger one refresh cycle immediately (source new rows + re-enrich stale)."""
     wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
     if not wb:
@@ -1048,7 +1086,13 @@ async def refresh_now(workbook_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/{workbook_id}/rows/{lead_id}/cells/{col_id}/trace")
-async def get_cell_trace(workbook_id: str, lead_id: int, col_id: str, db: Session = Depends(get_db)):
+async def get_cell_trace(
+    workbook_id: str,
+    lead_id: int,
+    col_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """The agent column's reasoning trace for a cell (which tools, why, cost)."""
     from apps.api.services.workbook.trace_models import CellTrace
     t = db.query(CellTrace).filter(
@@ -1062,7 +1106,12 @@ async def get_cell_trace(workbook_id: str, lead_id: int, col_id: str, db: Sessio
 
 
 @router.get("/{workbook_id}/activity")
-async def get_activity(workbook_id: str, limit: int = Query(50, le=500), db: Session = Depends(get_db)):
+async def get_activity(
+    workbook_id: str,
+    limit: int = Query(50, le=500),
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Event feed: rows added, refreshes, signals fired, re-enrichments."""
     from apps.api.services.workbook.activity_models import WorkbookActivity
     rows = (
@@ -1126,6 +1175,7 @@ async def add_rows(
     for i, row_data in enumerate(incoming):
         r = WorkbookRow(
             workbook_id=workbook_id,
+            workspace_id=ctx.workspace_id,
             position=max_pos + i + 1,
             data=row_data,
             lead_id=row_data.get("id"),
@@ -1216,6 +1266,7 @@ async def migrate_workbook_to_v2(
     for i, lead in enumerate(leads):
         db.add(WorkbookRow(
             workbook_id=workbook_id,
+            workspace_id=ctx.workspace_id,
             position=i,
             data=_trim(lead),
             lead_id=lead.get("id"),

@@ -198,7 +198,7 @@ def test_preview_no_writes(client):
         {"id": "score", "name": "score", "type": "lead_field", "lead_field": "score"},
     ])
     s = Session()
-    s.add(WorkbookRow(workbook_id=wid, position=0, data={"email": "a@b", "score": 90}))
+    s.add(WorkbookRow(workbook_id=wid, workspace_id=WS, position=0, data={"email": "a@b", "score": 90}))
     s.commit()
     s.close()
 

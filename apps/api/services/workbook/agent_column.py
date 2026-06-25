@@ -43,8 +43,12 @@ def _save_trace(db, workbook_id, lead_id, col_id, goal, steps, outcome, spent):
         existing.goal = goal; existing.steps = steps
         existing.outcome = outcome; existing.total_cost_usd = {"spent": round(spent, 4)}
     else:
+        # Denormalized tenant from the active workspace scope (agent runs inside
+        # workspace_scope) so the trace row matches the RLS GUC / WITH CHECK.
+        from apps.api.core.tenancy import current_workspace_var
         db.add(CellTrace(
-            workbook_id=workbook_id, lead_id=lead_id, column_id=col_id,
+            workbook_id=workbook_id, workspace_id=current_workspace_var.get(),
+            lead_id=lead_id, column_id=col_id,
             goal=goal, steps=steps, outcome=outcome,
             total_cost_usd={"spent": round(spent, 4)},
         ))

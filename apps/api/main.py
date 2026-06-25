@@ -104,21 +104,12 @@ async def lifespan(app: FastAPI):
             )
             if admin:
                 ensure_tenancy_backfill(admin.id)
-                # Assign owner-less workbooks to the admin's main workspace.
-                from apps.api.services.workspace.manager import _get_db as _ws_db
-                from sqlalchemy import text as _text
-
-                _wsconn = _ws_db()
-                _main = _wsconn.execute(
-                    "SELECT id FROM workspaces WHERE slug = 'main'"
-                ).fetchone()
-                _wsconn.close()
-                if _main:
-                    _db.execute(
-                        _text("UPDATE workbooks SET workspace_id = :wid WHERE workspace_id IS NULL"),
-                        {"wid": _main["id"]},
-                    )
-                    _db.commit()
+                # NOTE: the legacy "UPDATE workbooks SET workspace_id = main WHERE
+                # workspace_id IS NULL" startup backfill was removed in the
+                # workbooks RLS cutover (migration e5f6a7b8c9d0). Under FORCE RLS
+                # that UPDATE would match zero rows (NULL != the GUC) and silently
+                # no-op; the backfill (with the OD-1a backfill-then-block policy)
+                # now runs inside the migration, before ENABLE/FORCE.
             else:
                 logger.warning("No admin user found — skipping tenancy backfill until one exists.")
         finally:

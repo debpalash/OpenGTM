@@ -11,6 +11,9 @@ class CellTrace(Base):
     __table_args__ = (UniqueConstraint("workbook_id", "lead_id", "column_id", name="uq_cell_trace"),)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    # Denormalized tenant (RLS migration e5f6a7b8c9d0). Always set from the parent
+    # workbook's workspace_id so the fail-closed RLS policy + WITH CHECK bind.
+    workspace_id = Column(String, nullable=False, index=True)
     workbook_id = Column(String, index=True, nullable=False)
     lead_id = Column(Integer, index=True, nullable=False)
     column_id = Column(String, nullable=False)

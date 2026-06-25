@@ -34,7 +34,13 @@ def _now():
 
 
 def log_activity(db, workbook_id: str, kind: str, message: str):
-    db.add(WorkbookActivity(workbook_id=workbook_id, kind=kind, message=message))
+    # Denormalized tenant from the active workspace scope (callers run inside
+    # workspace_scope) so the row matches the RLS GUC / WITH CHECK.
+    from apps.api.core.tenancy import current_workspace_var
+    db.add(WorkbookActivity(
+        workbook_id=workbook_id, workspace_id=current_workspace_var.get(),
+        kind=kind, message=message,
+    ))
 
 
 def _interval_minutes(policy: dict) -> Optional[int]:

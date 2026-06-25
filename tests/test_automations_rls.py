@@ -219,9 +219,9 @@ def test_on_signal_real_path_enqueues_once(app_engine, owner_engine, monkeypatch
             """'{"signal_types": ["hiring"]}', '[]', '[]')"""
         ), {"id": tid, "w": W1})
 
-    # workbooks/workbook_rows are app-scoped (non-RLS). Seed them via the OWNER
-    # engine (the app role only has SELECT on them, by design); the emitter then
-    # reads them under the app role to map the signal's lead → its row.
+    # workbooks/workbook_rows are RLS-protected (workbooks RLS migration
+    # e5f6a7b8c9d0). Seed them via the OWNER engine (a superuser → bypasses RLS);
+    # the emitter then reads them under the app role to map the signal's lead → row.
     wb_id = str(uuid.uuid4())
     with owner_engine.begin() as c:
         c.execute(text(
@@ -229,9 +229,9 @@ def test_on_signal_real_path_enqueues_once(app_engine, owner_engine, monkeypatch
             "VALUES (:id, 'sigwb', :w, 'empty', '[]')"
         ), {"id": wb_id, "w": W1})
         c.execute(text(
-            "INSERT INTO workbook_rows (workbook_id, position, data, lead_id) "
-            """VALUES (:wb, 0, '{"company": "Acme"}', 4242)"""
-        ), {"wb": wb_id})
+            "INSERT INTO workbook_rows (workbook_id, workspace_id, position, data, lead_id) "
+            """VALUES (:wb, :w, 0, '{"company": "Acme"}', 4242)"""
+        ), {"wb": wb_id, "w": W1})
 
     from apps.api.services.leadgen.store import PgLeadStore
     from apps.api.services.signals.monitor import Signal
