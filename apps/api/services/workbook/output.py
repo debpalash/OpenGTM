@@ -66,6 +66,24 @@ def _is_safe_public_url(url: str) -> tuple[bool, str]:
     return True, ""
 
 
+def _revalidate_public_url(url: str) -> tuple[bool, str]:
+    """Re-resolve a URL's host at connect time; fail closed on any private IP.
+
+    DNS-rebinding (TOCTOU) mitigation for the native research `fetch`: the
+    initial `_is_safe_public_url` check resolves DNS once, but a rebinding
+    attacker can flip the A record to a private/metadata IP before the scraper
+    resolves it again. The native fetch path calls this immediately before
+    scraping; if the host now resolves to a non-public address the fetch is
+    aborted. (Pinning the exact socket would need a custom transport in the
+    shared scraper; re-validating at connect time closes the realistic window
+    without forking the scraper.) Returns (ok, reason). Never raises.
+    """
+    try:
+        return _is_safe_public_url(url)
+    except Exception as e:  # defensive — never let the guard crash the fetch
+        return False, f"revalidation error: {e}"
+
+
 # ── Template resolution ───────────────────────────────────────────────────
 
 def _resolve(template: str, lead_data: dict, columns_config: list) -> str:

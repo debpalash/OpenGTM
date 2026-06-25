@@ -19,9 +19,32 @@ Cost sources, merged at lookup time (later wins):
 import logging
 import math
 from dataclasses import dataclass, field
+import os
 from typing import Dict, List, Optional
 
 logger = logging.getLogger("workbook.vendor_catalog")
+
+
+def _research_vendor_cost_enabled() -> bool:
+    """Whether the `research`/Claygent vendor cost entry is active (default OFF).
+
+    Gated by RESEARCH_VENDOR_COST so adding it does NOT retroactively raise the
+    pre-run spend preview / credit projection for EXISTING research-column
+    workbooks globally — enable per-workspace once the product decision is made.
+    """
+    try:
+        from apps.api.services.leadgen.llm import _read_setting
+        val = _read_setting("RESEARCH_VENDOR_COST", "0")
+    except Exception:
+        val = os.environ.get("RESEARCH_VENDOR_COST", "0")
+    return str(val).strip().lower() not in ("0", "false", "off", "no", "")
+
+
+# Worst-case per-cell research spend: the per-cell budget already bakes in the
+# synthesis reserve, so the worst case the credit projection should assume is the
+# full RESEARCH_CELL_BUDGET_USD (0.05 default). Sized to the budget (not under
+# it) so estimate_run_cost never under-estimates a research column.
+_RESEARCH_BASE_COST = 0.05
 
 
 @dataclass
@@ -50,6 +73,13 @@ VENDORS: Dict[str, Vendor] = {
     # declarative-manifest providers (cost comes from the manifest; listed here
     # so the catalog knows they're paid even before the registry loads)
     "leadmagic_email":  Vendor("leadmagic_email", 0.05, capabilities=["email"]),
+    # Research column ("Claygent") — native Claude tool-use web research, billed
+    # PER CELL at the worst-case budget. base_cost here is illustrative; the
+    # effective cost is resolved via base_cost() which gates it behind the
+    # RESEARCH_VENDOR_COST flag (default OFF → 0.0).
+    "research":         Vendor("research", _RESEARCH_BASE_COST, byok=False,
+                               capabilities=["research"],
+                               notes="flagged by RESEARCH_VENDOR_COST (default off)"),
 }
 
 
@@ -70,6 +100,11 @@ def _provider_declared_cost(name: str) -> Optional[float]:
 def base_cost(name: str) -> float:
     """Per-lookup cost for a provider — manifest/provider value wins over the
     built-in table; unknown/free providers are 0.0."""
+    # The `research`/`claygent` vendor is FLAGGED (RESEARCH_VENDOR_COST, default
+    # OFF). When off it costs 0.0, so existing research-column spend previews are
+    # unchanged; when on, it bills the worst-case per-cell budget.
+    if name in ("research", "claygent"):
+        return _RESEARCH_BASE_COST if _research_vendor_cost_enabled() else 0.0
     declared = _provider_declared_cost(name)
     if declared is not None and declared > 0:
         return declared

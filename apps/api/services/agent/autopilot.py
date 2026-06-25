@@ -16,7 +16,110 @@ execute_plan receives the chat's `_execute_tool` as a callback so it can reuse
 the exact tool implementations without a circular import.
 """
 import json
+import logging
 from typing import Awaitable, Callable, List, Dict, Optional
+
+from apps.api.services.leadgen.llm import llm, _read_setting
+from apps.api.services.workbook.prompt_guard import (
+    guard_untrusted,
+    untrusted_data_system_prompt,
+)
+
+logger = logging.getLogger("autopilot")
+
+
+# ── Caps / config (env-overridable; defaults per spec §10) ────────────
+
+
+def _cap_int(key: str, default: int) -> int:
+    try:
+        return int(str(_read_setting(key, str(default))).strip())
+    except Exception:
+        return default
+
+
+def AUTOPILOT_MAX_ROWS() -> int:
+    return max(1, _cap_int("AUTOPILOT_MAX_ROWS", 500))
+
+
+def AUTOPILOT_MAX_AGENT_COLUMNS() -> int:
+    return max(1, _cap_int("AUTOPILOT_MAX_AGENT_COLUMNS", 8))
+
+
+def AUTOPILOT_MAX_CELLS() -> int:
+    return max(1, _cap_int("AUTOPILOT_MAX_CELLS", 4000))
+
+
+def _native_enabled() -> bool:
+    """LLM planner is ON iff AUTOPILOT_LLM_PLANNER is set AND Anthropic is the
+    default-selected provider (so we have native structured output)."""
+    val = str(_read_setting("AUTOPILOT_LLM_PLANNER", "0")).strip().lower()
+    if val in ("0", "false", "off", "no", ""):
+        return False
+    return llm.anthropic_provider() is not None
+
+
+# Allowlist of plan step kinds, each with its allowed params. `execute_plan`
+# only actually orchestrates a subset (create_source_workbook / add_agent_column
+# / set_workbook_refresh); `add_research_column` and `report` validate but the
+# executor treats unsupported kinds as no-ops (forward-compatible). A kind/param
+# outside this allowlist FAILS validation → heuristic fallback.
+AUTOPILOT_TOOL_CATALOG: Dict[str, set] = {
+    "create_source_workbook": {"icp_description", "target_rows", "auto_run", "auto_enrich"},
+    "add_agent_column": {"column_name", "goal", "target_field"},
+    "add_research_column": {"column_name", "prompt", "max_steps"},
+    "set_workbook_refresh": {"signals", "enabled"},
+    "report": set(),
+}
+
+# Structured-output schema for the LLM plan.
+_PLAN_SCHEMA: Dict = {
+    "type": "object",
+    "properties": {
+        "goal": {"type": "string"},
+        "estimated_rows": {"type": "integer"},
+        "steps": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "kind": {"type": "string",
+                             "enum": list(AUTOPILOT_TOOL_CATALOG.keys())},
+                    "description": {"type": "string"},
+                    "params": {"type": "object", "additionalProperties": True},
+                },
+                "required": ["kind", "description", "params"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": ["goal", "estimated_rows", "steps"],
+    "additionalProperties": False,
+}
+
+_PLANNER_SYSTEM = """You are the Autopilot PLANNER for a B2B lead-research tool.
+Turn the user's GOAL into an ordered PLAN of steps drawn ONLY from this catalog:
+  - create_source_workbook {icp_description, target_rows, auto_run, auto_enrich}
+      Create a live-sourcing workbook for an ideal-customer-profile description.
+  - add_agent_column {column_name, goal, target_field}
+      A goal-directed per-row enrichment column (e.g. find founder email).
+  - add_research_column {column_name, prompt, max_steps}
+      A per-row web-research column answering a question with citations.
+  - set_workbook_refresh {signals, enabled}
+      Auto-refresh the workbook on signals.
+  - report {}
+      Summarize the results.
+Rules:
+- Use ONLY the kinds and params above. Do NOT invent kinds or params.
+- A typical plan creates a workbook, adds enrichment/research columns, then reports.
+- It is fine to add columns to an existing workbook (no leading create needed).
+- Keep it minimal — one column per distinct data field the goal asks for.
+- estimated_rows is your best estimate of the row count."""
+
+
+def _planner_system() -> str:
+    notice = untrusted_data_system_prompt()
+    return _PLANNER_SYSTEM + ("\n\n" + notice if notice else "")
 
 
 # Map keywords in the goal → an agent column spec (goal-directed per-row agent).
@@ -49,7 +152,7 @@ def _detect_fields(goal: str) -> List[Dict]:
     return out
 
 
-def draft_plan(goal: str, target_count: int = 0) -> Dict:
+def _heuristic_plan(goal: str, target_count: int = 0) -> Dict:
     """Deterministically turn a goal into an ordered plan of existing primitives.
 
     Heuristic (no LLM): create a live-sourcing workbook for the ICP described in
@@ -79,6 +182,168 @@ def draft_plan(goal: str, target_count: int = 0) -> Dict:
         "params": {},
     })
     return {"goal": g, "estimated_rows": int(target_count or 0) or None, "steps": steps}
+
+
+# ── LLM planner (native, structured + validated) ──────────────────────
+
+
+def _validate_plan(plan: Dict) -> Optional[Dict]:
+    """Validate + clamp an LLM-emitted plan to the allowlist. None = invalid.
+
+    Rules (spec §5 / edge cases 20-22):
+      - Plan must be a non-empty list of steps; every step validates.
+      - kind must be in the allowlist; each param must be in that kind's
+        allowlist (reject only params not allowed — don't blanket-reject).
+      - Clamp estimated_rows / target_rows to AUTOPILOT_MAX_ROWS.
+      - Clamp the count of agent/research columns to AUTOPILOT_MAX_AGENT_COLUMNS
+        and the rows × columns product to AUTOPILOT_MAX_CELLS.
+      - Do NOT require a leading create_source_workbook or trailing report
+        (accept add-column-to-existing-workbook plans).
+    """
+    if not isinstance(plan, dict):
+        return None
+    steps_in = plan.get("steps")
+    if not isinstance(steps_in, list) or not steps_in:
+        return None
+
+    max_rows = AUTOPILOT_MAX_ROWS()
+    max_cols = AUTOPILOT_MAX_AGENT_COLUMNS()
+    max_cells = AUTOPILOT_MAX_CELLS()
+
+    # Clamp estimated rows first; it bounds the rows×cols product.
+    try:
+        est = int(plan.get("estimated_rows") or 0)
+    except (TypeError, ValueError):
+        est = 0
+    est = max(0, min(est, max_rows))
+
+    out_steps: List[Dict] = []
+    column_count = 0
+    for step in steps_in:
+        if not isinstance(step, dict):
+            return None
+        kind = step.get("kind")
+        if kind not in AUTOPILOT_TOOL_CATALOG:
+            logger.info(f"autopilot_plan_validation_failures kind={kind!r}")
+            return None
+        allowed = AUTOPILOT_TOOL_CATALOG[kind]
+        params = step.get("params") or {}
+        if not isinstance(params, dict):
+            return None
+        clean_params: Dict = {}
+        for k, v in params.items():
+            if k not in allowed:
+                logger.info(f"autopilot_plan_validation_failures param={k!r} kind={kind}")
+                return None
+            clean_params[k] = v
+
+        if kind == "create_source_workbook" and "target_rows" in clean_params:
+            try:
+                tr = int(clean_params["target_rows"] or 0)
+            except (TypeError, ValueError):
+                tr = 0
+            clean_params["target_rows"] = max(0, min(tr, max_rows))
+
+        if kind in ("add_agent_column", "add_research_column"):
+            column_count += 1
+            if column_count > max_cols:
+                # Clamp: drop excess columns rather than reject the whole plan.
+                logger.info("autopilot column count clamped")
+                continue
+
+        out_steps.append({
+            "kind": kind,
+            "description": str(step.get("description", "") or kind),
+            "params": clean_params,
+        })
+
+    if not out_steps:
+        return None
+
+    # Clamp rows × columns product. If the product exceeds AUTOPILOT_MAX_CELLS,
+    # reduce estimated_rows (and any create target_rows) so the run fits.
+    effective_rows = est or 0
+    if column_count > 0 and effective_rows > 0:
+        cols = min(column_count, max_cols)
+        if effective_rows * cols > max_cells:
+            effective_rows = max(1, max_cells // cols)
+            for s in out_steps:
+                if s["kind"] == "create_source_workbook" and "target_rows" in s["params"]:
+                    s["params"]["target_rows"] = min(
+                        s["params"]["target_rows"] or effective_rows, effective_rows
+                    )
+
+    return {
+        "goal": str(plan.get("goal", "") or ""),
+        "estimated_rows": effective_rows or None,
+        "steps": out_steps,
+    }
+
+
+async def _draft_plan_llm(goal: str, target_count: int, workspace_id: Optional[str]) -> Optional[Dict]:
+    """Draft a plan via native structured output; None on any failure.
+
+    The planner consumes ONLY the trusted goal + static catalog + the workspace's
+    own prior plans. Prior-goal text is treated as UNTRUSTED and wrapped with
+    guard_untrusted so a poisoned prior goal can't bias drafting.
+    """
+    from apps.api.services.agent import autopilot_memory
+
+    mem = autopilot_memory.recent(workspace_id, limit=3)
+    mem_lines = []
+    for m in mem:
+        fenced = guard_untrusted(str(m.get("goal", "")), label="prior goal")
+        mem_lines.append(f"- {fenced} → outcome={m.get('outcome')}")
+    mem_block = ("\n\nRecent autopilot runs in this workspace (for context only):\n"
+                 + "\n".join(mem_lines)) if mem_lines else ""
+
+    user = (
+        f"GOAL: {goal}\n"
+        + (f"Target row count: {int(target_count)}\n" if target_count else "")
+        + mem_block
+        + "\n\nProduce the plan as JSON {goal, estimated_rows, steps:[{kind, description, params}]}."
+    )
+    try:
+        resp = await llm.anthropic_tool_call(
+            [{"role": "user", "content": user}],
+            system=_planner_system(),
+            output_format={"type": "json_schema", "schema": _PLAN_SCHEMA},
+            max_tokens=1024,
+        )
+    except Exception as e:
+        logger.info(f"autopilot planner LLM call failed: {e}")
+        return None
+    text = "".join(
+        getattr(b, "text", "")
+        for b in (getattr(resp, "content", None) or [])
+        if getattr(b, "type", "") == "text"
+    ).strip()
+    try:
+        raw = json.loads(text) if text else None
+    except Exception:
+        raw = None
+    if not isinstance(raw, dict):
+        return None
+    return _validate_plan(raw)
+
+
+async def draft_plan(goal: str, target_count: int = 0, workspace_id: Optional[str] = None) -> Dict:
+    """Draft a plan: native LLM planner (flag on) → validated; else heuristic.
+
+    Always returns a plan dict in the exact shape execute_plan consumes. Never
+    raises / never blocks the chat turn — any failure falls back to the heuristic.
+    """
+    g = (goal or "").strip()
+    if _native_enabled():
+        try:
+            plan = await _draft_plan_llm(g, int(target_count or 0), workspace_id)
+            if plan and plan.get("steps"):
+                logger.info("autopilot_llm_plans")
+                return plan
+            logger.info("autopilot_heuristic_fallbacks reason=invalid_or_empty")
+        except Exception as e:
+            logger.info(f"autopilot_heuristic_fallbacks reason=exception: {e}")
+    return _heuristic_plan(g, int(target_count or 0))
 
 
 def describe_plan(plan: Dict) -> str:

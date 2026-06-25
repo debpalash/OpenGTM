@@ -231,16 +231,29 @@ async def enrich_cell(
         if not prompt:
             _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error="no_prompt")
             return {"success": False, "value": None, "error": "no_prompt"}
+        # Resolve the workbook's workspace so the native path is workspace-aware.
+        research_ws = (
+            db.query(Workbook.workspace_id)
+            .filter(Workbook.id == workbook_id)
+            .scalar()
+        )
+        # Per-cell USD budget: column override or the global default.
+        research_budget = col_config.get("cell_budget_usd")
         res = await execute_research_column(
             prompt_template=prompt,
             lead_data=lead_data,
             columns_config=columns_config,
             max_steps=col_config.get("max_steps", 4),
             output_format=col_config.get("output_format", "text"),
+            workspace_id=research_ws,
+            cell_budget_usd=float(research_budget) if research_budget is not None else None,
         )
         result_value = res.get("value")
         result_provider = "research"
         result_error = res.get("error")
+        # Native path returns citations/cost/stopped_reason for the cell-metadata
+        # channel (same channel verify-status uses); persisted via _set_enrichment.
+        _research_metadata = res.get("metadata")
 
     elif col_type == "agent":
         # Goal-directed enrichment — agent picks tools dynamically (Pillar 4).
@@ -414,7 +427,12 @@ async def enrich_cell(
     # When an email column produces a value, run the verify cascade and attach
     # the 4-status result as cell metadata (badge in the UI). Best-effort: never
     # fails the cell on a verify error. Opt out with col_config verify=False.
-    cell_metadata = None
+    #
+    # The native research path also writes cell_metadata.research (answer,
+    # citations, cost_usd, stopped_reason) — persisted on the SAME channel so the
+    # UI can render an "n sources" affordance even on a no-answer cell. Persist it
+    # even when result_value is empty (so a no_answer cell shows 0 sources).
+    cell_metadata = locals().get("_research_metadata") if col_type == "research" else None
     _verify_target = col_config.get("target_field") or col_config.get("lead_field")
     if (result_value and col_type in ("enrichment", "waterfall")
             and _verify_target == "email" and col_config.get("verify", True)):
@@ -432,7 +450,10 @@ async def enrich_cell(
         _set_enrichment(db, workbook_id, lead_id, col_id, result_value, "complete",
                         provider=result_provider, metadata=cell_metadata)
     else:
-        _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error=result_error or "no_data")
+        # Persist research metadata even on a no-answer cell so the UI can render
+        # 0 sources gracefully (cell_metadata is only set for research above).
+        _set_enrichment(db, workbook_id, lead_id, col_id, None, "error",
+                        error=result_error or "no_data", metadata=cell_metadata)
 
     db.commit()
 

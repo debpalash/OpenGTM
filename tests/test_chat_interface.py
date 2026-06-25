@@ -247,7 +247,7 @@ def test_bounded_tool_loop_caps_rounds(monkeypatch):
 
 def test_autopilot_drafts_plan_from_compound_goal():
     from apps.api.services.agent import autopilot
-    plan = autopilot.draft_plan("build a list of 50 IT staffing firms in Pune and find founders' emails", 50)
+    plan = asyncio.run(autopilot.draft_plan("build a list of 50 IT staffing firms in Pune and find founders' emails", 50))
     kinds = [s["kind"] for s in plan["steps"]]
     assert kinds[0] == "create_source_workbook"
     assert "add_agent_column" in kinds          # detected the "founders' emails" ask
@@ -258,11 +258,11 @@ def test_autopilot_drafts_plan_from_compound_goal():
 def test_autopilot_sets_auto_enrich_when_fields_requested():
     from apps.api.services.agent import autopilot
     # Goal with an enrichment field → chain enrichment after sourcing.
-    p1 = autopilot.draft_plan("50 IT staffing firms in Pune, founders' emails", 50)
+    p1 = asyncio.run(autopilot.draft_plan("50 IT staffing firms in Pune, founders' emails", 50))
     create = next(s for s in p1["steps"] if s["kind"] == "create_source_workbook")
     assert create["params"]["auto_enrich"] is True
     # Goal with no enrichment field → just source, no auto-enrich, no agent column.
-    p2 = autopilot.draft_plan("list of IT staffing firms in Pune", 50)
+    p2 = asyncio.run(autopilot.draft_plan("list of IT staffing firms in Pune", 50))
     create2 = next(s for s in p2["steps"] if s["kind"] == "create_source_workbook")
     assert create2["params"]["auto_enrich"] is False
     assert not any(s["kind"] == "add_agent_column" for s in p2["steps"])
@@ -271,7 +271,7 @@ def test_autopilot_sets_auto_enrich_when_fields_requested():
 def test_autopilot_dedupes_email_field():
     from apps.api.services.agent import autopilot
     # "founders' emails" should yield ONE email column (Founder Email), not two.
-    plan = autopilot.draft_plan("find founder emails and contact emails", 0)
+    plan = asyncio.run(autopilot.draft_plan("find founder emails and contact emails", 0))
     email_cols = [s for s in plan["steps"]
                   if s["kind"] == "add_agent_column" and s["params"]["target_field"] == "email"]
     assert len(email_cols) == 1
@@ -287,7 +287,7 @@ def test_autopilot_execute_orchestrates_existing_tools():
             return json.dumps({"workbook_id": "wb_123"})
         return json.dumps({"ok": True})
 
-    plan = autopilot.draft_plan("50 IT staffing firms in Pune, founders' emails", 50)
+    plan = asyncio.run(autopilot.draft_plan("50 IT staffing firms in Pune, founders' emails", 50))
     result = asyncio.run(autopilot.execute_plan(plan, fake_tool))
 
     assert result["workbook_id"] == "wb_123"
