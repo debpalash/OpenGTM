@@ -271,7 +271,7 @@ def test_engine_ordered_execution_and_partial(db, Session, monkeypatch, automati
     row = _mk_row(db, wb, {"email": "a@b", "score": 90})
     calls = []
 
-    async def fake_exec(ws_id, action, wb_id, row_id, lead_id, lead_data, cols):
+    async def fake_exec(ws_id, action, wb_id, row_id, lead_id, lead_data, cols, idem=None):
         calls.append(action["type"])
         if action["type"] == "webhook":
             return actmod.ActionResult("failed", error="boom")

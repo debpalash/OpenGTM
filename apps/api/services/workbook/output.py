@@ -210,15 +210,29 @@ async def _push_sheets(cfg: dict, lead_data: dict) -> Dict[str, Any]:
     return {"success": False, "value": "", "error": res.get("error", "sheets append failed")}
 
 
-def _enroll_sequence(cfg: dict, lead_id: int) -> Dict[str, Any]:
+def _enroll_sequence(cfg: dict, lead_id: int, lead_data: dict, workspace_id: Optional[str]) -> Dict[str, Any]:
     seq_id = cfg.get("sequence_id")
     if not seq_id:
         return {"success": False, "value": "", "error": "sequence_id not configured"}
-    from apps.api.services.outreach.sequence import enroll_leads
+    if not workspace_id:
+        return {"success": False, "value": "", "error": "workspace_id required for sequencer"}
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.outreach.normalize import normalize_email
+    from apps.api.services.outreach.store import get_outreach_store
+
+    email = normalize_email((lead_data or {}).get("email", ""))
+    if not email:
+        return {"success": False, "value": "", "error": "no_email"}
     try:
-        n = enroll_leads(seq_id, [lead_id])
-        return {"success": n > 0, "value": "enrolled" if n > 0 else "already enrolled",
-                "error": None if n > 0 else None}
+        with workspace_scope(workspace_id):
+            store = get_outreach_store(workspace_id)
+            if not store.sequence_exists(seq_id):
+                return {"success": False, "value": "", "error": "sequence not found in workspace"}
+            if store.is_suppressed(email):
+                return {"success": False, "value": "suppressed", "error": None}
+            eid = store.enroll(seq_id, lead_id, email, consent_source="workbook_output")
+        ok = eid is not None
+        return {"success": ok, "value": "enrolled" if ok else "already enrolled", "error": None}
     except Exception as e:
         return {"success": False, "value": "", "error": str(e)[:200]}
 
@@ -245,7 +259,7 @@ async def execute_output_column(
     if dest == "crm":
         return await _push_crm(cfg, lead_data, workspace_id)
     if dest == "sequencer":
-        return _enroll_sequence(cfg, lead_id)
+        return _enroll_sequence(cfg, lead_id, lead_data, workspace_id)
     if dest == "airtable":
         return await _push_airtable(cfg, lead_data)
     if dest == "sheets":

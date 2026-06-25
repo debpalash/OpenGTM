@@ -186,7 +186,7 @@ async def _run_one_action(db, trigger, run, ws_id, action, action_index,
 
     # ── external side effect ──
     result = await actmod.execute_action(
-        ws_id, action, wb_id, row_id, lead_id, lead_data, columns_config,
+        ws_id, action, wb_id, row_id, lead_id, lead_data, columns_config, idem=idem,
     )
 
     if dry_run:

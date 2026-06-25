@@ -35,8 +35,9 @@ logger = logging.getLogger("automations.actions")
 # crash between debit and send). CRM upsert keys on the contact; re_enrich is
 # guarded by the workbook-budget pre-send marker.
 IDEMPOTENT_ACTION_TYPES = {"push_crm", "re_enrich"}
-# Non-idempotent: at-most-once via the in_flight pre-send marker.
-NON_IDEMPOTENT_ACTION_TYPES = {"webhook"}
+# Non-idempotent: at-most-once via the in_flight pre-send marker. send_email is
+# at-most-once via the committed in_flight marker on outreach_sends (§6.2.1).
+NON_IDEMPOTENT_ACTION_TYPES = {"webhook", "send_email"}
 
 
 @dataclass
@@ -75,6 +76,12 @@ def project_action_cost(action: dict, columns_config: list) -> float:
     """Worst-case platform-billed USD for ONE row's action. re_enrich uses the
     real waterfall projection; push_crm/webhook are 0 (no platform-billed spend)."""
     atype = action.get("type")
+    if atype == "send_email":
+        # The trigger-engine action only ENQUEUES a `send` job; metering is
+        # debit-on-success inside handle_send (LOCKED SCOPE decision 3). So the
+        # engine-level cost is 0 (enqueue is free) — charging here would be
+        # debit-on-enqueue under a different run_id → double charge.
+        return 0.0
     if atype != "re_enrich":
         return 0.0
     from apps.api.services.billing import service as billing
@@ -307,8 +314,14 @@ async def execute_action(
     lead_id: Optional[int],
     lead_data: dict,
     columns_config: list,
+    idem: Optional[str] = None,
 ) -> ActionResult:
-    """Execute one action against one row. Pure side effect — NO billing here."""
+    """Execute one action against one row. Pure side effect — NO billing here.
+
+    ``idem`` is the engine's per-action idempotency key; standalone trigger sends
+    (no sequence step) reuse it so the engine action-result and the enqueued
+    ``send`` job collapse to one logical send (§8.1).
+    """
     atype = action.get("type")
     cfg = action.get("config") or {}
     if atype == "webhook":
@@ -317,6 +330,105 @@ async def execute_action(
         return await _act_push_crm(ws_id, cfg, lead_data, columns_config, lead_id or 0)
     if atype == "re_enrich":
         return await _act_re_enrich(ws_id, cfg, workbook_id, row_id, columns_config)
-    # sequencer / send_email are rejected at create in v1; defensive guard here.
-    return ActionResult("failed", error=f"action type '{atype}' not supported in v1",
+    if atype == "sequencer":
+        return _act_sequencer(ws_id, cfg, lead_id, lead_data)
+    if atype == "send_email":
+        return _act_send_email(ws_id, cfg, lead_id, lead_data, idem)
+    return ActionResult("failed", error=f"action type '{atype}' not supported",
                         skip_reason="not_connected")
+
+
+# ── outreach executors (§1.4) ────────────────────────────────────────────────
+
+def _act_sequencer(ws_id: str, cfg: dict, lead_id: Optional[int], lead_data: dict) -> ActionResult:
+    """Enroll the row's lead into a sequence in THIS workspace (idempotent)."""
+    from datetime import datetime, timezone
+
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.outreach.normalize import normalize_email
+    from apps.api.services.outreach.store import get_outreach_store
+
+    seq_id = (cfg.get("sequence_id") or "").strip()
+    if not seq_id:
+        return ActionResult("failed", error="sequence_id not configured", skip_reason="not_connected")
+    email = normalize_email((lead_data or {}).get("email", ""))
+    if not email:
+        return ActionResult("skipped", skip_reason="no_email", summary="lead has no email")
+    try:
+        with workspace_scope(ws_id):
+            store = get_outreach_store(ws_id)
+            if not store.sequence_exists(seq_id):
+                return ActionResult("failed", error="sequence not found in workspace",
+                                    skip_reason="not_connected")
+            if store.is_suppressed(email):
+                return ActionResult("skipped", skip_reason="suppressed", summary="suppressed")
+            eid = store.enroll(
+                seq_id, lead_id or 0, email,
+                consent_source=f"trigger:{cfg.get('_trigger_id', '')}",
+                consent_at=datetime.now(timezone.utc),
+            )
+        ok = eid is not None
+        return ActionResult("success", summary="enrolled" if ok else "already enrolled")
+    except Exception as e:
+        return ActionResult("failed", error=str(e)[:200])
+
+
+def _act_send_email(ws_id: str, cfg: dict, lead_id: Optional[int], lead_data: dict,
+                    idem: Optional[str]) -> ActionResult:
+    """Enqueue a ``send`` job (SMTP I/O happens on the durable queue, §1.4).
+
+    When the action targets a sequence step, mint the canonical per-step key
+    (``seq:``) so the ticker and this trigger collapse to one send (§8.2).
+    Standalone sends reuse the engine's ``trig:`` key.
+    """
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.outreach.normalize import normalize_email
+    from apps.api.services.outreach.store import get_outreach_store
+    from apps.api.services.outreach.sending import sequence_step_idem, _enqueue_if_absent
+
+    email = normalize_email((lead_data or {}).get("email", ""))
+    if not email:
+        return ActionResult("skipped", skip_reason="no_email", summary="lead has no email")
+    seq_id = (cfg.get("sequence_id") or "").strip() or None
+    step_number = int(cfg.get("step_number", 0) or 0)
+    try:
+        with workspace_scope(ws_id):
+            store = get_outreach_store(ws_id)
+            enrollment_id = None
+            send_idem = idem or f"trig:{ws_id}:adhoc:{lead_id}:{step_number}"
+            if seq_id:
+                if not store.sequence_exists(seq_id):
+                    return ActionResult("failed", error="sequence not found in workspace",
+                                        skip_reason="not_connected")
+                # Resolve/ensure an enrollment so we can key on (enrollment, step).
+                eid = store.enroll(seq_id, lead_id or 0, email,
+                                   consent_source="trigger_send")
+                # eid is None when already enrolled → look it up.
+                if eid is None:
+                    with store._session() as s:
+                        from apps.api.services.outreach.orm_models import OutreachEnrollment
+                        row = (s.query(OutreachEnrollment)
+                               .filter(OutreachEnrollment.workspace_id == ws_id,
+                                       OutreachEnrollment.sequence_id == seq_id,
+                                       OutreachEnrollment.lead_id == (lead_id or 0))
+                               .first())
+                        eid = row.id if row else None
+                enrollment_id = eid
+                if enrollment_id is not None:
+                    send_idem = sequence_step_idem(ws_id, seq_id, enrollment_id, step_number)
+            payload = {
+                "workspace_id": ws_id,
+                "sequence_id": seq_id,
+                "enrollment_id": enrollment_id,
+                "lead_id": lead_id,
+                "step_number": step_number,
+                "to_email": email,
+                "subject": cfg.get("subject", ""),
+                "body_html": cfg.get("body_html", ""),
+                "variables": lead_data,
+            }
+            with store._session() as db:
+                enqueued = _enqueue_if_absent(db, ws_id, send_idem, payload)
+        return ActionResult("success", summary="send enqueued" if enqueued else "already queued/sent")
+    except Exception as e:
+        return ActionResult("failed", error=str(e)[:200])
