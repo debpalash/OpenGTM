@@ -520,6 +520,13 @@ def _set_enrichment(
             ).first()
         if wr is not None:
             overlay = dict(wr.enrichments or {})
+            # ── Automations on_row_changed prior-value capture (§3.6) ──
+            # Read the CURRENT cell value before overwrite; if it changes and an
+            # enabled on_row_changed rule watches this field, queue a deferred
+            # emit (after the caller commits). cell_version derives from the
+            # row's updated_at epoch-ms so genuine re-transitions aren't deduped.
+            _prev = overlay.get(column_id)
+            _old_val = (_prev.get("value") if isinstance(_prev, dict) else _prev)
             cell = {"value": value, "status": status, "provider": provider, "error": error}
             vstatus = (metadata or {}).get("verify", {}).get("status") if metadata else None
             if vstatus:
@@ -527,9 +534,58 @@ def _set_enrichment(
             overlay[column_id] = cell
             wr.enrichments = overlay
             flag_modified(wr, "enrichments")
+            if status == "complete" and str(_old_val or "") != str(value or ""):
+                _queue_row_change_emit(workbook_id, wr.id, column_id, _old_val, value)
     except Exception as e:
         logger.debug(f"row enrichments mirror failed: {e}")
     # Note: caller is responsible for db.commit()
+
+
+# ── Automations on_row_changed deferred emit (§3.6) ──────────────────────────
+# We accumulate (workbook_id, row_id, field, old, new) deltas during a write
+# batch and flush them to events.on_rows_changed AFTER the run commits, so a
+# rolled-back write never fires a rule. Keyed per-asyncio-task to stay isolated.
+import contextvars as _contextvars  # noqa: E402
+import time as time  # noqa: E402  (used by flush_row_change_emits cell_version)
+
+_pending_row_changes: _contextvars.ContextVar = _contextvars.ContextVar(
+    "_pending_row_changes", default=None
+)
+
+
+def _queue_row_change_emit(workbook_id, row_id, field, old, new):
+    from apps.api.core.config import settings as _settings
+    if not getattr(_settings, "AUTOMATIONS_ENABLED", False):
+        return
+    buf = _pending_row_changes.get()
+    if buf is None:
+        buf = []
+        _pending_row_changes.set(buf)
+    buf.append({"workbook_id": workbook_id, "row_id": str(row_id), "field": field,
+                "old": old, "new": new})
+
+
+def flush_row_change_emits(workspace_id: str):
+    """Emit accumulated on_row_changed deltas (call AFTER the write commits)."""
+    buf = _pending_row_changes.get()
+    if not buf:
+        return
+    _pending_row_changes.set([])
+    if not workspace_id:
+        return
+    by_wb: dict = {}
+    for ch in buf:
+        by_wb.setdefault(ch["workbook_id"], []).append({
+            "row_id": ch["row_id"], "field": ch["field"],
+            "old": ch["old"], "new": ch["new"],
+            "cell_version": int(time.time() * 1000),
+        })
+    try:
+        from apps.api.services.automations import events as _auto_events
+        for wb_id, changes in by_wb.items():
+            _auto_events.on_rows_changed(workspace_id, wb_id, changes)
+    except Exception as e:
+        logger.warning("on_rows_changed flush failed: %s", e)
 
 
 def _write_back_to_lead(lead_id: int, field: str, value: str, provider: str = None):
@@ -1044,12 +1100,21 @@ async def run_workbook_enrichment(
                         errors -= r.get("completed", 0)  # moved error → complete
     finally:
         # ── Finalize status (never leave it stuck in running) ──
+        _ws_for_emit = None
         with SessionLocal() as sdb:
             w = sdb.query(Workbook).filter(Workbook.id == workbook_id).first()
-            if w and w.status != "paused":
-                w.status = "complete"
-                w.completed_rows = len(leads)
-                sdb.commit()
+            if w:
+                _ws_for_emit = w.workspace_id
+                if w.status != "paused":
+                    w.status = "complete"
+                    w.completed_rows = len(leads)
+                    sdb.commit()
+        # Automations on_row_changed: flush prior-value-captured deltas AFTER the
+        # write committed (a rolled-back write never fires a rule). No-op when off.
+        try:
+            flush_row_change_emits(_ws_for_emit)
+        except Exception as e:
+            logger.debug("row-change flush skipped: %s", e)
         if redis_client is not None:
             try:
                 await _broadcast(redis_client, workbook_id, {

@@ -123,6 +123,7 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
     redis_client = _make_redis()
     added = skipped = 0
 
+    _added_row_ids: list = []
     try:
         with SessionLocal() as db:
             # Entities already represented in THIS workbook (cross-run idempotency).
@@ -183,6 +184,7 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
                 db.add(row)
                 db.flush()  # get row.id
                 added += 1
+                _added_row_ids.append(row.id)
 
                 if redis_client is not None:
                     await _broadcast(redis_client, workbook_id, {
@@ -203,6 +205,14 @@ async def materialize_source(workbook_id: str, column_id: str) -> Dict[str, Any]
                 wb.total_rows = total
                 wb.status = "draft"  # sourcing done; ready to enrich
                 db.commit()
+
+        # Automations: on_row_added event (site 4 — source-column materialization).
+        if _added_row_ids and workspace_id:
+            try:
+                from apps.api.services.automations import events as _auto_events
+                _auto_events.emit_row_added(workspace_id, workbook_id, _added_row_ids)
+            except Exception as _e:
+                logger.warning("on_row_added emit (source_engine) failed: %s", _e)
     finally:
         if redis_client is not None:
             try:

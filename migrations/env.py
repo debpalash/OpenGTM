@@ -38,6 +38,7 @@ from apps.api.services.workbook import trace_models as _trace_models  # noqa: E4
 from apps.api.services.entities import models as _entity_models  # noqa: E402,F401
 from apps.api.services.billing import models as _billing_models  # noqa: E402,F401
 from apps.api.services.leadgen import orm_models as _leadgen_orm_models  # noqa: E402,F401
+from apps.api.services.automations import models as _automations_models  # noqa: E402,F401
 from apps.api.core.config import settings  # noqa: E402
 
 target_metadata = Base.metadata

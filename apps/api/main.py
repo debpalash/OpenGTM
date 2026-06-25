@@ -133,6 +133,9 @@ async def lifespan(app: FastAPI):
     from apps.api.services.workbook.refresh import handle_refresh_workbook, handle_signal_scan, bootstrap_signal_scan
     queue_service.register_handler("refresh_workbook", handle_refresh_workbook)
     queue_service.register_handler("signal_scan", handle_signal_scan)
+    # Automations / Trigger Engine: tenant-scoped rule evaluation on the queue.
+    from apps.api.services.automations.engine import handle_trigger_eval, bootstrap_schedules
+    queue_service.register_handler("trigger_eval", handle_trigger_eval)
 
     # Horizontal scaling: job processing is now safe to run in a SEPARATE worker
     # process (apps/api/worker.py) with an atomic FOR UPDATE SKIP LOCKED claim.
@@ -156,6 +159,12 @@ async def lifespan(app: FastAPI):
         bootstrap_signal_scan()
     except Exception as e:
         logger.warning(f"signal_scan bootstrap skipped: {e}")
+    # Cold-start the on_schedule automations from the non-RLS mirror (no-op when
+    # AUTOMATIONS_ENABLED is off). Survives restarts; single-flight guarded.
+    try:
+        bootstrap_schedules()
+    except Exception as e:
+        logger.warning(f"trigger schedule bootstrap skipped: {e}")
     print("✓ Yupcha Engine v3.0 Ready")
     yield
     # ── Shutdown ──
@@ -235,6 +244,10 @@ app.include_router(ambitionbox_router)
 # Billing — credit ledger + Stripe top-ups (WI-9)
 from apps.api.routers.billing import router as billing_router
 app.include_router(billing_router)
+
+# Automations / Trigger Engine — tenant-scoped rules (router 404s when disabled)
+from apps.api.routers.automations import router as automations_router
+app.include_router(automations_router)
 
 
 @app.get("/api")

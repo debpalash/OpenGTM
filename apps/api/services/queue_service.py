@@ -39,6 +39,9 @@ JOB_TIMEOUTS = {
     "refresh_workbook": 900,
     "signal_scan": 300,
     "download_link": 600,
+    # Automations: one rule evaluation over a bounded row set; re_enrich runs
+    # single-row with a bounded provider timeout, so 600s is ample headroom.
+    "trigger_eval": 600,
 }
 
 
