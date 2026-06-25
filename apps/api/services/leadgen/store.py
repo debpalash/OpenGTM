@@ -410,6 +410,7 @@ class PgLeadStore:
 
     # ── signals (tenant-scoped) ──
     def add_signal(self, signal) -> str:
+        inserted = False
         with self._session() as s, s.begin():
             exists = s.get(SignalRow, signal.id)
             if exists is None:
@@ -429,6 +430,22 @@ class PgLeadStore:
                         read=False,
                     )
                 )
+                inserted = True
+            # Automations (§3.4): the ONLY signal event source with a real
+            # workspace_id. Fire on_signal rules for the matched lead's workbook
+            # rows. fire_key="signal:<pk>" → idempotent across re-inserts. No-op
+            # when AUTOMATIONS_ENABLED is off. Inside the same RLS-scoped session.
+            if inserted:
+                try:
+                    from apps.api.services.automations import events as _auto_events
+
+                    _auto_events.emit_signal_matches(
+                        s, self.workspace_id,
+                        [{"signal_pk": signal.id, "signal_type": signal.signal_type,
+                          "lead_id": signal.lead_id}],
+                    )
+                except Exception as _e:  # never break the signal write path
+                    logger.warning("automations signal emit failed: %s", _e)
         return signal.id
 
     def get_signals(

@@ -91,6 +91,23 @@ class Settings(BaseSettings):
     # back to disabling the PG store. Default True = fail fast (recommended).
     PG_RLS_REQUIRE_SAFE_ROLE: bool = True
 
+    # ── Automations / Trigger Engine (Signal->Action) ──────────────────
+    # Master switch. OFF: router 404s, event emitters no-op, the trigger_eval
+    # handler early-exits. Default OFF so hot paths are untouched until enabled.
+    AUTOMATIONS_ENABLED: bool = False
+    # Gates the legacy sequencer / send_email action types (global, unscoped
+    # outreach.db). DEFAULT OFF and, per the v1 LOCKED SCOPE, those action types
+    # are rejected at rule-create regardless until outreach.db is RLS-hardened.
+    AUTOMATIONS_ALLOW_LEGACY_OUTREACH: bool = False
+    # Workspace-global daily automations spend cap in USD (0 = unlimited).
+    AUTOMATIONS_GLOBAL_DAILY_USD: float = 0.0
+    AUTOMATIONS_MAX_RULES_PER_WS: int = 50
+    AUTOMATIONS_MAX_ACTIONS_PER_RULE: int = 10
+    AUTOMATIONS_MAX_ROWS_PER_EVAL: int = 500
+    # Optional egress allowlist for webhook actions (empty = any public host).
+    # Cloud deployments may populate this; comma-separated when set via env.
+    AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST: list[str] = []
+
     # Optional integrations
     SCRIBD_COOKIES: str = ""
     GOOGLE_API_KEY: str = ""

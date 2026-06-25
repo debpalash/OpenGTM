@@ -275,6 +275,18 @@ async def create_workbook(
 
     # source="empty" → no rows created
 
+    # Automations: on_row_added event (sites 1/2/4 — leads_filter / csv import /
+    # job_results snapshot at workbook creation). Emit the freshly-inserted ids.
+    try:
+        from apps.api.services.automations import events as _auto_events
+        _new_ids = [
+            rid for (rid,) in db.query(WorkbookRow.id).filter(WorkbookRow.workbook_id == wb.id).all()
+        ]
+        if _new_ids:
+            _auto_events.emit_row_added(ctx.workspace_id, wb.id, _new_ids)
+    except Exception as _e:
+        logger.warning("on_row_added emit (create_workbook) failed: %s", _e)
+
     return _workbook_response(wb)
 
 
@@ -1098,16 +1110,27 @@ async def add_rows(
         incoming = deduped
 
     added = 0
+    new_rows = []
     for i, row_data in enumerate(incoming):
-        db.add(WorkbookRow(
+        r = WorkbookRow(
             workbook_id=workbook_id,
             position=max_pos + i + 1,
             data=row_data,
             lead_id=row_data.get("id"),
             enrichments={},
-        ))
+        )
+        db.add(r)
+        new_rows.append(r)
         added += 1
     db.commit()
+    # Automations: on_row_added event (site 3/4 — manual add-row endpoint).
+    try:
+        from apps.api.services.automations import events as _auto_events
+        _auto_events.emit_row_added(
+            ctx.workspace_id, workbook_id, [r.id for r in new_rows],
+        )
+    except Exception as _e:
+        logger.warning("on_row_added emit (add_rows) failed: %s", _e)
     return {"added": added, "skipped_duplicates": skipped, "total_rows": max_pos + added + 1}
 
 
