@@ -19,6 +19,25 @@ logger = logging.getLogger(__name__)
 _memory_instance = None
 _memory_available = None
 
+# Stable partition value for the self-host / keyless path (no authenticated
+# user). Mirrors chat_history.SELF_HOST_USER so the two stores agree.
+SELF_HOST_USER = "self-host"
+
+
+def _namespace(workspace_id: str, user_id=None) -> str:
+    """Compose the backend partition key from workspace + user (OD-6).
+
+    Memories are stored under a single ``user_id`` field by both the builtin
+    SQLite store and Mem0/OpenMemory. To isolate tenants without a schema change
+    we namespace that field as ``"{workspace_id}:{user_id}"`` so one
+    workspace/user can never recall another's memories. Self-host (user_id None)
+    keys on a stable sentinel so its partition is consistent across restarts.
+    """
+    if not workspace_id:
+        raise ValueError("memory operations require a workspace_id")
+    uid = SELF_HOST_USER if (user_id is None or user_id == "") else str(user_id)
+    return f"{workspace_id}:{uid}"
+
 _STOPWORDS = {
     "the", "a", "an", "and", "or", "but", "for", "to", "of", "in", "on", "at",
     "is", "are", "was", "were", "be", "with", "my", "me", "i", "you", "it",
@@ -129,25 +148,25 @@ def _get_memory():
 # ── Public API ───────────────────────────────────────────────────
 
 
-def add_memory(text: str, user_id: str = "default", metadata: dict = None):
-    """Store a memory. Returns None if unavailable."""
+def add_memory(text: str, workspace_id: str, user_id=None, metadata: dict = None):
+    """Store a memory in the (workspace, user) partition. None if unavailable."""
     mem = _get_memory()
     if not mem:
         return None
     try:
-        return mem.add(text, user_id=user_id, metadata=metadata or {})
+        return mem.add(text, user_id=_namespace(workspace_id, user_id), metadata=metadata or {})
     except Exception as e:
         logger.warning("Memory add failed: %s", e)
         return None
 
 
-def search_memory(query: str, user_id: str = "default", limit: int = 5) -> list[dict]:
-    """Search memories. Returns empty list if unavailable."""
+def search_memory(query: str, workspace_id: str, user_id=None, limit: int = 5) -> list[dict]:
+    """Search memories in the (workspace, user) partition. Empty if unavailable."""
     mem = _get_memory()
     if not mem:
         return []
     try:
-        results = mem.search(query, user_id=user_id, limit=limit)
+        results = mem.search(query, user_id=_namespace(workspace_id, user_id), limit=limit)
         if isinstance(results, list):
             return results
         # Some versions return a dict with "results" key
@@ -159,13 +178,13 @@ def search_memory(query: str, user_id: str = "default", limit: int = 5) -> list[
         return []
 
 
-def get_all_memories(user_id: str = "default") -> list[dict]:
-    """Get all memories for a user. Returns empty list if unavailable."""
+def get_all_memories(workspace_id: str, user_id=None) -> list[dict]:
+    """Get all memories for a (workspace, user). Returns empty list if unavailable."""
     mem = _get_memory()
     if not mem:
         return []
     try:
-        results = mem.get_all(user_id=user_id)
+        results = mem.get_all(user_id=_namespace(workspace_id, user_id))
         if isinstance(results, list):
             return results
         if isinstance(results, dict) and "results" in results:
