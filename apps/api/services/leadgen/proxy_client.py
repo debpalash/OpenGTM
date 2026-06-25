@@ -163,7 +163,36 @@ class _ResilientDDGS:
                 continue
         if last_exc:
             logger.debug(f"search '{query[:40]}' exhausted all backends: {last_exc}")
+
+        # Keyless DDG returned nothing (empty or every attempt raised). If any
+        # commercial search engine is configured, fall back to it so a blocked /
+        # rate-limited DDG doesn't silently produce zero results. With no keys
+        # set this is a no-op and behaviour is identical to DDG-only.
+        keyed = self._keyed_fallback(method, query, **kwargs)
+        if keyed:
+            return keyed
         return []
+
+    def _keyed_fallback(self, method: str, query: str, **kwargs) -> list:
+        """Try configured keyed engines (SerpAPI / Bing / Google CSE / Brave).
+
+        Only the `text` search maps onto these web-search APIs; other methods
+        (news/images/…) have no keyed fallback and return []. Import is lazy and
+        guarded so a missing module can never break keyless search.
+        """
+        if method != "text":
+            return []
+        try:
+            from apps.api.services.leadgen.search_engines import search_fallback
+        except Exception as e:  # noqa: BLE001
+            logger.debug(f"keyed search fallback unavailable: {e}")
+            return []
+        max_results = kwargs.get("max_results", 10) or 10
+        try:
+            return search_fallback(query, max_results=max_results)
+        except Exception as e:  # noqa: BLE001
+            logger.debug(f"keyed search fallback failed for '{query[:40]}': {e}")
+            return []
 
     def text(self, query, **kwargs):
         return self._run("text", query, **kwargs)
