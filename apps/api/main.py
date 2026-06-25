@@ -43,6 +43,8 @@ from apps.api.services.workbook import activity_models as _activity_models  # no
 from apps.api.services.workbook import trace_models as _trace_models  # noqa: E402,F401
 # Outreach RLS-hardened tenant tables (+ non-RLS ticker mirror).
 from apps.api.services.outreach import orm_models as _outreach_models  # noqa: E402,F401
+# Intent-poller RLS-hardened tenant tables (+ non-RLS schedule mirror).
+from apps.api.services.poller import models as _poller_models  # noqa: E402,F401
 
 # Schema evolution is owned by Alembic: `alembic upgrade head` creates a fresh
 # schema AND applies pending migrations on an existing DB. create_all() is only
@@ -141,6 +143,9 @@ async def lifespan(app: FastAPI):
     # Outreach: tenant-scoped email send on the queue (at-most-once §6.2.1).
     from apps.api.services.outreach.sending import handle_send, bootstrap_outreach_schedules
     queue_service.register_handler("send", handle_send)
+    # Intent poller: tenant-scoped watch poll on the queue (default OFF).
+    from apps.api.services.poller.engine import handle_watch_poll, bootstrap_watch_schedules
+    queue_service.register_handler("watch_poll", handle_watch_poll)
 
     # Horizontal scaling: job processing is now safe to run in a SEPARATE worker
     # process (apps/api/worker.py) with an atomic FOR UPDATE SKIP LOCKED claim.
@@ -176,6 +181,12 @@ async def lifespan(app: FastAPI):
         bootstrap_outreach_schedules()
     except Exception as e:
         logger.warning(f"outreach schedule bootstrap skipped: {e}")
+    # Cold-start the intent poller from its non-RLS mirror (no-op when
+    # INTENT_POLLER_ENABLED is off / not PG). Survives restarts; single-flight.
+    try:
+        bootstrap_watch_schedules()
+    except Exception as e:
+        logger.warning(f"intent poller bootstrap skipped: {e}")
     print("✓ Yupcha Engine v3.0 Ready")
     yield
     # ── Shutdown ──
@@ -259,6 +270,10 @@ app.include_router(billing_router)
 # Automations / Trigger Engine — tenant-scoped rules (router 404s when disabled)
 from apps.api.routers.automations import router as automations_router
 app.include_router(automations_router)
+
+# Intent-Signal Poller — tenant-scoped watch subscriptions (404s when disabled)
+from apps.api.routers.watches import router as watches_router
+app.include_router(watches_router)
 
 
 @app.get("/api")

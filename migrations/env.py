@@ -40,6 +40,7 @@ from apps.api.services.billing import models as _billing_models  # noqa: E402,F4
 from apps.api.services.leadgen import orm_models as _leadgen_orm_models  # noqa: E402,F401
 from apps.api.services.automations import models as _automations_models  # noqa: E402,F401
 from apps.api.services.outreach import orm_models as _outreach_orm_models  # noqa: E402,F401
+from apps.api.services.poller import models as _poller_models  # noqa: E402,F401
 from apps.api.core.config import settings  # noqa: E402
 
 target_metadata = Base.metadata
@@ -68,6 +69,11 @@ _render_as_batch = _db_url.startswith("sqlite")
 _IGNORED_PG_OBJECTS = {
     ("column", "leads.search_tsv"),
     ("index", "ix_leads_search_tsv"),
+    # intent-poller jobs.fire_key single-flight indexes are hand-authored in the
+    # migration (a PARTIAL unique index on PG, a plain index on SQLite) and are
+    # NOT modelled on the ORM Base, so autogenerate must ignore them.
+    ("index", "uq_jobs_fire_key_active"),
+    ("index", "ix_jobs_fire_key"),
 }
 
 

@@ -132,6 +132,37 @@ class Settings(BaseSettings):
     # Platform-global bounce/complaint webhook shared secret (cloud).
     OUTREACH_BOUNCE_WEBHOOK_SECRET: str = ""
 
+    # ── Scheduled Intent-Signal Poller (v1) ────────────────────────────
+    # Master switch. OFF: /api/watches router 404s, handle_watch_poll early-
+    # exits, bootstrap_watch_schedules no-ops. PG-only (requires use_pg_store()).
+    INTENT_POLLER_ENABLED: bool = False
+    INTENT_POLLER_DEFAULT_INTERVAL: str = "daily"   # daily | hourly | weekly
+    INTENT_POLLER_MAX_WATCHES_PER_WS: int = 200
+    # Scheduled-poll daily budget per (ws, UTC-day). 0 = unlimited. Manual
+    # poll-now counts against this same ledger (closes the bypass, spec §7).
+    INTENT_POLLER_DAILY_POLL_BUDGET: int = 0
+    # Poll-now has its OWN small per-(ws, UTC-day) quota (separate ledger key)
+    # plus a per-watch rate limit. 0 = unlimited.
+    INTENT_POLLER_POLL_NOW_DAILY_QUOTA: int = 50
+    INTENT_POLLER_POLL_NOW_MIN_INTERVAL_SEC: int = 60
+    # Hard auto-disable after this many consecutive poll failures (spec §9.16).
+    INTENT_POLLER_MAX_CONSECUTIVE_FAILURES: int = 12
+    # JobSpy DDG-snippet cap (band fidelity vs cost, spec §7).
+    INTENT_POLLER_JOBSPY_MAX_JOBS: int = 5
+    # RSS feed entry cap per poll (spec §9.12).
+    INTENT_POLLER_FEED_MAX_ENTRIES: int = 100
+    # Fan-out advisory bound for on_signal fires per signal (spec §7, AC-18).
+    INTENT_POLLER_MAX_FIRES_PER_SIGNAL: int = 200
+    # Whether the FIRST (bootstrap) poll emits signals for pre-existing items.
+    # Default False: bootstrap records state, suppresses emission (spec §8.4).
+    INTENT_POLLER_BACKFILL: bool = False
+    # SEC EDGAR descriptive User-Agent (SEC 403s requests without one).
+    SEC_EDGAR_USER_AGENT: str = "Yupcha Enrichment admin@yupcha.com"
+    # Per-fetch platform-billed cost (USD). Free sources stay 0.0 → debit no-op.
+    POLLER_FUNDING_COST_USD: float = 0.0
+    POLLER_HIRING_COST_USD: float = 0.0
+    POLLER_FEED_COST_USD: float = 0.0
+
     # Optional integrations
     SCRIBD_COOKIES: str = ""
     GOOGLE_API_KEY: str = ""
