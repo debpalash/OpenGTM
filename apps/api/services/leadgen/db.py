@@ -94,7 +94,12 @@ class LeadDB:
                 last_enriched_at TEXT DEFAULT ''
             );
 
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_leads_company_city
+            -- Dedup is per tenant: (workspace_id, company, city). Two
+            -- workspaces may each own (Acme, NYC). (workspace_id is added by
+            -- _migrate() on the line below before this index is needed on a
+            -- legacy file; on a fresh file the column is created by _migrate
+            -- right after create_tables, so we (re)create the index in _migrate.)
+            CREATE INDEX IF NOT EXISTS idx_leads_company_city
                 ON leads(company, city);
 
             CREATE INDEX IF NOT EXISTS idx_leads_score ON leads(score DESC);
@@ -246,6 +251,38 @@ class LeadDB:
         if "workspace_id" not in existing_job_cols:
             self.conn.execute("ALTER TABLE jobs ADD COLUMN workspace_id TEXT DEFAULT ''")
 
+        # Composite dedup key: (workspace_id, company, city) — replaces the old
+        # global UNIQUE(company, city) so two tenants can each own (Acme, NYC).
+        # Done here (not in create_tables) because workspace_id was just added.
+        has_composite = self.conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='index' "
+            "AND name='uq_leads_ws_company_city'"
+        ).fetchone()
+        if not has_composite:
+            # Drop the legacy non-tenant unique index if present.
+            self.conn.execute("DROP INDEX IF EXISTS idx_leads_company_city")
+            # Pre-collapse any (workspace_id, company, city) collisions, keeping
+            # the most complete/most recent row, so the unique index can build.
+            self.conn.execute("""
+                DELETE FROM leads WHERE id NOT IN (
+                    SELECT id FROM (
+                        SELECT id, ROW_NUMBER() OVER (
+                            PARTITION BY COALESCE(workspace_id,''), company, city
+                            ORDER BY (email IS NOT NULL AND email != '') DESC,
+                                     score DESC, id DESC
+                        ) AS rn FROM leads
+                    ) WHERE rn = 1
+                )
+            """)
+            self.conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS uq_leads_ws_company_city "
+                "ON leads(workspace_id, company, city)"
+            )
+            # Keep a non-unique (company, city) index for query performance.
+            self.conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_leads_company_city ON leads(company, city)"
+            )
+
         # Migrate llm_usage table
         try:
             existing_usage_cols = {r[1] for r in self.conn.execute("PRAGMA table_info(llm_usage)").fetchall()}
@@ -260,12 +297,13 @@ class LeadDB:
     # ── CRUD ───────────────────────────────────────────────────────────
 
     def upsert_lead(self, lead: Lead) -> int:
-        """Insert or update a lead. Deduplicates by (company, city)."""
+        """Insert or update a lead. Deduplicates by (workspace_id, company, city)."""
         lead.updated_at = _utcnow().isoformat()
 
         existing = self.conn.execute(
-            "SELECT id FROM leads WHERE company = ? AND city = ?",
-            (lead.company, lead.city)
+            "SELECT id FROM leads "
+            "WHERE COALESCE(workspace_id,'') = COALESCE(?,'') AND company = ? AND city = ?",
+            (lead.workspace_id, lead.company, lead.city)
         ).fetchone()
 
         if existing:

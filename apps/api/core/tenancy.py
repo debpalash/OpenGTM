@@ -20,6 +20,7 @@ Usage in a router::
         ...
 """
 
+from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Optional
 
@@ -28,6 +29,17 @@ from fastapi import Depends, Header, HTTPException
 from apps.api.models import User
 from apps.api.core.security import get_current_active_user
 from apps.api.services.workspace import manager as ws_manager
+
+
+# Active workspace id for the CURRENT execution context (request or worker unit
+# of work). This is the single source of truth the SQLAlchemy `after_begin` hook
+# reads to emit `SET LOCAL app.workspace_id` on Postgres, so RLS scopes the txn.
+# It is NOT request-global mutable state shared across requests: contextvars are
+# per-asyncio-task / per-thread, so concurrent requests never see each other's
+# value. Workers set it explicitly per job via `workspace_scope(...)`.
+current_workspace_var: ContextVar[Optional[str]] = ContextVar(
+    "current_workspace", default=None
+)
 
 
 @dataclass
@@ -39,10 +51,23 @@ class WorkspaceCtx:
     slug: str
 
     def lead_db(self):
-        """Open a LeadDB bound to this workspace's data file."""
-        from apps.api.services.leadgen.db import LeadDB
+        """Return the tenant-scoped lead store for this workspace.
 
-        return LeadDB(ws_manager.workspace_leads_db_path(self.slug))
+        Backend-detected (mirrors database.py:IS_SQLITE):
+          * Postgres + PG_LEAD_STORE → :class:`PgLeadStore` over the shared,
+            RLS-protected `leads`/`signals` tables, scoped to this workspace_id.
+          * otherwise → legacy per-workspace SQLite :class:`LeadDB`.
+
+        Also publishes this workspace into the `current_workspace` contextvar so
+        the SQLAlchemy session hook sets `app.workspace_id` for RLS.
+        """
+        from apps.api.services.leadgen.store import get_lead_store
+
+        # Publish for the RLS session hook (also done in get_lead_store, but
+        # setting here keeps the GUC correct for any direct ORM session opened
+        # within this request after lead_db()).
+        current_workspace_var.set(self.workspace_id)
+        return get_lead_store(self.workspace_id, self.slug)
 
 
 def current_workspace(
@@ -72,7 +97,38 @@ def current_workspace(
     if not slug:
         raise HTTPException(status_code=404, detail="Workspace not found")
 
+    # Publish the resolved tenant for the duration of the request so the RLS
+    # session hook (after_begin) scopes every PG transaction to this workspace.
+    current_workspace_var.set(ws_id)
     return WorkspaceCtx(user=user, workspace_id=ws_id, slug=slug)
+
+
+from contextlib import contextmanager
+
+
+@contextmanager
+def workspace_scope(workspace_id: str):
+    """Bind ``workspace_id`` as the active tenant for a unit of work.
+
+    For stateless workers / background jobs / CLI that have no FastAPI request:
+    wrap each per-tenant unit of work so the RLS GUC is set on Postgres and any
+    LeadStore opened inside is scoped correctly. Restores the previous value on
+    exit (so a pooled worker thread never leaks tenant context across jobs).
+
+        with workspace_scope(job.workspace_id):
+            store = get_lead_store(job.workspace_id, slug)
+            ...
+    """
+    if not workspace_id:
+        raise ValueError(
+            "workspace_scope requires a non-empty workspace_id "
+            "(empty would yield zero rows under RLS and silently mask the bug)."
+        )
+    token = current_workspace_var.set(workspace_id)
+    try:
+        yield
+    finally:
+        current_workspace_var.reset(token)
 
 
 def require_workspace_role(*roles: str):

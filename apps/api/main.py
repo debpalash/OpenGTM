@@ -56,6 +56,20 @@ init_db()
 # columns. Runs AFTER init_db so the tables it inspects already exist.
 check_and_migrate_db()
 
+# Tenancy fail-fast: when the shared Postgres lead store is active, verify the
+# connection role is NOT superuser/BYPASSRLS — otherwise Row-Level Security is
+# silently inert and the store would ship with isolation OFF. Honour the
+# PG_RLS_REQUIRE_SAFE_ROLE toggle (default True = refuse to boot). On SQLite or
+# when PG_LEAD_STORE is off this is a no-op.
+from apps.api.database import IS_SQLITE as _IS_SQLITE  # noqa: E402
+
+if not _IS_SQLITE and settings.PG_LEAD_STORE:
+    from apps.api.services.leadgen.store import assert_rls_role  # noqa: E402
+
+    # Raises RlsRoleError (refuse to boot) when strict and the role is unsafe;
+    # otherwise logs CRITICAL and returns False (PG store disables itself).
+    assert_rls_role(strict=settings.PG_RLS_REQUIRE_SAFE_ROLE)
+
 # Lifespan — replaces deprecated @app.on_event("startup") / @app.on_event("shutdown")
 @asynccontextmanager
 async def lifespan(app: FastAPI):

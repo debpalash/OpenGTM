@@ -9,6 +9,11 @@ dependencies = [
     "uvicorn[standard]>=0.40.0",
     "sqlalchemy>=2.0.45",
     "alembic>=1.13",
+    # Postgres driver (psycopg3). Required for the default Postgres DATABASE_URL
+    # and the shared, RLS-protected multi-tenant leads/signals store. The URL
+    # must use the 'postgresql+psycopg://' scheme (psycopg3), not bare
+    # 'postgresql://' (which would need psycopg2).
+    "psycopg[binary]>=3.3.4",
     "pydantic-settings>=2.0.0",
     "slowapi>=0.1.9",
     # Scraping & HTTP

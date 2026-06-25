@@ -86,6 +86,8 @@ class JobRunner:
     _cancelled: set[str] = set()  # class-level cancel registry
 
     def __init__(self, db: Optional[LeadDB] = None):
+        # `self.db` owns job/stage bookkeeping (the legacy leadgen file schema —
+        # jobs/job_stages/llm_usage are NOT part of the shared RLS tables).
         self.db = db or LeadDB()
         self.proxy_pool = ProxyPool()
         self.rate_limiter = RateLimiter()
@@ -94,6 +96,21 @@ class JobRunner:
             rate_limiter=self.rate_limiter,
         )
         self.llm = LLMClient()
+
+    def _lead_store(self, workspace_id: str):
+        """Tenant-scoped store for LEAD reads/writes for this unit of work.
+
+        On Postgres this returns the shared, RLS-protected PgLeadStore scoped to
+        ``workspace_id`` (so a stateless worker writes leads to the right tenant
+        and they are invisible cross-tenant). On SQLite it returns ``self.db``
+        (the per-file LeadDB). Job/stage bookkeeping always stays on ``self.db``.
+        """
+        from apps.api.database import IS_SQLITE
+        from apps.api.services.leadgen.store import use_pg_store, PgLeadStore
+
+        if not IS_SQLITE and workspace_id and use_pg_store():
+            return PgLeadStore(workspace_id)
+        return self.db
 
     def _is_cancelled(self, job_id: str) -> bool:
         """Check if job was cancelled (checks both memory flag and DB)."""
@@ -296,7 +313,9 @@ class JobRunner:
             # Cross-job dedup: remove leads already in the database
             existing_names = set()
             try:
-                existing = self.db.get_leads(limit=10000)
+                # Cross-job dedup is PER TENANT: only compare against this
+                # workspace's existing leads (the lead store is workspace-scoped).
+                existing = self._lead_store(workspace_id).get_leads(limit=10000)
                 existing_names = {l.company.lower().strip() for l in existing if l.company}
             except Exception:
                 pass
@@ -612,11 +631,12 @@ class JobRunner:
 
             # ── Store ────────────────────────────────────────────
             store_sid = self.db.create_stage(job_id, "store")
+            lead_store = self._lead_store(workspace_id)
             count = 0
             for lead in scored:
                 lead.source = f"job:{job_id}"
                 lead.workspace_id = workspace_id
-                self.db.upsert_lead(lead)
+                lead_store.upsert_lead(lead)
                 count += 1
 
                 # Stream each stored lead to UI
