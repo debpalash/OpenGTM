@@ -263,6 +263,12 @@ def _init_providers():
         logger.warning(f"Failed to register sec_edgar: {e}")
 
     try:
+        from apps.api.services.leadgen.enrichment.providers.companies_house import CompaniesHouseProvider
+        register_provider(CompaniesHouseProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register companies_house: {e}")
+
+    try:
         from apps.api.services.leadgen.enrichment.declarative.registry import register_declarative_manifests
         register_declarative_manifests()
     except Exception as e:
