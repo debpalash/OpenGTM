@@ -18,18 +18,18 @@ import {
   useImportLeads, useRunWorkbook, useStopWorkbook,
   useDeleteLeads, useWorkbookSocket, useProviders,
 } from "@/lib/workbook-hooks"
-import type { WorkbookLeadRow, ColumnConfig, EnrichmentOverlay, AiColumnPreset, CostInfo, RunCostEstimate } from "@/lib/workbook-api"
+import type { WorkbookLeadRow, EnrichmentOverlay, AiColumnPreset, CostInfo, RunCostEstimate } from "@/lib/workbook-api"
 import { fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost } from "@/lib/workbook-api"
 import {
   ArrowLeft, Plus, Play, Square, Download, Upload,
   Sparkles, Type, Layers, Brain, GitBranch, Send, Globe,
-  Loader2, Check, X, AlertCircle, Clock, MoreHorizontal,
+  Loader2, X, AlertCircle, Clock,
   FileSpreadsheet, ExternalLink, Filter, Search, Trash2, Copy,
   ArrowUpDown, ArrowUp, ArrowDown, EyeOff, Eye, Pencil, Settings, GripVertical,
-  ChevronDown, ChevronUp, ChevronRight, Zap, Columns3, Webhook, Calculator,
+  ChevronDown, ChevronUp, Zap, Columns3, Webhook, Calculator,
   DollarSign,
 } from "lucide-react"
-import { ActivityDrawer, useActivityStats } from "@/components/activity-drawer"
+import { ActivityDrawer } from "@/components/activity-drawer"
 import { SourceEnginePanel } from "@/components/source-engine-panel"
 import { toast } from "sonner"
 import Papa from "papaparse"
@@ -354,7 +354,6 @@ function CostChip({ workbookId, isRunning, onClick }: {
 export default function WorkbookEditorPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const PAGE_SIZE = 1000
   const { data, isLoading, error, refetch } = useWorkbook(id!)
   const updateWb = useUpdateWorkbook()
   const updateLeadField = useUpdateLeadField(id!)
@@ -651,7 +650,7 @@ export default function WorkbookEditorPage() {
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: (row, columnId, filterValue) => {
+    globalFilterFn: (row, _columnId, filterValue) => {
       const search = String(filterValue).toLowerCase()
       // Search across all lead fields + enrichments
       const lead = row.original.lead

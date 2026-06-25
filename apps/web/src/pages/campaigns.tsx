@@ -105,7 +105,7 @@ export default function CampaignsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <div className="space-y-2">
           <label className="text-sm font-medium">Target Tier</label>
-          <Select value={selectedTier} onValueChange={setSelectedTier}>
+          <Select value={selectedTier} onValueChange={(v) => setSelectedTier(v ?? "")}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -122,7 +122,7 @@ export default function CampaignsPage() {
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Tone</label>
-          <Select value={tone} onValueChange={setTone}>
+          <Select value={tone} onValueChange={(v) => setTone(v ?? "")}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

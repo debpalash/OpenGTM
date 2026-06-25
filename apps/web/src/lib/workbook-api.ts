@@ -95,6 +95,7 @@ export interface WorkbookLeadRow {
   position?: number
   lead: Record<string, any>  // Full lead data (v1) or empty (v2)
   data?: Record<string, any>  // Self-contained row data (v2)
+  company?: string  // Optional denormalized company label for display
   enrichments: Record<string, EnrichmentOverlay>  // {column_id: overlay}
   // Pillar 1 — canonical entity binding + cross-source trust signal
   canonical_entity_id?: string | null

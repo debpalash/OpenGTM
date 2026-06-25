@@ -2,9 +2,9 @@ import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import {
   Building2, Plus, Trash2, Check, LayoutDashboard, Users,
-  ArrowRight, Loader2, ChevronRight,
+  ArrowRight, Loader2,
 } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,7 +23,7 @@ interface WorkspaceItem {
 
 export default function WorkspacesManagerPage() {
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([])
-  const [activeId, setActiveId] = useState("")
+  const [, setActiveId] = useState("")
   const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState("")

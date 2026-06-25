@@ -336,7 +336,7 @@ export default function LeadDetailPage() {
           {/* Quick actions row */}
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="outline" className={TIER_BG[tier]}>{lead.score} · {tier}</Badge>
-            <Select value={lead.status || "new"} onValueChange={(v) => { updateStatus.mutate({ id: leadId, status: v }); toast.success(`Status → ${v}`) }}>
+            <Select value={lead.status || "new"} onValueChange={(v) => { const status = v ?? "new"; updateStatus.mutate({ id: leadId, status }); toast.success(`Status → ${status}`) }}>
               <SelectTrigger className="h-6 w-auto text-xs border-dashed gap-1 px-2"><SelectValue /></SelectTrigger>
               <SelectContent>{STATUS_OPTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
             </Select>

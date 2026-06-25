@@ -17,24 +17,6 @@ import { toast } from "sonner"
 
 
 
-// ── Tool Result Card ──────────────────────────────────────────────
-
-function ChatToolResult({ toolData, content }: { toolData: string; content: string }) {
-  try {
-    const data = typeof toolData === "string" ? JSON.parse(toolData) : toolData
-    const jobId = data?.job_id || data?.result?.job_id
-    if (jobId) {
-      return (
-        <div className="space-y-2">
-          <TaskDetailCard jobId={jobId} compact />
-          {content && <div className="text-xs text-muted-foreground">{content}</div>}
-        </div>
-      )
-    }
-  } catch { /* fall through */ }
-  return <span className="text-xs">{content}</span>
-}
-
 // ── Tool Execution Indicator ──────────────────────────────────────
 
 function ToolIndicator({ toolName }: { toolName: string }) {

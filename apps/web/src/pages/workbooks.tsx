@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useWorkbooks, useCreateWorkbook, useDeleteWorkbook } from "@/lib/workbook-hooks"
 import {
-  Plus, Table2, Trash2, Play, Pause, Clock, MoreHorizontal, FileSpreadsheet, Sparkles,
+  Plus, Table2, Trash2, Play, Pause, Clock, FileSpreadsheet, Sparkles,
   LayoutTemplate, Target, Users, Search, Building2, Activity, ChevronRight, Loader2,
 } from "lucide-react"
 import { toast } from "sonner"

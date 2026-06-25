@@ -10,10 +10,10 @@
 
 import { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import {
-  ChevronUp, ChevronDown, X, Loader2, Check, AlertCircle,
-  Clock, Activity, Zap, Filter, Pause, RotateCcw, Trash2,
+  ChevronDown, Loader2, Check, AlertCircle,
+  Clock, Activity, Zap, Filter, Trash2,
 } from "lucide-react"
-import type { WorkbookLeadRow, ColumnConfig, EnrichmentOverlay } from "@/lib/workbook-api"
+import type { WorkbookLeadRow, ColumnConfig } from "@/lib/workbook-api"
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -103,7 +103,7 @@ export function useActivityStats(rows: WorkbookLeadRow[], columns: ColumnConfig[
 
 // ── Main Panel Component (no trigger — parent renders trigger) ─────────────
 
-export function ActivityDrawer({ rows, columns, isRunning, connected, isOpen, onToggle }: ActivityDrawerProps) {
+export function ActivityDrawer({ rows, columns, isRunning, isOpen, onToggle }: ActivityDrawerProps) {
   const [height, setHeight] = useState(260)
   const [activeTab, setActiveTab] = useState<TabId>("live")
   const [events, setEvents] = useState<ActivityEvent[]>([])

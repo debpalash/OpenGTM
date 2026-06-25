@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import {
-  CheckCircle2, XCircle, Clock, Loader2, ChevronDown, ChevronRight,
+  CheckCircle2, XCircle, Clock, Loader2, ChevronDown,
   Brain, ExternalLink, MapPin, Globe, Link2, Briefcase, Star,
-  FileSearch, Users, Shield, Layers, Sparkles, Zap, ArrowRight,
+  FileSearch, Users, Shield, Layers, Sparkles, Zap,
   StopCircle, Trash2, RefreshCw, FileX2, Mail, Database,
   TrendingUp, ShieldCheck, Activity,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"

@@ -9,9 +9,9 @@ import { useEffect, useRef, useCallback, useState } from "react"
 import {
   fetchWorkbooks, fetchWorkbook, createWorkbook, updateWorkbook,
   deleteWorkbook, updateLeadField, importLeads, deleteLeads,
-  addColumn, deleteColumn, runWorkbook, stopWorkbook,
+  runWorkbook, stopWorkbook,
   fetchProviders, fetchFilterOptions, createWorkbookSocket,
-  type Workbook, type WorkbookLeadRow, type FilterCriteria,
+  type Workbook, type WorkbookLeadRow,
 } from "./workbook-api"
 
 // ── Query Keys ───────────────────────────────────────────────────────────
