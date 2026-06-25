@@ -268,6 +268,13 @@ def _init_providers():
     except Exception as e:
         logger.warning(f"Failed to register companies_house: {e}")
 
+    # ── Global legal-entity + corporate hierarchy from GLEIF (keyless, CC0) ──
+    try:
+        from apps.api.services.leadgen.enrichment.providers.gleif import GleifProvider
+        register_provider(GleifProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register gleif: {e}")
+
     try:
         from apps.api.services.leadgen.enrichment.declarative.registry import register_declarative_manifests
         register_declarative_manifests()
