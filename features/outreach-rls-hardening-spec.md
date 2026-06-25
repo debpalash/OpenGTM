@@ -1,5 +1,14 @@
 <!-- Auto-generated design spec (2026-06-25). Review verdict: needs-revisions. -->
 
+## ✅ LOCKED SCOPE DECISIONS (owner-approved 2026-06-25)
+
+1. **BYO-SMTP only for v1.** Each workspace sends via its own SMTP creds (WI-6 get_secret); DKIM/DMARC are the customer's domain. NO Yupcha shared sending domain/IP in v1 (deferred WI).
+2. **Basic bounce/complaint circuit breaker IN v1.** Track per-sequence bounce/complaint counts from the signals we capture at send (SMTP hard-failure = bounce; complaint signal where available); AUTO-PAUSE a sequence at >5% bounce OR >0.3% complaint, emit an activity event, surface in stats. Full async bounce/complaint feedback-loop ingestion (IMAP/FBL parsing) is a noted follow-up, but the threshold + auto-pause mechanism ships now.
+3. **Metered sends = DEBIT-ON-SUCCESS.** `check_and_debit` runs AFTER a successful SMTP handoff, never before. Hard-failed sends are never charged (no refund path needed). At-most-once is still guaranteed by the committed `in_flight` marker on `outreach_sends` (independent of debit timing): mark in_flight (commit) → SMTP send → on success mark sent + debit; on failure mark failed, no debit.
+4. **Per-workspace suppression for v1.** Unsubscribe/complaint in workspace A suppresses that recipient for workspace A only (each tenant is its own sender/controller under BYO-SMTP). A platform-global suppression layer is deferred to whenever shared sending infra is introduced.
+5. Implementation-detail defaults accepted: ticker per-tick enqueue cap + batching; OUTREACH_TICK_INTERVAL default; sends gated behind AUTOMATIONS_ALLOW_LEGACY_OUTREACH (flips ON only after this lands).
+
+
 # Production Spec — RLS-Harden the Outreach Store & Enable Trigger-Engine Sequence/Send Actions (REVISED, build-ready)
 
 ## 0. Summary
