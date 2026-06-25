@@ -275,6 +275,10 @@ app.include_router(automations_router)
 from apps.api.routers.watches import router as watches_router
 app.include_router(watches_router)
 
+# Meta — per-workspace role + feature flags for proactive UI gating
+from apps.api.routers.meta import router as meta_router
+app.include_router(meta_router)
+
 
 @app.get("/api")
 def api_root():

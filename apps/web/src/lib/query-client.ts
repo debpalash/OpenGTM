@@ -37,4 +37,30 @@ export const queryKeys = {
     list: () => ["conversations", "list"] as const,
     detail: (id: string) => ["conversations", "detail", id] as const,
   },
+  // ── GTM Automation UI ──────────────────────────────────────────
+  meta: {
+    context: ["meta", "context"] as const,
+    flags: ["meta", "flags"] as const,
+  },
+  outreach: {
+    all: ["outreach"] as const,
+    sequences: ["outreach", "sequences"] as const,
+    sequence: (id: string) => ["outreach", "sequence", id] as const,
+    sends: (id: string) => ["outreach", "sends", id] as const,
+    smtp: ["outreach", "smtp"] as const,
+    suppressions: ["outreach", "suppressions"] as const,
+  },
+  automations: {
+    all: ["automations"] as const,
+    triggers: (f?: object) => ["automations", "triggers", f ?? {}] as const,
+    trigger: (id: string) => ["automations", "trigger", id] as const,
+    runs: (id: string) => ["automations", "runs", id] as const,
+    run: (rid: string) => ["automations", "run", rid] as const,
+  },
+  watches: {
+    all: ["watches"] as const,
+    list: (p?: object) => ["watches", "list", p ?? {}] as const,
+    detail: (id: string) => ["watches", "detail", id] as const,
+    signals: (id: string) => ["watches", "signals", id] as const,
+  },
 } as const
