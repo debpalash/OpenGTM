@@ -26,6 +26,30 @@ from apps.api.services.leadgen.http import (
 )
 
 
+# ── test isolation ───────────────────────────────────────────────────
+
+@pytest.fixture(autouse=True)
+def _reset_logging_state():
+    """Keep the caplog-based logging assertions order-independent.
+
+    In the full suite, importing the app elsewhere can mutate global logging
+    state (logfire config / instrumentation can leave a global ``logging.disable``
+    in effect or flip the ``leadgen.http`` logger's ``propagate``/``disabled``),
+    which would silently drop records from caplog. Reset that around each test and
+    clear the module-level warn-once cache so state can't leak in from prior tests.
+    """
+    logging.disable(logging.NOTSET)
+    lg = logging.getLogger("leadgen.http")
+    prev = (lg.disabled, lg.propagate, lg.level)
+    lg.disabled = False
+    lg.propagate = True
+    H._warned_missing.clear()
+    try:
+        yield
+    finally:
+        lg.disabled, lg.propagate, lg.level = prev
+
+
 # ── helpers ──────────────────────────────────────────────────────────
 
 def _client():
