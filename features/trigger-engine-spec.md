@@ -1,5 +1,12 @@
 <!-- Auto-generated design spec (2026-06-25). Review verdict: major-rework. -->
 
+## ✅ LOCKED SCOPE DECISIONS (owner-approved 2026-06-25)
+
+1. **v1 actions = re-enrich column(s) + CRM push + webhook ONLY.** Enroll-in-sequence and send-email are DEFERRED to a follow-up WI that RLS-hardens the legacy `outreach.db` store. `AUTOMATIONS_ALLOW_LEGACY_OUTREACH` stays absent/OFF; those action types are rejected at rule-create in v1.
+2. **`on_signal` is PG-only** (requires `PG_LEAD_STORE=true`). Self-host (PG_LEAD_STORE=false) gets `on_row_added` / `on_row_changed` / `on_schedule`; creating an `on_signal` rule without PG returns `409 on_signal_requires_pg_lead_store`. No legacy global-SQLite signal scanner in v1.
+3. Implementation-detail defaults accepted: `on_row_changed` uses `updated_at` epoch-ms (no extra cell_version column); scheduler bootstrap via a non-RLS `scheduled_triggers` mirror (no BYPASSRLS role); webhook actions require workspace OWNER + an enforced domain allowlist on cloud.
+
+
 # Production Spec — Signal→Action Trigger Engine ("Automations / Recipes")
 
 > **STATUS: build-ready after adversarial review.** Every blocking gap, edge case, tenancy/security issue, cost/idempotency issue, and test gap from the review has been folded in. See **"Changes after review"** at the end for the diff-level summary. Items that genuinely need a human decision are flagged inline with **[OWNER DECISION]** and collected in the open-questions list.

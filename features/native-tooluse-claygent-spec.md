@@ -1,5 +1,12 @@
 <!-- Auto-generated design spec (2026-06-25). Review verdict: major-rework. -->
 
+## ✅ LOCKED SCOPE DECISIONS (owner-approved 2026-06-25)
+
+1. **Web access = in-house `web_search`/`web_fetch` tools** routed through the SSRF guard + prompt_guard. Anthropic server-side web tools (web_search_*/web_fetch_*) are NOT used (they bypass both guards). Stays deferred.
+2. **Research vendor cost behind a flag (`RESEARCH_VENDOR_COST`, default OFF)**, enabled per-workspace; do NOT raise spend previews for existing research-column workbooks globally.
+3. Implementation-detail defaults accepted: `synth_reserve` = 40% of `RESEARCH_CELL_BUDGET_USD`; autopilot caps 8 agent columns / 4000 cells / 500 rows; approval requires the client to echo `plan_id`+`nonce` (missing → execution rejected). The legacy `_execute_tool`/`LeadDB()` workspace-threading is tracked as a separate follow-up (autopilot planner ships behind a flag; single-tenant/self-host first).
+
+
 # Production Spec — Native Claude Tool-Use Claygent + LLM Autopilot Planner (v2, review folded in)
 
 ## 0. Scope at a glance
