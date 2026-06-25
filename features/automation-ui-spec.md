@@ -1,5 +1,14 @@
 <!-- Auto-generated design spec (2026-06-26). Review verdict: needs-revisions. -->
 
+## ✅ LOCKED SCOPE DECISIONS (owner-approved)
+
+1. **Add two tiny read-only backend endpoints for PROACTIVE gating:** `GET /api/me/context` → the caller's per-workspace role (admin|editor|member), and `GET /api/flags` → {automations_enabled, intent_poller_enabled, pg_lead_store, allow_legacy_outreach}. UI disables/hides write controls + flagged features up front (tooltip explaining why), with the reactive 403/404/409 handling kept as a backstop.
+2. **Live updates = POLLING** (React Query `refetchInterval` on run-history + signal-feed views, plus invalidate-on-mutation). No SSE in v1.
+3. Defaults accepted: webhook `header_secret_ref` and `push_crm` `field_map` use free-text inputs + helper copy in v1 (no secret-list / CRM-field discovery endpoints yet); confirm in code that the worker persists the run `fire_key` onto TriggerRun for the Save&Run→RunDetail match (else fall back to navigating to the rule's run-history list).
+
+BUILD APPROACH: scaffold first (the 2 backend endpoints + frontend foundation: typed API client for all surfaces + me/context + flags, React Query hooks/keys, routing+nav, shared gating/empty/error components), merged; THEN parallel page slices (Sequences rewire · Automations · Watches · run/signal inspection) on top.
+
+
 # Production Spec — GTM Automation UI (Sequences · Automations/Rules · Intent Watches · Run/Signal Inspection)
 
 Target: `apps/web` (Vite 8 + React 19 + Tailwind v4 + shadcn/ui). Backend surfaces: `apps/api/routers/{outreach,automations,watches}.py`. This spec rewires the existing `outreach.tsx` + the SMTP tab in `settings.tsx`, and adds two net-new flagged pages (Automations, Watches) plus shared run/signal inspection. All new code uses **React Query style #1** (fetch fns in `api.ts` → hooks in `hooks.ts` → keys in `query-client.ts`), per the web brief's stated rewire goal.
