@@ -1,8 +1,20 @@
-import httpx
-from bs4 import BeautifulSoup
-import asyncio
+"""Manual live smoke-script: DuckDuckGo Lite endpoint (result-link HTML dump).
 
-async def test_lite():
+Hits lite.duckduckgo.com over the network, so it is SKIPPED by default.
+Run on demand:
+
+    RUN_LIVE_SCRAPER_TESTS=1 PYTHONPATH=. uv run --group dev \
+        python -m pytest tests/test_ddg_lite_3.py -s
+"""
+import asyncio
+import os
+
+import httpx
+import pytest
+from bs4 import BeautifulSoup
+
+
+async def _run_lite():
     query = "samrat-bhardwaj"
     url = "https://lite.duckduckgo.com/lite/"
     data = {"q": query, "kl": "wt-wt"}
@@ -15,16 +27,27 @@ async def test_lite():
     async with httpx.AsyncClient(follow_redirects=True, timeout=15.0) as client:
         response = await client.post(url, data=data, headers=headers)
         soup = BeautifulSoup(response.text, "lxml")
-        
+
         links = soup.find_all("a", class_="result-link")
         if links:
             tr = links[0].find_parent("tr")
             print("First result HTML:")
             print(tr.prettify())
-            
+
             snippet_tr = tr.find_next_sibling("tr")
             print("Next sibling HTML (Snippet):")
             print(snippet_tr.prettify())
+        return response
+
+
+@pytest.mark.skipif(
+    os.environ.get("RUN_LIVE_SCRAPER_TESTS") != "1",
+    reason="live network test; set RUN_LIVE_SCRAPER_TESTS=1 to enable",
+)
+def test_lite():
+    response = asyncio.run(_run_lite())
+    assert response.status_code
+
 
 if __name__ == "__main__":
-    asyncio.run(test_lite())
+    asyncio.run(_run_lite())
