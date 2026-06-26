@@ -38,7 +38,8 @@ class Lead:
     revenue_range: str = ""        # e.g. "₹1-5 Cr", "$1M-5M"
     founded_year: str = ""         # Year the company was established
     industry_tags: str = ""        # Comma-separated: "IT Staffing, RPO, Payroll"
-    technologies: str = ""         # Key tech stack / platforms
+    technologies: str = ""         # Key tech stack / platforms (flat comma string, back-compat)
+    technographics: str = ""       # JSON: [{"name","category","source","confidence"}] (website-detected tech)
     funding_stage: str = ""        # "Bootstrapped", "Seed", "Series A", etc.
     company_size_basis: str = ""   # Provenance of company_size: "exact" | "estimated:<signals>" | ""
 

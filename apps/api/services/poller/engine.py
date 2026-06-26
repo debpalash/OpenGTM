@@ -455,6 +455,15 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
                 watch, want_hiring=(src == "hiring"), want_tech=(src == "tech"),
                 backfill=backfill,
             )
+        elif src == "web_tech":
+            # Website technographics path (selected over jobspy "tech" when
+            # TECH_STACK_WEBSITE_FETCH_ENABLED) — needs the lead's website.
+            website = None
+            if lead_id:
+                from apps.api.services.leadgen.orm_models import LeadRow
+                row = db.query(LeadRow.website).filter(LeadRow.id == lead_id).first()
+                website = row[0] if row else None
+            events, patch = sources.fetch_web_tech(watch, website, backfill=backfill)
         elif src == "feed":
             events, patch = sources.fetch_feed(watch, backfill=backfill)
         else:
@@ -489,6 +498,13 @@ def _source_set(watch) -> list:
     def wants(*sts):
         return (not types) or any(s in types for s in sts)
 
+    # new_tech_adopted has TWO mutually-exclusive detectors: jobspy text mining
+    # ("tech") by default, OR the SSRF-guarded website homepage path ("web_tech")
+    # when TECH_STACK_WEBSITE_FETCH_ENABLED. Exactly one runs → no double-count.
+    tech_src = "web_tech" if getattr(
+        settings, "TECH_STACK_WEBSITE_FETCH_ENABLED", False
+    ) else "tech"
+
     if kind == "funding":
         out = []
         if wants("company_funded"):
@@ -501,8 +517,8 @@ def _source_set(watch) -> list:
         if wants("hiring_surge"):
             out.append("hiring")
         if wants("new_tech_adopted"):
-            out.append("tech")
-        return out or ["hiring", "tech"]
+            out.append(tech_src)
+        return out or ["hiring", tech_src]
     if kind == "feed":
         return ["feed"]
     if kind == "company":
@@ -514,8 +530,8 @@ def _source_set(watch) -> list:
         if wants("hiring_surge"):
             out.append("hiring")
         if wants("new_tech_adopted"):
-            out.append("tech")
-        return out or ["funding", "exec", "hiring", "tech"]
+            out.append(tech_src)
+        return out or ["funding", "exec", "hiring", tech_src]
     return []
 
 

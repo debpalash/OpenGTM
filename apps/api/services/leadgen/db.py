@@ -221,6 +221,8 @@ class LeadDB:
             "founded_year": "TEXT DEFAULT ''",
             "industry_tags": "TEXT DEFAULT ''",
             "technologies": "TEXT DEFAULT ''",
+            # Structured website technographics JSON [{name,category,source,confidence}]
+            "technographics": "TEXT DEFAULT ''",
             "funding_stage": "TEXT DEFAULT ''",
             "company_size_basis": "TEXT DEFAULT ''",
             "secondary_emails": "TEXT DEFAULT ''",

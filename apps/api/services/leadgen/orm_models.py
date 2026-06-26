@@ -83,6 +83,7 @@ class LeadRow(Base):
     founding_year = Column(String, default="")
     industry_tags = Column(Text, default="")
     technologies = Column(Text, default="")
+    technographics = Column(Text, nullable=True, default="")
     funding_stage = Column(String, default="")
 
     # ── Social ──
