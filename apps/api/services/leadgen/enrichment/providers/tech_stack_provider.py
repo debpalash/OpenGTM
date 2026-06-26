@@ -7,7 +7,14 @@ to detect CMS, frameworks, analytics, and business tools. Zero API cost.
 Capabilities: technologies, tech_stack
 Free, unlimited, no API key needed.
 
-Based on Wappalyzer fingerprint patterns (lightweight subset).
+Fingerprints derive from the MIT-licensed Wappalyzer dataset (developit/
+wappalyzer, pinned) — see data/tech_fingerprints.NOTICE + scripts/
+build_tech_fingerprints.py. The per-lead homepage fetch is:
+  * GATED behind TECH_STACK_WEBSITE_FETCH_ENABLED (default OFF on cloud — a
+    per-lead outbound GET carries cost/politeness/legal surface);
+  * SSRF-guarded (lead.website is tenant-controlled → confused-deputy risk) via
+    core.url_guard.check_url(resolve=True) re-checked across redirects;
+  * homepage-only (1 GET/domain/run), cached by domain for 90 days.
 """
 
 import json
@@ -15,20 +22,35 @@ import re
 import time
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
+from apps.api.core.config import settings
+from apps.api.core.url_guard import check_url, BlockedUrlError
 from apps.api.services.leadgen.enrichment.provider import EnrichmentProvider, EnrichmentResult
+from apps.api.services.leadgen.enrichment.cache import canonical_key, get_cache
 from apps.api.services.leadgen.models import Lead
 
 logger = logging.getLogger("leadgen.tech_stack")
 
-# Full webappanalyzer (open Wappalyzer) fingerprint DB, compiled to this provider's
-# format. ~5k passive fingerprints vs the curated subset (FINGERPRINTS) below.
+# MIT-licensed Wappalyzer fingerprint DB (developit/wappalyzer, pinned), compiled
+# to this provider's flat format by scripts/build_tech_fingerprints.py.
 _DB_PATH = Path(__file__).parent.parent / "data" / "tech_fingerprints.json"
 
+# Honest, identifying UA (politeness — replaces the previous spoofed-Chrome UA).
+_UA = "Yupcha-TechDetect/1.0 (+https://yupcha.com/bot)"
+_HTML_CAP = 200_000  # 200 KB cap for perf
+_TTL_DAYS = 90       # tech changes slowly; matches company_size TTL
+_FETCH_TIMEOUT = 10.0
+_MAX_REDIRECTS = 3
+
+# Direct-hit vs implied confidence.
+_CONF_DIRECT = 0.75
+_CONF_IMPLIED = 0.5
+
 # ── Technology Fingerprints ──────────────────────────────────────────────
-# Lightweight subset of Wappalyzer patterns — covers the most common
-# business-relevant technologies. Organized by category.
+# Lightweight FIRST-PARTY curated subset (original to this repo — no third-party
+# license). Covers the most common business-relevant technologies with cleaner
+# category labels than the raw upstream IDs. Merged over the bundled MIT DB.
 
 FINGERPRINTS: List[Dict] = [
     # ── CMS ──
@@ -107,7 +129,7 @@ FINGERPRINTS: List[Dict] = [
 ]
 
 
-# ── Compiled fingerprint index (curated subset + full webappanalyzer DB) ──
+# ── Compiled fingerprint index (curated subset + bundled MIT DB) ──
 # Built lazily on first detection so unused imports stay cheap. Curated entries
 # win on name collision (they carry better category labels).
 
@@ -169,8 +191,12 @@ def detect_tech_from_response(
     headers: Dict[str, str],
     html: str,
     cookies: List[str],
-) -> List[Dict[str, str]]:
-    """Detect technologies from HTTP response data."""
+) -> List[Dict]:
+    """Detect technologies from HTTP response data.
+
+    Returns ``[{name, category, confidence}]``. Direct signal hits carry
+    ``_CONF_DIRECT``; technologies pulled in via ``implies`` carry ``_CONF_IMPLIED``.
+    """
     html_lower = html.lower() if html else ""
     headers_lower = {k.lower(): v.lower() for k, v in headers.items()}
     cookies_lower = [c.lower() for c in cookies]
@@ -183,7 +209,8 @@ def detect_tech_from_response(
     ):
         meta_tags.setdefault(m.group(1).lower(), m.group(2))
 
-    found_names: Dict[str, str] = {}  # name → category
+    found_names: Dict[str, str] = {}    # name → category
+    direct: set = set()                 # names matched on a real signal
 
     for fp in _get_compiled():
         if fp["name"] in found_names:
@@ -211,6 +238,7 @@ def detect_tech_from_response(
                     break
         if hit:
             found_names[fp["name"]] = fp["cat"]
+            direct.add(fp["name"])
 
     # Resolve `implies` (e.g. WooCommerce ⇒ WordPress ⇒ PHP).
     by_name = {fp["name"]: fp for fp in _get_compiled()}
@@ -223,90 +251,171 @@ def detect_tech_from_response(
                 found_names[imp] = by_name.get(imp, {}).get("cat", "Other")
                 queue.append(imp)
 
-    return [{"name": n, "category": c} for n, c in found_names.items()]
+    return [
+        {
+            "name": n,
+            "category": c,
+            "confidence": _CONF_DIRECT if n in direct else _CONF_IMPLIED,
+        }
+        for n, c in found_names.items()
+    ]
+
+
+# ── Safe homepage fetch (SSRF-guarded, redirect-rechecked, polite) ───────────
+
+async def _safe_get(url: str) -> Tuple[Dict[str, str], str, List[str]]:
+    """Fetch a homepage safely. Returns (headers, html, cookie_names).
+
+    SSRF guard (lead.website is tenant-controlled): every hop (initial + each
+    redirect) is validated with check_url(resolve=True) BEFORE the request, and
+    redirects are followed MANUALLY (capped) so a 3xx to a private/metadata host
+    can't slip past. TLS verification is ON unless TECH_STACK_INSECURE_TLS.
+    Raises BlockedUrlError on an unsafe URL (no request is issued for it).
+    """
+    import httpx
+    from urllib.parse import urljoin
+
+    verify = not bool(getattr(settings, "TECH_STACK_INSECURE_TLS", False))
+    req_headers = {
+        "User-Agent": _UA,
+        "Accept": "text/html,application/xhtml+xml",
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+
+    cur = url
+    async with httpx.AsyncClient(
+        timeout=_FETCH_TIMEOUT,
+        follow_redirects=False,
+        verify=verify,
+        headers=req_headers,
+    ) as client:
+        for _hop in range(_MAX_REDIRECTS + 1):
+            check_url(cur, allow_http=True, resolve=True)  # raises BlockedUrlError
+            resp = await client.get(cur)
+            if resp.status_code in (301, 302, 303, 307, 308):
+                loc = resp.headers.get("location")
+                if not loc:
+                    break
+                cur = urljoin(cur, loc)
+                continue
+            headers = dict(resp.headers)
+            html = resp.text[:_HTML_CAP]
+            cookies = [
+                c.split("=")[0].strip()
+                for c in resp.headers.get_list("set-cookie")
+                if "=" in c
+            ]
+            return headers, html, cookies
+    raise BlockedUrlError("too many redirects")
+
+
+async def _robots_allows(base_url: str) -> bool:
+    """Best-effort robots.txt check for the homepage path. Fail-OPEN on any error
+    (robots is politeness, not security — the SSRF guard handles safety)."""
+    from urllib.parse import urlparse
+    from urllib.robotparser import RobotFileParser
+
+    try:
+        parsed = urlparse(base_url)
+        robots_url = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
+        check_url(robots_url, allow_http=True, resolve=True)
+        headers, body, _ = await _safe_get(robots_url)
+        rp = RobotFileParser()
+        rp.parse((body or "").splitlines())
+        return rp.can_fetch(_UA, base_url)
+    except Exception:
+        return True
+
+
+def _structured_to_fields(techs: List[Dict]) -> Dict[str, str]:
+    """Build the persisted fields from a structured technographics list."""
+    tech_names = [t["name"] for t in techs]
+    structured = [
+        {
+            "name": t["name"],
+            "category": t.get("category", "Other"),
+            "source": "website",
+            "confidence": t.get("confidence", _CONF_DIRECT),
+        }
+        for t in techs
+    ]
+    return {
+        "technologies": ", ".join(tech_names),
+        "technographics": json.dumps(structured, separators=(",", ":")),
+    }
 
 
 class TechStackProvider(EnrichmentProvider):
     name = "tech_stack"
     capabilities = ["technologies"]
-    default_confidence = 0.75
+    default_confidence = _CONF_DIRECT
 
     async def enrich(self, lead: Lead) -> EnrichmentResult:
         t0 = time.time()
 
-        if not lead.website:
+        def _fail(error: str) -> EnrichmentResult:
             return EnrichmentResult(
-                provider=self.name,
-                success=False,
-                error="No website URL available",
+                provider=self.name, success=False, error=error,
                 duration_ms=(time.time() - t0) * 1000,
             )
+
+        if not lead.website:
+            return _fail("No website URL available")
+
+        # Master gate: per-lead outbound fetch is OFF by default (cost/politeness/
+        # legal). With it off we make ZERO network calls — byte-identical to today.
+        if not bool(getattr(settings, "TECH_STACK_WEBSITE_FETCH_ENABLED", False)):
+            return _fail("website_fetch_disabled")
+
+        # ── Cache (keyed by domain, 90d) — kills duplicate fetches ──
+        cache = get_cache()
+        ck = canonical_key("technologies", lead)
+        if ck:
+            cached = cache.get(ck, "technographics")
+            if cached and cached.get("value"):
+                try:
+                    techs = json.loads(cached["value"])
+                except (ValueError, TypeError):
+                    techs = None
+                if techs:
+                    return EnrichmentResult(
+                        provider=self.name, success=True,
+                        fields=_structured_to_fields(techs),
+                        confidence=self.default_confidence,
+                        duration_ms=(time.time() - t0) * 1000,
+                    )
 
         try:
             from apps.api.services.leadgen.enrichment.website_scraper import normalize_website_url
-            import httpx
-
             url = normalize_website_url(lead.website)
 
-            async with httpx.AsyncClient(
-                timeout=15.0,
-                follow_redirects=True,
-                headers={
-                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                    "Accept": "text/html,application/xhtml+xml",
-                    "Accept-Language": "en-US,en;q=0.9",
-                },
-                verify=False,
-            ) as client:
-                resp = await client.get(url)
+            if bool(getattr(settings, "TECH_STACK_RESPECT_ROBOTS", True)):
+                if not await _robots_allows(url):
+                    return _fail("robots_disallowed")
 
-                headers = dict(resp.headers)
-                html = resp.text[:200_000]  # Cap at 200KB for perf
-                cookies = [
-                    c.split("=")[0].strip()
-                    for c in resp.headers.get_list("set-cookie")
-                    if "=" in c
-                ]
+            headers, html, cookies = await _safe_get(url)
+            detected = detect_tech_from_response(headers, html, cookies)
 
-                detected = detect_tech_from_response(headers, html, cookies)
+            if not detected:
+                return _fail("No technologies detected")
 
-            if detected:
-                # Group by category
-                by_cat: Dict[str, List[str]] = {}
-                for tech in detected:
-                    by_cat.setdefault(tech["category"], []).append(tech["name"])
-
-                # Format as readable string
-                parts = []
-                for cat, techs in sorted(by_cat.items()):
-                    parts.append(f"{cat}: {', '.join(techs)}")
-                summary = " | ".join(parts)
-
-                # Also store as pipe-separated list for filtering
-                tech_names = [t["name"] for t in detected]
-
-                return EnrichmentResult(
-                    provider=self.name,
-                    success=True,
-                    fields={
-                        "technologies": ", ".join(tech_names),
-                    },
-                    confidence=self.default_confidence,
-                    duration_ms=(time.time() - t0) * 1000,
+            fields = _structured_to_fields(detected)
+            # Cache the STRUCTURED result (the technographics JSON) by domain.
+            if ck:
+                cache.set(
+                    ck, "technographics", fields["technographics"],
+                    confidence=self.default_confidence, provider=self.name,
+                    ttl_days=_TTL_DAYS,
                 )
-
             return EnrichmentResult(
-                provider=self.name,
-                success=False,
-                error="No technologies detected",
+                provider=self.name, success=True, fields=fields,
+                confidence=self.default_confidence,
                 duration_ms=(time.time() - t0) * 1000,
             )
 
+        except BlockedUrlError as e:
+            logger.warning("tech_stack: blocked URL for %s: %s", lead.website, e)
+            return _fail(f"blocked_url: {str(e)[:80]}")
         except Exception as e:
-            logger.warning(f"Tech stack detection error for {lead.website}: {e}")
-            return EnrichmentResult(
-                provider=self.name,
-                success=False,
-                error=str(e)[:200],
-                duration_ms=(time.time() - t0) * 1000,
-            )
+            logger.warning("Tech stack detection error for %s: %s", lead.website, e)
+            return _fail(str(e)[:200])

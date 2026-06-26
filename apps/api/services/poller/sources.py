@@ -254,6 +254,87 @@ def fetch_hiring_and_tech(
     return events, patch
 
 
+# ── Website technographics → new_tech_adopted (source="website") ─────────────
+
+def fetch_web_tech(
+    watch, website: Optional[str], *, backfill: bool, provider=None,
+) -> Tuple[Optional[List[DetectedEvent]], Optional[dict]]:
+    """Homepage technographics diff → ``new_tech_adopted`` (source ``"website"``).
+
+    This is the ALTERNATIVE tech-adoption path to ``fetch_hiring_and_tech``'s
+    jobspy text mining: the engine selects exactly ONE of them (jobspy when the
+    website-fetch flag is OFF, this when ON) so a tech is never double-counted.
+
+    Reuses ``TechStackProvider.enrich`` (so it inherits the master flag gate, the
+    SSRF-guarded homepage GET, robots, and the 90-day domain cache). Diffs the
+    detected technologies against ``cursor["known_web_tech"]`` and emits one event
+    per newly-seen tech (deduped via the cursor; same tech never re-emits).
+
+    Returns ``(events, cursor_patch)``; ``(None, None)`` only on a real fetch
+    failure (so the cursor isn't advanced and it retries next poll). A disabled
+    flag / no-website / no-tech result is a no-op ``([], {})`` (not a failure).
+    """
+    if not bool(getattr(settings, "TECH_STACK_WEBSITE_FETCH_ENABLED", False)):
+        return [], {}  # gated off — defensive (engine won't select this source)
+    if not website:
+        return [], {}  # nothing to probe — no cursor change, not a failure
+
+    from apps.api.services.leadgen.models import Lead
+    from apps.api.services.leadgen.enrichment.providers.tech_stack_provider import (
+        TechStackProvider,
+    )
+
+    cursor = watch.cursor or {}
+    bootstrapped = bool(cursor.get("bootstrapped"))
+    suppress = (not bootstrapped) and (not backfill)
+
+    provider = provider or TechStackProvider()
+    lead = Lead(company=_company_name_for(watch), website=website)
+    try:
+        res = asyncio.run(provider.enrich(lead))
+    except Exception as e:
+        logger.warning("web_tech fetch failed for watch %s: %s", watch.id, e)
+        return None, None
+
+    if not res or not res.success:
+        # Non-failures (disabled / no tech / robots / blocked) → no-op, no retry.
+        soft = {"website_fetch_disabled", "No technologies detected",
+                "robots_disallowed"}
+        err = (res.error if res is not None else "") or ""
+        if res is not None and (err in soft or err.startswith("blocked_url")):
+            return [], {}
+        return None, None  # real fetch failure → retry next poll
+
+    import json as _json
+    try:
+        techs = _json.loads((res.fields or {}).get("technographics") or "[]")
+    except (ValueError, TypeError):
+        return None, None
+
+    cik = keys.stable_company_id(watch.resolved_cik, watch.target)
+    known = list(cursor.get("known_web_tech") or [])
+    known_set = set(known)
+    events: List[DetectedEvent] = []
+    for t in techs:
+        raw_name = t.get("name", "")
+        tech = keys.normalize_tech(raw_name)
+        if not tech or tech in known_set:
+            continue
+        known_set.add(tech)
+        known.append(tech)
+        if not suppress:
+            events.append(DetectedEvent(
+                natural_event_id=f"{cik}:{tech}:website",
+                signal_type="new_tech_adopted",
+                title=f"Detected {raw_name or tech} on website",
+                description=f"{t.get('category', '')}: {raw_name or tech} (source: website)",
+                source="website",
+                source_url=website,
+                weight=6,
+            ))
+    return events, {"known_web_tech": known}
+
+
 def _run_jobspy(watch) -> Optional[dict]:
     """Run the JobSpy provider for the watch's company and return the analyzed
     signals dict ({growth_signal, tech_adoption_signal, ...}) or None on failure."""

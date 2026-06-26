@@ -123,7 +123,10 @@ from apps.api.services.leadgen.enrichment.providers.tech_stack_provider import (
 
 
 def test_tech_db_is_large():
-    assert len(_get_compiled()) > 5000
+    # License-clean MIT bundle (developit/wappalyzer, pinned) — see
+    # data/tech_fingerprints.NOTICE. Smaller than the prior unattributed GPL-era
+    # blob but provably-permissive + reproducible (scripts/build_tech_fingerprints.py).
+    assert len(_get_compiled()) > 1500
 
 
 def test_tech_detect_and_implies():

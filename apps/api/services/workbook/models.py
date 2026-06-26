@@ -135,6 +135,7 @@ LEAD_FIELD_MAP = {
     "recent_news": "recent_news",
     "google_rating": "google_rating",
     "technologies": "technologies",
+    "technographics": "technographics",
     "email_verify": "email_verify",
     "email_presence": "email_presence",
     "secondary_emails": "secondary_emails",

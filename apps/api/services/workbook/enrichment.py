@@ -340,7 +340,7 @@ async def enrich_cell(
             provider_chain = provider_chain[:_max_providers]
 
         # Fields that are structured/JSON — NEVER put in a cell, always write-back only
-        STRUCTURED_FIELDS = {"decision_makers", "hiring_signals", "secondary_emails", "secondary_phones"}
+        STRUCTURED_FIELDS = {"decision_makers", "hiring_signals", "secondary_emails", "secondary_phones", "technographics"}
 
         import time as _time
         for provider_name in provider_chain:

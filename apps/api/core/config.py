@@ -269,6 +269,23 @@ class Settings(BaseSettings):
     # flipping this on needs no schema redeploy.
     PROVENANCE_TRACKING_ENABLED: bool = False
 
+    # ── Website technographics (Wappalyzer-style homepage fetch) ───────
+    # Master switch for the per-lead outbound homepage GET in the tech_stack
+    # provider + the poller's website-tech signal diff (features/research-
+    # wappalyzer-technographics-spec.md). Default OFF on cloud: a per-lead
+    # outbound fetch carries cost / politeness / legal surface, so it is opt-in.
+    # With the flag OFF the provider returns a graceful "disabled" result and
+    # makes ZERO network calls (byte-identical sourcing output). The job-text
+    # technographics path (job_tech_intent / jobspy) is unaffected and stays on.
+    TECH_STACK_WEBSITE_FETCH_ENABLED: bool = False
+    # Respect robots.txt before the homepage GET (politeness). Default True.
+    TECH_STACK_RESPECT_ROBOTS: bool = True
+    # Escape hatch to skip TLS verification on the homepage fetch. Default OFF —
+    # lead.website is tenant-controlled, so disabling TLS verification opens an
+    # MITM/confused-deputy hole. Leave False unless a self-host operator
+    # knowingly accepts the risk for internal targets.
+    TECH_STACK_INSECURE_TLS: bool = False
+
     # Optional integrations
     SCRIBD_COOKIES: str = ""
     GOOGLE_API_KEY: str = ""
