@@ -1,9 +1,20 @@
+"""Manual live smoke-script for the torrent search service.
+
+Hits real torrent indexers over the network, so it is SKIPPED by default.
+Run on demand:
+
+    RUN_LIVE_SCRAPER_TESTS=1 PYTHONPATH=. uv run --group dev \
+        python -m pytest tests/test_torrent.py -s
+"""
 import asyncio
-from apps.api.services.torrent import torrent_service
-import logfire
+import os
+
+import pytest
 
 
-async def test_search():
+async def _run_search():
+    from apps.api.services.torrent import torrent_service
+
     print("Searching for 'linux'...")
     results = await torrent_service.search("linux")
     print(f"Found {len(results)} results")
@@ -11,9 +22,17 @@ async def test_search():
         print(f"- {r['name']} ({r['size']}) - Seeds: {r['seeds']}")
         if "url" in r:
             print(f"  URL: {r['url']}")
-            # magnet = await torrent_service.get_magnet(r['url'])
-            # print(f"  Magnet: {magnet[:50]}...")
+    return results
+
+
+@pytest.mark.skipif(
+    os.environ.get("RUN_LIVE_SCRAPER_TESTS") != "1",
+    reason="live network test; set RUN_LIVE_SCRAPER_TESTS=1 to enable",
+)
+def test_search():
+    results = asyncio.run(_run_search())
+    assert isinstance(results, list)
 
 
 if __name__ == "__main__":
-    asyncio.run(test_search())
+    asyncio.run(_run_search())
