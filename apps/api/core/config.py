@@ -114,6 +114,11 @@ class Settings(BaseSettings):
     MCP_WRITE_ENABLED: bool = False
     # Default lifetime of a freshly minted MCP token (days). 0 = never expires.
     MCP_TOKEN_TTL_DAYS: int = 90
+    # Per-workspace daily cap on MCP *write* tool calls (create/update/enroll/
+    # workbook). 0 = unlimited. Enforced through the SAME reservation machinery as
+    # automations (apps/api/services/automations/caps.py) so MCP writes share the
+    # tenant's spend/action budget and can't be a parallel uncapped surface.
+    MCP_MAX_WRITES_PER_DAY: int = 0
 
     # ── Automations / Trigger Engine (Signal->Action) ──────────────────
     # Master switch. OFF: router 404s, event emitters no-op, the trigger_eval

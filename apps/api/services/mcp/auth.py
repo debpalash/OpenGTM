@@ -42,6 +42,12 @@ WRITE_CAPABILITIES: FrozenSet[str] = frozenset({
 })
 ALL_CAPABILITIES: FrozenSet[str] = READ_CAPABILITIES | WRITE_CAPABILITIES
 
+# Workspace roles allowed to perform an MCP *write* (owner always passes via
+# require_role). A user downgraded to "viewer" after the token was minted is
+# denied at call time — the live role re-check that defeats the privilege-freeze
+# confused-deputy variant (a capability grant is necessary but not sufficient).
+WRITE_ROLES: Tuple[str, ...] = ("admin", "member", "editor")
+
 # Plaintext token prefix so tokens are recognisable in logs/configs.
 TOKEN_PREFIX = "ycp_"  # yupcha capability pat
 

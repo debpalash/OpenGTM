@@ -5,9 +5,12 @@ prefix ``/api/mcp/tokens``. Every endpoint is gated by
 token that acts in that workspace. The plaintext token is returned EXACTLY ONCE
 at creation; only its sha256 hash is persisted.
 
-Phase 1 only the read capability (``leads:read``) is meaningfully usable; write
-capabilities can be granted but the matching tools stay hidden/inert until
-``MCP_WRITE_ENABLED`` is on (Phase 2).
+Capabilities are validated against the known vocabulary (``leads:read``,
+``leads:write``, ``sequences:enroll``, ``workbooks:write``). The write
+capabilities power the Phase-2 write tools, which stay hidden/inert until
+``MCP_WRITE_ENABLED`` is on AND the token holds the matching ``*:write`` grant
+(two independent off-switches) — so minting a write-capable token is safe by
+default.
 """
 
 import logging
