@@ -125,6 +125,18 @@ class WorkbookListResponse(BaseModel):
 
 # ── Row schemas (v2 — self-contained rows) ────────────────────────────────
 
+class Provenance(BaseModel):
+    """Per-fact provenance for an enriched cell value (license/freshness).
+
+    Recorded only when PROVENANCE_TRACKING_ENABLED; absent on legacy/un-enriched
+    cells (backward-compatible). ``license`` is a token from licenses.LICENSE_VOCAB.
+    """
+    source: str
+    license: str = "unknown"
+    confidence: Optional[float] = None
+    fetched_at: Optional[str] = None
+
+
 class EnrichmentOverlay(BaseModel):
     """Enrichment data for a single cell (AI/computed columns)."""
     value: Any = None
@@ -133,6 +145,8 @@ class EnrichmentOverlay(BaseModel):
     error: Optional[str] = None
     # 4-status email verification: "valid" | "invalid" | "catch_all" | "unknown"
     verify_status: Optional[str] = None
+    # Per-fact provenance (optional; omitted on legacy/un-enriched cells).
+    provenance: Optional[Provenance] = None
 
 
 class WorkbookLeadRow(BaseModel):

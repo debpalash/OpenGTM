@@ -479,11 +479,14 @@ async def get_workbook(
         if e.lead_id not in enrich_map:
             enrich_map[e.lead_id] = {}
         vstatus = None
+        prov = None
         if isinstance(e.cell_metadata, dict):
             vstatus = (e.cell_metadata.get("verify") or {}).get("status")
+            prov = e.cell_metadata.get("provenance")  # per-fact provenance (flag-gated)
         enrich_map[e.lead_id][e.column_id] = EnrichmentOverlay(
             value=e.value, status=e.status or "pending",
             provider=e.provider, error=e.error, verify_status=vstatus,
+            provenance=prov,
         )
 
     rows = []
@@ -567,11 +570,37 @@ async def update_lead_field(
         if not updates:
             raise HTTPException(status_code=400, detail="No valid lead fields to update")
 
-        set_clause = ", ".join(f"{k} = ?" for k in updates)
-        values = list(updates.values()) + [lead_id]
+        # Per-fact provenance (flag-gated): a manual edit is source=user-provided
+        # (no license claim). Read-modify-write merge into field_provenance so we
+        # don't clobber provider provenance on other fields.
+        write_updates = dict(updates)
+        try:
+            from apps.api.core.config import settings as _prov_settings
+            if (getattr(_prov_settings, "PROVENANCE_TRACKING_ENABLED", False)
+                    and hasattr(lead_db, "conn")):
+                from apps.api.services.leadgen.enrichment.licenses import (
+                    provenance_for, merge_field_provenance, SOURCE_USER_PROVIDED,
+                )
+                try:
+                    row = lead_db.conn.execute(
+                        "SELECT field_provenance FROM leads WHERE id = ?", (lead_id,)
+                    ).fetchone()
+                    cur_fp = row[0] if row else ""
+                except Exception:
+                    cur_fp = ""
+                provs = {
+                    f: provenance_for(SOURCE_USER_PROVIDED, license="user-provided")
+                    for f in updates
+                }
+                write_updates["field_provenance"] = merge_field_provenance(cur_fp or "", provs)
+        except Exception as e:
+            logger.debug(f"manual-edit provenance skipped: {e}")
+            write_updates = dict(updates)
+
+        set_clause = ", ".join(f"{k} = ?" for k in write_updates)
         lead_db.conn.execute(
             f"UPDATE leads SET {set_clause}, updated_at = ? WHERE id = ?",
-            list(updates.values()) + [datetime.now(timezone.utc).isoformat(), lead_id],
+            list(write_updates.values()) + [datetime.now(timezone.utc).isoformat(), lead_id],
         )
         lead_db.conn.commit()
         return {"status": "updated", "lead_id": lead_id, "fields": list(updates.keys())}

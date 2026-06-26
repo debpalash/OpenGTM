@@ -40,6 +40,7 @@ class HunterProvider(EnrichmentProvider):
     name = "hunter_io"
     capabilities = ["email"]
     default_confidence = 0.8
+    source_license = "proprietary-api"  # vendor ToS forbids resale (per-fact provenance)
 
     async def enrich(self, lead: Lead) -> EnrichmentResult:
         api_key = _get_api_key()

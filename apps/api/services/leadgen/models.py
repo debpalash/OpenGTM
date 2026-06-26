@@ -57,6 +57,10 @@ class Lead:
     # ── Enrichment Provenance ──────────────────────────────────────────
     enrichment_attempts: int = 0   # Total provider calls during waterfall
     enrichment_waterfall: str = "" # JSON log of provider chain results
+    # Per-fact provenance: JSON object {field_name: {source, license,
+    # confidence, fetched_at}} populated by the enrichment waterfall / write-back
+    # when PROVENANCE_TRACKING_ENABLED. "" / NULL on legacy rows (no backfill).
+    field_provenance: str = ""
 
     # ── Pipeline ───────────────────────────────────────────────────────
     source: str = ""               # "csv_import", "google_maps", "linkedin", etc.

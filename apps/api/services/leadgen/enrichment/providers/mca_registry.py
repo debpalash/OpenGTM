@@ -49,6 +49,7 @@ class MCARegistryProvider(EnrichmentProvider):
     capabilities = ["address", "founded_year", "industry_tags", "description"]
     default_confidence = 0.85  # government registry data; lowered for name-only matches
     requires_api_key = False
+    source_license = "public-record"  # India MCA government registry (per-fact provenance)
 
     async def enrich(self, lead: Lead) -> EnrichmentResult:
         company = (lead.company or "").strip()

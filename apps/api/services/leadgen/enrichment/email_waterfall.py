@@ -255,6 +255,22 @@ def _record_provenance(lead: Lead, outcome: WaterfallOutcome) -> None:
     lead.enrichment_waterfall = json.dumps(existing, default=str)
     lead.enrichment_attempts = (lead.enrichment_attempts or 0) + outcome.attempts
 
+    # ── Per-fact provenance (flag-gated): stamp the email field's source/license ──
+    try:
+        from apps.api.core.config import settings as _settings
+        if (getattr(_settings, "PROVENANCE_TRACKING_ENABLED", False)
+                and outcome.email and outcome.provider
+                and hasattr(lead, "field_provenance")):
+            from apps.api.services.leadgen.enrichment.licenses import (
+                provenance_for, merge_field_provenance,
+            )
+            prov = {"email": provenance_for(outcome.provider)}
+            lead.field_provenance = merge_field_provenance(
+                getattr(lead, "field_provenance", "") or "", prov,
+            )
+    except Exception:  # pragma: no cover - provenance must never break the waterfall
+        pass
+
 
 async def enrich_emails_waterfall(
     leads: List[Lead],

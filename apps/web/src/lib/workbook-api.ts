@@ -11,12 +11,23 @@ const API = ""
 
 // ── Types ────────────────────────────────────────────────────────────────
 
+// Per-fact provenance for an enriched cell (license/freshness/source).
+// Present only when PROVENANCE_TRACKING_ENABLED on the backend; absent on
+// legacy/un-enriched cells.
+export interface Provenance {
+  source: string
+  license: string
+  confidence?: number | null
+  fetched_at?: string | null
+}
+
 export interface EnrichmentOverlay {
   value: any
   status: "pending" | "running" | "complete" | "error" | "skipped"
   provider?: string | null
   error?: string | null
   verify_status?: "valid" | "invalid" | "catch_all" | "unknown" | null
+  provenance?: Provenance | null
 }
 
 export interface ColumnConfig {

@@ -319,6 +319,7 @@ async def enrich_cell(
         result_provider = None
         result_error = None
         result_confidence = 0.0
+        result_license = None  # provenance: declared license of the winning provider
 
         # ── Pillar 2: cost-aware ordering + budget ceiling ──
         from apps.api.services.workbook import planner as _planner
@@ -358,6 +359,9 @@ async def enrich_cell(
                     provider_name, lead,
                     timeout=_RUN_CONFIG.get("provider_timeout", 10.0),
                 )
+                # `license` is provenance-only metadata the runner adds; pop it
+                # before constructing EnrichmentResult (which has no such field).
+                _attempt_license = (_rd or {}).pop("license", None)
                 result = (EnrichmentResult(**_rd) if _rd
                           else EnrichmentResult(provider=provider_name, success=False))
                 _latency_ms = (_time.monotonic() - _t0) * 1000.0
@@ -408,6 +412,7 @@ async def enrich_cell(
                                 result_value = sv
                             result_provider = provider_name
                             result_confidence = result.confidence or provider.default_confidence
+                            result_license = _attempt_license
 
                 if result_value:
                     # ── Charge budget for a successful PAID provider ──
@@ -461,11 +466,35 @@ async def enrich_cell(
         except Exception as e:
             logger.debug(f"email verify failed for {result_value}: {e}")
 
+    # ── Per-fact provenance (flag-gated) ──────────────────────────────
+    # Build {source, license, confidence, fetched_at} for a produced value so it
+    # rides into the cell dict + cell_metadata mirror. result_confidence /
+    # result_license are only defined on the enrichment/waterfall branch, so read
+    # them defensively (None for ai_formula/research/formula/http/agent cells —
+    # those record source + a name-resolved license only). When the flag is OFF
+    # this stays None and the persisted cell JSON is byte-identical to today.
+    provenance = None
+    try:
+        from apps.api.core.config import settings as _prov_settings
+        if (getattr(_prov_settings, "PROVENANCE_TRACKING_ENABLED", False)
+                and result_value and result_provider):
+            from apps.api.services.leadgen.enrichment.licenses import provenance_for
+            _conf = locals().get("result_confidence")
+            provenance = provenance_for(
+                result_provider,
+                confidence=(_conf if _conf else None),
+                declared_license=locals().get("result_license"),
+            )
+    except Exception as e:  # pragma: no cover - provenance must never break a cell
+        logger.debug(f"cell provenance build skipped: {e}")
+        provenance = None
+
     # ── Write results ─────────────────────────────────────────────────
     if result_value:
         # Always store in enrichment overlay (value is already scalar/summary)
         _set_enrichment(db, workbook_id, lead_id, col_id, result_value, "complete",
-                        provider=result_provider, metadata=cell_metadata)
+                        provider=result_provider, metadata=cell_metadata,
+                        provenance=provenance)
     else:
         # Persist research metadata even on a no-answer cell so the UI can render
         # 0 sources gracefully (cell_metadata is only set for research above).
@@ -497,7 +526,7 @@ async def enrich_cell(
 def _set_enrichment(
     db: Session, workbook_id: str, lead_id: int, column_id: str,
     value: Any, status: str, provider: str = None, error: str = None,
-    metadata: dict = None,
+    metadata: dict = None, provenance: dict = None,
 ):
     """Upsert a WorkbookEnrichment record.
 
@@ -524,13 +553,20 @@ def _set_enrichment(
                 existing = obj
                 break
 
+    # Per-fact provenance rides on the SAME cell_metadata channel as the verify
+    # badge (mirror of the inline cell dict). None when the flag is off → the
+    # stored metadata is byte-identical to today.
+    cell_meta = metadata
+    if provenance:
+        cell_meta = {**(metadata or {}), "provenance": provenance}
+
     if existing:
         existing.value = value
         existing.status = status
         existing.provider = provider
         existing.error = error
-        if metadata is not None:
-            existing.cell_metadata = metadata
+        if cell_meta is not None:
+            existing.cell_metadata = cell_meta
     else:
         from apps.api.core.tenancy import current_workspace_var
         db.add(WorkbookEnrichment(
@@ -545,7 +581,7 @@ def _set_enrichment(
             status=status,
             provider=provider,
             error=error,
-            cell_metadata=metadata,
+            cell_metadata=cell_meta,
         ))
 
     # Mirror into the v2 WorkbookRow.enrichments JSON so the value (and verify
@@ -574,6 +610,9 @@ def _set_enrichment(
             vstatus = (metadata or {}).get("verify", {}).get("status") if metadata else None
             if vstatus:
                 cell["verify_status"] = vstatus
+            # Per-fact provenance (flag-gated; None → key omitted → byte-identical).
+            if provenance:
+                cell["provenance"] = provenance
             overlay[column_id] = cell
             wr.enrichments = overlay
             flag_modified(wr, "enrichments")
@@ -649,6 +688,20 @@ def _write_back_to_lead(lead_id: int, field: str, value: str, provider: str = No
         elif provider and field == "phone":
             updates["phone_provider"] = provider
 
+        # Per-fact provenance (flag-gated): record {source,license,confidence,
+        # fetched_at} for this written-back field + refresh last_enriched_at.
+        # Built once here; merged read-modify-write into field_provenance below
+        # per backend so we never clobber other fields' provenance.
+        _prov = None
+        try:
+            from apps.api.core.config import settings as _prov_settings
+            if getattr(_prov_settings, "PROVENANCE_TRACKING_ENABLED", False):
+                from apps.api.services.leadgen.enrichment.licenses import provenance_for
+                _prov = provenance_for(provider)
+        except Exception as e:  # pragma: no cover
+            logger.debug(f"write-back provenance build skipped: {e}")
+            _prov = None
+
         ws = current_workspace_var.get()
         if ws:
             from apps.api.services.leadgen.store import get_lead_store
@@ -657,6 +710,16 @@ def _write_back_to_lead(lead_id: int, field: str, value: str, provider: str = No
             slug = ws_manager.workspace_slug(ws) or ""
             store = get_lead_store(ws, slug)
             try:
+                if _prov is not None:
+                    from apps.api.services.leadgen.enrichment.licenses import (
+                        merge_field_provenance,
+                    )
+                    cur = store.get_lead(lead_id)
+                    cur_fp = getattr(cur, "field_provenance", "") if cur else ""
+                    updates["field_provenance"] = merge_field_provenance(
+                        cur_fp or "", {field: _prov},
+                    )
+                    updates["last_enriched_at"] = datetime.now(timezone.utc).isoformat()
                 store.update_lead_fields(lead_id, updates)  # adds updated_at
             finally:
                 store.close()
@@ -664,6 +727,21 @@ def _write_back_to_lead(lead_id: int, field: str, value: str, provider: str = No
             # Unscoped legacy caller — preserve prior default-path behaviour.
             lead_db = LeadDB()
             try:
+                if _prov is not None:
+                    from apps.api.services.leadgen.enrichment.licenses import (
+                        merge_field_provenance,
+                    )
+                    try:
+                        row = lead_db.conn.execute(
+                            "SELECT field_provenance FROM leads WHERE id = ?", (lead_id,)
+                        ).fetchone()
+                        cur_fp = row[0] if row else ""
+                    except Exception:
+                        cur_fp = ""
+                    updates["field_provenance"] = merge_field_provenance(
+                        cur_fp or "", {field: _prov},
+                    )
+                    updates["last_enriched_at"] = datetime.now(timezone.utc).isoformat()
                 updates["updated_at"] = datetime.now(timezone.utc).isoformat()
                 set_clause = ", ".join(f"{k} = ?" for k in updates)
                 lead_db.conn.execute(

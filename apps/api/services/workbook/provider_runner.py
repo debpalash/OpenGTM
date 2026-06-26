@@ -91,14 +91,19 @@ def _provider_job(provider_name: str, lead_dict: dict) -> dict | None:
         "fields": dict(res.fields or {}),
         "confidence": float(res.confidence or 0.0),
         "error": res.error or "",
+        # Per-fact provenance: the provider's declared data license (resolved
+        # by name from the central map when left at the "unknown" default). The
+        # subprocess is the only place that holds the provider instance, so we
+        # read it here and return it alongside the result.
+        "license": getattr(provider, "source_license", "unknown") or "unknown",
     }
 
 
 async def run_provider(provider_name: str, lead, timeout: float) -> dict | None:
     """Run provider.enrich(lead) in a killable subprocess.
 
-    Returns the result dict (keys: provider/success/fields/confidence/error), or
-    None if the provider isn't registered. Raises asyncio.TimeoutError if the
+    Returns the result dict (keys: provider/success/fields/confidence/error/
+    license), or None if the provider isn't registered. Raises asyncio.TimeoutError if the
     provider exceeded `timeout` (its worker process is killed and replaced).
     """
     pool = _get_pool()

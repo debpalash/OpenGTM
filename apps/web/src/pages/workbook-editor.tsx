@@ -18,7 +18,7 @@ import {
   useImportLeads, useRunWorkbook, useStopWorkbook,
   useDeleteLeads, useWorkbookSocket, useProviders,
 } from "@/lib/workbook-hooks"
-import type { WorkbookLeadRow, EnrichmentOverlay, AiColumnPreset, CostInfo, RunCostEstimate } from "@/lib/workbook-api"
+import type { WorkbookLeadRow, EnrichmentOverlay, Provenance, AiColumnPreset, CostInfo, RunCostEstimate } from "@/lib/workbook-api"
 import { fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost } from "@/lib/workbook-api"
 import {
   ArrowLeft, Plus, Play, Square, Download, Upload,
@@ -102,6 +102,75 @@ function ColumnProgressBar({ rows, colId }: { rows: WorkbookLeadRow[]; colId: st
   )
 }
 
+// ── Per-fact provenance card ──────────────────────────────────────────────
+
+// License → colour chip. Green = openly redistributable, amber = public-record /
+// scraped (use-at-own-risk), red = proprietary-api (vendor ToS: do not resell).
+const LICENSE_CHIP: Record<string, string> = {
+  "CC0-1.0":         "text-green-600 bg-green-500/10 border-green-500/20",
+  "CC-BY-4.0":       "text-green-600 bg-green-500/10 border-green-500/20",
+  "public-record":   "text-amber-600 bg-amber-500/10 border-amber-500/20",
+  "scraped":         "text-amber-600 bg-amber-500/10 border-amber-500/20",
+  "proprietary-api": "text-red-600 bg-red-500/10 border-red-500/20",
+  "user-provided":   "text-muted-foreground bg-muted border-border",
+  "unknown":         "text-muted-foreground bg-muted border-border",
+}
+
+// Default staleness threshold (days) when a column has no per-field
+// staleness_ttl_days policy. A fact older than this shows a "stale" dot.
+const DEFAULT_STALENESS_DAYS = 90
+
+function relativeTime(iso?: string | null): string {
+  if (!iso) return ""
+  const t = Date.parse(iso)
+  if (Number.isNaN(t)) return ""
+  const secs = Math.max(0, (Date.now() - t) / 1000)
+  const d = Math.floor(secs / 86400)
+  if (d >= 1) return `${d}d ago`
+  const h = Math.floor(secs / 3600)
+  if (h >= 1) return `${h}h ago`
+  const m = Math.floor(secs / 60)
+  if (m >= 1) return `${m}m ago`
+  return "just now"
+}
+
+function isStale(iso?: string | null, ttlDays = DEFAULT_STALENESS_DAYS): boolean {
+  if (!iso) return false
+  const t = Date.parse(iso)
+  if (Number.isNaN(t)) return false
+  return (Date.now() - t) / 86400000 > ttlDays
+}
+
+function ProvenanceCard({ prov, ttlDays }: { prov: Provenance; ttlDays?: number }) {
+  const chip = LICENSE_CHIP[prov.license] || LICENSE_CHIP.unknown
+  const stale = isStale(prov.fetched_at, ttlDays)
+  const rel = relativeTime(prov.fetched_at)
+  return (
+    <div className="absolute z-50 hidden group-hover/cell:block left-0 top-full mt-1 w-56 rounded-md border bg-popover p-2.5 text-xs shadow-md text-popover-foreground">
+      <div className="flex items-center justify-between gap-2 mb-1.5">
+        <span className="font-medium truncate">{prov.source}</span>
+        <span className={`shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-medium ${chip}`}>
+          {prov.license}
+        </span>
+      </div>
+      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+        {prov.confidence != null && (
+          <span>conf {Math.round(prov.confidence * 100)}%</span>
+        )}
+        {rel && (
+          <span className="inline-flex items-center gap-1">
+            {stale && (
+              <span title="Stale — older than the refresh policy"
+                className="inline-block size-1.5 rounded-full bg-amber-500" />
+            )}
+            {rel}
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Editable Cell ────────────────────────────────────────────────────────
 
 function VerifyBadge({ verify }: { verify?: string | null }) {
@@ -122,10 +191,11 @@ function VerifyBadge({ verify }: { verify?: string | null }) {
 }
 
 function EditableCell({
-  value, status, provider, error, verify, isEditable, onSave,
+  value, status, provider, error, verify, provenance, staleTtlDays, isEditable, onSave,
 }: {
   value: any; status?: string; provider?: string | null; error?: string | null
-  verify?: string | null; isEditable: boolean; onSave: (v: string) => void
+  verify?: string | null; provenance?: Provenance | null; staleTtlDays?: number
+  isEditable: boolean; onSave: (v: string) => void
 }) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(String(value ?? ""))
@@ -175,12 +245,15 @@ function EditableCell({
     )
   }
 
+  // Provenance card replaces the plain title tooltip when present.
+  const showProvenance = !!provenance && !!displayValue && status === "complete"
   return (
     <div
-      className="flex items-center gap-1.5 px-2 py-1 h-full min-h-[32px] max-w-full cursor-default group/cell overflow-hidden"
+      className="relative flex items-center gap-1.5 px-2 py-1 h-full min-h-[32px] max-w-full cursor-default group/cell overflow-hidden"
       onDoubleClick={() => isEditable && setEditing(true)}
-      title={error ? `Error: ${error}` : displayValue || (provider ? `via ${provider}` : undefined)}
+      title={showProvenance ? undefined : (error ? `Error: ${error}` : displayValue || (provider ? `via ${provider}` : undefined))}
     >
+      {showProvenance && <ProvenanceCard prov={provenance!} ttlDays={staleTtlDays} />}
       <CellStatus status={status} />
       <span className="truncate text-sm flex-1 min-w-0">
         {displayValue}
@@ -629,6 +702,7 @@ export default function WorkbookEditorPage() {
                 provider={overlay.value ? overlay.provider : (leadFallback ? "lead" : null)}
                 error={leadFallback ? null : overlay.error}
                 verify={overlay.value ? overlay.verify_status : null}
+                provenance={overlay.value ? overlay.provenance : null}
                 isEditable={false}
                 onSave={() => {}}
               />
