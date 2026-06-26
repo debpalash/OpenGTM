@@ -453,7 +453,9 @@ async def enrich_cell(
             and _verify_target == "email" and col_config.get("verify", True)):
         try:
             from apps.api.services.leadgen.enrichment.email_verify_cascade import verify_email
-            vr = await verify_email(str(result_value))
+            from apps.api.core.tenancy import current_workspace_var
+            vr = await verify_email(str(result_value),
+                                    workspace_id=current_workspace_var.get() or None)
             cell_metadata = {"verify": {"status": vr.status, "confidence": vr.confidence,
                                         "source": vr.source}}
         except Exception as e:

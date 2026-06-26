@@ -228,18 +228,20 @@ async def _dispatch(ctx: MCPCtx, name: str, arguments: dict) -> str:
     if name == "verify_email":
         email = arguments["email"]
         try:
-            from apps.api.services.leadgen.enrichment.providers.mailscout_verify import (
-                MailScoutVerifyProvider,
-            )
-            from apps.api.services.leadgen.models import Lead
-            provider = MailScoutVerifyProvider()
-            mock_lead = Lead(email=email, company="")
-            result = await provider.enrich(mock_lead)
+            # Route through the shared cascade so MCP benefits from Reacher (when
+            # enabled) + the per-email cache + SMTP fallback. The workspace is
+            # resolved from the AUTHENTICATED session (ctx), never tool args, so a
+            # caller can't borrow another tenant's verifier config (confused deputy).
+            from apps.api.services.leadgen.enrichment import email_verify_cascade as cascade
+            vr = await cascade.verify_email(email, workspace_id=ctx.workspace_id)
             return json.dumps({
                 "email": email,
-                "valid": result.success,
-                "confidence": result.confidence,
-                "fields": result.fields,
+                "status": vr.status,                  # valid|invalid|catch_all|unknown
+                "valid": vr.status == cascade.VALID,
+                "deliverable": vr.deliverable,
+                "confidence": vr.confidence,
+                "source": vr.source,
+                "detail": vr.detail,
             }, indent=2)
         except Exception as e:
             return json.dumps({"email": email, "error": str(e)})
