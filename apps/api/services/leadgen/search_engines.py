@@ -206,15 +206,27 @@ def configured_engines() -> List[str]:
 def search_fallback(query: str, max_results: int = 10) -> List[Dict]:
     """Try each configured keyed engine in order; return the first non-empty
     result set. Returns [] when no engine is configured or none have results.
+
+    Each engine is also subject to per-host adaptive backoff: a rate-limited /
+    blocked engine is skipped (not hard-failed) so the chain moves on, and a
+    success clears its backoff. Backoff state lives in ``search_cache``; with
+    the backoff flag off these calls are no-ops (legacy behaviour).
     """
+    from apps.api.services.leadgen import search_cache as sc
+
     for name in configured_engines():
+        if sc.host_blocked(name):
+            logger.debug("fallback engine %s in backoff; skipping", name)
+            continue
         adapter, _ = _ADAPTERS[name]
         try:
             results = adapter(query, max_results)
         except Exception as e:  # noqa: BLE001 — never let one engine break the chain
+            sc.record_block(name, e)
             logger.debug("fallback engine %s raised for %r: %s", name, query, e)
             continue
         if results:
+            sc.record_success(name)
             logger.debug("fallback engine %s returned %d results for %r",
                          name, len(results), query)
             return results
