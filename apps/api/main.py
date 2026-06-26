@@ -260,6 +260,10 @@ app.include_router(hubspot_router)
 from apps.api.routers.signals import router as signals_router
 app.include_router(signals_router)
 
+# Include Routers — MCP token management
+from apps.api.routers.mcp_tokens import router as mcp_tokens_router
+app.include_router(mcp_tokens_router)
+
 # Include Routers — Workspace Manager
 from apps.api.routers.workspace_manager import router as ws_manager_router
 app.include_router(ws_manager_router)

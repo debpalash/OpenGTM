@@ -43,6 +43,7 @@ from apps.api.services.leadgen import source_health as _leadgen_source_health  #
 from apps.api.services.automations import models as _automations_models  # noqa: E402,F401
 from apps.api.services.outreach import orm_models as _outreach_orm_models  # noqa: E402,F401
 from apps.api.services.poller import models as _poller_models  # noqa: E402,F401
+from apps.api.services.mcp import models as _mcp_models  # noqa: E402,F401
 from apps.api.core.config import settings  # noqa: E402
 
 target_metadata = Base.metadata

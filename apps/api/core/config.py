@@ -102,6 +102,19 @@ class Settings(BaseSettings):
     # override the coupling.
     CHAT_REQUIRE_AUTH: Optional[bool] = None
 
+    # ── MCP server (Claude Desktop / Cursor / Windsurf bridge) ──────────
+    # Auth gate for the MCP tool surface. Like CHAT_REQUIRE_AUTH it defaults to
+    # PG_LEAD_STORE: cloud / multi-tenant (PG) REQUIRES a scoped MCP token and
+    # resolves a workspace per call; self-host (SQLite) stays keyless and binds
+    # to the `main` workspace. Set explicitly to override the coupling.
+    MCP_REQUIRE_AUTH: Optional[bool] = None
+    # Phase-1 ships READ tools only. The write tools (Phase 2) stay hidden from
+    # tools/list and refuse to run until this is flipped on AND the token holds
+    # the matching *:write capability (two independent off-switches).
+    MCP_WRITE_ENABLED: bool = False
+    # Default lifetime of a freshly minted MCP token (days). 0 = never expires.
+    MCP_TOKEN_TTL_DAYS: int = 90
+
     # ── Automations / Trigger Engine (Signal->Action) ──────────────────
     # Master switch. OFF: router 404s, event emitters no-op, the trigger_eval
     # handler early-exits. Default OFF so hot paths are untouched until enabled.
@@ -267,6 +280,8 @@ class Settings(BaseSettings):
         """
         if self.CHAT_REQUIRE_AUTH is None:
             self.CHAT_REQUIRE_AUTH = bool(self.PG_LEAD_STORE)
+        if self.MCP_REQUIRE_AUTH is None:
+            self.MCP_REQUIRE_AUTH = bool(self.PG_LEAD_STORE)
         return self
 
     # ── Security helpers ────────────────────────────────────────────────
