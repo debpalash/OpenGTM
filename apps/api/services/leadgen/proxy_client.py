@@ -143,34 +143,67 @@ class _ResilientDDGS:
 
     def _run(self, method: str, query: str, **kwargs) -> list:
         from ddgs import DDGS
+        from apps.api.services.leadgen import search_cache as sc
 
         if SEARCH_BACKENDS:
             kwargs.setdefault("backend", SEARCH_BACKENDS)
 
-        last_exc = None
-        for proxy in self._attempts():
-            try:
-                with DDGS(proxy=proxy, timeout=DDGS_TIMEOUT) as d:
-                    results = list(getattr(d, method)(query, **kwargs))
-                if results:
-                    if proxy:
-                        _report_proxy_url(proxy, True)
-                    return results
-            except Exception as e:
-                last_exc = e
-                if proxy:
-                    _report_proxy_url(proxy, False)
-                continue
-        if last_exc:
-            logger.debug(f"search '{query[:40]}' exhausted all backends: {last_exc}")
+        # ── Result cache (short-TTL, bounded LRU, tenant-salted) ──
+        # Dedupes identical searches within the window so a cache hit costs zero
+        # network. Flag off (SEARCH_CACHE_ENABLED=false) == legacy behaviour.
+        cache_on = sc.cache_enabled()
+        cache_key = None
+        if cache_on:
+            cache_key = sc.make_cache_key(
+                method, query, kwargs.get("max_results"), kwargs.get("backend", "")
+            )
+            cached = sc.get_cached(cache_key)
+            if cached is not None:
+                return cached
 
-        # Keyless DDG returned nothing (empty or every attempt raised). If any
-        # commercial search engine is configured, fall back to it so a blocked /
-        # rate-limited DDG doesn't silently produce zero results. With no keys
-        # set this is a no-op and behaviour is identical to DDG-only.
+        # ── Adaptive backoff: skip the ddgs host while it is cooling down ──
+        # When backed off we don't hard-fail; we fall straight through to the
+        # keyed engines below, additive to the existing fallback chain.
+        last_exc = None
+        if not sc.host_blocked("ddgs"):
+            for proxy in self._attempts():
+                try:
+                    with DDGS(proxy=proxy, timeout=DDGS_TIMEOUT) as d:
+                        results = list(getattr(d, method)(query, **kwargs))
+                    if results:
+                        if proxy:
+                            _report_proxy_url(proxy, True)
+                        sc.record_success("ddgs")
+                        if cache_on:
+                            sc.put_cached(cache_key, results)
+                        return results
+                except Exception as e:
+                    last_exc = e
+                    # Classify rate-limit/block signals (not empty results) and
+                    # grow per-host backoff. Non-block exceptions are ignored.
+                    sc.record_block("ddgs", e)
+                    if proxy:
+                        _report_proxy_url(proxy, False)
+                    continue
+            if last_exc:
+                logger.debug(f"search '{query[:40]}' exhausted all backends: {last_exc}")
+
+        # Keyless DDG returned nothing (empty, every attempt raised, or the host
+        # is backed off). If any commercial search engine is configured, fall
+        # back to it so a blocked / rate-limited DDG doesn't silently produce
+        # zero results. With no keys set this is a no-op and behaviour is
+        # identical to DDG-only.
         keyed = self._keyed_fallback(method, query, **kwargs)
         if keyed:
+            if cache_on:
+                sc.put_cached(cache_key, keyed)
             return keyed
+
+        # Genuine no-data: cache with the shorter empty-TTL so a momentary block
+        # isn't pinned as "no data" for the full window, yet a dead site: source
+        # isn't re-hammered every row.
+        if cache_on:
+            sc.put_cached(cache_key, [], empty=True)
         return []
 
     def _keyed_fallback(self, method: str, query: str, **kwargs) -> list:

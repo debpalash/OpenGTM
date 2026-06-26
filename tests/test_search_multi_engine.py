@@ -59,9 +59,14 @@ def _clear_env(monkeypatch):
         "SERPAPI_KEY", "BING_SEARCH_KEY", "GOOGLE_CSE_ID",
         "GOOGLE_CSE_KEY", "BRAVE_SEARCH_KEY", "SEARCH_FALLBACK_ORDER",
         "SEARCH_ATTEMPT_ORDER", "SEARCH_BACKENDS",
+        "SEARCH_CACHE_ENABLED", "SEARCH_BACKOFF_ENABLED",
     ):
         monkeypatch.delenv(var, raising=False)
     _FakeDDGS.behavior = "empty"
+    # Reset the new in-process cache + backoff so a block recorded by one test
+    # (e.g. the "ddg raises" case) can't bleed into the next.
+    from apps.api.services.leadgen import search_cache as sc
+    sc.reset_all()
     yield
 
 

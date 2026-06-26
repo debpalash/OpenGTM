@@ -119,3 +119,19 @@ BING_SEARCH_KEY = os.getenv("BING_SEARCH_KEY", "")
 GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID", "")
 GOOGLE_CSE_KEY = os.getenv("GOOGLE_CSE_KEY", "")
 BRAVE_SEARCH_KEY = os.getenv("BRAVE_SEARCH_KEY", "")
+
+# ── DDG result cache + adaptive backoff (see services/leadgen/search_cache.py)
+# In-process only (no DB). Both behaviours are behind flags, default ON; set
+# both *_ENABLED to false for byte-for-byte legacy behaviour. The cache dedupes
+# identical searches within a short window; adaptive backoff replaces blunt
+# all-or-nothing failure handling on the search layer (the rate_limiter.py 900s
+# domain breaker for scraping is untouched). Values shown are the defaults.
+#   SEARCH_CACHE_ENABLED=true      enable the short-TTL result cache
+#   SEARCH_CACHE_TTL=600           non-empty entry TTL, seconds (10 min)
+#   SEARCH_CACHE_EMPTY_TTL=60      empty-result TTL, seconds (recover quickly)
+#   SEARCH_CACHE_MAX_ENTRIES=2000  LRU cap (~9 MB worst case)
+#   SEARCH_BACKOFF_ENABLED=true    enable per-host adaptive backoff
+#   SEARCH_BACKOFF_BASE=15         first-block delay, seconds
+#   SEARCH_BACKOFF_CAP=900         max backoff, seconds (== legacy ceiling)
+SEARCH_CACHE_ENABLED = os.getenv("SEARCH_CACHE_ENABLED", "true")
+SEARCH_BACKOFF_ENABLED = os.getenv("SEARCH_BACKOFF_ENABLED", "true")
