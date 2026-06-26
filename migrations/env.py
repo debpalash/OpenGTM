@@ -38,6 +38,7 @@ from apps.api.services.workbook import trace_models as _trace_models  # noqa: E4
 from apps.api.services.entities import models as _entity_models  # noqa: E402,F401
 from apps.api.services.billing import models as _billing_models  # noqa: E402,F401
 from apps.api.services.leadgen import orm_models as _leadgen_orm_models  # noqa: E402,F401
+from apps.api.services.leadgen import source_stats as _leadgen_source_stats  # noqa: E402,F401
 from apps.api.services.automations import models as _automations_models  # noqa: E402,F401
 from apps.api.services.outreach import orm_models as _outreach_orm_models  # noqa: E402,F401
 from apps.api.services.poller import models as _poller_models  # noqa: E402,F401

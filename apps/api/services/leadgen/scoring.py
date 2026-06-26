@@ -5,14 +5,37 @@ Each lead gets a quality score based on data completeness, company fit,
 and contact availability. Scores determine the tier: Hot, Warm, Cold, Unqualified.
 """
 
-from typing import List
+import os
+from typing import List, Optional
 
 from apps.api.services.leadgen.models import Lead
 from apps.api.services.leadgen.config import ICP, SCORING_WEIGHTS, SCORE_TIERS
 from apps.api.services.leadgen.enrichment.size_heuristic import normalize_band
 
 
-def score_lead(lead: Lead) -> int:
+# How far source-reliability may nudge a base score. The nudge is
+# RELIABILITY_SWING * (r - 0.5), so r∈[0,1] yields at most ±(SWING/2) points.
+# Default 8 → ±4 pts: enough to break ties / cross a tier boundary, never enough
+# to override ICP-fit weights (10–20) — ICP must keep dominating.
+RELIABILITY_SWING = float(os.getenv("SOURCE_RELIABILITY_SWING", "8"))
+
+
+def _apply_source_reliability(score: int, r: Optional[float]) -> int:
+    """Bounded last-step nudge of a base score by source reliability ``r∈[0,1]``.
+
+    ``r is None`` (source below MIN_SAMPLES, or flag off) → identity, so the
+    default path is byte-for-byte unchanged. Otherwise:
+        adjusted = clamp(round(base + RELIABILITY_SWING*(r-0.5)), 0, 100)
+    Reliable sources (r>0.5) nudge up, noisy ones (r<0.5) down, r==0.5 → no-op.
+    Always clamped to [0,100]; the swing alone can never zero a lead.
+    """
+    if r is None:
+        return score
+    adjusted = round(score + RELIABILITY_SWING * (r - 0.5))
+    return max(0, min(100, adjusted))
+
+
+def score_lead(lead: Lead, source_reliability: Optional[float] = None) -> int:
     """
     Calculate a quality score (0-100) for a lead based on ICP fit.
 
@@ -115,8 +138,10 @@ def score_lead(lead: Lead) -> int:
     if lead.glassdoor_rating:
         score += 2  # Has review presence
 
-    # Cap at 100
-    return min(score, 100)
+    # Cap ICP score at 100, THEN apply the bounded source-reliability nudge as
+    # the last step (identity when source_reliability is None → default path
+    # unchanged). ICP fit is fully computed and dominant before this runs.
+    return _apply_source_reliability(min(score, 100), source_reliability)
 
 
 def get_tier(score: int) -> str:
