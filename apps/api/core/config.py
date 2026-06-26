@@ -209,6 +209,37 @@ class Settings(BaseSettings):
     # Runs a (source, region) needs before its reliability applies (else no-op).
     SOURCE_RELIABILITY_MIN_SAMPLES: int = 5
 
+    # ── Source health-check (active probe; sourcing P2/P3) ─────────────
+    # TWO independent flags, both DEFAULT OFF.
+    #
+    # SOURCE_HEALTH_ENABLED — master switch for the PROBE job (bootstrap +
+    # recording). OFF (default): no probe is scheduled, nothing is recorded
+    # (no-op in prod). ON: a single global daily durable job probes every
+    # registry site: source with bounded canary queries and records rolling
+    # yield/health.
+    SOURCE_HEALTH_ENABLED: bool = False
+    # SOURCE_HEALTH_ENFORCE — the SEPARATE disable/exclude flag. OFF (the
+    # OBSERVE-ONLY default): health is recorded and visible via /sources/health
+    # but is_health_disabled() returns False for everyone → health NEVER changes
+    # which sources a live job runs (a chronically-0 source keeps running). ON:
+    # an auto_disabled source is excluded from live jobs and re-enabled on
+    # recovery. The state machine ALWAYS records auto_disabled; this flag only
+    # controls whether that state filters live collection.
+    SOURCE_HEALTH_ENFORCE: bool = False
+    # Probe cadence: daily | hourly | weekly (keep small to bound DDG volume).
+    SOURCE_HEALTH_INTERVAL: str = "daily"
+    # Consecutive zero-yield (non-outage) runs before degraded / auto_disabled,
+    # and consecutive nonzero runs before an auto_disabled source recovers.
+    # Conservative (the report's "empty != dead"): ~6 dead days to disable.
+    SOURCE_HEALTH_DEGRADE_THRESHOLD: int = 3
+    SOURCE_HEALTH_DISABLE_THRESHOLD: int = 6
+    SOURCE_HEALTH_RECOVER_THRESHOLD: int = 2
+    # Systemic-outage guard: if this fraction of sources return zero on a run,
+    # treat it as infra failure (proxy/DDG) and apply NO zero transitions.
+    SOURCE_HEALTH_OUTAGE_RATIO: float = 0.6
+    # Probe batch size (concurrent canary probes); sleeps between batches.
+    SOURCE_HEALTH_PROBE_CONCURRENCY: int = 8
+
     # ── Company-size heuristic (sourcing) ──────────────────────────────
     # Gates the keyless company_size_heuristic provider (registration in
     # workbook/providers.py + its append to the company_size waterfall in

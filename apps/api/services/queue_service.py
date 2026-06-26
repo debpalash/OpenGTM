@@ -46,6 +46,8 @@ JOB_TIMEOUTS = {
     "send": 300,
     # Intent poller: one watch poll (SEC/JobSpy/RSS fan-in, bounded fetches).
     "watch_poll": 600,
+    # Source health: ~91 sources x N canary DDG probes, batched with sleeps.
+    "source_health_check": 1800,
 }
 
 
