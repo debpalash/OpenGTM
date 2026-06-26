@@ -141,6 +141,10 @@ async def lifespan(app: FastAPI):
     # Intent poller: tenant-scoped watch poll on the queue (default OFF).
     from apps.api.services.poller.engine import handle_watch_poll, bootstrap_watch_schedules
     queue_service.register_handler("watch_poll", handle_watch_poll)
+    # Source health-check: single global active probe of registry site: sources
+    # (default OFF; observe-only — never excludes sources unless SOURCE_HEALTH_ENFORCE).
+    from apps.api.services.leadgen.source_health import handle_source_health_check, bootstrap_source_health
+    queue_service.register_handler("source_health_check", handle_source_health_check)
 
     # Horizontal scaling: job processing is now safe to run in a SEPARATE worker
     # process (apps/api/worker.py) with an atomic FOR UPDATE SKIP LOCKED claim.
@@ -188,6 +192,12 @@ async def lifespan(app: FastAPI):
         bootstrap_watch_schedules()
     except Exception as e:
         logger.warning(f"intent poller bootstrap skipped: {e}")
+    # Cold-start the single global source health probe (no-op when
+    # SOURCE_HEALTH_ENABLED is off). Survives restarts; single-flight guarded.
+    try:
+        bootstrap_source_health()
+    except Exception as e:
+        logger.warning(f"source health bootstrap skipped: {e}")
     print("✓ Yupcha Engine v3.0 Ready")
     yield
     # ── Shutdown ──

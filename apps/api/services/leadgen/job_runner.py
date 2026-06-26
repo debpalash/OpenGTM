@@ -1656,6 +1656,24 @@ class JobRunner:
         from apps.api.routers.settings import get_source_enabled
         sources = [s for s in sources if get_source_enabled(s["name"])]
 
+        # Source health gate (OBSERVE-ONLY by default). health_disabled_names()
+        # returns an EMPTY set unless SOURCE_HEALTH_ENFORCE is ON, so with the
+        # flag off this is byte-for-byte today's behavior (no source excluded).
+        # Fail-open: a health bug can never blind the engine. Surfaced below.
+        from apps.api.services.leadgen.source_health import health_disabled_names
+        health_disabled = health_disabled_names()
+        if health_disabled:
+            removed = [s["name"] for s in sources if s["name"] in health_disabled]
+            sources = [s for s in sources if s["name"] not in health_disabled]
+            if removed:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "registry_sources",
+                    "message": (
+                        f"🩺 Skipping {len(removed)} auto-disabled (unhealthy) source(s): "
+                        f"{', '.join(removed[:8])}{'…' if len(removed) > 8 else ''}"
+                    ),
+                })
+
         progress.emit("job_progress", {
             "job_id": job_id, "stage": "registry_sources",
             "message": f"🌐 Scanning {len(sources)} enabled directories & marketplaces...",

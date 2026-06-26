@@ -924,10 +924,16 @@ def get_source_enabled(source_id: str) -> bool:
 
 @router.get("/sources")
 def list_sources():
-    """Get all data sources with their enabled/disabled status."""
+    """Get all data sources with their enabled/disabled status + health badge."""
+    try:
+        from apps.api.services.leadgen.source_health import health_map
+        hmap = health_map()
+    except Exception:
+        hmap = {}
     result = []
     for src in DATA_SOURCES:
         enabled = get_source_enabled(src["id"])
+        h = hmap.get(src["id"])
         result.append({
             "id": src["id"],
             "name": src["name"],
@@ -936,19 +942,63 @@ def list_sources():
             "enabled": enabled,
             "strategy": src["strategy"],
             "category": src.get("category", "other"),
+            # Health badge (observe-only by default; None when no probe data yet).
+            "health": (
+                {
+                    "state": h["state"],
+                    "last_yield": h["last_yield"],
+                    "last_ok_at": h["last_ok_at"],
+                    "disabled_reason": h["disabled_reason"],
+                    "manual_override": h["manual_override"],
+                }
+                if h else None
+            ),
         })
     return result
 
 
+@router.get("/sources/health")
+def sources_health():
+    """Per-source active-probe health (observe-only by default)."""
+    try:
+        from apps.api.services.leadgen.source_health import health_summary
+        return health_summary()
+    except Exception as e:
+        return {"total": 0, "sources": [], "error": str(e)}
+
+
 @router.put("/sources/{source_id}")
 def toggle_source(source_id: str, enabled: bool = True):
-    """Enable or disable a data source."""
+    """Enable or disable a data source.
+
+    Operator intent is authoritative: enabling a source also force-enables its
+    health row (clears any auto_disabled state and pins manual_override) so the
+    health layer can never auto-disable a source the operator just enabled.
+    """
     src = next((s for s in DATA_SOURCES if s["id"] == source_id), None)
     if not src:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail=f"Source '{source_id}' not found")
     _db_set(f"SOURCE_{source_id.upper()}_ENABLED", "1" if enabled else "0")
+    if enabled:
+        try:
+            from apps.api.services.leadgen.source_health import manual_enable
+            manual_enable(source_id)
+        except Exception:
+            pass  # health layer is best-effort; toggle still succeeds
     return {"id": source_id, "enabled": enabled}
+
+
+@router.post("/sources/{source_id}/health/reset")
+def reset_source_health(source_id: str):
+    """Operator reset a source's health row to a clean healthy baseline."""
+    try:
+        from apps.api.services.leadgen.source_health import reset_health
+        result = reset_health(source_id)
+        return result or {"name": source_id, "reset": False, "detail": "no health row"}
+    except Exception as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/sources/registry")
