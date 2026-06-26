@@ -135,6 +135,21 @@ def _seed_from_env():
         print(f"  ⚠ Seed error: {e}")
 
 
+# ── Email-verifier config keys (Reacher) ───────────────
+# These resolve via _db_get (settings DB → env) for the global path and via
+# get_secret(workspace_id, ...) for the per-workspace path. SECURITY: the URL is
+# GLOBAL/env-only — a tenant must never be able to point our outbound requests at
+# an arbitrary host (confused-deputy / SSRF). Only the enable flag and the cloud
+# API key may be overridden per workspace.
+VERIFIER_GLOBAL_ONLY_KEYS = frozenset({"REACHER_URL"})
+VERIFIER_WORKSPACE_KEYS = frozenset({"REACHER_ENABLED", "REACHER_API_KEY"})
+
+
+def is_workspace_settable(key: str) -> bool:
+    """False for verifier keys that must only ever resolve from global config."""
+    return key not in VERIFIER_GLOBAL_ONLY_KEYS
+
+
 # ── Provider Registry ──────────────────────────────────
 
 PROVIDERS = {

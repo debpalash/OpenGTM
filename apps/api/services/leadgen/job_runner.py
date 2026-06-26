@@ -770,7 +770,7 @@ class JobRunner:
                 ][:del_budget]
                 for lead in del_candidates:
                     try:
-                        res = await tag_email_confidence(lead)
+                        res = await tag_email_confidence(lead, workspace_id=workspace_id or None)
                     except Exception:
                         res = None
                     if res is None:

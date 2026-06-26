@@ -37,6 +37,9 @@ services:
       - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
       - PYTHONPATH=/app
       - REDIS_URL=redis://redis:6379
+      # Self-hosted Reacher endpoint (internal only). Inert unless REACHER_ENABLED
+      # is also set in .env — default OFF means this URL is simply never called.
+      - REACHER_URL=${REACHER_URL:-http://reacher:8080}
       # Job processing is owned by the standalone `worker` service below, which
       # claims jobs atomically (FOR UPDATE SKIP LOCKED) and is safe to scale to
       # N replicas. Turn OFF the in-API worker so the API only enqueues — this is
@@ -105,6 +108,7 @@ services:
       - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
       - PYTHONPATH=/app
       - REDIS_URL=redis://redis:6379
+      - REACHER_URL=${REACHER_URL:-http://reacher:8080}
     volumes:
       - ./data:/app/data
     command: python -m apps.api.worker
@@ -115,6 +119,44 @@ services:
         condition: service_healthy
       api:
         condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - lead_net
+
+  # ── Reacher (OPTIONAL self-hosted email verification) ──────────
+  # Strongest tier of the email cascade: unlimited, $0/email SMTP RCPT probing
+  # (safe/risky/invalid/unknown + catch-all + disposable + role). DUAL-LICENSED
+  # AGPL-3.0 OR commercial — we run the AGPL build as a separate networked
+  # process (unambiguously compliant; no GPL contamination of Yupcha's code).
+  #
+  # NOT started by default. Enable with:  docker compose --profile reacher up
+  # Then set REACHER_ENABLED=1 (and a header secret) in .env to wire it into the
+  # cascade. Without the profile, `docker compose up` is byte-for-byte unchanged.
+  #
+  # PORT-25 CAVEAT: Reacher does real outbound :25 RCPT probes. Most clouds block
+  # egress on :25, so without port-25 access or a SOCKS5 proxy (RCH__PROXY__*)
+  # Reacher returns mostly `unknown` and the cascade correctly falls back to the
+  # bundled SMTP probe / HTTP vendors. For hosted SaaS the realistic path is the
+  # commercial Reacher cloud API (set REACHER_API_KEY, leave this profile off).
+  #
+  # NOT published on a host port (internal lead_net only) — never expose it.
+  reacher:
+    image: reacherhq/backend:v0.10.0   # pinned (do NOT track `latest`)
+    container_name: lead-data-reacher
+    profiles: [reacher]
+    environment:
+      - RCH__BACKEND_NAME=yupcha-reacher
+      - RCH__HTTP_HOST=0.0.0.0
+      - RCH__SMTP__FROM_EMAIL=${REACHER_FROM_EMAIL:-verify@yupcha.com}
+      - RCH__SMTP__HELLO_NAME=${REACHER_HELLO_NAME:-verify.yupcha.com}
+      # Header secret — clients must send `Authorization: Bearer <secret>`.
+      # Set REACHER_API_KEY in .env to the same value so the cascade authenticates.
+      - RCH__HEADER_SECRET=${REACHER_API_KEY:-}
+      # Optional SOCKS5 proxy to escape blocked port-25 egress (operator-supplied):
+      # - RCH__PROXY__HOST=${REACHER_PROXY_HOST:-}
+      # - RCH__PROXY__PORT=${REACHER_PROXY_PORT:-}
+      # - RCH__PROXY__USERNAME=${REACHER_PROXY_USERNAME:-}
+      # - RCH__PROXY__PASSWORD=${REACHER_PROXY_PASSWORD:-}
     restart: unless-stopped
     networks:
       - lead_net

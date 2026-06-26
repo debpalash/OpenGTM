@@ -136,23 +136,111 @@ def available_verifiers() -> List[Verifier]:
     return out
 
 
-async def verify_email(email: str, *, verifiers: Optional[List[Verifier]] = None) -> VerifyResult:
+def _bootstrap_verifiers(workspace_id: Optional[str] = None) -> List[Verifier]:
+    """Build the cascade chain for this workspace.
+
+    Reacher (when enabled + configured + breaker-closed) goes at the FRONT, ahead
+    of the registered SMTP/HTTP verifiers. We do NOT mutate the global
+    ``_VERIFIERS`` registry with a workspace-scoped Reacher instance — that would
+    leak one tenant's config across calls — so we prepend a freshly-resolved
+    ReacherVerifier per call instead. When Reacher is unavailable (the default,
+    flag off), this returns exactly ``available_verifiers()`` → today's behavior.
+    """
+    base = available_verifiers()
+    try:
+        from apps.api.services.leadgen.enrichment.providers.reacher_verify import (
+            ReacherVerifier,
+        )
+        reacher = ReacherVerifier(workspace_id)
+        if reacher.is_available():
+            return [reacher] + base
+    except Exception as e:  # never let optional Reacher break the cascade
+        logger.debug(f"reacher bootstrap skipped: {e}")
+    return base
+
+
+def _reacher_active(chain: List[Verifier]) -> bool:
+    return any(getattr(v, "name", "") == "reacher" for v in chain)
+
+
+async def verify_email(
+    email: str,
+    *,
+    verifiers: Optional[List[Verifier]] = None,
+    workspace_id: Optional[str] = None,
+) -> VerifyResult:
     """Run the cascade. First definitive result wins; unknown/error cascades.
 
     Returns the best result seen (a definitive one if any, else the last unknown).
+
+    ``workspace_id`` (default None → global config) selects per-workspace Reacher
+    config. When an explicit ``verifiers`` list is supplied (tests / custom
+    callers) the chain is used as-is with no cache and no Reacher injection, so
+    legacy single-arg calls behave exactly as before.
     """
     if not email or "@" not in email:
         return VerifyResult(email or "", INVALID, "syntax", _CONFIDENCE[INVALID], "bad_syntax")
 
-    chain = verifiers if verifiers is not None else available_verifiers()
+    if verifiers is not None:
+        chain = verifiers
+        cache = None
+    else:
+        chain = _bootstrap_verifiers(workspace_id)
+        # Engage the per-email cache only when Reacher is in play, so a flag-OFF
+        # install is byte-for-byte today's SMTP-only path (no new persistence).
+        cache = None
+        if _reacher_active(chain):
+            try:
+                from apps.api.services.leadgen.enrichment.email_verify_cache import (
+                    get_verify_cache,
+                )
+                cache = get_verify_cache()
+            except Exception as e:
+                logger.debug(f"verify cache unavailable: {e}")
+
     last = VerifyResult(email, UNKNOWN, "", 0.0, "no_verifier")
     for v in chain:
+        name = getattr(v, "name", "?")
+        # 1) Cache lookup (per email-hash + verifier).
+        if cache is not None:
+            try:
+                hit = cache.get(email, name)
+            except Exception:
+                hit = None
+            if hit is not None:
+                res = VerifyResult(email, hit["status"], hit["source"] or name,
+                                   hit["confidence"], hit["detail"])
+                if res.is_definitive:
+                    return res
+                last = res
+                continue
+        # 2) Live verify.
         try:
             res = await v.verify(email)
         except Exception as e:
-            logger.debug(f"verifier {getattr(v, 'name', '?')} threw: {e}")
+            logger.debug(f"verifier {name} threw: {e}")
             continue
+        # 3) Cache the result (skip transient infra errors so they self-heal).
+        if cache is not None and not _is_transient(res):
+            try:
+                cache.set(email, name, res.status, source=res.source,
+                          detail=res.detail, confidence=res.confidence)
+            except Exception:
+                pass
         if res.is_definitive:
             return res          # definitive → stop the cascade
         last = res              # remember the unknown, keep trying
     return last
+
+
+def _is_transient(res: VerifyResult) -> bool:
+    """True for UNKNOWN results that represent an infra failure (don't cache)."""
+    if res.status != UNKNOWN:
+        return False
+    try:
+        from apps.api.services.leadgen.enrichment.providers.reacher_verify import (
+            ERROR_DETAILS,
+        )
+        return res.detail in ERROR_DETAILS
+    except Exception:
+        return res.detail in ("error", "timeout", "breaker_open", "unconfigured")

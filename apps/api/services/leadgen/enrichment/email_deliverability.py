@@ -50,8 +50,12 @@ class DeliverabilityResult:
         return self.confidence != ""
 
 
-async def verify_deliverability(email: str) -> DeliverabilityResult:
-    """Classify + run the verification cascade, returning a normalized result."""
+async def verify_deliverability(email: str, workspace_id: Optional[str] = None) -> DeliverabilityResult:
+    """Classify + run the verification cascade, returning a normalized result.
+
+    ``workspace_id`` (default None → global config) selects per-workspace Reacher
+    config when threading the cascade.
+    """
     from apps.api.services.leadgen.enrichment import email_verify as ev
     from apps.api.services.leadgen.enrichment import email_verify_cascade as cascade
 
@@ -76,7 +80,7 @@ async def verify_deliverability(email: str) -> DeliverabilityResult:
         return res
 
     try:
-        verdict = await cascade.verify_email(email)
+        verdict = await cascade.verify_email(email, workspace_id=workspace_id)
     except Exception as exc:  # noqa: BLE001 — never let verification break the caller
         logger.debug("verify_deliverability cascade failed for %s: %s", email, exc)
         res.confidence = UNKNOWN
@@ -101,17 +105,18 @@ async def verify_deliverability(email: str) -> DeliverabilityResult:
     return res
 
 
-async def tag_email_confidence(lead: Lead) -> Optional[DeliverabilityResult]:
+async def tag_email_confidence(lead: Lead, workspace_id: Optional[str] = None) -> Optional[DeliverabilityResult]:
     """Verify ``lead.email`` and write the tag to ``lead.email_confidence``.
 
     Returns the DeliverabilityResult (or None if the lead has no email). When the
     email is a hard reject (invalid/disposable), the email is cleared from the lead
     along with its provider/confidence so we never ship a known-bad address.
+    ``workspace_id`` (default None → global) threads per-workspace verifier config.
     """
     if not lead.has_email:
         return None
 
-    res = await verify_deliverability(lead.email)
+    res = await verify_deliverability(lead.email, workspace_id=workspace_id)
 
     if not res.keep:
         lead.email = ""
@@ -123,11 +128,13 @@ async def tag_email_confidence(lead: Lead) -> Optional[DeliverabilityResult]:
     return res
 
 
-async def tag_email_confidence_batch(leads, limit: Optional[int] = None) -> list:
+async def tag_email_confidence_batch(leads, limit: Optional[int] = None,
+                                     workspace_id: Optional[str] = None) -> list:
     """Tag deliverability for a batch of leads that hold an email.
 
     Returns the list of DeliverabilityResults produced (one per processed lead).
     Budget-guarded via ``limit``. Never raises on a single-lead failure.
+    ``workspace_id`` (default None → global) threads per-workspace verifier config.
     """
     candidates = [l for l in leads if l.has_email]
     if limit is not None:
@@ -135,7 +142,7 @@ async def tag_email_confidence_batch(leads, limit: Optional[int] = None) -> list
     results = []
     for lead in candidates:
         try:
-            r = await tag_email_confidence(lead)
+            r = await tag_email_confidence(lead, workspace_id=workspace_id)
             if r is not None:
                 results.append(r)
         except Exception as exc:  # noqa: BLE001
