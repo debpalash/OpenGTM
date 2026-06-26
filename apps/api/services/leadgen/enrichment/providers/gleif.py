@@ -114,6 +114,7 @@ class GleifProvider(EnrichmentProvider):
     requires_api_key = False
     free_tier_limit = 0       # 0 = unlimited (public register)
     cost_per_lookup = 0.0     # CC0 open data — always free
+    source_license = "CC0-1.0"  # LEI register is explicitly CC0 (per-fact provenance)
 
     async def enrich(self, lead: Lead) -> EnrichmentResult:
         company = (lead.company or "").strip()

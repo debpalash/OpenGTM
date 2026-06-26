@@ -234,6 +234,8 @@ class LeadDB:
             "hiring_signals": "TEXT DEFAULT ''",
             "enrichment_attempts": "INTEGER DEFAULT 0",
             "enrichment_waterfall": "TEXT DEFAULT ''",
+            # Per-fact provenance JSON {field: {source,license,confidence,fetched_at}}
+            "field_provenance": "TEXT DEFAULT ''",
             # ── OSS Enrichment Fields ──
             "founding_year": "TEXT DEFAULT ''",
             "last_funding_amount": "TEXT DEFAULT ''",

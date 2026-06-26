@@ -92,6 +92,13 @@ class EnrichmentProvider(ABC):
     capabilities: List[str] = []
     default_confidence: float = 0.5
 
+    # ── Per-fact provenance: declared data license ──
+    # A token from licenses.LICENSE_VOCAB describing the redistribution license
+    # of the data THIS provider returns. Default "unknown" → the central
+    # licenses.PROVIDER_LICENSE map resolves it by provider name instead. Override
+    # on a provider class to be authoritative (e.g. gleif → "CC0-1.0").
+    source_license: str = "unknown"
+
     # ── Pillar 2: cost metadata (defaults = free OSS provider) ──
     requires_api_key: bool = False
     free_tier_limit: int = 0       # 0 = unlimited
@@ -272,3 +279,26 @@ class WaterfallEnricher:
             )
         if hasattr(lead, "enrichment_attempts"):
             lead.enrichment_attempts = sum(len(l.attempts) for l in logs)
+
+        # ── Per-fact provenance (flag-gated; additive, never crashes) ──
+        # Record {source, license, confidence, fetched_at} for each field that
+        # had a winning provider, keyed by field name, into lead.field_provenance.
+        try:
+            from apps.api.core.config import settings as _settings
+            if (getattr(_settings, "PROVENANCE_TRACKING_ENABLED", False)
+                    and hasattr(lead, "field_provenance")):
+                from apps.api.services.leadgen.enrichment.licenses import (
+                    provenance_for, merge_field_provenance,
+                )
+                provs = {}
+                for log in logs:
+                    if log.winner:
+                        provs[log.field_name] = provenance_for(
+                            log.winner, confidence=log.final_confidence,
+                        )
+                if provs:
+                    lead.field_provenance = merge_field_provenance(
+                        getattr(lead, "field_provenance", "") or "", provs,
+                    )
+        except Exception as e:  # pragma: no cover - provenance must never break enrichment
+            logger.debug(f"field_provenance write skipped: {e}")

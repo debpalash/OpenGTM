@@ -100,6 +100,12 @@ class LeadRow(Base):
     # ── Enrichment provenance ──
     enrichment_attempts = Column(Integer, default=0)
     enrichment_waterfall = Column(Text, default="")
+    # Per-fact provenance JSON object {field: {source,license,confidence,
+    # fetched_at}}. Nullable/inert: only written when PROVENANCE_TRACKING_ENABLED;
+    # NULL on legacy rows (no retroactive backfill). Stored as JSON text (matches
+    # enrichment_waterfall) so it round-trips through both the PG ORM store and
+    # the raw-SQLite LeadDB store without dict-binding/double-encoding surprises.
+    field_provenance = Column(Text, nullable=True, default="")
     last_funding_amount = Column(String, default="")
     investors = Column(Text, default="")
     recent_news = Column(Text, default="")

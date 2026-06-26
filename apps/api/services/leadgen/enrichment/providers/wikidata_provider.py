@@ -54,6 +54,7 @@ class WikidataProvider(EnrichmentProvider):
     ]
     default_confidence = 0.6
     requires_api_key = False
+    source_license = "CC0-1.0"  # Wikidata is CC0 (per-fact provenance)
 
     async def enrich(self, lead: Lead) -> EnrichmentResult:
         company = (lead.company or "").strip()

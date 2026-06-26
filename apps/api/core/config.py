@@ -260,6 +260,15 @@ class Settings(BaseSettings):
     # byte-identical to today EXCEPT the always-on normalize_band scoring fix.
     COMPANY_SIZE_HEURISTIC_ENABLED: bool = False
 
+    # ── Per-fact provenance (license/freshness/source/confidence) ──────
+    # Master switch for recording per-fact provenance on enriched workbook
+    # cells + written-back lead fields (features/research-per-fact-provenance-
+    # spec.md). Default OFF: with the flag off the produced cell JSON and API
+    # payload are byte-identical to today (no provenance key written/returned).
+    # The additive nullable `leads.field_provenance` column ships regardless so
+    # flipping this on needs no schema redeploy.
+    PROVENANCE_TRACKING_ENABLED: bool = False
+
     # Optional integrations
     SCRIBD_COOKIES: str = ""
     GOOGLE_API_KEY: str = ""

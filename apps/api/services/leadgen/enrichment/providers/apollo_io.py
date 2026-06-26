@@ -41,6 +41,7 @@ class ApolloProvider(EnrichmentProvider):
     name = "apollo_io"
     capabilities = ["email", "phone", "contact_person", "contact_title", "linkedin_url", "company_size"]
     default_confidence = 0.85
+    source_license = "proprietary-api"  # vendor ToS forbids resale (per-fact provenance)
 
     async def enrich(self, lead: Lead) -> EnrichmentResult:
         api_key = _get_api_key()
