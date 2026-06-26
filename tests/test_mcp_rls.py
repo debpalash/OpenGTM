@@ -85,6 +85,10 @@ def schema(owner_engine):
         c.execute(text("DELETE FROM signals"))
         c.execute(text("DELETE FROM leads"))
         c.execute(text("DELETE FROM mcp_audit_log"))
+        c.execute(text("DELETE FROM outreach_enrollments"))
+        c.execute(text("DELETE FROM outreach_sequences"))
+        c.execute(text("DELETE FROM workbooks"))
+        c.execute(text("DELETE FROM trigger_cap_reservations"))
     for ws, co in ((W1, "Alpha Corp"), (W2, "Beta LLC")):
         with owner_engine.begin() as c:
             c.execute(text("SELECT set_config('app.workspace_id', :w, true)"), {"w": ws})
@@ -93,6 +97,16 @@ def schema(owner_engine):
                 "VALUES (:w, :co, 'SF', 80, 'new', :em) RETURNING id"
             ), {"w": ws, "co": co, "em": f"hello@{ws}.com"}).scalar()
             seeded[ws] = {"lead_id": rid, "company": co}
+    # Seed one outreach sequence in W1 (for the enroll write tests).
+    with owner_engine.begin() as c:
+        c.execute(text("SELECT set_config('app.workspace_id', :w, true)"), {"w": W1})
+        c.execute(text(
+            "INSERT INTO outreach_sequences "
+            "(id, workspace_id, name, steps, status, daily_limit, "
+            " send_window_start, send_window_end, send_window_tz, consent_basis) "
+            "VALUES ('seq_w1', :w, 'Seq', '[]', 'draft', 50, 9, 18, 'UTC', 'legit')"
+        ), {"w": W1})
+        seeded[W1]["seq_id"] = "seq_w1"
     yield seeded
 
 
@@ -123,6 +137,10 @@ def app_env(schema, monkeypatch):
 
     monkeypatch.setattr(store_mod, "SessionLocal", AppSession)
     monkeypatch.setattr(database_mod, "SessionLocal", AppSession)
+    # The outreach store keeps its own module-level SessionLocal reference; bind it
+    # to the app-role engine too so enroll writes run under RLS as the app role.
+    import apps.api.services.outreach.store as outreach_store_mod
+    monkeypatch.setattr(outreach_store_mod, "SessionLocal", AppSession)
     # Tools resolve their store via get_lead_store; point it at a real PgLeadStore
     # so reads exercise RLS (the process DATABASE_URL may be SQLite).
     monkeypatch.setattr(mcp_tools, "get_lead_store", lambda ws, slug: PgLeadStore(ws))
@@ -132,6 +150,8 @@ def app_env(schema, monkeypatch):
     monkeypatch.setattr(mcp_auth.ws_manager, "is_member", lambda ws, uid: True)
     monkeypatch.setattr(mcp_auth.ws_manager, "workspace_slug", lambda ws: ws)
     monkeypatch.setattr(mcp_auth.ws_manager, "member_role", lambda ws, uid: "admin")
+    # Phase-2 write tools enabled (the OFF/denial cases are unit-tested offline).
+    monkeypatch.setattr(mcp_tools.settings, "MCP_WRITE_ENABLED", True)
 
     yield schema
     app_eng.dispose()
@@ -218,3 +238,102 @@ def test_audit_log_is_rls_scoped(app_env):
         app_eng.dispose()
     assert n1 >= 1
     assert n2 == 0
+
+
+# ══════════════════════════ Phase-2 WRITE proofs ═══════════════════════════════
+# Every write routes through get_lead_store / the outreach store inside
+# workspace_scope, so RLS scopes the mutation to the token's single workspace —
+# a token bound to W1 can never write to W2 even when args name W2.
+
+def _write_ctx(ws, caps):
+    from apps.api.services.mcp import auth as mcp_auth
+    raw, _ = mcp_auth.create_token(user_id=1, workspace_id=ws, capabilities=caps, name="w")
+    return mcp_auth.resolve_mcp_token(raw)
+
+
+def _count_app(ws, sql, params=None):
+    """Count under the NON-super app role with the W GUC set (real RLS)."""
+    eng = create_engine(_app_url())
+    try:
+        with eng.connect() as c:
+            c.execute(text("SELECT set_config('app.workspace_id', :w, true)"), {"w": ws})
+            return c.execute(text(sql), params or {}).scalar()
+    finally:
+        eng.dispose()
+
+
+def test_create_lead_lands_in_w1_only(app_env):
+    from apps.api.services.mcp import auth as mcp_auth
+    ctx = _write_ctx(W1, [mcp_auth.CAP_LEADS_WRITE, mcp_auth.CAP_LEADS_READ])
+    out = _exec(ctx, "create_lead", {"company": "MCP Made Co", "city": "NYC", "email": "x@mcp.co"})
+    assert out["status"] == "created", out
+    lid = out["lead_id"]
+    # W1 sees its new lead; W2 (RLS) does not.
+    assert _exec(ctx, "get_lead_detail", {"lead_id": lid})["company"] == "MCP Made Co"
+    ctx2 = _write_ctx(W2, [mcp_auth.CAP_LEADS_READ])
+    assert _exec(ctx2, "get_lead_detail", {"lead_id": lid}) == {"error": "Lead not found"}
+
+
+def test_update_lead_cross_tenant_blocked(app_env):
+    from apps.api.services.mcp import auth as mcp_auth
+    seeded = app_env
+    w2_lead = seeded[W2]["lead_id"]
+    # W1 token tries to overwrite W2's lead by id → not found (RLS), no mutation.
+    ctx = _write_ctx(W1, [mcp_auth.CAP_LEADS_WRITE])
+    out = _exec(ctx, "update_lead", {"lead_id": w2_lead, "city": "HACKED"})
+    assert out == {"error": "Lead not found"}
+    # W2's row is untouched.
+    ctx2 = _write_ctx(W2, [mcp_auth.CAP_LEADS_READ])
+    assert _exec(ctx2, "get_lead_detail", {"lead_id": w2_lead})["city"] == "SF"
+
+
+def test_create_workbook_rls_scoped(app_env):
+    from apps.api.services.mcp import auth as mcp_auth
+    ctx = _write_ctx(W1, [mcp_auth.CAP_WORKBOOKS_WRITE])
+    out = _exec(ctx, "create_workbook", {"description": "emails in SF"})
+    assert out["status"] == "created", out
+    wid = out["workbook_id"]
+    assert _count_app(W1, "SELECT count(*) FROM workbooks WHERE id=:i", {"i": wid}) == 1
+    assert _count_app(W2, "SELECT count(*) FROM workbooks WHERE id=:i", {"i": wid}) == 0
+
+
+def test_write_denied_without_cap_is_audited(app_env):
+    from apps.api.services.mcp import auth as mcp_auth
+    # No leads:write cap → refused AND a W1-scoped 'denied' audit row is written.
+    ctx = _write_ctx(W1, [mcp_auth.CAP_LEADS_READ])
+    out = _exec(ctx, "create_lead", {"company": "Nope"})
+    assert out["error"] == "capability not granted"
+    n = _count_app(
+        W1,
+        "SELECT count(*) FROM mcp_audit_log "
+        "WHERE tool_name='create_lead' AND result_status='denied'",
+    )
+    assert n >= 1
+
+
+def test_enroll_w1_records_consent(app_env):
+    from apps.api.services.mcp import auth as mcp_auth
+    seeded = app_env
+    ctx = _write_ctx(W1, [mcp_auth.CAP_SEQUENCES_ENROLL])
+    out = _exec(ctx, "enroll_leads", {
+        "sequence_id": seeded[W1]["seq_id"], "lead_ids": [seeded[W1]["lead_id"]],
+    })
+    assert out["enrolled"] == 1, out
+    cs = _count_app(
+        W1,
+        "SELECT count(*) FROM outreach_enrollments "
+        "WHERE sequence_id=:s AND consent_source='mcp_enroll'",
+        {"s": seeded[W1]["seq_id"]},
+    )
+    assert cs == 1
+
+
+def test_enroll_cross_tenant_sequence_blocked(app_env):
+    from apps.api.services.mcp import auth as mcp_auth
+    seeded = app_env
+    # W2 token enrolling into W1's sequence → sequence_exists is W2-scoped → miss.
+    ctx = _write_ctx(W2, [mcp_auth.CAP_SEQUENCES_ENROLL])
+    out = _exec(ctx, "enroll_leads", {
+        "sequence_id": seeded[W1]["seq_id"], "lead_ids": [seeded[W2]["lead_id"]],
+    })
+    assert out == {"error": "Sequence not found"}
