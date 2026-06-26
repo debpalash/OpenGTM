@@ -42,6 +42,16 @@ from apps.api.services.leadgen.ai_stages import (
 _DDG_SEARCH_TIMEOUT = int(os.getenv("DDG_SEARCH_TIMEOUT", "25"))
 
 
+def _source_reliability_enabled() -> bool:
+    """Feature flag for source-reliability SCORING. OFF (default) → scoring is
+    byte-for-byte today's; the source_stats ledger still accumulates passively
+    (rollout step 1) but never feeds scoring. Read via env to match the other
+    leadgen flags (DDG_SEARCH_TIMEOUT/REGISTRY_SOURCE_CAP)."""
+    return os.getenv("SOURCE_RELIABILITY_RANKING", "false").strip().lower() in (
+        "1", "true", "yes", "on",
+    )
+
+
 def _ddg_text_sync(query: str, max_results: int = 15) -> list:
     """Synchronous DDG text search — meant to be called via asyncio.to_thread."""
     from apps.api.services.leadgen.proxy_client import get_ddgs
@@ -282,6 +292,21 @@ class JobRunner:
                 if isinstance(result, list):
                     all_leads.extend(result)
 
+            # ── Source-reliability tally (in-flight) ──────────────
+            # lead.source is still the originating CHANNEL here (web_search,
+            # registry:<name>, …); it is overwritten to job:<id> at store time,
+            # so per-source outcomes must be counted now. Keyed by normalized
+            # channel. Counts emitted now; survived/validated filled below.
+            from apps.api.services.leadgen.source_stats import (
+                SourceRunCounters, normalize_source,
+            )
+            src_counters: dict[str, SourceRunCounters] = {}
+            for _l in all_leads:
+                src_counters.setdefault(
+                    normalize_source(_l.source), SourceRunCounters()
+                ).emitted += 1
+            rel_region = self._detect_region(query)
+
             # ── Check cancellation ────────────────────────────────
             if self._is_cancelled(job_id):
                 progress.emit("job_progress", {"job_id": job_id, "stage": "cancelled", "message": "🛑 Job cancelled by user"})
@@ -346,6 +371,12 @@ class JobRunner:
                 "job_id": job_id, "stage": "dedup",
                 "message": f"🔄 {len(valid_leads)} → {len(unique)} after dedup ({cross_removed} already in DB)",
             })
+
+            # Tally dedup-survival per source (in-flight, channel still intact).
+            for _l in unique:
+                _c = src_counters.get(normalize_source(_l.source))
+                if _c is not None:
+                    _c.survived_dedup += 1
 
             if self._is_cancelled(job_id):
                 progress.emit("job_progress", {"job_id": job_id, "stage": "cancelled", "message": "🛑 Job cancelled by user"})
@@ -460,6 +491,12 @@ class JobRunner:
                 input_count=pre_count, output_count=len(scored),
                 rejected_count=len(post_rejected),
                 details=json.dumps({"reasons": post_reasons}))
+
+            # Tally validation-pass per source (in-flight, channel still intact).
+            for _l in scored:
+                _c = src_counters.get(normalize_source(_l.source))
+                if _c is not None:
+                    _c.validated += 1
 
             # ── Decision Makers ───────────────────────────────────
             dm_sid = self.db.create_stage(job_id, "decision_makers")
@@ -760,6 +797,44 @@ class JobRunner:
                 output_count=del_counts["verified"] + del_counts["risky"],
                 details=json.dumps(del_counts))
 
+            # ── Source-reliability re-score (bounded nudge; flag-gated) ──
+            # Last step before store, while lead.source is still the channel.
+            # Nudges the ALREADY-computed score (AI score + hiring boost) by at
+            # most ±(SWING/2) pts based on the source's learned reliability —
+            # never recomputes base ICP, never overturns ICP fit. Flag OFF →
+            # skipped entirely (scores byte-for-byte unchanged). Sources below
+            # MIN_SAMPLES are absent from the map → no adjustment.
+            if _source_reliability_enabled():
+                try:
+                    from apps.api.database import SessionLocal
+                    from apps.api.services.leadgen.scoring import (
+                        _apply_source_reliability,
+                    )
+                    from apps.api.services.leadgen.scoring import get_tier
+                    from apps.api.services.leadgen.source_stats import reliability_map
+                    _sess = SessionLocal()
+                    try:
+                        rmap = reliability_map(_sess, rel_region)
+                    finally:
+                        _sess.close()
+                    nudged = 0
+                    for lead in scored:
+                        r = rmap.get(normalize_source(lead.source))
+                        if r is None:
+                            continue
+                        new_score = _apply_source_reliability(lead.score, r)
+                        if new_score != lead.score:
+                            lead.score = new_score
+                            lead.score_tier = get_tier(lead.score)
+                            nudged += 1
+                    if nudged:
+                        progress.emit("job_progress", {
+                            "job_id": job_id, "stage": "score",
+                            "message": f"⚖️ Source-reliability nudged {nudged} lead scores",
+                        })
+                except Exception as e:
+                    logger.debug(f"source-reliability re-score skipped: {e}")
+
             # ── Store ────────────────────────────────────────────
             store_sid = self.db.create_stage(job_id, "store")
             lead_store = self._lead_store(workspace_id)
@@ -785,6 +860,24 @@ class JobRunner:
 
             self.db.complete_stage(store_sid,
                 input_count=len(scored), output_count=count)
+
+            # ── Persist source-reliability ledger (always; even flag-off, so
+            # reliability data accumulates passively before scoring is enabled —
+            # rollout step 1). One atomic record_run per job; never fatal. ──
+            try:
+                from apps.api.database import SessionLocal
+                from apps.api.services.leadgen.source_stats import record_run
+                _sess = SessionLocal()
+                try:
+                    record_run(_sess, rel_region, src_counters)
+                    _sess.commit()
+                except Exception:
+                    _sess.rollback()
+                    raise
+                finally:
+                    _sess.close()
+            except Exception as e:
+                logger.debug(f"source-reliability record_run skipped: {e}")
 
             self.db.complete_job(job_id, leads_found=count)
             progress.emit("job_completed", {

@@ -198,6 +198,17 @@ class Settings(BaseSettings):
     POLLER_HIRING_COST_USD: float = 0.0
     POLLER_FEED_COST_USD: float = 0.0
 
+    # ── Source-reliability scoring (sourcing P2) ───────────────────────
+    # Master switch. OFF (default): scoring is byte-for-byte today's — the
+    # source_stats ledger still accumulates passively but never feeds scoring.
+    # ON: leads get a bounded ±(SWING/2)-pt nudge by their source's learned
+    # reliability (score-only; never gates which sources execute).
+    SOURCE_RELIABILITY_RANKING: bool = False
+    # Max swing of the nudge: RELIABILITY_SWING*(r-0.5). 8 → ±4 pts.
+    SOURCE_RELIABILITY_SWING: float = 8.0
+    # Runs a (source, region) needs before its reliability applies (else no-op).
+    SOURCE_RELIABILITY_MIN_SAMPLES: int = 5
+
     # ── Company-size heuristic (sourcing) ──────────────────────────────
     # Gates the keyless company_size_heuristic provider (registration in
     # workbook/providers.py + its append to the company_size waterfall in
