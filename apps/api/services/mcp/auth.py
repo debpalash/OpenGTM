@@ -34,19 +34,33 @@ CAP_LEADS_READ = "leads:read"          # Phase 1
 CAP_LEADS_WRITE = "leads:write"        # Phase 2
 CAP_SEQUENCES_ENROLL = "sequences:enroll"  # Phase 2
 CAP_WORKBOOKS_WRITE = "workbooks:write"    # Phase 2
-CAP_AUTOMATIONS_WRITE = "automations:write"  # v2
+CAP_AUTOMATIONS_WRITE = "automations:write"  # v2 — create_automation
+CAP_OUTREACH_SEND = "outreach:send"          # v2 — send_email / sequencer send (HIGHEST RISK)
+CAP_LEADS_DELETE = "leads:delete"            # v2 — delete_lead (DESTRUCTIVE, admin-only)
+CAP_WORKBOOKS_DELETE = "workbooks:delete"    # v2 — delete_workbook (DESTRUCTIVE, admin-only)
 
 READ_CAPABILITIES: FrozenSet[str] = frozenset({CAP_LEADS_READ})
 WRITE_CAPABILITIES: FrozenSet[str] = frozenset({
-    CAP_LEADS_WRITE, CAP_SEQUENCES_ENROLL, CAP_WORKBOOKS_WRITE, CAP_AUTOMATIONS_WRITE,
+    CAP_LEADS_WRITE, CAP_SEQUENCES_ENROLL, CAP_WORKBOOKS_WRITE,
+    # v2 ops (each its own capability; all write-gated by MCP_WRITE_ENABLED):
+    CAP_AUTOMATIONS_WRITE, CAP_OUTREACH_SEND, CAP_LEADS_DELETE, CAP_WORKBOOKS_DELETE,
 })
 ALL_CAPABILITIES: FrozenSet[str] = READ_CAPABILITIES | WRITE_CAPABILITIES
 
-# Workspace roles allowed to perform an MCP *write* (owner always passes via
-# require_role). A user downgraded to "viewer" after the token was minted is
+# v2 ops that are DESTRUCTIVE or HIGHEST-RISK demand the workspace ADMIN role
+# (owner implicitly passes), not merely a write-capable member. The tool→roles
+# map lives in ``tools.py`` so every tool's role floor is explicit.
+ADMIN_ONLY_CAPABILITIES: FrozenSet[str] = frozenset({
+    CAP_AUTOMATIONS_WRITE, CAP_OUTREACH_SEND, CAP_LEADS_DELETE, CAP_WORKBOOKS_DELETE,
+})
+
+# Workspace roles allowed to perform a standard MCP *write* (owner always passes
+# via require_role). A user downgraded to "viewer" after the token was minted is
 # denied at call time — the live role re-check that defeats the privilege-freeze
 # confused-deputy variant (a capability grant is necessary but not sufficient).
 WRITE_ROLES: Tuple[str, ...] = ("admin", "member", "editor")
+# Stricter floor for destructive / send tools — admin (or owner) only.
+ADMIN_ROLES: Tuple[str, ...] = ("admin",)
 
 # Plaintext token prefix so tokens are recognisable in logs/configs.
 TOKEN_PREFIX = "ycp_"  # yupcha capability pat
