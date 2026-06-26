@@ -74,6 +74,9 @@ DEFAULT_WATERFALLS = {
     "twitter_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder", "wikidata"],
     "facebook_url": ["jsonld_firmographics", "deep_scraper", "website_scraper", "social_finder", "wikidata"],
     # Company metadata
+    # company_size_heuristic (keyless, derives from existing signals) is appended
+    # LAST below when COMPANY_SIZE_HEURISTIC_ENABLED — it only fills the gap real
+    # providers leave (the waterfall stops at the first success).
     "company_size": ["deep_scraper", "website_scraper", "company_intel", "wikidata", "people_data_labs"],
     "industry_tags": ["deep_scraper", "website_scraper", "local_business", "company_intel", "mca_registry", "wikidata"],
     # Address — schema first; mca_registry = authoritative registered office (India).
@@ -93,6 +96,18 @@ DEFAULT_WATERFALLS = {
     # Scoring
     "score": ["lead_scorer"],
 }
+
+# Feature-flagged: append the keyless heuristic as the LAST resort in the
+# company_size chain. Off by default → chain is byte-identical to before. Even if
+# left appended with the flag off, the provider wouldn't be registered (get_provider
+# returns None → skipped), but we gate the append too to avoid log noise.
+try:
+    from apps.api.core.config import settings as _cfg_settings
+    if (getattr(_cfg_settings, "COMPANY_SIZE_HEURISTIC_ENABLED", False)
+            and "company_size_heuristic" not in DEFAULT_WATERFALLS["company_size"]):
+        DEFAULT_WATERFALLS["company_size"].append("company_size_heuristic")
+except Exception:  # pragma: no cover - defensive: never block import on config
+    pass
 
 
 def _lead_dict_to_lead(lead_data: dict) -> Lead:

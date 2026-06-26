@@ -198,6 +198,13 @@ class Settings(BaseSettings):
     POLLER_HIRING_COST_USD: float = 0.0
     POLLER_FEED_COST_USD: float = 0.0
 
+    # ── Company-size heuristic (sourcing) ──────────────────────────────
+    # Gates the keyless company_size_heuristic provider (registration in
+    # workbook/providers.py + its append to the company_size waterfall in
+    # workbook/enrichment.py). Default OFF: with the flag off behaviour is
+    # byte-identical to today EXCEPT the always-on normalize_band scoring fix.
+    COMPANY_SIZE_HEURISTIC_ENABLED: bool = False
+
     # Optional integrations
     SCRIBD_COOKIES: str = ""
     GOOGLE_API_KEY: str = ""

@@ -222,6 +222,7 @@ class LeadDB:
             "industry_tags": "TEXT DEFAULT ''",
             "technologies": "TEXT DEFAULT ''",
             "funding_stage": "TEXT DEFAULT ''",
+            "company_size_basis": "TEXT DEFAULT ''",
             "secondary_emails": "TEXT DEFAULT ''",
             "secondary_phones": "TEXT DEFAULT ''",
             "decision_makers": "TEXT DEFAULT ''",
@@ -358,6 +359,7 @@ class LeadDB:
         workspace_id: Optional[str] = None,
         has_email: Optional[bool] = None,
         has_phone: Optional[bool] = None,
+        company_size: Optional[str] = None,
         limit: int = 500,
         offset: int = 0,
         order_by: str = "score DESC",
@@ -392,6 +394,9 @@ class LeadDB:
         if score_tier:
             conditions.append("l.score_tier = ?")
             params.append(score_tier)
+        if company_size:
+            conditions.append("l.company_size = ?")
+            params.append(company_size)
 
         if search:
             # Use FTS for text search, wrapping in quotes to prevent FTS5 syntax errors with special chars

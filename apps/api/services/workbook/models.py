@@ -113,6 +113,7 @@ LEAD_FIELD_MAP = {
     "address": "address",
     "specialization": "specialization",
     "company_size": "company_size",
+    "company_size_basis": "company_size_basis",
     "description": "description",
     "linkedin_url": "linkedin_url",
     "twitter_url": "twitter_url",

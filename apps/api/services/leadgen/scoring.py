@@ -9,6 +9,7 @@ from typing import List
 
 from apps.api.services.leadgen.models import Lead
 from apps.api.services.leadgen.config import ICP, SCORING_WEIGHTS, SCORE_TIERS
+from apps.api.services.leadgen.enrichment.size_heuristic import normalize_band
 
 
 def score_lead(lead: Lead) -> int:
@@ -41,8 +42,13 @@ def score_lead(lead: Lead) -> int:
     if lead.has_linkedin:
         score += SCORING_WEIGHTS["has_linkedin"]
 
-    # Company size signal
-    if lead.company_size in ("51-200", "201-500", "500+"):
+    # Company size signal. normalize_band coerces non-canonical formats (raw int,
+    # "10-50", "5,000", "501-1000") into one of the four bands BEFORE the
+    # membership test — a strict-widening bug fix: previously-unmatched formats
+    # now credit correctly, and a value that's already a valid band is returned
+    # verbatim so no existing score can drop. Estimated bands earn the same credit
+    # as known size (provenance lives in company_size_basis, not the score).
+    if normalize_band(lead.company_size) in ("51-200", "201-500", "500+"):
         score += SCORING_WEIGHTS["company_size_large"]
 
     # Specialization match

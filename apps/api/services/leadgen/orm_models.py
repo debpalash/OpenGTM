@@ -74,6 +74,8 @@ class LeadRow(Base):
     # ── Company info ──
     specialization = Column(String, default="")
     company_size = Column(String, default="")
+    # Provenance of company_size: "exact" | "estimated:<signals>" | "" (heuristic).
+    company_size_basis = Column(String, default="")
     employee_count_exact = Column(Integer, default=0)
     description = Column(Text, default="")
     revenue_range = Column(String, default="")
