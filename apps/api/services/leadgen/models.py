@@ -40,6 +40,7 @@ class Lead:
     industry_tags: str = ""        # Comma-separated: "IT Staffing, RPO, Payroll"
     technologies: str = ""         # Key tech stack / platforms
     funding_stage: str = ""        # "Bootstrapped", "Seed", "Series A", etc.
+    company_size_basis: str = ""   # Provenance of company_size: "exact" | "estimated:<signals>" | ""
 
     # ── Social ─────────────────────────────────────────────────────────
     linkedin_url: str = ""

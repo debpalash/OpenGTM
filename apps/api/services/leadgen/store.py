@@ -238,6 +238,7 @@ class PgLeadStore:
         workspace_id: Optional[str] = None,  # accepted for signature parity; ignored
         has_email: Optional[bool] = None,
         has_phone: Optional[bool] = None,
+        company_size: Optional[str] = None,
         limit: int = 500,
         offset: int = 0,
         order_by: str = "score DESC",
@@ -266,6 +267,8 @@ class PgLeadStore:
                 q = q.filter(LeadRow.score <= score_max)
             if score_tier:
                 q = q.filter(LeadRow.score_tier == score_tier)
+            if company_size:
+                q = q.filter(LeadRow.company_size == company_size)
             if search:
                 q = q.filter(self._search_clause(search))
 

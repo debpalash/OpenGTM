@@ -275,6 +275,20 @@ def _init_providers():
     except Exception as e:
         logger.warning(f"Failed to register gleif: {e}")
 
+    # ── Company-size heuristic (keyless, zero-network) — feature-flagged ──
+    # Derives company_size from signals already on the lead when it's unknown.
+    # Registered LAST + lowest-confidence so real providers always win. Gated by
+    # COMPANY_SIZE_HEURISTIC_ENABLED so the flag-off path is byte-identical.
+    try:
+        from apps.api.core.config import settings as _settings
+        if getattr(_settings, "COMPANY_SIZE_HEURISTIC_ENABLED", False):
+            from apps.api.services.leadgen.enrichment.providers.company_size_heuristic import (
+                CompanySizeHeuristicProvider,
+            )
+            register_provider(CompanySizeHeuristicProvider())
+    except Exception as e:
+        logger.warning(f"Failed to register company_size_heuristic: {e}")
+
     try:
         from apps.api.services.leadgen.enrichment.declarative.registry import register_declarative_manifests
         register_declarative_manifests()
