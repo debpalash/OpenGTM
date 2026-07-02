@@ -2093,3 +2093,74 @@ async def handle_collect(job_id: int, payload: dict):
             await runner._process_job(job)
     else:
         await runner._process_job(job)
+
+
+async def handle_bulk_enrich(job_id: int, payload: dict):
+    """Durable-queue handler for a bulk lead-enrichment task.
+
+    Same durability fix as :func:`handle_collect`: the bulk-enrich endpoint used
+    to run this in a fire-and-forget ``threading.Thread``, so an API reload/crash
+    mid-run abandoned the enrichment (and only some leads got updated). Running it
+    on the queue makes it reaper-recoverable + retryable.
+
+    The original body mixes a blocking path (find_emails) and an async path
+    (scrape_website, via ``asyncio.run``). We run the whole body in a worker
+    thread (``asyncio.to_thread``): that thread has no running event loop, so the
+    inner ``asyncio.run(enrich_leads_from_websites(...))`` stays valid unchanged.
+    ``to_thread`` propagates the current contextvars, so the workspace scope holds.
+    """
+    import asyncio
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.leadgen.db import LeadDB
+    from apps.api.services.leadgen.progress import progress
+    from apps.api.services.workspace.manager import workspace_leads_db_path
+
+    ids = payload["ids"]
+    action = payload["action"]
+    bulk_job_id = payload["job_id"]
+    workspace_id = payload.get("workspace_id") or ""
+    ws_path = workspace_leads_db_path(payload.get("slug") or "")
+
+    def _run():
+        import asyncio as _aio
+        db = LeadDB(ws_path)
+        leads = [l for l in (db.get_lead(i) for i in ids) if l]
+        progress.emit("bulk_enrich_started", {"job_id": bulk_job_id, "action": action, "total": len(leads)})
+        done = updated = 0
+        try:
+            if action == "find_emails":
+                from apps.api.services.leadgen.enrichment.email_finder import enrich_emails
+                enriched = enrich_emails(leads, delay=0.5)
+                for orig, en in zip(leads, enriched):
+                    if getattr(en, "email", None) and en.email != orig.email:
+                        db.update_lead_fields(orig.id, {"email": en.email, "last_enriched_at": "now"})
+                        updated += 1
+                    done += 1
+                    progress.emit("bulk_enrich_progress", {"job_id": bulk_job_id, "done": done, "total": len(leads)})
+            else:  # scrape_website
+                from apps.api.services.leadgen.enrichment.website_scraper import enrich_leads_from_websites
+                targets = [l for l in leads if l.website]
+                enriched = _aio.run(enrich_leads_from_websites(targets))
+                for orig, en in zip(targets, enriched):
+                    fields = {}
+                    for fld in ("email", "phone", "description", "contact_person"):
+                        v = getattr(en, fld, None)
+                        if v and v != getattr(orig, fld, None):
+                            fields[fld] = v
+                    if fields:
+                        fields["last_enriched_at"] = "now"
+                        db.update_lead_fields(orig.id, fields)
+                        updated += 1
+                    done += 1
+                    progress.emit("bulk_enrich_progress", {"job_id": bulk_job_id, "done": done, "total": len(targets)})
+        except Exception as e:
+            progress.emit("bulk_enrich_error", {"job_id": bulk_job_id, "error": str(e)[:200]})
+        finally:
+            db.close()
+            progress.emit("bulk_enrich_done", {"job_id": bulk_job_id, "updated": updated, "total": len(leads)})
+
+    if workspace_id:
+        with workspace_scope(workspace_id):
+            await asyncio.to_thread(_run)
+    else:
+        await asyncio.to_thread(_run)

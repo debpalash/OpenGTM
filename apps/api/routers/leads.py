@@ -9,7 +9,6 @@ import csv
 import io
 import json
 import uuid
-import threading
 import time as _time
 from typing import Optional
 
@@ -932,8 +931,6 @@ def bulk_enrich(body: BulkEnrichBody, ctx: WorkspaceCtx = Depends(current_worksp
     Progress streams over ProgressBus (/api/events) keyed by job_id.
     """
     import uuid as _uuid
-    import threading
-    from apps.api.services.workspace.manager import workspace_leads_db_path as _wpath
 
     ids = list(dict.fromkeys(body.lead_ids))[:100]
     action = body.action
@@ -942,49 +939,20 @@ def bulk_enrich(body: BulkEnrichBody, ctx: WorkspaceCtx = Depends(current_worksp
     if action not in ("find_emails", "scrape_website"):
         raise HTTPException(400, "action must be 'find_emails' or 'scrape_website'")
 
-    ws_path = _wpath(ctx.slug)
     job_id = str(_uuid.uuid4())[:8]
 
-    def _run():
-        import asyncio as _aio
-        from apps.api.services.leadgen.progress import progress
-        db = LeadDB(ws_path)
-        leads = [l for l in (db.get_lead(i) for i in ids) if l]
-        progress.emit("bulk_enrich_started", {"job_id": job_id, "action": action, "total": len(leads)})
-        done = updated = 0
-        try:
-            if action == "find_emails":
-                from apps.api.services.leadgen.enrichment.email_finder import enrich_emails
-                enriched = enrich_emails(leads, delay=0.5)
-                for orig, en in zip(leads, enriched):
-                    if getattr(en, "email", None) and en.email != orig.email:
-                        db.update_lead_fields(orig.id, {"email": en.email, "last_enriched_at": "now"})
-                        updated += 1
-                    done += 1
-                    progress.emit("bulk_enrich_progress", {"job_id": job_id, "done": done, "total": len(leads)})
-            else:  # scrape_website
-                from apps.api.services.leadgen.enrichment.website_scraper import enrich_leads_from_websites
-                targets = [l for l in leads if l.website]
-                enriched = _aio.run(enrich_leads_from_websites(targets))
-                for orig, en in zip(targets, enriched):
-                    fields = {}
-                    for fld in ("email", "phone", "description", "contact_person"):
-                        v = getattr(en, fld, None)
-                        if v and v != getattr(orig, fld, None):
-                            fields[fld] = v
-                    if fields:
-                        fields["last_enriched_at"] = "now"
-                        db.update_lead_fields(orig.id, fields)
-                        updated += 1
-                    done += 1
-                    progress.emit("bulk_enrich_progress", {"job_id": job_id, "done": done, "total": len(targets)})
-        except Exception as e:
-            progress.emit("bulk_enrich_error", {"job_id": job_id, "error": str(e)[:200]})
-        finally:
-            db.close()
-            progress.emit("bulk_enrich_done", {"job_id": job_id, "updated": updated, "total": len(leads)})
+    # Run bulk enrichment on the DURABLE queue (reaper-recovered, retried) instead
+    # of a fire-and-forget daemon thread that abandoned the batch on any API
+    # reload. The worker runs job_runner.handle_bulk_enrich, which reopens the
+    # tenant's lead store from slug/workspace_id in the payload.
+    from apps.api.services.queue_service import queue_service
+    from apps.api.database import SessionLocal
+    with SessionLocal() as qdb:
+        queue_service.add_job(qdb, "bulk_enrich", {
+            "job_id": job_id, "ids": ids, "action": action,
+            "workspace_id": ctx.workspace_id, "slug": ctx.slug,
+        })
 
-    threading.Thread(target=_run, daemon=True).start()
     return {"ok": True, "job_id": job_id, "count": len(ids), "action": action}
 
 
