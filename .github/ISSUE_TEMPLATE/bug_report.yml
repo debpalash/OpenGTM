@@ -1,0 +1,51 @@
+name: Bug report
+description: Something isn't working as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report! Please **do not** file security vulnerabilities here —
+        see [SECURITY.md](../blob/main/SECURITY.md) for private disclosure.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected instead.
+      placeholder: When I run an enrichment workbook, ...
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Create a workbook with ...
+        2. Add an email waterfall column
+        3. Run — observe ...
+    validations:
+      required: true
+  - type: dropdown
+    id: deploy
+    attributes:
+      label: How are you running Yupcha?
+      options:
+        - Docker Compose (bundled Postgres)
+        - Docker Compose (external DATABASE_URL)
+        - Local dev (uv + bun)
+        - Other (describe below)
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      placeholder: "git rev-parse --short HEAD"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste API/worker logs. **Redact API keys, tokens, and PII.**
+      render: shell

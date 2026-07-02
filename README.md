@@ -23,6 +23,27 @@ your own provider keys, and with the bill shown to you *before* you run.
 
 ---
 
+## Our promises (in writing)
+
+These are structural commitments, not marketing — the whole point of Yupcha is
+that a closed, seat-priced, credit-metered incumbent cannot match them without
+undoing its own business model:
+
+- **The REST API, webhooks, and MCP tools are never plan-gated.** Automating
+  Yupcha from your terminal, your own agent, or n8n is a first-class use, not an
+  upsell. Metering the API is the single most-hated move of the tools we're an
+  alternative to; we commit, in writing, never to make it.
+- **BYOK at direct cost, zero markup.** You pay the LLM/enrichment vendor
+  directly with your own key. Any future managed-key option bills at provider
+  cost plus one disclosed flat fee — never a per-credit markup.
+- **See the bill before you run — always.** The spend estimate and per-provider
+  cost ledger are core, not a premium tier.
+- **Self-host is fully functional, forever.** No feature is held back to force a
+  cloud upgrade; the paid cloud line will be governance (SSO/audit/DPA/support),
+  never capability.
+
+---
+
 ## What it does
 
 Yupcha is a spreadsheet-shaped enrichment engine ("workbooks") plus an agentic
@@ -55,18 +76,18 @@ layer that can build and run those workbooks for you.
 
 ## Quickstart
 
-> **Status: setup is being hardened.** The intended experience is one command.
-> The Docker Compose stack currently brings up the API, enrichment worker, Redis,
-> and nginx; the bundled Postgres service is being added in a parallel change. If
-> `docker compose up` fails on the database, point `DATABASE_URL` at your own
-> Postgres (see `.env.example`) until that lands.
+One command brings up the full stack — API, enrichment worker, **Postgres**,
+Redis, and nginx — with sane defaults:
 
 ```bash
 git clone https://github.com/yupcha-internal/lead-data.git
 cd lead-data
 cp .env.example .env        # fill in at least one LLM key; everything else is optional/BYOK
-docker compose up           # API + worker + Redis + nginx
+docker compose up           # API + worker + Postgres + Redis + nginx
 ```
+
+To point at an existing database instead of the bundled Postgres, set
+`DATABASE_URL` in `.env` (SQLite is also supported for local dev).
 
 Then open **http://localhost:3000**.
 
