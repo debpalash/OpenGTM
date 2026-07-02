@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Optional
 import json
 import logging
+import os
 
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Query, Request
 from pydantic import BaseModel, Field
@@ -1380,7 +1381,12 @@ async def workbook_websocket(
     await websocket.accept()
     try:
         import redis.asyncio as aioredis
-        redis_client = await aioredis.from_url("redis://localhost:6379")
+        # Honour REDIS_URL so live cell updates work in the shipped Docker stack
+        # (compose points services at redis://redis:6379, not localhost). Matches
+        # the publisher in services/workbook/enrichment.py. No decode_responses —
+        # this consumer decodes message payloads manually below.
+        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+        redis_client = await aioredis.from_url(redis_url)
         pubsub = redis_client.pubsub()
         await pubsub.subscribe(f"workbook:{workbook_id}")
 

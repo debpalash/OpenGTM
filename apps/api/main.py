@@ -215,9 +215,15 @@ logfire.instrument_fastapi(app)
 
 # Middleware
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+# CORS origins come from settings.CORS_ORIGINS (comma-separated) so operators can
+# lock the API to their own frontend origin(s). Default "*" keeps self-host /
+# same-origin deploys working out of the box; auth is a Bearer token (not a
+# cookie) and allow_credentials stays False, so "*" is not a credential-leak
+# vector — but a security-conscious operator can now restrict it via one env var.
+_cors_origins = [o.strip() for o in (settings.CORS_ORIGINS or "*").split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins or ["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
