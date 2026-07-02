@@ -139,8 +139,15 @@ def _eval_single(expr: str) -> bool:
             right = _clean_value(parts[1].strip())
             return right.lower() in left.lower()
 
-    logger.warning(f"Could not evaluate condition: {expr}")
-    return True  # Default to running if we can't parse
+    # Fail CLOSED: an unparseable condition must NOT run the column. The whole
+    # point of "only run if" is to save spend; defaulting to run means a typo in
+    # the condition silently bills every paid provider on every row. Skip and
+    # surface the misconfiguration loudly so the user can fix the expression.
+    logger.warning(
+        "Unparseable column condition %r — skipping column (fail-closed). "
+        "Fix the condition expression to run it.", expr,
+    )
+    return False
 
 
 def _clean_value(val: str) -> str:
@@ -176,7 +183,8 @@ def _compare(left: str, right: str, op: str) -> bool:
     if op == ">=": return left >= right
     if op == "<=": return left <= right
 
-    return True
+    # Unknown operator — fail closed (don't spend on an expression we can't read).
+    return False
 
 
 def _extract_paren(expr: str) -> str:

@@ -67,9 +67,9 @@ class SyncResult:
             self.errors = []
 
 
-async def test_connection() -> Dict[str, Any]:
-    """Test HubSpot connection by fetching account info."""
-    token = _get_token()
+async def test_connection(workspace_id: Optional[str] = None) -> Dict[str, Any]:
+    """Test HubSpot connection by fetching account info (per-workspace token)."""
+    token = _get_token(workspace_id)
     if not token:
         return {"connected": False, "error": "No HubSpot token configured"}
 
@@ -187,12 +187,13 @@ async def push_lead_as_contact(lead, field_map: Dict[str, str] = None,
         return {"success": False, "error": str(e)}
 
 
-async def push_leads_batch(leads, field_map: Dict[str, str] = None) -> SyncResult:
-    """Push multiple leads to HubSpot."""
+async def push_leads_batch(leads, field_map: Dict[str, str] = None,
+                           workspace_id: Optional[str] = None) -> SyncResult:
+    """Push multiple leads to HubSpot using the workspace's token (spec WI-6)."""
     result = SyncResult()
 
     for lead in leads:
-        push_result = await push_lead_as_contact(lead, field_map)
+        push_result = await push_lead_as_contact(lead, field_map, workspace_id=workspace_id)
         if push_result.get("success"):
             if push_result.get("action") == "created":
                 result.created += 1
@@ -209,9 +210,9 @@ async def push_leads_batch(leads, field_map: Dict[str, str] = None) -> SyncResul
     return result
 
 
-async def get_contacts(limit: int = 20) -> List[Dict]:
-    """Fetch recent contacts from HubSpot."""
-    token = _get_token()
+async def get_contacts(limit: int = 20, workspace_id: Optional[str] = None) -> List[Dict]:
+    """Fetch recent contacts from HubSpot (per-workspace token)."""
+    token = _get_token(workspace_id)
     if not token:
         return []
 

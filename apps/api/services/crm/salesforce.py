@@ -18,6 +18,27 @@ logger = logging.getLogger("crm.salesforce")
 API_VERSION = "v59.0"
 
 
+def _soql_escape(value: str) -> str:
+    """Escape a value for safe interpolation into a SOQL string literal.
+
+    Salesforce SOQL has no bind-parameter API over the REST /query endpoint, so
+    a raw f-string (``... WHERE Email = '{email}'``) is injectable: a value like
+    ``x' OR Name != '`` would broaden or subvert the query. Per Salesforce's
+    escaping rules we backslash-escape the reserved characters. Control chars are
+    stripped outright (they can't appear in a real email and only serve to break
+    out of the literal).
+    """
+    out = []
+    for ch in str(value):
+        if ch in ("\\", "'", '"'):
+            out.append("\\" + ch)
+        elif ch in ("\n", "\r", "\t"):
+            continue
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
 def _creds(workspace_id: Optional[str] = None) -> tuple[str, str]:
     """(instance_url, access_token).
 
@@ -85,7 +106,7 @@ async def push_lead_as_contact(lead, field_map: Dict[str, str] = None,
             # Upsert by email when present (SOQL lookup → PATCH), else create.
             email = fields.get("Email")
             if email:
-                q = f"SELECT Id FROM Lead WHERE Email = '{email}' LIMIT 1"
+                q = f"SELECT Id FROM Lead WHERE Email = '{_soql_escape(email)}' LIMIT 1"
                 sr = await client.get(f"{base}/query", headers=headers, params={"q": q})
                 if sr.status_code == 200 and sr.json().get("records"):
                     sid = sr.json()["records"][0]["Id"]
