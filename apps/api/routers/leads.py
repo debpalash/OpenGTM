@@ -9,7 +9,6 @@ import csv
 import io
 import json
 import uuid
-import asyncio
 import threading
 import time as _time
 from typing import Optional
@@ -557,16 +556,18 @@ def start_collection(request: Request, body: CollectRequest, ctx: WorkspaceCtx =
         db.conn.commit()
     db.close()
 
-    def _run_job():
-        from apps.api.services.leadgen.job_runner import JobRunner
-        runner = JobRunner()
-        asyncio.run(runner._process_job({
-            "id": job_id, "query": query, "tier": 1,
-            "workspace_id": body.workspace_id,
-        }))
-
-    thread = threading.Thread(target=_run_job, daemon=True)
-    thread.start()
+    # Run the collection on the DURABLE queue (heartbeat-tracked, reaper-recovered,
+    # retried) instead of a fire-and-forget daemon thread. The old thread lost the
+    # entire ~9-minute run on any API reload/restart and left the job stuck at
+    # status='running', leads_found=0 with nothing persisted. The queue worker
+    # picks up the "collect" job and runs the same JobRunner pipeline via
+    # job_runner.handle_collect.
+    from apps.api.services.queue_service import queue_service
+    from apps.api.database import SessionLocal
+    with SessionLocal() as qdb:
+        queue_service.add_job(qdb, "collect", {
+            "job_id": job_id, "query": query, "workspace_id": body.workspace_id,
+        })
 
     return {"ok": True, "job_id": job_id, "query": query, "workspace_id": body.workspace_id}
 

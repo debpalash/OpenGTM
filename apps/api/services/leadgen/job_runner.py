@@ -2062,3 +2062,34 @@ class JobRunner:
         if len(digits_only) > 13 or len(digits_only) < 7:
             return False
         return True
+
+
+async def handle_collect(job_id: int, payload: dict):
+    """Durable-queue handler for a lead-collection task (``/api/collect``).
+
+    ``job_id`` is the DURABLE QUEUE job id; the leadgen collection job id, query,
+    and tenant travel in ``payload``. Running the pipeline here — instead of the
+    old fire-and-forget ``threading.Thread`` in ``routers/leads.start_collection``
+    — means a restart or crash mid-run is recovered by the queue reaper + retry.
+    Previously a ~9-minute collection silently died on any API reload and left the
+    job stuck at ``status='running', leads_found=0`` with no leads persisted.
+    """
+    from apps.api.core.tenancy import workspace_scope
+
+    leadgen_job_id = payload["job_id"]
+    query = payload["query"]
+    workspace_id = payload.get("workspace_id") or ""
+    job = {
+        "id": leadgen_job_id,
+        "query": query,
+        "tier": payload.get("tier", 1),
+        "workspace_id": workspace_id,
+    }
+    runner = JobRunner()
+    # Enter the tenant scope first (mirrors handle_source_workbook) so any
+    # RLS-scoped store opened inside the run is bound to the right workspace.
+    if workspace_id:
+        with workspace_scope(workspace_id):
+            await runner._process_job(job)
+    else:
+        await runner._process_job(job)

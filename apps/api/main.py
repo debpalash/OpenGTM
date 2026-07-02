@@ -124,6 +124,11 @@ async def lifespan(app: FastAPI):
     # Source columns (P0): materialize rows from the source engine on the queue.
     from apps.api.services.workbook.source_engine import handle_source_workbook
     queue_service.register_handler("source_workbook", handle_source_workbook)
+    # Lead-collection tasks (/api/collect): run the classic JobRunner pipeline on
+    # the durable queue so a restart/crash mid-run resumes via the reaper + retry
+    # instead of silently dying (the old daemon thread lost the whole run).
+    from apps.api.services.leadgen.job_runner import handle_collect
+    queue_service.register_handler("collect", handle_collect)
     # Living workbooks (P3): recurring refresh + signal-triggered refresh.
     from apps.api.services.workbook.refresh import handle_refresh_workbook, handle_signal_scan, bootstrap_signal_scan
     queue_service.register_handler("refresh_workbook", handle_refresh_workbook)
