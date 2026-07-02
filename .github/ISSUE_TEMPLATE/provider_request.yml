@@ -1,0 +1,58 @@
+name: Enrichment provider / source request
+description: Suggest a new data provider or lead source (or volunteer to add one)
+labels: ["provider request", "good first issue"]
+body:
+  - type: input
+    id: provider
+    attributes:
+      label: Provider / source name
+      placeholder: e.g. Dropcontact, Findymail, ContactOut
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: API docs URL
+      placeholder: https://...
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Email find
+        - Email verify
+        - Phone
+        - Firmographics
+        - Decision-makers / people
+        - Social
+        - Tech-stack / technographics
+        - Hiring / signals
+        - IP / domain
+        - Scoring
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: auth
+    attributes:
+      label: Auth model
+      options:
+        - Keyless / public
+        - API key (BYOK)
+        - OAuth2
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: tos
+    attributes:
+      label: Terms of Service
+      options:
+        - label: This provider offers an official API and integrating it does not violate its ToS (no paywalled/pirated/login-gated scraping).
+          required: true
+  - type: checkboxes
+    id: volunteer
+    attributes:
+      label: Want to add it yourself?
+      options:
+        - label: I'd like to contribute this as a YAML manifest (we'll help!)
