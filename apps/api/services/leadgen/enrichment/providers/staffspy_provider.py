@@ -7,10 +7,13 @@ decision_maker_finder lands a single contact, this surfaces a ranked list of
 seniority-matched people to target — a big jump in contacts-per-account.
 
 ACTIVATION (all required — provider is inert otherwise):
+    export STAFFSPY_ENABLED=1                            # explicit opt-in (default OFF)
     pip install staffspy
     export STAFFSPY_SESSION_FILE=/path/to/session.pkl   # LinkedIn login cookies
 On first run StaffSpy opens a browser to log in once and saves the session file
 (lasts ~a week). LinkedIn ToS / rate limits apply — keep max_results modest.
+This scrapes LinkedIn against its Terms of Service and can get the operator's
+account throttled or banned; it is OFF by default and must be turned on knowingly.
 
 Writes a JSON roster into Lead.decision_makers and sets contact_person/contact_title
 to the most senior match.
@@ -40,6 +43,18 @@ def _session_file() -> str:
     return os.getenv("STAFFSPY_SESSION_FILE", "") or ""
 
 
+def _enabled() -> bool:
+    """Explicit opt-in flag (default OFF).
+
+    LinkedIn roster scraping runs against LinkedIn's ToS and can get the
+    operator's account rate-limited or banned, so it must never be reachable by
+    accident. This is a deliberate second key on top of STAFFSPY_SESSION_FILE:
+    the operator has to knowingly set STAFFSPY_ENABLED=1 AND supply a session
+    file AND `pip install staffspy` before the provider does anything.
+    """
+    return os.getenv("STAFFSPY_ENABLED", "").strip().lower() in ("1", "true", "yes", "on")
+
+
 def _staffspy_installed() -> bool:
     try:
         import staffspy  # noqa: F401
@@ -49,7 +64,7 @@ def _staffspy_installed() -> bool:
 
 
 def is_available() -> bool:
-    return bool(_session_file()) and _staffspy_installed()
+    return _enabled() and bool(_session_file()) and _staffspy_installed()
 
 
 def _seniority_rank(title: str) -> int:
@@ -78,7 +93,7 @@ class StaffSpyRosterProvider(EnrichmentProvider):
         if not is_available():
             return EnrichmentResult(
                 provider=self.name, success=False,
-                error="staffspy_unavailable (set STAFFSPY_SESSION_FILE + pip install staffspy)",
+                error="staffspy_unavailable (opt in: STAFFSPY_ENABLED=1 + STAFFSPY_SESSION_FILE + pip install staffspy; LinkedIn ToS applies)",
                 duration_ms=(time.time() - t0) * 1000,
             )
 

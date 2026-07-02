@@ -7,20 +7,13 @@ import logging
 from typing import List, Dict, Optional, Any
 
 from . import DocumentSource, SearchResult
-from .pdfdrive import PDFDriveSource
-from .libgen import LibgenSource
 from .google_search import GoogleSearchSource
 from .arxiv import ArxivSource
-from .academia import AcademiaSource
 from .gutenberg import GutenbergSource
-from .researchgate import ResearchGateSource
 from .doaj import DOAJSource
-from .freeebooks import FreeEbooksSource
 from .openlibrary import OpenLibrarySource
 from .pubmed import PubMedSource
 from .legacy import SlideShareSource, ArchiveSource, GoogleBooksSource
-from .scribd import ScribdSource
-from .annas_archive import AnnasArchiveSource
 from .semantic_scholar import SemanticScholarSource
 from .crossref import CrossrefSource
 
@@ -45,21 +38,11 @@ class SourceRegistry:
         self.sources["semantic_scholar"] = SemanticScholarSource()
         self.sources["crossref"] = CrossrefSource()
 
-        # New Plugins (Migrated)
-        self.sources["scribd"] = ScribdSource()
-        self.sources["annas_archive"] = AnnasArchiveSource()
-
-        # Legacy Wrappers
+        # Legacy Wrappers (Internet Archive + Google Books; SlideShare is an
+        # inert disabled stub kept only so the legacy import stays stable).
         self.sources["slideshare"] = SlideShareSource()
         self.sources["archive"] = ArchiveSource()
         self.sources["google_books"] = GoogleBooksSource()
-
-        # Experimental sources (may be slow/unreliable)
-        self.sources["pdfdrive"] = PDFDriveSource()
-        self.sources["libgen"] = LibgenSource()
-        self.sources["academia"] = AcademiaSource()
-        self.sources["researchgate"] = ResearchGateSource()
-        self.sources["freeebooks"] = FreeEbooksSource()
 
         # Sources that require configuration
         google = GoogleSearchSource()
