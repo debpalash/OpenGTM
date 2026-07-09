@@ -9,9 +9,10 @@ import { useEffect, useRef, useCallback, useState } from "react"
 import {
   fetchWorkbooks, fetchWorkbook, createWorkbook, updateWorkbook,
   deleteWorkbook, updateLeadField, importLeads, deleteLeads,
-  runWorkbook, stopWorkbook,
+  runWorkbook, stopWorkbook, runWorkbookCell,
+  fetchWorkbookViews, createWorkbookView, updateWorkbookView, deleteWorkbookView,
   fetchProviders, fetchFilterOptions, createWorkbookSocket,
-  type Workbook, type WorkbookLeadRow,
+  type Workbook, type WorkbookLeadRow, type ViewConfig,
 } from "./workbook-api"
 
 // ── Query Keys ───────────────────────────────────────────────────────────
@@ -20,6 +21,7 @@ export const workbookKeys = {
   all: ["workbooks"] as const,
   list: () => [...workbookKeys.all, "list"] as const,
   detail: (id: string) => [...workbookKeys.all, "detail", id] as const,
+  views: (id: string) => [...workbookKeys.all, "views", id] as const,
   providers: () => [...workbookKeys.all, "providers"] as const,
   filterOptions: () => [...workbookKeys.all, "filter-options"] as const,
 }
@@ -111,8 +113,54 @@ export function useImportLeads(workbookId: string) {
 export function useRunWorkbook(workbookId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (opts?: { column_ids?: string[]; lead_ids?: number[]; fill_missing?: boolean }) => runWorkbook(workbookId, opts),
+    mutationFn: (opts?: { column_ids?: string[]; row_ids?: number[]; lead_ids?: number[]; fill_missing?: boolean; force?: boolean }) => runWorkbook(workbookId, opts),
     onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
+  })
+}
+
+/** (Re-)run a single cell synchronously; force bypasses success-skip gates. */
+export function useRunCell(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ rowId, colId, force }: { rowId: number; colId: string; force?: boolean }) =>
+      runWorkbookCell(workbookId, rowId, colId, force ?? false),
+    onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
+  })
+}
+
+// ── Saved Views ──────────────────────────────────────────────────────────
+
+export function useWorkbookViews(workbookId: string) {
+  return useQuery({
+    queryKey: workbookKeys.views(workbookId),
+    queryFn: () => fetchWorkbookViews(workbookId),
+    enabled: !!workbookId,
+  })
+}
+
+export function useCreateView(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: { name: string; config?: Partial<ViewConfig> }) =>
+      createWorkbookView(workbookId, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.views(workbookId) }),
+  })
+}
+
+export function useUpdateView(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ viewId, ...body }: { viewId: string; name?: string; config?: ViewConfig }) =>
+      updateWorkbookView(workbookId, viewId, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.views(workbookId) }),
+  })
+}
+
+export function useDeleteView(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (viewId: string) => deleteWorkbookView(workbookId, viewId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.views(workbookId) }),
   })
 }
 

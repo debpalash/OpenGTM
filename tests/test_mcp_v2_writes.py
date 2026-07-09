@@ -38,7 +38,7 @@ from apps.api.services.mcp import tools as mcp_tools  # noqa: E402
 from apps.api.services.mcp.models import MCPToken, MCPAuditLog  # noqa: E402
 from apps.api.services.automations.models import TriggerCapReservation, Trigger  # noqa: E402
 from apps.api.services.workbook.models import (  # noqa: E402
-    Workbook, WorkbookEnrichment, WorkbookRow,
+    Workbook, WorkbookEnrichment, WorkbookRow, WorkbookView,
 )
 
 WS = "ws_alpha"
@@ -78,7 +78,7 @@ def db(monkeypatch):
     Base.metadata.create_all(eng, tables=[
         MCPToken.__table__, MCPAuditLog.__table__,
         TriggerCapReservation.__table__, Workbook.__table__, Trigger.__table__,
-        WorkbookEnrichment.__table__, WorkbookRow.__table__,
+        WorkbookEnrichment.__table__, WorkbookRow.__table__, WorkbookView.__table__,
     ])
     SL = sessionmaker(bind=eng, autoflush=False)
     import apps.api.database as database

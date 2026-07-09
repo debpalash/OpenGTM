@@ -204,6 +204,12 @@ class Workbook(Base):
         cascade="all, delete-orphan",
         lazy="dynamic",
     )
+    views = relationship(
+        "WorkbookView",
+        back_populates="workbook",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+    )
 
     def __repr__(self):
         return f"<Workbook {self.name} (source={self.source_type})>"
@@ -250,6 +256,51 @@ class WorkbookEnrichment(Base):
 
     def __repr__(self):
         return f"<WorkbookEnrichment wb={self.workbook_id} lead={self.lead_id} col={self.column_id}>"
+
+
+# ── WorkbookView Model ────────────────────────────────────────────────────
+
+class WorkbookView(Base):
+    """A saved view on a workbook — named filters + sort + hidden columns.
+
+    Views are presentation-layer only (never change the underlying rows); the
+    editor applies ``config`` client-side. Config shape::
+
+        {"filters": [{"column": "email", "op": "not_empty", "value": null}],
+         "sort": [{"column": "score", "dir": "desc"}],
+         "hidden_columns": ["notes"]}
+
+    Tenancy: carries a denormalized ``workspace_id`` like every other workbook
+    child table (RLS migration e5f6a7b8c9d0 recipe; policy added in the
+    workbook_views migration) so the fail-closed RLS policy + WITH CHECK bind.
+    """
+    __tablename__ = "workbook_views"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    workspace_id = Column(String, nullable=False, index=True)
+    workbook_id = Column(String, ForeignKey("workbooks.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String(255), nullable=False)
+
+    # {filters: [{column, op, value}], sort: [{column, dir}], hidden_columns: []}
+    config = Column(JSON, default=dict)
+
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    workbook = relationship("Workbook", back_populates="views")
+
+    def __repr__(self):
+        return f"<WorkbookView {self.name} wb={self.workbook_id}>"
+
+    def to_api(self) -> dict:
+        return {
+            "id": self.id,
+            "workbook_id": self.workbook_id,
+            "name": self.name,
+            "config": self.config or {},
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
 
 
 # ── WorkbookRow Model ─────────────────────────────────────────────────────

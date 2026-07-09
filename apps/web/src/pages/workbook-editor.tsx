@@ -17,8 +17,9 @@ import {
   useWorkbook, useUpdateWorkbook, useUpdateLeadField,
   useImportLeads, useRunWorkbook, useStopWorkbook,
   useDeleteLeads, useWorkbookSocket, useProviders,
+  useRunCell, useWorkbookViews,
 } from "@/lib/workbook-hooks"
-import type { WorkbookLeadRow, EnrichmentOverlay, Provenance, AiColumnPreset, CostInfo, RunCostEstimate } from "@/lib/workbook-api"
+import type { WorkbookLeadRow, EnrichmentOverlay, Provenance, AiColumnPreset, CostInfo, RunCostEstimate, WorkbookView } from "@/lib/workbook-api"
 import { fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost, generateColumn } from "@/lib/workbook-api"
 import {
   ArrowLeft, Plus, Play, Square, Download, Upload,
@@ -27,8 +28,9 @@ import {
   FileSpreadsheet, ExternalLink, Filter, Search, Trash2, Copy,
   ArrowUpDown, ArrowUp, ArrowDown, EyeOff, Eye, Pencil, Settings, GripVertical,
   ChevronDown, ChevronUp, Zap, Columns3, Webhook, Calculator,
-  DollarSign,
+  DollarSign, RefreshCw,
 } from "lucide-react"
+import { WorkbookViewBar, applyViewFilters, sortToSortingState } from "@/components/workbook-view-bar"
 import { ActivityDrawer } from "@/components/activity-drawer"
 import { SourceEnginePanel } from "@/components/source-engine-panel"
 import { toast } from "sonner"
@@ -192,10 +194,13 @@ function VerifyBadge({ verify }: { verify?: string | null }) {
 
 function EditableCell({
   value, status, provider, error, verify, provenance, staleTtlDays, isEditable, onSave,
+  onRerun, rerunning,
 }: {
   value: any; status?: string; provider?: string | null; error?: string | null
   verify?: string | null; provenance?: Provenance | null; staleTtlDays?: number
   isEditable: boolean; onSave: (v: string) => void
+  /** Re-run this cell's enrichment (force). Shown as a hover affordance. */
+  onRerun?: () => void; rerunning?: boolean
 }) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(String(value ?? ""))
@@ -259,6 +264,15 @@ function EditableCell({
         {displayValue}
       </span>
       {displayValue && <VerifyBadge verify={verify} />}
+      {onRerun && (
+        <button
+          onClick={(e) => { e.stopPropagation(); if (!rerunning) onRerun() }}
+          className={`${rerunning ? "inline-flex" : "hidden group-hover/cell:inline-flex"} p-0.5 rounded hover:bg-muted shrink-0`}
+          title="Re-run this cell (force)"
+        >
+          <RefreshCw className={`size-3 text-muted-foreground ${rerunning ? "animate-spin" : ""}`} />
+        </button>
+      )}
       {displayValue && (
         <button
           onClick={(e) => {
@@ -434,6 +448,8 @@ export default function WorkbookEditorPage() {
   const runMut = useRunWorkbook(id!)
   const stopMut = useStopWorkbook(id!)
   const deleteMut = useDeleteLeads(id!)
+  const runCellMut = useRunCell(id!)
+  const { data: viewsData } = useWorkbookViews(id!)
   // Only open the live socket once the workbook has actually loaded — a 404/403
   // workbook should never spawn a doomed WebSocket that just 403s in a loop.
   const { connected } = useWorkbookSocket(data?.workbook ? id : undefined)
@@ -458,6 +474,7 @@ export default function WorkbookEditorPage() {
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState("")
   const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(new Set())
+  const [activeViewId, setActiveViewId] = useState<string | null>(null)
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; colId: string } | null>(null)
   const [configPanelColId, setConfigPanelColId] = useState<string | null>(null)
   const [renamingColId, setRenamingColId] = useState<string | null>(null)
@@ -525,6 +542,24 @@ export default function WorkbookEditorPage() {
       ? col.type
       : "lead_field",
   }))
+
+  // ── Saved views: switcher state + client-side filter application ──
+  // Rows are already loaded client-side (single page of up to 1000), so a
+  // view's filters/sort/hidden-columns apply instantly without a refetch.
+  const views = viewsData?.views ?? []
+  const activeView = views.find(v => v.id === activeViewId) ?? null
+
+  const handleSelectView = useCallback((v: WorkbookView | null) => {
+    setActiveViewId(v?.id ?? null)
+    setSorting(v ? sortToSortingState(v.config?.sort) : [])
+    setHiddenColumns(new Set(v?.config?.hidden_columns ?? []))
+  }, [])
+
+  const viewRows = useMemo(
+    () => applyViewFilters(rows, activeView?.config?.filters, columns),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rows, activeView, workbook?.columns_config],
+  )
 
   // ── DnD sensors for column reorder ──
   const dndSensors = useSensors(
@@ -723,6 +758,26 @@ export default function WorkbookEditorPage() {
             const displayValue = overlay.value || (leadFallback ? String(leadFallback) : null)
             const displayStatus = overlay.value ? overlay.status : (leadFallback ? "complete" : overlay.status)
 
+            // Per-cell force re-run (hover affordance). Output columns are
+            // run-once + side-effecting, so force re-pushing needs a confirm.
+            const cellRowId = row.original.row_id ?? row.original.lead_id
+            const isRerunningCell = runCellMut.isPending
+              && runCellMut.variables?.rowId === cellRowId
+              && runCellMut.variables?.colId === col.id
+            const handleRerun = () => {
+              if (col.type === "output") {
+                if (!confirm(`"${col.name}" is an output column (runs once per row). Force re-running will push this row to the destination AGAIN. Continue?`)) return
+              }
+              runCellMut.mutate({ rowId: cellRowId, colId: col.id, force: true }, {
+                onSuccess: (res) => {
+                  if (res.status === "complete") toast.success("Cell re-run complete")
+                  else if (res.status === "skipped") toast.info("Skipped — output cell already ran (use force)")
+                  else toast.error(res.error ? `Cell failed: ${res.error}` : "Cell failed")
+                },
+                onError: () => toast.error("Failed to re-run cell"),
+              })
+            }
+
             return (
               <EditableCell
                 value={displayValue}
@@ -733,6 +788,8 @@ export default function WorkbookEditorPage() {
                 provenance={overlay.value ? overlay.provenance : null}
                 isEditable={false}
                 onSave={() => {}}
+                onRerun={handleRerun}
+                rerunning={isRerunningCell}
               />
             )
           },
@@ -740,10 +797,10 @@ export default function WorkbookEditorPage() {
       }),
     ]
     return cols
-  }, [columns, updateLeadField])
+  }, [columns, hiddenColumns, updateLeadField, runCellMut])
 
   const table = useReactTable({
-    data: rows,
+    data: viewRows,
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -847,6 +904,22 @@ export default function WorkbookEditorPage() {
     })
     setCtxMenu(null)
   }, [runMut])
+
+  const handleForceRunColumn = useCallback((colId: string) => {
+    const col = columns.find(c => c.id === colId)
+    if (!col) return
+    // Output columns are run-once + side-effecting: force re-pushes EVERY row.
+    if (col.type === "output"
+        && !confirm(`"${col.name}" is an output column (runs once per row). Force re-running will push EVERY row to the destination again. Continue?`)) {
+      setCtxMenu(null)
+      return
+    }
+    runMut.mutate({ column_ids: [colId], force: true }, {
+      onSuccess: (data) => toast.success(data.message),
+      onError: () => toast.error("Failed to start force re-run"),
+    })
+    setCtxMenu(null)
+  }, [columns, runMut])
 
   // Close context menu on click outside
   useEffect(() => {
@@ -1010,6 +1083,16 @@ export default function WorkbookEditorPage() {
             <span>{columns.length} columns</span>
           </div>
         </div>
+
+        {/* Saved views: switcher + filter builder */}
+        <WorkbookViewBar
+          workbookId={id!}
+          columns={columns}
+          activeViewId={activeViewId}
+          onSelectView={handleSelectView}
+          sorting={sorting}
+          hiddenColumns={hiddenColumns}
+        />
 
         {/* Search Bar */}
         <div className="relative">
@@ -1733,6 +1816,13 @@ export default function WorkbookEditorPage() {
                 >
                   <Zap className="size-3.5" /> Run This Column
                 </button>
+                <button
+                  onClick={() => handleForceRunColumn(ctxMenu.colId)}
+                  title="Re-run every cell, bypassing success-skip gates (output columns re-push)"
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-amber-400 hover:bg-amber-500/10 transition-colors"
+                >
+                  <RefreshCw className="size-3.5" /> Re-run Column (force)
+                </button>
               </>
             )}
             <div className="h-px bg-border mx-2 my-1" />
@@ -2007,7 +2097,12 @@ export default function WorkbookEditorPage() {
       {/* ── Status Bar ───────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-4 py-1 border-t text-[11px] text-muted-foreground bg-muted/30 shrink-0">
         <div className="flex items-center gap-3">
-          <span className="tabular-nums">{rows.length} of {data?.total_rows ?? 0} rows</span>
+          <span className="tabular-nums">
+            {viewRows.length} of {data?.total_rows ?? 0} rows
+            {activeView && viewRows.length !== rows.length && (
+              <span className="text-primary/70"> · view “{activeView.name}”</span>
+            )}
+          </span>
           <span className="text-border">│</span>
           <span>{columns.length} columns</span>
           {columns.filter(c => c.type === "waterfall" || c.type === "enrichment").length > 0 && (
