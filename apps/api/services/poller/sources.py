@@ -58,6 +58,10 @@ class DetectedEvent:
     source_url: str = ""
     weight: int = 5
     occurred_at: float = field(default_factory=time.time)
+    # Per-event routing overrides (job_change: contacts may map to different
+    # leads than the watch, or to none). None → the watch-level values apply.
+    lead_id: Optional[int] = None
+    company: str = ""
 
 
 # ── Funding (SEC Form D) + executive appointments ───────────────────────────

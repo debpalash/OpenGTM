@@ -204,6 +204,11 @@ class Settings(BaseSettings):
     INTENT_POLLER_JOBSPY_MAX_JOBS: int = 5
     # RSS feed entry cap per poll (spec §9.12).
     INTENT_POLLER_FEED_MAX_ENTRIES: int = 100
+    # job_change watch: hard cap on tracked contacts checked per poll cycle
+    # (keyless DDG lookups — keep volume low; per-watch config can only lower it).
+    INTENT_POLLER_JOB_CHANGE_MAX_CONTACTS_PER_POLL: int = 50
+    # job_change watch: max tracked contacts stored per watch (config size guard).
+    INTENT_POLLER_JOB_CHANGE_MAX_CONTACTS: int = 500
     # Fan-out advisory bound for on_signal fires per signal (spec §7, AC-18).
     INTENT_POLLER_MAX_FIRES_PER_SIGNAL: int = 200
     # Whether the FIRST (bootstrap) poll emits signals for pre-existing items.

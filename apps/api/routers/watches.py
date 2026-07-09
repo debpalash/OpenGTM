@@ -43,6 +43,7 @@ _KIND_SIGNAL_TYPES = {
     "hiring": {"hiring_surge", "new_tech_adopted"},
     "feed": {"news"},
     "company": {"company_funded", "executive_hired", "hiring_surge", "new_tech_adopted"},
+    "job_change": {"job_change"},
 }
 
 
@@ -61,6 +62,10 @@ class WatchCreate(BaseModel):
     lead_id: Optional[int] = None
     signal_types: Optional[list[str]] = None
     interval: Optional[str] = None
+    # Kind-specific config. job_change: {"contacts": [{"lead_id": int} |
+    # {"name": str, "company"?: str, "linkedin_url"?: str}],
+    # "max_contacts_per_poll"?: int}.
+    config: Optional[dict] = None
     # Optional convenience: auto-create an on_signal→webhook rule (rules-only
     # delivery; the watch stores no webhook).
     create_webhook_rule: bool = False
@@ -73,6 +78,63 @@ class WatchPatch(BaseModel):
     interval: Optional[str] = None
     signal_types: Optional[list[str]] = None
     lead_id: Optional[int] = None
+    config: Optional[dict] = None
+
+
+# ── job_change config validation ─────────────────────────────────────────────
+
+def _validate_job_change_config(config: Optional[dict]) -> dict:
+    """Validate + normalize the job_change contact roster. 422 on bad input."""
+    cfg = config or {}
+    contacts = cfg.get("contacts")
+    if not isinstance(contacts, list) or not contacts:
+        raise HTTPException(
+            status_code=422,
+            detail="job_change watch requires config.contacts (non-empty list)",
+        )
+    max_contacts = int(getattr(settings, "INTENT_POLLER_JOB_CHANGE_MAX_CONTACTS", 500))
+    if len(contacts) > max_contacts:
+        raise HTTPException(
+            status_code=422,
+            detail=f"job_change watch supports at most {max_contacts} contacts",
+        )
+    norm: list[dict] = []
+    for i, entry in enumerate(contacts):
+        if not isinstance(entry, dict):
+            raise HTTPException(status_code=422, detail=f"contacts[{i}] must be an object")
+        lead_id = entry.get("lead_id")
+        name = (entry.get("name") or "").strip()
+        company = (entry.get("company") or "").strip()
+        linkedin_url = (entry.get("linkedin_url") or "").strip()
+        if lead_id is not None:
+            try:
+                lead_id = int(lead_id)
+            except (TypeError, ValueError):
+                raise HTTPException(status_code=422, detail=f"contacts[{i}].lead_id must be an int")
+            norm.append({"lead_id": lead_id, "name": name, "company": company,
+                         "linkedin_url": linkedin_url})
+            continue
+        if not name:
+            raise HTTPException(
+                status_code=422,
+                detail=f"contacts[{i}] requires lead_id or a name",
+            )
+        if linkedin_url and "linkedin.com/in" not in linkedin_url.lower():
+            raise HTTPException(
+                status_code=422,
+                detail=f"contacts[{i}].linkedin_url must be a linkedin.com/in profile URL",
+            )
+        norm.append({"name": name, "company": company, "linkedin_url": linkedin_url})
+    out: dict = {"contacts": norm}
+    if cfg.get("max_contacts_per_poll") is not None:
+        try:
+            mpp = int(cfg["max_contacts_per_poll"])
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=422, detail="max_contacts_per_poll must be an int")
+        if mpp < 1:
+            raise HTTPException(status_code=422, detail="max_contacts_per_poll must be >= 1")
+        out["max_contacts_per_poll"] = mpp
+    return out
 
 
 # ── serialization ─────────────────────────────────────────────────────────────
@@ -87,6 +149,7 @@ def _to_api(w: WatchSubscription) -> dict:
         "lead_id": w.lead_id,
         "signal_types": w.signal_types or [],
         "interval": w.interval,
+        "config": w.config or {},
         "enabled": w.enabled,
         "next_poll_at": w.next_poll_at.isoformat() if w.next_poll_at else None,
         "last_polled_at": w.last_polled_at.isoformat() if w.last_polled_at else None,
@@ -164,7 +227,19 @@ def create_watch(
 
     if body.kind not in WATCH_KINDS:
         raise HTTPException(status_code=422, detail=f"invalid kind '{body.kind}'")
-    interval = body.interval or settings.INTENT_POLLER_DEFAULT_INTERVAL
+    if body.kind == "job_change":
+        # Scraping-based person check → weekly minimum (weekly is the slowest
+        # supported interval, so weekly is the ONLY valid value). Default weekly.
+        interval = body.interval or "weekly"
+        if interval != "weekly":
+            raise HTTPException(
+                status_code=422,
+                detail="job_change watches poll at most weekly (interval='weekly')",
+            )
+        config = _validate_job_change_config(body.config)
+    else:
+        interval = body.interval or settings.INTENT_POLLER_DEFAULT_INTERVAL
+        config = None
     if interval not in WATCH_INTERVALS:
         raise HTTPException(status_code=422, detail=f"invalid interval '{interval}'")
 
@@ -190,6 +265,7 @@ def create_watch(
         lead_id=body.lead_id,
         signal_types=signal_types,
         interval=interval,
+        config=config,
         schedule_anchor=datetime.now(timezone.utc),
         enabled=True,
         cursor={"bootstrapped": False},
@@ -247,7 +323,16 @@ def patch_watch(
     if body.interval is not None:
         if body.interval not in WATCH_INTERVALS:
             raise HTTPException(status_code=422, detail=f"invalid interval '{body.interval}'")
+        if w.kind == "job_change" and body.interval != "weekly":
+            raise HTTPException(
+                status_code=422,
+                detail="job_change watches poll at most weekly (interval='weekly')",
+            )
         w.interval = body.interval
+    if body.config is not None:
+        if w.kind != "job_change":
+            raise HTTPException(status_code=422, detail=f"config not supported for kind '{w.kind}'")
+        w.config = _validate_job_change_config(body.config)
     if body.signal_types is not None:
         allowed = _KIND_SIGNAL_TYPES[w.kind]
         bad = [s for s in body.signal_types if s not in allowed]
