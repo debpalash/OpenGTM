@@ -1,0 +1,33 @@
+# Prospeo mobile-finder — declarative provider manifest.
+# Spec: prospeo.io/api/mobile-finder — POST https://api.prospeo.io/mobile-finder,
+# auth header X-KEY, JSON body {"url": "<linkedin profile url>"}. Success
+# response: {"error": false, "response": {"raw_format": "+9725236800..",
+# "international_format": ..., "national_format": ..., ...}}; errors come as
+# {"error": true, "message": "..."} (endpoint + X-KEY + raw_format verified
+# against vendor docs; body param `url` per vendor mobile-finder page).
+# BYOK: inert until PROSPEO_API_KEY is set (same key as the prospeo email
+# provider). Cost approximate — Prospeo bills mobile hits at a premium over
+# email credits; refine from your plan's pricing.
+name: prospeo_mobile
+capability: mobile_phone
+capabilities: [mobile_phone]
+description: Prospeo /mobile-finder — LinkedIn profile URL → verified mobile number.
+default_confidence: 0.8
+cost_per_lookup: 0.10
+auth:
+  type: header
+  param: X-KEY
+  env_var: PROSPEO_API_KEY
+request:
+  method: POST
+  url: https://api.prospeo.io/mobile-finder
+  headers:
+    Content-Type: application/json
+  body:
+    url: "{{input.linkedin_url}}"
+  timeout: 20
+response:
+  error_path: error
+  error_message_path: message
+  mappings:
+    mobile_phone: "$.response.raw_format"

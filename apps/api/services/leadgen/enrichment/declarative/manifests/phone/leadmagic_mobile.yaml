@@ -1,9 +1,15 @@
 # LeadMagic mobile-finder — declarative provider manifest.
-# Spec: LeadMagic/leadmagic-openapi (POST /mobile-finder). Cost: 1 credit
+# Spec: LeadMagic/leadmagic-openapi (POST /mobile-finder; body accepts
+# profile_url / work_email / personal_email — "provide at least one"; 200
+# response: {message, credits_consumed, mobile_number|null}). Cost: 1 credit
 # (0 if not found). Inert until LEADMAGIC_API_KEY is set.
+#
+# Primary capability is mobile_phone (person DIRECT DIAL, Clay-parity
+# "mobile phone" waterfall); also fills the generic phone field for
+# back-compat with the capability registry.
 name: leadmagic_mobile
-capability: phone
-capabilities: [phone]
+capability: mobile_phone
+capabilities: [mobile_phone, phone]
 description: LeadMagic /mobile-finder — LinkedIn profile or work email → mobile number.
 default_confidence: 0.8
 cost_per_lookup: 0.05
@@ -22,4 +28,5 @@ request:
   timeout: 20
 response:
   mappings:
+    mobile_phone: "$.mobile_number"
     phone: "$.mobile_number"

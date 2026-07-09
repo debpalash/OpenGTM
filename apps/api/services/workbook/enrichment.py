@@ -58,6 +58,15 @@ DEFAULT_WATERFALLS = {
         "ddg_company", "facebook_pages",
         "apollo_io", "people_data_labs",
     ],
+    # Person MOBILE phone (Clay-parity "mobile phone" waterfall): BYOK-only,
+    # cost-ordered (leadmagic ~$0.05 < prospeo ~$0.10). Input is the person's
+    # LinkedIn URL (and/or work email for leadmagic). Deliberately excludes the
+    # company-phone providers above (numverify/google_maps/facebook_pages/
+    # local_business find switchboard numbers, not direct dials). Providers are
+    # declarative manifests that skip gracefully when their key is missing.
+    # numverify is NOT appended as a validation step: the verify-cascade
+    # pattern (email_verify_cascade) is email-specific today.
+    "mobile_phone": ["leadmagic_mobile", "prospeo_mobile"],
     # Company description / info. mca_registry + wikidata are website-independent:
     # they answer from the company NAME even when the site is dead.
     "description": [

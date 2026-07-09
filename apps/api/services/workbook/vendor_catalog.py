@@ -73,6 +73,8 @@ VENDORS: Dict[str, Vendor] = {
     # declarative-manifest providers (cost comes from the manifest; listed here
     # so the catalog knows they're paid even before the registry loads)
     "leadmagic_email":  Vendor("leadmagic_email", 0.05, capabilities=["email"]),
+    "leadmagic_mobile": Vendor("leadmagic_mobile", 0.05, capabilities=["mobile_phone", "phone"]),
+    "prospeo_mobile":   Vendor("prospeo_mobile", 0.10, capabilities=["mobile_phone"]),
     # Research column ("Claygent") — native Claude tool-use web research, billed
     # PER CELL at the worst-case budget. base_cost here is illustrative; the
     # effective cost is resolved via base_cost() which gates it behind the
