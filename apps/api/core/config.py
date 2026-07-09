@@ -312,6 +312,14 @@ class Settings(BaseSettings):
     # knowingly accepts the risk for internal targets.
     TECH_STACK_INSECURE_TLS: bool = False
 
+    # ── CRM import (workbook `crm_import` source kind) ─────────────────
+    # Master switch for PULLING HubSpot/Salesforce contacts INTO a workbook
+    # (the import half of CRM enrichment/hygiene). Default OFF: with the flag
+    # off the source kind refuses cleanly and makes ZERO network calls. The
+    # write-back-by-external-id improvement in the output column stays
+    # always-on (pushing to the CRM already exists and is opt-in per column).
+    CRM_IMPORT_ENABLED: bool = False
+
     # Optional integrations
     SCRIBD_COOKIES: str = ""
     GOOGLE_API_KEY: str = ""

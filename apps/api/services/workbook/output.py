@@ -161,7 +161,77 @@ async def _send_webhook(cfg: dict, lead_data: dict, columns_config: list) -> Dic
         return {"success": False, "value": "", "error": str(e)[:200]}
 
 
-async def _push_crm(cfg: dict, lead_data: dict, workspace_id: Optional[str]) -> Dict[str, Any]:
+def _crm_update_fields(crm_type: str, cfg: dict, lead_data: dict) -> Dict[str, str]:
+    """Build the CRM property/field payload for an update-by-external-id.
+
+    Only mapped fields are sent: destination_config.field_map
+    ({lead_field: crm_field}, same orientation as the push path) when set,
+    else the CRM's default map. contact_person is split into first/last name
+    fields, mirroring push_lead_as_contact.
+    """
+    if crm_type == "hubspot":
+        from apps.api.services.crm.hubspot import DEFAULT_FIELD_MAP as default_map
+        first_key, last_key = "firstname", "lastname"
+    else:  # salesforce Contact
+        from apps.api.services.crm.salesforce import CONTACT_UPDATE_FIELD_MAP as default_map
+        first_key, last_key = "FirstName", "LastName"
+
+    fmap = cfg.get("field_map") or default_map
+    fields: Dict[str, str] = {}
+    for lead_field, crm_field in fmap.items():
+        value = lead_data.get(lead_field)
+        if value in (None, ""):
+            continue
+        if lead_field == "contact_person" and " " in str(value):
+            first, last = str(value).split(" ", 1)
+            fields[first_key] = first
+            fields[last_key] = last
+        else:
+            fields[crm_field] = str(value)
+    return fields
+
+
+def _store_row_crm_id(workbook_id: str, lead_id: int, crm_type: str,
+                      old_ext_id: str, new_id: str, new_object: str) -> bool:
+    """After a 404→create fallback, stamp the fresh CRM id onto the row.
+
+    Best-effort: locate the WorkbookRow this cell ran for (crm_import rows have
+    lead_id NULL, so enrichment passes their row id as lead_id) and confirm it
+    carries the stale sync key before overwriting. Returns False (logged) when
+    the row can't be identified — the push itself already succeeded.
+    """
+    try:
+        from apps.api.database import SessionLocal
+        from apps.api.services.workbook.models import WorkbookRow
+
+        with SessionLocal() as db:
+            candidates = db.query(WorkbookRow).filter(
+                WorkbookRow.workbook_id == workbook_id,
+                ((WorkbookRow.lead_id == lead_id) | (WorkbookRow.id == lead_id)),
+            ).all()
+            row = next(
+                (r for r in candidates
+                 if str((r.data or {}).get("crm_external_id") or "") == str(old_ext_id)
+                 and str((r.data or {}).get("crm_type") or "").lower() == crm_type),
+                None,
+            )
+            if row is None:
+                return False
+            data = dict(row.data or {})
+            data["crm_external_id"] = str(new_id)
+            data["crm_type"] = crm_type
+            data["crm_object"] = new_object
+            row.data = data
+            db.commit()
+            return True
+    except Exception as e:
+        logger.warning(f"Failed to store new {crm_type} id onto row {lead_id}: {e}")
+        return False
+
+
+async def _push_crm(cfg: dict, lead_data: dict, workspace_id: Optional[str],
+                    workbook_id: Optional[str] = None,
+                    lead_id: Optional[int] = None) -> Dict[str, Any]:
     crm_type = (cfg.get("type") or "hubspot").lower()
     if crm_type == "hubspot":
         from apps.api.services.crm import hubspot as crm
@@ -175,12 +245,44 @@ async def _push_crm(cfg: dict, lead_data: dict, workspace_id: Optional[str]) -> 
     if not crm.is_connected(workspace_id):
         return {"success": False, "value": "", "error": f"{label} not connected"}
 
+    # ── Write-back by external id (CRM sync) ──────────────────────────
+    # Rows imported via the crm_import source carry their origin record's id
+    # (data.crm_external_id + crm_type). When it matches this column's CRM,
+    # UPDATE that record — sending only the mapped fields — instead of the
+    # search-by-email/create push. A 404 (record deleted in the CRM since
+    # import) falls through to the create path below, and the fresh id is
+    # stored back onto the row so later runs keep updating.
+    ext_id = str(lead_data.get("crm_external_id") or "").strip()
+    row_crm = str(lead_data.get("crm_type") or "").strip().lower()
+    crm_deleted = False
+    if ext_id and row_crm == crm_type:
+        fields = _crm_update_fields(crm_type, cfg, lead_data)
+        if crm_type == "hubspot":
+            res = await crm.update_contact_by_id(ext_id, fields, workspace_id=workspace_id)
+        else:
+            crm_object = str(lead_data.get("crm_object") or "contact").lower()
+            sobject = {"contact": "Contact", "lead": "Lead"}.get(crm_object, "Contact")
+            res = await crm.update_record(sobject, ext_id, fields, workspace_id=workspace_id)
+        if res.get("success"):
+            return {"success": True, "value": f"{label}: updated {ext_id}", "error": None}
+        if not res.get("not_found"):
+            return {"success": False, "value": "",
+                    "error": res.get("error", f"{label} update failed")}
+        crm_deleted = True  # deleted in CRM → recreate below
+
+    # ── Create path (no external id, or the CRM record is gone) ───────
     # push_lead_as_contact reads attributes off a Lead object.
     from apps.api.services.workbook.enrichment import _lead_dict_to_lead
     lead = _lead_dict_to_lead(lead_data)
 
     res = await crm.push_lead_as_contact(lead, cfg.get("field_map"), workspace_id=workspace_id)
     if res.get("success"):
+        new_id = res.get(id_key)
+        if crm_deleted and new_id and workbook_id and lead_id is not None:
+            # Salesforce's create path makes a Lead sObject, not a Contact.
+            new_object = "contact" if crm_type == "hubspot" else "lead"
+            _store_row_crm_id(workbook_id, lead_id, crm_type,
+                              ext_id, str(new_id), new_object)
         return {
             "success": True,
             "value": f"{label}: {res.get('action', 'synced')} {res.get(id_key, '')}".strip(),
@@ -328,7 +430,8 @@ async def execute_output_column(
     if dest == "webhook":
         return await _send_webhook(cfg, lead_data, columns_config)
     if dest == "crm":
-        return await _push_crm(cfg, lead_data, workspace_id)
+        return await _push_crm(cfg, lead_data, workspace_id,
+                               workbook_id=workbook_id, lead_id=lead_id)
     if dest == "sequencer":
         return _enroll_sequence(cfg, lead_id, lead_data, workspace_id)
     if dest == "airtable":
