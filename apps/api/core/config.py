@@ -216,6 +216,12 @@ class Settings(BaseSettings):
     POLLER_HIRING_COST_USD: float = 0.0
     POLLER_FEED_COST_USD: float = 0.0
 
+    # ── Inbound rows API ("webhook source") ────────────────────────────
+    # Master switch. OFF (default): /api/v2/workbooks/{id}/rows/ingest and
+    # /ingest-token 404 every path (feature-disabled), mirroring how
+    # INTENT_POLLER_ENABLED gates routers/watches.py.
+    INGEST_API_ENABLED: bool = False
+
     # ── Source-reliability scoring (sourcing P2) ───────────────────────
     # Master switch. OFF (default): scoring is byte-for-byte today's — the
     # source_stats ledger still accumulates passively but never feeds scoring.
