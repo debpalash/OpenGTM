@@ -942,9 +942,18 @@ async def stop_workbook(
 
 class SourceColumnRequest(BaseModel):
     name: str = "Source"
+    kind: str = "icp"                               # "icp" (default) | "people_search"
     icp: dict = Field(default_factory=dict)        # {description, industry, geo, size, keywords_any, exclude}
     channels: dict = Field(default_factory=dict)   # {categories, regions, explicit_sources}
     target_rows: int = 0                            # 0 = unlimited
+    # ── people_search config (kind == "people_search") ──
+    companies: list[str] = Field(default_factory=list)  # names or domains
+    from_column: str = ""                           # OR: read companies off rows (column id/name/lead field)
+    titles: list[str] = Field(default_factory=list)      # ["CTO", "Founder", ...]
+    seniority: str = ""
+    geo: str = ""
+    max_per_company: int = 10                       # capped at 25
+    max_searches: int = 100                         # total DDG queries per run
 
 
 @router.post("/{workbook_id}/sources")
@@ -954,20 +963,48 @@ async def add_source_column(
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(current_workspace),
 ):
-    """Add a `source` column (ICP-driven) to a workbook."""
+    """Add a `source` column (ICP-driven, or people_search) to a workbook."""
     import uuid
     wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
     if not wb:
         raise HTTPException(status_code=404, detail="Workbook not found")
 
-    col = {
-        "id": f"src_{uuid.uuid4().hex[:8]}",
-        "name": body.name,
-        "type": "source",
-        "icp": body.icp,
-        "channels": body.channels,
-        "target_rows": body.target_rows,
-    }
+    if body.kind == "people_search":
+        from apps.api.core.config import settings
+        from apps.api.services.workbook.people_search import validate_people_search_config
+        if not settings.PEOPLE_SEARCH_SOURCE_ENABLED:
+            raise HTTPException(
+                status_code=403,
+                detail="people_search source is disabled (PEOPLE_SEARCH_SOURCE_ENABLED)",
+            )
+        try:
+            ps = validate_people_search_config({
+                "companies": body.companies,
+                "from_column": body.from_column,
+                "titles": body.titles,
+                "seniority": body.seniority,
+                "geo": body.geo,
+                "max_per_company": body.max_per_company,
+                "max_searches": body.max_searches,
+            })
+        except ValueError as e:
+            raise HTTPException(status_code=422, detail=str(e))
+        col = {
+            "id": f"src_{uuid.uuid4().hex[:8]}",
+            "name": body.name,
+            "type": "source",
+            "kind": "people_search",
+            **ps,
+        }
+    else:
+        col = {
+            "id": f"src_{uuid.uuid4().hex[:8]}",
+            "name": body.name,
+            "type": "source",
+            "icp": body.icp,
+            "channels": body.channels,
+            "target_rows": body.target_rows,
+        }
     cfg = list(wb.columns_config or [])
     cfg.append(col)
     wb.columns_config = cfg
@@ -1018,6 +1055,10 @@ async def preview_source_column(
                 if c.get("id") == col_id and c.get("type") == "source"), None)
     if not col:
         raise HTTPException(status_code=404, detail="Source column not found")
+
+    if (col.get("kind") or "") == "people_search":
+        from apps.api.services.workbook.people_search import preview_people_search
+        return preview_people_search(col)
 
     from apps.api.services.workbook.source_engine import preview_source
     return preview_source(col.get("icp") or {}, col.get("channels") or {})

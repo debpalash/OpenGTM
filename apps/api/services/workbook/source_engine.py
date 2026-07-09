@@ -99,6 +99,13 @@ async def _materialize_source_impl(
         wb.status = "running"
         db.commit()
 
+    # ── people_search kind: person rows via LinkedIn discovery (not ICP) ──
+    # Dispatched here (after the status flip, inside workspace_scope) so the
+    # run route, queue handler and refresh flow treat it like any other source.
+    if (col.get("kind") or "").strip() == "people_search":
+        from apps.api.services.workbook.people_search import materialize_people_search
+        return await materialize_people_search(workbook_id, column_id, workspace_id, col)
+
     query = build_query(icp)
     if not query:
         with SessionLocal() as db:
