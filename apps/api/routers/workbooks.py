@@ -954,6 +954,11 @@ class SourceColumnRequest(BaseModel):
     geo: str = ""
     max_per_company: int = 10                       # capped at 25
     max_searches: int = 100                         # total DDG queries per run
+    # Non-ICP source kinds, e.g. CRM import (flag-gated CRM_IMPORT_ENABLED):
+    # {kind: "crm_import", crm: "hubspot"|"salesforce", object: "contact",
+    #  filter?: <hubspot list id | SOQL WHERE fragment>, limit?: 500,
+    #  field_map?: {crm_prop: lead_field}}
+    source: dict = Field(default_factory=dict)
 
 
 @router.post("/{workbook_id}/sources")
@@ -1005,6 +1010,8 @@ async def add_source_column(
             "channels": body.channels,
             "target_rows": body.target_rows,
         }
+        if body.source:
+            col["source"] = body.source
     cfg = list(wb.columns_config or [])
     cfg.append(col)
     wb.columns_config = cfg

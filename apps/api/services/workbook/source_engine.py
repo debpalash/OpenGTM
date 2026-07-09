@@ -94,10 +94,23 @@ async def _materialize_source_impl(
         )
         if not col:
             return {"error": "source_column_not_found"}
-        icp = col.get("icp") or {}
-        target_rows = int(col.get("target_rows") or 0)
-        wb.status = "running"
-        db.commit()
+        # ── Source-kind dispatch: `crm_import` pulls CRM contacts instead of
+        # running the ICP/JobRunner pipeline. The kind may live in a nested
+        # col["source"] config or inline on the column. Status transitions,
+        # broadcasts, dedup and workspace scoping are handled inside the
+        # crm_import engine (flag-gated: CRM_IMPORT_ENABLED).
+        _src = col.get("source") if isinstance(col.get("source"), dict) else {}
+        _kind = str(_src.get("kind") or col.get("kind") or "").lower()
+        crm_cfg = {**col, **_src} if _kind == "crm_import" else None
+        if crm_cfg is None:
+            icp = col.get("icp") or {}
+            target_rows = int(col.get("target_rows") or 0)
+            wb.status = "running"
+            db.commit()
+
+    if crm_cfg is not None:
+        from apps.api.services.workbook.crm_import import materialize_crm_import
+        return await materialize_crm_import(workbook_id, column_id, workspace_id, crm_cfg)
 
     # ── people_search kind: person rows via LinkedIn discovery (not ICP) ──
     # Dispatched here (after the status flip, inside workspace_scope) so the

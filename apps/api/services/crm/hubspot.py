@@ -210,6 +210,180 @@ async def push_leads_batch(leads, field_map: Dict[str, str] = None,
     return result
 
 
+async def update_contact_by_id(contact_id: str, properties: Dict[str, str],
+                               workspace_id: Optional[str] = None) -> Dict[str, Any]:
+    """PATCH an existing contact by its HubSpot id (CRM-sync write-back).
+
+    Returns {"success": True, "action": "updated", "hubspot_id": id} on 200,
+    {"success": False, "not_found": True, ...} on 404 (deleted in HubSpot —
+    caller falls back to create), a clean error dict otherwise. Never raises
+    for HTTP-level failures; 429 is retried (bounded, Retry-After honored).
+    """
+    token = _get_token(workspace_id)
+    if not token:
+        return {"success": False, "error": "No HubSpot token"}
+    if not properties:
+        return {"success": False, "error": "no mapped fields to update"}
+
+    from apps.api.services.crm import request_with_retry
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await request_with_retry(
+                client, "PATCH",
+                f"{BASE_URL}/crm/v3/objects/contacts/{contact_id}",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                },
+                json={"properties": properties},
+            )
+        if resp.status_code == 200:
+            return {"success": True, "action": "updated", "hubspot_id": str(contact_id)}
+        if resp.status_code == 404:
+            return {"success": False, "not_found": True,
+                    "error": f"contact {contact_id} not found in HubSpot"}
+        return {"success": False,
+                "error": f"HTTP {resp.status_code}: {resp.text[:160]}"}
+    except Exception as e:
+        logger.error(f"HubSpot update failed: {e}")
+        return {"success": False, "error": str(e)[:200]}
+
+
+# ── Import (pull contacts INTO Yupcha) ────────────────────────────────
+
+# Default HubSpot contact properties to pull when no field_map is given.
+IMPORT_DEFAULT_PROPERTIES = [
+    "email", "firstname", "lastname", "company", "phone", "website", "jobtitle",
+]
+
+
+def _map_import_properties(props: Dict[str, Any],
+                           field_map: Optional[Dict[str, str]]) -> Dict[str, Any]:
+    """Map a HubSpot contact's properties dict → Yupcha lead fields.
+
+    ``field_map`` is {hubspot_property: lead_field}. Without one, the default
+    properties map to lead fields, with firstname+lastname merged into
+    contact_person (the inverse of the push-side split).
+    """
+    props = props or {}
+    if field_map:
+        return {
+            lead_field: props.get(crm_prop)
+            for crm_prop, lead_field in field_map.items()
+            if props.get(crm_prop) not in (None, "")
+        }
+    out: Dict[str, Any] = {}
+    for crm_prop, lead_field in (
+        ("email", "email"), ("company", "company"), ("phone", "phone"),
+        ("website", "website"), ("jobtitle", "contact_title"),
+    ):
+        if props.get(crm_prop) not in (None, ""):
+            out[lead_field] = props[crm_prop]
+    name = " ".join(
+        str(props.get(p) or "").strip() for p in ("firstname", "lastname")
+    ).strip()
+    if name:
+        out["contact_person"] = name
+    return out
+
+
+async def fetch_contacts(limit: int = 500, list_id: Optional[str] = None,
+                         field_map: Optional[Dict[str, str]] = None,
+                         workspace_id: Optional[str] = None) -> Dict[str, Any]:
+    """Pull up to ``limit`` contacts from HubSpot (CRM v3, cursor paging).
+
+    ``list_id`` restricts the pull to a HubSpot list (memberships API + batch
+    read); otherwise all contacts are paged. Returns
+    {"success": True, "contacts": [lead-field dicts]} — each dict carries the
+    sync key (crm_external_id / crm_type / crm_object) — or a clean
+    {"success": False, "error": ...}. Never raises for HTTP failures.
+    """
+    token = _get_token(workspace_id)
+    if not token:
+        return {"success": False, "error": "No HubSpot token configured"}
+
+    from apps.api.services.crm import request_with_retry
+    properties = list(field_map.keys()) if field_map else list(IMPORT_DEFAULT_PROPERTIES)
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+    def _row(obj: Dict[str, Any]) -> Dict[str, Any]:
+        row = _map_import_properties(obj.get("properties") or {}, field_map)
+        row["crm_external_id"] = str(obj.get("id"))
+        row["crm_type"] = "hubspot"
+        row["crm_object"] = "contact"
+        return row
+
+    contacts: List[Dict[str, Any]] = []
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            if list_id:
+                # List filter: page member record ids, then batch-read properties.
+                record_ids: List[str] = []
+                after: Optional[str] = None
+                while len(record_ids) < limit:
+                    params: Dict[str, Any] = {"limit": min(250, limit - len(record_ids))}
+                    if after:
+                        params["after"] = after
+                    resp = await request_with_retry(
+                        client, "GET",
+                        f"{BASE_URL}/crm/v3/lists/{list_id}/memberships",
+                        headers=headers, params=params,
+                    )
+                    if resp.status_code in (401, 403):
+                        return {"success": False,
+                                "error": f"HubSpot token invalid or expired (HTTP {resp.status_code})"}
+                    if resp.status_code != 200:
+                        return {"success": False,
+                                "error": f"HTTP {resp.status_code}: {resp.text[:160]}"}
+                    data = resp.json()
+                    record_ids.extend(str(r.get("recordId")) for r in data.get("results", []))
+                    after = ((data.get("paging") or {}).get("next") or {}).get("after")
+                    if not after:
+                        break
+                record_ids = record_ids[:limit]
+                for i in range(0, len(record_ids), 100):
+                    chunk = record_ids[i:i + 100]
+                    resp = await request_with_retry(
+                        client, "POST",
+                        f"{BASE_URL}/crm/v3/objects/contacts/batch/read",
+                        headers=headers,
+                        json={"properties": properties,
+                              "inputs": [{"id": rid} for rid in chunk]},
+                    )
+                    if resp.status_code not in (200, 207):
+                        return {"success": False,
+                                "error": f"HTTP {resp.status_code}: {resp.text[:160]}"}
+                    contacts.extend(_row(o) for o in resp.json().get("results", []))
+            else:
+                after = None
+                while len(contacts) < limit:
+                    params = {
+                        "limit": min(100, limit - len(contacts)),
+                        "properties": ",".join(properties),
+                    }
+                    if after:
+                        params["after"] = after
+                    resp = await request_with_retry(
+                        client, "GET", f"{BASE_URL}/crm/v3/objects/contacts",
+                        headers=headers, params=params,
+                    )
+                    if resp.status_code in (401, 403):
+                        return {"success": False,
+                                "error": f"HubSpot token invalid or expired (HTTP {resp.status_code})"}
+                    if resp.status_code != 200:
+                        return {"success": False,
+                                "error": f"HTTP {resp.status_code}: {resp.text[:160]}"}
+                    data = resp.json()
+                    contacts.extend(_row(o) for o in data.get("results", []))
+                    after = ((data.get("paging") or {}).get("next") or {}).get("after")
+                    if not after:
+                        break
+        return {"success": True, "contacts": contacts[:limit]}
+    except Exception as e:
+        logger.error(f"HubSpot import fetch failed: {e}")
+        return {"success": False, "error": str(e)[:200]}
+
+
 async def get_contacts(limit: int = 20, workspace_id: Optional[str] = None) -> List[Dict]:
     """Fetch recent contacts from HubSpot (per-workspace token)."""
     token = _get_token(workspace_id)
