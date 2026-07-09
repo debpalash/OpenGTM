@@ -1,0 +1,21 @@
+{
+    "name": "@yupcha/chrome-extension",
+    "version": "0.1.0",
+    "private": true,
+    "description": "Yupcha Capture — Chrome MV3 extension that extracts structured data (tables, repeated lists, LinkedIn people results) from the current page and pushes it into a Yupcha workbook via the inbound rows ingest API.",
+    "license": "AGPL-3.0-only",
+    "scripts": {
+        "build": "bun run scripts/build.ts",
+        "dev": "echo '@yupcha/chrome-extension — no dev server; run build and load dist/ unpacked'",
+        "typecheck": "tsc --noEmit",
+        "lint": "tsc --noEmit",
+        "test": "bun test",
+        "zip": "bun run build && cd dist && zip -r ../yupcha-chrome-extension.zip ."
+    },
+    "devDependencies": {
+        "@types/bun": "^1.1.0",
+        "@types/chrome": "^0.0.280",
+        "happy-dom": "^15.11.7",
+        "typescript": "^5.0.0"
+    }
+}
