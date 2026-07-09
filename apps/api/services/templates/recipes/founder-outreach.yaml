@@ -1,0 +1,73 @@
+# Outbound — decision-maker discovery + verified email + personalized opener.
+slug: founder-outreach
+name: "Founder & decision-maker outreach"
+description: >-
+  Find the founder or key decision maker at each company, get a verified email,
+  and draft a personalized opener — ready to enroll in a sequence.
+category: outbound
+icon: crown
+workbook:
+  description: >-
+    The contact waterfalls chain zero-key people-finders (site scrape,
+    CrossLinked, StaffSpy roster). The output column enrolls finished rows in
+    your sequencer once configured in Settings.
+  columns:
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: contact
+      name: Decision maker
+      type: waterfall
+      target_field: contact_person
+      waterfall: [deep_scraper, crosslinked, decision_maker, staffspy]
+      condition: '{contact_person} == ""'
+      width: 200
+    - id: title
+      name: Title
+      type: waterfall
+      target_field: contact_title
+      waterfall: [deep_scraper, crosslinked, decision_maker, staffspy]
+      width: 160
+    - id: email
+      name: Email (verified)
+      type: waterfall
+      target_field: email
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, email_harvester, ddg_email, hunter_io]
+      verify: true
+      condition: '{email} == ""'
+      width: 220
+    - id: seniority
+      name: Seniority tier
+      type: ai_formula
+      output_format: text
+      prompt: |-
+        ROLE: You classify job titles for sales routing.
+        CONTEXT: Contact: {contact_person}, title: {contact_title}, at {company}.
+        TASK: Classify the contact's seniority as exactly one of: C-LEVEL, VP, DIRECTOR, MANAGER, IC.
+        FORMAT: Output ONLY the tier word.
+        FALLBACK: If the title is missing or ambiguous, output INSUFFICIENT_DATA.
+      width: 140
+    - id: opener
+      name: Opening line
+      type: ai_formula
+      output_format: text
+      prompt: |-
+        ROLE: You are an expert cold-email copywriter.
+        CONTEXT: Contact: {contact_person} ({contact_title}) at {company}. About the company: {description}.
+        TASK: Write ONE personalized opening line addressed to this person's role and company. No flattery, no 'I came across your company'.
+        FORMAT: One sentence, max 20 words, plain text.
+        FALLBACK: If you cannot reference anything specific, output INSUFFICIENT_DATA.
+      width: 300
+    # destination_config intentionally omitted — sequencer setup is per-workspace.
+    - id: enroll
+      name: Enroll in sequence
+      type: output
+      destination: sequencer
+      width: 160

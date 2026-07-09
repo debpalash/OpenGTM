@@ -1,0 +1,44 @@
+# CRM hygiene — verify every email in an imported list before you send.
+slug: email-verify-cleanup
+name: "Email list verification & cleanup"
+description: >-
+  Import your list (CSV or leads), verify every email with SMTP + account-presence
+  checks, extract the domain, and re-find addresses for rows that fail.
+category: crm-hygiene
+icon: shield-check
+workbook:
+  description: >-
+    Add rows from CSV or your leads, then run: the verify column grades each
+    email (valid / invalid / catch-all), the domain formula normalizes rows for
+    dedupe, and the re-find waterfall only spends effort on rows with no email.
+  columns:
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: email
+      name: Email
+      type: lead_field
+      lead_field: email
+      width: 220
+    - id: verify
+      name: Verification
+      type: waterfall
+      target_field: email_verify
+      waterfall: [mailscout, holehe]
+      condition: '{email} != ""'
+      width: 160
+    - id: domain
+      name: Domain
+      type: formula
+      formula: '{email}.split("@")[1]'
+      width: 180
+    - id: refind_email
+      name: Re-find email
+      type: waterfall
+      target_field: email
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, email_harvester, ddg_email]
+      verify: true
+      condition: '{email} == ""'
+      width: 220

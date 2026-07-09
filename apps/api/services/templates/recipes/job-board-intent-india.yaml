@@ -1,0 +1,57 @@
+# Signals — companies posting on Indian job boards are spending money NOW.
+slug: job-board-intent-india
+name: "Job-board intent (India)"
+description: >-
+  Source companies actively posting on Naukri, Indeed and Shine — a
+  spend-signal — then find an HR/hiring contact and a verified email.
+category: signals
+icon: briefcase
+workbook:
+  description: >-
+    Active job posting is one of the strongest intent signals: budget exists
+    and someone is buying. The source column mines Indian job boards; contact
+    + email waterfalls make each signal actionable.
+  columns:
+    - id: src_jobs_india
+      name: "Source: hiring companies (India)"
+      type: source
+      icp:
+        description: "companies actively hiring in India"
+        industry: "any"
+        geo: [India]
+        keywords_any: [hiring, jobs, careers]
+      channels:
+        regions: [india]
+        categories: [jobs]
+        explicit_sources: [naukri, indeed, shine, monsterindia]
+      target_rows: 150
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: hiring
+      name: Open roles
+      type: waterfall
+      target_field: hiring_signals
+      waterfall: [ats_hiring, jobspy]
+      width: 240
+    - id: contact
+      name: Hiring contact
+      type: waterfall
+      target_field: contact_person
+      waterfall: [deep_scraper, crosslinked, decision_maker]
+      width: 200
+    - id: email
+      name: Email (verified)
+      type: waterfall
+      target_field: email
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, email_harvester, ddg_email]
+      verify: true
+      condition: '{email} == ""'
+      width: 220

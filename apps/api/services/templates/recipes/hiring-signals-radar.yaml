@@ -1,0 +1,47 @@
+# Signals — who is hiring right now, and what that means for outreach.
+slug: hiring-signals-radar
+name: "Hiring-signals radar"
+description: >-
+  Detect open roles across your accounts from public ATS boards, then turn
+  each hiring signal into a concrete outreach angle — pushed to your webhook.
+category: signals
+icon: radar
+workbook:
+  description: >-
+    ats_hiring reads public ATS boards (zero-key); jobspy aggregates job
+    portals as fallback. The AI column converts raw postings into an angle you
+    can open with, and the webhook column notifies your own systems.
+  columns:
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: hiring
+      name: Open roles
+      type: waterfall
+      target_field: hiring_signals
+      waterfall: [ats_hiring, jobspy]
+      width: 240
+    - id: angle
+      name: Outreach angle
+      type: ai_formula
+      output_format: text
+      prompt: |-
+        ROLE: You are a B2B sales strategist.
+        CONTEXT: Company: {company}. Open roles / hiring signals: {hiring_signals}.
+        TASK: From these hiring signals, infer ONE concrete business initiative the company is likely running, and phrase it as an outreach angle (why now).
+        FORMAT: One sentence, max 25 words.
+        FALLBACK: If there are no hiring signals, output INSUFFICIENT_DATA.
+      width: 300
+    # destination_config intentionally omitted — set your webhook URL after import.
+    - id: notify
+      name: Notify webhook
+      type: output
+      destination: webhook
+      width: 160

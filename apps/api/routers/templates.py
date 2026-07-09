@@ -1,13 +1,89 @@
 """
 Templates Router — Workbook template gallery.
+
+Two generations live here:
+  - Legacy templates (GET "" / POST "/{template_id}/create"): lead-field views
+    from services/workbook/templates.py.
+  - Recipe gallery (GET "/gallery" / GET "/gallery/{slug}" /
+    POST "/gallery/{slug}/instantiate"): curated, importable workbook recipes
+    loaded from services/templates/recipes/*.yaml — full column configs
+    (source / waterfall / ai_formula / research / output), validated at load
+    time. Instantiation reuses the workbooks router's create_workbook path.
 """
 
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from apps.api.database import get_db
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 
 router = APIRouter(prefix="/api/templates", tags=["templates"])
+
+
+# ── Recipe gallery ────────────────────────────────────────────────────────
+
+class InstantiateRecipeRequest(BaseModel):
+    """Optional overrides when creating a workbook from a recipe."""
+    name: Optional[str] = Field(None, min_length=1, max_length=255)
+
+
+@router.get("/gallery")
+def list_gallery(category: str = None):
+    """List gallery recipes (card summaries), optionally filtered by category."""
+    from apps.api.services.templates.recipes import (
+        RECIPE_CATEGORIES, load_recipes, recipe_summary,
+    )
+    if category and category not in RECIPE_CATEGORIES:
+        raise HTTPException(status_code=404, detail=f"Unknown category '{category}'")
+    recipes = load_recipes(category)
+    return {
+        "recipes": [recipe_summary(r) for r in recipes],
+        "categories": RECIPE_CATEGORIES,
+        "total": len(recipes),
+    }
+
+
+@router.get("/gallery/{slug}")
+def get_gallery_recipe(slug: str):
+    """Full recipe detail — metadata + the complete workbook definition."""
+    from apps.api.services.templates.recipes import get_recipe
+    recipe = get_recipe(slug)
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    return recipe
+
+
+@router.post("/gallery/{slug}/instantiate", status_code=201)
+async def instantiate_gallery_recipe(
+    slug: str,
+    body: InstantiateRecipeRequest = None,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Create a workbook from a recipe in the caller's workspace.
+
+    Delegates to the workbooks router's create_workbook (the single
+    workbook-creation path) so row snapshotting, automations events and the
+    response shape stay identical to a hand-built workbook.
+    """
+    from apps.api.routers.workbooks import create_workbook
+    from apps.api.services.workbook.schemas import ColumnConfig, WorkbookCreate
+    from apps.api.services.templates.recipes import get_recipe
+
+    recipe = get_recipe(slug)
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    wb_def = recipe["workbook"]
+    create_body = WorkbookCreate(
+        name=(body.name if body and body.name else recipe["name"]),
+        description=wb_def.get("description") or recipe["description"],
+        source="empty",
+        columns_config=[ColumnConfig.model_validate(c) for c in wb_def["columns"]],
+    )
+    return await create_workbook(create_body, db=db, ctx=ctx)
 
 
 @router.get("")

@@ -1,0 +1,60 @@
+# Outbound — per-row personalization: opener + pain points + verified email.
+slug: cold-email-personalization
+name: "Cold email personalization at scale"
+description: >-
+  Turn a raw list into sequence-ready rows: a verified email, two likely pain
+  points, and a personalized opening line for every company.
+category: outbound
+icon: pen-line
+workbook:
+  description: >-
+    Run the email waterfall first, then the AI columns. Rows that come back
+    INSUFFICIENT_DATA are easy to filter out before enrolling the rest into a
+    sequence with the output column (configure your sequencer in Settings).
+  columns:
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: email
+      name: Email (verified)
+      type: waterfall
+      target_field: email
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, email_harvester, ddg_email, hunter_io]
+      verify: true
+      condition: '{email} == ""'
+      width: 220
+    - id: pains
+      name: Likely pain points
+      type: ai_formula
+      output_format: text
+      prompt: |-
+        ROLE: You are a B2B growth strategist.
+        CONTEXT: Company: {company} ({website}). What they do: {description}. Size: {company_size}.
+        TASK: Identify the 2 most likely operational pain points this specific company faces, grounded in their business model and size — not generic platitudes.
+        FORMAT: Two short bullet points, max 12 words each.
+        FALLBACK: If the profile is too thin to infer real pains, output INSUFFICIENT_DATA.
+      width: 280
+    - id: opener
+      name: Opening line
+      type: ai_formula
+      output_format: text
+      prompt: |-
+        ROLE: You are an expert cold-email copywriter.
+        CONTEXT: Company: {company}. About: {description}. City: {city}. Website: {website}.
+        TASK: Write ONE personalized opening line for a cold email that references something specific and true about this company. No flattery, no 'I came across your company'.
+        FORMAT: One sentence, max 20 words, plain text.
+        FALLBACK: If you cannot reference anything specific, output INSUFFICIENT_DATA.
+      width: 300
+    # destination_config intentionally omitted — sequencer setup is per-workspace.
+    - id: enroll
+      name: Enroll in sequence
+      type: output
+      destination: sequencer
+      width: 160

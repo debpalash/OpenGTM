@@ -1,0 +1,50 @@
+# CRM hygiene — normalize rows into dedupe-ready keys with safe formulas.
+slug: domain-normalize-dedupe
+name: "Normalize & dedupe prep (domains + clean names)"
+description: >-
+  Derive a canonical domain and a lowercased company key from each row with
+  safe formulas — the join keys you need before deduping or merging lists.
+category: crm-hygiene
+icon: combine
+workbook:
+  description: >-
+    Formula columns run instantly and cost nothing: email → domain, company →
+    normalized key. The one-liner AI column gives a human-readable summary for
+    manual review of near-duplicates.
+  columns:
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: email
+      name: Email
+      type: lead_field
+      lead_field: email
+      width: 220
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: email_domain
+      name: Email domain
+      type: formula
+      formula: '{email}.split("@")[1]'
+      width: 180
+    - id: company_key
+      name: Company key
+      type: formula
+      formula: 'lower({company})'
+      width: 180
+    - id: one_liner
+      name: One-liner (review aid)
+      type: ai_formula
+      output_format: text
+      prompt: |-
+        ROLE: You write crisp company descriptions.
+        CONTEXT: Company: {company}. Website: {website}. Notes: {description}.
+        TASK: In one sentence, state what this company does and who they serve.
+        FORMAT: One sentence, max 25 words, no marketing fluff.
+        FALLBACK: If you don't know what they do, output INSUFFICIENT_DATA.
+      width: 260

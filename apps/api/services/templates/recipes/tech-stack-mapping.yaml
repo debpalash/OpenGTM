@@ -1,0 +1,53 @@
+# Research — detect what each company runs, two independent ways.
+slug: tech-stack-mapping
+name: "Tech-stack mapping"
+description: >-
+  Detect each company's technologies twice — a website fingerprint waterfall
+  plus an evidence-only research agent over job posts — and reconcile them.
+category: research
+icon: cpu
+workbook:
+  description: >-
+    The tech_stack provider fingerprints the website; the research column
+    reads job postings for corroboration. The AI column merges both into one
+    clean, deduplicated list.
+  columns:
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: tech_fingerprint
+      name: Tech (website scan)
+      type: waterfall
+      target_field: technologies
+      waterfall: [tech_stack]
+      width: 220
+    - id: tech_research
+      name: Tech (job-post research)
+      type: research
+      output_format: text
+      max_steps: 4
+      prompt: |-
+        ROLE: You are a technographic researcher.
+        CONTEXT: Company: {company}. Website: {website}.
+        TASK: Search the company's site and job postings to determine the key technologies they use (languages, frameworks, cloud, major SaaS tools). Only report tech you find concrete evidence for — never guess.
+        FORMAT: Comma-separated list of technologies.
+        FALLBACK: If you find no concrete tech evidence, output INSUFFICIENT_DATA.
+      width: 260
+    - id: tech_merged
+      name: Merged stack
+      type: ai_formula
+      output_format: text
+      prompt: |-
+        ROLE: You reconcile technographic data.
+        CONTEXT: Website scan found: {technologies}. Job-post research found: {tech_research}.
+        TASK: Merge both lists into one deduplicated technology list, keeping only entries that appear plausible for this company. Drop INSUFFICIENT_DATA markers.
+        FORMAT: Comma-separated list, alphabetical.
+        FALLBACK: If both inputs are empty, output INSUFFICIENT_DATA.
+      width: 260

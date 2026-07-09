@@ -1,0 +1,53 @@
+# CRM hygiene — fill only the gaps: waterfalls gated on "field is empty".
+slug: backfill-missing-fields
+name: "Backfill missing CRM fields"
+description: >-
+  Fill the holes in an existing list — phone, LinkedIn, description and website
+  are only enriched where they're empty, so good data is never overwritten.
+category: crm-hygiene
+icon: paintbrush
+workbook:
+  description: >-
+    Every waterfall here carries a condition like '{phone} == ""' so it runs
+    ONLY on rows missing that field. Import your CRM export and run all
+    columns; existing values are left untouched.
+  columns:
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: phone
+      name: Phone (fill gaps)
+      type: waterfall
+      target_field: phone
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, local_business]
+      condition: '{phone} == ""'
+      width: 160
+    - id: linkedin
+      name: LinkedIn (fill gaps)
+      type: waterfall
+      target_field: linkedin_url
+      waterfall: [jsonld_firmographics, deep_scraper, website_scraper, social_finder, wikidata]
+      condition: '{linkedin_url} == ""'
+      width: 220
+    - id: about
+      name: Description (fill gaps)
+      type: waterfall
+      target_field: description
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, ddg_company, wikidata]
+      condition: '{description} == ""'
+      width: 280
+    - id: email
+      name: Email (fill gaps)
+      type: waterfall
+      target_field: email
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, email_harvester, ddg_email]
+      verify: true
+      condition: '{email} == ""'
+      width: 220
