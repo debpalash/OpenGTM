@@ -19,7 +19,7 @@ import {
   useDeleteLeads, useWorkbookSocket, useProviders,
 } from "@/lib/workbook-hooks"
 import type { WorkbookLeadRow, EnrichmentOverlay, Provenance, AiColumnPreset, CostInfo, RunCostEstimate } from "@/lib/workbook-api"
-import { fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost } from "@/lib/workbook-api"
+import { fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost, generateColumn } from "@/lib/workbook-api"
 import {
   ArrowLeft, Plus, Play, Square, Download, Upload,
   Sparkles, Type, Layers, Brain, GitBranch, Send, Globe,
@@ -476,9 +476,37 @@ export default function WorkbookEditorPage() {
   const [newColWebhookBody, setNewColWebhookBody] = useState("")
   const [newColSequenceId, setNewColSequenceId] = useState("")
   const [newColMaxSteps, setNewColMaxSteps] = useState(4)
+  // NL → column generator ("Generate with AI")
+  const [nlInstruction, setNlInstruction] = useState("")
+  const [nlBusy, setNlBusy] = useState(false)
+  const [nlExplanation, setNlExplanation] = useState("")
   const [showColumnVisibility, setShowColumnVisibility] = useState(false)
   const [activityOpen, setActivityOpen] = useState(false)
   const availableProviders = providersData?.providers ?? []
+
+  // NL → column: call the generator and pre-fill the custom-column form.
+  const handleGenerateColumn = async () => {
+    if (!nlInstruction.trim() || !workbook || nlBusy) return
+    setNlBusy(true)
+    setNlExplanation("")
+    try {
+      const res = await generateColumn(workbook.id, nlInstruction.trim())
+      const col = res.column
+      setNewColType(res.kind)
+      setNewColName(col.name || "")
+      setNewColPrompt(col.prompt || "")
+      setNewColFormula(col.formula || "")
+      setNewColHttpUrl(col.http_url || "")
+      setNewColHttpMethod(col.http_method === "POST" ? "POST" : "GET")
+      setNewColHttpExtract(col.http_extract || "")
+      setNewColHttpBody(col.http_body == null ? "" : typeof col.http_body === "string" ? col.http_body : JSON.stringify(col.http_body))
+      setNlExplanation(res.explanation)
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to generate column")
+    } finally {
+      setNlBusy(false)
+    }
+  }
 
 
   // Column resize state — uses a ref to avoid re-rendering entire table on drag
@@ -1203,6 +1231,34 @@ export default function WorkbookEditorPage() {
                     <div className="absolute right-0 top-8 z-50 w-80 rounded-xl border bg-card shadow-xl p-3 space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[80vh] overflow-y-auto">
                       <div className="text-xs font-medium text-muted-foreground">Add Column</div>
 
+                      {/* ── Generate with AI (NL → column) ── */}
+                      <div className="space-y-1">
+                        <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Generate with AI</div>
+                        <div className="flex gap-1">
+                          <input
+                            value={nlInstruction}
+                            onChange={e => setNlInstruction(e.target.value)}
+                            onKeyDown={e => { if (e.key === "Enter") handleGenerateColumn() }}
+                            placeholder="Describe it: extract the domain from the website URL"
+                            className="flex-1 px-2.5 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
+                          />
+                          <button
+                            onClick={handleGenerateColumn}
+                            disabled={nlBusy || !nlInstruction.trim()}
+                            title="Generate a column config from your description"
+                            className="px-2 py-1.5 rounded-md border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-50 transition-colors"
+                          >
+                            {nlBusy ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
+                          </button>
+                        </div>
+                        {nlExplanation && (
+                          <p className="px-0.5 text-[10px] text-muted-foreground">
+                            <Sparkles className="inline size-2.5 mr-0.5 text-primary" />
+                            {nlExplanation} — review the pre-filled config below, then Add Column.
+                          </p>
+                        )}
+                      </div>
+
                       {/* ── Quick Presets (Clay-style) ── */}
                       <div className="space-y-1.5">
                         <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Quick Add — Enrichment</div>
@@ -1499,7 +1555,7 @@ export default function WorkbookEditorPage() {
                       )}
 
                       <div className="flex gap-2 justify-end pt-0.5">
-                        <button onClick={() => { setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition(""); setNewColLeadField("") }}
+                        <button onClick={() => { setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition(""); setNewColLeadField(""); setNlInstruction(""); setNlExplanation("") }}
                           className="px-2.5 py-1 text-xs rounded-md hover:bg-muted">Cancel</button>
                         <button
                           onClick={() => {
@@ -1550,6 +1606,7 @@ export default function WorkbookEditorPage() {
                             setNewColLeadField(""); setNewColType("lead_field"); setNewColProvider(""); setNewColWaterfall([]); setNewColTargetField("")
                             setNewColDest("webhook"); setNewColWebhookUrl(""); setNewColWebhookBody(""); setNewColSequenceId(""); setNewColMaxSteps(4)
                             setNewColCrmType("hubspot"); setNewColAirtableBase(""); setNewColAirtableTable(""); setNewColSheetId(""); setNewColSheetRange("Sheet1")
+                            setNlInstruction(""); setNlExplanation("")
                           }}
                           disabled={!newColName.trim()}
                           className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"

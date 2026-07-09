@@ -19,7 +19,7 @@ from apps.api.routers.analytics import router as analytics_router
 from apps.api.routers.leads import router as leads_router, workspace_router, jobs_router, events_router, search_router
 from apps.api.routers.copilotkit import router as copilotkit_router
 from apps.api.routers.campaigns import router as campaigns_router
-from apps.api.routers.workbooks import router as workbooks_router
+from apps.api.routers.workbooks import router as workbooks_router, router_v2 as workbooks_v2_router
 from apps.api.routers.entities import router as entities_router
 from apps.api.services.queue_service import queue_service
 from apps.api.workers.download import handle_download_link
@@ -260,6 +260,7 @@ app.include_router(search_router)
 app.include_router(copilotkit_router)
 app.include_router(campaigns_router)
 app.include_router(workbooks_router)
+app.include_router(workbooks_v2_router)
 app.include_router(entities_router)
 
 # Include Routers — Outreach
