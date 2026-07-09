@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "types": ["chrome", "bun"],
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "noFallthroughCasesInSwitch": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "noEmit": true,
+        "isolatedModules": true
+    },
+    "include": ["src/**/*.ts", "test/**/*.ts", "scripts/**/*.ts"]
+}

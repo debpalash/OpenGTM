@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Yupcha Capture</title>
+    <style>
+        body { font: 13px/1.4 system-ui, sans-serif; margin: 0; padding: 12px; width: 560px; color: #1a1a1a; }
+        h1 { font-size: 14px; margin: 0 0 8px; }
+        .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+        button { font: inherit; padding: 5px 12px; border: 1px solid #bbb; border-radius: 6px; background: #f5f5f5; cursor: pointer; }
+        button:hover:not(:disabled) { background: #e9e9e9; }
+        button:disabled { opacity: 0.5; cursor: default; }
+        #status { margin: 8px 0; min-height: 1.2em; }
+        #status[data-kind="error"] { color: #b00020; }
+        #status[data-kind="ok"] { color: #0a7a2f; }
+        .table-wrap { max-height: 260px; overflow: auto; border: 1px solid #ddd; border-radius: 6px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border-bottom: 1px solid #eee; padding: 4px 6px; text-align: left; white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+        th { background: #fafafa; position: sticky; top: 0; }
+        th input[type="text"] { width: 110px; font: inherit; padding: 2px 4px; }
+        #preview-note { color: #666; margin: 6px 0; }
+        .send-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+        select { font: inherit; padding: 4px; max-width: 260px; }
+        a { color: #2952cc; }
+    </style>
+</head>
+<body>
+    <h1>Yupcha Capture</h1>
+    <div class="toolbar">
+        <button id="scan">Scan page</button>
+        <a href="#" id="open-options">Options</a>
+    </div>
+    <div id="status" data-kind="info"></div>
+    <div id="results" hidden>
+        <div class="table-wrap">
+            <table>
+                <thead><tr id="preview-head"></tr></thead>
+                <tbody id="preview-body"></tbody>
+            </table>
+        </div>
+        <div id="preview-note"></div>
+        <div class="send-row">
+            <label for="workbook">Workbook</label>
+            <select id="workbook"></select>
+            <button id="send" disabled>Send rows</button>
+        </div>
+    </div>
+    <script src="popup.js" type="module"></script>
+</body>
+</html>
