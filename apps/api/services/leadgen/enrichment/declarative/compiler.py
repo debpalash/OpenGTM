@@ -151,6 +151,12 @@ class DeclarativeProvider(EnrichmentProvider):
                 return EnrichmentResult(success=False, error=str(msg)[:120], duration_ms=duration_ms)
 
             fields = project_response(data, rs.mappings)
+            # Light output normalization (e.g. phone/mobile_phone → E.164-ish).
+            try:
+                from apps.api.services.leadgen.enrichment.normalize import normalize_fields
+                fields = normalize_fields(fields)
+            except Exception:  # normalization must never break enrichment
+                pass
             return EnrichmentResult(
                 success=bool(fields),
                 fields=fields,
