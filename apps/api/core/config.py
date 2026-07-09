@@ -285,6 +285,16 @@ class Settings(BaseSettings):
     # flipping this on needs no schema redeploy.
     PROVENANCE_TRACKING_ENABLED: bool = False
 
+    # ── People-search workbook source (LinkedIn-via-DDG discovery) ─────
+    # Master switch for the `people_search` source kind (source columns that
+    # materialize PERSON rows by running CrossLinked-style
+    # `site:linkedin.com/in "<company>" "<title>"` DDG searches per target
+    # company). Scraping-based like TECH_STACK_WEBSITE_FETCH_ENABLED, so it is
+    # opt-in and default OFF: with the flag OFF the engine returns a graceful
+    # "disabled" result and makes ZERO network calls, and the API refuses to
+    # create people_search columns. ICP source columns are unaffected.
+    PEOPLE_SEARCH_SOURCE_ENABLED: bool = False
+
     # ── Website technographics (Wappalyzer-style homepage fetch) ───────
     # Master switch for the per-lead outbound homepage GET in the tech_stack
     # provider + the poller's website-tech signal diff (features/research-

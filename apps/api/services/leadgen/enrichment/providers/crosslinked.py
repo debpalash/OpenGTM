@@ -251,6 +251,66 @@ class CrossLinkedProvider(EnrichmentProvider):
 
         return people[:self.max_people]
 
+    async def find_people_by_titles(
+        self,
+        company_name: str,
+        titles: List[str],
+        geo: str = "",
+        seniority: str = "",
+        max_people: int = 10,
+        max_searches: Optional[int] = None,
+        results_per_search: int = 10,
+    ) -> tuple:
+        """Title-filtered LinkedIn people discovery for ONE company.
+
+        Library seam for the `people_search` workbook source: one DDG query per
+        title — `site:linkedin.com/in "<company>" "<title>"` (+ optional quoted
+        seniority/geo terms) — reusing this provider's query + snippet-parse
+        logic. Searches go through the same DDGS wrapper as `find_people`, so
+        the SearchCache/HostBackoff seam applies transparently.
+
+        Returns ``(people, searches_used)`` where people is
+        ``[{name, title, linkedin}]`` deduped by profile URL (name fallback),
+        capped at ``max_people``. Never issues more than ``max_searches``
+        queries (None = no budget).
+        """
+        queries: List[str] = []
+        for title in (titles or [""]):
+            q = f'site:linkedin.com/in "{company_name}"'
+            if title:
+                q += f' "{title}"'
+            if seniority:
+                q += f' "{seniority}"'
+            if geo:
+                q += f' "{geo}"'
+            queries.append(q)
+
+        people: List[Dict[str, str]] = []
+        seen: set = set()
+        searches_used = 0
+        for i, query in enumerate(queries):
+            if max_searches is not None and searches_used >= max_searches:
+                break
+            if len(people) >= max_people:
+                break
+            if i > 0:
+                await asyncio.sleep(self.delay)
+            results = await _ddg_linkedin_search(query, max_results=results_per_search)
+            searches_used += 1
+            for r in results:
+                person = self._parse_result(r)
+                if not person:
+                    continue
+                key = (person.get("linkedin") or "").lower() or person["name"].lower()
+                if key in seen:
+                    continue
+                seen.add(key)
+                people.append(person)
+                if len(people) >= max_people:
+                    break
+
+        return people[:max_people], searches_used
+
     def _parse_result(self, result: dict) -> Optional[Dict[str, str]]:
         """Parse a DDG search result into a person dict."""
         title_text = result.get("title", "")
