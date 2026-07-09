@@ -8,6 +8,8 @@ Destinations (col_config["destination"]):
   - "webhook"   → templated HTTP request to a user URL
   - "crm"       → push the row as a contact (HubSpot today; Salesforce later)
   - "sequencer" → enroll the lead into an email sequence
+  - "instantly" → add the lead to an Instantly campaign (API v2)
+  - "smartlead" → add the lead to a Smartlead campaign
 
 Output columns are side-effecting, so the engine treats them as run-once by
 default (see enrich_cell's run_once guard).
@@ -210,6 +212,75 @@ async def _push_sheets(cfg: dict, lead_data: dict) -> Dict[str, Any]:
     return {"success": False, "value": "", "error": res.get("error", "sheets append failed")}
 
 
+# Default workbook-column → vendor-field mapping for the cold-email
+# destinations (Instantly / Smartlead). Keys are workbook columns / lead
+# fields (resolved with the same placeholder resolver the webhook uses);
+# values are vendor field names.
+_SEQUENCER_DEFAULT_FIELD_MAP = {
+    "email": "email",
+    "first_name": "first_name",
+    "last_name": "last_name",
+    "company": "company_name",
+}
+
+
+def _map_lead_fields(fmap: dict, lead_data: dict, columns_config: list) -> Dict[str, Any]:
+    """Build {vendor_field: value} from a {workbook_column: vendor_field} map.
+
+    Each workbook-column key is resolved through the same {placeholder}
+    resolver the webhook destination uses, so column ids, column names, and
+    raw lead fields all work (a key may itself be a template like
+    "{first_name} {last_name}"). Unresolvable/empty values are dropped.
+    """
+    out: Dict[str, Any] = {}
+    for src, vendor_field in (fmap or {}).items():
+        template = src if "{" in str(src) else "{" + str(src) + "}"
+        val = _resolve(template, lead_data, columns_config)
+        # The resolver marks unknown single placeholders as "[key: not found]".
+        if not val or (val.startswith("[") and val.endswith(": not found]")):
+            continue
+        out[str(vendor_field)] = val
+    return out
+
+
+async def _push_instantly(cfg: dict, lead_data: dict, columns_config: list,
+                          workspace_id: Optional[str]) -> Dict[str, Any]:
+    from apps.api.services.integrations import instantly
+    campaign_id = str(cfg.get("campaign_id") or cfg.get("campaign") or "").strip()
+    if not campaign_id:
+        return {"success": False, "value": "", "error": "Instantly campaign_id not configured"}
+    lead = _map_lead_fields(cfg.get("field_map") or _SEQUENCER_DEFAULT_FIELD_MAP,
+                            lead_data, columns_config)
+    res = await instantly.add_lead_to_campaign(
+        campaign_id, lead,
+        skip_if_in_campaign=cfg.get("skip_if_in_campaign", True),
+        workspace_id=workspace_id,
+    )
+    if res.get("success"):
+        note = "already in campaign" if res.get("duplicate") else "added"
+        return {"success": True, "value": f"Instantly: {note}", "error": None}
+    return {"success": False, "value": "", "error": res.get("error", "instantly push failed")}
+
+
+async def _push_smartlead(cfg: dict, lead_data: dict, columns_config: list,
+                          workspace_id: Optional[str]) -> Dict[str, Any]:
+    from apps.api.services.integrations import smartlead
+    campaign_id = str(cfg.get("campaign_id") or "").strip()
+    if not campaign_id:
+        return {"success": False, "value": "", "error": "Smartlead campaign_id not configured"}
+    lead = _map_lead_fields(cfg.get("field_map") or _SEQUENCER_DEFAULT_FIELD_MAP,
+                            lead_data, columns_config)
+    res = await smartlead.add_lead_to_campaign(
+        campaign_id, lead,
+        settings=cfg.get("settings"),
+        workspace_id=workspace_id,
+    )
+    if res.get("success"):
+        note = "already in campaign" if res.get("duplicate") else "added"
+        return {"success": True, "value": f"Smartlead: {note}", "error": None}
+    return {"success": False, "value": "", "error": res.get("error", "smartlead push failed")}
+
+
 def _enroll_sequence(cfg: dict, lead_id: int, lead_data: dict, workspace_id: Optional[str]) -> Dict[str, Any]:
     seq_id = cfg.get("sequence_id")
     if not seq_id:
@@ -264,4 +335,8 @@ async def execute_output_column(
         return await _push_airtable(cfg, lead_data)
     if dest == "sheets":
         return await _push_sheets(cfg, lead_data)
+    if dest == "instantly":
+        return await _push_instantly(cfg, lead_data, columns_config, workspace_id)
+    if dest == "smartlead":
+        return await _push_smartlead(cfg, lead_data, columns_config, workspace_id)
     return {"success": False, "value": "", "error": f"unknown destination '{dest}'"}
