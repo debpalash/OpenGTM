@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
   Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2, X, Activity,
-  Moon, Sun, LogOut, Building2, Radar,
+  Moon, Sun, LogOut, Building2, Radar, LayoutTemplate,
 } from "lucide-react"
 import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
@@ -39,11 +39,13 @@ import SignalsPage from "@/pages/signals"
 import WorkspacesManagerPage from "@/pages/workspaces-manager"
 import AutomationsPage from "@/pages/automations"
 import WatchesPage from "@/pages/watches"
+import TemplatesPage from "@/pages/templates"
 
 const NAV_ITEMS = [
   { to: "/chat",       icon: MessageSquare, label: "Chat" },
   { to: "/leads",      icon: Users,         label: "Leads" },
   { to: "/workbooks",  icon: Table2,        label: "Workbooks" },
+  { to: "/templates",  icon: LayoutTemplate, label: "Templates" },
   { to: "/search",     icon: Search,        label: "Search" },
   { to: "/agents",     icon: Bot,           label: "Tasks" },
   { to: "/outreach",   icon: Send,          label: "Outreach" },
@@ -350,6 +352,7 @@ function AppContent() {
     if (location.pathname.startsWith("/chat")) return "Chat"
     if (location.pathname.startsWith("/leads")) return "Leads"
     if (location.pathname.startsWith("/workbooks")) return "Workbooks"
+    if (location.pathname.startsWith("/templates")) return "Templates"
     if (location.pathname.startsWith("/search")) return "Search"
     if (location.pathname.startsWith("/agents")) return "Tasks"
     if (location.pathname.startsWith("/outreach")) return "Outreach"
@@ -374,6 +377,7 @@ function AppContent() {
           <Route path="/leads" element={<LeadsPage />} />
           <Route path="/workbooks/:id" element={<div className="h-full overflow-hidden"><WorkbookEditorPage /></div>} />
           <Route path="/workbooks" element={<WorkbooksPage />} />
+          <Route path="/templates" element={<TemplatesPage />} />
           <Route path="/search/*" element={<SearchPage />} />
           <Route path="/agents/:jobId" element={<TaskDetailPage />} />
           <Route path="/agents" element={<AgentsPage />} />

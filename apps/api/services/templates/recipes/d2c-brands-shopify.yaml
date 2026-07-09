@@ -1,0 +1,60 @@
+# List building — D2C / e-commerce brands discovered via store + review footprints.
+slug: d2c-brands-shopify
+name: "D2C e-commerce brands with contact emails"
+description: >-
+  Discover direct-to-consumer e-commerce brands (Shopify stores, review sites),
+  pull a company one-liner, and find a contactable email for each store.
+category: list-building
+icon: shopping-bag
+workbook:
+  description: >-
+    The source column finds D2C stores from e-commerce and review channels;
+    waterfalls fill in a description and a verified email so the list is
+    outreach-ready.
+  columns:
+    - id: src_d2c
+      name: "Source: D2C brands"
+      type: source
+      icp:
+        description: "direct-to-consumer e-commerce brands and online stores"
+        industry: "e-commerce"
+        keywords_any: [d2c, online store, shopify, ecommerce brand]
+      channels:
+        categories: [ecommerce, review]
+        explicit_sources: [shopify_stores, trustpilot]
+      target_rows: 150
+    - id: company
+      name: Brand
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Store URL
+      type: lead_field
+      lead_field: website
+      width: 220
+    - id: about
+      name: What they sell
+      type: waterfall
+      target_field: description
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, ddg_company]
+      width: 280
+    - id: email
+      name: Email (verified)
+      type: waterfall
+      target_field: email
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, email_harvester, ddg_email]
+      verify: true
+      condition: '{email} == ""'
+      width: 220
+    - id: one_liner
+      name: One-liner
+      type: ai_formula
+      output_format: text
+      prompt: |-
+        ROLE: You write crisp company descriptions.
+        CONTEXT: Brand: {company}. Store: {website}. Notes: {description}.
+        TASK: In one sentence, state what this brand sells and who buys it.
+        FORMAT: One sentence, max 20 words, no marketing fluff.
+        FALLBACK: If you don't know what they sell, output INSUFFICIENT_DATA.
+      width: 260

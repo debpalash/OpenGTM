@@ -1,0 +1,60 @@
+# Signals — funding events as a buying trigger.
+slug: funding-round-watch
+name: "Funding-round watch"
+description: >-
+  Track funding stage, last round, investors and recent news across your
+  accounts, and research one cited, recent signal per company.
+category: signals
+icon: banknote
+workbook:
+  description: >-
+    company_intel fills the funding columns from public sources; the research
+    column verifies the most recent event with a citation, so the trigger you
+    act on is real.
+  columns:
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: stage
+      name: Funding stage
+      type: waterfall
+      target_field: funding_stage
+      waterfall: [company_intel]
+      width: 140
+    - id: last_round
+      name: Last round
+      type: waterfall
+      target_field: last_funding_amount
+      waterfall: [company_intel]
+      width: 140
+    - id: investors
+      name: Investors
+      type: waterfall
+      target_field: investors
+      waterfall: [company_intel]
+      width: 220
+    - id: news
+      name: Recent news
+      type: waterfall
+      target_field: recent_news
+      waterfall: [company_intel]
+      width: 260
+    - id: latest_signal
+      name: Latest signal (cited)
+      type: research
+      output_format: text
+      max_steps: 4
+      prompt: |-
+        ROLE: You are a funding-signals researcher.
+        CONTEXT: Company: {company}. Website: {website}. Known: stage {funding_stage}, last round {last_funding_amount}.
+        TASK: Find the company's most recent funding or expansion event. Report the event, its date, and the source URL. Only report events you actually found.
+        FORMAT: One line — 'EVENT — DATE — SOURCE'.
+        FALLBACK: If you find no dated event, output INSUFFICIENT_DATA.
+      width: 320

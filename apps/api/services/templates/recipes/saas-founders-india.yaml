@@ -1,0 +1,82 @@
+# Flagship recipe — the classic Clay loop end-to-end:
+# source 100 SaaS companies in India → find founders → verify emails → push to HubSpot.
+slug: saas-founders-india
+name: "SaaS founders in India → verified emails → HubSpot"
+description: >-
+  Source 100 SaaS companies in India, find the founders, discover and verify
+  their emails, score ICP fit, and push clean contacts to HubSpot.
+category: list-building
+icon: rocket
+workbook:
+  description: >-
+    End-to-end list build: the source column materializes SaaS companies from
+    startup directories, waterfalls find the founder + a verified email, and
+    the output column pushes each finished row to your CRM. Connect HubSpot in
+    Settings → Integrations before running the last column.
+  columns:
+    - id: src_saas_india
+      name: "Source: SaaS companies (India)"
+      type: source
+      icp:
+        description: "SaaS software product companies in India"
+        industry: "SaaS"
+        geo: [India]
+        keywords_any: [saas, software product, cloud platform]
+      channels:
+        regions: [india]
+        categories: [saas_directory, startup]
+        explicit_sources: [tracxn, yourstory, inc42, startup_india]
+      target_rows: 100
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: city
+      name: City
+      type: lead_field
+      lead_field: city
+      width: 140
+    - id: founder
+      name: Founder / CEO
+      type: waterfall
+      target_field: contact_person
+      waterfall: [deep_scraper, crosslinked, decision_maker, staffspy]
+      width: 200
+    - id: founder_title
+      name: Title
+      type: waterfall
+      target_field: contact_title
+      waterfall: [deep_scraper, crosslinked, decision_maker]
+      width: 160
+    - id: email
+      name: Email (verified)
+      type: waterfall
+      target_field: email
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, email_harvester, ddg_email, hunter_io]
+      verify: true
+      condition: '{email} == ""'
+      width: 220
+    - id: icp_fit
+      name: ICP Fit (0-100)
+      type: ai_formula
+      output_format: number
+      prompt: |-
+        ROLE: You are a B2B sales qualification analyst.
+        CONTEXT: Company: {company}. Website: {website}. City: {city}. Description: {description}.
+        TASK: Score 0-100 how well this company fits an ICP of Indian SaaS product companies that would buy sales tooling. Weight: firmographic fit 50, product maturity 30, reachability 20.
+        FORMAT: Output ONLY the integer score (0-100). No words, no symbols.
+        FALLBACK: If there is not enough data to judge, output INSUFFICIENT_DATA.
+      width: 140
+    # destination_config intentionally omitted — HubSpot credentials are
+    # workspace-specific; connect them in Settings before running this column.
+    - id: push_hubspot
+      name: Push to HubSpot
+      type: output
+      destination: crm
+      width: 160

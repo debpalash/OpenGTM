@@ -1,0 +1,65 @@
+# Research — market-map a segment of the Indian startup ecosystem.
+slug: india-startup-market-map
+name: "India startup market map"
+description: >-
+  Source funded Indian startups from Tracxn, Inc42 and YourStory, add founding
+  year, headcount and a one-liner — a ready-made market map for any segment.
+category: research
+icon: map
+workbook:
+  description: >-
+    Edit the source column's ICP description to your segment (fintech,
+    healthtech, ...) before running. Firmographics come from zero-key
+    providers; the one-liner makes the map scannable.
+  columns:
+    - id: src_startups
+      name: "Source: Indian startups"
+      type: source
+      icp:
+        description: "venture-funded technology startups in India"
+        industry: "technology"
+        geo: [India]
+        keywords_any: [startup, funded, series a, seed]
+      channels:
+        regions: [india]
+        categories: [startup, news]
+        explicit_sources: [tracxn, inc42, yourstory, economic_times]
+      target_rows: 150
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: city
+      name: City
+      type: lead_field
+      lead_field: city
+      width: 140
+    - id: founded
+      name: Founded
+      type: waterfall
+      target_field: founding_year
+      waterfall: [jsonld_firmographics, deep_scraper, company_intel, mca_registry, wikidata]
+      width: 120
+    - id: headcount
+      name: Headcount
+      type: waterfall
+      target_field: company_size
+      waterfall: [deep_scraper, website_scraper, company_intel, wikidata]
+      width: 140
+    - id: one_liner
+      name: One-liner
+      type: ai_formula
+      output_format: text
+      prompt: |-
+        ROLE: You write crisp company descriptions.
+        CONTEXT: Company: {company}. Website: {website}. Notes: {description}.
+        TASK: In one sentence, state what this startup does and who they serve.
+        FORMAT: One sentence, max 25 words, no marketing fluff.
+        FALLBACK: If you don't know what they do, output INSUFFICIENT_DATA.
+      width: 260

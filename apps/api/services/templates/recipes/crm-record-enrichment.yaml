@@ -1,0 +1,48 @@
+# CRM hygiene — bring firmographics on existing records up to date.
+slug: crm-record-enrichment
+name: "CRM record refresh (firmographics)"
+description: >-
+  Refresh stale CRM records: headcount, industry tags, founding year and
+  registered address from public registries and the company's own website.
+category: crm-hygiene
+icon: refresh-cw
+workbook:
+  description: >-
+    Import your accounts and run — wikidata and the MCA registry answer from
+    the company NAME even when the website is dead, so old records still
+    enrich.
+  columns:
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: headcount
+      name: Headcount
+      type: waterfall
+      target_field: company_size
+      waterfall: [deep_scraper, website_scraper, company_intel, wikidata]
+      width: 140
+    - id: industry
+      name: Industry tags
+      type: waterfall
+      target_field: industry_tags
+      waterfall: [deep_scraper, website_scraper, local_business, company_intel, mca_registry, wikidata]
+      width: 200
+    - id: founded
+      name: Founded
+      type: waterfall
+      target_field: founding_year
+      waterfall: [jsonld_firmographics, deep_scraper, company_intel, mca_registry, wikidata]
+      width: 120
+    - id: address
+      name: Registered address
+      type: waterfall
+      target_field: address
+      waterfall: [jsonld_firmographics, deep_scraper, local_business, mca_registry, wikidata]
+      width: 260

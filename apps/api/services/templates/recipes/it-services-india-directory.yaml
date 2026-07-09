@@ -1,0 +1,70 @@
+# List building — Indian IT services firms from B2B marketplaces + directories.
+slug: it-services-india-directory
+name: "IT services companies in India (directories)"
+description: >-
+  Build a directory of IT services and consulting firms in India from IndiaMART,
+  Justdial and Clutch, with phone, registered address, email, and a lead score.
+category: list-building
+icon: building-2
+workbook:
+  description: >-
+    Sources Indian IT services firms from B2B marketplaces and agency
+    directories, then fills phone / address / email via zero-key waterfalls
+    (MCA registry gives the authoritative registered office) and scores each
+    lead.
+  columns:
+    - id: src_it_india
+      name: "Source: IT services (India)"
+      type: source
+      icp:
+        description: "IT services and software consulting companies in India"
+        industry: "IT services"
+        geo: [India]
+        keywords_any: [it services, software development, consulting]
+      channels:
+        regions: [india]
+        categories: [b2b_marketplace, directory]
+        explicit_sources: [indiamart, justdial, clutch, goodfirms]
+      target_rows: 200
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: city
+      name: City
+      type: lead_field
+      lead_field: city
+      width: 140
+    - id: phone
+      name: Phone
+      type: waterfall
+      target_field: phone
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, local_business]
+      condition: '{phone} == ""'
+      width: 160
+    - id: address
+      name: Registered address
+      type: waterfall
+      target_field: address
+      waterfall: [jsonld_firmographics, deep_scraper, local_business, mca_registry]
+      width: 260
+    - id: email
+      name: Email
+      type: waterfall
+      target_field: email
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, email_harvester, ddg_email]
+      verify: true
+      condition: '{email} == ""'
+      width: 220
+    - id: score
+      name: Lead score
+      type: enrichment
+      provider: lead_scorer
+      target_field: score
+      width: 120

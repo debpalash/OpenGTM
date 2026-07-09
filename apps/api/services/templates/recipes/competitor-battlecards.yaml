@@ -1,0 +1,54 @@
+# Research — per-competitor battlecards from bounded web research.
+slug: competitor-battlecards
+name: "Competitor battlecards"
+description: >-
+  Turn a list of competitors into battlecards: positioning, detected tech
+  stack, headcount, and a researched strengths/weaknesses summary per company.
+category: research
+icon: swords
+workbook:
+  description: >-
+    Add competitor names + websites as rows. Waterfalls pull firmographics;
+    the research column browses each competitor's site and reviews to build a
+    strengths / weaknesses / pricing-notes card.
+  columns:
+    - id: company
+      name: Competitor
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: about
+      name: Positioning
+      type: waterfall
+      target_field: description
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, ddg_company, wikidata]
+      width: 280
+    - id: headcount
+      name: Headcount
+      type: waterfall
+      target_field: company_size
+      waterfall: [deep_scraper, website_scraper, company_intel, wikidata]
+      width: 140
+    - id: tech
+      name: Tech stack
+      type: waterfall
+      target_field: technologies
+      waterfall: [tech_stack]
+      width: 220
+    - id: battlecard
+      name: Battlecard
+      type: research
+      output_format: text
+      max_steps: 5
+      prompt: |-
+        ROLE: You are a competitive-intelligence analyst.
+        CONTEXT: Competitor: {company}. Website: {website}. Positioning: {description}.
+        TASK: Research this competitor and produce a battlecard: (1) two strengths, (2) two weaknesses or gaps customers complain about, (3) any public pricing notes. Ground every point in something you actually found; cite the source for each.
+        FORMAT: Three labeled sections — Strengths / Weaknesses / Pricing — with short bullets.
+        FALLBACK: If a section has no concrete evidence, write 'no public evidence found' for that section.
+      width: 340

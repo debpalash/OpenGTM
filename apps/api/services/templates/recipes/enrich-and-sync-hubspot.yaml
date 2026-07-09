@@ -1,0 +1,59 @@
+# Outbound — the "enrich → push" half of the Clay loop, aimed at your CRM.
+slug: enrich-and-sync-hubspot
+name: "Enrich & sync to HubSpot"
+description: >-
+  Complete each row (email, phone, LinkedIn, headcount) with zero-key
+  waterfalls, then push finished contacts into HubSpot as CRM records.
+category: outbound
+icon: upload-cloud
+workbook:
+  description: >-
+    Import rows from CSV or your leads. Waterfalls fill contact fields only
+    where empty; the output column pushes each row to HubSpot (connect your
+    token in Settings → Integrations first — output columns run once per row).
+  columns:
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: email
+      name: Email (verified)
+      type: waterfall
+      target_field: email
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, email_harvester, ddg_email, hunter_io]
+      verify: true
+      condition: '{email} == ""'
+      width: 220
+    - id: phone
+      name: Phone
+      type: waterfall
+      target_field: phone
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, local_business]
+      condition: '{phone} == ""'
+      width: 160
+    - id: linkedin
+      name: LinkedIn
+      type: waterfall
+      target_field: linkedin_url
+      waterfall: [jsonld_firmographics, deep_scraper, website_scraper, social_finder, wikidata]
+      condition: '{linkedin_url} == ""'
+      width: 220
+    - id: headcount
+      name: Headcount
+      type: waterfall
+      target_field: company_size
+      waterfall: [deep_scraper, website_scraper, company_intel, wikidata]
+      width: 140
+    # destination_config intentionally omitted — HubSpot credentials are
+    # workspace-specific; connect them in Settings before running this column.
+    - id: push_hubspot
+      name: Push to HubSpot
+      type: output
+      destination: crm
+      width: 160

@@ -1,0 +1,48 @@
+# Research — a Claygent-style 3-bullet brief before every call.
+slug: pre-call-account-briefs
+name: "Pre-call account briefs"
+description: >-
+  For every account on your call list: what they do, one recent concrete
+  signal (news, hiring, funding), and a suggested outreach angle — cited.
+category: research
+icon: notebook-pen
+workbook:
+  description: >-
+    Import this week's call list. Recent-news and hiring waterfalls gather raw
+    signals cheaply; the research column turns them into a 3-bullet brief with
+    a cited source per signal.
+  columns:
+    - id: company
+      name: Account
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: news
+      name: Recent news
+      type: waterfall
+      target_field: recent_news
+      waterfall: [company_intel]
+      width: 260
+    - id: hiring
+      name: Hiring signals
+      type: waterfall
+      target_field: hiring_signals
+      waterfall: [ats_hiring, jobspy]
+      width: 200
+    - id: brief
+      name: Account brief
+      type: research
+      output_format: text
+      max_steps: 4
+      prompt: |-
+        ROLE: You are an SDR prepping for an account.
+        CONTEXT: Company: {company}. Website: {website}. Recent news: {recent_news}. Hiring: {hiring_signals}.
+        TASK: Research this company and produce a 3-bullet brief: (1) what they do, (2) one recent, concrete signal (hiring, funding, launch, news), (3) a relevant outreach angle. Cite the source for the signal.
+        FORMAT: Exactly 3 bullets.
+        FALLBACK: If you can't find a concrete recent signal, still give bullets 1 and 3 and write 'no recent signal found' for bullet 2.
+      width: 340

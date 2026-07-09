@@ -1,0 +1,50 @@
+# Outbound — push enriched rows to ANY system via a templated webhook.
+slug: webhook-export-pipeline
+name: "Enrich & push via webhook"
+description: >-
+  Enrich each row with a verified email and firmographics, then POST the
+  finished row to any endpoint you own — Zapier, n8n, your own API.
+category: outbound
+icon: webhook
+workbook:
+  description: >-
+    The webhook output column sends each completed row to a URL you configure
+    (destination_config is left empty on purpose — set your endpoint after
+    import). Great for wiring Yupcha into an existing stack.
+  columns:
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: email
+      name: Email (verified)
+      type: waterfall
+      target_field: email
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, email_harvester, ddg_email]
+      verify: true
+      condition: '{email} == ""'
+      width: 220
+    - id: about
+      name: Description
+      type: waterfall
+      target_field: description
+      waterfall: [deep_scraper, jsonld_firmographics, website_scraper, ddg_company]
+      condition: '{description} == ""'
+      width: 280
+    - id: email_domain
+      name: Domain
+      type: formula
+      formula: '{email}.split("@")[1]'
+      width: 180
+    # destination_config intentionally omitted — set your webhook URL after import.
+    - id: push_webhook
+      name: Send to webhook
+      type: output
+      destination: webhook
+      width: 160

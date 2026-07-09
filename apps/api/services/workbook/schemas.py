@@ -27,6 +27,13 @@ class ColumnConfig(BaseModel):
     waterfall: Optional[list[str]] = Field(None, description="Ordered list of provider names for waterfall columns")
     # Which Lead field to write the enrichment result to (e.g. waterfall email → writes to lead.email)
     target_field: Optional[str] = Field(None, description="Lead field to write enrichment results back to")
+    # Email waterfalls: auto-verify discovered emails (engine default is True when unset)
+    verify: Optional[bool] = Field(None, description="Waterfall email: auto-verify discovered emails")
+
+    # Source column config (type='source' — materializes NEW rows via the source engine)
+    icp: Optional[dict] = Field(None, description="Source column ICP: {description, industry, geo, keywords_any, exclude}")
+    channels: Optional[dict] = Field(None, description="Source column channels: {categories, regions, explicit_sources}")
+    target_rows: Optional[int] = Field(None, description="Source column: stop after this many rows (0/None = unlimited)")
 
     # AI formula / research config
     prompt: Optional[str] = Field(None, description="LLM prompt template for ai_formula / research columns")

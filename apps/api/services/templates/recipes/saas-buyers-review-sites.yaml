@@ -1,0 +1,57 @@
+# List building — SaaS companies surfaced from software review sites.
+slug: saas-buyers-review-sites
+name: "SaaS companies from review sites (G2 / Capterra)"
+description: >-
+  Source SaaS vendors from G2, Capterra and Product Hunt, detect their tech
+  stack and headcount, and score how well each fits your ICP.
+category: list-building
+icon: star
+workbook:
+  description: >-
+    Review-site sourcing finds active SaaS vendors; waterfalls add headcount
+    and technologies, and an AI column scores ICP fit so you can sort the list.
+  columns:
+    - id: src_reviews
+      name: "Source: SaaS review sites"
+      type: source
+      icp:
+        description: "B2B SaaS software vendors listed on software review sites"
+        industry: "SaaS"
+        keywords_any: [saas, b2b software, software vendor]
+      channels:
+        categories: [saas_directory, review]
+        explicit_sources: [g2, capterra, getapp, producthunt, stackshare]
+      target_rows: 150
+    - id: company
+      name: Company
+      type: lead_field
+      lead_field: company
+      width: 200
+    - id: website
+      name: Website
+      type: lead_field
+      lead_field: website
+      width: 200
+    - id: headcount
+      name: Headcount
+      type: waterfall
+      target_field: company_size
+      waterfall: [deep_scraper, website_scraper, company_intel, wikidata]
+      width: 140
+    - id: tech
+      name: Tech stack
+      type: waterfall
+      target_field: technologies
+      waterfall: [tech_stack]
+      width: 220
+    - id: icp_fit
+      name: ICP Fit (0-100)
+      type: ai_formula
+      output_format: number
+      prompt: |-
+        ROLE: You are a B2B sales qualification analyst.
+        CONTEXT: Company: {company}. Website: {website}. Size: {company_size}. Tech: {technologies}. Description: {description}.
+        TASK: Score 0-100 how well this company fits an ICP of mid-market B2B SaaS companies. Weight: firmographic fit 40, technographic fit 35, growth signals 25.
+        FORMAT: Output ONLY the integer score (0-100). No words, no symbols.
+        FALLBACK: If there is not enough data to judge, output INSUFFICIENT_DATA.
+      width: 140
