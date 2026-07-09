@@ -34,7 +34,7 @@ from apps.api.database import Base
 # Versioned dedup-key scheme (spec §8). Frozen; bump only with a migration.
 KEY_SCHEMA_VERSION = 1
 
-WATCH_KINDS = ("funding", "hiring", "feed", "company")
+WATCH_KINDS = ("funding", "hiring", "feed", "company", "job_change")
 WATCH_INTERVALS = ("hourly", "daily", "weekly")
 
 
@@ -65,6 +65,9 @@ class WatchSubscription(Base):
     # Emittable signal_type subset (aligns with on_signal trigger_config).
     signal_types = Column(JSON, nullable=True)
     interval = Column(String(10), nullable=True, server_default="daily")
+    # Kind-specific config JSON. job_change: {"contacts": [{lead_id} |
+    # {name, company?, linkedin_url?}], "max_contacts_per_poll"?}.
+    config = Column(JSON, nullable=True)
     schedule_anchor = Column(DateTime(timezone=True), nullable=True)
     enabled = Column(Boolean, nullable=False, server_default="true", default=True)
     next_poll_at = Column(DateTime(timezone=True), nullable=True)

@@ -39,6 +39,7 @@ SIGNAL_TYPES = {
     "website_change": {"label": "Website Update", "icon": "globe", "weight": 4},
     "news": {"label": "News Mention", "icon": "newspaper", "weight": 5},
     "growth": {"label": "Growth Signal", "icon": "bar-chart-3", "weight": 7},
+    "job_change": {"label": "Job Change", "icon": "briefcase", "weight": 9},
     "social_activity": {"label": "Social Activity", "icon": "message-square", "weight": 3},
 }
 

@@ -189,6 +189,10 @@ def _resolve_lead_id(db, watch) -> tuple[Optional[int], Optional[str]]:
     no match → (None, None) (skip silently)."""
     if watch.lead_id:
         return watch.lead_id, None
+    if watch.kind == "job_change":
+        # target is a free-form roster label, not a company name — per-contact
+        # lead routing happens on the DetectedEvent itself (ev.lead_id).
+        return None, None
     from apps.api.services.leadgen.orm_models import LeadRow
 
     target_norm = keys.normalize_target(watch.target)
@@ -220,12 +224,14 @@ def _resolve_lead_id(db, watch) -> tuple[Optional[int], Optional[str]]:
 
 # ── signal emission (deterministic id → exactly-once, spec §8.2) ─────────────
 
-def _emit_events(store, watch, lead_id: int, events) -> tuple[int, int]:
+def _emit_events(store, watch, lead_id: Optional[int], events) -> tuple[int, int]:
     """Write each DetectedEvent via PgLeadStore.add_signal (fires on_signal once).
 
     ``add_signal`` is idempotent on the deterministic ``signals.id`` (re-poll =
     no-op, no second on_signal fire, spec §8.2). Returns ``(count, 0)`` — the
-    count is for observability; true inserted-vs-dupe is the store's concern."""
+    count is for observability; true inserted-vs-dupe is the store's concern.
+    ``ev.lead_id`` / ``ev.company`` (job_change contacts) override the
+    watch-level routing when set."""
     from apps.api.services.signals.monitor import Signal
 
     count = 0
@@ -234,11 +240,12 @@ def _emit_events(store, watch, lead_id: int, events) -> tuple[int, int]:
         sig_id = keys.signal_event_id(
             watch.workspace_id, watch.kind, stable, ev.signal_type, ev.natural_event_id
         )
+        ev_lead = getattr(ev, "lead_id", None)
         signal = Signal(
             id=sig_id,
             workspace_id=watch.workspace_id,
-            lead_id=lead_id,
-            company=watch.target,
+            lead_id=ev_lead if ev_lead is not None else (lead_id or 0),
+            company=getattr(ev, "company", "") or watch.target,
             signal_type=ev.signal_type,
             title=ev.title,
             description=ev.description,
@@ -439,8 +446,11 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
         watch = _load(db, watch_id, workspace_id)
         if watch is None:
             return None
-        # billing gate (free sources no-op)
-        bill_src = "feed" if src == "feed" else ("funding" if src in ("funding", "exec") else "hiring")
+        # billing gate (free sources no-op; job_change is keyless DDG → free)
+        if src in ("feed", "job_change"):
+            bill_src = src
+        else:
+            bill_src = "funding" if src in ("funding", "exec") else "hiring"
         if not _debit_source(db, workspace_id, bill_src, fire_key):
             watch.last_error = "insufficient_credits"
             return None
@@ -466,6 +476,11 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
             events, patch = sources.fetch_web_tech(watch, website, backfill=backfill)
         elif src == "feed":
             events, patch = sources.fetch_feed(watch, backfill=backfill)
+        elif src == "job_change":
+            from apps.api.services.poller import job_change as jc
+
+            contacts = jc.materialize_contacts(db, watch)
+            events, patch = jc.fetch_job_changes(watch, contacts, backfill=backfill)
         else:
             return None
 
@@ -479,7 +494,9 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
                 watch.resolved_cik = rc
 
         emitted = dupe = 0
-        if events and lead_id:
+        # job_change events carry their OWN per-contact lead routing (ev.lead_id,
+        # possibly none) — they emit regardless of a watch-level lead match.
+        if events and (lead_id or src == "job_change"):
             emitted, dupe = _emit_events(store, watch, lead_id, events)
         # advance cursor sub-key in the SAME txn (atomic emit+advance)
         if patch:
@@ -521,6 +538,8 @@ def _source_set(watch) -> list:
         return out or ["hiring", tech_src]
     if kind == "feed":
         return ["feed"]
+    if kind == "job_change":
+        return ["job_change"]
     if kind == "company":
         out = []
         if wants("company_funded"):
