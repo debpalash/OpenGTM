@@ -305,6 +305,10 @@ app.include_router(automations_router)
 from apps.api.routers.watches import router as watches_router
 app.include_router(watches_router)
 
+# Inbound rows API — external systems push rows into a workbook (404s when disabled)
+from apps.api.routers.ingest import router as ingest_router
+app.include_router(ingest_router)
+
 # Meta — per-workspace role + feature flags for proactive UI gating
 from apps.api.routers.meta import router as meta_router
 app.include_router(meta_router)
