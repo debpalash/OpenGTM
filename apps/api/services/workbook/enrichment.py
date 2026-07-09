@@ -154,12 +154,18 @@ async def enrich_cell(
     lead_data: dict,
     columns_config: list,
     redis_client=None,
+    force: bool = False,
 ) -> Dict[str, Any]:
     """Enrich a single cell for a lead in a workbook.
 
     Routes by column type:
       - enrichment/waterfall → provider chain, writes to Lead if target_field set
       - ai_formula → LLM, stores in WorkbookEnrichment
+
+    ``force=True`` bypasses success-skip gates. For side-effecting ``output``
+    columns this explicitly overrides the run-once guard (the row is RE-PUSHED
+    to the webhook/CRM/sequencer) — callers must only set it on a deliberate,
+    user-confirmed re-run.
     """
     col_type = col_config.get("type", "enrichment")
 
@@ -179,8 +185,9 @@ async def enrich_cell(
 
     # ── Output columns are side-effecting → run-once by default ────────
     # Don't re-push to a webhook/CRM/sequencer on a re-run unless the column
-    # explicitly opts out (run_once=False) or the cell isn't already complete.
-    if col_type == "output" and col_config.get("run_once", True):
+    # explicitly opts out (run_once=False), the cell isn't already complete,
+    # or the caller passed an explicit (user-confirmed) force override.
+    if col_type == "output" and col_config.get("run_once", True) and not force:
         prior = db.query(WorkbookEnrichment).filter(
             WorkbookEnrichment.workbook_id == workbook_id,
             WorkbookEnrichment.lead_id == lead_id,
@@ -891,7 +898,8 @@ def _load_workbook_leads(
     return leads
 
 
-async def _run_one_cell(workbook_id, lead_data, col, columns_config, redis_client) -> dict:
+async def _run_one_cell(workbook_id, lead_data, col, columns_config, redis_client,
+                        force: bool = False) -> dict:
     """Run a single cell in its own DB session (Session is not concurrency-safe)."""
     try:
         with SessionLocal() as cell_db:
@@ -904,6 +912,7 @@ async def _run_one_cell(workbook_id, lead_data, col, columns_config, redis_clien
                 lead_data=lead_data,
                 columns_config=columns_config,
                 redis_client=redis_client,
+                force=force,
             )
     except Exception as e:
         logger.error(f"Cell {col.get('id')} for lead {lead_data.get('id')} crashed: {e}")
@@ -911,7 +920,7 @@ async def _run_one_cell(workbook_id, lead_data, col, columns_config, redis_clien
 
 
 async def _run_one_row(workbook_id, lead, ordered_cols, columns_config, redis_client,
-                       should_stop=None) -> dict:
+                       should_stop=None, force: bool = False) -> dict:
     """Run all columns for ONE row, sequentially in dependency order.
 
     Each successful cell value is threaded back into a local copy of the row so
@@ -926,7 +935,8 @@ async def _run_one_row(workbook_id, lead, ordered_cols, columns_config, redis_cl
     for col in ordered_cols:
         if should_stop is not None and should_stop():
             break
-        res = await _run_one_cell(workbook_id, row, col, columns_config, redis_client)
+        res = await _run_one_cell(workbook_id, row, col, columns_config, redis_client,
+                                  force=force)
         if isinstance(res, dict) and res.get("success"):
             completed += 1
             val = res.get("value")
@@ -1071,6 +1081,7 @@ async def run_workbook_enrichment(
     retry_passes: int = 1,
     provider_timeout: float = 10.0,
     fill_missing: bool = False,
+    force: bool = False,
     workspace_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Run a workbook enrichment under its tenant scope.
@@ -1096,6 +1107,7 @@ async def run_workbook_enrichment(
             retry_passes=retry_passes,
             provider_timeout=provider_timeout,
             fill_missing=fill_missing,
+            force=force,
         )
 
 
@@ -1110,6 +1122,7 @@ async def _run_workbook_enrichment_impl(
     retry_passes: int = 1,
     provider_timeout: float = 10.0,
     fill_missing: bool = False,
+    force: bool = False,
 ) -> Dict[str, Any]:
     """Concurrent, pause-aware, crash-recoverable workbook run.
 
@@ -1238,7 +1251,7 @@ async def _run_workbook_enrichment_impl(
             batch = work_items[i:i + concurrency]
             results = await asyncio.gather(
                 *[_run_one_row(workbook_id, lead, cols, columns_config,
-                               redis_client, should_stop=_should_stop)
+                               redis_client, should_stop=_should_stop, force=force)
                   for lead, cols in batch],
                 return_exceptions=True,
             )
@@ -1366,6 +1379,7 @@ async def handle_run_workbook(job_id: int, payload: dict):
             retry_passes=payload.get("retry_passes", 1),
             provider_timeout=float(payload.get("provider_timeout", 10)),
             fill_missing=bool(payload.get("fill_missing", False)),
+            force=bool(payload.get("force", False)),
             workspace_id=workspace_id,
         )
         logger.info(f"[job {job_id}] run_workbook done: {result}")

@@ -203,6 +203,12 @@ class RunWorkbookRequest(BaseModel):
     # Legacy compat
     lead_ids: Optional[list[int]] = Field(None, description="Legacy: specific leads to run")
     fill_missing: bool = Field(False, description="Only enrich cells not already complete — fills gaps, preserves good values")
+    force: bool = Field(False, description="Force re-run: bypass success-skip gates. For output columns this overrides run-once and RE-PUSHES to the destination — the UI must confirm first")
+
+
+class RunCellRequest(BaseModel):
+    """Request to (re-)run a single cell synchronously."""
+    force: bool = Field(False, description="Bypass success-skip gates; for output columns overrides run-once (re-pushes to the destination)")
 
 
 class RunWorkbookResponse(BaseModel):
@@ -242,6 +248,57 @@ class AddRowsRequest(BaseModel):
 class DeleteRowsRequest(BaseModel):
     """Delete rows from a workbook."""
     row_ids: list[int] = Field(..., min_length=1, description="Row IDs to delete")
+
+
+# ── Saved Views ───────────────────────────────────────────────────────────
+
+VIEW_FILTER_OPS = ("equals", "not_equals", "contains", "not_contains", "empty", "not_empty")
+
+
+class ViewFilter(BaseModel):
+    """One filter clause of a saved view (applied client-side by the editor)."""
+    column: str = Field(..., min_length=1, description="Column id the filter applies to")
+    op: Literal["equals", "not_equals", "contains", "not_contains", "empty", "not_empty"] = "contains"
+    value: Optional[Any] = Field(None, description="Comparison value (unused for empty/not_empty)")
+
+
+class ViewSort(BaseModel):
+    """One sort clause of a saved view."""
+    column: str = Field(..., min_length=1)
+    dir: Literal["asc", "desc"] = "asc"
+
+
+class ViewConfig(BaseModel):
+    """Saved-view config: filters + sort + hidden columns."""
+    filters: list[ViewFilter] = Field(default_factory=list)
+    sort: list[ViewSort] = Field(default_factory=list)
+    hidden_columns: list[str] = Field(default_factory=list)
+
+
+class WorkbookViewCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    config: ViewConfig = Field(default_factory=ViewConfig)
+
+
+class WorkbookViewUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=255)
+    config: Optional[ViewConfig] = None
+
+
+class WorkbookViewResponse(BaseModel):
+    id: str
+    workbook_id: str
+    name: str
+    config: ViewConfig
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
+class WorkbookViewListResponse(BaseModel):
+    views: list[WorkbookViewResponse]
+    total: int
 
 
 # ── Export ────────────────────────────────────────────────────────────────

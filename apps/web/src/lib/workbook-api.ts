@@ -267,7 +267,7 @@ export async function deleteColumn(workbookId: string, colId: string): Promise<W
 
 export async function runWorkbook(
   workbookId: string,
-  opts?: { column_ids?: string[]; lead_ids?: number[]; fill_missing?: boolean },
+  opts?: { column_ids?: string[]; row_ids?: number[]; lead_ids?: number[]; fill_missing?: boolean; force?: boolean },
 ): Promise<{ status: string; total_jobs: number; message: string }> {
   const res = await fetch(`${API}/api/workbooks/${workbookId}/run`, {
     method: "POST",
@@ -275,6 +275,23 @@ export async function runWorkbook(
     body: JSON.stringify(opts || {}),
   })
   if (!res.ok) throw new Error("Failed to run workbook")
+  return res.json()
+}
+
+/** (Re-)run a SINGLE cell synchronously. force=true bypasses success-skip gates
+ * (for output columns it overrides run-once and re-pushes — confirm in the UI). */
+export async function runWorkbookCell(
+  workbookId: string,
+  rowId: number,
+  colId: string,
+  force = false,
+): Promise<{ status: "complete" | "error" | "skipped"; value: any; provider?: string | null; error?: string | null; skipped: boolean; forced: boolean }> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/rows/${rowId}/cells/${encodeURIComponent(colId)}/run`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ force }),
+  })
+  if (!res.ok) throw new Error("Failed to run cell")
   return res.json()
 }
 
@@ -287,6 +304,77 @@ export async function deleteLeads(leadIds: number[]): Promise<{ deleted: number 
     leadIds.map(id => fetch(`${API}/api/lead/${id}`, { method: "DELETE" }))
   )
   return { deleted: results.filter(r => r.ok).length }
+}
+
+// ── Saved Views (v2) ─────────────────────────────────────────────────────
+// Named filter/sort/hidden-column presets per workbook, applied client-side.
+
+export type ViewFilterOp = "equals" | "not_equals" | "contains" | "not_contains" | "empty" | "not_empty"
+
+export interface ViewFilter {
+  column: string
+  op: ViewFilterOp
+  value?: any
+}
+
+export interface ViewSort {
+  column: string
+  dir: "asc" | "desc"
+}
+
+export interface ViewConfig {
+  filters: ViewFilter[]
+  sort: ViewSort[]
+  hidden_columns: string[]
+}
+
+export interface WorkbookView {
+  id: string
+  workbook_id: string
+  name: string
+  config: ViewConfig
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+const V2 = `${API}/api/v2/workbooks`
+
+export async function fetchWorkbookViews(workbookId: string): Promise<{ views: WorkbookView[]; total: number }> {
+  const res = await fetch(`${V2}/${workbookId}/views`)
+  if (!res.ok) throw new Error("Failed to fetch views")
+  return res.json()
+}
+
+export async function createWorkbookView(
+  workbookId: string,
+  body: { name: string; config?: Partial<ViewConfig> },
+): Promise<WorkbookView> {
+  const res = await fetch(`${V2}/${workbookId}/views`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) throw new Error("Failed to create view")
+  return res.json()
+}
+
+export async function updateWorkbookView(
+  workbookId: string,
+  viewId: string,
+  body: { name?: string; config?: ViewConfig },
+): Promise<WorkbookView> {
+  const res = await fetch(`${V2}/${workbookId}/views/${viewId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) throw new Error("Failed to update view")
+  return res.json()
+}
+
+export async function deleteWorkbookView(workbookId: string, viewId: string): Promise<void> {
+  const res = await fetch(`${V2}/${workbookId}/views/${viewId}`, { method: "DELETE" })
+  if (!res.ok) throw new Error("Failed to delete view")
 }
 
 // ── Meta ─────────────────────────────────────────────────────────────────

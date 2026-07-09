@@ -13,16 +13,18 @@ from sqlalchemy import func as sa_func
 
 from apps.api.database import get_db
 from apps.api.services.workbook.models import (
-    Workbook, WorkbookEnrichment, WorkbookRow, COLUMN_TYPES, LEAD_FIELD_MAP,
+    Workbook, WorkbookEnrichment, WorkbookRow, WorkbookView, COLUMN_TYPES, LEAD_FIELD_MAP,
 )
 from apps.api.services.workbook.schemas import (
     WorkbookCreate, WorkbookUpdate, WorkbookResponse,
     WorkbookListResponse, WorkbookWithLeadsResponse,
     WorkbookLeadRow, EnrichmentOverlay,
-    RunWorkbookRequest, RunWorkbookResponse,
+    RunWorkbookRequest, RunWorkbookResponse, RunCellRequest,
     AddColumnRequest, ExportRequest,
     AddRowsRequest, DeleteRowsRequest,
     GenerateColumnRequest, GenerateColumnResponse,
+    WorkbookViewCreate, WorkbookViewUpdate,
+    WorkbookViewResponse, WorkbookViewListResponse,
 )
 from apps.api.services.leadgen.db import LeadDB
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace
@@ -32,6 +34,8 @@ logger = logging.getLogger("workbook.api")
 router = APIRouter(prefix="/api/workbooks", tags=["workbooks"])
 # v2 namespace (matches /api/v2/* convention) — NL → column generator lives here.
 router_v2 = APIRouter(prefix="/api/v2/workbooks", tags=["workbooks"])
+# Saved views live under the v2 prefix (new surface, no legacy consumers).
+views_router = APIRouter(prefix="/api/v2/workbooks", tags=["workbook-views"])
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────
@@ -901,6 +905,9 @@ async def run_workbook(
             "provider_workers": _es["provider_workers"],
             "provider_timeout": _es["provider_timeout"],
             "fill_missing": bool(body.fill_missing),
+            # Force re-run: bypasses success-skip gates; for output columns this
+            # overrides run-once (re-pushes). The UI confirms before sending it.
+            "force": bool(body.force),
         },
     )
     return RunWorkbookResponse(
@@ -936,6 +943,109 @@ async def stop_workbook(
             j.error = "stopped by user"
     db.commit()
     return {"status": "paused"}
+
+
+# ── Single-cell re-run ────────────────────────────────────────────────────
+
+@router.post("/{workbook_id}/rows/{row_id}/cells/{col_id}/run")
+@limiter.limit("120/minute")
+async def run_cell(
+    request: Request,
+    workbook_id: str,
+    row_id: int,
+    col_id: str,
+    body: RunCellRequest = None,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """(Re-)run ONE cell synchronously and return its result.
+
+    Unlike /run this doesn't enqueue a durable job — a single cell is small
+    enough to run in-request, and the caller wants the fresh value back.
+
+    ``force=true`` bypasses success-skip gates: for side-effecting ``output``
+    columns it overrides the run-once guard and RE-PUSHES the row to the
+    destination, so the UI confirms before sending it. Without force, a
+    complete output cell returns ``{"skipped": true}`` untouched.
+
+    ``row_id`` is the WorkbookRow id (v2); falls back to matching lead_id so
+    v1/legacy rows (leads-DB backed) can be re-run too.
+    """
+    from apps.api.services.workbook.enrichment import enrich_cell, ENRICHMENT_COL_TYPES
+    from apps.api.core.tenancy import workspace_scope
+
+    if body is None:
+        body = RunCellRequest()
+
+    wb = _owned_workbook(db, workbook_id, ctx)
+    columns_config = wb.columns_config or []
+    # Same runnable set as /run: ENRICHMENT_COL_TYPES doesn't include "output"
+    # (outputs are ordered/handled specially on full runs) but a single output
+    # cell is exactly what force re-run exists for.
+    runnable_types = (*ENRICHMENT_COL_TYPES, "output")
+    col = next(
+        (c for c in columns_config
+         if c.get("id") == col_id and c.get("type") in runnable_types),
+        None,
+    )
+    if not col:
+        raise HTTPException(status_code=404, detail="Enrichment column not found")
+
+    # Resolve the row — v2 WorkbookRow by id, then by lead_id; v1 leads-DB last.
+    wr = db.query(WorkbookRow).filter(
+        WorkbookRow.workbook_id == workbook_id, WorkbookRow.id == row_id
+    ).first()
+    if wr is None:
+        wr = db.query(WorkbookRow).filter(
+            WorkbookRow.workbook_id == workbook_id, WorkbookRow.lead_id == row_id
+        ).first()
+
+    if wr is not None:
+        lead_id = wr.lead_id or wr.id
+        lead_data = {"id": lead_id, **(wr.data or {})}
+    else:
+        # v1 legacy — row lives in the tenant lead store.
+        import dataclasses
+        lead_db = ctx.lead_db()
+        try:
+            lead = lead_db.get_lead(row_id)
+        finally:
+            lead_db.close()
+        if lead is None:
+            raise HTTPException(status_code=404, detail="Row not found")
+        lead_data = dataclasses.asdict(lead) if dataclasses.is_dataclass(lead) else dict(lead)
+        lead_id = lead_data.get("id") or row_id
+        lead_data["id"] = lead_id
+
+    # Run under the caller's tenant scope (RLS GUC + workspace_id stamping on
+    # the enrichment upsert), exactly like the queue worker does.
+    with workspace_scope(ctx.workspace_id):
+        result = await enrich_cell(
+            db=db,
+            workbook_id=workbook_id,
+            lead_id=lead_id,
+            col_id=col_id,
+            col_config=col,
+            lead_data=lead_data,
+            columns_config=columns_config,
+            redis_client=None,
+            force=bool(body.force),
+        )
+
+    if result.get("skipped"):
+        status = "skipped"
+    elif result.get("success"):
+        status = "complete"
+    else:
+        status = "error"
+    return {
+        "status": status,
+        "value": result.get("value"),
+        "provider": result.get("provider"),
+        "error": result.get("error"),
+        "skipped": bool(result.get("skipped", False)),
+        "forced": bool(body.force),
+    }
 
 
 # ── Source Columns (P0) — sourcing as a workbook primitive ───────────────
@@ -1488,6 +1598,97 @@ async def workbook_websocket(
                     await websocket.send_json({"type": "pong"})
         except WebSocketDisconnect:
             pass
+
+
+# ── Saved Views (v2) ──────────────────────────────────────────────────────
+# Named filter/sort/hidden-column presets per workbook. Presentation-layer
+# only — a view never mutates rows; the editor applies its config client-side.
+# Workspace-scoped exactly like the parent workbook: other-tenant ids → 404.
+
+def _owned_view(db: Session, workbook_id: str, view_id: str, ctx: WorkspaceCtx) -> WorkbookView:
+    """Fetch a view scoped to (workbook, workspace); 404 on any mismatch."""
+    v = db.query(WorkbookView).filter(WorkbookView.id == view_id).first()
+    if (not v or v.workbook_id != workbook_id
+            or v.workspace_id != ctx.workspace_id):
+        raise HTTPException(status_code=404, detail="View not found")
+    return v
+
+
+@views_router.get("/{workbook_id}/views", response_model=WorkbookViewListResponse)
+async def list_views(
+    workbook_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """List saved views for a workbook (oldest first, stable switcher order)."""
+    _owned_workbook(db, workbook_id, ctx)
+    views = (
+        db.query(WorkbookView)
+        .filter(
+            WorkbookView.workbook_id == workbook_id,
+            WorkbookView.workspace_id == ctx.workspace_id,
+        )
+        .order_by(WorkbookView.created_at, WorkbookView.id)
+        .all()
+    )
+    return WorkbookViewListResponse(views=views, total=len(views))
+
+
+@views_router.post("/{workbook_id}/views", response_model=WorkbookViewResponse, status_code=201)
+async def create_view(
+    workbook_id: str,
+    body: WorkbookViewCreate,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Create a saved view on a workbook."""
+    _owned_workbook(db, workbook_id, ctx)
+    v = WorkbookView(
+        workbook_id=workbook_id,
+        workspace_id=ctx.workspace_id,
+        name=body.name,
+        config=body.config.model_dump(),
+    )
+    db.add(v)
+    db.commit()
+    db.refresh(v)
+    return v
+
+
+@views_router.put("/{workbook_id}/views/{view_id}", response_model=WorkbookViewResponse)
+async def update_view(
+    workbook_id: str,
+    view_id: str,
+    body: WorkbookViewUpdate,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Rename a view and/or replace its filter/sort/hidden-column config."""
+    _owned_workbook(db, workbook_id, ctx)
+    v = _owned_view(db, workbook_id, view_id, ctx)
+    if body.name is not None:
+        v.name = body.name
+    if body.config is not None:
+        v.config = body.config.model_dump()
+    v.updated_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(v)
+    return v
+
+
+@views_router.delete("/{workbook_id}/views/{view_id}")
+async def delete_view(
+    workbook_id: str,
+    view_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Delete a saved view (never touches the workbook's rows)."""
+    _owned_workbook(db, workbook_id, ctx)
+    v = _owned_view(db, workbook_id, view_id, ctx)
+    db.delete(v)
+    db.commit()
+    return {"status": "deleted"}
 
 
 # ── Meta ──────────────────────────────────────────────────────────────────
