@@ -315,6 +315,20 @@ async def _run_legacy(
 # ─────────────────────────────────────────────────────────────────────
 
 
+class _NativeUnsupported(Exception):
+    """The provider could not serve a native tool-use turn AT ALL.
+
+    Raised when the very FIRST tool-use turn of a cell fails (anthropic SDK
+    missing, API rejecting the `tools` param, provider/tool-support error…) —
+    i.e. before any research progress was made. execute_research_column catches
+    it and falls back to the legacy extract_json ReAct loop, so a provider
+    without tool support degrades gracefully instead of returning no_answer.
+    Failures on LATER turns keep the current behavior (synthesize from the
+    notes already gathered) — falling back to legacy there would discard paid
+    progress.
+    """
+
+
 class _ResearchCtx:
     """Per-cell mutable state for the native loop (NOT shared across cells)."""
 
@@ -563,6 +577,7 @@ async def _run_native(
     synth_reserve = cell_budget_usd * SYNTH_RESERVE_FRACTION
     bound = max(1, min(int(max_steps or 4), RESEARCH_MAX_STEPS_CAP()))
     stopped_reason = "answered"
+    turns_done = 0
 
     for _ in range(bound):
         # PRE-FLIGHT budget check: stop BEFORE the next turn if we can't afford
@@ -582,10 +597,16 @@ async def _run_native(
                 prov=prov,
             )
         except Exception as e:
+            if turns_done == 0:
+                # First turn never succeeded → the provider can't do native
+                # tool-use here (SDK missing / tools rejected / hard API error).
+                # Signal the caller to fall back to the legacy loop.
+                raise _NativeUnsupported(str(e)[:200]) from e
             logger.info(f"research native turn failed: {e}")
             stopped_reason = "error"
             break
 
+        turns_done += 1
         spent += llm.anthropic_cost_usd(getattr(resp, "usage", None), prov=prov)
         tool_choice = {"type": "auto"}  # only turn 1 is forced
 
@@ -652,6 +673,11 @@ async def execute_research_column(
     logger.info(f"research_native_run workspace={workspace_id} budget={budget}")
     try:
         return await _run_native(question, max_steps=max_steps, cell_budget_usd=float(budget))
+    except _NativeUnsupported as e:
+        # Provider lacks native tool support (detected via the first-turn
+        # error) → degrade gracefully to the legacy extract_json loop.
+        logger.info(f"research_native_unsupported, falling back to legacy: {e}")
+        return await _run_legacy(question, max_steps=max_steps)
     except Exception as e:
         # Last-resort: never crash a cell — fall back to legacy.
         logger.warning(f"research native path crashed, falling back to legacy: {e}")
