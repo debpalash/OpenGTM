@@ -22,6 +22,7 @@ from apps.api.services.workbook.schemas import (
     RunWorkbookRequest, RunWorkbookResponse,
     AddColumnRequest, ExportRequest,
     AddRowsRequest, DeleteRowsRequest,
+    GenerateColumnRequest, GenerateColumnResponse,
 )
 from apps.api.services.leadgen.db import LeadDB
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace
@@ -29,6 +30,8 @@ from apps.api.core.ratelimit import limiter
 
 logger = logging.getLogger("workbook.api")
 router = APIRouter(prefix="/api/workbooks", tags=["workbooks"])
+# v2 namespace (matches /api/v2/* convention) — NL → column generator lives here.
+router_v2 = APIRouter(prefix="/api/v2/workbooks", tags=["workbooks"])
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────
@@ -667,6 +670,24 @@ async def add_column(
     db.commit()
     db.refresh(wb)
     return _workbook_response(wb)
+
+
+@router_v2.post("/{workbook_id}/generate-column", response_model=GenerateColumnResponse)
+async def generate_column(
+    workbook_id: str,
+    body: GenerateColumnRequest,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """NL → column generator: turn an instruction into a validated, ready-to-add
+    column config (formula / ai_formula / http). Does NOT add the column."""
+    from apps.api.services.workbook.nl_column import NLColumnError, generate_column as _generate
+
+    wb = _owned_workbook(db, workbook_id, ctx)
+    try:
+        return await _generate(body.instruction, wb.columns_config or [])
+    except NLColumnError as e:
+        raise HTTPException(status_code=502, detail=f"Column generation failed: {e}")
 
 
 @router.delete("/{workbook_id}/columns/{column_id}", response_model=WorkbookResponse)

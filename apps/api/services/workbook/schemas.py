@@ -212,6 +212,18 @@ class AddColumnRequest(BaseModel):
     column: ColumnConfig
 
 
+class GenerateColumnRequest(BaseModel):
+    """NL → column generator: natural-language instruction to turn into a column."""
+    instruction: str = Field(..., min_length=3, max_length=2000, description="e.g. 'extract the domain from the website URL'")
+
+
+class GenerateColumnResponse(BaseModel):
+    """A validated, ready-to-add column config generated from an instruction."""
+    column: ColumnConfig
+    kind: Literal["formula", "ai_formula", "http"]
+    explanation: str = ""
+
+
 # ── Row Management ───────────────────────────────────────────────────────
 
 class AddRowsRequest(BaseModel):

@@ -240,6 +240,23 @@ export async function addColumn(workbookId: string, column: Partial<ColumnConfig
   return res.json()
 }
 
+export interface GeneratedColumn {
+  column: Partial<ColumnConfig> & { id: string; name: string; type: ColumnConfig["type"] }
+  kind: "formula" | "ai_formula" | "http"
+  explanation: string
+}
+
+/** NL → column generator: instruction → validated, ready-to-add column config. */
+export async function generateColumn(workbookId: string, instruction: string): Promise<GeneratedColumn> {
+  const res = await fetch(`${API}/api/v2/workbooks/${workbookId}/generate-column`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ instruction }),
+  })
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.detail || "Failed to generate column")
+  return res.json()
+}
+
 export async function deleteColumn(workbookId: string, colId: string): Promise<Workbook> {
   const res = await fetch(`${API}/api/workbooks/${workbookId}/columns/${colId}`, { method: "DELETE" })
   if (!res.ok) throw new Error("Failed to delete column")
