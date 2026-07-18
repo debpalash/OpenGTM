@@ -208,7 +208,7 @@ def seed_demo_workbook(db, workspace_id: str) -> bool:
     return True
 
 
-def trigger_first_run(db) -> None:
+def trigger_first_run(db, workspace_id: str) -> None:
     """Enqueue a run_workbook job so the API's in-process queue worker fills
     the grid automatically. Guarded against duplicate pending runs."""
     from apps.api.models import Job
@@ -240,6 +240,9 @@ def trigger_first_run(db) -> None:
         "run_workbook",
         {
             "workbook_id": DEMO_WORKBOOK_ID,
+            # OD-4: stamp the tenant into the payload so the worker enters the
+            # right workspace_scope — handle_run_workbook fails loud without it.
+            "workspace_id": workspace_id,
             "column_ids": enrichment_col_ids,
             "row_ids": None,
             "lead_ids": None,
@@ -279,7 +282,7 @@ def main() -> int:
         workspace_id = ensure_main_workspace(admin_id)
         created = seed_demo_workbook(db, workspace_id)
         if created or os.getenv("SEED_FORCE_RUN") == "1":
-            trigger_first_run(db)
+            trigger_first_run(db, workspace_id)
     finally:
         db.close()
 
