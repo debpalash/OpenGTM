@@ -566,12 +566,12 @@ def _build_tools():
             "type": "function",
             "function": {
                 "name": "ambitionbox_search",
-                "description": "Search AmbitionBox for Indian companies with ratings, reviews, employee counts, industry, and job data. Use for company research, market analysis, competitor intel. Supports filters: industry, location, rating.",
+                "description": "Search AmbitionBox for Indian companies with ratings, reviews, employee counts, industry, and job data. Use for company research, market analysis, competitor intel. Supports filters: industry, rating. NOTE: there is no location/city filter — AmbitionBox's gateway ignores it. Do not claim results are scoped to a city.",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "industry": {"type": "string", "description": "Industry filter, e.g. 'IT Services & Consulting', 'Banking', 'BPO'"},
-                        "location": {"type": "string", "description": "City filter, e.g. 'Bangalore/Bengaluru', 'Mumbai', 'Pune'"},
+                        "rating": {"type": "string", "description": "Minimum rating, e.g. '4.5' for 4.5+ rated companies"},
                         "sort_by": {"type": "string", "enum": ["popular", "rating", "reviews"], "description": "Sort order", "default": "popular"},
                         "page": {"type": "integer", "description": "Page number (1-indexed)", "default": 1},
                         "limit": {"type": "integer", "description": "Results per page (max 20)", "default": 10},
@@ -993,14 +993,14 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
             from apps.api.services.leadgen.ambitionbox import ambitionbox
 
             industry = [args["industry"]] if args.get("industry") else None
-            location = [args["location"]] if args.get("location") else None
-
+            # No location: search_companies raises on it, because the gateway
+            # silently drops the filter and returns unscoped results.
             result = await ambitionbox.search_companies(
                         page=args.get("page", 1),
                         limit=args.get("limit", 10),
                         sort_by=args.get("sort_by", "popular"),
                         industry=industry,
-                        location=location,
+                        rating=args.get("rating"),
                     )
 
             return json.dumps(result)

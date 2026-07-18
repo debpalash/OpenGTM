@@ -12,6 +12,7 @@ Endpoints:
 """
 
 import asyncio
+import re
 from typing import Optional
 from dataclasses import dataclass, field
 
@@ -39,8 +40,14 @@ class ABCompany:
     url_name: str = ""
     logo_url: str = ""
     industry: str = ""
-    rating: float = 0.0
-    review_count: int = 0
+    # None = AmbitionBox has no rating for this company (unrated), which is NOT
+    # the same as "rated 0.0". Coercing the API's null to 0 made unrated
+    # companies sort below every genuinely bad one -- e.g. "SBI Kiosk Banking"
+    # came back as rating 0 with 0 reviews and read as the worst bank in India,
+    # when the truth is simply that nobody has reviewed it. A data gap is not a
+    # zero.
+    rating: Optional[float] = None
+    review_count: Optional[int] = None
     jobs_count: int = 0
     salaries_count: int = 0
     interviews_count: int = 0
@@ -63,8 +70,11 @@ class ABCompany:
             url_name=card.get("urlName", ""),
             logo_url=card.get("logoUrl", ""),
             industry=card.get("primaryIndustry", ""),
-            rating=round(card.get("companyRating", 0) or 0, 1),
-            review_count=card.get("reviewCount", 0) or 0,
+            # Preserve null. `or 0` would turn "unrated" into "rated 0.0".
+            rating=(round(card["companyRating"], 1)
+                    if card.get("companyRating") is not None else None),
+            review_count=(card["reviewCount"]
+                          if card.get("reviewCount") is not None else None),
             jobs_count=card.get("jobsCount", 0) or 0,
             salaries_count=card.get("salariesCount", 0) or 0,
             interviews_count=card.get("interviewsCount", 0) or 0,
@@ -162,6 +172,19 @@ class ABJob:
 # ── API Client ──────────────────────────────────────────────────────
 
 
+def _slugify(value: str) -> str:
+    """Display name -> AmbitionBox filter slug.
+
+    The gateway matches slugs, not display names: "IT Services & Consulting"
+    must be sent as "it-services-and-consulting". A display name is silently
+    ignored (no error, full unfiltered list back), which is why this is done
+    for the caller rather than trusted to them.
+    """
+    s = value.strip().lower().replace("&", "and")
+    s = re.sub(r"[^a-z0-9]+", "-", s)
+    return s.strip("-")
+
+
 class AmbitionBoxClient:
     """Async client for AmbitionBox's internal APIs."""
 
@@ -194,15 +217,37 @@ class AmbitionBoxClient:
 
         Args:
             page: Page number (1-indexed)
-            limit: Results per page (max ~20)
+            limit: Results per page. NOTE: the gateway ignores this and always
+                returns 20; kept for signature stability, applied client-side.
             sort_by: "popular", "rating", "reviews"
-            industry: e.g. ["IT Services & Consulting", "Banking"]
-            location: e.g. ["Bangalore/Bengaluru", "Mumbai"]
-            company_type: e.g. ["Public", "Private"]
-            rating: e.g. "3.5" for 3.5+ rated companies
+            industry: display names OR slugs, e.g. ["IT Services & Consulting"]
+            rating: minimum rating as a string, e.g. "4.5" for 4.5+
+            location: NOT SUPPORTED by this endpoint -- raises. See below.
+            company_type: NOT SUPPORTED by this endpoint -- raises. See below.
 
         Returns:
             Dict with "companies" list and "total" count.
+
+        Gateway filter contract (reverse-engineered 2026-07-16, verified by
+        differential testing -- see the note below before changing any of it):
+
+          * ``industries``: list[str] of SLUGS.  "IT Services & Consulting"
+            must go over the wire as "it-services-and-consulting".
+          * ``ratings``: a STRING, not a list.  ``"4.5"`` -> 4.5+.  Sending
+            ``["4.5"]`` returns HTTP 422.
+          * ``locations`` / ``companyTypes``: no working form found.  As a list
+            they are silently dropped; as a string they 422.  AmbitionBox
+            filters these by SEO path instead
+            (/it-services-and-consulting-companies-in-pune), which this client
+            does not implement.
+
+        WHY THIS IS SO EXPLICIT: the previous implementation sent ``Industry``,
+        ``Location``, ``CompanyType`` and ``Rating``.  The gateway accepts the
+        request, ignores every one of those keys, and returns HTTP 200 with the
+        full unfiltered popular list.  So a caller asking for "IT companies in
+        Pune rated 4.5+" got TCS (3.3), HDFC Bank, Reliance Jio and Tata Steel
+        -- 20 plausible rows, silently wrong, no error to notice.  Unsupported
+        filters now raise instead of lying.
         """
         body: dict = {
             "isFilterApplied": True,
@@ -211,13 +256,23 @@ class AmbitionBoxClient:
             "limit": limit,
         }
         if industry:
-            body["Industry"] = industry
-        if location:
-            body["Location"] = location
-        if company_type:
-            body["CompanyType"] = company_type
+            body["industries"] = [_slugify(i) for i in industry]
         if rating:
-            body["Rating"] = rating
+            # String, not list -- a list is a 422.
+            body["ratings"] = str(rating)
+        if location:
+            raise NotImplementedError(
+                "AmbitionBox's gateway ignores location filters -- it filters "
+                "location by SEO path (e.g. /it-services-and-consulting-"
+                "companies-in-pune), which this client does not implement. "
+                "Passing location would silently return unfiltered results, so "
+                "it is refused rather than dropped."
+            )
+        if company_type:
+            raise NotImplementedError(
+                "AmbitionBox's gateway ignores company_type filters. See the "
+                "location note above -- refused rather than silently dropped."
+            )
 
         data = await self._request(
             "POST",
@@ -227,6 +282,10 @@ class AmbitionBoxClient:
 
         cards = data.get("cards", [])
         companies = [ABCompany.from_api(c).to_dict() for c in cards]
+        # The gateway ignores `limit` and always returns 20. Honor it here so
+        # the caller gets what it asked for rather than a silent 20.
+        if limit and len(companies) > limit:
+            companies = companies[:limit]
 
         return {
             "companies": companies,
