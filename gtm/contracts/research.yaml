@@ -1,0 +1,71 @@
+verb: research
+version: 1
+risk_tier: low
+description: >
+  Find out what is true. Never terminates a decision on its own — research
+  produces evidence, `audit` produces facts about our own artifacts, and only
+  a human or a measured number closes a loop.
+
+required_sources:
+  - gtm/GOAL.md
+  - gtm/RULES-OF-ENGAGEMENT.md
+
+source_policy:
+  load_before_writing: true
+  claims_must_trace_to_evidence: true
+  missing_sources_action: block_and_request_sources
+
+  # §8 refusal gate. A vendor blog, an SEO article, or recollection is not a
+  # source. Five legal errors in this project's own research all came from
+  # plausible inference stated in the register of verified fact.
+  primary_source_required_for:
+    - any legal rule, threshold, section number, or penalty amount
+    - any platform policy claim
+    - any competitor pricing or capability claim
+    - any metric about our own products
+
+  # Observed in the wild: a fabricated case ("RetailScrape v. MegaMart, 2026")
+  # with placeholder party names, corroborating to nothing. An agent optimizing
+  # for a confident answer will cite it.
+  fabrication_guard:
+    reject_if_uncorroborated: true
+    reject_generic_party_names: true
+
+output_schema:
+  type: object
+  additionalProperties: false
+  required: [findings, gaps, sources]
+  properties:
+    findings:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [claim, confidence, source_url, source_tier]
+        properties:
+          claim: {type: string}
+          confidence: {enum: [verified, reported, inferred]}
+          source_url: {type: string}
+          source_tier: {enum: [primary, secondary, vendor, slop]}
+    # NOT an empty findings array. A gap is a first-class result.
+    gaps:
+      type: array
+      description: >
+        Questions we could not answer. Say so. Never fill with inference.
+        "I found nothing" and "nothing exists" are different claims.
+      items: {type: string}
+    sources:
+      type: array
+      items: {type: string}
+
+rejects:
+  - source_tier: slop        # competitor-owned SEO farms, content mills
+  - confidence: inferred     # unless explicitly labelled AND gap-listed
+
+notes: |
+  Distinguish "I verified this" from "this is a vendor claim" from "I did not
+  check." The third is the one that gets skipped, and it is the one that
+  matters most.
+
+  Absence of search is not absence of evidence. If a sweep was never run, that
+  is a gap, not a negative finding.

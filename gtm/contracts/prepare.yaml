@@ -1,0 +1,79 @@
+verb: prepare
+version: 1
+risk_tier: med
+description: >
+  Build a launch or listing artifact and take it right up to the send button.
+  Everything except the irreversible act. The handoff to `publish` is a human.
+
+required_sources:
+  - gtm/GOAL.md
+  - gtm/RULES-OF-ENGAGEMENT.md
+  - the target channel's own policy page, read today
+
+source_policy:
+  load_before_writing: true
+  missing_sources_action: block_and_request_sources
+
+stops_at:
+  # The line is bright on purpose.
+  - the send button
+  - the submit button
+  - the merge button
+  - the tweet button
+
+deliverables:
+  show_hn:
+    - title (<= 80 chars, no hype, states what it is)
+    - a one-command runnable path, VERIFIED by actually running it
+    - the first comment (context, honest limitations, what's not done)
+    - a "what will get asked" list with real answers
+    note: >
+      Show HN is one shot and ungameable. GOAL O2: OmniVoice has 8,509 stars
+      and ZERO HN stories. Front page is ~10,000-30,000 visitors/24h - and
+      analytics understate it ~1.5x because much of HN blocks GA.
+  listing:
+    - the copy
+    - the assets
+    - the form, filled, unsubmitted
+  release:
+    - release notes traced to actual commits, not imagination
+    - the diff between what shipped and what the README claims
+
+honesty_policy:
+  # The council doc's own framing: "near-parity is a lie we tell ourselves that
+  # lets us under-invest in the ~20% that's actually broken."
+  include_an_honest_not_yet_list: true
+  reason: >
+    An honest limitations list is the highest-trust artifact a solo OSS project
+    can ship, and the audience we court (self-hosters, security-conscious devs)
+    reads it as competence. Overclaiming to that audience is how you lose it in
+    one thread.
+
+output_schema:
+  type: object
+  additionalProperties: false
+  required: [artifact, channel, verified_steps, not_yet, blockers]
+  properties:
+    artifact: {type: string}
+    channel: {type: string}
+    verified_steps:
+      type: array
+      description: >
+        Each claim in the artifact that was proven by running it, with the
+        command and its output. "It works" is not a verified step.
+      items:
+        type: object
+        additionalProperties: false
+        required: [claim, command, output]
+        properties:
+          claim: {type: string}
+          command: {type: string}
+          output: {type: string}
+    not_yet:
+      type: array
+      description: Honest limitations. Shipping without this is a gate failure.
+      items: {type: string}
+    blockers:
+      type: array
+      description: What must be true before a human can press send.
+      items: {type: string}

@@ -1,0 +1,81 @@
+verb: measure
+version: 1
+risk_tier: low
+description: >
+  Pull real numbers, diff them against GOAL.md §2, and report what moved.
+  Feeds the replan loop.
+
+required_sources:
+  - gtm/GOAL.md
+
+source_policy:
+  verify_by_execution: true
+  missing_sources_action: block_and_request_sources
+
+metric_policy:
+  # GOAL.md §6. We optimize the top tier, report the bottom, never confuse them.
+  tiers:
+    real:        [revenue, licence_enquiries, first_run_fill_pct, response_latency]
+    directional: [downloads, release_adoption, hn_referrals]
+    vanity:      [stars]
+    noise:       [open_rates]
+
+  # The single most important rule in this file.
+  data_gaps_are_not_zeros: true
+  gap_policy: >
+    A KPI with no measured value is a DATA GAP. Leave the stored value
+    UNTOUCHED. Never write 0. A zeroed metric is indistinguishable from
+    failure and silently corrupts every downstream decision - including the
+    planner's, which reads these numbers back.
+
+  # "137k downloads" is true and means less than it sounds: it is the sum of
+  # download_count across 563 release assets, counting bots, CI, mirrors, and
+  # re-downloads. Report the number AND what it counts.
+  report_what_the_number_counts: true
+
+  never_infer_a_metric: true
+
+commands:
+  omnivoice_stars: gh api repos/debpalash/OmniVoice-Studio --jq .stargazers_count
+  omnivoice_downloads: |
+    gh api --paginate repos/debpalash/OmniVoice-Studio/releases \
+      --jq '.[] | .assets[] | .download_count' | awk '{s+=$1} END {print s}'
+  omnivoice_licence: gh api repos/debpalash/OmniVoice-Studio/license --jq .license.spdx_id
+  lead_data_visibility: gh api repos/debpalash/lead-data --jq .visibility
+  readme_clone_url_anon: curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/yupcha-internal/lead-data
+  resubird_pricing: curl -s -o /dev/null -w "%{http_code}" -L https://resubird.com/pricing
+
+output_schema:
+  type: object
+  additionalProperties: false
+  required: [measurements, gaps, deltas]
+  properties:
+    measurements:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [metric, value, tier, counts_what, command]
+        properties:
+          metric: {type: string}
+          value: {type: [number, string]}
+          tier: {enum: [real, directional, vanity, noise]}
+          counts_what:
+            type: string
+            description: What the number actually counts. Assets, not people.
+          command: {type: string}
+    gaps:
+      type: array
+      description: Metrics we could not measure. NOT zeros.
+      items: {type: string}
+    deltas:
+      type: array
+      description: What changed vs GOAL.md §2, and whether GOAL.md is now stale.
+      items:
+        type: object
+        additionalProperties: false
+        required: [metric, was, now]
+        properties:
+          metric: {type: string}
+          was: {type: [number, string]}
+          now: {type: [number, string]}

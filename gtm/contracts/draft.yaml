@@ -1,0 +1,75 @@
+verb: draft
+version: 1
+risk_tier: med
+description: >
+  Write something a human will review: docs, comparison pages, release notes,
+  READMEs, issue bodies, launch copy. Drafting is allowed autonomously.
+  Publishing is not — see publish.yaml.
+
+required_sources:
+  - gtm/GOAL.md
+  - gtm/RULES-OF-ENGAGEMENT.md
+  - research output for every factual claim   # no brief, no write
+
+source_policy:
+  load_before_writing: true
+  claims_must_trace_to_evidence: true
+  missing_sources_action: block_and_request_sources
+
+claim_policy:
+  # ResuBird's "4.8/1250 vs 4.8/12" markup is the live example of why.
+  # FTC v. TruHeight: unsubstantiated efficacy claims + fake reviews =
+  # $4,000,000 judgment, suspended to $750,000. Same fact pattern.
+  every_claim_needs_evidence: true
+  forbidden_claims:
+    - a metric we have not measured
+    - a testimonial we did not receive
+    - a review count we cannot substantiate
+    - an efficacy claim without a study   # "beat the ATS", "3x your rate"
+    - a capability that is not shipped    # "coming soon" is not a feature
+
+  # The strongest copy in this portfolio is quotation, not assertion.
+  # Clay's own memo says 60-70% of value is orchestration, not data; their own
+  # docs say BYOK saves 50-80%. We never have to assert the markup.
+  prefer_citation_over_assertion: true
+
+voice_policy:
+  # OmniVoice's legal posture — general-purpose, local, offline, open-source —
+  # is strong, and our own marketing copy is the only thing that can destroy it.
+  omnivoice:
+    never_position_as: [outbound tool, cold-calling tool, dialer, sales automation]
+    never_demo_with: [a famous voice, an identifiable person's voice]
+    reason: ELVIS Act "primary purpose" + means-and-instrumentalities exposure
+  lead_data:
+    never_use_the_name: "Yupcha"
+    reason: >
+      yupcha.com is a live AI hiring platform. The name is spent. Until a new
+      name exists, draft with a placeholder and escalate.
+
+output_schema:
+  type: object
+  additionalProperties: false
+  required: [body, claims_ledger, sources, risk_notes]
+  properties:
+    body: {type: string}
+    claims_ledger:
+      type: array
+      description: Every factual claim in body, with what backs it.
+      items:
+        type: object
+        additionalProperties: false
+        required: [claim, evidence_url, tier]
+        properties:
+          claim: {type: string}
+          evidence_url: {type: string}
+          tier: {enum: [verified, reported, vendor_claim]}
+    sources: {type: array, items: {type: string}}
+    risk_notes:
+      type: array
+      description: Anything a human should look at twice before publishing.
+      items: {type: string}
+
+gates:
+  - cite-gate     # deterministic: every claims_ledger entry resolves
+  - rules-gate    # deterministic: FORBIDDEN list
+  - voice-gate    # LLM judge: does this sound like us, or like a press release
