@@ -1,0 +1,84 @@
+verb: audit
+version: 1
+risk_tier: low
+description: >
+  Drive our own properties and report what is actually broken. The highest-value
+  autonomous verb in the harness, because it is the only one that checks the
+  artifact rather than the claim about the artifact.
+
+  Every significant find in this project's first session came from here:
+  a 404ing clone URL in our own README, a linked-but-dead pricing page, a
+  first-run demo that filled zero cells, a licence GitHub couldn't read, an
+  unwatermarked audio endpoint.
+
+required_sources:
+  - gtm/GOAL.md
+
+source_policy:
+  load_before_writing: true
+  missing_sources_action: block_and_request_sources
+
+  # The whole point. Fetch it, run it, click it — do not reason about it.
+  verify_by_execution: true
+  never_trust:
+    - documentation describing behavior   # the README's clone URL 404'd
+    - a prior claim in GOAL.md            # written 2026-07-16; it rots
+    - a settings default                  # default-on != on for every path
+
+targets:
+  omnivoice:
+    - repo metrics vs GOAL.md §2 (stars, forks, downloads, velocity)
+    - release asset download distribution
+    - licence detection:  gh api repos/OWNER/REPO/license --jq .license.spdx_id
+    - watermark coverage across EVERY synthetic-audio route (issue #1169)
+    - commercial-licence page: is there a price, or still "coming soon"?
+  lead_data:
+    - repo visibility; does the README's clone URL resolve ANONYMOUSLY?
+    - first-run demo: boot it, seed it, count filled cells, report fill %
+    - security floor before publish (SSRF resolve=True, SECRET_KEY, rate limiter)
+  resubird:
+    - /pricing returns 200 with a real price?
+    - review markup: is ratingCount internally consistent AND substantiated?
+    - does it serve bot/AI-crawler UAs, or 403 them?
+
+output_schema:
+  type: object
+  additionalProperties: false
+  required: [checks, broken, gaps]
+  properties:
+    checks:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [target, expected, actual, status, evidence]
+        properties:
+          target: {type: string}
+          expected: {type: string}
+          actual: {type: string}
+          status: {enum: [pass, fail, gap]}
+          evidence:
+            type: string
+            description: The command run and its raw output. Not a summary.
+    broken:
+      type: array
+      items:
+        type: object
+        additionalProperties: false
+        required: [what, impact, fix_size]
+        properties:
+          what: {type: string}
+          impact: {type: string}
+          fix_size: {enum: [XS, S, M, L]}
+    gaps:
+      type: array
+      items: {type: string}
+
+notes: |
+  A check that could not run is `status: gap`, NOT `status: fail` and NEVER a
+  silent pass. A KPI with no measured value is a DATA GAP — leave the stored
+  value untouched, never zero it. A zeroed metric reads as failure and corrupts
+  every downstream decision.
+
+  Report fix_size honestly. The demo fix was three lines and unblocked the
+  entire activation moment; the rename is small code and a large decision.
