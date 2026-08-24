@@ -411,33 +411,22 @@ def compute_next_run(anchor: datetime, interval: str, now: Optional[datetime] = 
 def _enqueue_schedule_if_absent(db, trigger, next_run_at):
     """Single-flight: enqueue a schedule trigger_eval only if no pending job with
     the same fire_key exists (§3.7). Also sets triggers.next_run_at atomically."""
-    from apps.api.models import Job
-    from apps.api.services.queue_service import queue_service
+    from apps.api.services.job_scheduling import enqueue_job_once
 
     fire_key = f"sched:{trigger.id}:{next_run_at.isoformat()}"
-    # dedup on pending/processing job carrying this fire_key
-    pending = (
-        db.query(Job)
-        .filter(Job.type == "trigger_eval", Job.status.in_(("pending", "processing")))
-        .all()
-    )
-    for j in pending:
-        if (j.payload or {}).get("fire_key") == fire_key:
-            return False
-    job = Job(
-        type="trigger_eval",
+    job = enqueue_job_once(
+        db,
+        job_type="trigger_eval",
         payload={
             "trigger_id": trigger.id,
             "workspace_id": trigger.workspace_id,
             "fire_source": "schedule",
-            "fire_key": fire_key,
         },
-        status="pending",
-        priority=1,
+        fire_key=fire_key,
         next_run_at=next_run_at,
-        max_retries=3,
     )
-    db.add(job)
+    if job is None:
+        return False
     trigger.next_run_at = next_run_at
     _mirror_upsert(db, trigger.id, trigger.workspace_id, next_run_at, True)
     db.commit()

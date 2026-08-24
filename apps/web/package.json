@@ -4,10 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "portless",
+    "dev:app": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
+  },
+  "portless": {
+    "name": "opengtm",
+    "script": "dev:app"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

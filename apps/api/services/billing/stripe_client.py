@@ -49,7 +49,7 @@ class RealStripeClient:
                     "price_data": {
                         "currency": "usd",
                         "unit_amount": int(round(amount_usd * 100)),
-                        "product_data": {"name": "Yupcha enrichment credits"},
+                        "product_data": {"name": "OpenGTM enrichment credits"},
                     },
                     "quantity": 1,
                 }

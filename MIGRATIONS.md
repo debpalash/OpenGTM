@@ -19,9 +19,10 @@ change is a versioned migration that is applied in order.
   SQLite gets `render_as_batch=True` (it has no native `ALTER COLUMN`).
 - `migrations/versions/` — migration scripts. The first is the **baseline**
   capturing the entire current schema.
-- `apps/api/db_init.py` — `init_db()` runs `alembic upgrade head` on startup
-  (called from `apps/api/main.py`). It falls back to `create_all()` only if
-  Alembic is unavailable/misconfigured, so local & test boot never break.
+- `apps/api/db_init.py` — `init_db()` runs `alembic upgrade head`. Migration
+  errors are fatal; it never masks them with `create_all()`.
+- `apps/api/scripts/migrate.py` — one-shot deployment entrypoint. Docker Compose
+  requires it to complete before starting API and worker replicas.
 
 ### Startup behaviour (`YUPCHA_DB_INIT` env var)
 

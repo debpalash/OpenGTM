@@ -25,6 +25,7 @@ package-lock.json
 *.db
 *.db-journal
 data/downloads/
+backups/
 
 # ── HAR captures (large binary) ─────────────
 har/

@@ -35,7 +35,7 @@ def export_csv(
         "Company", "Website", "Email", "Phone", "City", "Specialization",
         "Company Size", "LinkedIn", "Contact Person", "Contact Title",
         "Score", "Tier", "Status", "Source", "Notes",
-        "Yupcha Value Prop", "Company Need",
+        "OpenGTM Value Prop", "Company Need",
     ]
 
     with open(output_path, "w", newline="", encoding="utf-8") as f:

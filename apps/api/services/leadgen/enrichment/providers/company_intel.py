@@ -23,6 +23,7 @@ from typing import Dict, List, Optional
 
 from apps.api.services.leadgen.enrichment.provider import EnrichmentProvider, EnrichmentResult
 from apps.api.services.leadgen.models import Lead
+from apps.api.core.url_guard import guarded_get
 
 try:
     from bs4 import BeautifulSoup
@@ -56,15 +57,14 @@ async def _scrape_page(url: str, timeout: int = 12) -> Optional[str]:
     try:
         async with httpx.AsyncClient(
             timeout=timeout,
-            follow_redirects=True,
-            verify=False,
+            follow_redirects=False,
             headers={
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
                 "Accept": "text/html,application/xhtml+xml",
                 "Accept-Language": "en-US,en;q=0.9",
             },
         ) as client:
-            resp = await client.get(url)
+            resp = await guarded_get(client, url)
             if resp.status_code == 200:
                 return resp.text[:200_000]
     except Exception:

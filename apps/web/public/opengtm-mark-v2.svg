@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">OpenGTM</title>
+  <desc id="desc">Three coordinated open-loop segments surrounding a forward arrow.</desc>
+  <g fill="none" stroke-width="12" stroke-linecap="round">
+    <path d="M28 91A43 43 0 0 1 25 42" stroke="#6D3BFF"/>
+    <path d="M36 29A43 43 0 0 1 99 50" stroke="#C7FF2E"/>
+    <path d="M101 78A43 43 0 0 1 48 104" stroke="#6D3BFF"/>
+  </g>
+  <path d="M39 54h31V42l25 22-25 22V74H39a10 10 0 0 1 0-20Z" fill="#C7FF2E"/>
+  <path d="m70 54 12 10-12 10Z" fill="#6D3BFF"/>
+</svg>

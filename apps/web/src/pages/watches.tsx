@@ -128,7 +128,10 @@ type View = { name: "list" } | { name: "create" } | { name: "detail"; id: string
 export default function WatchesPage() {
   const [view, setView] = useState<View>({ name: "list" })
   const flags = useFlags()
-  const watches = useWatches()
+  const watches = useWatches(
+    undefined,
+    flags.data?.intent_poller_enabled === true && flags.data.pg_lead_store,
+  )
 
   // 404 (flag off) → flag-off screen; 409 (PG dep) → dependency screen.
   if (isFeatureDisabledError(watches.error)) {
@@ -601,7 +604,7 @@ function WatchBuilder({
                   setWebhookUrl(e.target.value)
                   setWebhookErr(null)
                 }}
-                placeholder="https://example.com/hooks/yupcha"
+                placeholder="https://example.com/hooks/opengtm"
                 className="h-9 text-xs"
               />
               {!webhookUrlValid && webhookUrl.trim() !== "" && (

@@ -106,8 +106,8 @@ async def optional_session_workspace(
     user = await get_current_user(token=raw, db=db)  # 401 on invalid JWT
     if not getattr(user, "is_active", True):
         raise HTTPException(status_code=400, detail="Inactive user")
-    return current_workspace(
-        user=user, x_workspace_id=request.headers.get("x-workspace-id")
+    return await current_workspace(
+        user=user, x_workspace_id=request.headers.get("x-workspace-id"), db=db
     )
 
 
@@ -238,6 +238,10 @@ async def ingest_rows(
     # ── auth: session ctx, else ingest token (fail-closed 401) ──
     if session_ctx is not None:
         ws_id = session_ctx.workspace_id
+        from apps.api.services.workspace import manager as ws_manager
+        role = ws_manager.member_role(ws_id, session_ctx.user.id)
+        if role not in ("owner", "admin", "editor"):
+            raise HTTPException(status_code=403, detail="Insufficient workspace role")
     else:
         raw = _extract_ingest_token(request)
         if not raw:

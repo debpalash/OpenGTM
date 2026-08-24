@@ -179,7 +179,7 @@ def pause_sequence(seq_id: str, ctx: WorkspaceCtx = Depends(require_admin)):
 
 
 @router.post("/sequences/{seq_id}/enroll")
-def enroll_leads(seq_id: str, req: EnrollLeadsRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
+def enroll_leads(seq_id: str, req: EnrollLeadsRequest, ctx: WorkspaceCtx = Depends(require_admin)):
     from datetime import datetime, timezone
 
     store = get_outreach_store(ctx.workspace_id)
@@ -281,7 +281,7 @@ async def test_smtp(req: SendTestRequest, ctx: WorkspaceCtx = Depends(require_ad
     cfg = get_smtp_config(ctx.workspace_id)
     result = await send_email(
         to_email=req.to_email,
-        subject="Yupcha — SMTP Test",
+        subject="OpenGTM — SMTP Test",
         body_html="<p>Your SMTP configuration is working.</p>",
         config=cfg,
     )

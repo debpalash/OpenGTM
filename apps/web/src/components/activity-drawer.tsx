@@ -127,10 +127,11 @@ export function ActivityDrawer({ rows, columns, isRunning, isOpen, onToggle }: A
     const current: Record<string, string> = {}
 
     for (const row of rows) {
+      const rowIdentity = row.row_id ?? row.lead_id ?? row.position ?? 0
       for (const col of enrichCols) {
         const overlay = row.enrichments?.[col.id]
         if (!overlay) continue
-        const key = `${row.lead_id}-${col.id}`
+        const key = `${rowIdentity}-${col.id}`
         current[key] = overlay.status
 
         const prev = prevEnrichmentsRef.current[key]
@@ -142,10 +143,10 @@ export function ActivityDrawer({ rows, columns, isRunning, isOpen, onToggle }: A
             ts: Date.now(),
             type: "enrich_complete",
             column: col.name,
-            company: row.company || `Row ${row.lead_id}`,
+            company: row.company || `Row ${rowIdentity}`,
             provider: overlay.provider || undefined,
             value: typeof overlay.value === "string" ? overlay.value.slice(0, 80) : JSON.stringify(overlay.value)?.slice(0, 80),
-            rowId: row.lead_id,
+            rowId: rowIdentity,
           })
         } else if (overlay.status === "error") {
           newEvents.push({
@@ -153,10 +154,10 @@ export function ActivityDrawer({ rows, columns, isRunning, isOpen, onToggle }: A
             ts: Date.now(),
             type: "enrich_error",
             column: col.name,
-            company: row.company || `Row ${row.lead_id}`,
+            company: row.company || `Row ${rowIdentity}`,
             provider: overlay.provider || undefined,
             error: overlay.error || "Unknown error",
-            rowId: row.lead_id,
+            rowId: rowIdentity,
           })
         } else if (overlay.status === "running" && prev !== "running") {
           newEvents.push({
@@ -164,9 +165,9 @@ export function ActivityDrawer({ rows, columns, isRunning, isOpen, onToggle }: A
             ts: Date.now(),
             type: "enrich_start",
             column: col.name,
-            company: row.company || `Row ${row.lead_id}`,
+            company: row.company || `Row ${rowIdentity}`,
             provider: overlay.provider || undefined,
-            rowId: row.lead_id,
+            rowId: rowIdentity,
           })
         }
       }

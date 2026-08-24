@@ -53,3 +53,48 @@ def test_fts_search_still_works(db):
                         specialization="Observability"))
     hits = db.get_leads(search="Observability")
     assert any(l.company == "DataDog" for l in hits)
+
+
+def test_workbook_query_contract_filters_and_pages(db):
+    db.upsert_lead(Lead(
+        workspace_id="w1", company="Alpha", city="Pune", state="MH",
+        score=90, source="job:one", email="a@example.com",
+        specialization="IT Staffing",
+    ))
+    db.upsert_lead(Lead(
+        workspace_id="w1", company="Beta", city="Pune", state="MH",
+        score=40, source="job:two", specialization="Accounting",
+    ))
+
+    rows, total = db.query_leads_page(
+        {
+            "job_ids": ["one"],
+            "city": "Pune",
+            "specialization": "Staffing",
+            "has_email": True,
+            "min_score": 80,
+        },
+        page=1,
+        page_size=10,
+    )
+    assert total == 1
+    assert [row["company"] for row in rows] == ["Alpha"]
+    facets = db.get_filter_options()
+    assert facets["cities"] == ["Pune"]
+    assert facets["sources"] == ["job:one", "job:two"]
+    assert facets["total_leads"] == 2
+
+
+def test_update_fields_cannot_change_identity_or_inject_column_names(db):
+    lead_id = db.upsert_lead(Lead(
+        workspace_id="w1", company="Alpha", city="Pune", score=10,
+    ))
+    db.update_lead_fields(lead_id, {
+        "score": 99,
+        "id": 999,
+        "workspace_id": "w2",
+        "score = 0": "ignored",
+    })
+    row = db.get_lead(lead_id)
+    assert row is not None
+    assert row.id == lead_id and row.workspace_id == "w1" and row.score == 99

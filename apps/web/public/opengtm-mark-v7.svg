@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">OpenGTM</title>
+  <desc id="desc">Three market signals converging into one path.</desc>
+  <g fill="none" stroke="#6268F2" stroke-width="14" stroke-linecap="square" stroke-linejoin="round">
+    <path d="M18 24C48 24 50 55 76 64H110"/>
+    <path d="M18 64H110"/>
+    <path d="M18 104C48 104 50 73 76 64"/>
+  </g>
+</svg>

@@ -1,5 +1,5 @@
 {
-    "name": "yupcha-engine",
+    "name": "opengtm",
     "private": true,
     "workspaces": [
         "apps/*",
@@ -8,10 +8,17 @@
     "scripts": {
         "predev": "for port in 8000 3050 5173; do lsof -ti :$port | xargs kill -9 2>/dev/null; done; echo '✓ Ports 8000, 3050, 5173 cleared'",
         "dev": "turbo run dev --parallel",
+        "portless:domain": "portless proxy start --tld sh",
+        "portless:local": "portless proxy start --no-tls --port 1355 --tld sh",
+        "portless:lan": "portless proxy start --lan --no-tls --port 1355",
+        "portless:docker": "portless alias opengtm 3010 --force",
+        "portless:list": "portless list",
+        "portless:doctor": "portless doctor",
         "build": "turbo run build",
         "lint": "turbo run lint"
     },
     "devDependencies": {
+        "portless": "^0.15.5",
         "turbo": "^2.9.16"
     },
     "packageManager": "bun@1.1.0"

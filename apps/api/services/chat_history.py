@@ -18,6 +18,8 @@ deployment still has a consistent, isolated partition across restarts.
 import sqlite3
 import os
 import uuid
+import json
+import time
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -70,6 +72,16 @@ def _init_tables(conn: sqlite3.Connection):
             created_at TEXT NOT NULL DEFAULT (datetime('now'))
         );
         CREATE INDEX IF NOT EXISTS idx_messages_conv ON messages(conversation_id, created_at);
+        CREATE TABLE IF NOT EXISTS tool_approvals (
+            id TEXT PRIMARY KEY,
+            workspace_id TEXT NOT NULL,
+            user_id TEXT NOT NULL,
+            tool_call_json TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            created_at_epoch INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_tool_approvals_tenant
+            ON tool_approvals(workspace_id, user_id, created_at_epoch);
     """)
     # Idempotent column-adds for DBs created before tenant partitioning landed.
     # (CREATE TABLE IF NOT EXISTS won't add columns to an existing table.)
@@ -232,6 +244,74 @@ def delete_conversation(conv_id: str, workspace_id: str, user_id=None):
             (conv_id, workspace_id, uid),
         )
         conn.commit()
+    finally:
+        conn.close()
+
+
+def create_tool_approval(workspace_id: str, user_id, tool_call: dict) -> str:
+    """Persist an immutable tool proposal and return its opaque approval id."""
+    if not workspace_id:
+        raise ValueError("tool approval requires a workspace_id")
+    approval_id = uuid.uuid4().hex
+    conn = _get_db()
+    try:
+        conn.execute(
+            "INSERT INTO tool_approvals "
+            "(id, workspace_id, user_id, tool_call_json, status, created_at_epoch) "
+            "VALUES (?, ?, ?, ?, 'pending', ?)",
+            (
+                approval_id,
+                workspace_id,
+                _uid(user_id),
+                json.dumps(tool_call, separators=(",", ":"), sort_keys=True),
+                int(time.time()),
+            ),
+        )
+        conn.commit()
+        return approval_id
+    finally:
+        conn.close()
+
+
+def consume_tool_approval(
+    approval_id: str,
+    workspace_id: str,
+    user_id,
+    decision: str,
+    *,
+    ttl_seconds: int = 3600,
+) -> Optional[dict]:
+    """Atomically consume a tenant-scoped proposal and return the stored call."""
+    if decision not in {"approve", "deny"} or not approval_id or not workspace_id:
+        return None
+    conn = _get_db()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        row = conn.execute(
+            "SELECT tool_call_json, status, created_at_epoch FROM tool_approvals "
+            "WHERE id = ? AND workspace_id = ? AND user_id = ?",
+            (approval_id, workspace_id, _uid(user_id)),
+        ).fetchone()
+        if (
+            row is None
+            or row["status"] != "pending"
+            or int(time.time()) - row["created_at_epoch"] > ttl_seconds
+        ):
+            conn.rollback()
+            return None
+        changed = conn.execute(
+            "UPDATE tool_approvals SET status = ? WHERE id = ? AND status = 'pending'",
+            (decision, approval_id),
+        ).rowcount
+        if changed != 1:
+            conn.rollback()
+            return None
+        conn.commit()
+        tool_call = json.loads(row["tool_call_json"])
+        # The client only knows the opaque approval id. Use it as the resumed
+        # OpenAI tool_call id so the following tool message pairs correctly.
+        tool_call["id"] = approval_id
+        return tool_call
     finally:
         conn.close()
 

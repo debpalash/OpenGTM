@@ -13,7 +13,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
+  DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -196,19 +196,21 @@ export function WorkbookViewBar({
           <ChevronDown className="size-3 text-muted-foreground shrink-0" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
-          <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">Views</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => onSelectView(null)}>
-            <Eye className="size-3.5" />
-            All rows
-            {!activeView && <span className="ml-auto text-primary">✓</span>}
-          </DropdownMenuItem>
-          {views.map(v => (
-            <DropdownMenuItem key={v.id} onClick={() => onSelectView(v)}>
-              <Layers3 className="size-3.5" />
-              <span className="truncate">{v.name}</span>
-              {v.id === activeViewId && <span className="ml-auto text-primary">✓</span>}
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">Views</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => onSelectView(null)}>
+              <Eye className="size-3.5" />
+              All rows
+              {!activeView && <span className="ml-auto text-primary">✓</span>}
             </DropdownMenuItem>
-          ))}
+            {views.map(v => (
+              <DropdownMenuItem key={v.id} onClick={() => onSelectView(v)}>
+                <Layers3 className="size-3.5" />
+                <span className="truncate">{v.name}</span>
+                {v.id === activeViewId && <span className="ml-auto text-primary">✓</span>}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => { setCreateName(""); setCreateOpen(true) }}>
             <Plus className="size-3.5" /> New view

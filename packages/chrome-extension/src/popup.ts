@@ -105,7 +105,7 @@ function renderResults(): void {
         const name = document.createElement("input");
         name.type = "text";
         name.value = col.name;
-        name.title = "Column name sent to Yupcha (matched to workbook columns case-insensitively)";
+        name.title = "Column name sent to OpenGTM (matched to workbook columns case-insensitively)";
         name.addEventListener("input", () => {
             columnState[i]!.name = name.value.trim();
         });
@@ -203,7 +203,7 @@ async function send(): Promise<void> {
 async function init(): Promise<void> {
     settings = await loadSettings();
     if (!settings.baseUrl || settings.workbooks.length === 0) {
-        setStatus("Set your Yupcha URL and a workbook ingest token in Options first.", "error");
+        setStatus("Set your OpenGTM URL and a workbook ingest token in Options first.", "error");
     }
     el<HTMLButtonElement>("scan").addEventListener("click", () => void scanPage());
     el<HTMLButtonElement>("send").addEventListener("click", () => void send());

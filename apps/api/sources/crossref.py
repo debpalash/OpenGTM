@@ -39,7 +39,7 @@ class CrossrefSource(DocumentSource):
             url = f"{self.BASE_URL}?{urllib.parse.urlencode(params)}"
             
             headers = {
-                "User-Agent": "Yupcha-Engine/3.0 (mailto:admin@yupcha.com)" # Crossref politely requests user-agent
+                "User-Agent": "OpenGTM/3.0 (mailto:admin@yupcha.com)" # Crossref politely requests user-agent
             }
             
             async with aiohttp.ClientSession() as session:

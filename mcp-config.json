@@ -1,10 +1,10 @@
 {
   "mcpServers": {
-    "yupcha": {
+    "opengtm": {
       "command": "python",
       "args": ["-m", "apps.mcp.server"],
-      "cwd": "/path/to/lead-data",
-      "env": {}
+      "cwd": "/path/to/opengtm",
+      "env": {"OPENGTM_MCP_TOKEN": "ycp_..."}
     }
   }
 }

@@ -24,6 +24,7 @@ function ToolIndicator({ toolName }: { toolName: string }) {
     search_leads: Search,
     ambitionbox_search: Building2,
     ambitionbox_jobs: BarChart3,
+    import_ambitionbox_to_workbook: Database,
     start_collection: Zap,
     enrich_lead: Sparkles,
     scrape_website: Globe,
@@ -808,7 +809,7 @@ export default function ChatPage() {
             </div>
           </div>
           <div className="text-center mt-2.5 text-[10px] text-muted-foreground/40 select-none">
-            Yupcha Sales AI can make mistakes. Consider verifying important information.
+            OpenGTM agents can make mistakes. Consider verifying important information.
           </div>
         </div>
       </div>

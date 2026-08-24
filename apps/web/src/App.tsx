@@ -108,12 +108,12 @@ function AppSidebar() {
               size="lg"
               render={<NavLink to="/chat" />}
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden bg-background">
-                <img src="/logo.svg" alt="Yupcha" className="size-7" />
+              <div className="flex aspect-square size-8 items-center justify-center">
+                <img src="/opengtm-mark-v8.svg" alt="" aria-hidden="true" className="size-7 object-contain" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">Yupcha Sales</span>
-                <span className="truncate text-xs text-muted-foreground">AI-powered leads</span>
+                <span className="truncate font-semibold">OpenGTM</span>
+                <span className="truncate text-xs text-muted-foreground">Agents for atomic teams</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -364,7 +364,7 @@ function AppContent() {
     if (location.pathname.startsWith("/sources")) return "Sources"
     if (location.pathname.startsWith("/analytics")) return "Analytics"
     if (location.pathname.startsWith("/settings")) return "Settings"
-    return "Yupcha Sales"
+    return "OpenGTM"
   }
 
   return (

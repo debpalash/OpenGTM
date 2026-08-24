@@ -54,6 +54,10 @@ def _ctx(ws_id=W1):
 def harness(monkeypatch):
     """(client_factory, Session). client_factory(session_ctx=..., enabled=...)."""
     monkeypatch.setattr(settings, "INGEST_API_ENABLED", True, raising=False)
+    monkeypatch.setattr(
+        "apps.api.services.workspace.manager.member_role",
+        lambda workspace_id, user_id: "editor",
+    )
 
     engine = create_engine(
         "sqlite:///:memory:", connect_args={"check_same_thread": False},

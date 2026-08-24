@@ -217,7 +217,7 @@ class _User:
 
 @pytest.fixture()
 def client():
-    from apps.api.routers.workbooks import router_v2
+    from apps.api.routers.workbooks import router_v2, require_editor
 
     engine = create_engine(
         "sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool,
@@ -239,6 +239,7 @@ def client():
     app.dependency_overrides[current_workspace] = lambda: WorkspaceCtx(
         user=_User(), workspace_id=WS, slug="nl"
     )
+    app.dependency_overrides[require_editor] = app.dependency_overrides[current_workspace]
     return TestClient(app), Session
 
 

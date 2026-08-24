@@ -14,10 +14,10 @@ import {
 } from "@tanstack/react-table"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import {
-  useWorkbook, useUpdateWorkbook, useUpdateLeadField,
+  useWorkbook, useUpdateWorkbook, useUpdateLeadField, useUpdateWorkbookRow,
   useImportLeads, useRunWorkbook, useStopWorkbook,
-  useDeleteLeads, useWorkbookSocket, useProviders,
-  useRunCell, useWorkbookViews,
+  useDeleteWorkbookRows, useWorkbookSocket, useProviders,
+  useRunCell, useWorkbookViews, useConnectorRuns,
 } from "@/lib/workbook-hooks"
 import type { WorkbookLeadRow, EnrichmentOverlay, Provenance, AiColumnPreset, CostInfo, RunCostEstimate, WorkbookView } from "@/lib/workbook-api"
 import { fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost, generateColumn } from "@/lib/workbook-api"
@@ -444,12 +444,14 @@ export default function WorkbookEditorPage() {
   const { data, isLoading, error, refetch } = useWorkbook(id!)
   const updateWb = useUpdateWorkbook()
   const updateLeadField = useUpdateLeadField(id!)
+  const updateWorkbookRow = useUpdateWorkbookRow(id!)
   const importLeadsMut = useImportLeads(id!)
   const runMut = useRunWorkbook(id!)
   const stopMut = useStopWorkbook(id!)
-  const deleteMut = useDeleteLeads(id!)
+  const deleteMut = useDeleteWorkbookRows(id!)
   const runCellMut = useRunCell(id!)
   const { data: viewsData } = useWorkbookViews(id!)
+  const { data: connectorRunsData } = useConnectorRuns(data?.workbook ? id : undefined)
   // Only open the live socket once the workbook has actually loaded — a 404/403
   // workbook should never spawn a doomed WebSocket that just 403s in a loop.
   const { connected } = useWorkbookSocket(data?.workbook ? id : undefined)
@@ -671,14 +673,16 @@ export default function WorkbookEditorPage() {
             <span className="text-[10px] text-muted-foreground tabular-nums">
               {row.index + 1}
             </span>
-            <a
-              href={`/leads/${row.original.lead_id}`}
-              className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-all"
-              title="Open lead detail"
-              onClick={e => e.stopPropagation()}
-            >
-              <ExternalLink className="size-3" />
-            </a>
+            {row.original.lead_id != null && (
+              <a
+                href={`/leads/${row.original.lead_id}`}
+                className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-all"
+                title="Open lead detail"
+                onClick={e => e.stopPropagation()}
+              >
+                <ExternalLink className="size-3" />
+              </a>
+            )}
           </div>
         ),
       },
@@ -738,10 +742,17 @@ export default function WorkbookEditorPage() {
                   value={value}
                   isEditable={true}
                   onSave={(v) => {
-                    updateLeadField.mutate({
-                      leadId: row.original.lead_id,
-                      fields: { [leadField]: v },
-                    })
+                    if (row.original.row_id != null) {
+                      updateWorkbookRow.mutate({
+                        rowId: row.original.row_id,
+                        fields: { [leadField]: v },
+                      })
+                    } else if (row.original.lead_id != null) {
+                      updateLeadField.mutate({
+                        leadId: row.original.lead_id,
+                        fields: { [leadField]: v },
+                      })
+                    }
                   }}
                 />
               )
@@ -765,6 +776,10 @@ export default function WorkbookEditorPage() {
               && runCellMut.variables?.rowId === cellRowId
               && runCellMut.variables?.colId === col.id
             const handleRerun = () => {
+              if (cellRowId == null) {
+                toast.error("This row has no workbook identity")
+                return
+              }
               if (col.type === "output") {
                 if (!confirm(`"${col.name}" is an output column (runs once per row). Force re-running will push this row to the destination AGAIN. Continue?`)) return
               }
@@ -797,7 +812,7 @@ export default function WorkbookEditorPage() {
       }),
     ]
     return cols
-  }, [columns, hiddenColumns, updateLeadField, runCellMut])
+  }, [columns, hiddenColumns, updateLeadField, updateWorkbookRow, runCellMut])
 
   const table = useReactTable({
     data: viewRows,
@@ -821,7 +836,7 @@ export default function WorkbookEditorPage() {
       }
       return false
     },
-    getRowId: (row) => String(row.lead_id),
+    getRowId: (row) => row.row_id != null ? `row:${row.row_id}` : `lead:${row.lead_id}`,
   })
 
   const selectedCount = Object.keys(rowSelection).filter(k => rowSelection[k]).length
@@ -850,15 +865,18 @@ export default function WorkbookEditorPage() {
   const handleDeleteSelected = useCallback(() => {
     const selectedRows = table.getSelectedRowModel().rows.map(r => r.original)
     if (!selectedRows.length) return
-    if (!confirm(`Delete ${selectedRows.length} leads permanently?`)) return
+    if (!confirm(`Delete ${selectedRows.length} selected workbook rows?`)) return
     deleteMut.mutate(
-      selectedRows.map(r => r.lead_id),
+      {
+        rowIds: selectedRows.flatMap(r => r.row_id != null ? [r.row_id] : []),
+        leadIds: selectedRows.flatMap(r => r.row_id == null && r.lead_id != null ? [r.lead_id] : []),
+      },
       {
         onSuccess: (data) => {
-          toast.success(`Deleted ${data.deleted} leads`)
+          toast.success(`Deleted ${data.deleted} rows`)
           setRowSelection({})
         },
-        onError: () => toast.error("Failed to delete leads"),
+        onError: () => toast.error("Failed to delete rows"),
       }
     )
   }, [table, deleteMut])
@@ -1030,6 +1048,8 @@ export default function WorkbookEditorPage() {
   }
 
   const isRunning = workbook.status === "running"
+  const connectorRun = connectorRunsData?.runs[0]
+  const connectorActive = connectorRun?.status === "pending" || connectorRun?.status === "running" || connectorRun?.status === "retrying"
   const filterDesc = workbook.filter_criteria
     ? Object.entries(workbook.filter_criteria).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join(", ")
     : "All leads"
@@ -2119,7 +2139,25 @@ export default function WorkbookEditorPage() {
               Live
             </span>
           )}
-          {workbook?.status === "running" && (() => {
+          {connectorActive && connectorRun && (() => {
+            const pct = connectorRun.requested_count > 0
+              ? Math.min(100, Math.round((connectorRun.fetched_count / connectorRun.requested_count) * 100))
+              : 0
+            return (
+              <span className="inline-flex items-center gap-2 text-blue-400" title={`Page ${connectorRun.pages_fetched} · ${connectorRun.connector}`}>
+                <Loader2 className="size-3 animate-spin" />
+                <span className="capitalize">{connectorRun.connector}</span>
+                <span className="tabular-nums">{connectorRun.fetched_count}/{connectorRun.requested_count} rows</span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
+                    <span className="block h-full rounded-full bg-blue-400 transition-all duration-300" style={{ width: `${pct}%` }} />
+                  </span>
+                  <span className="tabular-nums">{pct}%</span>
+                </span>
+              </span>
+            )
+          })()}
+          {workbook?.status === "running" && !connectorActive && (() => {
             const enrichCols = columns.filter(c => c.type === "waterfall" || c.type === "enrichment" || c.type === "ai_formula")
             const totalCells = rows.length * enrichCols.length
             let complete = 0, errors = 0, running = 0, pending = 0

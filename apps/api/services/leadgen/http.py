@@ -30,8 +30,9 @@ import logging
 import re
 from dataclasses import dataclass, field
 from typing import Optional
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
+from apps.api.core.url_guard import BlockedUrlError, check_url
 from apps.api.services.leadgen.proxy_pool import ProxyPool
 from apps.api.services.leadgen.rate_limiter import RateLimiter
 
@@ -81,6 +82,7 @@ BLOCKED_STATUS_CODES = {403, 429, 503, 520, 521, 522, 523, 524}
 # Below this body size, a 2xx HTML response is almost certainly a JS shell /
 # bot wall rather than real content — worth escalating to a browser.
 TINY_BODY_THRESHOLD = 500
+_MAX_REDIRECTS = 6
 
 
 def _is_challenge(status_code: int, text: str) -> bool:
@@ -342,14 +344,23 @@ class StealthClient:
 
         def _do_request() -> tuple[int, str]:
             proxies = {"http": proxy, "https": proxy} if proxy else None
-            resp = cffi_requests.get(
-                url,
-                impersonate="chrome",
-                timeout=timeout,
-                proxies=proxies,
-                allow_redirects=True,
-            )
-            return resp.status_code, resp.text
+            current = url
+            for _hop in range(_MAX_REDIRECTS + 1):
+                check_url(current, allow_http=True, resolve=True)
+                resp = cffi_requests.get(
+                    current,
+                    impersonate="chrome",
+                    timeout=timeout,
+                    proxies=proxies,
+                    allow_redirects=False,
+                )
+                if resp.status_code not in (301, 302, 303, 307, 308):
+                    return resp.status_code, resp.text
+                location = resp.headers.get("location")
+                if not location:
+                    return resp.status_code, resp.text
+                current = urljoin(current, location)
+            raise BlockedUrlError("too many redirects")
 
         try:
             status_code, text = await asyncio.to_thread(_do_request)
@@ -373,10 +384,21 @@ class StealthClient:
         result = FetchResult(url=url, tier_used=2, proxy_used=proxy or "")
         try:
             async with AsyncStealthSession(timeout=timeout) as session:
-                kwargs = {}
+                kwargs = {"allow_redirects": False}
                 if proxy:
                     kwargs["proxy"] = proxy
-                resp = await session.get(url, retry=self.max_retries, **kwargs)
+                current = url
+                for _hop in range(_MAX_REDIRECTS + 1):
+                    check_url(current, allow_http=True, resolve=True)
+                    resp = await session.get(current, retry=self.max_retries, **kwargs)
+                    if resp.status_code not in (301, 302, 303, 307, 308):
+                        break
+                    location = resp.headers.get("location")
+                    if not location:
+                        break
+                    current = urljoin(current, location)
+                else:
+                    raise BlockedUrlError("too many redirects")
                 result.status_code = resp.status_code
                 result.text = resp.text
                 try:
@@ -403,11 +425,22 @@ class StealthClient:
             async with httpx.AsyncClient(
                 headers=_DEFAULT_HEADERS,
                 timeout=timeout,
-                follow_redirects=True,
+                follow_redirects=False,
                 proxy=proxy or None,
-                verify=False,
+                verify=True,
             ) as client:
-                resp = await client.get(url)
+                current = url
+                for _hop in range(_MAX_REDIRECTS + 1):
+                    check_url(current, allow_http=True, resolve=True)
+                    resp = await client.get(current)
+                    if resp.status_code not in (301, 302, 303, 307, 308):
+                        break
+                    location = resp.headers.get("location")
+                    if not location:
+                        break
+                    current = urljoin(current, location)
+                else:
+                    raise BlockedUrlError("too many redirects")
                 result.status_code = resp.status_code
                 result.text = resp.text
             return result
@@ -422,16 +455,26 @@ class StealthClient:
         try:
             import aiohttp
 
-            conn = aiohttp.TCPConnector(ssl=False)
-            async with aiohttp.ClientSession(connector=conn, headers=_DEFAULT_HEADERS) as session:
-                async with session.get(
-                    url,
-                    timeout=aiohttp.ClientTimeout(total=timeout),
-                    allow_redirects=True,
-                    proxy=proxy or None,
-                ) as resp:
-                    result.status_code = resp.status
-                    result.text = await resp.text(errors="replace")
+            async with aiohttp.ClientSession(headers=_DEFAULT_HEADERS) as session:
+                current = url
+                for _hop in range(_MAX_REDIRECTS + 1):
+                    check_url(current, allow_http=True, resolve=True)
+                    async with session.get(
+                        current,
+                        timeout=aiohttp.ClientTimeout(total=timeout),
+                        allow_redirects=False,
+                        proxy=proxy or None,
+                    ) as resp:
+                        result.status_code = resp.status
+                        result.text = await resp.text(errors="replace")
+                        if resp.status not in (301, 302, 303, 307, 308):
+                            break
+                        location = resp.headers.get("location")
+                        if not location:
+                            break
+                        current = urljoin(current, location)
+                else:
+                    raise BlockedUrlError("too many redirects")
         except Exception as e:
             result.error = str(e)
             result.status_code = 0
@@ -522,6 +565,20 @@ class StealthClient:
                 page = await context.new_page()
 
                 try:
+                    async def guard_request(route, request):
+                        request_url = request.url
+                        if request_url.startswith(("http://", "https://")):
+                            try:
+                                # Covers the initial navigation, redirect hops,
+                                # and browser subresources.
+                                check_url(request_url, allow_http=True, resolve=True)
+                            except BlockedUrlError:
+                                await route.abort("blockedbyclient")
+                                return
+                        await route.continue_()
+
+                    check_url(url, allow_http=True, resolve=True)
+                    await page.route("**/*", guard_request)
                     resp = await page.goto(url, wait_until="domcontentloaded", timeout=timeout * 1000)
                     # Wait a bit for JS to settle
                     await asyncio.sleep(2)

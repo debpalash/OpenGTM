@@ -53,3 +53,37 @@ async def get_current_admin_user(current_user: User = Depends(get_current_active
     ):
         raise HTTPException(status_code=403, detail="Not authorized")
     return current_user
+
+
+def authenticate_query_token(token: str, *, require_admin: bool = False) -> User:
+    """Authenticate WebSocket/EventSource query tokens fail-closed.
+
+    Browser WebSocket/EventSource APIs cannot attach our Authorization header,
+    so these transports carry the access token in ``?token=``. Refresh tokens
+    are explicitly rejected, matching :func:`get_current_user`.
+    """
+    from apps.api.database import SessionLocal
+
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing token")
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        if payload.get("type") == "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token")
+        username = payload.get("sub")
+        if not username:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    except JWTError as exc:
+        raise HTTPException(status_code=401, detail="Invalid token") from exc
+
+    with SessionLocal() as db:
+        user = db.query(User).filter(User.username == username).first()
+        if not user or not user.is_active:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        if require_admin and not (
+            user.is_admin or user.role in ("admin", "superadmin")
+        ):
+            raise HTTPException(status_code=403, detail="Not authorized")
+        # Detach before Session closes so callers can safely access scalar fields.
+        db.expunge(user)
+        return user

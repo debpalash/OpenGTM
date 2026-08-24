@@ -6,8 +6,8 @@ import {
 
 export class YupchaApi implements ICredentialType {
 	name = 'yupchaApi';
-	displayName = 'Yupcha API';
-	documentationUrl = 'https://github.com/yupcha/n8n-nodes-yupcha';
+	displayName = 'OpenGTM API';
+	documentationUrl = 'https://github.com/debpalash/lead-data';
 
 	properties: INodeProperties[] = [
 		{
@@ -15,8 +15,8 @@ export class YupchaApi implements ICredentialType {
 			name: 'instanceUrl',
 			type: 'string',
 			default: 'http://localhost:8000',
-			placeholder: 'https://your-yupcha-instance.com',
-			description: 'The URL of your self-hosted Yupcha instance',
+			placeholder: 'https://your-opengtm-instance.com',
+			description: 'The URL of your self-hosted OpenGTM instance',
 		},
 		{
 			displayName: 'API Key',
@@ -24,7 +24,7 @@ export class YupchaApi implements ICredentialType {
 			type: 'string',
 			typeOptions: { password: true },
 			default: '',
-			description: 'Your Yupcha API key (Settings → API Keys)',
+			description: 'Your OpenGTM API key (Settings → API Keys)',
 		},
 	];
 

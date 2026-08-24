@@ -256,12 +256,17 @@ async def handle_signal_scan(job_id: int, payload: dict):
     # Self-re-enqueue the next periodic scan (default daily).
     interval_min = int(payload.get("interval_minutes", INTERVAL_MINUTES["daily"]))
     with SessionLocal() as db:
-        from apps.api.models import Job
-        db.add(Job(
-            type="signal_scan", payload={"interval_minutes": interval_min},
-            status="pending", priority=1,
-            next_run_at=_now() + timedelta(minutes=interval_min), max_retries=3,
-        ))
+        from apps.api.services.job_scheduling import enqueue_job_once
+
+        next_run_at = _now() + timedelta(minutes=interval_min)
+        fire_key = f"signal_scan:{next_run_at.replace(microsecond=0).isoformat()}"
+        enqueue_job_once(
+            db,
+            job_type="signal_scan",
+            payload={"interval_minutes": interval_min},
+            fire_key=fire_key,
+            next_run_at=next_run_at,
+        )
         db.commit()
     logger.info(f"[job {job_id}] signal_scan: {scan}, triggered {triggered} workbooks, next in {interval_min}m")
 
@@ -271,16 +276,23 @@ def bootstrap_signal_scan(interval_minutes: int = None):
     interval_minutes = interval_minutes or INTERVAL_MINUTES["daily"]
     with SessionLocal() as db:
         from apps.api.models import Job
+        from apps.api.services.job_scheduling import enqueue_job_once
         pending = db.query(Job).filter(
             Job.type == "signal_scan", Job.status.in_(["pending", "processing"])
         ).count()
         if pending:
             return False
-        db.add(Job(
-            type="signal_scan", payload={"interval_minutes": interval_minutes},
-            status="pending", priority=1,
-            next_run_at=_now() + timedelta(minutes=interval_minutes), max_retries=3,
-        ))
+        next_run_at = _now() + timedelta(minutes=interval_minutes)
+        fire_key = f"signal_scan:{next_run_at.replace(microsecond=0).isoformat()}"
+        job = enqueue_job_once(
+            db,
+            job_type="signal_scan",
+            payload={"interval_minutes": interval_minutes},
+            fire_key=fire_key,
+            next_run_at=next_run_at,
+        )
+        if job is None:
+            return False
         db.commit()
     logger.info(f"bootstrapped recurring signal_scan (every {interval_minutes}m)")
     return True

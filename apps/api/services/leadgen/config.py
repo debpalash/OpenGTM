@@ -1,5 +1,5 @@
 """
-Yupcha Lead Generation Pipeline — Configuration
+OpenGTM Lead Generation Pipeline — Configuration
 
 Defines Ideal Customer Profile (ICP), scraper settings, and database path.
 """
@@ -8,8 +8,14 @@ import os
 from pathlib import Path
 
 # ── Paths ──────────────────────────────────────────────────────────────
+# Runtime data must live under the repository-level data directory. In Docker
+# that directory is mounted at /app/data and owned by the unprivileged API user;
+# storing SQLite compatibility ledgers beside this module instead puts them in
+# the immutable, root-owned image layer and makes PRAGMA WAL fail with
+# "attempt to write a readonly database".
 BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
+DATA_DIR = Path(os.getenv("LEADGEN_DATA_DIR", str(PROJECT_ROOT / "data")))
 DB_PATH = DATA_DIR / "leads.db"
 
 # ── Ideal Customer Profile ─────────────────────────────────────────────

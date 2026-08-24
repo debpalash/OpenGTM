@@ -1,5 +1,5 @@
 /**
- * Yupcha OpenUI Component Library
+ * OpenGTM OpenUI Component Library
  *
  * Domain-specific components for the AI chat — leads, stats, comparisons.
  * The LLM generates OpenUI Lang that maps to these React components.

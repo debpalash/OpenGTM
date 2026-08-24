@@ -1,1 +1,1 @@
-# Yupcha MCP Server
+# OpenGTM MCP Server

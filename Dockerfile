@@ -34,6 +34,12 @@ RUN if [ -f apps/api/requirements.txt ]; then pip install --no-cache-dir -r apps
 # Copy backend code
 COPY apps/api/ ./apps/api/
 
+# Alembic is the production schema authority. These live at the repository
+# root, so copying apps/api alone produces an image that can create tables but
+# cannot apply migrations or RLS policies.
+COPY alembic.ini ./alembic.ini
+COPY migrations/ ./migrations/
+
 # Copy built frontend from Stage 1
 COPY --from=frontend-builder /app/apps/web/dist ./apps/web/dist
 

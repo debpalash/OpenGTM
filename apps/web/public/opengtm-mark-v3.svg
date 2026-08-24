@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">OpenGTM</title>
+  <desc id="desc">An open geometric G shaped like a gate moving forward.</desc>
+  <g fill="none" stroke-width="16" stroke-linejoin="bevel">
+    <path stroke="#5B4CFF" d="M83 24A45 45 0 1 0 104 73H69"/>
+    <path stroke="#FF6B4A" d="M69 52 106 29"/>
+  </g>
+</svg>

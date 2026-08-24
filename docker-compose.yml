@@ -13,7 +13,8 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      # Host-local only for admin tools; application containers use lead_net.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-yupcha} -d ${POSTGRES_DB:-yupcha}"]
       interval: 5s
@@ -23,18 +24,46 @@ services:
     networks:
       - lead_net
 
+  # ── Schema migration (single owner; must finish before app startup) ──
+  migrate:
+    # Every first-party service deliberately shares one immutable application
+    # image. This prevents an old one-shot migrator from lagging behind a newly
+    # rebuilt API/worker image during an upgrade.
+    image: ${YUPCHA_IMAGE:-lead-data-app:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
+      - PYTHONPATH=/app
+      - YUPCHA_DB_INIT=alembic
+      - YUPCHA_APP_DB_ROLE=${YUPCHA_APP_DB_ROLE:-yupcha_app}
+      - YUPCHA_PROVISION_RUNTIME_ROLE=1
+      - YUPCHA_RUNTIME_DB_USER=${YUPCHA_RUNTIME_DB_USER:-yupcha_runtime}
+      - YUPCHA_RUNTIME_DB_PASSWORD=${YUPCHA_RUNTIME_DB_PASSWORD:-yupcha_runtime}
+    command: python -m apps.api.scripts.migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - lead_net
+
   # ── API (FastAPI backend) ──────────────────────────────
   api:
+    image: ${YUPCHA_IMAGE:-lead-data-app:local}
     build:
       context: .
       dockerfile: Dockerfile
     container_name: lead-data-api
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
     env_file: .env
     environment:
       # Postgres is the source of truth. This overrides any SQLite DB_PATH and
       # makes the documented Postgres default take effect. ${VAR:-default} lets
       # .env override without editing this file.
-      - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
+      - DATABASE_URL=${APP_DATABASE_URL:-postgresql+psycopg://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
       - PYTHONPATH=/app
       - REDIS_URL=redis://redis:6379
       # Self-hosted Reacher endpoint (internal only). Inert unless REACHER_ENABLED
@@ -45,14 +74,18 @@ services:
       # N replicas. Turn OFF the in-API worker so the API only enqueues — this is
       # what makes horizontal scaling double-charge-safe.
       - RUN_INLINE_WORKER=0
+      # The one-shot migrate service above owns schema evolution.
+      - YUPCHA_DB_INIT=skip
     volumes:
       # data/ still holds the workspaces.db (sqlite meta) + per-workspace leads;
       # the primary store is Postgres.
       - ./data:/app/data
-      - frontend_dist:/app/apps/web/dist  # Share built frontend with nginx
     ports:
-      - "8000:8000"       # Direct API access (optional, nginx proxies this)
+      # Host-local diagnostics only. LAN traffic goes through nginx on 3010.
+      - "127.0.0.1:8000:8000"
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       redis:
@@ -70,24 +103,26 @@ services:
   # Runs once after Postgres is healthy, creates the demo workspace/workbook
   # and enqueues the first enrichment run. Idempotent — safe on every restart.
   seed:
+    image: ${YUPCHA_IMAGE:-lead-data-app:local}
     build:
       context: .
       dockerfile: Dockerfile
     container_name: lead-data-seed
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
     env_file: .env
     environment:
       - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
       - PYTHONPATH=/app
       - REDIS_URL=redis://redis:6379
+      - YUPCHA_DB_INIT=skip
     volumes:
       - ./data:/app/data
     command: python -m apps.api.scripts.seed_demo
     depends_on:
       postgres:
         condition: service_healthy
-      # Wait for the API so the schema is created (api runs create_all on boot)
-      # and the in-process queue worker is live to pick up the demo run we
-      # enqueue. Avoids a concurrent create_all race and a stranded job.
+      # Wait for the API after the one-shot migration has completed. The seed
+      # enqueues work for the standalone worker.
       api:
         condition: service_healthy
     restart: "no"
@@ -99,20 +134,25 @@ services:
   # safe to scale horizontally: `docker compose up --scale worker=N`. Each
   # replica grabs each queued job exactly once (no double-grab / double-charge).
   worker:
+    image: ${YUPCHA_IMAGE:-lead-data-app:local}
     build:
       context: .
       dockerfile: Dockerfile
     # NOTE: no fixed container_name so `--scale worker=N` can run multiple.
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
     env_file: .env
     environment:
-      - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg://yupcha:yupcha@postgres:5432/yupcha}
+      - DATABASE_URL=${APP_DATABASE_URL:-postgresql+psycopg://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
       - PYTHONPATH=/app
       - REDIS_URL=redis://redis:6379
       - REACHER_URL=${REACHER_URL:-http://reacher:8080}
+      - YUPCHA_DB_INIT=skip
     volumes:
       - ./data:/app/data
     command: python -m apps.api.worker
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       redis:
@@ -120,6 +160,62 @@ services:
       api:
         condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      # The worker deliberately exposes no HTTP port. Its liveness contract is
+      # that the PID 1 worker process still exists; queue readiness is reported
+      # separately through worker/job heartbeats in Postgres.
+      test: ["CMD", "python", "-c", "import os; os.kill(1, 0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - lead_net
+
+  # ── Recurring job scheduler (single reconciliation owner) ─────
+  scheduler:
+    image: ${YUPCHA_IMAGE:-lead-data-app:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    env_file: .env
+    environment:
+      - DATABASE_URL=${APP_DATABASE_URL:-postgresql+psycopg://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
+      - PYTHONPATH=/app
+      - YUPCHA_DB_INIT=skip
+      - SCHEDULER_RECONCILE_SECONDS=${SCHEDULER_RECONCILE_SECONDS:-60}
+    volumes:
+      - ./data:/app/data
+    command: python -m apps.api.scheduler
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; os.kill(1, 0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - lead_net
+
+  # ── Frontend asset publisher (refreshes the shared nginx volume) ──
+  # A named volume is only populated from an image on first creation, which
+  # otherwise leaves nginx serving an old UI after later image rebuilds. This
+  # one-shot publisher copies the newly built assets on every deployment.
+  frontend_assets:
+    image: ${YUPCHA_IMAGE:-lead-data-app:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "cp -a /app/apps/web/dist/. /frontend/"
+    volumes:
+      - frontend_dist:/frontend
+    restart: "no"
     networks:
       - lead_net
 
@@ -161,12 +257,14 @@ services:
     networks:
       - lead_net
 
-  # ── Redis (job queue + pub/sub) ────────────────────────
+  # ── Redis (live pub/sub; durable jobs live in Postgres) ─────────
   redis:
     image: redis:7-alpine
     container_name: lead-data-redis
     ports:
-      - "6379:6379"
+      # Redis has no authentication in this self-host profile; never expose it
+      # to the LAN. Containers reach it through the private lead_net network.
+      - "127.0.0.1:6379:6379"
     volumes:
       - redisdata:/data
     healthcheck:
@@ -190,7 +288,14 @@ services:
     depends_on:
       api:
         condition: service_healthy
+      frontend_assets:
+        condition: service_completed_successfully
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     networks:
       - lead_net
 

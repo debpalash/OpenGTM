@@ -161,9 +161,13 @@ class WorkbookLeadRow(BaseModel):
 
     Compatible with both v1 (leads DB) and v2 (WorkbookRow).
     """
-    lead_id: int
+    lead_id: Optional[int] = None
     row_id: Optional[int] = None  # WorkbookRow.id (v2)
     position: Optional[int] = None
+    source_provider: Optional[str] = None
+    source_record_id: Optional[str] = None
+    source_rank: Optional[int] = None
+    source_fetched_at: Optional[datetime] = None
     lead: dict = {}  # Legacy — full lead data
     data: dict = {}  # v2 — self-contained row data (same shape as lead)
     enrichments: dict[str, EnrichmentOverlay] = {}  # {column_id: enrichment_data}

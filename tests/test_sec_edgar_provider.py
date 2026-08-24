@@ -228,7 +228,7 @@ def test_user_agent_header_present_on_every_request(monkeypatch):
     assert captured, "expected at least one HTTP request"
     for headers in captured:
         ua = headers.get("user-agent", "")
-        assert "Yupcha" in ua and "@" in ua, f"bad UA: {ua!r}"
+        assert "OpenGTM" in ua and "@" in ua, f"bad UA: {ua!r}"
 
 
 def test_rate_limiter_enforces_minimum_spacing():

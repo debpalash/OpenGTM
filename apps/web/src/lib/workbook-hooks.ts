@@ -8,10 +8,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useCallback, useState } from "react"
 import {
   fetchWorkbooks, fetchWorkbook, createWorkbook, updateWorkbook,
-  deleteWorkbook, updateLeadField, importLeads, deleteLeads,
+  deleteWorkbook, updateLeadField, updateWorkbookRow, importLeads, deleteLeads,
+  deleteWorkbookRows,
   runWorkbook, stopWorkbook, runWorkbookCell,
   fetchWorkbookViews, createWorkbookView, updateWorkbookView, deleteWorkbookView,
   fetchProviders, fetchFilterOptions, createWorkbookSocket,
+  fetchConnectorRuns,
   type Workbook, type WorkbookLeadRow, type ViewConfig,
 } from "./workbook-api"
 
@@ -21,6 +23,7 @@ export const workbookKeys = {
   all: ["workbooks"] as const,
   list: () => [...workbookKeys.all, "list"] as const,
   detail: (id: string) => [...workbookKeys.all, "detail", id] as const,
+  connectorRuns: (id: string) => [...workbookKeys.all, "connector-runs", id] as const,
   views: (id: string) => [...workbookKeys.all, "views", id] as const,
   providers: () => [...workbookKeys.all, "providers"] as const,
   filterOptions: () => [...workbookKeys.all, "filter-options"] as const,
@@ -48,6 +51,19 @@ export function useWorkbook(id: string, pageSize = 1000) {
       const status = (err as { status?: number })?.status
       if (status && status >= 400 && status < 500) return false
       return count < 1
+    },
+  })
+}
+
+/** Source-import history. Poll only while a durable connector is active. */
+export function useConnectorRuns(workbookId: string | undefined) {
+  return useQuery({
+    queryKey: workbookKeys.connectorRuns(workbookId || ""),
+    queryFn: () => fetchConnectorRuns(workbookId!),
+    enabled: !!workbookId,
+    refetchInterval: query => {
+      const runs = (query.state.data as { runs?: Array<{ status: string }> } | undefined)?.runs
+      return runs?.some(run => run.status === "pending" || run.status === "running" || run.status === "retrying") ? 1000 : false
     },
   })
 }
@@ -97,6 +113,16 @@ export function useUpdateLeadField(workbookId: string) {
   return useMutation({
     mutationFn: ({ leadId, fields }: { leadId: number; fields: Record<string, any> }) =>
       updateLeadField(workbookId, leadId, fields),
+    onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
+  })
+}
+
+/** Update a v2 workbook row without treating its id as a lead id. */
+export function useUpdateWorkbookRow(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ rowId, fields }: { rowId: number; fields: Record<string, any> }) =>
+      updateWorkbookRow(workbookId, rowId, fields),
     onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
   })
 }
@@ -180,6 +206,20 @@ export function useDeleteLeads(workbookId: string) {
   })
 }
 
+export function useDeleteWorkbookRows(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ rowIds, leadIds }: { rowIds: number[]; leadIds: number[] }) => {
+      const [rowsResult, leadsResult] = await Promise.all([
+        rowIds.length ? deleteWorkbookRows(workbookId, rowIds) : Promise.resolve({ deleted: 0 }),
+        leadIds.length ? deleteLeads(leadIds) : Promise.resolve({ deleted: 0 }),
+      ])
+      return { deleted: rowsResult.deleted + leadsResult.deleted }
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
+  })
+}
+
 // ── Providers ────────────────────────────────────────────────────────────
 
 export function useProviders() {
@@ -207,7 +247,7 @@ export function useWorkbookSocket(workbookId: string | undefined) {
     // Group by lead_id
     const byLead = new Map<string, any[]>()
     for (const [, msg] of pendingUpdates.current) {
-      const lid = String(msg.leadId)
+      const lid = String(msg.rowId ?? msg.leadId)
       if (!byLead.has(lid)) byLead.set(lid, [])
       byLead.get(lid)!.push(msg)
     }
@@ -219,7 +259,7 @@ export function useWorkbookSocket(workbookId: string | undefined) {
       return {
         ...old,
         rows: old.rows.map((row: WorkbookLeadRow) => {
-          const updates = byLead.get(String(row.lead_id))
+          const updates = byLead.get(String(row.row_id ?? row.lead_id))
           if (!updates) return row // same reference — no re-render
           let newLead = row.lead
           let newEnrichments = { ...row.enrichments }
@@ -273,6 +313,15 @@ export function useWorkbookSocket(workbookId: string | undefined) {
             if (!old) return old
             return { ...old, workbook: { ...old.workbook, status: msg.status } }
           })
+        }
+
+
+        if (msg.type === "source_page") {
+          // A source page commits rows and its cursor atomically. Refetch both
+          // views so the table and progress indicator advance together.
+          qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) })
+          qc.invalidateQueries({ queryKey: workbookKeys.connectorRuns(workbookId) })
+          qc.invalidateQueries({ queryKey: workbookKeys.list() })
         }
       } catch {
         // ignore bad messages

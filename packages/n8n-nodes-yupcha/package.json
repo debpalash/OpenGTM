@@ -1,7 +1,7 @@
 {
-  "name": "n8n-nodes-yupcha",
+  "name": "n8n-nodes-opengtm",
   "version": "0.1.0",
-  "description": "n8n community node for Yupcha — self-hosted GTM engine. Source leads, enrich companies, verify emails, detect tech stacks.",
+  "description": "n8n community node for OpenGTM — open-source go-to-market agents. Source leads, enrich companies, verify emails, and activate workflows.",
   "keywords": [
     "n8n-community-node-package",
     "lead-generation",
@@ -9,16 +9,16 @@
     "enrichment",
     "sales",
     "gtm",
-    "yupcha"
+    "opengtm"
   ],
   "license": "MIT",
   "author": {
-    "name": "Yupcha",
-    "url": "https://github.com/yupcha"
+    "name": "OpenGTM",
+    "url": "https://github.com/debpalash"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yupcha/n8n-nodes-yupcha.git"
+    "url": "https://github.com/debpalash/lead-data.git"
   },
   "main": "index.js",
   "n8n": {
@@ -31,8 +31,8 @@
     ]
   },
   "scripts": {
-    "dev": "echo 'n8n-nodes-yupcha — no dev server'",
-    "build": "tsc && gulp build:icons",
+    "dev": "echo 'n8n-nodes-opengtm — no dev server'",
+    "build": "tsc && mkdir -p dist/nodes/Yupcha && cp nodes/Yupcha/opengtm.svg dist/nodes/Yupcha/opengtm.svg",
     "lint": "eslint nodes credentials --ext .ts",
     "prepublishOnly": "npm run build"
   },
@@ -41,7 +41,6 @@
   ],
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "gulp": "^4.0.2",
     "n8n-workflow": "*",
     "typescript": "^5.0.0"
   }

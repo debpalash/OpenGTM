@@ -461,6 +461,7 @@ def _enqueue_health_if_absent(next_run_at: Optional[datetime] = None) -> bool:
     pending/processing health job already exists. Multi-replica safe (the atomic
     Job claim guarantees at-most-once execution of the claimed job)."""
     from apps.api.models import Job
+    from apps.api.services.job_scheduling import enqueue_job_once
     next_run_at = next_run_at or _next_run_at()
     with SessionLocal() as db:
         pending = (
@@ -470,12 +471,16 @@ def _enqueue_health_if_absent(next_run_at: Optional[datetime] = None) -> bool:
         )
         if pending:
             return False
-        db.add(Job(
-            type="source_health_check",
-            payload={"fire_key": f"source_health:{next_run_at.isoformat()}"},
-            status="pending", priority=1,
-            next_run_at=next_run_at, max_retries=3,
-        ))
+        fire_key = f"source_health:{next_run_at.replace(microsecond=0).isoformat()}"
+        job = enqueue_job_once(
+            db,
+            job_type="source_health_check",
+            payload={},
+            fire_key=fire_key,
+            next_run_at=next_run_at,
+        )
+        if job is None:
+            return False
         db.commit()
     return True
 

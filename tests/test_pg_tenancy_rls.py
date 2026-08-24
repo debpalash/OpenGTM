@@ -30,6 +30,7 @@ pytestmark = pytest.mark.skipif(
 
 # A login role granted the `yupcha_app` group role — non-super, non-BYPASSRLS.
 APP_LOGIN_ROLE = "app_rls_test"
+APP_LOGIN_PASSWORD = "rls_test_only"
 W1 = "ws_alpha"
 W2 = "ws_beta"
 
@@ -44,7 +45,7 @@ def _app_url():
     from sqlalchemy.engine import make_url
 
     u = make_url(TEST_DATABASE_URL)
-    return str(u.set(username=APP_LOGIN_ROLE, password=None))
+    return u.set(username=APP_LOGIN_ROLE, password=APP_LOGIN_PASSWORD).render_as_string(hide_password=False)
 
 
 @pytest.fixture(scope="module")
@@ -80,6 +81,7 @@ def schema(owner_engine):
             END $$;
             """
         ))
+        c.execute(text(f"ALTER ROLE {APP_LOGIN_ROLE} PASSWORD '{APP_LOGIN_PASSWORD}'"))
         c.execute(text(f"GRANT yupcha_app TO {APP_LOGIN_ROLE}"))
         # The app login role needs to connect + see the schema.
         c.execute(text(f"GRANT USAGE ON SCHEMA public TO {APP_LOGIN_ROLE}"))
@@ -288,12 +290,23 @@ def test_worker_path_pgleadstore(monkeypatch):
         assert lid
         got = s1.get_leads(search="WorkerCo")
         assert any(l.company == "WorkerCo" for l in got)
+        page, total = s1.query_leads_page(
+            {"city": "Austin", "min_score": 40, "search": "WorkerCo"},
+            page=1,
+            page_size=10,
+        )
+        assert total == 1 and page[0]["company"] == "WorkerCo"
+        facets = s1.get_filter_options()
+        assert "Austin" in facets["cities"]
+        assert facets["total_leads"] >= 1
 
     # Worker for W2 must NOT see it.
     with tenancy.workspace_scope(W2):
         s2 = PgLeadStore(W2)
         got2 = s2.get_leads()
         assert all(l.company != "WorkerCo" for l in got2), "W2 saw W1's worker write"
+        page2, total2 = s2.query_leads_page({"search": "WorkerCo"})
+        assert total2 == 0 and page2 == []
 
     app_eng.dispose()
 

@@ -84,7 +84,7 @@ export interface Workbook {
   name: string
   description: string
   status: "draft" | "running" | "paused" | "complete"
-  source_type?: "empty" | "csv" | "leads_filter" | "job_results"
+  source_type?: "empty" | "csv" | "leads_filter" | "job_results" | "ambitionbox"
   source_config?: Record<string, any> | null
   filter_criteria: FilterCriteria | null
   columns_config: ColumnConfig[]
@@ -99,11 +99,40 @@ export interface Workbook {
   last_run_at: string | null
 }
 
+/** Durable execution state for a paginated workbook source connector. */
+export interface ConnectorRun {
+  id: string
+  workspace_id: string
+  workbook_id: string
+  connector: string
+  status: "pending" | "running" | "retrying" | "complete" | "partial" | "failed"
+  query: Record<string, any>
+  cursor: Record<string, any>
+  requested_count: number
+  fetched_count: number
+  added_count: number
+  updated_count: number
+  skipped_count: number
+  pages_fetched: number
+  source_total: number | null
+  target_met: boolean
+  exhausted: boolean
+  error: string | null
+  started_at: string | null
+  completed_at: string | null
+  created_at: string | null
+  updated_at: string | null
+}
+
 /** A row as it appears in a workbook (v2: self-contained, v1 compat) */
 export interface WorkbookLeadRow {
-  lead_id: number
+  lead_id: number | null
   row_id?: number  // WorkbookRow.id (v2)
   position?: number
+  source_provider?: string | null
+  source_record_id?: string | null
+  source_rank?: number | null
+  source_fetched_at?: string | null
   lead: Record<string, any>  // Full lead data (v1) or empty (v2)
   data?: Record<string, any>  // Self-contained row data (v2)
   company?: string  // Optional denormalized company label for display
@@ -147,6 +176,12 @@ export async function fetchWorkbook(id: string, page = 1, pageSize = 100): Promi
     err.status = res.status
     throw err
   }
+  return res.json()
+}
+
+export async function fetchConnectorRuns(workbookId: string): Promise<{ runs: ConnectorRun[] }> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/connector-runs`)
+  if (!res.ok) throw new Error("Failed to fetch connector runs")
   return res.json()
 }
 
@@ -210,6 +245,21 @@ export async function updateLeadField(
     body: JSON.stringify(fields),
   })
   if (!res.ok) throw new Error("Failed to update lead field")
+  return res.json()
+}
+
+/** Update a self-contained WorkbookRow snapshot (not the leads database). */
+export async function updateWorkbookRow(
+  workbookId: string,
+  rowId: number,
+  fields: Record<string, any>,
+): Promise<{ status: string }> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/rows/${rowId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(fields),
+  })
+  if (!res.ok) throw new Error("Failed to update workbook row")
   return res.json()
 }
 
@@ -304,6 +354,19 @@ export async function deleteLeads(leadIds: number[]): Promise<{ deleted: number 
     leadIds.map(id => fetch(`${API}/api/lead/${id}`, { method: "DELETE" }))
   )
   return { deleted: results.filter(r => r.ok).length }
+}
+
+export async function deleteWorkbookRows(
+  workbookId: string,
+  rowIds: number[],
+): Promise<{ deleted: number }> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/rows`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ row_ids: rowIds }),
+  })
+  if (!res.ok) throw new Error("Failed to delete workbook rows")
+  return res.json()
 }
 
 // ── Saved Views (v2) ─────────────────────────────────────────────────────

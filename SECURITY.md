@@ -1,6 +1,6 @@
 # Security Policy
 
-Yupcha handles prospect PII, integration credentials, and outbound network
+OpenGTM handles prospect PII, integration credentials, and outbound network
 requests on infrastructure our users control. We take security seriously and
 appreciate coordinated disclosure.
 
@@ -36,5 +36,5 @@ is released.
 
 ## Supported versions
 
-Yupcha is pre-1.0 and moving fast. Security fixes land on `main`; run a recent
+OpenGTM is pre-1.0 and moving fast. Security fixes land on `main`; run a recent
 build. Once tagged releases stabilize, this section will list supported lines.

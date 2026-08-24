@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Config is env-driven so it composes with docker-compose / the Yupcha .env.
+// Config is env-driven so it composes with docker-compose / the OpenGTM .env.
 type Config struct {
 	Addr string // listen address, e.g. ":8889"
 

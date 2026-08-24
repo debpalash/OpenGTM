@@ -353,10 +353,14 @@ export function useRemoveSuppression(
 
 // ══════════════════════════════ Automations ════════════════════════════════
 
-export function useTriggers(filters?: { enabled?: boolean; trigger_type?: TriggerType }) {
+export function useTriggers(
+  filters?: { enabled?: boolean; trigger_type?: TriggerType },
+  enabled = true,
+) {
   return useQuery({
     queryKey: queryKeys.automations.triggers(filters),
     queryFn: () => listTriggers(filters),
+    enabled,
     retry: 0, // 404 (flag-off) should surface immediately, not retry
   })
 }
@@ -505,10 +509,14 @@ export function useRunTrigger(
 
 // ════════════════════════════════ Watches ══════════════════════════════════
 
-export function useWatches(p?: { limit?: number; offset?: number }) {
+export function useWatches(
+  p?: { limit?: number; offset?: number },
+  enabled = true,
+) {
   return useQuery({
     queryKey: queryKeys.watches.list(p),
     queryFn: () => listWatches(p),
+    enabled,
     retry: 0, // 404/409 (flag-off / PG dependency) should surface immediately
   })
 }

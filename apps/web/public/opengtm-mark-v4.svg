@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 128" role="img" aria-labelledby="title desc">
+  <title id="title">OpenGTM</title>
+  <desc id="desc">An interlocking OG monogram for OpenGTM.</desc>
+  <circle cx="43" cy="64" r="32" fill="none" stroke="#5B4CFF" stroke-width="14"/>
+  <path d="M109 39C103 34 97 31 89 31C70 31 56 46 56 64C56 83 70 97 89 97C106 97 119 87 121 72H92" fill="none" stroke="#FF6B4A" stroke-width="14" stroke-linecap="square" stroke-linejoin="bevel"/>
+</svg>

@@ -22,7 +22,7 @@ class SMTPConfig:
     port: int = 587
     email: str = ""
     password: str = ""
-    from_name: str = "Yupcha"
+    from_name: str = "OpenGTM"
     use_tls: bool = True
     max_per_hour: int = 50
 
@@ -53,7 +53,7 @@ def get_smtp_config(workspace_id: Optional[str] = None) -> SMTPConfig:
             port=int(_g("SMTP_PORT", "587") or "587"),
             email=_g("SMTP_EMAIL", ""),
             password=_g("SMTP_PASSWORD", ""),
-            from_name=_g("SMTP_FROM_NAME", "Yupcha"),
+            from_name=_g("SMTP_FROM_NAME", "OpenGTM"),
             use_tls=_g("SMTP_USE_TLS", "1") == "1",
             max_per_hour=int(_g("SMTP_MAX_PER_HOUR", "50") or "50"),
         )
@@ -239,7 +239,7 @@ async def send_email(
     # everything that lands in a header.
     if not validate_recipient(to_email):
         return SendResult(success=False, error="invalid recipient address")
-    safe_from_name = sanitize_header_value(cfg.from_name, max_len=200) or "Yupcha"
+    safe_from_name = sanitize_header_value(cfg.from_name, max_len=200) or "OpenGTM"
     safe_subject = sanitize_header_value(subject)
 
     # The process-global limiter is ONLY consulted when no explicit per-workspace
@@ -333,17 +333,17 @@ async def send_test_email(to_email: str) -> SendResult:
     """Send a test email to verify SMTP configuration."""
     return await send_email(
         to_email=to_email,
-        subject="Yupcha — SMTP Test ✓",
+        subject="OpenGTM — SMTP Test ✓",
         body_html="""
         <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
             <h2 style="margin: 0 0 12px;">✓ SMTP Connected</h2>
             <p style="color: #666; font-size: 14px; line-height: 1.5;">
                 Your SMTP configuration is working correctly.
-                Yupcha can now send outreach emails on your behalf.
+                OpenGTM can now send outreach emails on your behalf.
             </p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0;">
             <p style="color: #999; font-size: 12px;">
-                Sent from Yupcha · GTM Engine
+                Sent from OpenGTM · Go-to-Market Agents
             </p>
         </div>
         """,

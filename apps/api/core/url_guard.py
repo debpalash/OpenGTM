@@ -20,7 +20,7 @@ import ipaddress
 import re
 import socket
 from typing import Optional
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 # Hostnames we never allow regardless of resolution.
 _BLOCKED_HOSTNAMES = {
@@ -34,6 +34,27 @@ _METADATA_IPS = {"169.254.169.254", "fd00:ec2::254"}
 
 class BlockedUrlError(ValueError):
     """Raised when a URL is not safe for server-side fetching."""
+
+
+async def guarded_get(client, url: str, *, max_redirects: int = 6, **kwargs):
+    """GET a URL while validating the initial target and every redirect hop.
+
+    The caller must create ``client`` with ``follow_redirects=False``.  Keeping
+    redirect handling here makes the security invariant reusable by workbook
+    actions and enrichment providers instead of relying on each HTTP library's
+    automatic redirect implementation.
+    """
+    current = url
+    for _hop in range(max_redirects + 1):
+        check_url(current, allow_http=True, resolve=True)
+        response = await client.get(current, **kwargs)
+        if response.status_code not in (301, 302, 303, 307, 308):
+            return response
+        location = response.headers.get("location")
+        if not location:
+            return response
+        current = urljoin(current, location)
+    raise BlockedUrlError("too many redirects")
 
 
 def _ip_is_blocked(ip: ipaddress._BaseAddress) -> bool:

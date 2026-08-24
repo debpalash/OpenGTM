@@ -13,7 +13,7 @@ import functools
 import httpx
 import uuid
 import asyncio
-import threading
+from datetime import datetime, timezone
 from typing import AsyncGenerator, Optional, Tuple
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
@@ -222,7 +222,7 @@ def _build_system_prompt(store=None) -> str:
     except Exception:
         stats_text = "Pipeline stats unavailable"
 
-    return f"""You are Yupcha Sales AI, an expert B2B sales intelligence assistant for Yupcha.
+    return f"""You are an OpenGTM Agent, an expert B2B go-to-market intelligence assistant for OpenGTM.
 
 ## Your Ideal Customer Profile (ICP)
 {icp_text}
@@ -242,8 +242,9 @@ You have powerful tools to interact with the lead database. Use them proactively
 - **get_enrichment_gaps** — Show leads missing email/phone/linkedin
 - **suggest_outreach** — Generate personalized outreach messages
 - **compare_leads** — Side-by-side comparison of leads
-- **ambitionbox_search** — Search AmbitionBox for Indian companies with ratings, reviews, employee counts, industry data. Use for market research, competitor analysis, finding hiring companies
+- **ambitionbox_search** — Search up to 100 AmbitionBox companies with ratings, reviews, employee counts, industry data. For "top N" requests, set limit=N. Common aliases such as HR/Human Resources and SaaS are normalized automatically
 - **ambitionbox_jobs** — Get current job listings for a company from AmbitionBox (requires company_id from ambitionbox_search)
+- **import_ambitionbox_to_workbook** — Snapshot an AmbitionBox search into a new workbook. When the user says "add/save those results to a workbook", use the SAME industry, rating, sort, and limit from their search with this tool. Do not use create_source_workbook for already-found AmbitionBox results
 - **draft_plan / execute_plan** — Autopilot for COMPOUND goals (e.g. "build a list of 50 IT staffing firms in Pune and find their founders' emails"): call draft_plan to produce a step-by-step plan, show it to the user, then call execute_plan with that plan (the user approves before anything runs). Use this instead of many manual tool calls for multi-step build-a-list-and-enrich requests.
 
 ## Response Guidelines
@@ -256,9 +257,10 @@ You have powerful tools to interact with the lead database. Use them proactively
 
 ## Action Safety (human-in-the-loop)
 Read-only tools (search_leads, get_lead_detail, get_lead_stats, find_similar_leads,
-get_enrichment_gaps, suggest_outreach, compare_leads, ambitionbox_*) run immediately.
+get_enrichment_gaps, suggest_outreach, compare_leads, ambitionbox_search,
+ambitionbox_jobs) run immediately.
 Tools that mutate data or spend resources (update_lead_status, start_collection,
-enrich_lead, execute_plan) require explicit user approval:
+enrich_lead, import_ambitionbox_to_workbook, execute_plan) require explicit user approval:
 when you call one, the system pauses and asks the user to confirm before it runs.
 So propose the action with a one-line rationale and let the gate handle approval —
 do not claim the action is done until you receive its tool result.
@@ -296,6 +298,31 @@ DANGEROUS_TOOLS = {
         "level": "high",
         "label": "🤖 Run Autopilot Plan",
         "reason": "Builds a workbook and runs sourcing + agent-column enrichment (spends resources).",
+    },
+    "import_ambitionbox_to_workbook": {
+        "level": "medium",
+        "label": "📊 Create AmbitionBox Workbook",
+        "reason": "Creates a workbook and stores the matching AmbitionBox companies as rows.",
+    },
+    "create_source_workbook": {
+        "level": "high",
+        "label": "📚 Create and Source Workbook",
+        "reason": "Creates persistent data and launches a background sourcing workflow.",
+    },
+    "set_workbook_refresh": {
+        "level": "medium",
+        "label": "⏱️ Change Workbook Refresh",
+        "reason": "Changes a recurring schedule that can repeatedly spend resources.",
+    },
+    "add_agent_column": {
+        "level": "medium",
+        "label": "🤖 Add Agent Column",
+        "reason": "Changes workbook configuration and may run paid AI tools.",
+    },
+    "add_signal_trigger": {
+        "level": "medium",
+        "label": "⚡ Add Signal Trigger",
+        "reason": "Creates a persistent automation trigger.",
     },
 }
 
@@ -404,13 +431,22 @@ def _describe_action(fn_name: str, fn_args: dict, workspace_id: Optional[str] = 
         details = f"Lead #{fn_args.get('lead_id', '?')} → {fn_args.get('status', '?')}"
     elif fn_name == "enrich_lead":
         details = f"Lead #{fn_args.get('lead_id', '?')}"
+    elif fn_name == "import_ambitionbox_to_workbook":
+        details = (
+            f"{fn_args.get('limit', 10)} companies"
+            + (f" · Industry: {fn_args['industry']}" if fn_args.get("industry") else "")
+            + (f" · Workbook: {fn_args['name']}" if fn_args.get("name") else "")
+        )
 
     return f"{label}\n{reason}\n{details}"
 
 
 def _needs_confirmation(fn_name: str) -> bool:
-    """Check if a tool call requires user confirmation."""
-    return fn_name in DANGEROUS_TOOLS
+    """Only explicitly read-only tools bypass confirmation.
+
+    Unknown/hallucinated tool names fail closed and are never executed inline.
+    """
+    return fn_name not in SAFE_TOOLS
 
 
 # ── Server-side tool definitions ─────────────────────────────────
@@ -566,15 +602,15 @@ def _build_tools():
             "type": "function",
             "function": {
                 "name": "ambitionbox_search",
-                "description": "Search AmbitionBox for Indian companies with ratings, reviews, employee counts, industry, and job data. Use for company research, market analysis, competitor intel. Supports filters: industry, rating. NOTE: there is no location/city filter — AmbitionBox's gateway ignores it. Do not claim results are scoped to a city.",
+                "description": "Search up to 100 AmbitionBox companies with ratings, reviews, employee counts, industry, and job data. For 'top N' requests, set limit=N; results are fetched across multiple 20-company pages. HR/Human Resources/Staffing map to Recruitment, and SaaS maps to Software Product. Supports filters: industry, rating. NOTE: there is no location/city filter — AmbitionBox's gateway ignores it. Do not claim results are scoped to a city.",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "industry": {"type": "string", "description": "Industry filter, e.g. 'IT Services & Consulting', 'Banking', 'BPO'"},
+                        "industry": {"type": "string", "description": "Industry filter, e.g. 'Recruitment', 'Human Resources', 'Software Product', 'IT Services & Consulting', 'Banking', 'BPO'"},
                         "rating": {"type": "string", "description": "Minimum rating, e.g. '4.5' for 4.5+ rated companies"},
                         "sort_by": {"type": "string", "enum": ["popular", "rating", "reviews"], "description": "Sort order", "default": "popular"},
                         "page": {"type": "integer", "description": "Page number (1-indexed)", "default": 1},
-                        "limit": {"type": "integer", "description": "Results per page (max 20)", "default": 10},
+                        "limit": {"type": "integer", "description": "Total number of companies to return across pages (1-100). Set this to the count requested by the user.", "minimum": 1, "maximum": 100, "default": 10},
                     },
                     "required": [],
                 },
@@ -598,8 +634,26 @@ def _build_tools():
         {
             "type": "function",
             "function": {
+                "name": "import_ambitionbox_to_workbook",
+                "description": "Start a durable, checkpointed import of AmbitionBox company results into a new workbook. Use this after ambitionbox_search when the user asks to add/save/import 'them' or 'those companies'. Repeat the same industry, rating, sort_by, and limit; page retries resume without duplicate rows. Do NOT use create_source_workbook for AmbitionBox results. Requires user approval.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "industry": {"type": "string", "description": "The same industry used in ambitionbox_search, e.g. 'Human Resources'"},
+                        "rating": {"type": "string", "description": "The same minimum rating used in ambitionbox_search, if any"},
+                        "sort_by": {"type": "string", "enum": ["popular", "rating", "reviews"], "description": "The same sort order used in ambitionbox_search", "default": "popular"},
+                        "limit": {"type": "integer", "description": "Number of matching companies to snapshot (1-100)", "minimum": 1, "maximum": 100, "default": 10},
+                        "name": {"type": "string", "description": "Workbook name"},
+                    },
+                    "required": [],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
                 "name": "create_source_workbook",
-                "description": "Create a LIVE-sourcing workbook that finds NEW leads from scratch via the 91-source engine. Use when the user wants to FIND/SOURCE companies (not enrich a list they have). Example: 'Build a workbook of IT staffing companies in Pune'. Optionally auto-runs sourcing immediately.",
+                "description": "Create a LIVE-sourcing workbook that finds NEW leads from scratch via the 91-source engine. Use when the user wants to FIND/SOURCE companies (not save a list they already found). Example: 'Build a workbook of IT staffing companies in Pune'. For results already returned by ambitionbox_search, use import_ambitionbox_to_workbook instead. Optionally auto-runs sourcing immediately.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -709,6 +763,10 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
     """
     db = store
     try:
+        if name in DANGEROUS_TOOLS and user_id is not None:
+            role = ws_manager.member_role(workspace_id, user_id)
+            if role not in ("owner", "admin", "editor"):
+                return json.dumps({"error": "Insufficient workspace role"})
         if name == "search_leads":
             leads = db.get_leads(
                 search=args.get("query"),
@@ -756,42 +814,63 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
 
         elif name == "start_collection":
             from apps.api.services.leadgen.db import LeadDB as _LeadDB
-            job_id = str(uuid.uuid4())[:8]
+            from apps.api.services.workspace.manager import workspace_leads_db_path
+            from apps.api.services.queue_service import queue_service
+            from apps.api.services.leadgen.progress import progress
+            from apps.api.database import SessionLocal
+            job_id = uuid.uuid4().hex
             query = args["query"]
             ws_id = workspace_id
+            if not ws_id or not slug:
+                return json.dumps({"error": "Workspace context is required"})
 
             # Create + stamp the job row NOW (request thread, own connection) so a
             # client can poll /api/jobs/{id} immediately. Job/stage bookkeeping
-            # lives in the legacy leadgen SQLite file (NOT the scoped store / not
-            # PG), so use a bare LeadDB here — never the passed store.
-            _jobdb = _LeadDB()
+            # remains a per-workspace SQLite ledger even when leads live in the
+            # shared RLS-protected Postgres store.
+            _jobdb = _LeadDB(workspace_leads_db_path(slug))
             _jobdb.create_job(job_id, query)
-            if ws_id:
-                _jobdb.conn.execute(
-                    "UPDATE jobs SET workspace_id = ? WHERE id = ?", (ws_id, job_id)
-                )
-                _jobdb.conn.commit()
+            _jobdb.conn.execute(
+                "UPDATE jobs SET workspace_id = ? WHERE id = ?", (ws_id, job_id)
+            )
+            _jobdb.conn.commit()
             _jobdb.close()
 
-            def _run():
-                # Runs in a daemon thread: contextvars do NOT propagate across
-                # threading.Thread, so we own a fresh JobRunner here (SQLite
-                # connections are not shareable across threads) and pass
-                # workspace_id EXPLICITLY into _process_job + bind workspace_scope
-                # so sourced leads land in the right tenant (PgLeadStore is built
-                # per-workspace inside the runner; the scope sets the RLS GUC).
-                from apps.api.services.leadgen.job_runner import JobRunner
-                from apps.api.core.tenancy import workspace_scope as _ws_scope
-                runner = JobRunner()
-                job = {"id": job_id, "query": query, "tier": 1, "workspace_id": ws_id}
-                if ws_id:
-                    with _ws_scope(ws_id):
-                        asyncio.run(runner._process_job(job))
-                else:
-                    asyncio.run(runner._process_job(job))
+            try:
+                with SessionLocal() as qdb:
+                    queued = queue_service.add_job(
+                        qdb,
+                        "collect",
+                        {
+                            "job_id": job_id,
+                            "query": query,
+                            "workspace_id": ws_id,
+                            "slug": slug,
+                        },
+                        fire_key=f"collect:{ws_id}:{job_id}",
+                    )
+            except Exception as exc:
+                _jobdb = _LeadDB(workspace_leads_db_path(slug))
+                _jobdb.conn.execute(
+                    "UPDATE jobs SET status = 'failed', error = ?, completed_at = ? WHERE id = ?",
+                    (f"Queue enqueue failed: {exc}", datetime.now(timezone.utc).isoformat(), job_id),
+                )
+                _jobdb.conn.commit()
+                _jobdb.close()
+                return json.dumps({"error": "Collection queue unavailable"})
 
-            threading.Thread(target=_run, daemon=True).start()
+            progress.bind_job(job_id, ws_id)
+            progress.emit(
+                "job_created",
+                {
+                    "job_id": job_id,
+                    "query": query,
+                    "workspace_id": ws_id,
+                    "message": f"Collection queued: {query}",
+                },
+            )
             return json.dumps({"ok": True, "job_id": job_id, "query": query,
+                               "queue_job_id": queued.id,
                                "message": "Collection started with 6 strategies: Maps, Web, Directories, LinkedIn, Job Boards, Review Sites"})
 
         elif name == "enrich_lead":
@@ -835,7 +914,6 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
 
             # Save enriched data
             if enriched_fields:
-                from datetime import datetime, timezone
                 db.update_lead_fields(lead.id, {
                     "email": lead.email, "phone": lead.phone,
                     "linkedin_url": lead.linkedin_url, "description": lead.description,
@@ -993,15 +1071,33 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
             from apps.api.services.leadgen.ambitionbox import ambitionbox
 
             industry = [args["industry"]] if args.get("industry") else None
+            requested_limit = max(1, min(int(args.get("limit", 10)), 100))
             # No location: search_companies raises on it, because the gateway
             # silently drops the filter and returns unscoped results.
-            result = await ambitionbox.search_companies(
-                        page=args.get("page", 1),
-                        limit=args.get("limit", 10),
-                        sort_by=args.get("sort_by", "popular"),
-                        industry=industry,
-                        rating=args.get("rating"),
-                    )
+            if requested_limit > 20:
+                max_pages = min(25, (requested_limit + 19) // 20 + 5)
+                collection = await ambitionbox.collect_companies(
+                    requested_count=requested_limit,
+                    max_pages=max_pages,
+                    industry=industry,
+                    sort_by=args.get("sort_by", "popular"),
+                    rating=args.get("rating"),
+                )
+                result = collection.summary(include_records=False)
+                result["companies"] = [
+                    record.as_dict() for record in collection.records
+                ]
+                result["total"] = len(collection.records)
+                result["page"] = 1
+                result["requested_limit"] = requested_limit
+            else:
+                result = await ambitionbox.search_companies(
+                    page=args.get("page", 1),
+                    limit=requested_limit,
+                    sort_by=args.get("sort_by", "popular"),
+                    industry=industry,
+                    rating=args.get("rating"),
+                )
 
             return json.dumps(result)
 
@@ -1012,6 +1108,34 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                         page=args.get("page", 1),
                     )
 
+            return json.dumps(result)
+
+        elif name == "import_ambitionbox_to_workbook":
+            from apps.api.services.workbook.ambitionbox_import import (
+                start_ambitionbox_import,
+            )
+
+            requested_limit = max(1, min(int(args.get("limit", 10)), 100))
+            industry_name = args.get("industry")
+            sort_by = args.get("sort_by", "popular")
+            rating = args.get("rating")
+            workbook_name = args.get("name") or (
+                f"AmbitionBox — {industry_name} Companies"
+                if industry_name else "AmbitionBox Companies"
+            )
+            result = start_ambitionbox_import(
+                workspace_id=workspace_id,
+                name=workbook_name,
+                industry=industry_name,
+                rating=rating,
+                sort_by=sort_by,
+                requested_limit=requested_limit,
+            )
+            result["message"] = (
+                f"Started a durable import of {requested_limit} AmbitionBox "
+                f"companies into '{result['name']}'. Progress is checkpointed "
+                f"under run {result['run_id']}. Open at {result['url']}"
+            )
             return json.dumps(result)
 
         # ── P5: chat authors the source engine (ORM + P0–P4 services) ──
@@ -1151,7 +1275,11 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
             # _execute_tool inherits this workspace's store/scope (no cross-tenant
             # reach even with the LLM planner on).
             bound_execute_tool = functools.partial(
-                _execute_tool, store=store, workspace_id=workspace_id, slug=slug
+                _execute_tool,
+                store=store,
+                workspace_id=workspace_id,
+                slug=slug,
+                user_id=user_id,
             )
             result = await autopilot.execute_plan(plan, bound_execute_tool)
             # Best-effort memory write (idempotent on (ws, workbook_id)).
@@ -1366,7 +1494,12 @@ async def _stream_chat(
                             if dangerous:
                                 for tc, fn_name, fn_args in dangerous:
                                     meta = DANGEROUS_TOOLS.get(fn_name, {})
-                                    yield f"data: {json.dumps({'confirmation_required': {'confirmation_id': tc.get('id', ''), 'tool_call': tc, 'name': fn_name, 'args': fn_args, 'description': _describe_action(fn_name, fn_args, workspace_id), 'level': meta.get('level', 'medium'), 'label': meta.get('label', fn_name)}})}\n\n"
+                                    approval_id = chat_history.create_tool_approval(
+                                        workspace_id, user_id, tc
+                                    )
+                                    display_call = json.loads(json.dumps(tc))
+                                    display_call["id"] = approval_id
+                                    yield f"data: {json.dumps({'confirmation_required': {'confirmation_id': approval_id, 'tool_call': display_call, 'name': fn_name, 'args': fn_args, 'description': _describe_action(fn_name, fn_args, workspace_id), 'level': meta.get('level', 'high'), 'label': meta.get('label', 'Unrecognized write tool')}})}\n\n"
                                 yield f"data: {json.dumps({'awaiting_confirmation': True})}\n\n"
                                 yield "data: [DONE]\n\n"
                                 return
@@ -1447,23 +1580,49 @@ async def _resolve_approved_calls(
     if not approved:
         return
 
-    tool_calls = [a["tool_call"] for a in approved if a.get("tool_call")]
-    if not tool_calls:
+    resolved = []
+    for item in approved:
+        echoed = item.get("tool_call") or {}
+        approval_id = str(echoed.get("id") or "")
+        decision = item.get("decision", "approve")
+        stored_call = chat_history.consume_tool_approval(
+            approval_id, workspace_id, user_id, decision
+        )
+        resolved.append((decision, stored_call, approval_id))
+
+    if not resolved:
         return
+    tool_calls = [
+        stored_call or {
+            "id": approval_id or f"invalid-{idx}",
+            "type": "function",
+            "function": {"name": "invalid_approval", "arguments": "{}"},
+        }
+        for idx, (_decision, stored_call, approval_id) in enumerate(resolved)
+    ]
     cleaned_messages.append({"role": "assistant", "content": "", "tool_calls": tool_calls})
 
-    for a in approved:
-        tc = a.get("tool_call")
-        if not tc:
+    for decision, tc, approval_id in resolved:
+        if tc is None:
+            content = json.dumps({
+                "denied": True,
+                "reason": "Approval is invalid, expired, already consumed, or belongs to another workspace.",
+            })
+            yield f"data: {json.dumps({'tool_denied': {'name': 'invalid_approval'}})}\n\n"
+            cleaned_messages.append({
+                "role": "tool",
+                "tool_call_id": approval_id or "invalid-approval",
+                "name": "invalid_approval",
+                "content": content,
+            })
             continue
-        decision = a.get("decision", "approve")
         fn_name = tc["function"]["name"]
         try:
             fn_args = json.loads(tc["function"].get("arguments") or "{}")
         except json.JSONDecodeError:
             fn_args = {}
 
-        if decision == "approve":
+        if decision == "approve" and fn_name in DANGEROUS_TOOLS:
             yield f"data: {json.dumps({'tool_call': {'name': fn_name, 'args': fn_args}})}\n\n"
             with workspace_scope(workspace_id):
                 result = await _execute_tool(
@@ -1477,7 +1636,12 @@ async def _resolve_approved_calls(
             yield f"data: {json.dumps({'tool_result': {'name': fn_name, 'result': parsed_result}})}\n\n"
             content = result
         else:
-            content = json.dumps({"denied": True, "reason": "User declined this action."})
+            reason = (
+                "User declined this action."
+                if decision == "deny"
+                else "Tool is not an explicitly classified mutation."
+            )
+            content = json.dumps({"denied": True, "reason": reason})
             yield f"data: {json.dumps({'tool_denied': {'name': fn_name}})}\n\n"
 
         cleaned_messages.append({
@@ -1650,16 +1814,21 @@ async def copilot_chat(request: Request):
                     data = json.loads(chunk[6:])
                     if "content" in data:
                         full_response.append(data["content"])
-                    # Persist tool results that contain a job_id (for task progress cards)
+                    # Persist every structured tool result. Follow-up turns such
+                    # as "save those results" need the actual prior result, not
+                    # only collection jobs that happen to expose a job_id.
                     if "tool_result" in data:
                         tr = data["tool_result"]
                         result_data = tr.get("result", {})
-                        if isinstance(result_data, dict) and result_data.get("job_id"):
-                            chat_history.add_message(
-                                conv_id, "tool",
-                                f"Started collection: {result_data.get('query', '')}",
-                                tool_data=json.dumps(result_data),
-                            )
+                        chat_history.add_message(
+                            conv_id,
+                            "tool",
+                            f"{tr.get('name', 'tool')} result",
+                            tool_data=json.dumps({
+                                "name": tr.get("name"),
+                                "result": result_data,
+                            }),
+                        )
                 except (json.JSONDecodeError, KeyError):
                     pass
 

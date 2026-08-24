@@ -527,7 +527,7 @@ class PersonIntelService:
                 # Get User Profile
                 res = await client.get(
                     f"https://api.github.com/users/{username}",
-                    headers={"Accept": "application/vnd.github.v3+json", "User-Agent": "Yupcha-Engine"}
+                    headers={"Accept": "application/vnd.github.v3+json", "User-Agent": "OpenGTM"}
                 )
                 if res.status_code == 200:
                     data = res.json()
@@ -557,7 +557,7 @@ class PersonIntelService:
                 # Get User Repos to infer skills
                 repo_res = await client.get(
                     f"https://api.github.com/users/{username}/repos?sort=updated&per_page=10",
-                    headers={"Accept": "application/vnd.github.v3+json", "User-Agent": "Yupcha-Engine"}
+                    headers={"Accept": "application/vnd.github.v3+json", "User-Agent": "OpenGTM"}
                 )
                 if repo_res.status_code == 200:
                     repos = repo_res.json()

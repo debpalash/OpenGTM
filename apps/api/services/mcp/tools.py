@@ -68,7 +68,7 @@ TOOL_SPECS = [
     {
         "name": "find_leads",
         "capability": auth.CAP_LEADS_READ,
-        "description": "Search for leads in the Yupcha database by company, city, industry, tier, or keyword. Returns matching leads with contact info and scores.",
+        "description": "Search for leads in the OpenGTM database by company, city, industry, tier, or keyword. Returns matching leads with contact info and scores.",
         "inputSchema": {
             "type": "object",
             "properties": {

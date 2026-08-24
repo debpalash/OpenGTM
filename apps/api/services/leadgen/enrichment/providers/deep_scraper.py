@@ -416,6 +416,7 @@ class DeepScraperProvider(EnrichmentProvider):
 
         try:
             from apps.api.services.leadgen.enrichment.website_scraper import normalize_website_url
+            from apps.api.core.url_guard import guarded_get
             import httpx
 
             base_url = normalize_website_url(lead.website)
@@ -437,9 +438,8 @@ class DeepScraperProvider(EnrichmentProvider):
 
             async with httpx.AsyncClient(
                 timeout=self.timeout,
-                follow_redirects=True,
+                follow_redirects=False,
                 headers=headers,
-                verify=False,
             ) as client:
                 # Crawl up to max_pages
                 pages_fetched = 0
@@ -452,7 +452,7 @@ class DeepScraperProvider(EnrichmentProvider):
                     url = urljoin(base_url, path)
                     try:
                         resp = await asyncio.wait_for(
-                            client.get(url),
+                            guarded_get(client, url),
                             timeout=self.timeout,
                         )
                         if resp.status_code != 200:

@@ -11,7 +11,7 @@ Architecture (v2 — Clay-inspired):
 
 from sqlalchemy import (
     Column, String, Integer, Text, DateTime, ForeignKey, JSON, Float, Boolean,
-    UniqueConstraint,
+    Index, UniqueConstraint, text,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -312,6 +312,12 @@ class WorkbookRow(Base):
     not a live reference to the leads DB.
     """
     __tablename__ = "workbook_rows"
+    __table_args__ = (
+        UniqueConstraint(
+            "workbook_id", "source_provider", "source_record_id",
+            name="uq_workbook_row_source_identity",
+        ),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     # Denormalized tenant (RLS migration e5f6a7b8c9d0). Always set from the parent
@@ -331,6 +337,14 @@ class WorkbookRow(Base):
 
     # Optional link back to leads DB (for CRM sync, dedup)
     lead_id = Column(Integer, nullable=True, index=True)
+
+    # Stable connector identity. Unlike names/domains inside the JSON snapshot,
+    # this is a database-enforced idempotency key for page retries and refreshes.
+    # NULL keeps manually-created and legacy rows unconstrained.
+    source_provider = Column(String(100), nullable=True, index=True)
+    source_record_id = Column(String(255), nullable=True)
+    source_rank = Column(Integer, nullable=True)
+    source_fetched_at = Column(DateTime(timezone=True), nullable=True)
 
     # ── Pillar 1: canonical entity binding ──
     # The resolved company this row represents (cross-source dedup target).
@@ -353,10 +367,94 @@ class WorkbookRow(Base):
         """Convert to API-compatible row format."""
         return {
             "row_id": self.id,
-            "lead_id": self.lead_id or self.id,
+            # A WorkbookRow is not a Lead. Imported/source rows intentionally
+            # expose null until explicitly linked to a lead record.
+            "lead_id": self.lead_id,
             "position": self.position,
+            "source_provider": self.source_provider,
+            "source_record_id": self.source_record_id,
+            "source_rank": self.source_rank,
+            "source_fetched_at": (
+                self.source_fetched_at.isoformat()
+                if self.source_fetched_at else None
+            ),
             "data": self.data or {},
             "enrichments": self.enrichments or {},
             # Flatten lead data fields for column rendering
             **(self.data or {}),
+        }
+
+
+class ConnectorRun(Base):
+    """Durable, resumable execution state for a workbook connector."""
+
+    __tablename__ = "connector_runs"
+    __table_args__ = (
+        # One connector may mutate a workbook at a time. This is a database
+        # invariant, not merely an API check, so multiple API replicas and
+        # retries cannot overlap destructive refreshes.
+        Index(
+            "uq_connector_runs_active",
+            "workbook_id",
+            "connector",
+            unique=True,
+            postgresql_where=text(
+                "status IN ('pending', 'running', 'retrying')"
+            ),
+            sqlite_where=text(
+                "status IN ('pending', 'running', 'retrying')"
+            ),
+        ),
+    )
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    workspace_id = Column(String, nullable=False, index=True)
+    workbook_id = Column(
+        String, ForeignKey("workbooks.id", ondelete="CASCADE"),
+        nullable=False, index=True,
+    )
+    connector = Column(String(100), nullable=False, index=True)
+    status = Column(String(32), nullable=False, default="pending", index=True)
+    query = Column(JSON, default=dict)
+    cursor = Column(JSON, default=dict)
+    requested_count = Column(Integer, nullable=False, default=0)
+    fetched_count = Column(Integer, nullable=False, default=0)
+    added_count = Column(Integer, nullable=False, default=0)
+    updated_count = Column(Integer, nullable=False, default=0)
+    skipped_count = Column(Integer, nullable=False, default=0)
+    pages_fetched = Column(Integer, nullable=False, default=0)
+    source_total = Column(Integer, nullable=True)
+    target_met = Column(Boolean, nullable=False, default=False)
+    exhausted = Column(Boolean, nullable=False, default=False)
+    error = Column(Text, nullable=True)
+    started_at = Column(DateTime(timezone=True), nullable=True)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    def to_api(self) -> dict:
+        return {
+            "id": self.id,
+            "workspace_id": self.workspace_id,
+            "workbook_id": self.workbook_id,
+            "connector": self.connector,
+            "status": self.status,
+            "query": self.query or {},
+            "cursor": self.cursor or {},
+            "requested_count": self.requested_count,
+            "fetched_count": self.fetched_count,
+            "added_count": self.added_count,
+            "updated_count": self.updated_count,
+            "skipped_count": self.skipped_count,
+            "pages_fetched": self.pages_fetched,
+            "source_total": self.source_total,
+            "target_met": bool(self.target_met),
+            "exhausted": bool(self.exhausted),
+            "error": self.error,
+            "started_at": self.started_at.isoformat() if self.started_at else None,
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

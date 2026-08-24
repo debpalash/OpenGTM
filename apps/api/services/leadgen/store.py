@@ -279,6 +279,50 @@ class PgLeadStore:
             rows = q.limit(limit).offset(offset).all()
             return [self._row_to_lead(r) for r in rows]
 
+    def query_leads_page(
+        self,
+        filter_criteria: Optional[Dict[str, Any]] = None,
+        page: int = 1,
+        page_size: int = 100,
+    ) -> tuple[List[Dict[str, Any]], int]:
+        """Workbook-compatible filtered page over the RLS-protected PG store."""
+        from sqlalchemy import or_
+
+        fc = filter_criteria or {}
+        with self._session() as s:
+            q = s.query(LeadRow).filter(LeadRow.workspace_id == self.workspace_id)
+            for key in ("city", "state", "score_tier", "status", "source", "company_size"):
+                if fc.get(key):
+                    q = q.filter(getattr(LeadRow, key) == fc[key])
+            if fc.get("job_ids"):
+                q = q.filter(
+                    LeadRow.source.in_([f"job:{job_id}" for job_id in fc["job_ids"]])
+                )
+            if fc.get("specialization"):
+                q = q.filter(LeadRow.specialization.ilike(f"%{fc['specialization']}%"))
+            for key in ("email", "phone", "website"):
+                flag = fc.get(f"has_{key}")
+                column = getattr(LeadRow, key)
+                if flag is True:
+                    q = q.filter(column.isnot(None), column != "")
+                elif flag is False:
+                    q = q.filter(or_(column.is_(None), column == ""))
+            if fc.get("min_score") is not None:
+                q = q.filter(LeadRow.score >= fc["min_score"])
+            if fc.get("max_score") is not None:
+                q = q.filter(LeadRow.score <= fc["max_score"])
+            if fc.get("search"):
+                q = q.filter(self._search_clause(str(fc["search"])))
+
+            total = q.count()
+            rows = (
+                q.order_by(LeadRow.score.desc())
+                .limit(max(1, page_size))
+                .offset((max(1, page) - 1) * max(1, page_size))
+                .all()
+            )
+            return [self._row_to_lead(row).to_dict() for row in rows], int(total)
+
     @staticmethod
     def _search_clause(search: str):
         """Full-text search clause: tsvector @@ to_tsquery, ILIKE fallback.
@@ -318,7 +362,10 @@ class PgLeadStore:
     def update_lead_fields(self, lead_id: int, fields: Dict[str, Any]) -> None:
         from apps.api.services.leadgen.db import _utcnow
 
-        fields = {k: v for k, v in fields.items() if k in _LEAD_COLUMNS}
+        mutable = _LEAD_COLUMNS - {"id", "workspace_id", "created_at", "updated_at", "search_tsv"}
+        fields = {k: v for k, v in fields.items() if k in mutable}
+        if not fields:
+            return
         fields["updated_at"] = _utcnow().isoformat()
         with self._session() as s, s.begin():
             s.query(LeadRow).filter(
@@ -412,6 +459,31 @@ class PgLeadStore:
                 .all()
             )
             return [r[0] for r in rows]
+
+    def get_filter_options(self) -> Dict[str, Any]:
+        """Return workbook filter facets, explicitly scoped and RLS-backed."""
+        with self._session() as s:
+            base = LeadRow.workspace_id == self.workspace_id
+
+            def _distinct(column, limit: Optional[int] = None) -> List[str]:
+                query = (
+                    s.query(column)
+                    .filter(base, column.isnot(None), column != "")
+                    .distinct()
+                    .order_by(column)
+                )
+                if limit:
+                    query = query.limit(limit)
+                return [row[0] for row in query.all()]
+
+            return {
+                "cities": _distinct(LeadRow.city),
+                "tiers": _distinct(LeadRow.score_tier),
+                "sources": _distinct(LeadRow.source),
+                "statuses": _distinct(LeadRow.status),
+                "specializations": _distinct(LeadRow.specialization, 50),
+                "total_leads": s.query(LeadRow).filter(base).count(),
+            }
 
     # ── signals (tenant-scoped) ──
     def add_signal(self, signal) -> str:

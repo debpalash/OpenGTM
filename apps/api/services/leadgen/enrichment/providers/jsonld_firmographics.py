@@ -201,18 +201,19 @@ class JsonLdFirmographicsProvider(EnrichmentProvider):
             )
         try:
             import httpx
+            from apps.api.core.url_guard import guarded_get
             from apps.api.services.leadgen.enrichment.website_scraper import normalize_website_url
 
             url = normalize_website_url(lead.website)
             async with httpx.AsyncClient(
-                timeout=self.timeout, follow_redirects=True, verify=False,
+                timeout=self.timeout, follow_redirects=False,
                 headers={
                     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                                   "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                     "Accept": "text/html,application/xhtml+xml",
                 },
             ) as client:
-                resp = await client.get(url)
+                resp = await guarded_get(client, url)
                 html_text = resp.text[:300_000]
 
             fields = extract_firmographics(html_text)

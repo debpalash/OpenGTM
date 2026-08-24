@@ -100,3 +100,17 @@ def test_raw_text_when_no_extract(monkeypatch):
     col = {"type": "http", "http_url": "https://api.example.com/x"}
     res = asyncio.run(execute_http_column(col, LEAD, COLS))
     assert res["success"] and res["value"] == "hello world"
+
+
+def test_redirect_is_not_followed(monkeypatch):
+    calls = []
+
+    def handler(request):
+        calls.append(str(request.url))
+        return httpx.Response(302, headers={"location": "http://127.0.0.1/admin"})
+
+    _patch_transport(monkeypatch, handler)
+    col = {"type": "http", "http_url": "https://api.example.com/x"}
+    res = asyncio.run(execute_http_column(col, LEAD, COLS))
+    assert res["success"] is False and res["error"] == "http_302"
+    assert calls == ["https://api.example.com/x"]

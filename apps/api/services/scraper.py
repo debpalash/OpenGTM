@@ -4,6 +4,9 @@ from playwright.async_api import async_playwright
 import logfire
 import re
 import asyncio
+from urllib.parse import urljoin
+
+from apps.api.core.url_guard import check_url, BlockedUrlError
 
 
 class UniversalScraper:
@@ -13,7 +16,24 @@ class UniversalScraper:
         }
         self.email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
 
+    async def _safe_http_get(self, client: httpx.AsyncClient, url: str):
+        """Fetch with every redirect target re-resolved through the SSRF guard."""
+        current = url
+        for _ in range(6):
+            check_url(current, resolve=True)
+            response = await client.get(current, headers=self.headers)
+            if response.status_code not in (301, 302, 303, 307, 308):
+                return response, current
+            location = response.headers.get("location")
+            if not location:
+                raise RuntimeError("redirect response missing Location header")
+            current = urljoin(current, location)
+        raise RuntimeError("too many redirects")
+
     async def scrape(self, url: str, screenshot_callback=None):
+        # Defense at the service boundary: callers cannot bypass SSRF checks by
+        # invoking UniversalScraper directly instead of through an API router.
+        check_url(url, resolve=True)
         # Specific Handle for Scribd: Always use robust path with scrolling
         if "scribd.com/document" in url:
             logfire.info(f"Scribd URL detected, forcing Playwright: {url}")
@@ -27,10 +47,8 @@ class UniversalScraper:
         # 1. Fast Path: HTTPX
         try:
             logfire.info(f"Attempting fast scrape for {url}")
-            async with httpx.AsyncClient(
-                follow_redirects=True, timeout=10.0, verify=False
-            ) as client:
-                response = await client.get(url, headers=self.headers)
+            async with httpx.AsyncClient(follow_redirects=False, timeout=10.0) as client:
+                response, final_url = await self._safe_http_get(client, url)
                 if response.status_code == 200:
                     text_lower = response.text.lower()
                     if (
@@ -42,7 +60,11 @@ class UniversalScraper:
                             "Fast scrape detected JS wall, switching to robust"
                         )
                     else:
-                        return self._parse_html(response.text, url, method="fast")
+                        return self._parse_html(response.text, final_url, method="fast")
+        except BlockedUrlError:
+            # A blocked redirect is a security decision, not a reason to retry
+            # the same URL through a more permissive browser engine.
+            raise
         except Exception as e:
             logfire.warn(f"Fast scrape failed for {url}: {e}")
 
@@ -76,6 +98,18 @@ class UniversalScraper:
 
             page = await context.new_page()
             try:
+                async def guard_request(route, request):
+                    request_url = request.url
+                    if request_url.startswith(("http://", "https://")):
+                        try:
+                            # Covers navigation redirects and subresource requests.
+                            check_url(request_url, resolve=True)
+                        except BlockedUrlError:
+                            await route.abort("blockedbyclient")
+                            return
+                    await route.continue_()
+
+                await page.route("**/*", guard_request)
                 if screenshot_callback:
 
                     async def stream_screenshots():

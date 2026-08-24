@@ -13,7 +13,8 @@ from sqlalchemy import func as sa_func
 
 from apps.api.database import get_db
 from apps.api.services.workbook.models import (
-    Workbook, WorkbookEnrichment, WorkbookRow, WorkbookView, COLUMN_TYPES, LEAD_FIELD_MAP,
+    ConnectorRun, Workbook, WorkbookEnrichment, WorkbookRow, WorkbookView,
+    COLUMN_TYPES, LEAD_FIELD_MAP,
 )
 from apps.api.services.workbook.schemas import (
     WorkbookCreate, WorkbookUpdate, WorkbookResponse,
@@ -27,7 +28,11 @@ from apps.api.services.workbook.schemas import (
     WorkbookViewResponse, WorkbookViewListResponse,
 )
 from apps.api.services.leadgen.db import LeadDB
-from apps.api.core.tenancy import WorkspaceCtx, current_workspace
+from apps.api.core.tenancy import (
+    WorkspaceCtx,
+    current_workspace,
+    require_workspace_role,
+)
 from apps.api.core.ratelimit import limiter
 
 logger = logging.getLogger("workbook.api")
@@ -36,6 +41,7 @@ router = APIRouter(prefix="/api/workbooks", tags=["workbooks"])
 router_v2 = APIRouter(prefix="/api/v2/workbooks", tags=["workbooks"])
 # Saved views live under the v2 prefix (new surface, no legacy consumers).
 views_router = APIRouter(prefix="/api/v2/workbooks", tags=["workbook-views"])
+require_editor = require_workspace_role("editor", "admin")
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────
@@ -58,82 +64,8 @@ def _owned_workbook(db: Session, workbook_id: str, ctx: WorkspaceCtx) -> Workboo
 
 
 def _query_leads(db: LeadDB, filter_criteria: dict, page: int = 1, page_size: int = 100) -> tuple[list[dict], int]:
-    """Query leads matching the workbook's filter criteria.
-
-    Returns (leads_list, total_count).
-    """
-    fc = filter_criteria or {}
-
-    # Build WHERE clauses
-    conditions = []
-    params = []
-
-    if fc.get("city"):
-        conditions.append("city = ?")
-        params.append(fc["city"])
-    if fc.get("state"):
-        conditions.append("state = ?")
-        params.append(fc["state"])
-    if fc.get("score_tier"):
-        conditions.append("score_tier = ?")
-        params.append(fc["score_tier"])
-    if fc.get("status"):
-        conditions.append("status = ?")
-        params.append(fc["status"])
-    if fc.get("source"):
-        conditions.append("source = ?")
-        params.append(fc["source"])
-    if fc.get("job_ids"):
-        # Filter leads from multiple jobs: source IN ('job:xxx', 'job:yyy')
-        job_sources = [f"job:{jid}" for jid in fc["job_ids"]]
-        placeholders = ",".join("?" * len(job_sources))
-        conditions.append(f"source IN ({placeholders})")
-        params.extend(job_sources)
-    if fc.get("specialization"):
-        conditions.append("specialization LIKE ?")
-        params.append(f"%{fc['specialization']}%")
-    if fc.get("company_size"):
-        conditions.append("company_size = ?")
-        params.append(fc["company_size"])
-    if fc.get("has_email") is True:
-        conditions.append("email != '' AND email IS NOT NULL")
-    elif fc.get("has_email") is False:
-        conditions.append("(email = '' OR email IS NULL)")
-    if fc.get("has_phone") is True:
-        conditions.append("phone != '' AND phone IS NOT NULL")
-    elif fc.get("has_phone") is False:
-        conditions.append("(phone = '' OR phone IS NULL)")
-    if fc.get("has_website") is True:
-        conditions.append("website != '' AND website IS NOT NULL")
-    elif fc.get("has_website") is False:
-        conditions.append("(website = '' OR website IS NULL)")
-    if fc.get("min_score") is not None:
-        conditions.append("score >= ?")
-        params.append(fc["min_score"])
-    if fc.get("max_score") is not None:
-        conditions.append("score <= ?")
-        params.append(fc["max_score"])
-
-    where_clause = " AND ".join(conditions) if conditions else "1=1"
-
-    # Full-text search
-    if fc.get("search"):
-        # Use parameterized FTS query, wrapping in quotes to prevent syntax errors with special chars
-        fts_query = fc["search"].replace('"', '""')
-        where_clause = f"id IN (SELECT rowid FROM leads_fts WHERE leads_fts MATCH ?) AND {where_clause}"
-        params.insert(0, f'"{fts_query}"')
-
-    # Count
-    count_sql = f"SELECT COUNT(*) FROM leads WHERE {where_clause}"
-    total = db.conn.execute(count_sql, params).fetchone()[0]
-
-    # Fetch page
-    offset = (page - 1) * page_size
-    select_sql = f"SELECT * FROM leads WHERE {where_clause} ORDER BY score DESC LIMIT ? OFFSET ?"
-    rows = db.conn.execute(select_sql, params + [page_size, offset]).fetchall()
-
-    leads = [dict(row) for row in rows]
-    return leads, total
+    """Query through the backend-neutral tenant lead-store contract."""
+    return db.query_leads_page(filter_criteria, page=page, page_size=page_size)
 
 
 def _workbook_response(wb: Workbook, lead_db: LeadDB = None) -> WorkbookResponse:
@@ -201,7 +133,7 @@ async def list_workbooks(
 async def create_workbook(
     body: WorkbookCreate,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Create a new workbook — Clay-style with source selection.
 
@@ -312,7 +244,7 @@ class CreateFromJobsRequest(BaseModel):
 async def create_workbook_from_jobs(
     body: CreateFromJobsRequest,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Create a workbook from job results, or merge new jobs into an existing workbook.
 
@@ -338,11 +270,13 @@ async def create_workbook_from_jobs(
         # Auto-generate name from job queries
         auto_name = body.name
         if not auto_name:
-            lead_db = ctx.lead_db()
+            from apps.api.services.workspace.manager import workspace_leads_db_path
+
+            job_db = LeadDB(workspace_leads_db_path(ctx.slug))
             try:
                 job_queries = []
                 for jid in body.job_ids[:3]:
-                    job = lead_db.conn.execute(
+                    job = job_db.conn.execute(
                         "SELECT query FROM jobs WHERE id = ?", (jid,)
                     ).fetchone()
                     if job:
@@ -352,7 +286,7 @@ async def create_workbook_from_jobs(
                 else:
                     auto_name = f"Task Workbook ({len(body.job_ids)} jobs)"
             finally:
-                lead_db.close()
+                job_db.close()
 
         # Default columns: comprehensive lead view
         default_columns = [
@@ -451,9 +385,13 @@ async def get_workbook(
                     enrichments_dict[col_id] = EnrichmentOverlay(value=overlay, status="complete")
 
             rows.append(WorkbookLeadRow(
-                lead_id=r.lead_id or r.id,
+                lead_id=r.lead_id,
                 row_id=r.id,
                 position=r.position,
+                source_provider=r.source_provider,
+                source_record_id=r.source_record_id,
+                source_rank=r.source_rank,
+                source_fetched_at=r.source_fetched_at,
                 lead=r.data or {},
                 data=r.data or {},
                 enrichments=enrichments_dict,
@@ -511,12 +449,26 @@ async def get_workbook(
     )
 
 
+@router.get("/{workbook_id}/connector-runs")
+async def list_connector_runs(
+    workbook_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Operational history for durable connector executions."""
+    _owned_workbook(db, workbook_id, ctx)
+    runs = db.query(ConnectorRun).filter(
+        ConnectorRun.workbook_id == workbook_id
+    ).order_by(ConnectorRun.created_at.desc()).limit(100).all()
+    return {"runs": [run.to_api() for run in runs]}
+
+
 @router.put("/{workbook_id}", response_model=WorkbookResponse)
 async def update_workbook(
     workbook_id: str,
     body: WorkbookUpdate,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Update workbook metadata, filter, or columns."""
     wb = _owned_workbook(db, workbook_id, ctx)
@@ -546,7 +498,7 @@ async def update_workbook(
 async def delete_workbook(
     workbook_id: str,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Delete a workbook and its enrichment overlay data."""
     wb = _owned_workbook(db, workbook_id, ctx)
@@ -563,7 +515,7 @@ async def update_lead_field(
     lead_id: int,
     body: dict,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Update a Lead's field from the workbook context.
 
@@ -584,18 +536,12 @@ async def update_lead_field(
         write_updates = dict(updates)
         try:
             from apps.api.core.config import settings as _prov_settings
-            if (getattr(_prov_settings, "PROVENANCE_TRACKING_ENABLED", False)
-                    and hasattr(lead_db, "conn")):
+            if getattr(_prov_settings, "PROVENANCE_TRACKING_ENABLED", False):
                 from apps.api.services.leadgen.enrichment.licenses import (
                     provenance_for, merge_field_provenance, SOURCE_USER_PROVIDED,
                 )
-                try:
-                    row = lead_db.conn.execute(
-                        "SELECT field_provenance FROM leads WHERE id = ?", (lead_id,)
-                    ).fetchone()
-                    cur_fp = row[0] if row else ""
-                except Exception:
-                    cur_fp = ""
+                current = lead_db.get_lead(lead_id)
+                cur_fp = getattr(current, "field_provenance", "") if current else ""
                 provs = {
                     f: provenance_for(SOURCE_USER_PROVIDED, license="user-provided")
                     for f in updates
@@ -605,12 +551,9 @@ async def update_lead_field(
             logger.debug(f"manual-edit provenance skipped: {e}")
             write_updates = dict(updates)
 
-        set_clause = ", ".join(f"{k} = ?" for k in write_updates)
-        lead_db.conn.execute(
-            f"UPDATE leads SET {set_clause}, updated_at = ? WHERE id = ?",
-            list(write_updates.values()) + [datetime.now(timezone.utc).isoformat(), lead_id],
-        )
-        lead_db.conn.commit()
+        if not lead_db.get_lead(lead_id):
+            raise HTTPException(status_code=404, detail="Lead not found")
+        lead_db.update_lead_fields(lead_id, write_updates)
         return {"status": "updated", "lead_id": lead_id, "fields": list(updates.keys())}
     finally:
         lead_db.close()
@@ -623,7 +566,7 @@ async def import_csv_leads(
     workbook_id: str,
     body: dict,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Import rows as new leads in the DB.
 
@@ -642,6 +585,7 @@ async def import_csv_leads(
         for row in rows:
             from apps.api.services.leadgen.models import Lead
             lead = Lead.from_dict(row)
+            lead.workspace_id = ctx.workspace_id
             # Tag with workbook source
             if not lead.source:
                 lead.source = f"workbook:{workbook_id}"
@@ -663,7 +607,7 @@ async def add_column(
     workbook_id: str,
     body: AddColumnRequest,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Add a new column to the workbook."""
     wb = _owned_workbook(db, workbook_id, ctx)
@@ -681,7 +625,7 @@ async def generate_column(
     workbook_id: str,
     body: GenerateColumnRequest,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """NL → column generator: turn an instruction into a validated, ready-to-add
     column config (formula / ai_formula / http). Does NOT add the column."""
@@ -699,7 +643,7 @@ async def remove_column(
     workbook_id: str,
     column_id: str,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Remove a column and its enrichment data."""
     wb = _owned_workbook(db, workbook_id, ctx)
@@ -760,7 +704,7 @@ async def run_workbook(
     workbook_id: str,
     body: RunWorkbookRequest = None,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Run enrichment on workbook rows (v2: WorkbookRow, v1 fallback: leads DB)."""
     if body is None:
@@ -800,7 +744,10 @@ async def run_workbook(
         elif body.lead_ids:
             query = query.filter(WorkbookRow.lead_id.in_(body.lead_ids))
         wb_rows = query.all()
-        leads = [{"id": r.lead_id or r.id, **r.data} for r in wb_rows]
+        leads = [
+            {"id": r.lead_id or r.id, "__row_id": r.id, "__lead_id": r.lead_id, **r.data}
+            for r in wb_rows
+        ]
         resolved_row_ids = [r.id for r in wb_rows]
     else:
         # v1 legacy: read from leads DB
@@ -921,7 +868,7 @@ async def run_workbook(
 async def stop_workbook(
     workbook_id: str,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Stop a running workbook.
 
@@ -956,7 +903,7 @@ async def run_cell(
     col_id: str,
     body: RunCellRequest = None,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """(Re-)run ONE cell synchronously and return its result.
 
@@ -979,10 +926,7 @@ async def run_cell(
 
     wb = _owned_workbook(db, workbook_id, ctx)
     columns_config = wb.columns_config or []
-    # Same runnable set as /run: ENRICHMENT_COL_TYPES doesn't include "output"
-    # (outputs are ordered/handled specially on full runs) but a single output
-    # cell is exactly what force re-run exists for.
-    runnable_types = (*ENRICHMENT_COL_TYPES, "output")
+    runnable_types = ENRICHMENT_COL_TYPES
     col = next(
         (c for c in columns_config
          if c.get("id") == col_id and c.get("type") in runnable_types),
@@ -1002,7 +946,12 @@ async def run_cell(
 
     if wr is not None:
         lead_id = wr.lead_id or wr.id
-        lead_data = {"id": lead_id, **(wr.data or {})}
+        lead_data = {
+            "id": lead_id,
+            "__row_id": wr.id,
+            "__lead_id": wr.lead_id,
+            **(wr.data or {}),
+        }
     else:
         # v1 legacy — row lives in the tenant lead store.
         import dataclasses
@@ -1076,13 +1025,11 @@ async def add_source_column(
     workbook_id: str,
     body: SourceColumnRequest,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Add a `source` column (ICP-driven, or people_search) to a workbook."""
     import uuid
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
 
     if body.kind == "people_search":
         from apps.api.core.config import settings
@@ -1136,12 +1083,10 @@ async def run_source_column(
     workbook_id: str,
     col_id: str,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Materialize rows from a source column — runs on the durable queue worker."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
     col = next((c for c in (wb.columns_config or [])
                 if c.get("id") == col_id and c.get("type") == "source"), None)
     if not col:
@@ -1165,9 +1110,7 @@ async def preview_source_column(
     ctx: WorkspaceCtx = Depends(current_workspace),
 ):
     """Dry-run: the query that would run + which sources it would hit. No write."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
     col = next((c for c in (wb.columns_config or [])
                 if c.get("id") == col_id and c.get("type") == "source"), None)
     if not col:
@@ -1192,12 +1135,10 @@ async def set_budget(
     workbook_id: str,
     body: BudgetRequest,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Set a workbook's spend ceiling. Paid providers are skipped once exhausted."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
     wb.budget_max_usd = max(0.0, body.max_usd)
     db.commit()
     return {"budget_max_usd": wb.budget_max_usd, "budget_spent_usd": wb.budget_spent_usd or 0.0}
@@ -1210,9 +1151,7 @@ async def get_cost(
     ctx: WorkspaceCtx = Depends(current_workspace),
 ):
     """Spend-to-date + budget headroom for a workbook."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
     spent = wb.budget_spent_usd or 0.0
     cap = wb.budget_max_usd or 0.0
     return {
@@ -1265,10 +1204,11 @@ async def update_refresh_policy(
     workbook_id: str,
     body: RefreshPolicyRequest,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Make a workbook 'living': schedule recurring refresh and/or signal triggers."""
     from apps.api.services.workbook.refresh import set_refresh_policy
+    _owned_workbook(db, workbook_id, ctx)
     result = set_refresh_policy(db, workbook_id, body.model_dump())
     if "error" in result:
         raise HTTPException(status_code=404, detail=result["error"])
@@ -1279,12 +1219,10 @@ async def update_refresh_policy(
 async def refresh_now(
     workbook_id: str,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Trigger one refresh cycle immediately (source new rows + re-enrich stale)."""
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
-    if not wb:
-        raise HTTPException(status_code=404, detail="Workbook not found")
+    wb = _owned_workbook(db, workbook_id, ctx)
     from apps.api.services.queue_service import queue_service
     # OD-4: stamp the workbook's tenant so the refresh worker scopes correctly.
     queue_service.add_job(
@@ -1304,6 +1242,7 @@ async def get_cell_trace(
 ):
     """The agent column's reasoning trace for a cell (which tools, why, cost)."""
     from apps.api.services.workbook.trace_models import CellTrace
+    _owned_workbook(db, workbook_id, ctx)
     t = db.query(CellTrace).filter(
         CellTrace.workbook_id == workbook_id,
         CellTrace.lead_id == lead_id,
@@ -1323,6 +1262,7 @@ async def get_activity(
 ):
     """Event feed: rows added, refreshes, signals fired, re-enrichments."""
     from apps.api.services.workbook.activity_models import WorkbookActivity
+    _owned_workbook(db, workbook_id, ctx)
     rows = (
         db.query(WorkbookActivity)
         .filter(WorkbookActivity.workbook_id == workbook_id)
@@ -1340,7 +1280,7 @@ async def add_rows(
     workbook_id: str,
     body: AddRowsRequest,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Add rows to a workbook."""
     wb = _owned_workbook(db, workbook_id, ctx)
@@ -1410,7 +1350,7 @@ async def delete_rows(
     workbook_id: str,
     body: DeleteRowsRequest,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Delete rows from a workbook."""
     wb = _owned_workbook(db, workbook_id, ctx)
@@ -1423,11 +1363,50 @@ async def delete_rows(
     return {"deleted": deleted}
 
 
+@router.patch("/{workbook_id}/rows/{row_id}")
+async def update_row_data(
+    workbook_id: str,
+    row_id: int,
+    body: dict,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_editor),
+):
+    """Update a workbook snapshot without impersonating a Lead record."""
+    _owned_workbook(db, workbook_id, ctx)
+    row = db.query(WorkbookRow).filter(
+        WorkbookRow.workbook_id == workbook_id,
+        WorkbookRow.id == row_id,
+    ).first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Workbook row not found")
+
+    allowed = set(LEAD_FIELD_MAP)
+    allowed.update(
+        c.get("lead_field") or c.get("id")
+        for c in (row.workbook.columns_config or [])
+        if c.get("type") in ("lead_field", "input")
+    )
+    updates = {
+        key: value
+        for key, value in body.items()
+        if key in allowed and key not in {"id", "row_id", "lead_id"}
+    }
+    if not updates:
+        raise HTTPException(status_code=400, detail="No editable row fields supplied")
+
+    from sqlalchemy.orm.attributes import flag_modified
+
+    row.data = {**(row.data or {}), **updates}
+    flag_modified(row, "data")
+    db.commit()
+    return {"status": "updated", "row_id": row_id, "fields": list(updates)}
+
+
 @router.post("/{workbook_id}/migrate")
 async def migrate_workbook_to_v2(
     workbook_id: str,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Migrate a v1 workbook to v2 by snapshotting leads into WorkbookRow."""
     wb = _owned_workbook(db, workbook_id, ctx)
@@ -1507,27 +1486,16 @@ def _ws_authorize(token: Optional[str], workbook_id: str, workspace_id: Optional
     if not token or not workspace_id:
         return False
     try:
-        from jose import jwt, JWTError
-        from apps.api.core.config import settings as _settings
+        from apps.api.core.security import authenticate_query_token
         from apps.api.core.tenancy import workspace_scope
         from apps.api.database import SessionLocal
-        from apps.api.models import User
         from apps.api.services.workspace import manager as _ws
 
-        try:
-            payload = jwt.decode(token, _settings.SECRET_KEY, algorithms=[_settings.ALGORITHM])
-        except JWTError:
-            return False
-        username = payload.get("sub")
-        if not username:
-            return False
+        user = authenticate_query_token(token)
 
         with workspace_scope(workspace_id):
             sess = SessionLocal()
             try:
-                user = sess.query(User).filter(User.username == username).first()
-                if not user or not user.is_active:
-                    return False
                 # Membership in the CLAIMED workspace — a forged/wrong ws fails here.
                 if not _ws.is_member(workspace_id, user.id):
                     return False
@@ -1639,7 +1607,7 @@ async def create_view(
     workbook_id: str,
     body: WorkbookViewCreate,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Create a saved view on a workbook."""
     _owned_workbook(db, workbook_id, ctx)
@@ -1661,7 +1629,7 @@ async def update_view(
     view_id: str,
     body: WorkbookViewUpdate,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Rename a view and/or replace its filter/sort/hidden-column config."""
     _owned_workbook(db, workbook_id, ctx)
@@ -1681,7 +1649,7 @@ async def delete_view(
     workbook_id: str,
     view_id: str,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Delete a saved view (never touches the workbook's rows)."""
     _owned_workbook(db, workbook_id, ctx)
@@ -1729,30 +1697,6 @@ async def get_filter_options(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get available filter values from the leads DB."""
     lead_db = ctx.lead_db()
     try:
-        cities = [r[0] for r in lead_db.conn.execute(
-            "SELECT DISTINCT city FROM leads WHERE city != '' ORDER BY city"
-        ).fetchall()]
-        tiers = [r[0] for r in lead_db.conn.execute(
-            "SELECT DISTINCT score_tier FROM leads WHERE score_tier != '' ORDER BY score_tier"
-        ).fetchall()]
-        sources = [r[0] for r in lead_db.conn.execute(
-            "SELECT DISTINCT source FROM leads WHERE source != '' ORDER BY source"
-        ).fetchall()]
-        statuses = [r[0] for r in lead_db.conn.execute(
-            "SELECT DISTINCT status FROM leads WHERE status != '' ORDER BY status"
-        ).fetchall()]
-        specializations = [r[0] for r in lead_db.conn.execute(
-            "SELECT DISTINCT specialization FROM leads WHERE specialization != '' ORDER BY specialization LIMIT 50"
-        ).fetchall()]
-        total_leads = lead_db.conn.execute("SELECT COUNT(*) FROM leads").fetchone()[0]
-
-        return {
-            "cities": cities,
-            "tiers": tiers,
-            "sources": sources,
-            "statuses": statuses,
-            "specializations": specializations,
-            "total_leads": total_leads,
-        }
+        return lead_db.get_filter_options()
     finally:
         lead_db.close()

@@ -61,22 +61,30 @@ def _blocking_keys(lead: dict) -> set:
     return keys
 
 
-def _ensure_blocking_keys(db: Session, entity_id: str, keys: set):
+def _ensure_blocking_keys(
+    db: Session, entity_id: str, keys: set, workspace_id: str
+):
     if not keys:
         return
     existing = {
         k for (k,) in db.query(EntityBlockingKey.key)
-        .filter(EntityBlockingKey.entity_id == entity_id).all()
+        .filter(
+            EntityBlockingKey.entity_id == entity_id,
+            EntityBlockingKey.workspace_id == workspace_id,
+        ).all()
     }
     for k in keys - existing:
-        db.add(EntityBlockingKey(key=k, entity_id=entity_id))
+        db.add(EntityBlockingKey(
+            key=k, entity_id=entity_id, workspace_id=workspace_id
+        ))
 
 
-def _candidate_ids(db: Session, keys: set) -> set:
+def _candidate_ids(db: Session, keys: set, workspace_id: str) -> set:
     if not keys:
         return set()
     rows = db.query(EntityBlockingKey.entity_id).filter(
-        EntityBlockingKey.key.in_(list(keys))
+        EntityBlockingKey.key.in_(list(keys)),
+        EntityBlockingKey.workspace_id == workspace_id,
     ).all()
     return {r[0] for r in rows}
 
@@ -135,7 +143,9 @@ def _create_entity(db: Session, lead: dict, source: str, workspace_id: str = "")
     )
     db.add(entity)
     db.flush()  # assign id
-    _ensure_blocking_keys(db, entity.id, _blocking_keys(lead))
+    _ensure_blocking_keys(
+        db, entity.id, _blocking_keys(lead), entity.workspace_id
+    )
     return entity
 
 
@@ -169,7 +179,9 @@ def _record_observation(db: Session, entity: CompanyEntity, lead: dict, source: 
     entity.sources = sources
     entity.observation_count = (entity.observation_count or 0) + 1
 
-    _ensure_blocking_keys(db, entity.id, _blocking_keys(lead))
+    _ensure_blocking_keys(
+        db, entity.id, _blocking_keys(lead), entity.workspace_id
+    )
     _recompute(entity)
 
 
@@ -187,7 +199,7 @@ def resolve_company(
     ws = workspace_id or ""
     keys = _blocking_keys(lead)
     best, best_score = None, 0.0
-    for eid in _candidate_ids(db, keys):
+    for eid in _candidate_ids(db, keys, ws):
         ent = db.get(CompanyEntity, eid)
         if not ent or (ent.workspace_id or "") != ws:
             continue  # tenant isolation
@@ -205,6 +217,7 @@ def resolve_company(
     entity = _create_entity(db, lead, source, workspace_id=ws)
     if best is not None and GREY_BAND <= best_score < MATCH_THRESHOLD:
         db.add(EntityReviewPair(
+            workspace_id=ws,
             entity_id=best.id,
             candidate={"new_entity_id": entity.id, **entity.repr_dict()},
             score=round(best_score, 4),
@@ -216,7 +229,13 @@ def resolve_company(
 
 # ── Merge / Split (human-in-the-loop corrections) ────────────────────────
 
-def merge_entities(db: Session, kept_id: str, merged_id: str, reason: str = "manual") -> dict:
+def merge_entities(
+    db: Session,
+    kept_id: str,
+    merged_id: str,
+    reason: str = "manual",
+    workspace_id: str = None,
+) -> dict:
     """Merge `merged_id` into `kept_id`. Snapshots the merged entity for undo."""
     if kept_id == merged_id:
         return {"error": "same_entity"}
@@ -224,12 +243,22 @@ def merge_entities(db: Session, kept_id: str, merged_id: str, reason: str = "man
     merged = db.get(CompanyEntity, merged_id)
     if not kept or not merged:
         return {"error": "entity_not_found"}
+    if kept.workspace_id != merged.workspace_id:
+        return {"error": "cross_workspace_merge_forbidden"}
+    if workspace_id is not None and kept.workspace_id != workspace_id:
+        return {"error": "entity_not_found"}
 
     # Snapshot for split()
     merged_keys = [k for (k,) in db.query(EntityBlockingKey.key)
-                   .filter(EntityBlockingKey.entity_id == merged_id).all()]
+                   .filter(
+                       EntityBlockingKey.entity_id == merged_id,
+                       EntityBlockingKey.workspace_id == kept.workspace_id,
+                   ).all()]
     row_ids = [r.id for r in db.query(WorkbookRow)
-               .filter(WorkbookRow.canonical_entity_id == merged_id).all()]
+               .filter(
+                   WorkbookRow.canonical_entity_id == merged_id,
+                   WorkbookRow.workspace_id == kept.workspace_id,
+               ).all()]
     snapshot = {"entity": merged.to_api(), "blocking_keys": merged_keys, "row_ids": row_ids}
 
     # Combine provenance
@@ -241,16 +270,23 @@ def merge_entities(db: Session, kept_id: str, merged_id: str, reason: str = "man
     kept.observation_count = (kept.observation_count or 0) + (merged.observation_count or 0)
 
     # Repoint blocking keys + workbook rows
-    _ensure_blocking_keys(db, kept_id, set(merged_keys))
-    db.query(WorkbookRow).filter(WorkbookRow.canonical_entity_id == merged_id).update(
+    _ensure_blocking_keys(db, kept_id, set(merged_keys), kept.workspace_id)
+    db.query(WorkbookRow).filter(
+        WorkbookRow.canonical_entity_id == merged_id,
+        WorkbookRow.workspace_id == kept.workspace_id,
+    ).update(
         {WorkbookRow.canonical_entity_id: kept_id}, synchronize_session=False
     )
 
     score = compare_leads(merged.repr_dict(), kept.repr_dict()).score
-    db.add(EntityMergeLog(kept_id=kept_id, merged_id=merged_id, reason=reason,
+    db.add(EntityMergeLog(workspace_id=kept.workspace_id,
+                          kept_id=kept_id, merged_id=merged_id, reason=reason,
                           score=score, snapshot=snapshot))
 
-    db.query(EntityBlockingKey).filter(EntityBlockingKey.entity_id == merged_id).delete(
+    db.query(EntityBlockingKey).filter(
+        EntityBlockingKey.entity_id == merged_id,
+        EntityBlockingKey.workspace_id == kept.workspace_id,
+    ).delete(
         synchronize_session=False
     )
     db.delete(merged)
@@ -259,19 +295,25 @@ def merge_entities(db: Session, kept_id: str, merged_id: str, reason: str = "man
     return {"kept_id": kept_id, "merged_id": merged_id, "corroboration_count": kept.corroboration_count}
 
 
-def split_entity(db: Session, merge_log_id: int) -> dict:
+def split_entity(db: Session, merge_log_id: int, workspace_id: str = None) -> dict:
     """Undo a merge: recreate the merged entity from snapshot and rebind its rows."""
     log = db.get(EntityMergeLog, merge_log_id)
     if not log or log.reverted:
         return {"error": "merge_log_not_found_or_reverted"}
+    if workspace_id is not None and log.workspace_id != workspace_id:
+        return {"error": "merge_log_not_found_or_reverted"}
     snap = log.snapshot or {}
     ent_data = snap.get("entity") or {}
+    snapshot_workspace_id = ent_data.get("workspace_id") or ""
+    if workspace_id is not None and snapshot_workspace_id != workspace_id:
+        return {"error": "merge_log_not_found_or_reverted"}
     eid = ent_data.get("id")
     if not eid:
         return {"error": "bad_snapshot"}
 
     entity = CompanyEntity(
         id=eid,
+        workspace_id=snapshot_workspace_id,
         canonical_name=ent_data.get("canonical_name") or "(unknown)",
         primary_domain=ent_data.get("primary_domain", ""),
         primary_phone=ent_data.get("primary_phone", ""),
@@ -286,9 +328,14 @@ def split_entity(db: Session, merge_log_id: int) -> dict:
     )
     db.add(entity)
     db.flush()
-    _ensure_blocking_keys(db, eid, set(snap.get("blocking_keys", [])))
+    _ensure_blocking_keys(
+        db, eid, set(snap.get("blocking_keys", [])), snapshot_workspace_id
+    )
     for rid in snap.get("row_ids", []):
-        db.query(WorkbookRow).filter(WorkbookRow.id == rid).update(
+        db.query(WorkbookRow).filter(
+            WorkbookRow.id == rid,
+            WorkbookRow.workspace_id == snapshot_workspace_id,
+        ).update(
             {WorkbookRow.canonical_entity_id: eid}, synchronize_session=False
         )
     log.reverted = 1

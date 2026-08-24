@@ -523,13 +523,13 @@ def test_emit_row_added(db, monkeypatch, automations_on):
 def test_handler_registered_in_main_and_worker_and_timeout():
     from apps.api.services.queue_service import JOB_TIMEOUTS
     assert JOB_TIMEOUTS.get("trigger_eval") == 600
-    import apps.api.worker as worker
-    import apps.api.main as main  # noqa: F401
-    src_worker = importlib.import_module("apps.api.worker")
-    # both register trigger_eval (textual check of the wiring is the contract)
-    import inspect
-    assert "trigger_eval" in inspect.getsource(src_worker._register_handlers)
-    assert "trigger_eval" in inspect.getsource(main.lifespan)
+    from apps.api.services.job_registry import register_job_handlers
+    from apps.api.services.queue_service import queue_service
+
+    queue_service.handlers.clear()
+    registered = register_job_handlers(queue_service)
+    assert "trigger_eval" in registered
+    assert registered == frozenset(queue_service.handlers)
 
 
 # ── scheduling helpers (AC-9/AC-17) ─────────────────────────────────────────

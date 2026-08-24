@@ -8,9 +8,10 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 
-from apps.api.core.tenancy import WorkspaceCtx, current_workspace
+from apps.api.core.tenancy import WorkspaceCtx, require_workspace_role
 
 router = APIRouter(prefix="/api/campaigns", tags=["campaigns"])
+require_editor = require_workspace_role("editor", "admin")
 
 
 class GenerateRequest(BaseModel):
@@ -31,7 +32,7 @@ class GenerateResponse(BaseModel):
 
 
 @router.post("/generate", response_model=GenerateResponse)
-async def generate_outreach(req: GenerateRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
+async def generate_outreach(req: GenerateRequest, ctx: WorkspaceCtx = Depends(require_editor)):
     """Generate personalized outreach emails for the given lead IDs."""
     from apps.api.services.leadgen.llm import llm
 

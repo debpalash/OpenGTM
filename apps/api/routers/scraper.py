@@ -5,7 +5,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from apps.api.database import get_db
 from apps.api.models import User, ScrapeHistory, Link, EmailData
-from apps.api.core.security import get_current_active_user
+from apps.api.core.security import get_current_active_user, get_current_admin_user
 from apps.api.services.scraper import UniversalScraper
 
 router = APIRouter(tags=["Scraper"])
@@ -30,12 +30,25 @@ class ScrapeResponse(BaseModel):
 
 @router.websocket("/ws/scraper/preview")
 async def websocket_scraper_preview(websocket: WebSocket, token: str = Query(None)):
+    from apps.api.core.security import authenticate_query_token
+    try:
+        authenticate_query_token(token, require_admin=True)
+    except HTTPException:
+        await websocket.close(code=4403)
+        return
     await websocket.accept()
     try:
         data = await websocket.receive_json()
         url = data.get("url")
         if not url:
             await websocket.send_json({"error": "No URL provided"})
+            return
+
+        from apps.api.core.url_guard import check_url, BlockedUrlError
+        try:
+            check_url(url, resolve=True)
+        except BlockedUrlError as exc:
+            await websocket.send_json({"error": f"URL not allowed: {exc}"})
             return
 
         async def send_frame(image_bytes):
@@ -59,9 +72,14 @@ async def websocket_scraper_preview(websocket: WebSocket, token: str = Query(Non
 @router.post("/api/v2/scrape", response_model=ScrapeResponse)
 async def scrape_url(
     request: ScrapeRequest,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ):
+    from apps.api.core.url_guard import check_url, BlockedUrlError
+    try:
+        check_url(str(request.url), resolve=True)
+    except BlockedUrlError as exc:
+        raise HTTPException(status_code=400, detail=f"URL not allowed: {exc}") from exc
     try:
         data = await scraper_service.scrape(request.url)
 
@@ -109,6 +127,8 @@ async def scrape_url(
         db.commit()
 
         return data
+    except BlockedUrlError as e:
+        raise HTTPException(status_code=400, detail=f"URL not allowed: {e}") from e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -118,7 +138,7 @@ def get_scrape_history(
     skip: int = 0,
     limit: int = 50,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_admin_user),
 ):
     history = (
         db.query(ScrapeHistory)
@@ -142,8 +162,8 @@ def get_scrape_history(
 
 
 @router.get("/api/sources")
-def get_sources():
-    """Return available document sources (public — no auth required)."""
+def get_sources(_admin: User = Depends(get_current_admin_user)):
+    """Return available document sources for the legacy admin scraper."""
     from apps.api.sources.registry import SourceRegistry
     registry = SourceRegistry()
     return {"sources": registry.list_sources()}
@@ -153,6 +173,7 @@ def get_sources():
 def get_trending(
     limit: int = 10,
     db: Session = Depends(get_db),
+    _admin: User = Depends(get_current_admin_user),
 ):
     """Return trending/recent scrapes as search results."""
     history = (

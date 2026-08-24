@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from apps.api.core.config import settings
-from apps.api.core.tenancy import WorkspaceCtx, current_workspace
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace, workspace_scope
 from apps.api.database import get_db
 from apps.api.services.billing import service as billing
 from apps.api.services.billing.stripe_client import get_stripe_client
@@ -112,13 +112,17 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
         logger.warning("Stripe webhook missing workspace_id/credit_usd/session id: %s", obj)
         raise HTTPException(status_code=400, detail="Malformed checkout session")
 
-    result = billing.credit(
-        db,
-        workspace_id=workspace_id,
-        amount_usd=credit_usd,
-        reason="stripe_topup",
-        idempotency_key=f"stripe:{session_id}",
-    )
+    # The signed Stripe metadata is the authoritative tenant signal. Bind it
+    # before touching the RLS-protected ledger; without a GUC the DB fails
+    # closed, and a forged/cross-tenant write cannot pass WITH CHECK.
+    with workspace_scope(workspace_id):
+        result = billing.credit(
+            db,
+            workspace_id=workspace_id,
+            amount_usd=credit_usd,
+            reason="stripe_topup",
+            idempotency_key=f"stripe:{session_id}",
+        )
     return {
         "status": "ok",
         "credited_usd": result.charged_usd,

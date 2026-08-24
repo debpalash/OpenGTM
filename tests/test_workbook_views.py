@@ -28,7 +28,11 @@ from apps.api.services.workbook.models import (
     Workbook, WorkbookRow, WorkbookEnrichment, WorkbookView,
 )
 from apps.api.services.workbook.planner_models import ProviderStat
-from apps.api.routers.workbooks import router as workbooks_router, views_router
+from apps.api.routers.workbooks import (
+    router as workbooks_router,
+    views_router,
+    require_editor,
+)
 
 WS1 = "ws_views_alpha"
 WS2 = "ws_views_beta"
@@ -68,6 +72,7 @@ def client():
 
     app.dependency_overrides[get_db] = _override_db
     app.dependency_overrides[current_workspace] = lambda: _ctx(WS1)
+    app.dependency_overrides[require_editor] = lambda: _ctx(WS1)
 
     return TestClient(app), Session, app
 
@@ -186,6 +191,7 @@ def test_view_workspace_isolation(client):
 
     # switch the caller to WS2 — same ids, different tenant
     app.dependency_overrides[current_workspace] = lambda: _ctx(WS2)
+    app.dependency_overrides[require_editor] = lambda: _ctx(WS2)
     try:
         assert tc.get(f"/api/v2/workbooks/{wid}/views").status_code == 404
         assert tc.post(f"/api/v2/workbooks/{wid}/views", json={"name": "x"}).status_code == 404
@@ -193,6 +199,7 @@ def test_view_workspace_isolation(client):
         assert tc.delete(f"/api/v2/workbooks/{wid}/views/{vid}").status_code == 404
     finally:
         app.dependency_overrides[current_workspace] = lambda: _ctx(WS1)
+        app.dependency_overrides[require_editor] = lambda: _ctx(WS1)
 
     # untouched for the real owner
     got = tc.get(f"/api/v2/workbooks/{wid}/views").json()
@@ -207,6 +214,42 @@ def test_view_direct_view_id_cross_workbook_404(client):
     vid = tc.post(f"/api/v2/workbooks/{wid_a}/views", json={"name": "a"}).json()["id"]
     assert tc.put(f"/api/v2/workbooks/{wid_b}/views/{vid}", json={"name": "x"}).status_code == 404
     assert tc.delete(f"/api/v2/workbooks/{wid_b}/views/{vid}").status_code == 404
+
+
+def test_v2_row_identity_is_not_fabricated_as_lead_id(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "company", "name": "Company", "type": "lead_field", "lead_field": "company"},
+    ])
+    rid = _mk_row(Session, wid, {"company": "Acme"}, lead_id=None)
+
+    response = tc.get(f"/api/workbooks/{wid}")
+    assert response.status_code == 200, response.text
+    row = response.json()["rows"][0]
+    assert row["row_id"] == rid
+    assert row["lead_id"] is None
+
+
+def test_editing_unlinked_v2_row_updates_snapshot(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "company", "name": "Company", "type": "lead_field", "lead_field": "company"},
+    ])
+    rid = _mk_row(Session, wid, {"company": "Before"}, lead_id=None)
+
+    response = tc.patch(
+        f"/api/workbooks/{wid}/rows/{rid}", json={"company": "After"}
+    )
+    assert response.status_code == 200, response.text
+    with Session() as db:
+        row = db.get(WorkbookRow, rid)
+        assert row.data["company"] == "After"
+
+
+def test_full_worker_runnable_types_include_output():
+    from apps.api.services.workbook.enrichment import ENRICHMENT_COL_TYPES
+
+    assert "output" in ENRICHMENT_COL_TYPES
 
 
 # ── Single-cell force re-run ─────────────────────────────────────────────
@@ -337,8 +380,40 @@ def test_cell_run_other_workspace_workbook_404(client):
     rid = _mk_row(Session, wid, {"company": "Acme"})
 
     app.dependency_overrides[current_workspace] = lambda: _ctx(WS2)
+    app.dependency_overrides[require_editor] = lambda: _ctx(WS2)
     try:
         r = tc.post(f"/api/workbooks/{wid}/rows/{rid}/cells/col_a/run", json={"force": True})
         assert r.status_code == 404
     finally:
         app.dependency_overrides[current_workspace] = lambda: _ctx(WS1)
+        app.dependency_overrides[require_editor] = lambda: _ctx(WS1)
+
+
+def test_viewer_cannot_mutate_workbook(client, monkeypatch):
+    from apps.api.services.workspace import manager as ws_manager
+
+    tc, Session, app = client
+    wid = _mk_workbook(Session, [])
+    app.dependency_overrides.pop(require_editor)
+    monkeypatch.setattr(ws_manager, "member_role", lambda workspace_id, user_id: "viewer")
+
+    response = tc.post(
+        f"/api/workbooks/{wid}/rows",
+        json={"rows": [{"company": "Must Not Write"}]},
+    )
+    assert response.status_code == 403
+
+
+def test_budget_update_rejects_foreign_workbook(client):
+    tc, Session, app = client
+    wid = _mk_workbook(Session, [], ws=WS1)
+    app.dependency_overrides[current_workspace] = lambda: _ctx(WS2)
+    app.dependency_overrides[require_editor] = lambda: _ctx(WS2)
+    try:
+        response = tc.put(
+            f"/api/workbooks/{wid}/budget", json={"max_usd": 100}
+        )
+        assert response.status_code == 404
+    finally:
+        app.dependency_overrides[current_workspace] = lambda: _ctx(WS1)
+        app.dependency_overrides[require_editor] = lambda: _ctx(WS1)

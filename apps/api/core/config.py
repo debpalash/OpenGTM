@@ -25,7 +25,7 @@ _DEV_ENVS = {"dev", "development", "test", "testing", "local"}
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "Yupcha Engine"
+    PROJECT_NAME: str = "OpenGTM"
     SECRET_KEY: str = INSECURE_DEFAULT_SECRET_KEY
     ALGORITHM: str = "HS256"
     # Access tokens are short-lived (default 30 min) so a leaked token has a
@@ -215,7 +215,7 @@ class Settings(BaseSettings):
     # Default False: bootstrap records state, suppresses emission (spec §8.4).
     INTENT_POLLER_BACKFILL: bool = False
     # SEC EDGAR descriptive User-Agent (SEC 403s requests without one).
-    SEC_EDGAR_USER_AGENT: str = "Yupcha Enrichment admin@yupcha.com"
+    SEC_EDGAR_USER_AGENT: str = "OpenGTM Enrichment admin@yupcha.com"
     # Per-fetch platform-billed cost (USD). Free sources stay 0.0 → debit no-op.
     POLLER_FUNDING_COST_USD: float = 0.0
     POLLER_HIRING_COST_USD: float = 0.0

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 from apps.api.database import get_db
 from apps.api.models import User, PersonIntel
-from apps.api.core.security import get_current_active_user
+from apps.api.core.security import get_current_active_user, get_current_admin_user
 from apps.api.services.person_intel import person_intel_service
 
 router = APIRouter(tags=["Person Intel"])
@@ -56,6 +56,12 @@ async def websocket_person_enrich(websocket: WebSocket, token: str = Query(None)
     Server streams: {"step": "...", ...} progress messages
     Final message: {"step": "completed", "profile": {...}}
     """
+    from apps.api.core.security import authenticate_query_token
+    try:
+        authenticate_query_token(token, require_admin=True)
+    except HTTPException:
+        await websocket.close(code=4403)
+        return
     await websocket.accept()
     try:
         data = await websocket.receive_json()
@@ -138,7 +144,7 @@ async def websocket_person_enrich(websocket: WebSocket, token: str = Query(None)
 async def enrich_person(
     request: EnrichRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_admin_user),
 ):
     """Start enrichment for a LinkedIn profile URL (batch/non-streaming)."""
     if "linkedin.com/in/" not in request.linkedin_url:
@@ -193,7 +199,7 @@ def get_person_history(
     skip: int = 0,
     limit: int = 30,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_admin_user),
 ):
     """List previous person enrichment lookups."""
     records = (
@@ -223,7 +229,7 @@ def get_person_history(
 def get_person_detail(
     record_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_admin_user),
 ):
     """Get full person intel record by ID."""
     record = db.query(PersonIntel).filter(PersonIntel.id == record_id).first()
@@ -255,7 +261,7 @@ def get_person_detail(
 def delete_person_record(
     record_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_admin_user),
 ):
     """Delete a person intel record."""
     record = db.query(PersonIntel).filter(PersonIntel.id == record_id).first()
