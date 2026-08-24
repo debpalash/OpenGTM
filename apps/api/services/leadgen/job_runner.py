@@ -143,7 +143,7 @@ class JobRunner:
 
     async def submit(self, query: str, workspace_id: str = "") -> str:
         """Submit a new collection job and process it."""
-        job_id = str(uuid.uuid4())[:8]
+        job_id = uuid.uuid4().hex
         self.db.create_job(job_id, query)
         if workspace_id:
             self.db.conn.execute(
@@ -169,6 +169,10 @@ class JobRunner:
         job_id = job["id"]
         query = job["query"]
         workspace_id = job.get("workspace_id", "")
+        # Every deeper strategy emits only job_id. Binding once here stamps all
+        # of those events with the tenant before local/Redis broadcast.
+        if workspace_id:
+            progress.bind_job(job_id, workspace_id)
 
         try:
             # Mark job as running
@@ -2075,24 +2079,80 @@ async def handle_collect(job_id: int, payload: dict):
     job stuck at ``status='running', leads_found=0`` with no leads persisted.
     """
     from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.workspace.manager import workspace_leads_db_path
 
     leadgen_job_id = payload["job_id"]
     query = payload["query"]
-    workspace_id = payload.get("workspace_id") or ""
+    workspace_id = payload.get("workspace_id")
+    slug = payload.get("slug")
+    if not workspace_id or not slug:
+        raise ValueError("collect payload requires workspace_id and slug")
     job = {
         "id": leadgen_job_id,
         "query": query,
         "tier": payload.get("tier", 1),
         "workspace_id": workspace_id,
     }
-    runner = JobRunner()
+    job_db = LeadDB(workspace_leads_db_path(slug))
+    runner = JobRunner(db=job_db)
     # Enter the tenant scope first (mirrors handle_source_workbook) so any
     # RLS-scoped store opened inside the run is bound to the right workspace.
-    if workspace_id:
+    try:
+        existing = job_db.get_job_detail(leadgen_job_id)
+        if not existing:
+            raise RuntimeError(f"collection job {leadgen_job_id} not found in workspace ledger")
+        if existing.get("status") == "cancelled":
+            return
         with workspace_scope(workspace_id):
             await runner._process_job(job)
-    else:
-        await runner._process_job(job)
+        # JobRunner retains its legacy internal retry state for CLI callers. The
+        # durable queue is the retry authority here, so translate any nonterminal
+        # pipeline outcome into an exception for the parent worker.
+        state = job_db.get_job_detail(leadgen_job_id) or {}
+        if state.get("status") not in ("done", "cancelled"):
+            raise RuntimeError(
+                state.get("error") or f"collection ended in {state.get('status', 'unknown')}"
+            )
+    finally:
+        job_db.close()
+
+
+def reconcile_collect_job_failure(
+    queue_job_id: int,
+    payload: dict,
+    error: str,
+    will_retry: bool,
+) -> None:
+    """Mirror parent-worker timeout/crash decisions into the tenant job ledger."""
+    from apps.api.services.workspace.manager import workspace_leads_db_path
+
+    leadgen_job_id = payload.get("job_id")
+    slug = payload.get("slug")
+    workspace_id = payload.get("workspace_id")
+    if not leadgen_job_id or not slug or not workspace_id:
+        raise ValueError("collect failure payload requires job_id, workspace_id, and slug")
+
+    db = LeadDB(workspace_leads_db_path(slug))
+    try:
+        row = db.conn.execute(
+            "SELECT status FROM jobs WHERE id = ?", (leadgen_job_id,)
+        ).fetchone()
+        if not row or row["status"] == "cancelled":
+            return
+        now = datetime.now(timezone.utc).isoformat()
+        if will_retry:
+            db.conn.execute(
+                "UPDATE jobs SET status = 'pending', error = ?, completed_at = '' WHERE id = ?",
+                (f"Queue retry scheduled: {error}", leadgen_job_id),
+            )
+        else:
+            db.conn.execute(
+                "UPDATE jobs SET status = 'failed', error = ?, completed_at = ? WHERE id = ?",
+                (f"Final failure: {error}", now, leadgen_job_id),
+            )
+        db.conn.commit()
+    finally:
+        db.close()
 
 
 async def handle_bulk_enrich(job_id: int, payload: dict):
@@ -2111,19 +2171,21 @@ async def handle_bulk_enrich(job_id: int, payload: dict):
     """
     import asyncio
     from apps.api.core.tenancy import workspace_scope
-    from apps.api.services.leadgen.db import LeadDB
+    from apps.api.services.leadgen.store import get_lead_store
     from apps.api.services.leadgen.progress import progress
-    from apps.api.services.workspace.manager import workspace_leads_db_path
 
     ids = payload["ids"]
     action = payload["action"]
     bulk_job_id = payload["job_id"]
-    workspace_id = payload.get("workspace_id") or ""
-    ws_path = workspace_leads_db_path(payload.get("slug") or "")
+    workspace_id = payload.get("workspace_id")
+    slug = payload.get("slug")
+    if not workspace_id or not slug:
+        raise ValueError("bulk_enrich payload requires workspace_id and slug")
+    progress.bind_job(bulk_job_id, workspace_id)
 
     def _run():
         import asyncio as _aio
-        db = LeadDB(ws_path)
+        db = get_lead_store(workspace_id, slug)
         leads = [l for l in (db.get_lead(i) for i in ids) if l]
         progress.emit("bulk_enrich_started", {"job_id": bulk_job_id, "action": action, "total": len(leads)})
         done = updated = 0
@@ -2155,12 +2217,10 @@ async def handle_bulk_enrich(job_id: int, payload: dict):
                     progress.emit("bulk_enrich_progress", {"job_id": bulk_job_id, "done": done, "total": len(targets)})
         except Exception as e:
             progress.emit("bulk_enrich_error", {"job_id": bulk_job_id, "error": str(e)[:200]})
+            raise
         finally:
             db.close()
-            progress.emit("bulk_enrich_done", {"job_id": bulk_job_id, "updated": updated, "total": len(leads)})
+        progress.emit("bulk_enrich_done", {"job_id": bulk_job_id, "updated": updated, "total": len(leads)})
 
-    if workspace_id:
-        with workspace_scope(workspace_id):
-            await asyncio.to_thread(_run)
-    else:
+    with workspace_scope(workspace_id):
         await asyncio.to_thread(_run)

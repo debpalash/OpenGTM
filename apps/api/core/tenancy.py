@@ -25,9 +25,12 @@ from dataclasses import dataclass
 from typing import Optional
 
 from fastapi import Depends, Header, HTTPException
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from apps.api.models import User
 from apps.api.core.security import get_current_active_user
+from apps.api.database import get_db
 from apps.api.services.workspace import manager as ws_manager
 
 
@@ -70,9 +73,10 @@ class WorkspaceCtx:
         return get_lead_store(self.workspace_id, self.slug)
 
 
-def current_workspace(
+async def current_workspace(
     user: User = Depends(get_current_active_user),
     x_workspace_id: Optional[str] = Header(default=None),
+    db: Session = Depends(get_db),
 ) -> WorkspaceCtx:
     """Resolve and authorize the caller's workspace.
 
@@ -97,9 +101,21 @@ def current_workspace(
     if not slug:
         raise HTTPException(status_code=404, detail="Workspace not found")
 
-    # Publish the resolved tenant for the duration of the request so the RLS
-    # session hook (after_begin) scopes every PG transaction to this workspace.
+    # This dependency must stay async. FastAPI executes synchronous dependencies
+    # in a worker thread with a copied Context, and ContextVar writes made there
+    # do not propagate back to the request task. Running here in the request's
+    # async context ensures the SQLAlchemy after_begin hook sees this tenant.
     current_workspace_var.set(ws_id)
+    # Authentication may already have opened this same FastAPI-cached Session
+    # to read the non-RLS users table. In that case after_begin ran before the
+    # workspace was known, so set the transaction-local GUC explicitly as well.
+    # A new transaction is harmless: after_begin and this statement set the
+    # same value. Parameterization keeps the tenant identifier out of SQL text.
+    if db.get_bind().dialect.name == "postgresql":
+        db.execute(
+            text("SELECT set_config('app.workspace_id', :workspace_id, true)"),
+            {"workspace_id": ws_id},
+        )
     return WorkspaceCtx(user=user, workspace_id=ws_id, slug=slug)
 
 

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">OpenGTM</title>
+  <desc id="desc">An abstract open portal symbol for OpenGTM.</desc>
+  <g fill="none" stroke="#6268F2" stroke-width="16" stroke-linecap="square" stroke-linejoin="round">
+    <path d="M20 92V43C20 30 30 20 43 20H88"/>
+    <path d="M108 36V85C108 98 98 108 85 108H40"/>
+  </g>
+</svg>

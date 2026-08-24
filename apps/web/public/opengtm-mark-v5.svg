@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 128" role="img" aria-labelledby="title desc">
+  <title id="title">OpenGTM</title>
+  <desc id="desc">A continuous-line OG monogram for OpenGTM.</desc>
+  <defs>
+    <linearGradient id="og" x1="8" y1="64" x2="142" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B5BFF"/>
+      <stop offset="0.48" stop-color="#6978FF"/>
+      <stop offset="1" stop-color="#20CFAF"/>
+    </linearGradient>
+  </defs>
+  <path d="M74 64C74 43 60 28 40 28C20 28 7 44 7 64C7 84 20 100 40 100C60 100 74 85 74 64C74 43 89 28 109 28C129 28 143 43 143 62C143 84 128 100 108 100C91 100 78 89 75 74H113" fill="none" stroke="url(#og)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

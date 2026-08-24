@@ -7,7 +7,8 @@ assertions go through ``app_engine``, a NON-super, NON-BYPASSRLS login role
 (``app_rls_test``) granted ``yupcha_app``, so the policies are exercised for real.
 
 Proves acceptance criteria 1-4 + 12 of
-features/followup-workbooks-rls-hardening-spec.md for all five workbook tables.
+features/followup-workbooks-rls-hardening-spec.md for every tenant-owned
+workbook table, including durable connector runs.
 
 Run:
     TEST_DATABASE_URL='postgresql+psycopg://user4@localhost:5432/<throwaway>' \
@@ -28,21 +29,26 @@ pytestmark = pytest.mark.skipif(
     reason="TEST_DATABASE_URL not set (Postgres RLS tests skipped)",
 )
 
-APP_LOGIN_ROLE = "app_rls_test"
+APP_LOGIN_ROLE = "app_rls_workbooks_test"
+APP_LOGIN_PASSWORD = "workbooks_rls_test_only"
 W1 = "ws_wb_alpha"
 W2 = "ws_wb_beta"
 
-# All five RLS-protected workbook tables.
+# All RLS-protected workbook tables.
 _TENANT_TABLES = (
     "workbooks", "workbook_rows", "workbook_enrichments",
-    "workbook_activity", "cell_traces",
+    "workbook_activity", "cell_traces", "connector_runs",
 )
 
 
 def _app_url():
     from sqlalchemy.engine import make_url
     u = make_url(TEST_DATABASE_URL)
-    return str(u.set(username=APP_LOGIN_ROLE, password=None))
+    # ``str(URL)`` intentionally redacts passwords to ``***``; using it as a
+    # connection URL would therefore authenticate with the literal redaction.
+    return u.set(
+        username=APP_LOGIN_ROLE, password=APP_LOGIN_PASSWORD
+    ).render_as_string(hide_password=False)
 
 
 @pytest.fixture(scope="module")
@@ -67,8 +73,12 @@ def schema(owner_engine):
         c.execute(text(
             f"""DO $$ BEGIN
               IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='{APP_LOGIN_ROLE}') THEN
-                CREATE ROLE {APP_LOGIN_ROLE} LOGIN NOSUPERUSER NOBYPASSRLS;
+                CREATE ROLE {APP_LOGIN_ROLE} LOGIN NOSUPERUSER NOBYPASSRLS
+                  PASSWORD '{APP_LOGIN_PASSWORD}';
               END IF; END $$;"""
+        ))
+        c.execute(text(
+            f"ALTER ROLE {APP_LOGIN_ROLE} PASSWORD '{APP_LOGIN_PASSWORD}'"
         ))
         c.execute(text(f"GRANT yupcha_app TO {APP_LOGIN_ROLE}"))
         c.execute(text(f"GRANT USAGE ON SCHEMA public TO {APP_LOGIN_ROLE}"))
@@ -78,7 +88,7 @@ def schema(owner_engine):
     # set per batch only for clarity.
     with owner_engine.begin() as c:
         for t in ("workbook_rows", "workbook_enrichments", "workbook_activity",
-                  "cell_traces", "workbooks"):
+                  "cell_traces", "connector_runs", "workbooks"):
             c.execute(text(f"DELETE FROM {t} WHERE workspace_id IN (:a, :b)"),
                       {"a": W1, "b": W2})
 
@@ -109,6 +119,13 @@ def schema(owner_engine):
                 "(workspace_id, workbook_id, lead_id, column_id, goal, outcome) "
                 "VALUES (:w, :wid, 1, 'col_a', 'g', 'found')"
             ), {"w": ws, "wid": wid})
+            c.execute(text(
+                "INSERT INTO connector_runs "
+                "(id, workspace_id, workbook_id, connector, status, requested_count, "
+                "fetched_count, added_count, updated_count, skipped_count, pages_fetched, "
+                "target_met, exhausted) "
+                "VALUES (:id, :w, :wid, 'test', 'complete', 1, 1, 1, 0, 0, 1, true, false)"
+            ), {"id": str(uuid.uuid4()), "w": ws, "wid": wid})
     yield wb_ids
 
 
@@ -123,7 +140,7 @@ def _set_ws(conn, ws):
     conn.execute(text("SELECT set_config('app.workspace_id', :w, true)"), {"w": ws})
 
 
-# ── select isolation: GUC=A sees only A across all five tables ───────────────
+# ── select isolation: GUC=A sees only A across all tables ───────────────────
 
 @pytest.mark.parametrize("table", _TENANT_TABLES)
 def test_select_isolation(app_engine, table):
@@ -199,7 +216,7 @@ def test_cross_tenant_delete_is_noop(app_engine, schema):
     assert n == 1
 
 
-# ── schema posture: FORCE flags + grants on all five tables ─────────────────
+# ── schema posture: FORCE flags + grants on all tables ──────────────────────
 
 def test_tenant_tables_force_rls(owner_engine):
     with owner_engine.connect() as c, c.begin():

@@ -18,6 +18,12 @@ from dataclasses import dataclass, field
 
 import aiohttp
 
+from apps.api.services.connectors.contracts import (
+    ConnectorCollection,
+    ConnectorPage,
+    ConnectorRecord,
+)
+
 BASE = "https://www.ambitionbox.com/servicegateway-ambitionbox"
 
 HEADERS = {
@@ -185,23 +191,78 @@ def _slugify(value: str) -> str:
     return s.strip("-")
 
 
+_INDUSTRY_ALIASES = {
+    # AmbitionBox's filter vocabulary is narrower than the language users use
+    # in chat.  These aliases were verified against the live gateway: unknown
+    # slugs return HTTP 200 with ``cards: null`` instead of a validation error.
+    "hr": "recruitment",
+    "hr-services": "recruitment",
+    "human-resource": "recruitment",
+    "human-resources": "recruitment",
+    "human-resources-recruitment": "recruitment",
+    "human-resources-and-recruitment": "recruitment",
+    "hr-recruitment": "recruitment",
+    "hr-and-recruitment": "recruitment",
+    "recruiting": "recruitment",
+    "staffing": "recruitment",
+    "staffing-and-recruiting": "recruitment",
+    "recruitment-and-staffing": "recruitment",
+    "recruitment-staffing": "recruitment",
+    "saas": "software-product",
+    "software-as-a-service": "software-product",
+}
+
+
+def _industry_slug(value: str) -> str:
+    """Normalize user terminology to AmbitionBox's industry taxonomy."""
+    slug = _slugify(value)
+    return _INDUSTRY_ALIASES.get(slug, slug)
+
+
 class AmbitionBoxClient:
     """Async client for AmbitionBox's internal APIs."""
 
     async def _request(self, method: str, path: str, json_body: dict = None) -> dict:
-        """Make a request to the AmbitionBox service gateway."""
+        """Make a retrying request to the AmbitionBox service gateway.
+
+        The gateway occasionally answers a page with 429/5xx or drops the
+        connection.  A top-100 query needs five successful page requests, so a
+        single transient failure must not silently turn it into a top-40/60
+        result.  Retry only transient failures; validation and other 4xx
+        responses still fail immediately with the response body attached.
+        """
         url = f"{BASE}/{path}"
-        async with aiohttp.ClientSession() as session:
-            async with session.request(
-                method, url,
-                headers=HEADERS,
-                json=json_body,
-                timeout=aiohttp.ClientTimeout(total=15),
-            ) as resp:
-                if resp.status != 200:
-                    text = await resp.text()
-                    raise RuntimeError(f"AmbitionBox API {resp.status}: {text[:200]}")
-                return await resp.json()
+        attempts = 3
+        last_error: Optional[Exception] = None
+
+        for attempt in range(attempts):
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.request(
+                        method, url,
+                        headers=HEADERS,
+                        json=json_body,
+                        timeout=aiohttp.ClientTimeout(total=15),
+                    ) as resp:
+                        if resp.status == 200:
+                            return await resp.json()
+
+                        text = await resp.text()
+                        error = RuntimeError(
+                            f"AmbitionBox API {resp.status}: {text[:200]}"
+                        )
+                        if resp.status != 429 and resp.status < 500:
+                            raise error
+                        last_error = error
+            except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
+                last_error = exc
+
+            if attempt < attempts - 1:
+                await asyncio.sleep(0.5 * (2 ** attempt))
+
+        raise RuntimeError(
+            f"AmbitionBox request failed after {attempts} attempts: {last_error}"
+        ) from last_error
 
     async def search_companies(
         self,
@@ -249,41 +310,15 @@ class AmbitionBoxClient:
         -- 20 plausible rows, silently wrong, no error to notice.  Unsupported
         filters now raise instead of lying.
         """
-        body: dict = {
-            "isFilterApplied": True,
-            "page": str(page),
-            "sortBy": sort_by,
-            "limit": limit,
-        }
-        if industry:
-            body["industries"] = [_slugify(i) for i in industry]
-        if rating:
-            # String, not list -- a list is a 422.
-            body["ratings"] = str(rating)
-        if location:
-            raise NotImplementedError(
-                "AmbitionBox's gateway ignores location filters -- it filters "
-                "location by SEO path (e.g. /it-services-and-consulting-"
-                "companies-in-pune), which this client does not implement. "
-                "Passing location would silently return unfiltered results, so "
-                "it is refused rather than dropped."
-            )
-        if company_type:
-            raise NotImplementedError(
-                "AmbitionBox's gateway ignores company_type filters. See the "
-                "location note above -- refused rather than silently dropped."
-            )
-
-        data = await self._request(
-            "POST",
-            "company-services/v0/listing/dream/companies/search",
-            body,
+        page_result = await self.fetch_company_page(
+            page=page,
+            sort_by=sort_by,
+            industry=industry,
+            location=location,
+            company_type=company_type,
+            rating=rating,
         )
-
-        cards = data.get("cards", [])
-        companies = [ABCompany.from_api(c).to_dict() for c in cards]
-        # The gateway ignores `limit` and always returns 20. Honor it here so
-        # the caller gets what it asked for rather than a silent 20.
+        companies = [record.as_dict() for record in page_result.records]
         if limit and len(companies) > limit:
             companies = companies[:limit]
 
@@ -291,7 +326,76 @@ class AmbitionBoxClient:
             "companies": companies,
             "total": len(companies),
             "page": page,
+            "source_total": page_result.source_total,
+            "total_pages": page_result.total_pages,
+            "has_more": page_result.has_more,
         }
+
+    async def fetch_company_page(
+        self,
+        *,
+        page: int = 1,
+        sort_by: str = "popular",
+        industry: Optional[list[str]] = None,
+        location: Optional[list[str]] = None,
+        company_type: Optional[list[str]] = None,
+        rating: Optional[str] = None,
+    ) -> ConnectorPage:
+        """Fetch one source page with explicit pagination metadata."""
+        body: dict = {
+            "isFilterApplied": True,
+            "page": str(page),
+            "sortBy": sort_by,
+            "limit": 20,
+        }
+        if industry:
+            body["industries"] = [_industry_slug(i) for i in industry]
+        if rating:
+            body["ratings"] = str(rating)
+        if location:
+            raise NotImplementedError(
+                "AmbitionBox's gateway ignores location filters -- refusing "
+                "to return silently unfiltered results"
+            )
+        if company_type:
+            raise NotImplementedError(
+                "AmbitionBox's gateway ignores company_type filters -- refusing "
+                "to return silently unfiltered results"
+            )
+
+        data = await self._request(
+            "POST",
+            "company-services/v0/listing/dream/companies/search",
+            body,
+        )
+        cards = data.get("cards") or []
+        records = []
+        for offset, card in enumerate(cards):
+            company = ABCompany.from_api(card).to_dict()
+            company_id = company.get("company_id")
+            record_id = (
+                str(company_id)
+                if company_id not in (None, "", 0)
+                else "name:" + str(company.get("name") or "").strip().casefold()
+            )
+            records.append(ConnectorRecord(
+                provider="ambitionbox",
+                record_id=record_id,
+                data=company,
+                rank=(page - 1) * 20 + offset,
+                source_url=company.get("profile_url") or None,
+            ))
+        stats = data.get("stats") or {}
+        source_total = stats.get("totalCards")
+        total_pages = stats.get("totalPages")
+        return ConnectorPage.from_records(
+            provider="ambitionbox",
+            records=records,
+            page=page,
+            page_size=20,
+            source_total=int(source_total) if source_total is not None else None,
+            total_pages=int(total_pages) if total_pages is not None else None,
+        )
 
     async def get_company_jobs(
         self,
@@ -343,34 +447,94 @@ class AmbitionBoxClient:
         pages: int = 5,
         industry: Optional[list[str]] = None,
         location: Optional[list[str]] = None,
+        sort_by: str = "popular",
+        rating: Optional[str] = None,
+        limit: Optional[int] = None,
     ) -> list[dict]:
         """Collect companies across multiple pages.
 
-        Returns flat list of company dicts.
+        Returns a deduplicated flat list in gateway order. Unlike the old
+        implementation, a failed page raises instead of returning an
+        indistinguishable partial list. Callers can therefore tell the user the
+        search failed rather than claiming that only 40/60 companies exist.
         """
-        all_companies = []
-        seen = set()
+        requested = limit or pages * 20
+        collection = await self.collect_companies(
+            requested_count=requested,
+            max_pages=pages,
+            industry=industry,
+            location=location,
+            sort_by=sort_by,
+            rating=rating,
+        )
+        return [record.as_dict() for record in collection.records]
 
-        for page in range(1, pages + 1):
+    async def collect_companies(
+        self,
+        *,
+        requested_count: int,
+        max_pages: int = 25,
+        start_page: int = 1,
+        industry: Optional[list[str]] = None,
+        location: Optional[list[str]] = None,
+        sort_by: str = "popular",
+        rating: Optional[str] = None,
+    ) -> ConnectorCollection:
+        """Collect until the target is met or the source is truly exhausted."""
+        requested_count = max(1, int(requested_count))
+        max_pages = max(1, min(int(max_pages), 25))
+        all_records: list[ConnectorRecord] = []
+        seen: set[str] = set()
+        pages_fetched = 0
+        source_total: Optional[int] = None
+        exhausted = False
+        page = max(1, int(start_page))
+
+        while pages_fetched < max_pages and len(all_records) < requested_count:
             try:
-                result = await self.search_companies(
+                result = await self.fetch_company_page(
                     page=page,
+                    sort_by=sort_by,
                     industry=industry,
                     location=location,
+                    rating=rating,
                 )
-                for c in result["companies"]:
-                    if c["company_id"] not in seen:
-                        seen.add(c["company_id"])
-                        all_companies.append(c)
-
-                if len(result["companies"]) < 20:
-                    break  # No more pages
-
-                await asyncio.sleep(0.5)  # Rate limit
-            except Exception:
+            except Exception as exc:
+                raise RuntimeError(
+                    f"AmbitionBox company search failed on page {page}: {exc}"
+                ) from exc
+            pages_fetched += 1
+            source_total = result.source_total
+            for record in result.records:
+                if record.record_id in seen:
+                    continue
+                seen.add(record.record_id)
+                all_records.append(record)
+                if len(all_records) >= requested_count:
+                    break
+            page += 1
+            if not result.has_more:
+                exhausted = True
                 break
 
-        return all_companies
+        target_met = len(all_records) >= requested_count
+        max_reached = not target_met and not exhausted and pages_fetched >= max_pages
+        warnings = (
+            ("maximum page budget reached before requested target",)
+            if max_reached else ()
+        )
+        return ConnectorCollection(
+            provider="ambitionbox",
+            records=tuple(all_records[:requested_count]),
+            requested_count=requested_count,
+            pages_fetched=pages_fetched,
+            next_page=page,
+            source_total=source_total,
+            target_met=target_met,
+            exhausted=exhausted,
+            max_pages_reached=max_reached,
+            warnings=warnings,
+        )
 
 
 # Module-level singleton

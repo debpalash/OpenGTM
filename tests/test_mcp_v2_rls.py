@@ -41,6 +41,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 APP_LOGIN_ROLE = "app_mcp_v2_rls_test"
+APP_LOGIN_PASSWORD = "mcp_v2_rls_test_only"
 W1 = "ws_mcpv2_alpha"
 W2 = "ws_mcpv2_beta"
 
@@ -48,7 +49,7 @@ W2 = "ws_mcpv2_beta"
 def _app_url():
     from sqlalchemy.engine import make_url
     u = make_url(TEST_DATABASE_URL)
-    return str(u.set(username=APP_LOGIN_ROLE, password=None))
+    return u.set(username=APP_LOGIN_ROLE, password=APP_LOGIN_PASSWORD).render_as_string(hide_password=False)
 
 
 @pytest.fixture(scope="module")
@@ -80,6 +81,7 @@ def schema(owner_engine):
             END $$;
             """
         ))
+        c.execute(text(f"ALTER ROLE {APP_LOGIN_ROLE} PASSWORD '{APP_LOGIN_PASSWORD}'"))
         c.execute(text(f"GRANT yupcha_app TO {APP_LOGIN_ROLE}"))
         c.execute(text(f"GRANT USAGE ON SCHEMA public TO {APP_LOGIN_ROLE}"))
         # The durable queue (`jobs`) is owned, not RLS — the worker role that runs

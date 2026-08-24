@@ -55,7 +55,7 @@ export function CommandBar(props: Props) {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary live-dot" />
-            <span className="text-sm font-semibold tracking-tight">Yupcha</span>
+            <span className="text-sm font-semibold tracking-tight">OpenGTM</span>
             <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-border text-muted-foreground font-medium">
               Pipeline
             </Badge>

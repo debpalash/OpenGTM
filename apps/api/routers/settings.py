@@ -9,7 +9,7 @@ from typing import Optional, Dict
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-from apps.api.core.security import get_current_active_user
+from apps.api.core.security import get_current_active_user, get_current_admin_user
 
 # Load .env into os.environ so we can seed DB from it
 _env_path = Path(__file__).resolve().parents[3] / ".env"
@@ -22,7 +22,11 @@ if _env_path.exists():
             if key and val and key not in os.environ:
                 os.environ[key] = val
 
-router = APIRouter(prefix="/api/settings", tags=["Settings"])
+router = APIRouter(
+    prefix="/api/settings",
+    tags=["Settings"],
+    dependencies=[Depends(get_current_active_user)],
+)
 
 
 
@@ -401,7 +405,10 @@ class ProviderUpdate(BaseModel):
 
 
 @router.put("/providers/{provider_id}")
-def update_provider(provider_id: str, body: ProviderUpdate):
+def update_provider(
+    provider_id: str, body: ProviderUpdate,
+    _admin=Depends(get_current_admin_user),
+):
     """Update a provider's configuration. Persists to database."""
     if provider_id not in PROVIDERS:
         raise HTTPException(status_code=404, detail=f"Provider '{provider_id}' not found")
@@ -421,7 +428,7 @@ def update_provider(provider_id: str, body: ProviderUpdate):
 
 
 @router.post("/providers/{provider_id}/test")
-async def test_provider(provider_id: str):
+async def test_provider(provider_id: str, _admin=Depends(get_current_admin_user)):
     """Send a test prompt to the provider and return the response."""
     if provider_id not in PROVIDERS:
         raise HTTPException(status_code=404, detail=f"Provider '{provider_id}' not found")
@@ -535,7 +542,9 @@ def get_enrichment_perf():
 
 
 @router.put("/enrichment-perf")
-def set_enrichment_perf(body: EnrichmentPerfBody):
+def set_enrichment_perf(
+    body: EnrichmentPerfBody, _admin=Depends(get_current_admin_user)
+):
     """Update enrichment parallelism + retry settings (clamped to sane ranges)."""
     bounds = {
         "row_concurrency": (1, 64), "provider_workers": (1, 64),
@@ -770,7 +779,10 @@ def list_enrichment_providers():
 
 
 @router.put("/enrichment-providers/{provider_id}")
-def update_enrichment_provider(provider_id: str, body: ProviderUpdate):
+def update_enrichment_provider(
+    provider_id: str, body: ProviderUpdate,
+    _admin=Depends(get_current_admin_user),
+):
     """Update an enrichment provider's API key."""
     if provider_id not in ENRICHMENT_PROVIDERS:
         raise HTTPException(status_code=404, detail=f"Enrichment provider '{provider_id}' not found")
@@ -983,7 +995,10 @@ def sources_health():
 
 
 @router.put("/sources/{source_id}")
-def toggle_source(source_id: str, enabled: bool = True):
+def toggle_source(
+    source_id: str, enabled: bool = True,
+    _admin=Depends(get_current_admin_user),
+):
     """Enable or disable a data source.
 
     Operator intent is authoritative: enabling a source also force-enables its
@@ -1005,7 +1020,9 @@ def toggle_source(source_id: str, enabled: bool = True):
 
 
 @router.post("/sources/{source_id}/health/reset")
-def reset_source_health(source_id: str):
+def reset_source_health(
+    source_id: str, _admin=Depends(get_current_admin_user)
+):
     """Operator reset a source's health row to a clean healthy baseline."""
     try:
         from apps.api.services.leadgen.source_health import reset_health
@@ -1097,7 +1114,7 @@ def list_integrations(user=Depends(get_current_active_user)):
 
 @router.put("/integrations/{integration_id}")
 def update_integration(integration_id: str, body: IntegrationUpdate,
-                       user=Depends(get_current_active_user)):
+                       user=Depends(get_current_admin_user)):
     """Save credentials for one integration. Blank values are ignored so a
     saved secret is never clobbered by an empty field."""
     it = next((x for x in INTEGRATIONS if x["id"] == integration_id), None)
@@ -1127,6 +1144,15 @@ def _resolve_active_workspace(user, workspace_id: Optional[str]) -> str:
     if not ws.is_member(target, user.id):
         raise HTTPException(status_code=403, detail="Not a member of this workspace")
     return target
+
+
+def _require_workspace_editor(user, workspace_id: str) -> None:
+    """Reject viewer/member credential writes for a workspace."""
+    from apps.api.services.workspace import manager as ws
+
+    role = ws.member_role(workspace_id, user.id)
+    if role not in ("owner", "admin", "editor"):
+        raise HTTPException(status_code=403, detail="Insufficient workspace role")
 
 
 def _workspace_integration_view(it: dict, workspace_id: str) -> dict:
@@ -1187,6 +1213,7 @@ def update_workspace_integration(integration_id: str, body: IntegrationUpdate,
     if not it:
         raise HTTPException(status_code=404, detail="Integration not found")
     ws_id = _resolve_active_workspace(user, workspace_id)
+    _require_workspace_editor(user, ws_id)
     allowed = {f["key"] for f in it["fields"]}
     saved = []
     for key, value in (body.values or {}).items():

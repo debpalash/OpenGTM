@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Yupcha Engine — CLI Entry Point
+OpenGTM — CLI Entry Point
 
 Usage:
   uv run python -m apps.api.cli server       Launch FastAPI server
@@ -30,7 +30,7 @@ if ROOT_DIR not in sys.path:
 def cmd_server(args):
     """Launch FastAPI server."""
     import uvicorn
-    print(f"\n  🚀 Yupcha Engine v3.0 — http://0.0.0.0:{args.port}")
+    print(f"\n  ◉ OpenGTM v3.0 — http://0.0.0.0:{args.port}")
     uvicorn.run(
         "apps.api.main:app",
         host="0.0.0.0",
@@ -217,7 +217,7 @@ def cmd_jobs(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Yupcha Engine — Data Intelligence Platform")
+    parser = argparse.ArgumentParser(description="OpenGTM — Go-to-Market Agents for atomic teams")
     sub = parser.add_subparsers(dest="command", help="Command to run")
 
     # server

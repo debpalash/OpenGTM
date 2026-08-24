@@ -1,7 +1,7 @@
 [project]
-name = "yupcha-engine"
+name = "opengtm"
 version = "3.0.0"
-description = "Yupcha Engine — Document search, lead generation, and intelligence platform"
+description = "OpenGTM — open-source go-to-market agents for atomic teams"
 requires-python = ">=3.11"
 dependencies = [
     # FastAPI stack
@@ -71,6 +71,8 @@ browser = [
 ]
 
 [project.scripts]
+# Preferred command. The legacy alias remains so existing automation keeps working.
+opengtm = "apps.api.cli:main"
 yupcha = "apps.api.cli:main"
 
 [tool.logfire]
@@ -79,4 +81,15 @@ ignore_no_config = true
 [dependency-groups]
 dev = [
     "pytest>=9.0.3",
+]
+
+[tool.pytest.ini_options]
+# Product tests live here. Network/provider assessment scripts under apps/api
+# are operational tools, not import-safe pytest modules.
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = ["--strict-markers"]
+markers = [
+    "live: opt-in tests that require real network services or credentials",
+    "postgres: integration tests that require a PostgreSQL service",
 ]

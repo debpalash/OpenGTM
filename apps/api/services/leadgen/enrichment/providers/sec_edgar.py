@@ -25,7 +25,7 @@ designated JSON-string field `decision_makers`):
   decision_makers (JSON string), and (when found) description / founded fallbacks.
 
 Skeptic constraints (mandatory, per SEC's fair-access policy):
-  * Every request carries a `User-Agent: Yupcha <email>` header. SEC blocks
+  * Every request carries an identifying `User-Agent: OpenGTM <email>` header. SEC blocks
     requests without a descriptive UA. Configure via SEC_EDGAR_USER_AGENT.
   * Self-rate-limited to <= ~8 req/s (SEC's documented ceiling is 10 req/s) via
     a process-wide async throttle, so concurrent enrichments can't exceed it.
@@ -61,7 +61,7 @@ _ARCHIVES_BASE = "https://www.sec.gov/Archives/edgar/data/{cik}/{acc}/primary_do
 
 # SEC requires a descriptive User-Agent with contact info, or it 403s. Make it
 # configurable (ops should set their own contact) but ship a safe default.
-_UA = os.getenv("SEC_EDGAR_USER_AGENT", "Yupcha Enrichment admin@yupcha.com")
+_UA = os.getenv("SEC_EDGAR_USER_AGENT", "OpenGTM Enrichment admin@yupcha.com")
 _HEADERS = {"User-Agent": _UA, "Accept-Encoding": "gzip, deflate"}
 
 _HTTP_TIMEOUT = httpx.Timeout(8.0, connect=5.0)

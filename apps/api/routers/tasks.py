@@ -10,7 +10,11 @@ from apps.api.services.queue_service import queue_service
 # Need to import these to ensure they are registered?
 # Actually queue handlers are registered in main startup, so just dispatching here is fine.
 
-router = APIRouter(prefix="/api/queue", tags=["Queue"])
+router = APIRouter(
+    prefix="/api/queue",
+    tags=["Queue"],
+    dependencies=[Depends(get_current_admin_user)],
+)
 
 
 @router.get("", response_model=List[LinkResponse])
@@ -28,6 +32,11 @@ async def add_to_queue(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
+    from apps.api.core.url_guard import check_url, BlockedUrlError
+    try:
+        check_url(str(link.url), resolve=True)
+    except BlockedUrlError as exc:
+        raise HTTPException(status_code=400, detail=f"URL not allowed: {exc}") from exc
     # Check if URL already exists
     existing = db.query(Link).filter(Link.url == link.url).first()
     if existing:

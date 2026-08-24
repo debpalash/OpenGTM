@@ -130,8 +130,13 @@ async def _materialize_source_impl(
 
     # ── Run the existing sourcing pipeline (writes to leads DB) ──
     from apps.api.services.leadgen.job_runner import JobRunner
+    from apps.api.services.leadgen.db import LeadDB
+    from apps.api.services.workspace import manager as ws_manager
 
-    runner = JobRunner()
+    slug = ws_manager.workspace_slug(workspace_id)
+    if not slug:
+        raise ValueError(f"workspace {workspace_id!r} has no slug")
+    runner = JobRunner(db=LeadDB(ws_manager.workspace_leads_db_path(slug)))
     try:
         job_id = await runner.submit(query, workspace_id=workspace_id)
     except Exception as e:
@@ -142,14 +147,14 @@ async def _materialize_source_impl(
                 wb.status = "draft"
                 db.commit()
         return {"error": str(e)[:200], "found": 0, "added": 0, "query": query}
+    finally:
+        runner.db.close()
 
     # ── Fetch the leads this job produced (from the tenant-scoped store, not a
     # bare default-path LeadDB) so reads are correct under per-workspace SQLite
     # and RLS-protected Postgres alike. ──
     from apps.api.services.leadgen.store import get_lead_store
-    from apps.api.services.workspace import manager as ws_manager
 
-    slug = ws_manager.workspace_slug(workspace_id) or ""
     lead_db = get_lead_store(workspace_id, slug)
     try:
         leads = lead_db.get_leads(source=f"job:{job_id}", limit=10000)

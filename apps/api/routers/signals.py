@@ -12,9 +12,11 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 
-from apps.api.core.tenancy import WorkspaceCtx, current_workspace
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace, require_workspace_role
+from apps.api.core.security import get_current_admin_user
 
 router = APIRouter(prefix="/api/signals", tags=["signals"])
+require_editor = require_workspace_role("editor", "admin")
 
 
 @router.get("")
@@ -42,7 +44,7 @@ def list_signals(
 
 
 @router.post("/scan")
-def trigger_scan(ctx: WorkspaceCtx = Depends(current_workspace)):
+def trigger_scan(_admin=Depends(get_current_admin_user)):
     """Trigger a signal scan on the durable queue worker.
 
     The scan fans out to job-board providers (JobSpy etc.) per lead, which can
@@ -63,7 +65,7 @@ class MarkReadRequest(BaseModel):
 
 
 @router.post("/mark-read")
-def mark_signals_read(req: MarkReadRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
+def mark_signals_read(req: MarkReadRequest, ctx: WorkspaceCtx = Depends(require_editor)):
     """Mark signals as read (within this workspace)."""
     from apps.api.services.signals.store import get_signal_store
 

@@ -22,7 +22,6 @@ from apps.api.routers.campaigns import router as campaigns_router
 from apps.api.routers.workbooks import router as workbooks_router, router_v2 as workbooks_v2_router, views_router as workbook_views_router
 from apps.api.routers.entities import router as entities_router
 from apps.api.services.queue_service import queue_service
-from apps.api.workers.download import handle_download_link
 
 logger = logging.getLogger(__name__)
 
@@ -116,43 +115,10 @@ async def lifespan(app: FastAPI):
             _db.close()
     except Exception as e:
         logger.warning(f"Tenancy backfill skipped: {e}")
-    queue_service.register_handler("download_link", handle_download_link)
-    # Workbook enrichment runs on the durable queue worker (P-1): concurrent,
-    # heartbeat-tracked, reaper-recoverable. See workbook/enrichment.py.
-    from apps.api.services.workbook.enrichment import handle_run_workbook
-    queue_service.register_handler("run_workbook", handle_run_workbook)
-    # Source columns (P0): materialize rows from the source engine on the queue.
-    from apps.api.services.workbook.source_engine import handle_source_workbook
-    queue_service.register_handler("source_workbook", handle_source_workbook)
-    # Lead-collection tasks (/api/collect): run the classic JobRunner pipeline on
-    # the durable queue so a restart/crash mid-run resumes via the reaper + retry
-    # instead of silently dying (the old daemon thread lost the whole run).
-    from apps.api.services.leadgen.job_runner import handle_collect, handle_bulk_enrich
-    queue_service.register_handler("collect", handle_collect)
-    # Bulk lead enrichment (/api/leads/bulk-enrich): same durability fix — run on
-    # the queue so a restart mid-run doesn't abandon a partly-enriched batch.
-    queue_service.register_handler("bulk_enrich", handle_bulk_enrich)
-    # Living workbooks (P3): recurring refresh + signal-triggered refresh.
-    from apps.api.services.workbook.refresh import handle_refresh_workbook, handle_signal_scan, bootstrap_signal_scan
-    queue_service.register_handler("refresh_workbook", handle_refresh_workbook)
-    queue_service.register_handler("signal_scan", handle_signal_scan)
-    # Automations / Trigger Engine: tenant-scoped rule evaluation on the queue.
-    from apps.api.services.automations.engine import handle_trigger_eval, bootstrap_schedules
-    queue_service.register_handler("trigger_eval", handle_trigger_eval)
-    # Outreach: tenant-scoped email send on the queue (at-most-once §6.2.1).
-    from apps.api.services.outreach.sending import handle_send, bootstrap_outreach_schedules
-    queue_service.register_handler("send", handle_send)
-    # Outreach inbound: per-workspace IMAP poll for async DSN/complaint ingestion
-    # (default OFF behind OUTREACH_INBOUND_POLL_ENABLED + per-ws IMAP creds).
-    from apps.api.services.outreach.inbound import handle_inbound_poll, bootstrap_inbound_schedules
-    queue_service.register_handler("outreach_inbound_poll", handle_inbound_poll)
-    # Intent poller: tenant-scoped watch poll on the queue (default OFF).
-    from apps.api.services.poller.engine import handle_watch_poll, bootstrap_watch_schedules
-    queue_service.register_handler("watch_poll", handle_watch_poll)
-    # Source health-check: single global active probe of registry site: sources
-    # (default OFF; observe-only — never excludes sources unless SOURCE_HEALTH_ENFORCE).
-    from apps.api.services.leadgen.source_health import handle_source_health_check, bootstrap_source_health
-    queue_service.register_handler("source_health_check", handle_source_health_check)
+    # API-inline and standalone workers must execute exactly the same job types.
+    from apps.api.services.job_registry import register_job_handlers
+
+    register_job_handlers(queue_service)
 
     # Horizontal scaling: job processing is now safe to run in a SEPARATE worker
     # process (apps/api/worker.py) with an atomic FOR UPDATE SKIP LOCKED claim.
@@ -169,44 +135,7 @@ async def lifespan(app: FastAPI):
     else:
         print("✓ In-API worker disabled (RUN_INLINE_WORKER=0) — using separate worker process")
 
-    # Kick off the recurring signal scan (idempotent; no-op if already pending).
-    # Safe regardless of who processes it — it just enqueues a durable job that
-    # the in-API worker OR a standalone worker replica will pick up.
-    try:
-        bootstrap_signal_scan()
-    except Exception as e:
-        logger.warning(f"signal_scan bootstrap skipped: {e}")
-    # Cold-start the on_schedule automations from the non-RLS mirror (no-op when
-    # AUTOMATIONS_ENABLED is off). Survives restarts; single-flight guarded.
-    try:
-        bootstrap_schedules()
-    except Exception as e:
-        logger.warning(f"trigger schedule bootstrap skipped: {e}")
-    # Cold-start the autonomous outreach ticker from its non-RLS mirror (no-op
-    # when AUTOMATIONS_ENABLED is off). Survives restarts; single-flight guarded.
-    try:
-        bootstrap_outreach_schedules()
-    except Exception as e:
-        logger.warning(f"outreach schedule bootstrap skipped: {e}")
-    # Cold-start the inbound bounce/complaint IMAP poller from its non-RLS mirror
-    # (no-op when OUTREACH_INBOUND_POLL_ENABLED is off). Survives restarts.
-    try:
-        bootstrap_inbound_schedules()
-    except Exception as e:
-        logger.warning(f"outreach inbound bootstrap skipped: {e}")
-    # Cold-start the intent poller from its non-RLS mirror (no-op when
-    # INTENT_POLLER_ENABLED is off / not PG). Survives restarts; single-flight.
-    try:
-        bootstrap_watch_schedules()
-    except Exception as e:
-        logger.warning(f"intent poller bootstrap skipped: {e}")
-    # Cold-start the single global source health probe (no-op when
-    # SOURCE_HEALTH_ENABLED is off). Survives restarts; single-flight guarded.
-    try:
-        bootstrap_source_health()
-    except Exception as e:
-        logger.warning(f"source health bootstrap skipped: {e}")
-    print("✓ Yupcha Engine v3.0 Ready")
+    print("✓ OpenGTM v3.0 Ready")
     yield
     # ── Shutdown ──
     if run_inline_worker:
@@ -214,7 +143,7 @@ async def lifespan(app: FastAPI):
         print("✓ Queue Worker Stopped")
 
 
-app = FastAPI(title="Yupcha Engine", version="3.0.0", lifespan=lifespan)
+app = FastAPI(title="OpenGTM", version="3.0.0", lifespan=lifespan)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -317,12 +246,12 @@ app.include_router(meta_router)
 
 @app.get("/api")
 def api_root():
-    return {"status": "ok", "engine": "Yupcha Engine", "version": "3.0.0"}
+    return {"status": "ok", "engine": "OpenGTM", "version": "3.0.0"}
 
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "engine": "Yupcha Engine", "version": "3.0.0"}
+    return {"status": "healthy", "engine": "OpenGTM", "version": "3.0.0"}
 
 
 # Serve frontend static files (if built) — MUST be after all API routes
@@ -330,4 +259,3 @@ def health_check():
 web_dist = os.path.join(os.path.dirname(__file__), "..", "web", "dist")
 if os.path.isdir(web_dist):
     app.mount("/", StaticFiles(directory=web_dist, html=True), name="frontend")
-

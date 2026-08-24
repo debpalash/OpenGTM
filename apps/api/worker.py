@@ -56,49 +56,26 @@ def _configure_logging() -> None:
 
 
 def _register_handlers() -> None:
-    """Register every job-type handler — mirrors apps/api/main.py.
-
-    The worker process does not import the FastAPI app, so it must wire up the
-    same handlers itself, otherwise a claimed job would have "no handler".
-    """
+    """Register every job type from the shared production registry."""
+    from apps.api.services.job_registry import register_job_handlers
     from apps.api.services.queue_service import queue_service
-    from apps.api.workers.download import handle_download_link
-    from apps.api.services.workbook.enrichment import handle_run_workbook
-    from apps.api.services.workbook.source_engine import handle_source_workbook
-    from apps.api.services.workbook.refresh import (
-        handle_refresh_workbook,
-        handle_signal_scan,
-    )
-    from apps.api.services.automations.engine import handle_trigger_eval
-    from apps.api.services.outreach.sending import handle_send
-    from apps.api.services.outreach.inbound import handle_inbound_poll
-    from apps.api.services.poller.engine import handle_watch_poll
 
-    queue_service.register_handler("download_link", handle_download_link)
-    queue_service.register_handler("run_workbook", handle_run_workbook)
-    queue_service.register_handler("source_workbook", handle_source_workbook)
-    queue_service.register_handler("refresh_workbook", handle_refresh_workbook)
-    queue_service.register_handler("signal_scan", handle_signal_scan)
-    queue_service.register_handler("trigger_eval", handle_trigger_eval)
-    queue_service.register_handler("send", handle_send)
-    queue_service.register_handler("outreach_inbound_poll", handle_inbound_poll)
-    queue_service.register_handler("watch_poll", handle_watch_poll)
+    register_job_handlers(queue_service)
 
 
 async def run_worker() -> None:
     """Run the standalone claim/process loop until a shutdown signal."""
     _configure_logging()
 
-    # Ensure the schema exists / is up to date (alembic upgrade head, with a
-    # create_all fallback). Honours YUPCHA_DB_INIT just like the API. Safe to
-    # run from multiple replicas — alembic is idempotent and serialises via the
-    # alembic_version table.
+    # Ensure the schema exists / is up to date. Production migration failures
+    # are fatal; a worker must never process jobs against a stale schema.
     try:
         from apps.api.db_init import init_db
 
         init_db()
-    except Exception as e:  # pragma: no cover - defensive
-        logger.warning(f"init_db skipped/failed (continuing): {e}")
+    except Exception:  # pragma: no cover - defensive
+        logger.exception("Database initialization failed; refusing to start worker")
+        raise
 
     from apps.api.services.queue_service import queue_service
 

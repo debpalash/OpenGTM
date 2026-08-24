@@ -35,6 +35,7 @@ from apps.api.services.workbook import models as _wb_models  # noqa: E402,F401
 from apps.api.services.workbook import planner_models as _planner_models  # noqa: E402,F401
 from apps.api.services.workbook import activity_models as _activity_models  # noqa: E402,F401
 from apps.api.services.workbook import trace_models as _trace_models  # noqa: E402,F401
+from apps.api.services.workbook import ingest as _ingest_models  # noqa: E402,F401
 from apps.api.services.entities import models as _entity_models  # noqa: E402,F401
 from apps.api.services.billing import models as _billing_models  # noqa: E402,F401
 from apps.api.services.leadgen import orm_models as _leadgen_orm_models  # noqa: E402,F401

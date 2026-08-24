@@ -1,5 +1,5 @@
 /**
- * Client for the Yupcha inbound rows ingest API:
+ * Client for the OpenGTM inbound rows ingest API:
  *   POST {baseUrl}/api/v2/workbooks/{workbook_id}/rows/ingest
  *
  * Auth: Authorization: Bearer wbi_<token>. One Idempotency-Key per capture

@@ -57,7 +57,7 @@ _RECORDS_URL = f"{_BASE}/lei-records"
 # JSON:API requires this Accept header on the GLEIF endpoints.
 _HEADERS = {
     "Accept": "application/vnd.api+json",
-    "User-Agent": "Yupcha Enrichment admin@yupcha.com",
+    "User-Agent": "OpenGTM Enrichment admin@yupcha.com",
 }
 _HTTP_TIMEOUT = httpx.Timeout(8.0, connect=5.0)
 

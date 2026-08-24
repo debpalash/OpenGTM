@@ -13,9 +13,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Dict
 
-from apps.api.core.tenancy import WorkspaceCtx, current_workspace
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace, require_workspace_role
 
 router = APIRouter(prefix="/api/crm/hubspot", tags=["CRM"])
+require_editor = require_workspace_role("editor", "admin")
 
 
 class ConnectRequest(BaseModel):
@@ -43,7 +44,7 @@ async def hubspot_status(ctx: WorkspaceCtx = Depends(current_workspace)):
 
 
 @router.post("/connect")
-def hubspot_connect(req: ConnectRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
+def hubspot_connect(req: ConnectRequest, ctx: WorkspaceCtx = Depends(require_editor)):
     """Save the HubSpot Private App token as this workspace's encrypted secret."""
     from apps.api.services.workspace.secrets import set_secret
     set_secret(ctx.workspace_id, "HUBSPOT_TOKEN", req.token)
@@ -51,7 +52,7 @@ def hubspot_connect(req: ConnectRequest, ctx: WorkspaceCtx = Depends(current_wor
 
 
 @router.post("/sync")
-async def hubspot_sync(req: SyncRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
+async def hubspot_sync(req: SyncRequest, ctx: WorkspaceCtx = Depends(require_editor)):
     """Push this workspace's leads to HubSpot as contacts."""
     from apps.api.services.crm.hubspot import push_leads_batch, is_connected
 

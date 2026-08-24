@@ -17,9 +17,10 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from apps.api.database import get_db
-from apps.api.core.tenancy import WorkspaceCtx, current_workspace
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace, require_workspace_role
 
 router = APIRouter(prefix="/api/templates", tags=["templates"])
+require_editor = require_workspace_role("editor", "admin")
 
 
 # ── Recipe gallery ────────────────────────────────────────────────────────
@@ -60,7 +61,7 @@ async def instantiate_gallery_recipe(
     slug: str,
     body: InstantiateRecipeRequest = None,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Create a workbook from a recipe in the caller's workspace.
 
@@ -102,7 +103,7 @@ def list_templates(category: str = None):
 def create_from_template(
     template_id: str,
     db: Session = Depends(get_db),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Create a new workbook from a template (scoped to the caller's workspace)."""
     from apps.api.services.workbook.templates import get_template

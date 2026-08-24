@@ -8,14 +8,14 @@ import {
 
 export class Yupcha implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Yupcha',
+		displayName: 'OpenGTM',
 		name: 'yupcha',
-		icon: 'file:yupcha.svg',
+		icon: 'file:opengtm.svg',
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"]}}',
-		description: 'Self-hosted GTM engine — source leads, enrich companies, verify emails',
-		defaults: { name: 'Yupcha' },
+		description: 'Go-to-market agents for atomic teams — source, enrich, research, and activate',
+		defaults: { name: 'OpenGTM' },
 		inputs: ['main'],
 		outputs: ['main'],
 		credentials: [

@@ -430,6 +430,66 @@ class LeadDB:
 
         return [Lead.from_dict(dict(r)) for r in rows]
 
+    def query_leads_page(
+        self,
+        filter_criteria: Optional[Dict[str, Any]] = None,
+        page: int = 1,
+        page_size: int = 100,
+    ) -> tuple[List[Dict[str, Any]], int]:
+        """Workbook-compatible filtered page over the SQLite lead store.
+
+        This adapter keeps workbook code away from the backend-specific
+        ``sqlite3.Connection`` and has a matching implementation on
+        :class:`PgLeadStore`.
+        """
+        fc = filter_criteria or {}
+        conditions: List[str] = []
+        params: List[Any] = []
+
+        for key in ("city", "state", "score_tier", "status", "source", "company_size"):
+            if fc.get(key):
+                conditions.append(f"l.{key} = ?")
+                params.append(fc[key])
+        if fc.get("job_ids"):
+            sources = [f"job:{job_id}" for job_id in fc["job_ids"]]
+            conditions.append(f"l.source IN ({','.join('?' for _ in sources)})")
+            params.extend(sources)
+        if fc.get("specialization"):
+            conditions.append("l.specialization LIKE ?")
+            params.append(f"%{fc['specialization']}%")
+        for key in ("email", "phone", "website"):
+            flag = fc.get(f"has_{key}")
+            if flag is True:
+                conditions.append(f"l.{key} IS NOT NULL AND l.{key} != ''")
+            elif flag is False:
+                conditions.append(f"(l.{key} IS NULL OR l.{key} = '')")
+        if fc.get("min_score") is not None:
+            conditions.append("l.score >= ?")
+            params.append(fc["min_score"])
+        if fc.get("max_score") is not None:
+            conditions.append("l.score <= ?")
+            params.append(fc["max_score"])
+        if fc.get("search"):
+            clean_search = str(fc["search"]).replace('"', '""')
+            conditions.append(
+                "l.id IN (SELECT rowid FROM leads_fts WHERE leads_fts MATCH ?)"
+            )
+            params.append(f'"{clean_search}"')
+
+        where = " AND ".join(conditions) if conditions else "1=1"
+        total = int(
+            self.conn.execute(
+                f"SELECT COUNT(*) FROM leads l WHERE {where}", params
+            ).fetchone()[0]
+        )
+        offset = (max(1, page) - 1) * max(1, page_size)
+        rows = self.conn.execute(
+            f"SELECT l.* FROM leads l WHERE {where} "
+            "ORDER BY l.score DESC LIMIT ? OFFSET ?",
+            params + [max(1, page_size), offset],
+        ).fetchall()
+        return [dict(row) for row in rows], total
+
     def count_leads(self, **filters) -> int:
         """Count leads matching filters."""
         conditions = []
@@ -459,11 +519,17 @@ class LeadDB:
 
     def update_lead_fields(self, lead_id: int, fields: Dict[str, Any]) -> None:
         """Update specific fields on a lead."""
-        fields["updated_at"] = _utcnow().isoformat()
-        set_clause = ", ".join(f"{k} = ?" for k in fields)
+        allowed = set(Lead.__dataclass_fields__) - {
+            "id", "workspace_id", "created_at", "updated_at"
+        }
+        clean = {key: value for key, value in fields.items() if key in allowed}
+        if not clean:
+            return
+        clean["updated_at"] = _utcnow().isoformat()
+        set_clause = ", ".join(f"{key} = ?" for key in clean)
         self.conn.execute(
             f"UPDATE leads SET {set_clause} WHERE id = ?",
-            list(fields.values()) + [lead_id]
+            list(clean.values()) + [lead_id]
         )
         self.conn.commit()
 
@@ -544,6 +610,26 @@ class LeadDB:
             "SELECT DISTINCT source FROM leads WHERE source != '' ORDER BY source"
         ).fetchall()
         return [r["source"] for r in rows]
+
+    def get_filter_options(self) -> Dict[str, Any]:
+        """Return workbook filter facets through the lead-store contract."""
+        def _distinct(column: str, limit: Optional[int] = None) -> List[str]:
+            suffix = f" LIMIT {int(limit)}" if limit else ""
+            rows = self.conn.execute(
+                f"SELECT DISTINCT {column} FROM leads "
+                f"WHERE {column} IS NOT NULL AND {column} != '' "
+                f"ORDER BY {column}{suffix}"
+            ).fetchall()
+            return [row[0] for row in rows]
+
+        return {
+            "cities": _distinct("city"),
+            "tiers": _distinct("score_tier"),
+            "sources": _distinct("source"),
+            "statuses": _distinct("status"),
+            "specializations": _distinct("specialization", 50),
+            "total_leads": self.count_leads(),
+        }
 
     # ── Jobs ───────────────────────────────────────────────────────────
 

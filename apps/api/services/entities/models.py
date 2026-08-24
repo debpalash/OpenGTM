@@ -31,7 +31,7 @@ class CompanyEntity(Base):
     id = Column(String, primary_key=True, default=_uuid)
     # Tenant isolation: entities never resolve/corroborate across workspaces.
     # "" = global/unscoped (matches today's not-yet-partitioned leads).
-    workspace_id = Column(String, default="", index=True)
+    workspace_id = Column(String, nullable=False, default="", index=True)
     canonical_name = Column(String(512), nullable=False)
     # Convenience "winning" values (for fast compare/display); full provenance in `fields`
     primary_domain = Column(String(255), index=True, default="")
@@ -88,6 +88,7 @@ class PersonEntity(Base):
     __tablename__ = "person_entities"
 
     id = Column(String, primary_key=True, default=_uuid)
+    workspace_id = Column(String, nullable=False, index=True)
     full_name = Column(String(255), nullable=False)
     company_entity_id = Column(String, ForeignKey("company_entities.id"), nullable=True, index=True)
     identity_keys = Column(JSON, default=dict)
@@ -102,6 +103,7 @@ class EntityBlockingKey(Base):
     __tablename__ = "entity_blocking_keys"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    workspace_id = Column(String, nullable=False, index=True)
     key = Column(String(255), nullable=False, index=True)
     entity_id = Column(String, ForeignKey("company_entities.id", ondelete="CASCADE"), nullable=False, index=True)
 
@@ -114,6 +116,7 @@ class EntityMergeLog(Base):
     __tablename__ = "entity_merge_log"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    workspace_id = Column(String, nullable=False, index=True)
     kept_id = Column(String, index=True)
     merged_id = Column(String, index=True)
     reason = Column(String(255), default="")
@@ -128,6 +131,7 @@ class EntityReviewPair(Base):
     __tablename__ = "entity_review_pairs"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    workspace_id = Column(String, nullable=False, index=True)
     entity_id = Column(String, index=True)        # existing entity
     candidate = Column(JSON, default=dict)        # the other record (new entity repr)
     score = Column(Float, default=0.0)

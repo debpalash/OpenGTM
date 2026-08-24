@@ -32,12 +32,13 @@ pytestmark = pytest.mark.skipif(
 )
 
 APP_LOGIN_ROLE = "app_rls_test"
+APP_LOGIN_PASSWORD = "rls_test_only"
 W1 = "ws_poller_alpha"
 W2 = "ws_poller_beta"
 
 
 def _app_url():
-    return str(make_url(TEST_DATABASE_URL).set(username=APP_LOGIN_ROLE, password=None))
+    return make_url(TEST_DATABASE_URL).set(username=APP_LOGIN_ROLE, password=APP_LOGIN_PASSWORD).render_as_string(hide_password=False)
 
 
 @pytest.fixture(scope="module")
@@ -68,6 +69,7 @@ def schema(owner_engine):
             END $$;
             """
         ))
+        c.execute(text(f"ALTER ROLE {APP_LOGIN_ROLE} PASSWORD '{APP_LOGIN_PASSWORD}'"))
         c.execute(text(f"GRANT yupcha_app TO {APP_LOGIN_ROLE}"))
         c.execute(text(f"GRANT USAGE ON SCHEMA public TO {APP_LOGIN_ROLE}"))
 

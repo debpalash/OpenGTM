@@ -1,7 +1,7 @@
 # searxng-pool
 
 A high-concurrency **search gateway in Go** that fronts a pool of SearXNG
-instances and exposes one JSON API for Yupcha's website-independent enrichment
+instances and exposes one JSON API for OpenGTM's website-independent enrichment
 providers (`ddg_company`, `social_finder`, `crosslinked`, `local_business`,
 `email_harvester`, `company_intel`).
 

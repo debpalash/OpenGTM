@@ -2,7 +2,7 @@
  * Build dist/ for "Load unpacked":
  *   - popup.js / options.js  (ESM, referenced by their HTML pages)
  *   - content.js             (IIFE — content scripts are classic scripts)
- *   - manifest.json + HTML copied verbatim from public/
+ *   - manifest, HTML, and icons copied verbatim from public/
  */
 import { cp, mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
@@ -31,8 +31,6 @@ async function bundle(entrypoints: string[], format: "esm" | "iife"): Promise<vo
 await bundle(["popup.ts", "options.ts"], "esm");
 await bundle(["content.ts"], "iife");
 
-for (const file of ["manifest.json", "popup.html", "options.html"]) {
-    await cp(join(root, "public", file), join(dist, file));
-}
+await cp(join(root, "public"), dist, { recursive: true });
 
 console.log("Built dist/ — load it via chrome://extensions → Load unpacked.");

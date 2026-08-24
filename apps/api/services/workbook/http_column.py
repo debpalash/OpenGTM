@@ -76,7 +76,10 @@ async def execute_http_column(
         body = _resolve_any(col_config["http_body"], row_values)
 
     try:
-        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+        # API action columns do not need browser-style redirect following.  A
+        # redirect can change an already-approved public URL into a private or
+        # metadata target, so fail closed and let the cell surface the 3xx.
+        async with httpx.AsyncClient(timeout=20.0, follow_redirects=False) as client:
             resp = await client.request(
                 method, url,
                 headers=headers or None,
@@ -88,7 +91,7 @@ async def execute_http_column(
     except Exception as e:
         return {"success": False, "value": None, "error": str(e)[:120]}
 
-    if resp.status_code >= 400:
+    if not 200 <= resp.status_code < 300:
         return {"success": False, "value": None, "error": f"http_{resp.status_code}"}
 
     extract = (col_config.get("http_extract") or "").strip()

@@ -9,7 +9,11 @@ from apps.api.core.security import get_current_active_user, get_current_admin_us
 from pydantic import BaseModel
 from collections import defaultdict, Counter
 
-router = APIRouter(prefix="/api/data", tags=["CRM"])
+router = APIRouter(
+    prefix="/api/data",
+    tags=["CRM"],
+    dependencies=[Depends(get_current_admin_user)],
+)
 
 
 class MarkUsedRequest(BaseModel):

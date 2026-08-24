@@ -1,7 +1,7 @@
 [project]
-name = "scribd-downloader"
+name = "opengtm-api"
 version = "0.1.0"
-description = "Add your description here"
+description = "OpenGTM API — go-to-market agents for atomic teams"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -37,4 +37,3 @@ dependencies = [
 
 [tool.logfire]
 ignore_no_config = true
-

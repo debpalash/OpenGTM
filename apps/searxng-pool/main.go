@@ -1,7 +1,7 @@
 // Command searxng-pool is a high-concurrency search gateway in front of a pool
 // of SearXNG instances (our self-hosted one + community public instances).
 //
-// Why: Yupcha's website-independent enrichment fallbacks query the web via
+// Why: OpenGTM's website-independent enrichment fallbacks query the web via
 // SearXNG, but a single instance's IP gets CAPTCHA'd by Google/DDG/Brave. A pool
 // of public instances — each its own IP, many with working Google engines —
 // sidesteps that. This service health-checks the pool (liveness + JSON support),

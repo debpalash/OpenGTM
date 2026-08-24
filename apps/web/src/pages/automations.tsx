@@ -154,7 +154,7 @@ type View =
 
 export default function AutomationsPage() {
   const flags = useFlags()
-  const triggers = useTriggers()
+  const triggers = useTriggers(undefined, flags.data?.automations_enabled === true)
   const [view, setView] = useState<View>({ name: "list" })
 
   // Flag-off (404) → feature-disabled screen, driven by the page query error.

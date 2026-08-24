@@ -1,4 +1,4 @@
-# Contributing to Yupcha
+# Contributing to OpenGTM
 
 Thanks for helping build the open-source, self-hostable alternative to Clay.com.
 Contributions of every size are welcome — a typo fix, a new enrichment provider,
@@ -20,7 +20,7 @@ a bug report, or a whole feature.
 
 2. **Be excellent to each other.** See [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md).
 
-3. **License.** Yupcha is [AGPLv3](./LICENSE). By contributing you agree your
+3. **License.** OpenGTM is [AGPLv3](./LICENSE). By contributing you agree your
    contribution is licensed under the same terms.
 
 ## Development setup

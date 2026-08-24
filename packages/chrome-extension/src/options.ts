@@ -1,5 +1,5 @@
 /**
- * Options page: Yupcha base URL + per-workbook ingest tokens.
+ * Options page: OpenGTM base URL + per-workbook ingest tokens.
  * Saving requests a runtime host permission for the base URL origin only
  * (the manifest ships no API host_permissions at all).
  */
@@ -66,14 +66,14 @@ function readWorkbooks(): WorkbookEntry[] {
 async function save(): Promise<void> {
     try {
         const baseUrl = normalizeBaseUrl(el<HTMLInputElement>("base-url").value);
-        if (!baseUrl) throw new Error("Enter a valid http(s) Yupcha base URL.");
+        if (!baseUrl) throw new Error("Enter a valid http(s) OpenGTM base URL.");
         const workbooks = readWorkbooks();
 
-        // Runtime-only host permission for exactly the user's Yupcha origin.
+        // Runtime-only host permission for exactly the user's OpenGTM origin.
         const origin = `${baseUrl}/*`;
         const granted = await chrome.permissions.request({ origins: [origin] });
         if (!granted) {
-            setStatus(`Permission for ${origin} was declined — sending to Yupcha will fail until granted.`, "error");
+            setStatus(`Permission for ${origin} was declined — sending to OpenGTM will fail until granted.`, "error");
         }
 
         await saveSettings({ baseUrl, workbooks });

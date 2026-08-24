@@ -306,7 +306,7 @@ func (p *Pool) querySearx(ctx context.Context, in *Instance, query, engines stri
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; yupcha-searxpool/1.0)")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; opengtm-searxpool/1.0)")
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := in.client.Do(req)

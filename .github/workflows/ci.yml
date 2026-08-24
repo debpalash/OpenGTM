@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --dev
+      - name: Hermetic backend suite
+        env:
+          APP_ENV: test
+          DATABASE_URL: sqlite:///./data/_ci_tests.db
+          YUPCHA_DB_INIT: alembic
+        run: uv run pytest -q
+      - name: Fresh schema and model drift check
+        env:
+          APP_ENV: test
+          DATABASE_URL: sqlite:///./data/_ci_schema.db
+        run: |
+          uv run alembic upgrade head
+          uv run alembic check
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1"
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+
+  compose-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose config --quiet

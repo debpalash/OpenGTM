@@ -2,7 +2,6 @@ import asyncio
 import logging
 import os
 import socket
-import traceback
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional, Callable, Awaitable
@@ -36,6 +35,10 @@ JOB_TIMEOUTS = {
     # routinely exceeds 900s for real queries; give it the same headroom as
     # run_workbook so it isn't killed mid-collection and retried forever.
     "source_workbook": 1800,
+    # Checkpointed page-by-page; enough for a 500-row import plus API retries.
+    "ambitionbox_import": 900,
+    # Checkpointed streaming import; a full CNPJ dataset can take several hours.
+    "data_collector_import": 21600,
     "refresh_workbook": 900,
     "signal_scan": 300,
     "download_link": 600,
@@ -56,6 +59,9 @@ class QueueService:
         self.is_running = False
         self._shutdown_event = asyncio.Event()
         self.handlers: Dict[str, Callable[[int, Dict], Awaitable[None]]] = {}
+        self.failure_handlers: Dict[
+            str, Callable[[int, Dict, str, bool], None]
+        ] = {}
         self.heartbeat_interval = 30  # seconds
         # Identity used to stamp claimed jobs. Each process (in-API or a
         # standalone worker replica) gets its own.
@@ -66,13 +72,32 @@ class QueueService:
     ):
         self.handlers[job_type] = handler
 
+    def register_failure_handler(
+        self,
+        job_type: str,
+        handler: Callable[[int, Dict, str, bool], None],
+    ) -> None:
+        """Register durable-domain reconciliation after a failed attempt.
+
+        This runs in the parent worker after it has decided whether the SQL job
+        will retry. It therefore also covers hard timeouts and killed children,
+        where code inside the job process cannot update its domain status.
+        """
+        self.failure_handlers[job_type] = handler
+
     def add_job(
-        self, db: Session, job_type: str, payload: Dict, priority: int = 1
+        self,
+        db: Session,
+        job_type: str,
+        payload: Dict,
+        priority: int = 1,
+        fire_key: Optional[str] = None,
     ) -> Job:
         job = Job(
             type=job_type,
             payload=payload,
             priority=priority,
+            fire_key=fire_key,
             status="pending",
             created_at=datetime.now(timezone.utc),
             next_run_at=datetime.now(timezone.utc),
@@ -288,53 +313,67 @@ class QueueService:
 
         try:
             if handler:
-                # Isolate handler execution in its own thread + event loop.
-                # Handlers do heavy provider/LLM I/O and CPU-bound parsing; running
-                # them on the API's main event loop froze EVERY request (even non-DB
-                # routes like /docs). Each handler is self-contained — it creates its
-                # own DB sessions (check_same_thread=False) and clients from the
-                # payload — so running it off-loop in a worker thread is safe.
-                #
-                # Bound it with a timeout: the worker processes jobs sequentially,
-                # so a handler that hangs (e.g. a JobSpy scan that never returns)
-                # would otherwise block the whole queue. On timeout we move on; the
-                # orphaned thread is daemonic and will not keep the process alive.
+                # A process is the cancellation boundary. asyncio.to_thread cannot
+                # stop its thread on timeout, so retrying used to overlap the first
+                # attempt and duplicate rows/provider spend/external writes.
+                from apps.api.services.job_process_runner import run_job_subprocess
+
                 timeout = JOB_TIMEOUTS.get(job_type, DEFAULT_JOB_TIMEOUT)
-                await asyncio.wait_for(
-                    asyncio.to_thread(lambda: asyncio.run(handler(job_id, payload))),
-                    timeout=timeout,
+                await run_job_subprocess(
+                    job_id, job_type, payload, timeout=timeout
                 )
             else:
                 raise Exception(f"No handler for job type {job_type}")
 
-        except asyncio.TimeoutError:
-            logger.error(f"Job {job_id} ({job_type}) timed out after {JOB_TIMEOUTS.get(job_type, DEFAULT_JOB_TIMEOUT)}s")
-            error = "job timed out"
-            status = "failed"
-
         except Exception as e:
-            logger.error(f"Job {job_id} failed: {e}")
-            error = str(e)
-            traceback.print_exc()
-            status = "failed"
+            from apps.api.services.job_process_runner import JobProcessTimeout
 
-            # Retry Logic happens in DB update below
+            if isinstance(e, JobProcessTimeout):
+                logger.error("Job %s (%s) timed out: %s", job_id, job_type, e)
+                error = str(e)
+                status = "failed"
+            else:
+                logger.exception("Job %s failed", job_id)
+                error = str(e)
+                status = "failed"
+
+            # Retry logic happens in the DB update below.
+        except asyncio.CancelledError:
+            # run_job_subprocess has already killed the child. Leave the claimed
+            # row for heartbeat recovery rather than falsely completing it.
+            raise
         finally:
             heartbeat_task.cancel()
 
         # Update DB
+        will_retry = False
+        job_state_persisted = False
+        cancelled_externally = False
         try:
             with SessionLocal() as db:
-                job = db.query(Job).filter(Job.id == job_id).first()
+                # Serialize finalization against an API cancellation. If cancel
+                # wins this lock first we preserve ``cancelled``; if the child
+                # has already finished and finalization wins first, a later
+                # cancel's status predicate correctly becomes a no-op.
+                job = (
+                    db.query(Job)
+                    .filter(Job.id == job_id)
+                    .with_for_update()
+                    .first()
+                )
                 if job:
                     # Release ownership: the claim is finished one way or another.
                     # A requeued (pending) job must be unowned so any worker can
                     # re-claim it; terminal jobs simply no longer hold a lock.
                     job.worker_id = None
                     job.locked_at = None
-                    if status == "failed":
+                    if job.status == "cancelled":
+                        cancelled_externally = True
+                        job.completed_at = job.completed_at or datetime.now(timezone.utc)
+                    elif status == "failed":
                         # Check Retry
                         if (job.retry_count or 0) < (job.max_retries or 3):
+                            will_retry = True
                             job.status = "pending"
                             job.retry_count = (job.retry_count or 0) + 1
                             # Exponential Backoff: 1min, 2min, 4min...
@@ -356,8 +395,34 @@ class QueueService:
                         job.error = None
 
                     db.commit()
+                    job_state_persisted = True
         except Exception as e:
             logger.error(f"Failed to update job status: {e}")
+
+        # Reconcile domain-owned state only after the queue transition commits.
+        # A child may have been SIGKILLed on timeout, so this cannot live solely
+        # inside the handler process.
+        failure_handler = self.failure_handlers.get(job_type)
+        if (
+            status == "failed"
+            and job_state_persisted
+            and not cancelled_externally
+            and failure_handler
+        ):
+            try:
+                await asyncio.to_thread(
+                    failure_handler,
+                    job_id,
+                    payload,
+                    error or "job attempt failed",
+                    will_retry,
+                )
+            except Exception:
+                logger.exception(
+                    "Failure reconciliation failed for Job %s (%s)",
+                    job_id,
+                    job_type,
+                )
 
     async def _job_heartbeat(self, job_id: int):
         while True:

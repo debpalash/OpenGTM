@@ -22,7 +22,7 @@ from sqlalchemy.pool import StaticPool
 
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 from apps.api.database import Base, get_db
-from apps.api.routers.templates import router as templates_router
+from apps.api.routers.templates import router as templates_router, require_editor
 from apps.api.services.templates.recipes import (
     RECIPE_CATEGORIES,
     RecipeValidationError,
@@ -187,6 +187,7 @@ def client():
 
     app.dependency_overrides[get_db] = _override_db
     app.dependency_overrides[current_workspace] = _override_ws
+    app.dependency_overrides[require_editor] = _override_ws
     return TestClient(app), Session
 
 

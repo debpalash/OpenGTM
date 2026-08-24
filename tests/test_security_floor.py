@@ -96,6 +96,57 @@ def test_declarative_compiler_passes_resolve():
     assert "check_url(url, allow_http=True, resolve=True)" in src
 
 
+def test_universal_scraper_blocks_private_redirect_target():
+    from apps.api.services.scraper import UniversalScraper
+
+    class _Response:
+        status_code = 302
+        headers = {"location": "http://127.0.0.1/admin"}
+
+    class _Client:
+        def __init__(self):
+            self.calls = []
+
+        async def get(self, url, headers=None):
+            self.calls.append(url)
+            return _Response()
+
+    client = _Client()
+    with pytest.raises(BlockedUrlError):
+        asyncio.run(
+            UniversalScraper()._safe_http_get(client, "http://93.184.216.34/start")
+        )
+    # The private redirect is rejected before a second network request.
+    assert client.calls == ["http://93.184.216.34/start"]
+
+
+def test_stealth_http_blocks_private_redirect_target(monkeypatch):
+    """The shared website-enrichment client must guard every HTTP redirect."""
+    import httpx
+    from apps.api.services.leadgen.http import StealthClient
+
+    calls = []
+
+    def handler(request):
+        calls.append(str(request.url))
+        return httpx.Response(302, headers={"location": "http://127.0.0.1/admin"})
+
+    real_init = httpx.AsyncClient.__init__
+
+    def init(self, *args, **kwargs):
+        kwargs["transport"] = httpx.MockTransport(handler)
+        kwargs.pop("proxy", None)
+        real_init(self, *args, **kwargs)
+
+    monkeypatch.setattr(httpx.AsyncClient, "__init__", init)
+    result = asyncio.run(
+        StealthClient()._fetch_plain("http://93.184.216.34/start", None, 5)
+    )
+    assert result.status_code == 0
+    assert "private/blocked" in result.error
+    assert calls == ["http://93.184.216.34/start"]
+
+
 # ── (B) Insecure auth defaults ──────────────────────────────────────────────
 
 def test_boot_fails_on_insecure_default_key_in_prod():
@@ -143,6 +194,34 @@ def test_refresh_token_not_usable_as_access_token():
     access = create_access_token({"sub": "alice"})
     assert decode_token(refresh).get("type") == "refresh"
     assert decode_token(access).get("type") == "access"
+
+
+def test_refresh_token_not_usable_on_query_token_transports():
+    from fastapi import HTTPException
+    from apps.api.auth import create_refresh_token
+    from apps.api.core.security import authenticate_query_token
+
+    with pytest.raises(HTTPException) as exc:
+        authenticate_query_token(create_refresh_token({"sub": "alice"}))
+    assert exc.value.status_code == 401
+
+
+def test_legacy_queue_http_and_websocket_require_authentication():
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from starlette.websockets import WebSocketDisconnect
+    from apps.api.routers.tasks import router as tasks_router
+    from apps.api.routers.websockets import router as websocket_router
+
+    app = FastAPI()
+    app.include_router(tasks_router)
+    app.include_router(websocket_router)
+    client = TestClient(app)
+    assert client.get("/api/queue").status_code == 401
+    with pytest.raises(WebSocketDisconnect) as exc:
+        with client.websocket_connect("/ws"):
+            pass
+    assert exc.value.code == 4403
 
 
 # ── (C) Rate limiter actually enforces ──────────────────────────────────────

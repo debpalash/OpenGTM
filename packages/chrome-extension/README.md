@@ -1,8 +1,8 @@
-# @yupcha/chrome-extension — Yupcha Capture
+# @opengtm/chrome-extension — OpenGTM Capture
 
 Chrome (Manifest V3) extension that captures structured data from the page you are
 currently viewing — HTML tables, repeated list items, and LinkedIn people-search
-results — and pushes it into a Yupcha workbook through the inbound rows ingest API
+results — and pushes it into an OpenGTM workbook through the inbound rows ingest API
 (`POST /api/v2/workbooks/{id}/rows/ingest`).
 
 It only ever reads the **currently open page, on an explicit click**. No background
@@ -14,15 +14,15 @@ scraping, no pagination walking, no `<all_urls>` API access.
 bun install
 bun run build        # produces dist/ (manifest + bundles)
 bun run test         # extraction-heuristics unit tests
-bun run zip          # optional: yupcha-chrome-extension.zip
+bun run zip          # optional: opengtm-chrome-extension.zip
 ```
 
 1. Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**,
    and pick this package's `dist/` folder.
-2. In Yupcha, open the workbook you want to feed and create an **ingest token**
+2. In OpenGTM, open the workbook you want to feed and create an **ingest token**
    (`wbi_…`).
-3. In the extension's **Options** page: enter your Yupcha base URL
-   (e.g. `https://yupcha.example.com`), add the workbook ID + `wbi_` token, and
+3. In the extension's **Options** page: enter your OpenGTM base URL
+   (e.g. `https://opengtm.example.com`), add the workbook ID + `wbi_` token, and
    **Save**. Chrome will ask to grant access to that origin only.
 
 ## Use
@@ -45,4 +45,4 @@ request with an idempotency key per capture, so retries never duplicate rows.
 - LinkedIn selectors live in `src/linkedin.ts` only and are best-effort — LinkedIn's
   markup changes often; the generic table/list heuristics are the fallback.
 - Ingest tokens are stored in `chrome.storage.local` on your machine; treat your
-  Chrome profile accordingly, and revoke tokens in Yupcha if in doubt.
+  Chrome profile accordingly, and revoke tokens in OpenGTM if in doubt.

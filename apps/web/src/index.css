@@ -181,6 +181,60 @@
   }
 }
 
+/* Sidebar interaction surface — a static grain layer keeps hover tactile
+ * without running a canvas/WebGL loop for every navigation item. */
+[data-sidebar="menu-button"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background-image:
+    linear-gradient(105deg, color-mix(in oklab, #6268f2 10%, transparent), transparent 58%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 180 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
+  background-size: 100% 100%, 132px 72px;
+  background-blend-mode: soft-light;
+  mix-blend-mode: multiply;
+  transition: opacity 280ms cubic-bezier(.22, 1, .36, 1);
+}
+
+[data-sidebar="menu-button"] > * {
+  position: relative;
+  z-index: 1;
+}
+
+[data-sidebar="menu-button"]:hover::after,
+[data-sidebar="menu-button"]:focus-visible::after,
+[data-sidebar="menu-button"][data-active]::after {
+  opacity: .16;
+}
+
+.dark [data-sidebar="menu-button"]::after {
+  mix-blend-mode: screen;
+}
+
+.dark [data-sidebar="menu-button"]:hover::after,
+.dark [data-sidebar="menu-button"]:focus-visible::after,
+.dark [data-sidebar="menu-button"][data-active]::after {
+  opacity: .1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-sidebar="menu-button"],
+  [data-sidebar="menu-button"]::after,
+  [data-slot="sidebar-gap"],
+  [data-slot="sidebar-container"] {
+    transition-duration: 0.01ms !important;
+  }
+
+  [data-sidebar="menu-button"]:hover,
+  [data-sidebar="menu-button"]:active {
+    transform: none !important;
+  }
+}
+
 /* ── Pro typography dimming layers ──
  * Theme-aware utility classes for manual luminance control.
  * Light mode: warm charcoal cascade · Dark mode: soft white cascade

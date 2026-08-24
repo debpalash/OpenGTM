@@ -63,7 +63,7 @@ WRITE_ROLES: Tuple[str, ...] = ("admin", "member", "editor")
 ADMIN_ROLES: Tuple[str, ...] = ("admin",)
 
 # Plaintext token prefix so tokens are recognisable in logs/configs.
-TOKEN_PREFIX = "ycp_"  # yupcha capability pat
+TOKEN_PREFIX = "ycp_"  # Legacy-compatible OpenGTM capability token prefix.
 
 
 class MCPAuthError(Exception):

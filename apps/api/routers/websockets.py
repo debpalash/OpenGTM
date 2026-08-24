@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
 from sqlalchemy.orm import Session
 from apps.api.services.log_stream import manager
 from apps.api.database import SessionLocal
@@ -33,7 +33,14 @@ async def broadcast_queue_state(target_ws: WebSocket = None):
 
 
 @router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket, token: str = Query(default=None)):
+    from apps.api.core.security import authenticate_query_token
+    from fastapi import HTTPException
+    try:
+        authenticate_query_token(token, require_admin=True)
+    except HTTPException:
+        await websocket.close(code=4403)
+        return
     await manager.connect(websocket)
     try:
         # Send initial queue state
@@ -46,6 +53,14 @@ async def websocket_endpoint(websocket: WebSocket):
             if action == "add_task":
                 url = data.get("url")
                 if url:
+                    from apps.api.core.url_guard import check_url, BlockedUrlError
+                    try:
+                        check_url(url, resolve=True)
+                    except BlockedUrlError as exc:
+                        await websocket.send_json(
+                            {"type": "error", "message": f"URL not allowed: {exc}"}
+                        )
+                        continue
                     db = SessionLocal()
                     existing = db.query(Link).filter(Link.url == url).first()
 

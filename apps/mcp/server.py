@@ -1,5 +1,5 @@
 """
-Yupcha MCP Server — Expose GTM tools to Claude Desktop, Cursor, and Windsurf.
+OpenGTM MCP Server — Expose GTM tools to Claude Desktop, Cursor, and Windsurf.
 
 Usage:
   python -m apps.mcp.server          # stdio mode (Claude Desktop)
@@ -9,7 +9,8 @@ Security model (Phase 1 — security hardening):
   * The MCP surface is now AUTHENTICATED and TENANT-SCOPED. Every tool call
     resolves a single workspace via a scoped MCP token and runs through the same
     RLS-protected stores as the REST API — no tool can read across tenants.
-  * stdio presents the token via the ``YUPCHA_MCP_TOKEN`` env var.
+  * stdio presents the token via ``OPENGTM_MCP_TOKEN``. The legacy
+    ``YUPCHA_MCP_TOKEN`` name remains supported for existing installations.
   * SSE/HTTP presents it via ``Authorization: Bearer <token>`` and binds to
     127.0.0.1 ONLY (the previous unauthenticated 0.0.0.0 bind was a live
     cross-tenant exposure and has been removed). For remote access, front it
@@ -20,11 +21,11 @@ Security model (Phase 1 — security hardening):
 Claude Desktop config (~/.claude/claude_desktop_config.json):
   {
     "mcpServers": {
-      "yupcha": {
+      "opengtm": {
         "command": "python",
         "args": ["-m", "apps.mcp.server"],
-        "cwd": "/path/to/lead-data",
-        "env": {"YUPCHA_MCP_TOKEN": "ycp_..."}
+        "cwd": "/path/to/opengtm",
+        "env": {"OPENGTM_MCP_TOKEN": "ycp_..."}
       }
     }
   }
@@ -72,7 +73,7 @@ async def handle_message(msg: dict, ctx: MCPCtx) -> Optional[dict]:
             "result": {
                 "protocolVersion": MCP_PROTOCOL_VERSION,
                 "capabilities": {"tools": {"listChanged": False}},
-                "serverInfo": {"name": "yupcha", "version": "3.0.0"},
+                "serverInfo": {"name": "opengtm", "version": "3.0.0"},
             },
         }
 
@@ -109,14 +110,16 @@ async def handle_message(msg: dict, ctx: MCPCtx) -> Optional[dict]:
 
 async def run_stdio():
     """Run MCP server over stdio (for Claude Desktop)."""
-    logger.info("Yupcha MCP Server starting (stdio mode)")
+    logger.info("OpenGTM MCP Server starting (stdio mode)")
 
     # Authenticate ONCE at startup from the env token. In cloud this fails closed:
     # no/invalid token → refuse to start (no unauthenticated tool executor).
     try:
-        ctx = resolve_mcp_token(os.environ.get("YUPCHA_MCP_TOKEN"))
+        ctx = resolve_mcp_token(
+            os.environ.get("OPENGTM_MCP_TOKEN") or os.environ.get("YUPCHA_MCP_TOKEN")
+        )
     except MCPAuthError as e:
-        logger.error("MCP stdio refused: %s. Set YUPCHA_MCP_TOKEN to a valid token.", e)
+        logger.error("MCP stdio refused: %s. Set OPENGTM_MCP_TOKEN to a valid token.", e)
         sys.exit(1)
 
     reader = asyncio.StreamReader()
@@ -162,7 +165,7 @@ def build_sse_app():
     from fastapi import FastAPI, Request
     from fastapi.responses import JSONResponse, StreamingResponse
 
-    sse_app = FastAPI(title="Yupcha MCP SSE")
+    sse_app = FastAPI(title="OpenGTM MCP SSE")
 
     @sse_app.get("/sse")
     async def sse_endpoint():
@@ -209,8 +212,10 @@ def main():
         # Loopback ONLY. The previous 0.0.0.0 bind exposed an unauthenticated
         # tool executor to the whole network — do NOT reintroduce it. For remote
         # access, put a reverse proxy in front that forwards the bearer token.
-        host = os.environ.get("YUPCHA_MCP_SSE_HOST", "127.0.0.1")
-        print(f"Yupcha MCP SSE server on http://{host}:{port} (loopback, bearer-auth)")
+        host = os.environ.get("OPENGTM_MCP_SSE_HOST") or os.environ.get(
+            "YUPCHA_MCP_SSE_HOST", "127.0.0.1"
+        )
+        print(f"OpenGTM MCP SSE server on http://{host}:{port} (loopback, bearer-auth)")
         uvicorn.run(sse_app, host=host, port=port, log_level="warning")
     else:
         asyncio.run(run_stdio())

@@ -1,5 +1,5 @@
 """
-Lead Scoring Engine — Score leads 0-100 based on Yupcha's ICP.
+Lead Scoring Engine — Score leads 0-100 based on OpenGTM's ICP.
 
 Each lead gets a quality score based on data completeness, company fit,
 and contact availability. Scores determine the tier: Hot, Warm, Cold, Unqualified.

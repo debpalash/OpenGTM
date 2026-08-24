@@ -1,13 +1,23 @@
 {
     "manifest_version": 3,
-    "name": "Yupcha Capture",
+    "name": "OpenGTM Capture",
     "version": "0.1.0",
-    "description": "Capture tables, lists, and LinkedIn people results from the page you're viewing into a Yupcha workbook.",
+    "description": "Capture tables, lists, and LinkedIn people results from the page you're viewing into an OpenGTM workbook.",
     "permissions": ["activeTab", "storage", "scripting"],
     "optional_host_permissions": ["https://*/*", "http://*/*"],
+    "icons": {
+        "16": "icons/opengtm-16.png",
+        "32": "icons/opengtm-32.png",
+        "48": "icons/opengtm-48.png",
+        "128": "icons/opengtm-128.png"
+    },
     "action": {
         "default_popup": "popup.html",
-        "default_title": "Yupcha Capture"
+        "default_title": "OpenGTM Capture",
+        "default_icon": {
+            "16": "icons/opengtm-16.png",
+            "32": "icons/opengtm-32.png"
+        }
     },
     "options_page": "options.html"
 }

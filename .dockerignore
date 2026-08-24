@@ -1,0 +1,17 @@
+.git
+.github
+.venv
+**/__pycache__
+**/*.pyc
+**/node_modules
+apps/web/dist
+data
+backups
+research
+reference/research
+*.db
+*.db-*
+*.log
+.env
+.env.*
+!.env.example

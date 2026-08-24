@@ -53,7 +53,7 @@ def _main_store():
 def test_tool_registry_exposes_expected_tools():
     tools = ck._build_tools()
     names = {t["function"]["name"] for t in tools}
-    assert len(tools) == 18, f"expected 18 tools, got {len(tools)}"
+    assert len(tools) == 19, f"expected 19 tools, got {len(tools)}"
     # The dead create_workbook / add_workbook_column tools were removed.
     assert "create_workbook" not in names and "add_workbook_column" not in names
     assert ck.SAFE_TOOLS <= names
@@ -78,6 +78,10 @@ def test_safe_tools_bypass_confirmation():
 
 def test_safe_and_dangerous_sets_are_disjoint():
     assert ck.SAFE_TOOLS.isdisjoint(set(ck.DANGEROUS_TOOLS))
+
+
+def test_unknown_tools_fail_closed_to_confirmation():
+    assert ck._needs_confirmation("hallucinated_write_tool") is True
 
 
 def test_describe_action_renders_label_and_detail():
@@ -140,10 +144,12 @@ def test_resolve_approved_calls_executes_on_approve(monkeypatch):
 
     monkeypatch.setattr(ck, "_execute_tool", fake_exec)
     msgs = [{"role": "user", "content": "set lead 5 qualified"}]
+    proposed = {"id": "tc1", "type": "function",
+                "function": {"name": "update_lead_status",
+                             "arguments": json.dumps({"lead_id": 5, "status": "qualified"})}}
+    approval_id = ck.chat_history.create_tool_approval("main", None, proposed)
     approved = [{
-        "tool_call": {"id": "tc1", "type": "function",
-                      "function": {"name": "update_lead_status",
-                                   "arguments": json.dumps({"lead_id": 5, "status": "qualified"})}},
+        "tool_call": {**proposed, "id": approval_id},
         "decision": "approve",
     }]
     objs = _events_to_objs(_collect(ck._resolve_approved_calls(
@@ -154,7 +160,7 @@ def test_resolve_approved_calls_executes_on_approve(monkeypatch):
     assert any("tool_call" in o for o in objs)
     assert any("tool_result" in o for o in objs)
     assert msgs[1]["role"] == "assistant" and msgs[1]["tool_calls"]
-    assert msgs[2]["role"] == "tool" and msgs[2]["tool_call_id"] == "tc1"
+    assert msgs[2]["role"] == "tool" and msgs[2]["tool_call_id"] == approval_id
 
 
 def test_resolve_approved_calls_skips_on_deny(monkeypatch):
@@ -166,10 +172,12 @@ def test_resolve_approved_calls_skips_on_deny(monkeypatch):
 
     monkeypatch.setattr(ck, "_execute_tool", fake_exec)
     msgs = [{"role": "user", "content": "delete everything"}]
+    proposed = {"id": "tc9", "type": "function",
+                "function": {"name": "start_collection",
+                             "arguments": json.dumps({"query": "x"})}}
+    approval_id = ck.chat_history.create_tool_approval("main", None, proposed)
     approved = [{
-        "tool_call": {"id": "tc9", "type": "function",
-                      "function": {"name": "start_collection",
-                                   "arguments": json.dumps({"query": "x"})}},
+        "tool_call": {**proposed, "id": approval_id},
         "decision": "deny",
     }]
     objs = _events_to_objs(_collect(ck._resolve_approved_calls(
@@ -178,6 +186,42 @@ def test_resolve_approved_calls_skips_on_deny(monkeypatch):
     assert calls == [], "denied tool must NOT execute"
     assert any("tool_denied" in o for o in objs)
     assert json.loads(msgs[-1]["content"]).get("denied") is True
+
+
+def test_approval_executes_server_stored_arguments_not_client_echo(monkeypatch):
+    calls = []
+
+    async def fake_exec(name, args, **kwargs):
+        calls.append((name, args))
+        return json.dumps({"ok": True})
+
+    monkeypatch.setattr(ck, "_execute_tool", fake_exec)
+    proposed = {
+        "id": "original",
+        "type": "function",
+        "function": {
+            "name": "update_lead_status",
+            "arguments": json.dumps({"lead_id": 5, "status": "qualified"}),
+        },
+    }
+    approval_id = ck.chat_history.create_tool_approval("main", None, proposed)
+    tampered = {
+        "id": approval_id,
+        "type": "function",
+        "function": {
+            "name": "start_collection",
+            "arguments": json.dumps({"query": "attacker-controlled"}),
+        },
+    }
+
+    _collect(ck._resolve_approved_calls(
+        [], [{"tool_call": tampered, "decision": "approve"}],
+        store=object(), workspace_id="main", slug="main",
+    ))
+
+    assert calls == [
+        ("update_lead_status", {"lead_id": 5, "status": "qualified"})
+    ]
 
 
 # ── Offline: bounded ReAct loop (fake provider, no network) ───────────────

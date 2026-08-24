@@ -10,6 +10,7 @@ import io
 import json
 import uuid
 import time as _time
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Query, HTTPException, Request, Depends
@@ -18,7 +19,11 @@ from pydantic import BaseModel
 
 from apps.api.services.leadgen.db import LeadDB
 from apps.api.services.leadgen.models import Lead, LEAD_STATUSES
-from apps.api.core.tenancy import WorkspaceCtx, current_workspace
+from apps.api.core.tenancy import (
+    WorkspaceCtx,
+    current_workspace,
+    require_workspace_role,
+)
 from apps.api.core.ratelimit import limiter
 
 router = APIRouter(prefix="/api", tags=["Leads"])
@@ -28,10 +33,57 @@ workspace_router = APIRouter(prefix="/api/workspaces", tags=["Workspaces"])
 jobs_router = APIRouter(prefix="/api", tags=["Lead Jobs"])
 events_router = APIRouter(tags=["SSE Events"])
 search_router = APIRouter(prefix="/api", tags=["Search"])
+require_editor = require_workspace_role("editor", "admin")
 
 
 def _get_db() -> LeadDB:
     return LeadDB()
+
+
+def _workspace_job_db(ctx: WorkspaceCtx) -> LeadDB:
+    """Open the legacy job/stage ledger for exactly one workspace.
+
+    Lead rows may live in shared Postgres behind RLS, but the collection
+    pipeline's ``jobs`` and ``job_stages`` tables are still SQLite-backed.  The
+    file therefore has to be resolved from the authenticated workspace slug;
+    using bare ``LeadDB()`` here would expose the global/main ledger to every
+    tenant.
+    """
+    from apps.api.services.workspace.manager import workspace_leads_db_path
+
+    return LeadDB(workspace_leads_db_path(ctx.slug))
+
+
+def _collection_fire_key(workspace_id: str, job_id: str) -> str:
+    return f"collect:{workspace_id}:{job_id}"
+
+
+def _cancel_collection_queue_job(workspace_id: str, job_id: str) -> int:
+    """Cancel the durable queue half of a collection job, if still active."""
+    from apps.api.database import SessionLocal
+    from apps.api.models import Job
+
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        changed = (
+            db.query(Job)
+            .filter(
+                Job.fire_key == _collection_fire_key(workspace_id, job_id),
+                Job.status.in_(("pending", "processing")),
+            )
+            .update(
+                {
+                    Job.status: "cancelled",
+                    Job.completed_at: now,
+                    Job.error: "Cancelled by user",
+                    Job.worker_id: None,
+                    Job.locked_at: None,
+                },
+                synchronize_session=False,
+            )
+        )
+        db.commit()
+        return int(changed or 0)
 
 
 def _clean(val: Optional[str]) -> Optional[str]:
@@ -144,24 +196,35 @@ class StatusUpdate(BaseModel):
 
 
 @router.post("/lead/{lead_id}/status")
-def update_lead_status(lead_id: int, body: StatusUpdate, ctx: WorkspaceCtx = Depends(current_workspace)):
+def update_lead_status(lead_id: int, body: StatusUpdate, ctx: WorkspaceCtx = Depends(require_editor)):
+    if body.status not in LEAD_STATUSES:
+        raise HTTPException(status_code=400, detail="Invalid lead status")
     db = ctx.lead_db()
+    if not db.get_lead(lead_id):
+        db.close()
+        raise HTTPException(status_code=404, detail="Lead not found")
     db.update_status(lead_id, body.status, body.note)
     db.close()
     return {"ok": True}
 
 
 @router.put("/lead/{lead_id}")
-def update_lead(lead_id: int, body: dict, ctx: WorkspaceCtx = Depends(current_workspace)):
+def update_lead(lead_id: int, body: dict, ctx: WorkspaceCtx = Depends(require_editor)):
     db = ctx.lead_db()
+    if not db.get_lead(lead_id):
+        db.close()
+        raise HTTPException(status_code=404, detail="Lead not found")
     db.update_lead_fields(lead_id, body)
     db.close()
     return {"ok": True}
 
 
 @router.delete("/lead/{lead_id}")
-def delete_lead(lead_id: int, ctx: WorkspaceCtx = Depends(current_workspace)):
+def delete_lead(lead_id: int, ctx: WorkspaceCtx = Depends(require_editor)):
     db = ctx.lead_db()
+    if not db.get_lead(lead_id):
+        db.close()
+        raise HTTPException(status_code=404, detail="Lead not found")
     db.delete_lead(lead_id)
     db.close()
     return {"ok": True}
@@ -181,9 +244,10 @@ class AddLeadRequest(BaseModel):
 
 
 @router.post("/lead")
-def add_lead(body: AddLeadRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
+def add_lead(body: AddLeadRequest, ctx: WorkspaceCtx = Depends(require_editor)):
     lead = Lead.from_dict(body.model_dump())
     lead.source = body.source
+    lead.workspace_id = ctx.workspace_id
     db = ctx.lead_db()
     lead_id = db.upsert_lead(lead)
     db.close()
@@ -199,7 +263,7 @@ async def enrich_lead(
     request: Request,
     lead_id: int,
     action: str = "web_research",
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """AI-powered lead enrichment. Streams SSE progress events.
 
@@ -208,9 +272,7 @@ async def enrich_lead(
     - find_emails: Discover email patterns for the company
     - scrape_website: Extract data from the company's website
     """
-    from apps.api.services.workspace.manager import workspace_leads_db_path as _wpath
-    _ws_path = _wpath(ctx.slug)
-    db = LeadDB(_ws_path)
+    db = ctx.lead_db()
     lead = db.get_lead(lead_id)
     if not lead:
         db.close()
@@ -289,12 +351,10 @@ Format as clean text with section headers. Be specific and actionable."""
 
                 # Save to lead
                 if full_content:
-                    edb = LeadDB(_ws_path)
-                    edb.update_lead_fields(lead_id, {
+                    db.update_lead_fields(lead_id, {
                         "description": full_content[:2000],
                         "last_enriched_at": "now",
                     })
-                    edb.close()
                     yield f"data: {json.dumps({'step': 'saved', 'message': 'Research saved to lead'})}\n\n"
 
                 yield f"data: {json.dumps({'step': 'done', 'action': 'web_research'})}\n\n"
@@ -305,9 +365,7 @@ Format as clean text with section headers. Be specific and actionable."""
                 from apps.api.services.leadgen.enrichment.email_finder import enrich_emails
                 enriched = enrich_emails([lead], delay=0.5)
                 if enriched and enriched[0].email:
-                    edb = LeadDB(_ws_path)
-                    edb.update_lead_fields(lead_id, {"email": enriched[0].email, "last_enriched_at": "now"})
-                    edb.close()
+                    db.update_lead_fields(lead_id, {"email": enriched[0].email, "last_enriched_at": "now"})
                     yield f"data: {json.dumps({'step': 'result', 'email': enriched[0].email})}\n\n"
                 else:
                     yield f"data: {json.dumps({'step': 'result', 'message': 'No email found'})}\n\n"
@@ -337,9 +395,7 @@ Format as clean text with section headers. Be specific and actionable."""
 
                     if fields:
                         fields["last_enriched_at"] = "now"
-                        edb = LeadDB(_ws_path)
-                        edb.update_lead_fields(lead_id, fields)
-                        edb.close()
+                        db.update_lead_fields(lead_id, fields)
                         yield f"data: {json.dumps({'step': 'result', 'fields_updated': list(fields.keys())})}\n\n"
                     else:
                         yield f"data: {json.dumps({'step': 'result', 'message': 'No new data found'})}\n\n"
@@ -373,9 +429,7 @@ Format as clean text with section headers. Be specific and actionable."""
                         continue
 
                 if found_phone:
-                    edb = LeadDB(_ws_path)
-                    edb.update_lead_fields(lead_id, {"phone": found_phone, "last_enriched_at": "now"})
-                    edb.close()
+                    db.update_lead_fields(lead_id, {"phone": found_phone, "last_enriched_at": "now"})
                     yield f"data: {json.dumps({'step': 'result', 'message': f'Phone found: {found_phone}', 'phone': found_phone})}\n\n"
                 else:
                     yield f"data: {json.dumps({'step': 'result', 'message': 'No phone number found'})}\n\n"
@@ -447,9 +501,7 @@ Format as clean text with section headers. Be specific and actionable."""
                                 fields_to_update["state"] = st
                                 break
 
-                    edb = LeadDB(_ws_path)
-                    edb.update_lead_fields(lead_id, fields_to_update)
-                    edb.close()
+                    db.update_lead_fields(lead_id, fields_to_update)
                     yield f"data: {json.dumps({'step': 'saved', 'message': 'Address saved'})}\n\n"
                 else:
                     yield f"data: {json.dumps({'step': 'result', 'message': 'No address found'})}\n\n"
@@ -522,7 +574,7 @@ def export_csv(
     return Response(
         content=output.getvalue(),
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=yupcha_leads.csv"},
+        headers={"Content-Disposition": "attachment; filename=opengtm_leads.csv"},
     )
 
 
@@ -531,28 +583,29 @@ def export_csv(
 
 class CollectRequest(BaseModel):
     query: str
+    # Accepted for backwards compatibility only. Tenant identity always comes
+    # from the authenticated WorkspaceCtx and this value is never trusted.
     workspace_id: str = ""
 
 
 @jobs_router.post("/collect")
 @limiter.limit("20/minute")
-def start_collection(request: Request, body: CollectRequest, ctx: WorkspaceCtx = Depends(current_workspace)):
+def start_collection(request: Request, body: CollectRequest, ctx: WorkspaceCtx = Depends(require_editor)):
     query = body.query.strip()
     if not query:
         raise HTTPException(status_code=400, detail="query is required")
 
-    job_id = str(uuid.uuid4())[:8]
-    # Jobs run through the shared pipeline DB (the background runner is bound to
-    # it); tag the job with the caller's workspace for later scoping.
-    body.workspace_id = body.workspace_id or ctx.workspace_id
-    db = _get_db()
+    job_id = uuid.uuid4().hex
+    # Job/stage bookkeeping is per workspace. Never accept a tenant identifier
+    # from the body: that was an IDOR primitive when paired with the old global
+    # LeadDB ledger.
+    db = _workspace_job_db(ctx)
     db.create_job(job_id, query)
-    if body.workspace_id:
-        db.conn.execute(
-            "UPDATE jobs SET workspace_id = ? WHERE id = ?",
-            (body.workspace_id, job_id),
-        )
-        db.conn.commit()
+    db.conn.execute(
+        "UPDATE jobs SET workspace_id = ? WHERE id = ?",
+        (ctx.workspace_id, job_id),
+    )
+    db.conn.commit()
     db.close()
 
     # Run the collection on the DURABLE queue (heartbeat-tracked, reaper-recovered,
@@ -563,17 +616,54 @@ def start_collection(request: Request, body: CollectRequest, ctx: WorkspaceCtx =
     # job_runner.handle_collect.
     from apps.api.services.queue_service import queue_service
     from apps.api.database import SessionLocal
-    with SessionLocal() as qdb:
-        queue_service.add_job(qdb, "collect", {
-            "job_id": job_id, "query": query, "workspace_id": body.workspace_id,
-        })
+    try:
+        with SessionLocal() as qdb:
+            queued = queue_service.add_job(
+                qdb,
+                "collect",
+                {
+                    "job_id": job_id,
+                    "query": query,
+                    "workspace_id": ctx.workspace_id,
+                    "slug": ctx.slug,
+                },
+                fire_key=_collection_fire_key(ctx.workspace_id, job_id),
+            )
+    except Exception as exc:
+        # Cross-database creation cannot be atomic. Compensate visibly so the UI
+        # never shows a permanently pending job that was not actually queued.
+        db = _workspace_job_db(ctx)
+        db.conn.execute(
+            "UPDATE jobs SET status = 'failed', error = ?, completed_at = ? WHERE id = ?",
+            (f"Queue enqueue failed: {exc}", datetime.now(timezone.utc).isoformat(), job_id),
+        )
+        db.conn.commit()
+        db.close()
+        raise HTTPException(status_code=503, detail="Collection queue unavailable") from exc
 
-    return {"ok": True, "job_id": job_id, "query": query, "workspace_id": body.workspace_id}
+    from apps.api.services.leadgen.progress import progress
+    progress.bind_job(job_id, ctx.workspace_id)
+    progress.emit(
+        "job_created",
+        {
+            "job_id": job_id,
+            "query": query,
+            "workspace_id": ctx.workspace_id,
+            "message": f"Collection queued: {query}",
+        },
+    )
+    return {
+        "ok": True,
+        "job_id": job_id,
+        "queue_job_id": queued.id,
+        "query": query,
+        "workspace_id": ctx.workspace_id,
+    }
 
 
 @jobs_router.get("/jobs")
 def list_jobs(status: Optional[str] = None, ctx: WorkspaceCtx = Depends(current_workspace)):
-    db = _get_db()
+    db = _workspace_job_db(ctx)
     jobs = db.get_jobs(status=_clean(status))
     db.close()
     return jobs
@@ -582,7 +672,7 @@ def list_jobs(status: Optional[str] = None, ctx: WorkspaceCtx = Depends(current_
 @jobs_router.get("/jobs/{job_id}")
 def get_job_detail(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get a single job with all its pipeline stages."""
-    db = _get_db()
+    db = _workspace_job_db(ctx)
     job = db.get_job_detail(job_id)
     db.close()
     if not job:
@@ -599,7 +689,10 @@ def get_job_detail(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
 @jobs_router.get("/jobs/{job_id}/stages")
 def get_job_stages(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get pipeline stages for a job."""
-    db = _get_db()
+    db = _workspace_job_db(ctx)
+    if not db.get_job_detail(job_id):
+        db.close()
+        raise HTTPException(status_code=404, detail="Job not found")
     stages = db.get_job_stages(job_id)
     db.close()
     for s in stages:
@@ -613,10 +706,22 @@ def get_job_stages(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
 @jobs_router.get("/jobs/{job_id}/leads")
 def get_job_leads(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get leads produced by a specific job."""
-    db = _get_db()
-    leads = db.get_job_leads(job_id)
-    db.close()
-    return leads
+    job_db = _workspace_job_db(ctx)
+    if not job_db.get_job_detail(job_id):
+        job_db.close()
+        raise HTTPException(status_code=404, detail="Job not found")
+    job_db.close()
+
+    store = ctx.lead_db()
+    try:
+        return [
+            lead.to_dict()
+            for lead in store.get_leads(source=f"job:{job_id}", limit=10_000)
+        ]
+    finally:
+        close = getattr(store, "close", None)
+        if close:
+            close()
 
 
 @jobs_router.get("/jobs/{job_id}/events")
@@ -624,38 +729,99 @@ def get_job_events(job_id: str, limit: int = 100, ctx: WorkspaceCtx = Depends(cu
     """Recent progress events for a job — backfills the live activity feed so a
     freshly opened task page shows what already happened, not just future events."""
     from apps.api.services.leadgen.progress import progress
+    db = _workspace_job_db(ctx)
+    exists = db.get_job_detail(job_id)
+    db.close()
+    if not exists:
+        raise HTTPException(status_code=404, detail="Job not found")
     events = [
-        e for e in progress.recent(500)
+        e for e in progress.recent(500, workspace_id=ctx.workspace_id)
         if e.get("job_id") == job_id and e.get("message")
     ]
     return {"events": events[-limit:]}
 
 
 @jobs_router.post("/jobs/{job_id}/cancel")
-def cancel_job(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
+def cancel_job(job_id: str, ctx: WorkspaceCtx = Depends(require_editor)):
     """Cancel a running or pending job."""
-    db = _get_db()
+    db = _workspace_job_db(ctx)
+    if not db.get_job_detail(job_id):
+        db.close()
+        raise HTTPException(status_code=404, detail="Job not found")
     db.cancel_job(job_id)
     db.close()
+    _cancel_collection_queue_job(ctx.workspace_id, job_id)
     return {"ok": True, "message": f"Job {job_id} cancelled"}
 
 
 @jobs_router.delete("/jobs/{job_id}")
-def delete_job(job_id: str, keep_leads: bool = False, ctx: WorkspaceCtx = Depends(current_workspace)):
+def delete_job(job_id: str, keep_leads: bool = False, ctx: WorkspaceCtx = Depends(require_editor)):
     """Delete a job and its data. If keep_leads=true, keeps the leads."""
-    db = _get_db()
-    db.delete_job(job_id, keep_leads=keep_leads)
+    db = _workspace_job_db(ctx)
+    if not db.get_job_detail(job_id):
+        db.close()
+        raise HTTPException(status_code=404, detail="Job not found")
+    _cancel_collection_queue_job(ctx.workspace_id, job_id)
+    if not keep_leads:
+        store = ctx.lead_db()
+        try:
+            for lead in store.get_leads(source=f"job:{job_id}", limit=10_000):
+                if lead.id is not None:
+                    store.delete_lead(lead.id)
+        finally:
+            close = getattr(store, "close", None)
+            if close:
+                close()
+    # Lead deletion above uses the actual tenant store (PG or SQLite). Only
+    # remove the per-workspace job/stage metadata here.
+    db.delete_job(job_id, keep_leads=True)
     db.close()
     return {"ok": True, "message": f"Job {job_id} deleted", "leads_kept": keep_leads}
 
 
 @jobs_router.post("/jobs/{job_id}/retry")
-def retry_job(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
+def retry_job(job_id: str, ctx: WorkspaceCtx = Depends(require_editor)):
     """Reset a failed/cancelled job to pending for re-processing."""
-    db = _get_db()
+    db = _workspace_job_db(ctx)
+    job = db.get_job_detail(job_id)
+    if not job:
+        db.close()
+        raise HTTPException(status_code=404, detail="Job not found")
+    if job.get("status") not in ("failed", "cancelled"):
+        db.close()
+        raise HTTPException(status_code=409, detail="Only failed or cancelled jobs can be retried")
     db.retry_job(job_id)
     db.close()
-    return {"ok": True, "message": f"Job {job_id} queued for retry"}
+
+    from apps.api.services.queue_service import queue_service
+    from apps.api.database import SessionLocal
+    try:
+        with SessionLocal() as qdb:
+            queued = queue_service.add_job(
+                qdb,
+                "collect",
+                {
+                    "job_id": job_id,
+                    "query": job["query"],
+                    "workspace_id": ctx.workspace_id,
+                    "slug": ctx.slug,
+                },
+                fire_key=_collection_fire_key(ctx.workspace_id, job_id),
+            )
+    except Exception as exc:
+        db = _workspace_job_db(ctx)
+        db.conn.execute(
+            "UPDATE jobs SET status = 'failed', error = ?, completed_at = ? WHERE id = ?",
+            (f"Retry enqueue failed: {exc}", datetime.now(timezone.utc).isoformat(), job_id),
+        )
+        db.conn.commit()
+        db.close()
+        raise HTTPException(status_code=503, detail="Collection queue unavailable") from exc
+    return {
+        "ok": True,
+        "queue_job_id": queued.id,
+        "message": f"Job {job_id} queued for retry",
+    }
 
 
 @jobs_router.get("/system-stats")
@@ -665,7 +831,7 @@ def system_stats(ctx: WorkspaceCtx = Depends(current_workspace)):
 
     pp = ProxyPool()
     rl = RateLimiter()
-    db = _get_db()
+    db = _workspace_job_db(ctx)
     jobs = db.get_jobs(limit=100)
     db.close()
 
@@ -722,49 +888,66 @@ def _authenticate_query_token(token: Optional[str]):
     """Authenticate an SSE/WS request whose token rides in the query string
     (EventSource/WebSocket cannot send an Authorization header). Returns the
     User on success; raises 401 otherwise."""
-    if not token:
-        raise HTTPException(status_code=401, detail="Missing token")
-    from jose import jwt, JWTError
-    from apps.api.core.config import settings as _settings
-    from apps.api.database import SessionLocal
-    from apps.api.models import User as _User
+    from apps.api.core.security import authenticate_query_token
 
-    try:
-        payload = jwt.decode(token, _settings.SECRET_KEY, algorithms=[_settings.ALGORITHM])
-        username = payload.get("sub")
-        if not username:
-            raise HTTPException(status_code=401, detail="Invalid token")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-    _db = SessionLocal()
-    try:
-        user = _db.query(_User).filter(_User.username == username).first()
-        if not user or not user.is_active:
-            raise HTTPException(status_code=401, detail="Invalid token")
-        return user
-    finally:
-        _db.close()
+    return authenticate_query_token(token)
 
 
 @events_router.get("/api/events")
-def sse_events(token: Optional[str] = Query(default=None)):
-    _authenticate_query_token(token)
+def sse_events(
+    token: Optional[str] = Query(default=None),
+    workspace_id: Optional[str] = Query(default=None),
+):
+    user = _authenticate_query_token(token)
+    from apps.api.services.workspace import manager as ws_manager
+
+    target_workspace = workspace_id or ws_manager.get_user_active_workspace(user.id)
+    if not target_workspace or not ws_manager.is_member(target_workspace, user.id):
+        # Fail closed and do not reveal whether the requested workspace exists.
+        raise HTTPException(status_code=403, detail="Workspace access denied")
     from apps.api.services.leadgen.progress import progress
 
     def stream():
-        q = progress.subscribe()
+        pubsub = progress.open_redis_subscription(target_workspace)
+        q = None if pubsub is not None else progress.subscribe(target_workspace)
+        last_heartbeat = _time.monotonic()
         try:
             while True:
-                if q:
+                event = None
+                if pubsub is not None:
+                    try:
+                        message = pubsub.get_message(
+                            ignore_subscribe_messages=True, timeout=0.5
+                        )
+                        if message and message.get("type") == "message":
+                            event = json.loads(message["data"])
+                    except Exception:
+                        try:
+                            pubsub.close()
+                        except Exception:
+                            pass
+                        pubsub = None
+                        q = progress.subscribe(target_workspace)
+                elif q:
                     while q:
                         event = q.popleft()
                         yield f"data: {json.dumps(event)}\n\n"
-                else:
+                if event is not None:
+                    yield f"data: {json.dumps(event)}\n\n"
+                    last_heartbeat = _time.monotonic()
+                elif _time.monotonic() - last_heartbeat >= 15:
                     yield f"data: {json.dumps({'type': 'heartbeat'})}\n\n"
-                _time.sleep(0.5)
+                    last_heartbeat = _time.monotonic()
+                if pubsub is None:
+                    _time.sleep(0.5)
         finally:
-            progress.unsubscribe(q)
+            if pubsub is not None:
+                try:
+                    pubsub.close()
+                except Exception:
+                    pass
+            if q is not None:
+                progress.unsubscribe(q)
 
     return StreamingResponse(
         stream(),
@@ -812,13 +995,11 @@ async def public_unified_search(
 
 @search_router.post("/v2/scraper/scrape")
 @limiter.limit("30/minute")
-async def public_scrape(request: Request, body: dict, ctx: WorkspaceCtx = Depends(current_workspace)):
+async def public_scrape(request: Request, body: dict, ctx: WorkspaceCtx = Depends(require_editor)):
     """Scrape a single user-supplied URL (auth required).
 
-    The URL passes through the SSRF guard before any server-side fetch so a
-    caller cannot point us at internal/loopback/metadata endpoints. Note the
-    scraper follows redirects, so a public URL could still redirect to a private
-    host — full closure requires re-checking at connect time.
+    The scraper validates the initial URL and every redirect/navigation target,
+    blocking internal, loopback, and metadata endpoints before each request.
     """
     url = body.get("url", "").strip()
     if not url:
@@ -833,6 +1014,8 @@ async def public_scrape(request: Request, body: dict, ctx: WorkspaceCtx = Depend
     try:
         result = await scraper.scrape(url)
         return result
+    except BlockedUrlError as e:
+        raise HTTPException(status_code=400, detail=f"url not allowed: {e}") from e
     except Exception as e:
         return {"url": url, "status": "error", "error": str(e)}
 
@@ -875,7 +1058,7 @@ def run_dedup(
 
 
 @router.post("/leads/dedup/merge")
-def merge_duplicates(body: dict, ctx: WorkspaceCtx = Depends(current_workspace)):
+def merge_duplicates(body: dict, ctx: WorkspaceCtx = Depends(require_editor)):
     """Merge duplicate leads — keep master, delete duplicates."""
     from apps.api.services.dedup import LeadDeduplicator
 
@@ -885,27 +1068,36 @@ def merge_duplicates(body: dict, ctx: WorkspaceCtx = Depends(current_workspace))
         raise HTTPException(400, "master_id and duplicate_ids required")
 
     db = ctx.lead_db()
-    master = db.get(master_id)
+    master_lead = db.get_lead(master_id)
+    master = master_lead.to_dict() if master_lead else None
     if not master:
+        db.close()
         raise HTTPException(404, f"Master lead {master_id} not found")
 
-    duplicates = [db.get(did) for did in duplicate_ids if db.get(did)]
+    duplicates = []
+    for duplicate_id in duplicate_ids:
+        duplicate = db.get_lead(duplicate_id)
+        if duplicate:
+            duplicates.append(duplicate.to_dict())
     if not duplicates:
+        db.close()
         raise HTTPException(404, "No valid duplicate leads found")
 
     dedup = LeadDeduplicator()
     merged = dedup.merge_leads(master, duplicates)
 
     # Update master with merged data
-    db.update(master_id, merged)
+    db.update_lead_fields(master_id, merged)
 
     # Delete duplicates
     deleted = 0
     for dup in duplicates:
         dup_id = dup.get("id")
         if dup_id:
-            db.delete(dup_id)
+            db.delete_lead(dup_id)
             deleted += 1
+
+    db.close()
 
     return {
         "status": "merged",
@@ -923,7 +1115,7 @@ class BulkEnrichBody(BaseModel):
 
 
 @router.post("/leads/bulk-enrich")
-def bulk_enrich(body: BulkEnrichBody, ctx: WorkspaceCtx = Depends(current_workspace)):
+def bulk_enrich(body: BulkEnrichBody, ctx: WorkspaceCtx = Depends(require_editor)):
     """Enrich a batch of leads in the background; returns a job_id immediately.
 
     Reuses the batchable enrichment services (email_finder / website_scraper).
@@ -939,7 +1131,7 @@ def bulk_enrich(body: BulkEnrichBody, ctx: WorkspaceCtx = Depends(current_worksp
     if action not in ("find_emails", "scrape_website"):
         raise HTTPException(400, "action must be 'find_emails' or 'scrape_website'")
 
-    job_id = str(_uuid.uuid4())[:8]
+    job_id = _uuid.uuid4().hex
 
     # Run bulk enrichment on the DURABLE queue (reaper-recovered, retried) instead
     # of a fire-and-forget daemon thread that abandoned the batch on any API
@@ -962,9 +1154,9 @@ def bulk_enrich(body: BulkEnrichBody, ctx: WorkspaceCtx = Depends(current_worksp
 @router.post("/leads/import/data-collector")
 def import_data_collector(
     module: str = Query("all", description="Module to import: cnpj, github, or all"),
-    limit: Optional[int] = Query(None, description="Max leads to import (for testing)"),
+    limit: Optional[int] = Query(None, ge=1, le=1_000_000, description="Max leads to import"),
     reset: bool = Query(False, description="Reset checkpoint to start from scratch"),
-    ctx: WorkspaceCtx = Depends(current_workspace),
+    ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Import leads from the Brazil data_collector submodule.
 
@@ -979,23 +1171,46 @@ def import_data_collector(
     if module not in ("cnpj", "github", "all"):
         raise HTTPException(status_code=400, detail="module must be cnpj, github, or all")
 
+    from sqlalchemy.exc import IntegrityError
+    from apps.api.database import SessionLocal
+    from apps.api.services.queue_service import queue_service
     from apps.api.services.leadgen.scrapers.data_collector_import import (
-        run_import_background, reset_checkpoint, _load_checkpoint,
+        _load_checkpoint,
+        checkpoint_path_for,
     )
 
-    if reset:
-        reset_checkpoint()
-
-    checkpoint = _load_checkpoint()
-    job_id = run_import_background(module=module, limit=limit)
+    checkpoint = _load_checkpoint(checkpoint_path_for(ctx.slug))
+    job_id = f"br-import-{uuid.uuid4().hex}"
+    try:
+        with SessionLocal() as qdb:
+            queued = queue_service.add_job(
+                qdb,
+                "data_collector_import",
+                {
+                    "job_id": job_id,
+                    "module": module,
+                    "limit": limit,
+                    "reset": reset,
+                    "workspace_id": ctx.workspace_id,
+                    "slug": ctx.slug,
+                },
+                priority=1,
+                fire_key=f"data-collector:{ctx.workspace_id}",
+            )
+    except IntegrityError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail="A data collector import is already active in this workspace",
+        ) from exc
 
     return {
         "ok": True,
         "job_id": job_id,
+        "queue_job_id": queued.id,
         "module": module,
         "limit": limit,
         "resuming_from_row": checkpoint.get("cnpj_row", 0),
-        "message": f"Import started in background (module={module}, limit={limit})",
+        "message": f"Import queued durably (module={module}, limit={limit})",
     }
 
 
@@ -1003,9 +1218,9 @@ def import_data_collector(
 def import_data_collector_status(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Check the current checkpoint status of the data_collector import."""
     from apps.api.services.leadgen.scrapers.data_collector_import import (
-        _load_checkpoint, CNPJ_CSV,
+        _load_checkpoint, checkpoint_path_for, CNPJ_CSV,
     )
-    checkpoint = _load_checkpoint()
+    checkpoint = _load_checkpoint(checkpoint_path_for(ctx.slug))
     total_rows = 0
     if CNPJ_CSV.exists():
         # Fast line count without loading file contents
@@ -1023,7 +1238,7 @@ def import_data_collector_status(ctx: WorkspaceCtx = Depends(current_workspace))
 # ── Domain Intelligence ───────────────────────────────────────────────────
 
 @router.post("/leads/domain-intel")
-async def domain_intelligence(body: dict, ctx: WorkspaceCtx = Depends(current_workspace)):
+async def domain_intelligence(body: dict, ctx: WorkspaceCtx = Depends(require_editor)):
     """Analyze a domain — RDAP registration, DNS, hosting, email provider, legitimacy score."""
     domain = body.get("domain", "").strip()
     if not domain:

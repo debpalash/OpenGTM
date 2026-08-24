@@ -622,7 +622,7 @@ function SMTPConfigTab() {
   const [port, setPort] = useState("587")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [fromName, setFromName] = useState("Yupcha")
+  const [fromName, setFromName] = useState("OpenGTM")
   const [maxPerHour, setMaxPerHour] = useState("50")
   const [testEmail, setTestEmail] = useState("")
   // Seed inputs from the loaded status exactly once per loaded payload.
@@ -711,7 +711,7 @@ function SMTPConfigTab() {
             <div className="space-y-1.5">
               <Label className="text-xs">From Name</Label>
               <Input
-                placeholder="Yupcha"
+                placeholder="OpenGTM"
                 value={fromName}
                 onChange={(e) => setFromName(e.target.value)}
                 className="text-xs"

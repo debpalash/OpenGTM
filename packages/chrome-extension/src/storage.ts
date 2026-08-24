@@ -1,7 +1,7 @@
 /** Settings persisted in chrome.storage.local. */
 
 export interface WorkbookEntry {
-    /** Yupcha workbook UUID. */
+    /** OpenGTM workbook UUID. */
     id: string;
     /** Optional human label shown in the popup dropdown. */
     label: string;
@@ -10,7 +10,7 @@ export interface WorkbookEntry {
 }
 
 export interface Settings {
-    /** Yupcha base URL, e.g. https://yupcha.example.com (no trailing slash). */
+    /** OpenGTM base URL, e.g. https://opengtm.example.com (no trailing slash). */
     baseUrl: string;
     workbooks: WorkbookEntry[];
 }

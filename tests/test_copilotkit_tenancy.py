@@ -211,30 +211,30 @@ def test_add_agent_column_rejects_foreign_workbook(monkeypatch):
     assert captured["filters"] is not None and len(captured["filters"]) == 2
 
 
-# ── start_collection stamps workspace_id on the job (thread path) ────────────
+# ── start_collection stamps tenant and enqueues durably ──────────────────────
 
 def test_start_collection_stamps_workspace_on_job(monkeypatch, tmp_path):
     """The job row is created + stamped with workspace_id in the request thread
-    (before the daemon worker thread starts), so sourced leads land in-tenant."""
-    import threading
-    import apps.api.services.leadgen.config as cfg
-    import apps.api.services.leadgen.job_runner as jr
+    before the durable queue insert, so sourced leads land in-tenant."""
+    from types import SimpleNamespace
     from apps.api.services.leadgen.db import LeadDB
+    from apps.api.services.queue_service import QueueService
 
     # Redirect the leadgen job/lead file to a temp DB so we don't touch real data.
     db_file = str(tmp_path / "leads.db")
-    monkeypatch.setattr(cfg, "DB_PATH", db_file)
+    monkeypatch.setattr(
+        "apps.api.services.workspace.manager.workspace_leads_db_path",
+        lambda slug: db_file,
+    )
+    captured = {}
 
-    started = threading.Event()
+    def _enqueue(self, db, job_type, payload, priority=1, fire_key=None):
+        captured.update(
+            job_type=job_type, payload=payload, priority=priority, fire_key=fire_key
+        )
+        return SimpleNamespace(id=77)
 
-    class _StubRunner:
-        def __init__(self, *a, **k):
-            pass
-
-        async def _process_job(self, job):
-            started.set()  # worker would source here — no-op in the test
-
-    monkeypatch.setattr(jr, "JobRunner", _StubRunner)
+    monkeypatch.setattr(QueueService, "add_job", _enqueue)
 
     out = json.loads(asyncio.run(ck._execute_tool(
         "start_collection", {"query": "IT staffing in Pune"},
@@ -251,6 +251,11 @@ def test_start_collection_stamps_workspace_on_job(monkeypatch, tmp_path):
     db.close()
     assert row is not None, "job row not created"
     assert row[0] == "ws-tenant-9", f"job not stamped: {row[0]!r}"
+    assert captured["job_type"] == "collect"
+    assert captured["payload"]["workspace_id"] == "ws-tenant-9"
+    assert captured["payload"]["slug"] == "main"
+    assert captured["fire_key"] == f"collect:ws-tenant-9:{job_id}"
+    assert out["queue_job_id"] == 77
 
 
 # ── execute_plan recurses through a tenant-bound callback ─────────────────────
@@ -290,4 +295,22 @@ def test_execute_plan_uses_tenant_bound_callback(monkeypatch):
     cb = captured["cb"]
     assert isinstance(cb, functools.partial), "execute_plan must get a bound partial"
     assert cb.func is ck._execute_tool
-    assert cb.keywords == {"store": sentinel_store, "workspace_id": "W7", "slug": "s7"}
+    assert cb.keywords == {
+        "store": sentinel_store,
+        "workspace_id": "W7",
+        "slug": "s7",
+        "user_id": None,
+    }
+
+
+def test_viewer_cannot_execute_mutating_chat_tool(monkeypatch):
+    monkeypatch.setattr(ck.ws_manager, "member_role", lambda ws, uid: "viewer")
+    out = json.loads(asyncio.run(ck._execute_tool(
+        "start_collection",
+        {"query": "staffing companies"},
+        store=object(),
+        workspace_id="W1",
+        slug="one",
+        user_id=9,
+    )))
+    assert out == {"error": "Insufficient workspace role"}

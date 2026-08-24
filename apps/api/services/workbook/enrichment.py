@@ -168,6 +168,15 @@ async def enrich_cell(
     user-confirmed re-run.
     """
     col_type = col_config.get("type", "enrichment")
+    # v2 rows may not be backed by a Lead. Keep the legacy integer cell key for
+    # WorkbookEnrichment, but never use a WorkbookRow id as a Lead id for
+    # write-back. v1 lead dictionaries do not carry __lead_id and remain linked.
+    linked_lead_id = (
+        lead_data.get("__lead_id")
+        if "__lead_id" in lead_data
+        else lead_id
+    )
+    row_id = lead_data.get("__row_id")
 
     # ── Conditional execution ─────────────────────────────────────────
     if col_config.get("condition"):
@@ -178,7 +187,8 @@ async def enrich_cell(
             _set_enrichment(db, workbook_id, lead_id, col_id, None, "skipped")
             if redis_client:
                 await _broadcast(redis_client, workbook_id, {
-                    "type": "cell_update", "leadId": lead_id, "colId": col_id,
+                    "type": "cell_update", "leadId": lead_id, "rowId": row_id,
+                    "colId": col_id,
                     "status": "skipped", "value": None,
                 })
             return {"success": False, "value": None, "error": "condition_not_met"}
@@ -201,7 +211,8 @@ async def enrich_cell(
     _set_enrichment(db, workbook_id, lead_id, col_id, None, "running")
     if redis_client:
         await _broadcast(redis_client, workbook_id, {
-            "type": "cell_update", "leadId": lead_id, "colId": col_id,
+            "type": "cell_update", "leadId": lead_id, "rowId": row_id,
+            "colId": col_id,
             "status": "running", "value": None,
         })
 
@@ -395,12 +406,14 @@ async def enrich_cell(
 
                         # Structured fields → write back to Lead only, never to cell
                         if field_name in STRUCTURED_FIELDS:
-                            _write_back_to_lead(lead_id, field_name, value, provider_name)
+                            if linked_lead_id is not None:
+                                _write_back_to_lead(linked_lead_id, field_name, value, provider_name)
                             continue
 
                         # Write back any known Lead field
                         if field_name in LEAD_FIELD_MAP and field_name != target_field:
-                            _write_back_to_lead(lead_id, field_name, value, provider_name)
+                            if linked_lead_id is not None:
+                                _write_back_to_lead(linked_lead_id, field_name, value, provider_name)
 
                     # ── Extract the TARGETED field for this cell ──
                     if target_field in result.fields:
@@ -410,7 +423,8 @@ async def enrich_cell(
                             sv = str(cell_value)
                             if sv.startswith("[{") or sv.startswith("{\""):
                                 # Structured data — write to Lead, show summary in cell
-                                _write_back_to_lead(lead_id, target_field, cell_value, provider_name)
+                                if linked_lead_id is not None:
+                                    _write_back_to_lead(linked_lead_id, target_field, cell_value, provider_name)
                                 try:
                                     parsed = json.loads(sv)
                                     if isinstance(parsed, list) and parsed:
@@ -524,6 +538,7 @@ async def enrich_cell(
         await _broadcast(redis_client, workbook_id, {
             "type": "cell_update",
             "leadId": lead_id,
+            "rowId": row_id,
             "colId": col_id,
             "value": result_value,
             "status": "complete" if result_value else "error",
@@ -826,7 +841,10 @@ _RUN_CONFIG = {
     "provider_timeout": float(os.getenv("WORKBOOK_PROVIDER_TIMEOUT", "10")),
 }
 
-ENRICHMENT_COL_TYPES = ("enrichment", "waterfall", "ai_formula", "research", "agent", "http", "formula")
+ENRICHMENT_COL_TYPES = (
+    "enrichment", "waterfall", "ai_formula", "research", "agent", "http",
+    "formula", "output",
+)
 
 
 def _make_redis():
@@ -856,7 +874,15 @@ def _load_workbook_leads(
             query = query.filter(WorkbookRow.id.in_(row_ids))
         elif lead_ids:
             query = query.filter(WorkbookRow.lead_id.in_(lead_ids))
-        return [{"id": r.lead_id or r.id, **(r.data or {})} for r in query.all()]
+        return [
+            {
+                "id": r.lead_id or r.id,  # legacy cell-subject key
+                "__row_id": r.id,
+                "__lead_id": r.lead_id,
+                **(r.data or {}),
+            }
+            for r in query.all()
+        ]
 
     # v1 legacy — leads DB. The /run endpoint already resolved the workbook's
     # filter into an explicit lead_ids list and passes it in, so prefer fetching
@@ -1007,14 +1033,14 @@ async def _run_ai_batch_prepass(
     from apps.api.services.workbook.ai_column import build_ai_prompt, AI_COLUMN_SYSTEM
 
     requests: list[dict] = []
-    index: dict[str, tuple] = {}  # custom_id → (lead_id, col_id)
+    index: dict[str, tuple] = {}  # custom_id → (cell_subject_id, col_id, row_id)
     for lead, cols in work_items:
         eligible = _batch_eligible_columns(cols)
         for col in eligible:
             cells = {k: {"value": v} for k, v in lead.items()}
             prompt = build_ai_prompt(col.get("prompt", ""), cells, columns_config)
             cid = f"{lead['id']}::{col['id']}"
-            index[cid] = (lead["id"], col["id"])
+            index[cid] = (lead["id"], col["id"], lead.get("__row_id"))
             requests.append({
                 "custom_id": cid,
                 "prompt": prompt,
@@ -1038,7 +1064,7 @@ async def _run_ai_batch_prepass(
     for cid, text in results.items():
         if cid not in index:
             continue
-        lead_id, col_id = index[cid]
+        lead_id, col_id, row_id = index[cid]
         with SessionLocal() as cdb:
             _set_enrichment(cdb, workbook_id, lead_id, col_id, text, "complete", provider="ai")
             cdb.commit()
@@ -1047,7 +1073,8 @@ async def _run_ai_batch_prepass(
         if redis_client is not None:
             try:
                 await _broadcast(redis_client, workbook_id, {
-                    "type": "cell_update", "leadId": lead_id, "colId": col_id,
+                    "type": "cell_update", "leadId": lead_id, "rowId": row_id,
+                    "colId": col_id,
                     "value": text, "status": "complete", "provider": "ai", "error": None,
                 })
             except Exception:

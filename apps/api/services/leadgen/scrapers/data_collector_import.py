@@ -12,9 +12,6 @@ Key design decisions:
 
 import csv
 import json
-import os
-import threading
-import time
 from pathlib import Path
 from typing import Optional
 
@@ -26,10 +23,13 @@ _COLLECTOR_ROOT = Path(__file__).resolve().parents[5] / "data_collector" / "data
 CNPJ_CSV = _COLLECTOR_ROOT / "processed" / "cnpj_leads.csv"
 GITHUB_CSV = _COLLECTOR_ROOT / "processed" / "github_leads.csv"
 
-# Checkpoint file — persists across crashes
-_CHECKPOINT_DIR = Path(__file__).resolve().parent / "data"
-_CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
-CHECKPOINT_FILE = _CHECKPOINT_DIR / "br_import_checkpoint.json"
+# Legacy CLI checkpoint — API/worker jobs use tenant-specific paths below.
+CHECKPOINT_FILE = (
+    Path(__file__).resolve().parents[5]
+    / "data"
+    / "imports"
+    / "br_import_checkpoint.json"
+)
 
 # Import tuning
 BATCH_SIZE = 500          # Rows per DB transaction (smaller = less RAM)
@@ -51,21 +51,33 @@ _BR_STATES = {
 # ── Checkpoint helpers ──────────────────────────────────────────────────
 
 
-def _load_checkpoint() -> dict:
+def checkpoint_path_for(slug: str) -> Path:
+    """Return a tenant-specific checkpoint path on the shared data volume."""
+    if not slug or slug in (".", "..") or "/" in slug or "\\" in slug:
+        raise ValueError("valid workspace slug is required")
+    path = Path(__file__).resolve().parents[5] / "data" / "workspaces" / slug / "imports"
+    path.mkdir(parents=True, exist_ok=True)
+    return path / "br_import_checkpoint.json"
+
+
+def _load_checkpoint(checkpoint_file: Optional[Path] = None) -> dict:
     """Load checkpoint from disk. Returns dict with row offsets per module."""
-    if CHECKPOINT_FILE.exists():
+    checkpoint_file = checkpoint_file or CHECKPOINT_FILE
+    if checkpoint_file.exists():
         try:
-            return json.loads(CHECKPOINT_FILE.read_text())
+            return json.loads(checkpoint_file.read_text())
         except (json.JSONDecodeError, OSError):
             pass
     return {"cnpj_row": 0, "github_done": False}
 
 
-def _save_checkpoint(data: dict) -> None:
+def _save_checkpoint(data: dict, checkpoint_file: Optional[Path] = None) -> None:
     """Atomically save checkpoint (write to tmp then rename)."""
-    tmp = CHECKPOINT_FILE.with_suffix(".tmp")
+    checkpoint_file = checkpoint_file or CHECKPOINT_FILE
+    checkpoint_file.parent.mkdir(parents=True, exist_ok=True)
+    tmp = checkpoint_file.with_suffix(".tmp")
     tmp.write_text(json.dumps(data))
-    tmp.rename(CHECKPOINT_FILE)
+    tmp.replace(checkpoint_file)
 
 
 # ── Row mappers ─────────────────────────────────────────────────────────
@@ -127,7 +139,13 @@ def _map_github_row(row: dict) -> Optional[Lead]:
 # ── Streaming importers ────────────────────────────────────────────────
 
 
-def _stream_import_cnpj(db, limit: Optional[int] = None, checkpoint: Optional[dict] = None) -> int:
+def _stream_import_cnpj(
+    db,
+    limit: Optional[int] = None,
+    checkpoint: Optional[dict] = None,
+    checkpoint_file: Optional[Path] = None,
+    workspace_id: str = "",
+) -> int:
     """
     Stream-import CNPJ CSV into LeadDB in small batches.
     Skips rows already processed (per checkpoint).
@@ -138,7 +156,7 @@ def _stream_import_cnpj(db, limit: Optional[int] = None, checkpoint: Optional[di
         return 0
 
     if checkpoint is None:
-        checkpoint = _load_checkpoint()
+        checkpoint = _load_checkpoint(checkpoint_file)
 
     start_row = checkpoint.get("cnpj_row", 0)
     if start_row > 0:
@@ -159,22 +177,26 @@ def _stream_import_cnpj(db, limit: Optional[int] = None, checkpoint: Optional[di
 
             lead = _map_cnpj_row(row)
             if lead:
+                lead.workspace_id = workspace_id
                 batch.append(lead)
 
             # Flush batch to DB
-            if len(batch) >= BATCH_SIZE:
-                try:
-                    score_leads(batch)
-                    db.bulk_upsert(batch)
-                except Exception as e:
-                    print(f"  ⚠ Batch error at row {row_num}: {e}")
+            if len(batch) >= BATCH_SIZE or (
+                limit is not None and processed + len(batch) >= limit
+            ):
+                # Do not advance the checkpoint past a failed batch. The
+                # durable queue will retry from the last committed checkpoint;
+                # upsert semantics make replay safe if a provider failed after
+                # only part of this batch committed.
+                score_leads(batch)
+                db.bulk_upsert(batch)
 
                 processed += len(batch)
                 batch = []
 
                 # Save checkpoint after every batch
                 checkpoint["cnpj_row"] = row_num
-                _save_checkpoint(checkpoint)
+                _save_checkpoint(checkpoint, checkpoint_file)
 
                 # Progress log (only every LOG_EVERY rows)
                 total_done = start_row + processed
@@ -187,29 +209,31 @@ def _stream_import_cnpj(db, limit: Optional[int] = None, checkpoint: Optional[di
 
     # Flush remaining batch
     if batch:
-        try:
-            score_leads(batch)
-            db.bulk_upsert(batch)
-            processed += len(batch)
-        except Exception as e:
-            print(f"  ⚠ Final batch error: {e}")
+        score_leads(batch)
+        db.bulk_upsert(batch)
+        processed += len(batch)
 
         checkpoint["cnpj_row"] = row_num
-        _save_checkpoint(checkpoint)
+        _save_checkpoint(checkpoint, checkpoint_file)
 
     total = start_row + processed
     print(f"  ✅ CNPJ import: {processed:,} new rows this run ({total:,} total)")
     return processed
 
 
-def _stream_import_github(db, checkpoint: Optional[dict] = None) -> int:
+def _stream_import_github(
+    db,
+    checkpoint: Optional[dict] = None,
+    checkpoint_file: Optional[Path] = None,
+    workspace_id: str = "",
+) -> int:
     """Import GitHub leads (small dataset — fits in memory)."""
     if not GITHUB_CSV.exists():
         print(f"  ⚠ GitHub CSV not found: {GITHUB_CSV}")
         return 0
 
     if checkpoint is None:
-        checkpoint = _load_checkpoint()
+        checkpoint = _load_checkpoint(checkpoint_file)
 
     if checkpoint.get("github_done"):
         print("  ↻ GitHub import already completed (skipping)")
@@ -221,6 +245,7 @@ def _stream_import_github(db, checkpoint: Optional[dict] = None) -> int:
         for row in reader:
             lead = _map_github_row(row)
             if lead:
+                lead.workspace_id = workspace_id
                 leads.append(lead)
 
     if leads:
@@ -228,7 +253,7 @@ def _stream_import_github(db, checkpoint: Optional[dict] = None) -> int:
         db.bulk_upsert(leads)
 
     checkpoint["github_done"] = True
-    _save_checkpoint(checkpoint)
+    _save_checkpoint(checkpoint, checkpoint_file)
 
     print(f"  ✅ GitHub import: {len(leads)} leads")
     return len(leads)
@@ -237,24 +262,49 @@ def _stream_import_github(db, checkpoint: Optional[dict] = None) -> int:
 # ── Public API ──────────────────────────────────────────────────────────
 
 
-def import_all_collector_leads(limit: Optional[int] = None) -> int:
+def import_all_collector_leads(
+    limit: Optional[int] = None,
+    *,
+    workspace_id: str = "",
+    slug: str = "",
+) -> int:
     """
     Import all data_collector leads into the Yupcha LeadDB.
     Streams CSV rows, checkpoints progress, and resumes from where it left off.
     Returns the total number of leads upserted in this run.
     """
-    from apps.api.services.leadgen.db import LeadDB
+    if workspace_id and slug:
+        from apps.api.services.leadgen.store import get_lead_store
 
-    checkpoint = _load_checkpoint()
-    db = LeadDB()
+        db = get_lead_store(workspace_id, slug)
+        checkpoint_file = checkpoint_path_for(slug)
+    else:
+        # Backwards-compatible CLI path. Authenticated API/worker callers must
+        # always supply a tenant and never enter this branch.
+        from apps.api.services.leadgen.db import LeadDB
+
+        db = LeadDB()
+        checkpoint_file = CHECKPOINT_FILE
+    checkpoint = _load_checkpoint(checkpoint_file)
     total = 0
 
     try:
         print("\n🇧🇷 Importing CNPJ leads from data_collector...")
-        total += _stream_import_cnpj(db, limit=limit, checkpoint=checkpoint)
+        total += _stream_import_cnpj(
+            db,
+            limit=limit,
+            checkpoint=checkpoint,
+            checkpoint_file=checkpoint_file,
+            workspace_id=workspace_id,
+        )
 
         print("\n🇧🇷 Importing GitHub leads from data_collector...")
-        total += _stream_import_github(db, checkpoint=checkpoint)
+        total += _stream_import_github(
+            db,
+            checkpoint=checkpoint,
+            checkpoint_file=checkpoint_file,
+            workspace_id=workspace_id,
+        )
     except Exception as e:
         print(f"  ✗ Import interrupted: {e}")
         print(f"    Checkpoint saved — will resume on next run")
@@ -265,46 +315,68 @@ def import_all_collector_leads(limit: Optional[int] = None) -> int:
     return total
 
 
-def reset_checkpoint() -> None:
+def reset_checkpoint(checkpoint_file: Optional[Path] = None) -> None:
     """Reset the checkpoint file to start imports from scratch."""
-    if CHECKPOINT_FILE.exists():
-        CHECKPOINT_FILE.unlink()
+    checkpoint_file = checkpoint_file or CHECKPOINT_FILE
+    if checkpoint_file.exists():
+        checkpoint_file.unlink()
     print("  ✓ Checkpoint reset — next import starts from row 0")
 
 
-def run_import_background(module: str = "all", limit: Optional[int] = None) -> str:
-    """Run the import in a background thread. Returns a job descriptor."""
-    import uuid
-    job_id = f"br-import-{str(uuid.uuid4())[:6]}"
+async def handle_data_collector_import(queue_job_id: int, payload: dict) -> None:
+    """Durable, tenant-scoped queue handler for the Brazil CSV import."""
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.leadgen.progress import progress
+    from apps.api.services.leadgen.store import get_lead_store
 
-    def _run():
+    module = payload.get("module") or "all"
+    workspace_id = payload.get("workspace_id")
+    slug = payload.get("slug")
+    import_job_id = payload.get("job_id")
+    if module not in ("cnpj", "github", "all"):
+        raise ValueError("module must be cnpj, github, or all")
+    if not workspace_id or not slug or not import_job_id:
+        raise ValueError("data collector payload requires workspace_id, slug, and job_id")
+
+    checkpoint_file = checkpoint_path_for(slug)
+    if payload.get("reset"):
+        reset_checkpoint(checkpoint_file)
+    checkpoint = _load_checkpoint(checkpoint_file)
+    limit = payload.get("limit")
+    progress.bind_job(import_job_id, workspace_id)
+    progress.emit(
+        "data_import_started",
+        {"job_id": import_job_id, "module": module, "workspace_id": workspace_id},
+    )
+
+    total = 0
+    with workspace_scope(workspace_id):
+        db = get_lead_store(workspace_id, slug)
         try:
-            from apps.api.services.leadgen.db import LeadDB
+            if module in ("cnpj", "all"):
+                total += _stream_import_cnpj(
+                    db,
+                    limit=limit,
+                    checkpoint=checkpoint,
+                    checkpoint_file=checkpoint_file,
+                    workspace_id=workspace_id,
+                )
+            if module in ("github", "all"):
+                total += _stream_import_github(
+                    db,
+                    checkpoint=checkpoint,
+                    checkpoint_file=checkpoint_file,
+                    workspace_id=workspace_id,
+                )
+        finally:
+            db.close()
 
-            if module == "cnpj":
-                checkpoint = _load_checkpoint()
-                db = LeadDB()
-                try:
-                    _stream_import_cnpj(db, limit=limit, checkpoint=checkpoint)
-                finally:
-                    db.close()
-
-            elif module == "github":
-                checkpoint = _load_checkpoint()
-                db = LeadDB()
-                try:
-                    _stream_import_github(db, checkpoint=checkpoint)
-                finally:
-                    db.close()
-
-            else:
-                import_all_collector_leads(limit=limit)
-
-            print(f"  ✓ Background import job {job_id} completed")
-        except Exception as e:
-            print(f"  ✗ Background import job {job_id} failed: {e}")
-            print(f"    Checkpoint saved — run again to resume")
-
-    thread = threading.Thread(target=_run, daemon=True)
-    thread.start()
-    return job_id
+    progress.emit(
+        "data_import_completed",
+        {
+            "job_id": import_job_id,
+            "module": module,
+            "processed": total,
+            "workspace_id": workspace_id,
+        },
+    )
