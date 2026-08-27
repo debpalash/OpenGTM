@@ -33,6 +33,7 @@ import {
 import { WorkbookViewBar, applyViewFilters, sortToSortingState } from "@/components/workbook-view-bar"
 import { ActivityDrawer } from "@/components/activity-drawer"
 import { SourceEnginePanel } from "@/components/source-engine-panel"
+import { CsvImportDialog, type CsvImportDraft } from "@/components/csv-import-dialog"
 import { toast } from "sonner"
 import Papa from "papaparse"
 import {
@@ -458,6 +459,7 @@ export default function WorkbookEditorPage() {
   const { data: providersData } = useProviders()
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [csvImportDraft, setCsvImportDraft] = useState<CsvImportDraft | null>(null)
   const [showSourcePanel, setShowSourcePanel] = useState(false)
   const [showColPicker, setShowColPicker] = useState(false)
   const [aiPresets, setAiPresets] = useState<AiColumnPreset[]>([])
@@ -967,24 +969,23 @@ export default function WorkbookEditorPage() {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      complete: async (results) => {
+      complete: (results) => {
         if (!results.data?.length) {
           toast.error("Empty CSV file")
           return
         }
-
-        try {
-          const result = await importLeadsMut.mutateAsync(results.data as Record<string, any>[])
-          toast.success(`Imported ${result.created} leads`)
-        } catch {
-          toast.error("CSV import failed")
+        const fields = (results.meta.fields || []).filter(Boolean)
+        if (!fields.length) {
+          toast.error("CSV needs a header row")
+          return
         }
+        setCsvImportDraft({ fileName: file.name, rows: results.data as Record<string, any>[], fields })
       },
       error: () => toast.error("Failed to parse CSV"),
     })
 
     e.target.value = ""
-  }, [importLeadsMut])
+  }, [])
 
   // ── CSV Export ─────────────────────────────────────────────────────────
 
@@ -1192,7 +1193,7 @@ export default function WorkbookEditorPage() {
           <button
             onClick={() => fileInputRef.current?.click()}
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs hover:bg-muted transition-colors"
-            title="Import CSV (creates new leads)"
+            title="Import a CSV or Clay table export"
           >
             <Upload className="size-3.5" />
             Import
@@ -2103,6 +2104,30 @@ export default function WorkbookEditorPage() {
           </div>
         )
       })()}
+
+      {csvImportDraft && (
+        <CsvImportDialog
+          draft={csvImportDraft}
+          columns={columns}
+          importing={importLeadsMut.isPending}
+          onClose={() => { if (!importLeadsMut.isPending) setCsvImportDraft(null) }}
+          onImport={async options => {
+            try {
+              const result = await importLeadsMut.mutateAsync(options)
+              const duplicateNote = result.skipped_duplicates
+                ? ` · ${result.skipped_duplicates} duplicate${result.skipped_duplicates === 1 ? "" : "s"} skipped`
+                : ""
+              const columnNote = result.columns_added.length
+                ? ` · ${result.columns_added.length} column${result.columns_added.length === 1 ? "" : "s"} added`
+                : ""
+              toast.success(`Imported ${result.added} row${result.added === 1 ? "" : "s"}${duplicateNote}${columnNote}`)
+              setCsvImportDraft(null)
+            } catch (error) {
+              toast.error(error instanceof Error ? error.message : "CSV import failed")
+            }
+          }}
+        />
+      )}
 
       {/* ── Activity Drawer (slides up from status bar) ─────────────── */}
       <ActivityDrawer

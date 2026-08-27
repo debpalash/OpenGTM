@@ -150,6 +150,23 @@ export interface WorkbookWithLeads {
   page_size: number
 }
 
+export interface CsvImportOptions {
+  rows: Record<string, any>[]
+  mapping?: Record<string, string | null>
+  create_columns?: boolean
+  dedupe?: boolean
+  file_name?: string
+}
+
+export interface CsvImportResult {
+  created: number
+  added: number
+  skipped_duplicates: number
+  total_rows: number
+  columns_added: string[]
+  mapping: Record<string, string | null>
+}
+
 export interface FilterOptions {
   cities: string[]
   tiers: string[]
@@ -267,14 +284,17 @@ export async function updateWorkbookRow(
 
 export async function importLeads(
   workbookId: string,
-  rows: Record<string, any>[],
-): Promise<{ created: number; total_rows: number }> {
+  options: CsvImportOptions,
+): Promise<CsvImportResult> {
   const res = await fetch(`${API}/api/workbooks/${workbookId}/import`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ rows }),
+    body: JSON.stringify(options),
   })
-  if (!res.ok) throw new Error("Failed to import leads")
+  if (!res.ok) {
+    const payload = await res.json().catch(() => null)
+    throw new Error(payload?.detail || "Failed to import CSV")
+  }
   return res.json()
 }
 
