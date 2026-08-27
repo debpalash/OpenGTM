@@ -249,6 +249,18 @@ class AddRowsRequest(BaseModel):
     dedupe: bool = Field(True, description="Skip rows whose identity (domain/company) already exists or repeats")
 
 
+class ImportRowsRequest(BaseModel):
+    """Import CSV-shaped data into a workbook with explicit/automatic mapping."""
+    rows: list[dict] = Field(..., min_length=1, max_length=50000)
+    mapping: Optional[dict[str, Optional[str]]] = Field(
+        None,
+        description="Source header to target field; null skips the source column",
+    )
+    create_columns: bool = Field(True, description="Create editable columns for unmapped CSV headers")
+    dedupe: bool = Field(True, description="Skip duplicate domains/companies")
+    file_name: Optional[str] = Field(None, max_length=255)
+
+
 class DeleteRowsRequest(BaseModel):
     """Delete rows from a workbook."""
     row_ids: list[int] = Field(..., min_length=1, description="Row IDs to delete")

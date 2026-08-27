@@ -22,7 +22,7 @@ from apps.api.services.workbook.schemas import (
     WorkbookLeadRow, EnrichmentOverlay,
     RunWorkbookRequest, RunWorkbookResponse, RunCellRequest,
     AddColumnRequest, ExportRequest,
-    AddRowsRequest, DeleteRowsRequest,
+    AddRowsRequest, ImportRowsRequest, DeleteRowsRequest,
     GenerateColumnRequest, GenerateColumnResponse,
     WorkbookViewCreate, WorkbookViewUpdate,
     WorkbookViewResponse, WorkbookViewListResponse,
@@ -559,45 +559,100 @@ async def update_lead_field(
         lead_db.close()
 
 
-# ── CSV Import (creates leads + adds to workbook filter) ──────────────────
+# ── CSV Import ────────────────────────────────────────────────────────────
 
 @router.post("/{workbook_id}/import")
 async def import_csv_leads(
     workbook_id: str,
-    body: dict,
+    body: ImportRowsRequest,
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(require_editor),
 ):
-    """Import rows as new leads in the DB.
-
-    Body: {"rows": [{"company": "Acme", "website": "acme.com", ...}, ...]}
-    The workbook's filter should match the imported leads.
-    """
+    """Import CSV rows into the workbook and preserve its complete schema."""
     wb = _owned_workbook(db, workbook_id, ctx)
+    from apps.api.services.workbook.csv_import import prepare_csv_import
+    from apps.api.services.leadgen.dedup import normalize_domain, normalize_company
 
-    rows = body.get("rows", [])
+    rows, columns, added_columns, resolved_mapping = prepare_csv_import(
+        body.rows,
+        wb.columns_config or [],
+        body.mapping,
+        create_columns=body.create_columns,
+    )
     if not rows:
-        raise HTTPException(status_code=400, detail="No rows provided")
+        raise HTTPException(status_code=400, detail="CSV has no importable rows")
+    if len(resolved_mapping) > 500:
+        raise HTTPException(status_code=400, detail="CSV has more than 500 columns")
 
-    lead_db = ctx.lead_db()
-    created = 0
+    def _identity(data: dict) -> str:
+        domain = normalize_domain(data.get("website") or data.get("domain") or "")
+        if domain:
+            return f"d:{domain}"
+        company = normalize_company(data.get("company") or "")
+        return f"n:{company}" if company else ""
+
+    seen: set[str] = set()
+    if body.dedupe:
+        for (data,) in db.query(WorkbookRow.data).filter(WorkbookRow.workbook_id == workbook_id):
+            identity = _identity(data or {})
+            if identity:
+                seen.add(identity)
+
+    max_pos = db.query(sa_func.max(WorkbookRow.position)).filter(
+        WorkbookRow.workbook_id == workbook_id
+    ).scalar()
+    next_pos = 0 if max_pos is None else max_pos + 1
+    new_rows: list[WorkbookRow] = []
+    skipped = 0
+    for row in rows:
+        identity = _identity(row)
+        if body.dedupe and identity and identity in seen:
+            skipped += 1
+            continue
+        if identity:
+            seen.add(identity)
+        workbook_row = WorkbookRow(
+            workbook_id=workbook_id,
+            workspace_id=ctx.workspace_id,
+            position=next_pos + len(new_rows),
+            data=row,
+            enrichments={},
+        )
+        db.add(workbook_row)
+        new_rows.append(workbook_row)
+
+    wb.columns_config = columns
+    if wb.source_type == "empty":
+        wb.source_type = "csv"
+    source_config = dict(wb.source_config or {})
+    source_config["last_csv_import"] = {
+        "file_name": body.file_name,
+        "rows": len(new_rows),
+        "columns_added": len(added_columns),
+        "imported_at": datetime.now(timezone.utc).isoformat(),
+    }
+    wb.source_config = source_config
+    db.commit()
+
     try:
-        for row in rows:
-            from apps.api.services.leadgen.models import Lead
-            lead = Lead.from_dict(row)
-            lead.workspace_id = ctx.workspace_id
-            # Tag with workbook source
-            if not lead.source:
-                lead.source = f"workbook:{workbook_id}"
-            try:
-                lead_db.upsert_lead(lead)
-                created += 1
-            except Exception as e:
-                logger.warning(f"Failed to import lead: {e}")
-    finally:
-        lead_db.close()
+        from apps.api.services.automations import events as _auto_events
+        _auto_events.emit_row_added(
+            ctx.workspace_id, workbook_id, [row.id for row in new_rows],
+        )
+    except Exception as exc:
+        logger.warning("on_row_added emit (csv import) failed: %s", exc)
 
-    return {"created": created, "total_rows": created}
+    total_rows = db.query(sa_func.count(WorkbookRow.id)).filter(
+        WorkbookRow.workbook_id == workbook_id
+    ).scalar() or 0
+    return {
+        "created": len(new_rows),
+        "added": len(new_rows),
+        "skipped_duplicates": skipped,
+        "total_rows": total_rows,
+        "columns_added": [column["name"] for column in added_columns],
+        "mapping": resolved_mapping,
+    }
 
 
 # ── Column Management ────────────────────────────────────────────────────

@@ -127,11 +127,11 @@ export function useUpdateWorkbookRow(workbookId: string) {
   })
 }
 
-/** Import CSV rows as new leads */
+/** Import mapped CSV rows into the self-contained workbook. */
 export function useImportLeads(workbookId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (rows: Record<string, any>[]) => importLeads(workbookId, rows),
+    mutationFn: (options: import("./workbook-api").CsvImportOptions) => importLeads(workbookId, options),
     onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
   })
 }
