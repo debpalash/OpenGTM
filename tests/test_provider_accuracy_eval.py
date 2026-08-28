@@ -7,10 +7,11 @@ Covers:
   - planner ordering is unchanged / graceful when NO accuracy data exists
 """
 
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 
 from apps.api.database import Base
@@ -149,3 +150,45 @@ def test_ordering_unchanged_when_no_accuracy_data(db, monkeypatch):
 
     order = planner.order_chain(db, "email", ["b", "a"])
     assert order == ["a", "b"]  # pure hit-rate ordering preserved
+
+
+def test_record_attempt_is_atomic_under_sqlite_concurrency(tmp_path, monkeypatch):
+    """Concurrent workbook cells must share one provider ledger row cleanly."""
+    path = tmp_path / "provider-stats.db"
+    engine = create_engine(
+        f"sqlite:///{path}",
+        connect_args={"check_same_thread": False, "timeout": 10},
+    )
+
+    @event.listens_for(engine, "connect")
+    def _sqlite_wal(connection, _record):
+        cursor = connection.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA busy_timeout=10000")
+        cursor.close()
+
+    ProviderStat.__table__.create(bind=engine)
+    Session = sessionmaker(bind=engine)
+    monkeypatch.setattr(planner, "provider_cost", lambda _name: 0.0)
+
+    def _write_attempt(i):
+        with Session() as session:
+            planner.record_attempt(
+                session,
+                "shared_provider",
+                "email",
+                success=(i % 2 == 0),
+                confidence=0.8,
+                latency_ms=10.0,
+            )
+            session.commit()
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        list(pool.map(_write_attempt, range(80)))
+
+    with Session() as session:
+        stat = session.query(ProviderStat).one()
+        assert stat.attempts == 80
+        assert stat.hits == 40
+        assert stat.total_confidence == pytest.approx(32.0)
+        assert stat.total_latency_ms == pytest.approx(800.0)

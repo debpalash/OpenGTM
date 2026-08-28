@@ -13,6 +13,7 @@ import logging
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from apps.api.services.workbook.planner_models import ProviderStat
@@ -133,24 +134,85 @@ def record_attempt(
     success: bool, confidence: float = 0.0, latency_ms: float = 0.0,
     rate_limited: bool = False, timed_out: bool = False,
 ):
-    """Upsert ProviderStat after a provider call. Benches the provider (cooldown)
-    on a rate-limit or a hard timeout — the circuit breaker that keeps a dead
-    source from costing every cell its full timeout."""
-    st = _stat(db, provider, field)
-    if not st:
-        st = ProviderStat(provider=provider, field=field)
-        db.add(st)
-        db.flush()
-    st.attempts = (st.attempts or 0) + 1
-    st.total_latency_ms = (st.total_latency_ms or 0.0) + latency_ms
-    if success:
-        st.hits = (st.hits or 0) + 1
-        st.total_confidence = (st.total_confidence or 0.0) + confidence
-        st.total_cost_usd = (st.total_cost_usd or 0.0) + provider_cost(provider)
+    """Atomically upsert one provider attempt.
+
+    Workbook rows run concurrently, so the old read-then-insert implementation
+    raced on the unique ``(provider, field)`` key. More importantly on SQLite,
+    its eager ``flush()`` acquired the single writer lock and the cell kept that
+    transaction open while trying the rest of its network waterfall. One slow
+    cell could therefore freeze login, job heartbeats, and every other cell.
+
+    A single-statement upsert avoids the create race and makes every counter an
+    additive database-side update. The caller still owns the transaction and
+    must commit promptly; workbook enrichment records these attempts only after
+    the cell result itself has committed.
+    """
+    table = ProviderStat.__table__
+    now = _now()
+    cooldown_until = None
     if rate_limited:
-        st.cooldown_until = _now() + timedelta(seconds=COOLDOWN_SECONDS)
+        cooldown_until = now + timedelta(seconds=COOLDOWN_SECONDS)
     elif timed_out:
-        st.cooldown_until = _now() + timedelta(seconds=TIMEOUT_COOLDOWN_SECONDS)
+        cooldown_until = now + timedelta(seconds=TIMEOUT_COOLDOWN_SECONDS)
+
+    values = {
+        "provider": provider,
+        "field": field,
+        "attempts": 1,
+        "hits": 1 if success else 0,
+        "total_confidence": confidence if success else 0.0,
+        "total_latency_ms": latency_ms,
+        "total_cost_usd": provider_cost(provider) if success else 0.0,
+        "cooldown_until": cooldown_until,
+        "updated_at": now,
+        "accuracy_samples": 0,
+    }
+    updates = {
+        "attempts": func.coalesce(table.c.attempts, 0) + 1,
+        "hits": func.coalesce(table.c.hits, 0) + (1 if success else 0),
+        "total_confidence": (
+            func.coalesce(table.c.total_confidence, 0.0)
+            + (confidence if success else 0.0)
+        ),
+        "total_latency_ms": func.coalesce(table.c.total_latency_ms, 0.0) + latency_ms,
+        "total_cost_usd": (
+            func.coalesce(table.c.total_cost_usd, 0.0)
+            + (provider_cost(provider) if success else 0.0)
+        ),
+        "updated_at": now,
+        "cooldown_until": (
+            cooldown_until
+            if cooldown_until is not None
+            else table.c.cooldown_until
+        ),
+    }
+
+    dialect = db.get_bind().dialect.name
+    if dialect == "sqlite":
+        from sqlalchemy.dialects.sqlite import insert
+    elif dialect == "postgresql":
+        from sqlalchemy.dialects.postgresql import insert
+    else:  # pragma: no cover - supported deployments use SQLite or Postgres
+        st = _stat(db, provider, field)
+        if not st:
+            st = ProviderStat(provider=provider, field=field)
+            db.add(st)
+            db.flush()
+        st.attempts = (st.attempts or 0) + 1
+        st.total_latency_ms = (st.total_latency_ms or 0.0) + latency_ms
+        if success:
+            st.hits = (st.hits or 0) + 1
+            st.total_confidence = (st.total_confidence or 0.0) + confidence
+            st.total_cost_usd = (st.total_cost_usd or 0.0) + provider_cost(provider)
+        if cooldown_until is not None:
+            st.cooldown_until = cooldown_until
+        return
+
+    statement = insert(table).values(**values).on_conflict_do_update(
+        index_elements=[table.c.provider, table.c.field],
+        set_=updates,
+    )
+    db.execute(statement)
 
 
 def looks_rate_limited(error: str) -> bool:
