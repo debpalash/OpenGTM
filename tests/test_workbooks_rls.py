@@ -7,7 +7,7 @@ assertions go through ``app_engine``, a NON-super, NON-BYPASSRLS login role
 (``app_rls_test``) granted ``yupcha_app``, so the policies are exercised for real.
 
 Proves acceptance criteria 1-4 + 12 of
-features/followup-workbooks-rls-hardening-spec.md for every tenant-owned
+docs/specs/followup-workbooks-rls-hardening-spec.md for every tenant-owned
 workbook table, including durable connector runs.
 
 Run:

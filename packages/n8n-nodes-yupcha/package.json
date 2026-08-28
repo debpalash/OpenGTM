@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/debpalash/lead-data.git"
+    "url": "https://github.com/debpalash/opengtm.git"
   },
   "main": "index.js",
   "n8n": {
@@ -33,7 +33,7 @@
   "scripts": {
     "dev": "echo 'n8n-nodes-opengtm — no dev server'",
     "build": "tsc && mkdir -p dist/nodes/Yupcha && cp nodes/Yupcha/opengtm.svg dist/nodes/Yupcha/opengtm.svg",
-    "lint": "eslint nodes credentials --ext .ts",
+    "lint": "tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
   "files": [

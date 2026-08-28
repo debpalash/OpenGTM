@@ -18,7 +18,7 @@ Infer a company's employee band (and, secondarily, revenue band) from signals Yu
 **Size is populated today by ad-hoc, lossy paths:**
 - LinkedIn regex bucketer — `job_runner.py:1285-1296`.
 - `_extract_size(body)` regex bucketer — `job_runner.py` (used at `:1390,1505`).
-- Waterfall chain `DEFAULT_WATERFALLS["company_size"] = ["deep_scraper","website_scraper","company_intel","wikidata","people_data_labs"]` — `apps/api/services/workbook/enrichment.py:77`. These are scrape/paid providers that frequently fail (see `docs/data-source-test-report.md`).
+- Waterfall chain `DEFAULT_WATERFALLS["company_size"] = ["deep_scraper","website_scraper","company_intel","wikidata","people_data_labs"]` — `apps/api/services/workbook/enrichment.py:77`. These are scrape/paid providers that frequently fail (see `docs/research/data-source-test-report.md`).
 - Inert paid manifest `company_size/leadmagic_company.yaml` — maps `$.employee_count` (an **integer**) straight into `company_size`, which then fails the scoring string match.
 
 **Raw signals that are ALREADY on the lead (the heuristic's inputs — zero new network):**

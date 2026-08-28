@@ -1,6 +1,6 @@
 """
 Lead dedup: normalizer + 3-pass match + best-record merge.
-See docs/clay-alternatives-ingestion-catalog.md.
+See docs/research/clay-alternatives-ingestion-catalog.md.
 """
 from apps.api.services.leadgen.dedup import (
     normalize_company, normalize_domain, normalize_email, normalize_phone,

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
 
@@ -20,6 +20,8 @@ class UserRoleUpdate(BaseModel):
 
 
 class UserResponse(UserBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     is_active: bool
     is_admin: bool
@@ -27,6 +29,3 @@ class UserResponse(UserBase):
     profile_image: Optional[str] = None
     last_login: Optional[datetime] = None
     created_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True

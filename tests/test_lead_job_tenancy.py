@@ -70,6 +70,31 @@ def test_collection_jobs_use_authenticated_workspace_not_body(monkeypatch, tmp_p
     assert exc.value.status_code == 404
 
 
+def test_bare_domain_creates_neither_job_nor_queue_entry(monkeypatch, tmp_path):
+    db_path = str(tmp_path / "one.db")
+    monkeypatch.setattr(
+        "apps.api.services.workspace.manager.workspace_leads_db_path",
+        lambda slug: db_path,
+    )
+
+    def _unexpected_enqueue(*args, **kwargs):
+        raise AssertionError("ambiguous domain reached the durable queue")
+
+    monkeypatch.setattr(QueueService, "add_job", _unexpected_enqueue)
+    result = unwrap(leads.start_collection)(
+        None,
+        leads.CollectRequest(query="stripe.com"),
+        _ctx("W1", "one"),
+    )
+
+    assert result["ok"] is False
+    assert result["clarification_required"] is True
+    assert result["domain"] == "stripe.com"
+    db = LeadDB(db_path)
+    assert db.get_jobs() == []
+    db.close()
+
+
 def test_collection_failure_reconciliation_is_workspace_local(monkeypatch, tmp_path):
     from apps.api.services.leadgen.job_runner import reconcile_collect_job_failure
 

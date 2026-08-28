@@ -4,7 +4,7 @@ Revision ID: b8c9d0e1f2a3
 Revises: a7b8c9d0e1f2
 Create Date: 2026-06-26
 
-Phase 1 of the write-capable-MCP spec (features/research-write-capable-mcp-spec.md)
+Phase 1 of the write-capable-MCP spec (docs/specs/research-write-capable-mcp-spec.md)
 — SECURITY ONLY. Creates the two foundation tables that let the MCP bridge
 authenticate + scope every tool call to a single tenant (closing the current
 unauthenticated, tenant-blind hole). No write tools ship in this revision.

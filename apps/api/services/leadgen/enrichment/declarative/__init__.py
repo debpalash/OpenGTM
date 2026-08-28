@@ -4,7 +4,7 @@ instead of a bespoke Python client.
 
 Ported from Othmane-Khadri/YALC-the-GTM-operating-system
 (src/lib/providers/declarative + capabilities). See
-docs/clay-alternatives-ingestion-catalog.md §G / Phase 1.5.
+docs/research/clay-alternatives-ingestion-catalog.md §G / Phase 1.5.
 
 A manifest (auth / endpoint / request.bodyTemplate / response.mappings /
 pagination) is compiled into a DeclarativeProvider(EnrichmentProvider) that

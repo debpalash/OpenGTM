@@ -6,6 +6,7 @@ import {
   FileSearch, Users, Shield, Layers, Sparkles, Zap,
   StopCircle, Trash2, RefreshCw, FileX2, Mail, Database,
   TrendingUp, ShieldCheck, Activity,
+  AlertTriangle,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -37,6 +38,8 @@ interface JobStage {
 interface JobDetail {
   id: string
   query: string
+  intent: string
+  intent_details: Record<string, unknown>
   status: string
   leads_found: number
   created_at: string
@@ -55,6 +58,7 @@ interface JobLead {
   score: number
   score_tier: string
   source: string
+  source_url: string
   city: string
 }
 
@@ -83,15 +87,20 @@ const STAGE_META: Record<string, { icon: typeof Globe; label: string; color: str
   linkedin:         { icon: Link2,      label: "LinkedIn",          color: "text-sky-600" },
   job_boards:       { icon: Briefcase,  label: "Job Boards",        color: "text-emerald-500" },
   review_sites:     { icon: Star,       label: "Reviews",           color: "text-yellow-500" },
+  registry_sources: { icon: Database,   label: "Registries",        color: "text-lime-600" },
   validate:         { icon: Shield,     label: "Validate",          color: "text-violet-500" },
+  post_validate:    { icon: ShieldCheck, label: "Contact quality",  color: "text-violet-600" },
   dedup:            { icon: Layers,     label: "Dedup",             color: "text-orange-500" },
-  score:            { icon: Brain,      label: "AI Score",          color: "text-purple-500" },
+  score:            { icon: Brain,      label: "Scoring",           color: "text-purple-500" },
   enrich:           { icon: Sparkles,   label: "Enrich",            color: "text-cyan-500" },
   decision_makers:  { icon: Users,      label: "People",            color: "text-pink-500" },
   personal_emails:  { icon: Mail,       label: "Emails",            color: "text-teal-500" },
+  email_waterfall:  { icon: Mail,       label: "Email waterfall",  color: "text-teal-600" },
   crosslinked:      { icon: Link2,      label: "LinkedIn PPL",      color: "text-blue-600" },
   hiring_signals:   { icon: TrendingUp, label: "Hiring",            color: "text-green-500" },
   smtp_verify:      { icon: ShieldCheck, label: "SMTP",             color: "text-indigo-500" },
+  deliverability:   { icon: ShieldCheck, label: "Deliverability",   color: "text-indigo-600" },
+  quality_gate:     { icon: Shield,      label: "Quality gate",     color: "text-green-600" },
   store:            { icon: Database,   label: "Store",             color: "text-slate-500" },
 }
 
@@ -111,8 +120,11 @@ function StageRow({ stage }: { stage: JobStage }) {
   const error = details.error as string | undefined
   const crossRemoved = details.cross_job_removed as number | undefined
   const rejectedNames = details.rejected_names as string[] | undefined
+  const aiApplied = details.ai_applied as number | undefined
+  const aiUsed = details.ai as boolean | undefined
+  const errors = details.errors as string[] | undefined
 
-  const hasDetails = !!(tiers || reasons || samples || tokens || error || crossRemoved || rejectedNames)
+  const hasDetails = !!(tiers || reasons || samples || tokens || error || crossRemoved || rejectedNames || aiApplied !== undefined || errors?.length)
 
   return (
     <Collapsible>
@@ -162,6 +174,16 @@ function StageRow({ stage }: { stage: JobStage }) {
             {tokens && (
               <div className="text-muted-foreground">
                 {(tokens.total_tokens as number) ?? 0} tokens · {(tokens.calls as number) ?? 0} calls
+              </div>
+            )}
+            {aiApplied !== undefined && (
+              <div className={aiUsed ? "text-muted-foreground" : "text-amber-600"}>
+                {aiUsed ? `AI scores applied to ${aiApplied} candidates` : "AI unavailable · heuristic scoring used"}
+              </div>
+            )}
+            {errors && errors.length > 0 && (
+              <div className="text-amber-600 truncate" title={errors.join(" · ")}>
+                {errors[errors.length - 1]}
               </div>
             )}
             {samples && samples.length > 0 && (
@@ -417,7 +439,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
                 <StatusIcon className={cn("size-3.5", STATUS_COLORS[job.status], isRunning && "animate-spin")} />
                 <span className="text-xs text-muted-foreground capitalize">{job.status}</span>
                 {job.leads_found > 0 && (
-                  <Badge variant="outline" className="text-[10px] py-0">{job.leads_found} leads</Badge>
+                  <Badge variant="outline" className="text-[10px] py-0">{job.leads_found} qualified</Badge>
                 )}
                 {duration > 0 && (
                   <span className="text-xs text-muted-foreground">{formatDuration(duration)}</span>
@@ -446,13 +468,19 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
   // ── Full mode (detail page) — compact single-screen layout ────
 
   const sourceStages = (job.stages || []).filter(s =>
-    ["maps", "web", "directories", "linkedin", "job_boards", "review_sites"].includes(s.stage)
+    ["maps", "web", "directories", "linkedin", "job_boards", "review_sites", "registry_sources"].includes(s.stage)
   )
   const totalDiscovered = sourceStages.reduce((sum, s) => sum + s.output_count, 0)
   const validateStage = job.stages?.find(s => s.stage === "validate")
   const dedupStage = job.stages?.find(s => s.stage === "dedup")
   const scoreStage = job.stages?.find(s => s.stage === "score")
+  const postValidateStage = job.stages?.find(s => s.stage === "post_validate")
+  const qualityStage = job.stages?.find(s => s.stage === "quality_gate")
   const storeStage = job.stages?.find(s => s.stage === "store")
+  const qualifiedLeads = leads.filter(lead => lead.score_tier !== "unqualified")
+  const unqualifiedLeads = leads.length - qualifiedLeads.length
+  const qualifiedCount = qualityStage?.output_count ?? qualifiedLeads.length
+  const legacyQualityMismatch = job.status === "done" && leads.length > 0 && qualifiedCount === 0
 
   const totalStages = (job.stages || []).length || 1
   const completedStages = (job.stages || []).filter(s => s.status === "done").length
@@ -469,8 +497,11 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
             <Badge variant={job.status === "done" ? "default" : job.status === "failed" ? "destructive" : "secondary"} className="text-[10px]">
               {job.status}
             </Badge>
+            <Badge variant="outline" className="text-[10px] capitalize">
+              {(job.intent || "market_search").replace(/_/g, " ")}
+            </Badge>
             {job.leads_found > 0 && (
-              <span className="text-xs text-muted-foreground">{job.leads_found} leads</span>
+              <span className="text-xs text-muted-foreground">{job.leads_found} qualified</span>
             )}
             {duration > 0 && (
               <span className="text-xs text-muted-foreground">{formatDuration(duration)}</span>
@@ -502,7 +533,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
               <RefreshCw className="size-3" /> Retry
             </Button>
           )}
-          {job.status === "done" && job.leads_found > 0 && (
+          {job.status === "done" && qualifiedCount > 0 && (
             <Button variant="outline" size="sm" className="h-6 text-[10px] gap-0.5 px-2" onClick={async () => {
               try {
                 const { createWorkbookFromJobs } = await import("@/lib/workbook-api")
@@ -540,9 +571,11 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
       {/* ── Metrics: inline row ── */}
       <div className="flex items-center gap-2 flex-wrap">
         <MetricPill icon={Globe} label="Discovered" value={totalDiscovered} />
-        <MetricPill icon={Shield} label="Valid" value={validateStage?.output_count ?? 0} sub={validateStage?.rejected_count ? `-${validateStage.rejected_count}` : undefined} />
+        <MetricPill icon={Shield} label="Name pass" value={validateStage?.output_count ?? 0} sub={validateStage?.rejected_count ? `-${validateStage.rejected_count}` : undefined} />
         <MetricPill icon={Layers} label="Unique" value={dedupStage?.output_count ?? 0} />
+        <MetricPill icon={ShieldCheck} label="Contactable" value={postValidateStage?.output_count ?? 0} />
         <MetricPill icon={Brain} label="Scored" value={scoreStage?.output_count ?? 0} />
+        <MetricPill icon={Shield} label="Qualified" value={qualifiedCount} sub={qualityStage?.rejected_count ? `-${qualityStage.rejected_count}` : unqualifiedLeads ? `-${unqualifiedLeads}` : undefined} />
         {storeStage && <MetricPill icon={Database} label="Stored" value={storeStage.output_count} />}
         {/* Pipeline progress */}
         <div className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -555,6 +588,18 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
       </div>
 
       <Separator />
+
+      {legacyQualityMismatch && (
+        <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700 dark:text-amber-300">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <div>
+            <div className="font-medium">No actionable leads in this task</div>
+            <div className="mt-0.5 opacity-80">
+              {leads.length} legacy candidates were stored, but all are unqualified. Treat them as rejected source documents, not outreach-ready companies.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Live Activity: streamed per-stage messages ── */}
       {activity.length > 0 && (
@@ -596,7 +641,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
           <div>
             <h3 className="text-xs font-medium mb-1.5 flex items-center gap-1.5 text-muted-foreground">
               <Users className="size-3" />
-              Leads ({leads.length})
+              {unqualifiedLeads > 0 ? "Stored candidates" : "Qualified leads"} ({leads.length})
             </h3>
             <div className="rounded-md border overflow-hidden">
               <table className="w-full text-xs">

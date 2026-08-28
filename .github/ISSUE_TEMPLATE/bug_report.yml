@@ -28,7 +28,7 @@ body:
   - type: dropdown
     id: deploy
     attributes:
-      label: How are you running Yupcha?
+      label: How are you running OpenGTM?
       options:
         - Docker Compose (bundled Postgres)
         - Docker Compose (external DATABASE_URL)

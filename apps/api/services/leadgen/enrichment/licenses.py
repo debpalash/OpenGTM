@@ -1,7 +1,7 @@
 """Per-fact provenance: license vocabulary + central provider→license map.
 
 This is the single source of truth for the *license* dimension of per-fact
-provenance (see features/research-per-fact-provenance-spec.md). A fact's
+provenance (see docs/specs/research-per-fact-provenance-spec.md). A fact's
 provenance is the 4-tuple ``{source, license, confidence, fetched_at}``; this
 module resolves the ``license`` token and builds the canonical provenance dict.
 

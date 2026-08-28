@@ -36,6 +36,8 @@ export interface Lead {
   enrichment_attempts: number
   enrichment_waterfall: string
   source: string
+  source_url: string
+  collection_job_id: string
   workspace_id: string
   score: number
   score_tier: string
@@ -86,6 +88,7 @@ export interface Workspace {
 export interface Job {
   id: string
   query: string
+  intent: CollectionIntent
   status: string
   tier: number
   attempts: number
@@ -283,19 +286,79 @@ export async function importDataCollector(
 
 // ── Collection & Jobs ───────────────────────────────────────────
 
-export async function submitCollect(query: string, workspace_id?: string): Promise<{ ok: boolean; job_id: string; query: string }> {
+export type CollectionIntent =
+  | "market_search"
+  | "company_research"
+  | "people_at_company"
+  | "technology_users"
+  | "signal_monitor"
+
+export interface CollectionIntentOption {
+  key: string
+  intent: CollectionIntent
+  label: string
+  description: string
+  route: string
+  draft: string
+}
+
+export interface CollectionQueued {
+  ok: true
+  job_id: string
+  query: string
+  intent: "market_search"
+}
+
+export interface CollectionClarification {
+  ok: false
+  query: string
+  intent: CollectionIntent
+  domain: string
+  entity: string
+  clarification_kind: string
+  clarification_required: true
+  reason: string
+  message: string
+  options: CollectionIntentOption[]
+}
+
+export type CollectionResponse = CollectionQueued | CollectionClarification
+export const COLLECTION_CLARIFICATION_EVENT = "opengtm:collection-clarification"
+export const CHAT_DRAFT_EVENT = "opengtm:chat-draft"
+
+export async function submitCollect(
+  query: string,
+  workspace_id?: string,
+  intent?: CollectionIntent,
+): Promise<CollectionResponse> {
   const res = await fetch(`${API_BASE}/api/collect`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, workspace_id: workspace_id || "" }),
+    body: JSON.stringify({ query, workspace_id: workspace_id || "", intent }),
   })
+  if (!res.ok) {
+    const payload = await res.json().catch(() => ({}))
+    throw new Error(payload.detail || `Collection request failed (${res.status})`)
+  }
   return res.json()
 }
 
 export async function fetchJobs(status?: string): Promise<Job[]> {
   const qs = status ? `?status=${status}` : ""
   const res = await fetch(`${API_BASE}/api/jobs${qs}`)
-  return res.json()
+  const payload: unknown = await res.json().catch(() => null)
+  if (!res.ok) {
+    const detail =
+      payload && typeof payload === "object" && "detail" in payload
+        ? (payload as { detail?: unknown }).detail
+        : null
+    const suffix = typeof detail === "string" && detail ? `: ${detail}` : ""
+    throw new Error(`Jobs request failed (${res.status})${suffix}`)
+  }
+  if (!Array.isArray(payload)) {
+    throw new Error("Jobs response must be an array")
+  }
+  return payload as Job[]
 }
 
 export async function fetchSystemStats(): Promise<SystemStats> {
@@ -374,6 +437,7 @@ export interface ChatStreamEvent {
   tool_call?: { name: string; args: Record<string, unknown> }
   tool_result?: { name: string; result: Record<string, unknown> }
   tool_denied?: { name: string }
+  intent_clarification?: CollectionClarification
   confirmation_required?: {
     confirmation_id: string
     tool_call: ToolCall

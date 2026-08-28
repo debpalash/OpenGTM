@@ -583,6 +583,7 @@ def export_csv(
 
 class CollectRequest(BaseModel):
     query: str
+    intent: Optional[str] = None
     # Accepted for backwards compatibility only. Tenant identity always comes
     # from the authenticated WorkspaceCtx and this value is never trusted.
     workspace_id: str = ""
@@ -595,12 +596,30 @@ def start_collection(request: Request, body: CollectRequest, ctx: WorkspaceCtx =
     if not query:
         raise HTTPException(status_code=400, detail="query is required")
 
+    from apps.api.services.leadgen.collection_intent import decide_collection
+
+    decision = decide_collection(query, body.intent)
+    if decision.clarification_required:
+        # This is a successful interpretation response, not an exception: the
+        # client must present the user with the safe specialized routes.  Most
+        # importantly, no job row and no durable queue entry exist yet.
+        return {
+            "ok": False,
+            **decision.to_dict(),
+            "message": decision.reason,
+        }
+
     job_id = uuid.uuid4().hex
     # Job/stage bookkeeping is per workspace. Never accept a tenant identifier
     # from the body: that was an IDOR primitive when paired with the old global
     # LeadDB ledger.
     db = _workspace_job_db(ctx)
-    db.create_job(job_id, query)
+    db.create_job(
+        job_id,
+        query,
+        intent=decision.intent,
+        intent_details=json.dumps(decision.to_dict()),
+    )
     db.conn.execute(
         "UPDATE jobs SET workspace_id = ? WHERE id = ?",
         (ctx.workspace_id, job_id),
@@ -624,6 +643,7 @@ def start_collection(request: Request, body: CollectRequest, ctx: WorkspaceCtx =
                 {
                     "job_id": job_id,
                     "query": query,
+                    "intent": decision.intent,
                     "workspace_id": ctx.workspace_id,
                     "slug": ctx.slug,
                 },
@@ -657,6 +677,7 @@ def start_collection(request: Request, body: CollectRequest, ctx: WorkspaceCtx =
         "job_id": job_id,
         "queue_job_id": queued.id,
         "query": query,
+        "intent": decision.intent,
         "workspace_id": ctx.workspace_id,
     }
 
@@ -677,6 +698,10 @@ def get_job_detail(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     db.close()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
+    try:
+        job["intent_details"] = json.loads(job.get("intent_details", "{}"))
+    except Exception:
+        job["intent_details"] = {}
     # Parse JSON details in stages
     for stage in job.get("stages", []):
         try:
@@ -716,7 +741,7 @@ def get_job_leads(job_id: str, ctx: WorkspaceCtx = Depends(current_workspace)):
     try:
         return [
             lead.to_dict()
-            for lead in store.get_leads(source=f"job:{job_id}", limit=10_000)
+            for lead in store.get_leads(collection_job_id=job_id, limit=10_000)
         ]
     finally:
         close = getattr(store, "close", None)
@@ -765,7 +790,7 @@ def delete_job(job_id: str, keep_leads: bool = False, ctx: WorkspaceCtx = Depend
     if not keep_leads:
         store = ctx.lead_db()
         try:
-            for lead in store.get_leads(source=f"job:{job_id}", limit=10_000):
+            for lead in store.get_leads(collection_job_id=job_id, limit=10_000):
                 if lead.id is not None:
                     store.delete_lead(lead.id)
         finally:

@@ -2,7 +2,14 @@ import { useCallback, useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { submitCollect, fetchJobs, fetchSystemStats, type Job, type SystemStats } from "@/lib/api"
+import {
+  COLLECTION_CLARIFICATION_EVENT,
+  submitCollect,
+  fetchJobs,
+  fetchSystemStats,
+  type Job,
+  type SystemStats,
+} from "@/lib/api"
 
 const STATUS_ICON: Record<string, string> = {
   pending: "⏳",
@@ -42,7 +49,13 @@ export function CollectPanel({ onCollected }: { onCollected?: () => void }) {
     if (!query.trim()) return
     setLoading(true)
     try {
-      await submitCollect(query.trim())
+      const result = await submitCollect(query.trim())
+      if (!result.ok) {
+        window.dispatchEvent(new CustomEvent(COLLECTION_CLARIFICATION_EVENT, {
+          detail: result,
+        }))
+        return
+      }
       setQuery("")
       await loadJobs()
       onCollected?.()

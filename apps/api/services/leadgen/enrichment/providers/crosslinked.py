@@ -348,4 +348,11 @@ class CrossLinkedProvider(EnrichmentProvider):
             "name": name,
             "title": job_title or "N/A",
             "linkedin": linkedin_url,
+            # Keep the discovery evidence attached to the candidate. Generic
+            # enrichment callers can ignore these fields; targeted people
+            # research uses them to prove company + function relevance before
+            # showing a person to the user.
+            "evidence_url": linkedin_url,
+            "evidence_title": title_text[:300],
+            "evidence_snippet": body_text[:500],
         }

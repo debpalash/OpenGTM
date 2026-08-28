@@ -8,7 +8,7 @@ on) garbage values: role/placeholder emails, provider sentinel strings like
 match the company domain. A value that fails validation is treated as "no data"
 so the waterfall keeps cascading.
 
-See docs/clay-alternatives-ingestion-catalog.md (Phase 1, item 3).
+See docs/research/clay-alternatives-ingestion-catalog.md (Phase 1, item 3).
 """
 
 import re

@@ -10,7 +10,8 @@ import {
   fetchAnalyticsOverview, fetchAnalyticsPipeline,
   fetchAnalyticsCollection, fetchAnalyticsEnrichment, fetchAnalyticsLLM,
   importDataCollector,
-  type Lead, type Job,
+  COLLECTION_CLARIFICATION_EVENT,
+  type Lead, type Job, type CollectionIntent,
 } from "./api"
 
 // ── Leads ───────────────────────────────────────────────────────
@@ -96,9 +97,18 @@ export function useAddLead() {
 export function useCollect() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ query, workspace_id }: { query: string; workspace_id?: string }) =>
-      submitCollect(query, workspace_id),
-    onSuccess: () => {
+    mutationFn: ({ query, workspace_id, intent }: {
+      query: string
+      workspace_id?: string
+      intent?: CollectionIntent
+    }) => submitCollect(query, workspace_id, intent),
+    onSuccess: (result) => {
+      if (!result.ok && result.clarification_required) {
+        window.dispatchEvent(new CustomEvent(COLLECTION_CLARIFICATION_EVENT, {
+          detail: result,
+        }))
+        return
+      }
       qc.invalidateQueries({ queryKey: queryKeys.jobs.all })
     },
   })
@@ -126,8 +136,8 @@ export function useJobs(status?: string) {
     // SSE handles real-time updates via query invalidation.
     // Polling is just a safety net — 15s for active jobs, 60s idle.
     refetchInterval: (query) => {
-      const jobs = query.state.data as Job[] | undefined
-      const hasActive = jobs?.some(
+      const jobs: unknown = query.state.data
+      const hasActive = Array.isArray(jobs) && jobs.some(
         (j: Job) => j.status === "running" || j.status === "pending"
       )
       return hasActive ? 15000 : 60000

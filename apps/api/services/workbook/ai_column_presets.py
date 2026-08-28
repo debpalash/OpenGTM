@@ -3,7 +3,7 @@ AI-column prompt library — ready-to-ship presets for workbook AI columns.
 
 Ported/adapted from forma-norden/clay-claude-code-skill-pack
 (clay-ai-column-prompts.md) + sachacoldiq/ColdIQ (claygent-guide.md). See
-docs/clay-alternatives-ingestion-catalog.md (top-10 #8).
+docs/research/clay-alternatives-ingestion-catalog.md (top-10 #8).
 
 Each preset follows the 5-part structure (ROLE / CONTEXT / TASK / FORMAT /
 FALLBACK) and uses an explicit INSUFFICIENT_DATA sentinel so a missing-data

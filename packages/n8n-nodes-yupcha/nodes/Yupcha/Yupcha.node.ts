@@ -14,7 +14,7 @@ export class Yupcha implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"]}}',
-		description: 'Go-to-market agents for atomic teams — source, enrich, research, and activate',
+		description: 'GTM agents for the world — source, enrich, research, and activate',
 		defaults: { name: 'OpenGTM' },
 		inputs: ['main'],
 		outputs: ['main'],

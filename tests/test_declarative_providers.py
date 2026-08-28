@@ -1,6 +1,6 @@
 """
 Phase 1.5: YALC-style declarative provider manifests + capability registry.
-See docs/clay-alternatives-ingestion-catalog.md §G.
+See docs/research/clay-alternatives-ingestion-catalog.md §G.
 """
 import asyncio
 

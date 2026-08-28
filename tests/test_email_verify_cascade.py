@@ -1,6 +1,6 @@
 """
 Phase #4: normalized email-verification cascade (4-status contract + fallback).
-See docs/clay-alternatives-ingestion-catalog.md (top-10 #4).
+See docs/research/clay-alternatives-ingestion-catalog.md (top-10 #4).
 """
 import asyncio
 

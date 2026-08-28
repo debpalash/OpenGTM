@@ -8,7 +8,7 @@ registry + dedup + scoring), then snapshotting the discovered leads into
 `row_added` event per new row so the UI streams them live.
 
 This inverts the old flow (source upstream → merge into workbook). Sourcing now
-lives in the workbook. See features/workbook-v2-source-engine-spec.md (Pillar 1).
+lives in the workbook. See docs/specs/workbook-v2-source-engine-spec.md (Pillar 1).
 
 Execution runs on the durable queue_service worker via handle_source_workbook,
 the same substrate that P-1 put under enrichment.
@@ -157,7 +157,7 @@ async def _materialize_source_impl(
 
     lead_db = get_lead_store(workspace_id, slug)
     try:
-        leads = lead_db.get_leads(source=f"job:{job_id}", limit=10000)
+        leads = lead_db.get_leads(collection_job_id=job_id, limit=10000)
     except Exception as e:
         logger.warning(f"Failed to fetch sourced leads: {e}")
         leads = []

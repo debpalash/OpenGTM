@@ -1,6 +1,6 @@
 """Per-fact provenance — unit + write-path tests (SQLite, no network).
 
-Covers features/research-per-fact-provenance-spec.md acceptance criteria:
+Covers docs/specs/research-per-fact-provenance-spec.md acceptance criteria:
   - license resolves per-provider (declared attr) + central fallback map; unknown
     providers → "unknown", never crash (AC5).
   - provenance_for builds {source, license, confidence, fetched_at} (AC1).

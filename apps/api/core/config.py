@@ -1,7 +1,7 @@
 import os
 from typing import Optional
 from pydantic import model_validator
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
 
 # Repo root, resolved from this file's location so it's independent of the
@@ -25,6 +25,12 @@ _DEV_ENVS = {"dev", "development", "test", "testing", "local"}
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=_ENV_FILES,
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
     PROJECT_NAME: str = "OpenGTM"
     SECRET_KEY: str = INSECURE_DEFAULT_SECRET_KEY
     ALGORITHM: str = "HS256"
@@ -278,7 +284,7 @@ class Settings(BaseSettings):
 
     # ── Per-fact provenance (license/freshness/source/confidence) ──────
     # Master switch for recording per-fact provenance on enriched workbook
-    # cells + written-back lead fields (features/research-per-fact-provenance-
+    # cells + written-back lead fields (docs/specs/research-per-fact-provenance-
     # spec.md). Default OFF: with the flag off the produced cell JSON and API
     # payload are byte-identical to today (no provenance key written/returned).
     # The additive nullable `leads.field_provenance` column ships regardless so
@@ -297,7 +303,7 @@ class Settings(BaseSettings):
 
     # ── Website technographics (Wappalyzer-style homepage fetch) ───────
     # Master switch for the per-lead outbound homepage GET in the tech_stack
-    # provider + the poller's website-tech signal diff (features/research-
+    # provider + the poller's website-tech signal diff (docs/specs/research-
     # wappalyzer-technographics-spec.md). Default OFF on cloud: a per-lead
     # outbound fetch carries cost / politeness / legal surface, so it is opt-in.
     # With the flag OFF the provider returns a graceful "disabled" result and
@@ -325,11 +331,6 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str = ""
     GOOGLE_CSE_ID: str = ""
     LINKEDIN_LI_AT_COOKIE: str = ""
-
-    class Config:
-        env_file = _ENV_FILES
-        env_file_encoding = "utf-8"
-        extra = "ignore"
 
     @model_validator(mode="after")
     def _default_chat_require_auth(self):

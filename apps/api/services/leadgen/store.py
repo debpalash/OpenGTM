@@ -231,6 +231,7 @@ class PgLeadStore:
         status: Optional[str] = None,
         city: Optional[str] = None,
         source: Optional[str] = None,
+        collection_job_id: Optional[str] = None,
         score_min: Optional[int] = None,
         score_max: Optional[int] = None,
         score_tier: Optional[str] = None,
@@ -261,6 +262,13 @@ class PgLeadStore:
                 q = q.filter(LeadRow.city == city)
             if source:
                 q = q.filter(LeadRow.source == source)
+            if collection_job_id:
+                from sqlalchemy import or_
+
+                q = q.filter(or_(
+                    LeadRow.collection_job_id == collection_job_id,
+                    LeadRow.source == f"job:{collection_job_id}",
+                ))
             if score_min is not None:
                 q = q.filter(LeadRow.score >= score_min)
             if score_max is not None:
@@ -295,9 +303,11 @@ class PgLeadStore:
                 if fc.get(key):
                     q = q.filter(getattr(LeadRow, key) == fc[key])
             if fc.get("job_ids"):
-                q = q.filter(
-                    LeadRow.source.in_([f"job:{job_id}" for job_id in fc["job_ids"]])
-                )
+                job_ids = list(fc["job_ids"])
+                q = q.filter(or_(
+                    LeadRow.collection_job_id.in_(job_ids),
+                    LeadRow.source.in_([f"job:{job_id}" for job_id in job_ids]),
+                ))
             if fc.get("specialization"):
                 q = q.filter(LeadRow.specialization.ilike(f"%{fc['specialization']}%"))
             for key in ("email", "phone", "website"):

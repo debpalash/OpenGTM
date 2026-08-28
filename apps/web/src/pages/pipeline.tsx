@@ -184,9 +184,16 @@ export default function PipelinePage() {
 
   const handleCollect = () => {
     if (!collectQuery.trim()) return
-    collect.mutate({ query: collectQuery })
-    toast.success(`Pipeline started: "${collectQuery}"`)
-    setCollectQuery("")
+    const query = collectQuery.trim()
+    collect.mutate({ query }, {
+      onSuccess: (result) => {
+        if (!result.ok) return
+        toast.success(`Pipeline started: "${query}"`)
+        setCollectQuery("")
+        setSelectedJobId(result.job_id)
+      },
+      onError: (error) => toast.error(error.message || "Could not start pipeline"),
+    })
   }
 
   const runningJobs = jobs?.filter(j => j.status === "running") ?? []

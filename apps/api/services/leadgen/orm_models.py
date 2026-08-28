@@ -117,6 +117,8 @@ class LeadRow(Base):
 
     # ── Pipeline ──
     source = Column(String, default="")
+    source_url = Column(Text, default="")
+    collection_job_id = Column(String, default="", index=True)
     score = Column(Integer, default=0)
     score_tier = Column(String, default="unqualified")
     status = Column(String, default="new")
@@ -140,6 +142,7 @@ class LeadRow(Base):
         Index("ix_leads_ws_score", "workspace_id", "score"),
         Index("ix_leads_ws_status", "workspace_id", "status"),
         Index("ix_leads_ws_source", "workspace_id", "source"),
+        Index("ix_leads_ws_collection_job", "workspace_id", "collection_job_id"),
     )
 
 

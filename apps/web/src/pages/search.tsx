@@ -26,12 +26,15 @@ export default function SearchPage() {
   const navigate = useNavigate()
 
   const startSearch = (q: string) => {
-    collect.mutate({ query: q })
-    toast.success(`Search started: "${q}" — tracking progress in Tasks`)
-    setQuery("")
-    // The collection runs as a background job; send the user to the live
-    // Task Queue so they can watch progress instead of staring at a static page.
-    navigate("/agents")
+    collect.mutate({ query: q }, {
+      onSuccess: (result) => {
+        if (!result.ok) return
+        toast.success(`Search started: "${q}" — tracking progress in Tasks`)
+        setQuery("")
+        navigate(`/agents/${result.job_id}`)
+      },
+      onError: (error) => toast.error(error.message || "Could not start search"),
+    })
   }
 
   const handleSearch = () => {

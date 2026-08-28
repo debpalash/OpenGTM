@@ -217,7 +217,7 @@ def cmd_jobs(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="OpenGTM — Go-to-Market Agents for atomic teams")
+    parser = argparse.ArgumentParser(description="OpenGTM — GTM agents for the world")
     sub = parser.add_subparsers(dest="command", help="Command to run")
 
     # server

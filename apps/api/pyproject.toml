@@ -1,7 +1,7 @@
 [project]
 name = "opengtm-api"
 version = "0.1.0"
-description = "OpenGTM API — go-to-market agents for atomic teams"
+description = "OpenGTM API — GTM agents for the world"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

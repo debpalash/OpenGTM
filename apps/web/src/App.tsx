@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom"
-import { useState, useRef, useEffect, useCallback } from "react"
+import { lazy, Suspense, useState, useRef, useEffect, useCallback } from "react"
 import { Toaster } from "sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import {
@@ -12,34 +12,35 @@ import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
   Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2, X, Activity,
-  Moon, Sun, LogOut, Building2, Radar, LayoutTemplate,
+  Moon, Sun, LogOut, Building2, Radar, LayoutTemplate, LoaderCircle,
 } from "lucide-react"
 import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { CommandMenu } from "@/components/command-menu"
+import { CollectionIntentDialog } from "@/components/collection-intent-dialog"
 import { AuthProvider, useAuth } from "@/lib/auth-context"
 import LoginPage from "@/pages/login"
 
 // Pages
-import ChatPage from "@/pages/chat"
-import LeadsPage from "@/pages/leads"
-import LeadDetailPage from "@/pages/lead-detail"
-import SearchPage from "@/pages/search"
-import AgentsPage from "@/pages/agents"
-import TaskDetailPage from "@/pages/task-detail"
-import CampaignsPage from "@/pages/campaigns"
-import OutreachPage from "@/pages/outreach"
-import SourcesPage from "@/pages/sources"
-import SettingsPage from "@/pages/settings"
-import AnalyticsPage from "@/pages/analytics"
-import WorkbooksPage from "@/pages/workbooks"
-import WorkbookEditorPage from "@/pages/workbook-editor"
-import SignalsPage from "@/pages/signals"
-import WorkspacesManagerPage from "@/pages/workspaces-manager"
-import AutomationsPage from "@/pages/automations"
-import WatchesPage from "@/pages/watches"
-import TemplatesPage from "@/pages/templates"
+const ChatPage = lazy(() => import("@/pages/chat"))
+const LeadsPage = lazy(() => import("@/pages/leads"))
+const LeadDetailPage = lazy(() => import("@/pages/lead-detail"))
+const SearchPage = lazy(() => import("@/pages/search"))
+const AgentsPage = lazy(() => import("@/pages/agents"))
+const TaskDetailPage = lazy(() => import("@/pages/task-detail"))
+const CampaignsPage = lazy(() => import("@/pages/campaigns"))
+const OutreachPage = lazy(() => import("@/pages/outreach"))
+const SourcesPage = lazy(() => import("@/pages/sources"))
+const SettingsPage = lazy(() => import("@/pages/settings"))
+const AnalyticsPage = lazy(() => import("@/pages/analytics"))
+const WorkbooksPage = lazy(() => import("@/pages/workbooks"))
+const WorkbookEditorPage = lazy(() => import("@/pages/workbook-editor"))
+const SignalsPage = lazy(() => import("@/pages/signals"))
+const WorkspacesManagerPage = lazy(() => import("@/pages/workspaces-manager"))
+const AutomationsPage = lazy(() => import("@/pages/automations"))
+const WatchesPage = lazy(() => import("@/pages/watches"))
+const TemplatesPage = lazy(() => import("@/pages/templates"))
 
 const NAV_ITEMS = [
   { to: "/chat",       icon: MessageSquare, label: "Chat" },
@@ -113,7 +114,7 @@ function AppSidebar() {
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">OpenGTM</span>
-                <span className="truncate text-xs text-muted-foreground">Agents for atomic teams</span>
+                <span className="truncate text-xs text-muted-foreground">GTM agents for the world</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -371,29 +372,40 @@ function AppContent() {
     <SidebarInset className="h-screen overflow-hidden flex flex-col">
       <PageHeader title={getTitle()} />
       <div className="flex-1 min-h-0 overflow-y-auto relative">
-        <Routes>
-          <Route path="/chat/*" element={<ChatPage />} />
-          <Route path="/leads/:id" element={<LeadDetailPage />} />
-          <Route path="/leads" element={<LeadsPage />} />
-          <Route path="/workbooks/:id" element={<div className="h-full overflow-hidden"><WorkbookEditorPage /></div>} />
-          <Route path="/workbooks" element={<WorkbooksPage />} />
-          <Route path="/templates" element={<TemplatesPage />} />
-          <Route path="/search/*" element={<SearchPage />} />
-          <Route path="/agents/:jobId" element={<TaskDetailPage />} />
-          <Route path="/agents" element={<AgentsPage />} />
-          <Route path="/outreach/*" element={<OutreachPage />} />
-          <Route path="/automations/*" element={<AutomationsPage />} />
-          <Route path="/watches/*" element={<WatchesPage />} />
-          <Route path="/signals/*" element={<SignalsPage />} />
-          <Route path="/agency/*" element={<WorkspacesManagerPage />} />
-          <Route path="/campaigns/*" element={<CampaignsPage />} />
-          <Route path="/sources/*" element={<SourcesPage />} />
-          <Route path="/analytics/*" element={<AnalyticsPage />} />
-          <Route path="/settings/*" element={<SettingsPage />} />
-          <Route path="*" element={<Navigate to="/chat" replace />} />
-        </Routes>
+        <Suspense fallback={<RouteSpinner />}>
+          <Routes>
+            <Route path="/chat/*" element={<ChatPage />} />
+            <Route path="/leads/:id" element={<LeadDetailPage />} />
+            <Route path="/leads" element={<LeadsPage />} />
+            <Route path="/workbooks/:id" element={<div className="h-full overflow-hidden"><WorkbookEditorPage /></div>} />
+            <Route path="/workbooks" element={<WorkbooksPage />} />
+            <Route path="/templates" element={<TemplatesPage />} />
+            <Route path="/search/*" element={<SearchPage />} />
+            <Route path="/agents/:jobId" element={<TaskDetailPage />} />
+            <Route path="/agents" element={<AgentsPage />} />
+            <Route path="/outreach/*" element={<OutreachPage />} />
+            <Route path="/automations/*" element={<AutomationsPage />} />
+            <Route path="/watches/*" element={<WatchesPage />} />
+            <Route path="/signals/*" element={<SignalsPage />} />
+            <Route path="/agency/*" element={<WorkspacesManagerPage />} />
+            <Route path="/campaigns/*" element={<CampaignsPage />} />
+            <Route path="/sources/*" element={<SourcesPage />} />
+            <Route path="/analytics/*" element={<AnalyticsPage />} />
+            <Route path="/settings/*" element={<SettingsPage />} />
+            <Route path="*" element={<Navigate to="/chat" replace />} />
+          </Routes>
+        </Suspense>
       </div>
     </SidebarInset>
+  )
+}
+
+function RouteSpinner() {
+  return (
+    <div className="flex h-full min-h-48 items-center justify-center text-muted-foreground" role="status">
+      <LoaderCircle className="size-5 animate-spin" />
+      <span className="sr-only">Loading page…</span>
+    </div>
   )
 }
 
@@ -401,7 +413,7 @@ function FullScreenSpinner({ label }: { label?: string }) {
   return (
     <div className="flex h-screen w-full items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-3 text-muted-foreground">
-        <Circle className="size-5 animate-spin" />
+        <LoaderCircle className="size-5 animate-spin" />
         <span className="text-sm">{label ?? "Loading…"}</span>
       </div>
     </div>
@@ -418,6 +430,7 @@ function Shell() {
         </SidebarProvider>
       </div>
       <CommandMenu />
+      <CollectionIntentDialog />
     </>
   )
 }

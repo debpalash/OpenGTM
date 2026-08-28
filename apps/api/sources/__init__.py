@@ -3,7 +3,7 @@ Base classes and models for document sources
 """
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from enum import Enum
 
 
@@ -19,6 +19,8 @@ class FileType(str, Enum):
 
 class SearchResult(BaseModel):
     """Standardized search result across all sources"""
+    model_config = ConfigDict(use_enum_values=True)
+
     id: str
     title: str
     url: str
@@ -30,9 +32,6 @@ class SearchResult(BaseModel):
     file_type: FileType = FileType.PDF
     file_size: Optional[str] = None
     snippet: Optional[str] = None
-    
-    class Config:
-        use_enum_values = True
 
 
 class DocumentSource(ABC):

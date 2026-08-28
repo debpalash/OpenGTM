@@ -2,7 +2,7 @@
 Cross-provider enrichment cache.
 
 Ported from masteranime/enrichment-kit (canonicalKey) + nimajnebrevilo/GTM-Engine
-(getAnyCachedEnrichment). See docs/clay-alternatives-ingestion-catalog.md
+(getAnyCachedEnrichment). See docs/research/clay-alternatives-ingestion-catalog.md
 (top-10 #2). The single biggest cost lever Yupcha was missing: cache the WINNER
 of a waterfall keyed by the lead's *identity* (not by provider), so if Apollo
 already found this person's email, we never call Prospeo/Hunter again — for this

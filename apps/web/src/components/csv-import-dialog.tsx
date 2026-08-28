@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react"
-import { ArrowRight, FileSpreadsheet, Loader2, Upload, X } from "lucide-react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { AlertTriangle, ArrowRight, FileSpreadsheet, Loader2, Upload, X } from "lucide-react"
 import type { ColumnConfig, CsvImportOptions } from "@/lib/workbook-api"
 
 const STANDARD_FIELDS = [
@@ -55,6 +55,32 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
   ), [draft.fields, columns])
   const [mapping, setMapping] = useState<Record<string, string>>(initialMapping)
   const [dedupe, setDedupe] = useState(true)
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    dialogRef.current?.focus()
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !importing) onClose()
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [importing, onClose])
+
+  const mappingSummary = useMemo(() => {
+    const targets = Object.values(mapping).filter(target => target !== "__skip__")
+    const fieldCounts = new Map<string, number>()
+    for (const target of targets) {
+      if (!target.startsWith("__custom__:")) {
+        fieldCounts.set(target, (fieldCounts.get(target) || 0) + 1)
+      }
+    }
+    return {
+      kept: targets.length,
+      custom: targets.filter(target => target.startsWith("__custom__:")).length,
+      skipped: draft.fields.length - targets.length,
+      merged: [...fieldCounts.values()].some(count => count > 1),
+    }
+  }, [draft.fields.length, mapping])
 
   const submit = () => {
     const apiMapping = Object.fromEntries(Object.entries(mapping).map(([header, target]) => [
@@ -65,17 +91,19 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
   }
 
   return (
-    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div role="dialog" aria-modal="true" aria-label="Import CSV" className="flex max-h-[82vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl" onClick={event => event.stopPropagation()}>
+    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={() => { if (!importing) onClose() }}>
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="csv-import-title" aria-describedby="csv-import-summary" tabIndex={-1} className="flex max-h-[82vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl outline-none" onClick={event => event.stopPropagation()}>
         <div className="flex items-start justify-between border-b px-5 py-4">
           <div className="flex gap-3">
             <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><FileSpreadsheet className="size-4" /></div>
             <div>
-              <h2 className="text-sm font-semibold">Import CSV</h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">{draft.fileName} · {draft.rows.length.toLocaleString()} rows</p>
+              <h2 id="csv-import-title" className="text-sm font-semibold">Import CSV</h2>
+              <p id="csv-import-summary" className="mt-0.5 text-xs text-muted-foreground">
+                {draft.fileName} · {draft.rows.length.toLocaleString()} rows · {draft.fields.length.toLocaleString()} columns
+              </p>
             </div>
           </div>
-          <button aria-label="Close" onClick={onClose} disabled={importing} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"><X className="size-4" /></button>
+          <button type="button" aria-label="Close" onClick={onClose} disabled={importing} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"><X className="size-4" /></button>
         </div>
 
         <div className="overflow-y-auto px-5 py-3">
@@ -90,7 +118,7 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
                   <div className="truncate text-[10px] text-muted-foreground">{draft.rows.slice(0, 3).map(row => row[header]).filter(Boolean).join(" · ") || "Empty values"}</div>
                 </div>
                 <ArrowRight className="size-3.5 text-muted-foreground/60" />
-                <select value={mapping[header]} onChange={event => setMapping(current => ({ ...current, [header]: event.target.value }))} className="min-w-0 rounded-md border bg-card px-2 py-1.5 text-xs">
+                <select aria-label={`Map ${header}`} value={mapping[header]} onChange={event => setMapping(current => ({ ...current, [header]: event.target.value }))} className="min-w-0 rounded-md border bg-card px-2 py-1.5 text-xs">
                   <option value={`__custom__:${header}`}>Keep as “{header}”</option>
                   <optgroup label="Lead fields">
                     {STANDARD_FIELDS.map(([field, label]) => <option key={field} value={field}>{label}</option>)}
@@ -103,16 +131,27 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
               </div>
             ))}
           </div>
+          {mappingSummary.merged && (
+            <div className="mt-3 flex gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+              <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+              <span>Multiple CSV columns map to the same OpenGTM field. The first populated value in each row will be kept.</span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between gap-4 border-t bg-muted/20 px-5 py-3.5">
-          <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
-            <input type="checkbox" checked={dedupe} onChange={event => setDedupe(event.target.checked)} className="size-3.5 rounded border" />
-            Skip duplicate companies and domains
-          </label>
-          <button onClick={submit} disabled={importing} className="inline-flex items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+          <div>
+            <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+              <input type="checkbox" checked={dedupe} onChange={event => setDedupe(event.target.checked)} className="size-3.5 rounded border" />
+              Skip duplicate companies and domains
+            </label>
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              {mappingSummary.kept} kept · {mappingSummary.custom} new · {mappingSummary.skipped} skipped
+            </p>
+          </div>
+          <button type="button" onClick={submit} disabled={importing || mappingSummary.kept === 0} className="inline-flex items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
             {importing ? <Loader2 className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
-            Import {draft.rows.length.toLocaleString()} rows
+            {importing ? "Importing…" : `Import ${draft.rows.length.toLocaleString()} rows`}
           </button>
         </div>
       </div>

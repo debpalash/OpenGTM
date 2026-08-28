@@ -1,6 +1,6 @@
 """
 Phase 2: cross-provider canonical-key enrichment cache.
-See docs/clay-alternatives-ingestion-catalog.md (top-10 #2).
+See docs/research/clay-alternatives-ingestion-catalog.md (top-10 #2).
 """
 import asyncio
 import os
