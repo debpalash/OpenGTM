@@ -35,7 +35,9 @@ REQUIRED_WORKFLOWS: tuple[str, ...] = (
     "G6",
     "G7",
 )
-SUPPORTED_WORKFLOWS: tuple[str, ...] = ("G1", "G2", "G3", "G4", "G5", "G6")
+SUPPORTED_WORKFLOWS: tuple[str, ...] = (
+    "G1", "G2", "G3", "G4", "G5", "G6", "G7",
+)
 RELEASE_SCORE = 95.0
 CATEGORY_FLOOR = 0.90
 REQUIRED_PRODUCTION_STREAK = 10
@@ -763,6 +765,112 @@ def _g6_contract_failures(scenario: Mapping[str, Any]) -> list[str]:
     return failed
 
 
+def _g7_contract_failures(scenario: Mapping[str, Any]) -> list[str]:
+    if not _declares(scenario, "G7"):
+        return []
+    failed: list[str] = []
+    source = _dict(scenario.get("source_contact"))
+    selection = _dict(scenario.get("selection"))
+    action = _dict(scenario.get("draft_action"))
+    retry = _dict(scenario.get("draft_retry_action"))
+    saved = _dict(scenario.get("draft_readback"))
+    contact_status = _text(saved.get("contact_status"))
+
+    if _text(scenario.get("status")) != "completed":
+        failed.append("g7_scenario_completed")
+    if not (
+        bool(_text(selection.get("person_id")))
+        and _text(selection.get("person_id")) == _text(source.get("person_id"))
+        and _text(saved.get("person_id")) == _text(source.get("person_id"))
+        and _text(saved.get("to_email")).lower() == _text(source.get("email")).lower()
+    ):
+        failed.append("g7_exact_saved_contact")
+    if not (
+        (
+            contact_status == "verified"
+            and source.get("valid_verifier_attempt") is True
+        )
+        or (
+            contact_status == "risky"
+            and saved.get("risky_approved") is True
+            and source.get("risky_approved") is True
+        )
+    ):
+        failed.append("g7_eligible_contact")
+    if saved.get("generic_inbox") is True or saved.get("is_role_address") is True:
+        failed.append("g7_non_generic_contact")
+    if not (
+        _text(action.get("status")) == "succeeded"
+        and action.get("approved") is True
+        and action.get("persisted") is True
+        and action.get("readback_confirmed") is True
+        and saved.get("exists") is True
+        and saved.get("readback_confirmed") is True
+        and _text(saved.get("state")) == "draft"
+    ):
+        failed.append("g7_persisted_readback")
+
+    subject = _text(saved.get("subject"))
+    body = _text(saved.get("body_text"))
+    evidence_rows = [
+        item for item in _list(saved.get("sentence_evidence")) if isinstance(item, dict)
+    ]
+    personalized = [item for item in evidence_rows if item.get("personalized") is True]
+    grounded = bool(personalized)
+    for item in personalized:
+        sentence = _text(item.get("text"))
+        evidence = [value for value in _list(item.get("evidence")) if isinstance(value, dict)]
+        if (
+            not sentence
+            or (sentence != subject and sentence not in body)
+            or not _list(item.get("claim_ids"))
+            or not evidence
+            or any(
+                not _is_http_url(value.get("source_url"))
+                or not _text(value.get("observed_at"))
+                or not _is_confidence(value.get("confidence"))
+                for value in evidence
+            )
+        ):
+            grounded = False
+            break
+    if not grounded:
+        failed.append("g7_sentence_grounding")
+    if not (
+        saved.get("send_performed") is False
+        and saved.get("sent_at") is None
+        and saved.get("send_rows_after_draft") == 0
+        and not any(
+            item.get("performed") is True
+            or _text(item.get("status")) in {"sent", "succeeded", "applied"}
+            for item in _list(scenario.get("external_writes"))
+            if isinstance(item, dict)
+        )
+    ):
+        failed.append("g7_draft_only")
+    if not (
+        retry.get("approved") is True
+        and retry.get("reused") is True
+        and bool(_text(action.get("idempotency_key")))
+        and _text(retry.get("idempotency_key")) == _text(action.get("idempotency_key"))
+        and _text(retry.get("draft_id")) == _text(action.get("draft_id"))
+        and saved.get("draft_count_for_action") == 1
+    ):
+        failed.append("g7_idempotent_draft")
+    if not (
+        _text(saved.get("url")) == f"/outreach?draft={_text(saved.get('draft_id'))}"
+        and bool(subject)
+        and bool(body)
+    ):
+        failed.append("g7_actionable_receipt")
+    if not (
+        _within_timing(scenario, "acknowledgement", 1_000)
+        and _within_timing(scenario, "draft_creation", 5_000)
+    ):
+        failed.append("g7_bounded_timing")
+    return failed
+
+
 def _workflow_contract_failures(
     scenarios: Sequence[dict[str, Any]], workflow_id: str,
 ) -> list[str]:
@@ -770,6 +878,10 @@ def _workflow_contract_failures(
     for scenario in scenarios:
         if workflow_id == "G6":
             for failure in _g6_contract_failures(scenario):
+                if failure not in failures:
+                    failures.append(failure)
+        if workflow_id == "G7":
+            for failure in _g7_contract_failures(scenario):
                 if failure not in failures:
                     failures.append(failure)
     return failures
@@ -891,6 +1003,122 @@ def _hard_failures(
                     scenario,
                     "A failed signal collector lacks error, retry, or manual recovery metadata.",
                     ("G6",),
+                )
+
+        if _declares(scenario, "G7"):
+            source = _dict(scenario.get("source_contact"))
+            action = _dict(scenario.get("draft_action"))
+            retry = _dict(scenario.get("draft_retry_action"))
+            saved = _dict(scenario.get("draft_readback"))
+            if action.get("persisted") is True and not (
+                action.get("readback_confirmed") is True
+                and saved.get("exists") is True
+                and saved.get("readback_confirmed") is True
+            ):
+                add(
+                    "false_draft_persistence",
+                    scenario,
+                    "Draft success was claimed without a saved readback.",
+                    ("G7",),
+                )
+            if (
+                _text(saved.get("person_id")) != _text(source.get("person_id"))
+                or _text(saved.get("to_email")).lower() != _text(source.get("email")).lower()
+            ):
+                add(
+                    "draft_contact_drift",
+                    scenario,
+                    "The saved draft recipient does not match the selected saved contact.",
+                    ("G7",),
+                )
+            if saved.get("generic_inbox") is True or saved.get("is_role_address") is True:
+                add(
+                    "generic_outreach_recipient",
+                    scenario,
+                    "A generic or role inbox was selected for the outreach draft.",
+                    ("G7",),
+                    entity_id=_text(saved.get("person_id")),
+                )
+            if (
+                _text(saved.get("contact_status")) == "verified"
+                and source.get("valid_verifier_attempt") is not True
+            ):
+                add(
+                    "draft_verified_without_verifier",
+                    scenario,
+                    "The chosen address is labeled verified without a valid verifier attempt.",
+                    ("G7",),
+                    entity_id=_text(saved.get("person_id")),
+                )
+            if (
+                _text(saved.get("contact_status")) == "risky"
+                and not (
+                    saved.get("risky_approved") is True
+                    and source.get("risky_approved") is True
+                )
+            ):
+                add(
+                    "unapproved_risky_draft",
+                    scenario,
+                    "A risky address was used without separate explicit approval.",
+                    ("G7",),
+                    entity_id=_text(saved.get("person_id")),
+                )
+            for sentence in _list(saved.get("sentence_evidence")):
+                if not isinstance(sentence, dict) or sentence.get("personalized") is not True:
+                    continue
+                evidence = [
+                    item for item in _list(sentence.get("evidence"))
+                    if isinstance(item, dict)
+                ]
+                if not _list(sentence.get("claim_ids")) or not evidence or any(
+                    not _is_http_url(item.get("source_url"))
+                    or not _text(item.get("observed_at"))
+                    or not _is_confidence(item.get("confidence"))
+                    for item in evidence
+                ):
+                    add(
+                        "ungrounded_personalized_sentence",
+                        scenario,
+                        "A personalized draft sentence lacks saved claim evidence.",
+                        ("G7",),
+                        entity_id=_text(sentence.get("sentence_id")),
+                    )
+            performed_send = (
+                saved.get("send_performed") is True
+                or saved.get("sent_at") is not None
+                or int(saved.get("send_rows_after_draft") or 0) > 0
+                or any(
+                    item.get("performed") is True
+                    or _text(item.get("status")) in {"sent", "succeeded", "applied"}
+                    for item in _list(scenario.get("external_writes"))
+                    if isinstance(item, dict)
+                )
+            )
+            if performed_send:
+                add(
+                    "draft_request_sent_message",
+                    scenario,
+                    "A draft-only request caused or coincided with an outreach send.",
+                    ("G7",),
+                )
+            if (
+                retry.get("reused") is not True
+                or _text(retry.get("draft_id")) != _text(action.get("draft_id"))
+                or saved.get("draft_count_for_action") != 1
+            ):
+                add(
+                    "duplicate_outreach_draft",
+                    scenario,
+                    "A repeated draft request did not reuse one persisted draft.",
+                    ("G7",),
+                )
+            if _text(saved.get("workspace_id")) != _text(scenario.get("workspace_id")):
+                add(
+                    "cross_workspace_draft",
+                    scenario,
+                    "The draft readback belongs to a different workspace.",
+                    ("G7",),
                 )
 
         for person in _list(_dict(scenario.get("research")).get("people")):

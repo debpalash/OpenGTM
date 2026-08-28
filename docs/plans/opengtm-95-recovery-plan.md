@@ -8,6 +8,20 @@ Release posture: do not publish yet
 
 ## Progress log
 
+### 2026-08-28: grounded outreach drafts
+
+- Added the approval-gated `draft_grounded_outreach` Chat action for the accepted G7 follow-up. It selects one exact person from a server-stored contact result; a caller cannot substitute an unsaved email or identity.
+- Verified addresses require a recorded valid verifier attempt. Risky addresses require separate explicit approval. Generic inboxes, role accounts, unrelated functions, missing public evidence, and undated evidence fail before a draft is written.
+- Personalized subject and body lines carry saved claim IDs plus public source URL, observation time, and confidence. The deterministic copy uses no unsourced company fact.
+- Draft writes are workspace-scoped, read-back confirmed, and idempotent under ordinary retries and concurrent races. A reused action key with a changed contact contract is rejected.
+- Draft persistence is physically separated from outreach sends. The draft action does not import a sender, exposes no draft create/send HTTP route, creates no send ledger row, and always returns `send_performed: false` for a passing run.
+- Added tenant-scoped read APIs and made `/outreach?draft=...` a functional deep link. Outreach now lists saved grounded drafts and lets the user inspect the recipient, message, claim IDs, observation dates, confidence, and source links. No send control appears on the draft screen.
+- Extended the native trace adapter and gauntlet to evaluate G7. Hard gates catch contact drift, generic recipients, fabricated verification, unapproved risky addresses, ungrounded personalized sentences, false persistence, duplicate retries, cross-workspace readback, and any send during a draft-only request.
+- All seven workflows now have executable scorer contracts. The native G7 slice scores 100/100 with no hard failure.
+- Verification after the slice: 1,202 backend tests passed, 119 skipped; frontend lint and production build passed; a clean SQLite migration upgraded to the single head and `alembic check` reported no schema drift.
+
+Next: assemble the combined G1 through G7 native validation artifact, run the ten-run local-native streak, repair any failures, and keep release blocked until the controlled live streak is independently recorded.
+
 ### 2026-08-28: exact account signal tracking
 
 - Added the approval-gated `track_account_signals` Chat action for the accepted G6 follow-up. It binds `these accounts` to stable account IDs read from the saved workbook in the same conversation. Missing or drifted selections fail closed.

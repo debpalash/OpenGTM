@@ -53,7 +53,7 @@ def _main_store():
 def test_tool_registry_exposes_expected_tools():
     tools = ck._build_tools()
     names = {t["function"]["name"] for t in tools}
-    assert len(tools) == 24, f"expected 24 tools, got {len(tools)}"
+    assert len(tools) == 25, f"expected 25 tools, got {len(tools)}"
     # The dead create_workbook / add_workbook_column tools were removed.
     assert "create_workbook" not in names and "add_workbook_column" not in names
     assert ck.SAFE_TOOLS <= names
@@ -65,6 +65,7 @@ def test_tool_registry_exposes_expected_tools():
         "enrich_people_contacts",
         "create_people_workbook",
         "track_account_signals",
+        "draft_grounded_outreach",
     } <= names
     people_workbook = next(
         tool for tool in tools

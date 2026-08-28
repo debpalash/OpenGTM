@@ -30,6 +30,46 @@ from sqlalchemy import (
 from apps.api.database import Base
 
 
+class OutreachDraft(Base):
+    """A persisted, evidence-grounded message that has not been sent.
+
+    Drafts are deliberately separate from sequences, enrollments, and sends.
+    Creating one cannot enqueue SMTP work, and there is no draft-to-send API.
+    """
+
+    __tablename__ = "outreach_drafts"
+    __table_args__ = (
+        UniqueConstraint(
+            "workspace_id", "action_idempotency_key", name="uq_outreach_draft_ws_action"
+        ),
+        Index("ix_outreach_draft_ws_created", "workspace_id", "created_at"),
+        Index("ix_outreach_draft_ws_person", "workspace_id", "person_id"),
+    )
+
+    id = Column(String(36), primary_key=True)
+    workspace_id = Column(String(64), nullable=False)
+    action_idempotency_key = Column(String(255), nullable=False)
+    conversation_id = Column(String(64), nullable=False)
+    source_action_id = Column(String(255), nullable=False)
+    person_id = Column(String(80), nullable=False)
+    person_name = Column(String(200), nullable=False)
+    company = Column(String(200), nullable=False)
+    title = Column(String(240), default="")
+    to_email = Column(String(320), nullable=False)
+    contact_status = Column(String(20), nullable=False)
+    risky_approved = Column(Boolean, nullable=False, default=False, server_default="false")
+    generic_inbox = Column(Boolean, nullable=False, default=False, server_default="false")
+    is_role_address = Column(Boolean, nullable=False, default=False, server_default="false")
+    subject = Column(String(300), nullable=False)
+    body_text = Column(Text, nullable=False)
+    sentence_evidence = Column(JSON, nullable=False, default=list)
+    source_snapshot = Column(JSON, nullable=False, default=dict)
+    state = Column(String(20), nullable=False, default="draft", server_default="draft")
+    sent_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
 class OutreachSequence(Base):
     """A named, ordered outreach sequence (RLS). Replaces legacy ``sequences``."""
 

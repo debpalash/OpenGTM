@@ -441,6 +441,23 @@ def _format_signal_tracking(result: dict) -> str:
     )
 
 
+def _format_grounded_draft(result: dict) -> str:
+    if not result.get("ok"):
+        return (
+            f"I could not create the draft: {result.get('error', 'unknown error')}. "
+            "No message was sent."
+        )
+    return (
+        f"Saved a **draft only** for **{result.get('person_name')}** "
+        f"at **{result.get('company')}**. No message was sent.\n\n"
+        f"**To:** {result.get('to_email')}  \n"
+        f"**Subject:** {result.get('subject')}\n\n"
+        f"{result.get('body_text')}\n\n"
+        f"The {result.get('personalized_sentence_count', 0)} personalized lines retain "
+        f"their saved evidence. [Inspect draft and evidence]({result.get('url')})"
+    )
+
+
 def _latest_conversation_tool_result(
     conv_id: str,
     workspace_id: str,
@@ -541,6 +558,11 @@ _WORKBOOK_PEOPLE_FOLLOWUP_RE = re.compile(
     r"(?:them|these|those|the\s+(?:people|results|candidates))[?.!]*$",
     re.IGNORECASE,
 )
+_GROUNDED_DRAFT_FOLLOWUP_RE = re.compile(
+    r"\bdraft\b.*\b(?:partnership\s+)?(?:e-?mail|message)\b.*"
+    r"\b(?:verified\s+)?contact\b",
+    re.IGNORECASE,
+)
 
 
 # ── Tool Safety Classification ───────────────────────────────────
@@ -597,6 +619,11 @@ DANGEROUS_TOOLS = {
         "level": "medium",
         "label": "Track Account Signals",
         "reason": "Creates or updates a recurring collector schedule for an exact saved account selection.",
+    },
+    "draft_grounded_outreach": {
+        "level": "medium",
+        "label": "Create Grounded Draft",
+        "reason": "Persists a draft for one exact saved contact. This action cannot send messages.",
     },
     "create_people_workbook": {
         "level": "medium",
@@ -743,6 +770,13 @@ def _describe_action(fn_name: str, fn_args: dict, workspace_id: Optional[str] = 
             + f" · Accounts: {len(fn_args.get('account_ids') or [])}"
             + f" · Cadence: {fn_args.get('cadence', '?')}"
             + f" · Signals: {', '.join(fn_args.get('signal_types') or [])}"
+        )
+    elif fn_name == "draft_grounded_outreach":
+        details = (
+            f"Conversation: {fn_args.get('conversation_id', '?')}"
+            + f" · Person: {fn_args.get('person_id', '?')}"
+            + f" · Risky address approved: {bool(fn_args.get('allow_risky'))}"
+            + " · Send: disabled"
         )
 
     return f"{label}\n{reason}\n{details}"
@@ -1169,6 +1203,24 @@ def _build_tools():
                         "idempotency_key": {"type": "string", "maxLength": 255},
                     },
                     "required": ["workbook_id", "account_ids", "cadence", "signal_types", "idempotency_key"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "draft_grounded_outreach",
+                "description": "Persist a short draft-only partnership email for one exact saved contact. Requires verified contact evidence, or explicit approval for a risky address. Generic and role inboxes are rejected. Every personalized sentence retains saved evidence. This tool never sends.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "conversation_id": {"type": "string"},
+                        "source_action_id": {"type": "string"},
+                        "person_id": {"type": "string"},
+                        "allow_risky": {"type": "boolean", "default": False},
+                        "idempotency_key": {"type": "string", "maxLength": 255},
+                    },
+                    "required": ["conversation_id", "source_action_id", "person_id", "allow_risky", "idempotency_key"],
                 },
             },
         },
@@ -2282,6 +2334,56 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 })
             return json.dumps(receipt)
 
+        elif name == "draft_grounded_outreach":
+            from apps.api.database import SessionLocal
+            from apps.api.services.outreach.drafting import (
+                DraftingError,
+                create_grounded_draft,
+            )
+
+            conversation_id = str(args.get("conversation_id") or "").strip()
+            source_action_id = str(args.get("source_action_id") or "").strip()
+            if not chat_history.get_conversation(conversation_id, workspace_id, user_id):
+                return json.dumps({
+                    "ok": False,
+                    "persisted": False,
+                    "error": "Conversation not found",
+                })
+            source_result = _conversation_tool_result_by_action_id(
+                conversation_id,
+                workspace_id,
+                user_id,
+                "enrich_people_contacts",
+                source_action_id,
+            )
+            if source_result is None:
+                return json.dumps({
+                    "ok": False,
+                    "persisted": False,
+                    "error": "Saved contact enrichment result not found",
+                })
+            try:
+                with SessionLocal() as wdb:
+                    receipt = create_grounded_draft(
+                        wdb,
+                        workspace_id=workspace_id,
+                        conversation_id=conversation_id,
+                        source_result=source_result,
+                        source_action_id=source_action_id,
+                        requested_person_id=str(args.get("person_id") or ""),
+                        allow_risky=bool(args.get("allow_risky", False)),
+                        idempotency_key=str(args.get("idempotency_key") or ""),
+                    )
+            except DraftingError as exc:
+                return json.dumps({
+                    "ok": False,
+                    "persisted": False,
+                    "error": str(exc),
+                    "contact_flags": exc.flags,
+                    "send_performed": False,
+                })
+            return json.dumps(receipt)
+
         # ── Autopilot: goal → plan → execute (orchestrates the tools above) ──
         elif name == "draft_plan":
             from apps.api.services.agent import autopilot, autopilot_plan_store
@@ -2695,6 +2797,8 @@ async def _resolve_approved_calls(
                 yield f"data: {json.dumps({'content': source_message})}\n\n"
             elif fn_name == "track_account_signals":
                 yield f"data: {json.dumps({'content': _format_signal_tracking(parsed_result)})}\n\n"
+            elif fn_name == "draft_grounded_outreach":
+                yield f"data: {json.dumps({'content': _format_grounded_draft(parsed_result)})}\n\n"
             content = result
         else:
             reason = (
@@ -3053,6 +3157,112 @@ async def copilot_chat(request: Request):
 
         return StreamingResponse(
             _stream_people_workbook_confirmation(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    draft_text = (last_user_msg or "").strip()
+    draft_only_request = bool(
+        _GROUNDED_DRAFT_FOLLOWUP_RE.search(draft_text)
+        and re.search(r"\b(?:do\s+not|don't|dont|never)\s+send\b", draft_text, re.IGNORECASE)
+    )
+    if draft_only_request and not approved_tool_calls:
+        from apps.api.services.outreach.drafting import DraftingError, select_best_contact
+
+        prior_contacts = _latest_conversation_tool_result(
+            conv_id,
+            workspace_id,
+            _chat_user_id,
+            ("enrich_people_contacts",),
+        )
+        source_result = (prior_contacts or {}).get("result") or {}
+        source_action_id = str(source_result.get("action_id") or "").strip()
+        allow_risky = bool(
+            re.search(
+                r"\b(?:approve|approved|use|allow)\b.{0,24}\brisky\b|"
+                r"\brisky\b.{0,24}\b(?:approve|approved|use|allow)\b",
+                draft_text,
+                re.IGNORECASE,
+            )
+        )
+        try:
+            selection = select_best_contact(source_result, allow_risky=allow_risky)
+        except DraftingError as exc:
+            flags = exc.flags
+            draft_error = str(exc)
+            reasons = sorted({
+                str(item.get("reason") or "")
+                for item in flags if isinstance(item, dict) and item.get("reason")
+            })
+            blocked_text = (
+                f"I could not choose an eligible saved contact: {draft_error}. "
+                + (f"Blocked by: {', '.join(reasons)}. " if reasons else "")
+                + "No draft was created and no message was sent."
+            )
+
+            async def _stream_draft_blocked():
+                yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
+                yield f"data: {json.dumps({'content': blocked_text})}\n\n"
+                yield f"data: {json.dumps({'draft_blocked': {'error': draft_error, 'contact_flags': flags, 'send_performed': False}})}\n\n"
+                chat_history.add_message(conv_id, "assistant", blocked_text)
+                yield "data: [DONE]\n\n"
+
+            return StreamingResponse(
+                _stream_draft_blocked(),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "X-Accel-Buffering": "no",
+                },
+            )
+
+        selected = selection["selected"]
+        selection_digest = hashlib.sha256(
+            f"{source_action_id}|{selected['person_id']}|{selected['email']}|{allow_risky}".encode()
+        ).hexdigest()[:16]
+        fn_args = {
+            "conversation_id": conv_id,
+            "source_action_id": source_action_id,
+            "person_id": selected["person_id"],
+            "allow_risky": allow_risky,
+            "idempotency_key": f"chat-draft:{conv_id}:{selection_digest}",
+        }
+        tool_call = {
+            "id": f"call_{uuid.uuid4().hex}",
+            "type": "function",
+            "function": {
+                "name": "draft_grounded_outreach",
+                "arguments": json.dumps(fn_args),
+            },
+        }
+        approval_id = chat_history.create_tool_approval(
+            workspace_id, _chat_user_id, tool_call
+        )
+        display_call = json.loads(json.dumps(tool_call))
+        display_call["id"] = approval_id
+        meta = DANGEROUS_TOOLS["draft_grounded_outreach"]
+        proposal_text = (
+            f"I can save a short draft for **{selected['name']}** at "
+            f"**{source_result.get('company', 'the target company')}** using the "
+            f"saved **{selected['contact_status']}** address and public role evidence. "
+            "The draft action has no send capability."
+        )
+
+        async def _stream_draft_confirmation():
+            yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
+            yield f"data: {json.dumps({'content': proposal_text})}\n\n"
+            yield f"data: {json.dumps({'confirmation_required': {'confirmation_id': approval_id, 'tool_call': display_call, 'name': 'draft_grounded_outreach', 'args': fn_args, 'description': _describe_action('draft_grounded_outreach', fn_args, workspace_id), 'level': meta['level'], 'label': meta['label']}})}\n\n"
+            yield f"data: {json.dumps({'awaiting_confirmation': True})}\n\n"
+            chat_history.add_message(conv_id, "assistant", proposal_text)
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(
+            _stream_draft_confirmation(),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",

@@ -44,6 +44,8 @@ export const queryKeys = {
   },
   outreach: {
     all: ["outreach"] as const,
+    drafts: ["outreach", "drafts"] as const,
+    draft: (id: string) => ["outreach", "draft", id] as const,
     sequences: ["outreach", "sequences"] as const,
     sequence: (id: string) => ["outreach", "sequence", id] as const,
     sends: (id: string) => ["outreach", "sends", id] as const,
