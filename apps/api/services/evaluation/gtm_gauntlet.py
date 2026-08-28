@@ -35,7 +35,7 @@ REQUIRED_WORKFLOWS: tuple[str, ...] = (
     "G6",
     "G7",
 )
-SUPPORTED_WORKFLOWS: tuple[str, ...] = ("G2", "G3", "G4", "G5")
+SUPPORTED_WORKFLOWS: tuple[str, ...] = ("G1", "G2", "G3", "G4", "G5")
 RELEASE_SCORE = 95.0
 CATEGORY_FLOOR = 0.90
 REQUIRED_PRODUCTION_STREAK = 10
@@ -138,6 +138,101 @@ def _contact_people(scenario: Mapping[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
+def _account_rows(scenario: Mapping[str, Any]) -> list[dict[str, Any]]:
+    return [
+        account for account in _list(scenario.get("accounts"))
+        if isinstance(account, dict)
+    ]
+
+
+def _brief_complete(scenario: Mapping[str, Any]) -> bool:
+    brief = _dict(scenario.get("brief"))
+    evidence_requirements = {
+        _text(value) for value in _list(brief.get("evidence_requirements"))
+    }
+    return (
+        brief.get("complete") is True
+        and isinstance(brief.get("requested_count"), int)
+        and 1 <= brief["requested_count"] <= 500
+        and bool(_list(brief.get("company_types")))
+        and not _list(brief.get("missing_fields"))
+        and {
+            "canonical_company_domain",
+            "criterion_evidence",
+            "evidence_url",
+            "retrieved_at",
+            "field_confidence",
+        }.issubset(evidence_requirements)
+        and bool(_text(brief.get("brief_id")))
+    )
+
+
+def _account_rows_match_brief(scenario: Mapping[str, Any]) -> bool:
+    if not _declares(scenario, "G1"):
+        return True
+    brief = _dict(scenario.get("brief"))
+    accounts = _account_rows(scenario)
+    expected_criteria = (
+        len(_list(brief.get("company_types")))
+        + len(_list(brief.get("geographies")))
+        + len(_list(brief.get("technologies")))
+        + len(_list(brief.get("hiring_roles")))
+    )
+    if not accounts or expected_criteria <= 0:
+        return False
+    for account in accounts:
+        criteria = _dict(account.get("criteria_evidence"))
+        evidence_urls = _list(account.get("evidence_urls"))
+        if (
+            not _text(account.get("account_id"))
+            or not _text(account.get("company"))
+            or not _domain(account.get("canonical_domain"))
+            or len(criteria) != expected_criteria
+            or not all(_dict(item).get("matched") is True for item in criteria.values())
+            or not evidence_urls
+            or not all(_is_http_url(url) for url in evidence_urls)
+            or not _text(account.get("retrieved_at"))
+            or not _is_confidence(account.get("field_confidence"))
+            or len(_list(account.get("fit_reasons"))) != expected_criteria
+        ):
+            return False
+    return True
+
+
+def _account_action_persisted(scenario: Mapping[str, Any]) -> bool:
+    action = _dict(scenario.get("account_action"))
+    return (
+        _text(action.get("status")) == "succeeded"
+        and action.get("persisted") is True
+        and bool(_text(action.get("workbook_id")))
+    )
+
+
+def _account_run_exact(scenario: Mapping[str, Any]) -> bool:
+    if not _declares(scenario, "G1"):
+        return True
+    brief = _dict(scenario.get("brief"))
+    run = _dict(scenario.get("source_run"))
+    action = _dict(scenario.get("account_action"))
+    requested = brief.get("requested_count")
+    domains = [_domain(account.get("canonical_domain")) for account in _account_rows(scenario)]
+    account_ids = [_text(account.get("account_id")) for account in _account_rows(scenario)]
+    return (
+        _account_action_persisted(scenario)
+        and _text(run.get("status")) == "complete"
+        and isinstance(requested, int)
+        and run.get("requested_count") == requested
+        and run.get("delivered_count") == requested
+        and run.get("shortfall") == 0
+        and action.get("row_count") == requested
+        and len(domains) == requested
+        and all(domains)
+        and len(domains) == len(set(domains))
+        and all(account_ids)
+        and len(account_ids) == len(set(account_ids))
+    )
+
+
 def _claims_by_person(scenario: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
     people = _list(_dict(scenario.get("verification")).get("people"))
     return {
@@ -191,6 +286,8 @@ def _selected_claims(
 
 
 def _target_resolved(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G2"):
+        return _brief_complete(scenario)
     target = _dict(scenario.get("target"))
     return (
         _text(target.get("resolution_status")) == "resolved"
@@ -200,6 +297,8 @@ def _target_resolved(scenario: Mapping[str, Any]) -> bool:
 
 
 def _accepted_people_match_target(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G2"):
+        return _account_rows_match_brief(scenario)
     target_domain = _domain(_dict(scenario.get("target")).get("canonical_domain"))
     people = _list(_dict(scenario.get("research")).get("people"))
     return bool(target_domain and people) and all(
@@ -210,6 +309,9 @@ def _accepted_people_match_target(scenario: Mapping[str, Any]) -> bool:
 
 
 def _stable_person_ids(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G2"):
+        account_ids = [_text(account.get("account_id")) for account in _account_rows(scenario)]
+        return bool(account_ids) and all(account_ids) and len(account_ids) == len(set(account_ids))
     research_ids = _person_ids(_dict(scenario.get("research")).get("people"))
     verification_ids = _person_ids(_dict(scenario.get("verification")).get("people"))
     selected_ids = _selection_ids(scenario)
@@ -332,6 +434,8 @@ def _contact_summary_complete(scenario: Mapping[str, Any]) -> bool:
 
 
 def _workbook_persisted(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G5"):
+        return _account_action_persisted(scenario)
     action = _dict(scenario.get("workbook_action"))
     return (
         _text(action.get("status")) == "succeeded"
@@ -341,6 +445,8 @@ def _workbook_persisted(scenario: Mapping[str, Any]) -> bool:
 
 
 def _exact_workbook_rows(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G5"):
+        return _account_run_exact(scenario)
     action = _dict(scenario.get("workbook_action"))
     selected = _selection_ids(scenario)
     action_selected = [_text(value) for value in _list(action.get("selected_person_ids"))]
@@ -355,6 +461,8 @@ def _exact_workbook_rows(scenario: Mapping[str, Any]) -> bool:
 
 
 def _usable_person_rows(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G2"):
+        return _account_rows_match_brief(scenario)
     people = _list(_dict(scenario.get("research")).get("people"))
     return bool(people) and all(
         isinstance(person, dict)
@@ -369,6 +477,16 @@ def _usable_person_rows(scenario: Mapping[str, Any]) -> bool:
 
 
 def _receipt_complete(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G5"):
+        action = _dict(scenario.get("account_action"))
+        workbook_id = _text(action.get("workbook_id"))
+        return (
+            _account_action_persisted(scenario)
+            and bool(_text(action.get("action_id")))
+            and action.get("source_job_id") is not None
+            and isinstance(action.get("row_count"), int)
+            and _text(action.get("url")) == f"/workbooks/{workbook_id}"
+        )
     action = _dict(scenario.get("workbook_action"))
     workbook_id = _text(action.get("workbook_id"))
     return (
@@ -381,6 +499,8 @@ def _receipt_complete(scenario: Mapping[str, Any]) -> bool:
 
 
 def _write_approved(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G5"):
+        return _dict(scenario.get("account_action")).get("approved") is True
     workbook_approved = _dict(scenario.get("workbook_action")).get("approved") is True
     if not workbook_approved or not _declares(scenario, "G3"):
         return workbook_approved
@@ -388,6 +508,11 @@ def _write_approved(scenario: Mapping[str, Any]) -> bool:
 
 
 def _has_idempotency_key(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G5"):
+        action = _dict(scenario.get("account_action"))
+        retry = _dict(scenario.get("account_retry_action"))
+        key = _text(action.get("idempotency_key"))
+        return bool(key) and _text(retry.get("idempotency_key")) == key
     action = _dict(scenario.get("workbook_action"))
     retry = _dict(scenario.get("retry_action"))
     key = _text(action.get("idempotency_key"))
@@ -401,6 +526,18 @@ def _has_idempotency_key(scenario: Mapping[str, Any]) -> bool:
 
 
 def _retry_reused(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G5"):
+        action = _dict(scenario.get("account_action"))
+        retry = _dict(scenario.get("account_retry_action"))
+        return (
+            _text(action.get("status")) == "succeeded"
+            and _text(retry.get("status")) == "succeeded"
+            and retry.get("reused") is True
+            and bool(_text(action.get("workbook_id")))
+            and _text(retry.get("workbook_id")) == _text(action.get("workbook_id"))
+            and _text(retry.get("action_id")) == _text(action.get("action_id"))
+            and retry.get("row_count") == action.get("row_count")
+        )
     action = _dict(scenario.get("workbook_action"))
     retry = _dict(scenario.get("retry_action"))
     workbook_reused = (
@@ -431,12 +568,22 @@ def _retry_reused(scenario: Mapping[str, Any]) -> bool:
 
 
 def _no_duplicate_rows(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G5"):
+        domains = [_domain(account.get("canonical_domain")) for account in _account_rows(scenario)]
+        return bool(domains) and all(domains) and len(domains) == len(set(domains))
     action = _dict(scenario.get("workbook_action"))
     persisted = [_text(value) for value in _list(action.get("persisted_person_ids"))]
     return bool(persisted) and len(persisted) == len(set(persisted))
 
 
 def _terminal_states(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G2"):
+        return (
+            _text(scenario.get("status")) in _TERMINAL_SCENARIO_STATES
+            and _text(_dict(scenario.get("account_action")).get("status")) in _TERMINAL_ACTION_STATES
+            and _text(_dict(scenario.get("account_retry_action")).get("status")) in _TERMINAL_ACTION_STATES
+            and _text(_dict(scenario.get("source_run")).get("status")) in {"complete", "partial", "failed"}
+        )
     terminal = (
         _text(scenario.get("status")) in _TERMINAL_SCENARIO_STATES
         and _text(_dict(scenario.get("research")).get("status")) in _TERMINAL_SCENARIO_STATES
@@ -458,6 +605,31 @@ def _within_timing(scenario: Mapping[str, Any], name: str, maximum_ms: int) -> b
 
 
 def _verification_summary_complete(scenario: Mapping[str, Any]) -> bool:
+    if _declares(scenario, "G1") and not _declares(scenario, "G4"):
+        run = _dict(scenario.get("source_run"))
+        requested = run.get("requested_count")
+        delivered = run.get("delivered_count")
+        shortfall = run.get("shortfall")
+        status = _text(run.get("status"))
+        if (
+            status not in {"complete", "partial"}
+            or not isinstance(requested, int)
+            or not isinstance(delivered, int)
+            or not isinstance(shortfall, int)
+            or shortfall != max(0, requested - delivered)
+            or not isinstance(run.get("rejected_by_reason"), dict)
+            or not isinstance(run.get("exhausted_sources"), list)
+            or not isinstance(run.get("retry_options"), list)
+        ):
+            return False
+        if status == "complete":
+            return delivered == requested and shortfall == 0
+        return (
+            delivered < requested
+            and shortfall > 0
+            and bool(run.get("exhausted_sources"))
+            and bool(run.get("retry_options"))
+        )
     verification = _dict(scenario.get("verification"))
     summary = _dict(verification.get("summary"))
     keys = ("passed", "failed", "uncertain", "changed")
@@ -475,6 +647,8 @@ def _verification_summary_complete(scenario: Mapping[str, Any]) -> bool:
 def _can_continue_enrichment(scenario: Mapping[str, Any]) -> bool:
     if scenario.get("can_continue_enrichment") is not True:
         return False
+    if _declares(scenario, "G1") and not _declares(scenario, "G3"):
+        return _account_rows_match_brief(scenario)
     return _contact_attempt_contract(scenario)
 
 
@@ -627,6 +801,80 @@ def _hard_failures(
                     claim="partnership_function",
                 )
 
+        account_action = _dict(scenario.get("account_action"))
+        account_retry = _dict(scenario.get("account_retry_action"))
+        if _declares(scenario, "G1"):
+            domains = []
+            for account in _account_rows(scenario):
+                account_id = _text(account.get("account_id"))
+                domain = _domain(account.get("canonical_domain"))
+                domains.append(domain)
+                criteria = _dict(account.get("criteria_evidence"))
+                if (
+                    not account_id
+                    or not domain
+                    or not criteria
+                    or not all(_dict(item).get("matched") is True for item in criteria.values())
+                    or not _list(account.get("evidence_urls"))
+                ):
+                    add(
+                        "unsupported_account_fit",
+                        scenario,
+                        f"Accepted account {account_id or '<missing>'} lacks complete criterion evidence.",
+                        ("G1",),
+                        entity_id=account_id,
+                    )
+            if domains and len(domains) != len(set(domains)):
+                add(
+                    "duplicate_account_domain",
+                    scenario,
+                    "Account discovery persisted duplicate canonical domains.",
+                    ("G1",),
+                )
+
+            account_run = _dict(scenario.get("source_run"))
+            requested = _dict(scenario.get("brief")).get("requested_count")
+            delivered = account_run.get("delivered_count")
+            if _text(account_run.get("status")) == "complete" and (
+                not isinstance(requested, int)
+                or delivered != requested
+                or len(_account_rows(scenario)) != requested
+                or account_run.get("shortfall") != 0
+            ):
+                add(
+                    "false_complete_account_run",
+                    scenario,
+                    "Account sourcing reports complete without the requested evidence-matched row count.",
+                    ("G1",),
+                )
+            if _text(account_action.get("status")) == "succeeded" and account_action.get("persisted") is not True:
+                add(
+                    "success_without_persistence",
+                    scenario,
+                    "Account workbook action reports success without persisted state.",
+                    ("G1",),
+                )
+            if _text(account_action.get("status")) == "succeeded" and account_action.get("persisted") is True:
+                workbook_id = _text(account_action.get("workbook_id"))
+                if _text(account_action.get("url")) != f"/workbooks/{workbook_id}":
+                    add(
+                        "wrong_result_link",
+                        scenario,
+                        "Account workbook receipt URL does not open the persisted workbook.",
+                        ("G1",),
+                    )
+            if _text(account_retry.get("status")) == "succeeded" and (
+                account_retry.get("reused") is not True
+                or _text(account_retry.get("workbook_id")) != _text(account_action.get("workbook_id"))
+                or _text(account_retry.get("idempotency_key")) != _text(account_action.get("idempotency_key"))
+            ):
+                add(
+                    "duplicate_retry_write",
+                    scenario,
+                    "Account retry did not reuse the original workbook and action key.",
+                    ("G1",),
+                )
+
         contact_action = _dict(scenario.get("contact_action"))
         contact_retry = _dict(scenario.get("contact_retry_action"))
         if _declares(scenario, "G3"):
@@ -762,7 +1010,10 @@ def _hard_failures(
             )
 
         workspace_id = _text(scenario.get("workspace_id"))
-        for candidate in (action, retry, contact_action, contact_retry):
+        for candidate in (
+            action, retry, contact_action, contact_retry,
+            account_action, account_retry,
+        ):
             candidate_workspace = _text(candidate.get("workspace_id"))
             if candidate_workspace and workspace_id and candidate_workspace != workspace_id:
                 add(
@@ -830,25 +1081,29 @@ def _build_checks(scenarios: Sequence[dict[str, Any]]) -> list[_Check]:
 
     add("scenario_completed", "outcome_completion", 5,
         lambda s: _text(s.get("status")) == "completed",
-        "The scenario reached completed state.", ("G2", "G3", "G4", "G5"))
+        "The scenario reached completed state.", ("G1", "G2", "G3", "G4", "G5"))
     add("accepted_people_found", "outcome_completion", 5,
-        lambda s: bool(_list(_dict(s.get("research")).get("people"))),
-        "The people research produced an accepted result set.", ("G2",))
+        lambda s: (
+            bool(_account_rows(s))
+            if _declares(s, "G1") and not _declares(s, "G2")
+            else bool(_list(_dict(s.get("research")).get("people")))
+        ),
+        "The research produced an accepted entity result set.", ("G1", "G2"))
     add("verification_covers_selection", "outcome_completion", 5,
         _verification_covers_selection,
         "Verification and contact enrichment cover the exact selected people.", ("G3", "G4"))
     add("workbook_persisted", "outcome_completion", 8, _workbook_persisted,
-        "The requested workbook exists in persisted state.", ("G5",))
+        "The requested workbook exists in persisted state.", ("G1", "G5"))
     add("exact_workbook_rows", "outcome_completion", 7, _exact_workbook_rows,
-        "Workbook rows exactly match the selected person IDs.", ("G5",))
+        "Workbook rows exactly match the requested entities.", ("G1", "G5"))
 
     add("target_company_resolved", "accuracy_and_evidence", 5, _target_resolved,
-        "The target company is explicitly resolved to a canonical domain.", ("G2",))
+        "The target company or account brief is explicitly resolved.", ("G1", "G2"))
     add("accepted_people_match_target", "accuracy_and_evidence", 5,
         _accepted_people_match_target,
-        "Every accepted person matches the target company domain.", ("G2",))
+        "Every accepted entity matches the target and its evidence criteria.", ("G1", "G2"))
     add("stable_person_ids", "accuracy_and_evidence", 4, _stable_person_ids,
-        "Stable person IDs survive research, selection, contact enrichment, and verification.", ("G2", "G3", "G4"))
+        "Stable entity IDs survive the workflow.", ("G1", "G2", "G3", "G4"))
     add("employment_evidence", "accuracy_and_evidence", 4,
         lambda s: _claim_verified_with_evidence(s, "current_employment"),
         "Current employment is a separately evidenced verified claim.", ("G2", "G4"))
@@ -859,33 +1114,41 @@ def _build_checks(scenarios: Sequence[dict[str, Any]]) -> list[_Check]:
         "All required claims carry status, evidence, time, confidence, and contradictions.", ("G3", "G4"))
 
     add("explicit_selection", "actionability", 4,
-        lambda s: bool(_selection_ids(s)),
-        "The action targets explicit stable person IDs.", ("G2", "G3", "G5"))
+        lambda s: (
+            _brief_complete(s)
+            if _declares(s, "G1") and not _declares(s, "G2")
+            else bool(_selection_ids(s))
+        ),
+        "The action targets an explicit brief or stable entity IDs.", ("G1", "G2", "G3", "G5"))
     add("usable_person_rows", "actionability", 3, _usable_person_rows,
-        "People rows contain the fields required for inspection and action.", ("G2",))
+        "Entity rows contain the fields required for inspection and action.", ("G1", "G2"))
     add("complete_action_receipt", "actionability", 5, _receipt_complete,
-        "The write receipt contains identity, counts, state, and a correct link.", ("G5",))
+        "The write receipt contains identity, counts, state, and a correct link.", ("G1", "G5"))
     add("can_continue_enrichment", "actionability", 3,
         _can_continue_enrichment,
-        "The saved selection has auditable contact results and can continue without rediscovery.", ("G3", "G5"))
+        "The saved selection can continue without rediscovery.", ("G1", "G3", "G5"))
 
     add("explicit_write_approval", "reliability", 3, _write_approved,
-        "Provider spend and workbook writes record explicit approval.", ("G3", "G5"))
+        "Provider spend and workbook writes record explicit approval.", ("G1", "G3", "G5"))
     add("idempotency_key_recorded", "reliability", 3, _has_idempotency_key,
-        "Each original action and retry share an idempotency key.", ("G3", "G5"))
+        "Each original action and retry share an idempotency key.", ("G1", "G3", "G5"))
     add("retry_reuses_workbook", "reliability", 5, _retry_reused,
-        "Retries reuse the exact contact result, workbook, and rows.", ("G3", "G5"))
+        "Retries reuse the exact result, workbook, and rows.", ("G1", "G3", "G5"))
     add("no_duplicate_rows", "reliability", 2, _no_duplicate_rows,
-        "Persisted person IDs are unique.", ("G5",))
+        "Persisted entity IDs and domains are unique.", ("G1", "G5"))
     add("terminal_honest_states", "reliability", 2, _terminal_states,
-        "Scenario, research, contact enrichment, verification, and writes expose terminal states.", ("G2", "G3", "G4", "G5"))
+        "Scenario, research, contact enrichment, verification, and writes expose terminal states.", ("G1", "G2", "G3", "G4", "G5"))
 
     add("fast_acknowledgement", "speed", 3,
         lambda s: _within_timing(s, "acknowledgement", 1_000),
-        "The request is acknowledged within one second.", ("G2",))
+        "The request is acknowledged within one second.", ("G1", "G2"))
     add("bounded_people_research", "speed", 3,
-        lambda s: _within_timing(s, "research", 45_000),
-        "Recorded people research completes within 45 seconds.", ("G2",))
+        lambda s: (
+            _within_timing(s, "account_sourcing", 1_800_000)
+            if _declares(s, "G1") and not _declares(s, "G2")
+            else _within_timing(s, "research", 45_000)
+        ),
+        "Recorded sourcing completes within its safety limit.", ("G1", "G2"))
     add("bounded_verification", "speed", 2,
         lambda s: (
             _within_timing(s, "verification", 40_000)
@@ -897,12 +1160,12 @@ def _build_checks(scenarios: Sequence[dict[str, Any]]) -> list[_Check]:
         "Recorded claim verification and contact enrichment finish within their safety limits.", ("G3", "G4"))
     add("bounded_workbook_write", "speed", 2,
         lambda s: _within_timing(s, "workbook_creation", 5_000),
-        "Recorded workbook creation completes within five seconds.", ("G5",))
+        "Recorded workbook creation completes within five seconds.", ("G1", "G5"))
 
     add("verification_summary", "ux_clarity", 2, _verification_summary_complete,
-        "Verification and contact summaries report each normalized outcome.", ("G3", "G4"))
+        "Source, verification, and contact summaries report each normalized outcome.", ("G1", "G3", "G4"))
     add("receipt_clarity", "ux_clarity", 3, _receipt_complete,
-        "The user receives a concrete workbook state, counts, ID, and link.", ("G5",))
+        "The user receives a concrete workbook state, counts, ID, and link.", ("G1", "G5"))
 
     totals = {
         category: sum(check.points for check in checks if check.category == category)

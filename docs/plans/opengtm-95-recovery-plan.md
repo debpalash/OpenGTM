@@ -8,6 +8,20 @@ Release posture: do not publish yet
 
 ## Progress log
 
+### 2026-08-28: structured account discovery
+
+- Added a deterministic G1 sourcing-brief parser for explicit account requests. The server now retains requested count, company type, geography, technology, hiring criteria, exclusions, and evidence requirements as structured data.
+- Explicit complete requests route directly to an approval-gated sourcing action without depending on an LLM. Incomplete briefs fail closed with the missing fields.
+- Made account sourcing workbooks idempotent by workspace and action key. A retry reuses the workbook and source job; a conflicting brief with the same key is rejected.
+- Added truthful queue recovery. If enqueueing fails, Chat reports that the workbook exists but sourcing did not start; a retry can enqueue the persisted source column.
+- Added an evidence gate in the workbook source engine. Accepted rows require a canonical domain, criterion-level matches, an evidence URL, retrieval time, and confidence. Technology and hiring claims cannot be inferred from a company name or website alone.
+- Source completion now records requested, delivered, shortfall, rejected reasons, exhausted source stages, and retry options. The engine stops at the requested total across reruns instead of adding the target count again.
+- Added a native G1 trace adapter and scorer coverage. Hard gates catch unsupported account fit, duplicate domains, false complete runs, false persistence, wrong links, duplicate retries, and cross-workspace action state.
+- Recorded product-code coverage is now 5/7 workflows across G1 through G5. The current G1 and G2 through G5 slices each score 100/100 with no hard failure. Release remains blocked on G6, G7, and the 10-run production-like streak.
+- Verification after the slice: 1,176 backend tests passed, 119 skipped.
+
+Next: implement G6 exact signal tracking with one idempotent schedule, durable job health, and read-back receipts.
+
 ### 2026-08-28: exact-person contact enrichment
 
 - Added the approval-gated `enrich_people_contacts` Chat action. It operates on stable person IDs from a server-owned research result and rejects unknown selections before provider spend.
