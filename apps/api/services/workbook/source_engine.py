@@ -31,8 +31,15 @@ _ROW_FIELDS = (
     "company", "website", "email", "phone", "city", "state", "address",
     "contact_person", "contact_title", "specialization", "company_size",
     "description", "linkedin_url", "twitter_url", "facebook_url",
-    "score", "score_tier", "source", "industry_tags",
+    "score", "score_tier", "source", "source_url", "industry_tags",
+    "technologies", "technographics", "hiring_signals", "field_provenance",
+    "collection_job_id", "created_at", "updated_at",
 )
+
+_SOURCE_STAGE_NAMES = {
+    "maps", "web", "directories", "linkedin", "job_boards",
+    "review_sites", "registry_sources",
+}
 
 
 # ── ICP → query ──────────────────────────────────────────────────────────
@@ -105,6 +112,11 @@ async def _materialize_source_impl(
         if crm_cfg is None:
             icp = col.get("icp") or {}
             target_rows = int(col.get("target_rows") or 0)
+            account_brief = (
+                dict(col.get("account_discovery_brief"))
+                if isinstance(col.get("account_discovery_brief"), dict)
+                else {}
+            )
             wb.status = "running"
             db.commit()
 
@@ -137,8 +149,11 @@ async def _materialize_source_impl(
     if not slug:
         raise ValueError(f"workspace {workspace_id!r} has no slug")
     runner = JobRunner(db=LeadDB(ws_manager.workspace_leads_db_path(slug)))
+    job_stages: list[dict[str, Any]] = []
     try:
         job_id = await runner.submit(query, workspace_id=workspace_id)
+        if hasattr(runner.db, "get_job_stages"):
+            job_stages = list(runner.db.get_job_stages(job_id) or [])
     except Exception as e:
         logger.error(f"Source run failed for {workbook_id}/{column_id}: {e}")
         with SessionLocal() as db:
@@ -167,6 +182,8 @@ async def _materialize_source_impl(
     found = len(leads)
     redis_client = _make_redis()
     added = skipped = 0
+    rejected_by_reason: dict[str, int] = {}
+    total_rows_after = 0
 
     _added_row_ids: list = []
     try:
@@ -179,6 +196,9 @@ async def _materialize_source_impl(
                     WorkbookRow.canonical_entity_id.isnot(None),
                 ).all()
             }
+            existing_row_count = db.query(WorkbookRow).filter(
+                WorkbookRow.workbook_id == workbook_id
+            ).count()
             max_pos = (
                 db.query(WorkbookRow.position)
                 .filter(WorkbookRow.workbook_id == workbook_id)
@@ -188,7 +208,7 @@ async def _materialize_source_impl(
             ) or 0
 
             for lead in leads:
-                if target_rows and added >= target_rows:
+                if target_rows and existing_row_count + added >= target_rows:
                     break
                 d = dataclasses.asdict(lead) if dataclasses.is_dataclass(lead) else dict(lead)
                 if not str(d.get("company") or "").strip():
@@ -200,6 +220,19 @@ async def _materialize_source_impl(
                     ok, _reason = validate_lead_light(lead)
                     if not ok:
                         skipped += 1
+                        continue
+
+                fit = None
+                if account_brief:
+                    from apps.api.services.leadgen.account_discovery import (
+                        evaluate_account_fit,
+                    )
+
+                    fit = evaluate_account_fit(d, account_brief)
+                    if not fit.get("accepted"):
+                        skipped += 1
+                        for reason in fit.get("rejection_reasons") or ["criteria_not_met"]:
+                            rejected_by_reason[reason] = rejected_by_reason.get(reason, 0) + 1
                         continue
 
                 # ── Pillar 1: resolve to a canonical entity (cross-source dedup) ──
@@ -216,6 +249,17 @@ async def _materialize_source_impl(
                 present.add(entity.id)
 
                 row_data = {k: d.get(k) for k in _ROW_FIELDS if d.get(k) not in (None, "")}
+                if fit:
+                    row_data.update({
+                        "account_id": entity.id,
+                        "canonical_domain": fit["canonical_domain"],
+                        "fit_reasons": fit["fit_reasons"],
+                        "criteria_evidence": fit["criteria_evidence"],
+                        "evidence_urls": fit["evidence_urls"],
+                        "retrieved_at": fit["retrieved_at"],
+                        "field_confidence": fit["field_confidence"],
+                        "fit_evaluated_at": fit["evaluated_at"],
+                    })
                 max_pos += 1
                 row = WorkbookRow(
                     workbook_id=workbook_id,
@@ -226,6 +270,8 @@ async def _materialize_source_impl(
                     enrichments={},
                     canonical_entity_id=entity.id,
                     corroboration_count=entity.corroboration_count,
+                    source_provider=str(d.get("source") or "account_discovery"),
+                    source_record_id=fit["canonical_domain"] if fit else None,
                 )
                 db.add(row)
                 db.flush()  # get row.id
@@ -248,8 +294,47 @@ async def _materialize_source_impl(
                 total = db.query(WorkbookRow).filter(
                     WorkbookRow.workbook_id == workbook_id
                 ).count()
+                total_rows_after = total
                 wb.total_rows = total
                 wb.status = "draft"  # sourcing done; ready to enrich
+                requested_count = int(account_brief.get("requested_count") or target_rows or 0)
+                completion_status = (
+                    "complete"
+                    if not requested_count or total >= requested_count
+                    else "partial"
+                )
+                exhausted_sources = [
+                    {
+                        "source": str(stage.get("stage") or ""),
+                        "status": str(stage.get("status") or "unknown"),
+                        "output_count": int(stage.get("output_count") or 0),
+                        "error_class": (
+                            "stage_failed" if str(stage.get("status")) == "failed" else ""
+                        ),
+                    }
+                    for stage in job_stages
+                    if str(stage.get("stage") or "") in _SOURCE_STAGE_NAMES
+                ]
+                source_summary = {
+                    "status": completion_status,
+                    "requested_count": requested_count,
+                    "delivered_count": total,
+                    "shortfall": max(0, requested_count - total),
+                    "found_count": found,
+                    "added_count": added,
+                    "skipped_count": skipped,
+                    "rejected_by_reason": rejected_by_reason,
+                    "exhausted_sources": exhausted_sources,
+                    "retry_options": (
+                        ["retry_same_brief", "relax_one_filter", "add_sources"]
+                        if completion_status == "partial" else []
+                    ),
+                    "job_id": job_id,
+                }
+                wb.source_config = {
+                    **dict(wb.source_config or {}),
+                    "last_source_run": source_summary,
+                }
                 db.commit()
 
         # Automations: on_row_added event (site 4 — source-column materialization).
@@ -276,7 +361,37 @@ async def _materialize_source_impl(
     logger.info(
         f"Source {workbook_id}/{column_id}: found={found} added={added} skipped={skipped}"
     )
-    return {"found": found, "added": added, "skipped": skipped, "query": query, "job_id": job_id}
+    requested_count = int(account_brief.get("requested_count") or target_rows or 0)
+    completion_status = (
+        "complete" if not requested_count or total_rows_after >= requested_count else "partial"
+    )
+    exhausted_sources = [
+        {
+            "source": str(stage.get("stage") or ""),
+            "status": str(stage.get("status") or "unknown"),
+            "output_count": int(stage.get("output_count") or 0),
+            "error_class": "stage_failed" if str(stage.get("status")) == "failed" else "",
+        }
+        for stage in job_stages
+        if str(stage.get("stage") or "") in _SOURCE_STAGE_NAMES
+    ]
+    return {
+        "status": completion_status,
+        "requested_count": requested_count,
+        "delivered_count": total_rows_after,
+        "shortfall": max(0, requested_count - total_rows_after),
+        "found": found,
+        "added": added,
+        "skipped": skipped,
+        "rejected_by_reason": rejected_by_reason,
+        "exhausted_sources": exhausted_sources,
+        "retry_options": (
+            ["retry_same_brief", "relax_one_filter", "add_sources"]
+            if completion_status == "partial" else []
+        ),
+        "query": query,
+        "job_id": job_id,
+    }
 
 
 async def handle_source_workbook(job_id: int, payload: dict):

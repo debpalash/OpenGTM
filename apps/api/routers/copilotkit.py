@@ -702,6 +702,11 @@ def _describe_action(fn_name: str, fn_args: dict, workspace_id: Optional[str] = 
             f"Conversation: {fn_args.get('conversation_id', '?')}"
             + (f" · People: {len(fn_args['person_ids'])}" if fn_args.get("person_ids") else "")
         )
+    elif fn_name == "create_source_workbook":
+        details = (
+            f"Target rows: {fn_args.get('target_rows', '?')}"
+            + f" · Query: {fn_args.get('icp_description', '?')}"
+        )
 
     return f"{label}\n{reason}\n{details}"
 
@@ -1052,6 +1057,8 @@ def _build_tools():
                         "target_rows": {"type": "integer", "description": "Max rows to source (0 = unlimited)"},
                         "auto_run": {"type": "boolean", "description": "Start sourcing immediately (default true)"},
                         "auto_enrich": {"type": "boolean", "description": "After sourcing, automatically run enrichment/agent columns (default false)"},
+                        "account_discovery": {"type": "boolean", "description": "Require a complete server-parsed account discovery brief and strict evidence gating"},
+                        "idempotency_key": {"type": "string", "maxLength": 255, "description": "Optional stable action key; retries return the original workbook"},
                     },
                     "required": ["icp_description"],
                 },
@@ -1932,41 +1939,190 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
             from apps.api.database import SessionLocal
             from apps.api.services.workbook.models import Workbook
             from apps.api.services.queue_service import queue_service
-            icp_desc = args["icp_description"]
+            from apps.api.services.leadgen.account_discovery import (
+                build_account_discovery_brief,
+            )
+
+            icp_desc = re.sub(r"\s+", " ", str(args["icp_description"] or "").strip())[:500]
+            if not icp_desc:
+                return json.dumps({"error": "ICP description is required"})
+            account_discovery = bool(args.get("account_discovery", False))
+            brief = build_account_discovery_brief(icp_desc)
+            if account_discovery and not brief.get("complete"):
+                return json.dumps({
+                    "error": "Account discovery brief is incomplete",
+                    "missing_fields": brief.get("missing_fields") or [],
+                    "brief": brief,
+                })
             wb_name = args.get("name") or f"Source — {icp_desc[:40]}"
             target_rows = int(args.get("target_rows", 0) or 0)
+            if account_discovery:
+                target_rows = int(brief["requested_count"])
+            target_rows = max(0, min(target_rows, 500))
             auto_run = args.get("auto_run", True)
             auto_enrich = bool(args.get("auto_enrich", False))
+            supplied_key = str(args.get("idempotency_key") or "").strip()
+            if supplied_key and len(supplied_key) > 255:
+                return json.dumps({"error": "Idempotency key exceeds 255 characters"})
+            action_key = supplied_key or (
+                f"chat-accounts:{brief['brief_id']}"
+                if account_discovery else
+                f"chat-source:{hashlib.sha256(icp_desc.lower().encode()).hexdigest()[:24]}:{target_rows}"
+            )
             src_col = {
                 "id": f"src_{uuid.uuid4().hex[:8]}", "name": "Source", "type": "source",
-                "icp": {"description": icp_desc}, "channels": {}, "target_rows": target_rows,
+                "icp": {
+                    "description": icp_desc,
+                    "company_types": brief.get("company_types") or [],
+                    "geo": brief.get("geographies") or [],
+                    "technologies": brief.get("technologies") or [],
+                    "hiring_roles": brief.get("hiring_roles") or [],
+                },
+                "channels": {},
+                "target_rows": target_rows,
             }
+            if account_discovery:
+                src_col["account_discovery_brief"] = brief
             base_cols = [
                 {"id": "company", "name": "Company", "type": "lead_field", "lead_field": "company"},
                 {"id": "website", "name": "Website", "type": "lead_field", "lead_field": "website"},
                 {"id": "city", "name": "City", "type": "lead_field", "lead_field": "city"},
+                {"id": "fit_reasons", "name": "Fit Reasons", "type": "lead_field", "lead_field": "fit_reasons"},
+                {"id": "evidence_urls", "name": "Evidence", "type": "lead_field", "lead_field": "evidence_urls"},
+                {"id": "field_confidence", "name": "Confidence", "type": "lead_field", "lead_field": "field_confidence"},
                 src_col,
             ]
             with SessionLocal() as wdb:
+                existing = wdb.query(Workbook).filter(
+                    Workbook.workspace_id == workspace_id,
+                    Workbook.action_idempotency_key == action_key,
+                ).first()
+                if existing:
+                    config = dict(existing.source_config or {})
+                    existing_brief = dict(config.get("account_discovery_brief") or {})
+                    if (
+                        (account_discovery and existing_brief.get("brief_id") != brief.get("brief_id"))
+                        or (not account_discovery and existing.description != icp_desc)
+                    ):
+                        return json.dumps({
+                            "error": "Idempotency key conflicts with a different sourcing brief",
+                            "action_id": action_key,
+                        })
+                    if auto_run and not config.get("source_job_id"):
+                        existing_source = next(
+                            (
+                                column for column in (existing.columns_config or [])
+                                if column.get("type") == "source"
+                            ),
+                            None,
+                        )
+                        if not existing_source:
+                            return json.dumps({
+                                "error": "Persisted workbook has no source column",
+                                "workbook_id": existing.id,
+                            })
+                        try:
+                            queued = queue_service.add_job(
+                                wdb,
+                                "source_workbook",
+                                {"workbook_id": existing.id, "column_id": existing_source["id"],
+                                 "enrich_after": auto_enrich,
+                                 "workspace_id": workspace_id},
+                                fire_key=f"source-workbook:{workspace_id}:{action_key}",
+                            )
+                        except Exception:
+                            return json.dumps({
+                                "ok": False,
+                                "persisted": True,
+                                "reused": True,
+                                "action_id": action_key,
+                                "workbook_id": existing.id,
+                                "sourcing": False,
+                                "error": "Source queue unavailable",
+                                "url": f"/workbooks/{existing.id}",
+                            })
+                        config["source_job_id"] = queued.id
+                        config["source_queue_status"] = "queued"
+                        config.pop("source_queue_error_class", None)
+                        existing.source_config = config
+                        wdb.commit()
+                    return json.dumps({
+                        "ok": True,
+                        "persisted": True,
+                        "reused": True,
+                        "action_id": action_key,
+                        "workbook_id": existing.id,
+                        "name": existing.name,
+                        "sourcing": bool(config.get("source_job_id")),
+                        "source_job_id": config.get("source_job_id"),
+                        "row_count": int(existing.total_rows or 0),
+                        "brief": config.get("account_discovery_brief") or brief,
+                        "url": f"/workbooks/{existing.id}",
+                    })
                 # STAMP workspace_id on the row AND in source_config so the
                 # downstream source engine sources into the right tenant. This
                 # runs inside workspace_scope, so the workbooks RLS policy +
                 # WITH CHECK (migration e5f6a7b8c9d0) back this app-layer stamp.
                 wb = Workbook(name=wb_name, description=icp_desc, status="draft",
-                              source_type="empty", columns_config=base_cols,
+                              source_type=("account_discovery" if account_discovery else "empty"),
+                              action_idempotency_key=action_key,
+                              columns_config=base_cols,
                               workspace_id=workspace_id,
-                              source_config={"workspace_id": workspace_id})
+                              source_config={
+                                  "workspace_id": workspace_id,
+                                  "account_discovery_brief": brief if account_discovery else {},
+                              })
                 wdb.add(wb); wdb.commit(); wdb.refresh(wb)
                 wb_id = wb.id
+                source_job_id = None
                 if auto_run:
                     # OD-4: stamp the tenant into the payload so the source worker
                     # enters workspace_scope (never reads the row to learn its ws).
-                    queue_service.add_job(wdb, "source_workbook",
-                                          {"workbook_id": wb_id, "column_id": src_col["id"],
-                                           "enrich_after": auto_enrich,
-                                           "workspace_id": workspace_id})
+                    try:
+                        queued = queue_service.add_job(
+                            wdb,
+                            "source_workbook",
+                            {"workbook_id": wb_id, "column_id": src_col["id"],
+                             "enrich_after": auto_enrich,
+                             "workspace_id": workspace_id},
+                            fire_key=f"source-workbook:{workspace_id}:{action_key}",
+                        )
+                    except Exception:
+                        wb.source_config = {
+                            **dict(wb.source_config or {}),
+                            "source_queue_status": "failed",
+                            "source_queue_error_class": "queue_unavailable",
+                        }
+                        wdb.commit()
+                        return json.dumps({
+                            "ok": False,
+                            "persisted": True,
+                            "reused": False,
+                            "action_id": action_key,
+                            "workbook_id": wb_id,
+                            "name": wb_name,
+                            "sourcing": False,
+                            "source_job_id": None,
+                            "row_count": 0,
+                            "brief": brief if account_discovery else {},
+                            "error": "Source queue unavailable",
+                            "url": f"/workbooks/{wb_id}",
+                        })
+                    source_job_id = queued.id
+                    wb.source_config = {
+                        **dict(wb.source_config or {}),
+                        "source_job_id": source_job_id,
+                        "source_queue_status": "queued",
+                    }
+                    wdb.commit()
             return json.dumps({
+                "ok": True, "persisted": True, "reused": False,
+                "action_id": action_key,
                 "workbook_id": wb_id, "name": wb_name, "sourcing": bool(auto_run),
+                "source_job_id": source_job_id,
+                "row_count": 0,
+                "brief": brief if account_discovery else {},
+                "url": f"/workbooks/{wb_id}",
                 "message": f"Created live-sourcing workbook '{wb_name}'."
                            + (" Sourcing started — rows will stream in." if auto_run else "")
                            + f" Open at /workbooks/{wb_id}",
@@ -2432,6 +2588,13 @@ async def _resolve_approved_calls(
                 yield f"data: {json.dumps({'content': workbook_message})}\n\n"
             elif fn_name == "enrich_people_contacts" and parsed_result.get("ok"):
                 yield f"data: {json.dumps({'content': _format_people_contacts(parsed_result)})}\n\n"
+            elif fn_name == "create_source_workbook" and parsed_result.get("workbook_id"):
+                source_message = (
+                    f"Created **{parsed_result.get('name', 'Sourcing workbook')}**. "
+                    f"The source job is {parsed_result.get('source_job_id', 'not started')}. "
+                    f"[Open workbook]({parsed_result.get('url')})"
+                )
+                yield f"data: {json.dumps({'content': source_message})}\n\n"
             content = result
         else:
             reason = (
@@ -2790,6 +2953,82 @@ async def copilot_chat(request: Request):
 
         return StreamingResponse(
             _stream_people_workbook_confirmation(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    from apps.api.services.leadgen.account_discovery import (
+        extract_account_discovery_request,
+    )
+
+    account_brief = extract_account_discovery_request(last_user_msg or "")
+    if account_brief and not approved_tool_calls:
+        company_type = ", ".join(account_brief.get("company_types") or [])
+        geography = ", ".join(account_brief.get("geographies") or [])
+        name_parts = [
+            str(account_brief["requested_count"]),
+            company_type or "Target",
+            "Accounts",
+        ]
+        if geography:
+            name_parts.extend(["in", geography])
+        fn_args = {
+            "icp_description": account_brief["original_query"],
+            "name": " ".join(name_parts)[:255],
+            "target_rows": account_brief["requested_count"],
+            "auto_run": True,
+            "auto_enrich": False,
+            "account_discovery": True,
+            "idempotency_key": (
+                f"chat-accounts:{conv_id}:{account_brief['brief_id']}"
+            ),
+        }
+        tool_call = {
+            "id": f"call_{uuid.uuid4().hex}",
+            "type": "function",
+            "function": {
+                "name": "create_source_workbook",
+                "arguments": json.dumps(fn_args),
+            },
+        }
+        approval_id = chat_history.create_tool_approval(
+            workspace_id, _chat_user_id, tool_call
+        )
+        display_call = json.loads(json.dumps(tool_call))
+        display_call["id"] = approval_id
+        meta = DANGEROUS_TOOLS["create_source_workbook"]
+        filters = [f"company type {company_type}"]
+        if geography:
+            filters.append(f"geography {geography}")
+        if account_brief.get("technologies"):
+            filters.append(
+                "technology " + ", ".join(account_brief["technologies"])
+            )
+        if account_brief.get("hiring_roles"):
+            filters.append(
+                "hiring " + ", ".join(account_brief["hiring_roles"])
+            )
+        proposal_text = (
+            f"I parsed this as {account_brief['requested_count']} accounts with "
+            + ", ".join(filters)
+            + ". I can create and run an evidence-gated sourcing workbook. "
+              "Rows must prove every requested filter; any shortfall will be reported as partial."
+        )
+
+        async def _stream_account_discovery_confirmation():
+            yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
+            yield f"data: {json.dumps({'content': proposal_text})}\n\n"
+            yield f"data: {json.dumps({'confirmation_required': {'confirmation_id': approval_id, 'tool_call': display_call, 'name': 'create_source_workbook', 'args': fn_args, 'description': _describe_action('create_source_workbook', fn_args, workspace_id), 'level': meta['level'], 'label': meta['label']}})}\n\n"
+            yield f"data: {json.dumps({'awaiting_confirmation': True})}\n\n"
+            chat_history.add_message(conv_id, "assistant", proposal_text)
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(
+            _stream_account_discovery_confirmation(),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
