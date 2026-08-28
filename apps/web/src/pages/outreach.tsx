@@ -11,13 +11,14 @@
 //    Suppressions tabs; auto-paused banner + Resume; 400/403 detail surfaced.
 
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 import {
   Send, Plus, Play, Pause, Trash2, MoreHorizontal, Clock,
   Mail, Users, Loader2, ChevronRight, Zap,
   XCircle, Timer, Hash, CheckCircle2, AlertCircle, AlertTriangle,
-  Settings as SettingsIcon, Info, Ban,
+  Settings as SettingsIcon, Info, Ban, FileText, ShieldCheck, Copy,
+  ExternalLink,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -40,12 +41,15 @@ import { ConfirmDialog } from "@/components/confirm-dialog"
 import { LeadPicker } from "@/components/lead-picker"
 import { Gate, useCanRole } from "@/components/gate"
 import {
+  useGroundedDraft, useGroundedDrafts,
   useSequences, useSequence, useSequenceSends, useSuppressions, useSmtpStatus,
   useCreateSequence, useDeleteSequence, useStartSequence, usePauseSequence,
   useUpdateSequence, useEnrollLeads, useExecuteSequence,
   useAddSuppression, useRemoveSuppression, useRole,
 } from "@/lib/automation-hooks"
-import type { Sequence, SeqStep, SeqStats, Suppression } from "@/lib/api"
+import type {
+  DraftEvidenceSource, Sequence, SeqStep, SeqStats, Suppression,
+} from "@/lib/api"
 import { ApiError } from "@/lib/api"
 
 // Consent options (spec §4): consent_basis on the sequence, consent_source on enroll.
@@ -61,6 +65,8 @@ function fmtConsent(v: string) {
 export default function OutreachPage() {
   const [view, setView] = useState<"list" | "create" | "detail">("list")
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const draftId = searchParams.get("draft")
 
   const sequences = useSequences()
   const smtp = useSmtpStatus()
@@ -75,21 +81,29 @@ export default function OutreachPage() {
     setView("detail")
   }
 
+  const openDraft = (id: string) => {
+    setView("list")
+    setSelectedId(null)
+    setSearchParams({ draft: id })
+  }
+
   return (
     <div className="flex flex-col gap-4 p-4">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="flex items-center gap-2 text-base font-semibold">
-            <Send className="size-4" />
+            {draftId ? <FileText className="size-4" /> : <Send className="size-4" />}
             Outreach
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Email sequences, SMTP delivery, and engagement tracking.
+            {draftId
+              ? "Inspect the saved message and evidence behind each personalized claim."
+              : "Grounded drafts, email sequences, and delivery tracking."}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {smtpStatus && (
+          {!draftId && smtpStatus && (
             <span
               className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] ${
                 smtpStatus.configured
@@ -105,7 +119,7 @@ export default function OutreachPage() {
               {smtpStatus.configured ? `SMTP: ${smtpStatus.email}` : "SMTP not configured"}
             </span>
           )}
-          {view === "list" && (
+          {!draftId && view === "list" && (
             <Gate need="admin">
               <Button
                 size="sm"
@@ -123,7 +137,7 @@ export default function OutreachPage() {
       <Separator />
 
       {/* Member banner — enroll-yes / activate-no asymmetry (spec §6) */}
-      {!canAdmin && !isOwner && (
+      {!draftId && !canAdmin && !isOwner && (
         <div className="flex items-start gap-2 rounded-md border border-sky-400/20 bg-sky-400/5 px-3 py-2 text-[11px] text-sky-300">
           <Info className="mt-0.5 size-3.5 shrink-0" />
           <span>You can view and enroll leads; activating/sending requires the admin role.</span>
@@ -131,7 +145,7 @@ export default function OutreachPage() {
       )}
 
       {/* Stats bar */}
-      {view === "list" && rows.length > 0 && (
+      {!draftId && view === "list" && rows.length > 0 && (
         <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Hash className="size-3" /> {rows.length} sequences
@@ -139,26 +153,42 @@ export default function OutreachPage() {
         </div>
       )}
 
-      {view === "list" && (
-        <SequenceList
-          rows={rows}
-          isLoading={sequences.isLoading}
-          isError={sequences.isError}
-          error={sequences.error}
-          onRetry={() => sequences.refetch()}
-          onOpen={openDetail}
-          onCreate={() => setView("create")}
+      {draftId ? (
+        <GroundedDraftDetail
+          id={draftId}
+          onBack={() => setSearchParams({}, { replace: true })}
         />
-      )}
+      ) : view === "list" ? (
+        <div className="space-y-6">
+          <GroundedDraftList onOpen={openDraft} />
+          <section aria-labelledby="sequences-heading" className="space-y-3">
+            <div>
+              <h3 id="sequences-heading" className="text-sm font-medium">Sequences</h3>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Scheduled email programs with consent and delivery controls.
+              </p>
+            </div>
+            <SequenceList
+              rows={rows}
+              isLoading={sequences.isLoading}
+              isError={sequences.isError}
+              error={sequences.error}
+              onRetry={() => sequences.refetch()}
+              onOpen={openDetail}
+              onCreate={() => setView("create")}
+            />
+          </section>
+        </div>
+      ) : null}
 
-      {view === "create" && (
+      {!draftId && view === "create" && (
         <SequenceCreator
           onCreated={(id) => openDetail(id)}
           onCancel={() => setView("list")}
         />
       )}
 
-      {view === "detail" && selectedId && (
+      {!draftId && view === "detail" && selectedId && (
         <SequenceDetailView
           id={selectedId}
           onBack={() => {
@@ -169,6 +199,185 @@ export default function OutreachPage() {
       )}
     </div>
   )
+}
+
+// ── Grounded drafts ──────────────────────────────────────────────────────
+
+function GroundedDraftList({ onOpen }: { onOpen: (id: string) => void }) {
+  const drafts = useGroundedDrafts()
+  if (drafts.isLoading) return <Loading rows={2} />
+  if (drafts.isError) {
+    return <ErrorState error={drafts.error} onRetry={() => drafts.refetch()} />
+  }
+  const rows = drafts.data?.drafts ?? []
+  if (rows.length === 0) return null
+
+  return (
+    <section aria-labelledby="grounded-drafts-heading" className="space-y-3">
+      <div>
+        <h3 id="grounded-drafts-heading" className="text-sm font-medium">Grounded drafts</h3>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Draft-only messages tied to an exact saved contact and public evidence.
+        </p>
+      </div>
+      <div className="space-y-2">
+        {rows.map((draft) => (
+          <button
+            key={draft.id}
+            type="button"
+            onClick={() => onOpen(draft.id)}
+            className="flex w-full cursor-pointer items-center gap-3 rounded-lg border px-3 py-3 text-left transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <FileText aria-hidden="true" className="size-4" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="flex flex-wrap items-center gap-2">
+                <span className="truncate text-sm font-medium">{draft.subject}</span>
+                <Badge variant="secondary" className="text-[10px]">Draft only</Badge>
+              </span>
+              <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                {draft.person_name} · {draft.to_email}
+              </span>
+            </span>
+            <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function GroundedDraftDetail({ id, onBack }: { id: string; onBack: () => void }) {
+  const draft = useGroundedDraft(id)
+  const [copied, setCopied] = useState(false)
+
+  if (draft.isLoading) return <Loading rows={4} />
+  if (draft.isError) {
+    return <ErrorState error={draft.error} onRetry={() => draft.refetch()} />
+  }
+  if (!draft.data) return null
+
+  const row = draft.data
+  const personalized = (row.sentence_evidence ?? []).filter((item) => item.personalized)
+  const sources = uniqueEvidence(personalized.flatMap((item) => item.evidence))
+  const created = row.created_at ? new Date(row.created_at).toLocaleString() : "Unknown"
+
+  const copyDraft = async () => {
+    try {
+      await navigator.clipboard.writeText(`Subject: ${row.subject}\n\n${row.body_text}`)
+      setCopied(true)
+      toast.success("Draft copied")
+      window.setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast.error("Could not copy the draft")
+    }
+  }
+
+  return (
+    <article className="max-w-4xl space-y-4" aria-labelledby="draft-subject">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 space-y-2">
+          <Button variant="ghost" size="sm" onClick={onBack} className="h-8 px-2 text-xs">
+            ← Back to outreach
+          </Button>
+          <div>
+            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+              <Badge variant="secondary">Draft only · not sent</Badge>
+              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                <ShieldCheck aria-hidden="true" className="size-3.5" />
+                {row.contact_status === "verified" ? "Verified address" : "Risky address approved"}
+              </span>
+            </div>
+            <h3 id="draft-subject" className="text-lg font-semibold leading-snug">{row.subject}</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Saved {created}</p>
+          </div>
+        </div>
+        <Button variant="outline" size="sm" onClick={copyDraft} className="gap-1.5">
+          <Copy aria-hidden="true" className="size-3.5" />
+          {copied ? "Copied" : "Copy draft"}
+        </Button>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.65fr)]">
+        <Card>
+          <CardHeader className="space-y-2 pb-3">
+            <div className="grid gap-2 text-xs sm:grid-cols-[72px_1fr]">
+              <span className="text-muted-foreground">To</span>
+              <span className="min-w-0 break-words font-medium">{row.person_name} &lt;{row.to_email}&gt;</span>
+              <span className="text-muted-foreground">Role</span>
+              <span>{row.title || "Partnerships"} at {row.company}</span>
+              <span className="text-muted-foreground">Subject</span>
+              <span className="font-medium">{row.subject}</span>
+            </div>
+          </CardHeader>
+          <Separator />
+          <CardContent className="pt-4">
+            <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-6 text-foreground">
+              {row.body_text}
+            </pre>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <ShieldCheck aria-hidden="true" className="size-4 text-primary" /> Evidence check
+            </CardTitle>
+            <p className="text-xs leading-5 text-muted-foreground">
+              {personalized.length} personalized line{personalized.length === 1 ? "" : "s"} backed by {sources.length} saved public source{sources.length === 1 ? "" : "s"}.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {personalized.map((item) => (
+              <div key={item.sentence_id} className="rounded-md border p-3">
+                <p className="text-xs leading-5">{item.text}</p>
+                <p className="mt-2 font-mono text-[10px] text-muted-foreground">
+                  {item.claim_ids.join(" · ")}
+                </p>
+              </div>
+            ))}
+            <Separator />
+            <div className="space-y-2">
+              {sources.map((source) => (
+                <a
+                  key={source.source_url}
+                  href={source.source_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block rounded-md border p-3 transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <span className="flex items-start justify-between gap-2 text-xs font-medium">
+                    <span>{source.label || "Public evidence"}</span>
+                    <ExternalLink aria-hidden="true" className="mt-0.5 size-3 shrink-0" />
+                  </span>
+                  <span className="mt-1 block break-words text-[10px] leading-4 text-muted-foreground">
+                    Observed {new Date(source.observed_at).toLocaleString()} · {Math.round(source.confidence * 100)}% confidence
+                  </span>
+                </a>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {(row.send_performed || row.generic_inbox || row.is_role_address) && (
+        <div role="alert" className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+          <AlertTriangle aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+          This draft failed a safety invariant. Do not use it until the saved record is reviewed.
+        </div>
+      )}
+    </article>
+  )
+}
+
+function uniqueEvidence(rows: DraftEvidenceSource[]): DraftEvidenceSource[] {
+  const seen = new Set<string>()
+  return rows.filter((row) => {
+    if (seen.has(row.source_url)) return false
+    seen.add(row.source_url)
+    return true
+  })
 }
 
 // ── List ──────────────────────────────────────────────────────────────────

@@ -19,6 +19,8 @@ import {
   fetchMeContext,
   fetchFlags,
   // outreach
+  listGroundedDrafts,
+  getGroundedDraft,
   listSequences,
   getSequence,
   createSequence,
@@ -163,6 +165,21 @@ export function useSequences() {
   return useQuery({
     queryKey: queryKeys.outreach.sequences,
     queryFn: listSequences,
+  })
+}
+
+export function useGroundedDrafts() {
+  return useQuery({
+    queryKey: queryKeys.outreach.drafts,
+    queryFn: listGroundedDrafts,
+  })
+}
+
+export function useGroundedDraft(id: string | null) {
+  return useQuery({
+    queryKey: id ? queryKeys.outreach.draft(id) : ["outreach", "draft", "none"],
+    queryFn: () => getGroundedDraft(id as string),
+    enabled: !!id,
   })
 }
 

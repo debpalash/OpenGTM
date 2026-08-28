@@ -13,6 +13,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from apps.api.core.config import settings
 from apps.api.core.tenancy import (
@@ -21,6 +22,8 @@ from apps.api.core.tenancy import (
     require_workspace_role,
     workspace_scope,
 )
+from apps.api.database import get_db
+from apps.api.services.outreach.orm_models import OutreachDraft
 from apps.api.services.outreach.normalize import normalize_email
 from apps.api.services.outreach.store import get_outreach_store
 
@@ -83,6 +86,66 @@ class SMTPConfigUpdate(BaseModel):
 
 class SuppressionAdd(BaseModel):
     email: str
+
+
+def _draft_to_api(draft: OutreachDraft, *, include_evidence: bool) -> dict:
+    result = {
+        "id": draft.id,
+        "person_id": draft.person_id,
+        "person_name": draft.person_name,
+        "company": draft.company,
+        "title": draft.title or "",
+        "to_email": draft.to_email,
+        "contact_status": draft.contact_status,
+        "risky_approved": bool(draft.risky_approved),
+        "generic_inbox": bool(draft.generic_inbox),
+        "is_role_address": bool(draft.is_role_address),
+        "subject": draft.subject,
+        "body_text": draft.body_text,
+        "state": draft.state,
+        "sent_at": draft.sent_at.isoformat() if draft.sent_at else None,
+        "send_performed": draft.sent_at is not None or draft.state == "sent",
+        "created_at": draft.created_at.isoformat() if draft.created_at else None,
+        "updated_at": draft.updated_at.isoformat() if draft.updated_at else None,
+    }
+    if include_evidence:
+        result["sentence_evidence"] = list(draft.sentence_evidence or [])
+        result["source_snapshot"] = dict(draft.source_snapshot or {})
+    return result
+
+
+# ── Grounded draft inspection (draft-only; no send endpoint) ──────────────
+
+@router.get("/drafts")
+def list_drafts(
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    rows = db.query(OutreachDraft).filter(
+        OutreachDraft.workspace_id == ctx.workspace_id,
+    ).order_by(OutreachDraft.created_at.desc()).limit(limit).offset(offset).all()
+    return {
+        "drafts": [_draft_to_api(row, include_evidence=False) for row in rows],
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+@router.get("/drafts/{draft_id}")
+def get_draft(
+    draft_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    draft = db.query(OutreachDraft).filter(
+        OutreachDraft.id == draft_id,
+        OutreachDraft.workspace_id == ctx.workspace_id,
+    ).one_or_none()
+    if draft is None:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    return _draft_to_api(draft, include_evidence=True)
 
 
 # ── Sequence CRUD ─────────────────────────────────────────────

@@ -658,6 +658,43 @@ export const fetchFlags = (): Promise<FeatureFlags> =>
 
 // ════════════════════════════ Outreach types ═══════════════════════════════
 
+export interface DraftEvidenceSource {
+  source_url: string
+  label: string
+  observed_at: string
+  confidence: number
+}
+
+export interface DraftSentenceEvidence {
+  sentence_id: string
+  text: string
+  personalized: boolean
+  claim_ids: string[]
+  evidence: DraftEvidenceSource[]
+}
+
+export interface GroundedOutreachDraft {
+  id: string
+  person_id: string
+  person_name: string
+  company: string
+  title: string
+  to_email: string
+  contact_status: "verified" | "risky"
+  risky_approved: boolean
+  generic_inbox: boolean
+  is_role_address: boolean
+  subject: string
+  body_text: string
+  state: "draft" | string
+  sent_at: string | null
+  send_performed: boolean
+  created_at: string | null
+  updated_at: string | null
+  sentence_evidence?: DraftSentenceEvidence[]
+  source_snapshot?: Record<string, unknown>
+}
+
 export interface SeqStep {
   step_number: number
   subject: string
@@ -944,6 +981,12 @@ export interface PollResult {
 // ═══════════════════════════ Outreach fetch fns ════════════════════════════
 
 const OUT = "/api/outreach"
+
+export const listGroundedDrafts = (): Promise<{ drafts: GroundedOutreachDraft[] }> =>
+  apiGet(`${OUT}/drafts`)
+
+export const getGroundedDraft = (id: string): Promise<GroundedOutreachDraft> =>
+  apiGet(`${OUT}/drafts/${encodeURIComponent(id)}`)
 
 export const listSequences = (): Promise<{ sequences: Sequence[] }> =>
   apiGet(`${OUT}/sequences`)

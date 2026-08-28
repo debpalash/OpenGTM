@@ -315,17 +315,18 @@ def test_cross_workspace_action_state_is_a_hard_failure():
     }
 
 
-def test_declaring_unimplemented_workflows_cannot_unlock_release():
+def test_declaring_workflows_without_evidence_cannot_unlock_release():
     artifact = _artifact()
     _scenario(artifact)["workflow_ids"] = list(REQUIRED_WORKFLOWS)
 
     report = score_gauntlet(artifact)
 
     assert report["declared_workflows"] == list(REQUIRED_WORKFLOWS)
-    assert report["evaluated_workflows"] == ["G1", "G2", "G3", "G4", "G5", "G6"]
+    assert report["evaluated_workflows"] == list(REQUIRED_WORKFLOWS)
     assert report["workflows"]["G1"]["status"] == "failed"
     assert report["workflows"]["G3"]["status"] == "failed"
     assert report["workflows"]["G6"]["status"] == "failed"
+    assert report["workflows"]["G7"]["status"] == "failed"
     assert report["release"]["eligible"] is False
 
 
