@@ -19,8 +19,8 @@ is skipped, so it works with whatever BYOK keys exist.
 
 import asyncio
 import logging
-from dataclasses import dataclass
-from typing import Awaitable, Callable, List, Optional
+from dataclasses import dataclass, field
+from typing import Any, Awaitable, Callable, List, Optional
 
 logger = logging.getLogger("leadgen.email_verify_cascade")
 
@@ -42,6 +42,7 @@ class VerifyResult:
     source: str = ""               # which verifier produced it
     confidence: float = 0.0
     detail: str = ""
+    attempts: List[dict[str, Any]] = field(default_factory=list)
 
     @property
     def is_definitive(self) -> bool:
@@ -210,6 +211,14 @@ async def verify_email(
             if hit is not None:
                 res = VerifyResult(email, hit["status"], hit["source"] or name,
                                    hit["confidence"], hit["detail"])
+                res.attempts = [
+                    *last.attempts,
+                    {
+                        "provider": name,
+                        "status": res.status,
+                        "detail": "cache_hit",
+                    },
+                ]
                 if res.is_definitive:
                     return res
                 last = res
@@ -217,9 +226,22 @@ async def verify_email(
         # 2) Live verify.
         try:
             res = await v.verify(email)
-        except Exception as e:
-            logger.debug(f"verifier {name} threw: {e}")
+        except Exception as exc:
+            logger.debug(f"verifier {name} threw: {exc}")
+            last.attempts.append({
+                "provider": name,
+                "status": "error",
+                "detail": type(exc).__name__,
+            })
             continue
+        res.attempts = [
+            *last.attempts,
+            {
+                "provider": name,
+                "status": res.status,
+                "detail": res.detail,
+            },
+        ]
         # 3) Cache the result (skip transient infra errors so they self-heal).
         if cache is not None and not _is_transient(res):
             try:

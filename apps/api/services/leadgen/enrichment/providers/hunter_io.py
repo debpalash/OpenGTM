@@ -87,6 +87,7 @@ class HunterProvider(EnrichmentProvider):
                                 "email": email_data["email"],
                                 "email_confidence": str(email_data.get("confidence", 0)),
                                 "email_provider": "hunter_io",
+                                "email_match_method": "exact_name",
                             },
                             confidence=email_data.get("confidence", 0) / 100,
                             duration_ms=(time.time() - t0) * 1000,
@@ -111,6 +112,7 @@ class HunterProvider(EnrichmentProvider):
                         "email": best["value"],
                         "email_confidence": str(best.get("confidence", 0)),
                         "email_provider": "hunter_io",
+                        "email_match_method": "domain_search",
                     }
                     # Bonus: extract contact person if available
                     if best.get("first_name") and best.get("last_name"):

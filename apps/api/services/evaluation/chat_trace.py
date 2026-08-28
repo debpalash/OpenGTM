@@ -56,6 +56,47 @@ def _normalized_sources(person: Mapping[str, Any]) -> list[dict[str, str]]:
     return sources
 
 
+def _contact_evidence(contact: Mapping[str, Any]) -> list[dict[str, Any]]:
+    observed_at = _text(contact.get("observed_at"))
+    evidence = []
+    for attempt in _list(contact.get("attempts")):
+        if not isinstance(attempt, dict) or not _text(attempt.get("provider")):
+            continue
+        evidence.append({
+            "kind": "provider_attempt",
+            "source": _text(attempt.get("provider")),
+            "stage": _text(attempt.get("stage")),
+            "status": _text(attempt.get("status")),
+            "detail": _text(attempt.get("detail")),
+            "source_license": _text(attempt.get("source_license")) or "unknown",
+            "observed_at": observed_at,
+        })
+    return evidence
+
+
+def _contact_claim(contact: Mapping[str, Any], fallback_observed_at: str) -> dict[str, Any]:
+    contact_status = _text(contact.get("status")) or "unavailable"
+    claim_status = {
+        "verified": "verified",
+        "risky": "uncertain",
+        "catch_all": "uncertain",
+        "invalid": "rejected",
+        "unavailable": "unavailable",
+    }.get(contact_status, "failed")
+    email = _text(contact.get("email")) or None
+    confidence = _confidence(contact.get("verification_confidence"))
+    if not confidence:
+        confidence = _confidence(contact.get("discovery_confidence"))
+    return _claim(
+        status=claim_status,
+        value={"email": email, "contact_status": contact_status},
+        confidence=confidence,
+        observed_at=_text(contact.get("observed_at")) or fallback_observed_at,
+        evidence=_contact_evidence(contact),
+        contradictions=(),
+    )
+
+
 def _claim(
     *,
     status: str,
@@ -81,6 +122,7 @@ def _person_claims(
     company: str,
     canonical_domain: str,
     company_resolution: Mapping[str, Any],
+    contact: Mapping[str, Any],
 ) -> dict[str, Any]:
     native_status = _text(person.get("verification_status"))
     evidence = _normalized_sources(person)
@@ -101,6 +143,7 @@ def _person_claims(
             }
         )
     company_verified = bool(canonical_domain and resolution_evidence)
+    contact_claim = _contact_claim(contact, observed_at) if contact else None
 
     return {
         "company_identity": _claim(
@@ -136,6 +179,13 @@ def _person_claims(
             contradictions=_list(contradictions.get("partnership_function")),
         ),
         "contactability": _claim(
+            status=contact_claim["status"],
+            value=contact_claim["value"],
+            confidence=contact_claim["confidence"],
+            observed_at=contact_claim["observed_at"],
+            evidence=contact_claim["evidence"],
+            contradictions=_list(contradictions.get("contactability")),
+        ) if contact_claim else _claim(
             status="unavailable",
             value=None,
             confidence=0.0,
@@ -152,6 +202,7 @@ def _verification_people(
     company: str,
     canonical_domain: str,
     company_resolution: Mapping[str, Any],
+    contact_people: Mapping[str, Mapping[str, Any]],
 ) -> list[dict[str, Any]]:
     people = []
     for person in _list(result.get("people")):
@@ -165,6 +216,7 @@ def _verification_people(
                     company=company,
                     canonical_domain=canonical_domain,
                     company_resolution=company_resolution,
+                    contact=_dict(contact_people.get(_text(person.get("person_id")))),
                 ),
             }
         )
@@ -308,21 +360,54 @@ def _normalized_action(
     }
 
 
+def _normalized_contact_action(step: Mapping[str, Any]) -> dict[str, Any]:
+    args = _dict(step.get("args"))
+    result = _dict(step.get("result"))
+    approval = _dict(step.get("approval"))
+    people = [
+        {
+            "person_id": _text(person.get("person_id")),
+            "contactability": dict(_dict(person.get("contactability"))),
+        }
+        for person in _list(result.get("people"))
+        if isinstance(person, dict) and _text(person.get("person_id"))
+    ]
+    return {
+        "action_id": _text(result.get("action_id") or args.get("idempotency_key")),
+        "idempotency_key": _text(result.get("action_id") or args.get("idempotency_key")),
+        "workspace_id": _text(result.get("workspace_id")),
+        "approved": _text(approval.get("decision")) in {"approve", "approved"},
+        "status": "succeeded" if result.get("ok") is True else "failed",
+        "reused": result.get("reused") is True,
+        "selected_person_ids": [
+            _text(person_id) for person_id in _list(args.get("person_ids"))
+        ],
+        "returned_person_ids": [person["person_id"] for person in people],
+        "provider_order": list(_list(result.get("provider_order"))),
+        "people": people,
+        "summary": dict(_dict(result.get("summary"))),
+    }
+
+
 def build_people_workflow_artifact(
     trace: Mapping[str, Any],
     db: Any,
 ) -> dict[str, Any]:
-    """Build one G2/G4/G5 gauntlet artifact from native action evidence."""
+    """Build one G2/G3/G4/G5 gauntlet artifact from native action evidence."""
     research_steps = _steps(trace, "find_people_at_company")
     verification_steps = _steps(trace, "verify_people_at_company")
+    contact_steps = _steps(trace, "enrich_people_contacts")
     workbook_steps = _steps(trace, "create_people_workbook")
 
     research_step = research_steps[-1] if research_steps else {}
     verification_step = verification_steps[-1] if verification_steps else {}
+    contact_step = contact_steps[0] if contact_steps else {}
+    contact_retry_step = contact_steps[1] if len(contact_steps) > 1 else {}
     create_step = workbook_steps[0] if workbook_steps else {}
     retry_step = workbook_steps[1] if len(workbook_steps) > 1 else {}
     research_result = _dict(research_step.get("result"))
     verification_result = _dict(verification_step.get("result"))
+    contact_result = _dict(contact_step.get("result"))
 
     resolution = _dict(trace.get("company_resolution"))
     if not _text(resolution.get("status")):
@@ -359,12 +444,20 @@ def build_people_workflow_artifact(
             if isinstance(person, dict) and _text(person.get("person_id"))
         ]
 
+    contact_people = {
+        _text(person.get("person_id")): _dict(person.get("contactability"))
+        for person in _list(contact_result.get("people"))
+        if isinstance(person, dict) and _text(person.get("person_id"))
+    }
     verification_people = _verification_people(
         verification_result,
         company=company,
         canonical_domain=canonical_domain,
         company_resolution=resolution,
+        contact_people=contact_people,
     )
+    contact_action = _normalized_contact_action(contact_step)
+    contact_retry_action = _normalized_contact_action(contact_retry_step)
     create_snapshot = _workbook_snapshot(db, _dict(create_step.get("result")))
     retry_snapshot = _workbook_snapshot(db, _dict(retry_step.get("result")))
     create_action = _normalized_action(create_step, snapshot=create_snapshot)
@@ -372,18 +465,28 @@ def build_people_workflow_artifact(
 
     research_ok = research_result.get("ok") is True
     verification_ok = verification_result.get("ok") is True
+    contacts_required = bool(contact_steps)
+    contact_ok = contact_result.get("ok") is True if contacts_required else True
+    contact_retry_ok = (
+        _dict(contact_retry_step.get("result")).get("ok") is True
+        if contacts_required else True
+    )
     create_ok = _dict(create_step.get("result")).get("ok") is True
     retry_ok = _dict(retry_step.get("result")).get("ok") is True
     scenario_status = (
         "completed"
-        if research_ok and verification_ok and create_ok and retry_ok
+        if research_ok and verification_ok and contact_ok and contact_retry_ok and create_ok and retry_ok
         else "partial"
     )
 
     scenario = {
         "id": "partnership_people_to_workbook",
         "status": scenario_status,
-        "workflow_ids": ["G2", "G4", "G5"],
+        "workflow_ids": [
+            workflow
+            for workflow in ("G2", "G3", "G4", "G5")
+            if workflow != "G3" or contacts_required
+        ],
         "workspace_id": _text(trace.get("workspace_id")),
         "conversation_id": _text(trace.get("conversation_id")),
         "prompt_steps": list(_list(trace.get("prompts"))),
@@ -408,6 +511,8 @@ def build_people_workflow_artifact(
             "people": verification_people,
             "summary": _verification_summary(verification_people),
         },
+        "contact_action": contact_action,
+        "contact_retry_action": contact_retry_action,
         "workbook_action": create_action,
         "retry_action": retry_action,
         "can_continue_enrichment": create_snapshot.get("can_continue_enrichment") is True,
@@ -415,6 +520,7 @@ def build_people_workflow_artifact(
             "acknowledgement": trace.get("acknowledgement_ms"),
             "research": research_step.get("latency_ms"),
             "verification": verification_step.get("latency_ms"),
+            "contact_enrichment": contact_step.get("latency_ms"),
             "workbook_creation": create_step.get("latency_ms"),
         },
         "jobs": list(_list(trace.get("jobs"))),

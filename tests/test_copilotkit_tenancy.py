@@ -470,6 +470,193 @@ def test_create_people_workbook_is_exact_and_idempotent(monkeypatch):
         assert db.query(Workbook).count() == 1
 
 
+def test_enrich_people_contacts_is_exact_and_retry_safe(monkeypatch):
+    from apps.api.services.leadgen import people_contacts
+
+    messages = [{
+        "role": "tool",
+        "tool_data": json.dumps({
+            "name": "verify_people_at_company",
+            "result": {
+                "result_set_id": "people_paypal_partnerships",
+                "company": "PayPal",
+                "function": "partnerships",
+                "company_resolution": {
+                    "status": "resolved",
+                    "canonical_domain": "paypal.com",
+                },
+                "people": [
+                    {"person_id": "person_jane", "name": "Jane Valid"},
+                    {"person_id": "person_alex", "name": "Alex Valid"},
+                ],
+            },
+        }),
+    }]
+    calls = []
+
+    async def fake_enrich(company, function, people, **kwargs):
+        calls.append({
+            "company": company,
+            "function": function,
+            "people": people,
+            **kwargs,
+        })
+        selected = kwargs["person_ids"]
+        return {
+            "ok": True,
+            "action_id": kwargs["action_id"],
+            "reused": False,
+            "company": company,
+            "function": function,
+            "result_set_id": "people_paypal_partnerships",
+            "selected_person_ids": selected,
+            "people": [{
+                "person_id": "person_alex",
+                "name": "Alex Valid",
+                "email": "alex@paypal.com",
+                "contactability": {
+                    "email": "alex@paypal.com",
+                    "status": "verified",
+                    "attempts": [],
+                },
+            }],
+            "count": 1,
+            "summary": {"verified": 1},
+        }
+
+    monkeypatch.setattr(
+        ck.chat_history, "get_conversation", lambda *args: {"id": "conv-contacts"}
+    )
+    monkeypatch.setattr(ck.chat_history, "get_messages", lambda *args: messages)
+    monkeypatch.setattr(people_contacts, "enrich_people_contacts", fake_enrich)
+    args = {
+        "conversation_id": "conv-contacts",
+        "person_ids": ["person_alex"],
+        "idempotency_key": "contact-action-alex",
+    }
+
+    first = json.loads(asyncio.run(ck._execute_tool(
+        "enrich_people_contacts",
+        args,
+        store=object(),
+        workspace_id="W1",
+        slug="main",
+    )))
+    messages.append({
+        "role": "tool",
+        "tool_data": json.dumps({
+            "name": "enrich_people_contacts",
+            "result": first,
+        }),
+    })
+    second = json.loads(asyncio.run(ck._execute_tool(
+        "enrich_people_contacts",
+        args,
+        store=object(),
+        workspace_id="W1",
+        slug="main",
+    )))
+
+    assert first["selected_person_ids"] == ["person_alex"]
+    assert first["reused"] is False
+    assert second["reused"] is True
+    assert second["people"] == first["people"]
+    assert len(calls) == 1
+    assert calls[0]["person_ids"] == ["person_alex"]
+    assert calls[0]["company_resolution"]["canonical_domain"] == "paypal.com"
+
+    conflict = json.loads(asyncio.run(ck._execute_tool(
+        "enrich_people_contacts",
+        {
+            **args,
+            "person_ids": ["person_jane"],
+        },
+        store=object(),
+        workspace_id="W1",
+        slug="main",
+    )))
+    assert conflict == {
+        "error": "Idempotency key conflicts with a different people selection",
+        "action_id": "contact-action-alex",
+    }
+    assert len(calls) == 1
+
+
+def test_people_workbook_snapshots_contact_status_and_attempts(monkeypatch):
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.pool import StaticPool
+    from apps.api.services.workbook.models import Base, Workbook, WorkbookRow
+
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(engine, tables=[Workbook.__table__, WorkbookRow.__table__])
+    factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    monkeypatch.setattr("apps.api.database.SessionLocal", factory)
+    monkeypatch.setattr(
+        ck.chat_history, "get_conversation", lambda *args: {"id": "conv-contact-workbook"}
+    )
+    monkeypatch.setattr(
+        ck,
+        "_latest_conversation_tool_result",
+        lambda *args: {
+            "name": "enrich_people_contacts",
+            "result": {
+                "action_id": "contacts-jane",
+                "result_set_id": "people_paypal_partnerships",
+                "company": "PayPal",
+                "function": "partnerships",
+                "company_resolution": {
+                    "status": "resolved",
+                    "canonical_domain": "paypal.com",
+                },
+                "people": [{
+                    "person_id": "person_jane",
+                    "name": "Jane Valid",
+                    "title": "VP Partnerships",
+                    "email": "jane@paypal.com",
+                    "contactability": {
+                        "email": "jane@paypal.com",
+                        "status": "verified",
+                        "finder_provider": "prospeo",
+                        "verifier_provider": "reacher",
+                        "observed_at": "2026-08-28T07:00:00+00:00",
+                        "attempts": [
+                            {"stage": "discovery", "provider": "prospeo", "status": "found"},
+                            {"stage": "verification", "provider": "reacher", "status": "valid"},
+                        ],
+                    },
+                }],
+            },
+        },
+    )
+
+    out = json.loads(asyncio.run(ck._execute_tool(
+        "create_people_workbook",
+        {
+            "conversation_id": "conv-contact-workbook",
+            "idempotency_key": "contact-workbook-jane",
+        },
+        store=object(),
+        workspace_id="W1",
+        slug="main",
+    )))
+
+    assert out["ok"] is True
+    with factory() as db:
+        workbook = db.query(Workbook).one()
+        row = db.query(WorkbookRow).one()
+        assert workbook.source_config["tool"] == "enrich_people_contacts"
+        assert row.data["email"] == "jane@paypal.com"
+        assert row.data["email_status"] == "verified"
+        assert row.data["email_finder"] == "prospeo"
+        assert row.data["email_verifier"] == "reacher"
+        assert row.data["contact_provider_attempts"][1]["status"] == "valid"
+
+
 # ── execute_plan recurses through a tenant-bound callback ─────────────────────
 
 def test_execute_plan_uses_tenant_bound_callback(monkeypatch):

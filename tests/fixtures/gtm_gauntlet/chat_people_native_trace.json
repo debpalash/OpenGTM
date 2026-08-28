@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "fixture_kind": "synthetic_recorded_native_shape",
-  "run_id": "recorded_product_g2_g4_g5_baseline",
+  "run_id": "recorded_product_g2_g3_g4_g5_baseline",
   "mode": "recorded",
   "build_sha": "fixture-build",
   "started_at": "2026-08-28T08:00:00Z",
@@ -12,6 +12,7 @@
   "prompts": [
     "Find Stripe partnership teams.",
     "Verify that they still work there and own partnerships.",
+    "Find their work emails and verify each address.",
     "Make a workbook with them."
   ],
   "selection": {

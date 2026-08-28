@@ -497,3 +497,54 @@ def test_make_workbook_with_them_emits_confirmation_without_llm(monkeypatch):
     assert '"person_ids": ["person_' in stream
     assert '"idempotency_key": "chat-people:conv-workbook:' in stream
     assert "exact 2 people" in stream
+
+
+def test_find_work_emails_for_them_emits_exact_selection_confirmation(monkeypatch):
+    from apps.api.routers import copilotkit as ck
+
+    class Request:
+        async def json(self):
+            return {
+                "conversation_id": "conv-contacts",
+                "messages": [{
+                    "role": "user",
+                    "content": "find work emails for them and verify each one",
+                }],
+            }
+
+    prior = {
+        "name": "verify_people_at_company",
+        "result": {
+            "result_set_id": "people_paypal_partnerships",
+            "company": "PayPal",
+            "function": "partnerships",
+            "people": [
+                {"person_id": "person_jane", "name": "Jane Valid"},
+                {"person_id": "person_alex", "name": "Alex Valid"},
+            ],
+        },
+    }
+    monkeypatch.setattr(ck, "_resolve_chat_workspace", lambda request: ("W1", None, "main"))
+    monkeypatch.setattr(ck, "get_lead_store", lambda *args: object())
+    monkeypatch.setattr(ck.chat_history, "get_conversation", lambda *args: {"id": "conv-contacts"})
+    monkeypatch.setattr(ck.chat_history, "add_message", lambda *args, **kwargs: None)
+    monkeypatch.setattr(ck.chat_history, "create_tool_approval", lambda *args: "approval-contacts")
+    monkeypatch.setattr(ck, "_latest_conversation_tool_result", lambda *args: prior)
+    monkeypatch.setattr(
+        ck, "_get_provider_chain",
+        lambda: (_ for _ in ()).throw(AssertionError("LLM provider was consulted")),
+    )
+
+    async def run():
+        response = await ck.copilot_chat(Request())
+        chunks = []
+        async for chunk in response.body_iterator:
+            chunks.append(chunk.decode() if isinstance(chunk, bytes) else chunk)
+        return "".join(chunks)
+
+    stream = asyncio.run(run())
+    assert '"name": "enrich_people_contacts"' in stream
+    assert '"confirmation_id": "approval-contacts"' in stream
+    assert '"person_ids": ["person_jane", "person_alex"]' in stream
+    assert '"idempotency_key": "chat-contacts:conv-contacts:' in stream
+    assert "separate deliverability verifier" in stream

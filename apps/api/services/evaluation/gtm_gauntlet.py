@@ -35,7 +35,7 @@ REQUIRED_WORKFLOWS: tuple[str, ...] = (
     "G6",
     "G7",
 )
-SUPPORTED_WORKFLOWS: tuple[str, ...] = ("G2", "G4", "G5")
+SUPPORTED_WORKFLOWS: tuple[str, ...] = ("G2", "G3", "G4", "G5")
 RELEASE_SCORE = 95.0
 CATEGORY_FLOOR = 0.90
 REQUIRED_PRODUCTION_STREAK = 10
@@ -126,6 +126,18 @@ def _selection_ids(scenario: Mapping[str, Any]) -> list[str]:
     return [_text(value) for value in _list(_dict(scenario.get("selection")).get("person_ids"))]
 
 
+def _declares(scenario: Mapping[str, Any], workflow_id: str) -> bool:
+    return workflow_id in _list(scenario.get("workflow_ids"))
+
+
+def _contact_people(scenario: Mapping[str, Any]) -> list[dict[str, Any]]:
+    return [
+        person
+        for person in _list(_dict(scenario.get("contact_action")).get("people"))
+        if isinstance(person, dict)
+    ]
+
+
 def _claims_by_person(scenario: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
     people = _list(_dict(scenario.get("verification")).get("people"))
     return {
@@ -139,8 +151,19 @@ def _claim_has_evidence(claim: Mapping[str, Any]) -> bool:
     evidence = _list(claim.get("evidence"))
     return bool(evidence) and all(
         isinstance(item, dict)
-        and _is_http_url(item.get("url"))
-        and bool(_text(item.get("source")))
+        and (
+            (
+                _is_http_url(item.get("url"))
+                and bool(_text(item.get("source")))
+            )
+            or (
+                _text(item.get("kind")) == "provider_attempt"
+                and bool(_text(item.get("source")))
+                and bool(_text(item.get("stage")))
+                and bool(_text(item.get("status")))
+                and bool(_text(item.get("observed_at")))
+            )
+        )
         for item in evidence
     )
 
@@ -190,7 +213,7 @@ def _stable_person_ids(scenario: Mapping[str, Any]) -> bool:
     research_ids = _person_ids(_dict(scenario.get("research")).get("people"))
     verification_ids = _person_ids(_dict(scenario.get("verification")).get("people"))
     selected_ids = _selection_ids(scenario)
-    return (
+    stable = (
         bool(research_ids and verification_ids and selected_ids)
         and all(research_ids)
         and all(verification_ids)
@@ -200,6 +223,14 @@ def _stable_person_ids(scenario: Mapping[str, Any]) -> bool:
         and len(selected_ids) == len(set(selected_ids))
         and set(selected_ids).issubset(research_ids)
         and set(selected_ids).issubset(verification_ids)
+    )
+    if not stable or not _declares(scenario, "G3"):
+        return stable
+    contact_ids = _person_ids(_dict(scenario.get("contact_action")).get("people"))
+    return (
+        bool(contact_ids)
+        and len(contact_ids) == len(set(contact_ids))
+        and set(contact_ids) == set(selected_ids)
     )
 
 
@@ -228,7 +259,76 @@ def _claim_verified_with_evidence(scenario: Mapping[str, Any], name: str) -> boo
 def _verification_covers_selection(scenario: Mapping[str, Any]) -> bool:
     selected = _selection_ids(scenario)
     verified = _person_ids(_dict(scenario.get("verification")).get("people"))
-    return bool(selected) and len(verified) == len(set(verified)) and set(verified) == set(selected)
+    verification_matches = (
+        bool(selected)
+        and len(verified) == len(set(verified))
+        and set(verified) == set(selected)
+    )
+    if not verification_matches or not _declares(scenario, "G3"):
+        return verification_matches
+    action = _dict(scenario.get("contact_action"))
+    returned = [_text(value) for value in _list(action.get("returned_person_ids"))]
+    action_selected = [_text(value) for value in _list(action.get("selected_person_ids"))]
+    return (
+        _text(action.get("status")) == "succeeded"
+        and action_selected == selected
+        and returned == selected
+        and len(returned) == len(set(returned))
+    )
+
+
+def _contact_attempt_contract(scenario: Mapping[str, Any]) -> bool:
+    if not _declares(scenario, "G3"):
+        return True
+    action = _dict(scenario.get("contact_action"))
+    provider_order = [_text(value) for value in _list(action.get("provider_order"))]
+    people = _contact_people(scenario)
+    if not provider_order or not people:
+        return False
+    allowed_statuses = {"verified", "risky", "catch_all", "invalid", "unavailable"}
+    exact_methods = {"linkedin", "exact_name"}
+    for person in people:
+        contact = _dict(person.get("contactability"))
+        status = _text(contact.get("status"))
+        attempts = [item for item in _list(contact.get("attempts")) if isinstance(item, dict)]
+        if status not in allowed_statuses or not attempts or not _text(contact.get("observed_at")):
+            return False
+        discovery = [item for item in attempts if _text(item.get("stage")) == "discovery"]
+        discovery_providers = [_text(item.get("provider")) for item in discovery]
+        expected_prefix = provider_order[:len(discovery_providers)]
+        if discovery_providers != expected_prefix:
+            return False
+        found = [item for item in discovery if _text(item.get("status")) == "found"]
+        verification = [item for item in attempts if _text(item.get("stage")) == "verification"]
+        email = _text(contact.get("email"))
+        if status == "verified":
+            if (
+                not email
+                or _text(contact.get("verification_status")) != "valid"
+                or not found
+                or _text(found[-1].get("detail")) not in exact_methods
+                or not any(_text(item.get("status")) == "valid" for item in verification)
+            ):
+                return False
+        elif status == "unavailable":
+            if email or contact.get("exhausted") is not True or found:
+                return False
+        elif status == "invalid":
+            if email or _text(contact.get("verification_status")) != "invalid":
+                return False
+        elif not email:
+            return False
+    return True
+
+
+def _contact_summary_complete(scenario: Mapping[str, Any]) -> bool:
+    if not _declares(scenario, "G3"):
+        return True
+    summary = _dict(_dict(scenario.get("contact_action")).get("summary"))
+    statuses = ("verified", "risky", "catch_all", "invalid", "unavailable")
+    if not all(isinstance(summary.get(status), int) and summary[status] >= 0 for status in statuses):
+        return False
+    return sum(summary[status] for status in statuses) == len(_contact_people(scenario))
 
 
 def _workbook_persisted(scenario: Mapping[str, Any]) -> bool:
@@ -281,20 +381,29 @@ def _receipt_complete(scenario: Mapping[str, Any]) -> bool:
 
 
 def _write_approved(scenario: Mapping[str, Any]) -> bool:
-    return _dict(scenario.get("workbook_action")).get("approved") is True
+    workbook_approved = _dict(scenario.get("workbook_action")).get("approved") is True
+    if not workbook_approved or not _declares(scenario, "G3"):
+        return workbook_approved
+    return _dict(scenario.get("contact_action")).get("approved") is True
 
 
 def _has_idempotency_key(scenario: Mapping[str, Any]) -> bool:
     action = _dict(scenario.get("workbook_action"))
     retry = _dict(scenario.get("retry_action"))
     key = _text(action.get("idempotency_key"))
-    return bool(key) and _text(retry.get("idempotency_key")) == key
+    workbook_keyed = bool(key) and _text(retry.get("idempotency_key")) == key
+    if not workbook_keyed or not _declares(scenario, "G3"):
+        return workbook_keyed
+    contact = _dict(scenario.get("contact_action"))
+    contact_retry = _dict(scenario.get("contact_retry_action"))
+    contact_key = _text(contact.get("idempotency_key"))
+    return bool(contact_key) and _text(contact_retry.get("idempotency_key")) == contact_key
 
 
 def _retry_reused(scenario: Mapping[str, Any]) -> bool:
     action = _dict(scenario.get("workbook_action"))
     retry = _dict(scenario.get("retry_action"))
-    return (
+    workbook_reused = (
         _text(action.get("status")) == "succeeded"
         and _text(retry.get("status")) == "succeeded"
         and action.get("persisted") is True
@@ -306,6 +415,19 @@ def _retry_reused(scenario: Mapping[str, Any]) -> bool:
         and _list(retry.get("persisted_person_ids")) == _list(action.get("persisted_person_ids"))
         and retry.get("row_count") == action.get("row_count")
     )
+    if not workbook_reused or not _declares(scenario, "G3"):
+        return workbook_reused
+    contact = _dict(scenario.get("contact_action"))
+    contact_retry = _dict(scenario.get("contact_retry_action"))
+    return (
+        _text(contact.get("status")) == "succeeded"
+        and _text(contact_retry.get("status")) == "succeeded"
+        and contact_retry.get("reused") is True
+        and bool(_text(contact.get("action_id")))
+        and _text(contact_retry.get("action_id")) == _text(contact.get("action_id"))
+        and _list(contact_retry.get("selected_person_ids")) == _list(contact.get("selected_person_ids"))
+        and _list(contact_retry.get("people")) == _list(contact.get("people"))
+    )
 
 
 def _no_duplicate_rows(scenario: Mapping[str, Any]) -> bool:
@@ -315,12 +437,18 @@ def _no_duplicate_rows(scenario: Mapping[str, Any]) -> bool:
 
 
 def _terminal_states(scenario: Mapping[str, Any]) -> bool:
-    return (
+    terminal = (
         _text(scenario.get("status")) in _TERMINAL_SCENARIO_STATES
         and _text(_dict(scenario.get("research")).get("status")) in _TERMINAL_SCENARIO_STATES
         and _text(_dict(scenario.get("verification")).get("status")) in _TERMINAL_SCENARIO_STATES
         and _text(_dict(scenario.get("workbook_action")).get("status")) in _TERMINAL_ACTION_STATES
         and _text(_dict(scenario.get("retry_action")).get("status")) in _TERMINAL_ACTION_STATES
+    )
+    if not terminal or not _declares(scenario, "G3"):
+        return terminal
+    return (
+        _text(_dict(scenario.get("contact_action")).get("status")) in _TERMINAL_ACTION_STATES
+        and _text(_dict(scenario.get("contact_retry_action")).get("status")) in _TERMINAL_ACTION_STATES
     )
 
 
@@ -340,7 +468,14 @@ def _verification_summary_complete(scenario: Mapping[str, Any]) -> bool:
         for person in _list(verification.get("people"))
         if isinstance(person, dict)
     )
-    return summary["passed"] + summary["failed"] + summary["uncertain"] == claim_count
+    claims_summarized = summary["passed"] + summary["failed"] + summary["uncertain"] == claim_count
+    return claims_summarized and _contact_summary_complete(scenario)
+
+
+def _can_continue_enrichment(scenario: Mapping[str, Any]) -> bool:
+    if scenario.get("can_continue_enrichment") is not True:
+        return False
+    return _contact_attempt_contract(scenario)
 
 
 def _production_streak(artifact: Mapping[str, Any]) -> int:
@@ -492,6 +627,92 @@ def _hard_failures(
                     claim="partnership_function",
                 )
 
+        contact_action = _dict(scenario.get("contact_action"))
+        contact_retry = _dict(scenario.get("contact_retry_action"))
+        if _declares(scenario, "G3"):
+            selected = _selection_ids(scenario)
+            action_selected = [
+                _text(value) for value in _list(contact_action.get("selected_person_ids"))
+            ]
+            returned = [
+                _text(value) for value in _list(contact_action.get("returned_person_ids"))
+            ]
+            if (
+                _text(contact_action.get("status")) == "succeeded"
+                and (action_selected != selected or returned != selected)
+            ):
+                add(
+                    "contact_selection_mismatch",
+                    scenario,
+                    "Contact enrichment did not return the exact selected person IDs.",
+                    ("G3",),
+                )
+
+            exact_methods = {"linkedin", "exact_name"}
+            for person in _contact_people(scenario):
+                person_id = _text(person.get("person_id"))
+                contact = _dict(person.get("contactability"))
+                attempts = [
+                    item for item in _list(contact.get("attempts"))
+                    if isinstance(item, dict)
+                ]
+                discovery_found = [
+                    item for item in attempts
+                    if _text(item.get("stage")) == "discovery"
+                    and _text(item.get("status")) == "found"
+                ]
+                verification_valid = any(
+                    _text(item.get("stage")) == "verification"
+                    and _text(item.get("status")) == "valid"
+                    for item in attempts
+                )
+                status = _text(contact.get("status"))
+                if status == "verified" and (
+                    not verification_valid
+                    or _text(contact.get("verification_status")) != "valid"
+                ):
+                    add(
+                        "contact_verified_without_verifier",
+                        scenario,
+                        f"Contact for {person_id} is verified without a valid verifier attempt.",
+                        ("G3", "G4"),
+                        entity_id=person_id,
+                        claim="contactability",
+                    )
+                if status == "verified" and (
+                    not discovery_found
+                    or _text(discovery_found[-1].get("detail")) not in exact_methods
+                ):
+                    add(
+                        "non_exact_email_verified",
+                        scenario,
+                        f"Contact for {person_id} is verified without exact-person discovery evidence.",
+                        ("G3", "G4"),
+                        entity_id=person_id,
+                        claim="contactability",
+                    )
+                if status == "unavailable" and contact.get("exhausted") is not True:
+                    add(
+                        "unexplained_contact_unavailable",
+                        scenario,
+                        f"Unavailable contact for {person_id} lacks provider exhaustion evidence.",
+                        ("G3", "G4"),
+                        entity_id=person_id,
+                        claim="contactability",
+                    )
+
+            if _text(contact_retry.get("status")) == "succeeded" and (
+                contact_retry.get("reused") is not True
+                or _text(contact_retry.get("action_id")) != _text(contact_action.get("action_id"))
+                or _list(contact_retry.get("people")) != _list(contact_action.get("people"))
+            ):
+                add(
+                    "duplicate_contact_retry",
+                    scenario,
+                    "Contact retry did not reuse the original exact-person result.",
+                    ("G3",),
+                )
+
         action = _dict(scenario.get("workbook_action"))
         retry = _dict(scenario.get("retry_action"))
         if _text(action.get("status")) == "succeeded" and action.get("persisted") is not True:
@@ -541,7 +762,7 @@ def _hard_failures(
             )
 
         workspace_id = _text(scenario.get("workspace_id"))
-        for candidate in (action, retry):
+        for candidate in (action, retry, contact_action, contact_retry):
             candidate_workspace = _text(candidate.get("workspace_id"))
             if candidate_workspace and workspace_id and candidate_workspace != workspace_id:
                 add(
@@ -609,13 +830,13 @@ def _build_checks(scenarios: Sequence[dict[str, Any]]) -> list[_Check]:
 
     add("scenario_completed", "outcome_completion", 5,
         lambda s: _text(s.get("status")) == "completed",
-        "The scenario reached completed state.", ("G2", "G4", "G5"))
+        "The scenario reached completed state.", ("G2", "G3", "G4", "G5"))
     add("accepted_people_found", "outcome_completion", 5,
         lambda s: bool(_list(_dict(s.get("research")).get("people"))),
         "The people research produced an accepted result set.", ("G2",))
     add("verification_covers_selection", "outcome_completion", 5,
         _verification_covers_selection,
-        "Verification covers the exact selected people.", ("G4",))
+        "Verification and contact enrichment cover the exact selected people.", ("G3", "G4"))
     add("workbook_persisted", "outcome_completion", 8, _workbook_persisted,
         "The requested workbook exists in persisted state.", ("G5",))
     add("exact_workbook_rows", "outcome_completion", 7, _exact_workbook_rows,
@@ -627,7 +848,7 @@ def _build_checks(scenarios: Sequence[dict[str, Any]]) -> list[_Check]:
         _accepted_people_match_target,
         "Every accepted person matches the target company domain.", ("G2",))
     add("stable_person_ids", "accuracy_and_evidence", 4, _stable_person_ids,
-        "Stable person IDs survive research, selection, and verification.", ("G2", "G4"))
+        "Stable person IDs survive research, selection, contact enrichment, and verification.", ("G2", "G3", "G4"))
     add("employment_evidence", "accuracy_and_evidence", 4,
         lambda s: _claim_verified_with_evidence(s, "current_employment"),
         "Current employment is a separately evidenced verified claim.", ("G2", "G4"))
@@ -635,29 +856,29 @@ def _build_checks(scenarios: Sequence[dict[str, Any]]) -> list[_Check]:
         lambda s: _claim_verified_with_evidence(s, "partnership_function"),
         "Partnership function is a separately evidenced verified claim.", ("G2", "G4"))
     add("independent_claim_contract", "accuracy_and_evidence", 3, _claim_set_complete,
-        "All required claims carry status, evidence, time, confidence, and contradictions.", ("G4",))
+        "All required claims carry status, evidence, time, confidence, and contradictions.", ("G3", "G4"))
 
     add("explicit_selection", "actionability", 4,
         lambda s: bool(_selection_ids(s)),
-        "The action targets explicit stable person IDs.", ("G2", "G5"))
+        "The action targets explicit stable person IDs.", ("G2", "G3", "G5"))
     add("usable_person_rows", "actionability", 3, _usable_person_rows,
         "People rows contain the fields required for inspection and action.", ("G2",))
     add("complete_action_receipt", "actionability", 5, _receipt_complete,
         "The write receipt contains identity, counts, state, and a correct link.", ("G5",))
     add("can_continue_enrichment", "actionability", 3,
-        lambda s: s.get("can_continue_enrichment") is True,
-        "The saved selection can continue into enrichment without rediscovery.", ("G5",))
+        _can_continue_enrichment,
+        "The saved selection has auditable contact results and can continue without rediscovery.", ("G3", "G5"))
 
     add("explicit_write_approval", "reliability", 3, _write_approved,
-        "The workbook write records explicit approval.", ("G5",))
+        "Provider spend and workbook writes record explicit approval.", ("G3", "G5"))
     add("idempotency_key_recorded", "reliability", 3, _has_idempotency_key,
-        "The original action and retry share an idempotency key.", ("G5",))
+        "Each original action and retry share an idempotency key.", ("G3", "G5"))
     add("retry_reuses_workbook", "reliability", 5, _retry_reused,
-        "A retry reuses the exact persisted workbook and rows.", ("G5",))
+        "Retries reuse the exact contact result, workbook, and rows.", ("G3", "G5"))
     add("no_duplicate_rows", "reliability", 2, _no_duplicate_rows,
         "Persisted person IDs are unique.", ("G5",))
     add("terminal_honest_states", "reliability", 2, _terminal_states,
-        "Scenario, research, verification, and writes expose terminal states.", ("G2", "G4", "G5"))
+        "Scenario, research, contact enrichment, verification, and writes expose terminal states.", ("G2", "G3", "G4", "G5"))
 
     add("fast_acknowledgement", "speed", 3,
         lambda s: _within_timing(s, "acknowledgement", 1_000),
@@ -666,14 +887,20 @@ def _build_checks(scenarios: Sequence[dict[str, Any]]) -> list[_Check]:
         lambda s: _within_timing(s, "research", 45_000),
         "Recorded people research completes within 45 seconds.", ("G2",))
     add("bounded_verification", "speed", 2,
-        lambda s: _within_timing(s, "verification", 40_000),
-        "Recorded claim verification completes within 40 seconds.", ("G4",))
+        lambda s: (
+            _within_timing(s, "verification", 40_000)
+            and (
+                not _declares(s, "G3")
+                or _within_timing(s, "contact_enrichment", 90_000)
+            )
+        ),
+        "Recorded claim verification and contact enrichment finish within their safety limits.", ("G3", "G4"))
     add("bounded_workbook_write", "speed", 2,
         lambda s: _within_timing(s, "workbook_creation", 5_000),
         "Recorded workbook creation completes within five seconds.", ("G5",))
 
     add("verification_summary", "ux_clarity", 2, _verification_summary_complete,
-        "Verification summarizes passed, failed, uncertain, and changed claims.", ("G4",))
+        "Verification and contact summaries report each normalized outcome.", ("G3", "G4"))
     add("receipt_clarity", "ux_clarity", 3, _receipt_complete,
         "The user receives a concrete workbook state, counts, ID, and link.", ("G5",))
 

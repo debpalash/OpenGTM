@@ -8,6 +8,20 @@ Release posture: do not publish yet
 
 ## Progress log
 
+### 2026-08-28: exact-person contact enrichment
+
+- Added the approval-gated `enrich_people_contacts` Chat action. It operates on stable person IDs from a server-owned research result and rejects unknown selections before provider spend.
+- Restricted exact-person discovery to Prospeo and Hunter. Generic Hunter domain-search contacts, mismatched names, and non-company email domains are rejected.
+- Separated discovery from deliverability verification. Finder claims never receive verified status unless the verification cascade returns a valid mailbox result.
+- Normalized contact results to verified, risky, catch-all, invalid, or unavailable. Every result records provider order, attempt outcomes, source licenses, observation time, and exhaustion state.
+- Added retry-safe action IDs. Repeating the same approved action reuses the stored result without another provider call, while reusing a key for a different selection fails closed.
+- People workbooks now snapshot contact status, finder, verifier, observation time, and provider attempts from the exact Chat result.
+- Extended the gauntlet and native trace adapter to evaluate G3. Added hard gates for selection drift, verified contacts without a valid verifier attempt, non-exact discovery labeled verified, unexplained unavailable results, and duplicate contact retries.
+- Current recorded product-code baseline: 100/100 with G2, G3, G4, and G5 passing and no hard failure. The release remains blocked at 4/7 workflows and 0/10 production-like passing runs.
+- Verification after the slice: 1,163 backend tests passed, 119 skipped.
+
+Next: implement and score G1 structured account discovery, then connect its exact company selection to G6 signal tracking and G7 grounded drafting.
+
 ### 2026-08-28: evidence-backed company identity
 
 - Added conservative company resolution for people research. Explicit domains resolve directly; named companies require exactly one exact organization match and an official website from Wikidata.
