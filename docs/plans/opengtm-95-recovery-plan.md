@@ -8,6 +8,27 @@ Release posture: do not publish yet
 
 ## Progress log
 
+### 2026-08-28: Phase 0 gauntlet kernel
+
+- Added a deterministic JSON artifact scorer for the G2 to G4 to G5 partnership workflow.
+- Encoded the 30/25/15/15/10/5 release weights and the 90% per-category floor as executable checks.
+- Added hard gates for wrong-company people, unsupported or contradicted verified claims, former or unrelated people labeled verified, false persistence, duplicate retries, frozen jobs without recovery metadata, unapproved external writes, wrong result links, and cross-workspace state.
+- Added an anti-cheat boundary: only G2, G4, and G5 can be marked evaluated until the other workflow scorers exist.
+- Added a synthetic recorded contract fixture and 15 scorer tests covering correct, partial, fabricated, duplicate, missing-write, frozen-job, approval, link, and tenant-isolation outcomes.
+- The contract fixture scores 100/100 for the implemented slice, while the release gate correctly remains closed at 3/7 workflows and 0/10 production-like runs. This validates the harness contract, not current product quality.
+- Verification after the kernel: 1,144 backend tests passed, 119 skipped.
+
+Run the slice locally:
+
+```bash
+uv run python scripts/run_gtm_gauntlet.py \
+  --input tests/fixtures/gtm_gauntlet/partnership_people_pass.json
+```
+
+Use `--require-release` in the eventual release job. It intentionally exits nonzero until the full workflow and streak gates pass.
+
+Next: capture the same artifact shape from the real Chat action trace and persisted workbook state, then record the first reproducible product baseline.
+
 ### 2026-08-28: first G2 to G5 trust slice
 
 - Created restorable pre-implementation checkpoint `da04851`, tagged `checkpoint/opengtm-pre-95-20260828`.
@@ -16,9 +37,9 @@ Release posture: do not publish yet
 - Added workspace-scoped action idempotency, backed by a database uniqueness constraint.
 - Added persisted action receipts that distinguish a newly created workbook from a reused workbook.
 - Added rejection of unknown person IDs before any write occurs.
-- Verification after the slice: 1,128 backend tests passed, 119 skipped; frontend lint and production build passed; Alembic has one head.
+- Verification after the slice: 1,129 backend tests passed, 119 skipped; frontend lint and production build passed; Alembic has one head.
 
-Next: build the recorded gauntlet runner so this slice is scored as a complete G2 to G5 workflow instead of relying only on component and route tests.
+The Phase 0 gauntlet kernel above now scores this contract. Connecting it to real action traces remains the next product-evidence step.
 
 ## Objective
 
