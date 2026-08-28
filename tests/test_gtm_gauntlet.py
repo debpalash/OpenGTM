@@ -322,9 +322,10 @@ def test_declaring_unimplemented_workflows_cannot_unlock_release():
     report = score_gauntlet(artifact)
 
     assert report["declared_workflows"] == list(REQUIRED_WORKFLOWS)
-    assert report["evaluated_workflows"] == ["G1", "G2", "G3", "G4", "G5"]
+    assert report["evaluated_workflows"] == ["G1", "G2", "G3", "G4", "G5", "G6"]
     assert report["workflows"]["G1"]["status"] == "failed"
     assert report["workflows"]["G3"]["status"] == "failed"
+    assert report["workflows"]["G6"]["status"] == "failed"
     assert report["release"]["eligible"] is False
 
 

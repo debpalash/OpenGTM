@@ -34,7 +34,9 @@ from apps.api.database import Base
 # Versioned dedup-key scheme (spec §8). Frozen; bump only with a migration.
 KEY_SCHEMA_VERSION = 1
 
-WATCH_KINDS = ("funding", "hiring", "feed", "company", "job_change")
+WATCH_KINDS = (
+    "funding", "hiring", "feed", "company", "job_change", "account_group",
+)
 WATCH_INTERVALS = ("hourly", "daily", "weekly")
 
 

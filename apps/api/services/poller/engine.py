@@ -189,9 +189,9 @@ def _resolve_lead_id(db, watch) -> tuple[Optional[int], Optional[str]]:
     no match → (None, None) (skip silently)."""
     if watch.lead_id:
         return watch.lead_id, None
-    if watch.kind == "job_change":
+    if watch.kind in {"job_change", "account_group"}:
         # target is a free-form roster label, not a company name — per-contact
-        # lead routing happens on the DetectedEvent itself (ev.lead_id).
+        # or per-account lead routing happens on the DetectedEvent itself.
         return None, None
     from apps.api.services.leadgen.orm_models import LeadRow
 
@@ -406,6 +406,8 @@ async def handle_watch_poll(job_id: int, payload: dict) -> None:
             elif isinstance(ok, tuple):
                 total_emitted += ok[0]
                 total_dupe += ok[1]
+                if len(ok) > 2 and ok[2]:
+                    any_failure = True
 
         # ── finalize: set bootstrapped, last_polled_at, reschedule ──
         with SessionLocal() as db, db.begin():
@@ -415,6 +417,7 @@ async def handle_watch_poll(job_id: int, payload: dict) -> None:
                 return
             cur = dict(watch.cursor or {})
             cur["bootstrapped"] = True
+            cur["attempt_count"] = int(cur.get("attempt_count") or 0) + 1
             watch.cursor = cur
             watch.last_polled_at = _utcnow()
             if not any_failure:
@@ -447,7 +450,7 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
         if watch is None:
             return None
         # billing gate (free sources no-op; job_change is keyless DDG → free)
-        if src in ("feed", "job_change"):
+        if src in ("feed", "job_change", "account_group"):
             bill_src = src
         else:
             bill_src = "funding" if src in ("funding", "exec") else "hiring"
@@ -481,6 +484,10 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
 
             contacts = jc.materialize_contacts(db, watch)
             events, patch = jc.fetch_job_changes(watch, contacts, backfill=backfill)
+        elif src == "account_group":
+            from apps.api.services.poller.account_group import fetch_account_group
+
+            events, patch = fetch_account_group(watch, backfill=backfill)
         else:
             return None
 
@@ -493,17 +500,23 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
             if rc and not watch.resolved_cik:
                 watch.resolved_cik = rc
 
+        collector_failures = []
+        if patch and "_collector_failures" in patch:
+            collector_failures = list(patch.pop("_collector_failures") or [])
+            if collector_failures:
+                watch.last_error = str(collector_failures[0])[:255]
+
         emitted = dupe = 0
         # job_change events carry their OWN per-contact lead routing (ev.lead_id,
         # possibly none) — they emit regardless of a watch-level lead match.
-        if events and (lead_id or src == "job_change"):
+        if events and (lead_id or src in {"job_change", "account_group"}):
             emitted, dupe = _emit_events(store, watch, lead_id, events)
         # advance cursor sub-key in the SAME txn (atomic emit+advance)
         if patch:
             cur = dict(watch.cursor or {})
             cur.update(patch)
             watch.cursor = cur
-        return (emitted, dupe)
+        return (emitted, dupe, bool(collector_failures))
 
 
 def _source_set(watch) -> list:
@@ -540,6 +553,8 @@ def _source_set(watch) -> list:
         return ["feed"]
     if kind == "job_change":
         return ["job_change"]
+    if kind == "account_group":
+        return ["account_group"]
     if kind == "company":
         out = []
         if wants("company_funded"):

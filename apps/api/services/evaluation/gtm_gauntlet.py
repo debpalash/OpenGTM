@@ -35,7 +35,7 @@ REQUIRED_WORKFLOWS: tuple[str, ...] = (
     "G6",
     "G7",
 )
-SUPPORTED_WORKFLOWS: tuple[str, ...] = ("G1", "G2", "G3", "G4", "G5")
+SUPPORTED_WORKFLOWS: tuple[str, ...] = ("G1", "G2", "G3", "G4", "G5", "G6")
 RELEASE_SCORE = 95.0
 CATEGORY_FLOOR = 0.90
 REQUIRED_PRODUCTION_STREAK = 10
@@ -672,6 +672,109 @@ def _high_priority_issues(artifact: Mapping[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
+def _g6_contract_failures(scenario: Mapping[str, Any]) -> list[str]:
+    if not _declares(scenario, "G6"):
+        return []
+    failed: list[str] = []
+    requested = _dict(scenario.get("requested_tracking"))
+    selection = _dict(scenario.get("selection"))
+    action = _dict(scenario.get("schedule_action"))
+    retry = _dict(scenario.get("schedule_retry_action"))
+    saved = _dict(scenario.get("schedule_readback"))
+    selected_ids = [_text(value) for value in _list(selection.get("account_ids"))]
+    saved_ids = [
+        _text(value) for value in _list(_dict(saved.get("scope")).get("account_ids"))
+    ]
+    required_signals = {
+        "partnership_hiring",
+        "leadership_change",
+        "funding",
+        "pricing_page_change",
+    }
+
+    if _text(scenario.get("status")) != "completed":
+        failed.append("g6_scenario_completed")
+    if (
+        not selected_ids
+        or len(selected_ids) != len(set(selected_ids))
+        or selected_ids != saved_ids
+        or selected_ids != [_text(value) for value in _list(requested.get("account_ids"))]
+        or _dict(saved.get("scope")).get("account_count") != len(selected_ids)
+    ):
+        failed.append("g6_exact_account_scope")
+    if (
+        _text(requested.get("cadence")) != "weekly"
+        or _text(saved.get("cadence")) != "weekly"
+        or set(_list(requested.get("signal_types"))) != required_signals
+        or set(_list(saved.get("signal_types"))) != required_signals
+    ):
+        failed.append("g6_exact_cadence_and_signals")
+    if not (
+        _text(action.get("status")) == "succeeded"
+        and action.get("persisted") is True
+        and action.get("readback_confirmed") is True
+        and saved.get("exists") is True
+        and saved.get("readback_confirmed") is True
+        and bool(_text(saved.get("schedule_id")))
+    ):
+        failed.append("g6_persisted_readback")
+    if not (
+        action.get("approved") is True
+        and retry.get("approved") is True
+        and bool(_text(action.get("idempotency_key")))
+        and _text(retry.get("idempotency_key")) == _text(action.get("idempotency_key"))
+        and retry.get("reused") is True
+        and _text(retry.get("schedule_id")) == _text(action.get("schedule_id"))
+        and saved.get("schedule_count_for_scope") == 1
+    ):
+        failed.append("g6_idempotent_schedule")
+    manual = _dict(saved.get("manual_retry_action"))
+    if not (
+        _text(saved.get("state")) in {"active", "degraded", "paused"}
+        and bool(_text(saved.get("next_run_at")))
+        and _text(saved.get("url")) == f"/watches?id={_text(saved.get('schedule_id'))}"
+        and _text(manual.get("method")) == "POST"
+        and _text(manual.get("url")) == f"/api/watches/{_text(saved.get('schedule_id'))}/poll"
+    ):
+        failed.append("g6_actionable_receipt")
+
+    health = _dict(saved.get("collector_health"))
+    failed_collectors = [
+        _dict(value) for value in health.values()
+        if isinstance(value, dict) and _text(value.get("state")) == "failed"
+    ]
+    if failed_collectors and not (
+        all(
+            isinstance(item.get("attempt_count"), int)
+            and item["attempt_count"] > 0
+            and bool(_text(item.get("last_error_class")))
+            for item in failed_collectors
+        )
+        and bool(_text(saved.get("last_error_class")))
+        and bool(_text(saved.get("next_retry_at")))
+        and bool(_text(manual.get("url")))
+    ):
+        failed.append("g6_failed_collector_recovery")
+    if not (
+        _within_timing(scenario, "acknowledgement", 1_000)
+        and _within_timing(scenario, "schedule_creation", 5_000)
+    ):
+        failed.append("g6_bounded_timing")
+    return failed
+
+
+def _workflow_contract_failures(
+    scenarios: Sequence[dict[str, Any]], workflow_id: str,
+) -> list[str]:
+    failures: list[str] = []
+    for scenario in scenarios:
+        if workflow_id == "G6":
+            for failure in _g6_contract_failures(scenario):
+                if failure not in failures:
+                    failures.append(failure)
+    return failures
+
+
 def _hard_failures(
     artifact: Mapping[str, Any],
     scenarios: Sequence[dict[str, Any]],
@@ -724,6 +827,71 @@ def _hard_failures(
             if workflow in REQUIRED_WORKFLOWS
         )
         target_domain = _domain(_dict(scenario.get("target")).get("canonical_domain"))
+
+        if _declares(scenario, "G6"):
+            selection_ids = [
+                _text(value)
+                for value in _list(_dict(scenario.get("selection")).get("account_ids"))
+            ]
+            action = _dict(scenario.get("schedule_action"))
+            retry = _dict(scenario.get("schedule_retry_action"))
+            saved = _dict(scenario.get("schedule_readback"))
+            saved_ids = [
+                _text(value)
+                for value in _list(_dict(saved.get("scope")).get("account_ids"))
+            ]
+            if action.get("persisted") is True and not (
+                action.get("readback_confirmed") is True
+                and saved.get("exists") is True
+                and saved.get("readback_confirmed") is True
+            ):
+                add(
+                    "false_schedule_persistence",
+                    scenario,
+                    "Tracking success was claimed without a saved readback.",
+                    ("G6",),
+                )
+            if selection_ids != saved_ids:
+                add(
+                    "tracking_scope_drift",
+                    scenario,
+                    "The saved tracking scope does not match the exact selected account IDs.",
+                    ("G6",),
+                )
+            if (
+                retry.get("reused") is not True
+                or _text(retry.get("schedule_id")) != _text(action.get("schedule_id"))
+                or saved.get("schedule_count_for_scope") != 1
+            ):
+                add(
+                    "duplicate_tracking_schedule",
+                    scenario,
+                    "A repeated tracking request did not reuse one schedule for the scope.",
+                    ("G6",),
+                )
+            if _text(saved.get("workspace_id")) != _text(scenario.get("workspace_id")):
+                add(
+                    "cross_workspace_schedule",
+                    scenario,
+                    "The tracking schedule readback belongs to a different workspace.",
+                    ("G6",),
+                )
+            failed_health = [
+                _dict(value)
+                for value in _dict(saved.get("collector_health")).values()
+                if isinstance(value, dict) and _text(value.get("state")) == "failed"
+            ]
+            if failed_health and not (
+                bool(_text(saved.get("last_error_class")))
+                and bool(_text(saved.get("next_retry_at")))
+                and bool(_text(_dict(saved.get("manual_retry_action")).get("url")))
+            ):
+                add(
+                    "unrecoverable_signal_collector",
+                    scenario,
+                    "A failed signal collector lacks error, retry, or manual recovery metadata.",
+                    ("G6",),
+                )
 
         for person in _list(_dict(scenario.get("research")).get("people")):
             if not isinstance(person, dict):
@@ -1213,6 +1381,11 @@ def score_gauntlet(artifact: Mapping[str, Any]) -> dict[str, Any]:
     for workflow in REQUIRED_WORKFLOWS:
         relevant = [check for check in checks if workflow in check.workflow_ids]
         failed_checks = [check.check_id for check in relevant if not check.passed]
+        failed_checks.extend(
+            failure
+            for failure in _workflow_contract_failures(scenarios, workflow)
+            if failure not in failed_checks
+        )
         if workflow not in evaluated:
             status = "not_evaluated"
         elif failed_checks or workflow in failed_by_hard_gate:
