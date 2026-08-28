@@ -13,6 +13,7 @@
 // handler in the mutation hooks remains the backstop. Reads are any member.
 
 import { useMemo, useState } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import {
   ArrowLeft,
   ChevronRight,
@@ -126,7 +127,12 @@ function formatRelative(iso: string | null): string | null {
 type View = { name: "list" } | { name: "create" } | { name: "detail"; id: string }
 
 export default function WatchesPage() {
-  const [view, setView] = useState<View>({ name: "list" })
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const initialTarget = searchParams.get("target") || ""
+  const [view, setView] = useState<View>(() =>
+    searchParams.get("create") === "1" ? { name: "create" } : { name: "list" },
+  )
   const flags = useFlags()
   const watches = useWatches(
     undefined,
@@ -148,7 +154,11 @@ export default function WatchesPage() {
   if (view.name === "create") {
     return (
       <WatchBuilder
-        onCancel={() => setView({ name: "list" })}
+        initialTarget={initialTarget}
+        onCancel={() => {
+          setView({ name: "list" })
+          navigate("/watches", { replace: true })
+        }}
         onCreated={(id) => setView({ name: "detail", id })}
       />
     )
@@ -372,17 +382,19 @@ function WatchRow({
 // ═══════════════════════════════ Builder ═══════════════════════════════════
 
 function WatchBuilder({
+  initialTarget,
   onCancel,
   onCreated,
 }: {
+  initialTarget?: string
   onCancel: () => void
   onCreated: (id: string) => void
 }) {
   const create = useCreateWatch()
   const { allowed: canEdit } = useCanRole("editor")
 
-  const [kind, setKind] = useState<WatchKind>("funding")
-  const [target, setTarget] = useState("")
+  const [kind, setKind] = useState<WatchKind>(initialTarget ? "company" : "funding")
+  const [target, setTarget] = useState(initialTarget || "")
   const [interval, setInterval] = useState<WatchInterval>("daily")
   const [leadId, setLeadId] = useState("")
   const [createWebhook, setCreateWebhook] = useState(false)

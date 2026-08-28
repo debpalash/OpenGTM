@@ -1,6 +1,6 @@
 """
 Phase: vendor/cost catalog — single source of truth for provider economics +
-run-cost estimation. See docs/clay-alternatives-ingestion-catalog.md (#5).
+run-cost estimation. See docs/research/clay-alternatives-ingestion-catalog.md (#5).
 """
 from apps.api.services.workbook import vendor_catalog as vc
 from apps.api.services.workbook import planner

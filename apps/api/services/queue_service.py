@@ -1,4 +1,5 @@
 import asyncio
+from contextlib import suppress
 import logging
 import os
 import socket
@@ -344,6 +345,10 @@ class QueueService:
             raise
         finally:
             heartbeat_task.cancel()
+            # Cancellation is cooperative. Await the heartbeat so it cannot
+            # leak into the surrounding event loop as a pending 30-second sleep.
+            with suppress(asyncio.CancelledError):
+                await heartbeat_task
 
         # Update DB
         will_retry = False
@@ -436,7 +441,7 @@ class QueueService:
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                logger.warn(f"Heartbeat failed for job {job_id}: {e}")
+                logger.warning(f"Heartbeat failed for job {job_id}: {e}")
 
     async def _monitor_heartbeats(self):
         """Monitor for dead jobs (processing but no heartbeat)."""
@@ -461,7 +466,7 @@ class QueueService:
 
                     for job in dead_jobs:
                         # Mark as crashed/retry
-                        logger.warn(
+                        logger.warning(
                             f"Job {job.id} detected dead (heartbeat timeout). Recovering..."
                         )
                         job.status = (

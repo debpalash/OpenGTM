@@ -65,6 +65,8 @@ class Lead:
 
     # ── Pipeline ───────────────────────────────────────────────────────
     source: str = ""               # "csv_import", "google_maps", "linkedin", etc.
+    source_url: str = ""           # Exact page/profile where the candidate was discovered
+    collection_job_id: str = ""    # Owning collection job; separate from source provenance
     workspace_id: str = ""         # Workspace campaign this lead belongs to
     score: int = 0                 # 0-100 quality score
     score_tier: str = "unqualified"  # "hot", "warm", "cold", "unqualified"

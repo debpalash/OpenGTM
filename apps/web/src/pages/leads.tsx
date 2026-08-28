@@ -341,9 +341,15 @@ export default function LeadsPage() {
 
   const handleCollect = () => {
     if (!collectQuery.trim()) return
-    collect.mutate({ query: collectQuery })
-    toast.success(`Collection started: "${collectQuery}"`)
-    setCollectQuery("")
+    const query = collectQuery.trim()
+    collect.mutate({ query }, {
+      onSuccess: (result) => {
+        if (!result.ok) return
+        toast.success(`Collection started: "${query}"`)
+        setCollectQuery("")
+      },
+      onError: (error) => toast.error(error.message || "Could not start collection"),
+    })
   }
 
   const saveCurrentSegment = () => {

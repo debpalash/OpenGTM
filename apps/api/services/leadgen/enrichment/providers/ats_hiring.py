@@ -8,7 +8,7 @@ signal (the company is actively hiring); the open-role count is a cheap
 hiring-velocity proxy, and role titles reveal departments + tech intent.
 
 Capabilities: hiring_signals (JSON), open_roles
-Free, no API key. See docs/clay-alternatives-ingestion-catalog.md (#9).
+Free, no API key. See docs/research/clay-alternatives-ingestion-catalog.md (#9).
 """
 
 import json

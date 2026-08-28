@@ -143,8 +143,13 @@ class JobRunner:
 
     async def submit(self, query: str, workspace_id: str = "") -> str:
         """Submit a new collection job and process it."""
+        from apps.api.services.leadgen.collection_intent import decide_collection
+
+        decision = decide_collection(query)
+        if not decision.can_collect:
+            raise ValueError(decision.reason)
         job_id = uuid.uuid4().hex
-        self.db.create_job(job_id, query)
+        self.db.create_job(job_id, query, intent=decision.intent)
         if workspace_id:
             self.db.conn.execute(
                 "UPDATE jobs SET workspace_id = ? WHERE id = ?",
@@ -174,9 +179,28 @@ class JobRunner:
         if workspace_id:
             progress.bind_job(job_id, workspace_id)
 
+        # Defense in depth for legacy/persisted queue entries: even if a caller
+        # bypasses the API gate, an ambiguous domain or specialized workflow
+        # must never reach the broad six-source collector.
+        from apps.api.services.leadgen.collection_intent import decide_collection
+
+        decision = decide_collection(query, job.get("intent"))
+        if not decision.can_collect:
+            error = f"collection_intent_blocked: {decision.reason}"
+            self.db.conn.execute(
+                "UPDATE jobs SET status = 'failed', error = ?, completed_at = ? WHERE id = ?",
+                (error, datetime.now(timezone.utc).isoformat(), job_id),
+            )
+            self.db.conn.commit()
+            progress.emit("job_failed", {
+                "job_id": job_id,
+                "error": error,
+                "message": "Collection blocked before source execution; choose a specialized GTM workflow.",
+            })
+            return
+
         try:
             # Mark job as running
-            from datetime import datetime
             self.db.conn.execute(
                 "UPDATE jobs SET status = 'running', started_at = ?, attempts = attempts + 1 WHERE id = ?",
                 (datetime.now(timezone.utc).isoformat(), job_id)
@@ -296,10 +320,18 @@ class JobRunner:
                 if isinstance(result, list):
                     all_leads.extend(result)
 
+            # Capture the exact discovery page before validation normalizes a
+            # candidate's website to its root domain.
+            for lead in all_leads:
+                if not lead.source_url:
+                    if lead.source == "linkedin" and lead.linkedin_url:
+                        lead.source_url = lead.linkedin_url
+                    elif lead.website:
+                        lead.source_url = lead.website
+
             # ── Source-reliability tally (in-flight) ──────────────
-            # lead.source is still the originating CHANNEL here (web_search,
-            # registry:<name>, …); it is overwritten to job:<id> at store time,
-            # so per-source outcomes must be counted now. Keyed by normalized
+            # lead.source is the originating CHANNEL (web_search,
+            # registry:<name>, …) and remains intact at store time. Keyed by normalized
             # channel. Counts emitted now; survived/validated filled below.
             from apps.api.services.leadgen.source_stats import (
                 SourceRunCounters, normalize_source,
@@ -393,16 +425,24 @@ class JobRunner:
                 "message": f"🤖 AI scoring {len(unique)} leads...",
             })
             ai_used = False
+            ai_applied = 0
+            score_errors_before = len(self.llm.usage.errors)
             try:
                 from apps.api.services.leadgen.config import ICP
-                scored = await ai_score_leads(self.llm, unique, ICP)
-                ai_used = True
+                scored, ai_applied = await ai_score_leads(self.llm, unique, ICP)
+                ai_used = ai_applied > 0
             except Exception as e:
                 progress.emit("job_progress", {
                     "job_id": job_id, "stage": "score",
                     "message": f"⚠️ AI scoring failed, using heuristic: {e}",
                 })
                 scored = score_leads(unique)
+
+            if not ai_used and unique:
+                progress.emit("job_progress", {
+                    "job_id": job_id, "stage": "score",
+                    "message": "⚠️ AI scoring unavailable; using transparent heuristic scoring",
+                })
 
             # Always apply heuristic as fallback for any leads that scored 0
             zero_scored = [l for l in scored if l.score == 0]
@@ -419,8 +459,14 @@ class JobRunner:
                 tiers[t] = tiers.get(t, 0) + 1
             self.db.complete_stage(score_sid,
                 input_count=len(unique), output_count=len(scored),
-                details=json.dumps({"tiers": tiers, "ai": ai_used,
-                    "tokens": self.llm.usage.to_dict() if ai_used else {}}))
+                details=json.dumps({
+                    "tiers": tiers,
+                    "ai": ai_used,
+                    "ai_applied": ai_applied,
+                    "fallback_count": len(zero_scored),
+                    "errors": self.llm.usage.errors[score_errors_before:][-5:],
+                    "tokens": self.llm.usage.to_dict() if ai_used else {},
+                }))
 
             # ── Enrich: discover websites for leads without one ──
             enrich_sid = self.db.create_stage(job_id, "enrich")
@@ -495,12 +541,6 @@ class JobRunner:
                 input_count=pre_count, output_count=len(scored),
                 rejected_count=len(post_rejected),
                 details=json.dumps({"reasons": post_reasons}))
-
-            # Tally validation-pass per source (in-flight, channel still intact).
-            for _l in scored:
-                _c = src_counters.get(normalize_source(_l.source))
-                if _c is not None:
-                    _c.validated += 1
 
             # ── Decision Makers ───────────────────────────────────
             dm_sid = self.db.create_stage(job_id, "decision_makers")
@@ -801,6 +841,14 @@ class JobRunner:
                 output_count=del_counts["verified"] + del_counts["risky"],
                 details=json.dumps(del_counts))
 
+            # Enrichment can add contact and company facts after the initial
+            # score. Refresh the transparent heuristic floor before the final
+            # source-reliability nudge and quality decision.
+            from apps.api.services.leadgen.scoring import score_lead, get_tier
+            for lead in scored:
+                lead.score = max(lead.score, score_lead(lead))
+                lead.score_tier = get_tier(lead.score)
+
             # ── Source-reliability re-score (bounded nudge; flag-gated) ──
             # Last step before store, while lead.source is still the channel.
             # Nudges the ALREADY-computed score (AI score + hiring boost) by at
@@ -839,12 +887,61 @@ class JobRunner:
                 except Exception as e:
                     logger.debug(f"source-reliability re-score skipped: {e}")
 
+            # ── Final quality gate ──────────────────────────────────
+            # Derive the tier from the final numeric score and never persist
+            # unqualified rows.
+            quality_sid = self.db.create_stage(job_id, "quality_gate")
+
+            quality_input = len(scored)
+            rejected_unqualified = []
+            qualified = []
+            for lead in scored:
+                lead.score_tier = get_tier(lead.score)
+                if lead.score_tier == "unqualified":
+                    rejected_unqualified.append(lead)
+                else:
+                    qualified.append(lead)
+            scored = qualified
+
+            tiers = {}
+            for lead in scored:
+                tiers[lead.score_tier] = tiers.get(lead.score_tier, 0) + 1
+                counter = src_counters.get(normalize_source(lead.source))
+                if counter is not None:
+                    counter.validated += 1
+
+            self.db.complete_stage(
+                quality_sid,
+                input_count=quality_input,
+                output_count=len(scored),
+                rejected_count=len(rejected_unqualified),
+                details=json.dumps({
+                    "tiers": tiers,
+                    "reason": "unqualified_score",
+                    "rejected_names": [lead.company for lead in rejected_unqualified[:20]],
+                }),
+            )
+            progress.emit("job_progress", {
+                "job_id": job_id,
+                "stage": "quality_gate",
+                "message": (
+                    f"🛡️ Quality gate: {len(scored)} qualified, "
+                    f"{len(rejected_unqualified)} unqualified rejected"
+                ),
+            })
+
             # ── Store ────────────────────────────────────────────
             store_sid = self.db.create_stage(job_id, "store")
             lead_store = self._lead_store(workspace_id)
             count = 0
             for lead in scored:
-                lead.source = f"job:{job_id}"
+                lead.collection_job_id = job_id
+                if not lead.source_url:
+                    lead.source_url = (
+                        lead.linkedin_url
+                        if lead.source == "linkedin" and lead.linkedin_url
+                        else lead.website
+                    )
                 lead.workspace_id = workspace_id
                 lead_store.upsert_lead(lead)
                 count += 1
@@ -888,7 +985,11 @@ class JobRunner:
                 "job_id": job_id, "query": query,
                 "leads_found": count, "raw_total": len(all_leads),
                 "rejected": len(rejected),
-                "message": f"✅ Done! {count} quality leads stored ({len(rejected)} rejected)",
+                "message": (
+                    f"✅ Done! {count} qualified leads stored"
+                    if count else
+                    "✅ Collection finished: no qualified leads were stored"
+                ),
             })
 
         except Exception as e:
@@ -1396,6 +1497,7 @@ class JobRunner:
                             company=company_name,
                             city=city or "India",
                             linkedin_url=linkedin_url,
+                            source_url=linkedin_url,
                             company_size=company_size,
                             description=body[:300] if body else "",
                             specialization=query,
@@ -2091,6 +2193,7 @@ async def handle_collect(job_id: int, payload: dict):
         "id": leadgen_job_id,
         "query": query,
         "tier": payload.get("tier", 1),
+        "intent": payload.get("intent", "market_search"),
         "workspace_id": workspace_id,
     }
     job_db = LeadDB(workspace_leads_db_path(slug))
@@ -2101,6 +2204,7 @@ async def handle_collect(job_id: int, payload: dict):
         existing = job_db.get_job_detail(leadgen_job_id)
         if not existing:
             raise RuntimeError(f"collection job {leadgen_job_id} not found in workspace ledger")
+        job["intent"] = existing.get("intent") or job["intent"]
         if existing.get("status") == "cancelled":
             return
         with workspace_scope(workspace_id):
@@ -2109,6 +2213,8 @@ async def handle_collect(job_id: int, payload: dict):
         # durable queue is the retry authority here, so translate any nonterminal
         # pipeline outcome into an exception for the parent worker.
         state = job_db.get_job_detail(leadgen_job_id) or {}
+        if str(state.get("error", "")).startswith("collection_intent_blocked:"):
+            return
         if state.get("status") not in ("done", "cancelled"):
             raise RuntimeError(
                 state.get("error") or f"collection ended in {state.get('status', 'unknown')}"

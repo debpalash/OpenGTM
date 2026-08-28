@@ -32,7 +32,7 @@ har/
 
 # ── Research repos (cloned references) ──────
 reference/research/
-research/
+/research/
 
 # ── Research AI context (regenerated) ───────
 # Keep these tracked — they're small text files

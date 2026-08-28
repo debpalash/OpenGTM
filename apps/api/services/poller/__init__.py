@@ -6,5 +6,5 @@ for the companies each workspace tracks, and writes deduped, workspace-stamped
 rows into the shared PG ``signals`` table via ``PgLeadStore.add_signal`` (which
 fires ``on_signal`` automations rules). Default OFF, PG-only.
 
-See ``features/intent-signal-poller-spec.md``.
+See ``docs/specs/intent-signal-poller-spec.md``.
 """

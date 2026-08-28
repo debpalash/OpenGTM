@@ -878,7 +878,7 @@ async def run_workbook(
     # heartbeat + dead-job reaper + retry). The handler runs cells concurrently
     # off the request thread, so /run returns immediately and the workbook can
     # never get stuck in `running` (the reaper recovers a crashed run).
-    # See features/workbook-v2-source-engine-spec.md §1.5.
+    # See docs/specs/workbook-v2-source-engine-spec.md §1.5.
     # Performance knobs come from Settings (user-configurable), with env/default
     # fallback. Concurrency = how many rows run at once; retry_passes re-runs the
     # cells still failing (lifts fill rate); max_providers caps waterfall depth

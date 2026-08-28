@@ -4,7 +4,7 @@
 
 # OpenGTM
 
-**Go-to-Market Agents for atomic teams.**
+**GTM agents for the world.**
 
 OpenGTM is a free, open-source, self-hostable alternative to
 [Clay.com](https://clay.com), licensed under AGPLv3.
@@ -87,7 +87,7 @@ One command brings up the full stack — API, enrichment worker, **Postgres**,
 Redis, and nginx — with sane defaults:
 
 ```bash
-git clone https://github.com/debpalash/lead-data.git opengtm
+git clone https://github.com/debpalash/opengtm.git
 cd opengtm
 cp .env.example .env        # fill in at least one LLM key; everything else is optional/BYOK
 docker compose up           # API + worker + Postgres + Redis + nginx
@@ -221,11 +221,11 @@ user work runs through the durable worker. The remaining boundaries are:
   webhook exist. Tax, refunds, subscriptions, and customer lifecycle operations
   do not.
 - **Clay's breadth and polish remain a product gap.** The open provider catalog,
-  very-large-grid ergonomics, Clay-table migration, reactive dependency
-  recomputation, templates, integrations, and real-user accuracy benchmarks
-  need continued work.
+  very-large-grid ergonomics, direct Clay API migration beyond the shipped
+  schema-aware CSV importer, reactive dependency recomputation, templates,
+  integrations, and real-user accuracy benchmarks need continued work.
 
-See [`docs/clay-parity-specs.md`](docs/clay-parity-specs.md) for the work-item
+See [`docs/plans/clay-parity-specs.md`](docs/plans/clay-parity-specs.md) for the work-item
 breakdown and sequencing.
 
 ---
@@ -251,16 +251,16 @@ it as a hosted service.
 
 ## Docs & Contributing
 
-- [`docs/clay-parity-specs.md`](docs/clay-parity-specs.md) — Clay-parity
+- [`docs/plans/clay-parity-specs.md`](docs/plans/clay-parity-specs.md) — Clay-parity
   implementation specs and roadmap (WI-1…WI-10)
 - [`docs/architecture.md`](docs/architecture.md) — runtime topology, data
   ownership, queue semantics, tenant isolation, and scale boundaries
-- [`docs/sources-master-inventory.md`](docs/sources-master-inventory.md) —
+- [`docs/research/sources-master-inventory.md`](docs/research/sources-master-inventory.md) —
   every data source, where it lives, and quality notes
-- [`docs/clay-alternatives-research.md`](docs/clay-alternatives-research.md) /
-  [`docs/clay-alternatives-ingestion-catalog.md`](docs/clay-alternatives-ingestion-catalog.md)
+- [`docs/research/clay-alternatives-research.md`](docs/research/clay-alternatives-research.md) /
+  [`docs/research/clay-alternatives-ingestion-catalog.md`](docs/research/clay-alternatives-ingestion-catalog.md)
   — competitive landscape and ingestion catalog
-- [`docs/data-source-test-report.md`](docs/data-source-test-report.md) — source
+- [`docs/research/data-source-test-report.md`](docs/research/data-source-test-report.md) — source
   health/test results
 
 Contributions welcome — open an issue or a PR. Code is grounded with file/line

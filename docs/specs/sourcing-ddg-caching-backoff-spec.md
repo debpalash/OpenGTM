@@ -23,7 +23,7 @@ All changes live in **one new module + one wrapper edit** so the ~30 call sites 
 **1. Cache (`search_cache.py`, new)**
 - Key: `sha1("text|" + normalized_query + "|" + str(max_results) + "|" + backends)`. Normalize = `query.strip().casefold()` collapse internal whitespace. `max_results` and `backends` are in the key so a `max_results=2` social lookup never serves a truncated answer to a `max_results=15` source. **Not keyed by workspace** — results are public web data; cross-workspace dedup is the entire point and there is no tenant-private input in a `site:` query (see adversarial pass).
 - Store: process-local `OrderedDict` LRU with TTL per entry. Bounded by `SEARCH_CACHE_MAX_ENTRIES` (default 2000) and per-entry `SEARCH_CACHE_TTL` (default 600s / 10 min). Eviction: TTL-expired on read, LRU pop on insert past cap. Values are the already-normalized `list[dict]`.
-- Negative caching: empty results cached with a **shorter** TTL `SEARCH_CACHE_EMPTY_TTL` (default 60s) so a momentarily-blocked query isn't pinned as "no data" for 10 min, but a genuinely dead `site:crunchbase.com` (per `docs/data-source-test-report.md`) isn't re-hammered every row.
+- Negative caching: empty results cached with a **shorter** TTL `SEARCH_CACHE_EMPTY_TTL` (default 60s) so a momentarily-blocked query isn't pinned as "no data" for 10 min, but a genuinely dead `site:crunchbase.com` (per `docs/research/data-source-test-report.md`) isn't re-hammered every row.
 - Thread-safe: `_run` is called under `asyncio.to_thread` (`job_runner.py:53-56`), so guard with a `threading.Lock`. Cheap dict ops; negligible contention.
 - Memory bound math: 2000 entries × ~15 dicts × ~300B ≈ ~9 MB worst case. Documented and capped.
 
@@ -91,5 +91,5 @@ All changes live in **one new module + one wrapper edit** so the ~30 call sites 
 - Refactoring/removing the `rate_limiter.py` domain circuit breaker or `proxy_pool` cooldowns.
 - The SearXNG `enrichment/web_search.py` path (separate entry point; cache module is reusable there later).
 - Persistent/cross-process (Redis/PG) search cache.
-- Fixing the individual zero-result `site:` sources from `docs/data-source-test-report.md` (separate item; this only avoids re-hammering them).
+- Fixing the individual zero-result `site:` sources from `docs/research/data-source-test-report.md` (separate item; this only avoids re-hammering them).
 - `news()`/images/videos caching beyond what `_run` already routes (text is primary; news can opt in trivially but isn't required).

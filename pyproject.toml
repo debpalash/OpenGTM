@@ -1,7 +1,7 @@
 [project]
 name = "opengtm"
 version = "3.0.0"
-description = "OpenGTM — open-source go-to-market agents for atomic teams"
+description = "OpenGTM — open-source GTM agents for the world"
 requires-python = ">=3.11"
 dependencies = [
     # FastAPI stack

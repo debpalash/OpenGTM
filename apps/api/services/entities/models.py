@@ -8,7 +8,7 @@ company across sources/runs collapse into one entity whose `corroboration_count`
 (distinct sources that have seen it) is the trust signal Apollo's single DB and
 Clay's import-only model can't produce.
 
-See features/workbook-v2-source-engine-spec.md (Pillar 4 / Reuse Map).
+See docs/specs/workbook-v2-source-engine-spec.md (Pillar 4 / Reuse Map).
 """
 
 import uuid

@@ -2,7 +2,7 @@
 HTTP action column — call an arbitrary HTTP API per row and extract a value.
 
 Ported from eliasstravik/rowbound (action type "http"). Part of the action-column
-engine (see docs/clay-alternatives-ingestion-catalog.md, Phase 4). Reuses the
+engine (see docs/research/clay-alternatives-ingestion-catalog.md, Phase 4). Reuses the
 existing primitives:
   - {column} templating (same resolver as AI/research/output columns)
   - core.url_guard.check_url (SSRF guard — mandatory for user-supplied URLs)

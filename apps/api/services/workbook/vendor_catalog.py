@@ -3,7 +3,7 @@ Vendor / cost catalog — single source of truth for provider economics.
 
 Ported from sayanta-ghosh/gtm-engine (vendor_catalog.py + execution/service.py
 calculate_cost) and nurturev/gtm-engine (billing/cost_config_service). See
-docs/clay-alternatives-ingestion-catalog.md (top-10 #5).
+docs/research/clay-alternatives-ingestion-catalog.md (top-10 #5).
 
 Replaces the bare planner.PROVIDER_COST dict with a catalog that knows, per
 provider: base cost/lookup, BYOK-vs-platform, and how cost SCALES with the

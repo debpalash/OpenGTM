@@ -258,6 +258,119 @@ def test_start_collection_stamps_workspace_on_job(monkeypatch, tmp_path):
     assert out["queue_job_id"] == 77
 
 
+def test_chat_tool_bare_domain_does_not_create_or_enqueue(monkeypatch, tmp_path):
+    from apps.api.services.leadgen.db import LeadDB
+    from apps.api.services.queue_service import QueueService
+
+    db_file = str(tmp_path / "leads.db")
+    monkeypatch.setattr(
+        "apps.api.services.workspace.manager.workspace_leads_db_path",
+        lambda slug: db_file,
+    )
+
+    def _unexpected_enqueue(*args, **kwargs):
+        raise AssertionError("ambiguous chat request reached the queue")
+
+    monkeypatch.setattr(QueueService, "add_job", _unexpected_enqueue)
+    out = json.loads(asyncio.run(ck._execute_tool(
+        "start_collection", {"query": "stripe.com"},
+        store=object(), workspace_id="ws-tenant-9", slug="main",
+    )))
+
+    assert out["ok"] is False
+    assert out["clarification_required"] is True
+    db = LeadDB(db_file)
+    assert db.get_jobs() == []
+    db.close()
+
+
+def test_chat_tool_named_company_team_does_not_create_or_enqueue(monkeypatch, tmp_path):
+    from apps.api.services.leadgen.db import LeadDB
+    from apps.api.services.queue_service import QueueService
+
+    db_file = str(tmp_path / "leads.db")
+    monkeypatch.setattr(
+        "apps.api.services.workspace.manager.workspace_leads_db_path",
+        lambda slug: db_file,
+    )
+
+    def _unexpected_enqueue(*args, **kwargs):
+        raise AssertionError("company team request reached the broad queue")
+
+    monkeypatch.setattr(QueueService, "add_job", _unexpected_enqueue)
+    out = json.loads(asyncio.run(ck._execute_tool(
+        "start_collection", {"query": "Stripe partnership teams"},
+        store=object(), workspace_id="ws-tenant-9", slug="main",
+    )))
+
+    assert out["ok"] is False
+    assert out["clarification_kind"] == "company_team"
+    assert len(out["options"]) == 3
+    db = LeadDB(db_file)
+    assert db.get_jobs() == []
+    db.close()
+
+
+def test_create_people_workbook_snapshots_trusted_people_result(monkeypatch):
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.pool import StaticPool
+    from apps.api.services.workbook.models import Base, Workbook, WorkbookRow
+
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(engine, tables=[Workbook.__table__, WorkbookRow.__table__])
+    factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    monkeypatch.setattr("apps.api.database.SessionLocal", factory)
+    monkeypatch.setattr(
+        ck.chat_history, "get_conversation", lambda *args: {"id": "conv-people"}
+    )
+    monkeypatch.setattr(
+        ck,
+        "_latest_conversation_tool_result",
+        lambda *args: {
+            "name": "verify_people_at_company",
+            "result": {
+                "company": "PayPal",
+                "function": "partnerships",
+                "people": [{
+                    "name": "Jane Valid",
+                    "title": "VP Partnerships",
+                    "linkedin_url": "https://www.linkedin.com/in/jane-valid",
+                    "evidence_url": "https://www.linkedin.com/in/jane-valid",
+                    "verification_status": "independent_role_evidence",
+                    "verification_confidence": 0.85,
+                    "verification_sources": [{"url": "https://paypal.com/news/jane"}],
+                    "checked_at": "2026-08-28",
+                }],
+            },
+        },
+    )
+
+    out = json.loads(asyncio.run(ck._execute_tool(
+        "create_people_workbook",
+        {"conversation_id": "conv-people", "name": "PayPal Partnerships"},
+        store=object(), workspace_id="W1", slug="main",
+    )))
+
+    assert out["ok"] is True
+    assert out["total_rows"] == 1
+    with factory() as db:
+        wb = db.query(Workbook).one()
+        row = db.query(WorkbookRow).one()
+        assert wb.workspace_id == "W1"
+        assert wb.source_type == "people_research"
+        assert wb.sync_to_leads is False
+        assert row.workspace_id == "W1"
+        assert row.data["full_name"] == "Jane Valid"
+        assert row.data["verification_status"] == "independent_role_evidence"
+        assert row.data["verification_evidence_url"] == "https://paypal.com/news/jane"
+        assert row.lead_id is None
+
+
 # ── execute_plan recurses through a tenant-bound callback ─────────────────────
 
 def test_execute_plan_uses_tenant_bound_callback(monkeypatch):

@@ -1,7 +1,7 @@
 """Company-size heuristic: normalize_band, infer_company_size, provider, scoring,
 store filter, and feature-flag gating.
 
-Covers features/sourcing-company-size-signals-spec.md acceptance criteria 1-7.
+Covers docs/specs/sourcing-company-size-signals-spec.md acceptance criteria 1-7.
 Runs on the default SQLite path (no live PG needed).
 """
 

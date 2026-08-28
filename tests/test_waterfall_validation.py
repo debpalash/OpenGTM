@@ -1,6 +1,6 @@
 """
 Phase-1 waterfall upgrades: output validation accept-gate + best-of-N +
-confidence early-exit. See docs/clay-alternatives-ingestion-catalog.md.
+confidence early-exit. See docs/research/clay-alternatives-ingestion-catalog.md.
 """
 import asyncio
 

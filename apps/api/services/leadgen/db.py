@@ -83,6 +83,8 @@ class LeadDB:
                 linkedin_url    TEXT DEFAULT '',
                 twitter_url     TEXT DEFAULT '',
                 source          TEXT DEFAULT '',
+                source_url      TEXT DEFAULT '',
+                collection_job_id TEXT DEFAULT '',
                 score           INTEGER DEFAULT 0,
                 score_tier      TEXT DEFAULT 'unqualified',
                 status          TEXT DEFAULT 'new',
@@ -106,7 +108,6 @@ class LeadDB:
             CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status);
             CREATE INDEX IF NOT EXISTS idx_leads_city ON leads(city);
             CREATE INDEX IF NOT EXISTS idx_leads_source ON leads(source);
-
             -- Full-text search virtual table
             CREATE VIRTUAL TABLE IF NOT EXISTS leads_fts USING fts5(
                 company, city, specialization, notes, description,
@@ -136,6 +137,8 @@ class LeadDB:
             CREATE TABLE IF NOT EXISTS jobs (
                 id          TEXT PRIMARY KEY,
                 query       TEXT NOT NULL,
+                intent      TEXT DEFAULT 'market_search',
+                intent_details TEXT DEFAULT '{}',
                 status      TEXT DEFAULT 'pending',
                 tier        INTEGER DEFAULT 1,
                 attempts    INTEGER DEFAULT 0,
@@ -238,6 +241,8 @@ class LeadDB:
             "enrichment_waterfall": "TEXT DEFAULT ''",
             # Per-fact provenance JSON {field: {source,license,confidence,fetched_at}}
             "field_provenance": "TEXT DEFAULT ''",
+            "source_url": "TEXT DEFAULT ''",
+            "collection_job_id": "TEXT DEFAULT ''",
             # ── OSS Enrichment Fields ──
             "founding_year": "TEXT DEFAULT ''",
             "last_funding_amount": "TEXT DEFAULT ''",
@@ -253,8 +258,21 @@ class LeadDB:
             if col not in existing_lead_cols:
                 self.conn.execute(f"ALTER TABLE leads ADD COLUMN {col} {col_type}")
 
+        self.conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_leads_collection_job "
+            "ON leads(collection_job_id)"
+        )
+
         if "workspace_id" not in existing_job_cols:
             self.conn.execute("ALTER TABLE jobs ADD COLUMN workspace_id TEXT DEFAULT ''")
+        if "intent" not in existing_job_cols:
+            self.conn.execute(
+                "ALTER TABLE jobs ADD COLUMN intent TEXT DEFAULT 'market_search'"
+            )
+        if "intent_details" not in existing_job_cols:
+            self.conn.execute(
+                "ALTER TABLE jobs ADD COLUMN intent_details TEXT DEFAULT '{}'"
+            )
 
         # Composite dedup key: (workspace_id, company, city) — replaces the old
         # global UNIQUE(company, city) so two tenants can each own (Acme, NYC).
@@ -356,6 +374,7 @@ class LeadDB:
         status: Optional[str] = None,
         city: Optional[str] = None,
         source: Optional[str] = None,
+        collection_job_id: Optional[str] = None,
         score_min: Optional[int] = None,
         score_max: Optional[int] = None,
         score_tier: Optional[str] = None,
@@ -389,6 +408,11 @@ class LeadDB:
         if source:
             conditions.append("l.source = ?")
             params.append(source)
+        if collection_job_id:
+            # Legacy rows encoded ownership in source; keep them visible while
+            # all new rows preserve source as the discovery channel.
+            conditions.append("(l.collection_job_id = ? OR l.source = ?)")
+            params.extend([collection_job_id, f"job:{collection_job_id}"])
         if score_min is not None:
             conditions.append("l.score >= ?")
             params.append(score_min)
@@ -451,9 +475,13 @@ class LeadDB:
                 conditions.append(f"l.{key} = ?")
                 params.append(fc[key])
         if fc.get("job_ids"):
-            sources = [f"job:{job_id}" for job_id in fc["job_ids"]]
-            conditions.append(f"l.source IN ({','.join('?' for _ in sources)})")
-            params.extend(sources)
+            job_ids = list(fc["job_ids"])
+            sources = [f"job:{job_id}" for job_id in job_ids]
+            conditions.append(
+                f"(l.collection_job_id IN ({','.join('?' for _ in job_ids)}) "
+                f"OR l.source IN ({','.join('?' for _ in sources)}))"
+            )
+            params.extend(job_ids + sources)
         if fc.get("specialization"):
             conditions.append("l.specialization LIKE ?")
             params.append(f"%{fc['specialization']}%")
@@ -633,12 +661,19 @@ class LeadDB:
 
     # ── Jobs ───────────────────────────────────────────────────────────
 
-    def create_job(self, job_id: str, query: str) -> str:
+    def create_job(
+        self,
+        job_id: str,
+        query: str,
+        intent: str = "market_search",
+        intent_details: str = "{}",
+    ) -> str:
         """Create a new collection job."""
         now = _utcnow().isoformat()
         self.conn.execute(
-            "INSERT OR IGNORE INTO jobs (id, query, created_at) VALUES (?, ?, ?)",
-            (job_id, query, now)
+            "INSERT OR IGNORE INTO jobs "
+            "(id, query, intent, intent_details, created_at) VALUES (?, ?, ?, ?, ?)",
+            (job_id, query, intent, intent_details, now)
         )
         self.conn.commit()
         return job_id
@@ -700,7 +735,8 @@ class LeadDB:
         if not keep_leads:
             # Delete leads that were created by this job
             self.conn.execute(
-                "DELETE FROM leads WHERE source = ?", (f"job:{job_id}",)
+                "DELETE FROM leads WHERE collection_job_id = ? OR source = ?",
+                (job_id, f"job:{job_id}"),
             )
         # Delete stages
         self.conn.execute("DELETE FROM job_stages WHERE job_id = ?", (job_id,))
@@ -772,8 +808,9 @@ class LeadDB:
     def get_job_leads(self, job_id: str, limit: int = 200) -> List[Dict[str, Any]]:
         """Get leads produced by a specific job."""
         rows = self.conn.execute(
-            "SELECT * FROM leads WHERE source = ? ORDER BY score DESC LIMIT ?",
-            (f"job:{job_id}", limit)
+            "SELECT * FROM leads WHERE collection_job_id = ? OR source = ? "
+            "ORDER BY score DESC LIMIT ?",
+            (job_id, f"job:{job_id}", limit)
         ).fetchall()
         return [dict(r) for r in rows]
 

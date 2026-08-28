@@ -800,7 +800,7 @@ async def enrich_workbook_leads(
     DEPRECATED for large runs: fully serial, blocks the caller. Kept for small
     ad-hoc callers. Workbook /run now goes through the durable queue handler
     (handle_run_workbook → run_workbook_enrichment) which is concurrent and
-    crash-recoverable. See features/workbook-v2-source-engine-spec.md §1.5 (P-1).
+    crash-recoverable. See docs/specs/workbook-v2-source-engine-spec.md §1.5 (P-1).
     """
     completed = 0
     errors = 0

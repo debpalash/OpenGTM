@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, WebSocket, Query
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 from typing import List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from apps.api.database import get_db
 from apps.api.models import User, PersonIntel
@@ -24,6 +24,8 @@ class EnrichRequest(BaseModel):
 
 
 class PersonIntelResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     linkedin_url: str
     username: str
@@ -31,18 +33,15 @@ class PersonIntelResponse(BaseModel):
     headline: str = ""
     location: str = ""
     summary: str = ""
-    emails: list = []
-    social_links: dict = {}
-    articles: list = []
-    mentions: list = []
-    companies: list = []
-    education: list = []
-    skills: list = []
+    emails: list = Field(default_factory=list)
+    social_links: dict = Field(default_factory=dict)
+    articles: list = Field(default_factory=list)
+    mentions: list = Field(default_factory=list)
+    companies: list = Field(default_factory=list)
+    education: list = Field(default_factory=list)
+    skills: list = Field(default_factory=list)
     status: str = "pending"
     created_at: str = ""
-
-    class Config:
-        from_attributes = True
 
 
 # --- WebSocket Endpoint ---

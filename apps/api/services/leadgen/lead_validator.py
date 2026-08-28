@@ -27,6 +27,11 @@ _ARTICLE_PATTERNS = [
     r"(?i)\bdiscover\s+the\b",        # "Discover the ..."
     r"(?i)\bcomplete\s+(list|guide)\b",
     r"(?i)\b(list|ranking|review)\s+of\b",
+    r"(?i)\b(companies|businesses|websites|customers)\s+that\s+(use|uses|using)\b",
+    r"(?i)\bwebsites\s+using\b",
+    r"(?i)\b(customers|clients)\s+of\b",
+    r"(?i)\b(working|work)\s+at\b",
+    r"(?i)\b(jobs?|careers?|salaries)\s+(at|in|for)\b",
 ]
 
 # Placeholder / generic names (case-insensitive, checked after .lower().strip())
@@ -64,6 +69,8 @@ _PUBLISHER_NAMES = {
     "urbanpro", "bark", "thumbtack", "yelp", "yellowpages",
     "manta", "crunchbase", "owler", "tracxn", "wellfound",
     "angellist", "f6s", "startupindia", "yourstory",
+    "theirstack", "builtwith", "bayt", "economic times",
+    "times of india", "the times of india",
 }
 
 # Generic service title patterns (not company names)
@@ -144,6 +151,12 @@ _PUBLISHER_DOMAINS = {
     # Search engines / email providers — never a sourced company's own site
     "bing.com", "google.com", "google.co.in", "microsoft.com",
     "yahoo.com", "duckduckgo.com", "baidu.com", "yandex.com",
+    # Technology/list vendors, job boards, and publishers are useful evidence
+    # sources, but their pages are not customer/company websites.
+    "theirstack.com", "builtwith.com", "bayt.com",
+    "indiatimes.com", "timesofindia.com", "economictimes.com",
+    "themanifest.com", "techbehemoths.com", "placementindia.com",
+    "timesjobs.com", "monster.com", "foundit.in", "apna.co",
 }
 
 # Job-title words — a name ending in one of these (≤3 words) is a title, not a company
@@ -185,6 +198,13 @@ def _name_rejection(name: str) -> str:
 
 # Non-India phone prefixes (for India-focused queries)
 _NON_INDIA_PREFIXES = ["+1", "+44", "+61", "+49", "+33", "+971"]
+
+
+def _is_publisher_domain(domain: str) -> bool:
+    """Match a publisher root and all of its subdomains."""
+    clean = (domain or "").lower().strip(".")
+    return any(clean == blocked or clean.endswith(f".{blocked}")
+               for blocked in _PUBLISHER_DOMAINS)
 
 
 def validate_lead(lead: Lead) -> tuple[bool, str]:
@@ -249,7 +269,7 @@ def validate_lead(lead: Lead) -> tuple[bool, str]:
         email_domain = lead.email.split("@")[-1].lower() if "@" in lead.email else ""
 
         # Reject publisher/aggregator emails
-        if email_domain in _PUBLISHER_DOMAINS:
+        if _is_publisher_domain(email_domain):
             lead.email = ""  # Clear the bad email, don't reject the lead
 
         # Reject if email looks like an image/asset path
@@ -264,9 +284,12 @@ def validate_lead(lead: Lead) -> tuple[bool, str]:
                 if (email_domain not in website_domain and
                     website_domain not in email_domain and
                     email_domain not in _KNOWN_EMAIL_PROVIDERS):
-                    # Suspicious: email from different domain than website
-                    # Don't reject, but flag
-                    pass
+                    # The address belongs to the page publisher or another
+                    # company, not this candidate.  Keeping it is worse than
+                    # leaving contact data unknown.
+                    lead.email = ""
+                    lead.email_confidence = ""
+                    lead.email_provider = ""
 
     # ── Phone checks ───────────────────────────────────────────────
 
@@ -294,7 +317,7 @@ def validate_lead(lead: Lead) -> tuple[bool, str]:
         # Normalize to root domain (strip paths like /about-us/locations/bangalore/)
         lead.website = _normalize_url(lead.website)
         domain = _extract_domain(lead.website)
-        if domain in _PUBLISHER_DOMAINS:
+        if _is_publisher_domain(domain):
             # Website is a publisher/aggregator page, not the company's site
             lead.website = ""
 
@@ -384,7 +407,7 @@ def validate_lead_light(lead: Lead) -> tuple[bool, str]:
     # Clean bad emails/phones but don't reject for missing them
     if lead.email:
         email_domain = lead.email.split("@")[-1].lower() if "@" in lead.email else ""
-        if email_domain in _PUBLISHER_DOMAINS:
+        if _is_publisher_domain(email_domain):
             lead.email = ""
         if any(ext in lead.email.lower() for ext in [".png", ".jpg", ".svg", ".gif", ".webp", ".css", ".js", ".woff"]):
             lead.email = ""
@@ -398,7 +421,7 @@ def validate_lead_light(lead: Lead) -> tuple[bool, str]:
     if lead.website:
         lead.website = _normalize_url(lead.website)
         domain = _extract_domain(lead.website)
-        if domain in _PUBLISHER_DOMAINS:
+        if _is_publisher_domain(domain):
             lead.website = ""
 
     return True, ""

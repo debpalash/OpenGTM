@@ -36,15 +36,15 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: apps/web
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1"
+      # Exercise every shipped TypeScript package: web, Chrome capture, and
+      # the n8n community node. Root scripts fan out through Turborepo.
       - run: bun install --frozen-lockfile
+      - run: bun run lint
       - run: bun run build
 
   compose-contract:
@@ -52,4 +52,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      # Validate the same documented first-run path operators use. Compose
+      # intentionally loads .env for every application service, while secrets
+      # and provider keys remain optional in the checked-in example.
+      - run: cp .env.example .env
       - run: docker compose config --quiet

@@ -8,7 +8,14 @@ import {
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useConversationMessages } from "@/lib/hooks"
-import { streamChat, type ChatMessage, type ToolCall, type ApprovedToolCall } from "@/lib/api"
+import {
+  CHAT_DRAFT_EVENT,
+  COLLECTION_CLARIFICATION_EVENT,
+  streamChat,
+  type ChatMessage,
+  type ToolCall,
+  type ApprovedToolCall,
+} from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { TaskDetailCard } from "@/components/task-detail-card"
 import { HybridMessage } from "@/components/openui-renderer"
@@ -26,6 +33,9 @@ function ToolIndicator({ toolName }: { toolName: string }) {
     ambitionbox_jobs: BarChart3,
     import_ambitionbox_to_workbook: Database,
     start_collection: Zap,
+    find_people_at_company: Search,
+    verify_people_at_company: ShieldCheck,
+    create_people_workbook: Database,
     enrich_lead: Sparkles,
     scrape_website: Globe,
     get_lead_stats: BarChart3,
@@ -268,6 +278,7 @@ export default function ChatPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const activeConvId = searchParams.get("id")
+  const draft = searchParams.get("draft")
 
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -287,6 +298,26 @@ export default function ChatPage() {
   const editRef = useRef<HTMLTextAreaElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
+
+  useEffect(() => {
+    if (!draft || activeConvId) return
+    setInput((current) => current || draft)
+    const next = new URLSearchParams(searchParams)
+    next.delete("draft")
+    navigate(`/chat${next.size ? `?${next.toString()}` : ""}`, { replace: true })
+    requestAnimationFrame(() => inputRef.current?.focus())
+  }, [activeConvId, draft, navigate, searchParams])
+
+  useEffect(() => {
+    const onDraft = (event: Event) => {
+      const nextDraft = (event as CustomEvent<{ draft?: string }>).detail?.draft
+      if (!nextDraft) return
+      setInput(nextDraft)
+      requestAnimationFrame(() => inputRef.current?.focus())
+    }
+    window.addEventListener(CHAT_DRAFT_EVENT, onDraft)
+    return () => window.removeEventListener(CHAT_DRAFT_EVENT, onDraft)
+  }, [])
 
   const { data: detailData, isLoading: isLoadingMessages } = useConversationMessages(activeConvId)
 
@@ -357,6 +388,11 @@ export default function ChatPage() {
         }
         if (event.tool_denied) {
           setReasoningSteps(prev => markLastRunning(prev, "denied"))
+        }
+        if (event.intent_clarification) {
+          window.dispatchEvent(new CustomEvent(COLLECTION_CLARIFICATION_EVENT, {
+            detail: event.intent_clarification,
+          }))
         }
         if (event.confirmation_required) {
           paused = true

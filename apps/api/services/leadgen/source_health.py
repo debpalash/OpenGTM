@@ -27,7 +27,7 @@ Two independent flags, both DEFAULT OFF (see ``core/config.py``):
   this flag only controls whether that state filters live collection.
 
 The whole design is built around the report's documented "empty != dead" failure
-(``docs/data-source-test-report.md``): probes are multi-canary, slow to disable
+(``docs/research/data-source-test-report.md``): probes are multi-canary, slow to disable
 (``DISABLE_THRESHOLD`` consecutive dead runs), and a **systemic-outage guard**
 suppresses ALL zero transitions on a run where most sources came back empty (the
 proxy-pool/DDG-rate-limit failure mode), so a transient infra hiccup can never

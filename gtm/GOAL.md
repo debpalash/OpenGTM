@@ -4,6 +4,11 @@
 > Every number here was verified against a primary source on 2026-07-16. Claims
 > that could not be verified are marked. Re-verify before acting on anything
 > older than a month — see [Freshness](#freshness).
+>
+> **Owner update — 2026-08-28:** the Clay alternative is now branded OpenGTM,
+> but the repository intentionally remains private while release gates and UX
+> are polished. Do not change repository visibility as part of routine launch
+> preparation; publication requires a separate owner decision.
 
 ---
 
@@ -223,6 +228,8 @@ What remains is smaller but still worth doing:
 ### O4 — Rename and publish the Clay alternative · `[high / M]`
 It cannot be marketed under a name that belongs to a live hiring product, and it
 cannot do OSS-native growth while private.
+- **Current state (2026-08-28):** renamed and branded as OpenGTM; publication is
+  deliberately deferred for a private hardening phase.
 - **Done when:** new name, domain, public repo, working `git clone` in the README.
 - **Gate — launch-blocking, non-negotiable:** the council doc's security floor
   (SSRF `resolve=True` on every fetch path, fail-closed `SECRET_KEY`, enforced

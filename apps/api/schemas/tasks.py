@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 
 
@@ -7,20 +7,18 @@ class LinkCreate(BaseModel):
 
 
 class LinkResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     url: str
     status: str
     created_at: str
 
-    class Config:
-        from_attributes = True
-
 
 class EmailDataResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     email: str
     source_link_id: int
-
-    class Config:
-        from_attributes = True

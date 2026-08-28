@@ -3,7 +3,7 @@ Lead de-duplication — normalize + multi-key union + best-record merge.
 
 Ported from nimajnebrevilo/GTM-Engine (src/dedup/{matcher,normalizer}.ts) +
 Revgrowth1/claude-code-skills (tam-map/dedup_engine.py). See
-docs/clay-alternatives-ingestion-catalog.md (top-10, dedup).
+docs/research/clay-alternatives-ingestion-catalog.md (top-10, dedup).
 
 Operates on plain lead dicts (workbook rows / leads DB / CSV import all use
 dicts). Records are clustered with a union-find over several exact blocking

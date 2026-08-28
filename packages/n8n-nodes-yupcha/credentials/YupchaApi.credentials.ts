@@ -7,7 +7,7 @@ import {
 export class YupchaApi implements ICredentialType {
 	name = 'yupchaApi';
 	displayName = 'OpenGTM API';
-	documentationUrl = 'https://github.com/debpalash/lead-data';
+	documentationUrl = 'https://github.com/debpalash/opengtm';
 
 	properties: INodeProperties[] = [
 		{

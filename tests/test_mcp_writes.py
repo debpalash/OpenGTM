@@ -1,6 +1,6 @@
 """MCP Phase-2 write tools — offline gate tests (SQLite, no Postgres/network).
 
-Pins the write-path invariants from features/research-write-capable-mcp-spec.md:
+Pins the write-path invariants from docs/specs/research-write-capable-mcp-spec.md:
 
   * Two independent off-switches: ``MCP_WRITE_ENABLED`` AND the per-token cap.
   * A LIVE workspace-role re-check denies a downgraded user (privilege-freeze).

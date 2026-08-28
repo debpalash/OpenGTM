@@ -1,7 +1,7 @@
 """add field_provenance to leads (per-fact provenance)
 
 One new nullable JSON-text column on ``leads`` holding per-fact provenance
-``{field_name: {source, license, confidence, fetched_at}}`` (features/research-
+``{field_name: {source, license, confidence, fetched_at}}`` (docs/specs/research-
 per-fact-provenance-spec.md). Additive and backward-compatible:
 
   * NULL on existing rows — there is NO retroactive backfill (historical

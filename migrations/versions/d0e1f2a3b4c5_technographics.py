@@ -2,7 +2,7 @@
 
 One new nullable JSON-text column on ``leads`` holding the structured website
 technographics list ``[{name, category, source, confidence}]`` produced by the
-tech_stack provider's homepage detection (features/research-wappalyzer-
+tech_stack provider's homepage detection (docs/specs/research-wappalyzer-
 technographics-spec.md). The legacy flat ``technologies`` comma-string column is
 kept untouched for workbook/back-compat; this column adds category/source/
 confidence for scoring + signal diffing.

@@ -3,7 +3,7 @@
 ## Mini-spec: Source-reliability scoring in ranking
 
 ### Goal
-Weight each lead-source's historical reliability (hit-rate, dedup-survival, validation-pass-rate) into the lead score so chronically empty/noisy sources (per `docs/data-source-test-report.md`: crunchbase/linkedin/clutch/indeed/naukri/G2/capterra ≈0 results) down-rank their leads and reliable sources up-rank — as a **bounded, flag-gated nudge** that never overturns ICP fit.
+Weight each lead-source's historical reliability (hit-rate, dedup-survival, validation-pass-rate) into the lead score so chronically empty/noisy sources (per `docs/research/data-source-test-report.md`: crunchbase/linkedin/clutch/indeed/naukri/G2/capterra ≈0 results) down-rank their leads and reliable sources up-rank — as a **bounded, flag-gated nudge** that never overturns ICP fit.
 
 ---
 
@@ -84,7 +84,7 @@ Combine: `r = w_hit*hit_rate + w_dedup*dedup_survival + w_val*validation_pass` (
 
 ### Feature-flag / rollout
 1. Ship table + ledger writes with **scoring OFF** → accumulate real reliability data passively for N days (no ranking impact).
-2. Inspect `source_stats` (or stretch endpoint) vs `docs/data-source-test-report.md` to sanity-check.
+2. Inspect `source_stats` (or stretch endpoint) vs `docs/research/data-source-test-report.md` to sanity-check.
 3. Flip `SOURCE_RELIABILITY_RANKING=true` in staging; compare tier distributions; tune `SWING`/weights.
 4. Enable in prod. Instant rollback = flip flag off.
 

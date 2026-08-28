@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security vulnerability
-    url: https://github.com/yupcha-internal/lead-data/security/advisories/new
+    url: https://github.com/debpalash/opengtm/security/advisories/new
     about: Please report security issues privately — see SECURITY.md. Do not open a public issue.
   - name: Question / discussion
-    url: https://github.com/yupcha-internal/lead-data/discussions
+    url: https://github.com/debpalash/opengtm/discussions
     about: Ask setup or usage questions here.

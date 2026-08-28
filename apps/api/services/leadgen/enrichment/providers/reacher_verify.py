@@ -7,7 +7,7 @@ unlimited and $0/email when self-hosted. This module wraps it as one more
 ``Verifier`` for ``email_verify_cascade`` — registered at the FRONT of the chain
 when configured, with the existing port-25 SMTP probe as the fallback.
 
-Design (see features/research-reacher-smtp-verify-spec.md):
+Design (see docs/specs/research-reacher-smtp-verify-spec.md):
   * ``ReacherClient`` — thin async httpx wrapper. POST /v0/check_email
     {"to_email": ...} → {is_reachable, smtp:{is_catch_all,...}, misc:{is_disposable,
     is_role_account}}. Maps ``is_reachable`` to the 4-status contract.

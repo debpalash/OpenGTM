@@ -107,7 +107,7 @@ export default function LoginPage() {
             <span className="block bg-gradient-to-r from-[#aeb2ff] via-[#d8daff] to-[#6ee7d2] bg-clip-text text-transparent">Not busywork.</span>
           </h1>
           <p className="mt-6 max-w-lg text-base leading-7 text-white/58 sm:text-lg">
-            GTM agents for atomic teams.
+            GTM agents for the world.
           </p>
 
           <div className="mt-10 hidden max-w-xl grid-cols-3 gap-3 lg:grid">

@@ -68,7 +68,7 @@ class FilterCriteria(BaseModel):
     score_tier: Optional[str] = None
     status: Optional[str] = None
     source: Optional[str] = None
-    job_ids: Optional[list[str]] = Field(None, description="Filter leads by job IDs (source = 'job:xxx')")
+    job_ids: Optional[list[str]] = Field(None, description="Filter leads by collection job IDs")
     specialization: Optional[str] = None
     company_size: Optional[str] = None
     has_email: Optional[bool] = None      # True = email != "", False = email == ""

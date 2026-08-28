@@ -3,7 +3,7 @@ SSRF url-guard — validate any user-supplied URL before the server fetches it.
 
 Ported from eliasstravik/rowbound (core/url-guard.ts). Yupcha is adding
 user-defined HTTP columns + source-engine endpoints; every such URL MUST pass
-this guard first. See docs/clay-alternatives-ingestion-catalog.md (top-10 #7).
+this guard first. See docs/research/clay-alternatives-ingestion-catalog.md (top-10 #7).
 
 Blocks: non-http(s) schemes; private / loopback / link-local / unique-local
 IPv4 + IPv6 (incl. IPv4-mapped); the AWS/GCP metadata IP (169.254.169.254); and

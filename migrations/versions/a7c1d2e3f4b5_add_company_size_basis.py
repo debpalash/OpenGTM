@@ -1,6 +1,6 @@
 """add company_size_basis to leads
 
-Provenance for the company-size heuristic signal (features/sourcing-company-size-
+Provenance for the company-size heuristic signal (docs/specs/sourcing-company-size-
 signals-spec.md). One new nullable scalar column on ``leads`` distinguishing a
 known/exact size from a heuristic-estimated one ("exact" | "estimated:<signals>"
 | ""). Additive and backward-compatible: existing rows default to "".

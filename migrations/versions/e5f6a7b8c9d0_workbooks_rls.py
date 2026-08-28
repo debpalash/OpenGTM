@@ -4,7 +4,7 @@ Revision ID: e5f6a7b8c9d0
 Revises: d4e5f6a7b8c9
 Create Date: 2026-06-26 12:00:00.000000
 
-PR-B of the workbooks RLS-hardening (features/followup-workbooks-rls-hardening-
+PR-B of the workbooks RLS-hardening (docs/specs/followup-workbooks-rls-hardening-
 spec.md). PR-A already tenant-scoped every worker/request path while RLS was
 still OFF; this revision flips on the same proven RLS posture as
 leads/signals/outreach (c42d0273d9bd / b2c3d4e5f6a7):
@@ -114,7 +114,7 @@ def upgrade() -> None:
                 "workspaces exist with no 'main'). Assign each NULL workbook to "
                 "its owning workspace before upgrading — never guess a tenant "
                 "(a wrong guess is a cross-tenant leak). See OD-1a in "
-                "features/followup-workbooks-rls-hardening-spec.md."
+                "docs/specs/followup-workbooks-rls-hardening-spec.md."
             )
         bind.execute(
             sa.text("UPDATE workbooks SET workspace_id = :ws WHERE workspace_id IS NULL"),

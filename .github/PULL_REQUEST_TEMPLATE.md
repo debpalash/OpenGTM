@@ -1,4 +1,4 @@
-<!-- Thanks for contributing to Yupcha! -->
+<!-- Thanks for contributing to OpenGTM! -->
 
 ## What & why
 
@@ -16,7 +16,7 @@
 
 - [ ] Commits are **signed off** (`git commit -s`) per the [DCO](../DCO)
 - [ ] Backend tests pass (`uv run pytest`)
-- [ ] Frontend typechecks (`bunx tsc -b` in `apps/web`) if the UI changed
+- [ ] Monorepo lint and build pass (`bun run lint && bun run build`)
 - [ ] I did not add scraping of paywalled / pirated / login-gated content
 - [ ] Credentialed providers are **opt-in and inert by default**
 

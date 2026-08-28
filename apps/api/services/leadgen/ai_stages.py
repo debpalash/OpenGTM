@@ -183,13 +183,19 @@ Return JSON: {{"results": [
 
 # ── AI Lead Scoring ──────────────────────────────────────────────────
 
-async def ai_score_leads(client: LLMClient, leads: list[Lead], icp: dict) -> list[Lead]:
+async def ai_score_leads(
+    client: LLMClient,
+    leads: list[Lead],
+    icp: dict,
+) -> tuple[list[Lead], int]:
     """Score leads using LLM with ICP awareness.
 
     Processes in batches of 5 for efficiency. Updates leads in-place.
     """
     if not leads:
-        return leads
+        return leads, 0
+
+    applied_count = 0
 
     icp_text = (
         f"We sell: {icp.get('value_proposition', 'B2B SaaS')}\n"
@@ -244,11 +250,17 @@ Return JSON: {{"scores": [
                     break
 
             if ai_score:
-                lead.score = max(0, min(100, ai_score.get("score", lead.score)))
-                lead.score_tier = ai_score.get("tier", "cold")
+                raw_score = ai_score.get("score")
+                if not isinstance(raw_score, (int, float)):
+                    continue
+                lead.score = max(0, min(100, int(raw_score)))
+                from apps.api.services.leadgen.scoring import get_tier
+
+                lead.score_tier = get_tier(lead.score)
+                applied_count += 1
                 # Store reasoning in description if empty
                 reason = ai_score.get("reason", "")
                 if reason and not lead.description:
                     lead.description = reason
 
-    return leads
+    return leads, applied_count
