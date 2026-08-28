@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "fixture_kind": "synthetic_recorded_contract",
+  "run_id": "gauntlet_fixture_g2_g4_g5_pass",
+  "mode": "recorded",
+  "build_sha": "fixture-build",
+  "started_at": "2026-08-28T07:00:00Z",
+  "finished_at": "2026-08-28T07:00:24Z",
+  "unresolved_issues": [],
+  "production_run_history": [],
+  "scenarios": [
+    {
+      "id": "partnership_people_to_workbook",
+      "status": "completed",
+      "workflow_ids": ["G2", "G4", "G5"],
+      "workspace_id": "ws_gauntlet_fixture",
+      "prompt_steps": [
+        "Find Stripe partnership teams.",
+        "Verify that they still work there and own partnerships.",
+        "Make a workbook with them."
+      ],
+      "target": {
+        "company": "Stripe",
+        "canonical_domain": "stripe.com",
+        "function": "partnerships",
+        "resolution_status": "resolved"
+      },
+      "selection": {
+        "person_ids": ["person_fixture_partner_01"]
+      },
+      "research": {
+        "status": "completed",
+        "people": [
+          {
+            "person_id": "person_fixture_partner_01",
+            "name": "Fixture Partner One",
+            "company": "Stripe",
+            "canonical_company_domain": "stripe.com",
+            "title": "Head of Platform Partnerships",
+            "location": "San Francisco, CA",
+            "public_profile_url": "https://profiles.example.test/person_fixture_partner_01",
+            "retrieved_at": "2026-08-28T07:00:12Z",
+            "confidence": 0.97
+          }
+        ],
+        "rejected": [
+          {
+            "candidate_id": "candidate_namesake",
+            "reason": "wrong_company"
+          },
+          {
+            "candidate_id": "candidate_former",
+            "reason": "former_employee"
+          },
+          {
+            "candidate_id": "candidate_legal",
+            "reason": "unrelated_function"
+          }
+        ],
+        "exhausted_sources": []
+      },
+      "verification": {
+        "status": "completed",
+        "people": [
+          {
+            "person_id": "person_fixture_partner_01",
+            "claims": {
+              "company_identity": {
+                "status": "verified",
+                "value": {
+                  "company": "Stripe",
+                  "canonical_domain": "stripe.com"
+                },
+                "confidence": 0.99,
+                "observed_at": "2026-08-28T07:00:13Z",
+                "evidence": [
+                  {
+                    "url": "https://evidence.example.test/stripe/company",
+                    "source": "company_site"
+                  }
+                ],
+                "contradictions": []
+              },
+              "current_employment": {
+                "status": "verified",
+                "value": true,
+                "confidence": 0.96,
+                "observed_at": "2026-08-28T07:00:14Z",
+                "evidence": [
+                  {
+                    "url": "https://evidence.example.test/stripe/employment/person_fixture_partner_01",
+                    "source": "public_profile"
+                  }
+                ],
+                "contradictions": []
+              },
+              "title": {
+                "status": "verified",
+                "value": "Head of Platform Partnerships",
+                "confidence": 0.95,
+                "observed_at": "2026-08-28T07:00:14Z",
+                "evidence": [
+                  {
+                    "url": "https://evidence.example.test/stripe/title/person_fixture_partner_01",
+                    "source": "public_profile"
+                  }
+                ],
+                "contradictions": []
+              },
+              "partnership_function": {
+                "status": "verified",
+                "value": true,
+                "confidence": 0.95,
+                "observed_at": "2026-08-28T07:00:15Z",
+                "evidence": [
+                  {
+                    "url": "https://evidence.example.test/stripe/function/person_fixture_partner_01",
+                    "source": "company_site"
+                  }
+                ],
+                "contradictions": []
+              },
+              "contactability": {
+                "status": "unavailable",
+                "value": null,
+                "confidence": 0.92,
+                "observed_at": "2026-08-28T07:00:16Z",
+                "evidence": [
+                  {
+                    "url": "https://evidence.example.test/stripe/contact/person_fixture_partner_01",
+                    "source": "recorded_provider_exhaustion"
+                  }
+                ],
+                "contradictions": []
+              }
+            }
+          }
+        ],
+        "summary": {
+          "passed": 4,
+          "failed": 0,
+          "uncertain": 1,
+          "changed": 0
+        }
+      },
+      "workbook_action": {
+        "action_id": "chat-action-fixture-stripe-partners",
+        "idempotency_key": "chat-action-fixture-stripe-partners",
+        "workspace_id": "ws_gauntlet_fixture",
+        "approved": true,
+        "status": "succeeded",
+        "persisted": true,
+        "reused": false,
+        "workbook_id": "wb_fixture_stripe_partners",
+        "selected_person_ids": ["person_fixture_partner_01"],
+        "persisted_person_ids": ["person_fixture_partner_01"],
+        "row_count": 1,
+        "skipped_count": 0,
+        "url": "/workbooks/wb_fixture_stripe_partners"
+      },
+      "retry_action": {
+        "action_id": "chat-action-fixture-stripe-partners",
+        "idempotency_key": "chat-action-fixture-stripe-partners",
+        "workspace_id": "ws_gauntlet_fixture",
+        "approved": true,
+        "status": "succeeded",
+        "persisted": true,
+        "reused": true,
+        "workbook_id": "wb_fixture_stripe_partners",
+        "selected_person_ids": ["person_fixture_partner_01"],
+        "persisted_person_ids": ["person_fixture_partner_01"],
+        "row_count": 1,
+        "skipped_count": 0,
+        "url": "/workbooks/wb_fixture_stripe_partners"
+      },
+      "can_continue_enrichment": true,
+      "timings_ms": {
+        "acknowledgement": 210,
+        "research": 12000,
+        "verification": 8500,
+        "workbook_creation": 430
+      },
+      "jobs": [],
+      "external_writes": []
+    }
+  ]
+}
