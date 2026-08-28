@@ -8,6 +8,16 @@ Release posture: do not publish yet
 
 ## Progress log
 
+### 2026-08-28: first product-code gauntlet baseline
+
+- Added a native Chat trace adapter that converts research, verification, approval, and workbook action results into the gauntlet artifact contract.
+- Workbook success is checked against the actual `workbooks` and `workbook_rows` records. The adapter does not trust the action receipt by itself.
+- Added an isolated recorded runner test that uses the real approval resolver and executes the real `create_people_workbook` action twice.
+- The recorded provider data is explicitly synthetic, but the Chat approval, idempotency, persistence, read-back, trace adaptation, and scoring paths are production code.
+- Current product-code baseline: 87/100 with no hard failure. G5 passes. G2 fails canonical company resolution, and G4 fails because contactability has no evidence-backed claim yet.
+
+Next: add evidence-backed canonical company resolution to the people research result, then add the G3 contact enrichment action so contactability can be scored instead of remaining unavailable.
+
 ### 2026-08-28: Phase 0 gauntlet kernel
 
 - Added a deterministic JSON artifact scorer for the G2 to G4 to G5 partnership workflow.

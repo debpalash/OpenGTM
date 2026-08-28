@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0",
+  "fixture_kind": "synthetic_recorded_native_shape",
+  "run_id": "recorded_product_g2_g4_g5_baseline",
+  "mode": "recorded",
+  "build_sha": "fixture-build",
+  "started_at": "2026-08-28T08:00:00Z",
+  "finished_at": "2026-08-28T08:00:19Z",
+  "workspace_id": "W1",
+  "conversation_id": "conv-recorded-people",
+  "acknowledgement_ms": 180,
+  "prompts": [
+    "Find Stripe partnership teams.",
+    "Verify that they still work there and own partnerships.",
+    "Make a workbook with them."
+  ],
+  "company_resolution": {
+    "company": "Stripe",
+    "status": "unresolved",
+    "canonical_domain": ""
+  },
+  "selection": {
+    "person_ids": ["person_fixture_stripe_partner"]
+  },
+  "steps": [
+    {
+      "step_id": "g2-find-partnership-team",
+      "workflow_id": "G2",
+      "tool_name": "find_people_at_company",
+      "status": "succeeded",
+      "latency_ms": 9300,
+      "args": {
+        "company": "Stripe",
+        "function": "partnerships",
+        "limit": 8
+      },
+      "result": {
+        "ok": true,
+        "company": "Stripe",
+        "function": "partnerships",
+        "result_set_id": "people_fixture_stripe_partnerships",
+        "people": [
+          {
+            "person_id": "person_fixture_stripe_partner",
+            "name": "Fixture Stripe Partner",
+            "title": "Head of Platform Partnerships",
+            "company": "Stripe",
+            "function": "partnerships",
+            "location": "San Francisco, CA",
+            "linkedin_url": "https://profiles.example.test/person_fixture_stripe_partner",
+            "evidence_url": "https://profiles.example.test/person_fixture_stripe_partner",
+            "evidence_title": "Fixture Stripe Partner, Head of Platform Partnerships",
+            "evidence_snippet": "Fixture Stripe Partner leads platform partnerships. Experience: Stripe.",
+            "retrieved_at": "2026-08-28",
+            "confidence": 0.78,
+            "verification_status": "profile_headline",
+            "email": null
+          }
+        ],
+        "count": 1,
+        "searches_used": 5,
+        "candidates_rejected": {
+          "company_relationship_missing": 2,
+          "function_evidence_missing": 1
+        }
+      }
+    },
+    {
+      "step_id": "g4-verify-selection",
+      "workflow_id": "G4",
+      "tool_name": "verify_people_at_company",
+      "status": "succeeded",
+      "latency_ms": 8100,
+      "args": {
+        "company": "Stripe",
+        "function": "partnerships",
+        "person_ids": ["person_fixture_stripe_partner"]
+      },
+      "result": {
+        "ok": true,
+        "company": "Stripe",
+        "function": "partnerships",
+        "result_set_id": "people_fixture_stripe_partnerships",
+        "people": [
+          {
+            "person_id": "person_fixture_stripe_partner",
+            "name": "Fixture Stripe Partner",
+            "title": "Head of Platform Partnerships",
+            "company": "Stripe",
+            "function": "partnerships",
+            "location": "San Francisco, CA",
+            "linkedin_url": "https://profiles.example.test/person_fixture_stripe_partner",
+            "evidence_url": "https://profiles.example.test/person_fixture_stripe_partner",
+            "retrieved_at": "2026-08-28",
+            "confidence": 0.78,
+            "verification_status": "independent_role_evidence",
+            "verification_confidence": 0.85,
+            "verification_sources": [
+              {
+                "url": "https://evidence.example.test/stripe/partner-role",
+                "title": "Stripe platform partnerships leadership",
+                "snippet": "Fixture Stripe Partner leads platform partnerships at Stripe.",
+                "source_type": "independent_web"
+              }
+            ],
+            "checked_at": "2026-08-28"
+          }
+        ],
+        "count": 1,
+        "summary": {
+          "independent_role_evidence": 1,
+          "profile_reconfirmed": 0,
+          "not_corroborated": 0,
+          "verification_timeout": 0
+        },
+        "checked_at": "2026-08-28"
+      }
+    }
+  ],
+  "jobs": [],
+  "external_writes": [],
+  "unresolved_issues": [],
+  "production_run_history": []
+}
