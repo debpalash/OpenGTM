@@ -875,7 +875,8 @@ export interface CreateTriggerRequest {
 
 // ═══════════════════════════════ Watches types ═════════════════════════════
 
-export type WatchKind = "funding" | "hiring" | "feed" | "company"
+export type WatchKind = "funding" | "hiring" | "feed" | "company" | "account_group"
+export type CreatableWatchKind = Exclude<WatchKind, "account_group">
 export type WatchInterval = "hourly" | "daily" | "weekly"
 
 export interface Watch {
@@ -894,6 +895,16 @@ export interface Watch {
   consecutive_failures: number
   cursor: Record<string, unknown>
   created_at: string
+  workbook_id?: string | null
+  scope_key?: string | null
+  account_count?: number
+  account_ids?: string[]
+  state?: "active" | "degraded" | "paused"
+  attempt_count?: number
+  last_error_class?: string | null
+  next_retry_at?: string | null
+  collector_health?: Record<string, unknown>
+  manual_retry_action?: { method: string; url: string; label: string }
 }
 
 // `/signals` returns the FULL signal dict; created_at is a NUMBER (epoch),
@@ -914,7 +925,7 @@ export interface WatchSignal {
 }
 
 export interface WatchCreate {
-  kind: WatchKind
+  kind: CreatableWatchKind
   target: string
   lead_id?: number
   signal_types?: string[]
@@ -1129,6 +1140,12 @@ export const WATCH_KIND_SIGNAL_TYPES: Record<WatchKind, string[]> = {
     "executive_hired",
     "hiring_surge",
     "new_tech_adopted",
+  ],
+  account_group: [
+    "partnership_hiring",
+    "leadership_change",
+    "funding",
+    "pricing_page_change",
   ],
 }
 

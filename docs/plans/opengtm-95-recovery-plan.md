@@ -8,6 +8,21 @@ Release posture: do not publish yet
 
 ## Progress log
 
+### 2026-08-28: exact account signal tracking
+
+- Added the approval-gated `track_account_signals` Chat action for the accepted G6 follow-up. It binds `these accounts` to stable account IDs read from the saved workbook in the same conversation. Missing or drifted selections fail closed.
+- One `account_group` watch now owns the exact account scope, cadence, and requested collectors for partnership hiring, leadership changes, funding, and pricing-page changes.
+- Schedule writes are idempotent by exact scope and action key. Repeating the request returns the existing schedule; changing cadence or collectors updates that schedule and cancels its obsolete queued occurrence.
+- Chat reports success only after reloading the saved schedule. The receipt includes account IDs and count, cadence, collectors, next run, state, attempts, last error class, next retry, manual retry action, schedule ID, and an exact deep link.
+- The account-group poller uses the existing single-flight queue, restart bootstrap, bounded retries, and backoff. Collector health is recorded per account and signal type. Pricing-page fetches use the shared SSRF guard and persist only normalized fingerprints.
+- Tracking refuses to claim an active schedule when Intent Watches or its Postgres lead-store dependency is disabled.
+- The Watches page now honors `/watches?id=...` deep links and keeps list, create, detail, and browser-back state in the URL. Account-group schedules and their four signal labels render through the existing detail screen.
+- Extended the native trace adapter and gauntlet to evaluate G6. Hard gates catch false schedule persistence, account-scope drift, duplicate retry schedules, cross-workspace readback, and failed collectors without recovery metadata.
+- Recorded product-code coverage is now 6/7 workflows. The combined G2, G4, G5, and G6 recorded slice scores 100/100 with no hard failure. G1 and G3 remain independently green from their checkpointed slices.
+- Verification after the slice: 1,187 backend tests passed, 119 skipped; frontend lint and production build passed.
+
+Next: implement G7 evidence-grounded, persisted draft-only outreach with sentence-level sources and a hard separation from sending.
+
 ### 2026-08-28: structured account discovery
 
 - Added a deterministic G1 sourcing-brief parser for explicit account requests. The server now retains requested count, company type, geography, technology, hiring criteria, exclusions, and evidence requirements as structured data.

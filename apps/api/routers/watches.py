@@ -44,6 +44,12 @@ _KIND_SIGNAL_TYPES = {
     "feed": {"news"},
     "company": {"company_funded", "executive_hired", "hiring_surge", "new_tech_adopted"},
     "job_change": {"job_change"},
+    "account_group": {
+        "partnership_hiring",
+        "leadership_change",
+        "funding",
+        "pricing_page_change",
+    },
 }
 
 
@@ -140,7 +146,10 @@ def _validate_job_change_config(config: Optional[dict]) -> dict:
 # ── serialization ─────────────────────────────────────────────────────────────
 
 def _to_api(w: WatchSubscription) -> dict:
-    return {
+    config = w.config or {}
+    cursor = w.cursor or {}
+    accounts = config.get("accounts") if w.kind == "account_group" else []
+    out = {
         "id": w.id,
         "workspace_id": w.workspace_id,
         "kind": w.kind,
@@ -158,6 +167,31 @@ def _to_api(w: WatchSubscription) -> dict:
         "cursor": w.cursor or {},
         "created_at": w.created_at.isoformat() if w.created_at else None,
     }
+    if w.kind == "account_group":
+        out.update({
+            "target": config.get("workbook_name") or w.target,
+            "workbook_id": config.get("workbook_id"),
+            "scope_key": config.get("scope_key"),
+            "account_count": len(accounts or []),
+            "account_ids": [
+                item.get("account_id") for item in (accounts or [])
+                if isinstance(item, dict) and item.get("account_id")
+            ],
+            "state": "paused" if not w.enabled else ("degraded" if w.last_error else "active"),
+            "attempt_count": int(cursor.get("attempt_count") or 0),
+            "last_error_class": w.last_error,
+            "next_retry_at": (
+                w.next_poll_at.isoformat()
+                if w.last_error and w.enabled and w.next_poll_at else None
+            ),
+            "collector_health": cursor.get("collector_health") or {},
+            "manual_retry_action": {
+                "method": "POST",
+                "url": f"/api/watches/{w.id}/poll",
+                "label": "Retry collectors now",
+            },
+        })
+    return out
 
 
 def _load(db: Session, ws_id: str, watch_id: str) -> WatchSubscription:
@@ -227,6 +261,11 @@ def create_watch(
 
     if body.kind not in WATCH_KINDS:
         raise HTTPException(status_code=422, detail=f"invalid kind '{body.kind}'")
+    if body.kind == "account_group":
+        raise HTTPException(
+            status_code=422,
+            detail="account_group watches require an exact persisted workbook selection",
+        )
     if body.kind == "job_change":
         # Scraping-based person check → weekly minimum (weekly is the slowest
         # supported interval, so weekly is the ONLY valid value). Default weekly.
@@ -460,9 +499,28 @@ def watch_signals(
     out = []
     types = [signal_type] if signal_type else (w.signal_types or [None])
     for st in types:
-        out.extend(store.get_signals(
+        found = store.get_signals(
             signal_type=st, lead_id=w.lead_id, limit=limit, offset=offset,
-        ))
+        )
+        if w.kind == "account_group":
+            account_lead_ids = {
+                int(item["lead_id"])
+                for item in ((w.config or {}).get("accounts") or [])
+                if isinstance(item, dict) and item.get("lead_id") is not None
+            }
+            account_companies = {
+                str(item.get("company") or "").strip().casefold()
+                for item in ((w.config or {}).get("accounts") or [])
+                if isinstance(item, dict) and item.get("company")
+            }
+            found = [
+                item for item in found
+                if (
+                    item.get("lead_id") in account_lead_ids
+                    or str(item.get("company") or "").strip().casefold() in account_companies
+                )
+            ]
+        out.extend(found)
     # de-dup by id, sort by created_at desc
     seen = set()
     uniq = []

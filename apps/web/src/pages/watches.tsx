@@ -75,6 +75,7 @@ import {
 import {
   WATCH_KIND_SIGNAL_TYPES,
   type ApiError,
+  type CreatableWatchKind,
   type Watch,
   type WatchCreate,
   type WatchInterval,
@@ -88,9 +89,10 @@ const KIND_LABELS: Record<WatchKind, string> = {
   hiring: "Hiring",
   feed: "Feed",
   company: "Company",
+  account_group: "Account group",
 }
 
-const KINDS: WatchKind[] = ["funding", "hiring", "feed", "company"]
+const KINDS: CreatableWatchKind[] = ["funding", "hiring", "feed", "company"]
 const INTERVALS: WatchInterval[] = ["daily", "hourly", "weekly"]
 
 const SIGNAL_TYPE_LABELS: Record<string, string> = {
@@ -99,6 +101,10 @@ const SIGNAL_TYPE_LABELS: Record<string, string> = {
   hiring_surge: "Hiring surge",
   new_tech_adopted: "New tech adopted",
   news: "News",
+  partnership_hiring: "Partnership hiring",
+  leadership_change: "Leadership change",
+  funding: "Funding",
+  pricing_page_change: "Pricing-page change",
 }
 
 function signalTypeLabel(t: string): string {
@@ -130,9 +136,11 @@ export default function WatchesPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const initialTarget = searchParams.get("target") || ""
-  const [view, setView] = useState<View>(() =>
-    searchParams.get("create") === "1" ? { name: "create" } : { name: "list" },
-  )
+  const view: View = searchParams.get("id")
+    ? { name: "detail", id: searchParams.get("id") as string }
+    : searchParams.get("create") === "1"
+      ? { name: "create" }
+      : { name: "list" }
   const flags = useFlags()
   const watches = useWatches(
     undefined,
@@ -156,24 +164,23 @@ export default function WatchesPage() {
       <WatchBuilder
         initialTarget={initialTarget}
         onCancel={() => {
-          setView({ name: "list" })
-          navigate("/watches", { replace: true })
+          navigate("/watches")
         }}
-        onCreated={(id) => setView({ name: "detail", id })}
+        onCreated={(id) => navigate(`/watches?id=${encodeURIComponent(id)}`)}
       />
     )
   }
   if (view.name === "detail") {
     return (
-      <WatchDetail id={view.id} onBack={() => setView({ name: "list" })} />
+      <WatchDetail id={view.id} onBack={() => navigate("/watches")} />
     )
   }
 
   return (
     <WatchListView
       query={watches}
-      onCreate={() => setView({ name: "create" })}
-      onOpen={(id) => setView({ name: "detail", id })}
+      onCreate={() => navigate("/watches?create=1")}
+      onOpen={(id) => navigate(`/watches?id=${encodeURIComponent(id)}`)}
     />
   )
 }
@@ -224,7 +231,7 @@ function WatchListView({
   return (
     <div className="flex flex-col gap-4 p-4">
       <PageHeader
-        subtitle="Poll funding, hiring, news, and company signals on a schedule."
+        subtitle="Monitor exact accounts for funding, hiring, leadership, pricing, and company signals."
         action={newButton}
       />
       {!canEdit && (
@@ -393,7 +400,7 @@ function WatchBuilder({
   const create = useCreateWatch()
   const { allowed: canEdit } = useCanRole("editor")
 
-  const [kind, setKind] = useState<WatchKind>(initialTarget ? "company" : "funding")
+  const [kind, setKind] = useState<CreatableWatchKind>(initialTarget ? "company" : "funding")
   const [target, setTarget] = useState(initialTarget || "")
   const [interval, setInterval] = useState<WatchInterval>("daily")
   const [leadId, setLeadId] = useState("")
@@ -406,7 +413,7 @@ function WatchBuilder({
   const [selectedTypes, setSelectedTypes] = useState<string[]>(allowed)
 
   // When kind changes, reset the allowed set to all-checked.
-  const onKindChange = (next: WatchKind) => {
+  const onKindChange = (next: CreatableWatchKind) => {
     setKind(next)
     setSelectedTypes(WATCH_KIND_SIGNAL_TYPES[next])
   }
@@ -481,7 +488,7 @@ function WatchBuilder({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="watch-kind">Kind</Label>
-            <Select value={kind} onValueChange={(v) => v && onKindChange(v as WatchKind)}>
+            <Select value={kind} onValueChange={(v) => v && onKindChange(v as CreatableWatchKind)}>
               <SelectTrigger id="watch-kind" className="h-9 text-xs">
                 <SelectValue />
               </SelectTrigger>

@@ -416,6 +416,31 @@ def _format_people_contacts(result: dict) -> str:
     )
 
 
+def _format_signal_tracking(result: dict) -> str:
+    scope = result.get("scope") or {}
+    signal_labels = {
+        "partnership_hiring": "partnership hiring",
+        "leadership_change": "leadership changes",
+        "funding": "funding",
+        "pricing_page_change": "pricing-page changes",
+    }
+    signals = [
+        signal_labels.get(value, value)
+        for value in (result.get("signal_types") or [])
+    ]
+    if not result.get("ok"):
+        return f"I could not save the tracking schedule: {result.get('error', 'unknown error')}."
+    return (
+        f"Tracking is **{result.get('state', 'active')}** for "
+        f"**{scope.get('account_count', 0)} exact accounts** on a "
+        f"**{result.get('cadence', 'weekly')}** cadence. "
+        f"Collectors: {', '.join(signals)}. "
+        f"Next run: {result.get('next_run_at') or 'not scheduled'}. "
+        f"I read schedule `{result.get('schedule_id')}` back from saved state before confirming it. "
+        f"[Open tracking]({result.get('url')})"
+    )
+
+
 def _latest_conversation_tool_result(
     conv_id: str,
     workspace_id: str,
@@ -568,6 +593,11 @@ DANGEROUS_TOOLS = {
         "label": "⚡ Add Signal Trigger",
         "reason": "Creates a persistent automation trigger.",
     },
+    "track_account_signals": {
+        "level": "medium",
+        "label": "Track Account Signals",
+        "reason": "Creates or updates a recurring collector schedule for an exact saved account selection.",
+    },
     "create_people_workbook": {
         "level": "medium",
         "label": "📋 Create People Workbook",
@@ -706,6 +736,13 @@ def _describe_action(fn_name: str, fn_args: dict, workspace_id: Optional[str] = 
         details = (
             f"Target rows: {fn_args.get('target_rows', '?')}"
             + f" · Query: {fn_args.get('icp_description', '?')}"
+        )
+    elif fn_name == "track_account_signals":
+        details = (
+            f"Workbook: {fn_args.get('workbook_id', '?')}"
+            + f" · Accounts: {len(fn_args.get('account_ids') or [])}"
+            + f" · Cadence: {fn_args.get('cadence', '?')}"
+            + f" · Signals: {', '.join(fn_args.get('signal_types') or [])}"
         )
 
     return f"{label}\n{reason}\n{details}"
@@ -1109,6 +1146,29 @@ def _build_tools():
                         "signals": {"type": "array", "items": {"type": "string", "enum": ["hiring", "funding", "tech_change", "news"]}, "description": "Signal types that trigger a refresh"},
                     },
                     "required": ["workbook_id", "signals"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "track_account_signals",
+                "description": "Create or update one recurring tracking schedule for exact persisted workbook account IDs. Use for account-level partnership hiring, leadership, funding, and pricing-page change monitoring. Requires approval and returns a database-confirmed receipt.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "workbook_id": {"type": "string"},
+                        "account_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+                        "cadence": {"type": "string", "enum": ["hourly", "daily", "weekly"]},
+                        "signal_types": {
+                            "type": "array",
+                            "items": {"type": "string", "enum": ["partnership_hiring", "leadership_change", "funding", "pricing_page_change"]},
+                            "minItems": 1,
+                            "uniqueItems": True,
+                        },
+                        "idempotency_key": {"type": "string", "maxLength": 255},
+                    },
+                    "required": ["workbook_id", "account_ids", "cadence", "signal_types", "idempotency_key"],
                 },
             },
         },
@@ -2184,6 +2244,44 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 res = set_refresh_policy(wdb, args["workbook_id"], policy)
             return json.dumps({"message": f"Workbook will refresh on signals: {', '.join(args['signals'])}.", **res})
 
+        elif name == "track_account_signals":
+            from apps.api.database import SessionLocal
+            from apps.api.services.signals.tracking import (
+                SignalTrackingError,
+                upsert_account_signal_schedule,
+            )
+
+            if not getattr(settings, "INTENT_POLLER_ENABLED", False):
+                return json.dumps({
+                    "ok": False,
+                    "persisted": False,
+                    "error": "Intent signal tracking is disabled",
+                })
+            if not getattr(settings, "PG_LEAD_STORE", False):
+                return json.dumps({
+                    "ok": False,
+                    "persisted": False,
+                    "error": "Intent signal tracking requires the Postgres lead store",
+                })
+            try:
+                with SessionLocal() as wdb:
+                    receipt = upsert_account_signal_schedule(
+                        wdb,
+                        workspace_id=workspace_id,
+                        workbook_id=str(args.get("workbook_id") or ""),
+                        account_ids=[str(value) for value in (args.get("account_ids") or [])],
+                        cadence=str(args.get("cadence") or ""),
+                        signal_types=[str(value) for value in (args.get("signal_types") or [])],
+                        idempotency_key=str(args.get("idempotency_key") or ""),
+                    )
+            except SignalTrackingError as exc:
+                return json.dumps({
+                    "ok": False,
+                    "persisted": False,
+                    "error": str(exc),
+                })
+            return json.dumps(receipt)
+
         # ── Autopilot: goal → plan → execute (orchestrates the tools above) ──
         elif name == "draft_plan":
             from apps.api.services.agent import autopilot, autopilot_plan_store
@@ -2595,6 +2693,8 @@ async def _resolve_approved_calls(
                     f"[Open workbook]({parsed_result.get('url')})"
                 )
                 yield f"data: {json.dumps({'content': source_message})}\n\n"
+            elif fn_name == "track_account_signals":
+                yield f"data: {json.dumps({'content': _format_signal_tracking(parsed_result)})}\n\n"
             content = result
         else:
             reason = (
@@ -2953,6 +3053,125 @@ async def copilot_chat(request: Request):
 
         return StreamingResponse(
             _stream_people_workbook_confirmation(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    from apps.api.services.signals.tracking import (
+        extract_signal_tracking_request,
+        workbook_account_ids,
+    )
+
+    tracking_request = extract_signal_tracking_request(last_user_msg or "")
+    if tracking_request and not approved_tool_calls:
+        tracking_dependency_error = ""
+        if not getattr(settings, "INTENT_POLLER_ENABLED", False):
+            tracking_dependency_error = "Intent signal tracking is disabled in this deployment."
+        elif not getattr(settings, "PG_LEAD_STORE", False):
+            tracking_dependency_error = "Intent signal tracking requires the Postgres lead store."
+        if tracking_dependency_error:
+            unavailable_text = (
+                tracking_dependency_error
+                + " I have not created a schedule. Enable Intent Watches and its Postgres dependency, then retry."
+            )
+
+            async def _stream_tracking_unavailable():
+                yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
+                yield f"data: {json.dumps({'content': unavailable_text})}\n\n"
+                chat_history.add_message(conv_id, "assistant", unavailable_text)
+                yield "data: [DONE]\n\n"
+
+            return StreamingResponse(
+                _stream_tracking_unavailable(),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "X-Accel-Buffering": "no",
+                },
+            )
+        prior_accounts = _latest_conversation_tool_result(
+            conv_id,
+            workspace_id,
+            _chat_user_id,
+            ("create_source_workbook",),
+        )
+        workbook_id = str((prior_accounts or {}).get("result", {}).get("workbook_id") or "")
+        account_ids: list[str] = []
+        if workbook_id:
+            from apps.api.database import SessionLocal
+
+            with SessionLocal() as wdb:
+                account_ids = workbook_account_ids(wdb, workspace_id, workbook_id)
+
+        if not workbook_id or not account_ids:
+            missing_text = (
+                "I cannot bind **these accounts** to a saved account selection yet. "
+                "Create or finish sourcing an account workbook in this conversation, "
+                "then ask me to track it. I have not created a schedule."
+            )
+
+            async def _stream_missing_tracking_selection():
+                yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
+                yield f"data: {json.dumps({'content': missing_text})}\n\n"
+                chat_history.add_message(conv_id, "assistant", missing_text)
+                yield "data: [DONE]\n\n"
+
+            return StreamingResponse(
+                _stream_missing_tracking_selection(),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "X-Accel-Buffering": "no",
+                },
+            )
+
+        selection_digest = hashlib.sha256(
+            "|".join(sorted(account_ids)).encode()
+        ).hexdigest()[:16]
+        fn_args = {
+            "workbook_id": workbook_id,
+            "account_ids": account_ids,
+            "cadence": tracking_request["cadence"],
+            "signal_types": tracking_request["signal_types"],
+            "idempotency_key": f"chat-signals:{conv_id}:{selection_digest}",
+        }
+        tool_call = {
+            "id": f"call_{uuid.uuid4().hex}",
+            "type": "function",
+            "function": {
+                "name": "track_account_signals",
+                "arguments": json.dumps(fn_args),
+            },
+        }
+        approval_id = chat_history.create_tool_approval(
+            workspace_id, _chat_user_id, tool_call
+        )
+        display_call = json.loads(json.dumps(tool_call))
+        display_call["id"] = approval_id
+        meta = DANGEROUS_TOOLS["track_account_signals"]
+        proposal_text = (
+            f"I can create one **{tracking_request['cadence']}** schedule for the exact "
+            f"**{len(account_ids)} accounts** saved in the workbook, covering "
+            f"{', '.join(tracking_request['signal_types'])}. Repeating this request "
+            "will update or return the same schedule."
+        )
+
+        async def _stream_tracking_confirmation():
+            yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
+            yield f"data: {json.dumps({'content': proposal_text})}\n\n"
+            yield f"data: {json.dumps({'confirmation_required': {'confirmation_id': approval_id, 'tool_call': display_call, 'name': 'track_account_signals', 'args': fn_args, 'description': _describe_action('track_account_signals', fn_args, workspace_id), 'level': meta['level'], 'label': meta['label']}})}\n\n"
+            yield f"data: {json.dumps({'awaiting_confirmation': True})}\n\n"
+            chat_history.add_message(conv_id, "assistant", proposal_text)
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(
+            _stream_tracking_confirmation(),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
