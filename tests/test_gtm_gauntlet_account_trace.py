@@ -81,7 +81,7 @@ def _approved_action(trace, *, retry=False):
     }
 
 
-def test_native_account_action_and_persisted_rows_pass_g1(monkeypatch, tmp_path):
+def _passing_artifact(monkeypatch, tmp_path):
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
@@ -188,6 +188,11 @@ def test_native_account_action_and_persisted_rows_pass_g1(monkeypatch, tmp_path)
         g1_artifact["scenarios"][0],
         *combined["scenarios"],
     ]
+    return combined
+
+
+def test_native_account_action_and_persisted_rows_pass_g1(monkeypatch, tmp_path):
+    combined = _passing_artifact(monkeypatch, tmp_path)
     report = score_gauntlet(combined)
 
     assert report["score"] == 100.0
@@ -195,7 +200,7 @@ def test_native_account_action_and_persisted_rows_pass_g1(monkeypatch, tmp_path)
     assert report["run_passed"] is True
     assert report["workflows"]["G1"]["status"] == "passed"
     assert report["workflows"]["G1"]["failed_checks"] == []
-    scenario = g1_artifact["scenarios"][0]
+    scenario = combined["scenarios"][0]
     assert scenario["account_action"]["persisted"] is True
     assert scenario["account_retry_action"]["reused"] is True
     assert scenario["source_run"]["delivered_count"] == 20

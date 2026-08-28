@@ -290,13 +290,13 @@ function PageHeader({ title }: { title: string }) {
     <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="mr-2 h-4" />
-      <h1 className="text-sm font-medium">{title}</h1>
+      <h1 className="min-w-0 truncate text-sm font-medium">{title}</h1>
 
       <div className="flex-1" />
 
       {/* LLM Usage */}
       {usage && (
-        <div className="flex items-center gap-2">
+        <div className="hidden items-center gap-2 md:flex">
           {activeProvider ? (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <span className="font-medium text-foreground capitalize">{activeProvider.provider}</span>
@@ -317,19 +317,20 @@ function PageHeader({ title }: { title: string }) {
         </div>
       )}
 
-      <Separator orientation="vertical" className="mx-1 h-4" />
+      <Separator orientation="vertical" className="mx-1 hidden h-4 sm:block" />
 
       {/* Connection status */}
       <div
         className="flex items-center gap-1.5"
         title={connected ? "SSE connected" : "SSE disconnected"}
+        aria-label={connected ? "Connected" : "Offline"}
       >
         <Circle
           className={`size-2 fill-current ${
             connected ? "text-green-500" : "text-muted-foreground"
           }`}
         />
-        <span className="text-[11px] text-muted-foreground">
+        <span className="hidden text-[11px] text-muted-foreground sm:inline">
           {connected ? "Connected" : "Offline"}
         </span>
       </div>

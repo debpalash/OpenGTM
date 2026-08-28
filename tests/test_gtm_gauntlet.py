@@ -29,6 +29,27 @@ def _scenario(artifact: dict) -> dict:
     return artifact["scenarios"][0]
 
 
+def _validation_run(number: int, *, tier: str, mode: str) -> dict:
+    return {
+        "run_id": f"{tier}-{number}",
+        "validation_tier": tier,
+        "mode": mode,
+        "production_like": tier == "controlled_live",
+        "passed": True,
+        "score": 100.0,
+        "category_floor_met": True,
+        "passed_workflows": list(REQUIRED_WORKFLOWS),
+        "hard_failures": [],
+        "unresolved_high_priority_issues": [],
+        "build_sha": "fixture-build",
+        "finished_at": f"2026-08-28T10:{number:02d}:00Z",
+        "workspace_id": "gtm-release-eval",
+        "external_sends_blocked": True,
+        "provider_health_recorded": tier == "controlled_live",
+        "dedicated_workspace": tier == "controlled_live",
+    }
+
+
 def _add_passing_g3(artifact: dict) -> dict:
     scenario = _scenario(artifact)
     scenario["workflow_ids"] = ["G2", "G3", "G4", "G5"]
@@ -132,6 +153,46 @@ def test_recorded_g2_g4_g5_slice_scores_100_but_does_not_unlock_release():
         category["ratio"] == 1.0
         for category in report["category_scores"].values()
     )
+
+
+def test_local_native_streak_is_reported_but_cannot_unlock_production_gate():
+    artifact = _artifact()
+    artifact["local_validation_history"] = [
+        _validation_run(number, tier="local_native", mode="recorded")
+        for number in range(1, 11)
+    ]
+
+    report = score_gauntlet(artifact)
+
+    assert report["release"]["consecutive_local_native_passes"] == 10
+    assert report["release"]["consecutive_production_like_passes"] == 0
+    assert "production_streak_incomplete" in report["release"]["reason_codes"]
+
+
+def test_controlled_live_streak_requires_complete_safety_metadata_and_unique_runs():
+    artifact = _artifact()
+    valid = [
+        _validation_run(number, tier="controlled_live", mode="live")
+        for number in range(1, 11)
+    ]
+    artifact["validation_tier"] = "controlled_live"
+    artifact["mode"] = "live"
+    artifact["run_id"] = valid[-1]["run_id"]
+    artifact["build_sha"] = valid[-1]["build_sha"]
+    artifact["production_run_history"] = valid
+    assert score_gauntlet(artifact)["release"]["consecutive_production_like_passes"] == 10
+
+    legacy_flags_only = [
+        {"production_like": True, "passed": True, "hard_failures": []}
+        for _ in range(10)
+    ]
+    artifact["production_run_history"] = legacy_flags_only
+    assert score_gauntlet(artifact)["release"]["consecutive_production_like_passes"] == 0
+
+    duplicate = copy.deepcopy(valid)
+    duplicate[-2]["run_id"] = duplicate[-1]["run_id"]
+    artifact["production_run_history"] = duplicate
+    assert score_gauntlet(artifact)["release"]["consecutive_production_like_passes"] == 1
 
 
 def test_recorded_g2_g3_g4_g5_slice_scores_100():

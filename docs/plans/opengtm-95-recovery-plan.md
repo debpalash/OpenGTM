@@ -1,12 +1,25 @@
 # OpenGTM 95% recovery plan
 
-Status: active implementation
+Status: implementation complete; controlled-live validation pending
 
 Created: 2026-08-28
 
 Release posture: do not publish yet
 
 ## Progress log
+
+### 2026-08-28: combined G1–G7 validation
+
+- All seven workflow contracts now execute together through native approvals, actions, persistence, readback adapters, and the machine scorer. Only provider responses are recorded.
+- Ten independent local-native runs used fresh databases and passed at 100/100 with every G1–G7 workflow green and no hard failure.
+- Local-native evidence is reported separately from controlled-live evidence and cannot unlock publishing.
+- Hardened the release streak against self-attestation. Each counted live run now requires a unique run ID, live mode, a dedicated workspace, all seven workflows, category floors, provider-health evidence, blocked external sends, no hard failures, and no unresolved P0/P1 issue.
+- The local environment cannot run the controlled-live streak yet: Intent Watches are disabled and the exact contact finder/verifier chain is not configured. The controlled-live streak therefore remains honestly at 0/10.
+- Tested the saved-draft UI at 1440×1000 and 375×812. The exact receipt deep link rendered its recipient, draft state, evidence, and source; neither viewport had horizontal overflow. The temporary review row was removed afterward.
+- Upgraded the local development database to the single Alembic head and restarted the API and worker. The authenticated draft-list endpoint responds successfully.
+- Final verification: 1,205 backend tests passed, 119 skipped; frontend lint and production build passed; a clean database upgraded to the single migration head and `alembic check` found no drift.
+
+Result: implementation score 100/100 and local-native streak 10/10. Do not publish until the controlled-live streak reaches 10/10. See the [validation report](../reports/opengtm-validation-2026-08-28.md).
 
 ### 2026-08-28: grounded outreach drafts
 
@@ -477,17 +490,14 @@ Each gauntlet run should emit a human-readable summary and machine-readable JSON
 
 ## Verification commands
 
-The exact gauntlet command will be added in Phase 0. The expected verification sequence is:
-
 ```bash
-uv run --group dev python -m pytest -q
-bun run --cwd apps/web lint
-bun run --cwd apps/web build
-uv run --group dev python scripts/run_gtm_gauntlet.py --mode recorded
-uv run --group dev python scripts/run_gtm_gauntlet.py --mode staging --workspace gtm-release-eval
+.venv/bin/pytest -q tests/test_gtm_gauntlet_all_workflows.py
+.venv/bin/pytest -q
+npm --prefix apps/web run lint
+npm --prefix apps/web run build
 ```
 
-The staging runner must default to blocking outreach sends and any other external write not explicitly included in the scenario.
+The combined test runs ten independent local-native G1–G7 passes. It does not count toward the controlled-live streak. A live run record counts only when it satisfies the safety metadata enforced by `gtm_gauntlet.py`; outreach sends and any external write outside the scenario must remain blocked.
 
 ## First implementation slice
 

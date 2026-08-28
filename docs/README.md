@@ -10,11 +10,13 @@ Start with the [95% recovery plan](plans/opengtm-95-recovery-plan.md). It is the
 | [`plans/`](plans/) | Active and historical delivery plans |
 | [`specs/`](specs/) | Build-ready feature and hardening specifications |
 | [`research/`](research/) | Product evaluations, source audits, and OSS research |
+| [`reports/`](reports/) | Dated validation evidence and release-readiness reports |
 | [`council/`](council/) | Historical strategy outputs |
 
 ## Current plan
 
 - [`plans/opengtm-95-recovery-plan.md`](plans/opengtm-95-recovery-plan.md): release contract and implementation sequence for reaching a measured 95/100.
+- [`reports/opengtm-validation-2026-08-28.md`](reports/opengtm-validation-2026-08-28.md): current G1–G7 score, ten-run local-native evidence, and the remaining live gate.
 
 ## Supporting material
 
