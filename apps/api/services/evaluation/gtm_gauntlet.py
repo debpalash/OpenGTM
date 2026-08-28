@@ -655,14 +655,72 @@ def _can_continue_enrichment(scenario: Mapping[str, Any]) -> bool:
 
 
 def _production_streak(artifact: Mapping[str, Any]) -> int:
+    """Count only consecutive, independently identified controlled-live runs.
+
+    A caller-provided ``production_like: true`` flag is not sufficient to open
+    the release gate. Every run must prove the live tier's safety and coverage
+    fields, and duplicate run IDs terminate the streak.
+    """
+    history = _list(artifact.get("production_run_history"))
+    latest = _dict(history[-1]) if history else {}
+    if not (
+        _text(artifact.get("validation_tier")) == "controlled_live"
+        and _text(artifact.get("mode")) == "live"
+        and _text(artifact.get("run_id")) == _text(latest.get("run_id"))
+        and _text(artifact.get("build_sha")) == _text(latest.get("build_sha"))
+    ):
+        return 0
+    return _validation_streak(
+        history,
+        validation_tier="controlled_live",
+        mode="live",
+    )
+
+
+def _local_native_streak(artifact: Mapping[str, Any]) -> int:
+    return _validation_streak(
+        artifact.get("local_validation_history"),
+        validation_tier="local_native",
+        mode="recorded",
+    )
+
+
+def _validation_streak(history: Any, *, validation_tier: str, mode: str) -> int:
     streak = 0
-    for run in reversed(_list(artifact.get("production_run_history"))):
+    seen_run_ids: set[str] = set()
+    for run in reversed(_list(history)):
         if not isinstance(run, dict):
             break
-        if run.get("production_like") is True and run.get("passed") is True and not run.get("hard_failures"):
-            streak += 1
-        else:
+        run_id = _text(run.get("run_id"))
+        valid = (
+            run_id
+            and run_id not in seen_run_ids
+            and _text(run.get("validation_tier")) == validation_tier
+            and _text(run.get("mode")) == mode
+            and run.get("passed") is True
+            and isinstance(run.get("score"), (int, float))
+            and not isinstance(run.get("score"), bool)
+            and float(run["score"]) >= RELEASE_SCORE
+            and run.get("category_floor_met") is True
+            and set(_list(run.get("passed_workflows"))) == set(REQUIRED_WORKFLOWS)
+            and not _list(run.get("hard_failures"))
+            and not _list(run.get("unresolved_high_priority_issues"))
+            and bool(_text(run.get("build_sha")))
+            and bool(_text(run.get("finished_at")))
+            and bool(_text(run.get("workspace_id")))
+            and run.get("external_sends_blocked") is True
+        )
+        if validation_tier == "controlled_live":
+            valid = (
+                valid
+                and run.get("production_like") is True
+                and run.get("provider_health_recorded") is True
+                and run.get("dedicated_workspace") is True
+            )
+        if not valid:
             break
+        seen_run_ids.add(run_id)
+        streak += 1
     return streak
 
 
@@ -1639,6 +1697,7 @@ def score_gauntlet(artifact: Mapping[str, Any]) -> dict[str, Any]:
         workflows[workflow]["status"] == "passed" for workflow in REQUIRED_WORKFLOWS
     )
     production_streak = _production_streak(artifact)
+    local_native_streak = _local_native_streak(artifact)
     high_priority_issues = _high_priority_issues(artifact)
     reason_codes: list[str] = []
     if score < RELEASE_SCORE:
@@ -1679,6 +1738,7 @@ def score_gauntlet(artifact: Mapping[str, Any]) -> dict[str, Any]:
             ],
             "consecutive_production_like_passes": production_streak,
             "required_consecutive_production_like_passes": REQUIRED_PRODUCTION_STREAK,
+            "consecutive_local_native_passes": local_native_streak,
             "unresolved_high_priority_issues": high_priority_issues,
         },
     }
