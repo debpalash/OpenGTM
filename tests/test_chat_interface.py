@@ -61,6 +61,14 @@ def test_tool_registry_exposes_expected_tools():
     assert {"draft_plan", "execute_plan"} <= names
     assert "find_people_at_company" in names
     assert {"verify_people_at_company", "create_people_workbook"} <= names
+    people_workbook = next(
+        tool for tool in tools
+        if tool["function"]["name"] == "create_people_workbook"
+    )
+    people_workbook_properties = people_workbook["function"]["parameters"]["properties"]
+    assert {"conversation_id", "person_ids", "idempotency_key"} <= set(
+        people_workbook_properties
+    )
     for t in tools:
         assert t["type"] == "function"
         fn = t["function"]

@@ -10,6 +10,7 @@ Includes: conversation history, OpenMemory integration, tool execution.
 import json
 import os
 import functools
+import hashlib
 import re
 import httpx
 import uuid
@@ -269,7 +270,8 @@ Read-only tools (search_leads, get_lead_detail, get_lead_stats, find_similar_lea
 get_enrichment_gaps, suggest_outreach, compare_leads, ambitionbox_search,
 ambitionbox_jobs, find_people_at_company, verify_people_at_company) run immediately.
 Tools that mutate data or spend resources (update_lead_status, start_collection,
-enrich_lead, import_ambitionbox_to_workbook, execute_plan) require explicit user approval:
+enrich_lead, import_ambitionbox_to_workbook, create_people_workbook, execute_plan)
+require explicit user approval:
 when you call one, the system pauses and asks the user to confirm before it runs.
 So propose the action with a one-line rationale and let the gate handle approval —
 do not claim the action is done until you receive its tool result.
@@ -614,6 +616,7 @@ def _describe_action(fn_name: str, fn_args: dict, workspace_id: Optional[str] = 
     elif fn_name == "create_people_workbook":
         details = (
             f"Conversation: {fn_args.get('conversation_id', '?')}"
+            + (f" · People: {len(fn_args['person_ids'])}" if fn_args.get("person_ids") else "")
             + (f" · Workbook: {fn_args['name']}" if fn_args.get("name") else "")
         )
 
@@ -780,6 +783,17 @@ def _build_tools():
                             "description": "Current conversation ID containing the trusted people result",
                         },
                         "name": {"type": "string", "description": "Optional workbook name"},
+                        "person_ids": {
+                            "type": "array",
+                            "maxItems": 100,
+                            "items": {"type": "string"},
+                            "description": "Optional exact subset of stable person IDs; omit to save the full latest result",
+                        },
+                        "idempotency_key": {
+                            "type": "string",
+                            "maxLength": 255,
+                            "description": "Optional stable action key; retries with the same key return the original workbook",
+                        },
                     },
                     "required": ["conversation_id"],
                 },
@@ -1097,7 +1111,12 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
 
         elif name == "create_people_workbook":
             from apps.api.database import SessionLocal
+            from apps.api.services.leadgen.targeted_people import (
+                people_result_set_id,
+                person_entity_id,
+            )
             from apps.api.services.workbook.models import Workbook, WorkbookRow
+            from sqlalchemy.exc import IntegrityError
 
             conversation_id = str(args.get("conversation_id") or "").strip()
             if not conversation_id or not chat_history.get_conversation(
@@ -1113,12 +1132,60 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
             if not prior:
                 return json.dumps({"error": "No people research result found in this conversation"})
             research = prior["result"]
-            people = research.get("people") or []
-            if not people:
+            raw_people = research.get("people") or []
+            if not raw_people:
                 return json.dumps({"error": "The latest people research result has no rows"})
 
             company = str(research.get("company") or "Target Company").strip()
             function = str(research.get("function") or "Team").strip()
+            people = []
+            people_by_id = {}
+            for raw_person in raw_people[:100]:
+                if not isinstance(raw_person, dict):
+                    continue
+                person = dict(raw_person)
+                person_id = person_entity_id(company, person)
+                person["person_id"] = person_id
+                if person_id not in people_by_id:
+                    people.append(person)
+                    people_by_id[person_id] = person
+            if not people:
+                return json.dumps({"error": "The latest people research result has no valid rows"})
+
+            requested_person_ids = list(dict.fromkeys(
+                str(person_id).strip()
+                for person_id in (args.get("person_ids") or [])
+                if str(person_id).strip()
+            ))
+            unknown_person_ids = [
+                person_id for person_id in requested_person_ids
+                if person_id not in people_by_id
+            ]
+            if unknown_person_ids:
+                return json.dumps({
+                    "error": "Unknown people selection",
+                    "unknown_person_ids": unknown_person_ids,
+                })
+            selected_people = (
+                [people_by_id[person_id] for person_id in requested_person_ids]
+                if requested_person_ids else people
+            )
+            selected_person_ids = [person["person_id"] for person in selected_people]
+            if not selected_person_ids:
+                return json.dumps({"error": "No people selected"})
+
+            result_set_id = str(research.get("result_set_id") or "").strip()
+            if not result_set_id:
+                result_set_id = people_result_set_id(company, function, people)
+            selection_digest = hashlib.sha256(
+                "|".join(sorted(selected_person_ids)).encode()
+            ).hexdigest()[:16]
+            supplied_key = str(args.get("idempotency_key") or "").strip()
+            if supplied_key and len(supplied_key) > 255:
+                return json.dumps({"error": "Idempotency key exceeds 255 characters"})
+            action_key = supplied_key or (
+                f"chat-people:{conversation_id}:{result_set_id}:{selection_digest}"
+            )
             workbook_name = str(
                 args.get("name") or f"{company} — {function.title()} People"
             ).strip()[:255]
@@ -1138,12 +1205,10 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
             ]
             seen = set()
             rows = []
-            for person in people[:100]:
-                if not isinstance(person, dict):
-                    continue
+            for person in selected_people:
                 full_name = str(person.get("name") or person.get("full_name") or "").strip()
                 linkedin_url = str(person.get("linkedin_url") or "").strip()
-                identity = (linkedin_url.rstrip("/").lower() or f"{full_name.lower()}|{company.lower()}")
+                identity = person["person_id"]
                 if not full_name or identity in seen:
                     continue
                 seen.add(identity)
@@ -1156,6 +1221,7 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 if confidence is None:
                     confidence = person.get("confidence")
                 rows.append({
+                    "person_id": identity,
                     "full_name": full_name,
                     "contact_person": full_name,
                     "company": str(person.get("company") or company),
@@ -1174,8 +1240,47 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 })
             if not rows:
                 return json.dumps({"error": "No valid people rows to save"})
+            if len(rows) != len(selected_person_ids):
+                return json.dumps({
+                    "error": "Selected people are missing required identity data",
+                    "selected_count": len(selected_person_ids),
+                    "valid_count": len(rows),
+                })
 
             with SessionLocal() as wdb:
+                def _receipt(workbook, *, reused: bool) -> dict:
+                    persisted_rows = wdb.query(WorkbookRow).filter(
+                        WorkbookRow.workbook_id == workbook.id
+                    ).count()
+                    config = workbook.source_config or {}
+                    saved_person_ids = list(config.get("selected_person_ids") or [])
+                    return {
+                        "ok": True,
+                        "persisted": persisted_rows == int(workbook.total_rows or 0),
+                        "reused": reused,
+                        "action_id": workbook.action_idempotency_key,
+                        "workbook_id": workbook.id,
+                        "name": workbook.name,
+                        "total_rows": persisted_rows,
+                        "skipped_count": 0,
+                        "selected_person_ids": saved_person_ids,
+                        "result_set_id": config.get("result_set_id"),
+                        "url": f"/workbooks/{workbook.id}",
+                        "source": "people_research",
+                        "message": (
+                            f"Reused '{workbook.name}' with {persisted_rows} people."
+                            if reused else
+                            f"Created '{workbook.name}' with {persisted_rows} people."
+                        ),
+                    }
+
+                existing = wdb.query(Workbook).filter(
+                    Workbook.workspace_id == workspace_id,
+                    Workbook.action_idempotency_key == action_key,
+                ).first()
+                if existing:
+                    return json.dumps(_receipt(existing, reused=True))
+
                 wb = Workbook(
                     name=workbook_name,
                     description=(
@@ -1185,11 +1290,14 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                     status="draft",
                     workspace_id=workspace_id,
                     source_type="people_research",
+                    action_idempotency_key=action_key,
                     source_config={
                         "conversation_id": conversation_id,
                         "tool": prior["name"],
                         "company": company,
                         "function": function,
+                        "result_set_id": result_set_id,
+                        "selected_person_ids": selected_person_ids,
                     },
                     columns_config=columns,
                     total_rows=len(rows),
@@ -1205,26 +1313,27 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                         data=row_data,
                         enrichments={},
                         source_provider="chat_people_research",
-                        source_record_id=(
-                            row_data["linkedin_url"].rstrip("/").lower()
-                            or f"{row_data['full_name'].lower()}|{company.lower()}"
-                        ),
+                        source_record_id=row_data["person_id"],
                         corroboration_count=(
                             2 if row_data["verification_status"] == "independent_role_evidence" else 1
                         ),
                     ))
-                wdb.commit()
-                wb_id = wb.id
-
-            return json.dumps({
-                "ok": True,
-                "workbook_id": wb_id,
-                "name": workbook_name,
-                "total_rows": len(rows),
-                "url": f"/workbooks/{wb_id}",
-                "source": "people_research",
-                "message": f"Created '{workbook_name}' with {len(rows)} people.",
-            })
+                try:
+                    wdb.commit()
+                except IntegrityError:
+                    wdb.rollback()
+                    existing = wdb.query(Workbook).filter(
+                        Workbook.workspace_id == workspace_id,
+                        Workbook.action_idempotency_key == action_key,
+                    ).first()
+                    if existing:
+                        return json.dumps(_receipt(existing, reused=True))
+                    return json.dumps({"error": "Workbook persistence failed"})
+                persisted = wdb.query(Workbook).filter(
+                    Workbook.id == wb.id,
+                    Workbook.workspace_id == workspace_id,
+                ).one()
+                return json.dumps(_receipt(persisted, reused=False))
 
         elif name == "start_collection":
             from apps.api.services.leadgen.db import LeadDB as _LeadDB
@@ -2297,12 +2406,36 @@ async def copilot_chat(request: Request):
         and _WORKBOOK_PEOPLE_FOLLOWUP_RE.fullmatch((last_user_msg or "").strip())
         and not approved_tool_calls
     ):
+        from apps.api.services.leadgen.targeted_people import (
+            people_result_set_id,
+            person_entity_id,
+        )
+
         source_result = prior_people["result"]
         company = str(source_result.get("company") or "People").strip()
         function = str(source_result.get("function") or "Research").strip()
+        source_people = [
+            dict(person) for person in (source_result.get("people") or [])
+            if isinstance(person, dict)
+        ]
+        person_ids = []
+        for person in source_people:
+            person["person_id"] = person_entity_id(company, person)
+            if person["person_id"] not in person_ids:
+                person_ids.append(person["person_id"])
+        result_set_id = str(source_result.get("result_set_id") or "").strip()
+        if not result_set_id:
+            result_set_id = people_result_set_id(company, function, source_people)
+        selection_digest = hashlib.sha256(
+            "|".join(sorted(person_ids)).encode()
+        ).hexdigest()[:16]
         fn_args = {
             "conversation_id": conv_id,
             "name": f"{company} — {function.title()} People"[:255],
+            "person_ids": person_ids,
+            "idempotency_key": (
+                f"chat-people:{conv_id}:{result_set_id}:{selection_digest}"
+            ),
         }
         tool_call = {
             "id": f"call_{uuid.uuid4().hex}",
@@ -2320,7 +2453,7 @@ async def copilot_chat(request: Request):
         meta = DANGEROUS_TOOLS["create_people_workbook"]
         proposal_text = (
             f"I can create **{fn_args['name']}** with the exact "
-            f"{len(source_result.get('people') or [])} people already stored in this conversation. "
+            f"{len(person_ids)} people already stored in this conversation. "
             "This will not run a new lead search."
         )
 

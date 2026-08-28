@@ -148,6 +148,13 @@ LEAD_FIELD_MAP = {
 class Workbook(Base):
     """A self-contained workbook table — Clay-style independent execution environment."""
     __tablename__ = "workbooks"
+    __table_args__ = (
+        UniqueConstraint(
+            "workspace_id",
+            "action_idempotency_key",
+            name="uq_workbooks_workspace_action_key",
+        ),
+    )
 
     id = Column(String, primary_key=True, default=generate_uuid)
     name = Column(String(255), nullable=False)
@@ -162,6 +169,9 @@ class Workbook(Base):
     # Source type — how this workbook was created
     # empty, csv, leads_filter, job_results
     source_type = Column(String(50), default="empty")
+    # Stable key supplied by a Chat/action workflow. NULL for manual and legacy
+    # workbooks; non-NULL keys make retried writes return the original workbook.
+    action_idempotency_key = Column(String(255), nullable=True)
     # Source config — filter criteria, job IDs, etc. for refresh
     source_config = Column(JSON, default=dict)
 
