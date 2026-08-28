@@ -47,6 +47,10 @@ def test_unknown_cascades_to_next():
     r = asyncio.run(verify_email("a@x.com", verifiers=[v1, v2]))
     assert r.status == VALID and r.source == "v2"
     assert v1.calls == 1 and v2.calls == 1
+    assert r.attempts == [
+        {"provider": "v1", "status": UNKNOWN, "detail": ""},
+        {"provider": "v2", "status": VALID, "detail": ""},
+    ]
 
 
 def test_all_unknown_returns_last_unknown():

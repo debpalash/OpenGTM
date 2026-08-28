@@ -13,6 +13,10 @@ from apps.api.routers import copilotkit as ck
 from apps.api.services import chat_history
 from apps.api.services.evaluation.chat_trace import build_people_workflow_artifact
 from apps.api.services.evaluation.gtm_gauntlet import load_artifact, score_gauntlet
+from apps.api.services.leadgen import people_contacts as pc
+from apps.api.services.leadgen.enrichment.email_deliverability import (
+    DeliverabilityResult,
+)
 from apps.api.services.workbook.models import Base, Workbook, WorkbookRow
 
 
@@ -101,6 +105,54 @@ def _execute_approved_workbook(trace: dict, *, retry: bool = False) -> dict:
     }
 
 
+def _execute_approved_contacts(trace: dict, *, retry: bool = False) -> dict:
+    args = {
+        "conversation_id": trace["conversation_id"],
+        "person_ids": trace["selection"]["person_ids"],
+        "idempotency_key": "chat-contacts:recorded-stripe-partners",
+    }
+    tool_call = {
+        "id": "proposal-contact-retry" if retry else "proposal-contacts",
+        "type": "function",
+        "function": {
+            "name": "enrich_people_contacts",
+            "arguments": json.dumps(args),
+        },
+    }
+    approval_id = chat_history.create_tool_approval(
+        trace["workspace_id"], None, tool_call
+    )
+    events = _collect_events(
+        ck._resolve_approved_calls(
+            [],
+            [{"tool_call": {"id": approval_id}, "decision": "approve"}],
+            store=object(),
+            workspace_id=trace["workspace_id"],
+            slug="main",
+        )
+    )
+    result = _tool_result(events, "enrich_people_contacts")
+    chat_history.add_message(
+        trace["conversation_id"],
+        "tool",
+        "enrich_people_contacts result",
+        tool_data=json.dumps({
+            "name": "enrich_people_contacts",
+            "result": result,
+        }),
+    )
+    return {
+        "step_id": "g3-retry-contacts" if retry else "g3-enrich-contacts",
+        "workflow_id": "G3",
+        "tool_name": "enrich_people_contacts",
+        "status": "succeeded" if result.get("ok") else "failed",
+        "latency_ms": 80 if retry else 1400,
+        "args": args,
+        "approval": {"approval_id": approval_id, "decision": "approved"},
+        "result": result,
+    }
+
+
 def _real_recorded_trace(monkeypatch, tmp_path):
     factory = _database(monkeypatch)
     monkeypatch.setattr(chat_history, "DB_PATH", str(tmp_path / "chat_history.db"))
@@ -125,12 +177,56 @@ def _real_recorded_trace(monkeypatch, tmp_path):
             ),
         )
 
+    provider_calls = []
+
+    async def recorded_provider(name, lead, *, timeout):
+        provider_calls.append({
+            "provider": name,
+            "person": lead.contact_person,
+            "website": lead.website,
+            "timeout": timeout,
+        })
+        if name != "prospeo":
+            raise AssertionError("recorded first provider should satisfy the exact lookup")
+        return {
+            "provider": "prospeo",
+            "success": True,
+            "fields": {
+                "email": "fixture.partner@stripe.com",
+                "email_match_method": "linkedin",
+            },
+            "confidence": 0.9,
+            "duration_ms": 120,
+            "license": "proprietary-api",
+        }
+
+    async def recorded_verifier(email, *, workspace_id):
+        assert email == "fixture.partner@stripe.com"
+        assert workspace_id == trace["workspace_id"]
+        return DeliverabilityResult(
+            email=email,
+            confidence="verified",
+            status="valid",
+            source="reacher",
+            verification_confidence=0.95,
+            verification_attempts=[{
+                "provider": "reacher",
+                "status": "valid",
+                "detail": "recorded_fixture",
+            }],
+        )
+
+    monkeypatch.setattr(pc, "_run_discovery_provider", recorded_provider)
+    monkeypatch.setattr(pc, "_verify_discovered_email", recorded_verifier)
+    trace["steps"].append(_execute_approved_contacts(trace))
+    trace["steps"].append(_execute_approved_contacts(trace, retry=True))
+    trace["recorded_contact_provider_calls"] = provider_calls
     trace["steps"].append(_execute_approved_workbook(trace))
     trace["steps"].append(_execute_approved_workbook(trace, retry=True))
     return trace, factory
 
 
-def test_native_chat_trace_reads_persisted_state_and_scores_current_baseline(
+def test_native_chat_trace_scores_g2_through_g5_with_persisted_state(
     monkeypatch, tmp_path
 ):
     trace, factory = _real_recorded_trace(monkeypatch, tmp_path)
@@ -139,16 +235,17 @@ def test_native_chat_trace_reads_persisted_state_and_scores_current_baseline(
         artifact = build_people_workflow_artifact(trace, db)
     report = score_gauntlet(artifact)
 
-    assert report["score"] == 97.0
+    assert report["score"] == 100.0
     assert report["hard_failures"] == []
-    assert report["run_passed"] is False
+    assert report["run_passed"] is True
     assert report["workflows"]["G2"]["status"] == "passed"
-    assert report["workflows"]["G4"]["status"] == "failed"
+    assert report["workflows"]["G3"]["status"] == "passed"
+    assert report["workflows"]["G4"]["status"] == "passed"
     assert report["workflows"]["G5"]["status"] == "passed"
     assert report["workflows"]["G2"]["failed_checks"] == []
-    assert report["workflows"]["G4"]["failed_checks"] == [
-        "independent_claim_contract"
-    ]
+    assert report["workflows"]["G3"]["failed_checks"] == []
+    assert report["workflows"]["G4"]["failed_checks"] == []
+    assert len(trace["recorded_contact_provider_calls"]) == 1
 
     scenario = artifact["scenarios"][0]
     assert scenario["target"]["resolution_status"] == "resolved"
@@ -161,14 +258,19 @@ def test_native_chat_trace_reads_persisted_state_and_scores_current_baseline(
             "source": "wikidata",
         }
     ]
-    assert scenario["verification"]["people"][0]["claims"]["contactability"] == {
-        "status": "unavailable",
-        "value": None,
-        "confidence": 0.0,
-        "observed_at": "2026-08-28",
-        "evidence": [],
-        "contradictions": [],
+    contact_claim = scenario["verification"]["people"][0]["claims"]["contactability"]
+    assert contact_claim["status"] == "verified"
+    assert contact_claim["value"] == {
+        "email": "fixture.partner@stripe.com",
+        "contact_status": "verified",
     }
+    assert [evidence["status"] for evidence in contact_claim["evidence"]] == [
+        "found", "valid",
+    ]
+    assert scenario["contact_action"]["selected_person_ids"] == [
+        "person_fixture_stripe_partner"
+    ]
+    assert scenario["contact_retry_action"]["reused"] is True
     assert scenario["workbook_action"]["persisted"] is True
     assert scenario["retry_action"]["reused"] is True
     assert scenario["retry_action"]["workbook_id"] == scenario["workbook_action"][

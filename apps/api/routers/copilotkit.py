@@ -242,6 +242,7 @@ You have powerful tools to interact with the lead database. Use them proactively
 - **start_collection** — Trigger new lead collection from 6 sources
 - **find_people_at_company** — Research people in a specific function at one named company, with company/function evidence for every returned candidate
 - **verify_people_at_company** — Re-check a people result with fresh public evidence and distinguish independent corroboration from profile-only evidence
+- **enrich_people_contacts** - Find work emails for the exact saved people selection, record each provider attempt, and verify deliverability separately
 - **create_people_workbook** — Save the exact people already found or verified in this conversation as workbook rows; never re-source them as company leads
 - **enrich_lead** — Trigger on-demand enrichment (website scrape + contact discovery)
 - **find_similar_leads** — Find leads similar to a given company
@@ -260,6 +261,7 @@ You have powerful tools to interact with the lead database. Use them proactively
 - Use **start_collection only for explicit market/list searches**, such as "IT staffing companies in Pune".
 - Never use start_collection for a named company's teams, employees, leadership, partners, technology, or company research. For people at one company, use find_people_at_company. If a terse request could mean people, partner companies, or an org overview, ask the user which outcome they want.
 - When the user says "verify them" after people research, verify role/company evidence with verify_people_at_company; do not reinterpret verification as requiring lead IDs or contact data.
+- When the user asks for work emails after people research, use enrich_people_contacts with this conversation's ID and the exact saved person IDs. Never replace the selected people with a provider's generic domain contacts.
 - When the user says "make a workbook with them/those people", use create_people_workbook with this conversation's ID. Save the exact result rows; do not use create_source_workbook.
 - A search hit is evidence, not automatically a lead. Never present a similarly named company or a person without explicit target-company relationship evidence as a match.
 - Keep responses concise but data-rich
@@ -270,7 +272,8 @@ Read-only tools (search_leads, get_lead_detail, get_lead_stats, find_similar_lea
 get_enrichment_gaps, suggest_outreach, compare_leads, ambitionbox_search,
 ambitionbox_jobs, find_people_at_company, verify_people_at_company) run immediately.
 Tools that mutate data or spend resources (update_lead_status, start_collection,
-enrich_lead, import_ambitionbox_to_workbook, create_people_workbook, execute_plan)
+enrich_lead, enrich_people_contacts, import_ambitionbox_to_workbook,
+create_people_workbook, execute_plan)
 require explicit user approval:
 when you call one, the system pauses and asks the user to confirm before it runs.
 So propose the action with a one-line rationale and let the gate handle approval —
@@ -373,6 +376,46 @@ def _format_people_verification(result: dict) -> str:
     )
 
 
+def _format_people_contacts(result: dict) -> str:
+    people = result.get("people") or []
+    summary = result.get("summary") or {}
+    if not people:
+        return "No saved people were available for contact enrichment."
+
+    labels = {
+        "verified": "Verified",
+        "risky": "Risky",
+        "catch_all": "Catch-all",
+        "invalid": "Invalid",
+        "unavailable": "Unavailable",
+    }
+    rows = []
+    for person in people:
+        contact = person.get("contactability") or {}
+        name = str(person.get("name") or person.get("full_name") or "Unknown").replace("|", "\\|")
+        email = str(contact.get("email") or "Not found").replace("|", "\\|")
+        status = labels.get(contact.get("status"), "Unavailable")
+        finder = str(contact.get("finder_provider") or "None").replace("|", "\\|")
+        verifier = str(contact.get("verifier_provider") or "Not run").replace("|", "\\|")
+        rows.append(f"| {name} | {email} | {status} | {finder} | {verifier} |")
+
+    return (
+        f"Checked work-email contactability for **{len(people)} saved people** at "
+        f"**{result.get('company', 'the target company')}**.\n\n"
+        "| Person | Work email | Status | Finder | Verifier |\n"
+        "|---|---|---|---|---|\n"
+        + "\n".join(rows)
+        + "\n\n"
+        + f"Summary: {summary.get('verified', 0)} verified, "
+          f"{summary.get('catch_all', 0)} catch-all, "
+          f"{summary.get('risky', 0)} risky, "
+          f"{summary.get('invalid', 0)} invalid, and "
+          f"{summary.get('unavailable', 0)} unavailable. "
+          "Verified means a separate verifier returned a valid mailbox result. "
+          "Catch-all and risky addresses still need caution before outreach."
+    )
+
+
 def _latest_conversation_tool_result(
     conv_id: str,
     workspace_id: str,
@@ -390,6 +433,31 @@ def _latest_conversation_tool_result(
             continue
         if payload.get("name") in names and isinstance(payload.get("result"), dict):
             return {"name": payload["name"], "result": payload["result"]}
+    return None
+
+
+def _conversation_tool_result_by_action_id(
+    conv_id: str,
+    workspace_id: str,
+    user_id: Optional[int],
+    name: str,
+    action_id: str,
+) -> Optional[dict]:
+    """Find an earlier server-owned result for one retry-safe Chat action."""
+    for message in reversed(chat_history.get_messages(conv_id, workspace_id, user_id)):
+        if message.get("role") != "tool" or not message.get("tool_data"):
+            continue
+        try:
+            payload = json.loads(message["tool_data"])
+        except (json.JSONDecodeError, TypeError):
+            continue
+        result = payload.get("result")
+        if (
+            payload.get("name") == name
+            and isinstance(result, dict)
+            and result.get("action_id") == action_id
+        ):
+            return result
     return None
 
 
@@ -435,6 +503,11 @@ def _conversation_tool_context(
 _VERIFY_PEOPLE_FOLLOWUP_RE = re.compile(
     r"^(?:please\s+)?(?:verify|reverify|re-verify|validate|check|confirm)"
     r"(?:\s+(?:them|these|those|the\s+(?:people|results|candidates)))?[?.!]*$",
+    re.IGNORECASE,
+)
+_CONTACT_PEOPLE_FOLLOWUP_RE = re.compile(
+    r"^(?:please\s+)?(?:find|get|discover|enrich|look\s+up|verify)\b.*"
+    r"\b(?:work\s+)?(?:e-?mails?|email\s+addresses?|contact\s+info(?:rmation)?)\b.*$",
     re.IGNORECASE,
 )
 _WORKBOOK_PEOPLE_FOLLOWUP_RE = re.compile(
@@ -499,6 +572,11 @@ DANGEROUS_TOOLS = {
         "level": "medium",
         "label": "📋 Create People Workbook",
         "reason": "Creates a workbook and snapshots the people already found in this conversation.",
+    },
+    "enrich_people_contacts": {
+        "level": "medium",
+        "label": "Find and Verify Work Emails",
+        "reason": "Uses configured email-finder and verification providers for the exact saved people selection.",
     },
 }
 
@@ -618,6 +696,11 @@ def _describe_action(fn_name: str, fn_args: dict, workspace_id: Optional[str] = 
             f"Conversation: {fn_args.get('conversation_id', '?')}"
             + (f" · People: {len(fn_args['person_ids'])}" if fn_args.get("person_ids") else "")
             + (f" · Workbook: {fn_args['name']}" if fn_args.get("name") else "")
+        )
+    elif fn_name == "enrich_people_contacts":
+        details = (
+            f"Conversation: {fn_args.get('conversation_id', '?')}"
+            + (f" · People: {len(fn_args['person_ids'])}" if fn_args.get("person_ids") else "")
         )
 
     return f"{label}\n{reason}\n{details}"
@@ -770,9 +853,41 @@ def _build_tools():
         {
             "type": "function",
             "function": {
+                "name": "enrich_people_contacts",
+                "description": (
+                    "Find and verify work emails for the exact people already saved in this "
+                    "conversation. Uses stable person IDs, rejects generic domain contacts, "
+                    "records provider attempts, and requires approval before spending provider credits."
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "conversation_id": {
+                            "type": "string",
+                            "description": "Current conversation ID containing the trusted people result",
+                        },
+                        "person_ids": {
+                            "type": "array",
+                            "maxItems": 100,
+                            "items": {"type": "string"},
+                            "description": "Optional exact subset of stable person IDs; omit to enrich the full latest result",
+                        },
+                        "idempotency_key": {
+                            "type": "string",
+                            "maxLength": 255,
+                            "description": "Optional stable action key; retries with the same key reuse the stored result",
+                        },
+                    },
+                    "required": ["conversation_id"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
                 "name": "create_people_workbook",
                 "description": (
-                    "Create a workbook from the exact latest people research or verification "
+                    "Create a workbook from the exact latest people research, verification, or contact "
                     "result stored in this conversation. Never re-sources companies. Requires approval."
                 ),
                 "parameters": {
@@ -1109,6 +1224,102 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
             )
             return json.dumps(result)
 
+        elif name == "enrich_people_contacts":
+            from apps.api.services.leadgen.people_contacts import enrich_people_contacts
+            from apps.api.services.leadgen.targeted_people import (
+                people_result_set_id,
+                person_entity_id,
+            )
+
+            conversation_id = str(args.get("conversation_id") or "").strip()
+            if not conversation_id or not chat_history.get_conversation(
+                conversation_id, workspace_id, user_id
+            ):
+                return json.dumps({"error": "Conversation not found"})
+            prior = _latest_conversation_tool_result(
+                conversation_id,
+                workspace_id,
+                user_id,
+                ("verify_people_at_company", "find_people_at_company"),
+            )
+            if not prior:
+                return json.dumps({"error": "No people research result found in this conversation"})
+            research = prior["result"]
+            company = str(research.get("company") or "").strip()
+            function = str(research.get("function") or "").strip()
+            people = [
+                dict(person)
+                for person in (research.get("people") or [])
+                if isinstance(person, dict)
+            ][:100]
+            for person in people:
+                person["person_id"] = person_entity_id(company, person)
+            if not people:
+                return json.dumps({"error": "The latest people research result has no rows"})
+
+            requested_person_ids = list(dict.fromkeys(
+                str(person_id).strip()
+                for person_id in (args.get("person_ids") or [])
+                if str(person_id).strip()
+            ))
+            known_ids = {person["person_id"] for person in people}
+            unknown_ids = [
+                person_id for person_id in requested_person_ids
+                if person_id not in known_ids
+            ]
+            if unknown_ids:
+                return json.dumps({
+                    "error": "Unknown people selection",
+                    "unknown_person_ids": unknown_ids,
+                })
+            selected_ids = requested_person_ids or [person["person_id"] for person in people]
+            result_set_id = str(research.get("result_set_id") or "").strip()
+            if not result_set_id:
+                result_set_id = people_result_set_id(company, function, people)
+            selection_digest = hashlib.sha256(
+                "|".join(sorted(selected_ids)).encode()
+            ).hexdigest()[:16]
+            supplied_key = str(args.get("idempotency_key") or "").strip()
+            if supplied_key and len(supplied_key) > 255:
+                return json.dumps({"error": "Idempotency key exceeds 255 characters"})
+            action_id = supplied_key or (
+                f"chat-contacts:{conversation_id}:{result_set_id}:{selection_digest}"
+            )
+
+            previous = _conversation_tool_result_by_action_id(
+                conversation_id,
+                workspace_id,
+                user_id,
+                "enrich_people_contacts",
+                action_id,
+            )
+            if previous:
+                previous_selection = [
+                    str(person_id).strip()
+                    for person_id in (previous.get("selected_person_ids") or [])
+                ]
+                if previous_selection != selected_ids:
+                    return json.dumps({
+                        "error": "Idempotency key conflicts with a different people selection",
+                        "action_id": action_id,
+                    })
+                return json.dumps({**previous, "reused": True})
+
+            result = await enrich_people_contacts(
+                company,
+                function,
+                people,
+                company_resolution=(
+                    research.get("company_resolution")
+                    if isinstance(research.get("company_resolution"), dict)
+                    else {}
+                ),
+                person_ids=selected_ids,
+                workspace_id=workspace_id,
+                action_id=action_id,
+            )
+            return json.dumps(result)
+
         elif name == "create_people_workbook":
             from apps.api.database import SessionLocal
             from apps.api.services.leadgen.targeted_people import (
@@ -1127,7 +1338,11 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 conversation_id,
                 workspace_id,
                 user_id,
-                ("verify_people_at_company", "find_people_at_company"),
+                (
+                    "enrich_people_contacts",
+                    "verify_people_at_company",
+                    "find_people_at_company",
+                ),
             )
             if not prior:
                 return json.dumps({"error": "No people research result found in this conversation"})
@@ -1210,6 +1425,9 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 {"id": "verification_evidence_url", "name": "Fresh Evidence", "type": "lead_field", "lead_field": "verification_evidence_url", "width": 240},
                 {"id": "checked_at", "name": "Checked", "type": "lead_field", "lead_field": "checked_at", "width": 120},
                 {"id": "email", "name": "Email", "type": "lead_field", "lead_field": "email", "width": 210},
+                {"id": "email_status", "name": "Email Status", "type": "lead_field", "lead_field": "email_status", "width": 140},
+                {"id": "email_finder", "name": "Email Finder", "type": "lead_field", "lead_field": "email_finder", "width": 140},
+                {"id": "email_verifier", "name": "Email Verifier", "type": "lead_field", "lead_field": "email_verifier", "width": 140},
             ]
             seen = set()
             rows = []
@@ -1228,6 +1446,17 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 confidence = person.get("verification_confidence")
                 if confidence is None:
                     confidence = person.get("confidence")
+                contactability = (
+                    dict(person.get("contactability"))
+                    if isinstance(person.get("contactability"), dict)
+                    else {}
+                )
+                email_status = str(contactability.get("status") or "unavailable")
+                email = (
+                    contactability.get("email")
+                    if email_status in ("verified", "risky", "catch_all")
+                    else None
+                )
                 rows.append({
                     "person_id": identity,
                     "full_name": full_name,
@@ -1247,7 +1476,12 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                     "evidence_url": str(person.get("evidence_url") or linkedin_url),
                     "verification_evidence_url": fresh_url,
                     "checked_at": str(person.get("checked_at") or person.get("retrieved_at") or ""),
-                    "email": person.get("email"),
+                    "email": email,
+                    "email_status": email_status,
+                    "email_finder": str(contactability.get("finder_provider") or ""),
+                    "email_verifier": str(contactability.get("verifier_provider") or ""),
+                    "contact_observed_at": str(contactability.get("observed_at") or ""),
+                    "contact_provider_attempts": list(contactability.get("attempts") or []),
                     "source": prior["name"],
                 })
             if not rows:
@@ -2196,6 +2430,8 @@ async def _resolve_approved_calls(
                     f"[Open workbook]({parsed_result.get('url')})"
                 )
                 yield f"data: {json.dumps({'content': workbook_message})}\n\n"
+            elif fn_name == "enrich_people_contacts" and parsed_result.get("ok"):
+                yield f"data: {json.dumps({'content': _format_people_contacts(parsed_result)})}\n\n"
             content = result
         else:
             reason = (
@@ -2359,6 +2595,79 @@ async def copilot_chat(request: Request):
         _chat_user_id,
         ("verify_people_at_company", "find_people_at_company"),
     )
+
+    if (
+        prior_people
+        and _CONTACT_PEOPLE_FOLLOWUP_RE.fullmatch((last_user_msg or "").strip())
+        and not approved_tool_calls
+    ):
+        from apps.api.services.leadgen.targeted_people import (
+            people_result_set_id,
+            person_entity_id,
+        )
+
+        source_result = prior_people["result"]
+        company = str(source_result.get("company") or "People").strip()
+        function = str(source_result.get("function") or "Research").strip()
+        source_people = [
+            dict(person) for person in (source_result.get("people") or [])
+            if isinstance(person, dict)
+        ]
+        person_ids = []
+        for person in source_people:
+            person["person_id"] = person_entity_id(company, person)
+            if person["person_id"] not in person_ids:
+                person_ids.append(person["person_id"])
+        result_set_id = str(source_result.get("result_set_id") or "").strip()
+        if not result_set_id:
+            result_set_id = people_result_set_id(company, function, source_people)
+        selection_digest = hashlib.sha256(
+            "|".join(sorted(person_ids)).encode()
+        ).hexdigest()[:16]
+        fn_args = {
+            "conversation_id": conv_id,
+            "person_ids": person_ids,
+            "idempotency_key": (
+                f"chat-contacts:{conv_id}:{result_set_id}:{selection_digest}"
+            ),
+        }
+        tool_call = {
+            "id": f"call_{uuid.uuid4().hex}",
+            "type": "function",
+            "function": {
+                "name": "enrich_people_contacts",
+                "arguments": json.dumps(fn_args),
+            },
+        }
+        approval_id = chat_history.create_tool_approval(
+            workspace_id, _chat_user_id, tool_call
+        )
+        display_call = json.loads(json.dumps(tool_call))
+        display_call["id"] = approval_id
+        meta = DANGEROUS_TOOLS["enrich_people_contacts"]
+        proposal_text = (
+            f"I can look for work emails for the exact {len(person_ids)} people saved "
+            "in this conversation, then check each found address with a separate "
+            "deliverability verifier. This may use configured provider credits."
+        )
+
+        async def _stream_people_contacts_confirmation():
+            yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
+            yield f"data: {json.dumps({'content': proposal_text})}\n\n"
+            yield f"data: {json.dumps({'confirmation_required': {'confirmation_id': approval_id, 'tool_call': display_call, 'name': 'enrich_people_contacts', 'args': fn_args, 'description': _describe_action('enrich_people_contacts', fn_args, workspace_id), 'level': meta['level'], 'label': meta['label']}})}\n\n"
+            yield f"data: {json.dumps({'awaiting_confirmation': True})}\n\n"
+            chat_history.add_message(conv_id, "assistant", proposal_text)
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(
+            _stream_people_contacts_confirmation(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
 
     if (
         prior_people

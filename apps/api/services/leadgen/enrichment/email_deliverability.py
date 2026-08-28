@@ -22,8 +22,8 @@ present, the cascade returns ``unknown`` and we tag "unknown" — never a false
 
 import asyncio
 import logging
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Any, Optional
 
 from apps.api.services.leadgen.models import Lead
 
@@ -40,10 +40,12 @@ class DeliverabilityResult:
     confidence: str = UNKNOWN     # verified | risky | unknown | "" (drop)
     status: str = ""              # raw cascade status (valid/invalid/catch_all/unknown)
     source: str = ""             # which verifier produced the status
+    verification_confidence: float = 0.0
     is_role: bool = False         # info@, sales@, hr@ …
     is_free: bool = False         # gmail/yahoo/…
     is_disposable: bool = False   # throwaway domain
     catch_all: bool = False
+    verification_attempts: list[dict[str, Any]] = field(default_factory=list)
 
     @property
     def keep(self) -> bool:
@@ -89,7 +91,9 @@ async def verify_deliverability(email: str, workspace_id: Optional[str] = None) 
 
     res.status = verdict.status
     res.source = verdict.source
+    res.verification_confidence = float(verdict.confidence or 0.0)
     res.catch_all = verdict.status == cascade.CATCH_ALL
+    res.verification_attempts = list(verdict.attempts or [])
 
     if verdict.status == cascade.INVALID:
         res.confidence = ""                       # hard reject → drop

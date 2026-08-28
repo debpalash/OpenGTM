@@ -69,6 +69,7 @@ class ProspeoProvider(EnrichmentProvider):
                         data = resp.json().get("response", {})
                         if data.get("email"):
                             fields["email"] = data["email"]
+                            fields["email_match_method"] = "linkedin"
                             if data.get("email_verified"):
                                 fields["email_verified"] = True
                             return EnrichmentResult(
@@ -98,6 +99,7 @@ class ProspeoProvider(EnrichmentProvider):
                             data = resp.json().get("response", {})
                             if data.get("email"):
                                 fields["email"] = data["email"]
+                                fields["email_match_method"] = "exact_name"
                                 return EnrichmentResult(
                                     provider=self.name, success=True,
                                     fields=fields,
