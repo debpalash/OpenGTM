@@ -52,6 +52,13 @@ export function useWorkbook(id: string, pageSize = 1000) {
       if (status && status >= 400 && status < 500) return false
       return count < 1
     },
+    // Redis-backed WebSocket updates are optional in local/self-hosted setups.
+    // Poll while a run is active so cells and final status still advance when
+    // the socket is connected in echo-only fallback mode.
+    refetchInterval: query => {
+      const current = query.state.data as { workbook?: { status?: string } } | undefined
+      return current?.workbook?.status === "running" ? 1500 : false
+    },
   })
 }
 

@@ -177,6 +177,12 @@ async def enrich_cell(
         else lead_id
     )
     row_id = lead_data.get("__row_id")
+    # Provider telemetry is deliberately buffered in memory. Persisting it in
+    # the middle of a waterfall used to acquire SQLite's sole writer lock and
+    # hold it across later provider network calls, freezing the API and worker
+    # heartbeat. It is flushed in one short transaction after the cell commits.
+    provider_attempts: list[dict] = []
+    budget_charge = 0.0
 
     # ── Conditional execution ─────────────────────────────────────────
     if col_config.get("condition"):
@@ -301,6 +307,7 @@ async def enrich_cell(
         # Goal-directed enrichment — agent picks tools dynamically (Pillar 4).
         from apps.api.services.workbook.agent_column import run_agent_cell
         agent_result = await run_agent_cell(db, workbook_id, lead_id, col_config, lead_data)
+        provider_attempts.extend(agent_result.pop("_provider_attempts", []))
         result_value = agent_result.get("value")
         result_provider = agent_result.get("provider") or "agent"
         result_error = agent_result.get("error")
@@ -392,12 +399,13 @@ async def enrich_cell(
                 result = (EnrichmentResult(**_rd) if _rd
                           else EnrichmentResult(provider=provider_name, success=False))
                 _latency_ms = (_time.monotonic() - _t0) * 1000.0
-                _planner.record_attempt(
-                    db, provider_name, target_field,
-                    success=bool(result.success and result.fields),
-                    confidence=(result.confidence or provider.default_confidence),
-                    latency_ms=_latency_ms,
-                )
+                provider_attempts.append({
+                    "provider": provider_name,
+                    "field": target_field,
+                    "success": bool(result.success and result.fields),
+                    "confidence": result.confidence or provider.default_confidence,
+                    "latency_ms": _latency_ms,
+                })
                 if result.success and result.fields:
                     # ── Write back ALL scalar Lead fields from the result ──
                     for field_name, value in result.fields.items():
@@ -447,31 +455,33 @@ async def enrich_cell(
                 if result_value:
                     # ── Charge budget for a successful PAID provider ──
                     if _planner.is_paid(provider_name):
-                        cost = _planner.provider_cost(provider_name)
-                        db.query(Workbook).filter(Workbook.id == workbook_id).update(
-                            {Workbook.budget_spent_usd: (Workbook.budget_spent_usd + cost)},
-                            synchronize_session=False,
-                        )
+                        # Defer the write until after all awaited work (including
+                        # email verification) so no DB lock spans network I/O.
+                        budget_charge = _planner.provider_cost(provider_name)
                     break  # Waterfall: stop at first success
             except asyncio.TimeoutError:
                 logger.warning(f"Provider {provider_name} timed out for lead {lead_id}")
                 result_error = "timeout"
                 # Trip the circuit breaker so the next cell skips this dead/slow
                 # provider instead of eating its full timeout again.
-                _planner.record_attempt(
-                    db, provider_name, target_field,
-                    success=False, latency_ms=(_time.monotonic() - _t0) * 1000.0,
-                    timed_out=True,
-                )
+                provider_attempts.append({
+                    "provider": provider_name,
+                    "field": target_field,
+                    "success": False,
+                    "latency_ms": (_time.monotonic() - _t0) * 1000.0,
+                    "timed_out": True,
+                })
             except Exception as e:
                 _latency_ms = (_time.monotonic() - _t0) * 1000.0
                 logger.error(f"Provider {provider_name} failed for lead {lead_id}: {e}")
                 result_error = str(e)[:200]
-                _planner.record_attempt(
-                    db, provider_name, target_field,
-                    success=False, latency_ms=_latency_ms,
-                    rate_limited=_planner.looks_rate_limited(result_error),
-                )
+                provider_attempts.append({
+                    "provider": provider_name,
+                    "field": target_field,
+                    "success": False,
+                    "latency_ms": _latency_ms,
+                    "rate_limited": _planner.looks_rate_limited(result_error),
+                })
 
     # ── Auto-verify email cells ───────────────────────────────────────
     # When an email column produces a value, run the verify cascade and attach
@@ -520,6 +530,14 @@ async def enrich_cell(
         provenance = None
 
     # ── Write results ─────────────────────────────────────────────────
+    # This is the first write in the cell transaction. Keep it adjacent to the
+    # commit: no provider, verifier, or Redis await may happen while SQLite's
+    # single writer lock is held.
+    if budget_charge:
+        db.query(Workbook).filter(Workbook.id == workbook_id).update(
+            {Workbook.budget_spent_usd: (Workbook.budget_spent_usd + budget_charge)},
+            synchronize_session=False,
+        )
     if result_value:
         # Always store in enrichment overlay (value is already scalar/summary)
         _set_enrichment(db, workbook_id, lead_id, col_id, result_value, "complete",
@@ -532,6 +550,22 @@ async def enrich_cell(
                         error=result_error or "no_data", metadata=cell_metadata)
 
     db.commit()
+
+    # Provider reliability is useful telemetry, not part of the cell's atomic
+    # result. Flush it after the result commit in a separate, short transaction
+    # so a failed ledger update can never erase a successful enrichment.
+    if provider_attempts:
+        try:
+            from apps.api.services.workbook import planner as _planner
+            for attempt in provider_attempts:
+                _planner.record_attempt(db, **attempt)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            logger.warning(
+                "Provider telemetry write failed for cell %s/%s: %s",
+                lead_id, col_id, e,
+            )
 
     # Broadcast result
     if redis_client:

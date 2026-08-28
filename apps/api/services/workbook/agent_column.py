@@ -81,6 +81,7 @@ async def run_agent_cell(
     value = None
     provider_used = None
     outcome = "exhausted"
+    provider_attempts = []
 
     for step_i in range(1, max_steps + 1):
         cell_budget = max_cost - spent
@@ -108,9 +109,13 @@ async def run_agent_cell(
             result = await provider.enrich(lead)
             latency = (time.monotonic() - t0) * 1000
             got = result.success and result.fields and result.fields.get(target)
-            _planner.record_attempt(db, provider_name, target, success=bool(got),
-                                    confidence=(result.confidence or provider.default_confidence),
-                                    latency_ms=latency)
+            provider_attempts.append({
+                "provider": provider_name,
+                "field": target,
+                "success": bool(got),
+                "confidence": result.confidence or provider.default_confidence,
+                "latency_ms": latency,
+            })
             if got:
                 value = str(result.fields[target])
                 provider_used = provider_name
@@ -127,8 +132,13 @@ async def run_agent_cell(
             latency = (time.monotonic() - t0) * 1000
             err = str(e)[:160]
             rl = _planner.looks_rate_limited(err)
-            _planner.record_attempt(db, provider_name, target, success=False,
-                                    latency_ms=latency, rate_limited=rl)
+            provider_attempts.append({
+                "provider": provider_name,
+                "field": target,
+                "success": False,
+                "latency_ms": latency,
+                "rate_limited": rl,
+            })
             steps.append({"step": step_i, "provider": provider_name, "success": False,
                           "reason": ("rate_limited→reroute" if rl else f"error: {err}")})
 
@@ -146,4 +156,7 @@ async def run_agent_cell(
         "provider": provider_used,
         "error": None if value else f"agent_{outcome}",
         "trace": {"goal": goal, "steps": steps, "outcome": outcome, "spent": round(spent, 4)},
+        # The cell runner persists telemetry only after committing the cell, so
+        # SQLite never holds its writer lock across a provider network call.
+        "_provider_attempts": provider_attempts,
     }
