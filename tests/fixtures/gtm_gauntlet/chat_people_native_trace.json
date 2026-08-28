@@ -14,11 +14,6 @@
     "Verify that they still work there and own partnerships.",
     "Make a workbook with them."
   ],
-  "company_resolution": {
-    "company": "Stripe",
-    "status": "unresolved",
-    "canonical_domain": ""
-  },
   "selection": {
     "person_ids": ["person_fixture_stripe_partner"]
   },
@@ -38,6 +33,15 @@
         "ok": true,
         "company": "Stripe",
         "function": "partnerships",
+        "company_resolution": {
+          "status": "resolved",
+          "company": "Stripe",
+          "canonical_domain": "stripe.com",
+          "confidence": 0.9,
+          "observed_at": "2026-08-28",
+          "evidence_url": "https://www.wikidata.org/wiki/Q170120",
+          "source": "wikidata"
+        },
         "result_set_id": "people_fixture_stripe_partnerships",
         "people": [
           {
@@ -45,6 +49,7 @@
             "name": "Fixture Stripe Partner",
             "title": "Head of Platform Partnerships",
             "company": "Stripe",
+            "canonical_company_domain": "stripe.com",
             "function": "partnerships",
             "location": "San Francisco, CA",
             "linkedin_url": "https://profiles.example.test/person_fixture_stripe_partner",
@@ -80,6 +85,15 @@
         "ok": true,
         "company": "Stripe",
         "function": "partnerships",
+        "company_resolution": {
+          "status": "resolved",
+          "company": "Stripe",
+          "canonical_domain": "stripe.com",
+          "confidence": 0.9,
+          "observed_at": "2026-08-28",
+          "evidence_url": "https://www.wikidata.org/wiki/Q170120",
+          "source": "wikidata"
+        },
         "result_set_id": "people_fixture_stripe_partnerships",
         "people": [
           {
@@ -87,6 +101,7 @@
             "name": "Fixture Stripe Partner",
             "title": "Head of Platform Partnerships",
             "company": "Stripe",
+            "canonical_company_domain": "stripe.com",
             "function": "partnerships",
             "location": "San Francisco, CA",
             "linkedin_url": "https://profiles.example.test/person_fixture_stripe_partner",

@@ -13,6 +13,8 @@ API: https://www.wikidata.org/w/api.php  (wbsearchentities + wbgetentities)
 """
 import asyncio
 import logging
+import re
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 import httpx
@@ -46,6 +48,35 @@ _ORG_HINTS = (
 _NEG_HINTS = ("award", "prize", "human settlement", "given name", "surname", "family name")
 
 
+def _identity_name(value: str) -> str:
+    value = re.sub(
+        r"\b(?:incorporated|inc|corp(?:oration)?|llc|ltd|limited|plc|pvt)\.?$",
+        "",
+        (value or "").strip().lower(),
+    )
+    return re.sub(r"[^a-z0-9]+", " ", value).strip()
+
+
+def _select_exact_org_entity(company: str, hits: List[dict]) -> tuple[Optional[str], str]:
+    """Resolve only one exact, organization-like Wikidata search result."""
+    target = _identity_name(company)
+    exact = []
+    for hit in hits:
+        description = str(hit.get("description") or "").lower()
+        if any(term in description for term in _NEG_HINTS):
+            continue
+        if not any(term in description for term in _ORG_HINTS):
+            continue
+        if _identity_name(str(hit.get("label") or "")) == target:
+            exact.append(str(hit.get("id") or ""))
+    exact = [qid for qid in dict.fromkeys(exact) if qid]
+    if len(exact) == 1:
+        return exact[0], "resolved"
+    if len(exact) > 1:
+        return None, "ambiguous"
+    return None, "not_found"
+
+
 class WikidataProvider(EnrichmentProvider):
     name = "wikidata"
     capabilities = [
@@ -55,6 +86,51 @@ class WikidataProvider(EnrichmentProvider):
     default_confidence = 0.6
     requires_api_key = False
     source_license = "CC0-1.0"  # Wikidata is CC0 (per-fact provenance)
+
+    async def resolve_identity(self, company: str) -> dict:
+        """Resolve an exact company name to an official website and evidence."""
+        company = (company or "").strip()
+        if not company:
+            return {"status": "not_found", "canonical_domain": ""}
+        async with httpx.AsyncClient(timeout=12, headers={"User-Agent": _UA}) as client:
+            response = await client.get(_API, params={
+                "action": "wbsearchentities",
+                "search": company,
+                "language": "en",
+                "type": "item",
+                "format": "json",
+                "limit": 7,
+            })
+            qid, status = _select_exact_org_entity(
+                company, response.json().get("search", [])
+            )
+            if not qid:
+                return {"status": status, "canonical_domain": ""}
+            fields = await self._extract(client, qid)
+
+        website = str(fields.get("website") or "").strip()
+        from apps.api.services.leadgen.dedup import normalize_domain
+
+        canonical_domain = normalize_domain(website)
+        if not canonical_domain:
+            return {
+                "status": "website_missing",
+                "canonical_domain": "",
+                "entity_id": qid,
+                "evidence_url": f"https://www.wikidata.org/wiki/{qid}",
+            }
+        return {
+            "status": "resolved",
+            "company": company,
+            "canonical_domain": canonical_domain,
+            "website": website,
+            "entity_id": qid,
+            "confidence": 0.9,
+            "observed_at": datetime.now(timezone.utc).date().isoformat(),
+            "evidence_url": f"https://www.wikidata.org/wiki/{qid}",
+            "source": "wikidata",
+            "source_license": self.source_license,
+        }
 
     async def enrich(self, lead: Lead) -> EnrichmentResult:
         company = (lead.company or "").strip()

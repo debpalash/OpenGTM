@@ -139,22 +139,28 @@ def test_native_chat_trace_reads_persisted_state_and_scores_current_baseline(
         artifact = build_people_workflow_artifact(trace, db)
     report = score_gauntlet(artifact)
 
-    assert report["score"] == 87.0
+    assert report["score"] == 97.0
     assert report["hard_failures"] == []
     assert report["run_passed"] is False
-    assert report["workflows"]["G2"]["status"] == "failed"
+    assert report["workflows"]["G2"]["status"] == "passed"
     assert report["workflows"]["G4"]["status"] == "failed"
     assert report["workflows"]["G5"]["status"] == "passed"
-    assert report["workflows"]["G2"]["failed_checks"] == [
-        "target_company_resolved",
-        "accepted_people_match_target",
-    ]
+    assert report["workflows"]["G2"]["failed_checks"] == []
     assert report["workflows"]["G4"]["failed_checks"] == [
         "independent_claim_contract"
     ]
 
     scenario = artifact["scenarios"][0]
-    assert scenario["target"]["resolution_status"] == "unresolved"
+    assert scenario["target"]["resolution_status"] == "resolved"
+    assert scenario["target"]["canonical_domain"] == "stripe.com"
+    assert scenario["verification"]["people"][0]["claims"]["company_identity"][
+        "evidence"
+    ] == [
+        {
+            "url": "https://www.wikidata.org/wiki/Q170120",
+            "source": "wikidata",
+        }
+    ]
     assert scenario["verification"]["people"][0]["claims"]["contactability"] == {
         "status": "unavailable",
         "value": None,

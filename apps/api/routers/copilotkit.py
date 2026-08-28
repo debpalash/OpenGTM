@@ -1138,6 +1138,14 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
 
             company = str(research.get("company") or "Target Company").strip()
             function = str(research.get("function") or "Team").strip()
+            company_resolution = (
+                dict(research.get("company_resolution"))
+                if isinstance(research.get("company_resolution"), dict)
+                else {}
+            )
+            canonical_company_domain = str(
+                company_resolution.get("canonical_domain") or ""
+            ).strip().lower()
             people = []
             people_by_id = {}
             for raw_person in raw_people[:100]:
@@ -1225,6 +1233,10 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                     "full_name": full_name,
                     "contact_person": full_name,
                     "company": str(person.get("company") or company),
+                    "canonical_company_domain": str(
+                        person.get("canonical_company_domain")
+                        or canonical_company_domain
+                    ).strip().lower(),
                     "title": str(person.get("title") or ""),
                     "contact_title": str(person.get("title") or ""),
                     "function": str(person.get("function") or function),
@@ -1295,6 +1307,8 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                         "conversation_id": conversation_id,
                         "tool": prior["name"],
                         "company": company,
+                        "company_resolution": company_resolution,
+                        "canonical_company_domain": canonical_company_domain,
                         "function": function,
                         "result_set_id": result_set_id,
                         "selected_person_ids": selected_person_ids,
