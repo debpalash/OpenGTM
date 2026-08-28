@@ -50,6 +50,23 @@ def test_domain_target_uses_brand_but_still_rejects_lookalikes(monkeypatch):
     assert [person["name"] for person in result["people"]] == ["Jane Valid"]
 
 
+def test_people_and_result_set_ids_are_stable_across_equivalent_targets(monkeypatch):
+    async def fake_find(self, **kwargs):
+        return ([
+            _person("Jane Valid", "Partnerships Director", "Stripe", "jane"),
+        ], 1)
+
+    monkeypatch.setattr(tp.CrossLinkedProvider, "find_people_by_titles", fake_find)
+
+    named = asyncio.run(tp.research_people_at_company("Stripe", "partnerships"))
+    domain = asyncio.run(tp.research_people_at_company("stripe.com", "partnerships"))
+
+    assert named["people"][0]["person_id"].startswith("person_")
+    assert named["people"][0]["person_id"] == domain["people"][0]["person_id"]
+    assert named["result_set_id"].startswith("people_")
+    assert named["result_set_id"] == domain["result_set_id"]
+
+
 def test_partnership_post_is_not_treated_as_partnership_role(monkeypatch):
     async def fake_find(self, **kwargs):
         return ([{
@@ -115,6 +132,21 @@ def test_verification_distinguishes_independent_corroboration(monkeypatch):
     assert result["people"][1]["verification_status"] == "not_corroborated"
     assert result["summary"]["independent_role_evidence"] == 1
     assert result["summary"]["not_corroborated"] == 1
+
+
+def test_verification_assigns_ids_to_legacy_candidates(monkeypatch):
+    async def fake_search(query, max_results=8):
+        return []
+
+    monkeypatch.setattr(tp, "_public_search", fake_search)
+    result = asyncio.run(tp.verify_people_at_company(
+        "PayPal",
+        "partnerships",
+        [{"name": "Jane Valid", "title": "VP Partnerships"}],
+    ))
+
+    assert result["people"][0]["person_id"].startswith("person_")
+    assert result["result_set_id"].startswith("people_")
 
 
 def test_verification_rejects_coincidental_company_or_function_hits(monkeypatch):
@@ -389,4 +421,6 @@ def test_make_workbook_with_them_emits_confirmation_without_llm(monkeypatch):
     stream = asyncio.run(run())
     assert '"name": "create_people_workbook"' in stream
     assert '"confirmation_id": "approval-1"' in stream
+    assert '"person_ids": ["person_' in stream
+    assert '"idempotency_key": "chat-people:conv-workbook:' in stream
     assert "exact 2 people" in stream

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timezone
+import hashlib
 import re
 from typing import Any, Iterable
 from urllib.parse import urlparse
@@ -80,6 +81,49 @@ def _company_aliases(company: str) -> list[str]:
     if without_suffix and without_suffix.lower() != clean.lower():
         aliases.append(without_suffix)
     return [alias for alias in aliases if len(alias) >= 2]
+
+
+def _identity_text(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", str(value or "").lower()).strip()
+
+
+def person_entity_id(company: str, person: dict[str, Any]) -> str:
+    """Return a stable ID for a person scoped to the canonical target company."""
+    existing = str(person.get("person_id") or "").strip()
+    if re.fullmatch(r"person_[a-zA-Z0-9_-]{1,56}", existing):
+        return existing
+
+    aliases = _company_aliases(company)
+    company_key = _identity_text(aliases[-1] if aliases else company)
+    profile_url = str(
+        person.get("linkedin_url")
+        or person.get("linkedin")
+        or person.get("evidence_url")
+        or ""
+    ).strip()
+    parsed = urlparse(profile_url)
+    if parsed.hostname and parsed.path:
+        profile_key = f"{parsed.hostname.lower()}{parsed.path.rstrip('/').lower()}"
+    else:
+        profile_key = ""
+    name_key = _identity_text(person.get("name") or person.get("full_name") or "")
+    identity_key = profile_key or name_key
+    digest = hashlib.sha256(f"{company_key}|{identity_key}".encode()).hexdigest()[:24]
+    return f"person_{digest}"
+
+
+def people_result_set_id(
+    company: str,
+    function: str,
+    people: Iterable[dict[str, Any]],
+) -> str:
+    """Identify the exact ordered-independent people set returned to Chat."""
+    aliases = _company_aliases(company)
+    company_key = _identity_text(aliases[-1] if aliases else company)
+    function_key = _identity_text(function)
+    person_ids = sorted(person_entity_id(company, person) for person in people)
+    seed = "|".join((company_key, function_key, *person_ids))
+    return f"people_{hashlib.sha256(seed.encode()).hexdigest()[:24]}"
 
 
 def _exact_company_relationship(text: str, company: str) -> bool:
@@ -248,7 +292,7 @@ async def research_people_at_company(
         if any(title.lower() == alias.lower() for alias in _company_aliases(company)):
             title = ""
         verification_status, confidence = function_evidence
-        accepted.append({
+        candidate = {
             "name": (person.get("name") or "").strip(),
             "title": title,
             "company": company,
@@ -262,7 +306,9 @@ async def research_people_at_company(
             "confidence": confidence,
             "verification_status": verification_status,
             "email": None,
-        })
+        }
+        candidate["person_id"] = person_entity_id(company, candidate)
+        accepted.append(candidate)
         if len(accepted) >= limit:
             break
 
@@ -270,6 +316,7 @@ async def research_people_at_company(
         "ok": True,
         "company": company,
         "function": function,
+        "result_set_id": people_result_set_id(company, function, accepted),
         "people": accepted,
         "count": len(accepted),
         "searches_used": searches_used,
@@ -377,6 +424,8 @@ async def verify_people_at_company(
     company = re.sub(r"\s+", " ", (company or "").strip())[:120]
     function = re.sub(r"\s+", " ", (function or "").strip())[:100]
     candidates = [dict(person) for person in people if isinstance(person, dict)][:max_people]
+    for person in candidates:
+        person["person_id"] = person_entity_id(company, person)
     checked_at = datetime.now(timezone.utc).date().isoformat()
     function_terms = _function_terms(function, ())
     semaphore = asyncio.Semaphore(3)
@@ -470,6 +519,7 @@ async def verify_people_at_company(
         "ok": True,
         "company": company,
         "function": function,
+        "result_set_id": people_result_set_id(company, function, verified),
         "people": verified,
         "count": len(verified),
         "summary": summary,

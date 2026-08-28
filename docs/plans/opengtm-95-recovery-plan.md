@@ -1,10 +1,24 @@
 # OpenGTM 95% recovery plan
 
-Status: active planning
+Status: active implementation
 
 Created: 2026-08-28
 
 Release posture: do not publish yet
+
+## Progress log
+
+### 2026-08-28: first G2 to G5 trust slice
+
+- Created restorable pre-implementation checkpoint `da04851`, tagged `checkpoint/opengtm-pre-95-20260828`.
+- Added deterministic person IDs and result-set IDs to partnership-team research and verification.
+- Added exact person-ID subset selection for Chat-created people workbooks.
+- Added workspace-scoped action idempotency, backed by a database uniqueness constraint.
+- Added persisted action receipts that distinguish a newly created workbook from a reused workbook.
+- Added rejection of unknown person IDs before any write occurs.
+- Verification after the slice: 1,128 backend tests passed, 119 skipped; frontend lint and production build passed; Alembic has one head.
+
+Next: build the recorded gauntlet runner so this slice is scored as a complete G2 to G5 workflow instead of relying only on component and route tests.
 
 ## Objective
 
@@ -369,8 +383,8 @@ The exact gauntlet command will be added in Phase 0. The expected verification s
 
 ```bash
 uv run --group dev python -m pytest -q
-bun --cwd apps/web run lint
-bun --cwd apps/web run build
+bun run --cwd apps/web lint
+bun run --cwd apps/web build
 uv run --group dev python scripts/run_gtm_gauntlet.py --mode recorded
 uv run --group dev python scripts/run_gtm_gauntlet.py --mode staging --workspace gtm-release-eval
 ```

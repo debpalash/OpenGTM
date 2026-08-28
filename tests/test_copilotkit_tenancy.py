@@ -371,6 +371,98 @@ def test_create_people_workbook_snapshots_trusted_people_result(monkeypatch):
         assert row.lead_id is None
 
 
+def test_create_people_workbook_is_exact_and_idempotent(monkeypatch):
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.pool import StaticPool
+    from apps.api.services.workbook.models import Base, Workbook, WorkbookRow
+
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(engine, tables=[Workbook.__table__, WorkbookRow.__table__])
+    factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    monkeypatch.setattr("apps.api.database.SessionLocal", factory)
+    monkeypatch.setattr(
+        ck.chat_history, "get_conversation", lambda *args: {"id": "conv-exact"}
+    )
+    monkeypatch.setattr(
+        ck,
+        "_latest_conversation_tool_result",
+        lambda *args: {
+            "name": "verify_people_at_company",
+            "result": {
+                "result_set_id": "people_paypal_partnerships",
+                "company": "PayPal",
+                "function": "partnerships",
+                "people": [
+                    {
+                        "person_id": "person_jane",
+                        "name": "Jane Valid",
+                        "title": "VP Partnerships",
+                        "linkedin_url": "https://www.linkedin.com/in/jane-valid",
+                    },
+                    {
+                        "person_id": "person_alex",
+                        "name": "Alex Valid",
+                        "title": "Director, Partnerships",
+                        "linkedin_url": "https://www.linkedin.com/in/alex-valid",
+                    },
+                ],
+            },
+        },
+    )
+    args = {
+        "conversation_id": "conv-exact",
+        "name": "Selected PayPal Partners",
+        "person_ids": ["person_alex"],
+        "idempotency_key": "chat-action-conv-exact-alex",
+    }
+
+    first = json.loads(asyncio.run(ck._execute_tool(
+        "create_people_workbook", args,
+        store=object(), workspace_id="W1", slug="main",
+    )))
+    second = json.loads(asyncio.run(ck._execute_tool(
+        "create_people_workbook", args,
+        store=object(), workspace_id="W1", slug="main",
+    )))
+
+    assert first["ok"] is True
+    assert first["persisted"] is True
+    assert first["reused"] is False
+    assert first["selected_person_ids"] == ["person_alex"]
+    assert first["total_rows"] == 1
+    assert second["workbook_id"] == first["workbook_id"]
+    assert second["reused"] is True
+
+    with factory() as db:
+        assert db.query(Workbook).count() == 1
+        workbook = db.query(Workbook).one()
+        row = db.query(WorkbookRow).one()
+        assert workbook.action_idempotency_key == "chat-action-conv-exact-alex"
+        assert workbook.source_config["selected_person_ids"] == ["person_alex"]
+        assert row.data["person_id"] == "person_alex"
+        assert row.data["full_name"] == "Alex Valid"
+        assert row.source_record_id == "person_alex"
+
+    unknown = json.loads(asyncio.run(ck._execute_tool(
+        "create_people_workbook",
+        {
+            "conversation_id": "conv-exact",
+            "person_ids": ["person_missing"],
+            "idempotency_key": "chat-action-missing",
+        },
+        store=object(), workspace_id="W1", slug="main",
+    )))
+    assert unknown["error"] == "Unknown people selection"
+    assert unknown["unknown_person_ids"] == ["person_missing"]
+    with factory() as db:
+        assert db.query(Workbook).count() == 1
+
+
 # ── execute_plan recurses through a tenant-bound callback ─────────────────────
 
 def test_execute_plan_uses_tenant_bound_callback(monkeypatch):
