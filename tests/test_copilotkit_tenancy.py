@@ -397,6 +397,11 @@ def test_create_people_workbook_is_exact_and_idempotent(monkeypatch):
                 "result_set_id": "people_paypal_partnerships",
                 "company": "PayPal",
                 "function": "partnerships",
+                "company_resolution": {
+                    "status": "resolved",
+                    "canonical_domain": "paypal.com",
+                    "evidence_url": "https://www.wikidata.org/wiki/Q483959",
+                },
                 "people": [
                     {
                         "person_id": "person_jane",
@@ -444,7 +449,9 @@ def test_create_people_workbook_is_exact_and_idempotent(monkeypatch):
         row = db.query(WorkbookRow).one()
         assert workbook.action_idempotency_key == "chat-action-conv-exact-alex"
         assert workbook.source_config["selected_person_ids"] == ["person_alex"]
+        assert workbook.source_config["canonical_company_domain"] == "paypal.com"
         assert row.data["person_id"] == "person_alex"
+        assert row.data["canonical_company_domain"] == "paypal.com"
         assert row.data["full_name"] == "Alex Valid"
         assert row.source_record_id == "person_alex"
 

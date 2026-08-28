@@ -80,6 +80,7 @@ def _person_claims(
     *,
     company: str,
     canonical_domain: str,
+    company_resolution: Mapping[str, Any],
 ) -> dict[str, Any]:
     native_status = _text(person.get("verification_status"))
     evidence = _normalized_sources(person)
@@ -90,14 +91,24 @@ def _person_claims(
     )
     observed_at = _text(person.get("checked_at") or person.get("retrieved_at"))
     contradictions = _dict(person.get("claim_contradictions"))
+    resolution_evidence = []
+    if _text(company_resolution.get("evidence_url")):
+        resolution_evidence.append(
+            {
+                "url": _text(company_resolution.get("evidence_url")),
+                "source": _text(company_resolution.get("source"))
+                or "company_identity_provider",
+            }
+        )
+    company_verified = bool(canonical_domain and resolution_evidence)
 
     return {
         "company_identity": _claim(
-            status=role_status,
+            status="verified" if company_verified else "uncertain",
             value={"company": company, "canonical_domain": canonical_domain},
-            confidence=confidence,
-            observed_at=observed_at,
-            evidence=evidence,
+            confidence=_confidence(company_resolution.get("confidence")),
+            observed_at=_text(company_resolution.get("observed_at")) or observed_at,
+            evidence=resolution_evidence,
             contradictions=_list(contradictions.get("company_identity")),
         ),
         "current_employment": _claim(
@@ -140,6 +151,7 @@ def _verification_people(
     *,
     company: str,
     canonical_domain: str,
+    company_resolution: Mapping[str, Any],
 ) -> list[dict[str, Any]]:
     people = []
     for person in _list(result.get("people")):
@@ -152,6 +164,7 @@ def _verification_people(
                     person,
                     company=company,
                     canonical_domain=canonical_domain,
+                    company_resolution=company_resolution,
                 ),
             }
         )
@@ -312,6 +325,11 @@ def build_people_workflow_artifact(
     verification_result = _dict(verification_step.get("result"))
 
     resolution = _dict(trace.get("company_resolution"))
+    if not _text(resolution.get("status")):
+        resolution = _dict(
+            verification_result.get("company_resolution")
+            or research_result.get("company_resolution")
+        )
     company = _text(
         resolution.get("company")
         or verification_result.get("company")
@@ -345,6 +363,7 @@ def build_people_workflow_artifact(
         verification_result,
         company=company,
         canonical_domain=canonical_domain,
+        company_resolution=resolution,
     )
     create_snapshot = _workbook_snapshot(db, _dict(create_step.get("result")))
     retry_snapshot = _workbook_snapshot(db, _dict(retry_step.get("result")))

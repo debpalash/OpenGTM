@@ -19,7 +19,11 @@ from urllib.parse import urlparse
 from apps.api.services.leadgen.enrichment.providers.crosslinked import (
     CrossLinkedProvider,
 )
+from apps.api.services.leadgen.enrichment.providers.wikidata_provider import (
+    WikidataProvider,
+)
 from apps.api.services.leadgen.enrichment.web_search import DDGS
+from apps.api.services.leadgen.dedup import normalize_domain
 
 
 _FUNCTION_QUERIES: dict[str, list[str]] = {
@@ -124,6 +128,56 @@ def people_result_set_id(
     person_ids = sorted(person_entity_id(company, person) for person in people)
     seed = "|".join((company_key, function_key, *person_ids))
     return f"people_{hashlib.sha256(seed.encode()).hexdigest()[:24]}"
+
+
+async def resolve_company_identity(company: str) -> dict[str, Any]:
+    """Resolve one target company without guessing through an ambiguous name."""
+    company = re.sub(r"\s+", " ", (company or "").strip())[:120]
+    domain_match = _DOMAIN_RE.fullmatch(company)
+    if domain_match:
+        parsed = urlparse(company if "://" in company else f"https://{company}")
+        canonical_domain = (parsed.hostname or "").lower()
+        if canonical_domain.startswith("www."):
+            canonical_domain = canonical_domain[4:]
+        return {
+            "status": "resolved",
+            "company": company,
+            "canonical_domain": canonical_domain,
+            "website": f"https://{canonical_domain}",
+            "confidence": 1.0,
+            "observed_at": datetime.now(timezone.utc).date().isoformat(),
+            "evidence_url": f"https://{canonical_domain}",
+            "source": "user_supplied_domain",
+        }
+
+    try:
+        result = await asyncio.wait_for(
+            WikidataProvider().resolve_identity(company),
+            timeout=15.0,
+        )
+    except Exception as exc:
+        return {
+            "status": "resolver_unavailable",
+            "company": company,
+            "canonical_domain": "",
+            "error_class": type(exc).__name__,
+        }
+    if not isinstance(result, dict):
+        return {
+            "status": "invalid_response",
+            "company": company,
+            "canonical_domain": "",
+        }
+    canonical_domain = normalize_domain(
+        str(result.get("canonical_domain") or "").strip()
+    )
+    if result.get("status") != "resolved" or not canonical_domain:
+        return {
+            **result,
+            "company": company,
+            "canonical_domain": "",
+        }
+    return {**result, "company": company, "canonical_domain": canonical_domain}
 
 
 def _exact_company_relationship(text: str, company: str) -> bool:
@@ -240,6 +294,7 @@ async def research_people_at_company(
 
     limit = max(1, min(int(limit or 8), 15))
     query_titles = _query_titles(function, titles)
+    identity_task = asyncio.create_task(resolve_company_identity(company))
     provider = CrossLinkedProvider(max_people=max(limit * 3, 15), delay=0.2)
     try:
         discovered, searches_used = await asyncio.wait_for(
@@ -254,15 +309,29 @@ async def research_people_at_company(
             timeout=45.0,
         )
     except asyncio.TimeoutError:
+        company_resolution = await identity_task
         return {
             "ok": False,
             "error": "people_research_timeout",
             "company": company,
             "function": function,
+            "company_resolution": company_resolution,
             "people": [],
             "count": 0,
             "message": "Targeted people research exceeded its 45-second safety limit.",
         }
+    except Exception:
+        if not identity_task.done():
+            identity_task.cancel()
+        await asyncio.gather(identity_task, return_exceptions=True)
+        raise
+
+    company_resolution = await identity_task
+    canonical_domain = (
+        str(company_resolution.get("canonical_domain") or "").strip().lower()
+        if company_resolution.get("status") == "resolved"
+        else ""
+    )
 
     function_terms = _function_terms(function, query_titles)
     retrieved_at = datetime.now(timezone.utc).date().isoformat()
@@ -296,6 +365,8 @@ async def research_people_at_company(
             "name": (person.get("name") or "").strip(),
             "title": title,
             "company": company,
+            "canonical_company_domain": canonical_domain,
+            "company_resolution": company_resolution,
             "function": function,
             "location": (location or "").strip(),
             "linkedin_url": person.get("linkedin") or "",
@@ -316,6 +387,7 @@ async def research_people_at_company(
         "ok": True,
         "company": company,
         "function": function,
+        "company_resolution": company_resolution,
         "result_set_id": people_result_set_id(company, function, accepted),
         "people": accepted,
         "count": len(accepted),
@@ -515,10 +587,24 @@ async def verify_people_at_company(
             "not_corroborated", "verification_timeout",
         )
     }
+    company_resolution = next(
+        (
+            dict(person.get("company_resolution"))
+            for person in candidates
+            if isinstance(person.get("company_resolution"), dict)
+            and person["company_resolution"].get("status") == "resolved"
+        ),
+        {
+            "status": "unresolved",
+            "company": company,
+            "canonical_domain": "",
+        },
+    )
     return {
         "ok": True,
         "company": company,
         "function": function,
+        "company_resolution": company_resolution,
         "result_set_id": people_result_set_id(company, function, verified),
         "people": verified,
         "count": len(verified),

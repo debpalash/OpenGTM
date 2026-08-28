@@ -3,7 +3,29 @@
 import asyncio
 import json
 
+import pytest
+
 from apps.api.services.leadgen import targeted_people as tp
+
+
+@pytest.fixture(autouse=True)
+def recorded_company_identity(monkeypatch):
+    async def resolve(self, company):
+        domain = {
+            "stripe": "stripe.com",
+            "paypal": "paypal.com",
+        }.get(company.lower(), "")
+        return {
+            "status": "resolved" if domain else "not_found",
+            "company": company,
+            "canonical_domain": domain,
+            "confidence": 0.9 if domain else 0.0,
+            "observed_at": "2026-08-28",
+            "evidence_url": f"https://www.wikidata.org/wiki/{company}",
+            "source": "wikidata",
+        }
+
+    monkeypatch.setattr(tp.WikidataProvider, "resolve_identity", resolve)
 
 
 def _person(name, title, company, slug):
@@ -31,6 +53,8 @@ def test_exact_company_and_function_evidence_are_both_required(monkeypatch):
     assert result["count"] == 1
     assert result["people"][0]["name"] == "Jane Valid"
     assert result["people"][0]["evidence_url"].endswith("/jane-valid")
+    assert result["company_resolution"]["canonical_domain"] == "stripe.com"
+    assert result["people"][0]["canonical_company_domain"] == "stripe.com"
     assert result["people"][0]["email"] is None
     assert result["candidates_rejected"] == {
         "company_relationship_missing": 1,
@@ -48,6 +72,55 @@ def test_domain_target_uses_brand_but_still_rejects_lookalikes(monkeypatch):
     monkeypatch.setattr(tp.CrossLinkedProvider, "find_people_by_titles", fake_find)
     result = asyncio.run(tp.research_people_at_company("stripe.com", "partnerships"))
     assert [person["name"] for person in result["people"]] == ["Jane Valid"]
+    assert result["company_resolution"]["source"] == "user_supplied_domain"
+    assert result["company_resolution"]["canonical_domain"] == "stripe.com"
+
+
+def test_company_identity_resolver_fails_closed_on_ambiguous_namesake(monkeypatch):
+    async def ambiguous(self, company):
+        return {"status": "ambiguous", "canonical_domain": ""}
+
+    monkeypatch.setattr(tp.WikidataProvider, "resolve_identity", ambiguous)
+    result = asyncio.run(tp.resolve_company_identity("Mercury"))
+
+    assert result == {
+        "status": "ambiguous",
+        "canonical_domain": "",
+        "company": "Mercury",
+    }
+
+
+def test_people_research_survives_company_resolver_outage(monkeypatch):
+    async def unavailable(self, company):
+        raise TimeoutError("recorded resolver outage")
+
+    async def fake_find(self, **kwargs):
+        return ([_person("Jane Valid", "Head of Partnerships", "Stripe", "jane")], 1)
+
+    monkeypatch.setattr(tp.WikidataProvider, "resolve_identity", unavailable)
+    monkeypatch.setattr(tp.CrossLinkedProvider, "find_people_by_titles", fake_find)
+    result = asyncio.run(tp.research_people_at_company("Stripe", "partnerships"))
+
+    assert result["count"] == 1
+    assert result["company_resolution"]["status"] == "resolver_unavailable"
+    assert result["company_resolution"]["error_class"] == "TimeoutError"
+    assert result["people"][0]["canonical_company_domain"] == ""
+
+
+def test_wikidata_identity_selector_rejects_zero_or_multiple_exact_orgs():
+    from apps.api.services.leadgen.enrichment.providers.wikidata_provider import (
+        _select_exact_org_entity,
+    )
+
+    exact = [{"id": "Q1", "label": "Stripe, Inc.", "description": "technology company"}]
+    lookalike = [{"id": "Q2", "label": "Stripe Theory", "description": "company"}]
+    ambiguous = exact + [
+        {"id": "Q3", "label": "Stripe", "description": "software company"}
+    ]
+
+    assert _select_exact_org_entity("Stripe", exact) == ("Q1", "resolved")
+    assert _select_exact_org_entity("Stripe", lookalike) == (None, "not_found")
+    assert _select_exact_org_entity("Stripe", ambiguous) == (None, "ambiguous")
 
 
 def test_people_and_result_set_ids_are_stable_across_equivalent_targets(monkeypatch):

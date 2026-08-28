@@ -8,6 +8,16 @@ Release posture: do not publish yet
 
 ## Progress log
 
+### 2026-08-28: evidence-backed company identity
+
+- Added conservative company resolution for people research. Explicit domains resolve directly; named companies require exactly one exact organization match and an official website from Wikidata.
+- Ambiguous names, lookalikes, missing websites, timeouts, and resolver errors stay unresolved. They do not silently become canonical domains and do not prevent an honest partial people result.
+- Canonical domain and resolution evidence now survive verification and exact workbook persistence.
+- The recorded product-code baseline moves from 87/100 to 97/100. G2 now passes. G4 remains failed because contactability is correctly unavailable without a G3 enrichment trace, leaving accuracy and evidence at 88%, below the 90% category floor.
+- Verification after the slice: 1,151 backend tests passed, 119 skipped.
+
+Next: implement G3 exact-selection contact enrichment with attempt history and normalized verified, risky, catch-all, invalid, or unavailable outcomes.
+
 ### 2026-08-28: first product-code gauntlet baseline
 
 - Added a native Chat trace adapter that converts research, verification, approval, and workbook action results into the gauntlet artifact contract.
