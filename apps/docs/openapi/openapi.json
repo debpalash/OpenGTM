@@ -1482,47 +1482,6 @@
         "title": "IntegrationUpdate",
         "type": "object"
       },
-      "LinkCreate": {
-        "properties": {
-          "url": {
-            "title": "Url",
-            "type": "string"
-          }
-        },
-        "required": [
-          "url"
-        ],
-        "title": "LinkCreate",
-        "type": "object"
-      },
-      "LinkResponse": {
-        "properties": {
-          "created_at": {
-            "title": "Created At",
-            "type": "string"
-          },
-          "id": {
-            "title": "Id",
-            "type": "integer"
-          },
-          "status": {
-            "title": "Status",
-            "type": "string"
-          },
-          "url": {
-            "title": "Url",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "url",
-          "status",
-          "created_at"
-        ],
-        "title": "LinkResponse",
-        "type": "object"
-      },
       "MarkReadRequest": {
         "properties": {
           "signal_ids": {
@@ -2050,6 +2009,35 @@
         "title": "SMTPConfigUpdate",
         "type": "object"
       },
+      "ScoreLeadBody": {
+        "properties": {
+          "lead": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lead"
+          },
+          "lead_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lead Id"
+          }
+        },
+        "title": "ScoreLeadBody",
+        "type": "object"
+      },
       "ScrapeRequest": {
         "properties": {
           "url": {
@@ -2326,6 +2314,19 @@
           }
         },
         "title": "SyncRequest",
+        "type": "object"
+      },
+      "TechStackBody": {
+        "properties": {
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          }
+        },
+        "required": [
+          "domain"
+        ],
+        "title": "TechStackBody",
         "type": "object"
       },
       "Token": {
@@ -3000,6 +3001,19 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "VerifyEmailBody": {
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "VerifyEmailBody",
         "type": "object"
       },
       "ViewConfig": {
@@ -9641,6 +9655,195 @@
         ]
       }
     },
+    "/api/leads/score": {
+      "post": {
+        "description": "Score a lead 0-100 for ICP fit, by ``lead_id`` or from an inline record.\n\nInline records are scored without being stored, so a workflow can rank\ncandidates before deciding what to import.",
+        "operationId": "score_lead_endpoint_api_leads_score_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScoreLeadBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Score Lead Endpoint",
+        "tags": [
+          "Leads"
+        ]
+      }
+    },
+    "/api/leads/tech-stack": {
+      "post": {
+        "description": "Detect technologies on a website with the built-in ``tech_stack`` provider.\n\nFetching third-party sites is off by default; returns 409 until\n``TECH_STACK_WEBSITE_FETCH_ENABLED=1`` is set. Every fetch passes the SSRF\nguard inside the provider.",
+        "operationId": "tech_stack_endpoint_api_leads_tech_stack_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TechStackBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Tech Stack Endpoint",
+        "tags": [
+          "Leads"
+        ]
+      }
+    },
+    "/api/leads/verify-email": {
+      "post": {
+        "description": "Verify one address through the shared verification cascade.\n\nSame path the MCP ``verify_email`` tool uses: Reacher when enabled, the\nper-email cache, then the bundled SMTP probe. The workspace comes from the\nauthenticated context so a caller can never borrow another tenant's\nverifier configuration.",
+        "operationId": "verify_email_endpoint_api_leads_verify_email_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Verify Email Endpoint",
+        "tags": [
+          "Leads"
+        ]
+      }
+    },
     "/api/mcp/tokens": {
       "get": {
         "description": "List this workspace's tokens (hashes only; never the plaintext).",
@@ -11359,286 +11562,6 @@
         "summary": "Get Person Detail",
         "tags": [
           "Person Intel"
-        ]
-      }
-    },
-    "/api/queue": {
-      "get": {
-        "operationId": "get_queue_api_queue_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/LinkResponse"
-                  },
-                  "title": "Response Get Queue Api Queue Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "summary": "Get Queue",
-        "tags": [
-          "Queue"
-        ]
-      },
-      "post": {
-        "operationId": "add_to_queue_api_queue_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LinkCreate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Add To Queue Api Queue Post",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "summary": "Add To Queue",
-        "tags": [
-          "Queue"
-        ]
-      }
-    },
-    "/api/queue/fix": {
-      "post": {
-        "operationId": "fix_queue_tasks_api_queue_fix_post",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "summary": "Fix Queue Tasks",
-        "tags": [
-          "Queue"
-        ]
-      }
-    },
-    "/api/queue/{link_id}": {
-      "delete": {
-        "operationId": "delete_queue_item_api_queue__link_id__delete",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "link_id",
-            "required": true,
-            "schema": {
-              "title": "Link Id",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "summary": "Delete Queue Item",
-        "tags": [
-          "Queue"
-        ]
-      }
-    },
-    "/api/queue/{link_id}/retry": {
-      "post": {
-        "operationId": "start_queue_item_api_queue__link_id__retry_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "link_id",
-            "required": true,
-            "schema": {
-              "title": "Link Id",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "summary": "Start Queue Item",
-        "tags": [
-          "Queue"
-        ]
-      }
-    },
-    "/api/queue/{link_id}/start": {
-      "post": {
-        "operationId": "start_queue_item_api_queue__link_id__start_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "link_id",
-            "required": true,
-            "schema": {
-              "title": "Link Id",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "summary": "Start Queue Item",
-        "tags": [
-          "Queue"
-        ]
-      }
-    },
-    "/api/queue/{link_id}/stop": {
-      "post": {
-        "operationId": "stop_queue_item_api_queue__link_id__stop_post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "link_id",
-            "required": true,
-            "schema": {
-              "title": "Link Id",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "summary": "Stop Queue Item",
-        "tags": [
-          "Queue"
         ]
       }
     },

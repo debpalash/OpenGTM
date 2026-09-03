@@ -327,7 +327,6 @@ class Settings(BaseSettings):
     CRM_IMPORT_ENABLED: bool = False
 
     # Optional integrations
-    SCRIBD_COOKIES: str = ""
     GOOGLE_API_KEY: str = ""
     GOOGLE_CSE_ID: str = ""
     LINKEDIN_LI_AT_COOKIE: str = ""

@@ -37,28 +37,19 @@ The node sends `Authorization: Bearer <API Key>` on every request.
 
 ## Operations
 
-| Operation | Endpoint | Inputs |
-|---|---|---|
-| Source Leads | `POST /api/jobs` | Search query, max results |
-| Enrich Company | `POST /api/leads/enrich` | Company name, domain |
-| Verify Email | `POST /api/leads/verify-email` | Email address |
-| Score Lead | `POST /api/leads/score` | Lead record as JSON |
-| Get Tech Stack | `POST /api/leads/tech-stack` | Domain |
-| Domain Intelligence | `POST /api/leads/domain-intel` | Domain |
-| Find Duplicates | `POST /api/leads/dedup` | none |
+| Operation | Endpoint | Inputs | Returns |
+|---|---|---|---|
+| Source Leads | `POST /api/collect` | Search query | A durable collection job (`job_id`); poll `GET /api/jobs/{id}` and read `GET /api/jobs/{id}/leads` |
+| Enrich Company | `POST /api/lead` then `POST /api/leads/bulk-enrich` | Company name, domain | `lead_id` plus the background enrichment `job_id` |
+| Verify Email | `POST /api/leads/verify-email` | Email address | `status` (`valid`, `invalid`, `catch_all`, `unknown`), confidence, source |
+| Score Lead | `POST /api/leads/score` | Lead record as JSON | `score` 0-100 and `tier` |
+| Get Tech Stack | `POST /api/leads/tech-stack` | Domain | Detected technologies; `409` until `TECH_STACK_WEBSITE_FETCH_ENABLED=1` |
+| Domain Intelligence | `POST /api/leads/domain-intel` | Domain | RDAP and DNS analysis |
+| Find Duplicates | `POST /api/leads/dedup` | none | Duplicate groups |
 
 Each incoming item runs one request; the JSON response becomes the output item.
 With **Continue on fail** enabled, errors are emitted as `{ error }` items
 instead of stopping the workflow.
-
-:::caution[Endpoint coverage in 0.1.0]
-The node predates the workbook API. Against the current server only
-**Domain Intelligence** (`/api/leads/domain-intel`) and **Find Duplicates**
-(`/api/leads/dedup`) resolve; the other five operations call paths that are
-not in the [API reference](/api/) and return 404. Use an HTTP Request node
-against the documented workbook endpoints for those flows until the node is
-updated (tracked in the repository issues).
-:::
 
 The exact request and response shapes for every endpoint are in the
 [REST API reference](/api/).

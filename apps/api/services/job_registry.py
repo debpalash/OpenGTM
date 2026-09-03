@@ -38,10 +38,8 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
         handle_signal_scan,
     )
     from apps.api.services.workbook.source_engine import handle_source_workbook
-    from apps.api.workers.download import handle_download_link
 
     handlers = {
-        "download_link": handle_download_link,
         "run_workbook": handle_run_workbook,
         "ambitionbox_import": handle_ambitionbox_import,
         "data_collector_import": handle_data_collector_import,

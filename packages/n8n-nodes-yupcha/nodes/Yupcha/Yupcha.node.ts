@@ -1,4 +1,5 @@
 import {
+	IDataObject,
 	IExecuteFunctions,
 	INodeExecutionData,
 	INodeType,
@@ -91,7 +92,7 @@ export class Yupcha implements INodeType {
 				},
 			},
 			{
-				displayName: 'Max Results',
+				displayName: 'Max Results (unused)',
 				name: 'maxResults',
 				type: 'number',
 				default: 50,
@@ -163,22 +164,34 @@ export class Yupcha implements INodeType {
 				let endpoint = '';
 				let method = 'POST';
 				let body: Record<string, unknown> = {};
+				let extra: Record<string, unknown> = {};
 
 				switch (operation) {
 					case 'sourceLeads': {
-						endpoint = '/api/jobs';
+						// Starts a durable collection job; poll GET /api/jobs/{job_id}
+						// for status and GET /api/jobs/{job_id}/leads for results.
+						endpoint = '/api/collect';
 						body = {
 							query: this.getNodeParameter('query', i) as string,
-							max_results: this.getNodeParameter('maxResults', i) as number,
 						};
 						break;
 					}
 					case 'enrichCompany': {
-						endpoint = '/api/leads/enrich';
-						body = {
-							company: this.getNodeParameter('companyName', i) as string,
-							website: this.getNodeParameter('domain', i) as string,
-						};
+						// Two calls: upsert the company as a lead, then enqueue a
+						// background enrichment for it. Returns both ids.
+						const created = (await this.helpers.httpRequest({
+							method: 'POST',
+							url: `${baseUrl}/api/lead`,
+							body: {
+								company: this.getNodeParameter('companyName', i) as string,
+								website: this.getNodeParameter('domain', i) as string,
+								source: 'n8n',
+							},
+							json: true,
+						})) as { id: number };
+						endpoint = '/api/leads/bulk-enrich';
+						body = { lead_ids: [created.id], action: 'find_emails' };
+						extra = { lead_id: created.id };
 						break;
 					}
 					case 'verifyEmail': {
@@ -191,7 +204,7 @@ export class Yupcha implements INodeType {
 					case 'scoreLead': {
 						endpoint = '/api/leads/score';
 						const leadDataStr = this.getNodeParameter('leadData', i) as string;
-						body = JSON.parse(leadDataStr);
+						body = { lead: JSON.parse(leadDataStr) };
 						break;
 					}
 					case 'getTechStack': {
@@ -225,7 +238,12 @@ export class Yupcha implements INodeType {
 					json: true,
 				});
 
-				returnData.push({ json: response });
+				const json = (
+					response && typeof response === 'object' && !Array.isArray(response)
+						? { ...extra, ...(response as Record<string, unknown>) }
+						: { ...extra, result: response }
+				) as IDataObject;
+				returnData.push({ json, pairedItem: { item: i } });
 			} catch (error) {
 				if (this.continueOnFail()) {
 					returnData.push({

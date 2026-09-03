@@ -34,11 +34,6 @@ class UniversalScraper:
         # Defense at the service boundary: callers cannot bypass SSRF checks by
         # invoking UniversalScraper directly instead of through an API router.
         check_url(url, resolve=True)
-        # Specific Handle for Scribd: Always use robust path with scrolling
-        if "scribd.com/document" in url:
-            logfire.info(f"Scribd URL detected, forcing Playwright: {url}")
-            return await self._scrape_with_playwright(url, screenshot_callback)
-
         # If Live Preview is requested, we MUST use Playwright to get screenshots
         if screenshot_callback:
             logfire.info(f"Live Preview requested, forcing Playwright for {url}")
@@ -137,16 +132,6 @@ class UniversalScraper:
                 # Use domcontentloaded for speed, networkidle is too flaky on heavy sites
                 await page.goto(url, wait_until="domcontentloaded", timeout=45000)
 
-                # Check for Scribd text layer specifically
-                try:
-                    if "scribd.com/document" in url:
-                        logfire.info("Waiting for Scribd text layer...")
-                        await page.wait_for_selector(".text_layer", timeout=10000)
-                except Exception:
-                    logfire.warn(
-                        "Scribd text layer not found immediately, continuing..."
-                    )
-
                 # Auto-Scroll to bottom to trigger lazy loading
                 try:
                     last_height = await page.evaluate("document.body.scrollHeight")
@@ -189,14 +174,7 @@ class UniversalScraper:
         # Use markdownify to preserve structure (headers, lists, tables) better than get_text
         from markdownify import markdownify
 
-        # If it's Scribd, we might want to target specific containers first if they exist
-        # .text_layer usually contains the actual text of the pages
-        scribd_text_layers = soup.select(".text_layer")
-        if scribd_text_layers:
-            # Combine all text layers
-            html_to_process = "\n\n".join([str(layer) for layer in scribd_text_layers])
-        else:
-            html_to_process = str(soup.body) if soup.body else html
+        html_to_process = str(soup.body) if soup.body else html
 
         text_content = markdownify(
             html_to_process, heading_style="ATX", strip=["a", "img"]

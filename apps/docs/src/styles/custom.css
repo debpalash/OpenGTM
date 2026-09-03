@@ -1,5 +1,9 @@
-/* OpenGTM docs theme — accent matches the lockup gradient (indigo → teal). */
+/* OpenGTM docs theme. Accent follows the lockup's indigo; the teal end of the
+   gradient is reserved for the logo and for "success" states only. */
 :root {
+  --sl-font: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --sl-font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+
   --sl-color-accent-low: #1e2158;
   --sl-color-accent: #6268f2;
   --sl-color-accent-high: #c7c9fb;
@@ -11,7 +15,15 @@
   --sl-color-gray-5: #2f3446;
   --sl-color-gray-6: #1d2030;
   --sl-color-black: #12141d;
-  --og-teal: #20cfaf;
+
+  /* Semantic status colours used by the landing grid and callouts. */
+  --og-ok: #22c55e;
+  --og-warn: #f59e0b;
+  --og-run: #8b90ff;
+  --og-muted: var(--sl-color-gray-3);
+  --og-surface: #171a26;
+  --og-surface-2: #1d2130;
+  --og-line: #2a2f42;
 }
 :root[data-theme='light'] {
   --sl-color-accent-low: #e4e5fd;
@@ -26,8 +38,14 @@
   --sl-color-gray-6: #eef0f5;
   --sl-color-gray-7: #f7f8fb;
   --sl-color-black: #ffffff;
+
+  --og-ok: #15803d;
+  --og-warn: #b45309;
+  --og-run: #4a51e0;
+  --og-surface: #ffffff;
+  --og-surface-2: #f4f5fa;
+  --og-line: #dfe2ec;
 }
-.site-title img { height: 2rem; }
-.hero img { max-width: 24rem; }
-/* Method badges in the generated API sidebar/pages read better slightly smaller. */
+.site-title img { height: 1.9rem; }
 .sl-badge { font-size: var(--sl-text-2xs); }
+code, kbd, pre { font-feature-settings: 'liga' 0; }

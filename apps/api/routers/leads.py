@@ -1174,6 +1174,108 @@ def bulk_enrich(body: BulkEnrichBody, ctx: WorkspaceCtx = Depends(require_editor
 
 
 
+# ── Single-lead utilities (used by the n8n node and scripts) ─────────────
+
+class VerifyEmailBody(BaseModel):
+    email: str
+
+
+@router.post("/leads/verify-email")
+@limiter.limit("60/minute")
+async def verify_email_endpoint(
+    request: Request, body: VerifyEmailBody, ctx: WorkspaceCtx = Depends(current_workspace)
+):
+    """Verify one address through the shared verification cascade.
+
+    Same path the MCP ``verify_email`` tool uses: Reacher when enabled, the
+    per-email cache, then the bundled SMTP probe. The workspace comes from the
+    authenticated context so a caller can never borrow another tenant's
+    verifier configuration.
+    """
+    email = body.email.strip()
+    if "@" not in email or " " in email:
+        raise HTTPException(status_code=400, detail="email must be a single address")
+    from apps.api.services.leadgen.enrichment import email_verify_cascade as cascade
+
+    vr = await cascade.verify_email(email, workspace_id=ctx.workspace_id)
+    return {
+        "email": email,
+        "status": vr.status,  # valid | invalid | catch_all | unknown
+        "valid": vr.status == cascade.VALID,
+        "deliverable": vr.deliverable,
+        "confidence": vr.confidence,
+        "source": vr.source,
+        "detail": vr.detail,
+    }
+
+
+class ScoreLeadBody(BaseModel):
+    lead_id: Optional[int] = None
+    lead: Optional[dict] = None
+
+
+@router.post("/leads/score")
+def score_lead_endpoint(body: ScoreLeadBody, ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Score a lead 0-100 for ICP fit, by ``lead_id`` or from an inline record.
+
+    Inline records are scored without being stored, so a workflow can rank
+    candidates before deciding what to import.
+    """
+    from apps.api.services.leadgen.scoring import score_lead as _score, get_tier
+
+    if body.lead_id is not None:
+        db = ctx.lead_db()
+        try:
+            lead = db.get_lead(body.lead_id)
+        finally:
+            db.close()
+        if not lead:
+            raise HTTPException(status_code=404, detail="Lead not found")
+    elif body.lead:
+        lead = Lead.from_dict(body.lead)
+    else:
+        raise HTTPException(status_code=400, detail="provide lead_id or lead")
+
+    score = int(_score(lead))
+    return {"lead_id": body.lead_id, "company": lead.company, "score": score, "tier": get_tier(score)}
+
+
+class TechStackBody(BaseModel):
+    domain: str
+
+
+@router.post("/leads/tech-stack")
+@limiter.limit("30/minute")
+async def tech_stack_endpoint(
+    request: Request, body: TechStackBody, ctx: WorkspaceCtx = Depends(current_workspace)
+):
+    """Detect technologies on a website with the built-in ``tech_stack`` provider.
+
+    Fetching third-party sites is off by default; returns 409 until
+    ``TECH_STACK_WEBSITE_FETCH_ENABLED=1`` is set. Every fetch passes the SSRF
+    guard inside the provider.
+    """
+    from apps.api.services.leadgen.enrichment.providers.tech_stack_provider import TechStackProvider
+
+    domain = body.domain.strip()
+    if not domain:
+        raise HTTPException(status_code=400, detail="domain is required")
+    website = domain if domain.startswith(("http://", "https://")) else f"https://{domain}"
+    result = await TechStackProvider().enrich(Lead(company=domain, website=website, id=0))
+    if not result.success and result.error == "website_fetch_disabled":
+        raise HTTPException(
+            status_code=409,
+            detail="website fetches are disabled; set TECH_STACK_WEBSITE_FETCH_ENABLED=1",
+        )
+    return {
+        "domain": domain,
+        "success": result.success,
+        "technologies": (result.fields or {}).get("technologies"),
+        "fields": result.fields or {},
+        "error": result.error,
+    }
+
+
 # ── Data Collector Import ─────────────────────────────────────────────────
 
 @router.post("/leads/import/data-collector")

@@ -223,8 +223,8 @@ user work runs through the durable worker. The remaining boundaries are:
   collection-stage ledger live in SQLite files on the shared `data/` volume.
   This is reliable for the documented Compose topology, but replicas on
   separate hosts need those stores moved to PostgreSQL first.
-- **A few legacy utilities are global and admin-only.** The document queue,
-  legacy person/scrape history, CRM-data utility, and reusable-function catalog
+- **A few legacy utilities are global and admin-only.** The legacy
+  person/scrape history, CRM-data utility, and reusable-function catalog
   are isolated from normal workspace users rather than fully tenantized.
 - **Hosted-SaaS hardening is not complete.** Before exposing OpenGTM to mutually
   hostile public tenants, add a controlled outbound egress proxy, managed KMS,

@@ -7,7 +7,6 @@ EXPECTED_JOB_TYPES = {
     "bulk_enrich",
     "collect",
     "data_collector_import",
-    "download_link",
     "outreach_inbound_poll",
     "refresh_workbook",
     "run_workbook",

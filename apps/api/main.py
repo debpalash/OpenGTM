@@ -13,7 +13,7 @@ import logging
 import os
 
 # Routers
-from apps.api.routers import auth, users, tasks, crm, system, scraper, websockets, person_intel
+from apps.api.routers import auth, users, crm, system, scraper, person_intel
 from apps.api.routers import settings as settings_router
 from apps.api.routers.analytics import router as analytics_router
 from apps.api.routers.leads import router as leads_router, workspace_router, jobs_router, events_router, search_router
@@ -169,11 +169,9 @@ app.add_middleware(
 # Include Routers — Existing
 app.include_router(auth.router)
 app.include_router(users.router)
-app.include_router(tasks.router)
 app.include_router(crm.router)
 app.include_router(system.router)
 app.include_router(scraper.router)
-app.include_router(websockets.router)
 app.include_router(person_intel.router)
 app.include_router(settings_router.router)
 app.include_router(analytics_router)

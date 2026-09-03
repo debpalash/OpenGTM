@@ -566,7 +566,6 @@ def get_system_settings():
         "api_port": int(os.environ.get("API_PORT", 8000)),
         "cors_origins": os.environ.get("CORS_ORIGINS", "*"),
         "default_provider": _db_get("LLM_DEFAULT_PROVIDER", "openrouter"),
-        "scribd_configured": bool(os.environ.get("SCRIBD_COOKIES", "")),
         "google_search_configured": bool(os.environ.get("GOOGLE_API_KEY", "")),
         "linkedin_configured": bool(os.environ.get("LINKEDIN_LI_AT_COOKIE", "")),
     }

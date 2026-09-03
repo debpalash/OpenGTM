@@ -1,43 +1,209 @@
 ---
-title: OpenGTM
-description: Free, open-source, self-hostable GTM agents. Source leads, run enrichment waterfalls, research them with AI, and push to your CRM — with your own keys and the bill shown before you run.
+title: GTM agents for the world
+description: OpenGTM is the open-source, self-hostable alternative to Clay. Source leads, enrich them through cost-ordered waterfalls, research them with AI agents, and push to your CRM — on your own infrastructure, with your own keys, with the bill shown before you run.
 template: splash
-hero:
-  tagline: The open-source, self-hostable alternative to Clay. Source leads, enrich them through cost-ordered waterfalls, research them with AI agents, and push the results to your CRM — on your own infrastructure, with your own keys.
-  image:
-    file: ../../assets/opengtm-lockup.svg
-  actions:
-    - text: Quickstart
-      link: /getting-started/quickstart/
-      icon: right-arrow
-    - text: REST API reference
-      link: /api/
-      icon: open-book
-      variant: minimal
-    - text: GitHub
-      link: https://github.com/debpalash/opengtm
-      icon: github
-      variant: minimal
+tableOfContents: false
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Icon } from '@astrojs/starlight/components';
 
-<CardGrid stagger>
-  <Card title="See the bill before you run" icon="approve-check">
-    Every workbook prices a run as rows × providers before anything executes,
-    with a per-column breakdown of paid providers and a spend ceiling that
-    skips paid calls once the budget is gone.
-  </Card>
-  <Card title="Bring your own keys" icon="setting">
-    LLMs, enrichment vendors and destinations all run on your API keys at direct
-    vendor cost. OpenGTM is the engine; you own the spend and the data.
-  </Card>
-  <Card title="Never plan-gated" icon="rocket">
-    The REST API, webhooks, MCP tools, n8n node and Chrome extension are
-    first-class on every install. Automating OpenGTM is a use case, not an upsell.
-  </Card>
-  <Card title="Self-host everything" icon="laptop">
-    One `docker compose up` brings up the API, worker, Postgres, Redis and nginx.
-    AGPLv3, no seats, no per-credit markup, no data leaving your box.
-  </Card>
-</CardGrid>
+<section class="lp-hero">
+  <div class="lp-hero__copy">
+    <p class="lp-eyebrow"><span>AGPL-3.0</span><span>Self-hosted</span><span>Bring your own keys</span></p>
+    <h1>The Clay alternative you can run on your own box.</h1>
+    <p class="lp-lede">
+      Workbooks where every column does work: source companies, run enrichment
+      waterfalls that try free providers before paid ones, let an agent browse the
+      web and cite its sources, then push rows to your CRM. The bill is priced
+      before a single row runs.
+    </p>
+    <div class="lp-actions">
+      <a class="lp-btn lp-btn--primary" href="/getting-started/quickstart/">Quickstart<Icon name="right-arrow" /></a>
+      <a class="lp-btn" href="/api/">REST API reference</a>
+      <a class="lp-btn lp-btn--quiet" href="https://github.com/debpalash/opengtm"><Icon name="github" />Source on GitHub</a>
+    </div>
+
+<div class="lp-cmd">
+
+```bash
+git clone https://github.com/debpalash/opengtm.git && cd opengtm
+cp .env.example .env
+docker compose up   # api · worker · postgres · redis · nginx → :3000
+```
+
+</div>
+
+  </div>
+
+  <figure class="lp-grid" aria-label="Example workbook: IT services firms in Pune, mid-run">
+    <figcaption>
+      <span class="lp-grid__name">IT services — Pune</span>
+      <span class="lp-grid__meta">50 rows · 5 columns · running</span>
+    </figcaption>
+    <div class="lp-grid__scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><em>source</em> Company</th>
+            <th><em>waterfall</em> Email</th>
+            <th><em>waterfall</em> Verify</th>
+            <th><em>research</em> Uses Kubernetes?</th>
+            <th><em>output</em> HubSpot</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Aptita Consulting<small>aptita.com</small></td>
+            <td><span class="lp-cell lp-cell--ok">hello@aptita.com</span><small>website_scraper · free</small></td>
+            <td><span class="lp-cell lp-cell--ok">valid</span><small>mailscout · 0.95</small></td>
+            <td><span class="lp-cell lp-cell--ok">Yes — careers page lists EKS</span><small>2 fetches · $0.01</small></td>
+            <td><span class="lp-cell lp-cell--ok">pushed</span><small>contact 4128</small></td>
+          </tr>
+          <tr>
+            <td>Benchire<small>benchire.com</small></td>
+            <td><span class="lp-cell lp-cell--ok">r.mehta@benchire.com</span><small>hunter_io · $0.04</small></td>
+            <td><span class="lp-cell lp-cell--warn">catch_all</span><small>mailscout · 0.50</small></td>
+            <td><span class="lp-cell lp-cell--run">searching…</span><small>step 2 of 4</small></td>
+            <td><span class="lp-cell lp-cell--wait">waiting</span><small>after enrichment</small></td>
+          </tr>
+          <tr>
+            <td>Mindtree Labs<small>mindtreelabs.in</small></td>
+            <td><span class="lp-cell lp-cell--run">trying ddg_email</span><small>3 of 10 providers</small></td>
+            <td><span class="lp-cell lp-cell--wait">pending</span><small></small></td>
+            <td><span class="lp-cell lp-cell--wait">pending</span><small></small></td>
+            <td><span class="lp-cell lp-cell--wait">waiting</span><small></small></td>
+          </tr>
+          <tr>
+            <td>Zenith Softech<small>zenithsoftech.com</small></td>
+            <td><span class="lp-cell lp-cell--skip">skipped</span><small>spend ceiling reached</small></td>
+            <td><span class="lp-cell lp-cell--skip">skipped</span><small>no email</small></td>
+            <td><span class="lp-cell lp-cell--ok">No evidence found</span><small>4 fetches · $0.02</small></td>
+            <td><span class="lp-cell lp-cell--wait">waiting</span><small></small></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lp-grid__foot">
+      <span>Spent <strong>$0.11</strong> of a <strong>$5.00</strong> ceiling</span>
+      <span>Paid providers skipped once the ceiling is hit; free ones keep running</span>
+    </div>
+  </figure>
+</section>
+
+<section class="lp-section lp-bill">
+  <div class="lp-section__head">
+    <p class="lp-kicker">Before you run</p>
+    <h2>The bill, itemised, before a single row executes.</h2>
+    <p>
+      Every workbook has an estimate endpoint. It multiplies rows by every paid
+      provider in each column's chain for the worst case, and by the cheapest
+      paid provider for the best case. Free providers never appear on it. Set a
+      ceiling and the planner drops paid providers from every chain the moment
+      it is reached.
+    </p>
+    <a class="lp-link" href="/concepts/spend/">How spend transparency works<Icon name="right-arrow" /></a>
+  </div>
+
+<div class="lp-code">
+
+```json title="GET /api/workbooks/wb_7f3a/run/estimate"
+{
+  "rows": 50,
+  "worst_usd": 6.00,
+  "best_usd": 1.00,
+  "breakdown": [
+    { "column": "Email",
+      "paid_providers": ["hunter_io", "apollo_io", "snovio", "prospeo"],
+      "worst_usd": 6.00, "best_usd": 1.00 }
+  ],
+  "note": "worst = every paid provider tried per row; best = cheapest paid hit first."
+}
+```
+
+</div>
+
+</section>
+
+<section class="lp-section">
+  <div class="lp-section__head lp-section__head--center">
+    <p class="lp-kicker">How a workbook runs</p>
+    <h2>Four kinds of column. One durable queue.</h2>
+  </div>
+  <ol class="lp-flow">
+    <li>
+      <span class="lp-flow__n">01</span>
+      <h3>Source</h3>
+      <p>An ideal-customer-profile query fans out over ~90 directories, review sites, registries and job boards. Runs page, checkpoint and resume; every row keeps its provider record id, so a re-run updates instead of duplicating.</p>
+      <a href="/guides/sourcing/">Sourcing</a>
+    </li>
+    <li>
+      <span class="lp-flow__n">02</span>
+      <h3>Enrich</h3>
+      <p>A waterfall tries providers until one answers confidently. Free scrapers and open data go first; paid vendors on your own keys go last, reordered by measured hit-rate per dollar.</p>
+      <a href="/concepts/waterfalls/">Waterfalls and the planner</a>
+    </li>
+    <li>
+      <span class="lp-flow__n">03</span>
+      <h3>Research</h3>
+      <p>A bounded agent searches and fetches behind the SSRF guard, answers a question per row, and cites only URLs it actually loaded. Agent columns choose their own tools inside a step and dollar budget and leave a trace.</p>
+      <a href="/guides/research-and-agent-columns/">Research and agent columns</a>
+    </li>
+    <li>
+      <span class="lp-flow__n">04</span>
+      <h3>Push</h3>
+      <p>Output columns run once per row after enrichment: HubSpot, Salesforce, Google Sheets, Airtable, a webhook, or an email sequence. Idempotent by default.</p>
+      <a href="/guides/outputs/">Outputs</a>
+    </li>
+  </ol>
+  <p class="lp-types" aria-label="Column types">
+    <span>lead_field</span><span>source</span><span>enrichment</span><span>waterfall</span><span>ai_formula</span><span>research</span><span>agent</span><span>http</span><span>formula</span><span>conditional</span><span>output</span>
+  </p>
+</section>
+
+<section class="lp-section lp-promises">
+  <div class="lp-section__head">
+    <p class="lp-kicker">Promises, in writing</p>
+    <h2>Structural, not marketing.</h2>
+    <p>A seat-priced, credit-metered incumbent cannot match these without undoing its own business model.</p>
+  </div>
+  <dl>
+    <div><dt>The API is never plan-gated.</dt><dd>REST, webhooks, MCP tools, the n8n node and the Chrome extension are first-class on every install. Automating OpenGTM is a use case, not an upsell.</dd></div>
+    <div><dt>Your keys, vendor price, zero markup.</dt><dd>You pay LLM and enrichment vendors directly. Any future managed-key option bills at cost plus one disclosed flat fee, never per credit.</dd></div>
+    <div><dt>The bill before the run, always.</dt><dd>The estimate, the ceiling and the per-provider cost ledger are core features on every tier there will ever be.</dd></div>
+    <div><dt>Self-host is complete, forever.</dt><dd>No feature is held back to force a cloud upgrade. If a paid line ever exists it will be governance: SSO, audit export, support.</dd></div>
+  </dl>
+</section>
+
+<section class="lp-section lp-stack">
+  <div class="lp-stack__col">
+    <p class="lp-kicker">What ships</p>
+    <ul class="lp-facts">
+      <li><b class="lp-num">~90</b> sourcing connectors with durable, resumable runs</li>
+      <li><b class="lp-num">36</b> enrichment providers plus declarative YAML manifests; most are free and keyless</li>
+      <li><b class="lp-num">9</b> LLM providers with automatic failover; several have free tiers</li>
+      <li><b class="lp-num">8</b> buying-signal types, scheduled watches, trigger rules</li>
+      <li><b class="lp-num">19</b> validated workbook recipes in the template gallery</li>
+      <li><b class="lp-num">189</b> documented REST endpoints, generated from the running app</li>
+    </ul>
+  </div>
+  <div class="lp-stack__col">
+    <p class="lp-kicker">How it is built</p>
+    <ul class="lp-facts">
+      <li>FastAPI and SQLAlchemy 2 on <strong>PostgreSQL</strong> with fail-closed row-level security per workspace</li>
+      <li>A PostgreSQL job queue; workers claim with <code>FOR UPDATE SKIP LOCKED</code> and commit each page with its cursor</li>
+      <li>Every user-supplied URL passes an SSRF guard that rejects private, loopback and metadata ranges and re-checks redirects</li>
+      <li>Per-workspace secrets encrypted at rest; tokens stored hashed and shown once</li>
+      <li>React 19 and Vite front end; MCP server; n8n node; Chrome capture extension</li>
+    </ul>
+  </div>
+</section>
+
+<section class="lp-section lp-cta">
+  <h2>Run it this afternoon.</h2>
+  <p>One LLM key gets you AI, research and agent columns. Everything else is optional and configured at runtime.</p>
+  <div class="lp-actions">
+    <a class="lp-btn lp-btn--primary" href="/getting-started/quickstart/">Quickstart<Icon name="right-arrow" /></a>
+    <a class="lp-btn" href="/getting-started/first-workbook/">Build your first workbook</a>
+    <a class="lp-btn lp-btn--quiet" href="/community/license/">AGPL-3.0, explained</a>
+  </div>
+</section>

@@ -29,7 +29,6 @@ data/*.csv
 data/source_tests/
 data/pipeline_eval/
 # Runtime state written by services
-apps/api/mirror_state.json
 apps/api/services/leadgen/scrapers/data/br_import_checkpoint.json
 
 # ── HAR captures (large binary) ─────────────

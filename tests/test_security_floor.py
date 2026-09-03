@@ -206,22 +206,14 @@ def test_refresh_token_not_usable_on_query_token_transports():
     assert exc.value.status_code == 401
 
 
-def test_legacy_queue_http_and_websocket_require_authentication():
-    from fastapi import FastAPI
-    from fastapi.testclient import TestClient
-    from starlette.websockets import WebSocketDisconnect
-    from apps.api.routers.tasks import router as tasks_router
-    from apps.api.routers.websockets import router as websocket_router
+def test_legacy_download_queue_is_gone():
+    """The document-download queue (/api/queue + /ws) was removed before the
+    public release; make sure nothing re-mounts it."""
+    from apps.api.main import app
 
-    app = FastAPI()
-    app.include_router(tasks_router)
-    app.include_router(websocket_router)
-    client = TestClient(app)
-    assert client.get("/api/queue").status_code == 401
-    with pytest.raises(WebSocketDisconnect) as exc:
-        with client.websocket_connect("/ws"):
-            pass
-    assert exc.value.code == 4403
+    paths = {getattr(r, "path", None) for r in app.routes}
+    assert "/api/queue" not in paths
+    assert "/ws" not in paths
 
 
 # ── (C) Rate limiter actually enforces ──────────────────────────────────────
