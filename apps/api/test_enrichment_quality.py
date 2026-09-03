@@ -171,7 +171,7 @@ async def main():
         print(f"  {field:25s} → {', '.join(sorted(providers))}")
 
     # Save raw results
-    with open("/Users/user4/Desktop/lead-data/enrichment_assessment.json", "w") as f:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "enrichment_assessment.json"), "w") as f:
         json.dump({
             "leads": TEST_LEADS,
             "results": {k: {"results": v["results"]} for k, v in all_results.items()},

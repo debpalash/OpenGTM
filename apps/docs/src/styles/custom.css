@@ -1,0 +1,33 @@
+/* OpenGTM docs theme — accent matches the lockup gradient (indigo → teal). */
+:root {
+  --sl-color-accent-low: #1e2158;
+  --sl-color-accent: #6268f2;
+  --sl-color-accent-high: #c7c9fb;
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #e8eaf1;
+  --sl-color-gray-2: #bcc0cf;
+  --sl-color-gray-3: #838aa3;
+  --sl-color-gray-4: #4f566e;
+  --sl-color-gray-5: #2f3446;
+  --sl-color-gray-6: #1d2030;
+  --sl-color-black: #12141d;
+  --og-teal: #20cfaf;
+}
+:root[data-theme='light'] {
+  --sl-color-accent-low: #e4e5fd;
+  --sl-color-accent: #4a51e0;
+  --sl-color-accent-high: #23288a;
+  --sl-color-white: #12141d;
+  --sl-color-gray-1: #1f2233;
+  --sl-color-gray-2: #363b50;
+  --sl-color-gray-3: #5c627a;
+  --sl-color-gray-4: #979db3;
+  --sl-color-gray-5: #d2d5e0;
+  --sl-color-gray-6: #eef0f5;
+  --sl-color-gray-7: #f7f8fb;
+  --sl-color-black: #ffffff;
+}
+.site-title img { height: 2rem; }
+.hero img { max-width: 24rem; }
+/* Method badges in the generated API sidebar/pages read better slightly smaller. */
+.sl-badge { font-size: var(--sl-text-2xs); }

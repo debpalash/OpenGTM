@@ -1,0 +1,43 @@
+---
+title: OpenGTM
+description: Free, open-source, self-hostable GTM agents. Source leads, run enrichment waterfalls, research them with AI, and push to your CRM — with your own keys and the bill shown before you run.
+template: splash
+hero:
+  tagline: The open-source, self-hostable alternative to Clay. Source leads, enrich them through cost-ordered waterfalls, research them with AI agents, and push the results to your CRM — on your own infrastructure, with your own keys.
+  image:
+    file: ../../assets/opengtm-lockup.svg
+  actions:
+    - text: Quickstart
+      link: /getting-started/quickstart/
+      icon: right-arrow
+    - text: REST API reference
+      link: /api/
+      icon: open-book
+      variant: minimal
+    - text: GitHub
+      link: https://github.com/debpalash/opengtm
+      icon: github
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+  <Card title="See the bill before you run" icon="approve-check">
+    Every workbook prices a run as rows × providers before anything executes,
+    with a per-column breakdown of paid providers and a spend ceiling that
+    skips paid calls once the budget is gone.
+  </Card>
+  <Card title="Bring your own keys" icon="setting">
+    LLMs, enrichment vendors and destinations all run on your API keys at direct
+    vendor cost. OpenGTM is the engine; you own the spend and the data.
+  </Card>
+  <Card title="Never plan-gated" icon="rocket">
+    The REST API, webhooks, MCP tools, n8n node and Chrome extension are
+    first-class on every install. Automating OpenGTM is a use case, not an upsell.
+  </Card>
+  <Card title="Self-host everything" icon="laptop">
+    One `docker compose up` brings up the API, worker, Postgres, Redis and nginx.
+    AGPLv3, no seats, no per-credit markup, no data leaving your box.
+  </Card>
+</CardGrid>

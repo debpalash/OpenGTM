@@ -10,14 +10,11 @@ build/
 
 # ── Node ────────────────────────────────────
 node_modules/
-packages/*/node_modules/
-packages/proxy-manager/node_modules
 .turbo/
 apps/web/dist/
 
-# ── Lockfiles (regenerated) ─────────────────
-uv.lock
-bun.lock
+# ── Lockfiles ───────────────────────────────
+# uv.lock and bun.lock ARE tracked (reproducible CI + Docker builds).
 bun.lockb
 package-lock.json
 
@@ -25,7 +22,15 @@ package-lock.json
 *.db
 *.db-journal
 data/downloads/
+data/workspaces/
 backups/
+# Lead exports / scraped snapshots: real prospect data, never commit.
+data/*.csv
+data/source_tests/
+data/pipeline_eval/
+# Runtime state written by services
+apps/api/mirror_state.json
+apps/api/services/leadgen/scrapers/data/br_import_checkpoint.json
 
 # ── HAR captures (large binary) ─────────────
 har/
@@ -63,10 +68,9 @@ apps/api/services/leadgen/data/leads.db-wal
 *.db-shm
 *.db-wal
 
-# ── Data Collector (private) ────────────────
-data_collector/proxys.txt
-data_collector/checkpoint.json
-data_collector/*.db
+# ── Optional private add-ons (not part of the public repo) ──
+data_collector/
+packages/proxy-manager/
 
 # SearXNG local instance secret (use settings.yml.example as template)
 infra/searxng/settings.yml

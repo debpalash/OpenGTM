@@ -1,5 +1,5 @@
 {
-    "name": "@scribd/api",
+    "name": "@opengtm/api",
     "version": "1.0.0",
     "scripts": {
         "dev": "PYTHONPATH=$PYTHONPATH:../../ uv run uvicorn main:app --reload --port 8000"

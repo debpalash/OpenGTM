@@ -1,0 +1,46 @@
+name: Docs site
+
+# Deploys apps/docs to Cloudflare Workers at https://opengtm.palash.dev.
+#
+# Deliberately manual: the site is deployed only when a maintainer triggers
+# this workflow. To deploy automatically on every change to the docs, add
+#   push:
+#     branches: [main]
+#     paths: ["apps/docs/**", "scripts/export_openapi.py"]
+# to `on:`. Requires the CLOUDFLARE_API_TOKEN (Workers Scripts:Edit +
+# Workers Routes:Edit + Zone:Read on palash.dev) and CLOUDFLARE_ACCOUNT_ID
+# repository secrets.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "wrangler environment (blank = production)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1"
+      - run: bun install --frozen-lockfile
+      - name: Build
+        run: bun run --cwd apps/docs build
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/docs
+          command: deploy ${{ inputs.environment != '' && format('--env {0}', inputs.environment) || '' }}

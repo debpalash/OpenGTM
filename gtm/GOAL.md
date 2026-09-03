@@ -44,7 +44,7 @@ with no bottom — and would burn the founder's name doing it.
 **Therefore: the swarm's first job is to open the doors, not to knock on
 others'.**
 
-This is not a new conclusion. `docs/council/yupcha-council-strategy-2026-06-25.md`
+This is not a new conclusion. `docs/internal/council/yupcha-council-strategy-2026-06-25.md`
 reached it independently three weeks ago: *"distribution is the bottleneck."*
 This document agrees and makes it specific.
 

@@ -1,0 +1,34 @@
+{
+  "name": "@opengtm/docs",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "OpenGTM documentation, guides and REST API reference \u2014 https://opengtm.palash.dev",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint": "astro check",
+    "openapi:sync": "cd ../.. && uv run python scripts/export_openapi.py",
+    "openapi:check": "cd ../.. && uv run python scripts/export_openapi.py --check",
+    "cf:preview": "wrangler dev",
+    "cf:deploy": "wrangler deploy",
+    "og": "node scripts/og-image.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/starlight": "^0.42.0",
+    "astro": "^7.3.0",
+    "sharp": "^0.34.5",
+    "starlight-openapi": "^0.26.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "typescript": "~6.0.3",
+    "wrangler": "^4.129.0"
+  },
+  "optionalDependencies": {
+    "@bruits/satteri-linux-x64-gnu": "^0.10.5",
+    "@bruits/satteri-darwin-arm64": "^0.10.5"
+  }
+}

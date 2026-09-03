@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 128" role="img" aria-label="OpenGTM">
+  <defs>
+    <linearGradient id="open-a" x1="20" y1="92" x2="88" y2="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0.58" stop-color="#6268F2"/><stop offset="1" stop-color="#20CFAF"/>
+    </linearGradient>
+    <linearGradient id="open-b" x1="108" y1="36" x2="40" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0.58" stop-color="#6268F2"/><stop offset="1" stop-color="#20CFAF"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke-width="16" stroke-linecap="square" stroke-linejoin="round">
+    <path stroke="url(#open-a)" d="M20 92V43C20 30 30 20 43 20H88"/>
+    <path stroke="url(#open-b)" d="M108 36V85C108 98 98 108 85 108H40"/>
+  </g>
+  <text x="146" y="82" fill="#171613" font-family="Geist, Inter, system-ui, sans-serif" font-size="54" font-weight="650" letter-spacing="-2">OpenGTM</text>
+</svg>

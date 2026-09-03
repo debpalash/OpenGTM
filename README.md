@@ -6,8 +6,16 @@
 
 **GTM agents for the world.**
 
+[![CI](https://github.com/debpalash/opengtm/actions/workflows/ci.yml/badge.svg)](https://github.com/debpalash/opengtm/actions/workflows/ci.yml)
+[![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
+[![Docs](https://img.shields.io/badge/docs-opengtm.palash.dev-16a34a)](https://opengtm.palash.dev)
+[![API reference](https://img.shields.io/badge/API-reference-16a34a)](https://opengtm.palash.dev/api/)
+
 OpenGTM is a free, open-source, self-hostable alternative to
 [Clay.com](https://clay.com), licensed under AGPLv3.
+
+**Documentation:** https://opengtm.palash.dev · **REST API reference:**
+https://opengtm.palash.dev/api/
 
 Source leads, run enrichment waterfalls, research them with AI, and push the
 results to your CRM, Sheets, or a webhook — all on your own infrastructure, with
@@ -156,7 +164,12 @@ apps/
 │   ├── services/ workbook engine, enrichment providers + waterfalls,
 │   │             agent/autopilot, crm, outreach, signals, workspace, dedup
 │   └── core/     config, SSRF url_guard, shared utilities
-└── web/          React + TypeScript + ShadcnUI + Tailwind (Vite)
+├── web/          React + TypeScript + ShadcnUI + Tailwind (Vite)
+├── docs/         Documentation site (Astro + Starlight) → opengtm.palash.dev
+└── mcp/          MCP server exposing OpenGTM tools to agents
+packages/
+├── chrome-extension/   Capture tables / LinkedIn results into a workbook
+└── n8n-nodes-yupcha/   n8n community node
 ```
 
 | Layer | Technology |
@@ -251,6 +264,10 @@ it as a hosted service.
 
 ## Docs & Contributing
 
+- **https://opengtm.palash.dev** — guides, self-hosting, configuration, CLI,
+  MCP, integrations, and the generated [REST API reference](https://opengtm.palash.dev/api/).
+  Source lives in [`apps/docs`](apps/docs) (Astro + Starlight); the API
+  reference is regenerated with `uv run python scripts/export_openapi.py`.
 - [`docs/plans/clay-parity-specs.md`](docs/plans/clay-parity-specs.md) — Clay-parity
   implementation specs and roadmap (WI-1…WI-10)
 - [`docs/architecture.md`](docs/architecture.md) — runtime topology, data
@@ -264,4 +281,16 @@ it as a hosted service.
   health/test results
 
 Contributions welcome — open an issue or a PR. Code is grounded with file/line
-references in the docs above; start there to find the right entry point.
+references in the docs above; start there to find the right entry point. See
+[`CONTRIBUTING.md`](CONTRIBUTING.md) (DCO sign-off, conventions),
+[`SECURITY.md`](SECURITY.md) (private vulnerability reporting), and
+[`CHANGELOG.md`](CHANGELOG.md).
+
+### Releasing
+
+Maintainers: `scripts/release/preflight.sh` checks a ref for anything that must
+not ship (databases, `.env`, lead exports, submodule pointers, credential-shaped
+strings); `scripts/release/build-public-snapshot.sh` builds the `public/main`
+branch with maintainer-only paths stripped, and prints — but never runs — the
+push command. Pushing a `v*` tag builds the container image on GHCR and drafts a
+GitHub release.

@@ -1,0 +1,16 @@
+# Paths stripped from the public snapshot built by scripts/release/build-public-snapshot.sh.
+# One git pathspec per line. Blank lines and lines starting with '#' are ignored.
+#
+# Rule of thumb: anything that is maintainer strategy, private numbers,
+# third-party research digests, or references to private repositories.
+
+# Go-to-market strategy, contracts and the harness that reads them
+gtm/
+.claude/skills/gtm/
+scripts/gtm-verify.sh
+
+# Maintainer-only plans, council outputs and validation reports
+docs/internal/
+
+# Research inputs: AI-context digests of third-party repositories and legacy prototypes
+reference/

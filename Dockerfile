@@ -1,15 +1,23 @@
 # ──────────────────────────────────────────────────────────────────
-# Lead Data — Production Dockerfile
-# Multi-stage build: Frontend (Bun) → Backend (Python 3.13)
+# OpenGTM — Production Dockerfile
+# Multi-stage build: Frontend (Bun workspace) → Backend (Python 3.13)
 # ──────────────────────────────────────────────────────────────────
 
 # Stage 1: Build Frontend
+# The repo is a Bun workspace with a single root bun.lock, so the install has
+# to run from the root with every workspace manifest present for
+# --frozen-lockfile to resolve. Only apps/web is built here.
 FROM oven/bun:1 AS frontend-builder
 WORKDIR /app
-COPY apps/web/package.json apps/web/bun.lock* ./apps/web/
-RUN cd apps/web && bun install --frozen-lockfile
+COPY package.json bun.lock ./
+COPY apps/web/package.json ./apps/web/
+COPY apps/api/package.json ./apps/api/
+COPY apps/docs/package.json ./apps/docs/
+COPY packages/chrome-extension/package.json ./packages/chrome-extension/
+COPY packages/n8n-nodes-yupcha/package.json ./packages/n8n-nodes-yupcha/
+RUN bun install --frozen-lockfile --ignore-scripts
 COPY apps/web/ ./apps/web/
-RUN cd apps/web && bun run build
+RUN bun run --cwd apps/web build
 
 # Stage 2: Backend + serve static
 FROM python:3.13-slim

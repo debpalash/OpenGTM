@@ -1,0 +1,7 @@
+# Security-sensitive paths get an explicit reviewer.
+*                                   @debpalash
+apps/api/core/                      @debpalash
+apps/api/services/workspace/        @debpalash
+migrations/                         @debpalash
+.github/                            @debpalash
+scripts/release/                    @debpalash

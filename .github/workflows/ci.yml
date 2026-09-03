@@ -32,6 +32,10 @@ jobs:
         run: |
           uv run alembic upgrade head
           uv run alembic check
+      - name: OpenAPI document is up to date
+        env:
+          APP_ENV: test
+        run: uv run python scripts/export_openapi.py --check
 
   frontend:
     runs-on: ubuntu-latest
@@ -41,11 +45,18 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1"
-      # Exercise every shipped TypeScript package: web, Chrome capture, and
-      # the n8n community node. Root scripts fan out through Turborepo.
+      # Exercise every shipped TypeScript package: web, docs site, Chrome
+      # capture, and the n8n community node. Root scripts fan out through
+      # Turborepo.
       - run: bun install --frozen-lockfile
       - run: bun run lint
       - run: bun run build
+      - name: Upload built docs site
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site
+          path: apps/docs/dist
+          retention-days: 7
 
   compose-contract:
     runs-on: ubuntu-latest
@@ -57,3 +68,14 @@ jobs:
       # and provider keys remain optional in the checked-in example.
       - run: cp .env.example .env
       - run: docker compose config --quiet
+
+  release-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Fails when a database, .env, lead export, submodule pointer or
+      # credential-shaped string is tracked. See scripts/release/.
+      - run: scripts/release/preflight.sh HEAD

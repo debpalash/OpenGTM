@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
 set -u
 
-portless_bin="/home/pal/.local/share/mise/installs/node/26.7.0/bin/portless"
+# Resolve the Portless binary from PATH, falling back to the repo's node_modules.
+repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+portless_bin="$(command -v portless 2>/dev/null || true)"
+if [ -z "$portless_bin" ]; then
+  portless_bin="$repo_root/node_modules/.bin/portless"
+fi
+if [ ! -x "$portless_bin" ]; then
+  echo "portless not found. Run 'bun install' at the repo root first." >&2
+  exit 1
+fi
 
 echo "OpenGTM local domain setup"
 echo "This will configure https://opengtm.sh through Portless."
