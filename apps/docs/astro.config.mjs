@@ -15,7 +15,7 @@ export default defineConfig({
     starlight({
       title: 'OpenGTM',
       description:
-        'OpenGTM is a free, open-source, self-hostable alternative to Clay: source leads, run enrichment waterfalls, research them with AI, and push to your CRM — on your own infrastructure, with your own keys.',
+        'OpenGTM finds accounts and people, tracks buying signals, and drafts outreach. Self-host it and use your own provider keys.',
       logo: {
         light: './src/assets/opengtm-lockup.svg',
         dark: './src/assets/opengtm-lockup-dark.svg',
