@@ -271,6 +271,17 @@ class DeleteRowsRequest(BaseModel):
     row_ids: list[int] = Field(..., min_length=1, description="Row IDs to delete")
 
 
+class WorkbookRowUpdate(BaseModel):
+    """Editable values for one workbook row in an atomic bulk update."""
+    row_id: int
+    fields: dict[str, Any] = Field(..., min_length=1)
+
+
+class BulkUpdateRowsRequest(BaseModel):
+    """Bounded spreadsheet paste/update request."""
+    updates: list[WorkbookRowUpdate] = Field(..., min_length=1, max_length=1000)
+
+
 # ── Saved Views ───────────────────────────────────────────────────────────
 
 VIEW_FILTER_OPS = ("equals", "not_equals", "contains", "not_contains", "empty", "not_empty")

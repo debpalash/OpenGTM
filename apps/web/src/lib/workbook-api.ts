@@ -291,6 +291,23 @@ export async function updateWorkbookRow(
   return res.json()
 }
 
+/** Atomically update multiple snapshot rows (used by spreadsheet paste). */
+export async function bulkUpdateWorkbookRows(
+  workbookId: string,
+  updates: Array<{ row_id: number; fields: Record<string, any> }>,
+): Promise<{ status: string; updated_rows: number; reactive_columns: string[] }> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/rows`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ updates }),
+  })
+  if (!res.ok) {
+    const payload = await res.json().catch(() => null)
+    throw new Error(payload?.detail || "Failed to update workbook rows")
+  }
+  return res.json()
+}
+
 // ── CSV Import (creates leads in DB) ─────────────────────────────────────
 
 export async function importLeads(

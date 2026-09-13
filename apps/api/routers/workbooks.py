@@ -22,7 +22,7 @@ from apps.api.services.workbook.schemas import (
     WorkbookLeadRow, EnrichmentOverlay,
     RunWorkbookRequest, RunWorkbookResponse, RunCellRequest,
     AddColumnRequest, ExportRequest,
-    AddRowsRequest, ImportRowsRequest, DeleteRowsRequest,
+    AddRowsRequest, ImportRowsRequest, DeleteRowsRequest, BulkUpdateRowsRequest,
     GenerateColumnRequest, GenerateColumnResponse,
     WorkbookViewCreate, WorkbookViewUpdate,
     WorkbookViewResponse, WorkbookViewListResponse,
@@ -1521,6 +1521,81 @@ async def update_row_data(
                 recompute_result = {"status": "blocked", "detail": exc.detail}
     return {
         "status": "updated", "row_id": row_id, "fields": list(updates),
+        "reactive_columns": downstream_ids, "recompute": recompute_result,
+    }
+
+
+@router.patch("/{workbook_id}/rows")
+async def bulk_update_row_data(
+    request: Request,
+    workbook_id: str,
+    body: BulkUpdateRowsRequest,
+    recompute: bool = Query(default=True),
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_editor),
+):
+    """Atomically update up to 1,000 workbook rows for spreadsheet-style paste."""
+    wb = _owned_workbook(db, workbook_id, ctx)
+    row_ids = [item.row_id for item in body.updates]
+    if len(row_ids) != len(set(row_ids)):
+        raise HTTPException(status_code=400, detail="Duplicate row IDs are not allowed")
+    rows = db.query(WorkbookRow).filter(
+        WorkbookRow.workbook_id == workbook_id,
+        WorkbookRow.id.in_(row_ids),
+    ).all()
+    rows_by_id = {row.id: row for row in rows}
+    if len(rows_by_id) != len(row_ids):
+        raise HTTPException(status_code=404, detail="One or more workbook rows were not found")
+
+    allowed = set(LEAD_FIELD_MAP)
+    allowed.update(
+        column.get("lead_field") or column.get("id")
+        for column in (wb.columns_config or [])
+        if column.get("type") in ("lead_field", "input")
+    )
+    protected = {"id", "row_id", "lead_id"}
+    changed_fields: set[str] = set()
+    normalized: list[tuple[WorkbookRow, dict]] = []
+    for item in body.updates:
+        fields = {
+            key: value for key, value in item.fields.items()
+            if key in allowed and key not in protected
+        }
+        if not fields or len(fields) != len(item.fields):
+            raise HTTPException(status_code=400, detail=f"Row {item.row_id} contains non-editable fields")
+        normalized.append((rows_by_id[item.row_id], fields))
+        changed_fields.update(fields)
+
+    from sqlalchemy.orm.attributes import flag_modified
+    for row, fields in normalized:
+        row.data = {**(row.data or {}), **fields}
+        flag_modified(row, "data")
+    db.commit()
+
+    downstream_ids: list[str] = []
+    recompute_result = None
+    if recompute:
+        from apps.api.services.workbook.column_deps import downstream_columns
+        runnable = {"enrichment", "waterfall", "ai_formula", "output", "research", "agent", "http", "formula"}
+        reactive = downstream_columns(
+            wb.columns_config or [], changed_fields,
+            eligible=lambda column: column.get("type") in runnable and column.get("reactive", column.get("type") != "output"),
+        )
+        downstream_ids = [column["id"] for column in reactive if column.get("id")]
+        if downstream_ids:
+            try:
+                started = await run_workbook(
+                    request=request, workbook_id=workbook_id,
+                    body=RunWorkbookRequest(column_ids=downstream_ids, row_ids=row_ids, force=True),
+                    db=db, ctx=ctx,
+                )
+                recompute_result = started.model_dump()
+            except HTTPException as exc:
+                if exc.status_code != 402:
+                    raise
+                recompute_result = {"status": "blocked", "detail": exc.detail}
+    return {
+        "status": "updated", "updated_rows": len(normalized),
         "reactive_columns": downstream_ids, "recompute": recompute_result,
     }
 

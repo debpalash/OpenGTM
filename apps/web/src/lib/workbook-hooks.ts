@@ -8,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useCallback, useState } from "react"
 import {
   fetchWorkbooks, fetchWorkbook, createWorkbook, updateWorkbook,
-  deleteWorkbook, updateLeadField, updateWorkbookRow, importLeads, deleteLeads,
+  deleteWorkbook, updateLeadField, updateWorkbookRow, bulkUpdateWorkbookRows, importLeads, deleteLeads,
   deleteWorkbookRows,
   runWorkbook, stopWorkbook, runWorkbookCell,
   fetchWorkbookViews, createWorkbookView, updateWorkbookView, deleteWorkbookView,
@@ -130,6 +130,15 @@ export function useUpdateWorkbookRow(workbookId: string) {
   return useMutation({
     mutationFn: ({ rowId, fields }: { rowId: number; fields: Record<string, any> }) =>
       updateWorkbookRow(workbookId, rowId, fields),
+    onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
+  })
+}
+
+export function useBulkUpdateWorkbookRows(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (updates: Array<{ row_id: number; fields: Record<string, any> }>) =>
+      bulkUpdateWorkbookRows(workbookId, updates),
     onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
   })
 }
