@@ -255,6 +255,7 @@ function EditableCell({
   const showProvenance = !!provenance && !!displayValue && status === "complete"
   return (
     <div
+      data-editable-cell={isEditable ? "true" : undefined}
       className="relative flex items-center gap-1.5 px-2 py-1 h-full min-h-[32px] max-w-full cursor-default group/cell overflow-hidden"
       onDoubleClick={() => isEditable && setEditing(true)}
       title={showProvenance ? undefined : (error ? `Error: ${error}` : displayValue || (provider ? `via ${provider}` : undefined))}
@@ -503,6 +504,7 @@ export default function WorkbookEditorPage() {
   const [nlExplanation, setNlExplanation] = useState("")
   const [showColumnVisibility, setShowColumnVisibility] = useState(false)
   const [activityOpen, setActivityOpen] = useState(false)
+  const [activeCell, setActiveCell] = useState({ row: 0, column: 0 })
   const availableProviders = providersData?.providers ?? []
 
   // NL → column: call the generator and pre-fill the custom-column form.
@@ -951,12 +953,55 @@ export default function WorkbookEditorPage() {
 
   // ── Virtual scrolling ──────────────────────────────────────────────────
 
-  const { getVirtualItems, getTotalSize } = useVirtualizer({
+  const rowVirtualizer = useVirtualizer({
     count: table.getRowModel().rows.length,
     getScrollElement: () => tableContainerRef.current,
     estimateSize: () => 36,
     overscan: 20,
   })
+  const { getVirtualItems, getTotalSize } = rowVirtualizer
+
+  const focusGridCell = useCallback((row: number, column: number) => {
+    const rowCount = table.getRowModel().rows.length
+    const columnCount = table.getVisibleLeafColumns().length
+    if (!rowCount || !columnCount) return
+    const next = {
+      row: Math.max(0, Math.min(row, rowCount - 1)),
+      column: Math.max(0, Math.min(column, columnCount - 1)),
+    }
+    setActiveCell(next)
+    rowVirtualizer.scrollToIndex(next.row, { align: "auto" })
+    requestAnimationFrame(() => {
+      tableContainerRef.current
+        ?.querySelector<HTMLElement>(`[data-grid-row="${next.row}"][data-grid-column="${next.column}"]`)
+        ?.focus({ preventScroll: true })
+    })
+  }, [rowVirtualizer, table])
+
+  const handleGridKeyDown = useCallback((event: React.KeyboardEvent<HTMLTableCellElement>, row: number, column: number) => {
+    const target = event.target as HTMLElement
+    if (target.matches("input, textarea, select, [contenteditable=true]")) return
+
+    let nextRow = row
+    let nextColumn = column
+    if (event.key === "ArrowUp") nextRow--
+    else if (event.key === "ArrowDown" || event.key === "Enter") nextRow++
+    else if (event.key === "ArrowLeft") nextColumn--
+    else if (event.key === "ArrowRight") nextColumn++
+    else if (event.key === "Tab") nextColumn += event.shiftKey ? -1 : 1
+    else if (event.key === "Home") nextColumn = 0
+    else if (event.key === "End") nextColumn = table.getVisibleLeafColumns().length - 1
+    else if (event.key === "F2") {
+      event.preventDefault()
+      event.currentTarget.querySelector<HTMLElement>("[data-editable-cell]")?.dispatchEvent(
+        new MouseEvent("dblclick", { bubbles: true })
+      )
+      return
+    } else return
+
+    event.preventDefault()
+    focusGridCell(nextRow, nextColumn)
+  }, [focusGridCell, table])
 
 
 
@@ -1280,7 +1325,7 @@ export default function WorkbookEditorPage() {
           strategy={horizontalListSortingStrategy}
         >
       <div ref={tableContainerRef} className="flex-1 overflow-auto pl-2">
-        <table className="border-collapse text-sm" style={{ tableLayout: "fixed", minWidth: "100%" }}>
+        <table className="border-collapse text-sm" role="grid" aria-label="Workbook data grid" style={{ tableLayout: "fixed", minWidth: "100%" }}>
           <thead className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm">
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
@@ -1737,14 +1782,21 @@ export default function WorkbookEditorPage() {
                   key={row.id}
                   className="group row-stagger"
                 >
-                  {row.getVisibleCells().map(cell => {
+                  {row.getVisibleCells().map((cell, cellIndex) => {
                     const colConfig = columns.find(c => c.id === cell.column.id)
                     const w = cell.column.id === "_index" ? 50 : getColWidth(cell.column.id, colConfig?.width || 180)
                     return (
                     <td
                       key={cell.id}
                       data-col-id={cell.column.id}
-                      className="border-b border-r last:border-r-0 h-9 p-0 overflow-hidden"
+                      data-grid-row={virtualRow.index}
+                      data-grid-column={cellIndex}
+                      tabIndex={activeCell.row === virtualRow.index && activeCell.column === cellIndex ? 0 : -1}
+                      onFocus={() => setActiveCell({ row: virtualRow.index, column: cellIndex })}
+                      onKeyDown={event => handleGridKeyDown(event, virtualRow.index, cellIndex)}
+                      className={`border-b border-r last:border-r-0 h-9 p-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${
+                        activeCell.row === virtualRow.index && activeCell.column === cellIndex ? "bg-primary/[0.04]" : ""
+                      }`}
                       style={{ width: w, maxWidth: w }}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -2067,6 +2119,24 @@ export default function WorkbookEditorPage() {
                   />
                   <p className="text-[10px] text-muted-foreground/50">
                     Leave empty to always run. Supports ==, !=, &gt;, &lt;, AND, OR.
+                  </p>
+                </div>
+              )}
+
+              {/* Reactive dependency policy */}
+              {col.type !== "lead_field" && col.type !== "input" && (
+                <div className="space-y-1.5 rounded-md border p-2.5">
+                  <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={col.reactive ?? col.type !== "output"}
+                      onChange={e => updateCol({ reactive: e.target.checked })}
+                      className="size-3.5 rounded border-muted-foreground/40 accent-primary"
+                    />
+                    Recompute after upstream edits
+                  </label>
+                  <p className="text-[10px] leading-relaxed text-muted-foreground/60">
+                    Queues this column and its dependents when referenced input values change. Output columns default off to prevent unintended external actions.
                   </p>
                 </div>
               )}
