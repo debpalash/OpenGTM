@@ -107,7 +107,7 @@ async def optional_session_workspace(
     if not getattr(user, "is_active", True):
         raise HTTPException(status_code=400, detail="Inactive user")
     return await current_workspace(
-        user=user, x_workspace_id=request.headers.get("x-workspace-id"), db=db
+        request=request, user=user, x_workspace_id=request.headers.get("x-workspace-id"), db=db
     )
 
 
