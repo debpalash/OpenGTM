@@ -14,7 +14,7 @@ from apps.api.services.audiences.models import Audience, AudienceMember, Audienc
 from apps.api.services.audiences.refresh import refresh_audience as materialize_audience
 
 router = APIRouter(prefix="/api/audiences", tags=["audiences"])
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="audiences.write")
 
 FILTER_KEYS = {
     "city", "state", "score_tier", "status", "source", "company_size",

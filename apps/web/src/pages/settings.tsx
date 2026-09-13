@@ -343,10 +343,36 @@ function GovernanceAuditTab() {
   return <>
     <RetentionPolicyCard />
     <Separator />
+    <WorkspaceAccessCard />
+    <Separator />
     <div className="flex items-start justify-between gap-3"><div><h3 className="flex items-center gap-2 text-sm font-medium"><ShieldCheck className="size-4" /> Workspace audit log</h3><p className="mt-1 text-xs text-muted-foreground">Append-only records for authenticated API mutations. Request bodies and credentials are never retained.</p></div><div className="flex gap-2"><Button size="sm" variant="outline" onClick={load} disabled={loading}><RefreshCw className={loading ? "size-3 animate-spin" : "size-3"} /> Refresh</Button><Button size="sm" variant="outline" onClick={download}><Download className="size-3" /> Export CSV</Button></div></div>
     <Separator />
     <Card><CardContent className="p-0"><div className="max-h-[520px] overflow-auto"><table className="w-full text-left text-xs"><thead className="sticky top-0 bg-card text-muted-foreground"><tr><th className="p-3">Time</th><th className="p-3">Actor</th><th className="p-3">Action</th><th className="p-3">Resource</th><th className="p-3">Outcome</th><th className="p-3">Request ID</th></tr></thead><tbody>{events.map(event => <tr key={event.id} className="border-t"><td className="whitespace-nowrap p-3">{new Date(event.created_at).toLocaleString()}</td><td className="p-3">{event.actor_user_id ?? "system"} <span className="text-muted-foreground">({event.actor_role || "—"})</span></td><td className="p-3 font-mono">{event.method} {event.route}</td><td className="max-w-64 truncate p-3 font-mono text-muted-foreground">{event.resource_path}</td><td className="p-3"><Badge variant={event.outcome === "success" ? "outline" : "destructive"}>{event.response_status} {event.outcome}</Badge></td><td className="max-w-36 truncate p-3 font-mono text-muted-foreground" title={event.request_id}>{event.request_id}</td></tr>)}</tbody></table>{!loading && !events.length && <p className="p-10 text-center text-xs text-muted-foreground">No workspace mutations recorded yet.</p>}{loading && <div className="p-4"><Skeleton className="h-28 w-full" /></div>}</div></CardContent></Card>
   </>
+}
+
+interface RbacPermission { key: string; label: string; description: string; default_roles: string[] }
+interface RbacMember { user_id: number; username: string; role: string; overrides: Record<string, "allow" | "deny"> }
+
+function WorkspaceAccessCard() {
+  const [data, setData] = useState<{ permissions: RbacPermission[]; members: RbacMember[] } | null>(null)
+  const [saving, setSaving] = useState("")
+  const load = () => fetch("/api/governance/rbac").then(async response => {
+    if (!response.ok) throw new Error(response.status === 403 ? "Workspace admin access is required" : "Could not load access policy")
+    setData(await response.json())
+  })
+  useEffect(() => { load().catch(error => toast.error(error.message)) }, [])
+  const update = async (member: RbacMember, permission: RbacPermission, effect: string) => {
+    const key = `${member.user_id}:${permission.key}`; setSaving(key)
+    try {
+      const response = await fetch(`/api/governance/rbac/${member.user_id}/${permission.key}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ effect: effect === "default" ? null : effect }) })
+      if (!response.ok) throw new Error((await response.json()).detail || "Could not update permission")
+      await load(); toast.success(`${permission.label} access updated for ${member.username}`)
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not update permission") }
+    finally { setSaving("") }
+  }
+  if (!data) return <Skeleton className="h-64 w-full" />
+  return <Card><CardHeader><CardTitle className="flex items-center gap-2 text-sm"><ShieldCheck className="size-4" /> Member capability policy</CardTitle><CardDescription>Override the workspace role baseline per capability. Owners always retain full access; explicit denies take precedence for everyone else.</CardDescription></CardHeader><CardContent className="overflow-x-auto p-0"><table className="w-full min-w-[900px] text-left text-xs"><thead className="border-y bg-muted/30"><tr><th className="p-3">Member</th>{data.permissions.map(permission => <th key={permission.key} className="p-3"><span className="block">{permission.label}</span><span className="font-normal text-[9px] text-muted-foreground">{permission.default_roles.join(", ")}</span></th>)}</tr></thead><tbody>{data.members.map(member => <tr key={member.user_id} className="border-b"><td className="p-3"><span className="block font-medium">{member.username}</span><Badge variant="outline" className="mt-1 text-[9px]">{member.role}</Badge></td>{data.permissions.map(permission => { const value = member.overrides[permission.key] || "default"; const key = `${member.user_id}:${permission.key}`; return <td key={permission.key} className="p-2"><select aria-label={`${permission.label} for ${member.username}`} title={permission.description} value={value} disabled={member.role === "owner" || saving === key} onChange={event => update(member, permission, event.target.value)} className={`h-8 w-full rounded-md border bg-background px-2 text-[10px] ${value === "deny" ? "text-destructive" : value === "allow" ? "text-emerald-600" : ""}`}><option value="default">Role default</option><option value="allow">Allow</option><option value="deny">Deny</option></select></td>})}</tr>)}</tbody></table></CardContent></Card>
 }
 
 function RetentionPolicyCard() {

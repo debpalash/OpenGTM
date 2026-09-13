@@ -16,7 +16,7 @@ from typing import List, Optional, Dict
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace, require_workspace_role
 
 router = APIRouter(prefix="/api/crm/hubspot", tags=["CRM"])
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="activation.write")
 
 
 class ConnectRequest(BaseModel):

@@ -11,7 +11,7 @@ from typing import List, Optional
 from apps.api.core.tenancy import WorkspaceCtx, require_workspace_role
 
 router = APIRouter(prefix="/api/campaigns", tags=["campaigns"])
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="campaigns.write")
 
 
 class GenerateRequest(BaseModel):

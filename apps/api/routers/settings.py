@@ -1159,8 +1159,7 @@ def _require_workspace_editor(user, workspace_id: str) -> None:
     """Reject viewer/member credential writes for a workspace."""
     from apps.api.services.workspace import manager as ws
 
-    role = ws.member_role(workspace_id, user.id)
-    if role not in ("owner", "admin", "editor"):
+    if not ws.has_permission(workspace_id, user.id, "integrations.manage", ("admin", "editor")):
         raise HTTPException(status_code=403, detail="Insufficient workspace role")
 
 

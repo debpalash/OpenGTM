@@ -35,7 +35,7 @@ from apps.api.services.poller.models import (
 logger = logging.getLogger("poller.api")
 router = APIRouter(prefix="/api/watches", tags=["watches"])
 
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="signals.write")
 
 # signal_types each kind may emit (for validation against on_signal config).
 _KIND_SIGNAL_TYPES = {

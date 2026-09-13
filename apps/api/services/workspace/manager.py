@@ -74,6 +74,16 @@ def _get_db():
             FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
         );
 
+        CREATE TABLE IF NOT EXISTS workspace_member_permissions (
+            workspace_id TEXT NOT NULL,
+            user_id INTEGER NOT NULL,
+            permission TEXT NOT NULL,
+            effect TEXT NOT NULL CHECK(effect IN ('allow', 'deny')),
+            updated_at REAL NOT NULL,
+            PRIMARY KEY (workspace_id, user_id, permission),
+            FOREIGN KEY (workspace_id, user_id) REFERENCES workspace_members(workspace_id, user_id)
+        );
+
         -- Per-user active workspace (replaces the global ACTIVE_WORKSPACE setting)
         CREATE TABLE IF NOT EXISTS user_active_workspace (
             user_id INTEGER PRIMARY KEY,
@@ -171,6 +181,7 @@ def add_member(workspace_id: str, user_id: int, role: str = "member") -> None:
 
 def remove_member(workspace_id: str, user_id: int) -> None:
     conn = _get_db()
+    conn.execute("DELETE FROM workspace_member_permissions WHERE workspace_id = ? AND user_id = ?", (workspace_id, user_id))
     conn.execute(
         "DELETE FROM workspace_members WHERE workspace_id = ? AND user_id = ?",
         (workspace_id, user_id),
@@ -200,6 +211,43 @@ def member_role(workspace_id: str, user_id: int) -> Optional[str]:
     ).fetchone()
     conn.close()
     return row["role"] if row else None
+
+
+def list_members(workspace_id: str) -> List[dict]:
+    conn = _get_db()
+    rows = conn.execute("SELECT user_id, role, created_at FROM workspace_members WHERE workspace_id = ? ORDER BY created_at", (workspace_id,)).fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+def member_permissions(workspace_id: str, user_id: int) -> Dict[str, str]:
+    conn = _get_db()
+    rows = conn.execute("SELECT permission, effect FROM workspace_member_permissions WHERE workspace_id = ? AND user_id = ?", (workspace_id, user_id)).fetchall()
+    conn.close()
+    return {row["permission"]: row["effect"] for row in rows}
+
+
+def set_member_permission(workspace_id: str, user_id: int, permission: str, effect: Optional[str]) -> None:
+    if not is_member(workspace_id, user_id):
+        raise ValueError("workspace member not found")
+    conn = _get_db()
+    if effect is None:
+        conn.execute("DELETE FROM workspace_member_permissions WHERE workspace_id = ? AND user_id = ? AND permission = ?", (workspace_id, user_id, permission))
+    elif effect in {"allow", "deny"}:
+        conn.execute("INSERT INTO workspace_member_permissions (workspace_id, user_id, permission, effect, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(workspace_id, user_id, permission) DO UPDATE SET effect = excluded.effect, updated_at = excluded.updated_at", (workspace_id, user_id, permission, effect, time.time()))
+    else:
+        conn.close(); raise ValueError("effect must be allow, deny, or null")
+    conn.commit(); conn.close()
+
+
+def has_permission(workspace_id: str, user_id: int, permission: str, default_roles: tuple[str, ...]) -> bool:
+    role = member_role(workspace_id, user_id)
+    if role == "owner":
+        return True
+    override = member_permissions(workspace_id, user_id).get(permission)
+    if override is not None:
+        return override == "allow"
+    return role in default_roles
 
 
 def list_user_workspace_ids(user_id: int) -> List[str]:

@@ -30,7 +30,7 @@ from apps.api.services.outreach.store import get_outreach_store
 logger = logging.getLogger("outreach.api")
 router = APIRouter(prefix="/api/outreach", tags=["outreach"])
 
-require_admin = require_workspace_role("admin")
+require_admin = require_workspace_role("admin", permission="outreach.write")
 
 
 # ── Models ────────────────────────────────────────────────────

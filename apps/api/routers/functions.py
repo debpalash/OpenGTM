@@ -16,7 +16,7 @@ router = APIRouter(
     tags=["functions"],
     dependencies=[Depends(get_current_active_user)],
 )
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="tables.write")
 
 
 class CreateFunctionRequest(BaseModel):
