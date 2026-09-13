@@ -62,6 +62,7 @@ class MemberRoleUpdate(BaseModel):
 
 class OidcUpdate(BaseModel):
     enabled: bool = False
+    enforce_sso: bool = False
     issuer: str = ""
     client_id: str = ""
     client_secret: str = ""
@@ -214,7 +215,7 @@ def remove_workspace_member(user_id: int, ctx: WorkspaceCtx = Depends(require_ad
 @router.get("/sso")
 def get_sso(ctx: WorkspaceCtx = Depends(require_admin)):
     config = oidc.get_config(ctx.workspace_id)
-    return {**config, "client_secret_configured": bool(oidc.get_secret(ctx.workspace_id, oidc.SECRET_KEY))}
+    return {**config, "owner_password_fallback": True, "client_secret_configured": bool(oidc.get_secret(ctx.workspace_id, oidc.SECRET_KEY))}
 
 
 @router.put("/sso")
@@ -223,7 +224,7 @@ def update_sso(body: OidcUpdate, ctx: WorkspaceCtx = Depends(require_admin)):
         config = oidc.save_config(ctx.workspace_id, body.model_dump(), body.client_secret)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    return {**config, "client_secret_configured": bool(oidc.get_secret(ctx.workspace_id, oidc.SECRET_KEY))}
+    return {**config, "owner_password_fallback": True, "client_secret_configured": bool(oidc.get_secret(ctx.workspace_id, oidc.SECRET_KEY))}
 
 
 @router.get("/scim-token")

@@ -3,7 +3,7 @@ from types import SimpleNamespace
 from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
-from apps.api.core.security import get_current_active_user
+from apps.api.core.security import get_access_token_claims, get_current_active_user
 from apps.api.core import tenancy
 from apps.api.database import get_db
 
@@ -36,6 +36,7 @@ def test_current_workspace_context_reaches_async_endpoint(monkeypatch):
     app = FastAPI()
     fake_db = _FakeSession()
     app.dependency_overrides[get_current_active_user] = lambda: SimpleNamespace(id=1)
+    app.dependency_overrides[get_access_token_claims] = lambda: {"amr": ["pwd"]}
     app.dependency_overrides[get_db] = lambda: fake_db
 
     @app.get("/probe")

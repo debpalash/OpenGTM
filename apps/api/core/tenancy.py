@@ -29,9 +29,10 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from apps.api.models import User
-from apps.api.core.security import get_current_active_user
+from apps.api.core.security import get_access_token_claims, get_current_active_user
 from apps.api.database import get_db
 from apps.api.services.workspace import manager as ws_manager
+from apps.api.services.workspace import oidc
 
 
 # Active workspace id for the CURRENT execution context (request or worker unit
@@ -76,6 +77,7 @@ class WorkspaceCtx:
 async def current_workspace(
     request: Request,
     user: User = Depends(get_current_active_user),
+    token_claims: dict = Depends(get_access_token_claims),
     x_workspace_id: Optional[str] = Header(default=None),
     db: Session = Depends(get_db),
 ) -> WorkspaceCtx:
@@ -118,6 +120,15 @@ async def current_workspace(
             {"workspace_id": ws_id},
         )
     role = ws_manager.member_role(ws_id, user.id) or ""
+    sso_config = oidc.get_config(ws_id)
+    auth_methods = token_claims.get("amr") or []
+    if isinstance(auth_methods, str):
+        auth_methods = [auth_methods]
+    if sso_config.get("enforce_sso") and role != "owner" and "sso" not in auth_methods:
+        raise HTTPException(
+            status_code=403,
+            detail="This workspace requires SSO. Sign in with your organization identity.",
+        )
     request.state.workspace_id = ws_id
     request.state.actor_user_id = user.id
     request.state.actor_role = role

@@ -10,28 +10,32 @@ from apps.api.core.config import settings
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
-async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
-):
+async def get_access_token_claims(token: str = Depends(oauth2_scheme)) -> dict:
+    """Decode an access token once and expose its verified claims to dependencies."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
-        )
-        # Refresh tokens carry type="refresh" and must NOT be accepted as
-        # access tokens. Legacy access tokens (no "type" claim) stay valid.
-        if payload.get("type") == "refresh":
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        if payload.get("type") == "refresh" or not payload.get("sub"):
             raise credentials_exception
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
+        return payload
+    except JWTError as exc:
+        raise credentials_exception from exc
+
+
+async def get_current_user(
+    claims: dict = Depends(get_access_token_claims), db: Session = Depends(get_db)
+):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    username: str = claims.get("sub")
+    token_data = TokenData(username=username)
     user = db.query(User).filter(User.username == token_data.username).first()
     if user is None:
         raise credentials_exception

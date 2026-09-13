@@ -12,6 +12,10 @@ from apps.api.services.workspace.secrets import get_secret, set_secret
 
 CONFIG_KEY = "OIDC_CONFIG"
 SECRET_KEY = "OIDC_CLIENT_SECRET"
+DEFAULT_CONFIG = {
+    "enabled": False, "enforce_sso": False, "issuer": "", "client_id": "",
+    "allowed_domains": [], "auto_provision": False, "default_role": "viewer",
+}
 
 
 def allowed_issuer_hosts() -> set[str]:
@@ -31,13 +35,14 @@ def validate_issuer(issuer: str) -> str:
 def get_config(workspace_id: str) -> dict:
     raw = manager.get_workspace_setting(workspace_id, CONFIG_KEY, "")
     if not raw:
-        return {"enabled": False, "issuer": "", "client_id": "", "allowed_domains": [], "auto_provision": False, "default_role": "viewer"}
-    return json.loads(raw)
+        return dict(DEFAULT_CONFIG)
+    return {**DEFAULT_CONFIG, **json.loads(raw)}
 
 
 def save_config(workspace_id: str, config: dict, client_secret: str = "") -> dict:
     clean = {
         "enabled": bool(config.get("enabled")),
+        "enforce_sso": bool(config.get("enforce_sso")),
         "issuer": validate_issuer(str(config.get("issuer", ""))) if config.get("issuer") else "",
         "client_id": str(config.get("client_id", "")).strip(),
         "allowed_domains": sorted({str(item).strip().lower() for item in config.get("allowed_domains", []) if str(item).strip()}),
@@ -46,6 +51,8 @@ def save_config(workspace_id: str, config: dict, client_secret: str = "") -> dic
     }
     if clean["default_role"] not in {"viewer", "member", "editor"}:
         raise ValueError("OIDC default role must be viewer, member, or editor")
+    if clean["enforce_sso"] and not clean["enabled"]:
+        raise ValueError("SSO enforcement requires OIDC to be enabled")
     if clean["enabled"] and (not clean["issuer"] or not clean["client_id"] or not (client_secret.strip() or get_secret(workspace_id, SECRET_KEY))):
         raise ValueError("Enabled OIDC requires issuer, client_id, and client_secret")
     manager.set_workspace_setting(workspace_id, CONFIG_KEY, json.dumps(clean, separators=(",", ":")))
