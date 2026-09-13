@@ -10,6 +10,7 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from apps.api.core.security import get_current_active_user, get_current_admin_user
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 
 # Load .env into os.environ so we can seed DB from it
 _env_path = Path(__file__).resolve().parents[3] / ".env"
@@ -691,13 +692,25 @@ async def _fetch_openrouter_models(free_only: bool = False):
 # ── LLM Usage Stats ───────────────────────────────────────────
 
 @router.get("/llm-usage")
-def get_llm_usage(date: Optional[str] = None):
-    """Get LLM usage stats per provider for today (or a specific date)."""
-    from apps.api.services.leadgen.db import LeadDB
-    db = LeadDB()
-    usage = db.get_llm_usage(date)
-    totals = db.get_llm_usage_total()
-    db.close()
+def get_llm_usage(
+    date: Optional[str] = None,
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Get LLM usage from the caller's tenant-bound lead store."""
+    db = ctx.lead_db()
+    try:
+        if hasattr(db, "get_llm_usage"):
+            usage = db.get_llm_usage(date)
+            totals = db.get_llm_usage_total()
+        else:
+            # The shared PostgreSQL lead store does not yet persist LLM usage.
+            # Never fall back to another workspace's SQLite database.
+            usage = []
+            totals = {"total_calls": 0, "total_tokens": 0}
+    finally:
+        close = getattr(db, "close", None)
+        if close:
+            close()
 
     # Map provider names to their daily limits (approximate)
     DAILY_LIMITS = {
