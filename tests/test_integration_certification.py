@@ -3,8 +3,10 @@ from datetime import datetime, timezone
 
 from apps.api.services.integrations.certification import (
     INTEGRATIONS,
+    SIGNAL_SOURCES,
     attest_certificate,
     integration_catalog,
+    signal_source_catalog,
 )
 
 
@@ -52,3 +54,20 @@ def test_tampered_expired_and_wrong_key_certificates_fail_closed(tmp_path):
     expired = attest_certificate({**_certificate(), "expires_at": "2026-09-01T00:00:00Z"}, KEY)
     assert integration_catalog(path=_write(tmp_path, [expired]), key=KEY, now=NOW)[1]["maturity"] == "beta"
     assert integration_catalog(path=_write(tmp_path, [signed]), key="wrong", now=NOW)[1]["maturity"] == "beta"
+
+
+def test_signal_source_requires_its_own_attested_live_evidence(tmp_path):
+    certificate = attest_certificate({
+        **_certificate(),
+        "subject_id": "jobspy",
+        "integration_id": None,
+        "validation_run_id": "signal-live-1",
+    }, KEY)
+    sources = signal_source_catalog(
+        path=_write(tmp_path, [certificate]), key=KEY, now=NOW,
+    )
+    states = {item["id"]: item for item in sources}
+    assert len(states) == len(SIGNAL_SOURCES)
+    assert states["jobspy"]["maturity"] == "supported"
+    assert states["jobspy"]["certification"]["validation_run_id"] == "signal-live-1"
+    assert states["sec_edgar"]["maturity"] == "beta"
