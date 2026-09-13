@@ -18,6 +18,7 @@ EXPECTED_JOB_TYPES = {
     "watch_poll",
     "audience_refresh",
     "audience_destination_sync",
+    "research_playbook_run",
 }
 
 

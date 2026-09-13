@@ -53,6 +53,7 @@ JOB_TIMEOUTS = {
     "source_health_check": 1800,
     "audience_refresh": 900,
     "audience_destination_sync": 1800,
+    "research_playbook_run": 3600,
 }
 
 

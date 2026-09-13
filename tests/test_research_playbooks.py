@@ -1,0 +1,38 @@
+import asyncio
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+
+from apps.api.database import Base
+from apps.api.services.audiences.models import Audience, AudienceMember
+from apps.api.services.playbooks.models import PlaybookResult, PlaybookRun, ResearchPlaybook
+
+
+def test_playbook_worker_is_resumable_and_versions_prompt(monkeypatch):
+    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(engine, tables=[Audience.__table__, AudienceMember.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookResult.__table__])
+    Session = sessionmaker(bind=engine)
+    db = Session()
+    db.add(Audience(id="aud", workspace_id="ws", name="Target", filters={}))
+    db.add(AudienceMember(workspace_id="ws", audience_id="aud", lead_id=1, snapshot={"company": "Acme", "website": "acme.test"}))
+    playbook = ResearchPlaybook(id="pb", workspace_id="ws", name="Brief", prompt_template="Research {company} at {website}", version=3)
+    run = PlaybookRun(id="run", workspace_id="ws", playbook_id="pb", audience_id="aud", prompt_version=3, prompt_snapshot=playbook.prompt_template, max_members=10)
+    db.add_all([playbook, run]); db.commit(); db.close()
+
+    calls = []
+    async def fake_execute(prompt, lead, columns, **kwargs):
+        calls.append((prompt, lead, kwargs["workspace_id"]))
+        return {"success": True, "value": "Evidence-backed brief", "metadata": {"research": {"citations": ["https://acme.test"]}}}
+
+    from apps.api.services.playbooks import engine as worker
+    monkeypatch.setattr(worker, "SessionLocal", Session)
+    monkeypatch.setattr("apps.api.services.workbook.research_column.execute_research_column", fake_execute)
+    asyncio.run(worker.handle_playbook_run(1, {"workspace_id": "ws", "run_id": "run"}))
+    asyncio.run(worker.handle_playbook_run(2, {"workspace_id": "ws", "run_id": "run"}))
+    db = Session()
+    saved = db.query(PlaybookResult).one()
+    assert saved.status == "success" and saved.attempts == 1
+    assert db.query(PlaybookRun).one().status == "completed"
+    assert calls == [("Research {company} at {website}", {"company": "Acme", "website": "acme.test"}, "ws")]
+    db.close()
