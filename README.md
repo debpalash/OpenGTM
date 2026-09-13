@@ -334,7 +334,8 @@ user work runs through the durable worker. The remaining boundaries are:
   navigation, Shift-range selection, selection copy, F2 editing, Ctrl/Cmd+D
   fill-down, atomic multi-row TSV paste, and server-driven 1,000-row page
   navigation into editable columns. Search plus saved-view filters/sorts execute
-  globally before pagination.
+  globally before pagination, and CSV export streams every matching row with
+  spreadsheet-formula injection neutralized.
 
 See [`docs/plans/clay-parity-specs.md`](docs/plans/clay-parity-specs.md) for the work-item
 breakdown and sequencing.

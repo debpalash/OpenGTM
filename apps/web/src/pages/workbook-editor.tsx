@@ -20,7 +20,7 @@ import {
   useRunCell, useWorkbookViews, useConnectorRuns,
 } from "@/lib/workbook-hooks"
 import type { WorkbookLeadRow, EnrichmentOverlay, Provenance, AiColumnPreset, CostInfo, RunCostEstimate, WorkbookView } from "@/lib/workbook-api"
-import { fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost, generateColumn } from "@/lib/workbook-api"
+import { exportWorkbookCsv, fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost, generateColumn } from "@/lib/workbook-api"
 import {
   ArrowLeft, Plus, Play, Square, Download, Upload,
   Sparkles, Type, Layers, Brain, GitBranch, Send, Globe,
@@ -510,6 +510,7 @@ export default function WorkbookEditorPage() {
   const [nlExplanation, setNlExplanation] = useState("")
   const [showColumnVisibility, setShowColumnVisibility] = useState(false)
   const [activityOpen, setActivityOpen] = useState(false)
+  const [exportingCsv, setExportingCsv] = useState(false)
   const [activeCell, setActiveCell] = useState({ row: 0, column: 0 })
   const [selectionAnchor, setSelectionAnchor] = useState<{ row: number; column: number } | null>(null)
   const availableProviders = providersData?.providers ?? []
@@ -1175,28 +1176,24 @@ export default function WorkbookEditorPage() {
 
   // ── CSV Export ─────────────────────────────────────────────────────────
 
-  const handleExport = useCallback(() => {
-    if (!rows.length) return
-    const headers = columns.map(c => c.name)
-    const csvRows = rows.map(row =>
-      columns.map(col => {
-        if (col.type === "lead_field") {
-                    return (row.data || row.lead)[col.lead_field || col.id] ?? ""
-        }
-        return row.enrichments?.[col.id]?.value ?? ""
-      })
-    )
-
-    const csv = Papa.unparse({ fields: headers, data: csvRows })
-    const blob = new Blob([csv], { type: "text/csv" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${workbook?.name || "export"}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
-    toast.success("Exported CSV")
-  }, [rows, columns, workbook])
+  const handleExport = useCallback(async () => {
+    if (!workbook || exportingCsv) return
+    setExportingCsv(true)
+    try {
+      const blob = await exportWorkbookCsv(workbook.id, activeViewId, deferredGlobalFilter)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `${workbook.name || "export"}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success(`Exported ${queryTotalRows} row${queryTotalRows === 1 ? "" : "s"}`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "CSV export failed")
+    } finally {
+      setExportingCsv(false)
+    }
+  }, [activeViewId, deferredGlobalFilter, exportingCsv, queryTotalRows, workbook])
 
   // ── Loading / Error ────────────────────────────────────────────────────
 
@@ -1387,11 +1384,12 @@ export default function WorkbookEditorPage() {
 
           <button
             onClick={handleExport}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs hover:bg-muted transition-colors"
-            title="Export CSV"
+            disabled={exportingCsv}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs hover:bg-muted disabled:opacity-50 transition-colors"
+            title="Export every row matching the current search and saved view"
           >
-            <Download className="size-3.5" />
-            Export
+            {exportingCsv ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
+            {exportingCsv ? "Exporting…" : "Export"}
           </button>
 
           <div className="w-px h-5 bg-border mx-1" />

@@ -14,6 +14,9 @@ exercise validation + CRUD + tenancy logic without a real auth stack. Covers:
     value (mocked provider chain)
 """
 
+import csv
+import io
+
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -220,6 +223,26 @@ def test_saved_view_filters_and_sorts_before_pagination(client):
     wildcard = tc.get(f"/api/workbooks/{wid}", params={"search": "%"})
     assert wildcard.status_code == 200
     assert wildcard.json()["query_total_rows"] == 0
+
+    exported = tc.get(f"/api/workbooks/{wid}/export.csv", params={"view_id": created.json()["id"]})
+    assert exported.status_code == 200, exported.text
+    assert "attachment;" in exported.headers["content-disposition"]
+    records = list(csv.reader(io.StringIO(exported.content.decode("utf-8-sig"))))
+    assert records == [["Company"], ["Acme Gamma"], ["Acme Beta"], ["Acme Alpha"]]
+
+
+def test_csv_export_neutralizes_spreadsheet_formulas(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "company", "name": "Company", "type": "input", "lead_field": "company"},
+    ])
+    _mk_row(Session, wid, {"company": "=HYPERLINK(\"https://bad.example\")"})
+
+    response = tc.get(f"/api/workbooks/{wid}/export.csv")
+
+    assert response.status_code == 200
+    records = list(csv.reader(io.StringIO(response.content.decode("utf-8-sig"))))
+    assert records[1][0].startswith("'=HYPERLINK")
 
 
 # ── Views CRUD ────────────────────────────────────────────────────────────

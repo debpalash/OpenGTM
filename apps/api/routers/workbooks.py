@@ -2,11 +2,15 @@
 
 from datetime import datetime, timezone
 from typing import Optional
+import csv
+import io
 import json
 import logging
 import os
+import re
 
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Query, Request
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from sqlalchemy import String, cast, func as sa_func, or_
@@ -61,6 +65,64 @@ def _owned_workbook(db: Session, workbook_id: str, ctx: WorkspaceCtx) -> Workboo
     if not wb or wb.workspace_id != ctx.workspace_id:
         raise HTTPException(status_code=404, detail="Workbook not found")
     return wb
+
+
+def _workbook_value_expression(wb: Workbook, column_id: str):
+    column = next((item for item in (wb.columns_config or []) if item.get("id") == column_id), None)
+    if not column:
+        return None
+    if column.get("type") in ("lead_field", "input"):
+        return WorkbookRow.data[column.get("lead_field") or column_id].as_string()
+    return WorkbookRow.enrichments[column_id]["value"].as_string()
+
+
+def _workbook_rows_query(db: Session, wb: Workbook, view_id: Optional[str], search: Optional[str]):
+    """Build the tenant-owned row query shared by paging and full export."""
+    query = db.query(WorkbookRow).filter(WorkbookRow.workbook_id == wb.id)
+    view_config: dict = {}
+    if view_id:
+        view = db.query(WorkbookView).filter(
+            WorkbookView.id == view_id,
+            WorkbookView.workbook_id == wb.id,
+        ).first()
+        if view is None:
+            raise HTTPException(status_code=404, detail="Workbook view not found")
+        view_config = view.config or {}
+
+    for rule in view_config.get("filters", []):
+        expression = _workbook_value_expression(wb, rule.get("column", ""))
+        if expression is None:
+            continue
+        normalized = sa_func.lower(sa_func.coalesce(expression, ""))
+        expected = str(rule.get("value") or "").lower()
+        operation = rule.get("op")
+        if operation == "equals":
+            query = query.filter(normalized == expected)
+        elif operation == "not_equals":
+            query = query.filter(normalized != expected)
+        elif operation == "contains":
+            query = query.filter(normalized.contains(expected, autoescape=True))
+        elif operation == "not_contains":
+            query = query.filter(~normalized.contains(expected, autoescape=True))
+        elif operation == "empty":
+            query = query.filter(sa_func.trim(normalized) == "")
+        elif operation == "not_empty":
+            query = query.filter(sa_func.trim(normalized) != "")
+
+    normalized_search = (search or "").strip().lower()
+    if normalized_search:
+        query = query.filter(or_(
+            sa_func.lower(cast(WorkbookRow.data, String)).contains(normalized_search, autoescape=True),
+            sa_func.lower(cast(WorkbookRow.enrichments, String)).contains(normalized_search, autoescape=True),
+        ))
+
+    ordering = []
+    for rule in view_config.get("sort", []):
+        expression = _workbook_value_expression(wb, rule.get("column", ""))
+        if expression is not None:
+            ordering.append(expression.desc() if rule.get("dir") == "desc" else expression.asc())
+    ordering.append(WorkbookRow.position.asc())
+    return query, ordering
 
 
 def _query_leads(db: LeadDB, filter_criteria: dict, page: int = 1, page_size: int = 100) -> tuple[list[dict], int]:
@@ -372,64 +434,8 @@ async def get_workbook(
     ).scalar() or 0
 
     if v2_count > 0:
-        query = db.query(WorkbookRow).filter(
-            WorkbookRow.workbook_id == workbook_id
-        )
-        view_config: dict = {}
-        if view_id:
-            view = db.query(WorkbookView).filter(
-                WorkbookView.id == view_id,
-                WorkbookView.workbook_id == workbook_id,
-            ).first()
-            if view is None:
-                raise HTTPException(status_code=404, detail="Workbook view not found")
-            view_config = view.config or {}
-
-        columns_by_id = {column.get("id"): column for column in (wb.columns_config or [])}
-
-        def value_expression(column_id: str):
-            column = columns_by_id.get(column_id)
-            if not column:
-                return None
-            if column.get("type") in ("lead_field", "input"):
-                field = column.get("lead_field") or column_id
-                return WorkbookRow.data[field].as_string()
-            return WorkbookRow.enrichments[column_id]["value"].as_string()
-
-        for rule in view_config.get("filters", []):
-            expression = value_expression(rule.get("column", ""))
-            if expression is None:
-                continue
-            normalized = sa_func.lower(sa_func.coalesce(expression, ""))
-            expected = str(rule.get("value") or "").lower()
-            operation = rule.get("op")
-            if operation == "equals":
-                query = query.filter(normalized == expected)
-            elif operation == "not_equals":
-                query = query.filter(normalized != expected)
-            elif operation == "contains":
-                query = query.filter(normalized.contains(expected))
-            elif operation == "not_contains":
-                query = query.filter(~normalized.contains(expected))
-            elif operation == "empty":
-                query = query.filter(sa_func.trim(normalized) == "")
-            elif operation == "not_empty":
-                query = query.filter(sa_func.trim(normalized) != "")
-
-        normalized_search = (search or "").strip().lower()
-        if normalized_search:
-            query = query.filter(or_(
-                sa_func.lower(cast(WorkbookRow.data, String)).contains(normalized_search, autoescape=True),
-                sa_func.lower(cast(WorkbookRow.enrichments, String)).contains(normalized_search, autoescape=True),
-            ))
-
+        query, ordering = _workbook_rows_query(db, wb, view_id, search)
         query_total = query.with_entities(sa_func.count(WorkbookRow.id)).scalar() or 0
-        ordering = []
-        for rule in view_config.get("sort", []):
-            expression = value_expression(rule.get("column", ""))
-            if expression is not None:
-                ordering.append(expression.desc() if rule.get("dir") == "desc" else expression.asc())
-        ordering.append(WorkbookRow.position.asc())
         offset = (page - 1) * page_size
         wb_rows = query.order_by(*ordering).offset(offset).limit(page_size).all()
 
@@ -506,6 +512,62 @@ async def get_workbook(
         rows=rows, total_rows=total,
         query_total_rows=total,
         page=page, page_size=page_size,
+    )
+
+
+@router.get("/{workbook_id}/export.csv")
+async def export_workbook_csv(
+    workbook_id: str,
+    view_id: Optional[str] = Query(None),
+    search: Optional[str] = Query(None, max_length=500),
+    column_ids: Optional[list[str]] = Query(None),
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Stream every matching workbook row as formula-injection-safe UTF-8 CSV."""
+    wb = _owned_workbook(db, workbook_id, ctx)
+    available = {column.get("id"): column for column in (wb.columns_config or []) if column.get("id")}
+    requested = column_ids or list(available)
+    unknown = [column_id for column_id in requested if column_id not in available]
+    if unknown:
+        raise HTTPException(status_code=400, detail=f"Unknown columns: {', '.join(unknown[:10])}")
+    columns = [available[column_id] for column_id in requested]
+    query, ordering = _workbook_rows_query(db, wb, view_id, search)
+
+    def safe_value(value):
+        if value is None:
+            return ""
+        if isinstance(value, (dict, list)):
+            value = json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+        text_value = str(value)
+        if text_value.startswith(("=", "+", "-", "@", "\t", "\r")):
+            return "'" + text_value
+        return text_value
+
+    def generate():
+        buffer = io.StringIO(newline="")
+        writer = csv.writer(buffer, lineterminator="\r\n")
+        writer.writerow([column.get("name") or column["id"] for column in columns])
+        yield "\ufeff" + buffer.getvalue()
+        for row in query.order_by(*ordering).yield_per(500):
+            buffer.seek(0)
+            buffer.truncate(0)
+            values = []
+            for column in columns:
+                column_id = column["id"]
+                if column.get("type") in ("lead_field", "input"):
+                    value = (row.data or {}).get(column.get("lead_field") or column_id)
+                else:
+                    overlay = (row.enrichments or {}).get(column_id)
+                    value = overlay.get("value") if isinstance(overlay, dict) else overlay
+                values.append(safe_value(value))
+            writer.writerow(values)
+            yield buffer.getvalue()
+
+    filename = re.sub(r"[^A-Za-z0-9._-]+", "_", wb.name or "workbook").strip("._") or "workbook"
+    return StreamingResponse(
+        generate(), media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}.csv"'},
     )
 
 

@@ -301,6 +301,23 @@ export async function updateWorkbookRow(
   return res.json()
 }
 
+export async function exportWorkbookCsv(
+  id: string,
+  viewId?: string | null,
+  search?: string,
+): Promise<Blob> {
+  const params = new URLSearchParams()
+  if (viewId) params.set("view_id", viewId)
+  if (search?.trim()) params.set("search", search.trim())
+  const suffix = params.size ? `?${params}` : ""
+  const res = await fetch(`${API}/api/workbooks/${id}/export.csv${suffix}`)
+  if (!res.ok) {
+    const payload = await res.json().catch(() => null)
+    throw new Error(payload?.detail || "Failed to export workbook")
+  }
+  return res.blob()
+}
+
 /** Atomically update multiple snapshot rows (used by spreadsheet paste). */
 export async function bulkUpdateWorkbookRows(
   workbookId: string,
