@@ -39,8 +39,8 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = create_access_token(data={"sub": user.username})
-    refresh_token = create_refresh_token(data={"sub": user.username})
+    access_token = create_access_token(data={"sub": user.username, "amr": ["pwd"]})
+    refresh_token = create_refresh_token(data={"sub": user.username, "amr": ["pwd"]})
     # Update last_login
     user.last_login = datetime.now(timezone.utc)
     db.commit()
@@ -75,10 +75,11 @@ async def refresh_access_token(body: RefreshRequest, db: Session = Depends(get_d
     user = db.query(User).filter(User.username == username).first()
     if user is None or not user.is_active:
         raise invalid
+    auth_methods = payload.get("amr") or ["pwd"]
     return {
-        "access_token": create_access_token(data={"sub": username}),
+        "access_token": create_access_token(data={"sub": username, "amr": auth_methods}),
         "token_type": "bearer",
-        "refresh_token": create_refresh_token(data={"sub": username}),
+        "refresh_token": create_refresh_token(data={"sub": username, "amr": auth_methods}),
     }
 
 

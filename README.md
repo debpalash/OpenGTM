@@ -315,9 +315,11 @@ user work runs through the durable worker. The remaining boundaries are:
 - **A few legacy utilities are global and admin-only.** The legacy
   person/scrape history, CRM-data utility, and reusable-function catalog
   are isolated from normal workspace users rather than fully tenantized.
-- **Hosted-SaaS hardening is not complete.** Before exposing OpenGTM to mutually
-  hostile public tenants, add a controlled outbound egress proxy, managed KMS,
-  SSO/audit export, backup/restore drills, and an external security review.
+- **Hosted-SaaS hardening is not complete.** OIDC SSO (including enforceable
+  member-only sessions with owner break-glass), SCIM, and audit export are built,
+  but still need controlled-live IdP validation. Before exposing OpenGTM to
+  mutually hostile public tenants, also add a controlled outbound egress proxy,
+  managed KMS, backup/restore drills, and an external security review.
 - **Billing is an optional mechanism, not a hosted billing operation.** The
   feature-flagged credit ledger, idempotent debit, 402 gate, and Stripe top-up
   webhook exist. Tax, refunds, subscriptions, and customer lifecycle operations

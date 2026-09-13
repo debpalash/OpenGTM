@@ -101,13 +101,15 @@ async def optional_session_workspace(
     raw = auth.split(" ", 1)[1].strip()
     if not raw or raw.startswith(ingest_svc.TOKEN_PREFIX):
         return None
-    from apps.api.core.security import get_current_user
+    from apps.api.core.security import get_access_token_claims, get_current_user
 
-    user = await get_current_user(token=raw, db=db)  # 401 on invalid JWT
+    claims = await get_access_token_claims(token=raw)
+    user = await get_current_user(claims=claims, db=db)  # 401 on invalid JWT
     if not getattr(user, "is_active", True):
         raise HTTPException(status_code=400, detail="Inactive user")
     return await current_workspace(
-        request=request, user=user, x_workspace_id=request.headers.get("x-workspace-id"), db=db
+        request=request, user=user, token_claims=claims,
+        x_workspace_id=request.headers.get("x-workspace-id"), db=db
     )
 
 

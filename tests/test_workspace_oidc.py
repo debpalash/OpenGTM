@@ -7,8 +7,13 @@ from sqlalchemy.orm import sessionmaker
 
 from apps.api.database import Base
 from apps.api.models import User
-from apps.api.routers.auth import sso_callback
+from apps.api.routers.auth import refresh_access_token, sso_callback
+from apps.api.auth import create_refresh_token, decode_token
+from apps.api.schemas.auth import RefreshRequest
+from apps.api.core.tenancy import current_workspace
 from apps.api.services.workspace import manager, oidc
+from fastapi import HTTPException
+from starlette.requests import Request
 
 
 def _session():
@@ -41,6 +46,52 @@ def test_oidc_config_is_allowlisted_and_secret_is_encrypted(monkeypatch, tmp_pat
     raw = manager.get_workspace_setting(workspace.id, oidc.SECRET_KEY)
     assert raw and "top-secret" not in raw
     assert oidc.get_secret(workspace.id, oidc.SECRET_KEY) == "top-secret"
+
+
+def test_oidc_enforcement_requires_enabled_provider(monkeypatch, tmp_path):
+    monkeypatch.setattr(manager, "_project_root", lambda: Path(tmp_path))
+    workspace = manager.create_workspace("OIDC Enforced", owner_id=1)
+    with pytest.raises(ValueError, match="requires OIDC"):
+        oidc.save_config(workspace.id, {"enforce_sso": True})
+
+
+def test_workspace_sso_enforcement_and_owner_break_glass(monkeypatch, tmp_path):
+    monkeypatch.setattr(manager, "_project_root", lambda: Path(tmp_path))
+    workspace = manager.create_workspace("Required SSO", owner_id=1)
+    manager.add_member(workspace.id, 2, "member")
+    manager.set_workspace_setting(
+        workspace.id,
+        oidc.CONFIG_KEY,
+        __import__("json").dumps({"enabled": True, "enforce_sso": True}),
+    )
+    db = _session()
+    scope = {"type": "http", "method": "GET", "path": "/", "headers": []}
+
+    member = User(id=2, username="member", hashed_password="x", is_active=True)
+    with pytest.raises(HTTPException, match="requires SSO") as exc:
+        asyncio.run(current_workspace(Request(scope), member, {"amr": ["pwd"]}, workspace.id, db))
+    assert exc.value.status_code == 403
+
+    ctx = asyncio.run(current_workspace(Request(scope), member, {"amr": ["sso"]}, workspace.id, db))
+    assert ctx.workspace_id == workspace.id
+
+    owner = User(id=1, username="owner", hashed_password="x", is_active=True)
+    ctx = asyncio.run(current_workspace(Request(scope), owner, {"amr": ["pwd"]}, workspace.id, db))
+    assert ctx.user.id == 1
+    db.close()
+
+
+def test_refresh_preserves_sso_authentication_method():
+    db = _session()
+    db.add(User(id=1, username="sso@example.com", hashed_password="x", is_active=True))
+    db.commit()
+    original = create_refresh_token({"sub": "sso@example.com", "amr": ["sso"]})
+
+    result = asyncio.run(refresh_access_token(RefreshRequest(refresh_token=original), db))
+
+    assert decode_token(result["access_token"])["amr"] == ["sso"]
+    assert decode_token(result["refresh_token"])["amr"] == ["sso"]
+    db.close()
 
 
 def test_oidc_callback_jit_provisions_binds_and_deprovisions(monkeypatch, tmp_path):
