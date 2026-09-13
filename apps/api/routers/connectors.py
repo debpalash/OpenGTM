@@ -13,13 +13,20 @@ router = APIRouter(prefix="/api/connectors", tags=["connectors"])
 def connector_catalog(ctx: WorkspaceCtx = Depends(current_workspace)):
     review = validate_manifest_directory()
     signatures = {item["id"]: item.get("signature", {"status": "unsigned"}) for item in review["connectors"]}
+    manifests = load_all_manifests()
+    from apps.api.services.integrations.certification import certification_statuses
+
+    maturity = certification_statuses([
+        f"connector:{manifest.name}" for manifest in manifests
+    ])
     connectors = []
-    for manifest in load_all_manifests():
+    for manifest in manifests:
         item = manifest.catalog_entry()
         credential_key = item.pop("credential_key", None)
         item["configured"] = manifest.auth.type == "none" or bool(credential_key and get_secret(ctx.workspace_id, credential_key))
         item["auth_type"] = manifest.auth.type
         item["signature"] = signatures.get(manifest.name, {"status": "unknown"})
+        item.update(maturity[f"connector:{manifest.name}"])
         connectors.append(item)
     return {"manifest_version": "1", "signature_policy": review["signature_policy"], "total": len(connectors), "connectors": connectors}
 

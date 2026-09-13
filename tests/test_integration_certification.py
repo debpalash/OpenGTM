@@ -7,6 +7,7 @@ from apps.api.services.integrations.certification import (
     SIGNAL_SOURCES,
     attest_certificate,
     agent_capability_catalog,
+    certification_statuses,
     integration_catalog,
     signal_source_catalog,
 )
@@ -89,3 +90,18 @@ def test_agent_capability_certification_is_independent(tmp_path):
     assert len(states) == len(AGENT_CAPABILITIES)
     assert states["grounded_research"]["maturity"] == "supported"
     assert states["chained_playbooks"]["maturity"] == "beta"
+
+
+def test_installed_connector_maturity_requires_matching_subject(tmp_path):
+    certificate = attest_certificate({
+        **_certificate(),
+        "subject_id": "connector:leadmagic_email",
+        "integration_id": None,
+        "validation_run_id": "connector-live-1",
+    }, KEY)
+    statuses = certification_statuses(
+        ["connector:leadmagic_email", "connector:prospeo_mobile"],
+        path=_write(tmp_path, [certificate]), key=KEY, now=NOW,
+    )
+    assert statuses["connector:leadmagic_email"]["maturity"] == "supported"
+    assert statuses["connector:prospeo_mobile"]["maturity"] == "beta"

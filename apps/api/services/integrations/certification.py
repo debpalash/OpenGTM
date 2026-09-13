@@ -6,6 +6,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
@@ -48,6 +49,12 @@ def _subject_id(certificate: Mapping[str, Any]) -> str:
     return str(certificate.get("subject_id") or certificate.get("integration_id") or "")
 
 
+def _known_subject(subject_id: str) -> bool:
+    return subject_id in {*INTEGRATIONS, *SIGNAL_SOURCES, *AGENT_CAPABILITIES} or bool(
+        re.fullmatch(r"connector:[a-z][a-z0-9_-]{0,79}", subject_id)
+    )
+
+
 def _payload(certificate: Mapping[str, Any]) -> bytes:
     unsigned = {key: value for key, value in certificate.items() if key != "attestation"}
     return json.dumps(
@@ -87,9 +94,7 @@ def _valid(certificate: Mapping[str, Any], key: str, now: datetime) -> bool:
     expires_at = _parse_time(certificate.get("expires_at"))
     evidence = urlsplit(str(certificate.get("evidence_url") or ""))
     return bool(
-        _subject_id(certificate) in {
-            *INTEGRATIONS, *SIGNAL_SOURCES, *AGENT_CAPABILITIES,
-        }
+        _known_subject(_subject_id(certificate))
         and certificate.get("status") == "supported"
         and certificate.get("build_sha")
         and certificate.get("validation_run_id")
@@ -225,3 +230,46 @@ def agent_capability_catalog(
         }
         for capability_id, definition in AGENT_CAPABILITIES.items()
     ]
+
+
+def certification_statuses(
+    subject_ids: list[str],
+    *,
+    path: str | Path | None = None,
+    key: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Resolve maturity for a bounded runtime catalog such as installed connectors."""
+    path = path or os.getenv(CERTIFICATION_PATH_ENV, "")
+    key = key if key is not None else os.getenv(CERTIFICATION_KEY_ENV, "")
+    now = now or datetime.now(timezone.utc)
+    requested = set(subject_ids)
+    certificates: list[Any] = []
+    if path:
+        try:
+            loaded = json.loads(Path(path).read_text(encoding="utf-8"))
+            certificates = loaded if isinstance(loaded, list) else []
+        except (OSError, json.JSONDecodeError):
+            certificates = []
+    valid = {
+        _subject_id(item): item
+        for item in certificates
+        if isinstance(item, dict)
+        and _subject_id(item) in requested
+        and _valid(item, key or "", now)
+    }
+    return {
+        subject_id: {
+            "maturity": "supported" if subject_id in valid else "beta",
+            "certification": {
+                field: valid[subject_id][field]
+                for field in (
+                    "validated_at", "expires_at", "build_sha",
+                    "validation_run_id", "evidence_url",
+                )
+            }
+            if subject_id in valid
+            else None,
+        }
+        for subject_id in subject_ids
+    }

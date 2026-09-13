@@ -28,3 +28,8 @@ non-secret certification metadata. Missing files, malformed JSON, missing
 keys, expired records, unknown integrations, HTTP evidence links, wrong keys,
 and post-signing edits all fail closed to `beta`. Rotate the key to revoke all
 current certifications immediately.
+
+Installed declarative connectors use `subject_id: connector:<manifest-name>`.
+Their Ed25519 publisher signature and controlled-live HMAC certification are
+independent gates: the former proves provenance, while the latter proves the
+specific package has current operational evidence.

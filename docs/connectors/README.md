@@ -42,6 +42,13 @@ uv run python -m apps.api.cli connector-install path/provider.ogc \
 
 The default `optional` policy keeps local unsigned connectors usable, while
 still rejecting a present signature that is invalid or from an untrusted key.
+
+Publisher trust proves package authorship, not production behavior. Catalog
+entries remain `beta` until a controlled-live certificate with
+`subject_id: connector:<manifest-name>` is signed and deployed through the
+integration certification process. The catalog exposes the non-secret evidence
+metadata when certified; editing either the certificate or evidence fields
+returns the connector to beta.
 Managed catalogs should set `CONNECTOR_SIGNATURE_POLICY=required`; then unsigned
 packages are neither loaded nor accepted by review automation. Private keys are
 never stored in a manifest, signature envelope, or trust store.
