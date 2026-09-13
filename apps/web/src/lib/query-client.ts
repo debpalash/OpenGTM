@@ -30,6 +30,11 @@ export const queryKeys = {
     events: (id: string) => ["audiences", id, "events"] as const,
   },
   audienceDestinations: (audienceId: string) => ["audience-destinations", audienceId] as const,
+  playbooks: {
+    all: ["research-playbooks"] as const,
+    runs: (id: string) => ["research-playbooks", id, "runs"] as const,
+    results: (id: string) => ["research-playbooks", "runs", id, "results"] as const,
+  },
   jobs: {
     all: ["jobs"] as const,
     list: (status?: string) => ["jobs", "list", status] as const,
