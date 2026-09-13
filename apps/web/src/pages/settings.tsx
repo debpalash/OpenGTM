@@ -5,7 +5,7 @@ import {
   Eye, EyeOff, Star, Globe, Diamond, Leaf, Zap,
   Brain, Sparkles, Shell, Hexagon, Cloud, Smile, Flame, Waves,
   Search, Bot, BarChart3, Radio, Mail, ShieldCheck, Download, RefreshCw,
-  Database, Trash2,
+  Database, Trash2, UserPlus,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -357,6 +357,8 @@ interface RbacMember { user_id: number; username: string; role: string; override
 function WorkspaceAccessCard() {
   const [data, setData] = useState<{ permissions: RbacPermission[]; members: RbacMember[] } | null>(null)
   const [saving, setSaving] = useState("")
+  const [username, setUsername] = useState("")
+  const [newRole, setNewRole] = useState("viewer")
   const load = () => fetch("/api/governance/rbac").then(async response => {
     if (!response.ok) throw new Error(response.status === 403 ? "Workspace admin access is required" : "Could not load access policy")
     setData(await response.json())
@@ -371,8 +373,37 @@ function WorkspaceAccessCard() {
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not update permission") }
     finally { setSaving("") }
   }
+  const addMember = async () => {
+    if (!username.trim()) return
+    setSaving("add")
+    try {
+      const response = await fetch("/api/governance/members", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: username.trim(), role: newRole }) })
+      if (!response.ok) throw new Error((await response.json()).detail || "Could not add member")
+      setUsername(""); await load(); toast.success("Workspace member added")
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not add member") }
+    finally { setSaving("") }
+  }
+  const changeRole = async (member: RbacMember, role: string) => {
+    setSaving(`role:${member.user_id}`)
+    try {
+      const response = await fetch(`/api/governance/members/${member.user_id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ role }) })
+      if (!response.ok) throw new Error((await response.json()).detail || "Could not update role")
+      await load(); toast.success(`${member.username} is now ${role}`)
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not update role") }
+    finally { setSaving("") }
+  }
+  const removeMember = async (member: RbacMember) => {
+    if (!window.confirm(`Remove ${member.username} from this workspace?`)) return
+    setSaving(`remove:${member.user_id}`)
+    try {
+      const response = await fetch(`/api/governance/members/${member.user_id}`, { method: "DELETE" })
+      if (!response.ok) throw new Error((await response.json()).detail || "Could not remove member")
+      await load(); toast.success(`${member.username} removed`)
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not remove member") }
+    finally { setSaving("") }
+  }
   if (!data) return <Skeleton className="h-64 w-full" />
-  return <Card><CardHeader><CardTitle className="flex items-center gap-2 text-sm"><ShieldCheck className="size-4" /> Member capability policy</CardTitle><CardDescription>Override the workspace role baseline per capability. Owners always retain full access; explicit denies take precedence for everyone else.</CardDescription></CardHeader><CardContent className="overflow-x-auto p-0"><table className="w-full min-w-[900px] text-left text-xs"><thead className="border-y bg-muted/30"><tr><th className="p-3">Member</th>{data.permissions.map(permission => <th key={permission.key} className="p-3"><span className="block">{permission.label}</span><span className="font-normal text-[9px] text-muted-foreground">{permission.default_roles.join(", ")}</span></th>)}</tr></thead><tbody>{data.members.map(member => <tr key={member.user_id} className="border-b"><td className="p-3"><span className="block font-medium">{member.username}</span><Badge variant="outline" className="mt-1 text-[9px]">{member.role}</Badge></td>{data.permissions.map(permission => { const value = member.overrides[permission.key] || "default"; const key = `${member.user_id}:${permission.key}`; return <td key={permission.key} className="p-2"><select aria-label={`${permission.label} for ${member.username}`} title={permission.description} value={value} disabled={member.role === "owner" || saving === key} onChange={event => update(member, permission, event.target.value)} className={`h-8 w-full rounded-md border bg-background px-2 text-[10px] ${value === "deny" ? "text-destructive" : value === "allow" ? "text-emerald-600" : ""}`}><option value="default">Role default</option><option value="allow">Allow</option><option value="deny">Deny</option></select></td>})}</tr>)}</tbody></table></CardContent></Card>
+  return <Card><CardHeader><CardTitle className="flex items-center gap-2 text-sm"><ShieldCheck className="size-4" /> Workspace members and capability policy</CardTitle><CardDescription>Provision existing OpenGTM users, manage their role, and override its capability baseline. Owners always retain full access.</CardDescription><div className="flex flex-col gap-2 pt-3 sm:flex-row"><Input aria-label="Username to add" placeholder="Existing username" value={username} onChange={event => setUsername(event.target.value)} onKeyDown={event => { if (event.key === "Enter") addMember() }} /><select aria-label="New member role" value={newRole} onChange={event => setNewRole(event.target.value)} className="h-9 rounded-md border bg-background px-3 text-xs"><option value="viewer">Viewer</option><option value="member">Member</option><option value="editor">Editor</option><option value="admin">Admin</option></select><Button size="sm" onClick={addMember} disabled={!username.trim() || saving === "add"}>{saving === "add" ? <Loader2 className="size-3 animate-spin" /> : <UserPlus className="size-3" />} Add member</Button></div></CardHeader><CardContent className="overflow-x-auto p-0"><table className="w-full min-w-[980px] text-left text-xs"><thead className="border-y bg-muted/30"><tr><th className="p-3">Member</th>{data.permissions.map(permission => <th key={permission.key} className="p-3"><span className="block">{permission.label}</span><span className="font-normal text-[9px] text-muted-foreground">{permission.default_roles.join(", ")}</span></th>)}</tr></thead><tbody>{data.members.map(member => <tr key={member.user_id} className="border-b"><td className="p-3"><span className="block font-medium">{member.username}</span><div className="mt-1 flex items-center gap-1">{member.role === "owner" ? <Badge variant="outline" className="text-[9px]">owner</Badge> : <><select aria-label={`Role for ${member.username}`} value={member.role} disabled={saving === `role:${member.user_id}`} onChange={event => changeRole(member, event.target.value)} className="h-7 rounded-md border bg-background px-1 text-[9px]"><option value="viewer">Viewer</option><option value="member">Member</option><option value="editor">Editor</option><option value="admin">Admin</option></select><Button aria-label={`Remove ${member.username}`} title={`Remove ${member.username}`} size="icon" variant="ghost" className="size-7 text-destructive" disabled={saving === `remove:${member.user_id}`} onClick={() => removeMember(member)}><Trash2 className="size-3" /></Button></>}</div></td>{data.permissions.map(permission => { const value = member.overrides[permission.key] || "default"; const key = `${member.user_id}:${permission.key}`; return <td key={permission.key} className="p-2"><select aria-label={`${permission.label} for ${member.username}`} title={permission.description} value={value} disabled={member.role === "owner" || saving === key} onChange={event => update(member, permission, event.target.value)} className={`h-8 w-full rounded-md border bg-background px-2 text-[10px] ${value === "deny" ? "text-destructive" : value === "allow" ? "text-emerald-600" : ""}`}><option value="default">Role default</option><option value="allow">Allow</option><option value="deny">Deny</option></select></td>})}</tr>)}</tbody></table></CardContent></Card>
 }
 
 function RetentionPolicyCard() {

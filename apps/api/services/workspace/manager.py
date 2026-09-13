@@ -179,6 +179,19 @@ def add_member(workspace_id: str, user_id: int, role: str = "member") -> None:
     conn.close()
 
 
+def set_member_role(workspace_id: str, user_id: int, role: str) -> bool:
+    """Change a member's role without discarding capability overrides."""
+    conn = _get_db()
+    cursor = conn.execute(
+        "UPDATE workspace_members SET role = ? WHERE workspace_id = ? AND user_id = ?",
+        (role, workspace_id, user_id),
+    )
+    conn.commit()
+    changed = cursor.rowcount > 0
+    conn.close()
+    return changed
+
+
 def remove_member(workspace_id: str, user_id: int) -> None:
     conn = _get_db()
     conn.execute("DELETE FROM workspace_member_permissions WHERE workspace_id = ? AND user_id = ?", (workspace_id, user_id))
