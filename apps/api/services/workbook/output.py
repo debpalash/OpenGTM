@@ -291,24 +291,38 @@ async def _push_crm(cfg: dict, lead_data: dict, workspace_id: Optional[str],
     return {"success": False, "value": "", "error": res.get("error", f"{label} push failed")}
 
 
-async def _push_airtable(cfg: dict, lead_data: dict) -> Dict[str, Any]:
+async def _push_airtable(
+    cfg: dict, lead_data: dict, workspace_id: Optional[str] = None
+) -> Dict[str, Any]:
     from apps.api.services.integrations.airtable import push_record
     fmap = cfg.get("field_map") or {
         "company": "Company", "email": "Email", "phone": "Phone",
         "website": "Website", "city": "City",
     }
     fields = {col: lead_data.get(lf) for lf, col in fmap.items()}
-    res = await push_record(fields, cfg.get("base_id", ""), cfg.get("table", ""))
+    res = await push_record(
+        fields,
+        cfg.get("base_id", ""),
+        cfg.get("table", ""),
+        workspace_id=workspace_id,
+    )
     if res.get("success"):
         return {"success": True, "value": f"Airtable: {res.get('record_id', 'created')}", "error": None}
     return {"success": False, "value": "", "error": res.get("error", "airtable push failed")}
 
 
-async def _push_sheets(cfg: dict, lead_data: dict) -> Dict[str, Any]:
+async def _push_sheets(
+    cfg: dict, lead_data: dict, workspace_id: Optional[str] = None
+) -> Dict[str, Any]:
     from apps.api.services.integrations.sheets import append_row
     columns = cfg.get("columns") or ["company", "email", "phone", "website", "city"]
     values = [lead_data.get(c, "") for c in columns]
-    res = await append_row(cfg.get("spreadsheet_id", ""), values, cfg.get("range", "Sheet1"))
+    res = await append_row(
+        cfg.get("spreadsheet_id", ""),
+        values,
+        cfg.get("range", "Sheet1"),
+        workspace_id,
+    )
     if res.get("success"):
         return {"success": True, "value": f"Sheets: {res.get('range', 'appended')}", "error": None}
     return {"success": False, "value": "", "error": res.get("error", "sheets append failed")}
@@ -435,9 +449,9 @@ async def execute_output_column(
     if dest == "sequencer":
         return _enroll_sequence(cfg, lead_id, lead_data, workspace_id)
     if dest == "airtable":
-        return await _push_airtable(cfg, lead_data)
+        return await _push_airtable(cfg, lead_data, workspace_id)
     if dest == "sheets":
-        return await _push_sheets(cfg, lead_data)
+        return await _push_sheets(cfg, lead_data, workspace_id)
     if dest == "instantly":
         return await _push_instantly(cfg, lead_data, columns_config, workspace_id)
     if dest == "smartlead":
