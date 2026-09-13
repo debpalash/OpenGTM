@@ -167,31 +167,40 @@ class QueueService:
 
     def _claim_next_job_postgres(self, db: Session) -> Optional[Dict[str, Any]]:
         now = datetime.now(timezone.utc)
-        # Lock + select one eligible row, skipping rows other workers hold.
-        row = db.execute(
-            text(
-                f"SELECT j.id FROM jobs j WHERE {self._eligible_clause()} "
-                "ORDER BY j.priority DESC, (SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' AND active.workspace_id = j.workspace_id) ASC, j.next_run_at ASC, j.created_at ASC "
-                "FOR UPDATE SKIP LOCKED LIMIT 1"
-            ),
-            {"now": now, "tenant_cap": self.max_active_per_workspace},
-        ).fetchone()
-        if row is None:
-            db.rollback()
-            return None
-        job_id = row[0]
-        # Mark running + stamp ownership in the SAME transaction, then commit to
-        # release the row lock.
-        db.execute(
-            text(
-                "UPDATE jobs SET status = 'processing', started_at = :now, "
-                "last_heartbeat = :now, locked_at = :now, worker_id = :wid "
-                "WHERE id = :id"
-            ),
-            {"now": now, "wid": self.worker_id, "id": job_id},
-        )
-        db.commit()
-        return self._load_claimed(db, job_id)
+        for _ in range(100):
+            # Row lock prevents double-grab. The tenant advisory lock serializes
+            # cap rechecks across replicas that selected DIFFERENT rows for the
+            # same workspace before either claim became visible.
+            row = db.execute(
+                text(
+                    f"SELECT j.id, j.workspace_id FROM jobs j WHERE {self._eligible_clause()} "
+                    "ORDER BY j.priority DESC, (SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' AND active.workspace_id = j.workspace_id) ASC, j.next_run_at ASC, j.created_at ASC "
+                    "FOR UPDATE SKIP LOCKED LIMIT 1"
+                ),
+                {"now": now, "tenant_cap": self.max_active_per_workspace},
+            ).fetchone()
+            if row is None:
+                db.rollback()
+                return None
+            job_id, workspace_id = row[0], row[1]
+            if workspace_id and self.max_active_per_workspace:
+                db.execute(text("SELECT pg_advisory_xact_lock(hashtext(:workspace_id))"), {"workspace_id": workspace_id})
+                active = db.execute(text("SELECT COUNT(*) FROM jobs WHERE status='processing' AND workspace_id=:workspace_id"), {"workspace_id": workspace_id}).scalar_one()
+                if active >= self.max_active_per_workspace:
+                    db.rollback()
+                    continue
+            db.execute(
+                text(
+                    "UPDATE jobs SET status = 'processing', started_at = :now, "
+                    "last_heartbeat = :now, locked_at = :now, worker_id = :wid "
+                    "WHERE id = :id"
+                ),
+                {"now": now, "wid": self.worker_id, "id": job_id},
+            )
+            db.commit()
+            return self._load_claimed(db, job_id)
+        logger.warning("claim_next_job: gave up after 100 tenant-cap retries")
+        return None
 
     def _claim_next_job_sqlite(self, db: Session) -> Optional[Dict[str, Any]]:
         now = datetime.now(timezone.utc)

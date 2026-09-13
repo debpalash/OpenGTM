@@ -84,6 +84,32 @@ def test_workspace_ownership_and_active_cap_prevent_tenant_monopoly():
     assert service.claim_next_job()["id"] == second_id
 
 
+def test_postgres_claim_serializes_tenant_cap_with_advisory_lock(monkeypatch):
+    service = QueueService(); service.max_active_per_workspace = 2
+    statements = []
+
+    class Result:
+        def __init__(self, row=None, scalar=None): self.row, self.scalar = row, scalar
+        def fetchone(self): return self.row
+        def scalar_one(self): return self.scalar
+
+    class FakeDb:
+        def execute(self, statement, params):
+            sql = str(statement); statements.append(sql)
+            if "SELECT j.id" in sql: return Result((17, "ws-a"))
+            if "SELECT COUNT(*)" in sql: return Result(scalar=0)
+            return Result()
+        def commit(self): pass
+        def rollback(self): pass
+
+    monkeypatch.setattr(service, "_load_claimed", lambda db, job_id: {"id": job_id})
+    assert service._claim_next_job_postgres(FakeDb()) == {"id": 17}
+    assert any("pg_advisory_xact_lock" in statement for statement in statements)
+    advisory_index = statements.index(next(s for s in statements if "pg_advisory_xact_lock" in s))
+    recheck_index = statements.index(next(s for s in statements if s.strip().startswith("SELECT COUNT(*) FROM jobs WHERE")))
+    assert advisory_index < recheck_index
+
+
 def test_concurrent_claimers_never_double_grab():
     """The headline test: many threads, each with its OWN QueueService identity
     (simulating separate worker replicas), race to drain the queue. Every job
