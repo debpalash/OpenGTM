@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opengtm.dev/schemas/connector-manifest-v1.json",
+  "title": "OpenGTM Connector Manifest v1",
+  "type": "object",
+  "required": ["manifest_version", "name", "capability", "request", "response"],
+  "properties": {
+    "manifest_version": {"const": "1"},
+    "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]{2,63}$"},
+    "display_name": {"type": "string"},
+    "author": {"type": "string"},
+    "homepage": {"type": "string", "format": "uri"},
+    "license": {"type": "string"},
+    "tags": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "capability": {"type": "string"},
+    "capabilities": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "description": {"type": "string"},
+    "default_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "cost_per_lookup": {"type": "number", "minimum": 0},
+    "auth": {
+      "type": "object",
+      "properties": {"type": {"enum": ["none", "header", "bearer", "query"]}, "param": {"type": ["string", "null"]}, "value": {"type": ["string", "null"]}, "env_var": {"type": ["string", "null"]}}
+    },
+    "request": {
+      "type": "object", "required": ["url"],
+      "properties": {"method": {"enum": ["GET", "POST", "PUT", "PATCH"]}, "url": {"type": "string", "pattern": "^https://"}, "headers": {"type": "object"}, "query": {"type": "object"}, "body": {}, "body_template": {}, "timeout": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}}
+    },
+    "response": {"type": "object", "required": ["mappings"], "properties": {"error_path": {"type": ["string", "null"]}, "error_message_path": {"type": ["string", "null"]}, "mappings": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string"}}}},
+    "input_fields": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  }
+}

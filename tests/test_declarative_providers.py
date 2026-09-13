@@ -9,7 +9,7 @@ from apps.api.services.leadgen.enrichment.declarative.template import (
     render_string, render_template, project_response, project_value,
 )
 from apps.api.services.leadgen.enrichment.declarative.manifest import (
-    ProviderManifest, load_all_manifests,
+    ProviderManifest, load_all_manifests, validate_manifest_directory,
 )
 from apps.api.services.leadgen.enrichment.declarative.compiler import (
     DeclarativeProvider, compile_manifest,
@@ -88,3 +88,21 @@ def test_bundled_manifests_load():
     # compiles + is inert (no key in test env)
     p = compile_manifest(lm)
     assert "email" in p.capabilities
+
+
+def test_bundled_connector_catalog_is_compatible():
+    report = validate_manifest_directory()
+    assert report["ok"] is True, report["errors"]
+    assert report["manifest_version"] == "1"
+    assert report["count"] >= 4
+    assert all(item["name"] and item["author"] for item in report["connectors"])
+
+
+def test_connector_validation_fails_loudly_for_duplicates_and_http(tmp_path):
+    body = """manifest_version: \"1\"\nname: duplicate_id\ncapability: email\nrequest:\n  method: POST\n  url: http://unsafe.example/find\nresponse:\n  mappings:\n    email: $.email\n"""
+    (tmp_path / "one.yaml").write_text(body, encoding="utf-8")
+    (tmp_path / "two.yaml").write_text(body.replace("http://", "https://"), encoding="utf-8")
+    report = validate_manifest_directory(tmp_path)
+    assert report["ok"] is False
+    assert any("HTTPS" in item["error"] for item in report["errors"])
+    assert any("duplicate provider id" in item["error"] for item in report["errors"])

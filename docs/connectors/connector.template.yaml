@@ -1,0 +1,31 @@
+manifest_version: "1"
+name: acme_email
+display_name: Acme Email Finder
+author: your-github-handle
+homepage: https://provider.example
+license: Apache-2.0
+tags: [email, enrichment, byok]
+capability: email
+capabilities: [email]
+description: Find a work email from a name and company domain.
+default_confidence: 0.8
+cost_per_lookup: 0.05
+auth:
+  type: bearer
+  env_var: ACME_API_KEY
+request:
+  method: POST
+  url: https://api.provider.example/v1/email/find
+  headers:
+    Content-Type: application/json
+  body:
+    first_name: "{{input.first_name}}"
+    last_name: "{{input.last_name}}"
+    domain: "{{input.domain}}"
+  timeout: 20
+response:
+  error_path: error
+  error_message_path: message
+  mappings:
+    email: "$.data.email"
+input_fields: [first_name, last_name, domain]

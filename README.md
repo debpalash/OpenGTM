@@ -363,6 +363,8 @@ it as a hosted service.
   ownership, queue semantics, tenant isolation, and scale boundaries
 - [`docs/MIGRATIONS.md`](docs/MIGRATIONS.md) — database migration workflow and
   operational commands
+- [`docs/connectors/README.md`](docs/connectors/README.md) — versioned YAML
+  Connector SDK, schema, contributor template, validator, and catalog API
 - [`docs/LAUNCH.md`](docs/LAUNCH.md) — launch copy, media inventory, and rollout
   checklist
 - [`docs/research/sources-master-inventory.md`](docs/research/sources-master-inventory.md) —

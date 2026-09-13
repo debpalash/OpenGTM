@@ -7135,6 +7135,110 @@
         ]
       }
     },
+    "/api/connectors/catalog": {
+      "get": {
+        "operationId": "connector_catalog_api_connectors_catalog_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Connector Catalog",
+        "tags": [
+          "connectors"
+        ]
+      }
+    },
+    "/api/connectors/compatibility": {
+      "get": {
+        "operationId": "connector_compatibility_api_connectors_compatibility_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Connector Compatibility",
+        "tags": [
+          "connectors"
+        ]
+      }
+    },
     "/api/copilotkit": {
       "post": {
         "description": "Main CopilotKit chat endpoint — streams AI responses with tool use.\n\nAccepts:\n    messages: list of {role, content}\n    conversation_id: optional, to continue an existing conversation\n    context: optional application context",

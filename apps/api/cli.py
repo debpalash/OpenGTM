@@ -216,6 +216,22 @@ def cmd_jobs(args):
         print(f"  {j['id']:<10} {j['status']:<10} {j['leads_found']:<7} {j['query'][:40]}")
 
 
+def cmd_connectors(args):
+    """Validate a directory of declarative connector manifests."""
+    import json
+    from pathlib import Path
+    from apps.api.services.leadgen.enrichment.declarative.manifest import MANIFESTS_DIR, validate_manifest_directory
+    report = validate_manifest_directory(Path(args.path) if args.path else MANIFESTS_DIR)
+    if args.json:
+        print(json.dumps(report, indent=2))
+    else:
+        print(f"{'PASS' if report['ok'] else 'FAIL'}: {report['count']} compatible connector(s)")
+        for error in report["errors"]:
+            print(f"- {error['path']}: {error['error']}")
+    if not report["ok"]:
+        raise SystemExit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(description="OpenGTM — GTM agents for the world")
     sub = parser.add_subparsers(dest="command", help="Command to run")
@@ -274,6 +290,10 @@ def main():
     # cleanup
     sub.add_parser("cleanup", help="Purge bad/invalid leads")
 
+    p = sub.add_parser("connectors", help="Validate connector manifests")
+    p.add_argument("path", nargs="?", help="Manifest directory (defaults to bundled connectors)")
+    p.add_argument("--json", action="store_true", help="Emit a machine-readable report")
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -284,6 +304,7 @@ def main():
         "enrich": cmd_enrich, "score": cmd_score, "pipeline": cmd_pipeline,
         "export": cmd_export, "stats": cmd_stats, "dashboard": cmd_dashboard,
         "collect": cmd_collect, "jobs": cmd_jobs, "cleanup": cmd_cleanup,
+        "connectors": cmd_connectors,
     }
     cmds[args.command](args)
 
