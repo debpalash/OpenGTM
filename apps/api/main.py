@@ -48,7 +48,7 @@ from apps.api.services.poller import models as _poller_models  # noqa: E402,F401
 # Schema evolution is owned by Alembic: `alembic upgrade head` creates a fresh
 # schema AND applies pending migrations on an existing DB. create_all() is only
 # a guarded dev/test fallback (it never ALTERs existing tables). See db_init.py
-# and MIGRATIONS.md.
+# and docs/MIGRATIONS.md.
 from apps.api.db_init import init_db  # noqa: E402
 
 init_db()

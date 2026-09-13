@@ -39,6 +39,9 @@ Capabilities:
 
 Claude Desktop (`claude_desktop_config.json`) or any stdio MCP client:
 
+The same configuration is available as a copyable repository example at
+[`docs/examples/mcp-config.json`](https://github.com/debpalash/opengtm/blob/main/docs/examples/mcp-config.json).
+
 ```json
 {
   "mcpServers": {

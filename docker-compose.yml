@@ -283,7 +283,7 @@ services:
     ports:
       - "${PORT:-3000}:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - frontend_dist:/usr/share/nginx/html:ro  # Serve built frontend from API build
     depends_on:
       api:

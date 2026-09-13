@@ -359,6 +359,10 @@ it as a hosted service.
   implementation specs and roadmap (WI-1…WI-10)
 - [`docs/architecture.md`](docs/architecture.md) — runtime topology, data
   ownership, queue semantics, tenant isolation, and scale boundaries
+- [`docs/MIGRATIONS.md`](docs/MIGRATIONS.md) — database migration workflow and
+  operational commands
+- [`docs/LAUNCH.md`](docs/LAUNCH.md) — launch copy, media inventory, and rollout
+  checklist
 - [`docs/research/sources-master-inventory.md`](docs/research/sources-master-inventory.md) —
   every data source, where it lives, and quality notes
 - [`docs/research/clay-alternatives-research.md`](docs/research/clay-alternatives-research.md) /
