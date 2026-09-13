@@ -24,7 +24,7 @@ from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Optional
 
-from fastapi import Depends, Header, HTTPException
+from fastapi import Depends, Header, HTTPException, Request
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -74,6 +74,7 @@ class WorkspaceCtx:
 
 
 async def current_workspace(
+    request: Request,
     user: User = Depends(get_current_active_user),
     x_workspace_id: Optional[str] = Header(default=None),
     db: Session = Depends(get_db),
@@ -116,6 +117,10 @@ async def current_workspace(
             text("SELECT set_config('app.workspace_id', :workspace_id, true)"),
             {"workspace_id": ws_id},
         )
+    role = ws_manager.member_role(ws_id, user.id) or ""
+    request.state.workspace_id = ws_id
+    request.state.actor_user_id = user.id
+    request.state.actor_role = role
     return WorkspaceCtx(user=user, workspace_id=ws_id, slug=slug)
 
 

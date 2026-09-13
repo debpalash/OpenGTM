@@ -47,6 +47,7 @@ from apps.api.services.poller import models as _poller_models  # noqa: E402,F401
 from apps.api.services.audiences import models as _audience_models  # noqa: E402,F401
 from apps.api.services.destinations import models as _destination_models  # noqa: E402,F401
 from apps.api.services.playbooks import models as _playbook_models  # noqa: E402,F401
+from apps.api.services.governance import models as _governance_models  # noqa: E402,F401
 
 # Schema evolution is owned by Alembic: `alembic upgrade head` creates a fresh
 # schema AND applies pending migrations on an existing DB. create_all() is only
@@ -155,6 +156,8 @@ logfire.instrument_fastapi(app)
 
 # Middleware
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+from apps.api.services.governance.audit import GovernanceAuditMiddleware
+app.add_middleware(GovernanceAuditMiddleware)
 # CORS origins come from settings.CORS_ORIGINS (comma-separated) so operators can
 # lock the API to their own frontend origin(s). Default "*" keeps self-host /
 # same-origin deploys working out of the box; auth is a Bearer token (not a
@@ -219,10 +222,12 @@ from apps.api.routers.templates import router as templates_router
 from apps.api.routers.functions import router as functions_router
 from apps.api.routers.playbooks import router as playbooks_router
 from apps.api.routers.connectors import router as connectors_router
+from apps.api.routers.governance import router as governance_router
 app.include_router(templates_router)
 app.include_router(functions_router)
 app.include_router(playbooks_router)
 app.include_router(connectors_router)
+app.include_router(governance_router)
 
 # Include Routers — Data Sources
 from apps.api.routers.ambitionbox import router as ambitionbox_router
