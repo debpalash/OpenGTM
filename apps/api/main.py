@@ -46,6 +46,7 @@ from apps.api.services.outreach import orm_models as _outreach_models  # noqa: E
 from apps.api.services.poller import models as _poller_models  # noqa: E402,F401
 from apps.api.services.audiences import models as _audience_models  # noqa: E402,F401
 from apps.api.services.destinations import models as _destination_models  # noqa: E402,F401
+from apps.api.services.playbooks import models as _playbook_models  # noqa: E402,F401
 
 # Schema evolution is owned by Alembic: `alembic upgrade head` creates a fresh
 # schema AND applies pending migrations on an existing DB. create_all() is only
@@ -216,8 +217,10 @@ app.include_router(ws_manager_router)
 # Include Routers — Templates & Functions
 from apps.api.routers.templates import router as templates_router
 from apps.api.routers.functions import router as functions_router
+from apps.api.routers.playbooks import router as playbooks_router
 app.include_router(templates_router)
 app.include_router(functions_router)
+app.include_router(playbooks_router)
 
 # Include Routers — Data Sources
 from apps.api.routers.ambitionbox import router as ambitionbox_router
