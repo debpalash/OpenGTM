@@ -29,9 +29,40 @@ install serves a team.
   forced row-level security applies to API and worker traffic.
 - **Put TLS in front.** The bundled nginx listens on plain HTTP on port 3000.
   Terminate TLS with your reverse proxy of choice and forward to it.
-- **Back up the data volume.** PostgreSQL holds the data plane, and the
+- **Back up both storage planes.** PostgreSQL holds the data plane, and the
   `data/` volume holds the workspace control plane (`workspaces.db`, encrypted
-  workspace secrets, collection ledgers). Both need to be in the backup.
+  workspace secrets, collection ledgers). The built-in backup command captures
+  both, snapshots live SQLite files through SQLite's backup API, and writes a
+  SHA-256 inventory:
+
+  ```bash
+  uv run python cli.py backup --output /secure/opengtm-$(date +%F).tar.gz
+  uv run python cli.py backup-verify /secure/opengtm-$(date +%F).tar.gz
+  ```
+
+  The command invokes `pg_dump`, which must be installed and compatible with
+  the PostgreSQL server. The archive includes encrypted workspace secrets but
+  is not itself encrypted: store it in encrypted, access-controlled storage.
+
+## Restore drill
+
+Run this against a disposable PostgreSQL database and a nonexistent or empty
+data directory. `pg_restore --clean --if-exists` replaces objects in the target
+database, so the exact confirmation phrase is mandatory:
+
+```bash
+uv run python cli.py restore /secure/opengtm-2026-09-13.tar.gz \
+  --database-url postgresql://restore_user:password@restore-db/opengtm_drill \
+  --data-dir /tmp/opengtm-restore-drill \
+  --confirm "RESTORE OPENGTM BACKUP"
+```
+
+After restoration, point a temporary API instance at the restored database and
+data directory, run migrations only if restoring into a newer application
+version, then verify login, workspace membership, workbook row counts, and one
+read-only export. Record the archive SHA-256 printed by `backup-verify`, the
+application version, elapsed recovery time, and drill date in your operations
+log. Never run the drill against production credentials.
 
 ## Should do
 
@@ -55,7 +86,7 @@ OpenGTM's tenant isolation is PostgreSQL RLS plus application-level checks,
 which is a strong boundary for one organisation's workspaces. Before offering
 it to strangers as a service, the [architecture notes](/reference/architecture/)
 list what still has to move: a controlled egress proxy for outbound fetches,
-managed key storage for the workspace secret encryption key, SSO and audit
-export, restore drills, and an external security review. Offering OpenGTM as a
+managed key storage for the workspace secret encryption key, controlled-live
+SSO validation, scheduled restore drills, and an external security review. Offering OpenGTM as a
 network service also triggers the AGPL source-availability clause; see
 [License](/community/license/).

@@ -273,6 +273,41 @@ def cmd_queue_load_test(args):
     print(json.dumps(report, indent=2))
 
 
+def cmd_backup(args):
+    import json
+    from pathlib import Path
+    from apps.api.core.config import settings
+    from apps.api.services.backup import create_backup
+
+    report = create_backup(
+        Path(args.output), data_dir=Path(args.data_dir),
+        database_url=args.database_url or settings.DATABASE_URL,
+    )
+    print(json.dumps(report, indent=2))
+
+
+def cmd_backup_verify(args):
+    import json
+    from pathlib import Path
+    from apps.api.services.backup import verify_backup
+
+    print(json.dumps(verify_backup(Path(args.archive)), indent=2))
+
+
+def cmd_restore(args):
+    import json
+    from pathlib import Path
+    from apps.api.core.config import settings
+    from apps.api.services.backup import restore_backup
+
+    report = restore_backup(
+        Path(args.archive), target_data_dir=Path(args.data_dir),
+        database_url=args.database_url or settings.DATABASE_URL,
+        confirmation=args.confirm,
+    )
+    print(json.dumps(report, indent=2))
+
+
 def main():
     parser = argparse.ArgumentParser(description="OpenGTM — GTM agents for the world")
     sub = parser.add_subparsers(dest="command", help="Command to run")
@@ -367,6 +402,20 @@ def main():
         help="Harness testing only; not controlled-load evidence",
     )
 
+    p = sub.add_parser("backup", help="Create an integrity-checked PostgreSQL + data backup")
+    p.add_argument("--output", required=True, help="New .tar.gz archive path")
+    p.add_argument("--data-dir", default="data", help="Mounted OpenGTM data directory")
+    p.add_argument("--database-url", help="Owner PostgreSQL URL (defaults to DATABASE_URL)")
+
+    p = sub.add_parser("backup-verify", help="Verify every file in an OpenGTM backup")
+    p.add_argument("archive")
+
+    p = sub.add_parser("restore", help="Restore into an empty data directory and PostgreSQL database")
+    p.add_argument("archive")
+    p.add_argument("--data-dir", required=True, help="Nonexistent or empty restore target")
+    p.add_argument("--database-url", help="Disposable target PostgreSQL URL")
+    p.add_argument("--confirm", required=True, help='Must equal "RESTORE OPENGTM BACKUP"')
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -382,6 +431,9 @@ def main():
         "connector-package": cmd_connector_package,
         "connector-install": cmd_connector_install,
         "queue-load-test": cmd_queue_load_test,
+        "backup": cmd_backup,
+        "backup-verify": cmd_backup_verify,
+        "restore": cmd_restore,
     }
     cmds[args.command](args)
 
