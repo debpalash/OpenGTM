@@ -40,10 +40,10 @@ export function useWorkbooks() {
 
 // ── Workbook Detail + Leads ──────────────────────────────────────────────
 
-export function useWorkbook(id: string, pageSize = 1000, page = 1, viewId?: string | null, search = "") {
+export function useWorkbook(id: string, pageSize = 1000, page = 1, viewId?: string | null, search = "", cursorMode = false, cursor?: string | null) {
   return useQuery({
-    queryKey: [...workbookKeys.detail(id), page, pageSize, viewId ?? "", search],
-    queryFn: () => fetchWorkbook(id, page, pageSize, viewId, search),
+    queryKey: [...workbookKeys.detail(id), page, pageSize, viewId ?? "", search, cursorMode, cursor ?? ""],
+    queryFn: () => fetchWorkbook(id, page, pageSize, viewId, search, cursorMode, cursor),
     placeholderData: previous => previous,
     enabled: !!id,
     // Don't retry client errors (404 not-found / 403 no-access won't resolve on

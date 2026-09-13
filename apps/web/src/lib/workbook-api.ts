@@ -150,6 +150,8 @@ export interface WorkbookWithLeads {
   query_total_rows?: number | null
   page: number
   page_size: number
+  next_cursor?: string | null
+  has_more?: boolean
 }
 
 export interface CsvImportOptions {
@@ -202,10 +204,14 @@ export async function fetchWorkbook(
   pageSize = 100,
   viewId?: string | null,
   search?: string,
+  cursorMode = false,
+  cursor?: string | null,
 ): Promise<WorkbookWithLeads> {
   const params = new URLSearchParams({ page: String(page), page_size: String(pageSize) })
   if (viewId) params.set("view_id", viewId)
   if (search?.trim()) params.set("search", search.trim())
+  if (cursorMode) params.set("cursor_mode", "true")
+  if (cursor) params.set("cursor", cursor)
   const res = await fetch(`${API}/api/workbooks/${id}?${params}`)
   if (!res.ok) {
     const err = new Error(

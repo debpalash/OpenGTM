@@ -168,8 +168,9 @@ The release floor for this architecture is:
    managed KMS, and complete an external security review and restore drill.
 4. Publish reproducible provider accuracy/coverage/cost evaluations and make the
    declarative registry a documented contribution surface.
-5. Close visible product gaps: indexed cursor navigation and cross-page bulk
-   selection at million-row scale (global saved-view querying, server paging,
+5. Close visible product gaps: indexed JSON search/custom-sort cursors and
+   arbitrary cross-page selection at million-row scale (stable default-order
+   cursors, global saved-view querying, server paging,
    virtualization, range copy/fill, and atomic multi-row paste are shipped), direct Clay API import (audited Clay
    CSV import is shipped), more templates, and broader CRM and sequencer sync.
 

@@ -201,6 +201,8 @@ class WorkbookWithLeadsResponse(BaseModel):
     query_total_rows: Optional[int] = None
     page: int
     page_size: int
+    next_cursor: Optional[str] = None
+    has_more: bool = False
 
 
 # ── Run / Execution Schemas ───────────────────────────────────────────────
