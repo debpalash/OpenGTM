@@ -14,7 +14,7 @@ import {
 } from "@tanstack/react-table"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import {
-  useWorkbook, useUpdateWorkbook, useUpdateLeadField, useUpdateWorkbookRow,
+  useWorkbook, useUpdateWorkbook, useUpdateLeadField, useUpdateWorkbookRow, useBulkUpdateWorkbookRows,
   useImportLeads, useRunWorkbook, useStopWorkbook,
   useDeleteWorkbookRows, useWorkbookSocket, useProviders,
   useRunCell, useWorkbookViews, useConnectorRuns,
@@ -447,6 +447,7 @@ export default function WorkbookEditorPage() {
   const updateWb = useUpdateWorkbook()
   const updateLeadField = useUpdateLeadField(id!)
   const updateWorkbookRow = useUpdateWorkbookRow(id!)
+  const bulkUpdateWorkbookRows = useBulkUpdateWorkbookRows(id!)
   const importLeadsMut = useImportLeads(id!)
   const runMut = useRunWorkbook(id!)
   const stopMut = useStopWorkbook(id!)
@@ -1002,6 +1003,50 @@ export default function WorkbookEditorPage() {
     event.preventDefault()
     focusGridCell(nextRow, nextColumn)
   }, [focusGridCell, table])
+
+  const handleGridPaste = useCallback((event: React.ClipboardEvent<HTMLTableCellElement>, startRow: number, startColumn: number) => {
+    const target = event.target as HTMLElement
+    if (target.matches("input, textarea, [contenteditable=true]")) return
+    const matrix = event.clipboardData.getData("text/plain")
+      .replace(/\r\n/g, "\n")
+      .replace(/\n$/, "")
+      .split("\n")
+      .map(line => line.split("\t"))
+    if (!matrix.length || !matrix[0].length) return
+
+    const visibleColumns = table.getVisibleLeafColumns()
+    const visibleRows = table.getRowModel().rows
+    const updates = new Map<number, Record<string, string>>()
+    let pastedCells = 0
+    matrix.forEach((values, rowOffset) => {
+      const row = visibleRows[startRow + rowOffset]?.original
+      if (row?.row_id == null) return
+      const rowId = row.row_id
+      values.forEach((value, columnOffset) => {
+        const columnId = visibleColumns[startColumn + columnOffset]?.id
+        const config = columns.find(column => column.id === columnId)
+        if (!config || (config.type !== "lead_field" && config.type !== "input")) return
+        const field = config.lead_field || config.id
+        updates.set(rowId, { ...(updates.get(rowId) || {}), [field]: value })
+        pastedCells++
+      })
+    })
+    if (!updates.size) {
+      toast.error("Paste into editable input columns")
+      return
+    }
+    event.preventDefault()
+    bulkUpdateWorkbookRows.mutate(
+      [...updates].map(([row_id, fields]) => ({ row_id, fields })),
+      {
+        onSuccess: () => {
+          toast.success(`Pasted ${pastedCells} cell${pastedCells === 1 ? "" : "s"}`)
+          focusGridCell(startRow + matrix.length - 1, startColumn + Math.max(...matrix.map(row => row.length)) - 1)
+        },
+        onError: error => toast.error(error.message),
+      },
+    )
+  }, [bulkUpdateWorkbookRows, columns, focusGridCell, table])
 
 
 
@@ -1794,6 +1839,7 @@ export default function WorkbookEditorPage() {
                       tabIndex={activeCell.row === virtualRow.index && activeCell.column === cellIndex ? 0 : -1}
                       onFocus={() => setActiveCell({ row: virtualRow.index, column: cellIndex })}
                       onKeyDown={event => handleGridKeyDown(event, virtualRow.index, cellIndex)}
+                      onPaste={event => handleGridPaste(event, virtualRow.index, cellIndex)}
                       className={`border-b border-r last:border-r-0 h-9 p-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${
                         activeCell.row === virtualRow.index && activeCell.column === cellIndex ? "bg-primary/[0.04]" : ""
                       }`}

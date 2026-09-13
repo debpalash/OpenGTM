@@ -168,9 +168,9 @@ The release floor for this architecture is:
    managed KMS, and complete an external security review and restore drill.
 4. Publish reproducible provider accuracy/coverage/cost evaluations and make the
    declarative registry a documented contribution surface.
-5. Close visible product gaps: large-grid interaction, Clay-table import,
-   dependency-aware reactive recompute, more templates, and broader CRM and
-   sequencer sync.
+5. Close visible product gaps: advanced grid selection/fill (keyboard navigation
+   and atomic multi-row paste are shipped), direct Clay API import (audited Clay
+   CSV import is shipped), more templates, and broader CRM and sequencer sync.
 
 That is the distinction between a strong self-hosted Clay alternative today and
 a credible multi-node public Clay replacement.

@@ -142,6 +142,49 @@ def test_row_edit_can_disable_recompute(client):
         assert session.query(Job).count() == 0
 
 
+def test_bulk_row_edit_is_atomic_and_recomputes_once(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "company", "type": "input", "lead_field": "company"},
+        {"id": "domain", "type": "input", "lead_field": "website"},
+        {"id": "summary", "type": "ai_formula", "prompt": "{company} {domain}"},
+    ])
+    first = _mk_row(Session, wid, {"company": "Before A"})
+    second = _mk_row(Session, wid, {"company": "Before B"})
+
+    response = tc.patch(f"/api/workbooks/{wid}/rows", json={"updates": [
+        {"row_id": first, "fields": {"company": "After A", "website": "a.example"}},
+        {"row_id": second, "fields": {"company": "After B", "website": "b.example"}},
+    ]})
+
+    assert response.status_code == 200, response.text
+    assert response.json()["updated_rows"] == 2
+    assert response.json()["reactive_columns"] == ["summary"]
+    with Session() as session:
+        assert session.get(WorkbookRow, first).data["company"] == "After A"
+        assert session.get(WorkbookRow, second).data["website"] == "b.example"
+        job = session.query(Job).filter(Job.type == "run_workbook").one()
+        assert job.payload["row_ids"] == [first, second]
+        assert job.payload["column_ids"] == ["summary"]
+
+
+def test_bulk_row_edit_rejects_entire_request_on_non_editable_field(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": "company", "type": "input", "lead_field": "company"}])
+    first = _mk_row(Session, wid, {"company": "Before A"})
+    second = _mk_row(Session, wid, {"company": "Before B"})
+
+    response = tc.patch(f"/api/workbooks/{wid}/rows?recompute=false", json={"updates": [
+        {"row_id": first, "fields": {"company": "After A"}},
+        {"row_id": second, "fields": {"not_editable": "bad"}},
+    ]})
+
+    assert response.status_code == 400
+    with Session() as session:
+        assert session.get(WorkbookRow, first).data["company"] == "Before A"
+        assert session.get(WorkbookRow, second).data["company"] == "Before B"
+
+
 # ── Views CRUD ────────────────────────────────────────────────────────────
 
 def test_views_crud(client):

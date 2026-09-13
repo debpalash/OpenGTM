@@ -326,11 +326,12 @@ user work runs through the durable worker. The remaining boundaries are:
   webhook exist. Tax, refunds, subscriptions, and customer lifecycle operations
   do not.
 - **Clay's breadth and polish remain a product gap.** The open provider catalog,
-  very-large-grid ergonomics, direct Clay API migration beyond the shipped
+  advanced very-large-grid selection/fill ergonomics, direct Clay API migration beyond the shipped
   dry-run-audited Clay CSV importer, templates, integrations, and real-user accuracy
   benchmarks need continued work. Workbook edits now recompute transitive
   downstream columns through the durable queue; side-effecting output columns
-  require explicit `reactive: true`.
+  require explicit `reactive: true`. The virtualized grid supports keyboard
+  navigation, F2 editing, and atomic multi-row TSV paste into editable columns.
 
 See [`docs/plans/clay-parity-specs.md`](docs/plans/clay-parity-specs.md) for the work-item
 breakdown and sequencing.
