@@ -600,6 +600,7 @@ async def export_workbook_csv(
     view_id: Optional[str] = Query(None),
     search: Optional[str] = Query(None, max_length=500),
     column_ids: Optional[list[str]] = Query(None),
+    row_ids: Optional[list[int]] = Query(None),
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(current_workspace),
 ):
@@ -612,6 +613,10 @@ async def export_workbook_csv(
         raise HTTPException(status_code=400, detail=f"Unknown columns: {', '.join(unknown[:10])}")
     columns = [available[column_id] for column_id in requested]
     query, ordering, _ = _workbook_rows_query(db, wb, view_id, search)
+    if row_ids:
+        if len(row_ids) > 1000:
+            raise HTTPException(status_code=400, detail="Selected export is limited to 1,000 rows")
+        query = query.filter(WorkbookRow.id.in_(set(row_ids)))
 
     def safe_value(value):
         if value is None:
