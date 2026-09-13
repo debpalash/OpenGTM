@@ -71,6 +71,24 @@ def main() -> None:
         # The GIF is deliberately a short product tour rather than a huge video
         # disguised as a GIF; GitHub loads it quickly and every frame is legible.
         make_gif([login, workbook, cost, workbook], OUTPUT / "opengtm-demo.gif")
+
+        # Capture the same truthful tour in the app's light theme. Keeping this
+        # in one browser session prevents the dark and light demos from drifting.
+        page.get_by_role("button", name="Close").click(force=True)
+        page.get_by_title("Switch to light mode").click(force=True)
+        page.wait_for_timeout(500)
+        workbook_light = shot(page, "opengtm-workbook-light.png")
+
+        page.get_by_role("button", name="Source Engine", exact=True).click(force=True)
+        page.wait_for_timeout(500)
+        source_light = shot(page, "opengtm-source-engine-light.png")
+        page.get_by_role("tab").nth(1).click(force=True)
+        page.wait_for_timeout(500)
+        cost_light = shot(page, "opengtm-cost-control-light.png")
+        make_gif(
+            [workbook_light, source_light, cost_light, workbook_light],
+            OUTPUT / "opengtm-demo-light.gif",
+        )
         browser.close()
 
     print(f"Launch assets written to {OUTPUT}")

@@ -74,6 +74,7 @@ OpenGTM is self-hostable, BYOK, and shows the estimated bill before a run.
 
 - `docs/assets/opengtm-social-preview.png` – 1280×640 launch card.
 - `docs/assets/opengtm-demo.gif` – short GitHub-friendly real-product tour.
+- `docs/assets/opengtm-demo-light.gif` – light-mode version of the product tour.
 - `docs/assets/opengtm-workbook.png` – seeded workbook.
 - `docs/assets/opengtm-cost-control.png` – spend controls.
 - `docs/assets/opengtm-source-engine.png` – sourcing and living-workbook panel.

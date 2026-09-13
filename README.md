@@ -30,7 +30,11 @@ your own provider keys, and with the bill shown to you *before* you run.
 </p>
 
 <p align="center">
-  <img src="docs/assets/opengtm-demo.gif" alt="OpenGTM demo: sign in, inspect a populated enrichment workbook, and see cost controls" width="100%" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/opengtm-demo.gif">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/opengtm-demo-light.gif">
+    <img src="docs/assets/opengtm-demo-light.gif" alt="OpenGTM demo: inspect a populated enrichment workbook, source leads, and see cost controls" width="100%" />
+  </picture>
 </p>
 
 > **The 30-second version:** give OpenGTM a market, a list, or a workbook. It
