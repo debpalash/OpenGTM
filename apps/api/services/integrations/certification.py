@@ -36,6 +36,13 @@ SIGNAL_SOURCES: dict[str, dict[str, Any]] = {
     "news_search": {"signal_types": ["news", "funding"]},
 }
 
+AGENT_CAPABILITIES: dict[str, dict[str, Any]] = {
+    "grounded_research": {"features": ["citations", "budget_caps", "provenance"]},
+    "chained_playbooks": {"features": ["prior_step_context", "versioned_prompts"]},
+    "audience_runs": {"features": ["bounded_profiles", "durable_results"]},
+    "recurring_schedules": {"features": ["single_flight", "restart_safe"]},
+}
+
 
 def _subject_id(certificate: Mapping[str, Any]) -> str:
     return str(certificate.get("subject_id") or certificate.get("integration_id") or "")
@@ -80,7 +87,9 @@ def _valid(certificate: Mapping[str, Any], key: str, now: datetime) -> bool:
     expires_at = _parse_time(certificate.get("expires_at"))
     evidence = urlsplit(str(certificate.get("evidence_url") or ""))
     return bool(
-        _subject_id(certificate) in {*INTEGRATIONS, *SIGNAL_SOURCES}
+        _subject_id(certificate) in {
+            *INTEGRATIONS, *SIGNAL_SOURCES, *AGENT_CAPABILITIES,
+        }
         and certificate.get("status") == "supported"
         and certificate.get("build_sha")
         and certificate.get("validation_run_id")
@@ -174,4 +183,45 @@ def signal_source_catalog(
             else None,
         }
         for source_id, definition in SIGNAL_SOURCES.items()
+    ]
+
+
+def agent_capability_catalog(
+    *,
+    path: str | Path | None = None,
+    key: str | None = None,
+    now: datetime | None = None,
+) -> list[dict[str, Any]]:
+    """Return signed controlled-live maturity for agent workflow capabilities."""
+    path = path or os.getenv(CERTIFICATION_PATH_ENV, "")
+    key = key if key is not None else os.getenv(CERTIFICATION_KEY_ENV, "")
+    now = now or datetime.now(timezone.utc)
+    certificates: list[Any] = []
+    if path:
+        try:
+            loaded = json.loads(Path(path).read_text(encoding="utf-8"))
+            certificates = loaded if isinstance(loaded, list) else []
+        except (OSError, json.JSONDecodeError):
+            certificates = []
+    valid = {
+        _subject_id(item): item
+        for item in certificates
+        if isinstance(item, dict) and _valid(item, key or "", now)
+    }
+    return [
+        {
+            "id": capability_id,
+            **definition,
+            "maturity": "supported" if capability_id in valid else "beta",
+            "certification": {
+                field: valid[capability_id][field]
+                for field in (
+                    "validated_at", "expires_at", "build_sha",
+                    "validation_run_id", "evidence_url",
+                )
+            }
+            if capability_id in valid
+            else None,
+        }
+        for capability_id, definition in AGENT_CAPABILITIES.items()
     ]

@@ -22,7 +22,8 @@ OPENGTM_INTEGRATION_CERTIFICATIONS=/run/opengtm/integration-certifications.json
 OPENGTM_INTEGRATION_CERTIFICATION_KEY=<secret-manager reference>
 ```
 
-`GET /api/audience-destinations/types` and `GET /api/signals/sources` report the effective maturity and
+`GET /api/audience-destinations/types`, `GET /api/signals/sources`, and
+`GET /api/research-playbooks/capabilities` report the effective maturity and
 non-secret certification metadata. Missing files, malformed JSON, missing
 keys, expired records, unknown integrations, HTTP evidence links, wrong keys,
 and post-signing edits all fail closed to `beta`. Rotate the key to revoke all

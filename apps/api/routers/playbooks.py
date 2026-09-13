@@ -14,6 +14,14 @@ router = APIRouter(prefix="/api/research-playbooks", tags=["research-playbooks"]
 require_editor = require_workspace_role("editor", "admin", permission="agents.write")
 
 
+@router.get("/capabilities")
+def playbook_capabilities(ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Expose implemented agent features without overstating live maturity."""
+    from apps.api.services.integrations.certification import agent_capability_catalog
+
+    return {"capabilities": agent_capability_catalog()}
+
+
 class PlaybookStep(BaseModel):
     key: str = Field(pattern=r"^[a-z][a-z0-9_]{0,39}$")
     name: str = Field(min_length=1, max_length=100)

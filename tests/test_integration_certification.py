@@ -2,9 +2,11 @@ import json
 from datetime import datetime, timezone
 
 from apps.api.services.integrations.certification import (
+    AGENT_CAPABILITIES,
     INTEGRATIONS,
     SIGNAL_SOURCES,
     attest_certificate,
+    agent_capability_catalog,
     integration_catalog,
     signal_source_catalog,
 )
@@ -71,3 +73,19 @@ def test_signal_source_requires_its_own_attested_live_evidence(tmp_path):
     assert states["jobspy"]["maturity"] == "supported"
     assert states["jobspy"]["certification"]["validation_run_id"] == "signal-live-1"
     assert states["sec_edgar"]["maturity"] == "beta"
+
+
+def test_agent_capability_certification_is_independent(tmp_path):
+    certificate = attest_certificate({
+        **_certificate(),
+        "subject_id": "grounded_research",
+        "integration_id": None,
+        "validation_run_id": "agent-live-1",
+    }, KEY)
+    capabilities = agent_capability_catalog(
+        path=_write(tmp_path, [certificate]), key=KEY, now=NOW,
+    )
+    states = {item["id"]: item for item in capabilities}
+    assert len(states) == len(AGENT_CAPABILITIES)
+    assert states["grounded_research"]["maturity"] == "supported"
+    assert states["chained_playbooks"]["maturity"] == "beta"
