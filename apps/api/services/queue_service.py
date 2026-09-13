@@ -52,6 +52,7 @@ JOB_TIMEOUTS = {
     # Source health: ~91 sources x N canary DDG probes, batched with sleeps.
     "source_health_check": 1800,
     "audience_refresh": 900,
+    "audience_destination_sync": 1800,
 }
 
 

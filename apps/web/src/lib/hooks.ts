@@ -14,6 +14,7 @@ import {
   type Lead, type Job, type CollectionIntent,
   fetchAudiences, createAudience, deleteAudience,
   fetchAudienceMembers, fetchAudienceEvents, refreshAudience, updateAudience,
+  fetchAudienceDestinations, createAudienceDestination, syncAudienceDestination,
 } from "./api"
 
 // ── Leads ───────────────────────────────────────────────────────
@@ -100,6 +101,30 @@ export function useUpdateAudience() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Parameters<typeof updateAudience>[1] }) => updateAudience(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audiences.all }),
+  })
+}
+
+export function useAudienceDestinations(audienceId: string | null) {
+  return useQuery({
+    queryKey: queryKeys.audienceDestinations(audienceId ?? ""),
+    queryFn: () => fetchAudienceDestinations(audienceId!), enabled: !!audienceId,
+    refetchInterval: 5_000,
+  })
+}
+
+export function useCreateAudienceDestination() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: createAudienceDestination,
+    onSuccess: (destination) => qc.invalidateQueries({ queryKey: queryKeys.audienceDestinations(destination.audience_id) }),
+  })
+}
+
+export function useSyncAudienceDestination(audienceId: string | null) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: syncAudienceDestination,
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audienceDestinations(audienceId ?? "") }),
   })
 }
 

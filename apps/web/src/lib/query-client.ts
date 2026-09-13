@@ -28,6 +28,7 @@ export const queryKeys = {
     members: (id: string) => ["audiences", id, "members"] as const,
     events: (id: string) => ["audiences", id, "events"] as const,
   },
+  audienceDestinations: (audienceId: string) => ["audience-destinations", audienceId] as const,
   jobs: {
     all: ["jobs"] as const,
     list: (status?: string) => ["jobs", "list", status] as const,

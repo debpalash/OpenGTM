@@ -16,6 +16,7 @@ from apps.api.services.automations.models import Trigger
 from apps.api.services.workbook.models import Workbook, WorkbookRow
 from apps.api.core.config import settings
 from apps.api.models import Job
+from apps.api.services.destinations.models import AudienceDestination, DestinationDelivery, DestinationRun
 
 WS1 = "ws-audiences-1"
 WS2 = "ws-audiences-2"
@@ -52,6 +53,7 @@ def client():
     Base.metadata.create_all(engine, tables=[
         Audience.__table__, AudienceMember.__table__, AudienceMembershipEvent.__table__,
         AudienceSchedule.__table__, Job.__table__,
+        AudienceDestination.__table__, DestinationRun.__table__, DestinationDelivery.__table__,
     ])
     Session = sessionmaker(bind=engine)
     app = FastAPI()

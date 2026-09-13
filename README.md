@@ -115,6 +115,8 @@ layer that can build and run those workbooks for you.
 | **Research / "Claygent" columns** | A bounded ReAct agent that *browses the web* per row to answer a question and cite a source | Implemented |
 | **Agent columns** | Goal-directed enrichment — the agent picks tools dynamically and records a reasoning trace per cell | Implemented |
 | **Agentic chat / autopilot** | CopilotKit-style chat that can draft a plan from a goal ("build a list of 50 IT firms in Pune and find founders' emails") and execute it: create a sourcing workbook, add agent columns, set refresh | Implemented |
+| **Dynamic audiences** | Workspace-wide saved segments with materialized membership, entry/exit history, restart-safe scheduled refresh, and automation triggers | Implemented |
+| **Audience activation** | Durable, idempotent per-member sync runs to webhooks, HubSpot, and Salesforce with field mapping, health, retries, and automatic sync after audience changes | Implemented |
 | **Output / push loop** | `output` columns push each row to a **webhook, HubSpot, Salesforce, Google Sheets, Airtable, or an email sequencer** — run-once idempotent, executed after enrichment | Implemented |
 | **Email outreach** | Multi-step SMTP sequences with per-lead state and rate limiting | Implemented |
 | **Buying signals** | Detects 7 signal types (hiring, funding, tech change, website change, news, growth, social) | Implemented |
