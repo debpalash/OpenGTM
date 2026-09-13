@@ -122,7 +122,11 @@ class QueueService:
         logger.info(f"Job {job.id} ({job_type}) added to queue.")
         return job
 
-    def claim_next_job(self, db: Optional[Session] = None) -> Optional[Dict[str, Any]]:
+    def claim_next_job(
+        self,
+        db: Optional[Session] = None,
+        fire_key_prefix: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
         """Atomically claim the next eligible job for THIS worker.
 
         Returns a small dict ``{"id", "type", "payload"}`` for the claimed job,
@@ -155,17 +159,26 @@ class QueueService:
         db = db or SessionLocal()
         try:
             if engine.dialect.name == "postgresql":
-                return self._claim_next_job_postgres(db)
-            return self._claim_next_job_sqlite(db)
+                return self._claim_next_job_postgres(db, fire_key_prefix)
+            return self._claim_next_job_sqlite(db, fire_key_prefix)
         finally:
             if owns_session:
                 db.close()
 
     def _eligible_clause(self) -> str:
         # Shared SQL predicate: a pending job whose next_run_at is due or unset.
-        return "j.status = 'pending' AND (j.next_run_at IS NULL OR j.next_run_at <= :now) AND (j.workspace_id IS NULL OR :tenant_cap = 0 OR (SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' AND active.workspace_id = j.workspace_id) < :tenant_cap)"
+        return (
+            "j.status = 'pending' "
+            "AND (j.next_run_at IS NULL OR j.next_run_at <= :now) "
+            "AND (:fire_key_prefix IS NULL OR j.fire_key LIKE :fire_key_prefix) "
+            "AND (j.workspace_id IS NULL OR :tenant_cap = 0 OR "
+            "(SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' "
+            "AND active.workspace_id = j.workspace_id) < :tenant_cap)"
+        )
 
-    def _claim_next_job_postgres(self, db: Session) -> Optional[Dict[str, Any]]:
+    def _claim_next_job_postgres(
+        self, db: Session, fire_key_prefix: Optional[str] = None
+    ) -> Optional[Dict[str, Any]]:
         now = datetime.now(timezone.utc)
         for _ in range(100):
             # Row lock prevents double-grab. The tenant advisory lock serializes
@@ -177,7 +190,13 @@ class QueueService:
                     "ORDER BY j.priority DESC, (SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' AND active.workspace_id = j.workspace_id) ASC, j.next_run_at ASC, j.created_at ASC "
                     "FOR UPDATE SKIP LOCKED LIMIT 1"
                 ),
-                {"now": now, "tenant_cap": self.max_active_per_workspace},
+                {
+                    "now": now,
+                    "tenant_cap": self.max_active_per_workspace,
+                    "fire_key_prefix": f"{fire_key_prefix}%"
+                    if fire_key_prefix
+                    else None,
+                },
             ).fetchone()
             if row is None:
                 db.rollback()
@@ -202,7 +221,9 @@ class QueueService:
         logger.warning("claim_next_job: gave up after 100 tenant-cap retries")
         return None
 
-    def _claim_next_job_sqlite(self, db: Session) -> Optional[Dict[str, Any]]:
+    def _claim_next_job_sqlite(
+        self, db: Session, fire_key_prefix: Optional[str] = None
+    ) -> Optional[Dict[str, Any]]:
         now = datetime.now(timezone.utc)
         # Loop over candidates: a conditional UPDATE guarded by status='pending'.
         # rowcount==1 means we won; rowcount==0 means another writer already
@@ -215,7 +236,13 @@ class QueueService:
                     "ORDER BY j.priority DESC, (SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' AND active.workspace_id = j.workspace_id) ASC, j.next_run_at ASC, j.created_at ASC "
                     "LIMIT 1"
                 ),
-                {"now": now, "tenant_cap": self.max_active_per_workspace},
+                {
+                    "now": now,
+                    "tenant_cap": self.max_active_per_workspace,
+                    "fire_key_prefix": f"{fire_key_prefix}%"
+                    if fire_key_prefix
+                    else None,
+                },
             ).fetchone()
             if row is None:
                 db.rollback()

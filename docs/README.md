@@ -12,6 +12,7 @@ This directory holds the engineering material that backs it.
 | [`MIGRATIONS.md`](MIGRATIONS.md) | Database migration workflow and operational commands |
 | [`LAUNCH.md`](LAUNCH.md) | Public launch copy, media inventory, and rollout checklist |
 | [`examples/`](examples/) | Copyable client and integration configuration examples |
+| [`operations/`](operations/) | Production runbooks and controlled validation gates |
 | [`specs/`](specs/) | Build-ready feature and hardening specifications |
 | [`plans/`](plans/) | Public roadmap and Clay-parity work items |
 | [`research/`](research/) | Source audits, competitive research, OSS ecosystem notes |

@@ -180,14 +180,14 @@ def test_cache_set_uses_90day_ttl(monkeypatch, tmp_path):
 def test_notice_file_present_and_attributes_mit():
     notice = ts._DB_PATH.parent / "tech_fingerprints.NOTICE"
     assert notice.exists(), "tech_fingerprints.NOTICE must ship beside the blob"
-    text = notice.read_text()
+    text = notice.read_text(encoding="utf-8")
     assert "MIT" in text
     assert "developit/wappalyzer" in text
     assert "b502633885dfea2221ae0e87a275a8120072afa7" in text  # pinned commit
 
 
 def test_fingerprint_db_parses_and_compiles():
-    db = json.loads(ts._DB_PATH.read_text())
+    db = json.loads(ts._DB_PATH.read_text(encoding="utf-8"))
     assert len(db) > 1000
     # every pattern in every entry must compile (no re.error in the bundle)
     for name, spec in db.items():
