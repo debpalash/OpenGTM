@@ -283,6 +283,22 @@ export async function fetchLead(id: number): Promise<Lead> {
   return res.json()
 }
 
+export interface ProfileTimelineItem {
+  id: string
+  kind: "signal" | "audience" | "activation" | "outreach" | "lead"
+  title: string
+  description: string
+  status: string
+  occurred_at: number
+  metadata: Record<string, unknown>
+}
+
+export async function fetchLeadTimeline(id: number): Promise<{ items: ProfileTimelineItem[]; next_before: number | null; next_before_id: string | null }> {
+  const res = await fetch(`${API_BASE}/api/lead/${id}/timeline`)
+  if (!res.ok) throw new Error(`Could not load profile timeline (${res.status})`)
+  return res.json()
+}
+
 export interface SimilarLeads {
   reference: string
   count: number

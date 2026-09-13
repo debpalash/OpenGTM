@@ -17,6 +17,7 @@ export const queryKeys = {
     all: ["leads"] as const,
     list: (filters: Record<string, string>) => ["leads", "list", filters] as const,
     detail: (id: number) => ["leads", "detail", id] as const,
+    timeline: (id: number) => ["leads", "timeline", id] as const,
   },
   stats: {
     all: ["stats"] as const,
