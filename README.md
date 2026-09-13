@@ -327,8 +327,10 @@ user work runs through the durable worker. The remaining boundaries are:
   do not.
 - **Clay's breadth and polish remain a product gap.** The open provider catalog,
   very-large-grid ergonomics, direct Clay API migration beyond the shipped
-  schema-aware CSV importer, reactive dependency recomputation, templates,
-  integrations, and real-user accuracy benchmarks need continued work.
+  schema-aware CSV importer, templates, integrations, and real-user accuracy
+  benchmarks need continued work. Workbook edits now recompute transitive
+  downstream columns through the durable queue; side-effecting output columns
+  require explicit `reactive: true`.
 
 See [`docs/plans/clay-parity-specs.md`](docs/plans/clay-parity-specs.md) for the work-item
 breakdown and sequencing.

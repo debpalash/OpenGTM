@@ -10,7 +10,7 @@ log), never deadlock.
 
 import logging
 import re
-from typing import Dict, List
+from typing import Callable, Dict, List, Optional
 
 logger = logging.getLogger("workbook.column_deps")
 
@@ -27,16 +27,53 @@ def _refs_in(col: dict) -> set:
         v = col.get(f)
         if isinstance(v, str):
             refs.update(m.strip() for m in _REF_RE.findall(v))
+    for ref in col.get("input_columns") or []:
+        if isinstance(ref, str) and ref.strip():
+            refs.add(ref.strip())
     # http_headers values + http_body (stringified) can also reference columns
-    for f in ("http_headers", "http_body"):
+    def strings(value):
+        if isinstance(value, str):
+            yield value
+        elif isinstance(value, dict):
+            for child in value.values():
+                yield from strings(child)
+        elif isinstance(value, (list, tuple)):
+            for child in value:
+                yield from strings(child)
+
+    for f in ("http_headers", "http_body", "destination_config"):
         v = col.get(f)
         if v is not None:
-            import json
-            try:
-                refs.update(m.strip() for m in _REF_RE.findall(json.dumps(v)))
-            except Exception:
-                pass
+            for value in strings(v):
+                refs.update(m.strip() for m in _REF_RE.findall(value))
     return refs
+
+
+def downstream_columns(
+    cols: List[dict],
+    changed_fields: set[str],
+    eligible: Optional[Callable[[dict], bool]] = None,
+) -> List[dict]:
+    """Return the transitive dependants of edited fields in execution order.
+
+    An edited key may address an input by id, display name, or lead_field. Each
+    matched derived column contributes its own aliases, allowing A -> B -> C
+    chains to propagate without requiring an explicit dependency schema.
+    """
+    tainted = {str(field).strip().lower() for field in changed_fields if str(field).strip()}
+    selected: list[dict] = []
+    for col in topo_sort_columns(cols):
+        refs = {str(ref).strip().lower() for ref in _refs_in(col)}
+        if not refs.intersection(tainted):
+            continue
+        if eligible is not None and not eligible(col):
+            continue
+        selected.append(col)
+        for key in ("id", "name", "lead_field", "target_field"):
+            value = col.get(key)
+            if value:
+                tainted.add(str(value).strip().lower())
+    return selected
 
 
 def topo_sort_columns(cols: List[dict]) -> List[dict]:

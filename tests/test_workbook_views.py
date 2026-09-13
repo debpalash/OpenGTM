@@ -24,6 +24,7 @@ from sqlalchemy.pool import StaticPool
 from apps.api.core.ratelimit import limiter
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 from apps.api.database import Base, get_db
+from apps.api.models import Job
 from apps.api.services.workbook.models import (
     Workbook, WorkbookRow, WorkbookEnrichment, WorkbookView,
 )
@@ -54,7 +55,7 @@ def client():
     Base.metadata.create_all(engine, tables=[
         Workbook.__table__, WorkbookRow.__table__,
         WorkbookEnrichment.__table__, WorkbookView.__table__,
-        ProviderStat.__table__,
+        ProviderStat.__table__, Job.__table__,
     ])
     Session = sessionmaker(bind=engine)
 
@@ -98,6 +99,47 @@ def _mk_row(Session, wid, data, enrichments=None, ws=WS1, lead_id=None):
     rid = r.id
     s.close()
     return rid
+
+
+def test_row_edit_enqueues_only_reactive_downstream_chain(client):
+    tc, Session, _ = client
+    columns = [
+        {"id": "company", "name": "Company", "type": "input", "lead_field": "company"},
+        {"id": "summary", "type": "ai_formula", "prompt": "Summarize {Company}"},
+        {"id": "score", "type": "formula", "formula": "len({summary})"},
+        {"id": "push", "type": "output", "destination_config": {"body": "{score}"}},
+        {"id": "other", "type": "formula", "formula": "2 + 2"},
+    ]
+    wid = _mk_workbook(Session, columns)
+    rid = _mk_row(Session, wid, {"company": "Before"})
+
+    response = tc.patch(f"/api/workbooks/{wid}/rows/{rid}", json={"company": "After"})
+
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload["reactive_columns"] == ["summary", "score"]
+    assert payload["recompute"]["status"] == "started"
+    with Session() as session:
+        job = session.query(Job).filter(Job.type == "run_workbook").one()
+        assert job.payload["row_ids"] == [rid]
+        assert job.payload["column_ids"] == ["summary", "score"]
+        assert job.payload["force"] is True
+
+
+def test_row_edit_can_disable_recompute(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "company", "type": "input", "lead_field": "company"},
+        {"id": "summary", "type": "ai_formula", "prompt": "{company}"},
+    ])
+    rid = _mk_row(Session, wid, {"company": "Before"})
+    response = tc.patch(
+        f"/api/workbooks/{wid}/rows/{rid}?recompute=false", json={"company": "After"},
+    )
+    assert response.status_code == 200
+    assert response.json()["reactive_columns"] == []
+    with Session() as session:
+        assert session.query(Job).count() == 0
 
 
 # ── Views CRUD ────────────────────────────────────────────────────────────
