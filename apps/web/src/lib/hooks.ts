@@ -5,7 +5,7 @@ import { authQuery } from "./auth"
 import {
   fetchLeads, fetchStats, fetchFilters, fetchJobs,
   fetchSystemStats, fetchWorkspaces, submitCollect,
-  updateStatus, updateLead, deleteLead, addLead, fetchLead,
+  updateStatus, updateLead, deleteLead, addLead, fetchLead, fetchLeadTimeline,
   fetchConversations, fetchConversationMessages,
   fetchAnalyticsOverview, fetchAnalyticsPipeline,
   fetchAnalyticsCollection, fetchAnalyticsEnrichment, fetchAnalyticsLLM,
@@ -47,6 +47,14 @@ export function useFilters() {
     queryKey: queryKeys.filters,
     queryFn: fetchFilters,
     staleTime: 60 * 1000,
+  })
+}
+
+export function useLeadTimeline(id: number) {
+  return useQuery({
+    queryKey: queryKeys.leads.timeline(id),
+    queryFn: () => fetchLeadTimeline(id),
+    enabled: !!id,
   })
 }
 

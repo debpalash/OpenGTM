@@ -6,7 +6,7 @@ import {
   MapPin, Building2, User, Calendar, Sparkles, Search,
   FileText, Loader2, CheckCircle, AlertCircle, Pencil,
   Trash2, ExternalLink, Zap, TrendingUp, ChevronDown,
-  ChevronRight,
+  ChevronRight, Activity, Send,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select"
 import { EditableCell } from "@/components/editable-cell"
 import { MarkdownContent } from "@/components/markdown-content"
-import { useLead, useUpdateLead, useUpdateStatus, useDeleteLead } from "@/lib/hooks"
+import { useLead, useLeadTimeline, useUpdateLead, useUpdateStatus, useDeleteLead } from "@/lib/hooks"
 import { enrichLead, type EnrichAction } from "@/lib/api"
 import { useQueryClient } from "@tanstack/react-query"
 import { queryKeys } from "@/lib/query-client"
@@ -131,22 +131,6 @@ function EnrichButton({ icon, label, desc, loading, disabled, onClick }: {
 }
 
 // ── Timeline Item ───────────────────────────────────────────────
-function TimelineItem({ label, date, icon }: { label: string; date?: string | null; icon?: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0">
-        {icon || <Calendar className="size-3 text-muted-foreground" />}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-xs font-medium">{label}</div>
-        <div className="text-[11px] text-muted-foreground">
-          {date ? new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ── Favicon Helper ──────────────────────────────────────────────
 function CompanyAvatar({ company, website }: { company: string; website?: string }) {
   let domain: string | undefined
@@ -240,6 +224,7 @@ export default function LeadDetailPage() {
   const leadId = Number(id)
   const qc = useQueryClient()
   const { data: lead, isLoading } = useLead(leadId)
+  const timeline = useLeadTimeline(leadId)
   const updateLead = useUpdateLead()
   const updateStatus = useUpdateStatus()
   const deleteLead = useDeleteLead()
@@ -533,23 +518,18 @@ export default function LeadDetailPage() {
           {/* ── ACTIVITY TAB ── */}
           <TabsContent value="activity">
             <div className="rounded-lg border p-5 space-y-4">
-              <h3 className="text-sm font-medium">Timeline</h3>
+              <h3 className="text-sm font-medium">Unified timeline</h3>
               <div className="space-y-3">
-                <TimelineItem label="Created" date={lead.created_at} />
-                <TimelineItem label="Last Updated" date={lead.updated_at} />
-                <TimelineItem label="Last Enriched" date={lead.last_enriched_at} icon={<Sparkles className="size-3 text-amber-500" />} />
-                {lead.source && (
-                  <div className="flex items-center gap-3">
-                    <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0"><Zap className="size-3 text-muted-foreground" /></div>
-                    <div className="flex-1"><div className="text-xs font-medium">Source</div><div className="text-[11px] text-muted-foreground">{lead.source}</div></div>
+                {timeline.isLoading && <Skeleton className="h-28 w-full" />}
+                {timeline.data?.items.map(item => (
+                  <div key={item.id} className="flex items-start gap-3">
+                    <div className="size-7 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      {item.kind === "signal" ? <Zap className="size-3 text-amber-500" /> : item.kind === "audience" ? <Activity className="size-3 text-blue-500" /> : item.kind === "activation" ? <Send className="size-3 text-emerald-500" /> : item.kind === "outreach" ? <Mail className="size-3 text-purple-500" /> : <Sparkles className="size-3 text-muted-foreground" />}
+                    </div>
+                    <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><span className="text-xs font-medium">{item.title}</span><Badge variant="outline" className="text-[9px]">{item.status}</Badge></div>{item.description && <p className="truncate text-[11px] text-muted-foreground">{item.description}</p>}<p className="text-[10px] text-muted-foreground">{new Date(item.occurred_at * 1000).toLocaleString()}</p></div>
                   </div>
-                )}
-                {lead.workspace_id && (
-                  <div className="flex items-center gap-3">
-                    <div className="size-6 rounded-full bg-muted flex items-center justify-center shrink-0"><Building2 className="size-3 text-muted-foreground" /></div>
-                    <div className="flex-1"><div className="text-xs font-medium">Workspace</div><div className="text-[11px] text-muted-foreground font-mono">{lead.workspace_id}</div></div>
-                  </div>
-                )}
+                ))}
+                {!timeline.isLoading && !timeline.data?.items.length && <p className="py-6 text-center text-xs text-muted-foreground">No activity recorded yet.</p>}
               </div>
             </div>
           </TabsContent>

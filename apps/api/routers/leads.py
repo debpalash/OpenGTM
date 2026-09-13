@@ -25,6 +25,8 @@ from apps.api.core.tenancy import (
     require_workspace_role,
 )
 from apps.api.core.ratelimit import limiter
+from apps.api.database import get_db
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/api", tags=["Leads"])
 
@@ -169,6 +171,109 @@ def get_lead(lead_id: int, ctx: WorkspaceCtx = Depends(current_workspace)):
     if lead:
         return lead.to_dict()
     raise HTTPException(status_code=404, detail="Lead not found")
+
+
+def _timeline_timestamp(value) -> float:
+    if value in (None, ""):
+        return 0.0
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value.timestamp()
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00")).timestamp()
+    except (TypeError, ValueError):
+        return 0.0
+
+
+@router.get("/lead/{lead_id}/timeline")
+def lead_timeline(
+    lead_id: int,
+    limit: int = Query(default=100, ge=1, le=200),
+    before: Optional[float] = Query(default=None),
+    before_id: Optional[str] = Query(default=None, max_length=255),
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Unified, tenant-scoped account activity ordered newest first."""
+    lead_db = ctx.lead_db()
+    lead = lead_db.get_lead(lead_id)
+    lead_db.close()
+    if lead is None:
+        raise HTTPException(status_code=404, detail="Lead not found")
+
+    from apps.api.services.audiences.models import Audience, AudienceMembershipEvent
+    from apps.api.services.destinations.models import AudienceDestination, DestinationDelivery
+    from apps.api.services.outreach.orm_models import OutreachSend
+    from apps.api.services.signals.store import get_signal_store
+
+    items = []
+    for signal in get_signal_store(ctx.workspace_id).get_signals(lead_id=lead_id, limit=200):
+        items.append({
+            "id": f"signal:{signal['id']}", "kind": "signal", "title": signal["title"] or signal["signal_type"],
+            "description": signal["description"], "status": signal["signal_type"],
+            "occurred_at": _timeline_timestamp(signal["created_at"]),
+            "metadata": {"source": signal["source"], "source_url": signal["source_url"], "weight": signal["weight"]},
+        })
+
+    audience_rows = db.query(AudienceMembershipEvent, Audience.name).join(
+        Audience, Audience.id == AudienceMembershipEvent.audience_id,
+    ).filter(
+        AudienceMembershipEvent.workspace_id == ctx.workspace_id,
+        AudienceMembershipEvent.lead_id == lead_id,
+    ).order_by(AudienceMembershipEvent.created_at.desc(), AudienceMembershipEvent.id.desc()).limit(200).all()
+    for event, audience_name in audience_rows:
+        items.append({
+            "id": f"audience:{event.id}", "kind": "audience", "title": f"{event.event_type.title()} {audience_name}",
+            "description": f"Audience membership {event.event_type}", "status": event.event_type,
+            "occurred_at": _timeline_timestamp(event.created_at),
+            "metadata": {"audience_id": event.audience_id, "audience_name": audience_name},
+        })
+
+    delivery_rows = db.query(DestinationDelivery, AudienceDestination.name, AudienceDestination.destination_type).join(
+        AudienceDestination, AudienceDestination.id == DestinationDelivery.destination_id,
+    ).filter(
+        DestinationDelivery.workspace_id == ctx.workspace_id,
+        DestinationDelivery.lead_id == lead_id,
+    ).order_by(DestinationDelivery.updated_at.desc(), DestinationDelivery.id.desc()).limit(200).all()
+    for delivery, destination_name, destination_type in delivery_rows:
+        items.append({
+            "id": f"activation:{delivery.id}", "kind": "activation", "title": f"Activated to {destination_name}",
+            "description": delivery.summary or delivery.error or "Destination delivery",
+            "status": delivery.status, "occurred_at": _timeline_timestamp(delivery.delivered_at or delivery.updated_at),
+            "metadata": {"destination_id": delivery.destination_id, "destination_type": destination_type, "operation": delivery.operation},
+        })
+
+    sends = db.query(OutreachSend).filter(
+        OutreachSend.workspace_id == ctx.workspace_id, OutreachSend.lead_id == lead_id,
+    ).order_by(OutreachSend.created_at.desc(), OutreachSend.id.desc()).limit(200).all()
+    for send in sends:
+        occurred = send.replied_at or send.opened_at or send.bounced_at or send.sent_at or send.created_at
+        items.append({
+            "id": f"outreach:{send.id}", "kind": "outreach", "title": send.subject or "Outreach email",
+            "description": f"Sequence step {send.step_number + 1}", "status": send.status,
+            "occurred_at": _timeline_timestamp(occurred),
+            "metadata": {"sequence_id": send.sequence_id, "step_number": send.step_number},
+        })
+
+    for kind, label, value in (("created", "Lead created", lead.created_at), ("updated", "Lead updated", lead.updated_at), ("enriched", "Lead enriched", lead.last_enriched_at)):
+        timestamp = _timeline_timestamp(value)
+        if timestamp:
+            items.append({"id": f"lead:{kind}", "kind": "lead", "title": label, "description": "", "status": kind, "occurred_at": timestamp, "metadata": {}})
+
+    if before is not None:
+        boundary = (before, before_id or "")
+        items = [item for item in items if (item["occurred_at"], item["id"]) < boundary]
+    items.sort(key=lambda item: (item["occurred_at"], item["id"]), reverse=True)
+    page = items[:limit]
+    has_more = len(items) > limit
+    return {
+        "items": page,
+        "next_before": page[-1]["occurred_at"] if has_more else None,
+        "next_before_id": page[-1]["id"] if has_more else None,
+    }
 
 
 @router.get("/lead/{lead_id}/similar")
