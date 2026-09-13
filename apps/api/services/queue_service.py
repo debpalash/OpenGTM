@@ -74,6 +74,7 @@ class QueueService:
         self.worker_id = _make_worker_id()
         self.concurrency = max(1, min(64, concurrency if concurrency is not None else settings.WORKER_CONCURRENCY))
         self.shutdown_grace = max(0, min(300, shutdown_grace if shutdown_grace is not None else settings.WORKER_SHUTDOWN_GRACE_SECONDS))
+        self.max_active_per_workspace = max(0, min(64, settings.WORKER_MAX_ACTIVE_PER_WORKSPACE))
         self._worker_tasks: list[asyncio.Task] = []
         self._monitor_task: Optional[asyncio.Task] = None
         self._active_slots: set[int] = set()
@@ -107,6 +108,7 @@ class QueueService:
         job = Job(
             type=job_type,
             payload=payload,
+            workspace_id=str(payload.get("workspace_id")) if payload.get("workspace_id") else None,
             priority=priority,
             fire_key=fire_key,
             status="pending",
@@ -161,21 +163,18 @@ class QueueService:
 
     def _eligible_clause(self) -> str:
         # Shared SQL predicate: a pending job whose next_run_at is due or unset.
-        return (
-            "status = 'pending' "
-            "AND (next_run_at IS NULL OR next_run_at <= :now)"
-        )
+        return "j.status = 'pending' AND (j.next_run_at IS NULL OR j.next_run_at <= :now) AND (j.workspace_id IS NULL OR :tenant_cap = 0 OR (SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' AND active.workspace_id = j.workspace_id) < :tenant_cap)"
 
     def _claim_next_job_postgres(self, db: Session) -> Optional[Dict[str, Any]]:
         now = datetime.now(timezone.utc)
         # Lock + select one eligible row, skipping rows other workers hold.
         row = db.execute(
             text(
-                f"SELECT id FROM jobs WHERE {self._eligible_clause()} "
-                "ORDER BY priority DESC, next_run_at ASC, created_at ASC "
+                f"SELECT j.id FROM jobs j WHERE {self._eligible_clause()} "
+                "ORDER BY j.priority DESC, (SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' AND active.workspace_id = j.workspace_id) ASC, j.next_run_at ASC, j.created_at ASC "
                 "FOR UPDATE SKIP LOCKED LIMIT 1"
             ),
-            {"now": now},
+            {"now": now, "tenant_cap": self.max_active_per_workspace},
         ).fetchone()
         if row is None:
             db.rollback()
@@ -203,11 +202,11 @@ class QueueService:
         for _ in range(100):
             row = db.execute(
                 text(
-                    f"SELECT id FROM jobs WHERE {self._eligible_clause()} "
-                    "ORDER BY priority DESC, next_run_at ASC, created_at ASC "
+                    f"SELECT j.id FROM jobs j WHERE {self._eligible_clause()} "
+                    "ORDER BY j.priority DESC, (SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' AND active.workspace_id = j.workspace_id) ASC, j.next_run_at ASC, j.created_at ASC "
                     "LIMIT 1"
                 ),
-                {"now": now},
+                {"now": now, "tenant_cap": self.max_active_per_workspace},
             ).fetchone()
             if row is None:
                 db.rollback()
@@ -338,7 +337,7 @@ class QueueService:
         active_workers = db.query(Job.worker_id).filter(Job.status == "processing", Job.worker_id.isnot(None)).distinct().count()
         oldest_created = oldest[0].replace(tzinfo=timezone.utc) if oldest and oldest[0].tzinfo is None else oldest[0] if oldest else None
         oldest_age = max(0.0, (now - oldest_created).total_seconds()) if oldest_created else 0.0
-        return {"worker_id": self.worker_id, "configured_concurrency": self.concurrency, "local_active_slots": len(self._active_slots), "active_workers": active_workers, "counts": counts, "active_by_type": types, "oldest_pending_age_seconds": round(oldest_age, 3), "observed_at": now.isoformat()}
+        return {"worker_id": self.worker_id, "configured_concurrency": self.concurrency, "max_active_per_workspace": self.max_active_per_workspace, "local_active_slots": len(self._active_slots), "active_workers": active_workers, "counts": counts, "active_by_type": types, "oldest_pending_age_seconds": round(oldest_age, 3), "observed_at": now.isoformat()}
 
     async def _process_job(self, job_id: int, job_type: str, payload: Dict):
         logger.info(f"Processing Job {job_id} ({job_type})")

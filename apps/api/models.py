@@ -32,6 +32,9 @@ class Job(Base):
     id = Column(Integer, primary_key=True, index=True)
     type = Column(String, index=True)  # 'download_link', 'health_check', etc
     payload = Column(JSON)
+    # First-class tenant ownership for fair scheduling and indexed backpressure.
+    # Global/operator jobs keep NULL; workspace jobs derive this from payload.
+    workspace_id = Column(String, nullable=True, index=True)
     status = Column(String, default="pending", index=True)
     priority = Column(Integer, default=1)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

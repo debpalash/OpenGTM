@@ -61,6 +61,29 @@ def test_claimed_job_transitions_to_running():
         assert job.locked_at is not None  # lock timestamp stamped
 
 
+def test_workspace_ownership_and_active_cap_prevent_tenant_monopoly():
+    service = QueueService()
+    service.max_active_per_workspace = 1
+    with SessionLocal() as db:
+        first = service.add_job(db, "run_workbook", {"workspace_id": "ws-a", "n": 1})
+        second = service.add_job(db, "run_workbook", {"workspace_id": "ws-a", "n": 2})
+        other = service.add_job(db, "run_workbook", {"workspace_id": "ws-b", "n": 3})
+        assert first.workspace_id == second.workspace_id == "ws-a"
+        assert other.workspace_id == "ws-b"
+        first_id, second_id, other_id = first.id, second.id, other.id
+
+    claimed_first = service.claim_next_job()
+    claimed_other = service.claim_next_job()
+    assert claimed_first["id"] == first_id
+    assert claimed_other["id"] == other_id
+    assert service.claim_next_job() is None
+
+    with SessionLocal() as db:
+        row = db.query(Job).filter(Job.id == first_id).one()
+        row.status = "completed"; row.worker_id = None; db.commit()
+    assert service.claim_next_job()["id"] == second_id
+
+
 def test_concurrent_claimers_never_double_grab():
     """The headline test: many threads, each with its OWN QueueService identity
     (simulating separate worker replicas), race to drain the queue. Every job
