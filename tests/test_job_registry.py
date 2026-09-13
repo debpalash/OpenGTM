@@ -17,6 +17,7 @@ EXPECTED_JOB_TYPES = {
     "trigger_eval",
     "watch_poll",
     "audience_refresh",
+    "audience_destination_sync",
 }
 
 

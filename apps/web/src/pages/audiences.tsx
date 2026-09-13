@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react"
-import { Activity, ArrowDownLeft, ArrowUpRight, ListFilter, RefreshCw, Users } from "lucide-react"
+import { Activity, ArrowDownLeft, ArrowUpRight, ListFilter, Plus, RefreshCw, Send, Users } from "lucide-react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useAudienceEvents, useAudienceMembers, useAudiences, useRefreshAudience, useUpdateAudience } from "@/lib/hooks"
+import { useAudienceDestinations, useAudienceEvents, useAudienceMembers, useAudiences, useCreateAudienceDestination, useRefreshAudience, useSyncAudienceDestination, useUpdateAudience } from "@/lib/hooks"
+import type { AudienceDestination } from "@/lib/api"
 
 const ago = (value: string | null) => {
   if (!value) return "Never"
@@ -28,14 +30,34 @@ export default function AudiencesPage() {
   const events = useAudienceEvents(selectedId)
   const refresh = useRefreshAudience()
   const update = useUpdateAudience()
+  const destinations = useAudienceDestinations(selectedId)
+  const createDestination = useCreateAudienceDestination()
+  const syncDestination = useSyncAudienceDestination(selectedId)
+  const [destinationType, setDestinationType] = useState<AudienceDestination["destination_type"]>("webhook")
+  const [destinationName, setDestinationName] = useState("")
+  const [webhookUrl, setWebhookUrl] = useState("")
 
   const runRefresh = async () => {
     if (!selectedId) return
     try {
       const result = await refresh.mutateAsync(selectedId)
-      toast.success(`Audience refreshed: +${result.entered} entered, −${result.exited} exited`)
+      toast.success(`Audience refreshed: +${result.entered} entered, −${result.exited} exited, ${result.changed} changed`)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not refresh audience")
+    }
+  }
+
+  const addDestination = async () => {
+    if (!selectedId || !destinationName.trim()) return
+    try {
+      await createDestination.mutateAsync({
+        audience_id: selectedId, name: destinationName.trim(), destination_type: destinationType,
+        config: destinationType === "webhook" ? { url: webhookUrl.trim(), method: "POST" } : {},
+      })
+      setDestinationName(""); setWebhookUrl("")
+      toast.success("Destination added")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not add destination")
     }
   }
 
@@ -127,6 +149,27 @@ export default function AudiencesPage() {
                 </CardContent>
               </Card>
             </div>
+
+            <Card>
+              <CardHeader><CardTitle className="flex items-center gap-2 text-sm"><Send className="size-4" /> Activation destinations</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex flex-wrap items-center gap-2 rounded-md border p-2">
+                  <select value={destinationType} onChange={(event) => setDestinationType(event.target.value as AudienceDestination["destination_type"])} className="h-8 rounded-md border bg-background px-2 text-xs">
+                    <option value="webhook">Webhook</option><option value="hubspot">HubSpot</option><option value="salesforce">Salesforce</option>
+                  </select>
+                  <Input value={destinationName} onChange={(event) => setDestinationName(event.target.value)} placeholder="Destination name" className="h-8 min-w-40 flex-1" />
+                  {destinationType === "webhook" && <Input value={webhookUrl} onChange={(event) => setWebhookUrl(event.target.value)} placeholder="https://…" className="h-8 min-w-64 flex-[2]" />}
+                  <Button size="sm" onClick={addDestination} disabled={createDestination.isPending || !destinationName.trim() || (destinationType === "webhook" && !webhookUrl.trim())}><Plus className="mr-1 size-3" /> Add</Button>
+                </div>
+                {destinations.data?.map((destination) => (
+                  <div key={destination.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
+                    <div><div className="flex items-center gap-2"><span className="text-sm font-medium">{destination.name}</span><Badge variant="outline">{destination.destination_type}</Badge><Badge variant={destination.health_status === "healthy" ? "default" : "secondary"}>{destination.health_status}</Badge></div><p className="mt-1 text-xs text-muted-foreground">{destination.last_error || (destination.last_success_at ? `Last synced ${ago(destination.last_success_at)}` : "Not synced yet")}</p></div>
+                    <Button variant="outline" size="sm" disabled={syncDestination.isPending} onClick={() => syncDestination.mutate(destination.id, { onSuccess: (run) => toast.success(`Sync queued: ${run.id.slice(0, 8)}`), onError: (error) => toast.error(error.message) })}><Send className="mr-1 size-3" /> Sync audience</Button>
+                  </div>
+                ))}
+                {!destinations.isLoading && !destinations.data?.length && <p className="py-4 text-center text-xs text-muted-foreground">Connect a destination to activate this audience.</p>}
+              </CardContent>
+            </Card>
           </div>
         )}
       </main>

@@ -12,7 +12,7 @@ OpenGTM should pursue workflow parity, not imitate every Clay screen. The target
 | Discovery | Multi-source collection, provenance, canonical entities | More verified providers and repeatable source quality | P0 |
 | Audiences | Persistent workspace audiences, materialized membership, entry/exit history, restart-safe scheduled refresh and live diffs | Profile timelines and audience destinations | P0 |
 | Signals | Watches, intent polling, automation triggers, audience entry/exit triggers | Unified profile signal timeline | P1 |
-| Activation | Webhooks, HubSpot, outreach/sequences, output columns | Bidirectional CRM/warehouse sync and destination health | P1 |
+| Activation | Durable audience destination runs and delivery ledger for webhooks, HubSpot and Salesforce; outreach/output columns | Bidirectional CRM/warehouse sync and additional destination drivers | P1 |
 | Ads | No native ad-audience destinations | LinkedIn, Meta and Google customer-list sync | P2 |
 | Agents | Agent/research columns, MCP and Copilot surfaces | Account research agents with reusable playbooks | P1 |
 | Governance | Workspace roles, RLS, audit-oriented ledgers | SSO/SCIM, granular RBAC, retention and admin controls | P2 |

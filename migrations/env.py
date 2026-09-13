@@ -46,6 +46,7 @@ from apps.api.services.outreach import orm_models as _outreach_orm_models  # noq
 from apps.api.services.poller import models as _poller_models  # noqa: E402,F401
 from apps.api.services.mcp import models as _mcp_models  # noqa: E402,F401
 from apps.api.services.audiences import models as _audience_models  # noqa: E402,F401
+from apps.api.services.destinations import models as _destination_models  # noqa: E402,F401
 from apps.api.core.config import settings  # noqa: E402
 
 target_metadata = Base.metadata

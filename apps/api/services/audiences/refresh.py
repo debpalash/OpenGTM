@@ -35,6 +35,10 @@ def refresh_audience(db: Session, ctx: WorkspaceCtx, audience: Audience) -> dict
     }
     entered_ids = sorted(set(snapshots) - set(existing))
     exited_ids = sorted(set(existing) - set(snapshots))
+    changed_ids = sorted(
+        lead_id for lead_id in set(snapshots) & set(existing)
+        if (existing[lead_id].snapshot or {}) != snapshots[lead_id]
+    )
     now = datetime.now(timezone.utc)
     events: list[AudienceMembershipEvent] = []
 
@@ -74,10 +78,14 @@ def refresh_audience(db: Session, ctx: WorkspaceCtx, audience: Audience) -> dict
     if events:
         from apps.api.services.automations.events import emit_audience_membership
         emit_audience_membership(db, ctx.workspace_id, events)
+    if entered_ids or exited_ids or changed_ids:
+        from apps.api.services.destinations.engine import enqueue_audience_syncs
+        enqueue_audience_syncs(db, ctx.workspace_id, audience.id)
 
     return {
         "audience": audience.to_api(),
         "entered": len(entered_ids),
         "exited": len(exited_ids),
-        "unchanged": len(snapshots) - len(entered_ids),
+        "unchanged": len(snapshots) - len(entered_ids) - len(changed_ids),
+        "changed": len(changed_ids),
     }

@@ -148,9 +148,64 @@ export async function fetchAudienceEvents(id: string): Promise<AudienceMembershi
   return res.json()
 }
 
-export async function refreshAudience(id: string): Promise<{ audience: Audience; entered: number; exited: number; unchanged: number }> {
+export async function refreshAudience(id: string): Promise<{ audience: Audience; entered: number; exited: number; changed: number; unchanged: number }> {
   const res = await fetch(`${API_BASE}/api/audiences/${id}/refresh`, { method: "POST" })
   if (!res.ok) throw new Error(`Could not refresh audience (${res.status})`)
+  return res.json()
+}
+
+export interface AudienceDestination {
+  id: string
+  audience_id: string
+  name: string
+  destination_type: "webhook" | "hubspot" | "salesforce"
+  enabled: boolean
+  config: Record<string, unknown>
+  field_map: Record<string, string>
+  health_status: "unverified" | "healthy" | "degraded"
+  last_error: string | null
+  last_success_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface DestinationRun {
+  id: string
+  destination_id: string
+  status: string
+  attempted: number
+  succeeded: number
+  failed: number
+  skipped: number
+  error: string | null
+  started_at: string | null
+  finished_at: string | null
+  created_at: string
+}
+
+export async function fetchAudienceDestinations(audienceId: string): Promise<AudienceDestination[]> {
+  const res = await fetch(`${API_BASE}/api/audience-destinations?audience_id=${encodeURIComponent(audienceId)}`)
+  if (!res.ok) throw new Error(`Could not load destinations (${res.status})`)
+  return res.json()
+}
+
+export async function createAudienceDestination(data: {
+  audience_id: string; name: string; destination_type: AudienceDestination["destination_type"]
+  config?: Record<string, unknown>; field_map?: Record<string, string>
+}): Promise<AudienceDestination> {
+  const res = await fetch(`${API_BASE}/api/audience-destinations`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.detail || `Could not create destination (${res.status})`)
+  }
+  return res.json()
+}
+
+export async function syncAudienceDestination(id: string): Promise<DestinationRun> {
+  const res = await fetch(`${API_BASE}/api/audience-destinations/${id}/sync`, { method: "POST" })
+  if (!res.ok) throw new Error(`Could not start destination sync (${res.status})`)
   return res.json()
 }
 
