@@ -327,6 +327,7 @@ class WorkbookRow(Base):
             "workbook_id", "source_provider", "source_record_id",
             name="uq_workbook_row_source_identity",
         ),
+        Index("ix_workbook_rows_workbook_position_id", "workbook_id", "position", "id"),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)

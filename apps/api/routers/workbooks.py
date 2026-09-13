@@ -2,6 +2,8 @@
 
 from datetime import datetime, timezone
 from typing import Optional
+import base64
+import binascii
 import csv
 import io
 import json
@@ -13,7 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisco
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from sqlalchemy import String, cast, func as sa_func, or_
+from sqlalchemy import String, and_, cast, func as sa_func, or_
 
 from apps.api.database import get_db
 from apps.api.services.workbook.models import (
@@ -121,8 +123,27 @@ def _workbook_rows_query(db: Session, wb: Workbook, view_id: Optional[str], sear
         expression = _workbook_value_expression(wb, rule.get("column", ""))
         if expression is not None:
             ordering.append(expression.desc() if rule.get("dir") == "desc" else expression.asc())
-    ordering.append(WorkbookRow.position.asc())
+    ordering.extend((WorkbookRow.position.asc(), WorkbookRow.id.asc()))
     return query, ordering
+
+
+def _encode_row_cursor(position: int, row_id: int) -> str:
+    payload = json.dumps([position, row_id], separators=(",", ":")).encode()
+    return base64.urlsafe_b64encode(payload).decode().rstrip("=")
+
+
+def _decode_row_cursor(cursor: str) -> tuple[int, int]:
+    try:
+        raw = base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4))
+        values = json.loads(raw)
+        if not isinstance(values, list) or len(values) != 2:
+            raise ValueError
+        position, row_id = int(values[0]), int(values[1])
+        if position < 0 or row_id < 1:
+            raise ValueError
+        return position, row_id
+    except (ValueError, TypeError, json.JSONDecodeError, binascii.Error):
+        raise HTTPException(status_code=400, detail="Invalid workbook row cursor")
 
 
 def _query_leads(db: LeadDB, filter_criteria: dict, page: int = 1, page_size: int = 100) -> tuple[list[dict], int]:
@@ -422,6 +443,8 @@ async def get_workbook(
     page_size: int = Query(100, ge=1, le=5000),
     view_id: Optional[str] = Query(None),
     search: Optional[str] = Query(None, max_length=500),
+    cursor_mode: bool = Query(False),
+    cursor: Optional[str] = Query(None, max_length=512),
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(current_workspace),
 ):
@@ -436,8 +459,27 @@ async def get_workbook(
     if v2_count > 0:
         query, ordering = _workbook_rows_query(db, wb, view_id, search)
         query_total = query.with_entities(sa_func.count(WorkbookRow.id)).scalar() or 0
-        offset = (page - 1) * page_size
-        wb_rows = query.order_by(*ordering).offset(offset).limit(page_size).all()
+        using_cursor = cursor_mode or cursor is not None
+        if using_cursor and len(ordering) > 2:
+            raise HTTPException(status_code=400, detail="Cursor mode requires position ordering; use page mode for custom saved-view sorts")
+        if cursor:
+            cursor_position, cursor_id = _decode_row_cursor(cursor)
+            query = query.filter(or_(
+                WorkbookRow.position > cursor_position,
+                and_(WorkbookRow.position == cursor_position, WorkbookRow.id > cursor_id),
+            ))
+        if using_cursor:
+            fetched = query.order_by(*ordering).limit(page_size + 1).all()
+            has_more = len(fetched) > page_size
+            wb_rows = fetched[:page_size]
+        else:
+            offset = (page - 1) * page_size
+            wb_rows = query.order_by(*ordering).offset(offset).limit(page_size).all()
+            has_more = offset + len(wb_rows) < query_total
+        next_cursor = (
+            _encode_row_cursor(wb_rows[-1].position or 0, wb_rows[-1].id)
+            if using_cursor and has_more and wb_rows else None
+        )
 
         rows = []
         for r in wb_rows:
@@ -470,6 +512,8 @@ async def get_workbook(
             query_total_rows=query_total,
             page=page,
             page_size=page_size,
+            next_cursor=next_cursor,
+            has_more=has_more,
         )
 
     # ── v1 Legacy: Read from leads DB ──
@@ -512,6 +556,7 @@ async def get_workbook(
         rows=rows, total_rows=total,
         query_total_rows=total,
         page=page, page_size=page_size,
+        has_more=page * page_size < total,
     )
 
 

@@ -303,6 +303,30 @@ def test_count_locked_query_delete_is_exact_and_detects_drift(client):
         assert [row.id for row in remaining] == [survivor]
 
 
+def test_stable_row_cursor_handles_duplicate_positions(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "company", "name": "Company", "type": "input", "lead_field": "company"},
+    ])
+    expected_ids = [_mk_row(Session, wid, {"company": name}) for name in ("A", "B", "C")]
+
+    first = tc.get(f"/api/workbooks/{wid}", params={"cursor_mode": True, "page_size": 2})
+    assert first.status_code == 200, first.text
+    first_payload = first.json()
+    assert [row["row_id"] for row in first_payload["rows"]] == expected_ids[:2]
+    assert first_payload["has_more"] is True
+    assert first_payload["next_cursor"]
+
+    second = tc.get(f"/api/workbooks/{wid}", params={
+        "cursor_mode": True, "cursor": first_payload["next_cursor"], "page_size": 2,
+    })
+    assert second.status_code == 200, second.text
+    assert [row["row_id"] for row in second.json()["rows"]] == expected_ids[2:]
+    assert second.json()["has_more"] is False
+    assert second.json()["next_cursor"] is None
+    assert tc.get(f"/api/workbooks/{wid}", params={"cursor_mode": True, "cursor": "bad"}).status_code == 400
+
+
 # ── Views CRUD ────────────────────────────────────────────────────────────
 
 def test_views_crud(client):

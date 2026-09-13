@@ -446,10 +446,13 @@ export default function WorkbookEditorPage() {
   const [workbookPage, setWorkbookPage] = useState(1)
   const [activeViewId, setActiveViewId] = useState<string | null>(null)
   const [globalFilter, setGlobalFilter] = useState("")
+  const [workbookCursor, setWorkbookCursor] = useState<string | null>(null)
+  const [cursorHistory, setCursorHistory] = useState<Array<string | null>>([])
   const deferredGlobalFilter = useDeferredValue(globalFilter)
   const workbookPageSize = 1000
+  const cursorMode = !activeViewId
   const { data, isLoading, isFetching, error, refetch } = useWorkbook(
-    id!, workbookPageSize, workbookPage, activeViewId, deferredGlobalFilter,
+    id!, workbookPageSize, workbookPage, activeViewId, deferredGlobalFilter, cursorMode, workbookCursor,
   )
   const updateWb = useUpdateWorkbook()
   const updateLeadField = useUpdateLeadField(id!)
@@ -523,15 +526,30 @@ export default function WorkbookEditorPage() {
   const changeWorkbookPage = useCallback((nextPage: number) => {
     const bounded = Math.max(1, Math.min(nextPage, totalPages))
     if (bounded === workbookPage) return
+    if (cursorMode) {
+      if (bounded === workbookPage + 1) {
+        if (!data?.next_cursor) return
+        setCursorHistory(history => [...history, workbookCursor])
+        setWorkbookCursor(data.next_cursor)
+      } else if (bounded === workbookPage - 1) {
+        const previous = cursorHistory[cursorHistory.length - 1] ?? null
+        setCursorHistory(history => history.slice(0, -1))
+        setWorkbookCursor(previous)
+      } else return
+    }
     setWorkbookPage(bounded)
     setActiveCell({ row: 0, column: 0 })
     setSelectionAnchor(null)
     setRowSelection({})
     tableContainerRef.current?.scrollTo({ top: 0, behavior: "auto" })
-  }, [totalPages, workbookPage])
+  }, [cursorHistory, cursorMode, data?.next_cursor, totalPages, workbookCursor, workbookPage])
 
   useEffect(() => {
-    if (workbookPage > totalPages) setWorkbookPage(totalPages)
+    if (workbookPage > totalPages) {
+      setWorkbookPage(1)
+      setWorkbookCursor(null)
+      setCursorHistory([])
+    }
   }, [totalPages, workbookPage])
 
   // NL → column: call the generator and pre-fill the custom-column form.
@@ -583,6 +601,8 @@ export default function WorkbookEditorPage() {
   const handleSelectView = useCallback((v: WorkbookView | null) => {
     setActiveViewId(v?.id ?? null)
     setWorkbookPage(1)
+    setWorkbookCursor(null)
+    setCursorHistory([])
     setAllMatchingSelected(false)
     setRowSelection({})
     setSorting(v ? sortToSortingState(v.config?.sort) : [])
@@ -1341,12 +1361,12 @@ export default function WorkbookEditorPage() {
             type="text"
             placeholder="Search rows..."
             value={globalFilter}
-            onChange={e => { setGlobalFilter(e.target.value); setWorkbookPage(1); setAllMatchingSelected(false); setRowSelection({}) }}
+            onChange={e => { setGlobalFilter(e.target.value); setWorkbookPage(1); setWorkbookCursor(null); setCursorHistory([]); setAllMatchingSelected(false); setRowSelection({}) }}
             className="w-44 pl-7 pr-2 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground/50"
           />
           {globalFilter && (
             <button
-              onClick={() => { setGlobalFilter(""); setWorkbookPage(1); setAllMatchingSelected(false); setRowSelection({}) }}
+              onClick={() => { setGlobalFilter(""); setWorkbookPage(1); setWorkbookCursor(null); setCursorHistory([]); setAllMatchingSelected(false); setRowSelection({}) }}
               className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-muted"
             >
               <X className="size-3 text-muted-foreground" />

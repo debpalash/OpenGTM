@@ -326,7 +326,7 @@ user work runs through the durable worker. The remaining boundaries are:
   webhook exist. Tax, refunds, subscriptions, and customer lifecycle operations
   do not.
 - **Clay's breadth and polish remain a product gap.** The open provider catalog,
-  indexed cursor navigation and cross-page bulk selection at million-row scale, direct Clay API migration beyond the shipped
+  indexed JSON search/custom-sort cursors and arbitrary cross-page selection at million-row scale, direct Clay API migration beyond the shipped
   dry-run-audited Clay CSV importer, templates, integrations, and real-user accuracy
   benchmarks need continued work. Workbook edits now recompute transitive
   downstream columns through the durable queue; side-effecting output columns
@@ -338,7 +338,9 @@ user work runs through the durable worker. The remaining boundaries are:
   spreadsheet-formula injection neutralized. Run and fill-missing operations
   use that same complete-query scope and matching-row cost estimate. “Select
   all matching” supports full-query export and count-locked deletion that
-  aborts if membership changes before the write.
+  aborts if membership changes before the write. Default-order navigation uses
+  a stable opaque `(position,id)` cursor backed by a composite database index;
+  custom saved-view sorts retain offset paging until typed cursor keys ship.
 
 See [`docs/plans/clay-parity-specs.md`](docs/plans/clay-parity-specs.md) for the work-item
 breakdown and sequencing.
