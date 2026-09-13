@@ -14,7 +14,7 @@ import {
   type Lead, type Job, type CollectionIntent,
   fetchAudiences, createAudience, deleteAudience,
   fetchAudienceMembers, fetchAudienceEvents, refreshAudience, updateAudience,
-  fetchAudienceDestinations, createAudienceDestination, syncAudienceDestination,
+  fetchAudienceDestinations, fetchDestinationTypes, createAudienceDestination, syncAudienceDestination,
   fetchResearchPlaybooks, createResearchPlaybook, patchResearchPlaybook, fetchPlaybookRuns, startPlaybookRun, fetchPlaybookResults,
 } from "./api"
 
@@ -118,6 +118,14 @@ export function useAudienceDestinations(audienceId: string | null) {
     queryKey: queryKeys.audienceDestinations(audienceId ?? ""),
     queryFn: () => fetchAudienceDestinations(audienceId!), enabled: !!audienceId,
     refetchInterval: 5_000,
+  })
+}
+
+export function useDestinationTypes() {
+  return useQuery({
+    queryKey: ["audience-destination-types"],
+    queryFn: fetchDestinationTypes,
+    staleTime: 5 * 60 * 1000,
   })
 }
 

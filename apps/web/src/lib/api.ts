@@ -183,6 +183,26 @@ export interface DestinationRun {
   created_at: string
 }
 
+export interface DestinationType {
+  id: AudienceDestination["destination_type"]
+  category: "activation" | "crm" | "warehouse" | "ads"
+  capabilities: string[]
+  maturity: "beta" | "supported"
+  certification: {
+    validated_at: string
+    expires_at: string
+    build_sha: string
+    validation_run_id: string
+    evidence_url: string
+  } | null
+}
+
+export async function fetchDestinationTypes(): Promise<DestinationType[]> {
+  const res = await fetch(`${API_BASE}/api/audience-destinations/types`)
+  if (!res.ok) throw new Error(`Could not load destination types (${res.status})`)
+  return (await res.json()).types
+}
+
 export async function fetchAudienceDestinations(audienceId: string): Promise<AudienceDestination[]> {
   const res = await fetch(`${API_BASE}/api/audience-destinations?audience_id=${encodeURIComponent(audienceId)}`)
   if (!res.ok) throw new Error(`Could not load destinations (${res.status})`)
