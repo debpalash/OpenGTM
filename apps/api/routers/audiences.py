@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace, require_workspace_role
 from apps.api.database import get_db
@@ -152,6 +153,52 @@ def list_audience_members(audience_id: str, limit: int = 200, offset: int = 0, d
         AudienceMember.audience_id == audience_id,
     ).order_by(AudienceMember.joined_at.desc()).offset(max(0, offset)).limit(min(max(1, limit), 1000)).all()
     return [member.to_api() for member in members]
+
+
+def _account_key(snapshot: dict) -> tuple[str, str]:
+    from urllib.parse import urlparse
+    website = str(snapshot.get("website") or "").strip().lower()
+    if website:
+        parsed = urlparse(website if "://" in website else f"https://{website}")
+        domain = (parsed.hostname or "").removeprefix("www.")
+        if domain:
+            return domain, str(snapshot.get("company") or domain)
+    company = " ".join(str(snapshot.get("company") or "Unknown account").lower().split())
+    return f"company:{company}", str(snapshot.get("company") or "Unknown account")
+
+
+@router.get("/{audience_id}/accounts")
+def list_audience_accounts(audience_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Roll person-level membership into company coverage and intent summaries."""
+    _get(db, ctx.workspace_id, audience_id)
+    members = db.query(AudienceMember).filter(AudienceMember.workspace_id == ctx.workspace_id, AudienceMember.audience_id == audience_id).all()
+    from apps.api.services.leadgen.orm_models import SignalRow
+    signal_rows = db.query(SignalRow.lead_id, func.count(SignalRow.id), func.coalesce(func.sum(SignalRow.weight), 0)).join(AudienceMember, (AudienceMember.lead_id == SignalRow.lead_id) & (AudienceMember.workspace_id == SignalRow.workspace_id)).filter(AudienceMember.workspace_id == ctx.workspace_id, AudienceMember.audience_id == audience_id).group_by(SignalRow.lead_id).all()
+    signals = {lead_id: (int(count), int(weight)) for lead_id, count, weight in signal_rows}
+    accounts: dict[str, dict] = {}
+    for member in members:
+        snapshot = dict(member.snapshot or {})
+        key, company = _account_key(snapshot)
+        account = accounts.setdefault(key, {"key": key, "company": company, "website": snapshot.get("website") or "", "contacts": 0, "with_email": 0, "with_phone": 0, "decision_makers": 0, "score_total": 0.0, "signal_count": 0, "signal_weight": 0, "profiles": []})
+        account["contacts"] += 1
+        account["with_email"] += bool(snapshot.get("email"))
+        account["with_phone"] += bool(snapshot.get("phone"))
+        title = str(snapshot.get("contact_title") or "").lower()
+        account["decision_makers"] += any(term in title for term in ("chief", "ceo", "cto", "cmo", "vp", "vice president", "head", "director", "owner", "founder"))
+        account["score_total"] += float(snapshot.get("score") or 0)
+        count, weight = signals.get(member.lead_id, (0, 0))
+        account["signal_count"] += count; account["signal_weight"] += weight
+        account["profiles"].append({"lead_id": member.lead_id, "name": snapshot.get("contact_person") or f"Lead {member.lead_id}", "title": snapshot.get("contact_title") or "", "email": snapshot.get("email") or ""})
+    result = []
+    for account in accounts.values():
+        contacts = account["contacts"]
+        account["avg_score"] = round(account.pop("score_total") / contacts, 1) if contacts else 0
+        account["email_coverage_pct"] = round(account["with_email"] / contacts * 100) if contacts else 0
+        account["phone_coverage_pct"] = round(account["with_phone"] / contacts * 100) if contacts else 0
+        account["profiles"] = account["profiles"][:10]
+        result.append(account)
+    result.sort(key=lambda row: (-row["signal_weight"], -row["avg_score"], -row["contacts"], row["company"].lower()))
+    return {"accounts": result, "summary": {"account_count": len(result), "contact_count": len(members), "accounts_with_signals": sum(row["signal_count"] > 0 for row in result), "accounts_with_decision_makers": sum(row["decision_makers"] > 0 for row in result)}}
 
 
 @router.get("/{audience_id}/events")

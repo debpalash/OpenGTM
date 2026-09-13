@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Activity, ArrowDownLeft, ArrowUpRight, ListFilter, Plus, RefreshCw, Send, Users } from "lucide-react"
+import { Activity, ArrowDownLeft, ArrowUpRight, Building2, ListFilter, Plus, RefreshCw, Send, Users } from "lucide-react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -17,6 +17,12 @@ const ago = (value: string | null) => {
   if (minutes < 60) return `${minutes}m ago`
   if (minutes < 1440) return `${Math.round(minutes / 60)}h ago`
   return `${Math.round(minutes / 1440)}d ago`
+}
+
+interface AudienceAccount {
+  key: string; company: string; website: string; contacts: number; with_email: number; with_phone: number
+  decision_makers: number; avg_score: number; email_coverage_pct: number; phone_coverage_pct: number
+  signal_count: number; signal_weight: number; profiles: { lead_id: number; name: string; title: string; email: string }[]
 }
 
 export default function AudiencesPage() {
@@ -39,6 +45,11 @@ export default function AudiencesPage() {
   const [platformListId, setPlatformListId] = useState("")
   const [googleCustomerId, setGoogleCustomerId] = useState("")
   const [consentSource, setConsentSource] = useState("")
+  const [accountRollup, setAccountRollup] = useState<{ accounts: AudienceAccount[]; summary: { account_count: number; contact_count: number; accounts_with_signals: number; accounts_with_decision_makers: number } } | null>(null)
+  useEffect(() => {
+    if (!selectedId) { setAccountRollup(null); return }
+    fetch(`/api/audiences/${selectedId}/accounts`).then(response => response.ok ? response.json() : Promise.reject()).then(setAccountRollup).catch(() => setAccountRollup(null))
+  }, [selectedId, selected?.refreshed_at])
 
   const runRefresh = async () => {
     if (!selectedId) return
@@ -128,6 +139,7 @@ export default function AudiencesPage() {
             </div>
 
             <div className="grid gap-4 xl:grid-cols-[2fr_1fr]">
+              {accountRollup && <Card className="xl:col-span-2"><CardHeader><div className="flex items-center justify-between"><CardTitle className="flex items-center gap-2 text-sm"><Building2 className="size-4" /> Account rollup</CardTitle><div className="flex gap-2"><Badge variant="outline">{accountRollup.summary.account_count} accounts</Badge><Badge variant="outline">{accountRollup.summary.accounts_with_signals} signaling</Badge><Badge variant="outline">{accountRollup.summary.accounts_with_decision_makers} with decision makers</Badge></div></div></CardHeader><CardContent className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">{accountRollup.accounts.slice(0, 12).map(account => <div key={account.key} className="rounded-md border p-3"><div className="flex items-start justify-between gap-2"><div className="min-w-0"><p className="truncate text-sm font-medium">{account.company}</p><p className="truncate text-[10px] text-muted-foreground">{account.key}</p></div><Badge variant={account.signal_weight > 0 ? "default" : "secondary"}>{account.signal_weight} intent</Badge></div><div className="mt-3 grid grid-cols-3 gap-2 text-center"><div><p className="font-semibold">{account.contacts}</p><p className="text-[9px] text-muted-foreground">contacts</p></div><div><p className="font-semibold">{account.decision_makers}</p><p className="text-[9px] text-muted-foreground">decision makers</p></div><div><p className="font-semibold">{account.avg_score}</p><p className="text-[9px] text-muted-foreground">avg score</p></div></div><div className="mt-3 flex gap-3 text-[10px] text-muted-foreground"><span>{account.email_coverage_pct}% email</span><span>{account.phone_coverage_pct}% phone</span><span>{account.signal_count} signals</span></div><div className="mt-2 flex -space-x-1">{account.profiles.slice(0, 4).map(profile => <a key={profile.lead_id} href={`/leads/${profile.lead_id}`} title={`${profile.name}${profile.title ? ` · ${profile.title}` : ""}`} className="grid size-7 place-items-center rounded-full border bg-background text-[9px] font-medium hover:z-10 hover:border-primary">{profile.name.split(/\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase()}</a>)}</div></div>)}{!accountRollup.accounts.length && <p className="py-4 text-xs text-muted-foreground">No accounts in this audience yet.</p>}</CardContent></Card>}
               <Card>
                 <CardHeader><CardTitle className="flex items-center gap-2 text-sm"><Users className="size-4" /> Current members</CardTitle></CardHeader>
                 <CardContent className="space-y-1">

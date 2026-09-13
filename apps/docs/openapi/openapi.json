@@ -6047,6 +6047,68 @@
         ]
       }
     },
+    "/api/audiences/{audience_id}/accounts": {
+      "get": {
+        "description": "Roll person-level membership into company coverage and intent summaries.",
+        "operationId": "list_audience_accounts_api_audiences__audience_id__accounts_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "audience_id",
+            "required": true,
+            "schema": {
+              "title": "Audience Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Audience Accounts",
+        "tags": [
+          "audiences"
+        ]
+      }
+    },
     "/api/audiences/{audience_id}/events": {
       "get": {
         "operationId": "list_audience_events_api_audiences__audience_id__events_get",
