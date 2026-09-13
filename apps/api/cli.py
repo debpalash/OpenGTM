@@ -256,6 +256,23 @@ def cmd_connector_install(args):
     print(json.dumps(result, indent=2))
 
 
+def cmd_queue_load_test(args):
+    import json
+
+    from apps.api.services.queue_load import run_queue_load_test
+
+    report = run_queue_load_test(
+        jobs=args.jobs,
+        tenants=args.tenants,
+        claimers=args.claimers,
+        tenant_cap=args.tenant_cap,
+        hold_ms=args.hold_ms,
+        confirmation=args.confirm,
+        allow_sqlite=args.allow_sqlite,
+    )
+    print(json.dumps(report, indent=2))
+
+
 def main():
     parser = argparse.ArgumentParser(description="OpenGTM — GTM agents for the world")
     sub = parser.add_subparsers(dest="command", help="Command to run")
@@ -335,6 +352,21 @@ def main():
     p.add_argument("--trust-store")
     p.add_argument("--replace", action="store_true")
 
+    p = sub.add_parser(
+        "queue-load-test", help="Run the controlled durable-queue load gate"
+    )
+    p.add_argument("--jobs", type=int, default=500)
+    p.add_argument("--tenants", type=int, default=20)
+    p.add_argument("--claimers", type=int, default=16)
+    p.add_argument("--tenant-cap", type=int, default=2)
+    p.add_argument("--hold-ms", type=int, default=5)
+    p.add_argument("--confirm", required=True, help='Must equal "RUN QUEUE LOAD TEST"')
+    p.add_argument(
+        "--allow-sqlite",
+        action="store_true",
+        help="Harness testing only; not controlled-load evidence",
+    )
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -349,6 +381,7 @@ def main():
         "connector-sign": cmd_connector_sign,
         "connector-package": cmd_connector_package,
         "connector-install": cmd_connector_install,
+        "queue-load-test": cmd_queue_load_test,
     }
     cmds[args.command](args)
 
