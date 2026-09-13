@@ -6,7 +6,7 @@
  * AI/enrichment columns show overlay data.
  */
 
-import { useState, useMemo, useCallback, useRef, useEffect } from "react"
+import { useState, useMemo, useCallback, useRef, useEffect, useDeferredValue } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import {
   useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel,
@@ -30,7 +30,7 @@ import {
   ChevronDown, ChevronUp, Zap, Columns3, Webhook, Calculator,
   DollarSign, RefreshCw,
 } from "lucide-react"
-import { WorkbookViewBar, applyViewFilters, sortToSortingState } from "@/components/workbook-view-bar"
+import { WorkbookViewBar, sortToSortingState } from "@/components/workbook-view-bar"
 import { ActivityDrawer } from "@/components/activity-drawer"
 import { SourceEnginePanel } from "@/components/source-engine-panel"
 import { CsvImportDialog, type CsvImportDraft } from "@/components/csv-import-dialog"
@@ -444,8 +444,13 @@ export default function WorkbookEditorPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [workbookPage, setWorkbookPage] = useState(1)
+  const [activeViewId, setActiveViewId] = useState<string | null>(null)
+  const [globalFilter, setGlobalFilter] = useState("")
+  const deferredGlobalFilter = useDeferredValue(globalFilter)
   const workbookPageSize = 1000
-  const { data, isLoading, isFetching, error, refetch } = useWorkbook(id!, workbookPageSize, workbookPage)
+  const { data, isLoading, isFetching, error, refetch } = useWorkbook(
+    id!, workbookPageSize, workbookPage, activeViewId, deferredGlobalFilter,
+  )
   const updateWb = useUpdateWorkbook()
   const updateLeadField = useUpdateLeadField(id!)
   const updateWorkbookRow = useUpdateWorkbookRow(id!)
@@ -480,9 +485,7 @@ export default function WorkbookEditorPage() {
   const [newColCondition, setNewColCondition] = useState("")
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({})
   const [sorting, setSorting] = useState<SortingState>([])
-  const [globalFilter, setGlobalFilter] = useState("")
   const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(new Set())
-  const [activeViewId, setActiveViewId] = useState<string | null>(null)
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; colId: string } | null>(null)
   const [configPanelColId, setConfigPanelColId] = useState<string | null>(null)
   const [renamingColId, setRenamingColId] = useState<string | null>(null)
@@ -510,7 +513,8 @@ export default function WorkbookEditorPage() {
   const [activeCell, setActiveCell] = useState({ row: 0, column: 0 })
   const [selectionAnchor, setSelectionAnchor] = useState<{ row: number; column: number } | null>(null)
   const availableProviders = providersData?.providers ?? []
-  const totalPages = Math.max(1, Math.ceil((data?.total_rows ?? 0) / workbookPageSize))
+  const queryTotalRows = data?.query_total_rows ?? data?.total_rows ?? 0
+  const totalPages = Math.max(1, Math.ceil(queryTotalRows / workbookPageSize))
   const displayedWorkbookPage = data?.page ?? workbookPage
 
   const changeWorkbookPage = useCallback((nextPage: number) => {
@@ -569,23 +573,18 @@ export default function WorkbookEditorPage() {
       : "lead_field",
   }))
 
-  // ── Saved views: switcher state + client-side filter application ──
-  // Rows are already loaded client-side (single page of up to 1000), so a
-  // view's filters/sort/hidden-columns apply instantly without a refetch.
+  // ── Saved views: backend applies filters/sort before pagination ──
   const views = viewsData?.views ?? []
   const activeView = views.find(v => v.id === activeViewId) ?? null
 
   const handleSelectView = useCallback((v: WorkbookView | null) => {
     setActiveViewId(v?.id ?? null)
+    setWorkbookPage(1)
     setSorting(v ? sortToSortingState(v.config?.sort) : [])
     setHiddenColumns(new Set(v?.config?.hidden_columns ?? []))
   }, [])
 
-  const viewRows = useMemo(
-    () => applyViewFilters(rows, activeView?.config?.filters, columns),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rows, activeView, workbook?.columns_config],
-  )
+  const viewRows = rows
 
   // ── DnD sensors for column reorder ──
   const dndSensors = useSensors(
@@ -1309,12 +1308,12 @@ export default function WorkbookEditorPage() {
             type="text"
             placeholder="Search rows..."
             value={globalFilter}
-            onChange={e => setGlobalFilter(e.target.value)}
+            onChange={e => { setGlobalFilter(e.target.value); setWorkbookPage(1) }}
             className="w-44 pl-7 pr-2 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground/50"
           />
           {globalFilter && (
             <button
-              onClick={() => setGlobalFilter("")}
+              onClick={() => { setGlobalFilter(""); setWorkbookPage(1) }}
               className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-muted"
             >
               <X className="size-3 text-muted-foreground" />
@@ -2364,9 +2363,9 @@ export default function WorkbookEditorPage() {
       <div className="flex items-center justify-between px-4 py-1 border-t text-[11px] text-muted-foreground bg-muted/30 shrink-0">
         <div className="flex items-center gap-3">
           <span className="tabular-nums">
-            {data?.total_rows ? `${(displayedWorkbookPage - 1) * workbookPageSize + 1}–${Math.min(displayedWorkbookPage * workbookPageSize, data.total_rows)}` : "0"} of {data?.total_rows ?? 0} rows
-            {activeView && viewRows.length !== rows.length && (
-              <span className="text-primary/70"> · {viewRows.length} match view “{activeView.name}” on this page</span>
+            {queryTotalRows ? `${(displayedWorkbookPage - 1) * workbookPageSize + 1}–${Math.min(displayedWorkbookPage * workbookPageSize, queryTotalRows)}` : "0"} of {queryTotalRows} rows
+            {queryTotalRows !== (data?.total_rows ?? 0) && (
+              <span className="text-primary/70"> · {data?.total_rows ?? 0} total{activeView ? ` · view “${activeView.name}”` : ""}</span>
             )}
           </span>
           {totalPages > 1 && (

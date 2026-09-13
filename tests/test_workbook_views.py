@@ -185,6 +185,43 @@ def test_bulk_row_edit_rejects_entire_request_on_non_editable_field(client):
         assert session.get(WorkbookRow, second).data["company"] == "Before B"
 
 
+def test_saved_view_filters_and_sorts_before_pagination(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "company", "name": "Company", "type": "input", "lead_field": "company"},
+    ])
+    for company in ["Acme Alpha", "Other", "Acme Gamma", "Acme Beta", "Elsewhere"]:
+        _mk_row(Session, wid, {"company": company})
+    created = tc.post(f"/api/v2/workbooks/{wid}/views", json={
+        "name": "Acme descending",
+        "config": {
+            "filters": [{"column": "company", "op": "contains", "value": "acme"}],
+            "sort": [{"column": "company", "dir": "desc"}],
+            "hidden_columns": [],
+        },
+    })
+    assert created.status_code == 201, created.text
+
+    response = tc.get(f"/api/workbooks/{wid}", params={
+        "page": 1, "page_size": 2, "view_id": created.json()["id"],
+    })
+
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload["total_rows"] == 5
+    assert payload["query_total_rows"] == 3
+    assert [row["data"]["company"] for row in payload["rows"]] == ["Acme Gamma", "Acme Beta"]
+
+    searched = tc.get(f"/api/workbooks/{wid}", params={"search": "alpha"})
+    assert searched.status_code == 200
+    assert searched.json()["query_total_rows"] == 1
+    assert searched.json()["rows"][0]["data"]["company"] == "Acme Alpha"
+
+    wildcard = tc.get(f"/api/workbooks/{wid}", params={"search": "%"})
+    assert wildcard.status_code == 200
+    assert wildcard.json()["query_total_rows"] == 0
+
+
 # ── Views CRUD ────────────────────────────────────────────────────────────
 
 def test_views_crud(client):

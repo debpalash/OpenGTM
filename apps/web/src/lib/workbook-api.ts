@@ -147,6 +147,7 @@ export interface WorkbookWithLeads {
   workbook: Workbook
   rows: WorkbookLeadRow[]
   total_rows: number
+  query_total_rows?: number | null
   page: number
   page_size: number
 }
@@ -195,8 +196,17 @@ export async function fetchWorkbooks(): Promise<{ workbooks: Workbook[]; total: 
   return res.json()
 }
 
-export async function fetchWorkbook(id: string, page = 1, pageSize = 100): Promise<WorkbookWithLeads> {
-  const res = await fetch(`${API}/api/workbooks/${id}?page=${page}&page_size=${pageSize}`)
+export async function fetchWorkbook(
+  id: string,
+  page = 1,
+  pageSize = 100,
+  viewId?: string | null,
+  search?: string,
+): Promise<WorkbookWithLeads> {
+  const params = new URLSearchParams({ page: String(page), page_size: String(pageSize) })
+  if (viewId) params.set("view_id", viewId)
+  if (search?.trim()) params.set("search", search.trim())
+  const res = await fetch(`${API}/api/workbooks/${id}?${params}`)
   if (!res.ok) {
     const err = new Error(
       res.status === 404 ? "Workbook not found or no access" : "Failed to fetch workbook",
