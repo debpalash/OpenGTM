@@ -311,10 +311,12 @@ export async function exportWorkbookCsv(
   id: string,
   viewId?: string | null,
   search?: string,
+  rowIds?: number[],
 ): Promise<Blob> {
   const params = new URLSearchParams()
   if (viewId) params.set("view_id", viewId)
   if (search?.trim()) params.set("search", search.trim())
+  rowIds?.forEach(rowId => params.append("row_ids", String(rowId)))
   const suffix = params.size ? `?${params}` : ""
   const res = await fetch(`${API}/api/workbooks/${id}/export.csv${suffix}`)
   if (!res.ok) {

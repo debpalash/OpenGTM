@@ -245,6 +245,24 @@ def test_csv_export_neutralizes_spreadsheet_formulas(client):
     assert records[1][0].startswith("'=HYPERLINK")
 
 
+def test_csv_export_can_scope_to_selected_rows_across_pages(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "company", "name": "Company", "type": "input", "lead_field": "company"},
+    ])
+    first = _mk_row(Session, wid, {"company": "First"})
+    _mk_row(Session, wid, {"company": "Middle"})
+    last = _mk_row(Session, wid, {"company": "Last"})
+
+    response = tc.get(f"/api/workbooks/{wid}/export.csv", params=[
+        ("row_ids", first), ("row_ids", last),
+    ])
+
+    assert response.status_code == 200, response.text
+    records = list(csv.reader(io.StringIO(response.content.decode("utf-8-sig"))))
+    assert records == [["Company"], ["First"], ["Last"]]
+
+
 def test_run_and_estimate_scope_to_complete_saved_view_query(client):
     tc, Session, _ = client
     wid = _mk_workbook(Session, [

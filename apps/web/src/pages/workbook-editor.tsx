@@ -540,7 +540,6 @@ export default function WorkbookEditorPage() {
     setWorkbookPage(bounded)
     setActiveCell({ row: 0, column: 0 })
     setSelectionAnchor(null)
-    setRowSelection({})
     tableContainerRef.current?.scrollTo({ top: 0, behavior: "auto" })
   }, [cursorHistory, cursorMode, data?.next_cursor, totalPages, workbookCursor, workbookPage])
 
@@ -889,30 +888,28 @@ export default function WorkbookEditorPage() {
 
   const selectedCount = Object.keys(rowSelection).filter(k => rowSelection[k]).length
 
-  const handleExportSelected = useCallback(() => {
-    const selectedRows = table.getSelectedRowModel().rows.map(r => r.original)
-    if (!selectedRows.length) return
-    const headers = columns.map(c => c.name)
-    const safeCsvValue = (value: any) => {
-      const text = value == null ? "" : typeof value === "string" ? value : JSON.stringify(value)
-      return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text
+  const handleExportSelected = useCallback(async () => {
+    if (!workbook || exportingCsv) return
+    const rowIds = Object.entries(rowSelection)
+      .filter(([key, selected]) => selected && key.startsWith("row:"))
+      .map(([key]) => Number(key.slice(4)))
+    if (!rowIds.length) return
+    setExportingCsv(true)
+    try {
+      const blob = await exportWorkbookCsv(workbook.id, activeViewId, deferredGlobalFilter, rowIds)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `${workbook.name || "export"}_selected.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success(`Exported ${rowIds.length} selected rows`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Selected CSV export failed")
+    } finally {
+      setExportingCsv(false)
     }
-    const csvRows = selectedRows.map(row =>
-      columns.map(col => {
-        if (col.type === "lead_field") return safeCsvValue((row.data || row.lead)[col.lead_field || col.id])
-        return safeCsvValue(row.enrichments?.[col.id]?.value)
-      })
-    )
-    const csv = Papa.unparse({ fields: headers, data: csvRows })
-    const blob = new Blob([csv], { type: "text/csv" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${workbook?.name || "export"}_selected.csv`
-    a.click()
-    URL.revokeObjectURL(url)
-    toast.success(`Exported ${selectedRows.length} rows`)
-  }, [table, columns, workbook])
+  }, [activeViewId, deferredGlobalFilter, exportingCsv, rowSelection, workbook])
 
   const handleDeleteSelected = useCallback(() => {
     if (allMatchingSelected) {
@@ -935,13 +932,13 @@ export default function WorkbookEditorPage() {
       )
       return
     }
-    const selectedRows = table.getSelectedRowModel().rows.map(r => r.original)
-    if (!selectedRows.length) return
-    if (!confirm(`Delete ${selectedRows.length} selected workbook rows?`)) return
+    const selectedKeys = Object.entries(rowSelection).filter(([, selected]) => selected).map(([key]) => key)
+    if (!selectedKeys.length) return
+    if (!confirm(`Delete ${selectedKeys.length} selected workbook rows?`)) return
     deleteMut.mutate(
       {
-        rowIds: selectedRows.flatMap(r => r.row_id != null ? [r.row_id] : []),
-        leadIds: selectedRows.flatMap(r => r.row_id == null && r.lead_id != null ? [r.lead_id] : []),
+        rowIds: selectedKeys.filter(key => key.startsWith("row:")).map(key => Number(key.slice(4))),
+        leadIds: selectedKeys.filter(key => key.startsWith("lead:")).map(key => Number(key.slice(5))),
       },
       {
         onSuccess: (data) => {
@@ -951,7 +948,7 @@ export default function WorkbookEditorPage() {
         onError: () => toast.error("Failed to delete rows"),
       }
     )
-  }, [activeViewId, allMatchingSelected, deferredGlobalFilter, deleteMatchingMut, deleteMut, queryTotalRows, table])
+  }, [activeViewId, allMatchingSelected, deferredGlobalFilter, deleteMatchingMut, deleteMut, queryTotalRows, rowSelection])
 
   const handleDeleteColumn = useCallback((colId: string) => {
     const col = columns.find(c => c.id === colId)
