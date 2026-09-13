@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, DateTime, Index, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Column, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.sql import func
 
 from apps.api.database import Base
@@ -23,6 +23,7 @@ class Audience(Base):
     member_count = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+    refreshed_at = Column(DateTime, nullable=True)
 
     def to_api(self) -> dict:
         return {
@@ -33,4 +34,58 @@ class Audience(Base):
             "member_count": self.member_count or 0,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
+            "refreshed_at": self.refreshed_at,
+        }
+
+
+class AudienceMember(Base):
+    """Current materialized membership for fast activation and reliable diffs."""
+
+    __tablename__ = "audience_members"
+    __table_args__ = (
+        UniqueConstraint("audience_id", "lead_id", name="uq_audience_members_audience_lead"),
+        Index("ix_audience_members_workspace_audience", "workspace_id", "audience_id"),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    workspace_id = Column(String, nullable=False, index=True)
+    audience_id = Column(String, ForeignKey("audiences.id", ondelete="CASCADE"), nullable=False, index=True)
+    lead_id = Column(Integer, nullable=False, index=True)
+    snapshot = Column(JSON, nullable=False, default=dict)
+    joined_at = Column(DateTime, nullable=False, server_default=func.now())
+    last_seen_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+    def to_api(self) -> dict:
+        return {
+            "lead_id": self.lead_id,
+            "snapshot": self.snapshot or {},
+            "joined_at": self.joined_at,
+            "last_seen_at": self.last_seen_at,
+        }
+
+
+class AudienceMembershipEvent(Base):
+    """Append-only audience entry/exit history used by automations and audit."""
+
+    __tablename__ = "audience_membership_events"
+    __table_args__ = (
+        Index("ix_audience_events_workspace_audience_created", "workspace_id", "audience_id", "created_at"),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    workspace_id = Column(String, nullable=False, index=True)
+    audience_id = Column(String, ForeignKey("audiences.id", ondelete="CASCADE"), nullable=False, index=True)
+    lead_id = Column(Integer, nullable=False, index=True)
+    event_type = Column(String(16), nullable=False)
+    snapshot = Column(JSON, nullable=False, default=dict)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+
+    def to_api(self) -> dict:
+        return {
+            "id": self.id,
+            "audience_id": self.audience_id,
+            "lead_id": self.lead_id,
+            "event_type": self.event_type,
+            "snapshot": self.snapshot or {},
+            "created_at": self.created_at,
         }

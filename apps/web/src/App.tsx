@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import {
   MessageSquare, Users, Search, Bot, Send, Database,
   Settings, Zap, Circle, Plus, Trash2, BarChart3, Table2, X, Activity,
-  Moon, Sun, LogOut, Building2, Radar, LayoutTemplate, LoaderCircle,
+  Moon, Sun, LogOut, Building2, Radar, LayoutTemplate, LoaderCircle, ListFilter,
 } from "lucide-react"
 import { useSSE, useJobs, useConversations, useLLMUsage } from "@/lib/hooks"
 import { deleteConversation } from "@/lib/api"
@@ -25,6 +25,7 @@ import LoginPage from "@/pages/login"
 // Pages
 const ChatPage = lazy(() => import("@/pages/chat"))
 const LeadsPage = lazy(() => import("@/pages/leads"))
+const AudiencesPage = lazy(() => import("@/pages/audiences"))
 const LeadDetailPage = lazy(() => import("@/pages/lead-detail"))
 const SearchPage = lazy(() => import("@/pages/search"))
 const AgentsPage = lazy(() => import("@/pages/agents"))
@@ -45,6 +46,7 @@ const TemplatesPage = lazy(() => import("@/pages/templates"))
 const NAV_ITEMS = [
   { to: "/chat",       icon: MessageSquare, label: "Chat" },
   { to: "/leads",      icon: Users,         label: "Leads" },
+  { to: "/audiences",  icon: ListFilter,    label: "Audiences" },
   { to: "/workbooks",  icon: Table2,        label: "Workbooks" },
   { to: "/templates",  icon: LayoutTemplate, label: "Templates" },
   { to: "/search",     icon: Search,        label: "Search" },
@@ -353,6 +355,7 @@ function AppContent() {
   const getTitle = () => {
     if (location.pathname.startsWith("/chat")) return "Chat"
     if (location.pathname.startsWith("/leads")) return "Leads"
+    if (location.pathname.startsWith("/audiences")) return "Audiences"
     if (location.pathname.startsWith("/workbooks")) return "Workbooks"
     if (location.pathname.startsWith("/templates")) return "Templates"
     if (location.pathname.startsWith("/search")) return "Search"
@@ -378,6 +381,7 @@ function AppContent() {
             <Route path="/chat/*" element={<ChatPage />} />
             <Route path="/leads/:id" element={<LeadDetailPage />} />
             <Route path="/leads" element={<LeadsPage />} />
+            <Route path="/audiences" element={<AudiencesPage />} />
             <Route path="/workbooks/:id" element={<div className="h-full overflow-hidden"><WorkbookEditorPage /></div>} />
             <Route path="/workbooks" element={<WorkbooksPage />} />
             <Route path="/templates" element={<TemplatesPage />} />

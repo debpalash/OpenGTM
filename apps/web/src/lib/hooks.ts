@@ -13,6 +13,7 @@ import {
   COLLECTION_CLARIFICATION_EVENT,
   type Lead, type Job, type CollectionIntent,
   fetchAudiences, createAudience, deleteAudience,
+  fetchAudienceMembers, fetchAudienceEvents, refreshAudience,
 } from "./api"
 
 // ── Leads ───────────────────────────────────────────────────────
@@ -49,14 +50,28 @@ export function useFilters() {
 }
 
 export function useAudiences() {
-  return useQuery({ queryKey: queryKeys.audiences, queryFn: fetchAudiences })
+  return useQuery({ queryKey: queryKeys.audiences.all, queryFn: fetchAudiences })
+}
+
+export function useAudienceMembers(id: string | null) {
+  return useQuery({
+    queryKey: queryKeys.audiences.members(id ?? ""),
+    queryFn: () => fetchAudienceMembers(id!), enabled: !!id,
+  })
+}
+
+export function useAudienceEvents(id: string | null) {
+  return useQuery({
+    queryKey: queryKeys.audiences.events(id ?? ""),
+    queryFn: () => fetchAudienceEvents(id!), enabled: !!id,
+  })
 }
 
 export function useCreateAudience() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: createAudience,
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audiences }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audiences.all }),
   })
 }
 
@@ -64,7 +79,19 @@ export function useDeleteAudience() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: deleteAudience,
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audiences }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audiences.all }),
+  })
+}
+
+export function useRefreshAudience() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: refreshAudience,
+    onSuccess: (result) => {
+      qc.invalidateQueries({ queryKey: queryKeys.audiences.all })
+      qc.invalidateQueries({ queryKey: queryKeys.audiences.members(result.audience.id) })
+      qc.invalidateQueries({ queryKey: queryKeys.audiences.events(result.audience.id) })
+    },
   })
 }
 
