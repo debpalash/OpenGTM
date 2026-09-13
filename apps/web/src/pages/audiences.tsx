@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useAudienceDestinations, useAudienceEvents, useAudienceMembers, useAudiences, useCreateAudienceDestination, useRefreshAudience, useSyncAudienceDestination, useUpdateAudience } from "@/lib/hooks"
+import { useAudienceDestinations, useAudienceEvents, useAudienceMembers, useAudiences, useCreateAudienceDestination, useDestinationTypes, useRefreshAudience, useSyncAudienceDestination, useUpdateAudience } from "@/lib/hooks"
 import type { AudienceDestination } from "@/lib/api"
 
 const ago = (value: string | null) => {
@@ -38,6 +38,7 @@ export default function AudiencesPage() {
   const refresh = useRefreshAudience()
   const update = useUpdateAudience()
   const destinations = useAudienceDestinations(selectedId)
+  const destinationTypes = useDestinationTypes()
   const createDestination = useCreateAudienceDestination()
   const syncDestination = useSyncAudienceDestination(selectedId)
   const [destinationType, setDestinationType] = useState<AudienceDestination["destination_type"]>("webhook")
@@ -51,6 +52,7 @@ export default function AudiencesPage() {
   const [warehouseDataset, setWarehouseDataset] = useState("opengtm_audience")
   const [inboundPolicy, setInboundPolicy] = useState("fill_missing")
   const [inboundSetup, setInboundSetup] = useState<{ destinationId: string; token?: string; receipts: InboundReceipt[] } | null>(null)
+  const selectedDestinationType = destinationTypes.data?.find((item) => item.id === destinationType)
   const [accountRollup, setAccountRollup] = useState<{ accounts: AudienceAccount[]; summary: { account_count: number; contact_count: number; accounts_with_signals: number; accounts_with_decision_makers: number } } | null>(null)
   useEffect(() => {
     if (!selectedId) { setAccountRollup(null); return }
@@ -199,6 +201,7 @@ export default function AudiencesPage() {
                   <select value={destinationType} onChange={(event) => setDestinationType(event.target.value as AudienceDestination["destination_type"])} className="h-8 rounded-md border bg-background px-2 text-xs">
                     <option value="webhook">Webhook</option><option value="hubspot">HubSpot</option><option value="salesforce">Salesforce</option><option value="warehouse_http">Warehouse HTTP</option><option value="meta_ads">Meta Ads</option><option value="google_ads">Google Ads</option><option value="linkedin_ads">LinkedIn Ads</option>
                   </select>
+                  <Badge variant={selectedDestinationType?.maturity === "supported" ? "default" : "secondary"}>{selectedDestinationType?.maturity ?? "beta"}</Badge>
                   <Input value={destinationName} onChange={(event) => setDestinationName(event.target.value)} placeholder="Destination name" className="h-8 min-w-40 flex-1" />
                   {(destinationType === "hubspot" || destinationType === "salesforce") && <select value={inboundPolicy} onChange={event => setInboundPolicy(event.target.value)} className="h-8 rounded-md border bg-background px-2 text-xs"><option value="fill_missing">Inbound: fill missing fields</option><option value="crm_wins">Inbound: CRM wins</option></select>}
                   {destinationType === "warehouse_http" && <><Input value={warehouseUrl} onChange={event => setWarehouseUrl(event.target.value)} placeholder="HTTPS ingestion endpoint" className="h-8 min-w-64 flex-[2]" /><Input value={warehouseSecretRef} onChange={event => setWarehouseSecretRef(event.target.value)} placeholder="Workspace secret key" className="h-8 min-w-40" /><Input value={warehouseDataset} onChange={event => setWarehouseDataset(event.target.value)} placeholder="Dataset" className="h-8 min-w-36" /></>}
@@ -207,10 +210,11 @@ export default function AudiencesPage() {
                   <Button size="sm" onClick={addDestination} disabled={createDestination.isPending || !destinationName.trim() || (destinationType === "webhook" && !webhookUrl.trim()) || (destinationType === "warehouse_http" && (!warehouseUrl.trim() || !warehouseSecretRef.trim() || !warehouseDataset.trim())) || (destinationType.endsWith("_ads") && (!platformListId.trim() || !consentSource.trim() || (destinationType === "google_ads" && !googleCustomerId.trim())))}><Plus className="mr-1 size-3" /> Add</Button>
                 </div>
                 {destinationType.endsWith("_ads") && <p className="text-xs text-muted-foreground">Adding this destination attests that the audience has valid advertising consent. OpenGTM SHA-256 hashes identifiers before upload; platform API approval may be required.</p>}
+                {selectedDestinationType?.maturity !== "supported" && <p className="text-xs text-amber-700 dark:text-amber-300">Beta integration: this deployment has no current controlled-live certification. Test with a limited audience before production use.</p>}
                 {destinationType === "warehouse_http" && <p className="text-xs text-muted-foreground">Exports one checksum-manifested JSONL snapshot per run. Configure the referenced encrypted secret under Settings → Integrations first.</p>}
                 {destinations.data?.map((destination) => (
                   <div key={destination.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
-                    <div><div className="flex items-center gap-2"><span className="text-sm font-medium">{destination.name}</span><Badge variant="outline">{destination.destination_type}</Badge><Badge variant={destination.health_status === "healthy" ? "default" : "secondary"}>{destination.health_status}</Badge></div><p className="mt-1 text-xs text-muted-foreground">{destination.last_error || (destination.last_success_at ? `Last synced ${ago(destination.last_success_at)}` : "Not synced yet")}</p></div>
+                    <div><div className="flex items-center gap-2"><span className="text-sm font-medium">{destination.name}</span><Badge variant="outline">{destination.destination_type}</Badge><Badge variant={destinationTypes.data?.find(item => item.id === destination.destination_type)?.maturity === "supported" ? "default" : "secondary"}>{destinationTypes.data?.find(item => item.id === destination.destination_type)?.maturity ?? "beta"}</Badge><Badge variant={destination.health_status === "healthy" ? "default" : "secondary"}>{destination.health_status}</Badge></div><p className="mt-1 text-xs text-muted-foreground">{destination.last_error || (destination.last_success_at ? `Last synced ${ago(destination.last_success_at)}` : "Not synced yet")}</p></div>
                     <div className="flex gap-2">{(destination.destination_type === "hubspot" || destination.destination_type === "salesforce") && <><Button variant="outline" size="sm" onClick={() => showInbound(destination)}><Activity className="mr-1 size-3" /> Inbound history</Button><Button variant="outline" size="sm" onClick={() => showInbound(destination, true)}><KeyRound className="mr-1 size-3" /> Rotate token</Button></>}<Button variant="outline" size="sm" disabled={syncDestination.isPending} onClick={() => syncDestination.mutate(destination.id, { onSuccess: (run) => toast.success(`Sync queued: ${run.id.slice(0, 8)}`), onError: (error) => toast.error(error.message) })}><Send className="mr-1 size-3" /> Sync audience</Button></div>
                   </div>
                 ))}
