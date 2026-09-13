@@ -16,7 +16,10 @@ from apps.api.services.destinations.models import AudienceDestination, Destinati
 router = APIRouter(prefix="/api/audience-destinations", tags=["audience-destinations"])
 require_editor = require_workspace_role("editor", "admin", permission="activation.write")
 require_admin = require_workspace_role("admin", permission="secrets.manage")
-TYPES = {"webhook", "hubspot", "salesforce", "warehouse_http", "meta_ads", "google_ads", "linkedin_ads"}
+TYPES = {
+    "webhook", "hubspot", "salesforce", "warehouse_http",
+    "meta_ads", "google_ads", "linkedin_ads", "instantly", "smartlead",
+}
 
 
 @router.get("/types")
@@ -77,6 +80,21 @@ def _validate_config(dtype: str, config: dict) -> dict:
         unknown = set(config) - allowed
         if unknown:
             raise ValueError(f"unsupported ad destination config: {', '.join(sorted(unknown))}")
+    if dtype in {"instantly", "smartlead"}:
+        allowed = {"campaign_id"}
+        if dtype == "instantly":
+            allowed.add("skip_if_in_campaign")
+        else:
+            allowed.add("settings")
+        unknown = set(config) - allowed
+        if unknown:
+            raise ValueError(
+                f"unsupported {dtype} config: {', '.join(sorted(unknown))}"
+            )
+        if not str(config.get("campaign_id") or "").strip():
+            raise ValueError(f"{dtype} campaign_id is required")
+        if dtype == "smartlead" and config.get("settings") is not None and not isinstance(config["settings"], dict):
+            raise ValueError("smartlead settings must be an object")
     return config
 
 

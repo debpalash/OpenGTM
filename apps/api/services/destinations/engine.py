@@ -84,6 +84,51 @@ async def _deliver(destination, lead_id: int, snapshot: dict, idem: str) -> dict
         result = await _act_push_crm(destination.workspace_id, cfg, snapshot, [], lead_id)
         return {"success": result.status == "success", "summary": result.summary, "error": result.error}
 
+    if dtype == "instantly":
+        from apps.api.services.integrations.instantly import add_lead_to_campaign
+
+        cfg = destination.config or {}
+        result = await add_lead_to_campaign(
+            str(cfg.get("campaign_id") or ""),
+            mapped,
+            bool(cfg.get("skip_if_in_campaign", True)),
+            destination.workspace_id,
+        )
+        return {
+            "success": bool(result.get("success")),
+            "summary": (
+                "Lead already in campaign"
+                if result.get("duplicate")
+                else "Lead added to campaign"
+                if result.get("success")
+                else ""
+            ),
+            "error": result.get("error"),
+            "external_id": result.get("lead_id"),
+        }
+
+    if dtype == "smartlead":
+        from apps.api.services.integrations.smartlead import add_lead_to_campaign
+
+        cfg = destination.config or {}
+        result = await add_lead_to_campaign(
+            str(cfg.get("campaign_id") or ""),
+            mapped,
+            cfg.get("settings"),
+            destination.workspace_id,
+        )
+        return {
+            "success": bool(result.get("success")),
+            "summary": (
+                "Lead already in campaign"
+                if result.get("duplicate")
+                else "Lead added to campaign"
+                if result.get("success")
+                else ""
+            ),
+            "error": result.get("error"),
+        }
+
     return {"success": False, "summary": "", "error": f"unsupported destination '{dtype}'"}
 
 
@@ -162,6 +207,7 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                 delivery.status = "success" if result.get("success") else "failed"
                 delivery.summary = result.get("summary") or ""
                 delivery.error = (result.get("error") or "")[:1000] or None
+                delivery.external_id = result.get("external_id")
                 if result.get("success"):
                     delivery.delivered_at = datetime.now(timezone.utc)
                     stats["succeeded"] += 1

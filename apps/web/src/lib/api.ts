@@ -158,7 +158,7 @@ export interface AudienceDestination {
   id: string
   audience_id: string
   name: string
-  destination_type: "webhook" | "hubspot" | "salesforce" | "warehouse_http" | "meta_ads" | "google_ads" | "linkedin_ads"
+  destination_type: "webhook" | "hubspot" | "salesforce" | "warehouse_http" | "meta_ads" | "google_ads" | "linkedin_ads" | "instantly" | "smartlead"
   enabled: boolean
   config: Record<string, unknown>
   field_map: Record<string, string>
@@ -185,7 +185,7 @@ export interface DestinationRun {
 
 export interface DestinationType {
   id: AudienceDestination["destination_type"]
-  category: "activation" | "crm" | "warehouse" | "ads"
+  category: "activation" | "crm" | "warehouse" | "ads" | "sequencer"
   capabilities: string[]
   maturity: "beta" | "supported"
   certification: {

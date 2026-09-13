@@ -50,6 +50,7 @@ export default function AudiencesPage() {
   const [warehouseUrl, setWarehouseUrl] = useState("")
   const [warehouseSecretRef, setWarehouseSecretRef] = useState("")
   const [warehouseDataset, setWarehouseDataset] = useState("opengtm_audience")
+  const [campaignId, setCampaignId] = useState("")
   const [inboundPolicy, setInboundPolicy] = useState("fill_missing")
   const [inboundSetup, setInboundSetup] = useState<{ destinationId: string; token?: string; receipts: InboundReceipt[] } | null>(null)
   const selectedDestinationType = destinationTypes.data?.find((item) => item.id === destinationType)
@@ -80,9 +81,11 @@ export default function AudiencesPage() {
         config: destinationType === "webhook" ? { url: webhookUrl.trim(), method: "POST" }
           : destinationType.endsWith("_ads") ? { ...adConfig, consent_attested: true, consent_source: consentSource.trim() }
           : destinationType === "hubspot" || destinationType === "salesforce" ? { inbound_conflict_policy: inboundPolicy }
+          : destinationType === "instantly" ? { campaign_id: campaignId.trim(), skip_if_in_campaign: true }
+          : destinationType === "smartlead" ? { campaign_id: campaignId.trim() }
           : destinationType === "warehouse_http" ? { url: warehouseUrl.trim(), header_secret_ref: warehouseSecretRef.trim(), dataset: warehouseDataset.trim(), mode: "snapshot" } : {},
       })
-      setDestinationName(""); setWebhookUrl(""); setPlatformListId(""); setGoogleCustomerId(""); setConsentSource(""); setWarehouseUrl(""); setWarehouseSecretRef("")
+      setDestinationName(""); setWebhookUrl(""); setPlatformListId(""); setGoogleCustomerId(""); setConsentSource(""); setWarehouseUrl(""); setWarehouseSecretRef(""); setCampaignId("")
       toast.success("Destination added")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not add destination")
@@ -199,15 +202,16 @@ export default function AudiencesPage() {
               <CardContent className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2 rounded-md border p-2">
                   <select value={destinationType} onChange={(event) => setDestinationType(event.target.value as AudienceDestination["destination_type"])} className="h-8 rounded-md border bg-background px-2 text-xs">
-                    <option value="webhook">Webhook</option><option value="hubspot">HubSpot</option><option value="salesforce">Salesforce</option><option value="warehouse_http">Warehouse HTTP</option><option value="meta_ads">Meta Ads</option><option value="google_ads">Google Ads</option><option value="linkedin_ads">LinkedIn Ads</option>
+                    <option value="webhook">Webhook</option><option value="hubspot">HubSpot</option><option value="salesforce">Salesforce</option><option value="warehouse_http">Warehouse HTTP</option><option value="instantly">Instantly</option><option value="smartlead">Smartlead</option><option value="meta_ads">Meta Ads</option><option value="google_ads">Google Ads</option><option value="linkedin_ads">LinkedIn Ads</option>
                   </select>
                   <Badge variant={selectedDestinationType?.maturity === "supported" ? "default" : "secondary"}>{selectedDestinationType?.maturity ?? "beta"}</Badge>
                   <Input value={destinationName} onChange={(event) => setDestinationName(event.target.value)} placeholder="Destination name" className="h-8 min-w-40 flex-1" />
                   {(destinationType === "hubspot" || destinationType === "salesforce") && <select value={inboundPolicy} onChange={event => setInboundPolicy(event.target.value)} className="h-8 rounded-md border bg-background px-2 text-xs"><option value="fill_missing">Inbound: fill missing fields</option><option value="crm_wins">Inbound: CRM wins</option></select>}
                   {destinationType === "warehouse_http" && <><Input value={warehouseUrl} onChange={event => setWarehouseUrl(event.target.value)} placeholder="HTTPS ingestion endpoint" className="h-8 min-w-64 flex-[2]" /><Input value={warehouseSecretRef} onChange={event => setWarehouseSecretRef(event.target.value)} placeholder="Workspace secret key" className="h-8 min-w-40" /><Input value={warehouseDataset} onChange={event => setWarehouseDataset(event.target.value)} placeholder="Dataset" className="h-8 min-w-36" /></>}
                   {destinationType === "webhook" && <Input value={webhookUrl} onChange={(event) => setWebhookUrl(event.target.value)} placeholder="https://…" className="h-8 min-w-64 flex-[2]" />}
+                  {(destinationType === "instantly" || destinationType === "smartlead") && <Input value={campaignId} onChange={(event) => setCampaignId(event.target.value)} placeholder={`${destinationType === "instantly" ? "Instantly" : "Smartlead"} campaign ID`} className="h-8 min-w-52" />}
                   {destinationType.endsWith("_ads") && <><Input value={platformListId} onChange={(event) => setPlatformListId(event.target.value)} placeholder={destinationType === "meta_ads" ? "Custom audience ID" : destinationType === "linkedin_ads" ? "Segment ID" : "User list ID"} className="h-8 min-w-40" />{destinationType === "google_ads" && <Input value={googleCustomerId} onChange={(event) => setGoogleCustomerId(event.target.value)} placeholder="Customer ID" className="h-8 min-w-36" />}<Input value={consentSource} onChange={(event) => setConsentSource(event.target.value)} placeholder="Consent source / policy" className="h-8 min-w-48" /></>}
-                  <Button size="sm" onClick={addDestination} disabled={createDestination.isPending || !destinationName.trim() || (destinationType === "webhook" && !webhookUrl.trim()) || (destinationType === "warehouse_http" && (!warehouseUrl.trim() || !warehouseSecretRef.trim() || !warehouseDataset.trim())) || (destinationType.endsWith("_ads") && (!platformListId.trim() || !consentSource.trim() || (destinationType === "google_ads" && !googleCustomerId.trim())))}><Plus className="mr-1 size-3" /> Add</Button>
+                  <Button size="sm" onClick={addDestination} disabled={createDestination.isPending || !destinationName.trim() || (destinationType === "webhook" && !webhookUrl.trim()) || (destinationType === "warehouse_http" && (!warehouseUrl.trim() || !warehouseSecretRef.trim() || !warehouseDataset.trim())) || ((destinationType === "instantly" || destinationType === "smartlead") && !campaignId.trim()) || (destinationType.endsWith("_ads") && (!platformListId.trim() || !consentSource.trim() || (destinationType === "google_ads" && !googleCustomerId.trim())))}><Plus className="mr-1 size-3" /> Add</Button>
                 </div>
                 {destinationType.endsWith("_ads") && <p className="text-xs text-muted-foreground">Adding this destination attests that the audience has valid advertising consent. OpenGTM SHA-256 hashes identifiers before upload; platform API approval may be required.</p>}
                 {selectedDestinationType?.maturity !== "supported" && <p className="text-xs text-amber-700 dark:text-amber-300">Beta integration: this deployment has no current controlled-live certification. Test with a limited audience before production use.</p>}
