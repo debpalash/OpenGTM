@@ -336,7 +336,9 @@ user work runs through the durable worker. The remaining boundaries are:
   navigation into editable columns. Search plus saved-view filters/sorts execute
   globally before pagination, and CSV export streams every matching row with
   spreadsheet-formula injection neutralized. Run and fill-missing operations
-  use that same complete-query scope and matching-row cost estimate.
+  use that same complete-query scope and matching-row cost estimate. “Select
+  all matching” supports full-query export and count-locked deletion that
+  aborts if membership changes before the write.
 
 See [`docs/plans/clay-parity-specs.md`](docs/plans/clay-parity-specs.md) for the work-item
 breakdown and sequencing.

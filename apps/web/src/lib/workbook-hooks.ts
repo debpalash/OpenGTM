@@ -9,7 +9,7 @@ import { useEffect, useRef, useCallback, useState } from "react"
 import {
   fetchWorkbooks, fetchWorkbook, createWorkbook, updateWorkbook,
   deleteWorkbook, updateLeadField, updateWorkbookRow, bulkUpdateWorkbookRows, importLeads, deleteLeads,
-  deleteWorkbookRows,
+  deleteWorkbookRows, deleteMatchingWorkbookRows,
   runWorkbook, stopWorkbook, runWorkbookCell,
   fetchWorkbookViews, createWorkbookView, updateWorkbookView, deleteWorkbookView,
   fetchProviders, fetchFilterOptions, createWorkbookSocket,
@@ -236,6 +236,15 @@ export function useDeleteWorkbookRows(workbookId: string) {
       ])
       return { deleted: rowsResult.deleted + leadsResult.deleted }
     },
+    onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
+  })
+}
+
+export function useDeleteMatchingWorkbookRows(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (options: { expected_count: number; confirmation: string; view_id?: string; search?: string }) =>
+      deleteMatchingWorkbookRows(workbookId, options),
     onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
   })
 }

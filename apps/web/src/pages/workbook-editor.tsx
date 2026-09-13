@@ -16,7 +16,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   useWorkbook, useUpdateWorkbook, useUpdateLeadField, useUpdateWorkbookRow, useBulkUpdateWorkbookRows,
   useImportLeads, useRunWorkbook, useStopWorkbook,
-  useDeleteWorkbookRows, useWorkbookSocket, useProviders,
+  useDeleteWorkbookRows, useDeleteMatchingWorkbookRows, useWorkbookSocket, useProviders,
   useRunCell, useWorkbookViews, useConnectorRuns,
 } from "@/lib/workbook-hooks"
 import type { WorkbookLeadRow, EnrichmentOverlay, Provenance, AiColumnPreset, CostInfo, RunCostEstimate, WorkbookView } from "@/lib/workbook-api"
@@ -459,6 +459,7 @@ export default function WorkbookEditorPage() {
   const runMut = useRunWorkbook(id!)
   const stopMut = useStopWorkbook(id!)
   const deleteMut = useDeleteWorkbookRows(id!)
+  const deleteMatchingMut = useDeleteMatchingWorkbookRows(id!)
   const runCellMut = useRunCell(id!)
   const { data: viewsData } = useWorkbookViews(id!)
   const { data: connectorRunsData } = useConnectorRuns(data?.workbook ? id : undefined)
@@ -484,6 +485,7 @@ export default function WorkbookEditorPage() {
   const [newColPrompt, setNewColPrompt] = useState("")
   const [newColCondition, setNewColCondition] = useState("")
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({})
+  const [allMatchingSelected, setAllMatchingSelected] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([])
   const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(new Set())
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; colId: string } | null>(null)
@@ -581,6 +583,8 @@ export default function WorkbookEditorPage() {
   const handleSelectView = useCallback((v: WorkbookView | null) => {
     setActiveViewId(v?.id ?? null)
     setWorkbookPage(1)
+    setAllMatchingSelected(false)
+    setRowSelection({})
     setSorting(v ? sortToSortingState(v.config?.sort) : [])
     setHiddenColumns(new Set(v?.config?.hidden_columns ?? []))
   }, [])
@@ -869,10 +873,14 @@ export default function WorkbookEditorPage() {
     const selectedRows = table.getSelectedRowModel().rows.map(r => r.original)
     if (!selectedRows.length) return
     const headers = columns.map(c => c.name)
+    const safeCsvValue = (value: any) => {
+      const text = value == null ? "" : typeof value === "string" ? value : JSON.stringify(value)
+      return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text
+    }
     const csvRows = selectedRows.map(row =>
       columns.map(col => {
-        if (col.type === "lead_field")           return (row.data || row.lead)[col.lead_field || col.id] ?? ""
-        return row.enrichments?.[col.id]?.value ?? ""
+        if (col.type === "lead_field") return safeCsvValue((row.data || row.lead)[col.lead_field || col.id])
+        return safeCsvValue(row.enrichments?.[col.id]?.value)
       })
     )
     const csv = Papa.unparse({ fields: headers, data: csvRows })
@@ -887,6 +895,26 @@ export default function WorkbookEditorPage() {
   }, [table, columns, workbook])
 
   const handleDeleteSelected = useCallback(() => {
+    if (allMatchingSelected) {
+      if (!confirm(`Permanently delete all ${queryTotalRows} rows matching the current search and saved view across every page?`)) return
+      deleteMatchingMut.mutate(
+        {
+          expected_count: queryTotalRows,
+          confirmation: `DELETE ${queryTotalRows} ROWS`,
+          view_id: activeViewId || undefined,
+          search: deferredGlobalFilter.trim() || undefined,
+        },
+        {
+          onSuccess: data => {
+            toast.success(`Deleted ${data.deleted} rows`)
+            setAllMatchingSelected(false)
+            setRowSelection({})
+          },
+          onError: error => toast.error(error.message),
+        },
+      )
+      return
+    }
     const selectedRows = table.getSelectedRowModel().rows.map(r => r.original)
     if (!selectedRows.length) return
     if (!confirm(`Delete ${selectedRows.length} selected workbook rows?`)) return
@@ -903,7 +931,7 @@ export default function WorkbookEditorPage() {
         onError: () => toast.error("Failed to delete rows"),
       }
     )
-  }, [table, deleteMut])
+  }, [activeViewId, allMatchingSelected, deferredGlobalFilter, deleteMatchingMut, deleteMut, queryTotalRows, table])
 
   const handleDeleteColumn = useCallback((colId: string) => {
     const col = columns.find(c => c.id === colId)
@@ -1241,11 +1269,19 @@ export default function WorkbookEditorPage() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* ── Selection Toolbar ─────────────────────────────────────────── */}
-      {selectedCount > 0 && (
+      {(selectedCount > 0 || allMatchingSelected) && (
         <div className="flex items-center gap-3 px-4 py-1.5 border-b bg-primary/5 shrink-0">
-          <span className="text-xs font-medium text-primary tabular-nums">{selectedCount} selected</span>
+          <span className="text-xs font-medium text-primary tabular-nums">
+            {allMatchingSelected ? `${queryTotalRows} matching rows selected` : `${selectedCount} selected on this page`}
+          </span>
+          {!allMatchingSelected && queryTotalRows > selectedCount && (
+            <button
+              onClick={() => { setAllMatchingSelected(true); setRowSelection({}) }}
+              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] hover:bg-primary/10 text-primary transition-colors"
+            >Select all {queryTotalRows} matching rows</button>
+          )}
           <button
-            onClick={handleExportSelected}
+            onClick={allMatchingSelected ? handleExport : handleExportSelected}
             className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] hover:bg-primary/10 text-primary transition-colors"
           >
             <Download className="size-3" /> Export Selected
@@ -1254,10 +1290,10 @@ export default function WorkbookEditorPage() {
             onClick={handleDeleteSelected}
             className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] hover:bg-destructive/10 text-destructive transition-colors"
           >
-            <Trash2 className="size-3" /> Delete
+            <Trash2 className="size-3" /> {allMatchingSelected ? "Delete all matching" : "Delete"}
           </button>
           <button
-            onClick={() => setRowSelection({})}
+            onClick={() => { setRowSelection({}); setAllMatchingSelected(false) }}
             className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] hover:bg-muted text-muted-foreground transition-colors"
           >
             <X className="size-3" /> Deselect
@@ -1305,12 +1341,12 @@ export default function WorkbookEditorPage() {
             type="text"
             placeholder="Search rows..."
             value={globalFilter}
-            onChange={e => { setGlobalFilter(e.target.value); setWorkbookPage(1) }}
+            onChange={e => { setGlobalFilter(e.target.value); setWorkbookPage(1); setAllMatchingSelected(false); setRowSelection({}) }}
             className="w-44 pl-7 pr-2 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground/50"
           />
           {globalFilter && (
             <button
-              onClick={() => { setGlobalFilter(""); setWorkbookPage(1) }}
+              onClick={() => { setGlobalFilter(""); setWorkbookPage(1); setAllMatchingSelected(false); setRowSelection({}) }}
               className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-muted"
             >
               <X className="size-3 text-muted-foreground" />

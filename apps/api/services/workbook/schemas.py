@@ -274,6 +274,14 @@ class DeleteRowsRequest(BaseModel):
     row_ids: list[int] = Field(..., min_length=1, description="Row IDs to delete")
 
 
+class DeleteMatchingRowsRequest(BaseModel):
+    """Count-locked deletion of every row in an authoritative workbook query."""
+    expected_count: int = Field(..., ge=1)
+    confirmation: str = Field(..., max_length=64)
+    view_id: Optional[str] = None
+    search: Optional[str] = Field(None, max_length=500)
+
+
 class WorkbookRowUpdate(BaseModel):
     """Editable values for one workbook row in an atomic bulk update."""
     row_id: int
