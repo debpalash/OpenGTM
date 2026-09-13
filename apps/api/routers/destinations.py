@@ -20,6 +20,7 @@ TYPES = {
     "webhook", "hubspot", "salesforce", "warehouse_http",
     "meta_ads", "google_ads", "linkedin_ads", "instantly", "smartlead",
     "google_sheets",
+    "airtable",
 }
 
 
@@ -106,6 +107,19 @@ def _validate_config(dtype: str, config: dict) -> dict:
         columns = config.get("columns")
         if not isinstance(columns, list) or not 1 <= len(columns) <= 100 or not all(isinstance(item, str) and item.strip() for item in columns):
             raise ValueError("google_sheets columns must contain 1 to 100 field names")
+    if dtype == "airtable":
+        allowed = {"base_id", "table", "idempotency_field", "typecast"}
+        unknown = set(config) - allowed
+        if unknown:
+            raise ValueError(f"unsupported airtable config: {', '.join(sorted(unknown))}")
+        missing = {
+            field for field in ("base_id", "table")
+            if not str(config.get(field) or "").strip()
+        }
+        if missing:
+            raise ValueError(f"missing airtable config: {', '.join(sorted(missing))}")
+        if not str(config.get("idempotency_field") or "OpenGTM ID").strip():
+            raise ValueError("airtable idempotency_field cannot be blank")
     return config
 
 
