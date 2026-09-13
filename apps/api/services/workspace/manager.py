@@ -84,6 +84,18 @@ def _get_db():
             FOREIGN KEY (workspace_id, user_id) REFERENCES workspace_members(workspace_id, user_id)
         );
 
+        CREATE TABLE IF NOT EXISTS workspace_oidc_identities (
+            workspace_id TEXT NOT NULL,
+            issuer TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            user_id INTEGER NOT NULL,
+            email TEXT DEFAULT '',
+            created_at REAL NOT NULL,
+            PRIMARY KEY (workspace_id, issuer, subject),
+            UNIQUE (workspace_id, user_id),
+            FOREIGN KEY (workspace_id, user_id) REFERENCES workspace_members(workspace_id, user_id)
+        );
+
         -- Per-user active workspace (replaces the global ACTIVE_WORKSPACE setting)
         CREATE TABLE IF NOT EXISTS user_active_workspace (
             user_id INTEGER PRIMARY KEY,
@@ -133,6 +145,49 @@ def _set_active_workspace(ws_id: str):
         _db_set("ACTIVE_WORKSPACE", ws_id)
     except Exception:
         pass
+
+
+def get_workspace_setting(workspace_id: str, key: str, default: str = "") -> str:
+    conn = _get_db()
+    row = conn.execute(
+        "SELECT value FROM workspace_settings WHERE workspace_id = ? AND key = ?",
+        (workspace_id, key),
+    ).fetchone()
+    conn.close()
+    return row["value"] if row and row["value"] is not None else default
+
+
+def set_workspace_setting(workspace_id: str, key: str, value: str) -> None:
+    conn = _get_db()
+    conn.execute(
+        "INSERT INTO workspace_settings (workspace_id, key, value) VALUES (?, ?, ?) "
+        "ON CONFLICT(workspace_id, key) DO UPDATE SET value = excluded.value",
+        (workspace_id, key, value),
+    )
+    conn.commit()
+    conn.close()
+
+
+def oidc_identity_user(workspace_id: str, issuer: str, subject: str) -> Optional[int]:
+    conn = _get_db()
+    row = conn.execute(
+        "SELECT user_id FROM workspace_oidc_identities WHERE workspace_id = ? AND issuer = ? AND subject = ?",
+        (workspace_id, issuer, subject),
+    ).fetchone()
+    conn.close()
+    return int(row["user_id"]) if row else None
+
+
+def bind_oidc_identity(workspace_id: str, issuer: str, subject: str, user_id: int, email: str = "") -> None:
+    if not is_member(workspace_id, user_id):
+        raise ValueError("OIDC identity user must be a workspace member")
+    conn = _get_db()
+    conn.execute(
+        "INSERT INTO workspace_oidc_identities (workspace_id, issuer, subject, user_id, email, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (workspace_id, issuer, subject, user_id, email, time.time()),
+    )
+    conn.commit()
+    conn.close()
 
 
 # ── CRUD ──────────────────────────────────────────────────────
@@ -194,6 +249,7 @@ def set_member_role(workspace_id: str, user_id: int, role: str) -> bool:
 
 def remove_member(workspace_id: str, user_id: int) -> None:
     conn = _get_db()
+    conn.execute("DELETE FROM workspace_oidc_identities WHERE workspace_id = ? AND user_id = ?", (workspace_id, user_id))
     conn.execute("DELETE FROM workspace_member_permissions WHERE workspace_id = ? AND user_id = ?", (workspace_id, user_id))
     conn.execute(
         "DELETE FROM workspace_members WHERE workspace_id = ? AND user_id = ?",
@@ -386,6 +442,13 @@ def get_workspace(ws_id: str) -> Optional[Workspace]:
     )
 
 
+def get_workspace_by_slug(slug: str) -> Optional[Workspace]:
+    conn = _get_db()
+    row = conn.execute("SELECT id FROM workspaces WHERE slug = ?", (slug,)).fetchone()
+    conn.close()
+    return get_workspace(row["id"]) if row else None
+
+
 def delete_workspace(ws_id: str) -> bool:
     """Delete a workspace (cannot delete 'main')."""
     conn = _get_db()
@@ -394,6 +457,8 @@ def delete_workspace(ws_id: str) -> bool:
         conn.close()
         return False
     conn.execute("DELETE FROM workspace_settings WHERE workspace_id = ?", (ws_id,))
+    conn.execute("DELETE FROM workspace_oidc_identities WHERE workspace_id = ?", (ws_id,))
+    conn.execute("DELETE FROM workspace_member_permissions WHERE workspace_id = ?", (ws_id,))
     conn.execute("DELETE FROM workspace_members WHERE workspace_id = ?", (ws_id,))
     conn.execute("DELETE FROM user_active_workspace WHERE workspace_id = ?", (ws_id,))
     conn.execute("DELETE FROM workspaces WHERE id = ?", (ws_id,))

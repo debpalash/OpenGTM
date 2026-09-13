@@ -15,6 +15,7 @@ from apps.api.services.governance.models import GovernanceAuditEvent, RetentionP
 from apps.api.services.governance.retention import DEFAULT_DAYS, normalized_days, preview_retention, schedule_policy
 from apps.api.models import User
 from apps.api.services.workspace import manager as workspace_manager
+from apps.api.services.workspace import oidc
 
 router = APIRouter(prefix="/api/governance", tags=["governance"])
 require_admin = require_workspace_role("admin", permission="governance.manage")
@@ -56,6 +57,16 @@ class MemberCreate(BaseModel):
 
 class MemberRoleUpdate(BaseModel):
     role: Literal["viewer", "member", "editor", "admin"]
+
+
+class OidcUpdate(BaseModel):
+    enabled: bool = False
+    issuer: str = ""
+    client_id: str = ""
+    client_secret: str = ""
+    allowed_domains: list[str] = Field(default_factory=list)
+    auto_provision: bool = False
+    default_role: Literal["viewer", "member", "editor"] = "viewer"
 
 
 def _audit_query(db, ctx, actor_user_id=None, method=None, outcome=None, since=None, before=None):
@@ -197,3 +208,18 @@ def remove_workspace_member(user_id: int, ctx: WorkspaceCtx = Depends(require_ad
     if role == "owner":
         raise HTTPException(status_code=409, detail="Workspace owner cannot be removed")
     workspace_manager.remove_member(ctx.workspace_id, user_id)
+
+
+@router.get("/sso")
+def get_sso(ctx: WorkspaceCtx = Depends(require_admin)):
+    config = oidc.get_config(ctx.workspace_id)
+    return {**config, "client_secret_configured": bool(oidc.get_secret(ctx.workspace_id, oidc.SECRET_KEY))}
+
+
+@router.put("/sso")
+def update_sso(body: OidcUpdate, ctx: WorkspaceCtx = Depends(require_admin)):
+    try:
+        config = oidc.save_config(ctx.workspace_id, body.model_dump(), body.client_secret)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {**config, "client_secret_configured": bool(oidc.get_secret(ctx.workspace_id, oidc.SECRET_KEY))}

@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     # "type": "refresh" claim and only mint new access tokens — they are not
     # accepted as access tokens themselves.
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 14
+    # Comma-separated exact issuer hostnames allowed for workspace OIDC SSO.
+    # Empty is fail-closed: workspace admins cannot make the API fetch arbitrary
+    # discovery/JWKS URLs until the deployment operator approves the IdP host.
+    SSO_ALLOWED_ISSUER_HOSTS: str = ""
 
     # Deployment environment. Values in _DEV_ENVS (dev/test/local/...) relax the
     # SECRET_KEY fail-closed check so the insecure default still boots locally.
