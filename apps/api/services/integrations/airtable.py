@@ -14,23 +14,25 @@ import httpx
 logger = logging.getLogger("integrations.airtable")
 
 
-def _token() -> str:
+def _token(workspace_id: Optional[str] = None) -> str:
     try:
-        from apps.api.routers.settings import _db_get
-        return _db_get("AIRTABLE_TOKEN", "") or os.getenv("AIRTABLE_TOKEN", "")
+        from apps.api.services.workspace.secrets import get_secret
+
+        return get_secret(workspace_id, "AIRTABLE_TOKEN", "")
     except Exception:
         return os.getenv("AIRTABLE_TOKEN", "")
 
 
-def is_connected() -> bool:
-    return bool(_token())
+def is_connected(workspace_id: Optional[str] = None) -> bool:
+    return bool(_token(workspace_id))
 
 
 async def push_record(fields: Dict[str, Any], base_id: str, table: str,
-                      typecast: bool = True) -> Dict[str, Any]:
+                      typecast: bool = True,
+                      workspace_id: Optional[str] = None) -> Dict[str, Any]:
     """Create one record in the given base/table. `fields` maps Airtable column
     names to values (must already exist in the table)."""
-    token = _token()
+    token = _token(workspace_id)
     if not token:
         return {"success": False, "error": "Airtable not connected (set AIRTABLE_TOKEN)"}
     if not base_id or not table:

@@ -8,31 +8,33 @@ as GOOGLE_SHEETS_TOKEN. Append docs:
 https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
 """
 
-import os
 import logging
-from typing import Dict, Any, List
+import os
+from typing import Any, Dict, List, Optional
 
 import httpx
 
 logger = logging.getLogger("integrations.sheets")
 
 
-def _token() -> str:
+def _token(workspace_id: Optional[str] = None) -> str:
     try:
-        from apps.api.routers.settings import _db_get
-        return _db_get("GOOGLE_SHEETS_TOKEN", "") or os.getenv("GOOGLE_SHEETS_TOKEN", "")
+        from apps.api.services.workspace.secrets import get_secret
+
+        return get_secret(workspace_id, "GOOGLE_SHEETS_TOKEN", "")
     except Exception:
         return os.getenv("GOOGLE_SHEETS_TOKEN", "")
 
 
-def is_connected() -> bool:
-    return bool(_token())
+def is_connected(workspace_id: Optional[str] = None) -> bool:
+    return bool(_token(workspace_id))
 
 
 async def append_row(spreadsheet_id: str, values: List[Any],
-                     sheet_range: str = "Sheet1") -> Dict[str, Any]:
+                     sheet_range: str = "Sheet1",
+                     workspace_id: Optional[str] = None) -> Dict[str, Any]:
     """Append a single row (list of cell values) to the given spreadsheet."""
-    token = _token()
+    token = _token(workspace_id)
     if not token:
         return {"success": False, "error": "Google Sheets not connected (set GOOGLE_SHEETS_TOKEN — an OAuth2 access token)"}
     if not spreadsheet_id:
