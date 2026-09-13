@@ -7,11 +7,12 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional, Callable, Awaitable
 
-from sqlalchemy import select, update, or_, text
+from sqlalchemy import select, update, or_, text, func
 from sqlalchemy.orm import Session
 
 from apps.api.database import SessionLocal, engine
 from apps.api.models import Job
+from apps.api.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ JOB_TIMEOUTS = {
 
 
 class QueueService:
-    def __init__(self):
+    def __init__(self, concurrency: Optional[int] = None, shutdown_grace: Optional[int] = None):
         self.is_running = False
         self._shutdown_event = asyncio.Event()
         self.handlers: Dict[str, Callable[[int, Dict], Awaitable[None]]] = {}
@@ -71,6 +72,11 @@ class QueueService:
         # Identity used to stamp claimed jobs. Each process (in-API or a
         # standalone worker replica) gets its own.
         self.worker_id = _make_worker_id()
+        self.concurrency = max(1, min(64, concurrency if concurrency is not None else settings.WORKER_CONCURRENCY))
+        self.shutdown_grace = max(0, min(300, shutdown_grace if shutdown_grace is not None else settings.WORKER_SHUTDOWN_GRACE_SECONDS))
+        self._worker_tasks: list[asyncio.Task] = []
+        self._monitor_task: Optional[asyncio.Task] = None
+        self._active_slots: set[int] = set()
 
     def register_handler(
         self, job_type: str, handler: Callable[[int, Dict], Awaitable[None]]
@@ -275,17 +281,30 @@ class QueueService:
         # Recover jobs before starting loop
         self.recover_jobs()
 
-        logger.info("Starting Queue Worker...")
-        asyncio.create_task(self._worker_loop())
-        asyncio.create_task(self._monitor_heartbeats())
+        logger.info("Starting Queue Worker with %s slot(s)...", self.concurrency)
+        self._worker_tasks = [asyncio.create_task(self._worker_loop(slot), name=f"queue-slot-{slot}") for slot in range(self.concurrency)]
+        self._monitor_task = asyncio.create_task(self._monitor_heartbeats(), name="queue-heartbeat-monitor")
 
     async def stop_worker(self):
         self.is_running = False
         self._shutdown_event.set()
-        logger.info("Stopping Queue Worker...")
+        logger.info("Stopping Queue Worker; draining %s slot(s)...", len(self._worker_tasks))
+        if self._worker_tasks:
+            try:
+                async with asyncio.timeout(self.shutdown_grace):
+                    await asyncio.gather(*self._worker_tasks)
+            except TimeoutError:
+                logger.warning("Worker drain exceeded %ss; cancelling active slots", self.shutdown_grace)
+                for task in self._worker_tasks: task.cancel()
+                await asyncio.gather(*self._worker_tasks, return_exceptions=True)
+        if self._monitor_task:
+            self._monitor_task.cancel()
+            with suppress(asyncio.CancelledError): await self._monitor_task
+        self._worker_tasks = []
+        self._monitor_task = None
 
-    async def _worker_loop(self):
-        logger.info("Queue Worker Loop Started (worker_id=%s)", self.worker_id)
+    async def _worker_loop(self, slot: int = 0):
+        logger.info("Queue Worker Slot Started (worker_id=%s slot=%s)", self.worker_id, slot)
         while self.is_running:
             try:
                 # Atomically claim the next eligible job. Safe to run from N
@@ -296,15 +315,30 @@ class QueueService:
                 claimed = await asyncio.to_thread(self.claim_next_job)
 
                 if claimed:
-                    await self._process_job(
-                        claimed["id"], claimed["type"], claimed["payload"]
-                    )
+                    self._active_slots.add(slot)
+                    try:
+                        await self._process_job(claimed["id"], claimed["type"], claimed["payload"])
+                    finally:
+                        self._active_slots.discard(slot)
                 else:
-                    await asyncio.sleep(1)  # Wait if empty
+                    try: await asyncio.wait_for(self._shutdown_event.wait(), timeout=1)
+                    except TimeoutError: pass
 
             except Exception as e:
                 logger.error(f"Worker loop error: {e}")
-                await asyncio.sleep(5)
+                try: await asyncio.wait_for(self._shutdown_event.wait(), timeout=5)
+                except TimeoutError: pass
+
+    def metrics(self, db: Session) -> Dict[str, Any]:
+        """Aggregate queue health without exposing job payloads or credentials."""
+        now = datetime.now(timezone.utc)
+        counts = {status: count for status, count in db.query(Job.status, func.count(Job.id)).group_by(Job.status).all()}
+        types = {job_type: count for job_type, count in db.query(Job.type, func.count(Job.id)).filter(Job.status.in_(["pending", "processing"])).group_by(Job.type).all()}
+        oldest = db.query(Job.created_at).filter(Job.status == "pending").order_by(Job.created_at.asc()).first()
+        active_workers = db.query(Job.worker_id).filter(Job.status == "processing", Job.worker_id.isnot(None)).distinct().count()
+        oldest_created = oldest[0].replace(tzinfo=timezone.utc) if oldest and oldest[0].tzinfo is None else oldest[0] if oldest else None
+        oldest_age = max(0.0, (now - oldest_created).total_seconds()) if oldest_created else 0.0
+        return {"worker_id": self.worker_id, "configured_concurrency": self.concurrency, "local_active_slots": len(self._active_slots), "active_workers": active_workers, "counts": counts, "active_by_type": types, "oldest_pending_age_seconds": round(oldest_age, 3), "observed_at": now.isoformat()}
 
     async def _process_job(self, job_id: int, job_type: str, payload: Dict):
         logger.info(f"Processing Job {job_id} ({job_type})")

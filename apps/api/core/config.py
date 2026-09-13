@@ -58,6 +58,10 @@ class Settings(BaseSettings):
     API_PORT: int = 8000
     CORS_ORIGINS: str = "*"
     DEBUG: bool = False
+    # Concurrent durable-job slots per API/standalone worker process. Claims
+    # remain atomic; each slot owns at most one killable subprocess at a time.
+    WORKER_CONCURRENCY: int = 1
+    WORKER_SHUTDOWN_GRACE_SECONDS: int = 30
 
     # Paths
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

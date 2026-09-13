@@ -5,7 +5,7 @@ table driven by ``apps.api.services.queue_service.QueueService``). It is the
 SAME queue the in-API background worker uses; the difference is that this runs
 as its own process so you can scale it to N replicas behind one Postgres.
 
-Concurrency safety
+Concurrency and safety
 ------------------
 Every replica claims work via ``queue_service.claim_next_job()``, which is
 atomic and dialect-aware:
@@ -17,7 +17,11 @@ atomic and dialect-aware:
   * SQLite (dev/tests) → a guarded conditional ``UPDATE`` whose ``rowcount``
     confirms the claim.
 
-So this file is safe to run as ``replicas: N`` in docker-compose / k8s.
+Each replica runs ``WORKER_CONCURRENCY`` bounded claim slots (default 1, maximum
+64), and each slot owns at most one killable subprocess. This file is safe to
+run as ``replicas: N`` in docker-compose / k8s; total concurrency is replicas x
+slots. Shutdown stops new claims, drains active slots for
+``WORKER_SHUTDOWN_GRACE_SECONDS``, then cancels remaining subprocesses safely.
 
 Run
 ---
