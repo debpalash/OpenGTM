@@ -124,9 +124,13 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                 AudienceMember.audience_id == destination.audience_id,
             ).order_by(AudienceMember.lead_id.asc()).all()
             stats = {"attempted": 0, "succeeded": 0, "failed": 0, "skipped": 0}
+            pending = []
             for member in members:
                 snapshot = dict(member.snapshot or {})
                 mapped = _map_payload(snapshot, destination.field_map or {})
+                if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"}:
+                    from apps.api.services.destinations.ads import hashed_identifiers
+                    mapped = hashed_identifiers(snapshot)
                 fingerprint = _fingerprint(mapped)
                 idem = f"dest:{destination.id}:lead:{member.lead_id}:{fingerprint}"
                 prior = db.query(DestinationDelivery).filter(
@@ -148,6 +152,9 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                 delivery.error = None
                 db.commit()
                 stats["attempted"] += 1
+                pending.append((member, delivery, snapshot, idem))
+                if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"}:
+                    continue
                 try:
                     result = await _deliver(destination, member.lead_id, snapshot, idem)
                 except Exception as exc:
@@ -161,6 +168,26 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                 else:
                     stats["failed"] += 1
                 db.commit()
+
+            if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"} and pending:
+                from apps.api.services.destinations.ads import sync_ad_batch
+                for offset in range(0, len(pending), 5000):
+                    batch = pending[offset:offset + 5000]
+                    try:
+                        result = await sync_ad_batch(workspace_id, destination.destination_type, destination.config or {}, [x[2] for x in batch])
+                    except Exception as exc:
+                        result = type("Result", (), {"success": False, "summary": "", "error": str(exc)[:500], "external_id": None})()
+                    for _, delivery, _, _ in batch:
+                        delivery.status = "success" if result.success else "failed"
+                        delivery.summary = result.summary
+                        delivery.error = (result.error or "")[:1000] or None
+                        delivery.external_id = result.external_id
+                        if result.success:
+                            delivery.delivered_at = datetime.now(timezone.utc)
+                            stats["succeeded"] += 1
+                        else:
+                            stats["failed"] += 1
+                    db.commit()
 
             run.attempted = stats["attempted"]
             run.succeeded = stats["succeeded"]

@@ -15,7 +15,7 @@ from apps.api.services.destinations.models import AudienceDestination, Destinati
 
 router = APIRouter(prefix="/api/audience-destinations", tags=["audience-destinations"])
 require_editor = require_workspace_role("editor", "admin")
-TYPES = {"webhook", "hubspot", "salesforce"}
+TYPES = {"webhook", "hubspot", "salesforce", "meta_ads", "google_ads", "linkedin_ads"}
 
 
 def _validate_config(dtype: str, config: dict) -> dict:
@@ -41,6 +41,21 @@ def _validate_config(dtype: str, config: dict) -> dict:
             raise ValueError("webhook requires an http(s) URL without embedded credentials")
         if str(config.get("method") or "POST").upper() not in {"POST", "PUT", "PATCH"}:
             raise ValueError("webhook method must be POST, PUT, or PATCH")
+    if dtype in {"meta_ads", "google_ads", "linkedin_ads"}:
+        if config.get("consent_attested") is not True or not str(config.get("consent_source") or "").strip():
+            raise ValueError("ad destinations require consent_attested=true and a consent_source")
+        required = {
+            "meta_ads": {"custom_audience_id"},
+            "google_ads": {"customer_id", "user_list_id"},
+            "linkedin_ads": {"segment_id"},
+        }[dtype]
+        missing = required - {key for key, value in config.items() if str(value or "").strip()}
+        if missing:
+            raise ValueError(f"missing ad destination config: {', '.join(sorted(missing))}")
+        allowed = required | {"consent_attested", "consent_source", "api_version", "login_customer_id"}
+        unknown = set(config) - allowed
+        if unknown:
+            raise ValueError(f"unsupported ad destination config: {', '.join(sorted(unknown))}")
     return config
 
 

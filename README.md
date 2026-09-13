@@ -308,7 +308,7 @@ The production data plane is tenant-scoped and PostgreSQL/RLS protected, and all
 user work runs through the durable worker. The remaining boundaries are:
 
 - **The workspace control plane is single-node.** Workspace membership, active
-  workspace selection, encrypted per-workspace secrets, and the detailed
+  workspace selection, encrypted per-workspace secrets, consent-gated paid-media audience sync (Meta, Google Ads, and LinkedIn), and the detailed
   collection-stage ledger live in SQLite files on the shared `data/` volume.
   This is reliable for the documented Compose topology, but replicas on
   separate hosts need those stores moved to PostgreSQL first.

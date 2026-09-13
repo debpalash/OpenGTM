@@ -1076,6 +1076,16 @@ INTEGRATIONS = [
             {"key": "GOOGLE_SHEETS_TOKEN", "label": "OAuth2 Access Token", "secret": True, "placeholder": "ya29..."},
         ],
     },
+    {"id": "meta_ads", "name": "Meta Ads", "icon": "facebook", "description": "Sync consented, hashed identifiers to Custom Audiences.", "fields": [
+        {"key": "META_ACCESS_TOKEN", "label": "Marketing API Access Token", "secret": True, "placeholder": "EAAB..."},
+    ]},
+    {"id": "google_ads", "name": "Google Ads", "icon": "google", "description": "Sync consented, hashed identifiers with Customer Match.", "fields": [
+        {"key": "GOOGLE_ADS_ACCESS_TOKEN", "label": "OAuth2 Access Token", "secret": True, "placeholder": "ya29..."},
+        {"key": "GOOGLE_ADS_DEVELOPER_TOKEN", "label": "Developer Token", "secret": True, "placeholder": "Developer token"},
+    ]},
+    {"id": "linkedin_ads", "name": "LinkedIn Ads", "icon": "linkedin", "description": "Sync consented, hashed emails to Matched Audiences (approval required).", "fields": [
+        {"key": "LINKEDIN_ACCESS_TOKEN", "label": "Marketing API Access Token", "secret": True, "placeholder": "AQX..."},
+    ]},
 ]
 
 
