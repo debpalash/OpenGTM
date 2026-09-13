@@ -16,7 +16,7 @@ from apps.api.services.destinations.models import AudienceDestination, Destinati
 router = APIRouter(prefix="/api/audience-destinations", tags=["audience-destinations"])
 require_editor = require_workspace_role("editor", "admin")
 require_admin = require_workspace_role("admin")
-TYPES = {"webhook", "hubspot", "salesforce", "meta_ads", "google_ads", "linkedin_ads"}
+TYPES = {"webhook", "hubspot", "salesforce", "warehouse_http", "meta_ads", "google_ads", "linkedin_ads"}
 
 
 def _validate_config(dtype: str, config: dict) -> dict:
@@ -42,6 +42,18 @@ def _validate_config(dtype: str, config: dict) -> dict:
             raise ValueError("webhook requires an http(s) URL without embedded credentials")
         if str(config.get("method") or "POST").upper() not in {"POST", "PUT", "PATCH"}:
             raise ValueError("webhook method must be POST, PUT, or PATCH")
+    if dtype == "warehouse_http":
+        allowed = {"url", "header_secret_ref", "header_name", "dataset", "mode"}
+        unknown = set(config) - allowed
+        if unknown:
+            raise ValueError(f"unsupported warehouse config: {', '.join(sorted(unknown))}")
+        parsed = urlparse(str(config.get("url") or ""))
+        if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
+            raise ValueError("warehouse HTTP destination requires an HTTPS URL without embedded credentials")
+        if not str(config.get("header_secret_ref") or "").strip():
+            raise ValueError("warehouse HTTP destination requires header_secret_ref")
+        if str(config.get("mode") or "snapshot") not in {"snapshot", "upsert"}:
+            raise ValueError("warehouse mode must be snapshot or upsert")
     if dtype in {"meta_ads", "google_ads", "linkedin_ads"}:
         if config.get("consent_attested") is not True or not str(config.get("consent_source") or "").strip():
             raise ValueError("ad destinations require consent_attested=true and a consent_source")
@@ -148,6 +160,10 @@ def create_destination(body: DestinationCreate, db: Session = Depends(get_db), c
         config = body.validated_config()
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
+    if body.destination_type == "warehouse_http":
+        from apps.api.services.workspace.secrets import get_secret
+        if not get_secret(ctx.workspace_id, str(config["header_secret_ref"]), ""):
+            raise HTTPException(status_code=422, detail="warehouse header_secret_ref was not found")
     destination = AudienceDestination(
         workspace_id=ctx.workspace_id, audience_id=body.audience_id, name=body.name,
         destination_type=body.destination_type, enabled=body.enabled,
@@ -172,6 +188,10 @@ def update_destination(destination_id: str, body: DestinationPatch, db: Session 
             changes["config"] = _validate_config(destination.destination_type, changes["config"] or {})
         except ValueError as exc:
             raise HTTPException(status_code=422, detail=str(exc))
+        if destination.destination_type == "warehouse_http":
+            from apps.api.services.workspace.secrets import get_secret
+            if not get_secret(ctx.workspace_id, str(changes["config"]["header_secret_ref"]), ""):
+                raise HTTPException(status_code=422, detail="warehouse header_secret_ref was not found")
     for key, value in changes.items():
         setattr(destination, key, value.strip() if key == "name" else value)
     db.commit()
