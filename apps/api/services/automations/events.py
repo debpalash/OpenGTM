@@ -220,3 +220,53 @@ def emit_signal_matches(db, workspace_id: str, signal_rows: list) -> int:
     except Exception as e:
         logger.warning("emit_signal_matches failed: %s", e)
     return enqueued
+
+
+# ── audience membership changes ─────────────────────────────────────────────
+
+def emit_audience_membership(db, workspace_id: str, events: list) -> int:
+    """Fire entry/exit rules for changed audience members linked to workbook rows."""
+    if not _enabled() or not events:
+        return 0
+    enqueued = 0
+    try:
+        from apps.api.services.workbook.models import WorkbookRow, Workbook
+
+        rules_by_type = {
+            "entered": _enabled_rules(db, workspace_id, "on_audience_enter"),
+            "exited": _enabled_rules(db, workspace_id, "on_audience_exit"),
+        }
+        for event in events:
+            for rule in rules_by_type.get(event.event_type, []):
+                audience_ids = set((rule.trigger_config or {}).get("audience_ids") or [])
+                if audience_ids and event.audience_id not in audience_ids:
+                    continue
+                scope = rule.scope_workbook_ids or []
+                query = (
+                    db.query(WorkbookRow.id, WorkbookRow.workbook_id)
+                    .join(Workbook, Workbook.id == WorkbookRow.workbook_id)
+                    .filter(
+                        Workbook.workspace_id == workspace_id,
+                        WorkbookRow.lead_id == event.lead_id,
+                    )
+                )
+                if scope:
+                    query = query.filter(WorkbookRow.workbook_id.in_(scope))
+                targets = [
+                    {"workbook_id": workbook_id, "row_id": str(row_id)}
+                    for row_id, workbook_id in query.all()
+                ]
+                if not targets:
+                    continue
+                _enqueue_eval(
+                    db,
+                    trigger_id=rule.id,
+                    workspace_id=workspace_id,
+                    targets=targets,
+                    fire_source=f"audience_{event.event_type}",
+                    fire_key=f"audience:{event.id}:{event.event_type}",
+                )
+                enqueued += 1
+    except Exception as exc:
+        logger.warning("emit_audience_membership failed: %s", exc)
+    return enqueued

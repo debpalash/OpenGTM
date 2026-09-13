@@ -30,7 +30,10 @@ def _uuid() -> str:
 
 
 # Enumerations (validated at the API layer; stored as plain strings).
-TRIGGER_TYPES = ("on_signal", "on_row_changed", "on_row_added", "on_schedule")
+TRIGGER_TYPES = (
+    "on_signal", "on_row_changed", "on_row_added", "on_schedule",
+    "on_audience_enter", "on_audience_exit",
+)
 # v1 LOCKED SCOPE: only these three action types are accepted at rule-create.
 # sequencer / send_email are deferred (rejected at create) until the legacy
 # outreach.db store is RLS-hardened.

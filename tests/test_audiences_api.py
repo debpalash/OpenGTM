@@ -1,6 +1,7 @@
 """Persistent audience CRUD, validation, counts, and tenant isolation."""
 
 import pytest
+from types import SimpleNamespace
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -10,7 +11,10 @@ from sqlalchemy.pool import StaticPool
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 from apps.api.database import Base, get_db
 from apps.api.routers.audiences import router, require_editor
-from apps.api.services.audiences.models import Audience
+from apps.api.services.audiences.models import Audience, AudienceMember, AudienceMembershipEvent
+from apps.api.services.automations.models import Trigger
+from apps.api.services.workbook.models import Workbook, WorkbookRow
+from apps.api.core.config import settings
 
 WS1 = "ws-audiences-1"
 WS2 = "ws-audiences-2"
@@ -25,7 +29,9 @@ class _LeadStore:
 
     def query_leads_page(self, filters, page, page_size):
         count = 7 if filters.get("score_tier") == "hot" else 2
-        return [], count
+        all_rows = [{"id": lead_id, "company": f"Account {lead_id}"} for lead_id in range(1, count + 1)]
+        start = (page - 1) * page_size
+        return all_rows[start:start + page_size], count
 
     def close(self):
         self.closed = True
@@ -42,7 +48,9 @@ def client():
     engine = create_engine(
         "sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool,
     )
-    Base.metadata.create_all(engine, tables=[Audience.__table__])
+    Base.metadata.create_all(engine, tables=[
+        Audience.__table__, AudienceMember.__table__, AudienceMembershipEvent.__table__,
+    ])
     Session = sessionmaker(bind=engine)
     app = FastAPI()
     app.include_router(router)
@@ -68,6 +76,9 @@ def test_audience_crud_and_dynamic_count(client):
     assert created.status_code == 201, created.text
     audience = created.json()
     assert audience["member_count"] == 7
+    assert audience["refreshed_at"] is not None
+    assert len(tc.get(f"/api/audiences/{audience['id']}/members").json()) == 7
+    assert len(tc.get(f"/api/audiences/{audience['id']}/events").json()) == 7
 
     listed = tc.get("/api/audiences")
     assert listed.status_code == 200
@@ -80,7 +91,13 @@ def test_audience_crud_and_dynamic_count(client):
     assert updated.json()["member_count"] == 2
 
     refreshed = tc.post(f"/api/audiences/{audience['id']}/refresh")
-    assert refreshed.status_code == 200 and refreshed.json()["member_count"] == 2
+    assert refreshed.status_code == 200
+    assert refreshed.json()["audience"]["member_count"] == 2
+    assert refreshed.json()["entered"] == 0
+    assert refreshed.json()["exited"] == 0
+    events = tc.get(f"/api/audiences/{audience['id']}/events").json()
+    assert len(events) == 12
+    assert sum(event["event_type"] == "exited" for event in events) == 5
     assert tc.delete(f"/api/audiences/{audience['id']}").status_code == 204
     assert tc.get("/api/audiences").json() == []
 
@@ -110,3 +127,36 @@ def test_audience_workspace_isolation(client):
     app.dependency_overrides[current_workspace] = lambda: _ctx(WS2)
     app.dependency_overrides[require_editor] = lambda: _ctx(WS2)
     assert [item["name"] for item in tc.get("/api/audiences").json()] == ["Other tenant"]
+
+
+def test_membership_entry_enqueues_scoped_automation(monkeypatch):
+    from apps.api.services.automations import events as automation_events
+
+    engine = create_engine(
+        "sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool,
+    )
+    Base.metadata.create_all(engine, tables=[Trigger.__table__, Workbook.__table__, WorkbookRow.__table__])
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    workbook = Workbook(name="Activation", workspace_id=WS1)
+    session.add(workbook)
+    session.flush()
+    row = WorkbookRow(workbook_id=workbook.id, workspace_id=WS1, position=0, data={}, lead_id=42)
+    rule = Trigger(
+        workspace_id=WS1, name="Activate entrants", trigger_type="on_audience_enter",
+        trigger_config={"audience_ids": ["aud-1"]}, actions=[], scope_workbook_ids=[workbook.id],
+    )
+    session.add_all([row, rule])
+    session.commit()
+
+    enqueued = []
+    monkeypatch.setattr(settings, "AUTOMATIONS_ENABLED", True, raising=False)
+    monkeypatch.setattr(automation_events, "_enqueue_eval", lambda db, **kwargs: enqueued.append(kwargs))
+    count = automation_events.emit_audience_membership(session, WS1, [SimpleNamespace(
+        id=9, audience_id="aud-1", lead_id=42, event_type="entered",
+    )])
+
+    assert count == 1
+    assert enqueued[0]["fire_key"] == "audience:9:entered"
+    assert enqueued[0]["targets"] == [{"workbook_id": workbook.id, "row_id": str(row.id)}]
+    session.close()

@@ -23,7 +23,11 @@ export const queryKeys = {
     enrichment: ["stats", "enrichment"] as const,
   },
   filters: ["filters"] as const,
-  audiences: ["audiences"] as const,
+  audiences: {
+    all: ["audiences"] as const,
+    members: (id: string) => ["audiences", id, "members"] as const,
+    events: (id: string) => ["audiences", id, "events"] as const,
+  },
   jobs: {
     all: ["jobs"] as const,
     list: (status?: string) => ["jobs", "list", status] as const,

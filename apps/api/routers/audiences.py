@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace, require_workspace_role
 from apps.api.database import get_db
-from apps.api.services.audiences.models import Audience
+from apps.api.services.audiences.models import Audience, AudienceMember, AudienceMembershipEvent
+from apps.api.services.audiences.refresh import refresh_audience as materialize_audience
 
 router = APIRouter(prefix="/api/audiences", tags=["audiences"])
 require_editor = require_workspace_role("editor", "admin")
@@ -77,15 +78,6 @@ class AudiencePatch(BaseModel):
         return _validate_filters(value) if value is not None else value
 
 
-def _count(ctx: WorkspaceCtx, filters: dict) -> int:
-    lead_store = ctx.lead_db()
-    try:
-        _, total = lead_store.query_leads_page(filters, page=1, page_size=1)
-        return total
-    finally:
-        lead_store.close()
-
-
 def _get(db: Session, workspace_id: str, audience_id: str) -> Audience:
     audience = db.query(Audience).filter(
         Audience.workspace_id == workspace_id, Audience.id == audience_id,
@@ -106,7 +98,7 @@ def list_audiences(db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(cu
 def create_audience(body: AudienceCreate, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_editor)):
     audience = Audience(
         workspace_id=ctx.workspace_id, name=body.name, description=body.description,
-        filters=body.filters, member_count=_count(ctx, body.filters),
+        filters=body.filters,
     )
     db.add(audience)
     try:
@@ -115,7 +107,7 @@ def create_audience(body: AudienceCreate, db: Session = Depends(get_db), ctx: Wo
         db.rollback()
         raise HTTPException(status_code=409, detail="An audience with this name already exists")
     db.refresh(audience)
-    return audience.to_api()
+    return materialize_audience(db, ctx, audience)["audience"]
 
 
 @router.patch("/{audience_id}")
@@ -124,24 +116,39 @@ def update_audience(audience_id: str, body: AudiencePatch, db: Session = Depends
     changes = body.model_dump(exclude_unset=True)
     for key, value in changes.items():
         setattr(audience, key, value)
-    if "filters" in changes:
-        audience.member_count = _count(ctx, audience.filters)
     try:
         db.commit()
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=409, detail="An audience with this name already exists")
     db.refresh(audience)
-    return audience.to_api()
+    return materialize_audience(db, ctx, audience)["audience"] if "filters" in changes else audience.to_api()
 
 
 @router.post("/{audience_id}/refresh")
 def refresh_audience(audience_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_editor)):
     audience = _get(db, ctx.workspace_id, audience_id)
-    audience.member_count = _count(ctx, audience.filters or {})
-    db.commit()
-    db.refresh(audience)
-    return audience.to_api()
+    return materialize_audience(db, ctx, audience)
+
+
+@router.get("/{audience_id}/members")
+def list_audience_members(audience_id: str, limit: int = 200, offset: int = 0, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+    _get(db, ctx.workspace_id, audience_id)
+    members = db.query(AudienceMember).filter(
+        AudienceMember.workspace_id == ctx.workspace_id,
+        AudienceMember.audience_id == audience_id,
+    ).order_by(AudienceMember.joined_at.desc()).offset(max(0, offset)).limit(min(max(1, limit), 1000)).all()
+    return [member.to_api() for member in members]
+
+
+@router.get("/{audience_id}/events")
+def list_audience_events(audience_id: str, limit: int = 100, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+    _get(db, ctx.workspace_id, audience_id)
+    events = db.query(AudienceMembershipEvent).filter(
+        AudienceMembershipEvent.workspace_id == ctx.workspace_id,
+        AudienceMembershipEvent.audience_id == audience_id,
+    ).order_by(AudienceMembershipEvent.created_at.desc(), AudienceMembershipEvent.id.desc()).limit(min(max(1, limit), 500)).all()
+    return [event.to_api() for event in events]
 
 
 @router.delete("/{audience_id}", status_code=204)

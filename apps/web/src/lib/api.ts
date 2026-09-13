@@ -82,6 +82,7 @@ export interface Audience {
   member_count: number
   created_at: string
   updated_at: string
+  refreshed_at: string | null
 }
 
 export async function fetchAudiences(): Promise<Audience[]> {
@@ -106,6 +107,40 @@ export async function createAudience(data: { name: string; filters: Record<strin
 export async function deleteAudience(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/api/audiences/${id}`, { method: "DELETE" })
   if (!res.ok) throw new Error(`Could not delete audience (${res.status})`)
+}
+
+export interface AudienceMember {
+  lead_id: number
+  snapshot: Partial<Lead>
+  joined_at: string
+  last_seen_at: string
+}
+
+export interface AudienceMembershipEvent {
+  id: number
+  audience_id: string
+  lead_id: number
+  event_type: "entered" | "exited"
+  snapshot: Partial<Lead>
+  created_at: string
+}
+
+export async function fetchAudienceMembers(id: string): Promise<AudienceMember[]> {
+  const res = await fetch(`${API_BASE}/api/audiences/${id}/members`)
+  if (!res.ok) throw new Error(`Could not load audience members (${res.status})`)
+  return res.json()
+}
+
+export async function fetchAudienceEvents(id: string): Promise<AudienceMembershipEvent[]> {
+  const res = await fetch(`${API_BASE}/api/audiences/${id}/events`)
+  if (!res.ok) throw new Error(`Could not load audience activity (${res.status})`)
+  return res.json()
+}
+
+export async function refreshAudience(id: string): Promise<{ audience: Audience; entered: number; exited: number; unchanged: number }> {
+  const res = await fetch(`${API_BASE}/api/audiences/${id}/refresh`, { method: "POST" })
+  if (!res.ok) throw new Error(`Could not refresh audience (${res.status})`)
+  return res.json()
 }
 
 export interface Workspace {
@@ -840,6 +875,8 @@ export type TriggerType =
   | "on_row_changed"
   | "on_row_added"
   | "on_schedule"
+  | "on_audience_enter"
+  | "on_audience_exit"
 
 export type ActionType =
   | "re_enrich"

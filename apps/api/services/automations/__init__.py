@@ -1,6 +1,7 @@
 """Signal -> Action Trigger Engine ("Automations / Recipes").
 
 A tenant-scoped rule binds a trigger (on_signal / on_row_added / on_row_changed /
+on_audience_enter / on_audience_exit /
 on_schedule) to a condition over a WorkbookRow and an ordered list of actions
 (re_enrich / push_crm / webhook in v1). Evaluation rides the existing durable job
 queue; every paid action goes through billing.check_and_debit and is idempotent.

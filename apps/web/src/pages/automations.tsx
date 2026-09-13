@@ -108,6 +108,8 @@ const TRIGGER_TYPE_LABELS: Record<TriggerType, string> = {
   on_row_changed: "On row changed",
   on_row_added: "On row added",
   on_schedule: "On schedule",
+  on_audience_enter: "On audience entry",
+  on_audience_exit: "On audience exit",
 }
 
 const ACTION_TYPE_LABELS: Record<ActionType, string> = {
