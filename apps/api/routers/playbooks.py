@@ -31,6 +31,8 @@ class PlaybookPatch(BaseModel):
     max_steps: Optional[int] = Field(default=None, ge=1, le=8)
     cell_budget_usd: Optional[float] = Field(default=None, gt=0, le=5)
     enabled: Optional[bool] = None
+    schedule_audience_id: Optional[str] = None
+    schedule_interval_minutes: Optional[int] = Field(default=None, ge=15, le=10080)
 
 
 class RunCreate(BaseModel):
@@ -71,7 +73,8 @@ def delete_playbook(playbook_id: str, db: Session = Depends(get_db), ctx: Worksp
     active = db.query(PlaybookRun).filter(PlaybookRun.workspace_id == ctx.workspace_id, PlaybookRun.playbook_id == row.id, PlaybookRun.status.in_(("pending", "running"))).first()
     if active:
         raise HTTPException(409, "Cannot delete a playbook with an active run")
-    db.delete(row); db.commit()
+    from apps.api.services.playbooks.scheduler import remove_schedule
+    remove_schedule(db, row.id); db.delete(row); db.commit()
 
 
 @router.patch("/{playbook_id}")
@@ -80,11 +83,15 @@ def patch_playbook(playbook_id: str, body: PlaybookPatch, db: Session = Depends(
     changes = body.model_dump(exclude_unset=True)
     if changes.get("output_format") not in {None, "text", "json"}:
         raise HTTPException(422, "output_format must be text or json")
+    schedule_audience_id = changes.get("schedule_audience_id")
+    if schedule_audience_id and db.query(Audience).filter(Audience.id == schedule_audience_id, Audience.workspace_id == ctx.workspace_id).first() is None:
+        raise HTTPException(404, "Scheduled audience not found")
     for key, value in changes.items():
         setattr(row, key, value)
     if any(key in changes for key in {"prompt_template", "output_format", "max_steps", "cell_budget_usd"}):
         row.version += 1
-    db.commit(); db.refresh(row)
+    from apps.api.services.playbooks.scheduler import schedule_next
+    schedule_next(db, row); db.refresh(row)
     return row.to_api()
 
 

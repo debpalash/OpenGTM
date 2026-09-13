@@ -15,7 +15,7 @@ import {
   fetchAudiences, createAudience, deleteAudience,
   fetchAudienceMembers, fetchAudienceEvents, refreshAudience, updateAudience,
   fetchAudienceDestinations, createAudienceDestination, syncAudienceDestination,
-  fetchResearchPlaybooks, createResearchPlaybook, fetchPlaybookRuns, startPlaybookRun, fetchPlaybookResults,
+  fetchResearchPlaybooks, createResearchPlaybook, patchResearchPlaybook, fetchPlaybookRuns, startPlaybookRun, fetchPlaybookResults,
 } from "./api"
 
 // ── Leads ───────────────────────────────────────────────────────
@@ -144,6 +144,11 @@ export function useResearchPlaybooks() {
 export function useCreateResearchPlaybook() {
   const qc = useQueryClient()
   return useMutation({ mutationFn: createResearchPlaybook, onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.playbooks.all }) })
+}
+
+export function usePatchResearchPlaybook() {
+  const qc = useQueryClient()
+  return useMutation({ mutationFn: ({ id, body }: { id: string; body: Parameters<typeof patchResearchPlaybook>[1] }) => patchResearchPlaybook(id, body), onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.playbooks.all }) })
 }
 
 export function usePlaybookRuns(playbookId: string | null) {

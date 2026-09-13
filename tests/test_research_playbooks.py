@@ -5,8 +5,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from apps.api.database import Base
+from apps.api.models import Job
 from apps.api.services.audiences.models import Audience, AudienceMember
-from apps.api.services.playbooks.models import PlaybookResult, PlaybookRun, ResearchPlaybook
+from apps.api.services.playbooks.models import PlaybookResult, PlaybookRun, PlaybookSchedule, ResearchPlaybook
 
 
 def test_playbook_worker_is_resumable_and_versions_prompt(monkeypatch):
@@ -35,4 +36,29 @@ def test_playbook_worker_is_resumable_and_versions_prompt(monkeypatch):
     assert saved.status == "success" and saved.attempts == 1
     assert db.query(PlaybookRun).one().status == "completed"
     assert calls == [("Research {company} at {website}", {"company": "Acme", "website": "acme.test"}, "ws")]
+    db.close()
+
+
+def test_playbook_schedule_is_durable_and_single_flight(monkeypatch):
+    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(engine, tables=[Job.__table__, Audience.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookSchedule.__table__])
+    Session = sessionmaker(bind=engine)
+    db = Session()
+    db.add(Audience(id="aud", workspace_id="ws", name="Target", filters={}))
+    playbook = ResearchPlaybook(id="pb", workspace_id="ws", name="Scheduled", prompt_template="Research this account fully", schedule_audience_id="aud", schedule_interval_minutes=60)
+    db.add(playbook); db.commit()
+    from apps.api.services.playbooks import scheduler
+    scheduler.schedule_next(db, playbook)
+    scheduler.schedule_next(db, playbook)
+    assert db.query(PlaybookSchedule).one().enabled is True
+    assert db.query(Job).filter(Job.type == "research_playbook_schedule", Job.status == "pending").count() == 1
+    scheduled = db.query(Job).filter(Job.type == "research_playbook_schedule", Job.status == "pending").one()
+    db.close()
+
+    monkeypatch.setattr(scheduler, "SessionLocal", Session)
+    asyncio.run(scheduler.handle_playbook_schedule(scheduled.id, scheduled.payload))
+    db = Session()
+    assert db.query(PlaybookRun).count() == 1
+    assert db.query(Job).filter(Job.type == "research_playbook_run", Job.status == "pending").count() == 1
+    assert db.query(Job).filter(Job.type == "research_playbook_schedule", Job.status == "pending").count() == 1
     db.close()

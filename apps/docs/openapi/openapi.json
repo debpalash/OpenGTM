@@ -1960,6 +1960,30 @@
               }
             ],
             "title": "Prompt Template"
+          },
+          "schedule_audience_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schedule Audience Id"
+          },
+          "schedule_interval_minutes": {
+            "anyOf": [
+              {
+                "maximum": 10080.0,
+                "minimum": 15.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schedule Interval Minutes"
           }
         },
         "title": "PlaybookPatch",

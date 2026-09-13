@@ -5,7 +5,7 @@ import {
   CheckCircle2, XCircle, Clock, Loader2, Play,
   LayoutList, LayoutGrid, Zap, MoreHorizontal,
   StopCircle, Trash2, RefreshCw, FileX2,
-  BookOpen, ChevronDown, Send, ExternalLink,
+  BookOpen, ChevronDown, Send, ExternalLink, CalendarClock,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -19,7 +19,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useJobs, useCollect, useAudiences, useResearchPlaybooks, useCreateResearchPlaybook, usePlaybookRuns, useStartPlaybookRun, usePlaybookResults } from "@/lib/hooks"
+import { useJobs, useCollect, useAudiences, useResearchPlaybooks, useCreateResearchPlaybook, usePatchResearchPlaybook, usePlaybookRuns, useStartPlaybookRun, usePlaybookResults } from "@/lib/hooks"
 import { TaskDetailCard } from "@/components/task-detail-card"
 import type { Job } from "@/lib/api"
 import { cn } from "@/lib/utils"
@@ -81,12 +81,15 @@ function ResearchPlaybooksPanel() {
   const playbooks = useResearchPlaybooks()
   const audiences = useAudiences()
   const create = useCreateResearchPlaybook()
+  const patchPlaybook = usePatchResearchPlaybook()
   const [open, setOpen] = useState(true)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [audienceId, setAudienceId] = useState("")
   const [name, setName] = useState("")
   const [prompt, setPrompt] = useState("Create an evidence-backed account brief for {company} ({website}). Cover recent buying signals, strategic priorities, relevant decision makers, and a concise outreach angle. Cite every factual claim.")
   const [maxMembers, setMaxMembers] = useState(25)
+  const [scheduleEnabled, setScheduleEnabled] = useState(false)
+  const [scheduleMinutes, setScheduleMinutes] = useState(1440)
   const runs = usePlaybookRuns(selectedId)
   const launch = useStartPlaybookRun(selectedId)
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null)
@@ -99,6 +102,12 @@ function ResearchPlaybooksPanel() {
   useEffect(() => {
     if (runs.data?.length && !selectedRunId) setSelectedRunId(runs.data[0].id)
   }, [runs.data, selectedRunId])
+  const selectedPlaybook = playbooks.data?.find(item => item.id === selectedId)
+  useEffect(() => {
+    setScheduleEnabled(!!selectedPlaybook?.schedule_audience_id)
+    setScheduleMinutes(selectedPlaybook?.schedule_interval_minutes || 1440)
+    if (selectedPlaybook?.schedule_audience_id) setAudienceId(selectedPlaybook.schedule_audience_id)
+  }, [selectedPlaybook?.id, selectedPlaybook?.schedule_audience_id, selectedPlaybook?.schedule_interval_minutes])
 
   const add = async () => {
     if (!name.trim() || prompt.trim().length < 10) return
@@ -114,6 +123,13 @@ function ResearchPlaybooksPanel() {
       setSelectedRunId(started.id); toast.success("Audience research queued")
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not start playbook") }
   }
+  const saveSchedule = async () => {
+    if (!selectedId) return
+    try {
+      await patchPlaybook.mutateAsync({ id: selectedId, body: { schedule_audience_id: scheduleEnabled ? audienceId : null, schedule_interval_minutes: scheduleEnabled ? scheduleMinutes : null } })
+      toast.success(scheduleEnabled ? "Recurring playbook scheduled" : "Playbook schedule disabled")
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save schedule") }
+  }
 
   return <div className="border-b bg-muted/10">
     <button className="flex w-full items-center gap-2 px-4 py-2 text-left" onClick={() => setOpen(!open)}><BookOpen className="size-4 text-primary" /><span className="text-sm font-semibold">Audience research playbooks</span><Badge variant="secondary" className="text-[10px]">{playbooks.data?.length ?? 0}</Badge><ChevronDown className={cn("ml-auto size-4 transition-transform", open && "rotate-180")} /></button>
@@ -124,6 +140,7 @@ function ResearchPlaybooksPanel() {
           <select aria-label="Target audience" className="h-8 rounded-md border bg-background px-2 text-xs" value={audienceId} onChange={e => setAudienceId(e.target.value)}><option value="">Select audience</option>{audiences.data?.map(a => <option key={a.id} value={a.id}>{a.name} ({a.member_count})</option>)}</select>
           <div className="flex gap-1"><Input aria-label="Maximum profiles" type="number" min={1} max={1000} value={maxMembers} onChange={e => setMaxMembers(Math.max(1, Math.min(1000, Number(e.target.value))))} className="h-8 w-20" /><Button size="sm" className="h-8" disabled={!selectedId || !audienceId || launch.isPending} onClick={run}><Send className="mr-1 size-3" />Run</Button></div>
         </div>
+        {selectedId && <div className="flex flex-wrap items-center gap-2 rounded-md border p-2 text-xs"><CalendarClock className="size-4 text-muted-foreground" /><label className="flex items-center gap-2"><input type="checkbox" checked={scheduleEnabled} onChange={e => setScheduleEnabled(e.target.checked)} className="size-4" /> Recurring</label><Input aria-label="Schedule interval minutes" type="number" min={15} max={10080} value={scheduleMinutes} onChange={e => setScheduleMinutes(Math.max(15, Math.min(10080, Number(e.target.value))))} disabled={!scheduleEnabled} className="h-8 w-28" /><span className="text-muted-foreground">minutes · current audience</span><Button size="sm" variant="outline" className="ml-auto h-8" disabled={scheduleEnabled && !audienceId || patchPlaybook.isPending} onClick={saveSchedule}>{patchPlaybook.isPending && <Loader2 className="size-3 animate-spin" />} Save schedule</Button>{selectedPlaybook?.next_run_at && <span className="w-full text-[10px] text-muted-foreground">Next run {new Date(selectedPlaybook.next_run_at).toLocaleString()}</span>}</div>}
         <div className="rounded-md border p-2"><p className="mb-2 text-[11px] font-medium">Create reusable playbook</p><Input value={name} onChange={e => setName(e.target.value)} placeholder="Playbook name" className="mb-2 h-8" /><Textarea value={prompt} onChange={e => setPrompt(e.target.value)} rows={4} className="text-xs" /><div className="mt-2 flex items-center justify-between"><p className="text-[10px] text-muted-foreground">Use fields like {"{company}"}, {"{website}"}, {"{contact_person}"}. Default cap: $0.10/profile.</p><Button size="sm" variant="outline" disabled={!name.trim() || create.isPending} onClick={add}>Create</Button></div></div>
       </CardContent></Card>
       <Card><CardContent className="p-3"><div className="mb-2 flex gap-2 overflow-x-auto">{runs.data?.slice(0, 8).map(run => <button key={run.id} onClick={() => setSelectedRunId(run.id)} className={cn("shrink-0 rounded-md border px-2 py-1 text-[10px]", selectedRunId === run.id && "border-primary bg-primary/5")}><span className="font-medium">{run.status}</span> · {run.succeeded}/{run.attempted}</button>)}</div><div className="max-h-48 space-y-2 overflow-y-auto">{results.data?.map(result => <div key={result.id} className="rounded-md border p-2"><div className="flex items-center gap-2"><a href={`/leads/${result.lead_id}`} className="text-xs font-medium hover:underline">Lead {result.lead_id}</a><ExternalLink className="size-3" /><Badge variant={result.status === "success" ? "default" : "secondary"} className="text-[9px]">{result.status}</Badge></div><p className="mt-1 line-clamp-3 whitespace-pre-wrap text-[11px] text-muted-foreground">{result.value || result.error || "Waiting…"}</p></div>)}{selectedRunId && !results.isLoading && !results.data?.length && <p className="py-8 text-center text-xs text-muted-foreground">Results will appear as profiles complete.</p>}{!selectedRunId && <p className="py-8 text-center text-xs text-muted-foreground">Run a playbook to inspect evidence-backed profile results.</p>}</div></CardContent></Card>
