@@ -182,6 +182,8 @@ app.add_middleware(
 
 # Include Routers — Existing
 app.include_router(auth.router)
+from apps.api.routers.scim import router as scim_router
+app.include_router(scim_router)
 app.include_router(users.router)
 app.include_router(crm.router)
 app.include_router(system.router)

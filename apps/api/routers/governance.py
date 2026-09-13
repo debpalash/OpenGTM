@@ -16,6 +16,7 @@ from apps.api.services.governance.retention import DEFAULT_DAYS, normalized_days
 from apps.api.models import User
 from apps.api.services.workspace import manager as workspace_manager
 from apps.api.services.workspace import oidc
+from apps.api.services.workspace import scim
 
 router = APIRouter(prefix="/api/governance", tags=["governance"])
 require_admin = require_workspace_role("admin", permission="governance.manage")
@@ -223,3 +224,21 @@ def update_sso(body: OidcUpdate, ctx: WorkspaceCtx = Depends(require_admin)):
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     return {**config, "client_secret_configured": bool(oidc.get_secret(ctx.workspace_id, oidc.SECRET_KEY))}
+
+
+@router.get("/scim-token")
+def get_scim_token(ctx: WorkspaceCtx = Depends(require_admin)):
+    status = scim.token_status(ctx.workspace_id)
+    return {"configured": status is not None, "base_path": f"/scim/v2/{ctx.slug}", **(status or {})}
+
+
+@router.post("/scim-token", status_code=201)
+def rotate_scim_token(ctx: WorkspaceCtx = Depends(require_admin)):
+    token = scim.rotate_token(ctx.workspace_id, ctx.user.id)
+    status = scim.token_status(ctx.workspace_id) or {}
+    return {"token": token, "base_path": f"/scim/v2/{ctx.slug}", "warning": "Copy this token now; it cannot be retrieved again.", **status}
+
+
+@router.delete("/scim-token", status_code=204)
+def revoke_scim_token(ctx: WorkspaceCtx = Depends(require_admin)):
+    scim.revoke_token(ctx.workspace_id)
