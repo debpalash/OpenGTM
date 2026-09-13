@@ -23,6 +23,26 @@ required workspace credential is configured. Secret names and values are never
 returned. `GET /api/connectors/compatibility` exposes the same validation report
 used in CI.
 
+## Sign and distribute a connector
+
+Connector packages use a detached `<manifest>.sig` envelope containing an
+Ed25519 signature and SHA-256 digest of canonicalized YAML. Generate and guard
+an Ed25519 PEM private key outside the repository, publish only its raw public
+key in `trusted-publishers.json`, then run:
+
+```bash
+uv run python -m apps.api.cli connector-sign path/provider.yaml \
+  --private-key /secure/publisher-ed25519.pem --key-id publisher-2026
+uv run python -m apps.api.cli connectors path --signature-policy required \
+  --trust-store docs/connectors/trusted-publishers.json
+```
+
+The default `optional` policy keeps local unsigned connectors usable, while
+still rejecting a present signature that is invalid or from an untrusted key.
+Managed catalogs should set `CONNECTOR_SIGNATURE_POLICY=required`; then unsigned
+packages are neither loaded nor accepted by review automation. Private keys are
+never stored in a manifest, signature envelope, or trust store.
+
 ## Security contract
 
 - Remote endpoints must use HTTPS.

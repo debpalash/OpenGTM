@@ -11,14 +11,17 @@ router = APIRouter(prefix="/api/connectors", tags=["connectors"])
 
 @router.get("/catalog")
 def connector_catalog(ctx: WorkspaceCtx = Depends(current_workspace)):
+    review = validate_manifest_directory()
+    signatures = {item["id"]: item.get("signature", {"status": "unsigned"}) for item in review["connectors"]}
     connectors = []
     for manifest in load_all_manifests():
         item = manifest.catalog_entry()
         credential_key = item.pop("credential_key", None)
         item["configured"] = manifest.auth.type == "none" or bool(credential_key and get_secret(ctx.workspace_id, credential_key))
         item["auth_type"] = manifest.auth.type
+        item["signature"] = signatures.get(manifest.name, {"status": "unknown"})
         connectors.append(item)
-    return {"manifest_version": "1", "total": len(connectors), "connectors": connectors}
+    return {"manifest_version": "1", "signature_policy": review["signature_policy"], "total": len(connectors), "connectors": connectors}
 
 
 @router.get("/compatibility")
