@@ -129,6 +129,25 @@ async def _deliver(destination, lead_id: int, snapshot: dict, idem: str) -> dict
             "error": result.get("error"),
         }
 
+    if dtype == "google_sheets":
+        from apps.api.services.integrations.sheets import upsert_row
+
+        cfg = destination.config or {}
+        columns = cfg.get("columns") or []
+        result = await upsert_row(
+            str(cfg.get("spreadsheet_id") or ""),
+            [mapped.get(column, "") for column in columns],
+            f"dest:{destination.id}:lead:{lead_id}",
+            str(cfg.get("range") or "Sheet1!A:ZZ"),
+            destination.workspace_id,
+        )
+        return {
+            "success": bool(result.get("success")),
+            "summary": f"Sheet row {result.get('operation')}" if result.get("success") else "",
+            "error": result.get("error"),
+            "external_id": result.get("range"),
+        }
+
     return {"success": False, "summary": "", "error": f"unsupported destination '{dtype}'"}
 
 

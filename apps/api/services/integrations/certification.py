@@ -24,6 +24,7 @@ INTEGRATIONS: dict[str, dict[str, Any]] = {
     "linkedin_ads": {"category": "ads", "capabilities": ["audience_sync"]},
     "instantly": {"category": "sequencer", "capabilities": ["campaign_enroll"]},
     "smartlead": {"category": "sequencer", "capabilities": ["campaign_enroll"]},
+    "google_sheets": {"category": "warehouse", "capabilities": ["outbound"]},
 }
 
 
