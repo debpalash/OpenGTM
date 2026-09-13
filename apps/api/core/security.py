@@ -88,6 +88,20 @@ def authenticate_query_token(token: str, *, require_admin: bool = False) -> User
             user.is_admin or user.role in ("admin", "superadmin")
         ):
             raise HTTPException(status_code=403, detail="Not authorized")
+        user._token_auth_methods = tuple(payload.get("amr") or ())
         # Detach before Session closes so callers can safely access scalar fields.
         db.expunge(user)
         return user
+
+
+def enforce_workspace_sso(user: User, workspace_id: str) -> None:
+    """Apply workspace SSO policy to query-token transports such as SSE/WS."""
+    from apps.api.services.workspace import manager, oidc
+
+    role = manager.member_role(workspace_id, user.id) or ""
+    methods = getattr(user, "_token_auth_methods", ())
+    if oidc.get_config(workspace_id).get("enforce_sso") and role != "owner" and "sso" not in methods:
+        raise HTTPException(
+            status_code=403,
+            detail="This workspace requires SSO. Sign in with your organization identity.",
+        )

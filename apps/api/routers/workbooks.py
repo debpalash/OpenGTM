@@ -1541,7 +1541,7 @@ def _ws_authorize(token: Optional[str], workbook_id: str, workspace_id: Optional
     if not token or not workspace_id:
         return False
     try:
-        from apps.api.core.security import authenticate_query_token
+        from apps.api.core.security import authenticate_query_token, enforce_workspace_sso
         from apps.api.core.tenancy import workspace_scope
         from apps.api.database import SessionLocal
         from apps.api.services.workspace import manager as _ws
@@ -1554,6 +1554,7 @@ def _ws_authorize(token: Optional[str], workbook_id: str, workspace_id: Optional
                 # Membership in the CLAIMED workspace — a forged/wrong ws fails here.
                 if not _ws.is_member(workspace_id, user.id):
                     return False
+                enforce_workspace_sso(user, workspace_id)
                 # The workbook must belong to that workspace (belt; RLS suspenders).
                 wb = sess.query(Workbook).filter(Workbook.id == workbook_id).first()
                 if not wb or wb.workspace_id != workspace_id:

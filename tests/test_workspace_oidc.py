@@ -10,6 +10,7 @@ from apps.api.models import User
 from apps.api.routers.auth import refresh_access_token, sso_callback
 from apps.api.auth import create_refresh_token, decode_token
 from apps.api.schemas.auth import RefreshRequest
+from apps.api.core.security import enforce_workspace_sso
 from apps.api.core.tenancy import current_workspace
 from apps.api.services.workspace import manager, oidc
 from fastapi import HTTPException
@@ -92,6 +93,23 @@ def test_refresh_preserves_sso_authentication_method():
     assert decode_token(result["access_token"])["amr"] == ["sso"]
     assert decode_token(result["refresh_token"])["amr"] == ["sso"]
     db.close()
+
+
+def test_query_transport_obeys_workspace_sso(monkeypatch, tmp_path):
+    monkeypatch.setattr(manager, "_project_root", lambda: Path(tmp_path))
+    workspace = manager.create_workspace("SSO Stream", owner_id=1)
+    manager.add_member(workspace.id, 2, "member")
+    manager.set_workspace_setting(
+        workspace.id,
+        oidc.CONFIG_KEY,
+        __import__("json").dumps({"enabled": True, "enforce_sso": True}),
+    )
+    user = User(id=2, username="stream", hashed_password="x", is_active=True)
+    user._token_auth_methods = ("pwd",)
+    with pytest.raises(HTTPException, match="requires SSO"):
+        enforce_workspace_sso(user, workspace.id)
+    user._token_auth_methods = ("sso",)
+    enforce_workspace_sso(user, workspace.id)
 
 
 def test_oidc_callback_jit_provisions_binds_and_deprovisions(monkeypatch, tmp_path):
