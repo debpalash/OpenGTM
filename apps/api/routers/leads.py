@@ -1035,6 +1035,9 @@ def sse_events(
     if not target_workspace or not ws_manager.is_member(target_workspace, user.id):
         # Fail closed and do not reveal whether the requested workspace exists.
         raise HTTPException(status_code=403, detail="Workspace access denied")
+    from apps.api.core.security import enforce_workspace_sso
+
+    enforce_workspace_sso(user, target_workspace)
     from apps.api.services.leadgen.progress import progress
 
     def stream():
