@@ -18,6 +18,7 @@ def test_catalog_reports_workspace_readiness_without_secret_metadata(monkeypatch
     assert leadmagic["configured"] is True and prospeo["configured"] is False
     assert result["signature_policy"] == "optional"
     assert leadmagic["signature"]["status"] == "unsigned"
+    assert leadmagic["maturity"] == "beta" and leadmagic["certification"] is None
     assert "credential_key" not in str(result)
     assert all(workspace_id == "ws-one" for workspace_id, _ in seen)
 
