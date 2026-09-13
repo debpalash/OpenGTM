@@ -84,6 +84,15 @@ class Settings(BaseSettings):
     # real SECRETS_MASTER_KEY (see services/workspace/secrets.py, which fails
     # closed when this is empty AND SECRET_KEY is the insecure default).
     SECRETS_MASTER_KEY: str = ""
+    # Optional HashiCorp Vault Transit custody. Existing enc:v1 Fernet values
+    # remain readable and can be rotated into enc:v2:vault envelopes.
+    SECRETS_PROVIDER: str = "local"
+    VAULT_ADDR: str = ""
+    VAULT_TOKEN: str = ""
+    VAULT_TOKEN_FILE: str = ""
+    VAULT_TRANSIT_KEY: str = "opengtm"
+    VAULT_NAMESPACE: str = ""
+    VAULT_CACERT: str = ""
 
     # ── Billing / credit ledger (WI-9) ─────────────────────────────────
     # Master switch. OFF by default so self-host deployments are unaffected:

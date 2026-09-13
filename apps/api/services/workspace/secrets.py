@@ -34,8 +34,11 @@ import base64
 import hashlib
 import logging
 import sqlite3
+from pathlib import Path
+from urllib.parse import quote, urlparse
 from typing import Optional, Tuple
 
+import httpx
 from cryptography.fernet import Fernet, InvalidToken
 
 logger = logging.getLogger("workspace.secrets")
@@ -43,6 +46,7 @@ logger = logging.getLogger("workspace.secrets")
 # Ciphertext envelope prefix — lets get_secret() distinguish encrypted values
 # from any legacy plaintext and from future scheme versions.
 _ENC_PREFIX = "enc:v1:"
+_VAULT_PREFIX = "enc:v2:vault:"
 
 
 # ── Master key / cipher ────────────────────────────────────────────────────
@@ -94,8 +98,58 @@ def _cipher() -> Fernet:
     return Fernet(_load_master_key())
 
 
+def _vault_config():
+    from apps.api.core.config import get_settings
+
+    config = get_settings()
+    address = config.VAULT_ADDR.strip().rstrip("/")
+    parsed = urlparse(address)
+    if (
+        parsed.scheme != "https" or not parsed.hostname or parsed.username
+        or parsed.password or parsed.query or parsed.fragment
+    ):
+        raise RuntimeError("VAULT_ADDR must be a clean HTTPS URL")
+    token = config.VAULT_TOKEN.strip()
+    if config.VAULT_TOKEN_FILE.strip():
+        try:
+            token = Path(config.VAULT_TOKEN_FILE).read_text(encoding="utf-8").strip()
+        except OSError as exc:
+            raise RuntimeError("Could not read VAULT_TOKEN_FILE") from exc
+    if not token or not config.VAULT_TRANSIT_KEY.strip():
+        raise RuntimeError("Vault Transit requires a token and VAULT_TRANSIT_KEY")
+    return config, address, token
+
+
+def _vault_request(action: str, payload: dict) -> str:
+    config, address, token = _vault_config()
+    headers = {"X-Vault-Token": token}
+    if config.VAULT_NAMESPACE:
+        headers["X-Vault-Namespace"] = config.VAULT_NAMESPACE
+    verify: bool | str = config.VAULT_CACERT or True
+    key_name = quote(config.VAULT_TRANSIT_KEY, safe="")
+    url = f"{address}/v1/transit/{action}/{key_name}"
+    try:
+        response = httpx.post(url, json=payload, headers=headers, timeout=10.0, verify=verify)
+        response.raise_for_status()
+        data = response.json().get("data") or {}
+    except (httpx.HTTPError, ValueError) as exc:
+        raise RuntimeError(f"Vault Transit {action} failed") from exc
+    field = "ciphertext" if action == "encrypt" else "plaintext"
+    if not isinstance(data.get(field), str) or not data[field]:
+        raise RuntimeError(f"Vault Transit {action} returned no {field}")
+    return data[field]
+
+
 def encrypt_value(plaintext: str) -> str:
     """Encrypt a plaintext secret into the at-rest envelope form (enc:v1:...)."""
+    from apps.api.core.config import get_settings
+
+    provider = get_settings().SECRETS_PROVIDER.strip().lower()
+    if provider == "vault_transit":
+        encoded = base64.b64encode(plaintext.encode("utf-8")).decode("ascii")
+        return _VAULT_PREFIX + _vault_request("encrypt", {"plaintext": encoded})
+    if provider != "local":
+        raise RuntimeError(f"Unsupported SECRETS_PROVIDER: {provider}")
     token = _cipher().encrypt(plaintext.encode("utf-8")).decode("ascii")
     return _ENC_PREFIX + token
 
@@ -108,6 +162,12 @@ def decrypt_value(stored: str) -> str:
     """
     if not stored:
         return ""
+    if stored.startswith(_VAULT_PREFIX):
+        encoded = _vault_request("decrypt", {"ciphertext": stored[len(_VAULT_PREFIX):]})
+        try:
+            return base64.b64decode(encoded, validate=True).decode("utf-8")
+        except (ValueError, UnicodeDecodeError) as exc:
+            raise RuntimeError("Vault Transit returned invalid plaintext") from exc
     if not stored.startswith(_ENC_PREFIX):
         # Legacy / externally-written plaintext: return as-is.
         return stored
@@ -213,3 +273,30 @@ def get_secret(workspace_id: Optional[str], key: str, default: str = "") -> str:
     if source != "default":
         logger.debug("Resolved secret key=%s from %s (ws=%s)", key, source, workspace_id)
     return value
+
+
+def rotate_encrypted_secrets() -> dict:
+    """Re-encrypt every managed workspace secret with the configured provider."""
+    conn = _db()
+    try:
+        rows = conn.execute(
+            "SELECT workspace_id, key, value FROM workspace_settings "
+            "WHERE value LIKE 'enc:v1:%' OR value LIKE 'enc:v2:vault:%'"
+        ).fetchall()
+        rotated = []
+        for row in rows:
+            value = row["value"] if hasattr(row, "keys") else row[2]
+            workspace_id = row["workspace_id"] if hasattr(row, "keys") else row[0]
+            key = row["key"] if hasattr(row, "keys") else row[1]
+            rotated.append((encrypt_value(decrypt_value(value)), workspace_id, key))
+        conn.executemany(
+            "UPDATE workspace_settings SET value = ? WHERE workspace_id = ? AND key = ?",
+            rotated,
+        )
+        conn.commit()
+        return {"rotated": len(rotated)}
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()

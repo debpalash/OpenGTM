@@ -52,6 +52,22 @@ Credentials resolve per workspace at execution time and are never placed in
 queue payloads. MCP and ingest tokens are stored as SHA-256 hashes and shown
 once.
 
+For managed custody, set `SECRETS_PROVIDER=vault_transit`, an HTTPS
+`VAULT_ADDR`, and `VAULT_TRANSIT_KEY`. Supply a least-privilege token through
+`VAULT_TOKEN_FILE` when using Vault Agent (preferred) or `VAULT_TOKEN`.
+Vault-backed ciphertext uses `enc:v2:vault:` and legacy local envelopes remain
+readable. After taking and verifying a backup, migrate all managed workspace
+values transactionally:
+
+```bash
+uv run python cli.py secrets-rotate --confirm "ROTATE OPENGTM SECRETS"
+```
+
+If any decrypt or encrypt operation fails, the metadata transaction rolls back.
+Retain the previous local master key until a post-rotation credential test and
+backup complete. Vault policy should allow only `encrypt` and `decrypt` on the
+configured Transit key; OpenGTM never requests key export.
+
 ## Prompt injection
 
 Fetched web content is wrapped as untrusted data with an explicit system
@@ -69,5 +85,5 @@ and public unsubscribe endpoints have their own limiter.
 
 See the [production checklist](/self-hosting/production/) and the
 [architecture roadmap](/reference/architecture/#remaining-path-to-a-hosted-multi-node-service):
-egress proxy, managed KMS, SSO and audit export, restore drills, external
-review.
+egress proxy, controlled-live Vault and SSO validation, scheduled restore
+drills, and external review.
