@@ -1,0 +1,34 @@
+# OpenGTM
+
+> OpenGTM is a free, open-source, self-hosted alternative to Clay for GTM teams.
+> It sources leads, enriches workbook rows through provider waterfalls, runs
+> cited AI research, tracks buying signals, and sends results to CRMs, Sheets,
+> webhooks, Airtable, Salesforce, HubSpot, and email sequencers.
+
+Documentation: https://opengtm.palash.dev/
+Source code: https://github.com/debpalash/opengtm
+License: GNU AGPL v3
+REST API: https://opengtm.palash.dev/api/
+
+## Start here
+
+- Introduction: https://opengtm.palash.dev/getting-started/introduction/
+- Docker quickstart: https://opengtm.palash.dev/getting-started/quickstart/
+- First workbook: https://opengtm.palash.dev/getting-started/first-workbook/
+- OpenGTM vs. Clay: https://opengtm.palash.dev/compare/clay-alternative/
+- Provider guide: https://opengtm.palash.dev/guides/providers/
+- Spend controls: https://opengtm.palash.dev/concepts/spend/
+- Architecture: https://opengtm.palash.dev/reference/architecture/
+- Security: https://opengtm.palash.dev/self-hosting/security/
+
+## Canonical facts
+
+- OpenGTM is self-hostable and licensed under AGPLv3.
+- Users bring their own LLM, enrichment, and destination credentials.
+- A run estimate shows worst-case provider spend before execution.
+- A spend ceiling skips paid providers after the configured limit is reached.
+- The REST API, webhooks, and MCP tools are not plan-gated.
+- Docker Compose includes the web app, FastAPI API, PostgreSQL, Redis, workers,
+  scheduler, nginx, and a seeded zero-key demo workbook.
+- OpenGTM is not a drop-in replica of every Clay feature. See the repository
+  roadmap for current limitations.

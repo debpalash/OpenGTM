@@ -21,6 +21,26 @@ Source leads, run enrichment waterfalls, research them with AI, and push the
 results to your CRM, Sheets, or a webhook — all on your own infrastructure, with
 your own provider keys, and with the bill shown to you *before* you run.
 
+<p align="center">
+  <a href="https://opengtm.palash.dev"><strong>Read the docs</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#quickstart"><strong>Run it locally</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/debpalash/opengtm/issues/new/choose"><strong>Request a provider</strong></a>
+</p>
+
+<p align="center">
+  <img src="docs/assets/opengtm-demo.gif" alt="OpenGTM demo: sign in, inspect a populated enrichment workbook, and see cost controls" width="100%" />
+</p>
+
+> **The 30-second version:** give OpenGTM a market, a list, or a workbook. It
+> sources companies, enriches rows through cost-ordered provider waterfalls,
+> researches the hard cells with agents, and sends qualified results where your
+> team works. You keep the data, keys, and infrastructure.
+
+In plain terms, OpenGTM combines lead enrichment, AI sales research, buying
+signals, and programmable GTM automation in one self-hosted application.
+
 ---
 
 ## Why OpenGTM
@@ -91,15 +111,29 @@ layer that can build and run those workbooks for you.
 
 ## Quickstart
 
-One command brings up the full stack — API, enrichment worker, **Postgres**,
-Redis, and nginx — with sane defaults:
+One command brings up the full stack — web app, API, worker, scheduler,
+**Postgres**, Redis, and nginx — with a populated zero-key demo:
 
 ```bash
 git clone https://github.com/debpalash/opengtm.git
 cd opengtm
-cp .env.example .env        # fill in at least one LLM key; everything else is optional/BYOK
+cp .env.example .env        # boots without keys; add providers later in Settings
 docker compose up           # API + worker + Postgres + Redis + nginx
 ```
+
+Open **http://localhost:3000** and sign in with `admin` / `admin`. The seeded
+workbook uses free, no-key providers, so you can inspect the complete workflow
+before connecting a paid service. Change the demo password before exposing the
+deployment beyond your machine.
+
+### Your first five minutes
+
+1. Open **Workbooks → Demo — Zero-Key Enrichment**.
+2. Inspect any populated cell to see its provider and provenance.
+3. Open the cost control to preview the next run and set a spend ceiling.
+4. Add a provider key in **Settings → API Keys** when you want paid enrichment
+   or AI research.
+5. Export the grid or add an output column for your CRM, Sheet, or webhook.
 
 To point at an existing database instead of the bundled Postgres, set
 `DATABASE_URL` in `.env` (SQLite is also supported for local dev).
@@ -128,8 +162,6 @@ Run `bun run portless:list` to inspect routes and `bun run portless:doctor` to
 check proxy, DNS, certificates, and route health. A root-installed proxy may use
 ports 80/443 for a URL without `:1355`.
 
-Then open **http://localhost:3000**.
-
 You need **at least one LLM provider key** for AI/agent/research features
 (OpenRouter, Google AI, Groq, Cerebras, NVIDIA, Mistral, and GitHub Models all
 have free tiers — see `.env.example`). Enrichment vendors (Hunter, Apollo,
@@ -151,6 +183,39 @@ Background enrichment and source imports run on the durable SQL-queue worker:
 development and carries tenant-isolated live progress plus bounded reconnect
 history in Compose. A scheduler recovers stale jobs and enqueues
 recurring refreshes; it does not execute user work itself.
+
+---
+
+## Frequently asked questions
+
+### What is OpenGTM?
+
+OpenGTM is an open-source GTM platform for sourcing leads, enriching company
+and contact data, researching accounts with AI, tracking buying signals, and
+routing results into sales tools.
+
+### Is OpenGTM an alternative to Clay?
+
+Yes. It covers the core workbook, enrichment-waterfall, AI-column, sourcing,
+and output workflow while taking a self-hosted, BYOK approach. It is not a
+pixel-for-pixel clone and its integration catalog is still growing. See the
+[detailed comparison](https://opengtm.palash.dev/compare/clay-alternative/).
+
+### Is OpenGTM free?
+
+The software is free under AGPLv3. You pay infrastructure and any third-party
+providers you connect. The seeded demo works without provider keys.
+
+### Does OpenGTM send data to its own cloud?
+
+No OpenGTM-operated cloud is required for the self-hosted edition. Data stays
+on the infrastructure you run, except when a workflow calls providers or
+destinations you configure.
+
+### Can agents and automations use OpenGTM?
+
+Yes. OpenGTM exposes a REST API, webhooks, an MCP server, and an n8n community
+node in addition to the web interface.
 
 ---
 

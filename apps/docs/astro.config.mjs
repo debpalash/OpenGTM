@@ -15,7 +15,7 @@ export default defineConfig({
     starlight({
       title: 'OpenGTM',
       description:
-        'OpenGTM finds accounts and people, tracks buying signals, and drafts outreach. Self-host it and use your own provider keys.',
+        'OpenGTM is an open-source, self-hosted Clay alternative for lead sourcing, enrichment waterfalls, AI research, buying signals, and outreach automation.',
       logo: {
         light: './src/assets/opengtm-lockup.svg',
         dark: './src/assets/opengtm-lockup-dark.svg',
@@ -36,12 +36,34 @@ export default defineConfig({
         './src/styles/landing.css',
       ],
       head: [
-        { tag: 'meta', attrs: { property: 'og:image', content: `${SITE}/og.png` } },
+        { tag: 'meta', attrs: { property: 'og:type', content: 'website' } },
+        { tag: 'meta', attrs: { property: 'og:site_name', content: 'OpenGTM' } },
+        { tag: 'meta', attrs: { property: 'og:image', content: `${SITE}/opengtm-social-preview.png` } },
+        { tag: 'meta', attrs: { property: 'og:image:width', content: '1280' } },
+        { tag: 'meta', attrs: { property: 'og:image:height', content: '640' } },
+        { tag: 'meta', attrs: { property: 'og:image:alt', content: 'OpenGTM — open-source GTM agents on your infrastructure' } },
         { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
+        { tag: 'meta', attrs: { name: 'twitter:image', content: `${SITE}/opengtm-social-preview.png` } },
         { tag: 'meta', attrs: { name: 'theme-color', content: '#12141d' } },
         { tag: 'link', attrs: { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' } },
         { tag: 'link', attrs: { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' } },
         { tag: 'link', attrs: { rel: 'manifest', href: '/site.webmanifest' } },
+        {
+          tag: 'script',
+          attrs: { type: 'application/ld+json' },
+          content: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'SoftwareApplication',
+            name: 'OpenGTM',
+            applicationCategory: 'BusinessApplication',
+            operatingSystem: 'Docker, Linux, macOS, Windows',
+            description: 'Open-source, self-hosted GTM platform for lead sourcing, enrichment waterfalls, AI research, buying signals, and outreach automation.',
+            url: SITE,
+            codeRepository: REPO,
+            license: `${REPO}/blob/main/LICENSE`,
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+          }),
+        },
       ],
       plugins: [
         starlightOpenAPI([
@@ -78,6 +100,12 @@ export default defineConfig({
         {
           label: 'Self-hosting',
           items: [{ autogenerate: { directory: 'self-hosting' } }],
+        },
+        {
+          label: 'Compare',
+          items: [
+            { label: 'OpenGTM vs. Clay', slug: 'compare/clay-alternative' },
+          ],
         },
         {
           label: 'Reference',

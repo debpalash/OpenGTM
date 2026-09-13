@@ -78,6 +78,7 @@ ignore_no_config = true
 
 [dependency-groups]
 dev = [
+    "pillow>=12.0.0",
     "pytest>=9.0.3",
 ]
 
