@@ -19,11 +19,24 @@ class ResearchPlaybook(Base):
     cell_budget_usd = Column(Float, nullable=False, default=0.10)
     version = Column(Integer, nullable=False, default=1)
     enabled = Column(Boolean, nullable=False, default=True, server_default="true")
+    schedule_audience_id = Column(String, ForeignKey("audiences.id", ondelete="SET NULL"), nullable=True)
+    schedule_interval_minutes = Column(Integer, nullable=True)
+    next_run_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
     def to_api(self):
-        return {key: getattr(self, key) for key in ("id", "name", "description", "prompt_template", "output_format", "max_steps", "cell_budget_usd", "version", "enabled", "created_at", "updated_at")}
+        return {key: getattr(self, key) for key in ("id", "name", "description", "prompt_template", "output_format", "max_steps", "cell_budget_usd", "version", "enabled", "schedule_audience_id", "schedule_interval_minutes", "next_run_at", "created_at", "updated_at")}
+
+
+class PlaybookSchedule(Base):
+    """Non-RLS identifiers-only mirror used for restart reconciliation."""
+    __tablename__ = "playbook_schedules"
+    playbook_id = Column(String, primary_key=True)
+    workspace_id = Column(String, nullable=False, index=True)
+    enabled = Column(Boolean, nullable=False, default=False, server_default="false")
+    next_run_at = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
 
 class PlaybookRun(Base):

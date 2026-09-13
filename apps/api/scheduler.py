@@ -19,6 +19,7 @@ def _bootstrap_functions():
     from apps.api.services.workbook.refresh import bootstrap_signal_scan
     from apps.api.services.audiences.scheduler import bootstrap_audience_schedules
     from apps.api.services.governance.retention import bootstrap_retention_schedules
+    from apps.api.services.playbooks.scheduler import bootstrap_playbook_schedules
 
     return (
         ("signal_scan", bootstrap_signal_scan),
@@ -29,6 +30,7 @@ def _bootstrap_functions():
         ("source_health", bootstrap_source_health),
         ("audiences", bootstrap_audience_schedules),
         ("retention", bootstrap_retention_schedules),
+        ("playbooks", bootstrap_playbook_schedules),
     )
 
 
