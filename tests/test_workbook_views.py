@@ -327,6 +327,43 @@ def test_stable_row_cursor_handles_duplicate_positions(client):
     assert tc.get(f"/api/workbooks/{wid}", params={"cursor_mode": True, "cursor": "bad"}).status_code == 400
 
 
+def test_saved_view_custom_sort_supports_stable_cursor_paging(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "company", "name": "Company", "type": "input", "lead_field": "company"},
+    ])
+    for company in ("Beta", "Alpha", "Gamma", "Beta", "Delta"):
+        _mk_row(Session, wid, {"company": company})
+    created = tc.post(f"/api/v2/workbooks/{wid}/views", json={
+        "name": "Company descending",
+        "config": {"sort": [{"column": "company", "dir": "desc"}]},
+    })
+    view_id = created.json()["id"]
+
+    seen = []
+    cursor = None
+    while True:
+        params = {"cursor_mode": True, "page_size": 2, "view_id": view_id}
+        if cursor:
+            params["cursor"] = cursor
+        response = tc.get(f"/api/workbooks/{wid}", params=params)
+        assert response.status_code == 200, response.text
+        payload = response.json()
+        seen.extend(row["data"]["company"] for row in payload["rows"])
+        cursor = payload["next_cursor"]
+        if not cursor:
+            break
+
+    assert seen == ["Gamma", "Delta", "Beta", "Beta", "Alpha"]
+    legacy_cursor = tc.get(f"/api/workbooks/{wid}", params={
+        "cursor_mode": True, "page_size": 1,
+    }).json()["next_cursor"]
+    rejected = tc.get(f"/api/workbooks/{wid}", params={
+        "cursor_mode": True, "cursor": legacy_cursor, "view_id": view_id,
+    })
+    assert rejected.status_code == 400
+
+
 # ── Views CRUD ────────────────────────────────────────────────────────────
 
 def test_views_crud(client):

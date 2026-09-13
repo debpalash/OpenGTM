@@ -118,13 +118,15 @@ def _workbook_rows_query(db: Session, wb: Workbook, view_id: Optional[str], sear
             sa_func.lower(cast(WorkbookRow.enrichments, String)).contains(normalized_search, autoescape=True),
         ))
 
-    ordering = []
+    cursor_terms = []
     for rule in view_config.get("sort", []):
         expression = _workbook_value_expression(wb, rule.get("column", ""))
         if expression is not None:
-            ordering.append(expression.desc() if rule.get("dir") == "desc" else expression.asc())
-    ordering.extend((WorkbookRow.position.asc(), WorkbookRow.id.asc()))
-    return query, ordering
+            normalized = sa_func.coalesce(expression, "")
+            cursor_terms.append((normalized, rule.get("dir") == "desc"))
+    cursor_terms.extend(((WorkbookRow.position, False), (WorkbookRow.id, False)))
+    ordering = [expression.desc() if descending else expression.asc() for expression, descending in cursor_terms]
+    return query, ordering, cursor_terms
 
 
 def _encode_row_cursor(position: int, row_id: int) -> str:
@@ -144,6 +146,34 @@ def _decode_row_cursor(cursor: str) -> tuple[int, int]:
         return position, row_id
     except (ValueError, TypeError, json.JSONDecodeError, binascii.Error):
         raise HTTPException(status_code=400, detail="Invalid workbook row cursor")
+
+
+def _encode_query_cursor(values: list) -> str:
+    payload = json.dumps({"v": 1, "values": values}, separators=(",", ":")).encode()
+    return base64.urlsafe_b64encode(payload).decode().rstrip("=")
+
+
+def _decode_query_cursor(cursor: str, expected_values: int) -> list:
+    try:
+        raw = base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4))
+        payload = json.loads(raw)
+        if not isinstance(payload, dict) or payload.get("v") != 1:
+            raise ValueError
+        values = payload.get("values")
+        if not isinstance(values, list) or len(values) != expected_values:
+            raise ValueError
+        return values
+    except (ValueError, TypeError, json.JSONDecodeError, binascii.Error):
+        raise HTTPException(status_code=400, detail="Invalid workbook row cursor")
+
+
+def _cursor_after_filter(cursor_terms: list[tuple], values: list):
+    branches = []
+    for index, ((expression, descending), value) in enumerate(zip(cursor_terms, values)):
+        prefix = [cursor_terms[prior][0] == values[prior] for prior in range(index)]
+        comparison = expression < value if descending else expression > value
+        branches.append(and_(*prefix, comparison))
+    return or_(*branches)
 
 
 def _query_leads(db: LeadDB, filter_criteria: dict, page: int = 1, page_size: int = 100) -> tuple[list[dict], int]:
@@ -457,17 +487,15 @@ async def get_workbook(
     ).scalar() or 0
 
     if v2_count > 0:
-        query, ordering = _workbook_rows_query(db, wb, view_id, search)
+        query, ordering, cursor_terms = _workbook_rows_query(db, wb, view_id, search)
         query_total = query.with_entities(sa_func.count(WorkbookRow.id)).scalar() or 0
         using_cursor = cursor_mode or cursor is not None
-        if using_cursor and len(ordering) > 2:
-            raise HTTPException(status_code=400, detail="Cursor mode requires position ordering; use page mode for custom saved-view sorts")
         if cursor:
-            cursor_position, cursor_id = _decode_row_cursor(cursor)
-            query = query.filter(or_(
-                WorkbookRow.position > cursor_position,
-                and_(WorkbookRow.position == cursor_position, WorkbookRow.id > cursor_id),
-            ))
+            if len(cursor_terms) == 2:
+                cursor_values = list(_decode_row_cursor(cursor))
+            else:
+                cursor_values = _decode_query_cursor(cursor, len(cursor_terms))
+            query = query.filter(_cursor_after_filter(cursor_terms, cursor_values))
         if using_cursor:
             fetched = query.order_by(*ordering).limit(page_size + 1).all()
             has_more = len(fetched) > page_size
@@ -476,10 +504,16 @@ async def get_workbook(
             offset = (page - 1) * page_size
             wb_rows = query.order_by(*ordering).offset(offset).limit(page_size).all()
             has_more = offset + len(wb_rows) < query_total
-        next_cursor = (
-            _encode_row_cursor(wb_rows[-1].position or 0, wb_rows[-1].id)
-            if using_cursor and has_more and wb_rows else None
-        )
+        next_cursor = None
+        if using_cursor and has_more and wb_rows:
+            last_row = wb_rows[-1]
+            if len(cursor_terms) == 2:
+                next_cursor = _encode_row_cursor(last_row.position or 0, last_row.id)
+            else:
+                cursor_values = db.query(
+                    *(expression for expression, _ in cursor_terms)
+                ).filter(WorkbookRow.id == last_row.id).one()
+                next_cursor = _encode_query_cursor(list(cursor_values))
 
         rows = []
         for r in wb_rows:
@@ -577,7 +611,7 @@ async def export_workbook_csv(
     if unknown:
         raise HTTPException(status_code=400, detail=f"Unknown columns: {', '.join(unknown[:10])}")
     columns = [available[column_id] for column_id in requested]
-    query, ordering = _workbook_rows_query(db, wb, view_id, search)
+    query, ordering, _ = _workbook_rows_query(db, wb, view_id, search)
 
     def safe_value(value):
         if value is None:
@@ -929,7 +963,7 @@ def estimate_run(
     from apps.api.services.workbook.enrichment import DEFAULT_WATERFALLS, ENRICHMENT_COL_TYPES
 
     wb = _owned_workbook(db, workbook_id, ctx)
-    query, _ = _workbook_rows_query(db, wb, view_id, search)
+    query, _, _ = _workbook_rows_query(db, wb, view_id, search)
     num_rows = query.with_entities(sa_func.count(WorkbookRow.id)).scalar() or 0
 
     providers_by_col = {}
@@ -994,7 +1028,7 @@ async def run_workbook(
         elif body.lead_ids:
             query = query.filter(WorkbookRow.lead_id.in_(body.lead_ids))
         elif body.view_id or (body.search or "").strip():
-            query, _ = _workbook_rows_query(db, wb, body.view_id, body.search)
+            query, _, _ = _workbook_rows_query(db, wb, body.view_id, body.search)
         wb_rows = query.all()
         leads = [
             {"id": r.lead_id or r.id, "__row_id": r.id, "__lead_id": r.lead_id, **r.data}
@@ -1645,7 +1679,7 @@ async def delete_matching_rows(
 ):
     """Delete the exact, count-locked result of a saved-view/search query."""
     wb = _owned_workbook(db, workbook_id, ctx)
-    query, _ = _workbook_rows_query(db, wb, body.view_id, body.search)
+    query, _, _ = _workbook_rows_query(db, wb, body.view_id, body.search)
     row_ids = [row_id for (row_id,) in query.with_entities(WorkbookRow.id).all()]
     actual_count = len(row_ids)
     if actual_count != body.expected_count:
