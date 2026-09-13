@@ -25,6 +25,7 @@ INTEGRATIONS: dict[str, dict[str, Any]] = {
     "instantly": {"category": "sequencer", "capabilities": ["campaign_enroll"]},
     "smartlead": {"category": "sequencer", "capabilities": ["campaign_enroll"]},
     "google_sheets": {"category": "warehouse", "capabilities": ["outbound"]},
+    "airtable": {"category": "warehouse", "capabilities": ["outbound"]},
 }
 
 

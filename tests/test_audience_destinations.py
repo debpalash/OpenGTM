@@ -81,6 +81,7 @@ def test_destination_type_catalog_fails_closed_to_beta(destination_app, monkeypa
         "webhook", "hubspot", "salesforce", "warehouse_http",
         "meta_ads", "google_ads", "linkedin_ads", "instantly", "smartlead",
         "google_sheets",
+        "airtable",
     }
     assert all(item["maturity"] == "beta" for item in types)
 
@@ -168,6 +169,11 @@ def test_destination_validation_and_tenant_isolation(destination_app):
         "config": {"spreadsheet_id": "sheet-1", "columns": []},
     })
     assert invalid_sheet.status_code == 422
+    invalid_airtable = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Airtable",
+        "destination_type": "airtable", "config": {"base_id": "base-1"},
+    })
+    assert invalid_airtable.status_code == 422
     ad = tc.post("/api/audience-destinations", json={
         "audience_id": "aud-1", "name": "Meta", "destination_type": "meta_ads",
         "config": {"custom_audience_id": "123", "consent_attested": True, "consent_source": "CRM opt-in"},
@@ -262,6 +268,44 @@ def test_google_sheets_destination_uses_delivery_key_for_upsert(
     assert observed["values"] == ["Acme", "buyer@acme.test"]
     assert observed["idem"] == f"dest:{created.json()['id']}:lead:42"
     assert observed["workspace_id"] == WS1
+
+
+def test_airtable_destination_uses_delivery_key_for_atomic_upsert(
+    destination_app, monkeypatch,
+):
+    tc, Session, _ = destination_app
+    created = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Airtable",
+        "destination_type": "airtable",
+        "config": {
+            "base_id": "base-1", "table": "Leads",
+            "idempotency_field": "OpenGTM ID",
+        },
+        "field_map": {"company": "Company", "email": "Email"},
+    })
+    assert created.status_code == 201, created.text
+    run_id = tc.post(
+        f"/api/audience-destinations/{created.json()['id']}/sync"
+    ).json()["id"]
+    from apps.api.services.destinations import engine as destination_engine
+    from apps.api.services.integrations import airtable
+
+    observed = {}
+
+    async def fake_upsert(fields, base_id, table, idem, key_field, typecast, workspace_id):
+        observed.update(fields=fields, idem=idem, workspace_id=workspace_id)
+        return {"success": True, "record_id": "rec-1", "operation": "created"}
+
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    monkeypatch.setattr(airtable, "upsert_record", fake_upsert)
+    asyncio.run(destination_engine.handle_destination_sync(
+        1, {"workspace_id": WS1, "run_id": run_id},
+    ))
+    assert observed == {
+        "fields": {"Company": "Acme", "Email": "buyer@acme.test"},
+        "idem": f"dest:{created.json()['id']}:lead:42",
+        "workspace_id": WS1,
+    }
 
 
 def test_audience_change_auto_enqueues_destination_once(destination_app):

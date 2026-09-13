@@ -148,6 +148,26 @@ async def _deliver(destination, lead_id: int, snapshot: dict, idem: str) -> dict
             "external_id": result.get("range"),
         }
 
+    if dtype == "airtable":
+        from apps.api.services.integrations.airtable import upsert_record
+
+        cfg = destination.config or {}
+        result = await upsert_record(
+            mapped,
+            str(cfg.get("base_id") or ""),
+            str(cfg.get("table") or ""),
+            f"dest:{destination.id}:lead:{lead_id}",
+            str(cfg.get("idempotency_field") or "OpenGTM ID"),
+            bool(cfg.get("typecast", True)),
+            destination.workspace_id,
+        )
+        return {
+            "success": bool(result.get("success")),
+            "summary": f"Airtable record {result.get('operation')}" if result.get("success") else "",
+            "error": result.get("error"),
+            "external_id": result.get("record_id"),
+        }
+
     return {"success": False, "summary": "", "error": f"unsupported destination '{dtype}'"}
 
 

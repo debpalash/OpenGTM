@@ -136,3 +136,36 @@ def test_sheets_upsert_appends_then_updates_by_stable_key(monkeypatch):
     assert updated["operation"] == "updated"
     assert calls[-1][0] == "PUT"
     assert "Leads%21A2%3AC2" in calls[-1][1]
+
+
+def test_airtable_upsert_uses_atomic_merge_field(monkeypatch):
+    from apps.api.services.integrations import airtable
+
+    monkeypatch.setattr(airtable, "_token", lambda workspace_id=None: "token")
+    observed = {}
+
+    class Client:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return None
+
+        async def patch(self, url, **kwargs):
+            observed.update(url=url, body=kwargs["json"])
+            return httpx.Response(
+                200,
+                json={"records": [{"id": "rec-1"}], "createdRecords": ["rec-1"]},
+            )
+
+    monkeypatch.setattr(airtable.httpx, "AsyncClient", lambda **kwargs: Client())
+    result = asyncio.run(airtable.upsert_record(
+        {"Company": "Acme"}, "base/1", "Sales Leads", "stable-key",
+        "OpenGTM ID", workspace_id="ws-a",
+    ))
+    assert result == {"success": True, "record_id": "rec-1", "operation": "created"}
+    assert observed["url"].endswith("/base%2F1/Sales%20Leads")
+    assert observed["body"]["performUpsert"] == {
+        "fieldsToMergeOn": ["OpenGTM ID"],
+    }
+    assert observed["body"]["records"][0]["fields"]["OpenGTM ID"] == "stable-key"
