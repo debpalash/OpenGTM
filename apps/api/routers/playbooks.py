@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field, model_validator
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -154,3 +154,38 @@ def list_results(run_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx =
     if run is None:
         raise HTTPException(404, "Playbook run not found")
     return [x.to_api() for x in db.query(PlaybookResult).filter(PlaybookResult.workspace_id == ctx.workspace_id, PlaybookResult.run_id == run_id).order_by(PlaybookResult.lead_id).all()]
+
+
+@router.post("/runs/{run_id}/retry", status_code=202)
+def retry_run(
+    run_id: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_editor),
+):
+    """Resume only failed profiles in a terminal playbook run."""
+    run = db.query(PlaybookRun).filter(
+        PlaybookRun.id == run_id,
+        PlaybookRun.workspace_id == ctx.workspace_id,
+    ).first()
+    if run is None:
+        raise HTTPException(404, "Playbook run not found")
+    if run.status not in {"failed", "completed_with_errors"}:
+        raise HTTPException(409, "Only failed or completed-with-errors runs can be retried")
+    run.status = "pending"
+    run.error = None
+    run.finished_at = None
+    from apps.api.services.queue_service import queue_service
+    queue_service.add_job(
+        db, "research_playbook_run",
+        {"workspace_id": ctx.workspace_id, "run_id": run.id},
+        fire_key=f"playbook:{run.id}",
+    )
+    request.state.audit_metadata = {
+        "action": "research_playbook.run.retry",
+        "playbook_id": run.playbook_id,
+        "run_id": run.id,
+        "previous_failed": run.failed,
+    }
+    db.refresh(run)
+    return run.to_api()

@@ -1,6 +1,8 @@
 import asyncio
 
-from apps.api.routers.playbooks import playbook_capabilities
+from starlette.requests import Request
+
+from apps.api.routers.playbooks import playbook_capabilities, retry_run
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -81,3 +83,46 @@ def test_playbook_schedule_is_durable_and_single_flight(monkeypatch):
     assert db.query(Job).filter(Job.type == "research_playbook_run", Job.status == "pending").count() == 1
     assert db.query(Job).filter(Job.type == "research_playbook_schedule", Job.status == "pending").count() == 1
     db.close()
+
+
+def test_failed_playbook_profiles_retry_in_place_without_repeating_success(monkeypatch):
+    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(engine, tables=[Job.__table__, Audience.__table__, AudienceMember.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookResult.__table__])
+    Session = sessionmaker(bind=engine)
+    with Session() as db:
+        db.add(Audience(id="aud", workspace_id="ws", name="Target", filters={}))
+        db.add_all([
+            AudienceMember(workspace_id="ws", audience_id="aud", lead_id=1, snapshot={"company": "Done"}),
+            AudienceMember(workspace_id="ws", audience_id="aud", lead_id=2, snapshot={"company": "Retry"}),
+        ])
+        playbook = ResearchPlaybook(id="pb", workspace_id="ws", name="Retry", prompt_template="Research {company} completely")
+        run = PlaybookRun(id="run", workspace_id="ws", playbook_id="pb", audience_id="aud", status="completed_with_errors", prompt_version=1, prompt_snapshot=playbook.prompt_template, failed=1, succeeded=1)
+        db.add_all([playbook, run,
+            PlaybookResult(workspace_id="ws", run_id="run", lead_id=1, status="success", value="keep", attempts=1),
+            PlaybookResult(workspace_id="ws", run_id="run", lead_id=2, status="failed", error="temporary", attempts=1),
+        ])
+        db.commit()
+        request = Request({"type": "http", "method": "POST", "path": "/retry", "headers": []})
+        ctx = type("Ctx", (), {"workspace_id": "ws", "user": type("User", (), {"id": 7})()})()
+        response = retry_run("run", request, db=db, ctx=ctx)
+        assert response["status"] == "pending"
+        assert db.query(Job).one().payload["run_id"] == "run"
+        assert request.state.audit_metadata["previous_failed"] == 1
+
+    calls = []
+    async def fake_execute(prompt, lead, columns, **kwargs):
+        calls.append(lead["company"])
+        return {"success": True, "value": "recovered", "metadata": {}}
+
+    from apps.api.services.playbooks import engine as worker
+    monkeypatch.setattr(worker, "SessionLocal", Session)
+    monkeypatch.setattr("apps.api.services.workbook.research_column.execute_research_column", fake_execute)
+    asyncio.run(worker.handle_playbook_run(2, {"workspace_id": "ws", "run_id": "run"}))
+
+    with Session() as db:
+        results = {row.lead_id: row for row in db.query(PlaybookResult).all()}
+        assert calls == ["Retry"]
+        assert results[1].value == "keep" and results[1].attempts == 1
+        assert results[2].value == "recovered" and results[2].attempts == 2
+        saved = db.query(PlaybookRun).one()
+        assert saved.status == "completed" and saved.succeeded == 2 and saved.failed == 0
