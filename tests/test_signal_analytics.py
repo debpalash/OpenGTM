@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from apps.api.database import Base
-from apps.api.routers.signals import signal_analytics
+from apps.api.routers.signals import signal_analytics, signal_sources
 from apps.api.services.leadgen.orm_models import SignalRow
 
 
@@ -27,3 +27,13 @@ def test_signal_analytics_is_tenant_scoped_and_weighted():
     assert {row["signal_type"] for row in result["by_type"]} == {"hiring", "funding"}
     assert len(result["trend"]) == 30 and result["trend"][-1]["count"] == 2
     db.close()
+
+
+def test_signal_source_catalog_fails_closed_without_evidence(monkeypatch):
+    monkeypatch.delenv("OPENGTM_INTEGRATION_CERTIFICATIONS", raising=False)
+    monkeypatch.delenv("OPENGTM_INTEGRATION_CERTIFICATION_KEY", raising=False)
+    result = signal_sources(ctx=type("Ctx", (), {"workspace_id": "ws"})())
+    assert {source["id"] for source in result["sources"]} == {
+        "jobspy", "sec_edgar", "website_monitor", "tech_stack", "news_search",
+    }
+    assert all(source["maturity"] == "beta" for source in result["sources"])

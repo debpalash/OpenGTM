@@ -6,6 +6,7 @@ import {
   Bell, Check, ExternalLink,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
@@ -56,6 +57,12 @@ interface SignalAnalytics {
   top_accounts: { lead_id: number; company: string; count: number; weight: number }[]
 }
 
+interface SignalSource {
+  id: string
+  signal_types: string[]
+  maturity: "beta" | "supported"
+}
+
 export default function SignalsPage() {
   const [signals, setSignals] = useState<Signal[]>([])
   const [counts, setCounts] = useState<Record<string, number>>({})
@@ -64,6 +71,7 @@ export default function SignalsPage() {
   const [filter, setFilter] = useState("all")
   const [analytics, setAnalytics] = useState<SignalAnalytics | null>(null)
   const [period, setPeriod] = useState("30")
+  const [sources, setSources] = useState<SignalSource[]>([])
 
   const fetchSignals = async () => {
     try {
@@ -77,6 +85,9 @@ export default function SignalsPage() {
   }
 
   useEffect(() => { fetchSignals() }, [filter])
+  useEffect(() => {
+    fetch("/api/signals/sources").then(response => response.ok ? response.json() : Promise.reject()).then(data => setSources(data.sources || [])).catch(() => setSources([]))
+  }, [])
   useEffect(() => {
     fetch(`/api/signals/analytics?days=${period}`).then(response => response.ok ? response.json() : Promise.reject()).then(setAnalytics).catch(() => {})
   }, [period, signals.length])
@@ -145,6 +156,8 @@ export default function SignalsPage() {
       </div>
 
       <Separator />
+
+      {!!sources.length && <div className="flex flex-wrap items-center gap-2"><span className="text-[11px] font-medium text-muted-foreground">Sources</span>{sources.map(source => <Badge key={source.id} variant={source.maturity === "supported" ? "default" : "secondary"} title={source.signal_types.join(", ")}>{source.id.replaceAll("_", " ")} · {source.maturity}</Badge>)}</div>}
 
       {analytics && <div className="space-y-3">
         <div className="flex items-center justify-between"><div><h3 className="text-sm font-medium">Signal momentum</h3><p className="text-[11px] text-muted-foreground">Weighted intent activity and the accounts creating it.</p></div><Select value={period} onValueChange={value => setPeriod(value || "30")}><SelectTrigger className="h-7 w-28 text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="7">7 days</SelectItem><SelectItem value="30">30 days</SelectItem><SelectItem value="90">90 days</SelectItem></SelectContent></Select></div>

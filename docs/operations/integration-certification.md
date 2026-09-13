@@ -4,7 +4,8 @@ OpenGTM exposes activation integrations as `beta` unless a current,
 controlled-live certification is present and correctly attested. This keeps
 code availability separate from a support claim.
 
-A certificate JSON object requires `integration_id`, `status: "supported"`,
+A certificate JSON object requires `subject_id` (legacy destination records may
+use `integration_id`), `status: "supported"`,
 `validated_at`, `expires_at`, `build_sha`, `validation_run_id`, and an HTTPS
 `evidence_url`. Sign it using a secret held by the release environment:
 
@@ -21,7 +22,7 @@ OPENGTM_INTEGRATION_CERTIFICATIONS=/run/opengtm/integration-certifications.json
 OPENGTM_INTEGRATION_CERTIFICATION_KEY=<secret-manager reference>
 ```
 
-`GET /api/audience-destinations/types` reports the effective maturity and
+`GET /api/audience-destinations/types` and `GET /api/signals/sources` report the effective maturity and
 non-secret certification metadata. Missing files, malformed JSON, missing
 keys, expired records, unknown integrations, HTTP evidence links, wrong keys,
 and post-signing edits all fail closed to `beta`. Rotate the key to revoke all

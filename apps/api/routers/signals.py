@@ -23,6 +23,14 @@ router = APIRouter(prefix="/api/signals", tags=["signals"])
 require_editor = require_workspace_role("editor", "admin", permission="signals.write")
 
 
+@router.get("/sources")
+def signal_sources(ctx: WorkspaceCtx = Depends(current_workspace)):
+    """List source coverage and controlled-live support maturity."""
+    from apps.api.services.integrations.certification import signal_source_catalog
+
+    return {"sources": signal_source_catalog()}
+
+
 @router.get("/analytics")
 def signal_analytics(
     days: int = Query(default=30, ge=7, le=90),
