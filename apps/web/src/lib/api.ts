@@ -263,6 +263,7 @@ export const patchResearchPlaybook = (id: string, body: Partial<Pick<ResearchPla
 export const fetchPlaybookRuns = (id: string) => playbookJson<PlaybookRun[]>(`/${id}/runs`)
 export const startPlaybookRun = (id: string, body: { audience_id: string; max_members: number }) => playbookJson<PlaybookRun>(`/${id}/runs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
 export const fetchPlaybookResults = (runId: string) => playbookJson<PlaybookResult[]>(`/runs/${runId}/results`)
+export const retryPlaybookRun = (runId: string) => playbookJson<PlaybookRun>(`/runs/${runId}/retry`, { method: "POST" })
 
 export interface Workspace {
   id: string

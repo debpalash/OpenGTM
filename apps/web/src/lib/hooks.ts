@@ -15,7 +15,7 @@ import {
   fetchAudiences, createAudience, deleteAudience,
   fetchAudienceMembers, fetchAudienceEvents, refreshAudience, updateAudience,
   fetchAudienceDestinations, fetchDestinationTypes, createAudienceDestination, syncAudienceDestination,
-  fetchResearchPlaybooks, createResearchPlaybook, patchResearchPlaybook, fetchPlaybookRuns, startPlaybookRun, fetchPlaybookResults,
+  fetchResearchPlaybooks, createResearchPlaybook, patchResearchPlaybook, fetchPlaybookRuns, startPlaybookRun, fetchPlaybookResults, retryPlaybookRun,
 } from "./api"
 
 // ── Leads ───────────────────────────────────────────────────────
@@ -170,6 +170,17 @@ export function useStartPlaybookRun(playbookId: string | null) {
 
 export function usePlaybookResults(runId: string | null) {
   return useQuery({ queryKey: queryKeys.playbooks.results(runId ?? ""), queryFn: () => fetchPlaybookResults(runId!), enabled: !!runId, refetchInterval: 3000 })
+}
+
+export function useRetryPlaybookRun(playbookId: string | null, runId: string | null) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => retryPlaybookRun(runId!),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.playbooks.runs(playbookId ?? "") })
+      qc.invalidateQueries({ queryKey: queryKeys.playbooks.results(runId ?? "") })
+    },
+  })
 }
 
 // ── Mutations ───────────────────────────────────────────────────
