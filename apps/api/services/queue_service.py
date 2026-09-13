@@ -51,6 +51,7 @@ JOB_TIMEOUTS = {
     "watch_poll": 600,
     # Source health: ~91 sources x N canary DDG probes, batched with sleeps.
     "source_health_check": 1800,
+    "audience_refresh": 900,
 }
 
 

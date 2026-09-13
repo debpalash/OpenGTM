@@ -11,10 +11,11 @@ from sqlalchemy.pool import StaticPool
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 from apps.api.database import Base, get_db
 from apps.api.routers.audiences import router, require_editor
-from apps.api.services.audiences.models import Audience, AudienceMember, AudienceMembershipEvent
+from apps.api.services.audiences.models import Audience, AudienceMember, AudienceMembershipEvent, AudienceSchedule
 from apps.api.services.automations.models import Trigger
 from apps.api.services.workbook.models import Workbook, WorkbookRow
 from apps.api.core.config import settings
+from apps.api.models import Job
 
 WS1 = "ws-audiences-1"
 WS2 = "ws-audiences-2"
@@ -50,6 +51,7 @@ def client():
     )
     Base.metadata.create_all(engine, tables=[
         Audience.__table__, AudienceMember.__table__, AudienceMembershipEvent.__table__,
+        AudienceSchedule.__table__, Job.__table__,
     ])
     Session = sessionmaker(bind=engine)
     app = FastAPI()
@@ -69,7 +71,7 @@ def client():
 
 
 def test_audience_crud_and_dynamic_count(client):
-    tc, _, _ = client
+    tc, Session, _ = client
     created = tc.post("/api/audiences", json={
         "name": "Hot accounts", "filters": {"score_tier": "hot", "has_email": True},
     })
@@ -77,6 +79,11 @@ def test_audience_crud_and_dynamic_count(client):
     audience = created.json()
     assert audience["member_count"] == 7
     assert audience["refreshed_at"] is not None
+    assert audience["refresh_enabled"] is True
+    assert audience["next_refresh_at"] is not None
+    session = Session()
+    assert session.query(Job).filter(Job.type == "audience_refresh", Job.status == "pending").count() == 1
+    session.close()
     assert len(tc.get(f"/api/audiences/{audience['id']}/members").json()) == 7
     assert len(tc.get(f"/api/audiences/{audience['id']}/events").json()) == 7
 
@@ -89,6 +96,12 @@ def test_audience_crud_and_dynamic_count(client):
     })
     assert updated.status_code == 200
     assert updated.json()["member_count"] == 2
+
+    paused = tc.patch(f"/api/audiences/{audience['id']}", json={"refresh_enabled": False})
+    assert paused.status_code == 200 and paused.json()["next_refresh_at"] is None
+    session = Session()
+    assert session.query(Job).filter(Job.type == "audience_refresh", Job.status == "pending").count() == 0
+    session.close()
 
     refreshed = tc.post(f"/api/audiences/{audience['id']}/refresh")
     assert refreshed.status_code == 200
@@ -105,6 +118,7 @@ def test_audience_crud_and_dynamic_count(client):
 def test_audience_validation_and_duplicate_name(client):
     tc, _, _ = client
     assert tc.post("/api/audiences", json={"name": "Bad", "filters": {"sql": "no"}}).status_code == 422
+    assert tc.post("/api/audiences", json={"name": "Too fast", "filters": {}, "refresh_interval_minutes": 5}).status_code == 422
     assert tc.post("/api/audiences", json={"name": "Bad", "filters": {"has_email": "yes"}}).status_code == 422
     assert tc.post("/api/audiences", json={"name": "Scores", "filters": {"min_score": 80, "max_score": 20}}).status_code == 422
     assert tc.post("/api/audiences", json={"name": "Unique", "filters": {}}).status_code == 201

@@ -83,6 +83,9 @@ export interface Audience {
   created_at: string
   updated_at: string
   refreshed_at: string | null
+  refresh_enabled: boolean
+  refresh_interval_minutes: number
+  next_refresh_at: string | null
 }
 
 export async function fetchAudiences(): Promise<Audience[]> {
@@ -107,6 +110,14 @@ export async function createAudience(data: { name: string; filters: Record<strin
 export async function deleteAudience(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/api/audiences/${id}`, { method: "DELETE" })
   if (!res.ok) throw new Error(`Could not delete audience (${res.status})`)
+}
+
+export async function updateAudience(id: string, data: Partial<Pick<Audience, "name" | "description" | "filters" | "refresh_enabled" | "refresh_interval_minutes">>): Promise<Audience> {
+  const res = await fetch(`${API_BASE}/api/audiences/${id}`, {
+    method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+  })
+  if (!res.ok) throw new Error(`Could not update audience (${res.status})`)
+  return res.json()
 }
 
 export interface AudienceMember {

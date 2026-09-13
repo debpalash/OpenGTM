@@ -16,6 +16,7 @@ EXPECTED_JOB_TYPES = {
     "source_workbook",
     "trigger_eval",
     "watch_poll",
+    "audience_refresh",
 }
 
 

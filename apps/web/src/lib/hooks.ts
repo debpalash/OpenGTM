@@ -13,7 +13,7 @@ import {
   COLLECTION_CLARIFICATION_EVENT,
   type Lead, type Job, type CollectionIntent,
   fetchAudiences, createAudience, deleteAudience,
-  fetchAudienceMembers, fetchAudienceEvents, refreshAudience,
+  fetchAudienceMembers, fetchAudienceEvents, refreshAudience, updateAudience,
 } from "./api"
 
 // ── Leads ───────────────────────────────────────────────────────
@@ -92,6 +92,14 @@ export function useRefreshAudience() {
       qc.invalidateQueries({ queryKey: queryKeys.audiences.members(result.audience.id) })
       qc.invalidateQueries({ queryKey: queryKeys.audiences.events(result.audience.id) })
     },
+  })
+}
+
+export function useUpdateAudience() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof updateAudience>[1] }) => updateAudience(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audiences.all }),
   })
 }
 

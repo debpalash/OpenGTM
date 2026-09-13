@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.sql import func
 
 from apps.api.database import Base
@@ -24,6 +24,9 @@ class Audience(Base):
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
     refreshed_at = Column(DateTime, nullable=True)
+    refresh_enabled = Column(Boolean, nullable=False, default=True, server_default="true")
+    refresh_interval_minutes = Column(Integer, nullable=False, default=60, server_default="60")
+    next_refresh_at = Column(DateTime, nullable=True)
 
     def to_api(self) -> dict:
         return {
@@ -35,6 +38,9 @@ class Audience(Base):
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "refreshed_at": self.refreshed_at,
+            "refresh_enabled": bool(self.refresh_enabled),
+            "refresh_interval_minutes": self.refresh_interval_minutes or 60,
+            "next_refresh_at": self.next_refresh_at,
         }
 
 
@@ -89,3 +95,16 @@ class AudienceMembershipEvent(Base):
             "snapshot": self.snapshot or {},
             "created_at": self.created_at,
         }
+
+
+class AudienceSchedule(Base):
+    """Non-RLS scheduling mirror containing identifiers and timing only."""
+
+    __tablename__ = "audience_schedules"
+    __table_args__ = (Index("ix_audience_schedules_due", "enabled", "next_refresh_at"),)
+
+    audience_id = Column(String, primary_key=True)
+    workspace_id = Column(String, nullable=False)
+    next_refresh_at = Column(DateTime, nullable=True)
+    enabled = Column(Boolean, nullable=False, default=True, server_default="true")
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
