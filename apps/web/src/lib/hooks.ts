@@ -12,6 +12,7 @@ import {
   importDataCollector,
   COLLECTION_CLARIFICATION_EVENT,
   type Lead, type Job, type CollectionIntent,
+  fetchAudiences, createAudience, deleteAudience,
 } from "./api"
 
 // ── Leads ───────────────────────────────────────────────────────
@@ -44,6 +45,26 @@ export function useFilters() {
     queryKey: queryKeys.filters,
     queryFn: fetchFilters,
     staleTime: 60 * 1000,
+  })
+}
+
+export function useAudiences() {
+  return useQuery({ queryKey: queryKeys.audiences, queryFn: fetchAudiences })
+}
+
+export function useCreateAudience() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: createAudience,
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audiences }),
+  })
+}
+
+export function useDeleteAudience() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: deleteAudience,
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audiences }),
   })
 }
 

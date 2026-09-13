@@ -74,6 +74,40 @@ export interface Filters {
   tiers: string[]
 }
 
+export interface Audience {
+  id: string
+  name: string
+  description: string
+  filters: Record<string, unknown>
+  member_count: number
+  created_at: string
+  updated_at: string
+}
+
+export async function fetchAudiences(): Promise<Audience[]> {
+  const res = await fetch(`${API_BASE}/api/audiences`)
+  if (!res.ok) throw new Error(`Could not load audiences (${res.status})`)
+  return res.json()
+}
+
+export async function createAudience(data: { name: string; filters: Record<string, unknown> }): Promise<Audience> {
+  const res = await fetch(`${API_BASE}/api/audiences`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.detail || `Could not create audience (${res.status})`)
+  }
+  return res.json()
+}
+
+export async function deleteAudience(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/audiences/${id}`, { method: "DELETE" })
+  if (!res.ok) throw new Error(`Could not delete audience (${res.status})`)
+}
+
 export interface Workspace {
   id: string
   name: string

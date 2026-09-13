@@ -44,6 +44,7 @@ from apps.api.services.workbook import trace_models as _trace_models  # noqa: E4
 from apps.api.services.outreach import orm_models as _outreach_models  # noqa: E402,F401
 # Intent-poller RLS-hardened tenant tables (+ non-RLS schedule mirror).
 from apps.api.services.poller import models as _poller_models  # noqa: E402,F401
+from apps.api.services.audiences import models as _audience_models  # noqa: E402,F401
 
 # Schema evolution is owned by Alembic: `alembic upgrade head` creates a fresh
 # schema AND applies pending migrations on an existing DB. create_all() is only
@@ -240,6 +241,10 @@ app.include_router(ingest_router)
 # Meta — per-workspace role + feature flags for proactive UI gating
 from apps.api.routers.meta import router as meta_router
 app.include_router(meta_router)
+
+# Audiences â€” persistent dynamic lead segments and future activation surface
+from apps.api.routers.audiences import router as audiences_router
+app.include_router(audiences_router)
 
 
 @app.get("/api")

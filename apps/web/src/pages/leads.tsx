@@ -26,7 +26,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/data-table"
-import { useLeads, useStats, useFilters, useUpdateStatus, useUpdateLead, useDeleteLead, useCollect, useImportDataCollector } from "@/lib/hooks"
+import { useLeads, useStats, useFilters, useUpdateStatus, useUpdateLead, useDeleteLead, useCollect, useImportDataCollector, useAudiences, useCreateAudience, useDeleteAudience } from "@/lib/hooks"
 import {
   exportCSVUrl, fetchSimilarLeads, runDedup, mergeDuplicates, bulkEnrich,
   type Lead, type SimilarLeads, type DedupResult, type DedupSuggestion,
@@ -55,7 +55,7 @@ function ScoreBadge({ score, tier }: { score: number; tier: string }) {
   )
 }
 
-// ── Saved segments (named filter sets), persisted in localStorage ──
+// ── Audiences (workspace-scoped, server-persisted dynamic segments) ──
 type LeadFilters = {
   city: string; tier: string; status: string; source: string
   scoreMin: string; scoreMax: string; hasEmail: string; hasPhone: string
@@ -64,12 +64,26 @@ const EMPTY_FILTERS: LeadFilters = {
   city: "", tier: "", status: "", source: "",
   scoreMin: "", scoreMax: "", hasEmail: "", hasPhone: "",
 }
-const SEGMENTS_KEY = "yupcha:leadSegments"
-function loadSegments(): { name: string; filters: LeadFilters }[] {
-  try { return JSON.parse(localStorage.getItem(SEGMENTS_KEY) || "[]") } catch { return [] }
+function toAudienceFilters(f: LeadFilters): Record<string, unknown> {
+  return {
+    ...(f.city && { city: f.city }),
+    ...(f.tier && { score_tier: f.tier }),
+    ...(f.status && { status: f.status }),
+    ...(f.source && { source: f.source }),
+    ...(f.scoreMin && { min_score: Number(f.scoreMin) }),
+    ...(f.scoreMax && { max_score: Number(f.scoreMax) }),
+    ...(f.hasEmail && { has_email: f.hasEmail === "true" }),
+    ...(f.hasPhone && { has_phone: f.hasPhone === "true" }),
+  }
 }
-function saveSegments(segs: { name: string; filters: LeadFilters }[]) {
-  localStorage.setItem(SEGMENTS_KEY, JSON.stringify(segs))
+
+function fromAudienceFilters(filters: Record<string, unknown>): LeadFilters {
+  const text = (key: string) => filters[key] == null ? "" : String(filters[key])
+  return {
+    city: text("city"), tier: text("score_tier"), status: text("status"), source: text("source"),
+    scoreMin: text("min_score"), scoreMax: text("max_score"),
+    hasEmail: text("has_email"), hasPhone: text("has_phone"),
+  }
 }
 
 export default function LeadsPage() {
@@ -78,7 +92,6 @@ export default function LeadsPage() {
   const setFilter = (k: keyof LeadFilters, v: string) => setF(prev => ({ ...prev, [k]: v }))
   const [collectQuery, setCollectQuery] = useState("")
   const [selectedRows, setSelectedRows] = useState<Lead[]>([])
-  const [segments, setSegments] = useState(loadSegments)
   const [similar, setSimilar] = useState<SimilarLeads | null>(null)
   const [similarOpen, setSimilarOpen] = useState(false)
 
@@ -113,6 +126,9 @@ export default function LeadsPage() {
   const { data: leads, isLoading, refetch } = useLeads(filters)
   const { data: stats } = useStats()
   const { data: filterOptions } = useFilters()
+  const { data: audiences = [] } = useAudiences()
+  const createAudience = useCreateAudience()
+  const deleteAudience = useDeleteAudience()
   const updateStatusMut = useUpdateStatus()
   const updateLeadMut = useUpdateLead()
   const deleteLeadMut = useDeleteLead()
@@ -352,20 +368,23 @@ export default function LeadsPage() {
     })
   }
 
-  const saveCurrentSegment = () => {
-    const name = window.prompt("Name this segment:")?.trim()
+  const saveCurrentSegment = async () => {
+    const name = window.prompt("Name this audience:")?.trim()
     if (!name) return
-    const next = [...segments.filter(s => s.name !== name), { name, filters: f }]
-    setSegments(next); saveSegments(next)
-    toast.success(`Saved segment "${name}"`)
+    try {
+      const audience = await createAudience.mutateAsync({ name, filters: toAudienceFilters(f) })
+      toast.success(`Saved audience "${name}" with ${audience.member_count} members`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not save audience")
+    }
   }
-  const applySegment = (name: string) => {
-    const seg = segments.find(s => s.name === name)
-    if (seg) setF({ ...EMPTY_FILTERS, ...seg.filters })
+  const applySegment = (id: string) => {
+    const audience = audiences.find(a => a.id === id)
+    if (audience) setF(fromAudienceFilters(audience.filters))
   }
-  const deleteSegment = (name: string) => {
-    const next = segments.filter(s => s.name !== name)
-    setSegments(next); saveSegments(next)
+  const deleteSegment = async (id: string) => {
+    try { await deleteAudience.mutateAsync(id); toast.success("Audience deleted") }
+    catch { toast.error("Could not delete audience") }
   }
 
   const runDedupNow = async () => {
@@ -543,21 +562,21 @@ export default function LeadsPage() {
             </PopoverContent>
           </Popover>
 
-          {/* Saved segments */}
+          {/* Persistent audiences */}
           <DropdownMenu>
             <DropdownMenuTrigger render={<Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1" />}>
-              <Bookmark className="size-3" /> Segments
+              <Bookmark className="size-3" /> Audiences
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={saveCurrentSegment} disabled={activeFilterCount === 0}>
-                Save current as segment…
+                Save filters as audience…
               </DropdownMenuItem>
-              {segments.length > 0 && <DropdownMenuSeparator />}
-              {segments.map(s => (
-                <DropdownMenuItem key={s.name} onClick={() => applySegment(s.name)} className="justify-between gap-4">
-                  <span className="truncate">{s.name}</span>
+              {audiences.length > 0 && <DropdownMenuSeparator />}
+              {audiences.map(audience => (
+                <DropdownMenuItem key={audience.id} onClick={() => applySegment(audience.id)} className="justify-between gap-4">
+                  <span className="truncate">{audience.name} <span className="text-muted-foreground">({audience.member_count})</span></span>
                   <X className="size-3 text-muted-foreground hover:text-destructive"
-                     onClick={(e) => { e.stopPropagation(); deleteSegment(s.name) }} />
+                     onClick={(e) => { e.stopPropagation(); void deleteSegment(audience.id) }} />
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
