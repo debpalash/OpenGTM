@@ -40,10 +40,11 @@ export function useWorkbooks() {
 
 // ── Workbook Detail + Leads ──────────────────────────────────────────────
 
-export function useWorkbook(id: string, pageSize = 1000) {
+export function useWorkbook(id: string, pageSize = 1000, page = 1) {
   return useQuery({
-    queryKey: workbookKeys.detail(id),
-    queryFn: () => fetchWorkbook(id, 1, pageSize),
+    queryKey: [...workbookKeys.detail(id), page, pageSize],
+    queryFn: () => fetchWorkbook(id, page, pageSize),
+    placeholderData: previous => previous,
     enabled: !!id,
     // Don't retry client errors (404 not-found / 403 no-access won't resolve on
     // their own); only retry transient/server errors once.
@@ -270,7 +271,7 @@ export function useWorkbookSocket(workbookId: string | undefined) {
     pendingUpdates.current.clear()
     rafRef.current = null
 
-    qc.setQueryData(workbookKeys.detail(workbookId), (old: any) => {
+    qc.setQueriesData({ queryKey: workbookKeys.detail(workbookId) }, (old: any) => {
       if (!old?.rows) return old
       return {
         ...old,
@@ -325,7 +326,7 @@ export function useWorkbookSocket(workbookId: string | undefined) {
         }
 
         if (msg.type === "workbook_status") {
-          qc.setQueryData(workbookKeys.detail(workbookId), (old: any) => {
+          qc.setQueriesData({ queryKey: workbookKeys.detail(workbookId) }, (old: any) => {
             if (!old) return old
             return { ...old, workbook: { ...old.workbook, status: msg.status } }
           })
