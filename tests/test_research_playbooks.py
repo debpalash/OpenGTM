@@ -17,14 +17,18 @@ def test_playbook_worker_is_resumable_and_versions_prompt(monkeypatch):
     db = Session()
     db.add(Audience(id="aud", workspace_id="ws", name="Target", filters={}))
     db.add(AudienceMember(workspace_id="ws", audience_id="aud", lead_id=1, snapshot={"company": "Acme", "website": "acme.test"}))
-    playbook = ResearchPlaybook(id="pb", workspace_id="ws", name="Brief", prompt_template="Research {company} at {website}", version=3)
-    run = PlaybookRun(id="run", workspace_id="ws", playbook_id="pb", audience_id="aud", prompt_version=3, prompt_snapshot=playbook.prompt_template, max_members=10)
+    steps = [
+        {"key": "signals", "name": "Signals", "prompt_template": "Research {company} at {website}", "output_format": "text"},
+        {"key": "angle", "name": "Angle", "prompt_template": "Create an angle from {signals}", "output_format": "text"},
+    ]
+    playbook = ResearchPlaybook(id="pb", workspace_id="ws", name="Brief", prompt_template="Research {company} at {website}", steps=steps, version=3)
+    run = PlaybookRun(id="run", workspace_id="ws", playbook_id="pb", audience_id="aud", prompt_version=3, prompt_snapshot=playbook.prompt_template, steps_snapshot=steps, max_members=10)
     db.add_all([playbook, run]); db.commit(); db.close()
 
     calls = []
     async def fake_execute(prompt, lead, columns, **kwargs):
-        calls.append((prompt, lead, kwargs["workspace_id"]))
-        return {"success": True, "value": "Evidence-backed brief", "metadata": {"research": {"citations": ["https://acme.test"]}}}
+        calls.append((prompt, dict(lead), kwargs["workspace_id"]))
+        return {"success": True, "value": "Buying signals" if len(calls) == 1 else "Evidence-backed angle", "metadata": {"research": {"citations": ["https://acme.test"]}}}
 
     from apps.api.services.playbooks import engine as worker
     monkeypatch.setattr(worker, "SessionLocal", Session)
@@ -34,8 +38,10 @@ def test_playbook_worker_is_resumable_and_versions_prompt(monkeypatch):
     db = Session()
     saved = db.query(PlaybookResult).one()
     assert saved.status == "success" and saved.attempts == 1
+    assert saved.value == "Evidence-backed angle" and saved.result_metadata["completed_steps"] == 2
     assert db.query(PlaybookRun).one().status == "completed"
-    assert calls == [("Research {company} at {website}", {"company": "Acme", "website": "acme.test"}, "ws")]
+    assert calls[0] == ("Research {company} at {website}", {"company": "Acme", "website": "acme.test"}, "ws")
+    assert calls[1][0] == "Create an angle from {signals}" and calls[1][1]["signals"] == "Buying signals"
     db.close()
 
 

@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
@@ -14,6 +14,13 @@ router = APIRouter(prefix="/api/research-playbooks", tags=["research-playbooks"]
 require_editor = require_workspace_role("editor", "admin")
 
 
+class PlaybookStep(BaseModel):
+    key: str = Field(pattern=r"^[a-z][a-z0-9_]{0,39}$")
+    name: str = Field(min_length=1, max_length=100)
+    prompt_template: str = Field(min_length=10, max_length=20000)
+    output_format: str = "text"
+
+
 class PlaybookCreate(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     description: str = Field(default="", max_length=2000)
@@ -21,6 +28,15 @@ class PlaybookCreate(BaseModel):
     output_format: str = "text"
     max_steps: int = Field(default=4, ge=1, le=8)
     cell_budget_usd: float = Field(default=0.10, gt=0, le=5)
+    steps: list[PlaybookStep] = Field(default_factory=list, max_length=8)
+
+    @model_validator(mode="after")
+    def validate_steps(self):
+        if len({step.key for step in self.steps}) != len(self.steps):
+            raise ValueError("playbook step keys must be unique")
+        if any(step.output_format not in {"text", "json"} for step in self.steps):
+            raise ValueError("step output_format must be text or json")
+        return self
 
 
 class PlaybookPatch(BaseModel):
@@ -33,6 +49,15 @@ class PlaybookPatch(BaseModel):
     enabled: Optional[bool] = None
     schedule_audience_id: Optional[str] = None
     schedule_interval_minutes: Optional[int] = Field(default=None, ge=15, le=10080)
+    steps: Optional[list[PlaybookStep]] = Field(default=None, max_length=8)
+
+    @model_validator(mode="after")
+    def validate_steps(self):
+        if self.steps is not None and len({step.key for step in self.steps}) != len(self.steps):
+            raise ValueError("playbook step keys must be unique")
+        if self.steps is not None and any(step.output_format not in {"text", "json"} for step in self.steps):
+            raise ValueError("step output_format must be text or json")
+        return self
 
 
 class RunCreate(BaseModel):
@@ -88,7 +113,7 @@ def patch_playbook(playbook_id: str, body: PlaybookPatch, db: Session = Depends(
         raise HTTPException(404, "Scheduled audience not found")
     for key, value in changes.items():
         setattr(row, key, value)
-    if any(key in changes for key in {"prompt_template", "output_format", "max_steps", "cell_budget_usd"}):
+    if any(key in changes for key in {"prompt_template", "steps", "output_format", "max_steps", "cell_budget_usd"}):
         row.version += 1
     from apps.api.services.playbooks.scheduler import schedule_next
     schedule_next(db, row); db.refresh(row)
@@ -102,7 +127,7 @@ def start_run(playbook_id: str, body: RunCreate, db: Session = Depends(get_db), 
         raise HTTPException(409, "Playbook is disabled")
     if db.query(Audience).filter(Audience.id == body.audience_id, Audience.workspace_id == ctx.workspace_id).first() is None:
         raise HTTPException(404, "Audience not found")
-    run = PlaybookRun(workspace_id=ctx.workspace_id, playbook_id=playbook.id, audience_id=body.audience_id, prompt_version=playbook.version, prompt_snapshot=playbook.prompt_template, max_members=body.max_members, requested_by=str(ctx.user.id))
+    run = PlaybookRun(workspace_id=ctx.workspace_id, playbook_id=playbook.id, audience_id=body.audience_id, prompt_version=playbook.version, prompt_snapshot=playbook.prompt_template, steps_snapshot=playbook.steps or [], max_members=body.max_members, requested_by=str(ctx.user.id))
     db.add(run); db.commit(); db.refresh(run)
     from apps.api.services.queue_service import queue_service
     queue_service.add_job(db, "research_playbook_run", {"workspace_id": ctx.workspace_id, "run_id": run.id}, fire_key=f"playbook:{run.id}")

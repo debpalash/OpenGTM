@@ -1864,6 +1864,14 @@
             "minLength": 10,
             "title": "Prompt Template",
             "type": "string"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/PlaybookStep"
+            },
+            "maxItems": 8,
+            "title": "Steps",
+            "type": "array"
           }
         },
         "required": [
@@ -1984,9 +1992,57 @@
               }
             ],
             "title": "Schedule Interval Minutes"
+          },
+          "steps": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PlaybookStep"
+                },
+                "maxItems": 8,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steps"
           }
         },
         "title": "PlaybookPatch",
+        "type": "object"
+      },
+      "PlaybookStep": {
+        "properties": {
+          "key": {
+            "pattern": "^[a-z][a-z0-9_]{0,39}$",
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "output_format": {
+            "default": "text",
+            "title": "Output Format",
+            "type": "string"
+          },
+          "prompt_template": {
+            "maxLength": 20000,
+            "minLength": 10,
+            "title": "Prompt Template",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "prompt_template"
+        ],
+        "title": "PlaybookStep",
         "type": "object"
       },
       "PreviewRequest": {
