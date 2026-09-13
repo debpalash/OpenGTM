@@ -56,6 +56,10 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
   const [mapping, setMapping] = useState<Record<string, string>>(initialMapping)
   const [dedupe, setDedupe] = useState(true)
   const dialogRef = useRef<HTMLDivElement>(null)
+  const clayDetected = useMemo(() => {
+    const markers = new Set(["claygent", "clay url", "last enrichment date", "enrichment status"])
+    return normalized(draft.fileName).includes("clay") || draft.fields.some(field => markers.has(normalized(field)))
+  }, [draft.fileName, draft.fields])
 
   useEffect(() => {
     dialogRef.current?.focus()
@@ -87,7 +91,7 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
       header,
       target === "__skip__" ? null : target.replace(/^__custom__:/, ""),
     ]))
-    onImport({ rows: draft.rows, mapping: apiMapping, dedupe, create_columns: true, file_name: draft.fileName })
+    onImport({ rows: draft.rows, mapping: apiMapping, dedupe, create_columns: true, file_name: draft.fileName, source_system: "auto" })
   }
 
   return (
@@ -97,7 +101,7 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
           <div className="flex gap-3">
             <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><FileSpreadsheet className="size-4" /></div>
             <div>
-              <h2 id="csv-import-title" className="text-sm font-semibold">Import CSV</h2>
+              <h2 id="csv-import-title" className="flex items-center gap-2 text-sm font-semibold">Import CSV {clayDetected && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">Clay export</span>}</h2>
               <p id="csv-import-summary" className="mt-0.5 text-xs text-muted-foreground">
                 {draft.fileName} · {draft.rows.length.toLocaleString()} rows · {draft.fields.length.toLocaleString()} columns
               </p>

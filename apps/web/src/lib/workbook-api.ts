@@ -157,6 +157,7 @@ export interface CsvImportOptions {
   create_columns?: boolean
   dedupe?: boolean
   file_name?: string
+  source_system?: "auto" | "clay" | "generic"
 }
 
 export interface CsvImportResult {
@@ -166,6 +167,15 @@ export interface CsvImportResult {
   total_rows: number
   columns_added: string[]
   mapping: Record<string, string | null>
+  analysis: {
+    source_system: "clay" | "generic"
+    detection_reason: string
+    input_rows: number
+    importable_rows: number
+    custom_columns: string[]
+    skipped_columns: string[]
+    collisions: { target: string; headers: string[] }[]
+  }
 }
 
 export interface FilterOptions {
