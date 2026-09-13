@@ -15,6 +15,12 @@ import yaml
 from pydantic import BaseModel, Field
 
 MANIFESTS_DIR = Path(__file__).parent / "manifests"
+TRUST_STORE = Path(__file__).resolve().parents[6] / "docs" / "connectors" / "trusted-publishers.json"
+
+
+def _signature_policy() -> str:
+    value = os.getenv("CONNECTOR_SIGNATURE_POLICY", "optional").strip().lower()
+    return value if value in {"optional", "required"} else "required"
 
 
 class AuthSpec(BaseModel):
@@ -112,6 +118,10 @@ def load_all_manifests(directory: Optional[Path] = None) -> List[ProviderManifes
         return manifests
     for p in sorted(directory.rglob("*.y*ml")):
         try:
+            from .signing import verify_manifest
+            signature = verify_manifest(p, TRUST_STORE)
+            if signature["status"] in {"invalid", "untrusted"} or (_signature_policy() == "required" and signature["status"] != "trusted"):
+                raise ValueError(f"connector signature is {signature['status']}")
             manifests.append(load_manifest(p))
         except Exception as e:  # one bad manifest shouldn't kill the rest
             import logging
@@ -119,10 +129,14 @@ def load_all_manifests(directory: Optional[Path] = None) -> List[ProviderManifes
     return manifests
 
 
-def validate_manifest_directory(directory: Optional[Path] = None) -> Dict[str, Any]:
+def validate_manifest_directory(directory: Optional[Path] = None, *, signature_policy: Optional[str] = None, trust_store: Optional[Path] = None) -> Dict[str, Any]:
     """Fail-loud compatibility report used by CI and connector contributors."""
     directory = directory or MANIFESTS_DIR
+    from .signing import verify_manifest
     errors, manifests, names = [], [], set()
+    policy = signature_policy or _signature_policy()
+    if policy not in {"optional", "required"}: policy = "required"
+    trusted_keys = trust_store or TRUST_STORE
     for path in sorted(directory.rglob("*.y*ml")) if directory.exists() else []:
         try:
             manifest = load_manifest(path)
@@ -143,7 +157,10 @@ def validate_manifest_directory(directory: Optional[Path] = None) -> Dict[str, A
                 raise ValueError("request.timeout must be between 0 and 120 seconds")
             if manifest.auth.type != "none" and not manifest.auth.env_var:
                 raise ValueError("authenticated connectors require auth.env_var")
-            manifests.append({"path": str(path.relative_to(directory)), **manifest.catalog_entry()})
+            signature = verify_manifest(path, trusted_keys)
+            if signature["status"] in {"invalid", "untrusted"} or (policy == "required" and signature["status"] != "trusted"):
+                raise ValueError(f"connector signature is {signature['status']}: {signature.get('error', '')}".rstrip())
+            manifests.append({"path": str(path.relative_to(directory)), "signature": signature, **manifest.catalog_entry()})
         except Exception as exc:
             errors.append({"path": str(path), "error": str(exc)})
-    return {"ok": not errors, "manifest_version": "1", "count": len(manifests), "connectors": manifests, "errors": errors}
+    return {"ok": not errors, "manifest_version": "1", "signature_policy": policy, "count": len(manifests), "connectors": manifests, "errors": errors}

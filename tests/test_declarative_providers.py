@@ -11,6 +11,11 @@ from apps.api.services.leadgen.enrichment.declarative.template import (
 from apps.api.services.leadgen.enrichment.declarative.manifest import (
     ProviderManifest, load_all_manifests, validate_manifest_directory,
 )
+from apps.api.services.leadgen.enrichment.declarative.signing import sign_manifest, verify_manifest
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+import base64
+import json
 from apps.api.services.leadgen.enrichment.declarative.compiler import (
     DeclarativeProvider, compile_manifest,
 )
@@ -106,3 +111,31 @@ def test_connector_validation_fails_loudly_for_duplicates_and_http(tmp_path):
     assert report["ok"] is False
     assert any("HTTPS" in item["error"] for item in report["errors"])
     assert any("duplicate provider id" in item["error"] for item in report["errors"])
+
+
+def test_connector_ed25519_signature_trust_and_tamper_detection(tmp_path):
+    manifest = tmp_path / "signed.yaml"
+    manifest.write_text('manifest_version: "1"\nname: signed_email\ncapability: email\nrequest:\n  url: https://api.example.com/find\nresponse:\n  mappings:\n    email: $.email\n', encoding="utf-8")
+    private_key = Ed25519PrivateKey.generate()
+    private_path = tmp_path / "publisher.pem"
+    private_path.write_bytes(private_key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()))
+    public_bytes = private_key.public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+    trust_store = tmp_path / "trusted.json"
+    trust_store.write_text(json.dumps({"version": 1, "keys": [{"key_id": "publisher-1", "publisher": "Test Publisher", "public_key": base64.b64encode(public_bytes).decode()}]}), encoding="utf-8")
+
+    sign_manifest(manifest, private_path, "publisher-1")
+    verified = verify_manifest(manifest, trust_store)
+    assert verified == {"status": "trusted", "key_id": "publisher-1", "publisher": "Test Publisher"}
+    report = validate_manifest_directory(tmp_path, signature_policy="required", trust_store=trust_store)
+    assert report["ok"] and report["connectors"][0]["signature"]["status"] == "trusted"
+
+    manifest.write_text(manifest.read_text(encoding="utf-8").replace("$.email", "$.work_email"), encoding="utf-8")
+    assert verify_manifest(manifest, trust_store)["status"] == "invalid"
+    report = validate_manifest_directory(tmp_path, signature_policy="optional", trust_store=trust_store)
+    assert not report["ok"] and "signature is invalid" in report["errors"][0]["error"]
+
+
+def test_required_signature_policy_rejects_unsigned_manifest(tmp_path):
+    (tmp_path / "unsigned.yaml").write_text('manifest_version: "1"\nname: unsigned_email\ncapability: email\nrequest:\n  url: https://api.example.com/find\nresponse:\n  mappings:\n    email: $.email\n', encoding="utf-8")
+    report = validate_manifest_directory(tmp_path, signature_policy="required", trust_store=tmp_path / "missing.json")
+    assert not report["ok"] and "signature is unsigned" in report["errors"][0]["error"]

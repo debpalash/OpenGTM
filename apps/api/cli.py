@@ -221,7 +221,7 @@ def cmd_connectors(args):
     import json
     from pathlib import Path
     from apps.api.services.leadgen.enrichment.declarative.manifest import MANIFESTS_DIR, validate_manifest_directory
-    report = validate_manifest_directory(Path(args.path) if args.path else MANIFESTS_DIR)
+    report = validate_manifest_directory(Path(args.path) if args.path else MANIFESTS_DIR, signature_policy=args.signature_policy, trust_store=Path(args.trust_store) if args.trust_store else None)
     if args.json:
         print(json.dumps(report, indent=2))
     else:
@@ -230,6 +230,14 @@ def cmd_connectors(args):
             print(f"- {error['path']}: {error['error']}")
     if not report["ok"]:
         raise SystemExit(1)
+
+
+def cmd_connector_sign(args):
+    """Create a detached Ed25519 signature for one connector manifest."""
+    from pathlib import Path
+    from apps.api.services.leadgen.enrichment.declarative.signing import sign_manifest
+    output = sign_manifest(Path(args.manifest), Path(args.private_key), args.key_id)
+    print(f"Signed {args.manifest} -> {output}")
 
 
 def main():
@@ -293,6 +301,13 @@ def main():
     p = sub.add_parser("connectors", help="Validate connector manifests")
     p.add_argument("path", nargs="?", help="Manifest directory (defaults to bundled connectors)")
     p.add_argument("--json", action="store_true", help="Emit a machine-readable report")
+    p.add_argument("--signature-policy", choices=["optional", "required"], default=None)
+    p.add_argument("--trust-store", help="Publisher trust-store JSON path")
+
+    p = sub.add_parser("connector-sign", help="Sign one connector manifest with Ed25519")
+    p.add_argument("manifest")
+    p.add_argument("--private-key", required=True, help="PEM Ed25519 private key path")
+    p.add_argument("--key-id", required=True, help="Key id present in the publisher trust store")
 
     args = parser.parse_args()
     if not args.command:
@@ -305,6 +320,7 @@ def main():
         "export": cmd_export, "stats": cmd_stats, "dashboard": cmd_dashboard,
         "collect": cmd_collect, "jobs": cmd_jobs, "cleanup": cmd_cleanup,
         "connectors": cmd_connectors,
+        "connector-sign": cmd_connector_sign,
     }
     cmds[args.command](args)
 

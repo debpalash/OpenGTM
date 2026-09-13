@@ -19,6 +19,14 @@ jobs:
           python-version: "3.13"
           enable-cache: true
       - run: uv sync --dev
+      - name: Review connector manifests and signatures
+        run: uv run python -m apps.api.cli connectors --json > connector-review.json
+      - name: Upload connector review evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: connector-review
+          path: connector-review.json
+          retention-days: 30
       - name: Hermetic backend suite
         env:
           APP_ENV: test
