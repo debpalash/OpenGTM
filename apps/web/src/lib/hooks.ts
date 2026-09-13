@@ -14,7 +14,7 @@ import {
   type Lead, type Job, type CollectionIntent,
   fetchAudiences, createAudience, deleteAudience,
   fetchAudienceMembers, fetchAudienceEvents, refreshAudience, updateAudience,
-  fetchAudienceDestinations, fetchDestinationTypes, createAudienceDestination, syncAudienceDestination,
+  fetchAudienceDestinations, fetchDestinationTypes, createAudienceDestination, syncAudienceDestination, retryAudienceDestinationRun,
   fetchResearchPlaybooks, createResearchPlaybook, patchResearchPlaybook, fetchPlaybookRuns, startPlaybookRun, fetchPlaybookResults, retryPlaybookRun,
 } from "./api"
 
@@ -141,6 +141,14 @@ export function useSyncAudienceDestination(audienceId: string | null) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: syncAudienceDestination,
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audienceDestinations(audienceId ?? "") }),
+  })
+}
+
+export function useRetryAudienceDestination(audienceId: string | null) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: retryAudienceDestinationRun,
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audienceDestinations(audienceId ?? "") }),
   })
 }

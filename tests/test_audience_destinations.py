@@ -127,6 +127,47 @@ def test_destination_sync_is_durable_and_idempotent(destination_app, monkeypatch
     assert len(delivered) == 1
 
 
+def test_failed_destination_deliveries_retry_on_original_run(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    with Session() as session:
+        session.add(AudienceMember(
+            workspace_id=WS1, audience_id="aud-1", lead_id=43,
+            snapshot={"id": 43, "company": "Beta", "email": "buyer@beta.test"},
+        ))
+        session.commit()
+    destination_id = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Retry webhook", "destination_type": "webhook",
+        "config": {"url": "https://hooks.example.test/audience"},
+    }).json()["id"]
+    run_id = tc.post(f"/api/audience-destinations/{destination_id}/sync").json()["id"]
+
+    from apps.api.services.destinations import engine as destination_engine
+    calls = []
+    async def flaky(destination, lead_id, snapshot, idem):
+        calls.append(lead_id)
+        success = lead_id == 43 or calls.count(lead_id) > 1
+        return {"success": success, "summary": "ok" if success else "", "error": None if success else "temporary"}
+
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    monkeypatch.setattr(destination_engine, "_deliver", flaky)
+    asyncio.run(destination_engine.handle_destination_sync(1, {"workspace_id": WS1, "run_id": run_id}))
+    assert tc.get(f"/api/audience-destinations/{destination_id}/runs").json()[0]["status"] == "completed_with_errors"
+    listed = tc.get("/api/audience-destinations?audience_id=aud-1").json()
+    assert next(item for item in listed if item["id"] == destination_id)["latest_run"]["id"] == run_id
+
+    retried = tc.post(f"/api/audience-destinations/runs/{run_id}/retry")
+    assert retried.status_code == 202, retried.text
+    assert retried.json()["id"] == run_id and retried.json()["status"] == "pending"
+    asyncio.run(destination_engine.handle_destination_sync(2, {"workspace_id": WS1, "run_id": run_id}))
+
+    with Session() as session:
+        deliveries = {row.lead_id: row for row in session.query(DestinationDelivery).filter_by(run_id=run_id).all()}
+        assert calls == [42, 43, 42]
+        assert deliveries[42].status == "success" and deliveries[42].attempts == 2
+        assert deliveries[43].status == "success" and deliveries[43].attempts == 1
+        run = session.get(DestinationRun, run_id)
+        assert run.status == "completed" and run.failed == 0 and run.skipped == 1
+
 def test_destination_validation_and_tenant_isolation(destination_app):
     tc, Session, app = destination_app
     invalid = tc.post("/api/audience-destinations", json={
