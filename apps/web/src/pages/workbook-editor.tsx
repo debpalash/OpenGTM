@@ -443,7 +443,9 @@ function CostChip({ workbookId, isRunning, onClick }: {
 export default function WorkbookEditorPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { data, isLoading, error, refetch } = useWorkbook(id!)
+  const [workbookPage, setWorkbookPage] = useState(1)
+  const workbookPageSize = 1000
+  const { data, isLoading, isFetching, error, refetch } = useWorkbook(id!, workbookPageSize, workbookPage)
   const updateWb = useUpdateWorkbook()
   const updateLeadField = useUpdateLeadField(id!)
   const updateWorkbookRow = useUpdateWorkbookRow(id!)
@@ -508,6 +510,22 @@ export default function WorkbookEditorPage() {
   const [activeCell, setActiveCell] = useState({ row: 0, column: 0 })
   const [selectionAnchor, setSelectionAnchor] = useState<{ row: number; column: number } | null>(null)
   const availableProviders = providersData?.providers ?? []
+  const totalPages = Math.max(1, Math.ceil((data?.total_rows ?? 0) / workbookPageSize))
+  const displayedWorkbookPage = data?.page ?? workbookPage
+
+  const changeWorkbookPage = useCallback((nextPage: number) => {
+    const bounded = Math.max(1, Math.min(nextPage, totalPages))
+    if (bounded === workbookPage) return
+    setWorkbookPage(bounded)
+    setActiveCell({ row: 0, column: 0 })
+    setSelectionAnchor(null)
+    setRowSelection({})
+    tableContainerRef.current?.scrollTo({ top: 0, behavior: "auto" })
+  }, [totalPages, workbookPage])
+
+  useEffect(() => {
+    if (workbookPage > totalPages) setWorkbookPage(totalPages)
+  }, [totalPages, workbookPage])
 
   // NL → column: call the generator and pre-fill the custom-column form.
   const handleGenerateColumn = async () => {
@@ -2346,11 +2364,30 @@ export default function WorkbookEditorPage() {
       <div className="flex items-center justify-between px-4 py-1 border-t text-[11px] text-muted-foreground bg-muted/30 shrink-0">
         <div className="flex items-center gap-3">
           <span className="tabular-nums">
-            {viewRows.length} of {data?.total_rows ?? 0} rows
+            {data?.total_rows ? `${(displayedWorkbookPage - 1) * workbookPageSize + 1}–${Math.min(displayedWorkbookPage * workbookPageSize, data.total_rows)}` : "0"} of {data?.total_rows ?? 0} rows
             {activeView && viewRows.length !== rows.length && (
-              <span className="text-primary/70"> · view “{activeView.name}”</span>
+              <span className="text-primary/70"> · {viewRows.length} match view “{activeView.name}” on this page</span>
             )}
           </span>
+          {totalPages > 1 && (
+            <span className="inline-flex items-center overflow-hidden rounded border bg-background">
+              <button
+                type="button"
+                aria-label="Previous workbook page"
+                disabled={workbookPage <= 1 || isFetching}
+                onClick={() => changeWorkbookPage(workbookPage - 1)}
+                className="px-2 py-0.5 hover:bg-muted disabled:opacity-40"
+              >‹</button>
+              <span className="border-x px-2 py-0.5 tabular-nums">{isFetching ? "Loading…" : `Page ${workbookPage} / ${totalPages}`}</span>
+              <button
+                type="button"
+                aria-label="Next workbook page"
+                disabled={workbookPage >= totalPages || isFetching}
+                onClick={() => changeWorkbookPage(workbookPage + 1)}
+                className="px-2 py-0.5 hover:bg-muted disabled:opacity-40"
+              >›</button>
+            </span>
+          )}
           <span className="text-border">│</span>
           <span>{columns.length} columns</span>
           {columns.filter(c => c.type === "waterfall" || c.type === "enrichment").length > 0 && (
