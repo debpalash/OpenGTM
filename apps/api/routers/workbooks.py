@@ -41,7 +41,7 @@ router = APIRouter(prefix="/api/workbooks", tags=["workbooks"])
 router_v2 = APIRouter(prefix="/api/v2/workbooks", tags=["workbooks"])
 # Saved views live under the v2 prefix (new surface, no legacy consumers).
 views_router = APIRouter(prefix="/api/v2/workbooks", tags=["workbook-views"])
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="tables.write")
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────

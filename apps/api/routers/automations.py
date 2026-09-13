@@ -36,7 +36,7 @@ router = APIRouter(prefix="/api/automations", tags=["automations"])
 
 # Single shared admin dependency so mutations are uniformly role-gated AND so
 # tests can override it via app.dependency_overrides[require_admin].
-require_admin = require_workspace_role("admin")
+require_admin = require_workspace_role("admin", permission="automations.manage")
 
 
 def _require_enabled():

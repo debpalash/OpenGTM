@@ -58,7 +58,7 @@ from apps.api.services.workbook.ingest import (
 logger = logging.getLogger("workbook.ingest.api")
 router = APIRouter(prefix="/api/v2/workbooks", tags=["ingest"])
 
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="tables.write")
 
 # Hard cap per request — beyond this the request is rejected with 413.
 MAX_INGEST_ROWS = 500
@@ -239,8 +239,7 @@ async def ingest_rows(
     if session_ctx is not None:
         ws_id = session_ctx.workspace_id
         from apps.api.services.workspace import manager as ws_manager
-        role = ws_manager.member_role(ws_id, session_ctx.user.id)
-        if role not in ("owner", "admin", "editor"):
+        if not ws_manager.has_permission(ws_id, session_ctx.user.id, "tables.write", ("admin", "editor")):
             raise HTTPException(status_code=403, detail="Insufficient workspace role")
     else:
         raw = _extract_ingest_token(request)

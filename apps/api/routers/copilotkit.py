@@ -1273,8 +1273,7 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
     db = store
     try:
         if name in DANGEROUS_TOOLS and user_id is not None:
-            role = ws_manager.member_role(workspace_id, user_id)
-            if role not in ("owner", "admin", "editor"):
+            if not ws_manager.has_permission(workspace_id, user_id, "tables.write", ("admin", "editor")):
                 return json.dumps({"error": "Insufficient workspace role"})
         if name == "search_leads":
             leads = db.get_leads(

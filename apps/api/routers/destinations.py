@@ -14,8 +14,8 @@ from apps.api.services.audiences.models import Audience
 from apps.api.services.destinations.models import AudienceDestination, DestinationDelivery, DestinationInboundReceipt, DestinationInboundToken, DestinationRun
 
 router = APIRouter(prefix="/api/audience-destinations", tags=["audience-destinations"])
-require_editor = require_workspace_role("editor", "admin")
-require_admin = require_workspace_role("admin")
+require_editor = require_workspace_role("editor", "admin", permission="activation.write")
+require_admin = require_workspace_role("admin", permission="secrets.manage")
 TYPES = {"webhook", "hubspot", "salesforce", "warehouse_http", "meta_ads", "google_ads", "linkedin_ads"}
 
 

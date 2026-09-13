@@ -29,7 +29,7 @@ from apps.api.services.mcp.models import MCPToken
 logger = logging.getLogger("mcp.tokens.api")
 router = APIRouter(prefix="/api/mcp/tokens", tags=["mcp"])
 
-require_admin = require_workspace_role("admin")
+require_admin = require_workspace_role("admin", permission="secrets.manage")
 
 
 class TokenCreate(BaseModel):

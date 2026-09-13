@@ -35,7 +35,7 @@ workspace_router = APIRouter(prefix="/api/workspaces", tags=["Workspaces"])
 jobs_router = APIRouter(prefix="/api", tags=["Lead Jobs"])
 events_router = APIRouter(tags=["SSE Events"])
 search_router = APIRouter(prefix="/api", tags=["Search"])
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="tables.write")
 
 
 def _get_db() -> LeadDB:

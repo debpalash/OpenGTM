@@ -152,13 +152,19 @@ def workspace_scope(workspace_id: str):
         current_workspace_var.reset(token)
 
 
-def require_workspace_role(*roles: str):
+def require_workspace_role(*roles: str, permission: Optional[str] = None):
     """Dependency factory enforcing the caller has one of ``roles`` (or owns it)."""
 
     def _dep(ctx: WorkspaceCtx = Depends(current_workspace)) -> WorkspaceCtx:
+        if permission:
+            if ws_manager.has_permission(ctx.workspace_id, ctx.user.id, permission, tuple(roles)):
+                return ctx
+            raise HTTPException(status_code=403, detail=f"Workspace permission denied: {permission}")
         role = ws_manager.member_role(ctx.workspace_id, ctx.user.id)
         # Workspace owner implicitly satisfies any role requirement.
-        if role in roles or role == "owner":
+        if role == "owner":
+            return ctx
+        if role in roles:
             return ctx
         raise HTTPException(status_code=403, detail="Insufficient workspace role")
 

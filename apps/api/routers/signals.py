@@ -20,7 +20,7 @@ from sqlalchemy import Integer, cast, func
 from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/api/signals", tags=["signals"])
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="signals.write")
 
 
 @router.get("/analytics")

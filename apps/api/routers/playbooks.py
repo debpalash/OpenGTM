@@ -11,7 +11,7 @@ from apps.api.services.audiences.models import Audience
 from apps.api.services.playbooks.models import PlaybookResult, PlaybookRun, ResearchPlaybook
 
 router = APIRouter(prefix="/api/research-playbooks", tags=["research-playbooks"])
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="agents.write")
 
 
 class PlaybookStep(BaseModel):

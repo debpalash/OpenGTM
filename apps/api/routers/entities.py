@@ -14,7 +14,7 @@ from apps.api.services.entities.graph import get_entity, merge_entities, split_e
 
 logger = logging.getLogger("entities.api")
 router = APIRouter(prefix="/api/entities", tags=["entities"])
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="tables.write")
 
 
 @router.get("/company")

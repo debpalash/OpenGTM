@@ -20,7 +20,7 @@ from apps.api.database import get_db
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace, require_workspace_role
 
 router = APIRouter(prefix="/api/templates", tags=["templates"])
-require_editor = require_workspace_role("editor", "admin")
+require_editor = require_workspace_role("editor", "admin", permission="tables.write")
 
 
 # ── Recipe gallery ────────────────────────────────────────────────────────

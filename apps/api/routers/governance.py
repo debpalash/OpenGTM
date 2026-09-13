@@ -7,14 +7,17 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
+from typing import Literal
 
 from apps.api.core.tenancy import WorkspaceCtx, require_workspace_role
 from apps.api.database import get_db
 from apps.api.services.governance.models import GovernanceAuditEvent, RetentionPolicy, RetentionRun
 from apps.api.services.governance.retention import DEFAULT_DAYS, normalized_days, preview_retention, schedule_policy
+from apps.api.models import User
+from apps.api.services.workspace import manager as workspace_manager
 
 router = APIRouter(prefix="/api/governance", tags=["governance"])
-require_admin = require_workspace_role("admin")
+require_admin = require_workspace_role("admin", permission="governance.manage")
 
 
 class RetentionUpdate(BaseModel):
@@ -25,6 +28,25 @@ class RetentionUpdate(BaseModel):
 
 class RetentionEnforce(BaseModel):
     confirmation: str
+
+
+PERMISSIONS = {
+    "tables.write": ("Tables", "Create, edit and run workbooks", ["editor", "admin"]),
+    "integrations.manage": ("Integrations", "Configure enrichment and integration credentials", ["editor", "admin"]),
+    "campaigns.write": ("Campaigns", "Create and operate campaigns", ["editor", "admin"]),
+    "audiences.write": ("Audiences", "Create, refresh and schedule audiences", ["editor", "admin"]),
+    "activation.write": ("Activation", "Configure and run destinations", ["editor", "admin"]),
+    "agents.write": ("Agents", "Create and run research playbooks", ["editor", "admin"]),
+    "signals.write": ("Signals", "Scan and manage buying signals", ["editor", "admin"]),
+    "outreach.write": ("Outreach", "Configure and execute outreach", ["admin"]),
+    "automations.manage": ("Automations", "Configure trigger automation", ["admin"]),
+    "secrets.manage": ("Secrets", "Rotate machine credentials", ["admin"]),
+    "governance.manage": ("Governance", "Audit, retention and access policy", ["admin"]),
+}
+
+
+class PermissionUpdate(BaseModel):
+    effect: Literal["allow", "deny"] | None = None
 
 
 def _audit_query(db, ctx, actor_user_id=None, method=None, outcome=None, since=None, before=None):
@@ -111,3 +133,26 @@ def enforce_policy(body: RetentionEnforce, db: Session = Depends(get_db), ctx: W
 @router.get("/retention/runs")
 def retention_runs(db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_admin)):
     return [row.to_api() for row in db.query(RetentionRun).filter(RetentionRun.workspace_id == ctx.workspace_id).order_by(RetentionRun.created_at.desc()).limit(100).all()]
+
+
+@router.get("/rbac")
+def get_rbac(db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_admin)):
+    members = workspace_manager.list_members(ctx.workspace_id)
+    users = {user.id: user for user in db.query(User).filter(User.id.in_([member["user_id"] for member in members])).all()} if members else {}
+    return {
+        "permissions": [{"key": key, "label": value[0], "description": value[1], "default_roles": value[2]} for key, value in PERMISSIONS.items()],
+        "members": [{**member, "username": users[member["user_id"]].username if member["user_id"] in users else f"User {member['user_id']}", "overrides": workspace_manager.member_permissions(ctx.workspace_id, member["user_id"])} for member in members],
+    }
+
+
+@router.put("/rbac/{user_id}/{permission}")
+def update_rbac(user_id: int, permission: str, body: PermissionUpdate, ctx: WorkspaceCtx = Depends(require_admin)):
+    if permission not in PERMISSIONS:
+        raise HTTPException(status_code=404, detail="Unknown workspace permission")
+    role = workspace_manager.member_role(ctx.workspace_id, user_id)
+    if role is None:
+        raise HTTPException(status_code=404, detail="Workspace member not found")
+    if role == "owner":
+        raise HTTPException(status_code=409, detail="Owner permissions cannot be overridden")
+    workspace_manager.set_member_permission(ctx.workspace_id, user_id, permission, body.effect)
+    return {"user_id": user_id, "permission": permission, "effect": body.effect, "effective": body.effect == "allow" or (body.effect is None and role in PERMISSIONS[permission][2])}
