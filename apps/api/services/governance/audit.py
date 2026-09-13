@@ -7,6 +7,24 @@ from starlette.middleware.base import BaseHTTPMiddleware
 logger = logging.getLogger("governance.audit")
 WRITE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 SAFE_REQUEST_ID = re.compile(r"^[A-Za-z0-9._:-]{1,64}$")
+SENSITIVE_KEY = re.compile(r"token|secret|password|authorization|cookie|credential", re.I)
+
+
+def _safe_metadata(value, depth=0):
+    """Bound endpoint-supplied audit context without accepting request secrets."""
+    if depth > 3:
+        return "[truncated]"
+    if isinstance(value, dict):
+        return {
+            str(key)[:64]: _safe_metadata(item, depth + 1)
+            for key, item in list(value.items())[:50]
+            if not SENSITIVE_KEY.search(str(key))
+        }
+    if isinstance(value, (list, tuple, set)):
+        return [_safe_metadata(item, depth + 1) for item in list(value)[:100]]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value[:500] if isinstance(value, str) else value
+    return str(value)[:500]
 
 
 class GovernanceAuditMiddleware(BaseHTTPMiddleware):
@@ -47,7 +65,7 @@ class GovernanceAuditMiddleware(BaseHTTPMiddleware):
                             response_status=status_code,
                             outcome="success" if status_code < 400 else "denied" if status_code in {401, 403} else "error",
                             request_id=request_id,
-                            metadata_json={},
+                            metadata_json=_safe_metadata(getattr(request.state, "audit_metadata", {})),
                         ))
             except Exception as exc:
                 logger.error("governance audit write failed request_id=%s: %s", request_id, exc)

@@ -1017,6 +1017,17 @@ async def run_workbook(
     if not leads:
         return RunWorkbookResponse(status="skipped", total_jobs=0, message="No rows to process")
 
+    request.state.audit_metadata = {
+        "action": "workbook.run",
+        "workbook_id": workbook_id,
+        "matched_rows": len(leads),
+        "column_ids": [column["id"] for column in enrichment_cols],
+        "view_id": body.view_id,
+        "search_applied": bool((body.search or "").strip()),
+        "fill_missing": bool(body.fill_missing),
+        "force": bool(body.force),
+    }
+
     # ── Billing enforcement (WI-9) ──────────────────────────────────────
     # Same chokepoint that computes "N rows × providers = $X": debit the
     # platform-billed (non-BYOK) portion from the workspace's credit balance.
@@ -1601,6 +1612,7 @@ async def add_rows(
 
 @router.delete("/{workbook_id}/rows")
 async def delete_rows(
+    request: Request,
     workbook_id: str,
     body: DeleteRowsRequest,
     db: Session = Depends(get_db),
@@ -1614,11 +1626,18 @@ async def delete_rows(
         WorkbookRow.id.in_(body.row_ids),
     ).delete(synchronize_session=False)
     db.commit()
+    request.state.audit_metadata = {
+        "action": "workbook.rows.delete",
+        "workbook_id": workbook_id,
+        "requested_count": len(body.row_ids),
+        "deleted_count": deleted,
+    }
     return {"deleted": deleted}
 
 
 @router.post("/{workbook_id}/rows/delete-query")
 async def delete_matching_rows(
+    request: Request,
     workbook_id: str,
     body: DeleteMatchingRowsRequest,
     db: Session = Depends(get_db),
@@ -1646,6 +1665,14 @@ async def delete_matching_rows(
         WorkbookRow.id.in_(row_ids),
     ).delete(synchronize_session=False)
     db.commit()
+    request.state.audit_metadata = {
+        "action": "workbook.rows.delete_matching",
+        "workbook_id": workbook_id,
+        "view_id": body.view_id,
+        "search_applied": bool((body.search or "").strip()),
+        "matched_count": actual_count,
+        "deleted_count": deleted,
+    }
     return {"deleted": deleted, "matched": actual_count}
 
 
@@ -1723,6 +1750,13 @@ async def update_row_data(
                 if exc.status_code != 402:
                     raise
                 recompute_result = {"status": "blocked", "detail": exc.detail}
+    request.state.audit_metadata = {
+        "action": "workbook.row.update",
+        "workbook_id": workbook_id,
+        "row_id": row_id,
+        "field_names": sorted(updates),
+        "reactive_columns": downstream_ids,
+    }
     return {
         "status": "updated", "row_id": row_id, "fields": list(updates),
         "reactive_columns": downstream_ids, "recompute": recompute_result,
@@ -1798,6 +1832,13 @@ async def bulk_update_row_data(
                 if exc.status_code != 402:
                     raise
                 recompute_result = {"status": "blocked", "detail": exc.detail}
+    request.state.audit_metadata = {
+        "action": "workbook.rows.bulk_update",
+        "workbook_id": workbook_id,
+        "updated_rows": len(normalized),
+        "field_names": sorted(changed_fields),
+        "reactive_columns": downstream_ids,
+    }
     return {
         "status": "updated", "updated_rows": len(normalized),
         "reactive_columns": downstream_ids, "recompute": recompute_result,
