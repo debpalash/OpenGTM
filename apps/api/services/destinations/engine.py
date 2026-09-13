@@ -152,8 +152,8 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                 delivery.error = None
                 db.commit()
                 stats["attempted"] += 1
-                pending.append((member, delivery, snapshot, idem))
-                if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"}:
+                pending.append((member, delivery, snapshot, idem, mapped))
+                if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads", "warehouse_http"}:
                     continue
                 try:
                     result = await _deliver(destination, member.lead_id, snapshot, idem)
@@ -177,7 +177,7 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                         result = await sync_ad_batch(workspace_id, destination.destination_type, destination.config or {}, [x[2] for x in batch])
                     except Exception as exc:
                         result = type("Result", (), {"success": False, "summary": "", "error": str(exc)[:500], "external_id": None})()
-                    for _, delivery, _, _ in batch:
+                    for _, delivery, _, _, _ in batch:
                         delivery.status = "success" if result.success else "failed"
                         delivery.summary = result.summary
                         delivery.error = (result.error or "")[:1000] or None
@@ -188,6 +188,21 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                         else:
                             stats["failed"] += 1
                     db.commit()
+
+            if destination.destination_type == "warehouse_http" and pending:
+                from apps.api.services.destinations.warehouse import sync_warehouse_batch
+                try:
+                    result = await sync_warehouse_batch(workspace_id, destination, run.id, [(item[0].lead_id, item[4]) for item in pending])
+                except Exception as exc:
+                    result = type("Result", (), {"success": False, "summary": "", "error": str(exc)[:500], "external_id": None})()
+                for _, delivery, _, _, _ in pending:
+                    delivery.status = "success" if result.success else "failed"
+                    delivery.summary, delivery.error, delivery.external_id = result.summary, (result.error or "")[:1000] or None, result.external_id
+                    if result.success:
+                        delivery.delivered_at = datetime.now(timezone.utc); stats["succeeded"] += 1
+                    else:
+                        stats["failed"] += 1
+                db.commit()
 
             run.attempted = stats["attempted"]
             run.succeeded = stats["succeeded"]

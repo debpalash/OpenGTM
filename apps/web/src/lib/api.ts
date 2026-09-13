@@ -158,7 +158,7 @@ export interface AudienceDestination {
   id: string
   audience_id: string
   name: string
-  destination_type: "webhook" | "hubspot" | "salesforce" | "meta_ads" | "google_ads" | "linkedin_ads"
+  destination_type: "webhook" | "hubspot" | "salesforce" | "warehouse_http" | "meta_ads" | "google_ads" | "linkedin_ads"
   enabled: boolean
   config: Record<string, unknown>
   field_map: Record<string, string>
