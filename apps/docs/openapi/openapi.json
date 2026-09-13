@@ -2672,6 +2672,42 @@
         "title": "SMTPConfigUpdate",
         "type": "object"
       },
+      "ScimGroupInput": {
+        "additionalProperties": true,
+        "properties": {
+          "displayName": {
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Displayname",
+            "type": "string"
+          },
+          "externalId": {
+            "default": "",
+            "title": "Externalid",
+            "type": "string"
+          },
+          "members": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Members",
+            "type": "array"
+          },
+          "schemas": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Schemas",
+            "type": "array"
+          }
+        },
+        "required": [
+          "displayName"
+        ],
+        "title": "ScimGroupInput",
+        "type": "object"
+      },
       "ScimUserInput": {
         "additionalProperties": true,
         "properties": {
@@ -20748,6 +20784,676 @@
         "summary": "Health Check"
       }
     },
+    "/scim/v2/{workspace_slug}/Groups": {
+      "get": {
+        "operationId": "list_groups_scim_v2__workspace_slug__Groups_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_slug",
+            "required": true,
+            "schema": {
+              "title": "Workspace Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filter"
+            }
+          },
+          {
+            "in": "query",
+            "name": "startIndex",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Startindex",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "count",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 0,
+              "title": "Count",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim+json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Groups",
+        "tags": [
+          "scim"
+        ]
+      },
+      "post": {
+        "operationId": "create_group_scim_v2__workspace_slug__Groups_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_slug",
+            "required": true,
+            "schema": {
+              "title": "Workspace Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScimGroupInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/scim+json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Group",
+        "tags": [
+          "scim"
+        ]
+      }
+    },
+    "/scim/v2/{workspace_slug}/Groups/{group_id}": {
+      "delete": {
+        "operationId": "delete_group_scim_v2__workspace_slug__Groups__group_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_slug",
+            "required": true,
+            "schema": {
+              "title": "Workspace Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Group",
+        "tags": [
+          "scim"
+        ]
+      },
+      "get": {
+        "operationId": "get_group_scim_v2__workspace_slug__Groups__group_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_slug",
+            "required": true,
+            "schema": {
+              "title": "Workspace Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim+json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Group",
+        "tags": [
+          "scim"
+        ]
+      },
+      "patch": {
+        "operationId": "patch_group_scim_v2__workspace_slug__Groups__group_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_slug",
+            "required": true,
+            "schema": {
+              "title": "Workspace Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim+json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Patch Group",
+        "tags": [
+          "scim"
+        ]
+      },
+      "put": {
+        "operationId": "replace_group_scim_v2__workspace_slug__Groups__group_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_slug",
+            "required": true,
+            "schema": {
+              "title": "Workspace Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScimGroupInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim+json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Replace Group",
+        "tags": [
+          "scim"
+        ]
+      }
+    },
+    "/scim/v2/{workspace_slug}/ResourceTypes": {
+      "get": {
+        "operationId": "resource_types_scim_v2__workspace_slug__ResourceTypes_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_slug",
+            "required": true,
+            "schema": {
+              "title": "Workspace Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim+json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Resource Types",
+        "tags": [
+          "scim"
+        ]
+      }
+    },
+    "/scim/v2/{workspace_slug}/ResourceTypes/{resource_type}": {
+      "get": {
+        "operationId": "get_resource_type_scim_v2__workspace_slug__ResourceTypes__resource_type__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_slug",
+            "required": true,
+            "schema": {
+              "title": "Workspace Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "resource_type",
+            "required": true,
+            "schema": {
+              "title": "Resource Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim+json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Resource Type",
+        "tags": [
+          "scim"
+        ]
+      }
+    },
+    "/scim/v2/{workspace_slug}/Schemas": {
+      "get": {
+        "operationId": "schemas_scim_v2__workspace_slug__Schemas_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_slug",
+            "required": true,
+            "schema": {
+              "title": "Workspace Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim+json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Schemas",
+        "tags": [
+          "scim"
+        ]
+      }
+    },
+    "/scim/v2/{workspace_slug}/Schemas/{schema_id}": {
+      "get": {
+        "operationId": "get_schema_scim_v2__workspace_slug__Schemas__schema_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_slug",
+            "required": true,
+            "schema": {
+              "title": "Workspace Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "schema_id",
+            "required": true,
+            "schema": {
+              "title": "Schema Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim+json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Schema",
+        "tags": [
+          "scim"
+        ]
+      }
+    },
     "/scim/v2/{workspace_slug}/ServiceProviderConfig": {
       "get": {
         "operationId": "service_provider_config_scim_v2__workspace_slug__ServiceProviderConfig_get",
@@ -20781,7 +21487,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
+              "application/scim+json": {
                 "schema": {}
               }
             },
@@ -20876,7 +21582,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
+              "application/scim+json": {
                 "schema": {}
               }
             },
@@ -20940,7 +21646,7 @@
         "responses": {
           "201": {
             "content": {
-              "application/json": {
+              "application/scim+json": {
                 "schema": {}
               }
             },
@@ -21063,7 +21769,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
+              "application/scim+json": {
                 "schema": {}
               }
             },
@@ -21136,7 +21842,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
+              "application/scim+json": {
                 "schema": {}
               }
             },
@@ -21209,7 +21915,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
+              "application/scim+json": {
                 "schema": {}
               }
             },

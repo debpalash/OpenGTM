@@ -117,6 +117,26 @@ def _get_db():
             FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
         );
 
+        CREATE TABLE IF NOT EXISTS workspace_scim_groups (
+            id TEXT PRIMARY KEY,
+            workspace_id TEXT NOT NULL,
+            external_id TEXT DEFAULT '',
+            display_name TEXT NOT NULL,
+            created_at REAL NOT NULL,
+            updated_at REAL NOT NULL,
+            UNIQUE (workspace_id, display_name),
+            FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS workspace_scim_group_members (
+            workspace_id TEXT NOT NULL,
+            group_id TEXT NOT NULL,
+            user_id INTEGER NOT NULL,
+            created_at REAL NOT NULL,
+            PRIMARY KEY (workspace_id, group_id, user_id),
+            FOREIGN KEY (group_id) REFERENCES workspace_scim_groups(id)
+        );
+
         -- Per-user active workspace (replaces the global ACTIVE_WORKSPACE setting)
         CREATE TABLE IF NOT EXISTS user_active_workspace (
             user_id INTEGER PRIMARY KEY,
@@ -481,6 +501,8 @@ def delete_workspace(ws_id: str) -> bool:
     conn.execute("DELETE FROM workspace_oidc_identities WHERE workspace_id = ?", (ws_id,))
     conn.execute("DELETE FROM workspace_scim_tokens WHERE workspace_id = ?", (ws_id,))
     conn.execute("DELETE FROM workspace_scim_users WHERE workspace_id = ?", (ws_id,))
+    conn.execute("DELETE FROM workspace_scim_group_members WHERE workspace_id = ?", (ws_id,))
+    conn.execute("DELETE FROM workspace_scim_groups WHERE workspace_id = ?", (ws_id,))
     conn.execute("DELETE FROM workspace_member_permissions WHERE workspace_id = ?", (ws_id,))
     conn.execute("DELETE FROM workspace_members WHERE workspace_id = ?", (ws_id,))
     conn.execute("DELETE FROM user_active_workspace WHERE workspace_id = ?", (ws_id,))
