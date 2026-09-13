@@ -1420,9 +1420,11 @@ async def delete_rows(
 
 @router.patch("/{workbook_id}/rows/{row_id}")
 async def update_row_data(
+    request: Request,
     workbook_id: str,
     row_id: int,
     body: dict,
+    recompute: bool = Query(default=True),
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(require_editor),
 ):
@@ -1454,7 +1456,46 @@ async def update_row_data(
     row.data = {**(row.data or {}), **updates}
     flag_modified(row, "data")
     db.commit()
-    return {"status": "updated", "row_id": row_id, "fields": list(updates)}
+
+    downstream_ids: list[str] = []
+    recompute_result = None
+    if recompute:
+        from apps.api.services.workbook.column_deps import downstream_columns
+
+        runnable = {
+            "enrichment", "waterfall", "ai_formula", "output", "research",
+            "agent", "http", "formula",
+        }
+        def is_reactive(column: dict) -> bool:
+            return (
+                column.get("type") in runnable
+                and column.get("reactive", column.get("type") != "output")
+            )
+
+        reactive = downstream_columns(
+            row.workbook.columns_config or [], set(updates), eligible=is_reactive,
+        )
+        downstream_ids = [column["id"] for column in reactive if column.get("id")]
+        if downstream_ids:
+            try:
+                started = await run_workbook(
+                    request=request,
+                    workbook_id=workbook_id,
+                    body=RunWorkbookRequest(
+                        column_ids=downstream_ids, row_ids=[row_id], force=True,
+                    ),
+                    db=db,
+                    ctx=ctx,
+                )
+                recompute_result = started.model_dump()
+            except HTTPException as exc:
+                if exc.status_code != 402:
+                    raise
+                recompute_result = {"status": "blocked", "detail": exc.detail}
+    return {
+        "status": "updated", "row_id": row_id, "fields": list(updates),
+        "reactive_columns": downstream_ids, "recompute": recompute_result,
+    }
 
 
 @router.post("/{workbook_id}/migrate")

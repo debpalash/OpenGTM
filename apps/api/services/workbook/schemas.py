@@ -18,6 +18,10 @@ class ColumnConfig(BaseModel):
     name: str = Field(..., description="Display name")
     type: str = Field("lead_field", description="Column type: lead_field, enrichment, waterfall, ai_formula, conditional, output")
     width: int = Field(200, description="Column width in pixels")
+    reactive: Optional[bool] = Field(
+        None,
+        description="Recompute after an upstream edit; defaults on except for output columns",
+    )
 
     # Lead field mapping (for type="lead_field")
     lead_field: Optional[str] = Field(None, description="Which Lead field this column maps to (e.g. 'email', 'company')")

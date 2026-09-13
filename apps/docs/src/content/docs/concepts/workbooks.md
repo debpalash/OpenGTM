@@ -34,6 +34,16 @@ progress cursor. A crash repeats at most one idempotent upsert.
 Every provider call runs in a killable subprocess pool (default 8 workers,
 10-second timeout per call) so one hanging vendor never stalls a run.
 
+## Reactive edits
+
+Editing an input cell discovers every transitive `{Column}` dependant, orders
+the affected columns topologically, and sends only that row and column chain
+through the same durable, billed run path. Pass `?recompute=false` to the row
+PATCH endpoint for a data-only edit. Set `reactive: false` on an expensive
+column to stop propagation through that branch. Output columns are non-reactive
+by default because they can send email or mutate external systems; opt in with
+`reactive: true` when automatic write-through is intentional.
+
 ## Rows have identity
 
 Rows created by a source carry a `(workbook_id, source_provider,

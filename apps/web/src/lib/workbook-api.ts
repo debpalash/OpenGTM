@@ -35,6 +35,7 @@ export interface ColumnConfig {
   name: string
   type: "lead_field" | "source" | "enrichment" | "waterfall" | "ai_formula" | "conditional" | "agent" | "output" | "http" | "formula"
   width: number
+  reactive?: boolean | null
   lead_field?: string | null
   provider?: string | null
   waterfall?: string[] | null
@@ -255,7 +256,7 @@ export async function updateLeadField(
   workbookId: string,
   leadId: number,
   fields: Record<string, any>,
-): Promise<{ status: string }> {
+): Promise<{ status: string; reactive_columns: string[]; recompute: { status: string; total_jobs?: number; message?: string } | null }> {
   const res = await fetch(`${API}/api/workbooks/${workbookId}/leads/${leadId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
