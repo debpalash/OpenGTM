@@ -49,7 +49,7 @@ async def handle_playbook_schedule(job_id: int, payload: dict) -> None:
                 remove_schedule(db, playbook_id); db.commit(); return
             active = db.query(PlaybookRun).filter(PlaybookRun.workspace_id == workspace_id, PlaybookRun.playbook_id == playbook_id, PlaybookRun.status.in_(("pending", "running"))).first()
             if active is None:
-                run = PlaybookRun(workspace_id=workspace_id, playbook_id=playbook.id, audience_id=playbook.schedule_audience_id, prompt_version=playbook.version, prompt_snapshot=playbook.prompt_template, max_members=100, requested_by="scheduler")
+                run = PlaybookRun(workspace_id=workspace_id, playbook_id=playbook.id, audience_id=playbook.schedule_audience_id, prompt_version=playbook.version, prompt_snapshot=playbook.prompt_template, steps_snapshot=playbook.steps or [], max_members=100, requested_by="scheduler")
                 db.add(run); db.commit(); db.refresh(run)
                 queue_service.add_job(db, "research_playbook_run", {"workspace_id": workspace_id, "run_id": run.id}, fire_key=f"playbook:{run.id}")
             schedule_next(db, playbook)

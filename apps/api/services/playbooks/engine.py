@@ -34,10 +34,20 @@ async def handle_playbook_run(job_id: int, payload: dict) -> None:
                 result.status, result.attempts, result.error = "running", (result.attempts or 0) + 1, None
                 db.commit()
                 try:
-                    output = await execute_research_column(run.prompt_snapshot, dict(member.snapshot or {}), [], max_steps=playbook.max_steps, output_format=playbook.output_format, workspace_id=workspace_id, cell_budget_usd=playbook.cell_budget_usd)
+                    context = dict(member.snapshot or {})
+                    steps = run.steps_snapshot or [{"key": "result", "name": "Research", "prompt_template": run.prompt_snapshot, "output_format": playbook.output_format}]
+                    step_outputs = []
+                    output = None
+                    for step in steps:
+                        output = await execute_research_column(step["prompt_template"], context, [], max_steps=playbook.max_steps, output_format=step.get("output_format", "text"), workspace_id=workspace_id, cell_budget_usd=playbook.cell_budget_usd / len(steps))
+                        step_outputs.append({"key": step["key"], "name": step["name"], "success": bool(output.get("success")), "value": output.get("value"), "metadata": output.get("metadata") or {}, "error": output.get("error")})
+                        if not output.get("success"):
+                            break
+                        context[step["key"]] = output.get("value")
+                    assert output is not None
                     result.status = "success" if output.get("success") else "failed"
                     result.value = str(output.get("value") or "")
-                    result.result_metadata = output.get("metadata") or {}
+                    result.result_metadata = {"steps": step_outputs, "completed_steps": sum(item["success"] for item in step_outputs), "total_steps": len(steps)}
                     result.error = (output.get("error") or None)
                 except Exception as exc:
                     result.status, result.error = "failed", str(exc)[:1000]

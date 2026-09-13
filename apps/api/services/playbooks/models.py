@@ -14,6 +14,7 @@ class ResearchPlaybook(Base):
     name = Column(String(200), nullable=False)
     description = Column(Text, nullable=False, default="")
     prompt_template = Column(Text, nullable=False)
+    steps = Column(JSON, nullable=False, default=list)
     output_format = Column(String(20), nullable=False, default="text")
     max_steps = Column(Integer, nullable=False, default=4)
     cell_budget_usd = Column(Float, nullable=False, default=0.10)
@@ -26,7 +27,7 @@ class ResearchPlaybook(Base):
     updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
     def to_api(self):
-        return {key: getattr(self, key) for key in ("id", "name", "description", "prompt_template", "output_format", "max_steps", "cell_budget_usd", "version", "enabled", "schedule_audience_id", "schedule_interval_minutes", "next_run_at", "created_at", "updated_at")}
+        return {key: getattr(self, key) for key in ("id", "name", "description", "prompt_template", "steps", "output_format", "max_steps", "cell_budget_usd", "version", "enabled", "schedule_audience_id", "schedule_interval_minutes", "next_run_at", "created_at", "updated_at")}
 
 
 class PlaybookSchedule(Base):
@@ -49,6 +50,7 @@ class PlaybookRun(Base):
     status = Column(String(24), nullable=False, default="pending")
     prompt_version = Column(Integer, nullable=False)
     prompt_snapshot = Column(Text, nullable=False)
+    steps_snapshot = Column(JSON, nullable=False, default=list)
     max_members = Column(Integer, nullable=False, default=100)
     attempted = Column(Integer, nullable=False, default=0)
     succeeded = Column(Integer, nullable=False, default=0)

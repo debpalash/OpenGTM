@@ -211,6 +211,7 @@ export async function syncAudienceDestination(id: string): Promise<DestinationRu
 
 export interface ResearchPlaybook {
   id: string; name: string; description: string; prompt_template: string
+  steps: { key: string; name: string; prompt_template: string; output_format: "text" | "json" }[]
   output_format: "text" | "json"; max_steps: number; cell_budget_usd: number
   version: number; enabled: boolean; schedule_audience_id: string | null
   schedule_interval_minutes: number | null; next_run_at: string | null; created_at: string; updated_at: string
@@ -237,7 +238,7 @@ async function playbookJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const fetchResearchPlaybooks = () => playbookJson<ResearchPlaybook[]>("")
-export const createResearchPlaybook = (body: { name: string; description?: string; prompt_template: string; output_format?: "text" | "json"; max_steps?: number; cell_budget_usd?: number }) => playbookJson<ResearchPlaybook>("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+export const createResearchPlaybook = (body: { name: string; description?: string; prompt_template: string; steps?: ResearchPlaybook["steps"]; output_format?: "text" | "json"; max_steps?: number; cell_budget_usd?: number }) => playbookJson<ResearchPlaybook>("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
 export const patchResearchPlaybook = (id: string, body: Partial<Pick<ResearchPlaybook, "name" | "description" | "prompt_template" | "output_format" | "max_steps" | "cell_budget_usd" | "enabled" | "schedule_audience_id" | "schedule_interval_minutes">>) => playbookJson<ResearchPlaybook>(`/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
 export const fetchPlaybookRuns = (id: string) => playbookJson<PlaybookRun[]>(`/${id}/runs`)
 export const startPlaybookRun = (id: string, body: { audience_id: string; max_members: number }) => playbookJson<PlaybookRun>(`/${id}/runs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
