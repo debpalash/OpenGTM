@@ -196,3 +196,45 @@ def prepare_csv_import(
             normalized_rows.append(normalized)
 
     return normalized_rows, columns, added_columns, resolved
+
+
+def analyze_csv_import(
+    rows: list[dict], columns_config: list[dict],
+    mapping: Optional[dict[str, Optional[str]]] = None, *,
+    create_columns: bool = True, file_name: str = "", source_system: str = "auto",
+) -> dict:
+    """Build a deterministic, non-mutating migration report."""
+    normalized, _columns, added, resolved = prepare_csv_import(
+        rows, columns_config, mapping, create_columns=create_columns,
+    )
+    headers = _headers(rows)
+    targets: dict[str, list[str]] = {}
+    for header, target in resolved.items():
+        if target:
+            targets.setdefault(target, []).append(header)
+    collisions = [
+        {"target": target, "headers": source_headers}
+        for target, source_headers in sorted(targets.items())
+        if len(source_headers) > 1
+    ]
+    clay_markers = {"claygent", "clay url", "last enrichment date", "enrichment status"}
+    normalized_headers = {normalize_header(header) for header in headers}
+    detected = source_system
+    detection_reason = "explicit"
+    if source_system == "auto":
+        filename_match = "clay" in normalize_header(file_name)
+        marker_matches = clay_markers.intersection(normalized_headers)
+        detected = "clay" if filename_match or marker_matches else "generic"
+        detection_reason = "filename" if filename_match else "headers" if marker_matches else "none"
+    return {
+        "source_system": detected, "detection_reason": detection_reason,
+        "input_rows": len(rows), "importable_rows": len(normalized), "headers": headers,
+        "mapped_standard": sorted(header for header, target in resolved.items() if target in LEAD_FIELD_MAP),
+        "custom_columns": sorted(
+            header for header, target in resolved.items()
+            if target and target not in LEAD_FIELD_MAP
+        ),
+        "columns_created": [column["name"] for column in added],
+        "skipped_columns": sorted(header for header, target in resolved.items() if not target),
+        "collisions": collisions, "mapping": resolved,
+    }

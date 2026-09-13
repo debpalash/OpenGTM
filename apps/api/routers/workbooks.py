@@ -561,6 +561,24 @@ async def update_lead_field(
 
 # ── CSV Import ────────────────────────────────────────────────────────────
 
+@router.post("/{workbook_id}/import/preview")
+def preview_csv_import(
+    workbook_id: str,
+    body: ImportRowsRequest,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_editor),
+):
+    """Analyze mapping, preservation, and collisions without writing rows."""
+    wb = _owned_workbook(db, workbook_id, ctx)
+    from apps.api.services.workbook.csv_import import analyze_csv_import
+
+    return analyze_csv_import(
+        body.rows, wb.columns_config or [], body.mapping,
+        create_columns=body.create_columns, file_name=body.file_name or "",
+        source_system=body.source_system,
+    )
+
+
 @router.post("/{workbook_id}/import")
 async def import_csv_leads(
     workbook_id: str,
@@ -570,7 +588,7 @@ async def import_csv_leads(
 ):
     """Import CSV rows into the workbook and preserve its complete schema."""
     wb = _owned_workbook(db, workbook_id, ctx)
-    from apps.api.services.workbook.csv_import import prepare_csv_import
+    from apps.api.services.workbook.csv_import import analyze_csv_import, prepare_csv_import
     from apps.api.services.leadgen.dedup import normalize_domain, normalize_company
 
     rows, columns, added_columns, resolved_mapping = prepare_csv_import(
@@ -578,6 +596,11 @@ async def import_csv_leads(
         wb.columns_config or [],
         body.mapping,
         create_columns=body.create_columns,
+    )
+    analysis = analyze_csv_import(
+        body.rows, wb.columns_config or [], body.mapping,
+        create_columns=body.create_columns, file_name=body.file_name or "",
+        source_system=body.source_system,
     )
     if not rows:
         raise HTTPException(status_code=400, detail="CSV has no importable rows")
@@ -627,6 +650,9 @@ async def import_csv_leads(
     source_config = dict(wb.source_config or {})
     source_config["last_csv_import"] = {
         "file_name": body.file_name,
+        "source_system": analysis["source_system"],
+        "mapping": resolved_mapping,
+        "collisions": analysis["collisions"],
         "rows": len(new_rows),
         "columns_added": len(added_columns),
         "imported_at": datetime.now(timezone.utc).isoformat(),
@@ -652,6 +678,7 @@ async def import_csv_leads(
         "total_rows": total_rows,
         "columns_added": [column["name"] for column in added_columns],
         "mapping": resolved_mapping,
+        "analysis": analysis,
     }
 
 

@@ -9,7 +9,7 @@ from sqlalchemy.pool import StaticPool
 from apps.api.core.tenancy import WorkspaceCtx
 from apps.api.database import Base, get_db
 from apps.api.routers.workbooks import router, require_editor
-from apps.api.services.workbook.csv_import import prepare_csv_import
+from apps.api.services.workbook.csv_import import analyze_csv_import, prepare_csv_import
 from apps.api.services.workbook.models import Workbook, WorkbookRow
 
 
@@ -92,6 +92,31 @@ def test_imported_field_does_not_get_swallowed_by_same_named_ai_column():
     }]
 
 
+def test_clay_preview_reports_preservation_and_mapping_collisions():
+    report = analyze_csv_import(
+        [{"Company Name": "Acme", "Account": "Acme Inc", "Claygent": "Uses Kafka"}],
+        [], mapping={"Company Name": "company", "Account": "company"},
+        file_name="accounts.csv",
+    )
+    assert report["source_system"] == "clay"
+    assert report["detection_reason"] == "headers"
+    assert report["custom_columns"] == ["Claygent"]
+    assert report["collisions"] == [{"target": "company", "headers": ["Company Name", "Account"]}]
+
+
+def test_preview_endpoint_is_non_mutating():
+    client, Session = _harness()
+    response = client.post(f"/api/workbooks/{WORKBOOK}/import/preview", json={
+        "file_name": "clay-export.csv",
+        "rows": [{"Company Name": "Acme", "Research Result": "SOC 2"}],
+    })
+    assert response.status_code == 200, response.text
+    assert response.json()["source_system"] == "clay"
+    with Session() as session:
+        assert session.query(WorkbookRow).count() == 0
+        assert len(session.get(Workbook, WORKBOOK).columns_config) == 1
+
+
 def test_csv_endpoint_inserts_workbook_rows_and_extends_schema():
     client, Session = _harness()
     response = client.post(f"/api/workbooks/{WORKBOOK}/import", json={
@@ -107,12 +132,14 @@ def test_csv_endpoint_inserts_workbook_rows_and_extends_schema():
     assert result["total_rows"] == 2
     assert result["skipped_duplicates"] == 0
     assert result["columns_added"] == ["Company Domain", "Rating", "Reviews"]
+    assert result["analysis"]["source_system"] == "clay"
 
     with Session() as session:
         workbook = session.get(Workbook, WORKBOOK)
         rows = session.query(WorkbookRow).order_by(WorkbookRow.position).all()
         assert workbook.source_type == "csv"
         assert workbook.source_config["last_csv_import"]["file_name"] == "clay-export.csv"
+        assert workbook.source_config["last_csv_import"]["source_system"] == "clay"
         assert [row.position for row in rows] == [0, 1]
         assert rows[0].data == {
             "company": "Acme", "website": "acme.test", "rating": "4.8", "reviews": "120",

@@ -73,6 +73,20 @@ after 50 arrived.
 
 - **CSV import** with schema-aware column mapping
   (`POST /api/workbooks/{id}/import`).
+
+### Migrating a Clay export
+
+Drop a Clay CSV into the workbook importer. OpenGTM detects Clay filenames and
+common metadata headers, maps standard company/person fields, and preserves
+every computed or research result as an editable custom column. The mapping UI
+warns when multiple source columns collapse into one target.
+
+Automation clients can inspect the exact migration without writing data via
+`POST /api/workbooks/{id}/import/preview`. Its report includes the detected
+source, importable row count, standard/custom/skipped columns, target collisions,
+and final mapping. The committed import stores that report with the workbook's
+last-import metadata for later auditing. This supports Clay CSV exports; direct
+Clay API ingestion is not claimed.
 - **Ingest API** for pushes from scripts, the Chrome extension or n8n. See
   [Ingest API](/guides/ingest-api/).
 - **Chat**: "find 50 D2C brands on Shopify in Bangalore" creates the source

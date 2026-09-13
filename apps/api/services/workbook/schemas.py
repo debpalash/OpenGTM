@@ -263,6 +263,7 @@ class ImportRowsRequest(BaseModel):
     create_columns: bool = Field(True, description="Create editable columns for unmapped CSV headers")
     dedupe: bool = Field(True, description="Skip duplicate domains/companies")
     file_name: Optional[str] = Field(None, max_length=255)
+    source_system: Literal["auto", "clay", "generic"] = "auto"
 
 
 class DeleteRowsRequest(BaseModel):
