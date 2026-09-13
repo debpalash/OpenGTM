@@ -11,7 +11,7 @@ from apps.api.models import Job
 from apps.api.services.audiences.models import Audience, AudienceMembershipEvent
 from apps.api.services.destinations.models import AudienceDestination, DestinationDelivery, DestinationInboundReceipt, DestinationRun
 from apps.api.services.governance.models import GovernanceAuditEvent, RetentionPolicy, RetentionRun, RetentionSchedule
-from apps.api.services.leadgen.orm_models import SignalRow
+from apps.api.services.leadgen.orm_models import LLMUsageRow, SignalRow
 from apps.api.services.outreach.orm_models import OutreachSend
 from apps.api.services.playbooks.models import PlaybookResult, PlaybookRun, ResearchPlaybook
 from apps.api.services.governance.retention import normalized_days, preview_retention
@@ -19,7 +19,7 @@ from apps.api.services.governance.retention import normalized_days, preview_rete
 
 def _session():
     engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
-    Base.metadata.create_all(engine, tables=[Job.__table__, Audience.__table__, AudienceMembershipEvent.__table__, AudienceDestination.__table__, DestinationRun.__table__, DestinationDelivery.__table__, DestinationInboundReceipt.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookResult.__table__, SignalRow.__table__, OutreachSend.__table__, GovernanceAuditEvent.__table__, RetentionPolicy.__table__, RetentionSchedule.__table__, RetentionRun.__table__])
+    Base.metadata.create_all(engine, tables=[Job.__table__, Audience.__table__, AudienceMembershipEvent.__table__, AudienceDestination.__table__, DestinationRun.__table__, DestinationDelivery.__table__, DestinationInboundReceipt.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookResult.__table__, SignalRow.__table__, LLMUsageRow.__table__, OutreachSend.__table__, GovernanceAuditEvent.__table__, RetentionPolicy.__table__, RetentionSchedule.__table__, RetentionRun.__table__])
     return sessionmaker(bind=engine)
 
 
@@ -30,18 +30,26 @@ def _audit(ws, request_id, when):
 def test_retention_preview_and_enforcement_are_tenant_scoped(monkeypatch):
     Session = _session(); db = Session(); now = datetime.now(timezone.utc)
     db.add_all([_audit("ws", "old", now - timedelta(days=400)), _audit("ws", "new", now), _audit("other", "other", now - timedelta(days=400))])
+    db.add_all([
+        LLMUsageRow(workspace_id="ws", provider="old", date=(now - timedelta(days=400)).date().isoformat(), updated_at="old"),
+        LLMUsageRow(workspace_id="ws", provider="new", date=now.date().isoformat(), updated_at="new"),
+        LLMUsageRow(workspace_id="other", provider="other", date=(now - timedelta(days=400)).date().isoformat(), updated_at="old"),
+    ])
     policy = RetentionPolicy(workspace_id="ws", enabled=False, legal_hold=False, retention_days=normalized_days({"audit": 365}))
     run = RetentionRun(id="run", workspace_id="ws", requested_by="1", policy_snapshot=policy.retention_days)
     db.add_all([policy, run]); db.commit()
     assert preview_retention(db, "ws", policy.retention_days, now)["audit"] == 1
+    assert preview_retention(db, "ws", policy.retention_days, now)["llm_usage"] == 1
     db.close()
     from apps.api.services.governance import retention
     monkeypatch.setattr(retention, "SessionLocal", Session)
     asyncio.run(retention.handle_retention_enforce(1, {"workspace_id": "ws", "run_id": "run"}))
     db = Session()
     assert {x.request_id for x in db.query(GovernanceAuditEvent).all()} == {"new", "other"}
+    assert {(x.workspace_id, x.provider) for x in db.query(LLMUsageRow).all()} == {("ws", "new"), ("other", "other")}
     saved = db.query(RetentionRun).one()
     assert saved.status == "completed" and saved.deleted_counts["audit"] == 1
+    assert saved.deleted_counts["llm_usage"] == 1
     db.close()
 
 

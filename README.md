@@ -318,7 +318,9 @@ user work runs through the durable worker. The remaining boundaries are:
 - **Hosted-SaaS hardening is not complete.** OIDC SSO (including enforceable
   member-only sessions with owner break-glass), SCIM, and audit export are built;
   mutation audit events accept bounded endpoint-supplied action/count metadata
-  while stripping credential-like keys and never storing request bodies,
+  while stripping credential-like keys and never storing request bodies; the
+  complete filtered audit ledger streams to CSV, and retention policies cover
+  tenant LLM-usage aggregates alongside operational history,
   but still need controlled-live IdP validation. Before exposing OpenGTM to
   mutually hostile public tenants, also add a controlled outbound egress proxy,
   validate the shipped Vault Transit custody path, regularly execute the

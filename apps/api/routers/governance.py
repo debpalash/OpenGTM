@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 from datetime import datetime
 from typing import Optional
 
@@ -100,17 +101,38 @@ def list_audit_events(
 
 @router.get("/audit-events/export.csv")
 def export_audit_events(
+    actor_user_id: Optional[int] = None,
+    method: Optional[str] = None,
+    outcome: Optional[str] = None,
     since: Optional[datetime] = None,
+    before: Optional[datetime] = None,
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(require_admin),
 ):
-    rows = _audit_query(db, ctx, since=since).order_by(GovernanceAuditEvent.created_at.desc()).limit(10_000).all()
-    stream = io.StringIO()
-    writer = csv.writer(stream)
-    writer.writerow(["id", "created_at", "actor_user_id", "actor_role", "method", "route", "resource_path", "response_status", "outcome", "request_id"])
-    for row in rows:
-        writer.writerow([row.id, row.created_at.isoformat(), row.actor_user_id, row.actor_role, row.method, row.route, row.resource_path, row.response_status, row.outcome, row.request_id])
-    return StreamingResponse(iter([stream.getvalue()]), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=opengtm-audit-events.csv"})
+    query = _audit_query(
+        db, ctx, actor_user_id, method, outcome, since, before,
+    ).order_by(GovernanceAuditEvent.created_at.desc(), GovernanceAuditEvent.id.desc())
+
+    def safe(value):
+        text = "" if value is None else str(value)
+        return "'" + text if text.startswith(("=", "+", "-", "@", "\t", "\r")) else text
+
+    def generate():
+        stream = io.StringIO(newline="")
+        writer = csv.writer(stream, lineterminator="\r\n")
+        writer.writerow(["id", "created_at", "actor_user_id", "actor_role", "method", "route", "resource_path", "response_status", "outcome", "request_id", "metadata_json"])
+        yield "\ufeff" + stream.getvalue()
+        for row in query.yield_per(500):
+            stream.seek(0); stream.truncate(0)
+            writer.writerow([safe(value) for value in (
+                row.id, row.created_at.isoformat(), row.actor_user_id, row.actor_role,
+                row.method, row.route, row.resource_path, row.response_status,
+                row.outcome, row.request_id,
+                json.dumps(row.metadata_json or {}, ensure_ascii=False, separators=(",", ":")),
+            )])
+            yield stream.getvalue()
+
+    return StreamingResponse(generate(), media_type="text/csv; charset=utf-8", headers={"Content-Disposition": "attachment; filename=opengtm-audit-events.csv"})
 
 
 @router.get("/retention")
