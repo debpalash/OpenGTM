@@ -870,6 +870,8 @@ async def remove_column(
 @router.get("/{workbook_id}/run/estimate")
 def estimate_run(
     workbook_id: str,
+    view_id: Optional[str] = Query(None),
+    search: Optional[str] = Query(None, max_length=500),
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(current_workspace),
 ):
@@ -882,9 +884,8 @@ def estimate_run(
     from apps.api.services.workbook.enrichment import DEFAULT_WATERFALLS, ENRICHMENT_COL_TYPES
 
     wb = _owned_workbook(db, workbook_id, ctx)
-    num_rows = db.query(sa_func.count(WorkbookRow.id)).filter(
-        WorkbookRow.workbook_id == wb.id
-    ).scalar() or 0
+    query, _ = _workbook_rows_query(db, wb, view_id, search)
+    num_rows = query.with_entities(sa_func.count(WorkbookRow.id)).scalar() or 0
 
     providers_by_col = {}
     for c in (wb.columns_config or []):
@@ -947,6 +948,8 @@ async def run_workbook(
             query = query.filter(WorkbookRow.id.in_(body.row_ids))
         elif body.lead_ids:
             query = query.filter(WorkbookRow.lead_id.in_(body.lead_ids))
+        elif body.view_id or (body.search or "").strip():
+            query, _ = _workbook_rows_query(db, wb, body.view_id, body.search)
         wb_rows = query.all()
         leads = [
             {"id": r.lead_id or r.id, "__row_id": r.id, "__lead_id": r.lead_id, **r.data}
@@ -955,6 +958,8 @@ async def run_workbook(
         resolved_row_ids = [r.id for r in wb_rows]
     else:
         # v1 legacy: read from leads DB
+        if body.view_id or (body.search or "").strip():
+            raise HTTPException(status_code=409, detail="Migrate this legacy workbook before running a saved view or search")
         lead_db = ctx.lead_db()
         try:
             leads, _ = _query_leads(lead_db, wb.filter_criteria or {}, page=1, page_size=10000)

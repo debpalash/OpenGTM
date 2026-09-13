@@ -392,7 +392,7 @@ export async function deleteColumn(workbookId: string, colId: string): Promise<W
 
 export async function runWorkbook(
   workbookId: string,
-  opts?: { column_ids?: string[]; row_ids?: number[]; lead_ids?: number[]; fill_missing?: boolean; force?: boolean },
+  opts?: { column_ids?: string[]; row_ids?: number[]; lead_ids?: number[]; view_id?: string; search?: string; fill_missing?: boolean; force?: boolean },
 ): Promise<{ status: string; total_jobs: number; message: string }> {
   const res = await fetch(`${API}/api/workbooks/${workbookId}/run`, {
     method: "POST",
@@ -558,8 +558,11 @@ export interface RunCostEstimate {
   note: string
 }
 
-export async function fetchRunEstimate(workbookId: string): Promise<RunCostEstimate | null> {
-  const res = await fetch(`${API}/api/workbooks/${workbookId}/run/estimate`)
+export async function fetchRunEstimate(workbookId: string, viewId?: string | null, search?: string): Promise<RunCostEstimate | null> {
+  const params = new URLSearchParams()
+  if (viewId) params.set("view_id", viewId)
+  if (search?.trim()) params.set("search", search.trim())
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/run/estimate${params.size ? `?${params}` : ""}`)
   if (!res.ok) return null
   return res.json()
 }
