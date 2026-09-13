@@ -22,6 +22,9 @@ Each replica runs ``WORKER_CONCURRENCY`` bounded claim slots (default 1, maximum
 run as ``replicas: N`` in docker-compose / k8s; total concurrency is replicas x
 slots. Shutdown stops new claims, drains active slots for
 ``WORKER_SHUTDOWN_GRACE_SECONDS``, then cancels remaining subprocesses safely.
+Postgres claimers also take a transaction-scoped advisory lock per workspace
+before rechecking ``WORKER_MAX_ACTIVE_PER_WORKSPACE``. Concurrent replicas can
+never race different rows past the configured tenant cap.
 
 Run
 ---
