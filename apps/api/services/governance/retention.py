@@ -3,8 +3,8 @@ from datetime import datetime, timedelta, timezone
 
 from apps.api.database import SessionLocal
 
-DEFAULT_DAYS = {"audit": 365, "signals": 365, "activation": 180, "audience_history": 365, "agent_results": 180, "outreach_history": 365}
-MIN_DAYS = {"audit": 90, "signals": 30, "activation": 30, "audience_history": 30, "agent_results": 30, "outreach_history": 30}
+DEFAULT_DAYS = {"audit": 365, "llm_usage": 365, "signals": 365, "activation": 180, "audience_history": 365, "agent_results": 180, "outreach_history": 365}
+MIN_DAYS = {"audit": 90, "llm_usage": 30, "signals": 30, "activation": 30, "audience_history": 30, "agent_results": 30, "outreach_history": 30}
 
 
 def normalized_days(value: dict) -> dict:
@@ -24,21 +24,22 @@ def _targets(db, workspace_id: str, days: dict, now: datetime):
     from apps.api.services.audiences.models import AudienceMembershipEvent
     from apps.api.services.destinations.models import DestinationDelivery, DestinationInboundReceipt
     from apps.api.services.governance.models import GovernanceAuditEvent
-    from apps.api.services.leadgen.orm_models import SignalRow
+    from apps.api.services.leadgen.orm_models import LLMUsageRow, SignalRow
     from apps.api.services.outreach.orm_models import OutreachSend
     from apps.api.services.playbooks.models import PlaybookResult
     models = [
-        ("audit", GovernanceAuditEvent, GovernanceAuditEvent.created_at, False),
-        ("signals", SignalRow, SignalRow.created_at, True),
-        ("activation", DestinationDelivery, DestinationDelivery.created_at, False),
-        ("activation", DestinationInboundReceipt, DestinationInboundReceipt.created_at, False),
-        ("audience_history", AudienceMembershipEvent, AudienceMembershipEvent.created_at, False),
-        ("agent_results", PlaybookResult, PlaybookResult.created_at, False),
-        ("outreach_history", OutreachSend, OutreachSend.created_at, False),
+        ("audit", GovernanceAuditEvent, GovernanceAuditEvent.created_at, "datetime"),
+        ("llm_usage", LLMUsageRow, LLMUsageRow.date, "date"),
+        ("signals", SignalRow, SignalRow.created_at, "epoch"),
+        ("activation", DestinationDelivery, DestinationDelivery.created_at, "datetime"),
+        ("activation", DestinationInboundReceipt, DestinationInboundReceipt.created_at, "datetime"),
+        ("audience_history", AudienceMembershipEvent, AudienceMembershipEvent.created_at, "datetime"),
+        ("agent_results", PlaybookResult, PlaybookResult.created_at, "datetime"),
+        ("outreach_history", OutreachSend, OutreachSend.created_at, "datetime"),
     ]
-    for category, model, column, epoch in models:
+    for category, model, column, storage in models:
         cutoff = now - timedelta(days=days[category])
-        value = cutoff.timestamp() if epoch else cutoff
+        value = cutoff.timestamp() if storage == "epoch" else cutoff.date().isoformat() if storage == "date" else cutoff
         yield category, db.query(model).filter(model.workspace_id == workspace_id, column < value)
 
 
