@@ -399,8 +399,8 @@ function SortableColumnHeader({ id, w, className, children, ...rest }: {
 // shows spend-to-date (polled live while a run is active) and, on hover, the
 // estimated cost of the next run. Click opens the Source Engine cost tab to set
 // a budget ceiling. Free OSS providers cost $0, so most runs read "$0.000".
-function CostChip({ workbookId, isRunning, onClick }: {
-  workbookId: string; isRunning: boolean; onClick: () => void
+function CostChip({ workbookId, isRunning, viewId, search, onClick }: {
+  workbookId: string; isRunning: boolean; viewId?: string | null; search?: string; onClick: () => void
 }) {
   const [cost, setCost] = useState<CostInfo | null>(null)
   const [est, setEst] = useState<RunCostEstimate | null>(null)
@@ -409,11 +409,11 @@ function CostChip({ workbookId, isRunning, onClick }: {
     let alive = true
     const load = () => fetchWorkbookCost(workbookId).then(c => { if (alive) setCost(c) }).catch(() => {})
     load()
-    fetchRunEstimate(workbookId).then(e => { if (alive) setEst(e) }).catch(() => {})
+    fetchRunEstimate(workbookId, viewId, search).then(e => { if (alive) setEst(e) }).catch(() => {})
     // Poll spend live during a run so the number climbs as paid providers charge.
     const iv = isRunning ? setInterval(load, 3000) : null
     return () => { alive = false; if (iv) clearInterval(iv) }
-  }, [workbookId, isRunning])
+  }, [workbookId, isRunning, viewId, search])
 
   const spent = cost?.budget_spent_usd ?? 0
   const cap = cost?.budget_max_usd ?? 0
@@ -1394,7 +1394,7 @@ export default function WorkbookEditorPage() {
 
           <div className="w-px h-5 bg-border mx-1" />
 
-          <CostChip workbookId={id!} isRunning={isRunning} onClick={() => setShowSourcePanel(true)} />
+          <CostChip workbookId={id!} isRunning={isRunning} viewId={activeViewId} search={deferredGlobalFilter} onClick={() => setShowSourcePanel(true)} />
 
           <button
             onClick={() => setShowSourcePanel(true)}
@@ -1425,13 +1425,17 @@ export default function WorkbookEditorPage() {
                 onClick={() => {
                   // Only (re)run cells that aren't already complete — fills gaps
                   // without clobbering good values.
-                  runMut.mutate({ fill_missing: true }, {
+                  runMut.mutate({
+                    fill_missing: true,
+                    view_id: activeViewId || undefined,
+                    search: deferredGlobalFilter.trim() || undefined,
+                  }, {
                     onSuccess: (data) => toast.success(data.message),
                     onError: () => toast.error("Failed to start fill"),
                   })
                 }}
                 disabled={runMut.isPending}
-                title="Enrich only the empty / errored cells, keeping good values"
+                title="Fill missing cells across every row matching the current search and saved view"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border bg-background hover:bg-accent disabled:opacity-50 transition-colors"
               >
                 <Sparkles className="size-3.5" />
@@ -1441,7 +1445,10 @@ export default function WorkbookEditorPage() {
                 onClick={() => {
                   // No blocking spend-confirm dialog — the live cost is shown
                   // inline in the toolbar/status bar instead (see CostChip).
-                  runMut.mutate(undefined, {
+                  runMut.mutate({
+                    view_id: activeViewId || undefined,
+                    search: deferredGlobalFilter.trim() || undefined,
+                  }, {
                     onSuccess: (data) => toast.success(data.message),
                     onError: () => toast.error("Failed to start enrichment"),
                   })

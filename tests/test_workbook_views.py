@@ -245,6 +245,38 @@ def test_csv_export_neutralizes_spreadsheet_formulas(client):
     assert records[1][0].startswith("'=HYPERLINK")
 
 
+def test_run_and_estimate_scope_to_complete_saved_view_query(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "company", "name": "Company", "type": "input", "lead_field": "company"},
+        {"id": "normalized", "name": "Normalized", "type": "formula", "formula": "lower({company})"},
+    ])
+    matching = [
+        _mk_row(Session, wid, {"company": "Acme Alpha"}),
+        _mk_row(Session, wid, {"company": "Acme Beta"}),
+    ]
+    _mk_row(Session, wid, {"company": "Other"})
+    created = tc.post(f"/api/v2/workbooks/{wid}/views", json={
+        "name": "Acme",
+        "config": {"filters": [{"column": "company", "op": "contains", "value": "acme"}]},
+    })
+    view_id = created.json()["id"]
+
+    estimate = tc.get(f"/api/workbooks/{wid}/run/estimate", params={"view_id": view_id})
+    assert estimate.status_code == 200
+    assert estimate.json()["rows"] == 2
+
+    response = tc.post(f"/api/workbooks/{wid}/run", json={
+        "view_id": view_id, "search": "beta", "fill_missing": True,
+    })
+    assert response.status_code == 200, response.text
+    assert response.json()["total_jobs"] == 1
+    with Session() as session:
+        job = session.query(Job).filter(Job.type == "run_workbook").one()
+        assert job.payload["row_ids"] == [matching[1]]
+        assert job.payload["fill_missing"] is True
+
+
 # ── Views CRUD ────────────────────────────────────────────────────────────
 
 def test_views_crud(client):

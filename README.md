@@ -335,7 +335,8 @@ user work runs through the durable worker. The remaining boundaries are:
   fill-down, atomic multi-row TSV paste, and server-driven 1,000-row page
   navigation into editable columns. Search plus saved-view filters/sorts execute
   globally before pagination, and CSV export streams every matching row with
-  spreadsheet-formula injection neutralized.
+  spreadsheet-formula injection neutralized. Run and fill-missing operations
+  use that same complete-query scope and matching-row cost estimate.
 
 See [`docs/plans/clay-parity-specs.md`](docs/plans/clay-parity-specs.md) for the work-item
 breakdown and sequencing.

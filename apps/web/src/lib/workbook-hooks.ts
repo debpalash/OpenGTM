@@ -156,7 +156,7 @@ export function useImportLeads(workbookId: string) {
 export function useRunWorkbook(workbookId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (opts?: { column_ids?: string[]; row_ids?: number[]; lead_ids?: number[]; fill_missing?: boolean; force?: boolean }) => runWorkbook(workbookId, opts),
+    mutationFn: (opts?: { column_ids?: string[]; row_ids?: number[]; lead_ids?: number[]; view_id?: string; search?: string; fill_missing?: boolean; force?: boolean }) => runWorkbook(workbookId, opts),
     onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
   })
 }

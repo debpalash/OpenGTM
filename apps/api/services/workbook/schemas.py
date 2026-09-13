@@ -211,6 +211,8 @@ class RunWorkbookRequest(BaseModel):
     row_ids: Optional[list[int]] = Field(None, description="Specific row IDs to run. None = all rows")
     # Legacy compat
     lead_ids: Optional[list[int]] = Field(None, description="Legacy: specific leads to run")
+    view_id: Optional[str] = Field(None, description="Run every row matching this workbook-owned saved view")
+    search: Optional[str] = Field(None, max_length=500, description="Run rows matching the global workbook search")
     fill_missing: bool = Field(False, description="Only enrich cells not already complete — fills gaps, preserves good values")
     force: bool = Field(False, description="Force re-run: bypass success-skip gates. For output columns this overrides run-once and RE-PUSHES to the destination — the UI must confirm first")
 
