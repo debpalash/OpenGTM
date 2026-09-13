@@ -6,7 +6,9 @@ import {
   Bell, Check, ExternalLink,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
@@ -45,12 +47,23 @@ interface Signal {
   read: boolean
 }
 
+interface SignalAnalytics {
+  period_days: number
+  summary: { total: number; weighted_score: number; active_accounts: number; momentum_pct: number | null }
+  trend: { date: string; count: number; weight: number }[]
+  by_type: { signal_type: string; count: number; weight: number }[]
+  by_source: { source: string; count: number }[]
+  top_accounts: { lead_id: number; company: string; count: number; weight: number }[]
+}
+
 export default function SignalsPage() {
   const [signals, setSignals] = useState<Signal[]>([])
   const [counts, setCounts] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
   const [scanning, setScanning] = useState(false)
   const [filter, setFilter] = useState("all")
+  const [analytics, setAnalytics] = useState<SignalAnalytics | null>(null)
+  const [period, setPeriod] = useState("30")
 
   const fetchSignals = async () => {
     try {
@@ -64,6 +77,9 @@ export default function SignalsPage() {
   }
 
   useEffect(() => { fetchSignals() }, [filter])
+  useEffect(() => {
+    fetch(`/api/signals/analytics?days=${period}`).then(response => response.ok ? response.json() : Promise.reject()).then(setAnalytics).catch(() => {})
+  }, [period, signals.length])
 
   const runScan = async () => {
     setScanning(true)
@@ -129,6 +145,18 @@ export default function SignalsPage() {
       </div>
 
       <Separator />
+
+      {analytics && <div className="space-y-3">
+        <div className="flex items-center justify-between"><div><h3 className="text-sm font-medium">Signal momentum</h3><p className="text-[11px] text-muted-foreground">Weighted intent activity and the accounts creating it.</p></div><Select value={period} onValueChange={value => setPeriod(value || "30")}><SelectTrigger className="h-7 w-28 text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="7">7 days</SelectItem><SelectItem value="30">30 days</SelectItem><SelectItem value="90">90 days</SelectItem></SelectContent></Select></div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{[
+          ["Signals", analytics.summary.total.toLocaleString()], ["Weighted intent", analytics.summary.weighted_score.toLocaleString()], ["Active accounts", analytics.summary.active_accounts.toLocaleString()], ["Momentum", analytics.summary.momentum_pct === null ? "New" : `${analytics.summary.momentum_pct >= 0 ? "+" : ""}${analytics.summary.momentum_pct}%`],
+        ].map(([label, value]) => <Card key={label}><CardContent className="p-3"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p><p className="mt-1 text-xl font-semibold">{value}</p></CardContent></Card>)}</div>
+        <div className="grid gap-3 lg:grid-cols-[1.5fr_1fr]">
+          <Card><CardHeader className="pb-1"><CardTitle className="text-xs">Daily weighted intent</CardTitle></CardHeader><CardContent className="h-48 p-2"><ResponsiveContainer width="100%" height="100%"><AreaChart data={analytics.trend}><defs><linearGradient id="signalWeight" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.35}/><stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/></linearGradient></defs><CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2}/><XAxis dataKey="date" tickFormatter={value => value.slice(5)} tick={{ fontSize: 10 }} minTickGap={24}/><YAxis tick={{ fontSize: 10 }} width={28}/><Tooltip /><Area type="monotone" dataKey="weight" stroke="hsl(var(--primary))" fill="url(#signalWeight)" /></AreaChart></ResponsiveContainer></CardContent></Card>
+          <Card><CardHeader className="pb-1"><CardTitle className="text-xs">Intent by type</CardTitle></CardHeader><CardContent className="h-48 p-2"><ResponsiveContainer width="100%" height="100%"><BarChart data={analytics.by_type} layout="vertical"><XAxis type="number" hide/><YAxis type="category" dataKey="signal_type" width={85} tick={{ fontSize: 10 }}/><Tooltip /><Bar dataKey="weight" fill="hsl(var(--primary))" radius={[0, 3, 3, 0]} /></BarChart></ResponsiveContainer></CardContent></Card>
+        </div>
+        {!!analytics.top_accounts.length && <Card><CardHeader className="pb-1"><CardTitle className="text-xs">Accounts with rising intent</CardTitle></CardHeader><CardContent className="grid gap-2 p-3 sm:grid-cols-2 lg:grid-cols-5">{analytics.top_accounts.slice(0, 5).map((account, index) => <a key={account.lead_id} href={`/leads/${account.lead_id}`} className="rounded-md border p-2 hover:bg-muted/50"><p className="truncate text-xs font-medium">{index + 1}. {account.company}</p><p className="mt-1 text-[10px] text-muted-foreground">{account.count} signals · {account.weight} intent</p></a>)}</CardContent></Card>}
+      </div>}
 
       {/* Stats */}
       <div className="flex items-center gap-4 text-xs">
