@@ -165,6 +165,7 @@ export interface AudienceDestination {
   health_status: "unverified" | "healthy" | "degraded"
   last_error: string | null
   last_success_at: string | null
+  latest_run?: DestinationRun | null
   created_at: string
   updated_at: string
 }
@@ -226,6 +227,15 @@ export async function createAudienceDestination(data: {
 export async function syncAudienceDestination(id: string): Promise<DestinationRun> {
   const res = await fetch(`${API_BASE}/api/audience-destinations/${id}/sync`, { method: "POST" })
   if (!res.ok) throw new Error(`Could not start destination sync (${res.status})`)
+  return res.json()
+}
+
+export async function retryAudienceDestinationRun(runId: string): Promise<DestinationRun> {
+  const res = await fetch(`${API_BASE}/api/audience-destinations/runs/${runId}/retry`, { method: "POST" })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.detail || `Could not retry destination sync (${res.status})`)
+  }
   return res.json()
 }
 

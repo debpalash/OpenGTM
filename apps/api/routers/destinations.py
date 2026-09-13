@@ -3,7 +3,7 @@
 from typing import Optional
 from urllib.parse import urlparse
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -200,7 +200,14 @@ def list_destinations(audience_id: Optional[str] = None, db: Session = Depends(g
     query = db.query(AudienceDestination).filter(AudienceDestination.workspace_id == ctx.workspace_id)
     if audience_id:
         query = query.filter(AudienceDestination.audience_id == audience_id)
-    return [destination.to_api() for destination in query.order_by(AudienceDestination.updated_at.desc()).all()]
+    result = []
+    for destination in query.order_by(AudienceDestination.updated_at.desc()).all():
+        latest = db.query(DestinationRun).filter(
+            DestinationRun.workspace_id == ctx.workspace_id,
+            DestinationRun.destination_id == destination.id,
+        ).order_by(DestinationRun.created_at.desc()).first()
+        result.append({**destination.to_api(), "latest_run": latest.to_api() if latest else None})
+    return result
 
 
 @router.post("", status_code=201)
@@ -293,6 +300,41 @@ def list_deliveries(run_id: str, db: Session = Depends(get_db), ctx: WorkspaceCt
     return [delivery.to_api() for delivery in db.query(DestinationDelivery).filter(
         DestinationDelivery.workspace_id == ctx.workspace_id, DestinationDelivery.run_id == run_id,
     ).order_by(DestinationDelivery.id.asc()).all()]
+
+
+@router.post("/runs/{run_id}/retry", status_code=202)
+def retry_run(
+    run_id: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_editor),
+):
+    """Retry failed deliveries in place while successful idempotency keys skip."""
+    run = db.query(DestinationRun).filter(
+        DestinationRun.id == run_id,
+        DestinationRun.workspace_id == ctx.workspace_id,
+    ).first()
+    if run is None:
+        raise HTTPException(status_code=404, detail="Destination run not found")
+    if run.status not in {"failed", "completed_with_errors"}:
+        raise HTTPException(status_code=409, detail="Only failed or completed-with-errors runs can be retried")
+    destination = _get(db, ctx.workspace_id, run.destination_id)
+    if not destination.enabled:
+        raise HTTPException(status_code=409, detail="Destination is disabled")
+    previous_failed = run.failed
+    run.status, run.error, run.finished_at = "pending", None, None
+    from apps.api.services.queue_service import queue_service
+    queue_service.add_job(db, "audience_destination_sync", {
+        "workspace_id": ctx.workspace_id, "run_id": run.id,
+    }, fire_key=f"destination_sync:{run.id}")
+    request.state.audit_metadata = {
+        "action": "audience_destination.run.retry",
+        "destination_id": destination.id,
+        "run_id": run.id,
+        "previous_failed": previous_failed,
+    }
+    db.refresh(run)
+    return run.to_api()
 
 
 @router.post("/{destination_id}/inbound-token")
