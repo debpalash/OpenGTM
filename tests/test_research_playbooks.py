@@ -1,5 +1,7 @@
 import asyncio
 
+from apps.api.routers.playbooks import playbook_capabilities
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -8,6 +10,17 @@ from apps.api.database import Base
 from apps.api.models import Job
 from apps.api.services.audiences.models import Audience, AudienceMember
 from apps.api.services.playbooks.models import PlaybookResult, PlaybookRun, PlaybookSchedule, ResearchPlaybook
+
+
+def test_agent_capabilities_fail_closed_without_live_evidence(monkeypatch):
+    monkeypatch.delenv("OPENGTM_INTEGRATION_CERTIFICATIONS", raising=False)
+    monkeypatch.delenv("OPENGTM_INTEGRATION_CERTIFICATION_KEY", raising=False)
+    result = playbook_capabilities(ctx=type("Ctx", (), {"workspace_id": "ws"})())
+    assert {item["id"] for item in result["capabilities"]} == {
+        "grounded_research", "chained_playbooks", "audience_runs",
+        "recurring_schedules",
+    }
+    assert all(item["maturity"] == "beta" for item in result["capabilities"])
 
 
 def test_playbook_worker_is_resumable_and_versions_prompt(monkeypatch):

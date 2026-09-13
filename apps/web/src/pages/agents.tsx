@@ -77,6 +77,12 @@ const STATUS_BG: Record<string, string> = {
 
 type FilterStatus = "all" | "running" | "done" | "failed"
 
+interface AgentCapability {
+  id: string
+  features: string[]
+  maturity: "beta" | "supported"
+}
+
 function ResearchPlaybooksPanel() {
   const playbooks = useResearchPlaybooks()
   const audiences = useAudiences()
@@ -94,6 +100,7 @@ function ResearchPlaybooksPanel() {
   const [maxMembers, setMaxMembers] = useState(25)
   const [scheduleEnabled, setScheduleEnabled] = useState(false)
   const [scheduleMinutes, setScheduleMinutes] = useState(1440)
+  const [capabilities, setCapabilities] = useState<AgentCapability[]>([])
   const runs = usePlaybookRuns(selectedId)
   const launch = useStartPlaybookRun(selectedId)
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null)
@@ -106,6 +113,9 @@ function ResearchPlaybooksPanel() {
   useEffect(() => {
     if (runs.data?.length && !selectedRunId) setSelectedRunId(runs.data[0].id)
   }, [runs.data, selectedRunId])
+  useEffect(() => {
+    fetch("/api/research-playbooks/capabilities").then(response => response.ok ? response.json() : Promise.reject()).then(data => setCapabilities(data.capabilities || [])).catch(() => setCapabilities([]))
+  }, [])
   const selectedPlaybook = playbooks.data?.find(item => item.id === selectedId)
   useEffect(() => {
     setScheduleEnabled(!!selectedPlaybook?.schedule_audience_id)
@@ -138,6 +148,7 @@ function ResearchPlaybooksPanel() {
   return <div className="border-b bg-muted/10">
     <button className="flex w-full items-center gap-2 px-4 py-2 text-left" onClick={() => setOpen(!open)}><BookOpen className="size-4 text-primary" /><span className="text-sm font-semibold">Audience research playbooks</span><Badge variant="secondary" className="text-[10px]">{playbooks.data?.length ?? 0}</Badge><ChevronDown className={cn("ml-auto size-4 transition-transform", open && "rotate-180")} /></button>
     {open && <div className="grid gap-3 px-4 pb-4 xl:grid-cols-[1fr_1fr]">
+      {!!capabilities.length && <div className="flex flex-wrap gap-2 xl:col-span-2">{capabilities.map(capability => <Badge key={capability.id} variant={capability.maturity === "supported" ? "default" : "secondary"} title={capability.features.join(", ")}>{capability.id.replaceAll("_", " ")} · {capability.maturity}</Badge>)}</div>}
       <Card><CardContent className="space-y-3 p-3">
         <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
           <select aria-label="Research playbook" className="h-8 rounded-md border bg-background px-2 text-xs" value={selectedId ?? ""} onChange={e => { setSelectedId(e.target.value || null); setSelectedRunId(null) }}><option value="">Select playbook</option>{playbooks.data?.map(p => <option key={p.id} value={p.id}>{p.name} · v{p.version}</option>)}</select>
