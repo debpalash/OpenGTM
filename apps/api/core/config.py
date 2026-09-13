@@ -62,6 +62,9 @@ class Settings(BaseSettings):
     # remain atomic; each slot owns at most one killable subprocess at a time.
     WORKER_CONCURRENCY: int = 1
     WORKER_SHUTDOWN_GRACE_SECONDS: int = 30
+    # Best-effort cross-replica cap for simultaneously processing jobs owned by
+    # one workspace. 0 disables; global jobs (workspace_id NULL) are uncapped.
+    WORKER_MAX_ACTIVE_PER_WORKSPACE: int = 2
 
     # Paths
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

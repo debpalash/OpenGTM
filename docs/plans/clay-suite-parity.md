@@ -8,7 +8,7 @@ OpenGTM should pursue workflow parity, not imitate every Clay screen. The target
 
 | Capability | OpenGTM today | Parity target | Priority |
 | --- | --- | --- | --- |
-| Tables and enrichment | Strong workbook, waterfalls, formulas, AI/research and output columns; horizontally safe queue with bounded per-worker parallel slots, graceful drain and admin queue telemetry | Higher-volume controlled load validation and broader provider coverage | P0 |
+| Tables and enrichment | Strong workbook, waterfalls, formulas, AI/research and output columns; horizontally safe queue with bounded parallel slots, indexed tenant ownership, active-job backpressure/fair claiming, graceful drain and admin telemetry | Higher-volume controlled load validation and broader provider coverage | P0 |
 | Discovery | Multi-source collection, provenance, canonical entities | More verified providers and repeatable source quality | P0 |
 | Audiences | Persistent workspace audiences, materialized membership, entry/exit history, restart-safe scheduled refresh, live diffs, destinations, profile timelines and account-level coverage/intent rollups | Controlled-live destination validation | P0 |
 | Signals | Watches, intent polling, automation triggers, audience entry/exit triggers, unified profile timelines, and tenant-safe volume/momentum/source/account analytics | Additional controlled-live verified sources | P1 |
