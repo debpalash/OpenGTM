@@ -35,6 +35,9 @@ uv run python -m apps.api.cli connector-sign path/provider.yaml \
   --private-key /secure/publisher-ed25519.pem --key-id publisher-2026
 uv run python -m apps.api.cli connectors path --signature-policy required \
   --trust-store docs/connectors/trusted-publishers.json
+uv run python -m apps.api.cli connector-package path/provider.yaml
+uv run python -m apps.api.cli connector-install path/provider.ogc \
+  --trust-store docs/connectors/trusted-publishers.json
 ```
 
 The default `optional` policy keeps local unsigned connectors usable, while
@@ -42,6 +45,12 @@ still rejecting a present signature that is invalid or from an untrusted key.
 Managed catalogs should set `CONNECTOR_SIGNATURE_POLICY=required`; then unsigned
 packages are neither loaded nor accepted by review automation. Private keys are
 never stored in a manifest, signature envelope, or trust store.
+
+`.ogc` bundles are deterministic archives containing exactly one manifest and
+its detached signature. Installation verifies trust and the full connector
+contract in a temporary directory before writing anything, rejects archive
+extras and oversized files, and refuses name collisions unless `--replace` is
+explicitly supplied.
 
 ## Security contract
 

@@ -16,7 +16,7 @@ OpenGTM should pursue workflow parity, not imitate every Clay screen. The target
 | Ads | Consent-gated, SHA-256 hashed batch sync to Meta Custom Audiences, Google Customer Match and LinkedIn Matched Audiences | Controlled-live validation against approved platform accounts | P2 |
 | Agents | Agent/research columns, MCP and Copilot surfaces; versioned chained research playbooks with prior-step context, an Agents composer, bounded audience runs, durable per-profile results and restart-safe recurring schedules | Controlled-live agent validation | P1 |
 | Governance | Workspace member lifecycle and capability policies; RLS; audit and retention; tenant-bound OIDC SSO; workspace-scoped SCIM 2.0 User and Group synchronization with hashed rotatable tokens | Controlled-live IdP/directory validation | P2 |
-| Ecosystem | Versioned YAML connector SDK, Ed25519 detached signatures, publisher trust store, enforceable runtime trust policy, CI review artifacts, schema/template, BYOK providers and workspace-aware trust-reporting catalog API | Broader controlled-live community catalog | P2 |
+| Ecosystem | Versioned YAML connector SDK, deterministic `.ogc` bundles, Ed25519 detached signatures, fail-closed installer, publisher trust store, runtime trust policy, CI review artifacts, BYOK providers and workspace-aware trust-reporting catalog API | Broader controlled-live community catalog | P2 |
 
 ## Ordered rollout
 

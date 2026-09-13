@@ -3,6 +3,11 @@
 import base64
 import hashlib
 import json
+import os
+import re
+import secrets
+import tempfile
+import zipfile
 from pathlib import Path
 
 import yaml
@@ -10,6 +15,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 
 SIGNATURE_VERSION = "1"
+BUNDLE_FILES = {"connector.yaml", "connector.yaml.sig"}
 
 
 def canonical_manifest(path: Path) -> bytes:
@@ -51,3 +57,42 @@ def verify_manifest(path: Path, trust_store_path: Path) -> dict:
         return {"status": "trusted", "key_id": key_id, "publisher": entry.get("publisher", key_id)}
     except Exception as exc:
         return {"status": "invalid", "key_id": locals().get("key_id"), "publisher": None, "error": str(exc)}
+
+
+def package_manifest(path: Path, output: Path | None = None) -> Path:
+    signature_path = Path(f"{path}.sig")
+    if not signature_path.exists(): raise ValueError("sign the connector before packaging it")
+    output = output or path.with_suffix(".ogc")
+    entries = (("connector.yaml", path.read_bytes()), ("connector.yaml.sig", signature_path.read_bytes()))
+    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+        for name, content in entries:
+            info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0)); info.compress_type = zipfile.ZIP_DEFLATED; info.external_attr = 0o100644 << 16
+            archive.writestr(info, content)
+    return output
+
+
+def install_bundle(bundle: Path, destination: Path, trust_store: Path, *, replace: bool = False) -> dict:
+    from .manifest import load_manifest, validate_manifest_directory
+    with zipfile.ZipFile(bundle, "r") as archive:
+        names = {item.filename for item in archive.infolist()}
+        if names != BUNDLE_FILES: raise ValueError("connector bundle must contain only connector.yaml and connector.yaml.sig")
+        if any(item.file_size > 1_000_000 or item.compress_size > 1_000_000 for item in archive.infolist()): raise ValueError("connector bundle exceeds the 1 MB file limit")
+        manifest_bytes = archive.read("connector.yaml"); signature_bytes = archive.read("connector.yaml.sig")
+    with tempfile.TemporaryDirectory(prefix="opengtm-connector-") as temporary:
+        stage = Path(temporary); manifest_path = stage / "connector.yaml"; signature_path = stage / "connector.yaml.sig"
+        manifest_path.write_bytes(manifest_bytes); signature_path.write_bytes(signature_bytes)
+        result = verify_manifest(manifest_path, trust_store)
+        if result["status"] != "trusted": raise ValueError(f"connector signature is {result['status']}")
+        report = validate_manifest_directory(stage, signature_policy="required", trust_store=trust_store)
+        if not report["ok"]: raise ValueError(report["errors"][0]["error"])
+        manifest = load_manifest(manifest_path)
+        if not re.fullmatch(r"[a-z][a-z0-9_]{1,63}", manifest.capability): raise ValueError("connector capability is not a safe package path")
+        target_dir = destination / manifest.capability; target = target_dir / f"{manifest.name}.yaml"; target_signature = Path(f"{target}.sig")
+        if (target.exists() or target_signature.exists()) and not replace: raise FileExistsError(f"connector {manifest.name} is already installed")
+        target_dir.mkdir(parents=True, exist_ok=True)
+        staged_target = target_dir / f".{manifest.name}.{secrets.token_hex(8)}.yaml"
+        staged_signature = Path(f"{staged_target}.sig")
+        staged_target.write_bytes(manifest_bytes); staged_signature.write_bytes(signature_bytes)
+        os.replace(staged_signature, target_signature)
+        os.replace(staged_target, target)
+        return {"id": manifest.name, "capability": manifest.capability, "manifest": str(target), "signature": result}

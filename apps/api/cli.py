@@ -240,6 +240,22 @@ def cmd_connector_sign(args):
     print(f"Signed {args.manifest} -> {output}")
 
 
+def cmd_connector_package(args):
+    from pathlib import Path
+    from apps.api.services.leadgen.enrichment.declarative.signing import package_manifest
+    output = package_manifest(Path(args.manifest), Path(args.output) if args.output else None)
+    print(f"Packaged {args.manifest} -> {output}")
+
+
+def cmd_connector_install(args):
+    import json
+    from pathlib import Path
+    from apps.api.services.leadgen.enrichment.declarative.manifest import MANIFESTS_DIR, TRUST_STORE
+    from apps.api.services.leadgen.enrichment.declarative.signing import install_bundle
+    result = install_bundle(Path(args.bundle), Path(args.destination) if args.destination else MANIFESTS_DIR, Path(args.trust_store) if args.trust_store else TRUST_STORE, replace=args.replace)
+    print(json.dumps(result, indent=2))
+
+
 def main():
     parser = argparse.ArgumentParser(description="OpenGTM — GTM agents for the world")
     sub = parser.add_subparsers(dest="command", help="Command to run")
@@ -309,6 +325,16 @@ def main():
     p.add_argument("--private-key", required=True, help="PEM Ed25519 private key path")
     p.add_argument("--key-id", required=True, help="Key id present in the publisher trust store")
 
+    p = sub.add_parser("connector-package", help="Build a deterministic signed .ogc bundle")
+    p.add_argument("manifest")
+    p.add_argument("--output")
+
+    p = sub.add_parser("connector-install", help="Verify and install a trusted .ogc bundle")
+    p.add_argument("bundle")
+    p.add_argument("--destination", help="Manifest root (defaults to bundled connectors)")
+    p.add_argument("--trust-store")
+    p.add_argument("--replace", action="store_true")
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -321,6 +347,8 @@ def main():
         "collect": cmd_collect, "jobs": cmd_jobs, "cleanup": cmd_cleanup,
         "connectors": cmd_connectors,
         "connector-sign": cmd_connector_sign,
+        "connector-package": cmd_connector_package,
+        "connector-install": cmd_connector_install,
     }
     cmds[args.command](args)
 
