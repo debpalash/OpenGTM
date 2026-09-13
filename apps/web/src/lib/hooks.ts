@@ -15,6 +15,7 @@ import {
   fetchAudiences, createAudience, deleteAudience,
   fetchAudienceMembers, fetchAudienceEvents, refreshAudience, updateAudience,
   fetchAudienceDestinations, createAudienceDestination, syncAudienceDestination,
+  fetchResearchPlaybooks, createResearchPlaybook, fetchPlaybookRuns, startPlaybookRun, fetchPlaybookResults,
 } from "./api"
 
 // ── Leads ───────────────────────────────────────────────────────
@@ -134,6 +135,28 @@ export function useSyncAudienceDestination(audienceId: string | null) {
     mutationFn: syncAudienceDestination,
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.audienceDestinations(audienceId ?? "") }),
   })
+}
+
+export function useResearchPlaybooks() {
+  return useQuery({ queryKey: queryKeys.playbooks.all, queryFn: fetchResearchPlaybooks })
+}
+
+export function useCreateResearchPlaybook() {
+  const qc = useQueryClient()
+  return useMutation({ mutationFn: createResearchPlaybook, onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.playbooks.all }) })
+}
+
+export function usePlaybookRuns(playbookId: string | null) {
+  return useQuery({ queryKey: queryKeys.playbooks.runs(playbookId ?? ""), queryFn: () => fetchPlaybookRuns(playbookId!), enabled: !!playbookId, refetchInterval: 3000 })
+}
+
+export function useStartPlaybookRun(playbookId: string | null) {
+  const qc = useQueryClient()
+  return useMutation({ mutationFn: ({ id, audience_id, max_members }: { id: string; audience_id: string; max_members: number }) => startPlaybookRun(id, { audience_id, max_members }), onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.playbooks.runs(playbookId ?? "") }) })
+}
+
+export function usePlaybookResults(runId: string | null) {
+  return useQuery({ queryKey: queryKeys.playbooks.results(runId ?? ""), queryFn: () => fetchPlaybookResults(runId!), enabled: !!runId, refetchInterval: 3000 })
 }
 
 // ── Mutations ───────────────────────────────────────────────────

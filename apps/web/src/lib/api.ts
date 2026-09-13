@@ -209,6 +209,38 @@ export async function syncAudienceDestination(id: string): Promise<DestinationRu
   return res.json()
 }
 
+export interface ResearchPlaybook {
+  id: string; name: string; description: string; prompt_template: string
+  output_format: "text" | "json"; max_steps: number; cell_budget_usd: number
+  version: number; enabled: boolean; created_at: string; updated_at: string
+}
+
+export interface PlaybookRun {
+  id: string; playbook_id: string; audience_id: string; status: string; prompt_version: number
+  max_members: number; attempted: number; succeeded: number; failed: number
+  error: string | null; started_at: string | null; finished_at: string | null; created_at: string
+}
+
+export interface PlaybookResult {
+  id: number; run_id: string; lead_id: number; status: string; value: string
+  metadata: Record<string, unknown>; error: string | null; attempts: number; created_at: string; updated_at: string
+}
+
+async function playbookJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_BASE}/api/research-playbooks${path}`, init)
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.detail || `Playbook request failed (${res.status})`)
+  }
+  return res.json()
+}
+
+export const fetchResearchPlaybooks = () => playbookJson<ResearchPlaybook[]>("")
+export const createResearchPlaybook = (body: { name: string; description?: string; prompt_template: string; output_format?: "text" | "json"; max_steps?: number; cell_budget_usd?: number }) => playbookJson<ResearchPlaybook>("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+export const fetchPlaybookRuns = (id: string) => playbookJson<PlaybookRun[]>(`/${id}/runs`)
+export const startPlaybookRun = (id: string, body: { audience_id: string; max_members: number }) => playbookJson<PlaybookRun>(`/${id}/runs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+export const fetchPlaybookResults = (runId: string) => playbookJson<PlaybookResult[]>(`/runs/${runId}/results`)
+
 export interface Workspace {
   id: string
   name: string
