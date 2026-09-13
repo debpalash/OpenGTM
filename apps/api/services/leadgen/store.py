@@ -18,12 +18,13 @@ from __future__ import annotations
 
 import logging
 import threading
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from apps.api.core.config import settings
 from apps.api.database import IS_SQLITE, SessionLocal
 from apps.api.services.leadgen.models import Lead
-from apps.api.services.leadgen.orm_models import LeadRow, SignalRow
+from apps.api.services.leadgen.orm_models import LeadRow, SignalRow, LLMUsageRow
 
 logger = logging.getLogger("leadgen.store")
 
@@ -494,6 +495,59 @@ class PgLeadStore:
                 "specializations": _distinct(LeadRow.specialization, 50),
                 "total_leads": s.query(LeadRow).filter(base).count(),
             }
+
+    # ── LLM usage (tenant-scoped daily aggregate) ──
+    def record_llm_usage(
+        self, provider: str, model: str, prompt_tokens: int, completion_tokens: int,
+        rate_limit: int = 0, rate_remaining: int = 0, rate_reset: str = "",
+    ) -> None:
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        values = {
+            "workspace_id": self.workspace_id, "provider": provider,
+            "model": model, "date": today, "calls": 1,
+            "prompt_tokens": prompt_tokens, "completion_tokens": completion_tokens,
+            "total_tokens": prompt_tokens + completion_tokens,
+            "rate_limit": rate_limit, "rate_remaining": rate_remaining,
+            "rate_reset": rate_reset, "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        with self._session() as s, s.begin():
+            if s.bind.dialect.name == "postgresql":
+                from sqlalchemy.dialects.postgresql import insert
+            else:
+                from sqlalchemy.dialects.sqlite import insert
+            excluded = insert(LLMUsageRow).excluded
+            statement = insert(LLMUsageRow).values(**values).on_conflict_do_update(
+                index_elements=["workspace_id", "provider", "date"],
+                set_={
+                    "model": excluded.model,
+                    "calls": LLMUsageRow.calls + 1,
+                    "prompt_tokens": LLMUsageRow.prompt_tokens + excluded.prompt_tokens,
+                    "completion_tokens": LLMUsageRow.completion_tokens + excluded.completion_tokens,
+                    "total_tokens": LLMUsageRow.total_tokens + excluded.total_tokens,
+                    "rate_limit": excluded.rate_limit if rate_limit > 0 else LLMUsageRow.rate_limit,
+                    "rate_remaining": excluded.rate_remaining if rate_limit > 0 else LLMUsageRow.rate_remaining,
+                    "rate_reset": excluded.rate_reset if rate_reset else LLMUsageRow.rate_reset,
+                    "updated_at": excluded.updated_at,
+                },
+            )
+            s.execute(statement)
+
+    def get_llm_usage(self, date: Optional[str] = None) -> List[Dict[str, Any]]:
+        date = date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        with self._session() as s:
+            rows = s.query(LLMUsageRow).filter(
+                LLMUsageRow.workspace_id == self.workspace_id,
+                LLMUsageRow.date == date,
+            ).order_by(LLMUsageRow.calls.desc()).all()
+            return [{column.name: getattr(row, column.name) for column in LLMUsageRow.__table__.columns} for row in rows]
+
+    def get_llm_usage_total(self) -> Dict[str, Any]:
+        from sqlalchemy import func
+        with self._session() as s:
+            calls, tokens = s.query(
+                func.sum(LLMUsageRow.calls), func.sum(LLMUsageRow.total_tokens),
+            ).filter(LLMUsageRow.workspace_id == self.workspace_id).one()
+            return {"total_calls": calls or 0, "total_tokens": tokens or 0}
 
     # ── signals (tenant-scoped) ──
     def add_signal(self, signal) -> str:
