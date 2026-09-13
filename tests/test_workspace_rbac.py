@@ -9,7 +9,16 @@ from apps.api.core.tenancy import WorkspaceCtx, require_workspace_role
 from apps.api.services.workspace import manager
 from apps.api.database import Base
 from apps.api.models import User as UserModel
-from apps.api.routers.governance import PermissionUpdate, get_rbac, update_rbac
+from apps.api.routers.governance import (
+    MemberCreate,
+    MemberRoleUpdate,
+    PermissionUpdate,
+    add_workspace_member,
+    get_rbac,
+    remove_workspace_member,
+    update_rbac,
+    update_workspace_member,
+)
 
 
 class User:
@@ -67,4 +76,41 @@ def test_governance_policy_api_lists_and_updates_members(monkeypatch, tmp_path):
     with pytest.raises(HTTPException) as error:
         update_rbac(1, "signals.write", PermissionUpdate(effect="deny"), ctx=ctx)
     assert error.value.status_code == 409
+    db.close()
+
+
+def test_workspace_member_lifecycle_preserves_overrides(monkeypatch, tmp_path):
+    monkeypatch.setattr(manager, "_project_root", lambda: Path(tmp_path))
+    workspace = manager.create_workspace("Lifecycle Test", owner_id=1)
+    engine = create_engine("sqlite:///:memory:")
+    Base.metadata.create_all(engine, tables=[UserModel.__table__])
+    db = sessionmaker(bind=engine)()
+    db.add(UserModel(id=7, username="analyst", hashed_password="x"))
+    db.commit()
+    ctx = WorkspaceCtx(
+        user=type("Owner", (), {"id": 1})(),
+        workspace_id=workspace.id,
+        slug=workspace.slug,
+    )
+
+    created = add_workspace_member(MemberCreate(username="analyst", role="viewer"), db, ctx)
+    assert created["role"] == "viewer"
+    manager.set_member_permission(workspace.id, 7, "signals.write", "allow")
+    updated = update_workspace_member(7, MemberRoleUpdate(role="editor"), ctx)
+    assert updated["role"] == "editor"
+    assert updated["overrides"] == {"signals.write": "allow"}
+
+    with pytest.raises(HTTPException) as duplicate:
+        add_workspace_member(MemberCreate(username="analyst"), db, ctx)
+    assert duplicate.value.status_code == 409
+    with pytest.raises(HTTPException) as owner_change:
+        update_workspace_member(1, MemberRoleUpdate(role="viewer"), ctx)
+    assert owner_change.value.status_code == 409
+    with pytest.raises(HTTPException) as owner_remove:
+        remove_workspace_member(1, ctx)
+    assert owner_remove.value.status_code == 409
+
+    assert remove_workspace_member(7, ctx) is None
+    assert not manager.is_member(workspace.id, 7)
+    assert manager.member_permissions(workspace.id, 7) == {}
     db.close()

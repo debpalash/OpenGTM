@@ -49,6 +49,15 @@ class PermissionUpdate(BaseModel):
     effect: Literal["allow", "deny"] | None = None
 
 
+class MemberCreate(BaseModel):
+    username: str = Field(min_length=1, max_length=150)
+    role: Literal["viewer", "member", "editor", "admin"] = "viewer"
+
+
+class MemberRoleUpdate(BaseModel):
+    role: Literal["viewer", "member", "editor", "admin"]
+
+
 def _audit_query(db, ctx, actor_user_id=None, method=None, outcome=None, since=None, before=None):
     query = db.query(GovernanceAuditEvent).filter(GovernanceAuditEvent.workspace_id == ctx.workspace_id)
     if actor_user_id is not None: query = query.filter(GovernanceAuditEvent.actor_user_id == actor_user_id)
@@ -156,3 +165,35 @@ def update_rbac(user_id: int, permission: str, body: PermissionUpdate, ctx: Work
         raise HTTPException(status_code=409, detail="Owner permissions cannot be overridden")
     workspace_manager.set_member_permission(ctx.workspace_id, user_id, permission, body.effect)
     return {"user_id": user_id, "permission": permission, "effect": body.effect, "effective": body.effect == "allow" or (body.effect is None and role in PERMISSIONS[permission][2])}
+
+
+@router.post("/members", status_code=201)
+def add_workspace_member(body: MemberCreate, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_admin)):
+    user = db.query(User).filter(User.username == body.username.strip()).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User account not found")
+    if workspace_manager.is_member(ctx.workspace_id, user.id):
+        raise HTTPException(status_code=409, detail="User is already a workspace member")
+    workspace_manager.add_member(ctx.workspace_id, user.id, body.role)
+    return {"user_id": user.id, "username": user.username, "role": body.role, "overrides": {}}
+
+
+@router.patch("/members/{user_id}")
+def update_workspace_member(user_id: int, body: MemberRoleUpdate, ctx: WorkspaceCtx = Depends(require_admin)):
+    role = workspace_manager.member_role(ctx.workspace_id, user_id)
+    if role is None:
+        raise HTTPException(status_code=404, detail="Workspace member not found")
+    if role == "owner":
+        raise HTTPException(status_code=409, detail="Owner role cannot be changed")
+    workspace_manager.set_member_role(ctx.workspace_id, user_id, body.role)
+    return {"user_id": user_id, "role": body.role, "overrides": workspace_manager.member_permissions(ctx.workspace_id, user_id)}
+
+
+@router.delete("/members/{user_id}", status_code=204)
+def remove_workspace_member(user_id: int, ctx: WorkspaceCtx = Depends(require_admin)):
+    role = workspace_manager.member_role(ctx.workspace_id, user_id)
+    if role is None:
+        raise HTTPException(status_code=404, detail="Workspace member not found")
+    if role == "owner":
+        raise HTTPException(status_code=409, detail="Workspace owner cannot be removed")
+    workspace_manager.remove_member(ctx.workspace_id, user_id)

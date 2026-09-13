@@ -15,7 +15,7 @@ OpenGTM should pursue workflow parity, not imitate every Clay screen. The target
 | Activation | Durable audience destination runs and delivery ledger for webhooks, HubSpot, Salesforce, checksum-manifested JSONL warehouse ingestion and paid media; authenticated idempotent CRM inbound reconciliation with conflict policies; outreach/output columns | Additional destination drivers and controlled-live CRM/warehouse validation | P1 |
 | Ads | Consent-gated, SHA-256 hashed batch sync to Meta Custom Audiences, Google Customer Match and LinkedIn Matched Audiences | Controlled-live validation against approved platform accounts | P2 |
 | Agents | Agent/research columns, MCP and Copilot surfaces; versioned chained research playbooks with prior-step context, an Agents composer, bounded audience runs, durable per-profile results and restart-safe recurring schedules | Controlled-live agent validation | P1 |
-| Governance | Workspace roles, per-member capability allow/deny policies, RLS, domain ledgers, append-only mutation auditing, and previewable scheduled retention with legal holds and immutable run summaries | SSO/SCIM and identity lifecycle controls | P2 |
+| Governance | Workspace member provisioning/deprovisioning, role changes, per-member capability allow/deny policies, RLS, domain ledgers, append-only mutation auditing, and previewable scheduled retention with legal holds and immutable run summaries | SSO/SCIM directory synchronization | P2 |
 | Ecosystem | Versioned YAML connector SDK, machine-readable schema, contributor template, CI validator, BYOK providers and workspace-aware catalog API | Signed package distribution, review automation and broader community catalog | P2 |
 
 ## Ordered rollout
