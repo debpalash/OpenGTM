@@ -5,8 +5,10 @@ import json
 from pathlib import Path
 
 from apps.api.services.evaluation.gtm_gauntlet import (
+    ATTESTATION_KEY_ENV,
     CATEGORY_WEIGHTS,
     REQUIRED_WORKFLOWS,
+    attest_validation_run,
     load_artifact,
     main,
     score_gauntlet,
@@ -169,10 +171,17 @@ def test_local_native_streak_is_reported_but_cannot_unlock_production_gate():
     assert "production_streak_incomplete" in report["release"]["reason_codes"]
 
 
-def test_controlled_live_streak_requires_complete_safety_metadata_and_unique_runs():
+def test_controlled_live_streak_requires_attested_safety_metadata_and_unique_runs(
+    monkeypatch,
+):
+    attestation_key = "fixture-release-attestation-key"
+    monkeypatch.setenv(ATTESTATION_KEY_ENV, attestation_key)
     artifact = _artifact()
     valid = [
-        _validation_run(number, tier="controlled_live", mode="live")
+        attest_validation_run(
+            _validation_run(number, tier="controlled_live", mode="live"),
+            attestation_key,
+        )
         for number in range(1, 11)
     ]
     artifact["validation_tier"] = "controlled_live"
@@ -193,6 +202,25 @@ def test_controlled_live_streak_requires_complete_safety_metadata_and_unique_run
     duplicate[-2]["run_id"] = duplicate[-1]["run_id"]
     artifact["production_run_history"] = duplicate
     assert score_gauntlet(artifact)["release"]["consecutive_production_like_passes"] == 1
+
+    tampered = copy.deepcopy(valid)
+    tampered[-1]["score"] = 99.0
+    artifact["production_run_history"] = tampered
+    assert score_gauntlet(artifact)["release"]["consecutive_production_like_passes"] == 0
+
+
+def test_controlled_live_streak_fails_closed_without_attestation_key(monkeypatch):
+    monkeypatch.delenv(ATTESTATION_KEY_ENV, raising=False)
+    artifact = _artifact()
+    run = _validation_run(1, tier="controlled_live", mode="live")
+    artifact.update(
+        validation_tier="controlled_live",
+        mode="live",
+        run_id=run["run_id"],
+        build_sha=run["build_sha"],
+        production_run_history=[run],
+    )
+    assert score_gauntlet(artifact)["release"]["consecutive_production_like_passes"] == 0
 
 
 def test_recorded_g2_g3_g4_g5_slice_scores_100():

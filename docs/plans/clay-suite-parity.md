@@ -20,7 +20,7 @@ OpenGTM should pursue workflow parity, not imitate every Clay screen. The target
 
 ## Ordered rollout
 
-1. **Prove the core.** Complete controlled-live validation, publish a tagged release, and keep migrations plus RLS release-blocking.
+1. **Prove the core.** Complete ten consecutive HMAC-attested controlled-live gauntlet passes, publish a tagged release, and keep migrations plus RLS release-blocking.
 2. **Make Audiences the shared object.** Persist filter definitions, refresh membership, record profile activity, and emit membership-change events.
 3. **Close the activation loop.** Add durable destination runs, retries, health, mappings, and bidirectional HubSpot/Salesforce/warehouse sync.
 4. **Ship agentic workflows.** Package account research and outbound plays around audiences, signals, workbooks, and MCP.

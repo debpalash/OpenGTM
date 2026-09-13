@@ -9,7 +9,10 @@ weighted score would otherwise pass.
 from __future__ import annotations
 
 import argparse
+import hashlib
+import hmac
 import json
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -41,6 +44,7 @@ SUPPORTED_WORKFLOWS: tuple[str, ...] = (
 RELEASE_SCORE = 95.0
 CATEGORY_FLOOR = 0.90
 REQUIRED_PRODUCTION_STREAK = 10
+ATTESTATION_KEY_ENV = "OPENGTM_GAUNTLET_ATTESTATION_KEY"
 
 _TERMINAL_SCENARIO_STATES = {"completed", "partial", "failed", "cancelled", "timed_out"}
 _TERMINAL_ACTION_STATES = {"succeeded", "failed", "cancelled", "timed_out"}
@@ -654,6 +658,53 @@ def _can_continue_enrichment(scenario: Mapping[str, Any]) -> bool:
     return _contact_attempt_contract(scenario)
 
 
+def _attestation_payload(run: Mapping[str, Any]) -> bytes:
+    unsigned = {key: value for key, value in run.items() if key != "attestation"}
+    return json.dumps(
+        unsigned,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+
+
+def attest_validation_run(run: Mapping[str, Any], key: str) -> dict[str, Any]:
+    """Return a validation record with a tamper-evident HMAC attestation."""
+    if not key:
+        raise ValueError("attestation key must not be empty")
+    attested = dict(run)
+    key_bytes = key.encode("utf-8")
+    attested["attestation"] = {
+        "algorithm": "hmac-sha256",
+        "key_id": hashlib.sha256(key_bytes).hexdigest()[:16],
+        "signature": hmac.new(
+            key_bytes,
+            _attestation_payload(attested),
+            hashlib.sha256,
+        ).hexdigest(),
+    }
+    return attested
+
+
+def _attestation_valid(run: Mapping[str, Any], key: str) -> bool:
+    attestation = _dict(run.get("attestation"))
+    if not key or _text(attestation.get("algorithm")) != "hmac-sha256":
+        return False
+    key_bytes = key.encode("utf-8")
+    expected_key_id = hashlib.sha256(key_bytes).hexdigest()[:16]
+    expected_signature = hmac.new(
+        key_bytes,
+        _attestation_payload(run),
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(
+        _text(attestation.get("key_id")), expected_key_id
+    ) and hmac.compare_digest(
+        _text(attestation.get("signature")),
+        expected_signature,
+    )
+
+
 def _production_streak(artifact: Mapping[str, Any]) -> int:
     """Count only consecutive, independently identified controlled-live runs.
 
@@ -674,6 +725,7 @@ def _production_streak(artifact: Mapping[str, Any]) -> int:
         history,
         validation_tier="controlled_live",
         mode="live",
+        attestation_key=os.getenv(ATTESTATION_KEY_ENV, ""),
     )
 
 
@@ -685,7 +737,13 @@ def _local_native_streak(artifact: Mapping[str, Any]) -> int:
     )
 
 
-def _validation_streak(history: Any, *, validation_tier: str, mode: str) -> int:
+def _validation_streak(
+    history: Any,
+    *,
+    validation_tier: str,
+    mode: str,
+    attestation_key: str = "",
+) -> int:
     streak = 0
     seen_run_ids: set[str] = set()
     for run in reversed(_list(history)):
@@ -713,6 +771,7 @@ def _validation_streak(history: Any, *, validation_tier: str, mode: str) -> int:
         if validation_tier == "controlled_live":
             valid = (
                 valid
+                and _attestation_valid(run, attestation_key)
                 and run.get("production_like") is True
                 and run.get("provider_health_recorded") is True
                 and run.get("dedicated_workspace") is True
