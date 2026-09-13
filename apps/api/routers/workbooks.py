@@ -9,7 +9,7 @@ import os
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from sqlalchemy import func as sa_func
+from sqlalchemy import String, cast, func as sa_func, or_
 
 from apps.api.database import get_db
 from apps.api.services.workbook.models import (
@@ -358,6 +358,8 @@ async def get_workbook(
     workbook_id: str,
     page: int = Query(1, ge=1),
     page_size: int = Query(100, ge=1, le=5000),
+    view_id: Optional[str] = Query(None),
+    search: Optional[str] = Query(None, max_length=500),
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(current_workspace),
 ):
@@ -370,10 +372,66 @@ async def get_workbook(
     ).scalar() or 0
 
     if v2_count > 0:
-        offset = (page - 1) * page_size
-        wb_rows = db.query(WorkbookRow).filter(
+        query = db.query(WorkbookRow).filter(
             WorkbookRow.workbook_id == workbook_id
-        ).order_by(WorkbookRow.position).offset(offset).limit(page_size).all()
+        )
+        view_config: dict = {}
+        if view_id:
+            view = db.query(WorkbookView).filter(
+                WorkbookView.id == view_id,
+                WorkbookView.workbook_id == workbook_id,
+            ).first()
+            if view is None:
+                raise HTTPException(status_code=404, detail="Workbook view not found")
+            view_config = view.config or {}
+
+        columns_by_id = {column.get("id"): column for column in (wb.columns_config or [])}
+
+        def value_expression(column_id: str):
+            column = columns_by_id.get(column_id)
+            if not column:
+                return None
+            if column.get("type") in ("lead_field", "input"):
+                field = column.get("lead_field") or column_id
+                return WorkbookRow.data[field].as_string()
+            return WorkbookRow.enrichments[column_id]["value"].as_string()
+
+        for rule in view_config.get("filters", []):
+            expression = value_expression(rule.get("column", ""))
+            if expression is None:
+                continue
+            normalized = sa_func.lower(sa_func.coalesce(expression, ""))
+            expected = str(rule.get("value") or "").lower()
+            operation = rule.get("op")
+            if operation == "equals":
+                query = query.filter(normalized == expected)
+            elif operation == "not_equals":
+                query = query.filter(normalized != expected)
+            elif operation == "contains":
+                query = query.filter(normalized.contains(expected))
+            elif operation == "not_contains":
+                query = query.filter(~normalized.contains(expected))
+            elif operation == "empty":
+                query = query.filter(sa_func.trim(normalized) == "")
+            elif operation == "not_empty":
+                query = query.filter(sa_func.trim(normalized) != "")
+
+        normalized_search = (search or "").strip().lower()
+        if normalized_search:
+            query = query.filter(or_(
+                sa_func.lower(cast(WorkbookRow.data, String)).contains(normalized_search, autoescape=True),
+                sa_func.lower(cast(WorkbookRow.enrichments, String)).contains(normalized_search, autoescape=True),
+            ))
+
+        query_total = query.with_entities(sa_func.count(WorkbookRow.id)).scalar() or 0
+        ordering = []
+        for rule in view_config.get("sort", []):
+            expression = value_expression(rule.get("column", ""))
+            if expression is not None:
+                ordering.append(expression.desc() if rule.get("dir") == "desc" else expression.asc())
+        ordering.append(WorkbookRow.position.asc())
+        offset = (page - 1) * page_size
+        wb_rows = query.order_by(*ordering).offset(offset).limit(page_size).all()
 
         rows = []
         for r in wb_rows:
@@ -403,6 +461,7 @@ async def get_workbook(
             workbook=_workbook_response(wb),
             rows=rows,
             total_rows=v2_count,
+            query_total_rows=query_total,
             page=page,
             page_size=page_size,
         )
@@ -445,6 +504,7 @@ async def get_workbook(
     return WorkbookWithLeadsResponse(
         workbook=_workbook_response(wb),
         rows=rows, total_rows=total,
+        query_total_rows=total,
         page=page, page_size=page_size,
     )
 

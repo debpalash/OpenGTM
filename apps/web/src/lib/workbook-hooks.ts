@@ -40,10 +40,10 @@ export function useWorkbooks() {
 
 // ── Workbook Detail + Leads ──────────────────────────────────────────────
 
-export function useWorkbook(id: string, pageSize = 1000, page = 1) {
+export function useWorkbook(id: string, pageSize = 1000, page = 1, viewId?: string | null, search = "") {
   return useQuery({
-    queryKey: [...workbookKeys.detail(id), page, pageSize],
-    queryFn: () => fetchWorkbook(id, page, pageSize),
+    queryKey: [...workbookKeys.detail(id), page, pageSize, viewId ?? "", search],
+    queryFn: () => fetchWorkbook(id, page, pageSize, viewId, search),
     placeholderData: previous => previous,
     enabled: !!id,
     // Don't retry client errors (404 not-found / 403 no-access won't resolve on
@@ -195,7 +195,10 @@ export function useUpdateView(workbookId: string) {
   return useMutation({
     mutationFn: ({ viewId, ...body }: { viewId: string; name?: string; config?: ViewConfig }) =>
       updateWorkbookView(workbookId, viewId, body),
-    onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.views(workbookId) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: workbookKeys.views(workbookId) })
+      qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) })
+    },
   })
 }
 

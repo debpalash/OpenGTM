@@ -198,6 +198,7 @@ class WorkbookWithLeadsResponse(BaseModel):
     workbook: WorkbookResponse
     rows: list[WorkbookLeadRow]
     total_rows: int
+    query_total_rows: Optional[int] = None
     page: int
     page_size: int
 
