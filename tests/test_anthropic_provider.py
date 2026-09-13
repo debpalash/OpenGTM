@@ -405,3 +405,29 @@ def test_batch_cancels_on_stop(fake_anthropic_batch):
         reqs, prov=_prov(), poll_interval=0, should_stop=lambda: True,
     ))
     assert out == {}
+
+
+def test_usage_recorder_uses_injected_tenant_store_without_closing_it():
+    class Store:
+        def __init__(self):
+            self.calls = []
+            self.closed = False
+
+        def record_llm_usage(self, *args, **kwargs):
+            self.calls.append((args, kwargs))
+
+        def close(self):
+            self.closed = True
+
+    store = Store()
+    client = L.LLMClient(usage_store=store)
+
+    client._record_usage(
+        "anthropic", "claude-test", 12, 4,
+        rate_limit=100, rate_remaining=88, rate_reset="soon",
+    )
+
+    assert store.calls == [(('anthropic', 'claude-test', 12, 4), {
+        "rate_limit": 100, "rate_remaining": 88, "rate_reset": "soon",
+    })]
+    assert store.closed is False

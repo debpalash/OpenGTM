@@ -108,7 +108,7 @@ class JobRunner:
             proxy_pool=self.proxy_pool,
             rate_limiter=self.rate_limiter,
         )
-        self.llm = LLMClient()
+        self.llm = LLMClient(usage_store=self.db)
 
     def _lead_store(self, workspace_id: str):
         """Tenant-scoped store for LEAD reads/writes for this unit of work.

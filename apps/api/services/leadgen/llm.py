@@ -124,10 +124,48 @@ class TokenUsage:
 class LLMClient:
     """Provider-agnostic LLM client with automatic failover."""
 
-    def __init__(self):
+    def __init__(self, usage_store=None):
         self._provider_cache: dict = {}
         self._cache_time: float = 0
         self.usage = TokenUsage()
+        self._usage_store = usage_store
+
+    def _record_usage(
+        self, provider: str, model: str, prompt_tokens: int, completion_tokens: int,
+        *, rate_limit: int = 0, rate_remaining: int = 0, rate_reset: str = "",
+    ) -> None:
+        """Persist usage to the injected or current tenant store, best effort."""
+        store = self._usage_store
+        owns_store = False
+        try:
+            if store is None:
+                from apps.api.core.tenancy import current_workspace_var
+                workspace_id = current_workspace_var.get()
+                if workspace_id:
+                    from apps.api.services.workspace import manager as ws_manager
+                    from apps.api.services.leadgen.store import get_lead_store
+                    slug = ws_manager.workspace_slug(workspace_id)
+                    if slug:
+                        store = get_lead_store(workspace_id, slug)
+                        owns_store = True
+            if store is None:
+                from apps.api.services.leadgen.db import LeadDB
+                store = LeadDB()
+                owns_store = True
+            recorder = getattr(store, "record_llm_usage", None)
+            if recorder:
+                recorder(
+                    provider, model, prompt_tokens, completion_tokens,
+                    rate_limit=rate_limit, rate_remaining=rate_remaining,
+                    rate_reset=rate_reset,
+                )
+        except Exception as exc:
+            logger.debug("LLM usage tracking failed: %s", exc)
+        finally:
+            if owns_store and store is not None:
+                close = getattr(store, "close", None)
+                if close:
+                    close()
 
     def _get_provider_config(self, provider_id: str) -> Optional[dict]:
         """Get resolved config (API key, URL, model) for a provider."""
@@ -426,13 +464,7 @@ class LLMClient:
             self.usage.add(prompt=prompt_tok, completion=completion_tok, provider=prov["id"],
                            cache_write=cache_write, cache_read=cache_read)
 
-            try:
-                from apps.api.services.leadgen.db import LeadDB
-                db = LeadDB()
-                db.record_llm_usage(prov["id"], prov["model"], prompt_tok, completion_tok)
-                db.close()
-            except Exception:
-                pass  # never fail the call over tracking
+            self._record_usage(prov["id"], prov["model"], prompt_tok, completion_tok)
 
             # Concatenate text blocks (skip thinking blocks).
             parts = [
@@ -519,13 +551,7 @@ class LLMClient:
             cache_write, cache_read = self._anthropic_cache_tokens(usage)
             self.usage.add(prompt=prompt_tok, completion=completion_tok, provider=prov["id"],
                            cache_write=cache_write, cache_read=cache_read)
-            try:
-                from apps.api.services.leadgen.db import LeadDB
-                db = LeadDB()
-                db.record_llm_usage(prov["id"], prov["model"], prompt_tok, completion_tok)
-                db.close()
-            except Exception:
-                pass  # never fail the call over tracking
+            self._record_usage(prov["id"], prov["model"], prompt_tok, completion_tok)
             return resp
         finally:
             try:
@@ -694,11 +720,14 @@ class LLMClient:
                     usage = getattr(msg, "usage", None)
                     if usage is not None:
                         cw, cr = self._anthropic_cache_tokens(usage)
+                        prompt_tok = getattr(usage, "input_tokens", 0) or 0
+                        completion_tok = getattr(usage, "output_tokens", 0) or 0
                         self.usage.add(
-                            prompt=getattr(usage, "input_tokens", 0) or 0,
-                            completion=getattr(usage, "output_tokens", 0) or 0,
+                            prompt=prompt_tok,
+                            completion=completion_tok,
                             provider=prov["id"], cache_write=cw, cache_read=cr,
                         )
+                        self._record_usage(prov["id"], prov["model"], prompt_tok, completion_tok)
                     parts = [
                         getattr(b, "text", "")
                         for b in (getattr(msg, "content", None) or [])
@@ -760,22 +789,16 @@ class LLMClient:
                 )
 
                 # Persist to DB + capture rate limit headers
-                try:
-                    from apps.api.services.leadgen.db import LeadDB
-                    db = LeadDB()
-                    # Capture rate limit headers (most providers send these)
-                    rate_limit = int(resp.headers.get("X-RateLimit-Limit", 0) or
-                                    resp.headers.get("x-ratelimit-limit-requests", 0) or 0)
-                    rate_remaining = int(resp.headers.get("X-RateLimit-Remaining", 0) or
-                                        resp.headers.get("x-ratelimit-remaining-requests", 0) or 0)
-                    rate_reset = resp.headers.get("X-RateLimit-Reset", "") or resp.headers.get("x-ratelimit-reset-requests", "")
-                    db.record_llm_usage(
-                        prov["id"], prov["model"], prompt_tok, completion_tok,
-                        rate_limit=rate_limit, rate_remaining=rate_remaining, rate_reset=str(rate_reset),
-                    )
-                    db.close()
-                except Exception:
-                    pass  # Don't fail the call over tracking
+                rate_limit = int(resp.headers.get("X-RateLimit-Limit", 0) or
+                                resp.headers.get("x-ratelimit-limit-requests", 0) or 0)
+                rate_remaining = int(resp.headers.get("X-RateLimit-Remaining", 0) or
+                                    resp.headers.get("x-ratelimit-remaining-requests", 0) or 0)
+                rate_reset = resp.headers.get("X-RateLimit-Reset", "") or resp.headers.get("x-ratelimit-reset-requests", "")
+                self._record_usage(
+                    prov["id"], prov["model"], prompt_tok, completion_tok,
+                    rate_limit=rate_limit, rate_remaining=rate_remaining,
+                    rate_reset=str(rate_reset),
+                )
 
                 # Extract response text
                 choices = data.get("choices", [])
