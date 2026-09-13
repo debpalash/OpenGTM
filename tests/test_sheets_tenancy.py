@@ -1,5 +1,7 @@
 import asyncio
 
+import httpx
+
 from apps.api.services.integrations import sheets
 from apps.api.services.workbook.output import execute_output_column
 
@@ -87,3 +89,50 @@ def test_workbook_output_threads_workspace_into_airtable_adapter(monkeypatch):
     ))
     assert result["success"] is True
     assert observed["workspace_id"] == "ws-a"
+
+
+def test_sheets_upsert_appends_then_updates_by_stable_key(monkeypatch):
+    monkeypatch.setattr(sheets, "_token", lambda workspace_id=None: "token")
+    calls = []
+    existing_rows = []
+
+    class Client:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return None
+
+        async def get(self, url, **kwargs):
+            calls.append(("GET", url))
+            return httpx.Response(200, json={"values": existing_rows})
+
+        async def post(self, url, **kwargs):
+            calls.append(("POST", url, kwargs["json"]))
+            return httpx.Response(
+                200, json={"updates": {"updatedRange": "Leads!A2:C2"}}
+            )
+
+        async def put(self, url, **kwargs):
+            calls.append(("PUT", url, kwargs["json"]))
+            return httpx.Response(200, json={"updatedRange": "Leads!A2:C2"})
+
+    monkeypatch.setattr(sheets.httpx, "AsyncClient", lambda **kwargs: Client())
+    appended = asyncio.run(sheets.upsert_row(
+        "sheet-1", ["Acme", "buyer@acme.test"], "delivery-key",
+        "Leads!A:ZZ", "ws-a",
+    ))
+    assert appended == {
+        "success": True, "range": "Leads!A2:C2", "operation": "appended",
+    }
+    assert calls[-1][0] == "POST"
+    assert calls[-1][2]["values"] == [["delivery-key", "Acme", "buyer@acme.test"]]
+
+    existing_rows[:] = [["OpenGTM key", "Company", "Email"], ["delivery-key", "Old"]]
+    updated = asyncio.run(sheets.upsert_row(
+        "sheet-1", ["Acme", "buyer@acme.test"], "delivery-key",
+        "Leads!A:ZZ", "ws-a",
+    ))
+    assert updated["operation"] == "updated"
+    assert calls[-1][0] == "PUT"
+    assert "Leads%21A2%3AC2" in calls[-1][1]

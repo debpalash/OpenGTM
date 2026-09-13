@@ -11,6 +11,7 @@ https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/a
 import logging
 import os
 from typing import Any, Dict, List, Optional
+from urllib.parse import quote
 
 import httpx
 
@@ -57,3 +58,69 @@ async def append_row(spreadsheet_id: str, values: List[Any],
     except Exception as e:
         logger.error(f"Sheets append failed: {e}")
         return {"success": False, "error": str(e)}
+
+
+def _column_name(number: int) -> str:
+    result = ""
+    while number:
+        number, remainder = divmod(number - 1, 26)
+        result = chr(65 + remainder) + result
+    return result
+
+
+async def upsert_row(
+    spreadsheet_id: str,
+    values: List[Any],
+    idempotency_key: str,
+    sheet_range: str = "Sheet1!A:ZZ",
+    workspace_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Upsert a row whose first cell is OpenGTM's stable delivery key."""
+    token = _token(workspace_id)
+    if not token:
+        return {"success": False, "error": "Google Sheets not connected"}
+    if not spreadsheet_id or not idempotency_key:
+        return {"success": False, "error": "spreadsheet_id and idempotency_key are required"}
+    row = [idempotency_key, *("" if value is None else str(value) for value in values)]
+    base = f"https://sheets.googleapis.com/v4/spreadsheets/{spreadsheet_id}/values"
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            lookup = await client.get(
+                f"{base}/{quote(sheet_range, safe='')}",
+                headers=headers,
+                params={"majorDimension": "ROWS"},
+            )
+            if lookup.status_code != 200:
+                return {"success": False, "error": f"HTTP {lookup.status_code}: {lookup.text[:160]}"}
+            rows = lookup.json().get("values") or []
+            existing_row = next(
+                (index for index, item in enumerate(rows, start=1) if item and item[0] == idempotency_key),
+                None,
+            )
+            if existing_row:
+                sheet = sheet_range.split("!", 1)[0]
+                target = f"{sheet}!A{existing_row}:{_column_name(len(row))}{existing_row}"
+                response = await client.put(
+                    f"{base}/{quote(target, safe='')}",
+                    headers=headers,
+                    params={"valueInputOption": "USER_ENTERED"},
+                    json={"values": [row]},
+                )
+                operation = "updated"
+            else:
+                response = await client.post(
+                    f"{base}/{quote(sheet_range, safe='')}:append",
+                    headers=headers,
+                    params={"valueInputOption": "USER_ENTERED", "insertDataOption": "INSERT_ROWS"},
+                    json={"values": [row]},
+                )
+                operation = "appended"
+        if response.status_code != 200:
+            return {"success": False, "error": f"HTTP {response.status_code}: {response.text[:160]}"}
+        data = response.json()
+        updated_range = data.get("updatedRange") or data.get("updates", {}).get("updatedRange", "")
+        return {"success": True, "range": updated_range, "operation": operation}
+    except Exception as exc:
+        logger.error("Sheets upsert failed: %s", exc)
+        return {"success": False, "error": str(exc)[:200]}

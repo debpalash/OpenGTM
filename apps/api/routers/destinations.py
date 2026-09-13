@@ -19,6 +19,7 @@ require_admin = require_workspace_role("admin", permission="secrets.manage")
 TYPES = {
     "webhook", "hubspot", "salesforce", "warehouse_http",
     "meta_ads", "google_ads", "linkedin_ads", "instantly", "smartlead",
+    "google_sheets",
 }
 
 
@@ -95,6 +96,16 @@ def _validate_config(dtype: str, config: dict) -> dict:
             raise ValueError(f"{dtype} campaign_id is required")
         if dtype == "smartlead" and config.get("settings") is not None and not isinstance(config["settings"], dict):
             raise ValueError("smartlead settings must be an object")
+    if dtype == "google_sheets":
+        allowed = {"spreadsheet_id", "range", "columns"}
+        unknown = set(config) - allowed
+        if unknown:
+            raise ValueError(f"unsupported google_sheets config: {', '.join(sorted(unknown))}")
+        if not str(config.get("spreadsheet_id") or "").strip():
+            raise ValueError("google_sheets spreadsheet_id is required")
+        columns = config.get("columns")
+        if not isinstance(columns, list) or not 1 <= len(columns) <= 100 or not all(isinstance(item, str) and item.strip() for item in columns):
+            raise ValueError("google_sheets columns must contain 1 to 100 field names")
     return config
 
 

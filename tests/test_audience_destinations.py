@@ -80,6 +80,7 @@ def test_destination_type_catalog_fails_closed_to_beta(destination_app, monkeypa
     assert {item["id"] for item in types} == {
         "webhook", "hubspot", "salesforce", "warehouse_http",
         "meta_ads", "google_ads", "linkedin_ads", "instantly", "smartlead",
+        "google_sheets",
     }
     assert all(item["maturity"] == "beta" for item in types)
 
@@ -161,6 +162,12 @@ def test_destination_validation_and_tenant_isolation(destination_app):
         "destination_type": "instantly", "config": {},
     })
     assert missing_campaign.status_code == 422
+    invalid_sheet = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Sheet",
+        "destination_type": "google_sheets",
+        "config": {"spreadsheet_id": "sheet-1", "columns": []},
+    })
+    assert invalid_sheet.status_code == 422
     ad = tc.post("/api/audience-destinations", json={
         "audience_id": "aud-1", "name": "Meta", "destination_type": "meta_ads",
         "config": {"custom_audience_id": "123", "consent_attested": True, "consent_source": "CRM opt-in"},
@@ -214,6 +221,47 @@ def test_sequencer_destination_uses_campaign_and_field_mapping(destination_app, 
     assert delivery.status == "success"
     assert delivery.external_id == "external-lead-1"
     session.close()
+
+
+def test_google_sheets_destination_uses_delivery_key_for_upsert(
+    destination_app, monkeypatch,
+):
+    tc, Session, _ = destination_app
+    created = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Sheet",
+        "destination_type": "google_sheets",
+        "config": {
+            "spreadsheet_id": "sheet-1", "range": "Leads!A:ZZ",
+            "columns": ["company_name", "email"],
+        },
+        "field_map": {"company": "company_name", "email": "email"},
+    })
+    assert created.status_code == 201, created.text
+    run_id = tc.post(
+        f"/api/audience-destinations/{created.json()['id']}/sync"
+    ).json()["id"]
+    from apps.api.services.destinations import engine as destination_engine
+    from apps.api.services.integrations import sheets
+
+    observed = {}
+
+    async def fake_upsert(spreadsheet_id, values, idem, sheet_range, workspace_id):
+        observed.update(
+            spreadsheet_id=spreadsheet_id, values=values, idem=idem,
+            sheet_range=sheet_range, workspace_id=workspace_id,
+        )
+        return {"success": True, "range": "Leads!A2:C2", "operation": "appended"}
+
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    monkeypatch.setattr(sheets, "upsert_row", fake_upsert)
+    asyncio.run(destination_engine.handle_destination_sync(
+        1, {"workspace_id": WS1, "run_id": run_id},
+    ))
+
+    assert observed["spreadsheet_id"] == "sheet-1"
+    assert observed["values"] == ["Acme", "buyer@acme.test"]
+    assert observed["idem"] == f"dest:{created.json()['id']}:lead:42"
+    assert observed["workspace_id"] == WS1
 
 
 def test_audience_change_auto_enqueues_destination_once(destination_app):
