@@ -68,6 +68,22 @@ def destination_app():
     return TestClient(app), Session, app
 
 
+def test_destination_type_catalog_fails_closed_to_beta(destination_app, monkeypatch):
+    monkeypatch.delenv("OPENGTM_INTEGRATION_CERTIFICATIONS", raising=False)
+    monkeypatch.delenv("OPENGTM_INTEGRATION_CERTIFICATION_KEY", raising=False)
+    tc, _, _ = destination_app
+
+    response = tc.get("/api/audience-destinations/types")
+
+    assert response.status_code == 200
+    types = response.json()["types"]
+    assert {item["id"] for item in types} == {
+        "webhook", "hubspot", "salesforce", "warehouse_http",
+        "meta_ads", "google_ads", "linkedin_ads",
+    }
+    assert all(item["maturity"] == "beta" for item in types)
+
+
 def test_destination_sync_is_durable_and_idempotent(destination_app, monkeypatch):
     tc, Session, _ = destination_app
     created = tc.post("/api/audience-destinations", json={

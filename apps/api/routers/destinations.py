@@ -19,6 +19,14 @@ require_admin = require_workspace_role("admin", permission="secrets.manage")
 TYPES = {"webhook", "hubspot", "salesforce", "warehouse_http", "meta_ads", "google_ads", "linkedin_ads"}
 
 
+@router.get("/types")
+def list_destination_types(ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Expose fail-closed support maturity backed by live certifications."""
+    from apps.api.services.integrations.certification import integration_catalog
+
+    return {"types": integration_catalog()}
+
+
 def _validate_config(dtype: str, config: dict) -> dict:
     def keys(value):
         if isinstance(value, dict):
