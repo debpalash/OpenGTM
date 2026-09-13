@@ -22,20 +22,21 @@ def normalized_days(value: dict) -> dict:
 
 def _targets(db, workspace_id: str, days: dict, now: datetime):
     from apps.api.services.audiences.models import AudienceMembershipEvent
-    from apps.api.services.destinations.models import DestinationDelivery
+    from apps.api.services.destinations.models import DestinationDelivery, DestinationInboundReceipt
     from apps.api.services.governance.models import GovernanceAuditEvent
     from apps.api.services.leadgen.orm_models import SignalRow
     from apps.api.services.outreach.orm_models import OutreachSend
     from apps.api.services.playbooks.models import PlaybookResult
-    models = {
-        "audit": (GovernanceAuditEvent, GovernanceAuditEvent.created_at, False),
-        "signals": (SignalRow, SignalRow.created_at, True),
-        "activation": (DestinationDelivery, DestinationDelivery.created_at, False),
-        "audience_history": (AudienceMembershipEvent, AudienceMembershipEvent.created_at, False),
-        "agent_results": (PlaybookResult, PlaybookResult.created_at, False),
-        "outreach_history": (OutreachSend, OutreachSend.created_at, False),
-    }
-    for category, (model, column, epoch) in models.items():
+    models = [
+        ("audit", GovernanceAuditEvent, GovernanceAuditEvent.created_at, False),
+        ("signals", SignalRow, SignalRow.created_at, True),
+        ("activation", DestinationDelivery, DestinationDelivery.created_at, False),
+        ("activation", DestinationInboundReceipt, DestinationInboundReceipt.created_at, False),
+        ("audience_history", AudienceMembershipEvent, AudienceMembershipEvent.created_at, False),
+        ("agent_results", PlaybookResult, PlaybookResult.created_at, False),
+        ("outreach_history", OutreachSend, OutreachSend.created_at, False),
+    ]
+    for category, model, column, epoch in models:
         cutoff = now - timedelta(days=days[category])
         value = cutoff.timestamp() if epoch else cutoff
         yield category, db.query(model).filter(model.workspace_id == workspace_id, column < value)
@@ -43,7 +44,10 @@ def _targets(db, workspace_id: str, days: dict, now: datetime):
 
 def preview_retention(db, workspace_id: str, days: dict, now: datetime | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
-    return {category: query.count() for category, query in _targets(db, workspace_id, normalized_days(days), now)}
+    counts = {category: 0 for category in DEFAULT_DAYS}
+    for category, query in _targets(db, workspace_id, normalized_days(days), now):
+        counts[category] += query.count()
+    return counts
 
 
 def schedule_policy(db, policy, now: datetime | None = None):
@@ -89,7 +93,7 @@ async def handle_retention_enforce(job_id: int, payload: dict) -> None:
             try:
                 counts = {}
                 for category, query in _targets(db, workspace_id, run.policy_snapshot, run.started_at):
-                    counts[category] = query.delete(synchronize_session=False)
+                    counts[category] = counts.get(category, 0) + query.delete(synchronize_session=False)
                 run.deleted_counts, run.status = counts, "completed"
                 run.finished_at = datetime.now(timezone.utc)
                 db.commit()

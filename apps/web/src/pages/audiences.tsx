@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Activity, ArrowDownLeft, ArrowUpRight, Building2, ListFilter, Plus, RefreshCw, Send, Users } from "lucide-react"
+import { Activity, ArrowDownLeft, ArrowUpRight, Building2, Copy, KeyRound, ListFilter, Plus, RefreshCw, Send, Users } from "lucide-react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -24,6 +24,7 @@ interface AudienceAccount {
   decision_makers: number; avg_score: number; email_coverage_pct: number; phone_coverage_pct: number
   signal_count: number; signal_weight: number; profiles: { lead_id: number; name: string; title: string; email: string }[]
 }
+interface InboundReceipt { id: string; destination_id: string; provider: string; external_event_id: string; lead_id: number | null; status: string; conflict_policy: string; applied_fields: string[]; ignored_fields: string[]; error: string | null; created_at: string }
 
 export default function AudiencesPage() {
   const audiences = useAudiences()
@@ -45,6 +46,8 @@ export default function AudiencesPage() {
   const [platformListId, setPlatformListId] = useState("")
   const [googleCustomerId, setGoogleCustomerId] = useState("")
   const [consentSource, setConsentSource] = useState("")
+  const [inboundPolicy, setInboundPolicy] = useState("fill_missing")
+  const [inboundSetup, setInboundSetup] = useState<{ destinationId: string; token?: string; receipts: InboundReceipt[] } | null>(null)
   const [accountRollup, setAccountRollup] = useState<{ accounts: AudienceAccount[]; summary: { account_count: number; contact_count: number; accounts_with_signals: number; accounts_with_decision_makers: number } } | null>(null)
   useEffect(() => {
     if (!selectedId) { setAccountRollup(null); return }
@@ -70,13 +73,29 @@ export default function AudiencesPage() {
       await createDestination.mutateAsync({
         audience_id: selectedId, name: destinationName.trim(), destination_type: destinationType,
         config: destinationType === "webhook" ? { url: webhookUrl.trim(), method: "POST" }
-          : destinationType.endsWith("_ads") ? { ...adConfig, consent_attested: true, consent_source: consentSource.trim() } : {},
+          : destinationType.endsWith("_ads") ? { ...adConfig, consent_attested: true, consent_source: consentSource.trim() }
+          : destinationType === "hubspot" || destinationType === "salesforce" ? { inbound_conflict_policy: inboundPolicy } : {},
       })
       setDestinationName(""); setWebhookUrl(""); setPlatformListId(""); setGoogleCustomerId(""); setConsentSource("")
       toast.success("Destination added")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not add destination")
     }
+  }
+
+  const showInbound = async (destination: AudienceDestination, rotate = false) => {
+    try {
+      let token: string | undefined
+      if (rotate) {
+        const response = await fetch(`/api/audience-destinations/${destination.id}/inbound-token`, { method: "POST" })
+        if (!response.ok) throw new Error(`Could not create inbound token (${response.status})`)
+        token = (await response.json()).token
+      }
+      const response = await fetch(`/api/audience-destinations/${destination.id}/inbound-receipts`)
+      if (!response.ok) throw new Error(`Could not load inbound history (${response.status})`)
+      setInboundSetup({ destinationId: destination.id, token, receipts: await response.json() })
+      if (token) toast.success("Inbound token rotated; copy it now")
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not configure inbound sync") }
   }
 
   return (
@@ -177,6 +196,7 @@ export default function AudiencesPage() {
                     <option value="webhook">Webhook</option><option value="hubspot">HubSpot</option><option value="salesforce">Salesforce</option><option value="meta_ads">Meta Ads</option><option value="google_ads">Google Ads</option><option value="linkedin_ads">LinkedIn Ads</option>
                   </select>
                   <Input value={destinationName} onChange={(event) => setDestinationName(event.target.value)} placeholder="Destination name" className="h-8 min-w-40 flex-1" />
+                  {(destinationType === "hubspot" || destinationType === "salesforce") && <select value={inboundPolicy} onChange={event => setInboundPolicy(event.target.value)} className="h-8 rounded-md border bg-background px-2 text-xs"><option value="fill_missing">Inbound: fill missing fields</option><option value="crm_wins">Inbound: CRM wins</option></select>}
                   {destinationType === "webhook" && <Input value={webhookUrl} onChange={(event) => setWebhookUrl(event.target.value)} placeholder="https://…" className="h-8 min-w-64 flex-[2]" />}
                   {destinationType.endsWith("_ads") && <><Input value={platformListId} onChange={(event) => setPlatformListId(event.target.value)} placeholder={destinationType === "meta_ads" ? "Custom audience ID" : destinationType === "linkedin_ads" ? "Segment ID" : "User list ID"} className="h-8 min-w-40" />{destinationType === "google_ads" && <Input value={googleCustomerId} onChange={(event) => setGoogleCustomerId(event.target.value)} placeholder="Customer ID" className="h-8 min-w-36" />}<Input value={consentSource} onChange={(event) => setConsentSource(event.target.value)} placeholder="Consent source / policy" className="h-8 min-w-48" /></>}
                   <Button size="sm" onClick={addDestination} disabled={createDestination.isPending || !destinationName.trim() || (destinationType === "webhook" && !webhookUrl.trim()) || (destinationType.endsWith("_ads") && (!platformListId.trim() || !consentSource.trim() || (destinationType === "google_ads" && !googleCustomerId.trim())))}><Plus className="mr-1 size-3" /> Add</Button>
@@ -185,9 +205,10 @@ export default function AudiencesPage() {
                 {destinations.data?.map((destination) => (
                   <div key={destination.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
                     <div><div className="flex items-center gap-2"><span className="text-sm font-medium">{destination.name}</span><Badge variant="outline">{destination.destination_type}</Badge><Badge variant={destination.health_status === "healthy" ? "default" : "secondary"}>{destination.health_status}</Badge></div><p className="mt-1 text-xs text-muted-foreground">{destination.last_error || (destination.last_success_at ? `Last synced ${ago(destination.last_success_at)}` : "Not synced yet")}</p></div>
-                    <Button variant="outline" size="sm" disabled={syncDestination.isPending} onClick={() => syncDestination.mutate(destination.id, { onSuccess: (run) => toast.success(`Sync queued: ${run.id.slice(0, 8)}`), onError: (error) => toast.error(error.message) })}><Send className="mr-1 size-3" /> Sync audience</Button>
+                    <div className="flex gap-2">{(destination.destination_type === "hubspot" || destination.destination_type === "salesforce") && <><Button variant="outline" size="sm" onClick={() => showInbound(destination)}><Activity className="mr-1 size-3" /> Inbound history</Button><Button variant="outline" size="sm" onClick={() => showInbound(destination, true)}><KeyRound className="mr-1 size-3" /> Rotate token</Button></>}<Button variant="outline" size="sm" disabled={syncDestination.isPending} onClick={() => syncDestination.mutate(destination.id, { onSuccess: (run) => toast.success(`Sync queued: ${run.id.slice(0, 8)}`), onError: (error) => toast.error(error.message) })}><Send className="mr-1 size-3" /> Sync audience</Button></div>
                   </div>
                 ))}
+                {inboundSetup && <div className="space-y-3 rounded-md border border-primary/30 bg-primary/5 p-3"><div><p className="text-xs font-medium">CRM → OpenGTM callback</p><code className="mt-1 block break-all text-[10px] text-muted-foreground">POST {window.location.origin}/api/audience-destinations/inbound/{inboundSetup.destinationId}</code></div>{inboundSetup.token && <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2"><p className="text-[10px] font-medium text-amber-700 dark:text-amber-300">Shown once. Store this Bearer token in your CRM webhook secret manager.</p><div className="mt-1 flex items-center gap-2"><code className="min-w-0 flex-1 truncate text-xs">{inboundSetup.token}</code><Button size="sm" variant="outline" className="h-7" onClick={() => { navigator.clipboard.writeText(inboundSetup.token || ""); toast.success("Token copied") }}><Copy className="size-3" /> Copy</Button></div></div>}<p className="text-[10px] text-muted-foreground">Send external_event_id, optional external_record_id or lead_id, and fields. Only allowlisted lead fields are accepted; retries are idempotent.</p><div className="space-y-1">{inboundSetup.receipts.slice(0, 8).map(receipt => <div key={receipt.id} className="flex items-center justify-between rounded border bg-background px-2 py-1.5 text-[10px]"><span className="truncate">{receipt.external_event_id} · lead {receipt.lead_id ?? "unmatched"} · {receipt.applied_fields.length} fields</span><Badge variant={receipt.status === "unmatched" ? "destructive" : "outline"}>{receipt.status}</Badge></div>)}{!inboundSetup.receipts.length && <p className="text-[10px] text-muted-foreground">No inbound callbacks received yet.</p>}</div></div>}
                 {!destinations.isLoading && !destinations.data?.length && <p className="py-4 text-center text-xs text-muted-foreground">Connect a destination to activate this audience.</p>}
               </CardContent>
             </Card>

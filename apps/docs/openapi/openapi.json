@@ -1624,6 +1624,50 @@
         "title": "ImportRowsRequest",
         "type": "object"
       },
+      "InboundEvent": {
+        "properties": {
+          "external_event_id": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "External Event Id",
+            "type": "string"
+          },
+          "external_record_id": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Record Id"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          },
+          "lead_id": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lead Id"
+          }
+        },
+        "required": [
+          "external_event_id"
+        ],
+        "title": "InboundEvent",
+        "type": "object"
+      },
       "IngestRowsRequest": {
         "properties": {
           "dedupe": {
@@ -5502,6 +5546,72 @@
         ]
       }
     },
+    "/api/audience-destinations/inbound/{destination_id}": {
+      "post": {
+        "operationId": "receive_inbound_event_api_audience_destinations_inbound__destination_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "destination_id",
+            "required": true,
+            "schema": {
+              "title": "Destination Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InboundEvent"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Receive Inbound Event",
+        "tags": [
+          "audience-destinations"
+        ]
+      }
+    },
     "/api/audience-destinations/runs/{run_id}/deliveries": {
       "get": {
         "operationId": "list_deliveries_api_audience_destinations_runs__run_id__deliveries_get",
@@ -5683,6 +5793,182 @@
           }
         ],
         "summary": "Update Destination",
+        "tags": [
+          "audience-destinations"
+        ]
+      }
+    },
+    "/api/audience-destinations/{destination_id}/inbound-receipts": {
+      "get": {
+        "operationId": "list_inbound_receipts_api_audience_destinations__destination_id__inbound_receipts_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "destination_id",
+            "required": true,
+            "schema": {
+              "title": "Destination Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Inbound Receipts",
+        "tags": [
+          "audience-destinations"
+        ]
+      }
+    },
+    "/api/audience-destinations/{destination_id}/inbound-token": {
+      "delete": {
+        "operationId": "revoke_inbound_token_api_audience_destinations__destination_id__inbound_token_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "destination_id",
+            "required": true,
+            "schema": {
+              "title": "Destination Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Revoke Inbound Token",
+        "tags": [
+          "audience-destinations"
+        ]
+      },
+      "post": {
+        "operationId": "rotate_inbound_token_api_audience_destinations__destination_id__inbound_token_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "destination_id",
+            "required": true,
+            "schema": {
+              "title": "Destination Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Rotate Inbound Token",
         "tags": [
           "audience-destinations"
         ]

@@ -9,7 +9,7 @@ from sqlalchemy.pool import StaticPool
 from apps.api.database import Base
 from apps.api.models import Job
 from apps.api.services.audiences.models import Audience, AudienceMembershipEvent
-from apps.api.services.destinations.models import AudienceDestination, DestinationDelivery, DestinationRun
+from apps.api.services.destinations.models import AudienceDestination, DestinationDelivery, DestinationInboundReceipt, DestinationRun
 from apps.api.services.governance.models import GovernanceAuditEvent, RetentionPolicy, RetentionRun, RetentionSchedule
 from apps.api.services.leadgen.orm_models import SignalRow
 from apps.api.services.outreach.orm_models import OutreachSend
@@ -19,7 +19,7 @@ from apps.api.services.governance.retention import normalized_days, preview_rete
 
 def _session():
     engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
-    Base.metadata.create_all(engine, tables=[Job.__table__, Audience.__table__, AudienceMembershipEvent.__table__, AudienceDestination.__table__, DestinationRun.__table__, DestinationDelivery.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookResult.__table__, SignalRow.__table__, OutreachSend.__table__, GovernanceAuditEvent.__table__, RetentionPolicy.__table__, RetentionSchedule.__table__, RetentionRun.__table__])
+    Base.metadata.create_all(engine, tables=[Job.__table__, Audience.__table__, AudienceMembershipEvent.__table__, AudienceDestination.__table__, DestinationRun.__table__, DestinationDelivery.__table__, DestinationInboundReceipt.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookResult.__table__, SignalRow.__table__, OutreachSend.__table__, GovernanceAuditEvent.__table__, RetentionPolicy.__table__, RetentionSchedule.__table__, RetentionRun.__table__])
     return sessionmaker(bind=engine)
 
 

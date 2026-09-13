@@ -97,3 +97,43 @@ class DestinationDelivery(Base):
             "id", "run_id", "destination_id", "lead_id", "operation", "status",
             "attempts", "external_id", "summary", "error", "delivered_at", "created_at",
         )}
+
+
+class DestinationInboundToken(Base):
+    """Hashed destination-bound machine credential; auth-plane, not RLS."""
+    __tablename__ = "destination_inbound_tokens"
+    __table_args__ = (Index("ix_destination_inbound_token_hash", "token_hash", unique=True),)
+    id = Column(String(36), primary_key=True, default=_uuid)
+    workspace_id = Column(String(64), nullable=False, index=True)
+    destination_id = Column(String, nullable=False, index=True)
+    token_hash = Column(String(64), nullable=False)
+    prefix = Column(String(20), nullable=False)
+    created_by = Column(Integer, nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    revoked_at = Column(DateTime, nullable=True)
+
+
+class DestinationInboundReceipt(Base):
+    """Tenant-scoped idempotency and reconciliation evidence for CRM callbacks."""
+    __tablename__ = "destination_inbound_receipts"
+    __table_args__ = (
+        UniqueConstraint("workspace_id", "destination_id", "external_event_id", name="uq_destination_inbound_event"),
+        Index("ix_destination_inbound_ws_destination_created", "workspace_id", "destination_id", "created_at"),
+    )
+    id = Column(String(36), primary_key=True, default=_uuid)
+    workspace_id = Column(String(64), nullable=False, index=True)
+    destination_id = Column(String, nullable=False, index=True)
+    provider = Column(String(32), nullable=False)
+    external_event_id = Column(String(255), nullable=False)
+    external_record_id = Column(String(255), nullable=True)
+    lead_id = Column(Integer, nullable=True, index=True)
+    status = Column(String(24), nullable=False)
+    conflict_policy = Column(String(24), nullable=False)
+    applied_fields = Column(JSON, nullable=False, default=list)
+    ignored_fields = Column(JSON, nullable=False, default=list)
+    payload_fingerprint = Column(String(64), nullable=False)
+    error = Column(Text, nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+
+    def to_api(self):
+        return {key: getattr(self, key) for key in ("id", "destination_id", "provider", "external_event_id", "external_record_id", "lead_id", "status", "conflict_policy", "applied_fields", "ignored_fields", "error", "created_at")}

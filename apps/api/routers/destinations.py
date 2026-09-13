@@ -3,18 +3,19 @@
 from typing import Optional
 from urllib.parse import urlparse
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from apps.api.core.tenancy import WorkspaceCtx, current_workspace, require_workspace_role
-from apps.api.database import get_db
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace, require_workspace_role, workspace_scope
+from apps.api.database import SessionLocal, get_db
 from apps.api.services.audiences.models import Audience
-from apps.api.services.destinations.models import AudienceDestination, DestinationDelivery, DestinationRun
+from apps.api.services.destinations.models import AudienceDestination, DestinationDelivery, DestinationInboundReceipt, DestinationInboundToken, DestinationRun
 
 router = APIRouter(prefix="/api/audience-destinations", tags=["audience-destinations"])
 require_editor = require_workspace_role("editor", "admin")
+require_admin = require_workspace_role("admin")
 TYPES = {"webhook", "hubspot", "salesforce", "meta_ads", "google_ads", "linkedin_ads"}
 
 
@@ -101,6 +102,24 @@ class DestinationPatch(BaseModel):
         value = value.strip()
         if not value:
             raise ValueError("name cannot be blank")
+        return value
+
+
+class InboundEvent(BaseModel):
+    external_event_id: str = Field(min_length=1, max_length=255)
+    external_record_id: Optional[str] = Field(default=None, max_length=255)
+    lead_id: Optional[int] = Field(default=None, ge=1)
+    fields: dict = Field(default_factory=dict)
+
+    @field_validator("fields")
+    @classmethod
+    def bounded_fields(cls, value: dict) -> dict:
+        if len(value) > 50:
+            raise ValueError("fields may contain at most 50 entries")
+        if any(isinstance(item, (dict, list)) for item in value.values()):
+            raise ValueError("field values must be scalar")
+        if any(len(str(item)) > 10_000 for item in value.values() if item is not None):
+            raise ValueError("field values may not exceed 10000 characters")
         return value
 
 
@@ -205,7 +224,58 @@ def list_deliveries(run_id: str, db: Session = Depends(get_db), ctx: WorkspaceCt
     ).order_by(DestinationDelivery.id.asc()).all()]
 
 
+@router.post("/{destination_id}/inbound-token")
+def rotate_inbound_token(destination_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_admin)):
+    destination = _get(db, ctx.workspace_id, destination_id)
+    if destination.destination_type not in {"hubspot", "salesforce"}:
+        raise HTTPException(status_code=409, detail="Inbound sync tokens are only available for CRM destinations")
+    from datetime import datetime, timezone
+    from apps.api.services.destinations.inbound import generate_token
+    db.query(DestinationInboundToken).filter(DestinationInboundToken.workspace_id == ctx.workspace_id, DestinationInboundToken.destination_id == destination.id, DestinationInboundToken.revoked_at.is_(None)).update({DestinationInboundToken.revoked_at: datetime.now(timezone.utc)}, synchronize_session=False)
+    raw, digest, prefix = generate_token()
+    token = DestinationInboundToken(workspace_id=ctx.workspace_id, destination_id=destination.id, token_hash=digest, prefix=prefix, created_by=ctx.user.id)
+    db.add(token); db.commit(); db.refresh(token)
+    return {"token": raw, "prefix": prefix, "created_at": token.created_at, "warning": "Copy this token now; it will not be shown again."}
+
+
+@router.delete("/{destination_id}/inbound-token", status_code=204)
+def revoke_inbound_token(destination_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_admin)):
+    _get(db, ctx.workspace_id, destination_id)
+    from datetime import datetime, timezone
+    db.query(DestinationInboundToken).filter(DestinationInboundToken.workspace_id == ctx.workspace_id, DestinationInboundToken.destination_id == destination_id, DestinationInboundToken.revoked_at.is_(None)).update({DestinationInboundToken.revoked_at: datetime.now(timezone.utc)}, synchronize_session=False)
+    db.commit()
+
+
+@router.get("/{destination_id}/inbound-receipts")
+def list_inbound_receipts(destination_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+    _get(db, ctx.workspace_id, destination_id)
+    return [row.to_api() for row in db.query(DestinationInboundReceipt).filter(DestinationInboundReceipt.workspace_id == ctx.workspace_id, DestinationInboundReceipt.destination_id == destination_id).order_by(DestinationInboundReceipt.created_at.desc()).limit(100).all()]
+
+
+@router.post("/inbound/{destination_id}")
+def receive_inbound_event(destination_id: str, body: InboundEvent, authorization: Optional[str] = Header(default=None)):
+    raw = authorization[7:].strip() if authorization and authorization.lower().startswith("bearer ") else ""
+    from apps.api.services.destinations.inbound import DestinationAuthError, reconcile, resolve_token
+    try:
+        workspace_id = resolve_token(raw, destination_id)
+    except DestinationAuthError as exc:
+        raise HTTPException(status_code=401, detail=str(exc), headers={"WWW-Authenticate": "Bearer"})
+    with workspace_scope(workspace_id):
+        with SessionLocal() as db:
+            destination = db.query(AudienceDestination).filter(AudienceDestination.id == destination_id, AudienceDestination.workspace_id == workspace_id).first()
+            if destination is None or destination.destination_type not in {"hubspot", "salesforce"} or not destination.enabled:
+                raise HTTPException(status_code=404, detail="Active CRM destination not found")
+            try:
+                receipt, replay = reconcile(db, destination, body.model_dump())
+            except ValueError as exc:
+                raise HTTPException(status_code=422, detail=str(exc))
+            return {**receipt, "replay": replay}
+
+
 @router.delete("/{destination_id}", status_code=204)
 def delete_destination(destination_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_editor)):
-    db.delete(_get(db, ctx.workspace_id, destination_id))
+    destination = _get(db, ctx.workspace_id, destination_id)
+    from datetime import datetime, timezone
+    db.query(DestinationInboundToken).filter(DestinationInboundToken.workspace_id == ctx.workspace_id, DestinationInboundToken.destination_id == destination_id, DestinationInboundToken.revoked_at.is_(None)).update({DestinationInboundToken.revoked_at: datetime.now(timezone.utc)}, synchronize_session=False)
+    db.delete(destination)
     db.commit()
