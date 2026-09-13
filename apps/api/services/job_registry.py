@@ -41,6 +41,7 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
     from apps.api.services.audiences.scheduler import handle_audience_refresh
     from apps.api.services.destinations.engine import handle_destination_sync
     from apps.api.services.playbooks.engine import handle_playbook_run
+    from apps.api.services.governance.retention import handle_retention_enforce
 
     handlers = {
         "run_workbook": handle_run_workbook,
@@ -59,6 +60,7 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
         "audience_refresh": handle_audience_refresh,
         "audience_destination_sync": handle_destination_sync,
         "research_playbook_run": handle_playbook_run,
+        "retention_enforce": handle_retention_enforce,
     }
     for job_type, handler in handlers.items():
         queue.register_handler(job_type, handler)

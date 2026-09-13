@@ -5,6 +5,7 @@ import {
   Eye, EyeOff, Star, Globe, Diamond, Leaf, Zap,
   Brain, Sparkles, Shell, Hexagon, Cloud, Smile, Flame, Waves,
   Search, Bot, BarChart3, Radio, Mail, ShieldCheck, Download, RefreshCw,
+  Database, Trash2,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -310,6 +311,18 @@ interface AuditEvent {
   request_id: string; created_at: string
 }
 
+type RetentionCategory = "audit" | "signals" | "activation" | "audience_history" | "agent_results" | "outreach_history"
+interface RetentionPolicy { enabled: boolean; legal_hold: boolean; retention_days: Record<RetentionCategory, number>; next_run_at: string | null }
+interface RetentionRun { id: string; status: string; requested_by: string | null; deleted_counts: Record<string, number>; error: string | null; created_at: string }
+const RETENTION_FIELDS: { key: RetentionCategory; label: string; hint: string; min: number }[] = [
+  { key: "audit", label: "Audit events", hint: "Security and mutation evidence", min: 90 },
+  { key: "signals", label: "Signal observations", hint: "Intent and market signal rows", min: 30 },
+  { key: "activation", label: "Activation deliveries", hint: "Destination delivery history", min: 30 },
+  { key: "audience_history", label: "Audience history", hint: "Membership change events", min: 30 },
+  { key: "agent_results", label: "Agent results", hint: "Research playbook results", min: 30 },
+  { key: "outreach_history", label: "Outreach history", hint: "Email send records", min: 30 },
+]
+
 function GovernanceAuditTab() {
   const [events, setEvents] = useState<AuditEvent[]>([])
   const [loading, setLoading] = useState(true)
@@ -328,10 +341,70 @@ function GovernanceAuditTab() {
     const anchor = document.createElement("a"); anchor.href = url; anchor.download = "opengtm-audit-events.csv"; anchor.click(); URL.revokeObjectURL(url)
   }
   return <>
+    <RetentionPolicyCard />
+    <Separator />
     <div className="flex items-start justify-between gap-3"><div><h3 className="flex items-center gap-2 text-sm font-medium"><ShieldCheck className="size-4" /> Workspace audit log</h3><p className="mt-1 text-xs text-muted-foreground">Append-only records for authenticated API mutations. Request bodies and credentials are never retained.</p></div><div className="flex gap-2"><Button size="sm" variant="outline" onClick={load} disabled={loading}><RefreshCw className={loading ? "size-3 animate-spin" : "size-3"} /> Refresh</Button><Button size="sm" variant="outline" onClick={download}><Download className="size-3" /> Export CSV</Button></div></div>
     <Separator />
     <Card><CardContent className="p-0"><div className="max-h-[520px] overflow-auto"><table className="w-full text-left text-xs"><thead className="sticky top-0 bg-card text-muted-foreground"><tr><th className="p-3">Time</th><th className="p-3">Actor</th><th className="p-3">Action</th><th className="p-3">Resource</th><th className="p-3">Outcome</th><th className="p-3">Request ID</th></tr></thead><tbody>{events.map(event => <tr key={event.id} className="border-t"><td className="whitespace-nowrap p-3">{new Date(event.created_at).toLocaleString()}</td><td className="p-3">{event.actor_user_id ?? "system"} <span className="text-muted-foreground">({event.actor_role || "—"})</span></td><td className="p-3 font-mono">{event.method} {event.route}</td><td className="max-w-64 truncate p-3 font-mono text-muted-foreground">{event.resource_path}</td><td className="p-3"><Badge variant={event.outcome === "success" ? "outline" : "destructive"}>{event.response_status} {event.outcome}</Badge></td><td className="max-w-36 truncate p-3 font-mono text-muted-foreground" title={event.request_id}>{event.request_id}</td></tr>)}</tbody></table>{!loading && !events.length && <p className="p-10 text-center text-xs text-muted-foreground">No workspace mutations recorded yet.</p>}{loading && <div className="p-4"><Skeleton className="h-28 w-full" /></div>}</div></CardContent></Card>
   </>
+}
+
+function RetentionPolicyCard() {
+  const [policy, setPolicy] = useState<RetentionPolicy | null>(null)
+  const [runs, setRuns] = useState<RetentionRun[]>([])
+  const [preview, setPreview] = useState<Record<string, number> | null>(null)
+  const [confirmation, setConfirmation] = useState("")
+  const [busy, setBusy] = useState("")
+
+  const load = async () => {
+    const [policyResponse, runsResponse] = await Promise.all([
+      fetch("/api/governance/retention"), fetch("/api/governance/retention/runs"),
+    ])
+    if (!policyResponse.ok || !runsResponse.ok) throw new Error(policyResponse.status === 403 ? "Workspace admin access is required" : "Could not load retention policy")
+    setPolicy(await policyResponse.json()); setRuns(await runsResponse.json())
+  }
+  useEffect(() => { load().catch(error => toast.error(error.message)) }, [])
+
+  const save = async () => {
+    if (!policy) return
+    setBusy("save")
+    try {
+      const response = await fetch("/api/governance/retention", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(policy) })
+      if (!response.ok) throw new Error((await response.json()).detail || "Could not save retention policy")
+      setPolicy(await response.json()); setPreview(null); toast.success("Retention policy saved")
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save retention policy") }
+    finally { setBusy("") }
+  }
+  const inspect = async () => {
+    setBusy("preview")
+    try {
+      const response = await fetch("/api/governance/retention/preview", { method: "POST" })
+      if (!response.ok) throw new Error("Could not preview expired records")
+      setPreview((await response.json()).expired_counts)
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not preview expired records") }
+    finally { setBusy("") }
+  }
+  const enforce = async () => {
+    setBusy("enforce")
+    try {
+      const response = await fetch("/api/governance/retention/enforce", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirmation }) })
+      if (!response.ok) throw new Error((await response.json()).detail || "Could not start retention run")
+      const run = await response.json(); setRuns(current => [run, ...current]); setConfirmation(""); toast.success("Retention run queued")
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not start retention run") }
+    finally { setBusy("") }
+  }
+  if (!policy) return <Skeleton className="h-64 w-full" />
+  const expiredTotal = Object.values(preview || {}).reduce((sum, count) => sum + count, 0)
+  return <Card>
+    <CardHeader><div className="flex items-start justify-between gap-4"><div><CardTitle className="flex items-center gap-2 text-sm"><Database className="size-4" /> Data retention</CardTitle><CardDescription className="mt-1">Automatically remove expired operational history by workspace. Legal hold suspends every scheduled and manual purge.</CardDescription></div><Badge variant={policy.legal_hold ? "destructive" : policy.enabled ? "default" : "secondary"}>{policy.legal_hold ? "Legal hold" : policy.enabled ? "Scheduled" : "Manual only"}</Badge></div></CardHeader>
+    <CardContent className="space-y-5">
+      <div className="flex flex-wrap gap-6 rounded-md border p-3 text-xs"><label className="flex items-center gap-2"><input type="checkbox" checked={policy.enabled} onChange={event => setPolicy({ ...policy, enabled: event.target.checked })} className="size-4" /> Run daily</label><label className="flex items-center gap-2 font-medium text-destructive"><input type="checkbox" checked={policy.legal_hold} onChange={event => setPolicy({ ...policy, legal_hold: event.target.checked })} className="size-4" /> Legal hold</label>{policy.next_run_at && <span className="text-muted-foreground">Next run {new Date(policy.next_run_at).toLocaleString()}</span>}</div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{RETENTION_FIELDS.map(field => <div key={field.key} className="space-y-1"><Label className="text-xs">{field.label}</Label><Input type="number" min={field.min} max={3650} value={policy.retention_days[field.key]} onChange={event => setPolicy({ ...policy, retention_days: { ...policy.retention_days, [field.key]: Number(event.target.value) } })} /><p className="text-[11px] text-muted-foreground">{field.hint} · min {field.min} days</p></div>)}</div>
+      <div className="flex flex-wrap gap-2"><Button size="sm" onClick={save} disabled={!!busy}>{busy === "save" && <Loader2 className="size-3 animate-spin" />} Save policy</Button><Button size="sm" variant="outline" onClick={inspect} disabled={!!busy}>{busy === "preview" ? <Loader2 className="size-3 animate-spin" /> : <Eye className="size-3" />} Preview expired data</Button></div>
+      {preview && <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 space-y-3"><p className="text-xs"><strong>{expiredTotal.toLocaleString()} records</strong> currently match the saved policy. Preview does not delete data.</p><div className="flex flex-wrap gap-2">{RETENTION_FIELDS.map(field => <Badge key={field.key} variant="outline">{field.label}: {(preview[field.key] || 0).toLocaleString()}</Badge>)}</div><div className="flex flex-col gap-2 sm:flex-row"><Input aria-label="Purge confirmation" placeholder="Type PURGE EXPIRED DATA" value={confirmation} onChange={event => setConfirmation(event.target.value)} className="font-mono" /><Button variant="destructive" onClick={enforce} disabled={confirmation !== "PURGE EXPIRED DATA" || policy.legal_hold || !!busy || expiredTotal === 0}>{busy === "enforce" ? <Loader2 className="size-3 animate-spin" /> : <Trash2 className="size-3" />} Purge expired data</Button></div></div>}
+      {!!runs.length && <div className="space-y-2"><Label className="text-xs">Recent enforcement runs</Label>{runs.slice(0, 5).map(run => <div key={run.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-xs"><span>{new Date(run.created_at).toLocaleString()} · {Object.values(run.deleted_counts || {}).reduce((sum, count) => sum + count, 0).toLocaleString()} deleted</span><Badge variant={run.status === "failed" ? "destructive" : "outline"}>{run.status}</Badge></div>)}</div>}
+    </CardContent>
+  </Card>
 }
 
 // ── Enrichment Performance Tab ───────────────────────────────────

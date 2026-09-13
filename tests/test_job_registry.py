@@ -19,6 +19,7 @@ EXPECTED_JOB_TYPES = {
     "audience_refresh",
     "audience_destination_sync",
     "research_playbook_run",
+    "retention_enforce",
 }
 
 
