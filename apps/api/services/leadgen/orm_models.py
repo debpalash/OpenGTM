@@ -173,3 +173,28 @@ class SignalRow(Base):
         Index("ix_signals_ws_lead", "workspace_id", "lead_id"),
         Index("ix_signals_ws_created", "workspace_id", "created_at"),
     )
+
+
+class LLMUsageRow(Base):
+    """Daily tenant/provider aggregate for shared PostgreSQL deployments."""
+
+    __tablename__ = "llm_usage_daily"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    workspace_id = Column(String, nullable=False, index=True)
+    provider = Column(String(64), nullable=False)
+    model = Column(String(255), nullable=False, default="")
+    date = Column(String(10), nullable=False)
+    calls = Column(Integer, nullable=False, default=0)
+    prompt_tokens = Column(Integer, nullable=False, default=0)
+    completion_tokens = Column(Integer, nullable=False, default=0)
+    total_tokens = Column(Integer, nullable=False, default=0)
+    rate_limit = Column(Integer, nullable=False, default=0)
+    rate_remaining = Column(Integer, nullable=False, default=0)
+    rate_reset = Column(String(255), nullable=False, default="")
+    updated_at = Column(String, nullable=False, default=_utcnow_iso)
+
+    __table_args__ = (
+        UniqueConstraint("workspace_id", "provider", "date", name="uq_llm_usage_ws_provider_date"),
+        Index("ix_llm_usage_ws_date", "workspace_id", "date"),
+    )
