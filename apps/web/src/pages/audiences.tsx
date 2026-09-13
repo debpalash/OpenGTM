@@ -36,6 +36,9 @@ export default function AudiencesPage() {
   const [destinationType, setDestinationType] = useState<AudienceDestination["destination_type"]>("webhook")
   const [destinationName, setDestinationName] = useState("")
   const [webhookUrl, setWebhookUrl] = useState("")
+  const [platformListId, setPlatformListId] = useState("")
+  const [googleCustomerId, setGoogleCustomerId] = useState("")
+  const [consentSource, setConsentSource] = useState("")
 
   const runRefresh = async () => {
     if (!selectedId) return
@@ -50,11 +53,15 @@ export default function AudiencesPage() {
   const addDestination = async () => {
     if (!selectedId || !destinationName.trim()) return
     try {
+      const adConfig = destinationType === "meta_ads" ? { custom_audience_id: platformListId.trim() }
+        : destinationType === "linkedin_ads" ? { segment_id: platformListId.trim() }
+        : destinationType === "google_ads" ? { customer_id: googleCustomerId.trim(), user_list_id: platformListId.trim() } : {}
       await createDestination.mutateAsync({
         audience_id: selectedId, name: destinationName.trim(), destination_type: destinationType,
-        config: destinationType === "webhook" ? { url: webhookUrl.trim(), method: "POST" } : {},
+        config: destinationType === "webhook" ? { url: webhookUrl.trim(), method: "POST" }
+          : destinationType.endsWith("_ads") ? { ...adConfig, consent_attested: true, consent_source: consentSource.trim() } : {},
       })
-      setDestinationName(""); setWebhookUrl("")
+      setDestinationName(""); setWebhookUrl(""); setPlatformListId(""); setGoogleCustomerId(""); setConsentSource("")
       toast.success("Destination added")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not add destination")
@@ -155,12 +162,14 @@ export default function AudiencesPage() {
               <CardContent className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2 rounded-md border p-2">
                   <select value={destinationType} onChange={(event) => setDestinationType(event.target.value as AudienceDestination["destination_type"])} className="h-8 rounded-md border bg-background px-2 text-xs">
-                    <option value="webhook">Webhook</option><option value="hubspot">HubSpot</option><option value="salesforce">Salesforce</option>
+                    <option value="webhook">Webhook</option><option value="hubspot">HubSpot</option><option value="salesforce">Salesforce</option><option value="meta_ads">Meta Ads</option><option value="google_ads">Google Ads</option><option value="linkedin_ads">LinkedIn Ads</option>
                   </select>
                   <Input value={destinationName} onChange={(event) => setDestinationName(event.target.value)} placeholder="Destination name" className="h-8 min-w-40 flex-1" />
                   {destinationType === "webhook" && <Input value={webhookUrl} onChange={(event) => setWebhookUrl(event.target.value)} placeholder="https://…" className="h-8 min-w-64 flex-[2]" />}
-                  <Button size="sm" onClick={addDestination} disabled={createDestination.isPending || !destinationName.trim() || (destinationType === "webhook" && !webhookUrl.trim())}><Plus className="mr-1 size-3" /> Add</Button>
+                  {destinationType.endsWith("_ads") && <><Input value={platformListId} onChange={(event) => setPlatformListId(event.target.value)} placeholder={destinationType === "meta_ads" ? "Custom audience ID" : destinationType === "linkedin_ads" ? "Segment ID" : "User list ID"} className="h-8 min-w-40" />{destinationType === "google_ads" && <Input value={googleCustomerId} onChange={(event) => setGoogleCustomerId(event.target.value)} placeholder="Customer ID" className="h-8 min-w-36" />}<Input value={consentSource} onChange={(event) => setConsentSource(event.target.value)} placeholder="Consent source / policy" className="h-8 min-w-48" /></>}
+                  <Button size="sm" onClick={addDestination} disabled={createDestination.isPending || !destinationName.trim() || (destinationType === "webhook" && !webhookUrl.trim()) || (destinationType.endsWith("_ads") && (!platformListId.trim() || !consentSource.trim() || (destinationType === "google_ads" && !googleCustomerId.trim())))}><Plus className="mr-1 size-3" /> Add</Button>
                 </div>
+                {destinationType.endsWith("_ads") && <p className="text-xs text-muted-foreground">Adding this destination attests that the audience has valid advertising consent. OpenGTM SHA-256 hashes identifiers before upload; platform API approval may be required.</p>}
                 {destinations.data?.map((destination) => (
                   <div key={destination.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
                     <div><div className="flex items-center gap-2"><span className="text-sm font-medium">{destination.name}</span><Badge variant="outline">{destination.destination_type}</Badge><Badge variant={destination.health_status === "healthy" ? "default" : "secondary"}>{destination.health_status}</Badge></div><p className="mt-1 text-xs text-muted-foreground">{destination.last_error || (destination.last_success_at ? `Last synced ${ago(destination.last_success_at)}` : "Not synced yet")}</p></div>

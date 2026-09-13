@@ -131,6 +131,17 @@ def test_destination_validation_and_tenant_isolation(destination_app):
     assert tc.get("/api/audience-destinations").json() == []
     assert tc.patch("/api/audience-destinations/dest-hidden", json={"enabled": False}).status_code == 404
 
+    missing_consent = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Meta", "destination_type": "meta_ads",
+        "config": {"custom_audience_id": "123"},
+    })
+    assert missing_consent.status_code == 422
+    ad = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Meta", "destination_type": "meta_ads",
+        "config": {"custom_audience_id": "123", "consent_attested": True, "consent_source": "CRM opt-in"},
+    })
+    assert ad.status_code == 201, ad.text
+
     app.dependency_overrides[current_workspace] = lambda: _ctx(WS2)
     assert tc.get("/api/audience-destinations").json()[0]["name"] == "Hidden"
 
@@ -151,3 +162,35 @@ def test_audience_change_auto_enqueues_destination_once(destination_app):
     assert session.query(DestinationRun).filter(DestinationRun.destination_id == destination.id).count() == 1
     assert session.query(Job).filter(Job.type == "audience_destination_sync", Job.status == "pending").count() == 1
     session.close()
+
+
+def test_paid_media_sync_batches_hashed_identifiers(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    created = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "LinkedIn", "destination_type": "linkedin_ads",
+        "config": {"segment_id": "987", "consent_attested": True, "consent_source": "CRM opt-in"},
+    })
+    run_id = tc.post(f"/api/audience-destinations/{created.json()['id']}/sync").json()["id"]
+    from apps.api.services.destinations import ads, engine as destination_engine
+    captured = []
+
+    async def fake_batch(workspace_id, dtype, config, snapshots):
+        captured.extend(snapshots)
+        return ads.AdBatchResult(True, "uploaded 1 hashed users", external_id="job-1")
+
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    monkeypatch.setattr(ads, "sync_ad_batch", fake_batch)
+    asyncio.run(destination_engine.handle_destination_sync(1, {"workspace_id": WS1, "run_id": run_id}))
+    assert captured == [{"id": 42, "company": "Acme", "email": "buyer@acme.test"}]
+    delivery = tc.get(f"/api/audience-destinations/runs/{run_id}/deliveries").json()[0]
+    assert delivery["status"] == "success"
+    assert delivery["external_id"] == "job-1"
+
+
+def test_ad_identifier_normalization_never_returns_raw_pii():
+    from apps.api.services.destinations.ads import hashed_identifiers
+
+    identifiers = hashed_identifiers({"email": " Buyer@Acme.Test ", "phone": "+1 (415) 555-0123"})
+    assert identifiers["email"] == "b292f2116ddeba3b424ddeb0ad00067c22b4be4398239732b6a8a615eece634c"
+    assert identifiers["phone"] == "413ba75461ab5f99d36820e561ea97e2bd80f9cb586f7ecea6cf4c496518950a"
+    assert "buyer" not in str(identifiers)
