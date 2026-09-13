@@ -308,6 +308,15 @@ def cmd_restore(args):
     print(json.dumps(report, indent=2))
 
 
+def cmd_secrets_rotate(args):
+    import json
+    from apps.api.services.workspace.secrets import rotate_encrypted_secrets
+
+    if args.confirm != "ROTATE OPENGTM SECRETS":
+        raise SystemExit('Secret rotation requires --confirm "ROTATE OPENGTM SECRETS"')
+    print(json.dumps(rotate_encrypted_secrets(), indent=2))
+
+
 def main():
     parser = argparse.ArgumentParser(description="OpenGTM — GTM agents for the world")
     sub = parser.add_subparsers(dest="command", help="Command to run")
@@ -416,6 +425,9 @@ def main():
     p.add_argument("--database-url", help="Disposable target PostgreSQL URL")
     p.add_argument("--confirm", required=True, help='Must equal "RESTORE OPENGTM BACKUP"')
 
+    p = sub.add_parser("secrets-rotate", help="Re-encrypt workspace secrets with the configured provider")
+    p.add_argument("--confirm", required=True, help='Must equal "ROTATE OPENGTM SECRETS"')
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -434,6 +446,7 @@ def main():
         "backup": cmd_backup,
         "backup-verify": cmd_backup_verify,
         "restore": cmd_restore,
+        "secrets-rotate": cmd_secrets_rotate,
     }
     cmds[args.command](args)
 

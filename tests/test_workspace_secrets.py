@@ -8,6 +8,7 @@ CRM path uses the per-workspace secret when present (CRM send mocked).
 import asyncio
 import os
 import sqlite3
+from types import SimpleNamespace
 
 import pytest
 
@@ -107,6 +108,81 @@ def test_blank_value_does_not_clobber(temp_ws_db):
     secrets_mod.set_secret("ws-A", "HUBSPOT_TOKEN", "keep-me")
     secrets_mod.set_secret("ws-A", "HUBSPOT_TOKEN", "   ")  # ignored
     assert secrets_mod.get_secret("ws-A", "HUBSPOT_TOKEN") == "keep-me"
+
+
+def test_vault_transit_envelope_and_legacy_rotation(temp_ws_db, monkeypatch):
+    from apps.api.core.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "SECRETS_PROVIDER", "local")
+    secrets_mod.set_secret("ws-A", "HUBSPOT_TOKEN", "legacy-token")
+    assert _raw_stored(temp_ws_db, "ws-A", "HUBSPOT_TOKEN").startswith("enc:v1:")
+
+    vault_values = {}
+
+    def fake_vault(action, payload):
+        if action == "encrypt":
+            ciphertext = f"vault:v1:{len(vault_values) + 1}"
+            vault_values[ciphertext] = payload["plaintext"]
+            return ciphertext
+        return vault_values[payload["ciphertext"]]
+
+    monkeypatch.setattr(secrets_mod, "_vault_request", fake_vault)
+    monkeypatch.setattr(settings, "SECRETS_PROVIDER", "vault_transit")
+    report = secrets_mod.rotate_encrypted_secrets()
+    assert report == {"rotated": 1}
+    stored = _raw_stored(temp_ws_db, "ws-A", "HUBSPOT_TOKEN")
+    assert stored.startswith("enc:v2:vault:vault:v1:")
+    assert secrets_mod.get_secret("ws-A", "HUBSPOT_TOKEN") == "legacy-token"
+
+
+def test_unknown_secret_provider_fails_closed(monkeypatch):
+    from apps.api.core.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "SECRETS_PROVIDER", "mystery")
+    with pytest.raises(RuntimeError, match="Unsupported SECRETS_PROVIDER"):
+        secrets_mod.encrypt_value("never plaintext")
+
+
+def test_vault_request_uses_https_agent_token_and_namespace(tmp_path, monkeypatch):
+    from apps.api.core.config import get_settings
+
+    settings = get_settings()
+    token_file = tmp_path / "vault-token"
+    token_file.write_text("rotating-token\n", encoding="utf-8")
+    monkeypatch.setattr(settings, "VAULT_ADDR", "https://vault.example.com/")
+    monkeypatch.setattr(settings, "VAULT_TOKEN", "")
+    monkeypatch.setattr(settings, "VAULT_TOKEN_FILE", str(token_file))
+    monkeypatch.setattr(settings, "VAULT_TRANSIT_KEY", "tenant-secrets")
+    monkeypatch.setattr(settings, "VAULT_NAMESPACE", "org/team")
+    captured = {}
+
+    def fake_post(url, **kwargs):
+        captured.update(url=url, **kwargs)
+        return SimpleNamespace(
+            raise_for_status=lambda: None,
+            json=lambda: {"data": {"ciphertext": "vault:v1:ciphertext"}},
+        )
+
+    monkeypatch.setattr(secrets_mod.httpx, "post", fake_post)
+    assert secrets_mod._vault_request("encrypt", {"plaintext": "c2VjcmV0"}) == "vault:v1:ciphertext"
+    assert captured["url"] == "https://vault.example.com/v1/transit/encrypt/tenant-secrets"
+    assert captured["headers"]["X-Vault-Token"] == "rotating-token"
+    assert captured["headers"]["X-Vault-Namespace"] == "org/team"
+    assert "rotating-token" not in captured["url"]
+
+
+def test_vault_rejects_insecure_or_credentialed_address(monkeypatch):
+    from apps.api.core.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "VAULT_TOKEN", "token")
+    monkeypatch.setattr(settings, "VAULT_TOKEN_FILE", "")
+    for address in ("http://vault.example.com", "https://user:pass@vault.example.com"):
+        monkeypatch.setattr(settings, "VAULT_ADDR", address)
+        with pytest.raises(RuntimeError, match="clean HTTPS"):
+            secrets_mod._vault_config()
 
 
 def test_output_crm_uses_workspace_secret(temp_ws_db, monkeypatch):

@@ -86,7 +86,7 @@ OpenGTM's tenant isolation is PostgreSQL RLS plus application-level checks,
 which is a strong boundary for one organisation's workspaces. Before offering
 it to strangers as a service, the [architecture notes](/reference/architecture/)
 list what still has to move: a controlled egress proxy for outbound fetches,
-managed key storage for the workspace secret encryption key, controlled-live
-SSO validation, scheduled restore drills, and an external security review. Offering OpenGTM as a
+controlled-live Vault Transit and SSO validation, scheduled restore drills, and
+an external security review. Offering OpenGTM as a
 network service also triggers the AGPL source-availability clause; see
 [License](/community/license/).

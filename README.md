@@ -319,8 +319,8 @@ user work runs through the durable worker. The remaining boundaries are:
   member-only sessions with owner break-glass), SCIM, and audit export are built,
   but still need controlled-live IdP validation. Before exposing OpenGTM to
   mutually hostile public tenants, also add a controlled outbound egress proxy,
-  managed KMS, regularly execute the shipped integrity-checked backup/restore
-  drill, and complete an external security review.
+  validate the shipped Vault Transit custody path, regularly execute the
+  integrity-checked backup/restore drill, and complete an external security review.
 - **Billing is an optional mechanism, not a hosted billing operation.** The
   feature-flagged credit ledger, idempotent debit, 402 gate, and Stripe top-up
   webhook exist. Tax, refunds, subscriptions, and customer lifecycle operations

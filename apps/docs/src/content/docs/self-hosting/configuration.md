@@ -44,6 +44,10 @@ environment. Provider keys can also be set per workspace in
 | Variable | Default | Meaning |
 |---|---|---|
 | `SECRETS_MASTER_KEY` | derived from `SECRET_KEY` | Fernet key for per-workspace secrets |
+| `SECRETS_PROVIDER` | `local` | `local` or `vault_transit` managed custody |
+| `VAULT_ADDR`, `VAULT_TRANSIT_KEY` | | HTTPS Vault address and Transit key name |
+| `VAULT_TOKEN`, `VAULT_TOKEN_FILE` | | Static token or Vault Agent token sink |
+| `VAULT_NAMESPACE`, `VAULT_CACERT` | | Optional Enterprise namespace and private CA bundle |
 | `BILLING_ENABLED` | off | Credit ledger and 402 gate; off means runs are never blocked |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | | Stripe top-ups |
 | `OUTREACH_SEND_COST_USD`, `POLLER_*_COST_USD` | 0.0 | Platform-metered costs |
