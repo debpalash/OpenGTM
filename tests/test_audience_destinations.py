@@ -79,7 +79,7 @@ def test_destination_type_catalog_fails_closed_to_beta(destination_app, monkeypa
     types = response.json()["types"]
     assert {item["id"] for item in types} == {
         "webhook", "hubspot", "salesforce", "warehouse_http",
-        "meta_ads", "google_ads", "linkedin_ads",
+        "meta_ads", "google_ads", "linkedin_ads", "instantly", "smartlead",
     }
     assert all(item["maturity"] == "beta" for item in types)
 
@@ -156,6 +156,11 @@ def test_destination_validation_and_tenant_isolation(destination_app):
         "config": {"custom_audience_id": "123"},
     })
     assert missing_consent.status_code == 422
+    missing_campaign = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Instantly",
+        "destination_type": "instantly", "config": {},
+    })
+    assert missing_campaign.status_code == 422
     ad = tc.post("/api/audience-destinations", json={
         "audience_id": "aud-1", "name": "Meta", "destination_type": "meta_ads",
         "config": {"custom_audience_id": "123", "consent_attested": True, "consent_source": "CRM opt-in"},
@@ -164,6 +169,51 @@ def test_destination_validation_and_tenant_isolation(destination_app):
 
     app.dependency_overrides[current_workspace] = lambda: _ctx(WS2)
     assert tc.get("/api/audience-destinations").json()[0]["name"] == "Hidden"
+
+
+def test_sequencer_destination_uses_campaign_and_field_mapping(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    created = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Instantly campaign",
+        "destination_type": "instantly",
+        "config": {"campaign_id": "campaign-42", "skip_if_in_campaign": True},
+        "field_map": {"email": "email", "company": "company_name"},
+    })
+    assert created.status_code == 201, created.text
+    run_id = tc.post(
+        f"/api/audience-destinations/{created.json()['id']}/sync"
+    ).json()["id"]
+    from apps.api.services.destinations import engine as destination_engine
+    from apps.api.services.integrations import instantly
+
+    captured = {}
+
+    async def fake_add(campaign_id, lead, skip_if_in_campaign, workspace_id):
+        captured.update(
+            campaign_id=campaign_id, lead=lead,
+            skip=skip_if_in_campaign, workspace_id=workspace_id,
+        )
+        return {"success": True, "lead_id": "external-lead-1", "duplicate": False}
+
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    monkeypatch.setattr(instantly, "add_lead_to_campaign", fake_add)
+    asyncio.run(destination_engine.handle_destination_sync(
+        1, {"workspace_id": WS1, "run_id": run_id},
+    ))
+
+    assert captured == {
+        "campaign_id": "campaign-42",
+        "lead": {"email": "buyer@acme.test", "company_name": "Acme"},
+        "skip": True,
+        "workspace_id": WS1,
+    }
+    session = Session()
+    delivery = session.query(DestinationDelivery).filter(
+        DestinationDelivery.run_id == run_id,
+    ).one()
+    assert delivery.status == "success"
+    assert delivery.external_id == "external-lead-1"
+    session.close()
 
 
 def test_audience_change_auto_enqueues_destination_once(destination_app):
