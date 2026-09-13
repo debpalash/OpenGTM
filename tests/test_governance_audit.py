@@ -22,6 +22,12 @@ def test_workspace_mutations_are_audited_without_request_bodies(monkeypatch):
         request.state.workspace_id = "ws-audit"
         request.state.actor_user_id = 42
         request.state.actor_role = "admin"
+        request.state.audit_metadata = {
+            "action": "thing.update",
+            "affected_count": 3,
+            "api_token": "never-store-metadata",
+            "labels": ["safe"],
+        }
         return {"id": thing_id}
 
     client = TestClient(app)
@@ -32,6 +38,9 @@ def test_workspace_mutations_are_audited_without_request_bodies(monkeypatch):
         assert event.workspace_id == "ws-audit" and event.actor_user_id == 42
         assert event.route == "/api/things/{thing_id}" and event.resource_path == "/api/things/abc"
         assert event.outcome == "success" and event.request_id == "req-123"
+        assert event.metadata_json == {
+            "action": "thing.update", "affected_count": 3, "labels": ["safe"],
+        }
         assert "never-store" not in str(event.to_api())
 
 

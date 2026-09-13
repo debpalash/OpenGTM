@@ -316,7 +316,9 @@ user work runs through the durable worker. The remaining boundaries are:
   person/scrape history, CRM-data utility, and reusable-function catalog
   are isolated from normal workspace users rather than fully tenantized.
 - **Hosted-SaaS hardening is not complete.** OIDC SSO (including enforceable
-  member-only sessions with owner break-glass), SCIM, and audit export are built,
+  member-only sessions with owner break-glass), SCIM, and audit export are built;
+  mutation audit events accept bounded endpoint-supplied action/count metadata
+  while stripping credential-like keys and never storing request bodies,
   but still need controlled-live IdP validation. Before exposing OpenGTM to
   mutually hostile public tenants, also add a controlled outbound egress proxy,
   validate the shipped Vault Transit custody path, regularly execute the
