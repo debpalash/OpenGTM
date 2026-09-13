@@ -2,20 +2,25 @@
   <img src="apps/web/public/opengtm-lockup.svg" alt="OpenGTM logo" width="280" />
 </p>
 
-# OpenGTM
+<h1 align="center">OpenGTM</h1>
 
-**GTM agents for the world.**
+<p align="center"><strong>Build pipeline. Not busywork.</strong></p>
 
-[![CI](https://github.com/debpalash/opengtm/actions/workflows/ci.yml/badge.svg)](https://github.com/debpalash/opengtm/actions/workflows/ci.yml)
-[![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
-[![Docs](https://img.shields.io/badge/docs-opengtm.palash.dev-16a34a)](https://opengtm.palash.dev)
-[![API reference](https://img.shields.io/badge/API-reference-16a34a)](https://opengtm.palash.dev/api/)
+<p align="center">
+  The open-source, self-hosted Clay alternative for sourcing, enrichment,<br />
+  AI research, buying signals, and outbound workflows.
+</p>
+
+<p align="center">
+  <a href="https://github.com/debpalash/opengtm/actions/workflows/ci.yml"><img src="https://github.com/debpalash/opengtm/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="AGPL v3 license" /></a>
+  <a href="https://opengtm.palash.dev"><img src="https://img.shields.io/badge/docs-opengtm.palash.dev-16a34a" alt="Documentation" /></a>
+  <a href="https://github.com/debpalash/opengtm/stargazers"><img src="https://img.shields.io/github/stars/debpalash/opengtm?style=flat&logo=github&color=6268f2" alt="GitHub stars" /></a>
+  <a href="https://github.com/debpalash/opengtm/forks"><img src="https://img.shields.io/github/forks/debpalash/opengtm?style=flat&logo=github&color=20cfaf" alt="GitHub forks" /></a>
+</p>
 
 OpenGTM is a free, open-source, self-hostable alternative to
 [Clay.com](https://clay.com), licensed under AGPLv3.
-
-**Documentation:** https://opengtm.palash.dev · **REST API reference:**
-https://opengtm.palash.dev/api/
 
 Source leads, run enrichment waterfalls, research them with AI, and push the
 results to your CRM, Sheets, or a webhook — all on your own infrastructure, with
@@ -30,11 +35,7 @@ your own provider keys, and with the bill shown to you *before* you run.
 </p>
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/opengtm-demo.gif">
-    <source media="(prefers-color-scheme: light)" srcset="docs/assets/opengtm-demo-light.gif">
-    <img src="docs/assets/opengtm-demo-light.gif" alt="OpenGTM demo: inspect a populated enrichment workbook, source leads, and see cost controls" width="100%" />
-  </picture>
+  <img src="docs/assets/opengtm-demo-light.gif" alt="OpenGTM demo in light mode: inspect a populated enrichment workbook, source leads, and see cost controls" width="100%" />
 </p>
 
 > **The 30-second version:** give OpenGTM a market, a list, or a workbook. It
@@ -44,6 +45,14 @@ your own provider keys, and with the bill shown to you *before* you run.
 
 In plain terms, OpenGTM combines lead enrichment, AI sales research, buying
 signals, and programmable GTM automation in one self-hosted application.
+
+<p align="center">
+  <a href="#quickstart">Quickstart</a> ·
+  <a href="#what-it-does">Features</a> ·
+  <a href="https://opengtm.palash.dev/compare/clay-alternative/">Compare with Clay</a> ·
+  <a href="https://opengtm.palash.dev/api/">API</a> ·
+  <a href="CONTRIBUTING.md">Contribute</a>
+</p>
 
 ---
 
@@ -59,6 +68,15 @@ signals, and programmable GTM automation in one self-hosted application.
   `.env`). OpenGTM is the engine; you own the spend and the data.
 - **Self-host the whole thing.** No seats, no per-credit markup, no data leaving
   your box. AGPLv3.
+
+### One engine, four GTM loops
+
+| Start with | OpenGTM does | Finish with |
+|---|---|---|
+| A market definition | Sources matching companies and people | A deduplicated workbook |
+| Domains or names | Runs cost-ordered provider waterfalls | Verified, provenance-backed fields |
+| An account question | Browses and researches within bounded steps | A cited answer in each row |
+| Qualified rows | Applies conditions and idempotent outputs | CRM, Sheet, webhook, or sequence |
 
 ---
 
