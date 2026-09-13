@@ -3,6 +3,8 @@ Phase 1.5: YALC-style declarative provider manifests + capability registry.
 See docs/research/clay-alternatives-ingestion-catalog.md §G.
 """
 import asyncio
+from pathlib import Path
+import pytest
 
 from apps.api.services.leadgen.models import Lead
 from apps.api.services.leadgen.enrichment.declarative.template import (
@@ -11,11 +13,12 @@ from apps.api.services.leadgen.enrichment.declarative.template import (
 from apps.api.services.leadgen.enrichment.declarative.manifest import (
     ProviderManifest, load_all_manifests, validate_manifest_directory,
 )
-from apps.api.services.leadgen.enrichment.declarative.signing import sign_manifest, verify_manifest
+from apps.api.services.leadgen.enrichment.declarative.signing import install_bundle, package_manifest, sign_manifest, verify_manifest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 import base64
 import json
+import zipfile
 from apps.api.services.leadgen.enrichment.declarative.compiler import (
     DeclarativeProvider, compile_manifest,
 )
@@ -129,10 +132,34 @@ def test_connector_ed25519_signature_trust_and_tamper_detection(tmp_path):
     report = validate_manifest_directory(tmp_path, signature_policy="required", trust_store=trust_store)
     assert report["ok"] and report["connectors"][0]["signature"]["status"] == "trusted"
 
+    first_bundle = package_manifest(manifest, tmp_path / "first.ogc")
+    second_bundle = package_manifest(manifest, tmp_path / "second.ogc")
+    assert first_bundle.read_bytes() == second_bundle.read_bytes()
+    installed = install_bundle(first_bundle, tmp_path / "installed", trust_store)
+    assert installed["id"] == "signed_email" and installed["signature"]["status"] == "trusted"
+    assert Path(installed["manifest"]).exists()
+    with pytest.raises(FileExistsError):
+        install_bundle(first_bundle, tmp_path / "installed", trust_store)
+    replaced = install_bundle(first_bundle, tmp_path / "installed", trust_store, replace=True)
+    assert replaced["signature"]["status"] == "trusted"
+
+    malformed = tmp_path / "malformed.ogc"
+    with zipfile.ZipFile(malformed, "w") as archive:
+        archive.writestr("../connector.yaml", manifest.read_bytes())
+        archive.writestr("connector.yaml.sig", Path(f"{manifest}.sig").read_bytes())
+    untouched = tmp_path / "untouched"
+    with pytest.raises(ValueError, match="must contain only"):
+        install_bundle(malformed, untouched, trust_store)
+    assert not untouched.exists()
+
     manifest.write_text(manifest.read_text(encoding="utf-8").replace("$.email", "$.work_email"), encoding="utf-8")
     assert verify_manifest(manifest, trust_store)["status"] == "invalid"
-    report = validate_manifest_directory(tmp_path, signature_policy="optional", trust_store=trust_store)
-    assert not report["ok"] and "signature is invalid" in report["errors"][0]["error"]
+    tampered_dir = tmp_path / "tampered"; tampered_dir.mkdir()
+    tampered_manifest = tampered_dir / "signed.yaml"
+    tampered_manifest.write_bytes(manifest.read_bytes())
+    Path(f"{tampered_manifest}.sig").write_bytes(Path(f"{manifest}.sig").read_bytes())
+    report = validate_manifest_directory(tampered_dir, signature_policy="optional", trust_store=trust_store)
+    assert not report["ok"] and any("signature is invalid" in item["error"] for item in report["errors"])
 
 
 def test_required_signature_policy_rejects_unsigned_manifest(tmp_path):
