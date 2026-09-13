@@ -26,7 +26,7 @@ from apps.api.services.workbook.schemas import (
     WorkbookLeadRow, EnrichmentOverlay,
     RunWorkbookRequest, RunWorkbookResponse, RunCellRequest,
     AddColumnRequest, ExportRequest,
-    AddRowsRequest, ImportRowsRequest, DeleteRowsRequest, BulkUpdateRowsRequest,
+    AddRowsRequest, ImportRowsRequest, DeleteRowsRequest, DeleteMatchingRowsRequest, BulkUpdateRowsRequest,
     GenerateColumnRequest, GenerateColumnResponse,
     WorkbookViewCreate, WorkbookViewUpdate,
     WorkbookViewResponse, WorkbookViewListResponse,
@@ -1570,6 +1570,38 @@ async def delete_rows(
     ).delete(synchronize_session=False)
     db.commit()
     return {"deleted": deleted}
+
+
+@router.post("/{workbook_id}/rows/delete-query")
+async def delete_matching_rows(
+    workbook_id: str,
+    body: DeleteMatchingRowsRequest,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_editor),
+):
+    """Delete the exact, count-locked result of a saved-view/search query."""
+    wb = _owned_workbook(db, workbook_id, ctx)
+    query, _ = _workbook_rows_query(db, wb, body.view_id, body.search)
+    row_ids = [row_id for (row_id,) in query.with_entities(WorkbookRow.id).all()]
+    actual_count = len(row_ids)
+    if actual_count != body.expected_count:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "message": "Matching row count changed; review and confirm again",
+                "expected_count": body.expected_count,
+                "actual_count": actual_count,
+            },
+        )
+    required_confirmation = f"DELETE {actual_count} ROWS"
+    if body.confirmation != required_confirmation:
+        raise HTTPException(status_code=400, detail=f'confirmation must equal "{required_confirmation}"')
+    deleted = db.query(WorkbookRow).filter(
+        WorkbookRow.workbook_id == workbook_id,
+        WorkbookRow.id.in_(row_ids),
+    ).delete(synchronize_session=False)
+    db.commit()
+    return {"deleted": deleted, "matched": actual_count}
 
 
 @router.patch("/{workbook_id}/rows/{row_id}")

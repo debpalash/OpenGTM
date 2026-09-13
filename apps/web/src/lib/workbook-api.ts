@@ -444,6 +444,23 @@ export async function deleteWorkbookRows(
   return res.json()
 }
 
+export async function deleteMatchingWorkbookRows(
+  workbookId: string,
+  options: { expected_count: number; confirmation: string; view_id?: string; search?: string },
+): Promise<{ deleted: number; matched: number }> {
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/rows/delete-query`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(options),
+  })
+  if (!res.ok) {
+    const payload = await res.json().catch(() => null)
+    const detail = payload?.detail
+    throw new Error(typeof detail === "string" ? detail : detail?.message || "Failed to delete matching rows")
+  }
+  return res.json()
+}
+
 // ── Saved Views (v2) ─────────────────────────────────────────────────────
 // Named filter/sort/hidden-column presets per workbook, applied client-side.
 

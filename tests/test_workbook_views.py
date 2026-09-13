@@ -277,6 +277,32 @@ def test_run_and_estimate_scope_to_complete_saved_view_query(client):
         assert job.payload["fill_missing"] is True
 
 
+def test_count_locked_query_delete_is_exact_and_detects_drift(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "company", "name": "Company", "type": "input", "lead_field": "company"},
+    ])
+    _mk_row(Session, wid, {"company": "Acme Alpha"})
+    _mk_row(Session, wid, {"company": "Acme Beta"})
+    survivor = _mk_row(Session, wid, {"company": "Other"})
+
+    stale = tc.post(f"/api/workbooks/{wid}/rows/delete-query", json={
+        "search": "acme", "expected_count": 1, "confirmation": "DELETE 1 ROWS",
+    })
+    assert stale.status_code == 409
+    with Session() as session:
+        assert session.query(WorkbookRow).filter_by(workbook_id=wid).count() == 3
+
+    deleted = tc.post(f"/api/workbooks/{wid}/rows/delete-query", json={
+        "search": "acme", "expected_count": 2, "confirmation": "DELETE 2 ROWS",
+    })
+    assert deleted.status_code == 200, deleted.text
+    assert deleted.json() == {"deleted": 2, "matched": 2}
+    with Session() as session:
+        remaining = session.query(WorkbookRow).filter_by(workbook_id=wid).all()
+        assert [row.id for row in remaining] == [survivor]
+
+
 # ── Views CRUD ────────────────────────────────────────────────────────────
 
 def test_views_crud(client):
