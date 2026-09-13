@@ -5,7 +5,7 @@ import {
   Eye, EyeOff, Star, Globe, Diamond, Leaf, Zap,
   Brain, Sparkles, Shell, Hexagon, Cloud, Smile, Flame, Waves,
   Search, Bot, BarChart3, Radio, Mail, ShieldCheck, Download, RefreshCw,
-  Database, Trash2, UserPlus,
+  Database, Trash2, UserPlus, LockKeyhole,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -343,6 +343,8 @@ function GovernanceAuditTab() {
   return <>
     <RetentionPolicyCard />
     <Separator />
+    <SsoPolicyCard />
+    <Separator />
     <WorkspaceAccessCard />
     <Separator />
     <div className="flex items-start justify-between gap-3"><div><h3 className="flex items-center gap-2 text-sm font-medium"><ShieldCheck className="size-4" /> Workspace audit log</h3><p className="mt-1 text-xs text-muted-foreground">Append-only records for authenticated API mutations. Request bodies and credentials are never retained.</p></div><div className="flex gap-2"><Button size="sm" variant="outline" onClick={load} disabled={loading}><RefreshCw className={loading ? "size-3 animate-spin" : "size-3"} /> Refresh</Button><Button size="sm" variant="outline" onClick={download}><Download className="size-3" /> Export CSV</Button></div></div>
@@ -353,6 +355,27 @@ function GovernanceAuditTab() {
 
 interface RbacPermission { key: string; label: string; description: string; default_roles: string[] }
 interface RbacMember { user_id: number; username: string; role: string; overrides: Record<string, "allow" | "deny"> }
+
+interface SsoPolicy { enabled: boolean; issuer: string; client_id: string; client_secret?: string; client_secret_configured: boolean; allowed_domains: string[]; auto_provision: boolean; default_role: "viewer" | "member" | "editor" }
+
+function SsoPolicyCard() {
+  const [policy, setPolicy] = useState<SsoPolicy | null>(null)
+  const [domains, setDomains] = useState("")
+  const [saving, setSaving] = useState(false)
+  useEffect(() => { fetch("/api/governance/sso").then(async response => { if (!response.ok) throw new Error("Could not load SSO policy"); return response.json() }).then(data => { setPolicy(data); setDomains((data.allowed_domains || []).join(", ")) }).catch(error => toast.error(error.message)) }, [])
+  const save = async () => {
+    if (!policy) return
+    setSaving(true)
+    try {
+      const response = await fetch("/api/governance/sso", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...policy, allowed_domains: domains.split(",").map(item => item.trim()).filter(Boolean) }) })
+      if (!response.ok) throw new Error((await response.json()).detail || "Could not save SSO policy")
+      const data = await response.json(); setPolicy({ ...data, client_secret: "" }); setDomains((data.allowed_domains || []).join(", ")); toast.success("OIDC SSO policy saved")
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not save SSO policy") }
+    finally { setSaving(false) }
+  }
+  if (!policy) return <Skeleton className="h-52 w-full" />
+  return <Card><CardHeader><div className="flex items-start justify-between gap-3"><div><CardTitle className="flex items-center gap-2 text-sm"><LockKeyhole className="size-4" /> OpenID Connect SSO</CardTitle><CardDescription>Connect this workspace to an operator-approved OIDC provider. ID tokens require a verified email and are bound by issuer and subject.</CardDescription></div><Badge variant={policy.enabled ? "default" : "secondary"}>{policy.enabled ? "Enabled" : "Disabled"}</Badge></div></CardHeader><CardContent className="space-y-4"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={policy.enabled} onChange={event => setPolicy({ ...policy, enabled: event.target.checked })} className="size-4" /> Enable SSO</label><div className="grid gap-3 md:grid-cols-2"><div className="space-y-1"><Label className="text-xs">Issuer URL</Label><Input value={policy.issuer} onChange={event => setPolicy({ ...policy, issuer: event.target.value })} placeholder="https://id.example.com" /></div><div className="space-y-1"><Label className="text-xs">Client ID</Label><Input value={policy.client_id} onChange={event => setPolicy({ ...policy, client_id: event.target.value })} /></div><div className="space-y-1"><Label className="text-xs">Client secret</Label><Input type="password" value={policy.client_secret || ""} onChange={event => setPolicy({ ...policy, client_secret: event.target.value })} placeholder={policy.client_secret_configured ? "Configured — leave blank to retain" : "Required when enabled"} /></div><div className="space-y-1"><Label className="text-xs">Allowed email domains</Label><Input value={domains} onChange={event => setDomains(event.target.value)} placeholder="example.com, subsidiary.com" /></div></div><div className="flex flex-wrap items-center gap-4"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={policy.auto_provision} onChange={event => setPolicy({ ...policy, auto_provision: event.target.checked })} className="size-4" /> Just-in-time provisioning</label><Label className="text-xs">Default role</Label><select aria-label="OIDC default role" value={policy.default_role} onChange={event => setPolicy({ ...policy, default_role: event.target.value as SsoPolicy["default_role"] })} className="h-9 rounded-md border bg-background px-3 text-xs"><option value="viewer">Viewer</option><option value="member">Member</option><option value="editor">Editor</option></select></div><p className="text-[11px] text-muted-foreground">Callback URL: <code>/auth/sso/&lt;workspace-slug&gt;/callback</code>. The deployment operator must first allow the issuer hostname with <code>SSO_ALLOWED_ISSUER_HOSTS</code>.</p><Button size="sm" onClick={save} disabled={saving}>{saving && <Loader2 className="size-3 animate-spin" />} Save SSO policy</Button></CardContent></Card>
+}
 
 function WorkspaceAccessCard() {
   const [data, setData] = useState<{ permissions: RbacPermission[]; members: RbacMember[] } | null>(null)

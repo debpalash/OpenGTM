@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from apps.api.core.config import settings
@@ -155,6 +156,13 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 logfire.instrument_fastapi(app)
 
 # Middleware
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.SECRET_KEY,
+    same_site="lax",
+    https_only=not settings.is_dev_env,
+    max_age=600,
+)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 from apps.api.services.governance.audit import GovernanceAuditMiddleware
 app.add_middleware(GovernanceAuditMiddleware)

@@ -95,6 +95,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Wire the global 401 handler and validate any persisted token on mount.
   useEffect(() => {
+    const fragment = new URLSearchParams(window.location.hash.slice(1))
+    const ssoToken = fragment.get("sso_access_token")
+    if (ssoToken) {
+      setToken(ssoToken)
+      window.history.replaceState({}, "", window.location.pathname + window.location.search)
+    }
     onUnauthorized(() => {
       setUser(null)
       setWorkspaces([])

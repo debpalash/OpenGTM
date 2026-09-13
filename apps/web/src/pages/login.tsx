@@ -26,6 +26,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [workspaceSlug, setWorkspaceSlug] = useState("")
 
   const from = (location.state as { from?: string } | null)?.from ?? "/chat"
 
@@ -180,6 +181,8 @@ export default function LoginPage() {
               {!busy && <ArrowRight className="ml-1 size-4 transition-transform group-hover/button:translate-x-0.5" />}
             </Button>
           </form>
+
+          {mode === "login" && <div className="mt-6 border-t border-[#ddd8ce] pt-6"><p className="mb-3 text-center text-xs text-[#8c867c]">or use your organization identity</p><div className="flex gap-2"><Input aria-label="SSO workspace slug" value={workspaceSlug} onChange={event => setWorkspaceSlug(event.target.value)} placeholder="workspace-slug" className="h-10 rounded-xl border-[#d8d4ca] !bg-white" /><Button type="button" variant="outline" className="h-10 rounded-xl" disabled={!workspaceSlug.trim()} onClick={() => { window.location.assign(`/auth/sso/${encodeURIComponent(workspaceSlug.trim())}/login`) }}>Continue with SSO</Button></div></div>}
 
           {mode === "reset" && (
             <button type="button" onClick={() => changeMode("login")} className="mt-6 flex w-full items-center justify-center gap-2 text-sm font-medium text-[#5f5a52] hover:text-[#171613]">
