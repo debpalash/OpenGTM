@@ -506,6 +506,7 @@ export default function WorkbookEditorPage() {
   const [showColumnVisibility, setShowColumnVisibility] = useState(false)
   const [activityOpen, setActivityOpen] = useState(false)
   const [activeCell, setActiveCell] = useState({ row: 0, column: 0 })
+  const [selectionAnchor, setSelectionAnchor] = useState<{ row: number; column: number } | null>(null)
   const availableProviders = providersData?.providers ?? []
 
   // NL → column: call the generator and pre-fill the custom-column form.
@@ -979,14 +980,82 @@ export default function WorkbookEditorPage() {
     })
   }, [rowVirtualizer, table])
 
+  const gridCellValue = useCallback((rowIndex: number, columnIndex: number) => {
+    const row = table.getRowModel().rows[rowIndex]?.original
+    const columnId = table.getVisibleLeafColumns()[columnIndex]?.id
+    if (!row || !columnId || columnId === "_select") return ""
+    if (columnId === "_index") return String(rowIndex + 1)
+    const config = columns.find(column => column.id === columnId)
+    if (!config) return ""
+    if (config.type === "lead_field" || config.type === "input") {
+      return (row.data || row.lead)[config.lead_field || config.id] ?? ""
+    }
+    return row.enrichments?.[config.id]?.value ?? ""
+  }, [columns, table])
+
   const handleGridKeyDown = useCallback((event: React.KeyboardEvent<HTMLTableCellElement>, row: number, column: number) => {
     const target = event.target as HTMLElement
     if (target.matches("input, textarea, select, [contenteditable=true]")) return
 
+    const shortcut = event.ctrlKey || event.metaKey
+    const anchor = selectionAnchor ?? { row, column }
+    const range = {
+      top: Math.min(anchor.row, row), bottom: Math.max(anchor.row, row),
+      left: Math.min(anchor.column, column), right: Math.max(anchor.column, column),
+    }
+    if (shortcut && event.key.toLowerCase() === "c") {
+      event.preventDefault()
+      const text = Array.from({ length: range.bottom - range.top + 1 }, (_, rowOffset) =>
+        Array.from({ length: range.right - range.left + 1 }, (_, columnOffset) =>
+          String(gridCellValue(range.top + rowOffset, range.left + columnOffset))
+        ).join("\t")
+      ).join("\n")
+      navigator.clipboard.writeText(text)
+        .then(() => toast.success("Copied selection", { duration: 1200 }))
+        .catch(() => toast.error("Clipboard access was denied"))
+      return
+    }
+    if (shortcut && event.key.toLowerCase() === "d") {
+      event.preventDefault()
+      if (range.bottom <= range.top) {
+        toast.error("Select at least two rows to fill down")
+        return
+      }
+      const visibleRows = table.getRowModel().rows
+      const visibleColumns = table.getVisibleLeafColumns()
+      const updates = new Map<number, Record<string, any>>()
+      for (let rowIndex = range.top + 1; rowIndex <= range.bottom; rowIndex++) {
+        const targetRow = visibleRows[rowIndex]?.original
+        if (targetRow?.row_id == null) continue
+        for (let columnIndex = range.left; columnIndex <= range.right; columnIndex++) {
+          const config = columns.find(item => item.id === visibleColumns[columnIndex]?.id)
+          if (!config || (config.type !== "lead_field" && config.type !== "input")) continue
+          const field = config.lead_field || config.id
+          updates.set(targetRow.row_id, {
+            ...(updates.get(targetRow.row_id) || {}),
+            [field]: gridCellValue(range.top, columnIndex),
+          })
+        }
+      }
+      if (!updates.size) {
+        toast.error("Fill down requires editable input columns")
+        return
+      }
+      bulkUpdateWorkbookRows.mutate(
+        [...updates].map(([row_id, fields]) => ({ row_id, fields })),
+        {
+          onSuccess: data => toast.success(`Filled ${data.updated_rows} row${data.updated_rows === 1 ? "" : "s"}`),
+          onError: error => toast.error(error.message),
+        },
+      )
+      return
+    }
+
     let nextRow = row
     let nextColumn = column
     if (event.key === "ArrowUp") nextRow--
-    else if (event.key === "ArrowDown" || event.key === "Enter") nextRow++
+    else if (event.key === "ArrowDown") nextRow++
+    else if (event.key === "Enter") nextRow += event.shiftKey ? -1 : 1
     else if (event.key === "ArrowLeft") nextColumn--
     else if (event.key === "ArrowRight") nextColumn++
     else if (event.key === "Tab") nextColumn += event.shiftKey ? -1 : 1
@@ -1001,8 +1070,18 @@ export default function WorkbookEditorPage() {
     } else return
 
     event.preventDefault()
+    const columnCount = table.getVisibleLeafColumns().length
+    if (event.key === "Tab" && nextColumn >= columnCount) {
+      nextColumn = 0
+      nextRow++
+    } else if (event.key === "Tab" && nextColumn < 0) {
+      nextColumn = columnCount - 1
+      nextRow--
+    }
+    if (event.shiftKey && event.key !== "Tab" && event.key !== "Enter") setSelectionAnchor(current => current ?? { row, column })
+    else setSelectionAnchor(null)
     focusGridCell(nextRow, nextColumn)
-  }, [focusGridCell, table])
+  }, [bulkUpdateWorkbookRows, columns, focusGridCell, gridCellValue, selectionAnchor, table])
 
   const handleGridPaste = useCallback((event: React.ClipboardEvent<HTMLTableCellElement>, startRow: number, startColumn: number) => {
     const target = event.target as HTMLElement
@@ -1837,11 +1916,19 @@ export default function WorkbookEditorPage() {
                       data-grid-row={virtualRow.index}
                       data-grid-column={cellIndex}
                       tabIndex={activeCell.row === virtualRow.index && activeCell.column === cellIndex ? 0 : -1}
+                      onPointerDown={event => {
+                        if (event.shiftKey) setSelectionAnchor(current => current ?? activeCell)
+                        else setSelectionAnchor(null)
+                      }}
                       onFocus={() => setActiveCell({ row: virtualRow.index, column: cellIndex })}
                       onKeyDown={event => handleGridKeyDown(event, virtualRow.index, cellIndex)}
                       onPaste={event => handleGridPaste(event, virtualRow.index, cellIndex)}
                       className={`border-b border-r last:border-r-0 h-9 p-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${
-                        activeCell.row === virtualRow.index && activeCell.column === cellIndex ? "bg-primary/[0.04]" : ""
+                        selectionAnchor && virtualRow.index >= Math.min(selectionAnchor.row, activeCell.row)
+                          && virtualRow.index <= Math.max(selectionAnchor.row, activeCell.row)
+                          && cellIndex >= Math.min(selectionAnchor.column, activeCell.column)
+                          && cellIndex <= Math.max(selectionAnchor.column, activeCell.column)
+                          ? "bg-primary/10" : activeCell.row === virtualRow.index && activeCell.column === cellIndex ? "bg-primary/[0.04]" : ""
                       }`}
                       style={{ width: w, maxWidth: w }}
                     >

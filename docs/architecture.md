@@ -168,8 +168,9 @@ The release floor for this architecture is:
    managed KMS, and complete an external security review and restore drill.
 4. Publish reproducible provider accuracy/coverage/cost evaluations and make the
    declarative registry a documented contribution surface.
-5. Close visible product gaps: advanced grid selection/fill (keyboard navigation
-   and atomic multi-row paste are shipped), direct Clay API import (audited Clay
+5. Close visible product gaps: server-driven navigation beyond the first 1,000
+   visible workbook rows (virtualization, range copy/fill, and atomic multi-row
+   paste are shipped), direct Clay API import (audited Clay
    CSV import is shipped), more templates, and broader CRM and sequencer sync.
 
 That is the distinction between a strong self-hosted Clay alternative today and
