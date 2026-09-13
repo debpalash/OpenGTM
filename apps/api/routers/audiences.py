@@ -42,6 +42,8 @@ class AudienceCreate(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     description: str = Field(default="", max_length=2000)
     filters: dict = Field(default_factory=dict)
+    refresh_enabled: bool = True
+    refresh_interval_minutes: int = Field(default=60, ge=15, le=10080)
 
     @field_validator("name")
     @classmethod
@@ -61,6 +63,8 @@ class AudiencePatch(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=200)
     description: Optional[str] = Field(default=None, max_length=2000)
     filters: Optional[dict] = None
+    refresh_enabled: Optional[bool] = None
+    refresh_interval_minutes: Optional[int] = Field(default=None, ge=15, le=10080)
 
     @field_validator("name")
     @classmethod
@@ -98,7 +102,8 @@ def list_audiences(db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(cu
 def create_audience(body: AudienceCreate, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_editor)):
     audience = Audience(
         workspace_id=ctx.workspace_id, name=body.name, description=body.description,
-        filters=body.filters,
+        filters=body.filters, refresh_enabled=body.refresh_enabled,
+        refresh_interval_minutes=body.refresh_interval_minutes,
     )
     db.add(audience)
     try:
@@ -107,7 +112,10 @@ def create_audience(body: AudienceCreate, db: Session = Depends(get_db), ctx: Wo
         db.rollback()
         raise HTTPException(status_code=409, detail="An audience with this name already exists")
     db.refresh(audience)
-    return materialize_audience(db, ctx, audience)["audience"]
+    materialize_audience(db, ctx, audience)
+    from apps.api.services.audiences.scheduler import schedule_next
+    schedule_next(db, audience)
+    return audience.to_api()
 
 
 @router.patch("/{audience_id}")
@@ -122,7 +130,12 @@ def update_audience(audience_id: str, body: AudiencePatch, db: Session = Depends
         db.rollback()
         raise HTTPException(status_code=409, detail="An audience with this name already exists")
     db.refresh(audience)
-    return materialize_audience(db, ctx, audience)["audience"] if "filters" in changes else audience.to_api()
+    if "filters" in changes:
+        materialize_audience(db, ctx, audience)
+    if {"refresh_enabled", "refresh_interval_minutes"} & set(changes):
+        from apps.api.services.audiences.scheduler import schedule_next
+        schedule_next(db, audience)
+    return audience.to_api()
 
 
 @router.post("/{audience_id}/refresh")
@@ -153,5 +166,8 @@ def list_audience_events(audience_id: str, limit: int = 100, db: Session = Depen
 
 @router.delete("/{audience_id}", status_code=204)
 def delete_audience(audience_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_editor)):
-    db.delete(_get(db, ctx.workspace_id, audience_id))
+    audience = _get(db, ctx.workspace_id, audience_id)
+    from apps.api.services.audiences.scheduler import remove_schedule
+    remove_schedule(db, audience.id)
+    db.delete(audience)
     db.commit()

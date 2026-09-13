@@ -17,6 +17,7 @@ def _bootstrap_functions():
     from apps.api.services.outreach.sending import bootstrap_outreach_schedules
     from apps.api.services.poller.engine import bootstrap_watch_schedules
     from apps.api.services.workbook.refresh import bootstrap_signal_scan
+    from apps.api.services.audiences.scheduler import bootstrap_audience_schedules
 
     return (
         ("signal_scan", bootstrap_signal_scan),
@@ -25,6 +26,7 @@ def _bootstrap_functions():
         ("outreach_inbound", bootstrap_inbound_schedules),
         ("intent_poller", bootstrap_watch_schedules),
         ("source_health", bootstrap_source_health),
+        ("audiences", bootstrap_audience_schedules),
     )
 
 

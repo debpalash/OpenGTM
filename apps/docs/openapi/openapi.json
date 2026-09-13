@@ -191,6 +191,18 @@
             "minLength": 1,
             "title": "Name",
             "type": "string"
+          },
+          "refresh_enabled": {
+            "default": true,
+            "title": "Refresh Enabled",
+            "type": "boolean"
+          },
+          "refresh_interval_minutes": {
+            "default": 60,
+            "maximum": 10080.0,
+            "minimum": 15.0,
+            "title": "Refresh Interval Minutes",
+            "type": "integer"
           }
         },
         "required": [
@@ -237,6 +249,30 @@
               }
             ],
             "title": "Name"
+          },
+          "refresh_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refresh Enabled"
+          },
+          "refresh_interval_minutes": {
+            "anyOf": [
+              {
+                "maximum": 10080.0,
+                "minimum": 15.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refresh Interval Minutes"
           }
         },
         "title": "AudiencePatch",

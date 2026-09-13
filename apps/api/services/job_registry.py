@@ -38,6 +38,7 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
         handle_signal_scan,
     )
     from apps.api.services.workbook.source_engine import handle_source_workbook
+    from apps.api.services.audiences.scheduler import handle_audience_refresh
 
     handlers = {
         "run_workbook": handle_run_workbook,
@@ -53,6 +54,7 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
         "outreach_inbound_poll": handle_inbound_poll,
         "watch_poll": handle_watch_poll,
         "source_health_check": handle_source_health_check,
+        "audience_refresh": handle_audience_refresh,
     }
     for job_type, handler in handlers.items():
         queue.register_handler(job_type, handler)

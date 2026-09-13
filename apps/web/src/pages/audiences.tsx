@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useAudienceEvents, useAudienceMembers, useAudiences, useRefreshAudience } from "@/lib/hooks"
+import { useAudienceEvents, useAudienceMembers, useAudiences, useRefreshAudience, useUpdateAudience } from "@/lib/hooks"
 
 const ago = (value: string | null) => {
   if (!value) return "Never"
@@ -27,6 +27,7 @@ export default function AudiencesPage() {
   const members = useAudienceMembers(selectedId)
   const events = useAudienceEvents(selectedId)
   const refresh = useRefreshAudience()
+  const update = useUpdateAudience()
 
   const runRefresh = async () => {
     if (!selectedId) return
@@ -69,14 +70,32 @@ export default function AudiencesPage() {
           <div className="grid h-full place-items-center text-sm text-muted-foreground"><ListFilter className="mr-2 size-4" /> Select an audience</div>
         ) : (
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold">{selected.name}</h2>
                 <p className="text-xs text-muted-foreground">{Object.keys(selected.filters).length} active filters · {selected.member_count} current members</p>
               </div>
-              <Button size="sm" onClick={runRefresh} disabled={refresh.isPending}>
-                <RefreshCw className={`mr-2 size-4 ${refresh.isPending ? "animate-spin" : ""}`} /> Refresh membership
-              </Button>
+              <div className="flex items-center gap-2">
+                <select
+                  aria-label="Audience refresh interval"
+                  value={selected.refresh_interval_minutes}
+                  disabled={!selected.refresh_enabled || update.isPending}
+                  onChange={(event) => update.mutate({ id: selected.id, data: { refresh_interval_minutes: Number(event.target.value) } })}
+                  className="h-8 rounded-md border bg-background px-2 text-xs"
+                >
+                  <option value={15}>Every 15 minutes</option>
+                  <option value={60}>Hourly</option>
+                  <option value={360}>Every 6 hours</option>
+                  <option value={1440}>Daily</option>
+                  <option value={10080}>Weekly</option>
+                </select>
+                <Button variant="outline" size="sm" disabled={update.isPending} onClick={() => update.mutate({ id: selected.id, data: { refresh_enabled: !selected.refresh_enabled } })}>
+                  {selected.refresh_enabled ? "Pause schedule" : "Resume schedule"}
+                </Button>
+                <Button size="sm" onClick={runRefresh} disabled={refresh.isPending}>
+                  <RefreshCw className={`mr-2 size-4 ${refresh.isPending ? "animate-spin" : ""}`} /> Refresh now
+                </Button>
+              </div>
             </div>
 
             <div className="grid gap-4 xl:grid-cols-[2fr_1fr]">
