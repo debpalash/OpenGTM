@@ -218,9 +218,11 @@ app.include_router(ws_manager_router)
 from apps.api.routers.templates import router as templates_router
 from apps.api.routers.functions import router as functions_router
 from apps.api.routers.playbooks import router as playbooks_router
+from apps.api.routers.connectors import router as connectors_router
 app.include_router(templates_router)
 app.include_router(functions_router)
 app.include_router(playbooks_router)
+app.include_router(connectors_router)
 
 # Include Routers — Data Sources
 from apps.api.routers.ambitionbox import router as ambitionbox_router

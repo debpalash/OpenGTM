@@ -8,7 +8,12 @@
 # BYOK: inert until PROSPEO_API_KEY is set (same key as the prospeo email
 # provider). Cost approximate — Prospeo bills mobile hits at a premium over
 # email credits; refine from your plan's pricing.
+manifest_version: "1"
 name: prospeo_mobile
+display_name: Prospeo Mobile Finder
+author: OpenGTM
+homepage: https://prospeo.io
+tags: [phone, enrichment, byok]
 capability: mobile_phone
 capabilities: [mobile_phone]
 description: Prospeo /mobile-finder — LinkedIn profile URL → verified mobile number.

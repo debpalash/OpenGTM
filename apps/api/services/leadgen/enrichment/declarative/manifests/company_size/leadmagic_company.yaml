@@ -2,7 +2,12 @@
 # Spec: LeadMagic/leadmagic-openapi (POST /company-search). Cost: 1 credit.
 # Returns DetailedCompany; we map employee_count + industry. Inert until
 # LEADMAGIC_API_KEY is set.
+manifest_version: "1"
 name: leadmagic_company
+display_name: LeadMagic Company Search
+author: OpenGTM
+homepage: https://leadmagic.io
+tags: [company, firmographics, byok]
 capability: company_size
 capabilities: [company_size, description]
 description: LeadMagic /company-search — domain → firmographics (employee count, industry).

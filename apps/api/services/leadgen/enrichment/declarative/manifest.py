@@ -7,8 +7,9 @@ live in `manifests/<capability>/<provider>.yaml`.
 """
 
 import os
+import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Literal
 
 import yaml
 from pydantic import BaseModel, Field
@@ -18,7 +19,7 @@ MANIFESTS_DIR = Path(__file__).parent / "manifests"
 
 class AuthSpec(BaseModel):
     # type: header | bearer | query | none
-    type: str = "none"
+    type: Literal["header", "bearer", "query", "none"] = "none"
     # name of the header/query param (e.g. "X-Api-Key", "api_key")
     param: Optional[str] = None
     # value template, typically "${env:SOME_KEY}" (bearer prepends "Bearer ")
@@ -45,7 +46,13 @@ class ResponseSpec(BaseModel):
 
 
 class ProviderManifest(BaseModel):
+    manifest_version: Literal["1"] = "1"
     name: str                                  # unique provider id, e.g. "leadmagic_email"
+    display_name: str = ""
+    author: str = "community"
+    homepage: str = ""
+    license: str = "Apache-2.0"
+    tags: List[str] = Field(default_factory=list)
     capability: str                            # e.g. "email" (a Lead/enrichment field)
     capabilities: List[str] = Field(default_factory=list)  # extra fields it can fill
     description: str = ""
@@ -61,6 +68,22 @@ class ProviderManifest(BaseModel):
     def all_capabilities(self) -> List[str]:
         caps = list(dict.fromkeys([self.capability, *self.capabilities, *self.response.mappings.keys()]))
         return [c for c in caps if c]
+
+    def catalog_entry(self) -> Dict[str, Any]:
+        return {
+            "manifest_version": self.manifest_version,
+            "id": self.name,
+            "name": self.display_name or self.name.replace("_", " ").title(),
+            "author": self.author,
+            "homepage": self.homepage,
+            "license": self.license,
+            "description": self.description,
+            "capabilities": self.all_capabilities(),
+            "tags": self.tags,
+            "cost_per_lookup": self.cost_per_lookup,
+            "default_confidence": self.default_confidence,
+            "credential_key": self.auth.env_var,
+        }
 
 
 def _coerce(raw: Dict[str, Any]) -> Dict[str, Any]:
@@ -94,3 +117,33 @@ def load_all_manifests(directory: Optional[Path] = None) -> List[ProviderManifes
             import logging
             logging.getLogger("leadgen.declarative").warning(f"bad manifest {p}: {e}")
     return manifests
+
+
+def validate_manifest_directory(directory: Optional[Path] = None) -> Dict[str, Any]:
+    """Fail-loud compatibility report used by CI and connector contributors."""
+    directory = directory or MANIFESTS_DIR
+    errors, manifests, names = [], [], set()
+    for path in sorted(directory.rglob("*.y*ml")) if directory.exists() else []:
+        try:
+            manifest = load_manifest(path)
+            if not re.fullmatch(r"[a-z][a-z0-9_]{2,63}", manifest.name):
+                raise ValueError("name must match ^[a-z][a-z0-9_]{2,63}$")
+            if manifest.name in names:
+                raise ValueError(f"duplicate provider id '{manifest.name}'")
+            names.add(manifest.name)
+            if manifest.request.method.upper() not in {"GET", "POST", "PUT", "PATCH"}:
+                raise ValueError("request.method must be GET, POST, PUT, or PATCH")
+            if not manifest.request.url.startswith("https://"):
+                raise ValueError("connector request URL must use HTTPS")
+            if not manifest.response.mappings:
+                raise ValueError("response.mappings must not be empty")
+            if not 0 <= manifest.default_confidence <= 1 or manifest.cost_per_lookup < 0:
+                raise ValueError("confidence must be 0..1 and cost must be non-negative")
+            if not 0 < manifest.request.timeout <= 120:
+                raise ValueError("request.timeout must be between 0 and 120 seconds")
+            if manifest.auth.type != "none" and not manifest.auth.env_var:
+                raise ValueError("authenticated connectors require auth.env_var")
+            manifests.append({"path": str(path.relative_to(directory)), **manifest.catalog_entry()})
+        except Exception as exc:
+            errors.append({"path": str(path), "error": str(exc)})
+    return {"ok": not errors, "manifest_version": "1", "count": len(manifests), "connectors": manifests, "errors": errors}

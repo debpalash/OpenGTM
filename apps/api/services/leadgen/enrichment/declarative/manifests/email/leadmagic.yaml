@@ -2,7 +2,12 @@
 # Spec: LeadMagic/leadmagic-openapi (leadmagic-openapi-3.1.json). Cost: 1 credit.
 # Demonstrates the YAML-only provider pattern (no Python). Inactive until
 # LEADMAGIC_API_KEY is set in settings/env.
+manifest_version: "1"
 name: leadmagic_email
+display_name: LeadMagic Email Finder
+author: OpenGTM
+homepage: https://leadmagic.io
+tags: [email, enrichment, byok]
 capability: email
 capabilities: [email]
 description: LeadMagic /email-finder — first/last + domain → work email.
