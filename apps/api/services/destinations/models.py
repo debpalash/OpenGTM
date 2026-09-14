@@ -45,7 +45,10 @@ class AudienceDestination(Base):
 
 class DestinationRun(Base):
     __tablename__ = "destination_runs"
-    __table_args__ = (Index("ix_destination_runs_workspace_destination_created", "workspace_id", "destination_id", "created_at"),)
+    __table_args__ = (
+        Index("ix_destination_runs_workspace_destination_created", "workspace_id", "destination_id", "created_at"),
+        Index("ix_destination_runs_ws_destination_cursor", "workspace_id", "destination_id", "created_at", "id"),
+    )
 
     id = Column(String, primary_key=True, default=_uuid)
     workspace_id = Column(String, nullable=False, index=True)
@@ -124,6 +127,7 @@ class DestinationInboundReceipt(Base):
     __table_args__ = (
         UniqueConstraint("workspace_id", "destination_id", "external_event_id", name="uq_destination_inbound_event"),
         Index("ix_destination_inbound_ws_destination_created", "workspace_id", "destination_id", "created_at"),
+        Index("ix_destination_inbound_ws_destination_cursor", "workspace_id", "destination_id", "created_at", "id"),
     )
     id = Column(String(36), primary_key=True, default=_uuid)
     workspace_id = Column(String(64), nullable=False, index=True)

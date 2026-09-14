@@ -1,11 +1,15 @@
 """Audience activation destination definitions and durable sync runs."""
 
+import base64
+import binascii
+import json
+from datetime import datetime, timezone
 from typing import Optional
 from urllib.parse import urlparse
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy import case, func, select
+from sqlalchemy import and_, case, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -24,6 +28,24 @@ TYPES = {
     "airtable",
     "slack",
 }
+
+
+def _encode_history_cursor(created_at: datetime, row_id: str) -> str:
+    payload = json.dumps([created_at.isoformat(), row_id], separators=(",", ":")).encode()
+    return base64.urlsafe_b64encode(payload).decode().rstrip("=")
+
+
+def _decode_history_cursor(cursor: str, label: str) -> tuple[datetime, str]:
+    try:
+        value = json.loads(base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4)))
+        if not isinstance(value, list) or len(value) != 2 or not isinstance(value[1], str):
+            raise ValueError
+        created_at = datetime.fromisoformat(value[0])
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=timezone.utc)
+        return created_at, value[1]
+    except (ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError, binascii.Error) as exc:
+        raise HTTPException(status_code=422, detail=f"invalid {label} cursor") from exc
 
 
 @router.get("/types")
@@ -307,12 +329,38 @@ def start_sync(destination_id: str, db: Session = Depends(get_db), ctx: Workspac
 
 
 @router.get("/{destination_id}/runs")
-def list_runs(destination_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+def list_runs(
+    destination_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0, le=100000),
+    cursor: Optional[str] = Query(None, max_length=1024),
+):
     _get(db, ctx.workspace_id, destination_id)
-    return [run.to_api() for run in db.query(DestinationRun).filter(
+    query = db.query(DestinationRun).filter(
         DestinationRun.workspace_id == ctx.workspace_id,
         DestinationRun.destination_id == destination_id,
-    ).order_by(DestinationRun.created_at.desc()).limit(100).all()]
+    )
+    if cursor:
+        created_at, run_id = _decode_history_cursor(cursor, "destination run")
+        query = query.filter(or_(
+            DestinationRun.created_at < created_at,
+            and_(DestinationRun.created_at == created_at, DestinationRun.id < run_id),
+        ))
+    query = query.order_by(DestinationRun.created_at.desc(), DestinationRun.id.desc()).limit(limit + 1)
+    if offset and not cursor:
+        query = query.offset(offset)
+    rows = query.all()
+    has_more = len(rows) > limit
+    page = rows[:limit]
+    return {
+        "runs": [run.to_api() for run in page],
+        "limit": limit,
+        "offset": offset if not cursor else None,
+        "has_more": has_more,
+        "next_cursor": _encode_history_cursor(page[-1].created_at, page[-1].id) if has_more else None,
+    }
 
 
 @router.get("/{destination_id}/health")
@@ -507,9 +555,40 @@ def revoke_inbound_token(destination_id: str, db: Session = Depends(get_db), ctx
 
 
 @router.get("/{destination_id}/inbound-receipts")
-def list_inbound_receipts(destination_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+def list_inbound_receipts(
+    destination_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0, le=100000),
+    cursor: Optional[str] = Query(None, max_length=1024),
+):
     _get(db, ctx.workspace_id, destination_id)
-    return [row.to_api() for row in db.query(DestinationInboundReceipt).filter(DestinationInboundReceipt.workspace_id == ctx.workspace_id, DestinationInboundReceipt.destination_id == destination_id).order_by(DestinationInboundReceipt.created_at.desc()).limit(100).all()]
+    query = db.query(DestinationInboundReceipt).filter(
+        DestinationInboundReceipt.workspace_id == ctx.workspace_id,
+        DestinationInboundReceipt.destination_id == destination_id,
+    )
+    if cursor:
+        created_at, receipt_id = _decode_history_cursor(cursor, "inbound receipt")
+        query = query.filter(or_(
+            DestinationInboundReceipt.created_at < created_at,
+            and_(DestinationInboundReceipt.created_at == created_at, DestinationInboundReceipt.id < receipt_id),
+        ))
+    query = query.order_by(
+        DestinationInboundReceipt.created_at.desc(), DestinationInboundReceipt.id.desc(),
+    ).limit(limit + 1)
+    if offset and not cursor:
+        query = query.offset(offset)
+    rows = query.all()
+    has_more = len(rows) > limit
+    page = rows[:limit]
+    return {
+        "receipts": [row.to_api() for row in page],
+        "limit": limit,
+        "offset": offset if not cursor else None,
+        "has_more": has_more,
+        "next_cursor": _encode_history_cursor(page[-1].created_at, page[-1].id) if has_more else None,
+    }
 
 
 @router.post("/inbound/{destination_id}")
