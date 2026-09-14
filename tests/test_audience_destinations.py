@@ -754,6 +754,44 @@ def test_paid_media_sync_batches_hashed_identifiers(destination_app, monkeypatch
     assert len(captured) == 2
 
 
+def test_paid_media_sync_flushes_bounded_batches(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    with Session() as session:
+        session.add_all([
+            AudienceMember(
+                workspace_id=WS1, audience_id="aud-1", lead_id=lead_id,
+                snapshot={"id": lead_id, "email": f"buyer{lead_id}@acme.test"},
+            )
+            for lead_id in range(43, 47)
+        ])
+        session.commit()
+    created = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Bounded Meta", "destination_type": "meta_ads",
+        "config": {"custom_audience_id": "123", "consent_attested": True, "consent_source": "CRM opt-in"},
+    }).json()
+    run_id = tc.post(f"/api/audience-destinations/{created['id']}/sync").json()["id"]
+    from apps.api.services.destinations import ads, engine as destination_engine
+    batch_sizes = []
+
+    async def fake_batch(workspace_id, dtype, config, snapshots, operation="add"):
+        batch_sizes.append((operation, len(snapshots)))
+        return ads.AdBatchResult(True, f"{operation}ed {len(snapshots)} hashed users")
+
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    monkeypatch.setattr(destination_engine, "AD_BATCH_SIZE", 2)
+    monkeypatch.setattr(destination_engine, "MEMBER_PAGE_SIZE", 2)
+    monkeypatch.setattr(ads, "sync_ad_batch", fake_batch)
+    asyncio.run(destination_engine.handle_destination_sync(
+        1, {"workspace_id": WS1, "run_id": run_id},
+    ))
+
+    assert batch_sizes == [("add", 2), ("add", 2), ("add", 1)]
+    run = tc.get(f"/api/audience-destinations/{created['id']}/runs").json()["runs"][0]
+    assert run["attempted"] == 5
+    assert run["succeeded"] == 5
+    assert run["failed"] == 0
+
+
 def test_paid_media_skips_profiles_without_identifiers_independently(destination_app, monkeypatch):
     tc, Session, _ = destination_app
     with Session() as session:
