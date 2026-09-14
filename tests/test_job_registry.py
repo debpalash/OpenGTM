@@ -33,5 +33,5 @@ def test_shared_registry_is_complete():
     assert set(queue_service.handlers) == EXPECTED_JOB_TYPES
     assert set(queue_service.failure_handlers) == {
         "ambitionbox_import", "audience_destination_sync", "audience_refresh", "collect",
-        "research_playbook_run",
+        "research_playbook_run", "retention_enforce",
     }
