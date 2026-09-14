@@ -1,11 +1,14 @@
+import base64
+import binascii
 import csv
 import io
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import Literal
@@ -21,6 +24,24 @@ from apps.api.services.workspace import scim
 
 router = APIRouter(prefix="/api/governance", tags=["governance"])
 require_admin = require_workspace_role("admin", permission="governance.manage")
+
+
+def _encode_audit_cursor(event: GovernanceAuditEvent) -> str:
+    payload = json.dumps([event.created_at.isoformat(), event.id], separators=(",", ":")).encode()
+    return base64.urlsafe_b64encode(payload).decode().rstrip("=")
+
+
+def _decode_audit_cursor(cursor: str) -> tuple[datetime, str]:
+    try:
+        value = json.loads(base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4)))
+        if not isinstance(value, list) or len(value) != 2 or not isinstance(value[1], str):
+            raise ValueError
+        created_at = datetime.fromisoformat(value[0])
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=timezone.utc)
+        return created_at, value[1]
+    except (ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError, binascii.Error) as exc:
+        raise HTTPException(status_code=422, detail="invalid audit event cursor") from exc
 
 
 class RetentionUpdate(BaseModel):
@@ -89,14 +110,36 @@ def list_audit_events(
     outcome: Optional[str] = None,
     since: Optional[datetime] = None,
     before: Optional[datetime] = None,
+    cursor: Optional[str] = Query(None, max_length=1024),
     limit: int = Query(default=100, ge=1, le=500),
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(require_admin),
 ):
-    rows = _audit_query(db, ctx, actor_user_id, method, outcome, since, before).order_by(GovernanceAuditEvent.created_at.desc(), GovernanceAuditEvent.id.desc()).limit(limit + 1).all()
+    query = _audit_query(
+        db, ctx, actor_user_id, method, outcome, since,
+        None if cursor else before,
+    )
+    if cursor:
+        cursor_created_at, cursor_id = _decode_audit_cursor(cursor)
+        query = query.filter(or_(
+            GovernanceAuditEvent.created_at < cursor_created_at,
+            and_(
+                GovernanceAuditEvent.created_at == cursor_created_at,
+                GovernanceAuditEvent.id < cursor_id,
+            ),
+        ))
+    rows = query.order_by(
+        GovernanceAuditEvent.created_at.desc(), GovernanceAuditEvent.id.desc(),
+    ).limit(limit + 1).all()
     has_more = len(rows) > limit
     page = rows[:limit]
-    return {"events": [row.to_api() for row in page], "next_before": page[-1].created_at if has_more else None}
+    return {
+        "events": [row.to_api() for row in page],
+        "next_cursor": _encode_audit_cursor(page[-1]) if has_more else None,
+        "next_before": page[-1].created_at if has_more else None,
+        "has_more": has_more,
+        "limit": limit,
+    }
 
 
 @router.get("/audit-events/export.csv")

@@ -326,14 +326,23 @@ const RETENTION_FIELDS: { key: RetentionCategory; label: string; hint: string; m
 function GovernanceAuditTab() {
   const [events, setEvents] = useState<AuditEvent[]>([])
   const [loading, setLoading] = useState(true)
-  const load = () => {
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const load = (cursor?: string) => {
     setLoading(true)
-    fetch("/api/governance/audit-events?limit=100").then(async response => {
+    const query = new URLSearchParams({ limit: "100" })
+    if (cursor) query.set("cursor", cursor)
+    fetch(`/api/governance/audit-events?${query}`).then(async response => {
       if (!response.ok) throw new Error(response.status === 403 ? "Workspace admin access is required" : `Could not load audit log (${response.status})`)
       return response.json()
-    }).then(data => setEvents(data.events || [])).catch(error => toast.error(error.message)).finally(() => setLoading(false))
+    }).then(data => {
+      const incoming: AuditEvent[] = data.events || []
+      setEvents(current => cursor
+        ? [...current, ...incoming.filter(event => !current.some(item => item.id === event.id))]
+        : incoming)
+      setNextCursor(data.next_cursor || null)
+    }).catch(error => toast.error(error.message)).finally(() => setLoading(false))
   }
-  useEffect(load, [])
+  useEffect(() => { load() }, [])
   const download = async () => {
     const response = await fetch("/api/governance/audit-events/export.csv")
     if (!response.ok) { toast.error(`Could not export audit log (${response.status})`); return }
@@ -349,9 +358,9 @@ function GovernanceAuditTab() {
     <Separator />
     <WorkspaceAccessCard />
     <Separator />
-    <div className="flex items-start justify-between gap-3"><div><h3 className="flex items-center gap-2 text-sm font-medium"><ShieldCheck className="size-4" /> Workspace audit log</h3><p className="mt-1 text-xs text-muted-foreground">Append-only records for authenticated API mutations. Request bodies and credentials are never retained.</p></div><div className="flex gap-2"><Button size="sm" variant="outline" onClick={load} disabled={loading}><RefreshCw className={loading ? "size-3 animate-spin" : "size-3"} /> Refresh</Button><Button size="sm" variant="outline" onClick={download}><Download className="size-3" /> Export CSV</Button></div></div>
+    <div className="flex items-start justify-between gap-3"><div><h3 className="flex items-center gap-2 text-sm font-medium"><ShieldCheck className="size-4" /> Workspace audit log</h3><p className="mt-1 text-xs text-muted-foreground">Append-only records for authenticated API mutations. Request bodies and credentials are never retained.</p></div><div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => load()} disabled={loading}><RefreshCw className={loading ? "size-3 animate-spin" : "size-3"} /> Refresh</Button><Button size="sm" variant="outline" onClick={download}><Download className="size-3" /> Export CSV</Button></div></div>
     <Separator />
-    <Card><CardContent className="p-0"><div className="max-h-[520px] overflow-auto"><table className="w-full text-left text-xs"><thead className="sticky top-0 bg-card text-muted-foreground"><tr><th className="p-3">Time</th><th className="p-3">Actor</th><th className="p-3">Action</th><th className="p-3">Resource</th><th className="p-3">Outcome</th><th className="p-3">Request ID</th></tr></thead><tbody>{events.map(event => <tr key={event.id} className="border-t"><td className="whitespace-nowrap p-3">{new Date(event.created_at).toLocaleString()}</td><td className="p-3">{event.actor_user_id ?? "system"} <span className="text-muted-foreground">({event.actor_role || "—"})</span></td><td className="p-3 font-mono">{event.method} {event.route}</td><td className="max-w-64 truncate p-3 font-mono text-muted-foreground">{event.resource_path}</td><td className="p-3"><Badge variant={event.outcome === "success" ? "outline" : "destructive"}>{event.response_status} {event.outcome}</Badge></td><td className="max-w-36 truncate p-3 font-mono text-muted-foreground" title={event.request_id}>{event.request_id}</td></tr>)}</tbody></table>{!loading && !events.length && <p className="p-10 text-center text-xs text-muted-foreground">No workspace mutations recorded yet.</p>}{loading && <div className="p-4"><Skeleton className="h-28 w-full" /></div>}</div></CardContent></Card>
+    <Card><CardContent className="p-0"><div className="max-h-[520px] overflow-auto"><table className="w-full text-left text-xs"><thead className="sticky top-0 bg-card text-muted-foreground"><tr><th className="p-3">Time</th><th className="p-3">Actor</th><th className="p-3">Action</th><th className="p-3">Resource</th><th className="p-3">Outcome</th><th className="p-3">Request ID</th></tr></thead><tbody>{events.map(event => <tr key={event.id} className="border-t"><td className="whitespace-nowrap p-3">{new Date(event.created_at).toLocaleString()}</td><td className="p-3">{event.actor_user_id ?? "system"} <span className="text-muted-foreground">({event.actor_role || "—"})</span></td><td className="p-3 font-mono">{event.method} {event.route}</td><td className="max-w-64 truncate p-3 font-mono text-muted-foreground">{event.resource_path}</td><td className="p-3"><Badge variant={event.outcome === "success" ? "outline" : "destructive"}>{event.response_status} {event.outcome}</Badge></td><td className="max-w-36 truncate p-3 font-mono text-muted-foreground" title={event.request_id}>{event.request_id}</td></tr>)}</tbody></table>{nextCursor && <div className="border-t p-3 text-center"><Button size="sm" variant="outline" disabled={loading} onClick={() => load(nextCursor)}>{loading && <RefreshCw className="mr-1 size-3 animate-spin" />}Load older events</Button></div>}{!loading && !events.length && <p className="p-10 text-center text-xs text-muted-foreground">No workspace mutations recorded yet.</p>}{loading && !events.length && <div className="p-4"><Skeleton className="h-28 w-full" /></div>}</div></CardContent></Card>
   </>
 }
 
