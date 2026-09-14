@@ -75,7 +75,10 @@ def client():
     return TestClient(app), Session, app
 
 
-def test_audience_crud_and_dynamic_count(client):
+def test_audience_crud_and_dynamic_count(client, monkeypatch):
+    from apps.api.services.audiences import refresh as audience_refresh
+    monkeypatch.setattr(audience_refresh, "AUDIENCE_REFRESH_PAGE_SIZE", 2)
+
     tc, Session, _ = client
     created = tc.post("/api/audiences", json={
         "name": "Hot accounts", "filters": {"score_tier": "hot", "has_email": True},

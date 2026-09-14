@@ -57,6 +57,7 @@ class AudienceMember(Base):
     __table_args__ = (
         UniqueConstraint("audience_id", "lead_id", name="uq_audience_members_audience_lead"),
         Index("ix_audience_members_workspace_audience", "workspace_id", "audience_id"),
+        Index("ix_audience_members_refresh_cursor", "workspace_id", "audience_id", "refresh_token", "id"),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -64,6 +65,7 @@ class AudienceMember(Base):
     audience_id = Column(String, ForeignKey("audiences.id", ondelete="CASCADE"), nullable=False, index=True)
     lead_id = Column(Integer, nullable=False, index=True)
     snapshot = Column(JSON, nullable=False, default=dict)
+    refresh_token = Column(String(36), nullable=True)
     joined_at = Column(DateTime, nullable=False, server_default=func.now())
     last_seen_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
@@ -83,6 +85,7 @@ class AudienceMembershipEvent(Base):
     __tablename__ = "audience_membership_events"
     __table_args__ = (
         Index("ix_audience_events_workspace_audience_created", "workspace_id", "audience_id", "created_at"),
+        Index("ix_audience_events_refresh_cursor", "workspace_id", "audience_id", "refresh_id", "id"),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -91,6 +94,7 @@ class AudienceMembershipEvent(Base):
     lead_id = Column(Integer, nullable=False, index=True)
     event_type = Column(String(16), nullable=False)
     snapshot = Column(JSON, nullable=False, default=dict)
+    refresh_id = Column(String(36), nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
 
     def to_api(self) -> dict:
