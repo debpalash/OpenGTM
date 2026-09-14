@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from contextlib import nullcontext
 from typing import Any, Iterable, Mapping
 
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 from sqlalchemy import text
+from sqlalchemy.engine import Connection
 
 from apps.api.database import engine
 
@@ -100,28 +102,33 @@ def evaluate_database_readiness(
     }
 
 
-def database_readiness() -> dict[str, Any]:
+def database_readiness(
+    connection: Connection | None = None,
+) -> dict[str, Any]:
     if engine.dialect.name != "postgresql":
         return {"eligible": False, "reason_codes": ["postgresql_required"]}
     try:
-        with engine.connect() as connection:
-            role_row = connection.execute(text(
+        connection_context = (
+            nullcontext(connection) if connection is not None else engine.connect()
+        )
+        with connection_context as live_connection:
+            role_row = live_connection.execute(text(
                 "SELECT current_user, rolsuper, rolbypassrls "
                 "FROM pg_roles WHERE rolname = current_user"
             )).mappings().one_or_none()
-            database_heads = connection.execute(text(
+            database_heads = live_connection.execute(text(
                 "SELECT version_num FROM alembic_version"
             )).scalars().all()
-            tenant_tables = connection.execute(text(
+            tenant_tables = live_connection.execute(text(
                 "SELECT DISTINCT table_name FROM information_schema.columns "
                 "WHERE table_schema='public' AND column_name='workspace_id'"
             )).scalars().all()
-            security_rows = connection.execute(text(
+            security_rows = live_connection.execute(text(
                 "SELECT c.relname, c.relrowsecurity, c.relforcerowsecurity "
                 "FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
                 "WHERE n.nspname='public' AND c.relkind='r'"
             )).all()
-            policy_rows = connection.execute(text(
+            policy_rows = live_connection.execute(text(
                 "SELECT tablename, permissive, qual, with_check FROM pg_policies "
                 "WHERE schemaname='public'"
             )).mappings().all()

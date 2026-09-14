@@ -1,3 +1,6 @@
+from unittest.mock import MagicMock
+
+import apps.api.services.database_readiness as database
 from apps.api.services.database_readiness import evaluate_database_readiness
 
 
@@ -23,7 +26,7 @@ def _evaluate(**changes):
 
 def test_database_readiness_accepts_current_forced_rls_and_known_exemptions():
     result = _evaluate()
-    assert result["eligible"] is True
+    assert result["eligible"] is True, result
     assert result["tenant_tables_checked"] == 1
     assert result["exempt_tables_present"] == ["jobs"]
 
@@ -50,3 +53,39 @@ def test_database_readiness_rejects_extra_or_unscoped_policy():
     assert "tenant_rls_invalid" in _evaluate(
         policies={"leads": [POLICY, unscoped]},
     )["reason_codes"]
+
+
+def test_live_database_readiness_reuses_supplied_connection(monkeypatch):
+    monkeypatch.setattr(database.engine.dialect, "name", "postgresql")
+    connection = MagicMock()
+    results = [
+        ["head"],
+        ["leads"],
+        [("leads", True, True)],
+        [{"tablename": "leads", **POLICY}],
+    ]
+    scalar_result = MagicMock()
+    scalar_result.scalars.return_value.all.side_effect = results[:2]
+    security_result = MagicMock()
+    security_result.all.return_value = results[2]
+    policy_result = MagicMock()
+    policy_result.mappings.return_value.all.return_value = results[3]
+    role_result = MagicMock()
+    role_result.mappings.return_value.one_or_none.return_value = {
+        "current_user": "opengtm_app",
+        "rolsuper": False,
+        "rolbypassrls": False,
+    }
+    connection.execute.side_effect = [
+        role_result, scalar_result, scalar_result, security_result, policy_result,
+    ]
+    monkeypatch.setattr(database, "_code_heads", lambda: ["head"])
+
+    def unexpected_connect():
+        raise AssertionError("supplied connection must be reused")
+
+    monkeypatch.setattr(database.engine, "connect", unexpected_connect)
+
+    result = database.database_readiness(connection)
+
+    assert result["eligible"] is True, result
