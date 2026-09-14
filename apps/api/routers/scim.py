@@ -237,10 +237,9 @@ def create_group(workspace_slug: str, body: ScimGroupInput, authorization: str |
     workspace = _workspace(workspace_slug, authorization)
     try:
         member_ids = _member_ids(body.members)
-        for user_id in member_ids:
-            if not scim.get_mapping(workspace.id, user_id): raise ValueError(f"SCIM user {user_id} not found")
-        group = scim.create_group(workspace.id, body.displayName.strip(), body.externalId)
-        scim.add_group_members(workspace.id, group["id"], member_ids)
+        group = scim.create_group(
+            workspace.id, body.displayName.strip(), body.externalId, member_ids,
+        )
     except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc: raise HTTPException(status_code=409, detail="SCIM group already exists") from exc
     return _group_resource(workspace, scim.get_group(workspace.id, group["id"]))
@@ -272,27 +271,30 @@ def patch_group(workspace_slug: str, group_id: str, body: PatchInput, authorizat
     workspace = _workspace(workspace_slug, authorization); group = scim.get_group(workspace.id, group_id)
     if not group: raise HTTPException(status_code=404, detail="SCIM group not found")
     if PATCH_SCHEMA not in body.schemas: raise HTTPException(status_code=400, detail="PatchOp schema is required")
+    display_name = group["display_name"]
+    external_id = group["external_id"]
+    member_ids = [int(value) for value in group["members"]]
     for operation in body.Operations:
         op = str(operation.get("op", "")).lower(); path = operation.get("path"); value = operation.get("value")
-        try:
-            if op in {"add", "replace"} and path == "members":
-                if op == "replace":
-                    current = scim.get_group(workspace.id, group_id)
-                    scim.replace_group(
-                        workspace.id, group_id, current["display_name"],
-                        current["external_id"], _member_ids(value or []),
-                    )
-                else:
-                    scim.add_group_members(workspace.id, group_id, _member_ids(value or []))
-            elif op == "remove" and isinstance(path, str):
-                match = re.fullmatch(r'members\[value\s+eq\s+"([0-9]+)"\]', path, re.IGNORECASE)
-                if not match: raise HTTPException(status_code=400, detail="Unsupported group remove path")
-                scim.remove_group_members(workspace.id, group_id, [int(match.group(1))])
-            elif op in {"add", "replace"} and path in {"displayName", "externalId"}:
-                current = scim.get_group(workspace.id, group_id); scim.update_group(workspace.id, group_id, str(value if path == "displayName" else current["display_name"]), str(value if path == "externalId" else current["external_id"]))
-            else: raise HTTPException(status_code=400, detail=f"Unsupported group patch operation: {op} {path}")
-        except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return _group_resource(workspace, scim.get_group(workspace.id, group_id))
+        if op in {"add", "replace"} and path == "members":
+            requested = _member_ids(value or [])
+            member_ids = requested if op == "replace" else list(dict.fromkeys([*member_ids, *requested]))
+        elif op == "remove" and isinstance(path, str):
+            match = re.fullmatch(r'members\[value\s+eq\s+"([0-9]+)"\]', path, re.IGNORECASE)
+            if not match: raise HTTPException(status_code=400, detail="Unsupported group remove path")
+            member_ids = [item for item in member_ids if item != int(match.group(1))]
+        elif op in {"add", "replace"} and path == "displayName":
+            display_name = str(value)
+        elif op in {"add", "replace"} and path == "externalId":
+            external_id = str(value)
+        else: raise HTTPException(status_code=400, detail=f"Unsupported group patch operation: {op} {path}")
+    try:
+        saved = scim.replace_group(
+            workspace.id, group_id, display_name, external_id, member_ids,
+        )
+    except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if saved is None: raise HTTPException(status_code=404, detail="SCIM group not found")
+    return _group_resource(workspace, saved)
 
 
 @router.delete("/Groups/{group_id}", status_code=204)
