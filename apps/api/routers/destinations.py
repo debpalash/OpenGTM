@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
+from sqlalchemy import case, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -197,15 +198,24 @@ def _get(db: Session, ws_id: str, destination_id: str) -> AudienceDestination:
 
 @router.get("")
 def list_destinations(audience_id: Optional[str] = None, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
-    query = db.query(AudienceDestination).filter(AudienceDestination.workspace_id == ctx.workspace_id)
+    ranked_runs = select(
+        DestinationRun.id.label("run_id"),
+        DestinationRun.destination_id.label("destination_id"),
+        func.row_number().over(
+            partition_by=DestinationRun.destination_id,
+            order_by=(DestinationRun.created_at.desc(), DestinationRun.id.desc()),
+        ).label("rank"),
+    ).where(DestinationRun.workspace_id == ctx.workspace_id).subquery()
+    query = db.query(AudienceDestination, DestinationRun).outerjoin(
+        ranked_runs,
+        (ranked_runs.c.destination_id == AudienceDestination.id) & (ranked_runs.c.rank == 1),
+    ).outerjoin(DestinationRun, DestinationRun.id == ranked_runs.c.run_id).filter(
+        AudienceDestination.workspace_id == ctx.workspace_id
+    )
     if audience_id:
         query = query.filter(AudienceDestination.audience_id == audience_id)
     result = []
-    for destination in query.order_by(AudienceDestination.updated_at.desc()).all():
-        latest = db.query(DestinationRun).filter(
-            DestinationRun.workspace_id == ctx.workspace_id,
-            DestinationRun.destination_id == destination.id,
-        ).order_by(DestinationRun.created_at.desc()).first()
+    for destination, latest in query.order_by(AudienceDestination.updated_at.desc()).all():
         result.append({**destination.to_api(), "latest_run": latest.to_api() if latest else None})
     return result
 
@@ -292,14 +302,75 @@ def list_runs(destination_id: str, db: Session = Depends(get_db), ctx: Workspace
     ).order_by(DestinationRun.created_at.desc()).limit(100).all()]
 
 
+@router.get("/{destination_id}/health")
+def destination_health(destination_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Return bounded operational health and recent failure evidence."""
+    destination = _get(db, ctx.workspace_id, destination_id)
+    run_counts = dict(db.query(DestinationRun.status, func.count(DestinationRun.id)).filter(
+        DestinationRun.workspace_id == ctx.workspace_id,
+        DestinationRun.destination_id == destination_id,
+    ).group_by(DestinationRun.status).all())
+    delivery = db.query(
+        func.count(DestinationDelivery.id),
+        func.sum(case((DestinationDelivery.status == "success", 1), else_=0)),
+        func.sum(case((DestinationDelivery.status == "failed", 1), else_=0)),
+    ).filter(
+        DestinationDelivery.workspace_id == ctx.workspace_id,
+        DestinationDelivery.destination_id == destination_id,
+    ).one()
+    total, succeeded, failed = (int(value or 0) for value in delivery)
+    recent_failures = db.query(DestinationDelivery).filter(
+        DestinationDelivery.workspace_id == ctx.workspace_id,
+        DestinationDelivery.destination_id == destination_id,
+        DestinationDelivery.status == "failed",
+    ).order_by(DestinationDelivery.updated_at.desc(), DestinationDelivery.id.desc()).limit(10).all()
+    latest_runs = db.query(DestinationRun).filter(
+        DestinationRun.workspace_id == ctx.workspace_id,
+        DestinationRun.destination_id == destination_id,
+    ).order_by(DestinationRun.created_at.desc(), DestinationRun.id.desc()).limit(20).all()
+    consecutive_unhealthy = 0
+    for run in latest_runs:
+        if run.status not in {"failed", "completed_with_errors"}:
+            break
+        consecutive_unhealthy += 1
+    return {
+        "destination_id": destination.id,
+        "health_status": destination.health_status,
+        "last_error": destination.last_error,
+        "last_success_at": destination.last_success_at,
+        "run_counts": run_counts,
+        "delivery_counts": {"total": total, "succeeded": succeeded, "failed": failed},
+        "success_rate": round(succeeded / total, 4) if total else None,
+        "consecutive_unhealthy_runs": consecutive_unhealthy,
+        "recent_failures": [item.to_api() for item in recent_failures],
+        "latest_run": latest_runs[0].to_api() if latest_runs else None,
+    }
+
+
 @router.get("/runs/{run_id}/deliveries")
-def list_deliveries(run_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+def list_deliveries(
+    run_id: str,
+    status: Optional[str] = None,
+    after_id: Optional[int] = None,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     run = db.query(DestinationRun).filter(DestinationRun.id == run_id, DestinationRun.workspace_id == ctx.workspace_id).first()
     if run is None:
         raise HTTPException(status_code=404, detail="Destination run not found")
-    return [delivery.to_api() for delivery in db.query(DestinationDelivery).filter(
+    if status is not None and status not in {"pending", "in_flight", "success", "failed"}:
+        raise HTTPException(status_code=422, detail="Invalid delivery status")
+    if not 1 <= limit <= 500:
+        raise HTTPException(status_code=422, detail="limit must be between 1 and 500")
+    query = db.query(DestinationDelivery).filter(
         DestinationDelivery.workspace_id == ctx.workspace_id, DestinationDelivery.run_id == run_id,
-    ).order_by(DestinationDelivery.id.asc()).all()]
+    )
+    if status:
+        query = query.filter(DestinationDelivery.status == status)
+    if after_id is not None:
+        query = query.filter(DestinationDelivery.id > after_id)
+    return [delivery.to_api() for delivery in query.order_by(DestinationDelivery.id.asc()).limit(limit).all()]
 
 
 @router.post("/runs/{run_id}/retry", status_code=202)

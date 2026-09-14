@@ -168,6 +168,61 @@ def test_failed_destination_deliveries_retry_on_original_run(destination_app, mo
         run = session.get(DestinationRun, run_id)
         assert run.status == "completed" and run.failed == 0 and run.skipped == 1
 
+
+def test_destination_health_and_bounded_delivery_inspection(destination_app):
+    tc, Session, _ = destination_app
+    destination_id = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Observable webhook", "destination_type": "webhook",
+        "config": {"url": "https://hooks.example.test/audience"},
+    }).json()["id"]
+    with Session() as session:
+        destination = session.get(AudienceDestination, destination_id)
+        destination.health_status = "degraded"
+        destination.last_error = "2 deliveries failed"
+        run = DestinationRun(
+            id="health-run", workspace_id=WS1, destination_id=destination_id,
+            status="completed_with_errors", attempted=3, succeeded=1, failed=2,
+        )
+        session.add(run)
+        session.flush()
+        for lead_id, status in ((42, "success"), (43, "failed"), (44, "failed")):
+            session.add(DestinationDelivery(
+                workspace_id=WS1, run_id=run.id, destination_id=destination_id,
+                lead_id=lead_id, idempotency_key=f"health-{lead_id}",
+                payload_fingerprint=str(lead_id), status=status, attempts=1,
+                error="provider timeout" if status == "failed" else None,
+            ))
+        session.commit()
+
+    health = tc.get(f"/api/audience-destinations/{destination_id}/health")
+    assert health.status_code == 200
+    payload = health.json()
+    assert payload["health_status"] == "degraded"
+    assert payload["delivery_counts"] == {"total": 3, "succeeded": 1, "failed": 2}
+    assert payload["success_rate"] == pytest.approx(1 / 3, abs=0.0001)
+    assert payload["consecutive_unhealthy_runs"] == 1
+    assert len(payload["recent_failures"]) == 2
+    assert payload["latest_run"]["id"] == "health-run"
+
+    failures = tc.get(
+        "/api/audience-destinations/runs/health-run/deliveries",
+        params={"status": "failed", "limit": 1},
+    )
+    assert failures.status_code == 200 and len(failures.json()) == 1
+    next_page = tc.get(
+        "/api/audience-destinations/runs/health-run/deliveries",
+        params={"status": "failed", "after_id": failures.json()[0]["id"], "limit": 1},
+    )
+    assert len(next_page.json()) == 1
+    assert tc.get(
+        "/api/audience-destinations/runs/health-run/deliveries",
+        params={"status": "unknown"},
+    ).status_code == 422
+    assert tc.get(
+        "/api/audience-destinations/runs/health-run/deliveries",
+        params={"limit": 501},
+    ).status_code == 422
+
 def test_destination_validation_and_tenant_isolation(destination_app):
     tc, Session, app = destination_app
     invalid = tc.post("/api/audience-destinations", json={
