@@ -132,6 +132,38 @@ def test_audience_validation_and_duplicate_name(client):
     assert tc.post("/api/audiences", json={"name": "Unique", "filters": {}}).status_code == 409
 
 
+def test_audience_members_and_events_have_stable_keyset_traversal(client):
+    tc, _, _ = client
+    audience_id = tc.post("/api/audiences", json={
+        "name": "Paged audience", "filters": {"score_tier": "hot"},
+    }).json()["id"]
+
+    member_page_1 = tc.get(f"/api/audiences/{audience_id}/members", params={"limit": 3}).json()
+    member_page_2 = tc.get(
+        f"/api/audiences/{audience_id}/members",
+        params={"limit": 3, "before_id": member_page_1[-1]["id"]},
+    ).json()
+    assert len(member_page_1) == len(member_page_2) == 3
+    assert {item["id"] for item in member_page_1}.isdisjoint(item["id"] for item in member_page_2)
+    assert member_page_1 == sorted(member_page_1, key=lambda item: item["id"], reverse=True)
+    assert tc.get(
+        f"/api/audiences/{audience_id}/members", params={"limit": 3, "offset": 3},
+    ).json() == member_page_2
+
+    event_page_1 = tc.get(f"/api/audiences/{audience_id}/events", params={"limit": 4}).json()
+    event_page_2 = tc.get(
+        f"/api/audiences/{audience_id}/events",
+        params={"limit": 4, "before_id": event_page_1[-1]["id"]},
+    ).json()
+    assert len(event_page_1) == 4 and len(event_page_2) == 3
+    assert {item["id"] for item in event_page_1}.isdisjoint(item["id"] for item in event_page_2)
+
+    assert tc.get(f"/api/audiences/{audience_id}/members", params={"limit": 0}).status_code == 422
+    assert tc.get(f"/api/audiences/{audience_id}/members", params={"limit": 1001}).status_code == 422
+    assert tc.get(f"/api/audiences/{audience_id}/members", params={"offset": -1}).status_code == 422
+    assert tc.get(f"/api/audiences/{audience_id}/events", params={"before_id": 0}).status_code == 422
+
+
 def test_audience_workspace_isolation(client):
     tc, Session, app = client
     session = Session()
