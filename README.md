@@ -12,7 +12,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/debpalash/opengtm/actions/workflows/ci.yml"><img src="https://github.com/debpalash/opengtm/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="AGPL v3 license" /></a>
   <a href="https://opengtm.palash.dev"><img src="https://img.shields.io/badge/docs-opengtm.palash.dev-16a34a" alt="Documentation" /></a>
   <a href="https://github.com/debpalash/opengtm/stargazers"><img src="https://img.shields.io/github/stars/debpalash/opengtm?style=flat&logo=github&color=6268f2" alt="GitHub stars" /></a>
