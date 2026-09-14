@@ -31,29 +31,48 @@ def _cancellation_requested(db, run) -> bool:
     return run.status in {"cancelling", "cancelled"}
 
 
+def _delivery_counts(db, workspace_id: str, run_id: str) -> dict[str, int]:
+    """Aggregate a run ledger in SQL so terminal paths stay constant-memory."""
+    from sqlalchemy import case, func
+    from apps.api.services.destinations.models import DestinationDelivery
+
+    attempted, succeeded, failed, skipped = db.query(
+        func.coalesce(func.sum(case((DestinationDelivery.attempts > 0, 1), else_=0)), 0),
+        func.coalesce(func.sum(case((DestinationDelivery.status == "success", 1), else_=0)), 0),
+        func.coalesce(func.sum(case((DestinationDelivery.status == "failed", 1), else_=0)), 0),
+        func.coalesce(func.sum(case((DestinationDelivery.status == "skipped", 1), else_=0)), 0),
+    ).filter(
+        DestinationDelivery.workspace_id == workspace_id,
+        DestinationDelivery.run_id == run_id,
+    ).one()
+    return {
+        "attempted": int(attempted),
+        "succeeded": int(succeeded),
+        "failed": int(failed),
+        "skipped": int(skipped),
+    }
+
+
 def _finish_cancelled(db, run, destination) -> None:
     """Finalize cooperative cancellation without erasing completed effects."""
     from apps.api.services.destinations.models import DestinationDelivery
 
-    unfinished = db.query(DestinationDelivery).filter(
+    db.query(DestinationDelivery).filter(
         DestinationDelivery.workspace_id == run.workspace_id,
         DestinationDelivery.run_id == run.id,
         DestinationDelivery.status.in_(("pending", "in_flight")),
-    ).all()
-    for delivery in unfinished:
-        delivery.status = "cancelled"
-        delivery.error = "Run cancelled before delivery"
-    deliveries = db.query(DestinationDelivery).filter(
-        DestinationDelivery.workspace_id == run.workspace_id,
-        DestinationDelivery.run_id == run.id,
-    ).all()
+    ).update({
+        DestinationDelivery.status: "cancelled",
+        DestinationDelivery.error: "Run cancelled before delivery",
+    }, synchronize_session=False)
+    counts = _delivery_counts(db, run.workspace_id, run.id)
     run.status = "cancelled"
     run.error = "Cancellation completed"
     run.finished_at = datetime.now(timezone.utc)
-    run.attempted = sum(1 for delivery in deliveries if (delivery.attempts or 0) > 0)
-    run.succeeded = sum(1 for delivery in deliveries if delivery.status == "success")
-    run.failed = sum(1 for delivery in deliveries if delivery.status == "failed")
-    run.skipped = sum(1 for delivery in deliveries if delivery.status == "skipped")
+    run.attempted = counts["attempted"]
+    run.succeeded = counts["succeeded"]
+    run.failed = counts["failed"]
+    run.skipped = counts["skipped"]
     if destination is not None and run.succeeded:
         destination.last_success_at = run.finished_at
     db.commit()
@@ -137,32 +156,32 @@ def reconcile_destination_job_failure(
                 _finish_cancelled(db, run, destination)
                 return
 
-            deliveries = db.query(DestinationDelivery).filter(
+            delivery_scope = db.query(DestinationDelivery).filter(
                 DestinationDelivery.workspace_id == workspace_id,
                 DestinationDelivery.run_id == run_id,
-            ).all()
-            orphaned = [delivery for delivery in deliveries if delivery.status == "in_flight"]
+            )
             if will_retry:
                 run.status = "pending"
                 run.error = f"Queue retry scheduled: {message}"
                 run.finished_at = None
-                for delivery in orphaned:
-                    delivery.status = "pending"
-                    delivery.error = run.error
+                delivery_scope.filter(DestinationDelivery.status == "in_flight").update({
+                    DestinationDelivery.status: "pending",
+                    DestinationDelivery.error: run.error,
+                }, synchronize_session=False)
             else:
                 now = datetime.now(timezone.utc)
                 run.status = "failed"
                 run.error = f"Final failure: {message}"
                 run.finished_at = now
-                for delivery in deliveries:
-                    if delivery.status not in {"pending", "in_flight"}:
-                        continue
-                    delivery.status = "failed"
-                    delivery.error = run.error
-                run.attempted = sum(1 for delivery in deliveries if (delivery.attempts or 0) > 0)
-                run.succeeded = sum(1 for delivery in deliveries if delivery.status == "success")
-                run.failed = sum(1 for delivery in deliveries if delivery.status == "failed")
-                run.skipped = sum(1 for delivery in deliveries if delivery.status == "skipped")
+                delivery_scope.filter(DestinationDelivery.status.in_(("pending", "in_flight"))).update({
+                    DestinationDelivery.status: "failed",
+                    DestinationDelivery.error: run.error,
+                }, synchronize_session=False)
+                counts = _delivery_counts(db, workspace_id, run_id)
+                run.attempted = counts["attempted"]
+                run.succeeded = counts["succeeded"]
+                run.failed = counts["failed"]
+                run.skipped = counts["skipped"]
                 destination = db.query(AudienceDestination).filter(
                     AudienceDestination.id == run.destination_id,
                     AudienceDestination.workspace_id == workspace_id,
