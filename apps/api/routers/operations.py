@@ -145,13 +145,38 @@ def _release_readiness() -> dict:
     database = database_readiness()
 
     required_count = sum(len(items) for items in groups.values())
+    core_eligible = (
+        not missing
+        and gauntlet.get("eligible") is True
+        and scale_ready
+        and database.get("eligible") is True
+    )
+    parity_blockers = [
+        *[f"first_party:{subject}" for subject in missing],
+        *[f"community_connectors:{subject}" for subject in connector_missing],
+        *[f"enrichment_providers:{subject}" for subject in provider_missing],
+    ]
+    if review.get("ok") is not True:
+        parity_blockers.append("community_connectors:manifest_review_failed")
+    if gauntlet.get("eligible") is not True:
+        parity_blockers.extend(
+            f"gauntlet:{reason}"
+            for reason in gauntlet.get("reason_codes", ["not_eligible"])
+        )
+    for gate, status in scale.items():
+        if not status["valid"]:
+            parity_blockers.append(f"scale:{gate}:{status['reason']}")
+    if database.get("eligible") is not True:
+        parity_blockers.extend(
+            f"database:{reason}"
+            for reason in database.get("reason_codes", ["not_eligible"])
+        )
     return {
-        "eligible": (
-            not missing
-            and gauntlet.get("eligible") is True
-            and scale_ready
-            and database.get("eligible") is True
-        ),
+        "eligible": core_eligible,
+        "parity": {
+            "eligible": not parity_blockers,
+            "blockers": parity_blockers,
+        },
         "deployed_build_sha": deployed_build_sha,
         "first_party": {
             "required": required_count,

@@ -53,3 +53,11 @@ that deliberately operate before tenant context exists are covered by the
 small, reviewed exemption list in `database_readiness.py`; any newly introduced
 workspace table fails the release gate until it is protected or explicitly
 reviewed as an exemption.
+
+The response exposes two deliberately different verdicts. Top-level `eligible`
+is the core release gate: required first-party workflows, gauntlet, scale, and
+database. `parity.eligible` is stricter and additionally requires every bundled
+community connector and selectable enrichment provider to have valid
+controlled-live certification, plus a successful connector manifest review.
+Use `parity.blockers` as the deterministic work queue for suite-parity rollout;
+do not infer parity from the core release verdict alone.

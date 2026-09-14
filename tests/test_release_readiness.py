@@ -58,6 +58,10 @@ def test_readiness_fails_closed_without_live_artifact(monkeypatch):
     assert result["community_connectors"]["missing"] == ["connector:sample"]
     assert result["enrichment_providers"]["missing"] == ["provider:hunter_io"]
     assert result["scale"]["eligible"] is False
+    assert result["parity"]["eligible"] is False
+    assert "first_party:integrations:hubspot" in result["parity"]["blockers"]
+    assert "community_connectors:connector:sample" in result["parity"]["blockers"]
+    assert "enrichment_providers:provider:hunter_io" in result["parity"]["blockers"]
 
 
 def _configure_scale(tmp_path, monkeypatch, build_sha="release-build"):
@@ -102,6 +106,7 @@ def test_readiness_requires_both_certifications_and_gauntlet(tmp_path, monkeypat
     assert result["gauntlet"]["consecutive_production_like_passes"] == 10
     assert result["gauntlet"]["build_matches_deployment"] is True
     assert result["scale"]["eligible"] is True
+    assert result["parity"] == {"eligible": True, "blockers": []}
 
 
 def test_readiness_rejects_gauntlet_from_another_build(tmp_path, monkeypatch):
@@ -165,3 +170,36 @@ def test_readiness_fails_closed_when_database_is_not_release_ready(
 
     assert result["eligible"] is False
     assert result["database"]["reason_codes"] == ["tenant_rls_invalid"]
+    assert "database:tenant_rls_invalid" in result["parity"]["blockers"]
+
+
+def test_core_release_can_pass_while_strict_parity_reports_catalog_gaps(
+    tmp_path, monkeypatch,
+):
+    _patch_catalogs(monkeypatch)
+    import apps.api.services.integrations.certification as certification
+    monkeypatch.setattr(certification, "certification_statuses", lambda subjects, **kwargs: {
+        subject: {
+            "maturity": "beta" if subject.startswith("provider:") else "supported",
+        }
+        for subject in subjects
+    })
+    artifact = tmp_path / "live.json"
+    artifact.write_text("{}", encoding="utf-8")
+    monkeypatch.setenv(operations.GAUNTLET_ARTIFACT_ENV, str(artifact))
+    monkeypatch.setenv("OPENGTM_BUILD_SHA", "release-build")
+    _configure_scale(tmp_path, monkeypatch)
+    import apps.api.services.evaluation.gtm_gauntlet as gauntlet
+    monkeypatch.setattr(gauntlet, "load_artifact", lambda path: {})
+    monkeypatch.setattr(gauntlet, "score_gauntlet", lambda value: {
+        "build_sha": "release-build",
+        "release": {"eligible": True, "reason_codes": []},
+    })
+
+    result = operations._release_readiness()
+
+    assert result["eligible"] is True
+    assert result["parity"] == {
+        "eligible": False,
+        "blockers": ["enrichment_providers:provider:hunter_io"],
+    }

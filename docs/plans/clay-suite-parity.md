@@ -4,6 +4,12 @@ Updated: 2026-09-13
 
 OpenGTM should pursue workflow parity, not imitate every Clay screen. The target is a credible, self-hosted GTM operating system whose core loop—discover, enrich, segment, act, learn—works end to end.
 
+`GET /admin/operations/release-readiness` is the authoritative rollout view.
+Its top-level `eligible` field protects a core release; the stricter
+`parity.eligible` field also requires controlled-live support for every bundled
+connector and selectable provider. A parity claim requires an empty
+`parity.blockers` list.
+
 ## Current position
 
 | Capability | OpenGTM today | Parity target | Priority |
