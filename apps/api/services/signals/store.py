@@ -20,11 +20,15 @@ scanner both delegate here so PG and SQLite share one code path.
 
 from __future__ import annotations
 
+import base64
+import binascii
+import json
 import logging
 from typing import Dict, List, Optional
 
 from apps.api.database import SessionLocal
 from apps.api.services.leadgen.orm_models import SignalRow
+from sqlalchemy import and_, func, or_
 
 logger = logging.getLogger("signals.store")
 
@@ -111,15 +115,87 @@ class SignalStore:
             q = s.query(SignalRow).filter(SignalRow.workspace_id == self.workspace_id)
             if signal_type:
                 q = q.filter(SignalRow.signal_type == signal_type)
-            if lead_id:
+            if lead_id is not None:
                 q = q.filter(SignalRow.lead_id == lead_id)
             rows = (
-                q.order_by(SignalRow.created_at.desc())
+                q.order_by(SignalRow.created_at.desc(), SignalRow.id.desc())
                 .limit(limit)
                 .offset(offset)
                 .all()
             )
             return [self._signal_to_dict(r) for r in rows]
+
+    def get_signals_page(
+        self,
+        *,
+        signal_types: Optional[List[str]] = None,
+        lead_id: Optional[int] = None,
+        lead_ids: Optional[List[int]] = None,
+        companies: Optional[List[str]] = None,
+        limit: int = 50,
+        cursor: Optional[str] = None,
+        offset: int = 0,
+    ) -> dict:
+        """Return one stable keyset-paginated signal page."""
+        if limit < 1:
+            raise ValueError("limit must be positive")
+        with self._session() as s:
+            q = s.query(SignalRow).filter(SignalRow.workspace_id == self.workspace_id)
+            if signal_types:
+                q = q.filter(SignalRow.signal_type.in_(signal_types))
+            if lead_id is not None:
+                q = q.filter(SignalRow.lead_id == lead_id)
+            if lead_ids is not None or companies is not None:
+                identity_filters = []
+                if lead_ids:
+                    identity_filters.append(SignalRow.lead_id.in_(lead_ids))
+                normalized_companies = sorted({value.strip().casefold() for value in companies or [] if value.strip()})
+                if normalized_companies:
+                    identity_filters.append(func.lower(SignalRow.company).in_(normalized_companies))
+                if not identity_filters:
+                    return {"signals": [], "next_cursor": None, "has_more": False}
+                q = q.filter(or_(*identity_filters))
+            if cursor:
+                created_at, signal_id = self._decode_cursor(cursor)
+                q = q.filter(or_(
+                    SignalRow.created_at < created_at,
+                    and_(SignalRow.created_at == created_at, SignalRow.id < signal_id),
+                ))
+            query = q.order_by(SignalRow.created_at.desc(), SignalRow.id.desc()).limit(limit + 1)
+            if offset and not cursor:
+                query = query.offset(offset)
+            rows = query.all()
+            has_more = len(rows) > limit
+            page_rows = rows[:limit]
+            return {
+                "signals": [self._signal_to_dict(row) for row in page_rows],
+                "next_cursor": self._encode_cursor(page_rows[-1]) if has_more else None,
+                "has_more": has_more,
+            }
+
+    @staticmethod
+    def _encode_cursor(row: SignalRow) -> str:
+        return SignalStore._encode_cursor_values(row.created_at, row.id)
+
+    @staticmethod
+    def encode_cursor_from_dict(row: dict) -> str:
+        return SignalStore._encode_cursor_values(row["created_at"], row["id"])
+
+    @staticmethod
+    def _encode_cursor_values(created_at: float, signal_id: str) -> str:
+        payload = json.dumps([created_at, signal_id], separators=(",", ":")).encode()
+        return base64.urlsafe_b64encode(payload).decode().rstrip("=")
+
+    @staticmethod
+    def _decode_cursor(cursor: str) -> tuple[float, str]:
+        try:
+            padding = "=" * (-len(cursor) % 4)
+            value = json.loads(base64.urlsafe_b64decode(cursor + padding))
+            if not isinstance(value, list) or len(value) != 2 or not isinstance(value[1], str):
+                raise ValueError
+            return float(value[0]), value[1]
+        except (ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError, binascii.Error) as exc:
+            raise ValueError("invalid signal cursor") from exc
 
     def get_signal_counts(self) -> Dict[str, int]:
         from sqlalchemy import func

@@ -172,6 +172,7 @@ class SignalRow(Base):
         Index("ix_signals_ws_type", "workspace_id", "signal_type"),
         Index("ix_signals_ws_lead", "workspace_id", "lead_id"),
         Index("ix_signals_ws_created", "workspace_id", "created_at"),
+        Index("ix_signals_ws_created_id", "workspace_id", "created_at", "id"),
     )
 
 

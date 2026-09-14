@@ -67,21 +67,32 @@ export default function SignalsPage() {
   const [signals, setSignals] = useState<Signal[]>([])
   const [counts, setCounts] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [scanning, setScanning] = useState(false)
   const [filter, setFilter] = useState("all")
   const [analytics, setAnalytics] = useState<SignalAnalytics | null>(null)
   const [period, setPeriod] = useState("30")
   const [sources, setSources] = useState<SignalSource[]>([])
 
-  const fetchSignals = async () => {
+  const fetchSignals = async (cursor?: string) => {
+    if (cursor) setLoadingMore(true)
     try {
-      const params = filter !== "all" ? `?signal_type=${filter}` : ""
-      const res = await fetch(`/api/signals${params}`)
+      const params = new URLSearchParams({ limit: "50" })
+      if (filter !== "all") params.set("signal_type", filter)
+      if (cursor) params.set("cursor", cursor)
+      const res = await fetch(`/api/signals?${params}`)
+      if (!res.ok) throw new Error("Could not load signals")
       const data = await res.json()
-      setSignals(data.signals || [])
+      const incoming: Signal[] = data.signals || []
+      setSignals(current => cursor
+        ? [...current, ...incoming.filter(signal => !current.some(item => item.id === signal.id))]
+        : incoming)
       setCounts(data.counts || {})
+      setNextCursor(data.next_cursor || null)
     } catch { /* ignore */ }
     setLoading(false)
+    setLoadingMore(false)
   }
 
   useEffect(() => { fetchSignals() }, [filter])
@@ -99,7 +110,7 @@ export default function SignalsPage() {
       const data = await res.json()
       if (data.status === "started") {
         toast.success("Signal scan started — checking job boards for new signals…")
-        setTimeout(fetchSignals, 8000)
+        setTimeout(() => fetchSignals(), 8000)
       } else {
         toast.success(`Scan complete: ${data.signals_found ?? 0} signals found`)
         fetchSignals()
@@ -270,6 +281,19 @@ export default function SignalsPage() {
               </div>
             )
           })}
+          {nextCursor && (
+            <div className="flex justify-center pt-3">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={loadingMore}
+                onClick={() => fetchSignals(nextCursor)}
+              >
+                {loadingMore && <Loader2 className="mr-1 size-3 animate-spin" />}
+                Load more signals
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>
