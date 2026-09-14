@@ -273,6 +273,22 @@ def cmd_queue_load_test(args):
     print(json.dumps(report, indent=2))
 
 
+def cmd_workbook_load_test(args):
+    import json
+    from apps.api.services.workbook_load import run_workbook_load_test
+
+    report = run_workbook_load_test(
+        rows=args.rows,
+        page_size=args.page_size,
+        confirmation=args.confirm,
+        max_page_ms=args.max_page_ms,
+        max_search_ms=args.max_search_ms,
+        max_selection_ms=args.max_selection_ms,
+        allow_sqlite=args.allow_sqlite,
+    )
+    print(json.dumps(report, indent=2))
+
+
 def cmd_backup(args):
     import json
     from pathlib import Path
@@ -411,6 +427,17 @@ def main():
         help="Harness testing only; not controlled-load evidence",
     )
 
+    p = sub.add_parser(
+        "workbook-load-test", help="Run the controlled workbook scale gate"
+    )
+    p.add_argument("--rows", type=int, default=1_000_000)
+    p.add_argument("--page-size", type=int, default=100)
+    p.add_argument("--max-page-ms", type=float, default=2_000)
+    p.add_argument("--max-search-ms", type=float, default=5_000)
+    p.add_argument("--max-selection-ms", type=float, default=2_000)
+    p.add_argument("--confirm", required=True, help='Must equal "RUN WORKBOOK LOAD TEST"')
+    p.add_argument("--allow-sqlite", action="store_true", help="Harness testing only")
+
     p = sub.add_parser("backup", help="Create an integrity-checked PostgreSQL + data backup")
     p.add_argument("--output", required=True, help="New .tar.gz archive path")
     p.add_argument("--data-dir", default="data", help="Mounted OpenGTM data directory")
@@ -443,6 +470,7 @@ def main():
         "connector-package": cmd_connector_package,
         "connector-install": cmd_connector_install,
         "queue-load-test": cmd_queue_load_test,
+        "workbook-load-test": cmd_workbook_load_test,
         "backup": cmd_backup,
         "backup-verify": cmd_backup_verify,
         "restore": cmd_restore,
