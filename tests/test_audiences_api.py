@@ -1,8 +1,10 @@
 """Persistent audience CRUD, validation, counts, and tenant isolation."""
 
 import asyncio
-import pytest
+from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
+
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -177,6 +179,61 @@ def test_scheduled_refresh_failure_records_health_and_keeps_recurrence(client, m
         scheduled = db.query(Job).filter(
             Job.type == "audience_refresh",
             Job.status == "pending",
+            Job.fire_key.like(f"audience_refresh:{audience_id}:%"),
+        ).all()
+        assert len(scheduled) == 1
+
+    scheduler.reconcile_audience_refresh_failure(
+        999, {"workspace_id": WS1, "audience_id": audience_id},
+        "source unavailable", True,
+    )
+    with Session() as db:
+        audience = db.get(Audience, audience_id)
+        assert audience.consecutive_refresh_failures == 1
+        assert "RuntimeError: source unavailable" in audience.last_refresh_error
+
+
+def test_killed_refresh_reconciles_queue_retry_then_regular_recurrence(client, monkeypatch):
+    tc, Session, _ = client
+    audience_id = tc.post("/api/audiences", json={"name": "Crash safe", "filters": {}}).json()["id"]
+    from apps.api.services.audiences import scheduler
+    monkeypatch.setattr(scheduler, "SessionLocal", Session)
+
+    with Session() as db:
+        audience = db.get(Audience, audience_id)
+        audience.next_refresh_at = datetime.now(timezone.utc) - timedelta(minutes=1)
+        mirror = db.get(AudienceSchedule, audience_id)
+        mirror.next_refresh_at = audience.next_refresh_at
+        job = db.query(Job).filter(Job.type == "audience_refresh", Job.status == "pending").one()
+        job.next_run_at = datetime.now(timezone.utc) + timedelta(minutes=2)
+        db.commit()
+        job_id = job.id
+        retry_at = job.next_run_at
+
+    payload = {"workspace_id": WS1, "audience_id": audience_id}
+    scheduler.reconcile_audience_refresh_failure(job_id, payload, "worker timeout", True)
+    with Session() as db:
+        audience = db.get(Audience, audience_id)
+        assert audience.refresh_health == "degraded"
+        assert audience.consecutive_refresh_failures == 1
+        assert "Queue retry: worker timeout" in audience.last_refresh_error
+        assert audience.next_refresh_at == retry_at
+        assert db.get(Job, job_id).status == "pending"
+
+        audience.next_refresh_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+        db.get(AudienceSchedule, audience_id).next_refresh_at = audience.next_refresh_at
+        db.get(Job, job_id).status = "failed"
+        db.commit()
+
+    scheduler.reconcile_audience_refresh_failure(job_id, payload, "worker timeout", False)
+    with Session() as db:
+        audience = db.get(Audience, audience_id)
+        assert audience.refresh_health == "degraded"
+        assert audience.consecutive_refresh_failures == 2
+        assert "Final failure: worker timeout" in audience.last_refresh_error
+        assert audience.next_refresh_at > datetime.now(timezone.utc).replace(tzinfo=None)
+        scheduled = db.query(Job).filter(
+            Job.type == "audience_refresh", Job.status == "pending",
             Job.fire_key.like(f"audience_refresh:{audience_id}:%"),
         ).all()
         assert len(scheduled) == 1
