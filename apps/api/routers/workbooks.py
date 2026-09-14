@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisco
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from sqlalchemy import String, and_, cast, func as sa_func, or_
+from sqlalchemy import Text, and_, cast, func as sa_func, or_
 
 from apps.api.database import get_db
 from apps.api.services.workbook.models import (
@@ -114,8 +114,8 @@ def _workbook_rows_query(db: Session, wb: Workbook, view_id: Optional[str], sear
     normalized_search = (search or "").strip().lower()
     if normalized_search:
         query = query.filter(or_(
-            sa_func.lower(cast(WorkbookRow.data, String)).contains(normalized_search, autoescape=True),
-            sa_func.lower(cast(WorkbookRow.enrichments, String)).contains(normalized_search, autoescape=True),
+            sa_func.lower(cast(WorkbookRow.data, Text)).contains(normalized_search, autoescape=True),
+            sa_func.lower(cast(WorkbookRow.enrichments, Text)).contains(normalized_search, autoescape=True),
         ))
 
     cursor_terms = []
