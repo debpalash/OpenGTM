@@ -45,6 +45,11 @@ AGENT_CAPABILITIES: dict[str, dict[str, Any]] = {
     "recurring_schedules": {"features": ["single_flight", "restart_safe"]},
 }
 
+INTEGRATION_CHECKS = {"authentication", "external_write", "idempotency", "retry_recovery", "tenant_isolation"}
+SIGNAL_CHECKS = {"external_read", "provenance", "deduplication", "failure_recovery", "tenant_isolation"}
+AGENT_CHECKS = {"external_execution", "grounding", "budget_enforcement", "failure_recovery", "tenant_isolation"}
+CONNECTOR_CHECKS = {"authentication", "external_read", "normalization", "failure_recovery", "tenant_isolation"}
+
 
 def _subject_id(certificate: Mapping[str, Any]) -> str:
     return str(certificate.get("subject_id") or certificate.get("integration_id") or "")
@@ -63,9 +68,47 @@ def _payload(certificate: Mapping[str, Any]) -> bytes:
     ).encode("utf-8")
 
 
+def _required_checks(subject_id: str) -> set[str]:
+    if subject_id in INTEGRATIONS:
+        required = set(INTEGRATION_CHECKS)
+        if "inbound" in INTEGRATIONS[subject_id].get("capabilities", []):
+            required.add("inbound_reconciliation")
+        return required
+    if subject_id in SIGNAL_SOURCES:
+        return set(SIGNAL_CHECKS)
+    if subject_id in AGENT_CAPABILITIES:
+        return set(AGENT_CHECKS)
+    if subject_id.startswith("connector:"):
+        return set(CONNECTOR_CHECKS)
+    return set()
+
+
+def _evidence_contract_valid(certificate: Mapping[str, Any]) -> bool:
+    subject_id = _subject_id(certificate)
+    checks = certificate.get("checks")
+    required = _required_checks(subject_id)
+    if certificate.get("mode") != "controlled_live" or not required or not isinstance(checks, dict):
+        return False
+    if not re.fullmatch(r"[0-9a-f]{64}", str(certificate.get("external_system_id_hash") or "")):
+        return False
+    if not re.fullmatch(r"[0-9a-f]{64}", str(certificate.get("evidence_sha256") or "")):
+        return False
+    for name in required:
+        check = checks.get(name)
+        if not isinstance(check, dict) or check.get("passed") is not True:
+            return False
+        if not str(check.get("evidence") or "").strip():
+            return False
+    return True
+
+
 def attest_certificate(certificate: Mapping[str, Any], key: str) -> dict[str, Any]:
     if not key:
         raise ValueError("certification key must not be empty")
+    if not _known_subject(_subject_id(certificate)):
+        raise ValueError("certificate subject is unknown")
+    if not _evidence_contract_valid(certificate):
+        raise ValueError("certificate does not satisfy the controlled-live evidence contract")
     result = dict(certificate)
     key_bytes = key.encode("utf-8")
     result["attestation"] = {
@@ -96,6 +139,7 @@ def _valid(certificate: Mapping[str, Any], key: str, now: datetime) -> bool:
     evidence = urlsplit(str(certificate.get("evidence_url") or ""))
     return bool(
         _known_subject(_subject_id(certificate))
+        and _evidence_contract_valid(certificate)
         and certificate.get("status") == "supported"
         and certificate.get("build_sha")
         and certificate.get("validation_run_id")
@@ -141,7 +185,7 @@ def integration_catalog(
                 field: valid[integration_id][field]
                 for field in (
                     "validated_at", "expires_at", "build_sha",
-                    "validation_run_id", "evidence_url",
+                    "validation_run_id", "evidence_url", "evidence_sha256", "mode",
                 )
             }
             if integration_id in valid
@@ -182,7 +226,7 @@ def signal_source_catalog(
                 field: valid[source_id][field]
                 for field in (
                     "validated_at", "expires_at", "build_sha",
-                    "validation_run_id", "evidence_url",
+                    "validation_run_id", "evidence_url", "evidence_sha256", "mode",
                 )
             }
             if source_id in valid
@@ -223,7 +267,7 @@ def agent_capability_catalog(
                 field: valid[capability_id][field]
                 for field in (
                     "validated_at", "expires_at", "build_sha",
-                    "validation_run_id", "evidence_url",
+                    "validation_run_id", "evidence_url", "evidence_sha256", "mode",
                 )
             }
             if capability_id in valid
@@ -266,7 +310,7 @@ def certification_statuses(
                 field: valid[subject_id][field]
                 for field in (
                     "validated_at", "expires_at", "build_sha",
-                    "validation_run_id", "evidence_url",
+                    "validation_run_id", "evidence_url", "evidence_sha256", "mode",
                 )
             }
             if subject_id in valid
