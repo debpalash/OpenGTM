@@ -7,6 +7,10 @@ from datetime import datetime, timezone
 from apps.api.database import SessionLocal
 
 
+MEMBER_PAGE_SIZE = 500
+AD_BATCH_SIZE = 5000
+
+
 def _fingerprint(payload: dict) -> str:
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode()
     return hashlib.sha256(encoded).hexdigest()
@@ -323,6 +327,63 @@ async def _deliver(destination, lead_id: int, snapshot: dict, idem: str) -> dict
     return {"success": False, "summary": "", "error": f"unsupported destination '{dtype}'"}
 
 
+async def _sync_ad_candidates(
+    db, run, destination, workspace_id: str, stats: dict,
+    operation: str, candidates: list[tuple],
+) -> bool:
+    """Deliver one bounded paid-media batch; return false when cancelled."""
+    if not candidates:
+        return True
+    if _cancellation_requested(db, run):
+        _finish_cancelled(db, run, destination)
+        return False
+    from apps.api.services.destinations.ads import sync_ad_batch
+
+    for _, delivery, _, _, _ in candidates:
+        delivery.status = "in_flight"
+        delivery.attempts = (delivery.attempts or 0) + 1
+        stats["attempted"] += 1
+    db.commit()
+    try:
+        snapshots = [item[2] if operation == "add" else item[4] for item in candidates]
+        result = await sync_ad_batch(
+            workspace_id, destination.destination_type,
+            destination.config or {}, snapshots, operation=operation,
+        )
+    except Exception as exc:
+        result = type("Result", (), {
+            "success": False, "summary": "", "error": str(exc)[:500],
+            "external_id": None,
+        })()
+    for _, delivery, _, _, _ in candidates:
+        delivery.status = "success" if result.success else "failed"
+        delivery.summary = result.summary
+        delivery.error = (result.error or "")[:1000] or None
+        delivery.external_id = result.external_id
+        if result.success:
+            delivery.delivered_at = datetime.now(timezone.utc)
+            stats["succeeded"] += 1
+        else:
+            stats["failed"] += 1
+    db.commit()
+    return True
+
+
+def _keyset_rows(query, id_column, page_size: int):
+    """Iterate bounded pages without holding a cursor across transaction commits."""
+    last_id = None
+    while True:
+        page_query = query
+        if last_id is not None:
+            page_query = page_query.filter(id_column > last_id)
+        page = page_query.order_by(id_column.asc()).limit(page_size).all()
+        if not page:
+            return
+        for row in page:
+            yield row
+        last_id = getattr(page[-1], id_column.key)
+
+
 async def handle_destination_sync(job_id: int, payload: dict) -> None:
     workspace_id = payload.get("workspace_id")
     run_id = payload.get("run_id")
@@ -358,13 +419,16 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
             run.error = None
             db.commit()
 
-            members = db.query(AudienceMember).filter(
+            members = _keyset_rows(db.query(AudienceMember).filter(
                 AudienceMember.workspace_id == workspace_id,
                 AudienceMember.audience_id == destination.audience_id,
-            ).order_by(AudienceMember.lead_id.asc()).all()
+            ), AudienceMember.id, MEMBER_PAGE_SIZE)
             stats = {"attempted": 0, "succeeded": 0, "failed": 0, "skipped": 0}
             pending = []
+            ad_add_batch = []
+            member_count = 0
             for member in members:
+                member_count += 1
                 if _cancellation_requested(db, run):
                     _finish_cancelled(db, run, destination)
                     return
@@ -410,8 +474,19 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                 db.commit()
                 if not deferred_batch:
                     stats["attempted"] += 1
-                pending.append((member, delivery, snapshot, idem, mapped))
                 if deferred_batch:
+                    candidate = (member, delivery, snapshot, idem, mapped)
+                    if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"}:
+                        ad_add_batch.append(candidate)
+                        if len(ad_add_batch) >= AD_BATCH_SIZE:
+                            if not await _sync_ad_candidates(
+                                db, run, destination, workspace_id, stats,
+                                "add", ad_add_batch,
+                            ):
+                                return
+                            ad_add_batch.clear()
+                    else:
+                        pending.append(candidate)
                     continue
                 try:
                     result = await _deliver(destination, member.lead_id, snapshot, idem)
@@ -428,10 +503,18 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                     stats["failed"] += 1
                 db.commit()
 
+            if ad_add_batch:
+                if not await _sync_ad_candidates(
+                    db, run, destination, workspace_id, stats,
+                    "add", ad_add_batch,
+                ):
+                    return
+                ad_add_batch.clear()
+
             if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"}:
                 # Reconcile exits from the latest successful state per lead. Ad
                 # delivery payloads contain hashes only, never raw identifiers.
-                from sqlalchemy import func
+                from sqlalchemy import and_, func
                 latest_ids = db.query(
                     DestinationDelivery.lead_id,
                     func.max(DestinationDelivery.id).label("delivery_id"),
@@ -440,12 +523,19 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                     DestinationDelivery.destination_id == destination.id,
                     DestinationDelivery.status == "success",
                 ).group_by(DestinationDelivery.lead_id).subquery()
-                prior_active = db.query(DestinationDelivery).join(
+                prior_active = _keyset_rows(db.query(DestinationDelivery).join(
                     latest_ids, DestinationDelivery.id == latest_ids.c.delivery_id,
-                ).filter(DestinationDelivery.operation == "upsert").all()
-                current_ids = {member.lead_id for member in members}
+                ).outerjoin(AudienceMember, and_(
+                    AudienceMember.workspace_id == workspace_id,
+                    AudienceMember.audience_id == destination.audience_id,
+                    AudienceMember.lead_id == DestinationDelivery.lead_id,
+                )).filter(
+                    DestinationDelivery.operation == "upsert",
+                    AudienceMember.id.is_(None),
+                ), DestinationDelivery.id, MEMBER_PAGE_SIZE)
+                removal_batch = []
                 for prior in prior_active:
-                    if prior.lead_id in current_ids or not prior.payload:
+                    if not prior.payload:
                         continue
                     mapped = dict(prior.payload)
                     fingerprint = _fingerprint(mapped)
@@ -467,41 +557,19 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                         db.add(removal)
                     removal.status = "pending"
                     removal.error = None
-                    pending.append((None, removal, mapped, idem, mapped))
-                db.commit()
-
-            if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"} and pending:
-                from apps.api.services.destinations.ads import sync_ad_batch
-                for operation, candidates in (
-                    ("add", [item for item in pending if item[1].operation == "upsert"]),
-                    ("remove", [item for item in pending if item[1].operation == "remove"]),
-                ):
-                    for offset in range(0, len(candidates), 5000):
-                        if _cancellation_requested(db, run):
-                            _finish_cancelled(db, run, destination)
+                    removal_batch.append((None, removal, mapped, idem, mapped))
+                    if len(removal_batch) >= AD_BATCH_SIZE:
+                        if not await _sync_ad_candidates(
+                            db, run, destination, workspace_id, stats,
+                            "remove", removal_batch,
+                        ):
                             return
-                        batch = candidates[offset:offset + 5000]
-                        for _, delivery, _, _, _ in batch:
-                            delivery.status = "in_flight"
-                            delivery.attempts = (delivery.attempts or 0) + 1
-                            stats["attempted"] += 1
-                        db.commit()
-                        try:
-                            snapshots = [item[2] if operation == "add" else item[4] for item in batch]
-                            result = await sync_ad_batch(workspace_id, destination.destination_type, destination.config or {}, snapshots, operation=operation)
-                        except Exception as exc:
-                            result = type("Result", (), {"success": False, "summary": "", "error": str(exc)[:500], "external_id": None})()
-                        for _, delivery, _, _, _ in batch:
-                            delivery.status = "success" if result.success else "failed"
-                            delivery.summary = result.summary
-                            delivery.error = (result.error or "")[:1000] or None
-                            delivery.external_id = result.external_id
-                            if result.success:
-                                delivery.delivered_at = datetime.now(timezone.utc)
-                                stats["succeeded"] += 1
-                            else:
-                                stats["failed"] += 1
-                        db.commit()
+                        removal_batch.clear()
+                if removal_batch and not await _sync_ad_candidates(
+                    db, run, destination, workspace_id, stats,
+                    "remove", removal_batch,
+                ):
+                    return
 
             if destination.destination_type == "warehouse_http" and pending:
                 if _cancellation_requested(db, run):
@@ -541,6 +609,6 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
             run.finished_at = datetime.now(timezone.utc)
             destination.health_status = "healthy" if not stats["failed"] else "degraded"
             destination.last_error = None if not stats["failed"] else f"{stats['failed']} deliveries failed"
-            if stats["succeeded"] or (not members and not stats["failed"]):
+            if stats["succeeded"] or (member_count == 0 and not stats["failed"]):
                 destination.last_success_at = run.finished_at
             db.commit()
