@@ -162,6 +162,9 @@ def test_audience_members_and_events_have_stable_keyset_traversal(client):
     assert tc.get(f"/api/audiences/{audience_id}/members", params={"limit": 1001}).status_code == 422
     assert tc.get(f"/api/audiences/{audience_id}/members", params={"offset": -1}).status_code == 422
     assert tc.get(f"/api/audiences/{audience_id}/events", params={"before_id": 0}).status_code == 422
+    assert tc.get(f"/api/audiences/{audience_id}/accounts", params={"limit": 0}).status_code == 422
+    assert tc.get(f"/api/audiences/{audience_id}/accounts", params={"limit": 201}).status_code == 422
+    assert tc.get(f"/api/audiences/{audience_id}/accounts", params={"offset": -1}).status_code == 422
 
 
 def test_audience_workspace_isolation(client):
