@@ -6,6 +6,7 @@ def _items(*ids, maturity="supported"):
 
 
 def _patch_catalogs(monkeypatch, *, maturity="supported"):
+    import apps.api.services.database_readiness as database
     import apps.api.services.integrations.certification as certification
     import apps.api.services.leadgen.enrichment.declarative.manifest as manifests
     import apps.api.services.workbook.providers as providers
@@ -29,6 +30,10 @@ def _patch_catalogs(monkeypatch, *, maturity="supported"):
     monkeypatch.setattr(scale, "scale_report_valid", lambda report, key, build: (
         report.get("build_sha") == build and bool(key)
     ))
+    monkeypatch.setattr(database, "database_readiness", lambda: {
+        "eligible": True,
+        "reason_codes": [],
+    })
 
 
 def test_readiness_fails_closed_without_live_artifact(monkeypatch):
@@ -140,3 +145,23 @@ def test_readiness_requires_both_distinct_scale_gates(tmp_path, monkeypatch):
     assert result["scale"]["gates"]["workbook_scale"]["valid"] is True
     assert result["scale"]["gates"]["queue_scale"]["valid"] is False
     assert result["eligible"] is False
+
+
+def test_readiness_fails_closed_when_database_is_not_release_ready(
+    tmp_path, monkeypatch,
+):
+    _patch_catalogs(monkeypatch)
+    monkeypatch.setenv("OPENGTM_BUILD_SHA", "release-build")
+    _configure_scale(tmp_path, monkeypatch)
+    monkeypatch.delenv(operations.GAUNTLET_ARTIFACT_ENV, raising=False)
+    import apps.api.services.database_readiness as database
+    monkeypatch.setattr(database, "database_readiness", lambda: {
+        "eligible": False,
+        "reason_codes": ["tenant_rls_invalid"],
+        "violations": {"new_table": ["rls_not_forced"]},
+    })
+
+    result = operations._release_readiness()
+
+    assert result["eligible"] is False
+    assert result["database"]["reason_codes"] == ["tenant_rls_invalid"]
