@@ -12,6 +12,7 @@ def _certificate(evidence_sha256: str) -> dict:
     required = {
         "authentication", "external_write", "idempotency",
         "retry_recovery", "tenant_isolation", "inbound_reconciliation",
+        "conflict_policy",
     }
     return {
         "subject_id": "hubspot",

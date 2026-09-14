@@ -17,6 +17,10 @@ Paid-media destinations additionally require consent enforcement, identifier
 hashing, add and remove reconciliation, and partial-failure accounting.
 Streaming warehouse activation additionally requires streaming-upload,
 manifest-checksum, and bounded-memory evidence.
+CRM certificates require conflict-policy evidence; sequencers require campaign
+enrollment; Google Sheets requires idempotent upsert; Airtable requires atomic
+upsert; and Slack requires notification-delivery evidence. These checks keep a
+generic successful HTTP request from overstating the supported workflow.
 Signal sources, agents, and community connectors have corresponding read,
 provenance/grounding, normalization, budget, recovery, and isolation gates.
 OIDC SSO and SCIM directory subjects additionally require operation-specific
