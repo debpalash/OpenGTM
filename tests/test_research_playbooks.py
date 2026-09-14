@@ -2,7 +2,7 @@ import asyncio
 
 from starlette.requests import Request
 
-from apps.api.routers.playbooks import playbook_capabilities, retry_run
+from apps.api.routers.playbooks import cancel_run, playbook_capabilities, retry_run
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -126,3 +126,58 @@ def test_failed_playbook_profiles_retry_in_place_without_repeating_success(monke
         assert results[2].value == "recovered" and results[2].attempts == 2
         saved = db.query(PlaybookRun).one()
         assert saved.status == "completed" and saved.succeeded == 2 and saved.failed == 0
+
+
+def test_playbook_run_cancel_is_durable_audited_and_resumable():
+    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(engine, tables=[Job.__table__, Audience.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__])
+    Session = sessionmaker(bind=engine)
+    with Session() as db:
+        db.add(Audience(id="aud", workspace_id="ws", name="Target", filters={}))
+        db.add(ResearchPlaybook(id="pb", workspace_id="ws", name="Cancel", prompt_template="Research this account fully"))
+        db.add(PlaybookRun(id="run", workspace_id="ws", playbook_id="pb", audience_id="aud", status="pending", prompt_version=1, prompt_snapshot="Research this account fully"))
+        db.add(Job(type="research_playbook_run", workspace_id="ws", status="pending", fire_key="playbook:run", payload={"workspace_id": "ws", "run_id": "run"}))
+        db.commit()
+        request = Request({"type": "http", "method": "POST", "path": "/cancel", "headers": []})
+        ctx = type("Ctx", (), {"workspace_id": "ws", "user": type("User", (), {"id": 7})()})()
+        response = cancel_run("run", request, db=db, ctx=ctx)
+        assert response["status"] == "cancelled"
+        assert db.query(Job).one().status == "cancelled"
+        assert request.state.audit_metadata["action"] == "research_playbook.run.cancel"
+
+        retried = retry_run("run", request, db=db, ctx=ctx)
+        assert retried["status"] == "pending"
+        assert db.query(Job).filter(Job.status == "pending").count() == 1
+
+
+def test_playbook_worker_honors_cancellation_between_profiles(monkeypatch):
+    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(engine, tables=[Audience.__table__, AudienceMember.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookResult.__table__])
+    Session = sessionmaker(bind=engine)
+    with Session() as db:
+        db.add(Audience(id="aud", workspace_id="ws", name="Target", filters={}))
+        db.add_all([
+            AudienceMember(workspace_id="ws", audience_id="aud", lead_id=1, snapshot={"company": "First"}),
+            AudienceMember(workspace_id="ws", audience_id="aud", lead_id=2, snapshot={"company": "Second"}),
+        ])
+        db.add(ResearchPlaybook(id="pb", workspace_id="ws", name="Cancel", prompt_template="Research {company} fully"))
+        db.add(PlaybookRun(id="run", workspace_id="ws", playbook_id="pb", audience_id="aud", prompt_version=1, prompt_snapshot="Research {company} fully"))
+        db.commit()
+
+    calls = []
+    async def execute_then_cancel(prompt, lead, columns, **kwargs):
+        calls.append(lead["company"])
+        with Session() as other:
+            run = other.get(PlaybookRun, "run")
+            run.status, run.error = "cancelled", "Cancelled by user"
+            other.commit()
+        return {"success": True, "value": "preserved", "metadata": {}}
+
+    from apps.api.services.playbooks import engine as worker
+    monkeypatch.setattr(worker, "SessionLocal", Session)
+    monkeypatch.setattr("apps.api.services.workbook.research_column.execute_research_column", execute_then_cancel)
+    asyncio.run(worker.handle_playbook_run(1, {"workspace_id": "ws", "run_id": "run"}))
+    with Session() as db:
+        assert calls == ["First"]
+        assert db.get(PlaybookRun, "run").status == "cancelled"
+        assert db.query(PlaybookResult).one().status == "success"

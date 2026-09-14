@@ -170,8 +170,8 @@ def retry_run(
     ).first()
     if run is None:
         raise HTTPException(404, "Playbook run not found")
-    if run.status not in {"failed", "completed_with_errors"}:
-        raise HTTPException(409, "Only failed or completed-with-errors runs can be retried")
+    if run.status not in {"failed", "completed_with_errors", "cancelled"}:
+        raise HTTPException(409, "Only failed, completed-with-errors, or cancelled runs can be retried")
     run.status = "pending"
     run.error = None
     run.finished_at = None
@@ -188,4 +188,42 @@ def retry_run(
         "previous_failed": run.failed,
     }
     db.refresh(run)
+    return run.to_api()
+
+
+@router.post("/runs/{run_id}/cancel")
+def cancel_run(
+    run_id: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_editor),
+):
+    """Cancel a queued/running playbook; its worker stops at the next safe boundary."""
+    run = db.query(PlaybookRun).filter(
+        PlaybookRun.id == run_id,
+        PlaybookRun.workspace_id == ctx.workspace_id,
+    ).first()
+    if run is None:
+        raise HTTPException(404, "Playbook run not found")
+    if run.status not in {"pending", "running"}:
+        raise HTTPException(409, "Only pending or running playbook runs can be cancelled")
+    from datetime import datetime, timezone
+    from apps.api.models import Job
+
+    run.status = "cancelled"
+    run.error = "Cancelled by user"
+    run.finished_at = datetime.now(timezone.utc)
+    db.query(Job).filter(
+        Job.workspace_id == ctx.workspace_id,
+        Job.type == "research_playbook_run",
+        Job.fire_key == f"playbook:{run.id}",
+        Job.status.in_(("pending", "processing")),
+    ).update({Job.status: "cancelled", Job.error: "Cancelled by user"}, synchronize_session=False)
+    db.commit()
+    db.refresh(run)
+    request.state.audit_metadata = {
+        "action": "research_playbook.run.cancel",
+        "playbook_id": run.playbook_id,
+        "run_id": run.id,
+    }
     return run.to_api()

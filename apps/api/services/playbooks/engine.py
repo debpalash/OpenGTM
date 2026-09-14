@@ -16,7 +16,7 @@ async def handle_playbook_run(job_id: int, payload: dict) -> None:
     with workspace_scope(workspace_id):
         with SessionLocal() as db:
             run = db.query(PlaybookRun).filter(PlaybookRun.id == run_id, PlaybookRun.workspace_id == workspace_id).first()
-            if run is None or run.status == "completed":
+            if run is None or run.status in {"completed", "cancelled"}:
                 return
             playbook = db.query(ResearchPlaybook).filter(ResearchPlaybook.id == run.playbook_id, ResearchPlaybook.workspace_id == workspace_id).first()
             if playbook is None:
@@ -25,6 +25,9 @@ async def handle_playbook_run(job_id: int, payload: dict) -> None:
             db.commit()
             members = db.query(AudienceMember).filter(AudienceMember.workspace_id == workspace_id, AudienceMember.audience_id == run.audience_id).order_by(AudienceMember.lead_id).limit(run.max_members).all()
             for member in members:
+                db.refresh(run)
+                if run.status == "cancelled":
+                    return
                 result = db.query(PlaybookResult).filter(PlaybookResult.workspace_id == workspace_id, PlaybookResult.run_id == run.id, PlaybookResult.lead_id == member.lead_id).first()
                 if result and result.status == "success":
                     continue
@@ -39,6 +42,11 @@ async def handle_playbook_run(job_id: int, payload: dict) -> None:
                     step_outputs = []
                     output = None
                     for step in steps:
+                        db.refresh(run)
+                        if run.status == "cancelled":
+                            result.status, result.error = "cancelled", "Cancelled by user"
+                            db.commit()
+                            return
                         output = await execute_research_column(step["prompt_template"], context, [], max_steps=playbook.max_steps, output_format=step.get("output_format", "text"), workspace_id=workspace_id, cell_budget_usd=playbook.cell_budget_usd / len(steps))
                         step_outputs.append({"key": step["key"], "name": step["name"], "success": bool(output.get("success")), "value": output.get("value"), "metadata": output.get("metadata") or {}, "error": output.get("error")})
                         if not output.get("success"):
