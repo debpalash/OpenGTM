@@ -288,7 +288,7 @@ def start_sync(destination_id: str, db: Session = Depends(get_db), ctx: Workspac
     active = db.query(DestinationRun).filter(
         DestinationRun.workspace_id == ctx.workspace_id,
         DestinationRun.destination_id == destination.id,
-        DestinationRun.status.in_(("pending", "running")),
+        DestinationRun.status.in_(("pending", "running", "cancelling")),
     ).first()
     if active:
         return active.to_api()
@@ -372,7 +372,7 @@ def list_deliveries(
     run = db.query(DestinationRun).filter(DestinationRun.id == run_id, DestinationRun.workspace_id == ctx.workspace_id).first()
     if run is None:
         raise HTTPException(status_code=404, detail="Destination run not found")
-    if status is not None and status not in {"pending", "in_flight", "success", "failed"}:
+    if status is not None and status not in {"pending", "in_flight", "success", "failed", "cancelled"}:
         raise HTTPException(status_code=422, detail="Invalid delivery status")
     if not 1 <= limit <= 500:
         raise HTTPException(status_code=422, detail="limit must be between 1 and 500")
@@ -418,6 +418,42 @@ def retry_run(
         "previous_failed": previous_failed,
     }
     db.refresh(run)
+    return run.to_api()
+
+
+@router.post("/runs/{run_id}/cancel", status_code=202)
+def cancel_run(
+    run_id: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_editor),
+):
+    """Request cooperative cancellation at the next safe delivery boundary."""
+    run = db.query(DestinationRun).filter(
+        DestinationRun.id == run_id,
+        DestinationRun.workspace_id == ctx.workspace_id,
+    ).first()
+    if run is None:
+        raise HTTPException(status_code=404, detail="Destination run not found")
+    if run.status not in {"pending", "running", "cancelling"}:
+        raise HTTPException(status_code=409, detail="Only pending or running destination runs can be cancelled")
+    previous_status = run.status
+    if run.status == "pending":
+        from apps.api.services.destinations.engine import _finish_cancelled
+
+        destination = _get(db, ctx.workspace_id, run.destination_id)
+        _finish_cancelled(db, run, destination)
+    else:
+        run.status = "cancelling"
+        run.error = "Cancellation requested"
+        db.commit()
+    db.refresh(run)
+    request.state.audit_metadata = {
+        "action": "audience_destination.run.cancel",
+        "destination_id": run.destination_id,
+        "run_id": run.id,
+        "previous_status": previous_status,
+    }
     return run.to_api()
 
 
