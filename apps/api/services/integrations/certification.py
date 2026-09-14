@@ -75,6 +75,13 @@ INTEGRATION_SPECIALIZED_CHECKS: dict[str, set[str]] = {
     "slack": {"notification_delivery"},
 }
 SIGNAL_CHECKS = {"external_read", "provenance", "deduplication", "failure_recovery", "tenant_isolation"}
+SIGNAL_SPECIALIZED_CHECKS: dict[str, set[str]] = {
+    "jobspy": {"employment_signal_normalization"},
+    "sec_edgar": {"cik_resolution", "filing_cursor"},
+    "website_monitor": {"content_change_detection"},
+    "tech_stack": {"technology_fingerprint"},
+    "news_search": {"source_attribution"},
+}
 AGENT_CHECKS = {"external_execution", "grounding", "budget_enforcement", "failure_recovery", "tenant_isolation"}
 CONNECTOR_CHECKS = {"authentication", "external_read", "normalization", "failure_recovery", "tenant_isolation"}
 GOVERNANCE_CHECKS: dict[str, set[str]] = {
@@ -121,7 +128,7 @@ def _required_checks(subject_id: str) -> set[str]:
         required.update(INTEGRATION_SPECIALIZED_CHECKS.get(subject_id, set()))
         return required
     if subject_id in SIGNAL_SOURCES:
-        return set(SIGNAL_CHECKS)
+        return set(SIGNAL_CHECKS) | SIGNAL_SPECIALIZED_CHECKS.get(subject_id, set())
     if subject_id in AGENT_CAPABILITIES:
         return set(AGENT_CHECKS)
     if subject_id in GOVERNANCE_CAPABILITIES:

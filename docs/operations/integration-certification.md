@@ -23,6 +23,9 @@ upsert; and Slack requires notification-delivery evidence. These checks keep a
 generic successful HTTP request from overstating the supported workflow.
 Signal sources, agents, and community connectors have corresponding read,
 provenance/grounding, normalization, budget, recovery, and isolation gates.
+Signal certification also requires source-specific proof: JobSpy employment
+normalization, SEC CIK resolution and filing cursors, website content-change
+detection, technology fingerprinting, and news source attribution.
 OIDC SSO and SCIM directory subjects additionally require operation-specific
 identity binding, access enforcement, provisioning/lifecycle, revocation,
 pagination, and tenant-isolation evidence. Their maturity is available from
