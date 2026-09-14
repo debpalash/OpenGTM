@@ -29,6 +29,7 @@ from typing import Dict, List, Optional
 from apps.api.database import SessionLocal
 from apps.api.services.leadgen.orm_models import SignalRow
 from sqlalchemy import and_, func, or_
+from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger("signals.store")
 
@@ -69,23 +70,38 @@ class SignalStore:
         with self._session() as s, s.begin():
             exists = s.get(SignalRow, signal.id)
             if exists is None:
-                s.add(
-                    SignalRow(
-                        id=signal.id,
-                        workspace_id=self.workspace_id,
-                        lead_id=signal.lead_id,
-                        company=signal.company,
-                        signal_type=signal.signal_type,
-                        title=signal.title,
-                        description=signal.description,
-                        source=signal.source,
-                        source_url=signal.source_url,
-                        weight=signal.weight,
-                        created_at=signal.created_at,
-                        read=False,
-                    )
-                )
-                inserted = True
+                try:
+                    # A concurrent poller may win after the read above. Keep
+                    # that expected uniqueness race inside a savepoint so the
+                    # outer transaction remains usable and does not fail the
+                    # whole poll attempt.
+                    with s.begin_nested():
+                        s.add(
+                            SignalRow(
+                                id=signal.id,
+                                workspace_id=self.workspace_id,
+                                lead_id=signal.lead_id,
+                                company=signal.company,
+                                signal_type=signal.signal_type,
+                                title=signal.title,
+                                description=signal.description,
+                                source=signal.source,
+                                source_url=signal.source_url,
+                                weight=signal.weight,
+                                created_at=signal.created_at,
+                                read=False,
+                            )
+                        )
+                        s.flush()
+                    inserted = True
+                except IntegrityError:
+                    # Only suppress the deterministic-ID race. If the row is
+                    # not visible to this tenant, the collision is unexpected
+                    # (or RLS-hidden) and must fail closed.
+                    s.expire_all()
+                    existing = s.get(SignalRow, signal.id)
+                    if existing is None or existing.workspace_id != self.workspace_id:
+                        raise
             # Automations (§3.4): fire on_signal rules for the matched lead's
             # workbook rows. fire_key="signal:<pk>" → idempotent across
             # re-inserts. No-op when AUTOMATIONS_ENABLED is off. Inside the same

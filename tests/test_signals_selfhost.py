@@ -183,7 +183,7 @@ def _trigger_evals(enqueued):
 
 # ── AC-1 / AC-2 ───────────────────────────────────────────────────────────────
 
-def test_scan_fires_on_signal_once_then_dedup(wire):
+def test_scan_fires_on_signal_once_then_dedup(wire, monkeypatch):
     """AC-1: a scanner-detected hiring signal fires exactly one trigger_eval.
     AC-2: a second identical scan fires zero more (deterministic id dedup)."""
     from apps.api.services.signals.monitor import run_signal_scan
@@ -207,6 +207,16 @@ def test_scan_fires_on_signal_once_then_dedup(wire):
 
     # AC-2: re-scan unchanged state → no new row, no new fire.
     wire.enqueued.clear()
+    real_get = wire.session_factory.class_.get
+    stale_once = {"value": True}
+
+    def stale_signal_get(session, entity, ident, *args, **kwargs):
+        if entity is SignalRow and stale_once["value"]:
+            stale_once["value"] = False
+            return None
+        return real_get(session, entity, ident, *args, **kwargs)
+
+    monkeypatch.setattr(wire.session_factory.class_, "get", stale_signal_get)
     asyncio.run(run_signal_scan())
     assert _trigger_evals(wire.enqueued) == []
     s = wire.session_factory()
