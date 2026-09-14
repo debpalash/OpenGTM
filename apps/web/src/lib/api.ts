@@ -124,6 +124,7 @@ export async function updateAudience(id: string, data: Partial<Pick<Audience, "n
 }
 
 export interface AudienceMember {
+  id: number
   lead_id: number
   snapshot: Partial<Lead>
   joined_at: string

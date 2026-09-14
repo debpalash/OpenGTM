@@ -2,7 +2,7 @@
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -146,12 +146,22 @@ def refresh_audience(audience_id: str, db: Session = Depends(get_db), ctx: Works
 
 
 @router.get("/{audience_id}/members")
-def list_audience_members(audience_id: str, limit: int = 200, offset: int = 0, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+def list_audience_members(
+    audience_id: str,
+    limit: int = Query(200, ge=1, le=1000),
+    before_id: Optional[int] = Query(None, ge=1),
+    offset: int = Query(0, ge=0, le=100000),
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     _get(db, ctx.workspace_id, audience_id)
-    members = db.query(AudienceMember).filter(
+    query = db.query(AudienceMember).filter(
         AudienceMember.workspace_id == ctx.workspace_id,
         AudienceMember.audience_id == audience_id,
-    ).order_by(AudienceMember.joined_at.desc()).offset(max(0, offset)).limit(min(max(1, limit), 1000)).all()
+    )
+    if before_id is not None:
+        query = query.filter(AudienceMember.id < before_id)
+    members = query.order_by(AudienceMember.id.desc()).offset(offset).limit(limit).all()
     return [member.to_api() for member in members]
 
 
@@ -202,12 +212,21 @@ def list_audience_accounts(audience_id: str, db: Session = Depends(get_db), ctx:
 
 
 @router.get("/{audience_id}/events")
-def list_audience_events(audience_id: str, limit: int = 100, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+def list_audience_events(
+    audience_id: str,
+    limit: int = Query(100, ge=1, le=500),
+    before_id: Optional[int] = Query(None, ge=1),
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     _get(db, ctx.workspace_id, audience_id)
-    events = db.query(AudienceMembershipEvent).filter(
+    query = db.query(AudienceMembershipEvent).filter(
         AudienceMembershipEvent.workspace_id == ctx.workspace_id,
         AudienceMembershipEvent.audience_id == audience_id,
-    ).order_by(AudienceMembershipEvent.created_at.desc(), AudienceMembershipEvent.id.desc()).limit(min(max(1, limit), 500)).all()
+    )
+    if before_id is not None:
+        query = query.filter(AudienceMembershipEvent.id < before_id)
+    events = query.order_by(AudienceMembershipEvent.id.desc()).limit(limit).all()
     return [event.to_api() for event in events]
 
 

@@ -69,6 +69,7 @@ class AudienceMember(Base):
 
     def to_api(self) -> dict:
         return {
+            "id": self.id,
             "lead_id": self.lead_id,
             "snapshot": self.snapshot or {},
             "joined_at": self.joined_at,

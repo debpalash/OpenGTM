@@ -7154,8 +7154,27 @@
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 500,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "before_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before Id"
             }
           },
           {
@@ -7225,8 +7244,27 @@
             "required": false,
             "schema": {
               "default": 200,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "before_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before Id"
             }
           },
           {
@@ -7235,6 +7273,8 @@
             "required": false,
             "schema": {
               "default": 0,
+              "maximum": 100000,
+              "minimum": 0,
               "title": "Offset",
               "type": "integer"
             }
