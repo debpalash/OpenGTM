@@ -1,6 +1,8 @@
 import json
 from datetime import datetime, timezone
 
+import pytest
+
 from apps.api.services.integrations.certification import (
     AGENT_CAPABILITIES,
     INTEGRATIONS,
@@ -106,6 +108,28 @@ def test_certificate_rejects_metadata_only_or_incomplete_live_claims(tmp_path):
     signed["checks"]["external_write"]["passed"] = False
     catalog = integration_catalog(path=_write(tmp_path, [signed]), key=KEY, now=NOW, build_sha="abc123")
     assert {item["id"]: item["maturity"] for item in catalog}["hubspot"] == "beta"
+
+
+def test_conflicting_aliases_and_duplicate_subjects_fail_closed(tmp_path):
+    conflicting = {
+        **_certificate("salesforce"),
+        "subject_id": "hubspot",
+    }
+    with pytest.raises(ValueError, match="controlled-live evidence contract"):
+        attest_certificate(conflicting, KEY)
+
+    first = attest_certificate(_certificate("hubspot"), KEY)
+    second = attest_certificate({
+        **_certificate("hubspot"),
+        "validation_run_id": "live-002",
+        "external_system_id_hash": "c" * 64,
+    }, KEY)
+    for certificates in ([first, second], [second, first]):
+        catalog = integration_catalog(
+            path=_write(tmp_path, certificates), key=KEY, now=NOW,
+            build_sha="abc123",
+        )
+        assert {item["id"]: item["maturity"] for item in catalog}["hubspot"] == "beta"
 
 
 def test_signal_source_requires_its_own_attested_live_evidence(tmp_path):

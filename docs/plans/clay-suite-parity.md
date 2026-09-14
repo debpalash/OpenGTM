@@ -29,4 +29,4 @@ OpenGTM should pursue workflow parity, not imitate every Clay screen. The target
 
 ## Definition of parity
 
-A capability only counts when it is tenant-safe, API-addressable, observable, retryable where applicable, tested offline, and validated against a real external system before its release claim changes from beta to supported.
+A capability only counts when it is tenant-safe, API-addressable, observable, retryable where applicable, tested offline, and validated against a real external system before its release claim changes from beta to supported. Controlled-live evidence must be build-bound, signed, current, subject-specific, and unambiguous; conflicting aliases or duplicate valid certificates fail closed to beta.

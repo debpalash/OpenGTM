@@ -86,6 +86,10 @@ def _required_checks(subject_id: str) -> set[str]:
 
 def _evidence_contract_valid(certificate: Mapping[str, Any]) -> bool:
     subject_id = _subject_id(certificate)
+    legacy_id = str(certificate.get("integration_id") or "")
+    explicit_id = str(certificate.get("subject_id") or "")
+    if legacy_id and explicit_id and legacy_id != explicit_id:
+        return False
     checks = certificate.get("checks")
     required = _required_checks(subject_id)
     if certificate.get("mode") != "controlled_live" or not required or not isinstance(checks, dict):
@@ -101,6 +105,29 @@ def _evidence_contract_valid(certificate: Mapping[str, Any]) -> bool:
         if not str(check.get("evidence") or "").strip():
             return False
     return True
+
+
+def _valid_by_subject(
+    certificates: list[Any], key: str, now: datetime, build_sha: str,
+    *, requested: set[str] | None = None,
+) -> dict[str, Mapping[str, Any]]:
+    """Resolve only unambiguous valid certificates, independent of file order."""
+    valid: dict[str, Mapping[str, Any]] = {}
+    ambiguous: set[str] = set()
+    for item in certificates:
+        if not isinstance(item, dict):
+            continue
+        subject_id = _subject_id(item)
+        if requested is not None and subject_id not in requested:
+            continue
+        if not _valid(item, key, now, build_sha):
+            continue
+        if subject_id in valid or subject_id in ambiguous:
+            valid.pop(subject_id, None)
+            ambiguous.add(subject_id)
+            continue
+        valid[subject_id] = item
+    return valid
 
 
 def attest_certificate(certificate: Mapping[str, Any], key: str) -> dict[str, Any]:
@@ -175,11 +202,7 @@ def integration_catalog(
             certificates = loaded if isinstance(loaded, list) else []
         except (OSError, json.JSONDecodeError):
             certificates = []
-    valid = {
-        _subject_id(item): item
-        for item in certificates
-        if isinstance(item, dict) and _valid(item, key or "", now, build_sha)
-    }
+    valid = _valid_by_subject(certificates, key or "", now, build_sha)
     return [
         {
             "id": integration_id,
@@ -218,11 +241,7 @@ def signal_source_catalog(
             certificates = loaded if isinstance(loaded, list) else []
         except (OSError, json.JSONDecodeError):
             certificates = []
-    valid = {
-        _subject_id(item): item
-        for item in certificates
-        if isinstance(item, dict) and _valid(item, key or "", now, build_sha)
-    }
+    valid = _valid_by_subject(certificates, key or "", now, build_sha)
     return [
         {
             "id": source_id,
@@ -261,11 +280,7 @@ def agent_capability_catalog(
             certificates = loaded if isinstance(loaded, list) else []
         except (OSError, json.JSONDecodeError):
             certificates = []
-    valid = {
-        _subject_id(item): item
-        for item in certificates
-        if isinstance(item, dict) and _valid(item, key or "", now, build_sha)
-    }
+    valid = _valid_by_subject(certificates, key or "", now, build_sha)
     return [
         {
             "id": capability_id,
@@ -306,13 +321,9 @@ def certification_statuses(
             certificates = loaded if isinstance(loaded, list) else []
         except (OSError, json.JSONDecodeError):
             certificates = []
-    valid = {
-        _subject_id(item): item
-        for item in certificates
-        if isinstance(item, dict)
-        and _subject_id(item) in requested
-        and _valid(item, key or "", now, build_sha)
-    }
+    valid = _valid_by_subject(
+        certificates, key or "", now, build_sha, requested=requested,
+    )
     return {
         subject_id: {
             "maturity": "supported" if subject_id in valid else "beta",
