@@ -182,6 +182,13 @@ def _required_checks(subject_id: str) -> set[str]:
     return set()
 
 
+def required_checks_for_subject(subject_id: str) -> list[str]:
+    """Return the stable evidence contract operators must satisfy for a subject."""
+    if not _known_subject(subject_id):
+        raise ValueError("certification subject is unknown")
+    return sorted(_required_checks(subject_id))
+
+
 def _evidence_contract_valid(certificate: Mapping[str, Any]) -> bool:
     subject_id = _subject_id(certificate)
     legacy_id = str(certificate.get("integration_id") or "")
@@ -337,6 +344,7 @@ def integration_catalog(
         {
             "id": integration_id,
             **definition,
+            "required_checks": required_checks_for_subject(integration_id),
             "maturity": "supported" if integration_id in valid else "beta",
             "certification": {
                 field: valid[integration_id][field]
@@ -376,6 +384,7 @@ def signal_source_catalog(
         {
             "id": source_id,
             **definition,
+            "required_checks": required_checks_for_subject(source_id),
             "maturity": "supported" if source_id in valid else "beta",
             "certification": {
                 field: valid[source_id][field]
@@ -415,6 +424,7 @@ def agent_capability_catalog(
         {
             "id": capability_id,
             **definition,
+            "required_checks": required_checks_for_subject(capability_id),
             "maturity": "supported" if capability_id in valid else "beta",
             "certification": {
                 field: valid[capability_id][field]
@@ -454,6 +464,7 @@ def audience_capability_catalog(
         {
             "id": capability_id,
             **definition,
+            "required_checks": required_checks_for_subject(capability_id),
             "maturity": "supported" if capability_id in valid else "beta",
             "certification": {
                 field: valid[capability_id][field]
@@ -493,6 +504,7 @@ def governance_capability_catalog(
         {
             "id": capability_id,
             **definition,
+            "required_checks": required_checks_for_subject(capability_id),
             "maturity": "supported" if capability_id in valid else "beta",
             "certification": {
                 field: valid[capability_id][field]
@@ -536,6 +548,7 @@ def certification_statuses(
     )
     return {
         subject_id: {
+            "required_checks": required_checks_for_subject(subject_id),
             "maturity": "supported" if subject_id in valid else "beta",
             "certification": ({
                 field: valid[subject_id][field]
