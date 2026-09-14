@@ -44,6 +44,11 @@ keys, missing or mismatched build identity, and post-signing edits all fail
 closed to `beta`. Rotate the key to revoke all current certifications
 immediately.
 
+Subject identity must also be unambiguous. If both `subject_id` and the legacy
+`integration_id` are present, they must match. A certification file containing
+more than one currently valid certificate for the same subject demotes that
+subject to `beta` rather than choosing a record based on file order.
+
 Installed declarative connectors use `subject_id: connector:<manifest-name>`.
 Their Ed25519 publisher signature and controlled-live HMAC certification are
 independent gates: the former proves provenance, while the latter proves the
