@@ -62,6 +62,63 @@ def schedule_next(db, audience: Audience, *, now: datetime | None = None) -> dat
     return next_at
 
 
+def reconcile_audience_refresh_failure(
+    job_id: int,
+    payload: dict,
+    error: str,
+    will_retry: bool,
+) -> None:
+    """Persist health and recurrence after a killed audience-refresh child.
+
+    The queue callback runs after its state transition. During a retry we mirror
+    the queue's next attempt without cancelling it; after terminal failure we
+    create the next regular occurrence so one bad refresh cannot strand a
+    recurring audience. A future ``next_refresh_at`` means the handler already
+    recorded this attempt and prevents duplicate failure counts.
+    """
+    workspace_id = str(payload.get("workspace_id") or "").strip()
+    audience_id = str(payload.get("audience_id") or "").strip()
+    if not workspace_id or not audience_id:
+        raise ValueError("audience refresh failure payload requires workspace_id and audience_id")
+
+    from apps.api.core.tenancy import workspace_scope
+
+    now = _utcnow()
+    with workspace_scope(workspace_id):
+        with SessionLocal() as db:
+            audience = db.query(Audience).filter(
+                Audience.id == audience_id,
+                Audience.workspace_id == workspace_id,
+            ).first()
+            if audience is None or not audience.refresh_enabled:
+                return
+            already_reconciled = bool(
+                audience.next_refresh_at
+                and _as_utc(audience.next_refresh_at) > now
+            )
+            if not already_reconciled:
+                audience.refresh_health = "degraded"
+                audience.last_refresh_error = (
+                    f"{('Queue retry' if will_retry else 'Final failure')}: "
+                    f"{str(error or 'audience refresh failed')}"
+                )[:1000]
+                audience.consecutive_refresh_failures = (
+                    audience.consecutive_refresh_failures or 0
+                ) + 1
+
+            if will_retry:
+                job = db.query(Job).filter(Job.id == job_id).first()
+                retry_at = job.next_run_at if job is not None else None
+                if not already_reconciled and retry_at is not None:
+                    audience.next_refresh_at = retry_at
+                    _mirror(db, audience, retry_at)
+                db.commit()
+            elif not already_reconciled:
+                schedule_next(db, audience, now=now)
+            else:
+                db.commit()
+
+
 async def handle_audience_refresh(job_id: int, payload: dict) -> None:
     workspace_id = payload.get("workspace_id")
     audience_id = payload.get("audience_id")

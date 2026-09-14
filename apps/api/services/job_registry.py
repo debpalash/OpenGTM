@@ -38,7 +38,10 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
         handle_signal_scan,
     )
     from apps.api.services.workbook.source_engine import handle_source_workbook
-    from apps.api.services.audiences.scheduler import handle_audience_refresh
+    from apps.api.services.audiences.scheduler import (
+        handle_audience_refresh,
+        reconcile_audience_refresh_failure,
+    )
     from apps.api.services.destinations.engine import (
         handle_destination_sync,
         reconcile_destination_job_failure,
@@ -76,6 +79,9 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
         "ambitionbox_import", reconcile_ambitionbox_job_failure
     )
     queue.register_failure_handler("collect", reconcile_collect_job_failure)
+    queue.register_failure_handler(
+        "audience_refresh", reconcile_audience_refresh_failure
+    )
     queue.register_failure_handler(
         "audience_destination_sync", reconcile_destination_job_failure
     )
