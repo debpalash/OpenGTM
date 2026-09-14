@@ -148,6 +148,10 @@ def _evidence_contract_valid(certificate: Mapping[str, Any]) -> bool:
         or evidence.password is not None
     ):
         return False
+    if subject_id.startswith("connector:") and not re.fullmatch(
+        r"[0-9a-f]{64}", str(certificate.get("subject_build_sha256") or "")
+    ):
+        return False
     checks = certificate.get("checks")
     required = _required_checks(subject_id)
     if certificate.get("mode") != "controlled_live" or not required or not isinstance(checks, dict):
@@ -168,6 +172,7 @@ def _evidence_contract_valid(certificate: Mapping[str, Any]) -> bool:
 def _valid_by_subject(
     certificates: list[Any], key: str, now: datetime, build_sha: str,
     *, requested: set[str] | None = None,
+    subject_builds: Mapping[str, str] | None = None,
 ) -> dict[str, Mapping[str, Any]]:
     """Resolve only unambiguous valid certificates, independent of file order."""
     valid: dict[str, Mapping[str, Any]] = {}
@@ -180,6 +185,12 @@ def _valid_by_subject(
             continue
         if not _valid(item, key, now, build_sha):
             continue
+        if subject_id.startswith("connector:"):
+            expected_build = (subject_builds or {}).get(subject_id, "")
+            if not expected_build or not hmac.compare_digest(
+                str(item.get("subject_build_sha256") or ""), expected_build,
+            ):
+                continue
         if subject_id in valid or subject_id in ambiguous:
             valid.pop(subject_id, None)
             ambiguous.add(subject_id)
@@ -404,6 +415,7 @@ def certification_statuses(
     key: str | None = None,
     now: datetime | None = None,
     build_sha: str | None = None,
+    subject_builds: Mapping[str, str] | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Resolve maturity for a bounded runtime catalog such as installed connectors."""
     path = path or os.getenv(CERTIFICATION_PATH_ENV, "")
@@ -420,6 +432,7 @@ def certification_statuses(
             certificates = []
     valid = _valid_by_subject(
         certificates, key or "", now, build_sha, requested=requested,
+        subject_builds=subject_builds,
     )
     return {
         subject_id: {
@@ -429,6 +442,7 @@ def certification_statuses(
                 for field in (
                     "validated_at", "expires_at", "build_sha",
                     "validation_run_id", "evidence_url", "evidence_sha256", "mode",
+                    "subject_build_sha256",
                 )
             }
             if subject_id in valid

@@ -243,11 +243,32 @@ def test_installed_connector_maturity_requires_matching_subject(tmp_path):
         "subject_id": "connector:leadmagic_email",
         "integration_id": None,
         "validation_run_id": "connector-live-1",
+        "subject_build_sha256": "d" * 64,
     }, KEY)
     statuses = certification_statuses(
         ["connector:leadmagic_email", "connector:prospeo_mobile"],
         path=_write(tmp_path, [certificate]), key=KEY, now=NOW,
         build_sha="abc123",
+        subject_builds={
+            "connector:leadmagic_email": "d" * 64,
+            "connector:prospeo_mobile": "e" * 64,
+        },
     )
     assert statuses["connector:leadmagic_email"]["maturity"] == "supported"
+    assert statuses["connector:leadmagic_email"]["certification"]["subject_build_sha256"] == "d" * 64
     assert statuses["connector:prospeo_mobile"]["maturity"] == "beta"
+
+    replaced = certification_statuses(
+        ["connector:leadmagic_email"],
+        path=_write(tmp_path, [certificate]), key=KEY, now=NOW,
+        build_sha="abc123",
+        subject_builds={"connector:leadmagic_email": "e" * 64},
+    )
+    assert replaced["connector:leadmagic_email"]["maturity"] == "beta"
+
+    unbound = certification_statuses(
+        ["connector:leadmagic_email"],
+        path=_write(tmp_path, [certificate]), key=KEY, now=NOW,
+        build_sha="abc123",
+    )
+    assert unbound["connector:leadmagic_email"]["maturity"] == "beta"

@@ -63,6 +63,10 @@ Revalidate against the deployed build instead of issuing permanent support
 claims.
 
 Installed declarative connectors use `subject_id: connector:<manifest-name>`.
+They must also include `subject_build_sha256`, the canonical installed manifest
+digest exposed as `package_sha256` by `GET /api/connectors/catalog`.
 Their Ed25519 publisher signature and controlled-live HMAC certification are
 independent gates: the former proves provenance, while the latter proves the
-specific package has current operational evidence.
+specific package has current operational evidence. Any manifest replacement
+changes the digest and immediately demotes the connector to `beta` until the
+new package is validated and attested.
