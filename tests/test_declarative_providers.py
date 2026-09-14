@@ -153,6 +153,18 @@ def test_connector_ed25519_signature_trust_and_tamper_detection(tmp_path, monkey
     sign_manifest(manifest, private_path, "publisher-1")
     upgrade_bundle = package_manifest(manifest, tmp_path / "upgrade.ogc")
     from apps.api.services.leadgen.enrichment.declarative import signing
+
+    lock_path = installed_manifest.parent / ".signed_email.install.lock"
+    with signing._install_lock(lock_path):
+        with monkeypatch.context() as scoped:
+            scoped.setattr(signing, "INSTALL_LOCK_TIMEOUT_SECONDS", 0)
+            with pytest.raises(TimeoutError, match="already in progress"):
+                install_bundle(
+                    upgrade_bundle, tmp_path / "installed", trust_store,
+                    replace=True,
+                )
+    assert (installed_manifest.read_bytes(), installed_signature.read_bytes()) == original_pair
+
     real_replace = signing.os.replace
     calls = 0
 
@@ -169,7 +181,10 @@ def test_connector_ed25519_signature_trust_and_tamper_detection(tmp_path, monkey
             install_bundle(upgrade_bundle, tmp_path / "installed", trust_store, replace=True)
     assert (installed_manifest.read_bytes(), installed_signature.read_bytes()) == original_pair
     assert verify_manifest(installed_manifest, trust_store)["status"] == "trusted"
-    assert not [path for path in installed_manifest.parent.iterdir() if path.name.startswith(".")]
+    assert not [
+        path for path in installed_manifest.parent.iterdir()
+        if path.name.startswith(".") and not path.name.endswith(".install.lock")
+    ]
 
     calls = 0
     failed_fresh = tmp_path / "failed-fresh"
