@@ -192,6 +192,57 @@ def test_playbook_schedule_is_durable_and_single_flight(monkeypatch):
     db.close()
 
 
+def test_playbook_schedule_bootstrap_pages_only_due_work(monkeypatch):
+    from datetime import datetime, timedelta, timezone
+
+    engine = create_engine(
+        "sqlite:///:memory:", connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(engine, tables=[
+        Job.__table__, Audience.__table__, ResearchPlaybook.__table__,
+        PlaybookSchedule.__table__,
+    ])
+    Session = sessionmaker(bind=engine)
+    now = datetime.now(timezone.utc)
+    with Session() as db:
+        db.add(Audience(id="aud", workspace_id="ws", name="Target", filters={}))
+        for index in range(5):
+            db.add(ResearchPlaybook(
+                id=f"due-{index}", workspace_id="ws", name=f"Due {index}",
+                prompt_template="Research fully", schedule_audience_id="aud",
+                schedule_interval_minutes=60,
+            ))
+            db.add(PlaybookSchedule(
+                playbook_id=f"due-{index}", workspace_id="ws", enabled=True,
+                next_run_at=now - timedelta(minutes=1),
+            ))
+        db.add(ResearchPlaybook(
+            id="future", workspace_id="ws", name="Future",
+            prompt_template="Research fully", schedule_audience_id="aud",
+            schedule_interval_minutes=60,
+        ))
+        db.add(PlaybookSchedule(
+            playbook_id="future", workspace_id="ws", enabled=True,
+            next_run_at=now + timedelta(days=1),
+        ))
+        db.commit()
+
+    from apps.api.services.playbooks import scheduler
+    monkeypatch.setattr(scheduler, "SessionLocal", Session)
+    monkeypatch.setattr(scheduler, "PLAYBOOK_BOOTSTRAP_PAGE_SIZE", 2)
+
+    assert scheduler.bootstrap_playbook_schedules() == 5
+    assert scheduler.bootstrap_playbook_schedules() == 0
+    with Session() as db:
+        jobs = db.query(Job).filter(
+            Job.type == "research_playbook_schedule", Job.status == "pending",
+        ).all()
+        assert {job.payload["playbook_id"] for job in jobs} == {
+            "due-0", "due-1", "due-2", "due-3", "due-4",
+        }
+
+
 def test_failed_playbook_profiles_retry_in_place_without_repeating_success(monkeypatch):
     engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     Base.metadata.create_all(engine, tables=[Job.__table__, Audience.__table__, AudienceMember.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookResult.__table__])

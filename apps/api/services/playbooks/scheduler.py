@@ -2,7 +2,12 @@
 
 from datetime import datetime, timedelta, timezone
 
+from sqlalchemy import or_
+
 from apps.api.database import SessionLocal
+
+
+PLAYBOOK_BOOTSTRAP_PAGE_SIZE = 500
 
 
 def _utc(value: datetime) -> datetime:
@@ -59,20 +64,40 @@ def bootstrap_playbook_schedules() -> int:
     from apps.api.core.tenancy import workspace_scope
     from apps.api.services.playbooks.models import PlaybookSchedule, ResearchPlaybook
     now = datetime.now(timezone.utc)
-    with SessionLocal() as db:
-        due = [(row.playbook_id, row.workspace_id, row.next_run_at) for row in db.query(PlaybookSchedule).filter(PlaybookSchedule.enabled.is_(True)).all() if row.next_run_at is None or _utc(row.next_run_at) <= now]
     count = 0
-    for playbook_id, workspace_id, due_at in due:
-        with workspace_scope(workspace_id):
-            with SessionLocal() as db:
-                playbook = db.query(ResearchPlaybook).filter(ResearchPlaybook.id == playbook_id, ResearchPlaybook.workspace_id == workspace_id).first()
-                if playbook is None or not playbook.enabled or not playbook.schedule_audience_id:
-                    remove_schedule(db, playbook_id); db.commit(); continue
-                from apps.api.models import Job
-                pending = db.query(Job).filter(Job.type == "research_playbook_schedule", Job.status.in_(("pending", "processing")), Job.fire_key.like(f"playbook_schedule:{playbook_id}:%")).first()
-                if pending is None:
-                    from apps.api.services.job_scheduling import enqueue_job_once
-                    occurrence = _utc(due_at).isoformat() if due_at else "bootstrap"
-                    enqueue_job_once(db, job_type="research_playbook_schedule", payload={"workspace_id": workspace_id, "playbook_id": playbook_id}, fire_key=f"playbook_schedule:{playbook_id}:{occurrence}", next_run_at=now)
-                    db.commit(); count += 1
+    last_playbook_id = None
+    while True:
+        with SessionLocal() as db:
+            due_query = db.query(
+                PlaybookSchedule.playbook_id,
+                PlaybookSchedule.workspace_id,
+                PlaybookSchedule.next_run_at,
+            ).filter(
+                PlaybookSchedule.enabled.is_(True),
+                or_(
+                    PlaybookSchedule.next_run_at.is_(None),
+                    PlaybookSchedule.next_run_at <= now,
+                ),
+            )
+            if last_playbook_id is not None:
+                due_query = due_query.filter(PlaybookSchedule.playbook_id > last_playbook_id)
+            due = due_query.order_by(PlaybookSchedule.playbook_id.asc()).limit(
+                PLAYBOOK_BOOTSTRAP_PAGE_SIZE,
+            ).all()
+        if not due:
+            break
+        for playbook_id, workspace_id, due_at in due:
+            with workspace_scope(workspace_id):
+                with SessionLocal() as db:
+                    playbook = db.query(ResearchPlaybook).filter(ResearchPlaybook.id == playbook_id, ResearchPlaybook.workspace_id == workspace_id).first()
+                    if playbook is None or not playbook.enabled or not playbook.schedule_audience_id:
+                        remove_schedule(db, playbook_id); db.commit(); continue
+                    from apps.api.models import Job
+                    pending = db.query(Job).filter(Job.type == "research_playbook_schedule", Job.status.in_(("pending", "processing")), Job.fire_key.like(f"playbook_schedule:{playbook_id}:%")).first()
+                    if pending is None:
+                        from apps.api.services.job_scheduling import enqueue_job_once
+                        occurrence = _utc(due_at).isoformat() if due_at else "bootstrap"
+                        enqueue_job_once(db, job_type="research_playbook_schedule", payload={"workspace_id": workspace_id, "playbook_id": playbook_id}, fire_key=f"playbook_schedule:{playbook_id}:{occurrence}", next_run_at=now)
+                        db.commit(); count += 1
+        last_playbook_id = due[-1][0]
     return count
