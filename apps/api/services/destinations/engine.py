@@ -443,12 +443,19 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                 AudienceMember.audience_id == destination.audience_id,
             ), AudienceMember.id, MEMBER_PAGE_SIZE)
             stats = {"attempted": 0, "succeeded": 0, "failed": 0, "skipped": 0}
-            pending = []
             ad_add_batch = []
+            warehouse_export = None
+            if destination.destination_type == "warehouse_http":
+                from apps.api.services.destinations.warehouse import WarehouseExportBuffer
+                warehouse_export = WarehouseExportBuffer(
+                    run.id, workspace_id, destination,
+                )
             member_count = 0
             for member in members:
                 member_count += 1
                 if _cancellation_requested(db, run):
+                    if warehouse_export is not None:
+                        warehouse_export.close()
                     _finish_cancelled(db, run, destination)
                     return
                 snapshot = dict(member.snapshot or {})
@@ -472,6 +479,11 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                 )
                 if prior is None:
                     db.add(delivery)
+                else:
+                    # A failed idempotent effect retried from a later manual run
+                    # belongs to that run's ledger; in-place retries keep the
+                    # same run id and are unchanged.
+                    delivery.run_id = run.id
                 if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"}:
                     from apps.api.services.destinations.ads import identifiers_supported
                 if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"} and not identifiers_supported(destination.destination_type, mapped):
@@ -505,7 +517,7 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                                 return
                             ad_add_batch.clear()
                     else:
-                        pending.append(candidate)
+                        warehouse_export.append(member.lead_id, mapped)
                     continue
                 try:
                     result = await _deliver(destination, member.lead_id, snapshot, idem)
@@ -590,28 +602,49 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                 ):
                     return
 
-            if destination.destination_type == "warehouse_http" and pending:
+            if warehouse_export is not None and warehouse_export.row_count:
                 if _cancellation_requested(db, run):
+                    warehouse_export.close()
                     _finish_cancelled(db, run, destination)
                     return
-                from apps.api.services.destinations.warehouse import sync_warehouse_batch
-                for _, delivery, _, _, _ in pending:
-                    delivery.status = "in_flight"
-                    delivery.attempts = (delivery.attempts or 0) + 1
-                    stats["attempted"] += 1
+                from apps.api.services.destinations.warehouse import sync_warehouse_export
+                delivery_scope = db.query(DestinationDelivery).filter(
+                    DestinationDelivery.workspace_id == workspace_id,
+                    DestinationDelivery.run_id == run.id,
+                    DestinationDelivery.destination_id == destination.id,
+                )
+                attempted = delivery_scope.filter(
+                    DestinationDelivery.status == "pending",
+                ).update({
+                    DestinationDelivery.status: "in_flight",
+                    DestinationDelivery.attempts: DestinationDelivery.attempts + 1,
+                }, synchronize_session=False)
+                stats["attempted"] += attempted
                 db.commit()
                 try:
-                    result = await sync_warehouse_batch(workspace_id, destination, run.id, [(item[0].lead_id, item[4]) for item in pending])
+                    result = await sync_warehouse_export(
+                        workspace_id, destination, warehouse_export,
+                    )
                 except Exception as exc:
                     result = type("Result", (), {"success": False, "summary": "", "error": str(exc)[:500], "external_id": None})()
-                for _, delivery, _, _, _ in pending:
-                    delivery.status = "success" if result.success else "failed"
-                    delivery.summary, delivery.error, delivery.external_id = result.summary, (result.error or "")[:1000] or None, result.external_id
-                    if result.success:
-                        delivery.delivered_at = datetime.now(timezone.utc); stats["succeeded"] += 1
-                    else:
-                        stats["failed"] += 1
+                finally:
+                    warehouse_export.close()
+                terminal = "success" if result.success else "failed"
+                values = {
+                    DestinationDelivery.status: terminal,
+                    DestinationDelivery.summary: result.summary,
+                    DestinationDelivery.error: (result.error or "")[:1000] or None,
+                    DestinationDelivery.external_id: result.external_id,
+                }
+                if result.success:
+                    values[DestinationDelivery.delivered_at] = datetime.now(timezone.utc)
+                affected = delivery_scope.filter(
+                    DestinationDelivery.status == "in_flight",
+                ).update(values, synchronize_session=False)
+                stats["succeeded" if result.success else "failed"] += affected
                 db.commit()
+            elif warehouse_export is not None:
+                warehouse_export.close()
 
             # A cancellation may arrive while the final external request is in
             # flight. Preserve its completed delivery result, then terminate the
