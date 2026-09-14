@@ -42,3 +42,14 @@ The readiness endpoint also requires the gauntlet's top-level `build_sha` to
 exactly match `OPENGTM_BUILD_SHA`, the same deployed-build identity used for
 integration certifications. A valid streak from another build fails closed
 with `build_mismatch`.
+
+Release readiness also inspects the live PostgreSQL database. The deployed
+database must have exactly the single Alembic head shipped by the application,
+and the runtime role must be neither a superuser nor able to bypass row-level
+security. Every public table with a `workspace_id` column must have row-level
+security enabled and forced, with one permissive policy that scopes both reads
+and writes to `app.workspace_id`. Auth-plane credentials and scheduler mirrors
+that deliberately operate before tenant context exists are covered by the
+small, reviewed exemption list in `database_readiness.py`; any newly introduced
+workspace table fails the release gate until it is protected or explicitly
+reviewed as an exemption.

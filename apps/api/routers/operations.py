@@ -45,6 +45,7 @@ def _release_readiness() -> dict:
         SCALE_ATTESTATION_KEY_ENV,
         scale_report_valid,
     )
+    from apps.api.services.database_readiness import database_readiness
 
     groups = {
         "integrations": integration_catalog(),
@@ -141,10 +142,16 @@ def _release_readiness() -> dict:
         scale[gate] = status
 
     scale_ready = all(item["valid"] for item in scale.values())
+    database = database_readiness()
 
     required_count = sum(len(items) for items in groups.values())
     return {
-        "eligible": not missing and gauntlet.get("eligible") is True and scale_ready,
+        "eligible": (
+            not missing
+            and gauntlet.get("eligible") is True
+            and scale_ready
+            and database.get("eligible") is True
+        ),
         "deployed_build_sha": deployed_build_sha,
         "first_party": {
             "required": required_count,
@@ -164,6 +171,7 @@ def _release_readiness() -> dict:
         },
         "gauntlet": gauntlet,
         "scale": {"eligible": scale_ready, "gates": scale},
+        "database": database,
     }
 
 
