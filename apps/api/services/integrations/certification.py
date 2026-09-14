@@ -65,6 +65,15 @@ ADS_CHECKS = {
 WAREHOUSE_STREAM_CHECKS = {
     "streaming_upload", "manifest_checksum", "bounded_memory",
 }
+INTEGRATION_SPECIALIZED_CHECKS: dict[str, set[str]] = {
+    "hubspot": {"conflict_policy"},
+    "salesforce": {"conflict_policy"},
+    "instantly": {"campaign_enrollment"},
+    "smartlead": {"campaign_enrollment"},
+    "google_sheets": {"idempotent_upsert"},
+    "airtable": {"atomic_upsert"},
+    "slack": {"notification_delivery"},
+}
 SIGNAL_CHECKS = {"external_read", "provenance", "deduplication", "failure_recovery", "tenant_isolation"}
 AGENT_CHECKS = {"external_execution", "grounding", "budget_enforcement", "failure_recovery", "tenant_isolation"}
 CONNECTOR_CHECKS = {"authentication", "external_read", "normalization", "failure_recovery", "tenant_isolation"}
@@ -109,6 +118,7 @@ def _required_checks(subject_id: str) -> set[str]:
             required.update(ADS_CHECKS)
         if subject_id == "warehouse_http":
             required.update(WAREHOUSE_STREAM_CHECKS)
+        required.update(INTEGRATION_SPECIALIZED_CHECKS.get(subject_id, set()))
         return required
     if subject_id in SIGNAL_SOURCES:
         return set(SIGNAL_CHECKS)
