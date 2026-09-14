@@ -5,11 +5,13 @@ import pytest
 
 from apps.api.services.integrations.certification import (
     AGENT_CAPABILITIES,
+    GOVERNANCE_CAPABILITIES,
     INTEGRATIONS,
     SIGNAL_SOURCES,
     attest_certificate,
     agent_capability_catalog,
     certification_statuses,
+    governance_capability_catalog,
     integration_catalog,
     signal_source_catalog,
 )
@@ -27,6 +29,9 @@ def _certificate(integration_id="hubspot"):
             "tenant_isolation", "inbound_reconciliation", "external_read",
             "provenance", "deduplication", "failure_recovery", "external_execution",
             "grounding", "budget_enforcement", "normalization",
+            "external_authentication", "identity_binding", "jit_provisioning",
+            "access_enforcement", "external_provisioning", "user_lifecycle",
+            "group_sync", "token_revocation", "paged_directory",
         }
     }
     return {
@@ -165,6 +170,30 @@ def test_agent_capability_certification_is_independent(tmp_path):
     assert len(states) == len(AGENT_CAPABILITIES)
     assert states["grounded_research"]["maturity"] == "supported"
     assert states["chained_playbooks"]["maturity"] == "beta"
+
+
+def test_governance_capabilities_require_operation_specific_live_evidence(tmp_path):
+    oidc = attest_certificate({
+        **_certificate(),
+        "subject_id": "oidc_sso",
+        "integration_id": None,
+        "validation_run_id": "oidc-live-1",
+    }, KEY)
+    capabilities = governance_capability_catalog(
+        path=_write(tmp_path, [oidc]), key=KEY, now=NOW,
+        build_sha="abc123",
+    )
+    states = {item["id"]: item for item in capabilities}
+    assert len(states) == len(GOVERNANCE_CAPABILITIES)
+    assert states["oidc_sso"]["maturity"] == "supported"
+    assert states["scim_directory"]["maturity"] == "beta"
+
+    incomplete_scim = _certificate()
+    incomplete_scim.update(subject_id="scim_directory", integration_id=None)
+    incomplete_scim["checks"] = {**incomplete_scim["checks"]}
+    incomplete_scim["checks"].pop("group_sync")
+    with pytest.raises(ValueError, match="controlled-live evidence contract"):
+        attest_certificate(incomplete_scim, KEY)
 
 
 def test_installed_connector_maturity_requires_matching_subject(tmp_path):

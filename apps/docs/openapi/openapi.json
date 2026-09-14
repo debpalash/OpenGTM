@@ -10926,6 +10926,59 @@
         ]
       }
     },
+    "/api/governance/capabilities": {
+      "get": {
+        "description": "Expose enterprise identity features without overstating live maturity.",
+        "operationId": "governance_capabilities_api_governance_capabilities_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Governance Capabilities",
+        "tags": [
+          "governance"
+        ]
+      }
+    },
     "/api/governance/members": {
       "post": {
         "operationId": "add_workspace_member_api_governance_members_post",
