@@ -33,6 +33,12 @@ class ResearchPlaybook(Base):
 class PlaybookSchedule(Base):
     """Non-RLS identifiers-only mirror used for restart reconciliation."""
     __tablename__ = "playbook_schedules"
+    __table_args__ = (
+        Index(
+            "ix_playbook_schedules_due_cursor",
+            "enabled", "next_run_at", "playbook_id",
+        ),
+    )
     playbook_id = Column(String, primary_key=True)
     workspace_id = Column(String, nullable=False, index=True)
     enabled = Column(Boolean, nullable=False, default=False, server_default="false")
