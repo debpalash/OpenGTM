@@ -710,6 +710,69 @@ def test_google_ad_clean_batch_runs(monkeypatch):
     assert calls[-1].endswith(":run")
 
 
+@pytest.mark.parametrize(
+    ("body", "error"),
+    [
+        (
+            {"elements": [
+                {"status": 201},
+                {"status": 400, "error": {"message": "buyer@acme.test is invalid"}},
+            ]},
+            "LinkedIn rejected batch elements (count=1, statuses=400)",
+        ),
+        (
+            {"elements": [{"status": 201}]},
+            "LinkedIn returned an incomplete batch response (expected=2, received=1)",
+        ),
+        ({"unexpected": True}, "LinkedIn returned an invalid batch response"),
+    ],
+)
+def test_linkedin_ad_batch_failure_is_private_and_retryable(monkeypatch, body, error):
+    from apps.api.services.destinations import ads
+
+    monkeypatch.setattr(ads, "_secret", lambda workspace_id, key: "token")
+
+    class _Response:
+        def json(self):
+            return body
+
+    async def fake_request(client, method, url, **kwargs):
+        return _Response()
+
+    monkeypatch.setattr(ads, "_request", fake_request)
+    result = asyncio.run(ads.sync_ad_batch(
+        WS1, "linkedin_ads", {"segment_id": "segment-123"},
+        [{"email": "buyer@acme.test"}, {"email": "other@acme.test"}],
+    ))
+
+    assert not result.success
+    assert result.external_id == "segment-123"
+    assert result.error == error
+    assert "buyer" not in result.error
+
+
+def test_linkedin_ad_clean_batch_succeeds(monkeypatch):
+    from apps.api.services.destinations import ads
+
+    monkeypatch.setattr(ads, "_secret", lambda workspace_id, key: "token")
+
+    class _Response:
+        def json(self):
+            return {"elements": [{"status": 201}, {"status": 201}]}
+
+    async def fake_request(client, method, url, **kwargs):
+        return _Response()
+
+    monkeypatch.setattr(ads, "_request", fake_request)
+    result = asyncio.run(ads.sync_ad_batch(
+        WS1, "linkedin_ads", {"segment_id": "segment-123"},
+        [{"email": "buyer@acme.test"}, {"email": "other@acme.test"}],
+    ))
+
+    assert result.success
+    assert result.summary == "added 2 hashed users"
+
+
 def test_crm_inbound_token_auth_replay_and_receipts(destination_app, monkeypatch):
     tc, Session, _ = destination_app
     created = tc.post("/api/audience-destinations", json={"audience_id": "aud-1", "name": "CRM", "destination_type": "hubspot", "config": {"inbound_conflict_policy": "fill_missing"}, "field_map": {"contact_title": "jobtitle"}})
