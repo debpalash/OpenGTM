@@ -53,6 +53,34 @@ def identifiers_supported(dtype: str, identifiers: dict[str, str]) -> bool:
     return bool(identifiers.get("email") or identifiers.get("phone"))
 
 
+def _google_partial_failure(body: object) -> str | None:
+    """Summarize rejected operations without persisting provider-returned PII."""
+    if not isinstance(body, dict):
+        return None
+    failure = body.get("partialFailureError")
+    if not isinstance(failure, dict) or not failure:
+        return None
+
+    rejected = 0
+    pending: list[object] = [failure.get("details", [])]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if key == "errors" and isinstance(child, list):
+                    rejected += len(child)
+                else:
+                    pending.append(child)
+        elif isinstance(value, list):
+            pending.extend(value)
+
+    status = re.sub(r"[^A-Z0-9_]", "", str(failure.get("status") or "PARTIAL_FAILURE").upper())[:64]
+    code = failure.get("code")
+    safe_code = code if isinstance(code, int) else "unknown"
+    count = str(rejected) if rejected else "unknown"
+    return f"Google Ads rejected operations (status={status}, code={safe_code}, count={count})"
+
+
 def _secret(workspace_id: str, key: str) -> str:
     value = get_secret(workspace_id, key)
     if not value:
@@ -137,8 +165,13 @@ async def sync_ad_batch(workspace_id: str, dtype: str, config: dict, snapshots: 
                 *([{"hashedEmail": row["email"]}] if row.get("email") else []),
                 *([{"hashedPhoneNumber": row["phone"]}] if row.get("phone") else []),
             ]}} for row in rows]
-            await _request(client, "POST", f"https://googleads.googleapis.com/{version}/{job_name}:addOperations", headers=headers,
-                           json={"enablePartialFailure": True, "operations": operations})
+            added = await _request(client, "POST", f"https://googleads.googleapis.com/{version}/{job_name}:addOperations", headers=headers,
+                                   json={"enablePartialFailure": True, "operations": operations})
+            partial_failure = _google_partial_failure(added.json())
+            if partial_failure:
+                # Do not run the accepted subset: delivery accounting is batch-level,
+                # so the entire batch must remain retryable instead of overstating it.
+                return AdBatchResult(False, "", partial_failure, external_id=job_name)
             await _request(client, "POST", f"https://googleads.googleapis.com/{version}/{job_name}:run", headers=headers, json={})
             return AdBatchResult(True, f"queued {operation} for {len(rows)} hashed users", external_id=job_name)
 
