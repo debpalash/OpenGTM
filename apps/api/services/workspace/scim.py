@@ -90,6 +90,24 @@ def list_mappings(workspace_id: str) -> list[dict]:
     return [dict(row) for row in rows]
 
 
+def list_mappings_page(
+    workspace_id: str, *, offset: int, limit: int,
+) -> tuple[list[dict], int]:
+    """Return one bounded, stable mapping page and its workspace total."""
+    conn = manager._get_db()
+    total = int(conn.execute(
+        "SELECT count(*) FROM workspace_scim_users WHERE workspace_id=?",
+        (workspace_id,),
+    ).fetchone()[0])
+    rows = conn.execute(
+        "SELECT * FROM workspace_scim_users WHERE workspace_id=? "
+        "ORDER BY user_id LIMIT ? OFFSET ?",
+        (workspace_id, limit, offset),
+    ).fetchall() if limit else []
+    conn.close()
+    return [dict(row) for row in rows], total
+
+
 def upsert_mapping(workspace_id: str, user_id: int, external_id: str, display_name: str, active: bool) -> dict:
     now = time.time(); conn = manager._get_db()
     if external_id:
@@ -206,6 +224,44 @@ def get_group(workspace_id: str, group_id: str) -> Optional[dict]:
 def list_groups(workspace_id: str) -> list[dict]:
     conn = manager._get_db(); ids = [row["id"] for row in conn.execute("SELECT id FROM workspace_scim_groups WHERE workspace_id=? ORDER BY display_name", (workspace_id,)).fetchall()]; conn.close()
     return [get_group(workspace_id, group_id) for group_id in ids]
+
+
+def list_groups_page(
+    workspace_id: str, *, offset: int, limit: int,
+    display_name: Optional[str] = None,
+) -> tuple[list[dict], int]:
+    """Return a bounded group page with membership loaded only for that page."""
+    conn = manager._get_db()
+    where = "workspace_id=?"
+    parameters: list = [workspace_id]
+    if display_name is not None:
+        where += " AND lower(display_name)=lower(?)"
+        parameters.append(display_name)
+    total = int(conn.execute(
+        f"SELECT count(*) FROM workspace_scim_groups WHERE {where}",
+        parameters,
+    ).fetchone()[0])
+    rows = conn.execute(
+        f"SELECT * FROM workspace_scim_groups WHERE {where} "
+        "ORDER BY display_name, id LIMIT ? OFFSET ?",
+        [*parameters, limit, offset],
+    ).fetchall() if limit else []
+    groups = [dict(row) for row in rows]
+    by_group = {group["id"]: [] for group in groups}
+    if by_group:
+        placeholders = ",".join("?" for _ in by_group)
+        memberships = conn.execute(
+            "SELECT group_id, user_id FROM workspace_scim_group_members "
+            f"WHERE workspace_id=? AND group_id IN ({placeholders}) "
+            "ORDER BY group_id, user_id",
+            [workspace_id, *by_group],
+        ).fetchall()
+        for membership in memberships:
+            by_group[membership["group_id"]].append(str(membership["user_id"]))
+    conn.close()
+    for group in groups:
+        group["members"] = by_group[group["id"]]
+    return groups, total
 
 
 def update_group(workspace_id: str, group_id: str, display_name: str, external_id: str) -> Optional[dict]:

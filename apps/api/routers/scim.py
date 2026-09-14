@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from apps.api.auth import get_password_hash
@@ -139,16 +140,24 @@ def get_schema(workspace_slug: str, schema_id: str, authorization: str | None = 
 @router.get("/Users")
 def list_users(workspace_slug: str, authorization: str | None = Header(default=None), filter: str | None = None, startIndex: int = Query(1, ge=1), count: int = Query(100, ge=0, le=200), db: Session = Depends(get_db)):
     workspace = _workspace(workspace_slug, authorization)
-    mappings = scim.list_mappings(workspace.id)
     match = re.fullmatch(r'\s*userName\s+eq\s+"([^"]+)"\s*', filter or "", re.IGNORECASE) if filter else None
     if filter and not match:
         raise HTTPException(status_code=400, detail="Only userName eq filtering is supported")
+    offset = startIndex - 1
+    if match:
+        user = db.query(User).filter(
+            func.lower(User.username) == match.group(1).strip().lower(),
+        ).first()
+        mapping = scim.get_mapping(workspace.id, user.id) if user else None
+        total = 1 if mapping else 0
+        mappings = [mapping] if mapping and offset == 0 and count else []
+    else:
+        mappings, total = scim.list_mappings_page(
+            workspace.id, offset=offset, limit=count,
+        )
     users = {u.id: u for u in db.query(User).filter(User.id.in_([m["user_id"] for m in mappings])).all()} if mappings else {}
     resources = [_resource(workspace, users[m["user_id"]], m) for m in mappings if m["user_id"] in users]
-    if match:
-        resources = [item for item in resources if item["userName"].casefold() == match.group(1).casefold()]
-    total = len(resources); page = resources[startIndex - 1:startIndex - 1 + count]
-    return {"schemas": [LIST_SCHEMA], "totalResults": total, "startIndex": startIndex, "itemsPerPage": len(page), "Resources": page}
+    return {"schemas": [LIST_SCHEMA], "totalResults": total, "startIndex": startIndex, "itemsPerPage": len(resources), "Resources": resources}
 
 
 @router.post("/Users", status_code=201)
@@ -223,13 +232,15 @@ def delete_user(workspace_slug: str, user_id: int, authorization: str | None = H
 
 @router.get("/Groups")
 def list_groups(workspace_slug: str, authorization: str | None = Header(default=None), filter: str | None = None, startIndex: int = Query(1, ge=1), count: int = Query(100, ge=0, le=200)):
-    workspace = _workspace(workspace_slug, authorization); groups = scim.list_groups(workspace.id)
+    workspace = _workspace(workspace_slug, authorization)
     match = re.fullmatch(r'\s*displayName\s+eq\s+"([^"]+)"\s*', filter or "", re.IGNORECASE) if filter else None
     if filter and not match: raise HTTPException(status_code=400, detail="Only displayName eq filtering is supported")
+    groups, total = scim.list_groups_page(
+        workspace.id, offset=startIndex - 1, limit=count,
+        display_name=match.group(1) if match else None,
+    )
     resources = [_group_resource(workspace, group) for group in groups]
-    if match: resources = [item for item in resources if item["displayName"].casefold() == match.group(1).casefold()]
-    total = len(resources); page = resources[startIndex - 1:startIndex - 1 + count]
-    return {"schemas": [LIST_SCHEMA], "totalResults": total, "startIndex": startIndex, "itemsPerPage": len(page), "Resources": page}
+    return {"schemas": [LIST_SCHEMA], "totalResults": total, "startIndex": startIndex, "itemsPerPage": len(resources), "Resources": resources}
 
 
 @router.post("/Groups", status_code=201)
