@@ -200,3 +200,59 @@ def test_scim_group_lifecycle_and_membership_patch(monkeypatch, tmp_path):
     assert schema_page["Resources"][0]["attributes"]
     assert get_schema(workspace.slug, "urn:ietf:params:scim:schemas:core:2.0:Group", authorization)["name"] == "Group"
     db.close()
+
+
+def test_scim_directory_pages_are_bounded_stable_and_workspace_scoped(monkeypatch, tmp_path):
+    monkeypatch.setattr(manager, "_project_root", lambda: Path(tmp_path))
+    workspace = manager.create_workspace("SCIM Pages", owner_id=1)
+    foreign = manager.create_workspace("Foreign SCIM Pages", owner_id=1)
+    authorization = f"Bearer {scim.rotate_token(workspace.id, 1)}"
+    db = _db(); db.add(User(id=1, username="owner", hashed_password="x")); db.commit()
+
+    created_users = [
+        create_user(
+            workspace.slug,
+            ScimUserInput(userName=f"person{index}@example.com"),
+            authorization,
+            db,
+        )
+        for index in range(5)
+    ]
+    for index, user in enumerate(created_users):
+        create_group(
+            workspace.slug,
+            ScimGroupInput(
+                displayName=f"Team {index}",
+                members=[{"value": user["id"]}],
+            ),
+            authorization,
+        )
+    scim.create_group(foreign.id, "Foreign Team")
+
+    first_users = list_users(workspace.slug, authorization, None, 1, 2, db)
+    second_users = list_users(workspace.slug, authorization, None, 3, 2, db)
+    assert first_users["totalResults"] == second_users["totalResults"] == 5
+    assert first_users["itemsPerPage"] == second_users["itemsPerPage"] == 2
+    assert {row["id"] for row in first_users["Resources"]}.isdisjoint(
+        {row["id"] for row in second_users["Resources"]},
+    )
+    filtered_user = list_users(
+        workspace.slug, authorization, 'userName eq "PERSON3@EXAMPLE.COM"', 1, 2, db,
+    )
+    assert filtered_user["totalResults"] == 1
+    assert filtered_user["Resources"][0]["userName"] == "person3@example.com"
+
+    first_groups = list_groups(workspace.slug, authorization, None, 1, 2)
+    second_groups = list_groups(workspace.slug, authorization, None, 3, 2)
+    assert first_groups["totalResults"] == second_groups["totalResults"] == 5
+    assert all(len(group["members"]) == 1 for group in first_groups["Resources"])
+    assert {row["id"] for row in first_groups["Resources"]}.isdisjoint(
+        {row["id"] for row in second_groups["Resources"]},
+    )
+    filtered_group = list_groups(
+        workspace.slug, authorization, 'displayName eq "TEAM 4"', 1, 2,
+    )
+    assert filtered_group["totalResults"] == 1
+    assert filtered_group["Resources"][0]["displayName"] == "Team 4"
+    assert all(row["displayName"] != "Foreign Team" for row in first_groups["Resources"])
+    db.close()
