@@ -18,6 +18,15 @@ KEY = "test-only-integration-certification-key"
 
 
 def _certificate(integration_id="hubspot"):
+    checks = {
+        name: {"passed": True, "evidence": f"artifact.json#/{name}"}
+        for name in {
+            "authentication", "external_write", "idempotency", "retry_recovery",
+            "tenant_isolation", "inbound_reconciliation", "external_read",
+            "provenance", "deduplication", "failure_recovery", "external_execution",
+            "grounding", "budget_enforcement", "normalization",
+        }
+    }
     return {
         "integration_id": integration_id,
         "status": "supported",
@@ -26,6 +35,10 @@ def _certificate(integration_id="hubspot"):
         "build_sha": "abc123",
         "validation_run_id": "live-001",
         "evidence_url": "https://evidence.example/runs/live-001",
+        "mode": "controlled_live",
+        "external_system_id_hash": "a" * 64,
+        "evidence_sha256": "b" * 64,
+        "checks": checks,
     }
 
 
@@ -47,6 +60,8 @@ def test_valid_attestation_graduates_only_its_integration(tmp_path):
     states = {item["id"]: item for item in catalog}
     assert states["hubspot"]["maturity"] == "supported"
     assert states["hubspot"]["certification"]["validation_run_id"] == "live-001"
+    assert states["hubspot"]["certification"]["mode"] == "controlled_live"
+    assert states["hubspot"]["certification"]["evidence_sha256"] == "b" * 64
     assert states["salesforce"]["maturity"] == "beta"
 
 
@@ -57,6 +72,32 @@ def test_tampered_expired_and_wrong_key_certificates_fail_closed(tmp_path):
     expired = attest_certificate({**_certificate(), "expires_at": "2026-09-01T00:00:00Z"}, KEY)
     assert integration_catalog(path=_write(tmp_path, [expired]), key=KEY, now=NOW)[1]["maturity"] == "beta"
     assert integration_catalog(path=_write(tmp_path, [signed]), key="wrong", now=NOW)[1]["maturity"] == "beta"
+
+
+def test_certificate_rejects_metadata_only_or_incomplete_live_claims(tmp_path):
+    metadata_only = {
+        key: value for key, value in _certificate().items()
+        if key not in {"mode", "external_system_id_hash", "evidence_sha256", "checks"}
+    }
+    try:
+        attest_certificate(metadata_only, KEY)
+        assert False, "metadata-only certificate must not be signed"
+    except ValueError as exc:
+        assert "controlled-live evidence contract" in str(exc)
+
+    incomplete = _certificate()
+    incomplete["checks"] = {**incomplete["checks"]}
+    incomplete["checks"].pop("idempotency")
+    try:
+        attest_certificate(incomplete, KEY)
+        assert False, "missing required check must not be signed"
+    except ValueError:
+        pass
+
+    signed = attest_certificate(_certificate(), KEY)
+    signed["checks"]["external_write"]["passed"] = False
+    catalog = integration_catalog(path=_write(tmp_path, [signed]), key=KEY, now=NOW)
+    assert {item["id"]: item["maturity"] for item in catalog}["hubspot"] == "beta"
 
 
 def test_signal_source_requires_its_own_attested_live_evidence(tmp_path):
