@@ -17,6 +17,7 @@ environment. Provider keys can also be set per workspace in
 | `APP_ENV` | `dev` | `dev`, `test`, `local` tolerate the default key; anything else fails closed |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | 30 | Access-token TTL |
 | `REFRESH_TOKEN_EXPIRE_MINUTES` | 20160 | Refresh-token TTL (14 days) |
+| `OPENGTM_SCIM_TOKEN_TTL_DAYS` | 90 | Workspace SCIM bearer-token TTL, clamped to 1-365 days |
 | `API_HOST`, `API_PORT` | `0.0.0.0`, 8000 | Bind address for uvicorn |
 | `CORS_ORIGINS` | `*` | Allowed origins |
 | `LOG_LEVEL` | `info` | Logging |

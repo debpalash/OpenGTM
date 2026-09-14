@@ -2,6 +2,7 @@
 
 import hashlib
 import hmac
+import os
 import secrets
 import time
 import uuid
@@ -19,13 +20,23 @@ def rotate_password() -> str:
     return secrets.token_urlsafe(48)
 
 
+def _token_ttl_seconds() -> int:
+    try:
+        days = int(os.getenv("OPENGTM_SCIM_TOKEN_TTL_DAYS", "90"))
+    except ValueError:
+        days = 90
+    return max(1, min(days, 365)) * 86400
+
+
 def rotate_token(workspace_id: str, created_by: int) -> str:
     token = f"og_scim_{secrets.token_urlsafe(36)}"
+    now = time.time()
+    expires_at = now + _token_ttl_seconds()
     conn = manager._get_db()
     conn.execute(
-        "INSERT INTO workspace_scim_tokens (workspace_id, token_hash, token_prefix, created_at, created_by) VALUES (?, ?, ?, ?, ?) "
-        "ON CONFLICT(workspace_id) DO UPDATE SET token_hash=excluded.token_hash, token_prefix=excluded.token_prefix, created_at=excluded.created_at, created_by=excluded.created_by",
-        (workspace_id, _digest(token), token[:16], time.time(), created_by),
+        "INSERT INTO workspace_scim_tokens (workspace_id, token_hash, token_prefix, created_at, expires_at, last_used_at, created_by) VALUES (?, ?, ?, ?, ?, NULL, ?) "
+        "ON CONFLICT(workspace_id) DO UPDATE SET token_hash=excluded.token_hash, token_prefix=excluded.token_prefix, created_at=excluded.created_at, expires_at=excluded.expires_at, last_used_at=NULL, created_by=excluded.created_by",
+        (workspace_id, _digest(token), token[:16], now, expires_at, created_by),
     )
     conn.commit(); conn.close()
     return token
@@ -39,16 +50,30 @@ def revoke_token(workspace_id: str) -> None:
 
 def token_status(workspace_id: str) -> Optional[dict]:
     conn = manager._get_db()
-    row = conn.execute("SELECT token_prefix, created_at, created_by FROM workspace_scim_tokens WHERE workspace_id = ?", (workspace_id,)).fetchone()
+    row = conn.execute("SELECT token_prefix, created_at, expires_at, last_used_at, created_by FROM workspace_scim_tokens WHERE workspace_id = ?", (workspace_id,)).fetchone()
     conn.close()
-    return dict(row) if row else None
+    if not row:
+        return None
+    result = dict(row)
+    result["expires_at"] = result["expires_at"] or result["created_at"] + _token_ttl_seconds()
+    result["expired"] = result["expires_at"] <= time.time()
+    return result
 
 
 def authenticate(workspace_id: str, token: str) -> bool:
     conn = manager._get_db()
-    row = conn.execute("SELECT token_hash FROM workspace_scim_tokens WHERE workspace_id = ?", (workspace_id,)).fetchone()
+    row = conn.execute("SELECT token_hash, created_at, expires_at, last_used_at FROM workspace_scim_tokens WHERE workspace_id = ?", (workspace_id,)).fetchone()
+    now = time.time()
+    valid = bool(
+        row and token
+        and (row["expires_at"] or row["created_at"] + _token_ttl_seconds()) > now
+        and hmac.compare_digest(row["token_hash"], _digest(token))
+    )
+    if valid and (not row["last_used_at"] or now - row["last_used_at"] >= 60):
+        conn.execute("UPDATE workspace_scim_tokens SET last_used_at=? WHERE workspace_id=?", (now, workspace_id))
+        conn.commit()
     conn.close()
-    return bool(row and token and hmac.compare_digest(row["token_hash"], _digest(token)))
+    return valid
 
 
 def get_mapping(workspace_id: str, user_id: int) -> Optional[dict]:

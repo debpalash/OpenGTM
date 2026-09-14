@@ -1,3 +1,5 @@
+import sqlite3
+import time
 from pathlib import Path
 
 import pytest
@@ -38,7 +40,12 @@ def test_scim_tokens_are_hashed_rotatable_and_workspace_scoped(monkeypatch, tmp_
     first = manager.create_workspace("SCIM One", owner_id=1)
     second = manager.create_workspace("SCIM Two", owner_id=1)
     token = scim.rotate_token(first.id, 1)
+    initial_status = scim.token_status(first.id)
+    assert initial_status is not None
+    assert initial_status["expires_at"] > initial_status["created_at"]
+    assert initial_status["expired"] is False
     assert scim.authenticate(first.id, token)
+    assert scim.token_status(first.id)["last_used_at"] is not None
     assert not scim.authenticate(second.id, token)
     conn = manager._get_db()
     stored = conn.execute("SELECT token_hash FROM workspace_scim_tokens WHERE workspace_id=?", (first.id,)).fetchone()["token_hash"]
@@ -49,6 +56,35 @@ def test_scim_tokens_are_hashed_rotatable_and_workspace_scoped(monkeypatch, tmp_
     assert scim.authenticate(first.id, replacement)
     scim.revoke_token(first.id)
     assert not scim.authenticate(first.id, replacement)
+
+
+def test_scim_token_expiry_fails_closed(monkeypatch, tmp_path):
+    monkeypatch.setattr(manager, "_project_root", lambda: Path(tmp_path))
+    monkeypatch.setenv("OPENGTM_SCIM_TOKEN_TTL_DAYS", "1")
+    workspace = manager.create_workspace("SCIM Expiry", owner_id=1)
+    token = scim.rotate_token(workspace.id, 1)
+    conn = manager._get_db()
+    conn.execute("UPDATE workspace_scim_tokens SET expires_at=? WHERE workspace_id=?", (time.time() - 1, workspace.id))
+    conn.commit(); conn.close()
+
+    assert not scim.authenticate(workspace.id, token)
+    assert scim.token_status(workspace.id)["expired"] is True
+
+
+def test_scim_token_schema_upgrades_existing_workspace_database(monkeypatch, tmp_path):
+    monkeypatch.setattr(manager, "_project_root", lambda: Path(tmp_path))
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    legacy = sqlite3.connect(data_dir / "workspaces.db")
+    legacy.execute(
+        "CREATE TABLE workspace_scim_tokens (workspace_id TEXT PRIMARY KEY, token_hash TEXT NOT NULL, "
+        "token_prefix TEXT NOT NULL, created_at REAL NOT NULL, created_by INTEGER)"
+    )
+    legacy.commit(); legacy.close()
+    conn = manager._get_db()
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(workspace_scim_tokens)").fetchall()}
+    conn.close()
+    assert {"expires_at", "last_used_at"} <= columns
 
 
 def test_scim_user_lifecycle_and_filter(monkeypatch, tmp_path):
