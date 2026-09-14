@@ -122,6 +122,47 @@ def test_audience_crud_and_dynamic_count(client):
     assert tc.get("/api/audiences").json() == []
 
 
+def test_schedule_bootstrap_pages_only_due_audiences(client, monkeypatch):
+    _, Session, _ = client
+    from apps.api.services.audiences import scheduler
+    from apps.api.services.workspace import manager as workspace_manager
+
+    now = datetime.now(timezone.utc)
+    with Session() as db:
+        for index in range(5):
+            audience = Audience(
+                id=f"due-{index}", workspace_id=WS1, name=f"Due {index}",
+                filters={}, refresh_enabled=True, refresh_interval_minutes=60,
+            )
+            db.add(audience)
+            db.add(AudienceSchedule(
+                audience_id=audience.id, workspace_id=WS1, enabled=True,
+                next_refresh_at=now - timedelta(minutes=1),
+            ))
+        future = Audience(
+            id="future", workspace_id=WS1, name="Future",
+            filters={}, refresh_enabled=True, refresh_interval_minutes=60,
+        )
+        db.add(future)
+        db.add(AudienceSchedule(
+            audience_id=future.id, workspace_id=WS1, enabled=True,
+            next_refresh_at=now + timedelta(days=1),
+        ))
+        db.commit()
+
+    monkeypatch.setattr(scheduler, "SessionLocal", Session)
+    monkeypatch.setattr(scheduler, "SCHEDULE_BOOTSTRAP_PAGE_SIZE", 2)
+    monkeypatch.setattr(workspace_manager, "workspace_slug", lambda workspace_id: workspace_id)
+
+    assert scheduler.bootstrap_audience_schedules() == 5
+    with Session() as db:
+        jobs = db.query(Job).filter(Job.type == "audience_refresh", Job.status == "pending").all()
+        assert {job.payload["audience_id"] for job in jobs} == {
+            "due-0", "due-1", "due-2", "due-3", "due-4",
+        }
+        assert scheduler._as_utc(db.get(AudienceSchedule, "future").next_refresh_at) > now
+
+
 def test_audience_validation_and_duplicate_name(client):
     tc, _, _ = client
     assert tc.post("/api/audiences", json={"name": "Bad", "filters": {"sql": "no"}}).status_code == 422

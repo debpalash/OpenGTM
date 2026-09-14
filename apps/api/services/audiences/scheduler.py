@@ -3,11 +3,14 @@
 from datetime import datetime, timedelta, timezone
 import logging
 
+from sqlalchemy import or_
+
 from apps.api.database import SessionLocal
 from apps.api.services.audiences.models import Audience, AudienceSchedule
 from apps.api.models import Job
 
 logger = logging.getLogger("audiences.scheduler")
+SCHEDULE_BOOTSTRAP_PAGE_SIZE = 500
 
 
 def _utcnow() -> datetime:
@@ -161,26 +164,40 @@ async def handle_audience_refresh(job_id: int, payload: dict) -> None:
 def bootstrap_audience_schedules() -> int:
     """Reconcile due schedules from the non-RLS mirror after restarts."""
     now = _utcnow()
-    with SessionLocal() as db:
-        due = db.query(AudienceSchedule).filter(AudienceSchedule.enabled.is_(True)).all()
-        identities = [
-            (row.audience_id, row.workspace_id) for row in due
-            if row.next_refresh_at is None or _as_utc(row.next_refresh_at) <= now
-        ]
     enqueued = 0
     from apps.api.core.tenancy import workspace_scope
-    for audience_id, workspace_id in identities:
-        with workspace_scope(workspace_id):
-            with SessionLocal() as db:
-                audience = db.query(Audience).filter(
-                    Audience.id == audience_id, Audience.workspace_id == workspace_id,
-                ).first()
-                if audience is None or not audience.refresh_enabled:
-                    remove_schedule(db, audience_id)
-                    db.commit()
-                    continue
-                schedule_next(db, audience, now=now)
-                enqueued += 1
+    last_audience_id = None
+    while True:
+        with SessionLocal() as db:
+            due_query = db.query(
+                AudienceSchedule.audience_id, AudienceSchedule.workspace_id,
+            ).filter(
+                AudienceSchedule.enabled.is_(True),
+                or_(
+                    AudienceSchedule.next_refresh_at.is_(None),
+                    AudienceSchedule.next_refresh_at <= now,
+                ),
+            )
+            if last_audience_id is not None:
+                due_query = due_query.filter(AudienceSchedule.audience_id > last_audience_id)
+            identities = due_query.order_by(AudienceSchedule.audience_id.asc()).limit(
+                SCHEDULE_BOOTSTRAP_PAGE_SIZE,
+            ).all()
+        if not identities:
+            break
+        for audience_id, workspace_id in identities:
+            with workspace_scope(workspace_id):
+                with SessionLocal() as db:
+                    audience = db.query(Audience).filter(
+                        Audience.id == audience_id, Audience.workspace_id == workspace_id,
+                    ).first()
+                    if audience is None or not audience.refresh_enabled:
+                        remove_schedule(db, audience_id)
+                        db.commit()
+                        continue
+                    schedule_next(db, audience, now=now)
+                    enqueued += 1
+        last_audience_id = identities[-1][0]
     logger.info("bootstrap_audience_schedules enqueued %d refresh(es)", enqueued)
     return enqueued
 
