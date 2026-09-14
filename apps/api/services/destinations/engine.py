@@ -57,6 +57,77 @@ def enqueue_audience_syncs(db, workspace_id: str, audience_id: str) -> int:
     return enqueued
 
 
+def reconcile_destination_job_failure(
+    job_id: int,
+    payload: dict,
+    error: str,
+    will_retry: bool,
+) -> None:
+    """Mirror a killed/failed queue attempt into durable activation state.
+
+    This runs in the parent worker, so it also executes when the destination
+    subprocess is terminated before its own exception handling can finalize the
+    run. Without it, a terminal queue failure leaves a ``running`` run that
+    blocks all later syncs for the destination.
+    """
+    workspace_id = str(payload.get("workspace_id") or "").strip()
+    run_id = str(payload.get("run_id") or "").strip()
+    if not workspace_id or not run_id:
+        raise ValueError("destination failure payload requires workspace_id and run_id")
+
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.destinations.models import (
+        AudienceDestination,
+        DestinationDelivery,
+        DestinationRun,
+    )
+
+    message = str(error or "destination sync attempt failed")[:1000]
+    with workspace_scope(workspace_id):
+        with SessionLocal() as db:
+            run = db.query(DestinationRun).filter(
+                DestinationRun.id == run_id,
+                DestinationRun.workspace_id == workspace_id,
+            ).first()
+            if run is None or run.status in {"completed", "completed_with_errors", "cancelled"}:
+                return
+
+            deliveries = db.query(DestinationDelivery).filter(
+                DestinationDelivery.workspace_id == workspace_id,
+                DestinationDelivery.run_id == run_id,
+            ).all()
+            orphaned = [delivery for delivery in deliveries if delivery.status == "in_flight"]
+            if will_retry:
+                run.status = "pending"
+                run.error = f"Queue retry scheduled: {message}"
+                run.finished_at = None
+                for delivery in orphaned:
+                    delivery.status = "pending"
+                    delivery.error = run.error
+            else:
+                now = datetime.now(timezone.utc)
+                run.status = "failed"
+                run.error = f"Final failure: {message}"
+                run.finished_at = now
+                for delivery in deliveries:
+                    if delivery.status not in {"pending", "in_flight"}:
+                        continue
+                    delivery.status = "failed"
+                    delivery.error = run.error
+                run.attempted = sum(1 for delivery in deliveries if (delivery.attempts or 0) > 0)
+                run.succeeded = sum(1 for delivery in deliveries if delivery.status == "success")
+                run.failed = sum(1 for delivery in deliveries if delivery.status == "failed")
+                run.skipped = sum(1 for delivery in deliveries if delivery.status == "skipped")
+                destination = db.query(AudienceDestination).filter(
+                    AudienceDestination.id == run.destination_id,
+                    AudienceDestination.workspace_id == workspace_id,
+                ).first()
+                if destination is not None:
+                    destination.health_status = "degraded"
+                    destination.last_error = run.error
+            db.commit()
+
+
 async def _deliver(destination, lead_id: int, snapshot: dict, idem: str) -> dict:
     dtype = destination.destination_type
     mapped = _map_payload(snapshot, destination.field_map or {})
