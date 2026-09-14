@@ -15,3 +15,16 @@ uv run python -m apps.api.cli workbook-load-test \
 Valid supported-scale evidence requires `dialect: postgresql`, `rows: 1000000`
 or greater, `ok: true`, `selection_exact: true`, one search match, and every
 reported latency within its threshold. `--allow-sqlite` only tests the harness.
+
+Set `OPENGTM_BUILD_SHA` before the run, save the JSON report, and attest it with
+the release secret:
+
+```bash
+OPENGTM_SCALE_ATTESTATION_KEY=... \
+uv run python scripts/attest_scale_report.py \
+  --input artifacts/workbook-scale.json \
+  --output artifacts/workbook-scale.attested.json
+```
+
+Deploy the attested path as `OPENGTM_WORKBOOK_SCALE_REPORT`. Evidence expires
+after 92 days and must match the exact deployed build.

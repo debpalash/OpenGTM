@@ -1,8 +1,10 @@
 """Controlled, self-cleaning scale gate for workbook paging and selection."""
 
 import math
+import os
 import time
 import uuid
+from datetime import datetime, timezone
 
 from sqlalchemy import text
 
@@ -131,6 +133,7 @@ def run_workbook_load_test(
 
             page_latencies = [first_ms, last_ms, custom_ms]
             report = {
+                "gate": "workbook_scale",
                 "ok": (
                     len(first) == page_size
                     and len(last) == page_size
@@ -142,6 +145,8 @@ def run_workbook_load_test(
                     and selection_ms <= max_selection_ms
                 ),
                 "run_id": run_id,
+                "build_sha": os.getenv("OPENGTM_BUILD_SHA", ""),
+                "finished_at": datetime.now(timezone.utc).isoformat(),
                 "dialect": dialect,
                 "rows": rows,
                 "page_size": page_size,

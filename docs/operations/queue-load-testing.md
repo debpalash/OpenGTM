@@ -20,3 +20,17 @@ per-tenant peak activity, cap violations, thread failures, and unfinished jobs.
 Any invariant breach makes the command fail non-zero. `--allow-sqlite` exists
 only to regression-test the harness and must not be used for a supported-scale
 claim.
+
+For release evidence, run at least 10,000 jobs across 100 tenants with at least
+32 claimers, set `OPENGTM_BUILD_SHA`, and attest the saved report:
+
+```bash
+OPENGTM_SCALE_ATTESTATION_KEY=... \
+uv run python scripts/attest_scale_report.py \
+  --input artifacts/queue-scale.json \
+  --output artifacts/queue-scale.attested.json
+```
+
+Deploy the attested path as `OPENGTM_QUEUE_SCALE_REPORT`. Release readiness
+requires both distinct scale reports to be current, signed, PostgreSQL-backed,
+and bound to the deployed build.
