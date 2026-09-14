@@ -271,6 +271,16 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                 )
                 if prior is None:
                     db.add(delivery)
+                if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"}:
+                    from apps.api.services.destinations.ads import identifiers_supported
+                if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"} and not identifiers_supported(destination.destination_type, mapped):
+                    delivery.status = "skipped"
+                    delivery.summary = "No valid email or phone identifier"
+                    delivery.error = None
+                    delivery.payload = {}
+                    stats["skipped"] += 1
+                    db.commit()
+                    continue
                 delivery.status = "in_flight"
                 delivery.attempts = (delivery.attempts or 0) + 1
                 delivery.error = None
