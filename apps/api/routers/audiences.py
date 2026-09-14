@@ -99,6 +99,14 @@ def list_audiences(db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(cu
     ).order_by(Audience.updated_at.desc()).all()]
 
 
+@router.get("/capabilities")
+def audience_capabilities(ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Expose fail-closed controlled-live maturity for audience workflows."""
+    _ = ctx
+    from apps.api.services.integrations.certification import audience_capability_catalog
+    return audience_capability_catalog()
+
+
 @router.post("", status_code=201)
 def create_audience(body: AudienceCreate, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_editor)):
     audience = Audience(

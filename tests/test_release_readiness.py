@@ -15,6 +15,7 @@ def _patch_catalogs(monkeypatch, *, maturity="supported"):
     monkeypatch.setattr(certification, "integration_catalog", lambda: _items("hubspot", maturity=maturity))
     monkeypatch.setattr(certification, "signal_source_catalog", lambda: _items("jobspy", maturity=maturity))
     monkeypatch.setattr(certification, "agent_capability_catalog", lambda: _items("grounded_research", maturity=maturity))
+    monkeypatch.setattr(certification, "audience_capability_catalog", lambda: _items("dynamic_materialization", maturity=maturity))
     monkeypatch.setattr(certification, "governance_capability_catalog", lambda: _items("oidc_sso", maturity=maturity))
     monkeypatch.setattr(certification, "certification_statuses", lambda subjects, **kwargs: {
         subject: {"maturity": maturity} for subject in subjects
@@ -47,11 +48,12 @@ def test_readiness_fails_closed_without_live_artifact(monkeypatch):
 
     assert result["eligible"] is False
     assert result["first_party"] == {
-        "required": 4,
+        "required": 5,
         "supported": 0,
         "missing": [
             "integrations:hubspot", "signals:jobspy",
-            "agents:grounded_research", "governance:oidc_sso",
+            "agents:grounded_research", "audiences:dynamic_materialization",
+            "governance:oidc_sso",
         ],
     }
     assert result["gauntlet"]["reason_codes"] == ["artifact_missing"]
@@ -100,7 +102,7 @@ def test_readiness_requires_both_certifications_and_gauntlet(tmp_path, monkeypat
     result = operations._release_readiness()
 
     assert result["eligible"] is True
-    assert result["first_party"] == {"required": 4, "supported": 4, "missing": []}
+    assert result["first_party"] == {"required": 5, "supported": 5, "missing": []}
     assert result["community_connectors"]["supported"] == 1
     assert result["enrichment_providers"]["supported"] == 1
     assert result["gauntlet"]["consecutive_production_like_passes"] == 10

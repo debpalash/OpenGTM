@@ -31,6 +31,7 @@ def _release_readiness(database_connection=None) -> dict:
     from apps.api.services.integrations.certification import (
         BUILD_SHA_ENV,
         agent_capability_catalog,
+        audience_capability_catalog,
         certification_statuses,
         governance_capability_catalog,
         integration_catalog,
@@ -51,6 +52,7 @@ def _release_readiness(database_connection=None) -> dict:
         "integrations": integration_catalog(),
         "signals": signal_source_catalog(),
         "agents": agent_capability_catalog(),
+        "audiences": audience_capability_catalog(),
         "governance": governance_capability_catalog(),
     }
     missing = [
