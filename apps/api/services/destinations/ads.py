@@ -46,6 +46,13 @@ def hashed_identifiers(snapshot: dict) -> dict[str, str]:
     return identifiers
 
 
+def identifiers_supported(dtype: str, identifiers: dict[str, str]) -> bool:
+    """Whether this platform can consume the normalized identifier set."""
+    if dtype == "linkedin_ads":
+        return bool(identifiers.get("email"))
+    return bool(identifiers.get("email") or identifiers.get("phone"))
+
+
 def _secret(workspace_id: str, key: str) -> str:
     value = get_secret(workspace_id, key)
     if not value:

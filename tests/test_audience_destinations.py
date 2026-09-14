@@ -513,13 +513,53 @@ def test_paid_media_sync_batches_hashed_identifiers(destination_app, monkeypatch
     assert len(captured) == 2
 
 
+def test_paid_media_skips_profiles_without_identifiers_independently(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    with Session() as session:
+        session.add(AudienceMember(
+            workspace_id=WS1, audience_id="aud-1", lead_id=43,
+            snapshot={"id": 43, "company": "No Contact Data"},
+        ))
+        session.commit()
+    created = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Meta mixed batch", "destination_type": "meta_ads",
+        "config": {"custom_audience_id": "123", "consent_attested": True, "consent_source": "CRM opt-in"},
+    }).json()
+    run_id = tc.post(f"/api/audience-destinations/{created['id']}/sync").json()["id"]
+    from apps.api.services.destinations import ads, engine as destination_engine
+    captured = []
+
+    async def fake_batch(workspace_id, dtype, config, snapshots, operation="add"):
+        captured.extend(snapshots)
+        return ads.AdBatchResult(True, "added 1 hashed user")
+
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    monkeypatch.setattr(ads, "sync_ad_batch", fake_batch)
+    asyncio.run(destination_engine.handle_destination_sync(
+        1, {"workspace_id": WS1, "run_id": run_id},
+    ))
+
+    assert [item["email"] for item in captured] == ["buyer@acme.test"]
+    deliveries = tc.get(f"/api/audience-destinations/runs/{run_id}/deliveries").json()
+    by_lead = {item["lead_id"]: item for item in deliveries}
+    assert by_lead[42]["status"] == "success"
+    assert by_lead[43]["status"] == "skipped"
+    assert by_lead[43]["summary"] == "No valid email or phone identifier"
+    run = tc.get(f"/api/audience-destinations/{created['id']}/runs").json()[0]
+    assert run["attempted"] == 1 and run["succeeded"] == 1 and run["skipped"] == 1
+
+
 def test_ad_identifier_normalization_never_returns_raw_pii():
-    from apps.api.services.destinations.ads import hashed_identifiers
+    from apps.api.services.destinations.ads import hashed_identifiers, identifiers_supported
 
     identifiers = hashed_identifiers({"email": " Buyer@Acme.Test ", "phone": "+1 (415) 555-0123"})
     assert identifiers["email"] == "b292f2116ddeba3b424ddeb0ad00067c22b4be4398239732b6a8a615eece634c"
     assert identifiers["phone"] == "413ba75461ab5f99d36820e561ea97e2bd80f9cb586f7ecea6cf4c496518950a"
     assert "buyer" not in str(identifiers)
+    assert identifiers_supported("meta_ads", {"phone": identifiers["phone"]})
+    assert identifiers_supported("google_ads", {"phone": identifiers["phone"]})
+    assert not identifiers_supported("linkedin_ads", {"phone": identifiers["phone"]})
+    assert identifiers_supported("linkedin_ads", {"email": identifiers["email"]})
 
 
 def test_meta_ad_remove_uses_delete_and_hashed_payload(monkeypatch):
