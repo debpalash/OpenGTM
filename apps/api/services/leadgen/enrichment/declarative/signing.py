@@ -93,6 +93,25 @@ def install_bundle(bundle: Path, destination: Path, trust_store: Path, *, replac
         staged_target = target_dir / f".{manifest.name}.{secrets.token_hex(8)}.yaml"
         staged_signature = Path(f"{staged_target}.sig")
         staged_target.write_bytes(manifest_bytes); staged_signature.write_bytes(signature_bytes)
-        os.replace(staged_signature, target_signature)
-        os.replace(staged_target, target)
+        previous_manifest = target.read_bytes() if target.exists() else None
+        previous_signature = target_signature.read_bytes() if target_signature.exists() else None
+        try:
+            os.replace(staged_signature, target_signature)
+            os.replace(staged_target, target)
+        except Exception:
+            # The manifest and detached signature are one logical unit but need
+            # two filesystem moves. Restore the exact prior pair (or remove a
+            # half-installed new pair) if either move fails.
+            for path, previous in (
+                (target, previous_manifest),
+                (target_signature, previous_signature),
+            ):
+                if previous is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    path.write_bytes(previous)
+            raise
+        finally:
+            staged_target.unlink(missing_ok=True)
+            staged_signature.unlink(missing_ok=True)
         return {"id": manifest.name, "capability": manifest.capability, "manifest": str(target), "signature": result}

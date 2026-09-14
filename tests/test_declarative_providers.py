@@ -116,7 +116,7 @@ def test_connector_validation_fails_loudly_for_duplicates_and_http(tmp_path):
     assert any("duplicate provider id" in item["error"] for item in report["errors"])
 
 
-def test_connector_ed25519_signature_trust_and_tamper_detection(tmp_path):
+def test_connector_ed25519_signature_trust_and_tamper_detection(tmp_path, monkeypatch):
     manifest = tmp_path / "signed.yaml"
     manifest.write_text('manifest_version: "1"\nname: signed_email\ncapability: email\nrequest:\n  url: https://api.example.com/find\nresponse:\n  mappings:\n    email: $.email\n', encoding="utf-8")
     private_key = Ed25519PrivateKey.generate()
@@ -142,6 +142,43 @@ def test_connector_ed25519_signature_trust_and_tamper_detection(tmp_path):
         install_bundle(first_bundle, tmp_path / "installed", trust_store)
     replaced = install_bundle(first_bundle, tmp_path / "installed", trust_store, replace=True)
     assert replaced["signature"]["status"] == "trusted"
+
+    installed_manifest = Path(replaced["manifest"])
+    installed_signature = Path(f"{installed_manifest}.sig")
+    original_pair = (installed_manifest.read_bytes(), installed_signature.read_bytes())
+    manifest.write_text(
+        manifest.read_text(encoding="utf-8") + "description: upgraded connector\n",
+        encoding="utf-8",
+    )
+    sign_manifest(manifest, private_path, "publisher-1")
+    upgrade_bundle = package_manifest(manifest, tmp_path / "upgrade.ogc")
+    from apps.api.services.leadgen.enrichment.declarative import signing
+    real_replace = signing.os.replace
+    calls = 0
+
+    def fail_second_replace(source, target):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise OSError("simulated manifest move failure")
+        return real_replace(source, target)
+
+    with monkeypatch.context() as scoped:
+        scoped.setattr(signing.os, "replace", fail_second_replace)
+        with pytest.raises(OSError, match="simulated manifest move failure"):
+            install_bundle(upgrade_bundle, tmp_path / "installed", trust_store, replace=True)
+    assert (installed_manifest.read_bytes(), installed_signature.read_bytes()) == original_pair
+    assert verify_manifest(installed_manifest, trust_store)["status"] == "trusted"
+    assert not [path for path in installed_manifest.parent.iterdir() if path.name.startswith(".")]
+
+    calls = 0
+    failed_fresh = tmp_path / "failed-fresh"
+    with monkeypatch.context() as scoped:
+        scoped.setattr(signing.os, "replace", fail_second_replace)
+        with pytest.raises(OSError, match="simulated manifest move failure"):
+            install_bundle(upgrade_bundle, failed_fresh, trust_store)
+    assert not list(failed_fresh.rglob("*.yaml"))
+    assert not list(failed_fresh.rglob("*.sig"))
 
     malformed = tmp_path / "malformed.ogc"
     with zipfile.ZipFile(malformed, "w") as archive:
