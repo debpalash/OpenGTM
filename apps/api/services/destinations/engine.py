@@ -274,6 +274,7 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                 delivery.status = "in_flight"
                 delivery.attempts = (delivery.attempts or 0) + 1
                 delivery.error = None
+                delivery.payload = mapped if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"} else {}
                 db.commit()
                 stats["attempted"] += 1
                 pending.append((member, delivery, snapshot, idem, mapped))
@@ -294,25 +295,74 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                     stats["failed"] += 1
                 db.commit()
 
+            if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"}:
+                # Reconcile exits from the latest successful state per lead. Ad
+                # delivery payloads contain hashes only, never raw identifiers.
+                from sqlalchemy import func
+                latest_ids = db.query(
+                    DestinationDelivery.lead_id,
+                    func.max(DestinationDelivery.id).label("delivery_id"),
+                ).filter(
+                    DestinationDelivery.workspace_id == workspace_id,
+                    DestinationDelivery.destination_id == destination.id,
+                    DestinationDelivery.status == "success",
+                ).group_by(DestinationDelivery.lead_id).subquery()
+                prior_active = db.query(DestinationDelivery).join(
+                    latest_ids, DestinationDelivery.id == latest_ids.c.delivery_id,
+                ).filter(DestinationDelivery.operation == "upsert").all()
+                current_ids = {member.lead_id for member in members}
+                for prior in prior_active:
+                    if prior.lead_id in current_ids or not prior.payload:
+                        continue
+                    mapped = dict(prior.payload)
+                    fingerprint = _fingerprint(mapped)
+                    idem = f"dest:{destination.id}:lead:{prior.lead_id}:remove:{fingerprint}"
+                    removal = db.query(DestinationDelivery).filter(
+                        DestinationDelivery.workspace_id == workspace_id,
+                        DestinationDelivery.idempotency_key == idem,
+                    ).first()
+                    if removal is not None and removal.status == "success":
+                        stats["skipped"] += 1
+                        continue
+                    removal = removal or DestinationDelivery(
+                        workspace_id=workspace_id, run_id=run.id,
+                        destination_id=destination.id, lead_id=prior.lead_id,
+                        operation="remove", idempotency_key=idem,
+                        payload_fingerprint=fingerprint, payload=mapped,
+                    )
+                    if removal.id is None:
+                        db.add(removal)
+                    removal.status = "in_flight"
+                    removal.attempts = (removal.attempts or 0) + 1
+                    removal.error = None
+                    stats["attempted"] += 1
+                    pending.append((None, removal, mapped, idem, mapped))
+                db.commit()
+
             if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"} and pending:
                 from apps.api.services.destinations.ads import sync_ad_batch
-                for offset in range(0, len(pending), 5000):
-                    batch = pending[offset:offset + 5000]
-                    try:
-                        result = await sync_ad_batch(workspace_id, destination.destination_type, destination.config or {}, [x[2] for x in batch])
-                    except Exception as exc:
-                        result = type("Result", (), {"success": False, "summary": "", "error": str(exc)[:500], "external_id": None})()
-                    for _, delivery, _, _, _ in batch:
-                        delivery.status = "success" if result.success else "failed"
-                        delivery.summary = result.summary
-                        delivery.error = (result.error or "")[:1000] or None
-                        delivery.external_id = result.external_id
-                        if result.success:
-                            delivery.delivered_at = datetime.now(timezone.utc)
-                            stats["succeeded"] += 1
-                        else:
-                            stats["failed"] += 1
-                    db.commit()
+                for operation, candidates in (
+                    ("add", [item for item in pending if item[1].operation == "upsert"]),
+                    ("remove", [item for item in pending if item[1].operation == "remove"]),
+                ):
+                    for offset in range(0, len(candidates), 5000):
+                        batch = candidates[offset:offset + 5000]
+                        try:
+                            snapshots = [item[2] if operation == "add" else item[4] for item in batch]
+                            result = await sync_ad_batch(workspace_id, destination.destination_type, destination.config or {}, snapshots, operation=operation)
+                        except Exception as exc:
+                            result = type("Result", (), {"success": False, "summary": "", "error": str(exc)[:500], "external_id": None})()
+                        for _, delivery, _, _, _ in batch:
+                            delivery.status = "success" if result.success else "failed"
+                            delivery.summary = result.summary
+                            delivery.error = (result.error or "")[:1000] or None
+                            delivery.external_id = result.external_id
+                            if result.success:
+                                delivery.delivered_at = datetime.now(timezone.utc)
+                                stats["succeeded"] += 1
+                            else:
+                                stats["failed"] += 1
+                        db.commit()
 
             if destination.destination_type == "warehouse_http" and pending:
                 from apps.api.services.destinations.warehouse import sync_warehouse_batch

@@ -482,17 +482,35 @@ def test_paid_media_sync_batches_hashed_identifiers(destination_app, monkeypatch
     from apps.api.services.destinations import ads, engine as destination_engine
     captured = []
 
-    async def fake_batch(workspace_id, dtype, config, snapshots):
-        captured.extend(snapshots)
-        return ads.AdBatchResult(True, "uploaded 1 hashed users", external_id="job-1")
+    async def fake_batch(workspace_id, dtype, config, snapshots, operation="add"):
+        captured.append((operation, snapshots))
+        return ads.AdBatchResult(True, f"{operation}ed 1 hashed users", external_id="job-1")
 
     monkeypatch.setattr(destination_engine, "SessionLocal", Session)
     monkeypatch.setattr(ads, "sync_ad_batch", fake_batch)
     asyncio.run(destination_engine.handle_destination_sync(1, {"workspace_id": WS1, "run_id": run_id}))
-    assert captured == [{"id": 42, "company": "Acme", "email": "buyer@acme.test"}]
+    assert captured == [("add", [{"id": 42, "company": "Acme", "email": "buyer@acme.test"}])]
     delivery = tc.get(f"/api/audience-destinations/runs/{run_id}/deliveries").json()[0]
     assert delivery["status"] == "success"
     assert delivery["external_id"] == "job-1"
+
+    # Removing the member must issue a platform REMOVE using only the hash
+    # retained in the successful add delivery—never the raw email.
+    with Session() as session:
+        session.query(AudienceMember).filter_by(audience_id="aud-1", lead_id=42).delete()
+        session.commit()
+    second_run = tc.post(f"/api/audience-destinations/{created.json()['id']}/sync").json()["id"]
+    asyncio.run(destination_engine.handle_destination_sync(2, {"workspace_id": WS1, "run_id": second_run}))
+    expected_hash = ads.hash_email("buyer@acme.test")
+    assert captured[-1] == ("remove", [{"email": expected_hash}])
+    removed = tc.get(f"/api/audience-destinations/runs/{second_run}/deliveries").json()
+    assert len(removed) == 1 and removed[0]["operation"] == "remove" and removed[0]["status"] == "success"
+
+    # A subsequent reconciliation sees REMOVE as the latest successful state
+    # and does not send another platform request.
+    third_run = tc.post(f"/api/audience-destinations/{created.json()['id']}/sync").json()["id"]
+    asyncio.run(destination_engine.handle_destination_sync(3, {"workspace_id": WS1, "run_id": third_run}))
+    assert len(captured) == 2
 
 
 def test_ad_identifier_normalization_never_returns_raw_pii():
@@ -502,6 +520,43 @@ def test_ad_identifier_normalization_never_returns_raw_pii():
     assert identifiers["email"] == "b292f2116ddeba3b424ddeb0ad00067c22b4be4398239732b6a8a615eece634c"
     assert identifiers["phone"] == "413ba75461ab5f99d36820e561ea97e2bd80f9cb586f7ecea6cf4c496518950a"
     assert "buyer" not in str(identifiers)
+
+
+def test_meta_ad_remove_uses_delete_and_hashed_payload(monkeypatch):
+    from apps.api.services.destinations import ads
+
+    monkeypatch.setattr(ads, "_secret", lambda workspace_id, key: "token")
+    captured = {}
+
+    class _Response:
+        def json(self):
+            return {"session_id": "session-1"}
+
+    async def fake_request(client, method, url, **kwargs):
+        captured.update(method=method, url=url, kwargs=kwargs)
+        return _Response()
+
+    monkeypatch.setattr(ads, "_request", fake_request)
+    result = asyncio.run(ads.sync_ad_batch(
+        WS1,
+        "meta_ads",
+        {"custom_audience_id": "aud-123"},
+        [{"email": " Buyer@Acme.Test "}],
+        operation="remove",
+    ))
+    payload = __import__("json").loads(captured["kwargs"]["data"]["payload"])
+    assert captured["method"] == "DELETE"
+    assert payload["data"] == [[ads.hash_email("buyer@acme.test")]]
+    assert "buyer" not in str(payload).lower()
+    assert result.success and result.summary == "removed 1 hashed users"
+
+    persisted_hash = ads.hash_email("buyer@acme.test")
+    asyncio.run(ads.sync_ad_batch(
+        WS1, "meta_ads", {"custom_audience_id": "aud-123"},
+        [{"email": persisted_hash}], operation="remove",
+    ))
+    payload = __import__("json").loads(captured["kwargs"]["data"]["payload"])
+    assert payload["data"] == [[persisted_hash]]
 
 
 def test_crm_inbound_token_auth_replay_and_receipts(destination_app, monkeypatch):
