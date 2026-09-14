@@ -128,6 +128,49 @@ def test_destination_sync_is_durable_and_idempotent(destination_app, monkeypatch
     assert len(delivered) == 1
 
 
+def test_destination_queue_failure_reconciles_retry_and_terminal_state(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    created = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Crash-safe webhook", "destination_type": "webhook",
+        "config": {"url": "https://hooks.example.test/audience", "method": "POST"},
+    })
+    destination_id = created.json()["id"]
+    run_id = tc.post(f"/api/audience-destinations/{destination_id}/sync").json()["id"]
+
+    from apps.api.services.destinations import engine as destination_engine
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    with Session() as db:
+        run = db.get(DestinationRun, run_id)
+        run.status = "running"
+        delivery = DestinationDelivery(
+            workspace_id=WS1, run_id=run_id, destination_id=destination_id,
+            lead_id=42, idempotency_key=f"crash:{run_id}", payload_fingerprint="abc",
+            status="in_flight", attempts=1,
+        )
+        db.add(delivery); db.commit()
+        delivery_id = delivery.id
+
+    payload = {"workspace_id": WS1, "run_id": run_id}
+    destination_engine.reconcile_destination_job_failure(7, payload, "worker timeout", True)
+    with Session() as db:
+        run = db.get(DestinationRun, run_id)
+        delivery = db.get(DestinationDelivery, delivery_id)
+        assert run.status == "pending" and run.finished_at is None
+        assert delivery.status == "pending"
+        assert "worker timeout" in run.error
+
+    destination_engine.reconcile_destination_job_failure(7, payload, "worker timeout", False)
+    with Session() as db:
+        run = db.get(DestinationRun, run_id)
+        delivery = db.get(DestinationDelivery, delivery_id)
+        destination = db.get(AudienceDestination, destination_id)
+        assert run.status == "failed" and run.finished_at is not None
+        assert run.attempted == 1 and run.failed == 1
+        assert delivery.status == "failed"
+        assert destination.health_status == "degraded"
+        assert "Final failure" in destination.last_error
+
+
 def test_failed_destination_deliveries_retry_on_original_run(destination_app, monkeypatch):
     tc, Session, _ = destination_app
     with Session() as session:
