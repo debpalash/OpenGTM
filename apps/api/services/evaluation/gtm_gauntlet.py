@@ -15,6 +15,7 @@ import json
 import os
 import sys
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Sequence
 from urllib.parse import urlsplit
@@ -726,6 +727,7 @@ def _production_streak(artifact: Mapping[str, Any]) -> int:
         validation_tier="controlled_live",
         mode="live",
         attestation_key=os.getenv(ATTESTATION_KEY_ENV, ""),
+        expected_build_sha=_text(latest.get("build_sha")),
     )
 
 
@@ -743,13 +745,21 @@ def _validation_streak(
     validation_tier: str,
     mode: str,
     attestation_key: str = "",
+    expected_build_sha: str = "",
 ) -> int:
     streak = 0
     seen_run_ids: set[str] = set()
+    newer_finished_at: datetime | None = None
     for run in reversed(_list(history)):
         if not isinstance(run, dict):
             break
         run_id = _text(run.get("run_id"))
+        try:
+            finished_at = datetime.fromisoformat(
+                _text(run.get("finished_at")).replace("Z", "+00:00")
+            ).astimezone(timezone.utc)
+        except (ValueError, TypeError):
+            finished_at = None
         valid = (
             run_id
             and run_id not in seen_run_ids
@@ -764,7 +774,9 @@ def _validation_streak(
             and not _list(run.get("hard_failures"))
             and not _list(run.get("unresolved_high_priority_issues"))
             and bool(_text(run.get("build_sha")))
-            and bool(_text(run.get("finished_at")))
+            and (not expected_build_sha or _text(run.get("build_sha")) == expected_build_sha)
+            and finished_at is not None
+            and (newer_finished_at is None or finished_at < newer_finished_at)
             and bool(_text(run.get("workspace_id")))
             and run.get("external_sends_blocked") is True
         )
@@ -779,6 +791,7 @@ def _validation_streak(
         if not valid:
             break
         seen_run_ids.add(run_id)
+        newer_finished_at = finished_at
         streak += 1
     return streak
 

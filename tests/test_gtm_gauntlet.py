@@ -208,6 +208,27 @@ def test_controlled_live_streak_requires_attested_safety_metadata_and_unique_run
     artifact["production_run_history"] = tampered
     assert score_gauntlet(artifact)["release"]["consecutive_production_like_passes"] == 0
 
+    mixed_builds = copy.deepcopy(valid)
+    mixed_builds[-2] = attest_validation_run(
+        {**mixed_builds[-2], "build_sha": "older-build", "attestation": None},
+        attestation_key,
+    )
+    artifact["production_run_history"] = mixed_builds
+    assert score_gauntlet(artifact)["release"]["consecutive_production_like_passes"] == 1
+
+    reordered = copy.deepcopy(valid)
+    reordered[-2], reordered[-3] = reordered[-3], reordered[-2]
+    artifact["production_run_history"] = reordered
+    assert score_gauntlet(artifact)["release"]["consecutive_production_like_passes"] == 2
+
+    invalid_time = copy.deepcopy(valid)
+    invalid_time[-1] = attest_validation_run(
+        {**invalid_time[-1], "finished_at": "not-a-time", "attestation": None},
+        attestation_key,
+    )
+    artifact["production_run_history"] = invalid_time
+    assert score_gauntlet(artifact)["release"]["consecutive_production_like_passes"] == 0
+
 
 def test_controlled_live_streak_fails_closed_without_attestation_key(monkeypatch):
     monkeypatch.delenv(ATTESTATION_KEY_ENV, raising=False)
