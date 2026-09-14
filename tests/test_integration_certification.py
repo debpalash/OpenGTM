@@ -37,6 +37,9 @@ def _certificate(integration_id="hubspot"):
             "streaming_upload", "manifest_checksum", "bounded_memory",
             "conflict_policy", "campaign_enrollment", "idempotent_upsert",
             "atomic_upsert", "notification_delivery",
+            "employment_signal_normalization", "cik_resolution",
+            "filing_cursor", "content_change_detection",
+            "technology_fingerprint", "source_attribution",
         }
     }
     return {
@@ -177,6 +180,30 @@ def test_signal_source_requires_its_own_attested_live_evidence(tmp_path):
     assert states["jobspy"]["maturity"] == "supported"
     assert states["jobspy"]["certification"]["validation_run_id"] == "signal-live-1"
     assert states["sec_edgar"]["maturity"] == "beta"
+
+
+@pytest.mark.parametrize("subject_id,required_check", [
+    ("jobspy", "employment_signal_normalization"),
+    ("sec_edgar", "filing_cursor"),
+    ("website_monitor", "content_change_detection"),
+    ("tech_stack", "technology_fingerprint"),
+    ("news_search", "source_attribution"),
+])
+def test_signal_sources_require_source_specific_live_evidence(
+    subject_id, required_check,
+):
+    incomplete = {
+        **_certificate(),
+        "subject_id": subject_id,
+        "integration_id": None,
+    }
+    incomplete["checks"] = {**incomplete["checks"]}
+    incomplete["checks"].pop(required_check)
+    with pytest.raises(ValueError, match="controlled-live evidence contract"):
+        attest_certificate(incomplete, KEY)
+
+    complete = {**_certificate(), "subject_id": subject_id, "integration_id": None}
+    assert attest_certificate(complete, KEY)["subject_id"] == subject_id
 
 
 def test_agent_capability_certification_is_independent(tmp_path):
