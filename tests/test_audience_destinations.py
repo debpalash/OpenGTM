@@ -642,6 +642,74 @@ def test_meta_ad_remove_uses_delete_and_hashed_payload(monkeypatch):
     assert payload["data"] == [[persisted_hash]]
 
 
+def test_google_ad_partial_failure_is_private_retryable_and_not_run(monkeypatch):
+    from apps.api.services.destinations import ads
+
+    monkeypatch.setattr(ads, "_secret", lambda workspace_id, key: "token")
+    calls = []
+
+    class _Response:
+        def __init__(self, body):
+            self.body = body
+
+        def json(self):
+            return self.body
+
+    async def fake_request(client, method, url, **kwargs):
+        calls.append(url)
+        if url.endswith("offlineUserDataJobs:create"):
+            return _Response({"resourceName": "customers/123/offlineUserDataJobs/456"})
+        return _Response({"partialFailureError": {
+            "code": 3,
+            "status": "INVALID_ARGUMENT",
+            "message": "buyer@acme.test was rejected",
+            "details": [{"errors": [{"message": "raw identifier must stay private"}]}],
+        }})
+
+    monkeypatch.setattr(ads, "_request", fake_request)
+    result = asyncio.run(ads.sync_ad_batch(
+        WS1, "google_ads", {"customer_id": "123", "user_list_id": "789"},
+        [{"email": "buyer@acme.test"}],
+    ))
+
+    assert not result.success
+    assert result.external_id == "customers/123/offlineUserDataJobs/456"
+    assert result.error == "Google Ads rejected operations (status=INVALID_ARGUMENT, code=3, count=1)"
+    assert "buyer" not in result.error and "raw identifier" not in result.error
+    assert len(calls) == 2
+    assert not any(url.endswith(":run") for url in calls)
+
+
+def test_google_ad_clean_batch_runs(monkeypatch):
+    from apps.api.services.destinations import ads
+
+    monkeypatch.setattr(ads, "_secret", lambda workspace_id, key: "token")
+    calls = []
+
+    class _Response:
+        def __init__(self, body):
+            self.body = body
+
+        def json(self):
+            return self.body
+
+    async def fake_request(client, method, url, **kwargs):
+        calls.append(url)
+        if url.endswith("offlineUserDataJobs:create"):
+            return _Response({"resourceName": "customers/123/offlineUserDataJobs/456"})
+        return _Response({})
+
+    monkeypatch.setattr(ads, "_request", fake_request)
+    result = asyncio.run(ads.sync_ad_batch(
+        WS1, "google_ads", {"customer_id": "123", "user_list_id": "789"},
+        [{"email": "buyer@acme.test"}],
+    ))
+
+    assert result.success
+    assert len(calls) == 3
+    assert calls[-1].endswith(":run")
+
+
 def test_crm_inbound_token_auth_replay_and_receipts(destination_app, monkeypatch):
     tc, Session, _ = destination_app
     created = tc.post("/api/audience-destinations", json={"audience_id": "aud-1", "name": "CRM", "destination_type": "hubspot", "config": {"inbound_conflict_policy": "fill_missing"}, "field_map": {"contact_title": "jobtitle"}})
