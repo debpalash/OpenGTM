@@ -1,6 +1,7 @@
 """Audience destination CRUD, durable runs, idempotency, and isolation."""
 
 import asyncio
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from fastapi import FastAPI
@@ -903,7 +904,11 @@ def test_crm_inbound_token_auth_replay_and_receipts(destination_app, monkeypatch
     from apps.api import database as database_module
     monkeypatch.setattr(router_module, "SessionLocal", Session)
     monkeypatch.setattr(database_module, "SessionLocal", Session)
-    token = tc.post(f"/api/audience-destinations/{destination_id}/inbound-token").json()["token"]
+    issued = tc.post(f"/api/audience-destinations/{destination_id}/inbound-token").json()
+    token = issued["token"]
+    assert issued["expires_at"] is not None
+    before = tc.get(f"/api/audience-destinations/{destination_id}/inbound-token").json()
+    assert before["active"] is True and before["last_used_at"] is None
     body = {"external_event_id": "hub-evt-1", "lead_id": 42, "fields": {"phone": "123", "jobtitle": "VP Sales", "score": 1}}
     denied = tc.post(f"/api/audience-destinations/inbound/{destination_id}", json=body)
     assert denied.status_code == 401
@@ -913,3 +918,31 @@ def test_crm_inbound_token_auth_replay_and_receipts(destination_app, monkeypatch
     assert replay.json()["replay"] is True
     history = tc.get(f"/api/audience-destinations/{destination_id}/inbound-receipts").json()
     assert len(history) == 1 and history[0]["external_event_id"] == "hub-evt-1"
+    after = tc.get(f"/api/audience-destinations/{destination_id}/inbound-token").json()
+    assert after["active"] is True and after["last_used_at"] is not None
+
+
+def test_crm_inbound_token_expiry_fails_closed(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    destination_id = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Expiring CRM", "destination_type": "salesforce",
+        "config": {"inbound_conflict_policy": "crm_wins"},
+    }).json()["id"]
+    from apps.api.routers import destinations as router_module
+    from apps.api import database as database_module
+    monkeypatch.setattr(router_module, "SessionLocal", Session)
+    monkeypatch.setattr(database_module, "SessionLocal", Session)
+    token = tc.post(f"/api/audience-destinations/{destination_id}/inbound-token").json()["token"]
+    with Session() as db:
+        stored = db.query(DestinationInboundToken).filter_by(destination_id=destination_id).one()
+        stored.expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+        db.commit()
+
+    status = tc.get(f"/api/audience-destinations/{destination_id}/inbound-token").json()
+    assert status["active"] is False and status["expired"] is True
+    response = tc.post(
+        f"/api/audience-destinations/inbound/{destination_id}",
+        json={"external_event_id": "expired-1", "lead_id": 42, "fields": {"phone": "123"}},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 401

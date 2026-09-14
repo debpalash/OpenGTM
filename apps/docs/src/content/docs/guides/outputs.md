@@ -33,6 +33,13 @@ record is a HubSpot contact or a Salesforce lead. Sequencer pushes enrol the
 row's email into the sequence and skip suppressed addresses. The cold-email
 destinations default to a `{email, first_name, last_name, company_name}` map.
 
+Audience destinations can also accept idempotent HubSpot or Salesforce
+callbacks. Admins rotate a destination-bound bearer token from the Audiences
+screen; only its hash is stored. Tokens expire after 90 days by default
+(`OPENGTM_DESTINATION_TOKEN_TTL_DAYS`, clamped to 1–365 days), can be revoked,
+and expose prefix, expiry, and last-use telemetry without revealing plaintext.
+Tokens created before lifecycle enforcement must be rotated before reuse.
+
 ## Webhook safety
 
 Webhook URLs must be `http` or `https` without embedded credentials, and the

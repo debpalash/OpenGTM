@@ -6595,6 +6595,65 @@
           "audience-destinations"
         ]
       },
+      "get": {
+        "operationId": "inbound_token_status_api_audience_destinations__destination_id__inbound_token_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "destination_id",
+            "required": true,
+            "schema": {
+              "title": "Destination Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Inbound Token Status",
+        "tags": [
+          "audience-destinations"
+        ]
+      },
       "post": {
         "operationId": "rotate_inbound_token_api_audience_destinations__destination_id__inbound_token_post",
         "parameters": [

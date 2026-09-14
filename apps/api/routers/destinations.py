@@ -463,12 +463,39 @@ def rotate_inbound_token(destination_id: str, db: Session = Depends(get_db), ctx
     if destination.destination_type not in {"hubspot", "salesforce"}:
         raise HTTPException(status_code=409, detail="Inbound sync tokens are only available for CRM destinations")
     from datetime import datetime, timezone
-    from apps.api.services.destinations.inbound import generate_token
+    from apps.api.services.destinations.inbound import generate_token, token_expiry
     db.query(DestinationInboundToken).filter(DestinationInboundToken.workspace_id == ctx.workspace_id, DestinationInboundToken.destination_id == destination.id, DestinationInboundToken.revoked_at.is_(None)).update({DestinationInboundToken.revoked_at: datetime.now(timezone.utc)}, synchronize_session=False)
     raw, digest, prefix = generate_token()
-    token = DestinationInboundToken(workspace_id=ctx.workspace_id, destination_id=destination.id, token_hash=digest, prefix=prefix, created_by=ctx.user.id)
+    token = DestinationInboundToken(workspace_id=ctx.workspace_id, destination_id=destination.id, token_hash=digest, prefix=prefix, created_by=ctx.user.id, expires_at=token_expiry())
     db.add(token); db.commit(); db.refresh(token)
-    return {"token": raw, "prefix": prefix, "created_at": token.created_at, "warning": "Copy this token now; it will not be shown again."}
+    return {"token": raw, "prefix": prefix, "created_at": token.created_at, "expires_at": token.expires_at, "warning": "Copy this token now; it will not be shown again."}
+
+
+@router.get("/{destination_id}/inbound-token")
+def inbound_token_status(destination_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_admin)):
+    destination = _get(db, ctx.workspace_id, destination_id)
+    if destination.destination_type not in {"hubspot", "salesforce"}:
+        raise HTTPException(status_code=409, detail="Inbound sync tokens are only available for CRM destinations")
+    token = db.query(DestinationInboundToken).filter(
+        DestinationInboundToken.workspace_id == ctx.workspace_id,
+        DestinationInboundToken.destination_id == destination.id,
+        DestinationInboundToken.revoked_at.is_(None),
+    ).order_by(DestinationInboundToken.created_at.desc()).first()
+    if token is None:
+        return {"active": False}
+    from datetime import datetime, timezone
+    from apps.api.services.destinations.inbound import _as_utc
+    now = datetime.now(timezone.utc)
+    expires_at = _as_utc(token.expires_at)
+    return {
+        "active": bool(expires_at and expires_at > now),
+        "expired": not expires_at or expires_at <= now,
+        "prefix": token.prefix,
+        "created_at": token.created_at,
+        "expires_at": token.expires_at,
+        "last_used_at": token.last_used_at,
+        "created_by": token.created_by,
+    }
 
 
 @router.delete("/{destination_id}/inbound-token", status_code=204)

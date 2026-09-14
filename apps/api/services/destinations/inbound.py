@@ -3,7 +3,9 @@
 import hashlib
 import hmac
 import json
+import os
 import secrets
+from datetime import datetime, timedelta, timezone
 
 TOKEN_PREFIX = "dsi_"
 ALLOWED_FIELDS = {"company", "website", "email", "phone", "contact_person", "contact_title", "city", "state", "address", "specialization", "company_size", "employee_count_exact", "description", "revenue_range", "founded_year", "industry_tags", "technologies", "funding_stage", "linkedin_url", "twitter_url", "facebook_url", "secondary_emails", "secondary_phones", "decision_makers", "status", "notes"}
@@ -22,15 +24,38 @@ def generate_token():
     return raw, hash_token(raw), raw[:12]
 
 
+def token_ttl_days() -> int:
+    try:
+        configured = int(os.getenv("OPENGTM_DESTINATION_TOKEN_TTL_DAYS", "90"))
+    except ValueError:
+        configured = 90
+    return max(1, min(configured, 365))
+
+
+def token_expiry() -> datetime:
+    return datetime.now(timezone.utc) + timedelta(days=token_ttl_days())
+
+
+def _as_utc(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+
+
 def resolve_token(raw: str, destination_id: str):
     from apps.api.database import SessionLocal
     from apps.api.services.destinations.models import DestinationInboundToken
     digest = hash_token(raw or "")
     with SessionLocal() as db:
         token = db.query(DestinationInboundToken).filter(DestinationInboundToken.token_hash == digest).first()
-        if token is None or not hmac.compare_digest(token.token_hash, digest) or token.revoked_at is not None or token.destination_id != destination_id:
+        now = datetime.now(timezone.utc)
+        expires_at = _as_utc(token.expires_at) if token is not None else None
+        if token is None or not hmac.compare_digest(token.token_hash, digest) or token.revoked_at is not None or token.destination_id != destination_id or expires_at is None or expires_at <= now:
             raise DestinationAuthError("invalid or revoked destination token")
-        return token.workspace_id
+        token.last_used_at = now
+        workspace_id = token.workspace_id
+        db.commit()
+        return workspace_id
 
 
 def reconcile(db, destination, body: dict) -> tuple[dict, bool]:
