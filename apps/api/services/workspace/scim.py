@@ -116,6 +116,55 @@ def create_group(workspace_id: str, display_name: str, external_id: str = "") ->
     return get_group(workspace_id, group_id)
 
 
+def replace_group(
+    workspace_id: str,
+    group_id: str,
+    display_name: str,
+    external_id: str,
+    user_ids: list[int],
+) -> Optional[dict]:
+    """Atomically replace group metadata and membership after validation."""
+    conn = manager._get_db()
+    try:
+        group = conn.execute(
+            "SELECT id FROM workspace_scim_groups WHERE workspace_id=? AND id=?",
+            (workspace_id, group_id),
+        ).fetchone()
+        if not group:
+            return None
+        unique_ids = list(dict.fromkeys(user_ids))
+        for user_id in unique_ids:
+            mapping = conn.execute(
+                "SELECT 1 FROM workspace_scim_users WHERE workspace_id=? AND user_id=?",
+                (workspace_id, user_id),
+            ).fetchone()
+            if not mapping:
+                raise ValueError(f"SCIM user {user_id} not found")
+        now = time.time()
+        conn.execute(
+            "UPDATE workspace_scim_groups SET display_name=?, external_id=?, updated_at=? "
+            "WHERE workspace_id=? AND id=?",
+            (display_name, external_id, now, workspace_id, group_id),
+        )
+        conn.execute(
+            "DELETE FROM workspace_scim_group_members WHERE workspace_id=? AND group_id=?",
+            (workspace_id, group_id),
+        )
+        for user_id in unique_ids:
+            conn.execute(
+                "INSERT INTO workspace_scim_group_members "
+                "(workspace_id, group_id, user_id, created_at) VALUES (?, ?, ?, ?)",
+                (workspace_id, group_id, user_id, now),
+            )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+    return get_group(workspace_id, group_id)
+
+
 def get_group(workspace_id: str, group_id: str) -> Optional[dict]:
     conn = manager._get_db()
     row = conn.execute("SELECT * FROM workspace_scim_groups WHERE workspace_id=? AND id=?", (workspace_id, group_id)).fetchone()

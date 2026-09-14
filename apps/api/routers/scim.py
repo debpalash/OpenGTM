@@ -258,11 +258,13 @@ def replace_group(workspace_slug: str, group_id: str, body: ScimGroupInput, auth
     workspace = _workspace(workspace_slug, authorization); group = scim.get_group(workspace.id, group_id)
     if not group: raise HTTPException(status_code=404, detail="SCIM group not found")
     try:
-        scim.update_group(workspace.id, group_id, body.displayName.strip(), body.externalId)
-        scim.remove_group_members(workspace.id, group_id, [int(value) for value in group["members"]])
-        scim.add_group_members(workspace.id, group_id, _member_ids(body.members))
+        saved = scim.replace_group(
+            workspace.id, group_id, body.displayName.strip(), body.externalId,
+            _member_ids(body.members),
+        )
     except ValueError as exc: raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return _group_resource(workspace, scim.get_group(workspace.id, group_id))
+    if saved is None: raise HTTPException(status_code=404, detail="SCIM group not found")
+    return _group_resource(workspace, saved)
 
 
 @router.patch("/Groups/{group_id}")
@@ -274,8 +276,14 @@ def patch_group(workspace_slug: str, group_id: str, body: PatchInput, authorizat
         op = str(operation.get("op", "")).lower(); path = operation.get("path"); value = operation.get("value")
         try:
             if op in {"add", "replace"} and path == "members":
-                if op == "replace": scim.remove_group_members(workspace.id, group_id, [int(item) for item in scim.get_group(workspace.id, group_id)["members"]])
-                scim.add_group_members(workspace.id, group_id, _member_ids(value or []))
+                if op == "replace":
+                    current = scim.get_group(workspace.id, group_id)
+                    scim.replace_group(
+                        workspace.id, group_id, current["display_name"],
+                        current["external_id"], _member_ids(value or []),
+                    )
+                else:
+                    scim.add_group_members(workspace.id, group_id, _member_ids(value or []))
             elif op == "remove" and isinstance(path, str):
                 match = re.fullmatch(r'members\[value\s+eq\s+"([0-9]+)"\]', path, re.IGNORECASE)
                 if not match: raise HTTPException(status_code=400, detail="Unsupported group remove path")

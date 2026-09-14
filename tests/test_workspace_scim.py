@@ -23,6 +23,7 @@ from apps.api.routers.scim import (
     list_users,
     patch_group,
     patch_user,
+    replace_group,
     resource_types,
     schemas,
 )
@@ -142,6 +143,36 @@ def test_scim_group_lifecycle_and_membership_patch(monkeypatch, tmp_path):
     assert group["displayName"] == "Revenue" and [m["value"] for m in group["members"]] == [first["id"]]
     page = list_groups(workspace.slug, authorization, 'displayName eq "revenue"', 1, 100)
     assert page["totalResults"] == 1
+
+    with pytest.raises(HTTPException) as invalid_replace:
+        replace_group(
+            workspace.slug, group["id"],
+            ScimGroupInput(
+                displayName="Must Roll Back", externalId="changed",
+                members=[{"value": "999999"}],
+            ),
+            authorization,
+        )
+    assert invalid_replace.value.status_code == 400
+    preserved = scim.get_group(workspace.id, group["id"])
+    assert preserved["display_name"] == "Revenue"
+    assert preserved["external_id"] == "group-7"
+    assert preserved["members"] == [first["id"]]
+
+    with pytest.raises(HTTPException) as invalid_patch:
+        patch_group(
+            workspace.slug, group["id"],
+            PatchInput(
+                schemas=["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+                Operations=[{
+                    "op": "replace", "path": "members",
+                    "value": [{"value": "999999"}],
+                }],
+            ),
+            authorization,
+        )
+    assert invalid_patch.value.status_code == 400
+    assert scim.get_group(workspace.id, group["id"])["members"] == [first["id"]]
 
     updated = patch_group(workspace.slug, group["id"], PatchInput(schemas=["urn:ietf:params:scim:api:messages:2.0:PatchOp"], Operations=[{"op": "add", "path": "members", "value": [{"value": second["id"]}]}]), authorization)
     assert {member["value"] for member in updated["members"]} == {first["id"], second["id"]}
