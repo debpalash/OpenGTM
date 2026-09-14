@@ -6,6 +6,7 @@ the response onto Yupcha's flat enrichment fields — no Python needed. Manifest
 live in `manifests/<capability>/<provider>.yaml`.
 """
 
+import hashlib
 import os
 import re
 from pathlib import Path
@@ -132,7 +133,7 @@ def load_all_manifests(directory: Optional[Path] = None) -> List[ProviderManifes
 def validate_manifest_directory(directory: Optional[Path] = None, *, signature_policy: Optional[str] = None, trust_store: Optional[Path] = None) -> Dict[str, Any]:
     """Fail-loud compatibility report used by CI and connector contributors."""
     directory = directory or MANIFESTS_DIR
-    from .signing import verify_manifest
+    from .signing import canonical_manifest, verify_manifest
     errors, manifests, names = [], [], set()
     policy = signature_policy or _signature_policy()
     if policy not in {"optional", "required"}: policy = "required"
@@ -160,7 +161,12 @@ def validate_manifest_directory(directory: Optional[Path] = None, *, signature_p
             signature = verify_manifest(path, trusted_keys)
             if signature["status"] in {"invalid", "untrusted"} or (policy == "required" and signature["status"] != "trusted"):
                 raise ValueError(f"connector signature is {signature['status']}: {signature.get('error', '')}".rstrip())
-            manifests.append({"path": str(path.relative_to(directory)), "signature": signature, **manifest.catalog_entry()})
+            manifests.append({
+                "path": str(path.relative_to(directory)),
+                "manifest_sha256": hashlib.sha256(canonical_manifest(path)).hexdigest(),
+                "signature": signature,
+                **manifest.catalog_entry(),
+            })
         except Exception as exc:
             errors.append({"path": str(path), "error": str(exc)})
     return {"ok": not errors, "manifest_version": "1", "signature_policy": policy, "count": len(manifests), "connectors": manifests, "errors": errors}
