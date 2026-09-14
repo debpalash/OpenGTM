@@ -223,8 +223,10 @@ export async function fetchWorkbook(
   return res.json()
 }
 
-export async function fetchConnectorRuns(workbookId: string): Promise<{ runs: ConnectorRun[] }> {
-  const res = await fetch(`${API}/api/workbooks/${workbookId}/connector-runs`)
+export async function fetchConnectorRuns(workbookId: string, cursor?: string): Promise<{ runs: ConnectorRun[]; limit: number; offset: number | null; has_more: boolean; next_cursor: string | null }> {
+  const query = new URLSearchParams({ limit: "50" })
+  if (cursor) query.set("cursor", cursor)
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/connector-runs?${query}`)
   if (!res.ok) throw new Error("Failed to fetch connector runs")
   return res.json()
 }
