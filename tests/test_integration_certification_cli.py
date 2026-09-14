@@ -33,7 +33,10 @@ def _certificate(evidence_sha256: str) -> dict:
 
 def test_cli_hashes_evidence_before_attesting(tmp_path, monkeypatch):
     evidence = tmp_path / "evidence.json"
-    evidence.write_bytes(b'{"live":true}\n')
+    evidence.write_text(json.dumps({
+        name: {"request_id": f"req-{name}"}
+        for name in _certificate("b" * 64)["checks"]
+    }), encoding="utf-8")
     certificate = tmp_path / "certificate.json"
     certificate.write_text(json.dumps(_certificate(
         hashlib.sha256(evidence.read_bytes()).hexdigest()
@@ -54,6 +57,24 @@ def test_cli_refuses_evidence_digest_mismatch_without_output(tmp_path, monkeypat
     evidence.write_bytes(b'{"live":false}\n')
     certificate = tmp_path / "certificate.json"
     certificate.write_text(json.dumps(_certificate("b" * 64)), encoding="utf-8")
+    output = tmp_path / "attested.json"
+    monkeypatch.setenv("OPENGTM_INTEGRATION_CERTIFICATION_KEY", KEY)
+    monkeypatch.setattr(sys, "argv", [
+        "attest", "--input", str(certificate), "--evidence", str(evidence),
+        "--output", str(output),
+    ])
+
+    assert cli.main() == 2
+    assert not output.exists()
+
+
+def test_cli_refuses_unresolved_check_evidence(tmp_path, monkeypatch):
+    evidence = tmp_path / "evidence.json"
+    evidence.write_text(json.dumps({"authentication": {"request_id": "req-1"}}), encoding="utf-8")
+    certificate = tmp_path / "certificate.json"
+    certificate.write_text(json.dumps(_certificate(
+        hashlib.sha256(evidence.read_bytes()).hexdigest()
+    )), encoding="utf-8")
     output = tmp_path / "attested.json"
     monkeypatch.setenv("OPENGTM_INTEGRATION_CERTIFICATION_KEY", KEY)
     monkeypatch.setattr(sys, "argv", [

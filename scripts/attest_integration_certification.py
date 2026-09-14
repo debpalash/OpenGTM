@@ -22,6 +22,35 @@ from apps.api.services.integrations.certification import (
 )
 
 
+def _resolve_json_pointer(document: object, reference: object) -> None:
+    value = str(reference or "")
+    _, separator, pointer = value.partition("#")
+    if not separator or not pointer.startswith("/"):
+        raise ValueError(f"evidence reference is not a JSON pointer: {value}")
+    current = document
+    for raw_token in pointer[1:].split("/"):
+        token = raw_token.replace("~1", "/").replace("~0", "~")
+        if isinstance(current, dict) and token in current:
+            current = current[token]
+        elif isinstance(current, list) and token.isdigit() and int(token) < len(current):
+            current = current[int(token)]
+        else:
+            raise ValueError(f"evidence reference does not resolve: {value}")
+
+
+def _verify_check_references(certificate: dict, evidence_path: Path) -> None:
+    try:
+        document = json.loads(evidence_path.read_text(encoding="utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("evidence artifact must be valid UTF-8 JSON") from exc
+    for name, check in certificate.get("checks", {}).items():
+        if isinstance(check, dict) and check.get("passed") is True:
+            try:
+                _resolve_json_pointer(document, check.get("evidence"))
+            except ValueError as exc:
+                raise ValueError(f"check {name}: {exc}") from exc
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Attest an integration's controlled-live certification."
@@ -41,14 +70,16 @@ def main() -> int:
         value = json.loads(Path(args.input).read_text(encoding="utf-8"))
         if not isinstance(value, dict):
             raise ValueError("certificate must be a JSON object")
+        evidence_path = Path(args.evidence)
         digest = hashlib.sha256()
-        with Path(args.evidence).open("rb") as evidence:
+        with evidence_path.open("rb") as evidence:
             for chunk in iter(lambda: evidence.read(1024 * 1024), b""):
                 digest.update(chunk)
         if not hmac.compare_digest(
             digest.hexdigest(), str(value.get("evidence_sha256") or ""),
         ):
             raise ValueError("evidence artifact SHA-256 does not match certificate")
+        _verify_check_references(value, evidence_path)
         output = Path(args.output)
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(
