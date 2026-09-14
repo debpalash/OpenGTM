@@ -22,6 +22,39 @@ def _map_payload(snapshot: dict, field_map: dict) -> dict:
     }
 
 
+def _cancellation_requested(db, run) -> bool:
+    db.refresh(run)
+    return run.status in {"cancelling", "cancelled"}
+
+
+def _finish_cancelled(db, run, destination) -> None:
+    """Finalize cooperative cancellation without erasing completed effects."""
+    from apps.api.services.destinations.models import DestinationDelivery
+
+    unfinished = db.query(DestinationDelivery).filter(
+        DestinationDelivery.workspace_id == run.workspace_id,
+        DestinationDelivery.run_id == run.id,
+        DestinationDelivery.status.in_(("pending", "in_flight")),
+    ).all()
+    for delivery in unfinished:
+        delivery.status = "cancelled"
+        delivery.error = "Run cancelled before delivery"
+    deliveries = db.query(DestinationDelivery).filter(
+        DestinationDelivery.workspace_id == run.workspace_id,
+        DestinationDelivery.run_id == run.id,
+    ).all()
+    run.status = "cancelled"
+    run.error = "Cancellation completed"
+    run.finished_at = datetime.now(timezone.utc)
+    run.attempted = sum(1 for delivery in deliveries if (delivery.attempts or 0) > 0)
+    run.succeeded = sum(1 for delivery in deliveries if delivery.status == "success")
+    run.failed = sum(1 for delivery in deliveries if delivery.status == "failed")
+    run.skipped = sum(1 for delivery in deliveries if delivery.status == "skipped")
+    if destination is not None and run.succeeded:
+        destination.last_success_at = run.finished_at
+    db.commit()
+
+
 def enqueue_audience_syncs(db, workspace_id: str, audience_id: str) -> int:
     """Enqueue one durable sync for every enabled destination without an active run."""
     from apps.api.services.destinations.models import AudienceDestination, DestinationRun
@@ -37,7 +70,7 @@ def enqueue_audience_syncs(db, workspace_id: str, audience_id: str) -> int:
         active = db.query(DestinationRun).filter(
             DestinationRun.workspace_id == workspace_id,
             DestinationRun.destination_id == destination.id,
-            DestinationRun.status.in_(("pending", "running")),
+            DestinationRun.status.in_(("pending", "running", "cancelling")),
         ).first()
         if active:
             continue
@@ -90,6 +123,14 @@ def reconcile_destination_job_failure(
                 DestinationRun.workspace_id == workspace_id,
             ).first()
             if run is None or run.status in {"completed", "completed_with_errors", "cancelled"}:
+                return
+
+            if run.status == "cancelling":
+                destination = db.query(AudienceDestination).filter(
+                    AudienceDestination.id == run.destination_id,
+                    AudienceDestination.workspace_id == workspace_id,
+                ).first()
+                _finish_cancelled(db, run, destination)
                 return
 
             deliveries = db.query(DestinationDelivery).filter(
@@ -297,12 +338,15 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
             run = db.query(DestinationRun).filter(
                 DestinationRun.id == run_id, DestinationRun.workspace_id == workspace_id,
             ).first()
-            if run is None or run.status == "completed":
+            if run is None or run.status in {"completed", "completed_with_errors", "failed", "cancelled"}:
                 return
             destination = db.query(AudienceDestination).filter(
                 AudienceDestination.id == run.destination_id,
                 AudienceDestination.workspace_id == workspace_id,
             ).first()
+            if run.status == "cancelling":
+                _finish_cancelled(db, run, destination)
+                return
             if destination is None or not destination.enabled:
                 run.status = "cancelled"
                 run.error = "destination missing or disabled"
@@ -321,6 +365,9 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
             stats = {"attempted": 0, "succeeded": 0, "failed": 0, "skipped": 0}
             pending = []
             for member in members:
+                if _cancellation_requested(db, run):
+                    _finish_cancelled(db, run, destination)
+                    return
                 snapshot = dict(member.snapshot or {})
                 mapped = _map_payload(snapshot, destination.field_map or {})
                 if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"}:
@@ -352,14 +399,19 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                     stats["skipped"] += 1
                     db.commit()
                     continue
-                delivery.status = "in_flight"
-                delivery.attempts = (delivery.attempts or 0) + 1
+                deferred_batch = destination.destination_type in {
+                    "meta_ads", "google_ads", "linkedin_ads", "warehouse_http",
+                }
+                delivery.status = "pending" if deferred_batch else "in_flight"
+                if not deferred_batch:
+                    delivery.attempts = (delivery.attempts or 0) + 1
                 delivery.error = None
                 delivery.payload = mapped if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads"} else {}
                 db.commit()
-                stats["attempted"] += 1
+                if not deferred_batch:
+                    stats["attempted"] += 1
                 pending.append((member, delivery, snapshot, idem, mapped))
-                if destination.destination_type in {"meta_ads", "google_ads", "linkedin_ads", "warehouse_http"}:
+                if deferred_batch:
                     continue
                 try:
                     result = await _deliver(destination, member.lead_id, snapshot, idem)
@@ -413,10 +465,8 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                     )
                     if removal.id is None:
                         db.add(removal)
-                    removal.status = "in_flight"
-                    removal.attempts = (removal.attempts or 0) + 1
+                    removal.status = "pending"
                     removal.error = None
-                    stats["attempted"] += 1
                     pending.append((None, removal, mapped, idem, mapped))
                 db.commit()
 
@@ -427,7 +477,15 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                     ("remove", [item for item in pending if item[1].operation == "remove"]),
                 ):
                     for offset in range(0, len(candidates), 5000):
+                        if _cancellation_requested(db, run):
+                            _finish_cancelled(db, run, destination)
+                            return
                         batch = candidates[offset:offset + 5000]
+                        for _, delivery, _, _, _ in batch:
+                            delivery.status = "in_flight"
+                            delivery.attempts = (delivery.attempts or 0) + 1
+                            stats["attempted"] += 1
+                        db.commit()
                         try:
                             snapshots = [item[2] if operation == "add" else item[4] for item in batch]
                             result = await sync_ad_batch(workspace_id, destination.destination_type, destination.config or {}, snapshots, operation=operation)
@@ -446,7 +504,15 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                         db.commit()
 
             if destination.destination_type == "warehouse_http" and pending:
+                if _cancellation_requested(db, run):
+                    _finish_cancelled(db, run, destination)
+                    return
                 from apps.api.services.destinations.warehouse import sync_warehouse_batch
+                for _, delivery, _, _, _ in pending:
+                    delivery.status = "in_flight"
+                    delivery.attempts = (delivery.attempts or 0) + 1
+                    stats["attempted"] += 1
+                db.commit()
                 try:
                     result = await sync_warehouse_batch(workspace_id, destination, run.id, [(item[0].lead_id, item[4]) for item in pending])
                 except Exception as exc:
@@ -459,6 +525,13 @@ async def handle_destination_sync(job_id: int, payload: dict) -> None:
                     else:
                         stats["failed"] += 1
                 db.commit()
+
+            # A cancellation may arrive while the final external request is in
+            # flight. Preserve its completed delivery result, then terminate the
+            # run instead of overwriting the request with a completed status.
+            if _cancellation_requested(db, run):
+                _finish_cancelled(db, run, destination)
+                return
 
             run.attempted = stats["attempted"]
             run.succeeded = stats["succeeded"]

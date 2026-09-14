@@ -128,6 +128,97 @@ def test_destination_sync_is_durable_and_idempotent(destination_app, monkeypatch
     assert len(delivered) == 1
 
 
+def test_pending_destination_run_can_be_cancelled_without_execution(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    destination_id = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Cancelled webhook", "destination_type": "webhook",
+        "config": {"url": "https://hooks.example.test/audience"},
+    }).json()["id"]
+    run_id = tc.post(f"/api/audience-destinations/{destination_id}/sync").json()["id"]
+
+    cancelled = tc.post(f"/api/audience-destinations/runs/{run_id}/cancel")
+    assert cancelled.status_code == 202
+    assert cancelled.json()["status"] == "cancelled"
+    assert cancelled.json()["finished_at"] is not None
+    assert tc.post(f"/api/audience-destinations/runs/{run_id}/cancel").status_code == 409
+
+    from apps.api.services.destinations import engine as destination_engine
+    calls = []
+
+    async def fake_deliver(destination, lead_id, snapshot, idem):
+        calls.append(lead_id)
+        return {"success": True, "summary": "ok", "error": None}
+
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    monkeypatch.setattr(destination_engine, "_deliver", fake_deliver)
+    asyncio.run(destination_engine.handle_destination_sync(1, {"workspace_id": WS1, "run_id": run_id}))
+    assert calls == []
+
+
+def test_running_destination_cancels_at_safe_delivery_boundary(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    destination_id = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Cooperative webhook", "destination_type": "webhook",
+        "config": {"url": "https://hooks.example.test/audience"},
+    }).json()["id"]
+    run_id = tc.post(f"/api/audience-destinations/{destination_id}/sync").json()["id"]
+
+    from apps.api.services.destinations import engine as destination_engine
+    calls = []
+
+    async def cancelling_deliver(destination, lead_id, snapshot, idem):
+        calls.append(lead_id)
+        with Session() as session:
+            run = session.get(DestinationRun, run_id)
+            run.status = "cancelling"
+            run.error = "Cancellation requested"
+            session.commit()
+        return {"success": True, "summary": "POST 202", "error": None}
+
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    monkeypatch.setattr(destination_engine, "_deliver", cancelling_deliver)
+    asyncio.run(destination_engine.handle_destination_sync(1, {"workspace_id": WS1, "run_id": run_id}))
+
+    with Session() as session:
+        run = session.get(DestinationRun, run_id)
+        deliveries = session.query(DestinationDelivery).filter_by(run_id=run_id).all()
+        assert run.status == "cancelled" and run.finished_at is not None
+        assert run.attempted == 1 and run.succeeded == 1
+        assert [(item.lead_id, item.status) for item in deliveries] == [(42, "success")]
+    assert calls == [42]
+
+
+def test_cancelled_ad_batch_does_not_count_unsent_delivery_as_attempted(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    with Session() as session:
+        session.add(AudienceMember(
+            workspace_id=WS1, audience_id="aud-1", lead_id=43,
+            snapshot={"id": 43, "email": "other@acme.test"},
+        ))
+        session.commit()
+    destination_id = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Cancelled ad batch", "destination_type": "meta_ads",
+        "config": {
+            "custom_audience_id": "audience-123",
+            "consent_attested": True,
+            "consent_source": "crm_opt_in",
+        },
+    }).json()["id"]
+    run_id = tc.post(f"/api/audience-destinations/{destination_id}/sync").json()["id"]
+
+    from apps.api.services.destinations import engine as destination_engine
+    checks = iter((False, True))
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    monkeypatch.setattr(destination_engine, "_cancellation_requested", lambda db, run: next(checks))
+    asyncio.run(destination_engine.handle_destination_sync(1, {"workspace_id": WS1, "run_id": run_id}))
+
+    with Session() as session:
+        run = session.get(DestinationRun, run_id)
+        deliveries = session.query(DestinationDelivery).filter_by(run_id=run_id).all()
+        assert run.status == "cancelled" and run.attempted == 0
+        assert len(deliveries) == 1
+        assert deliveries[0].status == "cancelled" and deliveries[0].attempts == 0
+
 def test_destination_queue_failure_reconciles_retry_and_terminal_state(destination_app, monkeypatch):
     tc, Session, _ = destination_app
     created = tc.post("/api/audience-destinations", json={
@@ -169,6 +260,37 @@ def test_destination_queue_failure_reconciles_retry_and_terminal_state(destinati
         assert delivery.status == "failed"
         assert destination.health_status == "degraded"
         assert "Final failure" in destination.last_error
+
+
+def test_destination_queue_failure_preserves_requested_cancellation(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    destination_id = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Crash during cancellation", "destination_type": "webhook",
+        "config": {"url": "https://hooks.example.test/audience"},
+    }).json()["id"]
+    run_id = tc.post(f"/api/audience-destinations/{destination_id}/sync").json()["id"]
+
+    from apps.api.services.destinations import engine as destination_engine
+    monkeypatch.setattr(destination_engine, "SessionLocal", Session)
+    with Session() as db:
+        run = db.get(DestinationRun, run_id)
+        run.status = "cancelling"
+        db.add(DestinationDelivery(
+            workspace_id=WS1, run_id=run_id, destination_id=destination_id,
+            lead_id=42, idempotency_key=f"cancel-crash:{run_id}", payload_fingerprint="abc",
+            status="in_flight", attempts=1,
+        ))
+        db.commit()
+
+    destination_engine.reconcile_destination_job_failure(
+        7, {"workspace_id": WS1, "run_id": run_id}, "worker timeout", True,
+    )
+    with Session() as db:
+        run = db.get(DestinationRun, run_id)
+        delivery = db.query(DestinationDelivery).filter_by(run_id=run_id).one()
+        assert run.status == "cancelled" and run.finished_at is not None
+        assert run.attempted == 1 and run.failed == 0
+        assert delivery.status == "cancelled"
 
 
 def test_failed_destination_deliveries_retry_on_original_run(destination_app, monkeypatch):
