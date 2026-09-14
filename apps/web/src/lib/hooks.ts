@@ -15,7 +15,7 @@ import {
   fetchAudiences, createAudience, deleteAudience,
   fetchAudienceMembers, fetchAudienceEvents, refreshAudience, updateAudience,
   fetchAudienceDestinations, fetchDestinationTypes, createAudienceDestination, syncAudienceDestination, retryAudienceDestinationRun,
-  fetchResearchPlaybooks, createResearchPlaybook, patchResearchPlaybook, fetchPlaybookRuns, startPlaybookRun, fetchPlaybookResults, retryPlaybookRun,
+  fetchResearchPlaybooks, createResearchPlaybook, patchResearchPlaybook, fetchPlaybookRuns, startPlaybookRun, fetchPlaybookResults, retryPlaybookRun, cancelPlaybookRun,
 } from "./api"
 
 // ── Leads ───────────────────────────────────────────────────────
@@ -184,6 +184,17 @@ export function useRetryPlaybookRun(playbookId: string | null, runId: string | n
   const qc = useQueryClient()
   return useMutation({
     mutationFn: () => retryPlaybookRun(runId!),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.playbooks.runs(playbookId ?? "") })
+      qc.invalidateQueries({ queryKey: queryKeys.playbooks.results(runId ?? "") })
+    },
+  })
+}
+
+export function useCancelPlaybookRun(playbookId: string | null, runId: string | null) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => cancelPlaybookRun(runId!),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.playbooks.runs(playbookId ?? "") })
       qc.invalidateQueries({ queryKey: queryKeys.playbooks.results(runId ?? "") })
