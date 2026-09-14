@@ -52,6 +52,7 @@ class WatchSubscription(Base):
         UniqueConstraint("workspace_id", "kind", "target", name="uq_watch_ws_kind_target"),
         Index("ix_watch_ws_enabled", "workspace_id", "enabled"),
         Index("ix_watch_ws_kind", "workspace_id", "kind"),
+        Index("ix_watch_ws_created_id", "workspace_id", "created_at", "id"),
     )
 
     # Server-side uuid4, globally unique, never client-supplied.
@@ -78,7 +79,7 @@ class WatchSubscription(Base):
     last_polled_at = Column(DateTime(timezone=True), nullable=True)
     last_error = Column(String, nullable=True)
     consecutive_failures = Column(Integer, nullable=True, server_default="0")
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
 
 

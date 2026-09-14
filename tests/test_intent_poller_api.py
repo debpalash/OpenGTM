@@ -6,6 +6,8 @@ validation, flag-OFF 404, poll-now reuses the scheduled fire_key (already-queued
 and poll-now rate-limit / quota.
 """
 
+from datetime import datetime, timedelta, timezone
+
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -91,6 +93,64 @@ def test_create_list_get_patch_delete_AC15(client):
     # delete
     assert tc.delete(f"/api/watches/{wid}").json()["deleted"] is True
     assert tc.get(f"/api/watches/{wid}").status_code == 404
+
+
+def test_watch_list_cursor_is_stable_and_tenant_scoped(client):
+    tc, Session = client
+    created = datetime.now(timezone.utc) - timedelta(days=1)
+    with Session() as db:
+        db.add_all([
+            WatchSubscription(
+                id=f"watch-{index}", workspace_id=WS, kind="feed",
+                target=f"https://{index}.example/feed", signal_types=["news"],
+                created_at=created,
+            )
+            for index in range(5)
+        ])
+        db.add(WatchSubscription(
+            id="foreign", workspace_id="other", kind="feed",
+            target="https://foreign.example/feed", signal_types=["news"],
+            created_at=created + timedelta(days=2),
+        ))
+        db.commit()
+
+    first = tc.get("/api/watches?limit=2")
+    assert first.status_code == 200, first.text
+    first_body = first.json()
+    assert first_body["has_more"] is True
+    assert first_body["next_cursor"]
+    assert "foreign" not in {watch["id"] for watch in first_body["watches"]}
+
+    # A newer insert does not shift the second keyset page.
+    with Session() as db:
+        db.add(WatchSubscription(
+            id="new-watch", workspace_id=WS, kind="feed",
+            target="https://new.example/feed", signal_types=["news"],
+            created_at=created + timedelta(days=3),
+        ))
+        db.commit()
+    second = tc.get("/api/watches", params={"limit": 2, "cursor": first_body["next_cursor"]})
+    assert second.status_code == 200, second.text
+    second_body = second.json()
+    assert second_body["offset"] is None
+    assert not (
+        {watch["id"] for watch in first_body["watches"]}
+        & {watch["id"] for watch in second_body["watches"]}
+    )
+    assert "new-watch" not in {watch["id"] for watch in second_body["watches"]}
+
+    third = tc.get("/api/watches", params={"limit": 2, "cursor": second_body["next_cursor"]})
+    traversed = first_body["watches"] + second_body["watches"] + third.json()["watches"]
+    assert len(traversed) == 5
+    assert len({watch["id"] for watch in traversed}) == 5
+    assert third.json()["has_more"] is False
+
+
+def test_watch_list_rejects_invalid_cursor(client):
+    tc, _ = client
+    response = tc.get("/api/watches?cursor=not-a-cursor")
+    assert response.status_code == 422
+    assert response.json()["detail"] == "invalid watch cursor"
 
 
 def test_validation_AC15(client):

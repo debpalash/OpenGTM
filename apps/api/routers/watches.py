@@ -12,6 +12,9 @@ watch itself never stores a webhook and the poller never sends one.
 
 from __future__ import annotations
 
+import base64
+import binascii
+import json
 import logging
 import uuid
 from datetime import datetime, timezone
@@ -19,6 +22,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
 from apps.api.core.config import settings
@@ -36,6 +40,7 @@ logger = logging.getLogger("poller.api")
 router = APIRouter(prefix="/api/watches", tags=["watches"])
 
 require_editor = require_workspace_role("editor", "admin", permission="signals.write")
+_WATCH_CURSOR_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 # signal_types each kind may emit (for validation against on_signal config).
 _KIND_SIGNAL_TYPES = {
@@ -205,6 +210,26 @@ def _load(db: Session, ws_id: str, watch_id: str) -> WatchSubscription:
     return w
 
 
+def _encode_watch_cursor(watch: WatchSubscription) -> str:
+    created_at = watch.created_at or _WATCH_CURSOR_EPOCH
+    payload = json.dumps([created_at.isoformat(), watch.id], separators=(",", ":")).encode()
+    return base64.urlsafe_b64encode(payload).decode().rstrip("=")
+
+
+def _decode_watch_cursor(cursor: str) -> tuple[datetime, str]:
+    try:
+        padding = "=" * (-len(cursor) % 4)
+        value = json.loads(base64.urlsafe_b64decode(cursor + padding))
+        if not isinstance(value, list) or len(value) != 2 or not isinstance(value[1], str):
+            raise ValueError
+        created_at = datetime.fromisoformat(value[0])
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=timezone.utc)
+        return created_at, value[1]
+    except (ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError, binascii.Error) as exc:
+        raise HTTPException(status_code=422, detail="invalid watch cursor") from exc
+
+
 def _maybe_create_webhook_rule(ws_id: str, body: WatchCreate, signal_types: list[str]):
     """Auto-create an on_signal→webhook rule via the automations service (which
     validates the URL via _validate_and_pin at create). The watch stores nothing."""
@@ -326,17 +351,33 @@ def list_watches(
     ctx: WorkspaceCtx = Depends(current_workspace),
     limit: int = Query(100, ge=1, le=500),
     offset: int = Query(0, ge=0),
+    cursor: Optional[str] = Query(None, max_length=1024),
 ):
     _require_enabled()
-    rows = (
-        db.query(WatchSubscription)
-        .filter(WatchSubscription.workspace_id == ctx.workspace_id)
-        .order_by(WatchSubscription.created_at.desc())
-        .limit(limit)
-        .offset(offset)
-        .all()
+    query = db.query(WatchSubscription).filter(
+        WatchSubscription.workspace_id == ctx.workspace_id,
     )
-    return {"watches": [_to_api(w) for w in rows], "limit": limit, "offset": offset}
+    if cursor:
+        cursor_created_at, cursor_id = _decode_watch_cursor(cursor)
+        query = query.filter(or_(
+            WatchSubscription.created_at < cursor_created_at,
+            and_(WatchSubscription.created_at == cursor_created_at, WatchSubscription.id < cursor_id),
+        ))
+    query = query.order_by(
+        WatchSubscription.created_at.desc(), WatchSubscription.id.desc(),
+    ).limit(limit + 1)
+    if offset and not cursor:
+        query = query.offset(offset)
+    rows = query.all()
+    has_more = len(rows) > limit
+    page = rows[:limit]
+    return {
+        "watches": [_to_api(w) for w in page],
+        "limit": limit,
+        "offset": offset if not cursor else None,
+        "has_more": has_more,
+        "next_cursor": _encode_watch_cursor(page[-1]) if has_more else None,
+    }
 
 
 @router.get("/{watch_id}")

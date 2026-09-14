@@ -527,7 +527,7 @@ export function useRunTrigger(
 // ════════════════════════════════ Watches ══════════════════════════════════
 
 export function useWatches(
-  p?: { limit?: number; offset?: number },
+  p?: { limit?: number; offset?: number; cursor?: string },
   enabled = true,
 ) {
   return useQuery({
@@ -546,7 +546,7 @@ export function useWatch(id: string | null) {
   })
 }
 
-export function useWatchSignals(id: string | null, p?: { signal_type?: string; limit?: number; offset?: number }) {
+export function useWatchSignals(id: string | null, p?: { signal_type?: string; limit?: number; offset?: number; cursor?: string }) {
   return useQuery({
     queryKey: id ? queryKeys.watches.signals(id) : ["watches", "signals", "none"],
     queryFn: () => listWatchSignals(id as string, p),
