@@ -27,7 +27,10 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
     )
     from apps.api.services.outreach.inbound import handle_inbound_poll
     from apps.api.services.outreach.sending import handle_send
-    from apps.api.services.poller.engine import handle_watch_poll
+    from apps.api.services.poller.engine import (
+        handle_watch_poll,
+        reconcile_watch_poll_failure,
+    )
     from apps.api.services.workbook.enrichment import handle_run_workbook
     from apps.api.services.workbook.ambitionbox_import import (
         handle_ambitionbox_import,
@@ -82,6 +85,7 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
         "ambitionbox_import", reconcile_ambitionbox_job_failure
     )
     queue.register_failure_handler("collect", reconcile_collect_job_failure)
+    queue.register_failure_handler("watch_poll", reconcile_watch_poll_failure)
     queue.register_failure_handler(
         "audience_refresh", reconcile_audience_refresh_failure
     )
