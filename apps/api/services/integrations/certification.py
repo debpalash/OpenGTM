@@ -48,6 +48,21 @@ AGENT_CAPABILITIES: dict[str, dict[str, Any]] = {
     "recurring_schedules": {"features": ["single_flight", "restart_safe"]},
 }
 
+AUDIENCE_CAPABILITIES: dict[str, dict[str, Any]] = {
+    "dynamic_materialization": {
+        "features": ["serialized_refresh", "exact_membership_diff", "stable_traversal"],
+    },
+    "scheduled_refresh": {
+        "features": ["single_flight", "restart_safe", "crash_recovery"],
+    },
+    "membership_events": {
+        "features": ["entry_exit", "refresh_correlation", "automation_delivery"],
+    },
+    "destination_runs": {
+        "features": ["bounded_delivery", "durable_ledger", "idempotent_retry"],
+    },
+}
+
 GOVERNANCE_CAPABILITIES: dict[str, dict[str, Any]] = {
     "oidc_sso": {
         "features": ["issuer_validation", "identity_binding", "jit_provisioning", "access_enforcement"],
@@ -93,6 +108,17 @@ AGENT_SPECIALIZED_CHECKS: dict[str, set[str]] = {
     },
     "recurring_schedules": {"single_flight", "restart_recovery"},
 }
+AUDIENCE_CHECKS = {
+    "live_materialization", "tenant_isolation", "observability", "failure_recovery",
+}
+AUDIENCE_SPECIALIZED_CHECKS: dict[str, set[str]] = {
+    "dynamic_materialization": {
+        "serialized_refresh", "exact_membership_diff", "stable_traversal",
+    },
+    "scheduled_refresh": {"single_flight", "restart_recovery", "due_only_bootstrap"},
+    "membership_events": {"entry_exit", "refresh_correlation", "automation_delivery"},
+    "destination_runs": {"bounded_delivery", "durable_ledger", "idempotent_retry"},
+}
 CONNECTOR_CHECKS = {"authentication", "external_read", "normalization", "failure_recovery", "tenant_isolation"}
 PROVIDER_CHECKS = {
     "external_read", "normalization", "provenance", "quality_sample",
@@ -116,7 +142,7 @@ def _subject_id(certificate: Mapping[str, Any]) -> str:
 
 def _known_subject(subject_id: str) -> bool:
     return subject_id in {
-        *INTEGRATIONS, *SIGNAL_SOURCES, *AGENT_CAPABILITIES,
+        *INTEGRATIONS, *SIGNAL_SOURCES, *AGENT_CAPABILITIES, *AUDIENCE_CAPABILITIES,
         *GOVERNANCE_CAPABILITIES,
     } or bool(re.fullmatch(
         r"(?:connector|provider):[a-z][a-z0-9_-]{0,79}", subject_id,
@@ -145,6 +171,8 @@ def _required_checks(subject_id: str) -> set[str]:
         return set(SIGNAL_CHECKS) | SIGNAL_SPECIALIZED_CHECKS.get(subject_id, set())
     if subject_id in AGENT_CAPABILITIES:
         return set(AGENT_CHECKS) | AGENT_SPECIALIZED_CHECKS.get(subject_id, set())
+    if subject_id in AUDIENCE_CAPABILITIES:
+        return set(AUDIENCE_CHECKS) | AUDIENCE_SPECIALIZED_CHECKS.get(subject_id, set())
     if subject_id in GOVERNANCE_CAPABILITIES:
         return set(GOVERNANCE_CHECKS[subject_id])
     if subject_id.startswith("connector:"):
@@ -399,6 +427,45 @@ def agent_capability_catalog(
             else None,
         }
         for capability_id, definition in AGENT_CAPABILITIES.items()
+    ]
+
+
+def audience_capability_catalog(
+    *,
+    path: str | Path | None = None,
+    key: str | None = None,
+    now: datetime | None = None,
+    build_sha: str | None = None,
+) -> list[dict[str, Any]]:
+    """Return signed controlled-live maturity for audience workflow capabilities."""
+    path = path or os.getenv(CERTIFICATION_PATH_ENV, "")
+    key = key if key is not None else os.getenv(CERTIFICATION_KEY_ENV, "")
+    now = now or datetime.now(timezone.utc)
+    build_sha = build_sha if build_sha is not None else os.getenv(BUILD_SHA_ENV, "")
+    certificates: list[Any] = []
+    if path:
+        try:
+            loaded = json.loads(Path(path).read_text(encoding="utf-8"))
+            certificates = loaded if isinstance(loaded, list) else []
+        except (OSError, json.JSONDecodeError):
+            certificates = []
+    valid = _valid_by_subject(certificates, key or "", now, build_sha)
+    return [
+        {
+            "id": capability_id,
+            **definition,
+            "maturity": "supported" if capability_id in valid else "beta",
+            "certification": {
+                field: valid[capability_id][field]
+                for field in (
+                    "validated_at", "expires_at", "build_sha",
+                    "validation_run_id", "evidence_url", "evidence_sha256", "mode",
+                )
+            }
+            if capability_id in valid
+            else None,
+        }
+        for capability_id, definition in AUDIENCE_CAPABILITIES.items()
     ]
 
 

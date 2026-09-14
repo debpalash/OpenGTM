@@ -5,11 +5,13 @@ import pytest
 
 from apps.api.services.integrations.certification import (
     AGENT_CAPABILITIES,
+    AUDIENCE_CAPABILITIES,
     GOVERNANCE_CAPABILITIES,
     INTEGRATIONS,
     SIGNAL_SOURCES,
     attest_certificate,
     agent_capability_catalog,
+    audience_capability_catalog,
     certification_statuses,
     governance_capability_catalog,
     integration_catalog,
@@ -45,6 +47,10 @@ def _certificate(integration_id="hubspot"):
             "in_place_retry", "completed_work_preservation", "single_flight",
             "restart_recovery",
             "quality_sample",
+            "live_materialization", "observability", "serialized_refresh",
+            "exact_membership_diff", "stable_traversal", "due_only_bootstrap",
+            "entry_exit", "refresh_correlation", "automation_delivery",
+            "bounded_delivery", "durable_ledger", "idempotent_retry",
         }
     }
     return {
@@ -250,6 +256,47 @@ def test_agent_subjects_require_capability_specific_live_evidence(
 
     complete = {**_certificate(), "subject_id": subject_id, "integration_id": None}
     assert attest_certificate(complete, KEY)["subject_id"] == subject_id
+
+
+def test_audience_capability_certification_is_independent(tmp_path):
+    certificate = attest_certificate({
+        **_certificate(),
+        "subject_id": "dynamic_materialization",
+        "integration_id": None,
+        "validation_run_id": "audience-live-1",
+    }, KEY)
+    capabilities = audience_capability_catalog(
+        path=_write(tmp_path, [certificate]), key=KEY, now=NOW,
+        build_sha="abc123",
+    )
+    states = {item["id"]: item for item in capabilities}
+    assert len(states) == len(AUDIENCE_CAPABILITIES)
+    assert states["dynamic_materialization"]["maturity"] == "supported"
+    assert states["scheduled_refresh"]["maturity"] == "beta"
+
+
+@pytest.mark.parametrize("subject_id,required_check", [
+    ("dynamic_materialization", "exact_membership_diff"),
+    ("scheduled_refresh", "due_only_bootstrap"),
+    ("membership_events", "refresh_correlation"),
+    ("destination_runs", "durable_ledger"),
+])
+def test_audience_subjects_require_capability_specific_live_evidence(
+    subject_id, required_check,
+):
+    incomplete = {
+        **_certificate(),
+        "subject_id": subject_id,
+        "integration_id": None,
+    }
+    incomplete["checks"] = {**incomplete["checks"]}
+    incomplete["checks"].pop(required_check)
+    with pytest.raises(ValueError, match="controlled-live evidence contract"):
+        attest_certificate(incomplete, KEY)
+
+    assert attest_certificate({
+        **_certificate(), "subject_id": subject_id, "integration_id": None,
+    }, KEY)["subject_id"] == subject_id
 
 
 def test_governance_capabilities_require_operation_specific_live_evidence(tmp_path):

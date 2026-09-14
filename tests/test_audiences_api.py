@@ -125,6 +125,23 @@ def test_audience_crud_and_dynamic_count(client, monkeypatch):
     assert tc.get("/api/audiences").json() == []
 
 
+def test_audience_capabilities_expose_fail_closed_maturity(client, monkeypatch):
+    from apps.api.services.integrations import certification
+    monkeypatch.setattr(certification, "audience_capability_catalog", lambda: [{
+        "id": "dynamic_materialization", "maturity": "beta",
+        "certification": None,
+    }])
+    tc, _, _ = client
+
+    response = tc.get("/api/audiences/capabilities")
+
+    assert response.status_code == 200
+    assert response.json() == [{
+        "id": "dynamic_materialization", "maturity": "beta",
+        "certification": None,
+    }]
+
+
 def test_schedule_bootstrap_pages_only_due_audiences(client, monkeypatch):
     _, Session, _ = client
     from apps.api.services.audiences import scheduler
