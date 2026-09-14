@@ -9,6 +9,7 @@ selection spanning distant pages. The synthetic workbook is deleted afterward.
 DATABASE_URL=postgresql+psycopg://... \
 uv run python -m apps.api.cli workbook-load-test \
   --rows 1000000 --page-size 100 \
+  --output artifacts/workbook-scale.json \
   --confirm "RUN WORKBOOK LOAD TEST"
 ```
 
@@ -16,7 +17,8 @@ Valid supported-scale evidence requires `dialect: postgresql`, `rows: 1000000`
 or greater, `ok: true`, `selection_exact: true`, one search match, and every
 reported latency within its threshold. `--allow-sqlite` only tests the harness.
 
-Set `OPENGTM_BUILD_SHA` before the run, save the JSON report, and attest it with
+Set `OPENGTM_BUILD_SHA` before the run. `--output` atomically writes a clean
+JSON artifact even when application startup emits logs. Attest it with
 the release secret:
 
 ```bash
