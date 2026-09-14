@@ -60,6 +60,43 @@ def test_playbook_worker_is_resumable_and_versions_prompt(monkeypatch):
     db.close()
 
 
+def test_playbook_queue_failure_preserves_success_and_closes_interrupted_work(monkeypatch):
+    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(engine, tables=[Audience.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookResult.__table__])
+    Session = sessionmaker(bind=engine)
+    with Session() as db:
+        db.add(Audience(id="aud", workspace_id="ws", name="Target", filters={}))
+        db.add(ResearchPlaybook(id="pb", workspace_id="ws", name="Crash safe", prompt_template="Research {company}"))
+        db.add(PlaybookRun(id="run", workspace_id="ws", playbook_id="pb", audience_id="aud", status="running", prompt_version=1, prompt_snapshot="Research {company}"))
+        db.add_all([
+            PlaybookResult(workspace_id="ws", run_id="run", lead_id=1, status="success", value="keep", attempts=1),
+            PlaybookResult(workspace_id="ws", run_id="run", lead_id=2, status="running", attempts=1),
+        ])
+        db.commit()
+
+    from apps.api.services.playbooks import engine as worker
+    monkeypatch.setattr(worker, "SessionLocal", Session)
+    payload = {"workspace_id": "ws", "run_id": "run"}
+    worker.reconcile_playbook_job_failure(8, payload, "worker timeout", True)
+    with Session() as db:
+        run = db.get(PlaybookRun, "run")
+        results = {result.lead_id: result for result in db.query(PlaybookResult).all()}
+        assert run.status == "pending" and run.finished_at is None
+        assert results[1].status == "success" and results[1].value == "keep"
+        assert results[2].status == "pending"
+        assert "worker timeout" in results[2].error
+
+    worker.reconcile_playbook_job_failure(8, payload, "worker timeout", False)
+    with Session() as db:
+        run = db.get(PlaybookRun, "run")
+        results = {result.lead_id: result for result in db.query(PlaybookResult).all()}
+        assert run.status == "failed" and run.finished_at is not None
+        assert run.attempted == 2 and run.succeeded == 1 and run.failed == 1
+        assert results[1].status == "success" and results[1].value == "keep"
+        assert results[2].status == "failed"
+        assert "Final failure" in run.error
+
+
 def test_playbook_schedule_is_durable_and_single_flight(monkeypatch):
     engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     Base.metadata.create_all(engine, tables=[Job.__table__, Audience.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookSchedule.__table__])

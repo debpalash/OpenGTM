@@ -5,6 +5,56 @@ from datetime import datetime, timezone
 from apps.api.database import SessionLocal
 
 
+def reconcile_playbook_job_failure(
+    job_id: int,
+    payload: dict,
+    error: str,
+    will_retry: bool,
+) -> None:
+    """Reconcile playbook state when its isolated worker is killed or fails."""
+    workspace_id = str(payload.get("workspace_id") or "").strip()
+    run_id = str(payload.get("run_id") or "").strip()
+    if not workspace_id or not run_id:
+        raise ValueError("playbook failure payload requires workspace_id and run_id")
+
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.playbooks.models import PlaybookResult, PlaybookRun
+
+    message = str(error or "playbook attempt failed")[:1000]
+    with workspace_scope(workspace_id):
+        with SessionLocal() as db:
+            run = db.query(PlaybookRun).filter(
+                PlaybookRun.id == run_id,
+                PlaybookRun.workspace_id == workspace_id,
+            ).first()
+            if run is None or run.status in {"completed", "completed_with_errors", "cancelled"}:
+                return
+            results = db.query(PlaybookResult).filter(
+                PlaybookResult.workspace_id == workspace_id,
+                PlaybookResult.run_id == run_id,
+            ).all()
+            if will_retry:
+                run.status = "pending"
+                run.error = f"Queue retry scheduled: {message}"
+                run.finished_at = None
+                for result in results:
+                    if result.status == "running":
+                        result.status = "pending"
+                        result.error = run.error
+            else:
+                run.status = "failed"
+                run.error = f"Final failure: {message}"
+                run.finished_at = datetime.now(timezone.utc)
+                for result in results:
+                    if result.status in {"pending", "running"}:
+                        result.status = "failed"
+                        result.error = run.error
+                run.attempted = len(results)
+                run.succeeded = sum(result.status == "success" for result in results)
+                run.failed = sum(result.status == "failed" for result in results)
+            db.commit()
+
+
 async def handle_playbook_run(job_id: int, payload: dict) -> None:
     workspace_id, run_id = payload.get("workspace_id"), payload.get("run_id")
     if not workspace_id or not run_id:
