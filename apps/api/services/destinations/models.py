@@ -113,6 +113,8 @@ class DestinationInboundToken(Base):
     prefix = Column(String(20), nullable=False)
     created_by = Column(Integer, nullable=True)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    last_used_at = Column(DateTime(timezone=True), nullable=True)
     revoked_at = Column(DateTime, nullable=True)
 
 
