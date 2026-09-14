@@ -1,409 +1,253 @@
 <p align="center">
-  <img src="apps/web/public/opengtm-lockup.svg" alt="OpenGTM logo" width="280" />
+  <img src="apps/web/public/opengtm-lockup.svg" alt="OpenGTM" width="280" />
 </p>
 
 <h1 align="center">OpenGTM</h1>
 
-<p align="center"><strong>Build pipeline. Not busywork.</strong></p>
+<p align="center"><strong>Your GTM data engine. Your keys. Your infrastructure.</strong></p>
 
 <p align="center">
-  The open-source, self-hosted Clay alternative for sourcing, enrichment,<br />
-  AI research, buying signals, and outbound workflows.
+  Open-source lead sourcing, enrichment waterfalls, AI research, buying signals,<br />
+  audiences, and activation—in one self-hosted workspace.
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="AGPL v3 license" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg" alt="AGPL-3.0" /></a>
   <a href="https://opengtm.palash.dev"><img src="https://img.shields.io/badge/docs-opengtm.palash.dev-16a34a" alt="Documentation" /></a>
   <a href="https://github.com/debpalash/opengtm/stargazers"><img src="https://img.shields.io/github/stars/debpalash/opengtm?style=flat&logo=github&color=6268f2" alt="GitHub stars" /></a>
-  <a href="https://github.com/debpalash/opengtm/forks"><img src="https://img.shields.io/github/forks/debpalash/opengtm?style=flat&logo=github&color=20cfaf" alt="GitHub forks" /></a>
-</p>
-
-OpenGTM is a free, open-source, self-hostable alternative to
-[Clay.com](https://clay.com), licensed under AGPLv3.
-
-Source leads, run enrichment waterfalls, research them with AI, and push the
-results to your CRM, Sheets, or a webhook — all on your own infrastructure, with
-your own provider keys, and with the bill shown to you *before* you run.
-
-<p align="center">
-  <a href="https://opengtm.palash.dev"><strong>Read the docs</strong></a>
-  &nbsp;·&nbsp;
-  <a href="#quickstart"><strong>Run it locally</strong></a>
-  &nbsp;·&nbsp;
-  <a href="https://github.com/debpalash/opengtm/issues/new/choose"><strong>Request a provider</strong></a>
+  <a href="https://github.com/debpalash/opengtm/pkgs/container/opengtm"><img src="https://img.shields.io/badge/container-GHCR-2496ED?logo=docker&logoColor=white" alt="GHCR container" /></a>
 </p>
 
 <p align="center">
-  <img src="docs/assets/opengtm-demo-light.gif" alt="OpenGTM demo in light mode: inspect a populated enrichment workbook, source leads, and see cost controls" width="100%" />
-</p>
-
-> **The 30-second version:** give OpenGTM a market, a list, or a workbook. It
-> sources companies, enriches rows through cost-ordered provider waterfalls,
-> researches the hard cells with agents, and sends qualified results where your
-> team works. You keep the data, keys, and infrastructure.
-
-In plain terms, OpenGTM combines lead enrichment, AI sales research, buying
-signals, and programmable GTM automation in one self-hosted application.
-
-<p align="center">
-  <a href="#quickstart">Quickstart</a> ·
-  <a href="#what-it-does">Features</a> ·
+  <a href="#install">Install</a> ·
+  <a href="#use-opengtm-from-your-ai-agent">Connect an agent</a> ·
   <a href="https://opengtm.palash.dev/compare/clay-alternative/">Compare with Clay</a> ·
-  <a href="https://opengtm.palash.dev/api/">API</a> ·
-  <a href="CONTRIBUTING.md">Contribute</a>
+  <a href="https://opengtm.palash.dev/api/">API</a>
 </p>
 
----
+<p align="center">
+  <img src="docs/assets/opengtm-demo-light.gif" alt="OpenGTM light-mode demo showing a populated enrichment workbook and cost controls" width="100%" />
+</p>
 
-## Why OpenGTM
+Give OpenGTM a market, a list, or a workbook. It finds companies and people,
+fills rows through cost-ordered provider waterfalls, researches hard questions
+with cited agents, watches for intent, and sends qualified records to the tools
+your team already uses.
 
-- **See the exact bill before you run.** Every workbook has a spend estimate
-  endpoint that prices a run as `rows × providers = $X` with a per-column
-  breakdown of paid providers, so the UI can gate the run behind a confirmation
-  ("N rows, worst-case $X — proceed?"). Set a **spend ceiling** and paid
-  providers are skipped once the budget is spent.
-- **Bring your own keys (BYOK).** LLM providers, enrichment vendors, and
-  destinations are all configured with *your* API keys via the Settings UI (or
-  `.env`). OpenGTM is the engine; you own the spend and the data.
-- **Self-host the whole thing.** No seats, no per-credit markup, no data leaving
-  your box. AGPLv3.
+Unlike a hosted credit black box, OpenGTM shows the estimated bill before a run.
+Your data stays on your machine; third-party calls use keys you choose.
 
-### One engine, four GTM loops
+## What you get
 
-| Start with | OpenGTM does | Finish with |
-|---|---|---|
-| A market definition | Sources matching companies and people | A deduplicated workbook |
-| Domains or names | Runs cost-ordered provider waterfalls | Verified, provenance-backed fields |
-| An account question | Browses and researches within bounded steps | A cited answer in each row |
-| Qualified rows | Applies conditions and idempotent outputs | CRM, Sheet, webhook, or sequence |
+- **Clay-style workbooks** with formulas, HTTP columns, enrichment waterfalls,
+  AI transforms, web research, conditional logic, and output columns.
+- **Bring-your-own-key enrichment** across email, phone, firmographic,
+  technographic, hiring, social, and identity providers.
+- **Audience and signal loops** with scheduled refresh, entry/exit events,
+  buying signals, automations, and durable retries.
+- **Activation** to HubSpot, Salesforce, Slack, Sheets, Airtable, Instantly,
+  Smartlead, webhooks, warehouses, and consent-gated ad audiences.
+- **Agent access** through REST, webhooks, and a tenant-scoped, auditable MCP
+  server with real read/write tools.
+- **Production controls**: PostgreSQL RLS, scoped tokens, spend ceilings,
+  idempotency, audit history, OIDC, SCIM, retention, and observable workers.
 
----
+## Install
 
-## Our promises (in writing)
+Requirements: Git, Docker, Docker Compose v2, and about 4 GB of RAM.
 
-These are structural commitments, not marketing — the whole point of OpenGTM is
-that a closed, seat-priced, credit-metered incumbent cannot match them without
-undoing its own business model:
+### One-command installer
 
-- **The REST API, webhooks, and MCP tools are never plan-gated.** Automating
-  OpenGTM from your terminal, your own agent, or n8n is a first-class use, not an
-  upsell. Metering the API is the single most-hated move of the tools we're an
-  alternative to; we commit, in writing, never to make it.
-- **BYOK at direct cost, zero markup.** You pay the LLM/enrichment vendor
-  directly with your own key. Any future managed-key option bills at provider
-  cost plus one disclosed flat fee — never a per-credit markup.
-- **See the bill before you run — always.** The spend estimate and per-provider
-  cost ledger are core, not a premium tier.
-- **Self-host is fully functional, forever.** No feature is held back to force a
-  cloud upgrade; the paid cloud line will be governance (SSO/audit/DPA/support),
-  never capability.
+macOS / Linux:
 
----
+```bash
+curl -fsSL https://raw.githubusercontent.com/debpalash/opengtm/main/scripts/install.sh | bash
+```
 
-## What it does
+Windows PowerShell:
 
-OpenGTM is a spreadsheet-shaped enrichment engine ("workbooks") plus an agentic
-layer that can build and run those workbooks for you.
+```powershell
+irm https://raw.githubusercontent.com/debpalash/opengtm/main/scripts/install.ps1 | iex
+```
 
-| Capability | What it is | Status |
-|---|---|---|
-| **Lead sourcing** | ~90 discovery sources plus typed connectors. Durable connector runs page, checkpoint, resume, deduplicate by provider record ID, and report whether the requested target was actually met | Implemented |
-| **Enrichment waterfalls** | A column tries providers in sequence (cost-ordered) until one returns a confident value, with cross-row caching and confidence early-exit | Implemented |
-| **Providers** | ~35 enrichment providers (32 built-in + declarative YAML manifests) across email find/verify, phone, firmographics, decision-makers, social, tech-stack, hiring, IP/domain, scoring | Implemented |
-| **AI columns** | LLM transforms over row data (classify, rewrite, extract) | Implemented |
-| **Research / "Claygent" columns** | A bounded ReAct agent that *browses the web* per row to answer a question and cite a source | Implemented |
-| **Agent columns** | Goal-directed enrichment — the agent picks tools dynamically and records a reasoning trace per cell | Implemented |
-| **Agentic chat / autopilot** | CopilotKit-style chat that can draft a plan from a goal ("build a list of 50 IT firms in Pune and find founders' emails") and execute it: create a sourcing workbook, add agent columns, set refresh | Implemented |
-| **Dynamic audiences** | Workspace-wide saved segments with materialized membership, entry/exit history, restart-safe scheduled refresh, and automation triggers | Implemented |
-| **Audience activation** | Durable, idempotent per-member sync runs to webhooks, HubSpot, and Salesforce with field mapping, health, retries, and automatic sync after audience changes | Implemented |
-| **Output / push loop** | `output` columns push each row to a **webhook, HubSpot, Salesforce, Google Sheets, Airtable, or an email sequencer** — run-once idempotent, executed after enrichment | Implemented |
-| **Email outreach** | Multi-step SMTP sequences with per-lead state and rate limiting | Implemented |
-| **Buying signals** | Detects 7 signal types (hiring, funding, tech change, website change, news, growth, social) | Implemented |
-| **Dedup** | Blocking + Jaro-Winkler fuzzy matching to find/merge duplicate leads | Implemented |
-| **Multi-tenancy** | Workspace roles at the API boundary plus fail-closed PostgreSQL RLS on leads, signals, workbooks, connector runs, automations, outreach, ingest, and audit data | Implemented for the single-node deployment; control-plane HA remains |
-| **Spend transparency** | Pre-run cost estimate + per-provider cost/yield ledger + spend ceiling | Implemented |
-| **SSRF-guarded scraping** | Tenant-facing custom HTTP, scraper, webhook, research, and website-enrichment paths reject private/loopback/metadata targets and re-check redirects/browser requests | Implemented; hosted deployments should add an egress proxy |
+The installer checks prerequisites, clones OpenGTM, generates unique database,
+JWT, runtime-role, and admin secrets, writes `.env`, then starts the stack. It
+never replaces an existing `.env`. Initial login details are written to the
+ignored `.opengtm-initial-credentials` file—use them once, change the password,
+then delete the file.
 
-### Workbook column types
-
-`lead_field` · `source` · `enrichment` · `waterfall` · `ai_formula` · `agent` ·
-`conditional` · `output` · `research` · `http` (call any API + JSONPath extract) ·
-`formula`.
-
----
-
-## Quickstart
-
-One command brings up the full stack — web app, API, worker, scheduler,
-**Postgres**, Redis, and nginx — with a populated zero-key demo:
+Prefer to inspect scripts before running them? Use the explicit path:
 
 ```bash
 git clone https://github.com/debpalash/opengtm.git
 cd opengtm
-cp .env.example .env        # boots without keys; add providers later in Settings
-docker compose up           # API + worker + Postgres + Redis + nginx
+./scripts/install.sh
 ```
 
-Open **http://localhost:3000** and sign in with `admin` / `admin`. The seeded
-workbook uses free, no-key providers, so you can inspect the complete workflow
-before connecting a paid service. Change the demo password before exposing the
-deployment beyond your machine.
+```powershell
+git clone https://github.com/debpalash/opengtm.git
+cd opengtm
+.\scripts\install.ps1
+```
 
-### Your first five minutes
+Open **http://localhost:3000**. The first boot includes a populated zero-key
+demo, so you can explore a complete workbook before adding provider keys.
 
-1. Open **Workbooks → Demo — Zero-Key Enrichment**.
-2. Inspect any populated cell to see its provider and provenance.
-3. Open the cost control to preview the next run and set a spend ceiling.
-4. Add a provider key in **Settings → API Keys** when you want paid enrichment
-   or AI research.
-5. Export the grid or add an output column for your CRM, Sheet, or webhook.
-
-To point at an existing database instead of the bundled Postgres, set
-`DATABASE_URL` in `.env` (SQLite is also supported for local dev).
-
-### Stable local URLs with Portless
-
-[Portless](https://github.com/vercel-labs/portless) is included as a development
-dependency. It gives the Vite app a stable `opengtm` hostname and can also alias
-the Docker/nginx service that already listens on port 3010:
+Useful commands:
 
 ```bash
-# Local machine: HTTPS at https://opengtm.localhost
-bun --cwd apps/web dev
-
-# Existing Docker stack: register its stable name
-bun run portless:docker
-
-# LAN sharing on an unprivileged port (Linux requires avahi-utils)
-portless proxy stop
-bun run portless:lan
-bun run portless:docker
-# http://opengtm.local:1355
+docker compose ps                         # service health
+docker compose logs -f api worker         # follow execution
+docker compose up -d --scale worker=4     # increase throughput
+docker compose down                       # stop; keep data
+git pull && docker compose up -d --build  # upgrade
 ```
 
-Run `bun run portless:list` to inspect routes and `bun run portless:doctor` to
-check proxy, DNS, certificates, and route health. A root-installed proxy may use
-ports 80/443 for a URL without `:1355`.
+PostgreSQL is the primary store, Redis carries live progress, one scheduler
+owns recurring work, and horizontally scalable workers claim durable jobs
+without double-processing. Persistent data lives in Docker volumes and
+`./data`; review the [production checklist](https://opengtm.palash.dev/self-hosting/production/)
+before exposing the service to a network.
 
-You need **at least one LLM provider key** for AI/agent/research features
-(OpenRouter, Google AI, Groq, Cerebras, NVIDIA, Mistral, and GitHub Models all
-have free tiers — see `.env.example`). Enrichment vendors (Hunter, Apollo,
-AbstractAPI, NumVerify, IPInfo, LeadMagic, …) and destinations (HubSpot,
-Salesforce, Sheets, Airtable) are all optional and configurable at runtime in
-**Settings → API Keys**.
-
-### Local dev (without Docker)
+### Manual Compose setup
 
 ```bash
-uv sync                                                      # Python backend deps
-uv run uvicorn apps.api.main:app --reload --port 8000       # API
-cd apps/web && bun install && bun run dev                    # frontend
+git clone https://github.com/debpalash/opengtm.git
+cd opengtm
+cp .env.example .env
+docker compose up -d --build
 ```
 
-Background enrichment and source imports run on the durable SQL-queue worker:
-`python -m apps.api.worker` (claims `jobs` atomically; scale with
-`docker compose up --scale worker=N`). Redis is optional for single-process
-development and carries tenant-isolated live progress plus bounded reconnect
-history in Compose. A scheduler recovers stale jobs and enqueues
-recurring refreshes; it does not execute user work itself.
+The manual defaults are intended only for a laptop and use `admin` / `admin`.
+Change `SECRET_KEY`, `POSTGRES_PASSWORD`, `YUPCHA_RUNTIME_DB_PASSWORD`, and
+`SEED_ADMIN_PASSWORD` before any shared deployment. Provider keys are optional
+and can be added later under **Settings → API Keys**.
 
----
+## Use OpenGTM from your AI agent
 
-## Frequently asked questions
+OpenGTM ships an MCP server, so Codex, Claude Code/Desktop, Pi, OpenCode, Cursor,
+Windsurf, and other MCP clients can inspect pipeline data and run approved GTM
+actions without screen-driving the UI.
 
-### What is OpenGTM?
+### 1. Mint a workspace token
 
-OpenGTM is an open-source GTM platform for sourcing leads, enriching company
-and contact data, researching accounts with AI, tracking buying signals, and
-routing results into sales tools.
+Sign in as a workspace admin, then create a token from the API. The plaintext
+`ycp_...` value is shown once; only its hash is stored.
 
-### Is OpenGTM an alternative to Clay?
+```bash
+# Login is form-encoded—not JSON. Copy access_token from this response.
+curl -X POST http://localhost:3000/auth/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "username=admin" \
+  --data-urlencode "password=YOUR_GENERATED_ADMIN_PASSWORD"
 
-Yes. It covers the core workbook, enrichment-waterfall, AI-column, sourcing,
-and output workflow while taking a self-hosted, BYOK approach. It is not a
-pixel-for-pixel clone and its integration catalog is still growing. See the
-[detailed comparison](https://opengtm.palash.dev/compare/clay-alternative/).
+export OPENGTM_ACCESS_TOKEN="paste-access_token-here"
 
-### Is OpenGTM free?
+curl -X POST http://localhost:3000/api/mcp/tokens \
+  -H "Authorization: Bearer $OPENGTM_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"my-agent","capabilities":["leads:read"],"ttl_days":90}'
+```
 
-The software is free under AGPLv3. You pay infrastructure and any third-party
-providers you connect. The seeded demo works without provider keys.
+Start read-only. To expose write tools, grant only the needed capabilities and
+set `MCP_WRITE_ENABLED=1`. Writes are role-checked, capped, idempotent, and
+audited; destructive and send operations require an admin role.
 
-### Does OpenGTM send data to its own cloud?
+### 2. Point your client at the stdio server
 
-No OpenGTM-operated cloud is required for the self-hosted edition. Data stays
-on the infrastructure you run, except when a workflow calls providers or
-destinations you configure.
+Use this standard MCP server object in Claude Code/Desktop or any client that
+accepts `mcpServers` JSON. It runs the stdio bridge inside the existing API
+container, where the database and Python environment are already configured.
+Replace the Compose-file path and token:
 
-### Can agents and automations use OpenGTM?
+```json
+{
+  "mcpServers": {
+    "opengtm": {
+      "command": "docker",
+      "args": [
+        "compose", "-f", "/absolute/path/to/opengtm/docker-compose.yml",
+        "exec", "-T", "-e", "OPENGTM_MCP_TOKEN",
+        "api", "python", "-m", "apps.mcp.server"
+      ],
+      "env": { "OPENGTM_MCP_TOKEN": "ycp_..." }
+    }
+  }
+}
+```
 
-Yes. OpenGTM exposes a REST API, webhooks, an MCP server, and an n8n community
-node in addition to the web interface.
+For Codex, the equivalent `~/.codex/config.toml` entry is:
 
----
+```toml
+[mcp_servers.opengtm]
+command = "docker"
+args = ["compose", "-f", "/absolute/path/to/opengtm/docker-compose.yml", "exec", "-T", "-e", "OPENGTM_MCP_TOKEN", "api", "python", "-m", "apps.mcp.server"]
+
+[mcp_servers.opengtm.env]
+OPENGTM_MCP_TOKEN = "ycp_..."
+```
+
+| Client | Where to add OpenGTM |
+|---|---|
+| **Codex CLI/Desktop** | `~/.codex/config.toml`, using the TOML above |
+| **Claude Code** | Project `.mcp.json` or `claude mcp add`; use the standard JSON server object |
+| **Claude Desktop** | `claude_desktop_config.json` under `mcpServers` |
+| **OpenCode** | Add a local MCP server in `opencode.json`; use the same command array and environment variable |
+| **Pi** | Add the server through an MCP extension/adapter; command, args, and token are identical |
+| **Cursor / Windsurf** | Add the same stdio MCP server object |
+
+For native development or loopback HTTP transport, see the complete
+[MCP guide](https://opengtm.palash.dev/integrations/mcp/) and
+[copyable config](docs/examples/mcp-config.json).
 
 ## Architecture
 
-```
-apps/
-├── api/          FastAPI backend (Python 3.11+)
-│   ├── routers/  HTTP/WS endpoints (auth, leads, workbooks, copilotkit,
-│   │             signals, scraper, crm, outreach, settings, analytics, …)
-│   ├── services/ workbook engine, enrichment providers + waterfalls,
-│   │             agent/autopilot, crm, outreach, signals, workspace, dedup
-│   └── core/     config, SSRF url_guard, shared utilities
-├── web/          React + TypeScript + ShadcnUI + Tailwind (Vite)
-├── docs/         Documentation site (Astro + Starlight) → opengtm.palash.dev
-└── mcp/          MCP server exposing OpenGTM tools to agents
-packages/
-├── chrome-extension/   Capture tables / LinkedIn results into a workbook
-└── n8n-nodes-yupcha/   n8n community node
-```
-
-| Layer | Technology |
-|---|---|
-| API | FastAPI, SQLAlchemy 2 |
-| Database | Postgres (recommended; SQLite supported for dev) |
-| Queue / pub-sub | Postgres job queue + isolated worker processes; Redis pub/sub for live UI updates |
-| Frontend | React, TypeScript, ShadcnUI, Tailwind, Vite |
-| Scraping | httpx, curl-cffi, Playwright, BeautifulSoup |
-| Agentic chat | CopilotKit-style chat protocol with a gated ReAct tool loop |
-| Monorepo | Turborepo + Bun |
-
-### Durable source orchestration
-
 ```text
-REST / agent tool
-      │ validates workspace role and source query
-      ▼
-connector_runs + jobs  ── one atomic transaction
-      │
-      ▼
-SQL queue worker ── fetch page ── normalize typed records
-      │                              │
-      ├── checkpoint cursor          └── stable provider + record identity
-      ▼
-workbook_rows upsert + run counters ── one page transaction
-      │
-      └── Redis event → workbook table + progress indicator
+browser / REST / MCP
+         │
+         ▼
+FastAPI ──► PostgreSQL + forced workspace RLS
+   │                    │
+   ├──► Redis progress  └──► durable job queue
+   │                              │
+   └──────────────────────────────▼
+                         workers + scheduler
+                              │
+           providers / web / CRM / warehouse / ads
 ```
 
-Connector adapters return a shared page/collection contract with source totals,
-pagination state, exhaustion, warnings, and explicit partial-result status. A
-worker commits each page and its cursor together, so a crash repeats at most one
-idempotent upsert instead of losing or duplicating rows. Postgres enforces unique
-`(workbook_id, source_provider, source_record_id)` identities, and both rows and
-run history are protected by fail-closed workspace RLS.
+| Path | Purpose |
+|---|---|
+| `apps/api` | FastAPI, workbook engine, providers, agents, queue, governance |
+| `apps/web` | React, TypeScript, Tailwind, virtualized workbook UI |
+| `apps/mcp` | Authenticated MCP server for desktop and CLI agents |
+| `apps/docs` | Documentation and generated OpenAPI reference |
+| `packages` | Chrome extension and n8n community node |
 
-See [`docs/architecture.md`](docs/architecture.md) for the complete process/data
-ownership map, queue state machine, tenant boundary, failure behavior, and
-scaling limits.
+Read the [architecture guide](docs/architecture.md) for ownership, tenancy,
+failure behavior, and scale limits.
 
----
+## Honest status
 
-## Not yet / Roadmap
+OpenGTM implements the core discover → enrich → segment → act → learn loop. It
+is not a pixel-for-pixel Clay clone, and the provider/integration catalog is
+still growing. Features remain `beta` until build-bound, signed controlled-live
+evidence proves the supported workflow; the public
+[parity roadmap](docs/plans/clay-suite-parity.md) tracks that boundary.
 
-The production data plane is tenant-scoped and PostgreSQL/RLS protected, and all
-user work runs through the durable worker. The remaining boundaries are:
+For mutually hostile public tenants, complete the documented egress, Vault,
+backup/restore, controlled-live identity-provider, scale, and security-review
+gates first. For a team-controlled single-node deployment, Compose is the
+supported self-host shape today.
 
-- **The workspace control plane is single-node.** Workspace membership, active
-  workspace selection, encrypted per-workspace secrets, consent-gated paid-media audience sync (Meta, Google Ads, and LinkedIn), and the detailed
-  collection-stage ledger live in SQLite files on the shared `data/` volume.
-  This is reliable for the documented Compose topology, but replicas on
-  separate hosts need those stores moved to PostgreSQL first.
-- **A few legacy utilities are global and admin-only.** The legacy
-  person/scrape history, CRM-data utility, and reusable-function catalog
-  are isolated from normal workspace users rather than fully tenantized.
-- **Hosted-SaaS hardening is not complete.** OIDC SSO (including enforceable
-  member-only sessions with owner break-glass), SCIM, and audit export are built;
-  mutation audit events accept bounded endpoint-supplied action/count metadata
-  while stripping credential-like keys and never storing request bodies; the
-  complete filtered audit ledger streams to CSV, and retention policies cover
-  tenant LLM-usage aggregates alongside operational history,
-  but still need controlled-live IdP validation. Before exposing OpenGTM to
-  mutually hostile public tenants, also add a controlled outbound egress proxy,
-  validate the shipped Vault Transit custody path, regularly execute the
-  integrity-checked backup/restore drill, and complete an external security review.
-- **Billing is an optional mechanism, not a hosted billing operation.** The
-  feature-flagged credit ledger, idempotent debit, 402 gate, and Stripe top-up
-  webhook exist. Tax, refunds, subscriptions, and customer lifecycle operations
-  do not.
-- **Clay's breadth and polish remain a product gap.** The open provider catalog,
-  indexed JSON search/custom-sort cursors and arbitrary cross-page selection at million-row scale, direct Clay API migration beyond the shipped
-  dry-run-audited Clay CSV importer, templates, integrations, and real-user accuracy
-  benchmarks need continued work. Workbook edits now recompute transitive
-  downstream columns through the durable queue; side-effecting output columns
-  require explicit `reactive: true`. The virtualized grid supports keyboard
-  navigation, Shift-range selection, selection copy, F2 editing, Ctrl/Cmd+D
-  fill-down, atomic multi-row TSV paste, and server-driven 1,000-row page
-  navigation into editable columns. Search plus saved-view filters/sorts execute
-  globally before pagination, and CSV export streams every matching row with
-  spreadsheet-formula injection neutralized. Run and fill-missing operations
-  use that same complete-query scope and matching-row cost estimate. “Select
-  all matching” supports full-query export and count-locked deletion that
-  aborts if membership changes before the write. Default-order navigation uses
-  a stable opaque `(position,id)` cursor backed by a composite database index;
-  custom saved-view sorts retain offset paging until typed cursor keys ship.
+## Contributing
 
-See [`docs/plans/clay-parity-specs.md`](docs/plans/clay-parity-specs.md) for the work-item
-breakdown and sequencing.
+Issues, provider requests, docs fixes, and focused pull requests are welcome.
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the
+[documentation](https://opengtm.palash.dev).
 
----
+## License
 
-## License & "can I use this at work?"
-
-OpenGTM is licensed under the **GNU Affero General Public License v3.0**
-([`LICENSE`](LICENSE)).
-
-In plain terms:
-
-- **Self-host it for your own team — free, no strings on internal use.** Use it,
-  modify it, run it on your own servers.
-- **The AGPL network clause applies only if you offer OpenGTM (or a modified
-  version) *as a service to other people over a network.*** In that case you must
-  make your modified source available to those users. Running it internally does
-  not trigger that obligation.
-
-This is not legal advice — read the [full license](LICENSE) if you plan to offer
-it as a hosted service.
-
----
-
-## Docs & Contributing
-
-- **https://opengtm.palash.dev** — guides, self-hosting, configuration, CLI,
-  MCP, integrations, and the generated [REST API reference](https://opengtm.palash.dev/api/).
-  Source lives in [`apps/docs`](apps/docs) (Astro + Starlight); the API
-  reference is regenerated with `uv run python scripts/export_openapi.py`.
-- [`docs/plans/clay-parity-specs.md`](docs/plans/clay-parity-specs.md) — Clay-parity
-  implementation specs and roadmap (WI-1…WI-10)
-- [`docs/architecture.md`](docs/architecture.md) — runtime topology, data
-  ownership, queue semantics, tenant isolation, and scale boundaries
-- [`docs/MIGRATIONS.md`](docs/MIGRATIONS.md) — database migration workflow and
-  operational commands
-- [`docs/connectors/README.md`](docs/connectors/README.md) — versioned YAML
-  Connector SDK, schema, contributor template, validator, and catalog API
-- [`docs/LAUNCH.md`](docs/LAUNCH.md) — launch copy, media inventory, and rollout
-  checklist
-- [`docs/research/sources-master-inventory.md`](docs/research/sources-master-inventory.md) —
-  every data source, where it lives, and quality notes
-- [`docs/research/clay-alternatives-research.md`](docs/research/clay-alternatives-research.md) /
-  [`docs/research/clay-alternatives-ingestion-catalog.md`](docs/research/clay-alternatives-ingestion-catalog.md)
-  — competitive landscape and ingestion catalog
-- [`docs/research/data-source-test-report.md`](docs/research/data-source-test-report.md) — source
-  health/test results
-
-Contributions welcome — open an issue or a PR. Code is grounded with file/line
-references in the docs above; start there to find the right entry point. See
-[`CONTRIBUTING.md`](CONTRIBUTING.md) (DCO sign-off, conventions),
-[`SECURITY.md`](SECURITY.md) (private vulnerability reporting), and
-[`CHANGELOG.md`](CHANGELOG.md).
-
-### Releasing
-
-Maintainers: `scripts/release/preflight.sh` checks a ref for anything that must
-not ship (databases, `.env`, lead exports, submodule pointers, credential-shaped
-strings); `scripts/release/build-public-snapshot.sh` builds the `public/main`
-branch with maintainer-only paths stripped, and prints — but never runs — the
-push command. Pushing a `v*` tag builds the container image on GHCR and drafts a
-GitHub release.
+[GNU AGPL-3.0](LICENSE). Internal self-hosting is allowed. If you offer a
+modified OpenGTM to users over a network, the AGPL source-availability clause
+applies. This summary is not legal advice.

@@ -37,7 +37,9 @@ Capabilities:
 
 ## Configure a client
 
-Claude Desktop (`claude_desktop_config.json`) or any stdio MCP client:
+For a Compose install, Claude Desktop/Code, Codex, OpenCode, Pi (with an MCP
+extension), Cursor, Windsurf, or any stdio MCP client can run the bridge inside
+the existing API container:
 
 The same configuration is available as a copyable repository example at
 [`docs/examples/mcp-config.json`](https://github.com/debpalash/opengtm/blob/main/docs/examples/mcp-config.json).
@@ -46,14 +48,21 @@ The same configuration is available as a copyable repository example at
 {
   "mcpServers": {
     "opengtm": {
-      "command": "python",
-      "args": ["-m", "apps.mcp.server"],
-      "cwd": "/path/to/opengtm",
+      "command": "docker",
+      "args": [
+        "compose", "-f", "/absolute/path/to/opengtm/docker-compose.yml",
+        "exec", "-T", "-e", "OPENGTM_MCP_TOKEN",
+        "api", "python", "-m", "apps.mcp.server"
+      ],
       "env": { "OPENGTM_MCP_TOKEN": "ycp_..." }
     }
   }
 }
 ```
+
+For a native checkout, replace the command with `uv`, use args
+`["--directory", "/absolute/path/to/opengtm", "run", "python", "-m",
+"apps.mcp.server"]`, and ensure its database URL is reachable from the host.
 
 For HTTP clients, run `python -m apps.mcp.server --sse 3100`. It binds
 `127.0.0.1` only (override with `OPENGTM_MCP_SSE_HOST`), serves `GET /sse`

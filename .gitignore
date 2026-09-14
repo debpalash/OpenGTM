@@ -49,6 +49,7 @@ reference/research-summaries/
 .env
 .env.local
 .env.production
+.opengtm-initial-credentials
 
 # ── IDE ─────────────────────────────────────
 .vscode/
