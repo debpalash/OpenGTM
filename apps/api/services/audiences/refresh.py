@@ -89,3 +89,28 @@ def refresh_audience(db: Session, ctx: WorkspaceCtx, audience: Audience) -> dict
         "unchanged": len(snapshots) - len(entered_ids) - len(changed_ids),
         "changed": len(changed_ids),
     }
+
+
+def refresh_audience_observed(db: Session, ctx: WorkspaceCtx, audience: Audience) -> dict:
+    """Refresh while persisting health even when source evaluation raises."""
+    try:
+        result = refresh_audience(db, ctx, audience)
+    except Exception as exc:
+        db.rollback()
+        # Reload after rollback so health evidence is written independently of
+        # an interrupted membership transaction.
+        audience = db.query(Audience).filter(
+            Audience.id == audience.id,
+            Audience.workspace_id == ctx.workspace_id,
+        ).one()
+        audience.refresh_health = "degraded"
+        audience.last_refresh_error = f"{type(exc).__name__}: {exc}"[:1000]
+        audience.consecutive_refresh_failures = (audience.consecutive_refresh_failures or 0) + 1
+        db.commit()
+        raise
+    audience.refresh_health = "healthy"
+    audience.last_refresh_error = None
+    audience.consecutive_refresh_failures = 0
+    db.commit()
+    result["audience"] = audience.to_api()
+    return result

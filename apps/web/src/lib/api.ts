@@ -86,6 +86,9 @@ export interface Audience {
   refresh_enabled: boolean
   refresh_interval_minutes: number
   next_refresh_at: string | null
+  refresh_health: "unverified" | "healthy" | "degraded"
+  last_refresh_error: string | null
+  consecutive_refresh_failures: number
 }
 
 export async function fetchAudiences(): Promise<Audience[]> {

@@ -152,8 +152,9 @@ export default function AudiencesPage() {
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold">{selected.name}</h2>
+                <div className="flex items-center gap-2"><h2 className="text-lg font-semibold">{selected.name}</h2><Badge variant={selected.refresh_health === "healthy" ? "default" : "secondary"}>{selected.refresh_health}</Badge></div>
                 <p className="text-xs text-muted-foreground">{Object.keys(selected.filters).length} active filters · {selected.member_count} current members</p>
+                {selected.last_refresh_error && <p className="mt-1 text-xs text-destructive" title={selected.last_refresh_error}>Refresh failed {selected.consecutive_refresh_failures}×: {selected.last_refresh_error}</p>}
               </div>
               <div className="flex items-center gap-2">
                 <select

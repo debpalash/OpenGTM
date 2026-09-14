@@ -27,6 +27,9 @@ class Audience(Base):
     refresh_enabled = Column(Boolean, nullable=False, default=True, server_default="true")
     refresh_interval_minutes = Column(Integer, nullable=False, default=60, server_default="60")
     next_refresh_at = Column(DateTime, nullable=True)
+    refresh_health = Column(String(20), nullable=False, default="unverified", server_default="unverified")
+    last_refresh_error = Column(Text, nullable=True)
+    consecutive_refresh_failures = Column(Integer, nullable=False, default=0, server_default="0")
 
     def to_api(self) -> dict:
         return {
@@ -41,6 +44,9 @@ class Audience(Base):
             "refresh_enabled": bool(self.refresh_enabled),
             "refresh_interval_minutes": self.refresh_interval_minutes or 60,
             "next_refresh_at": self.next_refresh_at,
+            "refresh_health": self.refresh_health or "unverified",
+            "last_refresh_error": self.last_refresh_error,
+            "consecutive_refresh_failures": self.consecutive_refresh_failures or 0,
         }
 
 
