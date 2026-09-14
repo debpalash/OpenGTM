@@ -1,5 +1,8 @@
 """Deployment-wide operational telemetry for platform administrators."""
 
+import os
+from pathlib import Path
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -9,6 +12,7 @@ from apps.api.models import User
 from apps.api.services.queue_service import queue_service
 
 router = APIRouter(prefix="/admin/operations", tags=["operations"])
+GAUNTLET_ARTIFACT_ENV = "OPENGTM_GAUNTLET_ARTIFACT"
 
 
 @router.get("/queue")
@@ -18,3 +22,88 @@ def queue_metrics(
 ):
     _ = current_user
     return queue_service.metrics(db)
+
+
+def _release_readiness() -> dict:
+    from apps.api.services.evaluation.gtm_gauntlet import load_artifact, score_gauntlet
+    from apps.api.services.integrations.certification import (
+        agent_capability_catalog,
+        certification_statuses,
+        governance_capability_catalog,
+        integration_catalog,
+        signal_source_catalog,
+    )
+    from apps.api.services.leadgen.enrichment.declarative.manifest import (
+        load_all_manifests,
+        validate_manifest_directory,
+    )
+
+    groups = {
+        "integrations": integration_catalog(),
+        "signals": signal_source_catalog(),
+        "agents": agent_capability_catalog(),
+        "governance": governance_capability_catalog(),
+    }
+    missing = [
+        f"{group}:{item['id']}"
+        for group, items in groups.items()
+        for item in items
+        if item.get("maturity") != "supported"
+    ]
+
+    review = validate_manifest_directory()
+    reviewed = {item["id"]: item for item in review.get("connectors", [])}
+    connector_subjects = [
+        f"connector:{manifest.name}" for manifest in load_all_manifests()
+    ]
+    connector_status = certification_statuses(
+        connector_subjects,
+        subject_builds={
+            f"connector:{name}": str(item.get("manifest_sha256") or "")
+            for name, item in reviewed.items()
+        },
+    )
+    connector_missing = [
+        subject for subject in connector_subjects
+        if connector_status[subject]["maturity"] != "supported"
+    ]
+
+    artifact_path = os.getenv(GAUNTLET_ARTIFACT_ENV, "")
+    gauntlet = {
+        "eligible": False,
+        "reason_codes": ["artifact_missing"],
+        "consecutive_production_like_passes": 0,
+        "required_consecutive_production_like_passes": 10,
+    }
+    if artifact_path:
+        try:
+            report = score_gauntlet(load_artifact(Path(artifact_path)))
+            gauntlet = report["release"]
+        except (OSError, ValueError, KeyError, TypeError):
+            gauntlet["reason_codes"] = ["artifact_invalid"]
+
+    required_count = sum(len(items) for items in groups.values())
+    return {
+        "eligible": not missing and gauntlet.get("eligible") is True,
+        "first_party": {
+            "required": required_count,
+            "supported": required_count - len(missing),
+            "missing": missing,
+        },
+        "community_connectors": {
+            "total": len(connector_subjects),
+            "supported": len(connector_subjects) - len(connector_missing),
+            "missing": connector_missing,
+            "manifest_review_ok": review.get("ok") is True,
+        },
+        "gauntlet": gauntlet,
+    }
+
+
+@router.get("/release-readiness")
+def release_readiness(
+    current_user: User = Depends(get_current_admin_user),
+):
+    """Aggregate fail-closed live certification and gauntlet release gates."""
+    _ = current_user
+    return _release_readiness()
