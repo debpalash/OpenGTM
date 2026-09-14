@@ -252,7 +252,7 @@ def update_sso(body: OidcUpdate, ctx: WorkspaceCtx = Depends(require_admin)):
 @router.get("/scim-token")
 def get_scim_token(ctx: WorkspaceCtx = Depends(require_admin)):
     status = scim.token_status(ctx.workspace_id)
-    return {"configured": status is not None, "base_path": f"/scim/v2/{ctx.slug}", **(status or {})}
+    return {"configured": status is not None and not status.get("expired", False), "base_path": f"/scim/v2/{ctx.slug}", **(status or {})}
 
 
 @router.post("/scim-token", status_code=201)

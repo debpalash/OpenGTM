@@ -101,6 +101,8 @@ def _get_db():
             token_hash TEXT NOT NULL,
             token_prefix TEXT NOT NULL,
             created_at REAL NOT NULL,
+            expires_at REAL,
+            last_used_at REAL,
             created_by INTEGER,
             FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
         );
@@ -148,6 +150,11 @@ def _get_db():
     cols = {r[1] for r in conn.execute("PRAGMA table_info(workspaces)").fetchall()}
     if "owner_id" not in cols:
         conn.execute("ALTER TABLE workspaces ADD COLUMN owner_id INTEGER")
+    scim_token_cols = {r[1] for r in conn.execute("PRAGMA table_info(workspace_scim_tokens)").fetchall()}
+    if "expires_at" not in scim_token_cols:
+        conn.execute("ALTER TABLE workspace_scim_tokens ADD COLUMN expires_at REAL")
+    if "last_used_at" not in scim_token_cols:
+        conn.execute("ALTER TABLE workspace_scim_tokens ADD COLUMN last_used_at REAL")
     conn.commit()
 
     # Ensure default workspace exists
