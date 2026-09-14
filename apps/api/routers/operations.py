@@ -27,6 +27,7 @@ def queue_metrics(
 def _release_readiness() -> dict:
     from apps.api.services.evaluation.gtm_gauntlet import load_artifact, score_gauntlet
     from apps.api.services.integrations.certification import (
+        BUILD_SHA_ENV,
         agent_capability_catalog,
         certification_statuses,
         governance_capability_catalog,
@@ -69,6 +70,7 @@ def _release_readiness() -> dict:
     ]
 
     artifact_path = os.getenv(GAUNTLET_ARTIFACT_ENV, "")
+    deployed_build_sha = os.getenv(BUILD_SHA_ENV, "")
     gauntlet = {
         "eligible": False,
         "reason_codes": ["artifact_missing"],
@@ -78,13 +80,27 @@ def _release_readiness() -> dict:
     if artifact_path:
         try:
             report = score_gauntlet(load_artifact(Path(artifact_path)))
-            gauntlet = report["release"]
+            gauntlet = dict(report["release"])
+            gauntlet_build_sha = str(report.get("build_sha") or "")
+            build_matches = bool(
+                deployed_build_sha and gauntlet_build_sha == deployed_build_sha
+            )
+            gauntlet["build_sha"] = gauntlet_build_sha
+            gauntlet["deployed_build_sha"] = deployed_build_sha
+            gauntlet["build_matches_deployment"] = build_matches
+            if not build_matches:
+                gauntlet["eligible"] = False
+                gauntlet["reason_codes"] = list(dict.fromkeys([
+                    *gauntlet.get("reason_codes", []),
+                    "build_mismatch",
+                ]))
         except (OSError, ValueError, KeyError, TypeError):
             gauntlet["reason_codes"] = ["artifact_invalid"]
 
     required_count = sum(len(items) for items in groups.values())
     return {
         "eligible": not missing and gauntlet.get("eligible") is True,
+        "deployed_build_sha": deployed_build_sha,
         "first_party": {
             "required": required_count,
             "supported": required_count - len(missing),
