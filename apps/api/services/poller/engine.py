@@ -443,8 +443,11 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
     no double fire — AC-24). The failed source's cursor is never advanced on a
     fetch failure, so it is retried next poll.
 
-    Returns (emitted, dupe) on success, False on fetch failure, None when nothing
-    to do (no lead / suppressed)."""
+    Returns (emitted, dupe) on success, False on a retryable source failure,
+    and None when there is nothing to do (no lead / suppressed). A billing
+    rejection is a source failure: treating it as a no-op would let finalization
+    clear ``last_error`` and incorrectly record the poll as healthy.
+    """
     with SessionLocal() as db, db.begin():
         watch = _load(db, watch_id, workspace_id)
         if watch is None:
@@ -456,7 +459,7 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
             bill_src = "funding" if src in ("funding", "exec") else "hiring"
         if not _debit_source(db, workspace_id, bill_src, fire_key):
             watch.last_error = "insufficient_credits"
-            return None
+            return False
 
         if src == "funding" or src == "exec":
             events, patch = sources.fetch_funding_and_exec(

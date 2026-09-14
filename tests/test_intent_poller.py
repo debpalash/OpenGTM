@@ -355,6 +355,34 @@ def test_handler_registered_in_main_and_worker_AC10():
     assert JOB_TIMEOUTS["watch_poll"] == 600
 
 
+def test_paid_source_billing_rejection_is_retryable_and_observable(monkeypatch):
+    from apps.api.services.poller import engine as eng
+
+    watch = FakeWatch(kind="funding")
+    watch.last_error = None
+
+    class FakeSession:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def begin(self):
+            return self
+
+    monkeypatch.setattr(eng, "SessionLocal", FakeSession)
+    monkeypatch.setattr(eng, "_load", lambda *_args: watch)
+    monkeypatch.setattr(eng, "_debit_source", lambda *_args, **_kwargs: False)
+
+    result = eng._poll_one_source(
+        object(), watch.id, watch.workspace_id, "funding", "fire-1", watch.lead_id, False,
+    )
+
+    assert result is False
+    assert watch.last_error == "insufficient_credits"
+
+
 # ════════════════════════ flag OFF (AC-13) ═══════════════════════════════════
 
 def test_handler_early_exits_when_disabled_AC13(monkeypatch):
