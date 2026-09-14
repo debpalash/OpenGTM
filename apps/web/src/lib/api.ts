@@ -1364,10 +1364,12 @@ const WATCH = "/api/watches"
 export const listWatches = (p?: {
   limit?: number
   offset?: number
-}): Promise<{ watches: Watch[]; limit: number; offset: number }> => {
+  cursor?: string
+}): Promise<{ watches: Watch[]; limit: number; offset: number | null; has_more: boolean; next_cursor: string | null }> => {
   const qs = new URLSearchParams()
   if (p?.limit !== undefined) qs.set("limit", String(p.limit))
   if (p?.offset !== undefined) qs.set("offset", String(p.offset))
+  if (p?.cursor) qs.set("cursor", p.cursor)
   const suffix = qs.toString() ? `?${qs}` : ""
   return apiGet(`${WATCH}${suffix}`)
 }
@@ -1396,12 +1398,13 @@ export const pollWatch = (id: string): Promise<PollResult> =>
 
 export const listWatchSignals = (
   id: string,
-  p?: { signal_type?: string; limit?: number; offset?: number },
-): Promise<{ signals: WatchSignal[] }> => {
+  p?: { signal_type?: string; limit?: number; offset?: number; cursor?: string },
+): Promise<{ signals: WatchSignal[]; limit: number; offset: number | null; has_more: boolean; next_cursor: string | null }> => {
   const qs = new URLSearchParams()
   if (p?.signal_type) qs.set("signal_type", p.signal_type)
   if (p?.limit !== undefined) qs.set("limit", String(p.limit))
   if (p?.offset !== undefined) qs.set("offset", String(p.offset))
+  if (p?.cursor) qs.set("cursor", p.cursor)
   const suffix = qs.toString() ? `?${qs}` : ""
   return apiGet(`${WATCH}/${id}/signals${suffix}`)
 }
