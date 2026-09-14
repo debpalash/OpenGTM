@@ -64,6 +64,49 @@ def test_legal_hold_blocks_even_manual_enforcement(monkeypatch):
     db = Session(); assert db.query(RetentionRun).one().status == "cancelled"; db.close()
 
 
+def test_killed_scheduled_retention_creates_retry_evidence_and_recurs(monkeypatch):
+    Session = _session()
+    with Session() as db:
+        policy = RetentionPolicy(
+            workspace_id="ws", enabled=True, legal_hold=False,
+            retention_days=normalized_days({}),
+        )
+        job = Job(
+            type="retention_enforce", workspace_id="ws", status="pending",
+            payload={"workspace_id": "ws"}, fire_key="retention:ws:today",
+        )
+        db.add_all([policy, job]); db.commit()
+        job_id = job.id
+
+    from apps.api.services.governance import retention
+    monkeypatch.setattr(retention, "SessionLocal", Session)
+    payload = {"workspace_id": "ws"}
+    retention.reconcile_retention_job_failure(job_id, payload, "worker timeout", True)
+    with Session() as db:
+        run = db.query(RetentionRun).one()
+        queue_job = db.get(Job, job_id)
+        assert run.status == "pending" and "Queue retry scheduled" in run.error
+        assert queue_job.payload["run_id"] == run.id
+        run_id = run.id
+        queue_job.status = "failed"
+        db.commit()
+
+    retention.reconcile_retention_job_failure(
+        job_id, {"workspace_id": "ws", "run_id": run_id}, "worker timeout", False,
+    )
+    with Session() as db:
+        run = db.get(RetentionRun, run_id)
+        policy = db.get(RetentionPolicy, "ws")
+        assert run.status == "failed" and run.finished_at is not None
+        assert "Final failure: worker timeout" in run.error
+        assert policy.next_run_at is not None
+        scheduled = db.query(Job).filter(
+            Job.type == "retention_enforce", Job.status == "pending",
+            Job.fire_key.like("retention:ws:%"),
+        ).all()
+        assert len(scheduled) == 1
+
+
 def test_retention_minimums_are_enforced():
     with pytest.raises(ValueError, match="audit retention must be 90"):
         normalized_days({"audit": 30})

@@ -70,6 +70,75 @@ def schedule_policy(db, policy, now: datetime | None = None):
     return next_at
 
 
+def reconcile_retention_job_failure(
+    job_id: int,
+    payload: dict,
+    error: str,
+    will_retry: bool,
+) -> None:
+    """Reconcile enforcement state after its isolated worker is killed."""
+    workspace_id = str(payload.get("workspace_id") or "").strip()
+    if not workspace_id:
+        raise ValueError("retention failure payload requires workspace_id")
+
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.models import Job
+    from apps.api.services.governance.models import RetentionPolicy, RetentionRun
+
+    message = str(error or "retention enforcement failed")[:1000]
+    with workspace_scope(workspace_id):
+        with SessionLocal() as db:
+            policy = db.query(RetentionPolicy).filter(
+                RetentionPolicy.workspace_id == workspace_id,
+            ).first()
+            run_id = str(payload.get("run_id") or "").strip()
+            run = db.query(RetentionRun).filter(
+                RetentionRun.id == run_id,
+                RetentionRun.workspace_id == workspace_id,
+            ).first() if run_id else None
+            queue_job = db.query(Job).filter(Job.id == job_id).first()
+            if run is None:
+                snapshot = normalized_days(policy.retention_days or {}) if policy else dict(DEFAULT_DAYS)
+                run = RetentionRun(
+                    workspace_id=workspace_id,
+                    requested_by="scheduler",
+                    policy_snapshot=snapshot,
+                )
+                db.add(run)
+                db.flush()
+                if queue_job is not None:
+                    queue_job.payload = {**(queue_job.payload or {}), "run_id": run.id}
+            if run.status in {"completed", "cancelled"}:
+                db.commit()
+                return
+
+            if policy is not None and policy.legal_hold:
+                run.status = "cancelled"
+                run.error = "Legal hold enabled during retention enforcement"
+                run.finished_at = datetime.now(timezone.utc)
+                if queue_job is not None and queue_job.status == "pending":
+                    queue_job.status = "cancelled"
+                    queue_job.error = run.error
+                    queue_job.completed_at = run.finished_at
+                db.commit()
+                return
+            if will_retry:
+                run.status = "pending"
+                run.error = f"Queue retry scheduled: {message}"
+                run.finished_at = None
+                db.commit()
+                return
+
+            now = datetime.now(timezone.utc)
+            run.status = "failed"
+            run.error = f"Final failure: {message}"
+            run.finished_at = now
+            if policy is not None and policy.enabled:
+                schedule_policy(db, policy, now=now)
+            else:
+                db.commit()
+
+
 async def handle_retention_enforce(job_id: int, payload: dict) -> None:
     workspace_id, run_id = payload.get("workspace_id"), payload.get("run_id")
     if not workspace_id:

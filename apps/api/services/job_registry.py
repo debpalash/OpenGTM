@@ -51,7 +51,10 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
         reconcile_playbook_job_failure,
     )
     from apps.api.services.playbooks.scheduler import handle_playbook_schedule
-    from apps.api.services.governance.retention import handle_retention_enforce
+    from apps.api.services.governance.retention import (
+        handle_retention_enforce,
+        reconcile_retention_job_failure,
+    )
 
     handlers = {
         "run_workbook": handle_run_workbook,
@@ -87,5 +90,8 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
     )
     queue.register_failure_handler(
         "research_playbook_run", reconcile_playbook_job_failure
+    )
+    queue.register_failure_handler(
+        "retention_enforce", reconcile_retention_job_failure
     )
     return frozenset(handlers)
