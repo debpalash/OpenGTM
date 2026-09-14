@@ -15,6 +15,7 @@ from apps.api.services.integrations.certification import (
     certification_statuses,
     governance_capability_catalog,
     integration_catalog,
+    required_checks_for_subject,
     signal_source_catalog,
 )
 
@@ -78,6 +79,22 @@ def test_catalog_fails_closed_without_certifications():
     catalog = integration_catalog(path="missing.json", key=KEY, now=NOW)
     assert len(catalog) == len(INTEGRATIONS)
     assert all(item["maturity"] == "beta" for item in catalog)
+    assert "inbound_reconciliation" in {
+        item["id"]: item["required_checks"] for item in catalog
+    }["hubspot"]
+
+
+def test_required_checks_are_public_stable_and_subject_specific():
+    assert required_checks_for_subject("meta_ads") == sorted(
+        required_checks_for_subject("meta_ads")
+    )
+    assert "consent_enforcement" in required_checks_for_subject("meta_ads")
+    assert "exact_membership_diff" in required_checks_for_subject(
+        "dynamic_materialization"
+    )
+    assert "quality_sample" in required_checks_for_subject("provider:hunter_io")
+    with pytest.raises(ValueError, match="unknown"):
+        required_checks_for_subject("not-a-real-subject")
 
 
 def test_valid_attestation_graduates_only_its_integration(tmp_path):
@@ -414,5 +431,6 @@ def test_enrichment_provider_maturity_is_independent_and_build_bound(tmp_path):
     )
 
     assert statuses["provider:hunter_io"]["maturity"] == "supported"
+    assert "quality_sample" in statuses["provider:hunter_io"]["required_checks"]
     assert statuses["provider:hunter_io"]["certification"]["validation_run_id"] == "hunter-live-1"
     assert statuses["provider:apollo_io"]["maturity"] == "beta"

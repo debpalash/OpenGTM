@@ -3,6 +3,9 @@
 OpenGTM exposes activation integrations as `beta` unless a current,
 controlled-live certification is present and correctly attested. This keeps
 code availability separate from a support claim.
+Every maturity catalog response includes a sorted `required_checks` list, even
+while its subject is `beta`, so validation tooling can build an exact evidence
+plan from the running build rather than duplicating requirements out of band.
 
 A certificate JSON object requires `subject_id` (legacy destination records may
 use `integration_id`), `status: "supported"`, `mode: "controlled_live"`,

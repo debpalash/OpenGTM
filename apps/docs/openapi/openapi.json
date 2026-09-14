@@ -7055,6 +7055,59 @@
         ]
       }
     },
+    "/api/audiences/capabilities": {
+      "get": {
+        "description": "Expose fail-closed controlled-live maturity for audience workflows.",
+        "operationId": "audience_capabilities_api_audiences_capabilities_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Audience Capabilities",
+        "tags": [
+          "audiences"
+        ]
+      }
+    },
     "/api/audiences/{audience_id}": {
       "delete": {
         "operationId": "delete_audience_api_audiences__audience_id__delete",
