@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useCallback, useState } from "react"
 import { queryKeys } from "./query-client"
 import { authQuery } from "./auth"
@@ -176,7 +176,14 @@ export function usePatchResearchPlaybook() {
 }
 
 export function usePlaybookRuns(playbookId: string | null) {
-  return useQuery({ queryKey: queryKeys.playbooks.runs(playbookId ?? ""), queryFn: () => fetchPlaybookRuns(playbookId!), enabled: !!playbookId, refetchInterval: 3000 })
+  return useInfiniteQuery({
+    queryKey: queryKeys.playbooks.runs(playbookId ?? ""),
+    queryFn: ({ pageParam }) => fetchPlaybookRuns(playbookId!, pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: page => page.next_cursor ?? undefined,
+    enabled: !!playbookId,
+    refetchInterval: 3000,
+  })
 }
 
 export function useStartPlaybookRun(playbookId: string | null) {
@@ -185,7 +192,14 @@ export function useStartPlaybookRun(playbookId: string | null) {
 }
 
 export function usePlaybookResults(runId: string | null) {
-  return useQuery({ queryKey: queryKeys.playbooks.results(runId ?? ""), queryFn: () => fetchPlaybookResults(runId!), enabled: !!runId, refetchInterval: 3000 })
+  return useInfiniteQuery({
+    queryKey: queryKeys.playbooks.results(runId ?? ""),
+    queryFn: ({ pageParam }) => fetchPlaybookResults(runId!, pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: page => page.next_cursor ?? undefined,
+    enabled: !!runId,
+    refetchInterval: 3000,
+  })
 }
 
 export function useRetryPlaybookRun(playbookId: string | null, runId: string | null) {

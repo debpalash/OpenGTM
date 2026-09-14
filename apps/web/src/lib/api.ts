@@ -283,9 +283,26 @@ async function playbookJson<T>(path: string, init?: RequestInit): Promise<T> {
 export const fetchResearchPlaybooks = () => playbookJson<ResearchPlaybook[]>("")
 export const createResearchPlaybook = (body: { name: string; description?: string; prompt_template: string; steps?: ResearchPlaybook["steps"]; output_format?: "text" | "json"; max_steps?: number; cell_budget_usd?: number }) => playbookJson<ResearchPlaybook>("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
 export const patchResearchPlaybook = (id: string, body: Partial<Pick<ResearchPlaybook, "name" | "description" | "prompt_template" | "output_format" | "max_steps" | "cell_budget_usd" | "enabled" | "schedule_audience_id" | "schedule_interval_minutes">>) => playbookJson<ResearchPlaybook>(`/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
-export const fetchPlaybookRuns = (id: string) => playbookJson<PlaybookRun[]>(`/${id}/runs`)
+export interface PlaybookRunPage {
+  runs: PlaybookRun[]; limit: number; offset: number | null
+  has_more: boolean; next_cursor: string | null
+}
+export interface PlaybookResultPage {
+  results: PlaybookResult[]; limit: number; offset: number | null
+  has_more: boolean; next_cursor: string | null
+}
+
+export const fetchPlaybookRuns = (id: string, cursor?: string) => {
+  const query = new URLSearchParams({ limit: "50" })
+  if (cursor) query.set("cursor", cursor)
+  return playbookJson<PlaybookRunPage>(`/${id}/runs?${query}`)
+}
 export const startPlaybookRun = (id: string, body: { audience_id: string; max_members: number }) => playbookJson<PlaybookRun>(`/${id}/runs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
-export const fetchPlaybookResults = (runId: string) => playbookJson<PlaybookResult[]>(`/runs/${runId}/results`)
+export const fetchPlaybookResults = (runId: string, cursor?: string) => {
+  const query = new URLSearchParams({ limit: "100" })
+  if (cursor) query.set("cursor", cursor)
+  return playbookJson<PlaybookResultPage>(`/runs/${runId}/results?${query}`)
+}
 export const retryPlaybookRun = (runId: string) => playbookJson<PlaybookRun>(`/runs/${runId}/retry`, { method: "POST" })
 export const cancelPlaybookRun = (runId: string) => playbookJson<PlaybookRun>(`/runs/${runId}/cancel`, { method: "POST" })
 
