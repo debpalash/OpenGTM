@@ -62,7 +62,8 @@ export default function AudiencesPage() {
   const [slackSecretRef, setSlackSecretRef] = useState("")
   const [slackTemplate, setSlackTemplate] = useState("New audience member: {company} {contact_person} {email}")
   const [inboundPolicy, setInboundPolicy] = useState("fill_missing")
-  const [inboundSetup, setInboundSetup] = useState<{ destinationId: string; token?: string; receipts: InboundReceipt[] } | null>(null)
+  const [inboundSetup, setInboundSetup] = useState<{ destinationId: string; token?: string; receipts: InboundReceipt[]; nextCursor: string | null } | null>(null)
+  const [loadingInboundMore, setLoadingInboundMore] = useState(false)
   const selectedDestinationType = destinationTypes.data?.find((item) => item.id === destinationType)
   const [accountRollup, setAccountRollup] = useState<{ accounts: AudienceAccount[]; summary: { account_count: number; contact_count: number; accounts_with_signals: number; accounts_with_decision_makers: number }; pagination: { limit: number; offset: number; next_offset: number | null; total: number } } | null>(null)
   useEffect(() => {
@@ -115,9 +116,27 @@ export default function AudiencesPage() {
       }
       const response = await fetch(`/api/audience-destinations/${destination.id}/inbound-receipts`)
       if (!response.ok) throw new Error(`Could not load inbound history (${response.status})`)
-      setInboundSetup({ destinationId: destination.id, token, receipts: await response.json() })
+      const page = await response.json()
+      setInboundSetup({ destinationId: destination.id, token, receipts: page.receipts || [], nextCursor: page.next_cursor || null })
       if (token) toast.success("Inbound token rotated; copy it now")
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not configure inbound sync") }
+  }
+
+  const loadMoreInbound = async () => {
+    if (!inboundSetup?.nextCursor) return
+    setLoadingInboundMore(true)
+    try {
+      const query = new URLSearchParams({ cursor: inboundSetup.nextCursor })
+      const response = await fetch(`/api/audience-destinations/${inboundSetup.destinationId}/inbound-receipts?${query}`)
+      if (!response.ok) throw new Error(`Could not load inbound history (${response.status})`)
+      const page = await response.json()
+      setInboundSetup(current => current && current.destinationId === inboundSetup.destinationId ? {
+        ...current,
+        receipts: [...current.receipts, ...(page.receipts || []).filter((receipt: InboundReceipt) => !current.receipts.some(item => item.id === receipt.id))],
+        nextCursor: page.next_cursor || null,
+      } : current)
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not load inbound history") }
+    setLoadingInboundMore(false)
   }
 
   return (
@@ -242,7 +261,7 @@ export default function AudiencesPage() {
                     <div className="flex gap-2">{(destination.destination_type === "hubspot" || destination.destination_type === "salesforce") && <><Button variant="outline" size="sm" onClick={() => showInbound(destination)}><Activity className="mr-1 size-3" /> Inbound history</Button><Button variant="outline" size="sm" onClick={() => showInbound(destination, true)}><KeyRound className="mr-1 size-3" /> Rotate token</Button></>}{destination.latest_run && ["pending", "running", "cancelling"].includes(destination.latest_run.status) && <Button variant="outline" size="sm" disabled={cancelDestination.isPending || destination.latest_run.status === "cancelling"} onClick={() => cancelDestination.mutate(destination.latest_run!.id, { onSuccess: (run) => toast.success(run.status === "cancelled" ? "Sync cancelled" : "Cancellation requested"), onError: (error) => toast.error(error.message) })}><StopCircle className="mr-1 size-3" /> {destination.latest_run.status === "cancelling" ? "Cancelling…" : "Cancel sync"}</Button>}{destination.latest_run && ["failed", "completed_with_errors"].includes(destination.latest_run.status) && <Button variant="outline" size="sm" disabled={retryDestination.isPending} onClick={() => retryDestination.mutate(destination.latest_run!.id, { onSuccess: () => toast.success("Retrying failed deliveries"), onError: (error) => toast.error(error.message) })}><RefreshCw className="mr-1 size-3" /> Retry failed</Button>}{!destination.latest_run || !["pending", "running", "cancelling"].includes(destination.latest_run.status) ? <Button variant="outline" size="sm" disabled={syncDestination.isPending} onClick={() => syncDestination.mutate(destination.id, { onSuccess: (run) => toast.success(`Sync queued: ${run.id.slice(0, 8)}`), onError: (error) => toast.error(error.message) })}><Send className="mr-1 size-3" /> Sync audience</Button> : null}</div>
                   </div>
                 ))}
-                {inboundSetup && <div className="space-y-3 rounded-md border border-primary/30 bg-primary/5 p-3"><div><p className="text-xs font-medium">CRM → OpenGTM callback</p><code className="mt-1 block break-all text-[10px] text-muted-foreground">POST {window.location.origin}/api/audience-destinations/inbound/{inboundSetup.destinationId}</code></div>{inboundSetup.token && <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2"><p className="text-[10px] font-medium text-amber-700 dark:text-amber-300">Shown once. Store this Bearer token in your CRM webhook secret manager.</p><div className="mt-1 flex items-center gap-2"><code className="min-w-0 flex-1 truncate text-xs">{inboundSetup.token}</code><Button size="sm" variant="outline" className="h-7" onClick={() => { navigator.clipboard.writeText(inboundSetup.token || ""); toast.success("Token copied") }}><Copy className="size-3" /> Copy</Button></div></div>}<p className="text-[10px] text-muted-foreground">Send external_event_id, optional external_record_id or lead_id, and fields. Only allowlisted lead fields are accepted; retries are idempotent.</p><div className="space-y-1">{inboundSetup.receipts.slice(0, 8).map(receipt => <div key={receipt.id} className="flex items-center justify-between rounded border bg-background px-2 py-1.5 text-[10px]"><span className="truncate">{receipt.external_event_id} · lead {receipt.lead_id ?? "unmatched"} · {receipt.applied_fields.length} fields</span><Badge variant={receipt.status === "unmatched" ? "destructive" : "outline"}>{receipt.status}</Badge></div>)}{!inboundSetup.receipts.length && <p className="text-[10px] text-muted-foreground">No inbound callbacks received yet.</p>}</div></div>}
+                {inboundSetup && <div className="space-y-3 rounded-md border border-primary/30 bg-primary/5 p-3"><div><p className="text-xs font-medium">CRM → OpenGTM callback</p><code className="mt-1 block break-all text-[10px] text-muted-foreground">POST {window.location.origin}/api/audience-destinations/inbound/{inboundSetup.destinationId}</code></div>{inboundSetup.token && <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2"><p className="text-[10px] font-medium text-amber-700 dark:text-amber-300">Shown once. Store this Bearer token in your CRM webhook secret manager.</p><div className="mt-1 flex items-center gap-2"><code className="min-w-0 flex-1 truncate text-xs">{inboundSetup.token}</code><Button size="sm" variant="outline" className="h-7" onClick={() => { navigator.clipboard.writeText(inboundSetup.token || ""); toast.success("Token copied") }}><Copy className="size-3" /> Copy</Button></div></div>}<p className="text-[10px] text-muted-foreground">Send external_event_id, optional external_record_id or lead_id, and fields. Only allowlisted lead fields are accepted; retries are idempotent.</p><div className="max-h-64 space-y-1 overflow-y-auto">{inboundSetup.receipts.map(receipt => <div key={receipt.id} className="flex items-center justify-between rounded border bg-background px-2 py-1.5 text-[10px]"><span className="truncate">{receipt.external_event_id} · lead {receipt.lead_id ?? "unmatched"} · {receipt.applied_fields.length} fields</span><Badge variant={receipt.status === "unmatched" ? "destructive" : "outline"}>{receipt.status}</Badge></div>)}{inboundSetup.nextCursor && <Button size="sm" variant="outline" className="w-full" disabled={loadingInboundMore} onClick={loadMoreInbound}>{loadingInboundMore && <RefreshCw className="mr-1 size-3 animate-spin" />}Load older callbacks</Button>}{!inboundSetup.receipts.length && <p className="text-[10px] text-muted-foreground">No inbound callbacks received yet.</p>}</div></div>}
                 {!destinations.isLoading && !destinations.data?.length && <p className="py-4 text-center text-xs text-muted-foreground">Connect a destination to activate this audience.</p>}
               </CardContent>
             </Card>

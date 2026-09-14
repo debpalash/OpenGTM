@@ -115,7 +115,7 @@ def test_destination_sync_is_durable_and_idempotent(destination_app, monkeypatch
     monkeypatch.setattr(destination_engine, "_deliver", fake_deliver)
     asyncio.run(destination_engine.handle_destination_sync(1, {"workspace_id": WS1, "run_id": run_id}))
 
-    runs = tc.get(f"/api/audience-destinations/{destination_id}/runs").json()
+    runs = tc.get(f"/api/audience-destinations/{destination_id}/runs").json()["runs"]
     assert runs[0]["status"] == "completed"
     assert runs[0]["succeeded"] == 1
     deliveries = tc.get(f"/api/audience-destinations/runs/{run_id}/deliveries").json()
@@ -124,10 +124,85 @@ def test_destination_sync_is_durable_and_idempotent(destination_app, monkeypatch
 
     second = tc.post(f"/api/audience-destinations/{destination_id}/sync").json()
     asyncio.run(destination_engine.handle_destination_sync(2, {"workspace_id": WS1, "run_id": second["id"]}))
-    second_run = tc.get(f"/api/audience-destinations/{destination_id}/runs").json()[0]
+    run_history = tc.get(f"/api/audience-destinations/{destination_id}/runs").json()["runs"]
+    second_run = next(run for run in run_history if run["id"] == second["id"])
     assert second_run["skipped"] == 1
     assert len(delivered) == 1
 
+
+def test_destination_histories_are_stable_bounded_and_tenant_safe(destination_app):
+    tc, Session, _ = destination_app
+    destination_id = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Paged CRM", "destination_type": "hubspot",
+        "config": {"inbound_conflict_policy": "fill_missing"},
+    }).json()["id"]
+    created = datetime.now(timezone.utc) - timedelta(days=1)
+    with Session() as session:
+        session.add_all([
+            DestinationRun(
+                id=f"history-run-{index}", workspace_id=WS1,
+                destination_id=destination_id, created_at=created,
+            )
+            for index in range(5)
+        ])
+        session.add(DestinationRun(
+            id="foreign-history-run", workspace_id=WS2,
+            destination_id=destination_id, created_at=created + timedelta(days=2),
+        ))
+        session.add_all([
+            DestinationInboundReceipt(
+                id=f"receipt-{index}", workspace_id=WS1, destination_id=destination_id,
+                provider="hubspot", external_event_id=f"event-{index}",
+                status="applied", conflict_policy="fill_missing",
+                payload_fingerprint=f"fingerprint-{index}", created_at=created,
+            )
+            for index in range(5)
+        ])
+        session.add(DestinationInboundReceipt(
+            id="foreign-receipt", workspace_id=WS2, destination_id=destination_id,
+            provider="hubspot", external_event_id="foreign-event",
+            status="applied", conflict_policy="fill_missing",
+            payload_fingerprint="foreign", created_at=created + timedelta(days=2),
+        ))
+        session.commit()
+
+    first = tc.get(f"/api/audience-destinations/{destination_id}/runs", params={"limit": 2}).json()
+    assert first["has_more"] is True and len(first["runs"]) == 2
+    assert "foreign-history-run" not in {run["id"] for run in first["runs"]}
+    with Session() as session:
+        session.add(DestinationRun(
+            id="new-history-run", workspace_id=WS1,
+            destination_id=destination_id, created_at=created + timedelta(days=3),
+        ))
+        session.commit()
+    second = tc.get(
+        f"/api/audience-destinations/{destination_id}/runs",
+        params={"limit": 2, "cursor": first["next_cursor"]},
+    ).json()
+    third = tc.get(
+        f"/api/audience-destinations/{destination_id}/runs",
+        params={"limit": 2, "cursor": second["next_cursor"]},
+    ).json()
+    traversed = first["runs"] + second["runs"] + third["runs"]
+    assert len(traversed) == 5 and len({run["id"] for run in traversed}) == 5
+    assert "new-history-run" not in {run["id"] for run in traversed}
+
+    receipt_first = tc.get(
+        f"/api/audience-destinations/{destination_id}/inbound-receipts",
+        params={"limit": 2},
+    ).json()
+    receipt_second = tc.get(
+        f"/api/audience-destinations/{destination_id}/inbound-receipts",
+        params={"limit": 2, "cursor": receipt_first["next_cursor"]},
+    ).json()
+    assert len(receipt_first["receipts"] + receipt_second["receipts"]) == 4
+    assert "foreign-receipt" not in {row["id"] for row in receipt_first["receipts"]}
+    assert tc.get(
+        f"/api/audience-destinations/{destination_id}/runs?cursor=bad",
+    ).status_code == 422
+    assert tc.get(
+        f"/api/audience-destinations/{destination_id}/inbound-receipts?cursor=bad",
+    ).status_code == 422
 
 def test_pending_destination_run_can_be_cancelled_without_execution(destination_app, monkeypatch):
     tc, Session, _ = destination_app
@@ -318,7 +393,7 @@ def test_failed_destination_deliveries_retry_on_original_run(destination_app, mo
     monkeypatch.setattr(destination_engine, "SessionLocal", Session)
     monkeypatch.setattr(destination_engine, "_deliver", flaky)
     asyncio.run(destination_engine.handle_destination_sync(1, {"workspace_id": WS1, "run_id": run_id}))
-    assert tc.get(f"/api/audience-destinations/{destination_id}/runs").json()[0]["status"] == "completed_with_errors"
+    assert tc.get(f"/api/audience-destinations/{destination_id}/runs").json()["runs"][0]["status"] == "completed_with_errors"
     listed = tc.get("/api/audience-destinations?audience_id=aud-1").json()
     assert next(item for item in listed if item["id"] == destination_id)["latest_run"]["id"] == run_id
 
@@ -711,7 +786,7 @@ def test_paid_media_skips_profiles_without_identifiers_independently(destination
     assert by_lead[42]["status"] == "success"
     assert by_lead[43]["status"] == "skipped"
     assert by_lead[43]["summary"] == "No valid email or phone identifier"
-    run = tc.get(f"/api/audience-destinations/{created['id']}/runs").json()[0]
+    run = tc.get(f"/api/audience-destinations/{created['id']}/runs").json()["runs"][0]
     assert run["attempted"] == 1 and run["succeeded"] == 1 and run["skipped"] == 1
 
 
@@ -916,7 +991,7 @@ def test_crm_inbound_token_auth_replay_and_receipts(destination_app, monkeypatch
     replay = tc.post(f"/api/audience-destinations/inbound/{destination_id}", json=body, headers={"Authorization": f"Bearer {token}"})
     assert first.status_code == 200 and first.json()["applied_fields"] == ["contact_title", "phone"]
     assert replay.json()["replay"] is True
-    history = tc.get(f"/api/audience-destinations/{destination_id}/inbound-receipts").json()
+    history = tc.get(f"/api/audience-destinations/{destination_id}/inbound-receipts").json()["receipts"]
     assert len(history) == 1 and history[0]["external_event_id"] == "hub-evt-1"
     after = tc.get(f"/api/audience-destinations/{destination_id}/inbound-token").json()
     assert after["active"] is True and after["last_used_at"] is not None
