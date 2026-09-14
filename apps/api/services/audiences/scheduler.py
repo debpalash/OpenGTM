@@ -69,7 +69,7 @@ async def handle_audience_refresh(job_id: int, payload: dict) -> None:
         logger.warning("audience_refresh missing workspace_id/audience_id: %s", payload)
         return
     from apps.api.core.tenancy import WorkspaceCtx, workspace_scope
-    from apps.api.services.audiences.refresh import refresh_audience
+    from apps.api.services.audiences.refresh import refresh_audience_observed
     from apps.api.services.workspace import manager as workspace_manager
 
     with workspace_scope(workspace_id):
@@ -86,7 +86,18 @@ async def handle_audience_refresh(job_id: int, payload: dict) -> None:
                 logger.warning("audience_refresh workspace missing: %s", workspace_id)
                 return
             ctx = WorkspaceCtx(user=None, workspace_id=workspace_id, slug=slug)  # type: ignore[arg-type]
-            refresh_audience(db, ctx, audience)
+            try:
+                refresh_audience_observed(db, ctx, audience)
+            except Exception:
+                # A source failure must not permanently strand a recurring
+                # audience. Persist the next occurrence before queue retry or
+                # dead-letter handling takes over.
+                audience = db.query(Audience).filter(
+                    Audience.id == audience_id,
+                    Audience.workspace_id == workspace_id,
+                ).one()
+                schedule_next(db, audience)
+                raise
             schedule_next(db, audience)
 
 

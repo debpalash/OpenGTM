@@ -1,5 +1,6 @@
 """Persistent audience CRUD, validation, counts, and tenant isolation."""
 
+import asyncio
 import pytest
 from types import SimpleNamespace
 from fastapi import FastAPI
@@ -82,6 +83,8 @@ def test_audience_crud_and_dynamic_count(client):
     assert audience["member_count"] == 7
     assert audience["refreshed_at"] is not None
     assert audience["refresh_enabled"] is True
+    assert audience["refresh_health"] == "healthy"
+    assert audience["consecutive_refresh_failures"] == 0
     assert audience["next_refresh_at"] is not None
     session = Session()
     assert session.query(Job).filter(Job.type == "audience_refresh", Job.status == "pending").count() == 1
@@ -143,6 +146,40 @@ def test_audience_workspace_isolation(client):
     app.dependency_overrides[current_workspace] = lambda: _ctx(WS2)
     app.dependency_overrides[require_editor] = lambda: _ctx(WS2)
     assert [item["name"] for item in tc.get("/api/audiences").json()] == ["Other tenant"]
+
+
+def test_scheduled_refresh_failure_records_health_and_keeps_recurrence(client, monkeypatch):
+    tc, Session, _ = client
+    audience_id = tc.post("/api/audiences", json={"name": "Resilient", "filters": {}}).json()["id"]
+
+    class _FailingStore:
+        def query_leads_page(self, filters, page, page_size):
+            raise RuntimeError("source unavailable")
+        def close(self):
+            pass
+
+    from apps.api.services.audiences import scheduler
+    from apps.api.services.workspace import manager as workspace_manager
+    monkeypatch.setattr(scheduler, "SessionLocal", Session)
+    monkeypatch.setattr(workspace_manager, "workspace_slug", lambda workspace_id: "workspace")
+    monkeypatch.setattr(WorkspaceCtx, "lead_db", lambda self: _FailingStore())
+
+    with pytest.raises(RuntimeError, match="source unavailable"):
+        asyncio.run(scheduler.handle_audience_refresh(
+            1, {"workspace_id": WS1, "audience_id": audience_id},
+        ))
+
+    with Session() as db:
+        audience = db.get(Audience, audience_id)
+        assert audience.refresh_health == "degraded"
+        assert audience.consecutive_refresh_failures == 1
+        assert "RuntimeError: source unavailable" in audience.last_refresh_error
+        scheduled = db.query(Job).filter(
+            Job.type == "audience_refresh",
+            Job.status == "pending",
+            Job.fire_key.like(f"audience_refresh:{audience_id}:%"),
+        ).all()
+        assert len(scheduled) == 1
 
 
 def test_membership_entry_enqueues_scoped_automation(monkeypatch):

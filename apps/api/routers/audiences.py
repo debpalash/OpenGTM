@@ -11,7 +11,7 @@ from sqlalchemy import func
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace, require_workspace_role
 from apps.api.database import get_db
 from apps.api.services.audiences.models import Audience, AudienceMember, AudienceMembershipEvent
-from apps.api.services.audiences.refresh import refresh_audience as materialize_audience
+from apps.api.services.audiences.refresh import refresh_audience_observed as materialize_audience
 
 router = APIRouter(prefix="/api/audiences", tags=["audiences"])
 require_editor = require_workspace_role("editor", "admin", permission="audiences.write")
