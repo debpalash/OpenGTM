@@ -8,6 +8,7 @@ def _items(*ids, maturity="supported"):
 def _patch_catalogs(monkeypatch, *, maturity="supported"):
     import apps.api.services.integrations.certification as certification
     import apps.api.services.leadgen.enrichment.declarative.manifest as manifests
+    import apps.api.services.workbook.providers as providers
 
     monkeypatch.setattr(certification, "integration_catalog", lambda: _items("hubspot", maturity=maturity))
     monkeypatch.setattr(certification, "signal_source_catalog", lambda: _items("jobspy", maturity=maturity))
@@ -21,6 +22,9 @@ def _patch_catalogs(monkeypatch, *, maturity="supported"):
         "ok": True,
         "connectors": [{"id": "sample", "manifest_sha256": "a" * 64}],
     })
+    monkeypatch.setattr(providers, "list_providers", lambda: [
+        {"name": "hunter_io", "capabilities": ["email"]},
+    ])
 
 
 def test_readiness_fails_closed_without_live_artifact(monkeypatch):
@@ -41,6 +45,7 @@ def test_readiness_fails_closed_without_live_artifact(monkeypatch):
     }
     assert result["gauntlet"]["reason_codes"] == ["artifact_missing"]
     assert result["community_connectors"]["missing"] == ["connector:sample"]
+    assert result["enrichment_providers"]["missing"] == ["provider:hunter_io"]
 
 
 def test_readiness_requires_both_certifications_and_gauntlet(tmp_path, monkeypatch):
@@ -63,6 +68,7 @@ def test_readiness_requires_both_certifications_and_gauntlet(tmp_path, monkeypat
     assert result["eligible"] is True
     assert result["first_party"] == {"required": 4, "supported": 4, "missing": []}
     assert result["community_connectors"]["supported"] == 1
+    assert result["enrichment_providers"]["supported"] == 1
     assert result["gauntlet"]["consecutive_production_like_passes"] == 10
     assert result["gauntlet"]["build_matches_deployment"] is True
 

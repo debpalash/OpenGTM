@@ -44,6 +44,7 @@ def _certificate(integration_id="hubspot"):
             "bounded_traversal", "durable_results", "cooperative_cancellation",
             "in_place_retry", "completed_work_preservation", "single_flight",
             "restart_recovery",
+            "quality_sample",
         }
     }
     return {
@@ -350,3 +351,21 @@ def test_installed_connector_maturity_requires_matching_subject(tmp_path):
         build_sha="abc123",
     )
     assert unbound["connector:leadmagic_email"]["maturity"] == "beta"
+
+
+def test_enrichment_provider_maturity_is_independent_and_build_bound(tmp_path):
+    certificate = attest_certificate({
+        **_certificate(),
+        "subject_id": "provider:hunter_io",
+        "integration_id": None,
+        "validation_run_id": "hunter-live-1",
+    }, KEY)
+    statuses = certification_statuses(
+        ["provider:hunter_io", "provider:apollo_io"],
+        path=_write(tmp_path, [certificate]), key=KEY, now=NOW,
+        build_sha="abc123",
+    )
+
+    assert statuses["provider:hunter_io"]["maturity"] == "supported"
+    assert statuses["provider:hunter_io"]["certification"]["validation_run_id"] == "hunter-live-1"
+    assert statuses["provider:apollo_io"]["maturity"] == "beta"

@@ -1800,7 +1800,7 @@ export default function WorkbookEditorPage() {
                           className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
                           <option value="">Select provider...</option>
                           {availableProviders.map(p => (
-                            <option key={p.name} value={p.name}>{p.name} ({p.capabilities.join(", ")})</option>
+                            <option key={p.name} value={p.name}>{p.name} · {p.maturity} ({p.capabilities.join(", ")})</option>
                           ))}
                         </select>
                       )}
@@ -2229,7 +2229,7 @@ export default function WorkbookEditorPage() {
                   >
                     <option value="">Select provider...</option>
                     {availableProviders.map(p => (
-                      <option key={p.name} value={p.name}>{p.name} ({p.capabilities.join(", ")})</option>
+                      <option key={p.name} value={p.name}>{p.name} · {p.maturity} ({p.capabilities.join(", ")})</option>
                     ))}
                   </select>
                 </div>
@@ -2273,7 +2273,7 @@ export default function WorkbookEditorPage() {
                     {availableProviders
                       .filter(p => !(col.waterfall || []).includes(p.name))
                       .map(p => (
-                        <option key={p.name} value={p.name}>{p.name} ({p.capabilities.join(", ")})</option>
+                        <option key={p.name} value={p.name}>{p.name} · {p.maturity} ({p.capabilities.join(", ")})</option>
                       ))}
                   </select>
                 </div>

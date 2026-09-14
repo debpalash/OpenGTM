@@ -38,6 +38,7 @@ def _release_readiness() -> dict:
         load_all_manifests,
         validate_manifest_directory,
     )
+    from apps.api.services.workbook.providers import list_providers
 
     groups = {
         "integrations": integration_catalog(),
@@ -67,6 +68,14 @@ def _release_readiness() -> dict:
     connector_missing = [
         subject for subject in connector_subjects
         if connector_status[subject]["maturity"] != "supported"
+    ]
+    provider_subjects = [
+        f"provider:{provider['name']}" for provider in list_providers()
+    ]
+    provider_status = certification_statuses(provider_subjects)
+    provider_missing = [
+        subject for subject in provider_subjects
+        if provider_status[subject]["maturity"] != "supported"
     ]
 
     artifact_path = os.getenv(GAUNTLET_ARTIFACT_ENV, "")
@@ -111,6 +120,11 @@ def _release_readiness() -> dict:
             "supported": len(connector_subjects) - len(connector_missing),
             "missing": connector_missing,
             "manifest_review_ok": review.get("ok") is True,
+        },
+        "enrichment_providers": {
+            "total": len(provider_subjects),
+            "supported": len(provider_subjects) - len(provider_missing),
+            "missing": provider_missing,
         },
         "gauntlet": gauntlet,
     }

@@ -550,7 +550,7 @@ export async function fetchFilterOptions(): Promise<FilterOptions> {
 }
 
 export async function fetchProviders(): Promise<{
-  providers: Array<{ name: string; capabilities: string[]; confidence: number }>
+  providers: Array<{ name: string; capabilities: string[]; confidence: number; maturity: "beta" | "supported" }>
 }> {
   const res = await fetch(`${API}/api/workbooks/meta/providers`)
   return res.json()
