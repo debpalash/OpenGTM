@@ -5,6 +5,26 @@ from datetime import datetime, timezone
 from apps.api.database import SessionLocal
 
 
+def _result_counts(db, workspace_id: str, run_id: str) -> dict[str, int]:
+    """Aggregate a playbook ledger in SQL without materializing profile rows."""
+    from sqlalchemy import case, func
+    from apps.api.services.playbooks.models import PlaybookResult
+
+    attempted, succeeded, failed = db.query(
+        func.count(PlaybookResult.id),
+        func.coalesce(func.sum(case((PlaybookResult.status == "success", 1), else_=0)), 0),
+        func.coalesce(func.sum(case((PlaybookResult.status == "failed", 1), else_=0)), 0),
+    ).filter(
+        PlaybookResult.workspace_id == workspace_id,
+        PlaybookResult.run_id == run_id,
+    ).one()
+    return {
+        "attempted": int(attempted),
+        "succeeded": int(succeeded),
+        "failed": int(failed),
+    }
+
+
 def reconcile_playbook_job_failure(
     job_id: int,
     payload: dict,
@@ -32,26 +52,27 @@ def reconcile_playbook_job_failure(
             results = db.query(PlaybookResult).filter(
                 PlaybookResult.workspace_id == workspace_id,
                 PlaybookResult.run_id == run_id,
-            ).all()
+            )
             if will_retry:
                 run.status = "pending"
                 run.error = f"Queue retry scheduled: {message}"
                 run.finished_at = None
-                for result in results:
-                    if result.status == "running":
-                        result.status = "pending"
-                        result.error = run.error
+                results.filter(PlaybookResult.status == "running").update({
+                    PlaybookResult.status: "pending",
+                    PlaybookResult.error: run.error,
+                }, synchronize_session=False)
             else:
                 run.status = "failed"
                 run.error = f"Final failure: {message}"
                 run.finished_at = datetime.now(timezone.utc)
-                for result in results:
-                    if result.status in {"pending", "running"}:
-                        result.status = "failed"
-                        result.error = run.error
-                run.attempted = len(results)
-                run.succeeded = sum(result.status == "success" for result in results)
-                run.failed = sum(result.status == "failed" for result in results)
+                results.filter(PlaybookResult.status.in_(("pending", "running"))).update({
+                    PlaybookResult.status: "failed",
+                    PlaybookResult.error: run.error,
+                }, synchronize_session=False)
+                counts = _result_counts(db, workspace_id, run_id)
+                run.attempted = counts["attempted"]
+                run.succeeded = counts["succeeded"]
+                run.failed = counts["failed"]
             db.commit()
 
 
@@ -110,10 +131,10 @@ async def handle_playbook_run(job_id: int, payload: dict) -> None:
                 except Exception as exc:
                     result.status, result.error = "failed", str(exc)[:1000]
                 db.commit()
-            results = db.query(PlaybookResult).filter(PlaybookResult.workspace_id == workspace_id, PlaybookResult.run_id == run.id).all()
-            run.attempted = len(results)
-            run.succeeded = sum(x.status == "success" for x in results)
-            run.failed = sum(x.status == "failed" for x in results)
+            counts = _result_counts(db, workspace_id, run.id)
+            run.attempted = counts["attempted"]
+            run.succeeded = counts["succeeded"]
+            run.failed = counts["failed"]
             run.status = "completed" if not run.failed else "completed_with_errors"
             run.finished_at = datetime.now(timezone.utc)
             db.commit()
