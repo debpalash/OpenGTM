@@ -19,6 +19,20 @@ nginx with sane defaults.
 
 ## Install
 
+For an installer that generates unique local secrets and starts Compose:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/debpalash/opengtm/main/scripts/install.sh | bash
+```
+
+On Windows PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/debpalash/opengtm/main/scripts/install.ps1 | iex
+```
+
+Or configure the stack manually:
+
 ```bash
 git clone https://github.com/debpalash/opengtm.git
 cd opengtm
