@@ -178,15 +178,26 @@ def _account_key(snapshot: dict) -> tuple[str, str]:
 
 
 @router.get("/{audience_id}/accounts")
-def list_audience_accounts(audience_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+def list_audience_accounts(
+    audience_id: str,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0, le=100000),
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
     """Roll person-level membership into company coverage and intent summaries."""
     _get(db, ctx.workspace_id, audience_id)
-    members = db.query(AudienceMember).filter(AudienceMember.workspace_id == ctx.workspace_id, AudienceMember.audience_id == audience_id).all()
+    members = db.query(AudienceMember).filter(
+        AudienceMember.workspace_id == ctx.workspace_id,
+        AudienceMember.audience_id == audience_id,
+    ).order_by(AudienceMember.id.asc()).yield_per(1000)
     from apps.api.services.leadgen.orm_models import SignalRow
     signal_rows = db.query(SignalRow.lead_id, func.count(SignalRow.id), func.coalesce(func.sum(SignalRow.weight), 0)).join(AudienceMember, (AudienceMember.lead_id == SignalRow.lead_id) & (AudienceMember.workspace_id == SignalRow.workspace_id)).filter(AudienceMember.workspace_id == ctx.workspace_id, AudienceMember.audience_id == audience_id).group_by(SignalRow.lead_id).all()
     signals = {lead_id: (int(count), int(weight)) for lead_id, count, weight in signal_rows}
     accounts: dict[str, dict] = {}
+    contact_count = 0
     for member in members:
+        contact_count += 1
         snapshot = dict(member.snapshot or {})
         key, company = _account_key(snapshot)
         account = accounts.setdefault(key, {"key": key, "company": company, "website": snapshot.get("website") or "", "contacts": 0, "with_email": 0, "with_phone": 0, "decision_makers": 0, "score_total": 0.0, "signal_count": 0, "signal_weight": 0, "profiles": []})
@@ -208,7 +219,19 @@ def list_audience_accounts(audience_id: str, db: Session = Depends(get_db), ctx:
         account["profiles"] = account["profiles"][:10]
         result.append(account)
     result.sort(key=lambda row: (-row["signal_weight"], -row["avg_score"], -row["contacts"], row["company"].lower()))
-    return {"accounts": result, "summary": {"account_count": len(result), "contact_count": len(members), "accounts_with_signals": sum(row["signal_count"] > 0 for row in result), "accounts_with_decision_makers": sum(row["decision_makers"] > 0 for row in result)}}
+    total = len(result)
+    page = result[offset:offset + limit]
+    next_offset = offset + len(page) if offset + len(page) < total else None
+    return {
+        "accounts": page,
+        "summary": {
+            "account_count": total,
+            "contact_count": contact_count,
+            "accounts_with_signals": sum(row["signal_count"] > 0 for row in result),
+            "accounts_with_decision_makers": sum(row["decision_makers"] > 0 for row in result),
+        },
+        "pagination": {"limit": limit, "offset": offset, "next_offset": next_offset, "total": total},
+    }
 
 
 @router.get("/{audience_id}/events")

@@ -64,7 +64,7 @@ export default function AudiencesPage() {
   const [inboundPolicy, setInboundPolicy] = useState("fill_missing")
   const [inboundSetup, setInboundSetup] = useState<{ destinationId: string; token?: string; receipts: InboundReceipt[] } | null>(null)
   const selectedDestinationType = destinationTypes.data?.find((item) => item.id === destinationType)
-  const [accountRollup, setAccountRollup] = useState<{ accounts: AudienceAccount[]; summary: { account_count: number; contact_count: number; accounts_with_signals: number; accounts_with_decision_makers: number } } | null>(null)
+  const [accountRollup, setAccountRollup] = useState<{ accounts: AudienceAccount[]; summary: { account_count: number; contact_count: number; accounts_with_signals: number; accounts_with_decision_makers: number }; pagination: { limit: number; offset: number; next_offset: number | null; total: number } } | null>(null)
   useEffect(() => {
     if (!selectedId) { setAccountRollup(null); return }
     fetch(`/api/audiences/${selectedId}/accounts`).then(response => response.ok ? response.json() : Promise.reject()).then(setAccountRollup).catch(() => setAccountRollup(null))
