@@ -294,18 +294,71 @@ class QueueService:
                 )
                 if stuck_jobs:
                     logger.info(f"Recovering {len(stuck_jobs)} stuck jobs...")
-                    for job in stuck_jobs:
-                        job.status = "pending"
-                        job.started_at = None
-                        job.worker_id = None
-                        job.locked_at = None
-                        job.error = "Recovered from crash"
-                        # Increment retry count to avoid infinite crash loops
-                        job.retry_count = (job.retry_count or 0) + 1
-                        job.next_run_at = datetime.now(timezone.utc) + timedelta(minutes=1)
-                    db.commit()
+                    notices = self._transition_dead_jobs(
+                        db, stuck_jobs, "Recovered from crash", datetime.now(timezone.utc)
+                    )
+                else:
+                    notices = []
+            self._reconcile_dead_jobs(notices)
         except Exception as e:
             logger.error(f"Failed to recover jobs: {e}")
+
+    def _transition_dead_jobs(self, db, jobs, reason: str, now: datetime) -> list[tuple]:
+        """Apply the normal retry ceiling to abandoned processing claims."""
+        notices = []
+        for job in jobs:
+            retries = job.retry_count or 0
+            max_retries = job.max_retries if job.max_retries is not None else 3
+            will_retry = retries < max_retries
+            job.worker_id = None
+            job.locked_at = None
+            if will_retry:
+                job.status = "pending"
+                job.retry_count = retries + 1
+                job.started_at = None
+                job.next_run_at = now + timedelta(minutes=2 ** retries)
+                job.error = f"Retry {job.retry_count}: {reason}"
+            else:
+                job.status = "failed"
+                job.completed_at = now
+                job.error = f"Final Failure: {reason}"
+            notices.append((job.id, job.type, dict(job.payload or {}), reason, will_retry))
+        db.commit()
+        return notices
+
+    def _reconcile_dead_jobs(self, notices: list[tuple]) -> None:
+        """Notify domain ledgers after recovered queue state is committed."""
+        for job_id, job_type, payload, reason, will_retry in notices:
+            handler = self.failure_handlers.get(job_type)
+            if handler is None:
+                continue
+            try:
+                handler(job_id, payload, reason, will_retry)
+            except Exception:
+                logger.exception(
+                    "Failure reconciliation failed for recovered Job %s (%s)",
+                    job_id, job_type,
+                )
+
+    def reap_dead_jobs_once(self, now: Optional[datetime] = None) -> int:
+        """Recover stale heartbeat claims once, safely across worker replicas."""
+        now = now or datetime.now(timezone.utc)
+        threshold = now - timedelta(minutes=5)
+        with SessionLocal() as db:
+            query = db.query(Job).filter(
+                Job.status == "processing",
+                or_(Job.last_heartbeat < threshold, Job.last_heartbeat == None),
+            )
+            if db.get_bind().dialect.name == "postgresql":
+                query = query.with_for_update(skip_locked=True)
+            dead_jobs = query.all()
+            for job in dead_jobs:
+                logger.warning(
+                    "Job %s detected dead (heartbeat timeout). Recovering...", job.id
+                )
+            notices = self._transition_dead_jobs(db, dead_jobs, "Heartbeat Timeout", now)
+        self._reconcile_dead_jobs(notices)
+        return len(notices)
 
     async def start_worker(self):
         if self.is_running:
@@ -521,41 +574,7 @@ class QueueService:
         while self.is_running:
             try:
                 await asyncio.sleep(60)  # Check every minute
-                with SessionLocal() as db:
-                    # Find jobs processing > 5 mins ago with no heartbeat update
-                    # Assuming heartbeat is every 30s. Allow 5 mins grace.
-                    threshold = datetime.now(timezone.utc) - timedelta(minutes=5)
-                    dead_jobs = (
-                        db.query(Job)
-                        .filter(
-                            Job.status == "processing",
-                            or_(
-                                Job.last_heartbeat < threshold,
-                                Job.last_heartbeat == None,
-                            ),
-                        )
-                        .all()
-                    )
-
-                    for job in dead_jobs:
-                        # Mark as crashed/retry
-                        logger.warning(
-                            f"Job {job.id} detected dead (heartbeat timeout). Recovering..."
-                        )
-                        job.status = (
-                            "pending"  # Will trigger retry count check on next pickup?
-                        )
-                        # Actually we should increment retry here to avoid loops
-                        job.retry_count = (job.retry_count or 0) + 1
-                        job.error = "Heartbeat Timeout"
-                        # Release the dead worker's claim so another worker can
-                        # re-claim it cleanly.
-                        job.worker_id = None
-                        job.locked_at = None
-                        job.next_run_at = datetime.now(timezone.utc) + timedelta(minutes=1)
-
-                    if dead_jobs:
-                        db.commit()
+                await asyncio.to_thread(self.reap_dead_jobs_once)
 
             except Exception as e:
                 logger.error(f"Monitor loop error: {e}")
