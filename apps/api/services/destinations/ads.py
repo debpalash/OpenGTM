@@ -81,6 +81,25 @@ def _google_partial_failure(body: object) -> str | None:
     return f"Google Ads rejected operations (status={status}, code={safe_code}, count={count})"
 
 
+def _linkedin_batch_failure(body: object, expected: int) -> str | None:
+    """Validate every batch element without retaining LinkedIn error messages."""
+    if not isinstance(body, dict) or not isinstance(body.get("elements"), list):
+        return "LinkedIn returned an invalid batch response"
+    elements = body["elements"]
+    if len(elements) != expected:
+        return f"LinkedIn returned an incomplete batch response (expected={expected}, received={len(elements)})"
+    rejected_statuses = [
+        item.get("status") if isinstance(item, dict) else None
+        for item in elements
+        if not isinstance(item, dict) or item.get("status") != 201
+    ]
+    if rejected_statuses:
+        safe_statuses = sorted({status for status in rejected_statuses if isinstance(status, int)})
+        status_text = ",".join(str(status) for status in safe_statuses) or "unknown"
+        return f"LinkedIn rejected batch elements (count={len(rejected_statuses)}, statuses={status_text})"
+    return None
+
+
 def _secret(workspace_id: str, key: str) -> str:
     value = get_secret(workspace_id, key)
     if not value:
@@ -137,10 +156,13 @@ async def sync_ad_batch(workspace_id: str, dtype: str, config: dict, snapshots: 
             ]} for row in rows if row.get("email")]
             if not elements:
                 return AdBatchResult(False, "", "LinkedIn requires a valid email identifier")
-            await _request(client, "POST", f"https://api.linkedin.com/rest/dmpSegments/{segment_id}/users", headers={
+            response = await _request(client, "POST", f"https://api.linkedin.com/rest/dmpSegments/{segment_id}/users", headers={
                 "Authorization": f"Bearer {token}", "Linkedin-Version": config.get("api_version", "202607"),
                 "X-Restli-Protocol-Version": "2.0.0", "X-RestLi-Method": "BATCH_CREATE",
             }, json={"elements": elements})
+            batch_failure = _linkedin_batch_failure(response.json(), len(elements))
+            if batch_failure:
+                return AdBatchResult(False, "", batch_failure, external_id=str(segment_id))
             return AdBatchResult(True, f"{operation_past} {len(elements)} hashed users", external_id=str(segment_id))
 
         if dtype == "google_ads":
