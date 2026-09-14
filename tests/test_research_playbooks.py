@@ -1,8 +1,16 @@
 import asyncio
 
+import pytest
+from fastapi import HTTPException
 from starlette.requests import Request
 
-from apps.api.routers.playbooks import cancel_run, playbook_capabilities, retry_run
+from apps.api.routers.playbooks import (
+    cancel_run,
+    list_results,
+    list_runs,
+    playbook_capabilities,
+    retry_run,
+)
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -12,6 +20,68 @@ from apps.api.database import Base
 from apps.api.models import Job
 from apps.api.services.audiences.models import Audience, AudienceMember
 from apps.api.services.playbooks.models import PlaybookResult, PlaybookRun, PlaybookSchedule, ResearchPlaybook
+
+
+def test_playbook_history_pages_are_stable_bounded_and_tenant_safe():
+    from datetime import datetime, timedelta
+
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(
+        engine,
+        tables=[Audience.__table__, ResearchPlaybook.__table__, PlaybookRun.__table__, PlaybookResult.__table__],
+    )
+    Session = sessionmaker(bind=engine)
+    created = datetime.utcnow() - timedelta(days=1)
+    with Session() as db:
+        db.add(Audience(id="aud", workspace_id="ws", name="Target", filters={}))
+        db.add(Audience(id="other-aud", workspace_id="other", name="Other", filters={}))
+        db.add(ResearchPlaybook(id="pb", workspace_id="ws", name="Paged", prompt_template="Research fully"))
+        db.add(ResearchPlaybook(id="other-pb", workspace_id="other", name="Other", prompt_template="Research fully"))
+        for index in range(5):
+            db.add(PlaybookRun(
+                id=f"run-{index}", workspace_id="ws", playbook_id="pb", audience_id="aud",
+                prompt_version=1, prompt_snapshot="Research fully", created_at=created,
+            ))
+        db.add(PlaybookRun(
+            id="foreign-run", workspace_id="other", playbook_id="other-pb", audience_id="other-aud",
+            prompt_version=1, prompt_snapshot="Research fully", created_at=created + timedelta(days=2),
+        ))
+        for lead_id in range(1, 7):
+            db.add(PlaybookResult(
+                workspace_id="ws", run_id="run-0", lead_id=lead_id, status="success", value="done",
+            ))
+        db.commit()
+        ctx = type("Ctx", (), {"workspace_id": "ws"})()
+
+        first = list_runs("pb", db=db, ctx=ctx, limit=2, offset=0, cursor=None)
+        assert first["has_more"] is True and len(first["runs"]) == 2
+        assert "foreign-run" not in {run["id"] for run in first["runs"]}
+        db.add(PlaybookRun(
+            id="new-run", workspace_id="ws", playbook_id="pb", audience_id="aud",
+            prompt_version=1, prompt_snapshot="Research fully", created_at=created + timedelta(days=3),
+        ))
+        db.commit()
+        second = list_runs("pb", db=db, ctx=ctx, limit=2, offset=0, cursor=first["next_cursor"])
+        third = list_runs("pb", db=db, ctx=ctx, limit=2, offset=0, cursor=second["next_cursor"])
+        traversed = first["runs"] + second["runs"] + third["runs"]
+        assert len(traversed) == 5 and len({run["id"] for run in traversed}) == 5
+        assert "new-run" not in {run["id"] for run in traversed}
+
+        result_first = list_results("run-0", db=db, ctx=ctx, limit=2, offset=0, cursor=None)
+        result_second = list_results(
+            "run-0", db=db, ctx=ctx, limit=2, offset=0, cursor=result_first["next_cursor"],
+        )
+        assert [row["lead_id"] for row in result_first["results"] + result_second["results"]] == [1, 2, 3, 4]
+        assert result_first["has_more"] is True and result_second["has_more"] is True
+
+        with pytest.raises(HTTPException, match="invalid playbook run cursor"):
+            list_runs("pb", db=db, ctx=ctx, limit=2, offset=0, cursor="bad")
+        with pytest.raises(HTTPException, match="invalid playbook result cursor"):
+            list_results("run-0", db=db, ctx=ctx, limit=2, offset=0, cursor="bad")
 
 
 def test_agent_capabilities_fail_closed_without_live_evidence(monkeypatch):

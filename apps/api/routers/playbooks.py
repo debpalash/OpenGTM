@@ -1,7 +1,12 @@
+import base64
+import binascii
+import json
+from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field, model_validator
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
@@ -12,6 +17,34 @@ from apps.api.services.playbooks.models import PlaybookResult, PlaybookRun, Rese
 
 router = APIRouter(prefix="/api/research-playbooks", tags=["research-playbooks"])
 require_editor = require_workspace_role("editor", "admin", permission="agents.write")
+
+
+def _encode_run_cursor(run: PlaybookRun) -> str:
+    payload = json.dumps([run.created_at.isoformat(), run.id], separators=(",", ":")).encode()
+    return base64.urlsafe_b64encode(payload).decode().rstrip("=")
+
+
+def _decode_run_cursor(cursor: str) -> tuple[datetime, str]:
+    try:
+        value = json.loads(base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4)))
+        if not isinstance(value, list) or len(value) != 2 or not isinstance(value[1], str):
+            raise ValueError
+        created_at = datetime.fromisoformat(value[0])
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=timezone.utc)
+        return created_at, value[1]
+    except (ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError, binascii.Error) as exc:
+        raise HTTPException(422, "invalid playbook run cursor") from exc
+
+
+def _decode_result_cursor(cursor: str) -> int:
+    try:
+        value = int(cursor)
+        if value < 0:
+            raise ValueError
+        return value
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(422, "invalid playbook result cursor") from exc
 
 
 @router.get("/capabilities")
@@ -143,17 +176,71 @@ def start_run(playbook_id: str, body: RunCreate, db: Session = Depends(get_db), 
 
 
 @router.get("/{playbook_id}/runs")
-def list_runs(playbook_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+def list_runs(
+    playbook_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0, le=100000),
+    cursor: Optional[str] = Query(None, max_length=1024),
+):
     _playbook(db, ctx.workspace_id, playbook_id)
-    return [x.to_api() for x in db.query(PlaybookRun).filter(PlaybookRun.workspace_id == ctx.workspace_id, PlaybookRun.playbook_id == playbook_id).order_by(PlaybookRun.created_at.desc()).limit(100).all()]
+    query = db.query(PlaybookRun).filter(
+        PlaybookRun.workspace_id == ctx.workspace_id,
+        PlaybookRun.playbook_id == playbook_id,
+    )
+    if cursor:
+        created_at, run_id = _decode_run_cursor(cursor)
+        query = query.filter(or_(
+            PlaybookRun.created_at < created_at,
+            and_(PlaybookRun.created_at == created_at, PlaybookRun.id < run_id),
+        ))
+    query = query.order_by(PlaybookRun.created_at.desc(), PlaybookRun.id.desc()).limit(limit + 1)
+    if offset and not cursor:
+        query = query.offset(offset)
+    rows = query.all()
+    has_more = len(rows) > limit
+    page = rows[:limit]
+    return {
+        "runs": [row.to_api() for row in page],
+        "limit": limit,
+        "offset": offset if not cursor else None,
+        "has_more": has_more,
+        "next_cursor": _encode_run_cursor(page[-1]) if has_more else None,
+    }
 
 
 @router.get("/runs/{run_id}/results")
-def list_results(run_id: str, db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(current_workspace)):
+def list_results(
+    run_id: str,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0, le=100000),
+    cursor: Optional[str] = Query(None, max_length=32),
+):
     run = db.query(PlaybookRun).filter(PlaybookRun.id == run_id, PlaybookRun.workspace_id == ctx.workspace_id).first()
     if run is None:
         raise HTTPException(404, "Playbook run not found")
-    return [x.to_api() for x in db.query(PlaybookResult).filter(PlaybookResult.workspace_id == ctx.workspace_id, PlaybookResult.run_id == run_id).order_by(PlaybookResult.lead_id).all()]
+    query = db.query(PlaybookResult).filter(
+        PlaybookResult.workspace_id == ctx.workspace_id,
+        PlaybookResult.run_id == run_id,
+    )
+    if cursor:
+        query = query.filter(PlaybookResult.id > _decode_result_cursor(cursor))
+    query = query.order_by(PlaybookResult.id.asc()).limit(limit + 1)
+    if offset and not cursor:
+        query = query.offset(offset)
+    rows = query.all()
+    has_more = len(rows) > limit
+    page = rows[:limit]
+    return {
+        "results": [row.to_api() for row in page],
+        "limit": limit,
+        "offset": offset if not cursor else None,
+        "has_more": has_more,
+        "next_cursor": str(page[-1].id) if has_more else None,
+    }
 
 
 @router.post("/runs/{run_id}/retry", status_code=202)

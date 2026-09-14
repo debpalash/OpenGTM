@@ -42,7 +42,10 @@ class PlaybookSchedule(Base):
 
 class PlaybookRun(Base):
     __tablename__ = "playbook_runs"
-    __table_args__ = (Index("ix_playbook_runs_ws_playbook_created", "workspace_id", "playbook_id", "created_at"),)
+    __table_args__ = (
+        Index("ix_playbook_runs_ws_playbook_created", "workspace_id", "playbook_id", "created_at"),
+        Index("ix_playbook_runs_ws_playbook_cursor", "workspace_id", "playbook_id", "created_at", "id"),
+    )
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     workspace_id = Column(String, nullable=False, index=True)
     playbook_id = Column(String, ForeignKey("research_playbooks.id", ondelete="CASCADE"), nullable=False, index=True)
@@ -67,7 +70,10 @@ class PlaybookRun(Base):
 
 class PlaybookResult(Base):
     __tablename__ = "playbook_results"
-    __table_args__ = (UniqueConstraint("workspace_id", "run_id", "lead_id", name="uq_playbook_result_run_lead"),)
+    __table_args__ = (
+        UniqueConstraint("workspace_id", "run_id", "lead_id", name="uq_playbook_result_run_lead"),
+        Index("ix_playbook_results_ws_run_cursor", "workspace_id", "run_id", "id"),
+    )
     id = Column(Integer, primary_key=True, autoincrement=True)
     workspace_id = Column(String, nullable=False, index=True)
     run_id = Column(String, ForeignKey("playbook_runs.id", ondelete="CASCADE"), nullable=False, index=True)
