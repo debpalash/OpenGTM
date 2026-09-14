@@ -21,6 +21,26 @@ import asyncio
 import sys
 import os
 
+
+def _emit_json_report(report, output=None):
+    """Print JSON or atomically replace an explicitly requested artifact."""
+    import json
+    import uuid
+    from pathlib import Path
+
+    encoded = json.dumps(report, indent=2) + "\n"
+    if not output:
+        print(encoded, end="")
+        return
+    target = Path(output)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    temporary = target.with_name(f".{target.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        temporary.write_text(encoded, encoding="utf-8")
+        os.replace(temporary, target)
+    finally:
+        temporary.unlink(missing_ok=True)
+
 # Ensure project root is in path
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if ROOT_DIR not in sys.path:
@@ -257,8 +277,6 @@ def cmd_connector_install(args):
 
 
 def cmd_queue_load_test(args):
-    import json
-
     from apps.api.services.queue_load import run_queue_load_test
 
     report = run_queue_load_test(
@@ -270,11 +288,10 @@ def cmd_queue_load_test(args):
         confirmation=args.confirm,
         allow_sqlite=args.allow_sqlite,
     )
-    print(json.dumps(report, indent=2))
+    _emit_json_report(report, args.output)
 
 
 def cmd_workbook_load_test(args):
-    import json
     from apps.api.services.workbook_load import run_workbook_load_test
 
     report = run_workbook_load_test(
@@ -286,7 +303,7 @@ def cmd_workbook_load_test(args):
         max_selection_ms=args.max_selection_ms,
         allow_sqlite=args.allow_sqlite,
     )
-    print(json.dumps(report, indent=2))
+    _emit_json_report(report, args.output)
 
 
 def cmd_backup(args):
@@ -421,6 +438,7 @@ def main():
     p.add_argument("--tenant-cap", type=int, default=2)
     p.add_argument("--hold-ms", type=int, default=5)
     p.add_argument("--confirm", required=True, help='Must equal "RUN QUEUE LOAD TEST"')
+    p.add_argument("--output", help="Atomically write a clean JSON evidence artifact")
     p.add_argument(
         "--allow-sqlite",
         action="store_true",
@@ -436,6 +454,7 @@ def main():
     p.add_argument("--max-search-ms", type=float, default=5_000)
     p.add_argument("--max-selection-ms", type=float, default=2_000)
     p.add_argument("--confirm", required=True, help='Must equal "RUN WORKBOOK LOAD TEST"')
+    p.add_argument("--output", help="Atomically write a clean JSON evidence artifact")
     p.add_argument("--allow-sqlite", action="store_true", help="Harness testing only")
 
     p = sub.add_parser("backup", help="Create an integrity-checked PostgreSQL + data backup")

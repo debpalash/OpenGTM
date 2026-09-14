@@ -1,8 +1,12 @@
+import json
+from types import SimpleNamespace
+
 import pytest
 
 from apps.api.database import SessionLocal
 from apps.api.services.workbook.models import Workbook
 from apps.api.services.workbook_load import CONFIRMATION, run_workbook_load_test
+from apps.api.cli import cmd_workbook_load_test
 
 
 def test_workbook_load_harness_validates_distant_selection_and_cleans_up():
@@ -28,3 +32,15 @@ def test_workbook_load_harness_fails_closed():
         run_workbook_load_test(rows=500, confirmation="", allow_sqlite=True)
     with pytest.raises(ValueError, match="safe bounds"):
         run_workbook_load_test(rows=50, confirmation=CONFIRMATION, allow_sqlite=True)
+
+
+def test_workbook_load_cli_writes_clean_json_artifact(tmp_path):
+    output = tmp_path / "workbook-scale.json"
+    cmd_workbook_load_test(SimpleNamespace(
+        rows=100, page_size=25, confirm=CONFIRMATION,
+        max_page_ms=10_000, max_search_ms=10_000,
+        max_selection_ms=10_000, allow_sqlite=True, output=str(output),
+    ))
+
+    report = json.loads(output.read_text(encoding="utf-8"))
+    assert report["gate"] == "workbook_scale" and report["rows"] == 100

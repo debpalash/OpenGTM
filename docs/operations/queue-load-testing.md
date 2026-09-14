@@ -11,7 +11,8 @@ reported `run_tag` to identify them.
 DATABASE_URL=postgresql+psycopg://... \
 uv run python -m apps.api.cli queue-load-test \
   --jobs 10000 --tenants 100 --claimers 32 --tenant-cap 2 \
-  --hold-ms 10 --confirm "RUN QUEUE LOAD TEST"
+  --hold-ms 10 --output artifacts/queue-scale.json \
+  --confirm "RUN QUEUE LOAD TEST"
 ```
 
 The JSON report is valid evidence only when `dialect` is `postgresql` and `ok`
@@ -22,7 +23,8 @@ only to regression-test the harness and must not be used for a supported-scale
 claim.
 
 For release evidence, run at least 10,000 jobs across 100 tenants with at least
-32 claimers, set `OPENGTM_BUILD_SHA`, and attest the saved report:
+32 claimers and set `OPENGTM_BUILD_SHA`. `--output` atomically writes clean JSON
+even when startup logs are present. Attest the saved report:
 
 ```bash
 OPENGTM_SCALE_ATTESTATION_KEY=... \

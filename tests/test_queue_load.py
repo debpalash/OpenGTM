@@ -1,8 +1,12 @@
+import json
+from types import SimpleNamespace
+
 import pytest
 
 from apps.api.database import SessionLocal
 from apps.api.models import Job
 from apps.api.services.queue_load import CONFIRMATION, run_queue_load_test
+from apps.api.cli import cmd_queue_load_test
 
 
 @pytest.fixture(autouse=True)
@@ -43,3 +47,14 @@ def test_load_harness_requires_confirmation_and_quiescent_queue():
             jobs=1, tenants=1, claimers=1, tenant_cap=1,
             confirmation=CONFIRMATION, allow_sqlite=True,
         )
+
+
+def test_queue_load_cli_writes_clean_json_artifact(tmp_path):
+    output = tmp_path / "queue-scale.json"
+    cmd_queue_load_test(SimpleNamespace(
+        jobs=20, tenants=4, claimers=4, tenant_cap=2, hold_ms=1,
+        confirm=CONFIRMATION, allow_sqlite=True, output=str(output),
+    ))
+
+    report = json.loads(output.read_text(encoding="utf-8"))
+    assert report["gate"] == "queue_scale" and report["completed"] == 20
