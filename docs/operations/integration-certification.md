@@ -35,7 +35,9 @@ uv run python scripts/attest_integration_certification.py \
 The signer streams and hashes `--evidence` and refuses to issue a certificate
 unless those exact bytes match `evidence_sha256`. Upload the same immutable
 artifact bytes at `evidence_url`; do not regenerate or reformat them after
-attestation.
+attestation. Every passed check's `evidence` value must contain an RFC 6901
+JSON pointer (for example `artifact.json#/authentication`) that resolves in
+that artifact; missing or malformed references also prevent issuance.
 
 Deploy a JSON array of attested certificates and configure:
 
