@@ -1,6 +1,7 @@
 """Parent-worker failure callbacks reconcile domain state after killed children."""
 
 import asyncio
+from datetime import datetime, timedelta, timezone
 
 from apps.api.database import SessionLocal
 from apps.api.db_init import init_db
@@ -90,3 +91,47 @@ def test_parent_finalizer_preserves_external_cancellation(monkeypatch):
         job = db.get(Job, job_id)
         assert job.status == "cancelled"
         assert job.completed_at is not None
+
+
+def test_heartbeat_reaper_enforces_retry_ceiling_and_reconciles_domains(monkeypatch):
+    import apps.api.services.queue_service as queue_module
+
+    init_db()
+    now = datetime.now(timezone.utc)
+    with SessionLocal() as db:
+        db.query(Job).delete()
+        retrying = Job(
+            type="reaper_test", payload={"run_id": "retry"}, status="processing",
+            retry_count=0, max_retries=1, worker_id="dead-a",
+            last_heartbeat=now - timedelta(minutes=10),
+        )
+        terminal = Job(
+            type="reaper_test", payload={"run_id": "terminal"}, status="processing",
+            retry_count=1, max_retries=1, worker_id="dead-b",
+            last_heartbeat=now - timedelta(minutes=10),
+        )
+        db.add_all([retrying, terminal]); db.commit()
+        retrying_id, terminal_id = retrying.id, terminal.id
+
+    observed = []
+    queue = QueueService()
+    queue.register_failure_handler(
+        "reaper_test",
+        lambda job_id, payload, error, will_retry: observed.append(
+            (job_id, payload["run_id"], error, will_retry)
+        ),
+    )
+    monkeypatch.setattr(queue_module, "SessionLocal", SessionLocal)
+
+    assert queue.reap_dead_jobs_once(now) == 2
+    with SessionLocal() as db:
+        retrying = db.get(Job, retrying_id)
+        terminal = db.get(Job, terminal_id)
+        assert retrying.status == "pending" and retrying.retry_count == 1
+        assert retrying.worker_id is None and retrying.next_run_at is not None
+        assert terminal.status == "failed" and terminal.retry_count == 1
+        assert terminal.completed_at is not None and terminal.worker_id is None
+    assert {(item[1], item[3]) for item in observed} == {
+        ("retry", True), ("terminal", False),
+    }
+    assert all(item[2] == "Heartbeat Timeout" for item in observed)
