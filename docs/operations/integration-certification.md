@@ -28,8 +28,14 @@ The attestation command refuses incomplete evidence before signing:
 ```bash
 uv run python scripts/attest_integration_certification.py \
   --input artifacts/hubspot-certification.json \
+  --evidence artifacts/hubspot-controlled-live-evidence.json \
   --output artifacts/hubspot-certification.attested.json
 ```
+
+The signer streams and hashes `--evidence` and refuses to issue a certificate
+unless those exact bytes match `evidence_sha256`. Upload the same immutable
+artifact bytes at `evidence_url`; do not regenerate or reformat them after
+attestation.
 
 Deploy a JSON array of attested certificates and configure:
 
