@@ -61,9 +61,22 @@ async def _request(client: httpx.AsyncClient, method: str, url: str, **kwargs) -
     return response
 
 
-async def sync_ad_batch(workspace_id: str, dtype: str, config: dict, snapshots: list[dict]) -> AdBatchResult:
+async def sync_ad_batch(workspace_id: str, dtype: str, config: dict, snapshots: list[dict], operation: str = "add") -> AdBatchResult:
     """Upload one bounded batch and return one result shared by its deliveries."""
-    rows = [hashed_identifiers(row) for row in snapshots]
+    if operation not in {"add", "remove"}:
+        raise ValueError("ad sync operation must be add or remove")
+    operation_past = "added" if operation == "add" else "removed"
+    rows = []
+    for snapshot in snapshots:
+        row = hashed_identifiers(snapshot)
+        # REMOVE reconciliation reads hashes persisted by the successful ADD.
+        # Accept those exact SHA-256 values without hashing them a second time.
+        if operation == "remove":
+            for key in ("email", "phone"):
+                value = str(snapshot.get(key) or "").strip().lower()
+                if re.fullmatch(r"[0-9a-f]{64}", value):
+                    row[key] = value
+        rows.append(row)
     rows = [row for row in rows if row]
     if not rows:
         return AdBatchResult(False, "", "no valid email or phone identifiers")
@@ -75,16 +88,16 @@ async def sync_ad_batch(workspace_id: str, dtype: str, config: dict, snapshots: 
             schema = [key.upper() for key in ("email", "phone") if any(key in row for row in rows)]
             data = [[row.get(key.lower(), "") for key in schema] for row in rows]
             response = await _request(
-                client, "POST", f"https://graph.facebook.com/{config.get('api_version', 'v23.0')}/{audience_id}/users",
+                client, "POST" if operation == "add" else "DELETE", f"https://graph.facebook.com/{config.get('api_version', 'v23.0')}/{audience_id}/users",
                 data={"access_token": token, "payload": json.dumps({"schema": schema, "data": data})},
             )
             body = response.json()
-            return AdBatchResult(True, f"uploaded {len(rows)} hashed users", external_id=str(body.get("session_id") or audience_id))
+            return AdBatchResult(True, f"{operation_past} {len(rows)} hashed users", external_id=str(body.get("session_id") or audience_id))
 
         if dtype == "linkedin_ads":
             token = _secret(workspace_id, "LINKEDIN_ACCESS_TOKEN")
             segment_id = config["segment_id"]
-            elements = [{"action": "ADD", "userIds": [
+            elements = [{"action": "ADD" if operation == "add" else "REMOVE", "userIds": [
                 {"idType": "SHA256_EMAIL", "idValue": row["email"]}
             ]} for row in rows if row.get("email")]
             if not elements:
@@ -93,7 +106,7 @@ async def sync_ad_batch(workspace_id: str, dtype: str, config: dict, snapshots: 
                 "Authorization": f"Bearer {token}", "Linkedin-Version": config.get("api_version", "202607"),
                 "X-Restli-Protocol-Version": "2.0.0", "X-RestLi-Method": "BATCH_CREATE",
             }, json={"elements": elements})
-            return AdBatchResult(True, f"uploaded {len(elements)} hashed users", external_id=str(segment_id))
+            return AdBatchResult(True, f"{operation_past} {len(elements)} hashed users", external_id=str(segment_id))
 
         if dtype == "google_ads":
             token = _secret(workspace_id, "GOOGLE_ADS_ACCESS_TOKEN")
@@ -112,13 +125,14 @@ async def sync_ad_batch(workspace_id: str, dtype: str, config: dict, snapshots: 
                 }}
             })
             job_name = created.json()["resourceName"]
-            operations = [{"create": {"userIdentifiers": [
+            operation_key = "create" if operation == "add" else "remove"
+            operations = [{operation_key: {"userIdentifiers": [
                 *([{"hashedEmail": row["email"]}] if row.get("email") else []),
                 *([{"hashedPhoneNumber": row["phone"]}] if row.get("phone") else []),
             ]}} for row in rows]
             await _request(client, "POST", f"https://googleads.googleapis.com/{version}/{job_name}:addOperations", headers=headers,
                            json={"enablePartialFailure": True, "operations": operations})
             await _request(client, "POST", f"https://googleads.googleapis.com/{version}/{job_name}:run", headers=headers, json={})
-            return AdBatchResult(True, f"queued {len(rows)} hashed users", external_id=job_name)
+            return AdBatchResult(True, f"queued {operation} for {len(rows)} hashed users", external_id=job_name)
 
     return AdBatchResult(False, "", f"unsupported ad destination '{dtype}'")

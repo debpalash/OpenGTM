@@ -83,6 +83,9 @@ class DestinationDelivery(Base):
     operation = Column(String(16), nullable=False, default="upsert")
     idempotency_key = Column(String(255), nullable=False)
     payload_fingerprint = Column(String(64), nullable=False)
+    # For ad destinations this contains only normalized SHA-256 identifiers,
+    # enabling later REMOVE reconciliation without retaining raw PII.
+    payload = Column(JSON, nullable=False, default=dict)
     status = Column(String(20), nullable=False, default="pending")
     attempts = Column(Integer, nullable=False, default=0)
     external_id = Column(String, nullable=True)
