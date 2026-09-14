@@ -26,6 +26,7 @@ def _patch_catalogs(monkeypatch, *, maturity="supported"):
 def test_readiness_fails_closed_without_live_artifact(monkeypatch):
     _patch_catalogs(monkeypatch, maturity="beta")
     monkeypatch.delenv(operations.GAUNTLET_ARTIFACT_ENV, raising=False)
+    monkeypatch.delenv("OPENGTM_BUILD_SHA", raising=False)
 
     result = operations._release_readiness()
 
@@ -47,9 +48,10 @@ def test_readiness_requires_both_certifications_and_gauntlet(tmp_path, monkeypat
     artifact = tmp_path / "live.json"
     artifact.write_text("{}", encoding="utf-8")
     monkeypatch.setenv(operations.GAUNTLET_ARTIFACT_ENV, str(artifact))
+    monkeypatch.setenv("OPENGTM_BUILD_SHA", "release-build")
     import apps.api.services.evaluation.gtm_gauntlet as gauntlet
     monkeypatch.setattr(gauntlet, "load_artifact", lambda path: {"path": str(path)})
-    monkeypatch.setattr(gauntlet, "score_gauntlet", lambda value: {"release": {
+    monkeypatch.setattr(gauntlet, "score_gauntlet", lambda value: {"build_sha": "release-build", "release": {
         "eligible": True,
         "reason_codes": [],
         "consecutive_production_like_passes": 10,
@@ -62,3 +64,29 @@ def test_readiness_requires_both_certifications_and_gauntlet(tmp_path, monkeypat
     assert result["first_party"] == {"required": 4, "supported": 4, "missing": []}
     assert result["community_connectors"]["supported"] == 1
     assert result["gauntlet"]["consecutive_production_like_passes"] == 10
+    assert result["gauntlet"]["build_matches_deployment"] is True
+
+
+def test_readiness_rejects_gauntlet_from_another_build(tmp_path, monkeypatch):
+    _patch_catalogs(monkeypatch)
+    artifact = tmp_path / "live.json"
+    artifact.write_text("{}", encoding="utf-8")
+    monkeypatch.setenv(operations.GAUNTLET_ARTIFACT_ENV, str(artifact))
+    monkeypatch.setenv("OPENGTM_BUILD_SHA", "deployed-build")
+    import apps.api.services.evaluation.gtm_gauntlet as gauntlet
+    monkeypatch.setattr(gauntlet, "load_artifact", lambda path: {})
+    monkeypatch.setattr(gauntlet, "score_gauntlet", lambda value: {
+        "build_sha": "other-build",
+        "release": {
+            "eligible": True,
+            "reason_codes": [],
+            "consecutive_production_like_passes": 10,
+            "required_consecutive_production_like_passes": 10,
+        },
+    })
+
+    result = operations._release_readiness()
+
+    assert result["eligible"] is False
+    assert result["gauntlet"]["build_matches_deployment"] is False
+    assert result["gauntlet"]["reason_codes"] == ["build_mismatch"]

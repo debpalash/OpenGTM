@@ -38,3 +38,7 @@ Platform administrators can then query `GET /admin/operations/release-readiness`
 for one fail-closed view of the gauntlet, every required first-party maturity
 subject, and separately reported community-connector certification coverage.
 Missing or malformed artifacts are never release eligible.
+The readiness endpoint also requires the gauntlet's top-level `build_sha` to
+exactly match `OPENGTM_BUILD_SHA`, the same deployed-build identity used for
+integration certifications. A valid streak from another build fails closed
+with `build_mismatch`.
