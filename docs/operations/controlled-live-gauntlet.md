@@ -32,3 +32,9 @@ uv run python scripts/run_gtm_gauntlet.py \
 Rotating the key intentionally starts a new trusted streak. Retain previous
 reports as immutable release evidence, but do not mix signatures from multiple
 keys in one candidate streak.
+
+Set `OPENGTM_GAUNTLET_ARTIFACT` to the assembled controlled-live artifact.
+Platform administrators can then query `GET /admin/operations/release-readiness`
+for one fail-closed view of the gauntlet, every required first-party maturity
+subject, and separately reported community-connector certification coverage.
+Missing or malformed artifacts are never release eligible.
