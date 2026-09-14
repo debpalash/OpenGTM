@@ -14,6 +14,7 @@ from urllib.parse import urlsplit
 
 CERTIFICATION_PATH_ENV = "OPENGTM_INTEGRATION_CERTIFICATIONS"
 CERTIFICATION_KEY_ENV = "OPENGTM_INTEGRATION_CERTIFICATION_KEY"
+BUILD_SHA_ENV = "OPENGTM_BUILD_SHA"
 
 INTEGRATIONS: dict[str, dict[str, Any]] = {
     "webhook": {"category": "activation", "capabilities": ["outbound"]},
@@ -127,7 +128,7 @@ def _parse_time(value: Any) -> datetime | None:
         return None
 
 
-def _valid(certificate: Mapping[str, Any], key: str, now: datetime) -> bool:
+def _valid(certificate: Mapping[str, Any], key: str, now: datetime, build_sha: str) -> bool:
     attestation = certificate.get("attestation")
     if not key or not isinstance(attestation, dict):
         return False
@@ -141,7 +142,8 @@ def _valid(certificate: Mapping[str, Any], key: str, now: datetime) -> bool:
         _known_subject(_subject_id(certificate))
         and _evidence_contract_valid(certificate)
         and certificate.get("status") == "supported"
-        and certificate.get("build_sha")
+        and build_sha
+        and hmac.compare_digest(str(certificate.get("build_sha") or ""), build_sha)
         and certificate.get("validation_run_id")
         and validated_at
         and expires_at
@@ -159,11 +161,13 @@ def integration_catalog(
     path: str | Path | None = None,
     key: str | None = None,
     now: datetime | None = None,
+    build_sha: str | None = None,
 ) -> list[dict[str, Any]]:
     """Return maturity metadata; missing, invalid, or expired evidence stays beta."""
     path = path or os.getenv(CERTIFICATION_PATH_ENV, "")
     key = key if key is not None else os.getenv(CERTIFICATION_KEY_ENV, "")
     now = now or datetime.now(timezone.utc)
+    build_sha = build_sha if build_sha is not None else os.getenv(BUILD_SHA_ENV, "")
     certificates: list[Any] = []
     if path:
         try:
@@ -174,7 +178,7 @@ def integration_catalog(
     valid = {
         _subject_id(item): item
         for item in certificates
-        if isinstance(item, dict) and _valid(item, key or "", now)
+        if isinstance(item, dict) and _valid(item, key or "", now, build_sha)
     }
     return [
         {
@@ -200,11 +204,13 @@ def signal_source_catalog(
     path: str | Path | None = None,
     key: str | None = None,
     now: datetime | None = None,
+    build_sha: str | None = None,
 ) -> list[dict[str, Any]]:
     """Return fail-closed maturity metadata for first-party signal sources."""
     path = path or os.getenv(CERTIFICATION_PATH_ENV, "")
     key = key if key is not None else os.getenv(CERTIFICATION_KEY_ENV, "")
     now = now or datetime.now(timezone.utc)
+    build_sha = build_sha if build_sha is not None else os.getenv(BUILD_SHA_ENV, "")
     certificates: list[Any] = []
     if path:
         try:
@@ -215,7 +221,7 @@ def signal_source_catalog(
     valid = {
         _subject_id(item): item
         for item in certificates
-        if isinstance(item, dict) and _valid(item, key or "", now)
+        if isinstance(item, dict) and _valid(item, key or "", now, build_sha)
     }
     return [
         {
@@ -241,11 +247,13 @@ def agent_capability_catalog(
     path: str | Path | None = None,
     key: str | None = None,
     now: datetime | None = None,
+    build_sha: str | None = None,
 ) -> list[dict[str, Any]]:
     """Return signed controlled-live maturity for agent workflow capabilities."""
     path = path or os.getenv(CERTIFICATION_PATH_ENV, "")
     key = key if key is not None else os.getenv(CERTIFICATION_KEY_ENV, "")
     now = now or datetime.now(timezone.utc)
+    build_sha = build_sha if build_sha is not None else os.getenv(BUILD_SHA_ENV, "")
     certificates: list[Any] = []
     if path:
         try:
@@ -256,7 +264,7 @@ def agent_capability_catalog(
     valid = {
         _subject_id(item): item
         for item in certificates
-        if isinstance(item, dict) and _valid(item, key or "", now)
+        if isinstance(item, dict) and _valid(item, key or "", now, build_sha)
     }
     return [
         {
@@ -283,11 +291,13 @@ def certification_statuses(
     path: str | Path | None = None,
     key: str | None = None,
     now: datetime | None = None,
+    build_sha: str | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Resolve maturity for a bounded runtime catalog such as installed connectors."""
     path = path or os.getenv(CERTIFICATION_PATH_ENV, "")
     key = key if key is not None else os.getenv(CERTIFICATION_KEY_ENV, "")
     now = now or datetime.now(timezone.utc)
+    build_sha = build_sha if build_sha is not None else os.getenv(BUILD_SHA_ENV, "")
     requested = set(subject_ids)
     certificates: list[Any] = []
     if path:
@@ -301,7 +311,7 @@ def certification_statuses(
         for item in certificates
         if isinstance(item, dict)
         and _subject_id(item) in requested
-        and _valid(item, key or "", now)
+        and _valid(item, key or "", now, build_sha)
     }
     return {
         subject_id: {

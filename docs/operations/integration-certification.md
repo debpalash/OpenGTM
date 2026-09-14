@@ -28,15 +28,21 @@ Deploy a JSON array of attested certificates and configure:
 ```text
 OPENGTM_INTEGRATION_CERTIFICATIONS=/run/opengtm/integration-certifications.json
 OPENGTM_INTEGRATION_CERTIFICATION_KEY=<secret-manager reference>
+OPENGTM_BUILD_SHA=<exact immutable deployed revision>
 ```
+
+The running build identity must exactly match the signed certificate's
+`build_sha`. Missing or mismatched build identity fails closed, preventing live
+evidence collected against an older binary from certifying a newer deployment.
 
 `GET /api/audience-destinations/types`, `GET /api/signals/sources`, and
 `GET /api/research-playbooks/capabilities` report the effective maturity and
 non-secret certification metadata. Missing files, malformed JSON, missing
 keys, expired records, unknown integrations, metadata-only claims, missing or
 failed required checks, invalid evidence digests, HTTP evidence links, wrong
-keys, and post-signing edits all fail closed to `beta`. Rotate the key to revoke all
-current certifications immediately.
+keys, missing or mismatched build identity, and post-signing edits all fail
+closed to `beta`. Rotate the key to revoke all current certifications
+immediately.
 
 Installed declarative connectors use `subject_id: connector:<manifest-name>`.
 Their Ed25519 publisher signature and controlled-live HMAC certification are

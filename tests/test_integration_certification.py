@@ -56,7 +56,7 @@ def test_catalog_fails_closed_without_certifications():
 
 def test_valid_attestation_graduates_only_its_integration(tmp_path):
     certificate = attest_certificate(_certificate(), KEY)
-    catalog = integration_catalog(path=_write(tmp_path, [certificate]), key=KEY, now=NOW)
+    catalog = integration_catalog(path=_write(tmp_path, [certificate]), key=KEY, now=NOW, build_sha="abc123")
     states = {item["id"]: item for item in catalog}
     assert states["hubspot"]["maturity"] == "supported"
     assert states["hubspot"]["certification"]["validation_run_id"] == "live-001"
@@ -68,10 +68,18 @@ def test_valid_attestation_graduates_only_its_integration(tmp_path):
 def test_tampered_expired_and_wrong_key_certificates_fail_closed(tmp_path):
     signed = attest_certificate(_certificate(), KEY)
     tampered = {**signed, "build_sha": "changed"}
-    assert integration_catalog(path=_write(tmp_path, [tampered]), key=KEY, now=NOW)[1]["maturity"] == "beta"
+    assert integration_catalog(path=_write(tmp_path, [tampered]), key=KEY, now=NOW, build_sha="abc123")[1]["maturity"] == "beta"
     expired = attest_certificate({**_certificate(), "expires_at": "2026-09-01T00:00:00Z"}, KEY)
-    assert integration_catalog(path=_write(tmp_path, [expired]), key=KEY, now=NOW)[1]["maturity"] == "beta"
-    assert integration_catalog(path=_write(tmp_path, [signed]), key="wrong", now=NOW)[1]["maturity"] == "beta"
+    assert integration_catalog(path=_write(tmp_path, [expired]), key=KEY, now=NOW, build_sha="abc123")[1]["maturity"] == "beta"
+    assert integration_catalog(path=_write(tmp_path, [signed]), key="wrong", now=NOW, build_sha="abc123")[1]["maturity"] == "beta"
+
+
+def test_certificate_requires_exact_running_build_identity(tmp_path):
+    signed = attest_certificate(_certificate(), KEY)
+    path = _write(tmp_path, [signed])
+    assert integration_catalog(path=path, key=KEY, now=NOW)[1]["maturity"] == "beta"
+    assert integration_catalog(path=path, key=KEY, now=NOW, build_sha="new-build")[1]["maturity"] == "beta"
+    assert integration_catalog(path=path, key=KEY, now=NOW, build_sha="abc123")[1]["maturity"] == "supported"
 
 
 def test_certificate_rejects_metadata_only_or_incomplete_live_claims(tmp_path):
@@ -96,7 +104,7 @@ def test_certificate_rejects_metadata_only_or_incomplete_live_claims(tmp_path):
 
     signed = attest_certificate(_certificate(), KEY)
     signed["checks"]["external_write"]["passed"] = False
-    catalog = integration_catalog(path=_write(tmp_path, [signed]), key=KEY, now=NOW)
+    catalog = integration_catalog(path=_write(tmp_path, [signed]), key=KEY, now=NOW, build_sha="abc123")
     assert {item["id"]: item["maturity"] for item in catalog}["hubspot"] == "beta"
 
 
@@ -109,6 +117,7 @@ def test_signal_source_requires_its_own_attested_live_evidence(tmp_path):
     }, KEY)
     sources = signal_source_catalog(
         path=_write(tmp_path, [certificate]), key=KEY, now=NOW,
+        build_sha="abc123",
     )
     states = {item["id"]: item for item in sources}
     assert len(states) == len(SIGNAL_SOURCES)
@@ -126,6 +135,7 @@ def test_agent_capability_certification_is_independent(tmp_path):
     }, KEY)
     capabilities = agent_capability_catalog(
         path=_write(tmp_path, [certificate]), key=KEY, now=NOW,
+        build_sha="abc123",
     )
     states = {item["id"]: item for item in capabilities}
     assert len(states) == len(AGENT_CAPABILITIES)
@@ -143,6 +153,7 @@ def test_installed_connector_maturity_requires_matching_subject(tmp_path):
     statuses = certification_statuses(
         ["connector:leadmagic_email", "connector:prospeo_mobile"],
         path=_write(tmp_path, [certificate]), key=KEY, now=NOW,
+        build_sha="abc123",
     )
     assert statuses["connector:leadmagic_email"]["maturity"] == "supported"
     assert statuses["connector:prospeo_mobile"]["maturity"] == "beta"
