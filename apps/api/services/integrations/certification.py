@@ -83,6 +83,16 @@ SIGNAL_SPECIALIZED_CHECKS: dict[str, set[str]] = {
     "news_search": {"source_attribution"},
 }
 AGENT_CHECKS = {"external_execution", "grounding", "budget_enforcement", "failure_recovery", "tenant_isolation"}
+AGENT_SPECIALIZED_CHECKS: dict[str, set[str]] = {
+    "grounded_research": {"citation_validation", "provenance"},
+    "chained_playbooks": {"prior_step_context", "prompt_versioning"},
+    "audience_runs": {"bounded_traversal", "durable_results"},
+    "run_recovery": {
+        "cooperative_cancellation", "in_place_retry",
+        "completed_work_preservation",
+    },
+    "recurring_schedules": {"single_flight", "restart_recovery"},
+}
 CONNECTOR_CHECKS = {"authentication", "external_read", "normalization", "failure_recovery", "tenant_isolation"}
 GOVERNANCE_CHECKS: dict[str, set[str]] = {
     "oidc_sso": {
@@ -130,7 +140,7 @@ def _required_checks(subject_id: str) -> set[str]:
     if subject_id in SIGNAL_SOURCES:
         return set(SIGNAL_CHECKS) | SIGNAL_SPECIALIZED_CHECKS.get(subject_id, set())
     if subject_id in AGENT_CAPABILITIES:
-        return set(AGENT_CHECKS)
+        return set(AGENT_CHECKS) | AGENT_SPECIALIZED_CHECKS.get(subject_id, set())
     if subject_id in GOVERNANCE_CAPABILITIES:
         return set(GOVERNANCE_CHECKS[subject_id])
     if subject_id.startswith("connector:"):

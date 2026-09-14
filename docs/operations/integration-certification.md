@@ -26,6 +26,11 @@ provenance/grounding, normalization, budget, recovery, and isolation gates.
 Signal certification also requires source-specific proof: JobSpy employment
 normalization, SEC CIK resolution and filing cursors, website content-change
 detection, technology fingerprinting, and news source attribution.
+Agent subjects require capability-specific proof: citations and provenance for
+grounded research; context propagation and prompt versioning for chains;
+bounded traversal and durable results for audience runs; cancellation, in-place
+retry, and completed-work preservation for recovery; and single-flight restart
+recovery for schedules.
 OIDC SSO and SCIM directory subjects additionally require operation-specific
 identity binding, access enforcement, provisioning/lifecycle, revocation,
 pagination, and tenant-isolation evidence. Their maturity is available from

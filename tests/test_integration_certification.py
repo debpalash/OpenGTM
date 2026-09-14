@@ -40,6 +40,10 @@ def _certificate(integration_id="hubspot"):
             "employment_signal_normalization", "cik_resolution",
             "filing_cursor", "content_change_detection",
             "technology_fingerprint", "source_attribution",
+            "citation_validation", "prior_step_context", "prompt_versioning",
+            "bounded_traversal", "durable_results", "cooperative_cancellation",
+            "in_place_retry", "completed_work_preservation", "single_flight",
+            "restart_recovery",
         }
     }
     return {
@@ -221,6 +225,30 @@ def test_agent_capability_certification_is_independent(tmp_path):
     assert len(states) == len(AGENT_CAPABILITIES)
     assert states["grounded_research"]["maturity"] == "supported"
     assert states["chained_playbooks"]["maturity"] == "beta"
+
+
+@pytest.mark.parametrize("subject_id,required_check", [
+    ("grounded_research", "citation_validation"),
+    ("chained_playbooks", "prior_step_context"),
+    ("audience_runs", "bounded_traversal"),
+    ("run_recovery", "completed_work_preservation"),
+    ("recurring_schedules", "single_flight"),
+])
+def test_agent_subjects_require_capability_specific_live_evidence(
+    subject_id, required_check,
+):
+    incomplete = {
+        **_certificate(),
+        "subject_id": subject_id,
+        "integration_id": None,
+    }
+    incomplete["checks"] = {**incomplete["checks"]}
+    incomplete["checks"].pop(required_check)
+    with pytest.raises(ValueError, match="controlled-live evidence contract"):
+        attest_certificate(incomplete, KEY)
+
+    complete = {**_certificate(), "subject_id": subject_id, "integration_id": None}
+    assert attest_certificate(complete, KEY)["subject_id"] == subject_id
 
 
 def test_governance_capabilities_require_operation_specific_live_evidence(tmp_path):
