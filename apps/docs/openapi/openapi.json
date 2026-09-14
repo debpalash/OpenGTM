@@ -392,6 +392,25 @@
         "title": "BulkEnrichBody",
         "type": "object"
       },
+      "BulkUpdateRowsRequest": {
+        "description": "Bounded spreadsheet paste/update request.",
+        "properties": {
+          "updates": {
+            "items": {
+              "$ref": "#/components/schemas/WorkbookRowUpdate"
+            },
+            "maxItems": 1000,
+            "minItems": 1,
+            "title": "Updates",
+            "type": "array"
+          }
+        },
+        "required": [
+          "updates"
+        ],
+        "title": "BulkUpdateRowsRequest",
+        "type": "object"
+      },
       "CheckoutRequest": {
         "properties": {
           "amount_usd": {
@@ -668,6 +687,18 @@
             "description": "Provider name for single enrichment columns",
             "title": "Provider"
           },
+          "reactive": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Recompute after an upstream edit; defaults on except for output columns",
+            "title": "Reactive"
+          },
           "target_field": {
             "anyOf": [
               {
@@ -899,6 +930,50 @@
           "name"
         ],
         "title": "CreateWorkspaceRequest",
+        "type": "object"
+      },
+      "DeleteMatchingRowsRequest": {
+        "description": "Count-locked deletion of every row in an authoritative workbook query.",
+        "properties": {
+          "confirmation": {
+            "maxLength": 64,
+            "title": "Confirmation",
+            "type": "string"
+          },
+          "expected_count": {
+            "minimum": 1.0,
+            "title": "Expected Count",
+            "type": "integer"
+          },
+          "search": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Search"
+          },
+          "view_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "View Id"
+          }
+        },
+        "required": [
+          "expected_count",
+          "confirmation"
+        ],
+        "title": "DeleteMatchingRowsRequest",
         "type": "object"
       },
       "DeleteRowsRequest": {
@@ -1616,6 +1691,16 @@
             "minItems": 1,
             "title": "Rows",
             "type": "array"
+          },
+          "source_system": {
+            "default": "auto",
+            "enum": [
+              "auto",
+              "clay",
+              "generic"
+            ],
+            "title": "Source System",
+            "type": "string"
           }
         },
         "required": [
@@ -1952,6 +2037,11 @@
           "enabled": {
             "default": false,
             "title": "Enabled",
+            "type": "boolean"
+          },
+          "enforce_sso": {
+            "default": false,
+            "title": "Enforce Sso",
             "type": "boolean"
           },
           "issuer": {
@@ -2562,6 +2652,31 @@
             ],
             "description": "Specific row IDs to run. None = all rows",
             "title": "Row Ids"
+          },
+          "search": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Run rows matching the global workbook search",
+            "title": "Search"
+          },
+          "view_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Run every row matching this workbook-owned saved view",
+            "title": "View Id"
           }
         },
         "title": "RunWorkbookRequest",
@@ -4336,6 +4451,27 @@
         "title": "WorkbookResponse",
         "type": "object"
       },
+      "WorkbookRowUpdate": {
+        "description": "Editable values for one workbook row in an atomic bulk update.",
+        "properties": {
+          "fields": {
+            "additionalProperties": true,
+            "minProperties": 1,
+            "title": "Fields",
+            "type": "object"
+          },
+          "row_id": {
+            "title": "Row Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "row_id",
+          "fields"
+        ],
+        "title": "WorkbookRowUpdate",
+        "type": "object"
+      },
       "WorkbookUpdate": {
         "description": "Update workbook metadata.",
         "properties": {
@@ -4536,6 +4672,22 @@
       "WorkbookWithLeadsResponse": {
         "description": "Full workbook with paginated rows.",
         "properties": {
+          "has_more": {
+            "default": false,
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
           "page": {
             "title": "Page",
             "type": "integer"
@@ -4543,6 +4695,17 @@
           "page_size": {
             "title": "Page Size",
             "type": "integer"
+          },
+          "query_total_rows": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Total Rows"
           },
           "rows": {
             "items": {
@@ -5849,6 +6012,68 @@
         ]
       }
     },
+    "/api/audience-destinations/runs/{run_id}/cancel": {
+      "post": {
+        "description": "Request cooperative cancellation at the next safe delivery boundary.",
+        "operationId": "cancel_run_api_audience_destinations_runs__run_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Cancel Run",
+        "tags": [
+          "audience-destinations"
+        ]
+      }
+    },
     "/api/audience-destinations/runs/{run_id}/deliveries": {
       "get": {
         "operationId": "list_deliveries_api_audience_destinations_runs__run_id__deliveries_get",
@@ -5860,6 +6085,48 @@
             "schema": {
               "title": "Run Id",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "title": "Limit",
+              "type": "integer"
             }
           },
           {
@@ -5905,6 +6172,121 @@
           }
         ],
         "summary": "List Deliveries",
+        "tags": [
+          "audience-destinations"
+        ]
+      }
+    },
+    "/api/audience-destinations/runs/{run_id}/retry": {
+      "post": {
+        "description": "Retry failed deliveries in place while successful idempotency keys skip.",
+        "operationId": "retry_run_api_audience_destinations_runs__run_id__retry_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Retry Run",
+        "tags": [
+          "audience-destinations"
+        ]
+      }
+    },
+    "/api/audience-destinations/types": {
+      "get": {
+        "description": "Expose fail-closed support maturity backed by live certifications.",
+        "operationId": "list_destination_types_api_audience_destinations_types_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Destination Types",
         "tags": [
           "audience-destinations"
         ]
@@ -6030,6 +6412,68 @@
           }
         ],
         "summary": "Update Destination",
+        "tags": [
+          "audience-destinations"
+        ]
+      }
+    },
+    "/api/audience-destinations/{destination_id}/health": {
+      "get": {
+        "description": "Return bounded operational health and recent failure evidence.",
+        "operationId": "destination_health_api_audience_destinations__destination_id__health_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "destination_id",
+            "required": true,
+            "schema": {
+              "title": "Destination Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Destination Health",
         "tags": [
           "audience-destinations"
         ]
@@ -10132,6 +10576,54 @@
         "parameters": [
           {
             "in": "query",
+            "name": "actor_user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Actor User Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "method",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Method"
+            }
+          },
+          {
+            "in": "query",
+            "name": "outcome",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Outcome"
+            }
+          },
+          {
+            "in": "query",
             "name": "since",
             "required": false,
             "schema": {
@@ -10145,6 +10637,23 @@
                 }
               ],
               "title": "Since"
+            }
+          },
+          {
+            "in": "query",
+            "name": "before",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before"
             }
           },
           {
@@ -14910,6 +15419,121 @@
         ]
       }
     },
+    "/api/research-playbooks/capabilities": {
+      "get": {
+        "description": "Expose implemented agent features without overstating live maturity.",
+        "operationId": "playbook_capabilities_api_research_playbooks_capabilities_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Playbook Capabilities",
+        "tags": [
+          "research-playbooks"
+        ]
+      }
+    },
+    "/api/research-playbooks/runs/{run_id}/cancel": {
+      "post": {
+        "description": "Cancel a queued/running playbook; its worker stops at the next safe boundary.",
+        "operationId": "cancel_run_api_research_playbooks_runs__run_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Cancel Run",
+        "tags": [
+          "research-playbooks"
+        ]
+      }
+    },
     "/api/research-playbooks/runs/{run_id}/results": {
       "get": {
         "operationId": "list_results_api_research_playbooks_runs__run_id__results_get",
@@ -14966,6 +15590,68 @@
           }
         ],
         "summary": "List Results",
+        "tags": [
+          "research-playbooks"
+        ]
+      }
+    },
+    "/api/research-playbooks/runs/{run_id}/retry": {
+      "post": {
+        "description": "Resume only failed profiles in a terminal playbook run.",
+        "operationId": "retry_run_api_research_playbooks_runs__run_id__retry_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Retry Run",
         "tags": [
           "research-playbooks"
         ]
@@ -15458,7 +16144,7 @@
     },
     "/api/settings/llm-usage": {
       "get": {
-        "description": "Get LLM usage stats per provider for today (or a specific date).",
+        "description": "Get LLM usage from the caller's tenant-bound lead store.",
         "operationId": "get_llm_usage_api_settings_llm_usage_get",
         "parameters": [
           {
@@ -15475,6 +16161,22 @@
                 }
               ],
               "title": "Date"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
             }
           }
         ],
@@ -16325,6 +17027,59 @@
           }
         ],
         "summary": "Trigger Scan",
+        "tags": [
+          "signals"
+        ]
+      }
+    },
+    "/api/signals/sources": {
+      "get": {
+        "description": "List source coverage and controlled-live support maturity.",
+        "operationId": "signal_sources_api_signals_sources_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Signal Sources",
         "tags": [
           "signals"
         ]
@@ -18642,6 +19397,66 @@
             }
           },
           {
+            "in": "query",
+            "name": "view_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "View Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor_mode",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Cursor Mode",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 512,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
             "in": "header",
             "name": "x-workspace-id",
             "required": false,
@@ -19179,6 +19994,139 @@
         ]
       }
     },
+    "/api/workbooks/{workbook_id}/export.csv": {
+      "get": {
+        "description": "Stream every matching workbook row as formula-injection-safe UTF-8 CSV.",
+        "operationId": "export_workbook_csv_api_workbooks__workbook_id__export_csv_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workbook_id",
+            "required": true,
+            "schema": {
+              "title": "Workbook Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "view_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "View Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "in": "query",
+            "name": "column_ids",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Column Ids"
+            }
+          },
+          {
+            "in": "query",
+            "name": "row_ids",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "integer"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Row Ids"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Export Workbook Csv",
+        "tags": [
+          "workbooks"
+        ]
+      }
+    },
     "/api/workbooks/{workbook_id}/import": {
       "post": {
         "description": "Import CSV rows into the workbook and preserve its complete schema.",
@@ -19246,6 +20194,78 @@
           }
         ],
         "summary": "Import Csv Leads",
+        "tags": [
+          "workbooks"
+        ]
+      }
+    },
+    "/api/workbooks/{workbook_id}/import/preview": {
+      "post": {
+        "description": "Analyze mapping, preservation, and collisions without writing rows.",
+        "operationId": "preview_csv_import_api_workbooks__workbook_id__import_preview_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workbook_id",
+            "required": true,
+            "schema": {
+              "title": "Workbook Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportRowsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Preview Csv Import",
         "tags": [
           "workbooks"
         ]
@@ -19601,6 +20621,86 @@
           "workbooks"
         ]
       },
+      "patch": {
+        "description": "Atomically update up to 1,000 workbook rows for spreadsheet-style paste.",
+        "operationId": "bulk_update_row_data_api_workbooks__workbook_id__rows_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workbook_id",
+            "required": true,
+            "schema": {
+              "title": "Workbook Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "recompute",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Recompute",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpdateRowsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Bulk Update Row Data",
+        "tags": [
+          "workbooks"
+        ]
+      },
       "post": {
         "description": "Add rows to a workbook.",
         "operationId": "add_rows_api_workbooks__workbook_id__rows_post",
@@ -19667,6 +20767,78 @@
           }
         ],
         "summary": "Add Rows",
+        "tags": [
+          "workbooks"
+        ]
+      }
+    },
+    "/api/workbooks/{workbook_id}/rows/delete-query": {
+      "post": {
+        "description": "Delete the exact, count-locked result of a saved-view/search query.",
+        "operationId": "delete_matching_rows_api_workbooks__workbook_id__rows_delete_query_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workbook_id",
+            "required": true,
+            "schema": {
+              "title": "Workbook Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteMatchingRowsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Delete Matching Rows",
         "tags": [
           "workbooks"
         ]
@@ -19773,6 +20945,16 @@
             "schema": {
               "title": "Row Id",
               "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "recompute",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Recompute",
+              "type": "boolean"
             }
           },
           {
@@ -20009,6 +21191,39 @@
             "schema": {
               "title": "Workbook Id",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "view_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "View Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 500,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
             }
           },
           {
