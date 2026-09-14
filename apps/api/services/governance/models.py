@@ -58,7 +58,10 @@ class RetentionSchedule(Base):
 
 class RetentionRun(Base):
     __tablename__ = "retention_runs"
-    __table_args__ = (Index("ix_retention_runs_ws_created", "workspace_id", "created_at"),)
+    __table_args__ = (
+        Index("ix_retention_runs_ws_created", "workspace_id", "created_at"),
+        Index("ix_retention_runs_ws_cursor", "workspace_id", "created_at", "id"),
+    )
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     workspace_id = Column(String(64), nullable=False, index=True)
     status = Column(String(24), nullable=False, default="pending")

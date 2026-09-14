@@ -455,6 +455,8 @@ function WorkspaceAccessCard() {
 function RetentionPolicyCard() {
   const [policy, setPolicy] = useState<RetentionPolicy | null>(null)
   const [runs, setRuns] = useState<RetentionRun[]>([])
+  const [runsNextCursor, setRunsNextCursor] = useState<string | null>(null)
+  const [loadingRunsMore, setLoadingRunsMore] = useState(false)
   const [preview, setPreview] = useState<Record<string, number> | null>(null)
   const [confirmation, setConfirmation] = useState("")
   const [busy, setBusy] = useState("")
@@ -464,7 +466,8 @@ function RetentionPolicyCard() {
       fetch("/api/governance/retention"), fetch("/api/governance/retention/runs"),
     ])
     if (!policyResponse.ok || !runsResponse.ok) throw new Error(policyResponse.status === 403 ? "Workspace admin access is required" : "Could not load retention policy")
-    setPolicy(await policyResponse.json()); setRuns(await runsResponse.json())
+    const runPage = await runsResponse.json()
+    setPolicy(await policyResponse.json()); setRuns(runPage.runs || []); setRunsNextCursor(runPage.next_cursor || null)
   }
   useEffect(() => { load().catch(error => toast.error(error.message)) }, [])
 
@@ -496,6 +499,19 @@ function RetentionPolicyCard() {
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not start retention run") }
     finally { setBusy("") }
   }
+  const loadOlderRuns = async () => {
+    if (!runsNextCursor) return
+    setLoadingRunsMore(true)
+    try {
+      const query = new URLSearchParams({ cursor: runsNextCursor })
+      const response = await fetch(`/api/governance/retention/runs?${query}`)
+      if (!response.ok) throw new Error("Could not load retention history")
+      const page = await response.json()
+      setRuns(current => [...current, ...(page.runs || []).filter((run: RetentionRun) => !current.some(item => item.id === run.id))])
+      setRunsNextCursor(page.next_cursor || null)
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not load retention history") }
+    finally { setLoadingRunsMore(false) }
+  }
   if (!policy) return <Skeleton className="h-64 w-full" />
   const expiredTotal = Object.values(preview || {}).reduce((sum, count) => sum + count, 0)
   return <Card>
@@ -505,7 +521,7 @@ function RetentionPolicyCard() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{RETENTION_FIELDS.map(field => <div key={field.key} className="space-y-1"><Label className="text-xs">{field.label}</Label><Input type="number" min={field.min} max={3650} value={policy.retention_days[field.key]} onChange={event => setPolicy({ ...policy, retention_days: { ...policy.retention_days, [field.key]: Number(event.target.value) } })} /><p className="text-[11px] text-muted-foreground">{field.hint} · min {field.min} days</p></div>)}</div>
       <div className="flex flex-wrap gap-2"><Button size="sm" onClick={save} disabled={!!busy}>{busy === "save" && <Loader2 className="size-3 animate-spin" />} Save policy</Button><Button size="sm" variant="outline" onClick={inspect} disabled={!!busy}>{busy === "preview" ? <Loader2 className="size-3 animate-spin" /> : <Eye className="size-3" />} Preview expired data</Button></div>
       {preview && <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 space-y-3"><p className="text-xs"><strong>{expiredTotal.toLocaleString()} records</strong> currently match the saved policy. Preview does not delete data.</p><div className="flex flex-wrap gap-2">{RETENTION_FIELDS.map(field => <Badge key={field.key} variant="outline">{field.label}: {(preview[field.key] || 0).toLocaleString()}</Badge>)}</div><div className="flex flex-col gap-2 sm:flex-row"><Input aria-label="Purge confirmation" placeholder="Type PURGE EXPIRED DATA" value={confirmation} onChange={event => setConfirmation(event.target.value)} className="font-mono" /><Button variant="destructive" onClick={enforce} disabled={confirmation !== "PURGE EXPIRED DATA" || policy.legal_hold || !!busy || expiredTotal === 0}>{busy === "enforce" ? <Loader2 className="size-3 animate-spin" /> : <Trash2 className="size-3" />} Purge expired data</Button></div></div>}
-      {!!runs.length && <div className="space-y-2"><Label className="text-xs">Recent enforcement runs</Label>{runs.slice(0, 5).map(run => <div key={run.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-xs"><span>{new Date(run.created_at).toLocaleString()} · {Object.values(run.deleted_counts || {}).reduce((sum, count) => sum + count, 0).toLocaleString()} deleted</span><Badge variant={run.status === "failed" ? "destructive" : "outline"}>{run.status}</Badge></div>)}</div>}
+      {!!runs.length && <div className="space-y-2"><Label className="text-xs">Enforcement runs</Label><div className="max-h-72 space-y-2 overflow-y-auto">{runs.map(run => <div key={run.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-xs"><span>{new Date(run.created_at).toLocaleString()} · {Object.values(run.deleted_counts || {}).reduce((sum, count) => sum + count, 0).toLocaleString()} deleted</span><Badge variant={run.status === "failed" ? "destructive" : "outline"}>{run.status}</Badge></div>)}{runsNextCursor && <Button size="sm" variant="outline" className="w-full" disabled={loadingRunsMore} onClick={loadOlderRuns}>{loadingRunsMore && <Loader2 className="mr-1 size-3 animate-spin" />}Load older runs</Button>}</div></div>}
     </CardContent>
   </Card>
 }
