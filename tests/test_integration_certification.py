@@ -32,6 +32,9 @@ def _certificate(integration_id="hubspot"):
             "external_authentication", "identity_binding", "jit_provisioning",
             "access_enforcement", "external_provisioning", "user_lifecycle",
             "group_sync", "token_revocation", "paged_directory",
+            "consent_enforcement", "identifier_hashing", "add_reconciliation",
+            "remove_reconciliation", "partial_failure_accounting",
+            "streaming_upload", "manifest_checksum", "bounded_memory",
         }
     }
     return {
@@ -213,6 +216,25 @@ def test_governance_capabilities_require_operation_specific_live_evidence(tmp_pa
     incomplete_scim["checks"].pop("group_sync")
     with pytest.raises(ValueError, match="controlled-live evidence contract"):
         attest_certificate(incomplete_scim, KEY)
+
+
+@pytest.mark.parametrize("subject_id,required_check", [
+    ("meta_ads", "consent_enforcement"),
+    ("google_ads", "partial_failure_accounting"),
+    ("linkedin_ads", "remove_reconciliation"),
+    ("warehouse_http", "manifest_checksum"),
+])
+def test_ads_and_streaming_warehouse_require_specialized_evidence(
+    subject_id, required_check,
+):
+    incomplete = _certificate(subject_id)
+    incomplete["checks"] = {**incomplete["checks"]}
+    incomplete["checks"].pop(required_check)
+    with pytest.raises(ValueError, match="controlled-live evidence contract"):
+        attest_certificate(incomplete, KEY)
+
+    signed = attest_certificate(_certificate(subject_id), KEY)
+    assert signed["integration_id"] == subject_id
 
 
 def test_installed_connector_maturity_requires_matching_subject(tmp_path):

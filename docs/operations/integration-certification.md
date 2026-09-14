@@ -13,6 +13,10 @@ subject-specific `checks`, each shaped as
 `{"passed": true, "evidence": "artifact.json#/check"}`. Destinations require
 authentication, external write, idempotency, retry recovery, and tenant
 isolation; bidirectional CRMs additionally require inbound reconciliation.
+Paid-media destinations additionally require consent enforcement, identifier
+hashing, add and remove reconciliation, and partial-failure accounting.
+Streaming warehouse activation additionally requires streaming-upload,
+manifest-checksum, and bounded-memory evidence.
 Signal sources, agents, and community connectors have corresponding read,
 provenance/grounding, normalization, budget, recovery, and isolation gates.
 OIDC SSO and SCIM directory subjects additionally require operation-specific

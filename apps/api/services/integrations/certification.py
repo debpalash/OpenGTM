@@ -58,6 +58,13 @@ GOVERNANCE_CAPABILITIES: dict[str, dict[str, Any]] = {
 }
 
 INTEGRATION_CHECKS = {"authentication", "external_write", "idempotency", "retry_recovery", "tenant_isolation"}
+ADS_CHECKS = {
+    "consent_enforcement", "identifier_hashing", "add_reconciliation",
+    "remove_reconciliation", "partial_failure_accounting",
+}
+WAREHOUSE_STREAM_CHECKS = {
+    "streaming_upload", "manifest_checksum", "bounded_memory",
+}
 SIGNAL_CHECKS = {"external_read", "provenance", "deduplication", "failure_recovery", "tenant_isolation"}
 AGENT_CHECKS = {"external_execution", "grounding", "budget_enforcement", "failure_recovery", "tenant_isolation"}
 CONNECTOR_CHECKS = {"authentication", "external_read", "normalization", "failure_recovery", "tenant_isolation"}
@@ -98,6 +105,10 @@ def _required_checks(subject_id: str) -> set[str]:
         required = set(INTEGRATION_CHECKS)
         if "inbound" in INTEGRATIONS[subject_id].get("capabilities", []):
             required.add("inbound_reconciliation")
+        if INTEGRATIONS[subject_id].get("category") == "ads":
+            required.update(ADS_CHECKS)
+        if subject_id == "warehouse_http":
+            required.update(WAREHOUSE_STREAM_CHECKS)
         return required
     if subject_id in SIGNAL_SOURCES:
         return set(SIGNAL_CHECKS)
