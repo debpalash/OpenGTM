@@ -27,6 +27,7 @@ INTEGRATIONS: dict[str, dict[str, Any]] = {
     "smartlead": {"category": "sequencer", "capabilities": ["campaign_enroll"]},
     "google_sheets": {"category": "warehouse", "capabilities": ["outbound"]},
     "airtable": {"category": "warehouse", "capabilities": ["outbound"]},
+    "slack": {"category": "activation", "capabilities": ["notification"]},
 }
 
 SIGNAL_SOURCES: dict[str, dict[str, Any]] = {
