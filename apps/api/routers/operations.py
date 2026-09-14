@@ -26,7 +26,7 @@ def queue_metrics(
     return queue_service.metrics(db)
 
 
-def _release_readiness() -> dict:
+def _release_readiness(database_connection=None) -> dict:
     from apps.api.services.evaluation.gtm_gauntlet import load_artifact, score_gauntlet
     from apps.api.services.integrations.certification import (
         BUILD_SHA_ENV,
@@ -142,7 +142,11 @@ def _release_readiness() -> dict:
         scale[gate] = status
 
     scale_ready = all(item["valid"] for item in scale.values())
-    database = database_readiness()
+    database = (
+        database_readiness()
+        if database_connection is None
+        else database_readiness(database_connection)
+    )
 
     required_count = sum(len(items) for items in groups.values())
     core_eligible = (
@@ -202,8 +206,9 @@ def _release_readiness() -> dict:
 
 @router.get("/release-readiness")
 def release_readiness(
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin_user),
 ):
     """Aggregate fail-closed live certification and gauntlet release gates."""
     _ = current_user
-    return _release_readiness()
+    return _release_readiness(db.connection())
