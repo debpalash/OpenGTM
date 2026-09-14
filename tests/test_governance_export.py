@@ -1,6 +1,6 @@
 import csv
 import io
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -16,6 +16,67 @@ from apps.api.services.governance.models import GovernanceAuditEvent
 
 class User:
     id = 1
+
+
+def test_audit_event_cursor_is_stable_complete_and_tenant_safe():
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(engine, tables=[GovernanceAuditEvent.__table__])
+    Session = sessionmaker(bind=engine)
+    now = datetime.now(timezone.utc)
+    with Session() as db:
+        db.add_all([
+            GovernanceAuditEvent(
+                id=f"event-{index}", workspace_id="ws", actor_role="admin",
+                method="POST", route="/same", resource_path="/same",
+                response_status=200, outcome="success", request_id=f"req-{index}",
+                metadata_json={}, created_at=now,
+            )
+            for index in range(5)
+        ])
+        db.add(GovernanceAuditEvent(
+            id="foreign", workspace_id="other", actor_role="admin",
+            method="POST", route="/secret", resource_path="/secret",
+            response_status=200, outcome="success", request_id="foreign",
+            metadata_json={}, created_at=now,
+        ))
+        db.commit()
+
+    app = FastAPI(); app.include_router(router)
+
+    def override_db():
+        with Session() as db:
+            yield db
+
+    app.dependency_overrides[get_db] = override_db
+    app.dependency_overrides[require_admin] = lambda: WorkspaceCtx(User(), "ws", "ws")
+    client = TestClient(app)
+
+    first = client.get("/api/governance/audit-events?limit=2&method=POST").json()
+    assert first["has_more"] is True and len(first["events"]) == 2
+    assert "foreign" not in {event["id"] for event in first["events"]}
+    with Session() as db:
+        db.add(GovernanceAuditEvent(
+            id="new-event", workspace_id="ws", actor_role="admin",
+            method="POST", route="/new", resource_path="/new",
+            response_status=200, outcome="success", request_id="new",
+            metadata_json={}, created_at=now + timedelta(seconds=1),
+        ))
+        db.commit()
+    second = client.get("/api/governance/audit-events", params={
+        "limit": 2, "method": "POST", "cursor": first["next_cursor"],
+    }).json()
+    third = client.get("/api/governance/audit-events", params={
+        "limit": 2, "method": "POST", "cursor": second["next_cursor"],
+    }).json()
+    traversed = first["events"] + second["events"] + third["events"]
+    assert len(traversed) == 5
+    assert len({event["id"] for event in traversed}) == 5
+    assert "new-event" not in {event["id"] for event in traversed}
+    assert client.get("/api/governance/audit-events?cursor=bad").status_code == 422
 
 
 def test_audit_export_is_tenant_scoped_filtered_and_includes_safe_metadata():

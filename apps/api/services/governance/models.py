@@ -11,6 +11,7 @@ class GovernanceAuditEvent(Base):
     __tablename__ = "governance_audit_events"
     __table_args__ = (
         Index("ix_governance_audit_ws_created", "workspace_id", "created_at"),
+        Index("ix_governance_audit_ws_cursor", "workspace_id", "created_at", "id"),
         Index("ix_governance_audit_ws_actor", "workspace_id", "actor_user_id"),
         Index("ix_governance_audit_request", "request_id"),
     )
