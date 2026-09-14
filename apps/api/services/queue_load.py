@@ -1,6 +1,7 @@
 """Controlled, self-cleaning load verifier for the durable SQL queue."""
 
 import math
+import os
 import threading
 import time
 import uuid
@@ -174,6 +175,7 @@ def run_queue_load_test(
             tenant: count for tenant, count in maximum.items() if count > tenant_cap
         }
         report = {
+            "gate": "queue_scale",
             "ok": completed == jobs
             and pending == 0
             and not duplicates
@@ -181,6 +183,8 @@ def run_queue_load_test(
             and not failures
             and alive == 0,
             "run_tag": tag,
+            "build_sha": os.getenv("OPENGTM_BUILD_SHA", ""),
+            "finished_at": datetime.now(timezone.utc).isoformat(),
             "dialect": engine.dialect.name,
             "jobs": jobs,
             "tenants": tenants,

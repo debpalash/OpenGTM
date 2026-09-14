@@ -13,6 +13,8 @@ from apps.api.services.queue_service import queue_service
 
 router = APIRouter(prefix="/admin/operations", tags=["operations"])
 GAUNTLET_ARTIFACT_ENV = "OPENGTM_GAUNTLET_ARTIFACT"
+WORKBOOK_SCALE_REPORT_ENV = "OPENGTM_WORKBOOK_SCALE_REPORT"
+QUEUE_SCALE_REPORT_ENV = "OPENGTM_QUEUE_SCALE_REPORT"
 
 
 @router.get("/queue")
@@ -39,6 +41,10 @@ def _release_readiness() -> dict:
         validate_manifest_directory,
     )
     from apps.api.services.workbook.providers import list_providers
+    from apps.api.services.scale_certification import (
+        SCALE_ATTESTATION_KEY_ENV,
+        scale_report_valid,
+    )
 
     groups = {
         "integrations": integration_catalog(),
@@ -106,9 +112,39 @@ def _release_readiness() -> dict:
         except (OSError, ValueError, KeyError, TypeError):
             gauntlet["reason_codes"] = ["artifact_invalid"]
 
+    scale_key = os.getenv(SCALE_ATTESTATION_KEY_ENV, "")
+    scale = {}
+    for gate, environment in (
+        ("workbook_scale", WORKBOOK_SCALE_REPORT_ENV),
+        ("queue_scale", QUEUE_SCALE_REPORT_ENV),
+    ):
+        path = os.getenv(environment, "")
+        status = {"valid": False, "reason": "artifact_missing"}
+        if path:
+            try:
+                import json
+                report = json.loads(Path(path).read_text(encoding="utf-8"))
+                valid = (
+                    isinstance(report, dict)
+                    and report.get("gate") == gate
+                    and scale_report_valid(report, scale_key, deployed_build_sha)
+                )
+                status = {
+                    "valid": valid,
+                    "reason": None if valid else "artifact_invalid",
+                    "run_id": report.get("run_id") or report.get("run_tag"),
+                    "finished_at": report.get("finished_at"),
+                    "build_sha": report.get("build_sha"),
+                }
+            except (OSError, ValueError, TypeError, json.JSONDecodeError):
+                status = {"valid": False, "reason": "artifact_invalid"}
+        scale[gate] = status
+
+    scale_ready = all(item["valid"] for item in scale.values())
+
     required_count = sum(len(items) for items in groups.values())
     return {
-        "eligible": not missing and gauntlet.get("eligible") is True,
+        "eligible": not missing and gauntlet.get("eligible") is True and scale_ready,
         "deployed_build_sha": deployed_build_sha,
         "first_party": {
             "required": required_count,
@@ -127,6 +163,7 @@ def _release_readiness() -> dict:
             "missing": provider_missing,
         },
         "gauntlet": gauntlet,
+        "scale": {"eligible": scale_ready, "gates": scale},
     }
 
 
