@@ -242,6 +242,15 @@ export async function retryAudienceDestinationRun(runId: string): Promise<Destin
   return res.json()
 }
 
+export async function cancelAudienceDestinationRun(runId: string): Promise<DestinationRun> {
+  const res = await fetch(`${API_BASE}/api/audience-destinations/runs/${runId}/cancel`, { method: "POST" })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.detail || `Could not cancel destination sync (${res.status})`)
+  }
+  return res.json()
+}
+
 export interface ResearchPlaybook {
   id: string; name: string; description: string; prompt_template: string
   steps: { key: string; name: string; prompt_template: string; output_format: "text" | "json" }[]

@@ -32,14 +32,31 @@ DESCRIPTION = (
 
 
 def build_spec() -> dict:
-    tmp = tempfile.mkdtemp(prefix="opengtm-openapi-")
-    os.environ.setdefault("APP_ENV", "test")
-    os.environ.setdefault("DATABASE_URL", f"sqlite:///{tmp}/openapi.db")
-    os.environ.setdefault("YUPCHA_DB_INIT", "skip")
-    sys.path.insert(0, str(REPO_ROOT))
-    from apps.api.main import app  # noqa: WPS433 — import after env is set
+    env_keys = ("APP_ENV", "DATABASE_URL", "YUPCHA_DB_INIT")
+    previous = {key: os.environ.get(key) for key in env_keys}
+    try:
+        with tempfile.TemporaryDirectory(prefix="opengtm-openapi-", ignore_cleanup_errors=True) as tmp:
+            # Importing the app initializes its database, so this task must
+            # never inherit a deployment URL from the caller's environment.
+            os.environ["APP_ENV"] = "test"
+            os.environ["DATABASE_URL"] = f"sqlite:///{Path(tmp) / 'openapi.db'}"
+            os.environ["YUPCHA_DB_INIT"] = "create_all"
+            if hasattr(sys.stdout, "reconfigure"):
+                sys.stdout.reconfigure(encoding="utf-8")
+                sys.stderr.reconfigure(encoding="utf-8")
+            sys.path.insert(0, str(REPO_ROOT))
+            from apps.api.main import app  # noqa: WPS433 — import after env is set
 
-    spec = app.openapi()
+            spec = app.openapi()
+            from apps.api.database import engine  # noqa: WPS433
+
+            engine.dispose()
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
     spec.setdefault("info", {})
     spec["info"]["description"] = DESCRIPTION
     spec["info"]["license"] = {
@@ -70,7 +87,7 @@ def main() -> int:
 
     text = render(build_spec())
     if args.check:
-        current = args.out.read_text() if args.out.exists() else ""
+        current = args.out.read_text(encoding="utf-8") if args.out.exists() else ""
         if current != text:
             print(f"{args.out.relative_to(REPO_ROOT)} is stale; run scripts/export_openapi.py", file=sys.stderr)
             return 1
@@ -78,7 +95,7 @@ def main() -> int:
         return 0
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(text)
+    args.out.write_text(text, encoding="utf-8")
     paths = len(json.loads(text)["paths"])
     print(f"wrote {args.out.relative_to(REPO_ROOT)} ({paths} paths)")
     return 0
