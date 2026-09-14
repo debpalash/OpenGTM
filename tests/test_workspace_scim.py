@@ -139,6 +139,14 @@ def test_scim_group_lifecycle_and_membership_patch(monkeypatch, tmp_path):
     db = _db(); db.add(User(id=1, username="owner", hashed_password="x")); db.commit()
     first = create_user(workspace.slug, ScimUserInput(userName="first@example.com"), authorization, db)
     second = create_user(workspace.slug, ScimUserInput(userName="second@example.com"), authorization, db)
+    with pytest.raises(HTTPException) as invalid_create:
+        create_group(
+            workspace.slug,
+            ScimGroupInput(displayName="Must Not Exist", members=[{"value": "999999"}]),
+            authorization,
+        )
+    assert invalid_create.value.status_code == 400
+    assert scim.list_groups(workspace.id) == []
     group = create_group(workspace.slug, ScimGroupInput(displayName="Revenue", externalId="group-7", members=[{"value": first["id"]}]), authorization)
     assert group["displayName"] == "Revenue" and [m["value"] for m in group["members"]] == [first["id"]]
     page = list_groups(workspace.slug, authorization, 'displayName eq "revenue"', 1, 100)
@@ -164,15 +172,20 @@ def test_scim_group_lifecycle_and_membership_patch(monkeypatch, tmp_path):
             workspace.slug, group["id"],
             PatchInput(
                 schemas=["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
-                Operations=[{
-                    "op": "replace", "path": "members",
-                    "value": [{"value": "999999"}],
-                }],
+                Operations=[
+                    {"op": "replace", "path": "displayName", "value": "Must Also Roll Back"},
+                    {
+                        "op": "replace", "path": "members",
+                        "value": [{"value": "999999"}],
+                    },
+                ],
             ),
             authorization,
         )
     assert invalid_patch.value.status_code == 400
-    assert scim.get_group(workspace.id, group["id"])["members"] == [first["id"]]
+    after_patch = scim.get_group(workspace.id, group["id"])
+    assert after_patch["display_name"] == "Revenue"
+    assert after_patch["members"] == [first["id"]]
 
     updated = patch_group(workspace.slug, group["id"], PatchInput(schemas=["urn:ietf:params:scim:api:messages:2.0:PatchOp"], Operations=[{"op": "add", "path": "members", "value": [{"value": second["id"]}]}]), authorization)
     assert {member["value"] for member in updated["members"]} == {first["id"], second["id"]}
