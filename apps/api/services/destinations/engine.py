@@ -168,6 +168,46 @@ async def _deliver(destination, lead_id: int, snapshot: dict, idem: str) -> dict
             "external_id": result.get("record_id"),
         }
 
+    if dtype == "slack":
+        from apps.api.services.automations.actions import _act_webhook
+        from apps.api.services.workspace.secrets import get_secret
+
+        cfg = destination.config or {}
+        webhook_url = get_secret(
+            destination.workspace_id,
+            str(cfg.get("webhook_secret_ref") or ""),
+            "",
+        )
+        if not webhook_url:
+            return {"success": False, "summary": "", "error": "Slack webhook secret not found"}
+        default_message = "New audience member: {company} {contact_person} {email}"
+        template = str(cfg.get("message_template") or default_message)
+
+        class _SafeFields(dict):
+            def __missing__(self, key):
+                return ""
+
+        message = template.format_map(_SafeFields({
+            key: "" if value is None else str(value) for key, value in mapped.items()
+        })).strip()
+        webhook = {
+            "url": webhook_url,
+            "method": "POST",
+            "headers": {"Idempotency-Key": idem},
+            "body": {
+                "text": message[:3000],
+                "metadata": {
+                    "event_type": "opengtm_audience_member",
+                    "event_payload": {
+                        "destination_id": destination.id,
+                        "lead_id": lead_id,
+                    },
+                },
+            },
+        }
+        result = await _act_webhook(destination.workspace_id, webhook, snapshot, [])
+        return {"success": result.status == "success", "summary": result.summary, "error": result.error}
+
     return {"success": False, "summary": "", "error": f"unsupported destination '{dtype}'"}
 
 

@@ -82,6 +82,7 @@ def test_destination_type_catalog_fails_closed_to_beta(destination_app, monkeypa
         "meta_ads", "google_ads", "linkedin_ads", "instantly", "smartlead",
         "google_sheets",
         "airtable",
+        "slack",
     }
     assert all(item["maturity"] == "beta" for item in types)
 
@@ -222,6 +223,55 @@ def test_destination_health_and_bounded_delivery_inspection(destination_app):
         "/api/audience-destinations/runs/health-run/deliveries",
         params={"limit": 501},
     ).status_code == 422
+
+
+def test_slack_destination_uses_workspace_secret_and_pinned_webhook(destination_app, monkeypatch):
+    tc, Session, _ = destination_app
+    from apps.api.services.workspace import secrets
+    monkeypatch.setattr(
+        secrets,
+        "get_secret",
+        lambda workspace_id, key, default="": (
+            "https://hooks.slack.test/services/secret" if workspace_id == WS1 and key == "slack_hook" else default
+        ),
+    )
+    created = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1",
+        "name": "Sales alerts",
+        "destination_type": "slack",
+        "config": {
+            "webhook_secret_ref": "slack_hook",
+            "message_template": "New fit: {company} ({email})",
+        },
+    })
+    assert created.status_code == 201, created.text
+    assert "hooks.slack.test" not in str(created.json())
+
+    from apps.api.services.automations import actions
+    from apps.api.services.destinations import engine as destination_engine
+    captured = {}
+
+    async def fake_webhook(workspace_id, config, lead, columns):
+        captured.update({"workspace_id": workspace_id, "config": config})
+        return actions.ActionResult("success", summary="POST 200")
+
+    monkeypatch.setattr(actions, "_act_webhook", fake_webhook)
+    with Session() as session:
+        destination = session.get(AudienceDestination, created.json()["id"])
+        result = asyncio.run(destination_engine._deliver(
+            destination, 42, {"company": "Acme", "email": "buyer@acme.test"}, "idem-42",
+        ))
+    assert result["success"] is True
+    assert captured["workspace_id"] == WS1
+    assert captured["config"]["url"] == "https://hooks.slack.test/services/secret"
+    assert captured["config"]["headers"]["Idempotency-Key"] == "idem-42"
+    assert captured["config"]["body"]["text"] == "New fit: Acme (buyer@acme.test)"
+
+    missing = tc.post("/api/audience-destinations", json={
+        "audience_id": "aud-1", "name": "Missing Slack", "destination_type": "slack",
+        "config": {"webhook_secret_ref": "missing"},
+    })
+    assert missing.status_code == 422
 
 def test_destination_validation_and_tenant_isolation(destination_app):
     tc, Session, app = destination_app

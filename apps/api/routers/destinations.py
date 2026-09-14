@@ -22,6 +22,7 @@ TYPES = {
     "meta_ads", "google_ads", "linkedin_ads", "instantly", "smartlead",
     "google_sheets",
     "airtable",
+    "slack",
 }
 
 
@@ -121,6 +122,16 @@ def _validate_config(dtype: str, config: dict) -> dict:
             raise ValueError(f"missing airtable config: {', '.join(sorted(missing))}")
         if not str(config.get("idempotency_field") or "OpenGTM ID").strip():
             raise ValueError("airtable idempotency_field cannot be blank")
+    if dtype == "slack":
+        allowed = {"webhook_secret_ref", "message_template"}
+        unknown = set(config) - allowed
+        if unknown:
+            raise ValueError(f"unsupported slack config: {', '.join(sorted(unknown))}")
+        if not str(config.get("webhook_secret_ref") or "").strip():
+            raise ValueError("slack webhook_secret_ref is required")
+        template = str(config.get("message_template") or "")
+        if len(template) > 2000:
+            raise ValueError("slack message_template may not exceed 2000 characters")
     return config
 
 
@@ -228,10 +239,11 @@ def create_destination(body: DestinationCreate, db: Session = Depends(get_db), c
         config = body.validated_config()
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
-    if body.destination_type == "warehouse_http":
+    if body.destination_type in {"warehouse_http", "slack"}:
         from apps.api.services.workspace.secrets import get_secret
-        if not get_secret(ctx.workspace_id, str(config["header_secret_ref"]), ""):
-            raise HTTPException(status_code=422, detail="warehouse header_secret_ref was not found")
+        secret_field = "header_secret_ref" if body.destination_type == "warehouse_http" else "webhook_secret_ref"
+        if not get_secret(ctx.workspace_id, str(config[secret_field]), ""):
+            raise HTTPException(status_code=422, detail=f"{body.destination_type} {secret_field} was not found")
     destination = AudienceDestination(
         workspace_id=ctx.workspace_id, audience_id=body.audience_id, name=body.name,
         destination_type=body.destination_type, enabled=body.enabled,
@@ -256,10 +268,11 @@ def update_destination(destination_id: str, body: DestinationPatch, db: Session 
             changes["config"] = _validate_config(destination.destination_type, changes["config"] or {})
         except ValueError as exc:
             raise HTTPException(status_code=422, detail=str(exc))
-        if destination.destination_type == "warehouse_http":
+        if destination.destination_type in {"warehouse_http", "slack"}:
             from apps.api.services.workspace.secrets import get_secret
-            if not get_secret(ctx.workspace_id, str(changes["config"]["header_secret_ref"]), ""):
-                raise HTTPException(status_code=422, detail="warehouse header_secret_ref was not found")
+            secret_field = "header_secret_ref" if destination.destination_type == "warehouse_http" else "webhook_secret_ref"
+            if not get_secret(ctx.workspace_id, str(changes["config"][secret_field]), ""):
+                raise HTTPException(status_code=422, detail=f"{destination.destination_type} {secret_field} was not found")
     for key, value in changes.items():
         setattr(destination, key, value.strip() if key == "name" else value)
     db.commit()
