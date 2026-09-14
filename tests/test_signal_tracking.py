@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 
 import pytest
@@ -127,6 +128,54 @@ def test_same_scope_updates_one_schedule(db_factory):
         ).count() == 1
         assert db.query(Job).filter(
             Job.type == "watch_poll", Job.status == "cancelled"
+        ).count() == 1
+
+
+def test_killed_watch_poll_mirrors_retry_then_restores_recurrence(db_factory, monkeypatch):
+    _seed(db_factory)
+    with db_factory() as db:
+        result = upsert_account_signal_schedule(
+            db,
+            workspace_id="W1",
+            workbook_id="wb-accounts",
+            account_ids=["account_0", "account_1"],
+            cadence="weekly",
+            signal_types=["funding"],
+            idempotency_key="crash-recovery",
+        )
+        watch_id = result["schedule_id"]
+        job = db.query(Job).filter(Job.type == "watch_poll", Job.status == "pending").one()
+        job.next_run_at = datetime.now(timezone.utc) + timedelta(minutes=2)
+        db.commit()
+        job_id, retry_at = job.id, job.next_run_at
+
+    from apps.api.services.poller import engine as poller_engine
+    monkeypatch.setattr(poller_engine, "SessionLocal", db_factory)
+    monkeypatch.setattr(
+        poller_engine.settings, "INTENT_POLLER_MAX_CONSECUTIVE_FAILURES", 12,
+        raising=False,
+    )
+    payload = {"workspace_id": "W1", "watch_id": watch_id}
+    poller_engine.reconcile_watch_poll_failure(job_id, payload, "worker timeout", True)
+    with db_factory() as db:
+        watch = db.get(WatchSubscription, watch_id)
+        mirror = db.get(WatchSchedule, watch_id)
+        assert watch.consecutive_failures == 1
+        assert "queue_failure: worker timeout" == watch.last_error
+        assert watch.next_poll_at == retry_at and mirror.next_poll_at == retry_at
+        assert db.get(Job, job_id).status == "pending"
+        db.get(Job, job_id).status = "failed"
+        db.commit()
+
+    poller_engine.reconcile_watch_poll_failure(job_id, payload, "worker timeout", False)
+    with db_factory() as db:
+        watch = db.get(WatchSubscription, watch_id)
+        mirror = db.get(WatchSchedule, watch_id)
+        assert watch.consecutive_failures == 2
+        assert watch.enabled is True and watch.next_poll_at is not None
+        assert mirror.enabled is True and mirror.next_poll_at == watch.next_poll_at
+        assert db.query(Job).filter(
+            Job.type == "watch_poll", Job.status == "pending",
         ).count() == 1
 
 

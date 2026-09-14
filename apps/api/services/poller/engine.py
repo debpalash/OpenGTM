@@ -293,6 +293,52 @@ def _reschedule_watch(db, watch, *, failed: bool):
         _mirror_upsert(db, watch.id, watch.workspace_id, next_at, True)
 
 
+def reconcile_watch_poll_failure(
+    job_id: int,
+    payload: dict,
+    error: str,
+    will_retry: bool,
+) -> None:
+    """Reconcile watch health when the isolated poll process is killed."""
+    workspace_id = str(payload.get("workspace_id") or "").strip()
+    watch_id = str(payload.get("watch_id") or "").strip()
+    if not workspace_id or not watch_id:
+        raise ValueError("watch poll failure payload requires workspace_id and watch_id")
+
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.models import Job
+
+    with workspace_scope(workspace_id):
+        with SessionLocal() as db:
+            watch = _load(db, watch_id, workspace_id)
+            if watch is None or not watch.enabled:
+                return
+            watch.last_error = f"queue_failure: {str(error or 'watch poll failed')}"[:255]
+            if not will_retry:
+                _reschedule_watch(db, watch, failed=True)
+                db.commit()
+                return
+
+            watch.consecutive_failures = (watch.consecutive_failures or 0) + 1
+            max_fail = int(settings.INTENT_POLLER_MAX_CONSECUTIVE_FAILURES)
+            queue_job = db.query(Job).filter(Job.id == job_id).first()
+            if watch.consecutive_failures >= max_fail:
+                watch.enabled = False
+                watch.last_error = "auto_disabled"
+                watch.next_poll_at = None
+                _mirror_upsert(db, watch.id, workspace_id, None, False)
+                if queue_job is not None and queue_job.status == "pending":
+                    queue_job.status = "cancelled"
+                    queue_job.error = "Watch auto-disabled after consecutive failures"
+                    queue_job.completed_at = _utcnow()
+            else:
+                retry_at = queue_job.next_run_at if queue_job is not None else None
+                retry_at = retry_at or (_utcnow() + timedelta(minutes=1))
+                watch.next_poll_at = retry_at
+                _mirror_upsert(db, watch.id, workspace_id, retry_at, True)
+            db.commit()
+
+
 # ── per-source cost / billing (spec §7) ──────────────────────────────────────
 
 _SOURCE_COST = {
