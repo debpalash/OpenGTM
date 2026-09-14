@@ -7,7 +7,9 @@ import os
 import re
 import secrets
 import tempfile
+import time
 import zipfile
+from contextlib import contextmanager
 from pathlib import Path
 
 import yaml
@@ -16,6 +18,46 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey,
 
 SIGNATURE_VERSION = "1"
 BUNDLE_FILES = {"connector.yaml", "connector.yaml.sig"}
+INSTALL_LOCK_TIMEOUT_SECONDS = 10.0
+
+
+@contextmanager
+def _install_lock(path: Path):
+    """Hold a cross-process exclusive lock for one connector install target."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle = path.open("a+b")
+    handle.seek(0, os.SEEK_END)
+    if handle.tell() == 0:
+        handle.write(b"0")
+        handle.flush()
+    deadline = time.monotonic() + INSTALL_LOCK_TIMEOUT_SECONDS
+    acquired = False
+    try:
+        while not acquired:
+            try:
+                handle.seek(0)
+                if os.name == "nt":
+                    import msvcrt
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                acquired = True
+            except (BlockingIOError, OSError):
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(f"connector installation is already in progress: {path.name}")
+                time.sleep(0.05)
+        yield
+    finally:
+        if acquired:
+            handle.seek(0)
+            if os.name == "nt":
+                import msvcrt
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        handle.close()
 
 
 def canonical_manifest(path: Path) -> bytes:
@@ -88,30 +130,31 @@ def install_bundle(bundle: Path, destination: Path, trust_store: Path, *, replac
         manifest = load_manifest(manifest_path)
         if not re.fullmatch(r"[a-z][a-z0-9_]{1,63}", manifest.capability): raise ValueError("connector capability is not a safe package path")
         target_dir = destination / manifest.capability; target = target_dir / f"{manifest.name}.yaml"; target_signature = Path(f"{target}.sig")
-        if (target.exists() or target_signature.exists()) and not replace: raise FileExistsError(f"connector {manifest.name} is already installed")
         target_dir.mkdir(parents=True, exist_ok=True)
-        staged_target = target_dir / f".{manifest.name}.{secrets.token_hex(8)}.yaml"
-        staged_signature = Path(f"{staged_target}.sig")
-        staged_target.write_bytes(manifest_bytes); staged_signature.write_bytes(signature_bytes)
-        previous_manifest = target.read_bytes() if target.exists() else None
-        previous_signature = target_signature.read_bytes() if target_signature.exists() else None
-        try:
-            os.replace(staged_signature, target_signature)
-            os.replace(staged_target, target)
-        except Exception:
-            # The manifest and detached signature are one logical unit but need
-            # two filesystem moves. Restore the exact prior pair (or remove a
-            # half-installed new pair) if either move fails.
-            for path, previous in (
-                (target, previous_manifest),
-                (target_signature, previous_signature),
-            ):
-                if previous is None:
-                    path.unlink(missing_ok=True)
-                else:
-                    path.write_bytes(previous)
-            raise
-        finally:
-            staged_target.unlink(missing_ok=True)
-            staged_signature.unlink(missing_ok=True)
+        with _install_lock(target_dir / f".{manifest.name}.install.lock"):
+            if (target.exists() or target_signature.exists()) and not replace: raise FileExistsError(f"connector {manifest.name} is already installed")
+            staged_target = target_dir / f".{manifest.name}.{secrets.token_hex(8)}.yaml"
+            staged_signature = Path(f"{staged_target}.sig")
+            staged_target.write_bytes(manifest_bytes); staged_signature.write_bytes(signature_bytes)
+            previous_manifest = target.read_bytes() if target.exists() else None
+            previous_signature = target_signature.read_bytes() if target_signature.exists() else None
+            try:
+                os.replace(staged_signature, target_signature)
+                os.replace(staged_target, target)
+            except Exception:
+                # The manifest and detached signature are one logical unit but need
+                # two filesystem moves. Restore the exact prior pair (or remove a
+                # half-installed new pair) if either move fails.
+                for path, previous in (
+                    (target, previous_manifest),
+                    (target_signature, previous_signature),
+                ):
+                    if previous is None:
+                        path.unlink(missing_ok=True)
+                    else:
+                        path.write_bytes(previous)
+                raise
+            finally:
+                staged_target.unlink(missing_ok=True)
+                staged_signature.unlink(missing_ok=True)
         return {"id": manifest.name, "capability": manifest.capability, "manifest": str(target), "signature": result}
