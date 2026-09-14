@@ -492,41 +492,33 @@ def watch_signals(
     signal_type: Optional[str] = None,
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
+    cursor: Optional[str] = Query(None, max_length=1024),
 ):
     _require_enabled()
     w = _load(db, ctx.workspace_id, watch_id)
-    store = ctx.lead_db()
-    out = []
-    types = [signal_type] if signal_type else (w.signal_types or [None])
-    for st in types:
-        found = store.get_signals(
-            signal_type=st, lead_id=w.lead_id, limit=limit, offset=offset,
-        )
-        if w.kind == "account_group":
-            account_lead_ids = {
+    from apps.api.services.signals.store import get_signal_store
+    store = get_signal_store(ctx.workspace_id)
+    types = [signal_type] if signal_type else (w.signal_types or None)
+    lead_ids = companies = None
+    lead_id = w.lead_id
+    if w.kind == "account_group":
+        lead_id = None
+        lead_ids = sorted({
                 int(item["lead_id"])
                 for item in ((w.config or {}).get("accounts") or [])
                 if isinstance(item, dict) and item.get("lead_id") is not None
-            }
-            account_companies = {
+            })
+        companies = sorted({
                 str(item.get("company") or "").strip().casefold()
                 for item in ((w.config or {}).get("accounts") or [])
                 if isinstance(item, dict) and item.get("company")
-            }
-            found = [
-                item for item in found
-                if (
-                    item.get("lead_id") in account_lead_ids
-                    or str(item.get("company") or "").strip().casefold() in account_companies
-                )
-            ]
-        out.extend(found)
-    # de-dup by id, sort by created_at desc
-    seen = set()
-    uniq = []
-    for s in sorted(out, key=lambda r: r.get("created_at", 0), reverse=True):
-        if s["id"] in seen:
-            continue
-        seen.add(s["id"])
-        uniq.append(s)
-    return {"signals": uniq[:limit]}
+            })
+    try:
+        page = store.get_signals_page(
+            signal_types=types, lead_id=lead_id, lead_ids=lead_ids,
+            companies=companies, limit=limit, cursor=cursor,
+            offset=offset if not cursor else 0,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {**page, "limit": limit, "offset": offset if not cursor else None}

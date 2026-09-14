@@ -8,7 +8,7 @@ Postgres (RLS-protected ``signals`` table) and SQLite/self-host (same ORM table,
 file path is no longer read or written by the feed.
 """
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timezone
@@ -60,8 +60,9 @@ def signal_analytics(
 def list_signals(
     signal_type: Optional[str] = None,
     lead_id: Optional[int] = None,
-    limit: int = 50,
-    offset: int = 0,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    cursor: Optional[str] = Query(None, max_length=1024),
     ctx: WorkspaceCtx = Depends(current_workspace),
 ):
     """Get recent signals for THIS workspace, optionally filtered by type or lead."""
@@ -69,12 +70,30 @@ def list_signals(
     from apps.api.services.signals.store import get_signal_store
 
     store = get_signal_store(ctx.workspace_id)
-    signals = store.get_signals(
-        signal_type=signal_type, lead_id=lead_id, limit=limit, offset=offset
-    )
+    try:
+        if cursor:
+            page = store.get_signals_page(
+                signal_types=[signal_type] if signal_type else None,
+                lead_id=lead_id, limit=limit, cursor=cursor,
+            )
+        else:
+            signals = store.get_signals(
+                signal_type=signal_type, lead_id=lead_id, limit=limit + 1, offset=offset
+            )
+            has_more = len(signals) > limit
+            signals = signals[:limit]
+            page = {
+                "signals": signals,
+                "has_more": has_more,
+                "next_cursor": store.encode_cursor_from_dict(signals[-1]) if has_more else None,
+            }
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     counts = store.get_signal_counts()
     return {
-        "signals": signals,
+        **page,
+        "limit": limit,
+        "offset": offset if not cursor else None,
         "counts": counts,
         "signal_types": {k: v["label"] for k, v in SIGNAL_TYPES.items()},
     }
