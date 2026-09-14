@@ -90,3 +90,10 @@ independent gates: the former proves provenance, while the latter proves the
 specific package has current operational evidence. Any manifest replacement
 changes the digest and immediately demotes the connector to `beta` until the
 new package is validated and attested.
+
+Workbook enrichment providers use `subject_id: provider:<provider-name>` and
+require external-read, normalization, provenance, representative quality
+sample, failure-recovery, and tenant-isolation evidence. Their fail-closed
+maturity is returned by `GET /api/workbooks/meta/providers` and summarized
+separately by the release-readiness endpoint; a broad beta catalog neither
+inflates nor blocks the first-party workflow gate.

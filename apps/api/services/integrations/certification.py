@@ -94,6 +94,10 @@ AGENT_SPECIALIZED_CHECKS: dict[str, set[str]] = {
     "recurring_schedules": {"single_flight", "restart_recovery"},
 }
 CONNECTOR_CHECKS = {"authentication", "external_read", "normalization", "failure_recovery", "tenant_isolation"}
+PROVIDER_CHECKS = {
+    "external_read", "normalization", "provenance", "quality_sample",
+    "failure_recovery", "tenant_isolation",
+}
 GOVERNANCE_CHECKS: dict[str, set[str]] = {
     "oidc_sso": {
         "external_authentication", "identity_binding", "jit_provisioning",
@@ -114,9 +118,9 @@ def _known_subject(subject_id: str) -> bool:
     return subject_id in {
         *INTEGRATIONS, *SIGNAL_SOURCES, *AGENT_CAPABILITIES,
         *GOVERNANCE_CAPABILITIES,
-    } or bool(
-        re.fullmatch(r"connector:[a-z][a-z0-9_-]{0,79}", subject_id)
-    )
+    } or bool(re.fullmatch(
+        r"(?:connector|provider):[a-z][a-z0-9_-]{0,79}", subject_id,
+    ))
 
 
 def _payload(certificate: Mapping[str, Any]) -> bytes:
@@ -145,6 +149,8 @@ def _required_checks(subject_id: str) -> set[str]:
         return set(GOVERNANCE_CHECKS[subject_id])
     if subject_id.startswith("connector:"):
         return set(CONNECTOR_CHECKS)
+    if subject_id.startswith("provider:"):
+        return set(PROVIDER_CHECKS)
     return set()
 
 
@@ -464,14 +470,14 @@ def certification_statuses(
     return {
         subject_id: {
             "maturity": "supported" if subject_id in valid else "beta",
-            "certification": {
+            "certification": ({
                 field: valid[subject_id][field]
                 for field in (
                     "validated_at", "expires_at", "build_sha",
                     "validation_run_id", "evidence_url", "evidence_sha256", "mode",
-                    "subject_build_sha256",
                 )
-            }
+            } | ({"subject_build_sha256": valid[subject_id]["subject_build_sha256"]}
+                 if subject_id.startswith("connector:") else {}))
             if subject_id in valid
             else None,
         }

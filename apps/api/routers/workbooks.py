@@ -2201,9 +2201,18 @@ async def get_lead_fields(ctx: WorkspaceCtx = Depends(current_workspace)):
 async def get_providers(ctx: WorkspaceCtx = Depends(current_workspace)):
     """Get available enrichment providers."""
     from apps.api.services.workbook.providers import list_providers
+    from apps.api.services.integrations.certification import certification_statuses
     providers = list_providers()
+    maturity = certification_statuses([
+        f"provider:{provider['name']}" for provider in providers
+    ])
     return {"providers": [
-        {"name": p["name"], "capabilities": p.get("capabilities", []), "confidence": p.get("confidence", 0.5)}
+        {
+            "name": p["name"],
+            "capabilities": p.get("capabilities", []),
+            "confidence": p.get("confidence", 0.5),
+            **maturity[f"provider:{p['name']}"],
+        }
         for p in providers
     ]}
 
