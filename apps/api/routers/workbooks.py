@@ -167,6 +167,25 @@ def _decode_query_cursor(cursor: str, expected_values: int) -> list:
         raise HTTPException(status_code=400, detail="Invalid workbook row cursor")
 
 
+def _encode_connector_run_cursor(run: ConnectorRun) -> str:
+    return _encode_query_cursor([run.created_at.isoformat(), run.id])
+
+
+def _decode_connector_run_cursor(cursor: str) -> tuple[datetime, str]:
+    try:
+        values = _decode_query_cursor(cursor, 2)
+        created_at = datetime.fromisoformat(values[0])
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=timezone.utc)
+        if not isinstance(values[1], str):
+            raise ValueError
+        return created_at, values[1]
+    except HTTPException as exc:
+        raise HTTPException(status_code=400, detail="Invalid connector run cursor") from exc
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=400, detail="Invalid connector run cursor")
+
+
 def _cursor_after_filter(cursor_terms: list[tuple], values: list):
     branches = []
     for index, ((expression, descending), value) in enumerate(zip(cursor_terms, values)):
@@ -660,13 +679,35 @@ async def list_connector_runs(
     workbook_id: str,
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(current_workspace),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0, le=100000),
+    cursor: Optional[str] = Query(None, max_length=1024),
 ):
     """Operational history for durable connector executions."""
     _owned_workbook(db, workbook_id, ctx)
-    runs = db.query(ConnectorRun).filter(
-        ConnectorRun.workbook_id == workbook_id
-    ).order_by(ConnectorRun.created_at.desc()).limit(100).all()
-    return {"runs": [run.to_api() for run in runs]}
+    query = db.query(ConnectorRun).filter(
+        ConnectorRun.workspace_id == ctx.workspace_id,
+        ConnectorRun.workbook_id == workbook_id,
+    )
+    if cursor:
+        created_at, run_id = _decode_connector_run_cursor(cursor)
+        query = query.filter(or_(
+            ConnectorRun.created_at < created_at,
+            and_(ConnectorRun.created_at == created_at, ConnectorRun.id < run_id),
+        ))
+    query = query.order_by(ConnectorRun.created_at.desc(), ConnectorRun.id.desc()).limit(limit + 1)
+    if offset and not cursor:
+        query = query.offset(offset)
+    rows = query.all()
+    has_more = len(rows) > limit
+    page = rows[:limit]
+    return {
+        "runs": [run.to_api() for run in page],
+        "limit": limit,
+        "offset": offset if not cursor else None,
+        "has_more": has_more,
+        "next_cursor": _encode_connector_run_cursor(page[-1]) if has_more else None,
+    }
 
 
 @router.put("/{workbook_id}", response_model=WorkbookResponse)

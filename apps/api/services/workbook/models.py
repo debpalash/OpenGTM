@@ -416,6 +416,10 @@ class ConnectorRun(Base):
                 "status IN ('pending', 'running', 'retrying')"
             ),
         ),
+        Index(
+            "ix_connector_runs_ws_workbook_cursor",
+            "workspace_id", "workbook_id", "created_at", "id",
+        ),
     )
 
     id = Column(String, primary_key=True, default=generate_uuid)
@@ -440,7 +444,7 @@ class ConnectorRun(Base):
     error = Column(Text, nullable=True)
     started_at = Column(DateTime(timezone=True), nullable=True)
     completed_at = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
