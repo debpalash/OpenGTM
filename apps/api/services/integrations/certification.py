@@ -15,6 +15,7 @@ from urllib.parse import urlsplit
 CERTIFICATION_PATH_ENV = "OPENGTM_INTEGRATION_CERTIFICATIONS"
 CERTIFICATION_KEY_ENV = "OPENGTM_INTEGRATION_CERTIFICATION_KEY"
 BUILD_SHA_ENV = "OPENGTM_BUILD_SHA"
+MAX_CERTIFICATION_LIFETIME_DAYS = 92
 
 INTEGRATIONS: dict[str, dict[str, Any]] = {
     "webhook": {"category": "activation", "capabilities": ["outbound"]},
@@ -114,6 +115,27 @@ def _evidence_contract_valid(certificate: Mapping[str, Any]) -> bool:
     legacy_id = str(certificate.get("integration_id") or "")
     explicit_id = str(certificate.get("subject_id") or "")
     if legacy_id and explicit_id and legacy_id != explicit_id:
+        return False
+    validation_run_id = str(certificate.get("validation_run_id") or "")
+    build_sha = str(certificate.get("build_sha") or "")
+    validated_at = _parse_time(certificate.get("validated_at"))
+    expires_at = _parse_time(certificate.get("expires_at"))
+    evidence = urlsplit(str(certificate.get("evidence_url") or ""))
+    if (
+        certificate.get("status") != "supported"
+        or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}", validation_run_id)
+        or not build_sha.strip()
+        or any(character.isspace() for character in build_sha)
+        or validated_at is None
+        or expires_at is None
+        or not validated_at < expires_at
+        or (expires_at - validated_at).total_seconds()
+        > MAX_CERTIFICATION_LIFETIME_DAYS * 86400
+        or evidence.scheme != "https"
+        or not evidence.netloc
+        or evidence.username is not None
+        or evidence.password is not None
+    ):
         return False
     checks = certificate.get("checks")
     required = _required_checks(subject_id)

@@ -76,7 +76,11 @@ def test_tampered_expired_and_wrong_key_certificates_fail_closed(tmp_path):
     signed = attest_certificate(_certificate(), KEY)
     tampered = {**signed, "build_sha": "changed"}
     assert integration_catalog(path=_write(tmp_path, [tampered]), key=KEY, now=NOW, build_sha="abc123")[1]["maturity"] == "beta"
-    expired = attest_certificate({**_certificate(), "expires_at": "2026-09-01T00:00:00Z"}, KEY)
+    expired = attest_certificate({
+        **_certificate(),
+        "validated_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2026-09-01T00:00:00Z",
+    }, KEY)
     assert integration_catalog(path=_write(tmp_path, [expired]), key=KEY, now=NOW, build_sha="abc123")[1]["maturity"] == "beta"
     assert integration_catalog(path=_write(tmp_path, [signed]), key="wrong", now=NOW, build_sha="abc123")[1]["maturity"] == "beta"
 
@@ -113,6 +117,21 @@ def test_certificate_rejects_metadata_only_or_incomplete_live_claims(tmp_path):
     signed["checks"]["external_write"]["passed"] = False
     catalog = integration_catalog(path=_write(tmp_path, [signed]), key=KEY, now=NOW, build_sha="abc123")
     assert {item["id"]: item["maturity"] for item in catalog}["hubspot"] == "beta"
+
+
+@pytest.mark.parametrize("changes", [
+    {"validation_run_id": "   "},
+    {"build_sha": " "},
+    {"validated_at": "not-a-time"},
+    {"expires_at": "2026-09-11T00:00:00Z"},
+    {"expires_at": "2027-09-12T00:00:00Z"},
+    {"evidence_url": "http://evidence.example/run"},
+    {"evidence_url": "https://user:secret@evidence.example/run"},
+    {"status": "beta"},
+])
+def test_attestation_refuses_invalid_or_staleable_claims(changes):
+    with pytest.raises(ValueError, match="controlled-live evidence contract"):
+        attest_certificate({**_certificate(), **changes}, KEY)
 
 
 def test_conflicting_aliases_and_duplicate_subjects_fail_closed(tmp_path):

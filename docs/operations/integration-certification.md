@@ -52,6 +52,11 @@ Subject identity must also be unambiguous. If both `subject_id` and the legacy
 `integration_id` are present, they must match. A certification file containing
 more than one currently valid certificate for the same subject demotes that
 subject to `beta` rather than choosing a record based on file order.
+Issuance also fails closed for malformed validation-run IDs, blank or
+whitespace-containing build identities, invalid or inverted timestamps,
+credential-bearing evidence URLs, and validity windows longer than 92 days.
+Revalidate against the deployed build instead of issuing permanent support
+claims.
 
 Installed declarative connectors use `subject_id: connector:<manifest-name>`.
 Their Ed25519 publisher signature and controlled-live HMAC certification are
