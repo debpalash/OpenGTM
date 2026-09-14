@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 
 import pytest
+from fastapi import HTTPException
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -15,6 +16,7 @@ from apps.api.services.leadgen.orm_models import LLMUsageRow, SignalRow
 from apps.api.services.outreach.orm_models import OutreachSend
 from apps.api.services.playbooks.models import PlaybookResult, PlaybookRun, ResearchPlaybook
 from apps.api.services.governance.retention import normalized_days, preview_retention
+from apps.api.routers.governance import retention_runs
 
 
 def _session():
@@ -25,6 +27,45 @@ def _session():
 
 def _audit(ws, request_id, when):
     return GovernanceAuditEvent(workspace_id=ws, actor_role="admin", method="POST", route="/x", resource_path="/x", response_status=200, outcome="success", request_id=request_id, metadata_json={}, created_at=when)
+
+
+def test_retention_run_history_is_stable_bounded_and_tenant_safe():
+    Session = _session()
+    created = datetime.now(timezone.utc) - timedelta(days=1)
+    with Session() as db:
+        db.add_all([
+            RetentionRun(
+                id=f"retention-{index}", workspace_id="ws",
+                requested_by="admin", policy_snapshot={}, created_at=created,
+            )
+            for index in range(5)
+        ])
+        db.add(RetentionRun(
+            id="foreign-retention", workspace_id="other",
+            requested_by="admin", policy_snapshot={}, created_at=created + timedelta(days=2),
+        ))
+        db.commit()
+        ctx = type("Ctx", (), {"workspace_id": "ws"})()
+
+        first = retention_runs(db=db, ctx=ctx, limit=2, offset=0, cursor=None)
+        assert first["has_more"] is True and len(first["runs"]) == 2
+        assert "foreign-retention" not in {run["id"] for run in first["runs"]}
+        db.add(RetentionRun(
+            id="new-retention", workspace_id="ws",
+            requested_by="admin", policy_snapshot={}, created_at=created + timedelta(days=3),
+        ))
+        db.commit()
+        second = retention_runs(
+            db=db, ctx=ctx, limit=2, offset=0, cursor=first["next_cursor"],
+        )
+        third = retention_runs(
+            db=db, ctx=ctx, limit=2, offset=0, cursor=second["next_cursor"],
+        )
+        traversed = first["runs"] + second["runs"] + third["runs"]
+        assert len(traversed) == 5 and len({run["id"] for run in traversed}) == 5
+        assert "new-retention" not in {run["id"] for run in traversed}
+        with pytest.raises(HTTPException, match="invalid retention run cursor"):
+            retention_runs(db=db, ctx=ctx, limit=2, offset=0, cursor="bad")
 
 
 def test_retention_preview_and_enforcement_are_tenant_scoped(monkeypatch):

@@ -26,12 +26,12 @@ router = APIRouter(prefix="/api/governance", tags=["governance"])
 require_admin = require_workspace_role("admin", permission="governance.manage")
 
 
-def _encode_audit_cursor(event: GovernanceAuditEvent) -> str:
-    payload = json.dumps([event.created_at.isoformat(), event.id], separators=(",", ":")).encode()
+def _encode_history_cursor(created_at: datetime, row_id: str) -> str:
+    payload = json.dumps([created_at.isoformat(), row_id], separators=(",", ":")).encode()
     return base64.urlsafe_b64encode(payload).decode().rstrip("=")
 
 
-def _decode_audit_cursor(cursor: str) -> tuple[datetime, str]:
+def _decode_history_cursor(cursor: str, label: str) -> tuple[datetime, str]:
     try:
         value = json.loads(base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4)))
         if not isinstance(value, list) or len(value) != 2 or not isinstance(value[1], str):
@@ -41,7 +41,7 @@ def _decode_audit_cursor(cursor: str) -> tuple[datetime, str]:
             created_at = created_at.replace(tzinfo=timezone.utc)
         return created_at, value[1]
     except (ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError, binascii.Error) as exc:
-        raise HTTPException(status_code=422, detail="invalid audit event cursor") from exc
+        raise HTTPException(status_code=422, detail=f"invalid {label} cursor") from exc
 
 
 class RetentionUpdate(BaseModel):
@@ -120,7 +120,7 @@ def list_audit_events(
         None if cursor else before,
     )
     if cursor:
-        cursor_created_at, cursor_id = _decode_audit_cursor(cursor)
+        cursor_created_at, cursor_id = _decode_history_cursor(cursor, "audit event")
         query = query.filter(or_(
             GovernanceAuditEvent.created_at < cursor_created_at,
             and_(
@@ -135,7 +135,7 @@ def list_audit_events(
     page = rows[:limit]
     return {
         "events": [row.to_api() for row in page],
-        "next_cursor": _encode_audit_cursor(page[-1]) if has_more else None,
+        "next_cursor": _encode_history_cursor(page[-1].created_at, page[-1].id) if has_more else None,
         "next_before": page[-1].created_at if has_more else None,
         "has_more": has_more,
         "limit": limit,
@@ -218,8 +218,35 @@ def enforce_policy(body: RetentionEnforce, db: Session = Depends(get_db), ctx: W
 
 
 @router.get("/retention/runs")
-def retention_runs(db: Session = Depends(get_db), ctx: WorkspaceCtx = Depends(require_admin)):
-    return [row.to_api() for row in db.query(RetentionRun).filter(RetentionRun.workspace_id == ctx.workspace_id).order_by(RetentionRun.created_at.desc()).limit(100).all()]
+def retention_runs(
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_admin),
+    limit: int = Query(20, ge=1, le=200),
+    offset: int = Query(0, ge=0, le=100000),
+    cursor: Optional[str] = Query(None, max_length=1024),
+):
+    query = db.query(RetentionRun).filter(
+        RetentionRun.workspace_id == ctx.workspace_id,
+    )
+    if cursor:
+        created_at, run_id = _decode_history_cursor(cursor, "retention run")
+        query = query.filter(or_(
+            RetentionRun.created_at < created_at,
+            and_(RetentionRun.created_at == created_at, RetentionRun.id < run_id),
+        ))
+    query = query.order_by(RetentionRun.created_at.desc(), RetentionRun.id.desc()).limit(limit + 1)
+    if offset and not cursor:
+        query = query.offset(offset)
+    rows = query.all()
+    has_more = len(rows) > limit
+    page = rows[:limit]
+    return {
+        "runs": [row.to_api() for row in page],
+        "limit": limit,
+        "offset": offset if not cursor else None,
+        "has_more": has_more,
+        "next_cursor": _encode_history_cursor(page[-1].created_at, page[-1].id) if has_more else None,
+    }
 
 
 @router.get("/rbac")
