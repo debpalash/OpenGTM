@@ -4,6 +4,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 from jose import JWTError
+from sqlalchemy.exc import IntegrityError
 from apps.api.database import get_db
 from apps.api.models import User
 from apps.api.schemas.auth import Token, RefreshRequest
@@ -136,7 +137,20 @@ async def sso_callback(workspace_slug: str, request: Request, db: Session = Depe
                 if not config.get("auto_provision"):
                     raise ValueError("No provisioned OpenGTM account matches this identity")
                 user = User(username=email, hashed_password=get_password_hash(oidc.new_nonce()), role="user")
-                db.add(user); db.commit(); db.refresh(user)
+                try:
+                    # Another callback for this identity may insert the same
+                    # globally unique username after our lookup. Isolate that
+                    # expected race so the callback can converge safely.
+                    with db.begin_nested():
+                        db.add(user)
+                        db.flush()
+                    db.commit()
+                    db.refresh(user)
+                except IntegrityError:
+                    db.rollback()
+                    user = db.query(User).filter(User.username == email).first()
+                    if user is None:
+                        raise
             if not workspace_manager.is_member(workspace.id, user.id):
                 if not config.get("auto_provision"):
                     raise ValueError("This account is not provisioned in the workspace")

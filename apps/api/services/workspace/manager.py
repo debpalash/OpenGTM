@@ -227,15 +227,51 @@ def oidc_identity_user(workspace_id: str, issuer: str, subject: str) -> Optional
 
 
 def bind_oidc_identity(workspace_id: str, issuer: str, subject: str, user_id: int, email: str = "") -> None:
-    if not is_member(workspace_id, user_id):
-        raise ValueError("OIDC identity user must be a workspace member")
     conn = _get_db()
-    conn.execute(
-        "INSERT INTO workspace_oidc_identities (workspace_id, issuer, subject, user_id, email, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        (workspace_id, issuer, subject, user_id, email, time.time()),
-    )
-    conn.commit()
-    conn.close()
+    try:
+        # Serialize membership validation with the binding write. This also
+        # makes simultaneous callbacks converge on one mapping.
+        conn.execute("BEGIN IMMEDIATE")
+        member = conn.execute(
+            "SELECT 1 FROM workspace_members WHERE workspace_id=? AND user_id=? "
+            "UNION SELECT 1 FROM workspaces WHERE id=? AND owner_id=? LIMIT 1",
+            (workspace_id, user_id, workspace_id, user_id),
+        ).fetchone()
+        if not member:
+            raise ValueError("OIDC identity user must be a workspace member")
+        by_subject = conn.execute(
+            "SELECT user_id FROM workspace_oidc_identities "
+            "WHERE workspace_id=? AND issuer=? AND subject=?",
+            (workspace_id, issuer, subject),
+        ).fetchone()
+        by_user = conn.execute(
+            "SELECT issuer, subject FROM workspace_oidc_identities "
+            "WHERE workspace_id=? AND user_id=?",
+            (workspace_id, user_id),
+        ).fetchone()
+        if by_subject or by_user:
+            same_subject = by_subject and int(by_subject["user_id"]) == user_id
+            same_user = by_user and by_user["issuer"] == issuer and by_user["subject"] == subject
+            if not (same_subject and same_user):
+                raise ValueError("OIDC identity is already bound to a different account")
+            conn.execute(
+                "UPDATE workspace_oidc_identities SET email=? "
+                "WHERE workspace_id=? AND issuer=? AND subject=?",
+                (email, workspace_id, issuer, subject),
+            )
+        else:
+            conn.execute(
+                "INSERT INTO workspace_oidc_identities "
+                "(workspace_id, issuer, subject, user_id, email, created_at) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (workspace_id, issuer, subject, user_id, email, time.time()),
+            )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 
 # ── CRUD ──────────────────────────────────────────────────────
