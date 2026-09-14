@@ -140,8 +140,73 @@ def test_oidc_callback_jit_provisions_binds_and_deprovisions(monkeypatch, tmp_pa
     assert manager.oidc_identity_user(workspace.id, config["issuer"], "subject-1") == user.id
     assert "sso_access_token=" in response.headers["location"]
 
+    # Replayed concurrent callbacks converge on the same binding, while either
+    # side of the one-subject/one-user contract fails closed on conflict.
+    manager.bind_oidc_identity(
+        workspace.id, config["issuer"], "subject-1", user.id, "updated@example.com",
+    )
+    manager.add_member(workspace.id, 999, "viewer")
+    with pytest.raises(ValueError, match="different account"):
+        manager.bind_oidc_identity(
+            workspace.id, config["issuer"], "subject-1", 999, "other@example.com",
+        )
+    with pytest.raises(ValueError, match="different account"):
+        manager.bind_oidc_identity(
+            workspace.id, config["issuer"], "different-subject", user.id,
+            "person@example.com",
+        )
+
     manager.remove_member(workspace.id, user.id)
     assert manager.oidc_identity_user(workspace.id, config["issuer"], "subject-1") is None
+    db.close()
+
+
+def test_oidc_jit_stale_user_lookup_converges_on_unique_account(monkeypatch, tmp_path):
+    from sqlalchemy.orm import Query
+
+    monkeypatch.setattr(manager, "_project_root", lambda: Path(tmp_path))
+    workspace = manager.create_workspace("OIDC Concurrent Login", owner_id=1)
+    config = {
+        "enabled": True,
+        "issuer": "https://login.example.com",
+        "client_id": "client",
+        "allowed_domains": ["example.com"],
+        "auto_provision": True,
+        "default_role": "viewer",
+    }
+    manager.set_workspace_setting(workspace.id, oidc.CONFIG_KEY, __import__("json").dumps(config))
+
+    class Client:
+        async def authorize_access_token(self, request):
+            return {"userinfo": {
+                "sub": "concurrent-subject", "email": "person@example.com",
+                "email_verified": True,
+            }}
+
+    monkeypatch.setattr(oidc, "client_for", lambda _: Client())
+    db = _session()
+    db.add_all([
+        User(id=1, username="owner", hashed_password="x"),
+        User(id=2, username="person@example.com", hashed_password="x"),
+    ])
+    db.commit()
+    real_first = Query.first
+    stale_once = {"value": True}
+
+    def stale_first(query):
+        if stale_once["value"]:
+            stale_once["value"] = False
+            return None
+        return real_first(query)
+
+    monkeypatch.setattr(Query, "first", stale_first)
+    response = asyncio.run(sso_callback(workspace.slug, object(), db))
+
+    assert response.status_code == 307
+    assert db.query(User).count() == 2
+    assert manager.oidc_identity_user(
+        workspace.id, config["issuer"], "concurrent-subject",
+    ) == 2
     db.close()
 
 
