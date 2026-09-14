@@ -90,7 +90,7 @@ def test_agent_capabilities_fail_closed_without_live_evidence(monkeypatch):
     result = playbook_capabilities(ctx=type("Ctx", (), {"workspace_id": "ws"})())
     assert {item["id"] for item in result["capabilities"]} == {
         "grounded_research", "chained_playbooks", "audience_runs",
-        "recurring_schedules",
+        "run_recovery", "recurring_schedules",
     }
     assert all(item["maturity"] == "beta" for item in result["capabilities"])
 

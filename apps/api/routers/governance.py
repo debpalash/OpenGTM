@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import Literal
 
-from apps.api.core.tenancy import WorkspaceCtx, require_workspace_role
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace, require_workspace_role
 from apps.api.database import get_db
 from apps.api.services.governance.models import GovernanceAuditEvent, RetentionPolicy, RetentionRun
 from apps.api.services.governance.retention import DEFAULT_DAYS, normalized_days, preview_retention, schedule_policy
@@ -24,6 +24,14 @@ from apps.api.services.workspace import scim
 
 router = APIRouter(prefix="/api/governance", tags=["governance"])
 require_admin = require_workspace_role("admin", permission="governance.manage")
+
+
+@router.get("/capabilities")
+def governance_capabilities(ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Expose enterprise identity features without overstating live maturity."""
+    from apps.api.services.integrations.certification import governance_capability_catalog
+
+    return {"capabilities": governance_capability_catalog()}
 
 
 def _encode_history_cursor(created_at: datetime, row_id: str) -> str:

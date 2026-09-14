@@ -15,6 +15,10 @@ authentication, external write, idempotency, retry recovery, and tenant
 isolation; bidirectional CRMs additionally require inbound reconciliation.
 Signal sources, agents, and community connectors have corresponding read,
 provenance/grounding, normalization, budget, recovery, and isolation gates.
+OIDC SSO and SCIM directory subjects additionally require operation-specific
+identity binding, access enforcement, provisioning/lifecycle, revocation,
+pagination, and tenant-isolation evidence. Their maturity is available from
+`GET /api/governance/capabilities`.
 The attestation command refuses incomplete evidence before signing:
 
 ```bash

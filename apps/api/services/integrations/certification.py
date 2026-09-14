@@ -43,13 +43,33 @@ AGENT_CAPABILITIES: dict[str, dict[str, Any]] = {
     "grounded_research": {"features": ["citations", "budget_caps", "provenance"]},
     "chained_playbooks": {"features": ["prior_step_context", "versioned_prompts"]},
     "audience_runs": {"features": ["bounded_profiles", "durable_results"]},
+    "run_recovery": {"features": ["cooperative_cancellation", "in_place_retry", "completed_work_preservation"]},
     "recurring_schedules": {"features": ["single_flight", "restart_safe"]},
+}
+
+GOVERNANCE_CAPABILITIES: dict[str, dict[str, Any]] = {
+    "oidc_sso": {
+        "features": ["issuer_validation", "identity_binding", "jit_provisioning", "access_enforcement"],
+    },
+    "scim_directory": {
+        "features": ["user_lifecycle", "group_sync", "token_revocation", "paged_directory"],
+    },
 }
 
 INTEGRATION_CHECKS = {"authentication", "external_write", "idempotency", "retry_recovery", "tenant_isolation"}
 SIGNAL_CHECKS = {"external_read", "provenance", "deduplication", "failure_recovery", "tenant_isolation"}
 AGENT_CHECKS = {"external_execution", "grounding", "budget_enforcement", "failure_recovery", "tenant_isolation"}
 CONNECTOR_CHECKS = {"authentication", "external_read", "normalization", "failure_recovery", "tenant_isolation"}
+GOVERNANCE_CHECKS: dict[str, set[str]] = {
+    "oidc_sso": {
+        "external_authentication", "identity_binding", "jit_provisioning",
+        "access_enforcement", "failure_recovery", "tenant_isolation",
+    },
+    "scim_directory": {
+        "external_provisioning", "user_lifecycle", "group_sync",
+        "token_revocation", "paged_directory", "tenant_isolation",
+    },
+}
 
 
 def _subject_id(certificate: Mapping[str, Any]) -> str:
@@ -57,7 +77,10 @@ def _subject_id(certificate: Mapping[str, Any]) -> str:
 
 
 def _known_subject(subject_id: str) -> bool:
-    return subject_id in {*INTEGRATIONS, *SIGNAL_SOURCES, *AGENT_CAPABILITIES} or bool(
+    return subject_id in {
+        *INTEGRATIONS, *SIGNAL_SOURCES, *AGENT_CAPABILITIES,
+        *GOVERNANCE_CAPABILITIES,
+    } or bool(
         re.fullmatch(r"connector:[a-z][a-z0-9_-]{0,79}", subject_id)
     )
 
@@ -79,6 +102,8 @@ def _required_checks(subject_id: str) -> set[str]:
         return set(SIGNAL_CHECKS)
     if subject_id in AGENT_CAPABILITIES:
         return set(AGENT_CHECKS)
+    if subject_id in GOVERNANCE_CAPABILITIES:
+        return set(GOVERNANCE_CHECKS[subject_id])
     if subject_id.startswith("connector:"):
         return set(CONNECTOR_CHECKS)
     return set()
@@ -297,6 +322,45 @@ def agent_capability_catalog(
             else None,
         }
         for capability_id, definition in AGENT_CAPABILITIES.items()
+    ]
+
+
+def governance_capability_catalog(
+    *,
+    path: str | Path | None = None,
+    key: str | None = None,
+    now: datetime | None = None,
+    build_sha: str | None = None,
+) -> list[dict[str, Any]]:
+    """Return signed controlled-live maturity for enterprise identity capabilities."""
+    path = path or os.getenv(CERTIFICATION_PATH_ENV, "")
+    key = key if key is not None else os.getenv(CERTIFICATION_KEY_ENV, "")
+    now = now or datetime.now(timezone.utc)
+    build_sha = build_sha if build_sha is not None else os.getenv(BUILD_SHA_ENV, "")
+    certificates: list[Any] = []
+    if path:
+        try:
+            loaded = json.loads(Path(path).read_text(encoding="utf-8"))
+            certificates = loaded if isinstance(loaded, list) else []
+        except (OSError, json.JSONDecodeError):
+            certificates = []
+    valid = _valid_by_subject(certificates, key or "", now, build_sha)
+    return [
+        {
+            "id": capability_id,
+            **definition,
+            "maturity": "supported" if capability_id in valid else "beta",
+            "certification": {
+                field: valid[capability_id][field]
+                for field in (
+                    "validated_at", "expires_at", "build_sha",
+                    "validation_run_id", "evidence_url", "evidence_sha256", "mode",
+                )
+            }
+            if capability_id in valid
+            else None,
+        }
+        for capability_id, definition in GOVERNANCE_CAPABILITIES.items()
     ]
 
 
