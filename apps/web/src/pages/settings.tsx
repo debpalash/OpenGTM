@@ -325,6 +325,7 @@ const RETENTION_FIELDS: { key: RetentionCategory; label: string; hint: string; m
 
 function GovernanceAuditTab() {
   const [events, setEvents] = useState<AuditEvent[]>([])
+  const [maturity, setMaturity] = useState<Record<string, "beta" | "supported">>({})
   const [loading, setLoading] = useState(true)
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const load = (cursor?: string) => {
@@ -342,7 +343,13 @@ function GovernanceAuditTab() {
       setNextCursor(data.next_cursor || null)
     }).catch(error => toast.error(error.message)).finally(() => setLoading(false))
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    fetch("/api/governance/capabilities")
+      .then(response => response.ok ? response.json() : Promise.reject())
+      .then(data => setMaturity(Object.fromEntries((data.capabilities || []).map((item: { id: string; maturity: "beta" | "supported" }) => [item.id, item.maturity]))))
+      .catch(() => setMaturity({}))
+  }, [])
   const download = async () => {
     const response = await fetch("/api/governance/audit-events/export.csv")
     if (!response.ok) { toast.error(`Could not export audit log (${response.status})`); return }
@@ -351,6 +358,8 @@ function GovernanceAuditTab() {
   }
   return <>
     <RetentionPolicyCard />
+    <Separator />
+    <Card><CardHeader><CardTitle className="text-sm">Enterprise support maturity</CardTitle><CardDescription>Support claims require current, build-bound controlled-live evidence.</CardDescription></CardHeader><CardContent className="flex flex-wrap gap-2"><Badge variant={maturity.oidc_sso === "supported" ? "default" : "secondary"}>OIDC SSO · {maturity.oidc_sso ?? "beta"}</Badge><Badge variant={maturity.scim_directory === "supported" ? "default" : "secondary"}>SCIM directory · {maturity.scim_directory ?? "beta"}</Badge></CardContent></Card>
     <Separator />
     <SsoPolicyCard />
     <Separator />
