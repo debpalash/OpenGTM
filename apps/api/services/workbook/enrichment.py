@@ -338,16 +338,10 @@ async def enrich_cell(
         target_field = col_config.get("target_field") or col_config.get("lead_field") or col_id
 
         # ── Resolve provider chain with DEFAULT_WATERFALLS ──
-        # If the column has an explicit waterfall, use it but prepend any
-        # OSS providers from the default chain that are missing.
-        # If no explicit chain, use the full default.
-        if explicit_chain:
-            default_chain = DEFAULT_WATERFALLS.get(target_field, [])
-            # Prepend default OSS providers that aren't already in the explicit chain
-            oss_additions = [p for p in default_chain if p not in explicit_chain]
-            provider_chain = oss_additions + explicit_chain
-        else:
-            provider_chain = DEFAULT_WATERFALLS.get(target_field, [])
+        # Explicit selection is a provider authorization boundary, including its
+        # order. Adding defaults here used to call unselected paid providers and
+        # made execution disagree with the configured waterfall and cost preview.
+        provider_chain = list(explicit_chain or DEFAULT_WATERFALLS.get(target_field, []))
 
         result_value = None
         result_provider = None
@@ -363,7 +357,8 @@ async def enrich_cell(
         budget_max = (wb_row[0] or 0.0) if wb_row else 0.0
         budget_spent = (wb_row[1] or 0.0) if wb_row else 0.0
         budget_remaining = (budget_max - budget_spent) if budget_max > 0 else None
-        provider_chain = _planner.order_chain(db, target_field, provider_chain, budget_remaining)
+        plan_chain = _planner.filter_chain if explicit_chain else _planner.order_chain
+        provider_chain = plan_chain(db, target_field, provider_chain, budget_remaining)
 
         # Optional waterfall-depth cap (0 = unlimited). With killable workers a
         # hung provider can't wedge the run, so we default to NO cap — trying the

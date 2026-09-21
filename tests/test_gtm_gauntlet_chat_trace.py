@@ -48,12 +48,13 @@ def _tool_result(events: list[dict], name: str) -> dict:
 
 
 def _database(monkeypatch):
+    from apps.api.services.leadgen.contact_execution import ContactExecution
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    Base.metadata.create_all(engine, tables=[Workbook.__table__, WorkbookRow.__table__])
+    Base.metadata.create_all(engine, tables=[Workbook.__table__, WorkbookRow.__table__, ContactExecution.__table__])
     factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     monkeypatch.setattr("apps.api.database.SessionLocal", factory)
     return factory

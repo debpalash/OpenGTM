@@ -627,7 +627,7 @@ def test_cell_run_force_reruns_complete_enrichment_cell(client, monkeypatch):
     body = r.json()
     assert body["status"] == "complete"
     assert body["value"] == "new@acme.com"
-    assert provider_calls, "provider chain must be re-invoked despite the complete cell"
+    assert provider_calls == ["mock_provider"], "only the configured provider may execute"
 
     # Persisted: overlay row AND the inline WorkbookRow.enrichments mirror.
     s = Session()
@@ -636,6 +636,92 @@ def test_cell_run_force_reruns_complete_enrichment_cell(client, monkeypatch):
     row = s.query(WorkbookRow).filter_by(id=rid).one()
     assert row.enrichments["find_email"]["value"] == "new@acme.com"
     s.close()
+
+
+@pytest.mark.parametrize("selection", [
+    {"waterfall": ["hunter_io", "prospeo"]},
+    {"provider": "hunter_io"},
+])
+def test_explicit_provider_selection_is_exact_and_ordered(client, monkeypatch, selection):
+    """Configured paid providers cannot be expanded or reordered by yield/cost."""
+    import apps.api.services.workbook.enrichment as enr
+
+    tc, Session, _ = client
+    column = {"id": "find_email", "name": "Email", "type": "waterfall",
+              "target_field": "email", "verify": False, **selection}
+    wid = _mk_workbook(Session, [column])
+    rid = _mk_row(Session, wid, {"company": "Acme", "website": "acme.com"})
+    calls = []
+
+    class Provider:
+        default_confidence = 0.9
+
+    async def run_provider(name, lead, timeout=10.0):
+        calls.append(name)
+        return {"provider": name, "success": False, "fields": {}}
+
+    monkeypatch.setattr(enr, "get_provider", lambda name: Provider())
+    monkeypatch.setattr(enr, "run_provider", run_provider)
+    response = tc.post(f"/api/workbooks/{wid}/rows/{rid}/cells/find_email/run", json={})
+    assert response.status_code == 200, response.text
+    assert calls == selection.get("waterfall", [selection.get("provider")])
+
+
+def test_explicit_provider_order_still_enforces_budget_and_cooldown(client, monkeypatch):
+    import apps.api.services.workbook.enrichment as enr
+    from datetime import datetime, timedelta, timezone
+
+    tc, Session, _ = client
+    column = {"id": "find_email", "name": "Email", "type": "waterfall",
+              "target_field": "email", "verify": False,
+              "waterfall": ["hunter_io", "prospeo", "website_scraper"]}
+    wid = _mk_workbook(Session, [column])
+    rid = _mk_row(Session, wid, {"company": "Acme", "website": "acme.com"})
+    with Session() as db:
+        workbook = db.get(Workbook, wid)
+        workbook.budget_max_usd = 0.025  # Hunter is unaffordable; Prospeo is in cooldown.
+        db.add(ProviderStat(provider="prospeo", field="email",
+                            cooldown_until=datetime.now(timezone.utc) + timedelta(minutes=5)))
+        db.commit()
+    calls = []
+
+    class Provider:
+        default_confidence = 0.9
+
+    async def run_provider(name, lead, timeout=10.0):
+        calls.append(name)
+        return {"provider": name, "success": False, "fields": {}}
+
+    monkeypatch.setattr(enr, "get_provider", lambda name: Provider())
+    monkeypatch.setattr(enr, "run_provider", run_provider)
+    response = tc.post(f"/api/workbooks/{wid}/rows/{rid}/cells/find_email/run", json={})
+    assert response.status_code == 200, response.text
+    assert calls == ["website_scraper"]
+
+
+def test_default_waterfall_retains_cost_planning(client, monkeypatch):
+    import apps.api.services.workbook.enrichment as enr
+
+    tc, Session, _ = client
+    column = {"id": "find_email", "name": "Email", "type": "waterfall",
+              "target_field": "email", "verify": False}
+    wid = _mk_workbook(Session, [column])
+    rid = _mk_row(Session, wid, {"company": "Acme", "website": "acme.com"})
+    calls = []
+
+    class Provider:
+        default_confidence = 0.9
+
+    async def run_provider(name, lead, timeout=10.0):
+        calls.append(name)
+        return {"provider": name, "success": False, "fields": {}}
+
+    monkeypatch.setitem(enr.DEFAULT_WATERFALLS, "email", ["hunter_io", "prospeo"])
+    monkeypatch.setattr(enr, "get_provider", lambda name: Provider())
+    monkeypatch.setattr(enr, "run_provider", run_provider)
+    response = tc.post(f"/api/workbooks/{wid}/rows/{rid}/cells/find_email/run", json={})
+    assert response.status_code == 200, response.text
+    assert calls == ["prospeo", "hunter_io"]
 
 
 def test_cell_run_404s(client):

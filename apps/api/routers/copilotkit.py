@@ -1344,6 +1344,7 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
 
         elif name == "enrich_people_contacts":
             from apps.api.services.leadgen.people_contacts import enrich_people_contacts
+            from apps.api.services.leadgen.contact_execution import execute_contact_once
             from apps.api.services.leadgen.targeted_people import (
                 people_result_set_id,
                 person_entity_id,
@@ -1411,7 +1412,7 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 "enrich_people_contacts",
                 action_id,
             )
-            if previous:
+            if previous and previous.get("ok"):
                 previous_selection = [
                     str(person_id).strip()
                     for person_id in (previous.get("selected_person_ids") or [])
@@ -1421,20 +1422,38 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                         "error": "Idempotency key conflicts with a different people selection",
                         "action_id": action_id,
                     })
-                return json.dumps({**previous, "reused": True})
 
-            result = await enrich_people_contacts(
-                company,
-                function,
-                people,
-                company_resolution=(
-                    research.get("company_resolution")
-                    if isinstance(research.get("company_resolution"), dict)
-                    else {}
-                ),
-                person_ids=selected_ids,
+            resolution = (
+                research.get("company_resolution")
+                if isinstance(research.get("company_resolution"), dict) else {}
+            )
+            async def run_contacts():
+                # Adopt successful pre-migration receipts without billing again.
+                # Running/uncertain receipts must consult the durable claim.
+                if previous and previous.get("ok"):
+                    if previous.get("company") != company or previous.get("function") != function:
+                        return {"ok": False, "error": "Idempotency key conflicts with a different contact contract", "action_id": action_id}
+                    return {**previous, "reused": True}
+                return await enrich_people_contacts(
+                    company, function, people, company_resolution=resolution,
+                    person_ids=selected_ids, workspace_id=workspace_id,
+                    action_id=action_id,
+                )
+
+            result = await execute_contact_once(
                 workspace_id=workspace_id,
                 action_id=action_id,
+                contract={
+                    "conversation_id": conversation_id,
+                    "company": company,
+                    "function": function,
+                    "company_resolution": resolution,
+                    "people": sorted(
+                        [person for person in people if person["person_id"] in selected_ids],
+                        key=lambda person: person["person_id"],
+                    ),
+                },
+                operation=run_contacts,
             )
             return json.dumps(result)
 

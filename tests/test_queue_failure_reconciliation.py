@@ -12,12 +12,13 @@ from apps.api.services.queue_service import QueueService
 def test_failure_hook_observes_retry_then_terminal_failure(monkeypatch):
     import apps.api.services.job_process_runner as process_runner
 
+    queue = QueueService()
     init_db()
     with SessionLocal() as db:
         db.query(Job).delete()
         job = Job(
             type="test_failure_hook", payload={"run_id": "run-1"},
-            status="processing", retry_count=0, max_retries=1,
+            status="pending", retry_count=0, max_retries=1,
         )
         db.add(job)
         db.commit()
@@ -29,7 +30,6 @@ def test_failure_hook_observes_retry_then_terminal_failure(monkeypatch):
 
     monkeypatch.setattr(process_runner, "run_job_subprocess", fail_process)
     observed = []
-    queue = QueueService()
 
     async def registered_handler(job_id, payload):  # pragma: no cover
         raise AssertionError("handlers run in the patched subprocess boundary")
@@ -42,6 +42,7 @@ def test_failure_hook_observes_retry_then_terminal_failure(monkeypatch):
         ),
     )
 
+    assert queue.claim_next_job()["id"] == job_id
     asyncio.run(queue._process_job(job_id, "test_failure_hook", {"run_id": "run-1"}))
     with SessionLocal() as db:
         job = db.get(Job, job_id)
@@ -49,6 +50,10 @@ def test_failure_hook_observes_retry_then_terminal_failure(monkeypatch):
         assert job.retry_count == 1
     assert observed[-1][:3] == (job_id, "run-1", True)
 
+    with SessionLocal() as db:
+        db.get(Job, job_id).next_run_at = None
+        db.commit()
+    assert queue.claim_next_job()["id"] == job_id
     asyncio.run(queue._process_job(job_id, "test_failure_hook", {"run_id": "run-1"}))
     with SessionLocal() as db:
         job = db.get(Job, job_id)
@@ -67,7 +72,7 @@ def test_parent_finalizer_preserves_external_cancellation(monkeypatch):
         job = Job(
             type="test_cancel_race",
             payload={},
-            status="processing",
+            status="pending",
             retry_count=0,
             max_retries=1,
         )
@@ -86,6 +91,7 @@ def test_parent_finalizer_preserves_external_cancellation(monkeypatch):
     queue = QueueService()
     queue.register_handler("test_cancel_race", lambda job_id, payload: None)
 
+    assert queue.claim_next_job()["id"] == job_id
     asyncio.run(queue._process_job(job_id, "test_cancel_race", {}))
     with SessionLocal() as db:
         job = db.get(Job, job_id)
