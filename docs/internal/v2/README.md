@@ -21,14 +21,26 @@ for G1–G7 contracts and its controlled-live release gate.
 
 ## Evidence and current status
 
+Latest local regression checkpoint (2026-09-23): the full backend suite passes
+with 1,786 passed, 120 skipped and two deprecation warnings (50.27 seconds), via
+`env -u DATABASE_URL APP_ENV=test uv run pytest tests -q`. All 60 frontend and
+route-payload reporter tests pass via
+`bun test apps/web/tests scripts/vendor/twenty-ui/route-payload.test.mjs`.
+These runs use disposable test databases and fixtures,
+not live vendor outcomes or PostgreSQL concurrency acceptance. The recent
+execution-safety implementation and its remaining limits are tracked in
+[workbook spend and batch recovery](workbook-spend-reservations.md); the
+[Twenty migration plan](twenty-ui-migration-plan.md) still has open accessibility,
+payload and end-to-end release gates. Neither V2 nor the UI migration is complete.
+
 | Item | Status | Evidence or remaining work |
 |---|---|---|
 | Existing workbook, sourcing, research, output, and queue capabilities | Implemented baseline, not a V2 parity claim | Repository README describes capabilities and remaining boundaries |
 | G1–G7 recorded-provider execution | Completed historical validation | Recovery plan records ten independent local-native passes; this does not establish current live quality |
 | Controlled-live G1–G7 release streak | Blocked in last recorded validation, 0/10 | Recheck PostgreSQL-backed Intent Watches and exact finder/independent verifier configuration before spending |
-| Exact workbook provider selection and ordering | In progress | First V2 tranche; requires provider-selection regression checks |
+| Exact workbook provider selection and ordering | In progress | Exact order, no default expansion, and explicit empty/unknown/unavailable outcomes are regression-tested offline; skipped providers are not yet surfaced in attempt history/UI |
 | Bounded retries, fenced worker ownership, cancellation | In progress | First V2 tranche; requires stale-worker/restart/cancellation checks |
-| Durable claims and replay for exact contact actions | In progress | First V2 tranche; requires concurrent/retry/selection-drift checks |
+| Durable claims and replay for exact contact actions | In progress | SQLite tests cover concurrent claim, restart replay, contract drift, reorder, expiry-to-uncertain and timeout; PostgreSQL concurrency unverified |
 | Authenticated HTTP live smoke runner | In progress | Dedicated workspace; real Chat find → verify → save → retry → readback, optional paid exact-contact stage, bounded streams/timeouts, and evidence artifacts |
 | Live gauntlet execution runner | Planned | Existing scorer accepts artifacts; it does not itself drive the whole live product |
 | Expanded V2 capabilities below | Planned | No completion claims until implementation and appropriate evidence exist |
@@ -41,6 +53,17 @@ The HTTP smoke runner is a useful subset and must not count toward the full
 controlled-live G1–G7 release streak. No local API or worker listeners were found
 in the current inspection; real execution requires starting the configured stack
 and checking the dedicated workspace and provider dependencies first.
+
+Runtime prerequisite recheck (2026-09-22): `ss -ltnp` finds the static UI preview
+on 127.0.0.1:4399, but no listeners on 4099, 8000, 5432 or 6379. `psql` and
+Docker clients exist; `postgres` and `initdb` are not on PATH and no server tools
+were found under /usr/lib/postgresql or /opt. `docker ps` is denied access to
+/var/run/docker.sock. This is a current local-runtime limitation, not evidence
+about production or proof that no remote services exist. No permissions were
+changed and no live smoke was attempted. Before controlled-live validation,
+restore an authorized API/worker/Redis/PostgreSQL test stack and verify the
+dedicated evaluation workspace. Continue local work without counting fixtures
+toward the live release streak.
 
 ## Delivery sequence and acceptance criteria
 
