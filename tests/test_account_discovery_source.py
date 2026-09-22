@@ -55,7 +55,8 @@ def test_source_engine_keeps_only_evidence_complete_accounts_and_reports_shortfa
         "hiring_signals": '{"roles":["Partnerships Director"]}',
         "score": 91,
         "source": "recorded_search",
-        "workspace_id": "W1",
+        # Legacy lead-store rows may lack a tenant; the run's workspace governs.
+        "workspace_id": "",
         "updated_at": "2026-08-28T09:00:00+00:00",
         "collection_job_id": "lead-job-g1",
     }
@@ -118,17 +119,13 @@ def test_source_engine_keeps_only_evidence_complete_accounts_and_reports_shortfa
         "apps.api.services.leadgen.store.get_lead_store",
         lambda workspace_id, slug: FakeStore(),
     )
-    monkeypatch.setattr(
-        se,
-        "resolve_company",
-        lambda db, data, **kwargs: (
-            SimpleNamespace(
-                id=entity_ids[data["company"]],
-                corroboration_count=1,
-            ),
-            True,
-        ),
-    )
+    resolved_workspaces = []
+
+    def fake_resolve(db, data, **kwargs):
+        resolved_workspaces.append(kwargs.get("workspace_id"))
+        return SimpleNamespace(id=entity_ids[data["company"]], corroboration_count=1), True
+
+    monkeypatch.setattr(se, "resolve_company", fake_resolve)
     monkeypatch.setattr(se, "_make_redis", lambda: None)
     monkeypatch.setattr(
         "apps.api.services.automations.events.emit_row_added",
@@ -136,6 +133,8 @@ def test_source_engine_keeps_only_evidence_complete_accounts_and_reports_shortfa
     )
 
     result = asyncio.run(se.materialize_source("wb_g1", "src_g1", "W1"))
+    # Entities live in the same tenant as the rows that reference them.
+    assert resolved_workspaces and set(resolved_workspaces) == {"W1"}
 
     assert result["status"] == "partial"
     assert result["requested_count"] == 2

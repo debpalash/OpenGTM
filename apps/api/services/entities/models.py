@@ -14,6 +14,7 @@ See docs/specs/workbook-v2-source-engine-spec.md (Pillar 4 / Reuse Map).
 import uuid
 from sqlalchemy import (
     Column, String, Integer, Text, DateTime, Float, JSON, ForeignKey, Index,
+    UniqueConstraint,
 )
 from sqlalchemy.sql import func
 
@@ -109,6 +110,27 @@ class EntityBlockingKey(Base):
 
 
 Index("ix_entity_blocking_key_entity", EntityBlockingKey.key, EntityBlockingKey.entity_id)
+
+
+class CompanyIdentifier(Base):
+    """An exact identity key owned by exactly one company entity per workspace.
+
+    The unique constraint is what makes resolution converge under concurrency:
+    two imports of the same domain cannot both create an owner. Kinds: "domain"
+    (a company's own registrable host, never a shared platform host).
+    """
+    __tablename__ = "company_identifiers"
+    __table_args__ = (
+        UniqueConstraint("workspace_id", "kind", "value", name="uq_company_identifier"),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    workspace_id = Column(String, nullable=False, index=True)
+    kind = Column(String(32), nullable=False)
+    value = Column(String(255), nullable=False)
+    entity_id = Column(String, ForeignKey("company_entities.id", ondelete="CASCADE"),
+                       nullable=False, index=True)
+    created_at = Column(DateTime, server_default=func.now())
 
 
 class EntityMergeLog(Base):

@@ -96,6 +96,27 @@ P0/P1 or duplicate writes. This gate validates those workflows, not all of V2.
 
 ### Phase 1: shared account/person intelligence (P0)
 
+Progress (2026-09-23), offline evidence only:
+
+- Company identity is deterministic: `company_identifiers` makes
+  `(workspace, kind, value)` unique, exact domains resolve before fuzzy
+  matching, and concurrent creates converge on one entity (savepoint +
+  re-read). Merge moves identifiers to the kept entity; split restores them.
+  The migration backfills existing domains (oldest owner wins; legacy
+  duplicates are left for review, never auto-merged).
+- Fixed two pre-existing defects found by the new tests: profile/platform
+  hosts (facebook.com pages, Linktree, Google Maps, etc.) counted as an exact
+  domain match, auto-merging unrelated same-city businesses (score 0.90 >= 0.85);
+  and concurrent observations lost provenance through an unlocked JSON
+  read-modify-write (now row-locked before append).
+- Source materialization resolves entities in the run's workspace, matching
+  the rows that reference them.
+- Threaded SQLite test: 8 concurrent imports of one domain yield one entity
+  with all 8 sources. PostgreSQL concurrency/RLS for the new table is untested.
+- Not started: persisted person entities with employment history, claim-level
+  evidence, entity-backed segments, durable chat selections, and repointing
+  `row.data.account_id`/signals/audiences on merge.
+
 - Introduce or consolidate canonical account and person identities shared by
   chat, workbooks, contact enrichment, signals, and destinations. Preserve aliases,
   source identifiers, employment history, and merge lineage.

@@ -15,13 +15,15 @@ from collections import Counter
 from datetime import datetime, timezone
 from typing import Optional, Tuple
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from apps.api.services.dedup import (
     compare_leads, normalize_company, normalize_domain, normalize_phone,
 )
 from apps.api.services.entities.models import (
-    CompanyEntity, EntityBlockingKey, EntityMergeLog, EntityReviewPair,
+    CompanyEntity, CompanyIdentifier, EntityBlockingKey, EntityMergeLog,
+    EntityReviewPair,
 )
 from apps.api.services.workbook.models import WorkbookRow
 
@@ -42,13 +44,67 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+# Hosts where the URL *path* identifies a business (profiles, link pages, maps,
+# marketplaces, shorteners). Their hostname is shared by unrelated companies, so
+# it must never act as a company's identity domain or a domain match signal.
+_SHARED_HOSTS = frozenset({
+    "facebook.com", "fb.com", "fb.me", "instagram.com", "linkedin.com",
+    "twitter.com", "x.com", "youtube.com", "youtu.be", "tiktok.com",
+    "pinterest.com", "threads.net", "wa.me", "whatsapp.com", "t.me",
+    "linktr.ee", "linkin.bio", "beacons.ai", "carrd.co", "bio.link",
+    "google.com", "goo.gl", "g.page", "bit.ly", "tinyurl.com", "ow.ly",
+    "yelp.com", "tripadvisor.com", "justdial.com", "indiamart.com",
+    "zomato.com", "swiggy.com", "amazon.com", "etsy.com", "ebay.com",
+    "github.com", "medium.com", "substack.com", "notion.site",
+    "crunchbase.com", "glassdoor.com", "indeed.com", "clutch.co", "g2.com",
+    "wikipedia.org", "yellowpages.com", "angi.com", "houzz.com",
+})
+
+
+def identity_domain(url: str) -> str:
+    """A company's own normalized domain, or "" for shared/profile hosts."""
+    domain = normalize_domain(url or "")
+    if not domain or "." not in domain:
+        return ""
+    if domain in _SHARED_HOSTS or any(domain.endswith("." + h) for h in _SHARED_HOSTS):
+        return ""
+    return domain
+
+
+def _identity_lead(lead: dict) -> dict:
+    """Lead view for matching: shared hosts carry no domain signal."""
+    return {**lead, "website": identity_domain(lead.get("website", ""))}
+
+
+def _identifier_owner(db: Session, workspace_id: str, kind: str, value: str) -> Optional[str]:
+    row = db.query(CompanyIdentifier.entity_id).filter_by(
+        workspace_id=workspace_id, kind=kind, value=value,
+    ).first()
+    return row[0] if row else None
+
+
+def _claim_identifier(db: Session, workspace_id: str, kind: str, value: str, entity_id: str) -> str:
+    """Claim an identifier for an entity; returns the actual owner's id."""
+    owner = _identifier_owner(db, workspace_id, kind, value)
+    if owner:
+        return owner
+    try:
+        with db.begin_nested():
+            db.add(CompanyIdentifier(workspace_id=workspace_id, kind=kind,
+                                     value=value, entity_id=entity_id))
+            db.flush()
+        return entity_id
+    except IntegrityError:
+        return _identifier_owner(db, workspace_id, kind, value) or entity_id
+
+
 def _blocking_keys(lead: dict) -> set:
     """Same blocking scheme as LeadDeduplicator, for a single record."""
     keys = set()
     name = normalize_company(lead.get("company", ""))
     if len(name) >= 3:
         keys.add(f"name:{name[:3]}")
-    domain = normalize_domain(lead.get("website", ""))
+    domain = identity_domain(lead.get("website", ""))
     if domain:
         keys.add(f"domain:{domain}")
     phone = normalize_phone(lead.get("phone", ""))
@@ -103,7 +159,7 @@ def _recompute(entity: CompanyEntity):
         if field == "company":
             entity.canonical_name = winner
         elif field == "website":
-            entity.primary_domain = normalize_domain(winner)
+            entity.primary_domain = identity_domain(winner)
         elif field == "phone":
             entity.primary_phone = winner
         elif field == "email":
@@ -122,7 +178,7 @@ def _create_entity(db: Session, lead: dict, source: str, workspace_id: str = "")
         if v not in (None, "", "N/A"):
             fields[f] = [{"value": str(v), "source": source, "observed_at": _now()}]
 
-    domain = normalize_domain(lead.get("website", ""))
+    domain = identity_domain(lead.get("website", ""))
     entity = CompanyEntity(
         workspace_id=workspace_id or "",
         canonical_name=str(lead.get("company") or "").strip() or "(unknown)",
@@ -149,7 +205,23 @@ def _create_entity(db: Session, lead: dict, source: str, workspace_id: str = "")
     return entity
 
 
+def _lock_for_update(db: Session, entity: CompanyEntity):
+    """Take the entity's write lock, then reload it.
+
+    Observations append to JSON columns in Python. Without a lock, two
+    concurrent imports read the same value and the last write drops the other's
+    provenance. A no-op UPDATE locks the row on PostgreSQL (and the database on
+    SQLite) portably; the refresh then sees any committed concurrent append.
+    """
+    db.query(CompanyEntity).filter(CompanyEntity.id == entity.id).update(
+        {CompanyEntity.observation_count: CompanyEntity.observation_count},
+        synchronize_session=False,
+    )
+    db.refresh(entity)
+
+
 def _record_observation(db: Session, entity: CompanyEntity, lead: dict, source: str):
+    _lock_for_update(db, entity)
     fields = dict(entity.fields or {})
     for f in _PROV_FIELDS:
         v = lead.get(f)
@@ -167,7 +239,7 @@ def _record_observation(db: Session, entity: CompanyEntity, lead: dict, source: 
         if val not in lst:
             lst.append(val)
             ik[key] = lst
-    _add("domains", normalize_domain(lead.get("website", "")))
+    _add("domains", identity_domain(lead.get("website", "")))
     _add("phones", normalize_phone(lead.get("phone", "")))
     _add("emails", str(lead.get("email")) if lead.get("email") else "")
     _add("name_variants", str(lead.get("company")) if lead.get("company") else "")
@@ -197,24 +269,56 @@ def resolve_company(
     """
     source = observation_source or str(lead.get("source") or "") or "unknown"
     ws = workspace_id or ""
+    domain = identity_domain(lead.get("website", ""))
+
+    # Exact identity first: an owned domain is authoritative and deterministic.
+    if domain:
+        owner = _identifier_owner(db, ws, "domain", domain)
+        owned = db.get(CompanyEntity, owner) if owner else None
+        if owned is not None and (owned.workspace_id or "") == ws:
+            _record_observation(db, owned, lead, source)
+            db.flush()
+            return owned, False
+
     keys = _blocking_keys(lead)
+    probe = _identity_lead(lead)
     best, best_score = None, 0.0
     for eid in _candidate_ids(db, keys, ws):
         ent = db.get(CompanyEntity, eid)
         if not ent or (ent.workspace_id or "") != ws:
             continue  # tenant isolation
-        res = compare_leads(lead, ent.repr_dict())
+        res = compare_leads(probe, ent.repr_dict())
         if res.score > best_score:
             best, best_score = ent, res.score
 
     if best is not None and best_score >= MATCH_THRESHOLD:
+        if domain:
+            _claim_identifier(db, ws, "domain", domain, best.id)
         _record_observation(db, best, lead, source)
         # Flush so this entity's (possibly new) blocking keys are visible to the
         # next resolve_company() in the same batch — SessionLocal is autoflush=False.
         db.flush()
         return best, False
 
-    entity = _create_entity(db, lead, source, workspace_id=ws)
+    if domain:
+        # Create and claim atomically. A concurrent import that claimed the
+        # domain first wins; this one records its observation on the winner.
+        try:
+            with db.begin_nested():
+                entity = _create_entity(db, lead, source, workspace_id=ws)
+                db.add(CompanyIdentifier(workspace_id=ws, kind="domain",
+                                         value=domain, entity_id=entity.id))
+                db.flush()
+        except IntegrityError:
+            owner = _identifier_owner(db, ws, "domain", domain)
+            winner = db.get(CompanyEntity, owner) if owner else None
+            if winner is None:
+                raise
+            _record_observation(db, winner, lead, source)
+            db.flush()
+            return winner, False
+    else:
+        entity = _create_entity(db, lead, source, workspace_id=ws)
     if best is not None and GREY_BAND <= best_score < MATCH_THRESHOLD:
         db.add(EntityReviewPair(
             workspace_id=ws,
@@ -259,7 +363,14 @@ def merge_entities(
                    WorkbookRow.canonical_entity_id == merged_id,
                    WorkbookRow.workspace_id == kept.workspace_id,
                ).all()]
-    snapshot = {"entity": merged.to_api(), "blocking_keys": merged_keys, "row_ids": row_ids}
+    merged_identifiers = [[kind, value] for kind, value in db.query(
+        CompanyIdentifier.kind, CompanyIdentifier.value,
+    ).filter(
+        CompanyIdentifier.entity_id == merged_id,
+        CompanyIdentifier.workspace_id == kept.workspace_id,
+    ).all()]
+    snapshot = {"entity": merged.to_api(), "blocking_keys": merged_keys, "row_ids": row_ids,
+                "identifiers": merged_identifiers}
 
     # Combine provenance
     kf = dict(kept.fields or {})
@@ -269,7 +380,12 @@ def merge_entities(
     kept.sources = list({*(kept.sources or []), *(merged.sources or [])})
     kept.observation_count = (kept.observation_count or 0) + (merged.observation_count or 0)
 
-    # Repoint blocking keys + workbook rows
+    # Repoint identifiers, blocking keys + workbook rows. Identifiers move (the
+    # unique key guarantees kept and merged never own the same value).
+    db.query(CompanyIdentifier).filter(
+        CompanyIdentifier.entity_id == merged_id,
+        CompanyIdentifier.workspace_id == kept.workspace_id,
+    ).update({CompanyIdentifier.entity_id: kept_id}, synchronize_session=False)
     _ensure_blocking_keys(db, kept_id, set(merged_keys), kept.workspace_id)
     db.query(WorkbookRow).filter(
         WorkbookRow.canonical_entity_id == merged_id,
@@ -331,6 +447,10 @@ def split_entity(db: Session, merge_log_id: int, workspace_id: str = None) -> di
     _ensure_blocking_keys(
         db, eid, set(snap.get("blocking_keys", [])), snapshot_workspace_id
     )
+    for kind, value in snap.get("identifiers", []):
+        db.query(CompanyIdentifier).filter_by(
+            workspace_id=snapshot_workspace_id, kind=kind, value=value,
+        ).update({CompanyIdentifier.entity_id: eid}, synchronize_session=False)
     for rid in snap.get("row_ids", []):
         db.query(WorkbookRow).filter(
             WorkbookRow.id == rid,
