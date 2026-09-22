@@ -38,7 +38,7 @@ payload and end-to-end release gates. Neither V2 nor the UI migration is complet
 | Existing workbook, sourcing, research, output, and queue capabilities | Implemented baseline, not a V2 parity claim | Repository README describes capabilities and remaining boundaries |
 | G1–G7 recorded-provider execution | Completed historical validation | Recovery plan records ten independent local-native passes; this does not establish current live quality |
 | Controlled-live G1–G7 release streak | Blocked in last recorded validation, 0/10 | Recheck PostgreSQL-backed Intent Watches and exact finder/independent verifier configuration before spending |
-| Exact workbook provider selection and ordering | In progress | Exact order, no default expansion, and explicit empty/unknown/unavailable outcomes are regression-tested offline; skipped providers are not yet surfaced in attempt history/UI |
+| Exact workbook provider selection and ordering | In progress | Exact order, no default expansion, and explicit empty/unknown/unavailable outcomes are regression-tested offline; skipped providers persist in cell metadata/row JSON and show in the cell tooltip (not yet in live WebSocket updates) |
 | Bounded retries, fenced worker ownership, cancellation | In progress | First V2 tranche; requires stale-worker/restart/cancellation checks |
 | Durable claims and replay for exact contact actions | In progress | SQLite tests cover concurrent claim, restart replay, contract drift, reorder, expiry-to-uncertain and timeout; PostgreSQL concurrency unverified |
 | Authenticated HTTP live smoke runner | In progress | Dedicated workspace; real Chat find → verify → save → retry → readback, optional paid exact-contact stage, bounded streams/timeouts, and evidence artifacts |

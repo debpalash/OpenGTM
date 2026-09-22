@@ -214,12 +214,14 @@ import type { ResearchEvidence } from "@/lib/workbook-api"
 
 function EditableCell({
   value, status, provider, error, verify, provenance, staleTtlDays, isEditable, onSave,
-  onRerun, rerunning, research,
+  onRerun, rerunning, research, skipped,
 }: {
   value: any; status?: string; provider?: string | null; error?: string | null
   verify?: string | null; provenance?: Provenance | null; staleTtlDays?: number
   isEditable: boolean; onSave: (v: string) => void
   research?: ResearchEvidence | null
+  /** Selected providers that never ran for this result, with the reason. */
+  skipped?: { provider: string; reason: string }[] | null
   /** Re-run this cell's enrichment (force). Shown as a hover affordance. */
   onRerun?: () => void; rerunning?: boolean
 }) {
@@ -282,7 +284,10 @@ function EditableCell({
       data-editable-cell={isEditable ? "true" : undefined}
       className="relative flex items-center gap-1.5 px-2 py-1 h-full min-h-[32px] max-w-full cursor-default group/cell overflow-hidden"
       onDoubleClick={() => isEditable && setEditing(true)}
-      title={showProvenance ? undefined : (error ? `Error: ${error}` : displayValue || (provider ? `via ${provider}` : undefined))}
+      title={showProvenance ? undefined : [
+        error ? `Error: ${error}` : displayValue || (provider ? `via ${provider}` : undefined),
+        skipped?.length ? `Skipped: ${skipped.map(s => `${s.provider} (${s.reason})`).join(", ")}` : undefined,
+      ].filter(Boolean).join("\n") || undefined}
     >
       {showProvenance && <ProvenanceCard prov={provenance!} ttlDays={staleTtlDays} />}
       <CellStatus status={status} />
@@ -977,6 +982,7 @@ export default function WorkbookEditorPage() {
                 verify={hasOverlayValue ? overlay.verify_status : null}
                 provenance={hasOverlayValue ? overlay.provenance : null}
                 research={overlay.research}
+                skipped={Array.isArray(overlay.skipped_providers) ? overlay.skipped_providers : null}
                 isEditable={false}
                 onSave={() => {}}
                 onRerun={handleRerun}

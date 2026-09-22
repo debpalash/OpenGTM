@@ -596,6 +596,14 @@ async def enrich_cell(
         except Exception as e:
             logger.debug(f"email verify failed for {result_value}: {e}")
 
+    # Selected providers that never ran (unknown/cooldown/over-budget) are
+    # part of this result's attempt history, including when a later provider
+    # succeeded. Only the waterfall branch defines the list.
+    _skipped = locals().get("skipped_providers")
+    if _skipped:
+        cell_metadata = {**(cell_metadata or {}), "skipped_providers": [
+            {"provider": p, "reason": reason} for p, reason in _skipped]}
+
     # ── Per-fact provenance (flag-gated) ──────────────────────────────
     # Build {source, license, confidence, fetched_at} for a produced value so it
     # rides into the cell dict + cell_metadata mirror. result_confidence /
@@ -786,6 +794,8 @@ def _set_enrichment(
                 cell["provenance"] = provenance
             if isinstance((cell_meta or {}).get("research"), dict):
                 cell["research"] = cell_meta["research"]
+            if (cell_meta or {}).get("skipped_providers"):
+                cell["skipped_providers"] = cell_meta["skipped_providers"]
             overlay[column_id] = cell
             wr.enrichments = overlay
             flag_modified(wr, "enrichments")

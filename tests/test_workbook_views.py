@@ -2098,6 +2098,35 @@ def test_explicit_selection_that_calls_no_provider_reports_why(
     assert body["status"] == "error" and body["error"] == expected
 
 
+def test_skipped_providers_are_recorded_when_a_later_provider_succeeds(client, monkeypatch):
+    import apps.api.services.workbook.enrichment as enr
+
+    tc, Session, _ = client
+    column = {"id": "find_email", "name": "Email", "type": "waterfall",
+              "target_field": "email", "verify": False,
+              "waterfall": ["ghost_provider", "fixture"]}
+    wid = _mk_workbook(Session, [column])
+    rid = _mk_row(Session, wid, {"company": "Acme", "website": "acme.com"})
+
+    class Provider:
+        default_confidence = 0.9
+
+    async def run_provider(name, lead, timeout=10.0):
+        return {"provider": name, "success": True, "fields": {"email": "ann@acme.com"}}
+
+    monkeypatch.setattr(enr, "get_provider", lambda name: Provider() if name == "fixture" else None)
+    monkeypatch.setattr(enr, "run_provider", run_provider)
+    response = tc.post(f"/api/workbooks/{wid}/rows/{rid}/cells/find_email/run", json={})
+    assert response.status_code == 200, response.text
+    assert response.json()["value"] == "ann@acme.com"
+    with Session() as s:
+        cell = s.query(WorkbookEnrichment).filter_by(workbook_id=wid, column_id="find_email").one()
+        assert cell.cell_metadata["skipped_providers"] == [
+            {"provider": "ghost_provider", "reason": "unknown_provider"}]
+        row = s.query(WorkbookRow).filter_by(id=rid).one()
+        assert row.enrichments["find_email"]["skipped_providers"][0]["provider"] == "ghost_provider"
+
+
 @pytest.mark.parametrize("success", [True, False])
 def test_queued_waterfall_reserves_and_replays_paid_attempt(client, monkeypatch, success):
     import asyncio

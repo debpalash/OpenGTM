@@ -37,6 +37,8 @@ export interface EnrichmentOverlay {
   verify_status?: "valid" | "invalid" | "catch_all" | "unknown" | null
   provenance?: Provenance | null
   research?: ResearchEvidence | null
+  /** Selected providers that never ran for this result, with the reason. */
+  skipped_providers?: { provider: string; reason: string }[] | null
 }
 
 export interface ColumnConfig {
