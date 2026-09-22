@@ -21,6 +21,14 @@ export interface Provenance {
   fetched_at?: string | null
 }
 
+export interface ResearchEvidence {
+  answer: string
+  citations: { url: string; title: string; quoted_text: string; fetched_at?: string | null }[]
+  cost_usd?: number | null
+  stopped_reason?: string | null
+  synthesis_fallback: boolean
+}
+
 export interface EnrichmentOverlay {
   value: any
   status: "pending" | "running" | "complete" | "error" | "skipped"
@@ -28,12 +36,13 @@ export interface EnrichmentOverlay {
   error?: string | null
   verify_status?: "valid" | "invalid" | "catch_all" | "unknown" | null
   provenance?: Provenance | null
+  research?: ResearchEvidence | null
 }
 
 export interface ColumnConfig {
   id: string
   name: string
-  type: "lead_field" | "source" | "enrichment" | "waterfall" | "ai_formula" | "conditional" | "agent" | "output" | "http" | "formula"
+  type: "lead_field" | "input" | "source" | "enrichment" | "waterfall" | "ai_formula" | "conditional" | "agent" | "research" | "output" | "http" | "formula"
   width: number
   reactive?: boolean | null
   lead_field?: string | null
@@ -42,9 +51,15 @@ export interface ColumnConfig {
   target_field?: string | null
   prompt?: string | null
   input_columns?: string[] | null
+  max_steps?: number | null
+  cell_budget_usd?: number | null
+  output_format?: string | null
+  max_tokens?: number | null
+  verify?: boolean | null
   condition?: string | null
   destination?: string | null
   destination_config?: Record<string, any> | null
+  run_once?: boolean | null
   // Pillar 0 — source column
   icp?: { description?: string; industry?: string; geo?: string[]; size?: { min?: number; max?: number } } | null
   channels?: { categories?: string[]; regions?: string[]; explicit_sources?: string[] } | null
@@ -84,7 +99,7 @@ export interface Workbook {
   id: string
   name: string
   description: string
-  status: "draft" | "running" | "paused" | "complete"
+  status: "draft" | "running" | "paused" | "failed" | "complete"
   source_type?: "empty" | "csv" | "leads_filter" | "job_results" | "ambitionbox"
   source_config?: Record<string, any> | null
   filter_criteria: FilterCriteria | null
@@ -195,7 +210,13 @@ export interface FilterOptions {
 export async function fetchWorkbooks(): Promise<{ workbooks: Workbook[]; total: number }> {
   const res = await fetch(`${API}/api/workbooks/`)
   if (!res.ok) throw new Error("Failed to fetch workbooks")
-  return res.json()
+  const data = await res.json()
+  if (!data || !Array.isArray(data.workbooks) || !data.workbooks.every((row: Partial<Workbook> | null) =>
+    row && typeof row.id === "string" && typeof row.name === "string" && typeof row.status === "string" &&
+    Array.isArray(row.columns_config) && Number.isFinite(row.total_rows) && Number.isFinite(row.completed_rows))) {
+    throw new Error("The server returned an invalid workbook list. Try again.")
+  }
+  return data
 }
 
 export async function fetchWorkbook(
@@ -246,7 +267,11 @@ export async function createWorkbook(data: {
     body: JSON.stringify(data),
   })
   if (!res.ok) throw new Error("Failed to create workbook")
-  return res.json()
+  const workbook = await res.json()
+  if (!workbook || typeof workbook.id !== "string" || !workbook.id.trim()) {
+    throw new Error("The server did not return a workbook ID. Check your workbooks before retrying.")
+  }
+  return workbook
 }
 
 export async function updateWorkbook(id: string, data: Partial<Workbook>): Promise<Workbook> {
@@ -366,13 +391,18 @@ export async function importLeads(
 // ── Column Operations ────────────────────────────────────────────────────
 
 export async function addColumn(workbookId: string, column: Partial<ColumnConfig>): Promise<Workbook> {
-  const res = await fetch(`${API}/api/workbooks/${workbookId}/columns`, {
+  const res = await fetch(`${API}/api/workbooks/${encodeURIComponent(workbookId)}/columns`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ column }),
   })
-  if (!res.ok) throw new Error("Failed to add column")
-  return res.json()
+  if (!res.ok) throw new Error(res.status === 409 ? "A column with this ID already exists. Refresh and review it before adding another." : "Failed to add column")
+  const result = await res.json()
+  const matches = Array.isArray(result?.columns_config) ? result.columns_config.filter((item: ColumnConfig) => item.id === column.id) : []
+  if (result?.id !== workbookId || matches.length !== 1 || matches[0].name !== column.name || matches[0].type !== column.type) {
+    throw new Error("Column creation was not confirmed. Refresh before trying again.")
+  }
+  return result
 }
 
 export interface GeneratedColumn {
@@ -392,25 +422,47 @@ export async function generateColumn(workbookId: string, instruction: string): P
   return res.json()
 }
 
-export async function deleteColumn(workbookId: string, colId: string): Promise<Workbook> {
-  const res = await fetch(`${API}/api/workbooks/${workbookId}/columns/${colId}`, { method: "DELETE" })
-  if (!res.ok) throw new Error("Failed to delete column")
-  return res.json()
+export async function deleteColumn(workbookId: string, colId: string, expectedColumn: ColumnConfig): Promise<Workbook> {
+  if (expectedColumn.id !== colId) throw new Error("Column confirmation identity does not match")
+  const res = await fetch(`${API}/api/workbooks/${encodeURIComponent(workbookId)}/columns/${encodeURIComponent(colId)}`, {
+    method: "DELETE", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ expected_column: expectedColumn }),
+  })
+  if (!res.ok) {
+    const detail = res.status === 409 ? (await res.json().catch(() => null))?.detail : null
+    throw new Error(res.status === 409
+      ? (typeof detail === "string" && detail.trim() ? detail : "Column changed since confirmation. Refresh and review before deleting.")
+      : "Column deletion was not confirmed. Refresh before trying again.")
+  }
+  const result = await res.json()
+  if (result?.id !== workbookId || !Array.isArray(result.columns_config) || result.columns_config.some((column: ColumnConfig) => column.id === colId)) {
+    throw new Error("Column deletion was not confirmed. Refresh before trying again.")
+  }
+  return result
 }
 
 // ── Execution ────────────────────────────────────────────────────────────
 
+export type WorkbookRunOptions = { column_ids?: string[]; row_ids?: number[]; lead_ids?: number[]; view_id?: string; search?: string; expected_rows?: number; fill_missing?: boolean; force?: boolean }
+
 export async function runWorkbook(
   workbookId: string,
-  opts?: { column_ids?: string[]; row_ids?: number[]; lead_ids?: number[]; view_id?: string; search?: string; fill_missing?: boolean; force?: boolean },
-): Promise<{ status: string; total_jobs: number; message: string }> {
+  opts?: WorkbookRunOptions,
+): Promise<{ status: string; total_jobs: number; message: string; job_id?: number | null; run_id?: string | null }> {
   const res = await fetch(`${API}/api/workbooks/${workbookId}/run`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(opts || {}),
-  })
-  if (!res.ok) throw new Error("Failed to run workbook")
-  return res.json()
+  }).catch(() => { throw new Error("Could not confirm whether the run started. Check activity before starting another run.") })
+  if (!res.ok) {
+    const detail = (await res.json().catch(() => null))?.detail
+    throw new Error(typeof detail === "string" ? detail : detail?.message || "Failed to run workbook")
+  }
+  const result = await res.json()
+  if (typeof result?.status !== "string" || typeof result?.message !== "string" || !Number.isInteger(result?.total_jobs) || result.total_jobs < 0) {
+    throw new Error("The server returned an invalid run receipt. Check activity before starting another run.")
+  }
+  return result
 }
 
 /** (Re-)run a SINGLE cell synchronously. force=true bypasses success-skip gates
@@ -431,7 +483,8 @@ export async function runWorkbookCell(
 }
 
 export async function stopWorkbook(workbookId: string): Promise<void> {
-  await fetch(`${API}/api/workbooks/${workbookId}/stop`, { method: "POST" })
+  const response = await fetch(`${API}/api/workbooks/${workbookId}/stop`, { method: "POST" })
+  if (!response.ok) throw new Error("Could not stop the workbook run. Try again.")
 }
 
 export async function deleteLeads(leadIds: number[]): Promise<{ deleted: number }> {
@@ -504,10 +557,75 @@ export interface WorkbookView {
 
 const V2 = `${API}/api/v2/workbooks`
 
+export async function saveWorkbookColumnOrder(workbookId: string, columnIds: string[], expectedColumnIds: string[]): Promise<void> {
+  const res = await fetch(`${API}/api/workbooks/${encodeURIComponent(workbookId)}/columns/order`, {
+    method: "PATCH", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ column_ids: columnIds, expected_column_ids: expectedColumnIds }),
+  })
+  if (res.status === 409) throw new Error("Column order changed. Refresh before reordering.")
+  if (!res.ok) throw new Error("Column order was not saved")
+  const result = await res.json()
+  if (!Array.isArray(result?.column_ids) || result.column_ids.length !== columnIds.length ||
+      !result.column_ids.every((id: unknown, index: number) => id === columnIds[index])) {
+    throw new Error("Column order save was not confirmed")
+  }
+}
+
+export async function saveWorkbookColumnWidth(workbookId: string, columnId: string, width: number): Promise<{ column_id: string; width: number }> {
+  const res = await fetch(`${API}/api/workbooks/${encodeURIComponent(workbookId)}/columns/${encodeURIComponent(columnId)}/width`, {
+    method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ width }),
+  })
+  if (!res.ok) throw new Error("Column width was not saved")
+  const result = await res.json()
+  if (result?.column_id !== columnId || result.width !== width) throw new Error("Column width save was not confirmed")
+  return result
+}
+
+export async function saveWorkbookColumnSettings(workbookId: string, columnId: string,
+  changes: Record<string, unknown>, expected: Record<string, unknown>): Promise<{ column_id: string; changes: Record<string, unknown> }> {
+  const res = await fetch(`${API}/api/workbooks/${encodeURIComponent(workbookId)}/columns/${encodeURIComponent(columnId)}/settings`, {
+    method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ changes, expected }),
+  })
+  if (!res.ok) {
+    const error = await res.json().catch(() => null)
+    throw new Error(res.status === 409
+      ? (typeof error?.detail === "string" && error.detail.trim()
+        ? error.detail : "Column settings changed elsewhere. Your edit was not saved.")
+      : "Column settings could not be saved.")
+  }
+  const result = await res.json()
+  const same = (a: unknown, b: unknown): boolean => {
+    if (a === b) return true
+    if (!a || !b || typeof a !== "object" || typeof b !== "object" || Array.isArray(a) !== Array.isArray(b)) return false
+    const left = a as Record<string, unknown>, right = b as Record<string, unknown>
+    return Object.keys(left).length === Object.keys(right).length && Object.keys(left).every(key =>
+      Object.hasOwn(right, key) && same(left[key], right[key]))
+  }
+  if (result?.column_id !== columnId || !same(result.changes, changes)) throw new Error("Column settings save was not confirmed.")
+  return result
+}
+
+function checkedView(value: unknown, workbookId: string): WorkbookView {
+  const view = value as WorkbookView | null
+  const config = view?.config
+  if (!view || typeof view.id !== "string" || !view.id.trim() || view.workbook_id !== workbookId ||
+      typeof view.name !== "string" || !config || !Array.isArray(config.filters) ||
+      !Array.isArray(config.sort) || !Array.isArray(config.hidden_columns) ||
+      !config.hidden_columns.every(column => typeof column === "string") ||
+      !config.filters.every(filter => filter && typeof filter.column === "string" &&
+        ["equals", "not_equals", "contains", "not_contains", "empty", "not_empty"].includes(filter.op)) ||
+      !config.sort.every(sort => sort && typeof sort.column === "string" && ["asc", "desc"].includes(sort.dir))) {
+    throw new Error("Server returned an invalid saved view")
+  }
+  return view
+}
+
 export async function fetchWorkbookViews(workbookId: string): Promise<{ views: WorkbookView[]; total: number }> {
   const res = await fetch(`${V2}/${workbookId}/views`)
   if (!res.ok) throw new Error("Failed to fetch views")
-  return res.json()
+  const data = await res.json()
+  if (!Array.isArray(data?.views)) throw new Error("Server returned an invalid view list")
+  return { ...data, views: data.views.map((view: unknown) => checkedView(view, workbookId)) }
 }
 
 export async function createWorkbookView(
@@ -520,7 +638,7 @@ export async function createWorkbookView(
     body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error("Failed to create view")
-  return res.json()
+  return checkedView(await res.json(), workbookId)
 }
 
 export async function updateWorkbookView(
@@ -534,7 +652,9 @@ export async function updateWorkbookView(
     body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error("Failed to update view")
-  return res.json()
+  const view = checkedView(await res.json(), workbookId)
+  if (view.id !== viewId) throw new Error("Server returned a different saved view")
+  return view
 }
 
 export async function deleteWorkbookView(workbookId: string, viewId: string): Promise<void> {
@@ -578,6 +698,8 @@ export async function fetchAiColumnPresets(): Promise<{ presets: AiColumnPreset[
 }
 
 export interface RunCostEstimate {
+  unknown_providers?: string[]
+  catalog_complete?: boolean
   rows: number
   worst_usd: number
   best_usd: number
@@ -585,13 +707,26 @@ export interface RunCostEstimate {
   note: string
 }
 
-export async function fetchRunEstimate(workbookId: string, viewId?: string | null, search?: string): Promise<RunCostEstimate | null> {
+export async function fetchRunEstimate(workbookId: string, viewId?: string | null, search?: string, signal?: AbortSignal): Promise<RunCostEstimate> {
   const params = new URLSearchParams()
   if (viewId) params.set("view_id", viewId)
   if (search?.trim()) params.set("search", search.trim())
-  const res = await fetch(`${API}/api/workbooks/${workbookId}/run/estimate${params.size ? `?${params}` : ""}`)
-  if (!res.ok) return null
-  return res.json()
+  const res = await fetch(`${API}/api/workbooks/${workbookId}/run/estimate${params.size ? `?${params}` : ""}`, { signal })
+  if (!res.ok) throw new Error("Could not load the run estimate. Try again before starting.")
+  const estimate = await res.json()
+  const hasCoverage = estimate?.unknown_providers !== undefined || estimate?.catalog_complete !== undefined
+  if (hasCoverage && (!Array.isArray(estimate.unknown_providers) ||
+      !estimate.unknown_providers.every((name: unknown) => typeof name === "string" && name.trim().length > 0) ||
+      estimate.catalog_complete !== (estimate.unknown_providers.length === 0))) {
+    throw new Error("The server returned invalid estimate coverage. Refresh before starting.")
+  }
+  if (!Number.isSafeInteger(estimate?.rows) || estimate.rows < 0 ||
+      !Number.isFinite(estimate?.best_usd) || estimate.best_usd < 0 ||
+      !Number.isFinite(estimate?.worst_usd) || estimate.worst_usd < estimate.best_usd ||
+      !Array.isArray(estimate?.breakdown) || typeof estimate?.note !== "string") {
+    throw new Error("The server returned an invalid run estimate. Refresh before starting.")
+  }
+  return estimate
 }
 
 // ── WebSocket ────────────────────────────────────────────────────────────
@@ -638,22 +773,39 @@ export async function previewSourceColumn(workbookId: string, colId: string): Pr
 export interface CostInfo {
   budget_max_usd: number
   budget_spent_usd: number
+  reserved_usd: number
+  uncertain_usd: number
+  accounting_basis: "catalog_estimates_and_recorded_charges"
   remaining_usd: number | null
   unlimited: boolean
 }
 
 export async function fetchWorkbookCost(workbookId: string): Promise<CostInfo> {
-  const res = await fetch(`${API}/api/workbooks/${workbookId}/cost`)
+  const res = await fetch(`${API}/api/workbooks/${encodeURIComponent(workbookId)}/cost`)
   if (!res.ok) throw new Error("Failed to fetch cost")
-  return res.json()
+  const cost = await res.json()
+  const nonnegative = (value: unknown) => typeof value === "number" && Number.isFinite(value) && value >= 0
+  if (!cost || ![cost.budget_max_usd, cost.budget_spent_usd, cost.reserved_usd, cost.uncertain_usd].every(nonnegative) ||
+      typeof cost.unlimited !== "boolean" || cost.unlimited !== (cost.budget_max_usd === 0) ||
+      cost.accounting_basis !== "catalog_estimates_and_recorded_charges" ||
+      (cost.unlimited ? cost.remaining_usd !== null : typeof cost.remaining_usd !== "number" || !Number.isFinite(cost.remaining_usd))) {
+    throw new Error("Server returned invalid budget balances")
+  }
+  return cost
 }
 
-export async function setWorkbookBudget(workbookId: string, maxUsd: number): Promise<CostInfo> {
-  const res = await fetch(`${API}/api/workbooks/${workbookId}/budget`, {
+export async function setWorkbookBudget(workbookId: string, maxUsd: number): Promise<Pick<CostInfo, "budget_max_usd" | "budget_spent_usd">> {
+  if (!Number.isFinite(maxUsd) || maxUsd < 0) throw new Error("Budget must be a nonnegative finite amount")
+  const res = await fetch(`${API}/api/workbooks/${encodeURIComponent(workbookId)}/budget`, {
     method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ max_usd: maxUsd }),
   })
   if (!res.ok) throw new Error("Failed to set budget")
-  return res.json()
+  const receipt = await res.json()
+  if (receipt?.budget_max_usd !== maxUsd || typeof receipt.budget_spent_usd !== "number" ||
+      !Number.isFinite(receipt.budget_spent_usd) || receipt.budget_spent_usd < 0) {
+    throw new Error("Budget save was not confirmed. Refresh before retrying.")
+  }
+  return receipt
 }
 
 export interface ProviderStat {

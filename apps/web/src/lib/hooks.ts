@@ -20,10 +20,11 @@ import {
 
 // ── Leads ───────────────────────────────────────────────────────
 
-export function useLeads(filters: Record<string, string> = {}) {
+export function useLeads(filters: Record<string, string> = {}, options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: queryKeys.leads.list(filters),
     queryFn: () => fetchLeads(filters),
+    enabled: options.enabled,
   })
 }
 

@@ -14,6 +14,12 @@ import {
   fetchWorkbookViews, createWorkbookView, updateWorkbookView, deleteWorkbookView,
   fetchProviders, fetchFilterOptions, createWorkbookSocket,
   fetchConnectorRuns,
+  saveWorkbookColumnWidth,
+  saveWorkbookColumnOrder,
+  saveWorkbookColumnSettings,
+  addColumn,
+  deleteColumn,
+  type ColumnConfig,
   type Workbook, type WorkbookLeadRow, type ViewConfig,
 } from "./workbook-api"
 
@@ -96,6 +102,70 @@ export function useCreateWorkbook() {
   })
 }
 
+export function useSaveWorkbookColumnOrder(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    scope: { id: `workbook-layout:${workbookId}` },
+    mutationFn: ({ columnIds, expectedColumnIds }: { columnIds: string[]; expectedColumnIds: string[] }) =>
+      saveWorkbookColumnOrder(workbookId, columnIds, expectedColumnIds),
+    onSettled: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
+  })
+}
+
+export function useSaveWorkbookColumnWidth(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    scope: { id: `workbook-layout:${workbookId}` },
+    mutationFn: ({ columnId, width }: { columnId: string; width: number }) => saveWorkbookColumnWidth(workbookId, columnId, width),
+    onSuccess: result => {
+      qc.setQueriesData({ queryKey: workbookKeys.detail(workbookId) }, (old: any) => {
+        if (!old?.workbook) return old
+        return { ...old, workbook: { ...old.workbook, columns_config: old.workbook.columns_config.map((column: any) => column.id === result.column_id ? { ...column, width: result.width } : column) } }
+      })
+    },
+  })
+}
+
+export function useSaveWorkbookColumnSettings(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    scope: { id: `workbook-layout:${workbookId}` },
+    mutationFn: ({ columnId, changes, expected }: { columnId: string; changes: Record<string, unknown>; expected: Record<string, unknown> }) =>
+      saveWorkbookColumnSettings(workbookId, columnId, changes, expected),
+    onSuccess: result => {
+      qc.setQueriesData({ queryKey: workbookKeys.detail(workbookId) }, (old: any) => {
+        if (!old?.workbook) return old
+        return { ...old, workbook: { ...old.workbook, columns_config: old.workbook.columns_config.map((column: any) =>
+          column.id === result.column_id ? { ...column, ...result.changes } : column) } }
+      })
+    },
+  })
+}
+
+export function useAddWorkbookColumn(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    scope: { id: `workbook-layout:${workbookId}` },
+    mutationFn: (column: Partial<ColumnConfig>) => addColumn(workbookId, column),
+    onSuccess: result => {
+      qc.setQueriesData({ queryKey: workbookKeys.detail(workbookId) }, (old: any) =>
+        old?.workbook ? { ...old, workbook: { ...old.workbook, columns_config: result.columns_config } } : old)
+    },
+  })
+}
+
+export function useDeleteWorkbookColumn(workbookId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    scope: { id: `workbook-layout:${workbookId}` },
+    mutationFn: (column: ColumnConfig) => deleteColumn(workbookId, column.id, column),
+    onSuccess: result => {
+      qc.setQueriesData({ queryKey: workbookKeys.detail(workbookId) }, (old: any) =>
+        old?.workbook ? { ...old, workbook: { ...old.workbook, columns_config: result.columns_config } } : old)
+    },
+  })
+}
+
 export function useUpdateWorkbook() {
   const qc = useQueryClient()
   return useMutation({
@@ -156,7 +226,7 @@ export function useImportLeads(workbookId: string) {
 export function useRunWorkbook(workbookId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (opts?: { column_ids?: string[]; row_ids?: number[]; lead_ids?: number[]; view_id?: string; search?: string; fill_missing?: boolean; force?: boolean }) => runWorkbook(workbookId, opts),
+    mutationFn: (opts?: import("./workbook-api").WorkbookRunOptions) => runWorkbook(workbookId, opts),
     onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
   })
 }
@@ -230,11 +300,9 @@ export function useDeleteWorkbookRows(workbookId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async ({ rowIds, leadIds }: { rowIds: number[]; leadIds: number[] }) => {
-      const [rowsResult, leadsResult] = await Promise.all([
-        rowIds.length ? deleteWorkbookRows(workbookId, rowIds) : Promise.resolve({ deleted: 0 }),
-        leadIds.length ? deleteLeads(leadIds) : Promise.resolve({ deleted: 0 }),
-      ])
-      return { deleted: rowsResult.deleted + leadsResult.deleted }
+      // Workbook deletion must never silently delete records from the lead store.
+      if (leadIds.length) throw new Error("Migrate this legacy workbook before deleting its rows. Original leads are unchanged.")
+      return rowIds.length ? deleteWorkbookRows(workbookId, rowIds) : { deleted: 0 }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: workbookKeys.detail(workbookId) }),
   })
@@ -299,6 +367,9 @@ export function useWorkbookSocket(workbookId: string | undefined) {
             newEnrichments[u.colId] = {
               value: u.value, status: u.status,
               provider: u.provider, error: u.error,
+              research: u.research ?? null,
+              provenance: u.provenance ?? null,
+              verify_status: u.verify_status ?? null,
             }
           }
           return { ...row, lead: newLead, enrichments: newEnrichments }
@@ -329,7 +400,7 @@ export function useWorkbookSocket(workbookId: string | undefined) {
 
         if (msg.type === "cell_update") {
           // Accumulate in batch — don't trigger React re-render yet
-          pendingUpdates.current.set(`${msg.leadId}:${msg.colId}`, msg)
+          pendingUpdates.current.set(`${msg.rowId ?? msg.leadId}:${msg.colId}`, msg)
 
           // Schedule flush on next animation frame (coalesces all updates in this frame)
           if (!rafRef.current) {

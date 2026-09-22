@@ -1,0 +1,6 @@
+.gtm-selection-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 16px; border-bottom: 1px solid var(--t-border-color-medium); background: var(--t-background-secondary); flex-shrink: 0; }
+.gtm-selection-bar p { font-size: 13px; font-variant-numeric: tabular-nums; }
+.gtm-selection-bar > p:first-child { margin-right: auto; }
+.gtm-selection-bar > [role="alert"] { flex-basis: 100%; }
+.gtm-selection-dialog { max-width: min(480px, calc(100vw - 32px)); }
+@media (max-width: 640px) { .gtm-selection-bar button, .gtm-selection-dialog button { min-height: 44px; } .gtm-selection-bar > p:first-child { flex-basis: 100%; } }

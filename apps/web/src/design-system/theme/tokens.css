@@ -1,0 +1,36 @@
+/* Legacy semantic names bridge unmigrated controls to Twenty's actual tokens.
+ * Keep this boundary until every screen uses the application design system. */
+:root {
+  --background: var(--t-background-primary);
+  --foreground: var(--t-font-color-primary);
+  --card: var(--t-background-primary);
+  --card-foreground: var(--t-font-color-primary);
+  --popover: var(--t-background-primary);
+  --popover-foreground: var(--t-font-color-primary);
+  --primary: var(--t-background-inverted-primary);
+  --primary-foreground: var(--t-font-color-inverted);
+  --secondary: var(--t-background-tertiary);
+  --secondary-foreground: var(--t-font-color-primary);
+  --muted: var(--t-background-tertiary);
+  --muted-foreground: var(--t-font-color-secondary);
+  --accent: var(--t-background-tertiary);
+  --accent-foreground: var(--t-font-color-primary);
+  --destructive: var(--t-color-red11);
+  --border: var(--t-border-color-medium);
+  --input: var(--t-border-color-strong);
+  --ring: var(--t-color-blue11);
+  --chart-1: var(--t-color-blue9);
+  --chart-2: var(--t-color-turquoise9);
+  --chart-3: var(--t-color-orange9);
+  --chart-4: var(--t-color-purple9);
+  --chart-5: var(--t-color-red9);
+  --radius: var(--t-border-radius-md);
+  --sidebar: var(--t-background-secondary);
+  --sidebar-foreground: var(--t-font-color-primary);
+  --sidebar-primary: var(--t-background-inverted-primary);
+  --sidebar-primary-foreground: var(--t-font-color-inverted);
+  --sidebar-accent: var(--t-background-tertiary);
+  --sidebar-accent-foreground: var(--t-font-color-primary);
+  --sidebar-border: var(--t-border-color-medium);
+  --sidebar-ring: var(--t-color-blue11);
+}

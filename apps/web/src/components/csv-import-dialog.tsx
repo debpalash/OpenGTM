@@ -48,7 +48,7 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
   columns: ColumnConfig[]
   importing: boolean
   onClose: () => void
-  onImport: (options: CsvImportOptions) => void
+  onImport: (options: CsvImportOptions) => Promise<void>
 }) {
   const initialMapping = useMemo(() => Object.fromEntries(
     draft.fields.map(header => [header, suggestedTarget(header, columns)]),
@@ -56,6 +56,7 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
   const [mapping, setMapping] = useState<Record<string, string>>(initialMapping)
   const [dedupe, setDedupe] = useState(true)
   const dialogRef = useRef<HTMLDivElement>(null)
+  const submissionPending = useRef(false)
   const clayDetected = useMemo(() => {
     const markers = new Set(["claygent", "clay url", "last enrichment date", "enrichment status"])
     return normalized(draft.fileName).includes("clay") || draft.fields.some(field => markers.has(normalized(field)))
@@ -86,12 +87,19 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
     }
   }, [draft.fields.length, mapping])
 
-  const submit = () => {
+  const submit = async () => {
+    // React's pending prop is rendered later; guard the same event turn too.
+    if (submissionPending.current || importing || mappingSummary.kept === 0) return
+    submissionPending.current = true
     const apiMapping = Object.fromEntries(Object.entries(mapping).map(([header, target]) => [
       header,
       target === "__skip__" ? null : target.replace(/^__custom__:/, ""),
     ]))
-    onImport({ rows: draft.rows, mapping: apiMapping, dedupe, create_columns: true, file_name: draft.fileName, source_system: "auto" })
+    try {
+      await onImport({ rows: draft.rows, mapping: apiMapping, dedupe, create_columns: true, file_name: draft.fileName, source_system: "auto" })
+    } finally {
+      submissionPending.current = false
+    }
   }
 
   return (

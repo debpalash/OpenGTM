@@ -1,0 +1,3 @@
+/* Keep Twenty's reset/components below explicit application utilities. */
+@layer theme, base, components, utilities;
+@import "twenty-ui/style.css" layer(components);
