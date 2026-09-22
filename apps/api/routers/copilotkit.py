@@ -1417,7 +1417,8 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                     str(person_id).strip()
                     for person_id in (previous.get("selected_person_ids") or [])
                 ]
-                if previous_selection != selected_ids:
+                # Order-insensitive, matching the durable contract (sorted people).
+                if sorted(previous_selection) != sorted(selected_ids):
                     return json.dumps({
                         "error": "Idempotency key conflicts with a different people selection",
                         "action_id": action_id,

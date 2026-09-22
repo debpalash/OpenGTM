@@ -495,7 +495,9 @@ class QueueService:
 
                 timeout = JOB_TIMEOUTS.get(job_type, DEFAULT_JOB_TIMEOUT)
                 await run_job_subprocess(
-                    job_id, job_type, payload, timeout=timeout,
+                    job_id, job_type, {**payload, "__queue_lease": {
+                        "worker_id": self.worker_id, "locked_at": locked_at.isoformat() if locked_at else None,
+                    }} if job_type == "run_workbook" else payload, timeout=timeout,
                     should_continue=lambda: self._claim_is_active(job_id, locked_at),
                 )
             else:

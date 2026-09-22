@@ -92,8 +92,11 @@ def _provider_declared_cost(name: str) -> Optional[float]:
         from apps.api.services.workbook.providers import get_provider
         p = get_provider(name)
         if p is not None:
-            c = getattr(p, "cost_per_lookup", 0.0) or 0.0
-            return float(c)
+            c = getattr(p, "cost_per_lookup", None)
+            if c is None or isinstance(c, bool):
+                return None
+            value = float(c)
+            return value if math.isfinite(value) and value >= 0 else None
     except Exception:
         pass
     return None
@@ -116,6 +119,11 @@ def base_cost(name: str) -> float:
 
 def is_paid(name: str) -> bool:
     return base_cost(name) > 0.0
+
+
+def has_known_cost(name: str) -> bool:
+    """Whether enrichment has a catalog price or a valid declared price."""
+    return name in VENDORS or name == "claygent" or _provider_declared_cost(name) is not None
 
 
 def is_byok(name: str) -> bool:
@@ -154,7 +162,12 @@ def estimate_run_cost(num_rows: int, provider_names_by_column: Dict[str, List[st
     worst = 0.0
     best = 0.0
     breakdown = []
+    unknown_providers = set()
     for col_id, providers in provider_names_by_column.items():
+        unknown = [p for p in providers if p not in VENDORS
+                   and p not in ("research", "claygent")
+                   and _provider_declared_cost(p) is None]
+        unknown_providers.update(unknown)
         paid = [(p, base_cost(p)) for p in providers if is_paid(p)]
         col_worst = sum(c for _, c in paid) * num_rows
         col_best = (min((c for _, c in paid), default=0.0)) * num_rows
@@ -165,14 +178,19 @@ def estimate_run_cost(num_rows: int, provider_names_by_column: Dict[str, List[st
             "paid_providers": [p for p, _ in paid],
             "worst_usd": round(col_worst, 4),
             "best_usd": round(col_best, 4),
+            "unknown_providers": list(dict.fromkeys(unknown)),
         })
     return {
         "rows": num_rows,
         "worst_usd": round(worst, 4),
         "best_usd": round(best, 4),
         "breakdown": breakdown,
+        "unknown_providers": sorted(unknown_providers),
+        "catalog_complete": not unknown_providers,
         "note": "worst = every paid provider tried per row; best = cheapest paid hit first. "
-                "Cross-provider cache + confidence early-exit reduce actual spend.",
+                "Cross-provider cache + confidence early-exit reduce actual spend. "
+                + ("Unknown provider prices are excluded; these totals are incomplete, not a spend ceiling."
+                   if unknown_providers else "Catalog estimates are not a vendor invoice or a spend ceiling."),
     }
 
 

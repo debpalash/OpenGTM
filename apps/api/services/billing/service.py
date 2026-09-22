@@ -67,7 +67,7 @@ def billing_enabled() -> bool:
 # ── Cost projection (non-BYOK only) ─────────────────────────────────────────
 
 def projected_platform_cost(
-    num_rows: int, providers_by_column: Dict[str, List[str]]
+    num_rows: int, providers_by_column: Dict[str, List[str]], *, column_counts: dict[str, int] | None = None,
 ) -> float:
     """Worst-case platform-billed spend for a run, in USD.
 
@@ -76,13 +76,15 @@ def projected_platform_cost(
     providers — BYOK spend is on the user's own key and is never debited.
     """
     from apps.api.services.workbook import vendor_catalog as vc
+    from decimal import Decimal
 
-    total = 0.0
-    for providers in providers_by_column.values():
+    total = Decimal("0")
+    for column_id, providers in providers_by_column.items():
+        count = max(0, int(num_rows if column_counts is None else column_counts.get(column_id, 0)))
         for p in providers:
             if vc.is_paid(p) and not vc.is_byok(p):
-                total += vc.base_cost(p) * max(0, int(num_rows))
-    return round(total, 4)
+                total += Decimal(str(vc.base_cost(p))) * count
+    return float(round(total, 4))
 
 
 # ── Balance helpers ─────────────────────────────────────────────────────────

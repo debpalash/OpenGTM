@@ -32,7 +32,21 @@ from apps.api.services.workbook.prompt_guard import guard_enabled, sanitize_untr
 logger = logging.getLogger("workbook.ai")
 
 
-def _resolve_prompt(prompt_template: str, row_values: Dict[str, str]) -> str:
+def cell_text(value: Any) -> str:
+    """Only null is absent; preserve zero/False in prompts and output fields."""
+    return "" if value is None else str(value)
+
+
+def validate_template_references(template: str, columns: list) -> None:
+    """Reject ambiguous display references before a flat map loses identity."""
+    from apps.api.services.workbook.column_deps import reference_indexes
+    for ref in re.findall(r'\{([^}]+)\}', template):
+        ref = ref.strip()
+        if len(reference_indexes(ref, columns)) > 1:
+            raise ValueError(f"Ambiguous column reference: {ref}. Use an exact column ID.")
+
+
+def _resolve_prompt(prompt_template: str, row_values: Dict[str, str], *, strict: bool = False) -> str:
     """Replace {column_id} placeholders with actual cell values.
 
     Handles both {column_id} and {Column Name} syntax (case-insensitive).
@@ -41,17 +55,23 @@ def _resolve_prompt(prompt_template: str, row_values: Dict[str, str]) -> str:
         key = match.group(1).strip()
         # Try exact match first
         if key in row_values:
-            return str(row_values[key] or "")
+            return cell_text(row_values[key])
         # Try case-insensitive
         key_lower = key.lower()
-        for k, v in row_values.items():
-            if k.lower() == key_lower:
-                return str(v or "")
+        matches = {cell_text(v) for k, v in row_values.items() if k.lower() == key_lower}
+        if len(matches) > 1:
+            raise ValueError(f"Ambiguous column reference: {key}. Use an exact column ID.")
+        if matches:
+            return next(iter(matches))
         # Try with underscores replaced by spaces
         key_normalized = key_lower.replace("_", " ")
-        for k, v in row_values.items():
-            if k.lower().replace("_", " ") == key_normalized:
-                return str(v or "")
+        matches = {cell_text(v) for k, v in row_values.items() if k.lower().replace("_", " ") == key_normalized}
+        if len(matches) > 1:
+            raise ValueError(f"Ambiguous column reference: {key}. Use an exact column ID.")
+        if matches:
+            return next(iter(matches))
+        if strict:
+            raise ValueError(f"Unknown column reference: {key}. Fix the template before sending.")
         return f"[{key}: not found]"
 
     return re.sub(r'\{([^}]+)\}', replacer, prompt_template)
@@ -61,15 +81,16 @@ def _get_row_values(cells: dict, columns_config: list) -> Dict[str, str]:
     """Extract a flat {column_id: value} dict from row cells."""
     col_name_map = {c["id"]: c.get("name", c["id"]) for c in columns_config}
     values = {}
+    aliases = {}
 
     for col_id, cell in cells.items():
         val = cell.get("value", "") if isinstance(cell, dict) else cell
         # Store by both ID and name for flexible prompt resolution
-        values[col_id] = str(val or "")
+        values[col_id] = cell_text(val)
         name = col_name_map.get(col_id, col_id)
-        values[name] = str(val or "")
+        aliases[name] = cell_text(val)
 
-    return values
+    return {**aliases, **values}
 
 
 # System prompt for AI columns. Kept module-level and frozen so it is
@@ -100,6 +121,7 @@ def build_ai_prompt(prompt_template: str, row_cells: dict, columns_config: list)
     be turned off for debugging (RESEARCH_PROMPT_GUARD=0), matching the research
     column's behaviour.
     """
+    validate_template_references(prompt_template, columns_config)
     row_values = _get_row_values(row_cells, columns_config)
     if guard_enabled():
         row_values = {k: sanitize_untrusted(v) for k, v in row_values.items()}

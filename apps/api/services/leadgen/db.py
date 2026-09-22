@@ -470,6 +470,11 @@ class LeadDB:
         conditions: List[str] = []
         params: List[Any] = []
 
+        if fc.get("lead_ids") is not None:
+            ids = list(fc["lead_ids"])
+            conditions.append(f"l.id IN ({','.join('?' for _ in ids)})" if ids else "1 = 0")
+            params.extend(ids)
+
         for key in ("city", "state", "score_tier", "status", "source", "company_size"):
             if fc.get(key):
                 conditions.append(f"l.{key} = ?")

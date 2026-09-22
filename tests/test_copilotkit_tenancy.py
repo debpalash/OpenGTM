@@ -581,6 +581,23 @@ def test_enrich_people_contacts_is_exact_and_retry_safe(monkeypatch):
     }
     assert len(calls) == 1
 
+    # The same selection in a different order is the same contract, not a conflict.
+    pair = {**args, "person_ids": ["person_alex", "person_jane"],
+            "idempotency_key": "contact-action-pair"}
+    first_pair = json.loads(asyncio.run(ck._execute_tool(
+        "enrich_people_contacts", pair, store=object(), workspace_id="W1", slug="main",
+    )))
+    messages.append({"role": "tool", "tool_data": json.dumps({
+        "name": "enrich_people_contacts", "result": first_pair,
+    })})
+    reordered = json.loads(asyncio.run(ck._execute_tool(
+        "enrich_people_contacts",
+        {**pair, "person_ids": ["person_jane", "person_alex"]},
+        store=object(), workspace_id="W1", slug="main",
+    )))
+    assert "error" not in reordered and reordered["reused"] is True
+    assert len(calls) == 2
+
 
 def test_people_workbook_snapshots_contact_status_and_attempts(monkeypatch):
     from sqlalchemy import create_engine

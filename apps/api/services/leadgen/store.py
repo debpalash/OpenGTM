@@ -300,6 +300,8 @@ class PgLeadStore:
         fc = filter_criteria or {}
         with self._session() as s:
             q = s.query(LeadRow).filter(LeadRow.workspace_id == self.workspace_id)
+            if fc.get("lead_ids") is not None:
+                q = q.filter(LeadRow.id.in_(fc["lead_ids"]))
             for key in ("city", "state", "score_tier", "status", "source", "company_size"):
                 if fc.get(key):
                     q = q.filter(getattr(LeadRow, key) == fc[key])

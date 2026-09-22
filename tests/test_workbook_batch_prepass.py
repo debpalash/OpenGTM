@@ -74,8 +74,9 @@ def _patched(monkeypatch, *, anthropic, batch_return, capture):
 
     monkeypatch.setattr(E.llm, "batch_complete_anthropic", _fake_batch)
 
-    def _fake_set(db, wb, lead_id, col_id, value, status, provider=None, error=None, metadata=None):
+    def _fake_set(db, wb, lead_id, col_id, value, status, provider=None, error=None, metadata=None, row_id=None):
         capture.setdefault("written", []).append((lead_id, col_id, value, status, provider))
+        capture.setdefault("row_writes", []).append((row_id, col_id, value))
 
     monkeypatch.setattr(E, "_set_enrichment", _fake_set)
 
@@ -95,12 +96,40 @@ def _work(n, col_id="ai", prompt="Summarize {company}", fmt="text"):
     return [({"id": i, "company": f"Co{i}"}, [col]) for i in range(1, n + 1)]
 
 
+def test_batch_separates_rows_linked_to_same_lead(monkeypatch):
+    capture = {}
+    columns = [{"id": "ai", "type": "ai_formula", "prompt": "Summarize {company}"}]
+    work = [({"id": 7, "__row_id": rid, "company": f"Company {rid}"}, columns) for rid in (1, 2, 3)]
+    results = {f"row_{rid}::ai": f"Result {rid}" for rid in (1, 2, 3)}
+    with _patched(monkeypatch, anthropic=True, batch_return=results, capture=capture):
+        handled, completed = asyncio.run(E._run_ai_batch_prepass("wb", work, columns, None))
+    assert {request["custom_id"] for request in capture["requests"]} == set(results)
+    assert completed == 3
+    assert capture["row_writes"] == [(rid, "ai", f"Result {rid}") for rid in (1, 2, 3)]
+    assert handled == {(f"row_{rid}", "ai") for rid in (1, 2, 3)}
+    remaining = E._apply_batch_handled(work, {("row_1", "ai")})
+    assert [row["__row_id"] for row, _ in remaining] == [2, 3]
+
+
+@pytest.mark.parametrize("selected", ["source", "dependent"])
+def test_partial_selection_does_not_erase_batch_dependencies(monkeypatch, selected):
+    capture = {}
+    columns = [{"id": "source", "type": "ai_formula", "prompt": "Summarize {company}"},
+               {"id": "dependent", "type": "ai_formula", "prompt": "Score {source}"}]
+    chosen = next(column for column in columns if column["id"] == selected)
+    work = [({"id": i, "company": "Acme"}, [chosen]) for i in range(1, 5)]
+    with _patched(monkeypatch, anthropic=True, batch_return={}, capture=capture):
+        handled, completed = asyncio.run(E._run_ai_batch_prepass("wb", work, columns, None))
+    assert handled == set() and completed == 0
+    assert "requests" not in capture
+
+
 def test_prepass_runs_and_maps_results(monkeypatch):
     cap = {}
     ret = {f"{i}::ai": f"summary {i}" for i in range(1, 5)}
     with _patched(monkeypatch, anthropic=True, batch_return=ret, capture=cap):
         handled, completed = asyncio.run(
-            E._run_ai_batch_prepass("wb1", _work(4), columns_config=[], redis_client=None)
+            E._run_ai_batch_prepass("wb1", _work(4), columns_config=_work(1)[0][1], redis_client=None)
         )
     assert completed == 4
     assert handled == {(i, "ai") for i in range(1, 5)}
@@ -117,7 +146,7 @@ def test_prepass_partial_results_leaves_rest_for_sync(monkeypatch):
     ret = {"1::ai": "s1", "3::ai": "s3"}
     with _patched(monkeypatch, anthropic=True, batch_return=ret, capture=cap):
         handled, completed = asyncio.run(
-            E._run_ai_batch_prepass("wb1", _work(4), columns_config=[], redis_client=None)
+            E._run_ai_batch_prepass("wb1", _work(4), columns_config=_work(1)[0][1], redis_client=None)
         )
     assert completed == 2
     assert handled == {(1, "ai"), (3, "ai")}
@@ -127,7 +156,7 @@ def test_prepass_skips_below_threshold(monkeypatch):
     cap = {}
     with _patched(monkeypatch, anthropic=True, batch_return={"1::ai": "s"}, capture=cap):
         handled, completed = asyncio.run(
-            E._run_ai_batch_prepass("wb1", _work(2), columns_config=[], redis_client=None)
+            E._run_ai_batch_prepass("wb1", _work(2), columns_config=_work(1)[0][1], redis_client=None)
         )
     assert handled == set() and completed == 0
     assert "requests" not in cap  # never submitted
@@ -137,7 +166,7 @@ def test_prepass_skips_non_anthropic(monkeypatch):
     cap = {}
     with _patched(monkeypatch, anthropic=False, batch_return={"1::ai": "s"}, capture=cap):
         handled, completed = asyncio.run(
-            E._run_ai_batch_prepass("wb1", _work(50), columns_config=[], redis_client=None)
+            E._run_ai_batch_prepass("wb1", _work(50), columns_config=_work(1)[0][1], redis_client=None)
         )
     assert handled == set() and completed == 0
     assert "requests" not in cap
@@ -148,7 +177,7 @@ def test_prepass_disabled_env(monkeypatch):
     with _patched(monkeypatch, anthropic=True, batch_return={"1::ai": "s"}, capture=cap):
         monkeypatch.setattr(E, "BATCH_ENABLED", False, raising=False)
         handled, completed = asyncio.run(
-            E._run_ai_batch_prepass("wb1", _work(50), columns_config=[], redis_client=None)
+            E._run_ai_batch_prepass("wb1", _work(50), columns_config=_work(1)[0][1], redis_client=None)
         )
     assert handled == set() and completed == 0
 
@@ -158,7 +187,7 @@ def test_prepass_graceful_on_batch_error(monkeypatch):
     with _patched(monkeypatch, anthropic=True,
                   batch_return=RuntimeError("batch api down"), capture=cap):
         handled, completed = asyncio.run(
-            E._run_ai_batch_prepass("wb1", _work(5), columns_config=[], redis_client=None)
+            E._run_ai_batch_prepass("wb1", _work(5), columns_config=_work(1)[0][1], redis_client=None)
         )
     # submission failed → no cells handled, sync path takes over
     assert handled == set() and completed == 0
@@ -169,7 +198,7 @@ def test_prepass_excludes_json_columns(monkeypatch):
     with _patched(monkeypatch, anthropic=True, batch_return={}, capture=cap):
         handled, completed = asyncio.run(
             E._run_ai_batch_prepass(
-                "wb1", _work(50, fmt="json"), columns_config=[], redis_client=None
+                "wb1", _work(50, fmt="json"), columns_config=_work(1, fmt="json")[0][1], redis_client=None
             )
         )
     # all columns are json-output → nothing eligible → never submitted

@@ -79,6 +79,11 @@ def test_workbook_query_contract_filters_and_pages(db):
     )
     assert total == 1
     assert [row["company"] for row in rows] == ["Alpha"]
+    alpha_id = rows[0]["id"]
+    assert db.query_leads_page({"lead_ids": [alpha_id], "specialization": "Accounting"}) == ([], 0)
+    assert db.query_leads_page({"lead_ids": []}) == ([], 0)
+    exact, count = db.query_leads_page({"lead_ids": [alpha_id], "specialization": "Staffing"})
+    assert count == 1 and exact[0]["id"] == alpha_id
     facets = db.get_filter_options()
     assert facets["cities"] == ["Pune"]
     assert facets["sources"] == ["job:one", "job:two"]

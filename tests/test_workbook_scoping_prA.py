@@ -104,14 +104,16 @@ def test_handle_run_workbook_scopes_from_payload(monkeypatch):
     async def _fake_run(**kwargs):
         seen["scope"] = current_workspace_var.get()
         seen["ws_kw"] = kwargs.get("workspace_id")
+        seen["row_columns"] = kwargs.get("row_columns")
         return {"completed": 0}
 
     monkeypatch.setattr(enr, "run_workbook_enrichment", _fake_run)
     # provider pool sizing is best-effort; let it run (no-op) or be skipped.
 
-    asyncio.run(enr.handle_run_workbook(1, {"workbook_id": "wb1", "workspace_id": W2}))
+    asyncio.run(enr.handle_run_workbook(1, {"workbook_id": "wb1", "workspace_id": W2, "row_columns": {"7": ["summary"]}}))
     assert seen["scope"] == W2
     assert seen["ws_kw"] == W2
+    assert seen["row_columns"] == {"7": ["summary"]}
 
 
 def test_handle_run_workbook_missing_ws_fails_loud(monkeypatch):

@@ -67,6 +67,8 @@ def test_recipe_validates(slug):
     """Each shipped recipe passes full validation (raises on any problem)."""
     recipe = get_recipe(slug)
     validate_recipe(recipe, origin=slug)
+    from apps.api.services.workbook.column_deps import cycle_blocked_columns
+    assert not cycle_blocked_columns(recipe["workbook"]["columns"]), slug
 
 
 @pytest.mark.parametrize("slug", SLUGS)
@@ -189,6 +191,49 @@ def client():
     app.dependency_overrides[current_workspace] = _override_ws
     app.dependency_overrides[require_editor] = _override_ws
     return TestClient(app), Session
+
+
+def test_legacy_templates_create_without_dependency_cycles(client):
+    from apps.api.services.workbook.templates import get_templates
+    from apps.api.services.workbook.column_deps import cycle_blocked_columns
+    c, Session = client
+    for template in get_templates():
+        response = c.post(f"/api/templates/{template['id']}/create")
+        assert response.status_code == 200, (template["id"], response.text)
+        with Session() as db:
+            workbook = db.get(Workbook, response.json()["id"])
+            assert not cycle_blocked_columns(workbook.columns_config)
+
+
+def test_legacy_template_cycle_rejected_without_persistence(client, monkeypatch):
+    from apps.api.services.workbook import templates
+    c, Session = client
+    monkeypatch.setattr(templates, "get_template", lambda _: {
+        "name": "Broken template", "description": "Fixture", "columns": [],
+        "enrichment_columns": [{"id": "a", "type": "formula", "formula": "{a}"}]})
+    response = c.post("/api/templates/broken/create")
+    assert response.status_code == 422
+    assert "circular" in response.json()["detail"]
+    with Session() as db:
+        assert db.query(Workbook).count() == 0
+
+
+@pytest.mark.parametrize("column_id", ["company", "", None])
+def test_legacy_template_does_not_silently_rename_invalid_ids(client, monkeypatch, column_id):
+    from apps.api.services.workbook import templates
+    c, Session = client
+    template = {"name": "Invalid IDs", "description": "Fixture",
+        "columns": [{"key": "company", "name": "Company"}],
+        "enrichment_columns": [{"id": column_id, "type": "formula", "formula": "1"},
+                               {"id": "dependent", "type": "formula", "formula": "{company}"}]}
+    original = copy.deepcopy(template)
+    monkeypatch.setattr(templates, "get_template", lambda _: template)
+    response = c.post("/api/templates/broken/create")
+    assert response.status_code == 422
+    assert "explicit and unique" in response.json()["detail"]
+    assert template == original
+    with Session() as db:
+        assert db.query(Workbook).count() == 0
 
 
 def test_gallery_list(client):

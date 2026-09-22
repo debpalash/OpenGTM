@@ -28,6 +28,7 @@ predictable.
 
 import json
 import logging
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from apps.api.services.leadgen.llm import llm, _read_setting
@@ -337,6 +338,8 @@ class _ResearchCtx:
         self.just_ingested_untrusted: bool = False
         # URLs the harness actually fetched — citation validation set.
         self.fetched_urls: set = set()
+        self.fetched_at: dict[str, str] = {}
+        self.fetched_text: dict[str, str] = {}
 
 
 def _sanitized_question(prompt_template: str, values: Dict[str, Any]) -> str:
@@ -418,11 +421,17 @@ async def _run_tool(name: str, tool_input: dict, ctx: _ResearchCtx) -> Tuple[str
             from apps.api.services.scraper import UniversalScraper
             page = await UniversalScraper().scrape(url)
             text = (page.get("preview_text") or "")[: RESEARCH_FETCH_CHARS()]
+            status = page.get("status")
+            successful = status == "success" or (type(status) is int and 200 <= status < 300)
+            if not successful or not text.strip():
+                return f"fetch failed: no usable source content (status {status})", True
             obs = text or f"(no readable text; status {page.get('status')})"
         except Exception as e:
-            obs = f"fetch error: {str(e)[:120]}"
+            return f"fetch error: {str(e)[:120]}", True
         # Successful fetch → record URL (citation set) + set the lock.
         ctx.fetched_urls.add(url)
+        ctx.fetched_at[url] = datetime.now(timezone.utc).isoformat()
+        ctx.fetched_text[url] = text
         ctx.just_ingested_untrusted = True
         return obs, False
 
@@ -444,6 +453,18 @@ def _validate_citation(citation: dict, ctx: _ResearchCtx) -> bool:
     if scheme not in ("http", "https"):
         return False
     return url in ctx.fetched_urls
+
+
+def _grounded_quote(citation: dict, ctx: _ResearchCtx) -> str:
+    """Keep only verbatim excerpts, allowing whitespace layout differences.
+
+    This checks quotation fidelity, not whether a source supports the answer.
+    Missing fetched text must never make a model-generated quote authoritative.
+    """
+    quote = str(citation.get("quoted_text") or "").strip()
+    source = ctx.fetched_text.get(str(citation.get("url", "")).strip(), "")
+    normalized = " ".join(quote.split())
+    return quote if normalized and normalized in " ".join(source.split()) else ""
 
 
 async def _synthesize_with_citations(
@@ -521,7 +542,8 @@ async def _synthesize_with_citations(
             citations.append({
                 "url": str(c.get("url", "")).strip(),
                 "title": str(c.get("title", "")).strip(),
-                "quoted_text": str(c.get("quoted_text", "")).strip(),
+                "quoted_text": _grounded_quote(c, ctx),
+                "fetched_at": ctx.fetched_at.get(str(c.get("url", "")).strip()),
             })
         else:
             logger.info(f"research_citation_rejected url={str((c or {}).get('url',''))!r}")

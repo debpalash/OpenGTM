@@ -91,6 +91,7 @@ def _provider_job(provider_name: str, lead_dict: dict) -> dict | None:
         "fields": dict(res.fields or {}),
         "confidence": float(res.confidence or 0.0),
         "error": res.error or "",
+        "billing_evidence": res.billing_evidence,
         # Per-fact provenance: the provider's declared data license (resolved
         # by name from the central map when left at the "unknown" default). The
         # subprocess is the only place that holds the provider instance, so we
