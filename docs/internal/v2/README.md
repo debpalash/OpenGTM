@@ -33,6 +33,26 @@ concurrent imports of one domain converge on one entity with all 12
 observations (fails 3/3 without the row lock). Single-host test cluster only;
 not a production load or multi-host result.
 
+First live smoke runs (2026-09-23), LLM-only (no paid contact lookup), API +
+standalone worker on PostgreSQL 18 as the non-superuser runtime role with
+FORCE RLS, dedicated `gtm-release-eval` workspace, isolated worktree. No run
+has passed yet; each failure was real and is recorded, not retried away:
+
+1. Find → verify → workbook proposal → approved save all succeeded (7 people,
+   workbook persisted), then the follow-up turn failed: Google rejected the
+   configured key as leaked (403). Fixed: chat now fails over on 401/403.
+2. `ok: true` with 0 people: every public search had errored and the errors
+   were swallowed. Fixed: `people_search_unavailable` / `search_failures`.
+3. Client ReadTimeout: the stream was silent for up to 45s during research.
+   Fixed: SSE keepalive comments during tool calls.
+4. `people_research_timeout` (truthful): no SearXNG backend is configured, so
+   search falls back to the `ddgs` library, which is slow/failing from this
+   host. Open: needs a reliable search backend before live runs can pass.
+
+Also found by starting the real worker on PostgreSQL: every job claim failed
+("could not determine data type of parameter"), leaving all jobs pending on
+PostgreSQL deployments since 1f9c73c, including `main`. Fixed in 66fac17.
+
 Run locally (throwaway cluster; PostgreSQL via mise):
 `initdb -D <dir> -U postgres --auth=trust`, start with
 `pg_ctl -D <dir> -o "-p 55432 -c unix_socket_directories='' -c listen_addresses=127.0.0.1" start`,
