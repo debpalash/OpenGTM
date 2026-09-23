@@ -1,19 +1,55 @@
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { ArrowRight, Check, KeyRound, Layers3, LockKeyhole, Search, Sparkles } from "lucide-react"
+import { ArrowLeft, Building2, Eye, EyeOff, KeyRound, LockKeyhole, LogIn, User, UserPlus } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { useAuth } from "@/lib/auth-context"
+import { cn } from "@/lib/utils"
+import "./login.css"
 
 type AuthMode = "login" | "signup" | "reset"
 
-const productSteps = [
-  { icon: Search, label: "Find" },
-  { icon: Sparkles, label: "Enrich" },
-  { icon: Layers3, label: "Act" },
-]
+const COPY: Record<AuthMode, { icon: typeof LogIn; title: string; subtitle: string; submit: string }> = {
+  login: {
+    icon: LogIn,
+    title: "Sign in to OpenGTM",
+    subtitle: "Find, enrich and act on the accounts that matter. Your data stays on this deployment.",
+    submit: "Sign in",
+  },
+  signup: {
+    icon: UserPlus,
+    title: "Request an account",
+    subtitle: "Accounts on this self-hosted deployment are created by your workspace administrator.",
+    submit: "Request account",
+  },
+  reset: {
+    icon: KeyRound,
+    title: "Recover access",
+    subtitle: "Enter your username. Your OpenGTM administrator resets passwords on this deployment.",
+    submit: "Request password reset",
+  },
+}
+
+/** Inset field with a leading icon; the label stays available to assistive tech. */
+function Field({ id, label, icon, children, trailing }: {
+  id: string; label: string; icon: ReactNode; children: ReactNode; trailing?: ReactNode
+}) {
+  return (
+    <div className="relative">
+      <label htmlFor={id} className="sr-only">{label}</label>
+      <span aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-[var(--t-font-color-tertiary)] [&_svg]:size-4">
+        {icon}
+      </span>
+      {children}
+      {trailing && <span className="absolute top-1/2 right-2 -translate-y-1/2">{trailing}</span>}
+    </div>
+  )
+}
+
+const fieldClass =
+  "h-11 w-full rounded-xl border border-transparent bg-[#eef2f6] pr-3 pl-10 text-[15px] text-foreground " +
+  "outline-none transition-[background-color,box-shadow] placeholder:text-[var(--t-font-color-tertiary)] " +
+  "hover:bg-[#e8edf2] focus-visible:bg-background focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] " +
+  "dark:bg-white/[0.07] dark:hover:bg-white/[0.1] dark:focus-visible:bg-white/[0.1]"
 
 export default function LoginPage() {
   const { login } = useAuth()
@@ -23,12 +59,15 @@ export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [workspaceSlug, setWorkspaceSlug] = useState("")
 
   const from = (location.state as { from?: string } | null)?.from ?? "/chat"
+  const copy = COPY[mode]
+  const ModeIcon = copy.icon
 
   const changeMode = (nextMode: AuthMode) => {
     setMode(nextMode)
@@ -36,6 +75,7 @@ export default function LoginPage() {
     setNotice(null)
     setPassword("")
     setConfirmPassword("")
+    setShowPassword(false)
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -68,133 +108,121 @@ export default function LoginPage() {
     }
   }
 
-  const title = mode === "login" ? "Welcome back" : mode === "signup" ? "Create your account" : "Recover access"
-  const subtitle = mode === "login"
-    ? "Sign in to continue."
-    : mode === "signup"
-      ? "Start with OpenGTM."
-      : "Enter your username."
+  const passwordToggle = (
+    <button type="button" onClick={() => setShowPassword(value => !value)}
+      aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword}
+      className="flex size-8 items-center justify-center rounded-lg text-[var(--t-font-color-tertiary)] outline-none transition-colors hover:bg-black/5 hover:text-foreground focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] dark:hover:bg-white/10 [&_svg]:size-4">
+      {showPassword ? <EyeOff /> : <Eye />}
+    </button>
+  )
 
   return (
-    <main className="min-h-screen bg-[#f7f5ef] text-[#171613] lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(31rem,0.92fr)]">
-      <section className="relative isolate min-h-[18rem] overflow-hidden bg-[#0d0c12] px-6 py-6 text-white sm:px-10 lg:flex lg:min-h-screen lg:flex-col lg:justify-between lg:px-14 lg:py-10 xl:px-20 xl:py-12">
-        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_15%_15%,rgba(98,104,242,.34),transparent_28%),radial-gradient(circle_at_86%_78%,rgba(32,207,175,.20),transparent_30%),radial-gradient(circle_at_64%_28%,rgba(125,132,255,.16),transparent_24%)]" />
-        <div className="absolute -left-[18%] top-[28%] -z-10 h-[64%] w-[88%] rounded-[50%] border border-violet-300/20 bg-violet-500/10 blur-3xl" />
-        <div className="absolute -bottom-[38%] -right-[18%] -z-10 h-[75%] w-[78%] rounded-full bg-[#20cfaf]/12 blur-3xl" />
-        <div className="absolute inset-0 -z-10 opacity-[0.12] [background-image:linear-gradient(rgba(255,255,255,.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.18)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent_88%)]" />
-        <svg className="pointer-events-none absolute inset-0 -z-10 h-full w-full opacity-50" viewBox="0 0 900 900" fill="none" aria-hidden="true">
-          <path d="M-120 710C120 460 250 760 474 493C649 284 715 136 1005 238" stroke="url(#mesh-a)" strokeWidth="1.25" />
-          <path d="M-80 786C174 530 337 850 551 563C687 380 797 278 1002 327" stroke="url(#mesh-b)" strokeWidth="1.25" />
-          <path d="M34 902C237 674 419 893 637 641C744 517 844 445 998 446" stroke="url(#mesh-c)" strokeWidth="1.25" />
-          <defs>
-            <linearGradient id="mesh-a" x1="0" y1="0" x2="900" y2="0"><stop stopColor="#6268F2" stopOpacity="0"/><stop offset=".52" stopColor="#9A9FFF"/><stop offset="1" stopColor="#20CFAF" stopOpacity="0"/></linearGradient>
-            <linearGradient id="mesh-b" x1="0" y1="0" x2="900" y2="0"><stop stopColor="#20CFAF" stopOpacity="0"/><stop offset=".58" stopColor="#6EE7D2"/><stop offset="1" stopColor="#6268F2" stopOpacity="0"/></linearGradient>
-            <linearGradient id="mesh-c" x1="0" y1="0" x2="900" y2="0"><stop stopColor="#6268F2" stopOpacity="0"/><stop offset=".5" stopColor="#7B82FF"/><stop offset="1" stopColor="#20CFAF" stopOpacity="0"/></linearGradient>
-          </defs>
+    <main className="min-h-screen bg-[var(--t-background-secondary)] p-2 sm:p-5">
+      <div className="gtm-login-sky relative isolate flex min-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-[var(--gtm-radius-card)] border border-[var(--t-border-color-medium)] sm:min-h-[calc(100vh-2.5rem)] sm:rounded-[var(--gtm-radius-frame)]">
+        <div className="gtm-login-clouds" aria-hidden="true" />
+        <svg className="gtm-login-arcs pointer-events-none absolute top-1/2 left-1/2 -z-0 h-[1400px] w-[1400px] -translate-x-1/2 -translate-y-[30%]" viewBox="0 0 1400 1400" aria-hidden="true">
+          <circle cx="700" cy="700" r="380" /><circle cx="700" cy="700" r="500" /><circle cx="700" cy="700" r="640" />
         </svg>
 
-        <div className="flex items-center gap-3">
-          <img src="/opengtm-mark-v8.svg" alt="" aria-hidden="true" className="size-8 object-contain" />
-          <span className="text-[1.08rem] font-semibold tracking-[-0.04em]">OpenGTM</span>
-        </div>
+        <header className="relative z-10 flex items-center gap-2.5 px-6 pt-6 sm:px-12 sm:pt-8">
+          <span className="flex size-8 items-center justify-center rounded-[var(--t-border-radius-md)] bg-[#1d1d1f] shadow-[0_1px_2px_rgb(0_0_0/0.2)] dark:bg-white">
+            <img src="/opengtm-mark-v8.svg" alt="" aria-hidden="true" className="size-5 object-contain" />
+          </span>
+          <span className="text-[17px] font-semibold tracking-[-0.02em] text-[#1d1d1f] dark:text-white">OpenGTM</span>
+        </header>
 
-        <div className="max-w-2xl py-10 lg:py-16">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/70 backdrop-blur-sm">
-            <span className="size-1.5 rounded-full bg-[#20cfaf] shadow-[0_0_16px_#20cfaf]" />
-            Open-source GTM
-          </div>
-          <h1 className="max-w-xl text-4xl font-medium leading-[1.02] tracking-[-0.055em] text-white sm:text-5xl lg:text-[4.25rem]">
-            Build pipeline.
-            <span className="block bg-gradient-to-r from-[#aeb2ff] via-[#d8daff] to-[#6ee7d2] bg-clip-text text-transparent">Not busywork.</span>
-          </h1>
-          <p className="mt-6 max-w-lg text-base leading-7 text-white/58 sm:text-lg">
-            GTM agents for the world.
-          </p>
-
-          <div className="mt-10 hidden max-w-xl grid-cols-3 gap-3 lg:grid">
-            {productSteps.map(({ icon: Icon, label }, index) => (
-              <div key={label} className="group rounded-2xl border border-white/10 bg-white/[0.055] p-4 backdrop-blur-md transition-colors hover:bg-white/[0.08]">
-                <div className="mb-5 flex items-center justify-between">
-                  <span className="flex size-8 items-center justify-center rounded-lg bg-white/10 text-white/80"><Icon className="size-4" /></span>
-                  <span className="font-mono text-[10px] text-white/28">0{index + 1}</span>
+        <section className="relative z-10 flex flex-1 items-center justify-center px-4 py-10">
+          <div className="gtm-launch w-full max-w-[400px]">
+            <div className="gtm-login-card relative rounded-[var(--gtm-radius-card)] border border-white/80 px-6 pt-8 pb-7 shadow-[var(--gtm-shadow-window)] backdrop-blur-xl sm:px-8 dark:border-white/10">
+              <div className="gtm-login-texture" aria-hidden="true" />
+              <div className="relative">
+                <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-[var(--gtm-radius-tile)] bg-white text-[#1d1d1f] shadow-[0_0_0_0.5px_rgb(0_0_0/0.06),0_4px_12px_rgb(0_0_0/0.08)] dark:bg-white/10 dark:text-white dark:shadow-none">
+                  <ModeIcon className="size-5" aria-hidden="true" />
                 </div>
-                <p className="text-sm font-medium text-white/90">{label}</p>
+                <h1 className="text-center text-[22px] font-semibold tracking-[-0.02em] text-foreground">{copy.title}</h1>
+                <p className="mx-auto mt-2 max-w-[20rem] text-center text-sm leading-5 text-muted-foreground">{copy.subtitle}</p>
+
+                <form onSubmit={handleSubmit} className="mt-6 grid gap-3">
+                  <Field id="username" label="Username" icon={<User />}>
+                    <input id="username" autoFocus autoComplete="username" required value={username}
+                      onChange={event => setUsername(event.target.value)} placeholder="Username" className={fieldClass} />
+                  </Field>
+
+                  {mode !== "reset" && (
+                    <Field id="password" label="Password" icon={<LockKeyhole />} trailing={passwordToggle}>
+                      <input id="password" type={showPassword ? "text" : "password"} required
+                        autoComplete={mode === "login" ? "current-password" : "new-password"}
+                        minLength={mode === "signup" ? 8 : undefined} value={password}
+                        onChange={event => setPassword(event.target.value)} placeholder="Password"
+                        className={cn(fieldClass, "pr-11")} />
+                    </Field>
+                  )}
+
+                  {mode === "signup" && (
+                    <Field id="confirm-password" label="Confirm password" icon={<LockKeyhole />}>
+                      <input id="confirm-password" type={showPassword ? "text" : "password"} required minLength={8}
+                        autoComplete="new-password" value={confirmPassword}
+                        onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm password"
+                        className={fieldClass} />
+                    </Field>
+                  )}
+
+                  {mode === "login" && (
+                    <div className="-mt-1 flex justify-end">
+                      <button type="button" onClick={() => changeMode("reset")}
+                        className="rounded text-[13px] font-medium text-foreground/80 outline-none hover:text-foreground focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)]">
+                        Forgot password?
+                      </button>
+                    </div>
+                  )}
+
+                  {error && <p role="alert" className="rounded-xl bg-destructive/10 px-3.5 py-2.5 text-[13px] text-destructive">{error}</p>}
+                  {notice && <p role="status" className="rounded-xl bg-[var(--gtm-accent)]/10 px-3.5 py-2.5 text-[13px] leading-5 text-foreground">{notice}</p>}
+
+                  <button type="submit" disabled={busy}
+                    className="mt-1 h-11 w-full rounded-xl bg-[linear-gradient(to_bottom,#3a3a3e,#161618)] text-[15px] font-medium text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_1px_2px_rgb(0_0_0/0.25),0_6px_16px_rgb(0_0_0/0.14)] outline-none transition-[filter,box-shadow] hover:brightness-125 focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] active:brightness-95 disabled:opacity-60 dark:bg-[linear-gradient(to_bottom,#ffffff,#e6e6ea)] dark:text-[#1d1d1f] dark:hover:brightness-95">
+                    {busy ? "Signing in…" : copy.submit}
+                  </button>
+                </form>
+
+                {mode === "login" && (
+                  <>
+                    <div className="mt-6 flex items-center gap-3" role="presentation">
+                      <span className="gtm-login-divider flex-1" />
+                      <span className="text-xs text-muted-foreground">Or continue with SSO</span>
+                      <span className="gtm-login-divider flex-1" />
+                    </div>
+                    <form className="mt-4 flex flex-col gap-2 sm:flex-row" onSubmit={event => {
+                      event.preventDefault()
+                      if (workspaceSlug.trim()) window.location.assign(`/auth/sso/${encodeURIComponent(workspaceSlug.trim())}/login`)
+                    }}>
+                      <div className="flex-1">
+                        <Field id="sso-workspace" label="SSO workspace slug" icon={<Building2 />}>
+                          <input id="sso-workspace" value={workspaceSlug} onChange={event => setWorkspaceSlug(event.target.value)}
+                            placeholder="workspace-slug" autoComplete="organization" className={cn(fieldClass, "h-10")} />
+                        </Field>
+                      </div>
+                      <button type="submit" disabled={!workspaceSlug.trim()}
+                        className="h-10 shrink-0 rounded-xl bg-[var(--gtm-control-bezel)] px-3.5 text-[13px] font-medium text-foreground shadow-[var(--gtm-control-shadow)] outline-none transition-[filter] hover:brightness-[0.97] focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] disabled:opacity-50">
+                        Continue with SSO
+                      </button>
+                    </form>
+                  </>
+                )}
+
+                <p className="mt-6 text-center text-[13px] text-muted-foreground">
+                  {mode === "login" && <>New to OpenGTM? <button type="button" onClick={() => changeMode("signup")} className="font-medium text-foreground hover:underline">Request an account</button></>}
+                  {mode === "signup" && <>Already have an account? <button type="button" onClick={() => changeMode("login")} className="font-medium text-foreground hover:underline">Sign in</button></>}
+                  {mode === "reset" && <button type="button" onClick={() => changeMode("login")} className="inline-flex items-center gap-1.5 font-medium text-foreground hover:underline"><ArrowLeft className="size-3.5" aria-hidden="true" />Back to sign in</button>}
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="hidden items-center gap-5 text-xs text-white/40 lg:flex">
-          {["Local-first", "Composable", "Open source"].map((item) => (
-            <span key={item} className="flex items-center gap-1.5"><Check className="size-3 text-[#8f82ff]" />{item}</span>
-          ))}
-        </div>
-      </section>
-
-      <section className="flex min-h-[calc(100vh-18rem)] items-center justify-center px-6 py-12 sm:px-12 lg:min-h-screen lg:px-16 xl:px-24">
-        <div className="w-full max-w-[27rem]">
-          <div className="mb-10">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5b4cff]">
-              {mode === "login" ? "Workspace access" : mode === "signup" ? "Get started" : "Account recovery"}
-            </p>
-            <h2 className="text-3xl font-semibold tracking-[-0.045em] text-[#171613] sm:text-[2.15rem]">{title}</h2>
-            <p className="mt-3 text-sm leading-6 text-[#6e6a62]">{subtitle}</p>
-          </div>
-
-          <div className="mb-7 grid grid-cols-2 rounded-xl bg-[#ebe8df] p-1" role="tablist" aria-label="Authentication mode">
-            <button type="button" role="tab" aria-selected={mode === "login"} onClick={() => changeMode("login")} className={`h-9 rounded-lg text-sm font-medium transition-all ${mode === "login" ? "bg-white text-[#171613] shadow-sm" : "text-[#777168] hover:text-[#171613]"}`}>
-              Sign in
-            </button>
-            <button type="button" role="tab" aria-selected={mode === "signup"} onClick={() => changeMode("signup")} className={`h-9 rounded-lg text-sm font-medium transition-all ${mode === "signup" ? "bg-white text-[#171613] shadow-sm" : "text-[#777168] hover:text-[#171613]"}`}>
-              Sign up
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-xs font-medium text-[#45413b]">Username</Label>
-              <Input id="username" autoFocus autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder={mode === "reset" ? "Your OpenGTM username" : "Enter your username"} className="h-11 rounded-xl border-[#d8d4ca] !bg-white px-3.5 text-[#171613] shadow-[0_1px_0_rgba(0,0,0,.02)] placeholder:text-[#aaa49a] focus-visible:border-[#5b4cff] focus-visible:ring-[#5b4cff]/15" required />
             </div>
-
-            {mode !== "reset" && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-xs font-medium text-[#45413b]">Password</Label>
-                  {mode === "login" && <button type="button" onClick={() => changeMode("reset")} className="text-xs font-medium text-[#5b4cff] hover:text-[#493bd9]">Forgot password?</button>}
-                </div>
-                <Input id="password" type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••" minLength={mode === "signup" ? 8 : undefined} className="h-11 rounded-xl border-[#d8d4ca] !bg-white px-3.5 text-[#171613] shadow-[0_1px_0_rgba(0,0,0,.02)] placeholder:text-[#aaa49a] focus-visible:border-[#5b4cff] focus-visible:ring-[#5b4cff]/15" required />
-              </div>
-            )}
-
-            {mode === "signup" && (
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password" className="text-xs font-medium text-[#45413b]">Confirm password</Label>
-                <Input id="confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="••••••••" minLength={8} className="h-11 rounded-xl border-[#d8d4ca] !bg-white px-3.5 text-[#171613] shadow-[0_1px_0_rgba(0,0,0,.02)] placeholder:text-[#aaa49a] focus-visible:border-[#5b4cff] focus-visible:ring-[#5b4cff]/15" required />
-              </div>
-            )}
-
-            {error && <p className="rounded-xl bg-red-50 px-3.5 py-3 text-sm text-red-700" role="alert">{error}</p>}
-            {notice && <p className="rounded-xl border border-[#dcd7ff] bg-[#f0eeff] px-3.5 py-3 text-sm leading-5 text-[#4438b8]" role="status">{notice}</p>}
-
-            <Button type="submit" className="h-11 w-full rounded-xl bg-[#171613] text-sm text-white shadow-[0_8px_24px_rgba(23,22,19,.12)] hover:bg-[#5b4cff]" disabled={busy}>
-              {busy ? "Signing in…" : mode === "login" ? "Enter OpenGTM" : mode === "signup" ? "Request account" : "Request password reset"}
-              {!busy && <ArrowRight className="ml-1 size-4 transition-transform group-hover/button:translate-x-0.5" />}
-            </Button>
-          </form>
-
-          {mode === "login" && <div className="mt-6 border-t border-[#ddd8ce] pt-6"><p className="mb-3 text-center text-xs text-[#8c867c]">or use your organization identity</p><div className="flex gap-2"><Input aria-label="SSO workspace slug" value={workspaceSlug} onChange={event => setWorkspaceSlug(event.target.value)} placeholder="workspace-slug" className="h-10 rounded-xl border-[#d8d4ca] !bg-white" /><Button type="button" variant="outline" className="h-10 rounded-xl" disabled={!workspaceSlug.trim()} onClick={() => { window.location.assign(`/auth/sso/${encodeURIComponent(workspaceSlug.trim())}/login`) }}>Continue with SSO</Button></div></div>}
-
-          {mode === "reset" && (
-            <button type="button" onClick={() => changeMode("login")} className="mt-6 flex w-full items-center justify-center gap-2 text-sm font-medium text-[#5f5a52] hover:text-[#171613]">
-              <KeyRound className="size-3.5" /> Back to sign in
-            </button>
-          )}
-
-          <div className="mt-10 flex items-center justify-center gap-2 text-xs text-[#8c867c]">
-            <LockKeyhole className="size-3.5" /> Credentials stay on your OpenGTM deployment
+            <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-[#1d1d1f]/60 dark:text-white/50">
+              <LockKeyhole className="size-3.5" aria-hidden="true" /> Credentials stay on your OpenGTM deployment
+            </p>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </main>
   )
 }

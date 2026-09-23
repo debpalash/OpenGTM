@@ -29,17 +29,23 @@ export default function WorkbooksPage() {
   // characters). Adopt URL changes only when they come from elsewhere
   // (Back, Clear filters), not from this field's own writes.
   const [searchDraft, setSearchDraft] = useState(search)
-  // Values this field wrote that the URL has not echoed yet, oldest first. URL
-  // updates can arrive after newer keystrokes, so any echo of our own write is
-  // ignored (with the writes before it); anything else is an external change.
-  const pendingSearchWrites = useRef<string[]>([])
+  // Values this field wrote that the URL has not echoed yet, oldest first.
+  // URL renders can lag (router transitions, including a navigation that was
+  // still settling when typing began): an echo of our own write is consumed;
+  // any other value while writes are pending is stale and ignored. With
+  // nothing pending, a URL change is external (Back, Clear filters). Entries
+  // expire so a lost echo can never block external changes for long.
+  const pendingSearchWrites = useRef<{ value: string; at: number }[]>([])
   useEffect(() => {
-    const own = pendingSearchWrites.current.indexOf(search)
+    const now = Date.now()
+    const pending = pendingSearchWrites.current.filter(entry => now - entry.at < 1500)
+    const own = pending.findIndex(entry => entry.value === search)
     if (own >= 0) {
-      pendingSearchWrites.current.splice(0, own + 1)
+      pendingSearchWrites.current = pending.slice(own + 1)
       return
     }
-    setSearchDraft(search)
+    pendingSearchWrites.current = pending
+    if (pending.length === 0) setSearchDraft(search)
   }, [search])
   const status = params.get("status") ?? "all"
   const sort = params.get("sort") ?? "updated"
@@ -77,7 +83,12 @@ export default function WorkbooksPage() {
       <CreateWorkbookDialog />
     </div>
     <div className="gtm-workbook-toolbar">
-      <label className="gtm-workbook-search"><span className="sr-only">Search workbooks</span><Input value={searchDraft} onChange={event => { const value = event.target.value; setSearchDraft(value); pendingSearchWrites.current.push(value); setFilter("q", value) }} placeholder="Search workbooks" /></label>
+      <label className="gtm-workbook-search"><span className="sr-only">Search workbooks</span><Input value={searchDraft} onChange={event => {
+        const value = event.target.value
+        setSearchDraft(value)
+        if (value !== search) pendingSearchWrites.current.push({ value, at: Date.now() })
+        setFilter("q", value)
+      }} placeholder="Search workbooks" /></label>
       <label>Status<NativeSelect aria-label="Status" value={status} onChange={event => setFilter("status", event.target.value)}>
         <option value="all">All statuses</option>{["draft", "running", "paused", "failed", "complete"].map(value => <option key={value} value={value}>{value}</option>)}
       </NativeSelect></label>

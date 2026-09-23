@@ -105,6 +105,10 @@ with sync_playwright() as playwright:
     page.keyboard.press("g"); page.keyboard.press("w")
     expect(page).to_have_url(args.url + "/workbooks")
     expect(page.get_by_text("Alpha partnerships")).to_be_visible()
+    # Let the route transition settle: a page still committing its navigation
+    # can be replaced a few ms later (faster than a person can press "/").
+    page.wait_for_load_state("networkidle")
+    page.wait_for_timeout(250)
 
     # / focuses search; typing there never triggers shortcuts
     page.keyboard.press("/")

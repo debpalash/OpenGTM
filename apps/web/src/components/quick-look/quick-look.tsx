@@ -98,7 +98,7 @@ function QuickLookView({ payload }: { payload: QuickLookPayload }) {
   return (
     <div className="grid gap-5 p-6">
       <div className="flex items-center gap-4">
-        <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-[var(--t-background-tertiary)] text-lg font-semibold text-muted-foreground shadow-[var(--gtm-shadow-card)]">
+        <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--gtm-radius-tile)] bg-[var(--t-background-tertiary)] text-lg font-semibold text-muted-foreground shadow-[var(--gtm-shadow-card)]">
           {payload.domain
             ? <img src={`https://www.google.com/s2/favicons?domain=${encodeURIComponent(payload.domain)}&sz=64`} alt="" className="size-8" />
             : initials(payload.title)}

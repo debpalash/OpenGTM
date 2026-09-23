@@ -57,6 +57,9 @@
   --t-border-radius-lg: 10px;
   --t-border-radius-xl: 14px;
   --gtm-radius-window: 12px;
+  --gtm-radius-tile: 14px;   /* app-icon style tiles */
+  --gtm-radius-card: 24px;   /* hero cards (sign-in) */
+  --gtm-radius-frame: 28px;  /* framed page backdrops */
 
   /* Controls — macOS regular/small/mini sizes on the 4px grid. */
   --gtm-control-sm: 22px;
@@ -69,6 +72,27 @@
   --gtm-duration-fast: 120ms;
   --gtm-duration: 200ms;
   --gtm-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Continuous (squircle) corners — Chromium 139+ via Twenty's corner-shape:
+ * superellipse(2.2) on every element. A squircle needs ~1.75-2x the radius of
+ * a round corner to read the same size (Twenty doubles its own tokens here),
+ * so ours scale too. Other browsers keep the base radii as round corners.
+ * Never hard-code px radii in components; use these tokens. */
+@supports (corner-shape: squircle) {
+  :root,
+  .light,
+  .dark {
+    --t-border-radius-xs: 5px;
+    --t-border-radius-sm: 9px;
+    --t-border-radius-md: 12px;
+    --t-border-radius-lg: 18px;
+    --t-border-radius-xl: 24px;
+    --gtm-radius-window: 22px;
+    --gtm-radius-tile: 24px;
+    --gtm-radius-card: 40px;
+    --gtm-radius-frame: 46px;
+  }
 }
 
 /* Apple devices: SF Pro Text/Display via the system font keywords. */
