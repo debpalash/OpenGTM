@@ -94,7 +94,7 @@ single-flight constraints. Cancellation is a committed terminal state: parent
 finalization cannot overwrite it with success or failure.
 
 API and agent entry points use the same queue. Copilot collection, bulk
-enrichment, CSV/data-collector imports, workbook sources, connector imports,
+enrichment, CSV imports, workbook sources, connector imports,
 refreshes, automations, outreach, and recurring scans are not detached threads
 inside an API process.
 

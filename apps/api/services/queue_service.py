@@ -47,8 +47,6 @@ JOB_TIMEOUTS = {
     "source_workbook": 1800,
     # Checkpointed page-by-page; enough for a 500-row import plus API retries.
     "ambitionbox_import": 900,
-    # Checkpointed streaming import; a full CNPJ dataset can take several hours.
-    "data_collector_import": 21600,
     "refresh_workbook": 900,
     "signal_scan": 300,
     # Automations: one rule evaluation over a bounded row set; re_enrich runs

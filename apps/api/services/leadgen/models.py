@@ -126,5 +126,5 @@ class Lead:
 
 # ── Status constants ───────────────────────────────────────────────────
 LEAD_STATUSES = ["new", "contacted", "qualified", "negotiating", "converted", "dead"]
-LEAD_SOURCES = ["csv_import", "google_maps", "web_directory", "linkedin", "manual", "referral", "br_cnpj", "br_github"]
+LEAD_SOURCES = ["csv_import", "google_maps", "web_directory", "linkedin", "manual", "referral"]
 EMAIL_CONFIDENCE_LEVELS = ["smtp_verified", "verified", "pattern", "guessed", "generic"]

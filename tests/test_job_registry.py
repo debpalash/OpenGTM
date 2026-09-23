@@ -6,7 +6,6 @@ EXPECTED_JOB_TYPES = {
     "ambitionbox_import",
     "bulk_enrich",
     "collect",
-    "data_collector_import",
     "outreach_inbound_poll",
     "refresh_workbook",
     "run_workbook",

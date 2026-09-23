@@ -9,7 +9,6 @@ import {
   fetchConversations, fetchConversationMessages,
   fetchAnalyticsOverview, fetchAnalyticsPipeline,
   fetchAnalyticsCollection, fetchAnalyticsEnrichment, fetchAnalyticsLLM,
-  importDataCollector,
   COLLECTION_CLARIFICATION_EVENT,
   type Lead, type Job, type CollectionIntent,
   fetchAudiences, createAudience, deleteAudience,
@@ -288,19 +287,6 @@ export function useCollect() {
         return
       }
       qc.invalidateQueries({ queryKey: queryKeys.jobs.all })
-    },
-  })
-}
-
-export function useImportDataCollector() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ module, limit }: { module?: string; limit?: number } = {}) =>
-      importDataCollector(module || "all", limit),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.leads.all })
-      qc.invalidateQueries({ queryKey: queryKeys.stats.all })
-      qc.invalidateQueries({ queryKey: queryKeys.filters })
     },
   })
 }

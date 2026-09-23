@@ -135,7 +135,6 @@ results*, not reachability.
 | `review_directories.py` | `review_sites` | DDG (Clutch/GoodFirms/G2/AmbitionBox) | hardcoded city inference |
 | `web_directories.py` | `directories` | DDG (JustDial/Sulekha/IndiaMart) + optional page scrape | needs patchright+bs4 for deep scrape |
 | `csv_import.py` | import | local CSV (pandas) | manual curation |
-| `data_collector_import.py` | import | Brazil CNPJ + GitHub CSVs (streaming, checkpointed) | Brazil-only; no cross-batch dedup |
 
 ## C. Native API source — AmbitionBox
 

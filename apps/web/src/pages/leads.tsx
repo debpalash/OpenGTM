@@ -4,7 +4,7 @@ import { type ColumnDef } from "@tanstack/react-table"
 import { toast } from "sonner"
 import {
   ArrowUpDown, Mail, Phone, MoreHorizontal,
-  Plus, Download, RefreshCw, Globe, Flame, Sun, Snowflake, Upload,
+  Plus, Download, RefreshCw, Globe, Flame, Sun, Snowflake,
   SlidersHorizontal, Bookmark, X, GitMerge, Loader2, Sparkles, Star,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -26,7 +26,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/data-table"
-import { useLeads, useStats, useFilters, useUpdateStatus, useUpdateLead, useDeleteLead, useCollect, useImportDataCollector, useAudiences, useCreateAudience, useDeleteAudience } from "@/lib/hooks"
+import { useLeads, useStats, useFilters, useUpdateStatus, useUpdateLead, useDeleteLead, useCollect, useAudiences, useCreateAudience, useDeleteAudience } from "@/lib/hooks"
 import {
   exportCSVUrl, fetchSimilarLeads, runDedup, mergeDuplicates, bulkEnrich,
   type Lead, type SimilarLeads, type DedupResult, type DedupSuggestion,
@@ -133,7 +133,6 @@ export default function LeadsPage() {
   const updateLeadMut = useUpdateLead()
   const deleteLeadMut = useDeleteLead()
   const collect = useCollect()
-  const importBR = useImportDataCollector()
 
   const columns: ColumnDef<Lead>[] = useMemo(() => [
     {
@@ -596,41 +595,6 @@ export default function LeadsPage() {
               <Download className="size-3" />
             </Button>
           </a>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs px-2 gap-1"
-                  disabled={importBR.isPending}
-                />
-              }
-            >
-              <Upload className="size-3" aria-hidden="true" />
-              Brazil data
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => {
-                importBR.mutate({ module: "all" })
-                toast.success("Importing all BR data (CNPJ + GitHub)...")
-              }}>
-                Import All (CNPJ + GitHub)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => {
-                importBR.mutate({ module: "cnpj", limit: 10000 })
-                toast.success("Importing first 10K CNPJ leads...")
-              }}>
-                CNPJ only (10K sample)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => {
-                importBR.mutate({ module: "github" })
-                toast.success("Importing GitHub leads...")
-              }}>
-                GitHub only
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
 
