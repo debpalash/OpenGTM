@@ -428,6 +428,29 @@ def update_provider(
     return {"status": "ok", "provider": provider_id}
 
 
+def _provider_error_message(data, raw_text: str = "") -> str:
+    """Best-effort error text from provider error bodies.
+
+    Formats seen: {"error": {"message": ...}}, {"error": "..."}, {"message": ...},
+    and Google's OpenAI-compatible list form [{"error": {"message": ...}}].
+    """
+    if isinstance(data, list):
+        for item in data:
+            message = _provider_error_message(item)
+            if message:
+                return message
+        return (raw_text or "")[:200]
+    if isinstance(data, dict):
+        err = data.get("error")
+        if isinstance(err, dict):
+            return str(err.get("message") or err.get("status") or err.get("code") or "")[:200]
+        if isinstance(err, str):
+            return err[:200]
+        if isinstance(data.get("message"), str):
+            return data["message"][:200]
+    return (raw_text or "")[:200]
+
+
 @router.post("/providers/{provider_id}/test")
 async def test_provider(provider_id: str, _admin=Depends(get_current_admin_user)):
     """Send a test prompt to the provider and return the response."""
@@ -464,23 +487,19 @@ async def test_provider(provider_id: str, _admin=Depends(get_current_admin_user)
                     },
                     json=req_body,
                 )
-                data = resp.json()
-                if resp.status_code == 200:
+                try:
+                    data = resp.json()
+                except ValueError:
+                    data = None
+                if resp.status_code == 200 and isinstance(data, dict):
                     msg = data.get("choices", [{}])[0].get("message", {})
                     # Some models (reasoning) return content=null with text in reasoning
                     text = msg.get("content") or msg.get("reasoning") or ""
                     actual_model = data.get("model", model)
                     return {"status": "ok", "response": (text or "").strip()[:200], "model": actual_model}
                 else:
-                    # Extract error message from various API error formats
-                    err = data.get("error", {})
-                    if isinstance(err, dict):
-                        err_msg = err.get("message", "") or err.get("code", "")
-                    elif isinstance(err, str):
-                        err_msg = err
-                    else:
-                        err_msg = resp.text[:200]
-                    return {"status": "error", "error": err_msg or "Provider returned error"}
+                    err_msg = _provider_error_message(data, resp.text)
+                    return {"status": "error", "error": err_msg or f"Provider returned HTTP {resp.status_code}"}
             else:
                 if provider_id == "anthropic":
                     # Native Anthropic Messages API (not OpenAI-compatible).
