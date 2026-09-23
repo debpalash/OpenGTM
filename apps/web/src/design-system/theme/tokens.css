@@ -1,6 +1,111 @@
-/* Legacy semantic names bridge unmigrated controls to Twenty's actual tokens.
- * Keep this boundary until every screen uses the application design system. */
-:root {
+/* OpenGTM design tokens: Twenty's structure, Notion's warmth.
+ *
+ * Twenty (twenty-ui --t-*) supplies the token vocabulary, the 4px spacing grid,
+ * Inter, and a 13px type base. Its type tokens are rem-based and assume a 13px
+ * root; this app keeps a 16px root for Tailwind spacing, so they are pinned to
+ * px here. Notion supplies the palette: warm charcoal text, warm off-white
+ * surfaces, low-contrast borders, and soft transparent hovers.
+ *
+ * Overriding the --t-* variables (imported after twenty-ui's themes, same
+ * selectors) keeps Twenty components and legacy shadcn/Tailwind controls on
+ * one set of values. Theme classes: .light / .dark on <html>.
+ */
+
+/* ── Theme-independent scales ─────────────────────────────────────────── */
+:root,
+.light,
+.dark {
+  /* Type: Twenty's 13px scale, in px so a 16px root cannot inflate it. */
+  --t-font-size-xxs: 10px;
+  --t-font-size-xs: 11px;
+  --t-font-size-sm: 12px;
+  --t-font-size-md: 13px;
+  --t-font-size-lg: 16px;
+  --t-font-size-xl: 20px;
+  --t-font-size-xxl: 24px;
+  --gtm-line-height-tight: 1.3;
+  --gtm-line-height-body: 1.5;
+  --gtm-letter-spacing-heading: -0.011em;
+
+  /* Shape: Notion-soft corners on Twenty's radius names. */
+  --t-border-radius-xs: 2px;
+  --t-border-radius-sm: 4px;
+  --t-border-radius-md: 6px;
+  --t-border-radius-lg: 10px;
+  --t-border-radius-xl: 14px;
+
+  /* Control heights on the 4px grid (compact, Twenty-dense). */
+  --gtm-control-sm: 24px;
+  --gtm-control-md: 28px;
+  --gtm-control-lg: 32px;
+
+  --gtm-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --gtm-duration-fast: 120ms;
+  --gtm-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ── Light: Notion warm neutrals ──────────────────────────────────────── */
+:root,
+.light {
+  --t-background-primary: #ffffff;
+  --t-background-secondary: #f9f9f8;
+  --t-background-tertiary: #f1f1ef;
+  --t-background-quaternary: #e9e9e7;
+  --t-background-inverted-primary: #37352f;
+  --t-background-transparent-lighter: rgb(55 53 47 / 0.03);
+  --t-background-transparent-light: rgb(55 53 47 / 0.06);
+  --t-background-transparent-medium: rgb(55 53 47 / 0.09);
+
+  --t-font-color-primary: #37352f;
+  --t-font-color-secondary: #6f6e69;
+  --t-font-color-tertiary: #9b9a97;
+  --t-font-color-light: #b9b8b5;
+  --t-font-color-inverted: #ffffff;
+
+  --t-border-color-light: #efefed;
+  --t-border-color-medium: #e9e9e7;
+  --t-border-color-strong: #d9d8d5;
+
+  --gtm-focus-ring: rgb(35 131 226 / 0.45);
+  --gtm-selection: rgb(35 131 226 / 0.16);
+  --gtm-shadow-popover: 0 0 0 1px rgb(15 15 15 / 0.05), 0 3px 6px rgb(15 15 15 / 0.1),
+    0 9px 24px rgb(15 15 15 / 0.2);
+  --gtm-shadow-card: 0 1px 2px rgb(15 15 15 / 0.04);
+}
+
+/* ── Dark: Notion's #191919 canvas, #202020 chrome ────────────────────── */
+.dark {
+  --t-background-primary: #191919;
+  --t-background-secondary: #202020;
+  --t-background-tertiary: #252525;
+  --t-background-quaternary: #2f2f2f;
+  --t-background-inverted-primary: #e6e5e3;
+  --t-background-transparent-lighter: rgb(255 255 255 / 0.03);
+  --t-background-transparent-light: rgb(255 255 255 / 0.055);
+  --t-background-transparent-medium: rgb(255 255 255 / 0.09);
+
+  --t-font-color-primary: #e6e5e3;
+  --t-font-color-secondary: #a5a4a1;
+  --t-font-color-tertiary: #7f7e7b;
+  --t-font-color-light: #5a5957;
+  --t-font-color-inverted: #191919;
+
+  --t-border-color-light: #262626;
+  --t-border-color-medium: #2c2c2c;
+  --t-border-color-strong: #3a3a3a;
+
+  --gtm-focus-ring: rgb(82 156 234 / 0.5);
+  --gtm-selection: rgb(82 156 234 / 0.24);
+  --gtm-shadow-popover: 0 0 0 1px rgb(255 255 255 / 0.06), 0 3px 6px rgb(0 0 0 / 0.4),
+    0 9px 24px rgb(0 0 0 / 0.5);
+  --gtm-shadow-card: none;
+}
+
+/* ── Legacy semantic bridge (shadcn names → Twenty tokens) ─────────────── */
+/* Keep this boundary until every screen uses the application design system. */
+:root,
+.light,
+.dark {
   --background: var(--t-background-primary);
   --foreground: var(--t-font-color-primary);
   --card: var(--t-background-primary);
@@ -13,12 +118,12 @@
   --secondary-foreground: var(--t-font-color-primary);
   --muted: var(--t-background-tertiary);
   --muted-foreground: var(--t-font-color-secondary);
-  --accent: var(--t-background-tertiary);
+  --accent: var(--t-background-transparent-light);
   --accent-foreground: var(--t-font-color-primary);
   --destructive: var(--t-color-red11);
   --border: var(--t-border-color-medium);
   --input: var(--t-border-color-strong);
-  --ring: var(--t-color-blue11);
+  --ring: var(--gtm-focus-ring);
   --chart-1: var(--t-color-blue9);
   --chart-2: var(--t-color-turquoise9);
   --chart-3: var(--t-color-orange9);
@@ -26,11 +131,11 @@
   --chart-5: var(--t-color-red9);
   --radius: var(--t-border-radius-md);
   --sidebar: var(--t-background-secondary);
-  --sidebar-foreground: var(--t-font-color-primary);
+  --sidebar-foreground: var(--t-font-color-secondary);
   --sidebar-primary: var(--t-background-inverted-primary);
   --sidebar-primary-foreground: var(--t-font-color-inverted);
-  --sidebar-accent: var(--t-background-tertiary);
+  --sidebar-accent: var(--t-background-transparent-light);
   --sidebar-accent-foreground: var(--t-font-color-primary);
-  --sidebar-border: var(--t-border-color-medium);
-  --sidebar-ring: var(--t-color-blue11);
+  --sidebar-border: var(--t-border-color-light);
+  --sidebar-ring: var(--gtm-focus-ring);
 }

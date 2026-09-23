@@ -13,6 +13,24 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Tailwind's text scale on the design-token steps (Twenty 13px base, Notion
+ * 14px reading size): xs 12 · sm 13 · base 14 · lg 16 · xl 20 · 2xl 24. */
+@theme {
+    --text-xs: 12px;
+    --text-xs--line-height: 16px;
+    --text-sm: 13px;
+    --text-sm--line-height: 20px;
+    --text-base: 14px;
+    --text-base--line-height: 22px;
+    --text-lg: 16px;
+    --text-lg--line-height: 24px;
+    --text-xl: 20px;
+    --text-xl--line-height: 28px;
+    --text-2xl: 24px;
+    --text-2xl--line-height: 32px;
+    --font-mono: var(--gtm-font-mono);
+}
+
 @theme inline {
     --font-heading: var(--font-sans);
     --font-sans: 'Inter', sans-serif;
@@ -62,9 +80,43 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: var(--t-font-size-md);
+    line-height: var(--gtm-line-height-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01";
   }
   html {
     @apply font-sans;
+  }
+  h1, h2, h3, h4 {
+    letter-spacing: var(--gtm-letter-spacing-heading);
+    line-height: var(--gtm-line-height-tight);
+  }
+  ::selection {
+    background: var(--gtm-selection);
+  }
+  :focus-visible {
+    outline: 2px solid var(--gtm-focus-ring);
+    outline-offset: 1px;
+  }
+  /* Native selects (workspace and theme switchers) match token controls;
+   * utility classes on a select still override these base styles. */
+  select {
+    height: var(--gtm-control-md);
+    padding: 0 var(--t-spacing-2);
+    border: 1px solid var(--t-border-color-medium);
+    border-radius: var(--t-border-radius-sm);
+    background-color: var(--t-background-primary);
+    color: var(--t-font-color-primary);
+    font-size: var(--t-font-size-md);
+  }
+  select:hover {
+    background-color: var(--t-background-transparent-lighter);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--t-font-color-tertiary);
   }
 }
 
@@ -83,54 +135,30 @@
   }
 }
 
-/* ── Pro typography dimming layers ──
- * Theme-aware utility classes for manual luminance control.
- * Light mode: warm charcoal cascade · Dark mode: soft white cascade
- */
+/* ── Text emphasis steps (token-backed in both themes) ── */
 @layer utilities {
-  /* Dark mode defaults */
-  .text-dim-1 { color: oklch(0.88 0 0); }
-  .text-dim-2 { color: oklch(0.72 0 0); }
-  .text-dim-3 { color: oklch(0.52 0 0); }
-  .text-dim-4 { color: oklch(0.36 0 0); }
+  .text-dim-1 { color: var(--t-font-color-primary); }
+  .text-dim-2 { color: var(--t-font-color-secondary); }
+  .text-dim-3 { color: var(--t-font-color-tertiary); }
+  .text-dim-4 { color: var(--t-font-color-light); }
 }
 
-/* Light mode overrides — warm charcoal cascade */
-:root:not(.dark) .text-dim-1 { color: oklch(0.22 0.01 60); }
-:root:not(.dark) .text-dim-2 { color: oklch(0.38 0.01 60); }
-:root:not(.dark) .text-dim-3 { color: oklch(0.55 0.01 60); }
-:root:not(.dark) .text-dim-4 { color: oklch(0.72 0.008 85); }
-
-/* ── Scrollbar — warm cream for light theme ── */
-:root:not(.dark) ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* ── Scrollbars: thin, token-colored ── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-:root:not(.dark) ::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
-:root:not(.dark) ::-webkit-scrollbar-thumb {
-  background: oklch(0.82 0.01 85);
-  border-radius: 3px;
+::-webkit-scrollbar-thumb {
+  background: var(--t-border-color-strong);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
 }
-:root:not(.dark) ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.72 0.01 60);
-}
-
-/* ── Scrollbar — blends into dark theme ── */
-.dark ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-.dark ::-webkit-scrollbar-track {
-  background: transparent;
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: oklch(0.22 0 0);
-  border-radius: 3px;
-}
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.30 0 0);
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--t-font-color-light);
 }
 
 /* ── Smooth transitions on theme-driven colors ── */
@@ -145,24 +173,14 @@
  * ══════════════════════════════════════════════════════════════════════
  */
 
-/* ── Zebra striping — subtle alternating row backgrounds ── */
-.dark [data-slot="table-body"] tr:nth-child(even) td,
-.dark tbody tr:nth-child(even) td {
-  background-color: oklch(0.10 0 0);
+/* ── Zebra striping and row hover — transparent token tints ── */
+[data-slot="table-body"] tr:nth-child(even) td,
+tbody tr:nth-child(even) td {
+  background-color: var(--t-background-transparent-lighter);
 }
-:root:not(.dark) [data-slot="table-body"] tr:nth-child(even) td,
-:root:not(.dark) tbody tr:nth-child(even) td {
-  background-color: oklch(0.965 0.004 85);
-}
-
-/* ── Row hover — accent tint that overrides zebra ── */
-.dark [data-slot="table-body"] tr:hover td,
-.dark tbody tr:hover td {
-  background-color: oklch(0.13 0.008 250) !important;
-}
-:root:not(.dark) [data-slot="table-body"] tr:hover td,
-:root:not(.dark) tbody tr:hover td {
-  background-color: oklch(0.95 0.012 220) !important;
+[data-slot="table-body"] tr:hover td,
+tbody tr:hover td {
+  background-color: var(--t-background-transparent-light) !important;
 }
 
 /* ── Cell flash — fires when enrichment data arrives ── */

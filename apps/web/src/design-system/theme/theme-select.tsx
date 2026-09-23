@@ -6,7 +6,7 @@ export function ThemeSelect() {
     aria-label="Color theme"
     value={preference}
     onChange={event => setPreference(event.target.value as ThemePreference)}
-    className="h-11 rounded-md border border-input bg-background px-2 text-base text-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring sm:h-9 sm:text-xs"
+    className="h-10 rounded-md border border-border bg-background px-2 text-sm text-foreground outline-offset-2 hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring sm:h-7 sm:text-xs"
   >
     <option value="light">Light</option>
     <option value="dark">Dark</option>

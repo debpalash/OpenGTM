@@ -55,7 +55,7 @@ export function AppSidebar() {
         <label htmlFor="active-workspace" className="sr-only">Active workspace</label>
         <select id="active-workspace" value={activeWorkspaceId ?? ""} disabled={switching} aria-busy={switching}
           onChange={event => void changeWorkspace(event.target.value)}
-          className="h-11 w-full rounded-md border border-input bg-background px-2 text-base focus-visible:outline-2 focus-visible:outline-ring sm:h-8 sm:text-xs">
+          className="h-10 w-full rounded-md border border-border bg-background px-2 text-sm hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring sm:h-7 sm:text-sm">
           {workspaces.map(workspace => <option key={workspace.id} value={workspace.id}>{workspace.name}</option>)}
         </select>
       </div>

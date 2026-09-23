@@ -1,3 +1,13 @@
 /* Keep Twenty's reset/components below explicit application utilities. */
 @layer theme, base, components, utilities;
 @import "twenty-ui/style.css" layer(components);
+
+/* Twenty's reset declares `button { border: none }` in this layer. The
+ * shorthand resets border-color to currentColor, so any Tailwind-bordered
+ * button drew a text-colored outline. Restore the token border color here,
+ * after Twenty and in the same layer; border-* utilities still take priority. */
+@layer components {
+  button {
+    border-color: var(--border);
+  }
+}
