@@ -75,8 +75,12 @@ with sync_playwright() as playwright:
     expect(picker).to_have_value("dark")
     expect(page.locator("html")).to_have_class("dark")
     expect(page.get_by_role("link", name="ui-fixture private workbook")).to_be_visible()
-    for label in ("Workbooks", "Campaigns", "Manage workspaces", "Settings"):
+    for label in ("Workbooks", "Campaigns"):
         expect(page.get_by_role("link", name=label, exact=True)).to_be_visible()
+    page.get_by_role("button", name="Account menu").click()
+    for label in ("Settings", "Manage workspaces", "Sign out"):
+        expect(page.get_by_role("menuitem", name=label)).to_be_visible()
+    page.keyboard.press("Escape")
     assert not lead_requests, "Closed command palette fetched leads"
     assert not command_chunks, "Closed command palette loaded its lazy UI"
     page.get_by_role("button", name="Find anything").click()
@@ -84,9 +88,11 @@ with sync_playwright() as playwright:
         expect(page.get_by_role("option", name=label, exact=True)).to_have_count(1)
     page.keyboard.press("Escape")
     expect(page.get_by_role("button", name="Find anything")).to_be_focused()
-    page.get_by_role("button", name="Recent chats").click()
-    expect(page.get_by_role("textbox", name="Search recent chats")).to_be_visible()
-    page.get_by_role("button", name="Recent chats").click()
+    recent = page.get_by_role("button", name="Recent chats")
+    expect(recent).to_have_attribute("aria-expanded", "true")
+    recent.click()
+    expect(recent).to_have_attribute("aria-expanded", "false")
+    recent.click()
     for theme in ("light", "dark"):
         picker.select_option(theme)
         expect(page.locator("html")).to_have_class(theme)
@@ -136,14 +142,19 @@ with sync_playwright() as playwright:
     assert boot.evaluate("document.getElementById('root').childElementCount") == 0
     boot.close()
 
-    workspace_picker = page.get_by_role("combobox", name="Active workspace")
-    workspace_picker.select_option("denied-fixture")
+    workspace_picker = page.get_by_role("button", name="Switch workspace")
+
+    def pick_workspace(name):
+        workspace_picker.click()
+        page.get_by_role("menuitem", name=name).click()
+
+    pick_workspace("Denied fixture")
     expect(page.get_by_text("Fixture access denied", exact=True)).to_be_visible()
-    expect(workspace_picker).to_have_value("ui-fixture")
+    expect(workspace_picker).to_contain_text("UI fixture")
     expect(page.get_by_role("link", name="ui-fixture private workbook")).to_be_visible()
-    workspace_picker.select_option("second-fixture")
+    pick_workspace("Second fixture")
     expect(page).to_have_url(args.url + "/chat")
-    expect(workspace_picker).to_have_value("second-fixture")
+    expect(workspace_picker).to_contain_text("Second fixture")
     page.get_by_role("link", name="Workbooks", exact=True).click()
     expect(page.get_by_role("link", name="second-fixture private workbook")).to_be_visible()
     expect(page.get_by_role("link", name="ui-fixture private workbook")).to_have_count(0)

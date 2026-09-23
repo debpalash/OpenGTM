@@ -178,7 +178,7 @@
   --t-border-color-medium: rgb(255 255 255 / 0.1);
   --t-border-color-strong: rgb(255 255 255 / 0.16);
 
-  --gtm-material-sidebar: rgb(40 40 42 / 0.8);
+  --gtm-material-sidebar: rgb(21 25 33 / 0.94);
   --gtm-material-toolbar: rgb(30 30 30 / 0.78);
   --gtm-material-menu: rgb(44 44 46 / 0.86);
   --gtm-sky-top: #10223a;
@@ -234,6 +234,6 @@
   --sidebar-primary-foreground: var(--gtm-accent-foreground);
   --sidebar-accent: var(--t-background-transparent-medium);
   --sidebar-accent-foreground: var(--t-font-color-primary);
-  --sidebar-border: var(--t-border-color-medium);
+  --sidebar-border: var(--t-border-color-light);
   --sidebar-ring: var(--gtm-focus-ring);
 }

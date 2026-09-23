@@ -1,72 +1,39 @@
-/* App chrome in the sign-in/chat language: a sky-tinted glass sidebar with
- * pill-shaped selection, and a toolbar that melts into the chat sky. */
+/* App sidebar: shadcn Sidebar driven by the --sidebar-* tokens (tokens.css).
+ * Only layout lives here, plus the sky wash shared with the chat home. */
 
-/* ── Sidebar ── */
-[data-slot="sidebar-container"] { border-color: var(--gtm-glass-edge) !important; }
 [data-slot="sidebar-inner"].gtm-material-sidebar {
-  background-image: linear-gradient(to bottom, var(--gtm-sky-wash) 0%, transparent 42%);
+  background-image: linear-gradient(to bottom, var(--gtm-sky-wash) 0%, transparent 36%);
 }
-[data-slot="sidebar-inner"] [data-sidebar="header"],
-[data-slot="sidebar-inner"] [data-sidebar="footer"] { border-color: var(--gtm-glass-edge); }
-[data-slot="sidebar-menu-button"] { border-radius: 10px; }
-[data-slot="sidebar-menu-button"]:hover:not([data-active]) { background: var(--gtm-glass); }
-[data-slot="sidebar-menu-button"][data-active] {
-  background: var(--gtm-glass-strong);
-  box-shadow: var(--gtm-glass-shadow), inset 0 0 0 1px var(--gtm-glass-edge);
-}
+
 .gtm-shell-logo {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; flex-shrink: 0;
-  border-radius: 8px; background: #1b1b1f;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.12);
+  width: 32px; height: 32px; flex-shrink: 0;
+  border-radius: 9px; background: #16181d;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08), 0 1px 2px rgb(0 0 0 / 0.18);
 }
-.gtm-shell-logo img { width: 18px; height: 18px; }
-.gtm-shell-workspace select {
-  background: var(--gtm-glass);
-  border-color: var(--gtm-glass-edge);
-  border-radius: 10px;
+.gtm-shell-logo img { width: 20px; height: 20px; }
+
+/* Search reads as a field, not a nav row. */
+.gtm-shell-search { background: var(--background); }
+.dark .gtm-shell-search { background: rgb(255 255 255 / 0.04); }
+
+/* Collapsed rail: logo and targets centred, groups separated. */
+[data-collapsible="icon"] [data-slot="sidebar-menu-button"][data-size="lg"] { padding: 0 !important; justify-content: center; }
+[data-collapsible="icon"] [data-slot="sidebar-content"] [data-sidebar="group"] ~ [data-sidebar="group"]::before,
+[data-collapsible="icon"] nav [data-sidebar="group"] ~ [data-sidebar="group"]::before {
+  content: ""; display: block; height: 1px; margin: 0 8px 8px; background: var(--sidebar-border);
 }
 
-/* ── Toolbar ── */
-.gtm-topbar { border-color: var(--gtm-glass-edge) !important; }
+/* Toolbar */
+.gtm-topbar { border-color: var(--sidebar-border) !important; }
 .gtm-topbar-chip {
   display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px;
   border-radius: 999px; background: var(--gtm-glass); border: 1px solid var(--gtm-glass-edge);
 }
-.gtm-topbar [data-slot="native-select"] select {
-  border-radius: 999px; background: var(--gtm-glass); border-color: var(--gtm-glass-edge);
-}
+.gtm-topbar [data-slot="native-select"] select { border-radius: 999px; background: var(--gtm-glass); border-color: var(--gtm-glass-edge); }
 /* On the chat home the toolbar takes the sky's top colour: one continuous sky. */
 .gtm-launch[data-sky] .gtm-topbar {
   background: var(--gtm-sky-top);
   border-color: transparent !important;
   -webkit-backdrop-filter: none; backdrop-filter: none;
 }
-
-/* ── Dark: cool navy glass that sits with the night sky ── */
-.dark [data-slot="sidebar-inner"].gtm-material-sidebar {
-  background-color: rgb(21 25 33 / 0.95);
-  background-image: linear-gradient(to bottom, rgb(40 80 130 / 0.22) 0%, transparent 38%);
-}
-.dark [data-slot="sidebar-menu-button"] svg { color: rgb(150 180 215 / 0.8); }
-.dark [data-slot="sidebar-menu-button"]:hover:not([data-active]) { background: rgb(255 255 255 / 0.05); }
-.dark [data-slot="sidebar-menu-button"][data-active] {
-  background: rgb(255 255 255 / 0.08);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
-}
-.dark [data-slot="sidebar-menu-button"][data-active] svg { color: #5aa9ff; }
-.dark .gtm-shell-logo { background: #0b0f16; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1); }
-
-/* ── Collapsed rail: roomy, centred targets and grouped icons ── */
-[data-collapsible="icon"] [data-slot="sidebar-menu-button"] {
-  width: 36px !important; height: 36px !important; padding: 9px !important;
-  margin-inline: auto; justify-content: center;
-}
-[data-collapsible="icon"] [data-slot="sidebar-menu-button"] svg { width: 18px; height: 18px; }
-[data-collapsible="icon"] [data-sidebar="header"] [data-slot="sidebar-menu-button"]:has(.gtm-shell-logo) { padding: 4px !important; }
-[data-collapsible="icon"] .gtm-shell-logo { margin: 0; }
-[data-collapsible="icon"] [data-sidebar="header"] { align-items: center; padding-inline: 0; }
-[data-collapsible="icon"] [data-sidebar="content"] [data-sidebar="group"] ~ [data-sidebar="group"]::before {
-  content: ""; display: block; height: 1px; margin: 0 12px 6px; background: var(--gtm-glass-edge);
-}
-[data-collapsible="icon"] [data-sidebar="footer"] { align-items: center; }

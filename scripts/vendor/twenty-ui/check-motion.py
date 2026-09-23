@@ -42,7 +42,7 @@ def started(page):
 
 
 def icon_scale(page, index):
-    return page.locator('[data-sidebar="menu-item"]').nth(index).locator("svg").first.evaluate(
+    return page.locator('nav[aria-label="Primary navigation"] [data-sidebar="menu-item"]').nth(index).locator("svg").first.evaluate(
         "e => getComputedStyle(e).scale")
 
 
@@ -79,7 +79,7 @@ with sync_playwright() as playwright:
         page.keyboard.press("Control+b")
         expect(page.locator('[data-collapsible="icon"]')).to_have_count(1)
         page.wait_for_timeout(450)
-        page.locator('[data-sidebar="menu-item"]').nth(3).locator('[data-sidebar="menu-button"]').hover()
+        page.locator('nav[aria-label="Primary navigation"] [data-sidebar="menu-item"]').nth(3).locator('[data-sidebar="menu-button"]').hover()
         page.wait_for_timeout(400)
         dock = [icon_scale(page, i) for i in (2, 3, 4, 7)]
 
