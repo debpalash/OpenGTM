@@ -26,7 +26,11 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/opengtm-demo-light.gif" alt="OpenGTM light-mode demo showing a populated enrichment workbook and cost controls" width="100%" />
+  <img src="docs/assets/opengtm-chat.png" alt="OpenGTM chat home in dark mode: the mascot, quick-action pills, a composer with slash commands and suggested actions" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/opengtm-signin.gif" alt="OpenGTM sign-in page: the mascot finds and enriches leads, then reaches out while leads react" width="100%" />
 </p>
 
 Give OpenGTM a market, a list, or a workbook. It finds companies and people,
