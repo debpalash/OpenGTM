@@ -7,6 +7,7 @@
 @import "twenty-ui/theme-light.css";
 @import "twenty-ui/theme-dark.css";
 @import "./design-system/theme/tokens.css";
+@import "./design-system/theme/motion.css";
 
 /* Keep utility detection independent of the build command's working directory. */
 @source "../index.html";
@@ -197,10 +198,8 @@
   background-color: var(--t-font-color-light);
 }
 
-/* ── Smooth transitions on theme-driven colors ── */
-* {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
+/* Theme changes crossfade via View Transitions (public/theme.js, motion.css);
+ * controls declare their own short transitions. No global "*" transition. */
 
 /*
  * ══════════════════════════════════════════════════════════════════════

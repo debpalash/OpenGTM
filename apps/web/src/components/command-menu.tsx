@@ -35,17 +35,31 @@ export function CommandMenu() {
     }
   }, [load])
 
-  if (Content) return <Content open={open} setOpen={setOpen} />
+  // One dialog shell for both states: the lazy module renders only the command
+  // list inside it, so loading → loaded never swaps the window (which replayed
+  // the open animation and flashed a placeholder window).
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Command Palette</DialogTitle>
-          <DialogDescription role={failed ? "alert" : "status"}>
-            {failed ? "Could not load commands. Close this dialog and save any pending edits before reloading the page." : "Loading commands…"}
-          </DialogDescription>
-        </DialogHeader>
-        {failed && <Button onClick={() => window.location.reload()}>Reload page</Button>}
+      <DialogContent className="top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0" showCloseButton={false}>
+        {Content ? (
+          <>
+            <DialogHeader className="sr-only">
+              <DialogTitle>Command Palette</DialogTitle>
+              <DialogDescription>Search for a command to run...</DialogDescription>
+            </DialogHeader>
+            <Content open={open} setOpen={setOpen} />
+          </>
+        ) : (
+          <div className="grid gap-3 p-4">
+            <DialogHeader>
+              <DialogTitle>Command Palette</DialogTitle>
+              <DialogDescription role={failed ? "alert" : "status"}>
+                {failed ? "Could not load commands. Close this dialog and save any pending edits before reloading the page." : "Loading commands…"}
+              </DialogDescription>
+            </DialogHeader>
+            {failed && <Button onClick={() => window.location.reload()}>Reload page</Button>}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )

@@ -98,9 +98,12 @@ function AppContent() {
 
 
   return (
-    <SidebarInset className="h-screen overflow-hidden flex flex-col">
+    <SidebarInset className="gtm-launch h-screen overflow-hidden flex flex-col">
       <PageHeader title={getPageTitle(location.pathname)} />
       <div className="flex-1 min-h-0 overflow-y-auto relative">
+        {/* Keyed by top-level section: switching sections plays the page
+            transition; navigation within a section does not remount. */}
+        <div key={location.pathname.split("/")[1] || "root"} className="gtm-page-enter h-full">
         <Suspense fallback={<RouteSpinner />}>
           <Routes>
             <Route path="/chat/*" element={<ChatPage />} />
@@ -125,6 +128,7 @@ function AppContent() {
             <Route path="*" element={<Navigate to="/chat" replace />} />
           </Routes>
         </Suspense>
+        </div>
       </div>
     </SidebarInset>
   )

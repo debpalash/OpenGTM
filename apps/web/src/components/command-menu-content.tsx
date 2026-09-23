@@ -1,7 +1,7 @@
-import { useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import {
-  CommandDialog, CommandEmpty, CommandGroup, CommandInput,
+  Command, CommandEmpty, CommandGroup, CommandInput,
   CommandItem, CommandList, CommandSeparator,
 } from "@/components/ui/command"
 import { Users, Download, Moon, Sun, Plus } from "lucide-react"
@@ -11,6 +11,17 @@ import { ALL_NAVIGATION } from "@/components/app-shell/navigation"
 
 export function CommandMenuContent({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const navigate = useNavigate()
+  // The dialog shell can open before this lazy list arrives; then the dialog
+  // itself holds focus, so move it to the field. Otherwise leave focus to the
+  // dialog (autoFocus would pre-empt its record of where to return focus).
+  const inputRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    const input = inputRef.current
+    const popup = input?.closest('[data-slot="dialog-content"]')
+    if (input && popup && popup.contains(document.activeElement) && document.activeElement !== input) {
+      input.focus()
+    }
+  }, [])
   const { data: leads } = useLeads({ limit: "100" }, { enabled: open })
 
   const go = (path: string) => {
@@ -35,8 +46,8 @@ export function CommandMenuContent({ open, setOpen }: { open: boolean; setOpen: 
   }, [leads])
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type a command or search..." />
+    <Command>
+      <CommandInput ref={inputRef} placeholder="Type a command or search..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
 
@@ -89,6 +100,6 @@ export function CommandMenuContent({ open, setOpen }: { open: boolean; setOpen: 
           </>
         )}
       </CommandList>
-    </CommandDialog>
+    </Command>
   )
 }

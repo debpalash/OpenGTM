@@ -27,19 +27,28 @@
     document.documentElement.style.colorScheme = resolved
     listeners.forEach(function (listener) { listener() })
   }
+  // Later theme changes crossfade (View Transitions); first paint never animates.
+  function animatedUpdate() {
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (document.startViewTransition && !reduce && document.visibilityState === "visible") {
+      document.startViewTransition(update)
+    } else {
+      update()
+    }
+  }
   window.OpenGTMTheme = {
     getSnapshot: function () { return preference + ":" + scheme() },
     setPreference: function (value) {
       preference = normalize(value)
       try { window.localStorage.setItem("theme", preference) } catch { /* Private storage can be unavailable. */ }
-      update()
+      animatedUpdate()
     },
     subscribe: function (listener) {
       listeners.add(listener)
       return function () { listeners.delete(listener) }
     },
   }
-  media.addEventListener("change", update)
+  media.addEventListener("change", animatedUpdate)
   window.addEventListener("storage", function (event) {
     if (event.key === "theme" || event.key === null) {
       preference = read()
