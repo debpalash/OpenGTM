@@ -132,6 +132,14 @@
   --gtm-material-sidebar: rgb(246 246 248 / 0.82);
   --gtm-material-toolbar: rgb(255 255 255 / 0.78);
   --gtm-material-menu: rgb(250 250 252 / 0.86);
+  /* Sky (sign-in, chat home and the chrome that frames them). */
+  --gtm-sky-top: #9fd0ef;
+  --gtm-sky-mid: #cbe6f6;
+  --gtm-sky-wash: rgb(159 208 239 / 0.28);
+  --gtm-glass: rgb(255 255 255 / 0.78);
+  --gtm-glass-strong: rgb(255 255 255 / 0.94);
+  --gtm-glass-edge: rgb(15 23 42 / 0.08);
+  --gtm-glass-shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 8px 24px -12px rgb(30 64 110 / 0.25);
   --gtm-material-blur: saturate(180%) blur(20px);
 
   --gtm-focus-ring: rgb(0 122 255 / 0.5);
@@ -173,6 +181,13 @@
   --gtm-material-sidebar: rgb(40 40 42 / 0.8);
   --gtm-material-toolbar: rgb(30 30 30 / 0.78);
   --gtm-material-menu: rgb(44 44 46 / 0.86);
+  --gtm-sky-top: #10223a;
+  --gtm-sky-mid: #13253b;
+  --gtm-sky-wash: rgb(40 80 130 / 0.18);
+  --gtm-glass: rgb(30 34 42 / 0.72);
+  --gtm-glass-strong: rgb(38 42 50 / 0.94);
+  --gtm-glass-edge: rgb(255 255 255 / 0.09);
+  --gtm-glass-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6);
   --gtm-material-blur: saturate(180%) blur(24px);
 
   --gtm-focus-ring: rgb(10 132 255 / 0.55);

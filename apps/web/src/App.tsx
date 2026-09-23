@@ -43,7 +43,7 @@ function PageHeader({ title }: { title: string }) {
   const activeProvider = usage?.providers?.[0]
 
   return (
-    <header className="gtm-material-toolbar sticky top-0 z-20 flex h-[var(--gtm-toolbar-height)] shrink-0 items-center gap-3 border-b border-[var(--t-border-color-medium)] px-4">
+    <header className="gtm-material-toolbar gtm-topbar sticky top-0 z-20 flex h-[var(--gtm-toolbar-height)] shrink-0 items-center gap-3 border-b border-[var(--t-border-color-medium)] px-4">
       <SidebarTrigger className="-ml-1 text-muted-foreground" />
       <h1 className="min-w-0 truncate text-base font-semibold">{title}</h1>
 
@@ -76,7 +76,7 @@ function PageHeader({ title }: { title: string }) {
 
       {/* Connection status */}
       <div
-        className="flex items-center gap-1.5"
+        className="gtm-topbar-chip"
         title={connected ? "SSE connected" : "SSE disconnected"}
         aria-label={connected ? "Connected" : "Offline"}
       >
@@ -97,10 +97,12 @@ function PageHeader({ title }: { title: string }) {
 
 function AppContent() {
   const location = useLocation()
+  // The chat home paints a sky; the toolbar continues it.
+  const isChatHome = location.pathname.replace(/\/$/, "") === "/chat" && !new URLSearchParams(location.search).get("id")
 
 
   return (
-    <SidebarInset className="gtm-launch h-screen overflow-hidden flex flex-col">
+    <SidebarInset className="gtm-launch h-screen overflow-hidden flex flex-col" data-sky={isChatHome || undefined}>
       <PageHeader title={getPageTitle(location.pathname)} />
       <div className="flex-1 min-h-0 overflow-y-auto relative">
         {/* Keyed by top-level section: switching sections plays the page

@@ -15,6 +15,7 @@ import { queryClient, queryKeys } from "@/lib/query-client"
 import { NAVIGATION_GROUPS, UTILITY_NAVIGATION, isNavigationActive, OPEN_COMMAND_MENU_EVENT } from "./navigation"
 import { NativeSelect } from "@/components/ui/native-select"
 import { Button } from "@/components/ui/button"
+import "./shell.css"
 
 export function AppSidebar() {
   const { pathname } = useLocation()
@@ -50,10 +51,10 @@ export function AppSidebar() {
   return <Sidebar collapsible="icon">
     <SidebarHeader className="gap-3 border-b px-3 py-3">
       <SidebarMenuButton render={<NavLink to="/chat" />} onClick={closeMobile} tooltip="OpenGTM">
-        <img src="/opengtm-mark-v8.svg" alt="" className="size-5" />
-        <span className="font-semibold">OpenGTM</span>
+        <span className="gtm-shell-logo -ml-1 group-data-[collapsible=icon]:ml-0"><img src="/opengtm-mark-v8.svg" alt="" /></span>
+        <span className="text-[15px] font-semibold tracking-tight">OpenGTM</span>
       </SidebarMenuButton>
-      <div className="group-data-[collapsible=icon]:hidden">
+      <div className="gtm-shell-workspace group-data-[collapsible=icon]:hidden">
         <label htmlFor="active-workspace" className="sr-only">Active workspace</label>
         <NativeSelect id="active-workspace" value={activeWorkspaceId ?? ""} disabled={switching} aria-busy={switching}
           onChange={event => void changeWorkspace(event.target.value)} className="w-full">

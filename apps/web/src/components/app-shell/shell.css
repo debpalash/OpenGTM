@@ -1,0 +1,46 @@
+/* App chrome in the sign-in/chat language: a sky-tinted glass sidebar with
+ * pill-shaped selection, and a toolbar that melts into the chat sky. */
+
+/* ── Sidebar ── */
+[data-slot="sidebar-container"] { border-color: var(--gtm-glass-edge) !important; }
+[data-slot="sidebar-inner"].gtm-material-sidebar {
+  background-image: linear-gradient(to bottom, var(--gtm-sky-wash) 0%, transparent 42%);
+}
+[data-slot="sidebar-inner"] [data-sidebar="header"],
+[data-slot="sidebar-inner"] [data-sidebar="footer"] { border-color: var(--gtm-glass-edge); }
+[data-slot="sidebar-menu-button"] { border-radius: 10px; }
+[data-slot="sidebar-menu-button"]:hover:not([data-active]) { background: var(--gtm-glass); }
+[data-slot="sidebar-menu-button"][data-active] {
+  background: var(--gtm-glass-strong);
+  box-shadow: var(--gtm-glass-shadow), inset 0 0 0 1px var(--gtm-glass-edge);
+}
+.gtm-shell-logo {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; flex-shrink: 0;
+  border-radius: 8px; background: #1b1b1f;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+.gtm-shell-logo img { width: 18px; height: 18px; }
+.gtm-shell-workspace select {
+  background: var(--gtm-glass);
+  border-color: var(--gtm-glass-edge);
+  border-radius: 10px;
+}
+
+/* ── Toolbar ── */
+.gtm-topbar { border-color: var(--gtm-glass-edge) !important; }
+.gtm-topbar-chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px;
+  border-radius: 999px; background: var(--gtm-glass); border: 1px solid var(--gtm-glass-edge);
+}
+.gtm-topbar [data-slot="native-select"] select {
+  border-radius: 999px; background: var(--gtm-glass); border-color: var(--gtm-glass-edge);
+}
+/* On the chat home the toolbar takes the sky's top colour: one continuous sky. */
+.gtm-launch[data-sky] .gtm-topbar {
+  background: var(--gtm-sky-top);
+  border-color: transparent !important;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+[data-collapsible="icon"] .gtm-shell-logo { width: 20px; height: 20px; border-radius: 6px; margin: 0; }
+[data-collapsible="icon"] .gtm-shell-logo img { width: 13px; height: 13px; }
