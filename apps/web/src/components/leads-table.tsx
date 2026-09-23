@@ -9,6 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Inbox } from "lucide-react"
+import { ChannelIcon, CHANNEL_META, type Channel } from "@/components/semantic-icons"
 import { updateStatus, deleteLead, type Lead } from "@/lib/api"
 
 const TIER_STYLES: Record<string, { bg: string; text: string; glow?: string }> = {
@@ -46,24 +48,25 @@ function timeAgo(dateStr: string): string {
   return `${days}d`
 }
 
-function liveness(lead: Lead): { label: string; color: string; icon: string } {
-  if (lead.status === "dead") return { label: "Dead", color: "text-red-400/50", icon: "🔴" }
-  if (lead.status === "converted") return { label: "Won", color: "text-emerald-400", icon: "🟢" }
+// Liveness is a colored status dot (token colors), labelled by its tooltip.
+function liveness(lead: Lead): { label: string; dot: string } {
+  if (lead.status === "dead") return { label: "Dead", dot: "bg-[var(--t-color-red9)] opacity-50" }
+  if (lead.status === "converted") return { label: "Won", dot: "bg-[var(--t-color-green9)]" }
 
   const hasData = (lead.email && lead.email !== "N/A") || (lead.phone && lead.phone !== "N/A")
-  if (hasData && lead.score >= 50) return { label: "Active", color: "text-emerald-400", icon: "🟢" }
-  if (hasData) return { label: "Warm", color: "text-amber-400", icon: "🟡" }
-  if (lead.website && lead.website !== "N/A") return { label: "Stale", color: "text-amber-400/60", icon: "🟡" }
-  return { label: "Cold", color: "text-muted-foreground/40", icon: "⚪" }
+  if (hasData && lead.score >= 50) return { label: "Active", dot: "bg-[var(--t-color-green9)]" }
+  if (hasData) return { label: "Warm", dot: "bg-[var(--t-color-orange9)]" }
+  if (lead.website && lead.website !== "N/A") return { label: "Stale", dot: "bg-[var(--t-color-orange9)] opacity-60" }
+  return { label: "Cold", dot: "bg-[var(--t-font-color-light)]" }
 }
 
-function signals(lead: Lead): string[] {
-  const s: string[] = []
-  if (lead.email && lead.email !== "N/A") s.push("📧")
-  if (lead.phone && lead.phone !== "N/A") s.push("📞")
-  if (lead.linkedin_url && lead.linkedin_url !== "N/A") s.push("🔗")
-  if (lead.website && lead.website !== "N/A") s.push("🌐")
-  if (lead.contact_person && lead.contact_person !== "N/A") s.push("👤")
+function signals(lead: Lead): Channel[] {
+  const s: Channel[] = []
+  if (lead.email && lead.email !== "N/A") s.push("email")
+  if (lead.phone && lead.phone !== "N/A") s.push("phone")
+  if (lead.linkedin_url && lead.linkedin_url !== "N/A") s.push("linkedin")
+  if (lead.website && lead.website !== "N/A") s.push("website")
+  if (lead.contact_person && lead.contact_person !== "N/A") s.push("contact")
   return s
 }
 
@@ -103,7 +106,7 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
         {leads.length === 0 && (
           <TableRow>
             <TableCell colSpan={11} className="text-center text-muted-foreground/40 h-24 text-xs">
-              <div className="text-xl mb-1">📋</div>
+              <Inbox aria-hidden="true" className="mx-auto mb-1 size-5 text-muted-foreground" />
               No leads match your filters
             </TableCell>
           </TableRow>
@@ -159,15 +162,20 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
               <TableCell className="py-0.5">
                 <Tooltip>
                   <TooltipTrigger>
-                    <span className={`text-[10px] ${live.color}`}>{live.icon}</span>
+                    <span role="img" aria-label={live.label} className={`inline-block size-2 rounded-full ${live.dot}`} />
                   </TooltipTrigger>
                   <TooltipContent>{live.label}</TooltipContent>
                 </Tooltip>
               </TableCell>
 
               {/* Signals */}
-              <TableCell className="py-0.5 text-[10px] tracking-tight">
-                {sigs.length > 0 ? sigs.join("") : <EmptyCell />}
+              <TableCell className="py-0.5">
+                {sigs.length > 0 ? (
+                  <span className="inline-flex items-center gap-1 text-muted-foreground"
+                    aria-label={sigs.map(c => CHANNEL_META[c].label).join(", ")} role="img">
+                    {sigs.map(c => <ChannelIcon key={c} channel={c} className="size-3" />)}
+                  </span>
+                ) : <EmptyCell />}
               </TableCell>
 
               {/* Source — clickable for pipeline jobs */}

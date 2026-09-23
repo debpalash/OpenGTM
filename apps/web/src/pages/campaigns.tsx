@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
+import { TierIcon } from "@/components/semantic-icons"
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
@@ -110,9 +111,9 @@ export default function CampaignsPage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="hot">🔥 Hot Leads</SelectItem>
-              <SelectItem value="warm">🟡 Warm Leads</SelectItem>
-              <SelectItem value="cold">🔵 Cold Leads</SelectItem>
+              <SelectItem value="hot"><TierIcon tier="hot" />Hot leads</SelectItem>
+              <SelectItem value="warm"><TierIcon tier="warm" />Warm leads</SelectItem>
+              <SelectItem value="cold"><TierIcon tier="cold" />Cold leads</SelectItem>
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">

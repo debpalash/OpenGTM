@@ -4,6 +4,7 @@ import { Plus } from "lucide-react"
 import { toast } from "sonner"
 import { Button, Dialog, Input } from "@/design-system/primitives"
 import { useCreateWorkbook } from "@/lib/workbook-hooks"
+import { NativeSelect } from "@/components/ui/native-select"
 
 const DEFAULT_COLUMNS = [
   { id: "company", name: "Company", width: 200 },
@@ -63,9 +64,9 @@ export function CreateWorkbookDialog() {
             <label className="flex items-center gap-2 text-sm"><input type="radio" name="source" value="leads" checked={source === "leads"} onChange={() => setSource("leads")} />From my leads</label>
           </fieldset>
           {source === "leads" && <div className="grid grid-cols-2 gap-3">
-            <label className="grid gap-2 text-sm">Score tier<select aria-label="Score tier" className="gtm-select" value={tier} onChange={event => setTier(event.target.value)} disabled={mutation.isPending}>
+            <label className="grid gap-2 text-sm">Score tier<NativeSelect aria-label="Score tier" className="w-full" value={tier} onChange={event => setTier(event.target.value)} disabled={mutation.isPending}>
               <option value="all">All tiers</option><option value="hot">Hot</option><option value="warm">Warm</option><option value="cold">Cold</option>
-            </select></label>
+            </NativeSelect></label>
             <label className="grid gap-2 text-sm">Maximum rows<Input type="number" min={1} max={5000} step={1} required value={limit} onChange={event => setLimit(event.target.value)} disabled={mutation.isPending} aria-describedby="row-limit-help" /></label>
             <p id="row-limit-help" className="col-span-2 text-xs text-muted-foreground">Up to 5,000 rows, ordered by score. Original leads are unchanged.</p>
           </div>}

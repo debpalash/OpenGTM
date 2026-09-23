@@ -8,6 +8,7 @@ import type { Workbook } from "@/lib/workbook-api"
 import { CreateWorkbookDialog } from "@/components/workbooks/create-workbook-dialog"
 import { TemplateGallery } from "@/components/workbooks/template-gallery"
 import "@/components/workbooks/workbooks.css"
+import { NativeSelect } from "@/components/ui/native-select"
 
 const PAGE_SIZE = 50
 
@@ -59,10 +60,10 @@ export default function WorkbooksPage() {
     </div>
     <div className="gtm-workbook-toolbar">
       <label className="gtm-workbook-search"><span className="sr-only">Search workbooks</span><Input value={search} onChange={event => setFilter("q", event.target.value)} placeholder="Search workbooks" /></label>
-      <label>Status<select aria-label="Status" className="gtm-select" value={status} onChange={event => setFilter("status", event.target.value)}>
+      <label>Status<NativeSelect aria-label="Status" value={status} onChange={event => setFilter("status", event.target.value)}>
         <option value="all">All statuses</option>{["draft", "running", "paused", "failed", "complete"].map(value => <option key={value} value={value}>{value}</option>)}
-      </select></label>
-      <label>Sort<select aria-label="Sort" className="gtm-select" value={sort} onChange={event => setFilter("sort", event.target.value)}><option value="updated">Recently updated</option><option value="name">Name</option></select></label>
+      </NativeSelect></label>
+      <label>Sort<NativeSelect aria-label="Sort" value={sort} onChange={event => setFilter("sort", event.target.value)}><option value="updated">Recently updated</option><option value="name">Name</option></NativeSelect></label>
       <Button aria-expanded={showTemplates} aria-controls="workbook-templates" onClick={() => setShowTemplates(!showTemplates)}>{showTemplates ? "Hide templates" : "Browse templates"}</Button>
     </div>
     {showTemplates && <div id="workbook-templates"><TemplateGallery /></div>}

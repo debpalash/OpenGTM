@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Satellite } from "lucide-react"
+import { ChannelIcon } from "@/components/semantic-icons"
 import { fetchJobs, fetchSystemStats, type Job, type SystemStats } from "@/lib/api"
 import { authQuery } from "@/lib/auth"
 
@@ -121,15 +123,15 @@ export function LiveFeed({ onRefresh, workspaceId: _workspaceId }: Props) {
           <div className="space-y-0.5">
             {leadEvents.slice(-8).map((ev, i) => (
               <div key={i} className="feed-entry flex items-center gap-2 text-[10px] py-0.5 px-1.5 rounded bg-emerald-500/5">
-                <span className="text-emerald-400">●</span>
+                <span aria-hidden="true" className="inline-block size-1.5 rounded-full bg-[var(--t-color-green9)]" />
                 <span className="font-medium text-foreground/80 truncate flex-1">
                   {ev.lead?.company || "Unknown"}
                 </span>
                 {ev.lead?.email && (
-                  <span className="text-muted-foreground/50 truncate max-w-24">📧</span>
+                  <ChannelIcon channel="email" className="size-3 text-muted-foreground" />
                 )}
                 {ev.lead?.phone && (
-                  <span className="text-muted-foreground/50">📞</span>
+                  <ChannelIcon channel="phone" className="size-3 text-muted-foreground" />
                 )}
                 <Badge variant="outline" className="text-[8px] h-3 px-1 border-border text-muted-foreground/40">
                   {ev.stage}
@@ -145,7 +147,7 @@ export function LiveFeed({ onRefresh, workspaceId: _workspaceId }: Props) {
         <div ref={scrollRef} className="p-3 space-y-0.5">
           {progressEvents.length === 0 && (
             <div className="text-center text-muted-foreground/30 text-xs py-8">
-              <div className="text-2xl mb-2">📡</div>
+              <Satellite aria-hidden="true" className="mx-auto mb-2 size-5 text-muted-foreground" />
               <div>Waiting for pipeline events…</div>
               <div className="text-[10px] mt-1">Submit a collection query to start</div>
             </div>

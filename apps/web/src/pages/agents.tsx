@@ -24,6 +24,7 @@ import { TaskDetailCard } from "@/components/task-detail-card"
 import type { Job } from "@/lib/api"
 import { cn } from "@/lib/utils"
 import { queryClient, queryKeys } from "@/lib/query-client"
+import { NativeSelect } from "@/components/ui/native-select"
 
 // ── Task Actions ─────────────────────────────────────────────────
 
@@ -170,8 +171,8 @@ function ResearchPlaybooksPanel() {
       {!!capabilities.length && <div className="flex flex-wrap gap-2 xl:col-span-2">{capabilities.map(capability => <Badge key={capability.id} variant={capability.maturity === "supported" ? "default" : "secondary"} title={capability.features.join(", ")}>{capability.id.replaceAll("_", " ")} · {capability.maturity}</Badge>)}</div>}
       <Card><CardContent className="space-y-3 p-3">
         <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-          <select aria-label="Research playbook" className="h-8 rounded-md border bg-background px-2 text-xs" value={selectedId ?? ""} onChange={e => { setSelectedId(e.target.value || null); setSelectedRunId(null) }}><option value="">Select playbook</option>{playbooks.data?.map(p => <option key={p.id} value={p.id}>{p.name} · v{p.version}</option>)}</select>
-          <select aria-label="Target audience" className="h-8 rounded-md border bg-background px-2 text-xs" value={audienceId} onChange={e => setAudienceId(e.target.value)}><option value="">Select audience</option>{audiences.data?.map(a => <option key={a.id} value={a.id}>{a.name} ({a.member_count})</option>)}</select>
+          <NativeSelect aria-label="Research playbook" value={selectedId ?? ""} onChange={e => { setSelectedId(e.target.value || null); setSelectedRunId(null) }}><option value="">Select playbook</option>{playbooks.data?.map(p => <option key={p.id} value={p.id}>{p.name} · v{p.version}</option>)}</NativeSelect>
+          <NativeSelect aria-label="Target audience" value={audienceId} onChange={e => setAudienceId(e.target.value)}><option value="">Select audience</option>{audiences.data?.map(a => <option key={a.id} value={a.id}>{a.name} ({a.member_count})</option>)}</NativeSelect>
           <div className="flex gap-1"><Input aria-label="Maximum profiles" type="number" min={1} max={1000} value={maxMembers} onChange={e => setMaxMembers(Math.max(1, Math.min(1000, Number(e.target.value))))} className="h-8 w-20" /><Button size="sm" className="h-8" disabled={!selectedId || !audienceId || launch.isPending} onClick={run}><Send className="mr-1 size-3" />Run</Button></div>
         </div>
         {selectedId && <div className="flex flex-wrap items-center gap-2 rounded-md border p-2 text-xs"><CalendarClock className="size-4 text-muted-foreground" /><label className="flex items-center gap-2"><input type="checkbox" checked={scheduleEnabled} onChange={e => setScheduleEnabled(e.target.checked)} className="size-4" /> Recurring</label><Input aria-label="Schedule interval minutes" type="number" min={15} max={10080} value={scheduleMinutes} onChange={e => setScheduleMinutes(Math.max(15, Math.min(10080, Number(e.target.value))))} disabled={!scheduleEnabled} className="h-8 w-28" /><span className="text-muted-foreground">minutes · current audience</span><Button size="sm" variant="outline" className="ml-auto h-8" disabled={scheduleEnabled && !audienceId || patchPlaybook.isPending} onClick={saveSchedule}>{patchPlaybook.isPending && <Loader2 className="size-3 animate-spin" />} Save schedule</Button>{selectedPlaybook?.next_run_at && <span className="w-full text-[10px] text-muted-foreground">Next run {new Date(selectedPlaybook.next_run_at).toLocaleString()}</span>}</div>}

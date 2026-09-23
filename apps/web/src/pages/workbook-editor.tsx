@@ -34,8 +34,12 @@ import {
   FileSpreadsheet, ExternalLink, Filter, Search, Trash2, Copy,
   ArrowUpDown, ArrowUp, ArrowDown, EyeOff, Eye, Pencil, Settings, GripVertical,
   ChevronDown, ChevronUp, Zap, Columns3, Webhook, Calculator,
-  DollarSign, RefreshCw,
+  DollarSign, RefreshCw, Mail, MailCheck, MailX, Smartphone, Building2, Users,
+  ChartColumn, Target, PenLine, Lightbulb, TriangleAlert,
 } from "lucide-react"
+import { LinkedInIcon } from "@/components/semantic-icons"
+import { Button } from "@/components/ui/button"
+import { NativeSelect } from "@/components/ui/native-select"
 import { WorkbookViewBar, sortToSortingState } from "@/components/workbook-view-bar"
 import { WorkbookSelectionBar } from "@/components/workbooks/selection-bar"
 import { WorkbookRunReview } from "@/components/workbooks/run-review"
@@ -194,17 +198,18 @@ function ProvenanceCard({ prov, ttlDays }: { prov: Provenance; ttlDays?: number 
 
 function VerifyBadge({ verify }: { verify?: string | null }) {
   if (!verify || verify === "unknown") return null
-  const meta: Record<string, { label: string; cls: string; title: string }> = {
-    valid:     { label: "✓", cls: "text-green-500 bg-green-500/10",  title: "Email verified deliverable" },
-    catch_all: { label: "≈", cls: "text-amber-500 bg-amber-500/10",  title: "Catch-all domain (risky but usable)" },
-    invalid:   { label: "✗", cls: "text-red-500 bg-red-500/10",      title: "Email undeliverable" },
+  const meta: Record<string, { icon: typeof MailCheck; cls: string; title: string }> = {
+    valid:     { icon: MailCheck,     cls: "text-[var(--t-color-green9)] bg-[var(--t-color-green9)]/10",  title: "Email verified deliverable" },
+    catch_all: { icon: TriangleAlert, cls: "text-[var(--t-color-orange9)] bg-[var(--t-color-orange9)]/10", title: "Catch-all domain (risky but usable)" },
+    invalid:   { icon: MailX,         cls: "text-destructive bg-destructive/10",                           title: "Email undeliverable" },
   }
   const m = meta[verify]
   if (!m) return null
+  const Icon = m.icon
   return (
-    <span title={m.title}
-      className={`shrink-0 inline-flex items-center justify-center size-4 rounded text-[10px] font-bold ${m.cls}`}>
-      {m.label}
+    <span title={m.title} role="img" aria-label={m.title}
+      className={`shrink-0 inline-flex items-center justify-center size-4 rounded-sm ${m.cls}`}>
+      <Icon aria-hidden="true" className="size-3" />
     </span>
   )
 }
@@ -1399,16 +1404,13 @@ export default function WorkbookEditorPage() {
         </p>
         <div className="flex items-center gap-4">
           {!notFound && (
-            <button
-              onClick={() => refetch()}
-              className="text-sm text-primary hover:underline"
-            >
-              Retry
-            </button>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              <RefreshCw /> Retry
+            </Button>
           )}
-          <button onClick={() => navigate("/workbooks")} className="text-sm text-primary hover:underline">
-            ← Back to workbooks
-          </button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/workbooks")}>
+            <ArrowLeft /> Back to workbooks
+          </Button>
         </div>
       </div>
     )
@@ -1550,39 +1552,42 @@ export default function WorkbookEditorPage() {
             onChange={handleCSVImport}
             className="hidden"
           />
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs hover:bg-muted transition-colors"
             title="Import a CSV or Clay table export"
           >
-            <Upload className="size-3.5" />
+            <Upload />
             Import
-          </button>
+          </Button>
 
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={handleExport}
             disabled={exportingCsv}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs hover:bg-muted disabled:opacity-50 transition-colors"
             title="Export every row matching the current search and saved view"
           >
-            {exportingCsv ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
+            {exportingCsv ? <Loader2 className="animate-spin" /> : <Download />}
             {exportingCsv ? "Exporting…" : "Export"}
-          </button>
+          </Button>
 
           <div className="w-px h-5 bg-border mx-1" />
 
           <CostChip workbookId={id!} isRunning={isRunning} viewId={activeViewId} search={deferredGlobalFilter} onClick={openSourcePanel} />
 
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={openSourcePanel}
             disabled={sourcePanelLoading}
             aria-busy={sourcePanelLoading}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border bg-background hover:bg-accent transition-colors"
             title="Source leads, set a budget, make this workbook living"
           >
-            {sourcePanelLoading ? <Loader2 className="size-3.5 animate-spin" /> : <Zap className="size-3.5" />}
+            {sourcePanelLoading ? <Loader2 className="animate-spin" /> : <Zap />}
             {sourcePanelLoading ? "Loading Source Engine…" : "Source Engine"}
-          </button>
+          </Button>
           {SourceEnginePanel && <SourceEnginePanel
             workbookId={id!}
             open={showSourcePanel}
@@ -1680,7 +1685,7 @@ export default function WorkbookEditorPage() {
 
                       {/* ── Generate with AI (NL → column) ── */}
                       <div className="space-y-1">
-                        <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Generate with AI</div>
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Generate with AI</div>
                         <div className="flex gap-1">
                           <input
                             value={nlInstruction}
@@ -1689,17 +1694,19 @@ export default function WorkbookEditorPage() {
                             placeholder="Describe it: extract the domain from the website URL"
                             className="flex-1 px-2.5 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
                           />
-                          <button
+                          <Button
+                            variant="outline"
+                            size="icon-sm"
                             onClick={handleGenerateColumn}
                             disabled={nlBusy || !nlInstruction.trim()}
                             title="Generate a column config from your description"
-                            className="px-2 py-1.5 rounded-md border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-50 transition-colors"
+                            aria-label="Generate column from description"
                           >
-                            {nlBusy ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
-                          </button>
+                            {nlBusy ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                          </Button>
                         </div>
                         {nlExplanation && (
-                          <p className="px-0.5 text-[10px] text-muted-foreground">
+                          <p className="px-0.5 text-xs text-muted-foreground">
                             <Sparkles className="inline size-2.5 mr-0.5 text-primary" />
                             {nlExplanation} — review the pre-filled config below, then Add Column.
                           </p>
@@ -1708,17 +1715,17 @@ export default function WorkbookEditorPage() {
 
                       {/* ── Quick Presets (Clay-style) ── */}
                       <div className="space-y-1.5">
-                        <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Quick Add — Enrichment</div>
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Quick Add — Enrichment</div>
                         <div className="grid grid-cols-2 gap-1">
                           {[
-                            { label: "Find Email", icon: "📧", target: "email", providers: ["hunter_io", "apollo_io", "crosslinked", "ddg_email"], desc: "4-provider waterfall" },
-                            { label: "Find Phone", icon: "📱", target: "phone", providers: ["apollo_io", "website_scraper"], desc: "2-provider waterfall" },
-                            { label: "Find LinkedIn", icon: "💼", target: "linkedin_url", providers: ["social_finder", "crosslinked"], desc: "Profile lookup" },
-                            { label: "Verify Email", icon: "✅", target: "email", providers: ["mailscout"], desc: "SMTP verification" },
-                            { label: "Company Info", icon: "🏢", target: "description", providers: ["website_scraper", "ddg_company"], desc: "Website + DDG" },
-                            { label: "Decision Makers", icon: "👤", target: "decision_makers", providers: ["crosslinked", "decision_maker"], desc: "Find contacts" },
-                            { label: "Hiring Signals", icon: "📊", target: "hiring_signals", providers: ["jobspy_signals"], desc: "Job postings" },
-                            { label: "Social Profiles", icon: "🌐", target: "facebook_url", providers: ["social_finder", "facebook_pages"], desc: "FB + socials" },
+                            { label: "Find Email", icon: Mail, target: "email", providers: ["hunter_io", "apollo_io", "crosslinked", "ddg_email"], desc: "4-provider waterfall" },
+                            { label: "Find Phone", icon: Smartphone, target: "phone", providers: ["apollo_io", "website_scraper"], desc: "2-provider waterfall" },
+                            { label: "Find LinkedIn", icon: LinkedInIcon, target: "linkedin_url", providers: ["social_finder", "crosslinked"], desc: "Profile lookup" },
+                            { label: "Verify Email", icon: MailCheck, target: "email", providers: ["mailscout"], desc: "SMTP verification" },
+                            { label: "Company Info", icon: Building2, target: "description", providers: ["website_scraper", "ddg_company"], desc: "Website + DDG" },
+                            { label: "Decision Makers", icon: Users, target: "decision_makers", providers: ["crosslinked", "decision_maker"], desc: "Find contacts" },
+                            { label: "Hiring Signals", icon: ChartColumn, target: "hiring_signals", providers: ["jobspy_signals"], desc: "Job postings" },
+                            { label: "Social Profiles", icon: Globe, target: "facebook_url", providers: ["social_finder", "facebook_pages"], desc: "FB + socials" },
                           ].map(preset => (
                             <button
                               key={preset.label}
@@ -1731,12 +1738,12 @@ export default function WorkbookEditorPage() {
                                 }
                                 if (await persistNewColumn(newCol)) setShowColPicker(false)
                               }}
-                              className="flex items-start gap-1.5 p-2 rounded-lg text-left hover:bg-muted/60 border border-transparent hover:border-primary/20 transition-all"
+                              className="flex items-start gap-2 p-2 rounded-md text-left hover:bg-accent border border-transparent hover:border-border transition-colors"
                             >
-                              <span className="text-sm mt-0.5">{preset.icon}</span>
+                              <preset.icon aria-hidden="true" className="size-3.5 mt-0.5 shrink-0 text-muted-foreground" />
                               <div className="min-w-0">
-                                <div className="text-[11px] font-medium truncate">{preset.label}</div>
-                                <div className="text-[9px] text-muted-foreground">{preset.desc}</div>
+                                <div className="text-xs font-medium truncate">{preset.label}</div>
+                                <div className="text-xs text-muted-foreground">{preset.desc}</div>
                               </div>
                             </button>
                           ))}
@@ -1745,13 +1752,13 @@ export default function WorkbookEditorPage() {
 
                       {/* ── AI Presets ── */}
                       <div className="space-y-1.5">
-                        <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">AI Columns</div>
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">AI Columns</div>
                         <div className="grid grid-cols-2 gap-1">
                           {[
-                            { label: "AI Research", prompt: "Research {company} at {website}. Write a 2-sentence summary of what they do, their size, and key products.", icon: "🧠" },
-                            { label: "ICP Match", prompt: "Score how well {company} ({specialization}, {company_size}) matches an ideal customer profile for a B2B SaaS tool. Return: High/Medium/Low with one reason.", icon: "🎯" },
-                            { label: "Personalized Intro", prompt: "Write a personalized 1-sentence intro for a cold email to {contact_person} at {company}. Reference their {specialization} work.", icon: "✍️" },
-                            { label: "Pain Points", prompt: "Based on {company}'s industry ({specialization}) and size ({company_size}), list their top 3 likely business pain points in bullet form.", icon: "💡" },
+                            { label: "AI Research", prompt: "Research {company} at {website}. Write a 2-sentence summary of what they do, their size, and key products.", icon: Brain },
+                            { label: "ICP Match", prompt: "Score how well {company} ({specialization}, {company_size}) matches an ideal customer profile for a B2B SaaS tool. Return: High/Medium/Low with one reason.", icon: Target },
+                            { label: "Personalized Intro", prompt: "Write a personalized 1-sentence intro for a cold email to {contact_person} at {company}. Reference their {specialization} work.", icon: PenLine },
+                            { label: "Pain Points", prompt: "Based on {company}'s industry ({specialization}) and size ({company_size}), list their top 3 likely business pain points in bullet form.", icon: Lightbulb },
                           ].map(preset => (
                             <button
                               key={preset.label}
@@ -1763,10 +1770,10 @@ export default function WorkbookEditorPage() {
                                 }
                                 if (await persistNewColumn(newCol)) setShowColPicker(false)
                               }}
-                              className="flex items-start gap-1.5 p-2 rounded-lg text-left hover:bg-muted/60 border border-transparent hover:border-amber-500/20 transition-all"
+                              className="flex items-center gap-2 p-2 rounded-md text-left hover:bg-accent border border-transparent hover:border-border transition-colors"
                             >
-                              <span className="text-sm mt-0.5">{preset.icon}</span>
-                              <div className="text-[11px] font-medium truncate">{preset.label}</div>
+                              <preset.icon aria-hidden="true" className="size-3.5 shrink-0 text-muted-foreground" />
+                              <div className="text-xs font-medium truncate">{preset.label}</div>
                             </button>
                           ))}
                         </div>
@@ -1775,7 +1782,7 @@ export default function WorkbookEditorPage() {
                       {/* ── Divider ── */}
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-px bg-border" />
-                        <span className="text-[9px] text-muted-foreground uppercase">or build custom</span>
+                        <span className="text-xs text-muted-foreground uppercase">or build custom</span>
                         <div className="flex-1 h-px bg-border" />
                       </div>
 
@@ -1793,7 +1800,7 @@ export default function WorkbookEditorPage() {
                           const Icon = m.icon
                           return (
                             <button key={t} onClick={() => setNewColType(t)}
-                              className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] transition-colors ${
+                              className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-colors ${
                                 newColType === t ? "bg-primary/10 border border-primary/30" : "hover:bg-muted border border-transparent"
                               }`}
                             >
@@ -1805,27 +1812,27 @@ export default function WorkbookEditorPage() {
                       </div>
 
                       {newColType === "lead_field" && (
-                        <select value={newColLeadField} onChange={e => setNewColLeadField(e.target.value)}
-                          className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                        <NativeSelect value={newColLeadField} onChange={e => setNewColLeadField(e.target.value)}
+                          className="w-full">
                           <option value="">Map to field...</option>
                           {["company","website","email","phone","contact_person","contact_title","decision_makers","city","state","address","specialization","company_size","description","linkedin_url","twitter_url","facebook_url","hiring_signals","score","score_tier","status","notes"].map(f => (
                             <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
                           ))}
-                        </select>
+                        </NativeSelect>
                       )}
 
                       {newColType === "ai_formula" && (
                         <div className="space-y-1">
                           {aiPresets.filter(p => p.column_type === "ai_formula").length > 0 && (
-                            <select value="" onChange={e => {
-                              const p = aiPresets.find(x => x.id === e.target.value)
-                              if (p) { setNewColPrompt(p.prompt); if (!newColName.trim()) setNewColName(p.name) }
-                            }} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                            <NativeSelect value="" onChange={e => {
+                                const p = aiPresets.find(x => x.id === e.target.value)
+                                if (p) { setNewColPrompt(p.prompt); if (!newColName.trim()) setNewColName(p.name) }
+                              }} className="w-full">
                               <option value="">Start from a preset…</option>
                               {aiPresets.filter(p => p.column_type === "ai_formula").map(p => (
                                 <option key={p.id} value={p.id}>{p.name} — {p.description}</option>
                               ))}
-                            </select>
+                            </NativeSelect>
                           )}
                           <textarea value={newColPrompt} onChange={e => setNewColPrompt(e.target.value)}
                             placeholder="Summarize what {company} does based on {website}"
@@ -1836,26 +1843,26 @@ export default function WorkbookEditorPage() {
                       {newColType === "research" && (
                         <div className="space-y-1">
                           {aiPresets.filter(p => p.column_type === "research").length > 0 && (
-                            <select value="" onChange={e => {
-                              const p = aiPresets.find(x => x.id === e.target.value)
-                              if (p) { setNewColPrompt(p.prompt); if (!newColName.trim()) setNewColName(p.name) }
-                            }} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                            <NativeSelect value="" onChange={e => {
+                                const p = aiPresets.find(x => x.id === e.target.value)
+                                if (p) { setNewColPrompt(p.prompt); if (!newColName.trim()) setNewColName(p.name) }
+                              }} className="w-full">
                               <option value="">Start from a preset…</option>
                               {aiPresets.filter(p => p.column_type === "research").map(p => (
                                 <option key={p.id} value={p.id}>{p.name} — {p.description}</option>
                               ))}
-                            </select>
+                            </NativeSelect>
                           )}
                           <textarea value={newColPrompt} onChange={e => setNewColPrompt(e.target.value)}
                             placeholder="Does {company} use Kubernetes? Cite a source."
                             rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs resize-none" />
-                          <label className="flex items-center justify-between text-[11px] text-muted-foreground px-0.5">
+                          <label className="flex items-center justify-between text-xs text-muted-foreground px-0.5">
                             <span>Max web steps (search/fetch)</span>
                             <input type="number" min={1} max={6} value={newColMaxSteps}
                               onChange={e => setNewColMaxSteps(Math.max(1, Math.min(6, Number(e.target.value) || 4)))}
                               className="w-14 px-1.5 py-0.5 rounded border bg-background text-xs text-right" />
                           </label>
-                          <p className="px-0.5 text-[10px] text-muted-foreground">Agent searches the web + reads pages to answer per row. Higher steps = deeper but slower/costlier.</p>
+                          <p className="px-0.5 text-xs text-muted-foreground">Agent searches the web + reads pages to answer per row. Higher steps = deeper but slower/costlier.</p>
                         </div>
                       )}
 
@@ -1864,18 +1871,18 @@ export default function WorkbookEditorPage() {
                           <input value={newColFormula} onChange={e => setNewColFormula(e.target.value)}
                             placeholder={'{Email}.split("@")[1]'}
                             className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
-                          <p className="px-0.5 text-[10px] text-muted-foreground">Compute from other columns. Supports split/upper/lower/replace/default()/concat + math. Safe — no code execution.</p>
+                          <p className="px-0.5 text-xs text-muted-foreground">Compute from other columns. Supports split/upper/lower/replace/default()/concat + math. Safe — no code execution.</p>
                         </div>
                       )}
 
                       {newColType === "http" && (
                         <div className="space-y-1">
                           <div className="flex gap-1">
-                            <select value={newColHttpMethod} onChange={e => setNewColHttpMethod(e.target.value as any)}
-                              className="px-2 py-1.5 rounded-md border bg-background text-xs">
+                            <NativeSelect value={newColHttpMethod} onChange={e => setNewColHttpMethod(e.target.value as any)}
+                            >
                               <option value="GET">GET</option>
                               <option value="POST">POST</option>
-                            </select>
+                            </NativeSelect>
                             <input value={newColHttpUrl} onChange={e => setNewColHttpUrl(e.target.value)}
                               placeholder="https://api.example.com/find?domain={website}"
                               className="flex-1 px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
@@ -1888,59 +1895,59 @@ export default function WorkbookEditorPage() {
                           <input value={newColHttpExtract} onChange={e => setNewColHttpExtract(e.target.value)}
                             placeholder="Extract: $.data.email (JSONPath; blank = raw text)"
                             className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
-                          <p className="px-0.5 text-[10px] text-muted-foreground">Calls an API per row. {'{column}'} placeholders resolve to row values. URLs are SSRF-guarded.</p>
+                          <p className="px-0.5 text-xs text-muted-foreground">Calls an API per row. {'{column}'} placeholders resolve to row values. URLs are SSRF-guarded.</p>
                         </div>
                       )}
 
                       {newColType === "enrichment" && (
-                        <select value={newColProvider} onChange={e => setNewColProvider(e.target.value)}
-                          className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                        <NativeSelect value={newColProvider} onChange={e => setNewColProvider(e.target.value)}
+                          className="w-full">
                           <option value="">Select provider...</option>
                           {availableProviders.map(p => (
                             <option key={p.name} value={p.name}>{p.name} · {p.maturity} ({p.capabilities.join(", ")})</option>
                           ))}
-                        </select>
+                        </NativeSelect>
                       )}
 
                       {newColType === "waterfall" && (
                         <div className="space-y-1">
                           {newColWaterfall.map((pName, i) => (
-                            <div key={pName} className="flex items-center gap-1 px-2 py-0.5 rounded bg-muted/50 text-[11px]">
+                            <div key={pName} className="flex items-center gap-1 px-2 py-0.5 rounded bg-muted/50 text-xs">
                               <span className="text-muted-foreground w-3">{i+1}.</span>
                               <span className="flex-1 truncate">{pName}</span>
                               <button onClick={() => setNewColWaterfall(prev => prev.filter((_, j) => j !== i))} className="p-0.5 hover:text-destructive"><X className="size-2.5" /></button>
                             </div>
                           ))}
-                          <select value="" onChange={e => { if (e.target.value && !newColWaterfall.includes(e.target.value)) setNewColWaterfall(prev => [...prev, e.target.value]) }}
-                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                          <NativeSelect value="" onChange={e => { if (e.target.value && !newColWaterfall.includes(e.target.value)) setNewColWaterfall(prev => [...prev, e.target.value]) }}
+                            className="w-full">
                             <option value="">+ Add provider...</option>
                             {availableProviders.filter(p => !newColWaterfall.includes(p.name)).map(p => (
                               <option key={p.name} value={p.name}>{p.name}</option>
                             ))}
-                          </select>
+                          </NativeSelect>
                         </div>
                       )}
 
                       {(newColType === "enrichment" || newColType === "waterfall") && (
-                        <select value={newColTargetField} onChange={e => setNewColTargetField(e.target.value)}
-                          className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                        <NativeSelect value={newColTargetField} onChange={e => setNewColTargetField(e.target.value)}
+                          className="w-full">
                           <option value="">Target field (writes to Lead)...</option>
                           {["email","phone","website","contact_person","contact_title","linkedin_url","twitter_url","facebook_url","description","company_size","decision_makers","hiring_signals"].map(f => (
                             <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
                           ))}
-                        </select>
+                        </NativeSelect>
                       )}
 
                       {newColType === "output" && (
                         <div className="space-y-1">
-                          <select value={newColDest} onChange={e => setNewColDest(e.target.value as any)}
-                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                          <NativeSelect value={newColDest} onChange={e => setNewColDest(e.target.value as any)}
+                            className="w-full">
                             <option value="webhook">Webhook (HTTP POST)</option>
                             <option value="crm">CRM (HubSpot / Salesforce)</option>
                             <option value="sequencer">Email sequencer</option>
                             <option value="airtable">Airtable</option>
                             <option value="sheets">Google Sheets</option>
-                          </select>
+                          </NativeSelect>
                           {newColDest === "webhook" && (
                             <>
                               <input value={newColWebhookUrl} onChange={e => setNewColWebhookUrl(e.target.value)}
@@ -1948,17 +1955,17 @@ export default function WorkbookEditorPage() {
                                 className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
                               <textarea value={newColWebhookBody} onChange={e => setNewColWebhookBody(e.target.value)}
                                 placeholder={'Optional JSON body, e.g. {"co": "{company}", "email": "{email}"}'}
-                                rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-[10px] font-mono resize-none" />
+                                rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono resize-none" />
                             </>
                           )}
                           {newColDest === "crm" && (
                             <>
-                              <select value={newColCrmType} onChange={e => setNewColCrmType(e.target.value as any)}
-                                className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                              <NativeSelect value={newColCrmType} onChange={e => setNewColCrmType(e.target.value as any)}
+                                className="w-full">
                                 <option value="hubspot">HubSpot</option>
                                 <option value="salesforce">Salesforce</option>
-                              </select>
-                              <p className="px-1 text-[10px] text-muted-foreground">
+                              </NativeSelect>
+                              <p className="px-1 text-xs text-muted-foreground">
                                 Pushes the row as a {newColCrmType === "hubspot" ? "HubSpot contact" : "Salesforce lead"} (set the token in Settings).
                               </p>
                             </>
@@ -1976,7 +1983,7 @@ export default function WorkbookEditorPage() {
                               <input value={newColAirtableTable} onChange={e => setNewColAirtableTable(e.target.value)}
                                 placeholder="Table name or ID"
                                 className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
-                              <p className="px-1 text-[10px] text-muted-foreground">Appends Company/Email/Phone/Website/City (set AIRTABLE_TOKEN in Settings).</p>
+                              <p className="px-1 text-xs text-muted-foreground">Appends Company/Email/Phone/Website/City (set AIRTABLE_TOKEN in Settings).</p>
                             </>
                           )}
                           {newColDest === "sheets" && (
@@ -1987,7 +1994,7 @@ export default function WorkbookEditorPage() {
                               <input value={newColSheetRange} onChange={e => setNewColSheetRange(e.target.value)}
                                 placeholder="Sheet/tab name (e.g. Sheet1)"
                                 className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
-                              <p className="px-1 text-[10px] text-muted-foreground">Appends a row (set GOOGLE_SHEETS_TOKEN in Settings).</p>
+                              <p className="px-1 text-xs text-muted-foreground">Appends a row (set GOOGLE_SHEETS_TOKEN in Settings).</p>
                             </>
                           )}
                         </div>
@@ -1996,13 +2003,13 @@ export default function WorkbookEditorPage() {
                       {newColType !== "lead_field" && (
                         <input value={newColCondition} onChange={e => setNewColCondition(e.target.value)}
                           placeholder='Run if: {email} == "" AND {website} != ""'
-                          className="w-full px-2.5 py-1 rounded-md border bg-background text-[10px] font-mono" />
+                          className="w-full px-2.5 py-1 rounded-md border bg-background text-xs font-mono" />
                       )}
 
                       <div className="flex gap-2 justify-end pt-0.5">
-                        <button onClick={() => { setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition(""); setNewColLeadField(""); setNlInstruction(""); setNlExplanation("") }}
-                          className="px-2.5 py-1 text-xs rounded-md hover:bg-muted">Cancel</button>
-                        <button
+                        <Button variant="ghost" size="sm" onClick={() => { setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition(""); setNewColLeadField(""); setNlInstruction(""); setNlExplanation("") }}>Cancel</Button>
+                        <Button
+                          size="sm"
                           onClick={async () => {
                             if (!newColName.trim()) return
                             const colId = newColName.toLowerCase().replace(/\s+/g, "_")
@@ -2054,8 +2061,7 @@ export default function WorkbookEditorPage() {
                             setNlInstruction(""); setNlExplanation("")
                           }}
                           disabled={!newColName.trim() || addColumnMut.isPending}
-                          className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-                        >Add Column</button>
+                        >Add Column</Button>
                       </div>
                       </fieldset>
                     </Dialog.Popup>
@@ -2139,13 +2145,10 @@ export default function WorkbookEditorPage() {
                 ? "Try adjusting the filter criteria or import leads via CSV"
                 : "Import a CSV file to add leads to your database"}
             </p>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              <Upload className="size-3.5" />
+            <Button size="sm" onClick={() => fileInputRef.current?.click()}>
+              <Upload />
               Import CSV
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -2306,32 +2309,32 @@ export default function WorkbookEditorPage() {
                 }} />
               {/* Type badge */}
               <div className="flex items-center gap-2">
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${meta.color} bg-muted/50`}>
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${meta.color} bg-muted/50`}>
                   <Icon className="size-3" /> {meta.label}
                 </span>
-                <span className="text-[10px] text-muted-foreground">ID: {col.id}</span>
+                <span className="text-xs text-muted-foreground">ID: {col.id}</span>
               </div>
 
               {/* Column Name */}
               {settingsSave.isPending && <p role="status" className="text-xs text-muted-foreground">Saving column settings…</p>}
               {settingsSave.isError && <div className="space-y-2">
                 <p role="alert" className="text-xs text-destructive">{settingsSave.error.message} Submitted values for column {settingsSave.variables?.columnId} are retained for retry.</p>
-                <button className="text-xs underline" onClick={() => {
+                <Button variant="outline" size="xs" onClick={() => {
                   if (settingsSave.variables && !settingsSubmitting.current) {
                     settingsSubmitting.current = true
                     settingsSave.mutate(settingsSave.variables, { onSettled: () => { settingsSubmitting.current = false } })
                   }
-                }}>Retry settings save</button>
-                <button className="block text-xs underline" onClick={async () => {
+                }}>Retry settings save</Button>
+                <Button variant="link" size="xs" className="block" onClick={async () => {
                   const result = await refetch()
                   if (result.isError) { toast.error("Could not reload settings. Your submitted values are still retained."); return }
                   settingsSave.reset()
                   setConfigPanelColId(null)
-                }}>Discard submitted edit and reload settings</button>
+                }}>Discard submitted edit and reload settings</Button>
               </div>}
               <fieldset disabled={settingsSave.isPending || settingsSave.isError} className="space-y-4 disabled:opacity-60">
               <div className="space-y-1.5">
-                <label htmlFor="column-settings-name" className="text-[10px] text-muted-foreground font-medium">Column Name</label>
+                <label htmlFor="column-settings-name" className="text-xs text-muted-foreground font-medium">Column Name</label>
                 <input
                   id="column-settings-name"
                   defaultValue={col.name}
@@ -2343,11 +2346,11 @@ export default function WorkbookEditorPage() {
               {/* Lead Field mapping */}
               {(col.type === "lead_field" || col.type === "input") && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">Mapped Lead Field</label>
-                  <select
+                  <label className="text-xs text-muted-foreground font-medium">Mapped Lead Field</label>
+                  <NativeSelect
                     defaultValue={col.lead_field || ""}
                     onChange={e => updateCol({ lead_field: e.target.value })}
-                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    className="w-full"
                   >
                     <option value="">None</option>
                     {["company", "website", "email", "phone", "contact_person", "contact_title",
@@ -2356,38 +2359,38 @@ export default function WorkbookEditorPage() {
                       "status", "source", "notes"].map(f => (
                       <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
                     ))}
-                  </select>
+                  </NativeSelect>
                 </div>
               )}
 
               {/* Provider (enrichment) */}
               {col.type === "enrichment" && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">Provider</label>
-                  <select
+                  <label className="text-xs text-muted-foreground font-medium">Provider</label>
+                  <NativeSelect
                     defaultValue={col.provider || ""}
                     onChange={e => updateCol({ provider: e.target.value })}
-                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    className="w-full"
                   >
                     <option value="">Select provider...</option>
                     {availableProviders.map(p => (
                       <option key={p.name} value={p.name}>{p.name} · {p.maturity} ({p.capabilities.join(", ")})</option>
                     ))}
-                  </select>
+                  </NativeSelect>
                 </div>
               )}
 
               {/* Waterfall chain (waterfall) */}
               {col.type === "waterfall" && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">
+                  <label className="text-xs text-muted-foreground font-medium">
                     Provider Chain <span className="text-muted-foreground/50">(first match wins)</span>
                   </label>
                   <div className="space-y-1">
                     {(col.waterfall || []).map((pName: string, i: number) => (
                       <div key={pName} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-muted/50 text-xs">
                         <GripVertical className="size-3 text-muted-foreground/40 shrink-0" />
-                        <span className="text-[10px] text-muted-foreground tabular-nums w-4">{i + 1}.</span>
+                        <span className="text-xs text-muted-foreground tabular-nums w-4">{i + 1}.</span>
                         <span className="flex-1 truncate">{pName}</span>
                         <button
                           onClick={() => {
@@ -2402,14 +2405,14 @@ export default function WorkbookEditorPage() {
                       </div>
                     ))}
                   </div>
-                  <select
+                  <NativeSelect
                     value=""
                     onChange={e => {
                       if (e.target.value) {
-                        updateCol({ waterfall: [...(col.waterfall || []), e.target.value] })
-                      }
+                      updateCol({ waterfall: [...(col.waterfall || []), e.target.value] })
+                    }
                     }}
-                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    className="w-full"
                   >
                     <option value="">+ Add provider...</option>
                     {availableProviders
@@ -2417,18 +2420,18 @@ export default function WorkbookEditorPage() {
                       .map(p => (
                         <option key={p.name} value={p.name}>{p.name} · {p.maturity} ({p.capabilities.join(", ")})</option>
                       ))}
-                  </select>
+                  </NativeSelect>
                 </div>
               )}
 
               {/* Target field (enrichment/waterfall) */}
               {(col.type === "enrichment" || col.type === "waterfall") && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">Target Lead Field</label>
-                  <select
+                  <label className="text-xs text-muted-foreground font-medium">Target Lead Field</label>
+                  <NativeSelect
                     defaultValue={col.target_field || ""}
                     onChange={e => updateCol({ target_field: e.target.value || undefined })}
-                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    className="w-full"
                   >
                     <option value="">Same as column name</option>
                     {["email", "phone", "website", "contact_person", "contact_title",
@@ -2437,14 +2440,14 @@ export default function WorkbookEditorPage() {
                       "decision_makers", "hiring_signals"].map(f => (
                       <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
                     ))}
-                  </select>
+                  </NativeSelect>
                 </div>
               )}
 
               {/* AI Prompt (ai_formula) */}
               {col.type === "ai_formula" && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">
+                  <label className="text-xs text-muted-foreground font-medium">
                     AI Prompt <span className="text-muted-foreground/50">— use {"{column}"} placeholders</span>
                   </label>
                   <textarea
@@ -2460,14 +2463,14 @@ export default function WorkbookEditorPage() {
               {/* Condition (all non-lead_field) */}
               {col.type !== "lead_field" && col.type !== "input" && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">Only Run If</label>
+                  <label className="text-xs text-muted-foreground font-medium">Only Run If</label>
                   <input
                     defaultValue={col.condition || ""}
                     onBlur={e => updateCol({ condition: e.target.value || undefined })}
                     placeholder='{email} == "" AND {website} != ""'
                     className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
                   />
-                  <p className="text-[10px] text-muted-foreground/50">
+                  <p className="text-xs text-muted-foreground/50">
                     Leave empty to always run. Supports ==, !=, &gt;, &lt;, AND, OR.
                   </p>
                 </div>
@@ -2485,7 +2488,7 @@ export default function WorkbookEditorPage() {
                     />
                     Recompute after upstream edits
                   </label>
-                  <p className="text-[10px] leading-relaxed text-muted-foreground/60">
+                  <p className="text-xs leading-relaxed text-muted-foreground/60">
                     Queues this column and its dependents when referenced input values change. Output columns default off to prevent unintended external actions.
                   </p>
                 </div>
@@ -2496,21 +2499,22 @@ export default function WorkbookEditorPage() {
 
             {/* Footer */}
             <div className="px-4 py-3 border-t flex items-center justify-between">
-              <button
+              <Button
+                variant="destructive"
+                size="sm"
                 disabled={settingsSave.isPending || settingsSave.isError}
                 onClick={() => handleDeleteColumn(configPanelColId)}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-destructive hover:bg-destructive/10 transition-colors"
               >
-                <Trash2 className="size-3" /> Delete
-              </button>
+                <Trash2 /> Delete
+              </Button>
               {["enrichment", "waterfall", "ai_formula"].includes(col.type) && (
-                <button
+                <Button
+                  size="sm"
                   disabled={settingsSave.isPending || settingsSave.isError}
                   onClick={() => { handleRunSingleColumn(configPanelColId); setConfigPanelColId(null) }}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
-                  <Zap className="size-3" /> Run Column
-                </button>
+                  <Zap /> Run Column
+                </Button>
               )}
             </div>
           </Dialog.Popup>

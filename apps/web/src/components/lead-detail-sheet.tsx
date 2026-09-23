@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { ChannelIcon, type Channel } from "@/components/semantic-icons"
 import { updateStatus, deleteLead, type Lead } from "@/lib/api"
 
 interface Props {
@@ -44,13 +45,13 @@ function timeAgo(dateStr: string): string {
   return `${days}d ago`
 }
 
-function signals(lead: Lead): { icon: string; label: string; active: boolean }[] {
+function signals(lead: Lead): { channel: Channel; label: string; active: boolean }[] {
   return [
-    { icon: "📧", label: "Email", active: !isEmpty(lead.email) },
-    { icon: "📞", label: "Phone", active: !isEmpty(lead.phone) },
-    { icon: "🌐", label: "Website", active: !isEmpty(lead.website) },
-    { icon: "🔗", label: "LinkedIn", active: !isEmpty(lead.linkedin_url) },
-    { icon: "👤", label: "Contact", active: !isEmpty(lead.contact_person) },
+    { channel: "email", label: "Email", active: !isEmpty(lead.email) },
+    { channel: "phone", label: "Phone", active: !isEmpty(lead.phone) },
+    { channel: "website", label: "Website", active: !isEmpty(lead.website) },
+    { channel: "linkedin", label: "LinkedIn", active: !isEmpty(lead.linkedin_url) },
+    { channel: "contact", label: "Contact", active: !isEmpty(lead.contact_person) },
   ]
 }
 
@@ -99,7 +100,10 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
             {sigs.map((s) => (
               <Tooltip key={s.label}>
                 <TooltipTrigger>
-                  <span className={`text-sm transition-opacity ${s.active ? "opacity-100" : "opacity-15"}`}>{s.icon}</span>
+                  <span role="img" aria-label={`${s.label}: ${s.active ? "available" : "missing"}`}
+                    className={`inline-flex transition-opacity ${s.active ? "text-foreground" : "text-muted-foreground opacity-40"}`}>
+                    <ChannelIcon channel={s.channel} className="size-4" />
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent className="text-xs">{s.label}: {s.active ? "Available" : "Missing"}</TooltipContent>
               </Tooltip>

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { AlertTriangle, ArrowRight, FileSpreadsheet, Loader2, Upload, X } from "lucide-react"
 import type { ColumnConfig, CsvImportOptions } from "@/lib/workbook-api"
+import { NativeSelect } from "@/components/ui/native-select"
+import { Button } from "@/components/ui/button"
 
 const STANDARD_FIELDS = [
   ["company", "Company"], ["website", "Website / domain"], ["email", "Email"],
@@ -115,7 +117,7 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
               </p>
             </div>
           </div>
-          <button type="button" aria-label="Close" onClick={onClose} disabled={importing} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"><X className="size-4" /></button>
+          <Button type="button" variant="ghost" size="icon-sm" aria-label="Close" onClick={onClose} disabled={importing}><X /></Button>
         </div>
 
         <div className="overflow-y-auto px-5 py-3">
@@ -130,7 +132,7 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
                   <div className="truncate text-[10px] text-muted-foreground">{draft.rows.slice(0, 3).map(row => row[header]).filter(Boolean).join(" · ") || "Empty values"}</div>
                 </div>
                 <ArrowRight className="size-3.5 text-muted-foreground/60" />
-                <select aria-label={`Map ${header}`} value={mapping[header]} onChange={event => setMapping(current => ({ ...current, [header]: event.target.value }))} className="min-w-0 rounded-md border bg-card px-2 py-1.5 text-xs">
+                <NativeSelect aria-label={`Map ${header}`} value={mapping[header]} onChange={event => setMapping(current => ({ ...current, [header]: event.target.value }))} className="w-full" size="sm">
                   <option value={`__custom__:${header}`}>Keep as “{header}”</option>
                   <optgroup label="Lead fields">
                     {STANDARD_FIELDS.map(([field, label]) => <option key={field} value={field}>{label}</option>)}
@@ -139,7 +141,7 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
                     {columns.filter(column => column.type === "lead_field" || (column.type as string) === "input").map(column => <option key={column.id} value={column.lead_field || column.id}>{column.name}</option>)}
                   </optgroup>}
                   <option value="__skip__">Skip column</option>
-                </select>
+                </NativeSelect>
               </div>
             ))}
           </div>
@@ -161,10 +163,10 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
               {mappingSummary.kept} kept · {mappingSummary.custom} new · {mappingSummary.skipped} skipped
             </p>
           </div>
-          <button type="button" onClick={submit} disabled={importing || mappingSummary.kept === 0} className="inline-flex items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60">
+          <Button type="button" size="sm" onClick={submit} disabled={importing || mappingSummary.kept === 0}>
             {importing ? <Loader2 className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
             {importing ? "Importing…" : `Import ${draft.rows.length.toLocaleString()} rows`}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

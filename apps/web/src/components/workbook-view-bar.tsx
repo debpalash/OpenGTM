@@ -10,8 +10,9 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { AlertDialog, Button, Dialog, Input, Menu } from "@/design-system/primitives"
 import {
-  ChevronDown, Eye, Filter as FilterIcon, Layers3, Pencil, Plus, Save, Trash2, X,
+  Check, ChevronDown, Eye, Filter as FilterIcon, Layers3, Pencil, Plus, Save, Trash2, X,
 } from "lucide-react"
+import { NativeSelect } from "@/components/ui/native-select"
 import { toast } from "sonner"
 import {
   useCreateView, useDeleteView, useUpdateView, useWorkbookViews,
@@ -230,13 +231,13 @@ export function WorkbookViewBar({
             <DropdownMenuItem onClick={() => onSelectView(null)}>
               <Eye className="size-3.5" />
               All rows
-              {!activeViewId && <span className="ml-auto text-primary">✓</span>}
+              {!activeViewId && <Check aria-hidden="true" className="ml-auto size-3.5 text-foreground" />}
             </DropdownMenuItem>
             {views.map(v => (
               <DropdownMenuItem key={v.id} onClick={() => onSelectView(v)}>
                 <Layers3 className="size-3.5" />
                 <span className="truncate">{v.name}</span>
-                {v.id === activeViewId && <span className="ml-auto text-primary">✓</span>}
+                {v.id === activeViewId && <Check aria-hidden="true" className="ml-auto size-3.5 text-foreground" />}
               </DropdownMenuItem>
             ))}
           </DropdownMenuGroup>
@@ -279,26 +280,26 @@ export function WorkbookViewBar({
             )}
             {draftFilters.map((f, i) => (
               <div key={i} className="flex flex-wrap items-center gap-1">
-                <select
+                <NativeSelect
                   aria-label={`Filter ${i + 1} column`}
                   disabled={updateMut.isPending}
                   value={f.column}
                   onChange={e => setDraftFilters(prev => prev.map((x, j) => j === i ? { ...x, column: e.target.value } : x))}
-                  className="flex-1 min-w-0 px-1.5 py-1 rounded border bg-background text-xs"
+                  className="flex-1 min-w-0"
                 >
                   {columns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-                <select
+                </NativeSelect>
+                <NativeSelect
                   aria-label={`Filter ${i + 1} operator`}
                   disabled={updateMut.isPending}
                   value={f.op}
                   onChange={e => setDraftFilters(prev => prev.map((x, j) => j === i ? { ...x, op: e.target.value as ViewFilterOp } : x))}
-                  className="w-32 shrink-0 px-1.5 py-1 rounded border bg-background text-xs"
+                  className="w-32 shrink-0"
                 >
                   {(Object.keys(OP_LABELS) as ViewFilterOp[]).map(op => (
                     <option key={op} value={op}>{OP_LABELS[op]}</option>
                   ))}
-                </select>
+                </NativeSelect>
                 {!NO_VALUE_OPS.includes(f.op) && (
                   <input
                     aria-label={`Filter ${i + 1} value`}

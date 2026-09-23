@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { TierIcon } from "@/components/semantic-icons"
 
 interface Props {
   filters: Filters | null
@@ -146,10 +147,10 @@ export function CommandBar(props: Props) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="__all__">All Tiers</SelectItem>
-            <SelectItem value="hot">🔥 Hot</SelectItem>
-            <SelectItem value="warm">🟡 Warm</SelectItem>
-            <SelectItem value="cold">🔵 Cold</SelectItem>
-            <SelectItem value="unqualified">⚪ Unq</SelectItem>
+            <SelectItem value="hot"><TierIcon tier="hot" />Hot</SelectItem>
+            <SelectItem value="warm"><TierIcon tier="warm" />Warm</SelectItem>
+            <SelectItem value="cold"><TierIcon tier="cold" />Cold</SelectItem>
+            <SelectItem value="unqualified"><TierIcon tier="unqualified" />Unqualified</SelectItem>
           </SelectContent>
         </Select>
 

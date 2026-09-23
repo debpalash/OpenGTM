@@ -13,6 +13,8 @@ import { useAuth } from "@/lib/auth-context"
 import { deleteConversation } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { NAVIGATION_GROUPS, UTILITY_NAVIGATION, isNavigationActive, OPEN_COMMAND_MENU_EVENT } from "./navigation"
+import { NativeSelect } from "@/components/ui/native-select"
+import { Button } from "@/components/ui/button"
 
 export function AppSidebar() {
   const { pathname } = useLocation()
@@ -53,11 +55,10 @@ export function AppSidebar() {
       </SidebarMenuButton>
       <div className="group-data-[collapsible=icon]:hidden">
         <label htmlFor="active-workspace" className="sr-only">Active workspace</label>
-        <select id="active-workspace" value={activeWorkspaceId ?? ""} disabled={switching} aria-busy={switching}
-          onChange={event => void changeWorkspace(event.target.value)}
-          className="h-10 w-full rounded-md border border-border bg-background px-2 text-sm hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring sm:h-7 sm:text-sm">
+        <NativeSelect id="active-workspace" value={activeWorkspaceId ?? ""} disabled={switching} aria-busy={switching}
+          onChange={event => void changeWorkspace(event.target.value)} className="w-full">
           {workspaces.map(workspace => <option key={workspace.id} value={workspace.id}>{workspace.name}</option>)}
-        </select>
+        </NativeSelect>
       </div>
       <SidebarMenuButton tooltip="Find anything" onClick={() => { closeMobile(); window.dispatchEvent(new Event(OPEN_COMMAND_MENU_EVENT)) }}>
         <Search aria-hidden="true" /><span>Find anything</span>
@@ -79,15 +80,15 @@ export function AppSidebar() {
         </SidebarGroup>)}
       </nav>
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <button className="flex min-h-9 items-center justify-between rounded-md px-2 text-xs text-muted-foreground hover:bg-sidebar-accent focus-visible:outline-2 focus-visible:outline-ring"
+        <Button variant="ghost" size="sm" className="w-full justify-between px-2 text-xs"
           aria-expanded={historyOpen} aria-controls="recent-chat-list" onClick={() => setHistoryOpen(!historyOpen)}>
           Recent chats<ChevronDown className={`size-3 transition-transform ${historyOpen ? "rotate-180" : ""}`} aria-hidden="true" />
-        </button>
+        </Button>
         {historyOpen && <SidebarGroupContent id="recent-chat-list">
           <div className="flex items-center gap-2 p-2">
             <input aria-label="Search recent chats" value={chatSearch} onChange={event => setChatSearch(event.target.value)} placeholder="Search chats"
-              className="h-9 min-w-0 flex-1 rounded-md border bg-background px-2 text-sm focus-visible:outline-2 focus-visible:outline-ring" />
-            <button aria-label="New chat" className="flex size-9 items-center justify-center rounded-md hover:bg-sidebar-accent focus-visible:outline-2 focus-visible:outline-ring" onClick={() => { navigate("/chat"); closeMobile() }}><Plus className="size-4" /></button>
+              className="h-8 min-w-0 flex-1 rounded-md border border-border bg-background px-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-ring sm:h-7" />
+            <Button variant="ghost" size="icon-sm" aria-label="New chat" onClick={() => { navigate("/chat"); closeMobile() }}><Plus /></Button>
           </div>
           <SidebarMenu>{filtered.map(chat => <SidebarMenuItem key={chat.id}>
             <SidebarMenuButton isActive={pathname === "/chat" && params.get("id") === chat.id} tooltip={chat.title}

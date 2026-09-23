@@ -5,8 +5,6 @@
 .gtm-workbook-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .gtm-workbook-toolbar > label { display: flex; align-items: center; gap: 8px; color: var(--t-font-color-secondary); font-size: 12px; }
 .gtm-workbook-search { flex: 1; min-width: 180px; max-width: 320px; }
-.gtm-select { min-height: 32px; border: 1px solid var(--t-border-color-strong); border-radius: var(--t-border-radius-sm); background: var(--t-background-primary); color: var(--t-font-color-primary); padding: 4px 8px; font-size: 13px; }
-.gtm-select:focus-visible { outline: 2px solid var(--t-color-blue11); outline-offset: 2px; }
 .gtm-workbook-count { color: var(--t-font-color-secondary); font-size: 12px; margin: 16px 0 8px; font-variant-numeric: tabular-nums; }
 .gtm-workbook-table-scroll { overflow-x: auto; border: 1px solid var(--t-border-color-medium); border-radius: var(--t-border-radius-md); }
 .gtm-workbook-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
@@ -32,6 +30,6 @@
   .gtm-workbook-list { padding: 16px; }
   .gtm-workbook-heading { align-items: start; flex-direction: column; }
   .gtm-workbook-search { flex-basis: 100%; max-width: none; }
-  .gtm-workbook-list button, .gtm-workbook-dialog button, .gtm-select { min-height: 44px; }
-  .gtm-workbook-list input, .gtm-workbook-dialog input, .gtm-select { font-size: 16px; }
+  .gtm-workbook-list button, .gtm-workbook-dialog button { min-height: 44px; }
+  .gtm-workbook-list input, .gtm-workbook-dialog input { font-size: 16px; }
 }

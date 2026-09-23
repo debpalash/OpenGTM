@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
+import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -68,7 +69,7 @@ export function WorkspacePanel({ activeId, onSelect }: Props) {
           />
           <div className="flex gap-1">
             <Button type="submit" size="sm" className="h-5 text-[10px] flex-1" disabled={!newName.trim()}>Create</Button>
-            <Button type="button" variant="ghost" size="sm" className="h-5 text-[10px]" onClick={() => setCreating(false)}>✕</Button>
+            <Button type="button" variant="ghost" size="icon-xs" aria-label="Cancel new workspace" onClick={() => setCreating(false)}><X /></Button>
           </div>
         </form>
       )}
@@ -103,12 +104,17 @@ export function WorkspacePanel({ activeId, onSelect }: Props) {
               </div>
               <div className="flex items-center gap-1">
                 <Badge variant="secondary" className="text-[9px] h-4 px-1.5">{ws.active_lead_count}</Badge>
-                <button
-                  className="opacity-0 group-hover:opacity-100 text-[9px] text-destructive h-4 w-4 flex items-center justify-center"
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:text-destructive"
                   onClick={(e) => { e.stopPropagation(); handleDelete(ws.id, ws.name) }}
+                  aria-label={`Delete workspace ${ws.name}`}
+                  title="Delete workspace"
                 >
-                  ✕
-                </button>
+                  <X />
+                </Button>
               </div>
             </div>
           ))}

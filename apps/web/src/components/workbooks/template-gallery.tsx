@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import { Button } from "@/design-system/primitives"
 import { fetchWorkbookTemplates, createWorkbookFromTemplate } from "@/lib/workbook-templates-api"
 import { workbookKeys } from "@/lib/workbook-hooks"
+import { NativeSelect } from "@/components/ui/native-select"
 
 export function TemplateGallery() {
   const [category, setCategory] = useState("")
@@ -29,9 +30,9 @@ export function TemplateGallery() {
   return <section className="rounded-md border p-4" aria-label="Workbook templates">
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
       <h2 className="text-sm font-medium">Start from a template</h2>
-      <label className="flex items-center gap-2 text-xs text-muted-foreground">Category<select aria-label="Category" className="gtm-select" value={category} onChange={event => setCategory(event.target.value)} disabled={create.isPending}>
+      <label className="flex items-center gap-2 text-xs text-muted-foreground">Category<NativeSelect aria-label="Category" value={category} onChange={event => setCategory(event.target.value)} disabled={create.isPending}>
         <option value="">All categories</option>{["sales", "recruiting", "research", "agency", "signals"].map(value => <option key={value} value={value}>{value}</option>)}
-      </select></label>
+      </NativeSelect></label>
     </div>
     {query.isPending && <p role="status" className="text-sm text-muted-foreground">Loading templates…</p>}
     {query.isError && <div role="alert" className="space-y-2"><p>{query.error.message}</p><Button onClick={() => void query.refetch()}>Retry templates</Button></div>}

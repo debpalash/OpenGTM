@@ -2,6 +2,7 @@ import type { RefObject } from "react"
 import type { Filters } from "@/lib/api"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { TierIcon } from "@/components/semantic-icons"
 import { useRef } from "react"
 
 export interface FilterState {
@@ -39,11 +40,11 @@ export function LeadsFilters({ filters, state, onChange, searchRef }: Props) {
         placeholder="Search…"
         defaultValue={state.search}
         onChange={(e) => handleSearch(e.target.value)}
-        className="h-7 w-40 text-xs bg-zinc-900 border-zinc-700"
+        className="h-7 w-40 text-xs"
       />
 
       <Select value={state.city} onValueChange={(v: string | null) => set("city", v)}>
-        <SelectTrigger className="h-7 w-24 text-xs bg-zinc-900 border-zinc-700">
+        <SelectTrigger className="h-7 w-24 text-xs">
           <SelectValue placeholder="City" />
         </SelectTrigger>
         <SelectContent>
@@ -55,20 +56,20 @@ export function LeadsFilters({ filters, state, onChange, searchRef }: Props) {
       </Select>
 
       <Select value={state.tier} onValueChange={(v: string | null) => set("tier", v)}>
-        <SelectTrigger className="h-7 w-24 text-xs bg-zinc-900 border-zinc-700">
+        <SelectTrigger className="h-7 w-24 text-xs">
           <SelectValue placeholder="Tier" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="__all__">All Tiers</SelectItem>
-          <SelectItem value="hot">🔥 Hot</SelectItem>
-          <SelectItem value="warm">🟡 Warm</SelectItem>
-          <SelectItem value="cold">🔵 Cold</SelectItem>
-          <SelectItem value="unqualified">⚪ Unq</SelectItem>
+          <SelectItem value="hot"><TierIcon tier="hot" />Hot</SelectItem>
+          <SelectItem value="warm"><TierIcon tier="warm" />Warm</SelectItem>
+          <SelectItem value="cold"><TierIcon tier="cold" />Cold</SelectItem>
+          <SelectItem value="unqualified"><TierIcon tier="unqualified" />Unqualified</SelectItem>
         </SelectContent>
       </Select>
 
       <Select value={state.status} onValueChange={(v: string | null) => set("status", v)}>
-        <SelectTrigger className="h-7 w-28 text-xs bg-zinc-900 border-zinc-700">
+        <SelectTrigger className="h-7 w-28 text-xs">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>
@@ -80,7 +81,7 @@ export function LeadsFilters({ filters, state, onChange, searchRef }: Props) {
       </Select>
 
       <Select value={state.source} onValueChange={(v: string | null) => set("source", v)}>
-        <SelectTrigger className="h-7 w-28 text-xs bg-zinc-900 border-zinc-700">
+        <SelectTrigger className="h-7 w-28 text-xs">
           <SelectValue placeholder="Source" />
         </SelectTrigger>
         <SelectContent>
@@ -92,7 +93,7 @@ export function LeadsFilters({ filters, state, onChange, searchRef }: Props) {
       </Select>
 
       <Select value={state.orderBy} onValueChange={(v: string | null) => set("orderBy", v)}>
-        <SelectTrigger className="h-7 w-24 text-xs bg-zinc-900 border-zinc-700">
+        <SelectTrigger className="h-7 w-24 text-xs">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

@@ -9,6 +9,7 @@ import {
   AlertTriangle,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { TierIcon } from "@/components/semantic-icons"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -149,8 +150,8 @@ function StageRow({ stage }: { stage: JobStage }) {
             {tiers && (
               <div className="flex flex-wrap gap-1">
                 {Object.entries(tiers).map(([t, count]) => (
-                  <Badge key={t} variant="outline" className="text-[9px] px-1 py-0">
-                    {t === "hot" ? "🔥" : t === "warm" ? "🟡" : "🔵"} {t}: {count}
+                  <Badge key={t} variant="outline" className="capitalize">
+                    <TierIcon tier={t} className="size-3" />{t}: {count}
                   </Badge>
                 ))}
               </div>
@@ -428,7 +429,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
     return (
       <Card
         className="cursor-pointer hover:bg-accent/50 transition-colors border-l-2"
-        style={{ borderLeftColor: isRunning ? "hsl(var(--primary))" : job.status === "done" ? "hsl(142, 76%, 36%)" : job.status === "failed" ? "hsl(var(--destructive))" : "transparent" }}
+        style={{ borderLeftColor: isRunning ? "var(--primary)" : job.status === "done" ? "hsl(142, 76%, 36%)" : job.status === "failed" ? "var(--destructive)" : "transparent" }}
         onClick={() => navigate(`/agents/${job.id}`)}
       >
         <CardContent className="p-3 space-y-2">
@@ -448,13 +449,10 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
             </div>
             <div className="flex items-center gap-1 shrink-0 mt-1">
               {job.status === "done" && job.leads_found > 0 && (
-                <button
-                  onClick={handleOpenInWorkbook}
-                  className="p-1 rounded-md hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
-                  title="Open in Workbook"
-                >
-                  <Database className="size-3.5" />
-                </button>
+                <Button type="button" variant="ghost" size="icon-xs" onClick={handleOpenInWorkbook}
+                  aria-label="Open in workbook" title="Open in workbook">
+                  <Database aria-hidden="true" />
+                </Button>
               )}
               <ExternalLink className="size-3.5 text-muted-foreground" />
             </div>
@@ -666,12 +664,8 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
                       <td className="px-2 py-1 text-muted-foreground">{lead.city || "—"}</td>
                       <td className="px-2 py-1">
                         {lead.score_tier && (
-                          <Badge variant="outline" className={cn("text-[9px] px-1 py-0",
-                            lead.score_tier === "hot" && "border-red-500/30 text-red-500",
-                            lead.score_tier === "warm" && "border-yellow-500/30 text-yellow-500",
-                            lead.score_tier === "cold" && "border-blue-500/30 text-blue-500",
-                          )}>
-                            {lead.score_tier === "hot" ? "🔥" : lead.score_tier === "warm" ? "🟡" : "🔵"} {lead.score}
+                          <Badge variant="outline" aria-label={`${lead.score_tier} tier, score ${lead.score}`}>
+                            <TierIcon tier={lead.score_tier} className="size-3" />{lead.score}
                           </Badge>
                         )}
                       </td>
