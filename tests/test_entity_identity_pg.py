@@ -127,3 +127,39 @@ def test_merge_repoints_row_and_watch_references_under_rls(app_session):
         watch = db.get(WatchSubscription, watch_id)
         assert watch.config["accounts"] == [{"account_id": k}]
         assert watch.cursor["account_group"] == {k: {"seen": ["x"]}}
+
+
+def test_concurrent_person_saves_converge_under_rls(app_session):
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.entities.models import PersonEmployment, PersonEntity, PersonIdentifier
+    from apps.api.services.entities.people import resolve_person
+
+    ws, writers = _ws(), 10
+    barrier, errors = threading.Barrier(writers), []
+
+    def worker(i):
+        try:
+            with workspace_scope(ws):
+                barrier.wait()
+                with app_session() as db:
+                    resolve_person(db, workspace_id=ws, name="Jane Doe", company="PayPal",
+                                   company_domain="paypal.com", linkedin_url="linkedin.com/in/jane-doe-pg",
+                                   title="Partnerships", source=f"src{i}", legacy_ids=[f"person_pg_{i}"])
+                    db.commit()
+        except Exception as exc:
+            errors.append((i, repr(exc)))
+
+    threads = [threading.Thread(target=worker, args=(i,)) for i in range(writers)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert not errors, errors
+    with workspace_scope(ws), app_session() as db:
+        persons = db.query(PersonEntity).filter_by(workspace_id=ws).all()
+        assert len(persons) == 1
+        assert len(persons[0].fields["sources"]) == writers
+        assert db.query(PersonEmployment).filter_by(workspace_id=ws).count() == 1
+        assert db.query(PersonIdentifier).filter_by(workspace_id=ws, kind="legacy_id").count() == writers
+    with workspace_scope(_ws()), app_session() as db:
+        assert db.query(PersonIdentifier).filter_by(value="linkedin.com/in/jane-doe-pg").count() == 0

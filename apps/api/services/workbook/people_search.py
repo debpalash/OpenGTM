@@ -351,6 +351,18 @@ async def materialize_people_search(
                 present.add(identity)
 
                 row_data = _row_data(company, person)
+                # Persist the person; the workbook's person:… id stays the row
+                # identity and becomes a legacy alias of the canonical person.
+                from apps.api.services.entities.people import resolve_person
+                canonical, _ = resolve_person(
+                    db, workspace_id=workspace_id, name=name, company=row_data["company"],
+                    company_domain=row_data.get("website") or "",
+                    title=row_data.get("contact_title") or "",
+                    linkedin_url=person.get("linkedin") or "",
+                    evidence_url=person.get("evidence_url") or person.get("linkedin") or "",
+                    source=PERSON_SOURCE, legacy_ids=[identity],
+                )
+                row_data["canonical_person_id"] = canonical.id
                 max_pos += 1
                 row = WorkbookRow(
                     workbook_id=workbook_id,

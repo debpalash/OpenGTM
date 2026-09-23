@@ -18,6 +18,7 @@ from apps.api.services.leadgen.enrichment.email_deliverability import (
     DeliverabilityResult,
 )
 from apps.api.services.workbook.models import Base, Workbook, WorkbookRow
+from tests.entity_tables import PERSON_TABLES
 
 
 TRACE_FIXTURE = (
@@ -54,7 +55,7 @@ def _database(monkeypatch):
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    Base.metadata.create_all(engine, tables=[Workbook.__table__, WorkbookRow.__table__, ContactExecution.__table__])
+    Base.metadata.create_all(engine, tables=[*PERSON_TABLES, Workbook.__table__, WorkbookRow.__table__, ContactExecution.__table__])
     factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     monkeypatch.setattr("apps.api.database.SessionLocal", factory)
     return factory

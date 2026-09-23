@@ -1691,6 +1691,21 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 )
                 wdb.add(wb)
                 wdb.flush()
+                # Persist each person (LinkedIn-keyed, with employment history).
+                # The Chat person_id stays the row/action identity and is
+                # registered as a legacy alias of the canonical person.
+                from apps.api.services.entities.people import resolve_person
+                for row_data in rows:
+                    person, _ = resolve_person(
+                        wdb, workspace_id=workspace_id, name=row_data["full_name"],
+                        company=row_data["company"],
+                        company_domain=row_data["canonical_company_domain"],
+                        title=row_data["title"], linkedin_url=row_data["linkedin_url"],
+                        email=row_data["email"] if row_data["email_status"] == "verified" else "",
+                        evidence_url=row_data["evidence_url"], source="chat_people_research",
+                        legacy_ids=[row_data["person_id"]],
+                    )
+                    row_data["canonical_person_id"] = person.id
                 for position, row_data in enumerate(rows):
                     wdb.add(WorkbookRow(
                         workbook_id=wb.id,

@@ -29,6 +29,7 @@ from apps.api.services.workbook.models import Workbook, WorkbookRow
 import apps.api.services.workbook.source_engine as se
 import apps.api.services.workbook.people_search as ps
 import apps.api.services.leadgen.enrichment.providers.crosslinked as cl
+from tests.entity_tables import PERSON_TABLES
 
 W1 = "ws_one"
 W2 = "ws_two"
@@ -43,7 +44,7 @@ def session_factory():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    Base.metadata.create_all(engine, tables=[Workbook.__table__, WorkbookRow.__table__])
+    Base.metadata.create_all(engine, tables=[*PERSON_TABLES, Workbook.__table__, WorkbookRow.__table__])
     return sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
@@ -290,6 +291,31 @@ def test_search_cap_spans_titles_within_company(env, monkeypatch):
 
     # 3 title queries for A Corp, then only 1 left for B Corp
     assert len(spy.queries) == 4
+
+
+# ── persisted person identity ─────────────────────────────────────────────
+
+def test_saved_people_are_persisted_and_reused_across_workbooks(env, monkeypatch):
+    from apps.api.services.entities.models import PersonEntity, PersonIdentifier
+    from apps.api.services.entities.people import person_profile
+
+    spy = SearchSpy({"Acme Corp": [_ddg_result("Jane Smith", "CTO", "Acme Corp", "jane-smith")]})
+    monkeypatch.setattr(cl, "_ddg_linkedin_search", spy, raising=True)
+    first = _mk_workbook(env, W1, _ps_col(companies=["Acme Corp"], titles=["CTO"]))
+    second = _mk_workbook(env, W1, _ps_col(companies=["Acme Corp"], titles=["CTO"]))
+    _run(first, "src_ps1", W1)
+    _run(second, "src_ps1", W1)
+
+    a, b = _rows(env, first)[0], _rows(env, second)[0]
+    assert a.data["canonical_person_id"] == b.data["canonical_person_id"]
+    with env() as db:
+        assert db.query(PersonEntity).filter_by(workspace_id=W1).count() == 1
+        kinds = {(i.kind, i.value) for i in db.query(PersonIdentifier).filter_by(workspace_id=W1)}
+        assert ("linkedin", "linkedin.com/in/jane-smith") in kinds
+        assert ("legacy_id", a.canonical_entity_id) in kinds  # old row identity still resolves
+        profile = person_profile(db, a.data["canonical_person_id"], W1)
+        assert [(j["company_name"], j["title"], j["is_current"]) for j in profile["employments"]] == [
+            ("Acme Corp", "CTO", True)]
 
 
 # ── dedup on re-run (identity mechanism) ──────────────────────────────────

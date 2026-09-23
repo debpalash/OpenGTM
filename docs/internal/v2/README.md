@@ -158,8 +158,17 @@ Progress (2026-09-23), offline evidence only:
   account's cursor wins when both were tracked). Split restores them.
   Verified on SQLite and PostgreSQL under FORCE RLS. Audiences and
   destinations key on lead IDs, not entity IDs, so merges do not affect them.
-- Not started: persisted person entities with employment history, claim-level
-  evidence, entity-backed segments, durable chat selections.
+- Persisted people: `person_identifiers` (unique LinkedIn profile, verified
+  email, or legacy id per workspace) and `person_employments` (dated history
+  per person and company; most recent observation is current). A job change
+  keeps the person. Chat `person_…` and workbook `person:…` ids are legacy
+  aliases, so earlier actions and idempotency keys are unchanged. Chat
+  "create people workbook" and the People Search source persist people and
+  stamp rows with `canonical_person_id`. Verified on SQLite and PostgreSQL
+  (10 concurrent saves converge under FORCE RLS).
+- Not started: job-change detection over employment history, claim-level
+  evidence, entity-backed segments, durable chat selections, and chat
+  selections keyed by canonical person ids.
 
 - Introduce or consolidate canonical account and person identities shared by
   chat, workbooks, contact enrichment, signals, and destinations. Preserve aliases,
