@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import {
-  Send, Loader2, Bot, Pencil, RotateCcw, Copy, Check, X, Square,
-  Sparkles, ArrowUp, Search, Building2, Zap, Globe, BarChart3, Database,
+  Send, Loader2, Bot, Pencil, RotateCcw, Copy, Check, X,
+  Sparkles, Search, Building2, Zap, Globe, BarChart3, Database,
   ShieldAlert, ShieldCheck, AlertTriangle, ChevronDown, ChevronRight
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,8 @@ import { TaskDetailCard } from "@/components/task-detail-card"
 import { HybridMessage } from "@/components/openui-renderer"
 import { AutopilotPlanCard, type AutopilotPlan } from "@/components/autopilot-plan-card"
 import { toast } from "sonner"
+import { ChatHome, ChatSky } from "@/components/chat-home/chat-home"
+import { Composer, type ComposerHandle } from "@/components/chat-home/composer"
 
 
 
@@ -262,16 +264,6 @@ function CopyBtn({ content }: { content: string }) {
   )
 }
 
-// ── Quick Actions (landing page) ──────────────────────────────────
-
-const QUICK_ACTIONS = [
-  { icon: <Zap className="size-4" />, text: "Build a list of 50 IT staffing firms in Pune and find their founders' emails", color: "text-rose-400" },
-  { icon: <Building2 className="size-4" />, text: "Search AmbitionBox for SaaS companies", color: "text-emerald-400" },
-  { icon: <BarChart3 className="size-4" />, text: "Show me my pipeline stats", color: "text-amber-400" },
-  { icon: <Sparkles className="size-4" />, text: "Find hot leads missing email", color: "text-purple-400" },
-]
-
-
 // ── Main Chat Page ────────────────────────────────────────────────
 
 export default function ChatPage() {
@@ -294,7 +286,7 @@ export default function ChatPage() {
   const [pausedHistory, setPausedHistory] = useState<Array<{ role: string; content: string }>>([])
 
   const scrollRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const inputRef = useRef<ComposerHandle>(null)
   const editRef = useRef<HTMLTextAreaElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
@@ -450,8 +442,8 @@ export default function ChatPage() {
 
   // ── Send ──
 
-  const handleSend = useCallback(async () => {
-    const text = input.trim()
+  const handleSend = useCallback(async (override?: string) => {
+    const text = (override ?? input).trim()
     if (!text || isLoading) return
 
     const userMsg: ChatMessage = {
@@ -542,46 +534,34 @@ export default function ChatPage() {
     return -1
   })()
 
-  // Get time of day greeting
-  const greeting = (() => {
-    const h = new Date().getHours()
-    if (h < 12) return "Good morning"
-    if (h < 17) return "Good afternoon"
-    return "Good evening"
-  })()
+  const isHome = !activeConvId && displayMessages.length === 0
+  const composer = (
+    <Composer
+      ref={inputRef}
+      value={input}
+      onChange={setInput}
+      onSend={handleSend}
+      onStop={handleStop}
+      isLoading={isLoading}
+      variant={isHome ? "hero" : "dock"}
+    />
+  )
 
-   return (
-    <div className="h-full min-h-0 relative bg-background w-full overflow-hidden flex flex-col">
+  if (isHome) {
+    return (
+      <div className="gtm-chat relative h-full min-h-0 w-full overflow-hidden bg-background">
+        <ChatSky />
+        <div className="relative h-full overflow-y-auto">
+          <ChatHome composer={composer} onAction={(action) => inputRef.current?.apply(action)} />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="gtm-chat h-full min-h-0 relative bg-background w-full overflow-hidden flex flex-col">
       <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth" ref={scrollRef}>
-        <div className="max-w-4xl mx-auto pb-36 pt-6 px-4">
-
-          {/* ── Landing ── */}
-          {!activeConvId && displayMessages.length === 0 && (
-            <div className="flex flex-col items-center justify-center min-h-[65vh] text-center">
-              <div className="mb-5 relative">
-                <div className="flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary shadow-lg shadow-primary/5">
-                  <Sparkles className="size-8" />
-                </div>
-                <span className="absolute -bottom-1 -right-1 size-4 bg-emerald-500 rounded-full border-2 border-background" />
-              </div>
-              <h2 className="text-2xl font-semibold tracking-tight mb-2">{greeting}</h2>
-              <p className="text-muted-foreground mb-10 max-w-sm">
-                What would you like to discover today?
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-xl w-full">
-                {QUICK_ACTIONS.map((qa) => (
-                  <button
-                    key={qa.text}
-                    className="flex items-center gap-3 text-left text-sm p-3.5 rounded-2xl border border-border/40 bg-card/50 hover:bg-muted/50 hover:border-border transition-all duration-200 group/qa"
-                    onClick={() => { setInput(qa.text); inputRef.current?.focus() }}
-                  >
-                    <span className={`${qa.color} opacity-60 group-hover/qa:opacity-100 transition-opacity`}>{qa.icon}</span>
-                    <span className="text-muted-foreground group-hover/qa:text-foreground transition-colors">{qa.text}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+        <div className="max-w-4xl mx-auto pb-44 pt-6 px-4">
 
           {/* ── Loading ── */}
           {isLoadingMessages && activeConvId && displayMessages.length === 0 && (
@@ -803,48 +783,9 @@ export default function ChatPage() {
 
       {/* ── Input Area ── */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background from-60% to-transparent pointer-events-none">
-        <div className="max-w-4xl mx-auto px-4 pb-4 pt-8 pointer-events-auto">
-          <div className="relative flex items-end w-full bg-muted/30 backdrop-blur-sm border border-border/40 rounded-[24px] focus-within:ring-2 focus-within:ring-primary/15 focus-within:border-primary/20 focus-within:bg-background/80 transition-all duration-300 shadow-lg shadow-black/[0.03]">
-            <Textarea
-              ref={inputRef}
-              placeholder="Ask anything or search leads..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault()
-                  handleSend()
-                }
-              }}
-              disabled={isLoading}
-              className="resize-none min-h-[48px] max-h-[200px] w-full bg-transparent border-0 focus-visible:ring-0 px-5 py-3.5 text-[15px] placeholder:text-muted-foreground/50"
-              rows={1}
-            />
-            <div className="flex shrink-0 p-2.5">
-              {isLoading ? (
-                <button
-                  onClick={handleStop}
-                  title="Stop generating"
-                  className="flex items-center justify-center h-8 w-8 rounded-full bg-foreground text-background shadow-md hover:scale-105 active:scale-95 transition-all duration-200"
-                >
-                  <Square className="size-3.5 fill-current" />
-                </button>
-              ) : (
-                <button
-                  onClick={handleSend}
-                  disabled={!input.trim()}
-                  className={`flex items-center justify-center h-8 w-8 rounded-full transition-all duration-200 ${
-                    input.trim()
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:scale-105 active:scale-95"
-                      : "bg-muted text-muted-foreground"
-                  } disabled:opacity-40`}
-                >
-                  <ArrowUp className="size-4" />
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="text-center mt-2.5 text-[10px] text-muted-foreground/40 select-none">
+        <div className="mx-auto flex max-w-4xl flex-col items-center px-4 pb-4 pt-8 pointer-events-auto">
+          {composer}
+          <div className="text-center mt-2.5 text-[10px] text-muted-foreground/60 select-none">
             OpenGTM agents can make mistakes. Consider verifying important information.
           </div>
         </div>

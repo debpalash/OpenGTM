@@ -143,7 +143,7 @@ export function LoginScene() {
   const megaArm = limb([mx + MR * 0.82, my + 20], FIST, 17, 15, -6)
 
   return (
-    <div className="gtm-login-scene pointer-events-none absolute inset-0 hidden min-[1180px]:block" data-animated={animated || undefined}>
+    <div className="gtm-login-scene gtm-ink pointer-events-none absolute inset-0 hidden min-[1180px]:block" data-animated={animated || undefined}>
       <svg ref={root} viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" className="size-full" aria-hidden="true">
         <defs>
           {FLIGHTS.map((d, i) => <path key={i} id={`gtm-flight-${i}`} data-part="flight" data-index={i} d={d} fill="none" />)}

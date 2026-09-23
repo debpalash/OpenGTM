@@ -11,6 +11,7 @@
  *   ticks()  short emphasis strokes radiating from a point
  */
 import type { ReactNode, SVGProps } from "react"
+import "./ink.css"
 
 export type Pt = readonly [number, number]
 

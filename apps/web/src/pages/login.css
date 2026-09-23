@@ -63,31 +63,6 @@
   height: 2px;
 }
 
-/* ── Sign-in scene (components/login-scene): koniu-style ink line art ──── */
-.gtm-login-scene {
-  --scene-ink: #1b1b1f;
-  --scene-paper: #f3f6fa;     /* cool paper, as in the references */
-  --scene-tint: #dce7f5;
-  --scene-muted: #5f6368;
-  --scene-accent: #1f7ae0;
-  --scene-line: 2.5;
-}
-.gtm-login-scene .scene-sketch { filter: url(#gtm-pencil); }
-.gtm-login-scene .scene-paper { fill: var(--scene-paper); stroke: var(--scene-ink); stroke-width: var(--scene-line); stroke-linejoin: round; stroke-linecap: round; }
-.gtm-login-scene .scene-line { fill: none; stroke: var(--scene-ink); stroke-width: var(--scene-line); stroke-linecap: round; stroke-linejoin: round; }
-.gtm-login-scene .scene-thin { stroke-width: 1.6; }
-.gtm-login-scene .scene-thick { stroke-width: 4.5; }
-.gtm-login-scene .scene-ink { fill: var(--scene-ink); stroke: none; }
-.gtm-login-scene .scene-tint { fill: var(--scene-tint); }
-.gtm-login-scene .scene-accent-line { stroke: var(--scene-accent); stroke-width: 2.8; }
-.gtm-login-scene .scene-accent-fill { fill: var(--scene-accent); stroke: none; }
-.gtm-login-scene .scene-on-accent { stroke: #fff; }
-/* <Union>: a double-width ink stroke under a paper fill = one seamless outline. */
-.gtm-login-scene .ink-under path { fill: var(--scene-ink); stroke: var(--scene-ink); stroke-width: calc(var(--scene-line) * 2); stroke-linejoin: round; }
-.gtm-login-scene .ink-over path { fill: var(--scene-paper); stroke: none; }
-.gtm-login-scene .scene-text { fill: var(--scene-ink); font: 600 14px var(--gtm-font-sans); }
-.gtm-login-scene .scene-title { fill: var(--scene-ink); font: 600 15px var(--gtm-font-sans); }
-.gtm-login-scene .scene-caption { fill: var(--scene-muted); font: 500 12px var(--gtm-font-sans); }
 /* Transform around each part's own box (anime.js sets CSS transforms). */
 .gtm-login-scene [data-part] { transform-box: fill-box; transform-origin: center; }
 .gtm-login-scene [data-part="row"] { transform-origin: left center; }

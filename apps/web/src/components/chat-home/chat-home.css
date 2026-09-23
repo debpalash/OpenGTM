@@ -1,0 +1,102 @@
+/* Chat home: the sign-in page's sky, glass and ink, adapted to both themes. */
+.gtm-chat {
+  --gtm-chat-sky-top: #9fd0ef;
+  --gtm-chat-sky-mid: #cbe6f6;
+  --gtm-chat-sky-low: var(--t-background-primary, #fff);
+  --gtm-chat-cloud: rgb(255 255 255 / 0.9);
+  --gtm-chat-arc: rgb(255 255 255 / 0.6);
+  --gtm-chat-glass: rgb(255 255 255 / 0.78);
+  --gtm-chat-glass-strong: rgb(255 255 255 / 0.94);
+  --gtm-chat-edge: rgb(15 23 42 / 0.08);
+  --gtm-chat-hover: rgb(15 23 42 / 0.05);
+  --gtm-chat-shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 12px 32px -12px rgb(30 64 110 / 0.22);
+}
+.dark .gtm-chat {
+  --gtm-chat-sky-top: #10223a;
+  --gtm-chat-sky-mid: #13253b;
+  --gtm-chat-cloud: rgb(148 180 220 / 0.1);
+  --gtm-chat-arc: rgb(148 180 220 / 0.12);
+  --gtm-chat-glass: rgb(30 34 42 / 0.72);
+  --gtm-chat-glass-strong: rgb(34 38 46 / 0.94);
+  --gtm-chat-edge: rgb(255 255 255 / 0.09);
+  --gtm-chat-hover: rgb(255 255 255 / 0.06);
+  --gtm-chat-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 16px 40px -16px rgb(0 0 0 / 0.6);
+}
+
+.gtm-chat-sky {
+  background: linear-gradient(to bottom, var(--gtm-chat-sky-top) 0%, var(--gtm-chat-sky-mid) 30%, var(--gtm-chat-sky-low) 68%);
+}
+.gtm-chat-clouds {
+  position: absolute;
+  inset: 22% -10% auto -10%;
+  height: 40%;
+  filter: blur(16px);
+  background:
+    radial-gradient(22% 34% at 10% 60%, var(--gtm-chat-cloud) 0%, transparent 70%),
+    radial-gradient(26% 40% at 28% 78%, var(--gtm-chat-cloud) 0%, transparent 70%),
+    radial-gradient(30% 44% at 52% 88%, var(--gtm-chat-cloud) 0%, transparent 72%),
+    radial-gradient(26% 40% at 74% 76%, var(--gtm-chat-cloud) 0%, transparent 70%),
+    radial-gradient(22% 34% at 92% 58%, var(--gtm-chat-cloud) 0%, transparent 70%);
+}
+.gtm-chat-arcs circle { fill: none; stroke: var(--gtm-chat-arc); stroke-width: 1; }
+
+/* Glass surfaces */
+.gtm-composer-box,
+.gtm-slash-menu,
+.gtm-chat-card,
+.gtm-chat-recent,
+.gtm-chat-pill {
+  background: var(--gtm-chat-glass);
+  border: 1px solid var(--gtm-chat-edge);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+}
+.gtm-composer-box {
+  background: var(--gtm-chat-glass-strong);
+  box-shadow: var(--gtm-chat-shadow);
+  transition: box-shadow 200ms var(--gtm-ease-out, ease-out), border-color 200ms;
+}
+.gtm-composer-box:focus-within { border-color: color-mix(in oklab, var(--primary) 35%, transparent); box-shadow: var(--gtm-chat-shadow), 0 0 0 3px var(--gtm-focus-ring, rgb(31 122 224 / 0.2)); }
+.gtm-slash-menu { background: var(--gtm-chat-glass-strong); box-shadow: var(--gtm-chat-shadow); }
+.gtm-slash-icon, .gtm-composer-tool { background: var(--gtm-chat-hover); color: var(--muted-foreground); }
+.gtm-composer-tool:hover { color: var(--foreground); }
+.gtm-send { background: var(--foreground); color: var(--background); }
+.gtm-kbd { font: 500 10.5px var(--gtm-font-sans); padding: 1px 5px; border-radius: 5px; border: 1px solid var(--gtm-chat-edge); background: var(--gtm-chat-hover); }
+
+.gtm-chat-pill { color: var(--foreground); transition: background-color 150ms, transform 150ms var(--gtm-ease-out, ease-out); }
+.gtm-chat-pill:hover { background: var(--gtm-chat-glass-strong); transform: translateY(-1px); }
+.gtm-chat-pill svg { color: var(--muted-foreground); }
+.gtm-composer-pills { scrollbar-width: none; }
+
+.gtm-chat-card, .gtm-chat-recent { transition: background-color 150ms, box-shadow 200ms, transform 200ms var(--gtm-ease-out, ease-out); }
+.gtm-chat-card:hover, .gtm-chat-recent:hover { background: var(--gtm-chat-glass-strong); box-shadow: var(--gtm-chat-shadow); transform: translateY(-1px); }
+.gtm-chat-card:focus-visible, .gtm-chat-pill:focus-visible, .gtm-chat-recent:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--gtm-focus-ring, rgb(31 122 224 / 0.3)); }
+.gtm-chat-card-icon { --tone: #1f7ae0; color: var(--tone); background: color-mix(in oklab, var(--tone) 13%, transparent); }
+.gtm-chat-card[data-tone="amber"] .gtm-chat-card-icon { --tone: #d97706; }
+.gtm-chat-card[data-tone="violet"] .gtm-chat-card-icon { --tone: #7c3aed; }
+.gtm-chat-card[data-tone="emerald"] .gtm-chat-card-icon { --tone: #059669; }
+.gtm-chat-card[data-tone="rose"] .gtm-chat-card-icon { --tone: #e11d48; }
+.gtm-chat-card[data-tone="slate"] .gtm-chat-card-icon { --tone: #64748b; }
+.dark .gtm-chat-card-icon { color: color-mix(in oklab, var(--tone) 70%, white); }
+
+/* Mascot */
+.gtm-chat-mascot { width: 148px; height: auto; overflow: visible; }
+.gtm-chat-mascot * { transform-box: fill-box; }
+.gtm-chat-mascot-body { transform-origin: 50% 100%; animation: gtm-mascot-bob 2.4s ease-in-out infinite alternate; }
+.gtm-chat-mascot-wave { transform-origin: 0% 100%; animation: gtm-mascot-wave 2.8s ease-in-out infinite; }
+.gtm-chat-mascot-ticks { animation: gtm-mascot-ticks 2.8s ease-in-out infinite; }
+.gtm-chat-mascot-eye { transform-origin: center; animation: gtm-mascot-blink 4.2s infinite; }
+.gtm-chat-mascot-face { transition: transform 160ms var(--gtm-ease-out, ease-out); }
+.gtm-chat-mascot-shadow { transform-origin: center; animation: gtm-mascot-shadow 2.4s ease-in-out infinite alternate; opacity: 0.16; }
+.dark .gtm-chat-mascot-shadow { fill: #000; opacity: 0.5; }
+.gtm-chat-mascot[data-busy] .gtm-chat-mascot-body { animation-duration: 0.6s; }
+
+@keyframes gtm-mascot-bob { to { transform: translateY(-5px); } }
+@keyframes gtm-mascot-shadow { to { transform: scaleX(0.9); } }
+@keyframes gtm-mascot-wave { 0%, 55%, 100% { transform: rotate(0); } 62% { transform: rotate(-14deg); } 70% { transform: rotate(8deg); } 78% { transform: rotate(-10deg); } 86% { transform: rotate(4deg); } }
+@keyframes gtm-mascot-ticks { 0%, 58%, 90%, 100% { opacity: 0; } 66%, 82% { opacity: 1; } }
+@keyframes gtm-mascot-blink { 0%, 94%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.12); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gtm-chat-mascot *, .gtm-chat-pill, .gtm-chat-card, .gtm-chat-recent { animation: none !important; transition: none !important; }
+}
