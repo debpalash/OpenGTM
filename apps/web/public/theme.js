@@ -1,6 +1,11 @@
 // This blocking head script and React share one store so the first paint,
 // portals, and live system changes cannot disagree about the active scheme.
 ;(function () {
+  // Apple devices get the system font (SF Pro); see tokens.css.
+  try {
+    var platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || ""
+    if (/mac|iphone|ipad|ipod/i.test(platform)) document.documentElement.dataset.platform = "apple"
+  } catch { /* keep the default font stack */ }
   if (window.OpenGTMTheme) return
   var media = window.matchMedia("(prefers-color-scheme: dark)")
   var listeners = new Set()

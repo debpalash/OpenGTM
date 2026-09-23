@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-shell/app-sidebar"
 import { getPageTitle } from "@/components/app-shell/navigation"
-import { Separator } from "@/components/ui/separator"
 import { Circle, LoaderCircle } from "lucide-react"
 import { useSSE, useLLMUsage } from "@/lib/hooks"
 import { CommandMenu } from "@/components/command-menu"
@@ -42,10 +41,9 @@ function PageHeader({ title }: { title: string }) {
   const activeProvider = usage?.providers?.[0]
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-2 h-4" />
-      <h1 className="min-w-0 truncate text-sm font-medium">{title}</h1>
+    <header className="gtm-material-toolbar sticky top-0 z-20 flex h-[var(--gtm-toolbar-height)] shrink-0 items-center gap-3 border-b border-[var(--t-border-color-medium)] px-4">
+      <SidebarTrigger className="-ml-1 text-muted-foreground" />
+      <h1 className="min-w-0 truncate text-base font-semibold">{title}</h1>
 
       <div className="flex-1" />
 
@@ -72,7 +70,7 @@ function PageHeader({ title }: { title: string }) {
         </div>
       )}
 
-      <Separator orientation="vertical" className="mx-1 hidden h-4 sm:block" />
+      <span aria-hidden="true" className="mx-1 hidden h-4 w-px self-center bg-border sm:block" />
 
       {/* Connection status */}
       <div

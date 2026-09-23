@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ChevronDown } from "lucide-react"
+import { ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -12,22 +12,22 @@ type NativeSelectProps = Omit<React.ComponentProps<"select">, "size"> & {
 
 /**
  * Token-styled native <select>: keeps native keyboard, screen-reader and
- * mobile picker behavior, with a Lucide chevron instead of the browser arrow.
+ * mobile picker behavior, styled as a macOS pop-up button (bezel + up/down chevron).
  */
 function NativeSelect({ className, selectClassName, size = "default", children, ...props }: NativeSelectProps) {
   return (
     <div data-slot="native-select" className={cn("relative inline-flex min-w-0", className)}>
       <select
         className={cn(
-          "w-full min-w-0 appearance-none rounded-md border border-border bg-background pr-7 pl-2 text-foreground transition-colors outline-none hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive",
-          size === "sm" ? "h-6 text-xs" : "h-8 text-sm sm:h-7",
+          "w-full min-w-0 appearance-none rounded-md border-0 bg-[var(--gtm-control-bezel)] pr-7 pl-2.5 text-foreground shadow-[var(--gtm-control-shadow)] transition-[background-color,box-shadow] outline-none hover:bg-[color-mix(in_srgb,var(--gtm-control-bezel)_94%,var(--foreground))] focus-visible:outline-[3px] focus-visible:outline-offset-0 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-40 aria-invalid:outline-destructive",
+          size === "sm" ? "h-[22px] text-xs" : "h-8 text-sm sm:h-7",
           selectClassName
         )}
         {...props}
       >
         {children}
       </select>
-      <ChevronDown aria-hidden="true" className="pointer-events-none absolute top-1/2 right-2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+      <ChevronsUpDown aria-hidden="true" className="pointer-events-none absolute top-1/2 right-2 size-3 -translate-y-1/2 text-muted-foreground" />
     </div>
   )
 }

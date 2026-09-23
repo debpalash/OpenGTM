@@ -90,7 +90,9 @@ with sync_playwright() as playwright:
     for theme in ("light", "dark"):
         picker.select_option(theme)
         expect(page.locator("html")).to_have_class(theme)
-        assert page.evaluate("getComputedStyle(document.body).fontFamily").startswith("Inter")
+        # Inter, or the Apple system font (SF Pro) on Apple devices with Inter as fallback.
+        body_font = page.evaluate("getComputedStyle(document.body).fontFamily")
+        assert body_font.startswith(("Inter", "-apple-system")) and "Inter" in body_font, body_font
         for width in (375, 1280):
             page.set_viewport_size({"width": width, "height": 900})
             assert not page.evaluate("document.documentElement.scrollWidth > innerWidth"), (theme, width)

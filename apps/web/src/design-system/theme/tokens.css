@@ -1,108 +1,167 @@
-/* OpenGTM design tokens: Twenty's structure, Notion's warmth.
+/* OpenGTM design tokens — macOS (Sonoma/Sequoia) aesthetics on Twenty's structure.
  *
- * Twenty (twenty-ui --t-*) supplies the token vocabulary, the 4px spacing grid,
- * Inter, and a 13px type base. Its type tokens are rem-based and assume a 13px
- * root; this app keeps a 16px root for Tailwind spacing, so they are pinned to
- * px here. Notion supplies the palette: warm charcoal text, warm off-white
- * surfaces, low-contrast borders, and soft transparent hovers.
+ * Twenty (twenty-ui --t-*) supplies the token vocabulary and component set.
+ * Values follow Apple's macOS Human Interface Guidelines: the system font
+ * (SF Pro on Apple devices, Inter elsewhere), the HIG type ramp with optical
+ * tracking, system label/separator/fill colors, the system accent, vibrant
+ * materials for chrome, and a 4px spacing grid.
  *
- * Overriding the --t-* variables (imported after twenty-ui's themes, same
- * selectors) keeps Twenty components and legacy shadcn/Tailwind controls on
- * one set of values. Theme classes: .light / .dark on <html>.
+ * Overriding --t-* (imported after twenty-ui's themes, same selectors) keeps
+ * Twenty components and shadcn/Tailwind controls on one set of values.
+ * Theme classes: .light / .dark on <html>.
  */
 
 /* ── Theme-independent scales ─────────────────────────────────────────── */
 :root,
 .light,
 .dark {
-  /* Type: Twenty's 13px scale, in px so a 16px root cannot inflate it. */
+  /* Type — macOS HIG ramp (px so a 16px root cannot inflate Twenty's rem tokens):
+   * caption 10 · subheadline 11 · callout 12 · body 13 · title3 15 · title2 17 · title1 22 · large 26 */
+  /* Inter everywhere by default. Chromium resolves BlinkMacSystemFont/system-ui
+   * to the OS UI font on every platform (Arial-like on Linux), so the Apple
+   * system font is only selected on Apple devices via [data-platform="apple"]. */
+  --gtm-font-sans: "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --gtm-font-display: var(--gtm-font-sans);
+  --gtm-font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --t-font-family: var(--gtm-font-sans);
   --t-font-size-xxs: 10px;
   --t-font-size-xs: 11px;
   --t-font-size-sm: 12px;
   --t-font-size-md: 13px;
-  --t-font-size-lg: 16px;
-  --t-font-size-xl: 20px;
-  --t-font-size-xxl: 24px;
-  --gtm-line-height-tight: 1.3;
-  --gtm-line-height-body: 1.5;
-  --gtm-letter-spacing-heading: -0.011em;
+  --t-font-size-lg: 15px;
+  --t-font-size-xl: 17px;
+  --t-font-size-xxl: 22px;
+  --gtm-font-size-large-title: 26px;
+  --gtm-line-height-tight: 1.25;
+  --gtm-line-height-body: 1.45;
 
-  /* Shape: Notion-soft corners on Twenty's radius names. */
-  --t-border-radius-xs: 2px;
-  --t-border-radius-sm: 4px;
-  --t-border-radius-md: 6px;
+  /* Spacing — 4px grid. Named steps for layout rhythm. */
+  --gtm-space-0-5: 2px;
+  --gtm-space-1: 4px;
+  --gtm-space-1-5: 6px;
+  --gtm-space-2: 8px;
+  --gtm-space-3: 12px;
+  --gtm-space-4: 16px;
+  --gtm-space-5: 20px;
+  --gtm-space-6: 24px;
+  --gtm-space-8: 32px;
+  --gtm-space-10: 40px;
+  --gtm-toolbar-height: 52px;
+  --gtm-content-inset: 24px;
+  --gtm-sidebar-row: 28px;
+
+  /* Shape — macOS continuous-looking corners. */
+  --t-border-radius-xs: 3px;
+  --t-border-radius-sm: 5px;
+  --t-border-radius-md: 7px;
   --t-border-radius-lg: 10px;
   --t-border-radius-xl: 14px;
+  --gtm-radius-window: 12px;
 
-  /* Control heights on the 4px grid (compact, Twenty-dense). */
-  --gtm-control-sm: 24px;
+  /* Controls — macOS regular/small/mini sizes on the 4px grid. */
+  --gtm-control-sm: 22px;
   --gtm-control-md: 28px;
   --gtm-control-lg: 32px;
 
-  --gtm-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Icons — closer to SF Symbols' regular weight than Lucide's default 2px. */
+  --gtm-icon-stroke: 1.75;
+
   --gtm-duration-fast: 120ms;
-  --gtm-ease: cubic-bezier(0.2, 0, 0, 1);
+  --gtm-duration: 200ms;
+  --gtm-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-/* ── Light: Notion warm neutrals ──────────────────────────────────────── */
+/* Apple devices: SF Pro Text/Display via the system font keywords. */
+:root[data-platform="apple"] {
+  --gtm-font-sans: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  --gtm-font-display: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+}
+
+/* ── Light: macOS system colors ───────────────────────────────────────── */
 :root,
 .light {
-  --t-background-primary: #ffffff;
-  --t-background-secondary: #f9f9f8;
-  --t-background-tertiary: #f1f1ef;
-  --t-background-quaternary: #e9e9e7;
-  --t-background-inverted-primary: #37352f;
-  --t-background-transparent-lighter: rgb(55 53 47 / 0.03);
-  --t-background-transparent-light: rgb(55 53 47 / 0.06);
-  --t-background-transparent-medium: rgb(55 53 47 / 0.09);
+  --gtm-accent: #007aff;
+  --gtm-accent-hover: #0068d9;
+  --t-color-blue: var(--gtm-accent);
+  --gtm-accent-foreground: #ffffff;
 
-  --t-font-color-primary: #37352f;
-  --t-font-color-secondary: #6f6e69;
-  --t-font-color-tertiary: #9b9a97;
-  --t-font-color-light: #b9b8b5;
+  --t-background-primary: #ffffff;           /* windowBackground / content */
+  --t-background-secondary: #f5f5f7;         /* sidebar / underPageBackground */
+  --t-background-tertiary: #f0f0f2;          /* quaternary fill on white */
+  --t-background-quaternary: #e8e8ed;
+  --t-background-inverted-primary: #1d1d1f;
+  --t-background-transparent-lighter: rgb(0 0 0 / 0.025);
+  --t-background-transparent-light: rgb(0 0 0 / 0.05);   /* hover / selection (unfocused) */
+  --t-background-transparent-medium: rgb(0 0 0 / 0.08);
+
+  --t-font-color-primary: #1d1d1f;           /* labelColor */
+  --t-font-color-secondary: #6e6e73;         /* secondaryLabelColor */
+  --t-font-color-tertiary: #8e8e93;          /* tertiaryLabelColor */
+  --t-font-color-light: #aeaeb2;             /* quaternaryLabelColor */
   --t-font-color-inverted: #ffffff;
 
-  --t-border-color-light: #efefed;
-  --t-border-color-medium: #e9e9e7;
-  --t-border-color-strong: #d9d8d5;
+  --t-border-color-light: rgb(0 0 0 / 0.06);
+  --t-border-color-medium: rgb(0 0 0 / 0.1);  /* separatorColor */
+  --t-border-color-strong: rgb(0 0 0 / 0.16);
 
-  --gtm-focus-ring: rgb(35 131 226 / 0.45);
-  --gtm-selection: rgb(35 131 226 / 0.16);
-  --gtm-shadow-popover: 0 0 0 1px rgb(15 15 15 / 0.05), 0 3px 6px rgb(15 15 15 / 0.1),
-    0 9px 24px rgb(15 15 15 / 0.2);
-  --gtm-shadow-card: 0 1px 2px rgb(15 15 15 / 0.04);
+  /* Materials (vibrancy): translucent chrome over content. */
+  --gtm-material-sidebar: rgb(246 246 248 / 0.82);
+  --gtm-material-toolbar: rgb(255 255 255 / 0.78);
+  --gtm-material-menu: rgb(250 250 252 / 0.86);
+  --gtm-material-blur: saturate(180%) blur(20px);
+
+  --gtm-focus-ring: rgb(0 122 255 / 0.5);
+  --gtm-selection: rgb(0 122 255 / 0.2);
+  --gtm-control-bezel: #ffffff;
+  --gtm-control-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.14), 0 0.5px 1.5px rgb(0 0 0 / 0.12);
+  --gtm-shadow-popover: 0 0 0 0.5px rgb(0 0 0 / 0.12), 0 10px 30px rgb(0 0 0 / 0.16),
+    0 2px 8px rgb(0 0 0 / 0.08);
+  --gtm-shadow-window: 0 0 0 0.5px rgb(0 0 0 / 0.12), 0 22px 70px rgb(0 0 0 / 0.26);
+  --gtm-shadow-card: 0 0 0 0.5px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.04);
 }
 
-/* ── Dark: Notion's #191919 canvas, #202020 chrome ────────────────────── */
+/* ── Dark: macOS dark appearance ──────────────────────────────────────── */
 .dark {
-  --t-background-primary: #191919;
-  --t-background-secondary: #202020;
-  --t-background-tertiary: #252525;
-  --t-background-quaternary: #2f2f2f;
-  --t-background-inverted-primary: #e6e5e3;
+  --gtm-accent: #0a84ff;
+  --gtm-accent-hover: #409cff;
+  --t-color-blue: var(--gtm-accent);
+  --gtm-accent-foreground: #ffffff;
+
+  --t-background-primary: #1e1e1e;
+  --t-background-secondary: #262626;
+  --t-background-tertiary: #2c2c2e;
+  --t-background-quaternary: #3a3a3c;
+  --t-background-inverted-primary: #f5f5f7;
   --t-background-transparent-lighter: rgb(255 255 255 / 0.03);
-  --t-background-transparent-light: rgb(255 255 255 / 0.055);
-  --t-background-transparent-medium: rgb(255 255 255 / 0.09);
+  --t-background-transparent-light: rgb(255 255 255 / 0.07);
+  --t-background-transparent-medium: rgb(255 255 255 / 0.11);
 
-  --t-font-color-primary: #e6e5e3;
-  --t-font-color-secondary: #a5a4a1;
-  --t-font-color-tertiary: #7f7e7b;
-  --t-font-color-light: #5a5957;
-  --t-font-color-inverted: #191919;
+  --t-font-color-primary: #f5f5f7;
+  --t-font-color-secondary: #a1a1a6;
+  --t-font-color-tertiary: #7c7c80;
+  --t-font-color-light: #5b5b5f;
+  --t-font-color-inverted: #1d1d1f;
 
-  --t-border-color-light: #262626;
-  --t-border-color-medium: #2c2c2c;
-  --t-border-color-strong: #3a3a3a;
+  --t-border-color-light: rgb(255 255 255 / 0.06);
+  --t-border-color-medium: rgb(255 255 255 / 0.1);
+  --t-border-color-strong: rgb(255 255 255 / 0.16);
 
-  --gtm-focus-ring: rgb(82 156 234 / 0.5);
-  --gtm-selection: rgb(82 156 234 / 0.24);
-  --gtm-shadow-popover: 0 0 0 1px rgb(255 255 255 / 0.06), 0 3px 6px rgb(0 0 0 / 0.4),
-    0 9px 24px rgb(0 0 0 / 0.5);
-  --gtm-shadow-card: none;
+  --gtm-material-sidebar: rgb(40 40 42 / 0.8);
+  --gtm-material-toolbar: rgb(30 30 30 / 0.78);
+  --gtm-material-menu: rgb(44 44 46 / 0.86);
+  --gtm-material-blur: saturate(180%) blur(24px);
+
+  --gtm-focus-ring: rgb(10 132 255 / 0.55);
+  --gtm-selection: rgb(10 132 255 / 0.3);
+  --gtm-control-bezel: #3a3a3c;
+  --gtm-control-shadow: 0 0 0 0.5px rgb(255 255 255 / 0.08), 0 0.5px 1px rgb(0 0 0 / 0.4);
+  --gtm-shadow-popover: 0 0 0 0.5px rgb(255 255 255 / 0.1), 0 10px 30px rgb(0 0 0 / 0.5),
+    0 2px 8px rgb(0 0 0 / 0.3);
+  --gtm-shadow-window: 0 0 0 0.5px rgb(255 255 255 / 0.1), 0 22px 70px rgb(0 0 0 / 0.6);
+  --gtm-shadow-card: 0 0 0 0.5px rgb(255 255 255 / 0.08);
 }
 
-/* ── Legacy semantic bridge (shadcn names → Twenty tokens) ─────────────── */
-/* Keep this boundary until every screen uses the application design system. */
+/* ── Legacy semantic bridge (shadcn names → tokens) ───────────────────── */
 :root,
 .light,
 .dark {
@@ -110,17 +169,17 @@
   --foreground: var(--t-font-color-primary);
   --card: var(--t-background-primary);
   --card-foreground: var(--t-font-color-primary);
-  --popover: var(--t-background-primary);
+  --popover: var(--gtm-material-menu);
   --popover-foreground: var(--t-font-color-primary);
-  --primary: var(--t-background-inverted-primary);
-  --primary-foreground: var(--t-font-color-inverted);
-  --secondary: var(--t-background-tertiary);
+  --primary: var(--gtm-accent);
+  --primary-foreground: var(--gtm-accent-foreground);
+  --secondary: var(--gtm-control-bezel);
   --secondary-foreground: var(--t-font-color-primary);
   --muted: var(--t-background-tertiary);
   --muted-foreground: var(--t-font-color-secondary);
   --accent: var(--t-background-transparent-light);
   --accent-foreground: var(--t-font-color-primary);
-  --destructive: var(--t-color-red11);
+  --destructive: var(--t-color-red9);
   --border: var(--t-border-color-medium);
   --input: var(--t-border-color-strong);
   --ring: var(--gtm-focus-ring);
@@ -130,12 +189,12 @@
   --chart-4: var(--t-color-purple9);
   --chart-5: var(--t-color-red9);
   --radius: var(--t-border-radius-md);
-  --sidebar: var(--t-background-secondary);
-  --sidebar-foreground: var(--t-font-color-secondary);
-  --sidebar-primary: var(--t-background-inverted-primary);
-  --sidebar-primary-foreground: var(--t-font-color-inverted);
-  --sidebar-accent: var(--t-background-transparent-light);
+  --sidebar: var(--gtm-material-sidebar);
+  --sidebar-foreground: var(--t-font-color-primary);
+  --sidebar-primary: var(--gtm-accent);
+  --sidebar-primary-foreground: var(--gtm-accent-foreground);
+  --sidebar-accent: var(--t-background-transparent-medium);
   --sidebar-accent-foreground: var(--t-font-color-primary);
-  --sidebar-border: var(--t-border-color-light);
+  --sidebar-border: var(--t-border-color-medium);
   --sidebar-ring: var(--gtm-focus-ring);
 }
