@@ -21,6 +21,24 @@ for G1–G7 contracts and its controlled-live release gate.
 
 ## Evidence and current status
 
+PostgreSQL checkpoint (2026-09-23): with a local PostgreSQL 18.6 cluster
+(`TEST_DATABASE_URL`), the full suite passes with 1,919 passed and 8 skipped;
+all 8 skips are opt-in live-network tests. This is the first run of the 112
+PG-gated tests (RLS isolation, worker/tenancy, MCP, outreach, seed) in this
+environment. New PG tests under the non-superuser FORCE-RLS app role verify:
+20 concurrent spend reservations never exceed the workbook cap (exactly 5 of
+20 at a 5-slot cap), concurrent replays create one reservation, exactly one of
+10 dispatchers is authorized, spend receipts are tenant-isolated, and 12
+concurrent imports of one domain converge on one entity with all 12
+observations (fails 3/3 without the row lock). Single-host test cluster only;
+not a production load or multi-host result.
+
+Run locally (throwaway cluster; PostgreSQL via mise):
+`initdb -D <dir> -U postgres --auth=trust`, start with
+`pg_ctl -D <dir> -o "-p 55432 -c unix_socket_directories='' -c listen_addresses=127.0.0.1" start`,
+`createdb -h 127.0.0.1 -p 55432 -U postgres gtm_test`, then
+`TEST_DATABASE_URL=postgresql+psycopg://postgres@127.0.0.1:55432/gtm_test env -u DATABASE_URL APP_ENV=test uv run pytest tests -q`.
+
 Latest local regression checkpoint (2026-09-23): the full backend suite passes
 with 1,786 passed, 120 skipped and two deprecation warnings (50.27 seconds), via
 `env -u DATABASE_URL APP_ENV=test uv run pytest tests -q`. All 60 frontend and
@@ -40,7 +58,7 @@ payload and end-to-end release gates. Neither V2 nor the UI migration is complet
 | Controlled-live G1–G7 release streak | Blocked in last recorded validation, 0/10 | Recheck PostgreSQL-backed Intent Watches and exact finder/independent verifier configuration before spending |
 | Exact workbook provider selection and ordering | In progress | Exact order, no default expansion, and explicit empty/unknown/unavailable outcomes are regression-tested offline; skipped providers persist in cell metadata/row JSON and show in the cell tooltip (not yet in live WebSocket updates) |
 | Bounded retries, fenced worker ownership, cancellation | In progress | First V2 tranche; requires stale-worker/restart/cancellation checks |
-| Durable claims and replay for exact contact actions | In progress | SQLite tests cover concurrent claim, restart replay, contract drift, reorder, expiry-to-uncertain and timeout; PostgreSQL concurrency unverified |
+| Durable claims and replay for exact contact actions | In progress | SQLite tests cover concurrent claim, restart replay, contract drift, reorder, expiry-to-uncertain and timeout; not yet raced on PostgreSQL |
 | Authenticated HTTP live smoke runner | In progress | Dedicated workspace; real Chat find → verify → save → retry → readback, optional paid exact-contact stage, bounded streams/timeouts, and evidence artifacts |
 | Live gauntlet execution runner | Planned | Existing scorer accepts artifacts; it does not itself drive the whole live product |
 | Expanded V2 capabilities below | Planned | No completion claims until implementation and appropriate evidence exist |
@@ -112,7 +130,8 @@ Progress (2026-09-23), offline evidence only:
 - Source materialization resolves entities in the run's workspace, matching
   the rows that reference them.
 - Threaded SQLite test: 8 concurrent imports of one domain yield one entity
-  with all 8 sources. PostgreSQL concurrency/RLS for the new table is untested.
+  with all 8 sources. On PostgreSQL under FORCE RLS: 12 concurrent imports
+  converge with all observations, and identifiers are tenant-isolated.
 - Not started: persisted person entities with employment history, claim-level
   evidence, entity-backed segments, durable chat selections, and repointing
   `row.data.account_id`/signals/audiences on merge.
