@@ -2480,8 +2480,9 @@ async def _stream_chat(
 ) -> AsyncGenerator[str, None]:
     """Stream chat completion from the configured AI provider.
 
-    On 429/rate-limit errors, automatically fails over to the next provider
-    in fallback_providers (failover does NOT consume the tool-round budget).
+    On 429/rate-limit, 5xx and 401/403 (rejected key) errors, automatically fails
+    over to the next provider in fallback_providers (failover does NOT consume
+    the tool-round budget).
 
     The agentic tool loop is bounded by `max_rounds`: each round of tool calls
     increments `round_idx`, and on the final round the model is re-issued with
@@ -2551,13 +2552,17 @@ async def _stream_chat(
                     error_body = await response.aread()
                     error_text = error_body.decode()[:200]
 
-                    # Also try failover on 5xx server errors
-                    if response.status_code >= 500 and fallback_providers:
+                    # Also fail over on 5xx server errors and on rejected
+                    # credentials (401/403: revoked, leaked or invalid keys),
+                    # which cannot succeed on retry with this provider.
+                    auth_rejected = response.status_code in (401, 403)
+                    if (response.status_code >= 500 or auth_rejected) and fallback_providers:
                         next_prov = fallback_providers[0]
                         remaining = fallback_providers[1:]
                         next_name = next_prov.get("name", next_prov.get("id", "?"))
 
-                        msg = f"⚡ {provider_name} error — switching to {next_name}..."
+                        reason = "rejected its API key" if auth_rejected else "error"
+                        msg = f"⚡ {provider_name} {reason} — switching to {next_name}..."
                         yield f'data: {json.dumps({"warning": msg})}\n\n'
 
                         async for chunk in _stream_chat(messages, tools, next_prov, remaining,

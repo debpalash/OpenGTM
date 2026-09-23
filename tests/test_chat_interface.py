@@ -325,6 +325,42 @@ def test_bounded_tool_loop_caps_rounds(monkeypatch):
     assert any("Final answer." in ln for ln in lines)
 
 
+@pytest.mark.parametrize("status", [401, 403])
+def test_rejected_api_key_fails_over_to_next_provider(monkeypatch, status):
+    """A revoked/leaked key (e.g. Google's 403 "reported as leaked") must not end
+    the turn when another configured provider can answer."""
+    calls = []
+
+    class _Client:
+        def __init__(self, *a, **k):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *exc):
+            return False
+
+        def stream(self, method, url, json=None, headers=None):
+            calls.append(url)
+            if url.startswith("http://revoked"):
+                resp = _FakeResp([])
+                resp.status_code = status
+                return resp
+            return _FakeResp(['data: ' + _dumps({"choices": [{"delta": {"content": "Answer."}}]}),
+                              "data: [DONE]"])
+
+    monkeypatch.setattr(ck.httpx, "AsyncClient", _Client)
+    revoked = {"id": "gemini", "name": "Gemini", "api_key": "k", "base_url": "http://revoked/v1", "model": "m"}
+    backup = {"id": "openrouter", "name": "OpenRouter", "api_key": "k", "base_url": "http://backup/v1", "model": "m"}
+    lines = _collect(ck._stream_chat([{"role": "user", "content": "hi"}], [], revoked, [backup],
+                                     store=object(), workspace_id="main", slug="main"))
+    assert [u.split("/")[2] for u in calls] == ["revoked", "backup"]
+    assert any("rejected its API key" in ln for ln in lines)
+    assert any("Answer." in ln for ln in lines)
+    assert not any('"error"' in ln for ln in lines)
+
+
 # ── Offline: autopilot (goal → plan → execute) ────────────────────────────
 
 def test_autopilot_drafts_plan_from_compound_goal():
