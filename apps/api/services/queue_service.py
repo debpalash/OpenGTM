@@ -178,7 +178,11 @@ class QueueService:
         return (
             "j.status = 'pending' "
             "AND (j.next_run_at IS NULL OR j.next_run_at <= :now) "
-            "AND (:fire_key_prefix IS NULL OR j.fire_key LIKE :fire_key_prefix) "
+            # CAST: PostgreSQL cannot infer the type of a NULL-only parameter
+            # ("could not determine data type of parameter"), which made every
+            # claim fail when no prefix filter was supplied.
+            "AND (CAST(:fire_key_prefix AS TEXT) IS NULL "
+            "OR j.fire_key LIKE CAST(:fire_key_prefix AS TEXT)) "
             "AND (j.workspace_id IS NULL OR :tenant_cap = 0 OR "
             "(SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' "
             "AND active.workspace_id = j.workspace_id) < :tenant_cap)"
