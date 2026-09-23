@@ -78,3 +78,42 @@
   background-position: center;
   height: 2px;
 }
+
+/* ── Sign-in scene (components/login-scene) ─────────────────────────────── */
+.gtm-login-scene {
+  --scene-ink: #1d1d1f;
+  --scene-paper: #ffffff;
+  --scene-tint: #e3eefc;
+  --scene-muted: #6e6e73;
+  --scene-accent: var(--gtm-accent);
+  --scene-shadow: rgb(0 60 120 / 0.1);
+}
+.dark .gtm-login-scene {
+  --scene-ink: #e8ecf2;
+  --scene-paper: #1f2a3c;
+  --scene-tint: #2c3d57;
+  --scene-muted: #a1a1a6;
+  --scene-shadow: rgb(0 0 0 / 0.35);
+}
+.gtm-login-scene .scene-paper { fill: var(--scene-paper); stroke: var(--scene-ink); stroke-width: 2.5; stroke-linejoin: round; }
+.gtm-login-scene .scene-line { fill: none; stroke: var(--scene-ink); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.gtm-login-scene .scene-thick { stroke-width: 5; }
+.gtm-login-scene .scene-ink { fill: var(--scene-ink); }
+.gtm-login-scene .scene-tint { fill: var(--scene-tint); }
+.gtm-login-scene .scene-accent-line { stroke: var(--scene-accent); stroke-width: 3; }
+.gtm-login-scene .scene-accent-fill { fill: var(--scene-accent); stroke: none; }
+.gtm-login-scene .scene-on-accent { stroke: #fff; }
+.gtm-login-scene .scene-shadow { fill: var(--scene-shadow); }
+.gtm-login-scene .scene-text { fill: var(--scene-ink); font: 600 14px var(--gtm-font-sans); }
+.gtm-login-scene .scene-title { fill: var(--scene-ink); font: 600 15px var(--gtm-font-sans); }
+.gtm-login-scene .scene-caption { fill: var(--scene-muted); font: 500 12px var(--gtm-font-sans); }
+/* Transform around each part's own box (anime.js sets CSS transforms). */
+.gtm-login-scene [data-part] { transform-box: fill-box; transform-origin: center; }
+.gtm-login-scene [data-part="row"] { transform-origin: left center; }
+.gtm-login-scene [data-part="bubble"] { transform-origin: 20% 100%; }
+.gtm-login-scene [data-part="mascot"],
+.gtm-login-scene [data-part="lead"] { transform-origin: 50% 100%; }
+.gtm-login-scene [data-part="megaphone"] { transform-origin: 10% 90%; }
+.gtm-login-scene [data-part="wave"] { transform-origin: 0% 100%; }
+.gtm-login-scene [data-part="face"] { transition: transform 160ms var(--gtm-ease-out, ease-out); }
+.gtm-login-scene [data-interactive] { pointer-events: auto; cursor: pointer; }

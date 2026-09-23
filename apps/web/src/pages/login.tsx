@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { ArrowLeft, Building2, Eye, EyeOff, KeyRound, LockKeyhole, LogIn, User, UserPlus } from "lucide-react"
 
+import { LoginScene } from "@/components/login-scene/login-scene"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import "./login.css"
@@ -123,6 +124,7 @@ export default function LoginPage() {
         <svg className="gtm-login-arcs pointer-events-none absolute top-1/2 left-1/2 -z-0 h-[1400px] w-[1400px] -translate-x-1/2 -translate-y-[30%]" viewBox="0 0 1400 1400" aria-hidden="true">
           <circle cx="700" cy="700" r="380" /><circle cx="700" cy="700" r="500" /><circle cx="700" cy="700" r="640" />
         </svg>
+        <LoginScene />
 
         <header className="relative z-10 flex items-center gap-2.5 px-6 pt-6 sm:px-12 sm:pt-8">
           <span className="flex size-8 items-center justify-center rounded-[var(--t-border-radius-md)] bg-[#1d1d1f] shadow-[0_1px_2px_rgb(0_0_0/0.2)] dark:bg-white">
@@ -131,8 +133,8 @@ export default function LoginPage() {
           <span className="text-[17px] font-semibold tracking-[-0.02em] text-[#1d1d1f] dark:text-white">OpenGTM</span>
         </header>
 
-        <section className="relative z-10 flex flex-1 items-center justify-center px-4 py-10">
-          <div className="gtm-launch w-full max-w-[400px]">
+        <section className="pointer-events-none relative z-10 flex flex-1 items-center justify-center px-4 py-10">
+          <div className="gtm-launch pointer-events-auto w-full max-w-[400px]">
             <div className="gtm-login-card relative rounded-[var(--gtm-radius-card)] border border-white/80 px-6 pt-8 pb-7 shadow-[var(--gtm-shadow-window)] backdrop-blur-xl sm:px-8 dark:border-white/10">
               <div className="gtm-login-texture" aria-hidden="true" />
               <div className="relative">
@@ -222,6 +224,14 @@ export default function LoginPage() {
             </p>
           </div>
         </section>
+
+        <footer className="relative z-10 px-6 pb-5 text-center text-[11px] text-[#1d1d1f]/55 sm:px-12 dark:text-white/45">
+          Inspired by{" "}
+          <a href="https://dribbble.com/BagasPrayogo" target="_blank" rel="noreferrer" className="underline decoration-current/30 underline-offset-2 hover:text-[#1d1d1f] dark:hover:text-white">Bagas Prayogo</a>
+          {" "}(sign-in design) and{" "}
+          <a href="https://dribbble.com/koniu" target="_blank" rel="noreferrer" className="underline decoration-current/30 underline-offset-2 hover:text-[#1d1d1f] dark:hover:text-white">koniu</a>
+          {" "}(mascot).
+        </footer>
       </div>
     </main>
   )
