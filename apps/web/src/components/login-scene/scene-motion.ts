@@ -32,6 +32,7 @@ export function startScene(root: SVGSVGElement): SceneController {
     const leads = q('[data-part="lead"]')
     const result = one('[data-part="result"]')
     const lens = one('[data-part="lens"]')
+    const emphasis = one('[data-part="ticks"]')
     const megaphone = one('[data-part="megaphone"]')
     const shoutLines = one('[data-part="shout"]')
     const mascot = one('[data-part="mascot"]')
@@ -45,6 +46,7 @@ export function startScene(root: SVGSVGElement): SceneController {
     if (result) utils.set(result, { opacity: 0, translateY: 12 })
     utils.set(phases, { opacity: 0 })
     if (lens) utils.set(lens, { opacity: 0 })
+    if (emphasis) utils.set(emphasis, { opacity: 0 })
 
     // ── idle ────────────────────────────────────────────────────────────
     if (mascot) track(animate(mascot, { translateY: [0, -5], duration: 1600, ease: "inOutSine", loop: true, alternate: true }))
@@ -95,10 +97,12 @@ export function startScene(root: SVGSVGElement): SceneController {
       .add(phases[1], { opacity: [0, 1], translateY: [6, 0], duration: 300 }, 1350)
       .add(lens!, { opacity: [0, 1], duration: 200 }, 1350)
       .add(lens!, {
-        translateX: [0, 60, 110, 60, 0], translateY: [-30, -4, 22, 48, 48], duration: 1300, ease: "inOutSine",
+        // sweep over the four cards (lens starts on the first)
+        translateX: [0, 110, 40, 150, 70], translateY: [0, 70, 140, 200, 210], duration: 1300, ease: "inOutSine",
       }, 1400)
       .add(drawnChecks, { draw: ["0 0", "0 1"], duration: 260, delay: stagger(260), ease: "outQuad" }, 1550)
       .add(lens!, { opacity: 0, duration: 200 }, 2700)
+      .add(emphasis!, { opacity: [0, 1, 1, 0], scale: [0.92, 1.04, 1, 1], duration: 1100, ease: "outQuad" }, 1700)
       .add(phases[1], { opacity: 0, duration: 200 }, 2750)
       // Act
       .add(phases[2], { opacity: [0, 1], translateY: [6, 0], duration: 300 }, 2850)

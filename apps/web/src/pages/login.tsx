@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react"
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { ArrowLeft, Building2, Eye, EyeOff, KeyRound, LockKeyhole, LogIn, User, UserPlus } from "lucide-react"
 
@@ -46,13 +46,85 @@ function Field({ id, label, icon, children, trailing }: {
   )
 }
 
+const GITHUB_REPO = "debpalash/OpenGTM"
+/** OpenGTM on X; the button is hidden until VITE_OPENGTM_X_URL is set. */
+const X_URL = (import.meta.env.VITE_OPENGTM_X_URL as string | undefined) || ""
+const STARS_CACHE = "gtm-github-stars"
+
+function GitHubMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" className={className} fill="currentColor">
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+    </svg>
+  )
+}
+
+function XMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  )
+}
+
+function formatStars(count: number) {
+  return count >= 1000 ? `${(count / 1000).toFixed(count >= 10000 ? 0 : 1)}k` : String(count)
+}
+
+/** Public star count, cached for an hour; the pill works without it. */
+function useGitHubStars(repo: string) {
+  const [stars, setStars] = useState<number | null>(() => {
+    try {
+      const cached = JSON.parse(localStorage.getItem(STARS_CACHE) || "null") as { count: number; at: number } | null
+      return cached && Date.now() - cached.at < 3_600_000 ? cached.count : null
+    } catch { return null }
+  })
+  useEffect(() => {
+    if (stars !== null) return
+    const controller = new AbortController()
+    fetch(`https://api.github.com/repos/${repo}`, { signal: controller.signal, headers: { Accept: "application/vnd.github+json" } })
+      .then(response => (response.ok ? response.json() : null))
+      .then((data: { stargazers_count?: number } | null) => {
+        if (typeof data?.stargazers_count !== "number") return
+        setStars(data.stargazers_count)
+        try { localStorage.setItem(STARS_CACHE, JSON.stringify({ count: data.stargazers_count, at: Date.now() })) } catch { /* private mode */ }
+      })
+      .catch(() => { /* offline or rate-limited: show the pill without a count */ })
+    return () => controller.abort()
+  }, [repo, stars])
+  return stars
+}
+
+/** The sign-in page is designed for light only; restore the user's theme on leave. */
+function useForceLightTheme() {
+  useLayoutEffect(() => {
+    const html = document.documentElement
+    const theme = (window as unknown as { OpenGTMTheme?: {
+      getSnapshot: () => string; setPreference: (value: string) => void; subscribe: (listener: () => void) => () => void
+    } }).OpenGTMTheme
+    const apply = () => {
+      html.classList.remove("dark")
+      html.classList.add("light")
+      html.style.colorScheme = "light"
+    }
+    apply()
+    const unsubscribe = theme?.subscribe(apply)
+    return () => {
+      unsubscribe?.()
+      const preference = theme?.getSnapshot().split(":")[0]
+      if (theme && preference) theme.setPreference(preference)
+    }
+  }, [])
+}
+
 const fieldClass =
-  "h-11 w-full rounded-xl border border-transparent bg-[#eef2f6] pr-3 pl-10 text-[15px] text-foreground " +
+  "gtm-login-field h-11 w-full rounded-xl border border-transparent bg-[#eef2f6] pr-3 pl-10 text-[15px] text-foreground " +
   "outline-none transition-[background-color,box-shadow] placeholder:text-[var(--t-font-color-tertiary)] " +
-  "hover:bg-[#e8edf2] focus-visible:bg-background focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] " +
-  "dark:bg-white/[0.07] dark:hover:bg-white/[0.1] dark:focus-visible:bg-white/[0.1]"
+  "hover:bg-[#e8edf2] focus-visible:bg-background focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] "
 
 export default function LoginPage() {
+  useForceLightTheme()
+  const stars = useGitHubStars(GITHUB_REPO)
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -112,13 +184,15 @@ export default function LoginPage() {
   const passwordToggle = (
     <button type="button" onClick={() => setShowPassword(value => !value)}
       aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword}
-      className="flex size-8 items-center justify-center rounded-lg text-[var(--t-font-color-tertiary)] outline-none transition-colors hover:bg-black/5 hover:text-foreground focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] dark:hover:bg-white/10 [&_svg]:size-4">
+      className="flex size-8 items-center justify-center rounded-lg text-[var(--t-font-color-tertiary)] outline-none transition-colors hover:bg-black/5 hover:text-foreground focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] [&_svg]:size-4">
       {showPassword ? <EyeOff /> : <Eye />}
     </button>
   )
 
   return (
-    <main className="min-h-screen bg-[var(--t-background-secondary)] p-2 sm:p-5">
+    // `light` scopes every token on this page: Twenty's provider also marks its
+    // wrapper with the app theme, and the nearest themed ancestor wins.
+    <main className="light min-h-screen bg-[var(--t-background-secondary)] p-2 [color-scheme:light] sm:p-5">
       <div className="gtm-login-sky relative isolate flex min-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-[var(--gtm-radius-card)] border border-[var(--t-border-color-medium)] sm:min-h-[calc(100vh-2.5rem)] sm:rounded-[var(--gtm-radius-frame)]">
         <div className="gtm-login-clouds" aria-hidden="true" />
         <svg className="gtm-login-arcs pointer-events-none absolute top-1/2 left-1/2 -z-0 h-[1400px] w-[1400px] -translate-x-1/2 -translate-y-[30%]" viewBox="0 0 1400 1400" aria-hidden="true">
@@ -126,19 +200,36 @@ export default function LoginPage() {
         </svg>
         <LoginScene />
 
-        <header className="relative z-10 flex items-center gap-2.5 px-6 pt-6 sm:px-12 sm:pt-8">
-          <span className="flex size-8 items-center justify-center rounded-[var(--t-border-radius-md)] bg-[#1d1d1f] shadow-[0_1px_2px_rgb(0_0_0/0.2)] dark:bg-white">
-            <img src="/opengtm-mark-v8.svg" alt="" aria-hidden="true" className="size-5 object-contain" />
-          </span>
-          <span className="text-[17px] font-semibold tracking-[-0.02em] text-[#1d1d1f] dark:text-white">OpenGTM</span>
+        <header className="relative z-10 flex items-center justify-between gap-4 px-6 pt-6 sm:px-12 sm:pt-8">
+          <div className="flex items-center gap-3">
+            <span className="flex size-11 items-center justify-center rounded-[var(--t-border-radius-lg)] bg-[#1d1d1f] shadow-[0_1px_2px_rgb(0_0_0/0.2),0_6px_16px_rgb(0_0_0/0.12)]">
+              <img src="/opengtm-mark-v8.svg" alt="" aria-hidden="true" className="size-7 object-contain" />
+            </span>
+            <span className="text-[22px] font-semibold tracking-[-0.025em] text-[#1d1d1f]">OpenGTM</span>
+          </div>
+          <nav aria-label="OpenGTM on the web" className="flex items-center gap-2">
+            <a href={`https://github.com/${GITHUB_REPO}`} target="_blank" rel="noreferrer"
+              aria-label={stars === null ? "Star OpenGTM on GitHub" : `Star OpenGTM on GitHub, ${stars} stars`}
+              className="flex h-9 items-center gap-2 rounded-full bg-white/80 pr-1 pl-3 text-[13px] font-medium text-[#1d1d1f] shadow-[var(--gtm-control-shadow)] backdrop-blur-md transition-colors outline-none [corner-shape:round] hover:bg-white focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)]">
+              <GitHubMark className="size-4" />
+              <span>Star</span>
+              <span className="rounded-full bg-[#1d1d1f]/[0.06] px-2 py-0.5 text-[12px] tabular-nums [corner-shape:round]">{stars === null ? "GitHub" : formatStars(stars)}</span>
+            </a>
+            {X_URL && (
+              <a href={X_URL} target="_blank" rel="noreferrer" aria-label="OpenGTM on X"
+                className="flex size-9 items-center justify-center rounded-full bg-white/80 text-[#1d1d1f] shadow-[var(--gtm-control-shadow)] backdrop-blur-md transition-colors outline-none [corner-shape:round] hover:bg-white focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)]">
+                <XMark className="size-3.5" />
+              </a>
+            )}
+          </nav>
         </header>
 
         <section className="pointer-events-none relative z-10 flex flex-1 items-center justify-center px-4 py-10">
           <div className="gtm-launch pointer-events-auto w-full max-w-[400px]">
-            <div className="gtm-login-card relative rounded-[var(--gtm-radius-card)] border border-white/80 px-6 pt-8 pb-7 shadow-[var(--gtm-shadow-window)] backdrop-blur-xl sm:px-8 dark:border-white/10">
+            <div className="gtm-login-card relative rounded-[var(--gtm-radius-card)] border border-white/80 px-6 pt-8 pb-7 shadow-[var(--gtm-shadow-window)] backdrop-blur-xl sm:px-8">
               <div className="gtm-login-texture" aria-hidden="true" />
               <div className="relative">
-                <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-[var(--gtm-radius-tile)] bg-white text-[#1d1d1f] shadow-[0_0_0_0.5px_rgb(0_0_0/0.06),0_4px_12px_rgb(0_0_0/0.08)] dark:bg-white/10 dark:text-white dark:shadow-none">
+                <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-[var(--gtm-radius-tile)] bg-white text-[#1d1d1f] shadow-[0_0_0_0.5px_rgb(0_0_0/0.06),0_4px_12px_rgb(0_0_0/0.08)]">
                   <ModeIcon className="size-5" aria-hidden="true" />
                 </div>
                 <h1 className="text-center text-[22px] font-semibold tracking-[-0.02em] text-foreground">{copy.title}</h1>
@@ -182,7 +273,7 @@ export default function LoginPage() {
                   {notice && <p role="status" className="rounded-xl bg-[var(--gtm-accent)]/10 px-3.5 py-2.5 text-[13px] leading-5 text-foreground">{notice}</p>}
 
                   <button type="submit" disabled={busy}
-                    className="mt-1 h-11 w-full rounded-xl bg-[linear-gradient(to_bottom,#3a3a3e,#161618)] text-[15px] font-medium text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_1px_2px_rgb(0_0_0/0.25),0_6px_16px_rgb(0_0_0/0.14)] outline-none transition-[filter,box-shadow] hover:brightness-125 focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] active:brightness-95 disabled:opacity-60 dark:bg-[linear-gradient(to_bottom,#ffffff,#e6e6ea)] dark:text-[#1d1d1f] dark:hover:brightness-95">
+                    className="mt-1 h-11 w-full rounded-xl bg-[linear-gradient(to_bottom,#3a3a3e,#161618)] text-[15px] font-medium text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_1px_2px_rgb(0_0_0/0.25),0_6px_16px_rgb(0_0_0/0.14)] outline-none transition-[filter,box-shadow] hover:brightness-125 focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] active:brightness-95 disabled:opacity-60">
                     {busy ? "Signing in…" : copy.submit}
                   </button>
                 </form>
@@ -219,17 +310,17 @@ export default function LoginPage() {
                 </p>
               </div>
             </div>
-            <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-[#1d1d1f]/60 dark:text-white/50">
+            <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-[#1d1d1f]/60">
               <LockKeyhole className="size-3.5" aria-hidden="true" /> Credentials stay on your OpenGTM deployment
             </p>
           </div>
         </section>
 
-        <footer className="relative z-10 px-6 pb-5 text-center text-[11px] text-[#1d1d1f]/55 sm:px-12 dark:text-white/45">
+        <footer className="relative z-10 px-6 pb-5 text-center text-[11px] text-[#1d1d1f]/55 sm:px-12">
           Inspired by{" "}
-          <a href="https://dribbble.com/BagasPrayogo" target="_blank" rel="noreferrer" className="underline decoration-current/30 underline-offset-2 hover:text-[#1d1d1f] dark:hover:text-white">Bagas Prayogo</a>
+          <a href="https://dribbble.com/BagasPrayogo" target="_blank" rel="noreferrer" className="underline decoration-current/30 underline-offset-2 hover:text-[#1d1d1f]">Bagas Prayogo</a>
           {" "}(sign-in design) and{" "}
-          <a href="https://dribbble.com/koniu" target="_blank" rel="noreferrer" className="underline decoration-current/30 underline-offset-2 hover:text-[#1d1d1f] dark:hover:text-white">koniu</a>
+          <a href="https://dribbble.com/koniu" target="_blank" rel="noreferrer" className="underline decoration-current/30 underline-offset-2 hover:text-[#1d1d1f]">koniu</a>
           {" "}(mascot).
         </footer>
       </div>

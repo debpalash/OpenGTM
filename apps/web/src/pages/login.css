@@ -1,6 +1,6 @@
 /* Sign-in page: a framed "window" over a CSS sky (no image assets), with
  * concentric arcs behind a glassy card. Light: daytime sky and clouds;
- * dark: night-blue sky with faint cloud banks. */
+ * light only (the page forces light while shown). */
 
 .gtm-login-sky {
   --login-sky-top: #86c5ec;
@@ -11,16 +11,6 @@
   --login-arc: rgb(255 255 255 / 0.55);
   background:
     linear-gradient(to bottom, var(--login-sky-top) 0%, var(--login-sky-mid) 42%, var(--login-sky-low) 72%, #ffffff 100%);
-}
-.dark .gtm-login-sky {
-  --login-sky-top: #0a1424;
-  --login-sky-mid: #13223a;
-  --login-sky-low: #1b2a42;
-  --login-cloud: rgb(120 140 170 / 0.22);
-  --login-cloud-soft: rgb(120 140 170 / 0.12);
-  --login-arc: rgb(255 255 255 / 0.08);
-  background:
-    linear-gradient(to bottom, var(--login-sky-top) 0%, var(--login-sky-mid) 50%, var(--login-sky-low) 80%, #1e1e1e 100%);
 }
 
 /* Cloud banks: layered, blurred radial gradients along the bottom. */
@@ -53,9 +43,6 @@
 .gtm-login-card {
   background: linear-gradient(to bottom, rgb(210 243 255 / 0.95) 0%, rgb(255 255 255 / 0.97) 42%);
 }
-.dark .gtm-login-card {
-  background: linear-gradient(to bottom, rgb(28 48 72 / 0.94) 0%, rgb(30 30 32 / 0.97) 45%);
-}
 /* Faint dot texture that fades out below the card header. */
 .gtm-login-texture {
   position: absolute;
@@ -67,9 +54,6 @@
   mask-image: linear-gradient(to bottom, black, transparent 36%);
   pointer-events: none;
 }
-.dark .gtm-login-texture {
-  background-image: radial-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px);
-}
 
 .gtm-login-divider {
   background-image: radial-gradient(circle, var(--t-font-color-light) 1px, transparent 1.2px);
@@ -79,31 +63,28 @@
   height: 2px;
 }
 
-/* ── Sign-in scene (components/login-scene) ─────────────────────────────── */
+/* ── Sign-in scene (components/login-scene): koniu-style ink line art ──── */
 .gtm-login-scene {
-  --scene-ink: #1d1d1f;
-  --scene-paper: #ffffff;
-  --scene-tint: #e3eefc;
-  --scene-muted: #6e6e73;
-  --scene-accent: var(--gtm-accent);
-  --scene-shadow: rgb(0 60 120 / 0.1);
+  --scene-ink: #1b1b1f;
+  --scene-paper: #f3f6fa;     /* cool paper, as in the references */
+  --scene-tint: #dce7f5;
+  --scene-muted: #5f6368;
+  --scene-accent: #1f7ae0;
+  --scene-line: 2.5;
 }
-.dark .gtm-login-scene {
-  --scene-ink: #e8ecf2;
-  --scene-paper: #1f2a3c;
-  --scene-tint: #2c3d57;
-  --scene-muted: #a1a1a6;
-  --scene-shadow: rgb(0 0 0 / 0.35);
-}
-.gtm-login-scene .scene-paper { fill: var(--scene-paper); stroke: var(--scene-ink); stroke-width: 2.5; stroke-linejoin: round; }
-.gtm-login-scene .scene-line { fill: none; stroke: var(--scene-ink); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-.gtm-login-scene .scene-thick { stroke-width: 5; }
-.gtm-login-scene .scene-ink { fill: var(--scene-ink); }
+.gtm-login-scene .scene-sketch { filter: url(#gtm-pencil); }
+.gtm-login-scene .scene-paper { fill: var(--scene-paper); stroke: var(--scene-ink); stroke-width: var(--scene-line); stroke-linejoin: round; stroke-linecap: round; }
+.gtm-login-scene .scene-line { fill: none; stroke: var(--scene-ink); stroke-width: var(--scene-line); stroke-linecap: round; stroke-linejoin: round; }
+.gtm-login-scene .scene-thin { stroke-width: 1.6; }
+.gtm-login-scene .scene-thick { stroke-width: 4.5; }
+.gtm-login-scene .scene-ink { fill: var(--scene-ink); stroke: none; }
 .gtm-login-scene .scene-tint { fill: var(--scene-tint); }
-.gtm-login-scene .scene-accent-line { stroke: var(--scene-accent); stroke-width: 3; }
+.gtm-login-scene .scene-accent-line { stroke: var(--scene-accent); stroke-width: 2.8; }
 .gtm-login-scene .scene-accent-fill { fill: var(--scene-accent); stroke: none; }
 .gtm-login-scene .scene-on-accent { stroke: #fff; }
-.gtm-login-scene .scene-shadow { fill: var(--scene-shadow); }
+/* <Union>: a double-width ink stroke under a paper fill = one seamless outline. */
+.gtm-login-scene .ink-under path { fill: var(--scene-ink); stroke: var(--scene-ink); stroke-width: calc(var(--scene-line) * 2); stroke-linejoin: round; }
+.gtm-login-scene .ink-over path { fill: var(--scene-paper); stroke: none; }
 .gtm-login-scene .scene-text { fill: var(--scene-ink); font: 600 14px var(--gtm-font-sans); }
 .gtm-login-scene .scene-title { fill: var(--scene-ink); font: 600 15px var(--gtm-font-sans); }
 .gtm-login-scene .scene-caption { fill: var(--scene-muted); font: 500 12px var(--gtm-font-sans); }
@@ -117,3 +98,18 @@
 .gtm-login-scene [data-part="wave"] { transform-origin: 0% 100%; }
 .gtm-login-scene [data-part="face"] { transition: transform 160ms var(--gtm-ease-out, ease-out); }
 .gtm-login-scene [data-interactive] { pointer-events: auto; cursor: pointer; }
+
+/* Autofill: keep the field design (Firefox tints autofill with a UA filter,
+ * Chromium paints a yellow background). */
+.gtm-login-field:autofill,
+.gtm-login-field:-webkit-autofill {
+  filter: none !important;
+  -webkit-text-fill-color: #1d1d1f;
+  caret-color: #1d1d1f;
+  box-shadow: inset 0 0 0 100px #eef2f6;
+  transition: background-color 600000s 0s;
+}
+.gtm-login-field:autofill:focus-visible,
+.gtm-login-field:-webkit-autofill:focus-visible {
+  box-shadow: inset 0 0 0 100px #ffffff, 0 0 0 3px var(--gtm-focus-ring);
+}
