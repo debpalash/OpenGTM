@@ -16,11 +16,12 @@ from apps.api.services.entities.graph import identity_domain, merge_entities, re
 from apps.api.services.entities.models import (
     CompanyEntity, CompanyIdentifier, EntityBlockingKey, EntityMergeLog, EntityReviewPair,
 )
+from apps.api.services.poller.models import WatchSubscription
 from apps.api.services.workbook.models import Workbook, WorkbookRow
 
 _TABLES = [CompanyEntity.__table__, CompanyIdentifier.__table__, EntityBlockingKey.__table__,
            EntityMergeLog.__table__, EntityReviewPair.__table__, Workbook.__table__,
-           WorkbookRow.__table__]
+           WorkbookRow.__table__, WatchSubscription.__table__]
 
 
 @pytest.fixture
@@ -176,3 +177,69 @@ def test_migration_backfills_oldest_owner_and_skips_shared_hosts(tmp_path, monke
     assert got == {("ws-1", "acme.com", "e1"), ("ws-1", "acme.io", "e1"), ("ws-2", "acme.com", "e4")}
     assert con.execute("SELECT count(*) FROM company_entities").fetchone()[0] == 4  # nothing merged
     con.close()
+
+
+def test_merge_repoints_row_account_ids_and_signal_watches_then_split_restores(Session):
+    from apps.api.services.signals.tracking import _scope_key, workbook_account_ids
+
+    with Session() as db:
+        kept, _ = resolve_company(db, {"company": "Acme", "website": "acme.com"}, "csv", workspace_id="ws-1")
+        dup, _ = resolve_company(db, {"company": "Acme Holdings", "website": "acme-holdings.io"}, "crm",
+                                 workspace_id="ws-1")
+        k, m = kept.id, dup.id
+        db.add(Workbook(id="wb", workspace_id="ws-1", name="Accounts"))
+        for pos, eid in enumerate((k, m)):
+            db.add(WorkbookRow(workbook_id="wb", workspace_id="ws-1", position=pos, canonical_entity_id=eid,
+                               data={"account_id": eid, "company": "Acme", "canonical_domain": "acme.com"}))
+        accounts = [{"account_id": k, "company": "Acme"}, {"account_id": m, "company": "Acme Holdings"}]
+        db.add(WatchSubscription(
+            id="w1", workspace_id="ws-1", kind="account_group", target="Account set", signal_types=["jobs"],
+            config={"accounts": accounts, "scope_key": _scope_key([k, m])},
+            cursor={"account_group": {k: {"seen": ["a"]}, m: {"seen": ["b"]}},
+                    "collector_health": {f"{k}:jobs": "ok", f"{m}:jobs": "failing"}}))
+        db.commit()
+        assert sorted(workbook_account_ids(db, "ws-1", "wb")) == sorted([k, m])
+
+        merge_entities(db, k, m, workspace_id="ws-1")
+        # One account everywhere: rows, signal tracking, and the watch scope.
+        assert workbook_account_ids(db, "ws-1", "wb") == [k]
+        watch = db.get(WatchSubscription, "w1")
+        assert [a["account_id"] for a in watch.config["accounts"]] == [k]
+        assert watch.config["scope_key"] == _scope_key([k])
+        assert set(watch.cursor["account_group"]) == {k}
+        assert watch.cursor["account_group"][k] == {"seen": ["a"]}  # kept account's cursor wins
+        assert set(watch.cursor["collector_health"]) == {f"{k}:jobs"}
+
+        split_entity(db, db.query(EntityMergeLog).one().id, workspace_id="ws-1")
+        db.expire_all()
+        assert sorted(workbook_account_ids(db, "ws-1", "wb")) == sorted([k, m])
+        watch = db.get(WatchSubscription, "w1")
+        assert watch.config["accounts"] == accounts
+        assert watch.config["scope_key"] == _scope_key([k, m])
+        assert watch.cursor["account_group"] == {k: {"seen": ["a"]}, m: {"seen": ["b"]}}
+        assert watch.cursor["collector_health"] == {f"{k}:jobs": "ok", f"{m}:jobs": "failing"}
+
+
+def test_merge_moves_cursor_when_only_the_merged_account_was_tracked(Session):
+    from apps.api.services.signals.tracking import _scope_key
+
+    with Session() as db:
+        kept, _ = resolve_company(db, {"company": "Beta", "website": "beta.com"}, "csv", workspace_id="ws-1")
+        dup, _ = resolve_company(db, {"company": "Beta Labs", "website": "beta-labs.io"}, "crm",
+                                 workspace_id="ws-1")
+        k, m = kept.id, dup.id
+        db.add(WatchSubscription(
+            id="w2", workspace_id="ws-1", kind="account_group", target="Account set", signal_types=["jobs"],
+            config={"accounts": [{"account_id": m, "company": "Beta Labs"}], "scope_key": _scope_key([m])},
+            cursor={"account_group": {m: {"seen": ["x"]}}, "collector_health": {f"{m}:jobs": "ok"}}))
+        db.commit()
+        merge_entities(db, k, m, workspace_id="ws-1")
+        watch = db.get(WatchSubscription, "w2")
+        assert watch.config["accounts"] == [{"account_id": k, "company": "Beta Labs"}]
+        assert watch.cursor["account_group"] == {k: {"seen": ["x"]}}  # polling history kept
+        assert watch.cursor["collector_health"] == {f"{k}:jobs": "ok"}
+        split_entity(db, db.query(EntityMergeLog).one().id, workspace_id="ws-1")
+        db.expire_all()
+        watch = db.get(WatchSubscription, "w2")
+        assert watch.cursor["account_group"] == {m: {"seen": ["x"]}}
+        assert watch.config["accounts"][0]["account_id"] == m

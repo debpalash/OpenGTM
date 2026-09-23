@@ -152,9 +152,14 @@ Progress (2026-09-23), offline evidence only:
 - Threaded SQLite test: 8 concurrent imports of one domain yield one entity
   with all 8 sources. On PostgreSQL under FORCE RLS: 12 concurrent imports
   converge with all observations, and identifiers are tenant-isolated.
+- Merge now repoints every stored account reference: row `data.account_id`
+  (read first by signal tracking) and account-group watches (accounts,
+  per-account polling cursors, collector health, scope key; the kept
+  account's cursor wins when both were tracked). Split restores them.
+  Verified on SQLite and PostgreSQL under FORCE RLS. Audiences and
+  destinations key on lead IDs, not entity IDs, so merges do not affect them.
 - Not started: persisted person entities with employment history, claim-level
-  evidence, entity-backed segments, durable chat selections, and repointing
-  `row.data.account_id`/signals/audiences on merge.
+  evidence, entity-backed segments, durable chat selections.
 
 - Introduce or consolidate canonical account and person identities shared by
   chat, workbooks, contact enrichment, signals, and destinations. Preserve aliases,

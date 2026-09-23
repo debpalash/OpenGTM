@@ -96,3 +96,34 @@ def test_identifiers_are_tenant_isolated_under_force_rls(app_session):
         with pytest.raises(DBAPIError):
             db.flush()
         db.rollback()
+
+
+def test_merge_repoints_row_and_watch_references_under_rls(app_session):
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.entities.graph import merge_entities, resolve_company
+    from apps.api.services.poller.models import WatchSubscription
+    from apps.api.services.signals.tracking import _scope_key, workbook_account_ids
+    from apps.api.services.workbook.models import Workbook, WorkbookRow
+
+    ws = _ws()
+    wb = f"wb_{uuid.uuid4().hex[:8]}"
+    with workspace_scope(ws), app_session() as db:
+        kept, _ = resolve_company(db, {"company": "Gamma", "website": "gamma-pg.com"}, "csv", workspace_id=ws)
+        dup, _ = resolve_company(db, {"company": "Gamma Inc", "website": "gamma-inc-pg.io"}, "crm", workspace_id=ws)
+        k, m = kept.id, dup.id
+        db.add(Workbook(id=wb, workspace_id=ws, name="Accounts"))
+        db.flush()
+        db.add(WorkbookRow(workbook_id=wb, workspace_id=ws, position=0, canonical_entity_id=m,
+                           data={"account_id": m, "company": "Gamma Inc"}))
+        watch_id = str(uuid.uuid4())
+        db.add(WatchSubscription(id=watch_id, workspace_id=ws, kind="account_group", target="Account set",
+                                 signal_types=["jobs"],
+                                 config={"accounts": [{"account_id": m}], "scope_key": _scope_key([m])},
+                                 cursor={"account_group": {m: {"seen": ["x"]}}, "collector_health": {}}))
+        db.commit()
+        merge_entities(db, k, m, workspace_id=ws)
+    with workspace_scope(ws), app_session() as db:
+        assert workbook_account_ids(db, ws, wb) == [k]
+        watch = db.get(WatchSubscription, watch_id)
+        assert watch.config["accounts"] == [{"account_id": k}]
+        assert watch.cursor["account_group"] == {k: {"seen": ["x"]}}

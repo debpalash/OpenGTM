@@ -333,6 +333,107 @@ def resolve_company(
 
 # ── Merge / Split (human-in-the-loop corrections) ────────────────────────
 
+def _repoint_account_references(db: Session, ws: str, merged_id: str, kept_id: str) -> dict:
+    """Point every stored account reference at the kept entity; return an undo record.
+
+    Beyond ``WorkbookRow.canonical_entity_id`` (handled by the caller), accounts
+    are referenced by ``WorkbookRow.data["account_id"]`` (read first by signal
+    tracking) and by account-group watches (config accounts, per-account polling
+    cursors, collector health, and the scope key that deduplicates watches).
+    """
+    import copy
+    from sqlalchemy import String, cast, or_
+    from sqlalchemy.orm.attributes import flag_modified
+    from apps.api.services.poller.models import WatchSubscription
+    from apps.api.services.signals.tracking import _scope_key
+
+    undo: dict = {"account_rows": [], "watches": {}}
+    rows = db.query(WorkbookRow).filter(
+        WorkbookRow.workspace_id == ws,
+        or_(WorkbookRow.canonical_entity_id == merged_id,
+            cast(WorkbookRow.data, String).like(f"%{merged_id}%")),
+    ).all()
+    for row in rows:
+        data = row.data if isinstance(row.data, dict) else None
+        if data and data.get("account_id") == merged_id:
+            row.data = {**data, "account_id": kept_id}
+            flag_modified(row, "data")
+            undo["account_rows"].append(row.id)
+
+    watches = db.query(WatchSubscription).filter(
+        WatchSubscription.workspace_id == ws,
+        WatchSubscription.kind == "account_group",
+    ).all()
+    for watch in watches:
+        config = watch.config if isinstance(watch.config, dict) else {}
+        accounts = config.get("accounts") if isinstance(config.get("accounts"), list) else []
+        if not any(isinstance(a, dict) and a.get("account_id") == merged_id for a in accounts):
+            continue
+        cursor = watch.cursor if isinstance(watch.cursor, dict) else {}
+        group = dict(cursor.get("account_group") or {})
+        health = dict(cursor.get("collector_health") or {})
+        kept_tracked = any(isinstance(a, dict) and a.get("account_id") == kept_id for a in accounts)
+        undo["watches"][watch.id] = {
+            "accounts": copy.deepcopy(accounts),
+            "scope_key": config.get("scope_key"),
+            "group_entry": copy.deepcopy(group.get(merged_id)),
+            "health": {k: v for k, v in health.items() if k.startswith(f"{merged_id}:")},
+            "moved_cursor": not kept_tracked and merged_id in group,
+        }
+        new_accounts = []
+        for account in accounts:
+            if isinstance(account, dict) and account.get("account_id") == merged_id:
+                if kept_tracked:
+                    continue  # the kept account is already polled by this watch
+                account = {**account, "account_id": kept_id}
+            new_accounts.append(account)
+        if merged_id in group:
+            entry = group.pop(merged_id)
+            group.setdefault(kept_id, entry)
+        for key in [k for k in health if k.startswith(f"{merged_id}:")]:
+            value = health.pop(key)
+            health.setdefault(f"{kept_id}:{key.split(':', 1)[1]}", value)
+        ids = [a["account_id"] for a in new_accounts if isinstance(a, dict) and a.get("account_id")]
+        watch.config = {**config, "accounts": new_accounts, "scope_key": _scope_key(ids)}
+        watch.cursor = {**cursor, "account_group": group, "collector_health": health}
+        flag_modified(watch, "config")
+        flag_modified(watch, "cursor")
+    return undo
+
+
+def _restore_account_references(db: Session, ws: str, undo: dict, merged_id: str, kept_id: str):
+    """Reverse ``_repoint_account_references`` for a split."""
+    from sqlalchemy.orm.attributes import flag_modified
+    from apps.api.services.poller.models import WatchSubscription
+
+    for row_id in undo.get("account_rows") or []:
+        row = db.query(WorkbookRow).filter(WorkbookRow.id == row_id, WorkbookRow.workspace_id == ws).first()
+        data = row.data if row is not None and isinstance(row.data, dict) else None
+        if data and data.get("account_id") == kept_id:
+            row.data = {**data, "account_id": merged_id}
+            flag_modified(row, "data")
+    for watch_id, saved in (undo.get("watches") or {}).items():
+        watch = db.query(WatchSubscription).filter(
+            WatchSubscription.id == watch_id, WatchSubscription.workspace_id == ws).first()
+        if watch is None:
+            continue
+        config = watch.config if isinstance(watch.config, dict) else {}
+        cursor = watch.cursor if isinstance(watch.cursor, dict) else {}
+        group = dict(cursor.get("account_group") or {})
+        health = dict(cursor.get("collector_health") or {})
+        if saved.get("moved_cursor"):
+            group.pop(kept_id, None)
+            for key in [k for k in health if k.startswith(f"{kept_id}:")]:
+                health.pop(key)
+        if saved.get("group_entry") is not None:
+            group[merged_id] = saved["group_entry"]
+        health.update(saved.get("health") or {})
+        watch.config = {**config, "accounts": saved.get("accounts") or [], "scope_key": saved.get("scope_key")}
+        watch.cursor = {**cursor, "account_group": group, "collector_health": health}
+        flag_modified(watch, "config")
+        flag_modified(watch, "cursor")
+
+
 def merge_entities(
     db: Session,
     kept_id: str,
@@ -370,7 +471,8 @@ def merge_entities(
         CompanyIdentifier.workspace_id == kept.workspace_id,
     ).all()]
     snapshot = {"entity": merged.to_api(), "blocking_keys": merged_keys, "row_ids": row_ids,
-                "identifiers": merged_identifiers}
+                "identifiers": merged_identifiers,
+                "references": _repoint_account_references(db, kept.workspace_id, merged_id, kept_id)}
 
     # Combine provenance
     kf = dict(kept.fields or {})
@@ -458,6 +560,8 @@ def split_entity(db: Session, merge_log_id: int, workspace_id: str = None) -> di
         ).update(
             {WorkbookRow.canonical_entity_id: eid}, synchronize_session=False
         )
+    if snap.get("references"):
+        _restore_account_references(db, snapshot_workspace_id, snap["references"], eid, log.kept_id)
     log.reverted = 1
     db.commit()
     return {"restored_id": eid, "rebound_rows": len(snap.get("row_ids", []))}
