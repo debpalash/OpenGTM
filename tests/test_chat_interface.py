@@ -361,6 +361,36 @@ def test_rejected_api_key_fails_over_to_next_provider(monkeypatch, status):
     assert not any('"error"' in ln for ln in lines)
 
 
+def test_slow_tools_keep_the_stream_alive_and_return_their_result():
+    async def slow():
+        await asyncio.sleep(0.12)
+        return "done"
+
+    async def run():
+        box, pings = [], []
+        async for ping in ck._await_with_keepalive(slow(), box, interval=0.03):
+            pings.append(ping)
+        return box, pings
+
+    box, pings = asyncio.run(run())
+    assert box == ["done"]
+    assert len(pings) >= 2 and all(p == ": keepalive\n\n" for p in pings)
+
+
+def test_keepalive_propagates_tool_errors():
+    async def broken():
+        await asyncio.sleep(0.05)
+        raise RuntimeError("search backend down")
+
+    async def run():
+        box = []
+        async for _ in ck._await_with_keepalive(broken(), box, interval=0.01):
+            pass
+
+    with pytest.raises(RuntimeError, match="search backend down"):
+        asyncio.run(run())
+
+
 # ── Offline: autopilot (goal → plan → execute) ────────────────────────────
 
 def test_autopilot_drafts_plan_from_compound_goal():

@@ -2464,6 +2464,31 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
 
 # ── Chat completion proxy ────────────────────────────────────────
 
+SSE_KEEPALIVE_SECONDS = 10.0
+
+
+async def _await_with_keepalive(pending, box: list, interval: float = SSE_KEEPALIVE_SECONDS):
+    """Await ``pending`` while yielding SSE comment lines every ``interval``.
+
+    Long tools (people research can take ~45s) otherwise leave the stream
+    silent, and clients or proxies with shorter read timeouts drop it. SSE
+    comments are ignored by consumers. The result is appended to ``box``;
+    exceptions propagate to the caller. Create ``pending`` inside any
+    workspace_scope so the task inherits it; the yields happen outside it.
+    """
+    task = asyncio.ensure_future(pending)
+    try:
+        while True:
+            done, _ = await asyncio.wait({task}, timeout=interval)
+            if done:
+                break
+            yield ": keepalive\n\n"
+        box.append(task.result())
+    finally:
+        if not task.done():
+            task.cancel()
+
+
 async def _stream_chat(
     messages: list,
     tools: list,
@@ -2644,11 +2669,15 @@ async def _stream_chat(
                                     # Run the tool inside the request's tenant scope so PG
                                     # txns (PgLeadStore + workbook SessionLocal) get the RLS GUC.
                                     with workspace_scope(workspace_id):
-                                        result = await _execute_tool(
+                                        pending = asyncio.ensure_future(_execute_tool(
                                             fn_name, fn_args, store=store,
                                             workspace_id=workspace_id, slug=slug,
                                             user_id=user_id,
-                                        )
+                                        ))
+                                    box = []
+                                    async for ping in _await_with_keepalive(pending, box):
+                                        yield ping
+                                    result = box[0]
                                     seen_calls[sig] = result
                                 yield f"data: {json.dumps({'tool_result': {'name': fn_name, 'result': json.loads(result)}})}\n\n"
                                 tool_results.append({
@@ -2794,10 +2823,14 @@ async def _resolve_approved_calls(
         if decision == "approve" and fn_name in DANGEROUS_TOOLS:
             yield f"data: {json.dumps({'tool_call': {'name': fn_name, 'args': fn_args}})}\n\n"
             with workspace_scope(workspace_id):
-                result = await _execute_tool(
+                pending = asyncio.ensure_future(_execute_tool(
                     fn_name, fn_args, store=store, workspace_id=workspace_id, slug=slug,
                     user_id=user_id,
-                )
+                ))
+            box = []
+            async for ping in _await_with_keepalive(pending, box):
+                yield ping
+            result = box[0]
             try:
                 parsed_result = json.loads(result)
             except json.JSONDecodeError:
@@ -2947,7 +2980,10 @@ async def copilot_chat(request: Request):
             yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
             yield f"data: {json.dumps({'tool_call': {'name': 'find_people_at_company', 'args': args}})}\n\n"
             try:
-                result = await research_people_at_company(**args)
+                box = []
+                async for ping in _await_with_keepalive(research_people_at_company(**args), box):
+                    yield ping
+                result = box[0]
             except Exception as exc:
                 result = {
                     "ok": False,
@@ -3082,7 +3118,10 @@ async def copilot_chat(request: Request):
             yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
             yield f"data: {json.dumps({'tool_call': {'name': 'verify_people_at_company', 'args': display_args}})}\n\n"
             try:
-                result = await verify_people_at_company(**args)
+                box = []
+                async for ping in _await_with_keepalive(verify_people_at_company(**args), box):
+                    yield ping
+                result = box[0]
             except Exception as exc:
                 result = {
                     "ok": False,
