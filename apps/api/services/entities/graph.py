@@ -15,13 +15,15 @@ from collections import Counter
 from datetime import datetime, timezone
 from typing import Optional, Tuple
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from apps.api.services.dedup import (
     compare_leads, normalize_company, normalize_domain, normalize_phone,
 )
 from apps.api.services.entities.models import (
-    CompanyEntity, EntityBlockingKey, EntityMergeLog, EntityReviewPair,
+    CompanyEntity, CompanyIdentifier, EntityBlockingKey, EntityMergeLog,
+    EntityReviewPair,
 )
 from apps.api.services.workbook.models import WorkbookRow
 
@@ -42,13 +44,67 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+# Hosts where the URL *path* identifies a business (profiles, link pages, maps,
+# marketplaces, shorteners). Their hostname is shared by unrelated companies, so
+# it must never act as a company's identity domain or a domain match signal.
+_SHARED_HOSTS = frozenset({
+    "facebook.com", "fb.com", "fb.me", "instagram.com", "linkedin.com",
+    "twitter.com", "x.com", "youtube.com", "youtu.be", "tiktok.com",
+    "pinterest.com", "threads.net", "wa.me", "whatsapp.com", "t.me",
+    "linktr.ee", "linkin.bio", "beacons.ai", "carrd.co", "bio.link",
+    "google.com", "goo.gl", "g.page", "bit.ly", "tinyurl.com", "ow.ly",
+    "yelp.com", "tripadvisor.com", "justdial.com", "indiamart.com",
+    "zomato.com", "swiggy.com", "amazon.com", "etsy.com", "ebay.com",
+    "github.com", "medium.com", "substack.com", "notion.site",
+    "crunchbase.com", "glassdoor.com", "indeed.com", "clutch.co", "g2.com",
+    "wikipedia.org", "yellowpages.com", "angi.com", "houzz.com",
+})
+
+
+def identity_domain(url: str) -> str:
+    """A company's own normalized domain, or "" for shared/profile hosts."""
+    domain = normalize_domain(url or "")
+    if not domain or "." not in domain:
+        return ""
+    if domain in _SHARED_HOSTS or any(domain.endswith("." + h) for h in _SHARED_HOSTS):
+        return ""
+    return domain
+
+
+def _identity_lead(lead: dict) -> dict:
+    """Lead view for matching: shared hosts carry no domain signal."""
+    return {**lead, "website": identity_domain(lead.get("website", ""))}
+
+
+def _identifier_owner(db: Session, workspace_id: str, kind: str, value: str) -> Optional[str]:
+    row = db.query(CompanyIdentifier.entity_id).filter_by(
+        workspace_id=workspace_id, kind=kind, value=value,
+    ).first()
+    return row[0] if row else None
+
+
+def _claim_identifier(db: Session, workspace_id: str, kind: str, value: str, entity_id: str) -> str:
+    """Claim an identifier for an entity; returns the actual owner's id."""
+    owner = _identifier_owner(db, workspace_id, kind, value)
+    if owner:
+        return owner
+    try:
+        with db.begin_nested():
+            db.add(CompanyIdentifier(workspace_id=workspace_id, kind=kind,
+                                     value=value, entity_id=entity_id))
+            db.flush()
+        return entity_id
+    except IntegrityError:
+        return _identifier_owner(db, workspace_id, kind, value) or entity_id
+
+
 def _blocking_keys(lead: dict) -> set:
     """Same blocking scheme as LeadDeduplicator, for a single record."""
     keys = set()
     name = normalize_company(lead.get("company", ""))
     if len(name) >= 3:
         keys.add(f"name:{name[:3]}")
-    domain = normalize_domain(lead.get("website", ""))
+    domain = identity_domain(lead.get("website", ""))
     if domain:
         keys.add(f"domain:{domain}")
     phone = normalize_phone(lead.get("phone", ""))
@@ -103,7 +159,7 @@ def _recompute(entity: CompanyEntity):
         if field == "company":
             entity.canonical_name = winner
         elif field == "website":
-            entity.primary_domain = normalize_domain(winner)
+            entity.primary_domain = identity_domain(winner)
         elif field == "phone":
             entity.primary_phone = winner
         elif field == "email":
@@ -122,7 +178,7 @@ def _create_entity(db: Session, lead: dict, source: str, workspace_id: str = "")
         if v not in (None, "", "N/A"):
             fields[f] = [{"value": str(v), "source": source, "observed_at": _now()}]
 
-    domain = normalize_domain(lead.get("website", ""))
+    domain = identity_domain(lead.get("website", ""))
     entity = CompanyEntity(
         workspace_id=workspace_id or "",
         canonical_name=str(lead.get("company") or "").strip() or "(unknown)",
@@ -149,7 +205,23 @@ def _create_entity(db: Session, lead: dict, source: str, workspace_id: str = "")
     return entity
 
 
+def _lock_for_update(db: Session, entity: CompanyEntity):
+    """Take the entity's write lock, then reload it.
+
+    Observations append to JSON columns in Python. Without a lock, two
+    concurrent imports read the same value and the last write drops the other's
+    provenance. A no-op UPDATE locks the row on PostgreSQL (and the database on
+    SQLite) portably; the refresh then sees any committed concurrent append.
+    """
+    db.query(CompanyEntity).filter(CompanyEntity.id == entity.id).update(
+        {CompanyEntity.observation_count: CompanyEntity.observation_count},
+        synchronize_session=False,
+    )
+    db.refresh(entity)
+
+
 def _record_observation(db: Session, entity: CompanyEntity, lead: dict, source: str):
+    _lock_for_update(db, entity)
     fields = dict(entity.fields or {})
     for f in _PROV_FIELDS:
         v = lead.get(f)
@@ -167,7 +239,7 @@ def _record_observation(db: Session, entity: CompanyEntity, lead: dict, source: 
         if val not in lst:
             lst.append(val)
             ik[key] = lst
-    _add("domains", normalize_domain(lead.get("website", "")))
+    _add("domains", identity_domain(lead.get("website", "")))
     _add("phones", normalize_phone(lead.get("phone", "")))
     _add("emails", str(lead.get("email")) if lead.get("email") else "")
     _add("name_variants", str(lead.get("company")) if lead.get("company") else "")
@@ -197,24 +269,56 @@ def resolve_company(
     """
     source = observation_source or str(lead.get("source") or "") or "unknown"
     ws = workspace_id or ""
+    domain = identity_domain(lead.get("website", ""))
+
+    # Exact identity first: an owned domain is authoritative and deterministic.
+    if domain:
+        owner = _identifier_owner(db, ws, "domain", domain)
+        owned = db.get(CompanyEntity, owner) if owner else None
+        if owned is not None and (owned.workspace_id or "") == ws:
+            _record_observation(db, owned, lead, source)
+            db.flush()
+            return owned, False
+
     keys = _blocking_keys(lead)
+    probe = _identity_lead(lead)
     best, best_score = None, 0.0
     for eid in _candidate_ids(db, keys, ws):
         ent = db.get(CompanyEntity, eid)
         if not ent or (ent.workspace_id or "") != ws:
             continue  # tenant isolation
-        res = compare_leads(lead, ent.repr_dict())
+        res = compare_leads(probe, ent.repr_dict())
         if res.score > best_score:
             best, best_score = ent, res.score
 
     if best is not None and best_score >= MATCH_THRESHOLD:
+        if domain:
+            _claim_identifier(db, ws, "domain", domain, best.id)
         _record_observation(db, best, lead, source)
         # Flush so this entity's (possibly new) blocking keys are visible to the
         # next resolve_company() in the same batch — SessionLocal is autoflush=False.
         db.flush()
         return best, False
 
-    entity = _create_entity(db, lead, source, workspace_id=ws)
+    if domain:
+        # Create and claim atomically. A concurrent import that claimed the
+        # domain first wins; this one records its observation on the winner.
+        try:
+            with db.begin_nested():
+                entity = _create_entity(db, lead, source, workspace_id=ws)
+                db.add(CompanyIdentifier(workspace_id=ws, kind="domain",
+                                         value=domain, entity_id=entity.id))
+                db.flush()
+        except IntegrityError:
+            owner = _identifier_owner(db, ws, "domain", domain)
+            winner = db.get(CompanyEntity, owner) if owner else None
+            if winner is None:
+                raise
+            _record_observation(db, winner, lead, source)
+            db.flush()
+            return winner, False
+    else:
+        entity = _create_entity(db, lead, source, workspace_id=ws)
     if best is not None and GREY_BAND <= best_score < MATCH_THRESHOLD:
         db.add(EntityReviewPair(
             workspace_id=ws,
@@ -228,6 +332,107 @@ def resolve_company(
 
 
 # ── Merge / Split (human-in-the-loop corrections) ────────────────────────
+
+def _repoint_account_references(db: Session, ws: str, merged_id: str, kept_id: str) -> dict:
+    """Point every stored account reference at the kept entity; return an undo record.
+
+    Beyond ``WorkbookRow.canonical_entity_id`` (handled by the caller), accounts
+    are referenced by ``WorkbookRow.data["account_id"]`` (read first by signal
+    tracking) and by account-group watches (config accounts, per-account polling
+    cursors, collector health, and the scope key that deduplicates watches).
+    """
+    import copy
+    from sqlalchemy import String, cast, or_
+    from sqlalchemy.orm.attributes import flag_modified
+    from apps.api.services.poller.models import WatchSubscription
+    from apps.api.services.signals.tracking import _scope_key
+
+    undo: dict = {"account_rows": [], "watches": {}}
+    rows = db.query(WorkbookRow).filter(
+        WorkbookRow.workspace_id == ws,
+        or_(WorkbookRow.canonical_entity_id == merged_id,
+            cast(WorkbookRow.data, String).like(f"%{merged_id}%")),
+    ).all()
+    for row in rows:
+        data = row.data if isinstance(row.data, dict) else None
+        if data and data.get("account_id") == merged_id:
+            row.data = {**data, "account_id": kept_id}
+            flag_modified(row, "data")
+            undo["account_rows"].append(row.id)
+
+    watches = db.query(WatchSubscription).filter(
+        WatchSubscription.workspace_id == ws,
+        WatchSubscription.kind == "account_group",
+    ).all()
+    for watch in watches:
+        config = watch.config if isinstance(watch.config, dict) else {}
+        accounts = config.get("accounts") if isinstance(config.get("accounts"), list) else []
+        if not any(isinstance(a, dict) and a.get("account_id") == merged_id for a in accounts):
+            continue
+        cursor = watch.cursor if isinstance(watch.cursor, dict) else {}
+        group = dict(cursor.get("account_group") or {})
+        health = dict(cursor.get("collector_health") or {})
+        kept_tracked = any(isinstance(a, dict) and a.get("account_id") == kept_id for a in accounts)
+        undo["watches"][watch.id] = {
+            "accounts": copy.deepcopy(accounts),
+            "scope_key": config.get("scope_key"),
+            "group_entry": copy.deepcopy(group.get(merged_id)),
+            "health": {k: v for k, v in health.items() if k.startswith(f"{merged_id}:")},
+            "moved_cursor": not kept_tracked and merged_id in group,
+        }
+        new_accounts = []
+        for account in accounts:
+            if isinstance(account, dict) and account.get("account_id") == merged_id:
+                if kept_tracked:
+                    continue  # the kept account is already polled by this watch
+                account = {**account, "account_id": kept_id}
+            new_accounts.append(account)
+        if merged_id in group:
+            entry = group.pop(merged_id)
+            group.setdefault(kept_id, entry)
+        for key in [k for k in health if k.startswith(f"{merged_id}:")]:
+            value = health.pop(key)
+            health.setdefault(f"{kept_id}:{key.split(':', 1)[1]}", value)
+        ids = [a["account_id"] for a in new_accounts if isinstance(a, dict) and a.get("account_id")]
+        watch.config = {**config, "accounts": new_accounts, "scope_key": _scope_key(ids)}
+        watch.cursor = {**cursor, "account_group": group, "collector_health": health}
+        flag_modified(watch, "config")
+        flag_modified(watch, "cursor")
+    return undo
+
+
+def _restore_account_references(db: Session, ws: str, undo: dict, merged_id: str, kept_id: str):
+    """Reverse ``_repoint_account_references`` for a split."""
+    from sqlalchemy.orm.attributes import flag_modified
+    from apps.api.services.poller.models import WatchSubscription
+
+    for row_id in undo.get("account_rows") or []:
+        row = db.query(WorkbookRow).filter(WorkbookRow.id == row_id, WorkbookRow.workspace_id == ws).first()
+        data = row.data if row is not None and isinstance(row.data, dict) else None
+        if data and data.get("account_id") == kept_id:
+            row.data = {**data, "account_id": merged_id}
+            flag_modified(row, "data")
+    for watch_id, saved in (undo.get("watches") or {}).items():
+        watch = db.query(WatchSubscription).filter(
+            WatchSubscription.id == watch_id, WatchSubscription.workspace_id == ws).first()
+        if watch is None:
+            continue
+        config = watch.config if isinstance(watch.config, dict) else {}
+        cursor = watch.cursor if isinstance(watch.cursor, dict) else {}
+        group = dict(cursor.get("account_group") or {})
+        health = dict(cursor.get("collector_health") or {})
+        if saved.get("moved_cursor"):
+            group.pop(kept_id, None)
+            for key in [k for k in health if k.startswith(f"{kept_id}:")]:
+                health.pop(key)
+        if saved.get("group_entry") is not None:
+            group[merged_id] = saved["group_entry"]
+        health.update(saved.get("health") or {})
+        watch.config = {**config, "accounts": saved.get("accounts") or [], "scope_key": saved.get("scope_key")}
+        watch.cursor = {**cursor, "account_group": group, "collector_health": health}
+        flag_modified(watch, "config")
+        flag_modified(watch, "cursor")
+
 
 def merge_entities(
     db: Session,
@@ -259,7 +464,15 @@ def merge_entities(
                    WorkbookRow.canonical_entity_id == merged_id,
                    WorkbookRow.workspace_id == kept.workspace_id,
                ).all()]
-    snapshot = {"entity": merged.to_api(), "blocking_keys": merged_keys, "row_ids": row_ids}
+    merged_identifiers = [[kind, value] for kind, value in db.query(
+        CompanyIdentifier.kind, CompanyIdentifier.value,
+    ).filter(
+        CompanyIdentifier.entity_id == merged_id,
+        CompanyIdentifier.workspace_id == kept.workspace_id,
+    ).all()]
+    snapshot = {"entity": merged.to_api(), "blocking_keys": merged_keys, "row_ids": row_ids,
+                "identifiers": merged_identifiers,
+                "references": _repoint_account_references(db, kept.workspace_id, merged_id, kept_id)}
 
     # Combine provenance
     kf = dict(kept.fields or {})
@@ -269,7 +482,12 @@ def merge_entities(
     kept.sources = list({*(kept.sources or []), *(merged.sources or [])})
     kept.observation_count = (kept.observation_count or 0) + (merged.observation_count or 0)
 
-    # Repoint blocking keys + workbook rows
+    # Repoint identifiers, blocking keys + workbook rows. Identifiers move (the
+    # unique key guarantees kept and merged never own the same value).
+    db.query(CompanyIdentifier).filter(
+        CompanyIdentifier.entity_id == merged_id,
+        CompanyIdentifier.workspace_id == kept.workspace_id,
+    ).update({CompanyIdentifier.entity_id: kept_id}, synchronize_session=False)
     _ensure_blocking_keys(db, kept_id, set(merged_keys), kept.workspace_id)
     db.query(WorkbookRow).filter(
         WorkbookRow.canonical_entity_id == merged_id,
@@ -331,6 +549,10 @@ def split_entity(db: Session, merge_log_id: int, workspace_id: str = None) -> di
     _ensure_blocking_keys(
         db, eid, set(snap.get("blocking_keys", [])), snapshot_workspace_id
     )
+    for kind, value in snap.get("identifiers", []):
+        db.query(CompanyIdentifier).filter_by(
+            workspace_id=snapshot_workspace_id, kind=kind, value=value,
+        ).update({CompanyIdentifier.entity_id: eid}, synchronize_session=False)
     for rid in snap.get("row_ids", []):
         db.query(WorkbookRow).filter(
             WorkbookRow.id == rid,
@@ -338,6 +560,8 @@ def split_entity(db: Session, merge_log_id: int, workspace_id: str = None) -> di
         ).update(
             {WorkbookRow.canonical_entity_id: eid}, synchronize_session=False
         )
+    if snap.get("references"):
+        _restore_account_references(db, snapshot_workspace_id, snap["references"], eid, log.kept_id)
     log.reverted = 1
     db.commit()
     return {"restored_id": eid, "rebound_rows": len(snap.get("row_ids", []))}

@@ -137,17 +137,20 @@ def create_from_template(
     for ecol in template.get("enrichment_columns", []):
         # Copy so we never mutate the shared template definition.
         ecol = dict(ecol)
-        # Guarantee a unique, non-colliding column id within this workbook.
-        base_id = ecol.get("id") or f"enrich_{enrichment_count}"
-        col_id = base_id
-        suffix = 1
-        while col_id in seen_ids:
-            col_id = f"{base_id}_{suffix}"
-            suffix += 1
-        ecol["id"] = col_id
+        # Renaming here would leave dependent formulas/templates pointing at
+        # the original (possibly input) column. Require stable explicit IDs.
+        col_id = ecol.get("id")
+        if not isinstance(col_id, str) or not col_id.strip() or col_id in seen_ids:
+            raise HTTPException(status_code=422, detail="Template enrichment column IDs must be explicit and unique. Repair the template before creating a workbook.")
         seen_ids.add(col_id)
         editor_columns.append(ecol)
         enrichment_count += 1
+
+    from apps.api.services.workbook.column_deps import cycle_blocked_columns
+    if len({column["id"] for column in editor_columns}) != len(editor_columns):
+        raise HTTPException(status_code=422, detail="Template column IDs must be unique")
+    if cycle_blocked_columns(editor_columns):
+        raise HTTPException(status_code=422, detail="Template has circular column dependencies. Repair the template before creating a workbook.")
 
     workbook = Workbook(
         name=template["name"],

@@ -12,6 +12,13 @@ from datetime import datetime
 
 # ── Column Config ─────────────────────────────────────────────────────────
 
+class AgentColumnPolicy(BaseModel):
+    """Persist explicit agent limits without replacing omitted engine defaults."""
+    max_steps: Optional[int] = Field(None, ge=0, strict=True)
+    max_cost_usd: Optional[float] = Field(None, ge=0, allow_inf_nan=False)
+    prefer: Optional[str] = None
+
+
 class ColumnConfig(BaseModel):
     """Configuration for a single workbook column."""
     id: str = Field(..., description="Unique column identifier")
@@ -43,7 +50,17 @@ class ColumnConfig(BaseModel):
     prompt: Optional[str] = Field(None, description="LLM prompt template for ai_formula / research columns")
     input_columns: Optional[list[str]] = Field(None, description="Column IDs to use as input for the prompt")
     max_steps: Optional[int] = Field(None, description="Research column: max search/fetch steps (1-6)")
+    cell_budget_usd: Optional[float] = Field(
+        None, ge=0, allow_inf_nan=False,
+        description="Research spending limit per cell in USD; zero retains the engine's unlimited-budget semantics",
+    )
     output_format: Optional[str] = Field(None, description="Research/AI column output: 'text' or 'json'")
+    max_tokens: Optional[int] = Field(None, gt=0, strict=True)
+
+    # Agent execution settings must survive metadata saves and column reorder.
+    goal: Optional[str] = None
+    tools: Optional[list[str]] = None
+    policy: Optional[AgentColumnPolicy] = None
 
     # Conditional config
     condition: Optional[str] = Field(None, description="Expression to evaluate (e.g. '{email} == \"\"')")
@@ -51,6 +68,7 @@ class ColumnConfig(BaseModel):
     # Output config
     destination: Optional[str] = Field(None, description="Output destination type: webhook, crm, sequencer")
     destination_config: Optional[dict] = Field(None, description="Config for the output destination")
+    run_once: Optional[bool] = Field(None, description="Skip already successful output cells unless explicitly forced")
 
     # HTTP action column config (type='http')
     http_url: Optional[str] = Field(None, description="URL template with {column} placeholders")
@@ -148,6 +166,21 @@ class Provenance(BaseModel):
     fetched_at: Optional[str] = None
 
 
+class ResearchCitation(BaseModel):
+    url: str
+    title: str = ""
+    quoted_text: str = ""
+    fetched_at: Optional[str] = None
+
+
+class ResearchEvidence(BaseModel):
+    answer: str = ""
+    citations: list[ResearchCitation] = Field(default_factory=list)
+    cost_usd: Optional[float] = None
+    stopped_reason: Optional[str] = None
+    synthesis_fallback: bool = False
+
+
 class EnrichmentOverlay(BaseModel):
     """Enrichment data for a single cell (AI/computed columns)."""
     value: Any = None
@@ -158,6 +191,7 @@ class EnrichmentOverlay(BaseModel):
     verify_status: Optional[str] = None
     # Per-fact provenance (optional; omitted on legacy/un-enriched cells).
     provenance: Optional[Provenance] = None
+    research: Optional[ResearchEvidence] = None
 
 
 class WorkbookLeadRow(BaseModel):
@@ -211,10 +245,12 @@ class RunWorkbookRequest(BaseModel):
     """Request to run enrichment on a workbook."""
     column_ids: Optional[list[str]] = Field(None, description="Specific columns to run. None = all enrichment columns")
     row_ids: Optional[list[int]] = Field(None, description="Specific row IDs to run. None = all rows")
+    row_columns: Optional[dict[str, list[str]]] = Field(None, description="Exact v2 cells by row ID; requires matching explicit row_ids. Empty entries run no cells.")
     # Legacy compat
     lead_ids: Optional[list[int]] = Field(None, description="Legacy: specific leads to run")
     view_id: Optional[str] = Field(None, description="Run every row matching this workbook-owned saved view")
     search: Optional[str] = Field(None, max_length=500, description="Run rows matching the global workbook search")
+    expected_rows: Optional[int] = Field(None, ge=0, description="Reviewed row count; reject drift before billing or enqueueing. Not an identity snapshot.")
     fill_missing: bool = Field(False, description="Only enrich cells not already complete — fills gaps, preserves good values")
     force: bool = Field(False, description="Force re-run: bypass success-skip gates. For output columns this overrides run-once and RE-PUSHES to the destination — the UI must confirm first")
 
@@ -229,6 +265,8 @@ class RunWorkbookResponse(BaseModel):
     status: str = "started"
     total_jobs: int = 0
     message: str = ""
+    job_id: Optional[int] = None
+    run_id: Optional[str] = None
 
 
 # ── Column Management ────────────────────────────────────────────────────

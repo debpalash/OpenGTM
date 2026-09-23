@@ -9,20 +9,22 @@
  * Self-contained: uses the workbook-api client + shadcn primitives only.
  */
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useId } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Button as BudgetButton, Input as BudgetInput } from "@/design-system/primitives"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Radar, Play, DollarSign, RefreshCw, Network, Activity, Loader2 } from "lucide-react"
 import {
   addSourceColumn, runSourceColumn, fetchWorkbookCost, setWorkbookBudget,
   setRefreshPolicy, refreshWorkbook, fetchActivity, fetchEntities,
-  type CostInfo, type ActivityItem, type CompanyEntity, type RefreshPolicy,
+  type ActivityItem, type CompanyEntity, type RefreshPolicy,
 } from "@/lib/workbook-api"
 
 export function SourceEnginePanel({
@@ -35,7 +37,7 @@ export function SourceEnginePanel({
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[440px] sm:max-w-[440px] overflow-y-auto">
+      <SheetContent style={{ width: "min(440px, 100vw)" }} className="max-w-full sm:max-w-[440px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Radar className="h-4 w-4" /> Source Engine
@@ -43,17 +45,17 @@ export function SourceEnginePanel({
           <SheetDescription>Source, enrich, and keep this workbook alive.</SheetDescription>
         </SheetHeader>
 
-        <Tabs defaultValue="source" className="mt-4">
+        <Tabs defaultValue="source" className="mt-4 px-4 pb-6">
           <TabsList className="grid grid-cols-5 w-full">
-            <TabsTrigger value="source"><Radar className="h-3.5 w-3.5" /></TabsTrigger>
-            <TabsTrigger value="cost"><DollarSign className="h-3.5 w-3.5" /></TabsTrigger>
-            <TabsTrigger value="living"><RefreshCw className="h-3.5 w-3.5" /></TabsTrigger>
-            <TabsTrigger value="entities"><Network className="h-3.5 w-3.5" /></TabsTrigger>
-            <TabsTrigger value="activity"><Activity className="h-3.5 w-3.5" /></TabsTrigger>
+            <TabsTrigger value="source" aria-label="Source" title="Source"><Radar aria-hidden="true" className="h-3.5 w-3.5" /></TabsTrigger>
+            <TabsTrigger value="cost" aria-label="Budget" title="Budget"><DollarSign aria-hidden="true" className="h-3.5 w-3.5" /></TabsTrigger>
+            <TabsTrigger value="living" aria-label="Refresh policy" title="Refresh policy"><RefreshCw aria-hidden="true" className="h-3.5 w-3.5" /></TabsTrigger>
+            <TabsTrigger value="entities" aria-label="Entities" title="Entities"><Network aria-hidden="true" className="h-3.5 w-3.5" /></TabsTrigger>
+            <TabsTrigger value="activity" aria-label="Activity" title="Activity"><Activity aria-hidden="true" className="h-3.5 w-3.5" /></TabsTrigger>
           </TabsList>
 
           <TabsContent value="source"><SourceTab workbookId={workbookId} onChanged={onChanged} /></TabsContent>
-          <TabsContent value="cost"><CostTab workbookId={workbookId} /></TabsContent>
+          <TabsContent value="cost"><CostTab key={workbookId} workbookId={workbookId} /></TabsContent>
           <TabsContent value="living"><LivingTab workbookId={workbookId} /></TabsContent>
           <TabsContent value="entities"><EntitiesTab workbookId={workbookId} open={open} /></TabsContent>
           <TabsContent value="activity"><ActivityTab workbookId={workbookId} open={open} /></TabsContent>
@@ -109,30 +111,57 @@ function SourceTab({ workbookId, onChanged }: { workbookId: string; onChanged?: 
 }
 
 function CostTab({ workbookId }: { workbookId: string }) {
-  const [cost, setCost] = useState<CostInfo | null>(null)
-  const [cap, setCap] = useState("0")
-  const load = () => fetchWorkbookCost(workbookId).then(setCost).catch(() => {})
-  useEffect(() => { load() }, [workbookId])
+  const { data: cost, isPending, isError, refetch } = useQuery({
+    queryKey: ["workbook-cost", workbookId], queryFn: () => fetchWorkbookCost(workbookId), retry: false,
+  })
+  const [cap, setCap] = useState<string | null>(null)
+  const [error, setError] = useState("")
+  const [saving, setSaving] = useState(false)
+  const pending = useRef(false)
+  const inputId = useId()
 
   async function save() {
-    try { setCost(await setWorkbookBudget(workbookId, Number(cap) || 0)); toast.success("Budget updated") }
-    catch (e: any) { toast.error(e.message) }
+    if (pending.current || !cost) return
+    const text = cap ?? String(cost.budget_max_usd)
+    const amount = Number(text)
+    if (!text.trim() || !Number.isFinite(amount) || amount < 0) {
+      setError("Enter a nonnegative amount. Use 0 for unlimited.")
+      return
+    }
+    pending.current = true; setSaving(true); setError("")
+    try {
+      await setWorkbookBudget(workbookId, amount)
+      const updated = await refetch()
+      if (updated.isError) setError("Budget saved, but balances could not refresh. Refresh before running.")
+      else { setCap(null); toast.success("Budget updated") }
+    } catch (e: any) { setError(e.message || "Budget save was not confirmed. Refresh before retrying.") }
+    finally { pending.current = false; setSaving(false) }
   }
   return (
     <div className="space-y-3 py-3">
+      {isPending && <p role="status" className="text-sm text-muted-foreground">Loading budget…</p>}
+      {isError && <p role="alert" className="text-sm text-destructive">Budget balances could not be loaded.</p>}
+      <BudgetButton disabled={saving || isPending} onClick={async () => {
+        const updated = await refetch()
+        if (!updated.isError) setError("")
+      }}>Refresh balances</BudgetButton>
       {cost && (
         <div className="rounded-md border p-3 text-sm space-y-1">
-          <div className="flex justify-between"><span className="text-muted-foreground">Spent</span><span>${cost.budget_spent_usd.toFixed(3)}</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Accounted cost</span><span>${cost.budget_spent_usd.toFixed(4)}</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Reserved</span><span>${cost.reserved_usd.toFixed(4)}</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Uncertain exposure</span><span>${cost.uncertain_usd.toFixed(4)}</span></div>
           <div className="flex justify-between"><span className="text-muted-foreground">Ceiling</span><span>{cost.unlimited ? "unlimited" : `$${cost.budget_max_usd.toFixed(2)}`}</span></div>
           {!cost.unlimited && <div className="flex justify-between"><span className="text-muted-foreground">Remaining</span><span>${(cost.remaining_usd ?? 0).toFixed(3)}</span></div>}
         </div>
       )}
-      <label className="text-xs text-muted-foreground">Spend ceiling (USD, 0 = unlimited)</label>
+      {cost && cost.uncertain_usd > 0 && <p role="status" className="text-sm">Some provider outcomes are uncertain. Review provider usage before approving new attempts; this exposure still reduces available budget.</p>}
+      <label htmlFor={inputId} className="text-xs text-muted-foreground">Spend ceiling (USD, 0 = unlimited)</label>
       <div className="flex gap-2">
-        <Input type="number" step="0.01" value={cap} onChange={(e) => setCap(e.target.value)} />
-        <Button variant="outline" onClick={save}>Set</Button>
+        <BudgetInput id={inputId} type="number" min="0" step="0.01" disabled={saving || !cost || isError} aria-invalid={!!error} aria-describedby={error ? `${inputId}-error` : undefined} value={cap ?? String(cost?.budget_max_usd ?? "")} onChange={(e) => setCap(e.target.value)} />
+        <BudgetButton disabled={saving || !cost || isError} onClick={save}>{saving ? "Saving…" : "Save"}</BudgetButton>
       </div>
-      <p className="text-xs text-muted-foreground">Paid providers are skipped once the ceiling is hit; free providers always run.</p>
+      {error && <p id={`${inputId}-error`} role="alert" className="text-sm text-destructive">{error}</p>}
+      <p className="text-xs text-muted-foreground">Includes catalog estimates, not a vendor invoice. Reservations cover queued enrichment and agent calls; other execution paths may not be covered yet.</p>
     </div>
   )
 }

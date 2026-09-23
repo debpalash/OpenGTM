@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
+import { queryClient } from "./query-client"
 import {
   getToken, setToken, clearToken,
   getActiveWorkspace, setActiveWorkspace, onUnauthorized,
@@ -102,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       window.history.replaceState({}, "", window.location.pathname + window.location.search)
     }
     onUnauthorized(() => {
+      queryClient.clear()
       setUser(null)
       setWorkspaces([])
     })
@@ -128,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadUser])
 
   const logout = useCallback(() => {
+    queryClient.clear()
     clearToken()
     setActiveWorkspace(null)
     setUser(null)
@@ -145,6 +148,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const err = await res.json().catch(() => ({}))
       throw new Error(err.detail || "Workspace access denied")
     }
+    // Query keys are not yet workspace-scoped. Never reuse the previous
+    // workspace's records, selection sources, or in-flight query results.
+    await queryClient.cancelQueries()
+    queryClient.clear()
     setActiveWorkspace(id)
     setActiveId(id)
     await loadWorkspaces()

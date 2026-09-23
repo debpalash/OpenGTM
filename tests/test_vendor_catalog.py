@@ -4,6 +4,8 @@ run-cost estimation. See docs/research/clay-alternatives-ingestion-catalog.md (#
 """
 from apps.api.services.workbook import vendor_catalog as vc
 from apps.api.services.workbook import planner
+import pytest
+from types import SimpleNamespace
 
 
 def test_base_cost_known_and_unknown():
@@ -48,3 +50,39 @@ def test_planner_delegates_to_catalog():
     assert planner.is_paid("website_scraper") is False
     # back-compat alias still populated
     assert "hunter_io" in planner.PROVIDER_COST
+
+
+def test_estimate_distinguishes_unknown_from_registered_free_provider(monkeypatch):
+    monkeypatch.setattr(vc, "_provider_declared_cost", lambda name: 0.0 if name == "fixture_free" else None)
+    result = vc.estimate_run_cost(10, {"email": ["fixture_free", "unknown_lookup", "hunter_io"]})
+    assert result["unknown_providers"] == ["unknown_lookup"]
+    assert result["catalog_complete"] is False
+    assert result["breakdown"][0]["unknown_providers"] == ["unknown_lookup"]
+    assert result["worst_usd"] == 0.4
+    assert "incomplete" in result["note"]
+    free = vc.estimate_run_cost(10, {"email": ["fixture_free"]})
+    assert free["catalog_complete"] is True
+    assert free["unknown_providers"] == []
+    assert free["worst_usd"] == 0
+
+
+@pytest.mark.parametrize("price", [None, True, False, "", "invalid", -0.01, float("nan"), float("inf"), float("-inf")])
+def test_invalid_declared_price_is_unknown_not_free(monkeypatch, price):
+    from apps.api.services.workbook import providers
+    monkeypatch.setattr(providers, "get_provider", lambda name: SimpleNamespace(cost_per_lookup=price))
+    assert vc._provider_declared_cost("fixture") is None
+    estimate = vc.estimate_run_cost(2, {"email": ["fixture"]})
+    assert estimate["catalog_complete"] is False
+    assert estimate["unknown_providers"] == ["fixture"]
+    assert estimate["worst_usd"] == 0  # Excluded, explicitly not a free quote.
+    assert vc.base_cost("hunter_io") == 0.04  # Known fallback remains usable.
+
+
+@pytest.mark.parametrize("price,expected", [(0, 0.0), ("0", 0.0), (0.025, 0.025), ("0.025", 0.025)])
+def test_valid_declared_price_remains_supported(monkeypatch, price, expected):
+    from apps.api.services.workbook import providers
+    monkeypatch.setattr(providers, "get_provider", lambda name: SimpleNamespace(cost_per_lookup=price))
+    assert vc._provider_declared_cost("fixture") == expected
+    estimate = vc.estimate_run_cost(2, {"email": ["fixture"]})
+    assert estimate["catalog_complete"] is True
+    assert estimate["worst_usd"] == 2 * expected

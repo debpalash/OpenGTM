@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { quickLookProps } from "@/components/quick-look/quick-look"
 
 const API_BASE = ""
 
@@ -98,7 +99,11 @@ export default function IntelPage() {
                 {/* Avatar */}
                 <div className="w-14 h-14 rounded-full bg-card border border-border overflow-hidden shrink-0 flex items-center justify-center text-lg font-bold text-primary/30">
                   {person.profile_image ? (
-                    <img src={person.profile_image} className="w-full h-full object-cover" />
+                    <div className="size-full" role="img" aria-label={`Photo of ${person.name || "this person"}. Press Space to preview.`}
+                      {...quickLookProps({ kind: "Image", title: person.name || "Profile photo",
+                        image: { src: person.profile_image, alt: `Photo of ${person.name || "this person"}` } })}>
+                      <img src={person.profile_image} alt="" className="size-full object-cover" />
+                    </div>
                   ) : (
                     person.name?.charAt(0)?.toUpperCase() || "?"
                   )}

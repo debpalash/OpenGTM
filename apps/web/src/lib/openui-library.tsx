@@ -14,6 +14,10 @@ import {
 import { z } from "zod"
 import { useNavigate } from "react-router-dom"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from "recharts"
+import { Building2, CircleCheck, Info, Lightbulb, Mail, TriangleAlert, User, Users } from "lucide-react"
+import { BoolMark, ChannelIcon, LinkedInIcon } from "@/components/semantic-icons"
+
+const INLINE_META = { display: "inline-flex", alignItems: "center", gap: 4 } as const
 
 /**
  * Typed wrapper around `defineComponent`.
@@ -82,7 +86,7 @@ function ScoreBarView({ score, tier }: { score: number; tier: string }) {
             flex: 1,
             height: 6,
             borderRadius: 3,
-            background: "hsl(var(--muted))",
+            background: "var(--muted)",
             overflow: "hidden",
           }}
         >
@@ -137,8 +141,8 @@ const LeadCard = defineComponent({
         style={{
           padding: 16,
           borderRadius: 12,
-          border: "1px solid hsl(var(--border) / 0.3)",
-          background: "hsl(var(--card) / 0.6)",
+          border: "1px solid color-mix(in srgb, var(--border) 30%, transparent)",
+          background: "color-mix(in srgb, var(--card) 60%, transparent)",
           cursor: props.id ? "pointer" : "default",
           transition: "border-color 0.2s, background 0.2s",
           display: "flex",
@@ -146,20 +150,20 @@ const LeadCard = defineComponent({
           gap: 10,
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "hsl(var(--primary) / 0.3)"
-          e.currentTarget.style.background = "hsl(var(--card) / 0.8)"
+          e.currentTarget.style.borderColor = "color-mix(in srgb, var(--primary) 30%, transparent)"
+          e.currentTarget.style.background = "color-mix(in srgb, var(--card) 80%, transparent)"
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "hsl(var(--border) / 0.3)"
-          e.currentTarget.style.background = "hsl(var(--card) / 0.6)"
+          e.currentTarget.style.borderColor = "color-mix(in srgb, var(--border) 30%, transparent)"
+          e.currentTarget.style.background = "color-mix(in srgb, var(--card) 60%, transparent)"
         }}
       >
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 600, color: "hsl(var(--foreground))" }}>{props.company}</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: "var(--foreground)" }}>{props.company}</div>
             {props.city && (
-              <div style={{ fontSize: 12, color: "hsl(var(--muted-foreground))", marginTop: 2 }}>{props.city}</div>
+              <div style={{ fontSize: 12, color: "var(--muted-foreground)", marginTop: 2 }}>{props.city}</div>
             )}
           </div>
           {props.tier && <TierBadge tier={props.tier} />}
@@ -171,26 +175,26 @@ const LeadCard = defineComponent({
         )}
 
         {/* Details */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 16px", fontSize: 12, color: "hsl(var(--muted-foreground))" }}>
-          {props.specialization && <span>🏢 {props.specialization}</span>}
-          {props.company_size && <span>👥 {props.company_size}</span>}
-          {props.contact_person && <span>👤 {props.contact_person}</span>}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 16px", fontSize: 12, color: "var(--muted-foreground)" }}>
+          {props.specialization && <span style={INLINE_META}><Building2 aria-hidden="true" className="size-3.5" />{props.specialization}</span>}
+          {props.company_size && <span style={INLINE_META}><Users aria-hidden="true" className="size-3.5" />{props.company_size}</span>}
+          {props.contact_person && <span style={INLINE_META}><User aria-hidden="true" className="size-3.5" />{props.contact_person}</span>}
         </div>
 
         {/* Contact */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", fontSize: 12 }}>
           {props.email && (
             <a href={`mailto:${props.email}`} onClick={(e) => e.stopPropagation()}
-              style={{ color: "hsl(var(--primary))", textDecoration: "none" }}>
-              ✉ {props.email}
+              style={{ ...INLINE_META, color: "var(--foreground)", textDecoration: "none" }}>
+              <ChannelIcon channel="email" />{props.email}
             </a>
           )}
-          {props.phone && <span style={{ color: "hsl(var(--muted-foreground))" }}>📞 {props.phone}</span>}
+          {props.phone && <span style={{ ...INLINE_META, color: "var(--muted-foreground)" }}><ChannelIcon channel="phone" />{props.phone}</span>}
           {props.website && (
             <a href={props.website.startsWith("http") ? props.website : `https://${props.website}`}
               target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-              style={{ color: "hsl(var(--primary) / 0.7)", textDecoration: "none" }}>
-              🌐 {props.website}
+              style={{ ...INLINE_META, color: "var(--muted-foreground)", textDecoration: "none" }}>
+              <ChannelIcon channel="website" />{props.website}
             </a>
           )}
         </div>
@@ -219,12 +223,12 @@ const LeadTable = defineComponent({
   component: ({ leads }) => {
     const nav = useNavigate()
     return (
-      <div style={{ overflowX: "auto", borderRadius: 12, border: "1px solid hsl(var(--border) / 0.3)", background: "hsl(var(--card) / 0.5)" }}>
+      <div style={{ overflowX: "auto", borderRadius: 12, border: "1px solid color-mix(in srgb, var(--border) 30%, transparent)", background: "color-mix(in srgb, var(--card) 50%, transparent)" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
-            <tr style={{ borderBottom: "1px solid hsl(var(--border) / 0.3)" }}>
+            <tr style={{ borderBottom: "1px solid color-mix(in srgb, var(--border) 30%, transparent)" }}>
               {["Company", "City", "Score", "Email", "Specialization"].map((h) => (
-                <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "hsl(var(--muted-foreground) / 0.7)" }}>{h}</th>
+                <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "color-mix(in srgb, var(--muted-foreground) 70%, transparent)" }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -232,15 +236,15 @@ const LeadTable = defineComponent({
             {leads.map((l, i) => (
               <tr key={i}
                 onClick={() => l.id && nav(`/leads/${l.id}`)}
-                style={{ borderBottom: "1px solid hsl(var(--border) / 0.1)", cursor: l.id ? "pointer" : "default", transition: "background 0.15s" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(var(--muted) / 0.3)")}
+                style={{ borderBottom: "1px solid color-mix(in srgb, var(--border) 10%, transparent)", cursor: l.id ? "pointer" : "default", transition: "background 0.15s" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "color-mix(in srgb, var(--muted) 30%, transparent)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "")}
               >
-                <td style={{ padding: "10px 14px", fontWeight: 500, color: "hsl(var(--foreground))" }}>{l.company}</td>
-                <td style={{ padding: "10px 14px", color: "hsl(var(--muted-foreground))" }}>{l.city || "—"}</td>
+                <td style={{ padding: "10px 14px", fontWeight: 500, color: "var(--foreground)" }}>{l.company}</td>
+                <td style={{ padding: "10px 14px", color: "var(--muted-foreground)" }}>{l.city || "—"}</td>
                 <td style={{ padding: "10px 14px" }}>{l.tier ? <TierBadge tier={l.tier} /> : (l.score ?? "—")}</td>
-                <td style={{ padding: "10px 14px", color: l.email ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.4)" }}>{l.email || "—"}</td>
-                <td style={{ padding: "10px 14px", color: "hsl(var(--muted-foreground))", maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.specialization || "—"}</td>
+                <td style={{ padding: "10px 14px", color: l.email ? "var(--primary)" : "color-mix(in srgb, var(--muted-foreground) 40%, transparent)" }}>{l.email || "—"}</td>
+                <td style={{ padding: "10px 14px", color: "var(--muted-foreground)", maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.specialization || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -267,7 +271,7 @@ const StatsPanel = defineComponent({
   }),
   component: (props) => {
     const metrics = [
-      { label: "Total Leads", value: props.total, color: "hsl(var(--primary))" },
+      { label: "Total Leads", value: props.total, color: "var(--primary)" },
       { label: "Hot", value: props.hot, color: tierColor.hot },
       { label: "Warm", value: props.warm, color: tierColor.warm },
       { label: "Cold", value: props.cold, color: tierColor.cold },
@@ -284,19 +288,19 @@ const StatsPanel = defineComponent({
             textAlign: "center",
           }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: m.color }}>{m.value}</div>
-            <div style={{ fontSize: 11, color: "hsl(var(--muted-foreground))", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>{m.label}</div>
+            <div style={{ fontSize: 11, color: "var(--muted-foreground)", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>{m.label}</div>
           </div>
         ))}
         {props.avg_score != null && (
-          <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid hsl(var(--border) / 0.3)", background: "hsl(var(--card) / 0.5)", textAlign: "center" }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: "hsl(var(--foreground))" }}>{props.avg_score}</div>
-            <div style={{ fontSize: 11, color: "hsl(var(--muted-foreground))", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>Avg Score</div>
+          <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid color-mix(in srgb, var(--border) 30%, transparent)", background: "color-mix(in srgb, var(--card) 50%, transparent)", textAlign: "center" }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: "var(--foreground)" }}>{props.avg_score}</div>
+            <div style={{ fontSize: 11, color: "var(--muted-foreground)", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>Avg Score</div>
           </div>
         )}
         {props.with_email != null && (
-          <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid hsl(var(--border) / 0.3)", background: "hsl(var(--card) / 0.5)", textAlign: "center" }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: "hsl(var(--foreground))" }}>{props.with_email}</div>
-            <div style={{ fontSize: 11, color: "hsl(var(--muted-foreground))", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>With Email</div>
+          <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid color-mix(in srgb, var(--border) 30%, transparent)", background: "color-mix(in srgb, var(--card) 50%, transparent)", textAlign: "center" }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: "var(--foreground)" }}>{props.with_email}</div>
+            <div style={{ fontSize: 11, color: "var(--muted-foreground)", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>With Email</div>
           </div>
         )}
       </div>
@@ -332,29 +336,29 @@ const CompareGrid = defineComponent({
         case "City": return l.city || "—"
         case "Specialization": return l.specialization || "—"
         case "Size": return l.company_size || "—"
-        case "Email": return l.has_email ? "✅" : "❌"
-        case "Phone": return l.has_phone ? "✅" : "❌"
-        case "LinkedIn": return l.has_linkedin ? "✅" : "❌"
+        case "Email": return <BoolMark value={!!l.has_email} label={l.has_email ? "Has email" : "No email"} />
+        case "Phone": return <BoolMark value={!!l.has_phone} label={l.has_phone ? "Has phone" : "No phone"} />
+        case "LinkedIn": return <BoolMark value={!!l.has_linkedin} label={l.has_linkedin ? "Has LinkedIn" : "No LinkedIn"} />
         case "Completeness": return l.data_completeness != null ? `${l.data_completeness}%` : "—"
         default: return "—"
       }
     }
 
     return (
-      <div style={{ overflowX: "auto", borderRadius: 12, border: "1px solid hsl(var(--border) / 0.3)", background: "hsl(var(--card) / 0.5)" }}>
+      <div style={{ overflowX: "auto", borderRadius: 12, border: "1px solid color-mix(in srgb, var(--border) 30%, transparent)", background: "color-mix(in srgb, var(--card) 50%, transparent)" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
-            <tr style={{ borderBottom: "1px solid hsl(var(--border) / 0.3)" }}>
-              <th style={{ padding: "10px 14px", textAlign: "left", fontSize: 11, fontWeight: 600, color: "hsl(var(--muted-foreground) / 0.6)" }}></th>
+            <tr style={{ borderBottom: "1px solid color-mix(in srgb, var(--border) 30%, transparent)" }}>
+              <th style={{ padding: "10px 14px", textAlign: "left", fontSize: 11, fontWeight: 600, color: "color-mix(in srgb, var(--muted-foreground) 60%, transparent)" }}></th>
               {leads.map((l, i) => (
-                <th key={i} style={{ padding: "10px 14px", textAlign: "center", fontWeight: 600, color: "hsl(var(--foreground))" }}>{l.company}</th>
+                <th key={i} style={{ padding: "10px 14px", textAlign: "center", fontWeight: 600, color: "var(--foreground)" }}>{l.company}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row} style={{ borderBottom: "1px solid hsl(var(--border) / 0.1)" }}>
-                <td style={{ padding: "8px 14px", fontSize: 12, color: "hsl(var(--muted-foreground))", fontWeight: 500 }}>{row}</td>
+              <tr key={row} style={{ borderBottom: "1px solid color-mix(in srgb, var(--border) 10%, transparent)" }}>
+                <td style={{ padding: "8px 14px", fontSize: 12, color: "var(--muted-foreground)", fontWeight: 500 }}>{row}</td>
                 {leads.map((l, i) => (
                   <td key={i} style={{ padding: "8px 14px", textAlign: "center" }}>{getValue(l, row)}</td>
                 ))}
@@ -378,19 +382,20 @@ const InfoCallout = defineComponent({
     content: z.string().describe("Callout body text"),
   }),
   component: ({ type, title, content }) => {
-    const styles: Record<string, { bg: string; border: string; icon: string }> = {
-      tip: { bg: "hsl(var(--primary) / 0.05)", border: "hsl(var(--primary) / 0.2)", icon: "💡" },
-      warning: { bg: "#f59e0b08", border: "#f59e0b30", icon: "⚠️" },
-      info: { bg: "#3b82f608", border: "#3b82f630", icon: "ℹ️" },
-      success: { bg: "#22c55e08", border: "#22c55e30", icon: "✅" },
+    // Token-backed tones (Twenty radix scales: 3 = tint, 7 = border, 11 = text).
+    const styles: Record<string, { bg: string; border: string; fg: string; Icon: typeof Info }> = {
+      tip: { bg: "var(--t-background-transparent-lighter)", border: "var(--t-border-color-medium)", fg: "var(--t-font-color-secondary)", Icon: Lightbulb },
+      warning: { bg: "var(--t-color-orange3)", border: "var(--t-color-orange7)", fg: "var(--t-color-orange11)", Icon: TriangleAlert },
+      info: { bg: "var(--t-color-blue3)", border: "var(--t-color-blue7)", fg: "var(--t-color-blue11)", Icon: Info },
+      success: { bg: "var(--t-color-green3)", border: "var(--t-color-green7)", fg: "var(--t-color-green11)", Icon: CircleCheck },
     }
     const s = styles[type] || styles.info
     return (
-      <div style={{ padding: "12px 16px", borderRadius: 10, border: `1px solid ${s.border}`, background: s.bg, display: "flex", gap: 10, alignItems: "flex-start" }}>
-        <span style={{ fontSize: 16, lineHeight: 1 }}>{s.icon}</span>
+      <div style={{ padding: "12px 16px", borderRadius: 6, border: `1px solid ${s.border}`, background: s.bg, display: "flex", gap: 10, alignItems: "flex-start" }}>
+        <s.Icon aria-hidden="true" className="mt-px size-4 shrink-0" style={{ color: s.fg }} />
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "hsl(var(--foreground))", marginBottom: 4 }}>{title}</div>
-          <div style={{ fontSize: 12, color: "hsl(var(--muted-foreground))", lineHeight: 1.5 }}>{content}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)", marginBottom: 4 }}>{title}</div>
+          <div style={{ fontSize: 12, color: "var(--muted-foreground)", lineHeight: 1.5 }}>{content}</div>
         </div>
       </div>
     )
@@ -410,18 +415,21 @@ const OutreachDraft = defineComponent({
   }),
   component: ({ channel, subject, body, to }) => {
     return (
-      <div style={{ borderRadius: 12, border: "1px solid hsl(var(--border) / 0.3)", background: "hsl(var(--card) / 0.6)", overflow: "hidden" }}>
+      <div style={{ borderRadius: 12, border: "1px solid color-mix(in srgb, var(--border) 30%, transparent)", background: "color-mix(in srgb, var(--card) 60%, transparent)", overflow: "hidden" }}>
         {/* Header */}
-        <div style={{ padding: "10px 16px", borderBottom: "1px solid hsl(var(--border) / 0.2)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "hsl(var(--muted) / 0.3)" }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "hsl(var(--muted-foreground))", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-            {channel === "email" ? "📧 Email Draft" : "💼 LinkedIn Message"}
+        <div style={{ padding: "10px 16px", borderBottom: "1px solid color-mix(in srgb, var(--border) 20%, transparent)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "color-mix(in srgb, var(--muted) 30%, transparent)" }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <span style={INLINE_META}>
+              {channel === "email" ? <Mail aria-hidden="true" className="size-3.5" /> : <LinkedInIcon className="size-3.5" />}
+              {channel === "email" ? "Email Draft" : "LinkedIn Message"}
+            </span>
           </span>
-          {to && <span style={{ fontSize: 11, color: "hsl(var(--muted-foreground) / 0.7)" }}>To: {to}</span>}
+          {to && <span style={{ fontSize: 11, color: "color-mix(in srgb, var(--muted-foreground) 70%, transparent)" }}>To: {to}</span>}
         </div>
         {/* Content */}
         <div style={{ padding: 16 }}>
-          {subject && <div style={{ fontSize: 14, fontWeight: 600, color: "hsl(var(--foreground))", marginBottom: 10 }}>Subject: {subject}</div>}
-          <div style={{ fontSize: 13, color: "hsl(var(--foreground) / 0.85)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{body}</div>
+          {subject && <div style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)", marginBottom: 10 }}>Subject: {subject}</div>}
+          <div style={{ fontSize: 13, color: "color-mix(in srgb, var(--foreground) 85%, transparent)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{body}</div>
         </div>
       </div>
     )
@@ -442,20 +450,20 @@ const SimpleBarChart = defineComponent({
   component: ({ title, labels, values, color }) => {
     const data = labels.map((name, i) => ({ name, value: values[i] || 0 }));
     return (
-      <div style={{ padding: 16, borderRadius: 12, border: "1px solid hsl(var(--border) / 0.3)", background: "hsl(var(--card) / 0.5)" }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: "hsl(var(--foreground))", marginBottom: 16, textAlign: "center" }}>{title}</div>
+      <div style={{ padding: 16, borderRadius: 12, border: "1px solid color-mix(in srgb, var(--border) 30%, transparent)", background: "color-mix(in srgb, var(--card) 50%, transparent)" }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)", marginBottom: 16, textAlign: "center" }}>{title}</div>
         <div style={{ height: 250, width: "100%" }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" vertical={false} />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="color-mix(in srgb, var(--border) 30%, transparent)" vertical={false} />
+              <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+              <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
               <Tooltip
-                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                itemStyle={{ color: "hsl(var(--foreground))" }}
-                cursor={{ fill: "hsl(var(--muted) / 0.5)" }}
+                contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                itemStyle={{ color: "var(--foreground)" }}
+                cursor={{ fill: "color-mix(in srgb, var(--muted) 50%, transparent)" }}
               />
-              <Bar dataKey="value" fill={color || "hsl(var(--primary))"} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="value" fill={color || "var(--primary)"} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -476,14 +484,14 @@ const SimplePieChart = defineComponent({
     const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#6366f1"];
     const data = labels.map((name, i) => ({ name, value: values[i] || 0 }));
     return (
-      <div style={{ padding: 16, borderRadius: 12, border: "1px solid hsl(var(--border) / 0.3)", background: "hsl(var(--card) / 0.5)" }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: "hsl(var(--foreground))", marginBottom: 8, textAlign: "center" }}>{title}</div>
+      <div style={{ padding: 16, borderRadius: 12, border: "1px solid color-mix(in srgb, var(--border) 30%, transparent)", background: "color-mix(in srgb, var(--card) 50%, transparent)" }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)", marginBottom: 8, textAlign: "center" }}>{title}</div>
         <div style={{ height: 250, width: "100%" }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Tooltip
-                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                itemStyle={{ color: "hsl(var(--foreground))" }}
+                contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                itemStyle={{ color: "var(--foreground)" }}
               />
               <Pie data={data} innerRadius={60} outerRadius={90} paddingAngle={2} dataKey="value" nameKey="name" stroke="none">
                 {data.map((_, index) => (
@@ -495,7 +503,7 @@ const SimplePieChart = defineComponent({
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12, marginTop: 8 }}>
           {data.map((entry, index) => (
-            <div key={`legend-${index}`} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "hsl(var(--muted-foreground))" }}>
+            <div key={`legend-${index}`} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--muted-foreground)" }}>
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS[index % COLORS.length] }} />
               {entry.name}
             </div>

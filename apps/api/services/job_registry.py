@@ -22,9 +22,6 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
         reconcile_collect_job_failure,
     )
     from apps.api.services.leadgen.source_health import handle_source_health_check
-    from apps.api.services.leadgen.scrapers.data_collector_import import (
-        handle_data_collector_import,
-    )
     from apps.api.services.outreach.inbound import handle_inbound_poll
     from apps.api.services.outreach.sending import handle_send
     from apps.api.services.poller.engine import (
@@ -62,7 +59,6 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
     handlers = {
         "run_workbook": handle_run_workbook,
         "ambitionbox_import": handle_ambitionbox_import,
-        "data_collector_import": handle_data_collector_import,
         "source_workbook": handle_source_workbook,
         "collect": handle_collect,
         "bulk_enrich": handle_bulk_enrich,

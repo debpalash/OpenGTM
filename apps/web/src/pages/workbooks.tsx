@@ -1,386 +1,146 @@
-/**
- * Workbooks List Page — create, list, and navigate to workbooks.
- */
-
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { useWorkbooks, useCreateWorkbook, useDeleteWorkbook } from "@/lib/workbook-hooks"
-import {
-  Plus, Table2, Trash2, Play, Pause, Clock, FileSpreadsheet, Sparkles,
-  LayoutTemplate, Target, Users, Search, Building2, Activity, ChevronRight, Loader2,
-} from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Link, useSearchParams } from "react-router-dom"
+import { Table2, Trash2 } from "lucide-react"
 import { toast } from "sonner"
+import { Button, Input, AlertDialog } from "@/design-system/primitives"
+import { quickLookProps } from "@/components/quick-look/quick-look"
+import { useWorkbooks, useDeleteWorkbook } from "@/lib/workbook-hooks"
+import type { Workbook } from "@/lib/workbook-api"
+import { CreateWorkbookDialog } from "@/components/workbooks/create-workbook-dialog"
+import { TemplateGallery } from "@/components/workbooks/template-gallery"
+import "@/components/workbooks/workbooks.css"
+import { NativeSelect } from "@/components/ui/native-select"
 
-const STATUS_COLORS: Record<string, string> = {
-  draft: "bg-zinc-500/20 text-zinc-400",
-  running: "bg-emerald-500/20 text-emerald-400",
-  paused: "bg-amber-500/20 text-amber-400",
-  complete: "bg-blue-500/20 text-blue-400",
-}
-
-const STATUS_ICONS: Record<string, typeof Clock> = {
-  draft: Clock,
-  running: Play,
-  paused: Pause,
-  complete: Sparkles,
-}
+const PAGE_SIZE = 50
 
 export default function WorkbooksPage() {
-  const navigate = useNavigate()
-  const { data, isLoading } = useWorkbooks()
-  const createMutation = useCreateWorkbook()
-  const deleteMutation = useDeleteWorkbook()
-  const [showCreate, setShowCreate] = useState(false)
-  const [newName, setNewName] = useState("")
-  const [sourceMode, setSourceMode] = useState<"empty" | "leads">("empty")
-  const [leadTier, setLeadTier] = useState("all")
-  const [maxRows, setMaxRows] = useState(500)
+  const query = useWorkbooks()
+  const remove = useDeleteWorkbook()
+  const [params, setParams] = useSearchParams()
   const [showTemplates, setShowTemplates] = useState(false)
-  const [templates, setTemplates] = useState<any[]>([])
-  const [templateCategory, setTemplateCategory] = useState<string | null>(null)
-  const [creatingTemplate, setCreatingTemplate] = useState("")
-
+  const [deleting, setDeleting] = useState<Workbook | null>(null)
+  const [deleteError, setDeleteError] = useState("")
+  const deletingRef = useRef(false)
+  const deleteTrigger = useRef<HTMLButtonElement | null>(null)
+  const heading = useRef<HTMLHeadingElement | null>(null)
+  const search = params.get("q") ?? ""
+  // The field keeps its own text: the URL updates asynchronously, and binding
+  // the input to it reset the field between fast keystrokes (dropping
+  // characters). Adopt URL changes only when they come from elsewhere
+  // (Back, Clear filters), not from this field's own writes.
+  const [searchDraft, setSearchDraft] = useState(search)
+  // Values this field wrote that the URL has not echoed yet, oldest first.
+  // URL renders can lag (router transitions, including a navigation that was
+  // still settling when typing began): an echo of our own write is consumed;
+  // any other value while writes are pending is stale and ignored. With
+  // nothing pending, a URL change is external (Back, Clear filters). Entries
+  // expire so a lost echo can never block external changes for long.
+  const pendingSearchWrites = useRef<{ value: string; at: number }[]>([])
   useEffect(() => {
-    if (showTemplates) {
-      const params = templateCategory ? `?category=${templateCategory}` : ""
-      fetch(`/api/templates${params}`)
-        .then(r => r.json())
-        .then(d => setTemplates(d.templates || []))
-        .catch(() => {})
+    const now = Date.now()
+    const pending = pendingSearchWrites.current.filter(entry => now - entry.at < 1500)
+    const own = pending.findIndex(entry => entry.value === search)
+    if (own >= 0) {
+      pendingSearchWrites.current = pending.slice(own + 1)
+      return
     }
-  }, [showTemplates, templateCategory])
+    pendingSearchWrites.current = pending
+    if (pending.length === 0) setSearchDraft(search)
+  }, [search])
+  const status = params.get("status") ?? "all"
+  const sort = params.get("sort") ?? "updated"
+  const all = query.data?.workbooks ?? []
+  const filtered = all.filter(workbook => (status === "all" || workbook.status === status) && workbook.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((left, right) => sort === "name" ? left.name.localeCompare(right.name) : (Date.parse(right.updated_at) || 0) - (Date.parse(left.updated_at) || 0))
+  const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const page = Math.min(pages, Math.max(1, Number.parseInt(params.get("page") ?? "1", 10) || 1))
+  const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  const createFromTemplate = async (templateId: string) => {
-    setCreatingTemplate(templateId)
-    try {
-      const res = await fetch(`/api/templates/${templateId}/create`, { method: "POST" })
-      const data = await res.json()
-      toast.success(`Workbook created from template`)
-      navigate(`/workbooks/${data.id}`)
-    } catch {
-      toast.error("Failed to create from template")
-    }
-    setCreatingTemplate("")
+  function setFilter(key: string, value: string) {
+    // React Router's search-param callbacks do not queue like React state.
+    // Read the current URL so rapid filter edits cannot restore stale values.
+    const next = new URLSearchParams(window.location.search)
+    if (value) next.set(key, value); else next.delete(key)
+    if (key !== "page") next.delete("page")
+    setParams(next, { replace: true })
   }
 
-  const handleCreate = async () => {
-    if (!newName.trim()) return
-    const fromLeads = sourceMode === "leads"
+  async function deleteSelectedWorkbook() {
+    if (!deleting || deletingRef.current) return
+    deletingRef.current = true
+    setDeleteError("")
     try {
-      const wb = await createMutation.mutateAsync({
-        name: newName.trim(),
-        description: "",
-        source: fromLeads ? "leads_filter" : "empty",
-        filter_criteria: fromLeads && leadTier !== "all" ? { score_tier: leadTier } : undefined,
-        max_rows: fromLeads ? maxRows : undefined,
-        columns_config: [
-          { id: "company", name: "Company", type: "lead_field", width: 200, lead_field: "company" },
-          { id: "website", name: "Website", type: "lead_field", width: 200, lead_field: "website" },
-          { id: "email", name: "Email", type: "lead_field", width: 220, lead_field: "email" },
-          { id: "phone", name: "Phone", type: "lead_field", width: 160, lead_field: "phone" },
-          { id: "city", name: "City", type: "lead_field", width: 140, lead_field: "city" },
-          { id: "score", name: "Score", type: "lead_field", width: 80, lead_field: "score" },
-        ],
-      })
-      toast.success(fromLeads ? `Workbook created from your leads` : "Workbook created")
-      setShowCreate(false)
-      setNewName("")
-      setSourceMode("empty")
-      navigate(`/workbooks/${wb.id}`)
-    } catch {
-      toast.error("Failed to create workbook")
-    }
-  }
-
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (!confirm("Delete this workbook and all its data?")) return
-    try {
-      await deleteMutation.mutateAsync(id)
+      await remove.mutateAsync(deleting.id)
+      setDeleting(null)
       toast.success("Workbook deleted")
-    } catch {
-      toast.error("Failed to delete")
-    }
+    } catch (error) { setDeleteError(error instanceof Error ? error.message : "Could not delete workbook. Try again.") }
+    finally { deletingRef.current = false }
   }
 
-  const workbooks = data?.workbooks || []
-
-  return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Workbooks</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Programmable spreadsheets with built-in enrichment
-          </p>
-        </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          <Plus className="size-4" />
-          New Workbook
-        </button>
-      </div>
-
-      {/* Create Dialog */}
-      {showCreate && (
-        <div className="rounded-xl border bg-card p-4 space-y-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
-          <input
-            autoFocus
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-            placeholder="Workbook name..."
-            className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          />
-
-          {/* Source selector */}
-          <div className="space-y-2">
-            <div className="text-xs font-medium text-muted-foreground">Starting rows</div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setSourceMode("empty")}
-                className={`rounded-lg border px-3 py-2 text-left text-sm transition-colors ${sourceMode === "empty" ? "border-primary bg-primary/5 ring-1 ring-primary/30" : "hover:bg-muted"}`}
-              >
-                <div className="font-medium">Start empty</div>
-                <div className="text-xs text-muted-foreground">Add rows later</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSourceMode("leads")}
-                className={`rounded-lg border px-3 py-2 text-left text-sm transition-colors ${sourceMode === "leads" ? "border-primary bg-primary/5 ring-1 ring-primary/30" : "hover:bg-muted"}`}
-              >
-                <div className="font-medium">From my leads</div>
-                <div className="text-xs text-muted-foreground">Snapshot existing leads</div>
-              </button>
-            </div>
-            {sourceMode === "leads" && (
-              <div className="flex items-center gap-2 pt-1 animate-in fade-in duration-150">
-                <select
-                  value={leadTier}
-                  onChange={(e) => setLeadTier(e.target.value)}
-                  className="px-2 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                >
-                  <option value="all">All tiers</option>
-                  <option value="hot">🔥 Hot</option>
-                  <option value="warm">🟡 Warm</option>
-                  <option value="cold">🔵 Cold</option>
-                </select>
-                <span className="text-xs text-muted-foreground">top</span>
-                <input
-                  type="number"
-                  min={1}
-                  max={5000}
-                  value={maxRows}
-                  onChange={(e) => setMaxRows(Math.max(1, Math.min(5000, Number(e.target.value) || 1)))}
-                  className="w-20 px-2 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                <span className="text-xs text-muted-foreground">rows (by score)</span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={() => { setShowCreate(false); setNewName("") }}
-              className="px-3 py-1.5 text-sm rounded-md hover:bg-muted transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleCreate}
-              disabled={!newName.trim() || createMutation.isPending}
-              className="px-3 py-1.5 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
-            >
-              {createMutation.isPending ? "Creating..." : "Create"}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Template Gallery Toggle */}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => setShowTemplates(!showTemplates)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground rounded-md border hover:border-primary/30 transition-colors"
-        >
-          <LayoutTemplate className="size-3.5" />
-          {showTemplates ? "Hide Templates" : "Browse Templates"}
-          <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">20+</span>
-        </button>
-      </div>
-
-      {/* Template Gallery */}
-      {showTemplates && (
-        <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1.5 text-xs overflow-x-auto">
-            {[
-              { key: null, label: "All", icon: LayoutTemplate },
-              { key: "sales", label: "Sales", icon: Target },
-              { key: "recruiting", label: "Recruiting", icon: Users },
-              { key: "research", label: "Research", icon: Search },
-              { key: "agency", label: "Agency", icon: Building2 },
-              { key: "signals", label: "Signals", icon: Activity },
-            ].map(cat => {
-              const Icon = cat.icon
-              return (
-                <button
-                  key={cat.key || "all"}
-                  onClick={() => setTemplateCategory(cat.key)}
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors ${
-                    templateCategory === cat.key
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted text-muted-foreground"
-                  }`}
-                >
-                  <Icon className="size-3" />
-                  {cat.label}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Template Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-            {templates.map(t => (
-              <div
-                key={t.id}
-                className="flex items-start gap-3 p-3 rounded-lg border hover:border-primary/30 cursor-pointer transition-colors group"
-                onClick={() => createFromTemplate(t.id)}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-medium truncate">{t.name}</span>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">
-                    {t.description}
-                  </p>
-                  <span className="text-[10px] text-muted-foreground/50 mt-1 inline-block">
-                    {t.columns?.length || 0} columns
-                  </span>
-                </div>
-                <div className="shrink-0 mt-1">
-                  {creatingTemplate === t.id ? (
-                    <Loader2 className="size-3.5 animate-spin text-primary" />
-                  ) : (
-                    <ChevronRight className="size-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Loading */}
-      {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="rounded-xl border bg-card p-5 animate-pulse">
-              <div className="h-5 w-32 bg-muted rounded mb-3" />
-              <div className="h-3 w-48 bg-muted rounded mb-4" />
-              <div className="h-8 w-full bg-muted rounded" />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!isLoading && workbooks.length === 0 && !showCreate && (
-        <div className="rounded-xl border-2 border-dashed bg-card/50 p-16 text-center">
-          <FileSpreadsheet className="size-12 mx-auto text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-medium mb-2">No workbooks yet</h3>
-          <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-            Create your first workbook to start enriching leads with waterfall providers,
-            AI formulas, and real-time data.
-          </p>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-          >
-            <Plus className="size-4" />
-            Create Workbook
-          </button>
-        </div>
-      )}
-
-      {/* Workbook Grid */}
-      {workbooks.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {workbooks.map(wb => {
-            const StatusIcon = STATUS_ICONS[wb.status] || Clock
-            const enrichmentCols = wb.columns_config.filter(c => c.type === "enrichment" || c.type === "waterfall" || c.type === "ai_formula").length
-            const progress = wb.total_rows > 0 ? Math.round((wb.completed_rows / wb.total_rows) * 100) : 0
-
-            return (
-              <div
-                key={wb.id}
-                onClick={() => navigate(`/workbooks/${wb.id}`)}
-                className="group rounded-xl border bg-card p-5 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all duration-200"
-              >
-                {/* Header */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-1.5 rounded-lg bg-primary/10">
-                      <Table2 className="size-4 text-primary" />
-                    </div>
-                    <h3 className="font-semibold text-sm truncate max-w-[180px]">{wb.name}</h3>
-                  </div>
-                  <button
-                    onClick={(e) => handleDelete(wb.id, e)}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                </div>
-
-                {/* Stats Row */}
-                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
-                  <span>{wb.total_rows} rows</span>
-                  <span>·</span>
-                  <span>{wb.columns_config.length} cols</span>
-                  {enrichmentCols > 0 && (
-                    <>
-                      <span>·</span>
-                      <span className="text-primary">{enrichmentCols} enrichment</span>
-                    </>
-                  )}
-                </div>
-
-                {/* Status + Progress */}
-                <div className="flex items-center justify-between">
-                  <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[wb.status] || STATUS_COLORS.draft}`}>
-                    <StatusIcon className="size-3" />
-                    {wb.status}
-                  </span>
-                  {wb.total_rows > 0 && (
-                    <div className="flex items-center gap-2">
-                      <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-primary transition-all duration-500"
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                      <span className="text-xs text-muted-foreground tabular-nums">{progress}%</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Last Updated */}
-                {wb.updated_at && (
-                  <p className="text-[10px] text-muted-foreground mt-2">
-                    Updated {new Date(wb.updated_at).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      )}
+  return <div className="gtm-workbook-list">
+    <div className="gtm-workbook-heading">
+      <div><h1 ref={heading} tabIndex={-1}>Workbooks</h1><p>Research, enrich, and act on your data.</p></div>
+      <CreateWorkbookDialog />
     </div>
-  )
+    <div className="gtm-workbook-toolbar">
+      <label className="gtm-workbook-search"><span className="sr-only">Search workbooks</span><Input value={searchDraft} onChange={event => {
+        const value = event.target.value
+        setSearchDraft(value)
+        if (value !== search) pendingSearchWrites.current.push({ value, at: Date.now() })
+        setFilter("q", value)
+      }} placeholder="Search workbooks" /></label>
+      <label>Status<NativeSelect aria-label="Status" value={status} onChange={event => setFilter("status", event.target.value)}>
+        <option value="all">All statuses</option>{["draft", "running", "paused", "failed", "complete"].map(value => <option key={value} value={value}>{value}</option>)}
+      </NativeSelect></label>
+      <label>Sort<NativeSelect aria-label="Sort" value={sort} onChange={event => setFilter("sort", event.target.value)}><option value="updated">Recently updated</option><option value="name">Name</option></NativeSelect></label>
+      <Button aria-expanded={showTemplates} aria-controls="workbook-templates" onClick={() => setShowTemplates(!showTemplates)}>{showTemplates ? "Hide templates" : "Browse templates"}</Button>
+    </div>
+    {showTemplates && <div id="workbook-templates"><TemplateGallery /></div>}
+    {query.isPending && <div role="status" className="gtm-data-state">Loading workbooks…</div>}
+    {query.isError && <div role="alert" className="gtm-data-state"><p>{query.error.message}</p><Button onClick={() => void query.refetch()} loading={query.isFetching}>Retry workbooks</Button></div>}
+    {!query.isPending && !query.isError && <>
+      <p className="gtm-workbook-count" role="status">{filtered.length} {filtered.length === 1 ? "workbook" : "workbooks"}{filtered.length !== all.length ? ` of ${all.length}` : ""}</p>
+      {!filtered.length ? <div className="gtm-data-state">
+        <Table2 aria-hidden="true" className="size-6" />
+        <h2>{all.length ? "No matching workbooks" : "Your first workbook starts here"}</h2>
+        <p>{all.length ? "Change your search or status filter." : "Create a workbook or choose a template above."}</p>
+        {all.length > 0 && <Button onClick={() => setParams({})}>Clear filters</Button>}
+      </div> : <div className="gtm-workbook-table-scroll" role="region" aria-label="Workbooks table" tabIndex={0}>
+        <table className="gtm-workbook-table">
+          <thead><tr><th scope="col">Workbook</th><th scope="col">Status</th><th scope="col">Rows</th><th scope="col">Columns</th><th scope="col">Processed rows</th><th scope="col">Updated</th><th scope="col"><span className="sr-only">Actions</span></th></tr></thead>
+          <tbody>{visible.map(workbook => <tr key={workbook.id} {...quickLookProps({
+            kind: "Workbook", title: workbook.name, subtitle: workbook.status,
+            fields: [
+              { label: "Rows", value: workbook.total_rows.toLocaleString() },
+              { label: "Columns", value: String(workbook.columns_config.length) },
+              { label: "Processed", value: `${workbook.completed_rows.toLocaleString()} / ${workbook.total_rows.toLocaleString()}` },
+              { label: "Updated", value: Number.isFinite(Date.parse(workbook.updated_at)) ? new Date(workbook.updated_at).toLocaleString() : "—" },
+            ],
+            actions: [{ label: "Open workbook", href: `/workbooks/${encodeURIComponent(workbook.id)}` }],
+          })}>
+            <td><Link to={`/workbooks/${encodeURIComponent(workbook.id)}`} className="gtm-workbook-link"><Table2 aria-hidden="true" className="size-4 shrink-0" /><span>{workbook.name}</span></Link></td>
+            <td><span className="gtm-workbook-status" data-status={workbook.status}>{workbook.status}</span></td>
+            <td>{workbook.total_rows.toLocaleString()}</td><td>{workbook.columns_config.length}</td>
+            <td>{workbook.completed_rows.toLocaleString()} / {workbook.total_rows.toLocaleString()}</td>
+            <td>{Number.isFinite(Date.parse(workbook.updated_at)) ? <time dateTime={workbook.updated_at} title={new Date(workbook.updated_at).toLocaleString()}>{new Date(workbook.updated_at).toLocaleDateString()}</time> : "—"}</td>
+            <td><Button variant="ghost" aria-label={`Delete ${workbook.name}`} onClick={event => { deleteTrigger.current = event.currentTarget; setDeleteError(""); setDeleting(workbook) }}><Trash2 aria-hidden="true" className="size-4" /></Button></td>
+          </tr>)}</tbody>
+        </table>
+      </div>}
+      {pages > 1 && <nav aria-label="Workbook pages" className="gtm-workbook-pagination">
+        <Button disabled={page === 1} onClick={() => setFilter("page", String(page - 1))}>Previous</Button><span>Page {page} of {pages}</span><Button disabled={page === pages} onClick={() => setFilter("page", String(page + 1))}>Next</Button>
+      </nav>}
+    </>}
+    <AlertDialog.Root open={!!deleting} onOpenChange={(open, details) => {
+      if (deletingRef.current) { details.cancel(); return }
+      if (!open) setDeleting(null)
+    }}>
+      <AlertDialog.Popup className="gtm-workbook-dialog" finalFocus={() => deleteTrigger.current?.isConnected ? deleteTrigger.current : heading.current}>
+        <AlertDialog.Header><AlertDialog.Title>Delete {deleting?.name}?</AlertDialog.Title>
+        <AlertDialog.Description>This permanently deletes this workbook and its rows. This cannot be undone.</AlertDialog.Description></AlertDialog.Header>
+        {deleteError && <AlertDialog.Body><p role="alert" className="text-sm text-destructive">{deleteError}</p></AlertDialog.Body>}
+        <AlertDialog.Footer><AlertDialog.Close render={<Button disabled={remove.isPending} />}>Cancel</AlertDialog.Close><Button color="danger" variant="solid" loading={remove.isPending} onClick={() => void deleteSelectedWorkbook()}>Delete workbook</Button></AlertDialog.Footer>
+      </AlertDialog.Popup>
+    </AlertDialog.Root>
+  </div>
 }

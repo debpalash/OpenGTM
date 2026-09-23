@@ -32,6 +32,8 @@ class EnrichmentResult:
     confidence: float = 0.0
     error: str = ""
     duration_ms: float = 0.0
+    # Optional provider-adapter evidence; never inferred from success/failure.
+    billing_evidence: Optional[Dict[str, Any]] = None
 
     def has_value(self, field_name: str) -> bool:
         val = self.fields.get(field_name)

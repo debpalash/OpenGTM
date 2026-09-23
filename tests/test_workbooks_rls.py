@@ -37,7 +37,7 @@ W2 = "ws_wb_beta"
 # All RLS-protected workbook tables.
 _TENANT_TABLES = (
     "workbooks", "workbook_rows", "workbook_enrichments",
-    "workbook_activity", "cell_traces", "connector_runs",
+    "workbook_activity", "cell_traces", "connector_runs", "workbook_spend_attempts",
 )
 
 
@@ -88,7 +88,7 @@ def schema(owner_engine):
     # set per batch only for clarity.
     with owner_engine.begin() as c:
         for t in ("workbook_rows", "workbook_enrichments", "workbook_activity",
-                  "cell_traces", "connector_runs", "workbooks"):
+                  "cell_traces", "connector_runs", "workbook_spend_attempts", "workbooks"):
             c.execute(text(f"DELETE FROM {t} WHERE workspace_id IN (:a, :b)"),
                       {"a": W1, "b": W2})
 
@@ -126,6 +126,13 @@ def schema(owner_engine):
                 "target_met, exhausted) "
                 "VALUES (:id, :w, :wid, 'test', 'complete', 1, 1, 1, 0, 0, 1, true, false)"
             ), {"id": str(uuid.uuid4()), "w": ws, "wid": wid})
+            c.execute(text(
+                "INSERT INTO workbook_spend_attempts "
+                "(id, workspace_id, workbook_id, run_id, row_identity, column_id, provider, "
+                "attempt_key, contract_hash, status, reserved_microusd, cost_basis, created_at, updated_at) "
+                "VALUES (:id, :w, :wid, 'run', 'row:1', 'email', 'fixture', 'seed', :hash, "
+                "'reserved', 20000, '{}', 1, 1)"
+            ), {"id": str(uuid.uuid4()), "w": ws, "wid": wid, "hash": "a" * 64})
     yield wb_ids
 
 
@@ -186,6 +193,39 @@ def test_cross_tenant_insert_rejected_child(app_engine, schema):
                 "INSERT INTO workbook_rows (workspace_id, workbook_id, position, data) "
                 "VALUES (:w, :wid, 9, '{}')"
             ), {"w": W2, "wid": wid_w1})
+
+
+def test_spend_reservation_competition_as_application_role(app_engine, owner_engine):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+    from sqlalchemy import event
+    from sqlalchemy.orm import sessionmaker
+    from apps.api.services.workbook.spend_service import reserve_attempt
+    wid = str(uuid.uuid4())
+    with owner_engine.begin() as connection:
+        connection.execute(text("INSERT INTO workbooks (id, workspace_id, name, budget_max_usd, budget_spent_usd) VALUES (:id, :ws, 'Reservation concurrency', 0.02, 0)"), {"id": wid, "ws": W1})
+    factory = sessionmaker(bind=app_engine)
+    @event.listens_for(factory, "after_begin")
+    def scope_transaction(session, transaction, connection):
+        _set_ws(connection, W1)
+    barrier = Barrier(2)
+    def reserve(index):
+        barrier.wait(timeout=10)
+        return reserve_attempt(session_factory=factory, workspace_id=W1, workbook_id=wid,
+            run_id="run", row_identity=f"row:{index}", column_id="email", provider="fixture",
+            attempt_key=f"{wid}:{index}", exposure_microusd=20000, cell_limit_microusd=20000,
+            cost_basis={"kind": "catalog_estimate"}, operation_contract={"target": "email", "company": "Acme"})
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = [future.result(timeout=20) for future in [pool.submit(reserve, 0), pool.submit(reserve, 1)]]
+        assert sum(result["ok"] for result in results) == 1
+        assert [r["reason"] for r in results if not r["ok"]] == ["workbook_budget"]
+        with owner_engine.connect() as connection:
+            assert connection.execute(text("SELECT sum(reserved_microusd) FROM workbook_spend_attempts WHERE workbook_id=:id"), {"id": wid}).scalar() == 20000
+    finally:
+        with owner_engine.begin() as connection:
+            connection.execute(text("DELETE FROM workbook_spend_attempts WHERE workbook_id=:id"), {"id": wid})
+            connection.execute(text("DELETE FROM workbooks WHERE id=:id"), {"id": wid})
 
 
 def test_cross_tenant_update_flip_rejected(app_engine):

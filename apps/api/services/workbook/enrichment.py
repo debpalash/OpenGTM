@@ -13,6 +13,7 @@ import asyncio
 import json
 import logging
 import os
+from decimal import Decimal, ROUND_CEILING
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -21,7 +22,7 @@ from sqlalchemy.orm import Session
 from apps.api.database import SessionLocal
 from apps.api.services.workbook.models import Workbook, WorkbookEnrichment, WorkbookRow, LEAD_FIELD_MAP
 from apps.api.services.workbook.providers import get_provider, list_providers
-from apps.api.services.workbook.ai_column import execute_ai_column
+from apps.api.services.workbook.ai_column import execute_ai_column, cell_text
 from apps.api.services.workbook.output import execute_output_column
 from apps.api.services.workbook.conditions import evaluate_condition
 from apps.api.services.leadgen.enrichment.provider import (
@@ -37,6 +38,10 @@ logger = logging.getLogger("workbook.enrichment")
 # that blocks past its deadline gets its worker process killed instead of leaking
 # an un-killable thread that eventually wedges the run.
 from apps.api.services.workbook.provider_runner import run_provider
+from apps.api.services.workbook.execution_identity import current_execution
+from apps.api.services.workbook.spend_models import WorkbookSpendAttempt
+from apps.api.services.workbook.spend_service import execute_reserved_attempt
+from apps.api.services.workbook.provider_accounting import accounting_envelope
 
 
 # ── Default waterfall chains per target field ────────────────────────────
@@ -127,22 +132,22 @@ def _lead_dict_to_lead(lead_data: dict) -> Lead:
 def _get_lead_values(lead_data: dict, columns_config: list) -> Dict[str, str]:
     """Build a flat {column_id: value} dict from lead data for template resolution."""
     values = {}
+    aliases = {}
     for col in columns_config:
         col_id = col.get("id", "")
         lead_field = col.get("lead_field", col_id)
 
         if col.get("type") == "lead_field" and lead_field in lead_data:
-            values[col_id] = str(lead_data.get(lead_field, "") or "")
-            values[lead_field] = str(lead_data.get(lead_field, "") or "")
+            values[col_id] = cell_text(lead_data.get(lead_field))
+            values[lead_field] = cell_text(lead_data.get(lead_field))
         else:
-            values[col_id] = str(lead_data.get(col_id, "") or "")
+            values[col_id] = cell_text(lead_data.get(col_id))
+        if col.get("name"):
+            aliases[col["name"]] = values[col_id]
 
-    # Also add all raw lead fields for flexible template resolution
-    for k, v in lead_data.items():
-        if k not in values:
-            values[k] = str(v or "")
-
-    return values
+    # Current column values win over aliases, which win over stale materialized
+    # display-name copies in raw row data. Retain unrelated source fields.
+    return {**{key: cell_text(value) for key, value in lead_data.items()}, **aliases, **values}
 
 
 async def enrich_cell(
@@ -184,13 +189,29 @@ async def enrich_cell(
     provider_attempts: list[dict] = []
     budget_charge = 0.0
 
+    from apps.api.services.workbook.column_deps import unavailable_computed_dependencies, cycle_blocked_columns, _refs_in
+    dependency_error = ("dependency_cycle" if col_id in cycle_blocked_columns(columns_config) else
+                        "upstream_dependency_unavailable" if unavailable_computed_dependencies(col_config, columns_config, lead_data) else None)
+    from apps.api.services.workbook.ai_column import validate_template_references
+    try:
+        validate_template_references(" ".join("{" + ref + "}" for ref in _refs_in(col_config)), columns_config)
+    except ValueError:
+        dependency_error = "ambiguous_column_reference"
+    if dependency_error:
+        from apps.api.services.workbook.batch_attempts import fence_workbook_run_state
+        fence_workbook_run_state(db, workbook_id)
+        _set_enrichment(db, workbook_id, lead_id, col_id, None, "error",
+                        error=dependency_error, row_id=row_id)
+        db.commit()
+        return {"success": False, "value": None, "error": dependency_error}
+
     # ── Conditional execution ─────────────────────────────────────────
     if col_config.get("condition"):
         # Build cells-like dict for condition evaluation
         cells = {k: {"value": v, "status": "complete"} for k, v in lead_data.items()}
         should_run = evaluate_condition(col_config["condition"], cells, columns_config)
         if not should_run:
-            _set_enrichment(db, workbook_id, lead_id, col_id, None, "skipped")
+            _set_enrichment(db, workbook_id, lead_id, col_id, None, "skipped", row_id=row_id)
             if redis_client:
                 await _broadcast(redis_client, workbook_id, {
                     "type": "cell_update", "leadId": lead_id, "rowId": row_id,
@@ -209,12 +230,26 @@ async def enrich_cell(
             WorkbookEnrichment.lead_id == lead_id,
             WorkbookEnrichment.column_id == col_id,
         ).first()
-        if prior and prior.status == "complete":
+        if row_id is not None:
+            own_row = db.query(WorkbookRow).filter(
+                WorkbookRow.workbook_id == workbook_id, WorkbookRow.id == row_id,
+            ).first()
+            if own_row is None:
+                return {"success": False, "value": None, "error": "output_row_missing"}
+            own_cell = (own_row.enrichments or {}).get(col_id)
+            if isinstance(own_cell, dict) and own_cell.get("status") == "complete":
+                return {"success": True, "value": own_cell.get("value"), "provider": own_cell.get("provider"),
+                        "error": None, "skipped": True}
+            if own_cell is None and prior and prior.status == "complete":
+                # Old lead-keyed receipts cannot prove which v2 row was sent.
+                # Do not silently skip this row or risk an automatic resend.
+                return {"success": False, "value": None, "error": "output_identity_requires_review"}
+        elif prior and prior.status == "complete":
             return {"success": True, "value": prior.value, "provider": prior.provider,
                     "error": None, "skipped": True}
 
     # Mark as running
-    _set_enrichment(db, workbook_id, lead_id, col_id, None, "running")
+    _set_enrichment(db, workbook_id, lead_id, col_id, None, "running", row_id=row_id)
     if redis_client:
         await _broadcast(redis_client, workbook_id, {
             "type": "cell_update", "leadId": lead_id, "rowId": row_id,
@@ -227,7 +262,7 @@ async def enrich_cell(
         # AI Column → LLM
         prompt = col_config.get("prompt", "")
         if not prompt:
-            _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error="no_prompt")
+            _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error="no_prompt", row_id=row_id)
             return {"success": False, "value": None, "error": "no_prompt"}
 
         # Build cells dict for AI template resolution
@@ -258,7 +293,9 @@ async def enrich_cell(
             .filter(Workbook.id == workbook_id)
             .scalar()
         )
-        out = await execute_output_column(
+        from apps.api.services.workbook.output_attempts import execute_output_with_journal
+        out = await execute_output_with_journal(
+            SessionLocal, execute_output_column,
             col_config=col_config,
             lead_data=lead_data,
             columns_config=columns_config,
@@ -266,9 +303,11 @@ async def enrich_cell(
             lead_id=lead_id,
             workspace_id=workspace_id,
         )
-        result_value = out.get("value")
+        # A diagnostic value such as "POST 500" is not a delivery receipt.
+        output_succeeded = ("success" not in out or out["success"] is True) and not bool(out.get("error"))
+        result_value = out.get("value") if output_succeeded else None
         result_provider = col_config.get("destination", "output")
-        result_error = out.get("error")
+        result_error = out.get("error") or (None if output_succeeded else "output_failed")
 
     elif col_type == "research":
         # Research Column → bounded web-research agent (Claygent-style).
@@ -277,7 +316,7 @@ async def enrich_cell(
         from apps.api.services.workbook.research_column import execute_research_column
         prompt = col_config.get("prompt", "")
         if not prompt:
-            _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error="no_prompt")
+            _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error="no_prompt", row_id=row_id)
             return {"success": False, "value": None, "error": "no_prompt"}
         # Resolve the workbook's workspace so the native path is workspace-aware.
         research_ws = (
@@ -306,7 +345,8 @@ async def enrich_cell(
     elif col_type == "agent":
         # Goal-directed enrichment — agent picks tools dynamically (Pillar 4).
         from apps.api.services.workbook.agent_column import run_agent_cell
-        agent_result = await run_agent_cell(db, workbook_id, lead_id, col_config, lead_data)
+        agent_result = await run_agent_cell(db, workbook_id, lead_id, col_config, lead_data,
+            provider_timeout=_RUN_CONFIG.get("provider_timeout", 10.0))
         provider_attempts.extend(agent_result.pop("_provider_attempts", []))
         result_value = agent_result.get("value")
         result_provider = agent_result.get("provider") or "agent"
@@ -331,23 +371,24 @@ async def enrich_cell(
     else:
         # Enrichment/Waterfall → provider chain
         lead = _lead_dict_to_lead(lead_data)
-        explicit_chain = col_config.get("waterfall") or ([col_config.get("provider")] if col_config.get("provider") else [])
+        configured_waterfall = col_config.get("waterfall")
+        explicit_selection = configured_waterfall is not None or bool(col_config.get("provider"))
+        explicit_chain = list(configured_waterfall) if configured_waterfall is not None else ([col_config["provider"]] if col_config.get("provider") else [])
 
         # The target_field tells us which Lead field this column is enriching (e.g. "email")
         # If set, we ONLY extract that specific field from the provider result.
         target_field = col_config.get("target_field") or col_config.get("lead_field") or col_id
 
         # ── Resolve provider chain with DEFAULT_WATERFALLS ──
-        # If the column has an explicit waterfall, use it but prepend any
-        # OSS providers from the default chain that are missing.
-        # If no explicit chain, use the full default.
-        if explicit_chain:
-            default_chain = DEFAULT_WATERFALLS.get(target_field, [])
-            # Prepend default OSS providers that aren't already in the explicit chain
-            oss_additions = [p for p in default_chain if p not in explicit_chain]
-            provider_chain = oss_additions + explicit_chain
-        else:
-            provider_chain = DEFAULT_WATERFALLS.get(target_field, [])
+        # Explicit selection is a provider authorization boundary, including its
+        # order. Adding defaults here used to call unselected paid providers and
+        # made execution disagree with the configured waterfall and cost preview.
+        provider_chain = list(explicit_chain if explicit_selection else DEFAULT_WATERFALLS.get(target_field, []))
+        authorized_chain = list(provider_chain)
+        execution = current_execution.get()
+        if execution is not None and execution.workbook_id != workbook_id:
+            raise ValueError("Enrichment workbook does not match queue identity")
+        row_identity = f"row:{row_id}" if row_id is not None else f"lead:{lead_id}"
 
         result_value = None
         result_provider = None
@@ -363,7 +404,19 @@ async def enrich_cell(
         budget_max = (wb_row[0] or 0.0) if wb_row else 0.0
         budget_spent = (wb_row[1] or 0.0) if wb_row else 0.0
         budget_remaining = (budget_max - budget_spent) if budget_max > 0 else None
-        provider_chain = _planner.order_chain(db, target_field, provider_chain, budget_remaining)
+        plan_chain = _planner.filter_chain if explicit_selection else _planner.order_chain
+        # Selected providers that never ran, as (provider, reason). A cell with
+        # no provider call must say why instead of reporting generic no_data.
+        skipped_providers: list = []
+        provider_chain = plan_chain(db, target_field, provider_chain, budget_remaining,
+                                    skipped=skipped_providers)
+        chain_exposure = sum(int((Decimal(str(_planner.provider_cost(p))) * 1000000).to_integral_value(rounding=ROUND_CEILING)) for p in dict.fromkeys(authorized_chain))
+        if execution is not None:
+            prior = [row[0] for row in db.query(WorkbookSpendAttempt.provider).filter_by(
+                workspace_id=execution.workspace_id, workbook_id=workbook_id,
+                run_id=execution.run_id, row_identity=row_identity, column_id=col_id,
+            ).order_by(WorkbookSpendAttempt.created_at, WorkbookSpendAttempt.id).all()]
+            provider_chain = list(dict.fromkeys([p for p in prior if p in authorized_chain] + provider_chain))
 
         # Optional waterfall-depth cap (0 = unlimited). With killable workers a
         # hung provider can't wedge the run, so we default to NO cap — trying the
@@ -378,21 +431,45 @@ async def enrich_cell(
 
         import time as _time
         for provider_name in provider_chain:
+            from apps.api.services.workbook.batch_attempts import check_workbook_run_owner
+            check_workbook_run_owner(SessionLocal, workbook_id)
             provider = get_provider(provider_name)
             if not provider:
                 logger.warning(f"Provider '{provider_name}' not found, skipping")
+                skipped_providers.append((provider_name, "unknown_provider"))
                 continue
 
             _t0 = _time.monotonic()
+            reserved_call = execution is not None and _planner.is_paid(provider_name)
+            if execution is not None and not reserved_call:
+                from apps.api.services.workbook.vendor_catalog import has_known_cost
+                if not has_known_cost(provider_name):
+                    result_error = "provider_price_unknown"
+                    break
             try:
                 # Run the provider in a KILLABLE subprocess (see provider_runner).
                 # A provider that blocks past its deadline gets its worker process
                 # SIGKILLed and replaced — so a hung provider can never leak a
                 # thread and wedge the run. This is what makes the waterfall safe.
-                _rd = await run_provider(
-                    provider_name, lead,
-                    timeout=_RUN_CONFIG.get("provider_timeout", 10.0),
-                )
+                if reserved_call:
+                    exposure = int((Decimal(str(_planner.provider_cost(provider_name))) * 1000000).to_integral_value(rounding=ROUND_CEILING))
+                    async def operation():
+                        response = await run_provider(provider_name, lead, timeout=_RUN_CONFIG.get("provider_timeout", 10.0))
+                        return accounting_envelope(provider_name, response, exposure)
+                    receipt = await execute_reserved_attempt(operation=operation, reservation=dict(
+                        session_factory=SessionLocal, workspace_id=execution.workspace_id, workbook_id=workbook_id,
+                        run_id=execution.run_id, row_identity=row_identity, column_id=col_id, provider=provider_name,
+                        attempt_key=execution.attempt_key(row_identity=row_identity, column_id=col_id, provider=provider_name),
+                        exposure_microusd=exposure, cell_limit_microusd=chain_exposure,
+                        cost_basis={"kind": "catalog_estimate", "provider": provider_name},
+                        operation_contract={"inputs": lead_data, "column": col_config},
+                    ))
+                    if not receipt["ok"]:
+                        result_error = receipt["reason"]
+                        break
+                    _rd = receipt["result"]
+                else:
+                    _rd = await run_provider(provider_name, lead, timeout=_RUN_CONFIG.get("provider_timeout", 10.0))
                 # `license` is provenance-only metadata the runner adds; pop it
                 # before constructing EnrichmentResult (which has no such field).
                 _attempt_license = (_rd or {}).pop("license", None)
@@ -454,7 +531,7 @@ async def enrich_cell(
 
                 if result_value:
                     # ── Charge budget for a successful PAID provider ──
-                    if _planner.is_paid(provider_name):
+                    if _planner.is_paid(provider_name) and not reserved_call:
                         # Defer the write until after all awaited work (including
                         # email verification) so no DB lock spans network I/O.
                         budget_charge = _planner.provider_cost(provider_name)
@@ -471,6 +548,9 @@ async def enrich_cell(
                     "latency_ms": (_time.monotonic() - _t0) * 1000.0,
                     "timed_out": True,
                 })
+                if reserved_call:
+                    result_error = "accounting_uncertain"
+                    break
             except Exception as e:
                 _latency_ms = (_time.monotonic() - _t0) * 1000.0
                 logger.error(f"Provider {provider_name} failed for lead {lead_id}: {e}")
@@ -482,6 +562,16 @@ async def enrich_cell(
                     "latency_ms": _latency_ms,
                     "rate_limited": _planner.looks_rate_limited(result_error),
                 })
+                if reserved_call:
+                    result_error = "accounting_uncertain"
+                    break
+
+        if not result_value and not result_error and not provider_attempts:
+            if not authorized_chain:
+                result_error = "no_providers_selected" if explicit_selection else "no_default_providers"
+            elif skipped_providers:
+                result_error = ("providers_unavailable: " + ", ".join(
+                    f"{p} ({reason})" for p, reason in skipped_providers))[:200]
 
     # ── Auto-verify email cells ───────────────────────────────────────
     # When an email column produces a value, run the verify cascade and attach
@@ -505,6 +595,14 @@ async def enrich_cell(
                                         "source": vr.source}}
         except Exception as e:
             logger.debug(f"email verify failed for {result_value}: {e}")
+
+    # Selected providers that never ran (unknown/cooldown/over-budget) are
+    # part of this result's attempt history, including when a later provider
+    # succeeded. Only the waterfall branch defines the list.
+    _skipped = locals().get("skipped_providers")
+    if _skipped:
+        cell_metadata = {**(cell_metadata or {}), "skipped_providers": [
+            {"provider": p, "reason": reason} for p, reason in _skipped]}
 
     # ── Per-fact provenance (flag-gated) ──────────────────────────────
     # Build {source, license, confidence, fetched_at} for a produced value so it
@@ -533,21 +631,24 @@ async def enrich_cell(
     # This is the first write in the cell transaction. Keep it adjacent to the
     # commit: no provider, verifier, or Redis await may happen while SQLite's
     # single writer lock is held.
+    from apps.api.services.workbook.batch_attempts import fence_workbook_run_state
+    fence_workbook_run_state(db, workbook_id)
     if budget_charge:
         db.query(Workbook).filter(Workbook.id == workbook_id).update(
             {Workbook.budget_spent_usd: (Workbook.budget_spent_usd + budget_charge)},
             synchronize_session=False,
         )
-    if result_value:
+    has_result = result_value is not None and result_value != "" and result_value != [] and result_value != {}
+    if has_result:
         # Always store in enrichment overlay (value is already scalar/summary)
         _set_enrichment(db, workbook_id, lead_id, col_id, result_value, "complete",
                         provider=result_provider, metadata=cell_metadata,
-                        provenance=provenance)
+                        provenance=provenance, row_id=row_id)
     else:
         # Persist research metadata even on a no-answer cell so the UI can render
         # 0 sources gracefully (cell_metadata is only set for research above).
         _set_enrichment(db, workbook_id, lead_id, col_id, None, "error",
-                        error=result_error or "no_data", metadata=cell_metadata)
+                        error=result_error or "no_data", metadata=cell_metadata, row_id=row_id)
 
     db.commit()
 
@@ -575,16 +676,20 @@ async def enrich_cell(
             "rowId": row_id,
             "colId": col_id,
             "value": result_value,
-            "status": "complete" if result_value else "error",
+            "status": "complete" if has_result else "error",
             "provider": result_provider,
-            "error": result_error if not result_value else None,
+            "error": result_error if not has_result else None,
+            "research": (cell_metadata or {}).get("research"),
+            "provenance": provenance,
+            "verify_status": ((cell_metadata or {}).get("verify") or {}).get("status"),
         })
 
     return {
-        "success": bool(result_value),
+        "success": has_result,
         "value": result_value,
         "provider": result_provider,
         "error": result_error,
+        "research": (cell_metadata or {}).get("research"),
     }
 
 
@@ -592,6 +697,7 @@ def _set_enrichment(
     db: Session, workbook_id: str, lead_id: int, column_id: str,
     value: Any, status: str, provider: str = None, error: str = None,
     metadata: dict = None, provenance: dict = None,
+    row_id: Optional[int] = None,
 ):
     """Upsert a WorkbookEnrichment record.
 
@@ -625,13 +731,16 @@ def _set_enrichment(
     if provenance:
         cell_meta = {**(metadata or {}), "provenance": provenance}
 
+    stored_value = value if value is None or isinstance(value, str) else json.dumps(value, ensure_ascii=False)
     if existing:
-        existing.value = value
+        existing.value = stored_value
         existing.status = status
         existing.provider = provider
         existing.error = error
-        if cell_meta is not None:
-            existing.cell_metadata = cell_meta
+        # Metadata describes this result, not the last successful attempt.
+        # Clear it on metadata-free writes (including running/error) so legacy
+        # readback cannot resurrect stale citations or verification badges.
+        existing.cell_metadata = cell_meta
     else:
         from apps.api.core.tenancy import current_workspace_var
         db.add(WorkbookEnrichment(
@@ -642,7 +751,7 @@ def _set_enrichment(
             workspace_id=current_workspace_var.get(),
             lead_id=lead_id,
             column_id=column_id,
-            value=value,
+            value=stored_value,
             status=status,
             provider=provider,
             error=error,
@@ -655,13 +764,18 @@ def _set_enrichment(
     # via WebSocket and vanished on refresh.)
     try:
         from sqlalchemy.orm.attributes import flag_modified
-        wr = db.query(WorkbookRow).filter(
-            WorkbookRow.workbook_id == workbook_id, WorkbookRow.lead_id == lead_id
-        ).first()
-        if wr is None:
+        if row_id is not None:
             wr = db.query(WorkbookRow).filter(
-                WorkbookRow.workbook_id == workbook_id, WorkbookRow.id == lead_id
+                WorkbookRow.workbook_id == workbook_id, WorkbookRow.id == row_id
             ).first()
+        else:
+            wr = db.query(WorkbookRow).filter(
+                WorkbookRow.workbook_id == workbook_id, WorkbookRow.lead_id == lead_id
+            ).first()
+            if wr is None:
+                wr = db.query(WorkbookRow).filter(
+                    WorkbookRow.workbook_id == workbook_id, WorkbookRow.id == lead_id
+                ).first()
         if wr is not None:
             overlay = dict(wr.enrichments or {})
             # ── Automations on_row_changed prior-value capture (§3.6) ──
@@ -678,10 +792,14 @@ def _set_enrichment(
             # Per-fact provenance (flag-gated; None → key omitted → byte-identical).
             if provenance:
                 cell["provenance"] = provenance
+            if isinstance((cell_meta or {}).get("research"), dict):
+                cell["research"] = cell_meta["research"]
+            if (cell_meta or {}).get("skipped_providers"):
+                cell["skipped_providers"] = cell_meta["skipped_providers"]
             overlay[column_id] = cell
             wr.enrichments = overlay
             flag_modified(wr, "enrichments")
-            if status == "complete" and str(_old_val or "") != str(value or ""):
+            if status == "complete" and str("" if _old_val is None else _old_val) != str("" if value is None else value):
                 _queue_row_change_emit(workbook_id, wr.id, column_id, _old_val, value)
     except Exception as e:
         logger.debug(f"row enrichments mirror failed: {e}")
@@ -904,19 +1022,18 @@ def _load_workbook_leads(
 
     if v2_count > 0:
         query = db.query(WorkbookRow).filter(WorkbookRow.workbook_id == wb.id)
-        if row_ids:
+        if row_ids is not None:
             query = query.filter(WorkbookRow.id.in_(row_ids))
-        elif lead_ids:
+        elif lead_ids is not None:
             query = query.filter(WorkbookRow.lead_id.in_(lead_ids))
-        return [
-            {
-                "id": r.lead_id or r.id,  # legacy cell-subject key
-                "__row_id": r.id,
-                "__lead_id": r.lead_id,
-                **(r.data or {}),
-            }
-            for r in query.all()
-        ]
+        from apps.api.services.workbook.cell_scope import row_execution_data
+        return [row_execution_data(row, wb.columns_config or []) for row in query.all()]
+
+    from apps.api.services.workbook.cell_scope import uses_legacy_leads
+    if row_ids is not None or lead_ids == [] or not uses_legacy_leads(wb):
+        # Selected v2 rows may have disappeared since enqueue. Never widen the
+        # run by switching identity domains or treating an empty list as all.
+        return []
 
     # v1 legacy — leads DB. The /run endpoint already resolved the workbook's
     # filter into an explicit lead_ids list and passes it in, so prefer fetching
@@ -958,10 +1075,41 @@ def _load_workbook_leads(
     return leads
 
 
+def _cell_subject(lead):
+    return ("row", lead["__row_id"]) if lead.get("__row_id") is not None else ("lead", lead["id"])
+
+
+def _stored_cells(db, workbook_id, leads, status):
+    """Read v2 cell status by row identity, with a separate legacy path."""
+    found = set()
+    row_ids = [lead["__row_id"] for lead in leads if lead.get("__row_id") is not None]
+    if row_ids:
+        for row in db.query(WorkbookRow).filter(WorkbookRow.workbook_id == workbook_id, WorkbookRow.id.in_(row_ids)).all():
+            for cid, cell in (row.enrichments or {}).items():
+                if isinstance(cell, dict) and cell.get("status") == status and (status != "complete" or cell.get("value") is not None):
+                    found.add((("row", row.id), cid))
+    lead_ids = [lead["id"] for lead in leads if lead.get("__row_id") is None]
+    if lead_ids:
+        query = db.query(WorkbookEnrichment).filter(
+            WorkbookEnrichment.workbook_id == workbook_id,
+            WorkbookEnrichment.lead_id.in_(lead_ids), WorkbookEnrichment.status == status,
+        )
+        if status == "complete":
+            query = query.filter(WorkbookEnrichment.value.isnot(None))
+        found.update((("lead", cell.lead_id), cell.column_id) for cell in query.all())
+    return found
+
+
 async def _run_one_cell(workbook_id, lead_data, col, columns_config, redis_client,
                         force: bool = False) -> dict:
     """Run a single cell in its own DB session (Session is not concurrency-safe)."""
     try:
+        from apps.api.services.workbook.batch_attempts import batch_owner, fence_workbook_run_state
+        if batch_owner.get() is not None:
+            # Short transaction only: release ownership-check locks before any
+            # provider/output awaits. The result transaction checks again.
+            with SessionLocal() as ownership_db:
+                fence_workbook_run_state(ownership_db, workbook_id)
         with SessionLocal() as cell_db:
             return await enrich_cell(
                 db=cell_db,
@@ -976,6 +1124,17 @@ async def _run_one_cell(workbook_id, lead_data, col, columns_config, redis_clien
             )
     except Exception as e:
         logger.error(f"Cell {col.get('id')} for lead {lead_data.get('id')} crashed: {e}")
+        # The failed cell transaction rolled back, which may otherwise expose
+        # an old complete result to retry/dependency selection.
+        try:
+            from apps.api.services.workbook.batch_attempts import fence_workbook_run_state
+            with SessionLocal() as failure_db:
+                fence_workbook_run_state(failure_db, workbook_id)
+                _set_enrichment(failure_db, workbook_id, lead_data["id"], col["id"], None, "error",
+                                error="cell_execution_failed", row_id=lead_data.get("__row_id"))
+                failure_db.commit()
+        except Exception:
+            logger.warning("Could not persist cell failure; ownership or storage may have changed")
         return {"success": False, "error": str(e)[:200]}
 
 
@@ -991,12 +1150,26 @@ async def _run_one_row(workbook_id, lead, ordered_cols, columns_config, redis_cl
     halts the run within a couple seconds instead of only at batch boundaries.
     """
     row = dict(lead)  # local, mutable: downstream cols read earlier results
+    identities = {key: lead[key] for key in ("id", "__row_id", "__lead_id") if key in lead}
     completed = errors = 0
+    failed_columns = []
+    from apps.api.services.workbook.column_deps import referencing_columns
     for col in ordered_cols:
         if should_stop is not None and should_stop():
             break
-        res = await _run_one_cell(workbook_id, row, col, columns_config, redis_client,
-                                  force=force)
+        if any(referencing_columns([col], failed) for failed in failed_columns):
+            # Never execute a dependent against the old hydrated result after
+            # its upstream attempt failed. Persist the reason for reload/retry.
+            from apps.api.services.workbook.batch_attempts import fence_workbook_run_state
+            with SessionLocal() as db:
+                fence_workbook_run_state(db, workbook_id)
+                _set_enrichment(db, workbook_id, row["id"], col["id"], None, "error",
+                                error="upstream_dependency_failed", row_id=row.get("__row_id"))
+                db.commit()
+            res = {"success": False, "error": "upstream_dependency_failed"}
+        else:
+            res = await _run_one_cell(workbook_id, row, col, columns_config, redis_client,
+                                      force=force)
         if isinstance(res, dict) and res.get("success"):
             completed += 1
             val = res.get("value")
@@ -1005,8 +1178,13 @@ async def _run_one_row(workbook_id, lead, ordered_cols, columns_config, redis_cl
                 row[col["id"]] = val
                 if col.get("name"):
                     row[col["name"]] = val
+                row.update(identities)
         else:
             errors += 1
+            failed_columns.append(col)
+            for key in (col.get("id"), col.get("name")):
+                if key not in identities:
+                    row.pop(key, None)
     return {"completed": completed, "errors": errors}
 
 
@@ -1056,11 +1234,28 @@ async def _run_ai_batch_prepass(
     return). Returns an empty set when batching isn't applicable (non-Anthropic,
     disabled, too few rows, no eligible columns) so the caller no-ops cleanly.
     """
+    from apps.api.services.workbook.batch_attempts import (
+        batch_owner, current_batch_attempt, claim_batch_attempt,
+        acknowledge_batch_attempt, fence_batch_result, checkpoint_batch_results, BatchRecoveryRequired,
+    )
+    owner = batch_owner.get()
+    prior_attempt = None
+    if owner is not None:
+        try:
+            if owner["workbook_id"] != workbook_id:
+                raise ValueError("Workbook changed")
+            prior_attempt = current_batch_attempt(SessionLocal, **owner)
+        except Exception as error:
+            raise BatchRecoveryRequired("Cannot verify prior batch ownership; no fallback permitted") from error
     if not BATCH_ENABLED:
+        if prior_attempt is not None:
+            raise BatchRecoveryRequired("Batching disabled with an existing attempt; reconcile before retrying")
         return set(), 0
 
     prov = llm.anthropic_provider()
     if not prov:
+        if prior_attempt is not None:
+            raise BatchRecoveryRequired("Batch provider changed with an existing attempt; reconcile before retrying")
         return set(), 0  # Anthropic isn't the serving provider → sync path
 
     # Gather the (lead, col) cells eligible for batching across all rows.
@@ -1068,12 +1263,18 @@ async def _run_ai_batch_prepass(
 
     requests: list[dict] = []
     index: dict[str, tuple] = {}  # custom_id → (cell_subject_id, col_id, row_id)
+    # Selection is not a dependency graph: omitted upstream/downstream columns
+    # must not turn a coupled column into an apparently independent one.
+    eligible_ids = {column["id"] for column in _batch_eligible_columns([
+        column for column in columns_config if column.get("type") in ENRICHMENT_COL_TYPES
+    ])}
     for lead, cols in work_items:
-        eligible = _batch_eligible_columns(cols)
+        eligible = [column for column in cols if column.get("id") in eligible_ids]
         for col in eligible:
             cells = {k: {"value": v} for k, v in lead.items()}
             prompt = build_ai_prompt(col.get("prompt", ""), cells, columns_config)
-            cid = f"{lead['id']}::{col['id']}"
+            subject = f"row_{lead['__row_id']}" if lead.get("__row_id") is not None else str(lead["id"])
+            cid = f"{subject}::{col['id']}"
             index[cid] = (lead["id"], col["id"], lead.get("__row_id"))
             requests.append({
                 "custom_id": cid,
@@ -1083,14 +1284,53 @@ async def _run_ai_batch_prepass(
             })
 
     if len(requests) < BATCH_MIN_ROWS:
+        if prior_attempt is not None:
+            raise BatchRecoveryRequired("Batch eligibility changed with an existing attempt; reconcile before retrying")
         return set(), 0  # too small to be worth the async round-trip
 
     logger.info(f"[batch] submitting {len(requests)} ai_formula cells to Anthropic Message Batch")
+    batch_options = {}
+    cached_results = None
+    if current_execution.get() is not None:
+        if owner is None or owner["workbook_id"] != workbook_id:
+            raise BatchRecoveryRequired("Queued batch requires an active scoped lease")
+        try:
+            claim = claim_batch_attempt(SessionLocal, contract={"requests": requests, "provider": prov}, **owner)
+        except Exception as error:
+            raise BatchRecoveryRequired("Batch claim unavailable; no synchronous fallback permitted") from error
+        if claim["action"] == "reconcile":
+            raise BatchRecoveryRequired("Batch submission outcome unknown; reconcile before retrying")
+        cached_results = claim.get("results")
+        def checkpoint_result(custom_id, text):
+            if custom_id not in index:
+                raise BatchRecoveryRequired("Batch returned an unexpected request identity")
+            checkpoint_batch_results(SessionLocal, contract_hash=claim["contract_hash"],
+                                     results={custom_id: text}, **owner)
+        batch_options = {
+            "batch_id": claim["vendor_batch_id"], "strict_results": True,
+            "on_result": checkpoint_result,
+            "known_result_ids": list(cached_results or {}),
+            "on_submitted": lambda vendor_id: acknowledge_batch_attempt(
+                SessionLocal, contract_hash=claim["contract_hash"], vendor_batch_id=vendor_id, **owner),
+        }
     try:
-        results = await llm.batch_complete_anthropic(requests, prov=prov, should_stop=should_stop)
+        cache_complete = cached_results is not None and set(cached_results) == set(index)
+        results = cached_results if cache_complete else await llm.batch_complete_anthropic(
+            requests, prov=prov, should_stop=should_stop, **batch_options)
+        if cached_results is not None and not cache_complete:
+            results = {**cached_results, **results}
     except Exception as e:
+        if batch_options:
+            raise BatchRecoveryRequired("Batch results unavailable; retrieve or reconcile the existing attempt") from e
         logger.warning(f"[batch] submission failed, falling back to sync per-row: {e}")
         return set(), 0
+    if batch_options and set(results) != set(index):
+        raise BatchRecoveryRequired("Batch has unresolved cells; automatic synchronous fallback is disabled")
+    if batch_options and not cache_complete:
+        try:
+            checkpoint_batch_results(SessionLocal, contract_hash=claim["contract_hash"], results=results, **owner)
+        except Exception as error:
+            raise BatchRecoveryRequired("Batch results could not be checkpointed; retry retrieval, not submission") from error
 
     handled: set = set()
     completed = 0
@@ -1100,9 +1340,14 @@ async def _run_ai_batch_prepass(
             continue
         lead_id, col_id, row_id = index[cid]
         with SessionLocal() as cdb:
-            _set_enrichment(cdb, workbook_id, lead_id, col_id, text, "complete", provider="ai")
+            if batch_options:
+                try:
+                    fence_batch_result(cdb, contract_hash=claim["contract_hash"], **owner)
+                except Exception as error:
+                    raise BatchRecoveryRequired("Batch result writer lost ownership; current cell was not saved") from error
+            _set_enrichment(cdb, workbook_id, lead_id, col_id, text, "complete", provider="ai", row_id=row_id)
             cdb.commit()
-        handled.add((lead_id, col_id))
+        handled.add((f"row_{row_id}" if row_id is not None else lead_id, col_id))
         completed += 1
         if redis_client is not None:
             try:
@@ -1125,7 +1370,8 @@ def _apply_batch_handled(work_items: list, handled: set) -> list:
         return work_items
     out = []
     for lead, cols in work_items:
-        remaining = [c for c in cols if (lead["id"], c["id"]) not in handled]
+        subject = f"row_{lead['__row_id']}" if lead.get("__row_id") is not None else lead["id"]
+        remaining = [c for c in cols if (subject, c["id"]) not in handled]
         if remaining:
             out.append((lead, remaining))
     return out
@@ -1144,6 +1390,7 @@ async def run_workbook_enrichment(
     fill_missing: bool = False,
     force: bool = False,
     workspace_id: Optional[str] = None,
+    row_columns: Optional[dict] = None,
 ) -> Dict[str, Any]:
     """Run a workbook enrichment under its tenant scope.
 
@@ -1156,7 +1403,9 @@ async def run_workbook_enrichment(
     """
     from apps.api.core.tenancy import workspace_scope
 
-    with workspace_scope(workspace_id):
+    from apps.api.services.workbook.execution_identity import execution_scope
+
+    with workspace_scope(workspace_id), execution_scope(workspace_id, workbook_id, job_id):
         return await _run_workbook_enrichment_impl(
             workbook_id=workbook_id,
             column_ids=column_ids,
@@ -1169,6 +1418,7 @@ async def run_workbook_enrichment(
             provider_timeout=provider_timeout,
             fill_missing=fill_missing,
             force=force,
+            row_columns=row_columns,
         )
 
 
@@ -1184,6 +1434,7 @@ async def _run_workbook_enrichment_impl(
     provider_timeout: float = 10.0,
     fill_missing: bool = False,
     force: bool = False,
+    row_columns: Optional[dict] = None,
 ) -> Dict[str, Any]:
     """Concurrent, pause-aware, crash-recoverable workbook run.
 
@@ -1197,6 +1448,7 @@ async def _run_workbook_enrichment_impl(
     Stop click and a re-run don't leave a zombie run grinding in the background.
     """
     # ── Load config + rows ──
+    from apps.api.services.workbook.batch_attempts import fence_workbook_run_state
     with SessionLocal() as db:
         wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
         if not wb:
@@ -1210,17 +1462,21 @@ async def _run_workbook_enrichment_impl(
         leads = _load_workbook_leads(db, wb, row_ids, lead_ids)
 
     if not enrichment_cols or not leads:
+        from apps.api.services.workbook.batch_attempts import batch_owner, current_batch_attempt, BatchRecoveryRequired
+        owner = batch_owner.get()
+        if owner is not None and current_batch_attempt(SessionLocal, **owner) is not None:
+            raise BatchRecoveryRequired("Workbook scope is empty with an existing batch; reconcile before completing")
         with SessionLocal() as db:
+            fence_workbook_run_state(db, workbook_id)
             wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
             if wb:
                 wb.status = "complete"
                 db.commit()
         return {"completed": 0, "errors": 0, "total": 0, "rows": len(leads)}
 
-    # Re-assert ownership: a prior superseded run's finalize may have just set
-    # this workbook to `complete`; mark it running again so the UI reflects THIS
-    # run. (The worker is sequential, so the old run has already stopped here.)
+    # Only the active queue lease may assert running state.
     with SessionLocal() as sdb:
+        fence_workbook_run_state(sdb, workbook_id)
         w0 = sdb.query(Workbook).filter(Workbook.id == workbook_id).first()
         if w0 and w0.status != "paused":
             w0.status = "running"
@@ -1239,18 +1495,11 @@ async def _run_workbook_enrichment_impl(
     # are preserved (a re-run won't clobber a complete cell with a fresh miss).
     if fill_missing:
         with SessionLocal() as sdb:
-            done = sdb.query(
-                WorkbookEnrichment.lead_id, WorkbookEnrichment.column_id
-            ).filter(
-                WorkbookEnrichment.workbook_id == workbook_id,
-                WorkbookEnrichment.status == "complete",
-                WorkbookEnrichment.value.isnot(None),
-            ).all()
-        done_set = {(lid, cid) for lid, cid in done}
+            done_set = _stored_cells(sdb, workbook_id, leads, "complete")
         work_items = [
             (lead, cols)
             for lead in leads
-            for cols in [[c for c in ordered_cols if (lead["id"], c["id"]) not in done_set]]
+            for cols in [[c for c in ordered_cols if (_cell_subject(lead), c["id"]) not in done_set]]
             if cols
         ]
         logger.info(f"fill_missing: {sum(len(c) for _, c in work_items)} gaps across "
@@ -1258,9 +1507,14 @@ async def _run_workbook_enrichment_impl(
     else:
         work_items = [(lead, ordered_cols) for lead in leads]
 
+    from apps.api.services.workbook.cell_scope import restrict_work_items
+    work_items = restrict_work_items(work_items, row_columns)
+    selected_cells = {(_cell_subject(lead), column["id"]) for lead, cols in work_items for column in cols}
+
     total = sum(len(cols) for _, cols in work_items)
     completed = errors = rows_done = 0
     stopped = False
+    failed = False
     redis_client = _make_redis()
 
     # Cooperative-stop probe. Checked before every cell and every batch, but the
@@ -1290,20 +1544,26 @@ async def _run_workbook_enrichment_impl(
     # Independent text ai_formula columns over many rows go to the Anthropic
     # Message Batch API (~50% cost). Handled cells are removed from work_items so
     # the sync loop runs only the remainder; non-Anthropic/small runs no-op here.
-    if not _should_stop():
-        try:
-            handled, batch_completed = await _run_ai_batch_prepass(
-                workbook_id, work_items, columns_config, redis_client,
-                should_stop=_should_stop,
-            )
-            if handled:
-                work_items = _apply_batch_handled(work_items, handled)
-                completed += batch_completed
-                total = sum(len(cols) for _, cols in work_items) + batch_completed
-        except Exception as e:
-            logger.warning(f"[batch] pre-pass errored, continuing with sync run: {e}")
-
     try:
+        if not _should_stop():
+            try:
+                handled, batch_completed = await _run_ai_batch_prepass(
+                    workbook_id, work_items, columns_config, redis_client,
+                    should_stop=_should_stop,
+                )
+                if handled:
+                    work_items = _apply_batch_handled(work_items, handled)
+                    completed += batch_completed
+                    total = sum(len(cols) for _, cols in work_items) + batch_completed
+            except Exception as e:
+                from apps.api.services.workbook.batch_attempts import BatchRecoveryRequired, batch_owner, current_batch_attempt
+                if isinstance(e, BatchRecoveryRequired):
+                    raise
+                owner = batch_owner.get()
+                if owner is not None and current_batch_attempt(SessionLocal, **owner) is not None:
+                    raise BatchRecoveryRequired("Existing batch failed recovery; synchronous fallback is disabled") from e
+                logger.warning(f"[batch] pre-pass errored, continuing with sync run: {e}")
+
         for i in range(0, len(work_items), concurrency):
             if _should_stop():
                 stopped = True
@@ -1316,16 +1576,17 @@ async def _run_workbook_enrichment_impl(
                   for lead, cols in batch],
                 return_exceptions=True,
             )
-            for r in results:
+            for (_, attempted_columns), r in zip(batch, results):
                 rows_done += 1
                 if isinstance(r, dict):
                     completed += r.get("completed", 0)
                     errors += r.get("errors", 0)
                 else:
-                    errors += len(enrichment_cols)
+                    errors += len(attempted_columns)
 
             # Progress: completed_rows = rows fully processed so far
             with SessionLocal() as sdb:
+                fence_workbook_run_state(sdb, workbook_id)
                 w = sdb.query(Workbook).filter(Workbook.id == workbook_id).first()
                 if w:
                     w.total_rows = len(leads)
@@ -1336,28 +1597,27 @@ async def _run_workbook_enrichment_impl(
         # failures (LLM rate-limit, momentary network) recover, and the full
         # waterfall gets another shot at the hard cells. This is what pushes the
         # fill rate up toward the success target. Bounded by retry_passes. ──
-        lead_by_id = {l["id"]: l for l in leads}
+        lead_by_id = {_cell_subject(lead): lead for lead in leads}
+        from apps.api.services.workbook.cell_scope import allows_automatic_retry
+        retryable_ids = {column["id"] for column in ordered_cols if allows_automatic_retry(column)}
         for _pass in range(max(0, retry_passes)):
             if stopped or _should_stop():
                 break
             with SessionLocal() as sdb:
-                err_cells = sdb.query(
-                    WorkbookEnrichment.lead_id, WorkbookEnrichment.column_id
-                ).filter(
-                    WorkbookEnrichment.workbook_id == workbook_id,
-                    WorkbookEnrichment.status == "error",
-                    WorkbookEnrichment.column_id.in_([c["id"] for c in ordered_cols]),
-                ).all()
-            err_by_lead: Dict[int, set] = {}
+                err_cells = _stored_cells(sdb, workbook_id, leads, "error")
+            err_by_lead: dict[tuple, set] = {}
             for lid, cid in err_cells:
-                if lid in lead_by_id:
+                if lid in lead_by_id and (lid, cid) in selected_cells and cid in retryable_ids:
                     err_by_lead.setdefault(lid, set()).add(cid)
             if not err_by_lead:
                 break
             targets = [
                 (lead_by_id[lid], [c for c in ordered_cols if c["id"] in cols])
-                for lid, cols in err_by_lead.items()
+                for lid, cols in sorted(err_by_lead.items())
             ]
+            targets = restrict_work_items(targets, row_columns)
+            if not targets:
+                break
             n_cells = sum(len(cols) for _, cols in targets)
             logger.info(f"[retry pass {_pass + 1}/{retry_passes}] re-running {n_cells} error cells")
             for i in range(0, len(targets), concurrency):
@@ -1375,17 +1635,31 @@ async def _run_workbook_enrichment_impl(
                     if isinstance(r, dict):
                         completed += r.get("completed", 0)
                         errors -= r.get("completed", 0)  # moved error → complete
+    except asyncio.CancelledError:
+        stopped = True
+        raise
+    except Exception:
+        failed = True
+        raise
     finally:
         # ── Finalize status (never leave it stuck in running) ──
         _ws_for_emit = None
+        final_status = "failed" if failed else "paused" if stopped else "failed" if errors > 0 else "complete"
+        owns_state = True
         with SessionLocal() as sdb:
-            w = sdb.query(Workbook).filter(Workbook.id == workbook_id).first()
+            try:
+                fence_workbook_run_state(sdb, workbook_id)
+            except ValueError:
+                owns_state = False
+            w = sdb.query(Workbook).filter(Workbook.id == workbook_id).first() if owns_state else None
             if w:
                 _ws_for_emit = w.workspace_id
                 if w.status != "paused":
-                    w.status = "complete"
-                    w.completed_rows = len(leads)
+                    w.status = final_status
+                    w.completed_rows = min(len(leads), rows_done) if stopped or failed else len(leads)
                     sdb.commit()
+                else:
+                    final_status = "paused"
         # Automations on_row_changed: flush prior-value-captured deltas AFTER the
         # write committed (a rolled-back write never fires a rule). No-op when off.
         try:
@@ -1394,11 +1668,12 @@ async def _run_workbook_enrichment_impl(
             logger.debug("row-change flush skipped: %s", e)
         if redis_client is not None:
             try:
-                await _broadcast(redis_client, workbook_id, {
-                    "type": "workbook_status",
-                    "status": "paused" if stopped else "complete",
-                    "completed": completed, "errors": errors, "total": total,
-                })
+                if owns_state:
+                    await _broadcast(redis_client, workbook_id, {
+                        "type": "workbook_status",
+                        "status": final_status,
+                        "completed": completed, "errors": errors, "total": total,
+                    })
             finally:
                 try:
                     await redis_client.aclose()
@@ -1419,10 +1694,11 @@ async def handle_run_workbook(job_id: int, payload: dict):
     enrichment unscoped/global.
     """
     from apps.api.core.tenancy import workspace_scope
+    from apps.api.services.workbook.batch_attempts import batch_lease_scope
 
     logger.info(f"[job {job_id}] run_workbook {payload.get('workbook_id')}")
     workspace_id = payload.get("workspace_id")
-    with workspace_scope(workspace_id):
+    with workspace_scope(workspace_id), batch_lease_scope(job_id, payload):
         # Size the killable worker pool to the configured count before running.
         try:
             from apps.api.services.workbook import provider_runner
@@ -1442,8 +1718,16 @@ async def handle_run_workbook(job_id: int, payload: dict):
             fill_missing=bool(payload.get("fill_missing", False)),
             force=bool(payload.get("force", False)),
             workspace_id=workspace_id,
+            row_columns=payload.get("row_columns"),
         )
         logger.info(f"[job {job_id}] run_workbook done: {result}")
+        # Receipt persistence must not turn already-executed external actions
+        # into an automatic retry if the diagnostic write itself fails.
+        try:
+            from apps.api.services.workbook.run_receipts import persist_run_result
+            persist_run_result(job_id, payload, result)
+        except Exception:
+            logger.exception("Could not persist workbook result for job %s", job_id)
 
 
 async def _broadcast(redis_client, workbook_id: str, message: dict):

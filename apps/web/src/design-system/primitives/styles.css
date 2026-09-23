@@ -1,0 +1,53 @@
+/* Keep Twenty's reset/components below explicit application utilities. */
+@layer theme, base, components, utilities;
+@import "twenty-ui/style.css" layer(components);
+
+/* Twenty's reset declares `button { border: none }` in this layer. The
+ * shorthand resets border-color to currentColor, so any Tailwind-bordered
+ * button drew a text-colored outline. Restore the token border color here,
+ * after Twenty and in the same layer; border-* utilities still take priority. */
+@layer components {
+  button {
+    border-color: var(--border);
+  }
+
+  /* Twenty Button → macOS push buttons. Twenty renders data-variant and
+   * data-color on every button (defaults: outline / neutral). Solid neutral
+   * becomes the accent-filled default button; outline neutral becomes the
+   * raised bezel. Same layer, later, attribute-scoped: no hashed class names. */
+  :is(button, a)[data-variant="solid"][data-color="neutral"] {
+    --tw-button-background: var(--gtm-accent);
+    --tw-button-border: transparent;
+    --tw-button-color: var(--gtm-accent-foreground);
+    --tw-button-hover: var(--gtm-accent-hover);
+    --tw-button-active: var(--gtm-accent-hover);
+    box-shadow: 0 0.5px 1px rgb(0 0 0 / 0.18), inset 0 0.5px 0 rgb(255 255 255 / 0.18);
+  }
+  :is(button, a)[data-variant="outline"][data-color="neutral"] {
+    --tw-button-background: var(--gtm-control-bezel);
+    --tw-button-border: transparent;
+    --tw-button-color: var(--t-font-color-primary);
+    --tw-button-hover: color-mix(in srgb, var(--gtm-control-bezel) 92%, var(--t-font-color-primary));
+    --tw-button-active: color-mix(in srgb, var(--gtm-control-bezel) 86%, var(--t-font-color-primary));
+    box-shadow: var(--gtm-control-shadow);
+  }
+}
+
+@layer components {
+  /* macOS text field for Twenty's Input: white field, hairline border, soft
+   * inset, 28px, and the system focus ring. Same layer, after Twenty. */
+  .gtm-text-field:not([data-grouped]) {
+    --tw-input-block-size: var(--gtm-control-md);
+    background-color: var(--t-background-primary);
+    box-shadow: inset 0 0.5px 1px rgb(0 0 0 / 0.06);
+  }
+  .gtm-text-field:not([data-grouped])::placeholder {
+    color: var(--t-font-color-tertiary);
+    font-weight: var(--t-font-weight-regular);
+  }
+  .gtm-text-field:not([data-grouped]):focus-visible {
+    outline: 3px solid var(--gtm-focus-ring);
+    outline-offset: 0;
+  }
+}
+

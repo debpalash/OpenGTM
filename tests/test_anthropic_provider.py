@@ -394,6 +394,58 @@ def test_batch_maps_results_by_custom_id(fake_anthropic_batch):
 def test_batch_empty_requests_short_circuits(fake_anthropic_batch):
     c = L.LLMClient()
     assert asyncio.run(c.batch_complete_anthropic([], prov=_prov())) == {}
+
+
+def test_batch_resume_does_not_create_again(fake_anthropic_batch):
+    c = L.LLMClient()
+    out = asyncio.run(c.batch_complete_anthropic(
+        [{"custom_id": "1::col", "prompt": "Example"}], prov=_prov(),
+        batch_id="batch_abc", strict_results=True, poll_interval=0))
+    assert _Batches.submitted is None
+    assert out["1::col"] == "answer one"
+
+
+def test_batch_retrieval_does_not_recount_checkpointed_usage(fake_anthropic_batch, monkeypatch):
+    c = L.LLMClient()
+    usage, results = [], []
+    monkeypatch.setattr(c, "_record_usage", lambda *args: usage.append(args))
+    out = asyncio.run(c.batch_complete_anthropic(
+        [{"custom_id": "1::col", "prompt": "Example"}, {"custom_id": "2::col", "prompt": "Other"}],
+        prov=_prov(), batch_id="batch_abc", strict_results=True,
+        known_result_ids=["1::col"], on_result=lambda key, text: results.append((key, text))))
+    assert c.usage.calls == 1
+    assert len(usage) == 1
+    assert set(out) == {"1::col", "2::col"}
+    assert {key for key, _ in results} == {"1::col", "2::col"}  # Still validate repeated answers.
+
+
+def test_strict_batch_result_failure_is_not_an_empty_success(fake_anthropic_batch, monkeypatch):
+    async def failed_results(self, batch_id):
+        raise TimeoutError("Result stream interrupted")
+    monkeypatch.setattr(_Batches, "results", failed_results)
+    c = L.LLMClient()
+    with pytest.raises(TimeoutError, match="Result stream interrupted"):
+        asyncio.run(c.batch_complete_anthropic(
+            [{"custom_id": "1::col", "prompt": "Example"}], prov=_prov(),
+            batch_id="batch_abc", strict_results=True, poll_interval=0))
+    assert _Batches.submitted is None
+
+
+def test_batch_checkpoints_each_answer_before_stream_failure(fake_anthropic_batch, monkeypatch):
+    async def partial_results(self, batch_id):
+        async def stream():
+            yield _BatchResult("1::col", "Retained answer")
+            raise TimeoutError("Stream interrupted")
+        return stream()
+    monkeypatch.setattr(_Batches, "results", partial_results)
+    recorded = []
+    c = L.LLMClient()
+    with pytest.raises(TimeoutError, match="Stream interrupted"):
+        asyncio.run(c.batch_complete_anthropic(
+            [{"custom_id": "1::col", "prompt": "Example"}], prov=_prov(),
+            batch_id="batch_abc", strict_results=True,
+            on_result=lambda key, text: recorded.append((key, text))))
+    assert recorded == [("1::col", "Retained answer")]
     assert _Batches.submitted is None
 
 

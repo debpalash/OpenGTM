@@ -5,7 +5,7 @@ import {
   Eye, EyeOff, Star, Globe, Diamond, Leaf, Zap,
   Brain, Sparkles, Shell, Hexagon, Cloud, Smile, Flame, Waves,
   Search, Bot, BarChart3, Radio, Mail, ShieldCheck, Download, RefreshCw,
-  Database, Trash2, UserPlus, LockKeyhole, Copy,
+  Database, Trash2, UserPlus, LockKeyhole, Copy, CircleCheck, CircleX,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,13 +15,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
+import { NativeSelect } from "@/components/ui/native-select"
 import { useProviders, type Provider } from "@/lib/hooks"
 import { useQueryClient } from "@tanstack/react-query"
 import { queryKeys } from "@/lib/query-client"
 import { useSmtpStatus, useUpdateSmtp, useTestSmtp } from "@/lib/automation-hooks"
 import { Gate } from "@/components/gate"
 
-// Map provider emoji icons from the API to Lucide components
+// The API names provider icons with emoji; map them to Lucide components.
+// Emoji are never rendered: unknown names fall back to a generic Bot icon.
 const PROVIDER_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   "🌐": Globe,
   "🔷": Diamond,
@@ -43,7 +45,7 @@ const PROVIDER_ICON_MAP: Record<string, React.ComponentType<{ className?: string
 }
 
 function ProviderIcon({ icon }: { icon: string }) {
-  const Icon = PROVIDER_ICON_MAP[icon] || Globe
+  const Icon = PROVIDER_ICON_MAP[icon] || Bot
   return <Icon className="size-5 text-muted-foreground" />
 }
 
@@ -52,7 +54,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
   const [model, setModel] = useState(provider.model)
   const [showKey, setShowKey] = useState(false)
   const [testing, setTesting] = useState(false)
-  const [testResult, setTestResult] = useState<string | null>(null)
+  const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null)
   const [saving, setSaving] = useState(false)
   const qc = useQueryClient()
 
@@ -62,9 +64,11 @@ function ProviderCard({ provider }: { provider: Provider }) {
     try {
       const res = await fetch(`/api/settings/providers/${provider.id}/test`, { method: "POST" })
       const data = await res.json()
-      setTestResult(data.status === "ok" ? `✓ ${data.response}` : `✗ ${data.error}`)
-    } catch (e) {
-      setTestResult("✗ Network error")
+      setTestResult(data.status === "ok"
+        ? { ok: true, message: String(data.response ?? "Connected") }
+        : { ok: false, message: String(data.error ?? "Provider test failed") })
+    } catch {
+      setTestResult({ ok: false, message: "Network error" })
     }
     setTesting(false)
   }
@@ -173,8 +177,9 @@ function ProviderCard({ provider }: { provider: Provider }) {
         </div>
 
         {testResult && (
-          <div className={`text-xs p-2 rounded ${testResult.startsWith("✓") ? "bg-green-500/10 text-green-600" : "bg-destructive/10 text-destructive"}`}>
-            {testResult}
+          <div role="status" className={`flex items-start gap-1.5 rounded-md p-2 text-xs ${testResult.ok ? "bg-[var(--t-color-green3)] text-[var(--t-color-green11)]" : "bg-destructive/10 text-destructive"}`}>
+            {testResult.ok ? <CircleCheck aria-hidden="true" className="mt-px size-3.5 shrink-0" /> : <CircleX aria-hidden="true" className="mt-px size-3.5 shrink-0" />}
+            <span className="min-w-0 break-words">{testResult.message}</span>
           </div>
         )}
       </CardContent>
@@ -394,7 +399,7 @@ function SsoPolicyCard() {
     finally { setSaving(false) }
   }
   if (!policy) return <Skeleton className="h-52 w-full" />
-  return <Card><CardHeader><div className="flex items-start justify-between gap-3"><div><CardTitle className="flex items-center gap-2 text-sm"><LockKeyhole className="size-4" /> OpenID Connect SSO</CardTitle><CardDescription>Connect this workspace to an operator-approved OIDC provider. ID tokens require a verified email and are bound by issuer and subject.</CardDescription></div><Badge variant={policy.enforce_sso ? "default" : policy.enabled ? "outline" : "secondary"}>{policy.enforce_sso ? "Required" : policy.enabled ? "Optional" : "Disabled"}</Badge></div></CardHeader><CardContent className="space-y-4"><div className="flex flex-wrap gap-4"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={policy.enabled} onChange={event => setPolicy({ ...policy, enabled: event.target.checked, enforce_sso: event.target.checked ? policy.enforce_sso : false })} className="size-4" /> Enable SSO</label><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={policy.enforce_sso} disabled={!policy.enabled} onChange={event => setPolicy({ ...policy, enforce_sso: event.target.checked })} className="size-4" /> Require SSO for members</label></div><div className="grid gap-3 md:grid-cols-2"><div className="space-y-1"><Label className="text-xs">Issuer URL</Label><Input value={policy.issuer} onChange={event => setPolicy({ ...policy, issuer: event.target.value })} placeholder="https://id.example.com" /></div><div className="space-y-1"><Label className="text-xs">Client ID</Label><Input value={policy.client_id} onChange={event => setPolicy({ ...policy, client_id: event.target.value })} /></div><div className="space-y-1"><Label className="text-xs">Client secret</Label><Input type="password" value={policy.client_secret || ""} onChange={event => setPolicy({ ...policy, client_secret: event.target.value })} placeholder={policy.client_secret_configured ? "Configured — leave blank to retain" : "Required when enabled"} /></div><div className="space-y-1"><Label className="text-xs">Allowed email domains</Label><Input value={domains} onChange={event => setDomains(event.target.value)} placeholder="example.com, subsidiary.com" /></div></div><div className="flex flex-wrap items-center gap-4"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={policy.auto_provision} onChange={event => setPolicy({ ...policy, auto_provision: event.target.checked })} className="size-4" /> Just-in-time provisioning</label><Label className="text-xs">Default role</Label><select aria-label="OIDC default role" value={policy.default_role} onChange={event => setPolicy({ ...policy, default_role: event.target.value as SsoPolicy["default_role"] })} className="h-9 rounded-md border bg-background px-3 text-xs"><option value="viewer">Viewer</option><option value="member">Member</option><option value="editor">Editor</option></select></div><p className="text-[11px] text-muted-foreground">Callback URL: <code>/auth/sso/&lt;workspace-slug&gt;/callback</code>. Allow the issuer hostname with <code>SSO_ALLOWED_ISSUER_HOSTS</code>. Workspace owners retain password access as an emergency recovery path.</p><Button size="sm" onClick={save} disabled={saving}>{saving && <Loader2 className="size-3 animate-spin" />} Save SSO policy</Button></CardContent></Card>
+  return <Card><CardHeader><div className="flex items-start justify-between gap-3"><div><CardTitle className="flex items-center gap-2 text-sm"><LockKeyhole className="size-4" /> OpenID Connect SSO</CardTitle><CardDescription>Connect this workspace to an operator-approved OIDC provider. ID tokens require a verified email and are bound by issuer and subject.</CardDescription></div><Badge variant={policy.enforce_sso ? "default" : policy.enabled ? "outline" : "secondary"}>{policy.enforce_sso ? "Required" : policy.enabled ? "Optional" : "Disabled"}</Badge></div></CardHeader><CardContent className="space-y-4"><div className="flex flex-wrap gap-4"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={policy.enabled} onChange={event => setPolicy({ ...policy, enabled: event.target.checked, enforce_sso: event.target.checked ? policy.enforce_sso : false })} className="size-4" /> Enable SSO</label><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={policy.enforce_sso} disabled={!policy.enabled} onChange={event => setPolicy({ ...policy, enforce_sso: event.target.checked })} className="size-4" /> Require SSO for members</label></div><div className="grid gap-3 md:grid-cols-2"><div className="space-y-1"><Label className="text-xs">Issuer URL</Label><Input value={policy.issuer} onChange={event => setPolicy({ ...policy, issuer: event.target.value })} placeholder="https://id.example.com" /></div><div className="space-y-1"><Label className="text-xs">Client ID</Label><Input value={policy.client_id} onChange={event => setPolicy({ ...policy, client_id: event.target.value })} /></div><div className="space-y-1"><Label className="text-xs">Client secret</Label><Input type="password" value={policy.client_secret || ""} onChange={event => setPolicy({ ...policy, client_secret: event.target.value })} placeholder={policy.client_secret_configured ? "Configured — leave blank to retain" : "Required when enabled"} /></div><div className="space-y-1"><Label className="text-xs">Allowed email domains</Label><Input value={domains} onChange={event => setDomains(event.target.value)} placeholder="example.com, subsidiary.com" /></div></div><div className="flex flex-wrap items-center gap-4"><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={policy.auto_provision} onChange={event => setPolicy({ ...policy, auto_provision: event.target.checked })} className="size-4" /> Just-in-time provisioning</label><Label className="text-xs">Default role</Label><NativeSelect aria-label="OIDC default role" value={policy.default_role} onChange={event => setPolicy({ ...policy, default_role: event.target.value as SsoPolicy["default_role"] })}><option value="viewer">Viewer</option><option value="member">Member</option><option value="editor">Editor</option></NativeSelect></div><p className="text-[11px] text-muted-foreground">Callback URL: <code>/auth/sso/&lt;workspace-slug&gt;/callback</code>. Allow the issuer hostname with <code>SSO_ALLOWED_ISSUER_HOSTS</code>. Workspace owners retain password access as an emergency recovery path.</p><Button size="sm" onClick={save} disabled={saving}>{saving && <Loader2 className="size-3 animate-spin" />} Save SSO policy</Button></CardContent></Card>
 }
 
 function ScimProvisioningCard() {
@@ -458,7 +463,7 @@ function WorkspaceAccessCard() {
     finally { setSaving("") }
   }
   if (!data) return <Skeleton className="h-64 w-full" />
-  return <Card><CardHeader><CardTitle className="flex items-center gap-2 text-sm"><ShieldCheck className="size-4" /> Workspace members and capability policy</CardTitle><CardDescription>Provision existing OpenGTM users, manage their role, and override its capability baseline. Owners always retain full access.</CardDescription><div className="flex flex-col gap-2 pt-3 sm:flex-row"><Input aria-label="Username to add" placeholder="Existing username" value={username} onChange={event => setUsername(event.target.value)} onKeyDown={event => { if (event.key === "Enter") addMember() }} /><select aria-label="New member role" value={newRole} onChange={event => setNewRole(event.target.value)} className="h-9 rounded-md border bg-background px-3 text-xs"><option value="viewer">Viewer</option><option value="member">Member</option><option value="editor">Editor</option><option value="admin">Admin</option></select><Button size="sm" onClick={addMember} disabled={!username.trim() || saving === "add"}>{saving === "add" ? <Loader2 className="size-3 animate-spin" /> : <UserPlus className="size-3" />} Add member</Button></div></CardHeader><CardContent className="overflow-x-auto p-0"><table className="w-full min-w-[980px] text-left text-xs"><thead className="border-y bg-muted/30"><tr><th className="p-3">Member</th>{data.permissions.map(permission => <th key={permission.key} className="p-3"><span className="block">{permission.label}</span><span className="font-normal text-[9px] text-muted-foreground">{permission.default_roles.join(", ")}</span></th>)}</tr></thead><tbody>{data.members.map(member => <tr key={member.user_id} className="border-b"><td className="p-3"><span className="block font-medium">{member.username}</span><div className="mt-1 flex items-center gap-1">{member.role === "owner" ? <Badge variant="outline" className="text-[9px]">owner</Badge> : <><select aria-label={`Role for ${member.username}`} value={member.role} disabled={saving === `role:${member.user_id}`} onChange={event => changeRole(member, event.target.value)} className="h-7 rounded-md border bg-background px-1 text-[9px]"><option value="viewer">Viewer</option><option value="member">Member</option><option value="editor">Editor</option><option value="admin">Admin</option></select><Button aria-label={`Remove ${member.username}`} title={`Remove ${member.username}`} size="icon" variant="ghost" className="size-7 text-destructive" disabled={saving === `remove:${member.user_id}`} onClick={() => removeMember(member)}><Trash2 className="size-3" /></Button></>}</div></td>{data.permissions.map(permission => { const value = member.overrides[permission.key] || "default"; const key = `${member.user_id}:${permission.key}`; return <td key={permission.key} className="p-2"><select aria-label={`${permission.label} for ${member.username}`} title={permission.description} value={value} disabled={member.role === "owner" || saving === key} onChange={event => update(member, permission, event.target.value)} className={`h-8 w-full rounded-md border bg-background px-2 text-[10px] ${value === "deny" ? "text-destructive" : value === "allow" ? "text-emerald-600" : ""}`}><option value="default">Role default</option><option value="allow">Allow</option><option value="deny">Deny</option></select></td>})}</tr>)}</tbody></table></CardContent></Card>
+  return <Card><CardHeader><CardTitle className="flex items-center gap-2 text-sm"><ShieldCheck className="size-4" /> Workspace members and capability policy</CardTitle><CardDescription>Provision existing OpenGTM users, manage their role, and override its capability baseline. Owners always retain full access.</CardDescription><div className="flex flex-col gap-2 pt-3 sm:flex-row"><Input aria-label="Username to add" placeholder="Existing username" value={username} onChange={event => setUsername(event.target.value)} onKeyDown={event => { if (event.key === "Enter") addMember() }} /><NativeSelect aria-label="New member role" value={newRole} onChange={event => setNewRole(event.target.value)} className="shrink-0" selectClassName="sm:h-8"><option value="viewer">Viewer</option><option value="member">Member</option><option value="editor">Editor</option><option value="admin">Admin</option></NativeSelect><Button size="sm" onClick={addMember} disabled={!username.trim() || saving === "add"}>{saving === "add" ? <Loader2 className="size-3 animate-spin" /> : <UserPlus className="size-3" />} Add member</Button></div></CardHeader><CardContent className="overflow-x-auto p-0"><table className="w-full min-w-[980px] text-left text-xs"><thead className="border-y bg-muted/30"><tr><th className="p-3">Member</th>{data.permissions.map(permission => <th key={permission.key} className="p-3"><span className="block">{permission.label}</span><span className="font-normal text-[9px] text-muted-foreground">{permission.default_roles.join(", ")}</span></th>)}</tr></thead><tbody>{data.members.map(member => <tr key={member.user_id} className="border-b"><td className="p-3"><span className="block font-medium">{member.username}</span><div className="mt-1 flex items-center gap-1">{member.role === "owner" ? <Badge variant="outline" className="text-[9px]">owner</Badge> : <><NativeSelect size="sm" aria-label={`Role for ${member.username}`} value={member.role} disabled={saving === `role:${member.user_id}`} onChange={event => changeRole(member, event.target.value)}><option value="viewer">Viewer</option><option value="member">Member</option><option value="editor">Editor</option><option value="admin">Admin</option></NativeSelect><Button aria-label={`Remove ${member.username}`} title={`Remove ${member.username}`} size="icon" variant="ghost" className="size-7 text-destructive" disabled={saving === `remove:${member.user_id}`} onClick={() => removeMember(member)}><Trash2 className="size-3" /></Button></>}</div></td>{data.permissions.map(permission => { const value = member.overrides[permission.key] || "default"; const key = `${member.user_id}:${permission.key}`; return <td key={permission.key} className="p-2"><NativeSelect size="sm" className="w-full" aria-label={`${permission.label} for ${member.username}`} title={permission.description} value={value} disabled={member.role === "owner" || saving === key} onChange={event => update(member, permission, event.target.value)} selectClassName={value === "deny" ? "text-destructive" : value === "allow" ? "text-[var(--t-color-green11)]" : ""}><option value="default">Role default</option><option value="allow">Allow</option><option value="deny">Deny</option></NativeSelect></td>})}</tr>)}</tbody></table></CardContent></Card>
 }
 
 function RetentionPolicyCard() {

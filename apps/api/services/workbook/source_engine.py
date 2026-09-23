@@ -236,10 +236,12 @@ async def _materialize_source_impl(
                         continue
 
                 # ── Pillar 1: resolve to a canonical entity (cross-source dedup) ──
-                # Scope to the lead's workspace so tenants never share entities.
+                # Scope to this run's workspace — the same tenant as the row that
+                # will reference the entity — so merges can repoint the row and
+                # RLS accepts it. Tenants never share entities.
                 entity, _created = resolve_company(
                     db, d, observation_source=d.get("source"),
-                    workspace_id=str(d.get("workspace_id") or ""),
+                    workspace_id=workspace_id,
                 )
 
                 # Same company already a row in this workbook → corroborate, don't duplicate

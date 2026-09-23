@@ -1,0 +1,29 @@
+.gtm-column-add {
+  width: min(420px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+}
+
+.gtm-column-settings {
+  position: fixed;
+  inset: 0 0 0 auto;
+  transform: none;
+  margin: 0;
+  width: min(360px, 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .gtm-column-settings { width: 100vw; }
+  .gtm-column-settings button, .gtm-column-settings input, .gtm-column-settings select {
+    min-height: 44px;
+  }
+}

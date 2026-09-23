@@ -34,6 +34,17 @@ TITLE_KEYWORDS = [
     "Owner", "Proprietor",
 ]
 
+# Single words that are roles, not names ("VP - PayPal | LinkedIn" must not
+# yield a person called "VP").
+_ROLE_WORDS = {
+    "ceo", "cto", "coo", "cfo", "cmo", "cio", "chro", "cro", "cpo", "vp", "svp",
+    "evp", "avp", "md", "gm", "founder", "cofounder", "co-founder", "director",
+    "manager", "head", "lead", "partner", "principal", "owner", "proprietor",
+    "president", "chairman", "engineer", "consultant", "advisor", "intern",
+    "recruiter", "specialist", "analyst", "associate", "executive", "officer",
+}
+_NOT_TITLES = {"linkedin", "n/a", "profile", "page"}
+
 # Search engine domains to exclude from results
 SKIP_DOMAINS = [
     "linkedin.com", "facebook.com", "twitter.com", "x.com",
@@ -56,14 +67,19 @@ def _parse_linkedin_name(text: str) -> str:
     text = re.sub(r'\s*[\|·\-–]\s*LinkedIn.*$', '', text, flags=re.IGNORECASE)
 
     # Take the part before the first separator (dash, pipe, comma)
-    name_part = re.split(r'\s*[\|·\-–,]\s*', text)[0].strip()
+    # A dash only separates when spaced ("Name - Title"), so hyphenated names
+    # like "Mary-Kate" survive.
+    name_part = re.split(r'\s+[\-–—]\s+|\s*[\|·,]\s*', text)[0].strip()
 
     # Clean up: remove "Dr.", "Mr.", "Mrs." etc.
     name_part = re.sub(r'^(Dr|Mr|Mrs|Ms|Prof)\.\s*', '', name_part)
 
-    # Must look like a name (2-4 words, alphabetic)
+    # Must look like a person's name: 2-5 alphabetic words, none of them a role
+    # word ("VP", "Director"), which appear first when a result has no name.
     words = name_part.split()
-    if 1 <= len(words) <= 5 and all(w.replace('.', '').replace("'", "").isalpha() for w in words):
+    if (2 <= len(words) <= 5
+            and all(w.replace('.', '').replace("'", "").replace('-', '').isalpha() for w in words)
+            and not any(w.lower().strip('.') in _ROLE_WORDS for w in words)):
         return name_part
 
     return ""
@@ -78,8 +94,8 @@ def _parse_linkedin_title(text: str) -> str:
     if not text:
         return ""
 
-    # Remove LinkedIn suffix
-    text = re.sub(r'\s*[\|·]\s*LinkedIn.*$', '', text, flags=re.IGNORECASE)
+    # Remove LinkedIn suffix (after a pipe, middle dot or dash)
+    text = re.sub(r'\s*[\|·\-–]\s*LinkedIn.*$', '', text, flags=re.IGNORECASE)
 
     parts = text.split(' - ')
     if len(parts) >= 2:
@@ -90,7 +106,7 @@ def _parse_linkedin_title(text: str) -> str:
         # Remove company name indicators
         title = re.sub(r'\s*[\|·]\s*.*$', '', title)
 
-        if title and len(title) < 80:
+        if title and len(title) < 80 and title.strip().lower() not in _NOT_TITLES:
             return title.strip()
 
     return ""
@@ -105,8 +121,12 @@ def _extract_linkedin_url(href: str) -> str:
     return match.group(1) if match else ""
 
 
-async def _ddg_linkedin_search(query: str, max_results: int = 10) -> list:
-    """Search DDG for LinkedIn profiles with retry + proxy rotation."""
+async def _ddg_linkedin_search(query: str, max_results: int = 10) -> Optional[list]:
+    """Search DDG for LinkedIn profiles with retry + proxy rotation.
+
+    Returns None when every attempt failed, so callers can tell a failed
+    search apart from a search that genuinely found nothing ([]).
+    """
     from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG pool
     from apps.api.services.leadgen.proxy_client import get_proxy
 
@@ -121,20 +141,21 @@ async def _ddg_linkedin_search(query: str, max_results: int = 10) -> list:
             proxy = get_proxy()
         
         def _search():
-            ddgs = DDGS(proxy=proxy) if proxy else DDGS()
+            ddgs = DDGS(proxy=proxy, raise_errors=True) if proxy else DDGS(raise_errors=True)
             with ddgs:
                 return list(ddgs.text(query, max_results=max_results))
 
         try:
             return await asyncio.to_thread(_search)
         except Exception as e:
-            is_connect_error = "ConnectError" in str(type(e).__name__) or "ConnectError" in str(e)
-            if is_connect_error and attempt < MAX_ATTEMPTS - 1:
-                logger.debug(f"DDG search attempt {attempt + 1} failed (ConnectError), retrying...")
+            # Backend request errors are frequently transient; retry any failure
+            # within the bounded attempt budget.
+            if attempt < MAX_ATTEMPTS - 1:
+                logger.debug(f"DDG search attempt {attempt + 1} failed ({type(e).__name__}), retrying...")
                 await asyncio.sleep(0.5 * (attempt + 1))
                 continue
-            logger.warning(f"DDG search failed after {attempt + 1} attempts: {e}")
-            return []
+            logger.warning(f"DDG search failed after {attempt + 1} attempts: {type(e).__name__}")
+            return None
 
 
 class CrossLinkedProvider(EnrichmentProvider):
@@ -150,6 +171,7 @@ class CrossLinkedProvider(EnrichmentProvider):
     def __init__(self, max_people: int = 5, delay: float = 1.0):
         self.max_people = max_people
         self.delay = delay
+        self.search_failures = 0
 
     async def enrich(self, lead: Lead) -> EnrichmentResult:
         """Find LinkedIn people for a company."""
@@ -206,7 +228,7 @@ class CrossLinkedProvider(EnrichmentProvider):
         if city:
             query += f' "{city}"'
 
-        results = await _ddg_linkedin_search(query, max_results=15)
+        results = await _ddg_linkedin_search(query, max_results=15) or []
 
         for r in results:
             person = self._parse_result(r)
@@ -221,7 +243,7 @@ class CrossLinkedProvider(EnrichmentProvider):
             title_groups = ["CEO OR CTO OR Founder", "Director OR VP OR Head"]
             for titles in title_groups:
                 query = f'site:linkedin.com/in "{company_name}" {titles}'
-                results = await _ddg_linkedin_search(query, max_results=8)
+                results = await _ddg_linkedin_search(query, max_results=8) or []
 
                 for r in results:
                     person = self._parse_result(r)
@@ -288,6 +310,9 @@ class CrossLinkedProvider(EnrichmentProvider):
         people: List[Dict[str, str]] = []
         seen: set = set()
         searches_used = 0
+        # Searches that failed outright (not "no results"); read by callers
+        # that must not report a failed search as an empty success.
+        self.search_failures = 0
         for i, query in enumerate(queries):
             if max_searches is not None and searches_used >= max_searches:
                 break
@@ -297,6 +322,9 @@ class CrossLinkedProvider(EnrichmentProvider):
                 await asyncio.sleep(self.delay)
             results = await _ddg_linkedin_search(query, max_results=results_per_search)
             searches_used += 1
+            if results is None:
+                self.search_failures += 1
+                results = []
             for r in results:
                 person = self._parse_result(r)
                 if not person:
@@ -337,10 +365,11 @@ class CrossLinkedProvider(EnrichmentProvider):
         if not job_title:
             # Try extracting from body text
             for keyword in TITLE_KEYWORDS:
-                if keyword.lower() in body_text.lower():
-                    # Extract a chunk around the keyword
-                    idx = body_text.lower().index(keyword.lower())
-                    chunk = body_text[idx:idx+40].split('.')[0].split(',')[0]
+                # Whole-word match: "CTO" must not match inside "Director".
+                match = re.search(rf'(?<![A-Za-z]){re.escape(keyword)}(?![A-Za-z])', body_text,
+                                  flags=re.IGNORECASE)
+                if match:
+                    chunk = body_text[match.start():match.start() + 40].split('.')[0].split(',')[0]
                     job_title = chunk.strip()
                     break
 

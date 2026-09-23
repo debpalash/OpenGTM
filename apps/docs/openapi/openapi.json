@@ -98,6 +98,48 @@
         "title": "AddRowsRequest",
         "type": "object"
       },
+      "AgentColumnPolicy": {
+        "description": "Persist explicit agent limits without replacing omitted engine defaults.",
+        "properties": {
+          "max_cost_usd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Cost Usd"
+          },
+          "max_steps": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Steps"
+          },
+          "prefer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prefer"
+          }
+        },
+        "title": "AgentColumnPolicy",
+        "type": "object"
+      },
       "AmbitionBoxImportRequest": {
         "properties": {
           "industry": {
@@ -364,6 +406,7 @@
         "properties": {
           "max_usd": {
             "default": 0.0,
+            "minimum": 0.0,
             "title": "Max Usd",
             "type": "number"
           }
@@ -468,6 +511,19 @@
       "ColumnConfig": {
         "description": "Configuration for a single workbook column.",
         "properties": {
+          "cell_budget_usd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Research spending limit per cell in USD; zero retains the engine's unlimited-budget semantics",
+            "title": "Cell Budget Usd"
+          },
           "channels": {
             "anyOf": [
               {
@@ -529,6 +585,17 @@
             ],
             "description": "Safe expression over {column} refs, e.g. {Email}.split(\"@\")[1]",
             "title": "Formula"
+          },
+          "goal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Goal"
           },
           "http_body": {
             "anyOf": [
@@ -646,6 +713,18 @@
             "description": "Research column: max search/fetch steps (1-6)",
             "title": "Max Steps"
           },
+          "max_tokens": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Tokens"
+          },
           "name": {
             "description": "Display name",
             "title": "Name",
@@ -662,6 +741,16 @@
             ],
             "description": "Research/AI column output: 'text' or 'json'",
             "title": "Output Format"
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentColumnPolicy"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "prompt": {
             "anyOf": [
@@ -699,6 +788,18 @@
             "description": "Recompute after an upstream edit; defaults on except for output columns",
             "title": "Reactive"
           },
+          "run_once": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Skip already successful output cells unless explicitly forced",
+            "title": "Run Once"
+          },
           "target_field": {
             "anyOf": [
               {
@@ -722,6 +823,20 @@
             ],
             "description": "Source column: stop after this many rows (0/None = unlimited)",
             "title": "Target Rows"
+          },
+          "tools": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tools"
           },
           "type": {
             "default": "lead_field",
@@ -768,6 +883,82 @@
           "name"
         ],
         "title": "ColumnConfig",
+        "type": "object"
+      },
+      "ColumnDeleteRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_column": {
+            "additionalProperties": true,
+            "title": "Expected Column",
+            "type": "object"
+          }
+        },
+        "required": [
+          "expected_column"
+        ],
+        "title": "ColumnDeleteRequest",
+        "type": "object"
+      },
+      "ColumnOrderUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "column_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Column Ids",
+            "type": "array"
+          },
+          "expected_column_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Expected Column Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "column_ids",
+          "expected_column_ids"
+        ],
+        "title": "ColumnOrderUpdate",
+        "type": "object"
+      },
+      "ColumnSettingsUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "changes": {
+            "additionalProperties": true,
+            "title": "Changes",
+            "type": "object"
+          },
+          "expected": {
+            "additionalProperties": true,
+            "title": "Expected",
+            "type": "object"
+          }
+        },
+        "required": [
+          "changes",
+          "expected"
+        ],
+        "title": "ColumnSettingsUpdate",
+        "type": "object"
+      },
+      "ColumnWidthUpdate": {
+        "properties": {
+          "width": {
+            "maximum": 600.0,
+            "minimum": 80.0,
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "width"
+        ],
+        "title": "ColumnWidthUpdate",
         "type": "object"
       },
       "ConnectRequest": {
@@ -1206,6 +1397,16 @@
               }
             ],
             "title": "Provider"
+          },
+          "research": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResearchEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "status": {
             "default": "pending",
@@ -2479,6 +2680,85 @@
         "title": "RefreshRequest",
         "type": "object"
       },
+      "ResearchCitation": {
+        "properties": {
+          "fetched_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fetched At"
+          },
+          "quoted_text": {
+            "default": "",
+            "title": "Quoted Text",
+            "type": "string"
+          },
+          "title": {
+            "default": "",
+            "title": "Title",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "ResearchCitation",
+        "type": "object"
+      },
+      "ResearchEvidence": {
+        "properties": {
+          "answer": {
+            "default": "",
+            "title": "Answer",
+            "type": "string"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/ResearchCitation"
+            },
+            "title": "Citations",
+            "type": "array"
+          },
+          "cost_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Usd"
+          },
+          "stopped_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stopped Reason"
+          },
+          "synthesis_fallback": {
+            "default": false,
+            "title": "Synthesis Fallback",
+            "type": "boolean"
+          }
+        },
+        "title": "ResearchEvidence",
+        "type": "object"
+      },
       "RetentionEnforce": {
         "properties": {
           "confirmation": {
@@ -2611,6 +2891,19 @@
             "description": "Specific columns to run. None = all enrichment columns",
             "title": "Column Ids"
           },
+          "expected_rows": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Reviewed row count; reject drift before billing or enqueueing. Not an identity snapshot.",
+            "title": "Expected Rows"
+          },
           "fill_missing": {
             "default": false,
             "description": "Only enrich cells not already complete — fills gaps, preserves good values",
@@ -2637,6 +2930,24 @@
             ],
             "description": "Legacy: specific leads to run",
             "title": "Lead Ids"
+          },
+          "row_columns": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exact v2 cells by row ID; requires matching explicit row_ids. Empty entries run no cells.",
+            "title": "Row Columns"
           },
           "row_ids": {
             "anyOf": [
@@ -2685,10 +2996,32 @@
       "RunWorkbookResponse": {
         "description": "Response after starting a workbook run.",
         "properties": {
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
           "message": {
             "default": "",
             "title": "Message",
             "type": "string"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
           },
           "status": {
             "default": "started",
@@ -13641,156 +13974,6 @@
         ]
       }
     },
-    "/api/leads/import/data-collector": {
-      "post": {
-        "description": "Import leads from the Brazil data_collector submodule.\n\nStreams CSV row-by-row (low memory). Checkpoints after every batch.\nAuto-resumes from last position on crash/restart.\n\n- module=cnpj  — Import ~666K CNPJ government leads\n- module=github — Import ~30 GitHub miner leads\n- module=all   — Import both\n- reset=true   — Clear checkpoint and start from row 0",
-        "operationId": "import_data_collector_api_leads_import_data_collector_post",
-        "parameters": [
-          {
-            "description": "Module to import: cnpj, github, or all",
-            "in": "query",
-            "name": "module",
-            "required": false,
-            "schema": {
-              "default": "all",
-              "description": "Module to import: cnpj, github, or all",
-              "title": "Module",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Max leads to import",
-            "in": "query",
-            "name": "limit",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "maximum": 1000000,
-                  "minimum": 1,
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Max leads to import",
-              "title": "Limit"
-            }
-          },
-          {
-            "description": "Reset checkpoint to start from scratch",
-            "in": "query",
-            "name": "reset",
-            "required": false,
-            "schema": {
-              "default": false,
-              "description": "Reset checkpoint to start from scratch",
-              "title": "Reset",
-              "type": "boolean"
-            }
-          },
-          {
-            "in": "header",
-            "name": "x-workspace-id",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "X-Workspace-Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "summary": "Import Data Collector",
-        "tags": [
-          "Leads"
-        ]
-      }
-    },
-    "/api/leads/import/data-collector/status": {
-      "get": {
-        "description": "Check the current checkpoint status of the data_collector import.",
-        "operationId": "import_data_collector_status_api_leads_import_data_collector_status_get",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "x-workspace-id",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "X-Workspace-Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
-        "summary": "Import Data Collector Status",
-        "tags": [
-          "Leads"
-        ]
-      }
-    },
     "/api/leads/score": {
       "post": {
         "description": "Score a lead 0-100 for ICP fit, by ``lead_id`` or from an inline record.\n\nInline records are scored without being stored, so a workflow can rank\ncandidates before deciding what to import.",
@@ -20255,7 +20438,7 @@
     },
     "/api/workbooks/{workbook_id}/columns": {
       "post": {
-        "description": "Add a new column to the workbook.",
+        "description": "Append to the latest configuration without replacing existing columns.",
         "operationId": "add_column_api_workbooks__workbook_id__columns_post",
         "parameters": [
           {
@@ -20327,9 +20510,81 @@
         ]
       }
     },
+    "/api/workbooks/{workbook_id}/columns/order": {
+      "patch": {
+        "description": "Reorder current configuration without overwriting execution settings.",
+        "operationId": "update_column_order_api_workbooks__workbook_id__columns_order_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workbook_id",
+            "required": true,
+            "schema": {
+              "title": "Workbook Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ColumnOrderUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Update Column Order",
+        "tags": [
+          "workbooks"
+        ]
+      }
+    },
     "/api/workbooks/{workbook_id}/columns/{column_id}": {
       "delete": {
-        "description": "Remove a column and its enrichment data.",
+        "description": "Remove current column configuration and its legacy enrichment records.\n\nSelf-contained row data/evidence and shared lead data are retained. This is\nnot a complete data-erasure endpoint.",
         "operationId": "remove_column_api_workbooks__workbook_id__columns__column_id__delete",
         "parameters": [
           {
@@ -20367,6 +20622,23 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ColumnDeleteRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "content": {
@@ -20395,6 +20667,168 @@
           }
         ],
         "summary": "Remove Column",
+        "tags": [
+          "workbooks"
+        ]
+      }
+    },
+    "/api/workbooks/{workbook_id}/columns/{column_id}/settings": {
+      "patch": {
+        "description": "Compare only edited fields; preserve unrelated current configuration.\n\nMissing and null expected values are equivalent for optional settings. Column\nidentity/type and presentation width have separate contracts, not this patch.",
+        "operationId": "update_column_settings_api_workbooks__workbook_id__columns__column_id__settings_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workbook_id",
+            "required": true,
+            "schema": {
+              "title": "Workbook Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "column_id",
+            "required": true,
+            "schema": {
+              "title": "Column Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ColumnSettingsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Update Column Settings",
+        "tags": [
+          "workbooks"
+        ]
+      }
+    },
+    "/api/workbooks/{workbook_id}/columns/{column_id}/width": {
+      "patch": {
+        "description": "Update presentation width without accepting replacement column config.",
+        "operationId": "update_column_width_api_workbooks__workbook_id__columns__column_id__width_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workbook_id",
+            "required": true,
+            "schema": {
+              "title": "Workbook Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "column_id",
+            "required": true,
+            "schema": {
+              "title": "Column Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ColumnWidthUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Update Column Width",
         "tags": [
           "workbooks"
         ]
@@ -20505,7 +20939,7 @@
     },
     "/api/workbooks/{workbook_id}/cost": {
       "get": {
-        "description": "Spend-to-date + budget headroom for a workbook.",
+        "description": "Accounted spend and outstanding exposure, not a vendor invoice.",
         "operationId": "get_cost_api_workbooks__workbook_id__cost_get",
         "parameters": [
           {
@@ -21590,7 +22024,7 @@
     },
     "/api/workbooks/{workbook_id}/rows/{row_id}/cells/{col_id}/run": {
       "post": {
-        "description": "(Re-)run ONE cell synchronously and return its result.\n\nUnlike /run this doesn't enqueue a durable job — a single cell is small\nenough to run in-request, and the caller wants the fresh value back.\n\n``force=true`` bypasses success-skip gates: for side-effecting ``output``\ncolumns it overrides the run-once guard and RE-PUSHES the row to the\ndestination, so the UI confirms before sending it. Without force, a\ncomplete output cell returns ``{\"skipped\": true}`` untouched.\n\n``row_id`` is the WorkbookRow id (v2); falls back to matching lead_id so\nv1/legacy rows (leads-DB backed) can be re-run too.",
+        "description": "(Re-)run ONE cell synchronously and return its result.\n\nUnlike /run this doesn't enqueue a durable job — a single cell is small\nenough to run in-request, and the caller wants the fresh value back.\n\n``force=true`` bypasses success-skip gates: for side-effecting ``output``\ncolumns it overrides the run-once guard and RE-PUSHES the row to the\ndestination, so the UI confirms before sending it. Without force, a\ncomplete output cell returns ``{\"skipped\": true}`` untouched.\n\n``row_id`` is the WorkbookRow id for v2. Only a legacy leads-filter workbook\nwith no stored workbook rows may resolve it in the lead store.",
         "operationId": "run_cell_api_workbooks__workbook_id__rows__row_id__cells__col_id__run_post",
         "parameters": [
           {
@@ -21840,6 +22274,97 @@
           }
         ],
         "summary": "Estimate Run",
+        "tags": [
+          "workbooks"
+        ]
+      }
+    },
+    "/api/workbooks/{workbook_id}/runs": {
+      "get": {
+        "description": "Durable queue receipts, not collection-task IDs or verified-lead counts.",
+        "operationId": "workbook_runs_api_workbooks__workbook_id__runs_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workbook_id",
+            "required": true,
+            "schema": {
+              "title": "Workbook Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "before_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-workspace-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Workspace-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Workbook Runs",
         "tags": [
           "workbooks"
         ]

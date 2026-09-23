@@ -10,7 +10,7 @@ log), never deadlock.
 
 import logging
 import re
-from typing import Callable, Dict, List, Optional
+from typing import Callable, List, Optional
 
 logger = logging.getLogger("workbook.column_deps")
 
@@ -49,6 +49,94 @@ def _refs_in(col: dict) -> set:
     return refs
 
 
+def reference_indexes(ref: str, columns: List[dict]) -> set[int]:
+    """Match stable IDs first, then exact/case/space-normalized aliases."""
+    exact_ids = {i for i, column in enumerate(columns) if column.get("id") == ref}
+    if exact_ids:
+        return exact_ids
+    for normalize in (lambda value: value, str.lower, lambda value: value.lower().replace("_", " ")):
+        matches = {i for i, column in enumerate(columns)
+                   if any(isinstance(column.get(key), str) and normalize(column[key]) == normalize(ref)
+                          for key in ("id", "name"))}
+        if matches:
+            return matches
+    return set()
+
+
+def referencing_columns(cols: List[dict], column: dict) -> List[dict]:
+    """Direct references by ID/display name, including ambiguous aliases.
+
+    Deletion must not choose a different provider of a duplicated name silently.
+    Cycles and config order do not affect this direct-reference check.
+    """
+    normalize = lambda value: str(value).strip().lower().replace("_", " ")
+    aliases = {normalize(column[key]) for key in ("id", "name") if column.get(key)}
+    return [candidate for candidate in cols
+            if candidate.get("id") != column.get("id")
+            and aliases.intersection(normalize(ref) for ref in _refs_in(candidate))]
+
+
+def broken_rename_references(before: List[dict], after: List[dict]) -> List[dict]:
+    """Retained columns referencing a display-name alias removed by a rename.
+
+    ID references stay valid. A duplicate alias elsewhere does not make silently
+    redirecting an existing reference safe, so it is not used as a fallback.
+    """
+    old_by_id = {column.get("id"): column for column in before}
+    normalize = lambda value: str(value).strip().lower().replace("_", " ")
+    lost = set()
+    for column in after:
+        old = old_by_id.get(column.get("id"))
+        if not old or not old.get("name"):
+            continue
+        name = normalize(old["name"])
+        aliases = {normalize(column[key]) for key in ("id", "name") if column.get(key)}
+        if name not in aliases:
+            lost.add(name)
+    return [column for column in after
+            if lost.intersection(normalize(ref) for ref in _refs_in(column))]
+
+
+def cycle_blocked_columns(columns: List[dict]) -> set:
+    """IDs in cycles or downstream of cycles, including self references."""
+    executable = {"enrichment", "waterfall", "ai_formula", "research", "agent", "http", "formula", "output"}
+    cols = columns
+    deps = []
+    for current, col in enumerate(cols):
+        # A condition may inspect its own existing value (e.g. email == "")
+        # to decide whether to run. That is not a circular computation.
+        computation_refs = _refs_in({key: value for key, value in col.items() if key != "condition"})
+        edges = {index for ref in computation_refs for index in reference_indexes(ref, cols)}
+        edges.update(index for ref in _refs_in(col) for index in reference_indexes(ref, cols) if index != current)
+        deps.append(edges)
+    remaining = {index for index, col in enumerate(cols) if col.get("type") in executable}
+    while True:
+        ready = {index for index in remaining if not deps[index].intersection(remaining)}
+        if not ready:
+            return {cols[index].get("id") for index in remaining}
+        remaining -= ready
+
+
+def unavailable_computed_dependencies(column: dict, columns: List[dict], row: dict) -> List[str]:
+    """Require a value for referenced executable columns, including partial runs.
+
+    Zero and False are values. Input fields are not computed dependencies; their
+    validation belongs to the destination/provider. IDs take precedence over
+    display aliases, including an explicitly null ID value.
+    """
+    executable = {"enrichment", "waterfall", "ai_formula", "research", "agent", "http", "formula", "output"}
+    missing = []
+    referenced = {index for ref in _refs_in(column) for index in reference_indexes(ref, columns)}
+    for index, upstream in enumerate(columns):
+        if index not in referenced or upstream.get("type") not in executable or upstream.get("id") == column.get("id"):
+            continue
+        cid, name = upstream.get("id"), upstream.get("name")
+        value = row[cid] if cid in row else row.get(name)
+        if value is None:
+            missing.append(cid)
+    return missing
+
+
 def downstream_columns(
     cols: List[dict],
     changed_fields: set[str],
@@ -60,19 +148,29 @@ def downstream_columns(
     matched derived column contributes its own aliases, allowing A -> B -> C
     chains to propagate without requiring an explicit dependency schema.
     """
-    tainted = {str(field).strip().lower() for field in changed_fields if str(field).strip()}
+    normalize = lambda value: str(value).strip().lower().replace("_", " ")
+    tainted = {normalize(field) for field in changed_fields if str(field).strip()}
+    tainted_indexes = {index for field in changed_fields for index in reference_indexes(str(field).strip(), cols)}
+    tainted_indexes.update(index for index, col in enumerate(cols)
+                           if col.get("lead_field") and normalize(col["lead_field"]) in tainted)
     selected: list[dict] = []
     for col in topo_sort_columns(cols):
-        refs = {str(ref).strip().lower() for ref in _refs_in(col)}
-        if not refs.intersection(tainted):
+        affected = False
+        for ref in _refs_in(col):
+            matches = reference_indexes(ref, cols)
+            if (matches.intersection(tainted_indexes) if matches else normalize(ref) in tainted):
+                affected = True
+                break
+        if not affected:
             continue
         if eligible is not None and not eligible(col):
             continue
         selected.append(col)
+        tainted_indexes.update(index for index, candidate in enumerate(cols) if candidate.get("id") == col.get("id"))
         for key in ("id", "name", "lead_field", "target_field"):
             value = col.get(key)
             if value:
-                tainted.add(str(value).strip().lower())
+                tainted.add(normalize(value))
     return selected
 
 
@@ -87,25 +185,12 @@ def topo_sort_columns(cols: List[dict]) -> List[dict]:
     if len(cols) <= 1:
         return list(cols)
 
-    # map both id and lowercased name → index
-    id_of: Dict[str, int] = {}
-    for i, c in enumerate(cols):
-        cid = c.get("id")
-        if cid:
-            id_of[cid] = i
-            id_of[cid.lower()] = i
-        name = c.get("name")
-        if name:
-            id_of.setdefault(name.lower(), i)
-
     n = len(cols)
     # deps[i] = set of indices that i depends on (must run before i)
     deps: List[set] = [set() for _ in range(n)]
     for i, c in enumerate(cols):
         for ref in _refs_in(c):
-            j = id_of.get(ref, id_of.get(ref.lower()))
-            if j is not None and j != i:
-                deps[i].add(j)
+            deps[i].update(j for j in reference_indexes(ref, cols) if j != i)
 
     # Kahn topological sort, breaking ties by original index (stable).
     indeg = [len(deps[i]) for i in range(n)]
@@ -148,24 +233,15 @@ def independent_columns(cols: List[dict]) -> List[dict]:
     if not cols:
         return []
 
-    id_of: Dict[str, int] = {}
-    for i, c in enumerate(cols):
-        cid = c.get("id")
-        if cid:
-            id_of[cid] = i
-            id_of[cid.lower()] = i
-        name = c.get("name")
-        if name:
-            id_of.setdefault(name.lower(), i)
-
     n = len(cols)
     refs_out = [set() for _ in range(n)]   # cols i depends on
     refs_in = [False] * n                  # whether some col references i
     for i, c in enumerate(cols):
         for ref in _refs_in(c):
-            j = id_of.get(ref, id_of.get(ref.lower()))
-            if j is not None and j != i:
-                refs_out[i].add(j)
-                refs_in[j] = True
+            for j in reference_indexes(ref, cols):
+                if j != i:
+                    refs_out[i].add(j)
+                    refs_in[j] = True
 
-    return [cols[i] for i in range(n) if not refs_out[i] and not refs_in[i]]
+    blocked = cycle_blocked_columns(cols)
+    return [cols[i] for i in range(n) if not refs_out[i] and not refs_in[i] and cols[i].get("id") not in blocked]

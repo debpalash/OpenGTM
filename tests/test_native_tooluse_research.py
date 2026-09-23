@@ -167,9 +167,45 @@ def _allow_urls(monkeypatch):
     monkeypatch.setattr(RC, "_revalidate_public_url", lambda u: (True, ""))
 
 
+@pytest.mark.parametrize("page", [None, {"status": 500, "preview_text": "Error page"},
+                                  {"status": "error", "preview_text": "Denied"},
+                                  {"status": 200, "preview_text": "   "}])
+def test_failed_fetch_cannot_be_cited(monkeypatch, page):
+    _allow_urls(monkeypatch)
+
+    class Scraper:
+        async def scrape(self, url):
+            if page is None:
+                raise RuntimeError("offline")
+            return page
+
+    monkeypatch.setattr(scraper_mod, "UniversalScraper", Scraper)
+    ctx = RC._ResearchCtx()
+    url = "https://acme.example.com/team"
+    observation, failed = asyncio.run(RC._run_tool("fetch", {"url": url}, ctx))
+    assert failed and "fetch" in observation
+    assert url not in ctx.fetched_urls
+    assert not RC._validate_citation({"url": url}, ctx)
+
+
 def _tool_turn_requests(client):
     """The requests that were native tool-use turns (carried the tools param)."""
     return [r for r in client.requests if "tools" in r]
+
+
+@pytest.mark.parametrize("quote,expected", [
+    ("SOC 2 Type II", "SOC 2 Type II"),
+    ("SOC 2\nType II", "SOC 2\nType II"),
+    ("Acme guarantees compliance", ""),
+    ("soc 2 type ii", ""),
+    ("", ""),
+])
+def test_citation_quote_must_exist_in_fetched_text(quote, expected):
+    ctx = RC._ResearchCtx()
+    url = "https://acme.example.com/security"
+    ctx.fetched_text[url] = "Acme is SOC 2   Type II certified."
+    assert RC._grounded_quote({"url": url, "quoted_text": quote}, ctx) == expected
+    assert RC._grounded_quote({"url": "https://other.example.com", "quoted_text": quote}, ctx) == ""
 
 
 # ── 1. Full round-trip: search → fetch → final structured answer ──────────
@@ -199,8 +235,13 @@ def test_tool_call_roundtrip_search_fetch_answer(monkeypatch):
     assert "SOC 2" in out["value"]
     md = out["metadata"]["research"]
     assert md["stopped_reason"] == "answered"
-    assert md["citations"] == [{"url": fetched_url, "title": "Acme SOC2",
-                                "quoted_text": "SOC 2 Type II"}]
+    from datetime import datetime, timezone
+    citation = md["citations"][0]
+    fetched_at = datetime.fromisoformat(citation["fetched_at"])
+    assert fetched_at.tzinfo is not None
+    assert 0 <= (datetime.now(timezone.utc) - fetched_at).total_seconds() < 10
+    assert {k: v for k, v in citation.items() if k != "fetched_at"} == {
+        "url": fetched_url, "title": "Acme SOC2", "quoted_text": "SOC 2 Type II"}
     assert md["cost_usd"] > 0
     assert scraped == [fetched_url]
 

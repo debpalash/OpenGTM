@@ -15,14 +15,16 @@ def test_worker_runs_bounded_parallel_slots_and_drains(monkeypatch):
     async def scenario():
         queue = QueueService(concurrency=3, shutdown_grace=2)
         monkeypatch.setattr(queue, "recover_jobs", lambda: None)
-        claims = deque({"id": index, "type": "test", "payload": {}} for index in range(6))
+        lease_time = datetime.now(timezone.utc)
+        claims = deque({"id": index, "type": "test", "payload": {}, "locked_at": lease_time} for index in range(6))
         lock = threading.Lock(); active = 0; maximum = 0; finished = 0; done = asyncio.Event()
 
         def claim():
             with lock: return claims.popleft() if claims else None
 
-        async def process(job_id, job_type, payload):
+        async def process(job_id, job_type, payload, *, locked_at):
             nonlocal active, maximum, finished
+            assert locked_at == lease_time
             active += 1; maximum = max(maximum, active)
             await asyncio.sleep(0.03)
             active -= 1; finished += 1
@@ -45,13 +47,15 @@ def test_worker_cancels_after_shutdown_grace(monkeypatch):
         queue = QueueService(concurrency=1, shutdown_grace=0)
         monkeypatch.setattr(queue, "recover_jobs", lambda: None)
         claimed = False; started = asyncio.Event(); cancelled = asyncio.Event()
+        lease_time = datetime.now(timezone.utc)
 
         def claim():
             nonlocal claimed
             if claimed: return None
-            claimed = True; return {"id": 1, "type": "test", "payload": {}}
+            claimed = True; return {"id": 1, "type": "test", "payload": {}, "locked_at": lease_time}
 
-        async def process(*_):
+        async def process(*_, locked_at):
+            assert locked_at == lease_time
             started.set()
             try: await asyncio.sleep(3600)
             except asyncio.CancelledError: cancelled.set(); raise

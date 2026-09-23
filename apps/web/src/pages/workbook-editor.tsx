@@ -9,33 +9,51 @@
 import { useState, useMemo, useCallback, useRef, useEffect, useDeferredValue } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import {
-  useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel,
+  useReactTable, getCoreRowModel, getSortedRowModel,
   flexRender, type ColumnDef, type CellContext, type SortingState,
 } from "@tanstack/react-table"
 import { useVirtualizer } from "@tanstack/react-virtual"
+import { workbookColumnWindow } from "@/lib/workbook-column-window"
+import { loadedCellProgress, isExecutableColumn } from "@/lib/workbook-progress"
 import {
-  useWorkbook, useUpdateWorkbook, useUpdateLeadField, useUpdateWorkbookRow, useBulkUpdateWorkbookRows,
-  useImportLeads, useRunWorkbook, useStopWorkbook,
+  useWorkbook, useUpdateLeadField, useUpdateWorkbookRow, useBulkUpdateWorkbookRows,
+  useImportLeads, useRunWorkbook,
   useDeleteWorkbookRows, useDeleteMatchingWorkbookRows, useWorkbookSocket, useProviders,
   useRunCell, useWorkbookViews, useConnectorRuns,
+  useSaveWorkbookColumnWidth,
+  useSaveWorkbookColumnOrder,
+  useSaveWorkbookColumnSettings,
+  useAddWorkbookColumn,
 } from "@/lib/workbook-hooks"
-import type { WorkbookLeadRow, EnrichmentOverlay, Provenance, AiColumnPreset, CostInfo, RunCostEstimate, WorkbookView } from "@/lib/workbook-api"
+import type { ColumnConfig, WorkbookLeadRow, EnrichmentOverlay, Provenance, AiColumnPreset, CostInfo, RunCostEstimate, WorkbookView } from "@/lib/workbook-api"
 import { exportWorkbookCsv, fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost, generateColumn } from "@/lib/workbook-api"
 import {
-  ArrowLeft, Plus, Play, Square, Download, Upload,
+  ArrowLeft, Plus, Download, Upload,
   Sparkles, Type, Layers, Brain, GitBranch, Send, Globe,
   Loader2, X, AlertCircle, Clock,
   FileSpreadsheet, ExternalLink, Filter, Search, Trash2, Copy,
   ArrowUpDown, ArrowUp, ArrowDown, EyeOff, Eye, Pencil, Settings, GripVertical,
   ChevronDown, ChevronUp, Zap, Columns3, Webhook, Calculator,
-  DollarSign, RefreshCw,
+  DollarSign, RefreshCw, Mail, MailCheck, MailX, Smartphone, Building2, Users,
+  ChartColumn, Target, PenLine, Lightbulb, TriangleAlert,
 } from "lucide-react"
+import { LinkedInIcon } from "@/components/semantic-icons"
+import { Button } from "@/components/ui/button"
+import { NativeSelect } from "@/components/ui/native-select"
 import { WorkbookViewBar, sortToSortingState } from "@/components/workbook-view-bar"
+import { WorkbookSelectionBar } from "@/components/workbooks/selection-bar"
+import { WorkbookRunReview } from "@/components/workbooks/run-review"
+import { WorkbookRunHistory } from "@/components/workbooks/run-history"
+import { ColumnWidthEditor } from "@/components/workbooks/column-width-editor"
+import { DeleteColumnDialog } from "@/components/workbooks/delete-column-dialog"
+import { Dialog, Button as DesignButton, Input as DesignInput } from "@/design-system/primitives"
+import "@/components/workbooks/column-settings.css"
+import { normalizeWorkbookColumns } from "@/lib/workbook-columns"
+import { selectedWorkbookRowIds, type WorkbookDeleteScope } from "@/lib/workbook-selection"
 import { ActivityDrawer } from "@/components/activity-drawer"
-import { SourceEnginePanel } from "@/components/source-engine-panel"
+import type { SourceEnginePanel as SourceEnginePanelType } from "@/components/source-engine-panel"
 import { CsvImportDialog, type CsvImportDraft } from "@/components/csv-import-dialog"
 import { toast } from "sonner"
-import Papa from "papaparse"
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -50,6 +68,8 @@ import { CSS } from "@dnd-kit/utilities"
 const COL_TYPE_META: Record<string, { icon: typeof Type; color: string; label: string; headerBg: string }> = {
   lead_field: { icon: Type, color: "text-zinc-400", label: "Lead Field", headerBg: "" },
   input: { icon: Type, color: "text-zinc-400", label: "Lead Field", headerBg: "" },  // Legacy alias
+  source: { icon: Globe, color: "text-muted-foreground", label: "Source", headerBg: "" },
+  agent: { icon: Brain, color: "text-muted-foreground", label: "Agent", headerBg: "" },
   enrichment: { icon: Sparkles, color: "text-violet-400", label: "Enrichment", headerBg: "bg-violet-500/5" },
   waterfall: { icon: Layers, color: "text-blue-400", label: "Waterfall", headerBg: "bg-blue-500/5" },
   ai_formula: { icon: Brain, color: "text-amber-400", label: "AI Formula", headerBg: "bg-amber-500/5" },
@@ -94,7 +114,7 @@ function ColumnProgressBar({ rows, colId }: { rows: WorkbookLeadRow[]; colId: st
   if (total === 0) return null
   const completed = rows.filter(r => {
     const overlay = r.enrichments?.[colId]
-    return overlay?.status === 'complete' || overlay?.value
+    return overlay?.status === 'complete'
   }).length
   const pct = Math.round((completed / total) * 100)
   if (pct === 0) return null
@@ -178,28 +198,36 @@ function ProvenanceCard({ prov, ttlDays }: { prov: Provenance; ttlDays?: number 
 
 function VerifyBadge({ verify }: { verify?: string | null }) {
   if (!verify || verify === "unknown") return null
-  const meta: Record<string, { label: string; cls: string; title: string }> = {
-    valid:     { label: "✓", cls: "text-green-500 bg-green-500/10",  title: "Email verified deliverable" },
-    catch_all: { label: "≈", cls: "text-amber-500 bg-amber-500/10",  title: "Catch-all domain (risky but usable)" },
-    invalid:   { label: "✗", cls: "text-red-500 bg-red-500/10",      title: "Email undeliverable" },
+  const meta: Record<string, { icon: typeof MailCheck; cls: string; title: string }> = {
+    valid:     { icon: MailCheck,     cls: "text-[var(--t-color-green9)] bg-[var(--t-color-green9)]/10",  title: "Email verified deliverable" },
+    catch_all: { icon: TriangleAlert, cls: "text-[var(--t-color-orange9)] bg-[var(--t-color-orange9)]/10", title: "Catch-all domain (risky but usable)" },
+    invalid:   { icon: MailX,         cls: "text-destructive bg-destructive/10",                           title: "Email undeliverable" },
   }
   const m = meta[verify]
   if (!m) return null
+  const Icon = m.icon
   return (
-    <span title={m.title}
-      className={`shrink-0 inline-flex items-center justify-center size-4 rounded text-[10px] font-bold ${m.cls}`}>
-      {m.label}
+    <span title={m.title} role="img" aria-label={m.title}
+      className={`shrink-0 inline-flex items-center justify-center size-4 rounded-sm ${m.cls}`}>
+      <Icon aria-hidden="true" className="size-3" />
     </span>
   )
 }
 
+import { ResearchEvidenceInspector } from "@/components/workbooks/research-evidence"
+import type { ResearchEvidence } from "@/lib/workbook-api"
+import { useQuickLook, type QuickLookField, type QuickLookPayload } from "@/components/quick-look/quick-look"
+
 function EditableCell({
   value, status, provider, error, verify, provenance, staleTtlDays, isEditable, onSave,
-  onRerun, rerunning,
+  onRerun, rerunning, research, skipped,
 }: {
   value: any; status?: string; provider?: string | null; error?: string | null
   verify?: string | null; provenance?: Provenance | null; staleTtlDays?: number
   isEditable: boolean; onSave: (v: string) => void
+  research?: ResearchEvidence | null
+  /** Selected providers that never ran for this result, with the reason. */
+  skipped?: { provider: string; reason: string }[] | null
   /** Re-run this cell's enrichment (force). Shown as a hover affordance. */
   onRerun?: () => void; rerunning?: boolean
 }) {
@@ -244,7 +272,11 @@ function EditableCell({
         onBlur={() => { onSave(draft); setEditing(false) }}
         onKeyDown={e => {
           if (e.key === "Enter") { onSave(draft); setEditing(false) }
-          if (e.key === "Escape") setEditing(false)
+          if (e.key === "Escape") {
+            const cell = e.currentTarget.closest<HTMLElement>("[data-grid-row]")
+            setEditing(false)
+            requestAnimationFrame(() => cell?.focus({ preventScroll: true }))
+          }
         }}
         className="w-full h-full px-2 py-1 text-sm bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-primary/50 rounded"
       />
@@ -258,7 +290,10 @@ function EditableCell({
       data-editable-cell={isEditable ? "true" : undefined}
       className="relative flex items-center gap-1.5 px-2 py-1 h-full min-h-[32px] max-w-full cursor-default group/cell overflow-hidden"
       onDoubleClick={() => isEditable && setEditing(true)}
-      title={showProvenance ? undefined : (error ? `Error: ${error}` : displayValue || (provider ? `via ${provider}` : undefined))}
+      title={showProvenance ? undefined : [
+        error ? `Error: ${error}` : displayValue || (provider ? `via ${provider}` : undefined),
+        skipped?.length ? `Skipped: ${skipped.map(s => `${s.provider} (${s.reason})`).join(", ")}` : undefined,
+      ].filter(Boolean).join("\n") || undefined}
     >
       {showProvenance && <ProvenanceCard prov={provenance!} ttlDays={staleTtlDays} />}
       <CellStatus status={status} />
@@ -266,6 +301,7 @@ function EditableCell({
         {displayValue}
       </span>
       {displayValue && <VerifyBadge verify={verify} />}
+      {research && <ResearchEvidenceInspector evidence={research} />}
       {onRerun && (
         <button
           onClick={(e) => { e.stopPropagation(); if (!rerunning) onRerun() }}
@@ -409,6 +445,7 @@ function CostChip({ workbookId, isRunning, viewId, search, onClick }: {
     let alive = true
     const load = () => fetchWorkbookCost(workbookId).then(c => { if (alive) setCost(c) }).catch(() => {})
     load()
+    setEst(null)
     fetchRunEstimate(workbookId, viewId, search).then(e => { if (alive) setEst(e) }).catch(() => {})
     // Poll spend live during a run so the number climbs as paid providers charge.
     const iv = isRunning ? setInterval(load, 3000) : null
@@ -454,16 +491,35 @@ export default function WorkbookEditorPage() {
   const { data, isLoading, isFetching, error, refetch } = useWorkbook(
     id!, workbookPageSize, workbookPage, activeViewId, deferredGlobalFilter, cursorMode, workbookCursor,
   )
-  const updateWb = useUpdateWorkbook()
-  const updateLeadField = useUpdateLeadField(id!)
-  const updateWorkbookRow = useUpdateWorkbookRow(id!)
+  const [deleteColumnScope, setDeleteColumnScope] = useState<ColumnConfig | null>(null)
+  const { mutate: saveColumnWidth } = useSaveWorkbookColumnWidth(id!)
+  const settingsSave = useSaveWorkbookColumnSettings(id!)
+  const addColumnMut = useAddWorkbookColumn(id!)
+  const addingColumn = useRef(false)
+  const persistNewColumn = async (column: Partial<ColumnConfig>) => {
+    if (addingColumn.current) return false
+    addingColumn.current = true
+    try {
+      await addColumnMut.mutateAsync(column)
+      return true
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to add column")
+      return false
+    } finally { addingColumn.current = false }
+  }
+  const renameSave = useSaveWorkbookColumnSettings(id!)
+  const renameSubmitting = useRef(false)
+  const renameFocus = useRef<{ columnId: string; name: string } | null>(null)
+  const settingsSubmitting = useRef(false)
+  const saveColumnOrder = useSaveWorkbookColumnOrder(id!)
+  const { mutate: updateLeadField } = useUpdateLeadField(id!)
+  const { mutate: updateWorkbookRow } = useUpdateWorkbookRow(id!)
   const bulkUpdateWorkbookRows = useBulkUpdateWorkbookRows(id!)
   const importLeadsMut = useImportLeads(id!)
   const runMut = useRunWorkbook(id!)
-  const stopMut = useStopWorkbook(id!)
   const deleteMut = useDeleteWorkbookRows(id!)
   const deleteMatchingMut = useDeleteMatchingWorkbookRows(id!)
-  const runCellMut = useRunCell(id!)
+  const { mutate: runCell, isPending: cellRunPending, variables: cellRunVariables } = useRunCell(id!)
   const { data: viewsData } = useWorkbookViews(id!)
   const { data: connectorRunsData } = useConnectorRuns(data?.workbook ? id : undefined)
   // Only open the live socket once the workbook has actually loaded — a 404/403
@@ -474,6 +530,28 @@ export default function WorkbookEditorPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [csvImportDraft, setCsvImportDraft] = useState<CsvImportDraft | null>(null)
   const [showSourcePanel, setShowSourcePanel] = useState(false)
+  const [SourceEnginePanel, setSourceEnginePanel] = useState<typeof SourceEnginePanelType | null>(null)
+  const [sourcePanelLoading, setSourcePanelLoading] = useState(false)
+  const sourcePanelLoadingRef = useRef(false)
+  const openSourcePanel = async () => {
+    if (SourceEnginePanel) {
+      setShowSourcePanel(true)
+      return
+    }
+    if (sourcePanelLoadingRef.current) return
+    sourcePanelLoadingRef.current = true
+    setSourcePanelLoading(true)
+    try {
+      const module = await import("@/components/source-engine-panel")
+      setSourceEnginePanel(() => module.SourceEnginePanel)
+      setShowSourcePanel(true)
+    } catch {
+      toast.error("Source Engine could not load. Reload the page and try again.")
+    } finally {
+      sourcePanelLoadingRef.current = false
+      setSourcePanelLoading(false)
+    }
+  }
   const [showColPicker, setShowColPicker] = useState(false)
   const [aiPresets, setAiPresets] = useState<AiColumnPreset[]>([])
   useEffect(() => { fetchAiColumnPresets().then(d => setAiPresets(d.presets || [])).catch(() => {}) }, [])
@@ -493,8 +571,10 @@ export default function WorkbookEditorPage() {
   const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(new Set())
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; colId: string } | null>(null)
   const [configPanelColId, setConfigPanelColId] = useState<string | null>(null)
+  const configTrigger = useRef<HTMLElement | null>(null)
   const [renamingColId, setRenamingColId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState("")
+  const [renameExpected, setRenameExpected] = useState("")
   const [newColProvider, setNewColProvider] = useState("")
   const [newColWaterfall, setNewColWaterfall] = useState<string[]>([])
   const [newColTargetField, setNewColTargetField] = useState("")
@@ -584,14 +664,18 @@ export default function WorkbookEditorPage() {
   const workbook = data?.workbook
   const rows = data?.rows ?? []
   // Normalize columns — ensure every column has an `id` (templates use `key`)
-  const columns = (workbook?.columns_config ?? []).map((col: any, idx: number) => ({
-    ...col,
-    id: col.id || col.key || `col_${idx}`,
-    lead_field: col.lead_field || col.key || col.id || "",
-    type: col.type === "lead_field" || col.type === "input" || col.type === "enrichment" || col.type === "waterfall" || col.type === "ai_formula" || col.type === "conditional" || col.type === "output"
-      ? col.type
-      : "lead_field",
-  }))
+  const columns = useMemo(() => normalizeWorkbookColumns(workbook?.columns_config ?? []), [workbook?.columns_config])
+  useEffect(() => {
+    const target = renameFocus.current
+    if (!target || renamingColId || !columns.some(column => column.id === target.columnId && column.name === target.name)) return
+    const frame = requestAnimationFrame(() => {
+      const header = Array.from(tableContainerRef.current?.querySelectorAll<HTMLElement>("th[data-col-id]") || [])
+        .find(element => element.dataset.colId === target.columnId)
+      ;(header?.querySelector<HTMLElement>("[data-column-settings-trigger]") || tableContainerRef.current)?.focus()
+      renameFocus.current = null
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [columns, renamingColId])
 
   // ── Saved views: backend applies filters/sort before pagination ──
   const views = viewsData?.views ?? []
@@ -613,12 +697,26 @@ export default function WorkbookEditorPage() {
   // ── DnD sensors for column reorder ──
   const dndSensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: (event, args) => {
+      if (event.code !== "ArrowLeft" && event.code !== "ArrowRight") return undefined
+      event.preventDefault()
+      const { active, over, collisionRect, droppableRects } = args.context
+      if (!active || !collisionRect) return undefined
+      const visible = columns.filter(column => !hiddenColumns.has(column.id))
+      const index = visible.findIndex(column => column.id === (over?.id ?? active.id))
+      if (index < 0) return undefined
+      const target = visible[index + (event.code === "ArrowRight" ? 1 : -1)]
+      const rect = target && droppableRects.get(target.id)
+      if (!rect) return undefined
+      // Center-based collision needs center-aligned keyboard coordinates. The
+      // sortable default aligns edges and can stay over a much wider origin.
+      return { x: rect.left + (rect.width - collisionRect.width) / 2, y: collisionRect.top }
+    } }),
   )
 
   const handleColumnDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event
-    if (!over || active.id === over.id) return
+    if (!over || active.id === over.id || saveColumnOrder.isPending) return
 
     const oldIndex = columns.findIndex(c => c.id === active.id)
     const newIndex = columns.findIndex(c => c.id === over.id)
@@ -628,8 +726,10 @@ export default function WorkbookEditorPage() {
     const [moved] = reordered.splice(oldIndex, 1)
     reordered.splice(newIndex, 0, moved)
 
-    updateWb.mutate({ id: workbook!.id, columns_config: reordered as any })
-  }, [columns, updateWb, workbook])
+    saveColumnOrder.mutate({ columnIds: reordered.map(column => column.id), expectedColumnIds: columns.map(column => column.id) }, {
+      onError: error => toast.error(error.message || "Column order was not saved. Refresh before retrying."),
+    })
+  }, [columns, saveColumnOrder])
 
   // Initialize column widths from config (once)
   useEffect(() => {
@@ -646,6 +746,25 @@ export default function WorkbookEditorPage() {
   }, [])
 
   // Column resize handlers — uses direct DOM mutation during drag for zero re-renders
+  const handleResizeKey = useCallback((colId: string, currentWidth: number, e: React.KeyboardEvent) => {
+    // Never forward Space/arrows to the parent sortable-header sensor.
+    e.stopPropagation()
+    const step = e.shiftKey ? 50 : 10
+    const next = e.key === "ArrowRight" ? currentWidth + step
+      : e.key === "ArrowLeft" ? currentWidth - step
+      : e.key === "Home" ? 80
+      : e.key === "End" ? 600 : null
+    if (next === null) return
+    e.preventDefault()
+    const width = Math.max(80, Math.min(600, Math.round(next)))
+    if (width === currentWidth) return
+    columnWidthsRef.current[colId] = width
+    forceResizeRender(n => n + 1)
+    saveColumnWidth({ columnId: colId, width }, {
+      onError: () => toast.error("Column width was not saved. Resize again to retry; reload may restore the old width."),
+    })
+  }, [saveColumnWidth])
+
   const handleResizeStart = useCallback((colId: string, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -668,18 +787,26 @@ export default function WorkbookEditorPage() {
       }
     }
     const onMouseUp = () => {
+      const resized = resizeRef.current
       resizeRef.current = null
       document.removeEventListener("mousemove", onMouseMove)
       document.removeEventListener("mouseup", onMouseUp)
       document.body.style.cursor = ""
       document.body.style.userSelect = ""
       forceResizeRender(n => n + 1) // single re-render on release
+      if (resized) {
+        const width = Math.round(columnWidthsRef.current[resized.colId] || resized.startW)
+        columnWidthsRef.current[resized.colId] = width
+        if (width !== resized.startW) saveColumnWidth({ columnId: resized.colId, width }, {
+          onError: () => toast.error("Column width was not saved. Resize again to retry; reload may restore the old width."),
+        })
+      }
     }
     document.addEventListener("mousemove", onMouseMove)
     document.addEventListener("mouseup", onMouseUp)
     document.body.style.cursor = "col-resize"
     document.body.style.userSelect = "none"
-  }, [])
+  }, [saveColumnWidth])
 
   // ── Build TanStack Table columns ───────────────────────────────────────
 
@@ -692,6 +819,7 @@ export default function WorkbookEditorPage() {
           <div className="flex items-center justify-center px-1">
             <input
               type="checkbox"
+              aria-label="Select all rows on this page"
               className="size-3.5 rounded border-border accent-primary cursor-pointer"
               checked={table.getIsAllRowsSelected()}
               onChange={table.getToggleAllRowsSelectedHandler()}
@@ -703,6 +831,7 @@ export default function WorkbookEditorPage() {
           <div className="flex items-center justify-center px-1">
             <input
               type="checkbox"
+              aria-label={`Select row ${row.original.row_id ?? row.original.lead_id}`}
               className="size-3.5 rounded border-border accent-primary cursor-pointer"
               checked={row.getIsSelected()}
               onChange={row.getToggleSelectedHandler()}
@@ -763,6 +892,13 @@ export default function WorkbookEditorPage() {
                 {sort === "asc" && <ArrowUp className="size-3 text-primary shrink-0" />}
                 {sort === "desc" && <ArrowDown className="size-3 text-primary shrink-0" />}
                 {!sort && <ArrowUpDown className="size-3 text-muted-foreground/30 shrink-0 opacity-0 group-hover/th:opacity-100 transition-opacity" />}
+                <button type="button" data-column-settings-trigger aria-label={`Configure ${col.name} column`}
+                  className="shrink-0 p-1 rounded hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+                  onPointerDown={event => event.stopPropagation()}
+                  onKeyDown={event => event.stopPropagation()}
+                  onClick={event => { event.stopPropagation(); configTrigger.current = event.currentTarget; setConfigPanelColId(col.id) }}>
+                  <Settings aria-hidden="true" className="size-3" />
+                </button>
               </div>
             )
           },
@@ -770,7 +906,7 @@ export default function WorkbookEditorPage() {
             // For lead_field columns (or legacy "input" type), get value from lead data
             if (col.type === "lead_field" || col.type === "input") {
               const leadField = col.lead_field || col.id
-              const value = row.original.lead[leadField] ?? ""
+              const value = (row.original.data || row.original.lead)[leadField] ?? ""
               const strVal = String(value)
 
               // Type-aware fields get special rendering
@@ -790,12 +926,12 @@ export default function WorkbookEditorPage() {
                   isEditable={true}
                   onSave={(v) => {
                     if (row.original.row_id != null) {
-                      updateWorkbookRow.mutate({
+                      updateWorkbookRow({
                         rowId: row.original.row_id,
                         fields: { [leadField]: v },
                       })
                     } else if (row.original.lead_id != null) {
-                      updateLeadField.mutate({
+                      updateLeadField({
                         leadId: row.original.lead_id,
                         fields: { [leadField]: v },
                       })
@@ -812,16 +948,19 @@ export default function WorkbookEditorPage() {
             }
 
             // Fallback: if enrichment has no value, check if lead already has this field
-            const leadFallback = overlay.value ? null : (row.original.lead[col.id] || row.original.lead[col.lead_field || ""] || null)
-            const displayValue = overlay.value || (leadFallback ? String(leadFallback) : null)
-            const displayStatus = overlay.value ? overlay.status : (leadFallback ? "complete" : overlay.status)
+            const hasOverlayValue = overlay.value != null && overlay.value !== ""
+            const sourceData = row.original.data || row.original.lead
+            const leadFallback = hasOverlayValue ? null : (sourceData[col.id] ?? sourceData[col.lead_field || ""] ?? null)
+            const hasLeadFallback = leadFallback != null && leadFallback !== ""
+            const displayValue = hasOverlayValue ? overlay.value : (hasLeadFallback ? String(leadFallback) : null)
+            const displayStatus = hasOverlayValue ? overlay.status : (hasLeadFallback ? "complete" : overlay.status)
 
             // Per-cell force re-run (hover affordance). Output columns are
             // run-once + side-effecting, so force re-pushing needs a confirm.
             const cellRowId = row.original.row_id ?? row.original.lead_id
-            const isRerunningCell = runCellMut.isPending
-              && runCellMut.variables?.rowId === cellRowId
-              && runCellMut.variables?.colId === col.id
+            const isRerunningCell = cellRunPending
+              && cellRunVariables?.rowId === cellRowId
+              && cellRunVariables?.colId === col.id
             const handleRerun = () => {
               if (cellRowId == null) {
                 toast.error("This row has no workbook identity")
@@ -830,7 +969,7 @@ export default function WorkbookEditorPage() {
               if (col.type === "output") {
                 if (!confirm(`"${col.name}" is an output column (runs once per row). Force re-running will push this row to the destination AGAIN. Continue?`)) return
               }
-              runCellMut.mutate({ rowId: cellRowId, colId: col.id, force: true }, {
+              runCell({ rowId: cellRowId, colId: col.id, force: true }, {
                 onSuccess: (res) => {
                   if (res.status === "complete") toast.success("Cell re-run complete")
                   else if (res.status === "skipped") toast.info("Skipped — output cell already ran (use force)")
@@ -844,10 +983,12 @@ export default function WorkbookEditorPage() {
               <EditableCell
                 value={displayValue}
                 status={displayStatus}
-                provider={overlay.value ? overlay.provider : (leadFallback ? "lead" : null)}
-                error={leadFallback ? null : overlay.error}
-                verify={overlay.value ? overlay.verify_status : null}
-                provenance={overlay.value ? overlay.provenance : null}
+                provider={hasOverlayValue ? overlay.provider : (hasLeadFallback ? "lead" : null)}
+                error={hasLeadFallback ? null : overlay.error}
+                verify={hasOverlayValue ? overlay.verify_status : null}
+                provenance={hasOverlayValue ? overlay.provenance : null}
+                research={overlay.research}
+                skipped={Array.isArray(overlay.skipped_providers) ? overlay.skipped_providers : null}
                 isEditable={false}
                 onSave={() => {}}
                 onRerun={handleRerun}
@@ -859,30 +1000,19 @@ export default function WorkbookEditorPage() {
       }),
     ]
     return cols
-  }, [columns, hiddenColumns, updateLeadField, updateWorkbookRow, runCellMut])
+  }, [columns, hiddenColumns, updateLeadField, updateWorkbookRow, runCell, cellRunPending, cellRunVariables])
 
   const table = useReactTable({
     data: viewRows,
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    // Search and saved-view filters are already applied before server pagination.
+    manualFiltering: true,
     state: { rowSelection, sorting, globalFilter },
-    onRowSelectionChange: setRowSelection,
+    onRowSelectionChange: updater => { setAllMatchingSelected(false); setRowSelection(updater) },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: (row, _columnId, filterValue) => {
-      const search = String(filterValue).toLowerCase()
-      // Search across all lead fields + enrichments
-      const lead = row.original.lead
-      for (const v of Object.values(lead)) {
-        if (v && String(v).toLowerCase().includes(search)) return true
-      }
-      for (const e of Object.values(row.original.enrichments || {})) {
-        if ((e as any)?.value && String((e as any).value).toLowerCase().includes(search)) return true
-      }
-      return false
-    },
     getRowId: (row) => row.row_id != null ? `row:${row.row_id}` : `lead:${row.lead_id}`,
   })
 
@@ -890,12 +1020,10 @@ export default function WorkbookEditorPage() {
 
   const handleExportSelected = useCallback(async () => {
     if (!workbook || exportingCsv) return
-    const rowIds = Object.entries(rowSelection)
-      .filter(([key, selected]) => selected && key.startsWith("row:"))
-      .map(([key]) => Number(key.slice(4)))
-    if (!rowIds.length) return
     setExportingCsv(true)
     try {
+      const rowIds = selectedWorkbookRowIds(rowSelection)
+      if (!rowIds.length) return
       const blob = await exportWorkbookCsv(workbook.id, activeViewId, deferredGlobalFilter, rowIds)
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
@@ -911,55 +1039,23 @@ export default function WorkbookEditorPage() {
     }
   }, [activeViewId, deferredGlobalFilter, exportingCsv, rowSelection, workbook])
 
-  const handleDeleteSelected = useCallback(() => {
-    if (allMatchingSelected) {
-      if (!confirm(`Permanently delete all ${queryTotalRows} rows matching the current search and saved view across every page?`)) return
-      deleteMatchingMut.mutate(
-        {
-          expected_count: queryTotalRows,
-          confirmation: `DELETE ${queryTotalRows} ROWS`,
-          view_id: activeViewId || undefined,
-          search: deferredGlobalFilter.trim() || undefined,
-        },
-        {
-          onSuccess: data => {
-            toast.success(`Deleted ${data.deleted} rows`)
-            setAllMatchingSelected(false)
-            setRowSelection({})
-          },
-          onError: error => toast.error(error.message),
-        },
-      )
-      return
-    }
-    const selectedKeys = Object.entries(rowSelection).filter(([, selected]) => selected).map(([key]) => key)
-    if (!selectedKeys.length) return
-    if (!confirm(`Delete ${selectedKeys.length} selected workbook rows?`)) return
-    deleteMut.mutate(
-      {
-        rowIds: selectedKeys.filter(key => key.startsWith("row:")).map(key => Number(key.slice(4))),
-        leadIds: selectedKeys.filter(key => key.startsWith("lead:")).map(key => Number(key.slice(5))),
-      },
-      {
-        onSuccess: (data) => {
-          toast.success(`Deleted ${data.deleted} rows`)
-          setRowSelection({})
-        },
-        onError: () => toast.error("Failed to delete rows"),
-      }
-    )
-  }, [activeViewId, allMatchingSelected, deferredGlobalFilter, deleteMatchingMut, deleteMut, queryTotalRows, rowSelection])
+  const handleDeleteSelected = async (scope: WorkbookDeleteScope) => {
+    const result = scope.kind === "matching"
+      ? await deleteMatchingMut.mutateAsync({ expected_count: scope.count, confirmation: `DELETE ${scope.count} ROWS`, view_id: scope.viewId || undefined, search: scope.search.trim() || undefined })
+      : await deleteMut.mutateAsync({ rowIds: scope.rowIds, leadIds: [] })
+    toast.success(`Deleted ${result.deleted} rows`)
+    setAllMatchingSelected(false)
+    setRowSelection({})
+  }
 
   const handleDeleteColumn = useCallback((colId: string) => {
-    const col = columns.find(c => c.id === colId)
+    // Confirm raw stored configuration, not synthesized display defaults.
+    const col = workbook?.columns_config.find(c => c.id === colId)
     if (!col) return
-    if (!confirm(`Delete column "${col.name}"?`)) return
-    updateWb.mutate({
-      id: workbook!.id,
-      columns_config: columns.filter(c => c.id !== colId) as any,
-    })
+    setDeleteColumnScope(structuredClone(col))
     setCtxMenu(null)
-  }, [columns, updateWb, workbook])
+    setConfigPanelColId(null)
+  }, [workbook])
 
   const handleHideColumn = useCallback((colId: string) => {
     setHiddenColumns(prev => new Set([...prev, colId]))
@@ -971,18 +1067,22 @@ export default function WorkbookEditorPage() {
     if (!col) return
     setRenamingColId(colId)
     setRenameValue(col.name)
+    setRenameExpected(col.name)
+    renameSave.reset()
     setCtxMenu(null)
-  }, [columns])
+  }, [columns, renameSave])
 
-  const handleRenameSubmit = useCallback(() => {
-    if (!renamingColId || !renameValue.trim()) return
-    const updated = columns.map(c =>
-      c.id === renamingColId ? { ...c, name: renameValue.trim() } : c
-    )
-    updateWb.mutate({ id: workbook!.id, columns_config: updated as any })
-    setRenamingColId(null)
-    setRenameValue("")
-  }, [renamingColId, renameValue, columns, updateWb, workbook])
+  const handleRenameSubmit = async () => {
+    if (!renamingColId || !renameValue.trim() || renameSubmitting.current) return
+    renameSubmitting.current = true
+    try {
+      await renameSave.mutateAsync({ columnId: renamingColId, changes: { name: renameValue.trim() }, expected: { name: renameExpected } })
+      renameFocus.current = { columnId: renamingColId, name: renameValue.trim() }
+      setRenamingColId(null)
+      setRenameValue("")
+    } catch { /* The dialog keeps the draft and displays the mutation error. */ }
+    finally { renameSubmitting.current = false }
+  }
 
   const handleRunSingleColumn = useCallback((colId: string) => {
     runMut.mutate({ column_ids: [colId] }, {
@@ -1025,6 +1125,27 @@ export default function WorkbookEditorPage() {
     overscan: 20,
   })
   const { getVirtualItems, getTotalSize } = rowVirtualizer
+  const [horizontalViewport, setHorizontalViewport] = useState({ left: 0, width: 1440 })
+  useEffect(() => {
+    const container = tableContainerRef.current
+    if (!container) return
+    let frame = 0
+    const measure = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => setHorizontalViewport(previous => {
+        const next = { left: container.scrollLeft, width: container.clientWidth }
+        return previous.left === next.left && previous.width === next.width ? previous : next
+      }))
+    }
+    const observer = new ResizeObserver(measure)
+    observer.observe(container)
+    container.addEventListener("scroll", measure, { passive: true })
+    measure()
+    return () => { observer.disconnect(); container.removeEventListener("scroll", measure); cancelAnimationFrame(frame) }
+  }, [workbook?.id, isLoading])
+  const visibleGridColumns = table.getVisibleLeafColumns()
+  const gridColumnWidths = visibleGridColumns.map(column => column.id === "_select" ? 36 : column.id === "_index" ? 50 : getColWidth(column.id, columns.find(config => config.id === column.id)?.width || 180))
+  const columnWindow = workbookColumnWindow(gridColumnWidths, horizontalViewport.left, horizontalViewport.width, [0, 1, activeCell.column])
 
   const focusGridCell = useCallback((row: number, column: number) => {
     const rowCount = table.getRowModel().rows.length
@@ -1036,12 +1157,57 @@ export default function WorkbookEditorPage() {
     }
     setActiveCell(next)
     rowVirtualizer.scrollToIndex(next.row, { align: "auto" })
+    const container = tableContainerRef.current
+    if (container) {
+      const visible = table.getVisibleLeafColumns()
+      const widths = visible.map(col => col.id === "_select" ? 36 : col.id === "_index" ? 50 : getColWidth(col.id, columns.find(config => config.id === col.id)?.width || 180))
+      const left = widths.slice(0, next.column).reduce((sum, width) => sum + width, 0)
+      if (left < container.scrollLeft) container.scrollLeft = left
+      else if (left + widths[next.column] > container.scrollLeft + container.clientWidth) container.scrollLeft = left + widths[next.column] - container.clientWidth
+    }
     requestAnimationFrame(() => {
       tableContainerRef.current
         ?.querySelector<HTMLElement>(`[data-grid-row="${next.row}"][data-grid-column="${next.column}"]`)
         ?.focus({ preventScroll: true })
     })
-  }, [rowVirtualizer, table])
+  }, [rowVirtualizer, table, columns, getColWidth])
+
+  // Quick Look (Space) for the focused grid row: the preview shows the row's
+  // visible columns; ←/→ in the preview move the grid's active row with it.
+  const quickLook = useQuickLook()
+  const rowQuickLook = useCallback((rowIndex: number): QuickLookPayload | null => {
+    const row = table.getRowModel().rows[rowIndex]?.original
+    if (!row) return null
+    const record = { ...(row.lead || {}), ...(row.data || {}) } as Record<string, unknown>
+    const text = (value: unknown) => (value == null ? "" : typeof value === "string" ? value : JSON.stringify(value))
+    const person = text(record.full_name || record.contact_person)
+    const company = text(record.company || row.company)
+    const website = text(record.website)
+    const linkedin = text(record.linkedin_url)
+    const fields: QuickLookField[] = []
+    table.getVisibleLeafColumns().forEach(column => {
+      if (column.id === "_select" || column.id === "_index") return
+      const config = columns.find(item => item.id === column.id)
+      if (!config) return
+      const field = config.lead_field || config.id
+      const raw = config.type === "lead_field" || config.type === "input"
+        ? record[field] : row.enrichments?.[config.id]?.value
+      const value = text(raw).trim()
+      if (!value) return
+      fields.push({ label: config.name || field, value, href: /^https?:\/\//i.test(value) ? value : undefined })
+    })
+    return {
+      kind: person ? "Person" : "Company",
+      title: person || company || `Row ${rowIndex + 1}`,
+      subtitle: [text(record.title || record.contact_title), person ? company : ""].filter(Boolean).join(" · ") || undefined,
+      domain: website ? website.replace(/^https?:\/\//i, "").split("/")[0] : undefined,
+      fields,
+      actions: [
+        ...(linkedin ? [{ label: "LinkedIn", href: linkedin, external: true }] : []),
+        ...(website ? [{ label: "Website", href: /^https?:/i.test(website) ? website : `https://${website}`, external: true }] : []),
+      ],
+    }
+  }, [columns, table])
 
   const gridCellValue = useCallback((rowIndex: number, columnIndex: number) => {
     const row = table.getRowModel().rows[rowIndex]?.original
@@ -1058,9 +1224,23 @@ export default function WorkbookEditorPage() {
 
   const handleGridKeyDown = useCallback((event: React.KeyboardEvent<HTMLTableCellElement>, row: number, column: number) => {
     const target = event.target as HTMLElement
-    if (target.matches("input, textarea, select, [contenteditable=true]")) return
+    // Interactive descendants (including portalled dialogs) own their keys.
+    // Grid shortcuts must not suppress button activation or dialog Escape/Tab.
+    if (target.closest("input, textarea, select, button, a, [role=dialog], [contenteditable=true]")) return
 
     const shortcut = event.ctrlKey || event.metaKey
+    if (event.key === " " && !shortcut && !event.shiftKey) {
+      event.preventDefault()
+      quickLook.open({
+        count: table.getRowModel().rows.length,
+        index: row,
+        get: rowQuickLook,
+        onIndexChange: index => focusGridCell(index, column),
+        elementAt: index => tableContainerRef.current
+          ?.querySelector<HTMLElement>(`[data-grid-row="${index}"][data-grid-column="${column}"]`) ?? null,
+      })
+      return
+    }
     const anchor = selectionAnchor ?? { row, column }
     const range = {
       top: Math.min(anchor.row, row), bottom: Math.max(anchor.row, row),
@@ -1144,7 +1324,7 @@ export default function WorkbookEditorPage() {
     if (event.shiftKey && event.key !== "Tab" && event.key !== "Enter") setSelectionAnchor(current => current ?? { row, column })
     else setSelectionAnchor(null)
     focusGridCell(nextRow, nextColumn)
-  }, [bulkUpdateWorkbookRows, columns, focusGridCell, gridCellValue, selectionAnchor, table])
+  }, [bulkUpdateWorkbookRows, columns, focusGridCell, gridCellValue, quickLook, rowQuickLook, selectionAnchor, table])
 
   const handleGridPaste = useCallback((event: React.ClipboardEvent<HTMLTableCellElement>, startRow: number, startColumn: number) => {
     const target = event.target as HTMLElement
@@ -1194,29 +1374,42 @@ export default function WorkbookEditorPage() {
 
   // ── CSV Import ─────────────────────────────────────────────────────────
 
-  const handleCSVImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCSVImport = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        if (!results.data?.length) {
-          toast.error("Empty CSV file")
-          return
-        }
-        const fields = (results.meta.fields || []).filter(Boolean)
-        if (!fields.length) {
-          toast.error("CSV needs a header row")
-          return
-        }
-        setCsvImportDraft({ fileName: file.name, rows: results.data as Record<string, any>[], fields })
-      },
-      error: () => toast.error("Failed to parse CSV"),
-    })
-
+    // Release the input before awaiting the optional parser chunk, so selecting
+    // the same file again still works after a download or parse failure.
     e.target.value = ""
+
+    try {
+      const { default: Papa } = await import("papaparse")
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          // A single-column CSV legitimately has no detectable delimiter.
+          // Structural errors, however, must not silently shift imported data.
+          const parseError = results.errors.find(error => error.code !== "UndetectableDelimiter")
+          if (parseError) {
+            toast.error(`Invalid CSV: ${parseError.message}`)
+            return
+          }
+          if (!results.data?.length) {
+            toast.error("Empty CSV file")
+            return
+          }
+          const fields = (results.meta.fields || []).filter(Boolean)
+          if (!fields.length) {
+            toast.error("CSV needs a header row")
+            return
+          }
+          setCsvImportDraft({ fileName: file.name, rows: results.data as Record<string, any>[], fields })
+        },
+        error: () => toast.error("Failed to parse CSV"),
+      })
+    } catch {
+      toast.error("Failed to load CSV importer. Reload the page and try again.")
+    }
   }, [])
 
   // ── CSV Export ─────────────────────────────────────────────────────────
@@ -1261,16 +1454,13 @@ export default function WorkbookEditorPage() {
         </p>
         <div className="flex items-center gap-4">
           {!notFound && (
-            <button
-              onClick={() => refetch()}
-              className="text-sm text-primary hover:underline"
-            >
-              Retry
-            </button>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              <RefreshCw /> Retry
+            </Button>
           )}
-          <button onClick={() => navigate("/workbooks")} className="text-sm text-primary hover:underline">
-            ← Back to workbooks
-          </button>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/workbooks")}>
+            <ArrowLeft /> Back to workbooks
+          </Button>
         </div>
       </div>
     )
@@ -1285,41 +1475,27 @@ export default function WorkbookEditorPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* ── Selection Toolbar ─────────────────────────────────────────── */}
-      {(selectedCount > 0 || allMatchingSelected) && (
-        <div className="flex items-center gap-3 px-4 py-1.5 border-b bg-primary/5 shrink-0">
-          <span className="text-xs font-medium text-primary tabular-nums">
-            {allMatchingSelected ? `${queryTotalRows} matching rows selected` : `${selectedCount} selected on this page`}
-          </span>
-          {!allMatchingSelected && queryTotalRows > selectedCount && (
-            <button
-              onClick={() => { setAllMatchingSelected(true); setRowSelection({}) }}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] hover:bg-primary/10 text-primary transition-colors"
-            >Select all {queryTotalRows} matching rows</button>
-          )}
-          <button
-            onClick={allMatchingSelected ? handleExport : handleExportSelected}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] hover:bg-primary/10 text-primary transition-colors"
-          >
-            <Download className="size-3" /> Export Selected
-          </button>
-          <button
-            onClick={handleDeleteSelected}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] hover:bg-destructive/10 text-destructive transition-colors"
-          >
-            <Trash2 className="size-3" /> {allMatchingSelected ? "Delete all matching" : "Delete"}
-          </button>
-          <button
-            onClick={() => { setRowSelection({}); setAllMatchingSelected(false) }}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] hover:bg-muted text-muted-foreground transition-colors"
-          >
-            <X className="size-3" /> Deselect
-          </button>
+      {workbook.status === "failed" && <div role="alert" className="flex items-start gap-2 border-b border-destructive/30 bg-background px-4 py-3 text-sm shrink-0">
+        <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-destructive" />
+        <div><p className="font-medium">Run needs attention</p>
+          <p className="text-muted-foreground">Some work failed. Open Run history and inspect cell errors before retrying. Successful cells may remain; avoid re-sending completed outputs.</p>
         </div>
-      )}
+      </div>}
+      {/* ── Selection Toolbar ─────────────────────────────────────────── */}
+      <WorkbookSelectionBar count={selectedCount} visibleCount={table.getSelectedRowModel().rows.length}
+        matchingCount={queryTotalRows} allMatching={allMatchingSelected}
+        busy={isFetching || deleteMut.isPending || deleteMatchingMut.isPending}
+        exportDisabled={exportingCsv} finalFocus={tableContainerRef}
+        onSelectAll={() => { setAllMatchingSelected(true); setRowSelection({}) }}
+        onClear={() => { setRowSelection({}); setAllMatchingSelected(false) }}
+        onExport={allMatchingSelected ? handleExport : handleExportSelected}
+        getDeleteScope={() => allMatchingSelected
+          ? { kind: "matching", count: queryTotalRows, viewId: activeViewId, search: deferredGlobalFilter }
+          : { kind: "rows", rowIds: selectedWorkbookRowIds(rowSelection) }}
+        onDelete={handleDeleteSelected} />
 
       {/* ── Toolbar ─────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 px-4 py-2 border-b bg-background/95 backdrop-blur-sm shrink-0">
+      <div className="flex flex-wrap items-center gap-3 px-4 py-2 border-b bg-background/95 backdrop-blur-sm shrink-0">
         <button
           onClick={() => navigate("/workbooks")}
           className="p-1.5 rounded-md hover:bg-muted transition-colors"
@@ -1327,7 +1503,7 @@ export default function WorkbookEditorPage() {
           <ArrowLeft className="size-4" />
         </button>
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-48">
           <h2 className="text-sm font-semibold truncate">{workbook.name}</h2>
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1">
@@ -1418,7 +1594,7 @@ export default function WorkbookEditorPage() {
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex max-w-full flex-wrap items-center gap-1.5" role="group" aria-label="Workbook actions">
           <input
             ref={fileInputRef}
             type="file"
@@ -1426,94 +1602,54 @@ export default function WorkbookEditorPage() {
             onChange={handleCSVImport}
             className="hidden"
           />
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs hover:bg-muted transition-colors"
             title="Import a CSV or Clay table export"
           >
-            <Upload className="size-3.5" />
+            <Upload />
             Import
-          </button>
+          </Button>
 
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={handleExport}
             disabled={exportingCsv}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs hover:bg-muted disabled:opacity-50 transition-colors"
             title="Export every row matching the current search and saved view"
           >
-            {exportingCsv ? <Loader2 className="size-3.5 animate-spin" /> : <Download className="size-3.5" />}
+            {exportingCsv ? <Loader2 className="animate-spin" /> : <Download />}
             {exportingCsv ? "Exporting…" : "Export"}
-          </button>
+          </Button>
 
           <div className="w-px h-5 bg-border mx-1" />
 
-          <CostChip workbookId={id!} isRunning={isRunning} viewId={activeViewId} search={deferredGlobalFilter} onClick={() => setShowSourcePanel(true)} />
+          <CostChip workbookId={id!} isRunning={isRunning} viewId={activeViewId} search={deferredGlobalFilter} onClick={openSourcePanel} />
 
-          <button
-            onClick={() => setShowSourcePanel(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border bg-background hover:bg-accent transition-colors"
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={openSourcePanel}
+            disabled={sourcePanelLoading}
+            aria-busy={sourcePanelLoading}
             title="Source leads, set a budget, make this workbook living"
           >
-            <Zap className="size-3.5" />
-            Source Engine
-          </button>
-          <SourceEnginePanel
+            {sourcePanelLoading ? <Loader2 className="animate-spin" /> : <Zap />}
+            {sourcePanelLoading ? "Loading Source Engine…" : "Source Engine"}
+          </Button>
+          {SourceEnginePanel && <SourceEnginePanel
             workbookId={id!}
             open={showSourcePanel}
             onOpenChange={setShowSourcePanel}
             onChanged={() => refetch()}
-          />
+          />}
 
-          {isRunning ? (
-            <button
-              onClick={() => stopMut.mutate()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-destructive text-white hover:bg-destructive/90 transition-colors"
-            >
-              <Square className="size-3.5" />
-              Stop
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={() => {
-                  // Only (re)run cells that aren't already complete — fills gaps
-                  // without clobbering good values.
-                  runMut.mutate({
-                    fill_missing: true,
-                    view_id: activeViewId || undefined,
-                    search: deferredGlobalFilter.trim() || undefined,
-                  }, {
-                    onSuccess: (data) => toast.success(data.message),
-                    onError: () => toast.error("Failed to start fill"),
-                  })
-                }}
-                disabled={runMut.isPending}
-                title="Fill missing cells across every row matching the current search and saved view"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border bg-background hover:bg-accent disabled:opacity-50 transition-colors"
-              >
-                <Sparkles className="size-3.5" />
-                Fill missing
-              </button>
-              <button
-                onClick={() => {
-                  // No blocking spend-confirm dialog — the live cost is shown
-                  // inline in the toolbar/status bar instead (see CostChip).
-                  runMut.mutate({
-                    view_id: activeViewId || undefined,
-                    search: deferredGlobalFilter.trim() || undefined,
-                  }, {
-                    onSuccess: (data) => toast.success(data.message),
-                    onError: () => toast.error("Failed to start enrichment"),
-                  })
-                }}
-                disabled={runMut.isPending}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors relative overflow-hidden ${runMut.isPending ? 'btn-shimmer' : ''}`}
-              >
-                {runMut.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
-                Run Enrichment
-              </button>
-            </>
-          )}
+          <WorkbookRunReview key={id} workbookId={id!} viewId={activeViewId}
+            viewName={activeView?.name || "All rows"} search={deferredGlobalFilter}
+            running={isRunning} busy={isFetching || runMut.isPending || globalFilter !== deferredGlobalFilter}
+            outputColumns={columns.filter(column => column.type === "output").map(column => column.name)} />
+          <WorkbookRunHistory key={`history-${id}`} workbookId={id!} />
         </div>
       </div>
 
@@ -1523,8 +1659,8 @@ export default function WorkbookEditorPage() {
           items={columns.filter(c => !hiddenColumns.has(c.id)).map(c => c.id)}
           strategy={horizontalListSortingStrategy}
         >
-      <div ref={tableContainerRef} className="flex-1 overflow-auto pl-2">
-        <table className="border-collapse text-sm" role="grid" aria-label="Workbook data grid" style={{ tableLayout: "fixed", minWidth: "100%" }}>
+      <div ref={tableContainerRef} tabIndex={-1} aria-label="Workbook grid region" className="flex-1 overflow-auto pl-2">
+        <table className="border-collapse text-sm" role="grid" aria-label="Workbook data grid" style={{ tableLayout: "fixed", minWidth: "100%", width: gridColumnWidths.reduce((sum, width) => sum + width, 40) }}>
           <thead className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm">
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
@@ -1560,8 +1696,19 @@ export default function WorkbookEditorPage() {
                         <ColumnProgressBar rows={rows} colId={header.id} />
                       )}
                       <div
+                        role="separator"
+                        tabIndex={0}
+                        aria-label={`Resize ${colConfig?.name || header.id} column`}
+                        aria-orientation="vertical"
+                        aria-valuemin={80}
+                        aria-valuemax={600}
+                        aria-valuenow={w}
+                        aria-valuetext={`${w} pixels`}
+                        title="Resize: Left/Right 10px, Shift 50px, Home minimum, End maximum"
+                        onKeyDown={e => handleResizeKey(header.id, w, e)}
+                        onPointerDown={e => e.stopPropagation()}
                         onMouseDown={(e) => { e.stopPropagation(); handleResizeStart(header.id, e) }}
-                        className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/40 active:bg-primary/60 transition-colors z-[5]"
+                        className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/40 active:bg-primary/60 focus-visible:bg-primary focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2 transition-colors z-[5]"
                       />
                     </SortableColumnHeader>
                   )
@@ -1576,12 +1723,19 @@ export default function WorkbookEditorPage() {
                     <Plus className="size-3.5 text-muted-foreground" />
                   </button>
                   {showColPicker && (
-                    <div className="absolute right-0 top-8 z-50 w-80 rounded-xl border bg-card shadow-xl p-3 space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200 max-h-[80vh] overflow-y-auto">
-                      <div className="text-xs font-medium text-muted-foreground">Add Column</div>
+                    <Dialog.Root open onOpenChange={(open, details) => {
+                      if (addingColumn.current) { details.cancel(); return }
+                      if (!open) setShowColPicker(false)
+                    }}>
+                    <Dialog.Popup size="lg" className="gtm-column-add">
+                      <Dialog.Title>Add column</Dialog.Title>
+                      {addColumnMut.isPending && <p role="status" className="text-xs text-muted-foreground">Saving column…</p>}
+                      {addColumnMut.isError && <p role="alert" className="text-xs text-destructive">{addColumnMut.error.message} Your draft has been kept.</p>}
+                      <fieldset disabled={addColumnMut.isPending} className="space-y-2.5 disabled:opacity-60">
 
                       {/* ── Generate with AI (NL → column) ── */}
                       <div className="space-y-1">
-                        <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Generate with AI</div>
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Generate with AI</div>
                         <div className="flex gap-1">
                           <input
                             value={nlInstruction}
@@ -1590,17 +1744,19 @@ export default function WorkbookEditorPage() {
                             placeholder="Describe it: extract the domain from the website URL"
                             className="flex-1 px-2.5 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
                           />
-                          <button
+                          <Button
+                            variant="outline"
+                            size="icon-sm"
                             onClick={handleGenerateColumn}
                             disabled={nlBusy || !nlInstruction.trim()}
                             title="Generate a column config from your description"
-                            className="px-2 py-1.5 rounded-md border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-50 transition-colors"
+                            aria-label="Generate column from description"
                           >
-                            {nlBusy ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
-                          </button>
+                            {nlBusy ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                          </Button>
                         </div>
                         {nlExplanation && (
-                          <p className="px-0.5 text-[10px] text-muted-foreground">
+                          <p className="px-0.5 text-xs text-muted-foreground">
                             <Sparkles className="inline size-2.5 mr-0.5 text-primary" />
                             {nlExplanation} — review the pre-filled config below, then Add Column.
                           </p>
@@ -1609,36 +1765,35 @@ export default function WorkbookEditorPage() {
 
                       {/* ── Quick Presets (Clay-style) ── */}
                       <div className="space-y-1.5">
-                        <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Quick Add — Enrichment</div>
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Quick Add — Enrichment</div>
                         <div className="grid grid-cols-2 gap-1">
                           {[
-                            { label: "Find Email", icon: "📧", target: "email", providers: ["hunter_io", "apollo_io", "crosslinked", "ddg_email"], desc: "4-provider waterfall" },
-                            { label: "Find Phone", icon: "📱", target: "phone", providers: ["apollo_io", "website_scraper"], desc: "2-provider waterfall" },
-                            { label: "Find LinkedIn", icon: "💼", target: "linkedin_url", providers: ["social_finder", "crosslinked"], desc: "Profile lookup" },
-                            { label: "Verify Email", icon: "✅", target: "email", providers: ["mailscout"], desc: "SMTP verification" },
-                            { label: "Company Info", icon: "🏢", target: "description", providers: ["website_scraper", "ddg_company"], desc: "Website + DDG" },
-                            { label: "Decision Makers", icon: "👤", target: "decision_makers", providers: ["crosslinked", "decision_maker"], desc: "Find contacts" },
-                            { label: "Hiring Signals", icon: "📊", target: "hiring_signals", providers: ["jobspy_signals"], desc: "Job postings" },
-                            { label: "Social Profiles", icon: "🌐", target: "facebook_url", providers: ["social_finder", "facebook_pages"], desc: "FB + socials" },
+                            { label: "Find Email", icon: Mail, target: "email", providers: ["hunter_io", "apollo_io", "crosslinked", "ddg_email"], desc: "4-provider waterfall" },
+                            { label: "Find Phone", icon: Smartphone, target: "phone", providers: ["apollo_io", "website_scraper"], desc: "2-provider waterfall" },
+                            { label: "Find LinkedIn", icon: LinkedInIcon, target: "linkedin_url", providers: ["social_finder", "crosslinked"], desc: "Profile lookup" },
+                            { label: "Verify Email", icon: MailCheck, target: "email", providers: ["mailscout"], desc: "SMTP verification" },
+                            { label: "Company Info", icon: Building2, target: "description", providers: ["website_scraper", "ddg_company"], desc: "Website + DDG" },
+                            { label: "Decision Makers", icon: Users, target: "decision_makers", providers: ["crosslinked", "decision_maker"], desc: "Find contacts" },
+                            { label: "Hiring Signals", icon: ChartColumn, target: "hiring_signals", providers: ["jobspy_signals"], desc: "Job postings" },
+                            { label: "Social Profiles", icon: Globe, target: "facebook_url", providers: ["social_finder", "facebook_pages"], desc: "FB + socials" },
                           ].map(preset => (
                             <button
                               key={preset.label}
-                              onClick={() => {
+                              onClick={async () => {
                                 const colId = preset.label.toLowerCase().replace(/\s+/g, "_")
                                 const newCol: any = {
                                   id: colId, name: preset.label, type: "waterfall",
                                   width: 200, waterfall: preset.providers,
                                   target_field: preset.target,
                                 }
-                                updateWb.mutate({ id: workbook!.id, columns_config: [...columns, newCol] as any })
-                                setShowColPicker(false)
+                                if (await persistNewColumn(newCol)) setShowColPicker(false)
                               }}
-                              className="flex items-start gap-1.5 p-2 rounded-lg text-left hover:bg-muted/60 border border-transparent hover:border-primary/20 transition-all"
+                              className="flex items-start gap-2 p-2 rounded-md text-left hover:bg-accent border border-transparent hover:border-border transition-colors"
                             >
-                              <span className="text-sm mt-0.5">{preset.icon}</span>
+                              <preset.icon aria-hidden="true" className="size-3.5 mt-0.5 shrink-0 text-muted-foreground" />
                               <div className="min-w-0">
-                                <div className="text-[11px] font-medium truncate">{preset.label}</div>
-                                <div className="text-[9px] text-muted-foreground">{preset.desc}</div>
+                                <div className="text-xs font-medium truncate">{preset.label}</div>
+                                <div className="text-xs text-muted-foreground">{preset.desc}</div>
                               </div>
                             </button>
                           ))}
@@ -1647,29 +1802,28 @@ export default function WorkbookEditorPage() {
 
                       {/* ── AI Presets ── */}
                       <div className="space-y-1.5">
-                        <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">AI Columns</div>
+                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">AI Columns</div>
                         <div className="grid grid-cols-2 gap-1">
                           {[
-                            { label: "AI Research", prompt: "Research {company} at {website}. Write a 2-sentence summary of what they do, their size, and key products.", icon: "🧠" },
-                            { label: "ICP Match", prompt: "Score how well {company} ({specialization}, {company_size}) matches an ideal customer profile for a B2B SaaS tool. Return: High/Medium/Low with one reason.", icon: "🎯" },
-                            { label: "Personalized Intro", prompt: "Write a personalized 1-sentence intro for a cold email to {contact_person} at {company}. Reference their {specialization} work.", icon: "✍️" },
-                            { label: "Pain Points", prompt: "Based on {company}'s industry ({specialization}) and size ({company_size}), list their top 3 likely business pain points in bullet form.", icon: "💡" },
+                            { label: "AI Research", prompt: "Research {company} at {website}. Write a 2-sentence summary of what they do, their size, and key products.", icon: Brain },
+                            { label: "ICP Match", prompt: "Score how well {company} ({specialization}, {company_size}) matches an ideal customer profile for a B2B SaaS tool. Return: High/Medium/Low with one reason.", icon: Target },
+                            { label: "Personalized Intro", prompt: "Write a personalized 1-sentence intro for a cold email to {contact_person} at {company}. Reference their {specialization} work.", icon: PenLine },
+                            { label: "Pain Points", prompt: "Based on {company}'s industry ({specialization}) and size ({company_size}), list their top 3 likely business pain points in bullet form.", icon: Lightbulb },
                           ].map(preset => (
                             <button
                               key={preset.label}
-                              onClick={() => {
+                              onClick={async () => {
                                 const colId = preset.label.toLowerCase().replace(/\s+/g, "_")
                                 const newCol: any = {
                                   id: colId, name: preset.label, type: "ai_formula",
                                   width: 300, prompt: preset.prompt,
                                 }
-                                updateWb.mutate({ id: workbook!.id, columns_config: [...columns, newCol] as any })
-                                setShowColPicker(false)
+                                if (await persistNewColumn(newCol)) setShowColPicker(false)
                               }}
-                              className="flex items-start gap-1.5 p-2 rounded-lg text-left hover:bg-muted/60 border border-transparent hover:border-amber-500/20 transition-all"
+                              className="flex items-center gap-2 p-2 rounded-md text-left hover:bg-accent border border-transparent hover:border-border transition-colors"
                             >
-                              <span className="text-sm mt-0.5">{preset.icon}</span>
-                              <div className="text-[11px] font-medium truncate">{preset.label}</div>
+                              <preset.icon aria-hidden="true" className="size-3.5 shrink-0 text-muted-foreground" />
+                              <div className="text-xs font-medium truncate">{preset.label}</div>
                             </button>
                           ))}
                         </div>
@@ -1678,7 +1832,7 @@ export default function WorkbookEditorPage() {
                       {/* ── Divider ── */}
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-px bg-border" />
-                        <span className="text-[9px] text-muted-foreground uppercase">or build custom</span>
+                        <span className="text-xs text-muted-foreground uppercase">or build custom</span>
                         <div className="flex-1 h-px bg-border" />
                       </div>
 
@@ -1696,7 +1850,7 @@ export default function WorkbookEditorPage() {
                           const Icon = m.icon
                           return (
                             <button key={t} onClick={() => setNewColType(t)}
-                              className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] transition-colors ${
+                              className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-colors ${
                                 newColType === t ? "bg-primary/10 border border-primary/30" : "hover:bg-muted border border-transparent"
                               }`}
                             >
@@ -1708,27 +1862,27 @@ export default function WorkbookEditorPage() {
                       </div>
 
                       {newColType === "lead_field" && (
-                        <select value={newColLeadField} onChange={e => setNewColLeadField(e.target.value)}
-                          className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                        <NativeSelect value={newColLeadField} onChange={e => setNewColLeadField(e.target.value)}
+                          className="w-full">
                           <option value="">Map to field...</option>
                           {["company","website","email","phone","contact_person","contact_title","decision_makers","city","state","address","specialization","company_size","description","linkedin_url","twitter_url","facebook_url","hiring_signals","score","score_tier","status","notes"].map(f => (
                             <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
                           ))}
-                        </select>
+                        </NativeSelect>
                       )}
 
                       {newColType === "ai_formula" && (
                         <div className="space-y-1">
                           {aiPresets.filter(p => p.column_type === "ai_formula").length > 0 && (
-                            <select value="" onChange={e => {
-                              const p = aiPresets.find(x => x.id === e.target.value)
-                              if (p) { setNewColPrompt(p.prompt); if (!newColName.trim()) setNewColName(p.name) }
-                            }} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                            <NativeSelect value="" onChange={e => {
+                                const p = aiPresets.find(x => x.id === e.target.value)
+                                if (p) { setNewColPrompt(p.prompt); if (!newColName.trim()) setNewColName(p.name) }
+                              }} className="w-full">
                               <option value="">Start from a preset…</option>
                               {aiPresets.filter(p => p.column_type === "ai_formula").map(p => (
                                 <option key={p.id} value={p.id}>{p.name} — {p.description}</option>
                               ))}
-                            </select>
+                            </NativeSelect>
                           )}
                           <textarea value={newColPrompt} onChange={e => setNewColPrompt(e.target.value)}
                             placeholder="Summarize what {company} does based on {website}"
@@ -1739,26 +1893,26 @@ export default function WorkbookEditorPage() {
                       {newColType === "research" && (
                         <div className="space-y-1">
                           {aiPresets.filter(p => p.column_type === "research").length > 0 && (
-                            <select value="" onChange={e => {
-                              const p = aiPresets.find(x => x.id === e.target.value)
-                              if (p) { setNewColPrompt(p.prompt); if (!newColName.trim()) setNewColName(p.name) }
-                            }} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                            <NativeSelect value="" onChange={e => {
+                                const p = aiPresets.find(x => x.id === e.target.value)
+                                if (p) { setNewColPrompt(p.prompt); if (!newColName.trim()) setNewColName(p.name) }
+                              }} className="w-full">
                               <option value="">Start from a preset…</option>
                               {aiPresets.filter(p => p.column_type === "research").map(p => (
                                 <option key={p.id} value={p.id}>{p.name} — {p.description}</option>
                               ))}
-                            </select>
+                            </NativeSelect>
                           )}
                           <textarea value={newColPrompt} onChange={e => setNewColPrompt(e.target.value)}
                             placeholder="Does {company} use Kubernetes? Cite a source."
                             rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs resize-none" />
-                          <label className="flex items-center justify-between text-[11px] text-muted-foreground px-0.5">
+                          <label className="flex items-center justify-between text-xs text-muted-foreground px-0.5">
                             <span>Max web steps (search/fetch)</span>
                             <input type="number" min={1} max={6} value={newColMaxSteps}
                               onChange={e => setNewColMaxSteps(Math.max(1, Math.min(6, Number(e.target.value) || 4)))}
                               className="w-14 px-1.5 py-0.5 rounded border bg-background text-xs text-right" />
                           </label>
-                          <p className="px-0.5 text-[10px] text-muted-foreground">Agent searches the web + reads pages to answer per row. Higher steps = deeper but slower/costlier.</p>
+                          <p className="px-0.5 text-xs text-muted-foreground">Agent searches the web + reads pages to answer per row. Higher steps = deeper but slower/costlier.</p>
                         </div>
                       )}
 
@@ -1767,18 +1921,18 @@ export default function WorkbookEditorPage() {
                           <input value={newColFormula} onChange={e => setNewColFormula(e.target.value)}
                             placeholder={'{Email}.split("@")[1]'}
                             className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
-                          <p className="px-0.5 text-[10px] text-muted-foreground">Compute from other columns. Supports split/upper/lower/replace/default()/concat + math. Safe — no code execution.</p>
+                          <p className="px-0.5 text-xs text-muted-foreground">Compute from other columns. Supports split/upper/lower/replace/default()/concat + math. Safe — no code execution.</p>
                         </div>
                       )}
 
                       {newColType === "http" && (
                         <div className="space-y-1">
                           <div className="flex gap-1">
-                            <select value={newColHttpMethod} onChange={e => setNewColHttpMethod(e.target.value as any)}
-                              className="px-2 py-1.5 rounded-md border bg-background text-xs">
+                            <NativeSelect value={newColHttpMethod} onChange={e => setNewColHttpMethod(e.target.value as any)}
+                            >
                               <option value="GET">GET</option>
                               <option value="POST">POST</option>
-                            </select>
+                            </NativeSelect>
                             <input value={newColHttpUrl} onChange={e => setNewColHttpUrl(e.target.value)}
                               placeholder="https://api.example.com/find?domain={website}"
                               className="flex-1 px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
@@ -1791,59 +1945,59 @@ export default function WorkbookEditorPage() {
                           <input value={newColHttpExtract} onChange={e => setNewColHttpExtract(e.target.value)}
                             placeholder="Extract: $.data.email (JSONPath; blank = raw text)"
                             className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
-                          <p className="px-0.5 text-[10px] text-muted-foreground">Calls an API per row. {'{column}'} placeholders resolve to row values. URLs are SSRF-guarded.</p>
+                          <p className="px-0.5 text-xs text-muted-foreground">Calls an API per row. {'{column}'} placeholders resolve to row values. URLs are SSRF-guarded.</p>
                         </div>
                       )}
 
                       {newColType === "enrichment" && (
-                        <select value={newColProvider} onChange={e => setNewColProvider(e.target.value)}
-                          className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                        <NativeSelect value={newColProvider} onChange={e => setNewColProvider(e.target.value)}
+                          className="w-full">
                           <option value="">Select provider...</option>
                           {availableProviders.map(p => (
                             <option key={p.name} value={p.name}>{p.name} · {p.maturity} ({p.capabilities.join(", ")})</option>
                           ))}
-                        </select>
+                        </NativeSelect>
                       )}
 
                       {newColType === "waterfall" && (
                         <div className="space-y-1">
                           {newColWaterfall.map((pName, i) => (
-                            <div key={pName} className="flex items-center gap-1 px-2 py-0.5 rounded bg-muted/50 text-[11px]">
+                            <div key={pName} className="flex items-center gap-1 px-2 py-0.5 rounded bg-muted/50 text-xs">
                               <span className="text-muted-foreground w-3">{i+1}.</span>
                               <span className="flex-1 truncate">{pName}</span>
                               <button onClick={() => setNewColWaterfall(prev => prev.filter((_, j) => j !== i))} className="p-0.5 hover:text-destructive"><X className="size-2.5" /></button>
                             </div>
                           ))}
-                          <select value="" onChange={e => { if (e.target.value && !newColWaterfall.includes(e.target.value)) setNewColWaterfall(prev => [...prev, e.target.value]) }}
-                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                          <NativeSelect value="" onChange={e => { if (e.target.value && !newColWaterfall.includes(e.target.value)) setNewColWaterfall(prev => [...prev, e.target.value]) }}
+                            className="w-full">
                             <option value="">+ Add provider...</option>
                             {availableProviders.filter(p => !newColWaterfall.includes(p.name)).map(p => (
                               <option key={p.name} value={p.name}>{p.name}</option>
                             ))}
-                          </select>
+                          </NativeSelect>
                         </div>
                       )}
 
                       {(newColType === "enrichment" || newColType === "waterfall") && (
-                        <select value={newColTargetField} onChange={e => setNewColTargetField(e.target.value)}
-                          className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                        <NativeSelect value={newColTargetField} onChange={e => setNewColTargetField(e.target.value)}
+                          className="w-full">
                           <option value="">Target field (writes to Lead)...</option>
                           {["email","phone","website","contact_person","contact_title","linkedin_url","twitter_url","facebook_url","description","company_size","decision_makers","hiring_signals"].map(f => (
                             <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
                           ))}
-                        </select>
+                        </NativeSelect>
                       )}
 
                       {newColType === "output" && (
                         <div className="space-y-1">
-                          <select value={newColDest} onChange={e => setNewColDest(e.target.value as any)}
-                            className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                          <NativeSelect value={newColDest} onChange={e => setNewColDest(e.target.value as any)}
+                            className="w-full">
                             <option value="webhook">Webhook (HTTP POST)</option>
                             <option value="crm">CRM (HubSpot / Salesforce)</option>
                             <option value="sequencer">Email sequencer</option>
                             <option value="airtable">Airtable</option>
                             <option value="sheets">Google Sheets</option>
-                          </select>
+                          </NativeSelect>
                           {newColDest === "webhook" && (
                             <>
                               <input value={newColWebhookUrl} onChange={e => setNewColWebhookUrl(e.target.value)}
@@ -1851,17 +2005,17 @@ export default function WorkbookEditorPage() {
                                 className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
                               <textarea value={newColWebhookBody} onChange={e => setNewColWebhookBody(e.target.value)}
                                 placeholder={'Optional JSON body, e.g. {"co": "{company}", "email": "{email}"}'}
-                                rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-[10px] font-mono resize-none" />
+                                rows={2} className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono resize-none" />
                             </>
                           )}
                           {newColDest === "crm" && (
                             <>
-                              <select value={newColCrmType} onChange={e => setNewColCrmType(e.target.value as any)}
-                                className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs">
+                              <NativeSelect value={newColCrmType} onChange={e => setNewColCrmType(e.target.value as any)}
+                                className="w-full">
                                 <option value="hubspot">HubSpot</option>
                                 <option value="salesforce">Salesforce</option>
-                              </select>
-                              <p className="px-1 text-[10px] text-muted-foreground">
+                              </NativeSelect>
+                              <p className="px-1 text-xs text-muted-foreground">
                                 Pushes the row as a {newColCrmType === "hubspot" ? "HubSpot contact" : "Salesforce lead"} (set the token in Settings).
                               </p>
                             </>
@@ -1879,7 +2033,7 @@ export default function WorkbookEditorPage() {
                               <input value={newColAirtableTable} onChange={e => setNewColAirtableTable(e.target.value)}
                                 placeholder="Table name or ID"
                                 className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
-                              <p className="px-1 text-[10px] text-muted-foreground">Appends Company/Email/Phone/Website/City (set AIRTABLE_TOKEN in Settings).</p>
+                              <p className="px-1 text-xs text-muted-foreground">Appends Company/Email/Phone/Website/City (set AIRTABLE_TOKEN in Settings).</p>
                             </>
                           )}
                           {newColDest === "sheets" && (
@@ -1890,7 +2044,7 @@ export default function WorkbookEditorPage() {
                               <input value={newColSheetRange} onChange={e => setNewColSheetRange(e.target.value)}
                                 placeholder="Sheet/tab name (e.g. Sheet1)"
                                 className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono" />
-                              <p className="px-1 text-[10px] text-muted-foreground">Appends a row (set GOOGLE_SHEETS_TOKEN in Settings).</p>
+                              <p className="px-1 text-xs text-muted-foreground">Appends a row (set GOOGLE_SHEETS_TOKEN in Settings).</p>
                             </>
                           )}
                         </div>
@@ -1899,14 +2053,14 @@ export default function WorkbookEditorPage() {
                       {newColType !== "lead_field" && (
                         <input value={newColCondition} onChange={e => setNewColCondition(e.target.value)}
                           placeholder='Run if: {email} == "" AND {website} != ""'
-                          className="w-full px-2.5 py-1 rounded-md border bg-background text-[10px] font-mono" />
+                          className="w-full px-2.5 py-1 rounded-md border bg-background text-xs font-mono" />
                       )}
 
                       <div className="flex gap-2 justify-end pt-0.5">
-                        <button onClick={() => { setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition(""); setNewColLeadField(""); setNlInstruction(""); setNlExplanation("") }}
-                          className="px-2.5 py-1 text-xs rounded-md hover:bg-muted">Cancel</button>
-                        <button
-                          onClick={() => {
+                        <Button variant="ghost" size="sm" onClick={() => { setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition(""); setNewColLeadField(""); setNlInstruction(""); setNlExplanation("") }}>Cancel</Button>
+                        <Button
+                          size="sm"
+                          onClick={async () => {
                             if (!newColName.trim()) return
                             const colId = newColName.toLowerCase().replace(/\s+/g, "_")
                             const newCol: any = { id: colId, name: newColName.trim(), type: newColType, width: newColType === "ai_formula" ? 300 : 200 }
@@ -1948,7 +2102,7 @@ export default function WorkbookEditorPage() {
                               }
                             }
                             if (newColCondition.trim()) newCol.condition = newColCondition.trim()
-                            updateWb.mutate({ id: workbook!.id, columns_config: [...columns, newCol] as any })
+                            if (!await persistNewColumn(newCol)) return
                             setShowColPicker(false); setNewColName(""); setNewColPrompt(""); setNewColCondition("")
                             setNewColFormula(""); setNewColHttpUrl(""); setNewColHttpExtract(""); setNewColHttpBody("")
                             setNewColLeadField(""); setNewColType("lead_field"); setNewColProvider(""); setNewColWaterfall([]); setNewColTargetField("")
@@ -1956,11 +2110,12 @@ export default function WorkbookEditorPage() {
                             setNewColCrmType("hubspot"); setNewColAirtableBase(""); setNewColAirtableTable(""); setNewColSheetId(""); setNewColSheetRange("Sheet1")
                             setNlInstruction(""); setNlExplanation("")
                           }}
-                          disabled={!newColName.trim()}
-                          className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-                        >Add Column</button>
+                          disabled={!newColName.trim() || addColumnMut.isPending}
+                        >Add Column</Button>
                       </div>
-                    </div>
+                      </fieldset>
+                    </Dialog.Popup>
+                    </Dialog.Root>
                   )}
                 </th>
               </tr>
@@ -1979,9 +2134,12 @@ export default function WorkbookEditorPage() {
               return (
                 <tr
                   key={row.id}
-                  className="group row-stagger"
+                  className="group"
                 >
-                  {row.getVisibleCells().map((cell, cellIndex) => {
+                  {columnWindow.map(segment => {
+                    if (segment.kind === "spacer") return <td key={`spacer-${segment.start}`} aria-hidden="true" role="presentation" colSpan={segment.end - segment.start} style={{ width: segment.width }} className="border-b p-0" />
+                    const cellIndex = segment.index
+                    const cell = row.getVisibleCells()[cellIndex]
                     const colConfig = columns.find(c => c.id === cell.column.id)
                     const w = cell.column.id === "_index" ? 50 : getColWidth(cell.column.id, colConfig?.width || 180)
                     return (
@@ -2037,13 +2195,10 @@ export default function WorkbookEditorPage() {
                 ? "Try adjusting the filter criteria or import leads via CSV"
                 : "Import a CSV file to add leads to your database"}
             </p>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              <Upload className="size-3.5" />
+            <Button size="sm" onClick={() => fileInputRef.current?.click()}>
+              <Upload />
               Import CSV
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -2125,30 +2280,37 @@ export default function WorkbookEditorPage() {
       })()}
 
       {/* ── Inline Rename Overlay ────────────────────────────────────── */}
+      {deleteColumnScope && <DeleteColumnDialog workbookId={id!} column={deleteColumnScope}
+        onClose={() => setDeleteColumnScope(null)} finalFocus={tableContainerRef} />}
       {renamingColId && (() => {
         const col = columns.find(c => c.id === renamingColId)
         if (!col) return null
         return (
-          <div className="fixed inset-0 z-[200] flex items-start justify-center pt-32 bg-black/30 backdrop-blur-sm"
-            onClick={() => { setRenamingColId(null); setRenameValue("") }}>
-            <div className="w-72 rounded-xl border bg-card shadow-2xl p-4 space-y-3 animate-in fade-in zoom-in-95 duration-200"
-              onClick={e => e.stopPropagation()}>
-              <div className="text-xs font-medium text-muted-foreground">Rename Column</div>
-              <input
-                autoFocus
+          <Dialog.Root open onOpenChange={(open, details) => {
+            if (renameSubmitting.current) { details.cancel(); return }
+            if (!open) setRenamingColId(null)
+          }}>
+            <Dialog.Popup size="sm" finalFocus={() => {
+              const header = Array.from(tableContainerRef.current?.querySelectorAll<HTMLElement>("th[data-col-id]") || [])
+                .find(element => element.dataset.colId === col.id)
+              return header?.querySelector<HTMLElement>("[data-column-settings-trigger]") || tableContainerRef.current
+            }}>
+              <Dialog.Header><Dialog.Title>Rename column</Dialog.Title></Dialog.Header>
+              <Dialog.Body>
+              <label htmlFor="rename-column-name" className="text-xs font-medium">Column name</label>
+              <DesignInput id="rename-column-name" disabled={renameSave.isPending}
                 value={renameValue}
                 onChange={e => setRenameValue(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter") handleRenameSubmit(); if (e.key === "Escape") { setRenamingColId(null); setRenameValue("") } }}
-                className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); void handleRenameSubmit() } }}
               />
-              <div className="flex gap-2 justify-end">
-                <button onClick={() => { setRenamingColId(null); setRenameValue("") }}
-                  className="px-2.5 py-1 text-xs rounded-md hover:bg-muted">Cancel</button>
-                <button onClick={handleRenameSubmit} disabled={!renameValue.trim()}
-                  className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50">Rename</button>
-              </div>
-            </div>
-          </div>
+              {renameSave.isError && <p role="alert" className="mt-2 text-xs text-destructive">{renameSave.error.message} Your draft is kept. Retry, or cancel and refresh the workbook before reviewing another edit.</p>}
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Dialog.Close render={<DesignButton disabled={renameSave.isPending} />}>Cancel</Dialog.Close>
+                <DesignButton onClick={() => void handleRenameSubmit()} disabled={!renameValue.trim() || renameSave.isPending}>{renameSave.isPending ? "Saving…" : "Rename"}</DesignButton>
+              </Dialog.Footer>
+            </Dialog.Popup>
+          </Dialog.Root>
         )
       })()}
 
@@ -2160,38 +2322,71 @@ export default function WorkbookEditorPage() {
         const Icon = meta.icon
 
         const updateCol = (updates: Partial<typeof col>) => {
-          const updated = columns.map(c =>
-            c.id === configPanelColId ? { ...c, ...updates } : c
-          )
-          updateWb.mutate({ id: workbook!.id, columns_config: updated as any })
+          if (settingsSubmitting.current || settingsSave.isError) return
+          const changes = Object.fromEntries(Object.entries(updates).map(([key, value]) => [key, value ?? null]))
+          const expected = Object.fromEntries(Object.keys(changes).map(key => [key, col[key as keyof typeof col] ?? null]))
+          settingsSubmitting.current = true
+          settingsSave.mutate({ columnId: col.id, changes, expected }, {
+            onError: error => toast.error(error.message),
+            onSettled: () => { settingsSubmitting.current = false },
+          })
         }
 
         return (
-          <div className="fixed top-0 right-0 bottom-0 z-[150] w-80 border-l bg-card shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+          <Dialog.Root open onOpenChange={open => { if (!open) setConfigPanelColId(null) }}>
+          <Dialog.Popup className="gtm-column-settings" finalFocus={() => {
+            const header = Array.from(tableContainerRef.current?.querySelectorAll<HTMLElement>("th[data-col-id]") || [])
+              .find(element => element.dataset.colId === col.id)
+            return header?.querySelector<HTMLElement>("[data-column-settings-trigger]")
+              || (configTrigger.current?.isConnected ? configTrigger.current : tableContainerRef.current)
+          }}>
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-2">
                 <Icon className={`size-4 ${meta.color}`} />
-                <span className="text-sm font-semibold truncate">{col.name}</span>
+                <Dialog.Title className="text-sm font-semibold truncate">{col.name} column settings</Dialog.Title>
               </div>
-              <button onClick={() => setConfigPanelColId(null)}
+              <button aria-label="Close column settings" onClick={() => setConfigPanelColId(null)}
                 className="p-1 rounded hover:bg-muted"><X className="size-4" /></button>
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
+              <ColumnWidthEditor key={`${id}:${col.id}`} workbookId={id!} columnId={col.id}
+                width={getColWidth(col.id, col.width || 180)} onSaved={width => {
+                  columnWidthsRef.current[col.id] = width
+                  forceResizeRender(n => n + 1)
+                }} />
               {/* Type badge */}
               <div className="flex items-center gap-2">
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${meta.color} bg-muted/50`}>
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${meta.color} bg-muted/50`}>
                   <Icon className="size-3" /> {meta.label}
                 </span>
-                <span className="text-[10px] text-muted-foreground">ID: {col.id}</span>
+                <span className="text-xs text-muted-foreground">ID: {col.id}</span>
               </div>
 
               {/* Column Name */}
+              {settingsSave.isPending && <p role="status" className="text-xs text-muted-foreground">Saving column settings…</p>}
+              {settingsSave.isError && <div className="space-y-2">
+                <p role="alert" className="text-xs text-destructive">{settingsSave.error.message} Submitted values for column {settingsSave.variables?.columnId} are retained for retry.</p>
+                <Button variant="outline" size="xs" onClick={() => {
+                  if (settingsSave.variables && !settingsSubmitting.current) {
+                    settingsSubmitting.current = true
+                    settingsSave.mutate(settingsSave.variables, { onSettled: () => { settingsSubmitting.current = false } })
+                  }
+                }}>Retry settings save</Button>
+                <Button variant="link" size="xs" className="block" onClick={async () => {
+                  const result = await refetch()
+                  if (result.isError) { toast.error("Could not reload settings. Your submitted values are still retained."); return }
+                  settingsSave.reset()
+                  setConfigPanelColId(null)
+                }}>Discard submitted edit and reload settings</Button>
+              </div>}
+              <fieldset disabled={settingsSave.isPending || settingsSave.isError} className="space-y-4 disabled:opacity-60">
               <div className="space-y-1.5">
-                <label className="text-[10px] text-muted-foreground font-medium">Column Name</label>
+                <label htmlFor="column-settings-name" className="text-xs text-muted-foreground font-medium">Column Name</label>
                 <input
+                  id="column-settings-name"
                   defaultValue={col.name}
                   onBlur={e => { if (e.target.value.trim() && e.target.value !== col.name) updateCol({ name: e.target.value.trim() }) }}
                   className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
@@ -2201,11 +2396,11 @@ export default function WorkbookEditorPage() {
               {/* Lead Field mapping */}
               {(col.type === "lead_field" || col.type === "input") && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">Mapped Lead Field</label>
-                  <select
+                  <label className="text-xs text-muted-foreground font-medium">Mapped Lead Field</label>
+                  <NativeSelect
                     defaultValue={col.lead_field || ""}
                     onChange={e => updateCol({ lead_field: e.target.value })}
-                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    className="w-full"
                   >
                     <option value="">None</option>
                     {["company", "website", "email", "phone", "contact_person", "contact_title",
@@ -2214,38 +2409,38 @@ export default function WorkbookEditorPage() {
                       "status", "source", "notes"].map(f => (
                       <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
                     ))}
-                  </select>
+                  </NativeSelect>
                 </div>
               )}
 
               {/* Provider (enrichment) */}
               {col.type === "enrichment" && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">Provider</label>
-                  <select
+                  <label className="text-xs text-muted-foreground font-medium">Provider</label>
+                  <NativeSelect
                     defaultValue={col.provider || ""}
                     onChange={e => updateCol({ provider: e.target.value })}
-                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    className="w-full"
                   >
                     <option value="">Select provider...</option>
                     {availableProviders.map(p => (
                       <option key={p.name} value={p.name}>{p.name} · {p.maturity} ({p.capabilities.join(", ")})</option>
                     ))}
-                  </select>
+                  </NativeSelect>
                 </div>
               )}
 
               {/* Waterfall chain (waterfall) */}
               {col.type === "waterfall" && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">
+                  <label className="text-xs text-muted-foreground font-medium">
                     Provider Chain <span className="text-muted-foreground/50">(first match wins)</span>
                   </label>
                   <div className="space-y-1">
                     {(col.waterfall || []).map((pName: string, i: number) => (
                       <div key={pName} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-muted/50 text-xs">
                         <GripVertical className="size-3 text-muted-foreground/40 shrink-0" />
-                        <span className="text-[10px] text-muted-foreground tabular-nums w-4">{i + 1}.</span>
+                        <span className="text-xs text-muted-foreground tabular-nums w-4">{i + 1}.</span>
                         <span className="flex-1 truncate">{pName}</span>
                         <button
                           onClick={() => {
@@ -2260,14 +2455,14 @@ export default function WorkbookEditorPage() {
                       </div>
                     ))}
                   </div>
-                  <select
+                  <NativeSelect
                     value=""
                     onChange={e => {
                       if (e.target.value) {
-                        updateCol({ waterfall: [...(col.waterfall || []), e.target.value] })
-                      }
+                      updateCol({ waterfall: [...(col.waterfall || []), e.target.value] })
+                    }
                     }}
-                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    className="w-full"
                   >
                     <option value="">+ Add provider...</option>
                     {availableProviders
@@ -2275,18 +2470,18 @@ export default function WorkbookEditorPage() {
                       .map(p => (
                         <option key={p.name} value={p.name}>{p.name} · {p.maturity} ({p.capabilities.join(", ")})</option>
                       ))}
-                  </select>
+                  </NativeSelect>
                 </div>
               )}
 
               {/* Target field (enrichment/waterfall) */}
               {(col.type === "enrichment" || col.type === "waterfall") && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">Target Lead Field</label>
-                  <select
+                  <label className="text-xs text-muted-foreground font-medium">Target Lead Field</label>
+                  <NativeSelect
                     defaultValue={col.target_field || ""}
                     onChange={e => updateCol({ target_field: e.target.value || undefined })}
-                    className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    className="w-full"
                   >
                     <option value="">Same as column name</option>
                     {["email", "phone", "website", "contact_person", "contact_title",
@@ -2295,14 +2490,14 @@ export default function WorkbookEditorPage() {
                       "decision_makers", "hiring_signals"].map(f => (
                       <option key={f} value={f}>{f.replace(/_/g, " ")}</option>
                     ))}
-                  </select>
+                  </NativeSelect>
                 </div>
               )}
 
               {/* AI Prompt (ai_formula) */}
               {col.type === "ai_formula" && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">
+                  <label className="text-xs text-muted-foreground font-medium">
                     AI Prompt <span className="text-muted-foreground/50">— use {"{column}"} placeholders</span>
                   </label>
                   <textarea
@@ -2318,14 +2513,14 @@ export default function WorkbookEditorPage() {
               {/* Condition (all non-lead_field) */}
               {col.type !== "lead_field" && col.type !== "input" && (
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-muted-foreground font-medium">Only Run If</label>
+                  <label className="text-xs text-muted-foreground font-medium">Only Run If</label>
                   <input
                     defaultValue={col.condition || ""}
                     onBlur={e => updateCol({ condition: e.target.value || undefined })}
                     placeholder='{email} == "" AND {website} != ""'
                     className="w-full px-2.5 py-1.5 rounded-md border bg-background text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50"
                   />
-                  <p className="text-[10px] text-muted-foreground/50">
+                  <p className="text-xs text-muted-foreground/50">
                     Leave empty to always run. Supports ==, !=, &gt;, &lt;, AND, OR.
                   </p>
                 </div>
@@ -2343,43 +2538,37 @@ export default function WorkbookEditorPage() {
                     />
                     Recompute after upstream edits
                   </label>
-                  <p className="text-[10px] leading-relaxed text-muted-foreground/60">
+                  <p className="text-xs leading-relaxed text-muted-foreground/60">
                     Queues this column and its dependents when referenced input values change. Output columns default off to prevent unintended external actions.
                   </p>
                 </div>
               )}
 
-              {/* Column Width */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] text-muted-foreground font-medium">Width (px)</label>
-                <input
-                  type="number"
-                  defaultValue={col.width || 200}
-                  min={80} max={600}
-                  onBlur={e => { const w = parseInt(e.target.value); if (w >= 80 && w <= 600) updateCol({ width: w }) }}
-                  className="w-24 px-2.5 py-1.5 rounded-md border bg-background text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-primary/50"
-                />
-              </div>
+              </fieldset>
             </div>
 
             {/* Footer */}
             <div className="px-4 py-3 border-t flex items-center justify-between">
-              <button
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={settingsSave.isPending || settingsSave.isError}
                 onClick={() => handleDeleteColumn(configPanelColId)}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-destructive hover:bg-destructive/10 transition-colors"
               >
-                <Trash2 className="size-3" /> Delete
-              </button>
+                <Trash2 /> Delete
+              </Button>
               {["enrichment", "waterfall", "ai_formula"].includes(col.type) && (
-                <button
+                <Button
+                  size="sm"
+                  disabled={settingsSave.isPending || settingsSave.isError}
                   onClick={() => { handleRunSingleColumn(configPanelColId); setConfigPanelColId(null) }}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
-                  <Zap className="size-3" /> Run Column
-                </button>
+                  <Zap /> Run Column
+                </Button>
               )}
             </div>
-          </div>
+          </Dialog.Popup>
+          </Dialog.Root>
         )
       })()}
 
@@ -2418,8 +2607,8 @@ export default function WorkbookEditorPage() {
       />
 
       {/* ── Status Bar ───────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-1 border-t text-[11px] text-muted-foreground bg-muted/30 shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-1 border-t text-[11px] text-muted-foreground bg-muted/30 shrink-0">
+        <div className="flex flex-wrap items-center gap-3 min-w-0">
           <span className="tabular-nums">
             {queryTotalRows ? `${(displayedWorkbookPage - 1) * workbookPageSize + 1}–${Math.min(displayedWorkbookPage * workbookPageSize, queryTotalRows)}` : "0"} of {queryTotalRows} rows
             {queryTotalRows !== (data?.total_rows ?? 0) && (
@@ -2454,7 +2643,7 @@ export default function WorkbookEditorPage() {
             </>
           )}
         </div>
-        <div className="flex items-center gap-3 h-full">
+        <div className="flex flex-wrap items-center gap-3 min-w-0 max-w-full">
           {connected && (
             <span className="inline-flex items-center gap-1 text-emerald-400">
               <span className="size-1.5 rounded-full bg-emerald-400" />
@@ -2480,36 +2669,26 @@ export default function WorkbookEditorPage() {
             )
           })()}
           {workbook?.status === "running" && !connectorActive && (() => {
-            const enrichCols = columns.filter(c => c.type === "waterfall" || c.type === "enrichment" || c.type === "ai_formula")
-            const totalCells = rows.length * enrichCols.length
-            let complete = 0, errors = 0, running = 0, pending = 0
-            for (const row of rows) {
-              for (const col of enrichCols) {
-                const s = row.enrichments?.[col.id]?.status
-                if (s === "complete") complete++
-                else if (s === "error" || s === "skipped") errors++
-                else if (s === "running") running++
-                else pending++
-              }
-            }
-            const pct = totalCells > 0 ? Math.round(((complete + errors) / totalCells) * 100) : 0
+            const { total: totalCells, complete, errors, skipped, running } = loadedCellProgress(rows, columns)
+            const pct = totalCells > 0 ? Math.round(((complete + errors + skipped) / totalCells) * 100) : 0
             return (
-              <span className="inline-flex items-center gap-2 text-blue-400">
+              <span className="inline-flex flex-wrap items-center gap-2 text-blue-400 max-w-full">
                 <Loader2 className="size-3 animate-spin" />
-                <span className="tabular-nums">{complete}/{totalCells} cells</span>
+                <span className="tabular-nums">Loaded cells: {complete}/{totalCells} complete</span>
                 {errors > 0 && <span className="text-red-400 tabular-nums">{errors} err</span>}
+                {skipped > 0 && <span className="text-muted-foreground tabular-nums">{skipped} skipped</span>}
                 {running > 0 && <span className="text-amber-400 tabular-nums">{running} active</span>}
                 <span className="inline-flex items-center gap-1">
                   <span className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
                     <span className="h-full rounded-full bg-blue-400 transition-all duration-300" style={{ width: `${pct}%` }} />
                   </span>
-                  <span className="tabular-nums">{pct}%</span>
+                  <span className="tabular-nums">{pct}% processed</span>
                 </span>
               </span>
             )
           })()}
           {/* Activity drawer toggle — inline in status bar */}
-          {columns.filter(c => c.type === "waterfall" || c.type === "enrichment" || c.type === "ai_formula").length > 0 && (
+          {columns.some(c => isExecutableColumn(c.type)) && (
             <button
               className="activity-drawer-trigger"
               onClick={() => setActivityOpen(!activityOpen)}

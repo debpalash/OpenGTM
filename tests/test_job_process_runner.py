@@ -54,3 +54,35 @@ def test_timeout_terminates_child(monkeypatch):
     with pytest.raises(JobProcessTimeout, match="exceeded"):
         asyncio.run(run_job_subprocess(7, "source_workbook", {}, timeout=0.001))
     assert fake.returncode == -15
+
+
+def test_lost_claim_terminates_child_before_timeout(monkeypatch):
+    terminated = asyncio.Event()
+
+    class FakeProcess:
+        pid = 999999
+        returncode = None
+
+        async def communicate(self, _payload):
+            await terminated.wait()
+
+        async def wait(self):
+            await terminated.wait()
+            self.returncode = -15
+
+    fake = FakeProcess()
+
+    async def create(*args, **kwargs):
+        return fake
+
+    async def terminate(process):
+        assert process is fake
+        terminated.set()
+        await process.wait()
+
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", create)
+    monkeypatch.setattr("apps.api.services.job_process_runner._terminate_process_tree", terminate)
+    claim_states = iter([True, False])
+    with pytest.raises(JobProcessError, match="claim cancelled or lost"):
+        asyncio.run(run_job_subprocess(7, "test", {}, timeout=30, should_continue=lambda: next(claim_states)))
+    assert fake.returncode == -15

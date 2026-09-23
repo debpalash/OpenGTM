@@ -635,6 +635,11 @@ class LLMClient:
         poll_interval: float = 5.0,
         max_wait: float = 24 * 3600.0,
         should_stop=None,
+        batch_id: Optional[str] = None,
+        on_submitted=None,
+        strict_results: bool = False,
+        on_result=None,
+        known_result_ids=None,
     ) -> dict:
         """Run many completions as ONE Anthropic Message Batch (~50% cost, async).
 
@@ -684,9 +689,13 @@ class LLMClient:
         import asyncio as _asyncio
         client = self._make_anthropic_client(prov)
         results: dict = {}
+        accounted_ids = set(known_result_ids or ())
         try:
-            batch = await client.messages.batches.create(requests=batch_reqs)
-            batch_id = batch.id
+            if batch_id is None:
+                batch = await client.messages.batches.create(requests=batch_reqs)
+                batch_id = batch.id
+                if on_submitted is not None:
+                    on_submitted(batch_id)
 
             cancelled = False
             waited = 0.0
@@ -702,6 +711,8 @@ class LLMClient:
                 if getattr(batch, "processing_status", "") == "ended":
                     break
                 if waited >= max_wait:
+                    if strict_results:
+                        raise RuntimeError("Batch is still processing; retrieve the existing batch before retrying cells")
                     logger.warning(f"anthropic batch {batch_id} exceeded max_wait; abandoning")
                     break
                 await _asyncio.sleep(poll_interval)
@@ -717,8 +728,9 @@ class LLMClient:
                     if getattr(res, "type", "") != "succeeded":
                         continue
                     msg = getattr(res, "message", None)
+                    custom_id = str(getattr(item, "custom_id", ""))
                     usage = getattr(msg, "usage", None)
-                    if usage is not None:
+                    if usage is not None and custom_id not in accounted_ids:
                         cw, cr = self._anthropic_cache_tokens(usage)
                         prompt_tok = getattr(usage, "input_tokens", 0) or 0
                         completion_tok = getattr(usage, "output_tokens", 0) or 0
@@ -728,6 +740,7 @@ class LLMClient:
                             provider=prov["id"], cache_write=cw, cache_read=cr,
                         )
                         self._record_usage(prov["id"], prov["model"], prompt_tok, completion_tok)
+                        accounted_ids.add(custom_id)
                     parts = [
                         getattr(b, "text", "")
                         for b in (getattr(msg, "content", None) or [])
@@ -735,8 +748,12 @@ class LLMClient:
                     ]
                     text = "".join(parts).strip()
                     if text:
-                        results[str(getattr(item, "custom_id", ""))] = text
+                        if on_result is not None:
+                            on_result(custom_id, text)
+                        results[custom_id] = text
             except Exception as e:
+                if strict_results:
+                    raise
                 logger.warning(f"anthropic batch {batch_id} results read failed: {e}")
         finally:
             try:

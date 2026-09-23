@@ -1,21 +1,130 @@
-import { useState } from "react"
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { ArrowRight, Check, KeyRound, Layers3, LockKeyhole, Search, Sparkles } from "lucide-react"
+import { ArrowLeft, Building2, Eye, EyeOff, KeyRound, LockKeyhole, LogIn, User, UserPlus } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { LoginScene } from "@/components/login-scene/login-scene"
 import { useAuth } from "@/lib/auth-context"
+import { cn } from "@/lib/utils"
+import "./login.css"
 
 type AuthMode = "login" | "signup" | "reset"
 
-const productSteps = [
-  { icon: Search, label: "Find" },
-  { icon: Sparkles, label: "Enrich" },
-  { icon: Layers3, label: "Act" },
-]
+const COPY: Record<AuthMode, { icon: typeof LogIn; title: string; subtitle: string; submit: string }> = {
+  login: {
+    icon: LogIn,
+    title: "Sign in to OpenGTM",
+    subtitle: "Find, enrich and act on the accounts that matter. Your data stays on this deployment.",
+    submit: "Sign in",
+  },
+  signup: {
+    icon: UserPlus,
+    title: "Request an account",
+    subtitle: "Accounts on this self-hosted deployment are created by your workspace administrator.",
+    submit: "Request account",
+  },
+  reset: {
+    icon: KeyRound,
+    title: "Recover access",
+    subtitle: "Enter your username. Your OpenGTM administrator resets passwords on this deployment.",
+    submit: "Request password reset",
+  },
+}
+
+/** Inset field with a leading icon; the label stays available to assistive tech. */
+function Field({ id, label, icon, children, trailing }: {
+  id: string; label: string; icon: ReactNode; children: ReactNode; trailing?: ReactNode
+}) {
+  return (
+    <div className="relative">
+      <label htmlFor={id} className="sr-only">{label}</label>
+      <span aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-[var(--t-font-color-tertiary)] [&_svg]:size-4">
+        {icon}
+      </span>
+      {children}
+      {trailing && <span className="absolute top-1/2 right-2 -translate-y-1/2">{trailing}</span>}
+    </div>
+  )
+}
+
+const GITHUB_REPO = "debpalash/OpenGTM"
+/** OpenGTM on X; the button is hidden until VITE_OPENGTM_X_URL is set. */
+const X_URL = (import.meta.env.VITE_OPENGTM_X_URL as string | undefined) || ""
+const STARS_CACHE = "gtm-github-stars"
+
+function GitHubMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" className={className} fill="currentColor">
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+    </svg>
+  )
+}
+
+function XMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  )
+}
+
+function formatStars(count: number) {
+  return count >= 1000 ? `${(count / 1000).toFixed(count >= 10000 ? 0 : 1)}k` : String(count)
+}
+
+/** Public star count, cached for an hour; the pill works without it. */
+function useGitHubStars(repo: string) {
+  const [stars, setStars] = useState<number | null>(() => {
+    try {
+      const cached = JSON.parse(localStorage.getItem(STARS_CACHE) || "null") as { count: number; at: number } | null
+      return cached && Date.now() - cached.at < 3_600_000 ? cached.count : null
+    } catch { return null }
+  })
+  useEffect(() => {
+    if (stars !== null) return
+    const controller = new AbortController()
+    fetch(`https://api.github.com/repos/${repo}`, { signal: controller.signal, headers: { Accept: "application/vnd.github+json" } })
+      .then(response => (response.ok ? response.json() : null))
+      .then((data: { stargazers_count?: number } | null) => {
+        if (typeof data?.stargazers_count !== "number") return
+        setStars(data.stargazers_count)
+        try { localStorage.setItem(STARS_CACHE, JSON.stringify({ count: data.stargazers_count, at: Date.now() })) } catch { /* private mode */ }
+      })
+      .catch(() => { /* offline or rate-limited: show the pill without a count */ })
+    return () => controller.abort()
+  }, [repo, stars])
+  return stars
+}
+
+/** The sign-in page is designed for light only; restore the user's theme on leave. */
+function useForceLightTheme() {
+  useLayoutEffect(() => {
+    const html = document.documentElement
+    const theme = (window as unknown as { OpenGTMTheme?: {
+      getSnapshot: () => string; setPreference: (value: string) => void; subscribe: (listener: () => void) => () => void
+    } }).OpenGTMTheme
+    const apply = () => {
+      html.classList.remove("dark")
+      html.classList.add("light")
+      html.style.colorScheme = "light"
+    }
+    apply()
+    const unsubscribe = theme?.subscribe(apply)
+    return () => {
+      unsubscribe?.()
+      const preference = theme?.getSnapshot().split(":")[0]
+      if (theme && preference) theme.setPreference(preference)
+    }
+  }, [])
+}
+
+const fieldClass =
+  "gtm-login-field h-11 w-full rounded-xl border border-transparent bg-[#eef2f6] pr-3 pl-10 text-[15px] text-foreground " +
+  "outline-none transition-[background-color,box-shadow] placeholder:text-[var(--t-font-color-tertiary)] " +
+  "hover:bg-[#e8edf2] focus-visible:bg-background focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] "
 
 export default function LoginPage() {
+  useForceLightTheme()
+  const stars = useGitHubStars(GITHUB_REPO)
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -23,12 +132,15 @@ export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [workspaceSlug, setWorkspaceSlug] = useState("")
 
   const from = (location.state as { from?: string } | null)?.from ?? "/chat"
+  const copy = COPY[mode]
+  const ModeIcon = copy.icon
 
   const changeMode = (nextMode: AuthMode) => {
     setMode(nextMode)
@@ -36,6 +148,7 @@ export default function LoginPage() {
     setNotice(null)
     setPassword("")
     setConfirmPassword("")
+    setShowPassword(false)
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -68,133 +181,149 @@ export default function LoginPage() {
     }
   }
 
-  const title = mode === "login" ? "Welcome back" : mode === "signup" ? "Create your account" : "Recover access"
-  const subtitle = mode === "login"
-    ? "Sign in to continue."
-    : mode === "signup"
-      ? "Start with OpenGTM."
-      : "Enter your username."
+  const passwordToggle = (
+    <button type="button" onClick={() => setShowPassword(value => !value)}
+      aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword}
+      className="flex size-8 items-center justify-center rounded-lg text-[var(--t-font-color-tertiary)] outline-none transition-colors hover:bg-black/5 hover:text-foreground focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] [&_svg]:size-4">
+      {showPassword ? <EyeOff /> : <Eye />}
+    </button>
+  )
 
   return (
-    <main className="min-h-screen bg-[#f7f5ef] text-[#171613] lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(31rem,0.92fr)]">
-      <section className="relative isolate min-h-[18rem] overflow-hidden bg-[#0d0c12] px-6 py-6 text-white sm:px-10 lg:flex lg:min-h-screen lg:flex-col lg:justify-between lg:px-14 lg:py-10 xl:px-20 xl:py-12">
-        <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_15%_15%,rgba(98,104,242,.34),transparent_28%),radial-gradient(circle_at_86%_78%,rgba(32,207,175,.20),transparent_30%),radial-gradient(circle_at_64%_28%,rgba(125,132,255,.16),transparent_24%)]" />
-        <div className="absolute -left-[18%] top-[28%] -z-10 h-[64%] w-[88%] rounded-[50%] border border-violet-300/20 bg-violet-500/10 blur-3xl" />
-        <div className="absolute -bottom-[38%] -right-[18%] -z-10 h-[75%] w-[78%] rounded-full bg-[#20cfaf]/12 blur-3xl" />
-        <div className="absolute inset-0 -z-10 opacity-[0.12] [background-image:linear-gradient(rgba(255,255,255,.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.18)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent_88%)]" />
-        <svg className="pointer-events-none absolute inset-0 -z-10 h-full w-full opacity-50" viewBox="0 0 900 900" fill="none" aria-hidden="true">
-          <path d="M-120 710C120 460 250 760 474 493C649 284 715 136 1005 238" stroke="url(#mesh-a)" strokeWidth="1.25" />
-          <path d="M-80 786C174 530 337 850 551 563C687 380 797 278 1002 327" stroke="url(#mesh-b)" strokeWidth="1.25" />
-          <path d="M34 902C237 674 419 893 637 641C744 517 844 445 998 446" stroke="url(#mesh-c)" strokeWidth="1.25" />
-          <defs>
-            <linearGradient id="mesh-a" x1="0" y1="0" x2="900" y2="0"><stop stopColor="#6268F2" stopOpacity="0"/><stop offset=".52" stopColor="#9A9FFF"/><stop offset="1" stopColor="#20CFAF" stopOpacity="0"/></linearGradient>
-            <linearGradient id="mesh-b" x1="0" y1="0" x2="900" y2="0"><stop stopColor="#20CFAF" stopOpacity="0"/><stop offset=".58" stopColor="#6EE7D2"/><stop offset="1" stopColor="#6268F2" stopOpacity="0"/></linearGradient>
-            <linearGradient id="mesh-c" x1="0" y1="0" x2="900" y2="0"><stop stopColor="#6268F2" stopOpacity="0"/><stop offset=".5" stopColor="#7B82FF"/><stop offset="1" stopColor="#20CFAF" stopOpacity="0"/></linearGradient>
-          </defs>
+    // `light` scopes every token on this page: Twenty's provider also marks its
+    // wrapper with the app theme, and the nearest themed ancestor wins.
+    <main className="light min-h-screen bg-[var(--t-background-secondary)] p-2 [color-scheme:light] sm:p-5">
+      <div className="gtm-login-sky relative isolate flex min-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-[var(--gtm-radius-card)] border border-[var(--t-border-color-medium)] sm:min-h-[calc(100vh-2.5rem)] sm:rounded-[var(--gtm-radius-frame)]">
+        <div className="gtm-login-clouds" aria-hidden="true" />
+        <svg className="gtm-login-arcs pointer-events-none absolute top-1/2 left-1/2 -z-0 h-[1400px] w-[1400px] -translate-x-1/2 -translate-y-[30%]" viewBox="0 0 1400 1400" aria-hidden="true">
+          <circle cx="700" cy="700" r="380" /><circle cx="700" cy="700" r="500" /><circle cx="700" cy="700" r="640" />
         </svg>
+        <LoginScene />
 
-        <div className="flex items-center gap-3">
-          <img src="/opengtm-mark-v8.svg" alt="" aria-hidden="true" className="size-8 object-contain" />
-          <span className="text-[1.08rem] font-semibold tracking-[-0.04em]">OpenGTM</span>
-        </div>
-
-        <div className="max-w-2xl py-10 lg:py-16">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/70 backdrop-blur-sm">
-            <span className="size-1.5 rounded-full bg-[#20cfaf] shadow-[0_0_16px_#20cfaf]" />
-            Open-source GTM
+        <header className="relative z-10 flex items-center justify-between gap-4 px-6 pt-6 sm:px-12 sm:pt-8">
+          <div className="flex items-center gap-3">
+            <span className="flex size-11 items-center justify-center rounded-[var(--t-border-radius-lg)] bg-[#1d1d1f] shadow-[0_1px_2px_rgb(0_0_0/0.2),0_6px_16px_rgb(0_0_0/0.12)]">
+              <img src="/opengtm-mark-v8.svg" alt="" aria-hidden="true" className="size-7 object-contain" />
+            </span>
+            <span className="text-[22px] font-semibold tracking-[-0.025em] text-[#1d1d1f]">OpenGTM</span>
           </div>
-          <h1 className="max-w-xl text-4xl font-medium leading-[1.02] tracking-[-0.055em] text-white sm:text-5xl lg:text-[4.25rem]">
-            Build pipeline.
-            <span className="block bg-gradient-to-r from-[#aeb2ff] via-[#d8daff] to-[#6ee7d2] bg-clip-text text-transparent">Not busywork.</span>
-          </h1>
-          <p className="mt-6 max-w-lg text-base leading-7 text-white/58 sm:text-lg">
-            GTM agents for the world.
-          </p>
+          <nav aria-label="OpenGTM on the web" className="flex items-center gap-2">
+            <a href={`https://github.com/${GITHUB_REPO}`} target="_blank" rel="noreferrer"
+              aria-label={stars === null ? "Star OpenGTM on GitHub" : `Star OpenGTM on GitHub, ${stars} stars`}
+              className="flex h-9 items-center gap-2 rounded-full bg-white/80 pr-1 pl-3 text-[13px] font-medium text-[#1d1d1f] shadow-[var(--gtm-control-shadow)] backdrop-blur-md transition-colors outline-none [corner-shape:round] hover:bg-white focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)]">
+              <GitHubMark className="size-4" />
+              <span>Star</span>
+              <span className="rounded-full bg-[#1d1d1f]/[0.06] px-2 py-0.5 text-[12px] tabular-nums [corner-shape:round]">{stars === null ? "GitHub" : formatStars(stars)}</span>
+            </a>
+            {X_URL && (
+              <a href={X_URL} target="_blank" rel="noreferrer" aria-label="OpenGTM on X"
+                className="flex size-9 items-center justify-center rounded-full bg-white/80 text-[#1d1d1f] shadow-[var(--gtm-control-shadow)] backdrop-blur-md transition-colors outline-none [corner-shape:round] hover:bg-white focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)]">
+                <XMark className="size-3.5" />
+              </a>
+            )}
+          </nav>
+        </header>
 
-          <div className="mt-10 hidden max-w-xl grid-cols-3 gap-3 lg:grid">
-            {productSteps.map(({ icon: Icon, label }, index) => (
-              <div key={label} className="group rounded-2xl border border-white/10 bg-white/[0.055] p-4 backdrop-blur-md transition-colors hover:bg-white/[0.08]">
-                <div className="mb-5 flex items-center justify-between">
-                  <span className="flex size-8 items-center justify-center rounded-lg bg-white/10 text-white/80"><Icon className="size-4" /></span>
-                  <span className="font-mono text-[10px] text-white/28">0{index + 1}</span>
+        <section className="pointer-events-none relative z-10 flex flex-1 items-center justify-center px-4 py-10">
+          <div className="gtm-launch pointer-events-auto w-full max-w-[400px]">
+            <div className="gtm-login-card relative rounded-[var(--gtm-radius-card)] border border-white/80 px-6 pt-8 pb-7 shadow-[var(--gtm-shadow-window)] backdrop-blur-xl sm:px-8">
+              <div className="gtm-login-texture" aria-hidden="true" />
+              <div className="relative">
+                <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-[var(--gtm-radius-tile)] bg-white text-[#1d1d1f] shadow-[0_0_0_0.5px_rgb(0_0_0/0.06),0_4px_12px_rgb(0_0_0/0.08)]">
+                  <ModeIcon className="size-5" aria-hidden="true" />
                 </div>
-                <p className="text-sm font-medium text-white/90">{label}</p>
+                <h1 className="text-center text-[22px] font-semibold tracking-[-0.02em] text-foreground">{copy.title}</h1>
+                <p className="mx-auto mt-2 max-w-[20rem] text-center text-sm leading-5 text-muted-foreground">{copy.subtitle}</p>
+
+                <form onSubmit={handleSubmit} className="mt-6 grid gap-3">
+                  <Field id="username" label="Username" icon={<User />}>
+                    <input id="username" autoFocus autoComplete="username" required value={username}
+                      onChange={event => setUsername(event.target.value)} placeholder="Username" className={fieldClass} />
+                  </Field>
+
+                  {mode !== "reset" && (
+                    <Field id="password" label="Password" icon={<LockKeyhole />} trailing={passwordToggle}>
+                      <input id="password" type={showPassword ? "text" : "password"} required
+                        autoComplete={mode === "login" ? "current-password" : "new-password"}
+                        minLength={mode === "signup" ? 8 : undefined} value={password}
+                        onChange={event => setPassword(event.target.value)} placeholder="Password"
+                        className={cn(fieldClass, "pr-11")} />
+                    </Field>
+                  )}
+
+                  {mode === "signup" && (
+                    <Field id="confirm-password" label="Confirm password" icon={<LockKeyhole />}>
+                      <input id="confirm-password" type={showPassword ? "text" : "password"} required minLength={8}
+                        autoComplete="new-password" value={confirmPassword}
+                        onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm password"
+                        className={fieldClass} />
+                    </Field>
+                  )}
+
+                  {mode === "login" && (
+                    <div className="-mt-1 flex justify-end">
+                      <button type="button" onClick={() => changeMode("reset")}
+                        className="rounded text-[13px] font-medium text-foreground/80 outline-none hover:text-foreground focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)]">
+                        Forgot password?
+                      </button>
+                    </div>
+                  )}
+
+                  {error && <p role="alert" className="rounded-xl bg-destructive/10 px-3.5 py-2.5 text-[13px] text-destructive">{error}</p>}
+                  {notice && <p role="status" className="rounded-xl bg-[var(--gtm-accent)]/10 px-3.5 py-2.5 text-[13px] leading-5 text-foreground">{notice}</p>}
+
+                  <button type="submit" disabled={busy}
+                    className="mt-1 h-11 w-full rounded-xl bg-[linear-gradient(to_bottom,#3a3a3e,#161618)] text-[15px] font-medium text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_1px_2px_rgb(0_0_0/0.25),0_6px_16px_rgb(0_0_0/0.14)] outline-none transition-[filter,box-shadow] hover:brightness-125 focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] active:brightness-95 disabled:opacity-60">
+                    {busy ? "Signing in…" : copy.submit}
+                  </button>
+                </form>
+
+                {mode === "login" && (
+                  <>
+                    <div className="mt-6 flex items-center gap-3" role="presentation">
+                      <span className="gtm-login-divider flex-1" />
+                      <span className="text-xs text-muted-foreground">Or continue with SSO</span>
+                      <span className="gtm-login-divider flex-1" />
+                    </div>
+                    <form className="mt-4 flex flex-col gap-2 sm:flex-row" onSubmit={event => {
+                      event.preventDefault()
+                      if (workspaceSlug.trim()) window.location.assign(`/auth/sso/${encodeURIComponent(workspaceSlug.trim())}/login`)
+                    }}>
+                      <div className="flex-1">
+                        <Field id="sso-workspace" label="SSO workspace slug" icon={<Building2 />}>
+                          <input id="sso-workspace" value={workspaceSlug} onChange={event => setWorkspaceSlug(event.target.value)}
+                            placeholder="workspace-slug" autoComplete="organization" className={cn(fieldClass, "h-10")} />
+                        </Field>
+                      </div>
+                      <button type="submit" disabled={!workspaceSlug.trim()}
+                        className="h-10 shrink-0 rounded-xl bg-[var(--gtm-control-bezel)] px-3.5 text-[13px] font-medium text-foreground shadow-[var(--gtm-control-shadow)] outline-none transition-[filter] hover:brightness-[0.97] focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)] disabled:opacity-50">
+                        Continue with SSO
+                      </button>
+                    </form>
+                  </>
+                )}
+
+                <p className="mt-6 text-center text-[13px] text-muted-foreground">
+                  {mode === "login" && <>New to OpenGTM? <button type="button" onClick={() => changeMode("signup")} className="font-medium text-foreground hover:underline">Request an account</button></>}
+                  {mode === "signup" && <>Already have an account? <button type="button" onClick={() => changeMode("login")} className="font-medium text-foreground hover:underline">Sign in</button></>}
+                  {mode === "reset" && <button type="button" onClick={() => changeMode("login")} className="inline-flex items-center gap-1.5 font-medium text-foreground hover:underline"><ArrowLeft className="size-3.5" aria-hidden="true" />Back to sign in</button>}
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="hidden items-center gap-5 text-xs text-white/40 lg:flex">
-          {["Local-first", "Composable", "Open source"].map((item) => (
-            <span key={item} className="flex items-center gap-1.5"><Check className="size-3 text-[#8f82ff]" />{item}</span>
-          ))}
-        </div>
-      </section>
-
-      <section className="flex min-h-[calc(100vh-18rem)] items-center justify-center px-6 py-12 sm:px-12 lg:min-h-screen lg:px-16 xl:px-24">
-        <div className="w-full max-w-[27rem]">
-          <div className="mb-10">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5b4cff]">
-              {mode === "login" ? "Workspace access" : mode === "signup" ? "Get started" : "Account recovery"}
-            </p>
-            <h2 className="text-3xl font-semibold tracking-[-0.045em] text-[#171613] sm:text-[2.15rem]">{title}</h2>
-            <p className="mt-3 text-sm leading-6 text-[#6e6a62]">{subtitle}</p>
-          </div>
-
-          <div className="mb-7 grid grid-cols-2 rounded-xl bg-[#ebe8df] p-1" role="tablist" aria-label="Authentication mode">
-            <button type="button" role="tab" aria-selected={mode === "login"} onClick={() => changeMode("login")} className={`h-9 rounded-lg text-sm font-medium transition-all ${mode === "login" ? "bg-white text-[#171613] shadow-sm" : "text-[#777168] hover:text-[#171613]"}`}>
-              Sign in
-            </button>
-            <button type="button" role="tab" aria-selected={mode === "signup"} onClick={() => changeMode("signup")} className={`h-9 rounded-lg text-sm font-medium transition-all ${mode === "signup" ? "bg-white text-[#171613] shadow-sm" : "text-[#777168] hover:text-[#171613]"}`}>
-              Sign up
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-xs font-medium text-[#45413b]">Username</Label>
-              <Input id="username" autoFocus autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder={mode === "reset" ? "Your OpenGTM username" : "Enter your username"} className="h-11 rounded-xl border-[#d8d4ca] !bg-white px-3.5 text-[#171613] shadow-[0_1px_0_rgba(0,0,0,.02)] placeholder:text-[#aaa49a] focus-visible:border-[#5b4cff] focus-visible:ring-[#5b4cff]/15" required />
             </div>
-
-            {mode !== "reset" && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-xs font-medium text-[#45413b]">Password</Label>
-                  {mode === "login" && <button type="button" onClick={() => changeMode("reset")} className="text-xs font-medium text-[#5b4cff] hover:text-[#493bd9]">Forgot password?</button>}
-                </div>
-                <Input id="password" type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••" minLength={mode === "signup" ? 8 : undefined} className="h-11 rounded-xl border-[#d8d4ca] !bg-white px-3.5 text-[#171613] shadow-[0_1px_0_rgba(0,0,0,.02)] placeholder:text-[#aaa49a] focus-visible:border-[#5b4cff] focus-visible:ring-[#5b4cff]/15" required />
-              </div>
-            )}
-
-            {mode === "signup" && (
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password" className="text-xs font-medium text-[#45413b]">Confirm password</Label>
-                <Input id="confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="••••••••" minLength={8} className="h-11 rounded-xl border-[#d8d4ca] !bg-white px-3.5 text-[#171613] shadow-[0_1px_0_rgba(0,0,0,.02)] placeholder:text-[#aaa49a] focus-visible:border-[#5b4cff] focus-visible:ring-[#5b4cff]/15" required />
-              </div>
-            )}
-
-            {error && <p className="rounded-xl bg-red-50 px-3.5 py-3 text-sm text-red-700" role="alert">{error}</p>}
-            {notice && <p className="rounded-xl border border-[#dcd7ff] bg-[#f0eeff] px-3.5 py-3 text-sm leading-5 text-[#4438b8]" role="status">{notice}</p>}
-
-            <Button type="submit" className="h-11 w-full rounded-xl bg-[#171613] text-sm text-white shadow-[0_8px_24px_rgba(23,22,19,.12)] hover:bg-[#5b4cff]" disabled={busy}>
-              {busy ? "Signing in…" : mode === "login" ? "Enter OpenGTM" : mode === "signup" ? "Request account" : "Request password reset"}
-              {!busy && <ArrowRight className="ml-1 size-4 transition-transform group-hover/button:translate-x-0.5" />}
-            </Button>
-          </form>
-
-          {mode === "login" && <div className="mt-6 border-t border-[#ddd8ce] pt-6"><p className="mb-3 text-center text-xs text-[#8c867c]">or use your organization identity</p><div className="flex gap-2"><Input aria-label="SSO workspace slug" value={workspaceSlug} onChange={event => setWorkspaceSlug(event.target.value)} placeholder="workspace-slug" className="h-10 rounded-xl border-[#d8d4ca] !bg-white" /><Button type="button" variant="outline" className="h-10 rounded-xl" disabled={!workspaceSlug.trim()} onClick={() => { window.location.assign(`/auth/sso/${encodeURIComponent(workspaceSlug.trim())}/login`) }}>Continue with SSO</Button></div></div>}
-
-          {mode === "reset" && (
-            <button type="button" onClick={() => changeMode("login")} className="mt-6 flex w-full items-center justify-center gap-2 text-sm font-medium text-[#5f5a52] hover:text-[#171613]">
-              <KeyRound className="size-3.5" /> Back to sign in
-            </button>
-          )}
-
-          <div className="mt-10 flex items-center justify-center gap-2 text-xs text-[#8c867c]">
-            <LockKeyhole className="size-3.5" /> Credentials stay on your OpenGTM deployment
+            <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-[#1d1d1f]/60">
+              <LockKeyhole className="size-3.5" aria-hidden="true" /> Credentials stay on your OpenGTM deployment
+            </p>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <footer className="relative z-10 px-6 pb-5 text-center text-[11px] text-[#1d1d1f]/55 sm:px-12">
+          Inspired by{" "}
+          <a href="https://dribbble.com/BagasPrayogo" target="_blank" rel="noreferrer" className="underline decoration-current/30 underline-offset-2 hover:text-[#1d1d1f]">Bagas Prayogo</a>
+          {" "}(sign-in design) and{" "}
+          <a href="https://dribbble.com/koniu" target="_blank" rel="noreferrer" className="underline decoration-current/30 underline-offset-2 hover:text-[#1d1d1f]">koniu</a>
+          {" "}(mascot).
+        </footer>
+      </div>
     </main>
   )
 }

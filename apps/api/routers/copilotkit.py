@@ -1344,6 +1344,7 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
 
         elif name == "enrich_people_contacts":
             from apps.api.services.leadgen.people_contacts import enrich_people_contacts
+            from apps.api.services.leadgen.contact_execution import execute_contact_once
             from apps.api.services.leadgen.targeted_people import (
                 people_result_set_id,
                 person_entity_id,
@@ -1411,30 +1412,49 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 "enrich_people_contacts",
                 action_id,
             )
-            if previous:
+            if previous and previous.get("ok"):
                 previous_selection = [
                     str(person_id).strip()
                     for person_id in (previous.get("selected_person_ids") or [])
                 ]
-                if previous_selection != selected_ids:
+                # Order-insensitive, matching the durable contract (sorted people).
+                if sorted(previous_selection) != sorted(selected_ids):
                     return json.dumps({
                         "error": "Idempotency key conflicts with a different people selection",
                         "action_id": action_id,
                     })
-                return json.dumps({**previous, "reused": True})
 
-            result = await enrich_people_contacts(
-                company,
-                function,
-                people,
-                company_resolution=(
-                    research.get("company_resolution")
-                    if isinstance(research.get("company_resolution"), dict)
-                    else {}
-                ),
-                person_ids=selected_ids,
+            resolution = (
+                research.get("company_resolution")
+                if isinstance(research.get("company_resolution"), dict) else {}
+            )
+            async def run_contacts():
+                # Adopt successful pre-migration receipts without billing again.
+                # Running/uncertain receipts must consult the durable claim.
+                if previous and previous.get("ok"):
+                    if previous.get("company") != company or previous.get("function") != function:
+                        return {"ok": False, "error": "Idempotency key conflicts with a different contact contract", "action_id": action_id}
+                    return {**previous, "reused": True}
+                return await enrich_people_contacts(
+                    company, function, people, company_resolution=resolution,
+                    person_ids=selected_ids, workspace_id=workspace_id,
+                    action_id=action_id,
+                )
+
+            result = await execute_contact_once(
                 workspace_id=workspace_id,
                 action_id=action_id,
+                contract={
+                    "conversation_id": conversation_id,
+                    "company": company,
+                    "function": function,
+                    "company_resolution": resolution,
+                    "people": sorted(
+                        [person for person in people if person["person_id"] in selected_ids],
+                        key=lambda person: person["person_id"],
+                    ),
+                },
+                operation=run_contacts,
             )
             return json.dumps(result)
 
@@ -1671,6 +1691,21 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 )
                 wdb.add(wb)
                 wdb.flush()
+                # Persist each person (LinkedIn-keyed, with employment history).
+                # The Chat person_id stays the row/action identity and is
+                # registered as a legacy alias of the canonical person.
+                from apps.api.services.entities.people import resolve_person
+                for row_data in rows:
+                    person, _ = resolve_person(
+                        wdb, workspace_id=workspace_id, name=row_data["full_name"],
+                        company=row_data["company"],
+                        company_domain=row_data["canonical_company_domain"],
+                        title=row_data["title"], linkedin_url=row_data["linkedin_url"],
+                        email=row_data["email"] if row_data["email_status"] == "verified" else "",
+                        evidence_url=row_data["evidence_url"], source="chat_people_research",
+                        legacy_ids=[row_data["person_id"]],
+                    )
+                    row_data["canonical_person_id"] = person.id
                 for position, row_data in enumerate(rows):
                     wdb.add(WorkbookRow(
                         workbook_id=wb.id,
@@ -2444,6 +2479,31 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
 
 # ── Chat completion proxy ────────────────────────────────────────
 
+SSE_KEEPALIVE_SECONDS = 10.0
+
+
+async def _await_with_keepalive(pending, box: list, interval: float = SSE_KEEPALIVE_SECONDS):
+    """Await ``pending`` while yielding SSE comment lines every ``interval``.
+
+    Long tools (people research can take ~45s) otherwise leave the stream
+    silent, and clients or proxies with shorter read timeouts drop it. SSE
+    comments are ignored by consumers. The result is appended to ``box``;
+    exceptions propagate to the caller. Create ``pending`` inside any
+    workspace_scope so the task inherits it; the yields happen outside it.
+    """
+    task = asyncio.ensure_future(pending)
+    try:
+        while True:
+            done, _ = await asyncio.wait({task}, timeout=interval)
+            if done:
+                break
+            yield ": keepalive\n\n"
+        box.append(task.result())
+    finally:
+        if not task.done():
+            task.cancel()
+
+
 async def _stream_chat(
     messages: list,
     tools: list,
@@ -2460,8 +2520,9 @@ async def _stream_chat(
 ) -> AsyncGenerator[str, None]:
     """Stream chat completion from the configured AI provider.
 
-    On 429/rate-limit errors, automatically fails over to the next provider
-    in fallback_providers (failover does NOT consume the tool-round budget).
+    On 429/rate-limit, 5xx and 401/403 (rejected key) errors, automatically fails
+    over to the next provider in fallback_providers (failover does NOT consume
+    the tool-round budget).
 
     The agentic tool loop is bounded by `max_rounds`: each round of tool calls
     increments `round_idx`, and on the final round the model is re-issued with
@@ -2531,13 +2592,17 @@ async def _stream_chat(
                     error_body = await response.aread()
                     error_text = error_body.decode()[:200]
 
-                    # Also try failover on 5xx server errors
-                    if response.status_code >= 500 and fallback_providers:
+                    # Also fail over on 5xx server errors and on rejected
+                    # credentials (401/403: revoked, leaked or invalid keys),
+                    # which cannot succeed on retry with this provider.
+                    auth_rejected = response.status_code in (401, 403)
+                    if (response.status_code >= 500 or auth_rejected) and fallback_providers:
                         next_prov = fallback_providers[0]
                         remaining = fallback_providers[1:]
                         next_name = next_prov.get("name", next_prov.get("id", "?"))
 
-                        msg = f"⚡ {provider_name} error — switching to {next_name}..."
+                        reason = "rejected its API key" if auth_rejected else "error"
+                        msg = f"⚡ {provider_name} {reason} — switching to {next_name}..."
                         yield f'data: {json.dumps({"warning": msg})}\n\n'
 
                         async for chunk in _stream_chat(messages, tools, next_prov, remaining,
@@ -2619,11 +2684,15 @@ async def _stream_chat(
                                     # Run the tool inside the request's tenant scope so PG
                                     # txns (PgLeadStore + workbook SessionLocal) get the RLS GUC.
                                     with workspace_scope(workspace_id):
-                                        result = await _execute_tool(
+                                        pending = asyncio.ensure_future(_execute_tool(
                                             fn_name, fn_args, store=store,
                                             workspace_id=workspace_id, slug=slug,
                                             user_id=user_id,
-                                        )
+                                        ))
+                                    box = []
+                                    async for ping in _await_with_keepalive(pending, box):
+                                        yield ping
+                                    result = box[0]
                                     seen_calls[sig] = result
                                 yield f"data: {json.dumps({'tool_result': {'name': fn_name, 'result': json.loads(result)}})}\n\n"
                                 tool_results.append({
@@ -2769,10 +2838,14 @@ async def _resolve_approved_calls(
         if decision == "approve" and fn_name in DANGEROUS_TOOLS:
             yield f"data: {json.dumps({'tool_call': {'name': fn_name, 'args': fn_args}})}\n\n"
             with workspace_scope(workspace_id):
-                result = await _execute_tool(
+                pending = asyncio.ensure_future(_execute_tool(
                     fn_name, fn_args, store=store, workspace_id=workspace_id, slug=slug,
                     user_id=user_id,
-                )
+                ))
+            box = []
+            async for ping in _await_with_keepalive(pending, box):
+                yield ping
+            result = box[0]
             try:
                 parsed_result = json.loads(result)
             except json.JSONDecodeError:
@@ -2922,7 +2995,10 @@ async def copilot_chat(request: Request):
             yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
             yield f"data: {json.dumps({'tool_call': {'name': 'find_people_at_company', 'args': args}})}\n\n"
             try:
-                result = await research_people_at_company(**args)
+                box = []
+                async for ping in _await_with_keepalive(research_people_at_company(**args), box):
+                    yield ping
+                result = box[0]
             except Exception as exc:
                 result = {
                     "ok": False,
@@ -3057,7 +3133,10 @@ async def copilot_chat(request: Request):
             yield f"data: {json.dumps({'conversation_id': conv_id})}\n\n"
             yield f"data: {json.dumps({'tool_call': {'name': 'verify_people_at_company', 'args': display_args}})}\n\n"
             try:
-                result = await verify_people_at_company(**args)
+                box = []
+                async for ping in _await_with_keepalive(verify_people_at_company(**args), box):
+                    yield ping
+                result = box[0]
             except Exception as exc:
                 result = {
                     "ok": False,

@@ -9,6 +9,9 @@ import {
   Award, CheckCircle, Grid3X3 as Grid, Monitor, Cpu, Book,
   MessageCircle, Shield, Factory, Activity, Compass,
   List, Users2, Trophy, ShoppingBag, Store,
+  BriefcaseBusiness, FolderOpen, CircleDollarSign, ClipboardList, Puzzle,
+  ShieldCheck, Handshake, Code, ShoppingCart,
+  type LucideIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -30,27 +33,27 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 }
 
 // Category display config
-const CATEGORY_CONFIG: Record<string, { label: string; emoji: string }> = {
-  "core": { label: "Core Search Engines", emoji: "⚡" },
-  "india_b2b": { label: "India — B2B Marketplaces", emoji: "🇮🇳" },
-  "india_review": { label: "India — Review & Rating Sites", emoji: "⭐" },
-  "india_jobs": { label: "India — Job Portals", emoji: "💼" },
-  "india_gov": { label: "India — Government & Registry", emoji: "🏛️" },
-  "india_startup": { label: "India — Startup Ecosystem", emoji: "🚀" },
-  "india_directory": { label: "India — More Directories", emoji: "📂" },
-  "global_tech": { label: "Global — IT/Tech Directories", emoji: "💻" },
-  "global_directory": { label: "Global — Business Directories", emoji: "📒" },
-  "global_startup": { label: "Global — Startup & Funding", emoji: "💰" },
-  "global_jobs": { label: "Global — Job Boards", emoji: "📋" },
-  "saas_directory": { label: "Product / SaaS Directories", emoji: "🧩" },
-  "trust_review": { label: "Trust & Review Platforms", emoji: "🛡️" },
-  "freelance": { label: "Freelance & Service Marketplaces", emoji: "🤝" },
-  "developer": { label: "Developer & Tech Communities", emoji: "👨‍💻" },
-  "news": { label: "News & Media Sources", emoji: "📰" },
-  "social": { label: "Social & Professional Networks", emoji: "🌐" },
-  "ecommerce": { label: "E-Commerce & Marketplace Sellers", emoji: "🛒" },
-  "europe": { label: "Europe — Directories", emoji: "🇪🇺" },
-  "generic": { label: "Generic Search Patterns", emoji: "🔍" },
+const CATEGORY_CONFIG: Record<string, { label: string; icon: LucideIcon }> = {
+  "core": { label: "Core Search Engines", icon: Zap },
+  "india_b2b": { label: "India — B2B Marketplaces", icon: Store },
+  "india_review": { label: "India — Review & Rating Sites", icon: Star },
+  "india_jobs": { label: "India — Job Portals", icon: BriefcaseBusiness },
+  "india_gov": { label: "India — Government & Registry", icon: Landmark },
+  "india_startup": { label: "India — Startup Ecosystem", icon: Rocket },
+  "india_directory": { label: "India — More Directories", icon: FolderOpen },
+  "global_tech": { label: "Global — IT/Tech Directories", icon: Monitor },
+  "global_directory": { label: "Global — Business Directories", icon: BookOpen },
+  "global_startup": { label: "Global — Startup & Funding", icon: CircleDollarSign },
+  "global_jobs": { label: "Global — Job Boards", icon: ClipboardList },
+  "saas_directory": { label: "Product / SaaS Directories", icon: Puzzle },
+  "trust_review": { label: "Trust & Review Platforms", icon: ShieldCheck },
+  "freelance": { label: "Freelance & Service Marketplaces", icon: Handshake },
+  "developer": { label: "Developer & Tech Communities", icon: Code },
+  "news": { label: "News & Media Sources", icon: Newspaper },
+  "social": { label: "Social & Professional Networks", icon: Globe },
+  "ecommerce": { label: "E-Commerce & Marketplace Sellers", icon: ShoppingCart },
+  "europe": { label: "Europe — Directories", icon: MapPin },
+  "generic": { label: "Generic Search Patterns", icon: Search },
 }
 
 interface Source {
@@ -149,7 +152,7 @@ export default function SourcesPage() {
         return (
           <div key={category}>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm">{config.emoji}</span>
+              <config.icon aria-hidden="true" className="size-4 text-muted-foreground" />
               <h3 className="text-sm font-medium text-foreground">{config.label}</h3>
               <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                 {catActive}/{catSources.length}

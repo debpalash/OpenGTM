@@ -325,6 +325,72 @@ def test_bounded_tool_loop_caps_rounds(monkeypatch):
     assert any("Final answer." in ln for ln in lines)
 
 
+@pytest.mark.parametrize("status", [401, 403])
+def test_rejected_api_key_fails_over_to_next_provider(monkeypatch, status):
+    """A revoked/leaked key (e.g. Google's 403 "reported as leaked") must not end
+    the turn when another configured provider can answer."""
+    calls = []
+
+    class _Client:
+        def __init__(self, *a, **k):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *exc):
+            return False
+
+        def stream(self, method, url, json=None, headers=None):
+            calls.append(url)
+            if url.startswith("http://revoked"):
+                resp = _FakeResp([])
+                resp.status_code = status
+                return resp
+            return _FakeResp(['data: ' + _dumps({"choices": [{"delta": {"content": "Answer."}}]}),
+                              "data: [DONE]"])
+
+    monkeypatch.setattr(ck.httpx, "AsyncClient", _Client)
+    revoked = {"id": "gemini", "name": "Gemini", "api_key": "k", "base_url": "http://revoked/v1", "model": "m"}
+    backup = {"id": "openrouter", "name": "OpenRouter", "api_key": "k", "base_url": "http://backup/v1", "model": "m"}
+    lines = _collect(ck._stream_chat([{"role": "user", "content": "hi"}], [], revoked, [backup],
+                                     store=object(), workspace_id="main", slug="main"))
+    assert [u.split("/")[2] for u in calls] == ["revoked", "backup"]
+    assert any("rejected its API key" in ln for ln in lines)
+    assert any("Answer." in ln for ln in lines)
+    assert not any('"error"' in ln for ln in lines)
+
+
+def test_slow_tools_keep_the_stream_alive_and_return_their_result():
+    async def slow():
+        await asyncio.sleep(0.12)
+        return "done"
+
+    async def run():
+        box, pings = [], []
+        async for ping in ck._await_with_keepalive(slow(), box, interval=0.03):
+            pings.append(ping)
+        return box, pings
+
+    box, pings = asyncio.run(run())
+    assert box == ["done"]
+    assert len(pings) >= 2 and all(p == ": keepalive\n\n" for p in pings)
+
+
+def test_keepalive_propagates_tool_errors():
+    async def broken():
+        await asyncio.sleep(0.05)
+        raise RuntimeError("search backend down")
+
+    async def run():
+        box = []
+        async for _ in ck._await_with_keepalive(broken(), box, interval=0.01):
+            pass
+
+    with pytest.raises(RuntimeError, match="search backend down"):
+        asyncio.run(run())
+
+
 # ── Offline: autopilot (goal → plan → execute) ────────────────────────────
 
 def test_autopilot_drafts_plan_from_compound_goal():

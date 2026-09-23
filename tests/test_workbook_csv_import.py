@@ -165,3 +165,42 @@ def test_csv_endpoint_honors_mapping_skip_and_dedupes():
         rows = session.query(WorkbookRow).all()
         assert len(rows) == 1
         assert rows[0].data == {"company": "Acme", "website": "acme.test"}
+
+
+def test_import_preserves_execution_configuration_and_existing_evidence():
+    client, Session = _harness()
+    agent = {"id": "agent", "name": "Research", "type": "agent", "width": 317,
+             "tools": [], "policy": {"max_steps": 0, "max_cost_usd": 0},
+             "future_setting": {"keep": True}}
+    evidence = {"agent": {"value": "Verified", "status": "complete", "research": {"sources": ["https://example.test"]}}}
+    with Session() as session:
+        workbook = session.get(Workbook, WORKBOOK)
+        workbook.columns_config = [*workbook.columns_config, agent]
+        workbook.source_config = {"refresh_policy": {"enabled": False}}
+        session.add(WorkbookRow(workbook_id=WORKBOOK, workspace_id=WORKSPACE,
+                                position=7, data={"company": "Existing"}, enrichments=evidence))
+        session.commit()
+    response = client.post(f"/api/workbooks/{WORKBOOK}/import", json={
+        "rows": [{"Company": "New", "New field": "Preserved"}],
+    })
+    assert response.status_code == 200, response.text
+    with Session() as session:
+        workbook = session.get(Workbook, WORKBOOK)
+        assert workbook.columns_config[1] == agent
+        assert workbook.source_config["refresh_policy"] == {"enabled": False}
+        rows = session.query(WorkbookRow).order_by(WorkbookRow.position).all()
+        assert [row.position for row in rows] == [7, 8]
+        assert rows[0].enrichments == evidence
+        assert rows[1].data == {"company": "New", "new_field": "Preserved"}
+
+
+def test_import_foreign_workbook_returns_not_found_without_mutation():
+    client, Session = _harness()
+    with Session() as session:
+        session.get(Workbook, WORKBOOK).workspace_id = "another-workspace"
+        session.commit()
+    response = client.post(f"/api/workbooks/{WORKBOOK}/import", json={"rows": [{"Company": "Forbidden"}]})
+    assert response.status_code == 404, response.text
+    with Session() as session:
+        assert session.query(WorkbookRow).count() == 0
+        assert len(session.get(Workbook, WORKBOOK).columns_config) == 1

@@ -113,18 +113,33 @@ def _score(db: Session, provider: str, field: str) -> float:
     return (hit_rate / (cost + 0.001)) * correctness_prior(db, provider, field)
 
 
-def order_chain(db: Session, field: str, chain: List[str], budget_remaining: Optional[float] = None) -> List[str]:
-    """Return the chain reordered by yield/cost, with cooldown'd and (if over
-    budget) unaffordable paid providers dropped. Free providers always kept."""
+def filter_chain(db: Session, field: str, chain: List[str], budget_remaining: Optional[float] = None,
+                 skipped: Optional[List[tuple]] = None) -> List[str]:
+    """Apply cooldown and budget checks without changing a user's provider order.
+
+    When ``skipped`` is given, each excluded provider is appended to it as
+    ``(provider, reason)`` so callers can report an explicit outcome.
+    """
     usable = []
     for p in chain:
         if in_cooldown(db, p, field):
             logger.info(f"planner: skip {p} (cooldown) for {field}")
+            if skipped is not None:
+                skipped.append((p, "cooldown"))
             continue
         if budget_remaining is not None and is_paid(p) and provider_cost(p) > budget_remaining:
             logger.info(f"planner: skip paid {p} (budget ${budget_remaining:.3f} < ${provider_cost(p)})")
+            if skipped is not None:
+                skipped.append((p, "over_budget"))
             continue
         usable.append(p)
+    return usable
+
+
+def order_chain(db: Session, field: str, chain: List[str], budget_remaining: Optional[float] = None,
+                skipped: Optional[List[tuple]] = None) -> List[str]:
+    """Plan default chains by yield/cost after cooldown and budget checks."""
+    usable = filter_chain(db, field, chain, budget_remaining, skipped)
     # Highest yield/cost first; ties keep original order (stable sort).
     return sorted(usable, key=lambda p: _score(db, p, field), reverse=True)
 

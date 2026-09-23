@@ -3,20 +3,17 @@
  *
  * Views are named presets of {filters, sort, hidden_columns} persisted per
  * workbook (backend: /api/v2/workbooks/{id}/views). They are presentation-layer
- * only: filtering/sorting is applied CLIENT-SIDE by the editor (rows are already
- * loaded client-side), so switching views is instant and never mutates rows.
+ * only: filters and sorting are applied before server pagination. Switching
+ * views refetches scoped rows and never mutates their data.
  */
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { AlertDialog, Button, Dialog, Input, Menu } from "@/design-system/primitives"
 import {
-  ChevronDown, Eye, Filter as FilterIcon, Layers3, Pencil, Plus, Save, Trash2, X,
+  Check, ChevronDown, Eye, Filter as FilterIcon, Layers3, Pencil, Plus, Save, Trash2, X,
 } from "lucide-react"
+import { NativeSelect } from "@/components/ui/native-select"
 import { toast } from "sonner"
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
-  DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   useCreateView, useDeleteView, useUpdateView, useWorkbookViews,
 } from "@/lib/workbook-hooks"
@@ -92,6 +89,15 @@ const OP_LABELS: Record<ViewFilterOp, string> = {
 }
 const NO_VALUE_OPS: ViewFilterOp[] = ["empty", "not_empty"]
 
+// Local names keep the view markup readable while using Twenty's menu system.
+const DropdownMenu = Menu.Root
+const DropdownMenuContent = Menu.Popup
+const DropdownMenuGroup = Menu.Group
+const DropdownMenuItem = Menu.Item
+const DropdownMenuLabel = Menu.GroupLabel
+const DropdownMenuSeparator = Menu.Separator
+const DropdownMenuTrigger = Menu.Trigger
+
 // ── Component ────────────────────────────────────────────────────────────
 
 export function WorkbookViewBar({
@@ -108,7 +114,8 @@ export function WorkbookViewBar({
   /** Currently hidden column ids — captured into the view on create/save. */
   hiddenColumns: Set<string>
 }) {
-  const { data } = useWorkbookViews(workbookId)
+  const viewQuery = useWorkbookViews(workbookId)
+  const { data } = viewQuery
   const views = useMemo(() => data?.views ?? [], [data])
   const activeView = views.find(v => v.id === activeViewId) ?? null
 
@@ -122,11 +129,20 @@ export function WorkbookViewBar({
   const [renameName, setRenameName] = useState("")
   const [filterOpen, setFilterOpen] = useState(false)
   const [draftFilters, setDraftFilters] = useState<ViewFilter[]>([])
+  const namingPending = useRef(false)
+  const [nameError, setNameError] = useState<string | null>(null)
+  const [filterError, setFilterError] = useState<string | null>(null)
+  const filterPending = useRef(false)
+  const [deleteTarget, setDeleteTarget] = useState<WorkbookView | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const deleting = useRef(false)
+  const viewTrigger = useRef<HTMLButtonElement>(null)
 
   // Keep the filter draft in sync with the active view.
   useEffect(() => {
+    if (filterOpen) return
     setDraftFilters(activeView?.config?.filters ?? [])
-  }, [activeViewId, activeView?.config])
+  }, [activeViewId, activeView?.config, filterOpen])
 
   const currentConfig = (filters: ViewFilter[]): ViewConfig => ({
     filters,
@@ -136,7 +152,9 @@ export function WorkbookViewBar({
 
   const handleCreate = () => {
     const name = createName.trim()
-    if (!name) return
+    if (!name || namingPending.current) return
+    namingPending.current = true
+    setNameError(null)
     createMut.mutate(
       { name, config: currentConfig(activeView ? draftFilters : []) },
       {
@@ -146,40 +164,49 @@ export function WorkbookViewBar({
           onSelectView(v)
           toast.success(`View "${v.name}" created`)
         },
-        onError: () => toast.error("Failed to create view"),
+        onError: () => setNameError("Could not create the view. Your name is still here; try again."),
+        onSettled: () => { namingPending.current = false },
       },
     )
   }
 
   const handleRename = () => {
     const name = renameName.trim()
-    if (!name || !activeView) return
+    if (!name || !activeView || namingPending.current) return
+    namingPending.current = true
+    setNameError(null)
     updateMut.mutate(
       { viewId: activeView.id, name },
       {
         onSuccess: () => { setRenameOpen(false); toast.success("View renamed") },
-        onError: () => toast.error("Failed to rename view"),
+        onError: () => setNameError("Could not rename the view. Your name is still here; try again."),
+        onSettled: () => { namingPending.current = false },
       },
     )
   }
 
   const handleDelete = () => {
-    if (!activeView) return
-    if (!confirm(`Delete view "${activeView.name}"? (Rows are never affected.)`)) return
-    deleteMut.mutate(activeView.id, {
-      onSuccess: () => { onSelectView(null); toast.success("View deleted") },
-      onError: () => toast.error("Failed to delete view"),
+    if (!deleteTarget || deleting.current) return
+    deleting.current = true
+    setDeleteError(null)
+    deleteMut.mutate(deleteTarget.id, {
+      onSuccess: () => { setDeleteTarget(null); onSelectView(null); toast.success("View deleted") },
+      onError: () => setDeleteError("Deletion was not confirmed. Refresh the view list before retrying if the connection was interrupted."),
+      onSettled: () => { deleting.current = false },
     })
   }
 
   /** Persist filters draft + the CURRENT sort/hidden-columns into the view. */
   const handleSaveConfig = (filters: ViewFilter[]) => {
-    if (!activeView) return
+    if (!activeView || filterPending.current) return
+    filterPending.current = true
+    setFilterError(null)
     updateMut.mutate(
       { viewId: activeView.id, config: currentConfig(filters) },
       {
-        onSuccess: () => toast.success("View saved"),
-        onError: () => toast.error("Failed to save view"),
+        onSuccess: () => { setFilterOpen(false); toast.success("View saved") },
+        onError: () => { setFilterError("Could not save filters. Your draft is still here; try again."); toast.error("Failed to save view") },
+        onSettled: () => { filterPending.current = false },
       },
     )
   }
@@ -190,29 +217,32 @@ export function WorkbookViewBar({
     <div className="flex items-center gap-1">
       {/* ── View switcher ── */}
       <DropdownMenu>
-        <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border bg-background text-xs font-medium hover:bg-accent transition-colors max-w-44">
+        <DropdownMenuTrigger ref={viewTrigger} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border bg-background text-xs font-medium hover:bg-accent transition-colors max-w-44">
           <Layers3 className="size-3.5 text-muted-foreground shrink-0" />
-          <span className="truncate">{activeView ? activeView.name : "All rows"}</span>
+          <span className="truncate">{activeView ? activeView.name : activeViewId ? "Selected view unavailable" : "All rows"}</span>
           <ChevronDown className="size-3 text-muted-foreground shrink-0" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
           <DropdownMenuGroup>
             <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">Views</DropdownMenuLabel>
+            {viewQuery.isPending && <p role="status" className="px-2 py-2 text-sm">Loading saved views…</p>}
+            {viewQuery.isError && <p role="alert" className="px-2 py-2 text-sm">Could not load saved views.</p>}
+            {viewQuery.isError && <DropdownMenuItem disabled={viewQuery.isFetching} onClick={() => void viewQuery.refetch()}>Retry saved views</DropdownMenuItem>}
             <DropdownMenuItem onClick={() => onSelectView(null)}>
               <Eye className="size-3.5" />
               All rows
-              {!activeView && <span className="ml-auto text-primary">✓</span>}
+              {!activeViewId && <Check aria-hidden="true" className="ml-auto size-3.5 text-foreground" />}
             </DropdownMenuItem>
             {views.map(v => (
               <DropdownMenuItem key={v.id} onClick={() => onSelectView(v)}>
                 <Layers3 className="size-3.5" />
                 <span className="truncate">{v.name}</span>
-                {v.id === activeViewId && <span className="ml-auto text-primary">✓</span>}
+                {v.id === activeViewId && <Check aria-hidden="true" className="ml-auto size-3.5 text-foreground" />}
               </DropdownMenuItem>
             ))}
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => { setCreateName(""); setCreateOpen(true) }}>
+          <DropdownMenuItem disabled={viewQuery.isPending || viewQuery.isError} onClick={() => { setNameError(null); setCreateName(""); setCreateOpen(true) }}>
             <Plus className="size-3.5" /> New view
           </DropdownMenuItem>
           {activeView && (
@@ -220,10 +250,10 @@ export function WorkbookViewBar({
               <DropdownMenuItem onClick={() => handleSaveConfig(draftFilters)}>
                 <Save className="size-3.5" /> Save sort & columns to view
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => { setRenameName(activeView.name); setRenameOpen(true) }}>
+              <DropdownMenuItem onClick={() => { setNameError(null); setRenameName(activeView.name); setRenameOpen(true) }}>
                 <Pencil className="size-3.5" /> Rename view
               </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={handleDelete}>
+              <DropdownMenuItem className="text-destructive" onClick={() => { setDeleteError(null); setDeleteTarget(activeView) }}>
                 <Trash2 className="size-3.5" /> Delete view
               </DropdownMenuItem>
             </>
@@ -233,41 +263,47 @@ export function WorkbookViewBar({
 
       {/* ── Filter builder (only meaningful with a view selected) ── */}
       {activeView && (
-        <Popover open={filterOpen} onOpenChange={setFilterOpen}>
-          <PopoverTrigger
+        <Dialog.Root open={filterOpen} onOpenChange={open => { if (!filterPending.current) { setFilterOpen(open); setFilterError(null) } }}>
+          <Dialog.Trigger render={<Button />}
             className={`inline-flex items-center gap-1 px-2 py-1.5 rounded-md border text-xs transition-colors hover:bg-accent ${filterCount > 0 ? "text-primary border-primary/30" : "text-muted-foreground"}`}
             title="Edit this view's filters"
           >
             <FilterIcon className="size-3.5" />
             {filterCount > 0 ? `${filterCount} filter${filterCount > 1 ? "s" : ""}` : "Filter"}
-          </PopoverTrigger>
-          <PopoverContent align="start" className="w-96 p-3 space-y-2">
-            <div className="text-xs font-medium text-muted-foreground">
-              Filters for “{activeView.name}” <span className="text-muted-foreground/60">(all must match)</span>
-            </div>
+          </Dialog.Trigger>
+          <Dialog.Popup size="lg" style={{ width: "min(640px, calc(100vw - 32px))", maxHeight: "calc(100dvh - 32px)" }}>
+            <Dialog.Header><Dialog.Title>View filters</Dialog.Title><Dialog.Description>Filters for “{activeView.name}”. All conditions must match.</Dialog.Description></Dialog.Header>
+            <Dialog.Body className="space-y-3 overflow-y-auto min-h-0">
+            {filterError && <p role="alert" className="text-sm">{filterError}</p>}
             {draftFilters.length === 0 && (
               <p className="text-[11px] text-muted-foreground/70">No filters — this view shows every row.</p>
             )}
             {draftFilters.map((f, i) => (
-              <div key={i} className="flex items-center gap-1">
-                <select
+              <div key={i} className="flex flex-wrap items-center gap-1">
+                <NativeSelect
+                  aria-label={`Filter ${i + 1} column`}
+                  disabled={updateMut.isPending}
                   value={f.column}
                   onChange={e => setDraftFilters(prev => prev.map((x, j) => j === i ? { ...x, column: e.target.value } : x))}
-                  className="flex-1 min-w-0 px-1.5 py-1 rounded border bg-background text-xs"
+                  className="flex-1 min-w-0"
                 >
                   {columns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-                <select
+                </NativeSelect>
+                <NativeSelect
+                  aria-label={`Filter ${i + 1} operator`}
+                  disabled={updateMut.isPending}
                   value={f.op}
                   onChange={e => setDraftFilters(prev => prev.map((x, j) => j === i ? { ...x, op: e.target.value as ViewFilterOp } : x))}
-                  className="w-32 shrink-0 px-1.5 py-1 rounded border bg-background text-xs"
+                  className="w-32 shrink-0"
                 >
                   {(Object.keys(OP_LABELS) as ViewFilterOp[]).map(op => (
                     <option key={op} value={op}>{OP_LABELS[op]}</option>
                   ))}
-                </select>
+                </NativeSelect>
                 {!NO_VALUE_OPS.includes(f.op) && (
                   <input
+                    aria-label={`Filter ${i + 1} value`}
+                    disabled={updateMut.isPending}
                     value={String(f.value ?? "")}
                     onChange={e => setDraftFilters(prev => prev.map((x, j) => j === i ? { ...x, value: e.target.value } : x))}
                     placeholder="value"
@@ -275,6 +311,8 @@ export function WorkbookViewBar({
                   />
                 )}
                 <button
+                  aria-label={`Remove filter ${i + 1}`}
+                  disabled={updateMut.isPending}
                   onClick={() => setDraftFilters(prev => prev.filter((_, j) => j !== i))}
                   className="p-1 rounded hover:bg-destructive/10 hover:text-destructive shrink-0"
                 >
@@ -282,82 +320,95 @@ export function WorkbookViewBar({
                 </button>
               </div>
             ))}
-            <div className="flex items-center justify-between pt-1">
-              <button
+            </Dialog.Body>
+            <Dialog.Footer className="flex-wrap">
+              <Button
+                disabled={!columns.length || updateMut.isPending}
                 onClick={() => setDraftFilters(prev => [...prev, { column: columns[0]?.id ?? "", op: "contains", value: "" }])}
                 className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-muted-foreground hover:bg-muted transition-colors"
               >
                 <Plus className="size-3" /> Add filter
-              </button>
-              <button
-                onClick={() => { handleSaveConfig(draftFilters); setFilterOpen(false) }}
+              </Button>
+              <Dialog.Close render={<Button disabled={updateMut.isPending} />}>Cancel</Dialog.Close>
+              <Button
+                onClick={() => handleSaveConfig(draftFilters)}
                 disabled={updateMut.isPending}
                 className="px-2.5 py-1 rounded-md text-xs bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 Apply & save
-              </button>
-            </div>
-          </PopoverContent>
-        </Popover>
+              </Button>
+            </Dialog.Footer>
+          </Dialog.Popup>
+        </Dialog.Root>
       )}
 
-      {/* ── Create view overlay (same pattern as the editor's rename-column modal) ── */}
-      {createOpen && (
-        <div className="fixed inset-0 z-[200] flex items-start justify-center pt-32 bg-black/30 backdrop-blur-sm"
-          onClick={() => setCreateOpen(false)}>
-          <div className="w-72 rounded-xl border bg-card shadow-2xl p-4 space-y-3 animate-in fade-in zoom-in-95 duration-200"
-            onClick={e => e.stopPropagation()}>
-            <div className="text-xs font-medium text-muted-foreground">New view</div>
-            <input
-              autoFocus
+      <AlertDialog.Root open={!!deleteTarget} onOpenChange={open => { if (!open && !deleting.current) setDeleteTarget(null) }}>
+        <AlertDialog.Popup finalFocus={viewTrigger} style={{ width: "min(400px, calc(100vw - 32px))" }}>
+          <AlertDialog.Header><AlertDialog.Title>Delete saved view?</AlertDialog.Title>
+            <AlertDialog.Description>Delete “{deleteTarget?.name}”? Workbook rows and their data are not deleted.</AlertDialog.Description>
+          </AlertDialog.Header>
+          {deleteError && <AlertDialog.Body><p role="alert">{deleteError}</p></AlertDialog.Body>}
+          <AlertDialog.Footer>
+            <AlertDialog.Close render={<Button disabled={deleteMut.isPending} />}>Cancel</AlertDialog.Close>
+            <Button color="danger" variant="solid" loading={deleteMut.isPending} onClick={handleDelete}>Delete view</Button>
+          </AlertDialog.Footer>
+        </AlertDialog.Popup>
+      </AlertDialog.Root>
+
+      {/* ── Saved-view naming dialogs ── */}
+      <Dialog.Root open={createOpen} onOpenChange={open => { if (!namingPending.current) { setCreateOpen(open); setNameError(null) } }}>
+        <Dialog.Popup finalFocus={viewTrigger} style={{ width: "min(400px, calc(100vw - 32px))" }}>
+          <Dialog.Header><Dialog.Title>New view</Dialog.Title><Dialog.Description>Save the current sort and hidden columns.</Dialog.Description></Dialog.Header>
+          <Dialog.Body>
+            <label htmlFor="create-view-name">View name</label>
+            <Input id="create-view-name"
               value={createName}
               onChange={e => setCreateName(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") handleCreate(); if (e.key === "Escape") setCreateOpen(false) }}
+              onKeyDown={e => { if (e.key === "Enter") handleCreate() }}
               placeholder="View name…"
               className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
             />
-            <p className="text-[10px] text-muted-foreground/70">Captures the current sort and hidden columns.</p>
-            <div className="flex gap-2 justify-end">
-              <button onClick={() => setCreateOpen(false)} className="px-2.5 py-1 text-xs rounded-md hover:bg-muted">Cancel</button>
-              <button
+            {nameError && <p role="alert">{nameError}</p>}
+          </Dialog.Body>
+          <Dialog.Footer>
+              <Button disabled={createMut.isPending} onClick={() => setCreateOpen(false)}>Cancel</Button>
+              <Button
                 onClick={handleCreate}
                 disabled={!createName.trim() || createMut.isPending}
                 className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 Create
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              </Button>
+          </Dialog.Footer>
+        </Dialog.Popup>
+      </Dialog.Root>
 
       {/* ── Rename view overlay ── */}
-      {renameOpen && (
-        <div className="fixed inset-0 z-[200] flex items-start justify-center pt-32 bg-black/30 backdrop-blur-sm"
-          onClick={() => setRenameOpen(false)}>
-          <div className="w-72 rounded-xl border bg-card shadow-2xl p-4 space-y-3 animate-in fade-in zoom-in-95 duration-200"
-            onClick={e => e.stopPropagation()}>
-            <div className="text-xs font-medium text-muted-foreground">Rename view</div>
-            <input
-              autoFocus
+      <Dialog.Root open={renameOpen} onOpenChange={open => { if (!namingPending.current) { setRenameOpen(open); setNameError(null) } }}>
+        <Dialog.Popup finalFocus={viewTrigger} style={{ width: "min(400px, calc(100vw - 32px))" }}>
+          <Dialog.Header><Dialog.Title>Rename view</Dialog.Title><Dialog.Description>Only the view name changes. Rows are unaffected.</Dialog.Description></Dialog.Header>
+          <Dialog.Body>
+            <label htmlFor="rename-view-name">View name</label>
+            <Input id="rename-view-name"
               value={renameName}
               onChange={e => setRenameName(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") handleRename(); if (e.key === "Escape") setRenameOpen(false) }}
+              onKeyDown={e => { if (e.key === "Enter") handleRename() }}
               className="w-full px-2.5 py-1.5 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
             />
-            <div className="flex gap-2 justify-end">
-              <button onClick={() => setRenameOpen(false)} className="px-2.5 py-1 text-xs rounded-md hover:bg-muted">Cancel</button>
-              <button
+            {nameError && <p role="alert">{nameError}</p>}
+          </Dialog.Body>
+          <Dialog.Footer>
+              <Button disabled={updateMut.isPending} onClick={() => setRenameOpen(false)}>Cancel</Button>
+              <Button
                 onClick={handleRename}
                 disabled={!renameName.trim() || updateMut.isPending}
                 className="px-2.5 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 Rename
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              </Button>
+          </Dialog.Footer>
+        </Dialog.Popup>
+      </Dialog.Root>
     </div>
   )
 }

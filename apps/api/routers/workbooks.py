@@ -13,17 +13,18 @@ import re
 
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, Query, Request
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy.orm import Session
 from sqlalchemy import Text, and_, cast, func as sa_func, or_
 
 from apps.api.database import get_db
+from apps.api.services.workbook.cell_scope import uses_legacy_leads, mark_row_storage
 from apps.api.services.workbook.models import (
     ConnectorRun, Workbook, WorkbookEnrichment, WorkbookRow, WorkbookView,
     COLUMN_TYPES, LEAD_FIELD_MAP,
 )
 from apps.api.services.workbook.schemas import (
-    WorkbookCreate, WorkbookUpdate, WorkbookResponse,
+    ColumnConfig, WorkbookCreate, WorkbookUpdate, WorkbookResponse,
     WorkbookListResponse, WorkbookWithLeadsResponse,
     WorkbookLeadRow, EnrichmentOverlay,
     RunWorkbookRequest, RunWorkbookResponse, RunCellRequest,
@@ -57,16 +58,52 @@ def _get_lead_db() -> LeadDB:
     return LeadDB()
 
 
-def _owned_workbook(db: Session, workbook_id: str, ctx: WorkspaceCtx) -> Workbook:
+def _changed_row_fields(data: dict, fields: dict) -> dict:
+    # JSON comparison distinguishes False from 0 and ignores object key order.
+    return {key: value for key, value in fields.items()
+            if key not in data or json.dumps(data[key], sort_keys=True) != json.dumps(value, sort_keys=True)}
+
+
+def _owned_workbook(db: Session, workbook_id: str, ctx: WorkspaceCtx, *, for_update: bool = False) -> Workbook:
     """Fetch a workbook scoped to the caller's workspace.
 
     Returns 404 (not 403) for workbooks in other workspaces so we don't leak
     which ids exist outside the caller's tenant.
     """
-    wb = db.query(Workbook).filter(Workbook.id == workbook_id).first()
+    query = db.query(Workbook).filter(Workbook.id == workbook_id, Workbook.workspace_id == ctx.workspace_id)
+    if for_update:
+        query = query.populate_existing().with_for_update()
+    wb = query.first()
     if not wb or wb.workspace_id != ctx.workspace_id:
         raise HTTPException(status_code=404, detail="Workbook not found")
     return wb
+
+
+def _validate_column_renames(before: list[dict], after: list[dict]) -> None:
+    from apps.api.services.workbook.column_deps import broken_rename_references
+    dependants = broken_rename_references(before, after)
+    if dependants:
+        names = ", ".join(str(column.get("name") or column.get("id")) for column in dependants)
+        raise HTTPException(status_code=409, detail=f"Rename breaks column-name references in: {names}. Change those references to stable column IDs first.")
+
+
+def _validate_new_cycle_dependencies(before: list[dict], after: list[dict]) -> None:
+    from apps.api.services.workbook.column_deps import cycle_blocked_columns
+    newly_blocked = cycle_blocked_columns(after) - cycle_blocked_columns(before)
+    if newly_blocked:
+        raise HTTPException(status_code=422, detail=(
+            "Column changes introduce circular dependencies affecting: " + ", ".join(sorted(newly_blocked)) +
+            ". Break the circular references before saving."))
+
+
+def _validate_view_columns(wb: Workbook, config: dict) -> None:
+    known = {column.get("id") for column in (wb.columns_config or [])}
+    referenced = {item["column"] for item in config.get("filters", [])}
+    referenced.update(item["column"] for item in config.get("sort", []))
+    referenced.update(config.get("hidden_columns", []))
+    missing = referenced - known
+    if missing:
+        raise HTTPException(status_code=422, detail=f"View references missing columns: {', '.join(sorted(missing))}. Refresh the workbook and update the view.")
 
 
 def _workbook_value_expression(wb: Workbook, column_id: str):
@@ -94,7 +131,7 @@ def _workbook_rows_query(db: Session, wb: Workbook, view_id: Optional[str], sear
     for rule in view_config.get("filters", []):
         expression = _workbook_value_expression(wb, rule.get("column", ""))
         if expression is None:
-            continue
+            raise HTTPException(status_code=409, detail="Saved view references a missing filter column. Repair the view before continuing.")
         normalized = sa_func.lower(sa_func.coalesce(expression, ""))
         expected = str(rule.get("value") or "").lower()
         operation = rule.get("op")
@@ -121,9 +158,10 @@ def _workbook_rows_query(db: Session, wb: Workbook, view_id: Optional[str], sear
     cursor_terms = []
     for rule in view_config.get("sort", []):
         expression = _workbook_value_expression(wb, rule.get("column", ""))
-        if expression is not None:
-            normalized = sa_func.coalesce(expression, "")
-            cursor_terms.append((normalized, rule.get("dir") == "desc"))
+        if expression is None:
+            raise HTTPException(status_code=409, detail="Saved view references a missing sort column. Repair the view before continuing.")
+        normalized = sa_func.coalesce(expression, "")
+        cursor_terms.append((normalized, rule.get("dir") == "desc"))
     cursor_terms.extend(((WorkbookRow.position, False), (WorkbookRow.id, False)))
     ordering = [expression.desc() if descending else expression.asc() for expression, descending in cursor_terms]
     return query, ordering, cursor_terms
@@ -211,7 +249,7 @@ def _workbook_response(wb: Workbook, lead_db: LeadDB = None) -> WorkbookResponse
         ).scalar() or 0
         if row_count > 0:
             total = row_count
-        elif lead_db:
+        elif lead_db and uses_legacy_leads(wb):
             try:
                 _, total = _query_leads(lead_db, wb.filter_criteria or {}, page=1, page_size=1)
             except Exception:
@@ -274,6 +312,11 @@ async def create_workbook(
     source="csv": rows provided in source_config.rows
     source="job_results": snapshot leads from specific jobs
     """
+    columns = [column.model_dump(exclude_none=True) for column in body.columns_config]
+    ids = [column["id"] for column in columns]
+    if len(ids) != len(set(ids)):
+        raise HTTPException(status_code=422, detail="Column IDs must be unique")
+    _validate_new_cycle_dependencies([], columns)
     # Determine source type
     source = body.source or "empty"
     filter_criteria = body.filter_criteria.model_dump(exclude_none=True) if body.filter_criteria else {}
@@ -289,9 +332,9 @@ async def create_workbook(
         description=body.description,
         workspace_id=ctx.workspace_id,
         source_type=source,
-        source_config=source_config,
+        source_config={**source_config, "row_storage_version": 2},
         filter_criteria=filter_criteria,
-        columns_config=[c.model_dump(exclude_none=True) for c in body.columns_config],
+        columns_config=columns,
     )
     db.add(wb)
     db.commit()
@@ -505,7 +548,7 @@ async def get_workbook(
         WorkbookRow.workbook_id == workbook_id
     ).scalar() or 0
 
-    if v2_count > 0:
+    if v2_count > 0 or not uses_legacy_leads(wb):
         query, ordering, cursor_terms = _workbook_rows_query(db, wb, view_id, search)
         query_total = query.with_entities(sa_func.count(WorkbookRow.id)).scalar() or 0
         using_cursor = cursor_mode or cursor is not None
@@ -534,11 +577,35 @@ async def get_workbook(
                 ).filter(WorkbookRow.id == last_row.id).one()
                 next_cursor = _encode_query_cursor(list(cursor_values))
 
+        # Older v2 mirrors omitted research metadata. Recover it read-only from
+        # the matching cell receipt, never from a different workbook/tenant or
+        # from an older result whose value/status no longer matches the row.
+        cell_keys = {r.lead_id if r.lead_id is not None else r.id for r in wb_rows}
+        research_columns = {column.get("id") for column in (wb.columns_config or [])
+                            if column.get("type") == "research" and column.get("id")}
+        research_receipts = {}
+        if cell_keys and research_columns:
+            for receipt in db.query(WorkbookEnrichment).filter(
+                WorkbookEnrichment.workbook_id == workbook_id,
+                WorkbookEnrichment.workspace_id == ctx.workspace_id,
+                WorkbookEnrichment.lead_id.in_(cell_keys),
+                WorkbookEnrichment.column_id.in_(research_columns),
+            ).all():
+                metadata = receipt.cell_metadata
+                if isinstance(metadata, dict) and isinstance(metadata.get("research"), dict):
+                    research_receipts[(receipt.lead_id, receipt.column_id)] = receipt
+
         rows = []
         for r in wb_rows:
             enrichments_dict = {}
             for col_id, overlay in (r.enrichments or {}).items():
                 if isinstance(overlay, dict):
+                    receipt = research_receipts.get((r.lead_id if r.lead_id is not None else r.id, col_id))
+                    if receipt is not None and "research" not in overlay:
+                        value = overlay.get("value")
+                        serialized = value if value is None or isinstance(value, str) else json.dumps(value, ensure_ascii=False)
+                        if serialized == receipt.value and overlay.get("status") == receipt.status:
+                            overlay = {**overlay, "research": receipt.cell_metadata["research"]}
                     enrichments_dict[col_id] = EnrichmentOverlay(**overlay)
                 else:
                     enrichments_dict[col_id] = EnrichmentOverlay(value=overlay, status="complete")
@@ -588,13 +655,15 @@ async def get_workbook(
             enrich_map[e.lead_id] = {}
         vstatus = None
         prov = None
+        research = None
         if isinstance(e.cell_metadata, dict):
             vstatus = (e.cell_metadata.get("verify") or {}).get("status")
             prov = e.cell_metadata.get("provenance")  # per-fact provenance (flag-gated)
+            research = e.cell_metadata.get("research")
         enrich_map[e.lead_id][e.column_id] = EnrichmentOverlay(
             value=e.value, status=e.status or "pending",
             provider=e.provider, error=e.error, verify_status=vstatus,
-            provenance=prov,
+            provenance=prov, research=research,
         )
 
     rows = []
@@ -611,6 +680,127 @@ async def get_workbook(
         page=page, page_size=page_size,
         has_more=page * page_size < total,
     )
+
+
+class ColumnWidthUpdate(BaseModel):
+    width: int = Field(ge=80, le=600, strict=True)
+
+
+class ColumnOrderUpdate(BaseModel):
+    column_ids: list[str]
+    expected_column_ids: list[str]
+    model_config = {"extra": "forbid"}
+
+
+class ColumnSettingsUpdate(BaseModel):
+    changes: dict
+    expected: dict
+    model_config = {"extra": "forbid"}
+
+
+@router.patch("/{workbook_id}/columns/{column_id}/settings")
+async def update_column_settings(
+    workbook_id: str,
+    column_id: str,
+    body: ColumnSettingsUpdate,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_editor),
+):
+    """Compare only edited fields; preserve unrelated current configuration.
+
+    Missing and null expected values are equivalent for optional settings. Column
+    identity/type and presentation width have separate contracts, not this patch.
+    """
+    allowed = set(ColumnConfig.model_fields) - {"id", "type", "width"}
+    if not body.changes or set(body.changes) != set(body.expected) or not set(body.changes) <= allowed:
+        raise HTTPException(status_code=422, detail="Provide supported changes and matching expected fields")
+    wb = db.query(Workbook).filter(
+        Workbook.id == workbook_id, Workbook.workspace_id == ctx.workspace_id,
+    ).populate_existing().with_for_update().first()
+    if wb is None:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    columns = wb.columns_config or []
+    matches = [column for column in columns if column.get("id") == column_id]
+    if not matches:
+        raise HTTPException(status_code=404, detail="Column not found")
+    if len(matches) != 1:
+        raise HTTPException(status_code=409, detail="Column identity is ambiguous")
+    current = matches[0]
+    for key, expected in body.expected.items():
+        if json.dumps(current.get(key), sort_keys=True) != json.dumps(expected, sort_keys=True):
+            raise HTTPException(status_code=409, detail="Column settings changed. Refresh before saving again.")
+    try:
+        validated = ColumnConfig.model_validate(
+            {"name": column_id, **current, **body.changes}, strict=True,
+        ).model_dump(exclude_unset=True)
+    except ValidationError:
+        # Do not reflect prompts, provider secrets or destination configuration.
+        raise HTTPException(status_code=422, detail="Invalid column settings")
+    if "name" in body.changes and not validated["name"].strip():
+        raise HTTPException(status_code=422, detail="Column name must not be empty")
+    changes = {key: validated[key] for key in body.changes}
+    replacement = [
+        {**column, **changes} if column.get("id") == column_id else dict(column)
+        for column in columns
+    ]
+    _validate_column_renames(columns, replacement)
+    _validate_new_cycle_dependencies(columns, replacement)
+    wb.columns_config = replacement
+    db.commit()
+    return {"column_id": column_id, "changes": changes}
+
+
+@router.patch("/{workbook_id}/columns/order")
+async def update_column_order(
+    workbook_id: str,
+    body: ColumnOrderUpdate,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_editor),
+):
+    """Reorder current configuration without overwriting execution settings."""
+    wb = db.query(Workbook).filter(
+        Workbook.id == workbook_id, Workbook.workspace_id == ctx.workspace_id,
+    ).with_for_update().first()
+    if wb is None:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    columns = wb.columns_config or []
+    current_ids = [column.get("id") for column in columns]
+    if current_ids != body.expected_column_ids:
+        raise HTTPException(status_code=409, detail="Column order changed. Refresh before reordering.")
+    if (len(set(current_ids)) != len(current_ids) or
+            len(body.column_ids) != len(current_ids) or
+            len(set(body.column_ids)) != len(body.column_ids) or
+            set(body.column_ids) != set(current_ids)):
+        raise HTTPException(status_code=422, detail="Column order must contain each current column exactly once")
+    by_id = {column["id"]: column for column in columns}
+    wb.columns_config = [dict(by_id[column_id]) for column_id in body.column_ids]
+    db.commit()
+    return {"column_ids": body.column_ids}
+
+
+@router.patch("/{workbook_id}/columns/{column_id}/width")
+async def update_column_width(
+    workbook_id: str,
+    column_id: str,
+    body: ColumnWidthUpdate,
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(require_editor),
+):
+    """Update presentation width without accepting replacement column config."""
+    wb = db.query(Workbook).filter(
+        Workbook.id == workbook_id, Workbook.workspace_id == ctx.workspace_id,
+    ).with_for_update().first()
+    if wb is None:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    columns = wb.columns_config or []
+    if not any(column.get("id") == column_id for column in columns):
+        raise HTTPException(status_code=404, detail="Column not found")
+    wb.columns_config = [
+        {**column, "width": body.width} if column.get("id") == column_id else dict(column)
+        for column in columns
+    ]
+    db.commit()
+    return {"column_id": column_id, "width": body.width}
 
 
 @router.get("/{workbook_id}/export.csv")
@@ -718,7 +908,33 @@ async def update_workbook(
     ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Update workbook metadata, filter, or columns."""
-    wb = _owned_workbook(db, workbook_id, ctx)
+    wb = _owned_workbook(db, workbook_id, ctx, for_update=True)
+
+    replacement = None
+    if body.columns_config is not None:
+        replacement = [c.model_dump(exclude_none=True) for c in body.columns_config]
+        ids = [column["id"] for column in replacement]
+        if len(ids) != len(set(ids)):
+            raise HTTPException(status_code=422, detail="Column IDs must be unique")
+        _validate_column_renames(wb.columns_config or [], replacement)
+        _validate_new_cycle_dependencies(wb.columns_config or [], replacement)
+        removed = [column for column in (wb.columns_config or []) if column.get("id") not in ids]
+        if removed:
+            from apps.api.services.workbook.column_deps import referencing_columns
+            for column in removed:
+                dependants = referencing_columns(replacement, column)
+                if dependants:
+                    raise HTTPException(status_code=409, detail="Replacement removes a referenced column. Update dependent columns first.")
+            removed_ids = {column.get("id") for column in removed}
+            for view in db.query(WorkbookView).filter(
+                WorkbookView.workbook_id == workbook_id,
+                WorkbookView.workspace_id == ctx.workspace_id,
+            ).all():
+                config = view.config or {}
+                refs = {rule.get("column") for key in ("filters", "sort") for rule in config.get(key, [])}
+                refs.update(config.get("hidden_columns", []))
+                if refs.intersection(removed_ids):
+                    raise HTTPException(status_code=409, detail=f"Replacement removes a column referenced by saved view: {view.name}. Update the view first.")
 
     if body.name is not None:
         wb.name = body.name
@@ -728,8 +944,8 @@ async def update_workbook(
         wb.status = body.status
     if body.filter_criteria is not None:
         wb.filter_criteria = body.filter_criteria.model_dump(exclude_none=True)
-    if body.columns_config is not None:
-        wb.columns_config = [c.model_dump(exclude_none=True) for c in body.columns_config]
+    if replacement is not None:
+        wb.columns_config = replacement
 
     db.commit()
     db.refresh(wb)
@@ -834,7 +1050,15 @@ async def import_csv_leads(
     ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Import CSV rows into the workbook and preserve its complete schema."""
-    wb = _owned_workbook(db, workbook_id, ctx)
+    # Serialize imports with other row-locking workbook edits before reading
+    # schema, duplicate identities or positions. SQLite ignores FOR UPDATE;
+    # concurrent import acceptance must also be exercised on PostgreSQL.
+    wb = db.query(Workbook).filter(
+        Workbook.id == workbook_id,
+        Workbook.workspace_id == ctx.workspace_id,
+    ).populate_existing().with_for_update().first()
+    if wb is None:
+        raise HTTPException(status_code=404, detail="Workbook not found")
     from apps.api.services.workbook.csv_import import analyze_csv_import, prepare_csv_import
     from apps.api.services.leadgen.dedup import normalize_domain, normalize_company
 
@@ -938,11 +1162,20 @@ async def add_column(
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(require_editor),
 ):
-    """Add a new column to the workbook."""
-    wb = _owned_workbook(db, workbook_id, ctx)
+    """Append to the latest configuration without replacing existing columns."""
+    wb = db.query(Workbook).filter(
+        Workbook.id == workbook_id, Workbook.workspace_id == ctx.workspace_id,
+    ).populate_existing().with_for_update().first()
+    if wb is None:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    if not body.column.id.strip() or not body.column.name.strip() or not 80 <= body.column.width <= 600:
+        raise HTTPException(status_code=422, detail="Column requires a name, identity and width from 80 to 600")
 
     cols = list(wb.columns_config or [])
+    if any(column.get("id") == body.column.id for column in cols):
+        raise HTTPException(status_code=409, detail="Column identity already exists. Refresh before adding another column.")
     cols.append(body.column.model_dump(exclude_none=True))
+    _validate_new_cycle_dependencies(wb.columns_config or [], cols)
     wb.columns_config = cols
     db.commit()
     db.refresh(wb)
@@ -967,21 +1200,59 @@ async def generate_column(
         raise HTTPException(status_code=502, detail=f"Column generation failed: {e}")
 
 
+class ColumnDeleteRequest(BaseModel):
+    expected_column: dict
+    model_config = {"extra": "forbid"}
+
+
 @router.delete("/{workbook_id}/columns/{column_id}", response_model=WorkbookResponse)
 async def remove_column(
     workbook_id: str,
     column_id: str,
+    body: Optional[ColumnDeleteRequest] = None,
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(require_editor),
 ):
-    """Remove a column and its enrichment data."""
-    wb = _owned_workbook(db, workbook_id, ctx)
+    """Remove current column configuration and its legacy enrichment records.
+
+    Self-contained row data/evidence and shared lead data are retained. This is
+    not a complete data-erasure endpoint.
+    """
+    wb = db.query(Workbook).filter(
+        Workbook.id == workbook_id, Workbook.workspace_id == ctx.workspace_id,
+    ).populate_existing().with_for_update().first()
+    if wb is None:
+        raise HTTPException(status_code=404, detail="Workbook not found")
+    matches = [column for column in (wb.columns_config or []) if column.get("id") == column_id]
+    if not matches:
+        raise HTTPException(status_code=404, detail="Column not found")
+    if len(matches) != 1:
+        raise HTTPException(status_code=409, detail="Column identity is ambiguous")
+    if body is not None and json.dumps(matches[0], sort_keys=True) != json.dumps(body.expected_column, sort_keys=True):
+        raise HTTPException(status_code=409, detail="Column changed since confirmation. Refresh and review before deleting.")
+    from apps.api.services.workbook.column_deps import referencing_columns
+    dependants = referencing_columns(wb.columns_config or [], matches[0])
+    if dependants:
+        names = ", ".join(str(column.get("name") or column.get("id")) for column in dependants)
+        raise HTTPException(status_code=409, detail=f"Column is referenced by: {names}. Update those references before deleting.")
+    view_names = []
+    for view in db.query(WorkbookView).filter(
+        WorkbookView.workbook_id == workbook_id, WorkbookView.workspace_id == ctx.workspace_id,
+    ).all():
+        config = view.config or {}
+        refs = {rule.get("column") for key in ("filters", "sort") for rule in config.get(key, [])}
+        refs.update(config.get("hidden_columns", []))
+        if column_id in refs:
+            view_names.append(view.name)
+    if view_names:
+        raise HTTPException(status_code=409, detail=f"Column is referenced by saved views: {', '.join(view_names)}. Update those views before deleting.")
 
     wb.columns_config = [c for c in (wb.columns_config or []) if c.get("id") != column_id]
 
     # Clean up enrichment overlay data
     db.query(WorkbookEnrichment).filter(
         WorkbookEnrichment.workbook_id == workbook_id,
+        WorkbookEnrichment.workspace_id == ctx.workspace_id,
         WorkbookEnrichment.column_id == column_id,
     ).delete()
 
@@ -1017,9 +1288,11 @@ def estimate_run(
         if c.get("type") not in ENRICHMENT_COL_TYPES:
             continue
         target = c.get("target_field") or c.get("lead_field") or c.get("id")
-        chain = c.get("waterfall") or ([c["provider"]] if c.get("provider") else [])
-        if not chain:
-            chain = DEFAULT_WATERFALLS.get(target, [])
+        # Match execution: an explicitly empty waterfall disables provider
+        # selection; only absent/null configuration uses legacy defaults.
+        chain = c.get("waterfall")
+        if chain is None:
+            chain = [c["provider"]] if c.get("provider") else DEFAULT_WATERFALLS.get(target, [])
         providers_by_col[c.get("id") or target] = chain
 
     est = vendor_catalog.estimate_run_cost(num_rows, providers_by_col)
@@ -1051,8 +1324,29 @@ async def run_workbook(
     # Output columns push the (enriched) row somewhere, so run them last.
     enrichment_cols.sort(key=lambda c: 1 if c.get("type") == "output" else 0)
 
+    if body.row_columns is not None:
+        from apps.api.services.workbook.cell_scope import restrict_work_items
+        try:
+            restrict_work_items([], body.row_columns)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc))
+        if body.row_ids is None or set(body.row_columns) != {str(rid) for rid in body.row_ids}:
+            raise HTTPException(status_code=422, detail="Cell scope requires matching explicit row IDs")
+        allowed_ids = {column["id"] for column in enrichment_cols}
+        if any(set(ids) - allowed_ids for ids in body.row_columns.values()):
+            raise HTTPException(status_code=422, detail="Cell scope references an unavailable run column")
+
     if not enrichment_cols:
         return RunWorkbookResponse(status="skipped", total_jobs=0, message="No enrichment columns to run")
+
+    from apps.api.services.workbook.column_deps import cycle_blocked_columns
+    selected_ids = ({cid for ids in body.row_columns.values() for cid in ids}
+                    if body.row_columns is not None else {column["id"] for column in enrichment_cols})
+    cyclic = cycle_blocked_columns(columns).intersection(selected_ids)
+    if cyclic:
+        raise HTTPException(status_code=422, detail=(
+            "Selected columns depend on a circular reference: " + ", ".join(sorted(cyclic)) +
+            ". Edit their column references to break the cycle before running."))
 
     # ── Get rows from WorkbookRow (v2) or leads DB (v1) ──
     v2_count = db.query(sa_func.count(WorkbookRow.id)).filter(
@@ -1069,18 +1363,27 @@ async def run_workbook(
     if v2_count > 0:
         # v2: read from WorkbookRow
         query = db.query(WorkbookRow).filter(WorkbookRow.workbook_id == workbook_id)
-        if body.row_ids:
+        if body.row_ids is not None:
             query = query.filter(WorkbookRow.id.in_(body.row_ids))
-        elif body.lead_ids:
+        elif body.lead_ids is not None:
             query = query.filter(WorkbookRow.lead_id.in_(body.lead_ids))
         elif body.view_id or (body.search or "").strip():
             query, _, _ = _workbook_rows_query(db, wb, body.view_id, body.search)
         wb_rows = query.all()
-        leads = [
-            {"id": r.lead_id or r.id, "__row_id": r.id, "__lead_id": r.lead_id, **r.data}
-            for r in wb_rows
-        ]
+        from apps.api.services.workbook.cell_scope import row_execution_data
+        leads = [row_execution_data(row, columns) for row in wb_rows]
         resolved_row_ids = [r.id for r in wb_rows]
+    elif body.row_ids is not None:
+        # An explicit v2 selection must never fall back to unrelated legacy leads.
+        leads = []
+        resolved_row_ids = []
+    elif body.lead_ids == []:
+        leads = []
+        resolved_lead_ids = []
+    elif not uses_legacy_leads(wb):
+        # An empty v2 workbook is not an invitation to scan legacy leads.
+        leads = []
+        resolved_row_ids = []
     else:
         # v1 legacy: read from leads DB
         if body.view_id or (body.search or "").strip():
@@ -1090,9 +1393,18 @@ async def run_workbook(
             leads, _ = _query_leads(lead_db, wb.filter_criteria or {}, page=1, page_size=10000)
         finally:
             lead_db.close()
-        if body.lead_ids:
+        if body.lead_ids is not None:
             leads = [l for l in leads if l["id"] in body.lead_ids]
         resolved_lead_ids = [l["id"] for l in leads]
+
+    if body.row_columns is not None:
+        if set(resolved_row_ids or []) != set(body.row_ids):
+            raise HTTPException(status_code=409, detail="Selected workbook rows changed. Refresh before running.")
+        leads = [lead for lead in leads if body.row_columns.get(str(lead["__row_id"]))]
+        resolved_row_ids = [lead["__row_id"] for lead in leads]
+
+    if body.expected_rows is not None and len(leads) != body.expected_rows:
+        raise HTTPException(status_code=409, detail="The matching row count changed. Refresh the run review before starting.")
 
     if not leads:
         return RunWorkbookResponse(status="skipped", total_jobs=0, message="No rows to process")
@@ -1102,6 +1414,7 @@ async def run_workbook(
         "workbook_id": workbook_id,
         "matched_rows": len(leads),
         "column_ids": [column["id"] for column in enrichment_cols],
+        "row_columns": body.row_columns,
         "view_id": body.view_id,
         "search_applied": bool((body.search or "").strip()),
         "fill_missing": bool(body.fill_missing),
@@ -1121,12 +1434,17 @@ async def run_workbook(
         providers_by_col = {}
         for c in enrichment_cols:
             target = c.get("target_field") or c.get("lead_field") or c.get("id")
-            chain = c.get("waterfall") or ([c["provider"]] if c.get("provider") else [])
-            if not chain:
+            chain = c.get("waterfall")
+            if chain is None:
                 from apps.api.services.workbook.enrichment import DEFAULT_WATERFALLS
-                chain = DEFAULT_WATERFALLS.get(target, [])
+                chain = [c["provider"]] if c.get("provider") else DEFAULT_WATERFALLS.get(target, [])
             providers_by_col[c.get("id") or target] = chain
-        projected = _billing.projected_platform_cost(len(leads), providers_by_col)
+        if body.row_columns is None:
+            projected = _billing.projected_platform_cost(len(leads), providers_by_col)
+        else:
+            from collections import Counter
+            counts = Counter(cid for lead in leads for cid in set(body.row_columns[str(lead["__row_id"])]))
+            projected = _billing.projected_platform_cost(len(leads), providers_by_col, column_counts=dict(counts))
         try:
             _billing.check_and_debit(db, ctx.workspace_id, projected, run_id=run_id)
         except _billing.InsufficientCreditsError as e:
@@ -1146,7 +1464,8 @@ async def run_workbook(
     wb.completed_rows = 0
     db.commit()
 
-    total_jobs = len(leads) * len(enrichment_cols)
+    total_jobs = (len(leads) * len(enrichment_cols) if body.row_columns is None else
+                  sum(len(set(body.row_columns[str(lead["__row_id"])])) for lead in leads))
 
     # Supersede any in-flight run for THIS workbook so runs don't stack (the
     # worker is sequential — a stale run would block this one and re-enrich).
@@ -1176,7 +1495,7 @@ async def run_workbook(
     from apps.api.routers.settings import get_enrichment_settings
     _es = get_enrichment_settings()
     from apps.api.services.queue_service import queue_service
-    queue_service.add_job(
+    run_job = queue_service.add_job(
         db,
         "run_workbook",
         {
@@ -1186,6 +1505,8 @@ async def run_workbook(
             "workspace_id": ctx.workspace_id,
             "run_id": run_id,
             "column_ids": [c["id"] for c in enrichment_cols],
+            "row_columns": ({str(rid): body.row_columns[str(rid)] for rid in resolved_row_ids}
+                            if body.row_columns is not None else None),
             # Pass the resolved ids (not the raw request) so the worker enriches
             # exactly the rows resolved above — the single source of truth for
             # this run's scope.
@@ -1206,7 +1527,60 @@ async def run_workbook(
         status="started",
         total_jobs=total_jobs,
         message=f"Enqueued run: {len(leads)} rows × {len(enrichment_cols)} columns",
+        job_id=run_job.id,
+        run_id=run_id,
     )
+
+
+@router.get("/{workbook_id}/runs")
+def workbook_runs(
+    workbook_id: str,
+    before_id: Optional[int] = Query(None, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    ctx: WorkspaceCtx = Depends(current_workspace),
+):
+    """Durable queue receipts, not collection-task IDs or verified-lead counts."""
+    from apps.api.models import Job
+    _owned_workbook(db, workbook_id, ctx)
+    query = db.query(Job).filter(
+        Job.workspace_id == ctx.workspace_id, Job.type == "run_workbook",
+        Job.payload["workbook_id"].as_string() == workbook_id,
+    )
+    if before_id is not None:
+        query = query.filter(Job.id < before_id)
+    jobs = query.order_by(Job.id.desc()).limit(limit + 1).all()
+    has_more = len(jobs) > limit
+    runs = []
+    def timestamp(value):
+        if value is None:
+            return None
+        return (value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)).isoformat()
+
+    for job in jobs[:limit]:
+        from apps.api.services.workbook.cell_scope import selected_cell_count
+        from apps.api.services.workbook.output_attempts import summarize_output_attempts
+        payload = job.payload or {}
+        rows = payload.get("row_ids") if payload.get("row_ids") is not None else payload.get("lead_ids")
+        columns = payload.get("column_ids")
+        result = payload.get("execution_result")
+        if isinstance(result, dict) and result.get("retry_count") != (job.retry_count or 0):
+            result = None  # A previous attempt is not this retry's outcome.
+        # Expose only known result fields, never arbitrary provider/queue payloads.
+        result = {key: result.get(key) for key in ("completed", "errors", "total", "rows", "stopped", "recorded_at")} if isinstance(result, dict) else None
+        runs.append({
+            "job_id": job.id, "run_id": payload.get("run_id"), "status": job.status,
+            "row_count": len(rows) if isinstance(rows, list) else None,
+            "column_count": len(columns) if isinstance(columns, list) else None,
+            "selected_cell_count": selected_cell_count(rows, columns, payload.get("row_columns")),
+            "output_attempts": summarize_output_attempts(payload.get("output_attempts")),
+            "fill_missing": bool(payload.get("fill_missing")), "force": bool(payload.get("force")),
+            "retry_count": job.retry_count or 0, "error": job.error,
+            "created_at": timestamp(job.created_at), "started_at": timestamp(job.started_at),
+            "completed_at": timestamp(job.completed_at), "last_heartbeat": timestamp(job.last_heartbeat),
+            "next_run_at": timestamp(job.next_run_at), "result": result,
+        })
+    return {"runs": runs, "has_more": has_more, "next_before_id": runs[-1]["job_id"] if has_more else None}
 
 
 @router.post("/{workbook_id}/stop")
@@ -1260,8 +1634,8 @@ async def run_cell(
     destination, so the UI confirms before sending it. Without force, a
     complete output cell returns ``{"skipped": true}`` untouched.
 
-    ``row_id`` is the WorkbookRow id (v2); falls back to matching lead_id so
-    v1/legacy rows (leads-DB backed) can be re-run too.
+    ``row_id`` is the WorkbookRow id for v2. Only a legacy leads-filter workbook
+    with no stored workbook rows may resolve it in the lead store.
     """
     from apps.api.services.workbook.enrichment import enrich_cell, ENRICHMENT_COL_TYPES
     from apps.api.core.tenancy import workspace_scope
@@ -1280,34 +1654,29 @@ async def run_cell(
     if not col:
         raise HTTPException(status_code=404, detail="Enrichment column not found")
 
-    # Resolve the row — v2 WorkbookRow by id, then by lead_id; v1 leads-DB last.
+    # Never reinterpret a missing v2 row identity as a linked lead identity.
     wr = db.query(WorkbookRow).filter(
         WorkbookRow.workbook_id == workbook_id, WorkbookRow.id == row_id
     ).first()
     if wr is None:
-        wr = db.query(WorkbookRow).filter(
-            WorkbookRow.workbook_id == workbook_id, WorkbookRow.lead_id == row_id
-        ).first()
+        has_rows = db.query(WorkbookRow.id).filter(WorkbookRow.workbook_id == workbook_id).first() is not None
+        if has_rows or not uses_legacy_leads(wb):
+            raise HTTPException(status_code=404, detail="Workbook row not found")
 
     if wr is not None:
         lead_id = wr.lead_id or wr.id
-        lead_data = {
-            "id": lead_id,
-            "__row_id": wr.id,
-            "__lead_id": wr.lead_id,
-            **(wr.data or {}),
-        }
+        from apps.api.services.workbook.cell_scope import row_execution_data
+        lead_data = row_execution_data(wr, columns_config)
     else:
         # v1 legacy — row lives in the tenant lead store.
-        import dataclasses
         lead_db = ctx.lead_db()
         try:
-            lead = lead_db.get_lead(row_id)
+            matches, _ = _query_leads(lead_db, {**(wb.filter_criteria or {}), "lead_ids": [row_id]}, page=1, page_size=1)
         finally:
             lead_db.close()
-        if lead is None:
+        if not matches:
             raise HTTPException(status_code=404, detail="Row not found")
-        lead_data = dataclasses.asdict(lead) if dataclasses.is_dataclass(lead) else dict(lead)
+        lead_data = dict(matches[0])
         lead_id = lead_data.get("id") or row_id
         lead_data["id"] = lead_id
 
@@ -1339,6 +1708,7 @@ async def run_cell(
         "error": result.get("error"),
         "skipped": bool(result.get("skipped", False)),
         "forced": bool(body.force),
+        "research": result.get("research"),
     }
 
 
@@ -1374,7 +1744,7 @@ async def add_source_column(
 ):
     """Add a `source` column (ICP-driven, or people_search) to a workbook."""
     import uuid
-    wb = _owned_workbook(db, workbook_id, ctx)
+    wb = _owned_workbook(db, workbook_id, ctx, for_update=True)
 
     if body.kind == "people_search":
         from apps.api.core.config import settings
@@ -1472,7 +1842,7 @@ async def preview_source_column(
 # ── Cost & provider stats (P2) ───────────────────────────────────────────
 
 class BudgetRequest(BaseModel):
-    max_usd: float = 0.0  # 0 = unlimited
+    max_usd: float = Field(0.0, ge=0, allow_inf_nan=False)  # 0 = unlimited
 
 
 @router.put("/{workbook_id}/budget")
@@ -1484,7 +1854,7 @@ async def set_budget(
 ):
     """Set a workbook's spend ceiling. Paid providers are skipped once exhausted."""
     wb = _owned_workbook(db, workbook_id, ctx)
-    wb.budget_max_usd = max(0.0, body.max_usd)
+    wb.budget_max_usd = body.max_usd
     db.commit()
     return {"budget_max_usd": wb.budget_max_usd, "budget_spent_usd": wb.budget_spent_usd or 0.0}
 
@@ -1495,14 +1865,27 @@ async def get_cost(
     db: Session = Depends(get_db),
     ctx: WorkspaceCtx = Depends(current_workspace),
 ):
-    """Spend-to-date + budget headroom for a workbook."""
+    """Accounted spend and outstanding exposure, not a vendor invoice."""
     wb = _owned_workbook(db, workbook_id, ctx)
+    from apps.api.services.workbook.spend_models import WorkbookSpendAttempt
+    from sqlalchemy import func
+    exposure = dict(db.query(WorkbookSpendAttempt.status,
+        func.sum(WorkbookSpendAttempt.reserved_microusd)).filter(
+        WorkbookSpendAttempt.workspace_id == ctx.workspace_id,
+        WorkbookSpendAttempt.workbook_id == workbook_id,
+        WorkbookSpendAttempt.status.in_(["reserved", "dispatched", "uncertain"]),
+    ).group_by(WorkbookSpendAttempt.status).all())
+    reserved = (exposure.get("reserved", 0) + exposure.get("dispatched", 0)) / 1000000
+    uncertain = exposure.get("uncertain", 0) / 1000000
     spent = wb.budget_spent_usd or 0.0
     cap = wb.budget_max_usd or 0.0
     return {
         "budget_max_usd": cap,
         "budget_spent_usd": round(spent, 4),
-        "remaining_usd": round(cap - spent, 4) if cap > 0 else None,
+        "reserved_usd": reserved,
+        "uncertain_usd": uncertain,
+        "remaining_usd": round(cap - spent - reserved - uncertain, 6) if cap > 0 else None,
+        "accounting_basis": "catalog_estimates_and_recorded_charges",
         "unlimited": cap <= 0,
     }
 
@@ -1705,6 +2088,8 @@ async def delete_rows(
         WorkbookRow.workbook_id == workbook_id,
         WorkbookRow.id.in_(body.row_ids),
     ).delete(synchronize_session=False)
+    if deleted:
+        mark_row_storage(wb)
     db.commit()
     request.state.audit_metadata = {
         "action": "workbook.rows.delete",
@@ -1744,6 +2129,8 @@ async def delete_matching_rows(
         WorkbookRow.workbook_id == workbook_id,
         WorkbookRow.id.in_(row_ids),
     ).delete(synchronize_session=False)
+    if deleted:
+        mark_row_storage(wb)
     db.commit()
     request.state.audit_metadata = {
         "action": "workbook.rows.delete_matching",
@@ -1788,16 +2175,18 @@ async def update_row_data(
     }
     if not updates:
         raise HTTPException(status_code=400, detail="No editable row fields supplied")
+    changed = _changed_row_fields(row.data or {}, updates)
 
     from sqlalchemy.orm.attributes import flag_modified
 
-    row.data = {**(row.data or {}), **updates}
-    flag_modified(row, "data")
+    if changed:
+        row.data = {**(row.data or {}), **changed}
+        flag_modified(row, "data")
     db.commit()
 
     downstream_ids: list[str] = []
     recompute_result = None
-    if recompute:
+    if recompute and changed:
         from apps.api.services.workbook.column_deps import downstream_columns
 
         runnable = {
@@ -1811,7 +2200,7 @@ async def update_row_data(
             )
 
         reactive = downstream_columns(
-            row.workbook.columns_config or [], set(updates), eligible=is_reactive,
+            row.workbook.columns_config or [], set(changed), eligible=is_reactive,
         )
         downstream_ids = [column["id"] for column in reactive if column.get("id")]
         if downstream_ids:
@@ -1881,13 +2270,16 @@ async def bulk_update_row_data(
         }
         if not fields or len(fields) != len(item.fields):
             raise HTTPException(status_code=400, detail=f"Row {item.row_id} contains non-editable fields")
-        normalized.append((rows_by_id[item.row_id], fields))
-        changed_fields.update(fields)
+        row = rows_by_id[item.row_id]
+        changed = _changed_row_fields(row.data or {}, fields)
+        normalized.append((row, changed))
+        changed_fields.update(changed)
 
     from sqlalchemy.orm.attributes import flag_modified
     for row, fields in normalized:
-        row.data = {**(row.data or {}), **fields}
-        flag_modified(row, "data")
+        if fields:
+            row.data = {**(row.data or {}), **fields}
+            flag_modified(row, "data")
     db.commit()
 
     downstream_ids: list[str] = []
@@ -1895,16 +2287,21 @@ async def bulk_update_row_data(
     if recompute:
         from apps.api.services.workbook.column_deps import downstream_columns
         runnable = {"enrichment", "waterfall", "ai_formula", "output", "research", "agent", "http", "formula"}
-        reactive = downstream_columns(
-            wb.columns_config or [], changed_fields,
-            eligible=lambda column: column.get("type") in runnable and column.get("reactive", column.get("type") != "output"),
-        )
-        downstream_ids = [column["id"] for column in reactive if column.get("id")]
+        row_columns = {
+            str(row.id): [column["id"] for column in downstream_columns(
+                wb.columns_config or [], set(fields),
+                eligible=lambda column: column.get("type") in runnable and column.get("reactive", column.get("type") != "output"),
+            ) if column.get("id")]
+            for row, fields in normalized if fields
+        }
+        row_columns = {rid: ids for rid, ids in row_columns.items() if ids}
+        downstream_ids = list(dict.fromkeys(cid for ids in row_columns.values() for cid in ids))
         if downstream_ids:
             try:
                 started = await run_workbook(
                     request=request, workbook_id=workbook_id,
-                    body=RunWorkbookRequest(column_ids=downstream_ids, row_ids=row_ids, force=True),
+                    body=RunWorkbookRequest(column_ids=downstream_ids, row_ids=[int(rid) for rid in row_columns],
+                                            row_columns=row_columns, force=True),
                     db=db, ctx=ctx,
                 )
                 recompute_result = started.model_dump()
@@ -1939,6 +2336,8 @@ async def migrate_workbook_to_v2(
         WorkbookRow.workbook_id == workbook_id
     ).scalar() or 0
     if existing > 0:
+        mark_row_storage(wb)
+        db.commit()
         return {"status": "already_migrated", "rows": existing}
 
     # Snapshot leads — limited to 500 to avoid OOM
@@ -1988,7 +2387,7 @@ async def migrate_workbook_to_v2(
 
     # Update workbook metadata
     wb.source_type = "leads_filter"
-    wb.source_config = wb.filter_criteria or {}
+    wb.source_config = {**(wb.filter_criteria or {}), "row_storage_version": 2}
     db.commit()
 
     return {"status": "migrated", "rows": len(leads), "enrichments_migrated": len(enrichments)}
@@ -2134,7 +2533,8 @@ async def create_view(
     ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Create a saved view on a workbook."""
-    _owned_workbook(db, workbook_id, ctx)
+    wb = _owned_workbook(db, workbook_id, ctx, for_update=True)
+    _validate_view_columns(wb, body.config.model_dump())
     v = WorkbookView(
         workbook_id=workbook_id,
         workspace_id=ctx.workspace_id,
@@ -2156,8 +2556,10 @@ async def update_view(
     ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Rename a view and/or replace its filter/sort/hidden-column config."""
-    _owned_workbook(db, workbook_id, ctx)
+    wb = _owned_workbook(db, workbook_id, ctx, for_update=True)
     v = _owned_view(db, workbook_id, view_id, ctx)
+    if body.config is not None:
+        _validate_view_columns(wb, body.config.model_dump())
     if body.name is not None:
         v.name = body.name
     if body.config is not None:
@@ -2176,7 +2578,7 @@ async def delete_view(
     ctx: WorkspaceCtx = Depends(require_editor),
 ):
     """Delete a saved view (never touches the workbook's rows)."""
-    _owned_workbook(db, workbook_id, ctx)
+    _owned_workbook(db, workbook_id, ctx, for_update=True)
     v = _owned_view(db, workbook_id, view_id, ctx)
     db.delete(v)
     db.commit()

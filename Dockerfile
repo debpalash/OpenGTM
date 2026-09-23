@@ -11,6 +11,7 @@ FROM oven/bun:1 AS frontend-builder
 WORKDIR /app
 COPY package.json bun.lock ./
 COPY apps/web/package.json ./apps/web/
+COPY apps/web/vendor/ ./apps/web/vendor/
 COPY apps/api/package.json ./apps/api/
 COPY apps/docs/package.json ./apps/docs/
 COPY packages/chrome-extension/package.json ./packages/chrome-extension/

@@ -1,0 +1,39 @@
+/* App sidebar: shadcn Sidebar driven by the --sidebar-* tokens (tokens.css).
+ * Only layout lives here, plus the sky wash shared with the chat home. */
+
+[data-slot="sidebar-inner"].gtm-material-sidebar {
+  background-image: linear-gradient(to bottom, var(--gtm-sky-wash) 0%, transparent 36%);
+}
+
+.gtm-shell-logo {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; flex-shrink: 0;
+  border-radius: 9px; background: #16181d;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08), 0 1px 2px rgb(0 0 0 / 0.18);
+}
+.gtm-shell-logo img { width: 20px; height: 20px; }
+
+/* Search reads as a field, not a nav row. */
+.gtm-shell-search { background: var(--background); }
+.dark .gtm-shell-search { background: rgb(255 255 255 / 0.04); }
+
+/* Collapsed rail: logo and targets centred, groups separated. */
+[data-collapsible="icon"] [data-slot="sidebar-menu-button"][data-size="lg"] { padding: 0 !important; justify-content: center; }
+[data-collapsible="icon"] [data-slot="sidebar-content"] [data-sidebar="group"] ~ [data-sidebar="group"]::before,
+[data-collapsible="icon"] nav [data-sidebar="group"] ~ [data-sidebar="group"]::before {
+  content: ""; display: block; height: 1px; margin: 0 8px 8px; background: var(--sidebar-border);
+}
+
+/* Toolbar */
+.gtm-topbar { border-color: var(--sidebar-border) !important; }
+.gtm-topbar-chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px;
+  border-radius: 999px; background: var(--gtm-glass); border: 1px solid var(--gtm-glass-edge);
+}
+.gtm-topbar [data-slot="native-select"] select { border-radius: 999px; background: var(--gtm-glass); border-color: var(--gtm-glass-edge); }
+/* On the chat home the toolbar takes the sky's top colour: one continuous sky. */
+.gtm-launch[data-sky] .gtm-topbar {
+  background: var(--gtm-sky-top);
+  border-color: transparent !important;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}

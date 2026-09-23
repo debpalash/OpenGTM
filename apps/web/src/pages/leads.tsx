@@ -4,8 +4,8 @@ import { type ColumnDef } from "@tanstack/react-table"
 import { toast } from "sonner"
 import {
   ArrowUpDown, Mail, Phone, MoreHorizontal,
-  Plus, Download, RefreshCw, Globe, Flame, Sun, Snowflake, Upload,
-  SlidersHorizontal, Bookmark, X, GitMerge, Loader2, Sparkles,
+  Plus, Download, RefreshCw, Globe, Flame, Sun, Snowflake,
+  SlidersHorizontal, Bookmark, X, GitMerge, Loader2, Sparkles, Star,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,7 +26,7 @@ import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/data-table"
-import { useLeads, useStats, useFilters, useUpdateStatus, useUpdateLead, useDeleteLead, useCollect, useImportDataCollector, useAudiences, useCreateAudience, useDeleteAudience } from "@/lib/hooks"
+import { useLeads, useStats, useFilters, useUpdateStatus, useUpdateLead, useDeleteLead, useCollect, useAudiences, useCreateAudience, useDeleteAudience } from "@/lib/hooks"
 import {
   exportCSVUrl, fetchSimilarLeads, runDedup, mergeDuplicates, bulkEnrich,
   type Lead, type SimilarLeads, type DedupResult, type DedupSuggestion,
@@ -133,7 +133,6 @@ export default function LeadsPage() {
   const updateLeadMut = useUpdateLead()
   const deleteLeadMut = useDeleteLead()
   const collect = useCollect()
-  const importBR = useImportDataCollector()
 
   const columns: ColumnDef<Lead>[] = useMemo(() => [
     {
@@ -275,7 +274,11 @@ export default function LeadsPage() {
       header: "Glassdoor",
       cell: ({ row }) => {
         const g = row.original.glassdoor_rating
-        return g ? <span className="text-xs text-amber-400 tabular-nums">★ {g}</span> : <span className="text-xs text-muted-foreground">—</span>
+        return g ? (
+          <span className="inline-flex items-center gap-1 text-xs tabular-nums">
+            <Star aria-hidden="true" className="size-3 fill-current text-[var(--t-color-orange9)]" />{g}
+          </span>
+        ) : <span className="text-xs text-muted-foreground">—</span>
       },
       size: 80,
     },
@@ -496,10 +499,9 @@ export default function LeadsPage() {
               <div className="flex items-center justify-between">
                 <span className="font-medium">Filters</span>
                 {activeFilterCount > 0 && (
-                  <button className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-                          onClick={() => setF(EMPTY_FILTERS)}>
-                    <X className="size-3" /> Clear
-                  </button>
+                  <Button type="button" variant="ghost" size="xs" onClick={() => setF(EMPTY_FILTERS)}>
+                    <X aria-hidden="true" /> Clear
+                  </Button>
                 )}
               </div>
 
@@ -593,41 +595,6 @@ export default function LeadsPage() {
               <Download className="size-3" />
             </Button>
           </a>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs px-2 gap-1"
-                  disabled={importBR.isPending}
-                />
-              }
-            >
-              <Upload className="size-3" />
-              🇧🇷
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => {
-                importBR.mutate({ module: "all" })
-                toast.success("🇧🇷 Importing all BR data (CNPJ + GitHub)...")
-              }}>
-                Import All (CNPJ + GitHub)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => {
-                importBR.mutate({ module: "cnpj", limit: 10000 })
-                toast.success("🇧🇷 Importing first 10K CNPJ leads...")
-              }}>
-                CNPJ only (10K sample)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => {
-                importBR.mutate({ module: "github" })
-                toast.success("🇧🇷 Importing GitHub leads...")
-              }}>
-                GitHub only
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
 
@@ -734,7 +701,7 @@ export default function LeadsPage() {
             </div>
           ) : !dedupData ? null : dedupData.merge_suggestions.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4">
-              No duplicates found in {dedupData.scanned ?? dedupData.stats.total_leads} scanned leads. 🎉
+              No duplicates found in {dedupData.scanned ?? dedupData.stats.total_leads} scanned leads.
             </p>
           ) : (
             <>

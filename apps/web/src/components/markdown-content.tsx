@@ -19,14 +19,14 @@ export function MarkdownContent({ content, className = "" }: { content: string; 
             </div>
           ),
           thead: ({ children }) => (
-            <thead className="border-b border-border/40" style={{ background: "hsl(var(--muted) / 0.5)" }}>{children}</thead>
+            <thead className="border-b border-border/40" style={{ background: "color-mix(in srgb, var(--muted) 50%, transparent)" }}>{children}</thead>
           ),
           th: ({ children }) => (
             <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{children}</th>
           ),
           tr: ({ children }) => (
             <tr className="border-b border-border/10 last:border-0 transition-colors" style={{ cursor: "default" }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(var(--muted) / 0.3)")}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "color-mix(in srgb, var(--muted) 30%, transparent)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "")}
             >{children}</tr>
           ),
@@ -52,29 +52,29 @@ export function MarkdownContent({ content, className = "" }: { content: string; 
             const isInline = !cn
             return isInline ? (
               <code style={{
-                background: "hsl(var(--primary) / 0.08)",
-                color: "hsl(var(--primary) / 0.85)",
+                background: "color-mix(in srgb, var(--primary) 8%, transparent)",
+                color: "color-mix(in srgb, var(--primary) 85%, transparent)",
                 padding: "2px 7px",
                 borderRadius: "6px",
                 fontSize: "12px",
                 fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-                border: "1px solid hsl(var(--primary) / 0.12)",
+                border: "1px solid color-mix(in srgb, var(--primary) 12%, transparent)",
                 whiteSpace: "nowrap",
               }}>{children}</code>
             ) : (
               <pre style={{
-                background: "hsl(var(--muted) / 0.4)",
+                background: "color-mix(in srgb, var(--muted) 40%, transparent)",
                 borderRadius: "12px",
                 padding: "16px",
                 overflowX: "auto",
                 margin: "12px 0",
-                border: "1px solid hsl(var(--border) / 0.2)",
+                border: "1px solid color-mix(in srgb, var(--border) 20%, transparent)",
               }}>
                 <code style={{
                   fontSize: "12.5px",
                   fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
                   lineHeight: "1.6",
-                  color: "hsl(var(--foreground) / 0.85)",
+                  color: "color-mix(in srgb, var(--foreground) 85%, transparent)",
                 }}>{children}</code>
               </pre>
             )
@@ -85,10 +85,10 @@ export function MarkdownContent({ content, className = "" }: { content: string; 
           p: ({ children }) => <p className="mb-2.5 last:mb-0 leading-relaxed">{children}</p>,
           blockquote: ({ children }) => (
             <blockquote style={{
-              borderLeft: "3px solid hsl(var(--primary) / 0.3)",
+              borderLeft: "3px solid color-mix(in srgb, var(--primary) 30%, transparent)",
               paddingLeft: "14px",
               margin: "12px 0",
-              background: "hsl(var(--primary) / 0.03)",
+              background: "color-mix(in srgb, var(--primary) 3%, transparent)",
               borderRadius: "0 8px 8px 0",
               padding: "8px 14px",
             }} className="text-muted-foreground">

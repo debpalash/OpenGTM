@@ -1,0 +1,35 @@
+.gtm-workbook-list { padding: 24px; max-width: 1440px; margin: auto; }
+.gtm-workbook-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.gtm-workbook-heading h1 { font-size: 22px; font-weight: 600; letter-spacing: -.025em; }
+.gtm-workbook-heading p { font-size: 13px; color: var(--t-font-color-secondary); margin-top: 4px; }
+.gtm-workbook-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.gtm-workbook-toolbar > label { display: flex; align-items: center; gap: 8px; color: var(--t-font-color-secondary); font-size: 12px; }
+.gtm-workbook-search { flex: 1; min-width: 180px; max-width: 320px; }
+.gtm-workbook-count { color: var(--t-font-color-secondary); font-size: 12px; margin: 16px 0 8px; font-variant-numeric: tabular-nums; }
+.gtm-workbook-table-scroll { overflow-x: auto; border: 1px solid var(--t-border-color-medium); border-radius: var(--t-border-radius-md); }
+.gtm-workbook-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+.gtm-workbook-table th { color: var(--t-font-color-secondary); background: var(--t-background-secondary); font-size: 12px; font-weight: 500; white-space: nowrap; }
+.gtm-workbook-table th, .gtm-workbook-table td { padding: 8px 12px; border-bottom: 1px solid var(--t-border-color-medium); font-variant-numeric: tabular-nums; }
+.gtm-workbook-list .gtm-workbook-table tbody tr:nth-child(n) td { background: var(--t-background-primary); }
+/* Overrides the legacy global zebra/hover rules until the remaining tables migrate. */
+.gtm-workbook-list .gtm-workbook-table tbody tr:hover td { background: var(--t-background-secondary) !important; }
+.gtm-workbook-table tr:last-child td { border-bottom: 0; }
+.gtm-workbook-link { display: flex; align-items: center; gap: 8px; min-width: 180px; max-width: 360px; color: var(--t-font-color-primary); font-weight: 500; }
+.gtm-workbook-link span { overflow-wrap: anywhere; }
+.gtm-workbook-link:hover { text-decoration: underline; }
+.gtm-workbook-link:focus-visible, .gtm-workbook-table-scroll:focus-visible { outline: 2px solid var(--t-color-blue11); outline-offset: 2px; }
+.gtm-workbook-status { display: inline-flex; padding: 2px 6px; border-radius: var(--t-border-radius-sm); background: var(--t-background-tertiary); color: var(--t-font-color-secondary); font-size: 12px; }
+.gtm-workbook-status[data-status="running"] { color: var(--t-color-blue11); background: var(--t-background-transparent-blue); }
+.gtm-workbook-status[data-status="complete"] { color: var(--t-color-green11); background: var(--t-background-transparent-success); }
+.gtm-data-state { display: grid; justify-items: start; gap: 12px; border: 1px solid var(--t-border-color-medium); border-radius: var(--t-border-radius-md); padding: 32px; font-size: 14px; }
+.gtm-data-state h2 { font-weight: 500; }
+.gtm-data-state p { color: var(--t-font-color-secondary); }
+.gtm-workbook-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 16px; margin-top: 16px; font-size: 12px; }
+.gtm-workbook-dialog { max-width: min(480px, calc(100vw - 32px)); }
+@media (max-width: 600px) {
+  .gtm-workbook-list { padding: 16px; }
+  .gtm-workbook-heading { align-items: start; flex-direction: column; }
+  .gtm-workbook-search { flex-basis: 100%; max-width: none; }
+  .gtm-workbook-list button, .gtm-workbook-dialog button { min-height: 44px; }
+  .gtm-workbook-list input, .gtm-workbook-dialog input { font-size: 16px; }
+}

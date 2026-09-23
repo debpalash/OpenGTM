@@ -9,7 +9,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Inbox } from "lucide-react"
+import { ChannelIcon, CHANNEL_META, type Channel } from "@/components/semantic-icons"
 import { updateStatus, deleteLead, type Lead } from "@/lib/api"
+import { quickLookProps } from "@/components/quick-look/quick-look"
 
 const TIER_STYLES: Record<string, { bg: string; text: string; glow?: string }> = {
   hot: { bg: "bg-red-500/15", text: "text-red-400", glow: "score-hot" },
@@ -46,24 +49,25 @@ function timeAgo(dateStr: string): string {
   return `${days}d`
 }
 
-function liveness(lead: Lead): { label: string; color: string; icon: string } {
-  if (lead.status === "dead") return { label: "Dead", color: "text-red-400/50", icon: "🔴" }
-  if (lead.status === "converted") return { label: "Won", color: "text-emerald-400", icon: "🟢" }
+// Liveness is a colored status dot (token colors), labelled by its tooltip.
+function liveness(lead: Lead): { label: string; dot: string } {
+  if (lead.status === "dead") return { label: "Dead", dot: "bg-[var(--t-color-red9)] opacity-50" }
+  if (lead.status === "converted") return { label: "Won", dot: "bg-[var(--t-color-green9)]" }
 
   const hasData = (lead.email && lead.email !== "N/A") || (lead.phone && lead.phone !== "N/A")
-  if (hasData && lead.score >= 50) return { label: "Active", color: "text-emerald-400", icon: "🟢" }
-  if (hasData) return { label: "Warm", color: "text-amber-400", icon: "🟡" }
-  if (lead.website && lead.website !== "N/A") return { label: "Stale", color: "text-amber-400/60", icon: "🟡" }
-  return { label: "Cold", color: "text-muted-foreground/40", icon: "⚪" }
+  if (hasData && lead.score >= 50) return { label: "Active", dot: "bg-[var(--t-color-green9)]" }
+  if (hasData) return { label: "Warm", dot: "bg-[var(--t-color-orange9)]" }
+  if (lead.website && lead.website !== "N/A") return { label: "Stale", dot: "bg-[var(--t-color-orange9)] opacity-60" }
+  return { label: "Cold", dot: "bg-[var(--t-font-color-light)]" }
 }
 
-function signals(lead: Lead): string[] {
-  const s: string[] = []
-  if (lead.email && lead.email !== "N/A") s.push("📧")
-  if (lead.phone && lead.phone !== "N/A") s.push("📞")
-  if (lead.linkedin_url && lead.linkedin_url !== "N/A") s.push("🔗")
-  if (lead.website && lead.website !== "N/A") s.push("🌐")
-  if (lead.contact_person && lead.contact_person !== "N/A") s.push("👤")
+function signals(lead: Lead): Channel[] {
+  const s: Channel[] = []
+  if (lead.email && lead.email !== "N/A") s.push("email")
+  if (lead.phone && lead.phone !== "N/A") s.push("phone")
+  if (lead.linkedin_url && lead.linkedin_url !== "N/A") s.push("linkedin")
+  if (lead.website && lead.website !== "N/A") s.push("website")
+  if (lead.contact_person && lead.contact_person !== "N/A") s.push("contact")
   return s
 }
 
@@ -103,7 +107,7 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
         {leads.length === 0 && (
           <TableRow>
             <TableCell colSpan={11} className="text-center text-muted-foreground/40 h-24 text-xs">
-              <div className="text-xl mb-1">📋</div>
+              <Inbox aria-hidden="true" className="mx-auto mb-1 size-5 text-muted-foreground" />
               No leads match your filters
             </TableCell>
           </TableRow>
@@ -115,7 +119,26 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
           return (
             <TableRow
               key={lead.id}
-              className={`border-border/30 cursor-pointer hover:bg-accent/40 transition-colors h-8 group ${
+              {...quickLookProps({
+                kind: "Lead",
+                title: lead.company,
+                subtitle: [lead.contact_person, lead.contact_title].filter(v => v && v !== "N/A").join(" · ") || lead.city || undefined,
+                domain: lead.website && lead.website !== "N/A" ? lead.website.replace(/^https?:\/\//i, "").split("/")[0] : undefined,
+                fields: [
+                  { label: "Score", value: `${lead.score ?? "—"}${lead.score_tier ? ` · ${lead.score_tier}` : ""}` },
+                  ...(lead.email && lead.email !== "N/A" ? [{ label: "Email", value: lead.email, href: `mailto:${lead.email}` }] : []),
+                  ...(lead.phone && lead.phone !== "N/A" ? [{ label: "Phone", value: lead.phone }] : []),
+                  ...(lead.city ? [{ label: "Location", value: [lead.city, lead.state].filter(Boolean).join(", ") }] : []),
+                  ...(lead.specialization ? [{ label: "Focus", value: lead.specialization }] : []),
+                  { label: "Status", value: lead.status || "—" },
+                ],
+                actions: [
+                  { label: "Open lead", href: `/leads/${lead.id}` },
+                  ...(lead.website && lead.website !== "N/A" ? [{ label: "Website", href: /^https?:/i.test(lead.website) ? lead.website : `https://${lead.website}`, external: true }] : []),
+                ],
+              })}
+              data-nav-activate=""
+              className={`border-border/30 cursor-pointer hover:bg-accent/40 transition-colors h-8 group focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring ${
                 lead.status === "dead" ? "opacity-40" : ""
               }`}
               onClick={() => onRowClick(lead)}
@@ -159,15 +182,20 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
               <TableCell className="py-0.5">
                 <Tooltip>
                   <TooltipTrigger>
-                    <span className={`text-[10px] ${live.color}`}>{live.icon}</span>
+                    <span role="img" aria-label={live.label} className={`inline-block size-2 rounded-full ${live.dot}`} />
                   </TooltipTrigger>
                   <TooltipContent>{live.label}</TooltipContent>
                 </Tooltip>
               </TableCell>
 
               {/* Signals */}
-              <TableCell className="py-0.5 text-[10px] tracking-tight">
-                {sigs.length > 0 ? sigs.join("") : <EmptyCell />}
+              <TableCell className="py-0.5">
+                {sigs.length > 0 ? (
+                  <span className="inline-flex items-center gap-1 text-muted-foreground"
+                    aria-label={sigs.map(c => CHANNEL_META[c].label).join(", ")} role="img">
+                    {sigs.map(c => <ChannelIcon key={c} channel={c} className="size-3" />)}
+                  </span>
+                ) : <EmptyCell />}
               </TableCell>
 
               {/* Source — clickable for pipeline jobs */}

@@ -1,0 +1,7 @@
+.gtm-run-review { max-width: min(560px, calc(100vw - 32px)); overflow: hidden; }
+.gtm-run-review-body { min-height: 0; overflow-y: auto; }
+.gtm-run-review > :last-child { padding-top: 16px; border-top: 1px solid var(--t-border-color-medium); }
+.gtm-run-facts { display: grid; grid-template-columns: minmax(100px, 1fr) minmax(0, 2fr); gap: 8px 16px; font-size: 13px; }
+.gtm-run-facts dt { color: var(--t-font-color-secondary); }
+.gtm-run-facts dd { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .gtm-run-review button { min-height: 44px; } .gtm-run-facts { grid-template-columns: 1fr; gap: 4px; } .gtm-run-facts dd { margin-bottom: 8px; } }

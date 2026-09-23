@@ -23,6 +23,7 @@ import {
   Trash2,
   Zap,
 } from "lucide-react"
+import { BoolMark } from "@/components/semantic-icons"
 import { toast } from "sonner"
 
 import {
@@ -1315,7 +1316,7 @@ function PreviewPanel({
                       <TableRow key={row.row_id}>
                         <TableCell className="text-xs">{row.row_id}</TableCell>
                         <TableCell className="text-xs">
-                          {row.condition_pass ? "✓" : "✗"}
+                          <BoolMark value={row.condition_pass} label={row.condition_pass ? "Condition passed" : "Condition failed"} />
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">
                           —
@@ -1329,7 +1330,7 @@ function PreviewPanel({
                           {ai === 0 ? row.row_id : ""}
                         </TableCell>
                         <TableCell className="text-xs">
-                          {ai === 0 ? (row.condition_pass ? "✓" : "✗") : ""}
+                          {ai === 0 ? <BoolMark value={row.condition_pass} label={row.condition_pass ? "Condition passed" : "Condition failed"} /> : null}
                         </TableCell>
                         <TableCell className="text-xs">
                           {ACTION_TYPE_LABELS[a.type] ?? a.type}

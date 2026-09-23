@@ -7,7 +7,7 @@ import json
 import os
 import signal
 import sys
-from typing import Any
+from typing import Any, Callable
 
 
 class JobProcessError(RuntimeError):
@@ -55,8 +55,12 @@ async def run_job_subprocess(
     payload: dict[str, Any],
     *,
     timeout: float,
+    should_continue: Callable[[], bool] | None = None,
+    poll_interval: float = 1.0,
 ) -> None:
     """Run one registered handler in an independently killable Python process."""
+    if should_continue and not await asyncio.to_thread(should_continue):
+        raise JobProcessError(f"job {job_id} ({job_type}) claim cancelled or lost")
     process = await asyncio.create_subprocess_exec(
         sys.executable,
         "-m",
@@ -73,8 +77,24 @@ async def run_job_subprocess(
     encoded_payload = json.dumps(payload, separators=(",", ":")).encode("utf-8")
     communication = asyncio.create_task(process.communicate(encoded_payload))
 
+    async def monitor_claim() -> None:
+        while True:
+            if not await asyncio.to_thread(should_continue):
+                raise JobProcessError(f"job {job_id} ({job_type}) claim cancelled or lost")
+            await asyncio.sleep(poll_interval)
+
+    monitor = asyncio.create_task(monitor_claim()) if should_continue else None
+
     try:
-        await asyncio.wait_for(asyncio.shield(communication), timeout=timeout)
+        waiting = {communication}
+        if monitor:
+            waiting.add(monitor)
+        done, _ = await asyncio.wait(waiting, timeout=timeout, return_when=asyncio.FIRST_COMPLETED)
+        if not done:
+            raise asyncio.TimeoutError
+        if monitor and monitor in done:
+            await monitor
+        await communication
     except asyncio.TimeoutError as exc:
         await _terminate_process_tree(process)
         await asyncio.gather(communication, return_exceptions=True)
@@ -87,6 +107,14 @@ async def run_job_subprocess(
         await _terminate_process_tree(process)
         await asyncio.gather(communication, return_exceptions=True)
         raise
+    except Exception:
+        await _terminate_process_tree(process)
+        await asyncio.gather(communication, return_exceptions=True)
+        raise
+    finally:
+        if monitor:
+            monitor.cancel()
+            await asyncio.gather(monitor, return_exceptions=True)
 
     if process.returncode != 0:
         raise JobProcessError(

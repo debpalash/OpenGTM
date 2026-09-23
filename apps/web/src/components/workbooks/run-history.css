@@ -1,0 +1,15 @@
+.gtm-run-history { max-width: min(640px, calc(100vw - 32px)); overflow: hidden; }
+.gtm-run-history-body { min-height: 0; overflow-y: auto; }
+.gtm-run-list { display: grid; gap: 16px; list-style: none; margin: 0; padding: 0; }
+.gtm-run-list > li { border: 1px solid var(--t-border-color-medium); border-radius: var(--t-border-radius-md); padding: 16px; display: grid; gap: 8px; }
+.gtm-run-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 13px; }
+.gtm-run-heading h3 { font-weight: 600; }
+.gtm-run-meta { font-size: 12px; color: var(--t-font-color-secondary); }
+.gtm-run-outcome, .gtm-run-list details, .gtm-run-error { font-size: 13px; }
+.gtm-run-error { color: var(--t-color-red11); overflow-wrap: anywhere; }
+.gtm-run-list summary { cursor: pointer; padding: 4px 0; }
+.gtm-run-list dl { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 12px; }
+.gtm-run-list dt { color: var(--t-font-color-secondary); }
+.gtm-run-list dd { overflow-wrap: anywhere; }
+.gtm-run-history > :last-child { padding-top: 16px; border-top: 1px solid var(--t-border-color-medium); }
+@media (max-width: 640px) { .gtm-run-history button, .gtm-run-history summary { min-height: 44px; } .gtm-run-list dl { grid-template-columns: 1fr; } }

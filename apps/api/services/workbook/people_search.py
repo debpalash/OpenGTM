@@ -288,6 +288,7 @@ async def materialize_people_search(
     provider = CrossLinkedProvider(max_people=cfg["max_per_company"])
     budget = cfg["max_searches"]
     searches_used = 0
+    search_failures = 0  # searches that errored, as opposed to finding nobody
     discovered: List[Tuple[str, Dict[str, str]]] = []  # (company_entry, person)
     for company in companies:
         if searches_used >= budget:
@@ -308,8 +309,10 @@ async def materialize_people_search(
         except Exception as e:
             logger.warning(f"people_search discovery failed for {company!r}: {e}")
             searches_used += 1  # count the attempt against the budget
+            search_failures += 1
             continue
         searches_used += used
+        search_failures += int(getattr(provider, "search_failures", 0) or 0)
         for p in people:
             discovered.append((company, p))
 
@@ -348,6 +351,18 @@ async def materialize_people_search(
                 present.add(identity)
 
                 row_data = _row_data(company, person)
+                # Persist the person; the workbook's person:… id stays the row
+                # identity and becomes a legacy alias of the canonical person.
+                from apps.api.services.entities.people import resolve_person
+                canonical, _ = resolve_person(
+                    db, workspace_id=workspace_id, name=name, company=row_data["company"],
+                    company_domain=row_data.get("website") or "",
+                    title=row_data.get("contact_title") or "",
+                    linkedin_url=person.get("linkedin") or "",
+                    evidence_url=person.get("evidence_url") or person.get("linkedin") or "",
+                    source=PERSON_SOURCE, legacy_ids=[identity],
+                )
+                row_data["canonical_person_id"] = canonical.id
                 max_pos += 1
                 row = WorkbookRow(
                     workbook_id=workbook_id,
@@ -408,7 +423,12 @@ async def materialize_people_search(
         f"people_search {workbook_id}/{column_id}: companies={len(companies)} "
         f"searches={searches_used} found={found} added={added} skipped={skipped}"
     )
-    return {
+    result = {
         "found": found, "added": added, "skipped": skipped,
         "companies": len(companies), "searches_used": searches_used,
+        "search_failures": search_failures,
     }
+    if not found and searches_used and search_failures >= searches_used:
+        # Every search errored: not evidence that the companies have no people.
+        result["error"] = "people_search_unavailable"
+    return result

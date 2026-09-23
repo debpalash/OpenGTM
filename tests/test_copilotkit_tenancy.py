@@ -27,6 +27,7 @@ if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from apps.api.routers import copilotkit as ck  # noqa: E402
+from tests.entity_tables import PERSON_TABLES
 
 
 # ── _execute_tool uses the injected store, never a bare LeadDB() ──────────────
@@ -322,7 +323,7 @@ def test_create_people_workbook_snapshots_trusted_people_result(monkeypatch):
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    Base.metadata.create_all(engine, tables=[Workbook.__table__, WorkbookRow.__table__])
+    Base.metadata.create_all(engine, tables=[*PERSON_TABLES, Workbook.__table__, WorkbookRow.__table__])
     factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     monkeypatch.setattr("apps.api.database.SessionLocal", factory)
     monkeypatch.setattr(
@@ -382,7 +383,7 @@ def test_create_people_workbook_is_exact_and_idempotent(monkeypatch):
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    Base.metadata.create_all(engine, tables=[Workbook.__table__, WorkbookRow.__table__])
+    Base.metadata.create_all(engine, tables=[*PERSON_TABLES, Workbook.__table__, WorkbookRow.__table__])
     factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     monkeypatch.setattr("apps.api.database.SessionLocal", factory)
     monkeypatch.setattr(
@@ -454,6 +455,12 @@ def test_create_people_workbook_is_exact_and_idempotent(monkeypatch):
         assert row.data["canonical_company_domain"] == "paypal.com"
         assert row.data["full_name"] == "Alex Valid"
         assert row.source_record_id == "person_alex"
+        # The person is persisted; the Chat id is a legacy alias of it, and the
+        # idempotent retry did not create a second person.
+        from apps.api.services.entities.models import PersonEntity, PersonIdentifier
+        assert db.query(PersonEntity).count() == 1
+        alias = db.query(PersonIdentifier).filter_by(kind="legacy_id", value="person_alex").one()
+        assert row.data["canonical_person_id"] == alias.person_id
 
     unknown = json.loads(asyncio.run(ck._execute_tool(
         "create_people_workbook",
@@ -581,6 +588,23 @@ def test_enrich_people_contacts_is_exact_and_retry_safe(monkeypatch):
     }
     assert len(calls) == 1
 
+    # The same selection in a different order is the same contract, not a conflict.
+    pair = {**args, "person_ids": ["person_alex", "person_jane"],
+            "idempotency_key": "contact-action-pair"}
+    first_pair = json.loads(asyncio.run(ck._execute_tool(
+        "enrich_people_contacts", pair, store=object(), workspace_id="W1", slug="main",
+    )))
+    messages.append({"role": "tool", "tool_data": json.dumps({
+        "name": "enrich_people_contacts", "result": first_pair,
+    })})
+    reordered = json.loads(asyncio.run(ck._execute_tool(
+        "enrich_people_contacts",
+        {**pair, "person_ids": ["person_jane", "person_alex"]},
+        store=object(), workspace_id="W1", slug="main",
+    )))
+    assert "error" not in reordered and reordered["reused"] is True
+    assert len(calls) == 2
+
 
 def test_people_workbook_snapshots_contact_status_and_attempts(monkeypatch):
     from sqlalchemy import create_engine
@@ -593,7 +617,7 @@ def test_people_workbook_snapshots_contact_status_and_attempts(monkeypatch):
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    Base.metadata.create_all(engine, tables=[Workbook.__table__, WorkbookRow.__table__])
+    Base.metadata.create_all(engine, tables=[*PERSON_TABLES, Workbook.__table__, WorkbookRow.__table__])
     factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     monkeypatch.setattr("apps.api.database.SessionLocal", factory)
     monkeypatch.setattr(

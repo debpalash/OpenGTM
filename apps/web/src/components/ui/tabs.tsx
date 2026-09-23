@@ -21,13 +21,17 @@ function Tabs({
   )
 }
 
+// Default: Twenty/Notion underline tabs on a hairline. "segmented" keeps the
+// compact pill switcher for in-card toggles.
+// macOS segmented control by default; "line" keeps underline tabs for dense panels.
 const tabsListVariants = cva(
-  "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-horizontal/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
+  "group/tabs-list inline-flex w-fit items-center text-muted-foreground group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",
   {
     variants: {
       variant: {
-        default: "bg-muted",
-        line: "gap-1 bg-transparent",
+        default: "h-7 justify-center gap-0.5 rounded-md bg-[var(--t-background-transparent-medium)] p-0.5",
+        segmented: "h-7 justify-center gap-0.5 rounded-md bg-[var(--t-background-transparent-medium)] p-0.5",
+        line: "h-9 gap-1 border-b border-border group-data-horizontal/tabs:w-full justify-start",
       },
     },
     defaultVariants: {
@@ -56,10 +60,11 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
     <TabsPrimitive.Tab
       data-slot="tabs-trigger"
       className={cn(
-        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-1 has-data-[icon=inline-start]:pl-1 aria-disabled:pointer-events-none aria-disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
-        "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
-        "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+        "relative inline-flex items-center justify-center gap-1.5 rounded-[var(--t-border-radius-sm)] px-3 text-sm font-medium whitespace-nowrap text-muted-foreground transition-[background-color,color,box-shadow] duration-150 outline-none hover:text-foreground focus-visible:outline-[3px] focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-40 aria-disabled:pointer-events-none aria-disabled:opacity-40 group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5 data-active:text-foreground",
+        // Segmented: the selected segment is a raised bezel.
+        "group-data-[variant=default]/tabs-list:h-full group-data-[variant=segmented]/tabs-list:h-full group-data-[variant=default]/tabs-list:data-active:bg-[var(--gtm-control-bezel)] group-data-[variant=segmented]/tabs-list:data-active:bg-[var(--gtm-control-bezel)] group-data-[variant=default]/tabs-list:data-active:shadow-[var(--gtm-control-shadow)] group-data-[variant=segmented]/tabs-list:data-active:shadow-[var(--gtm-control-shadow)]",
+        // Line: hover tint and a 2px indicator on the hairline.
+        "group-data-[variant=line]/tabs-list:h-7 group-data-[variant=line]/tabs-list:px-2 group-data-[variant=line]/tabs-list:hover:bg-accent after:absolute after:inset-x-1 after:-bottom-[5px] after:h-0.5 after:rounded-full after:bg-[var(--gtm-accent)] after:opacity-0 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
         className
       )}
       {...props}

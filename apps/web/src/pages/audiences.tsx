@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAudienceDestinations, useAudienceEvents, useAudienceMembers, useAudiences, useCancelAudienceDestination, useCreateAudienceDestination, useDestinationTypes, useRefreshAudience, useRetryAudienceDestination, useSyncAudienceDestination, useUpdateAudience } from "@/lib/hooks"
 import type { AudienceDestination } from "@/lib/api"
+import { NativeSelect } from "@/components/ui/native-select"
 
 const ago = (value: string | null) => {
   if (!value) return "Never"
@@ -177,19 +178,18 @@ export default function AudiencesPage() {
                 {selected.last_refresh_error && <p className="mt-1 text-xs text-destructive" title={selected.last_refresh_error}>Refresh failed {selected.consecutive_refresh_failures}×: {selected.last_refresh_error}</p>}
               </div>
               <div className="flex items-center gap-2">
-                <select
+                <NativeSelect
                   aria-label="Audience refresh interval"
                   value={selected.refresh_interval_minutes}
                   disabled={!selected.refresh_enabled || update.isPending}
                   onChange={(event) => update.mutate({ id: selected.id, data: { refresh_interval_minutes: Number(event.target.value) } })}
-                  className="h-8 rounded-md border bg-background px-2 text-xs"
                 >
                   <option value={15}>Every 15 minutes</option>
                   <option value={60}>Hourly</option>
                   <option value={360}>Every 6 hours</option>
                   <option value={1440}>Daily</option>
                   <option value={10080}>Weekly</option>
-                </select>
+                </NativeSelect>
                 <Button variant="outline" size="sm" disabled={update.isPending} onClick={() => update.mutate({ id: selected.id, data: { refresh_enabled: !selected.refresh_enabled } })}>
                   {selected.refresh_enabled ? "Pause schedule" : "Resume schedule"}
                 </Button>
@@ -234,12 +234,12 @@ export default function AudiencesPage() {
               <CardHeader><CardTitle className="flex items-center gap-2 text-sm"><Send className="size-4" /> Activation destinations</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2 rounded-md border p-2">
-                  <select value={destinationType} onChange={(event) => setDestinationType(event.target.value as AudienceDestination["destination_type"])} className="h-8 rounded-md border bg-background px-2 text-xs">
+                  <NativeSelect aria-label="Destination type" value={destinationType} onChange={(event) => setDestinationType(event.target.value as AudienceDestination["destination_type"])}>
                     <option value="webhook">Webhook</option><option value="slack">Slack</option><option value="hubspot">HubSpot</option><option value="salesforce">Salesforce</option><option value="warehouse_http">Warehouse HTTP</option><option value="google_sheets">Google Sheets</option><option value="airtable">Airtable</option><option value="instantly">Instantly</option><option value="smartlead">Smartlead</option><option value="meta_ads">Meta Ads</option><option value="google_ads">Google Ads</option><option value="linkedin_ads">LinkedIn Ads</option>
-                  </select>
+                  </NativeSelect>
                   <Badge variant={selectedDestinationType?.maturity === "supported" ? "default" : "secondary"}>{selectedDestinationType?.maturity ?? "beta"}</Badge>
                   <Input value={destinationName} onChange={(event) => setDestinationName(event.target.value)} placeholder="Destination name" className="h-8 min-w-40 flex-1" />
-                  {(destinationType === "hubspot" || destinationType === "salesforce") && <select value={inboundPolicy} onChange={event => setInboundPolicy(event.target.value)} className="h-8 rounded-md border bg-background px-2 text-xs"><option value="fill_missing">Inbound: fill missing fields</option><option value="crm_wins">Inbound: CRM wins</option></select>}
+                  {(destinationType === "hubspot" || destinationType === "salesforce") && <NativeSelect aria-label="Inbound sync policy" value={inboundPolicy} onChange={event => setInboundPolicy(event.target.value)}><option value="fill_missing">Inbound: fill missing fields</option><option value="crm_wins">Inbound: CRM wins</option></NativeSelect>}
                   {destinationType === "warehouse_http" && <><Input value={warehouseUrl} onChange={event => setWarehouseUrl(event.target.value)} placeholder="HTTPS ingestion endpoint" className="h-8 min-w-64 flex-[2]" /><Input value={warehouseSecretRef} onChange={event => setWarehouseSecretRef(event.target.value)} placeholder="Workspace secret key" className="h-8 min-w-40" /><Input value={warehouseDataset} onChange={event => setWarehouseDataset(event.target.value)} placeholder="Dataset" className="h-8 min-w-36" /></>}
                   {destinationType === "webhook" && <Input value={webhookUrl} onChange={(event) => setWebhookUrl(event.target.value)} placeholder="https://…" className="h-8 min-w-64 flex-[2]" />}
                   {(destinationType === "instantly" || destinationType === "smartlead") && <Input value={campaignId} onChange={(event) => setCampaignId(event.target.value)} placeholder={`${destinationType === "instantly" ? "Instantly" : "Smartlead"} campaign ID`} className="h-8 min-w-52" />}

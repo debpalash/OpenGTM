@@ -6,7 +6,7 @@ import {
   MapPin, Building2, User, Calendar, Sparkles, Search,
   FileText, Loader2, CheckCircle, AlertCircle, Pencil,
   Trash2, ExternalLink, Zap, TrendingUp, ChevronDown,
-  ChevronRight, Activity, Send,
+  ChevronRight, Activity, Send, Target, Code, Check,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -387,11 +387,10 @@ export default function LeadDetailPage() {
                   <EditableCell value={lead.email || ""} onSave={v => saveField("email", v)} placeholder="Add email" />
                   {lead.email && <a href={`mailto:${lead.email}`} className="text-muted-foreground hover:text-foreground"><ExternalLink className="size-3" /></a>}
                   {lead.email_confidence && (
-                    <Badge variant="secondary" className={`text-[9px] px-1 py-0 ${
-                      lead.email_confidence === "smtp_verified" ? "bg-emerald-600/20 text-emerald-500 border-emerald-500/40" :
-                      lead.email_confidence === "verified" ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" :
-                      lead.email_confidence === "pattern" ? "bg-amber-500/15 text-amber-600 border-amber-500/30" : ""
-                    }`}>{lead.email_confidence === "smtp_verified" ? "✓ SMTP" : lead.email_confidence}</Badge>
+                    <Badge variant="secondary" className={
+                      lead.email_confidence === "smtp_verified" || lead.email_confidence === "verified" ? "text-[var(--t-color-green9)]" :
+                      lead.email_confidence === "pattern" ? "text-[var(--t-color-orange9)]" : ""
+                    }>{lead.email_confidence === "smtp_verified" ? <><Check aria-hidden="true" />SMTP verified</> : lead.email_confidence}</Badge>
                   )}
                 </PropertyRow>
                 <PropertyRow icon={<Phone className="size-3.5" />} label="Phone" provenance={lead.phone_provider || undefined}>
@@ -465,8 +464,8 @@ export default function LeadDetailPage() {
                     </div>
                     <div className="text-sm"><span className="text-muted-foreground">Open positions:</span> <span className="font-medium">{hiringSignals.total_jobs}</span></div>
                     <div className="flex flex-wrap gap-1">
-                      {hiringSignals.gtm_expansion && <Badge variant="outline" className="text-[9px] bg-purple-500/10 text-purple-400">🎯 GTM</Badge>}
-                      {hiringSignals.tech_hiring && <Badge variant="outline" className="text-[9px] bg-cyan-500/10 text-cyan-400">💻 Tech</Badge>}
+                      {hiringSignals.gtm_expansion && <Badge variant="outline" className="text-[var(--t-color-purple9)]"><Target aria-hidden="true" />GTM</Badge>}
+                      {hiringSignals.tech_hiring && <Badge variant="outline" className="text-[var(--t-color-turquoise9)]"><Code aria-hidden="true" />Tech</Badge>}
                     </div>
                     {hiringSignals.roles?.length > 0 && (
                       <div className="flex flex-wrap gap-1">{hiringSignals.roles.map((r: string, i: number) => <Badge key={i} variant="secondary" className="text-[9px] px-1 py-0">{r}</Badge>)}</div>

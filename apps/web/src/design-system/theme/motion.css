@@ -1,0 +1,130 @@
+/* OpenGTM motion — macOS-feel transitions for windows, menus, pages and the dock.
+ *
+ * Surfaces are targeted by their stable data-slot attributes and Base UI's
+ * data-open / data-closed states (Base UI waits for exit animations before
+ * unmounting). Unlayered on purpose: it overrides the generic tw-animate-css
+ * enter/exit utilities on these surfaces. Everything is disabled under
+ * prefers-reduced-motion.
+ */
+
+:root {
+  /* A damped spring (overshoots ~1%, settles quickly), like AppKit windows. */
+  --gtm-spring: linear(0, 0.034 2.2%, 0.141 4.6%, 0.557 12.1%, 0.786 17.5%, 0.9 22%,
+    0.97 27.5%, 1.004 34%, 1.013 40%, 1.004 56%, 1);
+  --gtm-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --gtm-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --gtm-dur-window: 340ms;
+  --gtm-dur-window-out: 140ms;
+  --gtm-dur-menu: 160ms;
+  --gtm-dur-menu-out: 110ms;
+  --gtm-dur-page: 240ms;
+}
+
+/* ── Windows (dialogs): spring open, quick shrink-and-fade close ─────────── */
+@keyframes gtm-window-in {
+  from { opacity: 0; scale: 0.94; }
+  to { opacity: 1; scale: 1; }
+}
+@keyframes gtm-window-out {
+  from { opacity: 1; scale: 1; }
+  to { opacity: 0; scale: 0.97; }
+}
+@keyframes gtm-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gtm-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+[data-slot="dialog-content"][data-open] {
+  animation: gtm-window-in var(--gtm-dur-window) var(--gtm-spring) both;
+}
+[data-slot="dialog-content"][data-closed] {
+  animation: gtm-window-out var(--gtm-dur-window-out) var(--gtm-ease-in) both;
+}
+:is([data-slot="dialog-overlay"], [data-slot="sheet-overlay"])[data-open] {
+  animation: gtm-fade-in 220ms var(--gtm-ease-out) both;
+}
+:is([data-slot="dialog-overlay"], [data-slot="sheet-overlay"])[data-closed] {
+  animation: gtm-fade-out 160ms var(--gtm-ease-in) both;
+}
+
+/* ── Menus, pop-up buttons, popovers: grow from the trigger ─────────────── */
+@keyframes gtm-menu-in {
+  from { opacity: 0; scale: 0.97; }
+  to { opacity: 1; scale: 1; }
+}
+:is([data-slot="dropdown-menu-content"], [data-slot="dropdown-menu-sub-content"],
+    [data-slot="select-content"], [data-slot="popover-content"])[data-open] {
+  transform-origin: var(--transform-origin, top);
+  animation: gtm-menu-in var(--gtm-dur-menu) var(--gtm-ease-out) both;
+}
+:is([data-slot="dropdown-menu-content"], [data-slot="dropdown-menu-sub-content"],
+    [data-slot="select-content"], [data-slot="popover-content"])[data-closed] {
+  animation: gtm-fade-out var(--gtm-dur-menu-out) var(--gtm-ease-in) both;
+}
+[data-slot="tooltip-content"][data-open] {
+  animation: gtm-fade-in 120ms var(--gtm-ease-out) both;
+}
+
+/* ── Sheets (side panels): slide with the window curve ──────────────────── */
+[data-slot="sheet-content"] {
+  transition-duration: 380ms !important;
+  transition-timing-function: var(--gtm-ease-out) !important;
+}
+
+/* ── Page changes: content settles in ────────────────────────────────────── */
+@keyframes gtm-page-in {
+  from { opacity: 0; translate: 0 6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+.gtm-page-enter {
+  animation: gtm-page-in var(--gtm-dur-page) var(--gtm-ease-out) both;
+}
+
+/* ── Launch: the app window zooms in once on first paint ─────────────────── */
+@keyframes gtm-launch {
+  from { opacity: 0; scale: 0.985; }
+  to { opacity: 1; scale: 1; }
+}
+.gtm-launch {
+  animation: gtm-launch 420ms var(--gtm-spring) both;
+}
+
+/* ── Dock: magnify the collapsed sidebar's icons under the pointer ───────── */
+[data-collapsible="icon"] [data-sidebar="menu-button"] svg {
+  transition: scale 200ms var(--gtm-spring), translate 200ms var(--gtm-spring);
+  transform-origin: center;
+}
+[data-collapsible="icon"] [data-sidebar="menu-item"]:hover [data-sidebar="menu-button"] svg {
+  scale: 1.45;
+}
+[data-collapsible="icon"] [data-sidebar="menu-item"]:has(+ [data-sidebar="menu-item"]:hover) [data-sidebar="menu-button"] svg,
+[data-collapsible="icon"] [data-sidebar="menu-item"]:hover + [data-sidebar="menu-item"] [data-sidebar="menu-button"] svg {
+  scale: 1.2;
+}
+[data-collapsible="icon"] [data-sidebar="menu-button"]:active svg {
+  scale: 1.3;
+  translate: 0 1px;
+}
+
+/* ── Theme switch: crossfade via the View Transitions API (theme.js) ─────── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+  animation-timing-function: var(--gtm-ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Only switch motion off. Never reset translate/scale broadly: Tailwind
+   * positions dialogs with the translate property (-translate-x/y-1/2). */
+  [data-slot], .gtm-page-enter, .gtm-launch {
+    animation: none !important;
+    transition: none !important;
+  }
+  [data-collapsible="icon"] [data-sidebar="menu-button"] svg {
+    transition: none !important;
+    scale: none !important;
+    translate: none !important;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}

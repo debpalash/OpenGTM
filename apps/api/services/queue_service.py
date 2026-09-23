@@ -7,7 +7,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional, Callable, Awaitable
 
-from sqlalchemy import select, update, or_, text, func
+from sqlalchemy import select, update, or_, text, cast, String, func
 from sqlalchemy.orm import Session
 
 from apps.api.database import SessionLocal, engine
@@ -15,6 +15,14 @@ from apps.api.models import Job
 from apps.api.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+
+def _timestamp_matches(column, value):
+    # Historical SQLite claims were written by the raw datetime adapter with
+    # an offset. Preserve recovery of those leases during a rolling upgrade.
+    if engine.dialect.name == "sqlite" and value is not None and value.tzinfo:
+        return or_(column == value, cast(column, String) == value.isoformat(" "))
+    return column == value
 
 
 def _make_worker_id() -> str:
@@ -39,8 +47,6 @@ JOB_TIMEOUTS = {
     "source_workbook": 1800,
     # Checkpointed page-by-page; enough for a 500-row import plus API retries.
     "ambitionbox_import": 900,
-    # Checkpointed streaming import; a full CNPJ dataset can take several hours.
-    "data_collector_import": 21600,
     "refresh_workbook": 900,
     "signal_scan": 300,
     # Automations: one rule evaluation over a bounded row set; re_enrich runs
@@ -170,7 +176,11 @@ class QueueService:
         return (
             "j.status = 'pending' "
             "AND (j.next_run_at IS NULL OR j.next_run_at <= :now) "
-            "AND (:fire_key_prefix IS NULL OR j.fire_key LIKE :fire_key_prefix) "
+            # CAST: PostgreSQL cannot infer the type of a NULL-only parameter
+            # ("could not determine data type of parameter"), which made every
+            # claim fail when no prefix filter was supplied.
+            "AND (CAST(:fire_key_prefix AS TEXT) IS NULL "
+            "OR j.fire_key LIKE CAST(:fire_key_prefix AS TEXT)) "
             "AND (j.workspace_id IS NULL OR :tenant_cap = 0 OR "
             "(SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' "
             "AND active.workspace_id = j.workspace_id) < :tenant_cap)"
@@ -224,7 +234,10 @@ class QueueService:
     def _claim_next_job_sqlite(
         self, db: Session, fire_key_prefix: Optional[str] = None
     ) -> Optional[Dict[str, Any]]:
-        now = datetime.now(timezone.utc)
+        # Match SQLAlchemy's DateTime serialization, including six fractional
+        # digits. Raw sqlite datetime adapters otherwise append a UTC offset,
+        # making subsequent ORM lease comparisons fail despite equal instants.
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
         # Loop over candidates: a conditional UPDATE guarded by status='pending'.
         # rowcount==1 means we won; rowcount==0 means another writer already
         # claimed that id, so move to the next candidate. Bounded by a re-query
@@ -267,7 +280,53 @@ class QueueService:
         job = db.query(Job).filter(Job.id == job_id).first()
         if job is None:
             return None
-        return {"id": job.id, "type": job.type, "payload": job.payload}
+        return {"id": job.id, "type": job.type, "payload": job.payload,
+                "locked_at": job.locked_at}
+
+    def _recover_attempts(self, *, startup: bool = False) -> None:
+        """Recover expired claims with a compare-and-swap against their lease."""
+        now = datetime.now(timezone.utc)
+        threshold = now - timedelta(minutes=5)
+        recovered = []
+        with SessionLocal() as db:
+            query = db.query(Job).filter(Job.status == "processing")
+            if startup:
+                query = query.filter(or_(Job.worker_id == self.worker_id,
+                                         Job.worker_id == None))  # noqa: E711
+            else:
+                query = query.filter(or_(Job.last_heartbeat < threshold,
+                                         Job.last_heartbeat == None))  # noqa: E711
+            for job in query.all():
+                retries = job.retry_count or 0
+                limit = job.max_retries if job.max_retries is not None else 3
+                retry = retries < limit
+                reason = "Recovered from crash" if startup else "Heartbeat Timeout"
+                # A concurrent heartbeat, cancellation, or another reaper wins
+                # by changing any of these fields. Never overwrite that change.
+                changed = db.query(Job).filter(
+                    Job.id == job.id, Job.status == "processing",
+                    Job.worker_id == job.worker_id, _timestamp_matches(Job.locked_at, job.locked_at),
+                    _timestamp_matches(Job.last_heartbeat, job.last_heartbeat),
+                    Job.retry_count == job.retry_count,
+                ).update({
+                    Job.status: "pending" if retry else "failed",
+                    Job.retry_count: retries + 1 if retry else retries,
+                    Job.worker_id: None, Job.locked_at: None,
+                    Job.started_at: None, Job.last_heartbeat: None,
+                    Job.next_run_at: now + timedelta(minutes=2 ** retries) if retry else None,
+                    Job.completed_at: None if retry else now,
+                    Job.error: reason if retry else f"Final Failure: {reason}",
+                }, synchronize_session=False)
+                if changed:
+                    recovered.append((job.id, job.type, job.payload, reason, retry))
+            db.commit()
+        for job_id, job_type, payload, reason, retry in recovered:
+            callback = self.failure_handlers.get(job_type)
+            if callback:
+                try:
+                    callback(job_id, payload, reason, retry)
+                except Exception:
+                    logger.exception("Failure reconciliation failed for recovered job %s", job_id)
 
     def recover_jobs(self):
         """Reset jobs THIS worker previously owned back to pending on startup.
@@ -280,26 +339,7 @@ class QueueService:
         alone; the heartbeat reaper recovers genuinely dead ones.
         """
         try:
-            with SessionLocal() as db:
-                stuck_jobs = (
-                    db.query(Job)
-                    .filter(
-                        Job.status == "processing",
-                        or_(
-                            Job.worker_id == self.worker_id,
-                            Job.worker_id == None,  # noqa: E711 legacy/unowned
-                        ),
-                    )
-                    .all()
-                )
-                if stuck_jobs:
-                    logger.info(f"Recovering {len(stuck_jobs)} stuck jobs...")
-                    notices = self._transition_dead_jobs(
-                        db, stuck_jobs, "Recovered from crash", datetime.now(timezone.utc)
-                    )
-                else:
-                    notices = []
-            self._reconcile_dead_jobs(notices)
+            self._recover_attempts(startup=True)
         except Exception as e:
             logger.error(f"Failed to recover jobs: {e}")
 
@@ -405,7 +445,10 @@ class QueueService:
                 if claimed:
                     self._active_slots.add(slot)
                     try:
-                        await self._process_job(claimed["id"], claimed["type"], claimed["payload"])
+                        await self._process_job(
+                            claimed["id"], claimed["type"], claimed["payload"],
+                            locked_at=claimed["locked_at"],
+                        )
                     finally:
                         self._active_slots.discard(slot)
                 else:
@@ -428,7 +471,7 @@ class QueueService:
         oldest_age = max(0.0, (now - oldest_created).total_seconds()) if oldest_created else 0.0
         return {"worker_id": self.worker_id, "configured_concurrency": self.concurrency, "max_active_per_workspace": self.max_active_per_workspace, "local_active_slots": len(self._active_slots), "active_workers": active_workers, "counts": counts, "active_by_type": types, "oldest_pending_age_seconds": round(oldest_age, 3), "observed_at": now.isoformat()}
 
-    async def _process_job(self, job_id: int, job_type: str, payload: Dict):
+    async def _process_job(self, job_id: int, job_type: str, payload: Dict, *, locked_at=None):
         logger.info(f"Processing Job {job_id} ({job_type})")
         handler = self.handlers.get(job_type)
 
@@ -436,7 +479,14 @@ class QueueService:
         status = "completed"
 
         # Start Heartbeat Task for this job
-        heartbeat_task = asyncio.create_task(self._job_heartbeat(job_id))
+        if locked_at is None:
+            with SessionLocal() as db:
+                claim = db.query(Job).filter(Job.id == job_id,
+                    Job.worker_id == self.worker_id, Job.status == "processing").first()
+                if claim is None:
+                    return
+                locked_at = claim.locked_at
+        heartbeat_task = asyncio.create_task(self._job_heartbeat(job_id, locked_at))
 
         try:
             if handler:
@@ -447,7 +497,10 @@ class QueueService:
 
                 timeout = JOB_TIMEOUTS.get(job_type, DEFAULT_JOB_TIMEOUT)
                 await run_job_subprocess(
-                    job_id, job_type, payload, timeout=timeout
+                    job_id, job_type, {**payload, "__queue_lease": {
+                        "worker_id": self.worker_id, "locked_at": locked_at.isoformat() if locked_at else None,
+                    }} if job_type == "run_workbook" else payload, timeout=timeout,
+                    should_continue=lambda: self._claim_is_active(job_id, locked_at),
                 )
             else:
                 raise Exception(f"No handler for job type {job_type}")
@@ -488,11 +541,14 @@ class QueueService:
                 # cancel's status predicate correctly becomes a no-op.
                 job = (
                     db.query(Job)
-                    .filter(Job.id == job_id)
+                    .filter(Job.id == job_id, Job.worker_id == self.worker_id,
+                            _timestamp_matches(Job.locked_at, locked_at),
+                            Job.status.in_(["processing", "cancelled"]))
                     .with_for_update()
                     .first()
                 )
                 if job:
+                    previous_status = job.status
                     # Release ownership: the claim is finished one way or another.
                     # A requeued (pending) job must be unowned so any worker can
                     # re-claim it; terminal jobs simply no longer hold a lock.
@@ -503,7 +559,7 @@ class QueueService:
                         job.completed_at = job.completed_at or datetime.now(timezone.utc)
                     elif status == "failed":
                         # Check Retry
-                        if (job.retry_count or 0) < (job.max_retries or 3):
+                        if (job.retry_count or 0) < (job.max_retries if job.max_retries is not None else 3):
                             will_retry = True
                             job.status = "pending"
                             job.retry_count = (job.retry_count or 0) + 1
@@ -525,8 +581,21 @@ class QueueService:
                         job.completed_at = datetime.now(timezone.utc)
                         job.error = None
 
+                    # SQLite ignores FOR UPDATE. Repeat the lease + status
+                    # predicate in the write itself so cancellation/reclaim
+                    # between the read and update cannot be overwritten.
+                    values = {name: getattr(job, name) for name in (
+                        "worker_id", "locked_at", "status", "completed_at",
+                        "retry_count", "next_run_at", "error",
+                    )}
+                    db.expunge(job)
+                    changed = db.query(Job).filter(
+                        Job.id == job_id, Job.worker_id == self.worker_id,
+                        _timestamp_matches(Job.locked_at, locked_at),
+                        Job.status == previous_status,
+                    ).update(values, synchronize_session=False)
                     db.commit()
-                    job_state_persisted = True
+                    job_state_persisted = bool(changed)
         except Exception as e:
             logger.error(f"Failed to update job status: {e}")
 
@@ -555,15 +624,26 @@ class QueueService:
                     job_type,
                 )
 
-    async def _job_heartbeat(self, job_id: int):
+    def _claim_is_active(self, job_id: int, locked_at) -> bool:
+        with SessionLocal() as db:
+            return db.query(Job.id).filter(
+                Job.id == job_id, Job.worker_id == self.worker_id,
+                _timestamp_matches(Job.locked_at, locked_at), Job.status == "processing",
+            ).first() is not None
+
+    def _renew_claim(self, job_id: int, locked_at) -> None:
+        with SessionLocal() as db:
+            db.query(Job).filter(
+                Job.id == job_id, Job.worker_id == self.worker_id,
+                _timestamp_matches(Job.locked_at, locked_at), Job.status == "processing",
+            ).update({Job.last_heartbeat: datetime.now(timezone.utc)}, synchronize_session=False)
+            db.commit()
+
+    async def _job_heartbeat(self, job_id: int, locked_at):
         while True:
             try:
                 await asyncio.sleep(self.heartbeat_interval)
-                with SessionLocal() as db:
-                    job = db.query(Job).filter(Job.id == job_id).first()
-                    if job and job.status == "processing":
-                        job.last_heartbeat = datetime.now(timezone.utc)
-                        db.commit()
+                await asyncio.to_thread(self._renew_claim, job_id, locked_at)
             except asyncio.CancelledError:
                 break
             except Exception as e:
@@ -574,7 +654,7 @@ class QueueService:
         while self.is_running:
             try:
                 await asyncio.sleep(60)  # Check every minute
-                await asyncio.to_thread(self.reap_dead_jobs_once)
+                await asyncio.to_thread(self._recover_attempts)
 
             except Exception as e:
                 logger.error(f"Monitor loop error: {e}")

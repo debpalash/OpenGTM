@@ -87,6 +87,14 @@ def test_projected_cost_only_charges_non_byok(monkeypatch):
     assert cost == 1.0
 
 
+def test_exact_cell_projection_rounds_once_and_excludes_unselected_columns(monkeypatch):
+    monkeypatch.setitem(vc.VENDORS, "tiny_platform", vc.Vendor("tiny_platform", base_cost=0.00004, byok=False))
+    monkeypatch.setitem(vc.VENDORS, "expensive_platform", vc.Vendor("expensive_platform", base_cost=1, byok=False))
+    providers = {"selected": ["tiny_platform"], "untouched": ["expensive_platform"]}
+    assert billing.projected_platform_cost(10, providers, column_counts={"selected": 10}) == 0.0004
+    assert billing.projected_platform_cost(10, providers, column_counts={}) == 0
+
+
 def test_byok_only_run_is_free(monkeypatch):
     monkeypatch.setitem(vc.VENDORS, "byok_only",
                         vc.Vendor("byok_only", base_cost=0.30, byok=True))

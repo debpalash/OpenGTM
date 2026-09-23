@@ -92,11 +92,12 @@ def _resolve(template: str, lead_data: dict, columns_config: list) -> str:
     """Resolve {column}/{field} placeholders in a string using the row's values.
     Reuses the same resolver as AI columns. Lazy imports avoid a circular import
     (enrichment imports this module at load time)."""
-    from apps.api.services.workbook.ai_column import _resolve_prompt
+    from apps.api.services.workbook.ai_column import _resolve_prompt, validate_template_references
     from apps.api.services.workbook.enrichment import _get_lead_values
 
+    validate_template_references(template, columns_config)
     values = _get_lead_values(lead_data, columns_config)
-    return _resolve_prompt(template, values)
+    return _resolve_prompt(template, values, strict=True)
 
 
 def _resolve_deep(value: Any, lead_data: dict, columns_config: list) -> Any:
@@ -132,6 +133,16 @@ async def _send_webhook(cfg: dict, lead_data: dict, columns_config: list) -> Dic
     kwargs: Dict[str, Any] = {"headers": headers}
     if method in ("POST", "PUT", "PATCH"):
         raw_body = cfg.get("body")
+        if isinstance(raw_body, str):
+            # A string template that is already valid JSON (placeholders inside
+            # quoted strings) resolves structurally, so values containing
+            # quotes/newlines stay correctly escaped.
+            try:
+                parsed = json.loads(raw_body)
+            except json.JSONDecodeError:
+                parsed = None
+            if isinstance(parsed, (dict, list)):
+                raw_body = parsed
         if raw_body is None:
             # Default: the full row as JSON.
             kwargs["json"] = lead_data
@@ -140,7 +151,8 @@ async def _send_webhook(cfg: dict, lead_data: dict, columns_config: list) -> Dic
             # contain {placeholders}.
             kwargs["json"] = _resolve_deep(raw_body, lead_data, columns_config)
         else:
-            # String template → resolve, then send as JSON if it parses, else text.
+            # Non-JSON string template (e.g. unquoted placeholders) → resolve,
+            # then send as JSON if it parses, else text.
             resolved = _resolve(str(raw_body), lead_data, columns_config)
             try:
                 kwargs["json"] = json.loads(resolved)
@@ -346,14 +358,19 @@ def _map_lead_fields(fmap: dict, lead_data: dict, columns_config: list) -> Dict[
     Each workbook-column key is resolved through the same {placeholder}
     resolver the webhook destination uses, so column ids, column names, and
     raw lead fields all work (a key may itself be a template like
-    "{first_name} {last_name}"). Unresolvable/empty values are dropped.
+    "{first_name} {last_name}"). Empty values and unknown columns are dropped
+    (never sent as a literal marker); ambiguous references still raise.
     """
     out: Dict[str, Any] = {}
     for src, vendor_field in (fmap or {}).items():
         template = src if "{" in str(src) else "{" + str(src) + "}"
-        val = _resolve(template, lead_data, columns_config)
-        # The resolver marks unknown single placeholders as "[key: not found]".
-        if not val or (val.startswith("[") and val.endswith(": not found]")):
+        try:
+            val = _resolve(template, lead_data, columns_config)
+        except ValueError as exc:
+            if str(exc).startswith("Unknown column reference"):
+                continue
+            raise
+        if not val:
             continue
         out[str(vendor_field)] = val
     return out
@@ -441,6 +458,18 @@ async def execute_output_column(
     dest = (col_config.get("destination") or "").lower()
     cfg = col_config.get("destination_config") or {}
 
+    try:
+        return await _dispatch_output(dest, cfg, lead_data, columns_config,
+                                      workbook_id, lead_id, workspace_id)
+    except ValueError as exc:
+        # Template errors (unknown/ambiguous references) become explicit
+        # failed receipts; nothing was sent.
+        return {"success": False, "value": None, "error": str(exc)}
+
+
+async def _dispatch_output(dest: str, cfg: dict, lead_data: dict, columns_config: list,
+                           workbook_id: str, lead_id: int,
+                           workspace_id: Optional[str]) -> Dict[str, Any]:
     if dest == "webhook":
         return await _send_webhook(cfg, lead_data, columns_config)
     if dest == "crm":

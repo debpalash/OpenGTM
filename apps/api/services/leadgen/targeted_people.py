@@ -327,6 +327,22 @@ async def research_people_at_company(
         raise
 
     company_resolution = await identity_task
+    search_failures = int(getattr(provider, "search_failures", 0) or 0)
+    if not discovered and searches_used and search_failures >= searches_used:
+        # Every search errored: this is not evidence that nobody matches.
+        return {
+            "ok": False,
+            "error": "people_search_unavailable",
+            "company": company,
+            "function": function,
+            "company_resolution": company_resolution,
+            "people": [],
+            "count": 0,
+            "searches_used": searches_used,
+            "search_failures": search_failures,
+            "message": "Public people search failed for every query. No people were "
+                       "ruled out; retry later or configure a search backend.",
+        }
     canonical_domain = (
         str(company_resolution.get("canonical_domain") or "").strip().lower()
         if company_resolution.get("status") == "resolved"
@@ -392,6 +408,7 @@ async def research_people_at_company(
         "people": accepted,
         "count": len(accepted),
         "searches_used": searches_used,
+        "search_failures": search_failures,
         "candidates_rejected": {
             "company_relationship_missing": rejected_company,
             "function_evidence_missing": rejected_function,

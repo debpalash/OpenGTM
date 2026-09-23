@@ -1,13 +1,47 @@
-@import "tailwindcss";
+@import "tailwindcss" source(".");
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-500.css";
+@import "@fontsource/inter/latin-600.css";
+@import "twenty-ui/theme-light.css";
+@import "twenty-ui/theme-dark.css";
+@import "./design-system/theme/tokens.css";
+@import "./design-system/theme/motion.css";
+
+/* Keep utility detection independent of the build command's working directory. */
+@source "../index.html";
 
 @custom-variant dark (&:is(.dark *));
 
+/* Tailwind's text scale on the macOS HIG ramp, with SF-style optical tracking
+ * (tighter as size grows): xs 12 callout · sm 13 body · base 15 title3 ·
+ * lg 17 title2 · xl 22 title1 · 2xl 26 large title. */
+@theme {
+    --text-xs: 12px;
+    --text-xs--line-height: 16px;
+    --text-xs--letter-spacing: 0;
+    --text-sm: 13px;
+    --text-sm--line-height: 18px;
+    --text-sm--letter-spacing: -0.006em;
+    --text-base: 15px;
+    --text-base--line-height: 20px;
+    --text-base--letter-spacing: -0.014em;
+    --text-lg: 17px;
+    --text-lg--line-height: 22px;
+    --text-lg--letter-spacing: -0.022em;
+    --text-xl: 22px;
+    --text-xl--line-height: 28px;
+    --text-xl--letter-spacing: -0.02em;
+    --text-2xl: 26px;
+    --text-2xl--line-height: 32px;
+    --text-2xl--letter-spacing: -0.022em;
+    --font-mono: var(--gtm-font-mono);
+}
+
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
+    --font-heading: var(--gtm-font-display);
+    --font-sans: var(--gtm-font-sans);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,178 +82,68 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/*
- * ── WARM CREAM LIGHT THEME ──
- * A soft, warm-gray palette with cream undertones.
- *
- * Design principles:
- *   • Never pure white — backgrounds have a warm cream hue (85–90° in oklch)
- *   • Text is warm charcoal (not pure black) for comfortable reading
- *   • Borders and muted surfaces carry subtle warmth
- *   • Inspired by Notion, Stripe Dashboard, premium stationery
- */
-:root {
-    /* ─ Surfaces ─ */
-    --background: oklch(0.98 0.005 85);          /* Warm cream — the base canvas            */
-    --foreground: oklch(0.18 0.01 60);            /* Warm charcoal — never pure black         */
-    --card: oklch(0.995 0.003 85);                /* Slightly lighter cream for cards          */
-    --card-foreground: oklch(0.18 0.01 60);
-    --popover: oklch(0.997 0.002 85);             /* Near-white cream for floating panels      */
-    --popover-foreground: oklch(0.15 0.01 60);    /* Deepest text for focus context            */
-
-    /* ─ Primary action ─ */
-    --primary: oklch(0.25 0.015 60);              /* Warm near-black for buttons               */
-    --primary-foreground: oklch(0.97 0.005 85);   /* Cream text on primary                     */
-
-    /* ─ Secondary / muted ─ */
-    --secondary: oklch(0.94 0.008 85);            /* Warm light gray for chips/tags             */
-    --secondary-foreground: oklch(0.25 0.015 60);
-    --muted: oklch(0.94 0.008 85);                /* Same warmth for muted surfaces             */
-    --muted-foreground: oklch(0.50 0.01 60);      /* Mid-tone warm gray — metadata, hints       */
-
-    /* ─ Accent ─ */
-    --accent: oklch(0.94 0.008 85);
-    --accent-foreground: oklch(0.25 0.015 60);
-
-    /* ─ Destructive ─ */
-    --destructive: oklch(0.55 0.22 27);           /* Warm, muted red                           */
-
-    /* ─ Chrome ─ */
-    --border: oklch(0.90 0.01 85);                /* Warm border — structural, gentle           */
-    --input: oklch(0.90 0.01 85);                 /* Input border — matches border              */
-    --ring: oklch(0.60 0.01 60);                  /* Focus ring — warm mid-gray                 */
-
-    /* ─ Charts — earthy, warm palette ─ */
-    --chart-1: oklch(0.58 0.18 45);               /* Terracotta                                */
-    --chart-2: oklch(0.55 0.12 160);              /* Muted teal                                */
-    --chart-3: oklch(0.45 0.08 250);              /* Slate blue                                */
-    --chart-4: oklch(0.70 0.16 80);               /* Warm amber                                */
-    --chart-5: oklch(0.62 0.15 20);               /* Muted coral                               */
-
-    --radius: 0.625rem;
-
-    /* ─ Sidebar — slightly warmer/darker panel ─ */
-    --sidebar: oklch(0.96 0.007 85);              /* Warmer than main — recessed feel           */
-    --sidebar-foreground: oklch(0.22 0.01 60);
-    --sidebar-primary: oklch(0.25 0.015 60);
-    --sidebar-primary-foreground: oklch(0.97 0.005 85);
-    --sidebar-accent: oklch(0.92 0.01 85);        /* Hover/active — slightly darker             */
-    --sidebar-accent-foreground: oklch(0.22 0.01 60);
-    --sidebar-border: oklch(0.88 0.012 85);       /* Warm dividers                              */
-    --sidebar-ring: oklch(0.60 0.01 60);
-}
-
-/*
- * ── PRO DARK THEME ──
- * Intentional dimming + luminance hierarchy for extended viewing.
- *
- * Design principles:
- *   • Nothing is ever pure white — max text luminance is 0.88 (soft white)
- *   • Surface elevation via subtle luminance steps (0.07 → 0.09 → 0.11 → 0.13)
- *   • Muted text at 0.52 — visible but recessive, never competing with content
- *   • Borders at 0.20 — structural without visual noise
- *   • Inspired by Linear, Raycast, Bloomberg Terminal
- */
-.dark {
-    /* ─ Surfaces ─ */
-    --background: oklch(0.09 0 0);           /* Deep near-black base                */
-    --foreground: oklch(0.88 0 0);           /* Soft white — never glaring           */
-    --card: oklch(0.11 0 0);                 /* Slightly elevated surface            */
-    --card-foreground: oklch(0.88 0 0);
-    --popover: oklch(0.13 0 0);              /* Floating panels — highest elevation  */
-    --popover-foreground: oklch(0.90 0 0);   /* Slightly brighter for focus context  */
-
-    /* ─ Primary action ─ */
-    --primary: oklch(0.88 0 0);              /* Matches text — clean, no contrast jump */
-    --primary-foreground: oklch(0.12 0 0);   /* Dark text on primary buttons           */
-
-    /* ─ Secondary / muted ─ */
-    --secondary: oklch(0.16 0 0);            /* Subtle surface for chips, tags         */
-    --secondary-foreground: oklch(0.82 0 0);
-    --muted: oklch(0.16 0 0);
-    --muted-foreground: oklch(0.52 0 0);     /* Intentionally dim — metadata, hints    */
-
-    /* ─ Accent ─ */
-    --accent: oklch(0.16 0 0);
-    --accent-foreground: oklch(0.82 0 0);
-
-    /* ─ Destructive ─ */
-    --destructive: oklch(0.65 0.20 25);      /* Slightly muted red — less alarming     */
-
-    /* ─ Chrome ─ */
-    --border: oklch(0.20 0 0);               /* Dim borders — structural, not loud     */
-    --input: oklch(0.16 0 0);                /* Input bg slightly lifted               */
-    --ring: oklch(0.40 0 0);                 /* Focus ring — visible but calm          */
-
-    /* ─ Charts — pro-grade teal/amber palette ─ */
-    --chart-1: oklch(0.55 0.18 250);         /* Teal-blue                              */
-    --chart-2: oklch(0.62 0.14 170);         /* Seafoam                                */
-    --chart-3: oklch(0.72 0.16 80);          /* Warm amber                             */
-    --chart-4: oklch(0.58 0.22 290);         /* Violet                                 */
-    --chart-5: oklch(0.60 0.20 20);          /* Coral                                  */
-
-    /* ─ Sidebar — recessed panel effect ─ */
-    --sidebar: oklch(0.07 0 0);              /* Darker than main content               */
-    --sidebar-foreground: oklch(0.78 0 0);   /* Dimmer text — secondary reading zone   */
-    --sidebar-primary: oklch(0.88 0 0);
-    --sidebar-primary-foreground: oklch(0.12 0 0);
-    --sidebar-accent: oklch(0.14 0 0);       /* Hover/active state                     */
-    --sidebar-accent-foreground: oklch(0.88 0 0);
-    --sidebar-border: oklch(0.16 0 0);       /* Barely-there dividers                  */
-    --sidebar-ring: oklch(0.40 0 0);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    font-size: var(--t-font-size-md);
+    line-height: var(--gtm-line-height-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01";
+    text-rendering: optimizeLegibility;
   }
   html {
     @apply font-sans;
   }
+  h1, h2, h3, h4 {
+    font-family: var(--gtm-font-display);
+    line-height: var(--gtm-line-height-tight);
+  }
+  /* Icons: SF Symbols-like weight and color for every Lucide icon. */
+  svg.lucide {
+    stroke-width: var(--gtm-icon-stroke);
+  }
+  /* Numbers in data line up, as in macOS tables. */
+  table, [role="grid"], [data-slot="table"], .tabular-data {
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: var(--gtm-selection);
+  }
+  /* Keyboard-navigable items (j/k, Space for Quick Look) show the focus ring. */
+  [data-nav-item]:focus-visible {
+    outline: 2px solid var(--gtm-focus-ring);
+    outline-offset: -2px;
+    border-radius: var(--t-border-radius-sm);
+  }
+  :focus-visible {
+    outline: 2px solid var(--gtm-focus-ring);
+    outline-offset: 1px;
+  }
+  /* Native selects (workspace and theme switchers) match token controls;
+   * utility classes on a select still override these base styles. */
+  select {
+    height: var(--gtm-control-md);
+    padding: 0 var(--gtm-space-2);
+    border: 0;
+    border-radius: var(--t-border-radius-sm);
+    background-color: var(--gtm-control-bezel);
+    box-shadow: var(--gtm-control-shadow);
+    color: var(--t-font-color-primary);
+    font-size: var(--t-font-size-md);
+  }
+  select:hover {
+    background-color: var(--t-background-transparent-lighter);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--t-font-color-tertiary);
+  }
 }
 
-/* Sidebar interaction surface — a static grain layer keeps hover tactile
- * without running a canvas/WebGL loop for every navigation item. */
-[data-sidebar="menu-button"]::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  background-image:
-    linear-gradient(105deg, color-mix(in oklab, #6268f2 10%, transparent), transparent 58%),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 180 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
-  background-size: 100% 100%, 132px 72px;
-  background-blend-mode: soft-light;
-  mix-blend-mode: multiply;
-  transition: opacity 280ms cubic-bezier(.22, 1, .36, 1);
-}
-
-[data-sidebar="menu-button"] > * {
-  position: relative;
-  z-index: 1;
-}
-
-[data-sidebar="menu-button"]:hover::after,
-[data-sidebar="menu-button"]:focus-visible::after,
-[data-sidebar="menu-button"][data-active]::after {
-  opacity: .16;
-}
-
-.dark [data-sidebar="menu-button"]::after {
-  mix-blend-mode: screen;
-}
-
-.dark [data-sidebar="menu-button"]:hover::after,
-.dark [data-sidebar="menu-button"]:focus-visible::after,
-.dark [data-sidebar="menu-button"][data-active]::after {
-  opacity: .1;
-}
 
 @media (prefers-reduced-motion: reduce) {
   [data-sidebar="menu-button"],
@@ -235,60 +159,53 @@
   }
 }
 
-/* ── Pro typography dimming layers ──
- * Theme-aware utility classes for manual luminance control.
- * Light mode: warm charcoal cascade · Dark mode: soft white cascade
- */
+/* ── macOS materials: translucent, blurred chrome (vibrancy) ── */
 @layer utilities {
-  /* Dark mode defaults */
-  .text-dim-1 { color: oklch(0.88 0 0); }
-  .text-dim-2 { color: oklch(0.72 0 0); }
-  .text-dim-3 { color: oklch(0.52 0 0); }
-  .text-dim-4 { color: oklch(0.36 0 0); }
+  .gtm-material-sidebar {
+    background-color: var(--gtm-material-sidebar);
+    backdrop-filter: var(--gtm-material-blur);
+    -webkit-backdrop-filter: var(--gtm-material-blur);
+  }
+  .gtm-material-toolbar {
+    background-color: var(--gtm-material-toolbar);
+    backdrop-filter: var(--gtm-material-blur);
+    -webkit-backdrop-filter: var(--gtm-material-blur);
+  }
+  .gtm-material-menu {
+    background-color: var(--gtm-material-menu);
+    backdrop-filter: var(--gtm-material-blur);
+    -webkit-backdrop-filter: var(--gtm-material-blur);
+  }
 }
 
-/* Light mode overrides — warm charcoal cascade */
-:root:not(.dark) .text-dim-1 { color: oklch(0.22 0.01 60); }
-:root:not(.dark) .text-dim-2 { color: oklch(0.38 0.01 60); }
-:root:not(.dark) .text-dim-3 { color: oklch(0.55 0.01 60); }
-:root:not(.dark) .text-dim-4 { color: oklch(0.72 0.008 85); }
-
-/* ── Scrollbar — warm cream for light theme ── */
-:root:not(.dark) ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* ── Text emphasis steps (token-backed in both themes) ── */
+@layer utilities {
+  .text-dim-1 { color: var(--t-font-color-primary); }
+  .text-dim-2 { color: var(--t-font-color-secondary); }
+  .text-dim-3 { color: var(--t-font-color-tertiary); }
+  .text-dim-4 { color: var(--t-font-color-light); }
 }
-:root:not(.dark) ::-webkit-scrollbar-track {
+
+/* ── Scrollbars: thin, token-colored ── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
   background: transparent;
 }
-:root:not(.dark) ::-webkit-scrollbar-thumb {
-  background: oklch(0.82 0.01 85);
-  border-radius: 3px;
+::-webkit-scrollbar-thumb {
+  background: var(--t-border-color-strong);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
 }
-:root:not(.dark) ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.72 0.01 60);
-}
-
-/* ── Scrollbar — blends into dark theme ── */
-.dark ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-.dark ::-webkit-scrollbar-track {
-  background: transparent;
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: oklch(0.22 0 0);
-  border-radius: 3px;
-}
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.30 0 0);
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--t-font-color-light);
 }
 
-/* ── Smooth transitions on theme-driven colors ── */
-* {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
+/* Theme changes crossfade via View Transitions (public/theme.js, motion.css);
+ * controls declare their own short transitions. No global "*" transition. */
 
 /*
  * ══════════════════════════════════════════════════════════════════════
@@ -297,24 +214,14 @@
  * ══════════════════════════════════════════════════════════════════════
  */
 
-/* ── Zebra striping — subtle alternating row backgrounds ── */
-.dark [data-slot="table-body"] tr:nth-child(even) td,
-.dark tbody tr:nth-child(even) td {
-  background-color: oklch(0.10 0 0);
+/* ── Zebra striping and row hover — transparent token tints ── */
+[data-slot="table-body"] tr:nth-child(even) td,
+tbody tr:nth-child(even) td {
+  background-color: var(--t-background-transparent-lighter);
 }
-:root:not(.dark) [data-slot="table-body"] tr:nth-child(even) td,
-:root:not(.dark) tbody tr:nth-child(even) td {
-  background-color: oklch(0.965 0.004 85);
-}
-
-/* ── Row hover — accent tint that overrides zebra ── */
-.dark [data-slot="table-body"] tr:hover td,
-.dark tbody tr:hover td {
-  background-color: oklch(0.13 0.008 250) !important;
-}
-:root:not(.dark) [data-slot="table-body"] tr:hover td,
-:root:not(.dark) tbody tr:hover td {
-  background-color: oklch(0.95 0.012 220) !important;
+[data-slot="table-body"] tr:hover td,
+tbody tr:hover td {
+  background-color: var(--t-background-transparent-light) !important;
 }
 
 /* ── Cell flash — fires when enrichment data arrives ── */
