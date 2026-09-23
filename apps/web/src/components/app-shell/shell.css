@@ -42,5 +42,31 @@
   border-color: transparent !important;
   -webkit-backdrop-filter: none; backdrop-filter: none;
 }
-[data-collapsible="icon"] .gtm-shell-logo { width: 20px; height: 20px; border-radius: 6px; margin: 0; }
-[data-collapsible="icon"] .gtm-shell-logo img { width: 13px; height: 13px; }
+
+/* ── Dark: cool navy glass that sits with the night sky ── */
+.dark [data-slot="sidebar-inner"].gtm-material-sidebar {
+  background-color: rgb(21 25 33 / 0.95);
+  background-image: linear-gradient(to bottom, rgb(40 80 130 / 0.22) 0%, transparent 38%);
+}
+.dark [data-slot="sidebar-menu-button"] svg { color: rgb(150 180 215 / 0.8); }
+.dark [data-slot="sidebar-menu-button"]:hover:not([data-active]) { background: rgb(255 255 255 / 0.05); }
+.dark [data-slot="sidebar-menu-button"][data-active] {
+  background: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+}
+.dark [data-slot="sidebar-menu-button"][data-active] svg { color: #5aa9ff; }
+.dark .gtm-shell-logo { background: #0b0f16; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1); }
+
+/* ── Collapsed rail: roomy, centred targets and grouped icons ── */
+[data-collapsible="icon"] [data-slot="sidebar-menu-button"] {
+  width: 36px !important; height: 36px !important; padding: 9px !important;
+  margin-inline: auto; justify-content: center;
+}
+[data-collapsible="icon"] [data-slot="sidebar-menu-button"] svg { width: 18px; height: 18px; }
+[data-collapsible="icon"] [data-sidebar="header"] [data-slot="sidebar-menu-button"]:has(.gtm-shell-logo) { padding: 4px !important; }
+[data-collapsible="icon"] .gtm-shell-logo { margin: 0; }
+[data-collapsible="icon"] [data-sidebar="header"] { align-items: center; padding-inline: 0; }
+[data-collapsible="icon"] [data-sidebar="content"] [data-sidebar="group"] ~ [data-sidebar="group"]::before {
+  content: ""; display: block; height: 1px; margin: 0 12px 6px; background: var(--gtm-glass-edge);
+}
+[data-collapsible="icon"] [data-sidebar="footer"] { align-items: center; }
