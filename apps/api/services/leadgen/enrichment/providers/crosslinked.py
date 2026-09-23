@@ -34,6 +34,17 @@ TITLE_KEYWORDS = [
     "Owner", "Proprietor",
 ]
 
+# Single words that are roles, not names ("VP - PayPal | LinkedIn" must not
+# yield a person called "VP").
+_ROLE_WORDS = {
+    "ceo", "cto", "coo", "cfo", "cmo", "cio", "chro", "cro", "cpo", "vp", "svp",
+    "evp", "avp", "md", "gm", "founder", "cofounder", "co-founder", "director",
+    "manager", "head", "lead", "partner", "principal", "owner", "proprietor",
+    "president", "chairman", "engineer", "consultant", "advisor", "intern",
+    "recruiter", "specialist", "analyst", "associate", "executive", "officer",
+}
+_NOT_TITLES = {"linkedin", "n/a", "profile", "page"}
+
 # Search engine domains to exclude from results
 SKIP_DOMAINS = [
     "linkedin.com", "facebook.com", "twitter.com", "x.com",
@@ -56,14 +67,19 @@ def _parse_linkedin_name(text: str) -> str:
     text = re.sub(r'\s*[\|·\-–]\s*LinkedIn.*$', '', text, flags=re.IGNORECASE)
 
     # Take the part before the first separator (dash, pipe, comma)
-    name_part = re.split(r'\s*[\|·\-–,]\s*', text)[0].strip()
+    # A dash only separates when spaced ("Name - Title"), so hyphenated names
+    # like "Mary-Kate" survive.
+    name_part = re.split(r'\s+[\-–—]\s+|\s*[\|·,]\s*', text)[0].strip()
 
     # Clean up: remove "Dr.", "Mr.", "Mrs." etc.
     name_part = re.sub(r'^(Dr|Mr|Mrs|Ms|Prof)\.\s*', '', name_part)
 
-    # Must look like a name (2-4 words, alphabetic)
+    # Must look like a person's name: 2-5 alphabetic words, none of them a role
+    # word ("VP", "Director"), which appear first when a result has no name.
     words = name_part.split()
-    if 1 <= len(words) <= 5 and all(w.replace('.', '').replace("'", "").isalpha() for w in words):
+    if (2 <= len(words) <= 5
+            and all(w.replace('.', '').replace("'", "").replace('-', '').isalpha() for w in words)
+            and not any(w.lower().strip('.') in _ROLE_WORDS for w in words)):
         return name_part
 
     return ""
@@ -78,8 +94,8 @@ def _parse_linkedin_title(text: str) -> str:
     if not text:
         return ""
 
-    # Remove LinkedIn suffix
-    text = re.sub(r'\s*[\|·]\s*LinkedIn.*$', '', text, flags=re.IGNORECASE)
+    # Remove LinkedIn suffix (after a pipe, middle dot or dash)
+    text = re.sub(r'\s*[\|·\-–]\s*LinkedIn.*$', '', text, flags=re.IGNORECASE)
 
     parts = text.split(' - ')
     if len(parts) >= 2:
@@ -90,7 +106,7 @@ def _parse_linkedin_title(text: str) -> str:
         # Remove company name indicators
         title = re.sub(r'\s*[\|·]\s*.*$', '', title)
 
-        if title and len(title) < 80:
+        if title and len(title) < 80 and title.strip().lower() not in _NOT_TITLES:
             return title.strip()
 
     return ""
@@ -349,10 +365,11 @@ class CrossLinkedProvider(EnrichmentProvider):
         if not job_title:
             # Try extracting from body text
             for keyword in TITLE_KEYWORDS:
-                if keyword.lower() in body_text.lower():
-                    # Extract a chunk around the keyword
-                    idx = body_text.lower().index(keyword.lower())
-                    chunk = body_text[idx:idx+40].split('.')[0].split(',')[0]
+                # Whole-word match: "CTO" must not match inside "Director".
+                match = re.search(rf'(?<![A-Za-z]){re.escape(keyword)}(?![A-Za-z])', body_text,
+                                  flags=re.IGNORECASE)
+                if match:
+                    chunk = body_text[match.start():match.start() + 40].split('.')[0].split(',')[0]
                     job_title = chunk.strip()
                     break
 
