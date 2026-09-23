@@ -216,6 +216,7 @@ function VerifyBadge({ verify }: { verify?: string | null }) {
 
 import { ResearchEvidenceInspector } from "@/components/workbooks/research-evidence"
 import type { ResearchEvidence } from "@/lib/workbook-api"
+import { useQuickLook, type QuickLookField, type QuickLookPayload } from "@/components/quick-look/quick-look"
 
 function EditableCell({
   value, status, provider, error, verify, provenance, staleTtlDays, isEditable, onSave,
@@ -1171,6 +1172,43 @@ export default function WorkbookEditorPage() {
     })
   }, [rowVirtualizer, table, columns, getColWidth])
 
+  // Quick Look (Space) for the focused grid row: the preview shows the row's
+  // visible columns; ←/→ in the preview move the grid's active row with it.
+  const quickLook = useQuickLook()
+  const rowQuickLook = useCallback((rowIndex: number): QuickLookPayload | null => {
+    const row = table.getRowModel().rows[rowIndex]?.original
+    if (!row) return null
+    const record = { ...(row.lead || {}), ...(row.data || {}) } as Record<string, unknown>
+    const text = (value: unknown) => (value == null ? "" : typeof value === "string" ? value : JSON.stringify(value))
+    const person = text(record.full_name || record.contact_person)
+    const company = text(record.company || row.company)
+    const website = text(record.website)
+    const linkedin = text(record.linkedin_url)
+    const fields: QuickLookField[] = []
+    table.getVisibleLeafColumns().forEach(column => {
+      if (column.id === "_select" || column.id === "_index") return
+      const config = columns.find(item => item.id === column.id)
+      if (!config) return
+      const field = config.lead_field || config.id
+      const raw = config.type === "lead_field" || config.type === "input"
+        ? record[field] : row.enrichments?.[config.id]?.value
+      const value = text(raw).trim()
+      if (!value) return
+      fields.push({ label: config.name || field, value, href: /^https?:\/\//i.test(value) ? value : undefined })
+    })
+    return {
+      kind: person ? "Person" : "Company",
+      title: person || company || `Row ${rowIndex + 1}`,
+      subtitle: [text(record.title || record.contact_title), person ? company : ""].filter(Boolean).join(" · ") || undefined,
+      domain: website ? website.replace(/^https?:\/\//i, "").split("/")[0] : undefined,
+      fields,
+      actions: [
+        ...(linkedin ? [{ label: "LinkedIn", href: linkedin, external: true }] : []),
+        ...(website ? [{ label: "Website", href: /^https?:/i.test(website) ? website : `https://${website}`, external: true }] : []),
+      ],
+    }
+  }, [columns, table])
+
   const gridCellValue = useCallback((rowIndex: number, columnIndex: number) => {
     const row = table.getRowModel().rows[rowIndex]?.original
     const columnId = table.getVisibleLeafColumns()[columnIndex]?.id
@@ -1191,6 +1229,18 @@ export default function WorkbookEditorPage() {
     if (target.closest("input, textarea, select, button, a, [role=dialog], [contenteditable=true]")) return
 
     const shortcut = event.ctrlKey || event.metaKey
+    if (event.key === " " && !shortcut && !event.shiftKey) {
+      event.preventDefault()
+      quickLook.open({
+        count: table.getRowModel().rows.length,
+        index: row,
+        get: rowQuickLook,
+        onIndexChange: index => focusGridCell(index, column),
+        elementAt: index => tableContainerRef.current
+          ?.querySelector<HTMLElement>(`[data-grid-row="${index}"][data-grid-column="${column}"]`) ?? null,
+      })
+      return
+    }
     const anchor = selectionAnchor ?? { row, column }
     const range = {
       top: Math.min(anchor.row, row), bottom: Math.max(anchor.row, row),
@@ -1274,7 +1324,7 @@ export default function WorkbookEditorPage() {
     if (event.shiftKey && event.key !== "Tab" && event.key !== "Enter") setSelectionAnchor(current => current ?? { row, column })
     else setSelectionAnchor(null)
     focusGridCell(nextRow, nextColumn)
-  }, [bulkUpdateWorkbookRows, columns, focusGridCell, gridCellValue, selectionAnchor, table])
+  }, [bulkUpdateWorkbookRows, columns, focusGridCell, gridCellValue, quickLook, rowQuickLook, selectionAnchor, table])
 
   const handleGridPaste = useCallback((event: React.ClipboardEvent<HTMLTableCellElement>, startRow: number, startColumn: number) => {
     const target = event.target as HTMLElement

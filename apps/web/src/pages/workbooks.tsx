@@ -1,8 +1,9 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { Table2, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button, Input, AlertDialog } from "@/design-system/primitives"
+import { quickLookProps } from "@/components/quick-look/quick-look"
 import { useWorkbooks, useDeleteWorkbook } from "@/lib/workbook-hooks"
 import type { Workbook } from "@/lib/workbook-api"
 import { CreateWorkbookDialog } from "@/components/workbooks/create-workbook-dialog"
@@ -23,6 +24,23 @@ export default function WorkbooksPage() {
   const deleteTrigger = useRef<HTMLButtonElement | null>(null)
   const heading = useRef<HTMLHeadingElement | null>(null)
   const search = params.get("q") ?? ""
+  // The field keeps its own text: the URL updates asynchronously, and binding
+  // the input to it reset the field between fast keystrokes (dropping
+  // characters). Adopt URL changes only when they come from elsewhere
+  // (Back, Clear filters), not from this field's own writes.
+  const [searchDraft, setSearchDraft] = useState(search)
+  // Values this field wrote that the URL has not echoed yet, oldest first. URL
+  // updates can arrive after newer keystrokes, so any echo of our own write is
+  // ignored (with the writes before it); anything else is an external change.
+  const pendingSearchWrites = useRef<string[]>([])
+  useEffect(() => {
+    const own = pendingSearchWrites.current.indexOf(search)
+    if (own >= 0) {
+      pendingSearchWrites.current.splice(0, own + 1)
+      return
+    }
+    setSearchDraft(search)
+  }, [search])
   const status = params.get("status") ?? "all"
   const sort = params.get("sort") ?? "updated"
   const all = query.data?.workbooks ?? []
@@ -59,7 +77,7 @@ export default function WorkbooksPage() {
       <CreateWorkbookDialog />
     </div>
     <div className="gtm-workbook-toolbar">
-      <label className="gtm-workbook-search"><span className="sr-only">Search workbooks</span><Input value={search} onChange={event => setFilter("q", event.target.value)} placeholder="Search workbooks" /></label>
+      <label className="gtm-workbook-search"><span className="sr-only">Search workbooks</span><Input value={searchDraft} onChange={event => { const value = event.target.value; setSearchDraft(value); pendingSearchWrites.current.push(value); setFilter("q", value) }} placeholder="Search workbooks" /></label>
       <label>Status<NativeSelect aria-label="Status" value={status} onChange={event => setFilter("status", event.target.value)}>
         <option value="all">All statuses</option>{["draft", "running", "paused", "failed", "complete"].map(value => <option key={value} value={value}>{value}</option>)}
       </NativeSelect></label>
@@ -79,7 +97,16 @@ export default function WorkbooksPage() {
       </div> : <div className="gtm-workbook-table-scroll" role="region" aria-label="Workbooks table" tabIndex={0}>
         <table className="gtm-workbook-table">
           <thead><tr><th scope="col">Workbook</th><th scope="col">Status</th><th scope="col">Rows</th><th scope="col">Columns</th><th scope="col">Processed rows</th><th scope="col">Updated</th><th scope="col"><span className="sr-only">Actions</span></th></tr></thead>
-          <tbody>{visible.map(workbook => <tr key={workbook.id}>
+          <tbody>{visible.map(workbook => <tr key={workbook.id} {...quickLookProps({
+            kind: "Workbook", title: workbook.name, subtitle: workbook.status,
+            fields: [
+              { label: "Rows", value: workbook.total_rows.toLocaleString() },
+              { label: "Columns", value: String(workbook.columns_config.length) },
+              { label: "Processed", value: `${workbook.completed_rows.toLocaleString()} / ${workbook.total_rows.toLocaleString()}` },
+              { label: "Updated", value: Number.isFinite(Date.parse(workbook.updated_at)) ? new Date(workbook.updated_at).toLocaleString() : "—" },
+            ],
+            actions: [{ label: "Open workbook", href: `/workbooks/${encodeURIComponent(workbook.id)}` }],
+          })}>
             <td><Link to={`/workbooks/${encodeURIComponent(workbook.id)}`} className="gtm-workbook-link"><Table2 aria-hidden="true" className="size-4 shrink-0" /><span>{workbook.name}</span></Link></td>
             <td><span className="gtm-workbook-status" data-status={workbook.status}>{workbook.status}</span></td>
             <td>{workbook.total_rows.toLocaleString()}</td><td>{workbook.columns_config.length}</td>

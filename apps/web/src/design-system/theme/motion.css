@@ -112,8 +112,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-slot], .gtm-page-enter, .gtm-launch, [data-sidebar="menu-button"] svg {
+  /* Only switch motion off. Never reset translate/scale broadly: Tailwind
+   * positions dialogs with the translate property (-translate-x/y-1/2). */
+  [data-slot], .gtm-page-enter, .gtm-launch {
     animation: none !important;
+    transition: none !important;
+  }
+  [data-collapsible="icon"] [data-sidebar="menu-button"] svg {
     transition: none !important;
     scale: none !important;
     translate: none !important;

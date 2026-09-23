@@ -5,30 +5,30 @@ import {
 
 export const NAVIGATION_GROUPS = [
   { label: "Workspace", items: [
-    { to: "/chat", icon: MessageSquare, label: "Chat" },
-    { to: "/workbooks", icon: Table2, label: "Workbooks" },
-    { to: "/leads", icon: Users, label: "Leads" },
-    { to: "/audiences", icon: ListFilter, label: "Audiences" },
-    { to: "/search", icon: Search, label: "Search" },
+    { to: "/chat", key: "c", icon: MessageSquare, label: "Chat" },
+    { to: "/workbooks", key: "w", icon: Table2, label: "Workbooks" },
+    { to: "/leads", key: "l", icon: Users, label: "Leads" },
+    { to: "/audiences", key: "a", icon: ListFilter, label: "Audiences" },
+    { to: "/search", key: "f", icon: Search, label: "Search" },
   ] },
   { label: "Execution", items: [
-    { to: "/agents", icon: Bot, label: "Tasks" },
-    { to: "/automations", icon: Zap, label: "Automations" },
-    { to: "/watches", icon: Radar, label: "Watches" },
-    { to: "/signals", icon: Activity, label: "Signals" },
-    { to: "/outreach", icon: Send, label: "Outreach" },
-    { to: "/campaigns", icon: Send, label: "Campaigns" },
+    { to: "/agents", key: "t", icon: Bot, label: "Tasks" },
+    { to: "/automations", key: "u", icon: Zap, label: "Automations" },
+    { to: "/watches", key: "v", icon: Radar, label: "Watches" },
+    { to: "/signals", key: "i", icon: Activity, label: "Signals" },
+    { to: "/outreach", key: "o", icon: Send, label: "Outreach" },
+    { to: "/campaigns", key: "p", icon: Send, label: "Campaigns" },
   ] },
   { label: "Resources", items: [
-    { to: "/sources", icon: Database, label: "Sources" },
-    { to: "/templates", icon: LayoutTemplate, label: "Templates" },
-    { to: "/analytics", icon: BarChart3, label: "Analytics" },
+    { to: "/sources", key: "r", icon: Database, label: "Sources" },
+    { to: "/templates", key: "m", icon: LayoutTemplate, label: "Templates" },
+    { to: "/analytics", key: "y", icon: BarChart3, label: "Analytics" },
   ] },
 ]
 
 export const UTILITY_NAVIGATION = [
-  { to: "/agency", icon: Building2, label: "Manage workspaces" },
-  { to: "/settings", icon: Settings, label: "Settings" },
+  { to: "/agency", key: "k", icon: Building2, label: "Manage workspaces" },
+  { to: "/settings", key: "s", icon: Settings, label: "Settings" },
 ]
 export const ALL_NAVIGATION = [...NAVIGATION_GROUPS.flatMap(group => group.items), ...UTILITY_NAVIGATION]
 export const isNavigationActive = (pathname: string, destination: string) =>
@@ -37,3 +37,4 @@ export const getPageTitle = (pathname: string) =>
   ALL_NAVIGATION.find(item => isNavigationActive(pathname, item.to))?.label ?? "OpenGTM"
 
 export const OPEN_COMMAND_MENU_EVENT = "opengtm:open-command-menu"
+export const OPEN_SHORTCUTS_EVENT = "opengtm:open-shortcuts"

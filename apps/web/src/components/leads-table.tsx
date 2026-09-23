@@ -12,6 +12,7 @@ import {
 import { Inbox } from "lucide-react"
 import { ChannelIcon, CHANNEL_META, type Channel } from "@/components/semantic-icons"
 import { updateStatus, deleteLead, type Lead } from "@/lib/api"
+import { quickLookProps } from "@/components/quick-look/quick-look"
 
 const TIER_STYLES: Record<string, { bg: string; text: string; glow?: string }> = {
   hot: { bg: "bg-red-500/15", text: "text-red-400", glow: "score-hot" },
@@ -118,7 +119,26 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
           return (
             <TableRow
               key={lead.id}
-              className={`border-border/30 cursor-pointer hover:bg-accent/40 transition-colors h-8 group ${
+              {...quickLookProps({
+                kind: "Lead",
+                title: lead.company,
+                subtitle: [lead.contact_person, lead.contact_title].filter(v => v && v !== "N/A").join(" · ") || lead.city || undefined,
+                domain: lead.website && lead.website !== "N/A" ? lead.website.replace(/^https?:\/\//i, "").split("/")[0] : undefined,
+                fields: [
+                  { label: "Score", value: `${lead.score ?? "—"}${lead.score_tier ? ` · ${lead.score_tier}` : ""}` },
+                  ...(lead.email && lead.email !== "N/A" ? [{ label: "Email", value: lead.email, href: `mailto:${lead.email}` }] : []),
+                  ...(lead.phone && lead.phone !== "N/A" ? [{ label: "Phone", value: lead.phone }] : []),
+                  ...(lead.city ? [{ label: "Location", value: [lead.city, lead.state].filter(Boolean).join(", ") }] : []),
+                  ...(lead.specialization ? [{ label: "Focus", value: lead.specialization }] : []),
+                  { label: "Status", value: lead.status || "—" },
+                ],
+                actions: [
+                  { label: "Open lead", href: `/leads/${lead.id}` },
+                  ...(lead.website && lead.website !== "N/A" ? [{ label: "Website", href: /^https?:/i.test(lead.website) ? lead.website : `https://${lead.website}`, external: true }] : []),
+                ],
+              })}
+              data-nav-activate=""
+              className={`border-border/30 cursor-pointer hover:bg-accent/40 transition-colors h-8 group focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring ${
                 lead.status === "dead" ? "opacity-40" : ""
               }`}
               onClick={() => onRowClick(lead)}

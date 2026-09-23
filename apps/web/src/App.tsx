@@ -9,6 +9,8 @@ import { getPageTitle } from "@/components/app-shell/navigation"
 import { Circle, LoaderCircle } from "lucide-react"
 import { useSSE, useLLMUsage } from "@/lib/hooks"
 import { CommandMenu } from "@/components/command-menu"
+import { KeyboardLayer } from "@/components/keyboard/keyboard-layer"
+import { QuickLookProvider } from "@/components/quick-look/quick-look"
 import { CollectionIntentDialog } from "@/components/collection-intent-dialog"
 import { AuthProvider, useAuth } from "@/lib/auth-context"
 import LoginPage from "@/pages/login"
@@ -156,16 +158,17 @@ function FullScreenSpinner({ label }: { label?: string }) {
 
 function Shell() {
   return (
-    <>
+    <QuickLookProvider>
       <div className="h-screen w-full overflow-hidden flex">
         <SidebarProvider>
           <AppSidebar />
           <AppContent />
+          <KeyboardLayer />
         </SidebarProvider>
       </div>
       <CommandMenu />
       <CollectionIntentDialog />
-    </>
+    </QuickLookProvider>
   )
 }
 
