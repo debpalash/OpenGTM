@@ -261,6 +261,21 @@ def test_total_search_cap(env, monkeypatch):
     assert len(spy.queries) == 3
     assert result["searches_used"] == 3
     assert result["added"] == 0
+    # Searches that returned nothing are not failures.
+    assert result["search_failures"] == 0 and "error" not in result
+
+
+def test_failed_searches_are_reported_not_counted_as_empty(env, monkeypatch):
+    async def failing_search(query, max_results=10):
+        return None  # every backend attempt errored
+
+    monkeypatch.setattr(cl, "_ddg_linkedin_search", failing_search, raising=True)
+    wb_id = _mk_workbook(env, W1, _ps_col(companies=["Acme Corp", "Beta Inc"], titles=["CTO"]))
+    result = _run(wb_id, "src_ps1", W1)
+
+    assert result["found"] == 0 and result["added"] == 0
+    assert result["search_failures"] == result["searches_used"] == 2
+    assert result["error"] == "people_search_unavailable"
 
 
 def test_search_cap_spans_titles_within_company(env, monkeypatch):

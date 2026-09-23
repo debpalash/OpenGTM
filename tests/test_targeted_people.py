@@ -62,6 +62,27 @@ def test_exact_company_and_function_evidence_are_both_required(monkeypatch):
     }
 
 
+@pytest.mark.parametrize("outcomes, expect_ok, expect_failures", [
+    ([None] * 5, False, 5),          # every search errored -> explicit failure
+    ([[]] * 5, True, 0),             # searches worked, nobody found -> honest empty
+    ([None, [], None, [], []], True, 2),  # partial failures are reported
+])
+def test_failed_searches_are_not_reported_as_empty_success(monkeypatch, outcomes, expect_ok, expect_failures):
+    from apps.api.services.leadgen.enrichment.providers import crosslinked
+    queue = list(outcomes)
+
+    async def fake_search(query, max_results=10):
+        return queue.pop(0) if queue else []
+
+    monkeypatch.setattr(crosslinked, "_ddg_linkedin_search", fake_search)
+    result = asyncio.run(tp.research_people_at_company("Stripe", "partnerships"))
+    assert result["ok"] is expect_ok
+    assert result["count"] == 0 and result["people"] == []
+    assert result["search_failures"] == expect_failures
+    if not expect_ok:
+        assert result["error"] == "people_search_unavailable"
+
+
 def test_domain_target_uses_brand_but_still_rejects_lookalikes(monkeypatch):
     async def fake_find(self, **kwargs):
         return ([

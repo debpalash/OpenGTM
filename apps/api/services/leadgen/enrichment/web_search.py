@@ -69,9 +69,12 @@ def _searx_search(query: str, max_results: int) -> Optional[List[Dict]]:
 class DDGS:
     """Source-compatible stand-in for `ddgs.DDGS`."""
 
-    def __init__(self, proxy: Optional[str] = None, timeout: int = 8, **_kw):
+    def __init__(self, proxy: Optional[str] = None, timeout: int = 8,
+                 raise_errors: bool = False, **_kw):
         self.proxy = proxy
         self.timeout = timeout
+        # Callers that must distinguish "search failed" from "no results" opt in.
+        self.raise_errors = raise_errors
 
     def __enter__(self):
         return self
@@ -90,4 +93,6 @@ class DDGS:
             return list(d.text(query, max_results=max_results, **kwargs))
         except Exception as e:
             logger.debug(f"ddgs fallback failed for {query!r}: {e}")
+            if self.raise_errors:
+                raise
             return []
