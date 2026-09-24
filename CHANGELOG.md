@@ -7,6 +7,12 @@ All notable changes to OpenGTM are documented here. The format follows
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-09-24
+
+First public release: workbooks, enrichment waterfalls, agentic research/chat,
+outputs, outreach, signals, automations, workspace-scoped RLS, MCP, the n8n
+node and Chrome extension. The items below were completed for this release.
+
 ### Added
 - `POST /api/leads/verify-email`, `POST /api/leads/score` and
   `POST /api/leads/tech-stack`: single-record utilities that reuse the MCP
@@ -31,6 +37,8 @@ All notable changes to OpenGTM are documented here. The format follows
 - The standalone **New chat** sidebar link is now an icon on the Chat row.
   It opens an inline prompt; submitting the prompt drafts a new conversation
   without sending it. The icon remains available in the collapsed sidebar.
+- Simplified the README into a quick local path and a version-pinned, TLS-ready
+  server path; installers prepare a writable bind-mounted data directory.
 
 ### Fixed
 - Protected deep links now retain query parameters and fragments through sign-in,
@@ -53,12 +61,5 @@ All notable changes to OpenGTM are documented here. The format follows
 - Private submodule pointers (`packages/proxy-manager`, `data_collector`);
   both integrations remain optional and degrade to no-ops when absent.
 
-## 3.0.0 — baseline (not yet tagged)
-
-`pyproject.toml` carries version 3.0.0. The first public tag will be cut from
-this baseline: workbooks, enrichment waterfalls, research and agent columns,
-agentic chat, output destinations, outreach, signals, automations,
-multi-tenant RLS, MCP server, n8n node and Chrome extension. Pushing a
-`v3.0.0` tag triggers `.github/workflows/release.yml`.
-
-[Unreleased]: https://github.com/debpalash/opengtm/commits/main
+[Unreleased]: https://github.com/debpalash/OpenGTM/compare/v3.0.0...main
+[3.0.0]: https://github.com/debpalash/OpenGTM/releases/tag/v3.0.0

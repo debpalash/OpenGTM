@@ -48,6 +48,11 @@ if ($candidateRoot -and (Test-Path (Join-Path $candidateRoot "docker-compose.yml
     $installRoot = [System.IO.Path]::GetFullPath($InstallDir)
 }
 
+$dataPath = Join-Path $installRoot "data"
+if (-not (Test-Path -LiteralPath $dataPath)) {
+    New-Item -ItemType Directory -Path $dataPath | Out-Null
+}
+
 $envPath = Join-Path $installRoot ".env"
 if (-not (Test-Path -LiteralPath $envPath)) {
     Copy-Item -LiteralPath (Join-Path $installRoot ".env.example") -Destination $envPath
