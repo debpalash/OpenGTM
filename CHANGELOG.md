@@ -7,6 +7,12 @@ All notable changes to OpenGTM are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- Replaced the docs homepage's synthetic product examples with a restrained,
+  real-workspace presentation and direct laptop/server install paths.
+- Updated the quickstart with generated credentials, a pinned GHCR image, and
+  loopback-plus-TLS server setup.
+
 ## [3.0.0] - 2026-09-24
 
 First public release: workbooks, enrichment waterfalls, agentic research/chat,

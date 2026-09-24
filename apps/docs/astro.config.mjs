@@ -5,7 +5,7 @@ import sitemap from '@astrojs/sitemap';
 import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi';
 
 const SITE = 'https://opengtm.palash.dev';
-const REPO = 'https://github.com/debpalash/opengtm';
+const REPO = 'https://github.com/debpalash/OpenGTM';
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,7 +15,7 @@ export default defineConfig({
     starlight({
       title: 'OpenGTM',
       description:
-        'OpenGTM is an open-source, self-hosted Clay alternative for lead sourcing, enrichment waterfalls, AI research, buying signals, and outreach automation.',
+        'Source accounts, enrich records, research with citations, and act on signals in a self-hosted workspace. See cost before a run; bring your own keys.',
       logo: {
         light: './src/assets/opengtm-lockup.svg',
         dark: './src/assets/opengtm-lockup-dark.svg',
@@ -57,7 +57,7 @@ export default defineConfig({
             name: 'OpenGTM',
             applicationCategory: 'BusinessApplication',
             operatingSystem: 'Docker, Linux, macOS, Windows',
-            description: 'Open-source, self-hosted GTM platform for lead sourcing, enrichment waterfalls, AI research, buying signals, and outreach automation.',
+            description: 'Self-hosted GTM workspace for lead sourcing, enrichment waterfalls, cited research, signals, and outreach.',
             url: SITE,
             codeRepository: REPO,
             license: `${REPO}/blob/main/LICENSE`,

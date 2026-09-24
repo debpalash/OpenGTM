@@ -1,6 +1,6 @@
 ---
-title: Open-source GTM agents for the world
-description: OpenGTM is a self-hosted Clay alternative for lead sourcing, enrichment waterfalls, AI research, buying signals, and outreach automation.
+title: Self-hosted GTM work, end to end
+description: Source accounts, enrich records, research with citations, and act on signals in a self-hosted workspace. See cost before a run; bring your own keys.
 template: splash
 tableOfContents: false
 ---
@@ -9,81 +9,84 @@ import { Icon } from '@astrojs/starlight/components';
 
 <section class="lp-hero">
   <div class="lp-hero__copy">
-    <p class="lp-eyebrow"><span>Open source</span><span>Self-hosted</span><span>AGPL-3.0</span></p>
-    <h1>The open-source, self-hosted Clay alternative.</h1>
+    <p class="lp-eyebrow"><span>OPEN SOURCE</span><span>SELF-HOSTED</span><span>AGPL-3.0</span></p>
+    <h1>Find the signal.<br />Do the work.</h1>
     <p class="lp-lede">
-      Source and enrich leads, research hard-to-find facts, track buying signals,
-      and push results to your stack. Keep your data and provider keys—and see
-      the estimated bill before every run.
+      Source accounts, enrich the gaps, research with citations, and act on
+      what changed. OpenGTM keeps the workflow in one workspace, with your
+      provider keys and an estimate before the run.
     </p>
     <div class="lp-actions">
-      <a class="lp-btn lp-btn--primary" href="/getting-started/quickstart/">Install OpenGTM</a>
-      <a class="lp-btn lp-btn--quiet" href="https://github.com/debpalash/opengtm"><Icon name="github" />View on GitHub</a>
+      <a class="lp-btn lp-btn--primary" href="#install">Install OpenGTM <span aria-hidden="true">↓</span></a>
+      <a class="lp-btn" href="#workflow">See the workflow</a>
+      <a class="lp-btn lp-btn--quiet" href="https://github.com/debpalash/OpenGTM"><Icon name="github" />Source</a>
     </div>
+    <p class="lp-hero__aside">No hosted account needed. The zero-key demo works before you add provider keys.</p>
   </div>
 
-  <div class="lp-install">
-    <p class="lp-install__label">From the repo</p>
-
-```bash wrap
-cp .env.example .env
-docker compose up
-```
-
-    <p class="lp-install__note">Then open <code>localhost:3000</code>.</p>
-  </div>
+  <figure class="lp-product">
+    <img src="/chat-workspace.webp" width="1455" height="562" alt="OpenGTM chat workspace with sourcing, enrichment, and signal quick actions above the message composer" decoding="async" />
+    <figcaption><span>01 / THE WORKSPACE</span><span>Actual application · example workspace</span></figcaption>
+  </figure>
 </section>
 
-<section class="lp-section lp-workflow">
+<section class="lp-section lp-setup" id="install">
   <header class="lp-section__head">
-    <p class="lp-kicker">One GTM loop</p>
-    <h2>Ask once. Keep the work.</h2>
-    <p>Use Chat for a question. Move repeatable work into a Workbook.</p>
+    <p class="lp-kicker">START HERE</p>
+    <h2>From clone to workspace.</h2>
+    <p>One installer creates unique local secrets and a writable data directory. Pick the path that matches where you run it.</p>
   </header>
+  <div class="lp-setup__grid">
+    <div class="lp-setup__path">
+      <p class="lp-setup__label"><span>01 / LAPTOP</span><span>Docker Compose · macOS / Linux</span></p>
 
+```bash wrap
+git clone https://github.com/debpalash/OpenGTM.git
+cd OpenGTM
+./scripts/install.sh
+```
+
+      <p>Open <code>localhost:3000</code>. Your first password is in <code>.opengtm-initial-credentials</code>.</p>
+    </div>
+    <div class="lp-setup__path">
+      <p class="lp-setup__label"><span>02 / SERVER</span><span>Versioned image · private HTTP</span></p>
+
+```bash wrap
+git clone --branch v3.0.0 https://github.com/debpalash/OpenGTM.git
+cd OpenGTM
+./scripts/install.sh --no-start
+```
+
+      <p>Pin the GHCR image, bind HTTP to loopback, then add TLS. <a href="/getting-started/quickstart/#server">Finish server setup →</a></p>
+    </div>
+  </div>
+  <p class="lp-setup__foot">Docker with Compose v2 and about 4 GB RAM. <a href="/getting-started/quickstart/">Full quickstart</a> · <a href="/self-hosting/production/">Production checklist</a></p>
+</section>
+
+<section class="lp-section lp-workflow" id="workflow">
+  <header class="lp-section__head">
+    <p class="lp-kicker">THE WORKFLOW</p>
+    <h2>Ask once. Keep the work.</h2>
+    <p>Start in Chat. Move repeatable work into a Workbook. Each stage keeps its source and result attached to the record.</p>
+  </header>
   <nav class="lp-capabilities" aria-label="OpenGTM workflow">
-    <a href="/guides/sourcing/">
-      <span class="lp-capabilities__step">01</span>
-      <span><strong>Find</strong><small>Accounts that match your market</small></span>
-    </a>
-    <a href="/concepts/waterfalls/">
-      <span class="lp-capabilities__step">02</span>
-      <span><strong>Enrich</strong><small>People and company data from provider waterfalls</small></span>
-    </a>
-    <a href="/guides/signals/">
-      <span class="lp-capabilities__step">03</span>
-      <span><strong>Watch</strong><small>Buying signals and account changes</small></span>
-    </a>
-    <a href="/guides/outreach/">
-      <span class="lp-capabilities__step">04</span>
-      <span><strong>Act</strong><small>Draft outreach or push rows to your tools</small></span>
-    </a>
+    <a href="/guides/sourcing/"><span class="lp-capabilities__step">01</span><span><strong>Find accounts</strong><small>Source companies and people for a defined market.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
+    <a href="/concepts/waterfalls/"><span class="lp-capabilities__step">02</span><span><strong>Fill the gaps</strong><small>Run cost-ordered provider waterfalls across the rows.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
+    <a href="/guides/research-and-agent-columns/"><span class="lp-capabilities__step">03</span><span><strong>Research with evidence</strong><small>Agent columns keep citations beside the answer.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
+    <a href="/guides/outputs/"><span class="lp-capabilities__step">04</span><span><strong>Send the result</strong><small>Push qualified records to a CRM, webhook, or sequence.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
   </nav>
 </section>
 
 <section class="lp-section lp-control">
   <header class="lp-section__head">
-    <p class="lp-kicker">Built for control</p>
-    <h2>Your data, keys, and budget stay visible.</h2>
+    <p class="lp-kicker">OPERATE WITH CONTROL</p>
+    <h2>See what ran. Know what it cost.</h2>
+    <p>Your deployment owns the data and credentials. Paid provider calls stay on the keys you configure.</p>
   </header>
-
   <dl class="lp-principles">
-    <div>
-      <dt>See the source</dt>
-      <dd>Research answers link back to the pages the agent loaded.</dd>
-    </div>
-    <div>
-      <dt>See the cost</dt>
-      <dd>Estimate a run first, then set a spend ceiling.</dd>
-    </div>
-    <div>
-      <dt>Keep the keys</dt>
-      <dd>Connect providers from your own deployment.</dd>
-    </div>
+    <div><dt>Source</dt><dd>Research answers link to the pages the agent actually loaded.</dd></div>
+    <div><dt>Spend</dt><dd>Preview the estimate, set a ceiling, and inspect the provider ledger.</dd></div>
+    <div><dt>Scope</dt><dd>Workspace isolation, scoped tokens, and audit history are built in.</dd></div>
   </dl>
-
-  <div class="lp-close">
-    <p>Ready to run it?</p>
-    <a class="lp-btn lp-btn--primary" href="/getting-started/quickstart/">Open the install guide</a>
-  </div>
+  <div class="lp-close"><p>Bring your workflow home.</p><a class="lp-btn lp-btn--primary" href="/getting-started/quickstart/">Read the quickstart <span aria-hidden="true">↗</span></a></div>
 </section>

@@ -5,46 +5,69 @@ sidebar:
   order: 2
 ---
 
-One command brings up the API, the enrichment worker, PostgreSQL, Redis and
-nginx with sane defaults.
+The installer generates unique secrets and prepares a writable data directory.
+You can explore the zero-key demo before adding any provider keys.
 
 ## Requirements
 
-- Docker Engine 24+ with the Compose plugin (`docker compose version`)
-- 2 CPU / 4 GB RAM for a comfortable single-node install
-- At least one LLM provider key for AI, research and agent features. OpenRouter,
-  Google AI, Groq, Cerebras, NVIDIA, Mistral and GitHub Models all have free
-  tiers; enrichment vendors and CRM destinations are optional and can be added
-  later from **Settings → API Keys**.
+- Git and Docker with the Compose v2 plugin (`docker compose version`)
+- 2 CPU and about 4 GB RAM for a comfortable single-node install
+- An LLM key only if you want AI, research or agent features; add provider keys
+  under **Settings → API Keys** when you need them.
 
-## Install
+## Laptop
 
-For an installer that generates unique local secrets and starts Compose:
+macOS or Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/debpalash/opengtm/main/scripts/install.sh | bash
+git clone https://github.com/debpalash/OpenGTM.git
+cd OpenGTM
+./scripts/install.sh
 ```
 
-On Windows PowerShell:
+Windows PowerShell with Docker Desktop:
 
 ```powershell
-irm https://raw.githubusercontent.com/debpalash/opengtm/main/scripts/install.ps1 | iex
+git clone https://github.com/debpalash/OpenGTM.git
+Set-Location OpenGTM
+.\scripts\install.ps1
 ```
 
-Or configure the stack manually:
+Open **http://localhost:3000** and sign in with the generated admin password
+from `.opengtm-initial-credentials`. The file is ignored by Git; don't share it.
+Change the password after signing in and delete the credentials file. The
+installer leaves an existing `.env` untouched.
+
+## Server
+
+Use a pinned release and serve it behind a TLS reverse proxy. On Linux, point
+your domain at the host first, then:
 
 ```bash
-git clone https://github.com/debpalash/opengtm.git
-cd opengtm
-cp .env.example .env     # add at least one LLM key; everything else is optional
-docker compose up        # API + worker + Postgres + Redis + nginx
+git clone --depth 1 --branch v3.0.0 https://github.com/debpalash/OpenGTM.git
+cd OpenGTM
+./scripts/install.sh --no-start
+DOMAIN=gtm.example.com                 # replace with your domain
+printf 'APP_ENV=production\nPORT=127.0.0.1:3000\nCORS_ORIGINS=https://%s\nYUPCHA_IMAGE=ghcr.io/debpalash/opengtm:3.0.0\n' "$DOMAIN" >> .env
+docker compose pull
+docker compose up -d --no-build
 ```
 
-Then open **http://localhost:3000**.
+For Caddy, point the domain to the server and allow ports 80 and 443:
 
-On first boot the `seed` service creates an admin login and a demo workbook
-wired to zero-key (free) providers. The defaults are `admin` / `admin`; change
-`SEED_ADMIN_PASSWORD` in `.env` for anything that is not a laptop.
+```text
+gtm.example.com {
+    reverse_proxy 127.0.0.1:3000
+}
+```
+
+Replace the sample domain in both places. The generated secrets satisfy
+production startup checks; the HTTP service listens on loopback so only your
+TLS proxy is exposed. Keep `.env`, `data/`, and Docker volumes on upgrades.
+For a newer release, fetch and check out its tag, change `YUPCHA_IMAGE` in
+`.env` to the same version, then run `docker compose pull` and
+`docker compose up -d --no-build`. Back up both storage planes and complete the
+[production checklist](/self-hosting/production/) before inviting a team.
 
 ## Start a chat from the sidebar
 

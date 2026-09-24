@@ -1,12 +1,18 @@
 # OpenGTM docs design direction
 
-Reading this as: an open-source GTM product page for technical operators, in a calm evidence-first visual language, dial ENERGY 1 / RHYTHM 2 / MOTION 1.
+An operator-facing product and documentation site, not a dashboard mockup.
+The visual hierarchy should get a reader from promise → real workspace →
+install path → workflow → control model without invented performance numbers.
 
-- Color: keep the established indigo accent for primary actions and focus states so the logo and interface share one visual anchor.
-- Layout: use three content-led sections because the landing page only needs to explain the outcome, workflow, and control model.
-- Typography: use IBM Plex Sans for compact technical prose and JetBrains Mono only for commands and small operational labels.
-- Spacing: give each section enough room to scan while keeping the mobile vertical rhythm substantially tighter than desktop.
-- Surfaces: elevate only the runnable install command because it is the page's concrete product proof and primary next step.
-- Links: present workflow capabilities as rows rather than cards so the four actions read as one connected loop.
-- Motion: limit movement to short hover and focus feedback because the page is documentation-led and should feel stable.
-- Theme: retain Starlight's working light, dark, and system modes because the documentation serves users in varied reading environments.
+- **Proof:** one cropped screenshot from the real chat workspace. No synthetic
+  lead table, fabricated metrics, glowing diagram or animated background.
+- **Typography:** IBM Plex Sans for prose and strong headlines; JetBrains Mono
+  only for commands, section labels and numbered steps.
+- **Color:** Starlight reading surfaces with the existing indigo action/focus
+  color. The brand mark owns the indigo-to-teal gradient.
+- **Layout:** generous hero, two installation paths, ruled workflow rows.
+  Borders organize content; only runnable commands use code surfaces.
+- **Interaction:** links and copyable commands remain native Starlight elements.
+  Visible focus, useful mobile stacking, and no required motion.
+- **Trust:** label example workspace imagery, link specific claims to docs, and
+  keep production setup separate from the laptop shortcut.
