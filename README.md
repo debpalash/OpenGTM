@@ -57,7 +57,12 @@ git clone --depth 1 --branch v3.0.0 https://github.com/debpalash/OpenGTM.git
 cd OpenGTM
 ./scripts/install.sh --no-start
 DOMAIN=gtm.example.com                 # replace with your domain
-printf 'APP_ENV=production\nPORT=127.0.0.1:3000\nCORS_ORIGINS=https://%s\nYUPCHA_IMAGE=ghcr.io/debpalash/opengtm:3.0.0\n' "$DOMAIN" >> .env
+cat >> .env <<EOF
+APP_ENV=production
+PORT=127.0.0.1:3000
+CORS_ORIGINS=https://$DOMAIN
+YUPCHA_IMAGE=ghcr.io/debpalash/opengtm:3.0.0
+EOF
 docker compose pull
 docker compose up -d --no-build
 ```
