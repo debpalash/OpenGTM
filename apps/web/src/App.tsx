@@ -1,18 +1,20 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom"
-import { Fragment, lazy, Suspense } from "react"
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from "react-router-dom"
+import { Fragment, lazy, Suspense, useState } from "react"
 import { Toaster } from "@/components/ui/sonner"
-import { ThemeSelect } from "@/design-system/theme/theme-select"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-shell/app-sidebar"
 import { getPageTitle } from "@/components/app-shell/navigation"
-import { Circle, LoaderCircle } from "lucide-react"
+import { ArrowUpRight, BellRing, Circle, LoaderCircle } from "lucide-react"
 import { useSSE, useLLMUsage } from "@/lib/hooks"
 import { CommandMenu } from "@/components/command-menu"
 import { KeyboardLayer } from "@/components/keyboard/keyboard-layer"
 import { QuickLookProvider } from "@/components/quick-look/quick-look"
 import { CollectionIntentDialog } from "@/components/collection-intent-dialog"
 import { AuthProvider, useAuth } from "@/lib/auth-context"
+import { Popover, PopoverContent, PopoverTitle, PopoverTrigger } from "@/components/ui/popover"
+import { NotificationRow } from "@/components/notifications/notification-row"
+import { useNotifications } from "@/lib/notifications"
 import LoginPage from "@/pages/login"
 
 // Pages
@@ -35,7 +37,56 @@ const WorkspacesManagerPage = lazy(() => import("@/pages/workspaces-manager"))
 const AutomationsPage = lazy(() => import("@/pages/automations"))
 const WatchesPage = lazy(() => import("@/pages/watches"))
 const TemplatesPage = lazy(() => import("@/pages/templates"))
+const NotificationsPage = lazy(() => import("@/pages/notifications"))
 
+
+function NotificationBell() {
+  const [open, setOpen] = useState(false)
+  const query = useNotifications()
+  const items = query.data ?? []
+  const critical = items.filter(item => item.severity === "critical").length
+  const urgent = items.length - critical
+  const label = query.isPending ? "Loading notifications" : query.isError
+    ? "Notifications unavailable" : `Notifications: ${critical} critical, ${urgent} urgent`
+
+  return <Popover open={open} onOpenChange={setOpen}>
+    <PopoverTrigger render={<button type="button" className="gtm-notification-trigger" aria-label={label} />}>
+      <span className="gtm-notification-symbol"><BellRing className="size-[18px]" aria-hidden="true" /></span>
+      <span className="gtm-notification-count" data-severity={critical ? "critical" : urgent ? "urgent" : undefined}>
+        {query.isPending ? "…" : query.isError ? "!" : items.length > 99 ? "99+" : items.length}
+      </span>
+    </PopoverTrigger>
+    <PopoverContent align="end" sideOffset={10} className="w-[min(410px,calc(100vw-24px))] gap-0 overflow-hidden p-0">
+      <div className="border-b border-border/70 px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <PopoverTitle className="text-sm font-semibold">Attention center</PopoverTitle>
+            <p className="text-[11px] text-muted-foreground">Recent signals and work needing your attention</p>
+          </div>
+          <BellRing className="size-4 text-muted-foreground" aria-hidden="true" />
+        </div>
+        {!query.isPending && !query.isError && <div className="mt-3 flex gap-2 text-[11px] font-medium">
+          <span className="rounded-full bg-rose-500/10 px-2 py-1 text-rose-600 dark:text-rose-300">{critical} critical</span>
+          <span className="rounded-full bg-amber-500/10 px-2 py-1 text-amber-700 dark:text-amber-300">{urgent} urgent</span>
+        </div>}
+      </div>
+      <div className="max-h-[min(420px,calc(100vh-180px))] space-y-1 overflow-y-auto p-2">
+        {query.isPending && <p role="status" className="p-4 text-center text-xs text-muted-foreground">Loading notifications…</p>}
+        {query.isError && <div role="alert" className="space-y-2 p-4 text-center text-xs">
+          <p>Could not load notifications.</p>
+          <button type="button" className="font-medium text-primary underline-offset-2 hover:underline" onClick={() => void query.refetch()}>Try again</button>
+        </div>}
+        {!query.isPending && !query.isError && items.length === 0 && <p className="p-5 text-center text-xs text-muted-foreground">All clear. No recent issues need attention.</p>}
+        {!query.isPending && !query.isError && items.slice(0, 4).map(item =>
+          <NotificationRow key={item.id} notification={item} compact onNavigate={() => setOpen(false)} />)}
+      </div>
+      <Link to="/notifications" onClick={() => setOpen(false)}
+        className="flex items-center justify-between border-t border-border/70 px-4 py-3 text-xs font-semibold text-primary transition-colors hover:bg-muted/50">
+        View all notifications <ArrowUpRight className="size-4" aria-hidden="true" />
+      </Link>
+    </PopoverContent>
+  </Popover>
+}
 
 function PageHeader({ title }: { title: string }) {
   const { data: usage } = useLLMUsage()
@@ -90,7 +141,7 @@ function PageHeader({ title }: { title: string }) {
         </span>
       </div>
 
-      <ThemeSelect />
+      <NotificationBell />
     </header>
   )
 }
@@ -128,6 +179,7 @@ function AppContent() {
             <Route path="/campaigns/*" element={<CampaignsPage />} />
             <Route path="/sources/*" element={<SourcesPage />} />
             <Route path="/analytics/*" element={<AnalyticsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/settings/*" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/chat" replace />} />
           </Routes>

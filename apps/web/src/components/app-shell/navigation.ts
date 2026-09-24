@@ -1,5 +1,5 @@
 import {
-  Activity, BarChart3, Bot, Building2, Database, LayoutTemplate, ListFilter,
+  Activity, BarChart3, BellRing, Bot, Building2, Database, LayoutTemplate, ListFilter,
   Megaphone, MessageSquare, Radar, Search, Send, Settings, Table2, Users, Zap,
 } from "lucide-react"
 
@@ -28,6 +28,7 @@ export const NAVIGATION_GROUPS = [
 
 export const UTILITY_NAVIGATION = [
   { to: "/agency", key: "k", icon: Building2, label: "Manage workspaces" },
+  { to: "/notifications", key: "n", icon: BellRing, label: "Notifications" },
   { to: "/settings", key: "s", icon: Settings, label: "Settings" },
 ]
 export const ALL_NAVIGATION = [...NAVIGATION_GROUPS.flatMap(group => group.items), ...UTILITY_NAVIGATION]

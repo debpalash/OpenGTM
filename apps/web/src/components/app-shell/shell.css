@@ -30,7 +30,63 @@
   display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px;
   border-radius: 999px; background: var(--gtm-glass); border: 1px solid var(--gtm-glass-edge);
 }
-.gtm-topbar [data-slot="native-select"] select { border-radius: 999px; background: var(--gtm-glass); border-color: var(--gtm-glass-edge); }
+.gtm-notification-trigger {
+  position: relative;
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gtm-glass-edge);
+  border-radius: 12px;
+  background: var(--gtm-glass);
+  color: var(--foreground);
+  transition: background-color 150ms, transform 150ms, box-shadow 150ms;
+}
+.gtm-notification-trigger:hover,
+.gtm-notification-trigger[data-popup-open] {
+  background: var(--accent);
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.08);
+  transform: translateY(-1px);
+}
+.gtm-notification-trigger:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.gtm-notification-symbol { position: relative; display: inline-flex; }
+.gtm-notification-symbol::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  right: -5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 0 2px var(--background);
+}
+.gtm-notification-count {
+  position: absolute;
+  top: -7px;
+  right: -10px;
+  display: inline-flex;
+  min-width: 19px;
+  height: 19px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--background);
+  border-radius: 999px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.gtm-notification-count[data-severity="critical"] { background: #e11d48; color: #fff; }
+.gtm-notification-count[data-severity="urgent"] { background: #d97706; color: #fff; }
 /* On the chat home the toolbar takes the sky's top colour: one continuous sky. */
 .gtm-launch[data-sky] .gtm-topbar {
   background: var(--gtm-sky-top);

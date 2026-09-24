@@ -19,10 +19,18 @@ All notable changes to OpenGTM are documented here. The format follows
   public-snapshot builder that strips maintainer-only paths.
 - Tag-driven release workflow (GHCR multi-arch image + draft GitHub release),
   manual docs deploy workflow, Dependabot, and CODEOWNERS.
+- A workspace-scoped attention center at `/notifications` with critical failed
+  tasks/workbooks and urgent unread high-intent signals, plus a live header
+  preview and severity filters.
 
 ### Changed
 - `uv.lock` and `bun.lock` are now tracked for reproducible installs.
 - Maintainer-only planning documents moved under `docs/internal/`.
+- Theme selection moved from the top toolbar to the sidebar footer, including
+  the collapsed and mobile sidebar menus.
+- The standalone **New chat** sidebar link is now an icon on the Chat row.
+  It opens an inline prompt; submitting the prompt drafts a new conversation
+  without sending it. The icon remains available in the collapsed sidebar.
 
 ### Fixed
 - Protected deep links now retain query parameters and fragments through sign-in,

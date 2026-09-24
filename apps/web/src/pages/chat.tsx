@@ -294,7 +294,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!draft || activeConvId) return
-    setInput((current) => current || draft)
+    setInput(draft)
     const next = new URLSearchParams(searchParams)
     next.delete("draft")
     navigate(`/chat${next.size ? `?${next.toString()}` : ""}${location.hash}`, { replace: true })

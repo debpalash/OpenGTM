@@ -46,6 +46,24 @@ On first boot the `seed` service creates an admin login and a demo workbook
 wired to zero-key (free) providers. The defaults are `admin` / `admin`; change
 `SEED_ADMIN_PASSWORD` in `.env` for anything that is not a laptop.
 
+## Start a chat from the sidebar
+
+Select the **New chat** icon beside **Chat** to open an inline prompt. Enter
+your idea and press Enter to carry it into a new chat's composer; review or edit
+it there before sending. Escape closes the prompt. In the collapsed sidebar,
+the icon sits directly below Chat and expands the sidebar when selected. The
+same prompt works in the mobile sidebar.
+
+## Attention and appearance
+
+The bell in the top toolbar shows recent items that need attention: **critical**
+failed tasks or workbooks and **urgent** unread high-intent signals. Open it for
+a short preview, or choose **View all notifications** to filter and follow items
+in the full attention center. The count covers recent activity, not a lifetime
+unread total. Select **Appearance** at the bottom of the left sidebar to switch
+between light, dark and system themes; the same control works in the collapsed
+or mobile sidebar.
+
 ## What just started
 
 | Service | Purpose |

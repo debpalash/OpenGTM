@@ -1,8 +1,8 @@
-import { useState } from "react"
+import { type FormEvent, useEffect, useRef, useState } from "react"
 import { NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import {
-  Building2, Check, ChevronRight, ChevronsUpDown, Keyboard, LogOut, MoreHorizontal,
-  Search, Settings, SquarePen, Trash2,
+  ArrowUp, Building2, Check, ChevronRight, ChevronsUpDown, Keyboard, LogOut, Monitor, Moon,
+  MoreHorizontal, Search, Settings, SquarePen, Sun, SunMoon, Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Kbd } from "@/components/ui/kbd"
 import { useConversations, useJobs } from "@/lib/hooks"
 import { useAuth } from "@/lib/auth-context"
+import { useTheme } from "@/design-system/theme/use-theme"
 import { deleteConversation } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { NAVIGATION_GROUPS, isNavigationActive, OPEN_COMMAND_MENU_EVENT, OPEN_SHORTCUTS_EVENT } from "./navigation"
@@ -31,19 +32,41 @@ export function AppSidebar() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const [params] = useSearchParams()
-  const { isMobile, setOpenMobile } = useSidebar()
+  const { isMobile, state, setOpen, setOpenMobile } = useSidebar()
   const { data: jobs } = useJobs()
   const { data: conversations } = useConversations()
   const { user, workspaces, activeWorkspaceId, switchWorkspace, logout } = useAuth()
+  const { preference, setPreference } = useTheme()
   const [switching, setSwitching] = useState(false)
   const [chatSearch, setChatSearch] = useState("")
   const [historyOpen, setHistoryOpen] = useState(true)
+  const [newChatOpen, setNewChatOpen] = useState(false)
+  const [newChatDraft, setNewChatDraft] = useState("")
+  const newChatInput = useRef<HTMLInputElement>(null)
   const activeJobs = (Array.isArray(jobs) ? jobs : []).filter(job => job.status === "running" || job.status === "pending").length
   const matching = (conversations ?? []).filter(chat => chat.title.toLowerCase().includes(chatSearch.toLowerCase()))
   const recent = chatSearch ? matching : matching.slice(0, RECENT_LIMIT)
   const activeWorkspace = workspaces.find(workspace => workspace.id === activeWorkspaceId)
   const closeMobile = () => { if (isMobile) setOpenMobile(false) }
   const go = (to: string) => { navigate(to); closeMobile() }
+
+  useEffect(() => {
+    if (newChatOpen && (isMobile || state === "expanded")) newChatInput.current?.focus()
+  }, [newChatOpen, isMobile, state])
+
+  function toggleNewChat() {
+    if (state === "collapsed" && !isMobile) setOpen(true)
+    setNewChatOpen(open => !open)
+  }
+
+  function openNewChat(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const draft = newChatDraft.trim()
+    if (!draft) return
+    setNewChatOpen(false)
+    setNewChatDraft("")
+    go(`/chat?draft=${encodeURIComponent(draft)}`)
+  }
 
   async function changeWorkspace(id: string) {
     if (id === activeWorkspaceId) return
@@ -101,11 +124,6 @@ export function AppSidebar() {
             <Kbd className="ml-auto group-data-[collapsible=icon]:hidden">{isMac ? "⌘" : "Ctrl"} K</Kbd>
           </SidebarMenuButton>
         </SidebarMenuItem>
-        <SidebarMenuItem>
-          <SidebarMenuButton tooltip="New chat" render={<NavLink to="/chat" end />} isActive={false} onClick={closeMobile}>
-            <SquarePen aria-hidden="true" /><span>New chat</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarHeader>
 
@@ -116,9 +134,29 @@ export function AppSidebar() {
           <SidebarGroupContent><SidebarMenu>
             {group.items.map(item => <SidebarMenuItem key={item.to}>
               <SidebarMenuButton isActive={isNavigationActive(pathname, item.to)} tooltip={item.label}
-                render={<NavLink to={item.to} />} onClick={closeMobile}>
+                render={<NavLink to={item.to} />} onClick={() => { setNewChatOpen(false); closeMobile() }}>
                 <item.icon aria-hidden="true" /><span>{item.label}</span>
               </SidebarMenuButton>
+              {item.to === "/chat" && <>
+                <SidebarMenuAction aria-label="New chat" aria-expanded={newChatOpen} aria-controls="sidebar-new-chat"
+                  onClick={toggleNewChat} title="New chat">
+                  <SquarePen aria-hidden="true" />
+                </SidebarMenuAction>
+                <SidebarMenuButton tooltip="New chat" aria-label="New chat"
+                  className="mt-1 hidden group-data-[collapsible=icon]:flex!" onClick={toggleNewChat}>
+                  <SquarePen aria-hidden="true" /><span>New chat</span>
+                </SidebarMenuButton>
+                {newChatOpen && <form id="sidebar-new-chat" onSubmit={openNewChat}
+                    className="flex items-center gap-1 px-2 pb-2 pt-1 group-data-[collapsible=icon]:hidden">
+                  <SidebarInput ref={newChatInput} aria-label="New chat prompt" placeholder="Ask anything…" required
+                    value={newChatDraft} onChange={event => setNewChatDraft(event.target.value)}
+                    onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); setNewChatOpen(false); setNewChatDraft("") } }} />
+                  <button type="submit" aria-label="Open new chat" title="Open new chat" disabled={!newChatDraft.trim()}
+                    className="flex size-8 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring disabled:opacity-40">
+                    <ArrowUp className="size-4" aria-hidden="true" />
+                  </button>
+                </form>}
+              </>}
               {item.to === "/agents" && activeJobs > 0 && <SidebarMenuBadge aria-label={`${activeJobs} active tasks`}>{activeJobs}</SidebarMenuBadge>}
             </SidebarMenuItem>)}
           </SidebarMenu></SidebarGroupContent>
@@ -182,6 +220,30 @@ export function AppSidebar() {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout}><LogOut aria-hidden="true" />Sign out</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem></SidebarMenu>
+      <SidebarMenu><SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger aria-label={`Appearance: ${preference}`}
+            render={<SidebarMenuButton className="data-popup-open:bg-sidebar-accent" />}>
+            <SunMoon aria-hidden="true" /><span>Appearance</span>
+            <span className="ml-auto text-xs capitalize text-sidebar-foreground/60 group-data-[collapsible=icon]:hidden">{preference}</span>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" side={isMobile ? "top" : "right"} sideOffset={6} className="min-w-44">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Color theme</DropdownMenuLabel>
+              {([
+                { value: "light", label: "Light", icon: Sun },
+                { value: "dark", label: "Dark", icon: Moon },
+                { value: "system", label: "System", icon: Monitor },
+              ] as const).map(({ value, label, icon: Icon }) => (
+                <DropdownMenuItem key={value} onClick={() => setPreference(value)}>
+                  <Icon aria-hidden="true" />{label}
+                  {preference === value && <Check className="ml-auto" aria-label="Selected" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem></SidebarMenu>
