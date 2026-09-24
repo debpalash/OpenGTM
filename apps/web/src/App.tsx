@@ -178,7 +178,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   const { user, loading, activeWorkspaceId } = useAuth()
   const location = useLocation()
   if (loading) return <FullScreenSpinner />
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search + location.hash }} />
   if (!activeWorkspaceId) return <FullScreenSpinner label="Loading workspace…" />
   return <Fragment key={activeWorkspaceId}>{children}</Fragment>
 }

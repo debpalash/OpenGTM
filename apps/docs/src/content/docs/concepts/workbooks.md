@@ -64,6 +64,9 @@ normalised website domain, falling back to normalised company name.
 
 Workbooks, rows, cells and traces live in PostgreSQL, scoped by `workspace_id`
 and protected by fail-closed row-level security. Manual edits to a
-`lead_field` column write back to the underlying lead. See
+`lead_field` column write back to the underlying lead. Double-click a
+lead-field cell (including the padding of a linked website or email cell),
+edit its value, then press Enter to save. Clicking the link itself opens the
+destination without editing the cell. See
 [Workspaces and tenancy](/concepts/workspaces/) and the
 [architecture](/reference/architecture/) page.

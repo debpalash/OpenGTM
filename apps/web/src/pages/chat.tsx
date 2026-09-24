@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import {
   Send, Loader2, Bot, Pencil, RotateCcw, Copy, Check, X,
   Sparkles, Search, Building2, Zap, Globe, BarChart3, Database,
@@ -268,6 +268,7 @@ function CopyBtn({ content }: { content: string }) {
 
 export default function ChatPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const activeConvId = searchParams.get("id")
   const draft = searchParams.get("draft")
@@ -296,9 +297,9 @@ export default function ChatPage() {
     setInput((current) => current || draft)
     const next = new URLSearchParams(searchParams)
     next.delete("draft")
-    navigate(`/chat${next.size ? `?${next.toString()}` : ""}`, { replace: true })
+    navigate(`/chat${next.size ? `?${next.toString()}` : ""}${location.hash}`, { replace: true })
     requestAnimationFrame(() => inputRef.current?.focus())
-  }, [activeConvId, draft, navigate, searchParams])
+  }, [activeConvId, draft, location.hash, navigate, searchParams])
 
   useEffect(() => {
     const onDraft = (event: Event) => {

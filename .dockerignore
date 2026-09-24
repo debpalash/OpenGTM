@@ -15,7 +15,6 @@ reference/research
 .env
 .env.*
 !.env.example
-apps/docs
 docs
 gtm
 .claude

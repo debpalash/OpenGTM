@@ -219,10 +219,11 @@ import type { ResearchEvidence } from "@/lib/workbook-api"
 import { useQuickLook, type QuickLookField, type QuickLookPayload } from "@/components/quick-look/quick-look"
 
 function EditableCell({
-  value, status, provider, error, verify, provenance, staleTtlDays, isEditable, onSave,
+  value, displayOverride, status, provider, error, verify, provenance, staleTtlDays, isEditable, onSave,
   onRerun, rerunning, research, skipped,
 }: {
   value: any; status?: string; provider?: string | null; error?: string | null
+  displayOverride?: React.ReactNode
   verify?: string | null; provenance?: Provenance | null; staleTtlDays?: number
   isEditable: boolean; onSave: (v: string) => void
   research?: ResearchEvidence | null
@@ -298,7 +299,7 @@ function EditableCell({
       {showProvenance && <ProvenanceCard prov={provenance!} ttlDays={staleTtlDays} />}
       <CellStatus status={status} />
       <span className="truncate text-sm flex-1 min-w-0">
-        {displayValue}
+        {displayOverride ?? displayValue}
       </span>
       {displayValue && <VerifyBadge verify={verify} />}
       {research && <ResearchEvidenceInspector evidence={research} />}
@@ -909,20 +910,12 @@ export default function WorkbookEditorPage() {
               const value = (row.original.data || row.original.lead)[leadField] ?? ""
               const strVal = String(value)
 
-              // Type-aware fields get special rendering
-              if (strVal && TYPED_FIELDS.has(leadField)) {
-                return (
-                  <div className="flex items-center gap-1.5 px-2 py-1 h-full min-h-[32px] max-w-full overflow-hidden"
-                    title={strVal}>
-                    <TypedCellValue value={strVal} fieldName={leadField} />
-                  </div>
-                )
-              }
-
-              // Fallback: editable text cell
               return (
                 <EditableCell
                   value={value}
+                  displayOverride={strVal && TYPED_FIELDS.has(leadField)
+                    ? <TypedCellValue value={strVal} fieldName={leadField} />
+                    : undefined}
                   isEditable={true}
                   onSave={(v) => {
                     if (row.original.row_id != null) {

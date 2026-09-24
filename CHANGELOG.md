@@ -25,6 +25,12 @@ All notable changes to OpenGTM are documented here. The format follows
 - Maintainer-only planning documents moved under `docs/internal/`.
 
 ### Fixed
+- Protected deep links now retain query parameters and fragments through sign-in,
+  including chat drafts.
+- Populated website, email and other typed lead-field cells can be edited by
+  double-clicking the cell while retaining their formatted links and badges.
+- Docker builds include the docs workspace manifest needed for the frozen Bun
+  workspace install.
 - The n8n node now calls endpoints that exist (`/api/collect`, `/api/lead` +
   `/api/leads/bulk-enrich`, the new utilities above); five of its seven
   operations previously returned 404.
