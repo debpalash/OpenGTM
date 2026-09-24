@@ -54,5 +54,5 @@ jobs:
           draft: true
           generate_release_notes: true
           body: |
-            Container image: `ghcr.io/${{ github.repository }}:${{ github.ref_name }}`
+            Container image: `ghcr.io/debpalash/opengtm:${{ github.ref_name }}`
             Docs: https://opengtm.palash.dev

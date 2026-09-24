@@ -13,6 +13,9 @@ All notable changes to OpenGTM are documented here. The format follows
 - Updated the quickstart with generated credentials, a pinned GHCR image, and
   loopback-plus-TLS server setup.
 
+### Fixed
+- Release notes now use the lowercase, pullable GHCR image name.
+
 ## [3.0.0] - 2026-09-24
 
 First public release: workbooks, enrichment waterfalls, agentic research/chat,
