@@ -1,63 +1,45 @@
 ---
-title: Introduction
-description: What OpenGTM is, who it is for, and the promises it makes.
+title: How OpenGTM works
+description: OpenGTM combines self-hosted lead sourcing, provider waterfalls, cited research, and spend limits. See what self-hosting does and does not cover.
 sidebar:
   order: 1
 ---
 
-OpenGTM is a free, open-source, self-hostable alternative to
-[Clay](https://clay.com), licensed under the AGPLv3.
+OpenGTM is an open-source workspace for building prospect lists on infrastructure
+you operate. A workbook holds sourced rows, enrichment columns, research
+citations, and output actions. See [OpenGTM vs. Clay](/compare/clay-alternative/)
+for the managed-service trade-offs.
 
-It is a spreadsheet-shaped enrichment engine (**workbooks**) plus an agentic
-layer that can build and run those workbooks for you. You source leads, run
-enrichment **waterfalls** across providers, research rows with AI agents that
-browse the web and cite sources, and push the results to a CRM, Google Sheets,
-Airtable, a webhook, or an email sequencer.
+## Who uses it
 
-Everything runs on your own infrastructure with your own provider keys, and the
-bill is shown to you **before** a run executes.
+- **GTM operators:** Source and enrich companies and people in a workbook.
+- **RevOps engineers:** Connect workbooks to the REST API, webhooks, n8n, or MCP.
+- **Teams running their own software:** Host the app and manage their own
+  deployment, data, and keys.
 
-## Who it is for
+## What you control
 
-- **Founders and small sales teams** who want Clay-style enrichment without
-  seat pricing or credit markups.
-- **RevOps and growth engineers** who automate from a terminal, n8n, or an
-  agent, and need an API that is never plan-gated.
-- **Agencies and privacy-conscious teams** who cannot send prospect data to a
-  third-party SaaS.
+- **Spend:** Review best- and worst-case estimates before a run. Set a workbook
+  ceiling for paid provider calls. See [spend transparency](/concepts/spend/).
+- **Provider access:** Add your own keys per workspace. External enrichment and
+  AI providers still receive the fields you send them.
+- **Deployment:** You manage upgrades, backups, and TLS. Work through the
+  [production checklist](/self-hosting/production/) before serving a team.
 
-## Promises, in writing
+## What you can do
 
-These are structural commitments, not marketing:
-
-- **The REST API, webhooks, and MCP tools are never plan-gated.** Automating
-  OpenGTM is a first-class use, not an upsell.
-- **BYOK at direct cost, zero markup.** You pay the LLM and enrichment vendors
-  directly with your own keys.
-- **See the bill before you run.** The spend estimate and per-provider cost
-  ledger are core features.
-- **Self-host is fully functional, forever.** No feature is held back to force a
-  cloud upgrade.
-
-## What is in the box
-
-| Capability | Summary |
+| Task | In OpenGTM |
 |---|---|
-| Lead sourcing | ~90 discovery sources plus typed connectors with durable, resumable runs |
-| Enrichment waterfalls | Cost-ordered provider chains with caching and confidence early-exit |
-| Providers | ~35 enrichment providers (email find/verify, phone, firmographics, decision-makers, tech stack, hiring, IP/domain, scoring) |
-| AI, research and agent columns | LLM transforms, web-browsing research with citations, goal-directed agents with reasoning traces |
-| Agentic chat / autopilot | Turn a goal into a plan and a running workbook |
-| Outputs | Webhook, HubSpot, Salesforce, Google Sheets, Airtable, email sequencer |
-| Outreach | Multi-step SMTP sequences with bounce and complaint ingestion |
-| Buying signals | Hiring, funding, tech change, website change, news, growth, social |
-| Multi-tenancy | Workspace roles plus fail-closed PostgreSQL row-level security |
-| Integrations | MCP server, n8n community node, Chrome capture extension |
+| Build a list | Source companies and people, import CSV, or ingest rows through the API |
+| Fill missing fields | Run cost-aware provider waterfalls across workbook columns |
+| Research a company | Store cited answers and the URLs fetched for each row |
+| Act on results | Send rows to a CRM, webhook, Sheets, Airtable, or sequence |
+| Automate repeat work | Use scheduled watches, signals, Chat, or the API |
 
-## Where to go next
+## Start
 
-- [Quickstart](/getting-started/quickstart/) — the whole stack with one
-  `docker compose up`.
-- [Your first workbook](/getting-started/first-workbook/) — source, enrich and
-  push in ten minutes.
-- [REST API reference](/api/) — every endpoint, generated from the running app.
+- [Install with Docker Compose](/getting-started/quickstart/) to create credentials
+  and open the seeded demo.
+- [Build your first workbook](/getting-started/first-workbook/) with sources,
+  enrichment, and an output.
+- [Use the REST API](/api/) from a script or integration.

@@ -50,7 +50,7 @@
 
 .lp-hero { padding: clamp(3.5rem, 7vw, 6.5rem) 0 clamp(3rem, 7vw, 5rem); }
 .lp-hero__copy { max-width: 63rem; }
-.sl-markdown-content .lp-hero h1 {
+.sl-markdown-content .lp-hero h2 {
   max-width: 15ch;
   margin: 1.15rem 0 0;
   font-size: clamp(3rem, 7.4vw, 6.5rem);
@@ -213,7 +213,7 @@
 
 @media (max-width: 34rem) {
   .lp-hero { padding-top: 3rem; }
-  .sl-markdown-content .lp-hero h1 { font-size: clamp(2.8rem, 12vw, 3.7rem); }
+  .sl-markdown-content .lp-hero h2 { font-size: clamp(2.8rem, 12vw, 3.7rem); }
   .lp-actions .lp-btn--primary { width: 100%; }
   .lp-actions .lp-btn--quiet { padding-inline: 0.4rem; }
   .lp-product { margin-inline: -0.75rem !important; border-radius: 0.4rem; }

@@ -1,6 +1,6 @@
 ---
 title: Quickstart (Docker)
-description: Bring up the full OpenGTM stack with Docker Compose in a few minutes.
+description: Install OpenGTM locally or on a server with Docker Compose. The installer creates credentials; server steps pin a GHCR image and add TLS.
 sidebar:
   order: 2
 ---

@@ -15,7 +15,7 @@ export default defineConfig({
     starlight({
       title: 'OpenGTM',
       description:
-        'Source accounts, enrich records, research with citations, and act on signals in a self-hosted workspace. See cost before a run; bring your own keys.',
+        'OpenGTM is an open-source, self-hosted workspace for lead sourcing, provider waterfalls, cited research, and budgeted workbook runs.',
       logo: {
         light: './src/assets/opengtm-lockup.svg',
         dark: './src/assets/opengtm-lockup-dark.svg',
@@ -57,7 +57,7 @@ export default defineConfig({
             name: 'OpenGTM',
             applicationCategory: 'BusinessApplication',
             operatingSystem: 'Docker, Linux, macOS, Windows',
-            description: 'Self-hosted GTM workspace for lead sourcing, enrichment waterfalls, cited research, signals, and outreach.',
+            description: 'Self-hosted lead sourcing and enrichment with provider waterfalls, cited research, and workbook spend limits.',
             url: SITE,
             codeRepository: REPO,
             license: `${REPO}/blob/main/LICENSE`,

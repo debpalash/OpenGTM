@@ -1,6 +1,6 @@
 ---
-title: Self-hosted GTM work, end to end
-description: Source accounts, enrich records, research with citations, and act on signals in a self-hosted workspace. See cost before a run; bring your own keys.
+title: Self-hosted lead sourcing and enrichment
+description: Source and enrich leads with provider waterfalls, cited AI research, and workbook spend limits. Install OpenGTM on your infrastructure with Docker Compose.
 template: splash
 tableOfContents: false
 ---
@@ -10,18 +10,18 @@ import { Icon } from '@astrojs/starlight/components';
 <section class="lp-hero">
   <div class="lp-hero__copy">
     <p class="lp-eyebrow"><span>OPEN SOURCE</span><span>SELF-HOSTED</span><span>AGPL-3.0</span></p>
-    <h1>Find the signal.<br />Do the work.</h1>
+    <h2>Source leads.<br />Control the spend.</h2>
     <p class="lp-lede">
-      Source accounts, enrich the gaps, research with citations, and act on
-      what changed. OpenGTM keeps the workflow in one workspace, with your
-      provider keys and an estimate before the run.
+      OpenGTM is an open-source workspace for sourcing and enriching leads.
+      Run it on your infrastructure, use your provider keys, and review
+      estimated spend before each workbook run.
     </p>
     <div class="lp-actions">
-      <a class="lp-btn lp-btn--primary" href="#install">Install OpenGTM <span aria-hidden="true">↓</span></a>
-      <a class="lp-btn" href="#workflow">See the workflow</a>
-      <a class="lp-btn lp-btn--quiet" href="https://github.com/debpalash/OpenGTM"><Icon name="github" />Source</a>
+      <a class="lp-btn lp-btn--primary" href="#install">Install locally <span aria-hidden="true">↓</span></a>
+      <a class="lp-btn" href="#workflow">See how it works</a>
+      <a class="lp-btn lp-btn--quiet" href="https://github.com/debpalash/OpenGTM"><Icon name="github" />GitHub</a>
     </div>
-    <p class="lp-hero__aside">No hosted account needed. The zero-key demo works before you add provider keys.</p>
+    <p class="lp-hero__aside">Try the seeded demo without provider keys. No hosted account.</p>
   </div>
 
   <figure class="lp-product">
@@ -33,8 +33,8 @@ import { Icon } from '@astrojs/starlight/components';
 <section class="lp-section lp-setup" id="install">
   <header class="lp-section__head">
     <p class="lp-kicker">START HERE</p>
-    <h2>From clone to workspace.</h2>
-    <p>One installer creates unique local secrets and a writable data directory. Pick the path that matches where you run it.</p>
+    <h2>Install with Docker Compose.</h2>
+    <p>The installer creates admin credentials, secrets, and a writable data directory.</p>
   </header>
   <div class="lp-setup__grid">
     <div class="lp-setup__path">
@@ -46,7 +46,7 @@ cd OpenGTM
 ./scripts/install.sh
 ```
 
-      <p>Open <code>localhost:3000</code>. Your first password is in <code>.opengtm-initial-credentials</code>.</p>
+      <p>Open <code>localhost:3000</code>. Read the initial admin password from <code>.opengtm-initial-credentials</code>.</p>
     </div>
     <div class="lp-setup__path">
       <p class="lp-setup__label"><span>02 / SERVER</span><span>Versioned image · private HTTP</span></p>
@@ -57,36 +57,36 @@ cd OpenGTM
 ./scripts/install.sh --no-start
 ```
 
-      <p>Pin the GHCR image, bind HTTP to loopback, then add TLS. <a href="/getting-started/quickstart/#server">Finish server setup →</a></p>
+      <p>Pin the image, bind port 3000 to loopback, and put a TLS proxy in front. <a href="/getting-started/quickstart/#server">Server install steps →</a></p>
     </div>
   </div>
-  <p class="lp-setup__foot">Docker with Compose v2 and about 4 GB RAM. <a href="/getting-started/quickstart/">Full quickstart</a> · <a href="/self-hosting/production/">Production checklist</a></p>
+  <p class="lp-setup__foot">Docker Compose v2 · about 4 GB free RAM. <a href="/getting-started/quickstart/">Installation guide</a> · <a href="/self-hosting/production/">Production checklist</a> · <a href="/compare/clay-alternative/">OpenGTM vs. Clay</a></p>
 </section>
 
 <section class="lp-section lp-workflow" id="workflow">
   <header class="lp-section__head">
     <p class="lp-kicker">THE WORKFLOW</p>
-    <h2>Ask once. Keep the work.</h2>
-    <p>Start in Chat. Move repeatable work into a Workbook. Each stage keeps its source and result attached to the record.</p>
+    <h2>Workbooks show each step.</h2>
+    <p>Source rows, enrich missing fields, keep citations next to research answers, then send qualified rows to your tools.</p>
   </header>
   <nav class="lp-capabilities" aria-label="OpenGTM workflow">
-    <a href="/guides/sourcing/"><span class="lp-capabilities__step">01</span><span><strong>Find accounts</strong><small>Source companies and people for a defined market.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
-    <a href="/concepts/waterfalls/"><span class="lp-capabilities__step">02</span><span><strong>Fill the gaps</strong><small>Run cost-ordered provider waterfalls across the rows.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
-    <a href="/guides/research-and-agent-columns/"><span class="lp-capabilities__step">03</span><span><strong>Research with evidence</strong><small>Agent columns keep citations beside the answer.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
-    <a href="/guides/outputs/"><span class="lp-capabilities__step">04</span><span><strong>Send the result</strong><small>Push qualified records to a CRM, webhook, or sequence.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
+    <a href="/guides/sourcing/"><span class="lp-capabilities__step">01</span><span><strong>Source companies and people</strong><small>Search by industry, geography, and keywords.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
+    <a href="/concepts/waterfalls/"><span class="lp-capabilities__step">02</span><span><strong>Enrich missing fields</strong><small>Try providers in cost-aware order for each column.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
+    <a href="/guides/research-and-agent-columns/"><span class="lp-capabilities__step">03</span><span><strong>Research with citations</strong><small>Keep fetched source URLs beside the answer.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
+    <a href="/guides/outputs/"><span class="lp-capabilities__step">04</span><span><strong>Send qualified rows</strong><small>Push to a CRM, webhook, or email sequence.</small></span><span class="lp-capabilities__arrow" aria-hidden="true">↗</span></a>
   </nav>
 </section>
 
 <section class="lp-section lp-control">
   <header class="lp-section__head">
     <p class="lp-kicker">OPERATE WITH CONTROL</p>
-    <h2>See what ran. Know what it cost.</h2>
-    <p>Your deployment owns the data and credentials. Paid provider calls stay on the keys you configure.</p>
+    <h2>Control spend and trace results.</h2>
+    <p>Review an estimate before a run. A workbook budget stops paid calls before they exceed your ceiling.</p>
   </header>
   <dl class="lp-principles">
-    <div><dt>Source</dt><dd>Research answers link to the pages the agent actually loaded.</dd></div>
-    <div><dt>Spend</dt><dd>Preview the estimate, set a ceiling, and inspect the provider ledger.</dd></div>
-    <div><dt>Scope</dt><dd>Workspace isolation, scoped tokens, and audit history are built in.</dd></div>
+    <div><dt>Evidence</dt><dd>Research citations link to pages fetched during the run.</dd></div>
+    <div><dt>Cost</dt><dd>Cell traces show provider attempts, latency, and cost.</dd></div>
+    <div><dt>Hosting</dt><dd>Your team operates the stack, backups, and upgrades.</dd></div>
   </dl>
-  <div class="lp-close"><p>Bring your workflow home.</p><a class="lp-btn lp-btn--primary" href="/getting-started/quickstart/">Read the quickstart <span aria-hidden="true">↗</span></a></div>
+  <div class="lp-close"><p>Try the seeded workbook.</p><a class="lp-btn lp-btn--primary" href="/getting-started/quickstart/">Open the install guide <span aria-hidden="true">↗</span></a></div>
 </section>

@@ -1,8 +1,8 @@
 # OpenGTM docs design direction
 
-An operator-facing product and documentation site, not a dashboard mockup.
-The visual hierarchy should get a reader from promise → real workspace →
-install path → workflow → control model without invented performance numbers.
+The site is for teams that operate their own GTM software. State the product
+category first, show the real workspace, then give laptop and server install
+paths. Name the work the reader can inspect.
 
 - **Proof:** one cropped screenshot from the real chat workspace. No synthetic
   lead table, fabricated metrics, glowing diagram or animated background.
@@ -16,3 +16,7 @@ install path → workflow → control model without invented performance numbers
   Visible focus, useful mobile stacking, and no required motion.
 - **Trust:** label example workspace imagery, link specific claims to docs, and
   keep production setup separate from the laptop shortcut.
+- **Voice:** use product terms, concrete actions, and stated limits. No
+  unmeasured savings, promises about future pricing, or metaphors for features.
+- **Search:** put lead sourcing and enrichment in titles and descriptions.
+  Link the Clay comparison for readers evaluating managed alternatives.

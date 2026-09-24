@@ -12,6 +12,9 @@ All notable changes to OpenGTM are documented here. The format follows
   real-workspace presentation and direct laptop/server install paths.
 - Updated the quickstart with generated credentials, a pinned GHCR image, and
   loopback-plus-TLS server setup.
+- Rewrote homepage and introduction copy around self-hosted lead sourcing,
+  spend limits, and provider data boundaries; aligned search metadata and
+  linked the Clay comparison.
 
 ### Fixed
 - Release notes now use the lowercase, pullable GHCR image name.
