@@ -6,53 +6,53 @@ requires-python = ">=3.11"
 dependencies = [
     # FastAPI stack
     "fastapi>=0.128.0",
-    "uvicorn[standard]>=0.40.0",
-    "sqlalchemy>=2.0.45",
-    "alembic>=1.13",
+    "uvicorn[standard]>=0.53.0",
+    "sqlalchemy>=2.0.54",
+    "alembic>=1.20.0",
     # Postgres driver (psycopg3). Required for the default Postgres DATABASE_URL
     # and the shared, RLS-protected multi-tenant leads/signals store. The URL
     # must use the 'postgresql+psycopg://' scheme (psycopg3), not bare
     # 'postgresql://' (which would need psycopg2). Also lets plain `uv run
     # alembic ...` / `uv run python -m apps.api.scripts.seed_demo` work without
     # an ad-hoc `--with psycopg[binary]`. Mirrors apps/api/pyproject.toml.
-    "psycopg[binary]>=3.3.4",
+    "psycopg[binary]>=3.3.6",
     "pydantic-settings>=2.0.0",
     "slowapi>=0.1.9",
     # Scraping & HTTP
     "beautifulsoup4>=4.12",
     "httpx>=0.28",
     "aiohttp>=3.9",
-    "curl-cffi>=0.9",
-    "lxml>=6.0",
+    "curl-cffi>=0.16.3",
+    "lxml>=6.1.3",
     "markdownify>=1.2",
     "requests>=2.32",
     # Browser automation
-    "playwright>=1.57.0",
+    "playwright>=1.63.0",
     # Lead generation
-    "ddgs>=7.0",
+    "ddgs>=9.16.0",
     "thefuzz>=0.22",
-    "pandas>=2.0",
+    "pandas>=3.0.6",
     # Auth
     "passlib[bcrypt]>=1.7.4",
     "python-jose[cryptography]>=3.5.0",
     "python-multipart>=0.0.21",
     # Envelope encryption for per-workspace integration secrets (spec WI-6)
-    "cryptography>=43.0.0",
+    "cryptography>=50.0.1",
     # Email validation
     "dnspython>=2.8.0",
     "email-validator>=2.3.0",
     # LLM SDKs
-    "anthropic>=0.40.0",
+    "anthropic>=1.7.0",
     # Utilities
     "python-dotenv>=1.0",
-    "logfire[fastapi]>=0.51.0",
+    "logfire[fastapi]>=5.1.0",
     "aiofiles>=25.1.0",
     "duckduckgo-search>=8.1.1",
     "redis>=6.4.0",
-    "bullmq>=2.25.1",
-    "pebble>=5.2.0",
+    "bullmq>=3.2.6",
+    "pebble>=5.2.2",
     # Billing — Stripe credit top-ups (WI-9)
-    "stripe>=11.0.0",
+    "stripe>=15.6.1",
     "authlib>=1.6.5",
     "itsdangerous>=2.2.0",
 ]
@@ -66,7 +66,7 @@ dependencies = [
 #   - stealth-requests: curl_cffi session wrapper with built-in extractors (Tier 2).
 # curl-cffi itself is a core dependency above (Tier 2 TLS/JA3 impersonation).
 browser = [
-    "patchright>=1.52.0",
+    "patchright>=1.63.0",
     "stealth-requests>=1.2.0",
 ]
 
