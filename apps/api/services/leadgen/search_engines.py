@@ -19,7 +19,7 @@ Design contract:
   * Network access is wrapped in a tiny helper so tests can mock one place.
 
 Engine order (first configured one is tried first) is controlled by
-SEARCH_FALLBACK_ORDER, default "serpapi,bing,google_cse,brave".
+SEARCH_FALLBACK_ORDER, default "serpapi,bing,google_cse,brave,serpingapi".
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ logger = logging.getLogger("leadgen.search_engines")
 _ENGINE_TIMEOUT = float(os.getenv("SEARCH_ENGINE_TIMEOUT", "10"))
 
 # Default attempt order for keyed fallback engines.
-_DEFAULT_ORDER = "serpapi,bing,google_cse,brave"
+_DEFAULT_ORDER = "serpapi,bing,google_cse,brave,serpingapi"
 
 
 # ── Config (all optional) ────────────────────────────────────────────────
@@ -55,6 +55,10 @@ def _google_cse() -> tuple[str, str]:
 
 def _brave_key() -> str:
     return _key("BRAVE_SEARCH_KEY")
+
+
+def _serpingapi_key() -> str:
+    return _key("SERPINGAPI_API_KEY")
 
 
 # ── HTTP helper (single mockable seam) ───────────────────────────────────
@@ -182,12 +186,40 @@ def _brave(query: str, max_results: int) -> List[Dict]:
     return out
 
 
+def _serpingapi(query: str, max_results: int) -> List[Dict]:
+    key = _serpingapi_key()
+    if not key:
+        return []
+    data = _http_get_json(
+        "https://api.serpingapi.com/v1/search",
+        # Serping API caps `num` at 100 per request.
+        {"q": query, "num": min(max_results, 100)},
+        headers={"X-API-Key": key},
+    )
+    if not data:
+        return []
+    out: List[Dict] = []
+    for r in data.get("organic", []) or []:
+        href = r.get("link") or ""
+        if not href:
+            continue
+        out.append({
+            "title": r.get("title", "") or "",
+            "href": href,
+            "body": r.get("snippet", "") or "",
+        })
+        if len(out) >= max_results:
+            break
+    return out
+
+
 # name → (adapter, is_configured) registry
 _ADAPTERS: Dict[str, tuple[Callable[[str, int], List[Dict]], Callable[[], bool]]] = {
     "serpapi": (_serpapi, lambda: bool(_serpapi_key())),
     "bing": (_bing, lambda: bool(_bing_key())),
     "google_cse": (_google_cse_search, lambda: all(_google_cse())),
     "brave": (_brave, lambda: bool(_brave_key())),
+    "serpingapi": (_serpingapi, lambda: bool(_serpingapi_key())),
 }
 
 
