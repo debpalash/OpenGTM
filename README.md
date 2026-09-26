@@ -1,6 +1,5 @@
 <p align="center"><img src="apps/web/public/opengtm-mark-v8.svg" alt="OpenGTM mark" width="64" /></p>
 <h1 align="center">OpenGTM</h1>
-<p align="center"><strong>Find the right accounts. Build the list. Act on the signal.</strong></p>
 <p align="center">An open-source, self-hosted workspace for GTM teams and their agents.</p>
 <p align="center">
   <a href="https://opengtm.palash.dev">Docs</a> ·
