@@ -57,8 +57,8 @@ def _clear_env(monkeypatch):
     """Start every test from a clean, keyless slate."""
     for var in (
         "SERPAPI_KEY", "BING_SEARCH_KEY", "GOOGLE_CSE_ID",
-        "GOOGLE_CSE_KEY", "BRAVE_SEARCH_KEY", "SEARCH_FALLBACK_ORDER",
-        "SEARCH_ATTEMPT_ORDER", "SEARCH_BACKENDS",
+        "GOOGLE_CSE_KEY", "BRAVE_SEARCH_KEY", "SERPINGAPI_API_KEY",
+        "SEARCH_FALLBACK_ORDER", "SEARCH_ATTEMPT_ORDER", "SEARCH_BACKENDS",
         "SEARCH_CACHE_ENABLED", "SEARCH_BACKOFF_ENABLED",
     ):
         monkeypatch.delenv(var, raising=False)
@@ -110,10 +110,14 @@ def test_shape_parity_across_all_adapters(monkeypatch):
             {"BRAVE_SEARCH_KEY": "k"},
             {"web": {"results": [{"title": "D", "url": "https://d.example", "description": "sd"}]}},
         ),
+        "serpingapi": (
+            {"SERPINGAPI_API_KEY": "k"},
+            {"organic": [{"title": "E", "link": "https://e.example", "snippet": "se", "position": 1}]},
+        ),
     }
     for engine, (env, json_body) in payloads.items():
         for var in ("SERPAPI_KEY", "BING_SEARCH_KEY", "GOOGLE_CSE_ID",
-                    "GOOGLE_CSE_KEY", "BRAVE_SEARCH_KEY"):
+                    "GOOGLE_CSE_KEY", "BRAVE_SEARCH_KEY", "SERPINGAPI_API_KEY"):
             monkeypatch.delenv(var, raising=False)
         for k, v in env.items():
             monkeypatch.setenv(k, v)
@@ -122,6 +126,25 @@ def test_shape_parity_across_all_adapters(monkeypatch):
         results = se.search_fallback("q", max_results=5)
         assert len(results) == 1, engine
         _assert_shape(results)
+
+
+def test_serpingapi_sends_key_header_and_caps_num(monkeypatch):
+    """Serping API is keyed via the X-API-Key header, not a query param."""
+    monkeypatch.setenv("SERPINGAPI_API_KEY", "sk_test")
+    seen = {}
+
+    def fake_get(url, params, headers=None):
+        seen.update(url=url, params=params, headers=headers or {})
+        return {"organic": [{"title": "E", "link": "https://e.example", "snippet": "se"}]}
+
+    monkeypatch.setattr(se, "_http_get_json", fake_get)
+    assert se.configured_engines() == ["serpingapi"]
+    results = se.search_fallback("q", max_results=500)
+    assert results == [{"title": "E", "href": "https://e.example", "body": "se"}]
+    assert seen["url"] == "https://api.serpingapi.com/v1/search"
+    assert seen["headers"]["X-API-Key"] == "sk_test"
+    assert "api_key" not in seen["params"] and "key" not in seen["params"]
+    assert seen["params"]["num"] == 100
 
 
 def test_engine_order_respected(monkeypatch):
