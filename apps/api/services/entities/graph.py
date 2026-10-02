@@ -453,6 +453,16 @@ def merge_entities(
     if workspace_id is not None and kept.workspace_id != workspace_id:
         return {"error": "entity_not_found"}
 
+    # Acquire in stable ID order and reload both rows. The session may have
+    # cached either entity before a different importer committed new evidence.
+    db.flush()
+    for entity in sorted((kept, merged), key=lambda item: item.id):
+        _lock_for_update(db, entity)
+    if kept.workspace_id != merged.workspace_id:
+        return {"error": "cross_workspace_merge_forbidden"}
+    if workspace_id is not None and kept.workspace_id != workspace_id:
+        return {"error": "entity_not_found"}
+
     # Snapshot for split()
     merged_keys = [k for (k,) in db.query(EntityBlockingKey.key)
                    .filter(
