@@ -502,14 +502,14 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
         if src in ("feed", "job_change", "account_group"):
             bill_src = src
         else:
-            bill_src = "funding" if src in ("funding", "exec") else "hiring"
+            bill_src = "funding" if src in ("funding", "exec", "funding_exec") else "hiring"
         if not _debit_source(db, workspace_id, bill_src, fire_key):
             watch.last_error = "insufficient_credits"
             return False
 
-        if src == "funding" or src == "exec":
+        if src in ("funding", "exec", "funding_exec"):
             events, patch = sources.fetch_funding_and_exec(
-                watch, want_funding=(src == "funding"), want_exec=(src == "exec"),
+                watch, want_funding=(src != "exec"), want_exec=(src != "funding"),
                 backfill=backfill,
             )
         elif src == "hiring" or src == "tech":
@@ -577,7 +577,8 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
 
 def _source_set(watch) -> list:
     """Sources to fan in for a watch kind. company → funding+exec+hiring+tech.
-    Each entry is one independent-txn source."""
+    Each entry is one independent-txn source. SEC event types share a watermark
+    and must consume their filing batch together."""
     kind = watch.kind
     types = set(watch.signal_types or [])
 
@@ -591,13 +592,13 @@ def _source_set(watch) -> list:
         settings, "TECH_STACK_WEBSITE_FETCH_ENABLED", False
     ) else "tech"
 
+    # Both SEC detectors consume sec_last_accession. Separate transactions let
+    # the first detector advance it before the second sees the same filings.
+    sec_sources = (["funding_exec"] if wants("company_funded") and wants("executive_hired")
+                   else ["funding"] if wants("company_funded")
+                   else ["exec"] if wants("executive_hired") else [])
     if kind == "funding":
-        out = []
-        if wants("company_funded"):
-            out.append("funding")
-        if wants("executive_hired"):
-            out.append("exec")
-        return out or ["funding"]
+        return sec_sources or ["funding"]
     if kind == "hiring":
         out = []
         if wants("hiring_surge"):
@@ -612,16 +613,12 @@ def _source_set(watch) -> list:
     if kind == "account_group":
         return ["account_group"]
     if kind == "company":
-        out = []
-        if wants("company_funded"):
-            out.append("funding")
-        if wants("executive_hired"):
-            out.append("exec")
+        out = list(sec_sources)
         if wants("hiring_surge"):
             out.append("hiring")
         if wants("new_tech_adopted"):
             out.append(tech_src)
-        return out or ["funding", "exec", "hiring", tech_src]
+        return out or ["funding_exec", "hiring", tech_src]
     return []
 
 
