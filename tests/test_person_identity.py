@@ -178,3 +178,30 @@ def test_migration_round_trip(tmp_path, monkeypatch):
     command.upgrade(cfg, "3f4051627384")
     command.downgrade(cfg, "2e3f40516273")
     command.upgrade(cfg, "head")
+
+
+def test_older_observation_keeps_current_title_and_evidence(Session):
+    with Session() as db:
+        person, _ = resolve_person(
+            db, workspace_id="ws", name="Jane Doe", company="Acme",
+            company_domain="acme.com", linkedin_url="linkedin.com/in/jane-doe",
+            title="Director", evidence_url="https://example.invalid/current",
+            source="current", observed_at=T3,
+        )
+        again, created = resolve_person(
+            db, workspace_id="ws", name="Jane Doe", company="Acme",
+            company_domain="acme.com", linkedin_url="linkedin.com/in/jane-doe",
+            title="Manager", evidence_url="https://example.invalid/archive",
+            source="archive", observed_at=T1,
+        )
+        db.commit()
+        job, = person_profile(db, person.id, "ws")["employments"]
+        assert again.id == person.id and not created
+        assert job["title"] == "Director"
+        assert job["evidence_url"] == "https://example.invalid/current"
+        assert job["is_current"]
+        assert job["first_observed_at"] == T1.isoformat()
+        assert job["last_observed_at"] == T3.isoformat()
+        assert {(entry["title"], entry["observed_at"]) for entry in job["titles"]} == {
+            ("Director", T3.isoformat()), ("Manager", T1.isoformat()),
+        }
