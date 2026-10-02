@@ -23,7 +23,7 @@ from apps.api.services.dedup import (
 )
 from apps.api.services.entities.models import (
     CompanyEntity, CompanyIdentifier, EntityBlockingKey, EntityMergeLog,
-    EntityReviewPair,
+    EntityReviewPair, PersonEntity, PersonEmployment,
 )
 from apps.api.services.workbook.models import WorkbookRow
 
@@ -434,6 +434,32 @@ def _restore_account_references(db: Session, ws: str, undo: dict, merged_id: str
         flag_modified(watch, "cursor")
 
 
+def _repoint_person_references(db: Session, ws: str, merged_id: str, kept_id: str) -> dict:
+    """Move current and historical associations; retain their IDs for undo."""
+    undo = {}
+    for name, model in (("people", PersonEntity), ("employments", PersonEmployment)):
+        rows = db.query(model).filter(
+            model.workspace_id == ws, model.company_entity_id == merged_id,
+        ).all()
+        undo[name] = [row.id for row in rows]
+        for row in rows:
+            row.company_entity_id = kept_id
+    # SessionLocal disables autoflush. Rebind the FKs before deleting the company.
+    db.flush()
+    return undo
+
+
+def _restore_person_references(db: Session, ws: str, undo: dict, merged_id: str, kept_id: str):
+    """Undo only moved associations that still point to this merge's survivor."""
+    for name, model in (("people", PersonEntity), ("employments", PersonEmployment)):
+        ids = undo.get(name) or []
+        if ids:
+            db.query(model).filter(
+                model.workspace_id == ws, model.id.in_(ids),
+                model.company_entity_id == kept_id,
+            ).update({model.company_entity_id: merged_id}, synchronize_session=False)
+
+
 def merge_entities(
     db: Session,
     kept_id: str,
@@ -472,7 +498,8 @@ def merge_entities(
     ).all()]
     snapshot = {"entity": merged.to_api(), "blocking_keys": merged_keys, "row_ids": row_ids,
                 "identifiers": merged_identifiers,
-                "references": _repoint_account_references(db, kept.workspace_id, merged_id, kept_id)}
+                "references": _repoint_account_references(db, kept.workspace_id, merged_id, kept_id),
+                "person_references": _repoint_person_references(db, kept.workspace_id, merged_id, kept_id)}
 
     # Combine provenance
     kf = dict(kept.fields or {})
@@ -562,6 +589,8 @@ def split_entity(db: Session, merge_log_id: int, workspace_id: str = None) -> di
         )
     if snap.get("references"):
         _restore_account_references(db, snapshot_workspace_id, snap["references"], eid, log.kept_id)
+    if snap.get("person_references"):
+        _restore_person_references(db, snapshot_workspace_id, snap["person_references"], eid, log.kept_id)
     log.reverted = 1
     db.commit()
     return {"restored_id": eid, "rebound_rows": len(snap.get("row_ids", []))}
