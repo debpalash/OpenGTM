@@ -37,6 +37,11 @@ All notable changes to OpenGTM are documented here. The format follows
   company collected after the merge stays, and winners and corroboration are
   recomputed for both companies. An undo also moves back only the people and
   employment links that the merge moved.
+- Resolving a person no longer attaches a different person to the one who owns
+  the same email. A profile whose name disagrees with the email owner's becomes
+  its own person, the mailbox stays with its owner, and both records list the
+  shared email under `identity_conflicts`. A changed profile slug with a
+  matching name is still the same person.
 
 ## [3.0.0] - 2026-09-24
 

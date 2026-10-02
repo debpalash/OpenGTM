@@ -9,8 +9,16 @@ identifiers, so existing actions and rows keep resolving to the same person.
 Resolution order: LinkedIn profile, then legacy id, then email. Creation
 claims the strongest identifier in a savepoint, so concurrent saves of the
 same person converge on one entity (same pattern as company identity).
+
+An email is the weakest key because mailboxes are shared and reused. A person
+found only through their email is accepted when the names do not disagree, which
+covers a changed profile slug. When the observation brings a profile or id that
+nobody owns yet and its name disagrees with the email owner's, it is a
+different person: the email stays with its owner, the new profile becomes its
+own person, and both are flagged in ``fields["identity_conflicts"]`` for review.
 """
 
+import logging
 from datetime import datetime, timezone
 from typing import Iterable, Optional, Tuple
 from urllib.parse import unquote, urlparse
@@ -21,6 +29,9 @@ from sqlalchemy.orm import Session
 from apps.api.services.entities.models import (
     CompanyIdentifier, PersonEmployment, PersonEntity, PersonIdentifier,
 )
+from apps.api.services.person_names import names_compatible
+
+logger = logging.getLogger("entities.people")
 
 
 def linkedin_key(url: str) -> str:
@@ -79,6 +90,26 @@ def _lock(db: Session, person: PersonEntity):
     db.refresh(person)
 
 
+def _name_fits(person: PersonEntity, name: str) -> bool:
+    """True unless ``name`` disagrees with every name this person is known by."""
+    known = [person.full_name, *((person.identity_keys or {}).get("name_variants") or [])]
+    return any(names_compatible(name, other) for other in known)
+
+
+def _note_shared_email(db: Session, holder: PersonEntity, email: str, other_id: str,
+                       source: str, observed: datetime):
+    """Record on ``holder`` that ``email`` was also observed on another person."""
+    _lock(db, holder)
+    fields = dict(holder.fields or {})
+    notes = list(fields.get("identity_conflicts") or [])
+    if any(n.get("kind") == "shared_email" and n.get("email") == email
+           and n.get("other_person_id") == other_id for n in notes):
+        return
+    notes.append({"kind": "shared_email", "email": email, "other_person_id": other_id,
+                  "source": source, "observed_at": observed.isoformat()})
+    holder.fields = {**fields, "identity_conflicts": notes}
+
+
 def resolve_person(
     db: Session,
     *,
@@ -114,12 +145,23 @@ def resolve_person(
         raise ValueError("A person needs a LinkedIn profile, email or legacy id to be resolved")
 
     person: Optional[PersonEntity] = None
+    matched_kind = ""
     for kind, value in keys:
         owner = _owner(db, ws, kind, value)
         if owner:
-            person = db.get(PersonEntity, owner)
-            if person is not None:
+            candidate = db.get(PersonEntity, owner)
+            if candidate is not None:
+                person, matched_kind = candidate, kind
                 break
+
+    # Found only through the email, while this observation carries a profile or
+    # id nobody owns yet: accept the email's owner only if the names do not
+    # disagree. Otherwise it is a different person on a shared or reused
+    # mailbox, so the owner's identity stays untouched and this one is created.
+    if (person is not None and matched_kind == "email"
+            and any(kind != "email" for kind, _ in keys)
+            and not _name_fits(person, name)):
+        person = None
 
     created = False
     if person is None:
@@ -139,10 +181,19 @@ def resolve_person(
             if person is None:
                 raise
 
+    email_held_by = None
     for kind, value in keys:
-        _claim(db, ws, kind, value, person.id)
+        owner = _claim(db, ws, kind, value, person.id)
+        if kind == "email" and owner != person.id:
+            email_held_by = owner  # another person keeps the mailbox
 
     _lock(db, person)
+    if email_held_by:
+        other = db.get(PersonEntity, email_held_by)
+        if other is not None:
+            _note_shared_email(db, person, em, other.id, source, observed)
+            _note_shared_email(db, other, em, person.id, source, observed)
+            logger.info("shared email kept by person %s; observation recorded on %s", other.id, person.id)
     identity = dict(person.identity_keys or {})
 
     def _add(key: str, value: str):
@@ -150,7 +201,8 @@ def resolve_person(
             identity[key] = [*identity.get(key, []), value]
 
     _add("linkedin", li)
-    _add("emails", em)
+    if not email_held_by:
+        _add("emails", em)  # only an email this person owns describes them
     _add("name_variants", (name or "").strip())
     person.identity_keys = identity
     if (not person.full_name or person.full_name == "(unknown)") and (name or "").strip():
@@ -233,6 +285,7 @@ def person_profile(db: Session, person_id: str, workspace_id: str) -> Optional[d
         "current_company_entity_id": person.company_entity_id,
         "identifiers": [{"kind": i.kind, "value": i.value} for i in identifiers],
         "sources": (person.fields or {}).get("sources") or [],
+        "identity_conflicts": (person.fields or {}).get("identity_conflicts") or [],
         "employments": [{
             "company_name": j.company_name, "company_domain": j.company_domain,
             "company_entity_id": j.company_entity_id, "title": j.title,
