@@ -15,13 +15,15 @@ from apps.api.services.entities import graph
 from apps.api.services.entities.graph import identity_domain, merge_entities, resolve_company, split_entity
 from apps.api.services.entities.models import (
     CompanyEntity, CompanyIdentifier, EntityBlockingKey, EntityMergeLog, EntityReviewPair,
+    PersonEntity, PersonEmployment,
 )
 from apps.api.services.poller.models import WatchSubscription
 from apps.api.services.workbook.models import Workbook, WorkbookRow
 
 _TABLES = [CompanyEntity.__table__, CompanyIdentifier.__table__, EntityBlockingKey.__table__,
            EntityMergeLog.__table__, EntityReviewPair.__table__, Workbook.__table__,
-           WorkbookRow.__table__, WatchSubscription.__table__]
+           WorkbookRow.__table__, WatchSubscription.__table__,
+           PersonEntity.__table__, PersonEmployment.__table__]
 
 
 @pytest.fixture
