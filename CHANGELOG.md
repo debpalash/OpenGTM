@@ -25,6 +25,10 @@ All notable changes to OpenGTM are documented here. The format follows
   and changes nothing, and the MCP `create_lead` tool reports the same error.
   Collection, import and CLI paths keep the stored contact. Use
   `PUT /api/lead/{id}` to replace a contact or clear a field.
+- A company watch with no matching lead no longer discards what it detects. It
+  holds the source's cursor, reports `no_matching_lead` instead of advancing past
+  the events, and delivers them on the first poll after a lead matches. Waiting
+  for a lead does not count toward backoff or auto-disable.
 
 ## [3.0.0] - 2026-09-24
 

@@ -41,6 +41,11 @@ from apps.api.services.poller.models import (
 
 logger = logging.getLogger("poller.engine")
 
+# Sources whose events carry their own lead routing, so a watch-level lead is optional.
+_SELF_ROUTING_SOURCES = frozenset({"job_change", "account_group"})
+# ``last_error`` while detected events wait for a lead that matches the watch target.
+UNROUTABLE_EVENTS = "no_matching_lead"
+
 
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
@@ -421,6 +426,7 @@ async def handle_watch_poll(job_id: int, payload: dict) -> None:
         store = get_lead_store(workspace_id, slug)
 
         any_failure = False
+        any_unrouted = False
         total_emitted = total_dupe = 0
 
         # Resolve lead once (tenant-scoped).
@@ -454,6 +460,8 @@ async def handle_watch_poll(job_id: int, payload: dict) -> None:
                 total_dupe += ok[1]
                 if len(ok) > 2 and ok[2]:
                     any_failure = True
+                if len(ok) > 3 and ok[3]:
+                    any_unrouted = True
 
         # ── finalize: set bootstrapped, last_polled_at, reschedule ──
         with SessionLocal() as db, db.begin():
@@ -466,13 +474,13 @@ async def handle_watch_poll(job_id: int, payload: dict) -> None:
             cur["attempt_count"] = int(cur.get("attempt_count") or 0) + 1
             watch.cursor = cur
             watch.last_polled_at = _utcnow()
-            if not any_failure:
+            if not any_failure and not any_unrouted:
                 watch.last_error = None
             _reschedule_watch(db, watch, failed=any_failure)
 
     logger.info(
-        "watch_poll done watch=%s ws=%s emitted=%d dupe=%d failure=%s dur_ms=%d",
-        watch_id, workspace_id, total_emitted, total_dupe, any_failure,
+        "watch_poll done watch=%s ws=%s emitted=%d dupe=%d failure=%s unrouted=%s dur_ms=%d",
+        watch_id, workspace_id, total_emitted, total_dupe, any_failure, any_unrouted,
         int((time.monotonic() - started) * 1000),
     )
 
@@ -489,10 +497,20 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
     no double fire — AC-24). The failed source's cursor is never advanced on a
     fetch failure, so it is retried next poll.
 
-    Returns (emitted, dupe) on success, False on a retryable source failure,
-    and None when there is nothing to do (no lead / suppressed). A billing
-    rejection is a source failure: treating it as a no-op would let finalization
-    clear ``last_error`` and incorrectly record the poll as healthy.
+    Events that cannot be routed are not consumed. A watch whose target matches
+    no lead has nowhere to deliver an ordinary source's events, and advancing
+    the cursor would make the next poll see them as already handled, losing
+    them. That source's cursor is held instead, the watch reports
+    ``no_matching_lead``, and the same events are detected again, and delivered,
+    once a lead matches. The watch is not failing, so this does not count toward
+    backoff or auto-disable.
+
+    Returns ``(emitted, dupe, failed, unrouted)`` on success: ``failed`` marks a
+    partial collector failure and ``unrouted`` marks events held for lack of a
+    lead. Returns False on a retryable source failure and None when the watch is
+    gone or the source is unknown. A billing rejection is a source failure:
+    treating it as a no-op would let finalization clear ``last_error`` and
+    incorrectly record the poll as healthy.
     """
     with SessionLocal() as db, db.begin():
         watch = _load(db, watch_id, workspace_id)
@@ -556,16 +574,25 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
                 watch.last_error = str(collector_failures[0])[:255]
 
         emitted = dupe = 0
-        # job_change events carry their OWN per-contact lead routing (ev.lead_id,
-        # possibly none) — they emit regardless of a watch-level lead match.
-        if events and (lead_id or src in {"job_change", "account_group"}):
+        # job_change and account_group events carry their OWN lead routing
+        # (ev.lead_id, possibly none), so they emit regardless of a watch-level
+        # lead match. Every other source needs the watch's lead.
+        if events and not (lead_id or src in _SELF_ROUTING_SOURCES):
+            if not collector_failures:
+                watch.last_error = UNROUTABLE_EVENTS
+            logger.info(
+                "poll held %d event(s) with no matching lead watch=%s ws=%s src=%s",
+                len(events), watch_id, workspace_id, src,
+            )
+            return (0, 0, bool(collector_failures), True)
+        if events:
             emitted, dupe = _emit_events(store, watch, lead_id, events)
         # advance cursor sub-key in the SAME txn (atomic emit+advance)
         if patch:
             cur = dict(watch.cursor or {})
             cur.update(patch)
             watch.cursor = cur
-        return (emitted, dupe, bool(collector_failures))
+        return (emitted, dupe, bool(collector_failures), False)
 
 
 def _source_set(watch) -> list:

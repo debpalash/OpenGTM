@@ -63,6 +63,13 @@ signal to `webhook_url`. Other endpoints: `GET /api/watches`,
 now, quota `INTENT_POLLER_POLL_NOW_DAILY_QUOTA`), and
 `GET /api/watches/{id}/signals`.
 
+Signals from `funding`, `hiring`, `company` and `feed` watches attach to a
+lead. Pin one with `lead_id`, or leave it out and the watch uses the lead whose
+company name matches the target. When no lead matches, the watch keeps polling
+and reports `no_matching_lead` in `last_error`. It holds what it detected rather
+than discarding it, and delivers those events on the first poll after a lead
+matches. Waiting for a lead is not counted as a failure.
+
 The first poll records state without emitting, unless
 `INTENT_POLLER_BACKFILL=1`. Budgets: `INTENT_POLLER_MAX_WATCHES_PER_WS` (200),
 `INTENT_POLLER_DAILY_POLL_BUDGET` (0 = unlimited), and a watch is disabled
