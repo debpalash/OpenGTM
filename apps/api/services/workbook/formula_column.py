@@ -152,8 +152,16 @@ def _eval(node: ast.AST, variables: Dict[str, Any]) -> Any:
             left = right
         return True
     if isinstance(node, ast.BoolOp):
-        vals = [_eval(v, variables) for v in node.values]
-        return all(vals) if isinstance(node.op, ast.And) else any(vals)
+        # Match Python's operand-valued, short-circuit semantics. The complete
+        # expression has already passed _validate, including skipped operands.
+        value = _eval(node.values[0], variables)
+        for operand in node.values[1:]:
+            if isinstance(node.op, ast.And) and not value:
+                return value
+            if isinstance(node.op, ast.Or) and value:
+                return value
+            value = _eval(operand, variables)
+        return value
     if isinstance(node, ast.IfExp):
         return _eval(node.body, variables) if _eval(node.test, variables) else _eval(node.orelse, variables)
     raise FormulaError(f"cannot evaluate {type(node).__name__}")
