@@ -18,7 +18,7 @@ from fastapi.responses import StreamingResponse, Response
 from pydantic import BaseModel
 
 from apps.api.services.leadgen.db import LeadDB
-from apps.api.services.leadgen.models import Lead, LEAD_STATUSES
+from apps.api.services.leadgen.models import Lead, LEAD_STATUSES, LeadAlreadyExistsError
 from apps.api.core.tenancy import (
     WorkspaceCtx,
     current_workspace,
@@ -350,12 +350,23 @@ class AddLeadRequest(BaseModel):
 
 @router.post("/lead")
 def add_lead(body: AddLeadRequest, ctx: WorkspaceCtx = Depends(require_editor)):
+    """Create one company/city lead; collisions return 409 without modifying it.
+
+    Use PUT /api/lead/{lead_id} for explicit updates, including field clearing.
+    """
     lead = Lead.from_dict(body.model_dump())
     lead.source = body.source
     lead.workspace_id = ctx.workspace_id
     db = ctx.lead_db()
-    lead_id = db.upsert_lead(lead)
-    db.close()
+    try:
+        lead_id = db.upsert_lead(lead, create_only=True)
+    except LeadAlreadyExistsError as exc:
+        raise HTTPException(status_code=409, detail={
+            "message": "A lead already exists for this company and city. Update the existing lead instead.",
+            "lead_id": exc.lead_id,
+        }) from exc
+    finally:
+        db.close()
     return {"ok": True, "id": lead_id}
 
 
