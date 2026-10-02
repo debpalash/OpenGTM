@@ -555,6 +555,13 @@ def _poll_one_source(store, watch_id, workspace_id, src, fire_key, lead_id, back
             if collector_failures:
                 watch.last_error = str(collector_failures[0])[:255]
 
+        # A detected ordinary-company event without a lead cannot be published.
+        # Preserve its consumption cursor so the source can be retried after routing
+        # becomes available; the deterministic signal IDs also protect partial replays.
+        if events and not lead_id and src not in {"job_change", "account_group"}:
+            watch.last_error = "unresolved_lead"
+            return False
+
         emitted = dupe = 0
         # job_change events carry their OWN per-contact lead routing (ev.lead_id,
         # possibly none) — they emit regardless of a watch-level lead match.
