@@ -180,6 +180,55 @@ def test_migration_round_trip(tmp_path, monkeypatch):
     command.upgrade(cfg, "head")
 
 
+def test_older_observation_keeps_current_title_and_evidence(Session):
+    with Session() as db:
+        person, _ = resolve_person(
+            db, workspace_id="ws", name="Jane Doe", company="Acme",
+            company_domain="acme.com", linkedin_url="linkedin.com/in/jane-doe",
+            title="Director", evidence_url="https://example.invalid/current",
+            source="current", observed_at=T3,
+        )
+        again, created = resolve_person(
+            db, workspace_id="ws", name="Jane Doe", company="Acme",
+            company_domain="acme.com", linkedin_url="linkedin.com/in/jane-doe",
+            title="Manager", evidence_url="https://example.invalid/archive",
+            source="archive", observed_at=T1,
+        )
+        db.commit()
+        job, = person_profile(db, person.id, "ws")["employments"]
+        assert again.id == person.id and not created
+        assert job["title"] == "Director"
+        assert job["evidence_url"] == "https://example.invalid/current"
+        assert job["is_current"]
+        assert job["first_observed_at"] == T1.isoformat()
+        assert job["last_observed_at"] == T3.isoformat()
+        assert {(entry["title"], entry["observed_at"]) for entry in job["titles"]} == {
+            ("Director", T3.isoformat()), ("Manager", T1.isoformat()),
+        }
+
+
+@pytest.mark.parametrize("current_title,current_url", [
+    ("", ""),
+    ("Director", ""),
+    ("", "https://example.invalid/current"),
+])
+def test_older_observation_fills_only_missing_employment_fields(Session, current_title, current_url):
+    with Session() as db:
+        common = dict(workspace_id="ws", name="Jane Doe", company="Acme",
+                      company_domain="acme.com", linkedin_url="linkedin.com/in/jane-doe")
+        person, _ = resolve_person(db, **common, source="current", title=current_title,
+                                   evidence_url=current_url, observed_at=T3)
+        resolve_person(db, **common, source="archive", title="Manager",
+                       evidence_url="https://example.invalid/archive", observed_at=T1)
+        db.commit()
+        job, = person_profile(db, person.id, "ws")["employments"]
+        assert job["title"] == (current_title or "Manager")
+        assert job["evidence_url"] == (current_url or "https://example.invalid/archive")
+        assert job["first_observed_at"] == T1.isoformat()
+        assert job["last_observed_at"] == T3.isoformat()
+        assert job["is_current"]
+
+
 def test_conflicting_profile_email_fallback_preserves_the_existing_person(Session):
     with Session() as db:
         first, _ = resolve_person(
