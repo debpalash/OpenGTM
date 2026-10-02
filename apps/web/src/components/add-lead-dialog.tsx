@@ -31,16 +31,24 @@ function FormField({ label, name, required, type = "text", span }: {
 
 export function AddLeadDialog({ open, onOpenChange, onAdded }: Props) {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const form = e.currentTarget
     setLoading(true)
-    const fd = new FormData(e.currentTarget)
+    setError("")
+    const fd = new FormData(form)
     const data = Object.fromEntries(fd)
-    await addLead(data as Record<string, string>)
-    setLoading(false)
-    e.currentTarget.reset()
-    onAdded()
+    try {
+      await addLead(data as Record<string, string>)
+      form.reset()
+      onAdded()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not add lead")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -87,6 +95,8 @@ export function AddLeadDialog({ open, onOpenChange, onAdded }: Props) {
           </div>
 
           <Separator />
+
+          {error && <p role="alert" className="text-xs text-destructive">{error}</p>}
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-1">

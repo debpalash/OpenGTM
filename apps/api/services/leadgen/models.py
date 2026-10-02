@@ -7,6 +7,14 @@ from datetime import datetime, timezone
 from typing import Optional
 
 
+class LeadAlreadyExistsError(ValueError):
+    """A create-only request collided with the existing company/city lead."""
+
+    def __init__(self, lead_id: int):
+        self.lead_id = lead_id
+        super().__init__("A lead already exists for this company and city")
+
+
 @dataclass
 class Lead:
     """A single lead (company) in the pipeline."""

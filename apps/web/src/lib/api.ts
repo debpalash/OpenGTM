@@ -477,6 +477,11 @@ export async function addLead(data: Partial<Lead>): Promise<{ ok: boolean; id: n
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   })
+  if (!res.ok) {
+    const body: { detail?: string | { message?: string } } = await res.json().catch(() => ({}))
+    const detail = body.detail
+    throw new Error(typeof detail === "string" ? detail : detail?.message || `Could not add lead (${res.status})`)
+  }
   return res.json()
 }
 
