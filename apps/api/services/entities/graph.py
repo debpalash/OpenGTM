@@ -23,7 +23,7 @@ from apps.api.services.dedup import (
 )
 from apps.api.services.entities.models import (
     CompanyEntity, CompanyIdentifier, EntityBlockingKey, EntityMergeLog,
-    EntityReviewPair,
+    EntityReviewPair, PersonEmployment, PersonEntity,
 )
 from apps.api.services.workbook.models import WorkbookRow
 
@@ -434,6 +434,68 @@ def _restore_account_references(db: Session, ws: str, undo: dict, merged_id: str
         flag_modified(watch, "cursor")
 
 
+# Columns that mirror the winning observation of a field. They are cleared when
+# a split takes back the only observations of that field.
+_WINNER_COLUMNS = {
+    "website": "primary_domain", "phone": "primary_phone",
+    "email": "primary_email", "city": "primary_city",
+}
+_ID_BATCH = 500  # keep IN lists well under every driver's bound-parameter limit
+
+
+def _withdraw_merged_evidence(kept: CompanyEntity, snap: dict):
+    """Take back what a merge added to the kept company.
+
+    The merge appended the merged company's observations, sources and
+    observation count. Remove exactly those and nothing else, so evidence the
+    kept company collected since the merge stays. The caller recomputes.
+    """
+    merged = snap.get("entity") or {}
+    fields = {f: list(obs) for f, obs in (kept.fields or {}).items()}
+    for field, moved in (merged.get("fields") or {}).items():
+        remaining = fields.get(field, [])
+        for observation in moved:
+            if observation in remaining:
+                remaining.remove(observation)
+        if remaining:
+            fields[field] = remaining
+        else:
+            fields.pop(field, None)
+            if field in _WINNER_COLUMNS:
+                setattr(kept, _WINNER_COLUMNS[field], "")
+    kept.fields = fields
+
+    evidence = snap.get("evidence") or {}
+    # Merges recorded before contributions were kept: every source the merged
+    # company had, minus any the kept company still has evidence from.
+    added = set(evidence["added_sources"] if "added_sources" in evidence else merged.get("sources") or [])
+    still_observed = {o.get("source") for obs in fields.values() for o in obs if o.get("source")}
+    kept.sources = [s for s in (kept.sources or []) if s not in added or s in still_observed]
+    moved_count = int(evidence.get("observation_count", merged.get("observation_count") or 0) or 0)
+    kept.observation_count = max(1, (kept.observation_count or 0) - moved_count)
+
+
+def _restore_company_links(db: Session, ws: str, snap: dict, kept_id: str, restored_id: str) -> int:
+    """Point the people and employments a merge moved back at the restored company.
+
+    Only references that still point at the kept company are moved back: a
+    person who has since changed company, or been linked afterwards, is left
+    where they are. Returns how many people were restored.
+    """
+    restored_people = 0
+    for model, key in ((PersonEntity, "people"), (PersonEmployment, "employments")):
+        ids = snap.get(key) or []
+        for start in range(0, len(ids), _ID_BATCH):
+            moved = db.query(model).filter(
+                model.id.in_(ids[start:start + _ID_BATCH]),
+                model.workspace_id == ws,
+                model.company_entity_id == kept_id,
+            ).update({model.company_entity_id: restored_id}, synchronize_session=False)
+            if model is PersonEntity:
+                restored_people += moved
+    return restored_people
+
+
 def merge_entities(
     db: Session,
     kept_id: str,
@@ -470,8 +532,27 @@ def merge_entities(
         CompanyIdentifier.entity_id == merged_id,
         CompanyIdentifier.workspace_id == kept.workspace_id,
     ).all()]
+    # People are linked to the company they work at, both as a person's current
+    # company and as employment history. Both must follow the merge, and the
+    # ids are kept so a split moves back only these.
+    people_ids = [pid for (pid,) in db.query(PersonEntity.id).filter(
+        PersonEntity.company_entity_id == merged_id,
+        PersonEntity.workspace_id == kept.workspace_id,
+    ).all()]
+    employment_ids = [eid for (eid,) in db.query(PersonEmployment.id).filter(
+        PersonEmployment.company_entity_id == merged_id,
+        PersonEmployment.workspace_id == kept.workspace_id,
+    ).all()]
+    kept_sources = set(kept.sources or [])
     snapshot = {"entity": merged.to_api(), "blocking_keys": merged_keys, "row_ids": row_ids,
                 "identifiers": merged_identifiers,
+                "people": people_ids, "employments": employment_ids,
+                # What this merge adds to the kept company's evidence, so a split
+                # removes that and leaves anything collected afterwards.
+                "evidence": {
+                    "added_sources": [s for s in (merged.sources or []) if s not in kept_sources],
+                    "observation_count": merged.observation_count or 0,
+                },
                 "references": _repoint_account_references(db, kept.workspace_id, merged_id, kept_id)}
 
     # Combine provenance
@@ -495,6 +576,13 @@ def merge_entities(
     ).update(
         {WorkbookRow.canonical_entity_id: kept_id}, synchronize_session=False
     )
+    # Before the delete below: a person's company link blocks it, and an
+    # employment link would silently fall back to NULL, losing the association.
+    for model in (PersonEntity, PersonEmployment):
+        db.query(model).filter(
+            model.company_entity_id == merged_id,
+            model.workspace_id == kept.workspace_id,
+        ).update({model.company_entity_id: kept_id}, synchronize_session=False)
 
     score = compare_leads(merged.repr_dict(), kept.repr_dict()).score
     db.add(EntityMergeLog(workspace_id=kept.workspace_id,
@@ -562,9 +650,21 @@ def split_entity(db: Session, merge_log_id: int, workspace_id: str = None) -> di
         )
     if snap.get("references"):
         _restore_account_references(db, snapshot_workspace_id, snap["references"], eid, log.kept_id)
+    restored_people = _restore_company_links(db, snapshot_workspace_id, snap, log.kept_id, eid)
+    # The merge folded this company's evidence into the kept one. Take it back,
+    # then recompute both so winners, agreement and corroboration reflect only
+    # their own evidence again. Blocking keys the merge added to the kept
+    # company are left: a stray key can only suggest a candidate, while
+    # removing a key the kept company has since earned could hide it.
+    kept = db.get(CompanyEntity, log.kept_id)
+    if kept is not None and (kept.workspace_id or "") == snapshot_workspace_id:
+        _withdraw_merged_evidence(kept, snap)
+        _recompute(kept)
+    _recompute(entity)
     log.reverted = 1
     db.commit()
-    return {"restored_id": eid, "rebound_rows": len(snap.get("row_ids", []))}
+    return {"restored_id": eid, "rebound_rows": len(snap.get("row_ids", [])),
+            "rebound_people": restored_people}
 
 
 def get_entity(db: Session, entity_id: str) -> Optional[dict]:

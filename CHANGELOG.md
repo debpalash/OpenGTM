@@ -29,6 +29,14 @@ All notable changes to OpenGTM are documented here. The format follows
   holds the source's cursor, reports `no_matching_lead` instead of advancing past
   the events, and delivers them on the first poll after a lead matches. Waiting
   for a lead does not count toward backoff or auto-disable.
+- Merging a company that people are linked to no longer fails on a foreign key.
+  The people and their employment history, current and past, move to the kept
+  company.
+- Undoing a company merge now takes back exactly what the merge added to the kept
+  company: observations, sources and the observation count. Evidence the kept
+  company collected after the merge stays, and winners and corroboration are
+  recomputed for both companies. An undo also moves back only the people and
+  employment links that the merge moved.
 
 ## [3.0.0] - 2026-09-24
 
