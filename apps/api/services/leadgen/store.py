@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Optional
 
 from apps.api.core.config import settings
 from apps.api.database import IS_SQLITE, SessionLocal
+from apps.api.services.leadgen.lead_merge import CONFLICT_KEEP, merge_lead
 from apps.api.services.leadgen.models import Lead
 from apps.api.services.leadgen.orm_models import LeadRow, SignalRow, LLMUsageRow
 
@@ -180,11 +181,20 @@ class PgLeadStore:
         return {k: v for k, v in d.items() if k in _LEAD_COLUMNS}
 
     # ── CRUD ──
-    def upsert_lead(self, lead: Lead) -> int:
+    def upsert_lead(self, lead: Lead, *, on_contact_conflict: str = CONFLICT_KEEP) -> int:
+        """Insert the lead, or merge it into the one with the same company and city.
+
+        A merge never blanks stored data and never replaces the stored contact
+        with a different person (see :mod:`lead_merge`). With
+        ``on_contact_conflict="reject"`` a different contact raises
+        :class:`LeadContactConflict` before anything is written.
+        """
         from apps.api.services.leadgen.db import _utcnow
 
         lead.updated_at = _utcnow().isoformat()
         with self._session() as s, s.begin():
+            # Lock the match so two concurrent upserts cannot each see an empty
+            # contact slot and both fill it.
             existing = (
                 s.query(LeadRow)
                 .filter(
@@ -192,17 +202,20 @@ class PgLeadStore:
                     LeadRow.company == lead.company,
                     LeadRow.city == lead.city,
                 )
+                .with_for_update()
                 .first()
             )
-            payload = self._lead_payload(lead)
             if existing:
-                for k, v in payload.items():
-                    if k == "created_at":
-                        continue
-                    setattr(existing, k, v)
+                merged = merge_lead(
+                    self._row_to_lead(existing), lead, on_contact_conflict=on_contact_conflict,
+                )
+                for k, v in merged.changes.items():
+                    if k in _LEAD_COLUMNS:
+                        setattr(existing, k, v)
+                existing.updated_at = lead.updated_at
                 lead.id = existing.id
             else:
-                row = LeadRow(**payload)
+                row = LeadRow(**self._lead_payload(lead))
                 s.add(row)
                 s.flush()
                 lead.id = row.id

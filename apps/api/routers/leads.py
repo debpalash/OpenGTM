@@ -18,6 +18,7 @@ from fastapi.responses import StreamingResponse, Response
 from pydantic import BaseModel
 
 from apps.api.services.leadgen.db import LeadDB
+from apps.api.services.leadgen.lead_merge import CONFLICT_REJECT, LeadContactConflict
 from apps.api.services.leadgen.models import Lead, LEAD_STATUSES
 from apps.api.core.tenancy import (
     WorkspaceCtx,
@@ -348,14 +349,40 @@ class AddLeadRequest(BaseModel):
     source: str = "manual"
 
 
-@router.post("/lead")
+@router.post(
+    "/lead",
+    responses={409: {"description": (
+        "The company and city already have a different contact. A lead holds one "
+        "contact, so nothing was changed. Update the lead to replace its contact."
+    )}},
+)
 def add_lead(body: AddLeadRequest, ctx: WorkspaceCtx = Depends(require_editor)):
+    """Create a lead, or add details to the existing lead for the same company and city.
+
+    Fields that are left out or empty never overwrite what the lead already has,
+    and provided values update it. A lead holds one contact, so naming a
+    different person than the stored contact returns 409 and changes nothing.
+    Use `PUT /api/lead/{lead_id}` to replace the contact or clear a field, and a
+    workbook to keep several people at one company.
+    """
     lead = Lead.from_dict(body.model_dump())
     lead.source = body.source
     lead.workspace_id = ctx.workspace_id
     db = ctx.lead_db()
-    lead_id = db.upsert_lead(lead)
-    db.close()
+    try:
+        lead_id = db.upsert_lead(lead, on_contact_conflict=CONFLICT_REJECT)
+    except LeadContactConflict as exc:
+        raise HTTPException(status_code=409, detail={
+            "code": "contact_conflict",
+            "lead_id": exc.lead_id,
+            "fields": list(exc.fields),
+            "message": (
+                f"Lead {exc.lead_id} already has a different contact. A lead holds one "
+                "contact; update that lead to replace it."
+            ),
+        })
+    finally:
+        db.close()
     return {"ok": True, "id": lead_id}
 
 

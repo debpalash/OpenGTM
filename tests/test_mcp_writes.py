@@ -63,7 +63,7 @@ class _FakeLeadStore:
         self.statuses = []
         self.leads = {}
 
-    def upsert_lead(self, lead):
+    def upsert_lead(self, lead, **_options):
         self.upserts.append(lead)
         lead.id = 101
         self.leads[101] = lead
@@ -199,6 +199,25 @@ def test_create_lead_writes_and_audits(db, store):
     assert r.workspace_id == WS
     # email is redacted in the audit args.
     assert r.arguments_redacted.get("email") == "***redacted***"
+
+
+def test_create_lead_reports_a_different_contact_instead_of_replacing_it(db, store):
+    from apps.api.services.leadgen.lead_merge import LeadContactConflict
+
+    seen = {}
+
+    def _conflict(lead, **options):
+        seen.update(options)
+        raise LeadContactConflict(7, ("contact_person",))
+
+    store.upsert_lead = _conflict
+    ctx = _ctx([mcp_auth.CAP_LEADS_WRITE])
+    out = _exec(ctx, "create_lead", {"company": "Acme", "contact_person": "Bob Jones"})
+    assert seen == {"on_contact_conflict": "reject"}
+    assert "Lead 7 already has a different contact" in out["error"]
+    # A refused write is audited as an error and does not use up the daily cap.
+    rows = _audits(db, tool_name="create_lead")
+    assert len(rows) == 1 and rows[0].result_status == "error"
 
 
 # ── workspace comes from the token, NOT args (confused-deputy) ────────────────

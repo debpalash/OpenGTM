@@ -16,6 +16,7 @@ def _utcnow() -> datetime:
     """Return current UTC time (non-deprecated alternative to datetime.utcnow())."""
     return datetime.now(timezone.utc)
 
+from apps.api.services.leadgen.lead_merge import CONFLICT_KEEP, merge_lead
 from apps.api.services.leadgen.models import Lead
 
 # Thread-local singleton so each thread reuses one connection
@@ -319,20 +320,27 @@ class LeadDB:
 
     # ── CRUD ───────────────────────────────────────────────────────────
 
-    def upsert_lead(self, lead: Lead) -> int:
-        """Insert or update a lead. Deduplicates by (workspace_id, company, city)."""
+    def upsert_lead(self, lead: Lead, *, on_contact_conflict: str = CONFLICT_KEEP) -> int:
+        """Insert a lead, or merge it into the one with the same (workspace_id, company, city).
+
+        A merge never blanks stored data and never replaces the stored contact
+        with a different person (see :mod:`lead_merge`). With
+        ``on_contact_conflict="reject"`` a different contact raises
+        :class:`LeadContactConflict` before anything is written.
+        """
         lead.updated_at = _utcnow().isoformat()
 
         existing = self.conn.execute(
-            "SELECT id FROM leads "
+            "SELECT * FROM leads "
             "WHERE COALESCE(workspace_id,'') = COALESCE(?,'') AND company = ? AND city = ?",
             (lead.workspace_id, lead.company, lead.city)
         ).fetchone()
 
         if existing:
+            stored = Lead.from_dict(dict(existing))
+            merged = merge_lead(stored, lead, on_contact_conflict=on_contact_conflict)
             lead.id = existing["id"]
-            fields = {k: v for k, v in lead.to_dict().items()
-                      if k != "id" and k != "created_at"}
+            fields = {**merged.changes, "updated_at": lead.updated_at}
             set_clause = ", ".join(f"{k} = ?" for k in fields)
             values = list(fields.values()) + [lead.id]
             self.conn.execute(

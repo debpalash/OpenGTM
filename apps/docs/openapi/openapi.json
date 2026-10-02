@@ -12809,6 +12809,7 @@
     },
     "/api/lead": {
       "post": {
+        "description": "Create a lead, or add details to the existing lead for the same company and city.\n\nFields that are left out or empty never overwrite what the lead already has,\nand provided values update it. A lead holds one contact, so naming a\ndifferent person than the stored contact returns 409 and changes nothing.\nUse `PUT /api/lead/{lead_id}` to replace the contact or clear a field, and a\nworkbook to keep several people at one company.",
         "operationId": "add_lead_api_lead_post",
         "parameters": [
           {
@@ -12846,6 +12847,9 @@
               }
             },
             "description": "Successful Response"
+          },
+          "409": {
+            "description": "The company and city already have a different contact. A lead holds one contact, so nothing was changed. Update the lead to replace its contact."
           },
           "422": {
             "content": {

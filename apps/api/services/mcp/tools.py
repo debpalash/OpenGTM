@@ -54,6 +54,7 @@ from typing import Dict, List, Optional
 
 from apps.api.core.config import settings
 from apps.api.core.tenancy import workspace_scope
+from apps.api.services.leadgen.lead_merge import CONFLICT_REJECT, LeadContactConflict
 from apps.api.services.leadgen.store import get_lead_store
 from apps.api.services.mcp import auth, audit
 from apps.api.services.mcp import caps as mcp_caps
@@ -494,7 +495,13 @@ async def _dispatch_write(ctx: MCPCtx, name: str, arguments: dict) -> str:
             return json.dumps({"error": "company is required"})
         # workspace_id is force-stamped by the store from ctx — never from args.
         lead = Lead(**fields)
-        lead_id = store.upsert_lead(lead)
+        try:
+            lead_id = store.upsert_lead(lead, on_contact_conflict=CONFLICT_REJECT)
+        except LeadContactConflict as exc:
+            return json.dumps({"error": (
+                f"Lead {exc.lead_id} already has a different contact. A lead holds one "
+                "contact; use update_lead to replace it."
+            )})
         return json.dumps({"status": "created", "lead_id": lead_id,
                            "company": fields["company"]}, default=str)
 

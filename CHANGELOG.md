@@ -18,6 +18,13 @@ All notable changes to OpenGTM are documented here. The format follows
 
 ### Fixed
 - Release notes now use the lowercase, pullable GHCR image name.
+- Creating a lead for a company and city that already exist no longer overwrites
+  it. Fields the request leaves out keep their stored values, including status,
+  score and notes, so a collection re-run or a partial `POST /api/lead` cannot
+  blank enrichment. A request that names a different contact is rejected with 409
+  and changes nothing, and the MCP `create_lead` tool reports the same error.
+  Collection, import and CLI paths keep the stored contact. Use
+  `PUT /api/lead/{id}` to replace a contact or clear a field.
 
 ## [3.0.0] - 2026-09-24
 
