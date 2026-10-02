@@ -496,7 +496,8 @@ def merge_entities(
         CompanyIdentifier.entity_id == merged_id,
         CompanyIdentifier.workspace_id == kept.workspace_id,
     ).all()]
-    snapshot = {"entity": merged.to_api(), "blocking_keys": merged_keys, "row_ids": row_ids,
+    snapshot = {"entity": merged.to_api(), "kept_entity": kept.to_api(),
+                "blocking_keys": merged_keys, "row_ids": row_ids,
                 "identifiers": merged_identifiers,
                 "references": _repoint_account_references(db, kept.workspace_id, merged_id, kept_id),
                 "person_references": _repoint_person_references(db, kept.workspace_id, merged_id, kept_id)}
@@ -538,6 +539,56 @@ def merge_entities(
     _recompute(kept)
     db.commit()
     return {"kept_id": kept_id, "merged_id": merged_id, "corroboration_count": kept.corroboration_count}
+
+
+def _restore_company_evidence(kept: CompanyEntity, snap: dict):
+    """Subtract this merge's contributions, leaving later observations intact."""
+    merged = snap.get("entity") or {}
+    before = snap.get("kept_entity") or kept.to_api()
+    fields = {field: list(observations) for field, observations in (kept.fields or {}).items()}
+    for field, moved in (merged.get("fields") or {}).items():
+        remaining = fields.get(field, [])
+        # Observations can coincide exactly; remove only the moved multiplicity.
+        for observation in moved:
+            if observation in remaining:
+                remaining.remove(observation)
+        if remaining:
+            fields[field] = remaining
+        else:
+            fields.pop(field, None)
+    kept.fields = fields
+    kept.observation_count = max(0, (kept.observation_count or 0) - (merged.get("observation_count") or 0))
+    original_fields = before.get("fields") or {}
+    original_sources = {o.get("source") for observations in original_fields.values() for o in observations}
+    # Observed sources are derived from the evidence still present. Replaying an
+    # older baseline would resurrect evidence from a different merge undone first.
+    sources = [source for source in before.get("sources") or [] if source not in original_sources]
+    for observations in fields.values():
+        for observation in observations:
+            source = observation.get("source")
+            if source and source not in sources:
+                sources.append(source)
+    kept.sources = sources
+    # Reset fields supplied only by the removed company; then select winners
+    # from the evidence left on the survivor, including post-merge observations.
+    for name, field in (("canonical_name", "company"), ("primary_domain", "website"),
+                        ("primary_phone", "phone"), ("primary_email", "email"), ("primary_city", "city")):
+        default = "(unknown)" if name == "canonical_name" else ""
+        setattr(kept, name, default if original_fields.get(field) else before.get(name, default))
+    identity = {key: list(values) for key, values in (before.get("identity_keys") or {}).items()}
+    for field, key, normalize in (("company", "name_variants", str),
+                                  ("website", "domains", identity_domain),
+                                  ("phone", "phones", normalize_phone),
+                                  ("email", "emails", str)):
+        observed_before = {normalize(o.get("value") or "") for o in original_fields.get(field, [])}
+        values = [value for value in identity.get(key, []) if value not in observed_before]
+        identity[key] = values
+        for observation in fields.get(field, []):
+            value = normalize(observation.get("value") or "")
+            if value and value not in values:
+                values.append(value)
+    kept.identity_keys = identity
+    _recompute(kept)
 
 
 def split_entity(db: Session, merge_log_id: int, workspace_id: str = None) -> dict:
@@ -589,6 +640,10 @@ def split_entity(db: Session, merge_log_id: int, workspace_id: str = None) -> di
         )
     if snap.get("references"):
         _restore_account_references(db, snapshot_workspace_id, snap["references"], eid, log.kept_id)
+    kept = db.get(CompanyEntity, log.kept_id)
+    if kept is not None:
+        _lock_for_update(db, kept)
+        _restore_company_evidence(kept, snap)
     if snap.get("person_references"):
         _restore_person_references(db, snapshot_workspace_id, snap["person_references"], eid, log.kept_id)
     log.reverted = 1
