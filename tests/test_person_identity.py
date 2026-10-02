@@ -207,6 +207,28 @@ def test_older_observation_keeps_current_title_and_evidence(Session):
         }
 
 
+@pytest.mark.parametrize("current_title,current_url", [
+    ("", ""),
+    ("Director", ""),
+    ("", "https://example.invalid/current"),
+])
+def test_older_observation_fills_only_missing_employment_fields(Session, current_title, current_url):
+    with Session() as db:
+        common = dict(workspace_id="ws", name="Jane Doe", company="Acme",
+                      company_domain="acme.com", linkedin_url="linkedin.com/in/jane-doe")
+        person, _ = resolve_person(db, **common, source="current", title=current_title,
+                                   evidence_url=current_url, observed_at=T3)
+        resolve_person(db, **common, source="archive", title="Manager",
+                       evidence_url="https://example.invalid/archive", observed_at=T1)
+        db.commit()
+        job, = person_profile(db, person.id, "ws")["employments"]
+        assert job["title"] == (current_title or "Manager")
+        assert job["evidence_url"] == (current_url or "https://example.invalid/archive")
+        assert job["first_observed_at"] == T1.isoformat()
+        assert job["last_observed_at"] == T3.isoformat()
+        assert job["is_current"]
+
+
 def test_conflicting_profile_email_fallback_preserves_the_existing_person(Session):
     with Session() as db:
         first, _ = resolve_person(

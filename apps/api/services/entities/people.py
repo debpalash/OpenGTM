@@ -218,10 +218,11 @@ def _record_employment(db: Session, ws: str, person: PersonEntity, *, company: s
         employment.last_observed_at = max(employment.last_observed_at, observed)
         employment.first_observed_at = min(employment.first_observed_at, observed)
         if title and title != employment.title:
-            if is_latest:
+            # An absent field is not newer evidence against a known value.
+            if is_latest or not employment.title:
                 employment.title = title
             employment.titles = [*(employment.titles or []), title_entry]
-        if evidence_url and is_latest:
+        if evidence_url and (is_latest or not employment.evidence_url):
             employment.evidence_url = evidence_url
         if company_entity_id and not employment.company_entity_id:
             employment.company_entity_id = company_entity_id
