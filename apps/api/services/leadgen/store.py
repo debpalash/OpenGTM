@@ -23,7 +23,7 @@ from typing import Any, Dict, List, Optional
 
 from apps.api.core.config import settings
 from apps.api.database import IS_SQLITE, SessionLocal
-from apps.api.services.leadgen.models import Lead
+from apps.api.services.leadgen.models import Lead, LeadAlreadyExistsError
 from apps.api.services.leadgen.orm_models import LeadRow, SignalRow, LLMUsageRow
 
 logger = logging.getLogger("leadgen.store")
@@ -180,7 +180,7 @@ class PgLeadStore:
         return {k: v for k, v in d.items() if k in _LEAD_COLUMNS}
 
     # ── CRUD ──
-    def upsert_lead(self, lead: Lead) -> int:
+    def upsert_lead(self, lead: Lead, *, create_only: bool = False) -> int:
         from apps.api.services.leadgen.db import _utcnow
 
         lead.updated_at = _utcnow().isoformat()
@@ -196,6 +196,8 @@ class PgLeadStore:
             )
             payload = self._lead_payload(lead)
             if existing:
+                if create_only:
+                    raise LeadAlreadyExistsError(existing.id)
                 for k, v in payload.items():
                     if k == "created_at":
                         continue
@@ -203,8 +205,23 @@ class PgLeadStore:
                 lead.id = existing.id
             else:
                 row = LeadRow(**payload)
-                s.add(row)
-                s.flush()
+                if create_only:
+                    from sqlalchemy.exc import IntegrityError
+
+                    try:
+                        with s.begin_nested():
+                            s.add(row)
+                            s.flush()
+                    except IntegrityError:
+                        winner = s.query(LeadRow).filter_by(
+                            workspace_id=self.workspace_id, company=lead.company, city=lead.city,
+                        ).first()
+                        if winner is None:
+                            raise
+                        raise LeadAlreadyExistsError(winner.id) from None
+                else:
+                    s.add(row)
+                    s.flush()
                 lead.id = row.id
         return lead.id
 

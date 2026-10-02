@@ -16,7 +16,7 @@ def _utcnow() -> datetime:
     """Return current UTC time (non-deprecated alternative to datetime.utcnow())."""
     return datetime.now(timezone.utc)
 
-from apps.api.services.leadgen.models import Lead
+from apps.api.services.leadgen.models import Lead, LeadAlreadyExistsError
 
 # Thread-local singleton so each thread reuses one connection
 _thread_local = threading.local()
@@ -319,8 +319,8 @@ class LeadDB:
 
     # ── CRUD ───────────────────────────────────────────────────────────
 
-    def upsert_lead(self, lead: Lead) -> int:
-        """Insert or update a lead. Deduplicates by (workspace_id, company, city)."""
+    def upsert_lead(self, lead: Lead, *, create_only: bool = False) -> int:
+        """Insert or update by (workspace_id, company, city); create_only refuses collisions."""
         lead.updated_at = _utcnow().isoformat()
 
         existing = self.conn.execute(
@@ -330,6 +330,8 @@ class LeadDB:
         ).fetchone()
 
         if existing:
+            if create_only:
+                raise LeadAlreadyExistsError(existing["id"])
             lead.id = existing["id"]
             fields = {k: v for k, v in lead.to_dict().items()
                       if k != "id" and k != "created_at"}
@@ -343,10 +345,22 @@ class LeadDB:
             d.pop("id", None)
             cols = ", ".join(d.keys())
             placeholders = ", ".join("?" for _ in d)
-            cursor = self.conn.execute(
-                f"INSERT INTO leads ({cols}) VALUES ({placeholders})",
-                list(d.values())
-            )
+            try:
+                cursor = self.conn.execute(
+                    f"INSERT INTO leads ({cols}) VALUES ({placeholders})",
+                    list(d.values())
+                )
+            except sqlite3.IntegrityError:
+                if not create_only:
+                    raise
+                self.conn.rollback()
+                winner = self.conn.execute(
+                    "SELECT id FROM leads WHERE workspace_id = ? AND company = ? AND city = ?",
+                    (lead.workspace_id, lead.company, lead.city),
+                ).fetchone()
+                if winner is None:
+                    raise
+                raise LeadAlreadyExistsError(winner["id"]) from None
             lead.id = cursor.lastrowid
 
         self.conn.commit()
