@@ -178,3 +178,60 @@ def test_migration_round_trip(tmp_path, monkeypatch):
     command.upgrade(cfg, "3f4051627384")
     command.downgrade(cfg, "2e3f40516273")
     command.upgrade(cfg, "head")
+
+
+def test_conflicting_profile_email_fallback_preserves_the_existing_person(Session):
+    with Session() as db:
+        first, _ = resolve_person(
+            db, workspace_id="ws", name="Synthetic Alice", company="Fixture",
+            linkedin_url="linkedin.com/in/synthetic-alice", email="shared@example.invalid",
+            source="original", observed_at=T1,
+        )
+        db.commit()
+        with pytest.raises(ValueError, match="identity conflict"):
+            resolve_person(
+                db, workspace_id="ws", name="Synthetic Bob", company="Other Fixture",
+                linkedin_url="linkedin.com/in/synthetic-bob", email="shared@example.invalid",
+                source="conflicting", legacy_ids=["new-bob-alias"], observed_at=T2,
+            )
+        # A caller committing after the refusal must not persist partial aliases
+        # or an employment observation on the existing email owner.
+        db.commit()
+        profile = person_profile(db, first.id, "ws")
+        assert db.query(PersonEntity).count() == 1
+        assert profile["full_name"] == "Synthetic Alice"
+        assert profile["sources"] == ["original"]
+        assert {(i["kind"], i["value"]) for i in profile["identifiers"]} == {
+            ("linkedin", "linkedin.com/in/synthetic-alice"), ("email", "shared@example.invalid"),
+        }
+        assert [job["company_name"] for job in profile["employments"]] == ["Fixture"]
+        assert first.identity_keys["linkedin"] == ["linkedin.com/in/synthetic-alice"]
+        assert first.identity_keys["name_variants"] == ["Synthetic Alice"]
+
+
+def test_compatible_profile_alias_and_owned_legacy_id_still_resolve(Session):
+    with Session() as db:
+        first, _ = resolve_person(
+            db, workspace_id="ws", name="Synthetic Alice", company="Fixture",
+            linkedin_url="linkedin.com/in/alice-old-slug", email="alice@example.invalid",
+            source="original", legacy_ids=["verified-alice-id"], observed_at=T1,
+        )
+        alias, created = resolve_person(
+            db, workspace_id="ws", name="  SYNTHETIC   ALICE  ", company="Fixture",
+            linkedin_url="linkedin.com/in/alice-new-slug", email="alice@example.invalid",
+            source="slug-update", observed_at=T2,
+        )
+        renamed, created_renamed = resolve_person(
+            db, workspace_id="ws", name="Alice Renamed", company="New Fixture",
+            linkedin_url="linkedin.com/in/alice-renamed-slug", email="alice@example.invalid",
+            source="verified-update", legacy_ids=["verified-alice-id"], observed_at=T3,
+        )
+        db.commit()
+        assert alias.id == renamed.id == first.id
+        assert not created and not created_renamed
+        assert set(first.identity_keys["linkedin"]) == {
+            "linkedin.com/in/alice-old-slug", "linkedin.com/in/alice-new-slug",
+            "linkedin.com/in/alice-renamed-slug",
+        }
+        assert db.query(PersonEntity).count() == 1
+        assert people._owner(db, "ws", "linkedin", "linkedin.com/in/alice-new-slug") == first.id
