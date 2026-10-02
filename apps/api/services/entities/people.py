@@ -96,7 +96,8 @@ def resolve_person(
 ) -> Tuple[PersonEntity, bool]:
     """Resolve (or create) the canonical person and record this employment observation.
 
-    Returns (person, created). The caller owns the transaction.
+    Returns (person, created). The caller owns the transaction. An email-only
+    match cannot attach a different profile with incompatible name evidence.
     """
     if not workspace_id:
         raise ValueError("workspace_id is required")
@@ -114,12 +115,25 @@ def resolve_person(
         raise ValueError("A person needs a LinkedIn profile, email or legacy id to be resolved")
 
     person: Optional[PersonEntity] = None
+    matched_kind = None
     for kind, value in keys:
         owner = _owner(db, ws, kind, value)
         if owner:
             person = db.get(PersonEntity, owner)
             if person is not None:
+                matched_kind = kind
                 break
+
+    if person is not None and matched_kind == "email" and li:
+        identity = person.identity_keys or {}
+        profiles = {value for (value,) in db.query(PersonIdentifier.value).filter_by(
+            workspace_id=ws, person_id=person.id, kind="linkedin")}
+        names = [person.full_name, *(identity.get("name_variants") or [])]
+        known_names = {" ".join((value or "").casefold().split()) for value in names
+                       if value and value != "(unknown)"}
+        incoming_name = " ".join((name or "").casefold().split())
+        if profiles and li not in profiles and incoming_name not in known_names:
+            raise ValueError("Person identity conflict: email owner has an incompatible LinkedIn profile/name")
 
     created = False
     if person is None:
