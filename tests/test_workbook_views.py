@@ -2462,3 +2462,44 @@ def test_budget_update_rejects_foreign_workbook(client):
     finally:
         app.dependency_overrides[current_workspace] = lambda: _ctx(WS1)
         app.dependency_overrides[require_editor] = lambda: _ctx(WS1)
+
+
+@pytest.mark.parametrize("positions", [[], [7], [0, 1]])
+def test_add_rows_reports_stored_count_instead_of_position(client, positions):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": "company", "name": "Company", "type": "lead_field"}])
+    with Session() as session:
+        for position in positions:
+            session.add(WorkbookRow(workbook_id=wid, workspace_id=WS1, position=position,
+                                    data={"company": f"Existing {position}"}, enrichments={}))
+        session.commit()
+    response = tc.post(f"/api/workbooks/{wid}/rows", json={"rows": [{"company": "New"}]})
+    assert response.status_code == 200, response.text
+    with Session() as session:
+        actual_count = session.query(WorkbookRow).filter(WorkbookRow.workbook_id == wid).count()
+    assert response.json()["added"] == 1
+    assert response.json()["total_rows"] == actual_count == len(positions) + 1
+
+
+def test_add_rows_dedupe_reports_count_when_no_row_is_inserted(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": "company", "name": "Company", "type": "lead_field"}])
+    rid = _mk_row(Session, wid, {"company": "Existing"})
+    with Session() as session:
+        session.get(WorkbookRow, rid).position = 9
+        session.commit()
+    response = tc.post(f"/api/workbooks/{wid}/rows", json={
+        "rows": [{"company": "Existing"}], "dedupe": True,
+    })
+    assert response.status_code == 200, response.text
+    assert response.json() == {"added": 0, "skipped_duplicates": 1, "total_rows": 1}
+
+
+def test_add_rows_count_excludes_other_workbooks(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [])
+    other = _mk_workbook(Session, [])
+    _mk_row(Session, other, {"company": "Other"})
+    response = tc.post(f"/api/workbooks/{wid}/rows", json={"rows": [{"company": "New"}]})
+    assert response.status_code == 200, response.text
+    assert response.json()["total_rows"] == 1
