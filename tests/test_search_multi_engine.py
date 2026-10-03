@@ -58,7 +58,7 @@ def _clear_env(monkeypatch):
     for var in (
         "SERPAPI_KEY", "BING_SEARCH_KEY", "GOOGLE_CSE_ID",
         "GOOGLE_CSE_KEY", "BRAVE_SEARCH_KEY", "SERPINGAPI_API_KEY",
-        "SEARCH_FALLBACK_ORDER", "SEARCH_ATTEMPT_ORDER", "SEARCH_BACKENDS",
+        "SERPLY_API_KEY", "SEARCH_FALLBACK_ORDER", "SEARCH_ATTEMPT_ORDER", "SEARCH_BACKENDS",
         "SEARCH_CACHE_ENABLED", "SEARCH_BACKOFF_ENABLED",
     ):
         monkeypatch.delenv(var, raising=False)
@@ -114,10 +114,15 @@ def test_shape_parity_across_all_adapters(monkeypatch):
             {"SERPINGAPI_API_KEY": "k"},
             {"organic": [{"title": "E", "link": "https://e.example", "snippet": "se", "position": 1}]},
         ),
+        "serply": (
+            {"SERPLY_API_KEY": "k"},
+            {"results": [{"title": "F", "link": "https://f.example", "description": "sf", "position": 1}]},
+        ),
     }
     for engine, (env, json_body) in payloads.items():
         for var in ("SERPAPI_KEY", "BING_SEARCH_KEY", "GOOGLE_CSE_ID",
-                    "GOOGLE_CSE_KEY", "BRAVE_SEARCH_KEY", "SERPINGAPI_API_KEY"):
+                    "GOOGLE_CSE_KEY", "BRAVE_SEARCH_KEY", "SERPINGAPI_API_KEY",
+                    "SERPLY_API_KEY"):
             monkeypatch.delenv(var, raising=False)
         for k, v in env.items():
             monkeypatch.setenv(k, v)
@@ -145,6 +150,28 @@ def test_serpingapi_sends_key_header_and_caps_num(monkeypatch):
     assert seen["headers"]["X-API-Key"] == "sk_test"
     assert "api_key" not in seen["params"] and "key" not in seen["params"]
     assert seen["params"]["num"] == 100
+
+
+def test_serply_sends_key_header_and_caps_num(monkeypatch):
+    """Serply is keyed via the X-Api-Key header and returns at most 10 per call."""
+    monkeypatch.setenv("SERPLY_API_KEY", "sk_test")
+    seen = {}
+
+    def fake_get(url, params, headers=None):
+        seen.update(url=url, params=params, headers=headers or {})
+        return {"results": [
+            {"title": "F", "link": "https://f.example", "description": "sf"},
+            {"title": "Not a URL", "link": "CAESexample", "description": "x"},
+        ]}
+
+    monkeypatch.setattr(se, "_http_get_json", fake_get)
+    assert se.configured_engines() == ["serply"]
+    results = se.search_fallback("q", max_results=500)
+    assert results == [{"title": "F", "href": "https://f.example", "body": "sf"}]
+    assert seen["url"] == "https://api.serply.io/v1/search"
+    assert seen["headers"]["X-Api-Key"] == "sk_test"
+    assert "api_key" not in seen["params"] and "key" not in seen["params"]
+    assert seen["params"]["num"] == 10
 
 
 def test_engine_order_respected(monkeypatch):

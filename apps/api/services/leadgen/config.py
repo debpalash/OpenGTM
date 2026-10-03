@@ -126,6 +126,7 @@ GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID", "")
 GOOGLE_CSE_KEY = os.getenv("GOOGLE_CSE_KEY", "")
 BRAVE_SEARCH_KEY = os.getenv("BRAVE_SEARCH_KEY", "")
 SERPINGAPI_API_KEY = os.getenv("SERPINGAPI_API_KEY", "")
+SERPLY_API_KEY = os.getenv("SERPLY_API_KEY", "")
 
 # ── DDG result cache + adaptive backoff (see services/leadgen/search_cache.py)
 # In-process only (no DB). Both behaviours are behind flags, default ON; set
