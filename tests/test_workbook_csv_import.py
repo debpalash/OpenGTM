@@ -204,3 +204,88 @@ def test_import_foreign_workbook_returns_not_found_without_mutation():
     with Session() as session:
         assert session.query(WorkbookRow).count() == 0
         assert len(session.get(Workbook, WORKBOOK).columns_config) == 1
+
+
+def test_import_keeps_distinct_custom_headers_with_colliding_keys():
+    for source in [
+        {"Revenue (€)": "100", "Revenue ($)": "200"},
+        {"売上": "100", "企業名": "Acme"},
+    ]:
+        mapping = {header: header for header in source}
+        rows, columns, added, resolved = prepare_csv_import([source], [], mapping)
+        assert len(added) == 2
+        assert len(set(resolved.values())) == 2
+        assert rows == [{resolved[header]: value for header, value in source.items()}]
+        repeated, next_columns, next_added, next_mapping = prepare_csv_import([source], columns, mapping)
+        assert repeated == rows
+        assert next_columns == columns
+        assert next_added == []
+        assert next_mapping == resolved
+
+
+def test_import_inferred_custom_headers_keep_distinct_values():
+    for source in [
+        {"Revenue (€)": "100", "Revenue ($)": "200"},
+        {"Metric A": "100", "Metric_A": "200"},
+    ]:
+        rows, _, added, resolved = prepare_csv_import([source], [])
+        assert len(added) == 2
+        assert rows == [{resolved[header]: value for header, value in source.items()}]
+        assert set(rows[0].values()) == {"100", "200"}
+
+
+def test_import_can_intentionally_merge_custom_mapping_targets():
+    rows, _, added, mapping = prepare_csv_import(
+        [{"Primary": "", "Secondary": "Fallback"}], [],
+        {"Primary": "custom_result", "Secondary": "custom_result"},
+    )
+    assert rows == [{"custom_result": "Fallback"}]
+    assert mapping == {"Primary": "custom_result", "Secondary": "custom_result"}
+    assert len(added) == 1
+
+
+def test_csv_endpoint_persists_colliding_custom_header_values():
+    client, Session = _harness()
+    source = {"Company": "Acme", "Revenue (€)": "100", "Revenue ($)": "200"}
+    response = client.post(f"/api/workbooks/{WORKBOOK}/import", json={
+        "rows": [source], "mapping": {header: header for header in source},
+    })
+    assert response.status_code == 200, response.text
+    with Session() as session:
+        workbook = session.get(Workbook, WORKBOOK)
+        row = session.query(WorkbookRow).one()
+        custom = [column for column in workbook.columns_config if column["name"].startswith("Revenue")]
+        assert len(custom) == 2
+        assert {column["name"]: row.data[column["lead_field"]] for column in custom} == {
+            "Revenue (€)": "100", "Revenue ($)": "200",
+        }
+
+
+def test_custom_header_collisions_are_preserved_without_creating_columns():
+    source = {"Revenue (€)": "100", "Revenue ($)": "200"}
+    rows, columns, added, resolved = prepare_csv_import([source], [], create_columns=False)
+    assert columns == added == []
+    assert len(set(resolved.values())) == 2
+    assert set(rows[0].values()) == {"100", "200"}
+
+
+def test_new_custom_header_does_not_overwrite_an_existing_normalized_name():
+    existing = [{"id": "revenue", "name": "Revenue (€)", "type": "lead_field", "lead_field": "revenue"}]
+    rows, columns, added, resolved = prepare_csv_import(
+        [{"Revenue ($)": "200"}], existing, {"Revenue ($)": "Revenue ($)"},
+    )
+    assert columns[0] == existing[0]
+    assert len(added) == 1
+    assert resolved["Revenue ($)"] != "revenue"
+    assert rows == [{resolved["Revenue ($)"]: "200"}]
+
+
+def test_explicit_existing_custom_field_mapping_is_reused():
+    existing = [{"id": "revenue", "name": "Revenue (€)", "type": "lead_field", "lead_field": "revenue"}]
+    rows, columns, added, resolved = prepare_csv_import(
+        [{"Revenue ($)": "200"}], existing, {"Revenue ($)": "revenue"},
+    )
+    assert columns == existing
+    assert added == []
+    assert rows == [{"revenue": "200"}]
+    assert resolved == {"Revenue ($)": "revenue"}
