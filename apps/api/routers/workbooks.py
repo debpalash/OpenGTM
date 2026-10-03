@@ -28,7 +28,7 @@ from apps.api.services.workbook.schemas import (
     WorkbookListResponse, WorkbookWithLeadsResponse,
     WorkbookLeadRow, EnrichmentOverlay,
     RunWorkbookRequest, RunWorkbookResponse, RunCellRequest,
-    AddColumnRequest, ExportRequest,
+    AddColumnRequest,
     AddRowsRequest, ImportRowsRequest, DeleteRowsRequest, DeleteMatchingRowsRequest, BulkUpdateRowsRequest,
     GenerateColumnRequest, GenerateColumnResponse,
     WorkbookViewCreate, WorkbookViewUpdate,
@@ -2070,7 +2070,10 @@ async def add_rows(
         )
     except Exception as _e:
         logger.warning("on_row_added emit (add_rows) failed: %s", _e)
-    return {"added": added, "skipped_duplicates": skipped, "total_rows": max_pos + added + 1}
+    total_rows = db.query(sa_func.count(WorkbookRow.id)).filter(
+        WorkbookRow.workbook_id == wb.id
+    ).scalar() or 0
+    return {"added": added, "skipped_duplicates": skipped, "total_rows": total_rows}
 
 
 @router.delete("/{workbook_id}/rows")
