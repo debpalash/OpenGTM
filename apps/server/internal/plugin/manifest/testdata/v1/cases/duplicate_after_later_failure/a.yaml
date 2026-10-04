@@ -1,0 +1,8 @@
+manifest_version: "1"
+name: claimed_id
+capability: email
+request:
+  url: http://api.example.com/find
+response:
+  mappings:
+    email: $.email

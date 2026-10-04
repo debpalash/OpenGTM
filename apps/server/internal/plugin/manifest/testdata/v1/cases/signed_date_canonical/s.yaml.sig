@@ -1,0 +1,1 @@
+{"signature_version": "1", "algorithm": "Ed25519", "key_id": "parity-trusted", "manifest_sha256": "0000000000000000000000000000000000000000000000000000000000000000", "signature": ""}

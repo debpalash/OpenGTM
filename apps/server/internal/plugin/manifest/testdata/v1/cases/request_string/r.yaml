@@ -1,0 +1,7 @@
+manifest_version: "1"
+name: test_email
+capability: email
+request: abc
+response:
+  mappings:
+    email: $.email

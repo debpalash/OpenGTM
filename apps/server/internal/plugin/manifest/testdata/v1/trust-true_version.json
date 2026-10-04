@@ -1,0 +1,10 @@
+{
+  "version": true,
+  "keys": [
+    {
+      "key_id": "parity-trusted",
+      "publisher": "Bool Version",
+      "public_key": "xQJzJmZtNu1wFyWeCl2onXqUBykdF1eIFUdK+Q23NVA="
+    }
+  ]
+}

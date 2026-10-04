@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "keys": [
+    {
+      "key_id": "parity-trusted",
+      "public_key": "c2hvcnQ="
+    }
+  ]
+}
