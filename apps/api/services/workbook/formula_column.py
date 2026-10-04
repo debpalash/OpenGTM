@@ -18,7 +18,7 @@ Columns reference each other with {column} (same as AI columns). Examples:
 import ast
 import logging
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 logger = logging.getLogger("workbook.formula_column")
 
@@ -195,7 +195,38 @@ def evaluate_formula(expr: str, row_values: Dict[str, str]) -> Any:
             variables[var] = "" if val is None else val
         return name_for[key]
 
-    safe_expr = _PLACEHOLDER_RE.sub(_sub, expr)
+    # Resolve references only outside Python string literals. A global regex
+    # would turn the literal "{Name}" into "_v0", silently corrupting output.
+    parts = []
+    cursor = 0
+    while cursor < len(expr):
+        start = cursor
+        char = expr[cursor]
+        if char in ("'", '"'):
+            delimiter = char * 3 if expr.startswith(char * 3, cursor) else char
+            cursor += len(delimiter)
+            while cursor < len(expr):
+                if expr[cursor] == "\\":
+                    cursor += 2
+                elif expr.startswith(delimiter, cursor):
+                    cursor += len(delimiter)
+                    break
+                else:
+                    cursor += 1
+            parts.append(expr[start:cursor])
+        elif char == "#":
+            end = expr.find("\n", cursor)
+            cursor = len(expr) if end == -1 else end
+            parts.append(expr[start:cursor])
+        else:
+            match = _PLACEHOLDER_RE.match(expr, cursor)
+            if match:
+                parts.append(_sub(match))
+                cursor = match.end()
+            else:
+                parts.append(char)
+                cursor += 1
+    safe_expr = "".join(parts)
 
     try:
         tree = ast.parse(safe_expr, mode="eval")
