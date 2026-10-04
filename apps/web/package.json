@@ -8,6 +8,7 @@
     "dev:app": "vite",
     "build": "tsc -b && vite build",
     "build:ui-preview": "tsc -b && vite build --config vite.ui-preview.config.ts",
+    "check:bundle": "bun scripts/check-bundle-size.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },
