@@ -33,6 +33,10 @@ type Options struct {
 	// connections in pg_stat_activity.
 	AppName  string
 	MaxConns int32
+	// Lazy skips the startup ping. The HTTP server uses it so it can start,
+	// answer /healthz and report the outage on /readyz while PostgreSQL is
+	// still coming up; workers keep the ping and fail fast instead.
+	Lazy bool
 }
 
 // Open creates a pool and verifies connectivity.
@@ -50,6 +54,9 @@ func Open(ctx context.Context, url string, opts Options) (*pgxpool.Pool, error) 
 	pool, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("db: connect: %w", err)
+	}
+	if opts.Lazy {
+		return pool, nil
 	}
 	if err := pool.Ping(ctx); err != nil {
 		pool.Close()

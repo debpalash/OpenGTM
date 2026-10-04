@@ -104,7 +104,7 @@ func accessLog(log *slog.Logger, next http.Handler) http.Handler {
 			slog.String("path", r.URL.Path),
 			slog.Int("status", status),
 			slog.Int64("bytes", rec.bytes),
-			slog.Duration("duration", time.Since(start)),
+			slog.Float64("duration_ms", float64(time.Since(start).Microseconds())/1000),
 			slog.String("remote", r.RemoteAddr),
 		)
 	})
