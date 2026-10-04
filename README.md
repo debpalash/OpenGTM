@@ -20,9 +20,9 @@ third-party calls use keys you choose. A zero-key demo is included.
 ## Co-maintainer wanted
 
 We're looking for a co-maintainer to help shape OpenGTM, review pull requests,
-ship releases, and build a faster enrichment backend. Experience with **Go,
-Python, PostgreSQL, or provider integrations** is especially welcome as we
-prepare the backend migration below.
+ship releases, and build the platform rewrite below. Experience with **Go,
+Rust, Python, React, PostgreSQL, plugin systems, or scrapers** is especially
+welcome.
 
 Interested? [Join the rewrite issue](https://github.com/debpalash/OpenGTM/issues/33)
 with a short introduction and the areas you'd like to own. Focused contributions
@@ -168,29 +168,34 @@ FastAPI ──► PostgreSQL + forced workspace RLS
 bridge, and `apps/docs` the documentation. Read the
 [architecture guide](docs/architecture.md) for tenancy and failure behavior.
 
-## Go backend migration
+## Platform rewrite
 
-An incremental migration to a **Go backend with Python specialist workers** is
-on the roadmap, with **optional Rust acceleration** where benchmarks justify it.
-The current backend is Python/FastAPI; the migration has not shipped yet.
+An incremental rewrite into a **hybrid Go, Rust and Python platform** is on the
+roadmap. The current backend is Python/FastAPI; the rewrite has not shipped yet.
 
-- **Go:** the primary backend language for APIs, enrichment orchestration,
-  durable job workers, and scheduling. Priorities include pooled HTTP clients,
-  bounded concurrency, provider rate limits, cancellation, and batched writes.
-- **Python:** AI research, browser automation, and specialized integrations.
-- **Rust, optional:** performance-critical parsing, normalization, and
-  deduplication where profiling and end-to-end benchmarks show a benefit.
-- **Supporting stack:** PostgreSQL for durable data and workspace isolation,
-  Redis for progress updates, and TypeScript/React for the UI.
+- **Go:** the control plane. APIs, tenancy, enrichment orchestration, durable
+  jobs, scheduling, the plugin host, and one binary for self-hosting.
+- **Rust:** measured hot paths such as extraction, normalization, and
+  deduplication, run as WebAssembly inside the Go binary unless benchmarks call
+  for a native service.
+- **Python:** AI research, browser automation, and code-first scrapers.
+- **Web:** React with shadcn/ui on Base UI and the TanStack libraries, with
+  performance budgets enforced in CI.
 
-The goal is hundreds of completed enrichments per second, subject to provider
-limits and workload. We'll validate throughput, latency, memory use, and retry
-correctness with benchmarks before making performance claims. Small modules,
-generated API/database contracts, and existing behavior tests will support fast
-AI-assisted development while preserving tenant isolation and billing correctness.
-See the [backend rewrite proposal](docs/plans/go-python-backend-rewrite.md) and
+The rewrite has three priorities:
+
+- **Self-hosting.** A minimal install is one binary plus PostgreSQL, with
+  one-command install, upgrade, backup, and diagnostics.
+- **Plugins.** Providers, scrapers, signals, destinations, and agent tools are
+  signed plugins written in YAML, Python, Rust, Go, or TypeScript. They run in a
+  capability-limited sandbox.
+- **Throughput.** The target is hundreds of completed enrichments per second,
+  subject to provider limits, validated by published benchmarks before any
+  performance claim.
+
+See the [platform rewrite RFC](docs/plans/hybrid-platform-rewrite.md) and
 [tracking issue](https://github.com/debpalash/OpenGTM/issues/33) for milestones,
-correctness requirements, benchmark gates, and rollback.
+the plugin model, correctness requirements, benchmark gates, and rollback.
 
 ## Scope and contribution
 
