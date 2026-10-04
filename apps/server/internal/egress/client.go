@@ -83,6 +83,12 @@ type Options struct {
 	// Transport replaces the network entirely (fixture replay). The guard,
 	// robots, rate limits and caps still apply on top of it.
 	Transport http.RoundTripper
+	// ReplayWithoutRateLimit disables per-domain spacing. Only for offline
+	// fixture replay through Transport, where no real server is contacted.
+	ReplayWithoutRateLimit bool
+	// OnResponse observes every completed exchange, including redirect hops
+	// and robots.txt fetches (used by `opengtm plugin record`).
+	OnResponse func(method, url string, resp *Response)
 	// Now overrides the clock (tests).
 	Now func() time.Time
 }
@@ -358,12 +364,17 @@ func (c *Client) Do(ctx context.Context, r Request) (*Response, error) {
 			}
 			crawlDelay = rb.CrawlDelay()
 		}
-		if err := c.limiter.wait(ctx, DomainKey(u.Hostname()), c.interval(r.RPS, crawlDelay)); err != nil {
-			return nil, err
+		if !(c.opts.ReplayWithoutRateLimit && c.opts.Transport != nil) {
+			if err := c.limiter.wait(ctx, DomainKey(u.Hostname()), c.interval(r.RPS, crawlDelay)); err != nil {
+				return nil, err
+			}
 		}
 		resp, err := c.roundTrip(ctx, method, u, header, body, maxBody)
 		if err != nil {
 			return nil, err
+		}
+		if c.opts.OnResponse != nil {
+			c.opts.OnResponse(method, u.String(), resp)
 		}
 		if !isRedirect(resp.Status) {
 			return resp, nil

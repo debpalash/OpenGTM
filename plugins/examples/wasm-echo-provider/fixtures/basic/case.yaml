@@ -1,0 +1,17 @@
+description: The module fetches inputs.url through opengtm_fetch and echoes the JSON object.
+input: {url: "https://api.github.com/repos/debpalash/OpenGTM"}
+secrets: {ECHO_API_KEY: test-key}
+http:
+  - method: GET
+    url: https://api.github.com/repos/debpalash/OpenGTM
+    status: 200
+    headers: {Content-Type: application/json}
+    body_file: repo.json
+expect:
+  match: exact
+  fields:
+    status: 200
+    name: OpenGTM
+    full_name: debpalash/OpenGTM
+    stargazers_count: 42
+    secrets_visible: [ECHO_API_KEY]

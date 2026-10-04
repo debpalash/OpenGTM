@@ -1,0 +1,24 @@
+description: Two team pages joined by a "next" link; robots.txt allows /team.
+input: {domain: acme.example}
+http:
+  - method: GET
+    url: https://acme.example/robots.txt
+    status: 200
+    headers: {Content-Type: text/plain}
+    body_file: robots.txt
+  - method: GET
+    url: https://acme.example/team
+    status: 200
+    headers: {Content-Type: text/html; charset=utf-8}
+    body_file: team-1.html
+  - method: GET
+    url: https://acme.example/team?page=2
+    status: 200
+    headers: {Content-Type: text/html; charset=utf-8}
+    body_file: team-2.html
+expect:
+  match: exact
+  records:
+    - {full_name: Ada Lovelace, title: Chief Executive Officer, linkedin_url: "https://www.linkedin.com/in/ada-example"}
+    - {full_name: Alan Turing, title: Head of Research, linkedin_url: "https://www.linkedin.com/in/alan-example"}
+    - {full_name: Grace Hopper, title: VP Engineering}
