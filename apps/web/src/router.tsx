@@ -10,11 +10,10 @@ import {
   type AnyRoute, createRootRouteWithContext, createRoute, createRouter, lazyRouteComponent, Outlet, redirect,
 } from "@tanstack/react-router"
 import type { QueryClient } from "@tanstack/react-query"
-import * as z from "zod/mini"
 import { AuthenticatedLayout, RouteSpinner } from "@/components/app-shell/app-layout"
 import { leadQueryOptions } from "@/lib/hooks"
 import { queryClient } from "@/lib/query-client"
-import { parseSearch, stringifySearch } from "@/lib/router-search"
+import { optionalStrings, parseSearch, stringifySearch } from "@/lib/router-search"
 
 export interface RouterContext {
   queryClient: QueryClient
@@ -37,14 +36,13 @@ const RouterDevtools = import.meta.env.DEV
   : () => null
 
 // ── Search schemas ──
-// Every value is a string (see lib/router-search.ts); pages keep their own
-// defaults and parsing. These run in the entry bundle, so they use zod/mini;
-// the full zod build still loads only with the pages that need it.
-const optionalString = () => z.optional(z.string())
-const chatSearch = z.object({ id: optionalString(), draft: optionalString() })
-const outreachSearch = z.object({ draft: optionalString() })
-const watchesSearch = z.object({ id: optionalString(), create: optionalString(), target: optionalString() })
-const workbooksSearch = z.object({ q: optionalString(), status: optionalString(), sort: optionalString(), page: optionalString() })
+// Every value is an optional string (see lib/router-search.ts); pages keep
+// their own defaults and parsing. Plain validators keep a schema library out
+// of the entry bundle.
+const chatSearch = optionalStrings("id", "draft")
+const outreachSearch = optionalStrings("draft")
+const watchesSearch = optionalStrings("id", "create", "target")
+const workbooksSearch = optionalStrings("q", "status", "sort", "page")
 
 // ── Routes ──
 const rootRoute = createRootRouteWithContext<RouterContext>()({

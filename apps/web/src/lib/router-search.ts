@@ -26,6 +26,27 @@ export function stringifySearch(search: Record<string, unknown>): string {
   return searchStr ? `?${searchStr}` : ""
 }
 
+// ── Route search validators ──
+// Plain functions rather than a schema library: they run in the entry bundle
+// before any page loads. Each keeps only its known keys, and only when the
+// value is a string (always the case with parseSearch above).
+
+export function optionalString(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined
+}
+
+/** Validator for a route whose search params are all optional strings. */
+export function optionalStrings<const K extends string>(...keys: K[]) {
+  return (search: Record<string, unknown>): { [P in K]?: string } => {
+    const result: { [P in K]?: string } = {}
+    for (const key of keys) {
+      const value = optionalString(search[key])
+      if (value !== undefined) result[key] = value
+    }
+    return result
+  }
+}
+
 /**
  * Link options for an app-relative href held as data (notification and Quick
  * Look destinations such as `/workbooks/wb_1?run=r_2`). Anything else is

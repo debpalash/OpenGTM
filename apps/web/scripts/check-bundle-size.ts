@@ -15,10 +15,10 @@ import { existsSync, readFileSync, readdirSync } from "node:fs"
 import { join, resolve } from "node:path"
 import { gzipSync } from "node:zlib"
 
-// Budget: initial JS measured after the TanStack Router migration and the
-// twenty-ui removal (235.49 kB gzip, 48 chunks), plus 5%. Raise it
-// deliberately, in its own commit, with the reason.
-const DEFAULT_BUDGET_GZIP_KB = 247.3
+// Budget: initial JS measured after the TanStack Router migration, the
+// twenty-ui removal and plain search validators (223.23 kB gzip, 48 chunks),
+// plus 5%. Raise it deliberately, in its own commit, with the reason.
+const DEFAULT_BUDGET_GZIP_KB = 234.4
 
 type ManifestChunk = {
   file: string

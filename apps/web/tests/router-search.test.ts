@@ -1,5 +1,25 @@
 import { describe, expect, test } from "bun:test"
-import { hrefLinkOptions, parseSearch, stringifySearch } from "../src/lib/router-search"
+import { hrefLinkOptions, optionalString, optionalStrings, parseSearch, stringifySearch } from "../src/lib/router-search"
+
+describe("route search validators", () => {
+  test("optionalString accepts strings only", () => {
+    expect(optionalString("abc")).toBe("abc")
+    expect(optionalString("")).toBe("")
+    expect(optionalString(undefined)).toBeUndefined()
+    expect(optionalString(123)).toBeUndefined()
+    expect(optionalString(["a"])).toBeUndefined()
+  })
+  test("optionalStrings keeps known string keys and drops the rest", () => {
+    const validate = optionalStrings("id", "draft")
+    expect(validate({ id: "c1", draft: "hi there", other: "x" })).toEqual({ id: "c1", draft: "hi there" })
+    expect(validate({ id: 5, draft: undefined })).toEqual({})
+    expect(validate({})).toEqual({})
+  })
+  test("validators accept what parseSearch produces", () => {
+    expect(optionalStrings("q", "status", "sort", "page")(parseSearch("?q=a+b&page=2&x=1")))
+      .toEqual({ q: "a b", page: "2" })
+  })
+})
 
 describe("router search serialization", () => {
   test("parses every value as a string, first occurrence wins", () => {
