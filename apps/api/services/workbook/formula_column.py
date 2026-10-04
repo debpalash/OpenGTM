@@ -18,7 +18,7 @@ Columns reference each other with {column} (same as AI columns). Examples:
 import ast
 import logging
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 logger = logging.getLogger("workbook.formula_column")
 
@@ -35,6 +35,17 @@ def _default(*args):
     return ""
 
 
+def _to_int(value):
+    if str(value).strip() in ("", "None"):
+        return 0
+    try:
+        # Parse integer strings directly: a float intermediary rounds large IDs.
+        return int(value)
+    except (TypeError, ValueError):
+        # Preserve support for decimal/scientific strings and truncation.
+        return int(float(value))
+
+
 _FUNCS = {
     "default": _default,
     "lower": lambda s: str(s).lower(),
@@ -43,7 +54,7 @@ _FUNCS = {
     "trim": lambda s: str(s).strip(),
     "len": lambda s: len(s),
     "str": lambda s: str(s),
-    "int": lambda s: int(float(s)) if str(s).strip() not in ("", "None") else 0,
+    "int": _to_int,
     "float": lambda s: float(s) if str(s).strip() not in ("", "None") else 0.0,
     "round": lambda s, n=0: round(float(s), int(n)),
     "title": lambda s: str(s).title(),
