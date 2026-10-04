@@ -35,7 +35,8 @@ func TestTimeouts(t *testing.T) {
 		"x":                     time.Second,
 		"run_workbook":          1800 * time.Second,
 		"research_playbook_run": 3600 * time.Second,
-		"plugin_run":            DefaultJobTimeout,
+		"plugin_run":            900 * time.Second,
+		"not_a_registered_type": DefaultJobTimeout,
 	}
 	for jobType, want := range cases {
 		if got := q.timeoutFor(jobType); got != want {

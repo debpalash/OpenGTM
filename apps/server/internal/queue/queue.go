@@ -131,6 +131,8 @@ var JobTimeouts = map[string]time.Duration{
 	"research_playbook_run":      3600 * time.Second,
 	"research_playbook_schedule": 300 * time.Second,
 	"retention_enforce":          1800 * time.Second,
+	// Go-only: one plugin run; scrapers wait on per-domain rate limits.
+	"plugin_run": 900 * time.Second,
 }
 
 // Options configure a Queue. Zero durations take the Python defaults.

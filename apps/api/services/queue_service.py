@@ -75,6 +75,9 @@ JOB_TIMEOUTS = {
     "research_playbook_run": 3600,
     "research_playbook_schedule": 300,
     "retention_enforce": 1800,
+    # Executed by the Go worker (job_executor_routes); listed so both
+    # executors document the same ceiling.
+    "plugin_run": 900,
 }
 
 

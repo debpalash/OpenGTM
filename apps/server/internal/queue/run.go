@@ -15,7 +15,7 @@ import (
 // Cancellation causes for an attempt's context.
 var (
 	errShutdown  = errors.New("queue: worker shutting down")
-	errLeaseLost = errors.New("queue: claim cancelled or lost")
+	errLeaseLost = ErrLeaseLost
 	errJobDone   = errors.New("queue: attempt finished")
 )
 
