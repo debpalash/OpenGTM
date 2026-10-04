@@ -256,3 +256,30 @@ def test_rerouting_back_to_python_releases_pending_jobs():
         assert queue_service.claim_next_job()["id"] == job_id
     finally:
         _drop_routes("route_flip")
+
+
+def test_python_recovery_leaves_go_routed_claims_to_go():
+    """The Go worker reaps its own stale claims and runs its own failure
+    reconciliation, so Python recovery must skip Go-routed types."""
+    from datetime import datetime, timedelta, timezone
+
+    _route("route_go_reap", "go")
+    service = QueueService()
+    stale = datetime.now(timezone.utc) - timedelta(minutes=30)
+    try:
+        with SessionLocal() as db:
+            ids = {}
+            for job_type in ("route_go_reap", "route_py_reap"):
+                job = service.add_job(db, job_type, {})
+                job.status, job.last_heartbeat = "processing", stale
+                job.worker_id, job.locked_at = service.worker_id, stale
+                ids[job_type] = job.id
+            db.commit()
+
+        assert service.reap_dead_jobs_once() == 1
+        service.recover_jobs()
+        with SessionLocal() as db:
+            status = {j.type: j.status for j in db.query(Job).filter(Job.id.in_(ids.values()))}
+        assert status == {"route_go_reap": "processing", "route_py_reap": "pending"}
+    finally:
+        _drop_routes("route_go_reap")

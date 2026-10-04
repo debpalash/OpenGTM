@@ -7,11 +7,11 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional, Callable, Awaitable
 
-from sqlalchemy import select, update, or_, text, cast, String, func
+from sqlalchemy import select, update, or_, text, cast, String, func, exists
 from sqlalchemy.orm import Session
 
 from apps.api.database import SessionLocal, engine
-from apps.api.models import Job
+from apps.api.models import Job, JobExecutorRoute
 from apps.api.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -23,6 +23,18 @@ def _timestamp_matches(column, value):
     if engine.dialect.name == "sqlite" and value is not None and value.tzinfo:
         return or_(column == value, cast(column, String) == value.isoformat(" "))
     return column == value
+
+
+def _python_owned():
+    """Restrict recovery to job types this executor owns.
+
+    A type routed to the Go worker is recovered by Go, which runs its own
+    failure reconciliation. Reaping it here would skip that reconciliation.
+    """
+    return ~exists().where(
+        JobExecutorRoute.job_type == Job.type,
+        JobExecutorRoute.executor != "python",
+    )
 
 
 def _make_worker_id() -> str:
@@ -295,7 +307,7 @@ class QueueService:
         threshold = now - timedelta(minutes=5)
         recovered = []
         with SessionLocal() as db:
-            query = db.query(Job).filter(Job.status == "processing")
+            query = db.query(Job).filter(Job.status == "processing", _python_owned())
             if startup:
                 query = query.filter(or_(Job.worker_id == self.worker_id,
                                          Job.worker_id == None))  # noqa: E711
@@ -394,6 +406,7 @@ class QueueService:
             query = db.query(Job).filter(
                 Job.status == "processing",
                 or_(Job.last_heartbeat < threshold, Job.last_heartbeat == None),
+                _python_owned(),
             )
             if db.get_bind().dialect.name == "postgresql":
                 query = query.with_for_update(skip_locked=True)
