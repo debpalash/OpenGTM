@@ -18,13 +18,16 @@ export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$cargo_home/registry/src=/c
 cargo build --manifest-path "$here/Cargo.toml" -p opengtm-kernels --release --target "$target" --locked
 wasm="$here/target/$target/release/opengtm_kernels.wasm"
 
-if command -v wasm-opt >/dev/null 2>&1; then
+# wasm-opt is opt-in (KERNELS_WASM_OPT=1) so the committed artifact does not
+# depend on whether a machine happens to have binaryen installed; CI rebuilds
+# without it and fails on any difference.
+if [ "${KERNELS_WASM_OPT:-0}" = 1 ] && command -v wasm-opt >/dev/null 2>&1; then
   wasm-opt -Oz --enable-bulk-memory --enable-sign-ext --enable-nontrapping-float-to-int \
     --enable-mutable-globals "$wasm" -o "$wasm.opt"
   mv "$wasm.opt" "$wasm"
   echo "wasm-opt -Oz applied"
 else
-  echo "wasm-opt not found; skipping -Oz pass"
+  echo "skipping wasm-opt (set KERNELS_WASM_OPT=1 to apply -Oz)"
 fi
 
 cp "$wasm" "$out"

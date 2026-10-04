@@ -75,5 +75,78 @@ jobs:
           bun-version: '1.4.2'
       - run: bun install --frozen-lockfile
       - run: bun run lint
-      - run: bun test apps/web/tests/api.lead-create.test.ts
+      - run: bun test apps/web/tests
       - run: bun run build
+      - run: bun run --cwd apps/web check:bundle
+
+  server:
+    name: Go server, plugins and queue (PostgreSQL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: opengtm_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d opengtm_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Owner URL for disposable test setup; assertions run as a
+      # NOSUPERUSER NOBYPASSRLS role (internal/db/dbtest).
+      OPENGTM_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/opengtm_test
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: apps/server/go.mod
+          cache-dependency-path: apps/server/go.sum
+      # Migrations and the cross-language parity tests run through uv.
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.13'
+          enable-cache: true
+      - run: test -z "$(gofmt -l .)"
+      - run: go vet ./...
+      - run: go test -race -count=1 ./...
+      - name: Example plugins pass their fixtures
+        run: |
+          for dir in ../../plugins/examples/*/; do
+            go run ./cmd/opengtm plugin test "$dir"
+          done
+
+  kernels:
+    name: Rust kernels
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: crates
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # Pinned so the committed WebAssembly module rebuilds byte for byte.
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.97.1
+          targets: wasm32-unknown-unknown
+          components: clippy, rustfmt
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
+      - name: Committed kernel module matches the source
+        run: |
+          ./build-kernels.sh
+          git diff --exit-code -- ../apps/server/internal/kernels/opengtm_kernels.wasm
