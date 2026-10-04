@@ -1,0 +1,29 @@
+# expect: invalid request.timeout: must be between
+# schema: agrees
+manifest_version: "2"
+name: acme_email_v2
+kind: provider
+runtime: declarative
+version: 1.2.3
+capabilities:
+  network: ["https://api.acme.example/v1"]
+  secrets: [ACME_API_KEY]
+inputs: { first_name: string, last_name: string, domain: string }
+outputs: person
+capability: email
+default_confidence: 0.8
+cost_per_lookup: 0.05
+auth: { type: bearer, env_var: ACME_API_KEY }
+request:
+  method: POST
+  url: https://api.acme.example/v1/email/find
+  headers: { Content-Type: application/json }
+  body:
+    first_name: "{{input.first_name}}"
+    domain: "{{input.domain}}"
+  timeout: 500
+response:
+  error_path: error
+  error_message_path: message
+  mappings:
+    email: "$.data.email"

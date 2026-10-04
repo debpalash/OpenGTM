@@ -1,0 +1,8 @@
+# expect: invalid process.command: must be a non-empty
+# schema: agrees
+manifest_version: "2"
+name: browser_tool
+kind: tool
+runtime: process
+version: 0.0.1
+process: {command: []}

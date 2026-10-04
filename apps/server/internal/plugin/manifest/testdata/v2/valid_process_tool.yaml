@@ -1,0 +1,9 @@
+# expect: valid
+# schema: agrees
+manifest_version: "2"
+name: browser_tool
+kind: tool
+runtime: process
+version: 0.0.1-beta.1+build.5
+capabilities: {browser: true, network: ["https://*"]}
+process: {command: [python, -m, my_tool]}

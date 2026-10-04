@@ -1,0 +1,18 @@
+# expect: invalid scrape: is required
+# schema: agrees
+manifest_version: "2"
+name: acme_team_page
+kind: scraper
+runtime: declarative
+version: 0.1.0
+author: your-github-handle
+license: Apache-2.0
+capabilities:
+  network: ["https://*.acme.example"]
+  secrets: []
+  browser: false
+limits:
+  requests_per_second_per_domain: 1
+  timeout_seconds: 20
+inputs: { domain: string }
+outputs: person

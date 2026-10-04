@@ -1,0 +1,8 @@
+# expect: invalid declarative runtime supports kinds provider and scraper
+# schema: agrees
+manifest_version: "2"
+name: some_tool
+kind: tool
+runtime: declarative
+version: 0.1.0
+capabilities: {network: ["https://x.example"]}
