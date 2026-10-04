@@ -291,6 +291,13 @@ func Execute(ctx context.Context, p *manifest.Plugin, client *egress.Client, inp
 		if f, ok := raw["fields"].(map[string]any); ok {
 			out.Fields = f
 		}
+		// function and tool exports return a single value; expose it as a field.
+		if v, ok := raw["result"]; ok && p.Kind == "function" {
+			out.Fields = map[string]any{"result": v}
+		}
+		if v, ok := raw["output"]; ok && p.Kind == "tool" {
+			out.Fields = map[string]any{"output": v}
+		}
 		if e, ok := raw["error"].(string); ok {
 			out.Error = e
 		}
@@ -336,8 +343,10 @@ func RunCase(ctx context.Context, p *manifest.Plugin, c *Case, deps Deps) Result
 	for _, m := range tr.Misses() {
 		res.Problems = append(res.Problems, "unrecorded request: "+m)
 	}
-	for _, u := range tr.Unused() {
-		res.Warnings = append(res.Warnings, "recorded but not requested: "+u)
+	if err == nil {
+		for _, u := range tr.Unused() {
+			res.Warnings = append(res.Warnings, "recorded but not requested: "+u)
+		}
 	}
 	res.Pass = len(res.Problems) == 0
 	return res
