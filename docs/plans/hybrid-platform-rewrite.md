@@ -177,9 +177,10 @@ opengtm plugin dev                                                 # hot reload 
 opengtm plugin pack && opengtm plugin sign --key-id me-2026
 ```
 
-- **Declarative first.** CSS, XPath, JSONPath, and regex selectors, with
-  pagination, field mappings, and the per-domain limits shown above, cover most
-  pages without code. Extraction runs in a Rust kernel.
+- **Declarative first.** CSS, JSONPath, and regex selectors, with pagination,
+  field mappings, and the per-domain limits shown above, cover most pages
+  without code. Extraction runs in a Rust kernel. XPath is deferred until a
+  plugin needs something CSS cannot express.
 - **Python when needed.** The Python SDK provides typed decorators, a host fetch
   client, and a shared Playwright browser pool:
 
