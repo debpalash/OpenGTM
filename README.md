@@ -170,8 +170,10 @@ bridge, and `apps/docs` the documentation. Read the
 
 ## Platform rewrite
 
-An incremental rewrite into a **hybrid Go, Rust and Python platform** is on the
-roadmap. The current backend is Python/FastAPI; the rewrite has not shipped yet.
+An incremental rewrite into a **hybrid Go, Rust and Python platform** is under
+way. The production backend is still Python/FastAPI. The Go server and plugin
+platform can be previewed next to it with
+`docker compose --profile server up -d server` ([details](apps/server/README.md)).
 
 - **Go:** the control plane. APIs, tenancy, enrichment orchestration, durable
   jobs, scheduling, the plugin host, and one binary for self-hosting.

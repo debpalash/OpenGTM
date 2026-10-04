@@ -17,6 +17,7 @@ Existing [v1 connectors](../connectors/README.md) keep working unchanged.
 - [A WebAssembly plugin](#a-webassembly-plugin)
 - [Fixtures](#fixtures)
 - [Signing, packaging and installing](#signing-packaging-and-installing)
+- [Running plugins on a server](#running-plugins-on-a-server)
 - [Capabilities and responsible scraping](#capabilities-and-responsible-scraping)
 - [Manifest reference](#manifest-reference)
 - [Compatibility with the Python connector SDK](#compatibility-with-the-python-connector-sdk)
@@ -223,6 +224,44 @@ opengtm plugin install my_plugin-0.1.0.ogc --destination /var/lib/opengtm/plugin
   present invalid or untrusted signature is rejected) and `required`
   (production; set `CONNECTOR_SIGNATURE_POLICY=required`). Unknown policy
   values fail closed to `required`.
+
+## Running plugins on a server
+
+`opengtm serve` and `opengtm worker` load plugins once at startup:
+
+| Setting | Meaning |
+| --- | --- |
+| `OPENGTM_PLUGIN_DIRS` | Path list searched for directories holding `plugin.yaml`. Hidden, `fixtures`, `examples`, `target` and `node_modules` directories are skipped below a root; point a root at `plugins/examples` directly to load the examples. |
+| `OPENGTM_CONNECTOR_DIRS` | v1 connector directories, validated exactly as the Python registry does. |
+| `CONNECTOR_SIGNATURE_POLICY` | `optional` or `required`, shared with the Python app. |
+| `OPENGTM_PLUGIN_TRUST_STORE` | Trusted-publisher JSON file. |
+| `OPENGTM_EGRESS_PROXY` | Optional HTTP proxy for plugin traffic. |
+
+The server image bundles `plugins/` and the v1 connectors and sets these
+variables; mount another directory and add it to `OPENGTM_PLUGIN_DIRS` to
+install more. Rejected plugins (bad manifest, failed signature policy,
+duplicate name) are logged at startup and never run.
+
+Each run is a durable `plugin_run` job for the caller's workspace:
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" https://opengtm.example/api/v2/plugins
+curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"plugin":"acme_team_page","inputs":{"domain":"acme.example"}}' \
+  https://opengtm.example/api/v2/plugin-runs
+curl -H "Authorization: Bearer $TOKEN" https://opengtm.example/api/v2/plugin-runs/$RUN_ID/results
+```
+
+Editors, admins and owners can start and cancel runs; viewers can read them.
+Inputs are validated against the manifest before the job is queued. Results
+are stored with their evidence under workspace row-level security, and
+progress is streamed on `/api/v2/events`. A run that is cancelled, or whose
+job lease is lost to a timeout or another worker, never commits results.
+
+Declared secrets currently resolve from the worker's environment. Per-workspace
+secret resolution arrives when workspace secrets move from the legacy SQLite
+control plane to PostgreSQL (RFC milestone M8). The `process` runtime (Python
+plugins) arrives with the Python specialist workers (M4).
 
 ## Capabilities and responsible scraping
 

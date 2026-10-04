@@ -1,7 +1,9 @@
 # RFC: Hybrid Go, Rust and Python platform with a plugin architecture
 
 Updated: 2026-10-05
-Status: proposal; no backend migration has shipped.
+Status: foundations implemented on the `rewrite/hybrid-platform` branch (see
+[Implementation status](#implementation-status)); no existing job type or API
+route has moved to Go yet.
 Tracking issue: [#33](https://github.com/debpalash/OpenGTM/issues/33).
 Supersedes the Go/Python proposal previously at `go-python-backend-rewrite.md`.
 
@@ -35,6 +37,31 @@ Deliver this through incremental replacement of job types, routes, and screens.
 The first implementation milestone is still one production-compatible Go
 enrichment worker, with parity tests, reproducible benchmarks, and a working
 rollback.
+
+## Implementation status
+
+Built on `rewrite/hybrid-platform`, with tests against PostgreSQL 18 under
+forced row-level security:
+
+| Area | State |
+| --- | --- |
+| M1 foundations | Done: multi-role binary, validated configuration, tenant transactions, a Go executor for the shared `jobs` table, `job_executor_routes`, forward authorization, `LISTEN/NOTIFY` progress, an HTTP front door that proxies FastAPI and serves the dashboard, `doctor`. A cross-language test runs the Python and Go claimers on one database. |
+| M3 plugin platform | Core done: manifest v2 (v1 connectors load unchanged), JSON Schema contract, guarded egress, declarative providers and scrapers, a WebAssembly host with capability enforcement, signing and `.ogc` bundles (byte-compatible with Python), and `opengtm plugin new/validate/test/record/run/pack/sign/verify/install/dev`. Not yet: plugin index, `process` runtime, `signal`/`destination` exports. |
+| First Go job type | `plugin_run`, a new job type rather than a migrated one, chosen so the full path (claim, tenant transaction, sandboxed run, lease-guarded result commit, progress, cancellation) is proven without a parity risk. Runs and results are served at `/api/v2/plugin-runs`. |
+| Rust kernels | Normalization (domain, email, phone, name) and extraction, matching the Python normalizers on 5,814 parity cases. Run through wazero directly (the Extism SDK added 25–31 µs per call); the module is still a standard Extism plugin. |
+| M5 web | Started: TanStack Router with route-level code splitting, `twenty-ui` removed, CI bundle budget. Initial JavaScript is 223.2 kB gzip against a 223.6 kB baseline. |
+| M7 packaging | Started: a 43 MB distroless image and an opt-in `server` Compose profile. Not yet: `init`, `upgrade`, `backup`, signed multi-arch releases. |
+| M0, M2, M4, M6, M8 | Not started. No existing job type or route has moved to Go. |
+
+Measured so far (microbenchmarks, excluding network and database; see
+`crates/opengtm-kernels/BENCHMARKS.md`): through WebAssembly, domain
+normalization is about 2x faster than Python, while email, phone and name
+normalization are not faster, because JSON marshalling across the boundary
+costs more than the work. Extraction costs about the same per page as
+BeautifulSoup, about 1 ms with cancellation enabled, but scales across cores
+to about 10,400 pages per second with 32 goroutines. Following the admission
+rule above, the cheap normalizers should be called in batches or
+reimplemented in Go rather than called per value through WebAssembly.
 
 ## Goals and scope
 
