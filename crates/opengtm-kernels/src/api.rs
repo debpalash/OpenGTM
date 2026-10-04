@@ -11,9 +11,11 @@
 //! `invalid_request`, `request_too_large`, `invalid_selector`,
 //! `invalid_document`, `document_too_large`, `output_too_large`.
 
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use std::borrow::Cow;
 
-use crate::extract::{self, ExtractRequest, KernelError, MAX_DOCUMENT_BYTES};
+use serde::{Deserialize, Serialize};
+
+use crate::extract::{self, ExtractRequest, KernelError, MAX_DOCUMENT_BYTES, null_default};
 use crate::normalize::{self, PersonName};
 
 /// Upper bound on any request body. JSON escaping can expand a 10 MiB
@@ -38,7 +40,7 @@ fn encode<T: Serialize>(result: Result<T, KernelError>) -> Vec<u8> {
     })
 }
 
-fn decode<T: DeserializeOwned>(input: &[u8]) -> Result<T, KernelError> {
+fn decode<'a, T: Deserialize<'a>>(input: &'a [u8]) -> Result<T, KernelError> {
     if input.len() > MAX_REQUEST_BYTES {
         return Err(KernelError::new(
             "request_too_large",
@@ -52,10 +54,11 @@ fn decode<T: DeserializeOwned>(input: &[u8]) -> Result<T, KernelError> {
         .map_err(|e| KernelError::new("invalid_request", format!("invalid request JSON: {e}")))
 }
 
+// Strings borrow from the request unless they contain JSON escapes.
 #[derive(Deserialize)]
-struct ValueRequest {
-    #[serde(default)]
-    value: String,
+struct ValueRequest<'a> {
+    #[serde(default, borrow, deserialize_with = "null_default")]
+    value: Cow<'a, str>,
     #[serde(default)]
     default_region: Option<String>,
 }
@@ -84,60 +87,68 @@ pub fn normalize_phone(input: &[u8]) -> Vec<u8> {
 }
 
 pub fn normalize_person_name(input: &[u8]) -> Vec<u8> {
-    encode(decode::<ValueRequest>(input).map(|r| normalize::person_name(&r.value)))
+    match decode::<ValueRequest>(input) {
+        Ok(r) => encode(Ok(normalize::person_name(&r.value))),
+        Err(e) => encode::<()>(Err(e)),
+    }
 }
 
 #[derive(Deserialize)]
-struct BatchRequest {
+struct BatchRequest<'a> {
     kind: String,
-    #[serde(default)]
-    values: Vec<String>,
+    #[serde(default, borrow, deserialize_with = "null_default")]
+    values: Vec<Cow<'a, str>>,
     #[serde(default)]
     default_region: Option<String>,
 }
 
 #[derive(Serialize)]
 #[serde(untagged)]
-enum BatchValues {
+enum BatchValues<'a> {
     Strings(Vec<Option<String>>),
-    Names(Vec<PersonName>),
+    Names(Vec<PersonName<'a>>),
 }
 
 #[derive(Serialize)]
-struct BatchResponse {
-    values: BatchValues,
+struct BatchResponse<'a> {
+    values: BatchValues<'a>,
 }
 
 /// `{"kind": "domain|email|phone|person_name", "values": [...]}` →
 /// `{"values": [...]}` in input order. `person_name` returns objects.
 pub fn normalize_batch(input: &[u8]) -> Vec<u8> {
-    encode(decode::<BatchRequest>(input).and_then(|r| {
-        if r.values.len() > MAX_BATCH_VALUES {
+    let r = match decode::<BatchRequest>(input) {
+        Ok(r) => r,
+        Err(e) => return encode::<()>(Err(e)),
+    };
+    encode(batch_values(&r).map(|values| BatchResponse { values }))
+}
+
+fn batch_values<'a>(r: &'a BatchRequest<'_>) -> Result<BatchValues<'a>, KernelError> {
+    if r.values.len() > MAX_BATCH_VALUES {
+        return Err(KernelError::new(
+            "request_too_large",
+            format!("at most {MAX_BATCH_VALUES} values per batch"),
+        ));
+    }
+    let region = r.default_region.as_deref();
+    let strings = |f: &dyn Fn(&str) -> Option<String>| {
+        BatchValues::Strings(r.values.iter().map(|v| f(v)).collect())
+    };
+    Ok(match r.kind.as_str() {
+        "domain" => strings(&normalize::domain),
+        "email" => strings(&normalize::email),
+        "phone" => strings(&|v| normalize::phone(v, region)),
+        "person_name" => {
+            BatchValues::Names(r.values.iter().map(|v| normalize::person_name(v)).collect())
+        }
+        other => {
             return Err(KernelError::new(
-                "request_too_large",
-                format!("at most {MAX_BATCH_VALUES} values per batch"),
+                "invalid_request",
+                format!("unknown kind {other:?}; use domain, email, phone or person_name"),
             ));
         }
-        let region = r.default_region.as_deref();
-        let strings = |f: &dyn Fn(&str) -> Option<String>| {
-            BatchValues::Strings(r.values.iter().map(|v| f(v)).collect())
-        };
-        let values = match r.kind.as_str() {
-            "domain" => strings(&normalize::domain),
-            "email" => strings(&normalize::email),
-            "phone" => strings(&|v| normalize::phone(v, region)),
-            "person_name" => {
-                BatchValues::Names(r.values.iter().map(|v| normalize::person_name(v)).collect())
-            }
-            other => {
-                return Err(KernelError::new(
-                    "invalid_request",
-                    format!("unknown kind {other:?}; use domain, email, phone or person_name"),
-                ));
-            }
-        };
-        Ok(BatchResponse { values })
-    }))
+    })
 }
 
 pub fn extract(input: &[u8]) -> Vec<u8> {
@@ -165,6 +176,17 @@ mod tests {
         assert_eq!(
             call(normalize_domain, "nope")["error"]["code"],
             "invalid_request"
+        );
+        assert_eq!(
+            call(normalize_domain, r#"{"value":null}"#),
+            serde_json::json!({"value":null})
+        );
+        assert_eq!(
+            call(
+                extract,
+                r#"{"document":"<p>x</p>","fields":null,"items":null}"#
+            ),
+            serde_json::json!({"records":[{}]})
         );
         assert_eq!(
             call(normalize_person_name, r#"{"value":"Ada King Lovelace"}"#),

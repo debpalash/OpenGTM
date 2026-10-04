@@ -37,14 +37,29 @@ pub const MAX_OUTPUT_BYTES: usize = 16 << 20;
 const REGEX_SIZE_LIMIT: usize = 1 << 20;
 
 #[derive(Debug, Default, Deserialize)]
-#[serde(default)]
 pub struct ExtractRequest {
+    #[serde(default, deserialize_with = "null_default")]
     pub document: String,
+    #[serde(default, deserialize_with = "null_default")]
     pub format: String,
+    #[serde(default, deserialize_with = "null_default")]
     pub base_url: String,
+    #[serde(default, deserialize_with = "null_default")]
     pub items: String,
+    #[serde(default, deserialize_with = "null_default")]
     pub fields: BTreeMap<String, String>,
+    #[serde(default, deserialize_with = "null_default")]
     pub limit: i64,
+}
+
+/// Treats JSON `null` like a missing field (Go encodes nil maps and slices
+/// as `null`).
+pub fn null_default<'de, D, T>(d: D) -> Result<T, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: Default + Deserialize<'de>,
+{
+    Ok(Option::<T>::deserialize(d)?.unwrap_or_default())
 }
 
 #[derive(Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -86,12 +101,14 @@ enum Format {
     Json,
 }
 
+#[derive(Clone)]
 enum CssMode {
     Text,
     Html,
     Attr(String),
 }
 
+#[derive(Clone)]
 enum FieldSpec {
     /// `None` selects the record element itself.
     Css(Option<Selector>, CssMode),
@@ -193,9 +210,35 @@ fn check_len(field: Option<&str>, spec: &str) -> Result<(), KernelError> {
     Ok(())
 }
 
+/// Parsed field specs survive across calls on one instance (scrapers reuse the
+/// same selectors for every page). Compiling a Unicode-aware regex costs far
+/// more than extracting from a typical page, so this cache matters.
+const SPEC_CACHE_ENTRIES: usize = 256;
+
+thread_local! {
+    static SPEC_CACHE: std::cell::RefCell<std::collections::HashMap<(bool, String), FieldSpec>> =
+        std::cell::RefCell::new(std::collections::HashMap::new());
+}
+
 fn parse_field(name: &str, spec: &str, format: Format) -> Result<FieldSpec, KernelError> {
+    check_len(Some(name), spec)?;
+    let key = (format == Format::Json, spec.to_string());
+    if let Some(hit) = SPEC_CACHE.with(|c| c.borrow().get(&key).cloned()) {
+        return Ok(hit);
+    }
+    let parsed = parse_field_uncached(name, spec, format)?;
+    SPEC_CACHE.with(|c| {
+        let mut cache = c.borrow_mut();
+        if cache.len() >= SPEC_CACHE_ENTRIES {
+            cache.clear();
+        }
+        cache.insert(key, parsed.clone());
+    });
+    Ok(parsed)
+}
+
+fn parse_field_uncached(name: &str, spec: &str, format: Format) -> Result<FieldSpec, KernelError> {
     let field = Some(name);
-    check_len(field, spec)?;
     if let Some(css) = spec.strip_prefix("css:") {
         if format != Format::Html {
             return Err(KernelError::selector(

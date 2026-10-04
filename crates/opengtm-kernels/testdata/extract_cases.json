@@ -246,6 +246,24 @@
       }
     },
     {
+      "name": "JSONPath filter functions",
+      "document_file": "people_api.json",
+      "request": {
+        "format": "json",
+        "items": "$.data.people.edges[?length(@.node.emails) > 0].node",
+        "fields": {
+          "name": "json:name.full",
+          "work": "json:$.emails[?match(@.type, 'w.*k')].value"
+        }
+      },
+      "expected": {
+        "records": [
+          {"name": "Ada Lovelace", "work": "ada@acme.example"},
+          {"name": "Grace Hopper", "work": "grace@acme.example"}
+        ]
+      }
+    },
+    {
       "name": "JSON items limit",
       "document_file": "people_api.json",
       "request": {"format": "json", "items": "$.data.people.edges[*]", "fields": {"cursor": "json:cursor"}, "limit": 1},

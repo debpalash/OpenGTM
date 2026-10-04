@@ -4,6 +4,8 @@
 //!
 //! Python returns `""` for "no value"; these functions return `None` instead.
 
+use std::borrow::Cow;
+
 use crate::{pystr, pyurl};
 use serde::Serialize;
 
@@ -15,18 +17,15 @@ pub fn domain(value: &str) -> Option<String> {
     }
     let lowered = pystr::lower(value);
     let stripped = pystr::strip(&lowered);
-    let url = if stripped.starts_with("http://") || stripped.starts_with("https://") {
-        stripped.to_string()
+    let url: Cow<'_, str> = if stripped.starts_with("http://") || stripped.starts_with("https://") {
+        Cow::Borrowed(stripped)
     } else {
-        format!("http://{stripped}")
+        Cow::Owned(format!("http://{stripped}"))
     };
     let out = match pyurl::urlsplit_netloc(&url) {
         Ok(netloc) => {
             let host = pyurl::hostname(&netloc).unwrap_or_default();
-            match host.strip_prefix("www.") {
-                Some(rest) => rest.to_string(),
-                None => host,
-            }
+            host.strip_prefix("www.").unwrap_or(&host).to_string()
         }
         // The `except Exception` branch: url.lower().replace("www.", "").strip("/")
         Err(pyurl::UrlError) => pystr::lower(&url)
@@ -59,16 +58,19 @@ pub fn phone(value: &str, _default_region: Option<&str>) -> Option<String> {
     if value.is_empty() {
         return None;
     }
-    let digits: Vec<char> = value.chars().filter(|&c| pystr::is_decimal(c)).collect();
-    let start = digits.len().saturating_sub(10);
-    non_empty(digits[start..].iter().collect())
+    let mut digits: String = value.chars().filter(|&c| pystr::is_decimal(c)).collect();
+    // Python slices code points: keep the last ten characters.
+    let start = digits.char_indices().rev().nth(9).map_or(0, |(i, _)| i);
+    digits.drain(..start);
+    non_empty(digits)
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
-pub struct PersonName {
-    pub full: String,
-    pub first: String,
-    pub last: String,
+/// A person's name split for display; every part borrows from the input.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct PersonName<'a> {
+    pub full: &'a str,
+    pub first: &'a str,
+    pub last: &'a str,
 }
 
 /// Port of how `apps/api/services/workbook/people_search.py::_row_data` derives
@@ -77,16 +79,12 @@ pub struct PersonName {
 ///
 /// No honorific, suffix or particle handling: "Dr. Jane van der Berg Jr."
 /// yields first "Dr." and last "Jr.", exactly as Python does today.
-pub fn person_name(value: &str) -> PersonName {
+pub fn person_name(value: &str) -> PersonName<'_> {
     let full = pystr::strip(value);
     let mut parts = pystr::split_whitespace(full);
     let first = parts.next().unwrap_or("");
     let last = parts.last().unwrap_or("");
-    PersonName {
-        full: full.to_string(),
-        first: first.to_string(),
-        last: last.to_string(),
-    }
+    PersonName { full, first, last }
 }
 
 fn non_empty(s: String) -> Option<String> {
@@ -142,13 +140,13 @@ mod tests {
         assert_eq!(n.first, "Dr.");
         assert_eq!(n.last, "Jr.");
         let n = person_name("Cher");
-        assert_eq!((n.first.as_str(), n.last.as_str()), ("Cher", ""));
+        assert_eq!((n.first, n.last), ("Cher", ""));
         assert_eq!(
             person_name(""),
             PersonName {
-                full: String::new(),
-                first: String::new(),
-                last: String::new()
+                full: "",
+                first: "",
+                last: ""
             }
         );
     }

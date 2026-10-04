@@ -6,6 +6,8 @@
 //! signs and non-ASCII hosts as-is, never applies IDNA, and splits the netloc
 //! with simple string partitions. Matching that byte-for-byte is the point.
 
+use std::borrow::Cow;
+
 use crate::pystr;
 
 /// `urlsplit` raised `ValueError`.
@@ -19,13 +21,21 @@ fn is_scheme_char(c: char) -> bool {
 }
 
 /// Returns the netloc component of `urlsplit(url)`, or the error it raises.
-pub fn urlsplit_netloc(url: &str) -> Result<String, UrlError> {
+pub fn urlsplit_netloc(url: &str) -> Result<Cow<'_, str>, UrlError> {
     let url = url.trim_start_matches(C0_CONTROL_OR_SPACE);
-    let url: String = url
-        .chars()
-        .filter(|c| !matches!(c, '\t' | '\r' | '\n'))
-        .collect();
-    let mut rest: &str = &url;
+    if url.contains(['\t', '\r', '\n']) {
+        let cleaned: String = url
+            .chars()
+            .filter(|c| !matches!(c, '\t' | '\r' | '\n'))
+            .collect();
+        return netloc_of(&cleaned).map(|n| Cow::Owned(n.to_string()));
+    }
+    netloc_of(url).map(Cow::Borrowed)
+}
+
+/// `urlsplit` after the unsafe-byte removal.
+fn netloc_of(url: &str) -> Result<&str, UrlError> {
+    let mut rest: &str = url;
     if let Some(i) = rest.find(':') {
         let first = rest.chars().next().unwrap_or('\0');
         if i > 0 && first.is_ascii_alphabetic() && rest[..i].chars().all(is_scheme_char) {
@@ -46,7 +56,7 @@ pub fn urlsplit_netloc(url: &str) -> Result<String, UrlError> {
         }
     }
     check_netloc(netloc)?;
-    Ok(netloc.to_string())
+    Ok(netloc)
 }
 
 /// `_checknetloc`: reject hosts whose NFKC form introduces URL delimiters.
@@ -105,7 +115,7 @@ fn rpartition_after(s: &str, sep: char) -> &str {
 }
 
 /// `SplitResult.hostname` for a netloc: `None` when empty.
-pub fn hostname(netloc: &str) -> Option<String> {
+pub fn hostname(netloc: &str) -> Option<Cow<'_, str>> {
     let hostinfo = rpartition_after(netloc, '@');
     let host = match hostinfo.split_once('[') {
         Some((_, bracketed)) => bracketed.split_once(']').map_or(bracketed, |(h, _)| h),
@@ -115,8 +125,12 @@ pub fn hostname(netloc: &str) -> Option<String> {
         return None;
     }
     Some(match host.split_once('%') {
-        Some((h, zone)) => format!("{}%{}", pystr::lower(h), zone),
-        None => pystr::lower(host),
+        Some((h, zone)) => Cow::Owned(format!("{}%{}", pystr::lower(h), zone)),
+        // Fast path: lowercase ASCII is already its own lower().
+        None if host.is_ascii() && !host.bytes().any(|b| b.is_ascii_uppercase()) => {
+            Cow::Borrowed(host)
+        }
+        None => Cow::Owned(pystr::lower(host)),
     })
 }
 
