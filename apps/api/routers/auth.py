@@ -18,6 +18,8 @@ from apps.api.auth import (
 )
 from apps.api.core.config import settings
 from apps.api.core.security import get_current_active_user
+from apps.api.core.tenancy import WorkspaceCtx, current_workspace
+from pydantic import BaseModel
 from apps.api.services.workspace import manager as workspace_manager
 from apps.api.services.workspace import oidc
 from urllib.parse import quote
@@ -87,6 +89,38 @@ async def refresh_access_token(body: RefreshRequest, db: Session = Depends(get_d
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
+
+
+# Mounted under /api so the same reverse-proxy rules as every other data
+# endpoint apply (the legacy /auth prefix predates them).
+api_router = APIRouter(prefix="/api/auth", tags=["Auth"])
+
+
+class WorkspaceContext(BaseModel):
+    user_id: str
+    username: str
+    workspace_id: str
+    slug: str
+    # The caller's role in this workspace (owner/admin/editor/viewer/member).
+    role: str
+
+
+@api_router.get("/workspace-context", response_model=WorkspaceContext)
+async def workspace_context(request: Request, ctx: WorkspaceCtx = Depends(current_workspace)):
+    """Resolve the caller's authorized workspace for the Go server.
+
+    Workspace membership, SSO enforcement and roles still live in this
+    service's control plane, so the Go server forwards the caller's token and
+    ``X-Workspace-Id`` here instead of re-implementing them. Every check is the
+    shared ``current_workspace`` dependency; this endpoint only reports it.
+    """
+    return WorkspaceContext(
+        user_id=str(ctx.user.id),
+        username=ctx.user.username,
+        workspace_id=ctx.workspace_id,
+        slug=ctx.slug,
+        role=getattr(request.state, "actor_role", "") or "",
+    )
 
 
 @router.get("/sso/{workspace_slug}")
