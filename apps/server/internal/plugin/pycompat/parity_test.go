@@ -7,15 +7,15 @@ import (
 )
 
 type yamlCase struct {
-	Name           string `json:"name"`
-	Input          string `json:"input"`
-	LoadOK         bool   `json:"load_ok"`
-	LoadError      string `json:"load_error"`
-	Str            string `json:"str"`
-	CanonicalOK    bool   `json:"canonical_ok"`
-	Canonical      string `json:"canonical"`
-	CanonicalError string `json:"canonical_error"`
-	PrettyASCII    string `json:"pretty_ascii"`
+	Name           string  `json:"name"`
+	Input          string  `json:"input"`
+	LoadOK         bool    `json:"load_ok"`
+	LoadError      string  `json:"load_error"`
+	Str            *string `json:"str"`
+	CanonicalOK    bool    `json:"canonical_ok"`
+	Canonical      string  `json:"canonical"`
+	CanonicalError string  `json:"canonical_error"`
+	PrettyASCII    string  `json:"pretty_ascii"`
 }
 
 type jsonCase struct {
@@ -55,8 +55,8 @@ func TestPythonParity(t *testing.T) {
 			if err != nil {
 				t.Fatalf("python loaded but Go failed: %v", err)
 			}
-			if c.Name != "set" && Str(v) != c.Str {
-				t.Errorf("str() mismatch\n go: %s\n py: %s", Str(v), c.Str)
+			if c.Str != nil && Str(v) != *c.Str {
+				t.Errorf("str() mismatch\n go: %s\n py: %s", Str(v), *c.Str)
 			}
 			got, err := Canonical(v)
 			if !c.CanonicalOK {

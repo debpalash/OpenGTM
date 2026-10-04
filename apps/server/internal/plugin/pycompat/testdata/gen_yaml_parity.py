@@ -113,7 +113,8 @@ def main():
             out["yaml"].append(case)
             continue
         case["load_ok"] = True
-        case["str"] = str(value)
+        # Set iteration order is hash-randomized in Python; skip its str().
+        case["str"] = None if name == "set" else str(value)
         canon = describe(lambda: json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
         case["canonical_ok"] = canon["ok"]
         if canon["ok"]:

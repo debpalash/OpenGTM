@@ -327,7 +327,7 @@
    "name": "set",
    "input": "a: !!set {x, y}",
    "load_ok": true,
-   "str": "{'a': {'y', 'x'}}",
+   "str": null,
    "canonical_ok": false,
    "canonical_error": "Object of type set is not JSON serializable"
   },
