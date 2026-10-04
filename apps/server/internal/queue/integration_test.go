@@ -478,6 +478,16 @@ func TestTimeoutFailsAttempt(t *testing.T) {
 	if r := getJob(t, pool, id); r.Status != "pending" || *r.RetryCount != 2 {
 		t.Fatalf("uncooperative timeout row: %+v", r)
 	}
+
+	// Returning nil after the deadline does not turn a timeout into success.
+	q.opts.HandlerStopGrace = 2 * time.Second
+	q.Register(jt, func(ctx context.Context, job Job) error { time.Sleep(400 * time.Millisecond); return nil })
+	mustExec(t, pool, `UPDATE jobs SET next_run_at = LOCALTIMESTAMP WHERE id = $1`, id)
+	q.process(context.Background(), *claim(t, q))
+	want = fmt.Sprintf("Retry 3: job %d (%s) exceeded 0.2s", id, jt)
+	if r := getJob(t, pool, id); r.Status != "pending" || str(r.Error) != want {
+		t.Fatalf("late nil after timeout: status %s error %q, want %q", r.Status, str(r.Error), want)
+	}
 }
 
 func TestHandlerPanicIsAFailure(t *testing.T) {

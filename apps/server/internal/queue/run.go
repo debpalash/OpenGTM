@@ -145,39 +145,41 @@ func (q *Queue) process(attempts context.Context, job Job) {
 	result := make(chan error, 1)
 	go func() { result <- q.invoke(runCtx, job) }()
 
-	var herr error
+	// cause is set only when the attempt was interrupted (timeout, lost
+	// lease, shutdown); a handler that returned first keeps its own result.
+	var herr, cause error
 	select {
 	case herr = <-result:
+		if herr != nil {
+			cause = context.Cause(runCtx)
+		}
 	case <-runCtx.Done():
+		cause = context.Cause(runCtx)
 		select {
 		case herr = <-result:
 		case <-time.After(q.opts.HandlerStopGrace):
 			// Goroutines cannot be killed. Finalizing releases the lease, so
 			// any later write the handler fences on it is rejected.
-			log.Error("handler ignored cancellation; finalizing without it",
-				"cause", context.Cause(runCtx))
-			herr = context.Cause(runCtx)
+			log.Error("handler ignored cancellation; finalizing without it", "cause", cause)
 		}
 	}
-	cause := context.Cause(runCtx)
 	cancelJob(errJobDone)
 	<-monitorDone
 
-	if errors.Is(cause, errShutdown) {
+	var timeout *timeoutError
+	failure := herr
+	switch {
+	case errors.Is(cause, errShutdown):
 		log.Warn("attempt interrupted by shutdown; left for heartbeat recovery")
 		return
-	}
-	var failure error
-	if herr != nil {
-		failure = herr
-		// A handler that returns ctx.Err() reports *that* it stopped; the
-		// cause says why, in the message Python would have recorded.
-		if cause != nil && (errors.Is(herr, context.Canceled) || errors.Is(herr, context.DeadlineExceeded) || herr == cause) {
-			failure = cause
-		}
-		if errors.Is(failure, errLeaseLost) {
-			failure = fmt.Errorf("job %d (%s) claim cancelled or lost", job.ID, job.Type)
-		}
+	case errors.As(cause, &timeout):
+		// Like Python's killed child: past the deadline the attempt failed,
+		// whatever the handler reports afterwards.
+		failure = timeout
+	case errors.Is(cause, errLeaseLost):
+		// Finalization will find the row cancelled (kept) or reclaimed
+		// (untouched); this text only matters if neither holds.
+		failure = fmt.Errorf("job %d (%s) claim cancelled or lost", job.ID, job.Type)
 	}
 	q.finish(job, failure, log)
 }
