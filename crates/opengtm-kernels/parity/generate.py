@@ -77,6 +77,9 @@ DOMAINS = [
     "linkedin.com/company/acme", "https://acme.example/careers/", "acme.io/", "/relative/path", "?only=query",
     "#only-fragment", "123", "-example.com", "example-.com", "exa_mple.com", "e​xample.com", "e­xample.com",
     "😀.example.com", "example.com/😀", "İ.com", "x" * 300 + ".com",
+    # Uppercase letters added after Unicode 15.1: Python 3.13 does not lowercase them.
+    "ᲉꟋꟌ꟎꟒꟔ꟚꟜ.com", "\U00010d50\U00010d65.example", "\U00016ea0\U00016eb8.io",
+    "ΑΣꟋ.gr", "ꟋΣΑ.gr",
 ]
 
 EMAILS = [
@@ -88,7 +91,7 @@ EMAILS = [
     "ΣΊΣΥΦΟΣ@x.gr", "İnan@x.com.tr", "jane@xn--bcher-kva.de", "\x1cjane@example.com\x1f", "jane@example.com\n",
     "jane\t@example.com", "\"quoted local\"@example.com", "jane@[127.0.0.1]", "jane@[ipv6:::1]", "jane(comment)@example.com",
     "x" * 70 + "@example.com", "jane@example.com.", "jane@ex_ample.com", "jane@-example.com", "😀@emoji.example",
-    "ǅane@example.com", "ﬃ@example.com", "STRASSE@straße.de",
+    "ǅane@example.com", "ﬃ@example.com", "STRASSE@straße.de", "ꟋX\U00010d50@EXAMPLE.COM",
 ]
 
 PHONES = [
@@ -121,7 +124,8 @@ ALPHABET = (
     + ["www.", "http://", "https://", "WWW.", "::", "Σ", "ς", "İ", "ß", "é", "é", "ü", "例", "р", "😀",
        "\t", "\n", "\r", "\x0b", "\x0c", "\x1c", "\x1f", "\x85", " ", " ", " ", "　", "​",
        "٠", "٩", "०", "０", "９", "²", "①", "\U0001d7ce",
-       "℀", "／", "＠", "﹕", "⁇", ".com", ".co.uk", "@", "@x.io", "v1.", "fe80", "%25"]
+       "℀", "／", "＠", "﹕", "⁇", ".com", ".co.uk", "@", "@x.io", "v1.", "fe80", "%25",
+       "Ɤ", "\U00010d50"]
 )
 
 

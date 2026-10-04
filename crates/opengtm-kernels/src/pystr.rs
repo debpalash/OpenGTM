@@ -35,15 +35,48 @@ pub fn split_whitespace(s: &str) -> impl Iterator<Item = &str> {
 }
 
 /// `str.lower()`. Rust and CPython both apply full case mapping including the
-/// final-sigma rule; they can only disagree on code points whose case mapping
-/// changed between Unicode 15.1 (CPython 3.13) and the Rust toolchain's
-/// Unicode version.
+/// final-sigma rule. Uppercase letters added after Unicode 15.1 (CPython 3.13)
+/// are unassigned to Python, so they are kept as-is here too.
 pub fn lower(s: &str) -> String {
     if s.is_ascii() {
-        s.to_ascii_lowercase()
-    } else {
-        s.to_lowercase()
+        return s.to_ascii_lowercase();
     }
+    if !s.chars().any(is_post_15_1_upper) {
+        return s.to_lowercase();
+    }
+    // Lowercase the runs between such letters separately. To Python they are
+    // neither cased nor case-ignorable, so they also end any final-sigma
+    // context, exactly like a run boundary does.
+    let mut out = String::with_capacity(s.len());
+    let mut run_start = 0;
+    for (i, c) in s.char_indices() {
+        if is_post_15_1_upper(c) {
+            out.push_str(&s[run_start..i].to_lowercase());
+            out.push(c);
+            run_start = i + c.len_utf8();
+        }
+    }
+    out.push_str(&s[run_start..].to_lowercase());
+    out
+}
+
+/// Code points that Rust (Unicode 17) lowercases but CPython 3.13 (Unicode
+/// 15.1) leaves unchanged. Found by comparing `char::to_lowercase` with
+/// `str.lower()` for every code point.
+fn is_post_15_1_upper(c: char) -> bool {
+    matches!(
+        c as u32,
+        0x1C89
+            | 0xA7CB
+            | 0xA7CC
+            | 0xA7CE
+            | 0xA7D2
+            | 0xA7D4
+            | 0xA7DA
+            | 0xA7DC
+            | 0x10D50..=0x10D65
+            | 0x16EA0..=0x16EB8
+    )
 }
 
 /// Unicode decimal digits (category Nd) as matched by Python's `re` `\d` and
@@ -154,6 +187,17 @@ mod tests {
         assert_eq!(strip("\u{1F} a b \u{3000}"), "a b");
         let parts: Vec<_> = split_whitespace("  a \t b\u{2003}c ").collect();
         assert_eq!(parts, ["a", "b", "c"]);
+    }
+
+    #[test]
+    fn lower_matches_unicode_15_1() {
+        assert_eq!(lower("ABC"), "abc");
+        assert_eq!(lower("İ"), "i\u{307}");
+        assert_eq!(lower("ΟΔΟΣ"), "\u{3BF}\u{3B4}\u{3BF}\u{3C2}");
+        assert_eq!(lower("A\u{A7CB}B"), "a\u{A7CB}b");
+        // U+A7CB ends the final-sigma context like an unassigned letter does.
+        assert_eq!(lower("ΑΣ\u{A7CB}"), "ας\u{A7CB}");
+        assert_eq!(lower("\u{A7CB}ΣΑ"), "\u{A7CB}σα");
     }
 
     #[test]
