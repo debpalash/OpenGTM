@@ -16,6 +16,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -37,6 +38,23 @@ type Config struct {
 	WebDir       string
 	LogLevel     slog.Level
 	Worker       Worker
+	Plugins      Plugins
+}
+
+// Plugins locates installed plugins and sets how they are trusted.
+type Plugins struct {
+	// Dirs are searched for v2 plugins (directories holding plugin.yaml).
+	Dirs []string
+	// ConnectorDirs hold v1 connector manifests, validated exactly as the
+	// Python connector registry does.
+	ConnectorDirs []string
+	// SignaturePolicy is "optional" or "required"; shared with Python
+	// through CONNECTOR_SIGNATURE_POLICY.
+	SignaturePolicy string
+	// TrustStore is the trusted-publishers JSON file.
+	TrustStore string
+	// EgressProxy is an optional HTTP proxy for plugin traffic.
+	EgressProxy string
 }
 
 // Worker mirrors the Python queue knobs, including their clamping ranges, so
@@ -55,7 +73,14 @@ type file struct {
 	LegacyAPIURL *string `yaml:"legacy_api_url"`
 	WebDir       *string `yaml:"web_dir"`
 	LogLevel     *string `yaml:"log_level"`
-	Worker       struct {
+	Plugins      struct {
+		Dirs            []string `yaml:"dirs"`
+		ConnectorDirs   []string `yaml:"connector_dirs"`
+		SignaturePolicy *string  `yaml:"signature_policy"`
+		TrustStore      *string  `yaml:"trust_store"`
+		EgressProxy     *string  `yaml:"egress_proxy"`
+	} `yaml:"plugins"`
+	Worker struct {
 		Concurrency           *int `yaml:"concurrency"`
 		MaxActivePerWorkspace *int `yaml:"max_active_per_workspace"`
 		ShutdownGraceSeconds  *int `yaml:"shutdown_grace_seconds"`
@@ -124,6 +149,34 @@ func LoadFrom(path string, lookup func(string) (string, bool)) (Config, error) {
 			ShutdownGrace: time.Duration(num("WORKER_SHUTDOWN_GRACE_SECONDS",
 				f.Worker.ShutdownGraceSeconds, 30, 0, 300)) * time.Second,
 		},
+	}
+
+	paths := func(env string, fromFile []string) []string {
+		if v, ok := lookup(env); ok && strings.TrimSpace(v) != "" {
+			var out []string
+			for _, p := range filepath.SplitList(v) {
+				if p = strings.TrimSpace(p); p != "" {
+					out = append(out, p)
+				}
+			}
+			return out
+		}
+		return fromFile
+	}
+	cfg.Plugins = Plugins{
+		Dirs:            paths("OPENGTM_PLUGIN_DIRS", f.Plugins.Dirs),
+		ConnectorDirs:   paths("OPENGTM_CONNECTOR_DIRS", f.Plugins.ConnectorDirs),
+		SignaturePolicy: strings.ToLower(str("CONNECTOR_SIGNATURE_POLICY", f.Plugins.SignaturePolicy, "optional")),
+		TrustStore:      str("OPENGTM_PLUGIN_TRUST_STORE", f.Plugins.TrustStore, ""),
+		EgressProxy:     str("OPENGTM_EGRESS_PROXY", f.Plugins.EgressProxy, ""),
+	}
+	if p := cfg.Plugins.SignaturePolicy; p != "optional" && p != "required" {
+		errs = append(errs, fmt.Errorf("CONNECTOR_SIGNATURE_POLICY=%q must be optional or required", p))
+	}
+	for _, dir := range append(append([]string{}, cfg.Plugins.Dirs...), cfg.Plugins.ConnectorDirs...) {
+		if st, err := os.Stat(dir); err != nil || !st.IsDir() {
+			errs = append(errs, fmt.Errorf("plugin directory %q is not a readable directory", dir))
+		}
 	}
 
 	dbURL, err := NormalizeDatabaseURL(str("DATABASE_URL", f.DatabaseURL, ""))

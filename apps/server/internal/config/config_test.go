@@ -135,3 +135,29 @@ func TestLoadUsesConfigEnv(t *testing.T) {
 		t.Errorf("DatabaseURL = %q", cfg.DatabaseURL)
 	}
 }
+
+func TestPluginSettings(t *testing.T) {
+	a, b := t.TempDir(), t.TempDir()
+	cfg, err := LoadFrom("", env(map[string]string{
+		"DATABASE_URL":               "postgresql://u:p@db/x",
+		"OPENGTM_PLUGIN_DIRS":        a + string(os.PathListSeparator) + " " + b + " ",
+		"OPENGTM_CONNECTOR_DIRS":     b,
+		"CONNECTOR_SIGNATURE_POLICY": "REQUIRED",
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := cfg.Plugins
+	if len(p.Dirs) != 2 || p.Dirs[0] != a || p.Dirs[1] != b || len(p.ConnectorDirs) != 1 || p.SignaturePolicy != "required" {
+		t.Errorf("Plugins = %+v", p)
+	}
+
+	_, err = LoadFrom("", env(map[string]string{
+		"DATABASE_URL":               "postgresql://u:p@db/x",
+		"OPENGTM_PLUGIN_DIRS":        filepath.Join(a, "missing"),
+		"CONNECTOR_SIGNATURE_POLICY": "sometimes",
+	}))
+	if err == nil || !strings.Contains(err.Error(), "not a readable directory") || !strings.Contains(err.Error(), "optional or required") {
+		t.Errorf("want both plugin errors, got %v", err)
+	}
+}
