@@ -28,9 +28,17 @@ COPY --from=web /app/apps/web/dist/ ./internal/server/webdist/dist/
 RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" \
     -o /out/opengtm ./cmd/opengtm
 
-# Stage 3: runtime. Static binary, non-root, no shell.
+# Stage 3: runtime. Static binary, non-root, no shell. First-party plugins,
+# the v1 connector manifests and the trusted-publisher store ship with it;
+# mount more plugin directories and list them in OPENGTM_PLUGIN_DIRS.
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=server /out/opengtm /usr/local/bin/opengtm
+COPY plugins/ /opt/opengtm/plugins/
+COPY apps/api/services/leadgen/enrichment/declarative/manifests/ /opt/opengtm/connectors/
+COPY docs/connectors/trusted-publishers.json /opt/opengtm/trusted-publishers.json
+ENV OPENGTM_PLUGIN_DIRS=/opt/opengtm/plugins \
+    OPENGTM_CONNECTOR_DIRS=/opt/opengtm/connectors \
+    OPENGTM_PLUGIN_TRUST_STORE=/opt/opengtm/trusted-publishers.json
 EXPOSE 8080
 USER nonroot:nonroot
 ENTRYPOINT ["/usr/local/bin/opengtm"]

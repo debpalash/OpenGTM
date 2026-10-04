@@ -16,5 +16,6 @@ reference/research
 .env.*
 !.env.example
 docs
+!docs/connectors/trusted-publishers.json
 gtm
 .claude

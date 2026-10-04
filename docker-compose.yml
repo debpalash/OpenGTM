@@ -299,6 +299,45 @@ services:
     networks:
       - lead_net
 
+  # ── Go server (opt-in preview of the platform rewrite) ──────────
+  # One binary that serves the web UI, the Go-owned /api/v2 routes (plugin
+  # catalog, plugin runs, live events) and the plugin_run worker, and proxies
+  # every other path to the Python API. Start it next to the existing stack:
+  #   docker compose --profile server up -d server
+  # See docs/plans/hybrid-platform-rewrite.md.
+  server:
+    profiles: ["server"]
+    image: ${OPENGTM_SERVER_IMAGE:-opengtm-server:local}
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    container_name: lead-data-server
+    env_file: .env
+    environment:
+      - DATABASE_URL=${APP_DATABASE_URL:-postgresql+psycopg://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
+      - OPENGTM_LISTEN=:8080
+      - OPENGTM_LEGACY_API_URL=http://api:8000
+    command: ["serve", "--worker"]
+    ports:
+      # Host-local by default while this is a preview; set SERVER_BIND=0.0.0.0
+      # to expose it on the LAN instead of nginx.
+      - "${SERVER_BIND:-127.0.0.1}:${SERVER_PORT:-3080}:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/opengtm", "health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - lead_net
+
 volumes:
   pgdata:
   redisdata:
