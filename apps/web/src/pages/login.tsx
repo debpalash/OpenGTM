@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState, type ReactNode } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "@tanstack/react-router"
 import { ArrowLeft, Building2, Eye, EyeOff, KeyRound, LockKeyhole, LogIn, User, UserPlus } from "lucide-react"
 
 import { LoginScene } from "@/components/login-scene/login-scene"
@@ -127,7 +127,7 @@ export default function LoginPage() {
   const stars = useGitHubStars(GITHUB_REPO)
   const { login } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
+  const from = useLocation({ select: location => location.state.from }) ?? "/chat"
   const [mode, setMode] = useState<AuthMode>("login")
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
@@ -138,7 +138,6 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false)
   const [workspaceSlug, setWorkspaceSlug] = useState("")
 
-  const from = (location.state as { from?: string } | null)?.from ?? "/chat"
   const copy = COPY[mode]
   const ModeIcon = copy.icon
 
@@ -173,7 +172,7 @@ export default function LoginPage() {
     setBusy(true)
     try {
       await login(username.trim(), password)
-      navigate(from, { replace: true })
+      void navigate({ href: from, replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed")
     } finally {
@@ -190,8 +189,8 @@ export default function LoginPage() {
   )
 
   return (
-    // `light` scopes every token on this page: Twenty's provider also marks its
-    // wrapper with the app theme, and the nearest themed ancestor wins.
+    // `light` scopes every token on this page: the app ThemeProvider also marks
+    // its wrapper with the app theme, and the nearest themed ancestor wins.
     <main className="light min-h-screen bg-[var(--t-background-secondary)] p-2 [color-scheme:light] sm:p-5">
       <div className="gtm-login-sky relative isolate flex min-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-[var(--gtm-radius-card)] border border-[var(--t-border-color-medium)] sm:min-h-[calc(100vh-2.5rem)] sm:rounded-[var(--gtm-radius-frame)]">
         <div className="gtm-login-clouds" aria-hidden="true" />

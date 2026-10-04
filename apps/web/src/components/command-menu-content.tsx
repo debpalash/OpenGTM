@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 import {
   Command, CommandEmpty, CommandGroup, CommandInput,
   CommandItem, CommandList, CommandSeparator,
@@ -25,7 +25,7 @@ export function CommandMenuContent({ open, setOpen }: { open: boolean; setOpen: 
   const { data: leads } = useLeads({ limit: "100" }, { enabled: open })
 
   const go = (path: string) => {
-    navigate(path)
+    void navigate({ href: path })
     setOpen(false)
   }
 

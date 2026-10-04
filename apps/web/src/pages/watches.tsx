@@ -13,7 +13,7 @@
 // handler in the mutation hooks remains the backstop. Reads are any member.
 
 import { useMemo, useState } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { getRouteApi } from "@tanstack/react-router"
 import {
   ArrowLeft,
   ChevronRight,
@@ -132,13 +132,15 @@ function formatRelative(iso: string | null): string | null {
 
 type View = { name: "list" } | { name: "create" } | { name: "detail"; id: string }
 
+const route = getRouteApi("/_app/watches")
+
 export default function WatchesPage() {
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const initialTarget = searchParams.get("target") || ""
-  const view: View = searchParams.get("id")
-    ? { name: "detail", id: searchParams.get("id") as string }
-    : searchParams.get("create") === "1"
+  const navigate = route.useNavigate()
+  const search = route.useSearch()
+  const initialTarget = search.target || ""
+  const view: View = search.id
+    ? { name: "detail", id: search.id }
+    : search.create === "1"
       ? { name: "create" }
       : { name: "list" }
   const flags = useFlags()
@@ -164,23 +166,23 @@ export default function WatchesPage() {
       <WatchBuilder
         initialTarget={initialTarget}
         onCancel={() => {
-          navigate("/watches")
+          void navigate({ to: "/watches", search: {} })
         }}
-        onCreated={(id) => navigate(`/watches?id=${encodeURIComponent(id)}`)}
+        onCreated={(id) => void navigate({ to: "/watches", search: { id } })}
       />
     )
   }
   if (view.name === "detail") {
     return (
-      <WatchDetail id={view.id} onBack={() => navigate("/watches")} />
+      <WatchDetail id={view.id} onBack={() => void navigate({ to: "/watches", search: {} })} />
     )
   }
 
   return (
     <WatchListView
       query={watches}
-      onCreate={() => navigate("/watches?create=1")}
-      onOpen={(id) => navigate(`/watches?id=${encodeURIComponent(id)}`)}
+      onCreate={() => void navigate({ to: "/watches", search: { create: "1" } })}
+      onOpen={(id) => void navigate({ to: "/watches", search: { id } })}
     />
   )
 }

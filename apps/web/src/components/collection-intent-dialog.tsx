@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "@tanstack/react-router"
 import { Building2, Radar, Search, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -27,7 +27,7 @@ const ICONS: Record<CollectionIntent, typeof Building2> = {
 
 export function CollectionIntentDialog() {
   const navigate = useNavigate()
-  const location = useLocation()
+  const pathname = useLocation({ select: location => location.pathname })
   const [decision, setDecision] = useState<CollectionClarification | null>(null)
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export function CollectionIntentDialog() {
 
   const choose = (route: string, draft: string) => {
     setDecision(null)
-    if (route === "/chat" && location.pathname === "/chat") {
+    if (route === "/chat" && pathname === "/chat") {
       window.dispatchEvent(new CustomEvent(CHAT_DRAFT_EVENT, { detail: { draft } }))
       return
     }
@@ -51,7 +51,7 @@ export function CollectionIntentDialog() {
       params.set("create", "1")
       params.set("target", draft)
     }
-    navigate(`${route}?${params.toString()}`)
+    void navigate({ href: `${route}?${params.toString()}` })
   }
 
   return (

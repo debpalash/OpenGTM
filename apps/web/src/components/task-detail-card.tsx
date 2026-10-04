@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 import {
   CheckCircle2, XCircle, Clock, Loader2, ChevronDown,
   Brain, ExternalLink, MapPin, Globe, Link2, Briefcase, Star,
@@ -420,7 +420,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
         const { createWorkbookFromJobs } = await import("@/lib/workbook-api")
         const wb = await createWorkbookFromJobs({ job_ids: [job.id] })
         toast.success(`Workbook "${wb.name}" created with ${wb.total_rows} leads`)
-        navigate(`/workbooks/${wb.id}`)
+        void navigate({ to: "/workbooks/$id", params: { id: wb.id } })
       } catch (err) {
         toast.error("Failed to create workbook")
       }
@@ -430,7 +430,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
       <Card
         className="cursor-pointer hover:bg-accent/50 transition-colors border-l-2"
         style={{ borderLeftColor: isRunning ? "var(--primary)" : job.status === "done" ? "hsl(142, 76%, 36%)" : job.status === "failed" ? "var(--destructive)" : "transparent" }}
-        onClick={() => navigate(`/agents/${job.id}`)}
+        onClick={() => void navigate({ to: "/agents/$jobId", params: { jobId: job.id } })}
       >
         <CardContent className="p-3 space-y-2">
           <div className="flex items-start justify-between gap-2">
@@ -537,7 +537,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
                 const { createWorkbookFromJobs } = await import("@/lib/workbook-api")
                 const wb = await createWorkbookFromJobs({ job_ids: [job.id] })
                 toast.success(`Workbook "${wb.name}" created`)
-                navigate(`/workbooks/${wb.id}`)
+                void navigate({ to: "/workbooks/$id", params: { id: wb.id } })
               } catch {
                 toast.error("Failed to create workbook")
               }
@@ -549,7 +549,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
             await fetch(`/api/jobs/${job.id}?keep_leads=true`, { method: "DELETE" })
             queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
             toast.success("Task removed (leads kept)")
-            navigate("/agents")
+            void navigate({ to: "/agents" })
           }}>
             <FileX2 className="size-3" />
           </Button>
@@ -559,7 +559,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
             queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
             queryClient.invalidateQueries({ queryKey: queryKeys.leads.all })
             toast.success("Task and leads deleted")
-            navigate("/agents")
+            void navigate({ to: "/agents" })
           }}>
             <Trash2 className="size-3" />
           </Button>
@@ -657,7 +657,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
                     <tr
                       key={lead.id}
                       className="border-t border-border/30 hover:bg-muted/30 cursor-pointer transition-colors"
-                      onClick={() => navigate(`/leads/${lead.id}`)}
+                      onClick={() => void navigate({ to: "/leads/$id", params: { id: String(lead.id) } })}
                     >
                       <td className="px-2 py-1 font-medium truncate max-w-[160px]">{lead.company}</td>
                       <td className="px-2 py-1 text-muted-foreground truncate max-w-[180px]">{lead.email || "—"}</td>

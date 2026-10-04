@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
@@ -203,7 +203,7 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
                 {lead.source.startsWith("job:") ? (
                   <button
                     className="text-[10px] text-primary/60 hover:text-primary font-mono truncate block max-w-20 hover:underline"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/pipeline/${lead.source.replace('job:', '')}`) }}
+                    onClick={(e) => { e.stopPropagation(); void navigate({ href: `/pipeline/${lead.source.replace('job:', '')}` }) }}
                   >
                     {lead.source.slice(0, 12)}
                   </button>

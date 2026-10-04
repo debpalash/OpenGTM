@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useRef, useState } from "react"
-import { NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom"
+import { Link, useLocation, useNavigate, useSearch } from "@tanstack/react-router"
 import {
   ArrowUp, Building2, Check, ChevronRight, ChevronsUpDown, Keyboard, LogOut, Monitor, Moon,
   MoreHorizontal, Search, Settings, SquarePen, Sun, SunMoon, Trash2,
@@ -25,13 +25,16 @@ import { NAVIGATION_GROUPS, isNavigationActive, OPEN_COMMAND_MENU_EVENT, OPEN_SH
 import "./shell.css"
 
 const RECENT_LIMIT = 8
+// Same matching as react-router's NavLink: the path or any sub-path is
+// active (`aria-current="page"`, `.active`); the query string is ignored.
+const NAV_LINK_ACTIVE = { includeSearch: false } as const
 const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform)
 const initials = (name: string) => name.split(/[\s._-]+/).filter(Boolean).slice(0, 2).map(part => part[0]!.toUpperCase()).join("") || "?"
 
 export function AppSidebar() {
-  const { pathname } = useLocation()
+  const pathname = useLocation({ select: location => location.pathname })
   const navigate = useNavigate()
-  const [params] = useSearchParams()
+  const activeChatId = useSearch({ strict: false, select: search => search.id })
   const { isMobile, state, setOpen, setOpenMobile } = useSidebar()
   const { data: jobs } = useJobs()
   const { data: conversations } = useConversations()
@@ -48,7 +51,7 @@ export function AppSidebar() {
   const recent = chatSearch ? matching : matching.slice(0, RECENT_LIMIT)
   const activeWorkspace = workspaces.find(workspace => workspace.id === activeWorkspaceId)
   const closeMobile = () => { if (isMobile) setOpenMobile(false) }
-  const go = (to: string) => { navigate(to); closeMobile() }
+  const go = (to: "/chat" | "/agency" | "/settings") => { void navigate({ to }); closeMobile() }
 
   useEffect(() => {
     if (newChatOpen && (isMobile || state === "expanded")) newChatInput.current?.focus()
@@ -65,7 +68,8 @@ export function AppSidebar() {
     if (!draft) return
     setNewChatOpen(false)
     setNewChatDraft("")
-    go(`/chat?draft=${encodeURIComponent(draft)}`)
+    void navigate({ to: "/chat", search: { draft } })
+    closeMobile()
   }
 
   async function changeWorkspace(id: string) {
@@ -81,7 +85,7 @@ export function AppSidebar() {
     try {
       await deleteConversation(id)
       await queryClient.invalidateQueries({ queryKey: queryKeys.conversations.all })
-      if (pathname === "/chat" && params.get("id") === id) navigate("/chat")
+      if (pathname === "/chat" && activeChatId === id) void navigate({ to: "/chat" })
     } catch { toast.error("Could not delete the conversation. Try again.") }
   }
 
@@ -134,7 +138,7 @@ export function AppSidebar() {
           <SidebarGroupContent><SidebarMenu>
             {group.items.map(item => <SidebarMenuItem key={item.to}>
               <SidebarMenuButton isActive={isNavigationActive(pathname, item.to)} tooltip={item.label}
-                render={<NavLink to={item.to} />} onClick={() => { setNewChatOpen(false); closeMobile() }}>
+                render={<Link to={item.to} activeOptions={NAV_LINK_ACTIVE} />} onClick={() => { setNewChatOpen(false); closeMobile() }}>
                 <item.icon aria-hidden="true" /><span>{item.label}</span>
               </SidebarMenuButton>
               {item.to === "/chat" && <>
@@ -175,8 +179,8 @@ export function AppSidebar() {
               placeholder="Search chats" className="mb-1 h-7" />
           ) : null}
           <SidebarMenu>{recent.map(chat => <SidebarMenuItem key={chat.id}>
-            <SidebarMenuButton size="sm" isActive={pathname === "/chat" && params.get("id") === chat.id}
-              render={<NavLink to={`/chat?id=${encodeURIComponent(chat.id)}`} />} onClick={closeMobile}
+            <SidebarMenuButton size="sm" isActive={pathname === "/chat" && activeChatId === chat.id}
+              render={<Link to="/chat" search={{ id: chat.id }} activeOptions={NAV_LINK_ACTIVE} />} onClick={closeMobile}
               className="text-sidebar-foreground/80 data-active:text-sidebar-foreground">
               <span>{chat.title || "Untitled chat"}</span>
             </SidebarMenuButton>

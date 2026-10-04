@@ -1,16 +1,14 @@
 import { StrictMode, useState } from "react"
 import { createRoot } from "react-dom/client"
-import { HashRouter } from "react-router-dom"
-import { UndecoratedLink } from "twenty-ui/primitives/navigation"
 import { ThemeProvider } from "../theme/theme-provider"
 import { useTheme } from "../theme/use-theme"
 import { ThemeSelect } from "../theme/theme-select"
-import { Button, Input, AlertDialog, Menu } from "../primitives"
+import { Button, Input, AlertDialog } from "../primitives"
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import "@fontsource/inter/latin-400.css"
 import "@fontsource/inter/latin-500.css"
 import "@fontsource/inter/latin-600.css"
-import "twenty-ui/theme-light.css"
-import "twenty-ui/theme-dark.css"
+import "../../index.css"
 import "./preview.css"
 
 const records = [
@@ -63,13 +61,13 @@ function Preview() {
           <div className="preview-toolbar">
             <label className="preview-search">Search contacts<Input value={search} onChange={event => setSearch(event.target.value)} placeholder="Name or company" /></label>
             <span role="status">{selected.length} selected · {visible.length} shown</span>
-            <Menu.Root>
-              <Menu.Trigger render={<Button />}>View options</Menu.Trigger>
-              <Menu.Popup>
-                <Menu.CheckboxItem checked={comfortable} onCheckedChange={setComfortable}>Comfortable rows</Menu.CheckboxItem>
-                <Menu.Item onClick={() => setSelected([])} disabled={!selected.length}>Clear selection</Menu.Item>
-              </Menu.Popup>
-            </Menu.Root>
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button />}>View options</DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuCheckboxItem checked={comfortable} onCheckedChange={setComfortable}>Comfortable rows</DropdownMenuCheckboxItem>
+                <DropdownMenuItem onClick={() => setSelected([])} disabled={!selected.length}>Clear selection</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="preview-table-scroll" role="region" aria-label="Contacts table" tabIndex={0}>
             <table data-comfortable={comfortable}>
@@ -87,7 +85,7 @@ function Preview() {
         <p role="status">{receipt}</p>
         <section className="preview-controls" aria-label="Component states">
           <h2>Action states</h2>
-          <div className="preview-actions"><Button disabled>Unavailable</Button><Button loading>Researching</Button><UndecoratedLink to="/workbooks">Test workbook navigation</UndecoratedLink></div>
+          <div className="preview-actions"><Button disabled>Unavailable</Button><Button loading>Researching</Button><a href="/workbooks">Test workbook navigation</a></div>
           <p className="preview-secondary">No backend requests are made from this page.</p>
         </section>
       </main>
@@ -95,4 +93,4 @@ function Preview() {
   </>
 }
 
-createRoot(document.getElementById("root")!).render(<StrictMode><ThemeProvider><HashRouter><Preview /></HashRouter></ThemeProvider></StrictMode>)
+createRoot(document.getElementById("root")!).render(<StrictMode><ThemeProvider><Preview /></ThemeProvider></StrictMode>)

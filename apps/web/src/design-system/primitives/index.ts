@@ -1,5 +1,4 @@
-// Keep Twenty's alpha API behind an application-owned import boundary.
-import "./styles.css"
-export { Button } from "twenty-ui/primitives/input"
+// Application-owned import boundary for workbook surfaces, built on shadcn/ui.
+export { Button, type ButtonProps } from "./button"
 export { Input } from "./input"
-export { AlertDialog, Dialog, Menu } from "twenty-ui/primitives/surfaces"
+export { AlertDialog, Dialog, type DialogSize } from "./dialog"

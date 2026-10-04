@@ -100,7 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const ssoToken = fragment.get("sso_access_token")
     if (ssoToken) {
       setToken(ssoToken)
-      window.history.replaceState({}, "", window.location.pathname + window.location.search)
+      // Keep the router's history entry state (its index/key) while dropping the token.
+      window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search)
     }
     onUnauthorized(() => {
       queryClient.clear()

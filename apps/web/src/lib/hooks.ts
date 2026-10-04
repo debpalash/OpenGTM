@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { queryOptions, useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useCallback, useState } from "react"
 import { queryKeys } from "./query-client"
 import { authQuery } from "./auth"
@@ -27,12 +27,15 @@ export function useLeads(filters: Record<string, string> = {}, options: { enable
   })
 }
 
+// Shared by useLead and the /leads/$id route loader's prefetch.
+export const leadQueryOptions = (id: number) => queryOptions({
+  queryKey: queryKeys.leads.detail(id),
+  queryFn: () => fetchLead(id),
+  enabled: !!id,
+})
+
 export function useLead(id: number) {
-  return useQuery({
-    queryKey: queryKeys.leads.detail(id),
-    queryFn: () => fetchLead(id),
-    enabled: !!id,
-  })
+  return useQuery(leadQueryOptions(id))
 }
 
 export function useStats() {

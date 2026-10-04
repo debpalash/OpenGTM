@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react"
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
+import { getRouteApi, useNavigate } from "@tanstack/react-router"
 import {
   Send, Loader2, Bot, Pencil, RotateCcw, Copy, Check, X,
   Sparkles, Search, Building2, Zap, Globe, BarChart3, Database,
@@ -266,12 +266,12 @@ function CopyBtn({ content }: { content: string }) {
 
 // ── Main Chat Page ────────────────────────────────────────────────
 
+const route = getRouteApi("/_app/chat")
+
 export default function ChatPage() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const [searchParams] = useSearchParams()
-  const activeConvId = searchParams.get("id")
-  const draft = searchParams.get("draft")
+  const activeConvId = route.useSearch({ select: search => search.id }) ?? null
+  const draft = route.useSearch({ select: search => search.draft }) ?? null
 
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -295,11 +295,10 @@ export default function ChatPage() {
   useEffect(() => {
     if (!draft || activeConvId) return
     setInput(draft)
-    const next = new URLSearchParams(searchParams)
-    next.delete("draft")
-    navigate(`/chat${next.size ? `?${next.toString()}` : ""}${location.hash}`, { replace: true })
+    // Drop only `draft`; keep any other query parameters and the fragment.
+    void navigate({ to: "/chat", search: ({ draft: _draft, ...rest }) => rest, hash: true, replace: true })
     requestAnimationFrame(() => inputRef.current?.focus())
-  }, [activeConvId, draft, location.hash, navigate, searchParams])
+  }, [activeConvId, draft, navigate])
 
   useEffect(() => {
     const onDraft = (event: Event) => {
@@ -360,7 +359,7 @@ export default function ChatPage() {
       await streamChat(history, currentConvId, (event) => {
         if (event.conversation_id && !currentConvId) {
           currentConvId = event.conversation_id
-          navigate(`/chat?id=${currentConvId}`, { replace: true })
+          void navigate({ to: "/chat", search: { id: currentConvId }, replace: true })
           queryClient.invalidateQueries({ queryKey: queryKeys.conversations.all })
         }
         if (event.content) { partialContent += event.content; setStreamingContent(prev => prev + event.content) }
@@ -599,7 +598,7 @@ export default function ChatPage() {
                       const { createWorkbookFromJobs } = await import("@/lib/workbook-api")
                       const wb = await createWorkbookFromJobs({ job_ids: allJobIds })
                       toast.success(`Workbook "${wb.name}" created with ${wb.total_rows} leads`)
-                      navigate(`/workbooks/${wb.id}`)
+                      void navigate({ to: "/workbooks/$id", params: { id: wb.id } })
                     } catch {
                       toast.error("Failed to create workbook")
                     }

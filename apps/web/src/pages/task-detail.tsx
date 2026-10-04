@@ -1,10 +1,12 @@
-import { useParams, useNavigate } from "react-router-dom"
+import { getRouteApi, useNavigate } from "@tanstack/react-router"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TaskDetailCard } from "@/components/task-detail-card"
 
+const route = getRouteApi("/_app/agents/$jobId")
+
 export default function TaskDetailPage() {
-  const { jobId } = useParams<{ jobId: string }>()
+  const { jobId } = route.useParams()
   const navigate = useNavigate()
 
   if (!jobId) {
@@ -20,7 +22,7 @@ export default function TaskDetailPage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate("/agents")}
+          onClick={() => void navigate({ to: "/agents" })}
           className="gap-1 -ml-2 h-7 text-xs text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-3.5" />

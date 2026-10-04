@@ -1,13 +1,11 @@
-/* OpenGTM design tokens — macOS (Sonoma/Sequoia) aesthetics on Twenty's structure.
+/* OpenGTM design tokens — macOS (Sonoma/Sequoia) aesthetics.
  *
- * Twenty (twenty-ui --t-*) supplies the token vocabulary and component set.
- * Values follow Apple's macOS Human Interface Guidelines: the system font
- * (SF Pro on Apple devices, Inter elsewhere), the HIG type ramp with optical
- * tracking, system label/separator/fill colors, the system accent, vibrant
- * materials for chrome, and a 4px spacing grid.
- *
- * Overriding --t-* (imported after twenty-ui's themes, same selectors) keeps
- * Twenty components and shadcn/Tailwind controls on one set of values.
+ * The --t-* vocabulary (originally from twenty-ui) is now defined entirely
+ * here. Values follow Apple's macOS Human Interface Guidelines: the system
+ * font (SF Pro on Apple devices, Inter elsewhere), the HIG type ramp with
+ * optical tracking, system label/separator/fill colors, the system accent,
+ * vibrant materials for chrome, and a 4px spacing grid. The shadcn/Tailwind
+ * names at the end of this file map onto the same values.
  * Theme classes: .light / .dark on <html>.
  */
 
@@ -15,7 +13,7 @@
 :root,
 .light,
 .dark {
-  /* Type — macOS HIG ramp (px so a 16px root cannot inflate Twenty's rem tokens):
+  /* Type — macOS HIG ramp (px so a 16px root cannot inflate rem tokens):
    * caption 10 · subheadline 11 · callout 12 · body 13 · title3 15 · title2 17 · title1 22 · large 26 */
   /* Inter everywhere by default. Chromium resolves BlinkMacSystemFont/system-ui
    * to the OS UI font on every platform (Arial-like on Linux), so the Apple
@@ -72,14 +70,30 @@
   --gtm-duration-fast: 120ms;
   --gtm-duration: 200ms;
   --gtm-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* Palette steps and weights the app reads directly. Values from the
+   * twenty-ui 2.42.0 theme (MIT, Twenty.com PBC), kept so no color shifts. */
+  --t-font-weight-regular: 400;
+  --t-color-blue9: color(display-p3 0.276 0.384 0.837);
+  --t-color-green9: color(display-p3 0.332 0.634 0.442);
+  --t-color-orange9: color(display-p3 0.9 0.45 0.2);
+  --t-color-purple9: color(display-p3 0.523 0.318 0.751);
+  --t-color-red9: color(display-p3 0.83 0.329 0.324);
+  --t-color-turquoise9: color(display-p3 0.297 0.637 0.581);
 }
 
-/* Continuous (squircle) corners — Chromium 139+ via Twenty's corner-shape:
+/* Continuous (squircle) corners — Chromium 139+ via corner-shape:
  * superellipse(2.2) on every element. A squircle needs ~1.75-2x the radius of
- * a round corner to read the same size (Twenty doubles its own tokens here),
- * so ours scale too. Other browsers keep the base radii as round corners.
- * Never hard-code px radii in components; use these tokens. */
+ * a round corner to read the same size, so the radius tokens scale too.
+ * Other browsers keep the base radii as round corners. Never hard-code px
+ * radii in components; use these tokens. Opt a subtree out with
+ * --t-corner-shape: round, or one element with corner-shape: round. */
 @supports (corner-shape: squircle) {
+  /* Zero specificity on purpose: any component rule can override it. */
+  :where(*, *::before, *::after) {
+    corner-shape: var(--t-corner-shape, superellipse(2.2));
+  }
+
   :root,
   .light,
   .dark {
@@ -150,6 +164,19 @@
     0 2px 8px rgb(0 0 0 / 0.08);
   --gtm-shadow-window: 0 0 0 0.5px rgb(0 0 0 / 0.12), 0 22px 70px rgb(0 0 0 / 0.26);
   --gtm-shadow-card: 0 0 0 0.5px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.04);
+
+  --t-color-blue3: color(display-p3 0.933 0.948 0.992);
+  --t-color-blue7: color(display-p3 0.685 0.74 0.957);
+  --t-color-blue11: color(display-p3 0.256 0.354 0.755);
+  --t-color-green3: color(display-p3 0.913 0.964 0.925);
+  --t-color-green7: color(display-p3 0.61 0.801 0.675);
+  --t-color-green11: color(display-p3 0.19 0.5 0.32);
+  --t-color-orange3: color(display-p3 0.989 0.938 0.85);
+  --t-color-orange7: color(display-p3 0.919 0.693 0.486);
+  --t-color-orange11: color(display-p3 0.76 0.34 0);
+  --t-color-red11: color(display-p3 0.744 0.234 0.222);
+  --t-background-transparent-blue: #0047f112;
+  --t-background-transparent-success: #00a43319;
 }
 
 /* ── Dark: macOS dark appearance ──────────────────────────────────────── */
@@ -198,6 +225,19 @@
     0 2px 8px rgb(0 0 0 / 0.3);
   --gtm-shadow-window: 0 0 0 0.5px rgb(255 255 255 / 0.1), 0 22px 70px rgb(0 0 0 / 0.6);
   --gtm-shadow-card: 0 0 0 0.5px rgb(255 255 255 / 0.08);
+
+  --t-color-blue3: color(display-p3 0.105 0.141 0.275);
+  --t-color-blue7: color(display-p3 0.245 0.309 0.575);
+  --t-color-blue11: color(display-p3 0.63 0.69 1);
+  --t-color-green3: color(display-p3 0.1 0.173 0.133);
+  --t-color-green7: color(display-p3 0.227 0.403 0.298);
+  --t-color-green11: color(display-p3 0.434 0.828 0.573);
+  --t-color-orange3: color(display-p3 0.189 0.12 0.056);
+  --t-color-orange7: color(display-p3 0.465 0.283 0.147);
+  --t-color-orange11: color(display-p3 1 0.63 0.38);
+  --t-color-red11: color(display-p3 1 0.57 0.55);
+  --t-background-transparent-blue: #3566ff57;
+  --t-background-transparent-success: #11ff992d;
 }
 
 /* ── Legacy semantic bridge (shadcn names → tokens) ───────────────────── */

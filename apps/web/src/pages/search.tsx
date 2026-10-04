@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
 import {
   Search as SearchIcon, Globe, MapPin, BookOpen,
@@ -31,7 +31,7 @@ export default function SearchPage() {
         if (!result.ok) return
         toast.success(`Search started: "${q}" — tracking progress in Tasks`)
         setQuery("")
-        navigate(`/agents/${result.job_id}`)
+        void navigate({ to: "/agents/$jobId", params: { jobId: result.job_id } })
       },
       onError: (error) => toast.error(error.message || "Could not start search"),
     })

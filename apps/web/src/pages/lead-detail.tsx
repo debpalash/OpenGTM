@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { getRouteApi, useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
 import {
   ArrowLeft, Mail, Phone, Globe, Link2, AtSign,
@@ -218,8 +218,10 @@ function LeafletMap({ query, show, label, fallbackQueries = [] }: { query: strin
 //  MAIN PAGE COMPONENT
 // ═══════════════════════════════════════════════════════════════
 
+const route = getRouteApi("/_app/leads/$id")
+
 export default function LeadDetailPage() {
-  const { id } = useParams<{ id: string }>()
+  const { id } = route.useParams()
   const navigate = useNavigate()
   const leadId = Number(id)
   const qc = useQueryClient()
@@ -268,7 +270,7 @@ export default function LeadDetailPage() {
     <div className="p-6 flex flex-col items-center justify-center gap-4 min-h-[60vh]">
       <AlertCircle className="size-12 text-muted-foreground" />
       <p className="text-lg text-muted-foreground">Lead not found</p>
-      <Button variant="outline" onClick={() => navigate("/leads")}><ArrowLeft className="size-4 mr-2" /> Back to Leads</Button>
+      <Button variant="outline" onClick={() => void navigate({ to: "/leads" })}><ArrowLeft className="size-4 mr-2" /> Back to Leads</Button>
     </div>
   )
 
@@ -290,11 +292,11 @@ export default function LeadDetailPage() {
         {/* ═══ HERO HEADER ═══ */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/leads")} className="text-muted-foreground">
+            <Button variant="ghost" size="sm" onClick={() => void navigate({ to: "/leads" })} className="text-muted-foreground">
               <ArrowLeft className="size-4 mr-1" /> Leads
             </Button>
             <Button variant="ghost" size="icon" className="text-destructive/60 hover:text-destructive"
-              onClick={() => { if (window.confirm(`Delete ${lead.company}?`)) { deleteLead.mutate(leadId, { onSuccess: () => { toast.success("Deleted"); navigate("/leads") } }) } }}>
+              onClick={() => { if (window.confirm(`Delete ${lead.company}?`)) { deleteLead.mutate(leadId, { onSuccess: () => { toast.success("Deleted"); void navigate({ to: "/leads" }) } }) } }}>
               <Trash2 className="size-4" />
             </Button>
           </div>

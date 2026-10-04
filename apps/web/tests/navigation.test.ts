@@ -8,7 +8,7 @@ describe("shared application navigation", () => {
     expect([...routes].sort()).toEqual([
       "/chat", "/leads", "/audiences", "/workbooks", "/templates", "/search",
       "/agents", "/outreach", "/automations", "/watches", "/signals", "/sources",
-      "/analytics", "/agency", "/campaigns", "/settings",
+      "/analytics", "/agency", "/campaigns", "/notifications", "/settings",
     ].sort())
   })
   test("groups routes without renaming backend concepts", () => {

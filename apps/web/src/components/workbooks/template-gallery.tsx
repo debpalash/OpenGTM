@@ -1,6 +1,6 @@
 import { useRef, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
 import { Button } from "@/design-system/primitives"
 import { fetchWorkbookTemplates, createWorkbookFromTemplate } from "@/lib/workbook-templates-api"
@@ -22,7 +22,7 @@ export function TemplateGallery() {
       const workbook = await create.mutateAsync(id)
       await client.invalidateQueries({ queryKey: workbookKeys.list() })
       toast.success("Workbook created from template")
-      navigate(`/workbooks/${encodeURIComponent(workbook.id)}`)
+      void navigate({ to: "/workbooks/$id", params: { id: workbook.id } })
     } catch { /* The mutation error is rendered in the gallery. */ }
     finally { busy.current = false }
   }

@@ -12,7 +12,7 @@ import {
   type DefinedComponent,
 } from "@openuidev/react-lang"
 import { z } from "zod"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from "recharts"
 import { Building2, CircleCheck, Info, Lightbulb, Mail, TriangleAlert, User, Users } from "lucide-react"
 import { BoolMark, ChannelIcon, LinkedInIcon } from "@/components/semantic-icons"
@@ -137,7 +137,7 @@ const LeadCard = defineComponent({
     const nav = useNavigate()
     return (
       <div
-        onClick={() => props.id && nav(`/leads/${props.id}`)}
+        onClick={() => props.id && void nav({ to: "/leads/$id", params: { id: String(props.id) } })}
         style={{
           padding: 16,
           borderRadius: 12,
@@ -235,7 +235,7 @@ const LeadTable = defineComponent({
           <tbody>
             {leads.map((l, i) => (
               <tr key={i}
-                onClick={() => l.id && nav(`/leads/${l.id}`)}
+                onClick={() => l.id && void nav({ to: "/leads/$id", params: { id: String(l.id) } })}
                 style={{ borderBottom: "1px solid color-mix(in srgb, var(--border) 10%, transparent)", cursor: l.id ? "pointer" : "default", transition: "background 0.15s" }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = "color-mix(in srgb, var(--muted) 30%, transparent)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "")}

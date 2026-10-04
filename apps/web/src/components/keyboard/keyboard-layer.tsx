@@ -5,7 +5,7 @@
  * ⌘/Ctrl/Alt held (those belong to the browser and to ⌘K / ⌘B).
  */
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 
 import { ALL_NAVIGATION, OPEN_SHORTCUTS_EVENT } from "@/components/app-shell/navigation"
 import { sourceFromElement, useQuickLook } from "@/components/quick-look/quick-look"
@@ -88,7 +88,7 @@ export function KeyboardLayer() {
         const destination = ALL_NAVIGATION.find(item => item.key === key.toLowerCase())
         if (destination) {
           event.preventDefault()
-          navigate(destination.to)
+          void navigate({ to: destination.to })
         }
         return
       }

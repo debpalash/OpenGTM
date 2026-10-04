@@ -10,7 +10,8 @@
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link } from "@tanstack/react-router"
+import { hrefLinkOptions } from "@/lib/router-search"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
@@ -196,7 +197,7 @@ export function QuickLookProvider({ children }: { children: ReactNode }) {
               {payload.actions?.filter(action => action.href.startsWith("/") || safeUrl(action.href)).map(action => (
                 <Button key={action.href} size="sm" variant="outline" nativeButton={false}
                   render={action.href.startsWith("/") && !action.external
-                    ? <Link to={action.href} onClick={() => setSource(null)} />
+                    ? <Link {...hrefLinkOptions(action.href)} onClick={() => setSource(null)} />
                     : <a href={safeUrl(action.href)} target={action.external ? "_blank" : undefined} rel={action.external ? "noreferrer" : undefined} />}>
                   {action.label}{action.external && <ArrowUpRight aria-hidden="true" />}
                 </Button>

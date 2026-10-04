@@ -24,14 +24,17 @@ export const NAVIGATION_GROUPS = [
     { to: "/templates", key: "m", icon: LayoutTemplate, label: "Templates" },
     { to: "/analytics", key: "y", icon: BarChart3, label: "Analytics" },
   ] },
-]
+] as const
 
 export const UTILITY_NAVIGATION = [
   { to: "/agency", key: "k", icon: Building2, label: "Manage workspaces" },
   { to: "/notifications", key: "n", icon: BellRing, label: "Notifications" },
   { to: "/settings", key: "s", icon: Settings, label: "Settings" },
+] as const
+type NavigationItem = (typeof NAVIGATION_GROUPS)[number]["items"][number] | (typeof UTILITY_NAVIGATION)[number]
+export const ALL_NAVIGATION: readonly NavigationItem[] = [
+  ...NAVIGATION_GROUPS.flatMap((group): readonly NavigationItem[] => group.items), ...UTILITY_NAVIGATION,
 ]
-export const ALL_NAVIGATION = [...NAVIGATION_GROUPS.flatMap(group => group.items), ...UTILITY_NAVIGATION]
 export const isNavigationActive = (pathname: string, destination: string) =>
   pathname === destination || pathname.startsWith(`${destination}/`)
 export const getPageTitle = (pathname: string) =>
