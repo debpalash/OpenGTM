@@ -1,0 +1,23 @@
+# expect: valid
+# schema: agrees
+manifest_version: "2"
+name: jobs_api
+kind: scraper
+runtime: declarative
+version: 2.0.0
+capabilities: {network: ["https://jobs.example.com/api/"]}
+inputs:
+  type: object
+  properties: {company: {type: string, minLength: 1}}
+  required: [company]
+outputs:
+  type: object
+  properties: {title: {type: string}}
+config:
+  type: object
+  properties: {region: {type: string, enum: [us, eu]}}
+scrape:
+  start: "https://jobs.example.com/api/{{input.company}}/jobs.json"
+  format: json
+  items: "json:$.jobs[*]"
+  fields: {title: "json:$.title", url: "json:$.url"}

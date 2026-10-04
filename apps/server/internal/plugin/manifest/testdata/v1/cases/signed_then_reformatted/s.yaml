@@ -1,0 +1,6 @@
+# reformatted, same canonical form
+response: {mappings: {email: $.email}}
+request: {url: 'https://api.example.com/find'}
+capability: email
+name: signed_email
+manifest_version: '1'

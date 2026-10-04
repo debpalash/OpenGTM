@@ -1,0 +1,9 @@
+# expect: invalid scrape.start: host is not covered
+# schema: semantic
+manifest_version: "2"
+name: wrong_host
+kind: scraper
+runtime: declarative
+version: 0.1.0
+capabilities: {network: ["https://*.acme.example"]}
+scrape: {start: "https://acme.example.evil.net/team", fields: {a: "css:a"}}

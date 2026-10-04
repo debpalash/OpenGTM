@@ -1,0 +1,9 @@
+manifest_version: "1"
+name: dated_email
+capability: email
+request:
+  url: https://api.example.com/find
+response:
+  mappings:
+    email: $.email
+released: 2026-01-01

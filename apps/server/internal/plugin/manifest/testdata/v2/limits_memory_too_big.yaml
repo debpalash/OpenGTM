@@ -1,0 +1,16 @@
+# expect: invalid limits.memory_mb: must be between
+# schema: agrees
+manifest_version: "2"
+name: echo_provider
+kind: provider
+runtime: wasm
+version: 0.1.0
+capabilities:
+  network: ["https://api.echo.example"]
+  secrets: [ECHO_API_KEY]
+limits: { memory_mb: 99999, timeout_seconds: 5 }
+inputs: { url: string }
+capability: echo
+wasm:
+  module: plugin.wasm
+  sha256: "0000000000000000000000000000000000000000000000000000000000000000"

@@ -1,0 +1,10 @@
+# expect: valid
+# schema: agrees
+manifest_version: "2"
+name: slugify_fn
+kind: function
+runtime: wasm
+version: 0.1.0
+x-registry: {category: text}
+inputs: {text: string, max_len: "integer?"}
+wasm: {module: dist/fn.wasm, sha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}

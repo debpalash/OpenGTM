@@ -1,0 +1,41 @@
+# Example declarative provider (manifest v2) for a fictional firmographics
+# API. Run its offline tests with:
+#   opengtm plugin test plugins/examples/declarative-provider
+manifest_version: "2"
+name: acme_firmographics
+display_name: Acme Firmographics (example)
+kind: provider
+runtime: declarative
+version: 0.1.0
+author: OpenGTM
+license: Apache-2.0
+description: Company domain -> employee count, industry and LinkedIn page from a fictional API.
+tags: [example, company, firmographics]
+capabilities:
+  network: ["https://api.acme-data.example/v1"]
+  secrets: [ACME_DATA_API_KEY]
+limits:
+  requests_per_second_per_domain: 2
+  timeout_seconds: 15
+inputs: { domain: string }
+outputs: company
+capability: company_size
+default_confidence: 0.75
+cost_per_lookup: 0.01
+auth:
+  type: header
+  param: X-Api-Key
+  env_var: ACME_DATA_API_KEY
+request:
+  method: GET
+  url: https://api.acme-data.example/v1/companies
+  query:
+    domain: "{{input.domain}}"
+  timeout: 10
+response:
+  error_path: error
+  error_message_path: error_message
+  mappings:
+    company_size: "$.company.employees"
+    industry: "$.company.industry"
+    linkedin_url: "https://www.linkedin.com/company/$.company.linkedin_handle"

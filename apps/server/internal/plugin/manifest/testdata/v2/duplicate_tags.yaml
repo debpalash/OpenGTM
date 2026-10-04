@@ -1,0 +1,27 @@
+# expect: invalid duplicate value
+# schema: agrees
+manifest_version: "2"
+name: acme_team_page
+kind: scraper
+runtime: declarative
+version: 0.1.0
+author: your-github-handle
+license: Apache-2.0
+capabilities:
+  network: ["https://*.acme.example"]
+  secrets: []
+  browser: false
+limits:
+  requests_per_second_per_domain: 1
+  timeout_seconds: 20
+inputs: { domain: string }
+outputs: person
+scrape:
+  start: "https://{{input.domain}}/team"
+  items: "css:.team-member"
+  fields:
+    full_name: "css:.name::text"
+    title: "css:.role::text"
+    linkedin_url: "css:a[href*='linkedin.com']::attr(href)"
+  paginate: { next: "css:a.next::attr(href)", max_pages: 5 }
+tags: [a, a]

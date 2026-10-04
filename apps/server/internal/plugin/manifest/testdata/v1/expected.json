@@ -1,0 +1,2134 @@
+{
+ "cases": {
+  "valid_minimal": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"1da56941c99b8a95c26d99484e67b62c6d39c18cb0e08477197495c2625bded0\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"one.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"one.yaml\",\n      \"manifest_sha256\": \"1da56941c99b8a95c26d99484e67b62c6d39c18cb0e08477197495c2625bded0\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_full": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"your-github-handle\",\"capabilities\":[\"email\",\"email_status\"],\"cost_per_lookup\":0.05,\"credential_key\":\"ACME_API_KEY\",\"default_confidence\":0.8,\"description\":\"Find a work email from a name and company domain — café ✓.\",\"homepage\":\"https://provider.example\",\"id\":\"acme_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"b57310bd200f75eb228fe974e6689304b8a20bd69096ee0d02d251423cf341d3\",\"manifest_version\":\"1\",\"name\":\"Acme Email Finder\",\"path\":\"acme.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[\"email\",\"enrichment\",\"byok\"]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"acme.yaml\",\n      \"manifest_sha256\": \"b57310bd200f75eb228fe974e6689304b8a20bd69096ee0d02d251423cf341d3\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"acme_email\",\n      \"name\": \"Acme Email Finder\",\n      \"author\": \"your-github-handle\",\n      \"homepage\": \"https://provider.example\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"Find a work email from a name and company domain \\u2014 caf\\u00e9 \\u2713.\",\n      \"capabilities\": [\n        \"email\",\n        \"email_status\"\n      ],\n      \"tags\": [\n        \"email\",\n        \"enrichment\",\n        \"byok\"\n      ],\n      \"cost_per_lookup\": 0.05,\n      \"default_confidence\": 0.8,\n      \"credential_key\": \"ACME_API_KEY\"\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_leadmagic_copy": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"OpenGTM\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.05,\"credential_key\":\"LEADMAGIC_API_KEY\",\"default_confidence\":0.8,\"description\":\"LeadMagic /email-finder — first/last + domain → work email.\",\"homepage\":\"https://leadmagic.io\",\"id\":\"leadmagic_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"af9f891b09c6ab8da27d6ce233c03433ac1f247d8acc2b75e224787e6c2ca663\",\"manifest_version\":\"1\",\"name\":\"LeadMagic Email Finder\",\"path\":\"email/leadmagic.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[\"email\",\"enrichment\",\"byok\"]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"email/leadmagic.yaml\",\n      \"manifest_sha256\": \"af9f891b09c6ab8da27d6ce233c03433ac1f247d8acc2b75e224787e6c2ca663\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"leadmagic_email\",\n      \"name\": \"LeadMagic Email Finder\",\n      \"author\": \"OpenGTM\",\n      \"homepage\": \"https://leadmagic.io\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"LeadMagic /email-finder \\u2014 first/last + domain \\u2192 work email.\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [\n        \"email\",\n        \"enrichment\",\n        \"byok\"\n      ],\n      \"cost_per_lookup\": 0.05,\n      \"default_confidence\": 0.8,\n      \"credential_key\": \"LEADMAGIC_API_KEY\"\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_two_capability_dirs": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 2,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"a_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"49dd18ae9685ceac2049200df66ea8c98d8b75772ed9fb72d26621f13d01a1af\",\"manifest_version\":\"1\",\"name\":\"A Email\",\"path\":\"email/a.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}",
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"b_phone\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"5da7a8096221e991ed527c1d54d811aab914041de7a92599bc29804fc3cd424a\",\"manifest_version\":\"1\",\"name\":\"B Phone\",\"path\":\"phone/b.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 2,\n  \"connectors\": [\n    {\n      \"path\": \"email/a.yaml\",\n      \"manifest_sha256\": \"49dd18ae9685ceac2049200df66ea8c98d8b75772ed9fb72d26621f13d01a1af\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"a_email\",\n      \"name\": \"A Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    },\n    {\n      \"path\": \"phone/b.yaml\",\n      \"manifest_sha256\": \"5da7a8096221e991ed527c1d54d811aab914041de7a92599bc29804fc3cd424a\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"b_phone\",\n      \"name\": \"B Phone\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_method_lowercase": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"588c0ea6aa3b51c34c8e1e797bb6aceea33de7da47b6ffa2c7c0e5ef0b527ae5\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"m.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"m.yaml\",\n      \"manifest_sha256\": \"588c0ea6aa3b51c34c8e1e797bb6aceea33de7da47b6ffa2c7c0e5ef0b527ae5\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_method_long_s": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"d5e28b8148966d6be2dccb09fda65a6c11c6aa036d1387b4bd6f965515a40a49\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"m.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"m.yaml\",\n      \"manifest_sha256\": \"d5e28b8148966d6be2dccb09fda65a6c11c6aa036d1387b4bd6f965515a40a49\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_method_ligature": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"6d92b228d7cf782908288fcebd098ecc5dc879f47bd1a5929a0304575ddea26e\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"m.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"m.yaml\",\n      \"manifest_sha256\": \"6d92b228d7cf782908288fcebd098ecc5dc879f47bd1a5929a0304575ddea26e\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_templated_host": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"42ad6e5de4ee36ebd5f922eba383fbd9e275228f6ccf0711e5b70604279d3e63\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"t.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"t.yaml\",\n      \"manifest_sha256\": \"42ad6e5de4ee36ebd5f922eba383fbd9e275228f6ccf0711e5b70604279d3e63\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_body_and_body_template": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"5ec13b7e7ca29c43245ca5cef1acf0efe544cba4ddd49537b73c3a090e75c515\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"b.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"b.yaml\",\n      \"manifest_sha256\": \"5ec13b7e7ca29c43245ca5cef1acf0efe544cba4ddd49537b73c3a090e75c515\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_coerced_numbers": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":10.0,\"credential_key\":null,\"default_confidence\":0.5,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"3e0e93a31d5ef378e8a3b48eb9f23afa6bed13de2a064ae87a16c02cfbd59113\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"c.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"c.yaml\",\n      \"manifest_sha256\": \"3e0e93a31d5ef378e8a3b48eb9f23afa6bed13de2a064ae87a16c02cfbd59113\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 10.0,\n      \"default_confidence\": 0.5,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_bool_as_number": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":1.0,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"e35fb380680ad7c2024d211073dfb3a807471d950b9171813658fa467257c652\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"c.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"c.yaml\",\n      \"manifest_sha256\": \"e35fb380680ad7c2024d211073dfb3a807471d950b9171813658fa467257c652\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 1.0,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_title_case": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"abc2def_x9y\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"f0425483d880d0cc9458b68a2c6ce49b8bbe30dee63df7f8ba3f903e3d4c10db\",\"manifest_version\":\"1\",\"name\":\"Abc2Def X9Y\",\"path\":\"t.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"t.yaml\",\n      \"manifest_sha256\": \"f0425483d880d0cc9458b68a2c6ce49b8bbe30dee63df7f8ba3f903e3d4c10db\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"abc2def_x9y\",\n      \"name\": \"Abc2Def X9Y\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_display_name": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"cfb56f9aabfca4685187e0d9ca470da29c8918282e3c5fcceaafb5c9d17288b6\",\"manifest_version\":\"1\",\"name\":\"  Spaced  \",\"path\":\"t.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"t.yaml\",\n      \"manifest_sha256\": \"cfb56f9aabfca4685187e0d9ca470da29c8918282e3c5fcceaafb5c9d17288b6\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"  Spaced  \",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_extra_fields_ignored": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"545ec3367621824c60b3f5a5cdf37ad924e7a6ec0c60e6997a43fd141417beb3\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"x.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"x.yaml\",\n      \"manifest_sha256\": \"545ec3367621824c60b3f5a5cdf37ad924e7a6ec0c60e6997a43fd141417beb3\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_yml_and_odd_extensions": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 2,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"first_one\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"48444a93fe64fa768a23aedd00ed0748e8a6e34884a75cf331249df144f32259\",\"manifest_version\":\"1\",\"name\":\"First One\",\"path\":\"a.yml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}",
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"second_one\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"35f074cf76684b2d96c26db80cbd09d53f5fc2b2d35a4a86f8936ccb0dac5c34\",\"manifest_version\":\"1\",\"name\":\"Second One\",\"path\":\"b.yaxml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 2,\n  \"connectors\": [\n    {\n      \"path\": \"a.yml\",\n      \"manifest_sha256\": \"48444a93fe64fa768a23aedd00ed0748e8a6e34884a75cf331249df144f32259\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"first_one\",\n      \"name\": \"First One\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    },\n    {\n      \"path\": \"b.yaxml\",\n      \"manifest_sha256\": \"35f074cf76684b2d96c26db80cbd09d53f5fc2b2d35a4a86f8936ccb0dac5c34\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"second_one\",\n      \"name\": \"Second One\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_hidden_file": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"hidden_one\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"2173163809d2606584db323c74b07143a37621ba80aea5f2708058a767c2e5f9\",\"manifest_version\":\"1\",\"name\":\"Hidden One\",\"path\":\".hidden.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \".hidden.yaml\",\n      \"manifest_sha256\": \"2173163809d2606584db323c74b07143a37621ba80aea5f2708058a767c2e5f9\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"hidden_one\",\n      \"name\": \"Hidden One\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_auth_modes": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 4,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":\"K1\",\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"auth_header\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"1420de139a4b35bb673299abada19f71aa6e0cdd00b6df6c1bba03415561a3ca\",\"manifest_version\":\"1\",\"name\":\"Auth Header\",\"path\":\"a.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}",
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":\"K2\",\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"auth_query\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"468bdd68c941cb8fb142535976dd023f34440f8fe59c098f828d4e83d0f65e0a\",\"manifest_version\":\"1\",\"name\":\"Auth Query\",\"path\":\"b.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}",
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"auth_none\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"bcfd0a7223c2684c43e65fea21e2cb0dcb5d3a41362804cd1d7f6a1a2ee0afc7\",\"manifest_version\":\"1\",\"name\":\"Auth None\",\"path\":\"c.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}",
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":\"K3\",\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"auth_bearer\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"5cc8d46e2bbcb1bcf63a897405865135406aa885c14d10a386365910c45840c4\",\"manifest_version\":\"1\",\"name\":\"Auth Bearer\",\"path\":\"d.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 4,\n  \"connectors\": [\n    {\n      \"path\": \"a.yaml\",\n      \"manifest_sha256\": \"1420de139a4b35bb673299abada19f71aa6e0cdd00b6df6c1bba03415561a3ca\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"auth_header\",\n      \"name\": \"Auth Header\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": \"K1\"\n    },\n    {\n      \"path\": \"b.yaml\",\n      \"manifest_sha256\": \"468bdd68c941cb8fb142535976dd023f34440f8fe59c098f828d4e83d0f65e0a\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"auth_query\",\n      \"name\": \"Auth Query\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": \"K2\"\n    },\n    {\n      \"path\": \"c.yaml\",\n      \"manifest_sha256\": \"bcfd0a7223c2684c43e65fea21e2cb0dcb5d3a41362804cd1d7f6a1a2ee0afc7\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"auth_none\",\n      \"name\": \"Auth None\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    },\n    {\n      \"path\": \"d.yaml\",\n      \"manifest_sha256\": \"5cc8d46e2bbcb1bcf63a897405865135406aa885c14d10a386365910c45840c4\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"auth_bearer\",\n      \"name\": \"Auth Bearer\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": \"K3\"\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_capabilities_dedupe": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\",\"phone\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"0b2c4b5618f0d31cd8afe954738142d0fb07016e65bfce0a3d2a2f0e6c074054\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"d.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"d.yaml\",\n      \"manifest_sha256\": \"0b2c4b5618f0d31cd8afe954738142d0fb07016e65bfce0a3d2a2f0e6c074054\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\",\n        \"phone\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_cost_edges": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.1,\"credential_key\":null,\"default_confidence\":1.0,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"e7f01263ba1d96214fc4a79c31a0adc3b233676074426675c62dabd8da84eab0\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"e.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"e.yaml\",\n      \"manifest_sha256\": \"e7f01263ba1d96214fc4a79c31a0adc3b233676074426675c62dabd8da84eab0\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.1,\n      \"default_confidence\": 1.0,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_cost_nan": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":NaN,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"c27db2e5ad30777bb5dc1dad542c8b238a63f9e6e3995b3cc527cb660357cb4d\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"e.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"e.yaml\",\n      \"manifest_sha256\": \"c27db2e5ad30777bb5dc1dad542c8b238a63f9e6e3995b3cc527cb660357cb4d\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": NaN,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_sort_order": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 2,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"slash_one\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"831670cf74523096843cea35aabae52c5cc894bb3583c4590b484a49c2c1941e\",\"manifest_version\":\"1\",\"name\":\"Slash One\",\"path\":\"a/b.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}",
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"dash_one\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"f7cc99a8599ccb0de340799e294ef8327e694d2f2fd758571bedc63928626168\",\"manifest_version\":\"1\",\"name\":\"Dash One\",\"path\":\"a-b.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 2,\n  \"connectors\": [\n    {\n      \"path\": \"a/b.yaml\",\n      \"manifest_sha256\": \"831670cf74523096843cea35aabae52c5cc894bb3583c4590b484a49c2c1941e\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"slash_one\",\n      \"name\": \"Slash One\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    },\n    {\n      \"path\": \"a-b.yaml\",\n      \"manifest_sha256\": \"f7cc99a8599ccb0de340799e294ef8327e694d2f2fd758571bedc63928626168\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"dash_one\",\n      \"name\": \"Dash One\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "valid_anchor_merge": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"anchors\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"merged_one\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"c3c563063fc80595343ac3167192b23f2f95dda9a538eadc2b5ddc463cb48a66\",\"manifest_version\":\"1\",\"name\":\"Merged One\",\"path\":\"m.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"m.yaml\",\n      \"manifest_sha256\": \"c3c563063fc80595343ac3167192b23f2f95dda9a538eadc2b5ddc463cb48a66\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"merged_one\",\n      \"name\": \"Merged One\",\n      \"author\": \"anchors\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "set_tags_not_canonical": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "t.yaml",
+     "error": "Object of type set is not JSON serializable",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/t.yaml\",\n      \"error\": \"Object of type set is not JSON serializable\"\n    }\n  ]\n}"
+  },
+  "binary_name_not_canonical": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "b.yaml",
+     "error": "Object of type bytes is not JSON serializable",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/b.yaml\",\n      \"error\": \"Object of type bytes is not JSON serializable\"\n    }\n  ]\n}"
+  },
+  "duplicate_ids": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"duplicate_id\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"f49ccb0be822c363a3635e514389c981f29bcec77c19846d60e055218ecdf2bf\",\"manifest_version\":\"1\",\"name\":\"Duplicate Id\",\"path\":\"one.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [
+    {
+     "path": "two.yaml",
+     "error": "duplicate provider id 'duplicate_id'",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"one.yaml\",\n      \"manifest_sha256\": \"f49ccb0be822c363a3635e514389c981f29bcec77c19846d60e055218ecdf2bf\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"duplicate_id\",\n      \"name\": \"Duplicate Id\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/two.yaml\",\n      \"error\": \"duplicate provider id 'duplicate_id'\"\n    }\n  ]\n}"
+  },
+  "duplicate_after_later_failure": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "a.yaml",
+     "error": "connector request URL must use HTTPS",
+     "pydantic": null
+    },
+    {
+     "path": "b.yaml",
+     "error": "duplicate provider id 'claimed_id'",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/a.yaml\",\n      \"error\": \"connector request URL must use HTTPS\"\n    },\n    {\n      \"path\": \"<DIR>/b.yaml\",\n      \"error\": \"duplicate provider id 'claimed_id'\"\n    }\n  ]\n}"
+  },
+  "http_endpoint": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "h.yaml",
+     "error": "connector request URL must use HTTPS",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/h.yaml\",\n      \"error\": \"connector request URL must use HTTPS\"\n    }\n  ]\n}"
+  },
+  "uppercase_scheme": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "h.yaml",
+     "error": "connector request URL must use HTTPS",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/h.yaml\",\n      \"error\": \"connector request URL must use HTTPS\"\n    }\n  ]\n}"
+  },
+  "unknown_auth_mode": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "a.yaml",
+     "error": "1 validation error for ProviderManifest\nauth.type\n  Input should be 'header', 'bearer', 'query' or 'none' [type=literal_error, input_value='basic', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error",
+     "pydantic": [
+      {
+       "loc": [
+        "auth",
+        "type"
+       ],
+       "type": "literal_error"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/a.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nauth.type\\n  Input should be 'header', 'bearer', 'query' or 'none' [type=literal_error, input_value='basic', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error\"\n    }\n  ]\n}"
+  },
+  "auth_mode_case": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "a.yaml",
+     "error": "1 validation error for ProviderManifest\nauth.type\n  Input should be 'header', 'bearer', 'query' or 'none' [type=literal_error, input_value='Bearer', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error",
+     "pydantic": [
+      {
+       "loc": [
+        "auth",
+        "type"
+       ],
+       "type": "literal_error"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/a.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nauth.type\\n  Input should be 'header', 'bearer', 'query' or 'none' [type=literal_error, input_value='Bearer', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error\"\n    }\n  ]\n}"
+  },
+  "missing_credential_ref": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "a.yaml",
+     "error": "authenticated connectors require auth.env_var",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/a.yaml\",\n      \"error\": \"authenticated connectors require auth.env_var\"\n    }\n  ]\n}"
+  },
+  "empty_credential_ref": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "a.yaml",
+     "error": "authenticated connectors require auth.env_var",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/a.yaml\",\n      \"error\": \"authenticated connectors require auth.env_var\"\n    }\n  ]\n}"
+  },
+  "schema_version_2": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "v.yaml",
+     "error": "1 validation error for ProviderManifest\nmanifest_version\n  Input should be '1' [type=literal_error, input_value='2', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error",
+     "pydantic": [
+      {
+       "loc": [
+        "manifest_version"
+       ],
+       "type": "literal_error"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/v.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nmanifest_version\\n  Input should be '1' [type=literal_error, input_value='2', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error\"\n    }\n  ]\n}"
+  },
+  "schema_version_int": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "v.yaml",
+     "error": "1 validation error for ProviderManifest\nmanifest_version\n  Input should be '1' [type=literal_error, input_value=1, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error",
+     "pydantic": [
+      {
+       "loc": [
+        "manifest_version"
+       ],
+       "type": "literal_error"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/v.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nmanifest_version\\n  Input should be '1' [type=literal_error, input_value=1, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error\"\n    }\n  ]\n}"
+  },
+  "schema_version_float": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "v.yaml",
+     "error": "1 validation error for ProviderManifest\nmanifest_version\n  Input should be '1' [type=literal_error, input_value=1.0, input_type=float]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error",
+     "pydantic": [
+      {
+       "loc": [
+        "manifest_version"
+       ],
+       "type": "literal_error"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/v.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nmanifest_version\\n  Input should be '1' [type=literal_error, input_value=1.0, input_type=float]\\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error\"\n    }\n  ]\n}"
+  },
+  "method_delete": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "m.yaml",
+     "error": "request.method must be GET, POST, PUT, or PATCH",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/m.yaml\",\n      \"error\": \"request.method must be GET, POST, PUT, or PATCH\"\n    }\n  ]\n}"
+  },
+  "method_int": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "m.yaml",
+     "error": "1 validation error for ProviderManifest\nrequest.method\n  Input should be a valid string [type=string_type, input_value=5, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+     "pydantic": [
+      {
+       "loc": [
+        "request",
+        "method"
+       ],
+       "type": "string_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/m.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nrequest.method\\n  Input should be a valid string [type=string_type, input_value=5, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\"\n    }\n  ]\n}"
+  },
+  "empty_mappings": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "m.yaml",
+     "error": "response.mappings must not be empty",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/m.yaml\",\n      \"error\": \"response.mappings must not be empty\"\n    }\n  ]\n}"
+  },
+  "missing_mappings": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "m.yaml",
+     "error": "response.mappings must not be empty",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/m.yaml\",\n      \"error\": \"response.mappings must not be empty\"\n    }\n  ]\n}"
+  },
+  "missing_response": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "m.yaml",
+     "error": "response.mappings must not be empty",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/m.yaml\",\n      \"error\": \"response.mappings must not be empty\"\n    }\n  ]\n}"
+  },
+  "name_too_short": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "n.yaml",
+     "error": "name must match ^[a-z][a-z0-9_]{2,63}$",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/n.yaml\",\n      \"error\": \"name must match ^[a-z][a-z0-9_]{2,63}$\"\n    }\n  ]\n}"
+  },
+  "name_uppercase": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "n.yaml",
+     "error": "name must match ^[a-z][a-z0-9_]{2,63}$",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/n.yaml\",\n      \"error\": \"name must match ^[a-z][a-z0-9_]{2,63}$\"\n    }\n  ]\n}"
+  },
+  "name_dash": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "n.yaml",
+     "error": "name must match ^[a-z][a-z0-9_]{2,63}$",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/n.yaml\",\n      \"error\": \"name must match ^[a-z][a-z0-9_]{2,63}$\"\n    }\n  ]\n}"
+  },
+  "name_too_long": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "n.yaml",
+     "error": "name must match ^[a-z][a-z0-9_]{2,63}$",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/n.yaml\",\n      \"error\": \"name must match ^[a-z][a-z0-9_]{2,63}$\"\n    }\n  ]\n}"
+  },
+  "confidence_high": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "c.yaml",
+     "error": "confidence must be 0..1 and cost must be non-negative",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/c.yaml\",\n      \"error\": \"confidence must be 0..1 and cost must be non-negative\"\n    }\n  ]\n}"
+  },
+  "confidence_nan": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "c.yaml",
+     "error": "confidence must be 0..1 and cost must be non-negative",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/c.yaml\",\n      \"error\": \"confidence must be 0..1 and cost must be non-negative\"\n    }\n  ]\n}"
+  },
+  "cost_negative": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "c.yaml",
+     "error": "confidence must be 0..1 and cost must be non-negative",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/c.yaml\",\n      \"error\": \"confidence must be 0..1 and cost must be non-negative\"\n    }\n  ]\n}"
+  },
+  "timeout_zero": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "t.yaml",
+     "error": "request.timeout must be between 0 and 120 seconds",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/t.yaml\",\n      \"error\": \"request.timeout must be between 0 and 120 seconds\"\n    }\n  ]\n}"
+  },
+  "timeout_high": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "t.yaml",
+     "error": "request.timeout must be between 0 and 120 seconds",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/t.yaml\",\n      \"error\": \"request.timeout must be between 0 and 120 seconds\"\n    }\n  ]\n}"
+  },
+  "timeout_max_ok_then_dup": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"t_max\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"533f441f8f677da65c6328acbeb36139e66eabb43cc241c7eaa2b4ede2c83995\",\"manifest_version\":\"1\",\"name\":\"T Max\",\"path\":\"t.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"t.yaml\",\n      \"manifest_sha256\": \"533f441f8f677da65c6328acbeb36139e66eabb43cc241c7eaa2b4ede2c83995\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"t_max\",\n      \"name\": \"T Max\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "missing_name": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "n.yaml",
+     "error": "1 validation error for ProviderManifest\nname\n  Field required [type=missing, input_value={'manifest_version': '1',...: {'email': '$.email'}}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "pydantic": [
+      {
+       "loc": [
+        "name"
+       ],
+       "type": "missing"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/n.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nname\\n  Field required [type=missing, input_value={'manifest_version': '1',...: {'email': '$.email'}}}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\"\n    }\n  ]\n}"
+  },
+  "missing_capability": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "n.yaml",
+     "error": "1 validation error for ProviderManifest\ncapability\n  Field required [type=missing, input_value={'manifest_version': '1',...: {'email': '$.email'}}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "pydantic": [
+      {
+       "loc": [
+        "capability"
+       ],
+       "type": "missing"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/n.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\ncapability\\n  Field required [type=missing, input_value={'manifest_version': '1',...: {'email': '$.email'}}}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\"\n    }\n  ]\n}"
+  },
+  "missing_request": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "r.yaml",
+     "error": "1 validation error for ProviderManifest\nrequest.url\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "pydantic": [
+      {
+       "loc": [
+        "request",
+        "url"
+       ],
+       "type": "missing"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/r.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nrequest.url\\n  Field required [type=missing, input_value={}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\"\n    }\n  ]\n}"
+  },
+  "request_null": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "r.yaml",
+     "error": "1 validation error for ProviderManifest\nrequest.url\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "pydantic": [
+      {
+       "loc": [
+        "request",
+        "url"
+       ],
+       "type": "missing"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/r.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nrequest.url\\n  Field required [type=missing, input_value={}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\"\n    }\n  ]\n}"
+  },
+  "request_string": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "r.yaml",
+     "error": "dictionary update sequence element #0 has length 1; 2 is required",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/r.yaml\",\n      \"error\": \"dictionary update sequence element #0 has length 1; 2 is required\"\n    }\n  ]\n}"
+  },
+  "request_int": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "r.yaml",
+     "error": "'int' object is not iterable",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/r.yaml\",\n      \"error\": \"'int' object is not iterable\"\n    }\n  ]\n}"
+  },
+  "request_pairs": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"test_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"5f3694bec7018ca19ba5cbcbff72da7c909731d4634273bb3f145fa5521d5a57\",\"manifest_version\":\"1\",\"name\":\"Test Email\",\"path\":\"r.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"r.yaml\",\n      \"manifest_sha256\": \"5f3694bec7018ca19ba5cbcbff72da7c909731d4634273bb3f145fa5521d5a57\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"test_email\",\n      \"name\": \"Test Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "request_bad_pairs": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "r.yaml",
+     "error": "dictionary update sequence element #0 has length 3; 2 is required",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/r.yaml\",\n      \"error\": \"dictionary update sequence element #0 has length 3; 2 is required\"\n    }\n  ]\n}"
+  },
+  "name_int": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "n.yaml",
+     "error": "1 validation error for ProviderManifest\nname\n  Input should be a valid string [type=string_type, input_value=123, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+     "pydantic": [
+      {
+       "loc": [
+        "name"
+       ],
+       "type": "string_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/n.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nname\\n  Input should be a valid string [type=string_type, input_value=123, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\"\n    }\n  ]\n}"
+  },
+  "name_date": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "n.yaml",
+     "error": "1 validation error for ProviderManifest\nname\n  Input should be a valid string [type=string_type, input_value=datetime.date(2026, 1, 1), input_type=date]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+     "pydantic": [
+      {
+       "loc": [
+        "name"
+       ],
+       "type": "string_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/n.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nname\\n  Input should be a valid string [type=string_type, input_value=datetime.date(2026, 1, 1), input_type=date]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\"\n    }\n  ]\n}"
+  },
+  "tags_string": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "t.yaml",
+     "error": "1 validation error for ProviderManifest\ntags\n  Input should be a valid list [type=list_type, input_value='email', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type",
+     "pydantic": [
+      {
+       "loc": [
+        "tags"
+       ],
+       "type": "list_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/t.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\ntags\\n  Input should be a valid list [type=list_type, input_value='email', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type\"\n    }\n  ]\n}"
+  },
+  "tags_int_item": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "t.yaml",
+     "error": "1 validation error for ProviderManifest\ntags.1\n  Input should be a valid string [type=string_type, input_value=1, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+     "pydantic": [
+      {
+       "loc": [
+        "tags",
+        1
+       ],
+       "type": "string_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/t.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\ntags.1\\n  Input should be a valid string [type=string_type, input_value=1, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\"\n    }\n  ]\n}"
+  },
+  "mapping_int_value": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "m.yaml",
+     "error": "1 validation error for ProviderManifest\nresponse.mappings.email\n  Input should be a valid string [type=string_type, input_value=5, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+     "pydantic": [
+      {
+       "loc": [
+        "response",
+        "mappings",
+        "email"
+       ],
+       "type": "string_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/m.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nresponse.mappings.email\\n  Input should be a valid string [type=string_type, input_value=5, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\"\n    }\n  ]\n}"
+  },
+  "mapping_int_key": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "m.yaml",
+     "error": "1 validation error for ProviderManifest\nresponse.mappings.1.[key]\n  Input should be a valid string [type=string_type, input_value=1, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+     "pydantic": [
+      {
+       "loc": [
+        "response",
+        "mappings",
+        1,
+        "[key]"
+       ],
+       "type": "string_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/m.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nresponse.mappings.1.[key]\\n  Input should be a valid string [type=string_type, input_value=1, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\"\n    }\n  ]\n}"
+  },
+  "headers_null": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "h.yaml",
+     "error": "1 validation error for ProviderManifest\nrequest.headers\n  Input should be a valid dictionary [type=dict_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type",
+     "pydantic": [
+      {
+       "loc": [
+        "request",
+        "headers"
+       ],
+       "type": "dict_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/h.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nrequest.headers\\n  Input should be a valid dictionary [type=dict_type, input_value=None, input_type=NoneType]\\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type\"\n    }\n  ]\n}"
+  },
+  "headers_int_key": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "h.yaml",
+     "error": "1 validation error for ProviderManifest\nrequest.headers.1.[key]\n  Input should be a valid string [type=string_type, input_value=1, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+     "pydantic": [
+      {
+       "loc": [
+        "request",
+        "headers",
+        1,
+        "[key]"
+       ],
+       "type": "string_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/h.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nrequest.headers.1.[key]\\n  Input should be a valid string [type=string_type, input_value=1, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\"\n    }\n  ]\n}"
+  },
+  "auth_null": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "a.yaml",
+     "error": "1 validation error for ProviderManifest\nauth\n  Input should be a valid dictionary or instance of AuthSpec [type=model_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.13/v/model_type",
+     "pydantic": [
+      {
+       "loc": [
+        "auth"
+       ],
+       "type": "model_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/a.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nauth\\n  Input should be a valid dictionary or instance of AuthSpec [type=model_type, input_value=None, input_type=NoneType]\\n    For further information visit https://errors.pydantic.dev/2.13/v/model_type\"\n    }\n  ]\n}"
+  },
+  "auth_string": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "a.yaml",
+     "error": "1 validation error for ProviderManifest\nauth\n  Input should be a valid dictionary or instance of AuthSpec [type=model_type, input_value='bearer', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/model_type",
+     "pydantic": [
+      {
+       "loc": [
+        "auth"
+       ],
+       "type": "model_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/a.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nauth\\n  Input should be a valid dictionary or instance of AuthSpec [type=model_type, input_value='bearer', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/model_type\"\n    }\n  ]\n}"
+  },
+  "auth_param_int": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "a.yaml",
+     "error": "1 validation error for ProviderManifest\nauth.param\n  Input should be a valid string [type=string_type, input_value=5, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+     "pydantic": [
+      {
+       "loc": [
+        "auth",
+        "param"
+       ],
+       "type": "string_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/a.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nauth.param\\n  Input should be a valid string [type=string_type, input_value=5, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\"\n    }\n  ]\n}"
+  },
+  "confidence_string": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "c.yaml",
+     "error": "1 validation error for ProviderManifest\ndefault_confidence\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='high', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/float_parsing",
+     "pydantic": [
+      {
+       "loc": [
+        "default_confidence"
+       ],
+       "type": "float_parsing"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/c.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\ndefault_confidence\\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='high', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/float_parsing\"\n    }\n  ]\n}"
+  },
+  "confidence_null": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "c.yaml",
+     "error": "1 validation error for ProviderManifest\ndefault_confidence\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.13/v/float_type",
+     "pydantic": [
+      {
+       "loc": [
+        "default_confidence"
+       ],
+       "type": "float_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/c.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\ndefault_confidence\\n  Input should be a valid number [type=float_type, input_value=None, input_type=NoneType]\\n    For further information visit https://errors.pydantic.dev/2.13/v/float_type\"\n    }\n  ]\n}"
+  },
+  "cost_hex_string": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "c.yaml",
+     "error": "1 validation error for ProviderManifest\ncost_per_lookup\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='0x10', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/float_parsing",
+     "pydantic": [
+      {
+       "loc": [
+        "cost_per_lookup"
+       ],
+       "type": "float_parsing"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/c.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\ncost_per_lookup\\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='0x10', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/float_parsing\"\n    }\n  ]\n}"
+  },
+  "cost_huge_int": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "c.yaml",
+     "error": "1 validation error for ProviderManifest\ncost_per_lookup\n  Input should be a valid number [type=float_type, input_value=1000000000000000000000000...000000000000000000000000, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/float_type",
+     "pydantic": [
+      {
+       "loc": [
+        "cost_per_lookup"
+       ],
+       "type": "float_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/c.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\ncost_per_lookup\\n  Input should be a valid number [type=float_type, input_value=1000000000000000000000000...000000000000000000000000, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/float_type\"\n    }\n  ]\n}"
+  },
+  "timeout_string": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "t.yaml",
+     "error": "1 validation error for ProviderManifest\nrequest.timeout\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='soon', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/float_parsing",
+     "pydantic": [
+      {
+       "loc": [
+        "request",
+        "timeout"
+       ],
+       "type": "float_parsing"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/t.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nrequest.timeout\\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='soon', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/float_parsing\"\n    }\n  ]\n}"
+  },
+  "multiple_schema_errors": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "m.yaml",
+     "error": "5 validation errors for ProviderManifest\nname\n  Input should be a valid string [type=string_type, input_value=1, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\ncapability\n  Input should be a valid string [type=string_type, input_value=['x'], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\nrequest.url\n  Field required [type=missing, input_value={'timeout': 'x'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.timeout\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='x', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/float_parsing\nresponse.mappings\n  Input should be a valid dictionary [type=dict_type, input_value=[], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type",
+     "pydantic": [
+      {
+       "loc": [
+        "name"
+       ],
+       "type": "string_type"
+      },
+      {
+       "loc": [
+        "capability"
+       ],
+       "type": "string_type"
+      },
+      {
+       "loc": [
+        "request",
+        "url"
+       ],
+       "type": "missing"
+      },
+      {
+       "loc": [
+        "request",
+        "timeout"
+       ],
+       "type": "float_parsing"
+      },
+      {
+       "loc": [
+        "response",
+        "mappings"
+       ],
+       "type": "dict_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/m.yaml\",\n      \"error\": \"5 validation errors for ProviderManifest\\nname\\n  Input should be a valid string [type=string_type, input_value=1, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\\ncapability\\n  Input should be a valid string [type=string_type, input_value=['x'], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\\nrequest.url\\n  Field required [type=missing, input_value={'timeout': 'x'}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\\nrequest.timeout\\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='x', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.13/v/float_parsing\\nresponse.mappings\\n  Input should be a valid dictionary [type=dict_type, input_value=[], input_type=list]\\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type\"\n    }\n  ]\n}"
+  },
+  "homepage_null": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "h.yaml",
+     "error": "1 validation error for ProviderManifest\nhomepage\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+     "pydantic": [
+      {
+       "loc": [
+        "homepage"
+       ],
+       "type": "string_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/h.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nhomepage\\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\"\n    }\n  ]\n}"
+  },
+  "error_path_int": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "e.yaml",
+     "error": "1 validation error for ProviderManifest\nresponse.error_path\n  Input should be a valid string [type=string_type, input_value=3, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type",
+     "pydantic": [
+      {
+       "loc": [
+        "response",
+        "error_path"
+       ],
+       "type": "string_type"
+      }
+     ]
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/e.yaml\",\n      \"error\": \"1 validation error for ProviderManifest\\nresponse.error_path\\n  Input should be a valid string [type=string_type, input_value=3, input_type=int]\\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\"\n    }\n  ]\n}"
+  },
+  "top_level_list": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "l.yaml",
+     "error": "manifest <DIR>/l.yaml is not a mapping",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/l.yaml\",\n      \"error\": \"manifest <DIR>/l.yaml is not a mapping\"\n    }\n  ]\n}"
+  },
+  "empty_file": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "e.yaml",
+     "error": "manifest <DIR>/e.yaml is not a mapping",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/e.yaml\",\n      \"error\": \"manifest <DIR>/e.yaml is not a mapping\"\n    }\n  ]\n}"
+  },
+  "scalar_file": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "manifest <DIR>/s.yaml is not a mapping",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"manifest <DIR>/s.yaml is not a mapping\"\n    }\n  ]\n}"
+  },
+  "invalid_yaml": {
+   "exact_messages": false,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "i.yaml",
+     "error": "while parsing a flow sequence\n  in \"<DIR>/i.yaml\", line 1, column 7\nexpected ',' or ']', but got '<stream end>'\n  in \"<DIR>/i.yaml\", line 2, column 1",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/i.yaml\",\n      \"error\": \"while parsing a flow sequence\\n  in \\\"<DIR>/i.yaml\\\", line 1, column 7\\nexpected ',' or ']', but got '<stream end>'\\n  in \\\"<DIR>/i.yaml\\\", line 2, column 1\"\n    }\n  ]\n}"
+  },
+  "two_documents": {
+   "exact_messages": false,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "d.yaml",
+     "error": "expected a single document in the stream\n  in \"<DIR>/d.yaml\", line 1, column 1\nbut found another document\n  in \"<DIR>/d.yaml\", line 9, column 1",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/d.yaml\",\n      \"error\": \"expected a single document in the stream\\n  in \\\"<DIR>/d.yaml\\\", line 1, column 1\\nbut found another document\\n  in \\\"<DIR>/d.yaml\\\", line 9, column 1\"\n    }\n  ]\n}"
+  },
+  "int_top_level_key": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "k.yaml",
+     "error": "keywords must be strings",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/k.yaml\",\n      \"error\": \"keywords must be strings\"\n    }\n  ]\n}"
+  },
+  "unknown_tag": {
+   "exact_messages": false,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "u.yaml",
+     "error": "could not determine a constructor for the tag '!custom'\n  in \"<DIR>/u.yaml\", line 9, column 8",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/u.yaml\",\n      \"error\": \"could not determine a constructor for the tag '!custom'\\n  in \\\"<DIR>/u.yaml\\\", line 9, column 8\"\n    }\n  ]\n}"
+  },
+  "value_tag": {
+   "exact_messages": false,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "u.yaml",
+     "error": "could not determine a constructor for the tag 'tag:yaml.org,2002:value'\n  in \"<DIR>/u.yaml\", line 9, column 8",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/u.yaml\",\n      \"error\": \"could not determine a constructor for the tag 'tag:yaml.org,2002:value'\\n  in \\\"<DIR>/u.yaml\\\", line 9, column 8\"\n    }\n  ]\n}"
+  },
+  "date_in_unknown_field": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "d.yaml",
+     "error": "Object of type date is not JSON serializable",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/d.yaml\",\n      \"error\": \"Object of type date is not JSON serializable\"\n    }\n  ]\n}"
+  },
+  "binary_in_unknown_field": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "d.yaml",
+     "error": "Object of type bytes is not JSON serializable",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/d.yaml\",\n      \"error\": \"Object of type bytes is not JSON serializable\"\n    }\n  ]\n}"
+  },
+  "mixed_key_types_nested": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "d.yaml",
+     "error": "'<' not supported between instances of 'str' and 'int'",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/d.yaml\",\n      \"error\": \"'<' not supported between instances of 'str' and 'int'\"\n    }\n  ]\n}"
+  },
+  "nonprintable_char": {
+   "exact_messages": false,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "n.yaml",
+     "error": "unacceptable character #x007f: special characters are not allowed\n  in \"<DIR>/n.yaml\", position 157",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/n.yaml\",\n      \"error\": \"unacceptable character #x007f: special characters are not allowed\\n  in \\\"<DIR>/n.yaml\\\", position 157\"\n    }\n  ]\n}"
+  },
+  "directory_named_yaml": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "dir.yaml",
+     "error": "[Errno 21] Is a directory: '<DIR>/dir.yaml'",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/dir.yaml\",\n      \"error\": \"[Errno 21] Is a directory: '<DIR>/dir.yaml'\"\n    }\n  ]\n}"
+  },
+  "invalid_utf8": {
+   "exact_messages": false,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "bad.yaml",
+     "error": "'utf-8' codec can't decode byte 0xff in position 28: invalid start byte",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/bad.yaml\",\n      \"error\": \"'utf-8' codec can't decode byte 0xff in position 28: invalid start byte\"\n    }\n  ]\n}"
+  },
+  "mixed_good_and_bad": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"good_one\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"ae053deb22291531298ab0dcf1cda2d057c35b4bce229eba705b58544b7cdae7\",\"manifest_version\":\"1\",\"name\":\"Good One\",\"path\":\"good.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[]}"
+   ],
+   "errors": [
+    {
+     "path": "bad.yaml",
+     "error": "connector request URL must use HTTPS",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"good.yaml\",\n      \"manifest_sha256\": \"ae053deb22291531298ab0dcf1cda2d057c35b4bce229eba705b58544b7cdae7\",\n      \"signature\": {\n        \"status\": \"unsigned\",\n        \"key_id\": null,\n        \"publisher\": null\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"good_one\",\n      \"name\": \"Good One\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/bad.yaml\",\n      \"error\": \"connector request URL must use HTTPS\"\n    }\n  ]\n}"
+  },
+  "signed_trusted_optional": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"signed_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"8e4e2f12cf6e9e510bdea4a167590e3c3d1d87160f4ed82af76b9bbb7939039d\",\"manifest_version\":\"1\",\"name\":\"Signed Email\",\"path\":\"s.yaml\",\"signature\":{\"key_id\":\"parity-trusted\",\"publisher\":\"Parity Test Publisher\",\"status\":\"trusted\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"s.yaml\",\n      \"manifest_sha256\": \"8e4e2f12cf6e9e510bdea4a167590e3c3d1d87160f4ed82af76b9bbb7939039d\",\n      \"signature\": {\n        \"status\": \"trusted\",\n        \"key_id\": \"parity-trusted\",\n        \"publisher\": \"Parity Test Publisher\"\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"signed_email\",\n      \"name\": \"Signed Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "signed_trusted_required": {
+   "exact_messages": true,
+   "policy": "required",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "required",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"signed_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"8e4e2f12cf6e9e510bdea4a167590e3c3d1d87160f4ed82af76b9bbb7939039d\",\"manifest_version\":\"1\",\"name\":\"Signed Email\",\"path\":\"s.yaml\",\"signature\":{\"key_id\":\"parity-trusted\",\"publisher\":\"Parity Test Publisher\",\"status\":\"trusted\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"required\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"s.yaml\",\n      \"manifest_sha256\": \"8e4e2f12cf6e9e510bdea4a167590e3c3d1d87160f4ed82af76b9bbb7939039d\",\n      \"signature\": {\n        \"status\": \"trusted\",\n        \"key_id\": \"parity-trusted\",\n        \"publisher\": \"Parity Test Publisher\"\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"signed_email\",\n      \"name\": \"Signed Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "unsigned_required": {
+   "exact_messages": true,
+   "policy": "required",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "required",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "u.yaml",
+     "error": "connector signature is unsigned:",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"required\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/u.yaml\",\n      \"error\": \"connector signature is unsigned:\"\n    }\n  ]\n}"
+  },
+  "unsigned_required_missing_store": {
+   "exact_messages": true,
+   "policy": "required",
+   "trust": "missing",
+   "ok": false,
+   "signature_policy": "required",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "u.yaml",
+     "error": "connector signature is unsigned:",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"required\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/u.yaml\",\n      \"error\": \"connector signature is unsigned:\"\n    }\n  ]\n}"
+  },
+  "signed_untrusted_key": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is untrusted:",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is untrusted:\"\n    }\n  ]\n}"
+  },
+  "signed_missing_store": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "missing",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is untrusted:",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is untrusted:\"\n    }\n  ]\n}"
+  },
+  "signed_then_tampered": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: manifest digest mismatch",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: manifest digest mismatch\"\n    }\n  ]\n}"
+  },
+  "signed_then_reformatted": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"signed_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"8e4e2f12cf6e9e510bdea4a167590e3c3d1d87160f4ed82af76b9bbb7939039d\",\"manifest_version\":\"1\",\"name\":\"Signed Email\",\"path\":\"s.yaml\",\"signature\":{\"key_id\":\"parity-trusted\",\"publisher\":\"Parity Test Publisher\",\"status\":\"trusted\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"s.yaml\",\n      \"manifest_sha256\": \"8e4e2f12cf6e9e510bdea4a167590e3c3d1d87160f4ed82af76b9bbb7939039d\",\n      \"signature\": {\n        \"status\": \"trusted\",\n        \"key_id\": \"parity-trusted\",\n        \"publisher\": \"Parity Test Publisher\"\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"signed_email\",\n      \"name\": \"Signed Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "signature_bad_version": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: unsupported connector signature envelope",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: unsupported connector signature envelope\"\n    }\n  ]\n}"
+  },
+  "signature_bad_algorithm": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: unsupported connector signature envelope",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: unsupported connector signature envelope\"\n    }\n  ]\n}"
+  },
+  "signature_wrong_bytes": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid:",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid:\"\n    }\n  ]\n}"
+  },
+  "signature_bad_base64": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: Only base64 data is allowed",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: Only base64 data is allowed\"\n    }\n  ]\n}"
+  },
+  "signature_bad_padding": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: Incorrect padding",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: Incorrect padding\"\n    }\n  ]\n}"
+  },
+  "signature_not_json": {
+   "exact_messages": false,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\"\n    }\n  ]\n}"
+  },
+  "signature_json_list": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: 'list' object has no attribute 'get'",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: 'list' object has no attribute 'get'\"\n    }\n  ]\n}"
+  },
+  "signature_key_id_int": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is untrusted:",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is untrusted:\"\n    }\n  ]\n}"
+  },
+  "signature_key_id_list": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: unhashable type: 'list'",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: unhashable type: 'list'\"\n    }\n  ]\n}"
+  },
+  "signature_missing_signature": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: 'signature'",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: 'signature'\"\n    }\n  ]\n}"
+  },
+  "signature_policy_unknown": {
+   "exact_messages": true,
+   "policy": "sometimes",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "required",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "u.yaml",
+     "error": "connector signature is unsigned:",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"required\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/u.yaml\",\n      \"error\": \"connector signature is unsigned:\"\n    }\n  ]\n}"
+  },
+  "signed_date_canonical": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "store",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: Object of type date is not JSON serializable",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: Object of type date is not JSON serializable\"\n    }\n  ]\n}"
+  },
+  "trust_store_bad_version": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "bad_version",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: invalid connector trust store",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: invalid connector trust store\"\n    }\n  ]\n}"
+  },
+  "trust_store_true_version": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "true_version",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"signed_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"8e4e2f12cf6e9e510bdea4a167590e3c3d1d87160f4ed82af76b9bbb7939039d\",\"manifest_version\":\"1\",\"name\":\"Signed Email\",\"path\":\"s.yaml\",\"signature\":{\"key_id\":\"parity-trusted\",\"publisher\":\"Bool Version\",\"status\":\"trusted\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"s.yaml\",\n      \"manifest_sha256\": \"8e4e2f12cf6e9e510bdea4a167590e3c3d1d87160f4ed82af76b9bbb7939039d\",\n      \"signature\": {\n        \"status\": \"trusted\",\n        \"key_id\": \"parity-trusted\",\n        \"publisher\": \"Bool Version\"\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"signed_email\",\n      \"name\": \"Signed Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  },
+  "trust_store_short_key": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "short_key",
+   "ok": false,
+   "signature_policy": "optional",
+   "count": 0,
+   "connectors": [],
+   "errors": [
+    {
+     "path": "s.yaml",
+     "error": "connector signature is invalid: An Ed25519 public key is 32 bytes long",
+     "pydantic": null
+    }
+   ],
+   "json": "{\n  \"ok\": false,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 0,\n  \"connectors\": [],\n  \"errors\": [\n    {\n      \"path\": \"<DIR>/s.yaml\",\n      \"error\": \"connector signature is invalid: An Ed25519 public key is 32 bytes long\"\n    }\n  ]\n}"
+  },
+  "trust_store_no_publisher": {
+   "exact_messages": true,
+   "policy": "optional",
+   "trust": "no_publisher",
+   "ok": true,
+   "signature_policy": "optional",
+   "count": 1,
+   "connectors": [
+    "{\"author\":\"community\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.0,\"credential_key\":null,\"default_confidence\":0.7,\"description\":\"\",\"homepage\":\"\",\"id\":\"signed_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"8e4e2f12cf6e9e510bdea4a167590e3c3d1d87160f4ed82af76b9bbb7939039d\",\"manifest_version\":\"1\",\"name\":\"Signed Email\",\"path\":\"s.yaml\",\"signature\":{\"key_id\":\"parity-trusted\",\"publisher\":\"parity-trusted\",\"status\":\"trusted\"},\"tags\":[]}"
+   ],
+   "errors": [],
+   "json": "{\n  \"ok\": true,\n  \"manifest_version\": \"1\",\n  \"signature_policy\": \"optional\",\n  \"count\": 1,\n  \"connectors\": [\n    {\n      \"path\": \"s.yaml\",\n      \"manifest_sha256\": \"8e4e2f12cf6e9e510bdea4a167590e3c3d1d87160f4ed82af76b9bbb7939039d\",\n      \"signature\": {\n        \"status\": \"trusted\",\n        \"key_id\": \"parity-trusted\",\n        \"publisher\": \"parity-trusted\"\n      },\n      \"manifest_version\": \"1\",\n      \"id\": \"signed_email\",\n      \"name\": \"Signed Email\",\n      \"author\": \"community\",\n      \"homepage\": \"\",\n      \"license\": \"Apache-2.0\",\n      \"description\": \"\",\n      \"capabilities\": [\n        \"email\"\n      ],\n      \"tags\": [],\n      \"cost_per_lookup\": 0.0,\n      \"default_confidence\": 0.7,\n      \"credential_key\": null\n    }\n  ],\n  \"errors\": []\n}"
+  }
+ },
+ "real": {
+  "ok": true,
+  "count": 4,
+  "connectors": [
+   "{\"author\":\"OpenGTM\",\"capabilities\":[\"company_size\",\"description\"],\"cost_per_lookup\":0.05,\"credential_key\":\"LEADMAGIC_API_KEY\",\"default_confidence\":0.8,\"description\":\"LeadMagic /company-search — domain → firmographics (employee count, industry).\",\"homepage\":\"https://leadmagic.io\",\"id\":\"leadmagic_company\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"3e8dcae915734a53fe99f0a5c8eba5c7ddeab971c0a216885a53d927ee695c65\",\"manifest_version\":\"1\",\"name\":\"LeadMagic Company Search\",\"path\":\"company_size/leadmagic_company.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[\"company\",\"firmographics\",\"byok\"]}",
+   "{\"author\":\"OpenGTM\",\"capabilities\":[\"email\"],\"cost_per_lookup\":0.05,\"credential_key\":\"LEADMAGIC_API_KEY\",\"default_confidence\":0.8,\"description\":\"LeadMagic /email-finder — first/last + domain → work email.\",\"homepage\":\"https://leadmagic.io\",\"id\":\"leadmagic_email\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"af9f891b09c6ab8da27d6ce233c03433ac1f247d8acc2b75e224787e6c2ca663\",\"manifest_version\":\"1\",\"name\":\"LeadMagic Email Finder\",\"path\":\"email/leadmagic.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[\"email\",\"enrichment\",\"byok\"]}",
+   "{\"author\":\"OpenGTM\",\"capabilities\":[\"mobile_phone\",\"phone\"],\"cost_per_lookup\":0.05,\"credential_key\":\"LEADMAGIC_API_KEY\",\"default_confidence\":0.8,\"description\":\"LeadMagic /mobile-finder — LinkedIn profile or work email → mobile number.\",\"homepage\":\"https://leadmagic.io\",\"id\":\"leadmagic_mobile\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"1742778bbf154bc28ef504b258493236184f06fb922496091d735b1c08593653\",\"manifest_version\":\"1\",\"name\":\"LeadMagic Mobile Finder\",\"path\":\"phone/leadmagic_mobile.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[\"phone\",\"enrichment\",\"byok\"]}",
+   "{\"author\":\"OpenGTM\",\"capabilities\":[\"mobile_phone\"],\"cost_per_lookup\":0.1,\"credential_key\":\"PROSPEO_API_KEY\",\"default_confidence\":0.8,\"description\":\"Prospeo /mobile-finder — LinkedIn profile URL → verified mobile number.\",\"homepage\":\"https://prospeo.io\",\"id\":\"prospeo_mobile\",\"license\":\"Apache-2.0\",\"manifest_sha256\":\"591eb8221de19a34c2003f3df0022ba18696e48d857fd126fc3e677c6fd5ac2a\",\"manifest_version\":\"1\",\"name\":\"Prospeo Mobile Finder\",\"path\":\"phone/prospeo_mobile.yaml\",\"signature\":{\"key_id\":null,\"publisher\":null,\"status\":\"unsigned\"},\"tags\":[\"phone\",\"enrichment\",\"byok\"]}"
+  ],
+  "errors": []
+ }
+}

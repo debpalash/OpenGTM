@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opengtm.dev/schemas/plugin-manifest-v2.json",
+  "title": "OpenGTM Plugin Manifest v2",
+  "description": "Plugin manifest v2 (superset of connector manifest v1). The Go host in apps/server/internal/plugin/manifest is the reference validator; this schema encodes every structural rule. Semantic rules a schema cannot express (secret references, network coverage of static URLs, validity of embedded JSON Schemas) are enforced only by the host. Keys starting with x- are reserved for extensions.",
+  "type": "object",
+  "required": ["manifest_version", "name", "kind", "runtime", "version"],
+  "patternProperties": {"^x-": {}},
+  "additionalProperties": false,
+  "properties": {
+    "manifest_version": {"const": "2"},
+    "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]{2,63}$"},
+    "display_name": {"type": "string"},
+    "kind": {"enum": ["provider", "scraper", "signal", "destination", "function", "tool"]},
+    "runtime": {"enum": ["declarative", "wasm", "process"]},
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+    },
+    "author": {"type": "string"},
+    "license": {"type": "string"},
+    "description": {"type": "string"},
+    "homepage": {"type": "string"},
+    "tags": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "network": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(https?)://(\\*|(\\*\\.)?[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*|\\[[0-9a-f:.]+\\])(:([0-9]{1,5}|\\*))?(/[^\\s?#]*)?$"
+          }
+        },
+        "secrets": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"}},
+        "browser": {"type": "boolean"}
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requests_per_second_per_domain": {"type": "number", "exclusiveMinimum": 0, "maximum": 100},
+        "timeout_seconds": {"type": "number", "exclusiveMinimum": 0, "maximum": 300},
+        "max_pages": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "max_response_bytes": {"type": "integer", "minimum": 1, "maximum": 52428800},
+        "memory_mb": {"type": "integer", "minimum": 1, "maximum": 4096}
+      }
+    },
+    "inputs": {
+      "description": "A JSON Schema with type object, or the shorthand {name: type} where type is string|number|integer|boolean|object|array, optionally suffixed with ? for optional inputs.",
+      "anyOf": [
+        {"$ref": "#/$defs/objectSchema"},
+        {
+          "type": "object",
+          "not": {"required": ["type"]},
+          "propertyNames": {"pattern": "^[A-Za-z_][A-Za-z0-9_]*$"},
+          "additionalProperties": {"enum": ["string", "number", "integer", "boolean", "object", "array", "string?", "number?", "integer?", "boolean?", "object?", "array?"]}
+        }
+      ]
+    },
+    "outputs": {
+      "description": "An entity name (person, company, ...) or a JSON Schema with type object.",
+      "anyOf": [{"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}, {"$ref": "#/$defs/objectSchema"}]
+    },
+    "config": {"$ref": "#/$defs/objectSchema"},
+    "capability": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+    "default_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "cost_per_lookup": {"type": "number", "minimum": 0},
+    "input_fields": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "auth": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {"enum": ["none", "header", "bearer", "query"]},
+        "param": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"]},
+        "env_var": {"type": ["string", "null"]}
+      },
+      "if": {"properties": {"type": {"enum": ["header", "bearer", "query"]}}, "required": ["type"]},
+      "then": {"required": ["env_var"], "properties": {"env_var": {"type": "string", "minLength": 1}}}
+    },
+    "request": {
+      "type": "object",
+      "required": ["url"],
+      "additionalProperties": false,
+      "not": {"required": ["body", "body_template"]},
+      "properties": {
+        "method": {"enum": ["GET", "POST", "PUT", "PATCH"]},
+        "url": {"type": "string", "pattern": "^https://"},
+        "headers": {"$ref": "#/$defs/scalarMap"},
+        "query": {"$ref": "#/$defs/scalarMap"},
+        "body": {},
+        "body_template": {},
+        "timeout": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}
+      }
+    },
+    "response": {
+      "type": "object",
+      "required": ["mappings"],
+      "additionalProperties": false,
+      "properties": {
+        "error_path": {"type": ["string", "null"]},
+        "error_message_path": {"type": ["string", "null"]},
+        "mappings": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string"}}
+      }
+    },
+    "scrape": {
+      "type": "object",
+      "required": ["start", "fields"],
+      "additionalProperties": false,
+      "properties": {
+        "start": {"type": "string", "pattern": "^https://"},
+        "items": {"$ref": "#/$defs/selector"},
+        "format": {"enum": ["html", "json"]},
+        "fields": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^[A-Za-z_][A-Za-z0-9_]*$"},
+          "additionalProperties": {"$ref": "#/$defs/selector"}
+        },
+        "paginate": {
+          "type": "object",
+          "required": ["next"],
+          "additionalProperties": false,
+          "properties": {
+            "next": {"$ref": "#/$defs/selector"},
+            "max_pages": {"type": "integer", "minimum": 1, "maximum": 1000}
+          }
+        }
+      }
+    },
+    "wasm": {
+      "type": "object",
+      "required": ["module", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "module": {
+          "type": "string",
+          "pattern": "^[^/\\\\]([^\\\\]*[^/\\\\])?\\.wasm$",
+          "not": {"pattern": "(^|/)\\.{1,2}(/|$)|//"}
+        },
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "process": {
+      "type": "object",
+      "required": ["command"],
+      "additionalProperties": false,
+      "properties": {"command": {"type": "array", "minItems": 1, "items": {"type": "string"}}}
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"runtime": {"const": "declarative"}}, "required": ["runtime"]},
+      "then": {
+        "properties": {
+          "kind": {"enum": ["provider", "scraper"]},
+          "capabilities": {"required": ["network"], "properties": {"network": {"minItems": 1}}}
+        },
+        "required": ["capabilities"]
+      }
+    },
+    {
+      "if": {"properties": {"runtime": {"const": "declarative"}, "kind": {"const": "provider"}}, "required": ["runtime", "kind"]},
+      "then": {"required": ["capability", "request", "response"]}
+    },
+    {
+      "if": {"properties": {"runtime": {"const": "declarative"}, "kind": {"const": "scraper"}}, "required": ["runtime", "kind"]},
+      "then": {"required": ["scrape"]}
+    },
+    {
+      "if": {"not": {"properties": {"runtime": {"const": "declarative"}, "kind": {"const": "scraper"}}, "required": ["runtime", "kind"]}},
+      "then": {"not": {"required": ["scrape"]}}
+    },
+    {
+      "if": {"not": {"properties": {"kind": {"const": "provider"}}, "required": ["kind"]}},
+      "then": {
+        "not": {
+          "anyOf": [
+            {"required": ["capability"]}, {"required": ["default_confidence"]}, {"required": ["cost_per_lookup"]},
+            {"required": ["auth"]}, {"required": ["request"]}, {"required": ["response"]}, {"required": ["input_fields"]}
+          ]
+        }
+      }
+    },
+    {
+      "if": {"not": {"properties": {"runtime": {"const": "declarative"}}, "required": ["runtime"]}},
+      "then": {
+        "not": {"anyOf": [{"required": ["auth"]}, {"required": ["request"]}, {"required": ["response"]}, {"required": ["input_fields"]}]}
+      }
+    },
+    {
+      "if": {"properties": {"runtime": {"const": "wasm"}}, "required": ["runtime"]},
+      "then": {"required": ["wasm"]},
+      "else": {"not": {"required": ["wasm"]}}
+    },
+    {
+      "if": {"properties": {"runtime": {"const": "process"}}, "required": ["runtime"]},
+      "then": {"required": ["process"]},
+      "else": {"not": {"required": ["process"]}}
+    }
+  ],
+  "$defs": {
+    "objectSchema": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {"type": {"const": "object"}}
+    },
+    "scalarMap": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean"]}},
+    "selector": {"type": "string", "pattern": "^(css|json|re):.+"}
+  }
+}

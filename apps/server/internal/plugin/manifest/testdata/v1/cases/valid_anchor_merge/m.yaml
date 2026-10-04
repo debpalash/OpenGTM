@@ -1,0 +1,10 @@
+defaults: &d {author: anchors}
+<<: *d
+manifest_version: "1"
+name: merged_one
+capability: email
+request:
+  url: https://api.example.com/find
+response:
+  mappings:
+    email: $.email

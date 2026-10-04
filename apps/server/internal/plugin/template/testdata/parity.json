@@ -1,0 +1,437 @@
+{
+ "env": {
+  "API_KEY": "sk_live_123",
+  "EMPTY": "",
+  "TOKEN_2": "t2"
+ },
+ "ctx_json": "{\"input\": {\"first_name\": \"Ada\", \"last_name\": \"Lovelace\", \"domain\": \"example.com\", \"empty\": \"\", \"none\": null, \"zero\": 0, \"false\": false, \"true\": true, \"int\": 42, \"float\": 1.0, \"float2\": 2.5, \"big\": 12345678901234567890, \"exp\": 1e+20, \"small\": 1e-05, \"list\": [\"a\", 1, null, true], \"dict\": {\"k\": \"v\", \"n\": 1}, \"quote\": \"it's\", \"both\": \"it's \\\"x\\\"\", \"unicode\": \"caf\\u00e9 \\u65e5\", \"nested\": {\"deep\": {\"value\": \"found\"}}, \"spaced key\": \"sp\", \"env_like\": \"${env:API_KEY}\"}, \"top\": \"level\"}",
+ "data_json": "{\"data\": {\"work_email\": \"a@x.com\", \"n\": 0, \"f\": 1.0, \"empty\": \"\", \"null\": null, \"t\": true, \"false\": false}, \"results\": [{\"email\": \"b@x.com\"}, {\"email\": \"c@x.com\"}], \"empty_list\": [], \"nested\": [[1, 2], [3]], \"handle\": \"spacex\", \"num\": 7, \"float\": 2.5, \"obj\": {\"a\": 1, \"b\": [1, 2]}, \"list_of_str\": [\"x\", \"y\"], \"error\": true, \"message\": \"quota exceeded \\u2014 retry later!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\", \"with_underscore\": {\"a_b\": \"u\"}, \"k1\": {\"k2\": \"v\"}, \"\": \"empty-key\"}",
+ "render_string": [
+  {
+   "template": "{{input.first_name}}",
+   "result": "Ada"
+  },
+  {
+   "template": "{{ input.first_name }}",
+   "result": "Ada"
+  },
+  {
+   "template": "{{input.first_name}} {{input.last_name}}",
+   "result": "Ada Lovelace"
+  },
+  {
+   "template": "{{input.missing}}",
+   "result": ""
+  },
+  {
+   "template": "{{input.missing | default: fallback}}",
+   "result": "fallback"
+  },
+  {
+   "template": "{{input.missing|default:fallback}}",
+   "result": "fallback"
+  },
+  {
+   "template": "{{input.empty | default: 'quoted'}}",
+   "result": "quoted"
+  },
+  {
+   "template": "{{input.empty | default: \"dq\"}}",
+   "result": "dq"
+  },
+  {
+   "template": "{{input.none | default:   spaced out   }}",
+   "result": "spaced out"
+  },
+  {
+   "template": "{{input.zero}}",
+   "result": "0"
+  },
+  {
+   "template": "{{input.false}}",
+   "result": "False"
+  },
+  {
+   "template": "{{input.true}}",
+   "result": "True"
+  },
+  {
+   "template": "{{input.int}}",
+   "result": "42"
+  },
+  {
+   "template": "{{input.float}}",
+   "result": "1.0"
+  },
+  {
+   "template": "{{input.float2}}",
+   "result": "2.5"
+  },
+  {
+   "template": "{{input.big}}",
+   "result": "12345678901234567890"
+  },
+  {
+   "template": "{{input.exp}}",
+   "result": "1e+20"
+  },
+  {
+   "template": "{{input.small}}",
+   "result": "1e-05"
+  },
+  {
+   "template": "{{input.list}}",
+   "result": "['a', 1, None, True]"
+  },
+  {
+   "template": "{{input.dict}}",
+   "result": "{'k': 'v', 'n': 1}"
+  },
+  {
+   "template": "{{input.quote}}",
+   "result": "it's"
+  },
+  {
+   "template": "{{input.both}}",
+   "result": "it's \"x\""
+  },
+  {
+   "template": "{{input.unicode}}",
+   "result": "café 日"
+  },
+  {
+   "template": "{{input.nested.deep.value}}",
+   "result": "found"
+  },
+  {
+   "template": "{{input.nested.deep.missing | default: d}}",
+   "result": "d"
+  },
+  {
+   "template": "{{input.first_name.length}}",
+   "result": ""
+  },
+  {
+   "template": "{{top}}",
+   "result": "level"
+  },
+  {
+   "template": "{{input.spaced key}}",
+   "result": "sp"
+  },
+  {
+   "template": "{{input.first_name | default: x}}",
+   "result": "Ada"
+  },
+  {
+   "template": "{{input.missing | default: }}",
+   "result": ""
+  },
+  {
+   "template": "{{input.missing | defaulted: x}}",
+   "result": "{{input.missing | defaulted: x}}"
+  },
+  {
+   "template": "{{ }}",
+   "result": ""
+  },
+  {
+   "template": "{{input.first_name}",
+   "result": "{{input.first_name}"
+  },
+  {
+   "template": "{input.first_name}}",
+   "result": "{input.first_name}}"
+  },
+  {
+   "template": "{{input.a}b}}",
+   "result": "{{input.a}b}}"
+  },
+  {
+   "template": "{{input.first_name|default:a|b}}",
+   "result": "Ada"
+  },
+  {
+   "template": "${env:API_KEY}",
+   "result": "sk_live_123"
+  },
+  {
+   "template": "Bearer ${env:API_KEY}",
+   "result": "Bearer sk_live_123"
+  },
+  {
+   "template": "${env:MISSING}",
+   "result": ""
+  },
+  {
+   "template": "${env:EMPTY}x",
+   "result": "x"
+  },
+  {
+   "template": "${env:BAD-NAME}",
+   "result": "${env:BAD-NAME}"
+  },
+  {
+   "template": "${ env:API_KEY }",
+   "result": "${ env:API_KEY }"
+  },
+  {
+   "template": "{{input.env_like}}",
+   "result": "sk_live_123"
+  },
+  {
+   "template": "https://{{input.domain}}/v1?key=${env:TOKEN_2}&q={{input.first_name}}",
+   "result": "https://example.com/v1?key=t2&q=Ada"
+  },
+  {
+   "template": "no templates here",
+   "result": "no templates here"
+  },
+  {
+   "template": "",
+   "result": ""
+  },
+  {
+   "template": "{{input.first_name}}{{input.last_name}}",
+   "result": "AdaLovelace"
+  },
+  {
+   "template": "{{\tinput.first_name\n}}",
+   "result": "Ada"
+  },
+  {
+   "template": "{{input.missing|default: nbsp }}",
+   "result": "nbsp"
+  }
+ ],
+ "render_template": [
+  {
+   "value_json": "{\"q\": \"{{input.first_name}}\", \"n\": 5, \"f\": 1.5, \"b\": true, \"z\": null, \"tags\": [\"{{input.domain}}\", 3, [\"{{input.int}}\"]]}",
+   "result": "{\"b\":true,\"f\":1.5,\"n\":5,\"q\":\"Ada\",\"tags\":[\"example.com\",3,[\"42\"]],\"z\":null}"
+  },
+  {
+   "value_json": "[\"{{input.missing | default: x}}\", {\"k\": \"${env:API_KEY}\"}]",
+   "result": "[\"x\",{\"k\":\"sk_live_123\"}]"
+  },
+  {
+   "value_json": "\"plain {{input.last_name}}\"",
+   "result": "\"plain Lovelace\""
+  },
+  {
+   "value_json": "42",
+   "result": "42"
+  },
+  {
+   "value_json": "null",
+   "result": "null"
+  }
+ ],
+ "project_value": [
+  {
+   "expr": "$.data.work_email",
+   "result": "\"a@x.com\""
+  },
+  {
+   "expr": "$.results[].email",
+   "result": "\"b@x.com\""
+  },
+  {
+   "expr": "$.results[0].email",
+   "result": "\"b@x.com\""
+  },
+  {
+   "expr": "$.results[1].email",
+   "result": "\"c@x.com\""
+  },
+  {
+   "expr": "$.results[2].email",
+   "result": "null"
+  },
+  {
+   "expr": "$.results[-1].email",
+   "result": "null"
+  },
+  {
+   "expr": "$.empty_list[]",
+   "result": "null"
+  },
+  {
+   "expr": "$.empty_list[0]",
+   "result": "null"
+  },
+  {
+   "expr": "$.nested[0]",
+   "result": "[1,2]"
+  },
+  {
+   "expr": "$.nested[0][1]",
+   "result": "null"
+  },
+  {
+   "expr": "$.nested[]",
+   "result": "[1,2]"
+  },
+  {
+   "expr": "$.missing.key",
+   "result": "null"
+  },
+  {
+   "expr": "$.data.n",
+   "result": "0"
+  },
+  {
+   "expr": "$.data.f",
+   "result": "1.0"
+  },
+  {
+   "expr": "$.data.empty",
+   "result": "\"\""
+  },
+  {
+   "expr": "$.data.null",
+   "result": "null"
+  },
+  {
+   "expr": "$.data.t",
+   "result": "true"
+  },
+  {
+   "expr": "$.data.false",
+   "result": "false"
+  },
+  {
+   "expr": "$.num",
+   "result": "7"
+  },
+  {
+   "expr": "$.float",
+   "result": "2.5"
+  },
+  {
+   "expr": "$.obj",
+   "result": "{\"a\":1,\"b\":[1,2]}"
+  },
+  {
+   "expr": "$.obj.b",
+   "result": "[1,2]"
+  },
+  {
+   "expr": "$.list_of_str",
+   "result": "[\"x\",\"y\"]"
+  },
+  {
+   "expr": "https://linkedin.com/company/$.handle",
+   "result": "\"https://linkedin.com/company/spacex\""
+  },
+  {
+   "expr": "count: $.num",
+   "result": "\"count: 7\""
+  },
+  {
+   "expr": "f=$.float",
+   "result": "\"f=2.5\""
+  },
+  {
+   "expr": "obj=$.obj",
+   "result": "\"obj={'a': 1, 'b': [1, 2]}\""
+  },
+  {
+   "expr": "t=$.data.t",
+   "result": "\"t=True\""
+  },
+  {
+   "expr": "none=$.data.null",
+   "result": "null"
+  },
+  {
+   "expr": "$.",
+   "result": "{\"\":\"empty-key\",\"data\":{\"empty\":\"\",\"f\":1.0,\"false\":false,\"n\":0,\"null\":null,\"t\":true,\"work_email\":\"a@x.com\"},\"empty_list\":[],\"error\":true,\"float\":2.5,\"handle\":\"spacex\",\"k1\":{\"k2\":\"v\"},\"list_of_str\":[\"x\",\"y\"],\"message\":\"quota exceeded — retry later!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\",\"nested\":[[1,2],[3]],\"num\":7,\"obj\":{\"a\":1,\"b\":[1,2]},\"results\":[{\"email\":\"b@x.com\"},{\"email\":\"c@x.com\"}],\"with_underscore\":{\"a_b\":\"u\"}}"
+  },
+  {
+   "expr": "x$.",
+   "result": "\"x{'data': {'work_email': 'a@x.com', 'n': 0, 'f': 1.0, 'empty': '', 'null': None, 't': True, 'false': False}, 'results': [{'email': 'b@x.com'}, {'email': 'c@x.com'}], 'empty_list': [], 'nested': [[1, 2], [3]], 'handle': 'spacex', 'num': 7, 'float': 2.5, 'obj': {'a': 1, 'b': [1, 2]}, 'list_of_str': ['x', 'y'], 'error': True, 'message': 'quota exceeded — retry later!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', 'with_underscore': {'a_b': 'u'}, 'k1': {'k2': 'v'}, '': 'empty-key'}\""
+  },
+  {
+   "expr": "static literal",
+   "result": "\"static literal\""
+  },
+  {
+   "expr": "",
+   "result": "\"\""
+  },
+  {
+   "expr": "$.with_underscore.a_b",
+   "result": "\"u\""
+  },
+  {
+   "expr": "$.k1.k2",
+   "result": "\"v\""
+  },
+  {
+   "expr": "$.k1..k2",
+   "result": "\"v\""
+  },
+  {
+   "expr": "$.data.work-email",
+   "result": "null"
+  },
+  {
+   "expr": "$.results.email",
+   "result": "null"
+  },
+  {
+   "expr": "$.handle[0]",
+   "result": "null"
+  },
+  {
+   "expr": "$.results[١].email",
+   "result": "\"c@x.com\""
+  },
+  {
+   "expr": "$.results[0x1].email",
+   "result": "null"
+  },
+  {
+   "expr": "$.results[ 0].email",
+   "result": "null"
+  },
+  {
+   "expr": "$$.handle",
+   "result": "\"$spacex\""
+  },
+  {
+   "expr": "a $.handle and $.num",
+   "result": "null"
+  },
+  {
+   "expr": "$.handle\n",
+   "result": "\"spacex\""
+  },
+  {
+   "expr": "$.obj.a.b",
+   "result": "null"
+  }
+ ],
+ "project_response": [
+  {
+   "mappings_json": "{\"email\": \"$.data.work_email\", \"linkedin_url\": \"https://linkedin.com/in/$.handle\"}",
+   "result": "{\"email\":\"a@x.com\",\"linkedin_url\":\"https://linkedin.com/in/spacex\"}"
+  },
+  {
+   "mappings_json": "{\"empty\": \"$.data.empty\", \"zero\": \"$.data.n\", \"false\": \"$.data.false\", \"null\": \"$.data.null\", \"missing\": \"$.nope\"}",
+   "result": "{\"false\":false,\"zero\":0}"
+  },
+  {
+   "mappings_json": "{\"lit\": \"constant\", \"blank\": \"\"}",
+   "result": "{\"lit\":\"constant\"}"
+  },
+  {
+   "mappings_json": "{}",
+   "result": "{}"
+  }
+ ],
+ "error_envelope": {
+  "flag": "true",
+  "message": "quota exceeded — retry later!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+ }
+}

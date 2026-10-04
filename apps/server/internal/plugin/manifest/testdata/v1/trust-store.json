@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "keys": [
+    {
+      "key_id": "parity-trusted",
+      "publisher": "Parity Test Publisher",
+      "public_key": "xQJzJmZtNu1wFyWeCl2onXqUBykdF1eIFUdK+Q23NVA="
+    }
+  ]
+}

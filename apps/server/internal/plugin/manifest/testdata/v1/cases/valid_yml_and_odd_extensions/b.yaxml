@@ -1,0 +1,8 @@
+manifest_version: "1"
+name: second_one
+capability: email
+request:
+  url: https://api.example.com/find
+response:
+  mappings:
+    email: $.email

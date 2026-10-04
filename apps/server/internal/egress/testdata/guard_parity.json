@@ -1,0 +1,342 @@
+[
+ {
+  "url": "https://example.com/",
+  "blocked": false
+ },
+ {
+  "url": "http://example.com/path?q=1",
+  "blocked": false
+ },
+ {
+  "url": "https://api.leadmagic.io/email-finder",
+  "blocked": false
+ },
+ {
+  "url": "https://93.184.216.34/",
+  "blocked": false
+ },
+ {
+  "url": "https://[2606:4700:4700::1111]/",
+  "blocked": false
+ },
+ {
+  "url": "https://8.8.8.8:8443/x",
+  "blocked": false
+ },
+ {
+  "url": "https://xn--caf-dma.example/",
+  "blocked": false
+ },
+ {
+  "url": "https://sub.domain.example.org/a/b",
+  "blocked": false
+ },
+ {
+  "url": "ftp://example.com/",
+  "blocked": true,
+  "reason": "scheme 'ftp' not allowed"
+ },
+ {
+  "url": "file:///etc/passwd",
+  "blocked": true,
+  "reason": "scheme 'file' not allowed"
+ },
+ {
+  "url": "gopher://example.com/",
+  "blocked": true,
+  "reason": "scheme 'gopher' not allowed"
+ },
+ {
+  "url": "javascript:alert(1)",
+  "blocked": true,
+  "reason": "scheme 'javascript' not allowed"
+ },
+ {
+  "url": "data:text/plain,hi",
+  "blocked": true,
+  "reason": "scheme 'data' not allowed"
+ },
+ {
+  "url": "//example.com/",
+  "blocked": true,
+  "reason": "scheme '' not allowed"
+ },
+ {
+  "url": "example.com",
+  "blocked": true,
+  "reason": "scheme '' not allowed"
+ },
+ {
+  "url": "",
+  "blocked": true,
+  "reason": "empty url"
+ },
+ {
+  "url": "   ",
+  "blocked": true,
+  "reason": "scheme '' not allowed"
+ },
+ {
+  "url": "http://localhost/",
+  "blocked": true,
+  "reason": "host 'localhost' is blocked"
+ },
+ {
+  "url": "http://LOCALHOST:8000/",
+  "blocked": true,
+  "reason": "host 'localhost' is blocked"
+ },
+ {
+  "url": "http://ip6-localhost/",
+  "blocked": true,
+  "reason": "host 'ip6-localhost' is blocked"
+ },
+ {
+  "url": "http://ip6-loopback/",
+  "blocked": true,
+  "reason": "host 'ip6-loopback' is blocked"
+ },
+ {
+  "url": "http://metadata.google.internal/computeMetadata/v1/",
+  "blocked": true,
+  "reason": "host 'metadata.google.internal' is blocked"
+ },
+ {
+  "url": "http://metadata/",
+  "blocked": true,
+  "reason": "host 'metadata' is blocked"
+ },
+ {
+  "url": "https:///nohost",
+  "blocked": true,
+  "reason": "no host"
+ },
+ {
+  "url": "http://127.0.0.1/",
+  "blocked": true,
+  "reason": "ip '127.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://127.255.255.254/",
+  "blocked": true,
+  "reason": "ip '127.255.255.254' is private/blocked"
+ },
+ {
+  "url": "http://10.0.0.1/",
+  "blocked": true,
+  "reason": "ip '10.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://172.16.5.4/",
+  "blocked": true,
+  "reason": "ip '172.16.5.4' is private/blocked"
+ },
+ {
+  "url": "http://172.31.255.255/",
+  "blocked": true,
+  "reason": "ip '172.31.255.255' is private/blocked"
+ },
+ {
+  "url": "http://172.32.0.1/",
+  "blocked": false
+ },
+ {
+  "url": "http://192.168.1.1/",
+  "blocked": true,
+  "reason": "ip '192.168.1.1' is private/blocked"
+ },
+ {
+  "url": "http://169.254.169.254/latest/meta-data/",
+  "blocked": true,
+  "reason": "ip '169.254.169.254' is private/blocked"
+ },
+ {
+  "url": "http://169.254.1.1/",
+  "blocked": true,
+  "reason": "ip '169.254.1.1' is private/blocked"
+ },
+ {
+  "url": "http://0.0.0.0/",
+  "blocked": true,
+  "reason": "ip '0.0.0.0' is private/blocked"
+ },
+ {
+  "url": "http://224.0.0.1/",
+  "blocked": true,
+  "reason": "ip '224.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://239.255.255.250/",
+  "blocked": true,
+  "reason": "ip '239.255.255.250' is private/blocked"
+ },
+ {
+  "url": "http://240.0.0.1/",
+  "blocked": true,
+  "reason": "ip '240.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://255.255.255.255/",
+  "blocked": true,
+  "reason": "ip '255.255.255.255' is private/blocked"
+ },
+ {
+  "url": "http://192.0.2.1/",
+  "blocked": true,
+  "reason": "ip '192.0.2.1' is private/blocked"
+ },
+ {
+  "url": "http://198.18.0.1/",
+  "blocked": true,
+  "reason": "ip '198.18.0.1' is private/blocked"
+ },
+ {
+  "url": "http://198.51.100.7/",
+  "blocked": true,
+  "reason": "ip '198.51.100.7' is private/blocked"
+ },
+ {
+  "url": "http://203.0.113.9/",
+  "blocked": true,
+  "reason": "ip '203.0.113.9' is private/blocked"
+ },
+ {
+  "url": "http://100.64.0.1/",
+  "blocked": false
+ },
+ {
+  "url": "http://100.127.255.254/",
+  "blocked": false
+ },
+ {
+  "url": "http://2130706433/",
+  "blocked": true,
+  "reason": "ip '127.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://0x7f000001/",
+  "blocked": true,
+  "reason": "ip '127.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://017700000001/",
+  "blocked": true,
+  "reason": "ip '127.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://0177.0.0.1/",
+  "blocked": true,
+  "reason": "ip '127.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://0x7f.0.0.1/",
+  "blocked": true,
+  "reason": "ip '127.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://0x7f.0x0.0x0.0x1/",
+  "blocked": true,
+  "reason": "ip '127.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://127.000.000.001/",
+  "blocked": true,
+  "reason": "ip '127.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://3232235777/",
+  "blocked": true,
+  "reason": "ip '192.168.1.1' is private/blocked"
+ },
+ {
+  "url": "http://4294967295/",
+  "blocked": true,
+  "reason": "ip '255.255.255.255' is private/blocked"
+ },
+ {
+  "url": "http://08.0.0.1/",
+  "blocked": false
+ },
+ {
+  "url": "http://127.1/",
+  "blocked": false
+ },
+ {
+  "url": "http://0/",
+  "blocked": true,
+  "reason": "ip '0.0.0.0' is private/blocked"
+ },
+ {
+  "url": "http://[::1]/",
+  "blocked": true,
+  "reason": "ip '::1' is private/blocked"
+ },
+ {
+  "url": "http://[::]/",
+  "blocked": true,
+  "reason": "ip '::' is private/blocked"
+ },
+ {
+  "url": "http://[fe80::1]/",
+  "blocked": true,
+  "reason": "ip 'fe80::1' is private/blocked"
+ },
+ {
+  "url": "http://[fc00::1]/",
+  "blocked": true,
+  "reason": "ip 'fc00::1' is private/blocked"
+ },
+ {
+  "url": "http://[fd12:3456::1]/",
+  "blocked": true,
+  "reason": "ip 'fd12:3456::1' is private/blocked"
+ },
+ {
+  "url": "http://[ff02::1]/",
+  "blocked": true,
+  "reason": "ip 'ff02::1' is private/blocked"
+ },
+ {
+  "url": "http://[::ffff:127.0.0.1]/",
+  "blocked": true,
+  "reason": "ip '::ffff:127.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://[::ffff:10.0.0.1]/",
+  "blocked": true,
+  "reason": "ip '::ffff:10.0.0.1' is private/blocked"
+ },
+ {
+  "url": "http://[::ffff:8.8.8.8]/",
+  "blocked": false
+ },
+ {
+  "url": "http://[fd00:ec2::254]/",
+  "blocked": true,
+  "reason": "ip 'fd00:ec2::254' is private/blocked"
+ },
+ {
+  "url": "http://[2001:db8::1]/",
+  "blocked": true,
+  "reason": "ip '2001:db8::1' is private/blocked"
+ },
+ {
+  "url": "http://[64:ff9b::a00:1]/",
+  "blocked": true,
+  "reason": "ip '64:ff9b::a00:1' is private/blocked"
+ },
+ {
+  "url": "http://[2002:a00:1::]/",
+  "blocked": true,
+  "reason": "ip '2002:a00:1::' is private/blocked"
+ },
+ {
+  "url": "http://[fec0::1]/",
+  "blocked": false
+ },
+ {
+  "url": "http://[100::1]/",
+  "blocked": true,
+  "reason": "ip '100::1' is private/blocked"
+ }
+]

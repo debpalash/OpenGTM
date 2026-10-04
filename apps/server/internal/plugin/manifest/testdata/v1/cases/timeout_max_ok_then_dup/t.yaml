@@ -1,0 +1,9 @@
+manifest_version: "1"
+name: t_max
+capability: email
+request:
+  timeout: 120
+  url: https://api.example.com/find
+response:
+  mappings:
+    email: $.email

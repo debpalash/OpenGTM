@@ -1,0 +1,9 @@
+manifest_version: "1"
+name: auth_header
+capability: email
+request:
+  url: https://api.example.com/find
+response:
+  mappings:
+    email: $.email
+auth: {type: header, param: X-Key, env_var: K1}

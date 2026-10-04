@@ -1,0 +1,9 @@
+# expect: invalid scrape.fields: must be a non-empty
+# schema: agrees
+manifest_version: "2"
+name: empty_fields
+kind: scraper
+runtime: declarative
+version: 0.1.0
+capabilities: {network: ["https://x.example"]}
+scrape: {start: "https://x.example/", fields: {}}
