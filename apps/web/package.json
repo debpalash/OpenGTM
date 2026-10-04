@@ -52,6 +52,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@tanstack/react-router-devtools": "1.167.2",
     "@types/node": "^24.12.2",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19.2.14",

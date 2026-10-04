@@ -5,6 +5,7 @@
 // chunk. Paths, query parameters and redirects match the previous
 // react-router table.
 
+import { lazy, Suspense } from "react"
 import {
   type AnyRoute, createRootRouteWithContext, createRoute, createRouter, lazyRouteComponent, Outlet, redirect,
 } from "@tanstack/react-router"
@@ -30,6 +31,11 @@ declare module "@tanstack/react-router" {
 }
 
 // Development builds only; production replaces the import with a no-op.
+// Development builds only; production replaces the import with a no-op.
+const RouterDevtools = import.meta.env.DEV
+  ? lazy(() => import("@tanstack/react-router-devtools").then(module => ({ default: module.TanStackRouterDevtools })))
+  : () => null
+
 // ── Search schemas ──
 // Every value is a string (see lib/router-search.ts); pages keep their own
 // defaults and parsing. These run in the entry bundle, so they use zod/mini;
@@ -42,7 +48,10 @@ const workbooksSearch = z.object({ q: optionalString(), status: optionalString()
 
 // ── Routes ──
 const rootRoute = createRootRouteWithContext<RouterContext>()({
-  component: Outlet,
+  component: () => <>
+    <Outlet />
+    <Suspense fallback={null}><RouterDevtools position="bottom-right" /></Suspense>
+  </>,
 })
 
 const loginRoute = createRoute({
