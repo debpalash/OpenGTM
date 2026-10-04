@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from apps.api.models import Job
+from apps.api.models import Job, JobExecutorRoute
 from apps.api.services.workbook.batch_attempts import claim_batch_attempt, acknowledge_batch_attempt
 
 
@@ -13,6 +13,7 @@ from apps.api.services.workbook.batch_attempts import claim_batch_attempt, ackno
 def batch_job(tmp_path):
     engine = create_engine(f"sqlite:///{tmp_path}/batch.db")
     Job.__table__.create(engine)
+    JobExecutorRoute.__table__.create(engine)  # read by the claim predicate
     sessions = sessionmaker(bind=engine)
     now = datetime.now(timezone.utc)
     owner = dict(job_id=1, workspace_id="one", workbook_id="book", worker_id="worker", locked_at=now)

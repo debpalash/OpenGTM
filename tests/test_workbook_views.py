@@ -27,7 +27,7 @@ from sqlalchemy.pool import StaticPool
 from apps.api.core.ratelimit import limiter
 from apps.api.core.tenancy import WorkspaceCtx, current_workspace
 from apps.api.database import Base, get_db
-from apps.api.models import Job
+from apps.api.models import Job, JobExecutorRoute
 from apps.api.services.workbook.models import (
     Workbook, WorkbookRow, WorkbookEnrichment, WorkbookView,
 )
@@ -58,7 +58,7 @@ def client():
     Base.metadata.create_all(engine, tables=[
         Workbook.__table__, WorkbookRow.__table__,
         WorkbookEnrichment.__table__, WorkbookView.__table__,
-        ProviderStat.__table__, Job.__table__,
+        ProviderStat.__table__, Job.__table__, JobExecutorRoute.__table__,
     ])
     Session = sessionmaker(bind=engine)
 
