@@ -550,11 +550,13 @@ fn extract_json(
 }
 
 /// Strings as-is, numbers and booleans as JSON text, objects/arrays as compact
-/// JSON; null and empty strings count as no value.
+/// JSON; null, blank strings and empty arrays/objects count as no value.
 fn json_scalar(v: &Value) -> Option<String> {
     match v {
         Value::Null => None,
         Value::String(s) if s.trim().is_empty() => None,
+        Value::Array(a) if a.is_empty() => None,
+        Value::Object(o) if o.is_empty() => None,
         Value::String(s) => Some(s.clone()),
         other => Some(other.to_string()),
     }

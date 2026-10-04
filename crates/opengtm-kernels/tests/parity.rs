@@ -31,26 +31,39 @@ fn check(kind: &str, cases: &[Case], f: impl Fn(&Case) -> Value) {
         .iter()
         .filter_map(|c| {
             let got = f(c);
-            (got != c.expected).then(|| format!("{kind}({:?}) = {got}, python = {}", c.input, c.expected))
+            (got != c.expected)
+                .then(|| format!("{kind}({:?}) = {got}, python = {}", c.input, c.expected))
         })
         .collect();
     assert!(cases.len() > 40, "{kind}: too few parity cases");
-    assert!(failures.is_empty(), "{} of {} {kind} cases differ:\n{}", failures.len(), cases.len(), failures.join("\n"));
+    assert!(
+        failures.is_empty(),
+        "{} of {} {kind} cases differ:\n{}",
+        failures.len(),
+        cases.len(),
+        failures.join("\n")
+    );
 }
 
 #[test]
 fn domain_parity() {
-    check("domain", &fixtures().domain, |c| normalize::domain(&c.input).into());
+    check("domain", &fixtures().domain, |c| {
+        normalize::domain(&c.input).into()
+    });
 }
 
 #[test]
 fn email_parity() {
-    check("email", &fixtures().email, |c| normalize::email(&c.input).into());
+    check("email", &fixtures().email, |c| {
+        normalize::email(&c.input).into()
+    });
 }
 
 #[test]
 fn phone_parity() {
-    check("phone", &fixtures().phone, |c| normalize::phone(&c.input, c.default_region.as_deref()).into());
+    check("phone", &fixtures().phone, |c| {
+        normalize::phone(&c.input, c.default_region.as_deref()).into()
+    });
 }
 
 #[test]

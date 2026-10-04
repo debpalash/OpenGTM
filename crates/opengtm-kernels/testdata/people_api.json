@@ -1,0 +1,56 @@
+{
+  "data": {
+    "organization": {
+      "id": 4821,
+      "name": "Acme Robotics",
+      "domain": "acme.example",
+      "headcount": {"range": "51-200", "exact": null},
+      "public": false
+    },
+    "people": {
+      "total": 3,
+      "edges": [
+        {
+          "cursor": "c1",
+          "node": {
+            "id": 9001,
+            "name": {"full": "Ada Lovelace", "first": "Ada", "last": "Lovelace"},
+            "title": "Chief Executive Officer",
+            "emails": [{"type": "work", "value": "ada@acme.example", "verified": true}],
+            "profiles": {"linkedin": "https://www.linkedin.com/in/ada-lovelace/"},
+            "seniority": 1,
+            "tags": ["founder", "exec"],
+            "bio": "Contact: ada@acme.example / +44 20 7946 0958"
+          }
+        },
+        {
+          "cursor": "c2",
+          "node": {
+            "id": 9002,
+            "name": {"full": "Alan Turing", "first": "Alan", "last": "Turing"},
+            "title": "",
+            "emails": [],
+            "profiles": {"linkedin": null},
+            "seniority": 2.5,
+            "tags": [],
+            "bio": null
+          }
+        },
+        {
+          "cursor": "c3",
+          "node": {
+            "id": 9003,
+            "name": {"full": "Grace Hopper"},
+            "title": "Rear Admiral",
+            "emails": [
+              {"type": "personal", "value": "grace@example.org", "verified": false},
+              {"type": "work", "value": "grace@acme.example", "verified": true}
+            ],
+            "active": true
+          }
+        }
+      ]
+    }
+  },
+  "pageInfo": {"hasNextPage": true, "endCursor": "c3", "next": "/api/v2/people?after=c3"}
+}

@@ -1,0 +1,300 @@
+{
+  "_comment": "Extract fixtures shared by the Rust (tests/extract_fixtures.rs) and Go (internal/kernels) tests. Expected outputs are hand-written. 'document_file' is read from this directory and placed in request.document.",
+  "cases": [
+    {
+      "name": "team page members",
+      "document_file": "team_page.html",
+      "request": {
+        "format": "html",
+        "base_url": "https://acme.example/about/team",
+        "items": "css:article.team-member",
+        "fields": {
+          "full_name": "css:.name::text",
+          "title": "css:.role",
+          "linkedin_url": "css:a[href*='linkedin.com']::attr(href)",
+          "avatar": "css:img.avatar::attr(src)",
+          "email": "css:a[href^='mailto:']::attr(href)",
+          "member_id": "css:::attr(data-id)",
+          "phone": "re:Phone:\\s*([+\\d][\\d ]{6,}\\d)",
+          "bio": "css:.bio::text"
+        }
+      },
+      "expected": {
+        "records": [
+          {
+            "full_name": "Ada Lovelace",
+            "title": "Chief Executive Officer & Co-founder",
+            "linkedin_url": "https://www.linkedin.com/in/ada-lovelace/",
+            "avatar": "https://acme.example/img/team/ada.jpg",
+            "email": "mailto:ada@acme.example",
+            "member_id": "101",
+            "bio": "Ada leads product and strategy. Previously at Analytical Engines Ltd."
+          },
+          {
+            "full_name": "Alan Turing",
+            "title": "CTO",
+            "linkedin_url": "https://linkedin.com/in/alanturing",
+            "avatar": "https://acme.example/img/team/alan.png",
+            "member_id": "102",
+            "phone": "+44 20 7946 0958",
+            "bio": "Phone: +44 20 7946 0958 Based in London"
+          },
+          {
+            "full_name": "Grace Hopper",
+            "avatar": "https://acme.example/about/grace.webp",
+            "member_id": "103",
+            "bio": "Rear admiral, compiler pioneer."
+          },
+          {
+            "full_name": "Dr. Katherine Johnson PhD",
+            "title": "VP, Flight Dynamics",
+            "member_id": "104"
+          }
+        ]
+      }
+    },
+    {
+      "name": "team page as one record",
+      "document_file": "team_page.html",
+      "request": {
+        "base_url": "https://acme.example/about/team",
+        "fields": {
+          "page_title": "css:title",
+          "heading": "css:h1::text",
+          "careers": "css:nav a.cta::attr(href)",
+          "company_phone": "css:footer a[href^='tel:']",
+          "copyright_year": "re:©\\s*(\\d{4})",
+          "missing": "css:.does-not-exist"
+        }
+      },
+      "expected": {
+        "records": [
+          {
+            "page_title": "Our Team | Acme Robotics",
+            "heading": "Meet the team",
+            "careers": "https://acme.example/careers/",
+            "company_phone": "+1 (415) 555-0132",
+            "copyright_year": "2026"
+          }
+        ]
+      }
+    },
+    {
+      "name": "team page limit",
+      "document_file": "team_page.html",
+      "request": {
+        "items": ".team-member",
+        "fields": {"name": "css:.name"},
+        "limit": 2
+      },
+      "expected": {"records": [{"name": "Ada Lovelace"}, {"name": "Alan Turing"}]}
+    },
+    {
+      "name": "directory listing results",
+      "document_file": "directory_listing.html",
+      "request": {
+        "format": "html",
+        "base_url": "https://dir.example/search?q=automation&page=2",
+        "items": "css:ol.listing > li.result",
+        "fields": {
+          "name": "css:.result-title a",
+          "profile_url": "css:.result-title a::attr(href)",
+          "rating": "css:.rating",
+          "reviews": "re:\\((\\d+) reviews\\)",
+          "address": "css:address.addr",
+          "phone": "css:a.phone::text",
+          "phone_href": "css:a.phone::attr(href)",
+          "website": "css:a.website::attr(href)",
+          "classes": "css:::attr(class)",
+          "rank": "css:::attr(data-rank)"
+        }
+      },
+      "expected": {
+        "records": [
+          {
+            "name": "Sigma Controls Pvt. Ltd.",
+            "profile_url": "https://dir.example/directory/automation/pune/sigma-controls-pvt-ltd-1234",
+            "rating": "4.6",
+            "reviews": "132",
+            "address": "Plot 14, MIDC Bhosari, Pune 411026",
+            "phone": "020 2712 3456",
+            "phone_href": "tel:+912027123456",
+            "website": "https://www.sigmacontrols.example/?utm_source=dir",
+            "classes": "result",
+            "rank": "21"
+          },
+          {
+            "name": "Omega Automation & Robotics",
+            "profile_url": "https://dir.example/listing/omega-automation",
+            "rating": "4.1",
+            "address": "Hinjewadi Phase 2, Pune",
+            "phone": "+91 98765 43210",
+            "phone_href": "tel:+919876543210",
+            "classes": "result sponsored",
+            "rank": "22"
+          },
+          {
+            "name": "Delta Drives LLP",
+            "profile_url": "https://other.example/profile/delta",
+            "classes": "result",
+            "rank": "23"
+          }
+        ]
+      }
+    },
+    {
+      "name": "directory listing pagination",
+      "document_file": "directory_listing.html",
+      "request": {
+        "base_url": "https://dir.example/search?q=automation&page=2",
+        "fields": {
+          "next": "css:nav.pagination a.next::attr(href)",
+          "prev": "css:nav.pagination a[rel=prev]::attr(href)",
+          "total": "re:of (\\d+) results",
+          "first_title_html": "css:.result-title::html"
+        }
+      },
+      "expected": {
+        "records": [
+          {
+            "next": "https://dir.example/directory/automation/pune/?page=3",
+            "total": "87",
+            "first_title_html": "<a href=\"sigma-controls-pvt-ltd-1234\">Sigma Controls Pvt. Ltd.</a>"
+          }
+        ]
+      }
+    },
+    {
+      "name": "nested JSON API people",
+      "document_file": "people_api.json",
+      "request": {
+        "format": "json",
+        "items": "json:$.data.people.edges[*].node",
+        "fields": {
+          "id": "json:$.id",
+          "full_name": "json:$.name.full",
+          "first_name": "json:name.first",
+          "title": "json:title",
+          "work_email": "json:$.emails[?@.type == 'work'].value",
+          "any_email": "json:$.emails[*].value",
+          "linkedin": "json:$.profiles.linkedin",
+          "seniority": "json:seniority",
+          "tags": "json:tags",
+          "active": "json:active",
+          "phone": "re:(\\+\\d[\\d ]+\\d)"
+        }
+      },
+      "expected": {
+        "records": [
+          {
+            "id": "9001",
+            "full_name": "Ada Lovelace",
+            "first_name": "Ada",
+            "title": "Chief Executive Officer",
+            "work_email": "ada@acme.example",
+            "any_email": "ada@acme.example",
+            "linkedin": "https://www.linkedin.com/in/ada-lovelace/",
+            "seniority": "1",
+            "tags": "[\"founder\",\"exec\"]",
+            "phone": "+44 20 7946 0958"
+          },
+          {
+            "id": "9002",
+            "full_name": "Alan Turing",
+            "first_name": "Alan",
+            "seniority": "2.5"
+          },
+          {
+            "id": "9003",
+            "full_name": "Grace Hopper",
+            "title": "Rear Admiral",
+            "work_email": "grace@acme.example",
+            "any_email": "grace@example.org",
+            "active": "true"
+          }
+        ]
+      }
+    },
+    {
+      "name": "nested JSON API page info",
+      "document_file": "people_api.json",
+      "request": {
+        "format": "json",
+        "fields": {
+          "org": "json:data.organization.name",
+          "has_next": "json:pageInfo.hasNextPage",
+          "cursor": "json:$.pageInfo.endCursor",
+          "headcount": "json:data.organization.headcount",
+          "exact": "json:data.organization.headcount.exact",
+          "total": "json:data.people.total",
+          "public": "json:data.organization.public",
+          "next": "json:pageInfo.next"
+        }
+      },
+      "expected": {
+        "records": [
+          {
+            "org": "Acme Robotics",
+            "has_next": "true",
+            "cursor": "c3",
+            "headcount": "{\"exact\":null,\"range\":\"51-200\"}",
+            "total": "3",
+            "public": "false",
+            "next": "/api/v2/people?after=c3"
+          }
+        ]
+      }
+    },
+    {
+      "name": "JSON items limit",
+      "document_file": "people_api.json",
+      "request": {"format": "json", "items": "$.data.people.edges[*]", "fields": {"cursor": "json:cursor"}, "limit": 1},
+      "expected": {"records": [{"cursor": "c1"}]}
+    },
+    {
+      "name": "invalid CSS selector",
+      "request": {"document": "<p>x</p>", "fields": {"bad": "css:div[[::text"}},
+      "expected_error": {"code": "invalid_selector", "field": "bad"}
+    },
+    {
+      "name": "invalid items selector",
+      "request": {"document": "<p>x</p>", "items": "css:>>", "fields": {}},
+      "expected_error": {"code": "invalid_selector"}
+    },
+    {
+      "name": "invalid JSONPath",
+      "request": {"document": "{}", "format": "json", "fields": {"bad": "json:$.a[?"}},
+      "expected_error": {"code": "invalid_selector", "field": "bad"}
+    },
+    {
+      "name": "invalid regex",
+      "request": {"document": "<p>x</p>", "fields": {"bad": "re:(unclosed"}},
+      "expected_error": {"code": "invalid_selector", "field": "bad"}
+    },
+    {
+      "name": "unknown selector prefix",
+      "request": {"document": "<p>x</p>", "fields": {"bad": "xpath://p"}},
+      "expected_error": {"code": "invalid_selector", "field": "bad"}
+    },
+    {
+      "name": "css selector on JSON",
+      "request": {"document": "{}", "format": "json", "fields": {"bad": "css:p"}},
+      "expected_error": {"code": "invalid_selector", "field": "bad"}
+    },
+    {
+      "name": "malformed JSON document",
+      "request": {"document": "{\"a\":", "format": "json", "fields": {"a": "json:a"}},
+      "expected_error": {"code": "invalid_document"}
+    },
+    {
+      "name": "unknown format",
+      "request": {"document": "a,b", "format": "csv", "fields": {}},
+      "expected_error": {"code": "invalid_request"}
+    },
+    {
+      "name": "limit too large",
+      "request": {"document": "<p>x</p>", "fields": {}, "limit": 10001},
+      "expected_error": {"code": "invalid_request"}
+    }
+  ]
+}
