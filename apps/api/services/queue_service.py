@@ -183,7 +183,13 @@ class QueueService:
             "OR j.fire_key LIKE CAST(:fire_key_prefix AS TEXT)) "
             "AND (j.workspace_id IS NULL OR :tenant_cap = 0 OR "
             "(SELECT COUNT(*) FROM jobs active WHERE active.status = 'processing' "
-            "AND active.workspace_id = j.workspace_id) < :tenant_cap)"
+            "AND active.workspace_id = j.workspace_id) < :tenant_cap) "
+            # Executor routing: a type routed to another implementation (the Go
+            # worker) is never claimed here, even though it shares this table.
+            # Unrouted types stay Python-owned so Python-only installs and
+            # rolling upgrades behave exactly as before.
+            "AND NOT EXISTS (SELECT 1 FROM job_executor_routes route "
+            "WHERE route.job_type = j.type AND route.executor <> 'python')"
         )
 
     def _claim_next_job_postgres(

@@ -95,3 +95,44 @@ def test_racing_workers_claim_each_job_exactly_once(Session):
         t.join()
     assert not errors, errors
     assert sorted(claims) == sorted(ids)
+
+
+@pytest.mark.postgres
+def test_python_claims_skip_go_routed_types(Session):
+    """Python and Go share jobs; a Go-routed type must never be claimed here."""
+    from apps.api.models import Job
+    from apps.api.services.queue_service import QueueService
+    tag = uuid.uuid4().hex[:6]
+    go_type, py_type, unrouted = f"go_{tag}", f"py_{tag}", f"un_{tag}"
+    with Session() as db:
+        db.execute(text("UPDATE jobs SET status = 'completed' WHERE status = 'pending'"))
+        db.execute(text("INSERT INTO job_executor_routes (job_type, executor) VALUES "
+                        "(:g, 'go'), (:p, 'python')"), {"g": go_type, "p": py_type})
+        now = datetime.now(timezone.utc)
+        jobs = [Job(type=t, payload={}, status="pending", priority=p, created_at=now,
+                    next_run_at=now, max_retries=3)
+                for t, p in [(go_type, 9), (go_type, 9), ("plugin_run", 9), (py_type, 1), (unrouted, 1)]]
+        db.add_all(jobs)
+        db.commit()
+        go_ids = {j.id for j in jobs if j.type in (go_type, "plugin_run")}
+        py_ids = {j.id for j in jobs if j.type in (py_type, unrouted)}
+    try:
+        claimed = []
+        queue = QueueService()
+        while True:
+            with Session() as db:
+                job = queue._claim_next_job_postgres(db, None)
+            if job is None:
+                break
+            claimed.append(job["id"])
+        assert sorted(claimed) == sorted(py_ids)
+        with Session() as db:
+            pending = set(db.execute(text("SELECT id FROM jobs WHERE status = 'pending'")).scalars())
+        assert pending == go_ids
+    finally:
+        with Session() as db:
+            db.execute(text("UPDATE jobs SET status = 'completed' WHERE id = ANY(:ids)"),
+                       {"ids": list(go_ids)})
+            db.execute(text("DELETE FROM job_executor_routes WHERE job_type IN (:g, :p)"),
+                       {"g": go_type, "p": py_type})
+            db.commit()
