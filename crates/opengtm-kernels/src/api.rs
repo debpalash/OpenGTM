@@ -181,6 +181,11 @@ mod tests {
             call(normalize_domain, r#"{"value":null}"#),
             serde_json::json!({"value":null})
         );
+        // Python can hold lone surrogates; Rust strings cannot.
+        assert_eq!(
+            call(normalize_email, r#"{"value":"a\ud800@b.c"}"#)["error"]["code"],
+            "invalid_request"
+        );
         assert_eq!(
             call(
                 extract,
