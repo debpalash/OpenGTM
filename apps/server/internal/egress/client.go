@@ -37,7 +37,6 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"net/netip"
 	"net/url"
 	"strings"
 	"time"
@@ -497,9 +496,4 @@ func (c *Client) robotsFor(ctx context.Context, u *url.URL) (*Robots, error) {
 		return nil, ErrRobotsUnavailable
 	}
 	return rb, nil
-}
-
-// ResolveForTest exposes pinned resolution for diagnostics and tests.
-func (c *Client) ResolveForTest(ctx context.Context, host string) ([]netip.Addr, error) {
-	return c.guard.Resolve(ctx, host)
 }
