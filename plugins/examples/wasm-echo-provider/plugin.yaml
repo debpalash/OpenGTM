@@ -1,0 +1,26 @@
+# Example WebAssembly provider (Rust + extism-pdk). Build with ./build.sh,
+# which also refreshes wasm.sha256 below.
+manifest_version: "2"
+name: wasm_echo_provider
+display_name: WASM Echo Provider
+kind: provider
+runtime: wasm
+version: 0.1.0
+author: OpenGTM
+license: Apache-2.0
+description: Fetches inputs.url through the host and echoes the JSON object back as fields.
+tags: [example, wasm]
+capabilities:
+  network: ["https://api.github.com"]
+  secrets: [ECHO_API_KEY]
+limits:
+  requests_per_second_per_domain: 1
+  timeout_seconds: 10
+  max_pages: 2
+  memory_mb: 32
+inputs: { url: string }
+outputs: company
+capability: description
+wasm:
+  module: plugin.wasm
+  sha256: "4425bd3f63aa1b641fe52789397219dd620e6413c9500bfdb31335865769cddb"
