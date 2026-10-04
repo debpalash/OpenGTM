@@ -203,3 +203,56 @@ def test_each_job_claimed_by_single_worker_id():
     assert len(owners) == n_jobs
     multi = {jid: ws for jid, ws in owners.items() if len(ws) != 1}
     assert not multi, f"jobs claimed by multiple workers: {multi}"
+
+
+def _route(job_type: str, executor: str) -> None:
+    from apps.api.models import JobExecutorRoute
+    with SessionLocal() as db:
+        db.merge(JobExecutorRoute(job_type=job_type, executor=executor))
+        db.commit()
+
+
+def _drop_routes(*job_types: str) -> None:
+    from apps.api.models import JobExecutorRoute
+    with SessionLocal() as db:
+        db.query(JobExecutorRoute).filter(
+            JobExecutorRoute.job_type.in_(job_types)
+        ).delete(synchronize_session=False)
+        db.commit()
+
+
+def test_python_never_claims_go_routed_job_types():
+    """Executor routing: Python and Go workers share the jobs table, so a type
+    routed to Go must stay pending for Python while unrouted and explicitly
+    Python-routed types are claimed exactly as before."""
+    _route("route_go_only", "go")
+    _route("route_py_explicit", "python")
+    try:
+        with SessionLocal() as db:
+            go_ids = {queue_service.add_job(db, "route_go_only", {"i": i}, priority=5).id for i in range(3)}
+            # Seeded by the migration: the first Go-only type.
+            go_ids.add(queue_service.add_job(db, "plugin_run", {}, priority=5).id)
+            py_ids = {queue_service.add_job(db, "route_py_explicit", {}).id,
+                      queue_service.add_job(db, "route_unrouted", {}).id}
+        claimed = []
+        while (job := queue_service.claim_next_job()) is not None:
+            claimed.append(job["id"])
+        assert sorted(claimed) == sorted(py_ids)
+        with SessionLocal() as db:
+            pending = {j.id for j in db.query(Job).filter(Job.status == "pending")}
+        assert pending == go_ids
+    finally:
+        _drop_routes("route_go_only", "route_py_explicit")
+
+
+def test_rerouting_back_to_python_releases_pending_jobs():
+    """Rollback path: flipping a route to python makes queued jobs claimable."""
+    _route("route_flip", "go")
+    try:
+        with SessionLocal() as db:
+            job_id = queue_service.add_job(db, "route_flip", {}).id
+        assert queue_service.claim_next_job() is None
+        _route("route_flip", "python")
+        assert queue_service.claim_next_job()["id"] == job_id
+    finally:
+        _drop_routes("route_flip")

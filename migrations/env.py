@@ -86,9 +86,18 @@ _IGNORED_PG_OBJECTS = {
     ("index", "ix_jobs_fire_key"),
 }
 
+# PostgreSQL-only tables owned by the Go server (JSONB, gen_random_uuid, forced
+# RLS). They are hand-authored in the 7c1e5a9d3b20 migration and have no ORM
+# model, so autogenerate must not propose dropping them.
+_IGNORED_PG_TABLES = {"plugin_runs", "plugin_results"}
+
 
 def _include_object(obj, name, type_, reflected, compare_to):
     """Skip the hand-authored Postgres-only FTS objects during autogenerate."""
+    if type_ == "table" and name in _IGNORED_PG_TABLES:
+        return False
+    if getattr(getattr(obj, "table", None), "name", None) in _IGNORED_PG_TABLES:
+        return False
     if type_ == "column" and getattr(obj, "table", None) is not None:
         key = ("column", f"{obj.table.name}.{name}")
         if key in _IGNORED_PG_OBJECTS:

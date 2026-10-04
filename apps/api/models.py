@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, JSON
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, JSON, CheckConstraint, func
 from datetime import datetime, timezone
 from apps.api.database import Base
 
@@ -58,6 +58,24 @@ class Job(Base):
     # DB-level guarantee on for Postgres; SQLite gets a plain index + best-effort
     # read. Most jobs leave this NULL (a partial unique index ignores NULLs).
     fire_key = Column(String, nullable=True)
+
+
+class JobExecutorRoute(Base):
+    """Which worker implementation may claim a job type.
+
+    Python and Go workers share the jobs table during the platform migration.
+    A type with no row, or an explicit 'python' row, is claimed only by Python;
+    a 'go' row only by Go. Operators change routes with ``opengtm routes set``
+    after draining in-flight attempts.
+    """
+
+    __tablename__ = "job_executor_routes"
+    job_type = Column(String, primary_key=True)
+    executor = Column(String, nullable=False)
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    __table_args__ = (
+        CheckConstraint("executor IN ('python','go')", name="ck_job_executor_routes_executor"),
+    )
 
 
 class ScrapeHistory(Base):
