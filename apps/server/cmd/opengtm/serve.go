@@ -14,6 +14,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/server/internal/authz"
 	"github.com/debpalash/OpenGTM/apps/server/internal/config"
 	"github.com/debpalash/OpenGTM/apps/server/internal/db"
+	"github.com/debpalash/OpenGTM/apps/server/internal/pluginrun"
 	"github.com/debpalash/OpenGTM/apps/server/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/server/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/server/internal/server"
@@ -71,10 +72,14 @@ func runServe(ctx context.Context, args []string) error {
 	hub := progress.NewHub(pool, log)
 	go hub.Run(ctx)
 
+	catalog := pluginrun.LoadCatalog(cfg.Plugins)
+	pluginrun.LogCatalog(log, catalog)
+
 	closing := make(chan struct{})
 	handler, err := server.New(server.Deps{
 		Config: cfg, Pool: pool, Authz: az, Hub: hub, Logger: log,
 		Version: version, Closing: closing,
+		Routes: []func(*http.ServeMux){pluginrun.NewAPI(pool, catalog, az).Mount},
 	})
 	if err != nil {
 		return err

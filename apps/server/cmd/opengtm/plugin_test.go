@@ -41,10 +41,12 @@ func TestPluginDevRerunsOnChange(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan error, 1)
 	go func() { done <- pluginDev(ctx, []string{dir, "--interval", "20ms"}) }()
+	// Count finished runs (their summary line), not started ones, so the edit
+	// below never lands while the first run is still in progress.
 	waitFor := func(n int) {
 		t.Helper()
-		deadline := time.Now().Add(5 * time.Second)
-		for strings.Count(buf.String(), "change detected") < n {
+		deadline := time.Now().Add(10 * time.Second)
+		for strings.Count(buf.String(), " passed, ") < n {
 			if time.Now().After(deadline) {
 				t.Fatalf("dev loop did not rerun:\n%s", buf.String())
 			}
@@ -97,6 +99,9 @@ func TestPluginNewAndTestProvider(t *testing.T) {
 }
 
 func TestPluginScraperWithoutKernelFailsClearly(t *testing.T) {
+	saved := kernelExtractor
+	kernelExtractor = nil
+	defer func() { kernelExtractor = saved }()
 	out, err := capture(t, "test", filepath.Join(examplesDir, "declarative-scraper"))
 	if err == nil || !strings.Contains(out, "extraction kernel") {
 		t.Fatalf("want a clear kernel error, got %v\n%s", err, out)
@@ -104,7 +109,7 @@ func TestPluginScraperWithoutKernelFailsClearly(t *testing.T) {
 }
 
 func TestPluginTestExamples(t *testing.T) {
-	for _, ex := range []string{"declarative-provider", "wasm-echo-provider"} {
+	for _, ex := range []string{"declarative-provider", "declarative-scraper", "wasm-echo-provider"} {
 		out, err := capture(t, "test", filepath.Join(examplesDir, ex), "--json")
 		if err != nil {
 			t.Fatalf("%s: %v\n%s", ex, err, out)

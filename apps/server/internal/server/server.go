@@ -41,6 +41,9 @@ type Deps struct {
 	Closing <-chan struct{}
 	// Heartbeat is the SSE keep-alive period (default 15s).
 	Heartbeat time.Duration
+	// Routes mount Go-owned API routes from domain packages. Their patterns
+	// are more specific than the legacy prefixes, so they take precedence.
+	Routes []func(*http.ServeMux)
 }
 
 // legacyPrefixes are forwarded to FastAPI. nginx forwarded only /api/, /auth/
@@ -78,6 +81,9 @@ func New(d Deps) (http.Handler, error) {
 		writeJSON(w, http.StatusOK, map[string]string{"version": d.Version, "go": runtime.Version()})
 	})
 	mux.Handle("GET /api/v2/events", eventsHandler(d))
+	for _, mount := range d.Routes {
+		mount(mux)
+	}
 	for _, p := range legacyPrefixes {
 		mux.Handle(p, proxy)
 	}
