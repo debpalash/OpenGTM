@@ -68,8 +68,9 @@ These runs use disposable test databases and fixtures,
 not live vendor outcomes or PostgreSQL concurrency acceptance. The recent
 execution-safety implementation and its remaining limits are tracked in
 [workbook spend and batch recovery](workbook-spend-reservations.md); the
-[Twenty migration plan](twenty-ui-migration-plan.md) still has open accessibility,
-payload and end-to-end release gates. Neither V2 nor the UI migration is complete.
+[Twenty migration plan](twenty-ui-migration-plan.md) is superseded by the
+[platform rewrite RFC](../../plans/hybrid-platform-rewrite.md), which removed
+`twenty-ui` and its route-payload tooling. V2 is not complete.
 
 | Item | Status | Evidence or remaining work |
 |---|---|---|

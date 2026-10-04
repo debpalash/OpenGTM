@@ -1,5 +1,10 @@
 # OpenGTM interface migration to Twenty's design system
 
+> **Superseded (2026-10-05).** The [platform rewrite RFC](../../plans/hybrid-platform-rewrite.md)
+> consolidates the dashboard on shadcn/ui and Base UI. `twenty-ui`, its vendored
+> package and its build tooling were removed on the `rewrite/hybrid-platform`
+> branch. This plan is kept as history.
+
 ## Current decision and rollout status
 
 Use Twenty for the presentation layer, not as a replacement CRM or execution
