@@ -1,11 +1,15 @@
 import { fileURLToPath } from "node:url"
+import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
-import { twentyCss } from "./config/twenty-css"
 
 export default defineConfig({
-  plugins: [react()],
-  css: { postcss: { plugins: [twentyCss()] } },
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
   build: {
     outDir: "dist/ui-preview",
     rollupOptions: {

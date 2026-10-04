@@ -1,12 +1,12 @@
 import type { ReactNode } from "react"
-import { ThemeProvider as TwentyThemeProvider } from "twenty-ui/theme-constants"
 import { useTheme } from "./use-theme"
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const { colorScheme } = useTheme()
-  // The boot store alone owns the root class. Twenty scopes its portals and
-  // component context to the same scheme without a second root controller.
-  return <TwentyThemeProvider colorScheme={colorScheme} applyToRoot={false}>
+  // The boot store (public/theme.js) alone owns the root class. This
+  // layout-neutral wrapper also carries the active scheme class, so tokens and
+  // `dark:` variants resolve from the nearest themed ancestor as before.
+  return <div className={colorScheme} style={{ display: "contents" }}>
     {children}
-  </TwentyThemeProvider>
+  </div>
 }

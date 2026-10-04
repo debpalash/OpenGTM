@@ -8,7 +8,11 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { AlertDialog, Button, Dialog, Input, Menu } from "@/design-system/primitives"
+import { AlertDialog, Button, Dialog, Input } from "@/design-system/primitives"
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
+  DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Check, ChevronDown, Eye, Filter as FilterIcon, Layers3, Pencil, Plus, Save, Trash2, X,
 } from "lucide-react"
@@ -88,15 +92,6 @@ const OP_LABELS: Record<ViewFilterOp, string> = {
   not_empty: "is not empty",
 }
 const NO_VALUE_OPS: ViewFilterOp[] = ["empty", "not_empty"]
-
-// Local names keep the view markup readable while using Twenty's menu system.
-const DropdownMenu = Menu.Root
-const DropdownMenuContent = Menu.Popup
-const DropdownMenuGroup = Menu.Group
-const DropdownMenuItem = Menu.Item
-const DropdownMenuLabel = Menu.GroupLabel
-const DropdownMenuSeparator = Menu.Separator
-const DropdownMenuTrigger = Menu.Trigger
 
 // ── Component ────────────────────────────────────────────────────────────
 

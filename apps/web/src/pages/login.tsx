@@ -189,8 +189,8 @@ export default function LoginPage() {
   )
 
   return (
-    // `light` scopes every token on this page: Twenty's provider also marks its
-    // wrapper with the app theme, and the nearest themed ancestor wins.
+    // `light` scopes every token on this page: the app ThemeProvider also marks
+    // its wrapper with the app theme, and the nearest themed ancestor wins.
     <main className="light min-h-screen bg-[var(--t-background-secondary)] p-2 [color-scheme:light] sm:p-5">
       <div className="gtm-login-sky relative isolate flex min-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-[var(--gtm-radius-card)] border border-[var(--t-border-color-medium)] sm:min-h-[calc(100vh-2.5rem)] sm:rounded-[var(--gtm-radius-frame)]">
         <div className="gtm-login-clouds" aria-hidden="true" />
