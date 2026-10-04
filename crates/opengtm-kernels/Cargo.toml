@@ -1,0 +1,23 @@
+[package]
+name = "opengtm-kernels"
+version = "0.1.0"
+description = "OpenGTM data-plane kernels (normalization, extraction) as an Extism WebAssembly plugin"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lib]
+# cdylib is the Extism plugin; rlib keeps the pure logic testable natively.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+scraper = { version = "0.27", default-features = false }
+url = "2.5"
+regex = { version = "1.13", default-features = false, features = ["std", "unicode", "perf-cache", "perf-literal", "perf-onepass", "perf-backtrack"] }
+serde_json_path = "0.7"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+extism-pdk = { version = "1.4", default-features = false }

@@ -1,0 +1,17 @@
+[workspace]
+resolver = "3"
+members = ["opengtm-kernels"]
+
+[workspace.package]
+edition = "2024"
+license = "AGPL-3.0-only"
+rust-version = "1.97"
+
+# The release profile is tuned for a small WebAssembly artifact. The kernel is
+# embedded in the Go server binary, so size matters more than peak speed.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
