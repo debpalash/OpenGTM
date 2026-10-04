@@ -1,0 +1,868 @@
+[
+ {
+  "name": "leadmagic_email_hit",
+  "manifest": "# LeadMagic email-finder — declarative provider manifest.\n# Spec: LeadMagic/leadmagic-openapi (leadmagic-openapi-3.1.json). Cost: 1 credit.\n# Demonstrates the YAML-only provider pattern (no Python). Inactive until\n# LEADMAGIC_API_KEY is set in settings/env.\nmanifest_version: \"1\"\nname: leadmagic_email\ndisplay_name: LeadMagic Email Finder\nauthor: OpenGTM\nhomepage: https://leadmagic.io\ntags: [email, enrichment, byok]\ncapability: email\ncapabilities: [email]\ndescription: LeadMagic /email-finder — first/last + domain → work email.\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth:\n  type: header\n  param: X-API-Key\n  env_var: LEADMAGIC_API_KEY\nrequest:\n  method: POST\n  url: https://api.leadmagic.io/email-finder\n  headers:\n    Content-Type: application/json\n  body:\n    first_name: \"{{input.first_name}}\"\n    last_name: \"{{input.last_name}}\"\n    domain: \"{{input.domain}}\"\n    company_name: \"{{input.company}}\"\n  timeout: 20\nresponse:\n  mappings:\n    email: \"$.email\"\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {
+   "LEADMAGIC_API_KEY": "lm_secret_1"
+  },
+  "response": {
+   "status": 200,
+   "body": {
+    "email": "ada@acme.example",
+    "status": "valid"
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"email\":\"ada@acme.example\"}",
+   "confidence": 0.8,
+   "error": null
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.leadmagic.io/email-finder",
+   "headers": {
+    "content-type": "application/json",
+    "x-api-key": "lm_secret_1"
+   },
+   "body": "{\"first_name\":\"Ada\",\"last_name\":\"Lovelace\",\"domain\":\"acme.example\",\"company_name\":\"Acme Corp\"}"
+  }
+ },
+ {
+  "name": "leadmagic_email_miss",
+  "manifest": "# LeadMagic email-finder — declarative provider manifest.\n# Spec: LeadMagic/leadmagic-openapi (leadmagic-openapi-3.1.json). Cost: 1 credit.\n# Demonstrates the YAML-only provider pattern (no Python). Inactive until\n# LEADMAGIC_API_KEY is set in settings/env.\nmanifest_version: \"1\"\nname: leadmagic_email\ndisplay_name: LeadMagic Email Finder\nauthor: OpenGTM\nhomepage: https://leadmagic.io\ntags: [email, enrichment, byok]\ncapability: email\ncapabilities: [email]\ndescription: LeadMagic /email-finder — first/last + domain → work email.\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth:\n  type: header\n  param: X-API-Key\n  env_var: LEADMAGIC_API_KEY\nrequest:\n  method: POST\n  url: https://api.leadmagic.io/email-finder\n  headers:\n    Content-Type: application/json\n  body:\n    first_name: \"{{input.first_name}}\"\n    last_name: \"{{input.last_name}}\"\n    domain: \"{{input.domain}}\"\n    company_name: \"{{input.company}}\"\n  timeout: 20\nresponse:\n  mappings:\n    email: \"$.email\"\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {
+   "LEADMAGIC_API_KEY": "lm_secret_1"
+  },
+  "response": {
+   "status": 200,
+   "body": {
+    "email": null,
+    "message": "not found"
+   }
+  },
+  "result": {
+   "success": false,
+   "fields": "{}",
+   "confidence": 0.8,
+   "error": "no_data"
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.leadmagic.io/email-finder",
+   "headers": {
+    "content-type": "application/json",
+    "x-api-key": "lm_secret_1"
+   },
+   "body": "{\"first_name\":\"Ada\",\"last_name\":\"Lovelace\",\"domain\":\"acme.example\",\"company_name\":\"Acme Corp\"}"
+  }
+ },
+ {
+  "name": "leadmagic_missing_key",
+  "manifest": "# LeadMagic email-finder — declarative provider manifest.\n# Spec: LeadMagic/leadmagic-openapi (leadmagic-openapi-3.1.json). Cost: 1 credit.\n# Demonstrates the YAML-only provider pattern (no Python). Inactive until\n# LEADMAGIC_API_KEY is set in settings/env.\nmanifest_version: \"1\"\nname: leadmagic_email\ndisplay_name: LeadMagic Email Finder\nauthor: OpenGTM\nhomepage: https://leadmagic.io\ntags: [email, enrichment, byok]\ncapability: email\ncapabilities: [email]\ndescription: LeadMagic /email-finder — first/last + domain → work email.\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth:\n  type: header\n  param: X-API-Key\n  env_var: LEADMAGIC_API_KEY\nrequest:\n  method: POST\n  url: https://api.leadmagic.io/email-finder\n  headers:\n    Content-Type: application/json\n  body:\n    first_name: \"{{input.first_name}}\"\n    last_name: \"{{input.last_name}}\"\n    domain: \"{{input.domain}}\"\n    company_name: \"{{input.company}}\"\n  timeout: 20\nresponse:\n  mappings:\n    email: \"$.email\"\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {},
+  "response": null,
+  "result": {
+   "success": false,
+   "fields": "{}",
+   "confidence": 0.0,
+   "error": "leadmagic_email: missing LEADMAGIC_API_KEY"
+  },
+  "request": null
+ },
+ {
+  "name": "mobile_normalized",
+  "manifest": "# LeadMagic mobile-finder — declarative provider manifest.\n# Spec: LeadMagic/leadmagic-openapi (POST /mobile-finder; body accepts\n# profile_url / work_email / personal_email — \"provide at least one\"; 200\n# response: {message, credits_consumed, mobile_number|null}). Cost: 1 credit\n# (0 if not found). Inert until LEADMAGIC_API_KEY is set.\n#\n# Primary capability is mobile_phone (person DIRECT DIAL, Clay-parity\n# \"mobile phone\" waterfall); also fills the generic phone field for\n# back-compat with the capability registry.\nmanifest_version: \"1\"\nname: leadmagic_mobile\ndisplay_name: LeadMagic Mobile Finder\nauthor: OpenGTM\nhomepage: https://leadmagic.io\ntags: [phone, enrichment, byok]\ncapability: mobile_phone\ncapabilities: [mobile_phone, phone]\ndescription: LeadMagic /mobile-finder — LinkedIn profile or work email → mobile number.\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth:\n  type: header\n  param: X-API-Key\n  env_var: LEADMAGIC_API_KEY\nrequest:\n  method: POST\n  url: https://api.leadmagic.io/mobile-finder\n  headers:\n    Content-Type: application/json\n  body:\n    profile_url: \"{{input.linkedin_url}}\"\n    work_email: \"{{input.email}}\"\n  timeout: 20\nresponse:\n  mappings:\n    mobile_phone: \"$.mobile_number\"\n    phone: \"$.mobile_number\"\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {
+   "LEADMAGIC_API_KEY": "k"
+  },
+  "response": {
+   "status": 200,
+   "body": {
+    "mobile_number": "+1 (415) 555-0132",
+    "credits_consumed": 1
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"mobile_phone\":\"+14155550132\",\"phone\":\"+14155550132\"}",
+   "confidence": 0.8,
+   "error": null
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.leadmagic.io/mobile-finder",
+   "headers": {
+    "content-type": "application/json",
+    "x-api-key": "k"
+   },
+   "body": "{\"profile_url\":\"https://linkedin.com/in/ada\",\"work_email\":\"ada@acme.example\"}"
+  }
+ },
+ {
+  "name": "prospeo_error_envelope",
+  "manifest": "# Prospeo mobile-finder — declarative provider manifest.\n# Spec: prospeo.io/api/mobile-finder — POST https://api.prospeo.io/mobile-finder,\n# auth header X-KEY, JSON body {\"url\": \"<linkedin profile url>\"}. Success\n# response: {\"error\": false, \"response\": {\"raw_format\": \"+9725236800..\",\n# \"international_format\": ..., \"national_format\": ..., ...}}; errors come as\n# {\"error\": true, \"message\": \"...\"} (endpoint + X-KEY + raw_format verified\n# against vendor docs; body param `url` per vendor mobile-finder page).\n# BYOK: inert until PROSPEO_API_KEY is set (same key as the prospeo email\n# provider). Cost approximate — Prospeo bills mobile hits at a premium over\n# email credits; refine from your plan's pricing.\nmanifest_version: \"1\"\nname: prospeo_mobile\ndisplay_name: Prospeo Mobile Finder\nauthor: OpenGTM\nhomepage: https://prospeo.io\ntags: [phone, enrichment, byok]\ncapability: mobile_phone\ncapabilities: [mobile_phone]\ndescription: Prospeo /mobile-finder — LinkedIn profile URL → verified mobile number.\ndefault_confidence: 0.8\ncost_per_lookup: 0.10\nauth:\n  type: header\n  param: X-KEY\n  env_var: PROSPEO_API_KEY\nrequest:\n  method: POST\n  url: https://api.prospeo.io/mobile-finder\n  headers:\n    Content-Type: application/json\n  body:\n    url: \"{{input.linkedin_url}}\"\n  timeout: 20\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings:\n    mobile_phone: \"$.response.raw_format\"\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {
+   "PROSPEO_API_KEY": "pk"
+  },
+  "response": {
+   "status": 200,
+   "body": {
+    "error": true,
+    "message": "NO_MATCH — xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   }
+  },
+  "result": {
+   "success": false,
+   "fields": "{}",
+   "confidence": 0.0,
+   "error": "NO_MATCH — xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.prospeo.io/mobile-finder",
+   "headers": {
+    "content-type": "application/json",
+    "x-key": "pk"
+   },
+   "body": "{\"url\":\"https://linkedin.com/in/ada\"}"
+  }
+ },
+ {
+  "name": "prospeo_hit_00_prefix",
+  "manifest": "# Prospeo mobile-finder — declarative provider manifest.\n# Spec: prospeo.io/api/mobile-finder — POST https://api.prospeo.io/mobile-finder,\n# auth header X-KEY, JSON body {\"url\": \"<linkedin profile url>\"}. Success\n# response: {\"error\": false, \"response\": {\"raw_format\": \"+9725236800..\",\n# \"international_format\": ..., \"national_format\": ..., ...}}; errors come as\n# {\"error\": true, \"message\": \"...\"} (endpoint + X-KEY + raw_format verified\n# against vendor docs; body param `url` per vendor mobile-finder page).\n# BYOK: inert until PROSPEO_API_KEY is set (same key as the prospeo email\n# provider). Cost approximate — Prospeo bills mobile hits at a premium over\n# email credits; refine from your plan's pricing.\nmanifest_version: \"1\"\nname: prospeo_mobile\ndisplay_name: Prospeo Mobile Finder\nauthor: OpenGTM\nhomepage: https://prospeo.io\ntags: [phone, enrichment, byok]\ncapability: mobile_phone\ncapabilities: [mobile_phone]\ndescription: Prospeo /mobile-finder — LinkedIn profile URL → verified mobile number.\ndefault_confidence: 0.8\ncost_per_lookup: 0.10\nauth:\n  type: header\n  param: X-KEY\n  env_var: PROSPEO_API_KEY\nrequest:\n  method: POST\n  url: https://api.prospeo.io/mobile-finder\n  headers:\n    Content-Type: application/json\n  body:\n    url: \"{{input.linkedin_url}}\"\n  timeout: 20\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings:\n    mobile_phone: \"$.response.raw_format\"\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {
+   "PROSPEO_API_KEY": "pk"
+  },
+  "response": {
+   "status": 200,
+   "body": {
+    "error": false,
+    "response": {
+     "raw_format": "0044 20 7946 0958"
+    }
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"mobile_phone\":\"+442079460958\"}",
+   "confidence": 0.8,
+   "error": null
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.prospeo.io/mobile-finder",
+   "headers": {
+    "content-type": "application/json",
+    "x-key": "pk"
+   },
+   "body": "{\"url\":\"https://linkedin.com/in/ada\"}"
+  }
+ },
+ {
+  "name": "http_404",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: none}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: {first: '{{input.first_name}}'}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {},
+  "response": {
+   "status": 404,
+   "body": {
+    "detail": "nope"
+   }
+  },
+  "result": {
+   "success": false,
+   "fields": "{}",
+   "confidence": 0.0,
+   "error": "http_404"
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": "{\"first\":\"Ada\"}"
+  }
+ },
+ {
+  "name": "http_500",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: none}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: {first: '{{input.first_name}}'}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {},
+  "response": {
+   "status": 500,
+   "raw": "oops"
+  },
+  "result": {
+   "success": false,
+   "fields": "{}",
+   "confidence": 0.0,
+   "error": "http_500"
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": "{\"first\":\"Ada\"}"
+  }
+ },
+ {
+  "name": "non_json",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: none}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: {first: '{{input.first_name}}'}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {},
+  "response": {
+   "status": 200,
+   "raw": "<html>hi</html>"
+  },
+  "result": {
+   "success": false,
+   "fields": "{}",
+   "confidence": 0.0,
+   "error": "non_json_response"
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": "{\"first\":\"Ada\"}"
+  }
+ },
+ {
+  "name": "envelope_without_message_path",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: none}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: {first: '{{input.first_name}}'}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: null\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {},
+  "response": {
+   "status": 200,
+   "body": {
+    "error": "yes"
+   }
+  },
+  "result": {
+   "success": false,
+   "fields": "{}",
+   "confidence": 0.0,
+   "error": "provider_error"
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": "{\"first\":\"Ada\"}"
+  }
+ },
+ {
+  "name": "envelope_message_number",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: none}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: {first: '{{input.first_name}}'}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {},
+  "response": {
+   "status": 200,
+   "body": {
+    "error": 1,
+    "message": 42.0
+   }
+  },
+  "result": {
+   "success": false,
+   "fields": "{}",
+   "confidence": 0.0,
+   "error": "42.0"
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": "{\"first\":\"Ada\"}"
+  }
+ },
+ {
+  "name": "envelope_falsy",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: none}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: {first: '{{input.first_name}}'}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {},
+  "response": {
+   "status": 200,
+   "body": {
+    "error": 0,
+    "data": {
+     "email": "x@y.z"
+    }
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"email\":\"x@y.z\"}",
+   "confidence": 0.65,
+   "error": null
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": "{\"first\":\"Ada\"}"
+  }
+ },
+ {
+  "name": "no_data",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: none}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: {first: '{{input.first_name}}'}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {},
+  "response": {
+   "status": 200,
+   "body": {
+    "data": {}
+   }
+  },
+  "result": {
+   "success": false,
+   "fields": "{}",
+   "confidence": 0.65,
+   "error": "no_data"
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": "{\"first\":\"Ada\"}"
+  }
+ },
+ {
+  "name": "bearer_and_query_merge",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: bearer, env_var: VENDOR_KEY}\nrequest:\n  method: get\n  url: \"https://api.vendor.example/v1/find?domain=old&keep=1&q={{input.company}}\"\n  headers: {}\n  query: {domain: '{{input.domain}}', page: 2, flag: true}\n  body: null\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {
+   "VENDOR_KEY": "vk_123"
+  },
+  "response": {
+   "status": 200,
+   "body": {
+    "data": {
+     "email": "a@acme.example"
+    }
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"email\":\"a@acme.example\"}",
+   "confidence": 0.65,
+   "error": null
+  },
+  "request": {
+   "method": "GET",
+   "url": "https://api.vendor.example/v1/find?domain=acme.example&page=2&flag=True",
+   "headers": {
+    "authorization": "Bearer vk_123"
+   },
+   "body": ""
+  }
+ },
+ {
+  "name": "query_auth",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: query, env_var: VENDOR_KEY}\nrequest:\n  method: GET\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: null\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {
+   "VENDOR_KEY": "q s+cret&x"
+  },
+  "response": {
+   "status": 200,
+   "body": {
+    "data": {
+     "email": "q@acme.example"
+    }
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"email\":\"q@acme.example\"}",
+   "confidence": 0.65,
+   "error": null
+  },
+  "request": {
+   "method": "GET",
+   "url": "https://api.vendor.example/v1/find?api_key=q+s%2Bcret%26x",
+   "headers": {},
+   "body": ""
+  }
+ },
+ {
+  "name": "query_auth_custom_param",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: query, param: key, env_var: VENDOR_KEY}\nrequest:\n  method: GET\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: null\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {
+   "VENDOR_KEY": "vk"
+  },
+  "response": {
+   "status": 200,
+   "body": {
+    "data": {
+     "email": "q@acme.example"
+    }
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"email\":\"q@acme.example\"}",
+   "confidence": 0.65,
+   "error": null
+  },
+  "request": {
+   "method": "GET",
+   "url": "https://api.vendor.example/v1/find?key=vk",
+   "headers": {},
+   "body": ""
+  }
+ },
+ {
+  "name": "header_auth_value_template",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: header, param: X-Token, env_var: VENDOR_KEY, value: 'Token ${env:VENDOR_KEY}'}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {X-Version: 2, X-Flag: true, X-Name: '{{input.full_name}}'}\n  query: {}\n  body: {first: '{{input.first_name}}'}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {
+   "VENDOR_KEY": "tok"
+  },
+  "response": {
+   "status": 200,
+   "body": {
+    "data": {
+     "email": "h@acme.example"
+    }
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"email\":\"h@acme.example\"}",
+   "confidence": 0.65,
+   "error": null
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "x-version": "2",
+    "x-flag": "True",
+    "x-name": "Ada King Lovelace",
+    "x-token": "Token tok",
+    "content-type": "application/json"
+   },
+   "body": "{\"first\":\"Ada\"}"
+  }
+ },
+ {
+  "name": "header_auth_default_param",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: header, env_var: VENDOR_KEY}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: {first: '{{input.first_name}}'}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {
+   "VENDOR_KEY": "raw"
+  },
+  "response": {
+   "status": 200,
+   "body": {
+    "data": {
+     "email": "h@acme.example"
+    }
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"email\":\"h@acme.example\"}",
+   "confidence": 0.65,
+   "error": null
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "authorization": "raw",
+    "content-type": "application/json"
+   },
+   "body": "{\"first\":\"Ada\"}"
+  }
+ },
+ {
+  "name": "body_types_and_defaults",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: none}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: {n: 5, f: 1.5, b: true, z: null, list: ['{{input.city}}', 3], nested: {d: '{{input.missing | default: none}}', u: 'café {{input.last_name}}'}}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {},
+  "response": {
+   "status": 200,
+   "body": {
+    "data": {
+     "email": "b@acme.example"
+    }
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"email\":\"b@acme.example\"}",
+   "confidence": 0.65,
+   "error": null
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": "{\"n\":5,\"f\":1.5,\"b\":true,\"z\":null,\"list\":[\"London\",3],\"nested\":{\"d\":\"none\",\"u\":\"café Lovelace\"}}"
+  }
+ },
+ {
+  "name": "mapping_prefix_and_types",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: none}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: {first: '{{input.first_name}}'}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email, linkedin_url: 'https://linkedin.com/in/$.handle', company_size: $.size, verified: $.ok, phone: '$.phones[0]', mobile_phone: '$.phones[]'}\n",
+  "inputs": {
+   "company": "Acme Corp",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {},
+  "response": {
+   "status": 200,
+   "body": {
+    "data": {
+     "email": "m@acme.example"
+    },
+    "handle": "ada",
+    "size": 250,
+    "ok": false,
+    "phones": [
+     "415.555.0132",
+     "+44 20 7946 0958"
+    ]
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"company_size\":250,\"email\":\"m@acme.example\",\"linkedin_url\":\"https://linkedin.com/in/ada\",\"mobile_phone\":\"4155550132\",\"phone\":\"4155550132\",\"verified\":false}",
+   "confidence": 0.65,
+   "error": null
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": "{\"first\":\"Ada\"}"
+  }
+ },
+ {
+  "name": "env_in_input_expands",
+  "manifest": "manifest_version: \"1\"\nname: generic_provider\ncapability: email\ndefault_confidence: 0.65\ncost_per_lookup: 0.02\nauth: {type: bearer, env_var: VENDOR_KEY}\nrequest:\n  method: POST\n  url: \"https://api.vendor.example/v1/find\"\n  headers: {}\n  query: {}\n  body: {q: '{{input.company}}'}\n  timeout: 7\nresponse:\n  error_path: error\n  error_message_path: message\n  mappings: {email: $.data.email}\n",
+  "inputs": {
+   "company": "${env:VENDOR_KEY}",
+   "company_name": "Acme Corp",
+   "website": "https://www.acme.example/about",
+   "domain": "acme.example",
+   "email": "ada@acme.example",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "city": "London",
+   "contact_person": "Ada King Lovelace",
+   "full_name": "Ada King Lovelace",
+   "first_name": "Ada",
+   "last_name": "Lovelace",
+   "phone": ""
+  },
+  "env": {
+   "VENDOR_KEY": "vk_secret"
+  },
+  "response": {
+   "status": 200,
+   "body": {
+    "data": {
+     "email": "e@acme.example"
+    }
+   }
+  },
+  "result": {
+   "success": true,
+   "fields": "{\"email\":\"e@acme.example\"}",
+   "confidence": 0.65,
+   "error": null
+  },
+  "request": {
+   "method": "POST",
+   "url": "https://api.vendor.example/v1/find",
+   "headers": {
+    "authorization": "Bearer vk_secret",
+    "content-type": "application/json"
+   },
+   "body": "{\"q\":\"vk_secret\"}"
+  }
+ }
+]
