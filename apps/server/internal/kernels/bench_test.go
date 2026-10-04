@@ -135,6 +135,21 @@ func BenchmarkExtractTeamPage(b *testing.B) {
 	}
 }
 
+// BenchmarkExtractTeamPageUninterruptible runs extract on the normalizer pool
+// (no termination checks) to measure what interruptibility costs.
+func BenchmarkExtractTeamPageUninterruptible(b *testing.B) {
+	k := kernels(b)
+	ctx := context.Background()
+	req := benchTeamPage(b)
+	b.SetBytes(int64(len(req.Document)))
+	for b.Loop() {
+		var res ExtractResult
+		if err := k.fast.call(ctx, "extract", req, &res); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
 func BenchmarkExtractTeamPageParallel(b *testing.B) {
 	k := kernels(b)
 	req := benchTeamPage(b)
