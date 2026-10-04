@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -232,11 +233,19 @@ func (a *API) listRuns(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"runs": runs})
 }
 
-// getRunIn loads a run in the caller's workspace. RLS already hides other
-// tenants' rows; the explicit workspace predicate keeps the intent visible.
+// uuidPattern matches the canonical text form PostgreSQL returns for run ids.
+var uuidPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
+
+// getRunIn loads a run in the caller's workspace. A malformed id is simply
+// not found, so it never reaches the database as an invalid uuid cast. RLS
+// already hides other tenants' rows; the explicit workspace predicate keeps
+// the intent visible.
 func getRunIn(ctx context.Context, tx pgx.Tx, workspaceID, id string) (Run, error) {
+	if !uuidPattern.MatchString(id) {
+		return Run{}, pgx.ErrNoRows
+	}
 	return scanRun(tx.QueryRow(ctx, `SELECT `+runColumns+` FROM plugin_runs
-		WHERE id::text = $1 AND workspace_id = $2`, id, workspaceID))
+		WHERE id = $1::uuid AND workspace_id = $2`, id, workspaceID))
 }
 
 func (a *API) getRun(w http.ResponseWriter, r *http.Request) {
@@ -274,12 +283,12 @@ func (a *API) listResults(w http.ResponseWriter, r *http.Request) {
 		if _, err := getRunIn(r.Context(), tx, ws.WorkspaceID, r.PathValue("id")); err != nil {
 			return err
 		}
-		if err := tx.QueryRow(r.Context(), `SELECT count(*) FROM plugin_results WHERE run_id::text = $1`,
+		if err := tx.QueryRow(r.Context(), `SELECT count(*) FROM plugin_results WHERE run_id = $1::uuid`,
 			r.PathValue("id")).Scan(&total); err != nil {
 			return err
 		}
 		rows, err := tx.Query(r.Context(), `SELECT record_index, data, evidence FROM plugin_results
-			WHERE run_id::text = $1 ORDER BY record_index LIMIT $2 OFFSET $3`, r.PathValue("id"), limit, offset)
+			WHERE run_id = $1::uuid ORDER BY record_index LIMIT $2 OFFSET $3`, r.PathValue("id"), limit, offset)
 		if err != nil {
 			return err
 		}
@@ -327,7 +336,7 @@ func (a *API) cancelRun(w http.ResponseWriter, r *http.Request) {
 		}
 		if _, err := tx.Exec(r.Context(), `UPDATE plugin_runs
 			SET status = 'cancelled', completed_at = now(), error = 'Cancelled by user'
-			WHERE id::text = $1`, run.ID); err != nil {
+			WHERE id = $1::uuid`, run.ID); err != nil {
 			return err
 		}
 		if run.JobID != nil {

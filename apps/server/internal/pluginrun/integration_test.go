@@ -204,6 +204,12 @@ func TestPluginRunEndToEnd(t *testing.T) {
 		t.Fatalf("evidence: %+v", ev)
 	}
 
+	for _, bad := range []string{"not-a-uuid", "00000000-0000-0000-0000-000000000000"} {
+		if code, _ := h.do("editor-a", "GET", "/api/v2/plugin-runs/"+bad+"/results", nil); code != http.StatusNotFound {
+			t.Fatalf("results for %q: %d", bad, code)
+		}
+	}
+
 	// Another tenant sees nothing, through both the API and RLS.
 	if code, _ := h.do("editor-b", "GET", "/api/v2/plugin-runs/"+id, nil); code != http.StatusNotFound {
 		t.Fatalf("cross-tenant get: %d", code)
