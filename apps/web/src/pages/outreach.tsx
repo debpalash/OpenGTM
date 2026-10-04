@@ -11,7 +11,7 @@
 //    Suppressions tabs; auto-paused banner + Resume; 400/403 detail surfaced.
 
 import { useState } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { getRouteApi, useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
 import {
   Send, Plus, Play, Pause, Trash2, MoreHorizontal, Clock,
@@ -62,11 +62,13 @@ function fmtConsent(v: string) {
 
 // ── Page ──────────────────────────────────────────────────────────────────
 
+const route = getRouteApi("/_app/outreach")
+
 export default function OutreachPage() {
   const [view, setView] = useState<"list" | "create" | "detail">("list")
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [searchParams, setSearchParams] = useSearchParams()
-  const draftId = searchParams.get("draft")
+  const navigate = useNavigate()
+  const draftId = route.useSearch({ select: search => search.draft }) ?? null
 
   const sequences = useSequences()
   const smtp = useSmtpStatus()
@@ -84,7 +86,7 @@ export default function OutreachPage() {
   const openDraft = (id: string) => {
     setView("list")
     setSelectedId(null)
-    setSearchParams({ draft: id })
+    void navigate({ to: ".", search: { draft: id } })
   }
 
   return (
@@ -156,7 +158,7 @@ export default function OutreachPage() {
       {draftId ? (
         <GroundedDraftDetail
           id={draftId}
-          onBack={() => setSearchParams({}, { replace: true })}
+          onBack={() => void navigate({ to: ".", search: {}, replace: true })}
         />
       ) : view === "list" ? (
         <div className="space-y-6">
@@ -1003,7 +1005,7 @@ function SmtpStartHint({ force }: { force?: boolean }) {
       <Button
         size="sm"
         variant="outline"
-        onClick={() => navigate("/settings")}
+        onClick={() => void navigate({ to: "/settings" })}
         className="h-6 gap-1 text-[11px]"
       >
         <SettingsIcon className="size-3" /> Configure SMTP

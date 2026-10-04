@@ -7,7 +7,7 @@
  */
 
 import { useState, useMemo, useCallback, useRef, useEffect, useDeferredValue } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { getRouteApi, useNavigate } from "@tanstack/react-router"
 import {
   useReactTable, getCoreRowModel, getSortedRowModel,
   flexRender, type ColumnDef, type CellContext, type SortingState,
@@ -478,8 +478,10 @@ function CostChip({ workbookId, isRunning, viewId, search, onClick }: {
 
 // ── Main Editor Page ─────────────────────────────────────────────────────
 
+const route = getRouteApi("/_app/workbooks/$id")
+
 export default function WorkbookEditorPage() {
-  const { id } = useParams<{ id: string }>()
+  const { id } = route.useParams()
   const navigate = useNavigate()
   const [workbookPage, setWorkbookPage] = useState(1)
   const [activeViewId, setActiveViewId] = useState<string | null>(null)
@@ -1451,7 +1453,7 @@ export default function WorkbookEditorPage() {
               <RefreshCw /> Retry
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={() => navigate("/workbooks")}>
+          <Button variant="ghost" size="sm" onClick={() => void navigate({ to: "/workbooks" })}>
             <ArrowLeft /> Back to workbooks
           </Button>
         </div>
@@ -1490,7 +1492,7 @@ export default function WorkbookEditorPage() {
       {/* ── Toolbar ─────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3 px-4 py-2 border-b bg-background/95 backdrop-blur-sm shrink-0">
         <button
-          onClick={() => navigate("/workbooks")}
+          onClick={() => void navigate({ to: "/workbooks" })}
           className="p-1.5 rounded-md hover:bg-muted transition-colors"
         >
           <ArrowLeft className="size-4" />

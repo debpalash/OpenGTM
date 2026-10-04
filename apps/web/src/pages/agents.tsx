@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
 import {
   CheckCircle2, XCircle, Clock, Loader2, Play,
@@ -270,7 +270,7 @@ export default function AgentsPage() {
         if (!result.ok) return
         toast.success(`Pipeline started: "${query}"`)
         setCollectQuery("")
-        navigate(`/agents/${result.job_id}`)
+        void navigate({ to: "/agents/$jobId", params: { jobId: result.job_id } })
       },
       onError: (error) => toast.error(error.message || "Could not start pipeline"),
     })
@@ -415,14 +415,14 @@ export default function AgentsPage() {
                 <TaskListRow
                   key={job.id}
                   job={job}
-                  onClick={() => navigate(`/agents/${job.id}`)}
+                  onClick={() => void navigate({ to: "/agents/$jobId", params: { jobId: job.id } })}
                 />
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {filtered.map(job => (
-                <TaskCard key={job.id} job={job} onClick={() => navigate(`/agents/${job.id}`)} />
+                <TaskCard key={job.id} job={job} onClick={() => void navigate({ to: "/agents/$jobId", params: { jobId: job.id } })} />
               ))}
             </div>
           )}

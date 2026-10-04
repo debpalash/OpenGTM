@@ -1,5 +1,6 @@
 import { ArrowUpRight, FileSpreadsheet, Radar, Workflow } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link } from "@tanstack/react-router"
+import { hrefLinkOptions } from "@/lib/router-search"
 import type { AppNotification } from "@/lib/notifications"
 import "./notifications.css"
 
@@ -32,7 +33,7 @@ export function NotificationRow({ notification, compact = false, onNavigate }: N
   const time = notificationTime(notification.createdAt)
 
   return <Link
-    to={notification.href}
+    {...hrefLinkOptions(notification.href)}
     onClick={onNavigate}
     className={`gtm-notification-row${compact ? " gtm-notification-row--compact" : ""}`}
     data-severity={notification.severity}

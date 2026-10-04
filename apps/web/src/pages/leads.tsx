@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 import { type ColumnDef } from "@tanstack/react-table"
 import { toast } from "sonner"
 import {
@@ -612,7 +612,7 @@ export default function LeadsPage() {
             data={leads ?? []}
             searchKey="company"
             searchPlaceholder="Filter companies..."
-            onRowClick={(lead) => navigate(`/leads/${lead.id}`)}
+            onRowClick={(lead) => void navigate({ to: "/leads/$id", params: { id: String(lead.id) } })}
             enableSelection
             onSelectionChange={setSelectedRows}
             columnVisibilityKey="yupcha:leadCols"
@@ -754,7 +754,7 @@ export default function LeadsPage() {
               {similar.similar_leads.map(l => (
                 <button
                   key={l.id}
-                  onClick={() => { setSimilarOpen(false); navigate(`/leads/${l.id}`) }}
+                  onClick={() => { setSimilarOpen(false); void navigate({ to: "/leads/$id", params: { id: String(l.id) } }) }}
                   className="flex items-center gap-3 w-full text-left py-2 px-1 hover:bg-muted/50 rounded transition-colors"
                 >
                   <ScoreBadge score={l.score} tier={l.score_tier} />

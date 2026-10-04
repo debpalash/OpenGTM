@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { Link, useSearchParams } from "react-router-dom"
+import { Link, getRouteApi, useNavigate } from "@tanstack/react-router"
 import { Table2, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button, Input, AlertDialog } from "@/design-system/primitives"
@@ -12,18 +12,20 @@ import "@/components/workbooks/workbooks.css"
 import { NativeSelect } from "@/components/ui/native-select"
 
 const PAGE_SIZE = 50
+const route = getRouteApi("/_app/workbooks")
 
 export default function WorkbooksPage() {
   const query = useWorkbooks()
   const remove = useDeleteWorkbook()
-  const [params, setParams] = useSearchParams()
+  const params = route.useSearch()
+  const navigate = useNavigate()
   const [showTemplates, setShowTemplates] = useState(false)
   const [deleting, setDeleting] = useState<Workbook | null>(null)
   const [deleteError, setDeleteError] = useState("")
   const deletingRef = useRef(false)
   const deleteTrigger = useRef<HTMLButtonElement | null>(null)
   const heading = useRef<HTMLHeadingElement | null>(null)
-  const search = params.get("q") ?? ""
+  const search = params.q ?? ""
   // The field keeps its own text: the URL updates asynchronously, and binding
   // the input to it reset the field between fast keystrokes (dropping
   // characters). Adopt URL changes only when they come from elsewhere
@@ -47,22 +49,22 @@ export default function WorkbooksPage() {
     pendingSearchWrites.current = pending
     if (pending.length === 0) setSearchDraft(search)
   }, [search])
-  const status = params.get("status") ?? "all"
-  const sort = params.get("sort") ?? "updated"
+  const status = params.status ?? "all"
+  const sort = params.sort ?? "updated"
   const all = query.data?.workbooks ?? []
   const filtered = all.filter(workbook => (status === "all" || workbook.status === status) && workbook.name.toLowerCase().includes(search.toLowerCase()))
     .sort((left, right) => sort === "name" ? left.name.localeCompare(right.name) : (Date.parse(right.updated_at) || 0) - (Date.parse(left.updated_at) || 0))
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const page = Math.min(pages, Math.max(1, Number.parseInt(params.get("page") ?? "1", 10) || 1))
+  const page = Math.min(pages, Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1))
   const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   function setFilter(key: string, value: string) {
-    // React Router's search-param callbacks do not queue like React state.
-    // Read the current URL so rapid filter edits cannot restore stale values.
+    // Search updates do not queue like React state. Read the current URL so
+    // rapid filter edits cannot restore stale values.
     const next = new URLSearchParams(window.location.search)
     if (value) next.set(key, value); else next.delete(key)
     if (key !== "page") next.delete("page")
-    setParams(next, { replace: true })
+    void navigate({ to: ".", search: Object.fromEntries(next), replace: true })
   }
 
   async function deleteSelectedWorkbook() {
@@ -104,7 +106,7 @@ export default function WorkbooksPage() {
         <Table2 aria-hidden="true" className="size-6" />
         <h2>{all.length ? "No matching workbooks" : "Your first workbook starts here"}</h2>
         <p>{all.length ? "Change your search or status filter." : "Create a workbook or choose a template above."}</p>
-        {all.length > 0 && <Button onClick={() => setParams({})}>Clear filters</Button>}
+        {all.length > 0 && <Button onClick={() => void navigate({ to: ".", search: {} })}>Clear filters</Button>}
       </div> : <div className="gtm-workbook-table-scroll" role="region" aria-label="Workbooks table" tabIndex={0}>
         <table className="gtm-workbook-table">
           <thead><tr><th scope="col">Workbook</th><th scope="col">Status</th><th scope="col">Rows</th><th scope="col">Columns</th><th scope="col">Processed rows</th><th scope="col">Updated</th><th scope="col"><span className="sr-only">Actions</span></th></tr></thead>
@@ -118,7 +120,7 @@ export default function WorkbooksPage() {
             ],
             actions: [{ label: "Open workbook", href: `/workbooks/${encodeURIComponent(workbook.id)}` }],
           })}>
-            <td><Link to={`/workbooks/${encodeURIComponent(workbook.id)}`} className="gtm-workbook-link"><Table2 aria-hidden="true" className="size-4 shrink-0" /><span>{workbook.name}</span></Link></td>
+            <td><Link to="/workbooks/$id" params={{ id: workbook.id }} className="gtm-workbook-link"><Table2 aria-hidden="true" className="size-4 shrink-0" /><span>{workbook.name}</span></Link></td>
             <td><span className="gtm-workbook-status" data-status={workbook.status}>{workbook.status}</span></td>
             <td>{workbook.total_rows.toLocaleString()}</td><td>{workbook.columns_config.length}</td>
             <td>{workbook.completed_rows.toLocaleString()} / {workbook.total_rows.toLocaleString()}</td>

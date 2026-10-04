@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
 import {
   Activity, Banknote, Briefcase, Building2, Combine, Cpu, Crown,
@@ -114,7 +114,7 @@ export default function TemplatesPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const wb = await res.json()
       toast.success("Workbook created from template")
-      navigate(`/workbooks/${wb.id}`)
+      void navigate({ to: "/workbooks/$id", params: { id: wb.id } })
     } catch {
       toast.error("Failed to create workbook from template")
       setUsingSlug("")

@@ -3,7 +3,7 @@
  * and ink mascot from the sign-in page, the composer with action pills and
  * `/` commands, suggestion cards, and a way back into recent conversations.
  */
-import { Link } from "react-router-dom"
+import { Link } from "@tanstack/react-router"
 import { ArrowUpRight, MessageSquare } from "lucide-react"
 import { useConversations, useStats } from "@/lib/hooks"
 import { ChatMascot } from "./chat-mascot"
@@ -70,7 +70,7 @@ export function ChatHome({ composer, onAction }: { composer: React.ReactNode; on
           <h2 className="mb-2 px-1 text-[12px] font-medium tracking-wide text-muted-foreground uppercase">Jump back in</h2>
           <div className="flex flex-col gap-1.5 sm:flex-row">
             {recent.map(c => (
-              <Link key={c.id} to={`/chat?id=${c.id}`}
+              <Link key={c.id} to="/chat" search={{ id: c.id }}
                 className="gtm-chat-recent flex min-w-0 flex-1 items-center gap-2 rounded-xl px-3 py-2.5 text-[13px] text-foreground">
                 <MessageSquare className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
                 <span className="truncate">{c.title || "Untitled chat"}</span>

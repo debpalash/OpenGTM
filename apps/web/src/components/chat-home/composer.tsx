@@ -4,7 +4,7 @@
  * in the menu ↑/↓ move, Enter/Tab pick and Esc closes.
  */
 import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 import { ArrowUp, CornerDownLeft, Slash, Square } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PILLS, matchCommands, placeholderRange, type ChatAction, type SlashCommand } from "./commands"
@@ -50,7 +50,7 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
   }, [value])
 
   const apply = (action: ChatAction) => {
-    if (action.kind === "go") { onChange(""); navigate(action.to); return }
+    if (action.kind === "go") { onChange(""); void navigate({ href: action.to }); return }
     if (action.run) { onSend(action.text); return }
     pendingSelection.current = placeholderRange(action.text) ?? [action.text.length, action.text.length]
     onChange(action.text)

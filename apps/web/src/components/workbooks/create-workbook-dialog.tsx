@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@tanstack/react-router"
 import { Plus } from "lucide-react"
 import { toast } from "sonner"
 import { Button, Dialog, Input } from "@/design-system/primitives"
@@ -40,7 +40,7 @@ export function CreateWorkbookDialog() {
       })
       toast.success("Workbook created")
       setOpen(false)
-      navigate(`/workbooks/${encodeURIComponent(workbook.id)}`)
+      void navigate({ to: "/workbooks/$id", params: { id: workbook.id } })
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not create workbook. Try again.")
     } finally { submitting.current = false }

@@ -1,7 +1,5 @@
 import { StrictMode, useState } from "react"
 import { createRoot } from "react-dom/client"
-import { HashRouter } from "react-router-dom"
-import { UndecoratedLink } from "twenty-ui/primitives/navigation"
 import { ThemeProvider } from "../theme/theme-provider"
 import { useTheme } from "../theme/use-theme"
 import { ThemeSelect } from "../theme/theme-select"
@@ -87,7 +85,7 @@ function Preview() {
         <p role="status">{receipt}</p>
         <section className="preview-controls" aria-label="Component states">
           <h2>Action states</h2>
-          <div className="preview-actions"><Button disabled>Unavailable</Button><Button loading>Researching</Button><UndecoratedLink to="/workbooks">Test workbook navigation</UndecoratedLink></div>
+          <div className="preview-actions"><Button disabled>Unavailable</Button><Button loading>Researching</Button><a href="/workbooks">Test workbook navigation</a></div>
           <p className="preview-secondary">No backend requests are made from this page.</p>
         </section>
       </main>
@@ -95,4 +93,4 @@ function Preview() {
   </>
 }
 
-createRoot(document.getElementById("root")!).render(<StrictMode><ThemeProvider><HashRouter><Preview /></HashRouter></ThemeProvider></StrictMode>)
+createRoot(document.getElementById("root")!).render(<StrictMode><ThemeProvider><Preview /></ThemeProvider></StrictMode>)

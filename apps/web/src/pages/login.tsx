@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState, type ReactNode } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "@tanstack/react-router"
 import { ArrowLeft, Building2, Eye, EyeOff, KeyRound, LockKeyhole, LogIn, User, UserPlus } from "lucide-react"
 
 import { LoginScene } from "@/components/login-scene/login-scene"
@@ -127,7 +127,7 @@ export default function LoginPage() {
   const stars = useGitHubStars(GITHUB_REPO)
   const { login } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
+  const from = useLocation({ select: location => location.state.from }) ?? "/chat"
   const [mode, setMode] = useState<AuthMode>("login")
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
@@ -138,7 +138,6 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false)
   const [workspaceSlug, setWorkspaceSlug] = useState("")
 
-  const from = (location.state as { from?: string } | null)?.from ?? "/chat"
   const copy = COPY[mode]
   const ModeIcon = copy.icon
 
@@ -173,7 +172,7 @@ export default function LoginPage() {
     setBusy(true)
     try {
       await login(username.trim(), password)
-      navigate(from, { replace: true })
+      void navigate({ href: from, replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed")
     } finally {
