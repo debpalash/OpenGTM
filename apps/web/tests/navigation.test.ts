@@ -8,13 +8,14 @@ describe("shared application navigation", () => {
     expect([...routes].sort()).toEqual([
       "/chat", "/leads", "/audiences", "/workbooks", "/templates", "/search",
       "/agents", "/outreach", "/automations", "/watches", "/signals", "/sources",
-      "/analytics", "/agency", "/campaigns", "/notifications", "/settings",
+      "/analytics", "/agency", "/campaigns", "/notifications", "/settings", "/plugins",
     ].sort())
   })
   test("groups routes without renaming backend concepts", () => {
     expect(NAVIGATION_GROUPS.map(group => group.label)).toEqual(["Workspace", "Execution", "Resources"])
     expect(getPageTitle("/agents/job-123")).toBe("Tasks")
     expect(getPageTitle("/agency/team-123")).toBe("Manage workspaces")
+    expect(getPageTitle("/plugins/runs/run-123")).toBe("Plugins")
   })
   test("matches route boundaries rather than similarly prefixed paths", () => {
     expect(isNavigationActive("/leads/contact-123", "/leads")).toBe(true)

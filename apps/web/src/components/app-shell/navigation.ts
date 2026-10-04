@@ -1,6 +1,6 @@
 import {
   Activity, BarChart3, BellRing, Bot, Building2, Database, LayoutTemplate, ListFilter,
-  Megaphone, MessageSquare, Radar, Search, Send, Settings, Table2, Users, Zap,
+  Megaphone, MessageSquare, Puzzle, Radar, Search, Send, Settings, Table2, Users, Zap,
 } from "lucide-react"
 
 export const NAVIGATION_GROUPS = [
@@ -14,6 +14,7 @@ export const NAVIGATION_GROUPS = [
   { label: "Execution", items: [
     { to: "/agents", key: "t", icon: Bot, label: "Tasks" },
     { to: "/automations", key: "u", icon: Zap, label: "Automations" },
+    { to: "/plugins", key: "e", icon: Puzzle, label: "Plugins" },
     { to: "/watches", key: "v", icon: Radar, label: "Watches" },
     { to: "/signals", key: "i", icon: Activity, label: "Signals" },
     { to: "/outreach", key: "o", icon: Send, label: "Outreach" },

@@ -43,6 +43,7 @@ const chatSearch = optionalStrings("id", "draft")
 const outreachSearch = optionalStrings("draft")
 const watchesSearch = optionalStrings("id", "create", "target")
 const workbooksSearch = optionalStrings("q", "status", "sort", "page")
+const pluginsSearch = optionalStrings("tab")
 
 // ── Routes ──
 const rootRoute = createRootRouteWithContext<RouterContext>()({
@@ -125,6 +126,14 @@ const automationsRoute = createRoute({
   getParentRoute: () => appRoute, path: "automations",
   component: lazyRouteComponent(() => import("@/pages/automations")),
 })
+const pluginRunRoute = createRoute({
+  getParentRoute: () => appRoute, path: "plugins/runs/$runId",
+  component: lazyRouteComponent(() => import("@/pages/plugin-run")),
+})
+const pluginsRoute = createRoute({
+  getParentRoute: () => appRoute, path: "plugins", validateSearch: pluginsSearch,
+  component: lazyRouteComponent(() => import("@/pages/plugins")),
+})
 const watchesRoute = createRoute({
   getParentRoute: () => appRoute, path: "watches", validateSearch: watchesSearch,
   component: lazyRouteComponent(() => import("@/pages/watches")),
@@ -178,6 +187,8 @@ export const routeTree = rootRoute.addChildren([
     agentsRoute,
     outreachRoute.addChildren([splat(outreachRoute)]),
     automationsRoute.addChildren([splat(automationsRoute)]),
+    pluginRunRoute,
+    pluginsRoute,
     watchesRoute.addChildren([splat(watchesRoute)]),
     signalsRoute.addChildren([splat(signalsRoute)]),
     agencyRoute.addChildren([splat(agencyRoute)]),

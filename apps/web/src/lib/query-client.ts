@@ -71,6 +71,17 @@ export const queryKeys = {
     runs: (id: string) => ["automations", "runs", id] as const,
     run: (rid: string) => ["automations", "run", rid] as const,
   },
+  // Go plugin platform (/api/v2). `runs` prefixes the list, detail and
+  // results keys so one invalidation refreshes every run view.
+  plugins: {
+    all: ["plugins"] as const,
+    catalog: ["plugins", "catalog"] as const,
+    runs: ["plugins", "runs"] as const,
+    runList: ["plugins", "runs", "list"] as const,
+    run: (id: string) => ["plugins", "runs", "detail", id] as const,
+    results: (id: string) => ["plugins", "runs", "results", id] as const,
+    resultPage: (id: string, offset: number, limit: number) => ["plugins", "runs", "results", id, offset, limit] as const,
+  },
   watches: {
     all: ["watches"] as const,
     list: (p?: object) => ["watches", "list", p ?? {}] as const,
