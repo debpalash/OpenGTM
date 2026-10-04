@@ -1,0 +1,504 @@
+{
+ "yaml": [
+  {
+   "name": "bool_words",
+   "input": "a: yes\nb: No\nc: ON\nd: off\ne: True\nf: FALSE\ng: y\nh: n\ni: tRue",
+   "load_ok": true,
+   "str": "{'a': True, 'b': False, 'c': True, 'd': False, 'e': True, 'f': False, 'g': 'y', 'h': 'n', 'i': 'tRue'}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":true,\"b\":false,\"c\":true,\"d\":false,\"e\":true,\"f\":false,\"g\":\"y\",\"h\":\"n\",\"i\":\"tRue\"}",
+   "pretty_ascii": "{\n  \"a\": true,\n  \"b\": false,\n  \"c\": true,\n  \"d\": false,\n  \"e\": true,\n  \"f\": false,\n  \"g\": \"y\",\n  \"h\": \"n\",\n  \"i\": \"tRue\"\n}"
+  },
+  {
+   "name": "null_words",
+   "input": "a: ~\nb: null\nc: Null\nd: NULL\ne:\nf: nULL",
+   "load_ok": true,
+   "str": "{'a': None, 'b': None, 'c': None, 'd': None, 'e': None, 'f': 'nULL'}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":null,\"b\":null,\"c\":null,\"d\":null,\"e\":null,\"f\":\"nULL\"}",
+   "pretty_ascii": "{\n  \"a\": null,\n  \"b\": null,\n  \"c\": null,\n  \"d\": null,\n  \"e\": null,\n  \"f\": \"nULL\"\n}"
+  },
+  {
+   "name": "ints",
+   "input": "a: 0\nb: -0\nc: 017\nd: 0x1F\ne: 0b101\nf: 1_000\ng: +12\nh: -0x_ff\ni: 0_7",
+   "load_ok": true,
+   "str": "{'a': 0, 'b': 0, 'c': 15, 'd': 31, 'e': 5, 'f': 1000, 'g': 12, 'h': -255, 'i': 7}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":0,\"b\":0,\"c\":15,\"d\":31,\"e\":5,\"f\":1000,\"g\":12,\"h\":-255,\"i\":7}",
+   "pretty_ascii": "{\n  \"a\": 0,\n  \"b\": 0,\n  \"c\": 15,\n  \"d\": 31,\n  \"e\": 5,\n  \"f\": 1000,\n  \"g\": 12,\n  \"h\": -255,\n  \"i\": 7\n}"
+  },
+  {
+   "name": "int_sexagesimal",
+   "input": "a: 1:20\nb: -1:30:00\nc: 190:20:30",
+   "load_ok": true,
+   "str": "{'a': 80, 'b': -5400, 'c': 685230}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":80,\"b\":-5400,\"c\":685230}",
+   "pretty_ascii": "{\n  \"a\": 80,\n  \"b\": -5400,\n  \"c\": 685230\n}"
+  },
+  {
+   "name": "int_big",
+   "input": "a: 12345678901234567890123\nb: -98765432109876543210",
+   "load_ok": true,
+   "str": "{'a': 12345678901234567890123, 'b': -98765432109876543210}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":12345678901234567890123,\"b\":-98765432109876543210}",
+   "pretty_ascii": "{\n  \"a\": 12345678901234567890123,\n  \"b\": -98765432109876543210\n}"
+  },
+  {
+   "name": "int_octal_like",
+   "input": "a: 08\nb: 0o17\nc: 09.5",
+   "load_ok": true,
+   "str": "{'a': '08', 'b': '0o17', 'c': 9.5}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":\"08\",\"b\":\"0o17\",\"c\":9.5}",
+   "pretty_ascii": "{\n  \"a\": \"08\",\n  \"b\": \"0o17\",\n  \"c\": 9.5\n}"
+  },
+  {
+   "name": "floats",
+   "input": "a: 0.1\nb: .5\nc: 1.\nd: 1.0e+3\ne: 1.5E-10\nf: 6.02e+23\ng: 100000000000000000.0\nh: 0.00001\ni: 0.0001\nj: 1_0.2_5",
+   "load_ok": true,
+   "str": "{'a': 0.1, 'b': 0.5, 'c': 1.0, 'd': 1000.0, 'e': 1.5e-10, 'f': 6.02e+23, 'g': 1e+17, 'h': 1e-05, 'i': 0.0001, 'j': 10.25}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":0.1,\"b\":0.5,\"c\":1.0,\"d\":1000.0,\"e\":1.5e-10,\"f\":6.02e+23,\"g\":1e+17,\"h\":1e-05,\"i\":0.0001,\"j\":10.25}",
+   "pretty_ascii": "{\n  \"a\": 0.1,\n  \"b\": 0.5,\n  \"c\": 1.0,\n  \"d\": 1000.0,\n  \"e\": 1.5e-10,\n  \"f\": 6.02e+23,\n  \"g\": 1e+17,\n  \"h\": 1e-05,\n  \"i\": 0.0001,\n  \"j\": 10.25\n}"
+  },
+  {
+   "name": "floats_not",
+   "input": "a: 1e3\nb: 1.0e3\nc: -.5\nd: 1e-5\ne: .inf.\nf: +.5",
+   "load_ok": true,
+   "str": "{'a': '1e3', 'b': '1.0e3', 'c': '-.5', 'd': '1e-5', 'e': '.inf.', 'f': '+.5'}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":\"1e3\",\"b\":\"1.0e3\",\"c\":\"-.5\",\"d\":\"1e-5\",\"e\":\".inf.\",\"f\":\"+.5\"}",
+   "pretty_ascii": "{\n  \"a\": \"1e3\",\n  \"b\": \"1.0e3\",\n  \"c\": \"-.5\",\n  \"d\": \"1e-5\",\n  \"e\": \".inf.\",\n  \"f\": \"+.5\"\n}"
+  },
+  {
+   "name": "float_special",
+   "input": "a: .inf\nb: -.Inf\nc: +.INF\nd: .nan\ne: .NaN",
+   "load_ok": true,
+   "str": "{'a': inf, 'b': -inf, 'c': inf, 'd': nan, 'e': nan}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":Infinity,\"b\":-Infinity,\"c\":Infinity,\"d\":NaN,\"e\":NaN}",
+   "pretty_ascii": "{\n  \"a\": Infinity,\n  \"b\": -Infinity,\n  \"c\": Infinity,\n  \"d\": NaN,\n  \"e\": NaN\n}"
+  },
+  {
+   "name": "float_sexagesimal",
+   "input": "a: 1:20.5\nb: -1:00:30.25",
+   "load_ok": true,
+   "str": "{'a': 80.5, 'b': -3630.25}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":80.5,\"b\":-3630.25}",
+   "pretty_ascii": "{\n  \"a\": 80.5,\n  \"b\": -3630.25\n}"
+  },
+  {
+   "name": "float_repr_edges",
+   "input": "a: 1234567890123456.0\nb: 12345678901234567.0\nc: 0.000123\nd: 123456789.123456789\ne: 5e-324x\nf: 2.5e-08\ng: -0.0\nh: 1.0e+16\ni: 9999999999999998.0",
+   "load_ok": true,
+   "str": "{'a': 1234567890123456.0, 'b': 1.2345678901234568e+16, 'c': 0.000123, 'd': 123456789.12345679, 'e': '5e-324x', 'f': 2.5e-08, 'g': -0.0, 'h': 1e+16, 'i': 9999999999999998.0}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":1234567890123456.0,\"b\":1.2345678901234568e+16,\"c\":0.000123,\"d\":123456789.12345679,\"e\":\"5e-324x\",\"f\":2.5e-08,\"g\":-0.0,\"h\":1e+16,\"i\":9999999999999998.0}",
+   "pretty_ascii": "{\n  \"a\": 1234567890123456.0,\n  \"b\": 1.2345678901234568e+16,\n  \"c\": 0.000123,\n  \"d\": 123456789.12345679,\n  \"e\": \"5e-324x\",\n  \"f\": 2.5e-08,\n  \"g\": -0.0,\n  \"h\": 1e+16,\n  \"i\": 9999999999999998.0\n}"
+  },
+  {
+   "name": "dates",
+   "input": "a: 2026-01-01",
+   "load_ok": true,
+   "str": "{'a': datetime.date(2026, 1, 1)}",
+   "canonical_ok": false,
+   "canonical_error": "Object of type date is not JSON serializable"
+  },
+  {
+   "name": "datetime",
+   "input": "a: 2026-01-01T10:20:30Z",
+   "load_ok": true,
+   "str": "{'a': datetime.datetime(2026, 1, 1, 10, 20, 30, tzinfo=datetime.timezone.utc)}",
+   "canonical_ok": false,
+   "canonical_error": "Object of type datetime is not JSON serializable"
+  },
+  {
+   "name": "date_quoted",
+   "input": "a: '2026-01-01'",
+   "load_ok": true,
+   "str": "{'a': '2026-01-01'}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":\"2026-01-01\"}",
+   "pretty_ascii": "{\n  \"a\": \"2026-01-01\"\n}"
+  },
+  {
+   "name": "date_like_string",
+   "input": "a: 2026-1-1",
+   "load_ok": true,
+   "str": "{'a': '2026-1-1'}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":\"2026-1-1\"}",
+   "pretty_ascii": "{\n  \"a\": \"2026-1-1\"\n}"
+  },
+  {
+   "name": "bad_date",
+   "input": "a: 2026-13-01",
+   "load_ok": false,
+   "load_error": "ValueError"
+  },
+  {
+   "name": "strings",
+   "input": "a: hello\nb: 'quoted 1'\nc: \"double\\tescape\"\nd: plain words here\ne: '123'\nf: \"yes\"",
+   "load_ok": true,
+   "str": "{'a': 'hello', 'b': 'quoted 1', 'c': 'double\\tescape', 'd': 'plain words here', 'e': '123', 'f': 'yes'}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":\"hello\",\"b\":\"quoted 1\",\"c\":\"double\\tescape\",\"d\":\"plain words here\",\"e\":\"123\",\"f\":\"yes\"}",
+   "pretty_ascii": "{\n  \"a\": \"hello\",\n  \"b\": \"quoted 1\",\n  \"c\": \"double\\tescape\",\n  \"d\": \"plain words here\",\n  \"e\": \"123\",\n  \"f\": \"yes\"\n}"
+  },
+  {
+   "name": "unicode",
+   "input": "a: café\nb: 日本\nc: \"\\u2028sep\"\nd: emoji 😀",
+   "load_ok": true,
+   "str": "{'a': 'café', 'b': '日本', 'c': '\\u2028sep', 'd': 'emoji 😀'}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":\"café\",\"b\":\"日本\",\"c\":\" sep\",\"d\":\"emoji 😀\"}",
+   "pretty_ascii": "{\n  \"a\": \"caf\\u00e9\",\n  \"b\": \"\\u65e5\\u672c\",\n  \"c\": \"\\u2028sep\",\n  \"d\": \"emoji \\ud83d\\ude00\"\n}"
+  },
+  {
+   "name": "escape_chars",
+   "input": "a: \"line\\nbreak\"\nb: \"quote\\\" and back\\\\slash\"\nc: \"ctrl\\x01\\x1f\"\nd: \"bell\\b\\f\"",
+   "load_ok": true,
+   "str": "{'a': 'line\\nbreak', 'b': 'quote\" and back\\\\slash', 'c': 'ctrl\\x01\\x1f', 'd': 'bell\\x08\\x0c'}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":\"line\\nbreak\",\"b\":\"quote\\\" and back\\\\slash\",\"c\":\"ctrl\\u0001\\u001f\",\"d\":\"bell\\b\\f\"}",
+   "pretty_ascii": "{\n  \"a\": \"line\\nbreak\",\n  \"b\": \"quote\\\" and back\\\\slash\",\n  \"c\": \"ctrl\\u0001\\u001f\",\n  \"d\": \"bell\\b\\f\"\n}"
+  },
+  {
+   "name": "block_scalars",
+   "input": "a: |\n  line one\n  line two\nb: >\n  folded\n  text\nc: |-\n  strip\n",
+   "load_ok": true,
+   "str": "{'a': 'line one\\nline two\\n', 'b': 'folded text\\n', 'c': 'strip'}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":\"line one\\nline two\\n\",\"b\":\"folded text\\n\",\"c\":\"strip\"}",
+   "pretty_ascii": "{\n  \"a\": \"line one\\nline two\\n\",\n  \"b\": \"folded text\\n\",\n  \"c\": \"strip\"\n}"
+  },
+  {
+   "name": "nested",
+   "input": "outer:\n  inner:\n    list: [1, two, 3.0, null, true]\n  empty_map: {}\n  empty_list: []",
+   "load_ok": true,
+   "str": "{'outer': {'inner': {'list': [1, 'two', 3.0, None, True]}, 'empty_map': {}, 'empty_list': []}}",
+   "canonical_ok": true,
+   "canonical": "{\"outer\":{\"empty_list\":[],\"empty_map\":{},\"inner\":{\"list\":[1,\"two\",3.0,null,true]}}}",
+   "pretty_ascii": "{\n  \"outer\": {\n    \"empty_list\": [],\n    \"empty_map\": {},\n    \"inner\": {\n      \"list\": [\n        1,\n        \"two\",\n        3.0,\n        null,\n        true\n      ]\n    }\n  }\n}"
+  },
+  {
+   "name": "key_sorting",
+   "input": "b: 1\na: 2\nB: 3\n_: 4\né: 5\nA1: 6\na1: 7",
+   "load_ok": true,
+   "str": "{'b': 1, 'a': 2, 'B': 3, '_': 4, 'é': 5, 'A1': 6, 'a1': 7}",
+   "canonical_ok": true,
+   "canonical": "{\"A1\":6,\"B\":3,\"_\":4,\"a\":2,\"a1\":7,\"b\":1,\"é\":5}",
+   "pretty_ascii": "{\n  \"A1\": 6,\n  \"B\": 3,\n  \"_\": 4,\n  \"a\": 2,\n  \"a1\": 7,\n  \"b\": 1,\n  \"\\u00e9\": 5\n}"
+  },
+  {
+   "name": "nested_sorting",
+   "input": "z: {y: 1, x: 2}\ny: [{b: 1, a: 2}]",
+   "load_ok": true,
+   "str": "{'z': {'y': 1, 'x': 2}, 'y': [{'b': 1, 'a': 2}]}",
+   "canonical_ok": true,
+   "canonical": "{\"y\":[{\"a\":2,\"b\":1}],\"z\":{\"x\":2,\"y\":1}}",
+   "pretty_ascii": "{\n  \"y\": [\n    {\n      \"a\": 2,\n      \"b\": 1\n    }\n  ],\n  \"z\": {\n    \"x\": 2,\n    \"y\": 1\n  }\n}"
+  },
+  {
+   "name": "dup_keys",
+   "input": "a: 1\nb: 2\na: 3",
+   "load_ok": true,
+   "str": "{'a': 3, 'b': 2}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":3,\"b\":2}",
+   "pretty_ascii": "{\n  \"a\": 3,\n  \"b\": 2\n}"
+  },
+  {
+   "name": "int_keys",
+   "input": "1: one\n2: two",
+   "load_ok": true,
+   "str": "{1: 'one', 2: 'two'}",
+   "canonical_ok": true,
+   "canonical": "{\"1\":\"one\",\"2\":\"two\"}",
+   "pretty_ascii": "{\n  \"1\": \"one\",\n  \"2\": \"two\"\n}"
+  },
+  {
+   "name": "mixed_keys",
+   "input": "1: x\n'1': y",
+   "load_ok": true,
+   "str": "{1: 'x', '1': 'y'}",
+   "canonical_ok": false,
+   "canonical_error": "'<' not supported between instances of 'str' and 'int'"
+  },
+  {
+   "name": "equal_keys",
+   "input": "{1: a, 1.0: b, true: c}",
+   "load_ok": true,
+   "str": "{1: 'c'}",
+   "canonical_ok": true,
+   "canonical": "{\"1\":\"c\"}",
+   "pretty_ascii": "{\n  \"1\": \"c\"\n}"
+  },
+  {
+   "name": "bool_key",
+   "input": "true: x\nfalse: y",
+   "load_ok": true,
+   "str": "{True: 'x', False: 'y'}",
+   "canonical_ok": true,
+   "canonical": "{\"false\":\"y\",\"true\":\"x\"}",
+   "pretty_ascii": "{\n  \"false\": \"y\",\n  \"true\": \"x\"\n}"
+  },
+  {
+   "name": "null_key",
+   "input": "~: x",
+   "load_ok": true,
+   "str": "{None: 'x'}",
+   "canonical_ok": true,
+   "canonical": "{\"null\":\"x\"}",
+   "pretty_ascii": "{\n  \"null\": \"x\"\n}"
+  },
+  {
+   "name": "float_key",
+   "input": "1.5: x\n2.5: y",
+   "load_ok": true,
+   "str": "{1.5: 'x', 2.5: 'y'}",
+   "canonical_ok": true,
+   "canonical": "{\"1.5\":\"x\",\"2.5\":\"y\"}",
+   "pretty_ascii": "{\n  \"1.5\": \"x\",\n  \"2.5\": \"y\"\n}"
+  },
+  {
+   "name": "anchors",
+   "input": "base: &b {x: 1, y: 2}\nuse: *b\nlist: [*b, *b]",
+   "load_ok": true,
+   "str": "{'base': {'x': 1, 'y': 2}, 'use': {'x': 1, 'y': 2}, 'list': [{'x': 1, 'y': 2}, {'x': 1, 'y': 2}]}",
+   "canonical_ok": true,
+   "canonical": "{\"base\":{\"x\":1,\"y\":2},\"list\":[{\"x\":1,\"y\":2},{\"x\":1,\"y\":2}],\"use\":{\"x\":1,\"y\":2}}",
+   "pretty_ascii": "{\n  \"base\": {\n    \"x\": 1,\n    \"y\": 2\n  },\n  \"list\": [\n    {\n      \"x\": 1,\n      \"y\": 2\n    },\n    {\n      \"x\": 1,\n      \"y\": 2\n    }\n  ],\n  \"use\": {\n    \"x\": 1,\n    \"y\": 2\n  }\n}"
+  },
+  {
+   "name": "merge",
+   "input": "base: &b {x: 1, y: 2}\nderived:\n  <<: *b\n  y: 3\n  z: 4",
+   "load_ok": true,
+   "str": "{'base': {'x': 1, 'y': 2}, 'derived': {'x': 1, 'y': 3, 'z': 4}}",
+   "canonical_ok": true,
+   "canonical": "{\"base\":{\"x\":1,\"y\":2},\"derived\":{\"x\":1,\"y\":3,\"z\":4}}",
+   "pretty_ascii": "{\n  \"base\": {\n    \"x\": 1,\n    \"y\": 2\n  },\n  \"derived\": {\n    \"x\": 1,\n    \"y\": 3,\n    \"z\": 4\n  }\n}"
+  },
+  {
+   "name": "merge_list",
+   "input": "a: &a {x: 1}\nb: &b {x: 2, y: 2}\nc:\n  <<: [*a, *b]\n  z: 3",
+   "load_ok": true,
+   "str": "{'a': {'x': 1}, 'b': {'x': 2, 'y': 2}, 'c': {'x': 1, 'y': 2, 'z': 3}}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":{\"x\":1},\"b\":{\"x\":2,\"y\":2},\"c\":{\"x\":1,\"y\":2,\"z\":3}}",
+   "pretty_ascii": "{\n  \"a\": {\n    \"x\": 1\n  },\n  \"b\": {\n    \"x\": 2,\n    \"y\": 2\n  },\n  \"c\": {\n    \"x\": 1,\n    \"y\": 2,\n    \"z\": 3\n  }\n}"
+  },
+  {
+   "name": "merge_quoted",
+   "input": "'<<': {x: 1}",
+   "load_ok": true,
+   "str": "{'<<': {'x': 1}}",
+   "canonical_ok": true,
+   "canonical": "{\"<<\":{\"x\":1}}",
+   "pretty_ascii": "{\n  \"<<\": {\n    \"x\": 1\n  }\n}"
+  },
+  {
+   "name": "merge_bad",
+   "input": "<<: 5",
+   "load_ok": false,
+   "load_error": "ConstructorError"
+  },
+  {
+   "name": "explicit_tags",
+   "input": "a: !!str 12\nb: !!int '42'\nc: !!float 1\nd: !!bool yes\ne: !!null x",
+   "load_ok": true,
+   "str": "{'a': '12', 'b': 42, 'c': 1.0, 'd': True, 'e': None}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":\"12\",\"b\":42,\"c\":1.0,\"d\":true,\"e\":null}",
+   "pretty_ascii": "{\n  \"a\": \"12\",\n  \"b\": 42,\n  \"c\": 1.0,\n  \"d\": true,\n  \"e\": null\n}"
+  },
+  {
+   "name": "binary",
+   "input": "a: !!binary aGVsbG8=",
+   "load_ok": true,
+   "str": "{'a': b'hello'}",
+   "canonical_ok": false,
+   "canonical_error": "Object of type bytes is not JSON serializable"
+  },
+  {
+   "name": "set",
+   "input": "a: !!set {x, y}",
+   "load_ok": true,
+   "str": "{'a': {'y', 'x'}}",
+   "canonical_ok": false,
+   "canonical_error": "Object of type set is not JSON serializable"
+  },
+  {
+   "name": "omap",
+   "input": "a: !!omap [b: 1, a: 2]",
+   "load_ok": true,
+   "str": "{'a': [('b', 1), ('a', 2)]}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":[[\"b\",1],[\"a\",2]]}",
+   "pretty_ascii": "{\n  \"a\": [\n    [\n      \"b\",\n      1\n    ],\n    [\n      \"a\",\n      2\n    ]\n  ]\n}"
+  },
+  {
+   "name": "unknown_tag",
+   "input": "a: !foo x",
+   "load_ok": false,
+   "load_error": "ConstructorError"
+  },
+  {
+   "name": "value_tag",
+   "input": "a: =",
+   "load_ok": false,
+   "load_error": "ConstructorError"
+  },
+  {
+   "name": "value_key",
+   "input": "=: x",
+   "load_ok": true,
+   "str": "{'=': 'x'}",
+   "canonical_ok": true,
+   "canonical": "{\"=\":\"x\"}",
+   "pretty_ascii": "{\n  \"=\": \"x\"\n}"
+  },
+  {
+   "name": "unhashable_key",
+   "input": "? [1]\n: x",
+   "load_ok": false,
+   "load_error": "ConstructorError"
+  },
+  {
+   "name": "two_docs",
+   "input": "--- 1\n--- 2",
+   "load_ok": false,
+   "load_error": "ComposerError"
+  },
+  {
+   "name": "empty",
+   "input": "",
+   "load_ok": true,
+   "str": "None",
+   "canonical_ok": true,
+   "canonical": "null",
+   "pretty_ascii": "null"
+  },
+  {
+   "name": "only_comment",
+   "input": "# nothing\n",
+   "load_ok": true,
+   "str": "None",
+   "canonical_ok": true,
+   "canonical": "null",
+   "pretty_ascii": "null"
+  },
+  {
+   "name": "scalar_doc",
+   "input": "just a string",
+   "load_ok": true,
+   "str": "just a string",
+   "canonical_ok": true,
+   "canonical": "\"just a string\"",
+   "pretty_ascii": "\"just a string\""
+  },
+  {
+   "name": "list_doc",
+   "input": "- a\n- b",
+   "load_ok": true,
+   "str": "['a', 'b']",
+   "canonical_ok": true,
+   "canonical": "[\"a\",\"b\"]",
+   "pretty_ascii": "[\n  \"a\",\n  \"b\"\n]"
+  },
+  {
+   "name": "nonprintable",
+   "input": "a: \"\"",
+   "load_ok": false,
+   "load_error": "ReaderError"
+  },
+  {
+   "name": "bom",
+   "input": "﻿a: 1",
+   "load_ok": true,
+   "str": "{'a': 1}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":1}",
+   "pretty_ascii": "{\n  \"a\": 1\n}"
+  },
+  {
+   "name": "tabs_in_value",
+   "input": "a: \"x\ty\"",
+   "load_ok": true,
+   "str": "{'a': 'x\\ty'}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":\"x\\ty\"}",
+   "pretty_ascii": "{\n  \"a\": \"x\\ty\"\n}"
+  },
+  {
+   "name": "long_string",
+   "input": "a: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "load_ok": true,
+   "str": "{'a': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'}",
+   "canonical_ok": true,
+   "canonical": "{\"a\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}",
+   "pretty_ascii": "{\n  \"a\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n}"
+  },
+  {
+   "name": "manifest_like",
+   "input": "manifest_version: \"1\"\nname: acme_email\ncapability: email\ndefault_confidence: 0.8\ncost_per_lookup: 0.05\nauth:\n  type: bearer\n  env_var: ACME_API_KEY\nrequest:\n  method: POST\n  url: https://api.example.com/v1/find\n  headers:\n    Content-Type: application/json\n  body:\n    first_name: \"{{input.first_name}}\"\n    n: 5\n  timeout: 20\nresponse:\n  mappings:\n    email: \"$.data.email\"\n",
+   "load_ok": true,
+   "str": "{'manifest_version': '1', 'name': 'acme_email', 'capability': 'email', 'default_confidence': 0.8, 'cost_per_lookup': 0.05, 'auth': {'type': 'bearer', 'env_var': 'ACME_API_KEY'}, 'request': {'method': 'POST', 'url': 'https://api.example.com/v1/find', 'headers': {'Content-Type': 'application/json'}, 'body': {'first_name': '{{input.first_name}}', 'n': 5}, 'timeout': 20}, 'response': {'mappings': {'email': '$.data.email'}}}",
+   "canonical_ok": true,
+   "canonical": "{\"auth\":{\"env_var\":\"ACME_API_KEY\",\"type\":\"bearer\"},\"capability\":\"email\",\"cost_per_lookup\":0.05,\"default_confidence\":0.8,\"manifest_version\":\"1\",\"name\":\"acme_email\",\"request\":{\"body\":{\"first_name\":\"{{input.first_name}}\",\"n\":5},\"headers\":{\"Content-Type\":\"application/json\"},\"method\":\"POST\",\"timeout\":20,\"url\":\"https://api.example.com/v1/find\"},\"response\":{\"mappings\":{\"email\":\"$.data.email\"}}}",
+   "pretty_ascii": "{\n  \"auth\": {\n    \"env_var\": \"ACME_API_KEY\",\n    \"type\": \"bearer\"\n  },\n  \"capability\": \"email\",\n  \"cost_per_lookup\": 0.05,\n  \"default_confidence\": 0.8,\n  \"manifest_version\": \"1\",\n  \"name\": \"acme_email\",\n  \"request\": {\n    \"body\": {\n      \"first_name\": \"{{input.first_name}}\",\n      \"n\": 5\n    },\n    \"headers\": {\n      \"Content-Type\": \"application/json\"\n    },\n    \"method\": \"POST\",\n    \"timeout\": 20,\n    \"url\": \"https://api.example.com/v1/find\"\n  },\n  \"response\": {\n    \"mappings\": {\n      \"email\": \"$.data.email\"\n    }\n  }\n}"
+  }
+ ],
+ "json": [
+  {
+   "name": "nan_inf",
+   "input": "{\"a\": NaN, \"b\": Infinity, \"c\": -Infinity}",
+   "ok": true,
+   "canonical": "{\"a\":NaN,\"b\":Infinity,\"c\":-Infinity}",
+   "str": "{'a': nan, 'b': inf, 'c': -inf}"
+  },
+  {
+   "name": "dup",
+   "input": "{\"a\": 1, \"b\": 2, \"a\": 3}",
+   "ok": true,
+   "canonical": "{\"a\":3,\"b\":2}",
+   "str": "{'a': 3, 'b': 2}"
+  },
+  {
+   "name": "numbers",
+   "input": "{\"i\": 10, \"f\": 1.0, \"e\": 1e2, \"E\": 2E-3, \"big\": 123456789012345678901234567890, \"neg\": -0, \"negf\": -0.0}",
+   "ok": true,
+   "canonical": "{\"E\":0.002,\"big\":123456789012345678901234567890,\"e\":100.0,\"f\":1.0,\"i\":10,\"neg\":0,\"negf\":-0.0}",
+   "str": "{'i': 10, 'f': 1.0, 'e': 100.0, 'E': 0.002, 'big': 123456789012345678901234567890, 'neg': 0, 'negf': -0.0}"
+  },
+  {
+   "name": "escapes",
+   "input": "{\"s\": \"a\\u00e9\\ud83d\\ude00\\n\\/\"}",
+   "ok": true,
+   "canonical": "{\"s\":\"aé😀\\n/\"}",
+   "str": "{'s': 'aé😀\\n/'}"
+  },
+  {
+   "name": "nested",
+   "input": "[1, [2, {\"z\": null, \"a\": true}]]",
+   "ok": true,
+   "canonical": "[1,[2,{\"a\":true,\"z\":null}]]",
+   "str": "[1, [2, {'z': None, 'a': True}]]"
+  },
+  {
+   "name": "bad",
+   "input": "{\"a\": 1,}",
+   "ok": false,
+   "error_type": "JSONDecodeError"
+  },
+  {
+   "name": "trailing",
+   "input": "{\"a\": 1} x",
+   "ok": false,
+   "error_type": "JSONDecodeError"
+  }
+ ]
+}
