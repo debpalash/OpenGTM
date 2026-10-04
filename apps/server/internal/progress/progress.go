@@ -153,6 +153,10 @@ func (h *Hub) listen(ctx context.Context) error {
 	}
 }
 
+// Dispatch delivers e to this process's subscribers only, bypassing
+// PostgreSQL. Cross-process events must go through Publish.
+func (h *Hub) Dispatch(e Event) { h.dispatch(e) }
+
 func (h *Hub) dispatch(e Event) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
