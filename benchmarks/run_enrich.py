@@ -69,7 +69,7 @@ WORKLOADS = [
     ("free-5ms", "bench_free", 3000, 5, 12, 8),
     ("free-100ms", "bench_free", 1200, 100, 12, 8),
     ("paid-5ms", "bench_paid", 600, 5, 12, 8),
-    ("free-5ms-wide", "bench_free", 3000, 5, 32, 32),
+    ("free-5ms-wide", "bench_free", 3000, 5, 24, 24),
 ]
 # durable commits (PostgreSQL's default) make every cell wait for several fsyncs, so this disk
 # bounds both engines; fewer rows keep that variant to minutes. `nosync` removes the flush wait so
@@ -250,7 +250,7 @@ def run_engine(engine: str, db: Database, tmp: Path, sandbox: Path, go_bin: Path
         env |= {"PYTHONPATH": str(sandbox), "DATA_DIR": str(sandbox / "data")}
         cwd = sandbox
     x0, t0 = xacts(db.owner_url), cpu_seconds()
-    r = subprocess.run(cmd, cwd=cwd, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    r = subprocess.run(cmd, cwd=cwd, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=1200)
     if r.returncode:
         raise RuntimeError(f"{engine} failed:\n{r.stdout[-4000:]}")
     cpu = cpu_seconds() - t0
