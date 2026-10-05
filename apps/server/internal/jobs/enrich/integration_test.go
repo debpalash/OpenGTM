@@ -229,7 +229,7 @@ func TestUnsupportedRunsFailBeforeAnyWork(t *testing.T) {
 func TestProviderConcurrencyIsBounded(t *testing.T) {
 	e := newEnv(t)
 	ws := e.ws("bound")
-	e.sim.delay = 120 * time.Millisecond
+	e.sim.setDelay(120 * time.Millisecond)
 	cols := []colCfg{enrichCol("email", "it_free", "email")}
 	var sites []string
 	for i := range 24 {
@@ -291,7 +291,7 @@ func TestPreflightLeaseAndPausedWorkbook(t *testing.T) {
 
 	// A workbook paused while a run is in flight stops admission within the poll interval.
 	ws2 := e.ws("pausing")
-	e.sim.delay = 150 * time.Millisecond
+	e.sim.setDelay(150 * time.Millisecond)
 	var sites []string
 	for i := range 60 {
 		sites = append(sites, fmt.Sprintf("p%d.example", i))
@@ -709,7 +709,7 @@ func TestInterruptedAttemptLeavesRunningAndRetryCompletes(t *testing.T) {
 	for i := range 40 {
 		sites = append(sites, fmt.Sprintf("r%d.example", i))
 	}
-	e.sim.delay = 60 * time.Millisecond
+	e.sim.setDelay(60 * time.Millisecond)
 	rows := e.workbook(ws, "wb-"+ws, 0, cols, sites...)
 	job := e.job(ws, e.payload(ws, "wb-"+ws, cols, rows, map[string]any{"concurrency": 2}))
 
@@ -727,7 +727,7 @@ func TestInterruptedAttemptLeavesRunningAndRetryCompletes(t *testing.T) {
 		t.Errorf("an interrupted attempt must not finalize the workbook: %s", st)
 	}
 
-	e.sim.delay = 0
+	e.sim.setDelay(0)
 	if err := e.w.Handle(context.Background(), job); err != nil {
 		t.Fatal(err)
 	}

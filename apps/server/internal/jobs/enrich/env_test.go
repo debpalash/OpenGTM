@@ -35,7 +35,7 @@ type sim struct {
 	mu                    sync.Mutex
 	reqs                  []simReq
 	inflight, maxInflight atomic.Int64
-	delay                 time.Duration
+	delayNS               atomic.Int64
 	release               chan struct{}
 	started               chan struct{} // one send per request that reached block.example
 }
@@ -83,17 +83,20 @@ func (s *sim) serve(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	case "slow.example":
-		time.Sleep(s.delay)
+		time.Sleep(s.delay())
 	case "err500.example":
 		http.Error(w, `{"error":"boom"}`, 500)
 		return
 	}
-	if s.delay > 0 && domain != "slow.example" && domain != "block.example" {
-		time.Sleep(s.delay)
+	if s.delay() > 0 && domain != "slow.example" && domain != "block.example" {
+		time.Sleep(s.delay())
 	}
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, `{"data":{"email":"info@%s","phone":"+15550100"}}`, domain)
 }
+
+func (s *sim) delay() time.Duration     { return time.Duration(s.delayNS.Load()) }
+func (s *sim) setDelay(d time.Duration) { s.delayNS.Store(int64(d)) }
 
 func (s *sim) count(domain string) int {
 	s.mu.Lock()
