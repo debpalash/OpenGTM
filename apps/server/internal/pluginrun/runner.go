@@ -43,6 +43,8 @@ type Runner struct {
 	client    *egress.Client
 	extractor declarative.Extractor
 	host      *wasmhost.Host
+	// secretStore supplies per-workspace secrets (nil: environment only).
+	secretStore SecretStore
 
 	mu      sync.Mutex
 	modules map[string]*wasmhost.Plugin // by manifest path
@@ -66,7 +68,7 @@ func NewRunner(client *egress.Client, extractor declarative.Extractor, log *slog
 // scraper page.
 func (r *Runner) Run(ctx context.Context, p *manifest.Plugin, inputs map[string]any,
 	onProgress func(declarative.Progress)) (Outcome, error) {
-	secrets := envSecrets{p}
+	secrets := r.secretsFor(ctx, p)
 	switch {
 	case p.Runtime == "declarative" && p.Kind == "provider":
 		res, err := declarative.RunProvider(ctx, p, inputs, secrets, r.client)
@@ -186,9 +188,9 @@ func (r *Runner) Close(ctx context.Context) {
 }
 
 // envSecrets resolves a plugin's declared secrets from the process
-// environment, as the Python runtime falls back to today. Per-workspace
-// secrets live in the legacy SQLite control plane until it moves to
-// PostgreSQL (RFC milestone M8); undeclared names never resolve.
+// environment, as the Python runtime falls back to today. It is the fallback
+// layer under per-workspace secrets (see secrets.go); undeclared names never
+// resolve.
 type envSecrets struct{ p *manifest.Plugin }
 
 func (s envSecrets) Secret(_ context.Context, name string) (string, error) {

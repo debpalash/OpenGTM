@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opengtm.dev/schemas/plugin-index-v1.json",
+  "title": "OpenGTM Plugin Index v1",
+  "description": "A static, signable, mirror-friendly index of plugin releases. Serve it as index.json next to the .ogc bundles it lists; sign it by writing index.json.sig, a detached Ed25519 envelope over the exact bytes of index.json (same envelope format as plugin.yaml.sig, with manifest_sha256 holding the SHA-256 of those bytes). The Go client in apps/server/internal/plugin/index is the reference implementation. Clients ignore unknown fields so minor additions stay compatible; a breaking change bumps index_version. Rules a schema cannot express (no duplicate plugin or version, valid semantic versions across the document) are enforced by the client.",
+  "type": "object",
+  "required": ["index_version", "generated_at", "plugins"],
+  "properties": {
+    "index_version": {"const": 1},
+    "name": {"type": "string", "description": "Human-readable index name."},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "plugins": {"type": "array", "items": {"$ref": "#/$defs/plugin"}}
+  },
+  "$defs": {
+    "plugin": {
+      "type": "object",
+      "required": ["name", "versions"],
+      "properties": {
+        "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]{2,63}$"},
+        "versions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/version"}}
+      }
+    },
+    "version": {
+      "type": "object",
+      "required": ["version", "kind", "runtime", "capabilities", "url", "sha256", "publisher", "signature"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+        },
+        "display_name": {"type": "string"},
+        "description": {"type": "string"},
+        "kind": {"enum": ["provider", "scraper", "signal", "destination", "function", "tool"]},
+        "runtime": {"enum": ["declarative", "wasm", "process"]},
+        "author": {"type": "string"},
+        "license": {"type": "string"},
+        "homepage": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "capabilities": {
+          "type": "object",
+          "description": "Copied from the signed manifest; the installer refuses a bundle whose manifest disagrees.",
+          "required": ["network", "secrets", "browser"],
+          "properties": {
+            "network": {"type": "array", "items": {"type": "string"}},
+            "secrets": {"type": "array", "items": {"type": "string"}},
+            "browser": {"type": "boolean"}
+          }
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Bundle location: an https URL, or a path relative to the index (so a directory is a complete mirror). Plain http is accepted for loopback only; a remote index cannot reference local files."
+        },
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$", "description": "SHA-256 of the .ogc file."},
+        "size": {"type": "integer", "minimum": 0, "description": "Size of the .ogc file in bytes; also bounds the download."},
+        "publisher": {"type": "string", "description": "Display name; the client's trust store is authoritative for who a key belongs to."},
+        "signature": {
+          "type": "object",
+          "description": "The bundle's own plugin.yaml.sig envelope, pinned here. Installation requires it to equal the signature inside the bundle, and the bundle's signature to verify against a trusted key.",
+          "required": ["algorithm", "key_id", "manifest_sha256", "signature"],
+          "properties": {
+            "algorithm": {"const": "Ed25519"},
+            "key_id": {"type": "string", "minLength": 1},
+            "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$", "description": "SHA-256 of the canonical manifest."},
+            "signature": {"type": "string", "minLength": 1, "description": "Base64 Ed25519 signature."}
+          }
+        },
+        "certification": {"enum": ["unreviewed", "beta", "certified"], "description": "Informational; the host does not act on it."},
+        "published_at": {"type": "string", "format": "date-time"},
+        "yanked": {"type": "boolean", "description": "Never chosen as latest; installable only by explicit name@version."},
+        "yanked_reason": {"type": "string"}
+      }
+    }
+  }
+}

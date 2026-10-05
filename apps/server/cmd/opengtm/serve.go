@@ -79,7 +79,10 @@ func runServe(ctx context.Context, args []string) error {
 	handler, err := server.New(server.Deps{
 		Config: cfg, Pool: pool, Authz: az, Hub: hub, Logger: log,
 		Version: version, Closing: closing,
-		Routes: []func(*http.ServeMux){pluginrun.NewAPI(pool, catalog, az).Mount},
+		Routes: []func(*http.ServeMux){
+			pluginrun.NewAPI(pool, catalog, az).Mount,
+			pluginrun.NewSecretsAPI(pluginrun.NewPGSecretsFromEnv(pool, log), catalog, az).Mount,
+		},
 	})
 	if err != nil {
 		return err

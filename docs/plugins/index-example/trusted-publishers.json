@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "keys": [
+    {
+      "key_id": "opengtm-example-demo",
+      "public_key": "lZ3I6lI75zOcdwPPNmpdABsMfwNHUbHJsOrT1N3kjN4=",
+      "publisher": "OpenGTM example (demo key, do not trust)"
+    }
+  ]
+}

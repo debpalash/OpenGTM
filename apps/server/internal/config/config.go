@@ -55,6 +55,12 @@ type Plugins struct {
 	TrustStore string
 	// EgressProxy is an optional HTTP proxy for plugin traffic.
 	EgressProxy string
+	// IndexURL locates the plugin index used by `opengtm plugin
+	// search|install|update`: an https URL, a directory or an index.json
+	// path. Empty means the built-in default (a placeholder, see
+	// docs/plugins/README.md). The server does not read it; it is accepted
+	// here so one opengtm.yaml serves both the server and the CLI.
+	IndexURL string
 }
 
 // Worker mirrors the Python queue knobs, including their clamping ranges, so
@@ -79,6 +85,7 @@ type file struct {
 		SignaturePolicy *string  `yaml:"signature_policy"`
 		TrustStore      *string  `yaml:"trust_store"`
 		EgressProxy     *string  `yaml:"egress_proxy"`
+		IndexURL        *string  `yaml:"index_url"`
 	} `yaml:"plugins"`
 	Worker struct {
 		Concurrency           *int `yaml:"concurrency"`
@@ -169,6 +176,7 @@ func LoadFrom(path string, lookup func(string) (string, bool)) (Config, error) {
 		SignaturePolicy: strings.ToLower(str("CONNECTOR_SIGNATURE_POLICY", f.Plugins.SignaturePolicy, "optional")),
 		TrustStore:      str("OPENGTM_PLUGIN_TRUST_STORE", f.Plugins.TrustStore, ""),
 		EgressProxy:     str("OPENGTM_EGRESS_PROXY", f.Plugins.EgressProxy, ""),
+		IndexURL:        str("OPENGTM_PLUGIN_INDEX", f.Plugins.IndexURL, ""),
 	}
 	if p := cfg.Plugins.SignaturePolicy; p != "optional" && p != "required" {
 		errs = append(errs, fmt.Errorf("CONNECTOR_SIGNATURE_POLICY=%q must be optional or required", p))
@@ -205,6 +213,51 @@ func LoadFrom(path string, lookup func(string) (string, bool)) (Config, error) {
 		return Config{}, fmt.Errorf("config: %w", errors.Join(errs...))
 	}
 	return cfg, nil
+}
+
+// LoadPlugins reads only the plugins section (path or $OPENGTM_CONFIG, then
+// the environment) without requiring a database URL, for CLI commands that
+// manage plugins offline. Unlike Load it does not validate directories.
+func LoadPlugins(path string, lookup func(string) (string, bool)) (Plugins, error) {
+	if path == "" {
+		path, _ = lookup(ConfigEnv)
+	}
+	var f file
+	if path != "" {
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			return Plugins{}, fmt.Errorf("config: read %s: %w", path, err)
+		}
+		dec := yaml.NewDecoder(bytes.NewReader(raw))
+		dec.KnownFields(true)
+		if err := dec.Decode(&f); err != nil && !errors.Is(err, io.EOF) {
+			return Plugins{}, fmt.Errorf("config: parse %s: %w", path, err)
+		}
+	}
+	str := func(env string, fromFile *string) string {
+		if v, ok := lookup(env); ok && strings.TrimSpace(v) != "" {
+			return strings.TrimSpace(v)
+		}
+		if fromFile != nil {
+			return strings.TrimSpace(*fromFile)
+		}
+		return ""
+	}
+	dirs := f.Plugins.Dirs
+	if v, ok := lookup("OPENGTM_PLUGIN_DIRS"); ok && strings.TrimSpace(v) != "" {
+		dirs = nil
+		for _, p := range filepath.SplitList(v) {
+			if p = strings.TrimSpace(p); p != "" {
+				dirs = append(dirs, p)
+			}
+		}
+	}
+	return Plugins{
+		Dirs:            dirs,
+		SignaturePolicy: strings.ToLower(str("CONNECTOR_SIGNATURE_POLICY", f.Plugins.SignaturePolicy)),
+		TrustStore:      str("OPENGTM_PLUGIN_TRUST_STORE", f.Plugins.TrustStore),
+		IndexURL:        str("OPENGTM_PLUGIN_INDEX", f.Plugins.IndexURL),
+	}, nil
 }
 
 // NormalizeDatabaseURL converts the SQLAlchemy URL the Python stack uses

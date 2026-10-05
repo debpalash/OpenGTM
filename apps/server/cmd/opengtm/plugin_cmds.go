@@ -453,22 +453,6 @@ func pluginVerify(_ context.Context, args []string) error {
 	return nil
 }
 
-func pluginInstall(_ context.Context, args []string) error {
-	fs := newFlags("install")
-	dest := fs.String("destination", "", "install root (required)")
-	trust := fs.String("trust-store", defaultTrustStore(), "trusted publishers JSON")
-	replace := fs.Bool("replace", false, "replace an installed plugin with the same name")
-	pos, err := parseArgs(fs, args)
-	if err != nil || len(pos) != 1 || *dest == "" {
-		return errUsage
-	}
-	res, err := bundle.Install(pos[0], *dest, *trust, *replace)
-	if err != nil {
-		return err
-	}
-	return printJSON(res)
-}
-
 func pluginKeygen(_ context.Context, args []string) error {
 	fs := newFlags("keygen")
 	keyID := fs.String("key-id", "", "key id, e.g. your-handle-2026")
