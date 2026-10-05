@@ -616,7 +616,7 @@ func (s *stopProbe) should(ctx context.Context) bool {
 // beginRun marks the workbook running (unless paused), under the lease.
 func (r *run) beginRun(ctx context.Context) error {
 	return db.WithTenant(ctx, r.w.pool, r.ws, func(tx pgx.Tx) error {
-		if err := queue.HoldLease(ctx, tx, r.job); err != nil {
+		if err := holdLease(ctx, tx, r.job); err != nil {
 			return err
 		}
 		if _, err := tx.Exec(ctx, `UPDATE workbooks SET status = 'running', updated_at = now()
@@ -630,7 +630,7 @@ func (r *run) beginRun(ctx context.Context) error {
 // setStatus is the empty-run completion: fenced, and not for a paused workbook.
 func (r *run) setStatus(ctx context.Context, status string, _ bool) error {
 	return db.WithTenant(ctx, r.w.pool, r.ws, func(tx pgx.Tx) error {
-		if err := queue.HoldLease(ctx, tx, r.job); err != nil {
+		if err := holdLease(ctx, tx, r.job); err != nil {
 			return err
 		}
 		_, err := tx.Exec(ctx, `UPDATE workbooks SET status = $3, updated_at = now() WHERE id = $1 AND workspace_id = $2`,
@@ -642,7 +642,7 @@ func (r *run) setStatus(ctx context.Context, status string, _ bool) error {
 // reportProgress mirrors the per-batch workbooks.completed_rows update.
 func (r *run) reportProgress(ctx context.Context, total, done, completed, failed int) error {
 	return db.WithTenant(ctx, r.w.pool, r.ws, func(tx pgx.Tx) error {
-		if err := queue.HoldLease(ctx, tx, r.job); err != nil {
+		if err := holdLease(ctx, tx, r.job); err != nil {
 			return err
 		}
 		if _, err := tx.Exec(ctx, `UPDATE workbooks SET total_rows = $3, completed_rows = $4, updated_at = now()
@@ -663,7 +663,7 @@ func (r *run) finalize(ctx context.Context, status string, doneRows, completed, 
 	defer cancel()
 	owned := true
 	err := db.WithTenant(bctx, r.w.pool, r.ws, func(tx pgx.Tx) error {
-		if err := queue.HoldLease(bctx, tx, r.job); err != nil {
+		if err := holdLease(bctx, tx, r.job); err != nil {
 			if errors.Is(err, queue.ErrLeaseLost) {
 				owned = false
 				return nil

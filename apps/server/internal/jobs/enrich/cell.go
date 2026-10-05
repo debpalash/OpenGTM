@@ -53,7 +53,7 @@ func truncate(s string, n int) string { return template.Truncate(s, n) }
 // checkOwner is check_workbook_run_owner: a preflight, with the lock released
 // before any external call.
 func (r *run) checkOwner(ctx context.Context) error {
-	return db.WithoutTenant(ctx, r.w.pool, func(tx pgx.Tx) error { return queue.HoldLease(ctx, tx, r.job) })
+	return db.WithoutTenant(ctx, r.w.pool, func(tx pgx.Tx) error { return holdLease(ctx, tx, r.job) })
 }
 
 // cooldowns lists the providers benched for field (planner.in_cooldown). The
@@ -107,7 +107,7 @@ func (r *run) runCell(ctx context.Context, rowID int64, lead *pycompat.Map, col 
 
 func (r *run) persistCellFailure(ctx context.Context, rowID int64, col *column) error {
 	return db.WithTenant(ctx, r.w.pool, r.ws, func(tx pgx.Tx) error {
-		if err := queue.HoldLease(ctx, tx, r.job); err != nil {
+		if err := holdLease(ctx, tx, r.job); err != nil {
 			return err
 		}
 		return writeCell(ctx, tx, r.ws, r.wbID, rowID, rowID, col.id, cellWrite{status: "error", err: "cell_execution_failed"})
@@ -127,7 +127,7 @@ func (r *run) runCellInner(ctx context.Context, rowID int64, lead *pycompat.Map,
 	var budgetRemaining *float64
 	var prior []string
 	err = db.WithTenant(ctx, r.w.pool, ws, func(tx pgx.Tx) error {
-		if err := queue.HoldLease(ctx, tx, r.job); err != nil {
+		if err := holdLease(ctx, tx, r.job); err != nil {
 			return err
 		}
 		var capUSD, spentUSD *float64
@@ -545,7 +545,7 @@ type cellWrite struct {
 func (r *run) commitCell(ctx context.Context, cr *cellRun, rowID, leadID int64, colID string, w cellWrite) error {
 	var settleFailed bool
 	err := db.WithTenant(ctx, r.w.pool, r.ws, func(tx pgx.Tx) error {
-		if err := queue.HoldLease(ctx, tx, r.job); err != nil {
+		if err := holdLease(ctx, tx, r.job); err != nil {
 			return err
 		}
 		if cr.pending != nil {
@@ -591,7 +591,7 @@ var errSettlement = errors.New("settlement not confirmed")
 
 func (r *run) commitFailure(ctx context.Context, rowID, leadID int64, colID, reason string) error {
 	return db.WithTenant(ctx, r.w.pool, r.ws, func(tx pgx.Tx) error {
-		if err := queue.HoldLease(ctx, tx, r.job); err != nil {
+		if err := holdLease(ctx, tx, r.job); err != nil {
 			return err
 		}
 		return writeCell(ctx, tx, r.ws, r.wbID, rowID, leadID, colID, cellWrite{status: "error", err: reason})

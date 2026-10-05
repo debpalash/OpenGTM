@@ -194,7 +194,7 @@ func (l *ledger) reserve(ctx context.Context, r reservation) (reserveOutcome, er
 func (l *ledger) dispatch(ctx context.Context, ws, wb, attemptID, hash string) (bool, error) {
 	var changed bool
 	err := db.WithTenant(ctx, l.pool, ws, func(tx pgx.Tx) error {
-		if err := queue.HoldLease(ctx, tx, l.job); err != nil {
+		if err := holdLease(ctx, tx, l.job); err != nil {
 			if errors.Is(err, queue.ErrLeaseLost) {
 				return nil
 			}
