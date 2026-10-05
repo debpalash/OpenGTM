@@ -258,6 +258,7 @@ class PgMetaConnection:
         self._workspace_id = workspace_id
         self._control_plane = control_plane
         self._bound = False
+        self._closed = False
 
     def _bind(self) -> None:
         if self._bound:
@@ -296,6 +297,9 @@ class PgMetaConnection:
         self._bound = False
 
     def close(self) -> None:
+        if self._closed:
+            return
+        self._closed = True
         try:
             self._conn.rollback()
         finally:
