@@ -83,6 +83,17 @@ if not _IS_SQLITE and settings.PG_LEAD_STORE:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ── Startup ──
+    # Sync dependencies and endpoints run in AnyIO's thread pool (40 threads by
+    # default). A thread that waits for a pooled database connection holds its
+    # slot until a connection frees up, and freeing one needs a thread (to run
+    # the next step or the get_db teardown). With more requests in flight than
+    # threads, the waiters can occupy every slot and the holders can never run,
+    # which stalls the worker until DB_POOL_TIMEOUT. Keep more threads than the
+    # pool has connections plus a margin.
+    import anyio.to_thread
+
+    _threads = anyio.to_thread.current_default_thread_limiter()
+    _threads.total_tokens = max(_threads.total_tokens, settings.THREADPOOL_SIZE)
     # In a real deployment get_settings() has already raised on the insecure
     # default key (fail-closed). Reaching here with it means we're in a tolerated
     # dev/test/local environment — warn loudly so it's never shipped silently.

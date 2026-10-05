@@ -71,6 +71,10 @@ class Settings(BaseSettings):
     # library default of 30 s: shedding load quickly beats queueing requests
     # behind a stalled pool until every client times out.
     DB_POOL_TIMEOUT: int = 10
+    # Threads available to sync code (AnyIO's default is 40). Must exceed the
+    # DB pool (pool_size 10 + max_overflow 20) by enough that threads waiting
+    # for a connection can never starve the threads that would release one.
+    THREADPOOL_SIZE: int = 100
 
     # Paths
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
