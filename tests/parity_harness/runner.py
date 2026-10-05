@@ -18,7 +18,7 @@ import os
 import sys
 import time
 from datetime import datetime
-from typing import Callable, Iterable
+from typing import Callable
 
 
 def base_parser() -> argparse.ArgumentParser:

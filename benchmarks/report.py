@@ -89,6 +89,10 @@ def render(result: dict) -> str:
                     w(f"| {conc} | {tp:.2f}x | {lat:.2f}x |")
                 w("")
 
+    r_sum = result.get("retention", {}).get("summary", [])
+    if r_sum:
+        _render_retention(w, r_sum, cfg)
+
     h = result["http"]["summary"]
     if h:
         w("## HTTP front door\n")
@@ -118,8 +122,53 @@ def render(result: dict) -> str:
     return "\n".join(out) + "\n"
 
 
-def _find(rows, **kw):
-    for r in rows:
+RETENTION_LABEL = {
+    "go-handler": "Go handler (`Worker.Handle`)",
+    "python-handler": "Python handler (`handle_retention_enforce`, in-process)",
+    "go-job": "Go, whole job (claim, handler, finalize)",
+    "python-job": "Python, whole job (claim, child process, handler, finalize)",
+}
+RETENTION_ORDER = ["python-handler", "go-handler", "python-job", "go-job"]
+
+
+def _render_retention(w, rows, cfg) -> None:
+    w("## retention_enforce: Go and Python\n")
+    w("One workspace per case, seeded with `rows` expired and "
+      f"{rows[0]['kept']} recent rows in **each** of the 8 tables the job purges "
+      "(`benchmarks/retention_seed.sql`), default 365/180-day windows, so a run deletes `8 x rows` rows. "
+      "Wall time is milliseconds from just before the handler is called (handler rows) or from the job insert "
+      "(whole-job rows) until the run is `completed` and verified; seeding is excluded. Same PostgreSQL, same "
+      "NOSUPERUSER NOBYPASSRLS role, engines interleaved per repetition, every case starts from empty tables. "
+      "The Python whole-job rows include the child process the production queue spawns for every job (interpreter "
+      "start and the full handler-registry import); the Go whole-job rows use the real queue with a 5 ms idle "
+      "poll. Cells are medians; the range is min-max across repetitions.\n")
+    for variant in ("durable", "nosync"):
+        part = [r for r in rows if r["variant"] == variant]
+        if not part:
+            continue
+        w(f"### {variant}\n")
+        w(VARIANT_NOTES[variant] + "\n")
+        w("| engine | expired rows per table | rows deleted | reps | wall ms (median) | wall ms range | rows deleted/s |")
+        w("|---|---:|---:|---:|---:|---|---:|")
+        part.sort(key=lambda r: (r["rows"], RETENTION_ORDER.index(r["mode"])))
+        for r in part:
+            w(f"| {RETENTION_LABEL[r['mode']]} | {r['rows']:,} | {r['deleted']:,} | {r['reps']} | {_cell(r['wall_ms'])} | "
+              f"{_range(r['wall_ms'])} | {_f(r['rows_per_sec']['median'])} |")
+        w("")
+        w("Python / Go wall-time ratio of the medians (>1 means Go is faster):\n")
+        w("| expired rows per table | handler | whole job |")
+        w("|---:|---:|---:|")
+        for n in sorted({r["rows"] for r in part}):
+            cells = []
+            for py, go in (("python-handler", "go-handler"), ("python-job", "go-job")):
+                a, b = _find(part, mode=py, rows=n), _find(part, mode=go, rows=n)
+                cells.append(f"{a['wall_ms']['median'] / b['wall_ms']['median']:.2f}x" if a and b else "-")
+            w(f"| {n:,} | {cells[0]} | {cells[1]} |")
+        w("")
+
+
+def _find(items, **kw):
+    for r in items:
         if all(r.get(k) == v for k, v in kw.items()):
             return r
     return None
