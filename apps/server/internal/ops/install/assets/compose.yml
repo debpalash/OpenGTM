@@ -1,0 +1,235 @@
+# OpenGTM self-hosting stack, written by `opengtm init`.
+#
+# One file serves three deployment profiles. COMPOSE_PROFILES in .env selects
+# which optional services start:
+#
+#   lite      (no profile)   postgres, migrate, api, seed, server
+#   standard  profile standard  + redis, worker, scheduler
+#   full      profile full      + searxng, reacher, otel-collector
+#
+# `opengtm upgrade` edits only the image variables in .env and runs the
+# `migrate` service from the new image before anything else starts. Do not put
+# secrets in this file; they live in .env (mode 0600).
+
+name: ${COMPOSE_PROJECT_NAME:-opengtm}
+
+x-python-app: &python-app
+  image: ${OPENGTM_APP_IMAGE:?run `opengtm init` to create .env}
+  env_file: .env
+  restart: unless-stopped
+
+x-app-data: &app-data
+  user: "${APP_UID:-1000}:${APP_GID:-1000}"
+  volumes:
+    - ${OPENGTM_DATA_DIR:-./data}:/app/data
+
+services:
+  # ── PostgreSQL: the system of record ────────────────────────────────────
+  # Not published on the host. `opengtm backup` and `opengtm restore` run
+  # pg_dump and pg_restore inside this container over the compose network.
+  postgres:
+    image: ${OPENGTM_POSTGRES_IMAGE:-postgres:16-alpine}
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-yupcha}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run `opengtm init` to create .env}
+      POSTGRES_DB: ${POSTGRES_DB:-yupcha}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  # ── Schema migration: the single owner, runs to completion first ─────────
+  # `opengtm migrate` and `opengtm upgrade` invoke this same service, so the
+  # migrations always come from the image being deployed.
+  migrate:
+    <<: *python-app
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      PYTHONPATH: /app
+      YUPCHA_DB_INIT: alembic
+      YUPCHA_APP_DB_ROLE: ${YUPCHA_APP_DB_ROLE:-yupcha_app}
+      YUPCHA_PROVISION_RUNTIME_ROLE: "1"
+      YUPCHA_RUNTIME_DB_USER: ${YUPCHA_RUNTIME_DB_USER:-yupcha_runtime}
+      YUPCHA_RUNTIME_DB_PASSWORD: ${YUPCHA_RUNTIME_DB_PASSWORD}
+    command: ["python", "-m", "apps.api.scripts.migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Python API (legacy surface; the Go server fronts it) ────────────────
+  # lite runs jobs inside this process (RUN_INLINE_WORKER=1). standard and
+  # full set RUN_INLINE_WORKER=0 in .env and use the worker service instead.
+  api:
+    <<: [*python-app, *app-data]
+    environment:
+      DATABASE_URL: ${APP_DATABASE_URL}
+      PYTHONPATH: /app
+      YUPCHA_DB_INIT: skip
+      RUN_INLINE_WORKER: ${RUN_INLINE_WORKER:-1}
+      REDIS_URL: ${REDIS_URL:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+        required: false
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 6
+      start_period: 40s
+
+  # ── First-run demo: admin user and a zero-key workbook (idempotent) ─────
+  seed:
+    <<: [*python-app, *app-data]
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      PYTHONPATH: /app
+      YUPCHA_DB_INIT: skip
+      REDIS_URL: ${REDIS_URL:-}
+    command: ["python", "-m", "apps.api.scripts.seed_demo"]
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # ── Go server: web UI, /api/v2, live events; proxies the Python API ─────
+  server:
+    image: ${OPENGTM_SERVER_IMAGE:?run `opengtm init` to create .env}
+    env_file: .env
+    environment:
+      DATABASE_URL: ${APP_DATABASE_URL}
+      OPENGTM_CONFIG: /etc/opengtm/opengtm.yaml
+    command: ["serve", "--worker"]
+    volumes:
+      - ./opengtm.yaml:/etc/opengtm/opengtm.yaml:ro
+    ports:
+      - "${OPENGTM_BIND:-127.0.0.1}:${OPENGTM_PORT:-3000}:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/opengtm", "health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    restart: unless-stopped
+
+  # ── standard: shared state, scalable job workers, scheduler ─────────────
+  redis:
+    image: ${OPENGTM_REDIS_IMAGE:-redis:7-alpine}
+    profiles: [standard, full]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+
+  # Claims durable jobs with FOR UPDATE SKIP LOCKED; safe to scale:
+  #   OPENGTM_WORKERS=4 docker compose up -d
+  worker:
+    <<: [*python-app, *app-data]
+    profiles: [standard, full]
+    environment:
+      DATABASE_URL: ${APP_DATABASE_URL}
+      PYTHONPATH: /app
+      YUPCHA_DB_INIT: skip
+      REDIS_URL: ${REDIS_URL:-}
+    command: ["python", "-m", "apps.api.worker"]
+    deploy:
+      replicas: ${OPENGTM_WORKERS:-1}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      # The worker exposes no port; liveness is that PID 1 still exists.
+      test: ["CMD", "python", "-c", "import os; os.kill(1, 0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Recurring-job reconciliation. Run exactly one until scheduler leadership
+  # exists (M8); do not scale this service.
+  scheduler:
+    <<: [*python-app, *app-data]
+    profiles: [standard, full]
+    environment:
+      DATABASE_URL: ${APP_DATABASE_URL}
+      PYTHONPATH: /app
+      YUPCHA_DB_INIT: skip
+      SCHEDULER_RECONCILE_SECONDS: ${SCHEDULER_RECONCILE_SECONDS:-60}
+    command: ["python", "-m", "apps.api.scheduler"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; os.kill(1, 0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ── full: self-hosted search, email verification, telemetry sink ─────────
+  searxng:
+    image: ${OPENGTM_SEARXNG_IMAGE:-searxng/searxng:2026.10.4-d48c4b555}
+    profiles: [full]
+    environment:
+      SEARXNG_SECRET: ${SEARXNG_SECRET:-}
+    volumes:
+      - ./searxng-settings.yml:/etc/searxng/settings.yml:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    restart: unless-stopped
+
+  # Real SMTP probing needs outbound port 25, which most clouds block; without
+  # it results are mostly "unknown" and the cascade falls back. The upstream
+  # image is amd64 only, so arm64 hosts run it under emulation.
+  reacher:
+    image: ${OPENGTM_REACHER_IMAGE:-reacherhq/backend:v0.10.0}
+    platform: linux/amd64
+    profiles: [full]
+    environment:
+      RCH__BACKEND_NAME: opengtm-reacher
+      RCH__HTTP_HOST: 0.0.0.0
+      RCH__SMTP__FROM_EMAIL: ${REACHER_FROM_EMAIL:-verify@example.com}
+      RCH__SMTP__HELLO_NAME: ${REACHER_HELLO_NAME:-localhost}
+      RCH__HEADER_SECRET: ${REACHER_API_KEY:-}
+    restart: unless-stopped
+
+  # The collector image is distroless (no shell), so it has no in-container
+  # healthcheck; the restart policy is its only supervision.
+  otel-collector:
+    image: ${OPENGTM_OTEL_IMAGE:-otel/opentelemetry-collector:0.162.0}
+    profiles: [full]
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otel-collector.yaml:/etc/otelcol/config.yaml:ro
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:

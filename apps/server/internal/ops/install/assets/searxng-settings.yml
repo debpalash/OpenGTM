@@ -1,0 +1,14 @@
+# SearXNG settings for the OpenGTM `full` profile. The secret key comes from
+# the SEARXNG_SECRET environment variable (generated into .env by init).
+use_default_settings: true
+
+search:
+  # The OpenGTM search tier requests JSON.
+  formats:
+    - html
+    - json
+
+server:
+  limiter: false
+  public_instance: false
+  image_proxy: false
