@@ -2181,7 +2181,7 @@ async def handle_collect(job_id: int, payload: dict):
     job stuck at ``status='running', leads_found=0`` with no leads persisted.
     """
     from apps.api.core.tenancy import workspace_scope
-    from apps.api.services.workspace.manager import workspace_leads_db_path
+    from apps.api.services.leadgen.ledger import open_job_ledger
 
     leadgen_job_id = payload["job_id"]
     query = payload["query"]
@@ -2196,7 +2196,7 @@ async def handle_collect(job_id: int, payload: dict):
         "intent": payload.get("intent", "market_search"),
         "workspace_id": workspace_id,
     }
-    job_db = LeadDB(workspace_leads_db_path(slug))
+    job_db = open_job_ledger(workspace_id, slug)
     runner = JobRunner(db=job_db)
     # Enter the tenant scope first (mirrors handle_source_workbook) so any
     # RLS-scoped store opened inside the run is bound to the right workspace.
@@ -2230,7 +2230,7 @@ def reconcile_collect_job_failure(
     will_retry: bool,
 ) -> None:
     """Mirror parent-worker timeout/crash decisions into the tenant job ledger."""
-    from apps.api.services.workspace.manager import workspace_leads_db_path
+    from apps.api.services.leadgen.ledger import open_job_ledger
 
     leadgen_job_id = payload.get("job_id")
     slug = payload.get("slug")
@@ -2238,7 +2238,7 @@ def reconcile_collect_job_failure(
     if not leadgen_job_id or not slug or not workspace_id:
         raise ValueError("collect failure payload requires job_id, workspace_id, and slug")
 
-    db = LeadDB(workspace_leads_db_path(slug))
+    db = open_job_ledger(workspace_id, slug)
     try:
         row = db.conn.execute(
             "SELECT status FROM jobs WHERE id = ?", (leadgen_job_id,)

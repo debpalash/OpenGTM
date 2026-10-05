@@ -97,6 +97,8 @@ _IGNORED_PG_TABLES |= {
     "workspace_members", "workspace_member_permissions",
     "workspace_oidc_identities", "workspace_scim_tokens", "workspace_scim_users",
     "workspace_scim_groups", "workspace_scim_group_members", "user_active_workspace",
+    # collection job ledger (b5d7f9a1c3e6)
+    "collection_jobs", "collection_job_stages",
 }
 
 

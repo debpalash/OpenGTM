@@ -83,6 +83,12 @@ class Settings(BaseSettings):
     # "postgres" = the shared control-plane tables. Move data first with
     # `python -m apps.api.scripts.multihost_backfill`.
     WORKSPACE_META_STORE: str = "sqlite"
+    # Where the lead-collection job ledger (jobs, job_stages) lives: "sqlite" =
+    # the per-workspace leads.db files (single host, default), "postgres" = the
+    # collection_* tables (migration b5d7f9a1c3e6). Requires the PostgreSQL lead
+    # store (PG_LEAD_STORE) so leads and their ledger live together. Move data
+    # first with `python -m apps.api.scripts.multihost_backfill --stores ledger`.
+    COLLECTION_LEDGER_STORE: str = "sqlite"
 
     # Paths
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

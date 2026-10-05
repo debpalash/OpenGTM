@@ -67,6 +67,7 @@ PRIMARY_KEYS: dict[str, tuple[str, ...]] = {
 _engine_override: Optional[Engine] = None
 _ready_lock = threading.Lock()
 _ready: "weakref.WeakSet[Engine]" = weakref.WeakSet()  # engines already role-checked and seeded
+_checked: "weakref.WeakSet[Engine]" = weakref.WeakSet()  # engines already role-checked only
 
 
 # ── selection ───────────────────────────────────────────────────────────────
@@ -104,12 +105,14 @@ def _engine() -> Engine:
     return engine
 
 
-def _prepare(engine: Engine) -> None:
-    """Once per engine: refuse a role that bypasses RLS, ensure ``main`` exists."""
-    if engine in _ready:
+def _prepare(engine: Engine, seed_default: bool = True) -> None:
+    """Once per engine: refuse a role that bypasses RLS and (unless
+    ``seed_default`` is False, as for the collection ledger) ensure ``main``
+    exists in the directory."""
+    if engine in _ready or (not seed_default and engine in _checked):
         return
     with _ready_lock:
-        if engine in _ready:
+        if engine in _ready or (not seed_default and engine in _checked):
             return
         from apps.api.core.config import settings
 
@@ -128,15 +131,18 @@ def _prepare(engine: Engine) -> None:
                 if settings.PG_RLS_REQUIRE_SAFE_ROLE:
                     raise RuntimeError(msg)
                 logger.critical(msg)
-            conn.execute(text("SELECT set_config('app.control_plane', 'on', true)"))
-            now = time.time()
-            conn.execute(
-                text("INSERT INTO workspaces (id, name, slug, description, icon, created_at, updated_at) "
-                     "VALUES (:id, 'Default Workspace', 'main', 'Your main workspace', :icon, :now, :now) "
-                     "ON CONFLICT (slug) DO NOTHING"),
-                {"id": str(uuid.uuid4()), "icon": "\U0001F3E0", "now": now},
-            )
-        _ready.add(engine)
+            if seed_default:
+                conn.execute(text("SELECT set_config('app.control_plane', 'on', true)"))
+                now = time.time()
+                conn.execute(
+                    text("INSERT INTO workspaces (id, name, slug, description, icon, created_at, updated_at) "
+                         "VALUES (:id, 'Default Workspace', 'main', 'Your main workspace', :icon, :now, :now) "
+                         "ON CONFLICT (slug) DO NOTHING"),
+                    {"id": str(uuid.uuid4()), "icon": "\U0001F3E0", "now": now},
+                )
+        _checked.add(engine)
+        if seed_default:
+            _ready.add(engine)
 
 
 # ── SQL translation ─────────────────────────────────────────────────────────
@@ -251,14 +257,21 @@ class PgMetaConnection:
         *,
         workspace_id: Optional[str] = None,
         control_plane: bool = True,
+        seed_default: bool = True,
+        end_idle_reads: bool = False,
     ):
         self._engine = engine or _engine()
-        _prepare(self._engine)
+        _prepare(self._engine, seed_default)
         self._conn = self._engine.connect()
         self._workspace_id = workspace_id
         self._control_plane = control_plane
         self._bound = False
         self._closed = False
+        # A long-lived connection (the collection ledger lives for a whole run)
+        # must not sit "idle in transaction" after a read, so reads that are not
+        # part of a write transaction end their own transaction.
+        self._end_idle_reads = end_idle_reads
+        self._dirty = False
 
     def _bind(self) -> None:
         if self._bound:
@@ -280,7 +293,15 @@ class PgMetaConnection:
             rows = [MetaRow(cols, r) for r in result.fetchall()]
         else:
             rows = []
-        return MetaCursor(rows, result.rowcount if result.rowcount is not None else -1)
+        cursor = MetaCursor(rows, result.rowcount if result.rowcount is not None else -1)
+        if self._end_idle_reads:
+            head = sql.lstrip().upper()
+            if head.startswith("SELECT") and "FOR UPDATE" not in head:
+                if not self._dirty:
+                    self.commit()
+            else:
+                self._dirty = True
+        return cursor
 
     def executemany(self, sql: str, seq: Iterable[Iterable[Any]]) -> MetaCursor:
         total = 0
@@ -291,10 +312,12 @@ class PgMetaConnection:
     def commit(self) -> None:
         self._conn.commit()
         self._bound = False
+        self._dirty = False
 
     def rollback(self) -> None:
         self._conn.rollback()
         self._bound = False
+        self._dirty = False
 
     def close(self) -> None:
         if self._closed:
