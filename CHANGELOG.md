@@ -7,6 +7,19 @@ All notable changes to OpenGTM are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `run_workbook_connector`, a job type for workbook runs made of explicit
+  waterfalls of manifest v1 connectors over rows that are not linked to a
+  lead, with a Go executor (`opengtm worker`). It is Python-owned until an
+  operator runs `opengtm routes set run_workbook_connector go`; rolling back is
+  `... python`. See `apps/server/README.md`.
+
+### Fixed
+- Paid manifest (declarative) connector calls in queued workbook runs always
+  ended as an uncertain spend attempt (`accounting_uncertain`) after the vendor
+  had been called, because the provider runner did not name the provider in the
+  result that spend accounting checks. Such calls now settle.
+
 ### Changed
 - Replaced the docs homepage's synthetic product examples with a restrained,
   real-workspace presentation and direct laptop/server install paths.
