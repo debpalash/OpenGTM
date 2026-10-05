@@ -17,6 +17,7 @@ Existing [v1 connectors](../connectors/README.md) keep working unchanged.
 - [A WebAssembly plugin](#a-webassembly-plugin)
 - [Fixtures](#fixtures)
 - [Signing, packaging and installing](#signing-packaging-and-installing)
+- [The plugin index and `opengtm plugin install`](#the-plugin-index-and-opengtm-plugin-install)
 - [Running plugins on a server](#running-plugins-on-a-server)
 - [Capabilities and responsible scraping](#capabilities-and-responsible-scraping)
 - [Manifest reference](#manifest-reference)
@@ -224,6 +225,163 @@ opengtm plugin install my_plugin-0.1.0.ogc --destination /var/lib/opengtm/plugin
   present invalid or untrusted signature is rejected) and `required`
   (production; set `CONNECTOR_SIGNATURE_POLICY=required`). Unknown policy
   values fail closed to `required`.
+
+## The plugin index and `opengtm plugin install`
+
+A plugin index is one static JSON file, `index.json`, that lists plugins,
+their versions, where each `.ogc` bundle lives, its SHA-256, its signature and
+its publisher. There is no server: GitHub Pages, S3, nginx or a directory on a
+USB stick all work, and copying the directory is a complete mirror.
+
+```bash
+export OPENGTM_PLUGIN_INDEX=https://example.github.io/my-plugins/index.json
+opengtm plugin search firmographics             # name, kind, publisher, certification
+opengtm plugin info acme_firmographics          # versions, capabilities, bundle, digest
+opengtm plugin install acme_firmographics       # newest stable release
+opengtm plugin install acme_firmographics@0.1.0
+opengtm plugin list                             # installed plugins + signature status
+opengtm plugin update --dry-run                 # what would change
+opengtm plugin update                           # upgrade everything installed
+opengtm plugin remove acme_firmographics
+```
+
+Restart `opengtm serve`/`worker` afterwards: plugins are loaded at startup.
+Every command takes `--json`. Try it without any network, with the example
+index committed in this repository (it is signed with a throwaway demo key
+that is **not** in any real trust store; the trust store next to it exists only
+for this walkthrough):
+
+```bash
+ex=docs/plugins/index-example
+opengtm plugin search --index $ex --trust-store $ex/trusted-publishers.json
+opengtm plugin install acme_firmographics --index $ex --trust-store $ex/trusted-publishers.json \
+  --signature-policy required --destination /tmp/plugins
+```
+
+### Where things are configured
+
+| What | Order of precedence |
+| --- | --- |
+| Index | `--index`, `OPENGTM_PLUGIN_INDEX`, `plugins.index_url` in `opengtm.yaml` (`OPENGTM_CONFIG`), then the built-in default `https://debpalash.github.io/opengtm-plugins/index.json`. **The default is a placeholder: no community index is published there yet.** Set your own; a failing default says so. An index is an `https://` URL (plain `http://` only for loopback), a directory, or a path to an `index.json`. |
+| Install root | `--destination`, the first entry of `OPENGTM_PLUGIN_DIRS`, then `~/.opengtm/plugins`. Plugins land in `<root>/<name>/`, so a root listed in `OPENGTM_PLUGIN_DIRS` is picked up by the server. |
+| Trust store | `--trust-store`, `OPENGTM_TRUST_STORE`, `OPENGTM_PLUGIN_TRUST_STORE`, `plugins.trust_store`, then `docs/connectors/trusted-publishers.json`. |
+| Policy | `--signature-policy`, then `CONNECTOR_SIGNATURE_POLICY` / `plugins.signature_policy`; default `optional`, unknown values mean `required`. |
+
+`opengtm plugin install ./thing.ogc` (an argument ending in `.ogc` or
+containing a path separator) installs a local bundle offline, exactly as
+before: no index, same signature verification. A directory of bundles plus the
+`index.json` that `index build` writes is the offline index: point `--index`
+at the directory.
+
+### What `install` verifies
+
+Order matters; nothing in the plugin's install directory is touched until every
+step passes. The new version is written to a stage directory and renamed into
+place under an exclusive per-plugin lock; the previous version is moved aside
+first and restored if the rename fails.
+
+1. The index document: if `index.json.sig` exists it must verify against a
+   trusted key (whatever the policy); under `required` it must exist.
+2. The release exists, is not yanked (unless named exactly) and the download
+   is `https` (or loopback `http`); a remote index cannot point at local files
+   and a local one cannot point outside its directory.
+3. The download matches the index's `sha256` and `size`, and is capped at the
+   size the index states.
+4. The bundle's own Ed25519 signature verifies against the trust store (an
+   unsigned or untrusted bundle is never installed, under either policy), its
+   `wasm.sha256` pin matches, and the full manifest contract holds.
+5. Under the install lock, the index is cross-checked against the signed
+   bundle: same name and version (a mirror cannot relabel an old release as a
+   new one), same kind, runtime and capabilities, and the same signature
+   envelope. A different publisher *name* is only a warning, because the trust
+   store is the authority on who owns a key.
+6. No downgrade: an installed version newer than the target is refused unless
+   `--allow-downgrade` is given, and under `required` it is refused even then.
+   Roll back under `required` from a local `.ogc` file, which is a deliberate
+   offline action.
+
+What this does not protect against: an attacker who holds a trusted signing
+key, or who freezes your view by serving an old but validly signed index
+(there is no freshness check on `generated_at`; installed versions only go
+backwards on request, but you may not learn about a new release). Sign the index and keep the key
+off CI machines you do not control.
+
+### Publishing an index
+
+```bash
+opengtm plugin sign my_plugin --private-key key.pem --key-id you-2026
+opengtm plugin pack my_plugin --output site/my_plugin-0.1.0.ogc
+opengtm plugin index build site --trust-store trusted-publishers.json \
+  --sign-key key.pem --key-id you-2026 --name "My plugins"
+opengtm plugin index verify site --deep --trust-store trusted-publishers.json
+```
+
+`index build` reads every `.ogc` in the directory, refuses one whose signature
+a client would refuse (add the key to `--trust-store`, or `--skip-verify`),
+and writes `index.json` plus `index.json.sig` (an Ed25519 envelope over the
+exact bytes of `index.json`, same format as `plugin.yaml.sig`). Output is
+deterministic: the same bundles give the same index except `generated_at`,
+which honours `SOURCE_DATE_EPOCH` and `--generated-at`. Without `--base-url`
+bundle URLs are relative to the index, so the directory is relocatable;
+with it they are absolute (`https://cdn.example.com/plugins`). Upload the
+signature before the document if you publish by hand (the tool does).
+
+Per-release extras the bundle cannot carry go in a JSON file passed as
+`--meta`:
+
+```json
+{"my_plugin@0.1.0": {"certification": "beta"},
+ "my_plugin@0.0.9": {"yanked": true, "yanked_reason": "returns wrong data"}}
+```
+
+A key naming a release with no bundle fails the build, so typos surface.
+`certification` is `unreviewed` (default), `beta` or `certified` and is
+informational. Yanked releases are skipped by `latest` and `update` and need an
+explicit `name@version`. Versions are semantic versions; `latest` is the
+highest stable one (`--pre` also allows a pre-release when nothing stable
+exists); version ranges are not supported.
+
+[`publish-index.workflow.yml`](publish-index.workflow.yml) is a GitHub Actions
+template (copy it into your own plugin repository) that tests, signs and packs
+plugins, keeps published bundles immutable on the `gh-pages` branch, rebuilds
+and verifies the signed index and lets Pages serve it.
+
+### Index format (version 1)
+
+The contract is
+[`packages/contracts/plugin-index.v1.schema.json`](../../packages/contracts/plugin-index.v1.schema.json);
+a test validates every generated index against it. Clients ignore unknown
+fields; a breaking change bumps `index_version`.
+
+```json
+{
+  "index_version": 1,
+  "name": "My plugins",
+  "generated_at": "2026-10-05T12:00:00Z",
+  "plugins": [{
+    "name": "acme_firmographics",
+    "versions": [{
+      "version": "0.1.0",
+      "display_name": "Acme Firmographics", "description": "...",
+      "kind": "provider", "runtime": "declarative",
+      "author": "...", "license": "Apache-2.0", "homepage": "...", "tags": ["company"],
+      "capabilities": {"network": ["https://api.acme-data.example/v1"], "secrets": ["ACME_DATA_API_KEY"], "browser": false},
+      "url": "acme_firmographics-0.1.0.ogc",
+      "sha256": "<sha-256 of the .ogc file>", "size": 2778,
+      "publisher": "Acme Inc.",
+      "signature": {"algorithm": "Ed25519", "key_id": "acme-2026",
+                    "manifest_sha256": "<sha-256 of the canonical manifest>",
+                    "signature": "<base64>"},
+      "certification": "unreviewed", "published_at": "2026-10-05T12:00:00Z",
+      "yanked": false, "yanked_reason": ""
+    }]
+  }]
+}
+```
+
+Only v2 plugin bundles are listed; v1 connector bundles install from a file.
+Capabilities are shown by `info` before you install, and the installer refuses
+a bundle whose signed manifest declares different ones.
 
 ## Running plugins on a server
 

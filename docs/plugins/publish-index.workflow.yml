@@ -1,0 +1,135 @@
+# Template: publish signed OpenGTM plugins and a plugin index to GitHub Pages.
+#
+# Copy this file to .github/workflows/publish-plugins.yml in YOUR plugin
+# repository (it does nothing where it is). It tests, signs and packs every
+# plugin under plugins/, adds the new releases to the `gh-pages` branch next to
+# the bundles published earlier, rebuilds and signs index.json, and lets GitHub
+# Pages serve it:
+#
+#   OPENGTM_PLUGIN_INDEX=https://<owner>.github.io/<repo>/index.json
+#
+# One-time setup
+#   1. Create a key:   opengtm plugin keygen --key-id <you>-2026 --out <you>-2026.pem
+#   2. Commit the printed trust entry to trusted-publishers.json at the root of
+#      this repository (public key only), as {"version": 1, "keys": [ ... ]}.
+#      Users add the same entry to their own trust store to trust you.
+#   3. Repository secrets/variables:
+#        secrets.PLUGIN_SIGNING_KEY   the PEM text of <you>-2026.pem
+#        vars.PLUGIN_KEY_ID           <you>-2026
+#   4. Settings -> Pages -> Deploy from branch `gh-pages` (created on first run).
+#
+# Layout assumed
+#   plugins/<anything>/plugin.yaml   one directory per plugin (manifest v2)
+#   trusted-publishers.json          your public key entry
+#
+# Releases are immutable: a name@version already on gh-pages is never rewritten.
+# To ship a change, bump `version` in plugin.yaml. To withdraw a release, list it
+# as yanked in index-meta.json (optional, passed as --meta; see "Publishing an
+# index" in docs/plugins/README.md).
+
+name: Publish plugins
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["plugins/**", "trusted-publishers.json"]
+
+permissions:
+  contents: write   # push the gh-pages branch
+
+concurrency:
+  group: publish-plugins
+  cancel-in-progress: false
+
+env:
+  # Pin the OpenGTM release the CLI is built from (a tag or a commit SHA).
+  OPENGTM_REF: main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      # Pin third-party actions to commit SHAs in production.
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Build the opengtm CLI
+        run: |
+          git clone --depth 1 --branch "$OPENGTM_REF" https://github.com/debpalash/OpenGTM.git "$RUNNER_TEMP/opengtm"
+          (cd "$RUNNER_TEMP/opengtm/apps/server" && go build -o "$RUNNER_TEMP/bin/opengtm" ./cmd/opengtm)
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Check out previously published bundles
+        run: |
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            git fetch --depth 1 origin gh-pages
+            git worktree add site FETCH_HEAD
+          else
+            git worktree add --orphan -b gh-pages site
+          fi
+
+      - name: Test, sign and pack new releases
+        env:
+          PLUGIN_SIGNING_KEY: ${{ secrets.PLUGIN_SIGNING_KEY }}
+          PLUGIN_KEY_ID: ${{ vars.PLUGIN_KEY_ID }}
+        run: |
+          set -euo pipefail
+          test -n "$PLUGIN_SIGNING_KEY" && test -n "$PLUGIN_KEY_ID"
+          key="$RUNNER_TEMP/signing.pem"
+          (umask 077; printf '%s\n' "$PLUGIN_SIGNING_KEY" > "$key")
+          trap 'rm -f "$key"' EXIT
+          for manifest in plugins/*/plugin.yaml; do
+            dir=$(dirname "$manifest")
+            opengtm plugin test "$dir"
+            name=$(sed -n 's/^name:[[:space:]]*//p' "$manifest" | head -1 | tr -d "\"'")
+            version=$(sed -n 's/^version:[[:space:]]*//p' "$manifest" | head -1 | tr -d "\"'")
+            out="site/${name}-${version}.ogc"
+            if [ -e "$out" ]; then
+              echo "skip $name@$version: already published (releases are immutable)"
+              continue
+            fi
+            opengtm plugin sign "$dir" --private-key "$key" --key-id "$PLUGIN_KEY_ID"
+            opengtm plugin pack "$dir" --output "$out"
+            opengtm plugin verify "$dir" --trust-store trusted-publishers.json
+          done
+
+      - name: Build, sign and verify the index
+        env:
+          PLUGIN_SIGNING_KEY: ${{ secrets.PLUGIN_SIGNING_KEY }}
+          PLUGIN_KEY_ID: ${{ vars.PLUGIN_KEY_ID }}
+        run: |
+          set -euo pipefail
+          key="$RUNNER_TEMP/signing.pem"
+          (umask 077; printf '%s\n' "$PLUGIN_SIGNING_KEY" > "$key")
+          trap 'rm -f "$key"' EXIT
+          meta=()
+          if [ -f index-meta.json ]; then meta=(--meta index-meta.json); fi
+          # No --base-url: bundle urls are relative to index.json, so the same
+          # directory works on Pages, on a mirror and from a local checkout.
+          opengtm plugin index build site \
+            --name "${GITHUB_REPOSITORY} plugins" \
+            --trust-store trusted-publishers.json \
+            --sign-key "$key" --key-id "$PLUGIN_KEY_ID" \
+            "${meta[@]}"
+          # The signature must verify and every bundle must match its sha256.
+          opengtm plugin index verify site --deep \
+            --trust-store trusted-publishers.json --signature-policy required
+          touch site/.nojekyll
+
+      - name: Publish to gh-pages
+        run: |
+          set -euo pipefail
+          cd site
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "nothing new to publish"
+          else
+            git commit -m "Publish plugins ($GITHUB_SHA)"
+            git push origin HEAD:gh-pages
+          fi

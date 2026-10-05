@@ -1,0 +1,81 @@
+{
+  "index_version": 1,
+  "name": "OpenGTM example index (demo key; not for production)",
+  "generated_at": "2026-09-21T14:13:20Z",
+  "plugins": [
+    {
+      "name": "acme_firmographics",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "display_name": "Acme Firmographics (example)",
+          "description": "Company domain -> employee count, industry and LinkedIn page from a fictional API.",
+          "kind": "provider",
+          "runtime": "declarative",
+          "author": "OpenGTM",
+          "license": "Apache-2.0",
+          "tags": [
+            "example",
+            "company",
+            "firmographics"
+          ],
+          "capabilities": {
+            "network": [
+              "https://api.acme-data.example/v1"
+            ],
+            "secrets": [
+              "ACME_DATA_API_KEY"
+            ],
+            "browser": false
+          },
+          "url": "acme_firmographics-0.1.0.ogc",
+          "sha256": "742fd8014f17625cc732b6f82a461de483634e6722e5c40c1f99bf301f48ff42",
+          "size": 2776,
+          "publisher": "OpenGTM example (demo key, do not trust)",
+          "signature": {
+            "algorithm": "Ed25519",
+            "key_id": "opengtm-example-demo",
+            "manifest_sha256": "9e1ed3186fac5edb342b6ad9a22eb600723b054425c60321d8f4ad6964c1812d",
+            "signature": "jBjKPzxoX72N9ncxH2p7elgl+5BsPXksRFdMqoh6kkUyOMfcnQR3UAhL8RnatFNP/jfM+k3hSMKETLWMn7M5Aw=="
+          }
+        }
+      ]
+    },
+    {
+      "name": "acme_team_page",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "display_name": "Acme Team Page (example)",
+          "description": "Lists people from a company's /team pages, following pagination.",
+          "kind": "scraper",
+          "runtime": "declarative",
+          "author": "OpenGTM",
+          "license": "Apache-2.0",
+          "tags": [
+            "example",
+            "people",
+            "team-page"
+          ],
+          "capabilities": {
+            "network": [
+              "https://*.acme.example"
+            ],
+            "secrets": [],
+            "browser": false
+          },
+          "url": "acme_team_page-0.1.0.ogc",
+          "sha256": "1181430236a0d9686899f7661dde87ab77ff551720c7ae4d562471692992c4dd",
+          "size": 2621,
+          "publisher": "OpenGTM example (demo key, do not trust)",
+          "signature": {
+            "algorithm": "Ed25519",
+            "key_id": "opengtm-example-demo",
+            "manifest_sha256": "5a53c965101a3d1b3f5c4845c434a206a8bb9934bcecf8741e522780f0d8c7a7",
+            "signature": "xdRfYtngVmhO9YfBcDfrBpxLtM6o1CpV/2slGXK45Ajam6GBP9tzSlH3skmG4AxijfD/VOIo8J5c1MKSMN0OBw=="
+          }
+        }
+      ]
+    }
+  ]
+}
