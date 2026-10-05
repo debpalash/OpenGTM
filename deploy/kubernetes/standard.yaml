@@ -1,0 +1,158 @@
+# The `standard` profile on Kubernetes: Redis, scalable job workers and the
+# scheduler. Add this file to `resources:` in kustomization.yaml and set
+# RUN_INLINE_WORKER to "0" on the api Deployment (base.yaml).
+#
+# The worker and scheduler mount the same ReadWriteOnce data volume as the api
+# Deployment, so they are pinned to the api's node with pod affinity. That is
+# the constraint milestone M8 (workspace metadata in PostgreSQL) removes.
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: opengtm
+  labels: {app.kubernetes.io/name: redis, app.kubernetes.io/part-of: opengtm}
+spec:
+  selector: {app.kubernetes.io/name: redis}
+  ports:
+    - {name: redis, port: 6379, targetPort: redis}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: opengtm
+  labels: {app.kubernetes.io/name: redis, app.kubernetes.io/part-of: opengtm}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app.kubernetes.io/name: redis}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: redis, app.kubernetes.io/part-of: opengtm}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          args: ["--save", "", "--appendonly", "no"]   # live pub/sub only; durable jobs are in PostgreSQL
+          ports:
+            - {name: redis, containerPort: 6379}
+          readinessProbe:
+            exec: {command: ["redis-cli", "ping"]}
+            periodSeconds: 10
+          livenessProbe:
+            exec: {command: ["redis-cli", "ping"]}
+            periodSeconds: 20
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 50m, memory: 64Mi}
+            limits: {memory: 256Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: opengtm
+  labels: {app.kubernetes.io/name: worker, app.kubernetes.io/part-of: opengtm}
+spec:
+  replicas: 1   # safe to scale: jobs are claimed with FOR UPDATE SKIP LOCKED
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: {app.kubernetes.io/name: worker}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: worker, app.kubernetes.io/part-of: opengtm}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels: {app.kubernetes.io/name: api}
+      containers:
+        - name: worker
+          image: ghcr.io/debpalash/opengtm:RELEASE_TAG
+          command: ["python", "-m", "apps.api.worker"]
+          envFrom:
+            - secretRef: {name: opengtm-env}
+          env:
+            - name: DATABASE_URL
+              valueFrom: {secretKeyRef: {name: opengtm-env, key: APP_DATABASE_URL}}
+            - {name: PYTHONPATH, value: /app}
+            - {name: YUPCHA_DB_INIT, value: skip}
+            - {name: REDIS_URL, value: "redis://redis:6379"}
+          volumeMounts:
+            - {name: data, mountPath: /app/data}
+          livenessProbe:
+            exec: {command: ["python", "-c", "import os; os.kill(1, 0)"]}
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests: {cpu: 250m, memory: 512Mi}
+            limits: {memory: 3Gi}
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: opengtm-data}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scheduler
+  namespace: opengtm
+  labels: {app.kubernetes.io/name: scheduler, app.kubernetes.io/part-of: opengtm}
+spec:
+  replicas: 1   # exactly one until scheduler leadership exists (M8)
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: {app.kubernetes.io/name: scheduler}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: scheduler, app.kubernetes.io/part-of: opengtm}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels: {app.kubernetes.io/name: api}
+      containers:
+        - name: scheduler
+          image: ghcr.io/debpalash/opengtm:RELEASE_TAG
+          command: ["python", "-m", "apps.api.scheduler"]
+          envFrom:
+            - secretRef: {name: opengtm-env}
+          env:
+            - name: DATABASE_URL
+              valueFrom: {secretKeyRef: {name: opengtm-env, key: APP_DATABASE_URL}}
+            - {name: PYTHONPATH, value: /app}
+            - {name: YUPCHA_DB_INIT, value: skip}
+          volumeMounts:
+            - {name: data, mountPath: /app/data}
+          livenessProbe:
+            exec: {command: ["python", "-c", "import os; os.kill(1, 0)"]}
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests: {cpu: 50m, memory: 256Mi}
+            limits: {memory: 1Gi}
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: opengtm-data}

@@ -1,0 +1,13 @@
+# kubectl apply -k deploy/kubernetes
+# Set the release once here; kustomize rewrites every image reference.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: opengtm
+resources:
+  - base.yaml
+  # - standard.yaml   # Redis, worker, scheduler (also set RUN_INLINE_WORKER=0 on the api)
+images:
+  - name: ghcr.io/debpalash/opengtm
+    newTag: RELEASE_TAG      # for example 3.1.0 (prefer a digest: newName + digest)
+  - name: ghcr.io/debpalash/opengtm-server
+    newTag: RELEASE_TAG
