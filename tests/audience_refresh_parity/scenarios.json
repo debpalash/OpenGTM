@@ -1,0 +1,393 @@
+{
+ "frozen_now": "2026-06-15T12:00:00.250000+00:00",
+ "page_size": 4,
+ "steps": [
+  {
+   "op": "refresh",
+   "job": 1001,
+   "note": "a-all: everything enters (many pages), occurrence booked, stale ones cancelled"
+  },
+  {
+   "op": "refresh",
+   "job": 1001,
+   "note": "a-all again: unchanged, rescheduled over the cancelled key"
+  },
+  {
+   "op": "sql",
+   "note": "rename, delete and add leads",
+   "sql": "UPDATE leads SET company = 'Co 4 renamed', notes = 'edited' WHERE id = 4 AND workspace_id = 'ws-ar'; DELETE FROM leads WHERE id = 10 AND workspace_id = 'ws-ar'; INSERT INTO leads (id, workspace_id, company, city, score, score_tier, status, source, collection_job_id, created_at, updated_at) VALUES (35, 'ws-ar', 'Co 35', 'Pune', 5, 'cold', 'new', 'csv', '', '2026-01-01T00:00:00+00:00', '2026-01-02T00:00:00+00:00')"
+  },
+  {
+   "op": "refresh",
+   "job": 1001,
+   "note": "a-all: one changed, one exited, one entered"
+  },
+  {
+   "op": "refresh",
+   "job": 1002,
+   "note": "a-city"
+  },
+  {
+   "op": "refresh",
+   "job": 1003,
+   "note": "a-combo"
+  },
+  {
+   "op": "refresh",
+   "job": 1004,
+   "note": "a-jobs: collection_job_id or source=job:<id>"
+  },
+  {
+   "op": "refresh",
+   "job": 1005,
+   "note": "a-spec: ILIKE"
+  },
+  {
+   "op": "refresh",
+   "job": 1006,
+   "note": "a-email-yes"
+  },
+  {
+   "op": "refresh",
+   "job": 1007,
+   "note": "a-email-no"
+  },
+  {
+   "op": "refresh",
+   "job": 1008,
+   "note": "a-nophone"
+  },
+  {
+   "op": "refresh",
+   "job": 1009,
+   "note": "a-score range"
+  },
+  {
+   "op": "refresh",
+   "job": 1014,
+   "note": "a-score zero is a bound"
+  },
+  {
+   "op": "refresh",
+   "job": 1015,
+   "note": "a-search: tsvector or ILIKE"
+  },
+  {
+   "op": "refresh",
+   "job": 1016,
+   "note": "a-search-utf"
+  },
+  {
+   "op": "refresh",
+   "job": 1017,
+   "note": "a-ids"
+  },
+  {
+   "op": "refresh",
+   "job": 1018,
+   "note": "a-ids-empty matches nothing"
+  },
+  {
+   "op": "refresh",
+   "job": 1019,
+   "note": "a-ids-null ignores the null"
+  },
+  {
+   "op": "refresh",
+   "job": 1020,
+   "note": "a-falsy ignores falsy filters"
+  },
+  {
+   "op": "refresh",
+   "job": 1021,
+   "note": "a-size"
+  },
+  {
+   "op": "refresh",
+   "job": 1022,
+   "note": "a-nullfilters"
+  },
+  {
+   "op": "refresh",
+   "job": 1024,
+   "note": "a-members: stale snapshot changed, falsy and unseen members exit"
+  },
+  {
+   "op": "refresh",
+   "job": 1025,
+   "note": "a-dest: syncs for enabled destinations without an active run"
+  },
+  {
+   "op": "refresh",
+   "job": 1026,
+   "note": "a-dest-noop: first refresh enters a member and enqueues a sync"
+  },
+  {
+   "op": "sql",
+   "note": "finish the sync run",
+   "sql": "UPDATE destination_runs SET status = 'completed' WHERE destination_id = 'd-noop'"
+  },
+  {
+   "op": "refresh",
+   "job": 1026,
+   "note": "a-dest-noop: nothing changed, no new sync"
+  },
+  {
+   "op": "sql",
+   "note": "edit one member's lead: a change, no entry or exit",
+   "sql": "UPDATE leads SET notes = 'edited again' WHERE id = 1 AND workspace_id = 'ws-ar'; UPDATE destination_runs SET status = 'completed' WHERE destination_id = 'd-noop'"
+  },
+  {
+   "op": "refresh",
+   "job": 1026,
+   "note": "a-dest-noop: a changed snapshot alone enqueues a sync"
+  },
+  {
+   "op": "config",
+   "note": "automations off",
+   "automations": false
+  },
+  {
+   "op": "refresh",
+   "job": 1028,
+   "note": "a-auto-off: no trigger_eval jobs while automations are disabled"
+  },
+  {
+   "op": "config",
+   "note": "automations on",
+   "automations": true
+  },
+  {
+   "op": "refresh",
+   "job": 1027,
+   "note": "a-auto: entered events fire matching rules"
+  },
+  {
+   "op": "sql",
+   "note": "narrow the audience",
+   "sql": "UPDATE audiences SET filters = '{\"lead_ids\": [1]}' WHERE id = 'a-auto'"
+  },
+  {
+   "op": "refresh",
+   "job": 1027,
+   "note": "a-auto: exited events fire exit rules"
+  },
+  {
+   "op": "config",
+   "note": "automations off again",
+   "automations": false
+  },
+  {
+   "op": "refresh",
+   "job": 1029,
+   "note": "a-fail: database error rolls back, health degraded, next occurrence booked",
+   "error_contains": "boom"
+  },
+  {
+   "op": "reconcile",
+   "job": 1029,
+   "note": "a-fail: already reconciled by the handler (retry)",
+   "error": "worker timeout",
+   "will_retry": true
+  },
+  {
+   "op": "reconcile",
+   "job": 1029,
+   "note": "a-fail: already reconciled by the handler (final)",
+   "error": "worker timeout",
+   "will_retry": false
+  },
+  {
+   "op": "refresh",
+   "job": 1030,
+   "note": "a-bad-ids: invalid filter fails the refresh",
+   "expect_error": true
+  },
+  {
+   "op": "refresh",
+   "job": 1031,
+   "note": "a-bad-status: invalid filter fails the refresh",
+   "expect_error": true
+  },
+  {
+   "op": "refresh",
+   "job": 1032,
+   "note": "a-bad-min: invalid filter fails the refresh",
+   "expect_error": true
+  },
+  {
+   "op": "refresh",
+   "job": 1033,
+   "note": "a-bad-shape: invalid filter fails the refresh",
+   "expect_error": true
+  },
+  {
+   "op": "refresh",
+   "job": 1034,
+   "note": "a-i5: 15 minutes"
+  },
+  {
+   "op": "refresh",
+   "job": 1035,
+   "note": "a-i0: 60 minutes"
+  },
+  {
+   "op": "refresh",
+   "job": 1036,
+   "note": "a-ibig: 10080 minutes"
+  },
+  {
+   "op": "refresh",
+   "job": 1037,
+   "note": "a-disabled: schedule removed"
+  },
+  {
+   "op": "refresh",
+   "job": 1038,
+   "note": "a-ghost: schedule removed"
+  },
+  {
+   "op": "refresh",
+   "job": 1039,
+   "note": "a-dup: occurrence already active"
+  },
+  {
+   "op": "refresh",
+   "job": 1040,
+   "note": "a_w: LIKE wildcard quirk"
+  },
+  {
+   "op": "refresh",
+   "job": 1010,
+   "note": "no audience id"
+  },
+  {
+   "op": "refresh",
+   "job": 1011,
+   "note": "no workspace id"
+  },
+  {
+   "op": "refresh",
+   "job": 1012,
+   "note": "unknown audience"
+  },
+  {
+   "op": "refresh",
+   "job": 1013,
+   "note": "falsy audience id"
+  },
+  {
+   "op": "reconcile",
+   "job": 3001,
+   "note": "retry mirrors the queue's next attempt",
+   "error": "worker timeout",
+   "will_retry": true
+  },
+  {
+   "op": "reconcile",
+   "job": 3002,
+   "note": "final failure books the next occurrence",
+   "error": "worker timeout",
+   "will_retry": false
+  },
+  {
+   "op": "reconcile",
+   "job": 3003,
+   "note": "future next_refresh_at: already reconciled (retry)",
+   "error": "late",
+   "will_retry": true
+  },
+  {
+   "op": "reconcile",
+   "job": 3013,
+   "note": "future next_refresh_at: already reconciled (final)",
+   "error": "late",
+   "will_retry": false
+  },
+  {
+   "op": "reconcile",
+   "job": 3004,
+   "note": "never scheduled",
+   "error": "killed",
+   "will_retry": false
+  },
+  {
+   "op": "reconcile",
+   "job": 3005,
+   "note": "disabled audience is left alone",
+   "error": "killed",
+   "will_retry": true
+  },
+  {
+   "op": "reconcile",
+   "job": 3006,
+   "note": "payload without an audience id",
+   "error": "x",
+   "will_retry": true,
+   "expect_error": true
+  },
+  {
+   "op": "reconcile",
+   "job": 3007,
+   "note": "error truncated by characters",
+   "error": "é",
+   "error_repeat": 1200,
+   "will_retry": false
+  },
+  {
+   "op": "reconcile",
+   "job": 3008,
+   "note": "the job has no next_run_at",
+   "error": "x",
+   "will_retry": true
+  },
+  {
+   "op": "reconcile",
+   "job": 3009,
+   "note": "empty error text",
+   "error": "",
+   "will_retry": false
+  },
+  {
+   "op": "reconcile",
+   "job": 3012,
+   "note": "unknown audience",
+   "error": "x",
+   "will_retry": true
+  },
+  {
+   "op": "reconcile",
+   "job": 3014,
+   "note": "ids are stripped",
+   "error": "x",
+   "will_retry": true
+  },
+  {
+   "op": "reconcile",
+   "job": 3011,
+   "note": "next_refresh_at == now is not in the future",
+   "error": "x",
+   "will_retry": false
+  },
+  {
+   "op": "sql",
+   "note": "shrink the lead set",
+   "sql": "DELETE FROM leads WHERE workspace_id = 'ws-ar' AND id BETWEEN 5 AND 29"
+  },
+  {
+   "op": "refresh",
+   "job": 1023,
+   "note": "a-shrink: first refresh enters whatever is left"
+  },
+  {
+   "op": "sql",
+   "note": "widen it again",
+   "sql": "UPDATE audiences SET filters = '{\"city\": \"Nowhere\"}' WHERE id = 'a-shrink'"
+  },
+  {
+   "op": "refresh",
+   "job": 1023,
+   "note": "a-shrink: every member exits, across several pages"
+  }
+ ]
+}

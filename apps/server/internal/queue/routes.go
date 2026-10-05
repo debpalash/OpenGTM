@@ -30,6 +30,10 @@ type Route struct {
 	Pending    int64     `json:"pending"`
 	Processing int64     `json:"processing"`
 	Default    bool      `json:"default,omitempty" db:"-"`
+	// GoExecutor reports whether this binary can execute the type in Go. An
+	// explicit route to go without one strands the type's jobs: neither
+	// Python nor Go would claim them.
+	GoExecutor bool `json:"go_executor" db:"-"`
 }
 
 // InFlightError refuses a route change while attempts of the type run under
@@ -63,14 +67,15 @@ func ListRoutes(ctx context.Context, b db.Beginner) ([]Route, error) {
 			return err
 		}
 		explicit := make(map[string]bool, len(out))
-		for _, r := range out {
-			explicit[r.JobType] = true
+		for i := range out {
+			explicit[out[i].JobType] = true
+			out[i].GoExecutor = HasExecutor(out[i].JobType)
 		}
 		for _, t := range Switchable() {
 			if explicit[t] {
 				continue
 			}
-			r := Route{JobType: t, Executor: ExecutorPython, Default: true}
+			r := Route{JobType: t, Executor: ExecutorPython, Default: true, GoExecutor: true}
 			err := tx.QueryRow(ctx, `SELECT
 				coalesce((SELECT count(*) FROM jobs WHERE type = $1 AND status = 'pending'), 0),
 				coalesce((SELECT count(*) FROM jobs WHERE type = $1 AND status = 'processing'), 0)`, t).

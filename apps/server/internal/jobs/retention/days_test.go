@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/debpalash/OpenGTM/apps/server/internal/jobs/jobkit"
 )
 
 func TestNormalizedDays(t *testing.T) {
@@ -63,7 +65,7 @@ func TestNormalizedDays(t *testing.T) {
 func TestCutoffFor(t *testing.T) {
 	now := time.Date(2026, 6, 15, 12, 0, 0, 123456000, time.UTC)
 	snap := func(s string) any {
-		v, err := decodeValue([]byte(s))
+		v, err := jobkit.Decode([]byte(s))
 		if err != nil {
 			t.Fatal(err)
 		}

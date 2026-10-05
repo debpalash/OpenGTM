@@ -86,3 +86,5 @@ benchmarks/results/*
 !benchmarks/results/baseline.md
 !benchmarks/results/web-baseline.json
 !benchmarks/results/web-baseline.md
+!benchmarks/results/retention.json
+!benchmarks/results/retention.md

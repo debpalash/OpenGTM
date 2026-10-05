@@ -34,9 +34,15 @@ func TestPrintRoutes(t *testing.T) {
 		t.Fatalf("table output:\n%s", buf.String())
 	}
 	buf.Reset()
-	printRoutes(&buf, []queue.Route{{JobType: "retention_enforce", Executor: "python", Default: true}}, false)
+	printRoutes(&buf, []queue.Route{{JobType: "retention_enforce", Executor: "python", Default: true, GoExecutor: true}}, false)
 	if !strings.Contains(buf.String(), "retention_enforce") || !strings.Contains(buf.String(), "python (default, switchable)") {
 		t.Fatalf("switchable default not shown:\n%s", buf.String())
+	}
+	buf.Reset()
+	printRoutes(&buf, []queue.Route{{JobType: "mystery", Executor: "go"}, {JobType: "plugin_run", Executor: "go", GoExecutor: true}}, false)
+	if !strings.Contains(buf.String(), "go (NO EXECUTOR IN THIS BINARY: jobs are not claimed)") ||
+		strings.Count(buf.String(), "NO EXECUTOR") != 1 {
+		t.Fatalf("a route nothing claims must be flagged:\n%s", buf.String())
 	}
 	buf.Reset()
 	printRoutes(&buf, nil, true)
@@ -67,12 +73,46 @@ func TestDoctorFlagsPrivilegedRoles(t *testing.T) {
 		return got
 	}
 	got := status(app)
-	for _, name := range []string{"config", "database", "runtime role", "migrations", "executor routes", "legacy api"} {
+	for _, name := range []string{"config", "database", "runtime role", "migrations", "executor routes", "go executors", "legacy api"} {
 		if !got[name] {
 			t.Errorf("app role: check %q failed: %v", name, got)
 		}
 	}
 	if got := status(owner); got["runtime role"] {
 		t.Error("superuser connection must fail the runtime role check")
+	}
+}
+
+func TestDoctorFlagsARouteNothingClaims(t *testing.T) {
+	owner := dbtest.OwnerURL(t)
+	dbtest.Migrate(t, owner)
+	app := dbtest.AppURL(t, owner)
+	pool := dbtest.Pool(t, app, 2)
+	ownerPool := dbtest.Pool(t, owner, 2)
+	ctx := context.Background()
+	const stranded = "doctor_stranded_type"
+	t.Cleanup(func() {
+		_, _ = ownerPool.Exec(ctx, `DELETE FROM job_executor_routes WHERE job_type = $1`, stranded)
+	})
+
+	// (Other tests share the database and may leave routes behind, so the
+	// assertions are about this test's own type.)
+	if got := executorCheck(ctx, pool); strings.Contains(got.Detail, stranded) {
+		t.Fatalf("a python-owned type must not be flagged: %+v", got)
+	}
+	if _, err := ownerPool.Exec(ctx, `INSERT INTO job_executor_routes (job_type, executor) VALUES ($1, 'go')
+		ON CONFLICT (job_type) DO UPDATE SET executor = 'go'`, stranded); err != nil {
+		t.Fatal(err)
+	}
+	got := executorCheck(ctx, pool)
+	if got.OK || !strings.Contains(got.Detail, stranded) || !strings.Contains(got.Detail, "routes set <type> python") {
+		t.Fatalf("a route to go without an executor must fail the check: %+v", got)
+	}
+	// Routed back to python it is no longer a problem.
+	if _, err := ownerPool.Exec(ctx, `UPDATE job_executor_routes SET executor = 'python' WHERE job_type = $1`, stranded); err != nil {
+		t.Fatal(err)
+	}
+	if got := executorCheck(ctx, pool); strings.Contains(got.Detail, stranded) {
+		t.Fatalf("a route back to python must clear the finding: %+v", got)
 	}
 }

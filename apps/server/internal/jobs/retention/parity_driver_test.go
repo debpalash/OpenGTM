@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/debpalash/OpenGTM/apps/server/internal/config"
-	"github.com/debpalash/OpenGTM/apps/server/internal/db/dbtest"
+	"github.com/debpalash/OpenGTM/apps/server/internal/jobs/jobkit"
+	"github.com/debpalash/OpenGTM/apps/server/internal/jobs/jobkit/paritytest"
 	"github.com/debpalash/OpenGTM/apps/server/internal/queue"
 )
 
@@ -23,104 +23,27 @@ import (
 //	TEST_DATABASE_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:55432/postgres \
 //	  uv run pytest tests/test_retention_go_parity_pg.py
 
-type parityStep struct {
-	Op          string `json:"op"`
-	Job         int64  `json:"job"`
-	Error       string `json:"error"`
-	ErrorRepeat int    `json:"error_repeat"`
-	WillRetry   bool   `json:"will_retry"`
-}
-
-type parityResult struct {
-	Job   int64   `json:"job"`
-	Op    string  `json:"op"`
-	Error *string `json:"error"`
-}
-
-func writeJSON(t *testing.T, path string, v any) {
-	t.Helper()
-	raw, err := json.MarshalIndent(v, "", " ")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(path, raw, 0o644); err != nil {
-		t.Fatal(err)
-	}
-}
-
 // TestParityDriver replays scenarios.json against a database the harness has
 // already seeded, calling the Go handler exactly as the Python runner calls
 // its own, with the clock frozen to the scenario instant.
 func TestParityDriver(t *testing.T) {
-	rawURL, out := os.Getenv("OPENGTM_PARITY_DATABASE_URL"), os.Getenv("OPENGTM_PARITY_OUT")
-	scenarios := os.Getenv("OPENGTM_PARITY_SCENARIOS")
-	if rawURL == "" || out == "" || scenarios == "" {
-		t.Skip("OPENGTM_PARITY_* not set; this test is driven by tests/test_retention_go_parity_pg.py")
-	}
-	ownerURL, err := config.NormalizeDatabaseURL(rawURL)
-	if err != nil {
-		t.Fatal(err)
-	}
-	var spec struct {
-		FrozenNow string       `json:"frozen_now"`
-		Steps     []parityStep `json:"steps"`
-	}
-	raw, err := os.ReadFile(scenarios)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := json.Unmarshal(raw, &spec); err != nil {
-		t.Fatal(err)
-	}
-	now, err := time.Parse(time.RFC3339, spec.FrozenNow)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	owner := dbtest.Pool(t, ownerURL, 2)
-	app := dbtest.Pool(t, dbtest.AppURL(t, ownerURL), 4)
-	w := NewWorker(app, nil)
-	w.Now = func() time.Time { return now }
-	w.BatchSize = 7 // many batches: the Python side deletes each table in one statement
-
-	ctx := context.Background()
-	results := make([]parityResult, 0, len(spec.Steps))
-	for _, s := range spec.Steps {
-		job := queue.Job{ID: s.Job, Type: JobType}
-		var workerID *string
-		var lockedAt *time.Time
-		var ws *string
-		if err := owner.QueryRow(ctx, `SELECT payload::text, workspace_id, coalesce(retry_count, 0), worker_id, locked_at
-			FROM jobs WHERE id = $1`, s.Job).Scan(&job.Payload, &ws, &job.RetryCount, &workerID, &lockedAt); err != nil {
-			t.Fatalf("job %d: %v", s.Job, err)
-		}
-		if ws != nil {
-			job.WorkspaceID = *ws
-		}
-		if workerID != nil && lockedAt != nil {
-			job.Lease = queue.Lease{WorkerID: *workerID, LockedAt: *lockedAt}
-		}
-		var stepErr error
-		switch s.Op {
+	paritytest.Replay(t, func(ctx context.Context, env *paritytest.Env, step paritytest.Step, job queue.Job) error {
+		w := NewWorker(env.App, nil)
+		w.Now = func() time.Time { return env.Spec.Now }
+		w.BatchSize = 7 // many batches: the Python side deletes each table in one statement
+		switch step.Op {
 		case "enforce":
-			stepErr = w.Handle(ctx, job)
+			return w.Handle(ctx, job)
 		case "reconcile":
-			message := s.Error
-			if s.ErrorRepeat > 0 {
-				message = strings.Repeat(message, s.ErrorRepeat)
+			message := step.String("error")
+			if n := step.Int("error_repeat"); n > 0 {
+				message = strings.Repeat(message, n)
 			}
-			stepErr = w.Reconcile(ctx, job, message, s.WillRetry)
-		default:
-			t.Fatalf("unknown op %q", s.Op)
+			return w.Reconcile(ctx, job, message, step.Bool("will_retry"))
 		}
-		r := parityResult{Job: s.Job, Op: s.Op}
-		if stepErr != nil {
-			msg := stepErr.Error()
-			r.Error = &msg
-		}
-		results = append(results, r)
-	}
-	writeJSON(t, out, results)
+		t.Fatalf("unknown op %q", step.Op)
+		return nil
+	})
 }
 
 type pureValue struct {
@@ -190,7 +113,7 @@ func TestParityPure(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		snapshot, err := decodeValue(c.Snapshot)
+		snapshot, err := jobkit.Decode(c.Snapshot)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -214,5 +137,5 @@ func TestParityPure(t *testing.T) {
 		}
 		result.Cutoff = append(result.Cutoff, r)
 	}
-	writeJSON(t, out, result)
+	paritytest.WriteJSON(t, out, result)
 }

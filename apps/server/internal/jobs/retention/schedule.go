@@ -7,8 +7,14 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/server/internal/jobs/jobkit"
 	"github.com/debpalash/OpenGTM/apps/server/internal/queue"
 )
+
+// scheduleMirror is the non-RLS retention_schedules mirror, keyed by workspace.
+var scheduleMirror = jobkit.Mirror{
+	Table: "retention_schedules", KeyCol: "workspace_id", EnabledCol: "enabled", NextCol: "next_run_at",
+}
 
 // schedulePolicy ports schedule_policy for the policy of workspaceID, inside
 // the caller's tenant transaction:
@@ -32,27 +38,16 @@ func (w *Worker) schedulePolicy(ctx context.Context, tx pgx.Tx, workspaceID stri
 	if policy == nil {
 		return nil, nil
 	}
-	if _, err := tx.Exec(ctx, `UPDATE jobs SET status = 'cancelled'
-		WHERE type = $1 AND status = 'pending' AND fire_key LIKE $2`,
-		JobType, "retention:"+workspaceID+":%"); err != nil {
-		return nil, fmt.Errorf("cancel pending retention jobs: %w", err)
+	if _, err := jobkit.CancelPending(ctx, tx, JobType, "retention:"+workspaceID+":%"); err != nil {
+		return nil, err
 	}
 	var next *time.Time
 	if policy.enabled && !policy.legalHold {
 		n := now.UTC().Add(24 * time.Hour)
 		next = &n
 	}
-	// Written only when something changed, like the ORM's dirty tracking, so
-	// updated_at (onupdate=now()) is not bumped by a no-op reschedule.
-	if _, err := tx.Exec(ctx, `
-INSERT INTO retention_schedules (workspace_id, enabled, next_run_at)
-VALUES ($1, $2, $3::timestamptz::timestamp)
-ON CONFLICT (workspace_id) DO UPDATE
-   SET enabled = EXCLUDED.enabled, next_run_at = EXCLUDED.next_run_at, updated_at = now()
- WHERE retention_schedules.enabled IS DISTINCT FROM EXCLUDED.enabled
-    OR retention_schedules.next_run_at IS DISTINCT FROM EXCLUDED.next_run_at`,
-		workspaceID, next != nil, next); err != nil {
-		return nil, fmt.Errorf("update retention schedule: %w", err)
+	if err := scheduleMirror.Upsert(ctx, tx, workspaceID, workspaceID, next != nil, next); err != nil {
+		return nil, err
 	}
 	if _, err := tx.Exec(ctx, `UPDATE retention_policies
 		SET next_run_at = $2::timestamptz::timestamp, updated_at = now()

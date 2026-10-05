@@ -1,0 +1,25 @@
+{
+  "frozen_now": "2026-06-15T12:00:00.123456+00:00",
+  "steps": [
+    {"op": "tick", "job": 1001, "note": "active playbook: run + run job + next occurrence"},
+    {"op": "tick", "job": 1001, "note": "pending run exists: reschedule only"},
+    {"op": "tick", "job": 1002, "note": "interval below the minimum"},
+    {"op": "tick", "job": 1003, "note": "interval above the maximum"},
+    {"op": "tick", "job": 1004, "note": "no interval: nothing scheduled"},
+    {"op": "tick", "job": 1005, "note": "interval 0"},
+    {"op": "tick", "job": 1006, "note": "disabled: schedule removed"},
+    {"op": "tick", "job": 1007, "note": "no audience: schedule removed"},
+    {"op": "tick", "job": 1008, "note": "unknown playbook"},
+    {"op": "tick", "job": 1009, "note": "a running run blocks a new one"},
+    {"op": "tick", "job": 1010, "note": "completed and failed runs do not"},
+    {"op": "tick", "job": 1011, "note": "empty object steps"},
+    {"op": "tick", "job": 1012, "note": "null steps"},
+    {"op": "tick", "job": 1013, "note": "non-empty object steps are kept"},
+    {"op": "tick", "job": 1014, "note": "missing playbook_id"},
+    {"op": "tick", "job": 1015, "note": "missing workspace_id"},
+    {"op": "tick", "job": 1018, "note": "empty workspace_id"},
+    {"op": "tick", "job": 1019, "note": "falsy playbook_id"},
+    {"op": "tick", "job": 1020, "note": "LIKE wildcard in the playbook id"},
+    {"op": "tick", "job": 1021, "note": "active occurrence already holds the key"}
+  ]
+}

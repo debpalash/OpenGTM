@@ -161,3 +161,37 @@ func TestPluginSettings(t *testing.T) {
 		t.Errorf("want both plugin errors, got %v", err)
 	}
 }
+
+func TestAutomationsSwitchMatchesPythonSettings(t *testing.T) {
+	load := func(kv map[string]string) (Config, error) {
+		kv["DATABASE_URL"] = "postgres://h/db"
+		return LoadFrom("", env(kv))
+	}
+	if cfg, err := load(map[string]string{}); err != nil || cfg.Automations.Enabled {
+		t.Errorf("default must be off like AUTOMATIONS_ENABLED: %+v %v", cfg.Automations, err)
+	}
+	for raw, want := range map[string]bool{"true": true, "TRUE": true, "1": true, "yes": true, "On": true, "t": true,
+		"false": false, "0": false, "no": false, "OFF": false, " true ": true} {
+		cfg, err := load(map[string]string{"AUTOMATIONS_ENABLED": raw})
+		if err != nil || cfg.Automations.Enabled != want {
+			t.Errorf("AUTOMATIONS_ENABLED=%q -> %v, %v; want %v", raw, cfg.Automations.Enabled, err, want)
+		}
+	}
+	if _, err := load(map[string]string{"AUTOMATIONS_ENABLED": "maybe"}); err == nil || !strings.Contains(err.Error(), "AUTOMATIONS_ENABLED") {
+		t.Errorf("an invalid value must stop startup, got %v", err)
+	}
+	// the file supplies a default; the environment wins
+	dir := t.TempDir()
+	path := filepath.Join(dir, "opengtm.yaml")
+	if err := os.WriteFile(path, []byte("automations:\n  enabled: true\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := LoadFrom(path, env(map[string]string{"DATABASE_URL": "postgres://h/db"}))
+	if err != nil || !cfg.Automations.Enabled {
+		t.Errorf("yaml automations.enabled ignored: %+v %v", cfg.Automations, err)
+	}
+	cfg, err = LoadFrom(path, env(map[string]string{"DATABASE_URL": "postgres://h/db", "AUTOMATIONS_ENABLED": "false"}))
+	if err != nil || cfg.Automations.Enabled {
+		t.Errorf("the environment must win over the file: %+v %v", cfg.Automations, err)
+	}
+}

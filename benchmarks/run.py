@@ -279,7 +279,22 @@ def summarize_http(raw: list[dict]) -> list[dict]:
     return out
 
 
-def flat_metrics(queue: list[dict], http: list[dict]) -> dict:
+def summarize_retention(raw: list[dict]) -> list[dict]:
+    groups: dict[tuple, list[dict]] = {}
+    for c in raw:
+        groups.setdefault((c["variant"], c["mode"], c["rows"]), []).append(c)
+    out = []
+    for (variant, mode, rows), cs in groups.items():
+        wall = spread([c["wall_ms"] for c in cs])
+        out.append({"variant": variant, "mode": mode, "rows": rows, "kept": cs[0]["kept"], "deleted": cs[0]["deleted"],
+                    "reps": len(cs),
+                    "wall_ms": wall,
+                    "rows_per_sec": {k: cs[0]["deleted"] / (v / 1000) for k, v in
+                                     (("median", wall["median"]), ("min", wall["max"]), ("max", wall["min"]))}})
+    return out
+
+
+def flat_metrics(queue: list[dict], http: list[dict], retention: list[dict] | None = None) -> dict:
     """Flat key -> {value, unit, better, gated} map that compare.py consumes.
 
     Throughput and p50/p95 are gated; p99 and component latencies are recorded
@@ -299,6 +314,10 @@ def flat_metrics(queue: list[dict], http: list[dict]) -> dict:
             for q in ("p50", "p95", "p99"):
                 put(f"{base}/{part}_{q}", r[f"{part}_{q}"]["median"], "ms", "lower",
                     part == "cycle_ms" and q in ("p50", "p95"))
+    for r in retention or []:
+        base = f"retention/{r['variant']}/{r['mode']}/n{r['rows']}"
+        put(f"{base}/wall_ms", r["wall_ms"]["median"], "ms", "lower", True)
+        put(f"{base}/rows_per_sec", r["rows_per_sec"]["median"], "rows/s", "higher", False)
     for r in http:
         base = f"http/{r['name']}/c{r['concurrency']}"
         put(f"{base}/rps", r["rps"]["median"], "req/s", "higher", True)
@@ -357,6 +376,48 @@ def run_queue(args, db: Database, tmp: Path, go_test_bin: Path) -> list[dict]:
                 log(f"  rep {rep + 1}/{args.queue_reps}: python-subprocess ({args.subprocess_jobs} jobs)")
                 for c in run_py("subprocess", variant, args.subprocess_jobs, args.subprocess_warmup, rep):
                     raw.append({**c, "variant": variant})
+    db.set_sync_commit(True)
+    return raw
+
+
+# ── retention_enforce benchmark ──────────────────────────────────────────
+
+
+def run_retention(args, db: Database, tmp: Path, go_test_bin: Path) -> list[dict]:
+    """Go and Python retention_enforce on identical, freshly seeded workspaces.
+
+    Everything runs against the same throwaway database and role. `durable`
+    is PostgreSQL's default synchronous_commit=on (what production uses);
+    `nosync` removes the fsync wait so the numbers reflect code and SQL cost
+    (a retention job commits three times, and a stalled fsync on a shared disk
+    can add hundreds of milliseconds to any single case). The engines are
+    interleaved within a repetition so slow drift hits both alike.
+    """
+    seed_sql = ROOT / "benchmarks" / "retention_seed.sql"
+    raw: list[dict] = []
+    for variant in args.retention_variants:
+        db.set_sync_commit(variant == "durable")
+        for rep in range(args.retention_reps):
+            out = tmp / f"go_retention_{variant}_{rep}.json"
+            env = {**os.environ, "OPENGTM_TEST_DATABASE_URL": db.owner_url, "OPENGTM_BENCH_OUT": str(out),
+                   "OPENGTM_BENCH_ROLE": db.role, "OPENGTM_BENCH_ROLE_PASSWORD": db.password,
+                   "OPENGTM_BENCH_SEED_SQL": str(seed_sql), "OPENGTM_BENCH_ROWS": args.retention_rows,
+                   "OPENGTM_BENCH_REPS": "1", "OPENGTM_BENCH_REP_OFFSET": str(rep)}
+            log(f"retention/{variant} rep {rep + 1}/{args.retention_reps}: go ({args.retention_rows} expired rows per table)")
+            subprocess.run([str(go_test_bin), "-test.run", "^TestBenchRetention$", "-test.v", "-test.timeout", "120m"],
+                           cwd=SERVER / "internal" / "jobs" / "retention", env=env, check=True,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            raw += [{**c, "variant": variant} for c in json.loads(out.read_text())["cases"]]
+
+            out = tmp / f"py_retention_{variant}_{rep}.json"
+            cmd = [sys.executable, str(db.sandbox / "benchmarks" / "bench_retention_python.py"),
+                   "--owner-url", db.owner_url, "--app-url", db.app_sa_url, "--seed-sql", str(seed_sql),
+                   "--rows", args.retention_rows, "--reps", "1", "--rep-offset", str(rep), "--out", str(out)]
+            log(f"retention/{variant} rep {rep + 1}/{args.retention_reps}: python")
+            r = subprocess.run(cmd, cwd=db.sandbox, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            if r.returncode:
+                raise RuntimeError(f"python retention benchmark failed:\n{r.stdout[-3000:]}")
+            raw += [{**c, "variant": variant} for c in json.loads(out.read_text())["cases"]]
     db.set_sync_commit(True)
     return raw
 
@@ -450,7 +511,13 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--label", default=None, help="result name (default: run-<UTC timestamp>)")
     ap.add_argument("--quick", action="store_true", help="tiny smoke run (1 rep, few jobs, short windows)")
-    ap.add_argument("--only", choices=["queue", "http"], help="run only one half")
+    ap.add_argument("--only", choices=["queue", "http", "retention"],
+                    help="run only one part (retention: retention_enforce on Go and Python; not part of a default run)")
+    ap.add_argument("--retention", action="store_true", help="also run the retention_enforce benchmark")
+    ap.add_argument("--retention-rows", default="1000,20000,100000",
+                    help="expired rows seeded into each of the 8 purged tables, per case")
+    ap.add_argument("--retention-reps", type=int, default=5)
+    ap.add_argument("--retention-variants", default="durable,nosync", help="durable (synchronous_commit=on), nosync")
     ap.add_argument("--concurrency", default="1,4,16", help="queue slot counts")
     ap.add_argument("--variants", default="durable,nosync", help="queue DB variants: durable,nosync")
     ap.add_argument("--queue-reps", type=int, default=3)
@@ -477,8 +544,10 @@ def main() -> int:
                          "then OPENGTM_TEST_DATABASE_URL). Only throwaway databases are created in it.")
     args = ap.parse_args()
     args.variants = [v for v in args.variants.split(",") if v]
+    args.retention_variants = [v for v in args.retention_variants.split(",") if v]
     if args.quick:
-        args.queue_reps = args.http_reps = 1
+        args.queue_reps = args.http_reps = args.retention_reps = 1
+        args.retention_rows = "500,2000"
         args.durable_jobs, args.durable_warmup = 60, 10
         args.nosync_jobs, args.nosync_warmup = 200, 20
         args.subprocess_jobs, args.subprocess_warmup = 4, 1
@@ -497,9 +566,16 @@ def main() -> int:
     try:
         log("building Go binaries")
         go_test_bin, opengtm_bin, loadgen_bin = tmp / "queue.test", tmp / "opengtm", tmp / "loadgen"
-        subprocess.run(["go", "test", "-c", "-o", str(go_test_bin), "./internal/queue"], cwd=SERVER, check=True)
-        subprocess.run(["go", "build", "-o", str(opengtm_bin), "./cmd/opengtm"], cwd=SERVER, check=True)
-        subprocess.run(["go", "build", "-o", str(loadgen_bin), "./internal/bench/loadgen"], cwd=SERVER, check=True)
+        retention_test_bin = tmp / "retention.test"
+        want_retention = args.only == "retention" or args.retention
+        if args.only != "retention":
+            subprocess.run(["go", "test", "-c", "-o", str(go_test_bin), "./internal/queue"], cwd=SERVER, check=True)
+        if want_retention:
+            subprocess.run(["go", "test", "-c", "-o", str(retention_test_bin), "./internal/jobs/retention"],
+                           cwd=SERVER, check=True)
+        if args.only != "retention":
+            subprocess.run(["go", "build", "-o", str(opengtm_bin), "./cmd/opengtm"], cwd=SERVER, check=True)
+            subprocess.run(["go", "build", "-o", str(loadgen_bin), "./internal/bench/loadgen"], cwd=SERVER, check=True)
 
         data_before = snapshot_data()
         sandbox = make_sandbox(tmp)
@@ -509,15 +585,19 @@ def main() -> int:
             queue_raw: list[dict] = []
             http_raw: list[dict] = []
             http_info: dict = {}
-            if args.only != "http":
+            retention_raw: list[dict] = []
+            if args.only in (None, "queue"):
                 queue_raw = run_queue(args, db, tmp, go_test_bin)
-            if args.only != "queue":
+            if args.only in (None, "http"):
                 http_raw, http_info = run_http(args, db, tmp, opengtm_bin, loadgen_bin)
+            if want_retention:
+                retention_raw = run_retention(args, db, tmp, retention_test_bin)
         machine["load_avg_end"] = os.getloadavg()
         if snapshot_data() != data_before:
             raise RuntimeError("the benchmark modified the repository's ./data directory; this is a bug")
 
         queue_sum, http_sum = summarize_queue(queue_raw), summarize_http(http_raw)
+        retention_sum = summarize_retention(retention_raw)
         result = {
             "schema": SCHEMA,
             "label": label,
@@ -528,7 +608,8 @@ def main() -> int:
             "config": {k: v for k, v in vars(args).items() if k != "database_url"} | {"http": http_info},
             "queue": {"summary": queue_sum, "raw": queue_raw},
             "http": {"summary": http_sum, "raw": http_raw},
-            "metrics": flat_metrics(queue_sum, http_sum),
+            "retention": {"summary": retention_sum, "raw": retention_raw},
+            "metrics": flat_metrics(queue_sum, http_sum, retention_sum),
         }
         out = RESULTS / f"{label}.json"
         out.write_text(json.dumps(result, indent=2) + "\n")

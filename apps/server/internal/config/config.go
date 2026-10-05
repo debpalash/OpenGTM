@@ -39,6 +39,14 @@ type Config struct {
 	LogLevel     slog.Level
 	Worker       Worker
 	Plugins      Plugins
+	Automations  Automations
+}
+
+// Automations mirrors the Python AUTOMATIONS_* switch that job executors
+// honour: when disabled (the default) nothing may enqueue trigger_eval work,
+// exactly as in apps/api/services/automations/events.py.
+type Automations struct {
+	Enabled bool
 }
 
 // Plugins locates installed plugins and sets how they are trusted.
@@ -87,6 +95,9 @@ type file struct {
 		EgressProxy     *string  `yaml:"egress_proxy"`
 		IndexURL        *string  `yaml:"index_url"`
 	} `yaml:"plugins"`
+	Automations struct {
+		Enabled *bool `yaml:"enabled"`
+	} `yaml:"automations"`
 	Worker struct {
 		Concurrency           *int `yaml:"concurrency"`
 		MaxActivePerWorkspace *int `yaml:"max_active_per_workspace"`
@@ -146,7 +157,24 @@ func LoadFrom(path string, lookup func(string) (string, bool)) (Config, error) {
 		return min(hi, max(lo, v))
 	}
 
+	flag := func(env string, fromFile *bool, def bool) bool {
+		v := def
+		if fromFile != nil {
+			v = *fromFile
+		}
+		if raw, ok := lookup(env); ok && strings.TrimSpace(raw) != "" {
+			b, err := ParseBool(raw)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("%s=%q is not a boolean (true/false, 1/0, yes/no, on/off)", env, raw))
+				return def
+			}
+			v = b
+		}
+		return v
+	}
+
 	cfg := Config{
+		Automations:  Automations{Enabled: flag("AUTOMATIONS_ENABLED", f.Automations.Enabled, false)},
 		Listen:       str("OPENGTM_LISTEN", f.Listen, ":8080"),
 		LegacyAPIURL: str("OPENGTM_LEGACY_API_URL", f.LegacyAPIURL, "http://127.0.0.1:8000"),
 		WebDir:       str("OPENGTM_WEB_DIR", f.WebDir, ""),
@@ -295,4 +323,16 @@ func parseLevel(s string) (slog.Level, error) {
 		return slog.LevelError, nil
 	}
 	return 0, fmt.Errorf("LOG_LEVEL=%q must be one of debug, info, warn, error", s)
+}
+
+// ParseBool accepts the boolean spellings pydantic-settings accepts for the
+// Python settings, so one .env value means the same to both stacks.
+func ParseBool(raw string) (bool, error) {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "1", "true", "t", "yes", "y", "on":
+		return true, nil
+	case "0", "false", "f", "no", "n", "off":
+		return false, nil
+	}
+	return false, fmt.Errorf("%q is not a boolean", raw)
 }

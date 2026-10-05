@@ -9,9 +9,9 @@ moved, and proxies everything else to FastAPI.
 | --- | --- |
 | `opengtm serve [--worker]` | Web UI, Go-owned `/api/v2` routes, live events, and a reverse proxy to FastAPI for every other path. `--worker` also runs the queue in-process (the `lite` profile). |
 | `opengtm worker` | Durable queue worker for job types routed to Go. Safe to run as many replicas. |
-| `opengtm routes list\|set <type> <python\|go>` | Choose which executor claims each job type. Drain in-flight jobs before switching. |
+| `opengtm routes list\|set <type> <python\|go>` | Choose which executor claims each job type. Drain in-flight jobs before switching; a type this binary has no Go executor for is refused. |
 | `opengtm leases list\|release <name>` | Show scheduler leadership (holder, fencing token, expiry) or expire a lease whose holder is gone. See [M8](../../docs/plans/m8-multihost-state.md). |
-| `opengtm doctor [--json]` | Check configuration, the database role (must be `NOSUPERUSER NOBYPASSRLS`), migrations, routes and the legacy API. |
+| `opengtm doctor [--json]` | Check configuration, the database role (must be `NOSUPERUSER NOBYPASSRLS`), migrations, routes (including a type routed to go that nothing can execute) and the legacy API. |
 | `opengtm plugin ...` | Build, test, record, run, sign, pack and install plugins ([guide](../../docs/plugins/README.md)). |
 | `opengtm health` | Probe `/healthz` (container healthchecks). |
 
@@ -58,6 +58,7 @@ values; the environment wins. Invalid values stop startup with a clear error.
 | `WORKER_CONCURRENCY`, `WORKER_MAX_ACTIVE_PER_WORKSPACE`, `WORKER_SHUTDOWN_GRACE_SECONDS` | 1, 2, 30 | Same meaning and limits as the Python worker. |
 | `OPENGTM_PLUGIN_DIRS`, `OPENGTM_CONNECTOR_DIRS`, `CONNECTOR_SIGNATURE_POLICY`, `OPENGTM_PLUGIN_TRUST_STORE`, `OPENGTM_EGRESS_PROXY`, `OPENGTM_PLUGIN_INDEX` (CLI only) | see the [plugin guide](../../docs/plugins/README.md#running-plugins-on-a-server) | |
 | `SECRETS_MASTER_KEY`, `SECRET_KEY`, `APP_ENV`, `SECRETS_PROVIDER` | as in Python | Encryption key for per-workspace plugin secrets, resolved exactly as `apps/api/services/workspace/secrets.py` does; only `SECRETS_PROVIDER=local` is supported ([guide](../../docs/plugins/README.md#per-workspace-plugin-secrets)). |
+| `AUTOMATIONS_ENABLED` | `false` | Same switch as the Python setting (`true/false`, `1/0`, `yes/no`, `on/off`; `automations.enabled` in `opengtm.yaml`). While off, ported executors enqueue no `trigger_eval` work, as in Python. Set it identically on both stacks. |
 | `LOG_LEVEL` | `info` | JSON logs on stderr. |
 
 ## How it fits with the Python stack
@@ -123,7 +124,8 @@ internal/plugin/...  manifests, templates, signing, bundles, plugin index, fixtu
 internal/pluginrun   plugin catalog, plugin_run jobs, workspace plugin secrets and /api/v2 plugin routes
 internal/secrets     Fernet envelope shared with the Python app (enc:v1)
 internal/plugin/process  Python/process plugin supervisor and wire protocol
-internal/jobs/...    job types migrated from Python (retention_enforce)
+internal/jobs/...    job types migrated from Python: retention, playbooksched, audiencerefresh;
+                     jobkit (shared helpers), jobkit/jobtest and jobkit/paritytest (test fixtures)
 internal/ops/...     operator tooling behind init, migrate, backup, restore, upgrade,
                      rollback and doctor --dir (see below)
 ```
@@ -174,79 +176,238 @@ The full flow against real containers is `scripts/packaging/e2e.sh`.
 | --- | --- | --- |
 | `plugin_run` | Go (a new type; seeded by migration `7c1e5a9d3b20`) | n/a |
 | `retention_enforce` | **Python** | `opengtm routes set retention_enforce go` |
+| `research_playbook_schedule` | **Python** | `opengtm routes set research_playbook_schedule go` |
+| `audience_refresh` | **Python** | `opengtm routes set audience_refresh go` |
 
-`retention_enforce` is the first job type migrated from Python
-(`internal/jobs/retention`, a port of
-`apps/api/services/governance/retention.py`). Only the executor moved: the
-API routes that create runs and enqueue jobs, and the scheduler's
-`bootstrap_retention_schedules`, stay in Python. The Go handler and failure
-reconciler keep the same status transitions, error strings, legal-hold and
-disabled-schedule behaviour, `deleted_counts`, and next-run scheduling
-(`retention:<workspace>:<date>` fire keys). Deletion runs in batches of 5,000
-rows inside one tenant transaction under forced row-level security, so a
-failure still rolls everything back, and the commit is fenced by the job
-lease so a cancelled or reclaimed attempt writes nothing.
+Every other job type is Python's. Which types were considered, and why the rest
+were not ported (workspace secrets in a local SQLite file, Python-only AI and
+lead-generation engines), is in the
+[triage table](../../docs/plans/job-port-triage.md).
 
-No route is seeded for it, so a fresh or upgraded install keeps running it in
-Python. `opengtm routes list` shows it as `python (default, switchable)`.
+A ported type moves **only its executor**: the handler and its failure
+reconciler. The API routes that create the work, the schedulers' `bootstrap_*`
+functions and every other job type it enqueues stay in Python. No route is
+seeded for a ported type, so a fresh or upgraded install keeps running it in
+Python; `opengtm routes list` shows it as `python (default, switchable)`, and
+`opengtm worker` logs `job types available in go are still routed to python`
+until you switch. A type is only registered after its Python/Go parity proof
+passes (see [Parity](#parity)).
 
 ### Cut over and roll back
 
 Cutting over is a routing change only; no migration, no deploy of Python code.
+The steps are the same for every type below; each type adds its own check.
 
 1. **Prerequisites.** The database is at Alembic `7c1e5a9d3b20` or later, and
    every Python API/worker replica is a version that honours
    `job_executor_routes` (older ones ignore routes and would claim the job
-   too). `opengtm doctor` must pass, and at least one Go worker must be
-   running (`opengtm worker`, or `opengtm serve --worker`): it logs
-   `job types available in go are still routed to python` until you switch.
+   too). `opengtm doctor` must pass, at least one Go worker must be running
+   (`opengtm worker`, or `opengtm serve --worker`), and `AUTOMATIONS_ENABLED`
+   must be the same on the Go worker as on the Python stack. `routes set`
+   refuses a type that binary cannot execute (a route to go that nothing
+   claims would strand the type's jobs); `--force` overrides.
 2. **Drain.** `opengtm routes list` shows the `processing` count for the type.
-   A retention job runs for seconds to minutes (the ceiling is 1,800 s).
    `routes set` refuses to switch while any are processing under the current
    executor; wait for 0 and run it again. Use `--force` only for a row you
-   know is orphaned (for example, its worker is gone).
-3. **Switch.** `opengtm routes set retention_enforce go`. Python workers stop
-   claiming new jobs of the type immediately; the Go worker starts claiming.
-   Pending jobs, including the scheduled `retention:<workspace>:<date>` ones,
-   are picked up by Go unchanged.
-4. **Verify.** `opengtm routes list` shows `retention_enforce  go`;
-   `opengtm doctor` passes (it counts the new explicit route). Start a run
-   from a workspace with a retention policy
-   (`POST /api/governance/retention/enforce`) and confirm
-   `GET /api/governance/retention/runs` reports it `completed` with
-   `deleted_counts`, the Go worker logs `retention enforced`, and the
-   workspace's next `retention:<workspace>:<date>` job is pending.
-5. **Roll back.** `opengtm routes set retention_enforce python` (same drain
-   rule). Python claims the type again at once; nothing needs to be redeployed
-   or migrated, because the Python handler, its failure reconciler and the
-   scheduling code were not changed. Any row a Go worker left `processing` is
-   reaped by Python after the usual five minutes without a heartbeat, and
-   reconciled by the Python reconciler, which behaves identically.
+   know is orphaned (for example, its worker is gone). The ceilings are the
+   Python `JOB_TIMEOUTS`: 1,800 s for retention, 300 s for a playbook tick,
+   900 s for an audience refresh.
+3. **Switch.** `opengtm routes set <type> go`. Python workers stop claiming new
+   jobs of the type immediately; the Go worker starts claiming. Pending jobs,
+   including scheduled ones, are picked up by Go unchanged.
+4. **Verify.** `opengtm routes list` shows `<type>  go` and `opengtm doctor`
+   passes (its `go executors` check lists what runs in go), then the type's own
+   check below.
+5. **Roll back.** `opengtm routes set <type> python` (same drain rule). Python
+   claims the type again at once; nothing needs to be redeployed or migrated,
+   because the Python handler, its failure reconciler and the scheduling code
+   were not changed. Any row a Go worker left `processing` is reaped by Python
+   after the usual five minutes without a heartbeat, and reconciled by the
+   Python reconciler, which behaves identically.
+
+### What every Go executor does differently
+
+These hold for all three types; the per-type sections list the rest.
+
+- **One transaction, fenced by the lease.** Python commits a handler's work in
+  several transactions and has no lease; Go does each handler's work in one
+  tenant transaction (forced row-level security) and checks the job's lease
+  before the commit, so a cancelled or reclaimed attempt writes nothing and a
+  failure leaves no partial state. The only exceptions are a failure's own
+  bookkeeping (recorded in a second transaction).
+- **Error text.** Domain columns that record `str(exception)` match for
+  validation and policy errors. For a PostgreSQL error the driver wording
+  differs (SQLAlchemy's wrapper versus pgx's), though the database message
+  inside is the same. The queue records the handler's real error in
+  `jobs.error`; the Python queue records `job <id> (<type>) child exited with
+  code 1` because it runs handlers in a child process.
+- **Tenant scope of cleanups.** The schedule mirrors and `jobs` have no
+  row-level security. Python's schedule cleanup (`remove_schedule`,
+  cancelling pending occurrences) is keyed by an identifier taken from the
+  payload, so a job in one tenant that names another tenant's identifier would
+  delete that tenant's mirror row and cancel its occurrences. The Go
+  executors only touch rows whose payload names the job's own workspace; for
+  every payload the scheduler produces the result is identical.
+- **Wildcards.** `fire_key LIKE '<type prefix>:<id>:%'` is not escaped, in
+  Python or Go, so `_` and `%` inside an identifier behave as wildcards the
+  same way in both.
+- **Serial ids.** Rolled-back statements consume serial values, and how many
+  depends on how a statement was batched; row order, not id gaps, is what the
+  parity tests compare.
+
+### retention_enforce
+
+`internal/jobs/retention`, a port of `apps/api/services/governance/retention.py`.
+The Go handler and failure reconciler keep the same status transitions, error
+strings, legal-hold and disabled-schedule behaviour, `deleted_counts`, and
+next-run scheduling (`retention:<workspace>:<date>` fire keys). Deletion runs
+in batches of 5,000 rows inside one tenant transaction, so a failure still
+rolls everything back, and the commit is fenced by the job lease.
+
+**Verify** after switching: start a run from a workspace with a retention
+policy (`POST /api/governance/retention/enforce`) and confirm
+`GET /api/governance/retention/runs` reports it `completed` with
+`deleted_counts`, the Go worker logs `retention enforced`, and the workspace's
+next `retention:<workspace>:<date>` job is pending.
+
+Its parity suite also compares `normalized_days` and the cutoff arithmetic over
+a corpus of valid and malformed values (`tests/retention_parity/pure_cases.json`),
+and `tests/retention_parity/dataset.sql` seeds all eight purged tables with rows
+one second either side of every cutoff. For how it compares with the Python
+executor on large purges, see
+[`benchmarks/README.md`](../../benchmarks/README.md#retention_enforce-go-and-python).
+
+### research_playbook_schedule
+
+`internal/jobs/playbooksched`, a port of `handle_playbook_schedule` and
+`schedule_next` in `apps/api/services/playbooks/scheduler.py`. A tick of a
+playbook that runs on an audience either removes its schedule (the playbook is
+missing, disabled or has no audience) or, unless a `pending`/`running` run
+exists, creates a `playbook_runs` row (`requested_by='scheduler'`, a snapshot
+of the playbook's prompt and `steps or []`, at most 100 members) and its
+`research_playbook_run` job (executed by Python), then books the next tick
+`max(15, min(interval, 10080))` minutes out under the fire key
+`playbook_schedule:<id>:<isoformat>` (microseconds kept, as Python spells it),
+keeping the non-RLS `playbook_schedules` mirror and `next_run_at` in step.
+`bootstrap_playbook_schedules` and the playbook API stay in Python.
+
+**Verify** after switching: configure a playbook with an audience and an
+interval (`PATCH /api/research-playbooks/<id>`); after a tick
+`GET /api/research-playbooks/<id>/runs` lists a `pending` run, the Go worker
+logs `playbook run scheduled`, and the playbook's `next_run_at` and one
+pending `research_playbook_schedule` job (fire key `playbook_schedule:<id>:...`)
+exist.
+
+Differences from Python:
+
+- The run, its job and the next occurrence are written in one transaction
+  (Python commits the run, then the job, then the next occurrence), so a failure
+  cannot leave a pending run without its job.
+- Python registers no failure reconciler for this type, so neither does Go.
+- A payload that is not a JSON object fails with Python's `AttributeError`
+  text, though the real Python child rejects it before the handler runs.
+- See [every Go executor](#what-every-go-executor-does-differently).
+
+### audience_refresh
+
+`internal/jobs/audiencerefresh`, a port of `handle_audience_refresh`,
+`reconcile_audience_refresh_failure` and `schedule_next`
+(`audiences/scheduler.py`) with `refresh_audience` (`audiences/refresh.py`), the
+membership-event emitter (`automations/events.py`) and `enqueue_audience_syncs`
+(`destinations/engine.py`). A refresh evaluates the audience's filter against
+the tenant's `leads` table (the same filters as `PgLeadStore.query_leads_page`:
+`lead_ids`, `city`, `state`, `score_tier`, `status`, `source`, `company_size`,
+`job_ids`, `specialization`, `has_email|phone|website`, `min_score`,
+`max_score`, `search`) in pages of 500, applies the diff to `audience_members`
+with `entered`/`exited` events, and updates `member_count` and `refreshed_at`.
+If anything entered, exited or changed it enqueues one
+`audience_destination_sync` run and job per enabled destination without an
+active run (still executed by Python) and, when `AUTOMATIONS_ENABLED`, one
+`trigger_eval` job per matching `on_audience_enter`/`on_audience_exit` rule and
+event. It then records `refresh_health='healthy'` and books the next
+occurrence (`audience_refresh:<id>:<isoformat>`). A failed refresh marks the
+audience `degraded`, counts the failure, still books the next occurrence and
+returns the error to the queue; the reconciler recognises that a future
+`next_refresh_at` means the handler already recorded the attempt, so a failure
+is not counted twice. The manual refresh API and
+`bootstrap_audience_schedules` stay in Python.
+
+**Verify** after switching: `POST /api/audiences/<id>/refresh` stays Python;
+let a scheduled refresh fire (or enqueue one) and confirm
+`GET /api/audiences/<id>` shows `refresh_health: healthy`, a fresh
+`refreshed_at` and `next_refresh_at`, the Go worker logs `audience refreshed`,
+and one pending `audience_refresh` job keyed `audience_refresh:<id>:...` exists.
+
+Differences from Python:
+
+- **Atomicity.** Python commits the member diff, then the events and syncs,
+  then the health and the next occurrence separately, so a crash between them
+  loses the fan-out of an already committed diff. Go does all of it in one
+  transaction: a cancelled attempt or a failure anywhere (including the
+  fan-out) rolls the diff back, records the failure on the audience, and the
+  retry redoes the whole refresh.
+- **Ordering of equal scores.** Python pages by `score DESC` alone, so leads
+  with equal scores can move between pages and be skipped or repeated at a page
+  boundary of a large audience; Go breaks ties by `id`. The parity datasets use
+  distinct scores, so state is identical either way.
+- **Workspace metadata.** Python skips a workspace whose slug is missing from
+  `data/workspaces.db`; Go cannot read that file (see the
+  [triage notes](../../docs/plans/job-port-triage.md#workspace-metadata-and-secrets-local-sqlite))
+  and refreshes the audience.
+- **Filter values of the wrong type** (a number for `status`, a string for
+  `lead_ids`, a non-numeric `min_score`) fail the refresh in both, but the
+  recorded `last_refresh_error` wording differs; Go accepts only integer
+  `lead_ids` and only string `job_ids`/equality filters. `f"{value}"`
+  formatting of a list or object in `specialization`/`search` (which Python
+  renders as its repr) is rejected.
+- **Malformed automation rules.** A rule whose stored `trigger_config` or
+  `scope_workbook_ids` has an unexpected shape makes Python abandon the page of
+  events (the exception is swallowed); Go does the same and logs a warning.
+  Rules and workbook rows are visited in `created_at, id` / row-id order rather
+  than the database's arbitrary order.
+- **The reconciler's "already reconciled" test** reads the stored naive
+  `next_refresh_at` as UTC, like Python, so in a PostgreSQL session zone behind
+  UTC the handler's own booking looks past and the reconciler counts the
+  failure again, in both implementations. Run PostgreSQL in UTC.
+- **Snapshots.** A member snapshot is the 48 fields of the Python `Lead`
+  dataclass (NULL stays null); a falsy `created_at`/`updated_at` is replaced by
+  the refresh time's `isoformat`, so such a lead reads as `changed` on every
+  refresh, as in Python.
 
 ### Parity
 
-The port is verified against the Python code, not just against its own tests:
+The ports are verified against the Python code, not just against their own
+tests. One command runs every suite:
 
 ```bash
-TEST_DATABASE_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/postgres \
-  uv run pytest tests/test_retention_go_parity_pg.py
+TEST_DATABASE_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:55432/postgres \
+  uv run pytest tests/test_retention_go_parity_pg.py \
+                tests/test_playbook_schedule_go_parity_pg.py \
+                tests/test_audience_refresh_go_parity_pg.py
 ```
 
-`TEST_DATABASE_URL` names a server on which the role may create databases
-(the named database itself is not touched). For four time-zone combinations
-the test clones a migrated template into two fresh databases, seeds both with
-the dataset in `tests/retention_parity/` (all eight target tables, rows one
-second either side of every cutoff, several workspaces, legal hold, disabled
-and custom policies, an unsupported category, mid-run failures and
-reconciliation cases), runs the unchanged Python handler on one and the Go
-handler on the other under forced RLS, and requires identical
-`retention_runs`, policies, schedule mirror, jobs and remaining rows, and the
-same error from every step. A second test compares `normalized_days` and the
-cutoff arithmetic over a corpus of malformed values. The Go integration tests
-in `internal/jobs/retention` add tenant isolation, lease loss, mid-run
-failure, reconciliation, and routing through the real queue.
+`TEST_DATABASE_URL` names a server on which the role may create databases and
+roles (the named database itself is not touched; the harness drops what it
+creates). Each suite clones a migrated template into two fresh databases for
+every one of four time-zone combinations (the PostgreSQL session zone and the
+process zone, each UTC, Los Angeles or Kolkata), seeds both with its dataset,
+runs the **unchanged Python handler** on one and the **Go handler** on the
+other as `NOSUPERUSER NOBYPASSRLS` roles under forced RLS with the clock
+frozen, and requires identical resulting state and the same error from every
+step. Datasets and scenarios live in `tests/retention_parity/`,
+`tests/playbook_schedule_parity/` and `tests/audience_refresh_parity/`.
 
-#### Known differences from the Python implementation
+Adding a type means adding a dataset, a `scenarios.json`, a small Python runner
+and a Go driver; the harness is shared (`tests/parity_harness`,
+`internal/jobs/jobkit/paritytest`), as are the Go helpers
+(`internal/jobs/jobkit`: Python value semantics, lease-fenced tenant
+transactions, schedule mirrors, fire-key cancellation, keyset paging, and
+`jobtest` fixtures for the integration tests). The Go integration tests of each
+package add tenant isolation, lease loss (including cancellation after the
+work was written but before the commit), atomic failure, routing through the
+real queue, and the reconciler through the real queue.
+
+#### retention_enforce: known differences from the Python implementation
 
 Everything the parity test compares is identical. These are not, by design or
 because they cannot match:

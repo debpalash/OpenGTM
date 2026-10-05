@@ -31,37 +31,17 @@ Set KEEP_PARITY_DBS=1 to keep the databases of a failing run for inspection.
 """
 from __future__ import annotations
 
-import difflib
 import json
 import os
-import re
-import shutil
-import subprocess
-import sys
-import uuid
 from pathlib import Path
 
 import pytest
 
-TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
-REPO = Path(__file__).resolve().parents[1]
-FIXTURES = REPO / "tests" / "retention_parity"
-SERVER = REPO / "apps" / "server"
+from tests.parity_harness import pg
+from tests.parity_harness.pg import ZONES, needs_go, needs_pg
 
-needs_go = pytest.mark.skipif(shutil.which("go") is None, reason="go toolchain not on PATH")
-needs_pg = pytest.mark.skipif(
-    not TEST_DATABASE_URL, reason="TEST_DATABASE_URL not set (retention parity tests skipped)"
-)
-
-# (id, PostgreSQL session time zone, process time zone). The signals cutoff is
-# read in the process zone and every timestamp is written in the session zone,
-# so the mixed rows exercise the conversions where the two diverge.
-ZONES = [
-    ("utc", "UTC", "UTC"),
-    ("los_angeles", "America/Los_Angeles", "America/Los_Angeles"),
-    ("pg_utc_proc_kolkata", "UTC", "Asia/Kolkata"),
-    ("pg_kolkata_proc_utc", "Asia/Kolkata", "UTC"),
-]
+FIXTURES = pg.REPO / "tests" / "retention_parity"
+GO_PACKAGE = "internal/jobs/retention"
 
 TARGET_KEYS = {
     "governance_audit_events": "id",
@@ -73,99 +53,35 @@ TARGET_KEYS = {
     "playbook_results": "lead_id::text",
     "outreach_sends": "idempotency_key",
 }
-UUID = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-
-
-def _urls(database: str) -> tuple[str, str]:
-    """(SQLAlchemy psycopg URL, plain libpq URL) for a database on the test server."""
-    from sqlalchemy.engine import make_url
-
-    url = make_url(TEST_DATABASE_URL).set(database=database, drivername="postgresql+psycopg")
-    sa = url.render_as_string(hide_password=False)
-    return sa, sa.replace("postgresql+psycopg://", "postgresql://", 1)
-
-
-def _admin():
-    import psycopg
-
-    return psycopg.connect(_urls("postgres")[1], autocommit=True)
-
-
-def _drop(name: str) -> None:
-    if os.getenv("KEEP_PARITY_DBS"):
-        return
-    with _admin() as admin:
-        admin.execute(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)')
 
 
 @pytest.fixture(scope="module")
 def template_db():
-    name = f"opengtm_retpar_tpl_{uuid.uuid4().hex[:8]}"
-    with _admin() as admin:
-        admin.execute(f'CREATE DATABASE "{name}"')
-    try:
-        res = subprocess.run(
-            ["uv", "run", "--frozen", "alembic", "upgrade", "head"],
-            cwd=REPO, env=dict(os.environ, DATABASE_URL=_urls(name)[0]),
-            capture_output=True, text=True,
-        )
-        assert res.returncode == 0, f"alembic upgrade failed:\n{res.stdout}\n{res.stderr}"
-        yield name
-    finally:
-        _drop(name)
+    return pg.shared_template()
 
 
-def _fresh_seeded_db(template: str, tz: str) -> str:
-    import psycopg
-
-    name = f"opengtm_retpar_{uuid.uuid4().hex[:8]}"
-    with _admin() as admin:
-        admin.execute(f'CREATE DATABASE "{name}" TEMPLATE "{template}"')
-        admin.execute(f"ALTER DATABASE \"{name}\" SET timezone TO '{tz}'")
-    sql = (FIXTURES / "dataset_lib.sql").read_text() + "\n" + (FIXTURES / "dataset.sql").read_text()
-    with psycopg.connect(_urls(name)[1]) as conn:  # new session: picks up the time zone
-        conn.execute(sql)
-    return name
+def _seed_files() -> list[Path]:
+    return [FIXTURES / "dataset_lib.sql", FIXTURES / "dataset.sql"]
 
 
 def _run_python(db: str, tz: str, out: Path) -> None:
-    res = subprocess.run(
-        [sys.executable, "-m", "tests.retention_parity.python_runner",
-         "--db-url", _urls(db)[0], "--scenarios", str(FIXTURES / "scenarios.json"),
-         "--out", str(out), "--tz", tz],
-        cwd=REPO, env=dict(os.environ, TZ=tz), capture_output=True, text=True,
-    )
-    assert res.returncode == 0, f"python runner failed:\n{res.stdout}\n{res.stderr}"
-
-
-def _go_test(name: str, env: dict) -> None:
-    res = subprocess.run(
-        ["go", "test", "-count=1", "-run", f"^{name}$", "./internal/jobs/retention/"],
-        cwd=SERVER, env={**os.environ, **env}, capture_output=True, text=True,
-    )
-    assert res.returncode == 0, f"go test {name} failed:\n{res.stdout}\n{res.stderr}"
-    assert "SKIP" not in res.stdout and "no tests to run" not in res.stdout, res.stdout
+    pg.run_python("tests.retention_parity.python_runner", db, tz, out,
+                  "--scenarios", str(FIXTURES / "scenarios.json"))
 
 
 def _run_go(db: str, tz: str, out: Path) -> None:
-    _go_test("TestParityDriver", {
-        "OPENGTM_PARITY_DATABASE_URL": _urls(db)[1],
-        "OPENGTM_PARITY_SCENARIOS": str(FIXTURES / "scenarios.json"),
-        "OPENGTM_PARITY_OUT": str(out),
-        "TZ": tz,
-    })
+    pg.run_go(GO_PACKAGE, db, tz, FIXTURES / "scenarios.json", out)
 
 
 def _dump(db: str) -> dict:
-    import psycopg
-
-    def norm(expr: str) -> str:
-        return f"regexp_replace({expr}, '{UUID}', '<uuid>', 'g')"
+    norm = pg.norm_uuid
 
     dump: dict = {}
-    with psycopg.connect(_urls(db)[1], autocommit=True) as conn:
+    import psycopg
+
+    with psycopg.connect(pg.urls(db)[1], autocommit=True) as conn:
         def rows(sql: str) -> list[list]:
-            return [list(r) for r in conn.execute(sql).fetchall()]
+            return pg.rows(conn, sql)
 
         dump["runs"] = rows(
             f"""SELECT workspace_id, {norm('id')}, status, requested_by, policy_snapshot::text,
@@ -187,32 +103,11 @@ def _dump(db: str) -> dict:
                 FROM jobs WHERE type = 'retention_enforce'""")
         dump["jobs"] = sorted(jobs, key=lambda r: json.dumps(r, default=str))
         dump["targets"] = {
-            table: {ws: sorted(k) for ws, k in _group(rows(
+            table: {ws: sorted(k) for ws, k in pg.group(rows(
                 f"SELECT workspace_id, {key} FROM {table} ORDER BY 1, 2")).items()}
             for table, key in TARGET_KEYS.items()
         }
     return dump
-
-
-def _group(pairs: list[list]) -> dict:
-    grouped: dict = {}
-    for ws, key in pairs:
-        grouped.setdefault(ws, []).append(str(key))
-    return grouped
-
-
-def _diff(name: str, py, go) -> list[str]:
-    if py == go:
-        return []
-    if isinstance(py, dict) and isinstance(go, dict):
-        out = []
-        for key in sorted(set(py) | set(go)):
-            out += _diff(f"{name}.{key}", py.get(key), go.get(key))
-        return out
-    a = json.dumps(py, indent=1, default=str, sort_keys=True).splitlines()
-    b = json.dumps(go, indent=1, default=str, sort_keys=True).splitlines()
-    delta = list(difflib.unified_diff(a, b, "python", "go", lineterm="", n=1))
-    return [f"{name} differs:\n" + "\n".join(delta[:60])]
 
 
 def _expected_deleted(days: int, date_only: bool = False) -> int:
@@ -230,39 +125,18 @@ def _expected_deleted(days: int, date_only: bool = False) -> int:
 @pytest.mark.parametrize("zone", ZONES, ids=[z[0] for z in ZONES])
 def test_python_and_go_leave_identical_state(template_db, tmp_path, zone):
     _, pg_tz, proc_tz = zone
-    py_db = _fresh_seeded_db(template_db, pg_tz)
-    go_db = _fresh_seeded_db(template_db, pg_tz)
-    try:
+    with pg.DatabasePair(template_db, pg_tz, _seed_files(), "opengtm_retpar") as dbs:
         py_out, go_out = tmp_path / "py.json", tmp_path / "go.json"
-        _run_python(py_db, proc_tz, py_out)
-        _run_go(go_db, proc_tz, go_out)
+        _run_python(dbs.py, proc_tz, py_out)
+        _run_go(dbs.go, proc_tz, go_out)
 
         py_steps, go_steps = json.loads(py_out.read_text()), json.loads(go_out.read_text())
         spec = json.loads((FIXTURES / "scenarios.json").read_text())["steps"]
-        assert len(py_steps) == len(go_steps) == len(spec)
-        problems = []
-        for step, py, go in zip(spec, py_steps, go_steps):
-            label = f"{step['op']} job {step['job']} ({step.get('note', '')})"
-            needle = step.get("error_contains")
-            if needle:
-                if not (py["error"] and needle in py["error"] and go["error"] and needle in go["error"]):
-                    problems.append(f"{label}: python={py['error']!r} go={go['error']!r}, both must contain {needle!r}")
-            elif py["error"] != go["error"]:
-                problems.append(f"{label}: python raised {py['error']!r}, go {go['error']!r}")
+        problems = pg.compare_steps(spec, py_steps, go_steps)
         assert not problems, "step outcomes differ:\n" + "\n".join(problems)
 
-        py_dump, go_dump = _dump(py_db), _dump(go_db)
-        diffs = _diff("state", py_dump, go_dump)
-        assert not diffs, "\n\n".join(diffs)
-
+        py_dump, _ = pg.assert_identical_state(dbs.py, dbs.go, _dump)
         _assert_scenarios_were_exercised(py_dump, py_steps, exact_counts=(pg_tz == proc_tz == "UTC"))
-    except BaseException:
-        if os.getenv("KEEP_PARITY_DBS"):
-            print(f"kept databases {py_db} (python) and {go_db} (go)")
-        raise
-    finally:
-        _drop(py_db)
-        _drop(go_db)
 
 
 def _assert_scenarios_were_exercised(dump: dict, steps: list, exact_counts: bool) -> None:
@@ -328,13 +202,17 @@ def test_pure_helpers_match_over_a_corpus(tmp_path, tz):
     """normalized_days and the cutoff arithmetic of _targets, incl. malformed input."""
     cases = FIXTURES / "pure_cases.json"
     py_out, go_out = tmp_path / "py.json", tmp_path / "go.json"
+    import subprocess
+    import sys
+
     res = subprocess.run(
         [sys.executable, "-m", "tests.retention_parity.python_runner",
          "--pure", str(cases), "--out", str(py_out), "--tz", tz],
-        cwd=REPO, env=dict(os.environ, TZ=tz), capture_output=True, text=True,
+        cwd=pg.REPO, env=dict(os.environ, TZ=tz), capture_output=True, text=True,
     )
     assert res.returncode == 0, res.stderr
-    _go_test("TestParityPure", {"OPENGTM_PARITY_PURE": str(cases), "OPENGTM_PARITY_OUT": str(go_out), "TZ": tz})
+    pg.go_test(GO_PACKAGE, "TestParityPure",
+               {"OPENGTM_PARITY_PURE": str(cases), "OPENGTM_PARITY_OUT": str(go_out), "TZ": tz})
     py, go = json.loads(py_out.read_text()), json.loads(go_out.read_text())
     corpus = json.loads(cases.read_text())
     problems = []
