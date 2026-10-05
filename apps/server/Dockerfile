@@ -3,8 +3,9 @@
 #
 #   docker build -f apps/server/Dockerfile -t opengtm-server:local .
 
-# Stage 1: dashboard. Same Bun workspace install as the main Dockerfile.
-FROM oven/bun:1 AS web
+# Stage 1: dashboard. Same Bun workspace install as the main Dockerfile. The
+# output is architecture independent, so it always runs on the build host.
+FROM --platform=$BUILDPLATFORM oven/bun:1 AS web
 WORKDIR /app
 COPY package.json bun.lock ./
 COPY apps/web/package.json ./apps/web/
@@ -18,14 +19,18 @@ RUN bun run --cwd apps/web build
 
 # Stage 2: binary. The kernel module is committed, so no Rust toolchain is
 # needed here; CI rebuilds it from crates/ to catch drift.
-FROM golang:1.27 AS server
+# The Go toolchain also runs on the build host and cross-compiles (CGO is off),
+# so a multi-arch build needs no emulation.
+FROM --platform=$BUILDPLATFORM golang:1.27 AS server
 ARG VERSION=dev
+ARG TARGETOS
+ARG TARGETARCH
 WORKDIR /src/apps/server
 COPY apps/server/go.mod apps/server/go.sum ./
 RUN go mod download
 COPY apps/server/ ./
 COPY --from=web /app/apps/web/dist/ ./internal/server/webdist/dist/
-RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" \
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" \
     -o /out/opengtm ./cmd/opengtm
 
 # Stage 3: runtime. Static binary, non-root, no shell. First-party plugins,

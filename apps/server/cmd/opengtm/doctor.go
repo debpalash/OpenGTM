@@ -32,10 +32,16 @@ type checkResult struct {
 func runDoctor(ctx context.Context, args []string) error {
 	fs, cfgPath := roleFlags("doctor")
 	asJSON := fs.Bool("json", false, "print results as JSON")
+	installDir := fs.String("dir", "", "check the Compose install in this directory from the host (Docker, files, containers, database)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
-	results := doctorChecks(ctx, *cfgPath)
+	var results []checkResult
+	if *installDir != "" {
+		results = installChecks(ctx, *installDir)
+	} else {
+		results = doctorChecks(ctx, *cfgPath)
+	}
 	if err := printChecks(os.Stdout, results, *asJSON); err != nil {
 		return err
 	}

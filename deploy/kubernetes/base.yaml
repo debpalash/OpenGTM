@@ -1,0 +1,310 @@
+# OpenGTM on Kubernetes, without Helm: the `lite` profile (PostgreSQL, the
+# one-shot migration Job, the Python API and the Go front door).
+#
+#   kubectl create namespace opengtm
+#   kubectl -n opengtm create secret generic opengtm-env --from-env-file=.env   # the .env from `opengtm init`
+#   kubectl apply -k deploy/kubernetes            # after setting the image tags in kustomization.yaml
+#   kubectl -n opengtm wait --for=condition=complete job/opengtm-migrate --timeout=10m
+#
+# Read docs/self-hosting.md ("Kubernetes") first. Constraints that follow from
+# the current architecture, not from this file:
+#
+#   * The API, worker and scheduler share one ReadWriteOnce data volume (the
+#     workspace metadata still lives in files until milestone M8), so they must
+#     run on one node and the API must stay at one replica.
+#   * Run exactly one scheduler.
+#   * The Go front door is stateless and may be scaled.
+#
+# Upgrades: change the tags in kustomization.yaml, back up first, delete the
+# old migration Job (Jobs are immutable) and apply again. Rollback means
+# restoring the backup, not editing tags back; see docs/operations/upgrade-backup-rollback.md.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opengtm-config
+  namespace: opengtm
+  labels: {app.kubernetes.io/part-of: opengtm}
+data:
+  opengtm.yaml: |
+    listen: ":8080"
+    legacy_api_url: "http://api:8000"
+    log_level: info
+    worker:
+      concurrency: 2
+      max_active_per_workspace: 2
+      shutdown_grace_seconds: 30
+    plugins:
+      signature_policy: optional
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opengtm-data
+  namespace: opengtm
+  labels: {app.kubernetes.io/part-of: opengtm}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 5Gi
+---
+# PostgreSQL. For production prefer a managed PostgreSQL 16+ and delete this
+# StatefulSet and Service, keeping the host name `postgres` (an ExternalName
+# Service) or editing the URLs in the opengtm-env Secret. The database role used
+# for migrations must be able to CREATE EXTENSION pg_trgm and CREATE ROLE.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: opengtm
+  labels: {app.kubernetes.io/name: postgres, app.kubernetes.io/part-of: opengtm}
+spec:
+  clusterIP: None
+  selector: {app.kubernetes.io/name: postgres}
+  ports:
+    - {name: postgres, port: 5432, targetPort: postgres}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: opengtm
+  labels: {app.kubernetes.io/name: postgres, app.kubernetes.io/part-of: opengtm}
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels: {app.kubernetes.io/name: postgres}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: postgres, app.kubernetes.io/part-of: opengtm}
+    spec:
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        fsGroup: 70
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - {name: postgres, containerPort: 5432}
+          env:
+            - {name: PGDATA, value: /var/lib/postgresql/data/pgdata}
+            - name: POSTGRES_USER
+              valueFrom: {secretKeyRef: {name: opengtm-env, key: POSTGRES_USER}}
+            - name: POSTGRES_PASSWORD
+              valueFrom: {secretKeyRef: {name: opengtm-env, key: POSTGRES_PASSWORD}}
+            - name: POSTGRES_DB
+              valueFrom: {secretKeyRef: {name: opengtm-env, key: POSTGRES_DB}}
+          volumeMounts:
+            - {name: pgdata, mountPath: /var/lib/postgresql/data}
+          # TCP, not the unix socket: the image's temporary init server only
+          # listens on the socket and would report ready too early.
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -h 127.0.0.1 -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 12
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -h 127.0.0.1 -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+          resources:
+            requests: {cpu: 250m, memory: 512Mi}
+            limits: {memory: 2Gi}
+  volumeClaimTemplates:
+    - metadata:
+        name: pgdata
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: 20Gi
+---
+# The single schema owner. Re-create it on every release (Jobs are immutable):
+#   kubectl -n opengtm delete job opengtm-migrate --ignore-not-found && kubectl apply -k deploy/kubernetes
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: opengtm-migrate
+  namespace: opengtm
+  labels: {app.kubernetes.io/name: migrate, app.kubernetes.io/part-of: opengtm}
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: migrate, app.kubernetes.io/part-of: opengtm}
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16-alpine
+          command: ["sh", "-c", "until pg_isready -h postgres -p 5432; do sleep 2; done"]
+      containers:
+        - name: migrate
+          image: ghcr.io/debpalash/opengtm:RELEASE_TAG
+          command: ["python", "-m", "apps.api.scripts.migrate"]
+          envFrom:
+            - secretRef: {name: opengtm-env}
+          env:
+            - {name: PYTHONPATH, value: /app}
+            - {name: YUPCHA_DB_INIT, value: alembic}
+            - {name: YUPCHA_PROVISION_RUNTIME_ROLE, value: "1"}
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {memory: 1Gi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: opengtm
+  labels: {app.kubernetes.io/name: api, app.kubernetes.io/part-of: opengtm}
+spec:
+  selector: {app.kubernetes.io/name: api}
+  ports:
+    - {name: http, port: 8000, targetPort: http}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: opengtm
+  labels: {app.kubernetes.io/name: api, app.kubernetes.io/part-of: opengtm}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate   # the ReadWriteOnce data volume cannot be mounted by two pods on two nodes
+  selector:
+    matchLabels: {app.kubernetes.io/name: api}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: api, app.kubernetes.io/part-of: opengtm}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      initContainers:
+        # Do not serve until the migration Job has finished: it creates the
+        # schema and the runtime role this pod logs in with.
+        - name: wait-for-schema
+          image: ghcr.io/debpalash/opengtm:RELEASE_TAG
+          command:
+            - python
+            - -c
+            - |
+              import os, sys, time, psycopg
+              url = os.environ["DATABASE_URL"].replace("postgresql+psycopg://", "postgresql://")
+              for _ in range(180):
+                  try:
+                      with psycopg.connect(url, connect_timeout=3) as c:
+                          if c.execute("SELECT to_regclass('public.alembic_version')").fetchone()[0]:
+                              sys.exit(0)
+                  except Exception:
+                      pass
+                  time.sleep(2)
+              sys.exit("schema not ready: has the opengtm-migrate Job completed?")
+          envFrom:
+            - secretRef: {name: opengtm-env}
+          env:
+            - name: DATABASE_URL
+              valueFrom: {secretKeyRef: {name: opengtm-env, key: APP_DATABASE_URL}}
+      containers:
+        - name: api
+          image: ghcr.io/debpalash/opengtm:RELEASE_TAG
+          ports:
+            - {name: http, containerPort: 8000}
+          envFrom:
+            - secretRef: {name: opengtm-env}
+          env:
+            - name: DATABASE_URL   # the NOSUPERUSER NOBYPASSRLS runtime role, never the owner
+              valueFrom: {secretKeyRef: {name: opengtm-env, key: APP_DATABASE_URL}}
+            - {name: PYTHONPATH, value: /app}
+            - {name: YUPCHA_DB_INIT, value: skip}
+            - {name: RUN_INLINE_WORKER, value: "1"}   # "0" once the standard profile's worker runs
+          volumeMounts:
+            - {name: data, mountPath: /app/data}
+          startupProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 10
+            timeoutSeconds: 10
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 6
+          resources:
+            requests: {cpu: 250m, memory: 768Mi}
+            limits: {memory: 3Gi}
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: opengtm-data}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  namespace: opengtm
+  labels: {app.kubernetes.io/name: server, app.kubernetes.io/part-of: opengtm}
+spec:
+  selector: {app.kubernetes.io/name: server}
+  ports:
+    - {name: http, port: 80, targetPort: http}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: opengtm
+  labels: {app.kubernetes.io/name: server, app.kubernetes.io/part-of: opengtm}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app.kubernetes.io/name: server}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: server, app.kubernetes.io/part-of: opengtm}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: server
+          image: ghcr.io/debpalash/opengtm-server:RELEASE_TAG
+          args: ["serve", "--worker"]
+          ports:
+            - {name: http, containerPort: 8080}
+          envFrom:
+            - secretRef: {name: opengtm-env}
+          env:
+            - name: DATABASE_URL
+              valueFrom: {secretKeyRef: {name: opengtm-env, key: APP_DATABASE_URL}}
+            - {name: OPENGTM_CONFIG, value: /etc/opengtm/opengtm.yaml}
+          volumeMounts:
+            - {name: config, mountPath: /etc/opengtm, readOnly: true}
+          readinessProbe:
+            httpGet: {path: /readyz, port: http}
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet: {path: /healthz, port: http}
+            periodSeconds: 20
+            timeoutSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {memory: 512Mi}
+      volumes:
+        - name: config
+          configMap: {name: opengtm-config}

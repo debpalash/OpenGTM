@@ -318,6 +318,69 @@ schema. They then move to the Go `migrate` role, which is required for the
 Python-free `lite` profile. Every service declares its supported schema and
 contract versions, and an incompatible combination fails at startup.
 
+## M7 packaging: decisions, evidence and limits
+
+Implemented on `rewrite/m7-packaging`; user documentation is
+[`docs/self-hosting.md`](../self-hosting.md) and
+[`docs/operations/upgrade-backup-rollback.md`](../operations/upgrade-backup-rollback.md).
+
+**Decisions**
+
+- *Migration owner.* Go owns locking (a PostgreSQL advisory lock plus an install
+  lock), planning, refusing a database newer than the release, and verifying the
+  head; Alembic stays the engine, run from the release's own Python image
+  (`opengtm migrate`, and the `migrate` service in the generated Compose file).
+  A Go-native runner would mean porting about 60 Python revisions before the Go
+  API owns the schema, for no gain. When it does, only the engine changes. The
+  Python-free `lite` profile is blocked on M6 (Go routes), not on packaging.
+- *Rollback is a restore.* `opengtm rollback` restores the pre-upgrade backup
+  (after a safety backup of the current state). Alembic downgrades are neither
+  guaranteed to preserve data nor testable the way a restore is. The cost,
+  losing writes since the backup, is stated in the runbook and requires an explicit
+  yes when the upgrade had succeeded.
+- *One Compose file, three profiles.* `lite`, `standard` and `full` are Compose
+  profiles of a single embedded `compose.yml` selected by `COMPOSE_PROFILES`;
+  `opengtm upgrade` refreshes it to the version shipped with the new binary
+  unless the operator edited it.
+- *Backups use the stock PostgreSQL tools* (`pg_dump` custom format, restored in
+  one transaction) so a backup stays usable without opengtm. Roles, which
+  `pg_dump` does not carry but policies reference, travel in `roles.sql`.
+- *Release supply chain.* GoReleaser for six binaries, checksums and SPDX SBOMs;
+  native per-architecture image builds (no QEMU) merged into one multi-arch tag
+  and signed by digest; keyless cosign signatures bound to the release workflow's
+  identity; a signed `release-manifest.json`. Publishing waits for the packaging
+  suite.
+
+**Evidence.** `scripts/packaging/e2e.sh` runs against real containers (see the
+workflow in `.github/workflows/packaging.yml` for the CI matrix on `ubuntu-24.04`
+and `ubuntu-24.04-arm`). The Go packages are tested against PostgreSQL 18:
+checksummed backup and restore into scratch databases (roles recreated, forced
+RLS preserved, sequences continue), wipe-and-restore removing objects from a
+newer schema, corruption and path-traversal rejection, the migration owner
+against the real Alembic graph, and the upgrade and rollback decision logic
+against a recording fake.
+
+**Not proven, and why**
+
+- arm64 was not executed here; it is configured as native `ubuntu-24.04-arm`
+  runners in CI and the images build without emulation, but no arm64 run has
+  happened yet.
+- "Upgrade from the previous release" has no published predecessor for the new
+  Compose install: `v3.0.0` predates the runtime-role and seed scripts the install
+  needs, and no Go server release exists. The suite therefore uses the fork point
+  from `main` (or the newest qualifying tag, once there is one) as the previous
+  Python image, which crosses real Alembic revisions, and the same Go server code
+  labelled with an older version.
+- The release workflow, signing and publishing were not run. GoReleaser's
+  configuration was checked and a snapshot build produced all six archives and
+  checksums locally; cosign verification was exercised with the real client only
+  against a forged bundle, and with a stub for the accepting path.
+- The Kubernetes example is schema-validated only; it was not applied to a cluster.
+- `lite` is not Python-free and has no Redis, so live workbook updates over
+  WebSocket need `standard`. The `full` collector is provisioned but nothing
+  first-party exports to it yet. There is no browser pool until M4.
+- Restore time and backup size were not measured on a production-sized database.
+
 ## Proposed stack
 
 Use supported stable releases, pin exact versions and image digests at

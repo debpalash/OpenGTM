@@ -1,0 +1,96 @@
+# GoReleaser configuration for the `opengtm` binary (apps/server).
+#
+# Run by .github/workflows/release.yml on a version tag. It builds the
+# dashboard once, cross-compiles a static binary for six platforms, and
+# produces archives, a SHA-256 checksum file, one SPDX SBOM per archive and a
+# keyless Sigstore (cosign) signature over the checksum file. Container images
+# are built and signed by the same workflow, not here.
+#
+# Try it without publishing or signing:
+#   goreleaser release --snapshot --clean --skip=sign,sbom
+version: 2
+
+project_name: opengtm
+
+before:
+  hooks:
+    # The dashboard is embedded in the binary (internal/server/webdist). It is
+    # architecture independent, so it is built once for every target.
+    - bun install --frozen-lockfile --ignore-scripts
+    - bun run --cwd apps/web build
+    # Copy in place: the committed .keep must stay, or GoReleaser sees a dirty tree.
+    - cp -a apps/web/dist/. apps/server/internal/server/webdist/dist/
+
+builds:
+  - id: opengtm
+    dir: apps/server
+    main: ./cmd/opengtm
+    binary: opengtm
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: opengtm
+    ids: [opengtm]
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "opengtm_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+# One SPDX SBOM per archive (syft must be on PATH; the release workflow installs it).
+sboms:
+  - id: archives
+    artifacts: archive
+    documents:
+      - "${artifact}.spdx.json"
+    cmd: syft
+    args: ["$artifact", "--output", "spdx-json=$document"]
+
+# Keyless signing: the signature is bound to the release workflow's GitHub OIDC
+# identity and recorded in the Sigstore transparency log. Verify with
+# `cosign verify-blob` (see docs/self-hosting.md) or scripts/install.sh.
+signs:
+  - id: checksums
+    cmd: cosign
+    artifacts: checksum
+    signature: "${artifact}.sigstore.json"
+    args:
+      - sign-blob
+      - --yes
+      - --bundle=${signature}
+      - ${artifact}
+    output: true
+
+release:
+  github:
+    owner: debpalash
+    name: OpenGTM
+  # A maintainer reviews the generated notes and publishes, as with the image-only flow.
+  draft: true
+  prerelease: auto
+  extra_files:
+    - glob: scripts/install.sh
+    - glob: scripts/install.ps1
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^chore:"
+      - "^test:"

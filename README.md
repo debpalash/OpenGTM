@@ -30,10 +30,44 @@ are welcome too; start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Run it
 
-You need **Git, Docker with Compose v2, and roughly 4 GB of available RAM**.
-No provider key is required to try the demo.
+You need **Docker with Compose v2 (2.20 or newer) and roughly 4 GB of available
+RAM**. No provider key is required to try the demo.
 
-### On your laptop
+### One command: the `opengtm` binary
+
+macOS or Linux, amd64 or arm64:
+
+```bash
+curl -fsSL https://github.com/debpalash/OpenGTM/releases/latest/download/install.sh | bash -s -- --quickstart
+```
+
+This downloads the release binary, verifies its SHA-256 checksum (and the
+Sigstore signature when [cosign](https://docs.sigstore.dev/cosign/system_config/installation/)
+is installed), runs `opengtm init` to generate secrets and a Compose file, and
+starts the **lite** stack: the Go server, the Python API and PostgreSQL. Open
+**http://localhost:3000** and sign in with the password in
+`opengtm/.opengtm-initial-credentials`.
+
+Pick a bigger profile with `--profile standard` (adds Redis, scalable job
+workers and the scheduler) or `--profile full` (adds SearXNG, Reacher and an
+OpenTelemetry collector). Or do it in two steps:
+
+```bash
+opengtm init --profile standard --start     # prompts for anything you leave out
+opengtm doctor --dir .                      # checks Docker, containers, database, RLS
+```
+
+Upgrades, backups and rollback are built in: `opengtm upgrade --to 3.1.0`,
+`opengtm backup`, `opengtm restore`, `opengtm rollback`. See the
+[self-hosting guide](docs/self-hosting.md) and the
+[upgrade, backup and rollback runbook](docs/operations/upgrade-backup-rollback.md).
+Kubernetes users start from [`deploy/kubernetes/`](deploy/kubernetes/).
+Release artifacts are signed; [verify them](docs/self-hosting.md#verifying-a-release).
+
+### From source, on your laptop
+
+Git and Docker Compose build the stack from this checkout (the Python API,
+worker, scheduler and nginx), without the `opengtm` binary.
 
 macOS or Linux:
 
@@ -59,9 +93,17 @@ the admin password after signing in and remove the credentials file.
 
 ### On a server
 
-Use a versioned checkout and image. Point a domain at the host and provide a
-TLS reverse proxy such as Caddy; the app itself stays on loopback. On a Linux
-host with Git and Docker Compose:
+Point a domain at the host and provide a TLS reverse proxy such as Caddy; the
+app itself stays on loopback. With the `opengtm` binary installed:
+
+```bash
+opengtm init --profile standard --public-url https://gtm.example.com --start
+```
+
+`--public-url` switches the app to production mode and sets the allowed origin;
+the listener stays on `127.0.0.1:3000` for the proxy below. To build the
+previous Compose stack from a versioned checkout instead, on a Linux host with
+Git and Docker Compose:
 
 ```bash
 git clone --depth 1 --branch v3.0.0 https://github.com/debpalash/OpenGTM.git
@@ -95,10 +137,11 @@ or the internal Compose network. Set up backups and review the
 [production checklist](https://opengtm.palash.dev/self-hosting/production/)
 before inviting a team. Never expose port 3000 directly over the internet.
 
-For a new release, fetch its tag, check it out, update `YUPCHA_IMAGE` in `.env`
-to the same version, then run `docker compose pull && docker compose up -d
---no-build`. Keep the existing `.env`, `data/`, and Docker volumes when
-upgrading. The [Docker guide](https://opengtm.palash.dev/self-hosting/docker/)
+To upgrade an `opengtm init` install, run `opengtm upgrade --to <version>`; it
+backs up, migrates, health-checks and offers a rollback. For the from-source
+stack, fetch the new tag, check it out, update `YUPCHA_IMAGE` in `.env` to the
+same version, then run `docker compose pull && docker compose up -d --no-build`.
+Keep the existing `.env`, `data/`, and Docker volumes when upgrading. The [Docker guide](https://opengtm.palash.dev/self-hosting/docker/)
 explains the services and scaling.
 
 ### Operate it
