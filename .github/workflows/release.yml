@@ -1,58 +1,235 @@
 name: Release
 
-# Runs only when a version tag is pushed (e.g. `git tag v3.0.0 && git push
-# opengtm v3.0.0`). Builds the multi-arch image, publishes it to GHCR, and
-# drafts a GitHub release with generated notes for a maintainer to review.
+# Runs only when a version tag is pushed (for example `git tag v3.1.0 && git
+# push origin v3.1.0`). Nothing here runs on branches or pull requests.
+#
+# Order of work:
+#   1. verify    the packaging end-to-end suite (fresh install, backup/restore,
+#                upgrade from the previous release, rollback) on amd64 and
+#                arm64. Nothing is published unless it passes.
+#   2. images    build native amd64 and arm64 images for the Python app and the
+#                Go server and push them by digest (no tags yet).
+#   3. manifests merge the per-arch images into one multi-arch tag per image
+#                and sign each by digest with cosign (keyless).
+#   4. binaries  GoReleaser: six binaries, archives, SHA-256 checksums, SPDX
+#                SBOMs, and a keyless cosign signature over the checksums.
+#   5. manifest  release-manifest.json listing every image digest and archive
+#                checksum, signed with cosign, attached to the draft release.
+#
+# Verifying a release is documented in docs/self-hosting.md.
 on:
   push:
     tags: ["v*.*.*"]
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
 
 jobs:
-  image:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
+  verify:
+    name: Packaging end to end
+    uses: ./.github/workflows/packaging.yml
+    permissions:
+      contents: read
+
+  images:
+    name: Image ${{ matrix.image }} (${{ matrix.arch }})
+    needs: verify
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { image: app, arch: amd64, runner: ubuntu-24.04, platform: linux/amd64, dockerfile: Dockerfile, repo: opengtm }
+          - { image: app, arch: arm64, runner: ubuntu-24.04-arm, platform: linux/arm64, dockerfile: Dockerfile, repo: opengtm }
+          - { image: server, arch: amd64, runner: ubuntu-24.04, platform: linux/amd64, dockerfile: apps/server/Dockerfile, repo: opengtm-server }
+          - { image: server, arch: arm64, runner: ubuntu-24.04-arm, platform: linux/arm64, dockerfile: apps/server/Dockerfile, repo: opengtm-server }
     steps:
       - uses: actions/checkout@v7
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          persist-credentials: false
+      - name: Image name and version
+        id: v
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "name=${REGISTRY}/${owner}/${{ matrix.repo }}" >> "$GITHUB_OUTPUT"
+          echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=semver,pattern={{version}}
-            type=ref,event=tag
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest
-      - uses: docker/build-push-action@v6
+      - id: build
+        uses: docker/build-push-action@v7
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          file: ${{ matrix.dockerfile }}
+          platforms: ${{ matrix.platform }}
+          build-args: |
+            VERSION=${{ steps.v.outputs.version }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ steps.v.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=AGPL-3.0
+          # Pushed by digest only; tags are applied after both architectures exist.
+          outputs: type=image,name=${{ steps.v.outputs.name }},push-by-digest=true,name-canonical=true,push=true
+          sbom: true
+          provenance: mode=max
+          cache-from: type=gha,scope=${{ matrix.image }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}-${{ matrix.arch }}
+      - name: Export digest
+        run: |
+          mkdir -p "${RUNNER_TEMP}/digests"
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${RUNNER_TEMP}/digests/${digest#sha256:}"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: digests-${{ matrix.image }}-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
 
-  github-release:
-    needs: image
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+  manifests:
+    name: Multi-arch tag ${{ matrix.image }}
+    needs: images
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    strategy:
+      matrix:
+        include:
+          - { image: app, repo: opengtm }
+          - { image: server, repo: opengtm-server }
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-${{ matrix.image }}-*
+          merge-multiple: true
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: sigstore/cosign-installer@v4
+      - id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.repo }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ !contains(github.ref_name, '-') }}
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, '-') }}
+      - name: Create the multi-arch image
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          image="${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/${{ matrix.repo }}"
+          # shellcheck disable=SC2046
+          docker buildx imagetools create \
+            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf "${image}@sha256:%s " *)
+      - name: Sign the image by digest (keyless)
+        run: |
+          image="${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/${{ matrix.repo }}"
+          version="${GITHUB_REF_NAME#v}"
+          digest="$(docker buildx imagetools inspect "${image}:${version}" --format '{{json .Manifest}}' | jq -r .digest)"
+          cosign sign --yes "${image}@${digest}"
+          mkdir -p "${RUNNER_TEMP}/final"
+          echo "${digest}" > "${RUNNER_TEMP}/final/${{ matrix.image }}"
+          docker buildx imagetools inspect "${image}:${version}"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: final-digest-${{ matrix.image }}
+          path: ${{ runner.temp }}/final/${{ matrix.image }}
+          if-no-files-found: error
+          retention-days: 1
+
+  binaries:
+    name: Binaries, SBOMs and checksums
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@v7
-      - uses: softprops/action-gh-release@v3
         with:
-          draft: true
-          generate_release_notes: true
-          body: |
-            Container image: `ghcr.io/debpalash/opengtm:${{ github.ref_name }}`
-            Docs: https://opengtm.palash.dev
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: apps/server/go.mod
+          cache-dependency-path: apps/server/go.sum
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.4.2'
+      - uses: sigstore/cosign-installer@v4
+      - uses: anchore/sbom-action/download-syft@v0
+      - uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  manifest:
+    name: Signed release manifest
+    needs: [manifests, binaries]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: ${{ runner.temp }}/final
+          pattern: final-digest-*
+          merge-multiple: true
+      - uses: sigstore/cosign-installer@v4
+      - name: Build, sign and attach release-manifest.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          APP_DIGEST="$(cat "${RUNNER_TEMP}/final/app")"
+          SERVER_DIGEST="$(cat "${RUNNER_TEMP}/final/server")"
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          version="${GITHUB_REF_NAME#v}"
+          mkdir assets && cd assets
+          gh release download "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --pattern checksums.txt
+          jq -n \
+            --arg version "$version" \
+            --arg commit "$GITHUB_SHA" \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg app "${REGISTRY}/${owner}/opengtm@${APP_DIGEST}" \
+            --arg server "${REGISTRY}/${owner}/opengtm-server@${SERVER_DIGEST}" \
+            --rawfile checksums checksums.txt \
+            '{
+              version: $version,
+              commit: $commit,
+              repository: $repository,
+              images: { app: $app, server: $server, platforms: ["linux/amd64", "linux/arm64"] },
+              archives: ($checksums | split("\n") | map(select(length > 0) | split("  ") | {sha256: .[0], name: .[1]})),
+              verify: {
+                image: "cosign verify --certificate-identity-regexp ^https://github.com/\($repository)/\\.github/workflows/release\\.yml@refs/tags/v --certificate-oidc-issuer https://token.actions.githubusercontent.com <image>",
+                checksums: "cosign verify-blob --bundle checksums.txt.sigstore.json --certificate-identity-regexp ^https://github.com/\($repository)/\\.github/workflows/release\\.yml@refs/tags/v --certificate-oidc-issuer https://token.actions.githubusercontent.com checksums.txt"
+              }
+            }' > release-manifest.json
+          cosign sign-blob --yes --bundle release-manifest.json.sigstore.json release-manifest.json
+          gh release upload "${GITHUB_REF_NAME}" release-manifest.json release-manifest.json.sigstore.json \
+            --repo "${GITHUB_REPOSITORY}" --clobber

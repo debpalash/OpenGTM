@@ -1,0 +1,209 @@
+name: Packaging
+
+# The M7 exit gate: fresh install, upgrade from the previous release, backup
+# restore and rollback, on amd64 and arm64, with the same script
+# (scripts/packaging/e2e.sh) that runs locally. Also checks the release
+# tooling (GoReleaser config, the install script's checksum and signature
+# handling, the Kubernetes example and the workflows themselves).
+#
+# The release workflow calls this one first and publishes nothing unless it
+# passes.
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/packaging.yml"
+      - ".github/workflows/release.yml"
+      - ".goreleaser.yaml"
+      - "apps/server/**"
+      - "apps/api/**"
+      - "migrations/**"
+      - "Dockerfile"
+      - "scripts/install.sh"
+      - "scripts/packaging/**"
+      - "deploy/**"
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      prev_ref:
+        description: "Git ref to treat as the previous release (default: newest qualifying tag, else the fork point from main)"
+        required: false
+        default: ""
+  workflow_call:
+    inputs:
+      prev_ref:
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: packaging-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Workflows, scripts, manifests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: actionlint
+        run: |
+          bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12
+          ./actionlint -color
+      - name: shellcheck
+        run: shellcheck scripts/install.sh scripts/packaging/*.sh
+      - name: GoReleaser configuration
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: check
+      - name: Kubernetes example validates
+        run: |
+          curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.7.0/kubeconform-linux-amd64.tar.gz | tar -xz kubeconform
+          ./kubeconform -strict -summary deploy/kubernetes/base.yaml deploy/kubernetes/standard.yaml
+
+  installer:
+    name: install.sh on ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: amd64, runner: ubuntu-24.04 }
+          - { arch: arm64, runner: ubuntu-24.04-arm }
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: apps/server/go.mod
+          cache-dependency-path: apps/server/go.sum
+      # A snapshot release builds the real archives and checksums for all six
+      # targets without publishing; the dashboard build is skipped here
+      # (the image builds below cover it).
+      - uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --snapshot --clean --skip=before,sign,sbom,publish
+      - name: install.sh verifies checksums and signatures
+        run: scripts/packaging/test-install.sh dist
+      - name: Archives for every platform exist
+        run: |
+          for t in linux_amd64 linux_arm64 darwin_amd64 darwin_arm64 windows_amd64 windows_arm64; do
+            ls dist/opengtm_*_"${t}".* >/dev/null || { echo "missing archive for $t"; exit 1; }
+          done
+
+  e2e:
+    name: ${{ matrix.profile }} on ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: amd64, runner: ubuntu-24.04, profile: lite }
+          - { arch: arm64, runner: ubuntu-24.04-arm, profile: lite }
+          - { arch: amd64, runner: ubuntu-24.04, profile: standard }
+          - { arch: arm64, runner: ubuntu-24.04-arm, profile: standard }
+          # The Reacher image is amd64 only, so `full` is exercised on amd64.
+          - { arch: amd64, runner: ubuntu-24.04, profile: full }
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: apps/server/go.mod
+          cache-dependency-path: apps/server/go.sum
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Pick the previous release
+        id: prev
+        env:
+          PREV_REF: ${{ inputs.prev_ref }}
+        run: |
+          ref="$(scripts/packaging/resolve-prev.sh)"
+          echo "ref=${ref}" >> "$GITHUB_OUTPUT"
+          echo "Previous release for the upgrade test: ${ref} ($(git rev-parse --short "${ref}"))"
+          mkdir prev-src
+          git archive "${ref}" | tar -x -C prev-src
+
+      - name: Build opengtm
+        working-directory: apps/server
+        run: go build -trimpath -ldflags "-X main.version=2.0.0" -o "${{ github.workspace }}/opengtm" ./cmd/opengtm
+
+      # Images are built natively on this architecture and loaded into the
+      # local daemon; the e2e script runs them with --no-pull.
+      - name: Build the next release (Python app)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: opengtm-e2e-app:2.0.0
+          cache-from: type=gha,scope=e2e-app-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=e2e-app-${{ matrix.arch }}
+      - name: Build the next release (Go server)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/server/Dockerfile
+          build-args: VERSION=2.0.0
+          load: true
+          tags: opengtm-e2e-server:2.0.0
+          cache-from: type=gha,scope=e2e-server-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=e2e-server-${{ matrix.arch }}
+      - name: Build the previous release (Python app)
+        uses: docker/build-push-action@v7
+        with:
+          context: prev-src
+          load: true
+          tags: opengtm-e2e-app:1.0.0
+          cache-from: type=gha,scope=e2e-prev-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=e2e-prev-${{ matrix.arch }}
+      - name: Build the previous release (Go server)
+        # No Go server release predates this work, so the previous server is
+        # the same code labelled 1.0.0; the schema and Python app still differ.
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/server/Dockerfile
+          build-args: VERSION=1.0.0
+          load: true
+          tags: opengtm-e2e-server:1.0.0
+          cache-from: type=gha,scope=e2e-server-${{ matrix.arch }}
+
+      - name: Fresh install, backup, restore, upgrade, rollback
+        env:
+          OPENGTM_BIN: ${{ github.workspace }}/opengtm
+          E2E_PROFILE: ${{ matrix.profile }}
+          PREV_VERSION: "1.0.0"
+          PREV_APP_IMAGE: opengtm-e2e-app:1.0.0
+          PREV_SERVER_IMAGE: opengtm-e2e-server:1.0.0
+          NEXT_VERSION: "2.0.0"
+          NEXT_APP_IMAGE: opengtm-e2e-app:2.0.0
+          NEXT_SERVER_IMAGE: opengtm-e2e-server:2.0.0
+          NO_PULL: "1"
+          E2E_LOG_DIR: ${{ runner.temp }}/e2e-logs
+        run: |
+          set -o pipefail
+          mkdir -p "$E2E_LOG_DIR"
+          scripts/packaging/e2e.sh 2>&1 | tee "$E2E_LOG_DIR/e2e.log"
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-logs-${{ matrix.profile }}-${{ matrix.arch }}
+          path: ${{ runner.temp }}/e2e-logs
+          retention-days: 7
