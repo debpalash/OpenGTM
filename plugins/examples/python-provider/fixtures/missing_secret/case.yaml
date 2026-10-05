@@ -1,0 +1,6 @@
+description: Without the secret the plugin fails permanently, before any request is made.
+input: {domain: acme.example}
+http: []
+expect:
+  error: "auth_failed: secret ACME_DATA_API_KEY is not configured for this workspace"
+  fields: {}

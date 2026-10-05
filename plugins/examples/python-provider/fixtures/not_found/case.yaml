@@ -1,0 +1,12 @@
+description: Unknown domains return 404; the plugin answers "no result" without failing.
+input: {domain: unknown.example}
+secrets: {ACME_DATA_API_KEY: test-key}
+http:
+  - method: GET
+    url: https://api.acme-data.example/v1/companies?domain=unknown.example
+    status: 404
+    headers: {Content-Type: application/json}
+    body: '{"detail": "not found"}'
+expect:
+  error: no_data
+  fields: {}

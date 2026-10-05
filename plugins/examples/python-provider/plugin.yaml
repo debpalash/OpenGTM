@@ -1,0 +1,37 @@
+# Example Python provider (manifest v2, runtime process) for the same fictional
+# firmographics API as ../declarative-provider. Run its offline tests with:
+#   OPENGTM_PLUGIN_PYTHONPATH=packages/sdk-python/src \
+#     opengtm plugin test plugins/examples/python-provider
+# (or `pip install packages/sdk-python` and drop the variable).
+manifest_version: "2"
+name: acme_firmographics_py
+display_name: Acme Firmographics, in Python (example)
+kind: provider
+runtime: process
+version: 0.1.0
+author: OpenGTM
+license: Apache-2.0
+description: Company domain -> employee count, size band, industry and LinkedIn page, written with opengtm_sdk.
+tags: [example, company, firmographics, python]
+capabilities:
+  network: ["https://api.acme-data.example/v1"]
+  secrets: [ACME_DATA_API_KEY]
+limits:
+  requests_per_second_per_domain: 2
+  timeout_seconds: 15
+  max_pages: 2
+  memory_mb: 128
+inputs: { domain: string }
+outputs:
+  type: object
+  properties:
+    company_size: { type: integer }
+    size_band: { type: string }
+    industry: { type: string }
+    linkedin_url: { type: string }
+  required: [company_size, size_band]
+capability: company_size
+default_confidence: 0.75
+cost_per_lookup: 0.01
+process:
+  command: [python3, main.py]
