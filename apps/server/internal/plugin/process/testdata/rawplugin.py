@@ -340,6 +340,11 @@ elif mode == "peek":
                 except OSError as e:
                     seen.setdefault(needle, []).append(type(e).__name__)
     result([{"fields": {"seen": seen}}])
+elif mode == "stall":
+    # ask for many large responses and never read any of them
+    for i in range(40):
+        send({"type": "fetch", "id": i + 1, "url": inputs["url"]})
+    time.sleep(300)
 elif mode == "hold_slot":
     # used by the capacity tests: announce, hold the slot, then finish
     time.sleep(float(inputs.get("seconds", 0.3)))

@@ -4,6 +4,7 @@ package process
 
 import (
 	"context"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -94,6 +95,31 @@ func TestCooperativeCancelLetsThePluginStopItself(t *testing.T) {
 	// The plugin exited on the cancel frame; no need to wait out the grace.
 	if d := time.Since(cancelledAt); d > 2*time.Second {
 		t.Fatalf("took %s despite a cooperative plugin", d)
+	}
+}
+
+func TestAPluginThatStopsReadingCannotDelayTheKill(t *testing.T) {
+	big := strings.Repeat("x", 2<<20)
+	rt := roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		if r.URL.Path == "/robots.txt" {
+			return respond(404, "", nil), nil
+		}
+		return respond(200, big, nil), nil
+	})
+	s := newSup(t, Options{Client: testClient(t, rt), CancelGrace: 300 * time.Millisecond})
+	p := pspec{network: []string{"https://api.example.com"}, maxPages: 100, timeout: 60}.build(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan error, 1)
+	go func() {
+		_, err := s.Run(ctx, p, Request{Inputs: map[string]any{"mode": "stall", "url": "https://api.example.com/big"}})
+		done <- err
+	}()
+	time.Sleep(1500 * time.Millisecond) // the plugin's socket buffer is now full of unread replies
+	start := time.Now()
+	cancel()
+	<-done
+	if d := time.Since(start); d > 2*time.Second {
+		t.Fatalf("cancel took %s although the plugin stopped reading its socket", d)
 	}
 }
 

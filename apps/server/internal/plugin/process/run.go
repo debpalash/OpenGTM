@@ -30,6 +30,9 @@ const (
 	progressMinGap  = 250 * time.Millisecond
 	stderrTailBytes = 4096
 	maxFetchWorkers = 4
+	// exitDrainIdle is how long the host waits for more data from the socket
+	// after the plugin process has exited (children may still hold it open).
+	exitDrainIdle = 200 * time.Millisecond
 	// memoryHeadroomMB is added to limits.memory_mb for RLIMIT_AS: address
 	// space counts reserved but untouched mappings (thread stacks, malloc
 	// arenas, the interpreter), so a plugin that stays within memory_mb of
@@ -93,10 +96,14 @@ func (r *runner) redact(s string) string {
 	return s
 }
 
-func (r *runner) send(msg any) error {
+func (r *runner) send(msg any) error { return r.sendWithin(msg, 5*time.Second) }
+
+// sendWithin writes one frame, giving up when the plugin does not drain its
+// socket within d (a plugin that never reads must not stall the host).
+func (r *runner) sendWithin(msg any, d time.Duration) error {
 	r.writeMu.Lock()
 	defer r.writeMu.Unlock()
-	_ = r.conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
+	_ = r.conn.SetWriteDeadline(time.Now().Add(d))
 	if t := r.s.opts.Trace; t != nil {
 		if b, err := json.Marshal(msg); err == nil {
 			t("out", b)
@@ -255,7 +262,11 @@ func (r *runner) exec(runCtx, parent context.Context) (out *Outcome, err error) 
 
 	// stop asks the plugin to cancel, gives it CancelGrace and kills the tree.
 	stop := func(reason string) {
-		_ = r.send(Cancel{Type: TypeCancel, Reason: reason, GraceMS: int(o.CancelGrace / time.Millisecond)})
+		// The cancel frame is written off to the side: a plugin that has stopped
+		// reading its socket must not delay the kill.
+		go func() {
+			_ = r.sendWithin(Cancel{Type: TypeCancel, Reason: reason, GraceMS: int(o.CancelGrace / time.Millisecond)}, o.CancelGrace)
+		}()
 		select {
 		case <-exitedCh:
 		case <-time.After(o.CancelGrace):
@@ -325,7 +336,7 @@ loop:
 			// socket; drain them before concluding anything.
 			hasExit = true
 			exitWatch = nil
-			_ = conn.SetReadDeadline(time.Now().Add(200 * time.Millisecond))
+			_ = conn.SetReadDeadline(time.Now().Add(exitDrainIdle))
 		case m := <-frames:
 			if m.err != nil {
 				if errors.Is(m.err, io.EOF) || isTimeout(m.err) || errors.Is(m.err, net.ErrClosed) {
@@ -336,6 +347,12 @@ loop:
 			}
 			if o.Trace != nil {
 				o.Trace("in", m.body)
+			}
+			if hasExit {
+				// After the process ended only the buffered frames matter; keep the
+				// idle allowance fresh so a slow consumer of a large result is not
+				// mistaken for a missing one.
+				_ = conn.SetReadDeadline(time.Now().Add(exitDrainIdle))
 			}
 			typ, err := frameType(m.body)
 			if err != nil {
