@@ -265,6 +265,20 @@ func Upgrade(ctx context.Context, o Options) (res *Result, err error) {
 		return o.offerRollback(ctx, cur, cause)
 	}
 
+	// New releases may need a newer compose.yml (services, dependencies); the
+	// one embedded in this binary is the one the release was tested with.
+	refreshed, err := inst.RefreshCompose(entry.ID)
+	if err != nil {
+		return fail(fmt.Errorf("refresh compose.yml: %w", err))
+	}
+	switch refreshed.Action {
+	case install.RefreshUpdated:
+		cur.ComposeBackup = refreshed.Previous
+		o.logf("compose.yml updated to the version shipped with this opengtm (previous copy: %s)", refreshed.Previous)
+	case install.RefreshCustomized:
+		o.logf("warning: compose.yml has local changes and was left as is. The version this release expects is %s; merge it before relying on new services", refreshed.Proposed)
+	}
+
 	setImages(inst.Env, version, newApp, newServer)
 	if err := inst.Env.Save(); err != nil {
 		return fail(err)
@@ -444,6 +458,11 @@ func Rollback(ctx context.Context, o Options) (*Result, error) {
 		o.logf("the migration never started, so the database is unchanged and is not restored")
 	}
 
+	if entry.ComposeBackup != "" {
+		if err := inst.RestoreCompose(entry.ComposeBackup); err != nil {
+			return nil, fmt.Errorf("rollback: restore compose.yml: %w", err)
+		}
+	}
 	setImages(inst.Env, entry.FromVersion, entry.FromAppImage, entry.FromServerImage)
 	if err := inst.Env.Save(); err != nil {
 		return nil, err

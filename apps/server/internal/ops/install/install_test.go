@@ -2,6 +2,8 @@ package install_test
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"os"
 	"os/exec"
@@ -385,5 +387,61 @@ func TestComposeConfigValidForEveryProfile(t *testing.T) {
 				t.Errorf("services = %s, want %s", got, want[p])
 			}
 		})
+	}
+}
+
+func sha(b []byte) string {
+	h := sha256.Sum256(b)
+	return hex.EncodeToString(h[:])
+}
+
+func TestRefreshComposeUpdatesPristineAndKeepsCustomized(t *testing.T) {
+	dir, _ := initDir(t, install.InitOptions{})
+	inst, _ := install.Load(dir)
+	want, _ := install.Asset("compose.yml")
+
+	// Same as shipped: nothing to do.
+	if r, err := inst.RefreshCompose("t1"); err != nil || r.Action != install.RefreshUnchanged {
+		t.Fatalf("unchanged: %+v %v", r, err)
+	}
+
+	// An older shipped compose.yml that nobody edited is replaced, with a copy kept.
+	old := []byte("# an older release's compose\nservices: {}\n")
+	if err := os.WriteFile(inst.ComposePath(), old, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	inst.State.ComposeSHA256 = sha(old)
+	r, err := inst.RefreshCompose("t2")
+	if err != nil || r.Action != install.RefreshUpdated {
+		t.Fatalf("updated: %+v %v", r, err)
+	}
+	if got, _ := os.ReadFile(inst.ComposePath()); !bytes.Equal(got, want) {
+		t.Error("compose.yml was not replaced with the shipped version")
+	}
+	if got, _ := os.ReadFile(r.Previous); !bytes.Equal(got, old) {
+		t.Error("previous compose.yml not kept for rollback")
+	}
+	if err := inst.RestoreCompose(r.Previous); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := os.ReadFile(inst.ComposePath()); !bytes.Equal(got, old) {
+		t.Error("RestoreCompose did not put the old file back")
+	}
+
+	// An edited compose.yml is never overwritten.
+	edited := []byte("# my changes\nservices: {}\n")
+	if err := os.WriteFile(inst.ComposePath(), edited, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	inst.State.ComposeSHA256 = sha(old) // differs from the edited file's hash
+	r, err = inst.RefreshCompose("t3")
+	if err != nil || r.Action != install.RefreshCustomized {
+		t.Fatalf("customized: %+v %v", r, err)
+	}
+	if got, _ := os.ReadFile(inst.ComposePath()); !bytes.Equal(got, edited) {
+		t.Error("customized compose.yml was overwritten")
+	}
+	if got, _ := os.ReadFile(r.Proposed); !bytes.Equal(got, want) {
+		t.Error("proposed compose.yml.new is not the shipped version")
 	}
 }

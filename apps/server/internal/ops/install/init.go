@@ -478,6 +478,9 @@ func Init(o InitOptions) (*InitResult, error) {
 		Schema: 1, Profile: o.Profile, Version: tag, AppImage: o.AppImage, ServerImage: o.ServerImage,
 		InstalledAt: now().UTC(),
 	}
+	if b, err := Asset("compose.yml"); err == nil {
+		inst.State.ComposeSHA256 = sum(b)
+	}
 	if prevInst := loadStateIfAny(dir); prevInst != nil {
 		inst.State.History = prevInst.History // keep the upgrade journal across a re-init
 	}

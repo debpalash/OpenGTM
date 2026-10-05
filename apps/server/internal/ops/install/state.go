@@ -31,7 +31,10 @@ type State struct {
 	AppImage    string    `json:"app_image"`
 	ServerImage string    `json:"server_image"`
 	InstalledAt time.Time `json:"installed_at"`
-	History     []Upgrade `json:"history,omitempty"`
+	// ComposeSHA256 is the hash of compose.yml as opengtm last wrote it; a
+	// different hash on disk means the operator customized the file.
+	ComposeSHA256 string    `json:"compose_sha256,omitempty"`
+	History       []Upgrade `json:"history,omitempty"`
 }
 
 // Upgrade is one upgrade attempt.
@@ -53,9 +56,11 @@ type Upgrade struct {
 	Backup string `json:"backup,omitempty"`
 	// MigrationStarted is set just before the migration runs. Rollback only
 	// needs to restore the database when this is true.
-	MigrationStarted bool     `json:"migration_started"`
-	FromRevisions    []string `json:"from_revisions,omitempty"`
-	ToRevisions      []string `json:"to_revisions,omitempty"`
+	MigrationStarted bool `json:"migration_started"`
+	// ComposeBackup is the compose.yml replaced by this upgrade, if any.
+	ComposeBackup string   `json:"compose_backup,omitempty"`
+	FromRevisions []string `json:"from_revisions,omitempty"`
+	ToRevisions   []string `json:"to_revisions,omitempty"`
 }
 
 // Install is an install directory loaded from disk.
