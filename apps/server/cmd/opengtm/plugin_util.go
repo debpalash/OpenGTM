@@ -142,10 +142,13 @@ func secretsFromEnv(p *manifest.Plugin, names []string) (map[string]string, erro
 	return out, nil
 }
 
-// defaultTrustStore is $OPENGTM_TRUST_STORE or the repository trust store.
+// defaultTrustStore is $OPENGTM_TRUST_STORE, then the server's
+// $OPENGTM_PLUGIN_TRUST_STORE, then the repository trust store.
 func defaultTrustStore() string {
-	if v := os.Getenv("OPENGTM_TRUST_STORE"); v != "" {
-		return v
+	for _, name := range []string{"OPENGTM_TRUST_STORE", "OPENGTM_PLUGIN_TRUST_STORE"} {
+		if v := os.Getenv(name); v != "" {
+			return v
+		}
 	}
 	return "docs/connectors/trusted-publishers.json"
 }

@@ -24,7 +24,6 @@ func init() {
 		{"pack", "<path> [--output file.ogc]", "build a deterministic signed .ogc bundle", pluginPack},
 		{"sign", "<path> --private-key key.pem --key-id id", "write the detached Ed25519 signature (<manifest>.sig)", pluginSign},
 		{"verify", "<path> [--trust-store file] [--signature-policy ...]", "verify a manifest signature against the trust store", pluginVerify},
-		{"install", "<bundle.ogc> --destination dir [--trust-store file] [--replace]", "verify and install a signed bundle", pluginInstall},
 		{"keygen", "--key-id id [--out key.pem] [--publisher name]", "create an Ed25519 publisher key and print its trust entry", pluginKeygen},
 		{"dev", "<path> [--interval 1s]", "watch the plugin and rerun its tests on every change", pluginDev},
 	}

@@ -55,7 +55,7 @@ values; the environment wins. Invalid values stop startup with a clear error.
 | `OPENGTM_LEGACY_API_URL` | `http://127.0.0.1:8000` | FastAPI, for proxying and workspace authorization. |
 | `OPENGTM_WEB_DIR` | embedded build | Serve the dashboard from a directory instead. |
 | `WORKER_CONCURRENCY`, `WORKER_MAX_ACTIVE_PER_WORKSPACE`, `WORKER_SHUTDOWN_GRACE_SECONDS` | 1, 2, 30 | Same meaning and limits as the Python worker. |
-| `OPENGTM_PLUGIN_DIRS`, `OPENGTM_CONNECTOR_DIRS`, `CONNECTOR_SIGNATURE_POLICY`, `OPENGTM_PLUGIN_TRUST_STORE`, `OPENGTM_EGRESS_PROXY` | see the [plugin guide](../../docs/plugins/README.md#running-plugins-on-a-server) | |
+| `OPENGTM_PLUGIN_DIRS`, `OPENGTM_CONNECTOR_DIRS`, `CONNECTOR_SIGNATURE_POLICY`, `OPENGTM_PLUGIN_TRUST_STORE`, `OPENGTM_EGRESS_PROXY`, `OPENGTM_PLUGIN_INDEX` (CLI only) | see the [plugin guide](../../docs/plugins/README.md#running-plugins-on-a-server) | |
 | `LOG_LEVEL` | `info` | JSON logs on stderr. |
 
 ## How it fits with the Python stack
@@ -85,7 +85,7 @@ internal/progress    LISTEN/NOTIFY events
 internal/server      HTTP front door, legacy proxy, SPA
 internal/egress      guarded outbound HTTP (SSRF, DNS pinning, robots.txt, rate limits)
 internal/kernels     Rust kernels (WebAssembly) for extraction and normalization
-internal/plugin/...  manifests, templates, signing, bundles, fixtures, runtimes
+internal/plugin/...  manifests, templates, signing, bundles, plugin index, fixtures, runtimes
 internal/pluginrun   plugin catalog, plugin_run jobs and /api/v2 plugin routes
 internal/jobs/...    job types migrated from Python (retention_enforce)
 ```
