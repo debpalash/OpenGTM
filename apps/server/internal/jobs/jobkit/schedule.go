@@ -59,6 +59,21 @@ func CancelPending(ctx context.Context, tx pgx.Tx, jobType, likePattern string) 
 	return tag.RowsAffected(), nil
 }
 
+// CancelPendingFor is CancelPending restricted to the jobs whose payload
+// names workspaceID. The mirror and jobs tables carry no row-level security,
+// so a job in one tenant that names another tenant's identifier could
+// otherwise cancel that tenant's occurrences; every scheduler-created job
+// carries its workspace in the payload, so legitimate rows are unaffected.
+func CancelPendingFor(ctx context.Context, tx pgx.Tx, jobType, likePattern, workspaceID string) (int64, error) {
+	tag, err := tx.Exec(ctx, `UPDATE jobs SET status = 'cancelled'
+		WHERE type = $1 AND status = 'pending' AND fire_key LIKE $2
+		  AND payload::jsonb ->> 'workspace_id' = $3`, jobType, likePattern, workspaceID)
+	if err != nil {
+		return 0, fmt.Errorf("cancel pending %s jobs: %w", jobType, err)
+	}
+	return tag.RowsAffected(), nil
+}
+
 // Mirror describes one of the non-RLS "schedule mirror" tables
 // (audience_schedules, playbook_schedules, retention_schedules): identifiers
 // and timing only, read by the scheduler to rebuild occurrences after a
@@ -98,6 +113,20 @@ ON CONFLICT (%[4]s) DO UPDATE SET %[5]s, updated_at = now() WHERE %[6]s`,
 		m.Table, cols, vals, m.KeyCol, sets, diffs)
 	if _, err := tx.Exec(ctx, sql, args...); err != nil {
 		return fmt.Errorf("update %s: %w", m.Table, err)
+	}
+	return nil
+}
+
+// DeleteFor removes the mirror row for key only when it belongs to
+// workspaceID (see CancelPendingFor for why the scope matters). It is a no-op
+// for a mirror whose key is the workspace itself.
+func (m Mirror) DeleteFor(ctx context.Context, tx pgx.Tx, key, workspaceID string) error {
+	if m.WorkspaceCol == "" {
+		return m.Delete(ctx, tx, key)
+	}
+	if _, err := tx.Exec(ctx, fmt.Sprintf(`DELETE FROM %s WHERE %s = $1 AND %s = $2`,
+		m.Table, m.KeyCol, m.WorkspaceCol), key, workspaceID); err != nil {
+		return fmt.Errorf("delete from %s: %w", m.Table, err)
 	}
 	return nil
 }
