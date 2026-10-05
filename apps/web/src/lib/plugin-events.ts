@@ -9,6 +9,7 @@
 
 import type { QueryClient } from "@tanstack/react-query"
 import type { PluginRun, PluginRunStats } from "./plugin-api"
+import { hasRun, mapRuns, type RunListData } from "./plugin-run-list"
 import { queryKeys } from "./query-client"
 
 export interface PlatformEvent {
@@ -107,13 +108,14 @@ export function applyPluginRunEvent(qc: QueryClient, event: PlatformEvent, works
   }
 
   const patch = (run: PluginRun) => run.id === runId ? patchRun(run, event) : run
-  qc.setQueryData<PluginRun[]>(queryKeys.plugins.runList, runs => runs?.map(patch))
+  qc.setQueryData<RunListData>(queryKeys.plugins.runList, data => mapRuns(data, patch))
   qc.setQueryData<PluginRun>(queryKeys.plugins.run(runId), run => run && patch(run))
 
   if (event.event === "plugin_run_progress") return true
-  const listed = qc.getQueryData<PluginRun[]>(queryKeys.plugins.runList)
-  // A run created elsewhere (another tab or teammate) is not cached yet.
-  if (event.event === "plugin_run_queued" || !listed?.some(run => run.id === runId)) {
+  const listed = qc.getQueryData<RunListData>(queryKeys.plugins.runList)
+  // A run created elsewhere (another tab or teammate) is not cached yet. (A run
+  // that is older than the loaded pages is not either, and a refetch is cheap.)
+  if (event.event === "plugin_run_queued" || !hasRun(listed, runId)) {
     void qc.invalidateQueries({ queryKey: queryKeys.plugins.runList })
   }
   if (event.event in STATUS_BY_EVENT) {

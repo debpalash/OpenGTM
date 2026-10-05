@@ -30,11 +30,12 @@ from urllib.parse import urlsplit, urlunsplit
 
 import psycopg
 
-# The authenticated FastAPI route stops answering (every request times out, and
-# the worker stays wedged) at 64 concurrent connections to two uvicorn workers.
-# That is a finding about the Python stack, not something to benchmark through,
-# so those endpoints are only driven up to this many connections.
-FASTAPI_AUTHED_MAX_CONNS = 32
+# Before the pool fix (docs/internal or benchmarks/README.md, "The FastAPI
+# wedge") the authenticated FastAPI route stopped answering at 64 concurrent
+# connections against two uvicorn workers: every request timed out and the
+# workers stayed wedged. Baselines taken before that fix cap those endpoints at
+# 32 connections; the default is now uncapped (the highest level driven) and
+# ``--fastapi-authed-max-conns`` restores a cap to benchmark an older checkout.
 
 ROOT = Path(__file__).resolve().parent.parent
 SERVER = ROOT / "apps" / "server"
@@ -392,18 +393,24 @@ def run_http(args, db: Database, tmp: Path, opengtm_bin: Path, loadgen_bin: Path
         endpoints = [
             ("fastapi-health-direct", f"{a}/health", []),
             ("fastapi-health-via-go-proxy", f"{g}/health", []),
-            ("fastapi-authed-direct", f"{a}/api/auth/workspace-context", [auth], FASTAPI_AUTHED_MAX_CONNS),
-            ("fastapi-authed-via-go-proxy", f"{g}/api/auth/workspace-context", [auth], FASTAPI_AUTHED_MAX_CONNS),
+            ("fastapi-authed-direct", f"{a}/api/auth/workspace-context", [auth], args.fastapi_authed_max_conns),
+            ("fastapi-authed-via-go-proxy", f"{g}/api/auth/workspace-context", [auth], args.fastapi_authed_max_conns),
             ("go-version", f"{g}/api/v2/version", []),
             ("go-plugins-authed", f"{g}/api/v2/plugins", [auth]),
         ]
+        if args.endpoints:
+            wanted = set(args.endpoints.split(","))
+            unknown = wanted - {e[0] for e in endpoints}
+            if unknown:
+                raise RuntimeError(f"unknown --endpoints {sorted(unknown)}")
+            endpoints = [e for e in endpoints if e[0] in wanted]
         levels = [int(x) for x in args.http_concurrency.split(",")]
         raw: list[dict] = []
         for rep in range(args.http_reps):
             log(f"http rep {rep + 1}/{args.http_reps}")
             for name, url, hdrs, *cap in endpoints:
                 for c in levels:
-                    if cap and c > cap[0]:
+                    if cap and cap[0] and c > cap[0]:
                         continue
                     cmd = [str(loadgen_bin), "-url", url, "-name", name, "-c", str(c),
                            "-duration", f"{args.http_duration}s", "-warmup", f"{args.http_warmup}s"]
@@ -458,6 +465,11 @@ def main() -> int:
     ap.add_argument("--http-concurrency", default="1,16,64")
     ap.add_argument("--http-duration", type=float, default=4.0, help="seconds per measured window")
     ap.add_argument("--http-warmup", type=float, default=1.5)
+    ap.add_argument("--fastapi-authed-max-conns", type=int, default=0,
+                    help="cap the connections used against the authenticated FastAPI endpoints (0 = no cap; "
+                         "use 32 to benchmark a checkout from before the pool fix, which wedges at 64)")
+    ap.add_argument("--endpoints", default="",
+                    help="comma-separated endpoint labels to drive (default: all); e.g. fastapi-authed-direct")
     ap.add_argument("--api-workers", type=int, default=2, help="uvicorn workers (the Dockerfile uses 2)")
     ap.add_argument("--database-url", default=os.environ.get("OPENGTM_BENCH_DATABASE_URL")
                     or os.environ.get("OPENGTM_TEST_DATABASE_URL"),

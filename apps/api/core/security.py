@@ -1,4 +1,5 @@
 from fastapi import Depends, HTTPException, status
+from fastapi.concurrency import run_in_threadpool
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -36,7 +37,15 @@ async def get_current_user(
     )
     username: str = claims.get("sub")
     token_data = TokenData(username=username)
-    user = db.query(User).filter(User.username == token_data.username).first()
+    # The lookup is a blocking query that may wait for a pooled connection. The
+    # Session keeps that connection until get_db closes it, which can only
+    # happen after the event loop has sent this request's response, so running
+    # the query on the event loop itself deadlocks the loop whenever more
+    # requests are in flight than the pool can lend (see
+    # tests/test_workspace_context_concurrency.py). Keep it off the loop.
+    user = await run_in_threadpool(
+        lambda: db.query(User).filter(User.username == token_data.username).first()
+    )
     if user is None:
         raise credentials_exception
     return user

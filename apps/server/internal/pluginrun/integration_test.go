@@ -143,6 +143,7 @@ func (h *harness) do(token, method, path string, body any) (int, map[string]any)
 	req.Header.Set("Authorization", "Bearer "+token)
 	rec := httptest.NewRecorder()
 	h.mux.ServeHTTP(rec, req)
+	validateAgainstSpec(h.t, h.mux, req, rec) // every response must match openapi.v2.yaml
 	var out map[string]any
 	_ = json.Unmarshal(rec.Body.Bytes(), &out)
 	return rec.Code, out

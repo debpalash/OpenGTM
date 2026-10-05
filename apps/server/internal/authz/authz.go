@@ -55,11 +55,28 @@ var ErrUnavailable = errors.New("authz: workspace authorization service unavaila
 var ErrForbidden = &StatusError{Status: http.StatusForbidden, Detail: "Insufficient workspace role"}
 
 // Options tune a Client.
+//
+// A slow or sick legacy API must never wedge this server, so every lookup is
+// bounded three ways: a per-call timeout, a cap on lookups in flight, and a
+// circuit breaker that refuses new lookups outright while the API keeps
+// failing. Lookups for the same (token, workspace) are also collapsed into one.
 type Options struct {
 	TTL        time.Duration // positive-result lifetime, default 30s
 	MaxEntries int           // cache bound, default 10000
-	HTTPClient *http.Client  // default: 10s timeout
+	HTTPClient *http.Client  // default: a pooled transport sized to MaxInflight
 	Now        func() time.Time
+
+	// Timeout bounds one upstream lookup, default 3s. FastAPI answers in a few
+	// milliseconds when healthy, so anything slower is already a failure.
+	Timeout time.Duration
+	// MaxInflight bounds concurrent upstream lookups across all keys, default
+	// 32 (16 per uvicorn worker, below a worker's database pool). Beyond it
+	// requests fail immediately with ErrOverloaded instead of queueing.
+	MaxInflight int
+	// BreakerThreshold consecutive upstream failures open the circuit, default
+	// 5. BreakerCooldown is how long it stays open before one probe, default 5s.
+	BreakerThreshold int
+	BreakerCooldown  time.Duration
 }
 
 // Client resolves and caches workspace authorization.
@@ -70,8 +87,13 @@ type Client struct {
 	max      int
 	now      func() time.Time
 
-	mu    sync.Mutex
-	cache map[[32]byte]entry
+	timeout time.Duration
+	slots   chan struct{} // bounds concurrent upstream lookups
+	brk     *breaker
+
+	mu     sync.Mutex
+	cache  map[[32]byte]entry
+	flight map[[32]byte]*call
 }
 
 type entry struct {
@@ -91,11 +113,28 @@ func New(baseURL string, opts Options) (*Client, error) {
 	if opts.MaxEntries <= 0 {
 		opts.MaxEntries = 10000
 	}
-	if opts.HTTPClient == nil {
-		opts.HTTPClient = &http.Client{Timeout: 10 * time.Second}
-	}
 	if opts.Now == nil {
 		opts.Now = time.Now
+	}
+	if opts.Timeout <= 0 {
+		opts.Timeout = 3 * time.Second
+	}
+	if opts.MaxInflight <= 0 {
+		opts.MaxInflight = 32
+	}
+	if opts.BreakerThreshold <= 0 {
+		opts.BreakerThreshold = 5
+	}
+	if opts.BreakerCooldown <= 0 {
+		opts.BreakerCooldown = 5 * time.Second
+	}
+	if opts.HTTPClient == nil {
+		// The default transport keeps only 2 idle connections per host, which
+		// would reconnect on nearly every lookup under load.
+		tr := http.DefaultTransport.(*http.Transport).Clone()
+		tr.MaxIdleConnsPerHost = opts.MaxInflight
+		tr.ResponseHeaderTimeout = opts.Timeout
+		opts.HTTPClient = &http.Client{Transport: tr}
 	}
 	return &Client{
 		endpoint: u.String() + ContextPath,
@@ -103,7 +142,11 @@ func New(baseURL string, opts Options) (*Client, error) {
 		ttl:      opts.TTL,
 		max:      opts.MaxEntries,
 		now:      opts.Now,
+		timeout:  opts.Timeout,
+		slots:    make(chan struct{}, opts.MaxInflight),
+		brk:      &breaker{threshold: opts.BreakerThreshold, cooldown: opts.BreakerCooldown, now: opts.Now},
 		cache:    map[[32]byte]entry{},
+		flight:   map[[32]byte]*call{},
 	}, nil
 }
 
@@ -148,14 +191,62 @@ func (c *Client) Resolve(ctx context.Context, token, workspaceID string) (Worksp
 		}
 		delete(c.cache, key)
 	}
-	c.mu.Unlock()
-
-	ws, err := c.fetch(ctx, token, workspaceID)
-	if err != nil {
-		return Workspace{}, err // never cached: a revoked membership must bite now
+	// Collapse concurrent misses for the same (token, workspace) into one
+	// upstream lookup. The lookup runs detached from any single caller's
+	// context, so one client hanging up cannot fail the others; each caller
+	// still stops waiting when its own context ends.
+	cl, inflight := c.flight[key]
+	if !inflight {
+		cl = &call{done: make(chan struct{})}
+		c.flight[key] = cl
 	}
-	c.store(key, ws, now)
-	return ws, nil
+	c.mu.Unlock()
+	if !inflight {
+		go c.lookup(key, cl, token, workspaceID, now)
+	}
+
+	select {
+	case <-cl.done:
+		return cl.ws, cl.err
+	case <-ctx.Done():
+		return Workspace{}, fmt.Errorf("%w: %v", ErrUnavailable, ctx.Err())
+	}
+}
+
+// lookup performs the shared upstream call for cl and publishes the result.
+func (c *Client) lookup(key [32]byte, cl *call, token, workspaceID string, now time.Time) {
+	cl.ws, cl.err = c.guardedFetch(token, workspaceID)
+	if cl.err == nil {
+		c.store(key, cl.ws, now)
+	} // failures are never cached: a revoked membership must bite now
+	c.mu.Lock()
+	delete(c.flight, key)
+	c.mu.Unlock()
+	close(cl.done)
+}
+
+// guardedFetch applies the circuit breaker and the in-flight bound around one
+// upstream lookup.
+func (c *Client) guardedFetch(token, workspaceID string) (Workspace, error) {
+	if !c.brk.allow() {
+		return Workspace{}, ErrCircuitOpen
+	}
+	select {
+	case c.slots <- struct{}{}:
+		defer func() { <-c.slots }()
+	default:
+		c.brk.release()
+		return Workspace{}, ErrOverloaded
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+	defer cancel()
+	ws, err := c.fetch(ctx, token, workspaceID)
+	if errors.Is(err, ErrUnavailable) {
+		c.brk.failure()
+	} else {
+		c.brk.success() // success, or a healthy 401/403/404 about the caller
+	}
+	return ws, err
 }
 
 func (c *Client) fetch(ctx context.Context, token, workspaceID string) (Workspace, error) {
@@ -263,7 +354,12 @@ func (c *Client) Middleware(next http.Handler) http.Handler {
 func WriteError(w http.ResponseWriter, err error) {
 	status, detail := http.StatusBadGateway, "Workspace authorization unavailable"
 	var se *StatusError
-	if errors.As(err, &se) {
+	if errors.Is(err, ErrCircuitOpen) || errors.Is(err, ErrOverloaded) {
+		// Shed on purpose: the legacy API is unhealthy or saturated. Tell the
+		// client to back off rather than retry immediately.
+		status = http.StatusServiceUnavailable
+		w.Header().Set("Retry-After", "1")
+	} else if errors.As(err, &se) {
 		status, detail = se.Status, se.Detail
 		if status == http.StatusUnauthorized {
 			w.Header().Set("WWW-Authenticate", "Bearer")

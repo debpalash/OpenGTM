@@ -33,6 +33,7 @@ else:
         pool_pre_ping=True,
         pool_size=10,
         max_overflow=20,
+        pool_timeout=settings.DB_POOL_TIMEOUT,
     )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

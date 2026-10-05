@@ -1,0 +1,518 @@
+openapi: 3.1.0
+info:
+  title: OpenGTM Go server API (v2)
+  version: 0.1.0
+  description: |
+    The `/api/v2` surface owned by the Go server (`opengtm serve`): the plugin
+    catalog, plugin runs and their results, and the live event stream.
+
+    This document is the contract. The Go server is tested against it
+    (`apps/server/internal/contract`: real responses are validated against these
+    schemas and the set of served routes must equal the set of paths below), and
+    the typed TypeScript client in `apps/web/src/lib/api-v2` is generated from
+    it (`bun run --cwd apps/web gen:api`). Change this file, the handlers and the
+    generated client together; CI fails when they drift.
+
+    Authorization: every route except `/api/v2/version` requires
+    `Authorization: Bearer <token>` and picks a workspace with `X-Workspace-Id`
+    (default: the user's active workspace). The Go server forwards both to
+    FastAPI's `/api/auth/workspace-context`. Refusals use FastAPI's
+    `{"detail": "..."}` shape. `/api/v2/events` also accepts `?token=` and
+    `?workspace_id=` because EventSource cannot set headers.
+
+    Error responses are described once, as the `Error` schema.
+servers:
+  - url: /
+tags:
+  - name: system
+  - name: plugins
+  - name: plugin-runs
+  - name: events
+
+paths:
+  /api/v2/version:
+    get:
+      operationId: getVersion
+      tags: [system]
+      summary: Server version
+      security: []
+      responses:
+        "200":
+          description: Version information. No authorization needed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Version"
+
+  /api/v2/plugins:
+    get:
+      operationId: listPlugins
+      tags: [plugins]
+      summary: The plugin catalog
+      description: |
+        Every plugin installed on this server. `errors` lists manifests that
+        failed to load and is populated for workspace admins only.
+      responses:
+        "200":
+          description: The catalog.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginCatalog"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "502": { $ref: "#/components/responses/Unavailable" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /api/v2/plugin-runs:
+    get:
+      operationId: listPluginRuns
+      tags: [plugin-runs]
+      summary: List plugin runs, newest first
+      description: |
+        Keyset pagination on `(created_at, id)`. Pass the previous page's
+        `next_cursor` as `cursor` to continue; `next_cursor` is `null` on the
+        last page. Cursors are opaque. Runs created while paging never shift or
+        repeat entries of later pages: they only appear at the top of a fresh
+        first page.
+      parameters:
+        - name: limit
+          in: query
+          description: Page size, 1-200 (values outside the range are clamped).
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - name: cursor
+          in: query
+          description: The `next_cursor` of the previous page.
+          schema: { type: string }
+      responses:
+        "200":
+          description: One page of runs.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginRunPage"
+        "400":
+          description: The cursor is not one this server issued.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "502": { $ref: "#/components/responses/Unavailable" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+    post:
+      operationId: createPluginRun
+      tags: [plugin-runs]
+      summary: Queue a plugin run
+      description: Requires the `editor` role or higher.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePluginRunRequest"
+      responses:
+        "202":
+          description: The run was queued.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginRun"
+        "400":
+          description: The body is not valid JSON, or has unknown fields.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404":
+          description: The plugin is not installed.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "422":
+          description: The inputs do not satisfy the plugin's input schema.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "502": { $ref: "#/components/responses/Unavailable" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /api/v2/plugin-runs/{id}:
+    get:
+      operationId: getPluginRun
+      tags: [plugin-runs]
+      summary: One plugin run
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+      responses:
+        "200":
+          description: The run.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginRun"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/RunNotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "502": { $ref: "#/components/responses/Unavailable" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /api/v2/plugin-runs/{id}/results:
+    get:
+      operationId: listPluginRunResults
+      tags: [plugin-runs]
+      summary: The records a run produced
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+        - name: limit
+          in: query
+          description: Page size, 1-1000 (clamped).
+          schema: { type: integer, minimum: 1, maximum: 1000, default: 100 }
+        - name: offset
+          in: query
+          description: Records to skip.
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: One page of results, ordered by record index.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginResultPage"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/RunNotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "502": { $ref: "#/components/responses/Unavailable" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /api/v2/plugin-runs/{id}/cancel:
+    post:
+      operationId: cancelPluginRun
+      tags: [plugin-runs]
+      summary: Cancel a pending or running plugin run
+      description: Requires the `editor` role or higher.
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+      responses:
+        "200":
+          description: The cancelled run.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginRun"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/RunNotFound" }
+        "409":
+          description: The run already finished.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "502": { $ref: "#/components/responses/Unavailable" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /api/v2/events:
+    get:
+      operationId: streamEvents
+      tags: [events]
+      summary: Live workspace events (server-sent events)
+      description: |
+        A `text/event-stream`. The server sends `retry: 3000`, then unnamed
+        `data:` messages (so `EventSource.onmessage` receives them), each the
+        JSON of a `ProgressEvent`, and `: heartbeat` comments to keep the
+        connection open. Query parameters exist because EventSource cannot send
+        headers.
+      parameters:
+        - name: token
+          in: query
+          description: Bearer token, when the Authorization header cannot be set.
+          schema: { type: string }
+        - name: workspace_id
+          in: query
+          description: Workspace, when X-Workspace-Id cannot be set.
+          schema: { type: string }
+      responses:
+        "200":
+          description: The event stream.
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: |
+                  SSE framing. Each `data:` line holds one JSON `ProgressEvent`.
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "502": { $ref: "#/components/responses/Unavailable" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+  parameters:
+    RunId:
+      name: id
+      in: path
+      required: true
+      description: A plugin run id (UUID). Any other value is a 404.
+      schema: { type: string }
+  responses:
+    Unauthorized:
+      description: Missing, invalid or expired token.
+      headers:
+        WWW-Authenticate:
+          schema: { type: string }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: Not a member of the workspace, SSO is required, or the role is too low.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    RunNotFound:
+      description: No such run in this workspace.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    ServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unavailable:
+      description: |
+        Workspace authorization (FastAPI) or this server's database is
+        unavailable. 503 with `Retry-After` means requests are being shed on
+        purpose (circuit open or too many authorization calls in flight).
+      headers:
+        Retry-After:
+          schema: { type: string }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    Error:
+      type: object
+      required: [detail]
+      properties:
+        detail:
+          type: string
+          description: Human-readable reason, FastAPI style.
+
+    Version:
+      type: object
+      required: [version, go]
+      properties:
+        version: { type: string }
+        go: { type: string, description: The Go toolchain version the server was built with. }
+
+    JsonSchemaObject:
+      type: object
+      description: A JSON Schema (the subset the run form understands).
+      additionalProperties: true
+
+    PluginInfo:
+      type: object
+      required:
+        - name
+        - display_name
+        - kind
+        - runtime
+        - version
+        - author
+        - license
+        - description
+        - tags
+        - source
+        - signature
+        - network
+        - secrets
+        - browser
+        - inputs
+        - outputs
+        - runnable
+      properties:
+        name: { type: string }
+        display_name: { type: string }
+        kind:
+          type: string
+          description: provider, scraper, signal, destination, function or tool.
+        runtime:
+          type: string
+          description: declarative, wasm or process.
+        version: { type: string }
+        author: { type: string }
+        license: { type: string }
+        description: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+        source:
+          type: string
+          description: '"plugin" for a manifest v2 plugin, "connector" for a v1 connector loaded as a provider.'
+        signature:
+          type: string
+          description: '"trusted", "unsigned" or another verification outcome.'
+        network:
+          type: array
+          items: { type: string }
+          description: Hosts the plugin may reach.
+        secrets:
+          type: array
+          items: { type: string }
+        browser: { type: boolean }
+        inputs:
+          description: JSON Schema of the run inputs (type object), or null.
+          oneOf:
+            - $ref: "#/components/schemas/JsonSchemaObject"
+            - type: "null"
+        outputs:
+          description: An entity name (string) or a JSON Schema.
+        runnable:
+          type: boolean
+          description: False when this server cannot execute the plugin yet.
+        unrunnable_reason: { type: string }
+
+    PluginLoadError:
+      type: object
+      required: [path, error]
+      properties:
+        path: { type: string }
+        error: { type: string }
+
+    PluginCatalog:
+      type: object
+      required: [plugins, errors]
+      properties:
+        plugins:
+          type: array
+          items: { $ref: "#/components/schemas/PluginInfo" }
+        errors:
+          type: array
+          items: { $ref: "#/components/schemas/PluginLoadError" }
+          description: Load failures; empty unless the caller is an admin.
+
+    PluginRunStatus:
+      type: string
+      enum: [pending, running, completed, failed, cancelled]
+
+    PluginRunStats:
+      type: object
+      description: Run statistics. Keys appear as the run progresses.
+      additionalProperties: true
+      properties:
+        records: { type: integer }
+        pages: { type: integer }
+        cost_usd: { type: number }
+        duration_ms: { type: integer }
+        stopped: { type: string }
+        provider_error: { type: string }
+
+    PluginRun:
+      type: object
+      required:
+        - id
+        - plugin
+        - plugin_version
+        - status
+        - inputs
+        - job_id
+        - created_by
+        - created_at
+        - started_at
+        - completed_at
+        - error
+        - stats
+      properties:
+        id: { type: string, format: uuid }
+        plugin: { type: string }
+        plugin_version:
+          type: [string, "null"]
+        status: { $ref: "#/components/schemas/PluginRunStatus" }
+        inputs:
+          type: object
+          additionalProperties: true
+        job_id:
+          type: [integer, "null"]
+        created_by:
+          type: [string, "null"]
+        created_at: { type: string, format: date-time }
+        started_at:
+          type: [string, "null"]
+          format: date-time
+        completed_at:
+          type: [string, "null"]
+          format: date-time
+        error:
+          type: [string, "null"]
+        stats: { $ref: "#/components/schemas/PluginRunStats" }
+
+    PluginRunPage:
+      type: object
+      required: [runs, next_cursor]
+      properties:
+        runs:
+          type: array
+          items: { $ref: "#/components/schemas/PluginRun" }
+        next_cursor:
+          type: [string, "null"]
+          description: Pass as `cursor` for the next page; null on the last page.
+
+    CreatePluginRunRequest:
+      type: object
+      required: [plugin]
+      additionalProperties: false
+      properties:
+        plugin:
+          type: string
+          description: The `name` of an installed plugin.
+        inputs:
+          type: object
+          additionalProperties: true
+          description: Validated against the plugin's input schema.
+
+    PluginResult:
+      type: object
+      required: [index, data, evidence]
+      properties:
+        index: { type: integer, minimum: 0 }
+        data:
+          description: The record the plugin produced (any JSON value; normally an object).
+        evidence:
+          description: Where the record came from (source URL, selectors, hashes); shape depends on the plugin runtime.
+
+    PluginResultPage:
+      type: object
+      required: [results, total, offset, limit]
+      properties:
+        results:
+          type: array
+          items: { $ref: "#/components/schemas/PluginResult" }
+        total: { type: integer, minimum: 0 }
+        offset: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1 }
+
+    ProgressEvent:
+      type: object
+      description: One workspace event on the SSE stream.
+      required: [workspace_id, event, at]
+      properties:
+        workspace_id: { type: string }
+        event:
+          type: string
+          description: Event name, for example `plugin_run_queued` or `plugin_run_cancelled`.
+        data:
+          description: Event payload; shape depends on `event`.
+        truncated:
+          type: boolean
+          description: The payload exceeded the NOTIFY limit and was dropped; refetch the resource.
+        at: { type: string, format: date-time }

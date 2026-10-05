@@ -25,6 +25,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from fastapi import Depends, Header, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -87,40 +88,56 @@ async def current_workspace(
     (so the frontend can act in a specific workspace), otherwise from the
     user's stored active workspace. Either way, membership is enforced.
     """
-    ws_id = x_workspace_id or ws_manager.get_user_active_workspace(user.id)
+    # Every lookup below is blocking I/O (SQLite workspace metadata, and the
+    # request Session's pooled Postgres connection). They run in the thread
+    # pool so a slow lookup, or a wait for a pooled connection, never blocks the
+    # event loop: a blocked loop cannot send the responses whose teardown
+    # returns pooled connections, which wedged the service at high concurrency
+    # (tests/test_workspace_context_concurrency.py).
+    def _authorize() -> tuple[str, str]:
+        ws_id = x_workspace_id or ws_manager.get_user_active_workspace(user.id)
 
-    if not ws_id:
-        raise HTTPException(
-            status_code=403,
-            detail="No accessible workspace. Ask an admin to add you to one.",
-        )
+        if not ws_id:
+            raise HTTPException(
+                status_code=403,
+                detail="No accessible workspace. Ask an admin to add you to one.",
+            )
 
-    if not ws_manager.is_member(ws_id, user.id):
-        # Don't leak existence — same response whether the workspace is
-        # missing or simply not the caller's.
-        raise HTTPException(status_code=403, detail="Workspace access denied")
+        if not ws_manager.is_member(ws_id, user.id):
+            # Don't leak existence — same response whether the workspace is
+            # missing or simply not the caller's.
+            raise HTTPException(status_code=403, detail="Workspace access denied")
 
-    slug = ws_manager.workspace_slug(ws_id)
-    if not slug:
-        raise HTTPException(status_code=404, detail="Workspace not found")
+        slug = ws_manager.workspace_slug(ws_id)
+        if not slug:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        return ws_id, slug
 
-    # This dependency must stay async. FastAPI executes synchronous dependencies
-    # in a worker thread with a copied Context, and ContextVar writes made there
-    # do not propagate back to the request task. Running here in the request's
-    # async context ensures the SQLAlchemy after_begin hook sees this tenant.
+    ws_id, slug = await run_in_threadpool(_authorize)
+
+    # The ContextVar write must stay here, in the request's own async context:
+    # FastAPI executes synchronous dependencies in a worker thread with a copied
+    # Context, and ContextVar writes made there do not propagate back to the
+    # request task. Running here ensures the SQLAlchemy after_begin hook sees
+    # this tenant. (run_in_threadpool copies the Context at call time, so the
+    # work below sees it too.)
     current_workspace_var.set(ws_id)
-    # Authentication may already have opened this same FastAPI-cached Session
-    # to read the non-RLS users table. In that case after_begin ran before the
-    # workspace was known, so set the transaction-local GUC explicitly as well.
-    # A new transaction is harmless: after_begin and this statement set the
-    # same value. Parameterization keeps the tenant identifier out of SQL text.
-    if db.get_bind().dialect.name == "postgresql":
-        db.execute(
-            text("SELECT set_config('app.workspace_id', :workspace_id, true)"),
-            {"workspace_id": ws_id},
-        )
-    role = ws_manager.member_role(ws_id, user.id) or ""
-    sso_config = oidc.get_config(ws_id)
+
+    def _tenant_state() -> tuple[str, dict]:
+        # Authentication may already have opened this same FastAPI-cached
+        # Session to read the non-RLS users table. In that case after_begin ran
+        # before the workspace was known, so set the transaction-local GUC
+        # explicitly as well. A new transaction is harmless: after_begin and
+        # this statement set the same value. Parameterization keeps the tenant
+        # identifier out of SQL text.
+        if db.get_bind().dialect.name == "postgresql":
+            db.execute(
+                text("SELECT set_config('app.workspace_id', :workspace_id, true)"),
+                {"workspace_id": ws_id},
+            )
+        return ws_manager.member_role(ws_id, user.id) or "", oidc.get_config(ws_id)
+
+    role, sso_config = await run_in_threadpool(_tenant_state)
     auth_methods = token_claims.get("amr") or []
     if isinstance(auth_methods, str):
         auth_methods = [auth_methods]

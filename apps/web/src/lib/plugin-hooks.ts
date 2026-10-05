@@ -1,18 +1,20 @@
 // TanStack Query hooks and the live event stream for the Go plugin platform.
 
 import { useEffect, useState } from "react"
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query"
 import { ApiError } from "./api"
 import { authQuery } from "./auth"
 import { useAuth } from "./auth-context"
 import {
-  cancelPluginRun, createPluginRun, fetchPluginCatalog, fetchPluginRun, fetchPluginRunResults, fetchPluginRuns,
-  isActiveRun, isPlatformUnavailable, type PluginRun,
+  cancelPluginRun, createPluginRun, fetchPluginCatalog, fetchPluginRun, fetchPluginRunPage, fetchPluginRunResults,
+  isActiveRun, isPlatformUnavailable, RUN_PAGE_SIZE, type PluginRun,
 } from "./plugin-api"
 import { applyPluginRunEvent, mergeLiveProgress, parsePlatformEvent } from "./plugin-events"
+import { flattenRuns, nextRunCursor, upsertRun, type RunListData } from "./plugin-run-list"
 import { queryKeys } from "./query-client"
 
-export const RUN_LIST_LIMIT = 50
+/** Runs fetched per page of the list. */
+export const RUN_LIST_LIMIT = RUN_PAGE_SIZE
 /** Poll interval while a run is active and the event stream is down. */
 export const FALLBACK_POLL_MS = 3_000
 /** Safety-net poll while a run is active and the stream is up. */
@@ -31,19 +33,34 @@ export function usePluginCatalog() {
   return useQuery({ queryKey: queryKeys.plugins.catalog, queryFn: fetchPluginCatalog, staleTime: 60_000, retry })
 }
 
-export function usePluginRuns(live: boolean, enabled = true) {
-  const qc = useQueryClient()
-  return useQuery({
+/**
+ * Query options of the paged run list. Pages are keyset based: each page asks
+ * for the runs older than the last row of the previous one, so runs created
+ * while paging never repeat or skip entries. `select` flattens the pages into
+ * one list for display; the cache keeps the pages (see plugin-run-list.ts).
+ * A refetch (poll, live event, window focus) reloads every loaded page.
+ */
+export function pluginRunsOptions(qc: QueryClient, live: boolean, enabled = true) {
+  return {
     queryKey: queryKeys.plugins.runList,
-    queryFn: async () => {
-      const runs = await fetchPluginRuns(RUN_LIST_LIMIT)
-      const cached = new Map((qc.getQueryData<PluginRun[]>(queryKeys.plugins.runList) ?? []).map(run => [run.id, run]))
-      return runs.map(run => mergeLiveProgress(run, cached.get(run.id)))
+    initialPageParam: null as string | null,
+    queryFn: async ({ pageParam }: { pageParam: string | null }) => {
+      const page = await fetchPluginRunPage(pageParam, RUN_LIST_LIMIT)
+      const cached = new Map(flattenRuns(qc.getQueryData<RunListData>(queryKeys.plugins.runList)).map(run => [run.id, run]))
+      return { ...page, runs: page.runs.map(run => mergeLiveProgress(run, cached.get(run.id))) }
     },
+    getNextPageParam: nextRunCursor,
+    select: flattenRuns,
     retry,
     enabled,
-    refetchInterval: query => runPollInterval(query.state.data, live),
-  })
+    refetchInterval: (query: { state: { data: RunListData | undefined } }) => runPollInterval(flattenRuns(query.state.data), live),
+  }
+}
+
+/** The run list: `data` is every loaded run, newest first; use fetchNextPage for more. */
+export function usePluginRuns(live: boolean, enabled = true) {
+  const qc = useQueryClient()
+  return useInfiniteQuery(pluginRunsOptions(qc, live, enabled))
 }
 
 export function usePluginRun(id: string, live: boolean, enabled = true) {
@@ -70,8 +87,7 @@ export function usePluginRunResults(id: string, offset: number, limit: number, e
 /** Write a run into the list and detail caches (newest first). */
 function storeRun(qc: ReturnType<typeof useQueryClient>, run: PluginRun) {
   qc.setQueryData(queryKeys.plugins.run(run.id), run)
-  qc.setQueryData<PluginRun[]>(queryKeys.plugins.runList, runs =>
-    runs && (runs.some(r => r.id === run.id) ? runs.map(r => r.id === run.id ? run : r) : [run, ...runs]))
+  qc.setQueryData<RunListData>(queryKeys.plugins.runList, data => upsertRun(data, run))
 }
 
 export function useCreatePluginRun() {

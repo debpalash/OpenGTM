@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { QueryClient } from "@tanstack/react-query"
 import type { PluginRun } from "../src/lib/plugin-api"
 import { applyPluginRunEvent, mergeLiveProgress, parsePlatformEvent, type PlatformEvent } from "../src/lib/plugin-events"
+import { flattenRuns, type RunListData } from "../src/lib/plugin-run-list"
 import { runPollInterval, FALLBACK_POLL_MS, LIVE_POLL_MS } from "../src/lib/plugin-hooks"
 import { queryKeys } from "../src/lib/query-client"
 
@@ -14,13 +15,19 @@ const run = (id: string, patch: Partial<PluginRun> = {}): PluginRun => ({
 const event = (name: string, data: Record<string, unknown>, extra: Partial<PlatformEvent> = {}): PlatformEvent =>
   ({ workspace_id: "ws1", event: name, data, at: "2026-10-05T10:00:05Z", ...extra })
 
+/** The list as the infinite query stores it: pages of runs, here split in two. */
+const pagesOf = (runs: PluginRun[]): RunListData => {
+  const cut = Math.ceil(runs.length / 2)
+  return { pages: [{ runs: runs.slice(0, cut), next_cursor: runs.length > cut ? "cursor-1" : null }, ...(runs.length > cut ? [{ runs: runs.slice(cut), next_cursor: null }] : [])], pageParams: [null, "cursor-1"].slice(0, runs.length > cut ? 2 : 1) }
+}
+
 function setup(runs: PluginRun[]) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  qc.setQueryData(queryKeys.plugins.runList, runs)
+  qc.setQueryData(queryKeys.plugins.runList, pagesOf(runs))
   for (const r of runs) qc.setQueryData(queryKeys.plugins.run(r.id), r)
   return qc
 }
-const listed = (qc: QueryClient, id: string) => qc.getQueryData<PluginRun[]>(queryKeys.plugins.runList)?.find(r => r.id === id)
+const listed = (qc: QueryClient, id: string) => flattenRuns(qc.getQueryData<RunListData>(queryKeys.plugins.runList)).find(r => r.id === id)
 const detail = (qc: QueryClient, id: string) => qc.getQueryData<PluginRun>(queryKeys.plugins.run(id))
 const invalid = (qc: QueryClient, key: readonly unknown[]) => qc.getQueryState(key)?.isInvalidated ?? false
 

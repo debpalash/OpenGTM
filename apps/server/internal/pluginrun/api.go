@@ -2,12 +2,14 @@ package pluginrun
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"regexp"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -217,13 +219,35 @@ func (a *API) createRun(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusAccepted, run)
 }
 
+// listRuns pages through the caller's runs newest first. Paging is keyset
+// based on (created_at, id): a cursor names the last row of the previous page,
+// so rows created or finished meanwhile never shift, repeat or skip entries
+// (OFFSET would). limit rows are returned; one extra row is read only to know
+// whether another page exists.
 func (a *API) listRuns(w http.ResponseWriter, r *http.Request) {
 	ws, _ := authz.FromContext(r.Context())
 	limit := intParam(r, "limit", 50, 1, 200)
+	var after *runCursor
+	if raw := r.URL.Query().Get("cursor"); raw != "" {
+		c, err := decodeRunCursor(raw)
+		if err != nil {
+			writeDetail(w, http.StatusBadRequest, "Invalid cursor")
+			return
+		}
+		after = &c
+	}
 	runs := []Run{}
 	err := db.WithTenant(r.Context(), a.pool, ws.WorkspaceID, func(tx pgx.Tx) error {
-		rows, err := tx.Query(r.Context(), `SELECT `+runColumns+` FROM plugin_runs
-			WHERE workspace_id = $1 ORDER BY created_at DESC LIMIT $2`, ws.WorkspaceID, limit)
+		var rows pgx.Rows
+		var err error
+		if after == nil {
+			rows, err = tx.Query(r.Context(), `SELECT `+runColumns+` FROM plugin_runs
+				WHERE workspace_id = $1 ORDER BY created_at DESC, id DESC LIMIT $2`, ws.WorkspaceID, limit+1)
+		} else {
+			rows, err = tx.Query(r.Context(), `SELECT `+runColumns+` FROM plugin_runs
+				WHERE workspace_id = $1 AND (created_at, id) < ($2::timestamptz, $3::uuid)
+				ORDER BY created_at DESC, id DESC LIMIT $4`, ws.WorkspaceID, after.CreatedAt, after.ID, limit+1)
+		}
 		if err != nil {
 			return err
 		}
@@ -241,7 +265,42 @@ func (a *API) listRuns(w http.ResponseWriter, r *http.Request) {
 		writeDetail(w, http.StatusInternalServerError, "Could not list plugin runs")
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"runs": runs})
+	var next *string
+	if len(runs) > limit {
+		runs = runs[:limit]
+		c := encodeRunCursor(runs[limit-1])
+		next = &c
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"runs": runs, "next_cursor": next})
+}
+
+// runCursor is the decoded position of a runs page: the last row it returned.
+type runCursor struct {
+	CreatedAt time.Time
+	ID        string
+}
+
+// encodeRunCursor makes an opaque cursor. It is not signed: it only carries a
+// sort position, and every query is still scoped to the caller's workspace by
+// the predicate and by row-level security.
+func encodeRunCursor(r Run) string {
+	return base64.RawURLEncoding.EncodeToString([]byte(r.CreatedAt.UTC().Format(time.RFC3339Nano) + "|" + r.ID))
+}
+
+func decodeRunCursor(s string) (runCursor, error) {
+	raw, err := base64.RawURLEncoding.DecodeString(s)
+	if err != nil {
+		return runCursor{}, err
+	}
+	ts, id, ok := strings.Cut(string(raw), "|")
+	if !ok || !uuidPattern.MatchString(id) {
+		return runCursor{}, errors.New("malformed cursor")
+	}
+	t, err := time.Parse(time.RFC3339Nano, ts)
+	if err != nil {
+		return runCursor{}, err
+	}
+	return runCursor{CreatedAt: t, ID: id}, nil
 }
 
 // uuidPattern matches the canonical text form PostgreSQL returns for run ids.

@@ -1,12 +1,23 @@
 // Client for the Go plugin platform (`/api/v2/plugins`, `/api/v2/plugin-runs`).
 //
+// Requests go through the typed client in ./api-v2, generated from
+// packages/contracts/openapi.v2.yaml, so paths, parameters and bodies are
+// checked against the contract at compile time and the wire types below come
+// from it. The normalizers on top are deliberate: they tolerate an older or
+// newer server (a missing array becomes empty, an unknown status passes) so one
+// odd record cannot blank the page.
+//
 // Auth and workspace headers come from the global fetch interceptor
 // (lib/auth.ts), like every other /api call. When the dashboard is served by
 // the legacy nginx/FastAPI stack, /api/v2/* reaches FastAPI and answers 404
 // "Not Found" (or the SPA's HTML); that becomes PluginPlatformUnavailableError
 // so the page can explain how to start the Go server instead of erroring.
 
-import { ApiError } from "./api"
+import { apiV2, isPlatformUnavailable, PluginPlatformUnavailableError, type components } from "./api-v2/client"
+
+export { isPlatformUnavailable, PluginPlatformUnavailableError }
+
+type Schemas = components["schemas"]
 
 export type PluginKind = "provider" | "scraper" | "signal" | "destination" | "function" | "tool"
 export type PluginRuntime = "declarative" | "wasm" | "process"
@@ -32,30 +43,10 @@ export interface JsonSchema {
   examples?: unknown[]
 }
 
-export interface PluginInfo {
-  name: string
-  display_name: string
-  kind: PluginKind | string
-  runtime: PluginRuntime | string
-  version: string
-  author: string
-  license: string
-  description: string
-  tags: string[]
-  /** "plugin" for manifest v2, "connector" for a v1 connector loaded as a provider. */
-  source: "plugin" | "connector" | string
-  /** "trusted", "unsigned", or another verification outcome. */
-  signature: string
-  network: string[]
-  secrets: string[]
-  browser: boolean
-  inputs: JsonSchema | null
-  outputs: unknown
-  runnable: boolean
-  unrunnable_reason?: string
-}
+/** A catalog entry. `inputs` is typed with the richer JsonSchema the run form understands. */
+export type PluginInfo = Omit<Schemas["PluginInfo"], "inputs"> & { inputs: JsonSchema | null }
 
-export interface PluginLoadError { path: string; error: string }
+export type PluginLoadError = Schemas["PluginLoadError"]
 
 export interface PluginCatalog {
   plugins: PluginInfo[]
@@ -63,32 +54,22 @@ export interface PluginCatalog {
   errors: PluginLoadError[]
 }
 
-export type PluginRunStatus = "pending" | "running" | "completed" | "failed" | "cancelled"
+export type PluginRunStatus = Schemas["PluginRunStatus"]
 export const ACTIVE_RUN_STATUSES: readonly string[] = ["pending", "running"]
 export const isActiveRun = (run: Pick<PluginRun, "status">) => ACTIVE_RUN_STATUSES.includes(run.status)
 
-export interface PluginRunStats {
-  records?: number
-  pages?: number
-  cost_usd?: number
-  duration_ms?: number
-  stopped?: string
-  provider_error?: string
+export type PluginRunStats = Schemas["PluginRunStats"]
+
+/** A run. Unknown statuses pass through, and `stats` is null until the server has some. */
+export type PluginRun = Omit<Schemas["PluginRun"], "status" | "stats"> & {
+  status: PluginRunStatus | string
+  stats: PluginRunStats | null
 }
 
-export interface PluginRun {
-  id: string
-  plugin: string
-  plugin_version: string | null
-  status: PluginRunStatus | string
-  inputs: Record<string, unknown> | null
-  job_id: number | null
-  created_by: string | null
-  created_at: string
-  started_at: string | null
-  completed_at: string | null
-  error: string | null
-  stats: PluginRunStats | null
+/** One page of the run list, newest first. `next_cursor` is null on the last page. */
+export interface PluginRunPage {
+  runs: PluginRun[]
+  next_cursor: string | null
 }
 
 export interface PluginResult {
@@ -104,36 +85,8 @@ export interface PluginResultPage {
   limit: number
 }
 
-/** The Go plugin platform is not behind this origin (legacy stack). */
-export class PluginPlatformUnavailableError extends Error {
-  readonly platformUnavailable = true
-  constructor() {
-    super("The plugin platform needs the OpenGTM Go server.")
-    this.name = "PluginPlatformUnavailableError"
-  }
-}
-
-export const isPlatformUnavailable = (error: unknown): error is PluginPlatformUnavailableError =>
-  error instanceof PluginPlatformUnavailableError
-
-// 404 details the Go server itself sends; any other 404 under /api/v2 came
-// from a server that does not implement the route.
-const GO_NOT_FOUND = new Set(["Plugin run not found", "Plugin not installed"])
-
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
-
-async function v2<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`/api/v2${path}`, init)
-  const isJson = (res.headers.get("content-type") ?? "").includes("json")
-  const body: unknown = isJson ? await res.json().catch(() => undefined) : undefined
-  const detail = isRecord(body) && typeof body.detail === "string" ? body.detail : ""
-  if (res.status === 404 && !GO_NOT_FOUND.has(detail)) throw new PluginPlatformUnavailableError()
-  // A 2xx that is not JSON is an SPA fallback page, not the Go API.
-  if (res.ok && (!isJson || body === undefined)) throw new PluginPlatformUnavailableError()
-  if (!res.ok) throw new ApiError(res.status, detail || `Request failed (${res.status})`, body)
-  return body as T
-}
 
 const strings = (value: unknown): string[] => Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : []
 
@@ -164,7 +117,7 @@ export function normalizePlugin(raw: unknown): PluginInfo | null {
 }
 
 export async function fetchPluginCatalog(): Promise<PluginCatalog> {
-  const body = await v2<unknown>("/plugins")
+  const body: unknown = await apiV2("get", "/api/v2/plugins")
   if (!isRecord(body) || !Array.isArray(body.plugins)) throw new Error("The plugin catalog response is malformed.")
   const errors = Array.isArray(body.errors)
     ? body.errors.filter(isRecord).map(e => ({ path: String(e.path ?? ""), error: String(e.error ?? "") }))
@@ -177,18 +130,26 @@ function normalizeRun(raw: unknown): PluginRun {
   return { ...(raw as unknown as PluginRun), stats: isRecord(raw.stats) ? raw.stats as PluginRunStats : null }
 }
 
-export async function fetchPluginRuns(limit = 50): Promise<PluginRun[]> {
-  const body = await v2<unknown>(`/plugin-runs?limit=${limit}`)
+/** Runs per page of the list; the server allows 1-200. */
+export const RUN_PAGE_SIZE = 50
+
+/**
+ * One page of runs, newest first. Pass the previous page's `next_cursor` to
+ * continue; a null cursor on the result means this was the last page. A server
+ * that predates pagination sends no cursor, which reads as "no more pages".
+ */
+export async function fetchPluginRunPage(cursor?: string | null, limit = RUN_PAGE_SIZE): Promise<PluginRunPage> {
+  const body: unknown = await apiV2("get", "/api/v2/plugin-runs", { query: { limit, cursor: cursor ?? undefined } })
   if (!isRecord(body) || !Array.isArray(body.runs)) throw new Error("The plugin runs response is malformed.")
-  return body.runs.map(normalizeRun)
+  return { runs: body.runs.map(normalizeRun), next_cursor: typeof body.next_cursor === "string" && body.next_cursor ? body.next_cursor : null }
 }
 
 export async function fetchPluginRun(id: string): Promise<PluginRun> {
-  return normalizeRun(await v2<unknown>(`/plugin-runs/${encodeURIComponent(id)}`))
+  return normalizeRun(await apiV2("get", "/api/v2/plugin-runs/{id}", { path: { id } }))
 }
 
 export async function fetchPluginRunResults(id: string, offset = 0, limit = 100): Promise<PluginResultPage> {
-  const body = await v2<unknown>(`/plugin-runs/${encodeURIComponent(id)}/results?offset=${offset}&limit=${limit}`)
+  const body: unknown = await apiV2("get", "/api/v2/plugin-runs/{id}/results", { path: { id }, query: { offset, limit } })
   if (!isRecord(body) || !Array.isArray(body.results)) throw new Error("The plugin results response is malformed.")
   const results = body.results.filter(isRecord).map((r, i) => ({
     index: typeof r.index === "number" ? r.index : offset + i,
@@ -200,11 +161,9 @@ export async function fetchPluginRunResults(id: string, offset = 0, limit = 100)
 }
 
 export async function createPluginRun(plugin: string, inputs: Record<string, unknown>): Promise<PluginRun> {
-  return normalizeRun(await v2<unknown>("/plugin-runs", {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plugin, inputs }),
-  }))
+  return normalizeRun(await apiV2("post", "/api/v2/plugin-runs", { body: { plugin, inputs } }))
 }
 
 export async function cancelPluginRun(id: string): Promise<PluginRun> {
-  return normalizeRun(await v2<unknown>(`/plugin-runs/${encodeURIComponent(id)}/cancel`, { method: "POST" }))
+  return normalizeRun(await apiV2("post", "/api/v2/plugin-runs/{id}/cancel", { path: { id } }))
 }
