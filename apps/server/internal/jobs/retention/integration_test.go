@@ -143,7 +143,9 @@ func (e *env) cleanup() {
 		} {
 			_, _ = e.owner.Exec(ctx, "DELETE FROM "+t+" WHERE workspace_id = $1", ws)
 		}
-		_, _ = e.owner.Exec(ctx, `DELETE FROM jobs WHERE type = $1 AND (workspace_id = $2 OR payload->>'workspace_id' = $2)`, JobType, ws)
+		_, _ = e.owner.Exec(ctx, `DELETE FROM jobs WHERE type = $1
+			AND (workspace_id = $2 OR payload->>'workspace_id' = $2 OR fire_key LIKE $3)`,
+			JobType, ws, "retention:"+ws+":%")
 	}
 }
 
