@@ -87,7 +87,8 @@ export default function PluginsPage() {
           </TabsContent>
           <TabsContent value="runs" className="pt-2">
             {runs.isPending ? <Loading rows={5} />
-              : runs.isError ? <ErrorState error={runs.error} onRetry={() => void runs.refetch()} />
+              // A failed page or background refetch keeps the runs already loaded on screen (the table offers its own retry).
+              : runs.isError && runs.data === undefined ? <ErrorState error={runs.error} onRetry={() => void runs.refetch()} />
               : <PluginRunsTable runs={runs.data} plugins={pluginsByName} highlightId={highlight}
                 hasMore={runs.hasNextPage} loadingMore={runs.isFetchingNextPage} loadMoreFailed={runs.isFetchNextPageError}
                 onLoadMore={loadMoreRuns} />}
