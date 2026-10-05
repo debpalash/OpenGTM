@@ -19,6 +19,7 @@ Existing [v1 connectors](../connectors/README.md) keep working unchanged.
 - [Signing, packaging and installing](#signing-packaging-and-installing)
 - [The plugin index and `opengtm plugin install`](#the-plugin-index-and-opengtm-plugin-install)
 - [Running plugins on a server](#running-plugins-on-a-server)
+- [Per-workspace plugin secrets](#per-workspace-plugin-secrets)
 - [Capabilities and responsible scraping](#capabilities-and-responsible-scraping)
 - [Manifest reference](#manifest-reference)
 - [Compatibility with the Python connector SDK](#compatibility-with-the-python-connector-sdk)
@@ -416,10 +417,83 @@ are stored with their evidence under workspace row-level security, and
 progress is streamed on `/api/v2/events`. A run that is cancelled, or whose
 job lease is lost to a timeout or another worker, never commits results.
 
-Declared secrets currently resolve from the worker's environment. Per-workspace
-secret resolution arrives when workspace secrets move from the legacy SQLite
-control plane to PostgreSQL (RFC milestone M8). The `process` runtime (Python
-plugins) arrives with the Python specialist workers (M4).
+A plugin's declared secrets resolve from the workspace's own encrypted secret
+first and from the worker's environment second; see
+[Per-workspace plugin secrets](#per-workspace-plugin-secrets). The `process`
+runtime (Python plugins) arrives with the Python specialist workers (M4).
+
+## Per-workspace plugin secrets
+
+A plugin lists the credentials it needs in `capabilities.secrets`. Each
+workspace stores its own values, so one tenant's API key never serves another
+and a shared server needs no per-tenant environment variables.
+
+```bash
+# Workspace admins (and the owner) only. The value is write-only.
+curl -X PUT -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"value":"sk_live_..."}' https://opengtm.example/api/v2/plugin-secrets/ACME_DATA_API_KEY
+curl -H "Authorization: Bearer $TOKEN" https://opengtm.example/api/v2/plugin-secrets
+curl -X DELETE -H "Authorization: Bearer $TOKEN" https://opengtm.example/api/v2/plugin-secrets/ACME_DATA_API_KEY
+```
+
+| Endpoint | Does | Answers |
+| --- | --- | --- |
+| `GET /api/v2/plugin-secrets` | Metadata of the workspace's secrets (`name`, declaring `plugins`, `version`, `created_at/by`, `updated_at/by`), the secrets installed plugins declare and whether each is `configured`, and whether encryption is available. | 200 |
+| `PUT /api/v2/plugin-secrets/{name}` | Create or rotate. Body `{"value": "..."}`; surrounding whitespace is trimmed; non-empty, at most 8 KiB, UTF-8 without NUL. | 201 created, 200 rotated (`version` increments), 422 invalid, 503 no encryption key |
+| `DELETE /api/v2/plugin-secrets/{name}` | Remove; the workspace falls back to the environment. | 204, 404 |
+
+- **Admin only.** Every endpoint, reads included, requires the workspace `admin`
+  role (the owner counts). Editors and viewers get 403, and a refused mutation
+  is recorded in the audit trail.
+- **Write-only.** No endpoint, log line, run result, evidence record or error
+  ever contains a value. Bodies that fail validation are never echoed. A
+  secret echoed back by a vendor is replaced by `REDACTED` in stored provider
+  errors and evidence (the provider runtime already does this for every
+  resolved secret).
+- **Only declared secrets.** `PUT` requires an installed plugin to declare the
+  name, and the runner only ever resolves names the running plugin declares.
+- **Resolution order, per declared secret:** the workspace's secret, then the
+  worker's environment variable of the same name. A workspace with no secret
+  keeps using the environment (existing deployments need no change). If a
+  workspace *has* a secret but it cannot be read (no encryption key, wrong key,
+  database error) the run fails; it never silently uses the environment value
+  instead.
+- **Rotation** is another `PUT`: the next run (including one already queued)
+  uses the new value, the old ciphertext is overwritten, and `version` and
+  `updated_at/by` record who changed it and when.
+- **Audit.** Each set, rotate, delete and refused attempt appends a
+  `governance_audit_events` row (the table the Python audit middleware writes)
+  with actor, role, route, status, outcome, request id and
+  `{"action": "set|rotate|delete", "secret": "<name>"}`. Never a value.
+- **Tenancy.** The `plugin_secrets` table (Alembic `9d2f4b6a8c10`) has
+  forced row-level security on `workspace_id`, like `plugin_runs`.
+
+**Encryption at rest.** Values are stored as `enc:v1:<Fernet token>`, exactly the
+envelope `apps/api/services/workspace/secrets.py` writes for integration
+secrets (AES-128-CBC + HMAC-SHA256, authenticated), and the key is resolved the
+same way: `SECRETS_MASTER_KEY` (a Fernet key, used as is; any other value is
+hashed into one), else a key derived from `SECRET_KEY`. As in Python, a
+non-development `APP_ENV` with the shipped insecure `SECRET_KEY` and no master
+key is refused: secrets cannot be written or read until a real key is set. The
+Go server reads these from its environment (Compose passes `.env` to both).
+Either stack can decrypt what the other wrote; a test encrypts and decrypts in
+both directions against the Python helpers, including odd key spellings. A
+database check constraint rejects any value not in the envelope, so a bug
+cannot store plaintext.
+
+Not supported, by design or yet:
+
+- `SECRETS_PROVIDER=vault_transit` (`enc:v2:vault:`): the Go host refuses it
+  and secrets endpoints answer 503. Use the local provider for Go-managed
+  plugin secrets.
+- Master key rotation. Changing `SECRETS_MASTER_KEY` makes stored values
+  unreadable (loudly: runs fail naming the secret); re-enter them with `PUT`.
+  The Python `rotate_encrypted_secrets` job does not touch this table.
+- Python-run connectors still read workspace secrets from their own SQLite
+  `workspace_settings`; secrets set here are used by plugins the Go host runs.
+  Moving that store to PostgreSQL is RFC milestone M8.
+- Browser (`process`-runtime) plugins do not exist yet, so nothing passes
+  secrets to them.
 
 ## Capabilities and responsible scraping
 
