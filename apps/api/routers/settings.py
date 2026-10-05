@@ -51,8 +51,24 @@ def _get_db() -> sqlite3.Connection:
     return conn
 
 
+def _pg_meta():
+    """PostgreSQL global-settings backend when WORKSPACE_META_STORE=postgres."""
+    from apps.api.services.workspace import pg_meta
+
+    return pg_meta if pg_meta.is_postgres() else None
+
+
 def _db_get(key: str, default: str = "") -> str:
     """Read a setting from DB, fallback to os.environ, then default."""
+    pg = _pg_meta()
+    if pg is not None:
+        try:
+            value = pg.settings_get(key)
+            if value:
+                return value
+        except Exception as exc:  # never include the value in a log line
+            print(f"  ⚠ Settings read error for {key}: {type(exc).__name__}")
+        return os.environ.get(key, default)
     try:
         conn = _get_db()
         row = conn.execute("SELECT value FROM settings WHERE key = ?", (key,)).fetchone()
@@ -66,6 +82,14 @@ def _db_get(key: str, default: str = "") -> str:
 
 def _db_set(key: str, value: str):
     """Write a setting to DB and os.environ."""
+    pg = _pg_meta()
+    if pg is not None:
+        try:
+            pg.settings_set(key, value)
+        except Exception as e:
+            print(f"  ⚠ Settings DB write error: {type(e).__name__}")
+        os.environ[key] = value
+        return
     try:
         conn = _get_db()
         conn.execute(
@@ -109,6 +133,23 @@ def get_enrichment_settings() -> Dict[str, int]:
 
 def _seed_from_env():
     """Sync .env keys into the settings DB (insert missing, don't overwrite existing)."""
+    pg = _pg_meta()
+    if pg is not None:
+        try:
+            existing = pg.settings_keys()
+            items = []
+            for pid, prov in PROVIDERS.items():
+                for env_key in [prov["env_key"], prov.get("env_url", ""), prov.get("env_model", "")]:
+                    if env_key and env_key not in existing and os.environ.get(env_key, ""):
+                        items.append((env_key, os.environ[env_key]))
+            if "LLM_DEFAULT_PROVIDER" not in existing:
+                items.append(("LLM_DEFAULT_PROVIDER", os.environ.get("LLM_DEFAULT_PROVIDER", "openrouter")))
+            seeded = pg.settings_insert_missing(items)
+            if seeded:
+                print(f"  🌱 Seeded {seeded} settings from .env")
+        except Exception as e:
+            print(f"  ⚠ Seed error: {type(e).__name__}")
+        return
     try:
         conn = _get_db()
         # Get existing DB keys

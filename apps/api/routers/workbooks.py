@@ -445,9 +445,9 @@ async def create_workbook_from_jobs(
         # Auto-generate name from job queries
         auto_name = body.name
         if not auto_name:
-            from apps.api.services.workspace.manager import workspace_leads_db_path
+            from apps.api.services.leadgen.ledger import open_job_ledger
 
-            job_db = LeadDB(workspace_leads_db_path(ctx.slug))
+            job_db = open_job_ledger(ctx.workspace_id, ctx.slug)
             try:
                 job_queries = []
                 for jid in body.job_ids[:3]:

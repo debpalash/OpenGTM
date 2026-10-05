@@ -10,6 +10,7 @@ moved, and proxies everything else to FastAPI.
 | `opengtm serve [--worker]` | Web UI, Go-owned `/api/v2` routes, live events, and a reverse proxy to FastAPI for every other path. `--worker` also runs the queue in-process (the `lite` profile). |
 | `opengtm worker` | Durable queue worker for job types routed to Go. Safe to run as many replicas. |
 | `opengtm routes list\|set <type> <python\|go>` | Choose which executor claims each job type. Drain in-flight jobs before switching. |
+| `opengtm leases list\|release <name>` | Show scheduler leadership (holder, fencing token, expiry) or expire a lease whose holder is gone. See [M8](../../docs/plans/m8-multihost-state.md). |
 | `opengtm doctor [--json]` | Check configuration, the database role (must be `NOSUPERUSER NOBYPASSRLS`), migrations, routes and the legacy API. |
 | `opengtm plugin ...` | Build, test, record, run, sign, pack and install plugins ([guide](../../docs/plugins/README.md)). |
 | `opengtm health` | Probe `/healthz` (container healthchecks). |
@@ -81,6 +82,7 @@ cmd/opengtm          subcommands (one file each)
 internal/config      configuration
 internal/db          pgx pool, tenant transactions, test fixtures (dbtest)
 internal/queue       jobs queue executor, routing, leases
+internal/lease       scheduler leadership leases with fencing tokens (same protocol as the Python scheduler)
 internal/authz       forward authorization to FastAPI
 internal/progress    LISTEN/NOTIFY events
 internal/server      HTTP front door, legacy proxy, SPA

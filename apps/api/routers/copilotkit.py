@@ -1737,8 +1737,7 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                 return json.dumps(_receipt(persisted, reused=False))
 
         elif name == "start_collection":
-            from apps.api.services.leadgen.db import LeadDB as _LeadDB
-            from apps.api.services.workspace.manager import workspace_leads_db_path
+            from apps.api.services.leadgen.ledger import open_job_ledger
             from apps.api.services.queue_service import queue_service
             from apps.api.services.leadgen.progress import progress
             from apps.api.database import SessionLocal
@@ -1762,7 +1761,7 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
             # client can poll /api/jobs/{id} immediately. Job/stage bookkeeping
             # remains a per-workspace SQLite ledger even when leads live in the
             # shared RLS-protected Postgres store.
-            _jobdb = _LeadDB(workspace_leads_db_path(slug))
+            _jobdb = open_job_ledger(ws_id, slug)
             _jobdb.create_job(
                 job_id,
                 query,
@@ -1790,7 +1789,7 @@ async def _execute_tool(name: str, args: dict, *, store, workspace_id: str, slug
                         fire_key=f"collect:{ws_id}:{job_id}",
                     )
             except Exception as exc:
-                _jobdb = _LeadDB(workspace_leads_db_path(slug))
+                _jobdb = open_job_ledger(ws_id, slug)
                 _jobdb.conn.execute(
                     "UPDATE jobs SET status = 'failed', error = ?, completed_at = ? WHERE id = ?",
                     (f"Queue enqueue failed: {exc}", datetime.now(timezone.utc).isoformat(), job_id),

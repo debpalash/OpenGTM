@@ -90,6 +90,16 @@ _IGNORED_PG_OBJECTS = {
 # RLS). They are hand-authored in the 7c1e5a9d3b20 migration and have no ORM
 # model, so autogenerate must not propose dropping them.
 _IGNORED_PG_TABLES = {"plugin_runs", "plugin_results"}
+# M8 multi-host control plane (9b3d5f7a2c41): scheduler leases, global settings
+# and the workspace directory, hand-authored with forced RLS and no ORM model.
+_IGNORED_PG_TABLES |= {
+    "scheduler_leases", "app_settings", "workspaces", "workspace_settings",
+    "workspace_members", "workspace_member_permissions",
+    "workspace_oidc_identities", "workspace_scim_tokens", "workspace_scim_users",
+    "workspace_scim_groups", "workspace_scim_group_members", "user_active_workspace",
+    # collection job ledger (b5d7f9a1c3e6)
+    "collection_jobs", "collection_job_stages",
+}
 
 
 def _include_object(obj, name, type_, reflected, compare_to):

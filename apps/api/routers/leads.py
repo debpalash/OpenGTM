@@ -51,9 +51,10 @@ def _workspace_job_db(ctx: WorkspaceCtx) -> LeadDB:
     using bare ``LeadDB()`` here would expose the global/main ledger to every
     tenant.
     """
-    from apps.api.services.workspace.manager import workspace_leads_db_path
+    from apps.api.services.leadgen.ledger import open_job_ledger
 
-    return LeadDB(workspace_leads_db_path(ctx.slug))
+    # SQLite file by default; the PostgreSQL ledger with COLLECTION_LEDGER_STORE=postgres.
+    return open_job_ledger(ctx.workspace_id, ctx.slug)
 
 
 def _collection_fire_key(workspace_id: str, job_id: str) -> str:
