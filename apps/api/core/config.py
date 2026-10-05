@@ -66,6 +66,12 @@ class Settings(BaseSettings):
     # one workspace. 0 disables; global jobs (workspace_id NULL) are uncapped.
     WORKER_MAX_ACTIVE_PER_WORKSPACE: int = 2
 
+    # SQLAlchemy pool (Postgres). A request that cannot get a pooled connection
+    # within DB_POOL_TIMEOUT seconds fails with a 500 instead of waiting the
+    # library default of 30 s: shedding load quickly beats queueing requests
+    # behind a stalled pool until every client times out.
+    DB_POOL_TIMEOUT: int = 10
+
     # Paths
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ROOT_DIR: str = os.path.abspath(os.path.join(BASE_DIR, "../../"))
