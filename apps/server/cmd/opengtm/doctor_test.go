@@ -95,8 +95,10 @@ func TestDoctorFlagsARouteNothingClaims(t *testing.T) {
 		_, _ = ownerPool.Exec(ctx, `DELETE FROM job_executor_routes WHERE job_type = $1`, stranded)
 	})
 
-	if got := executorCheck(ctx, pool); !got.OK {
-		t.Fatalf("a clean install must pass: %+v", got)
+	// (Other tests share the database and may leave routes behind, so the
+	// assertions are about this test's own type.)
+	if got := executorCheck(ctx, pool); strings.Contains(got.Detail, stranded) {
+		t.Fatalf("a python-owned type must not be flagged: %+v", got)
 	}
 	if _, err := ownerPool.Exec(ctx, `INSERT INTO job_executor_routes (job_type, executor) VALUES ($1, 'go')
 		ON CONFLICT (job_type) DO UPDATE SET executor = 'go'`, stranded); err != nil {
@@ -106,11 +108,11 @@ func TestDoctorFlagsARouteNothingClaims(t *testing.T) {
 	if got.OK || !strings.Contains(got.Detail, stranded) || !strings.Contains(got.Detail, "routes set <type> python") {
 		t.Fatalf("a route to go without an executor must fail the check: %+v", got)
 	}
-	// A route to a type this binary can run (plugin_run is seeded to go) is fine.
+	// Routed back to python it is no longer a problem.
 	if _, err := ownerPool.Exec(ctx, `UPDATE job_executor_routes SET executor = 'python' WHERE job_type = $1`, stranded); err != nil {
 		t.Fatal(err)
 	}
-	if got := executorCheck(ctx, pool); !got.OK || !strings.Contains(got.Detail, "plugin_run") {
-		t.Fatalf("plugin_run runs in go and must be listed: %+v", got)
+	if got := executorCheck(ctx, pool); strings.Contains(got.Detail, stranded) {
+		t.Fatalf("a route back to python must clear the finding: %+v", got)
 	}
 }
