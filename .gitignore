@@ -78,3 +78,9 @@ infra/searxng/settings.yml
 # Local data symlink + Go build artifacts
 apps/api/data
 apps/searxng-pool/searxng-pool
+
+# ── Benchmarks ──────────────────────────────
+# Results are local; only the committed baseline snapshot is tracked.
+benchmarks/results/*
+!benchmarks/results/baseline.json
+!benchmarks/results/baseline.md
