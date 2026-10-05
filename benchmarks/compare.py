@@ -17,6 +17,15 @@ Metrics present in only one file are reported but do not fail the run unless
 for example ``--only 'queue/nosync/go-queue/*'`` after a change that only
 touches the Go queue. The comparison is only meaningful for results produced
 on the same machine with the same configuration; a mismatch is warned about.
+
+A metric may carry its own ``threshold`` (relative) and ``slack`` (an absolute
+amount in the metric's unit that is never worth failing for); the web benchmark
+(benchmarks/web.py) uses them so that deterministic bundle sizes are held to 3%
+while timings get 30% plus a time floor. An explicit ``--threshold`` (or the
+BENCH_REGRESSION_THRESHOLD environment variable) overrides every metric's own.
+
+The default baseline is results/baseline.json; for web results pass
+results/web-baseline.json explicitly.
 """
 
 from __future__ import annotations
@@ -47,8 +56,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("files", nargs="+", metavar="[BASELINE] CANDIDATE",
                     help="candidate result, optionally preceded by the baseline (default: results/baseline.json)")
-    ap.add_argument("--threshold", type=float, default=float(os.environ.get("BENCH_REGRESSION_THRESHOLD", 0.15)),
-                    help="allowed relative regression, default 0.15 (env: BENCH_REGRESSION_THRESHOLD)")
+    ap.add_argument("--threshold", type=float, default=None,
+                    help="allowed relative regression for every metric; default 0.15, or the metric's own "
+                         "(env: BENCH_REGRESSION_THRESHOLD)")
     ap.add_argument("--all", action="store_true", help="also gate informational metrics (p99, claim latency)")
     ap.add_argument("--strict", action="store_true", help="fail when a baseline metric is missing in the candidate")
     ap.add_argument("--only", action="append", default=[], metavar="GLOB", help="restrict to matching metric keys")
@@ -61,7 +71,9 @@ def main() -> int:
         base_path, cand_path = args.files
     else:
         ap.error("pass CANDIDATE or BASELINE CANDIDATE")
-    if args.threshold < 0:
+    explicit = args.threshold is not None or "BENCH_REGRESSION_THRESHOLD" in os.environ
+    default_threshold = args.threshold if args.threshold is not None else float(os.environ.get("BENCH_REGRESSION_THRESHOLD", 0.15))
+    if default_threshold < 0:
         ap.error("--threshold must be >= 0")
     base, cand = load(base_path), load(cand_path)
 
@@ -85,11 +97,13 @@ def main() -> int:
         compared += 1
         # Positive change = worse.
         change = (b["value"] - c["value"]) / b["value"] if b["better"] == "higher" else (c["value"] - b["value"]) / b["value"]
+        threshold = default_threshold if explicit else b.get("threshold", default_threshold)
+        small = abs(c["value"] - b["value"]) <= b.get("slack", 0)  # too small an absolute change to matter
         line = (f"{key}: {b['value']:.4g} -> {c['value']:.4g} {b['unit']} "
                 f"({'worse' if change > 0 else 'better'} by {abs(change) * 100:.1f}%)")
-        if change > args.threshold:
+        if change > threshold and not small:
             regressions.append(line)
-        elif change < -args.threshold:
+        elif change < -threshold and not small:
             improvements.append(line)
         elif args.verbose:
             print("  ok  " + line)
@@ -100,7 +114,8 @@ def main() -> int:
         print(f" MISS  {key}: not in candidate")
     for line in regressions:
         print(f" SLOW  {line}")
-    print(f"\ncompared {compared} metrics at a {args.threshold * 100:.0f}% threshold: "
+    print(f"\ncompared {compared} metrics at a {default_threshold * 100:.0f}% threshold"
+          f"{'' if explicit else ' (unless a metric sets its own)'}: "
           f"{len(regressions)} regressed, {len(improvements)} improved, {len(missing)} missing")
     if regressions or (args.strict and missing):
         return 1
