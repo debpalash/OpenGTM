@@ -217,6 +217,59 @@ Say in the commit message why the numbers moved.
   (including `fsync`, `synchronous_commit`, `shared_buffers`), are recorded in
   the result's `machine` block.
 
+## Enrichment
+
+`benchmarks/run_enrich.py` compares the Python workbook executor with the Go
+one (`apps/server/internal/jobs/enrich`) on the M2 slice: a workbook run with
+one enrichment column and one manifest v1 connector per cell, answered by a
+local HTTPS provider simulator (`apps/server/internal/bench/providersim`, a
+fixed latency, standard library only). One **cell** is one completed
+enrichment: the provider call, the result and its evidence written, and for
+the `paid` workload the spend reservation, dispatch and settlement.
+
+```sh
+export OPENGTM_BENCH_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:55432/postgres
+uv run --frozen python benchmarks/run_enrich.py            # about 25 minutes
+uv run --frozen python benchmarks/run_enrich.py --quick    # smoke run, numbers not meaningful
+uv run --frozen python benchmarks/compare.py benchmarks/results/enrich-baseline.json benchmarks/results/<candidate>.json
+```
+
+Same throwaway-database, sandbox-copy and `./data` guarantees as the queue
+benchmark. Engines, interleaved within a repetition:
+
+| engine | what it runs |
+|---|---|
+| `go` | `Worker.Handle`, claimed job row, shared egress client. |
+| `python-pool` | `handle_run_workbook` unmodified, with its production killable process pool for provider calls. What Python does per cell. |
+| `python-threads` | the same handler with the provider call on a thread: no process isolation or pickling, the cheapest Python can be (a lower bound on its cost). |
+
+Both run the handler in-process, so the per-job child process of `QueueService`
+(about a second per job, see the queue benchmark) is not counted, and Redis
+broadcasts are off for Python (no Redis here; production publishes one message
+per cell). Both favour Python slightly. Go publishes `LISTEN/NOTIFY` progress
+and that cost is included. The sandbox gets a `sitecustomize.py` so the SSRF
+guard accepts the loopback simulator in the Python process and in the pool's
+workers; everything else still goes through the real guard.
+
+Workloads: `free-5ms` (overhead-bound), `free-100ms` (provider-latency-bound),
+`paid-5ms` (the spend ledger), `free-5ms-wide` (32 rows and 32 provider calls in
+flight). Variants as in the queue benchmark: `nosync` (`synchronous_commit=off`,
+reflects code) and `durable` (the default; on this disk every commit waits for
+an fsync, so it mostly reflects how many commits a cell needs; fewer rows are
+used to keep it short).
+
+Reported per engine: cells/s (rows / wall time of the job), the marginal CPU
+time per cell of the whole process tree (the same engine running a one-row job
+is subtracted, so start-up and imports cancel), PostgreSQL commits per 1,000
+cells, and the largest process's peak RSS. Every run is verified: all cells
+must be `complete`, and for `paid` every attempt `settled` with
+`budget_spent_usd` equal to rows x 0.05, or the run aborts.
+
+Caveats beyond those above: the machine is shared (see the load average in the
+result), the simulator and the engines share its CPUs, and a simulator with a
+fixed latency says nothing about real vendors' rate limits or tail latency.
+`compare.py` gates `cells_per_sec`; CPU and commit counts are informational.
+
 ## Files
 
 | file | role |
@@ -228,3 +281,4 @@ Say in the commit message why the numbers moved.
 | `seed_http.py` | Creates the user and workspace the authenticated endpoints need. |
 | `report.py` | Renders a result JSON as Markdown (`python benchmarks/report.py FILE`). |
 | `compare.py` | Regression check against a baseline. |
+| `run_enrich.py`, `bench_enrich_python.py` | Enrichment benchmark (Python executor against Go) and its Python child. Go side: `../apps/server/internal/jobs/enrich/bench_test.go`; provider simulator: `../apps/server/internal/bench/providersim/`. |

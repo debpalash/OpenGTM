@@ -95,3 +95,22 @@ Package `internal/jobs/enrich`:
   `execution_result` receipt match Python.
 
 Known gaps are listed in [`apps/server/README.md`](../../apps/server/README.md#connector-enrichment-runs-in-go).
+
+## Outcome and deviations from this plan
+
+- The gate in `connector_run.py` is stricter than the table above: it also
+  requires https connectors, no `${env:X}` other than the connector's own key,
+  and that the key resolves identically in the API process, because the Go host
+  grants a v1 connector only its endpoint origin and its declared secret.
+- The lease is proven with a shared row lock (`FOR SHARE`), not
+  `queue.HoldLease`'s `FOR UPDATE`: concurrent cell commits queued behind each
+  other on the job row and capped a run near 250 cells/s; a shared lock keeps
+  the fencing (cancel, finalize and reclaim UPDATE the row and wait) and removed
+  the ceiling.
+- Writing the parity harness exposed a Python defect: declarative providers left
+  `EnrichmentResult.provider` empty, so `accounting_envelope` rejected every paid
+  connector response and every paid attempt ended `uncertain`. It is fixed in
+  its own commit (`provider_runner.py`, one line, with a test); Go assumes it.
+- Progress goes to `LISTEN/NOTIFY`, not to the Redis channel the current grid
+  listens on, so live cell updates for Go-run workbooks wait for the web client
+  to subscribe to `/api/v2/events`.
