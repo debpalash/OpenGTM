@@ -35,6 +35,7 @@ All notable changes to OpenGTM are documented here. The format follows
   ended as an uncertain spend attempt (`accounting_uncertain`) after the vendor
   had been called, because the provider runner did not name the provider in the
   result that spend accounting checks. Such calls now settle.
+- Release notes now use the lowercase, pullable GHCR image name.
 
 ### Changed
 - `scripts/install.sh` installs the release binary when it is not run from a
@@ -48,9 +49,6 @@ All notable changes to OpenGTM are documented here. The format follows
 - Rewrote homepage and introduction copy around self-hosted lead sourcing,
   spend limits, and provider data boundaries; aligned search metadata and
   linked the Clay comparison.
-
-### Fixed
-- Release notes now use the lowercase, pullable GHCR image name.
 
 ## [3.0.0] - 2026-09-24
 
