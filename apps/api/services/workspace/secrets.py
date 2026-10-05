@@ -186,10 +186,12 @@ def decrypt_value(stored: str) -> str:
 
 # ── Storage (workspace_settings, raw SQL — mirrors workspace/manager.py) ────
 
-def _db() -> sqlite3.Connection:
-    """Workspaces meta DB connection (creates schema via the manager)."""
-    from apps.api.services.workspace.manager import _get_db
-    return _get_db()
+def _db(workspace_id: Optional[str] = None):
+    """Workspaces meta DB connection (creates schema via the manager). With a
+    workspace id and WORKSPACE_META_STORE=postgres the connection is bound to
+    that workspace, which row-level security requires to reach its secrets."""
+    from apps.api.services.workspace import manager
+    return manager._tenant_db(workspace_id) if workspace_id else manager._get_db()
 
 
 def set_secret(workspace_id: str, key: str, value: str) -> None:
@@ -203,7 +205,7 @@ def set_secret(workspace_id: str, key: str, value: str) -> None:
     if value is None or not value.strip():
         return
     ciphertext = encrypt_value(value.strip())
-    conn = _db()
+    conn = _db(workspace_id)
     try:
         conn.execute(
             "INSERT INTO workspace_settings (workspace_id, key, value) VALUES (?, ?, ?) "
@@ -220,7 +222,7 @@ def _raw_workspace_value(workspace_id: str, key: str) -> Optional[str]:
     """Return the raw stored (ciphertext) value for a workspace key, or None."""
     if not workspace_id or not key:
         return None
-    conn = _db()
+    conn = _db(workspace_id)
     try:
         row = conn.execute(
             "SELECT value FROM workspace_settings WHERE workspace_id = ? AND key = ?",
@@ -275,26 +277,56 @@ def get_secret(workspace_id: Optional[str], key: str, default: str = "") -> str:
     return value
 
 
+def _rotate_on(conn) -> int:
+    rows = conn.execute(
+        "SELECT workspace_id, key, value FROM workspace_settings "
+        "WHERE value LIKE 'enc:v1:%' OR value LIKE 'enc:v2:vault:%'"
+    ).fetchall()
+    rotated = []
+    for row in rows:
+        value = row["value"] if hasattr(row, "keys") else row[2]
+        workspace_id = row["workspace_id"] if hasattr(row, "keys") else row[0]
+        key = row["key"] if hasattr(row, "keys") else row[1]
+        rotated.append((encrypt_value(decrypt_value(value)), workspace_id, key))
+    conn.executemany(
+        "UPDATE workspace_settings SET value = ? WHERE workspace_id = ? AND key = ?",
+        rotated,
+    )
+    conn.commit()
+    return len(rotated)
+
+
 def rotate_encrypted_secrets() -> dict:
-    """Re-encrypt every managed workspace secret with the configured provider."""
+    """Re-encrypt every managed workspace secret with the configured provider.
+
+    On PostgreSQL each workspace is rotated in its own tenant-bound
+    transaction, because row-level security shows a connection only the
+    workspace it is bound to. A workspace is rotated entirely or not at all and
+    every value stays decryptable throughout (old or new envelope), so an
+    interrupted rotation can simply be run again.
+    """
+    from apps.api.services.workspace import manager
+
+    if manager._pg_meta() is not None:
+        directory = _db()
+        try:
+            ids = [r["id"] for r in directory.execute("SELECT id FROM workspaces").fetchall()]
+        finally:
+            directory.close()
+        total = 0
+        for workspace_id in ids:
+            conn = _db(workspace_id)
+            try:
+                total += _rotate_on(conn)
+            except Exception:
+                conn.rollback()
+                raise
+            finally:
+                conn.close()
+        return {"rotated": total}
     conn = _db()
     try:
-        rows = conn.execute(
-            "SELECT workspace_id, key, value FROM workspace_settings "
-            "WHERE value LIKE 'enc:v1:%' OR value LIKE 'enc:v2:vault:%'"
-        ).fetchall()
-        rotated = []
-        for row in rows:
-            value = row["value"] if hasattr(row, "keys") else row[2]
-            workspace_id = row["workspace_id"] if hasattr(row, "keys") else row[0]
-            key = row["key"] if hasattr(row, "keys") else row[1]
-            rotated.append((encrypt_value(decrypt_value(value)), workspace_id, key))
-        conn.executemany(
-            "UPDATE workspace_settings SET value = ? WHERE workspace_id = ? AND key = ?",
-            rotated,
-        )
-        conn.commit()
-        return {"rotated": len(rotated)}
+        return {"rotated": _rotate_on(conn)}
     except Exception:
         conn.rollback()
         raise

@@ -67,6 +67,13 @@ _DB_PATH = Path(__file__).parent.parent.parent.parent.parent / "data" / "data.db
 def _read_setting(key: str, default: str = "") -> str:
     """Read a setting from the DB, fall back to env."""
     try:
+        from apps.api.services.workspace import pg_meta
+        if pg_meta.is_postgres():
+            value = pg_meta.settings_get(key)
+            return value if value else os.environ.get(key, default)
+    except Exception:
+        return os.environ.get(key, default)
+    try:
         conn = sqlite3.connect(str(_DB_PATH))
         conn.row_factory = sqlite3.Row
         row = conn.execute("SELECT value FROM settings WHERE key = ?", (key,)).fetchone()

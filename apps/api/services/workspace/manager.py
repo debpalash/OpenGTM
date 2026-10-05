@@ -37,8 +37,20 @@ def _project_root() -> Path:
     return Path(__file__).resolve().parents[4]
 
 
+def _pg_meta():
+    """The PostgreSQL metadata backend when WORKSPACE_META_STORE=postgres, else None."""
+    from apps.api.services.workspace import pg_meta
+
+    return pg_meta if pg_meta.is_postgres() else None
+
+
 def _get_db():
-    """Get workspaces meta DB."""
+    """Get workspaces meta DB (the local SQLite file, or, with
+    WORKSPACE_META_STORE=postgres, a cross-tenant directory connection to the
+    shared tables with the same call surface)."""
+    pg = _pg_meta()
+    if pg is not None:
+        return pg.directory()
     db_path = _project_root() / "data" / "workspaces.db"
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(db_path))
@@ -195,8 +207,16 @@ def _set_active_workspace(ws_id: str):
         pass
 
 
+def _tenant_db(workspace_id: str):
+    """Connection for ``workspace_settings`` rows of one workspace. On PostgreSQL
+    it is bound to that workspace alone, because the table's policy admits no
+    other reader."""
+    pg = _pg_meta()
+    return pg.tenant(workspace_id) if pg is not None else _get_db()
+
+
 def get_workspace_setting(workspace_id: str, key: str, default: str = "") -> str:
-    conn = _get_db()
+    conn = _tenant_db(workspace_id)
     row = conn.execute(
         "SELECT value FROM workspace_settings WHERE workspace_id = ? AND key = ?",
         (workspace_id, key),
@@ -206,7 +226,7 @@ def get_workspace_setting(workspace_id: str, key: str, default: str = "") -> str
 
 
 def set_workspace_setting(workspace_id: str, key: str, value: str) -> None:
-    conn = _get_db()
+    conn = _tenant_db(workspace_id)
     conn.execute(
         "INSERT INTO workspace_settings (workspace_id, key, value) VALUES (?, ?, ?) "
         "ON CONFLICT(workspace_id, key) DO UPDATE SET value = excluded.value",
@@ -535,7 +555,10 @@ def get_workspace_by_slug(slug: str) -> Optional[Workspace]:
 
 def delete_workspace(ws_id: str) -> bool:
     """Delete a workspace (cannot delete 'main')."""
-    conn = _get_db()
+    pg = _pg_meta()
+    # On PostgreSQL the connection is also bound to this workspace so the
+    # strictly tenant-scoped workspace_settings rows can be deleted with it.
+    conn = pg.directory_for_workspace(ws_id) if pg is not None else _get_db()
     row = conn.execute("SELECT slug FROM workspaces WHERE id = ?", (ws_id,)).fetchone()
     if not row or row["slug"] == "main":
         conn.close()
