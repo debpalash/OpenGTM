@@ -236,6 +236,47 @@ func readEntries(bundle string, maxFile, maxTotal int64, maxEntries int) (map[st
 // Install installs a v1 or v2 bundle after verifying a trusted signature and
 // the full manifest contract in a staging directory.
 func Install(bundle, destination, trustStore string, replace bool) (*InstallResult, error) {
+	return InstallWithOptions(bundle, destination, trustStore, InstallOptions{Replace: replace})
+}
+
+// Candidate describes a bundle that passed signature and manifest checks and
+// is about to be written. Verify hooks see it under the per-plugin install
+// lock, before anything is replaced.
+type Candidate struct {
+	Name    string
+	Version string
+	// Plugin is the parsed manifest.
+	Plugin *manifest.Plugin
+	// ManifestSHA256 is the hex SHA-256 of the canonical manifest, the value
+	// the signature envelope commits to.
+	ManifestSHA256 string
+	// Signature is the verification result (always trusted here) and
+	// Envelope the raw plugin.yaml.sig bytes.
+	Signature signing.Result
+	Envelope  []byte
+	// Installed reports whether the plugin is already installed, and
+	// InstalledVersion its version ("" when it cannot be read).
+	Installed        bool
+	InstalledVersion string
+}
+
+// InstallOptions refines Install.
+type InstallOptions struct {
+	// Replace overwrites an installed plugin of the same name.
+	Replace bool
+	// Verify, when set, runs after the signature is verified and the install
+	// lock is held. A non-nil error aborts the install and leaves any
+	// installed version untouched. It is supported for v2 plugin bundles
+	// only; a v1 connector bundle is refused when Verify is set.
+	Verify func(Candidate) error
+}
+
+// ErrVerifyV1 is returned when a Verify hook is combined with a v1 bundle.
+var ErrVerifyV1 = errors.New("index installs support v2 plugin bundles only; install a connector bundle from a file")
+
+// InstallWithOptions is Install with options.
+func InstallWithOptions(bundle, destination, trustStore string, opts InstallOptions) (*InstallResult, error) {
+	replace := opts.Replace
 	zr, err := zip.OpenReader(bundle)
 	if err != nil {
 		return nil, err
@@ -248,7 +289,10 @@ func Install(bundle, destination, trustStore string, replace bool) (*InstallResu
 	}
 	zr.Close()
 	if isV2 {
-		return installV2(bundle, destination, trustStore, replace)
+		return installV2(bundle, destination, trustStore, replace, opts.Verify)
+	}
+	if opts.Verify != nil {
+		return nil, ErrVerifyV1
 	}
 	return InstallV1(bundle, destination, trustStore, replace)
 }
@@ -370,7 +414,7 @@ func safeEntryName(name string) bool {
 	return true
 }
 
-func installV2(bundle, destination, trustStore string, replace bool) (*InstallResult, error) {
+func installV2(bundle, destination, trustStore string, replace bool, verify func(Candidate) error) (*InstallResult, error) {
 	files, order, err := readEntries(bundle, V2MaxFileBytes, V2MaxTotalBytes, V2MaxEntries)
 	if err != nil {
 		return nil, err
@@ -433,6 +477,24 @@ func installV2(bundle, destination, trustStore string, replace bool) (*InstallRe
 	defer unlock()
 	if exists(target) && !replace {
 		return nil, fmt.Errorf("plugin %s is already installed", p.Name)
+	}
+	if verify != nil {
+		digest, err := signing.Digest(mPath)
+		if err != nil {
+			return nil, err
+		}
+		cand := Candidate{
+			Name: p.Name, Version: p.Version, Plugin: p, ManifestSHA256: digest,
+			Signature: result, Envelope: files[v2Signature], Installed: exists(target),
+		}
+		if cand.Installed {
+			if prev, err := manifest.Load(filepath.Join(target, v2Manifest)); err == nil {
+				cand.InstalledVersion = prev.Version
+			}
+		}
+		if err := verify(cand); err != nil {
+			return nil, err
+		}
 	}
 	backup := ""
 	if exists(target) {
