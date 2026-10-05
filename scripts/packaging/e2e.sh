@@ -121,6 +121,9 @@ step "3/10 runtime role cannot bypass row-level security"
 rls="$(psql_owner "SELECT rolsuper OR rolbypassrls FROM pg_roles WHERE rolname = 'yupcha_runtime'")"
 [[ "$rls" == "f" ]] || fail "runtime role bypasses RLS (got '$rls')"
 
+step "3b/10 doctor passes on a healthy install"
+og doctor --dir "$DIR" || fail "opengtm doctor --dir reported a problem on a healthy install"
+
 step "4/10 write data worth keeping"
 psql_owner "CREATE TABLE IF NOT EXISTS e2e_marker (id serial PRIMARY KEY, note text); INSERT INTO e2e_marker (note) VALUES ('before-backup')" >/dev/null
 mkdir -p "$DIR/data"
@@ -199,7 +202,7 @@ dc_dr() { docker compose --project-directory "$DR" -f "$DR/compose.yml" "$@"; }
 dc_dr up -d postgres >/dev/null
 og restore --dir "$DR" "$DRBK" --start
 # shellcheck disable=SC2016
-rec="$(dc_dr exec -T postgres sh -c 'psql -X -At -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT string_agg(note, $$,$$ ORDER BY id) FROM e2e_marker"')"
+rec="$(dc_dr exec -T postgres sh -c 'psql -X -At -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT string_agg(note, chr(44) ORDER BY id) FROM e2e_marker"')"
 [[ "$rec" == "before-backup" ]] || fail "recovered database lacks the data: '$rec'"
 [[ "$(cat "$DR/data/e2e-marker.txt")" == "data-before-backup" ]] || fail "recovered data directory lacks the file"
 [[ "$(curl -fsS "http://127.0.0.1:${DR_PORT}/api/v2/version")" == *"\"version\":\"${NEXT_VERSION}\""* ]] || fail "recovered install does not run $NEXT_VERSION"
