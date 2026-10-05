@@ -7,7 +7,29 @@ All notable changes to OpenGTM are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Self-host packaging (milestone M7): `opengtm init` (profiles `lite`,
+  `standard`, `full`; generated secrets; never overwrites without
+  confirmation), `opengtm migrate` (single migration owner around Alembic),
+  `opengtm backup` / `restore` (checksummed `pg_dump` + data directory + config),
+  `opengtm upgrade` / `rollback` (journaled, health-checked, rollback restores the
+  pre-upgrade backup), and `opengtm doctor --dir`. See `docs/self-hosting.md` and
+  `docs/operations/upgrade-backup-rollback.md`.
+- Signed releases: GoReleaser builds for linux, macOS and Windows on amd64 and
+  arm64 with checksums, SPDX SBOMs and a keyless cosign signature; native
+  multi-arch `opengtm` and `opengtm-server` images signed by digest; a signed
+  `release-manifest.json`. The release workflow only publishes after the
+  packaging end-to-end suite (fresh install, upgrade from the previous release,
+  backup restore, rollback) passes on amd64 and arm64.
+- `scripts/install.sh` installs the release binary after verifying its SHA-256
+  checksum and, with cosign, its signature (`--quickstart`, `--require-signature`).
+- A Helm-free Kubernetes example in `deploy/kubernetes/`.
+
 ### Changed
+- `scripts/install.sh` installs the release binary when it is not run from a
+  checkout (for example piped from `curl`); from a checkout it keeps building the
+  Compose stack, and `--from-source` / `--binary` force either mode.
+- The server image cross-compiles instead of emulating, so multi-arch builds are fast.
 - Replaced the docs homepage's synthetic product examples with a restrained,
   real-workspace presentation and direct laptop/server install paths.
 - Updated the quickstart with generated credentials, a pinned GHCR image, and
