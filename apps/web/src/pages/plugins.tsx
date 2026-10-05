@@ -5,7 +5,7 @@
 // status is live through /api/v2/events, with polling while a run is active
 // and the stream is down.
 
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { getRouteApi, useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
 import { Puzzle } from "lucide-react"
@@ -43,6 +43,9 @@ export default function PluginsPage() {
   const catalog = usePluginCatalog()
   const stream = usePlatformEvents(catalog.isSuccess)
   const runs = usePluginRuns(stream === "live", !isPlatformUnavailable(catalog.error))
+  const fetchMoreRuns = runs.fetchNextPage
+  // cancelRefetch: false, so a repeated trigger never restarts a page already in flight.
+  const loadMoreRuns = useCallback(() => void fetchMoreRuns({ cancelRefetch: false }), [fetchMoreRuns])
   const [runTarget, setRunTarget] = useState<PluginInfo | null>(null)
   const [highlight, setHighlight] = useState<string | null>(null)
   const pluginsByName = useMemo(() => new Map((catalog.data?.plugins ?? []).map(p => [p.name, p])), [catalog.data])
@@ -85,7 +88,9 @@ export default function PluginsPage() {
           <TabsContent value="runs" className="pt-2">
             {runs.isPending ? <Loading rows={5} />
               : runs.isError ? <ErrorState error={runs.error} onRetry={() => void runs.refetch()} />
-              : <PluginRunsTable runs={runs.data} plugins={pluginsByName} highlightId={highlight} />}
+              : <PluginRunsTable runs={runs.data} plugins={pluginsByName} highlightId={highlight}
+                hasMore={runs.hasNextPage} loadingMore={runs.isFetchingNextPage} loadMoreFailed={runs.isFetchNextPageError}
+                onLoadMore={loadMoreRuns} />}
           </TabsContent>
         </Tabs>
       )}
