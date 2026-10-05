@@ -39,7 +39,7 @@ services:
       # Probe over TCP. The image's temporary first-run server listens only on
       # the unix socket, and a socket probe would report ready too early and
       # let `migrate` connect to a server that is about to restart.
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1-U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 12

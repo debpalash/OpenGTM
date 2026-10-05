@@ -445,3 +445,13 @@ func TestRefreshComposeUpdatesPristineAndKeepsCustomized(t *testing.T) {
 		t.Error("proposed compose.yml.new is not the shipped version")
 	}
 }
+
+// The Postgres healthcheck must be a well-formed pg_isready call over TCP: a
+// typo here makes the whole stack report "dependency failed to start".
+func TestPostgresHealthcheckIsWellFormed(t *testing.T) {
+	raw, _ := install.Asset("compose.yml")
+	want := `pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}`
+	if !strings.Contains(string(raw), want) {
+		t.Fatalf("compose.yml lacks the TCP pg_isready healthcheck %q", want)
+	}
+}
