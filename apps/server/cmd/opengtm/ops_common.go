@@ -129,3 +129,19 @@ func releaseTag() string {
 	}
 	return strings.TrimPrefix(version, "v")
 }
+
+// parseInterspersed parses fs allowing flags before and after positional
+// arguments (`opengtm restore BACKUP --wipe`), which flag.Parse alone rejects.
+func parseInterspersed(fs *flag.FlagSet, args []string) ([]string, error) {
+	var positional []string
+	for {
+		if err := fs.Parse(args); err != nil {
+			return nil, err
+		}
+		if fs.NArg() == 0 {
+			return positional, nil
+		}
+		positional = append(positional, fs.Arg(0))
+		args = fs.Args()[1:]
+	}
+}

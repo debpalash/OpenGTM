@@ -26,6 +26,7 @@ func runInit(ctx context.Context, args []string) error {
 	publicURL := fs.String("public-url", "", "public https URL behind your TLS proxy; switches APP_ENV to production")
 	bind := fs.String("bind", "", "host address to publish on (default 127.0.0.1)")
 	port := fs.Int("port", 0, "host port (default 3000)")
+	project := fs.String("project", "", "Compose project name (default opengtm); use distinct names to run several installs on one host")
 	ver := fs.String("version", "", "release to install (default: this binary's version)")
 	appImage := fs.String("app-image", "", "Python image reference (overrides the release tag)")
 	serverImage := fs.String("server-image", "", "Go server image reference (overrides the release tag)")
@@ -36,7 +37,7 @@ func runInit(ctx context.Context, args []string) error {
 
 	opts := install.InitOptions{
 		Dir: *dir, Version: *ver, AppImage: *appImage, ServerImage: *serverImage,
-		PublicURL: *publicURL, Bind: *bind, Port: *port,
+		PublicURL: *publicURL, Bind: *bind, Port: *port, Project: *project,
 		Yes: *yes, Force: *force, RotateSecrets: *rotate,
 		Interactive: isTerminal(os.Stdin), In: os.Stdin, Out: os.Stderr,
 	}

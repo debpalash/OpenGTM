@@ -88,7 +88,27 @@ internal/kernels     Rust kernels (WebAssembly) for extraction and normalization
 internal/plugin/...  manifests, templates, signing, bundles, fixtures, runtimes
 internal/pluginrun   plugin catalog, plugin_run jobs and /api/v2 plugin routes
 internal/jobs/...    job types migrated from Python (retention_enforce)
+internal/ops/...     operator tooling behind init, migrate, backup, restore, upgrade,
+                     rollback and doctor --dir (see below)
 ```
+
+### Operator tooling (`internal/ops`)
+
+`opengtm init | migrate | backup | restore | upgrade | rollback` and
+`doctor --dir` manage a Docker Compose install; the user guide is
+[`docs/self-hosting.md`](../../docs/self-hosting.md) and the runbook
+[`docs/operations/upgrade-backup-rollback.md`](../../docs/operations/upgrade-backup-rollback.md).
+The packages: `execx` (one place that starts programs, so orchestration is
+testable with a fake), `compose` (docker compose driver and health waiting),
+`pg` (psql, pg_dump and pg_restore against a URL or inside the postgres
+container), `backup` (checksummed backup directories), `migrate` (the
+migration owner around Alembic), `install` (init, `.env`, state journal) and
+`upgrade` (upgrade and rollback).
+
+Their tests need PostgreSQL client tools (`psql`, `pg_dump`, `pg_restore` of
+the server's major version or newer) and `OPENGTM_TEST_DATABASE_URL`; they
+create and drop uniquely named databases on that server and skip otherwise.
+The full flow against real containers is `scripts/packaging/e2e.sh`.
 
 ## Job types running in Go
 

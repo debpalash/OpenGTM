@@ -7,6 +7,7 @@ package compose
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -77,22 +78,125 @@ func (p Project) Services(ctx context.Context) ([]string, error) {
 // Pull fetches the images for the active profiles.
 func (p Project) Pull(ctx context.Context) error { return p.stream(ctx, "pull", "--quiet") }
 
-// Up starts services and waits for them to be running and healthy.
+// Up starts services (all, or the named ones and their dependencies) and then
+// waits until each is running and healthy. `docker compose up --wait` is not
+// used because it fails on one-shot services that finished successfully (the
+// seed job), which are a normal part of this stack.
 func (p Project) Up(ctx context.Context, wait time.Duration, services ...string) error {
-	args := []string{"up", "-d", "--remove-orphans"}
-	if wait > 0 {
-		args = append(args, "--wait", "--wait-timeout", fmt.Sprint(int(wait.Seconds())))
+	args := append([]string{"up", "-d", "--remove-orphans"}, services...)
+	if err := p.stream(ctx, args...); err != nil {
+		return err
 	}
-	return p.stream(ctx, append(args, services...)...)
+	return p.WaitHealthy(ctx, wait, services...)
 }
 
 // UpNoDeps starts only the named services, ignoring their dependencies.
 func (p Project) UpNoDeps(ctx context.Context, wait time.Duration, services ...string) error {
-	args := []string{"up", "-d", "--no-deps"}
-	if wait > 0 {
-		args = append(args, "--wait", "--wait-timeout", fmt.Sprint(int(wait.Seconds())))
+	if err := p.stream(ctx, append([]string{"up", "-d", "--no-deps"}, services...)...); err != nil {
+		return err
 	}
-	return p.stream(ctx, append(args, services...)...)
+	return p.WaitHealthy(ctx, wait, services...)
+}
+
+// ServiceStatus is one container as reported by `docker compose ps`.
+type ServiceStatus struct {
+	Service  string
+	State    string
+	Health   string
+	ExitCode int
+}
+
+// parsePS reads `docker compose ps --format json`, which prints one JSON
+// object per line (Compose 2.21+) or a single array (older releases).
+func parsePS(out string) ([]ServiceStatus, error) {
+	out = strings.TrimSpace(out)
+	if out == "" {
+		return nil, nil
+	}
+	if strings.HasPrefix(out, "[") {
+		var all []ServiceStatus
+		return all, json.Unmarshal([]byte(out), &all)
+	}
+	var all []ServiceStatus
+	dec := json.NewDecoder(strings.NewReader(out))
+	for dec.More() {
+		var e ServiceStatus
+		if err := dec.Decode(&e); err != nil {
+			return nil, err
+		}
+		all = append(all, e)
+	}
+	return all, nil
+}
+
+// Status lists every container of the project, including finished one-shots.
+func (p Project) Status(ctx context.Context) ([]ServiceStatus, error) {
+	out, err := execx.Output(ctx, p.runner(), p.base("ps", "-a", "--format", "json"))
+	if err != nil {
+		return nil, err
+	}
+	return parsePS(out)
+}
+
+// WaitHealthy polls until every container (of the named services, or all) is
+// running and, where a healthcheck exists, healthy. A container that exited
+// with status 0 counts as done (a finished one-shot job); a non-zero exit or an
+// unhealthy verdict fails immediately.
+func (p Project) WaitHealthy(ctx context.Context, wait time.Duration, services ...string) error {
+	if wait <= 0 {
+		wait = 5 * time.Minute
+	}
+	want := map[string]bool{}
+	for _, s := range services {
+		want[s] = true
+	}
+	ctx, cancel := context.WithTimeout(ctx, wait)
+	defer cancel()
+	var pending string
+	for {
+		entries, err := p.Status(ctx)
+		if err != nil {
+			return err
+		}
+		pending = ""
+		for _, e := range entries {
+			if len(want) > 0 && !want[e.Service] {
+				continue
+			}
+			switch {
+			case e.State == "exited" && e.ExitCode == 0:
+			case e.State == "exited" || e.State == "dead":
+				return fmt.Errorf("service %s exited with status %d (see `docker compose logs %s`)", e.Service, e.ExitCode, e.Service)
+			case e.Health == "unhealthy":
+				return fmt.Errorf("service %s is unhealthy (see `docker compose logs %s`)", e.Service, e.Service)
+			case e.State == "running" && (e.Health == "" || e.Health == "healthy"):
+			default:
+				pending = e.Service + " (" + e.State + " " + e.Health + ")"
+			}
+			if pending != "" {
+				break
+			}
+		}
+		if pending == "" {
+			seen := map[string]bool{}
+			for _, e := range entries {
+				seen[e.Service] = true
+			}
+			for s := range want {
+				if !seen[s] {
+					pending = s + " (no container)"
+				}
+			}
+		}
+		if pending == "" {
+			return nil
+		}
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("compose: %s is not ready after %s", pending, wait)
+		case <-time.After(1500 * time.Millisecond):
+		}
+	}
 }
 
 // Stop stops the named services without removing their containers.

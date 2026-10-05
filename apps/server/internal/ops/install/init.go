@@ -18,10 +18,13 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
+
+var projectName = regexp.MustCompile(`^[a-z0-9][a-z0-9_-]*$`)
 
 //go:embed assets/*
 var assets embed.FS
@@ -76,6 +79,9 @@ type InitOptions struct {
 	Production bool
 	Bind       string
 	Port       int
+	// Project is the Compose project name (default "opengtm"); distinct names
+	// let several installs share one Docker host.
+	Project string
 
 	// Yes accepts every default and never prompts.
 	Yes bool
@@ -221,6 +227,12 @@ func Init(o InitOptions) (*InitResult, error) {
 	if o.Port < 1 || o.Port > 65535 {
 		return nil, fmt.Errorf("port %d is out of range", o.Port)
 	}
+	if o.Project == "" {
+		o.Project = "opengtm"
+	}
+	if !projectName.MatchString(o.Project) {
+		return nil, fmt.Errorf("project name %q must be lowercase letters, digits, - or _", o.Project)
+	}
 	if o.Bind == "" {
 		o.Bind = "127.0.0.1"
 	}
@@ -339,7 +351,7 @@ func Init(o InitOptions) (*InitResult, error) {
 	env.Comment("keep it mode 0600 and never commit it. `opengtm upgrade` edits only the image lines.")
 	env.Blank()
 	env.Comment("Deployment")
-	env.Set("COMPOSE_PROJECT_NAME", "opengtm")
+	env.Set("COMPOSE_PROJECT_NAME", o.Project)
 	if o.Profile == Lite {
 		env.Set("COMPOSE_PROFILES", "")
 	} else {

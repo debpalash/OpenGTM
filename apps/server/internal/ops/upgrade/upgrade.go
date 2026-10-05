@@ -68,7 +68,10 @@ type Options struct {
 	Yes bool
 
 	BinaryVersion string // recorded in backups
-	Health        HealthFunc
+	// Health builds the check for a release: it is given the release version
+	// the stack should report ("" or "latest" when unknown). An upgrade checks
+	// the new release; a rollback checks the one it returns to.
+	Health func(expectVersion string) HealthFunc
 	// StartTimeout bounds `docker compose up --wait`. Default 5 minutes.
 	StartTimeout time.Duration
 	Now          func() time.Time
@@ -305,7 +308,7 @@ func Upgrade(ctx context.Context, o Options) (res *Result, err error) {
 	if err := p.Up(ctx, o.timeout()); err != nil {
 		return fail(fmt.Errorf("start services: %w", err))
 	}
-	if err := o.waitHealthy(ctx); err != nil {
+	if err := o.waitHealthy(ctx, version); err != nil {
 		return fail(fmt.Errorf("health check: %w", err))
 	}
 
@@ -346,15 +349,16 @@ func (o *Options) offerRollback(ctx context.Context, e *install.Upgrade, cause e
 	return nil, fmt.Errorf("%w: %v", ErrRolledBack, cause)
 }
 
-func (o *Options) waitHealthy(ctx context.Context) error {
+func (o *Options) waitHealthy(ctx context.Context, expectVersion string) error {
 	if o.Health == nil {
 		return nil
 	}
+	check := o.Health(expectVersion)
 	ctx, cancel := context.WithTimeout(ctx, o.timeout())
 	defer cancel()
 	var last error
 	for {
-		if last = o.Health(ctx); last == nil {
+		if last = check(ctx); last == nil {
 			return nil
 		}
 		select {
@@ -477,7 +481,7 @@ func Rollback(ctx context.Context, o Options) (*Result, error) {
 	if err := p.Up(ctx, o.timeout()); err != nil {
 		return nil, fmt.Errorf("rollback: the previous release did not start: %w", err)
 	}
-	if err := o.waitHealthy(ctx); err != nil {
+	if err := o.waitHealthy(ctx, entry.FromVersion); err != nil {
 		return nil, fmt.Errorf("rollback: %w", err)
 	}
 	o.logf("rollback complete: %s runs %s again", inst.Dir, entry.FromVersion)

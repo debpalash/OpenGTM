@@ -87,6 +87,12 @@ func (f *fakeDocker) Run(_ context.Context, c execx.Cmd) error {
 			io.WriteString(w(c), "postgres\nredis\napi\nmigrate\nserver\nworker\n")
 		}
 		return nil
+	case "ps":
+		for _, svc := range []string{"postgres", "redis", "api", "server", "worker"} {
+			fmt.Fprintf(w(c), `{"Service":%q,"State":"running","Health":"healthy","ExitCode":0}`+"\n", svc)
+		}
+		io.WriteString(w(c), `{"Service":"migrate","State":"exited","Health":"","ExitCode":0}`+"\n")
+		return nil
 	case "pull":
 		f.step("pull")
 		if f.failPull {
@@ -270,7 +276,11 @@ func TestSuccessfulUpgradeOrderingAndJournal(t *testing.T) {
 	x := newFixture(t)
 	healthChecks := 0
 	o := x.opts()
-	o.Health = func(context.Context) error { healthChecks++; return nil }
+	var expected []string
+	o.Health = func(v string) upgrade.HealthFunc {
+		expected = append(expected, v)
+		return func(context.Context) error { healthChecks++; return nil }
+	}
 
 	res, err := upgrade.Upgrade(ctx(), o)
 	if err != nil {
@@ -290,8 +300,8 @@ func TestSuccessfulUpgradeOrderingAndJournal(t *testing.T) {
 	if last := x.fake.steps[len(x.fake.steps)-1]; last != "up " {
 		t.Errorf("final step = %q, want a full `up`", last)
 	}
-	if healthChecks != 1 {
-		t.Errorf("health checks = %d", healthChecks)
+	if healthChecks != 1 || len(expected) != 1 || expected[0] != "2.0.0" {
+		t.Errorf("health checks = %d for versions %v", healthChecks, expected)
 	}
 
 	// The migration saw the new images: .env was switched before it ran.
@@ -445,7 +455,14 @@ func TestDatabaseNewerThanTargetReleaseIsRefusedAndRolledBack(t *testing.T) {
 func TestUnhealthyStackOffersRollbackAndConfirmDecides(t *testing.T) {
 	x := newFixture(t)
 	o := x.opts()
-	o.Health = func(context.Context) error { return errors.New("readyz returned 503") }
+	var healthFor []string
+	o.Health = func(v string) upgrade.HealthFunc {
+		healthFor = append(healthFor, v)
+		if v == "1.0.0" { // after rolling back the previous release is healthy
+			return func(context.Context) error { return nil }
+		}
+		return func(context.Context) error { return errors.New("readyz returned 503") }
+	}
 	o.StartTimeout = 10 * time.Millisecond
 	asked := ""
 	o.Confirm = func(q string) bool { asked = q; return false }
@@ -465,12 +482,16 @@ func TestUnhealthyStackOffersRollbackAndConfirmDecides(t *testing.T) {
 
 	// Answering yes later, through `opengtm rollback`, restores the backup.
 	ro := x.opts()
+	ro.Health = o.Health
 	ro.Install = x.reload()
 	if _, err := upgrade.Rollback(ctx(), ro); err != nil {
 		t.Fatalf("rollback: %v", err)
 	}
 	if len(x.fake.restored) != 1 {
 		t.Errorf("restored %v", x.fake.restored)
+	}
+	if got := strings.Join(healthFor, ","); got != "2.0.0,1.0.0" {
+		t.Errorf("health was checked for versions %q; the upgrade must expect 2.0.0 and the rollback 1.0.0", got)
 	}
 	// The safety backup of the failed state was taken before the wipe.
 	ents, _ := os.ReadDir(filepath.Join(x.dir, "backups"))

@@ -148,27 +148,47 @@ func stopApps(ctx context.Context, inst *install.Install) (restart func(), err e
 
 func backupVerify(ctx context.Context, args []string) error {
 	fs := flag.NewFlagSet("backup verify", flag.ContinueOnError)
+	dir := installFlags(fs)
 	scratch := fs.String("restore-to-scratch-url", "", "also restore into this EMPTY scratch database (owner URL) and check the schema revision and table count against the manifest")
-	if err := fs.Parse(args); err != nil {
+	scratchNew := fs.Bool("scratch", false, "also restore into a temporary database created on the server (the install's PostgreSQL, or --server-url), check it against the manifest, and drop it")
+	serverURL := fs.String("server-url", "", "owner URL of the PostgreSQL server to create the --scratch database on (default: the install's postgres service)")
+	pos, err := parseInterspersed(fs, args)
+	if err != nil {
 		return err
 	}
-	if fs.NArg() != 1 {
-		return errors.New("usage: opengtm backup verify PATH [--restore-to-scratch-url URL]")
+	if len(pos) != 1 {
+		return errors.New("usage: opengtm backup verify PATH [--scratch | --restore-to-scratch-url URL]")
 	}
-	m, err := backup.Verify(fs.Arg(0))
+	path := pos[0]
+	m, err := backup.Verify(path)
 	if err != nil {
 		return err
 	}
 	fmt.Printf("checksums ok: %d files, created %s by opengtm %s, schema %s\n",
 		len(m.Files), m.CreatedAt.Format(time.RFC3339), m.OpenGTMVersion, strings.Join(m.AlembicRevisions, ","))
-	if *scratch == "" {
+	if *scratch == "" && !*scratchNew {
 		return nil
 	}
-	db, err := pg.Direct(*scratch, execx.OS{})
-	if err != nil {
+	var db pg.Conn
+	if *scratchNew {
+		server, _, release, err := connFor(*dir, *serverURL, os.Stderr)
+		if err != nil {
+			return err
+		}
+		defer release()
+		name := fmt.Sprintf("opengtm_verify_%d", time.Now().UnixNano()%1_000_000_000)
+		if db, err = server.CreateDatabase(ctx, name); err != nil {
+			return fmt.Errorf("create scratch database: %w", err)
+		}
+		defer func() {
+			if err := server.DropDatabase(context.WithoutCancel(ctx), name); err != nil {
+				fmt.Fprintf(os.Stderr, "warning: could not drop scratch database %s: %v\n", name, err)
+			}
+		}()
+	} else if db, err = pg.Direct(*scratch, execx.OS{}); err != nil {
 		return err
 	}
-	if _, _, err := backup.Restore(ctx, fs.Arg(0), backup.RestoreOptions{Conn: db, SkipData: true}); err != nil {
+	if _, _, err := backup.Restore(ctx, path, backup.RestoreOptions{Conn: db, SkipData: true}); err != nil {
 		return fmt.Errorf("restore into scratch database: %w", err)
 	}
 	revs, err := db.Revisions(ctx)
@@ -226,13 +246,14 @@ func runRestore(ctx context.Context, args []string) error {
 	configDir := fs.String("restore-config", "", "also extract .env, opengtm.yaml and compose.yml into this directory (existing files are kept)")
 	yes := fs.Bool("yes", false, "do not ask for confirmation when replacing data")
 	start := fs.Bool("start", false, "restart the stack afterwards (Compose installs)")
-	if err := fs.Parse(args); err != nil {
+	pos, err := parseInterspersed(fs, args)
+	if err != nil {
 		return err
 	}
-	if fs.NArg() != 1 {
+	if len(pos) != 1 {
 		return errors.New("usage: opengtm restore [flags] BACKUP_DIR")
 	}
-	path := fs.Arg(0)
+	path := pos[0]
 	m, err := backup.Verify(path)
 	if err != nil {
 		return err
@@ -262,6 +283,18 @@ func runRestore(ctx context.Context, args []string) error {
 		}
 	}
 	if inst != nil {
+		if !*wipe {
+			// Refuse before stopping anything: a rejected restore must not
+			// leave the stack down.
+			if err := projectOf(inst, os.Stderr).Up(ctx, 3*time.Minute, "postgres"); err != nil {
+				return err
+			}
+			if empty, err := db.IsEmpty(ctx); err != nil {
+				return err
+			} else if !empty {
+				return fmt.Errorf("%w\nHint: restore into an empty database, or re-run with --wipe", backup.ErrNotEmpty)
+			}
+		}
 		restart, err := stopApps(ctx, inst)
 		if err != nil {
 			return err

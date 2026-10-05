@@ -54,11 +54,10 @@ func runUpgrade(ctx context.Context, args []string) error {
 		// rollback, which discards data: that needs a person or --auto-rollback.
 		Confirm: confirmer(false), BinaryVersion: version, StartTimeout: *timeout,
 	}
-	expect := target
-	if expect == "" {
-		expect = tagOf(*serverImage)
+	if target == "" {
+		o.ToVersion = tagOf(*serverImage)
 	}
-	o.Health = upgrade.HTTPHealth(localURL(inst), expect)
+	o.Health = func(expect string) upgrade.HealthFunc { return upgrade.HTTPHealth(localURL(inst), expect) }
 
 	if !*dry && !*yes {
 		proceed := confirmer(false)
@@ -113,14 +112,7 @@ func runRollback(ctx context.Context, args []string) error {
 			return fmt.Errorf("no upgrade with id %q in %s", *id, inst.StatePath())
 		}
 	}
-	// The health check expects the release we are going back to.
-	expect := inst.State.Version
-	if last := inst.LastUpgrade(); o.Entry == nil && last != nil {
-		expect = last.FromVersion
-	} else if o.Entry != nil {
-		expect = o.Entry.FromVersion
-	}
-	o.Health = upgrade.HTTPHealth(localURL(inst), expect)
+	o.Health = func(expect string) upgrade.HealthFunc { return upgrade.HTTPHealth(localURL(inst), expect) }
 	res, err := upgrade.Rollback(ctx, o)
 	if err != nil {
 		return err
