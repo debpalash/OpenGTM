@@ -12,14 +12,36 @@ import (
 	"unicode"
 )
 
-// Error carries the text Python's exception would have produced, so job
-// errors and domain error columns stay identical across executors.
-type Error struct{ Msg string }
+// Error carries the text Python's exception would have produced (str(exc)),
+// so job errors and domain error columns stay identical across executors.
+// Type, when set, is the Python exception class name (type(exc).__name__),
+// for the domain columns that record "Type: message".
+type Error struct {
+	Type string
+	Msg  string
+}
 
 func (e *Error) Error() string { return e.Msg }
 
 // Errorf formats a Python-compatible error message.
-func Errorf(format string, args ...any) error { return &Error{fmt.Sprintf(format, args...)} }
+func Errorf(format string, args ...any) error { return &Error{Msg: fmt.Sprintf(format, args...)} }
+
+// TypedErrorf is Errorf for an error whose Python exception class matters.
+func TypedErrorf(typ, format string, args ...any) error {
+	return &Error{Type: typ, Msg: fmt.Sprintf(format, args...)}
+}
+
+// Describe is f"{type(exc).__name__}: {exc}": the text handlers store when
+// they record a failure. Errors that do not originate from a port of Python
+// text (driver errors) get a generic class name; their message wording is a
+// documented difference.
+func Describe(err error) string {
+	var pe *Error
+	if errors.As(err, &pe) && pe.Type != "" {
+		return pe.Type + ": " + pe.Msg
+	}
+	return "Error: " + err.Error()
+}
 
 // Object is a decoded JSON object that remembers key order, because several
 // Python behaviours (error reporting, json.dumps) depend on dict order.

@@ -68,12 +68,16 @@ def production_registry():
     return queue
 
 
+# A role of the parity suites' own: see tests/pg_rls_support.rls_app_session.
+PARITY_RLS_ROLE = "opengtm_parity_rls"
+
+
 def rls_session_factory(db_url: str, pool_size: int = 4):
     """(sessionmaker, dispose) connecting as the RLS-enforced application role."""
     os.environ["DATABASE_URL"] = db_url
     from tests.pg_rls_support import rls_app_session
 
-    return rls_app_session(db_url, pool_size=pool_size)
+    return rls_app_session(db_url, pool_size=pool_size, role=PARITY_RLS_ROLE, password="parity_rls_only")
 
 
 def owner_connection(db_url: str):
@@ -87,22 +91,30 @@ def load_scenarios(path: str) -> dict:
         return json.load(fh)
 
 
-def run_steps(spec: dict, owner, dispatch: Callable[[dict, int, dict], None], out: str) -> None:
+def run_steps(spec: dict, owner, dispatch: Callable[[dict, int | None, dict | None], None], out: str) -> None:
     """Replay ``spec['steps']``: load each job's payload and call ``dispatch(step, job_id, payload)``.
 
+    Two ops are generic: ``sql`` runs ``step['sql']`` as the schema owner (data
+    changes between refreshes) and is never dispatched. A step without ``job``
+    (such as ``config``) is dispatched with ``job_id`` and ``payload`` None.
     Whatever a step raises is recorded as ``str(exc)`` (the queue records the
     same text as the attempt failure); the results are written to ``out``.
     """
     results = []
     for step in spec["steps"]:
-        job_id = step["job"]
-        (text,) = owner.execute("SELECT payload::text FROM jobs WHERE id = %s", (job_id,)).fetchone()
-        payload = json.loads(text)
+        job_id = step.get("job")
+        payload = None
+        if job_id is not None:
+            (text,) = owner.execute("SELECT payload::text FROM jobs WHERE id = %s", (job_id,)).fetchone()
+            payload = json.loads(text)
         error = None
         try:
-            result = dispatch(step, job_id, payload)
-            if asyncio.iscoroutine(result):
-                asyncio.run(result)
+            if step["op"] == "sql":
+                owner.execute(step["sql"])
+            else:
+                result = dispatch(step, job_id, payload)
+                if asyncio.iscoroutine(result):
+                    asyncio.run(result)
         except Exception as exc:
             error = str(exc)
         results.append({"job": job_id, "op": step["op"], "error": error})

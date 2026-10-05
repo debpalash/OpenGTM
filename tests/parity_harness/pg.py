@@ -171,7 +171,7 @@ def norm_uuid(expr: str) -> str:
 
 
 def rows(conn, sql: str, *args) -> list[list]:
-    return [list(r) for r in conn.execute(sql, args).fetchall()]
+    return [list(r) for r in conn.execute(sql, args or None).fetchall()]
 
 
 def dump_with(db: str, fn) -> dict:
@@ -207,17 +207,21 @@ def compare_steps(spec_steps: list, py_steps: list, go_steps: list) -> list[str]
     """Problems found comparing the per-step outcomes (the error each step raised).
 
     A step with ``error_contains`` only requires both sides to fail with a
-    message containing that text (driver wording of database errors differs);
-    every other step must raise the identical error, or none.
+    message containing that text, and one with ``expect_error`` that both fail
+    (driver wording of database errors differs); every other step must raise
+    the identical error, or none.
     """
     assert len(py_steps) == len(go_steps) == len(spec_steps)
     problems = []
     for step, py, go in zip(spec_steps, py_steps, go_steps):
-        label = f"{step['op']} job {step['job']} ({step.get('note', '')})"
+        label = f"{step['op']} job {step.get('job', '-')} ({step.get('note', '')})"
         needle = step.get("error_contains")
         if needle:
             if not (py["error"] and needle in py["error"] and go["error"] and needle in go["error"]):
                 problems.append(f"{label}: python={py['error']!r} go={go['error']!r}, both must contain {needle!r}")
+        elif step.get("expect_error"):
+            if not (py["error"] and go["error"]):
+                problems.append(f"{label}: python={py['error']!r} go={go['error']!r}, both must fail")
         elif py["error"] != go["error"]:
             problems.append(f"{label}: python raised {py['error']!r}, go {go['error']!r}")
     return problems

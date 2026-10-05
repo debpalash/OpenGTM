@@ -38,8 +38,22 @@ func New(t *testing.T) *Env {
 	return &Env{
 		T:     t,
 		Owner: dbtest.Pool(t, ownerURL, 4),
-		App:   dbtest.Pool(t, dbtest.AppURL(t, ownerURL), 8),
+		App:   dbtest.Pool(t, AppURL(t, ownerURL), 8),
 	}
+}
+
+// AppRole is the NOSUPERUSER NOBYPASSRLS login role the job executors' tests
+// use. It is distinct from dbtest.AppURL's role on purpose: roles are
+// cluster-wide, and several test processes (other packages, other branches)
+// that ALTER the same role concurrently on a shared server fail with "tuple
+// concurrently updated".
+const AppRole = "opengtm_jobs_app_test"
+
+// AppURL returns ownerURL logging in as AppRole, a member of the production
+// runtime group, so row-level security is enforced as it is for workers.
+func AppURL(t testing.TB, ownerURL string) string {
+	t.Helper()
+	return dbtest.RoleURL(t, ownerURL, AppRole, "jobs_app_test_only", dbtest.AppGroupRole)
 }
 
 // Unique returns label plus random hex, safe to use as an identifier that

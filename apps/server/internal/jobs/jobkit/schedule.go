@@ -90,6 +90,17 @@ type Mirror struct {
 // changed, like the ORM's dirty tracking, so updated_at (onupdate=now()) is
 // not bumped by a no-op reschedule.
 func (m Mirror) Upsert(ctx context.Context, tx pgx.Tx, key, workspaceID string, enabled bool, next *time.Time) error {
+	return m.upsert(ctx, tx, key, workspaceID, enabled, next, "timestamptz::timestamp")
+}
+
+// UpsertNaive is Upsert for a value that is already a naive wall-clock time
+// read back from the database (for example a job's next_run_at): it is stored
+// as is, without the session-zone conversion applied to aware instants.
+func (m Mirror) UpsertNaive(ctx context.Context, tx pgx.Tx, key, workspaceID string, enabled bool, next *time.Time) error {
+	return m.upsert(ctx, tx, key, workspaceID, enabled, next, "timestamp")
+}
+
+func (m Mirror) upsert(ctx context.Context, tx pgx.Tx, key, workspaceID string, enabled bool, next *time.Time, cast string) error {
 	cols, vals, sets, diffs := m.KeyCol, "$1", "", ""
 	args := []any{key}
 	add := func(col, valExpr string, arg any) {
@@ -107,7 +118,7 @@ func (m Mirror) Upsert(ctx context.Context, tx pgx.Tx, key, workspaceID string, 
 		add(m.WorkspaceCol, "$%d", workspaceID)
 	}
 	add(m.EnabledCol, "$%d", enabled)
-	add(m.NextCol, "$%d::timestamptz::timestamp", next)
+	add(m.NextCol, "$%d::"+cast, next)
 	sql := fmt.Sprintf(`INSERT INTO %[1]s (%[2]s) VALUES (%[3]s)
 ON CONFLICT (%[4]s) DO UPDATE SET %[5]s, updated_at = now() WHERE %[6]s`,
 		m.Table, cols, vals, m.KeyCol, sets, diffs)

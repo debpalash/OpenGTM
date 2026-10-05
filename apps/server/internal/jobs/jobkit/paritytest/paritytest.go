@@ -21,6 +21,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/server/internal/config"
 	"github.com/debpalash/OpenGTM/apps/server/internal/db/dbtest"
+	"github.com/debpalash/OpenGTM/apps/server/internal/jobs/jobkit/jobtest"
 	"github.com/debpalash/OpenGTM/apps/server/internal/queue"
 )
 
@@ -89,9 +90,10 @@ type Env struct {
 	App   *pgxpool.Pool // NOSUPERUSER NOBYPASSRLS runtime role, as the worker uses
 }
 
-// Result is the outcome recorded for one step.
+// Result is the outcome recorded for one step. Job is null for a step that has
+// none, like the Python runner's.
 type Result struct {
-	Job   int64   `json:"job"`
+	Job   *int64  `json:"job"`
 	Op    string  `json:"op"`
 	Error *string `json:"error"`
 }
@@ -118,18 +120,31 @@ func Replay(t *testing.T, handle func(ctx context.Context, env *Env, step Step, 
 		T:     t,
 		Spec:  spec,
 		Owner: dbtest.Pool(t, ownerURL, 2),
-		App:   dbtest.Pool(t, dbtest.AppURL(t, ownerURL), 4),
+		App:   dbtest.Pool(t, jobtest.AppURL(t, ownerURL), 4),
 	}
 
 	ctx := context.Background()
 	results := make([]Result, 0, len(spec.Steps))
 	for _, step := range spec.Steps {
-		job, err := LoadJob(ctx, env.Owner, step.Job)
-		if err != nil {
-			t.Fatalf("job %d: %v", step.Job, err)
+		r := Result{Op: step.Op}
+		if step.Job != 0 {
+			job := step.Job
+			r.Job = &job
 		}
-		r := Result{Job: step.Job, Op: step.Op}
-		if stepErr := handle(ctx, env, step, job); stepErr != nil {
+		var stepErr error
+		if step.Op == "sql" {
+			// Generic op: a data change between steps, run as the schema owner.
+			_, stepErr = env.Owner.Exec(ctx, step.String("sql"))
+		} else {
+			var job queue.Job
+			if step.Job != 0 { // a step without a job (such as "config") gets a zero Job
+				if job, err = LoadJob(ctx, env.Owner, step.Job); err != nil {
+					t.Fatalf("job %d: %v", step.Job, err)
+				}
+			}
+			stepErr = handle(ctx, env, step, job)
+		}
+		if stepErr != nil {
 			msg := stepErr.Error()
 			r.Error = &msg
 		}

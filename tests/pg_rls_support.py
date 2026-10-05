@@ -16,8 +16,14 @@ APP_LOGIN_ROLE = "app_rls_test"
 APP_LOGIN_PASSWORD = "rls_test_only"
 
 
-def rls_app_session(database_url: str, *, pool_size: int = 20):
-    """Return (sessionmaker, dispose) for the app role under FORCE RLS."""
+def rls_app_session(database_url: str, *, pool_size: int = 20, role: str = APP_LOGIN_ROLE,
+                    password: str = APP_LOGIN_PASSWORD):
+    """Return (sessionmaker, dispose) for the app role under FORCE RLS.
+
+    ``role`` lets a suite that runs next to others on a shared server use a role
+    of its own: roles are cluster-wide, and concurrent ``ALTER ROLE`` on one role
+    from several test processes fails with "tuple concurrently updated".
+    """
     owner = create_engine(database_url)
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     res = subprocess.run(["uv", "run", "alembic", "upgrade", "head"], cwd=repo_root,
@@ -27,15 +33,15 @@ def rls_app_session(database_url: str, *, pool_size: int = 20):
     with owner.begin() as c:
         c.execute(text(
             f"""DO $$ BEGIN
-              IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='{APP_LOGIN_ROLE}') THEN
-                CREATE ROLE {APP_LOGIN_ROLE} LOGIN NOSUPERUSER NOBYPASSRLS;
+              IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='{role}') THEN
+                CREATE ROLE {role} LOGIN NOSUPERUSER NOBYPASSRLS;
               END IF; END $$;"""))
-        c.execute(text(f"ALTER ROLE {APP_LOGIN_ROLE} PASSWORD '{APP_LOGIN_PASSWORD}'"))
-        c.execute(text(f"GRANT yupcha_app TO {APP_LOGIN_ROLE}"))
-        c.execute(text(f"GRANT USAGE ON SCHEMA public TO {APP_LOGIN_ROLE}"))
-        c.execute(text(f"GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {APP_LOGIN_ROLE}"))
+        c.execute(text(f"ALTER ROLE {role} PASSWORD '{password}'"))
+        c.execute(text(f"GRANT yupcha_app TO {role}"))
+        c.execute(text(f"GRANT USAGE ON SCHEMA public TO {role}"))
+        c.execute(text(f"GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {role}"))
     owner.dispose()
-    url = make_url(database_url).set(username=APP_LOGIN_ROLE, password=APP_LOGIN_PASSWORD)
+    url = make_url(database_url).set(username=role, password=password)
     engine = create_engine(url.render_as_string(hide_password=False),
                            pool_size=pool_size, max_overflow=0)
 
