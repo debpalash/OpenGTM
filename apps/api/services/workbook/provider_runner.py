@@ -86,7 +86,11 @@ def _provider_job(provider_name: str, lead_dict: dict) -> dict | None:
         return None
     res = asyncio.run(provider.enrich(Lead.from_dict(lead_dict)))
     return {
-        "provider": res.provider,
+        # Declarative (manifest) providers build their EnrichmentResult without a
+        # provider name. accounting_envelope() rejects a response whose provider is
+        # not the one dispatched, so a paid connector call could never settle: every
+        # reserved attempt ended "uncertain" and the cell reported accounting_uncertain.
+        "provider": res.provider or provider_name,
         "success": bool(res.success),
         "fields": dict(res.fields or {}),
         "confidence": float(res.confidence or 0.0),
