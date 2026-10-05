@@ -267,6 +267,23 @@ elif mode == "readfile":
             result([{"fields": {"readable": True, "head": fh.read(64).decode("utf-8", "replace")}}])
     except OSError as e:
         result([{"fields": {"readable": False, "error": type(e).__name__}}])
+elif mode == "flaky":  # crash on the first attempt, succeed afterwards
+    marker = inputs["marker"]
+    if not os.path.exists(marker):
+        open(marker, "w").close()
+        os.kill(os.getpid(), signal.SIGSEGV)
+    result([{"fields": {"recovered": True}}])
+elif mode == "count_crash":  # always crash, leaving one line per attempt
+    with open(inputs["attempts"], "a") as f:
+        f.write("x\n")
+    os.kill(os.getpid(), signal.SIGSEGV)
+elif mode == "slow_first":  # hang on the first attempt, finish on the second
+    marker = inputs["marker"]
+    if not os.path.exists(marker):
+        open(marker, "w").close()
+        spawn_tree(inputs["pidfile"])
+        time.sleep(300)
+    result([{"fields": {"attempt": "second"}}])
 elif mode == "hold_slot":
     # used by the capacity tests: announce, hold the slot, then finish
     time.sleep(float(inputs.get("seconds", 0.3)))

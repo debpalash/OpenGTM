@@ -13,6 +13,9 @@ import (
 	"time"
 )
 
+// Supported reports whether this platform can run process plugins.
+const Supported = true
+
 // socketPair returns a connected unix stream pair: the host's net.Conn and
 // the child's file, which becomes descriptor 3. Both ends are close-on-exec
 // in the host; exec.Cmd.ExtraFiles clears the flag for the child's copy only.

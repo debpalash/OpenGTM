@@ -28,7 +28,18 @@ func register(env queue.Env, r *queue.Registry) error {
 	if err != nil {
 		return fmt.Errorf("plugins: load extraction kernel: %w", err)
 	}
-	NewWorker(env.Pool, catalog, NewRunner(client, k, env.Logger), env.Logger).Register(r)
+	runner := NewRunner(client, k, env.Logger)
+	if catalog.HasRuntime("process") {
+		// Start the supervisor now so a crashed predecessor's plugin
+		// processes are reclaimed at boot and the worker is hardened before
+		// the first plugin runs. A failure here is logged, not fatal: runs of
+		// process plugins fail permanently with the reason, everything else
+		// keeps working.
+		if _, err := runner.ProcessSupervisor(); err != nil {
+			env.Logger.Warn("process plugins are disabled", "err", err)
+		}
+	}
+	NewWorker(env.Pool, catalog, runner, env.Logger).Register(r)
 	return nil
 }
 

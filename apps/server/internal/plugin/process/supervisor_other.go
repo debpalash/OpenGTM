@@ -8,6 +8,9 @@ import (
 	"github.com/debpalash/OpenGTM/apps/server/internal/plugin/manifest"
 )
 
+// Supported reports whether this platform can run process plugins.
+const Supported = false
+
 // MarkerEnv is the run marker variable (unused on this platform).
 const MarkerEnv = "OPENGTM_PLUGIN_RUN"
 

@@ -121,6 +121,16 @@ func (c *Catalog) add(e *Entry, path string) {
 	c.byName[e.Plugin.Name] = e
 }
 
+// HasRuntime reports whether any installed plugin uses the given runtime.
+func (c *Catalog) HasRuntime(runtime string) bool {
+	for _, e := range c.byName {
+		if e.Plugin.Runtime == runtime {
+			return true
+		}
+	}
+	return false
+}
+
 // Get returns an installed plugin by name.
 func (c *Catalog) Get(name string) (*Entry, bool) {
 	e, ok := c.byName[name]
