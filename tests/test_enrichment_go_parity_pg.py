@@ -330,6 +330,80 @@ def test_python_and_go_leave_identical_state(template_db, simulator, tmp_path):
         _drop(go_db)
 
 
+@needs_pg
+@needs_go
+@pytest.mark.postgres
+@pytest.mark.parametrize("first, second", [("python", "go"), ("go", "python")])
+def test_a_job_started_by_one_executor_is_finished_by_the_other(template_db, simulator, tmp_path, first, second):
+    """Rollback and cutover mid-job: the spend ledger is shared state.
+
+    Executor A runs the paid workbooks (settled, uncertain and over-budget attempts). A worker
+    then 'dies' between settling and committing its cells (the cells are wiped, the attempts are
+    kept) and the queue retries the same job on executor B. B must reuse A's settled receipts
+    without calling the vendor, refuse A's uncertain attempts, never charge twice, and end with
+    exactly the cells A produced. That only holds if both compute the same attempt key and
+    contract digest, so it is the cross-language proof of the ledger protocol.
+    """
+    import psycopg
+
+    connectors = tmp_path / "connectors"
+    connectors.mkdir()
+    for name, text in fixtures.connectors(simulator.base).items():
+        (connectors / f"{name}.yaml").write_text(text)
+    db = clone(template_db)
+    runners = {"python": run_python, "go": run_go}
+    try:
+        seeded = seed(db)
+        wanted = {"paid, capped budget", "paid, unlimited budget"}
+        steps = tmp_path / "steps.json"
+        steps.write_text(json.dumps([j for j in seeded["jobs"] if j["name"] in wanted]))
+
+        simulator.reset()
+        runners[first](db, simulator, connectors, steps, tmp_path / "a.json")
+        paid_requests_a = [r for r in normalized_requests(simulator) if r[1] == "/paid/lookup"]
+        after_a = dump(db)
+        assert paid_requests_a, "executor A never called the paid provider"
+        statuses = {s[8] for s in after_a["spend"]}
+        assert {"settled", "uncertain"} <= statuses, statuses
+        spent_a = {w[0]: w[4] for w in after_a["workbooks"]}
+
+        with psycopg.connect(_urls(db)[1], autocommit=True) as conn:
+            conn.execute("DELETE FROM workbook_enrichments WHERE workbook_id IN ('wb-paid', 'wb-paid-capped')")
+            conn.execute("""UPDATE workbook_rows SET enrichments = '{}'::json
+                            WHERE workbook_id IN ('wb-paid', 'wb-paid-capped')""")
+            conn.execute("UPDATE workbooks SET status = 'running' WHERE id IN ('wb-paid', 'wb-paid-capped')")
+            conn.execute("UPDATE provider_stats SET cooldown_until = NULL WHERE provider = 'par_paid'")
+
+        simulator.reset()
+        runners[second](db, simulator, connectors, steps, tmp_path / "b.json")
+        assert not simulator.requests(), "the vendor was called again after a worker died mid-job"
+        after_b = dump(db)
+        after_a.pop("_evidence"), after_b.pop("_evidence")
+
+        # The ledger is untouched (nothing charged twice) and the cells are exactly A's.
+        assert after_b["spend"] == after_a["spend"]
+        assert {w[0]: w[4] for w in after_b["workbooks"]} == spent_a
+        # (cell_metadata and the row mirror's skipped_providers record which providers the planner
+        # benched at the time; the cooldown was cleared between the runs, so they are not compared.)
+        def cells(d):
+            return [r[:8] for r in d["enrichments"] if r[0] in ("wb-paid", "wb-paid-capped")]
+
+        def mirror(d):
+            out = []
+            for r in d["rows"]:
+                if r[0] in ("wb-paid", "wb-paid-capped"):
+                    cell = {k: {f: v for f, v in c.items() if f != "skipped_providers"} for k, c in r[5].items()}
+                    out.append(r[:5] + [cell])
+            return out
+
+        for key, view in (("enrichments", cells), ("rows", mirror)):
+            diffs = _diff(key, view(after_a), view(after_b))
+            assert not diffs, "\n".join(diffs)
+        assert {r[5] for r in after_b["enrichments"] if r[0] == "wb-paid"} >= {"complete", "error"}
+    finally:
+        _drop(db)
+
+
 def _assert_scenarios_were_exercised(dump: dict, requests: list) -> None:
     """Guard against vacuous parity: the dataset must really hit each behaviour."""
     errors = {row[7] for row in dump["enrichments"] if row[5] == "error"}

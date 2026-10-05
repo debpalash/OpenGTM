@@ -367,3 +367,51 @@ def test_python_registers_the_retention_executor_for_rollback():
     service = QueueService()
     assert "retention_enforce" in register_job_handlers(service)
     assert "retention_enforce" in service.failure_handlers
+
+
+# ── run_workbook_connector: the connector enrichment slice (M2) ──────────────
+# Go executor in apps/server/internal/jobs/enrich. Python-owned until
+# `opengtm routes set run_workbook_connector go`; back with `... python`. Only
+# the type is routed: run_workbook itself is untouched.
+
+def test_run_workbook_connector_is_python_owned_until_routed_and_run_workbook_never_moves():
+    from apps.api.models import JobExecutorRoute
+
+    with SessionLocal() as db:
+        routes = {r.job_type: r.executor for r in db.query(JobExecutorRoute)}
+    assert "run_workbook_connector" not in routes and "run_workbook" not in routes
+
+    with SessionLocal() as db:
+        connector_id = queue_service.add_job(db, "run_workbook_connector", {"workspace_id": "ws-c"}).id
+        legacy_id = queue_service.add_job(db, "run_workbook", {"workspace_id": "ws-c"}).id
+    try:
+        _route("run_workbook_connector", "go")  # cutover
+        claimed = queue_service.claim_next_job()
+        assert claimed is not None and claimed["id"] == legacy_id  # run_workbook is still Python's
+        assert queue_service.claim_next_job() is None  # the connector job waits for Go
+        _route("run_workbook_connector", "python")  # rollback: one routing change, no deploy
+        assert queue_service.claim_next_job()["id"] == connector_id
+    finally:
+        _drop_routes("run_workbook_connector")
+
+
+def test_python_recovery_leaves_go_routed_connector_claims_to_go():
+    from datetime import datetime, timedelta, timezone
+
+    service = QueueService()
+    stale = datetime.now(timezone.utc) - timedelta(minutes=30)
+    with SessionLocal() as db:
+        job = service.add_job(db, "run_workbook_connector", {"workspace_id": "ws-c"})
+        job.status, job.last_heartbeat = "processing", stale
+        job.worker_id, job.locked_at = service.worker_id, stale
+        db.commit()
+        job_id = job.id
+    try:
+        _route("run_workbook_connector", "go")
+        assert service.reap_dead_jobs_once() == 0
+        _route("run_workbook_connector", "python")
+        assert service.reap_dead_jobs_once() == 1
+        with SessionLocal() as db:
+            assert db.query(Job).filter(Job.id == job_id).one().status == "pending"
+    finally:
+        _drop_routes("run_workbook_connector")
