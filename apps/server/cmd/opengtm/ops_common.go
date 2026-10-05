@@ -23,9 +23,18 @@ func installFlags(fs *flag.FlagSet) *string {
 	return fs.String("dir", ".", "install directory (the one containing .env and compose.yml)")
 }
 
+// isTerminal reports whether f is an interactive terminal. A character device
+// is not enough: /dev/null (cron jobs, `< /dev/null` in CI) is one too, and
+// must not be treated as a person who can answer prompts.
 func isTerminal(f *os.File) bool {
 	st, err := f.Stat()
-	return err == nil && st.Mode()&os.ModeCharDevice != 0
+	if err != nil || st.Mode()&os.ModeCharDevice == 0 {
+		return false
+	}
+	if null, err := os.Stat(os.DevNull); err == nil && os.SameFile(st, null) {
+		return false
+	}
+	return true
 }
 
 // confirmer returns a yes/no prompt reading stdin, or nil when stdin is not a
