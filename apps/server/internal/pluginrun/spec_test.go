@@ -34,13 +34,14 @@ func TestMountedRoutesAreDocumentedAndDocumentedRoutesAreMounted(t *testing.T) {
 	spec := contract.Load(t)
 	mux := http.NewServeMux()
 	NewAPI(nil, nil, nil).Mount(mux)
+	NewSecretsAPI(nil, nil, nil).Mount(mux)
 
 	const runID = "3f2b8c1e-9d4a-4c55-8a51-0d9b6f7a1e22"
 	for _, op := range spec.Operations() {
 		if op.Path == "/api/v2/version" || op.Path == "/api/v2/events" {
 			continue // owned by package server; see its spec test
 		}
-		req := httptest.NewRequest(op.Method, strings.ReplaceAll(op.Path, "{id}", runID), nil)
+		req := httptest.NewRequest(op.Method, strings.NewReplacer("{id}", runID, "{name}", "ACME_API_KEY").Replace(op.Path), nil)
 		_, pattern := mux.Handler(req)
 		if m, p := contract.PathOf(pattern); m != op.Method || p != op.Path {
 			t.Errorf("documented %s is not mounted (matched %q)", op, pattern)

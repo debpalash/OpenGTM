@@ -27,6 +27,7 @@ tags:
   - name: system
   - name: plugins
   - name: plugin-runs
+  - name: plugin-secrets
   - name: events
 
 paths:
@@ -217,6 +218,98 @@ paths:
         "502": { $ref: "#/components/responses/Unavailable" }
         "503": { $ref: "#/components/responses/Unavailable" }
 
+  /api/v2/plugin-secrets:
+    get:
+      operationId: listPluginSecrets
+      tags: [plugin-secrets]
+      summary: List the workspace's plugin secrets (metadata only)
+      description: |
+        Requires the `admin` role (the owner counts), reads included. Values
+        are write-only and never returned.
+      responses:
+        "200":
+          description: Stored secrets, and the secrets installed plugins declare.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginSecretList"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "502": { $ref: "#/components/responses/Unavailable" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /api/v2/plugin-secrets/{name}:
+    put:
+      operationId: putPluginSecret
+      tags: [plugin-secrets]
+      summary: Create or rotate a workspace plugin secret
+      description: |
+        Requires the `admin` role. The name must be declared by an installed
+        plugin. 201 when created, 200 when rotated.
+      parameters:
+        - $ref: "#/components/parameters/SecretName"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PluginSecretValue"
+      responses:
+        "200":
+          description: The secret was rotated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginSecretMeta"
+        "201":
+          description: The secret was created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginSecretMeta"
+        "400":
+          description: "The body is not a JSON object with a value field."
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422":
+          description: Undeclared name, or an empty, oversized or non-UTF-8 value.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "502": { $ref: "#/components/responses/Unavailable" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+    delete:
+      operationId: deletePluginSecret
+      tags: [plugin-secrets]
+      summary: Delete a workspace plugin secret
+      description: Requires the `admin` role.
+      parameters:
+        - $ref: "#/components/parameters/SecretName"
+      responses:
+        "204":
+          description: Deleted.
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404":
+          description: No such secret in this workspace.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "422":
+          description: Invalid secret name.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500": { $ref: "#/components/responses/ServerError" }
+        "502": { $ref: "#/components/responses/Unavailable" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
   /api/v2/events:
     get:
       operationId: streamEvents
@@ -262,6 +355,12 @@ components:
       in: path
       required: true
       description: A plugin run id (UUID). Any other value is a 404.
+      schema: { type: string }
+    SecretName:
+      name: name
+      in: path
+      required: true
+      description: The secret name, as declared in a plugin manifest.
       schema: { type: string }
   responses:
     Unauthorized:
@@ -500,6 +599,61 @@ components:
         total: { type: integer, minimum: 0 }
         offset: { type: integer, minimum: 0 }
         limit: { type: integer, minimum: 1 }
+
+    PluginSecretMeta:
+      type: object
+      description: Metadata of a stored secret. The value is never returned.
+      required: [name, plugins, version, created_at, created_by, updated_at, updated_by]
+      properties:
+        name: { type: string }
+        plugins:
+          type: array
+          description: Installed plugins that declare this secret.
+          items: { type: string }
+        version: { type: integer, minimum: 1 }
+        created_at: { type: string, format: date-time }
+        created_by: { type: [string, "null"] }
+        updated_at: { type: string, format: date-time }
+        updated_by: { type: [string, "null"] }
+
+    PluginSecretDeclared:
+      type: object
+      required: [name, plugins, configured]
+      properties:
+        name: { type: string }
+        plugins:
+          type: array
+          items: { type: string }
+        configured:
+          type: boolean
+          description: A workspace secret with this name is stored.
+
+    PluginSecretList:
+      type: object
+      required: [secrets, declared, encryption]
+      properties:
+        secrets:
+          type: array
+          items: { $ref: "#/components/schemas/PluginSecretMeta" }
+        declared:
+          type: array
+          items: { $ref: "#/components/schemas/PluginSecretDeclared" }
+        encryption:
+          type: object
+          required: [available]
+          properties:
+            available:
+              type: boolean
+              description: Secret encryption is configured on this server.
+
+    PluginSecretValue:
+      type: object
+      required: [value]
+      properties:
+        value:
+          type: string
+          writeOnly: true
+          description: The secret value. Surrounding whitespace is trimmed.
 
     ProgressEvent:
       type: object

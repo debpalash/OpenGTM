@@ -124,6 +124,52 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/plugin-secrets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the workspace's plugin secrets (metadata only)
+         * @description Requires the `admin` role (the owner counts), reads included. Values
+         *     are write-only and never returned.
+         */
+        get: operations["listPluginSecrets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/plugin-secrets/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Create or rotate a workspace plugin secret
+         * @description Requires the `admin` role. The name must be declared by an installed
+         *     plugin. 201 when created, 200 when rotated.
+         */
+        put: operations["putPluginSecret"];
+        post?: never;
+        /**
+         * Delete a workspace plugin secret
+         * @description Requires the `admin` role.
+         */
+        delete: operations["deletePluginSecret"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v2/events": {
         parameters: {
             query?: never;
@@ -261,6 +307,37 @@ export interface components {
             offset: number;
             limit: number;
         };
+        /** @description Metadata of a stored secret. The value is never returned. */
+        PluginSecretMeta: {
+            name: string;
+            /** @description Installed plugins that declare this secret. */
+            plugins: string[];
+            version: number;
+            /** Format: date-time */
+            created_at: string;
+            created_by: string | null;
+            /** Format: date-time */
+            updated_at: string;
+            updated_by: string | null;
+        };
+        PluginSecretDeclared: {
+            name: string;
+            plugins: string[];
+            /** @description A workspace secret with this name is stored. */
+            configured: boolean;
+        };
+        PluginSecretList: {
+            secrets: components["schemas"]["PluginSecretMeta"][];
+            declared: components["schemas"]["PluginSecretDeclared"][];
+            encryption: {
+                /** @description Secret encryption is configured on this server. */
+                available: boolean;
+            };
+        };
+        PluginSecretValue: {
+            /** @description The secret value. Surrounding whitespace is trimmed. */
+            value: string;
+        };
         /** @description One workspace event on the SSE stream. */
         ProgressEvent: {
             workspace_id: string;
@@ -330,6 +407,8 @@ export interface components {
     parameters: {
         /** @description A plugin run id (UUID). Any other value is a 404. */
         RunId: string;
+        /** @description The secret name, as declared in a plugin manifest. */
+        SecretName: string;
     };
     requestBodies: never;
     headers: never;
@@ -565,6 +644,134 @@ export interface operations {
             404: components["responses"]["RunNotFound"];
             /** @description The run already finished. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            500: components["responses"]["ServerError"];
+            502: components["responses"]["Unavailable"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    listPluginSecrets: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Stored secrets, and the secrets installed plugins declare. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginSecretList"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            500: components["responses"]["ServerError"];
+            502: components["responses"]["Unavailable"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    putPluginSecret: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The secret name, as declared in a plugin manifest. */
+                name: components["parameters"]["SecretName"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PluginSecretValue"];
+            };
+        };
+        responses: {
+            /** @description The secret was rotated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginSecretMeta"];
+                };
+            };
+            /** @description The secret was created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PluginSecretMeta"];
+                };
+            };
+            /** @description The body is not a JSON object with a value field. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description Undeclared name, or an empty, oversized or non-UTF-8 value. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            500: components["responses"]["ServerError"];
+            502: components["responses"]["Unavailable"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    deletePluginSecret: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The secret name, as declared in a plugin manifest. */
+                name: components["parameters"]["SecretName"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            /** @description No such secret in this workspace. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Invalid secret name. */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
