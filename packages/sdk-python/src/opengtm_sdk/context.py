@@ -40,6 +40,10 @@ class Context:
             memory_mb=int(limits.get("memory_mb", 64)),
         )
         self.deadline: float = float(init.get("deadline_unix_ms", 0)) / 1000.0
+        # CONNECT proxy for libraries that open their own TLS connections (vendor
+        # SDKs, a Playwright browser); None when the host offers none. Only hosts
+        # in capabilities.network are reachable through it. HTTPS_PROXY is set too.
+        self.proxy_url: Optional[str] = (init.get("proxy") or {}).get("url")
         # Set by the plugin when it wants to report them.
         self.cost_usd: Optional[float] = None
         self.pages: Optional[int] = None

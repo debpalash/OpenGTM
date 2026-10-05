@@ -37,6 +37,9 @@ type Supervisor struct {
 	supDir string
 	spawn  chan spawnReq
 	wg     sync.WaitGroup
+
+	tunnelOnce sync.Once
+	tunnel     *tunnelProxy
 }
 
 type spawnReq struct {
@@ -152,6 +155,9 @@ func (s *Supervisor) Close() {
 	}
 	s.mu.Unlock()
 	s.wg.Wait()
+	if s.tunnel != nil {
+		s.tunnel.close()
+	}
 	close(s.spawn)
 	_ = os.RemoveAll(s.supDir)
 }
@@ -278,6 +284,41 @@ func (s *Supervisor) Run(ctx context.Context, p *manifest.Plugin, req Request) (
 		}
 	})
 	return out, err
+}
+
+// tunnelFor registers a run with the tunnel proxy when the plugin may use one:
+// the proxy is enabled, there is an egress client to dial through, the plugin
+// declares network access, the launcher leaves a network to proxy over, and a
+// scraper or signal declared capabilities.browser (tunnels bypass robots.txt
+// and rate limits, so only plugins that say they drive a browser get one).
+func (s *Supervisor) tunnelFor(p *manifest.Plugin) (*tunnelProxy, *proxyRun, string) {
+	if s.opts.DisableProxy || s.opts.Client == nil || len(p.Capabilities.Network) == 0 {
+		return nil, nil, ""
+	}
+	if nl, ok := s.launcher.(networkLauncher); ok && !nl.HasNetwork() {
+		return nil, nil, ""
+	}
+	if (p.Kind == "scraper" || p.Kind == "signal") && !p.Capabilities.Browser {
+		return nil, nil, ""
+	}
+	s.tunnelOnce.Do(func() {
+		tp, err := newTunnelProxy(s.opts.Client)
+		if err != nil {
+			s.log.Warn("cannot start the plugin tunnel proxy; plugins must use ctx.fetch", "err", err)
+			return
+		}
+		s.mu.Lock()
+		s.tunnel = tp
+		s.mu.Unlock()
+	})
+	s.mu.Lock()
+	tp := s.tunnel
+	s.mu.Unlock()
+	if tp == nil {
+		return nil, nil, ""
+	}
+	run, u := tp.register(p)
+	return tp, run, u
 }
 
 // resolveCommand turns the manifest command into an argv whose first element

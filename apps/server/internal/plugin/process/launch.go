@@ -66,6 +66,9 @@ func shimScript(l ResourceLimits) string {
 	return s + "exec \"$@\"\n"
 }
 
+// networkLauncher is implemented by launchers that may cut the network.
+type networkLauncher interface{ HasNetwork() bool }
+
 // ExecLauncher is the default, dependency-free launcher: a plain child
 // process in its own process group with a scrubbed environment, a private
 // HOME/TMPDIR, resource limits and no inherited file descriptors but the
@@ -103,6 +106,10 @@ type BwrapLauncher struct {
 
 // Name implements Launcher.
 func (BwrapLauncher) Name() string { return "bwrap" }
+
+// HasNetwork reports whether the sandbox can reach the host's loopback
+// interface (and so the tunnel proxy). Without ShareNet it cannot.
+func (b BwrapLauncher) HasNetwork() bool { return b.ShareNet }
 
 // Command implements Launcher.
 func (b BwrapLauncher) Command(spec LaunchSpec) (*exec.Cmd, error) {

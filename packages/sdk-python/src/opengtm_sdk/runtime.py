@@ -89,6 +89,25 @@ def tool(fn: Optional[F] = None) -> Any:
     return _register("tool", fn)
 
 
+def _harden() -> None:
+    """Make this process non-dumpable (Linux).
+
+    Other processes of the same OS user (another plugin running at the same
+    time) can then no longer read ``/proc/<pid>/environ`` or ``/proc/<pid>/mem``
+    or ptrace this one. Secrets arrive in the init frame, so they live only in
+    this process's memory. Set ``OPENGTM_SDK_DUMPABLE=1`` to keep the process
+    attachable while debugging.
+    """
+    if not sys.platform.startswith("linux") or os.environ.get("OPENGTM_SDK_DUMPABLE") == "1":
+        return
+    try:
+        import ctypes
+
+        ctypes.CDLL(None, use_errno=True).prctl(4, 0, 0, 0, 0)  # PR_SET_DUMPABLE
+    except Exception:  # noqa: BLE001 - hardening is best effort
+        pass
+
+
 def _bind(handler: Callable[..., Any], ctx: Context) -> dict[str, Any]:
     """Map manifest inputs onto the handler's parameters."""
     sig = inspect.signature(handler)
@@ -384,6 +403,7 @@ def run(*, exit: bool = True) -> int:
         if __name__ == "__main__":
             run()
     """
+    _harden()
     fd = int(os.environ.get("OPENGTM_PLUGIN_FD", "3"))
     try:
         sock = socket.socket(fileno=fd)

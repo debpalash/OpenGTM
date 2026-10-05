@@ -3,6 +3,7 @@
 package process
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -14,6 +15,7 @@ import (
 	"strings"
 	"syscall"
 	"testing"
+	"time"
 )
 
 // hostSecrets plants the kind of values a real worker has in its environment.
@@ -367,4 +369,63 @@ func TestBwrapLauncherAddsFilesystemAndNetworkIsolation(t *testing.T) {
 	tp := pspec{timeout: 1.5}.build(t)
 	_, err = run(t, sandboxed, tp, map[string]any{"mode": "tree", "pidfile": pidfile}, nil)
 	wantError(t, err, CodeTimeout, true)
+}
+
+// A plugin running at the same time as another one, as the same OS user, can
+// read the other's /proc/<pid>/environ unless the other hardened itself. The
+// SDK clears PR_SET_DUMPABLE at start-up, so SDK plugins (where declared
+// secrets live, in memory, after the init frame) are not readable; a plugin
+// that does not use the SDK is, which is why the sandbox launcher exists.
+func TestConcurrentPluginsCannotReadEachOthersProcEntries(t *testing.T) {
+	seen := peekAtConcurrentPlugins(t, false)
+	sdkSeen, rawSeen := fmt.Sprint(seen["sdk_all.py"]), fmt.Sprint(seen["rawplugin.py"])
+	if !strings.Contains(sdkSeen, "PermissionError") || strings.Contains(sdkSeen, "readable") {
+		t.Fatalf("an SDK plugin's /proc entries are readable by another plugin: %v", seen)
+	}
+	// Control: a hand-written plugin that does not harden itself is readable,
+	// so the check above would have noticed.
+	if !strings.Contains(rawSeen, "readable") {
+		t.Fatalf("control failed, the attacker could not read an unhardened plugin either: %v", seen)
+	}
+	// Control 2: the opt-out for debugging really does turn the hardening off.
+	seen = peekAtConcurrentPlugins(t, true)
+	if !strings.Contains(fmt.Sprint(seen["sdk_all.py"]), "readable") {
+		t.Fatalf("OPENGTM_SDK_DUMPABLE=1 did not disable the SDK's hardening: %v", seen)
+	}
+}
+
+// peekAtConcurrentPlugins runs an SDK plugin and a raw plugin side by side and
+// reports what a third plugin sees when it tries to read their environ.
+func peekAtConcurrentPlugins(t *testing.T, sdkDumpable bool) map[string]any {
+	t.Helper()
+	opts := Options{MaxProcesses: 4, MaxPerPlugin: 2, Client: testClient(t, okTransport())}
+	if sdkDumpable {
+		opts.PassEnv = []string{"OPENGTM_SDK_DUMPABLE"}
+		t.Setenv("OPENGTM_SDK_DUMPABLE", "1")
+	}
+	s := newSup(t, opts)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	log := &captureLog{}
+	s.log = log
+
+	sdkVictim := sdkSpec("provider").build(t)
+	rawVictim := pspec{name: "raw_victim", timeout: 60}.build(t)
+	go func() {
+		_, _ = s.Run(ctx, sdkVictim, Request{Inputs: map[string]any{"domain": "x", "mode": "sleep"}, Secrets: map[string]string{"API_KEY": "victim-key-1"}})
+	}()
+	go func() {
+		_, _ = s.Run(ctx, rawVictim, Request{Inputs: map[string]any{"mode": "sleep", "seconds": 60}})
+	}()
+	deadline := time.Now().Add(20 * time.Second)
+	for !strings.Contains(log.String(), "ready") || s.Stats().Running < 2 {
+		if time.Now().After(deadline) {
+			t.Fatal("victims did not start")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	attacker := pspec{name: "attacker_plugin"}.build(t)
+	f := fieldsOf(t, mustRun(t, s, attacker, map[string]any{"mode": "peek", "needles": []string{"sdk_all.py", "rawplugin.py"}}, nil))
+	return asMap(t, f["seen"])
 }

@@ -84,6 +84,9 @@ type Options struct {
 	MaxRecords     int
 	MaxOutputBytes int64
 
+	// DisableProxy turns off the per-run CONNECT tunnel proxy, leaving
+	// ctx.fetch as the only sanctioned way out.
+	DisableProxy bool
 	// KeepParentDumpable leaves the host process dumpable. By default the
 	// supervisor clears PR_SET_DUMPABLE on Linux so a plugin running as the
 	// same user cannot read /proc/<host>/environ, /proc/<host>/mem or ptrace
@@ -191,6 +194,7 @@ type Outcome struct {
 	Stopped       string
 	ProviderError string
 	Fetches       []FetchEvidence
+	Tunnels       []TunnelEvidence
 	SDK           SDKInfo
 }
 

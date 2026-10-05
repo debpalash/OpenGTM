@@ -63,6 +63,9 @@ type runner struct {
 	tail      *tailWriter
 	sdk       SDKInfo
 	pgid, pid int
+
+	proxyURL string
+	proxyRun *proxyRun
 }
 
 type frameMsg struct {
@@ -124,6 +127,9 @@ func (r *runner) buildEnv(dir string) []string {
 		"OPENGTM_PLUGIN_DIR=" + r.p.Dir,
 		MarkerEnv + "=" + r.token,
 	}
+	if r.proxyURL != "" {
+		env = append(env, "HTTPS_PROXY="+r.proxyURL, "https_proxy="+r.proxyURL, "HTTP_PROXY="+r.proxyURL, "http_proxy="+r.proxyURL, "NO_PROXY=", "no_proxy=")
+	}
 	if len(o.PythonPath) > 0 {
 		env = append(env, "PYTHONPATH="+strings.Join(o.PythonPath, string(os.PathListSeparator)))
 	}
@@ -168,6 +174,11 @@ func (r *runner) exec(runCtx, parent context.Context) (out *Outcome, err error) 
 		return nil, &Error{Code: CodeLaunch, Message: "cannot create run directory: " + err.Error()}
 	}
 	defer os.RemoveAll(dir)
+
+	if tp, run, u := s.tunnelFor(r.p); tp != nil {
+		r.proxyRun, r.proxyURL = run, u
+		defer tp.unregister(run)
+	}
 
 	conn, childEnd, err := socketPair()
 	if err != nil {
@@ -447,7 +458,15 @@ func (r *runner) initFrame(runID string, timeout time.Duration) Init {
 		Limits: InitLimits{TimeoutSeconds: l.TimeoutSeconds, MaxPages: l.MaxPages, MaxResponseBytes: l.MaxResponseBytes,
 			MemoryMB: l.MemoryMB, MaxFrameBytes: r.maxFrm},
 		DeadlineUnixMS: time.Now().Add(timeout).UnixMilli(),
+		Proxy:          proxyInit(r.proxyURL),
 	}
+}
+
+func proxyInit(u string) *InitProxy {
+	if u == "" {
+		return nil
+	}
+	return &InitProxy{URL: u}
 }
 
 func nonNil(m map[string]any) map[string]any {
@@ -504,7 +523,11 @@ func (r *runner) finish(res *Result, streamed []Record) (*Outcome, error) {
 	fetches := append([]FetchEvidence(nil), r.fetches...)
 	r.fmu.Unlock()
 
-	out := &Outcome{Fetches: fetches, SDK: r.sdk, Stopped: r.redact(res.Stopped), ProviderError: r.redact(res.ProviderError)}
+	var tunnels []TunnelEvidence
+	if r.proxyRun != nil {
+		tunnels = r.proxyRun.evidence()
+	}
+	out := &Outcome{Fetches: fetches, Tunnels: tunnels, SDK: r.sdk, Stopped: r.redact(res.Stopped), ProviderError: r.redact(res.ProviderError)}
 	if res.Pages != nil {
 		out.Pages = *res.Pages
 	} else {
@@ -523,14 +546,15 @@ func (r *runner) finish(res *Result, streamed []Record) (*Outcome, error) {
 		if rec.Fields == nil {
 			return nil, &Error{Code: CodeInvalidOutput, Message: fmt.Sprintf("record %d has no fields object", i)}
 		}
-		out.Records = append(out.Records, OutRecord{
-			Fields: redactMap(rec.Fields, r.redact),
-			Evidence: map[string]any{
-				"runtime": "process",
-				"fetches": fetches,
-				"plugin":  redactAny(rec.Evidence, r.redact),
-			},
-		})
+		ev := map[string]any{
+			"runtime": "process",
+			"fetches": fetches,
+			"plugin":  redactAny(rec.Evidence, r.redact),
+		}
+		if len(tunnels) > 0 {
+			ev["tunnels"] = tunnels
+		}
+		out.Records = append(out.Records, OutRecord{Fields: redactMap(rec.Fields, r.redact), Evidence: ev})
 	}
 	return out, nil
 }

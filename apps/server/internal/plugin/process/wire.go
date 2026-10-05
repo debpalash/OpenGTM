@@ -87,6 +87,15 @@ type Init struct {
 	Limits   InitLimits        `json:"limits"`
 	// DeadlineUnixMS is when the host will cancel the run.
 	DeadlineUnixMS int64 `json:"deadline_unix_ms"`
+	// Proxy is set when the host offers a CONNECT tunnel for code that opens
+	// its own TLS connections (see proxy.go). It is also exported to the
+	// process as HTTPS_PROXY.
+	Proxy *InitProxy `json:"proxy,omitempty"`
+}
+
+// InitProxy locates the per-run tunnel proxy.
+type InitProxy struct {
+	URL string `json:"url"`
 }
 
 // InitPlugin names the plugin being run.

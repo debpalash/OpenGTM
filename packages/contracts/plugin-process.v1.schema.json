@@ -79,7 +79,13 @@
             "max_frame_bytes": {"type": "integer", "minimum": 1024}
           }
         },
-        "deadline_unix_ms": {"type": "integer"}
+        "deadline_unix_ms": {"type": "integer"},
+        "proxy": {
+          "description": "Present when the host offers a CONNECT tunnel proxy for code that opens its own TLS connections. Only hosts declared in capabilities.network are reachable; the same URL is exported as HTTPS_PROXY.",
+          "type": "object",
+          "required": ["url"],
+          "properties": {"url": {"type": "string", "format": "uri"}}
+        }
       }
     },
 

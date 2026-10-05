@@ -48,6 +48,7 @@ type pspec struct {
 	script   string
 	network  []string
 	secrets  []string
+	browser  bool
 	timeout  float64
 	memory   int
 	maxPages int
@@ -98,6 +99,7 @@ version: 0.1.0
 capabilities:
   network: %s
   secrets: %s
+  browser: %t
 limits:
   timeout_seconds: %g
   memory_mb: %d
@@ -107,7 +109,7 @@ outputs: %s
 process:
   command: %s
 %s
-`, s.name, s.kind, list(s.network), list(s.secrets), s.timeout, s.memory, s.maxPages, s.outputs, s.command, s.extra)
+`, s.name, s.kind, list(s.network), list(s.secrets), s.browser, s.timeout, s.memory, s.maxPages, s.outputs, s.command, s.extra)
 	p, err := manifest.LoadBytes("plugin.yaml", []byte(text))
 	if err != nil {
 		t.Fatalf("manifest: %v\n%s", err, text)

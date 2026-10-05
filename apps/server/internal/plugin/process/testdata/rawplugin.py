@@ -284,6 +284,62 @@ elif mode == "slow_first":  # hang on the first attempt, finish on the second
         spawn_tree(inputs["pidfile"])
         time.sleep(300)
     result([{"fields": {"attempt": "second"}}])
+elif mode == "tunnel":
+    # speak HTTP CONNECT to the per-run proxy named in the environment
+    from urllib.parse import urlparse
+    proxy = urlparse(os.environ["HTTPS_PROXY"])
+    s = socket.create_connection((proxy.hostname, proxy.port), timeout=5)
+    s.settimeout(5)
+    target = inputs["target"]
+    cred = inputs.get("credentials", f"{proxy.username}:{proxy.password}")
+    head = f"CONNECT {target} HTTP/1.1\r\nHost: {target}\r\n"
+    if cred:
+        head += "Proxy-Authorization: Basic " + base64.b64encode(cred.encode()).decode() + "\r\n"
+    s.sendall((head + "\r\n").encode())
+    resp = b""
+    while b"\r\n\r\n" not in resp:
+        chunk = s.recv(4096)
+        if not chunk:
+            break
+        resp += chunk
+    status = int(resp.split(b" ", 2)[1]) if resp.startswith(b"HTTP/") else 0
+    echo = ""
+    if status == 200:
+        s.sendall(b"ping-through-tunnel")
+        echo = s.recv(64).decode()
+    result([{"fields": {"status": status, "echo": echo, "header": resp.split(b"\r\n\r\n")[0].decode(),
+                        "proxy_url": init.get("proxy", {}).get("url"), "env_https": os.environ.get("HTTPS_PROXY"),
+                        "env_http": os.environ.get("HTTP_PROXY")}}])
+elif mode == "plain_proxy":
+    from urllib.parse import urlparse
+    proxy = urlparse(os.environ["HTTP_PROXY"])
+    s = socket.create_connection((proxy.hostname, proxy.port), timeout=5)
+    cred = base64.b64encode(f"{proxy.username}:{proxy.password}".encode()).decode()
+    s.sendall(f"GET http://127.0.0.1:1/ HTTP/1.1\r\nHost: 127.0.0.1:1\r\nProxy-Authorization: Basic {cred}\r\n\r\n".encode())
+    result([{"fields": {"status": int(s.recv(4096).split(b" ", 2)[1])}}])
+elif mode == "noproxy":
+    result([{"fields": {"proxy": init.get("proxy"), "https": os.environ.get("HTTPS_PROXY"), "http": os.environ.get("HTTP_PROXY")}}])
+elif mode == "peek":
+    # report whether this plugin can read other plugins' /proc entries
+    seen = {}
+    for pid in os.listdir("/proc"):
+        if not pid.isdigit() or int(pid) == os.getpid():
+            continue
+        try:
+            with open(f"/proc/{pid}/cmdline", "rb") as fh:
+                argv = fh.read().decode(errors="replace").split("\0")
+        except OSError:
+            continue
+        for needle in inputs["needles"]:
+            # a python process running that script (not any process mentioning it)
+            if "python" in os.path.basename(argv[0]) and len(argv) > 1 and argv[1].endswith(needle):
+                try:
+                    with open(f"/proc/{pid}/environ", "rb") as fh:
+                        fh.read(16)
+                    seen.setdefault(needle, []).append("readable")
+                except OSError as e:
+                    seen.setdefault(needle, []).append(type(e).__name__)
+    result([{"fields": {"seen": seen}}])
 elif mode == "hold_slot":
     # used by the capacity tests: announce, hold the slot, then finish
     time.sleep(float(inputs.get("seconds", 0.3)))
