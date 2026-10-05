@@ -66,6 +66,24 @@ class Settings(BaseSettings):
     # one workspace. 0 disables; global jobs (workspace_id NULL) are uncapped.
     WORKER_MAX_ACTIVE_PER_WORKSPACE: int = 2
 
+    # ── Multi-host readiness (RFC M8; docs/plans/m8-multihost-state.md) ──────
+    # Scheduler leadership. Off (default) = the scheduler process runs every
+    # bootstrap unconditionally, which is correct for exactly one scheduler.
+    # On = each periodic bootstrap runs only while this process holds the
+    # PostgreSQL lease ``scheduler:<name>`` and its writes are fenced by the
+    # lease's token, so any number of scheduler replicas may run on any hosts.
+    # Requires PostgreSQL and migration 9b3d5f7a2c41; ignored on SQLite.
+    SCHEDULER_LEADER_ELECTION: bool = False
+    # Lease lifetime. A crashed leader is replaced after at most this long; the
+    # live leader renews every third of it from a heartbeat thread.
+    SCHEDULER_LEASE_TTL_SECONDS: int = 30
+    # Where workspace metadata (workspaces, members, SSO/SCIM, workspace
+    # settings and the encrypted per-workspace secrets) and the global settings
+    # live: "sqlite" = the local data/*.db files (single host, default),
+    # "postgres" = the shared control-plane tables. Move data first with
+    # `python -m apps.api.scripts.multihost_backfill`.
+    WORKSPACE_META_STORE: str = "sqlite"
+
     # Paths
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ROOT_DIR: str = os.path.abspath(os.path.join(BASE_DIR, "../../"))
