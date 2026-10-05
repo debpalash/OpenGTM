@@ -12,6 +12,7 @@ from datetime import datetime
 
 from apps.api.models import Job
 from apps.api.services.queue_service import _timestamp_matches
+from apps.api.services.workbook.connector_run import WORKBOOK_RUN_JOB_TYPES
 
 batch_owner = ContextVar("workbook_batch_owner", default=None)
 
@@ -38,7 +39,7 @@ def batch_lease_scope(job_id, payload):
 def _owned_job(db, *, job_id, workspace_id, workbook_id, worker_id, locked_at):
     if not workspace_id or not workbook_id or not worker_id or locked_at is None:
         raise ValueError("Batch claims require scoped queue ownership")
-    predicates = (Job.id == job_id, Job.type == "run_workbook",
+    predicates = (Job.id == job_id, Job.type.in_(WORKBOOK_RUN_JOB_TYPES),
                   Job.workspace_id == workspace_id, Job.worker_id == worker_id,
                   Job.status == "processing", _timestamp_matches(Job.locked_at, locked_at))
     # Acquire the writer lock before reading JSON, including on SQLite where

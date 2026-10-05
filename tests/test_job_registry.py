@@ -9,6 +9,7 @@ EXPECTED_JOB_TYPES = {
     "outreach_inbound_poll",
     "refresh_workbook",
     "run_workbook",
+    "run_workbook_connector",
     "send",
     "signal_scan",
     "source_health_check",
