@@ -1,0 +1,1453 @@
+{
+  "schema": 1,
+  "label": "retention",
+  "created_at": "2026-10-05T08:44:35+00:00",
+  "duration_s": 451.1,
+  "git": {
+    "commit": "f5c30508fa82d934e92cbfd7d5ebe747c1b98ba1",
+    "branch": "rewrite/m6-job-ports",
+    "dirty": false
+  },
+  "machine": {
+    "cpu": "AMD Ryzen 9 7950X 16-Core Processor",
+    "logical_cores": 32,
+    "ram_gb": 61.9,
+    "os": "Omarchy / 7.2.5-3-omarchy",
+    "load_avg_start": [
+      7.232421875,
+      7.17822265625,
+      6.32666015625
+    ],
+    "go": "go version go1.27.1 linux/amd64",
+    "python": "3.13.14",
+    "uv": "uv 0.12.1 (x86_64-unknown-linux-gnu)",
+    "postgres": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgres_settings": {
+      "fsync": "on",
+      "synchronous_commit": "on",
+      "shared_buffers": "128MB",
+      "max_connections": "100",
+      "wal_sync_method": "fdatasync"
+    },
+    "load_avg_end": [
+      6.98583984375,
+      7.1650390625,
+      6.66162109375
+    ]
+  },
+  "config": {
+    "label": "retention",
+    "quick": false,
+    "only": "retention",
+    "retention": false,
+    "retention_rows": "1000,20000,100000",
+    "retention_reps": 3,
+    "retention_variants": [
+      "durable",
+      "nosync"
+    ],
+    "concurrency": "1,4,16",
+    "variants": [
+      "durable",
+      "nosync"
+    ],
+    "queue_reps": 3,
+    "durable_jobs": 300,
+    "durable_warmup": 50,
+    "nosync_jobs": 2000,
+    "nosync_warmup": 200,
+    "subprocess_jobs": 24,
+    "subprocess_warmup": 4,
+    "skip_subprocess": false,
+    "http_reps": 3,
+    "http_concurrency": "1,16,64",
+    "http_duration": 4.0,
+    "http_warmup": 1.5,
+    "api_workers": 2,
+    "http": {}
+  },
+  "queue": {
+    "summary": [],
+    "raw": []
+  },
+  "http": {
+    "summary": [],
+    "raw": []
+  },
+  "retention": {
+    "summary": [
+      {
+        "variant": "durable",
+        "mode": "go-handler",
+        "rows": 1000,
+        "kept": 100,
+        "deleted": 8000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 17.71794,
+          "min": 16.550297,
+          "max": 22.985172
+        },
+        "rows_per_sec": {
+          "median": 451519.7590690566,
+          "min": 348050.4735835782,
+          "max": 483375.0113366545
+        }
+      },
+      {
+        "variant": "durable",
+        "mode": "go-job",
+        "rows": 1000,
+        "kept": 100,
+        "deleted": 8000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 21.978205,
+          "min": 21.77841,
+          "max": 29.060627
+        },
+        "rows_per_sec": {
+          "median": 363996.9688152422,
+          "min": 275286.55868299055,
+          "max": 367336.2747785536
+        }
+      },
+      {
+        "variant": "durable",
+        "mode": "go-handler",
+        "rows": 20000,
+        "kept": 100,
+        "deleted": 160000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 290.323153,
+          "min": 285.807711,
+          "max": 1907.050284
+        },
+        "rows_per_sec": {
+          "median": 551110.0246283148,
+          "min": 83899.20357233749,
+          "max": 559816.946296456
+        }
+      },
+      {
+        "variant": "durable",
+        "mode": "go-job",
+        "rows": 20000,
+        "kept": 100,
+        "deleted": 160000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 331.875178,
+          "min": 312.841477,
+          "max": 763.661776
+        },
+        "rows_per_sec": {
+          "median": 482108.9692944737,
+          "min": 209516.8372025471,
+          "max": 511441.1347699909
+        }
+      },
+      {
+        "variant": "durable",
+        "mode": "go-handler",
+        "rows": 100000,
+        "kept": 100,
+        "deleted": 800000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 1168.126922,
+          "min": 1077.533885,
+          "max": 1192.979709
+        },
+        "rows_per_sec": {
+          "median": 684857.0861035254,
+          "min": 670589.7794947324,
+          "max": 742436.0487744662
+        }
+      },
+      {
+        "variant": "durable",
+        "mode": "go-job",
+        "rows": 100000,
+        "kept": 100,
+        "deleted": 800000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 1077.95471,
+          "min": 1061.171659,
+          "max": 1332.133321
+        },
+        "rows_per_sec": {
+          "median": 742146.2076082955,
+          "min": 600540.4919977976,
+          "max": 753883.6843361268
+        }
+      },
+      {
+        "variant": "durable",
+        "mode": "python-handler",
+        "rows": 1000,
+        "kept": 100,
+        "deleted": 8000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 13.26776299993071,
+          "min": 13.014833999932307,
+          "max": 14.04871800014007
+        },
+        "rows_per_sec": {
+          "median": 602965.247422778,
+          "min": 569446.977291468,
+          "max": 614683.2145566827
+        }
+      },
+      {
+        "variant": "durable",
+        "mode": "python-job",
+        "rows": 1000,
+        "kept": 100,
+        "deleted": 8000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 819.3000649998794,
+          "min": 767.3332780000237,
+          "max": 931.3402880002286
+        },
+        "rows_per_sec": {
+          "median": 9764.432277936141,
+          "min": 8589.771217969726,
+          "max": 10425.717519838561
+        }
+      },
+      {
+        "variant": "durable",
+        "mode": "python-handler",
+        "rows": 20000,
+        "kept": 100,
+        "deleted": 160000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 60.59524000011152,
+          "min": 55.44448599994212,
+          "max": 61.40079099986906
+        },
+        "rows_per_sec": {
+          "median": 2640471.4297642116,
+          "min": 2605829.6219724794,
+          "max": 2885769.380207926
+        }
+      },
+      {
+        "variant": "durable",
+        "mode": "python-job",
+        "rows": 20000,
+        "kept": 100,
+        "deleted": 160000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 946.5567649999684,
+          "min": 880.0723080003081,
+          "max": 1004.5128369997656
+        },
+        "rows_per_sec": {
+          "median": 169033.7081897094,
+          "min": 159281.18995261515,
+          "max": 181803.2433761613
+        }
+      },
+      {
+        "variant": "durable",
+        "mode": "python-handler",
+        "rows": 100000,
+        "kept": 100,
+        "deleted": 800000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 292.0655379998607,
+          "min": 283.80318000017724,
+          "max": 391.4456920001612
+        },
+        "rows_per_sec": {
+          "median": 2739111.2470119004,
+          "min": 2043706.231411714,
+          "max": 2818854.954336665
+        }
+      },
+      {
+        "variant": "durable",
+        "mode": "python-job",
+        "rows": 100000,
+        "kept": 100,
+        "deleted": 800000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 1252.0129819999966,
+          "min": 1199.5479219999652,
+          "max": 1727.55331999997
+        },
+        "rows_per_sec": {
+          "median": 638971.0102862194,
+          "min": 463082.6676886673,
+          "max": 666917.9157646219
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "go-handler",
+        "rows": 1000,
+        "kept": 100,
+        "deleted": 8000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 15.494444,
+          "min": 15.294604,
+          "max": 15.821747
+        },
+        "rows_per_sec": {
+          "median": 516314.10588208266,
+          "min": 505633.1642769916,
+          "max": 523060.28975970874
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "go-job",
+        "rows": 1000,
+        "kept": 100,
+        "deleted": 8000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 22.192589,
+          "min": 18.098594,
+          "max": 23.036968
+        },
+        "rows_per_sec": {
+          "median": 360480.699209993,
+          "min": 347267.9217160869,
+          "max": 442023.28644976515
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "go-handler",
+        "rows": 20000,
+        "kept": 100,
+        "deleted": 160000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 290.402008,
+          "min": 280.439772,
+          "max": 293.753151
+        },
+        "rows_per_sec": {
+          "median": 550960.3776568928,
+          "min": 544675.0084393137,
+          "max": 570532.4849572334
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "go-job",
+        "rows": 20000,
+        "kept": 100,
+        "deleted": 160000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 311.157416,
+          "min": 305.990678,
+          "max": 317.968756
+        },
+        "rows_per_sec": {
+          "median": 514209.1808604041,
+          "min": 503194.093698942,
+          "max": 522891.74639496696
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "go-handler",
+        "rows": 100000,
+        "kept": 100,
+        "deleted": 800000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 1188.570784,
+          "min": 1112.148969,
+          "max": 1501.572598
+        },
+        "rows_per_sec": {
+          "median": 673077.2880919139,
+          "min": 532774.7729717162,
+          "max": 719328.095695065
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "go-job",
+        "rows": 100000,
+        "kept": 100,
+        "deleted": 800000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 1018.312395,
+          "min": 1013.177236,
+          "max": 1114.918733
+        },
+        "rows_per_sec": {
+          "median": 785613.5346363921,
+          "min": 717541.0873646161,
+          "max": 789595.316174277
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "python-handler",
+        "rows": 1000,
+        "kept": 100,
+        "deleted": 8000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 10.909901000104583,
+          "min": 10.081417000037618,
+          "max": 11.365087999820389
+        },
+        "rows_per_sec": {
+          "median": 733278.8812587127,
+          "min": 703910.0797219018,
+          "max": 793539.2415540542
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "python-job",
+        "rows": 1000,
+        "kept": 100,
+        "deleted": 8000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 860.4821819999415,
+          "min": 842.7812489999269,
+          "max": 880.7866110000759
+        },
+        "rows_per_sec": {
+          "median": 9297.11290640129,
+          "min": 9082.790201495593,
+          "max": 9492.380151424908
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "python-handler",
+        "rows": 20000,
+        "kept": 100,
+        "deleted": 160000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 60.41738600015378,
+          "min": 56.66554300023563,
+          "max": 531.0760249999475
+        },
+        "rows_per_sec": {
+          "median": 2648244.331517301,
+          "min": 301275.1328776625,
+          "max": 2823585.40179055
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "python-job",
+        "rows": 20000,
+        "kept": 100,
+        "deleted": 160000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 948.3821020003234,
+          "min": 875.4754040000989,
+          "max": 995.9072599999672
+        },
+        "rows_per_sec": {
+          "median": 168708.37151241963,
+          "min": 160657.52949727996,
+          "max": 182757.84707251686
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "python-handler",
+        "rows": 100000,
+        "kept": 100,
+        "deleted": 800000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 325.1169459999801,
+          "min": 276.74314999967464,
+          "max": 485.78030199996647
+        },
+        "rows_per_sec": {
+          "median": 2460653.0352928727,
+          "min": 1646834.9924984304,
+          "max": 2890767.124682004
+        }
+      },
+      {
+        "variant": "nosync",
+        "mode": "python-job",
+        "rows": 100000,
+        "kept": 100,
+        "deleted": 800000,
+        "reps": 3,
+        "wall_ms": {
+          "median": 1339.2587930002264,
+          "min": 1159.909319000235,
+          "max": 1694.243171999915
+        },
+        "rows_per_sec": {
+          "median": 597345.3407073242,
+          "min": 472187.235705761,
+          "max": 689709.0892325506
+        }
+      }
+    ],
+    "raw": [
+      {
+        "mode": "go-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 16.550297,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 21.77841,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 285.807711,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 331.875178,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 1077.533885,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 1332.133321,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 13.014833999932307,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 819.3000649998794,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 55.44448599994212,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 880.0723080003081,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 391.4456920001612,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 1199.5479219999652,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 17.71794,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 21.978205,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 290.323153,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 312.841477,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 1192.979709,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 1061.171659,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 14.04871800014007,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 767.3332780000237,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 61.40079099986906,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 946.5567649999684,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 283.80318000017724,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 1727.55331999997,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 22.985172,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 29.060627,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 1907.050284,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 763.661776,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 1168.126922,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 1077.95471,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 13.26776299993071,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 931.3402880002286,
+        "deleted": 8000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 60.59524000011152,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 1004.5128369997656,
+        "deleted": 160000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 292.0655379998607,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "python-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 1252.0129819999966,
+        "deleted": 800000,
+        "variant": "durable"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 15.494444,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 18.098594,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 293.753151,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 311.157416,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 1501.572598,
+        "deleted": 800000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 1013.177236,
+        "deleted": 800000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 11.365087999820389,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 880.7866110000759,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 531.0760249999475,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 875.4754040000989,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 485.78030199996647,
+        "deleted": 800000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 0,
+        "wall_ms": 1694.243171999915,
+        "deleted": 800000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 15.294604,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 22.192589,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 290.402008,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 317.968756,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 1112.148969,
+        "deleted": 800000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 1018.312395,
+        "deleted": 800000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 10.081417000037618,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 860.4821819999415,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 60.41738600015378,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 948.3821020003234,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 276.74314999967464,
+        "deleted": 800000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 1,
+        "wall_ms": 1159.909319000235,
+        "deleted": 800000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 15.821747,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 23.036968,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 280.439772,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 305.990678,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 1188.570784,
+        "deleted": 800000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "go-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 1114.918733,
+        "deleted": 800000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 10.909901000104583,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-job",
+        "rows": 1000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 842.7812489999269,
+        "deleted": 8000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 56.66554300023563,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-job",
+        "rows": 20000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 995.9072599999672,
+        "deleted": 160000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-handler",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 325.1169459999801,
+        "deleted": 800000,
+        "variant": "nosync"
+      },
+      {
+        "mode": "python-job",
+        "rows": 100000,
+        "kept": 100,
+        "rep": 2,
+        "wall_ms": 1339.2587930002264,
+        "deleted": 800000,
+        "variant": "nosync"
+      }
+    ]
+  },
+  "metrics": {
+    "retention/durable/go-handler/n1000/wall_ms": {
+      "value": 17.71794,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/go-handler/n1000/rows_per_sec": {
+      "value": 451519.7590690566,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/durable/go-job/n1000/wall_ms": {
+      "value": 21.978205,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/go-job/n1000/rows_per_sec": {
+      "value": 363996.9688152422,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/durable/go-handler/n20000/wall_ms": {
+      "value": 290.323153,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/go-handler/n20000/rows_per_sec": {
+      "value": 551110.0246283148,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/durable/go-job/n20000/wall_ms": {
+      "value": 331.875178,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/go-job/n20000/rows_per_sec": {
+      "value": 482108.9692944737,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/durable/go-handler/n100000/wall_ms": {
+      "value": 1168.126922,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/go-handler/n100000/rows_per_sec": {
+      "value": 684857.0861035254,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/durable/go-job/n100000/wall_ms": {
+      "value": 1077.95471,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/go-job/n100000/rows_per_sec": {
+      "value": 742146.2076082955,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/durable/python-handler/n1000/wall_ms": {
+      "value": 13.26776299993071,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/python-handler/n1000/rows_per_sec": {
+      "value": 602965.247422778,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/durable/python-job/n1000/wall_ms": {
+      "value": 819.3000649998794,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/python-job/n1000/rows_per_sec": {
+      "value": 9764.432277936141,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/durable/python-handler/n20000/wall_ms": {
+      "value": 60.59524000011152,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/python-handler/n20000/rows_per_sec": {
+      "value": 2640471.4297642116,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/durable/python-job/n20000/wall_ms": {
+      "value": 946.5567649999684,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/python-job/n20000/rows_per_sec": {
+      "value": 169033.7081897094,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/durable/python-handler/n100000/wall_ms": {
+      "value": 292.0655379998607,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/python-handler/n100000/rows_per_sec": {
+      "value": 2739111.2470119004,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/durable/python-job/n100000/wall_ms": {
+      "value": 1252.0129819999966,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/durable/python-job/n100000/rows_per_sec": {
+      "value": 638971.0102862194,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/go-handler/n1000/wall_ms": {
+      "value": 15.494444,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/go-handler/n1000/rows_per_sec": {
+      "value": 516314.10588208266,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/go-job/n1000/wall_ms": {
+      "value": 22.192589,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/go-job/n1000/rows_per_sec": {
+      "value": 360480.699209993,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/go-handler/n20000/wall_ms": {
+      "value": 290.402008,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/go-handler/n20000/rows_per_sec": {
+      "value": 550960.3776568928,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/go-job/n20000/wall_ms": {
+      "value": 311.157416,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/go-job/n20000/rows_per_sec": {
+      "value": 514209.1808604041,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/go-handler/n100000/wall_ms": {
+      "value": 1188.570784,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/go-handler/n100000/rows_per_sec": {
+      "value": 673077.2880919139,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/go-job/n100000/wall_ms": {
+      "value": 1018.312395,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/go-job/n100000/rows_per_sec": {
+      "value": 785613.5346363921,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/python-handler/n1000/wall_ms": {
+      "value": 10.909901000104583,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/python-handler/n1000/rows_per_sec": {
+      "value": 733278.8812587127,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/python-job/n1000/wall_ms": {
+      "value": 860.4821819999415,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/python-job/n1000/rows_per_sec": {
+      "value": 9297.11290640129,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/python-handler/n20000/wall_ms": {
+      "value": 60.41738600015378,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/python-handler/n20000/rows_per_sec": {
+      "value": 2648244.331517301,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/python-job/n20000/wall_ms": {
+      "value": 948.3821020003234,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/python-job/n20000/rows_per_sec": {
+      "value": 168708.37151241963,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/python-handler/n100000/wall_ms": {
+      "value": 325.1169459999801,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/python-handler/n100000/rows_per_sec": {
+      "value": 2460653.0352928727,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    },
+    "retention/nosync/python-job/n100000/wall_ms": {
+      "value": 1339.2587930002264,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true
+    },
+    "retention/nosync/python-job/n100000/rows_per_sec": {
+      "value": 597345.3407073242,
+      "unit": "rows/s",
+      "better": "higher",
+      "gated": false
+    }
+  }
+}

@@ -5,7 +5,7 @@ server side by side, so every migration step in
 [the rewrite plan](../docs/plans/hybrid-platform-rewrite.md) can be shown to be
 faster or equal, not just assumed to be.
 
-It measures two things:
+It measures three things:
 
 1. **Queue**: claim and completion latency, and throughput, of the shared
    PostgreSQL `jobs` queue, for the Python `QueueService` and the Go queue, at
@@ -13,6 +13,9 @@ It measures two things:
 2. **HTTP front door**: latency and throughput of a cheap FastAPI endpoint
    directly and through the Go reverse proxy, and of Go-owned `/api/v2`
    endpoints.
+
+3. **A migrated job type**: `retention_enforce` on the Go executor and on the
+   Python one ([below](#retention_enforce-go-and-python)).
 
 The committed snapshot from the reference machine is
 [`results/baseline.json`](results/baseline.json) (machine-readable) and
@@ -25,6 +28,7 @@ export OPENGTM_BENCH_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:55432
 ./benchmarks/run.sh                 # full run, about 11 minutes
 ./benchmarks/run.sh --quick         # 1-2 minute smoke run (numbers are not meaningful)
 ./benchmarks/run.sh --only queue    # or --only http
+./benchmarks/run.sh --only retention  # retention_enforce, Go vs Python (about 8 minutes)
 ./benchmarks/run.sh --label mychange
 ```
 
@@ -114,6 +118,49 @@ FastAPI runs under uvicorn with 2 workers (the Dockerfile default; change with
 `--api-workers`). Access logging is left on for both servers, as in a default
 deployment. The harness fails loudly if any endpoint does not return 200, so a
 fast run of errors can never be mistaken for a result.
+
+### retention_enforce: Go and Python
+
+Each case seeds a fresh workspace with N expired rows (and 100 recent ones) in
+every one of the 8 tables the job purges (`retention_seed.sql`), then runs the
+real code on both sides as the same `NOSUPERUSER NOBYPASSRLS` role: the handler
+alone (Python `handle_retention_enforce` in-process, Go `Worker.Handle`), and
+the whole job (Python `claim_next_job` + `_process_job`, which spawns the
+production child process; the real Go queue with a 5 ms idle poll). Every case
+verifies the outcome (run `completed`, `8 x N` rows deleted, the recent rows
+left) before its time counts. Both `durable` and `nosync` variants run, the
+engines interleaved per repetition (`--retention-rows`, `--retention-reps`,
+`--retention-variants`; `--retention` adds it to a full run). The committed
+snapshot is [`results/retention.md`](results/retention.md) (3 repetitions,
+load average about 7 from other work on the machine).
+
+Medians of 3, milliseconds, `durable` variant (`nosync` is within about 10% of
+it; the report has both, with ranges):
+
+| expired rows per table (rows deleted) | Python handler | Go handler | Python whole job | Go whole job |
+|---:|---:|---:|---:|---:|
+| 1,000 (8,000) | 13 | 18 | 819 | 22 |
+| 20,000 (160,000) | 61 | 290 | 947 | 332 |
+| 100,000 (800,000) | 292 | 1,168 | 1,252 | 1,078 |
+
+What it says, and what it does not:
+
+- **The whole job is faster in Go, but only because of the process.** The
+  Python queue spawns a child interpreter and imports the full handler
+  registry for every job, about 0.8 s; the Go queue does not. That is a
+  37x difference for a small purge, 2.9x at 160,000 rows and 1.2x at 800,000.
+- **The Go handler itself is slower than Python's on large purges**, by 1.3x
+  at 8,000 rows and 4-5x from 160,000 rows up (0.21x and 0.25x speed). The Go
+  executor deletes in batches of 5,000 (`DELETE ... WHERE id = ANY(ARRAY(SELECT
+  id ... LIMIT 5000))`) to bound statement memory and WAL bursts, so every
+  batch scans past the rows its predecessors deleted; Python deletes each table
+  with one statement. The batch is not free: it is the price of the bounded
+  statements, and the cheapest improvements to evaluate are a larger batch or a
+  `ctid`-based scan. The purge still completes 800,000 rows in about a second.
+- Not measured: a populated production-sized database (these tables are
+  freshly seeded, so no index bloat, cold caches or concurrent writers), a
+  second concurrent workspace, and the 1,800 s ceiling. Absolute numbers
+  depend on the machine; the ratios within one run are the useful output.
 
 ## Compare a candidate against the baseline
 
@@ -224,6 +271,7 @@ Say in the commit message why the numbers moved.
 | `run.sh`, `run.py` | One-command entry point and orchestrator: builds the Go binaries, creates and drops the throwaway database, runs everything, writes results. |
 | `bench_queue_python.py`, `bench_child.py` | Python queue harness and its benchmark-only child process. |
 | `../apps/server/internal/queue/bench_test.go` | Go queue harness (a test, skipped unless `OPENGTM_BENCH_OUT` is set). |
+| `bench_retention_python.py`, `retention_seed.sql`, `../apps/server/internal/jobs/retention/bench_test.go` | retention_enforce harnesses (Python, shared seed data, Go). |
 | `../apps/server/internal/bench/loadgen/` | HTTP load generator. |
 | `seed_http.py` | Creates the user and workspace the authenticated endpoints need. |
 | `report.py` | Renders a result JSON as Markdown (`python benchmarks/report.py FILE`). |
