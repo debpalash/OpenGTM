@@ -18,7 +18,8 @@ before:
     # architecture independent, so it is built once for every target.
     - bun install --frozen-lockfile --ignore-scripts
     - bun run --cwd apps/web build
-    - sh -c 'rm -rf apps/server/internal/server/webdist/dist && mkdir -p apps/server/internal/server/webdist/dist && cp -a apps/web/dist/. apps/server/internal/server/webdist/dist/'
+    # Copy in place: the committed .keep must stay, or GoReleaser sees a dirty tree.
+    - cp -a apps/web/dist/. apps/server/internal/server/webdist/dist/
 
 builds:
   - id: opengtm

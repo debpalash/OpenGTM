@@ -117,6 +117,14 @@ jobs:
         with:
           python-version: '3.13'
           enable-cache: true
+      # The backup, restore and migration-owner tests drive psql, pg_dump and
+      # pg_restore; pg_dump must be at least the server's major version (18).
+      - name: PostgreSQL 18 client tools
+        working-directory: .
+        run: |
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y --no-install-recommends postgresql-client-18
+          echo "/usr/lib/postgresql/18/bin" >> "$GITHUB_PATH"
       - run: test -z "$(gofmt -l .)"
       - run: go vet ./...
       - run: go test -race -count=1 ./...
