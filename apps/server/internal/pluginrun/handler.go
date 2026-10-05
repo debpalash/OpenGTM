@@ -118,7 +118,7 @@ func (w *Worker) Handle(ctx context.Context, job queue.Job) error {
 	}
 
 	started := time.Now()
-	outcome, err := w.runner.Run(ctx, entry.Plugin, inputs, w.progressFunc(ctx, pl))
+	outcome, err := w.runner.Run(WithWorkspace(ctx, pl.WorkspaceID), entry.Plugin, inputs, w.progressFunc(ctx, pl))
 	if errors.Is(err, ErrUnsupported) || errors.Is(err, declarative.ErrNoExtractor) {
 		return w.failPermanently(ctx, job, pl, err.Error())
 	}

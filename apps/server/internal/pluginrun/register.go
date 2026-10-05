@@ -28,7 +28,9 @@ func register(env queue.Env, r *queue.Registry) error {
 	if err != nil {
 		return fmt.Errorf("plugins: load extraction kernel: %w", err)
 	}
-	NewWorker(env.Pool, catalog, NewRunner(client, k, env.Logger), env.Logger).Register(r)
+	runner := NewRunner(client, k, env.Logger)
+	runner.SetSecretStore(NewPGSecretsFromEnv(env.Pool, env.Logger))
+	NewWorker(env.Pool, catalog, runner, env.Logger).Register(r)
 	return nil
 }
 
