@@ -510,9 +510,16 @@ func TestHeartbeatRenewsLease(t *testing.T) {
 	q := newQueue(pool, Options{HeartbeatInterval: 100 * time.Millisecond}, jt)
 	beats := make(chan time.Time, 1)
 	q.Register(jt, func(ctx context.Context, job Job) error {
-		time.Sleep(400 * time.Millisecond)
+		// Poll rather than sleep a fixed time: under -race on a loaded
+		// machine the first heartbeat can land late.
 		var hb time.Time
-		pool.QueryRow(ctx, `SELECT last_heartbeat FROM jobs WHERE id = $1`, job.ID).Scan(&hb)
+		for deadline := time.Now().Add(5 * time.Second); time.Now().Before(deadline); {
+			time.Sleep(100 * time.Millisecond)
+			pool.QueryRow(ctx, `SELECT last_heartbeat FROM jobs WHERE id = $1`, job.ID).Scan(&hb)
+			if hb.After(job.Lease.LockedAt) {
+				break
+			}
+		}
 		beats <- hb
 		return nil
 	})
