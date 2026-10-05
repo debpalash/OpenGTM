@@ -19,7 +19,6 @@ package retention
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -30,6 +29,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/server/internal/db"
+	"github.com/debpalash/OpenGTM/apps/server/internal/jobs/jobkit"
 	"github.com/debpalash/OpenGTM/apps/server/internal/queue"
 )
 
@@ -78,47 +78,19 @@ type jobPayload struct {
 	runID       string
 }
 
-// pyStr is `str(v) if v else ""` for a decoded payload value.
-func pyStr(v any) string {
-	switch t := v.(type) {
-	case string:
-		return t
-	case json.Number:
-		if truthy(t) {
-			return string(t)
-		}
-	case bool:
-		if t {
-			return "True"
-		}
-	}
-	return ""
-}
-
 func parsePayload(raw []byte) (jobPayload, error) {
-	v, err := decodeValue(raw)
+	v, err := jobkit.Decode(raw)
 	if err != nil {
 		return jobPayload{}, errBadPayload
 	}
-	obj, ok := v.(*object)
+	obj, ok := v.(*jobkit.Object)
 	if !ok {
 		return jobPayload{}, errBadPayload
 	}
-	return jobPayload{workspaceID: pyStr(obj.vals["workspace_id"]), runID: pyStr(obj.vals["run_id"])}, nil
+	return jobPayload{workspaceID: jobkit.Str(obj.Vals["workspace_id"]), runID: jobkit.Str(obj.Vals["run_id"])}, nil
 }
 
 var errBadPayload = errors.New("retention payload must be a JSON object")
-
-func truncateChars(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	r := []rune(s)
-	if len(r) <= n {
-		return s
-	}
-	return string(r[:n])
-}
 
 type policyRow struct {
 	enabled, legalHold bool
@@ -177,7 +149,7 @@ func createSchedulerRun(ctx context.Context, tx pgx.Tx, workspaceID string, snap
 	return r, err
 }
 
-const stamp = "$%d::timestamptz::timestamp"
+const stamp = jobkit.StampFormat
 
 // Handle runs one attempt of handle_retention_enforce.
 //
@@ -260,7 +232,7 @@ func (w *Worker) Handle(ctx context.Context, job queue.Job) error {
 		// (reconciler) records the outcome of a timeout or retry.
 		return err
 	}
-	msg := truncateChars(err.Error(), maxErrorChars)
+	msg := jobkit.TruncateChars(err.Error(), maxErrorChars)
 	markErr := db.WithTenant(ctx, w.pool, pl.workspaceID, func(tx pgx.Tx) error {
 		if err := queue.HoldLease(ctx, tx, job); err != nil {
 			return err
@@ -285,7 +257,7 @@ func (e *scheduleError) Unwrap() error { return e.err }
 
 // purge deletes expired rows and completes the run in one transaction.
 func (w *Worker) purge(ctx context.Context, job queue.Job, workspaceID, runID, snapshotText string, started time.Time) error {
-	snapshot, err := decodeValue([]byte(snapshotText))
+	snapshot, err := jobkit.Decode([]byte(snapshotText))
 	if err != nil {
 		return fmt.Errorf("decode policy_snapshot: %w", err)
 	}
@@ -346,7 +318,7 @@ func (w *Worker) Reconcile(ctx context.Context, job queue.Job, reason string, wi
 	if reason == "" {
 		reason = "retention enforcement failed"
 	}
-	message := truncateChars(reason, maxErrorChars)
+	message := jobkit.TruncateChars(reason, maxErrorChars)
 	now := w.Now()
 
 	return db.WithTenant(ctx, w.pool, workspaceID, func(tx pgx.Tx) error {

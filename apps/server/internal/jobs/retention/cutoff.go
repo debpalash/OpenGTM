@@ -5,6 +5,8 @@ import (
 	"math"
 	"strconv"
 	"time"
+
+	"github.com/debpalash/OpenGTM/apps/server/internal/jobs/jobkit"
 )
 
 const microsPerDay = int64(86400) * 1_000_000
@@ -17,18 +19,18 @@ const microsPerDay = int64(86400) * 1_000_000
 func cutoffFor(snapshot any, category string, now time.Time) (time.Time, error) {
 	var raw any
 	switch s := snapshot.(type) {
-	case *object:
-		v, ok := s.vals[category]
+	case *jobkit.Object:
+		v, ok := s.Vals[category]
 		if !ok {
-			return time.Time{}, pyErrorf("%s", pyRepr(category)) // KeyError('audit')
+			return time.Time{}, jobkit.Errorf("%s", jobkit.Repr(category)) // KeyError('audit')
 		}
 		raw = v
 	case []any:
-		return time.Time{}, pyErrorf("list indices must be integers or slices, not str")
+		return time.Time{}, jobkit.Errorf("list indices must be integers or slices, not str")
 	case string:
-		return time.Time{}, pyErrorf("string indices must be integers, not 'str'")
+		return time.Time{}, jobkit.Errorf("string indices must be integers, not 'str'")
 	default:
-		return time.Time{}, pyErrorf("'%s' object is not subscriptable", pyTypeName(snapshot))
+		return time.Time{}, jobkit.Errorf("'%s' object is not subscriptable", jobkit.TypeName(snapshot))
 	}
 	days, rem, err := timedeltaDays(raw)
 	if err != nil {
@@ -38,7 +40,7 @@ func cutoffFor(snapshot any, category string, now time.Time) (time.Time, error) 
 	// time.Duration could not hold Python's full +-999999999 day range.
 	cutoff := now.AddDate(0, 0, -int(days)).Add(-time.Duration(rem) * time.Microsecond)
 	if y := cutoff.Year(); y < 1 || y > 9999 {
-		return time.Time{}, pyErrorf("date value out of range")
+		return time.Time{}, jobkit.Errorf("date value out of range")
 	}
 	return cutoff, nil
 }
@@ -53,24 +55,24 @@ func timedeltaDays(v any) (days, remMicros int64, err error) {
 		}
 		return 0, 0, nil
 	case json.Number:
-		if !isFloatLiteral(t) {
+		if !jobkit.IsFloatLiteral(t) {
 			n, perr := strconv.ParseInt(string(t), 10, 64)
 			if perr != nil || n > 999999999 || n < -999999999 {
-				return 0, 0, pyErrorf("days=%s; must have magnitude <= 999999999", string(t))
+				return 0, 0, jobkit.Errorf("days=%s; must have magnitude <= 999999999", string(t))
 			}
 			return n, 0, nil
 		}
 		f, _ := strconv.ParseFloat(string(t), 64)
 		if math.IsInf(f, 0) {
-			return 0, 0, pyErrorf("cannot convert float infinity to integer")
+			return 0, 0, jobkit.Errorf("cannot convert float infinity to integer")
 		}
 		if math.Abs(f) > 999999999 {
-			return 0, 0, pyErrorf("days=%d; must have magnitude <= 999999999", clampTrunc(f))
+			return 0, 0, jobkit.Errorf("days=%d; must have magnitude <= 999999999", jobkit.ClampTrunc(f))
 		}
 		whole := math.Trunc(f)
 		return int64(whole), int64(math.RoundToEven((f - whole) * float64(microsPerDay))), nil
 	}
-	return 0, 0, pyErrorf("unsupported type for timedelta days component: %s", pyTypeName(v))
+	return 0, 0, jobkit.Errorf("unsupported type for timedelta days component: %s", jobkit.TypeName(v))
 }
 
 // epochSeconds ports naive_datetime.timestamp(): the wall clock is read in

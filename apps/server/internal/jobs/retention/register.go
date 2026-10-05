@@ -1,12 +1,14 @@
 package retention
 
-import "github.com/debpalash/OpenGTM/apps/server/internal/queue"
+import (
+	"github.com/debpalash/OpenGTM/apps/server/internal/jobs/jobkit"
+	"github.com/debpalash/OpenGTM/apps/server/internal/queue"
+)
 
 func init() {
-	queue.AddRegistrar("retention", register)
 	// Available in Go but not claimed until `opengtm routes set
 	// retention_enforce go`; the migration deliberately seeds no route.
-	queue.DeclareSwitchable(JobType)
+	jobkit.Declare("retention", JobType, register)
 }
 
 func register(env queue.Env, r *queue.Registry) error {
