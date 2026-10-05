@@ -561,7 +561,13 @@ func (r *run) commitCell(ctx context.Context, cr *cellRun, rowID, leadID int64, 
 		if err := writeCell(ctx, tx, r.ws, r.wbID, rowID, leadID, colID, w); err != nil {
 			return err
 		}
-		return progress.Publish(ctx, tx, r.ws, "workbook_cell_update", cellEvent(r.wbID, rowID, colID, w))
+		if err := progress.Publish(ctx, tx, r.ws, "workbook_cell_update", cellEvent(r.wbID, rowID, colID, w)); err != nil {
+			return err
+		}
+		if r.w.afterCellWrite != nil {
+			return r.w.afterCellWrite()
+		}
+		return nil
 	})
 	switch {
 	case err == nil:

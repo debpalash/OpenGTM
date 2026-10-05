@@ -49,6 +49,10 @@ type Worker struct {
 	client    *egress.Client
 	log       *slog.Logger
 	domainRPS float64
+
+	// afterCellWrite runs inside the cell's result transaction, after its
+	// writes (tests inject a failure here to prove the transaction is atomic).
+	afterCellWrite func() error
 }
 
 // NewWorker builds the job handler. catalog supplies the v1 connectors, client

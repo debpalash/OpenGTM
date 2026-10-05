@@ -5,9 +5,20 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/debpalash/OpenGTM/apps/server/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/server/internal/plugin/manifest"
 	"github.com/debpalash/OpenGTM/apps/server/internal/pluginrun"
 )
+
+// mustStrictClient is an egress client without the loopback override.
+func mustStrictClient(t testing.TB) *egress.Client {
+	t.Helper()
+	c, err := egress.New(egress.Options{Version: "test", DefaultRPS: 5000})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return c
+}
 
 // mapConnectors is an in-memory Connectors built from v1 manifest files.
 type mapConnectors map[string]*pluginrun.Entry
