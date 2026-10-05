@@ -5,7 +5,7 @@ server side by side, so every migration step in
 [the rewrite plan](../docs/plans/hybrid-platform-rewrite.md) can be shown to be
 faster or equal, not just assumed to be.
 
-It measures two things:
+It measures three things:
 
 1. **Queue**: claim and completion latency, and throughput, of the shared
    PostgreSQL `jobs` queue, for the Python `QueueService` and the Go queue, at
@@ -13,10 +13,13 @@ It measures two things:
 2. **HTTP front door**: latency and throughput of a cheap FastAPI endpoint
    directly and through the Go reverse proxy, and of Go-owned `/api/v2`
    endpoints.
+3. **Web dashboard** (a separate harness, [below](#web-baseline)): bundle sizes
+   per route, cold-load FCP/LCP/CLS/TBT, INP and route-transition timings.
 
-The committed snapshot from the reference machine is
-[`results/baseline.json`](results/baseline.json) (machine-readable) and
-[`results/baseline.md`](results/baseline.md) (tables).
+The committed snapshots from the reference machine are
+[`results/baseline.json`](results/baseline.json) (queue and HTTP) and
+[`results/web-baseline.json`](results/web-baseline.json) (web), each with a
+`.md` next to it holding the tables.
 
 ## Run it
 
@@ -42,7 +45,10 @@ free ports on `127.0.0.1`.
 Everything is printed and written to `benchmarks/results/<label>.json` and
 `.md` (git-ignored except `baseline.*`). `./benchmarks/run.sh --help` lists all
 knobs (job counts, repetitions, concurrency levels, window lengths, uvicorn
-workers).
+workers). `--endpoints a,b` drives only the named HTTP endpoints, and
+`--fastapi-authed-max-conns N` caps the connections used against the
+authenticated FastAPI endpoints (0, the default, means no cap; use 32 to
+benchmark a checkout from before [the wedge fix](#the-fastapi-wedge)).
 
 ## What is measured
 
@@ -168,6 +174,148 @@ changes, re-run the full benchmark on an idle machine, review the diff of
 
 Say in the commit message why the numbers moved.
 
+## Web baseline
+
+`./benchmarks/web.sh` measures the dashboard (`apps/web`). It builds the app,
+reads the bundle sizes from the Vite manifest, then drives the built SPA with
+headless Chromium through Playwright (already in `uv.lock`; install the browser
+once with `uv run playwright install chromium`).
+
+```sh
+./benchmarks/web.sh                    # about 8 minutes, writes results/web-<run>.json and .md
+./benchmarks/web.sh --label baseline   # overwrites the committed results/web-baseline.{json,md}
+./benchmarks/web.sh --quick            # 1 repetition, desktop profile (smoke run)
+./benchmarks/web.sh --bundle-only      # just the deterministic bundle sizes, no browser
+uv run --frozen python benchmarks/compare.py benchmarks/results/web-baseline.json benchmarks/results/web-candidate.json
+```
+
+What it records ([`results/web-baseline.md`](results/web-baseline.md) has the tables):
+
+| group | metrics | how |
+|---|---|---|
+| Bundle size | Initial JS and CSS (gzip); per page chunk: JS gzip on top of the initial bundle, CSS, and the total a first visit downloads; all JS | Vite manifest, same definition of "initial" as `apps/web/scripts/check-bundle-size.ts`. Deterministic. |
+| Cold load of `/chat`, `/leads`, `/workbooks`, `/plugins` | TTFB, FCP, LCP, time until the page heading is painted, load event, CLS, TBT, JS transferred, request count | Fresh browser context (cold HTTP cache) per repetition; PerformanceObserver entries (`paint`, `largest-contentful-paint`, `layout-shift`, `longtask`). CLS is the largest session window; TBT is long-task time over 50 ms after FCP. |
+| INP | Worst interaction of a scripted session on the Plugins page (tab switches, a filter, Load more, the command menu, opening a run) | Real pointer and keyboard events, measured with the Event Timing API (for fewer than 50 interactions INP is the worst one). |
+| Route transitions | Click on a sidebar link until the next page's heading is painted, first visit (its chunk is fetched then), plus the JS fetched | In-page timing around the click and two animation frames. |
+
+Two profiles run: `desktop` (no throttling) and `slow` (4x CPU slowdown,
+1.6 Mbit/s down, 150 ms RTT; the Lighthouse mobile simulation, applied with the
+DevTools protocol). This is Lighthouse-style, not Lighthouse: no Lighthouse
+score is computed, and the throttling is applied by the browser, not simulated
+from a trace.
+
+**Gating.** `compare.py` reads per-metric `threshold` and `slack` from the
+result. Bundle sizes are gated at 3-5% (plus 0.5-1 kB of slack), because they
+are deterministic; LCP, heading-ready, INP and transition timings are gated at
+30% plus a 60 ms (desktop) or 300-400 ms (slow) floor; FCP, TBT and CLS are
+recorded but not gated. Timings are only worth gating on an idle machine; on a
+shared one, expect them to move by that much on their own. Pass `--threshold`
+to override every metric's own.
+
+**What this does not measure.**
+
+- The backend. `/api` and `/auth` are answered from fixed fixtures instantly
+  (500 leads, 24 workbooks, 12 plugins, 400 plugin runs paged 50 at a time),
+  and everything outside the local server is answered with an empty image, so
+  the numbers describe the frontend, not the whole stack. Real API latency
+  adds directly to "heading ready".
+- Real networks, real data volumes beyond the fixtures, or real GPUs: the
+  browser is headless Chromium on the reference machine's CPU.
+- Bundle sizes here are gzipped with Python's zlib at level 9, which differs by
+  about 0.4% from the Bun-based `check-bundle-size.ts` that CI enforces. Use
+  that script for the budget; use these numbers for comparisons with each other.
+- Chromium aborts in-flight requests with `ERR_NETWORK_CHANGED` when the
+  host's network interfaces change (a docker bridge or Wi-Fi flapping is
+  enough, even for loopback). Such samples are detected, discarded and retaken
+  (the log says "discarding a sample"); they never enter the result.
+
+`tests/test_web_plugin_runs_paging_e2e.py` is a functional check using the same
+server and fixtures: it scrolls the Plugins > Runs list in a real browser and
+asserts the cursor chain, that only the first page is requested up front, that
+rows are virtualized, that the Load more button and the status filter behave,
+and that a failed page keeps the list. It skips when `apps/web` is not built or
+no browser is installed.
+
+## The FastAPI wedge
+
+The M0 run found that the authenticated route (`/api/auth/workspace-context`,
+which the Go server calls for every `/api/v2` request it cannot answer from its
+cache) stopped answering at 64 concurrent connections against two uvicorn
+workers: every request timed out and the workers stayed wedged.
+
+**Cause.** Not load; an async/sync boundary bug. The async auth dependencies
+(`get_current_user`, `current_workspace`) ran blocking calls on the event loop:
+the users query on the request's SQLAlchemy `Session`, and about seven SQLite
+workspace-metadata lookups. A `Session` holds its pooled connection until the
+`get_db` dependency closes it, and that close runs only after the event loop has
+sent the response. Once more requests than the pool can lend (10 + 20 overflow
+per worker, so 30; 64 connections over two workers is 32 each) had reached their
+first query, the event loop itself blocked in `Pool.connect` waiting for a
+connection that only the blocked loop could release. It sat out `pool_timeout`
+(30 s), failed one request, and the queue behind it repeated the stall.
+
+**Fix** (`apps/api/core/security.py`, `core/tenancy.py`, `database.py`, `main.py`):
+
+1. The blocking lookups run in the thread pool (`run_in_threadpool`). The
+   `ContextVar` write the RLS hook depends on stays in the request's own async
+   context, as before.
+2. Pool exhaustion fails fast: `DB_POOL_TIMEOUT` (default 10 s instead of 30 s).
+3. Threads that wait for a pooled connection can starve the threads that would
+   release one (AnyIO has 40 by default), so `THREADPOOL_SIZE` defaults to 100.
+   Without it, 128 connections (64 per worker) still stalled for the pool timeout.
+
+**Regression test.** `tests/test_workspace_context_concurrency.py` drives the
+real dependency chain in one event loop through a 2-connection pool with 24
+concurrent requests. Before the fix: 22 of 24 requests returned 500 and it took
+66 s. After: all 200, in about 0.5 s.
+
+**Go side** (`apps/server/internal/authz`): a slow or sick FastAPI can no longer
+wedge the Go server either. Lookups have a 3 s timeout; concurrent cache misses
+for the same token and workspace collapse into one call; at most 32 run at once
+and the rest are refused immediately with `503` and `Retry-After` (the 32 also
+keeps FastAPI at or below 16 per worker, under its pool); and 5 consecutive
+failures open a circuit breaker for 5 s, after which one probe decides. Tests
+cover each, including 200 concurrent requests against an upstream that accepts
+and never answers (all answered within a second, peak upstream concurrency
+capped, the breaker cutting off further calls).
+
+**Measured** (`./benchmarks/run.sh --only http --http-concurrency 1,16,64,128
+--endpoints fastapi-authed-direct,fastapi-authed-via-go-proxy,go-plugins-authed
+--http-duration 6`, 3 repetitions, same loaded machine as the baseline):
+
+Before the fix (one 6 s window, `fastapi-authed-direct`):
+
+| conns | req/s | p50 ms | p99 ms | errors |
+|---:|---:|---:|---:|---:|
+| 16 | 326 | 21.5 | 122 | 0 |
+| 64 | **0.5** | 203 | 30,176 | **62** (every request timed out) |
+
+After the fix (all fixes in, median of 3 windows, no errors anywhere):
+
+| endpoint | conns | req/s | p50 ms | p99 ms | errors |
+|---|---:|---:|---:|---:|---:|
+| fastapi-authed-direct | 16 | 476 | 25.7 | 57 | 0 |
+| fastapi-authed-direct | 64 | 419 | 147 | 248 | 0 |
+| fastapi-authed-direct | 128 | 396 | 296 | 670 | 0 |
+| fastapi-authed-via-go-proxy | 64 | 342 | 185 | 251 | 0 |
+| fastapi-authed-via-go-proxy | 128 | 380 | 256 | 667 | 0 |
+| go-plugins-authed | 128 | 91,952 | 0.87 | 6.5 | 0 |
+
+The cap is lifted: the default concurrency levels now include 64 for the
+authenticated FastAPI endpoints (`FASTAPI_AUTHED_MAX_CONNS` is gone;
+`--fastapi-authed-max-conns` re-adds a cap), and 128 also runs clean. Throughput
+past 16 connections is flat, as expected for two Python workers; what changed is
+that it no longer collapses. Limits that remain: beyond roughly 100 in-flight
+requests per worker the thread pool can run out again and requests fail after
+`DB_POOL_TIMEOUT` instead of queueing; other async endpoints in FastAPI that run
+blocking calls on the event loop have the same latent problem, and are not
+changed here; the pool is still 30 connections per worker. The Go server's cap of
+32 concurrent authorization lookups keeps its own traffic well inside that.
+
+Read the shared-machine caveats below: the point is the 64-connection row
+going from "no answers" to "answers at the rate of 16", not the absolute
+numbers.
+
 ## Read this before trusting a number
 
 - **Single machine, shared.** The reference run was made on a 32-thread
@@ -202,15 +350,10 @@ Say in the commit message why the numbers moved.
   `Queue.Run` itself, because `Run` blocks until cancelled and polls an empty
   queue every second. The measured pieces (`Claim`, `process`) are the
   production functions. The Python harness mirrors `_worker_loop` the same way.
-- **A FastAPI finding, not benchmarked through.** The authenticated route
-  (`/api/auth/workspace-context`) stops answering at 64 concurrent connections
-  against two uvicorn workers: every request times out and the workers stay
-  wedged until restarted (found while building this harness; cause not
-  investigated, a thread-pool or connection-pool exhaustion with sync
-  dependencies is the likely suspect). The harness therefore drives the
-  `fastapi-authed-*` endpoints only up to 16 connections by default
-  (`FASTAPI_AUTHED_MAX_CONNS = 32` in `run.py` is the hard cap). The Go-owned
-  routes were driven to 64 without errors.
+- **The committed `baseline.json` predates the FastAPI wedge fix.** Its
+  `fastapi-authed-*` rows stop at 16 connections because that checkout wedged at
+  64 (see [The FastAPI wedge](#the-fastapi-wedge)). Re-run the full benchmark on
+  an idle machine to refresh it; the 64-connection rows now exist.
 - **No real work.** These numbers bound the queue and front-door overhead only.
   They say nothing about enrichment throughput, which depends on providers.
 - **Python 3.13 and Go 1.27** versions, plus the PostgreSQL settings in effect
@@ -227,4 +370,6 @@ Say in the commit message why the numbers moved.
 | `../apps/server/internal/bench/loadgen/` | HTTP load generator. |
 | `seed_http.py` | Creates the user and workspace the authenticated endpoints need. |
 | `report.py` | Renders a result JSON as Markdown (`python benchmarks/report.py FILE`). |
-| `compare.py` | Regression check against a baseline. |
+| `compare.py` | Regression check against a baseline (works on the web results too). |
+| `web.sh`, `web.py` | The web baseline: bundle sizes, load metrics, INP and route transitions (Playwright). |
+| `../tests/test_web_plugin_runs_paging_e2e.py` | Browser check of the Plugins > Runs list (reuses `web.py`'s server and fixtures). |

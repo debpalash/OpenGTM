@@ -66,12 +66,42 @@ values; the environment wins. Invalid values stop startup with a clear error.
   each reaps only its own types.
 - **Authorization** is delegated to FastAPI's
   `/api/auth/workspace-context` (membership, roles, SSO enforcement) and
-  cached for 30 seconds per token and workspace.
+  cached for 30 seconds per token and workspace. A slow or sick FastAPI cannot
+  wedge the Go server: each lookup has a 3 s timeout, concurrent misses for the
+  same token and workspace share one call, at most 32 lookups run at once
+  (the rest get `503` with `Retry-After` immediately, not a queue), and 5
+  consecutive failures open a circuit breaker for 5 s (one probe then decides).
+  A `401`/`403`/`404` from FastAPI is a healthy answer and never trips it;
+  failures are never cached, so a revoked membership still takes effect at
+  once.
 - **Tenancy.** Every tenant query runs in a transaction bound with
   `set_config('app.workspace_id', ..., true)` under forced row-level security.
 - **Progress** uses PostgreSQL `LISTEN/NOTIFY`, delivered on
   `/api/v2/events`. Unlike the Redis stream there is no replay buffer; a
   client that reconnects should refetch state.
+
+## API contract
+
+The `/api/v2` surface is documented in
+[`packages/contracts/openapi.v2.yaml`](../../packages/contracts/openapi.v2.yaml)
+(OpenAPI 3.1). It is a contract, not a description written afterwards:
+
+- `internal/contract` validates real responses against it. The plugin-run
+  integration harness checks every response it makes, the server tests check
+  `/api/v2/version` and the SSE frames, and a source scan fails when a
+  `/api/v2` route is registered without being documented. Documented
+  operations that are not mounted fail too.
+- The typed web client (`apps/web/src/lib/api-v2`) is generated from it with
+  `bun run --cwd apps/web gen:api`; CI fails when the committed output is
+  stale (`check:api`).
+
+Adding or changing an endpoint therefore means editing the handler, the spec,
+and regenerating the client in one change.
+
+`GET /api/v2/plugin-runs` is paged with an opaque keyset cursor on
+`(created_at, id)`: `?limit=` (1-200, default 50) and `?cursor=` from the
+previous page's `next_cursor`, which is `null` on the last page. Runs created
+while paging never shift or repeat rows of later pages.
 
 ## Layout
 
@@ -80,7 +110,8 @@ cmd/opengtm          subcommands (one file each)
 internal/config      configuration
 internal/db          pgx pool, tenant transactions, test fixtures (dbtest)
 internal/queue       jobs queue executor, routing, leases
-internal/authz       forward authorization to FastAPI
+internal/authz       forward authorization to FastAPI (timeout, singleflight, bound, circuit breaker)
+internal/contract    OpenAPI contract validation for /api/v2 (test support)
 internal/progress    LISTEN/NOTIFY events
 internal/server      HTTP front door, legacy proxy, SPA
 internal/egress      guarded outbound HTTP (SSRF, DNS pinning, robots.txt, rate limits)
