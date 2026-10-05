@@ -13,7 +13,10 @@ import (
 // Version is embedded in the egress User-Agent; the binary sets it at startup.
 var Version = "dev"
 
-func init() { queue.AddRegistrar("plugins", register) }
+func init() {
+	queue.AddRegistrar("plugins", register)
+	queue.DeclareExecutor(JobType)
+}
 
 // register builds the plugin runtime once per worker process: the catalog,
 // one shared egress client and the compiled extraction kernel.

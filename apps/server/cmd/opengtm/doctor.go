@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"text/tabwriter"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/server/internal/config"
 	"github.com/debpalash/OpenGTM/apps/server/internal/db"
+	"github.com/debpalash/OpenGTM/apps/server/internal/queue"
 )
 
 func init() {
@@ -131,8 +133,42 @@ FROM pg_roles r WHERE r.rolname = current_user`).Scan(&user, &dbName, &server, &
 			"job_executor_routes is missing or unreadable (" + err.Error() + "); migrate to revision 7c1e5a9d3b20 or later"})
 	} else {
 		out = append(out, checkResult{"executor routes", true, fmt.Sprintf("%d explicit route(s)", routes)})
+		out = append(out, executorCheck(ctx, pool))
 	}
 	return out
+}
+
+// executorCheck flags a type routed to go that this binary cannot execute:
+// Python no longer claims it and no Go worker built from this binary will, so
+// its jobs wait forever. It also lists the types available to switch.
+func executorCheck(ctx context.Context, pool *pgxpool.Pool) checkResult {
+	routes, err := queue.ListRoutes(ctx, pool)
+	if err != nil {
+		return checkResult{"go executors", false, err.Error()}
+	}
+	var stranded, inGo, available []string
+	for _, r := range routes {
+		switch {
+		case r.Executor == queue.ExecutorGo && !r.GoExecutor:
+			stranded = append(stranded, fmt.Sprintf("%s (%d pending, %d processing)", r.JobType, r.Pending, r.Processing))
+		case r.Executor == queue.ExecutorGo:
+			inGo = append(inGo, r.JobType)
+		case r.Default:
+			available = append(available, r.JobType)
+		}
+	}
+	if len(stranded) > 0 {
+		return checkResult{"go executors", false, "routed to go but not executable by this binary, so nothing claims them: " +
+			strings.Join(stranded, ", ") + ". Run a worker built with that executor, or `opengtm routes set <type> python`."}
+	}
+	detail := fmt.Sprintf("%d type(s) running in go", len(inGo))
+	if len(inGo) > 0 {
+		detail += " (" + strings.Join(inGo, ", ") + ")"
+	}
+	if len(available) > 0 {
+		detail += "; python-owned and switchable: " + strings.Join(available, ", ")
+	}
+	return checkResult{"go executors", true, detail}
 }
 
 func legacyCheck(ctx context.Context, base string) checkResult {

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"text/tabwriter"
 	"time"
 
@@ -24,7 +25,8 @@ const routesUsage = `usage:
   opengtm routes list [--json] [--config FILE]
   opengtm routes set <job_type> <python|go> [--force] [--config FILE]
 
-Job types without a route are claimed by Python workers.`
+Job types without a route are claimed by Python workers. "switchable" types have
+a Go executor in this binary and are still Python-owned until set to go.`
 
 func runRoutes(ctx context.Context, args []string) error {
 	if len(args) == 0 {
@@ -64,6 +66,16 @@ func runRoutes(ctx context.Context, args []string) error {
 			return errors.New(routesUsage)
 		}
 		jobType, executor := pos[0], pos[1]
+		if executor == queue.ExecutorGo && !queue.HasExecutor(jobType) && !*force {
+			fmt.Fprintf(os.Stderr, `refusing to route %s to go: this binary has no Go executor for it, so nothing
+would claim its jobs (Python stops claiming a type the moment it is routed away).
+
+Job types this binary can execute: %s.
+Use --force only for a type whose executor is provided by a different build of
+opengtm that is running as a worker.
+`, jobType, strings.Join(queue.Executors(), ", "))
+			return errors.New("route unchanged")
+		}
 		route, err := queue.SetRoute(ctx, pool, jobType, executor, *force)
 		var inflight *queue.InFlightError
 		if errors.As(err, &inflight) {
@@ -125,6 +137,9 @@ func printRoutes(w io.Writer, routes []queue.Route, asJSON bool) error {
 		executor, updated := r.Executor, "-"
 		if r.Default {
 			executor += " (default, switchable)"
+		}
+		if r.Executor == queue.ExecutorGo && !r.GoExecutor {
+			executor += " (NO EXECUTOR IN THIS BINARY: jobs are not claimed)"
 		}
 		if !r.UpdatedAt.IsZero() {
 			updated = r.UpdatedAt.UTC().Format(time.RFC3339)
