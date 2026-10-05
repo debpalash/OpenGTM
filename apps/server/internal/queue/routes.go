@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -18,13 +20,16 @@ const (
 )
 
 // Route is one job_executor_routes row plus live queue counts for the type,
-// so an operator sees what a switch would affect.
+// so an operator sees what a switch would affect. Default marks a type this
+// binary can execute that has no row yet: Python still owns it, and
+// `routes set <type> go` switches it.
 type Route struct {
 	JobType    string    `json:"job_type"`
 	Executor   string    `json:"executor"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	UpdatedAt  time.Time `json:"updated_at,omitzero"`
 	Pending    int64     `json:"pending"`
 	Processing int64     `json:"processing"`
+	Default    bool      `json:"default,omitempty" db:"-"`
 }
 
 // InFlightError refuses a route change while attempts of the type run under
@@ -42,7 +47,9 @@ const routeCountsSQL = `
 coalesce((SELECT count(*) FROM jobs WHERE type = r.job_type AND status = 'pending'), 0),
 coalesce((SELECT count(*) FROM jobs WHERE type = r.job_type AND status = 'processing'), 0)`
 
-// ListRoutes returns every explicit route. Types without a row are Python's.
+// ListRoutes returns every explicit route, plus a Default (python) entry for
+// each type this binary declared switchable that has no row. Other types
+// without a row are Python's and are not listed.
 func ListRoutes(ctx context.Context, b db.Beginner) ([]Route, error) {
 	var out []Route
 	err := db.WithoutTenant(ctx, b, func(tx pgx.Tx) error {
@@ -52,7 +59,29 @@ func ListRoutes(ctx context.Context, b db.Beginner) ([]Route, error) {
 			return err
 		}
 		out, err = pgx.CollectRows(rows, pgx.RowToStructByPos[Route])
-		return err
+		if err != nil {
+			return err
+		}
+		explicit := make(map[string]bool, len(out))
+		for _, r := range out {
+			explicit[r.JobType] = true
+		}
+		for _, t := range Switchable() {
+			if explicit[t] {
+				continue
+			}
+			r := Route{JobType: t, Executor: ExecutorPython, Default: true}
+			err := tx.QueryRow(ctx, `SELECT
+				coalesce((SELECT count(*) FROM jobs WHERE type = $1 AND status = 'pending'), 0),
+				coalesce((SELECT count(*) FROM jobs WHERE type = $1 AND status = 'processing'), 0)`, t).
+				Scan(&r.Pending, &r.Processing)
+			if err != nil {
+				return err
+			}
+			out = append(out, r)
+		}
+		slices.SortFunc(out, func(a, b Route) int { return strings.Compare(a.JobType, b.JobType) })
+		return nil
 	})
 	if err != nil {
 		return nil, fmt.Errorf("queue: list routes: %w", err)

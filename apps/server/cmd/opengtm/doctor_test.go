@@ -34,6 +34,11 @@ func TestPrintRoutes(t *testing.T) {
 		t.Fatalf("table output:\n%s", buf.String())
 	}
 	buf.Reset()
+	printRoutes(&buf, []queue.Route{{JobType: "retention_enforce", Executor: "python", Default: true}}, false)
+	if !strings.Contains(buf.String(), "retention_enforce") || !strings.Contains(buf.String(), "python (default, switchable)") {
+		t.Fatalf("switchable default not shown:\n%s", buf.String())
+	}
+	buf.Reset()
 	printRoutes(&buf, nil, true)
 	if strings.TrimSpace(buf.String()) != "[]" {
 		t.Fatalf("empty JSON = %q", buf.String())

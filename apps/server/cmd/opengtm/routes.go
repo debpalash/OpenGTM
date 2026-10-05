@@ -122,8 +122,14 @@ func printRoutes(w io.Writer, routes []queue.Route, asJSON bool) error {
 	tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(tw, "JOB TYPE\tEXECUTOR\tPENDING\tPROCESSING\tUPDATED")
 	for _, r := range routes {
-		fmt.Fprintf(tw, "%s\t%s\t%d\t%d\t%s\n", r.JobType, r.Executor, r.Pending, r.Processing,
-			r.UpdatedAt.UTC().Format(time.RFC3339))
+		executor, updated := r.Executor, "-"
+		if r.Default {
+			executor += " (default, switchable)"
+		}
+		if !r.UpdatedAt.IsZero() {
+			updated = r.UpdatedAt.UTC().Format(time.RFC3339)
+		}
+		fmt.Fprintf(tw, "%s\t%s\t%d\t%d\t%s\n", r.JobType, executor, r.Pending, r.Processing, updated)
 	}
 	if err := tw.Flush(); err != nil {
 		return err
