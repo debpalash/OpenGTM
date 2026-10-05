@@ -132,8 +132,9 @@ def seed(db: str) -> dict:
                 """INSERT INTO workbooks (id, name, description, status, workspace_id, source_type, source_config,
                        filter_criteria, columns_config, total_rows, completed_rows, sync_to_leads, budget_max_usd,
                        budget_spent_usd, refresh_policy)
-                   VALUES (%s, %s, '', %s, %s, 'csv', '{}', '{}', %s, 0, 0, true, %s, 0.0, '{}')""",
-                (wb["id"], wb["id"], wb.get("status", "draft"), wb["ws"], json.dumps(wb["columns"]), wb["budget"]))
+                   VALUES (%s, %s, '', %s, %s, 'csv', '{}', '{}', %s, 0, 0, true, %s, %s, '{}')""",
+                (wb["id"], wb["id"], wb.get("status", "draft"), wb["ws"], json.dumps(wb["columns"]), wb["budget"],
+                 wb.get("spent", 0.0)))
             ids = []
             for pos, row in enumerate(wb["rows"]):
                 row = dict(row)
@@ -420,6 +421,11 @@ def _assert_scenarios_were_exercised(dump: dict, requests: list) -> None:
     assert {"settled", "uncertain", "dispatched"} & statuses and "settled" in statuses and "uncertain" in statuses, statuses
     assert any(wb[0] == "wb-paid-capped" and wb[4] > 0 for wb in dump["workbooks"]), dump["workbooks"]
     assert all(s[9] == 50000 for s in spend), "every reservation is the connector's catalog price in micro-USD"
+    # non-ASCII identities (workspace row identity, column id and name, company) hash identically
+    assert any(s[1] == "wb-unicode" and s[8] == "settled" and "ä" in s[4] for s in spend), spend
+    # float budgets: 0.15 spent of 0.2 admits exactly one more 0.05 lookup
+    edge = [s for s in spend if s[1] == "wb-budget-edge" and s[8] == "settled"]
+    assert len(edge) == 1, edge
     assert {e for e in errors} & {"accounting_uncertain", "workbook_budget", "attempt_not_dispatchable"}, errors
     # tenant isolation: each workspace's cells carry only its own workspace id
     assert {r[1] for r in dump["enrichments"] if r[0].startswith("wb-iso")} == {"ws-par-2"}

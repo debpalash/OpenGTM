@@ -232,7 +232,7 @@ func (r *run) execute(ctx context.Context) (runResult, error) {
 	r.allColumns = ld.columns
 
 	if len(ld.runColumns) == 0 || len(ld.rows) == 0 {
-		err := r.setStatus(ctx, "complete", false)
+		err := r.setStatus(ctx, "complete")
 		return runResult{rows: len(ld.rows)}, err
 	}
 	if err := r.beginRun(ctx); err != nil {
@@ -371,11 +371,9 @@ func (r *run) execute(ctx context.Context) (runResult, error) {
 	if stopped || crashed {
 		doneRows = min(len(ld.rows), rowsDone)
 	}
-	owned, err := r.finalize(ctx, final, doneRows, completed, failed, total)
-	if err != nil && runErr == nil {
+	if err := r.finalize(ctx, final, doneRows, completed, failed, total); err != nil && runErr == nil {
 		runErr = err
 	}
-	_ = owned
 	res := runResult{completed: completed, errors: failed, total: total, rows: len(ld.rows), stopped: stopped, receipt: true}
 	return res, runErr
 }
@@ -627,8 +625,8 @@ func (r *run) beginRun(ctx context.Context) error {
 	})
 }
 
-// setStatus is the empty-run completion: fenced, and not for a paused workbook.
-func (r *run) setStatus(ctx context.Context, status string, _ bool) error {
+// setStatus is the empty-run completion (Python sets it even for a paused workbook), under the lease.
+func (r *run) setStatus(ctx context.Context, status string) error {
 	return db.WithTenant(ctx, r.w.pool, r.ws, func(tx pgx.Tx) error {
 		if err := holdLease(ctx, tx, r.job); err != nil {
 			return err
@@ -658,15 +656,13 @@ func (r *run) reportProgress(ctx context.Context, total, done, completed, failed
 // finalize writes the terminal workbook status, never leaving it `running`.
 // It runs on a detached context so a stop or timeout still records the state,
 // and it writes nothing if the lease is gone or the workbook is paused.
-func (r *run) finalize(ctx context.Context, status string, doneRows, completed, failed, total int) (bool, error) {
+func (r *run) finalize(ctx context.Context, status string, doneRows, completed, failed, total int) error {
 	bctx, cancel := detached(ctx)
 	defer cancel()
-	owned := true
-	err := db.WithTenant(bctx, r.w.pool, r.ws, func(tx pgx.Tx) error {
+	return db.WithTenant(bctx, r.w.pool, r.ws, func(tx pgx.Tx) error {
 		if err := holdLease(bctx, tx, r.job); err != nil {
 			if errors.Is(err, queue.ErrLeaseLost) {
-				owned = false
-				return nil
+				return nil // someone else owns the run now; leave the workbook to them
 			}
 			return err
 		}
@@ -690,7 +686,6 @@ func (r *run) finalize(ctx context.Context, status string, doneRows, completed, 
 			"workbook_id": r.wbID, "status": status, "completed": completed, "errors": failed, "total": total,
 		})
 	})
-	return owned, err
 }
 
 // persistReceipt is run_receipts.persist_run_result: the execution_result the
