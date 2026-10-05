@@ -15,61 +15,37 @@ instant. ``--pure`` instead evaluates the side-effect-free helpers
 """
 from __future__ import annotations
 
-import argparse
-import asyncio
 import json
 import os
 import sys
-import time
 from datetime import datetime
 
-
-def _setup_clock(frozen: datetime):
-    from apps.api.services.governance import retention
-
-    class Frozen(datetime):
-        @classmethod
-        def now(cls, tz=None):
-            return frozen if tz is not None else frozen.replace(tzinfo=None)
-
-    retention.datetime = Frozen
-    return retention
+from tests.parity_harness import runner
 
 
 def run_scenarios(args) -> None:
-    os.environ["DATABASE_URL"] = args.db_url
-    spec = json.load(open(args.scenarios))
+    spec = runner.load_scenarios(args.scenarios)
     frozen = datetime.fromisoformat(spec["frozen_now"])
+    factory, dispose = runner.rls_session_factory(args.db_url)
 
-    import psycopg
+    from apps.api.services.governance import retention
 
-    from tests.pg_rls_support import rls_app_session
-
-    factory, dispose = rls_app_session(args.db_url, pool_size=4)
-    retention = _setup_clock(frozen)
+    runner.freeze_datetime(frozen, retention)
     retention.SessionLocal = factory
 
-    owner = psycopg.connect(args.db_url.replace("postgresql+psycopg://", "postgresql://"), autocommit=True)
-    results = []
+    owner = runner.owner_connection(args.db_url)
+
+    def dispatch(step, job_id, payload):
+        if step["op"] == "enforce":
+            return retention.handle_retention_enforce(job_id, payload)
+        message = step["error"] * step.get("error_repeat", 1)
+        return retention.reconcile_retention_job_failure(job_id, payload, message, step["will_retry"])
+
     try:
-        for step in spec["steps"]:
-            job_id = step["job"]
-            (text,) = owner.execute("SELECT payload::text FROM jobs WHERE id = %s", (job_id,)).fetchone()
-            payload = json.loads(text)
-            error = None
-            try:
-                if step["op"] == "enforce":
-                    asyncio.run(retention.handle_retention_enforce(job_id, payload))
-                else:
-                    message = step["error"] * step.get("error_repeat", 1)
-                    retention.reconcile_retention_job_failure(job_id, payload, message, step["will_retry"])
-            except Exception as exc:  # the queue records str(exc) as the attempt failure
-                error = str(exc)
-            results.append({"job": job_id, "op": step["op"], "error": error})
+        runner.run_steps(spec, owner, dispatch, args.out)
     finally:
         owner.close()
         dispose()
-    json.dump(results, open(args.out, "w"), indent=1)
 
 
 def run_pure(args) -> None:
@@ -111,18 +87,7 @@ def run_pure(args) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--db-url")
-    parser.add_argument("--scenarios")
-    parser.add_argument("--pure")
-    parser.add_argument("--out", required=True)
-    parser.add_argument("--tz", default="")
-    args = parser.parse_args()
-    if args.tz:
-        os.environ["TZ"] = args.tz
-        time.tzset()
-    (run_pure if args.pure else run_scenarios)(args)
-    return 0
+    return runner.main(run_scenarios, run_pure)
 
 
 if __name__ == "__main__":
