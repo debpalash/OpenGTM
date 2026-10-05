@@ -15,6 +15,7 @@ Existing [v1 connectors](../connectors/README.md) keep working unchanged.
 - [A declarative scraper in five minutes](#a-declarative-scraper-in-five-minutes)
 - [A declarative provider](#a-declarative-provider)
 - [A WebAssembly plugin](#a-webassembly-plugin)
+- [A Python plugin](#a-python-plugin)
 - [Fixtures](#fixtures)
 - [Signing, packaging and installing](#signing-packaging-and-installing)
 - [Running plugins on a server](#running-plugins-on-a-server)
@@ -153,6 +154,40 @@ the same guarded client as everything else.
 
 Example: [`plugins/examples/wasm-echo-provider`](../../plugins/examples/wasm-echo-provider).
 
+## A Python plugin
+
+Use a Python plugin (`runtime: process`) for AI and model SDKs, browser
+automation, heavy dependencies, or code you would rather write than configure.
+The host runs it in its own process, hands it its inputs and only the secrets it
+declared, answers its HTTP requests through the same guarded client as every
+other runtime, and kills the whole process tree on timeout, cancellation or
+crash.
+
+```bash
+opengtm plugin new provider acme_enricher --runtime process
+pip install opengtm-sdk
+opengtm plugin test acme_enricher
+```
+
+```python
+from opengtm_sdk import provider, run
+
+@provider
+def enrich(ctx, domain: str):
+    r = ctx.fetch("https://api.acme-data.example/v1/companies", params={"domain": domain},
+                  headers={"X-Api-Key": ctx.secret("ACME_DATA_API_KEY")})
+    return None if r.status == 404 else {"company_size": r.json()["company"]["employees"]}
+
+if __name__ == "__main__":
+    run()
+```
+
+See the [Python plugin guide](python.md) for the SDK, retries, testing,
+configuration and what the isolation does and does not cover, and
+[process-abi.md](process-abi.md) for the wire protocol (versioned
+length-prefixed JSON over an inherited socket; why not gRPC is explained
+there). Example: [`plugins/examples/python-provider`](../../plugins/examples/python-provider).
+
 ## Fixtures
 
 Fixtures are the tests. `opengtm plugin test` runs every
@@ -260,8 +295,17 @@ job lease is lost to a timeout or another worker, never commits results.
 
 Declared secrets currently resolve from the worker's environment. Per-workspace
 secret resolution arrives when workspace secrets move from the legacy SQLite
-control plane to PostgreSQL (RFC milestone M8). The `process` runtime (Python
-plugins) arrives with the Python specialist workers (M4).
+control plane to PostgreSQL (RFC milestone M8).
+
+`process` plugins (Python) need a Linux or macOS worker with Python and the SDK;
+the default distroless image has neither. They run under a bounded process pool
+(`OPENGTM_PLUGIN_MAX_PROCESSES`, `OPENGTM_PLUGIN_MAX_PER_PLUGIN`), with
+`OPENGTM_PLUGIN_PYTHON`, `OPENGTM_PLUGIN_PYTHONPATH`, `OPENGTM_PLUGIN_STATE_DIR`
+and `OPENGTM_PLUGIN_SANDBOX` as the other settings; all are described in the
+[Python plugin guide](python.md#running-on-a-server). A crash or timeout is
+retried by the queue, a plugin's permanent failure (bad input, bad credentials,
+an exception in its code) fails the run at once, and results are committed under
+the same job lease as every other runtime.
 
 ## Capabilities and responsible scraping
 
@@ -325,7 +369,7 @@ responsible for respecting each site's terms of service and applicable law.
 | `manifest_version` | `"2"` (a string). v1 connectors omit it or use `"1"`. |
 | `name` | `^[a-z][a-z0-9_]{2,63}$`, unique per installation. |
 | `kind` | `provider`, `scraper`, `signal`, `destination`, `function`, `tool`. |
-| `runtime` | `declarative` (providers and scrapers), `wasm`, `process` (validated; execution arrives with the Python SDK). |
+| `runtime` | `declarative` (providers and scrapers), `wasm`, `process` (Python or any language speaking the [process ABI](process-abi.md); kinds `provider`, `scraper`, `function`, `tool`). |
 | `version` | Semantic version. |
 | `author`, `license`, `description`, `homepage`, `display_name`, `tags` | Catalog metadata. |
 | `capabilities` | `network` (patterns), `secrets` (names), `browser` (bool, for process plugins). Declarative plugins need at least one network pattern. |
@@ -337,7 +381,7 @@ responsible for respecting each site's terms of service and applicable law.
 | `auth`, `request`, `response`, `input_fields` | Declarative providers (same as v1). Use `body` or `body_template`, not both. |
 | `scrape` | Declarative scrapers: `start`, `items`, `fields`, `format` (`html`/`json`), `paginate` (`next`, `max_pages`). |
 | `wasm` | `module` (relative path ending in `.wasm`) and `sha256`. |
-| `process` | `command` (list of strings). |
+| `process` | `command` (list of strings): a bare `python3` is looked up on the worker's `PATH` (or `OPENGTM_PLUGIN_PYTHON`), a path with a slash is relative to the plugin directory. |
 | `x-*` | Reserved for extensions; ignored by the host. |
 
 Unknown keys are rejected so typos surface early. A v1 connector loads as a v2

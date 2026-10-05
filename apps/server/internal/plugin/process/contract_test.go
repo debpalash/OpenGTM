@@ -353,6 +353,31 @@ func TestSDKToleratesFutureHostMessages(t *testing.T) {
 	}
 }
 
+// The thirty-line client printed at the end of docs/plugins/process-abi.md is
+// run as a real plugin, so the documentation cannot drift from the protocol.
+func TestTheDocumentedMinimalClientWorks(t *testing.T) {
+	doc, err := os.ReadFile(filepath.Join(repoRoot(), "docs", "plugins", "process-abi.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	const fence = "```python\n"
+	i := strings.LastIndex(string(doc), fence)
+	if i < 0 {
+		t.Fatal("no python block in process-abi.md")
+	}
+	code := string(doc)[i+len(fence):]
+	code = code[:strings.Index(code, "```")]
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "main.py"), []byte(code), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	s := newSup(t, Options{})
+	out := mustRun(t, s, pspec{dir: dir, command: "[python3, main.py]"}.build(t), map[string]any{"mode": "hello"}, nil)
+	if got := asMap(t, fieldsOf(t, out)["echo"]); got["mode"] != "hello" {
+		t.Fatalf("echo: %v", got)
+	}
+}
+
 func keys(m map[string]bool) []string {
 	out := make([]string, 0, len(m))
 	for k := range m {

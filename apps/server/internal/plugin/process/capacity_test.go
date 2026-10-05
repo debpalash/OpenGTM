@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -14,9 +15,26 @@ import (
 	"time"
 )
 
-// livePluginProcesses counts running processes of rawplugin.py by reading
+// uniqueSpec returns a plugin spec whose script has a unique name, so that
+// counting its processes in /proc is not confused by the same plugin running
+// concurrently in another test binary (go test runs packages in parallel).
+func uniqueSpec(t testing.TB, name string) (pspec, string) {
+	t.Helper()
+	src, err := os.ReadFile(filepath.Join(testdataDir(), "rawplugin.py"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	script := "rawplugin_" + randHex(6) + ".py"
+	if err := os.WriteFile(filepath.Join(dir, script), src, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return pspec{name: name, dir: dir, script: script}, script
+}
+
+// livePluginProcesses counts running processes of the given script by reading
 // /proc, independently of the supervisor's own accounting.
-func livePluginProcesses() int {
+func livePluginProcesses(script string) int {
 	ents, _ := os.ReadDir("/proc")
 	n := 0
 	for _, e := range ents {
@@ -24,7 +42,7 @@ func livePluginProcesses() int {
 			continue
 		}
 		cmd, err := os.ReadFile("/proc/" + e.Name() + "/cmdline")
-		if err != nil || !bytes.Contains(cmd, []byte("rawplugin.py")) {
+		if err != nil || !bytes.Contains(cmd, []byte(script)) {
 			continue
 		}
 		if procGone(mustAtoi(e.Name())) {
@@ -38,12 +56,12 @@ func livePluginProcesses() int {
 func mustAtoi(s string) int { n, _ := strconv.Atoi(s); return n }
 
 // sample records the peak number of live plugin processes until stopped.
-func sample(stop <-chan struct{}) <-chan int {
+func sample(script string, stop <-chan struct{}) <-chan int {
 	peak := make(chan int, 1)
 	go func() {
 		max := 0
 		for {
-			if n := livePluginProcesses(); n > max {
+			if n := livePluginProcesses(script); n > max {
 				max = n
 			}
 			select {
@@ -60,10 +78,11 @@ func sample(stop <-chan struct{}) <-chan int {
 func TestConcurrencyIsBoundedUnderLoad(t *testing.T) {
 	const cap, runs = 3, 24
 	s := newSup(t, Options{MaxProcesses: cap, MaxPerPlugin: cap, QueueWait: time.Minute})
-	p := pspec{}.build(t)
+	spec, script := uniqueSpec(t, "load_plugin")
+	p := spec.build(t)
 
 	stop := make(chan struct{})
-	peak := sample(stop)
+	peak := sample(script, stop)
 	var wg sync.WaitGroup
 	var failed atomic.Int64
 	start := time.Now()
@@ -143,7 +162,8 @@ func TestSaturatedPoolFailsFastWithARetryableError(t *testing.T) {
 
 func TestOnePluginCannotTakeEverySlot(t *testing.T) {
 	s := newSup(t, Options{MaxProcesses: 4, MaxPerPlugin: 1, QueueWait: time.Minute})
-	hog := pspec{name: "hog_plugin"}.build(t)
+	hogSpec, hogScript := uniqueSpec(t, "hog_plugin")
+	hog := hogSpec.build(t)
 	other := pspec{name: "other_plugin"}.build(t)
 
 	var wg sync.WaitGroup
@@ -162,7 +182,7 @@ func TestOnePluginCannotTakeEverySlot(t *testing.T) {
 	if d := time.Since(start); d > 300*time.Millisecond {
 		t.Fatalf("other plugin waited %s behind hog_plugin", d)
 	}
-	if got := livePluginProcesses(); got > 1 {
+	if got := livePluginProcesses(hogScript); got > 1 {
 		t.Fatalf("%d live processes for hog_plugin, limit 1", got)
 	}
 	wg.Wait()
