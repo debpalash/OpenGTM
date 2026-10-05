@@ -54,8 +54,9 @@ type runner struct {
 	conn    net.Conn
 	maxFrm  int
 
-	fmu     sync.Mutex
-	fetches []FetchEvidence
+	fmu      sync.Mutex
+	fetches  []FetchEvidence
+	inflight int // fetches started and not yet finished, counted against the budget
 
 	logLines  atomic.Int64
 	lastProg  time.Time
@@ -355,6 +356,10 @@ loop:
 				}
 				r.sdk = h.SDK
 				if err := r.send(r.initFrame(runID, timeout)); err != nil {
+					if errors.Is(err, ErrFrameTooLarge) {
+						killTree(r.pgid, r.token, r.reaped.Load())
+						return nil, &Error{Code: CodeInvalidInput, Message: "run inputs and configuration do not fit one protocol frame: " + err.Error()}
+					}
 					return nil, crash("cannot send init: " + err.Error())
 				}
 				helloed = true
@@ -596,18 +601,6 @@ func containsInt(list []int, v int) bool {
 func isTimeout(err error) bool {
 	var ne net.Error
 	return errors.As(err, &ne) && ne.Timeout()
-}
-
-func oneLine(s string, max int) string {
-	s = strings.Join(strings.Fields(s), " ")
-	if len(s) > max {
-		s = s[:max]
-		for !utf8.ValidString(s) {
-			s = s[:len(s)-1]
-		}
-		s += "..."
-	}
-	return s
 }
 
 // tailWriter keeps the last n bytes written and reports complete lines.

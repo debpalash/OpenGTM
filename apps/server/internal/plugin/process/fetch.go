@@ -31,12 +31,23 @@ func (r *runner) doFetch(ctx context.Context, f Fetch) FetchResult {
 		return fetchErr(f.ID, "network_unavailable", "this host has no egress client")
 	}
 	p := r.p
+	// The budget counts finished fetches and those still in flight, so
+	// concurrent requests cannot overshoot it.
 	r.fmu.Lock()
-	over := len(r.fetches) >= p.Limits.MaxPages
-	r.fmu.Unlock()
-	if over {
+	if len(r.fetches)+r.inflight >= p.Limits.MaxPages {
+		r.fmu.Unlock()
 		return fetchErr(f.ID, "too_many_fetches", "fetch budget for this run is exhausted (limits.max_pages)")
 	}
+	r.inflight++
+	r.fmu.Unlock()
+	released := false // guarded by r.fmu; a finished fetch moves from inflight to fetches atomically
+	defer func() {
+		r.fmu.Lock()
+		if !released {
+			r.inflight--
+		}
+		r.fmu.Unlock()
+	}()
 	if err := p.Network().Allows(f.URL); err != nil {
 		return fetchErr(f.ID, "capability_denied", r.redact(err.Error()))
 	}
@@ -91,6 +102,8 @@ func (r *runner) doFetch(ctx context.Context, f Fetch) FetchResult {
 	}
 	r.fmu.Lock()
 	r.fetches = append(r.fetches, ev)
+	r.inflight--
+	released = true
 	r.fmu.Unlock()
 	out := FetchResult{Type: TypeFetchResult, ID: f.ID, Status: resp.Status, Headers: map[string]string{}, Evidence: &ev}
 	for k := range resp.Header {

@@ -3,13 +3,10 @@
 package process
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"syscall"
 )
@@ -45,10 +42,6 @@ type runFile struct {
 	Plugin string `json:"plugin"`
 }
 
-func defaultStateDir() string {
-	return filepath.Join(os.TempDir(), "opengtm-plugins-"+strconv.Itoa(os.Getuid()))
-}
-
 // prepareStateDir creates the state directory (0700) and refuses one that is
 // not ours: a /tmp subdirectory pre-created by another user (or a symlink to
 // one) would let them swap run directories.
@@ -68,14 +61,6 @@ func prepareStateDir(dir string) error {
 		return os.Chmod(dir, 0o700) // ours but too open: close it rather than refuse
 	}
 	return nil
-}
-
-func randHex(n int) string {
-	b := make([]byte, n)
-	if _, err := rand.Read(b); err != nil {
-		panic(err) // the system CSPRNG failing is not recoverable
-	}
-	return hex.EncodeToString(b)
 }
 
 func writeJSONFile(path string, v any) error {

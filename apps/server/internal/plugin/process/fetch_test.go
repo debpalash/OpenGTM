@@ -151,6 +151,21 @@ func TestFetchBudgetFollowsMaxPages(t *testing.T) {
 	}
 }
 
+func TestFetchBudgetHoldsUnderConcurrency(t *testing.T) {
+	s := newSup(t, Options{Client: testClient(t, okTransport())})
+	p := pspec{network: []string{"https://api.example.com"}, maxPages: 5}.build(t)
+	out := mustRun(t, s, p, map[string]any{"mode": "fetch_concurrent", "n": 12, "url": "https://api.example.com/x"}, nil)
+	ok := 0
+	for _, st := range fieldsOf(t, out)["statuses"].([]any) {
+		if st == float64(200) {
+			ok++
+		}
+	}
+	if ok != 5 {
+		t.Fatalf("%d of 12 concurrent fetches succeeded with a budget of 5", ok)
+	}
+}
+
 func TestScrapersHonourRobotsAndProvidersDoNot(t *testing.T) {
 	rt := roundTripFunc(func(r *http.Request) (*http.Response, error) {
 		if r.URL.Path == "/robots.txt" {

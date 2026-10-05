@@ -1,5 +1,10 @@
 package process
 
+import (
+	"strings"
+	"unicode/utf8"
+)
+
 // redactAny applies fn to every string in a JSON-like value (map keys are left
 // alone) and returns a copy. It is used to keep declared secret values out of
 // everything a plugin returns: fields, evidence, details and messages.
@@ -28,4 +33,16 @@ func redactMap(m map[string]any, fn func(string) string) map[string]any {
 		out[k] = redactAny(v, fn)
 	}
 	return out
+}
+
+func oneLine(s string, max int) string {
+	s = strings.Join(strings.Fields(s), " ")
+	if len(s) > max {
+		s = s[:max]
+		for !utf8.ValidString(s) {
+			s = s[:len(s)-1]
+		}
+		s += "..."
+	}
+	return s
 }

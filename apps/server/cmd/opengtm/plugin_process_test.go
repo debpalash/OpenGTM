@@ -3,6 +3,9 @@
 package main
 
 import (
+	"context"
+
+	"github.com/debpalash/OpenGTM/apps/server/internal/config"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -35,6 +38,37 @@ func TestPluginTestRunsProcessPluginFixtures(t *testing.T) {
 		if !strings.Contains(out, c) {
 			t.Fatalf("missing %q in:\n%s", c, out)
 		}
+	}
+}
+
+func TestDoctorChecksProcessPluginPrerequisitesOnlyWhenNeeded(t *testing.T) {
+	useRepoSDK(t)
+	ctx := context.Background()
+	with := config.Config{Plugins: config.Plugins{Dirs: []string{filepath.Join(examplesDir, "python-provider")}, SignaturePolicy: "optional"}}
+	checks := processChecks(ctx, with)
+	names := map[string]bool{}
+	for _, c := range checks {
+		names[c.Name] = true
+		if !c.OK {
+			t.Errorf("%s: %s", c.Name, c.Detail)
+		}
+	}
+	for _, want := range []string{"python interpreter", "opengtm-sdk", "plugin state dir"} {
+		if !names[want] {
+			t.Errorf("missing check %q in %+v", want, checks)
+		}
+	}
+	// The SDK is not importable: doctor says how to fix it.
+	t.Setenv("OPENGTM_PLUGIN_PYTHONPATH", t.TempDir())
+	for _, c := range processChecks(ctx, with) {
+		if c.Name == "opengtm-sdk" && (c.OK || !strings.Contains(c.Detail, "OPENGTM_PLUGIN_PYTHONPATH")) {
+			t.Errorf("sdk check: %+v", c)
+		}
+	}
+	// Without a process plugin installed there is nothing to check.
+	without := config.Config{Plugins: config.Plugins{Dirs: []string{filepath.Join(examplesDir, "declarative-provider")}, SignaturePolicy: "optional"}}
+	if got := processChecks(ctx, without); len(got) != 0 {
+		t.Errorf("unexpected checks: %+v", got)
 	}
 }
 

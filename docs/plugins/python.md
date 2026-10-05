@@ -294,6 +294,14 @@ same OS user, with:
 | Make the worker non-dumpable (`PR_SET_DUMPABLE`) so a plugin cannot read the worker's `/proc/<pid>/environ` or `mem` or ptrace it; and the SDK does the same to itself so concurrent plugins cannot read each other's. | Protect a plugin that does not use the SDK from other plugins' `/proc/<pid>/environ` (Yama's `ptrace_scope` 1, the default on most distributions, still blocks reading its memory). |
 | Apply address-space, CPU-time, open-file and core limits; enforce a wall-clock timeout; kill the whole process tree. | Limit processes (`RLIMIT_NPROC` is per user, not per plugin), disk use or network bandwidth. |
 
+**Platforms.** Everything above is tested on Linux. On macOS the plugin runs and
+is killed by process group, but there is no `/proc`: children that leave their
+process group are not found, a killed worker's leftovers are not swept, and the
+parent-death kill and `/proc` hardening do not exist. Use Linux workers in
+production. Resource limits are applied through the shell's `ulimit`; a limit the
+system refuses (for example address space on macOS) is skipped, and the
+wall-clock timeout is the backstop.
+
 Treat it as protection against **mistakes and honest plugins**, plus a barrier
 against secret leakage by omission: it is not a sandbox for hostile code. Run
 plugins you do not trust under the bubblewrap launcher, in their own container

@@ -1,6 +1,8 @@
 package process
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"os"
@@ -242,4 +244,16 @@ type Stats struct {
 	TimedOut    uint64 `json:"timed_out"`
 	Cancelled   uint64 `json:"cancelled"`
 	Rejected    uint64 `json:"rejected"`
+}
+
+func defaultStateDir() string {
+	return filepath.Join(os.TempDir(), "opengtm-plugins-"+strconv.Itoa(os.Getuid()))
+}
+
+func randHex(n int) string {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		panic(err) // the system CSPRNG failing is not recoverable
+	}
+	return hex.EncodeToString(b)
 }
