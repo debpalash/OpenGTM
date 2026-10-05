@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 
 from apps.api.database import SessionLocal
 from apps.api.models import Job
+from apps.api.services.workbook.connector_run import WORKBOOK_RUN_JOB_TYPES
 
 
 def persist_run_result(job_id: int, payload: dict, result: dict) -> bool:
@@ -20,7 +21,7 @@ def persist_run_result(job_id: int, payload: dict, result: dict) -> bool:
     with SessionLocal() as db:
         predicates = (
             Job.id == job_id,
-            Job.type == "run_workbook",
+            Job.type.in_(WORKBOOK_RUN_JOB_TYPES),
             Job.workspace_id == payload.get("workspace_id"),
             Job.worker_id == lease["worker_id"],
             _timestamp_matches(Job.locked_at, locked_at),

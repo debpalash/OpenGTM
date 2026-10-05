@@ -1,0 +1,1786 @@
+{
+  "schema": 1,
+  "label": "enrich-baseline",
+  "kind": "enrichment",
+  "created_at": "2026-10-05T09:47:01+00:00",
+  "duration_s": 1103.1,
+  "git": {
+    "commit": "7d17d0e091653f4d724ad1492b63484a4eda6043",
+    "branch": "rewrite/m2-enrichment",
+    "dirty": false
+  },
+  "machine": {
+    "cpu": "AMD Ryzen 9 7950X 16-Core Processor",
+    "logical_cores": 32,
+    "ram_gb": 61.9,
+    "os": "Omarchy / 7.2.5-3-omarchy",
+    "load_avg_start": [
+      5.38232421875,
+      4.87890625,
+      5.76123046875
+    ],
+    "go": "go version go1.27.1 linux/amd64",
+    "python": "3.13.14",
+    "uv": "uv 0.12.1 (x86_64-unknown-linux-gnu)",
+    "postgres": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgres_settings": {
+      "fsync": "on",
+      "synchronous_commit": "on",
+      "shared_buffers": "128MB",
+      "max_connections": "100",
+      "wal_sync_method": "fdatasync"
+    },
+    "load_avg_end": [
+      5.30224609375,
+      5.85009765625,
+      5.8701171875
+    ]
+  },
+  "config": {
+    "reps": 3,
+    "engines": [
+      "go",
+      "python-pool",
+      "python-threads"
+    ],
+    "variants": [
+      "nosync",
+      "durable"
+    ],
+    "quick": false,
+    "workloads": [
+      {
+        "name": "free-5ms",
+        "provider": "bench_free",
+        "rows": 3000,
+        "latency_ms": 5,
+        "row_concurrency": 12,
+        "provider_workers": 8
+      },
+      {
+        "name": "free-100ms",
+        "provider": "bench_free",
+        "rows": 1200,
+        "latency_ms": 100,
+        "row_concurrency": 12,
+        "provider_workers": 8
+      },
+      {
+        "name": "paid-5ms",
+        "provider": "bench_paid",
+        "rows": 600,
+        "latency_ms": 5,
+        "row_concurrency": 12,
+        "provider_workers": 8
+      },
+      {
+        "name": "free-5ms-wide",
+        "provider": "bench_free",
+        "rows": 3000,
+        "latency_ms": 5,
+        "row_concurrency": 24,
+        "provider_workers": 24
+      }
+    ]
+  },
+  "enrichment": {
+    "summary": [
+      {
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "engine": "go",
+        "reps": 3,
+        "rows": 3000,
+        "wall_s": {
+          "median": 2.191664846,
+          "min": 2.185491999,
+          "max": 2.202130366
+        },
+        "cells_per_sec": {
+          "median": 1368.8224298871653,
+          "min": 1362.3171662853315,
+          "max": 1372.6886217715228
+        },
+        "cpu_ms_per_cell": {
+          "median": 0.4492940980326775,
+          "min": 0.42530910303434727,
+          "max": 0.4500446815605197
+        },
+        "xacts_per_1000_cells": {
+          "median": 5013.337779259753,
+          "min": 5013.004334778259,
+          "max": 5016.338779593198
+        },
+        "max_rss_mb": {
+          "median": 45.3671875,
+          "min": 43.48828125,
+          "max": 45.890625
+        }
+      },
+      {
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "engine": "python-pool",
+        "reps": 3,
+        "rows": 3000,
+        "wall_s": {
+          "median": 31.77917590600009,
+          "min": 31.611450837999655,
+          "max": 33.10979773300005
+        },
+        "cells_per_sec": {
+          "median": 94.40144102143262,
+          "min": 90.60762086776337,
+          "max": 94.90231926950169
+        },
+        "cpu_ms_per_cell": {
+          "median": 6.0701787262420845,
+          "min": 6.021286095365124,
+          "max": 6.1878492830943665
+        },
+        "xacts_per_1000_cells": {
+          "median": 8266.755585195066,
+          "min": 8266.088696232076,
+          "max": 8271.423807935978
+        },
+        "max_rss_mb": {
+          "median": 150.03125,
+          "min": 148.6796875,
+          "max": 150.21875
+        }
+      },
+      {
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "engine": "python-threads",
+        "reps": 3,
+        "rows": 3000,
+        "wall_s": {
+          "median": 36.47211621699989,
+          "min": 35.7055338680002,
+          "max": 39.10516198900041
+        },
+        "cells_per_sec": {
+          "median": 82.25461835421768,
+          "min": 76.71621462260781,
+          "max": 84.02058938792796
+        },
+        "cpu_ms_per_cell": {
+          "median": 8.120953984661554,
+          "min": 7.953433477825937,
+          "max": 8.238236412137383
+        },
+        "xacts_per_1000_cells": {
+          "median": 8272.757585861955,
+          "min": 8267.422474158053,
+          "max": 8274.758252750917
+        },
+        "max_rss_mb": {
+          "median": 153.46484375,
+          "min": 153.1015625,
+          "max": 153.9296875
+        }
+      },
+      {
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "engine": "go",
+        "reps": 3,
+        "rows": 1200,
+        "wall_s": {
+          "median": 15.169081823,
+          "min": 15.165725774,
+          "max": 15.185676704
+        },
+        "cells_per_sec": {
+          "median": 79.10828183288652,
+          "min": 79.02183244055978,
+          "max": 79.12578783781456
+        },
+        "cpu_ms_per_cell": {
+          "median": 0.5598757297748095,
+          "min": 0.5479941618014628,
+          "max": 0.5605796497080878
+        },
+        "xacts_per_1000_cells": {
+          "median": 5073.394495412844,
+          "min": 5071.726438698915,
+          "max": 5087.572977481234
+        },
+        "max_rss_mb": {
+          "median": 39.73046875,
+          "min": 38.3984375,
+          "max": 41.26171875
+        }
+      },
+      {
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "engine": "python-pool",
+        "reps": 3,
+        "rows": 1200,
+        "wall_s": {
+          "median": 23.698779172000286,
+          "min": 23.664981027999602,
+          "max": 23.724762565000674
+        },
+        "cells_per_sec": {
+          "median": 50.635519715622316,
+          "min": 50.58006362391454,
+          "max": 50.70783697566462
+        },
+        "cpu_ms_per_cell": {
+          "median": 6.105754795663093,
+          "min": 6.04415429524608,
+          "max": 6.151874061718112
+        },
+        "xacts_per_1000_cells": {
+          "median": 8293.577981651377,
+          "min": 8282.735613010842,
+          "max": 8297.748123436197
+        },
+        "max_rss_mb": {
+          "median": 139.66015625,
+          "min": 139.1640625,
+          "max": 140.5
+        }
+      },
+      {
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "engine": "python-threads",
+        "reps": 3,
+        "rows": 1200,
+        "wall_s": {
+          "median": 24.43817332100025,
+          "min": 24.169758990000446,
+          "max": 24.494929989999946
+        },
+        "cells_per_sec": {
+          "median": 49.10350639705195,
+          "min": 48.9897297314138,
+          "max": 49.64881943988213
+        },
+        "cpu_ms_per_cell": {
+          "median": 8.016028356964119,
+          "min": 7.66065888240199,
+          "max": 8.038116763969992
+        },
+        "xacts_per_1000_cells": {
+          "median": 8275.229357798165,
+          "min": 8273.561301084237,
+          "max": 8280.23352793995
+        },
+        "max_rss_mb": {
+          "median": 143.96875,
+          "min": 143.83203125,
+          "max": 145.8359375
+        }
+      },
+      {
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "engine": "go",
+        "reps": 3,
+        "rows": 600,
+        "wall_s": {
+          "median": 0.943076253,
+          "min": 0.940760374,
+          "max": 1.11734536
+        },
+        "cells_per_sec": {
+          "median": 636.2157864662084,
+          "min": 536.9870601154149,
+          "max": 637.7819650809399
+        },
+        "cpu_ms_per_cell": {
+          "median": 0.9005976627712792,
+          "min": 0.8857228714523904,
+          "max": 0.9259582637729274
+        },
+        "xacts_per_1000_cells": {
+          "median": 7060.100166944908,
+          "min": 7060.100166944908,
+          "max": 7061.769616026711
+        },
+        "max_rss_mb": {
+          "median": 38.36328125,
+          "min": 38.2421875,
+          "max": 40.58203125
+        }
+      },
+      {
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "engine": "python-pool",
+        "reps": 3,
+        "rows": 600,
+        "wall_s": {
+          "median": 10.461785233999763,
+          "min": 9.940018968000004,
+          "max": 10.731264854000074
+        },
+        "cells_per_sec": {
+          "median": 57.35158833600021,
+          "min": 55.91139610875882,
+          "max": 60.36205785236282
+        },
+        "cpu_ms_per_cell": {
+          "median": 9.698943238731202,
+          "min": 9.518228714524232,
+          "max": 10.104846410684447
+        },
+        "xacts_per_1000_cells": {
+          "median": 14505.84307178631,
+          "min": 14504.173622704508,
+          "max": 14532.554257095158
+        },
+        "max_rss_mb": {
+          "median": 137.8046875,
+          "min": 137.3828125,
+          "max": 138.0390625
+        }
+      },
+      {
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "engine": "python-threads",
+        "reps": 3,
+        "rows": 600,
+        "wall_s": {
+          "median": 11.498487533000116,
+          "min": 11.305365850999806,
+          "max": 11.604295486999945
+        },
+        "cells_per_sec": {
+          "median": 52.180775800124,
+          "min": 51.70499154146564,
+          "max": 53.0721436093055
+        },
+        "cpu_ms_per_cell": {
+          "median": 12.02901335559269,
+          "min": 11.632288814691133,
+          "max": 12.136682804674487
+        },
+        "xacts_per_1000_cells": {
+          "median": 14507.512520868113,
+          "min": 14504.173622704508,
+          "max": 14507.512520868113
+        },
+        "max_rss_mb": {
+          "median": 140.90234375,
+          "min": 140.8046875,
+          "max": 141.30859375
+        }
+      },
+      {
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "engine": "go",
+        "reps": 3,
+        "rows": 3000,
+        "wall_s": {
+          "median": 1.043428282,
+          "min": 0.990322351,
+          "max": 1.069393984
+        },
+        "cells_per_sec": {
+          "median": 2875.1377087936744,
+          "min": 2805.3271711691245,
+          "max": 3029.316663378024
+        },
+        "cpu_ms_per_cell": {
+          "median": 0.5958706235411595,
+          "min": 0.5450686895631668,
+          "max": 0.6481813937979121
+        },
+        "xacts_per_1000_cells": {
+          "median": 5024.34144714905,
+          "min": 5024.008002667556,
+          "max": 5024.34144714905
+        },
+        "max_rss_mb": {
+          "median": 53.625,
+          "min": 53.36328125,
+          "max": 54.8828125
+        }
+      },
+      {
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "engine": "python-pool",
+        "reps": 3,
+        "rows": 3000,
+        "wall_s": {
+          "median": 39.376936259000104,
+          "min": 38.46575875600047,
+          "max": 40.027740317999815
+        },
+        "cells_per_sec": {
+          "median": 76.18672972086068,
+          "min": 74.94802295024756,
+          "max": 77.99144218186038
+        },
+        "cpu_ms_per_cell": {
+          "median": 6.976607202400798,
+          "min": 6.857562520840282,
+          "max": 7.159334444814939
+        },
+        "xacts_per_1000_cells": {
+          "median": 8219.073024341447,
+          "min": 8219.073024341447,
+          "max": 8223.74124708236
+        },
+        "max_rss_mb": {
+          "median": 149.00390625,
+          "min": 148.66015625,
+          "max": 149.19140625
+        }
+      },
+      {
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "engine": "python-threads",
+        "reps": 3,
+        "rows": 3000,
+        "wall_s": {
+          "median": 41.29303183999946,
+          "min": 40.699467338999966,
+          "max": 41.65607268400072
+        },
+        "cells_per_sec": {
+          "median": 72.65148298202652,
+          "min": 72.01831105773543,
+          "max": 73.7110384028361
+        },
+        "cpu_ms_per_cell": {
+          "median": 9.051140380126721,
+          "min": 8.903285428476167,
+          "max": 9.100175058352786
+        },
+        "xacts_per_1000_cells": {
+          "median": 8225.40846948983,
+          "min": 8223.74124708236,
+          "max": 8225.40846948983
+        },
+        "max_rss_mb": {
+          "median": 152.9453125,
+          "min": 152.0234375,
+          "max": 152.984375
+        }
+      },
+      {
+        "variant": "durable",
+        "workload": "free-5ms",
+        "engine": "go",
+        "reps": 3,
+        "rows": 600,
+        "wall_s": {
+          "median": 4.362486868,
+          "min": 3.851501411,
+          "max": 6.232102053
+        },
+        "cells_per_sec": {
+          "median": 137.53623063055142,
+          "min": 96.27570198584486,
+          "max": 155.78340391785463
+        },
+        "cpu_ms_per_cell": {
+          "median": 0.6114958263772994,
+          "min": 0.6080751252086858,
+          "max": 0.6309298831385637
+        },
+        "xacts_per_1000_cells": {
+          "median": 5075.1252086811355,
+          "min": 5073.455759599332,
+          "max": 5090.150250417362
+        },
+        "max_rss_mb": {
+          "median": 38.53125,
+          "min": 38.265625,
+          "max": 40.3671875
+        }
+      },
+      {
+        "variant": "durable",
+        "workload": "free-5ms",
+        "engine": "python-pool",
+        "reps": 3,
+        "rows": 600,
+        "wall_s": {
+          "median": 12.862558454000464,
+          "min": 10.710074053000426,
+          "max": 13.43575424699975
+        },
+        "cells_per_sec": {
+          "median": 46.64701833198591,
+          "min": 44.65696446732658,
+          "max": 56.022021606088714
+        },
+        "cpu_ms_per_cell": {
+          "median": 5.8192771285475855,
+          "min": 5.769103505842971,
+          "max": 5.861068447412182
+        },
+        "xacts_per_1000_cells": {
+          "median": 8277.1285475793,
+          "min": 8270.450751252087,
+          "max": 8278.797996661102
+        },
+        "max_rss_mb": {
+          "median": 137.2578125,
+          "min": 136.92578125,
+          "max": 137.66796875
+        }
+      },
+      {
+        "variant": "durable",
+        "workload": "free-5ms",
+        "engine": "python-threads",
+        "reps": 3,
+        "rows": 600,
+        "wall_s": {
+          "median": 11.886356627999703,
+          "min": 11.319029353000587,
+          "max": 12.500006737000149
+        },
+        "cells_per_sec": {
+          "median": 50.47804123482462,
+          "min": 47.99997412993337,
+          "max": 53.00807881030405
+        },
+        "cpu_ms_per_cell": {
+          "median": 8.05345075125213,
+          "min": 7.645906510851538,
+          "max": 8.095120200333874
+        },
+        "xacts_per_1000_cells": {
+          "median": 8277.1285475793,
+          "min": 8272.12020033389,
+          "max": 8293.82303839733
+        },
+        "max_rss_mb": {
+          "median": 140.5703125,
+          "min": 139.7890625,
+          "max": 141.77734375
+        }
+      },
+      {
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "engine": "go",
+        "reps": 3,
+        "rows": 200,
+        "wall_s": {
+          "median": 0.951294427,
+          "min": 0.740050921,
+          "max": 0.99834138
+        },
+        "cells_per_sec": {
+          "median": 210.23985248260053,
+          "min": 200.33227511815647,
+          "max": 270.2516736682772
+        },
+        "cpu_ms_per_cell": {
+          "median": 1.1386834170852624,
+          "min": 1.0987336683415745,
+          "max": 1.1778040201001154
+        },
+        "xacts_per_1000_cells": {
+          "median": 7180.904522613066,
+          "min": 7175.879396984925,
+          "max": 7180.904522613066
+        },
+        "max_rss_mb": {
+          "median": 36.265625,
+          "min": 35.6015625,
+          "max": 36.328125
+        }
+      },
+      {
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "engine": "python-pool",
+        "reps": 3,
+        "rows": 200,
+        "wall_s": {
+          "median": 4.653525845000331,
+          "min": 4.1211793129996295,
+          "max": 5.243328590000601
+        },
+        "cells_per_sec": {
+          "median": 42.978164656563926,
+          "min": 38.14370901366246,
+          "max": 48.529798101512014
+        },
+        "cpu_ms_per_cell": {
+          "median": 9.971195979899713,
+          "min": 9.687015075377046,
+          "max": 10.016165829145807
+        },
+        "xacts_per_1000_cells": {
+          "median": 14432.1608040201,
+          "min": 14427.13567839196,
+          "max": 14437.185929648242
+        },
+        "max_rss_mb": {
+          "median": 136.94921875,
+          "min": 136.55078125,
+          "max": 137.375
+        }
+      },
+      {
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "engine": "python-threads",
+        "reps": 3,
+        "rows": 200,
+        "wall_s": {
+          "median": 4.516566336999858,
+          "min": 4.325806570000168,
+          "max": 6.737317088000054
+        },
+        "cells_per_sec": {
+          "median": 44.28142643706869,
+          "min": 29.685407022956255,
+          "max": 46.2341523513827
+        },
+        "cpu_ms_per_cell": {
+          "median": 11.795989949748684,
+          "min": 11.211889447236047,
+          "max": 12.368065326632978
+        },
+        "xacts_per_1000_cells": {
+          "median": 14502.51256281407,
+          "min": 14497.48743718593,
+          "max": 14587.939698492462
+        },
+        "max_rss_mb": {
+          "median": 139.8515625,
+          "min": 139.31640625,
+          "max": 139.87109375
+        }
+      }
+    ],
+    "raw": [
+      {
+        "engine": "go",
+        "max_rss_mb": 45.890625,
+        "wall_s": 2.185491999,
+        "cpu_s": 1.375325999999999,
+        "xacts": 15055,
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "rep": 0,
+        "rows": 3000,
+        "cells_per_sec": 1372.6886217715228,
+        "cpu_ms_per_cell": 0.4500446815605197,
+        "xacts_per_1000_cells": 5013.337779259753
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 31.77917590600009,
+        "max_rss_mb": 148.6796875,
+        "cpu_s": 19.401966,
+        "xacts": 24819,
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "rep": 0,
+        "rows": 3000,
+        "cells_per_sec": 94.40144102143262,
+        "cpu_ms_per_cell": 6.1878492830943665,
+        "xacts_per_1000_cells": 8266.088696232076
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 35.7055338680002,
+        "max_rss_mb": 153.1015625,
+        "cpu_s": 25.052951,
+        "xacts": 24839,
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "rep": 0,
+        "rows": 3000,
+        "cells_per_sec": 84.02058938792796,
+        "cpu_ms_per_cell": 8.120953984661554,
+        "xacts_per_1000_cells": 8272.757585861955
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 45.3671875,
+        "wall_s": 2.202130366,
+        "cpu_s": 1.373075,
+        "xacts": 15054,
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "rep": 1,
+        "rows": 3000,
+        "cells_per_sec": 1362.3171662853315,
+        "cpu_ms_per_cell": 0.4492940980326775,
+        "xacts_per_1000_cells": 5013.004334778259
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 33.10979773300005,
+        "max_rss_mb": 150.21875,
+        "cpu_s": 19.04907200000001,
+        "xacts": 24835,
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "rep": 1,
+        "rows": 3000,
+        "cells_per_sec": 90.60762086776337,
+        "cpu_ms_per_cell": 6.0701787262420845,
+        "xacts_per_1000_cells": 8271.423807935978
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 36.47211621699989,
+        "max_rss_mb": 153.9296875,
+        "cpu_s": 24.550556999999984,
+        "xacts": 24823,
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "rep": 1,
+        "rows": 3000,
+        "cells_per_sec": 82.25461835421768,
+        "cpu_ms_per_cell": 7.953433477825937,
+        "xacts_per_1000_cells": 8267.422474158053
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 43.48828125,
+        "wall_s": 2.191664846,
+        "cpu_s": 1.3011440000000078,
+        "xacts": 15064,
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "rep": 2,
+        "rows": 3000,
+        "cells_per_sec": 1368.8224298871653,
+        "cpu_ms_per_cell": 0.42530910303434727,
+        "xacts_per_1000_cells": 5016.338779593198
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 31.611450837999655,
+        "max_rss_mb": 150.03125,
+        "cpu_s": 18.902443000000005,
+        "xacts": 24821,
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "rep": 2,
+        "rows": 3000,
+        "cells_per_sec": 94.90231926950169,
+        "cpu_ms_per_cell": 6.021286095365124,
+        "xacts_per_1000_cells": 8266.755585195066
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 39.10516198900041,
+        "max_rss_mb": 153.46484375,
+        "cpu_s": 25.40468100000001,
+        "xacts": 24845,
+        "variant": "nosync",
+        "workload": "free-5ms",
+        "rep": 2,
+        "rows": 3000,
+        "cells_per_sec": 76.71621462260781,
+        "cpu_ms_per_cell": 8.238236412137383,
+        "xacts_per_1000_cells": 8274.758252750917
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 38.3984375,
+        "wall_s": 15.165725774,
+        "cpu_s": 0.6986170000000129,
+        "xacts": 6101,
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "rep": 0,
+        "rows": 1200,
+        "cells_per_sec": 79.12578783781456,
+        "cpu_ms_per_cell": 0.5605796497080878,
+        "xacts_per_1000_cells": 5071.726438698915
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 23.724762565000674,
+        "max_rss_mb": 139.66015625,
+        "cpu_s": 8.163436999999988,
+        "xacts": 9978,
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "rep": 0,
+        "rows": 1200,
+        "cells_per_sec": 50.58006362391454,
+        "cpu_ms_per_cell": 6.151874061718112,
+        "xacts_per_1000_cells": 8297.748123436197
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 24.43817332100025,
+        "max_rss_mb": 143.96875,
+        "cpu_s": 10.499136000000021,
+        "xacts": 9949,
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "rep": 0,
+        "rows": 1200,
+        "cells_per_sec": 49.10350639705195,
+        "cpu_ms_per_cell": 8.038116763969992,
+        "xacts_per_1000_cells": 8273.561301084237
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 39.73046875,
+        "wall_s": 15.185676704,
+        "cpu_s": 0.6835269999999696,
+        "xacts": 6103,
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "rep": 1,
+        "rows": 1200,
+        "cells_per_sec": 79.02183244055978,
+        "cpu_ms_per_cell": 0.5479941618014628,
+        "xacts_per_1000_cells": 5073.394495412844
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 23.664981027999602,
+        "max_rss_mb": 139.1640625,
+        "cpu_s": 8.10814000000002,
+        "xacts": 9973,
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "rep": 1,
+        "rows": 1200,
+        "cells_per_sec": 50.70783697566462,
+        "cpu_ms_per_cell": 6.105754795663093,
+        "xacts_per_1000_cells": 8293.577981651377
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 24.494929989999946,
+        "max_rss_mb": 143.83203125,
+        "cpu_s": 10.472651999999982,
+        "xacts": 9951,
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "rep": 1,
+        "rows": 1200,
+        "cells_per_sec": 48.9897297314138,
+        "cpu_ms_per_cell": 8.016028356964119,
+        "xacts_per_1000_cells": 8275.229357798165
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 41.26171875,
+        "wall_s": 15.169081823,
+        "cpu_s": 0.6977730000000122,
+        "xacts": 6120,
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "rep": 2,
+        "rows": 1200,
+        "cells_per_sec": 79.10828183288652,
+        "cpu_ms_per_cell": 0.5598757297748095,
+        "xacts_per_1000_cells": 5087.572977481234
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 23.698779172000286,
+        "max_rss_mb": 140.5,
+        "cpu_s": 8.034281000000021,
+        "xacts": 9960,
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "rep": 2,
+        "rows": 1200,
+        "cells_per_sec": 50.635519715622316,
+        "cpu_ms_per_cell": 6.04415429524608,
+        "xacts_per_1000_cells": 8282.735613010842
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 24.169758990000446,
+        "max_rss_mb": 145.8359375,
+        "cpu_s": 10.04656399999999,
+        "xacts": 9957,
+        "variant": "nosync",
+        "workload": "free-100ms",
+        "rep": 2,
+        "rows": 1200,
+        "cells_per_sec": 49.64881943988213,
+        "cpu_ms_per_cell": 7.66065888240199,
+        "xacts_per_1000_cells": 8280.23352793995
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 40.58203125,
+        "wall_s": 0.940760374,
+        "cpu_s": 0.5655419999999935,
+        "xacts": 4251,
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "rep": 0,
+        "rows": 600,
+        "cells_per_sec": 637.7819650809399,
+        "cpu_ms_per_cell": 0.9005976627712792,
+        "xacts_per_1000_cells": 7060.100166944908
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 10.461785233999763,
+        "max_rss_mb": 138.0390625,
+        "cpu_s": 6.578875000000011,
+        "xacts": 8724,
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "rep": 0,
+        "rows": 600,
+        "cells_per_sec": 57.35158833600021,
+        "cpu_ms_per_cell": 9.698943238731202,
+        "xacts_per_1000_cells": 14505.84307178631
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 11.604295486999945,
+        "max_rss_mb": 141.30859375,
+        "cpu_s": 7.996541000000008,
+        "xacts": 8725,
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "rep": 0,
+        "rows": 600,
+        "cells_per_sec": 51.70499154146564,
+        "cpu_ms_per_cell": 12.02901335559269,
+        "xacts_per_1000_cells": 14507.512520868113
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 38.2421875,
+        "wall_s": 1.11734536,
+        "cpu_s": 0.5566319999999791,
+        "xacts": 4252,
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "rep": 1,
+        "rows": 600,
+        "cells_per_sec": 536.9870601154149,
+        "cpu_ms_per_cell": 0.8857228714523904,
+        "xacts_per_1000_cells": 7061.769616026711
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 10.731264854000074,
+        "max_rss_mb": 137.8046875,
+        "cpu_s": 6.822011000000003,
+        "xacts": 8740,
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "rep": 1,
+        "rows": 600,
+        "cells_per_sec": 55.91139610875882,
+        "cpu_ms_per_cell": 10.104846410684447,
+        "xacts_per_1000_cells": 14532.554257095158
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 11.498487533000116,
+        "max_rss_mb": 140.8046875,
+        "cpu_s": 8.061035000000004,
+        "xacts": 8723,
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "rep": 1,
+        "rows": 600,
+        "cells_per_sec": 52.180775800124,
+        "cpu_ms_per_cell": 12.136682804674487,
+        "xacts_per_1000_cells": 14504.173622704508
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 38.36328125,
+        "wall_s": 0.943076253,
+        "cpu_s": 0.5807329999999808,
+        "xacts": 4251,
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "rep": 2,
+        "rows": 600,
+        "cells_per_sec": 636.2157864662084,
+        "cpu_ms_per_cell": 0.9259582637729274,
+        "xacts_per_1000_cells": 7060.100166944908
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 9.940018968000004,
+        "max_rss_mb": 137.3828125,
+        "cpu_s": 6.470627000000036,
+        "xacts": 8723,
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "rep": 2,
+        "rows": 600,
+        "cells_per_sec": 60.36205785236282,
+        "cpu_ms_per_cell": 9.518228714524232,
+        "xacts_per_1000_cells": 14504.173622704508
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 11.305365850999806,
+        "max_rss_mb": 140.90234375,
+        "cpu_s": 7.758902999999975,
+        "xacts": 8725,
+        "variant": "nosync",
+        "workload": "paid-5ms",
+        "rep": 2,
+        "rows": 600,
+        "cells_per_sec": 53.0721436093055,
+        "cpu_ms_per_cell": 11.632288814691133,
+        "xacts_per_1000_cells": 14507.512520868113
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 53.36328125,
+        "wall_s": 1.043428282,
+        "cpu_s": 1.8121269999999754,
+        "xacts": 15088,
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "rep": 0,
+        "rows": 3000,
+        "cells_per_sec": 2875.1377087936744,
+        "cpu_ms_per_cell": 0.5958706235411595,
+        "xacts_per_1000_cells": 5024.34144714905
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 39.376936259000104,
+        "max_rss_mb": 149.00390625,
+        "cpu_s": 21.735663999999986,
+        "xacts": 24678,
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "rep": 0,
+        "rows": 3000,
+        "cells_per_sec": 76.18672972086068,
+        "cpu_ms_per_cell": 6.976607202400798,
+        "xacts_per_1000_cells": 8219.073024341447
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 40.699467338999966,
+        "max_rss_mb": 152.984375,
+        "cpu_s": 27.45558900000003,
+        "xacts": 24697,
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "rep": 0,
+        "rows": 3000,
+        "cells_per_sec": 73.7110384028361,
+        "cpu_ms_per_cell": 8.903285428476167,
+        "xacts_per_1000_cells": 8225.40846948983
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 54.8828125,
+        "wall_s": 0.990322351,
+        "cpu_s": 1.6597719999999754,
+        "xacts": 15087,
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "rep": 1,
+        "rows": 3000,
+        "cells_per_sec": 3029.316663378024,
+        "cpu_ms_per_cell": 0.5450686895631668,
+        "xacts_per_1000_cells": 5024.008002667556
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 38.46575875600047,
+        "max_rss_mb": 148.66015625,
+        "cpu_s": 21.378648999999996,
+        "xacts": 24692,
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "rep": 1,
+        "rows": 3000,
+        "cells_per_sec": 77.99144218186038,
+        "cpu_ms_per_cell": 6.857562520840282,
+        "xacts_per_1000_cells": 8223.74124708236
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 41.29303183999946,
+        "max_rss_mb": 152.0234375,
+        "cpu_s": 27.899006000000043,
+        "xacts": 24692,
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "rep": 1,
+        "rows": 3000,
+        "cells_per_sec": 72.65148298202652,
+        "cpu_ms_per_cell": 9.051140380126721,
+        "xacts_per_1000_cells": 8223.74124708236
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 53.625,
+        "wall_s": 1.069393984,
+        "cpu_s": 1.9690069999999764,
+        "xacts": 15088,
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "rep": 2,
+        "rows": 3000,
+        "cells_per_sec": 2805.3271711691245,
+        "cpu_ms_per_cell": 0.6481813937979121,
+        "xacts_per_1000_cells": 5024.34144714905
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 40.027740317999815,
+        "max_rss_mb": 149.19140625,
+        "cpu_s": 22.28366299999999,
+        "xacts": 24678,
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "rep": 2,
+        "rows": 3000,
+        "cells_per_sec": 74.94802295024756,
+        "cpu_ms_per_cell": 7.159334444814939,
+        "xacts_per_1000_cells": 8219.073024341447
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 41.65607268400072,
+        "max_rss_mb": 152.9453125,
+        "cpu_s": 28.04606100000001,
+        "xacts": 24697,
+        "variant": "nosync",
+        "workload": "free-5ms-wide",
+        "rep": 2,
+        "rows": 3000,
+        "cells_per_sec": 72.01831105773543,
+        "cpu_ms_per_cell": 9.100175058352786,
+        "xacts_per_1000_cells": 8225.40846948983
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 38.265625,
+        "wall_s": 3.851501411,
+        "cpu_s": 0.390954000000022,
+        "xacts": 3069,
+        "variant": "durable",
+        "workload": "free-5ms",
+        "rep": 0,
+        "rows": 600,
+        "cells_per_sec": 155.78340391785463,
+        "cpu_ms_per_cell": 0.6080751252086858,
+        "xacts_per_1000_cells": 5090.150250417362
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 10.710074053000426,
+        "max_rss_mb": 137.66796875,
+        "cpu_s": 4.2519249999999715,
+        "xacts": 4983,
+        "variant": "durable",
+        "workload": "free-5ms",
+        "rep": 0,
+        "rows": 600,
+        "cells_per_sec": 56.022021606088714,
+        "cpu_ms_per_cell": 5.769103505842971,
+        "xacts_per_1000_cells": 8270.450751252087
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 11.886356627999703,
+        "max_rss_mb": 140.5703125,
+        "cpu_s": 5.397364000000039,
+        "xacts": 4987,
+        "variant": "durable",
+        "workload": "free-5ms",
+        "rep": 0,
+        "rows": 600,
+        "cells_per_sec": 50.47804123482462,
+        "cpu_ms_per_cell": 7.645906510851538,
+        "xacts_per_1000_cells": 8277.1285475793
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 40.3671875,
+        "wall_s": 4.362486868,
+        "cpu_s": 0.4046440000000189,
+        "xacts": 3060,
+        "variant": "durable",
+        "workload": "free-5ms",
+        "rep": 1,
+        "rows": 600,
+        "cells_per_sec": 137.53623063055142,
+        "cpu_ms_per_cell": 0.6309298831385637,
+        "xacts_per_1000_cells": 5075.1252086811355
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 13.43575424699975,
+        "max_rss_mb": 137.2578125,
+        "cpu_s": 4.307011999999929,
+        "xacts": 4988,
+        "variant": "durable",
+        "workload": "free-5ms",
+        "rep": 1,
+        "rows": 600,
+        "cells_per_sec": 44.65696446732658,
+        "cpu_ms_per_cell": 5.861068447412182,
+        "xacts_per_1000_cells": 8278.797996661102
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 12.500006737000149,
+        "max_rss_mb": 141.77734375,
+        "cpu_s": 5.641482999999994,
+        "xacts": 4997,
+        "variant": "durable",
+        "workload": "free-5ms",
+        "rep": 1,
+        "rows": 600,
+        "cells_per_sec": 47.99997412993337,
+        "cpu_ms_per_cell": 8.05345075125213,
+        "xacts_per_1000_cells": 8293.82303839733
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 38.53125,
+        "wall_s": 6.232102053,
+        "cpu_s": 0.39300300000002153,
+        "xacts": 3059,
+        "variant": "durable",
+        "workload": "free-5ms",
+        "rep": 2,
+        "rows": 600,
+        "cells_per_sec": 96.27570198584486,
+        "cpu_ms_per_cell": 0.6114958263772994,
+        "xacts_per_1000_cells": 5073.455759599332
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 12.862558454000464,
+        "max_rss_mb": 136.92578125,
+        "cpu_s": 4.281979000000035,
+        "xacts": 4987,
+        "variant": "durable",
+        "workload": "free-5ms",
+        "rep": 2,
+        "rows": 600,
+        "cells_per_sec": 46.64701833198591,
+        "cpu_ms_per_cell": 5.8192771285475855,
+        "xacts_per_1000_cells": 8277.1285475793
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 11.319029353000587,
+        "max_rss_mb": 139.7890625,
+        "cpu_s": 5.666442999999958,
+        "xacts": 4984,
+        "variant": "durable",
+        "workload": "free-5ms",
+        "rep": 2,
+        "rows": 600,
+        "cells_per_sec": 53.00807881030405,
+        "cpu_ms_per_cell": 8.095120200333874,
+        "xacts_per_1000_cells": 8272.12020033389
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 35.6015625,
+        "wall_s": 0.99834138,
+        "cpu_s": 0.26142999999996164,
+        "xacts": 1451,
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "rep": 0,
+        "rows": 200,
+        "cells_per_sec": 200.33227511815647,
+        "cpu_ms_per_cell": 1.1778040201001154,
+        "xacts_per_1000_cells": 7180.904522613066
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 4.1211793129996295,
+        "max_rss_mb": 137.375,
+        "cpu_s": 2.676085999999998,
+        "xacts": 2919,
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "rep": 0,
+        "rows": 200,
+        "cells_per_sec": 48.529798101512014,
+        "cpu_ms_per_cell": 9.687015075377046,
+        "xacts_per_1000_cells": 14427.13567839196
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 4.325806570000168,
+        "max_rss_mb": 139.87109375,
+        "cpu_s": 3.0259130000000027,
+        "xacts": 2920,
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "rep": 0,
+        "rows": 200,
+        "cells_per_sec": 46.2341523513827,
+        "cpu_ms_per_cell": 11.211889447236047,
+        "xacts_per_1000_cells": 14497.48743718593
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 36.265625,
+        "wall_s": 0.951294427,
+        "cpu_s": 0.2536450000000059,
+        "xacts": 1451,
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "rep": 1,
+        "rows": 200,
+        "cells_per_sec": 210.23985248260053,
+        "cpu_ms_per_cell": 1.1386834170852624,
+        "xacts_per_1000_cells": 7180.904522613066
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 5.243328590000601,
+        "max_rss_mb": 136.94921875,
+        "cpu_s": 2.7326380000000086,
+        "xacts": 2921,
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "rep": 1,
+        "rows": 200,
+        "cells_per_sec": 38.14370901366246,
+        "cpu_ms_per_cell": 9.971195979899713,
+        "xacts_per_1000_cells": 14437.185929648242
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 4.516566336999858,
+        "max_rss_mb": 139.31640625,
+        "cpu_s": 3.1421490000000176,
+        "xacts": 2921,
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "rep": 1,
+        "rows": 200,
+        "cells_per_sec": 44.28142643706869,
+        "cpu_ms_per_cell": 11.795989949748684,
+        "xacts_per_1000_cells": 14502.51256281407
+      },
+      {
+        "engine": "go",
+        "max_rss_mb": 36.328125,
+        "wall_s": 0.740050921,
+        "cpu_s": 0.245695000000012,
+        "xacts": 1450,
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "rep": 2,
+        "rows": 200,
+        "cells_per_sec": 270.2516736682772,
+        "cpu_ms_per_cell": 1.0987336683415745,
+        "xacts_per_1000_cells": 7175.879396984925
+      },
+      {
+        "engine": "python-pool",
+        "mode": "pool",
+        "wall_s": 4.653525845000331,
+        "max_rss_mb": 136.55078125,
+        "cpu_s": 2.7415869999999813,
+        "xacts": 2920,
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "rep": 2,
+        "rows": 200,
+        "cells_per_sec": 42.978164656563926,
+        "cpu_ms_per_cell": 10.016165829145807,
+        "xacts_per_1000_cells": 14432.1608040201
+      },
+      {
+        "engine": "python-threads",
+        "mode": "threads",
+        "wall_s": 6.737317088000054,
+        "max_rss_mb": 139.8515625,
+        "cpu_s": 3.255991999999992,
+        "xacts": 2938,
+        "variant": "durable",
+        "workload": "paid-5ms",
+        "rep": 2,
+        "rows": 200,
+        "cells_per_sec": 29.685407022956255,
+        "cpu_ms_per_cell": 12.368065326632978,
+        "xacts_per_1000_cells": 14587.939698492462
+      }
+    ]
+  },
+  "metrics": {
+    "enrich/nosync/free-5ms/go/cells_per_sec": {
+      "value": 1368.8224298871653,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/free-5ms/go/cpu_ms_per_cell": {
+      "value": 0.4492940980326775,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-5ms/go/xacts_per_1000_cells": {
+      "value": 5013.337779259753,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-5ms/python-pool/cells_per_sec": {
+      "value": 94.40144102143262,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/free-5ms/python-pool/cpu_ms_per_cell": {
+      "value": 6.0701787262420845,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-5ms/python-pool/xacts_per_1000_cells": {
+      "value": 8266.755585195066,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-5ms/python-threads/cells_per_sec": {
+      "value": 82.25461835421768,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/free-5ms/python-threads/cpu_ms_per_cell": {
+      "value": 8.120953984661554,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-5ms/python-threads/xacts_per_1000_cells": {
+      "value": 8272.757585861955,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-100ms/go/cells_per_sec": {
+      "value": 79.10828183288652,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/free-100ms/go/cpu_ms_per_cell": {
+      "value": 0.5598757297748095,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-100ms/go/xacts_per_1000_cells": {
+      "value": 5073.394495412844,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-100ms/python-pool/cells_per_sec": {
+      "value": 50.635519715622316,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/free-100ms/python-pool/cpu_ms_per_cell": {
+      "value": 6.105754795663093,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-100ms/python-pool/xacts_per_1000_cells": {
+      "value": 8293.577981651377,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-100ms/python-threads/cells_per_sec": {
+      "value": 49.10350639705195,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/free-100ms/python-threads/cpu_ms_per_cell": {
+      "value": 8.016028356964119,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-100ms/python-threads/xacts_per_1000_cells": {
+      "value": 8275.229357798165,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/paid-5ms/go/cells_per_sec": {
+      "value": 636.2157864662084,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/paid-5ms/go/cpu_ms_per_cell": {
+      "value": 0.9005976627712792,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/paid-5ms/go/xacts_per_1000_cells": {
+      "value": 7060.100166944908,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/paid-5ms/python-pool/cells_per_sec": {
+      "value": 57.35158833600021,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/paid-5ms/python-pool/cpu_ms_per_cell": {
+      "value": 9.698943238731202,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/paid-5ms/python-pool/xacts_per_1000_cells": {
+      "value": 14505.84307178631,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/paid-5ms/python-threads/cells_per_sec": {
+      "value": 52.180775800124,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/paid-5ms/python-threads/cpu_ms_per_cell": {
+      "value": 12.02901335559269,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/paid-5ms/python-threads/xacts_per_1000_cells": {
+      "value": 14507.512520868113,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-5ms-wide/go/cells_per_sec": {
+      "value": 2875.1377087936744,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/free-5ms-wide/go/cpu_ms_per_cell": {
+      "value": 0.5958706235411595,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-5ms-wide/go/xacts_per_1000_cells": {
+      "value": 5024.34144714905,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-5ms-wide/python-pool/cells_per_sec": {
+      "value": 76.18672972086068,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/free-5ms-wide/python-pool/cpu_ms_per_cell": {
+      "value": 6.976607202400798,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-5ms-wide/python-pool/xacts_per_1000_cells": {
+      "value": 8219.073024341447,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-5ms-wide/python-threads/cells_per_sec": {
+      "value": 72.65148298202652,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/nosync/free-5ms-wide/python-threads/cpu_ms_per_cell": {
+      "value": 9.051140380126721,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/nosync/free-5ms-wide/python-threads/xacts_per_1000_cells": {
+      "value": 8225.40846948983,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/free-5ms/go/cells_per_sec": {
+      "value": 137.53623063055142,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/durable/free-5ms/go/cpu_ms_per_cell": {
+      "value": 0.6114958263772994,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/free-5ms/go/xacts_per_1000_cells": {
+      "value": 5075.1252086811355,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/free-5ms/python-pool/cells_per_sec": {
+      "value": 46.64701833198591,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/durable/free-5ms/python-pool/cpu_ms_per_cell": {
+      "value": 5.8192771285475855,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/free-5ms/python-pool/xacts_per_1000_cells": {
+      "value": 8277.1285475793,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/free-5ms/python-threads/cells_per_sec": {
+      "value": 50.47804123482462,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/durable/free-5ms/python-threads/cpu_ms_per_cell": {
+      "value": 8.05345075125213,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/free-5ms/python-threads/xacts_per_1000_cells": {
+      "value": 8277.1285475793,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/paid-5ms/go/cells_per_sec": {
+      "value": 210.23985248260053,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/durable/paid-5ms/go/cpu_ms_per_cell": {
+      "value": 1.1386834170852624,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/paid-5ms/go/xacts_per_1000_cells": {
+      "value": 7180.904522613066,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/paid-5ms/python-pool/cells_per_sec": {
+      "value": 42.978164656563926,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/durable/paid-5ms/python-pool/cpu_ms_per_cell": {
+      "value": 9.971195979899713,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/paid-5ms/python-pool/xacts_per_1000_cells": {
+      "value": 14432.1608040201,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/paid-5ms/python-threads/cells_per_sec": {
+      "value": 44.28142643706869,
+      "unit": "cells/s",
+      "better": "higher",
+      "gated": true
+    },
+    "enrich/durable/paid-5ms/python-threads/cpu_ms_per_cell": {
+      "value": 11.795989949748684,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false
+    },
+    "enrich/durable/paid-5ms/python-threads/xacts_per_1000_cells": {
+      "value": 14502.51256281407,
+      "unit": "xacts",
+      "better": "lower",
+      "gated": false
+    }
+  }
+}

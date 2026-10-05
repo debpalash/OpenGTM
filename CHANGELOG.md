@@ -24,6 +24,17 @@ All notable changes to OpenGTM are documented here. The format follows
 - `scripts/install.sh` installs the release binary after verifying its SHA-256
   checksum and, with cosign, its signature (`--quickstart`, `--require-signature`).
 - A Helm-free Kubernetes example in `deploy/kubernetes/`.
+- `run_workbook_connector`, a job type for workbook runs made of explicit
+  waterfalls of manifest v1 connectors over rows that are not linked to a
+  lead, with a Go executor (`opengtm worker`). It is Python-owned until an
+  operator runs `opengtm routes set run_workbook_connector go`; rolling back is
+  `... python`. See `apps/server/README.md`.
+
+### Fixed
+- Paid manifest (declarative) connector calls in queued workbook runs always
+  ended as an uncertain spend attempt (`accounting_uncertain`) after the vendor
+  had been called, because the provider runner did not name the provider in the
+  result that spend accounting checks. Such calls now settle.
 
 ### Changed
 - `scripts/install.sh` installs the release binary when it is not run from a

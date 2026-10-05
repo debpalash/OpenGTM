@@ -1471,9 +1471,10 @@ async def run_workbook(
     # worker is sequential — a stale run would block this one and re-enrich).
     # The handler polls its own job status and stops promptly when cancelled.
     from apps.api.models import Job as _Job
+    from apps.api.services.workbook import connector_run as _connector_run
     active_runs = (
         db.query(_Job)
-        .filter(_Job.type == "run_workbook", _Job.status.in_(["pending", "processing"]))
+        .filter(_Job.type.in_(_connector_run.WORKBOOK_RUN_JOB_TYPES), _Job.status.in_(["pending", "processing"]))
         .all()
     )
     for j in active_runs:
@@ -1495,9 +1496,13 @@ async def run_workbook(
     from apps.api.routers.settings import get_enrichment_settings
     _es = get_enrichment_settings()
     from apps.api.services.queue_service import queue_service
+    # Eligible explicit connector runs go to the Go executor, but only once an
+    # operator routed run_workbook_connector to it (docs/plans/m2-enrichment-slice.md);
+    # with no route this is always "run_workbook", i.e. unchanged behaviour.
+    run_job_type = _connector_run.select_job_type(db, enrichment_cols, leads)
     run_job = queue_service.add_job(
         db,
-        "run_workbook",
+        run_job_type,
         {
             "workbook_id": workbook_id,
             # OD-4: stamp the tenant into the payload so the worker enters the
@@ -1544,7 +1549,8 @@ def workbook_runs(
     from apps.api.models import Job
     _owned_workbook(db, workbook_id, ctx)
     query = db.query(Job).filter(
-        Job.workspace_id == ctx.workspace_id, Job.type == "run_workbook",
+        Job.workspace_id == ctx.workspace_id,
+        Job.type.in_(("run_workbook", "run_workbook_connector")),
         Job.payload["workbook_id"].as_string() == workbook_id,
     )
     if before_id is not None:
@@ -1600,7 +1606,8 @@ async def stop_workbook(
     from apps.api.models import Job as _Job
     active_runs = (
         db.query(_Job)
-        .filter(_Job.type == "run_workbook", _Job.status.in_(["pending", "processing"]))
+        .filter(_Job.type.in_(("run_workbook", "run_workbook_connector")),
+                _Job.status.in_(["pending", "processing"]))
         .all()
     )
     for j in active_runs:

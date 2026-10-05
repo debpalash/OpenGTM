@@ -58,6 +58,10 @@ def register_job_handlers(queue: "QueueService") -> frozenset[str]:
 
     handlers = {
         "run_workbook": handle_run_workbook,
+        # Same handler: the connector type is a strict subset of run_workbook that the
+        # Go worker may own (docs/plans/m2-enrichment-slice.md). Python keeps it so a
+        # routing rollback needs no deploy.
+        "run_workbook_connector": handle_run_workbook,
         "ambitionbox_import": handle_ambitionbox_import,
         "source_workbook": handle_source_workbook,
         "collect": handle_collect,

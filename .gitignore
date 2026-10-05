@@ -88,3 +88,5 @@ benchmarks/results/*
 !benchmarks/results/web-baseline.md
 !benchmarks/results/retention.json
 !benchmarks/results/retention.md
+!benchmarks/results/enrich-baseline.json
+!benchmarks/results/enrich-baseline.md

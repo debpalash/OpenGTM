@@ -6,6 +6,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/server/internal/config"
 	"github.com/debpalash/OpenGTM/apps/server/internal/db"
 	_ "github.com/debpalash/OpenGTM/apps/server/internal/jobs/audiencerefresh" // registers audience_refresh (switchable, not routed by default)
+	_ "github.com/debpalash/OpenGTM/apps/server/internal/jobs/enrich"          // registers run_workbook_connector (switchable, not routed by default)
 	_ "github.com/debpalash/OpenGTM/apps/server/internal/jobs/playbooksched"   // registers research_playbook_schedule (switchable, not routed by default)
 	_ "github.com/debpalash/OpenGTM/apps/server/internal/jobs/retention"       // registers retention_enforce (switchable, not routed by default)
 	"github.com/debpalash/OpenGTM/apps/server/internal/queue"
@@ -29,10 +30,12 @@ func runWorker(ctx context.Context, args []string) error {
 	}
 	log := roleLogger(cfg, "worker")
 	// Each busy slot holds a claim/finalize connection and its lease monitor
-	// may need another; the reaper and metrics share the remainder.
+	// may need another; the reaper and metrics share the remainder. A
+	// workbook run adds short transactions from up to 12 concurrent rows (never
+	// held across a provider call), so 16 more keep it from queueing on the pool.
 	pool, err := db.Open(ctx, cfg.DatabaseURL, db.Options{
 		AppName:  "opengtm-worker",
-		MaxConns: int32(4 + 2*cfg.Worker.Concurrency),
+		MaxConns: int32(20 + 2*cfg.Worker.Concurrency),
 	})
 	if err != nil {
 		return err

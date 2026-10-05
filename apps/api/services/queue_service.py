@@ -52,6 +52,7 @@ def _make_worker_id() -> str:
 DEFAULT_JOB_TIMEOUT = 600  # seconds
 JOB_TIMEOUTS = {
     "run_workbook": 1800,
+    "run_workbook_connector": 1800,
     # source_workbook runs a full multi-strategy leadgen collection INLINE
     # (source_engine.materialize_source → JobRunner.submit → _process_job), which
     # routinely exceeds 900s for real queries; give it the same headroom as
@@ -521,7 +522,7 @@ class QueueService:
                 await run_job_subprocess(
                     job_id, job_type, {**payload, "__queue_lease": {
                         "worker_id": self.worker_id, "locked_at": locked_at.isoformat() if locked_at else None,
-                    }} if job_type == "run_workbook" else payload, timeout=timeout,
+                    }} if job_type in ("run_workbook", "run_workbook_connector") else payload, timeout=timeout,
                     should_continue=lambda: self._claim_is_active(job_id, locked_at),
                 )
             else:
