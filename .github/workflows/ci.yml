@@ -75,6 +75,8 @@ jobs:
           bun-version: '1.4.2'
       - run: bun install --frozen-lockfile
       - run: bun run lint
+      # The typed /api/v2 client is generated from packages/contracts/openapi.v2.yaml.
+      - run: bun run --cwd apps/web check:api
       - run: bun test apps/web/tests
       - run: bun run build
       - run: bun run --cwd apps/web check:bundle

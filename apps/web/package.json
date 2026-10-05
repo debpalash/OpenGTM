@@ -9,6 +9,8 @@
     "build": "tsc -b && vite build",
     "build:ui-preview": "tsc -b && vite build --config vite.ui-preview.config.ts",
     "check:bundle": "bun scripts/check-bundle-size.ts",
+    "gen:api": "bun scripts/check-api-client.ts --write",
+    "check:api": "bun scripts/check-api-client.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -62,6 +64,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "openapi-typescript": "7.13.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.1",
     "vite": "^8.0.10"
