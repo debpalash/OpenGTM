@@ -5,7 +5,8 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/server/internal/config"
 	"github.com/debpalash/OpenGTM/apps/server/internal/db"
-	_ "github.com/debpalash/OpenGTM/apps/server/internal/jobs/retention" // registers retention_enforce (switchable, not routed by default)
+	_ "github.com/debpalash/OpenGTM/apps/server/internal/jobs/playbooksched" // registers research_playbook_schedule (switchable, not routed by default)
+	_ "github.com/debpalash/OpenGTM/apps/server/internal/jobs/retention"     // registers retention_enforce (switchable, not routed by default)
 	"github.com/debpalash/OpenGTM/apps/server/internal/queue"
 )
 

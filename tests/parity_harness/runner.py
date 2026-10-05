@@ -53,6 +53,21 @@ def freeze_datetime(frozen: datetime, *modules) -> None:
         module.datetime = Frozen
 
 
+def production_registry():
+    """The handler registry a production job child builds (``apps.api.job_process``).
+
+    Importing it also registers every ORM model, exactly as in production, so
+    cross-module foreign keys resolve. Handlers are the unchanged module
+    functions, so patching a module's ``SessionLocal`` or ``datetime`` applies.
+    """
+    from apps.api.services.job_registry import register_job_handlers
+    from apps.api.services.queue_service import QueueService
+
+    queue = QueueService()
+    register_job_handlers(queue)
+    return queue
+
+
 def rls_session_factory(db_url: str, pool_size: int = 4):
     """(sessionmaker, dispose) connecting as the RLS-enforced application role."""
     os.environ["DATABASE_URL"] = db_url
