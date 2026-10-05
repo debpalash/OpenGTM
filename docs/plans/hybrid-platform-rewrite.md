@@ -2,8 +2,8 @@
 
 Updated: 2026-10-05
 Status: foundations implemented on the `rewrite/hybrid-platform` branch (see
-[Implementation status](#implementation-status)); no existing job type or API
-route has moved to Go yet.
+[Implementation status](#implementation-status)); one job type, `retention_enforce`,
+has a Go executor that is opt-in per deployment; no API route has moved to Go yet.
 Tracking issue: [#33](https://github.com/debpalash/OpenGTM/issues/33).
 Supersedes the Go/Python proposal previously at `go-python-backend-rewrite.md`.
 
@@ -51,7 +51,8 @@ forced row-level security:
 | Rust kernels | Normalization (domain, email, phone, name) and extraction, matching the Python normalizers on 5,814 parity cases. Run through wazero directly (the Extism SDK added 25–31 µs per call); the module is still a standard Extism plugin. |
 | M5 web | Started: TanStack Router with route-level code splitting, `twenty-ui` removed, CI bundle budget. Initial JavaScript is 223.2 kB gzip against a 223.6 kB baseline. |
 | M7 packaging | Started: a 43 MB distroless image and an opt-in `server` Compose profile. Not yet: `init`, `upgrade`, `backup`, signed multi-arch releases. |
-| M0, M2, M4, M6, M8 | Not started. No existing job type or route has moved to Go. |
+| First migrated job type (M2, M6 in part) | `retention_enforce` has a Go executor (`apps/server/internal/jobs/retention`), a port of the handler and failure reconciler in `apps/api/services/governance/retention.py` with the same status transitions, error strings, legal-hold and schedule behaviour. It is **Python-owned by default**: the migration seeds no route, and an operator moves it with `opengtm routes set retention_enforce go` and back with `... python` (the Python code is untouched, so rollback is routing only). Deletion is batched inside one tenant transaction under forced RLS and the commit is fenced by the job lease. Parity is proven by `tests/test_retention_go_parity_pg.py`: identical datasets in two fresh databases, Python on one and Go on the other, identical `retention_runs`, policies, schedule mirror, jobs and remaining rows across four time-zone combinations, plus a corpus comparison of the validation and cutoff helpers. Known differences and the cutover and rollback procedure are in [`apps/server/README.md`](../../apps/server/README.md#job-types-running-in-go). The API routes that create runs and `bootstrap_retention_schedules` remain in Python. Not yet measured: a benchmark against the Python executor, and an exercised cutover on a populated production-sized database. |
+| M0, M4, M8 | Not started. M2 and M6 have started with one non-enrichment job type; the HTTP enrichment worker (M2 as written) and Go API routes by domain remain. |
 
 Measured so far (microbenchmarks, excluding network and database; see
 `crates/opengtm-kernels/BENCHMARKS.md`): through WebAssembly, domain
