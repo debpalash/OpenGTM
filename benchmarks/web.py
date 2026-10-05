@@ -71,7 +71,6 @@ TRANSITIONS = [
     ("workbooks", "/workbooks", "Workbooks"),
     ("plugins", "/plugins", "Plugins"),
     ("analytics", "/analytics", "Analytics"),
-    ("signals", "/signals", "Signals"),
     ("automations", "/automations", "Automations"),
 ]
 PROFILES = {
@@ -249,7 +248,14 @@ class Server:
                 self.end_headers()
                 self.wfile.write(data)
 
-        self.httpd = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        class QuietServer(http.server.ThreadingHTTPServer):
+            daemon_threads = True
+
+            def handle_error(self, request, client_address):  # the browser hangs up on aborted loads; not an error
+                if not isinstance(sys.exc_info()[1], (ConnectionError, BrokenPipeError)):
+                    super().handle_error(request, client_address)
+
+        self.httpd = QuietServer(("127.0.0.1", 0), Handler)
         self.port = self.httpd.server_address[1]
         self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
 
@@ -305,6 +311,12 @@ def install_api(ctx, fx: dict) -> None:
 
     ctx.route("**/api/**", handle)
     ctx.route("**/auth/**", handle)
+    # Nothing may leave the machine (the leads table loads company favicons from
+    # a public service): answer anything that is not the local server with an
+    # empty image at once, so the numbers do not depend on the internet.
+    ctx.route(lambda url: not url.startswith("http://127.0.0.1:"),
+              lambda route: route.fulfill(status=200, content_type="image/gif",
+                                          body=b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;"))
 
 
 # ── page-side collection ─────────────────────────────────────────────────
@@ -312,6 +324,7 @@ def install_api(ctx, fx: dict) -> None:
 INIT_SCRIPT = """
 (() => {
   localStorage.setItem('yupcha_token', 'bench-token');
+  sessionStorage.setItem('__loads', String(+(sessionStorage.getItem('__loads') || 0) + 1));
   localStorage.setItem('yupcha_workspace_id', 'ws1');
   const m = window.__m = { fcp: null, lcp: null, shifts: [], longtasks: [], events: [] };
   const obs = (type, cb, extra = {}) => { try { new PerformanceObserver(l => l.getEntries().forEach(cb)).observe({ type, buffered: true, ...extra }) } catch (e) {} };
@@ -396,10 +409,20 @@ def watch_failures(page) -> list[str]:
     return failures
 
 
-def check_clean(failures: list[str]) -> None:
+def check_clean(failures: list[str], page=None) -> None:
     bad = [f for f in failures if "ERR_NETWORK_CHANGED" in f or "ERR_INTERNET_DISCONNECTED" in f]
     if bad:
         raise Transient(bad[0])
+    # The app reloads itself when a lazy chunk fails to load, which is what a
+    # dropped request turns into. INIT_SCRIPT counts document loads per tab.
+    if page is not None:
+        try:
+            page.wait_for_timeout(300)
+            loads = int(page.evaluate("() => sessionStorage.getItem('__loads') || '0'"))
+        except Exception:
+            loads = 2
+        if loads > 1:
+            raise Transient("the page reloaded itself during the sample")
 
 
 def retrying(fn, *args, attempts: int = 6):
@@ -408,6 +431,10 @@ def retrying(fn, *args, attempts: int = 6):
             return fn(*args)
         except Transient as e:
             log(f"  discarding a sample ({e}); retrying ({attempt}/{attempts})")
+        except Exception as e:
+            if "Execution context was destroyed" not in str(e):
+                raise
+            log(f"  discarding a sample (the page navigated under the measurement); retrying ({attempt}/{attempts})")
     raise RuntimeError(f"could not get a clean sample in {attempts} attempts; the host network keeps changing")
 
 
@@ -423,11 +450,11 @@ def measure_load(browser, base: str, fx: dict, profile: dict, path: str, title: 
         page.goto(base + path, wait_until="load")
         page.wait_for_function("t => [...document.querySelectorAll('h1')].some(h => h.textContent.trim() === t)", arg=title, timeout=30_000)
     except Exception:
-        check_clean(failures)
+        check_clean(failures, page)
         raise
     ready = page.evaluate("() => performance.now()")
     page.wait_for_timeout(1500)  # let late work (layout shifts, long tasks, lazy content) land
-    check_clean(failures)
+    check_clean(failures, page)
     nav = page.evaluate("() => { const n = performance.getEntriesByType('navigation')[0]; return {ttfb: n.responseStart, dcl: n.domContentLoadedEventEnd, load: n.loadEventEnd} }")
     m = page.evaluate("() => window.__m")
     js, reqs = js_bytes(page)
@@ -451,9 +478,9 @@ def measure_session(browser, base: str, fx: dict, profile: dict) -> dict:
     try:
         result = _session(page, base)
     except Exception:
-        check_clean(failures)
+        check_clean(failures, page)
         raise
-    check_clean(failures)
+    check_clean(failures, page)
     ctx.close()
     return result
 

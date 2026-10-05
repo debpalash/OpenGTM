@@ -84,3 +84,5 @@ apps/searxng-pool/searxng-pool
 benchmarks/results/*
 !benchmarks/results/baseline.json
 !benchmarks/results/baseline.md
+!benchmarks/results/web-baseline.json
+!benchmarks/results/web-baseline.md

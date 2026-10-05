@@ -1,0 +1,1623 @@
+{
+  "schema": 1,
+  "kind": "web",
+  "label": "web-baseline",
+  "created_at": "2026-10-05T05:52:00+00:00",
+  "duration_s": 646.3,
+  "git": {
+    "commit": "e8f5568f6b448413ef2d2d32a146d277b50497bc",
+    "branch": "rewrite/web-and-fastapi-wedge",
+    "dirty": true
+  },
+  "machine": {
+    "cpu": "AMD Ryzen 9 7950X 16-Core Processor",
+    "logical_cores": 32,
+    "ram_gb": 61.9,
+    "os": "Omarchy / 7.2.5-3-omarchy",
+    "load_avg_start": [
+      17.9873046875,
+      14.9091796875,
+      14.015625
+    ],
+    "chromium": "153.0.8010.12",
+    "playwright": "1.63.0",
+    "python": "3.13.14",
+    "bun": "1.4.2",
+    "node": "v22.23.3",
+    "load_avg_end": [
+      17.9873046875,
+      14.9091796875,
+      14.015625
+    ]
+  },
+  "config": {
+    "reps": 5,
+    "profiles": [
+      "desktop",
+      "slow"
+    ],
+    "profile_settings": {
+      "desktop": {
+        "cpu": 1,
+        "down_kbps": 0,
+        "up_kbps": 0,
+        "rtt_ms": 0
+      },
+      "slow": {
+        "cpu": 4,
+        "down_kbps": 1600,
+        "up_kbps": 750,
+        "rtt_ms": 150
+      }
+    },
+    "load_routes": [
+      "/chat",
+      "/leads",
+      "/workbooks",
+      "/plugins"
+    ],
+    "bundle_only": false
+  },
+  "web": {
+    "bundle": {
+      "initial": {
+        "js_chunks": 50,
+        "js_raw_kb": 666.88,
+        "js_gzip_kb": 223.33,
+        "css_gzip_kb": 32.69
+      },
+      "total": {
+        "js_chunks": 163,
+        "js_gzip_kb": 786.41,
+        "css_gzip_kb": 43.48
+      },
+      "routes": {
+        "agents": {
+          "js_chunks": 38,
+          "js_raw_kb": 87.49,
+          "js_gzip_kb": 33.58,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 256.91
+        },
+        "analytics": {
+          "js_chunks": 16,
+          "js_raw_kb": 416.56,
+          "js_gzip_kb": 121.09,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 344.43
+        },
+        "audiences": {
+          "js_chunks": 9,
+          "js_raw_kb": 27.82,
+          "js_gzip_kb": 9.14,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 232.47
+        },
+        "automations": {
+          "js_chunks": 32,
+          "js_raw_kb": 105.94,
+          "js_gzip_kb": 37.92,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 261.26
+        },
+        "campaigns": {
+          "js_chunks": 19,
+          "js_raw_kb": 48.21,
+          "js_gzip_kb": 18.79,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 242.12
+        },
+        "chat": {
+          "js_chunks": 43,
+          "js_raw_kb": 789.91,
+          "js_gzip_kb": 236.65,
+          "css_gzip_kb": 1.75,
+          "first_visit_js_gzip_kb": 459.98
+        },
+        "lead-detail": {
+          "js_chunks": 27,
+          "js_raw_kb": 389.06,
+          "js_gzip_kb": 122.61,
+          "css_gzip_kb": 6.37,
+          "first_visit_js_gzip_kb": 345.94
+        },
+        "leads": {
+          "js_chunks": 23,
+          "js_raw_kb": 147.39,
+          "js_gzip_kb": 46.5,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 269.83
+        },
+        "login": {
+          "js_chunks": 10,
+          "js_raw_kb": 27.0,
+          "js_gzip_kb": 10.24,
+          "css_gzip_kb": 1.26,
+          "first_visit_js_gzip_kb": 233.58
+        },
+        "notifications": {
+          "js_chunks": 4,
+          "js_raw_kb": 6.07,
+          "js_gzip_kb": 2.18,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 225.51
+        },
+        "outreach": {
+          "js_chunks": 31,
+          "js_raw_kb": 117.32,
+          "js_gzip_kb": 42.04,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 265.37
+        },
+        "plugin-run": {
+          "js_chunks": 15,
+          "js_raw_kb": 127.25,
+          "js_gzip_kb": 39.17,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 262.5
+        },
+        "plugins": {
+          "js_chunks": 24,
+          "js_raw_kb": 155.27,
+          "js_gzip_kb": 50.95,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 274.28
+        },
+        "search": {
+          "js_chunks": 8,
+          "js_raw_kb": 18.27,
+          "js_gzip_kb": 7.8,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 231.13
+        },
+        "settings": {
+          "js_chunks": 24,
+          "js_raw_kb": 75.6,
+          "js_gzip_kb": 24.61,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 247.94
+        },
+        "signals": {
+          "js_chunks": 18,
+          "js_raw_kb": 425.24,
+          "js_gzip_kb": 126.26,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 349.59
+        },
+        "sources": {
+          "js_chunks": 18,
+          "js_raw_kb": 21.34,
+          "js_gzip_kb": 10.6,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 233.93
+        },
+        "task-detail": {
+          "js_chunks": 31,
+          "js_raw_kb": 54.95,
+          "js_gzip_kb": 22.42,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 245.75
+        },
+        "templates": {
+          "js_chunks": 9,
+          "js_raw_kb": 14.14,
+          "js_gzip_kb": 6.39,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 229.72
+        },
+        "watches": {
+          "js_chunks": 27,
+          "js_raw_kb": 78.97,
+          "js_gzip_kb": 30.16,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 253.49
+        },
+        "workbook-editor": {
+          "js_chunks": 38,
+          "js_raw_kb": 265.42,
+          "js_gzip_kb": 80.6,
+          "css_gzip_kb": 0.88,
+          "first_visit_js_gzip_kb": 303.93
+        },
+        "workbooks": {
+          "js_chunks": 5,
+          "js_raw_kb": 26.86,
+          "js_gzip_kb": 9.02,
+          "css_gzip_kb": 0.91,
+          "first_visit_js_gzip_kb": 232.35
+        },
+        "workspaces-manager": {
+          "js_chunks": 5,
+          "js_raw_kb": 7.92,
+          "js_gzip_kb": 3.02,
+          "css_gzip_kb": 0.0,
+          "first_visit_js_gzip_kb": 226.36
+        }
+      }
+    },
+    "load": {
+      "desktop": {
+        "chat": {
+          "ttfb_ms": {
+            "median": 1.8,
+            "min": 1.4,
+            "max": 2.1
+          },
+          "dcl_ms": {
+            "median": 374.9,
+            "min": 369.1,
+            "max": 378.9
+          },
+          "load_ms": {
+            "median": 375.1,
+            "min": 369.3,
+            "max": 379.2
+          },
+          "fcp_ms": {
+            "median": 808,
+            "min": 784,
+            "max": 824
+          },
+          "lcp_ms": {
+            "median": 808,
+            "min": 784,
+            "max": 824
+          },
+          "ready_ms": {
+            "median": 786.5,
+            "min": 766.5,
+            "max": 798.8
+          },
+          "cls": {
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "tbt_ms": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "js_transfer_kb": {
+            "median": 461.63,
+            "min": 461.63,
+            "max": 461.63
+          },
+          "requests": {
+            "median": 114,
+            "min": 114,
+            "max": 114
+          }
+        },
+        "leads": {
+          "ttfb_ms": {
+            "median": 1.6,
+            "min": 1.5,
+            "max": 1.9
+          },
+          "dcl_ms": {
+            "median": 371.2,
+            "min": 369.8,
+            "max": 379.2
+          },
+          "load_ms": {
+            "median": 371.6,
+            "min": 370,
+            "max": 379.5
+          },
+          "fcp_ms": {
+            "median": 624,
+            "min": 624,
+            "max": 640
+          },
+          "lcp_ms": {
+            "median": 692,
+            "min": 688,
+            "max": 716
+          },
+          "ready_ms": {
+            "median": 616.7,
+            "min": 615.2,
+            "max": 634
+          },
+          "cls": {
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "tbt_ms": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "js_transfer_kb": {
+            "median": 271.15,
+            "min": 271.15,
+            "max": 271.15
+          },
+          "requests": {
+            "median": 133,
+            "min": 133,
+            "max": 133
+          }
+        },
+        "workbooks": {
+          "ttfb_ms": {
+            "median": 1.7,
+            "min": 1.4,
+            "max": 1.8
+          },
+          "dcl_ms": {
+            "median": 372.4,
+            "min": 368.6,
+            "max": 379.9
+          },
+          "load_ms": {
+            "median": 372.7,
+            "min": 368.8,
+            "max": 380.2
+          },
+          "fcp_ms": {
+            "median": 496,
+            "min": 484,
+            "max": 500
+          },
+          "lcp_ms": {
+            "median": 532,
+            "min": 524,
+            "max": 556
+          },
+          "ready_ms": {
+            "median": 488.6,
+            "min": 479.2,
+            "max": 492.6
+          },
+          "cls": {
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "tbt_ms": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "js_transfer_kb": {
+            "median": 233.58,
+            "min": 233.58,
+            "max": 233.58
+          },
+          "requests": {
+            "median": 75,
+            "min": 75,
+            "max": 75
+          }
+        },
+        "plugins": {
+          "ttfb_ms": {
+            "median": 1.6,
+            "min": 1.4,
+            "max": 1.7
+          },
+          "dcl_ms": {
+            "median": 370.4,
+            "min": 367.8,
+            "max": 372.4
+          },
+          "load_ms": {
+            "median": 370.7,
+            "min": 368.1,
+            "max": 372.7
+          },
+          "fcp_ms": {
+            "median": 632,
+            "min": 620,
+            "max": 632
+          },
+          "lcp_ms": {
+            "median": 680,
+            "min": 632,
+            "max": 688
+          },
+          "ready_ms": {
+            "median": 621.6,
+            "min": 611.5,
+            "max": 628.5
+          },
+          "cls": {
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "tbt_ms": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "js_transfer_kb": {
+            "median": 275.61,
+            "min": 275.61,
+            "max": 275.61
+          },
+          "requests": {
+            "median": 96,
+            "min": 96,
+            "max": 96
+          }
+        }
+      },
+      "slow": {
+        "chat": {
+          "ttfb_ms": {
+            "median": 1.6,
+            "min": 1.4,
+            "max": 1.8
+          },
+          "dcl_ms": {
+            "median": 2159,
+            "min": 2152,
+            "max": 2167.9
+          },
+          "load_ms": {
+            "median": 2160.8,
+            "min": 2154.1,
+            "max": 2169.9
+          },
+          "fcp_ms": {
+            "median": 3344,
+            "min": 3340,
+            "max": 3376
+          },
+          "lcp_ms": {
+            "median": 4776,
+            "min": 4772,
+            "max": 4800
+          },
+          "ready_ms": {
+            "median": 3344.6,
+            "min": 3339.5,
+            "max": 3376.2
+          },
+          "cls": {
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "tbt_ms": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "js_transfer_kb": {
+            "median": 461.63,
+            "min": 461.63,
+            "max": 461.63
+          },
+          "requests": {
+            "median": 114,
+            "min": 114,
+            "max": 114
+          }
+        },
+        "leads": {
+          "ttfb_ms": {
+            "median": 1.7,
+            "min": 1.4,
+            "max": 1.8
+          },
+          "dcl_ms": {
+            "median": 2160.5,
+            "min": 2153.8,
+            "max": 2169.3
+          },
+          "load_ms": {
+            "median": 2163,
+            "min": 2155.6,
+            "max": 2171.4
+          },
+          "fcp_ms": {
+            "median": 3216,
+            "min": 3196,
+            "max": 3276
+          },
+          "lcp_ms": {
+            "median": 3488,
+            "min": 3428,
+            "max": 3552
+          },
+          "ready_ms": {
+            "median": 3211.9,
+            "min": 3191,
+            "max": 3273.4
+          },
+          "cls": {
+            "median": 0.01,
+            "min": 0.01,
+            "max": 0.01
+          },
+          "tbt_ms": {
+            "median": 108,
+            "min": 96,
+            "max": 115
+          },
+          "js_transfer_kb": {
+            "median": 271.15,
+            "min": 271.15,
+            "max": 271.15
+          },
+          "requests": {
+            "median": 133,
+            "min": 133,
+            "max": 133
+          }
+        },
+        "workbooks": {
+          "ttfb_ms": {
+            "median": 1.8,
+            "min": 1.6,
+            "max": 2.2
+          },
+          "dcl_ms": {
+            "median": 2165.4,
+            "min": 2150.6,
+            "max": 2219.4
+          },
+          "load_ms": {
+            "median": 2167.4,
+            "min": 2152.8,
+            "max": 2222
+          },
+          "fcp_ms": {
+            "median": 2624,
+            "min": 2592,
+            "max": 2960
+          },
+          "lcp_ms": {
+            "median": 3144,
+            "min": 3116,
+            "max": 3484
+          },
+          "ready_ms": {
+            "median": 2623.2,
+            "min": 2590.2,
+            "max": 2955.8
+          },
+          "cls": {
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "tbt_ms": {
+            "median": 0,
+            "min": 0,
+            "max": 21
+          },
+          "js_transfer_kb": {
+            "median": 233.58,
+            "min": 233.58,
+            "max": 233.58
+          },
+          "requests": {
+            "median": 75,
+            "min": 75,
+            "max": 75
+          }
+        },
+        "plugins": {
+          "ttfb_ms": {
+            "median": 2.2,
+            "min": 1.7,
+            "max": 3.8
+          },
+          "dcl_ms": {
+            "median": 2172.7,
+            "min": 2169.8,
+            "max": 2182.2
+          },
+          "load_ms": {
+            "median": 2174.5,
+            "min": 2171.7,
+            "max": 2184.7
+          },
+          "fcp_ms": {
+            "median": 3268,
+            "min": 3260,
+            "max": 3360
+          },
+          "lcp_ms": {
+            "median": 3808,
+            "min": 3792,
+            "max": 3912
+          },
+          "ready_ms": {
+            "median": 3261.6,
+            "min": 3252.3,
+            "max": 3353.9
+          },
+          "cls": {
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "tbt_ms": {
+            "median": 26,
+            "min": 19,
+            "max": 57
+          },
+          "js_transfer_kb": {
+            "median": 275.61,
+            "min": 275.61,
+            "max": 275.61
+          },
+          "requests": {
+            "median": 96,
+            "min": 96,
+            "max": 96
+          }
+        }
+      }
+    },
+    "session": {
+      "desktop": {
+        "inp_ms": {
+          "median": 56,
+          "min": 40,
+          "max": 56
+        },
+        "interactions": {
+          "median": 11,
+          "min": 11,
+          "max": 11
+        },
+        "transitions": {
+          "leads": {
+            "ms": {
+              "median": 86.4,
+              "min": 80.4,
+              "max": 89.7
+            },
+            "js_transfer_kb": {
+              "median": 43.3,
+              "min": 43.3,
+              "max": 43.3
+            }
+          },
+          "workbooks": {
+            "ms": {
+              "median": 38.9,
+              "min": 38.1,
+              "max": 75.2
+            },
+            "js_transfer_kb": {
+              "median": 8.88,
+              "min": 8.88,
+              "max": 8.88
+            }
+          },
+          "plugins": {
+            "ms": {
+              "median": 78.5,
+              "min": 75.7,
+              "max": 106.5
+            },
+            "js_transfer_kb": {
+              "median": 25.0,
+              "min": 25.0,
+              "max": 25.0
+            }
+          },
+          "analytics": {
+            "ms": {
+              "median": 38,
+              "min": 37.3,
+              "max": 51.3
+            },
+            "js_transfer_kb": {
+              "median": 10.65,
+              "min": 10.65,
+              "max": 10.65
+            }
+          },
+          "automations": {
+            "ms": {
+              "median": 82.3,
+              "min": 79.3,
+              "max": 84.4
+            },
+            "js_transfer_kb": {
+              "median": 13.14,
+              "min": 13.14,
+              "max": 13.14
+            }
+          }
+        }
+      },
+      "slow": {
+        "inp_ms": {
+          "median": 144,
+          "min": 104,
+          "max": 160
+        },
+        "interactions": {
+          "median": 10,
+          "min": 10,
+          "max": 11
+        },
+        "transitions": {
+          "leads": {
+            "ms": {
+              "median": 682.9,
+              "min": 675.2,
+              "max": 692.7
+            },
+            "js_transfer_kb": {
+              "median": 191.63,
+              "min": 191.63,
+              "max": 191.63
+            }
+          },
+          "workbooks": {
+            "ms": {
+              "median": 291.1,
+              "min": 284.1,
+              "max": 300.9
+            },
+            "js_transfer_kb": {
+              "median": 8.88,
+              "min": 8.88,
+              "max": 8.88
+            }
+          },
+          "plugins": {
+            "ms": {
+              "median": 530.6,
+              "min": 506.3,
+              "max": 534.3
+            },
+            "js_transfer_kb": {
+              "median": 25.0,
+              "min": 25.0,
+              "max": 25.0
+            }
+          },
+          "analytics": {
+            "ms": {
+              "median": 276.7,
+              "min": 260.1,
+              "max": 298.4
+            },
+            "js_transfer_kb": {
+              "median": 10.65,
+              "min": 10.65,
+              "max": 10.65
+            }
+          },
+          "automations": {
+            "ms": {
+              "median": 380.4,
+              "min": 362.4,
+              "max": 394.6
+            },
+            "js_transfer_kb": {
+              "median": 13.14,
+              "min": 13.14,
+              "max": 13.14
+            }
+          }
+        }
+      }
+    }
+  },
+  "metrics": {
+    "web/bundle/initial/js_gzip_kb": {
+      "value": 223.33,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.03,
+      "slack": 0.5
+    },
+    "web/bundle/initial/css_gzip_kb": {
+      "value": 32.69,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.03,
+      "slack": 0.5
+    },
+    "web/bundle/total/js_gzip_kb": {
+      "value": 786.41,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 1.0
+    },
+    "web/bundle/route/agents/js_gzip_kb": {
+      "value": 33.58,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/agents/first_visit_js_gzip_kb": {
+      "value": 256.91,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/analytics/js_gzip_kb": {
+      "value": 121.09,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/analytics/first_visit_js_gzip_kb": {
+      "value": 344.43,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/audiences/js_gzip_kb": {
+      "value": 9.14,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/audiences/first_visit_js_gzip_kb": {
+      "value": 232.47,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/automations/js_gzip_kb": {
+      "value": 37.92,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/automations/first_visit_js_gzip_kb": {
+      "value": 261.26,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/campaigns/js_gzip_kb": {
+      "value": 18.79,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/campaigns/first_visit_js_gzip_kb": {
+      "value": 242.12,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/chat/js_gzip_kb": {
+      "value": 236.65,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/chat/first_visit_js_gzip_kb": {
+      "value": 459.98,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/lead-detail/js_gzip_kb": {
+      "value": 122.61,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/lead-detail/first_visit_js_gzip_kb": {
+      "value": 345.94,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/leads/js_gzip_kb": {
+      "value": 46.5,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/leads/first_visit_js_gzip_kb": {
+      "value": 269.83,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/login/js_gzip_kb": {
+      "value": 10.24,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/login/first_visit_js_gzip_kb": {
+      "value": 233.58,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/notifications/js_gzip_kb": {
+      "value": 2.18,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/notifications/first_visit_js_gzip_kb": {
+      "value": 225.51,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/outreach/js_gzip_kb": {
+      "value": 42.04,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/outreach/first_visit_js_gzip_kb": {
+      "value": 265.37,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/plugin-run/js_gzip_kb": {
+      "value": 39.17,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/plugin-run/first_visit_js_gzip_kb": {
+      "value": 262.5,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/plugins/js_gzip_kb": {
+      "value": 50.95,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/plugins/first_visit_js_gzip_kb": {
+      "value": 274.28,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/search/js_gzip_kb": {
+      "value": 7.8,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/search/first_visit_js_gzip_kb": {
+      "value": 231.13,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/settings/js_gzip_kb": {
+      "value": 24.61,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/settings/first_visit_js_gzip_kb": {
+      "value": 247.94,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/signals/js_gzip_kb": {
+      "value": 126.26,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/signals/first_visit_js_gzip_kb": {
+      "value": 349.59,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/sources/js_gzip_kb": {
+      "value": 10.6,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/sources/first_visit_js_gzip_kb": {
+      "value": 233.93,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/task-detail/js_gzip_kb": {
+      "value": 22.42,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/task-detail/first_visit_js_gzip_kb": {
+      "value": 245.75,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/templates/js_gzip_kb": {
+      "value": 6.39,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/templates/first_visit_js_gzip_kb": {
+      "value": 229.72,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/watches/js_gzip_kb": {
+      "value": 30.16,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/watches/first_visit_js_gzip_kb": {
+      "value": 253.49,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/workbook-editor/js_gzip_kb": {
+      "value": 80.6,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/workbook-editor/first_visit_js_gzip_kb": {
+      "value": 303.93,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/workbooks/js_gzip_kb": {
+      "value": 9.02,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/workbooks/first_visit_js_gzip_kb": {
+      "value": 232.35,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/bundle/route/workspaces-manager/js_gzip_kb": {
+      "value": 3.02,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 0.5
+    },
+    "web/bundle/route/workspaces-manager/first_visit_js_gzip_kb": {
+      "value": 226.36,
+      "unit": "kB",
+      "better": "lower",
+      "gated": false
+    },
+    "web/load/desktop/chat/fcp_ms": {
+      "value": 808,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/chat/lcp_ms": {
+      "value": 808,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/chat/ready_ms": {
+      "value": 786.5,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/chat/tbt_ms": {
+      "value": 0,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/chat/cls": {
+      "value": 0.0,
+      "unit": "",
+      "better": "lower",
+      "gated": false
+    },
+    "web/load/desktop/chat/js_transfer_kb": {
+      "value": 461.63,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 1.0
+    },
+    "web/load/desktop/leads/fcp_ms": {
+      "value": 624,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/leads/lcp_ms": {
+      "value": 692,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/leads/ready_ms": {
+      "value": 616.7,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/leads/tbt_ms": {
+      "value": 0,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/leads/cls": {
+      "value": 0.0,
+      "unit": "",
+      "better": "lower",
+      "gated": false
+    },
+    "web/load/desktop/leads/js_transfer_kb": {
+      "value": 271.15,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 1.0
+    },
+    "web/load/desktop/workbooks/fcp_ms": {
+      "value": 496,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/workbooks/lcp_ms": {
+      "value": 532,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/workbooks/ready_ms": {
+      "value": 488.6,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/workbooks/tbt_ms": {
+      "value": 0,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/workbooks/cls": {
+      "value": 0.0,
+      "unit": "",
+      "better": "lower",
+      "gated": false
+    },
+    "web/load/desktop/workbooks/js_transfer_kb": {
+      "value": 233.58,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 1.0
+    },
+    "web/load/desktop/plugins/fcp_ms": {
+      "value": 632,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/plugins/lcp_ms": {
+      "value": 680,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/plugins/ready_ms": {
+      "value": 621.6,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/plugins/tbt_ms": {
+      "value": 0,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/load/desktop/plugins/cls": {
+      "value": 0.0,
+      "unit": "",
+      "better": "lower",
+      "gated": false
+    },
+    "web/load/desktop/plugins/js_transfer_kb": {
+      "value": 275.61,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 1.0
+    },
+    "web/load/slow/chat/fcp_ms": {
+      "value": 3344,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/chat/lcp_ms": {
+      "value": 4776,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/chat/ready_ms": {
+      "value": 3344.6,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/chat/tbt_ms": {
+      "value": 0,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/chat/cls": {
+      "value": 0.0,
+      "unit": "",
+      "better": "lower",
+      "gated": false
+    },
+    "web/load/slow/chat/js_transfer_kb": {
+      "value": 461.63,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 1.0
+    },
+    "web/load/slow/leads/fcp_ms": {
+      "value": 3216,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/leads/lcp_ms": {
+      "value": 3488,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/leads/ready_ms": {
+      "value": 3211.9,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/leads/tbt_ms": {
+      "value": 108,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/leads/cls": {
+      "value": 0.01,
+      "unit": "",
+      "better": "lower",
+      "gated": false
+    },
+    "web/load/slow/leads/js_transfer_kb": {
+      "value": 271.15,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 1.0
+    },
+    "web/load/slow/workbooks/fcp_ms": {
+      "value": 2624,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/workbooks/lcp_ms": {
+      "value": 3144,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/workbooks/ready_ms": {
+      "value": 2623.2,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/workbooks/tbt_ms": {
+      "value": 0,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/workbooks/cls": {
+      "value": 0.0,
+      "unit": "",
+      "better": "lower",
+      "gated": false
+    },
+    "web/load/slow/workbooks/js_transfer_kb": {
+      "value": 233.58,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 1.0
+    },
+    "web/load/slow/plugins/fcp_ms": {
+      "value": 3268,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/plugins/lcp_ms": {
+      "value": 3808,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/plugins/ready_ms": {
+      "value": 3261.6,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/plugins/tbt_ms": {
+      "value": 26,
+      "unit": "ms",
+      "better": "lower",
+      "gated": false,
+      "threshold": 0.3,
+      "slack": 400
+    },
+    "web/load/slow/plugins/cls": {
+      "value": 0.0,
+      "unit": "",
+      "better": "lower",
+      "gated": false
+    },
+    "web/load/slow/plugins/js_transfer_kb": {
+      "value": 275.61,
+      "unit": "kB",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.05,
+      "slack": 1.0
+    },
+    "web/inp/desktop/inp_ms": {
+      "value": 56,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/transition/desktop/leads/ms": {
+      "value": 86.4,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/transition/desktop/workbooks/ms": {
+      "value": 38.9,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/transition/desktop/plugins/ms": {
+      "value": 78.5,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/transition/desktop/analytics/ms": {
+      "value": 38,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/transition/desktop/automations/ms": {
+      "value": 82.3,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 60
+    },
+    "web/inp/slow/inp_ms": {
+      "value": 144,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 300
+    },
+    "web/transition/slow/leads/ms": {
+      "value": 682.9,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 300
+    },
+    "web/transition/slow/workbooks/ms": {
+      "value": 291.1,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 300
+    },
+    "web/transition/slow/plugins/ms": {
+      "value": 530.6,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 300
+    },
+    "web/transition/slow/analytics/ms": {
+      "value": 276.7,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 300
+    },
+    "web/transition/slow/automations/ms": {
+      "value": 380.4,
+      "unit": "ms",
+      "better": "lower",
+      "gated": true,
+      "threshold": 0.3,
+      "slack": 300
+    }
+  }
+}
