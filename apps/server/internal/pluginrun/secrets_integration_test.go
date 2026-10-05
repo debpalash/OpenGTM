@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -300,7 +301,9 @@ func TestSecretsAreWriteOnlyAndEncryptedAtRest(t *testing.T) {
 	if put["name"] != keyName || put["version"] != float64(1) || put["created_by"] != "ada" || put["updated_by"] != "ada" {
 		t.Fatalf("metadata: %v", put)
 	}
-	if plugins, _ := put["plugins"].([]any); len(plugins) != 1 || plugins[0] != "acme_firmographics" {
+	// Every installed plugin that declares the secret is listed (the Python
+	// example declares the same name).
+	if plugins, _ := put["plugins"].([]any); !slices.Contains(plugins, any("acme_firmographics")) {
 		t.Fatalf("plugins: %v", put["plugins"])
 	}
 

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"slices"
 	"strconv"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/server/internal/authz"
 	"github.com/debpalash/OpenGTM/apps/server/internal/db"
+	"github.com/debpalash/OpenGTM/apps/server/internal/plugin/process"
 	"github.com/debpalash/OpenGTM/apps/server/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/server/internal/queue"
 )
@@ -70,6 +72,11 @@ type pluginJSON struct {
 	Unrunnable  string         `json:"unrunnable_reason,omitempty"`
 }
 
+// processKinds are the kinds the process runtime can execute (the SDK's
+// decorators); signal and destination plugins need orchestration that does not
+// exist yet.
+var processKinds = []string{"provider", "scraper", "function", "tool"}
+
 func (a *API) listPlugins(w http.ResponseWriter, r *http.Request) {
 	out := []pluginJSON{}
 	for _, e := range a.catalog.List() {
@@ -91,7 +98,11 @@ func (a *API) listPlugins(w http.ResponseWriter, r *http.Request) {
 		if pj.Secrets == nil {
 			pj.Secrets = []string{}
 		}
-		if p.Runtime == "process" || (p.Runtime == "declarative" && p.Kind != "provider" && p.Kind != "scraper") {
+		switch {
+		case p.Runtime == "process" && !process.Supported:
+			pj.Runnable, pj.Unrunnable = false, "process plugins need a Linux or macOS host"
+		case p.Runtime == "process" && !slices.Contains(processKinds, p.Kind),
+			p.Runtime == "declarative" && p.Kind != "provider" && p.Kind != "scraper":
 			pj.Runnable, pj.Unrunnable = false, "runtime "+p.Runtime+" for kind "+p.Kind+" is not supported yet"
 		}
 		out = append(out, pj)

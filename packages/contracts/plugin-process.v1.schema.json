@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opengtm.dev/schemas/plugin-process.v1.schema.json",
+  "title": "OpenGTM process plugin wire protocol, version 1",
+  "description": "Every frame is a 4-byte big-endian length followed by that many bytes of UTF-8 JSON holding one object from PluginMessage (plugin to host) or HostMessage (host to plugin). See docs/plugins/process-abi.md. Receivers must ignore unknown properties; the protocol grows by adding properties and message types, and a breaking change bumps the protocol version negotiated in hello/init.",
+  "oneOf": [
+    {"$ref": "#/$defs/PluginMessage"},
+    {"$ref": "#/$defs/HostMessage"}
+  ],
+  "$defs": {
+    "PluginMessage": {
+      "description": "A frame sent by the plugin process.",
+      "oneOf": [
+        {"$ref": "#/$defs/hello"},
+        {"$ref": "#/$defs/fetch"},
+        {"$ref": "#/$defs/progress"},
+        {"$ref": "#/$defs/log"},
+        {"$ref": "#/$defs/records"},
+        {"$ref": "#/$defs/result"},
+        {"$ref": "#/$defs/failure"}
+      ]
+    },
+    "HostMessage": {
+      "description": "A frame sent by the host.",
+      "oneOf": [
+        {"$ref": "#/$defs/init"},
+        {"$ref": "#/$defs/fetch_result"},
+        {"$ref": "#/$defs/cancel"}
+      ]
+    },
+
+    "hello": {
+      "description": "First frame, plugin to host: the protocol versions the plugin speaks and what library it is built with.",
+      "type": "object",
+      "required": ["type", "protocols", "sdk"],
+      "properties": {
+        "type": {"const": "hello"},
+        "protocols": {"type": "array", "items": {"type": "integer", "minimum": 1}, "minItems": 1},
+        "sdk": {
+          "type": "object",
+          "required": ["name", "version", "language"],
+          "properties": {
+            "name": {"type": "string"},
+            "version": {"type": "string"},
+            "language": {"type": "string"}
+          }
+        },
+        "kinds": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "init": {
+      "description": "Host reply to hello: the chosen protocol version and everything the run needs. secrets holds only secrets the manifest declares.",
+      "type": "object",
+      "required": ["type", "protocol", "run_id", "plugin", "inputs", "secrets", "limits", "deadline_unix_ms"],
+      "properties": {
+        "type": {"const": "init"},
+        "protocol": {"type": "integer", "minimum": 1},
+        "run_id": {"type": "string"},
+        "plugin": {
+          "type": "object",
+          "required": ["name", "version", "kind"],
+          "properties": {
+            "name": {"type": "string"},
+            "version": {"type": "string"},
+            "kind": {"enum": ["provider", "scraper", "signal", "destination", "function", "tool"]}
+          }
+        },
+        "inputs": {"type": "object"},
+        "config": {"type": "object"},
+        "secrets": {"type": "object", "additionalProperties": {"type": "string"}},
+        "limits": {
+          "type": "object",
+          "required": ["timeout_seconds", "max_pages", "max_response_bytes", "memory_mb", "max_frame_bytes"],
+          "properties": {
+            "timeout_seconds": {"type": "number", "exclusiveMinimum": 0},
+            "max_pages": {"type": "integer", "minimum": 1},
+            "max_response_bytes": {"type": "integer", "minimum": 1},
+            "memory_mb": {"type": "integer", "minimum": 1},
+            "max_frame_bytes": {"type": "integer", "minimum": 1024}
+          }
+        },
+        "deadline_unix_ms": {"type": "integer"},
+        "proxy": {
+          "description": "Present when the host offers a CONNECT tunnel proxy for code that opens its own TLS connections. Only hosts declared in capabilities.network are reachable; the same URL is exported as HTTPS_PROXY.",
+          "type": "object",
+          "required": ["url"],
+          "properties": {"url": {"type": "string", "format": "uri"}}
+        }
+      }
+    },
+
+    "fetch": {
+      "description": "Plugin asks the host for one HTTP request. The host checks capabilities.network on the request and every redirect, the SSRF guard, robots.txt (scrapers), rate limits and size caps, and replies with fetch_result carrying the same id. body and body_base64 are mutually exclusive.",
+      "type": "object",
+      "required": ["type", "id", "url"],
+      "properties": {
+        "type": {"const": "fetch"},
+        "id": {"type": "integer"},
+        "method": {"enum": ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE"]},
+        "url": {"type": "string", "minLength": 1},
+        "headers": {"type": "object", "additionalProperties": {"type": "string"}},
+        "body": {"type": "string"},
+        "body_base64": {"type": "string"}
+      },
+      "not": {"required": ["body", "body_base64"]}
+    },
+    "fetch_result": {
+      "description": "Host reply to fetch. Either an HTTP response (status, headers, body or body_base64, evidence) or an error. HTTP error statuses are responses, not errors. Error codes: capability_denied, blocked_url, robots_disallowed, body_too_large, rate_limited, timeout, too_many_fetches, bad_request, network_unavailable, fetch_failed.",
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": {"const": "fetch_result"},
+        "id": {"type": "integer"},
+        "status": {"type": "integer", "minimum": 100, "maximum": 599},
+        "headers": {"type": "object", "additionalProperties": {"type": "string"}},
+        "body": {"type": "string"},
+        "body_base64": {"type": "string"},
+        "evidence": {
+          "type": "object",
+          "required": ["url", "status", "fetched_at", "content_type", "bytes", "sha256"],
+          "properties": {
+            "url": {"type": "string"},
+            "status": {"type": "integer"},
+            "fetched_at": {"type": "string", "format": "date-time"},
+            "content_type": {"type": "string"},
+            "bytes": {"type": "integer", "minimum": 0},
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        },
+        "error": {
+          "type": "object",
+          "required": ["code", "message"],
+          "properties": {"code": {"type": "string"}, "message": {"type": "string"}}
+        }
+      },
+      "oneOf": [
+        {"required": ["status"], "not": {"required": ["error"]}},
+        {"required": ["error"], "not": {"required": ["status"]}}
+      ]
+    },
+
+    "progress": {
+      "description": "Best-effort progress; the host rate-limits what it forwards.",
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {"const": "progress"},
+        "pages": {"type": "integer", "minimum": 0},
+        "records": {"type": "integer", "minimum": 0},
+        "fraction": {"type": "number", "minimum": 0, "maximum": 1},
+        "message": {"type": "string"}
+      }
+    },
+    "log": {
+      "description": "A log line; the host truncates (4 KiB), redacts secrets and keeps at most 200 lines per run.",
+      "type": "object",
+      "required": ["type", "message"],
+      "properties": {
+        "type": {"const": "log"},
+        "level": {"enum": ["debug", "info", "warn", "warning", "error"]},
+        "message": {"type": "string"}
+      }
+    },
+
+    "record": {
+      "description": "One output row. fields must match the manifest's outputs schema when it declares one. evidence is the plugin's own; the host adds the fetches it performed.",
+      "type": "object",
+      "required": ["fields"],
+      "properties": {
+        "fields": {"type": "object"},
+        "evidence": {}
+      }
+    },
+    "records": {
+      "description": "A batch of records sent before the final result, so output is not bounded by one frame.",
+      "type": "object",
+      "required": ["type", "records"],
+      "properties": {
+        "type": {"const": "records"},
+        "records": {"type": "array", "items": {"$ref": "#/$defs/record"}}
+      }
+    },
+    "result": {
+      "description": "Terminal message of a successful run. provider_error is a provider's own 'no result' answer (the run still succeeded). cost_usd replaces the manifest's cost_per_lookup when present.",
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {"const": "result"},
+        "records": {"type": "array", "items": {"$ref": "#/$defs/record"}},
+        "cost_usd": {"type": "number", "minimum": 0},
+        "pages": {"type": "integer", "minimum": 0},
+        "stopped": {"type": "string"},
+        "provider_error": {"type": "string"}
+      }
+    },
+    "failure": {
+      "description": "Terminal message of a failed run. retryable overrides the default for the code: upstream_error, rate_limited, timeout, plugin_crashed and pool_busy retry; every other code is permanent.",
+      "type": "object",
+      "required": ["type", "code", "message"],
+      "properties": {
+        "type": {"const": "failure"},
+        "code": {"type": "string", "minLength": 1},
+        "message": {"type": "string"},
+        "retryable": {"type": "boolean"},
+        "details": {"type": "object"}
+      }
+    },
+
+    "cancel": {
+      "description": "Host asks the plugin to stop. After grace_ms the host kills the plugin's whole process group.",
+      "type": "object",
+      "required": ["type", "reason", "grace_ms"],
+      "properties": {
+        "type": {"const": "cancel"},
+        "reason": {"enum": ["cancelled", "timeout", "shutdown"]},
+        "grace_ms": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

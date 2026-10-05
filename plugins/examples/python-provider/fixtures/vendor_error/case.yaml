@@ -1,0 +1,12 @@
+description: The vendor reports quota errors inside a 200; the plugin fails with a retryable upstream error.
+input: {domain: acme.example}
+secrets: {ACME_DATA_API_KEY: test-key}
+http:
+  - method: GET
+    url: https://api.acme-data.example/v1/companies?domain=acme.example
+    status: 200
+    headers: {Content-Type: application/json}
+    body: '{"error": true, "error_message": "monthly quota exceeded"}'
+expect:
+  error: "upstream_error: monthly quota exceeded"
+  fields: {}

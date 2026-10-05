@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "opengtm-sdk"
+version = "0.1.0"
+description = "Write OpenGTM provider, scraper, function and tool plugins in Python."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+# No runtime dependencies: the SDK speaks the plugin wire protocol with the
+# standard library only, so a plugin's own dependencies are its own business.
+dependencies = []
+keywords = ["opengtm", "plugin", "sdk", "go-to-market", "enrichment"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/debpalash/OpenGTM"
+Documentation = "https://github.com/debpalash/OpenGTM/blob/main/docs/plugins/python.md"
+
+[project.optional-dependencies]
+test = ["pytest>=8", "jsonschema>=4"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/opengtm_sdk"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

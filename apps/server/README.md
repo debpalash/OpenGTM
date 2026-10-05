@@ -91,8 +91,31 @@ internal/kernels     Rust kernels (WebAssembly) for extraction and normalization
 internal/plugin/...  manifests, templates, signing, bundles, plugin index, fixtures, runtimes
 internal/pluginrun   plugin catalog, plugin_run jobs, workspace plugin secrets and /api/v2 plugin routes
 internal/secrets     Fernet envelope shared with the Python app (enc:v1)
+internal/plugin/process  Python/process plugin supervisor and wire protocol
 internal/jobs/...    job types migrated from Python (retention_enforce)
 ```
+
+## Process plugins (Python workers)
+
+Manifest v2 plugins with `runtime: process` run as separate OS processes under
+`internal/plugin/process`: one process per run, a bounded pool, a scrubbed
+environment, resource limits, whole-tree kill on timeout, cancellation or crash,
+and a versioned length-prefixed JSON protocol over an inherited unix socket (the
+Python SDK is `packages/sdk-python`). They execute as ordinary `plugin_run` jobs
+under the same lease-guarded result commit; permanent plugin failures end the run
+at once and crashes, timeouts and upstream errors are retried by the queue.
+
+| Variable | Default | |
+| --- | --- | --- |
+| `OPENGTM_PLUGIN_MAX_PROCESSES` | smaller of 4 and the CPU count | Plugin processes alive at once. |
+| `OPENGTM_PLUGIN_MAX_PER_PLUGIN` | half of the above | Processes of one plugin. |
+| `OPENGTM_PLUGIN_PYTHON`, `OPENGTM_PLUGIN_PYTHONPATH` | `python3` on `PATH`, none | Interpreter, and an SDK checkout to put on `PYTHONPATH`. |
+| `OPENGTM_PLUGIN_STATE_DIR` | `$TMPDIR/opengtm-plugins-<uid>` | Run directories and the crash-recovery registry. |
+| `OPENGTM_PLUGIN_SANDBOX`, `OPENGTM_PLUGIN_SANDBOX_RO` | `exec` | `bwrap` runs plugins in bubblewrap (no network, read-only system). |
+
+The distroless image has no Python: build a Python-based worker image to run
+process plugins. See the [Python plugin guide](../../docs/plugins/python.md) and
+the [protocol](../../docs/plugins/process-abi.md).
 
 ## Job types running in Go
 

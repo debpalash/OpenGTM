@@ -15,6 +15,8 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/server/internal/config"
 	"github.com/debpalash/OpenGTM/apps/server/internal/db"
+	"github.com/debpalash/OpenGTM/apps/server/internal/plugin/process"
+	"github.com/debpalash/OpenGTM/apps/server/internal/pluginrun"
 )
 
 func init() {
@@ -56,6 +58,7 @@ func doctorChecks(ctx context.Context, cfgPath string) []checkResult {
 		return out
 	}
 	add("config", true, "valid")
+	out = append(out, processChecks(ctx, cfg)...)
 
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
 	defer cancel()
@@ -67,6 +70,24 @@ func doctorChecks(ctx context.Context, cfgPath string) []checkResult {
 		out = append(out, databaseChecks(ctx, pool)...)
 	}
 	out = append(out, legacyCheck(ctx, cfg.LegacyAPIURL))
+	return out
+}
+
+// processChecks verifies the host can run the process (Python) plugins in the
+// catalog: interpreter, SDK, state directory and sandbox. It adds nothing when
+// no process plugin is installed.
+func processChecks(ctx context.Context, cfg config.Config) []checkResult {
+	if !pluginrun.LoadCatalog(cfg.Plugins).HasRuntime("process") {
+		return nil
+	}
+	opts, err := process.OptionsFromEnv(process.Options{}, nil)
+	if err != nil {
+		return []checkResult{{"process plugins", false, err.Error()}}
+	}
+	var out []checkResult
+	for _, c := range process.Preflight(ctx, opts) {
+		out = append(out, checkResult{c.Name, c.OK, c.Detail})
+	}
 	return out
 }
 

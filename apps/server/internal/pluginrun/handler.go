@@ -14,6 +14,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/server/internal/db"
 	"github.com/debpalash/OpenGTM/apps/server/internal/plugin/declarative"
+	"github.com/debpalash/OpenGTM/apps/server/internal/plugin/process"
 	"github.com/debpalash/OpenGTM/apps/server/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/server/internal/queue"
 )
@@ -121,6 +122,15 @@ func (w *Worker) Handle(ctx context.Context, job queue.Job) error {
 	outcome, err := w.runner.Run(WithWorkspace(ctx, pl.WorkspaceID), entry.Plugin, inputs, w.progressFunc(ctx, pl))
 	if errors.Is(err, ErrUnsupported) || errors.Is(err, declarative.ErrNoExtractor) {
 		return w.failPermanently(ctx, job, pl, err.Error())
+	}
+	// A process plugin that failed for a reason retrying cannot fix (invalid
+	// input, bad credentials, an unhandled exception in its code, output that
+	// breaks its manifest, a protocol violation) ends the run now. Crashes,
+	// timeouts, upstream errors and a saturated pool are transient: the queue
+	// retries them with backoff and Reconcile records the final outcome.
+	var perr *process.Error
+	if errors.As(err, &perr) && !perr.Retryable {
+		return w.failPermanently(ctx, job, pl, perr.Error())
 	}
 	if err != nil {
 		return err // the queue retries with backoff; Reconcile records the outcome

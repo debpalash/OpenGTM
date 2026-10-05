@@ -274,7 +274,7 @@ expect:
 
 func pluginNew(_ context.Context, args []string) error {
 	fs := newFlags("new")
-	runtime := fs.String("runtime", "declarative", "declarative or wasm")
+	runtime := fs.String("runtime", "declarative", "declarative, wasm or process (Python)")
 	dir := fs.String("dir", "", "target directory (default ./<name>)")
 	pos, err := parseArgs(fs, args)
 	if err != nil || len(pos) != 2 {
@@ -299,8 +299,12 @@ func pluginNew(_ context.Context, args []string) error {
 		if files, err = wasmScaffold(kind, name); err != nil {
 			return err
 		}
+	case "process":
+		if files, err = processScaffold(kind); err != nil {
+			return err
+		}
 	default:
-		return fmt.Errorf("--runtime must be declarative or wasm (process plugins arrive with the Python SDK)")
+		return fmt.Errorf("--runtime must be declarative, wasm or process")
 	}
 	target := *dir
 	if target == "" {
@@ -333,6 +337,8 @@ func pluginNew(_ context.Context, args []string) error {
 	switch {
 	case *runtime == "wasm":
 		next = "cd " + target + " && ./build.sh && cd - && " + next
+	case *runtime == "process":
+		next = "pip install opengtm-sdk   # or: export OPENGTM_PLUGIN_PYTHONPATH=<repo>/packages/sdk-python/src\n      " + next
 	case kind == "scraper":
 		next += "   (scraper extraction needs the Rust kernel build)"
 	}

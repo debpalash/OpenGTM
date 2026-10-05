@@ -1,0 +1,8 @@
+{
+  "company": {
+    "name": "Acme Example Inc.",
+    "employees": 250,
+    "industry": "Software",
+    "linkedin_handle": "acme-example"
+  }
+}
