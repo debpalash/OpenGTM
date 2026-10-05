@@ -40,9 +40,13 @@ func (r *runner) doFetch(ctx context.Context, f Fetch) FetchResult {
 	if err := p.Network().Allows(f.URL); err != nil {
 		return fetchErr(f.ID, "capability_denied", r.redact(err.Error()))
 	}
-	method := f.Method
-	if method == "" {
+	method := strings.ToUpper(f.Method)
+	switch method {
+	case "":
 		method = "GET"
+	case "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE":
+	default:
+		return fetchErr(f.ID, "bad_request", "method must be one of GET, HEAD, POST, PUT, PATCH, DELETE")
 	}
 	body := []byte(f.Body)
 	if f.BodyBase64 != "" {

@@ -45,6 +45,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/server/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/server/internal/plugin/declarative"
 	"github.com/debpalash/OpenGTM/apps/server/internal/plugin/manifest"
+	"github.com/debpalash/OpenGTM/apps/server/internal/plugin/process"
 	"github.com/debpalash/OpenGTM/apps/server/internal/plugin/wasmhost"
 )
 
@@ -230,6 +231,11 @@ type Deps struct {
 	// AllowPrivateForTesting lets replays use URLs recorded against local
 	// test servers. Never set from configuration or the CLI.
 	AllowPrivateForTesting bool
+	// Process configures the supervisor used for runtime "process" plugins
+	// (interpreter, SDK location, sandbox). OPENGTM_PLUGIN_* environment
+	// variables are layered on top; the egress client is always the one
+	// passed to Execute.
+	Process process.Options
 }
 
 // Outcome is what a plugin produced for one input.
@@ -276,6 +282,8 @@ func Execute(ctx context.Context, p *manifest.Plugin, client *egress.Client, inp
 			out.Error = res.Stopped
 		}
 		return out, nil
+	case p.Runtime == "process":
+		return executeProcess(ctx, p, client, inputs, config, secrets, deps)
 	case p.Runtime == "wasm":
 		host := wasmhost.New(wasmhost.Options{Client: client})
 		pl, err := host.Load(ctx, p)
@@ -316,6 +324,61 @@ func Execute(ctx context.Context, p *manifest.Plugin, client *egress.Client, inp
 	}
 	return nil, fmt.Errorf("plugin runtime %s / kind %s cannot be run by this host yet", p.Runtime, p.Kind)
 }
+
+// executeProcess runs a runtime "process" plugin under a short-lived
+// supervisor whose fetches go through client (the fixture transport in tests).
+// A failure the plugin reported itself (a failure frame) is an outcome that
+// fixtures can expect as `error: "<code>: <message>"`; failures of the process
+// machinery (crash, timeout, protocol violation, launch) fail the case.
+func executeProcess(ctx context.Context, p *manifest.Plugin, client *egress.Client, inputs, config map[string]any, secrets map[string]string, deps Deps) (*Outcome, error) {
+	opts, err := process.OptionsFromEnv(deps.Process, nil)
+	if err != nil {
+		return nil, err
+	}
+	opts.Client = client
+	opts.Logger = discardLogger{}
+	sup, err := process.NewSupervisor(opts)
+	if err != nil {
+		return nil, err
+	}
+	defer sup.Close()
+	res, err := sup.Run(ctx, p, process.Request{RunID: "fixture", Inputs: inputs, Config: config, Secrets: secrets})
+	var pe *process.Error
+	if errors.As(err, &pe) && pe.FromPlugin {
+		return &Outcome{Error: pe.Error(), Fields: map[string]any{}}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	out := &Outcome{Evidence: res.Fetches, CostUSD: res.CostUSD, Error: res.ProviderError}
+	if res.Stopped != "" && out.Error == "" {
+		out.Error = res.Stopped
+	}
+	switch p.Kind {
+	case "scraper", "signal":
+		out.Records = []map[string]string{}
+		for _, r := range res.Records {
+			rec := map[string]string{}
+			for k, v := range r.Fields {
+				rec[k] = fmt.Sprint(v)
+			}
+			out.Records = append(out.Records, rec)
+		}
+	default:
+		out.Fields = map[string]any{}
+		if len(res.Records) > 0 {
+			out.Fields = res.Records[0].Fields
+		}
+	}
+	return out, nil
+}
+
+type discardLogger struct{}
+
+func (discardLogger) Info(string, ...any)  {}
+func (discardLogger) Warn(string, ...any)  {}
+func (discardLogger) Error(string, ...any) {}
+func (discardLogger) Debug(string, ...any) {}
 
 // Result is the verdict for one case.
 type Result struct {

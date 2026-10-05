@@ -149,7 +149,8 @@ elif mode == "env":
     result([{"fields": {
         "env": dict(os.environ),
         "secret_names": sorted(init["secrets"]),
-        "secret_values": init["secrets"],
+        # reversed so the host's output redaction does not hide what was delivered
+        "secret_rev": {k: v[::-1] for k, v in init["secrets"].items()},
         "cwd": os.getcwd(),
         "home": home,
         "home_listing": sorted(os.listdir(home)) if home else [],
@@ -253,6 +254,19 @@ elif mode == "logspam":
     for i in range(1000):
         send({"type": "log", "message": f"line {i}"})
     result()
+elif mode == "connect":
+    try:
+        c = socket.create_connection((inputs["host"], inputs["port"]), timeout=2)
+        c.close()
+        result([{"fields": {"connected": True}}])
+    except OSError as e:
+        result([{"fields": {"connected": False, "error": type(e).__name__}}])
+elif mode == "readfile":
+    try:
+        with open(inputs["path"], "rb") as fh:
+            result([{"fields": {"readable": True, "head": fh.read(64).decode("utf-8", "replace")}}])
+    except OSError as e:
+        result([{"fields": {"readable": False, "error": type(e).__name__}}])
 elif mode == "hold_slot":
     # used by the capacity tests: announce, hold the slot, then finish
     time.sleep(float(inputs.get("seconds", 0.3)))
