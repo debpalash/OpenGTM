@@ -118,6 +118,7 @@ const DefaultJobTimeout = 600 * time.Second
 // JobTimeouts is the per-type wall-clock ceiling. Keep in sync with Python.
 var JobTimeouts = map[string]time.Duration{
 	"run_workbook":               1800 * time.Second,
+	"run_workbook_connector":     1800 * time.Second,
 	"source_workbook":            1800 * time.Second,
 	"ambitionbox_import":         900 * time.Second,
 	"refresh_workbook":           900 * time.Second,
