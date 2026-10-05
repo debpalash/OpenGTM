@@ -51,7 +51,8 @@ forced row-level security:
 | Rust kernels | Normalization (domain, email, phone, name) and extraction, matching the Python normalizers on 5,814 parity cases. Run through wazero directly (the Extism SDK added 25–31 µs per call); the module is still a standard Extism plugin. |
 | M5 web | Started: TanStack Router with route-level code splitting, `twenty-ui` removed, CI bundle budget. Initial JavaScript is 223.2 kB gzip against a 223.6 kB baseline. |
 | M7 packaging | Started: a 43 MB distroless image and an opt-in `server` Compose profile. Not yet: `init`, `upgrade`, `backup`, signed multi-arch releases. |
-| M0, M2, M4, M6, M8 | Not started. No existing job type or route has moved to Go. |
+| M0 baseline | Backend half done: `benchmarks/run.sh` runs a reproducible queue and HTTP comparison of the Python stack and the Go server against a throwaway PostgreSQL database, writes JSON and Markdown, and `benchmarks/compare.py` fails on a regression above a threshold (default 15%) for later CI use. The committed snapshot is `benchmarks/results/baseline.md`. Headline numbers (one shared 32-thread machine, 3 repetitions, medians; read the caveats in `benchmarks/README.md`): with the fsync wait removed, the Go queue completes 351 / 946 / 1,257 no-op jobs/s at 1 / 4 / 16 slots against 209 / 393 / 371 for the Python `QueueService` with the handler in-process (1.7x / 2.4x / 3.4x), with cycle p50 of 2.7 / 4.0 / 13 ms against 4.8 / 9.9 / 43 ms. With durable commits both are bound by disk flushes (about 60 jobs/s at one slot on this disk) and only scale apart at 4 and 16 slots (2.4x, 3.9x). The production Python path spawns a child process per job and completes about 1.2 / 4.4 / 10.8 no-op jobs/s, about 0.8-1.2 s per job. The Go front door adds about 0.1-0.2 ms at p50 and 0-12% throughput when proxying FastAPI (`/health` about 1,000-2,300 req/s either way, capped by uvicorn); Go-owned `/api/v2/plugins` serves about 14,300 / 36,900 / 53,900 req/s at 1 / 16 / 64 connections (p50 0.06 / 0.33 / 1.0 ms). Found along the way: FastAPI's authenticated `/api/auth/workspace-context` stops answering at 64 concurrent connections. Not yet: web metrics, fixtures and a provider simulator, backend resource profiles. |
+| M2, M4, M6, M8 | Not started. No existing job type or route has moved to Go. |
 
 Measured so far (microbenchmarks, excluding network and database; see
 `crates/opengtm-kernels/BENCHMARKS.md`): through WebAssembly, domain
@@ -507,7 +508,7 @@ kernels, Python AI/browser integration, the React dashboard, PostgreSQL
 correctness, self-host packaging, or reproducible performance testing. Follow
 [CONTRIBUTING.md](../../CONTRIBUTING.md), including DCO sign-off.
 
-- [ ] Record the M0 backend and web baselines, and select the first enrichment job type.
+- [ ] Record the M0 backend and web baselines, and select the first enrichment job type. (Backend queue and HTTP baseline recorded in `benchmarks/`; web baseline and the job type remain.)
 - [ ] Define domain ownership, task contracts, executor routing, and lease fencing.
 - [ ] Add the Go multi-role binary skeleton, pgx/sqlc access, and tenant transaction helper.
 - [ ] Preserve Python-only operation and exercise mixed-executor claims.
