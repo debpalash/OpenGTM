@@ -2,8 +2,8 @@
 
 Updated: 2026-10-05
 Status: foundations implemented on the `rewrite/hybrid-platform` branch (see
-[Implementation status](#implementation-status)); no existing job type or API
-route has moved to Go yet.
+[Implementation status](#implementation-status)); one job type, `retention_enforce`,
+has a Go executor that is opt-in per deployment; no API route has moved to Go yet.
 Tracking issue: [#33](https://github.com/debpalash/OpenGTM/issues/33).
 Supersedes the Go/Python proposal previously at `go-python-backend-rewrite.md`.
 
@@ -52,7 +52,8 @@ forced row-level security:
 | M5 web | Started: TanStack Router with route-level code splitting, `twenty-ui` removed, CI bundle budget. Initial JavaScript is 223.2 kB gzip against a 223.6 kB baseline. |
 | M7 packaging | Started: a 43 MB distroless image and an opt-in `server` Compose profile. Not yet: `init`, `upgrade`, `backup`, signed multi-arch releases. |
 | M0 baseline | Backend half done: `benchmarks/run.sh` runs a reproducible queue and HTTP comparison of the Python stack and the Go server against a throwaway PostgreSQL database, writes JSON and Markdown, and `benchmarks/compare.py` fails on a regression above a threshold (default 15%) for later CI use. The committed snapshot is `benchmarks/results/baseline.md`. Headline numbers (one shared 32-thread machine, 3 repetitions, medians; read the caveats in `benchmarks/README.md`): with the fsync wait removed, the Go queue completes 351 / 946 / 1,257 no-op jobs/s at 1 / 4 / 16 slots against 209 / 393 / 371 for the Python `QueueService` with the handler in-process (1.7x / 2.4x / 3.4x), with cycle p50 of 2.7 / 4.0 / 13 ms against 4.8 / 9.9 / 43 ms. With durable commits both are bound by disk flushes (about 60 jobs/s at one slot on this disk) and only scale apart at 4 and 16 slots (2.4x, 3.9x). The production Python path spawns a child process per job and completes about 1.2 / 4.4 / 10.8 no-op jobs/s, about 0.8-1.2 s per job. The Go front door adds about 0.1-0.2 ms at p50 and 0-12% throughput when proxying FastAPI (`/health` about 1,000-2,300 req/s either way, capped by uvicorn); Go-owned `/api/v2/plugins` serves about 14,300 / 36,900 / 53,900 req/s at 1 / 16 / 64 connections (p50 0.06 / 0.33 / 1.0 ms). Found along the way: FastAPI's authenticated `/api/auth/workspace-context` stops answering at 64 concurrent connections. Not yet: web metrics, fixtures and a provider simulator, backend resource profiles. |
-| M2, M4, M6, M8 | Not started. No existing job type or route has moved to Go. |
+| First migrated job type (M2, M6 in part) | `retention_enforce` has a Go executor (`apps/server/internal/jobs/retention`), a port of the handler and failure reconciler in `apps/api/services/governance/retention.py` with the same status transitions, error strings, legal-hold and schedule behaviour. It is **Python-owned by default**: the migration seeds no route, and an operator moves it with `opengtm routes set retention_enforce go` and back with `... python` (the Python code is untouched, so rollback is routing only). Deletion is batched inside one tenant transaction under forced RLS and the commit is fenced by the job lease. Parity is proven by `tests/test_retention_go_parity_pg.py`: identical datasets in two fresh databases, Python on one and Go on the other, identical `retention_runs`, policies, schedule mirror, jobs and remaining rows across four time-zone combinations, plus a corpus comparison of the validation and cutoff helpers. Known differences and the cutover and rollback procedure are in [`apps/server/README.md`](../../apps/server/README.md#job-types-running-in-go). The API routes that create runs and `bootstrap_retention_schedules` remain in Python. Not yet measured: a benchmark against the Python executor, and an exercised cutover on a populated production-sized database. |
+| M4, M8 | Not started. M2 and M6 have started with one non-enrichment job type; the HTTP enrichment worker (M2 as written) and Go API routes by domain remain. |
 
 Measured so far (microbenchmarks, excluding network and database; see
 `crates/opengtm-kernels/BENCHMARKS.md`): through WebAssembly, domain

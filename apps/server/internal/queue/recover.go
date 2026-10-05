@@ -177,8 +177,24 @@ WHERE NOT EXISTS (SELECT 1 FROM job_executor_routes r WHERE r.job_type = t AND r
 		return
 	}
 	missing, err := pgx.CollectRows(rows, pgx.RowTo[string])
-	if err == nil && len(missing) > 0 {
+	if err != nil {
+		return
+	}
+	var optIn, unexpected []string
+	for _, t := range missing {
+		if isSwitchable(t) {
+			optIn = append(optIn, t)
+		} else {
+			unexpected = append(unexpected, t)
+		}
+	}
+	if len(unexpected) > 0 {
 		q.log.Warn("registered job types are not routed to go and will not be claimed; "+
-			"use `opengtm routes set <type> go` after draining Python workers", "types", missing)
+			"use `opengtm routes set <type> go` after draining Python workers", "types", unexpected)
+	}
+	if len(optIn) > 0 {
+		// Migrated job types stay Python-owned until an operator switches them.
+		q.log.Info("job types available in go are still routed to python; "+
+			"switch with `opengtm routes set <type> go`", "types", optIn)
 	}
 }

@@ -283,3 +283,87 @@ def test_python_recovery_leaves_go_routed_claims_to_go():
         assert status == {"route_go_reap": "processing", "route_py_reap": "pending"}
     finally:
         _drop_routes("route_go_reap")
+
+
+# ── retention_enforce: the first migrated job type ───────────────────────────
+# It has a Go executor (apps/server/internal/jobs/retention) but must stay
+# Python-owned until an operator runs `opengtm routes set retention_enforce go`
+# and must return to Python on `... python`. The generic routing tests above
+# prove the mechanism; these pin it for this concrete type.
+
+def test_retention_enforce_is_python_owned_until_routed():
+    from apps.api.models import JobExecutorRoute
+
+    with SessionLocal() as db:
+        # Migrations seed plugin_run -> go, and deliberately nothing for retention.
+        routes = {r.job_type: r.executor for r in db.query(JobExecutorRoute)}
+    assert routes.get("plugin_run") == "go"
+    assert "retention_enforce" not in routes
+
+    with SessionLocal() as db:
+        job_id = queue_service.add_job(db, "retention_enforce", {"workspace_id": "ws-r"}).id
+    claimed = queue_service.claim_next_job()
+    assert claimed is not None and claimed["id"] == job_id
+
+
+def test_retention_enforce_cutover_and_rollback_are_routing_only():
+    with SessionLocal() as db:
+        job_id = queue_service.add_job(
+            db, "retention_enforce", {"workspace_id": "ws-r", "run_id": "run-1"},
+            fire_key="retention-run:run-1",
+        ).id
+    try:
+        _route("retention_enforce", "go")  # cutover: Python must stop claiming it
+        assert queue_service.claim_next_job() is None
+        with SessionLocal() as db:
+            assert db.query(Job).filter(Job.id == job_id).one().status == "pending"
+
+        _route("retention_enforce", "python")  # rollback: Python picks it up again
+        claimed = queue_service.claim_next_job()
+        assert claimed is not None and claimed["id"] == job_id
+    finally:
+        _drop_routes("retention_enforce")
+
+
+def test_python_recovery_leaves_go_routed_retention_claims_to_go():
+    """A stale retention_enforce claim is reaped (and reconciled) by whichever
+    executor owns the type, never by both: Go's reaper runs its own
+    reconciler, so Python reaping a Go-routed claim would skip it."""
+    from datetime import datetime, timedelta, timezone
+
+    service = QueueService()
+    reconciled = []
+    service.register_failure_handler(
+        "retention_enforce", lambda job_id, payload, reason, will_retry: reconciled.append((job_id, will_retry)))
+    stale = datetime.now(timezone.utc) - timedelta(minutes=30)
+    with SessionLocal() as db:
+        job = service.add_job(db, "retention_enforce", {"workspace_id": "ws-r"})
+        job.status, job.last_heartbeat = "processing", stale
+        job.worker_id, job.locked_at = service.worker_id, stale
+        db.commit()
+        job_id = job.id
+
+    try:
+        _route("retention_enforce", "go")
+        assert service.reap_dead_jobs_once() == 0
+        with SessionLocal() as db:
+            assert db.query(Job).filter(Job.id == job_id).one().status == "processing"
+        assert reconciled == []
+
+        _route("retention_enforce", "python")  # rolled back: Python owns the claim again
+        assert service.reap_dead_jobs_once() == 1
+        with SessionLocal() as db:
+            assert db.query(Job).filter(Job.id == job_id).one().status == "pending"
+        assert reconciled == [(job_id, True)]
+    finally:
+        _drop_routes("retention_enforce")
+
+
+def test_python_registers_the_retention_executor_for_rollback():
+    """Rollback needs the Python handler and its failure reconciler to stay
+    registered; the Go port does not remove them."""
+    from apps.api.services.job_registry import register_job_handlers
+
+    service = QueueService()
+    assert "retention_enforce" in register_job_handlers(service)
+    assert "retention_enforce" in service.failure_handlers
