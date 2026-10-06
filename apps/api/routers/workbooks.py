@@ -6,6 +6,7 @@ import base64
 import binascii
 import csv
 import io
+import hashlib
 import json
 import logging
 import os
@@ -203,6 +204,46 @@ def _decode_query_cursor(cursor: str, expected_values: int) -> list:
         return values
     except (ValueError, TypeError, json.JSONDecodeError, binascii.Error):
         raise HTTPException(status_code=400, detail="Invalid workbook row cursor")
+
+
+def _workbook_cursor_scope(query, ordering: list, view_id: Optional[str]) -> str:
+    # Bind row anchors to the owned workbook, effective filters and ordering.
+    compiled = [expression.compile() for expression in (query.statement, *ordering)]
+    identity = [view_id, *[(str(item), item.params) for item in compiled]]
+    return hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
+
+
+def _cursor_values_digest(values: list) -> str:
+    return hashlib.sha256(json.dumps(values, separators=(",", ":")).encode()).hexdigest()
+
+
+def _encode_workbook_query_cursor(values: list, row_id: int, scope: str) -> str:
+    cursor = _encode_query_cursor(values)
+    if len(cursor) <= 512:
+        return cursor
+    # Large cell values must not produce an unusable URL. Recover their tuple
+    # from an owned row on continuation instead of copying the text into it.
+    payload = json.dumps({"v": 2, "row": row_id, "scope": scope, "digest": _cursor_values_digest(values)}, separators=(",", ":")).encode()
+    return base64.urlsafe_b64encode(payload).decode().rstrip("=")
+
+
+def _decode_workbook_query_cursor(cursor: str, query, cursor_terms: list, scope: str) -> list:
+    try:
+        raw = base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4))
+        payload = json.loads(raw)
+        if isinstance(payload, dict) and payload.get("v") == 2:
+            row_id = payload.get("row")
+            if type(row_id) is not int or row_id < 1 or payload.get("scope") != scope:
+                raise ValueError
+            values = query.with_entities(*(expression for expression, _ in cursor_terms)).filter(
+                WorkbookRow.id == row_id
+            ).first()
+            if values is None or payload.get("digest") != _cursor_values_digest(list(values)):
+                raise ValueError
+            return list(values)
+    except (ValueError, TypeError, json.JSONDecodeError, binascii.Error):
+        raise HTTPException(status_code=400, detail="Invalid workbook row cursor; restart pagination")
+    return _decode_query_cursor(cursor, len(cursor_terms))
 
 
 def _encode_connector_run_cursor(run: ConnectorRun) -> str:
@@ -552,11 +593,12 @@ async def get_workbook(
         query, ordering, cursor_terms = _workbook_rows_query(db, wb, view_id, search)
         query_total = query.with_entities(sa_func.count(WorkbookRow.id)).scalar() or 0
         using_cursor = cursor_mode or cursor is not None
+        cursor_scope = _workbook_cursor_scope(query, ordering, view_id) if len(cursor_terms) > 2 else ""
         if cursor:
             if len(cursor_terms) == 2:
                 cursor_values = list(_decode_row_cursor(cursor))
             else:
-                cursor_values = _decode_query_cursor(cursor, len(cursor_terms))
+                cursor_values = _decode_workbook_query_cursor(cursor, query, cursor_terms, cursor_scope)
             query = query.filter(_cursor_after_filter(cursor_terms, cursor_values))
         if using_cursor:
             fetched = query.order_by(*ordering).limit(page_size + 1).all()
@@ -575,7 +617,7 @@ async def get_workbook(
                 cursor_values = db.query(
                     *(expression for expression, _ in cursor_terms)
                 ).filter(WorkbookRow.id == last_row.id).one()
-                next_cursor = _encode_query_cursor(list(cursor_values))
+                next_cursor = _encode_workbook_query_cursor(list(cursor_values), last_row.id, cursor_scope)
 
         # Older v2 mirrors omitted research metadata. Recover it read-only from
         # the matching cell receipt, never from a different workbook/tenant or
