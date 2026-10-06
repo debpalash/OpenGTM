@@ -186,7 +186,23 @@ def bootstrap_retention_schedules() -> int:
             with SessionLocal() as db:
                 policy = db.query(RetentionPolicy).filter(RetentionPolicy.workspace_id == workspace_id).first()
                 if policy and policy.enabled and not policy.legal_hold:
+                    from apps.api.models import Job
                     from apps.api.services.job_scheduling import enqueue_job_once
-                    enqueue_job_once(db, job_type="retention_enforce", payload={"workspace_id": workspace_id}, fire_key=f"retention:{workspace_id}:{now.date().isoformat()}")
-                    schedule_policy(db, policy, now=now); count += 1
+                    active = db.query(Job).filter(
+                        Job.type == "retention_enforce",
+                        Job.status.in_(("pending", "processing")),
+                        Job.fire_key.like(f"retention:{workspace_id}:%"),
+                    ).first()
+                    if active is not None:
+                        continue
+                    occurrence = (comparable or now).date().isoformat()
+                    job = enqueue_job_once(
+                        db, job_type="retention_enforce",
+                        payload={"workspace_id": workspace_id},
+                        fire_key=f"retention:{workspace_id}:{occurrence}",
+                        next_run_at=now,
+                    )
+                    db.commit()
+                    if job is not None:
+                        count += 1
     return count
