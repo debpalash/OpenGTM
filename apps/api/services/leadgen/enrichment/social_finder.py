@@ -9,7 +9,7 @@ import re
 import time
 from typing import List
 
-from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG poolfrom apps.api.services.leadgen.proxy_client import get_ddgs
+from apps.api.services.leadgen.enrichment.web_search import DDGS
 from apps.api.services.leadgen.models import Lead
 
 
@@ -27,7 +27,7 @@ def find_social_profiles(
 
     found = 0
 
-    with get_ddgs() as ddgs:
+    with DDGS() as ddgs:
         for lead in needs_social:
             # LinkedIn
             if not lead.has_linkedin:
