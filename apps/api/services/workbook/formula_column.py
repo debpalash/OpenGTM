@@ -18,7 +18,7 @@ Columns reference each other with {column} (same as AI columns). Examples:
 import ast
 import logging
 import re
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 
 logger = logging.getLogger("workbook.formula_column")
 
@@ -170,31 +170,7 @@ def _eval(node: ast.AST, variables: Dict[str, Any]) -> Any:
 _PLACEHOLDER_RE = re.compile(r"\{([^}]+)\}")
 
 
-def evaluate_formula(expr: str, row_values: Dict[str, str]) -> Any:
-    """Evaluate a formula expression, resolving {column} refs from row_values."""
-    if not expr or not expr.strip():
-        raise FormulaError("empty formula")
-
-    # Map each distinct {placeholder} to a safe variable name and collect values.
-    variables: Dict[str, Any] = {}
-    name_for: Dict[str, str] = {}
-
-    def _sub(m):
-        key = m.group(1).strip()
-        if key not in name_for:
-            var = f"_v{len(name_for)}"
-            name_for[key] = var
-            # resolve value (exact, then case-insensitive)
-            val = row_values.get(key)
-            if val is None:
-                kl = key.lower()
-                for k, v in row_values.items():
-                    if k.lower() == kl:
-                        val = v
-                        break
-            variables[var] = "" if val is None else val
-        return name_for[key]
-
+def _replace_formula_references(expr: str, replace: Callable[[re.Match[str]], str]) -> str:
     # Resolve references only outside Python string literals. A global regex
     # would turn the literal "{Name}" into "_v0", silently corrupting output.
     parts = []
@@ -221,12 +197,52 @@ def evaluate_formula(expr: str, row_values: Dict[str, str]) -> Any:
         else:
             match = _PLACEHOLDER_RE.match(expr, cursor)
             if match:
-                parts.append(_sub(match))
+                parts.append(replace(match))
                 cursor = match.end()
             else:
                 parts.append(char)
                 cursor += 1
-    safe_expr = "".join(parts)
+    return "".join(parts)
+
+
+def formula_references(expr: str) -> set[str]:
+    """References used by evaluation, excluding literal strings and comments."""
+    refs: set[str] = set()
+
+    def collect(match):
+        refs.add(match.group(1).strip())
+        return match.group(0)
+
+    _replace_formula_references(expr, collect)
+    return refs
+
+
+def evaluate_formula(expr: str, row_values: Dict[str, str]) -> Any:
+    """Evaluate a formula expression, resolving {column} refs from row_values."""
+    if not expr or not expr.strip():
+        raise FormulaError("empty formula")
+
+    # Map each distinct {placeholder} to a safe variable name and collect values.
+    variables: Dict[str, Any] = {}
+    name_for: Dict[str, str] = {}
+
+    def _sub(m):
+        key = m.group(1).strip()
+        if key not in name_for:
+            var = f"_v{len(name_for)}"
+            name_for[key] = var
+            # resolve value (exact, then case-insensitive)
+            val = row_values.get(key)
+            if val is None:
+                kl = key.lower()
+                for k, v in row_values.items():
+                    if k.lower() == kl:
+                        val = v
+                        break
+            variables[var] = "" if val is None else val
+        return name_for[key]
+
+    safe_expr = _replace_formula_references(expr, _sub)
 
     try:
         tree = ast.parse(safe_expr, mode="eval")
