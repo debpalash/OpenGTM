@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict
@@ -135,14 +135,16 @@ async def update_email_data(
 ):
     record = db.query(EmailData).filter(EmailData.id == id).first()
     if not record:
-        return {"status": "not found", "error": f"Record with id {id} not found"}, 404
+        raise HTTPException(status_code=404, detail=f"Record with id {id} not found")
 
     update_data = data.dict(exclude_unset=True)
     for key, value in update_data.items():
         setattr(record, key, value)
 
     db.commit()
-    return {"status": "success", "data": record.__dict__}
+    return {"status": "success", "data": {
+        column.name: getattr(record, column.name) for column in EmailData.__table__.columns
+    }}
 
 
 @router.delete("/{id}")
