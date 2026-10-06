@@ -2462,3 +2462,52 @@ def test_budget_update_rejects_foreign_workbook(client):
     finally:
         app.dependency_overrides[current_workspace] = lambda: _ctx(WS1)
         app.dependency_overrides[require_editor] = lambda: _ctx(WS1)
+
+
+@pytest.mark.parametrize("operation, positions", [
+    ("equals", [0]), ("not_equals", [1, 2]),
+    ("contains", [0]), ("not_contains", [1, 2]),
+])
+@pytest.mark.parametrize("comparison, stored", [(0, 0), (False, "false"), ("0", 0), ("FALSE", "false")])
+def test_saved_view_preserves_falsey_comparison_values_for_rows_and_export(client, comparison, stored, operation, positions):
+    import csv
+    import io
+
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": "result", "name": "Result", "type": "formula"}])
+    row_ids = [
+        _mk_row(Session, wid, {}, enrichments={"result": {"value": stored}}),
+        _mk_row(Session, wid, {}, enrichments={"result": {"value": "other"}}),
+        _mk_row(Session, wid, {}),
+    ]
+    created = tc.post(f"/api/v2/workbooks/{wid}/views", json={"name": "Unqualified", "config": {
+        "filters": [{"column": "result", "op": operation, "value": comparison}],
+    }})
+    assert created.status_code == 201, created.text
+    view_id = created.json()["id"]
+    persisted = created.json()["config"]["filters"][0]["value"]
+    assert persisted == comparison and type(persisted) is type(comparison)
+    rows = tc.get(f"/api/workbooks/{wid}", params={"view_id": view_id})
+    assert rows.status_code == 200, rows.text
+    assert rows.json()["query_total_rows"] == len(positions)
+    assert [row["row_id"] for row in rows.json()["rows"]] == [row_ids[index] for index in positions]
+    exported = tc.get(f"/api/workbooks/{wid}/export.csv", params={"view_id": view_id})
+    assert exported.status_code == 200, exported.text
+    records = list(csv.reader(io.StringIO(exported.content.decode("utf-8-sig"))))
+    values = [str(stored), "other", ""]
+    assert records == [["Result"], *[[values[index]] for index in positions]]
+
+
+@pytest.mark.parametrize("comparison", [None, ""])
+def test_saved_view_empty_comparison_still_matches_missing_values(client, comparison):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": "result", "type": "formula"}])
+    blank = _mk_row(Session, wid, {})
+    _mk_row(Session, wid, {}, enrichments={"result": {"value": 0}})
+    created = tc.post(f"/api/v2/workbooks/{wid}/views", json={"name": "Blank", "config": {
+        "filters": [{"column": "result", "op": "equals", "value": comparison}],
+    }})
+    assert created.status_code == 201, created.text
+    rows = tc.get(f"/api/workbooks/{wid}", params={"view_id": created.json()["id"]})
+    assert rows.status_code == 200, rows.text
+    assert [row["row_id"] for row in rows.json()["rows"]] == [blank]

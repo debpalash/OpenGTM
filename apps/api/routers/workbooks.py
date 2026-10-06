@@ -133,7 +133,8 @@ def _workbook_rows_query(db: Session, wb: Workbook, view_id: Optional[str], sear
         if expression is None:
             raise HTTPException(status_code=409, detail="Saved view references a missing filter column. Repair the view before continuing.")
         normalized = sa_func.lower(sa_func.coalesce(expression, ""))
-        expected = str(rule.get("value") or "").lower()
+        comparison = rule.get("value")
+        expected = str("" if comparison is None else comparison).lower()
         operation = rule.get("op")
         if operation == "equals":
             query = query.filter(normalized == expected)
