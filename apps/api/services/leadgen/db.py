@@ -400,8 +400,9 @@ class LeadDB:
         limit: int = 500,
         offset: int = 0,
         order_by: str = "score DESC",
+        exclude_dead: bool = False,
     ) -> List[Lead]:
-        """Query leads with filters."""
+        """Query leads with filters applied before pagination."""
         conditions = []
         params = []
 
@@ -413,6 +414,9 @@ class LeadDB:
             conditions.append("(l.phone IS NOT NULL AND l.phone != '')" if has_phone
                               else "(l.phone IS NULL OR l.phone = '')")
 
+        if exclude_dead:
+            conditions.append("(l.status IS NULL OR l.status != ?)")
+            params.append("dead")
         if status:
             conditions.append("l.status = ?")
             params.append(status)

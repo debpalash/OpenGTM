@@ -132,9 +132,8 @@ def list_leads(
         limit=limit,
         offset=offset,
         order_by=order_by,
+        exclude_dead=status_filter != "dead",
     )
-    if status_filter != "dead":
-        leads = [l for l in leads if l.status != "dead"]
     result = [l.to_dict() for l in leads]
     db.close()
     return result
