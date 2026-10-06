@@ -307,6 +307,8 @@ async def _do_send(store: PgOutreachStore, ws_id: str, idem: str, payload: dict)
     # records the failure + schedules a retry.
     _settle_reservation(store, ws_id, reservation, ok=False)
     _finalize_send(store, idem, status="failed", error=err)
+    if enrollment_id is not None:
+        store.advance_enrollment(enrollment_id, status="failed", error=err)
     raise RuntimeError(f"outreach send transient failure: {err[:160]}")
 
 

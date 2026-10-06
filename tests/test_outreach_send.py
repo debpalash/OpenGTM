@@ -367,3 +367,65 @@ async def _handle(ws, payload):
     with workspace_scope(ws):
         store = PgOutreachStore(ws)
         await _do_send(store, ws, payload["idempotency_key"], payload)
+
+
+@pytest.mark.parametrize("historical_pending", [False, True])
+def test_failed_send_does_not_starve_later_due_enrollment(SL, env, monkeypatch, historical_pending):
+    from apps.api.services.outreach import sender, sending
+    from apps.api.services.outreach.store import PgOutreachStore
+
+    calls = []
+
+    async def fail_send(**kwargs):
+        calls.append(kwargs["to_email"])
+        return sender.SendResult(success=False, error="Connection refused")
+
+    monkeypatch.setattr(sender, "send_email", fail_send)
+    monkeypatch.setattr(settings, "OUTREACH_SEND_COST_USD", 0)
+    monkeypatch.setattr(settings, "OUTREACH_TICK_MAX_ENQUEUE", 1)
+    store = PgOutreachStore(WS)
+    seq = _mk_active_seq(store)
+    first_id = store.enroll(seq["id"], 1, "first@example.com")
+    first_idem = sending.sequence_step_idem(WS, seq["id"], first_id, 0)
+    payload = {"workspace_id": WS, "sequence_id": seq["id"], "enrollment_id": first_id,
+               "lead_id": 1, "step_number": 0, "to_email": "first@example.com",
+               "idempotency_key": first_idem}
+    with pytest.raises(RuntimeError, match="transient failure"):
+        _run(sending.handle_send(1, payload))
+    assert store.get_send_by_idem(first_idem).status == "failed"
+    _run(sending.handle_send(1, payload))
+    assert calls == ["first@example.com"]
+    if historical_pending:
+        # Existing deployments persisted failed sends with pending enrollments.
+        store.advance_enrollment(first_id, status="pending")
+    second_id = store.enroll(seq["id"], 2, "second@example.com")
+    assert sending.tick_sequence(WS, seq["id"]) == 1
+    with SL() as db:
+        sends = db.query(Job).filter(Job.type == "send", Job.status == "pending").all()
+        assert len(sends) == 1
+        assert sends[0].payload["enrollment_id"] == second_id
+    if not historical_pending:
+        assert store.get_enrollment(first_id).status == "failed"
+        assert store.get_enrollment(first_id).error == "Connection refused"
+
+
+def test_sent_previous_step_does_not_hide_next_due_step(SL, env, monkeypatch):
+    from apps.api.services.outreach import sending
+    from apps.api.services.outreach.store import PgOutreachStore
+
+    monkeypatch.setattr(settings, "OUTREACH_SEND_COST_USD", 0)
+    store = PgOutreachStore(WS)
+    seq = _mk_active_seq(store)
+    seq["steps"][1]["delay_hours"] = 0
+    store.update_sequence(seq["id"], {"steps": seq["steps"]})
+    enrollment_id = store.enroll(seq["id"], 1, "reader@example.com")
+    idem = sending.sequence_step_idem(WS, seq["id"], enrollment_id, 0)
+    _run(sending.handle_send(1, {
+        "workspace_id": WS, "sequence_id": seq["id"], "enrollment_id": enrollment_id,
+        "lead_id": 1, "step_number": 0, "to_email": "reader@example.com", "idempotency_key": idem,
+    }))
+    assert store.get_send_by_idem(idem).status == "sent"
+    assert sending.tick_sequence(WS, seq["id"]) == 1
+    with SL() as db:
+        job = db.query(Job).filter(Job.type == "send", Job.status == "pending").one()
+        assert job.payload["enrollment_id"] == enrollment_id and job.payload["step_number"] == 1
