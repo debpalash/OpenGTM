@@ -357,16 +357,17 @@ def bootstrap_inbound_schedules() -> int:
     from apps.api.core.tenancy import workspace_scope
     from apps.api.services.outreach.orm_models import OutreachSchedule
     from apps.api.services.outreach.sender import is_imap_configured
+    from sqlalchemy import or_
 
     now = _utcnow()
     enqueued = 0
     with SessionLocal() as db:
         rows = db.query(OutreachInboundSchedule).all()
         existing_ws = {r.workspace_id for r in rows}
-        due_ws = [
-            r.workspace_id for r in rows
-            if r.enabled and (r.next_poll_at is None or r.next_poll_at <= now)
-        ]
+        due_ws = [r.workspace_id for r in db.query(OutreachInboundSchedule).filter(
+            OutreachInboundSchedule.enabled.is_(True),
+            or_(OutreachInboundSchedule.next_poll_at.is_(None), OutreachInboundSchedule.next_poll_at <= now),
+        ).all()]
         # Seed inbound schedules for IMAP-configured workspaces that have outreach
         # activity but no inbound mirror row yet.
         seed_ws = {
