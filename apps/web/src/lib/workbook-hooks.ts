@@ -436,6 +436,8 @@ export function useWorkbookSocket(workbookId: string | undefined) {
       wsRef.current = null
       setConnected(false)
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+      pendingUpdates.current.clear()
     }
   }, [workbookId, qc, flushUpdates])
 
