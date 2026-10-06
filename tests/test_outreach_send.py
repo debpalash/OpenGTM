@@ -367,3 +367,68 @@ async def _handle(ws, payload):
     with workspace_scope(ws):
         store = PgOutreachStore(ws)
         await _do_send(store, ws, payload["idempotency_key"], payload)
+
+
+@pytest.mark.parametrize("sequence", [True, False])
+@pytest.mark.parametrize("body_html, expected", [
+    ("<p>R&amp;D</p>", "R&D"),
+    ("<p>Caf&#233;</p>", "Café"),
+    ("<p>&lt;strong&gt;literal&lt;/strong&gt;</p>", "<strong>literal</strong>"),
+    ("<p>Ordinary text</p>", "Ordinary text"),
+])
+def test_plaintext_mime_decodes_html_entities(SL, monkeypatch, sequence, body_html, expected):
+    import smtplib
+    from apps.api.services.outreach import sender, sending
+    from apps.api.services.outreach.store import PgOutreachStore
+
+    captured = []
+
+    class CaptureSMTP:
+        def __init__(self, host, port):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def starttls(self):
+            pass
+
+        def login(self, user, password):
+            pass
+
+        def send_message(self, message):
+            captured.append(message)
+
+    monkeypatch.setattr(smtplib, "SMTP", CaptureSMTP)
+    cfg = sender.SMTPConfig(host="smtp.example.com", port=587, email="me@example.com", password="test")
+    monkeypatch.setattr(sender, "get_smtp_config", lambda ws=None: cfg)
+    monkeypatch.setattr(sending, "_footer", lambda ws: "Acme, 1 Main St, NY")
+    monkeypatch.setattr(settings, "OUTREACH_SEND_COST_USD", 0)
+    if sequence:
+        store = PgOutreachStore(WS)
+        seq = store.create_sequence(
+            "HTML", steps=[{"step_number": 0, "subject": "Hi", "body_html": body_html, "delay_hours": 0}],
+            send_window_start=0, send_window_end=24, consent_basis="legit",
+        )
+        store.set_sequence_status(seq["id"], "active")
+        enrollment_id = store.enroll(seq["id"], 71, "reader@example.com")
+        idem = sending.sequence_step_idem(WS, seq["id"], enrollment_id, 0)
+        _run(sending.handle_send(1, {
+            "workspace_id": WS, "sequence_id": seq["id"], "enrollment_id": enrollment_id,
+            "lead_id": 71, "step_number": 0, "to_email": "reader@example.com", "idempotency_key": idem,
+        }))
+        assert store.get_send_by_idem(idem).status == "sent"
+    else:
+        result = _run(sender.send_email(to_email="reader@example.com", subject="Hi", body_html=body_html, config=cfg))
+        assert result.success
+    assert len(captured) == 1
+    parts = {part.get_content_type(): part.get_payload(decode=True).decode(part.get_content_charset())
+             for part in captured[0].get_payload()}
+    assert parts["text/plain"].split("\n\n--\n", 1)[0] == expected
+    assert body_html in parts["text/html"]
+    if sequence:
+        assert "Acme, 1 Main St, NY" in parts["text/plain"]
+        assert "Unsubscribe:" in parts["text/plain"]
