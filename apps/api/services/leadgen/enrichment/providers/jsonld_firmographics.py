@@ -20,6 +20,7 @@ import logging
 import re
 import time
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlsplit
 
 from apps.api.services.leadgen.enrichment.provider import EnrichmentProvider, EnrichmentResult
 from apps.api.services.leadgen.models import Lead
@@ -163,8 +164,12 @@ def extract_firmographics(html_text: str) -> Dict[str, str]:
             for url in same:
                 if not isinstance(url, str):
                     continue
+                try:
+                    host = (urlsplit(url.strip()).hostname or "").rstrip(".")
+                except ValueError:
+                    continue
                 for dom, key in _SOCIAL_MAP.items():
-                    if dom in url and key not in socials:
+                    if (host == dom or host.endswith("." + dom)) and key not in socials:
                         socials[key] = url.strip()
 
     # 2) OpenGraph fallback for anything still missing.
