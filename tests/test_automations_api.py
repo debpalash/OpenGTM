@@ -225,3 +225,26 @@ def test_router_404_when_disabled(client, monkeypatch):
     monkeypatch.setattr(settings, "AUTOMATIONS_ENABLED", False, raising=False)
     r = tc.get("/api/automations/triggers")
     assert r.status_code == 404
+
+@pytest.mark.parametrize("deadline", ["due", "future"])
+def test_schedule_bootstrap_reads_persisted_sqlite_deadlines(client, monkeypatch, deadline):
+    from datetime import datetime, timedelta, timezone
+    from apps.api.models import Job
+    from apps.api.services.automations import engine
+
+    tc, Session = client
+    Base.metadata.create_all(Session.kw["bind"], tables=[Job.__table__])
+    monkeypatch.setattr(engine, "SessionLocal", Session)
+    created = tc.post("/api/automations/triggers", json={
+        "name": f"Scheduled {deadline}", "trigger_type": "on_schedule",
+        "trigger_config": {"interval": "hourly"}, "actions": [],
+    })
+    assert created.status_code == 200, created.text
+    with Session() as db:
+        mirror = db.get(ScheduledTrigger, created.json()["id"])
+        assert mirror is not None and mirror.next_run_at.tzinfo is None
+        if deadline == "due":
+            mirror.next_run_at = datetime.now(timezone.utc) - timedelta(minutes=1)
+            db.query(Job).delete()
+            db.commit()
+    assert engine.bootstrap_schedules() == (1 if deadline == "due" else 0)

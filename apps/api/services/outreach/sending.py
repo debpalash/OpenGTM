@@ -498,19 +498,22 @@ def bootstrap_outreach_schedules() -> int:
     if not getattr(settings, "AUTOMATIONS_ENABLED", False):
         return 0
     from apps.api.services.outreach.orm_models import OutreachSchedule
+    from sqlalchemy import or_
 
     now = _utcnow()
     enqueued = 0
     with SessionLocal() as db:
         due = (
             db.query(OutreachSchedule)
-            .filter(OutreachSchedule.enabled.is_(True))
+            .filter(
+                OutreachSchedule.enabled.is_(True),
+                or_(OutreachSchedule.next_tick_at.is_(None), OutreachSchedule.next_tick_at <= now),
+            )
             .all()
         )
         due_ids = [
             (r.sequence_id, r.workspace_id)
             for r in due
-            if r.next_tick_at is None or r.next_tick_at <= now
         ]
     for seq_id, ws_id in due_ids:
         try:

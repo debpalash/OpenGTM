@@ -493,6 +493,7 @@ def bootstrap_schedules():
         return 0
     from apps.api.core.tenancy import workspace_scope
     from apps.api.services.automations.models import ScheduledTrigger, Trigger
+    from sqlalchemy import or_
 
     now = datetime.now(timezone.utc)
     enqueued = 0
@@ -500,11 +501,13 @@ def bootstrap_schedules():
     with SessionLocal() as db:
         due = (
             db.query(ScheduledTrigger)
-            .filter(ScheduledTrigger.enabled.is_(True))
+            .filter(
+                ScheduledTrigger.enabled.is_(True),
+                or_(ScheduledTrigger.next_run_at.is_(None), ScheduledTrigger.next_run_at <= now),
+            )
             .all()
         )
-        due_ids = [(r.trigger_id, r.workspace_id) for r in due
-                   if r.next_run_at is None or r.next_run_at <= now]
+        due_ids = [(r.trigger_id, r.workspace_id) for r in due]
     for trigger_id, workspace_id in due_ids:
         with workspace_scope(workspace_id):
             with SessionLocal() as db:
