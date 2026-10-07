@@ -13,6 +13,7 @@ import {
   flexRender, type ColumnDef, type CellContext, type SortingState,
 } from "@tanstack/react-table"
 import { useVirtualizer } from "@tanstack/react-virtual"
+import { parseClipboardTable, serializeClipboardTable } from "@/lib/workbook-clipboard"
 import { workbookColumnWindow } from "@/lib/workbook-column-window"
 import { loadedCellProgress, isExecutableColumn } from "@/lib/workbook-progress"
 import {
@@ -1241,11 +1242,11 @@ export default function WorkbookEditorPage() {
     }
     if (shortcut && event.key.toLowerCase() === "c") {
       event.preventDefault()
-      const text = Array.from({ length: range.bottom - range.top + 1 }, (_, rowOffset) =>
+      const text = serializeClipboardTable(Array.from({ length: range.bottom - range.top + 1 }, (_, rowOffset) =>
         Array.from({ length: range.right - range.left + 1 }, (_, columnOffset) =>
           String(gridCellValue(range.top + rowOffset, range.left + columnOffset))
-        ).join("\t")
-      ).join("\n")
+        )
+      ))
       navigator.clipboard.writeText(text)
         .then(() => toast.success("Copied selection", { duration: 1200 }))
         .catch(() => toast.error("Clipboard access was denied"))
@@ -1322,11 +1323,13 @@ export default function WorkbookEditorPage() {
   const handleGridPaste = useCallback((event: React.ClipboardEvent<HTMLTableCellElement>, startRow: number, startColumn: number) => {
     const target = event.target as HTMLElement
     if (target.matches("input, textarea, [contenteditable=true]")) return
-    const matrix = event.clipboardData.getData("text/plain")
-      .replace(/\r\n/g, "\n")
-      .replace(/\n$/, "")
-      .split("\n")
-      .map(line => line.split("\t"))
+    let matrix: string[][]
+    try { matrix = parseClipboardTable(event.clipboardData.getData("text/plain")) }
+    catch (error) {
+      event.preventDefault()
+      toast.error(error instanceof Error ? error.message : "Clipboard could not be parsed")
+      return
+    }
     if (!matrix.length || !matrix[0].length) return
 
     const visibleColumns = table.getVisibleLeafColumns()
