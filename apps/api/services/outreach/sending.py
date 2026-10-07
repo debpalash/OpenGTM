@@ -60,6 +60,7 @@ def build_message(
     # conspicuous link survives — send_email no longer strips it, §6.5).
     import re
     text_body = re.sub(r"<[^>]+>", "", body_html)
+    text_body = _html.unescape(text_body)
     text_body = re.sub(r"\s+\n", "\n", text_body)
     text_body = re.sub(r"[ \t]+", " ", text_body).strip()
 

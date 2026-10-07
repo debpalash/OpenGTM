@@ -6,6 +6,7 @@ Template rendering via Jinja2 with lead variables.
 """
 
 import asyncio
+import html
 import logging
 import time
 from email.mime.text import MIMEText
@@ -261,6 +262,7 @@ async def send_email(
     if not body_text:
         import re
         body_text = re.sub(r"<[^>]+>", "", body_html)
+        body_text = html.unescape(body_text)
         body_text = re.sub(r"\s+", " ", body_text).strip()
 
     msg.attach(MIMEText(body_text, "plain"))
