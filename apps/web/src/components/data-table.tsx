@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -69,6 +69,17 @@ export function DataTable<TData, TValue>({
   })
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const tableContainerRef = useRef<HTMLDivElement>(null)
+
+  const previousData = useRef(data)
+  useEffect(() => {
+    const previous = previousData.current
+    previousData.current = data
+    // Index-based selections must never move to different backing records.
+    if (Object.keys(rowSelection).some(key => rowSelection[key] && previous[Number(key)] !== data[Number(key)])) {
+      setRowSelection({})
+      onSelectionChange?.([])
+    }
+  }, [data, rowSelection, onSelectionChange])
 
   // Prepend select column if enabled
   const allColumns = enableSelection
