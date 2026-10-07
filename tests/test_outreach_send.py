@@ -367,3 +367,43 @@ async def _handle(ws, payload):
     with workspace_scope(ws):
         store = PgOutreachStore(ws)
         await _do_send(store, ws, payload["idempotency_key"], payload)
+
+@pytest.mark.parametrize("variables, expected", [
+    ({"name": "Jane {{company}}", "company": "Acme"}, "Hi Jane {{company}}"),
+    ({"name": "Jane {{unknown}}"}, "Hi Jane {{unknown}}"),
+    ({"name": 0}, "Hi 0"),
+    ({"name": False}, "Hi False"),
+    ({"name": "Jane"}, "Hi Jane"),
+    ({}, "Hi"),
+])
+def test_sequence_templates_keep_literal_variable_values(SL, env, monkeypatch, variables, expected):
+    from apps.api.services.outreach.store import PgOutreachStore
+    from apps.api.services.outreach import sender, sending
+
+    captured = []
+
+    async def capture_send(**kwargs):
+        captured.append(kwargs)
+        return sender.SendResult(success=True, message_id="<literal-test@example.com>")
+
+    monkeypatch.setattr(sender, "send_email", capture_send)
+    monkeypatch.setattr(settings, "OUTREACH_SEND_COST_USD", 0)
+    store = PgOutreachStore(WS)
+    seq = store.create_sequence(
+        "Literal values", steps=[{"step_number": 0, "subject": "Hi {{name}}",
+                                 "body_html": "<p>Hi {{name}}</p>", "delay_hours": 0}],
+        send_window_start=0, send_window_end=24, consent_basis="legit",
+    )
+    store.set_sequence_status(seq["id"], "active")
+    enrollment_id = store.enroll(seq["id"], 71, "reader@example.com")
+    idem = sending.sequence_step_idem(WS, seq["id"], enrollment_id, 0)
+    _run(sending.handle_send(1, {
+        "workspace_id": WS, "sequence_id": seq["id"], "enrollment_id": enrollment_id,
+        "lead_id": 71, "step_number": 0, "to_email": "reader@example.com",
+        "idempotency_key": idem, "variables": variables,
+    }))
+    assert len(captured) == 1
+    assert captured[0]["subject"] == expected
+    expected_html = "<p>Hi </p>" if expected == "Hi" else f"<p>{expected}</p>"
+    assert expected_html in captured[0]["body_html"]
+    assert store.get_send_by_idem(idem).subject == expected
