@@ -178,3 +178,18 @@ def test_gated_clients_inert():
     assert ss.is_available() is False
     # content_extract depends only on an optional import; just must not raise.
     assert ce.is_available() in (True, False)
+
+
+@pytest.mark.parametrize("email,expected", [
+    ("office@acme.com", "office@acme.com"),
+    ("olivia@acme.com", "olivia@acme.com"),
+    ("mailto:olivia@acme.com", "olivia@acme.com"),
+    ("MAILTO:olivia@acme.com", "olivia@acme.com"),
+    (" hr@acme.com ", "hr@acme.com"),
+])
+def test_jsonld_preserves_email_localpart(email, expected):
+    import json
+    page = '<script type="application/ld+json">' + json.dumps({
+        "@type": "Organization", "name": "Acme", "email": email,
+    }) + '</script>'
+    assert extract_firmographics(page)["email"] == expected

@@ -137,7 +137,7 @@ def extract_firmographics(html_text: str) -> Dict[str, str]:
 
         email = org.get("email")
         if isinstance(email, str) and "@" in email:
-            fields["email"] = email.strip().lstrip("mailto:")
+            fields["email"] = re.sub(r"^mailto:", "", email.strip(), flags=re.I)
 
         addr_str = _flatten_address(org.get("address"))
         if addr_str:
