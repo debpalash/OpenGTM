@@ -36,14 +36,14 @@ def test_workbook_socket_updates_after_navigation_with_pending_frame():
                     page.on('pageerror',lambda e:errors.append(str(e)))
                     page.goto(origin);page.wait_for_function('typeof window.mount === "function"')
                     page.evaluate('(ids)=>{seed(ids[0]);seed(ids[1]);mount(ids[0]);}',[first,second])
-                    page.wait_for_function('(id)=>fetch("/connected").then(r=>r.json()).then(ids=>ids.includes(id))',arg=first)
+                    page.wait_for_function('(id)=>socketReady(id)',arg=first)
                     if mode=='navigate-with-pending-frame':
                         assert page.request.get(origin+f'/send?id={first}&column=old&value=old-A').status==200
                         page.wait_for_function('pending()===1')
                     target=first if mode=='same-workbook' else second
                     if target==second:
                         page.evaluate('(id)=>mount(id)',second)
-                        page.wait_for_function('(pair)=>fetch("/connected").then(r=>r.json()).then(ids=>ids.includes(pair[1])&&!ids.includes(pair[0]))',arg=[first,second])
+                        page.wait_for_function('(pair)=>socketReady(pair[1])&&!socketReady(pair[0])',arg=[first,second])
                     assert page.request.get(origin+f'/send?id={target}&column=current&value=current-{target}').status==200
                     # A real subsequent message is a protocol acknowledgement that
                     # queued earlier WebSocket events have reached the mounted hook.

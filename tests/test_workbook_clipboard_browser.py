@@ -54,9 +54,12 @@ def test_workbook_clipboard_preserves_cell_boundaries():
                 ]
                 observed = []
                 for index, (text, expected) in enumerate(cases):
-                    cell.evaluate('''(element,text)=>{const data=new DataTransfer();data.setData("text/plain",text);
-                        element.dispatchEvent(new ClipboardEvent("paste",{clipboardData:data,bubbles:true,cancelable:true}));}''', text)
-                    page.wait_for_function("count=>fetch('/received').then(r=>r.json()).then(items=>items.length>=count)", arg=index + 1)
+                    with page.expect_response(lambda response:
+                            response.url == origin + "/api/workbooks/native/rows"
+                            and response.request.method == "PATCH") as update_response:
+                        cell.evaluate('''(element,text)=>{const data=new DataTransfer();data.setData("text/plain",text);
+                            element.dispatchEvent(new ClipboardEvent("paste",{clipboardData:data,bubbles:true,cancelable:true}));}''', text)
+                    assert update_response.value.status == 200
                     observed.append(page.request.get(origin + "/received").json()[index]["updates"])
                 print(json.dumps({"copied": copied, "updates": observed, "errors": errors}, indent=2))
                 assert copied == '"first\nsecond"'
