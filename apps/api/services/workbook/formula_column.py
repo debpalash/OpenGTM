@@ -18,7 +18,7 @@ Columns reference each other with {column} (same as AI columns). Examples:
 import ast
 import logging
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 logger = logging.getLogger("workbook.formula_column")
 
@@ -127,7 +127,8 @@ def _eval(node: ast.AST, variables: Dict[str, Any]) -> Any:
         if isinstance(idx, ast.Slice):
             lo = _eval(idx.lower, variables) if idx.lower else None
             hi = _eval(idx.upper, variables) if idx.upper else None
-            return target[lo:hi]
+            step = _eval(idx.step, variables) if idx.step else None
+            return target[lo:hi:step]
         key = _eval(idx, variables)
         try:
             return target[key]
