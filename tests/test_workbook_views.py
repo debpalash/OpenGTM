@@ -1399,6 +1399,117 @@ def test_saved_view_custom_sort_supports_stable_cursor_paging(client):
 
 # ── Views CRUD ────────────────────────────────────────────────────────────
 
+@pytest.mark.parametrize("note", ["Customer description " * 40, "客户说明" * 40], ids=["long-ascii", "unicode"])
+def test_saved_view_cursor_can_page_long_valid_cell_text(client, note):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "notes", "name": "Notes", "type": "input", "lead_field": "notes"},
+    ])
+    first_id = _mk_row(Session, wid, {"notes": note})
+    second_id = _mk_row(Session, wid, {"notes": note + " later"})
+    created = tc.post(f"/api/v2/workbooks/{wid}/views", json={
+        "name": "Notes ascending",
+        "config": {"sort": [{"column": "notes", "dir": "asc"}]},
+    })
+    assert created.status_code == 201, created.text
+    params = {"cursor_mode": True, "page_size": 1, "view_id": created.json()["id"]}
+    first = tc.get(f"/api/workbooks/{wid}", params=params)
+    assert first.status_code == 200, first.text
+    assert [row["row_id"] for row in first.json()["rows"]] == [first_id]
+    cursor = first.json()["next_cursor"]
+    assert cursor
+    second = tc.get(f"/api/workbooks/{wid}", params={**params, "cursor": cursor})
+    assert second.status_code == 200, second.text
+    assert [row["row_id"] for row in second.json()["rows"]] == [second_id]
+    assert second.json()["has_more"] is False
+
+
+@pytest.mark.parametrize("change", ["delete", "value", "sort", "filter", "search", "workbook", "row-id"])
+def test_long_saved_view_cursor_rejects_changed_anchor_or_query(client, change):
+    import base64
+    import json
+
+    tc, Session, _ = client
+    columns = [{"id": "notes", "name": "Notes", "type": "input", "lead_field": "notes"}]
+    wid = _mk_workbook(Session, columns)
+    note = "Customer description " * 40
+    row_id = _mk_row(Session, wid, {"notes": note})
+    _mk_row(Session, wid, {"notes": note + " later"})
+    config = {"sort": [{"column": "notes", "dir": "asc"}]}
+    view_id = tc.post(f"/api/v2/workbooks/{wid}/views", json={"name": "Notes", "config": config}).json()["id"]
+    params = {"cursor_mode": True, "page_size": 1, "view_id": view_id}
+    cursor = tc.get(f"/api/workbooks/{wid}", params=params).json()["next_cursor"]
+    assert len(cursor) <= 512
+    params["cursor"] = cursor
+    if change in ("delete", "value"):
+        with Session() as db:
+            row = db.get(WorkbookRow, row_id)
+            if change == "delete":
+                db.delete(row)
+            else:
+                row.data = {"notes": note + " changed"}
+            db.commit()
+    elif change in ("sort", "filter"):
+        if change == "sort":
+            config["sort"][0]["dir"] = "desc"
+        else:
+            config["filters"] = [{"column": "notes", "op": "contains", "value": "description"}]
+        assert tc.put(f"/api/v2/workbooks/{wid}/views/{view_id}", json={"config": config}).status_code == 200
+    elif change == "search":
+        params["search"] = "description"
+    elif change == "workbook":
+        wid = _mk_workbook(Session, columns)
+        _mk_row(Session, wid, {"notes": note})
+        params["view_id"] = tc.post(f"/api/v2/workbooks/{wid}/views", json={"name": "Notes", "config": config}).json()["id"]
+    else:
+        other_wid = _mk_workbook(Session, columns)
+        other_row = _mk_row(Session, other_wid, {"notes": note})
+        payload = json.loads(base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4)))
+        payload["row"] = other_row
+        params["cursor"] = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+    response = tc.get(f"/api/workbooks/{wid}", params=params)
+    assert response.status_code == 400, response.text
+
+
+def test_short_saved_view_cursor_survives_deleted_anchor(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": "notes", "name": "Notes", "type": "input"}])
+    row_id = _mk_row(Session, wid, {"notes": "A"})
+    second_id = _mk_row(Session, wid, {"notes": "B"})
+    view_id = tc.post(f"/api/v2/workbooks/{wid}/views", json={
+        "name": "Notes", "config": {"sort": [{"column": "notes", "dir": "asc"}]},
+    }).json()["id"]
+    params = {"cursor_mode": True, "page_size": 1, "view_id": view_id}
+    cursor = tc.get(f"/api/workbooks/{wid}", params=params).json()["next_cursor"]
+    with Session() as db:
+        db.delete(db.get(WorkbookRow, row_id))
+        db.commit()
+    response = tc.get(f"/api/workbooks/{wid}", params={**params, "cursor": cursor})
+    assert response.status_code == 200, response.text
+    assert [row["row_id"] for row in response.json()["rows"]] == [second_id]
+
+
+def test_long_multicolumn_saved_view_cursor_pages_ties(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": name, "name": name, "type": "input"} for name in ("notes", "rank")])
+    note = "Long description " * 40
+    expected = [_mk_row(Session, wid, {"notes": note, "rank": rank}) for rank in ("C", "B", "B", "A")]
+    view_id = tc.post(f"/api/v2/workbooks/{wid}/views", json={"name": "Notes", "config": {"sort": [
+        {"column": "notes", "dir": "asc"}, {"column": "rank", "dir": "desc"},
+    ]}}).json()["id"]
+    params = {"cursor_mode": True, "page_size": 1, "view_id": view_id}
+    seen = []
+    for _ in range(4):
+        response = tc.get(f"/api/workbooks/{wid}", params=params)
+        assert response.status_code == 200, response.text
+        seen.extend(row["row_id"] for row in response.json()["rows"])
+        cursor = response.json()["next_cursor"]
+        if not cursor:
+            break
+        assert len(cursor) <= 512
+        params["cursor"] = cursor
+    assert seen == expected
+
 def test_views_crud(client):
     tc, Session, _ = client
     wid = _mk_workbook(Session, [{"id": "company", "name": "Company", "type": "lead_field"}])
