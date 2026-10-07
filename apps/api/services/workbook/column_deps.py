@@ -26,7 +26,11 @@ def _refs_in(col: dict) -> set:
     for f in _TEMPLATED_FIELDS:
         v = col.get(f)
         if isinstance(v, str):
-            refs.update(m.strip() for m in _REF_RE.findall(v))
+            if f == "formula":
+                from apps.api.services.workbook.formula_column import formula_references
+                refs.update(formula_references(v))
+            else:
+                refs.update(m.strip() for m in _REF_RE.findall(v))
     for ref in col.get("input_columns") or []:
         if isinstance(ref, str) and ref.strip():
             refs.add(ref.strip())

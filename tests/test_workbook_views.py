@@ -2503,3 +2503,20 @@ def test_add_rows_count_excludes_other_workbooks(client):
     response = tc.post(f"/api/workbooks/{wid}/rows", json={"rows": [{"company": "New"}]})
     assert response.status_code == 200, response.text
     assert response.json()["total_rows"] == 1
+@pytest.mark.parametrize("literal", ["{copy}", "Literal {producer}"])
+def test_literal_formula_braces_do_not_create_execution_dependencies(client, literal):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [])
+    row_id = _mk_row(Session, wid, {})
+    response = tc.post(f"/api/workbooks/{wid}/columns", json={"column": {
+        "id": "producer", "name": "Producer", "type": "formula", "formula": "'ready'",
+    }})
+    assert response.status_code == 200, response.text
+    response = tc.post(f"/api/workbooks/{wid}/columns", json={"column": {
+        "id": "copy", "name": "Copy", "type": "formula", "formula": repr(literal),
+    }})
+    assert response.status_code == 200, response.text
+    response = tc.post(f"/api/workbooks/{wid}/rows/{row_id}/cells/copy/run", json={"force": True})
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "complete", response.json()
+    assert response.json()["value"] == literal

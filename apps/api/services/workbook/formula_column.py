@@ -18,7 +18,7 @@ Columns reference each other with {column} (same as AI columns). Examples:
 import ast
 import logging
 import re
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 
 logger = logging.getLogger("workbook.formula_column")
 
@@ -182,6 +182,53 @@ def _eval(node: ast.AST, variables: Dict[str, Any]) -> Any:
 _PLACEHOLDER_RE = re.compile(r"\{([^}]+)\}")
 
 
+def _replace_formula_references(expr: str, replace: Callable[[re.Match[str]], str]) -> str:
+    # Resolve references only outside Python string literals. A global regex
+    # would turn the literal "{Name}" into "_v0", silently corrupting output.
+    parts = []
+    cursor = 0
+    while cursor < len(expr):
+        start = cursor
+        char = expr[cursor]
+        if char in ("'", '"'):
+            delimiter = char * 3 if expr.startswith(char * 3, cursor) else char
+            cursor += len(delimiter)
+            while cursor < len(expr):
+                if expr[cursor] == "\\":
+                    cursor += 2
+                elif expr.startswith(delimiter, cursor):
+                    cursor += len(delimiter)
+                    break
+                else:
+                    cursor += 1
+            parts.append(expr[start:cursor])
+        elif char == "#":
+            end = expr.find("\n", cursor)
+            cursor = len(expr) if end == -1 else end
+            parts.append(expr[start:cursor])
+        else:
+            match = _PLACEHOLDER_RE.match(expr, cursor)
+            if match:
+                parts.append(replace(match))
+                cursor = match.end()
+            else:
+                parts.append(char)
+                cursor += 1
+    return "".join(parts)
+
+
+def formula_references(expr: str) -> set[str]:
+    """References used by evaluation, excluding literal strings and comments."""
+    refs: set[str] = set()
+
+    def collect(match):
+        refs.add(match.group(1).strip())
+        return match.group(0)
+
+    _replace_formula_references(expr, collect)
+    return refs
+
+
 def evaluate_formula(expr: str, row_values: Dict[str, str]) -> Any:
     """Evaluate a formula expression, resolving {column} refs from row_values."""
     if not expr or not expr.strip():
@@ -207,7 +254,7 @@ def evaluate_formula(expr: str, row_values: Dict[str, str]) -> Any:
             variables[var] = "" if val is None else val
         return name_for[key]
 
-    safe_expr = _PLACEHOLDER_RE.sub(_sub, expr)
+    safe_expr = _replace_formula_references(expr, _sub)
 
     try:
         tree = ast.parse(safe_expr, mode="eval")
