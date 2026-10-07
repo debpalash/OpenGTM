@@ -93,13 +93,7 @@ def resolve_candidate_rows(db, trigger, payload) -> list:
 
 def _lead_data_for_action(row, columns_config) -> dict:
     """Build the lead_data dict execute_output_column / templates expect."""
-    data = dict(row.data or {})
-    # merge enrichment overlay (column_id -> value) so {col} placeholders resolve
-    for cid, cell in (row.enrichments or {}).items():
-        if isinstance(cell, dict) and "value" in cell:
-            data.setdefault(cid, cell.get("value"))
-        else:
-            data.setdefault(cid, cell)
+    data = _row_cells(row)
     data.setdefault("id", row.lead_id or row.id)
     if row.lead_id:
         data.setdefault("lead_id", row.lead_id)
