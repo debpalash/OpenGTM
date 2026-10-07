@@ -192,3 +192,40 @@ def test_record_attempt_is_atomic_under_sqlite_concurrency(tmp_path, monkeypatch
         assert stat.hits == 40
         assert stat.total_confidence == pytest.approx(32.0)
         assert stat.total_latency_ms == pytest.approx(800.0)
+
+
+def test_recorded_eval_counts_unanswered_cases_in_provider_coverage(tmp_path):
+    import json
+
+    golden = tmp_path / "golden.json"
+    recorded = tmp_path / "recorded.json"
+    golden.write_text(json.dumps({"cases": [
+        {"id": "acme", "expected": {"website": "acme.com"}},
+        {"id": "beta", "expected": {"website": "beta.com", "founding_year": "2002"}},
+    ]}))
+    recorded.write_text(json.dumps({"outputs": {
+        "acme": {"partial": {"fields": {"website": "acme.com"}},
+                 "complete": {"fields": {"website": "acme.com"}}},
+        "beta": {"complete": {"fields": {"website": "beta.com", "founding_year": "2002"}}},
+        "not_in_golden": {"partial": {"fields": {"website": "noise.com"}}},
+    }}))
+    scores = {score.provider: score for score in scorer.run_eval(str(golden), str(recorded))}
+    assert scores["partial"].golden_slots == 3
+    assert scores["partial"].coverage == pytest.approx(1 / 3)
+    assert scores["partial"].accuracy == 1.0
+    assert scores["complete"].golden_slots == 3
+    assert scores["complete"].coverage == 1.0
+
+
+def test_recorded_eval_preserves_zero_assertions_for_recorded_empty_provider(tmp_path):
+    import json
+
+    golden = tmp_path / "golden.json"
+    recorded = tmp_path / "recorded.json"
+    golden.write_text(json.dumps({"cases": [{"id": "acme", "expected": {"website": "acme.com"}},
+                                          {"id": "beta", "expected": {"website": "beta.com"}}]}))
+    recorded.write_text(json.dumps({"outputs": {"acme": {"empty": {"fields": {}}}}}))
+    score, = scorer.run_eval(str(golden), str(recorded))
+    assert score.golden_slots == 2
+    assert score.asserted == 0
+    assert score.coverage == score.accuracy == score.score == 0.0
