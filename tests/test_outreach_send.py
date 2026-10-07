@@ -541,5 +541,3 @@ def test_sent_previous_step_does_not_hide_next_due_step(SL, env, monkeypatch):
     with SL() as db:
         job = db.query(Job).filter(Job.type == "send", Job.status == "pending").one()
         assert job.payload["enrollment_id"] == enrollment_id and job.payload["step_number"] == 1
-
-

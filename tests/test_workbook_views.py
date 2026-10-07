@@ -2739,5 +2739,3 @@ def test_saved_view_empty_comparison_still_matches_missing_values(client, compar
     rows = tc.get(f"/api/workbooks/{wid}", params={"view_id": created.json()["id"]})
     assert rows.status_code == 200, rows.text
     assert [row["row_id"] for row in rows.json()["rows"]] == [blank]
-
-
