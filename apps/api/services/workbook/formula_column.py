@@ -261,7 +261,12 @@ def evaluate_formula(expr: str, row_values: Dict[str, str]) -> Any:
     except SyntaxError as e:
         raise FormulaError(f"syntax error: {e}")
     _validate(tree)
-    return _eval(tree, variables)
+    try:
+        return _eval(tree, variables)
+    except (ArithmeticError, TypeError, ValueError) as error:
+        # Valid formulas may encounter missing, zero or nonnumeric row values.
+        # Report them through the same per-cell error contract as syntax errors.
+        raise FormulaError(str(error)) from error
 
 
 async def execute_formula_column(col_config: dict, lead_data: dict, columns_config: list) -> Dict[str, Any]:

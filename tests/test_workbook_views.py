@@ -2575,6 +2575,8 @@ def test_budget_update_rejects_foreign_workbook(client):
         app.dependency_overrides[require_editor] = lambda: _ctx(WS1)
 
 
+
+
 @pytest.mark.parametrize("positions", [[], [7], [0, 1]])
 def test_add_rows_reports_stored_count_instead_of_position(client, positions):
     tc, Session, _ = client
@@ -2631,3 +2633,32 @@ def test_literal_formula_braces_do_not_create_execution_dependencies(client, lit
     assert response.status_code == 200, response.text
     assert response.json()["status"] == "complete", response.json()
     assert response.json()["value"] == literal
+
+
+@pytest.mark.parametrize("formula,data,error", [
+    ('int({revenue}) / int({employees})', {"revenue": "100", "employees": "0"}, "division by zero"),
+    ('int({revenue}) / int({employees})', {"revenue": "not reported", "employees": "2"}, "not reported"),
+])
+def test_formula_cell_run_reports_bad_row_data_as_persisted_error(client, formula, data, error):
+    tc, Session, _ = client
+    columns = [{"id": key, "name": key, "type": "input"} for key in ("revenue", "employees")]
+    columns.append({"id": "per_employee", "name": "Revenue per employee", "type": "formula", "formula": formula})
+    wid = _mk_workbook(Session, columns)
+    row_id = _mk_row(Session, wid, data, enrichments={"per_employee": {"value": "old value", "status": "complete"}})
+    endpoint = f"/api/workbooks/{wid}/rows/{row_id}/cells/per_employee/run"
+    response = tc.post(endpoint, json={"force": True})
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "error"
+    assert error in response.json()["error"]
+    with Session() as db:
+        row = db.get(WorkbookRow, row_id)
+        assert row.enrichments["per_employee"]["status"] == "error"
+        assert row.enrichments["per_employee"]["value"] is None
+        row.data = {"revenue": "100", "employees": "2"}
+        db.commit()
+    response = tc.post(endpoint, json={"force": True})
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "complete"
+    assert float(response.json()["value"]) == 50
+
+
