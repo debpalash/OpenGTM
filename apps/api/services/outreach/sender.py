@@ -6,6 +6,7 @@ Template rendering via Jinja2 with lead variables.
 """
 
 import asyncio
+import html
 import logging
 import time
 from email.mime.text import MIMEText
@@ -177,13 +178,11 @@ def render_template(template: str, variables: Dict[str, Any]) -> str:
     Supports {{variable}} syntax for simplicity.
     Falls back to empty string for missing variables.
     """
-    result = template
-    for key, value in variables.items():
-        result = result.replace("{{" + key + "}}", str(value or ""))
-    # Clean up any remaining unreplaced variables
-    import re
-    result = re.sub(r"\{\{[^}]+\}\}", "", result)
-    return result.strip()
+    def replace(match):
+        value = variables.get(match.group(1))
+        return "" if value is None else str(value)
+
+    return _re.sub(r"\{\{([^}]+)\}\}", replace, template).strip()
 
 
 def build_lead_variables(lead) -> Dict[str, Any]:
@@ -263,6 +262,7 @@ async def send_email(
     if not body_text:
         import re
         body_text = re.sub(r"<[^>]+>", "", body_html)
+        body_text = html.unescape(body_text)
         body_text = re.sub(r"\s+", " ", body_text).strip()
 
     msg.attach(MIMEText(body_text, "plain"))

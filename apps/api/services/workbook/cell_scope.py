@@ -42,6 +42,13 @@ def row_execution_data(row, columns: list[dict] | None = None) -> dict:
     values, aliases = {}, {}
     for column in columns or []:
         cid = column.get("id")
+        if column.get("type") in ("lead_field", "input"):
+            field = column.get("lead_field") or cid
+            if field in data:
+                values[cid] = data[field]
+                if column.get("name"):
+                    aliases[column["name"]] = data[field]
+            continue
         cell = (row.enrichments or {}).get(cid)
         if isinstance(cell, dict) and (cell.get("status") != "complete" or cell.get("value") is None):
             # Imported/previously materialized row data can also contain an old

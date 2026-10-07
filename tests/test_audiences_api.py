@@ -366,3 +366,51 @@ def test_membership_entry_enqueues_scoped_automation(monkeypatch):
     assert enqueued[0]["fire_key"] == "audience:9:entered"
     assert enqueued[0]["targets"] == [{"workbook_id": workbook.id, "row_id": str(row.id)}]
     session.close()
+
+@pytest.mark.parametrize("queue_state", ["pending", "processing", "missing"])
+def test_bootstrap_preserves_due_occurrence_until_refresh_runs(client, monkeypatch, queue_state):
+    tc, Session, _ = client
+    from apps.api.services.audiences import scheduler
+
+    audience_id = tc.post("/api/audiences", json={
+        "name": f"Due occurrence {queue_state}", "filters": {},
+        "refresh_interval_minutes": 60,
+    }).json()["id"]
+    now = datetime.now(timezone.utc)
+    due_at = now - timedelta(minutes=5)
+    with Session() as db:
+        audience = db.get(Audience, audience_id)
+        mirror = db.get(AudienceSchedule, audience_id)
+        audience.next_refresh_at = mirror.next_refresh_at = due_at
+        job = db.query(Job).filter(Job.type == "audience_refresh", Job.status == "pending").one()
+        original_id = job.id
+        job.next_run_at = due_at
+        if queue_state == "missing":
+            db.delete(job)
+        else:
+            job.status = queue_state
+        db.commit()
+
+    monkeypatch.setattr(scheduler, "SessionLocal", Session)
+    monkeypatch.setattr(scheduler, "_utcnow", lambda: now)
+    assert scheduler.bootstrap_audience_schedules() == (1 if queue_state == "missing" else 0)
+    assert scheduler.bootstrap_audience_schedules() == 0
+    with Session() as db:
+        active = db.query(Job).filter(
+            Job.type == "audience_refresh", Job.status.in_(("pending", "processing")),
+        ).all()
+        assert len(active) == 1
+        if queue_state != "missing":
+            assert active[0].id == original_id
+            assert active[0].status == queue_state
+        else:
+            assert active[0].status == "pending"
+        assert scheduler._as_utc(active[0].next_run_at) <= now
+        assert scheduler._as_utc(db.get(AudienceSchedule, audience_id).next_refresh_at) == due_at
+    if queue_state != "processing":
+        from apps.api.services.queue_service import QueueService
+
+        with Session() as db:
+            claimed = QueueService().claim_next_job(db)
+        assert claimed is not None
+        assert claimed["payload"]["audience_id"] == audience_id

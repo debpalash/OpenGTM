@@ -243,3 +243,20 @@ def test_circuit_breaker_min_sends_guard(store):
     # Below min sends → never pauses even at 100% bounce.
     assert store.record_bounce_and_maybe_pause(seq["id"]) is False
     assert store.get_sequence(seq["id"])["auto_paused"] is False
+
+@pytest.mark.parametrize("deadline", ["due", "future", "unset"])
+def test_outreach_bootstrap_reads_persisted_sqlite_deadlines(store, patch_db, monkeypatch, deadline):
+    from datetime import datetime, timedelta, timezone
+    from apps.api.services.outreach import sending
+
+    monkeypatch.setattr(settings, "AUTOMATIONS_ENABLED", True)
+    seq = _mk_seq(store)
+    store.set_sequence_status(seq["id"], "active")
+    store.enroll(seq["id"], 99, "reader@example.com")
+    now = datetime.now(timezone.utc)
+    next_at = None if deadline == "unset" else now + timedelta(days=1 if deadline == "future" else -1)
+    store.upsert_schedule(seq["id"], next_at, enabled=True)
+    assert sending.bootstrap_outreach_schedules() == (0 if deadline == "future" else 1)
+    with patch_db() as db:
+        jobs = db.query(Job).filter(Job.type == "send").all()
+        assert len(jobs) == (0 if deadline == "future" else 1)

@@ -75,5 +75,32 @@ jobs:
           bun-version: '1.4.2'
       - run: bun install --frozen-lockfile
       - run: bun run lint
-      - run: bun test apps/web/tests/api.lead-create.test.ts
+      - run: bun test apps/web/tests
       - run: bun run build
+
+  frontend-browser:
+    name: Frontend browser regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.13'
+          enable-cache: true
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.4.2'
+      - run: bun install --frozen-lockfile
+      - run: uv run --frozen playwright install --with-deps chromium
+      - name: Run mounted React interaction regressions
+        shell: bash
+        run: |
+          export OPENGTM_BUN="$(command -v bun)"
+          export OPENGTM_CHROMIUM="$(uv run --frozen python -c 'from playwright.sync_api import sync_playwright; p = sync_playwright().start(); print(p.chromium.executable_path); p.stop()')"
+          uv run --frozen pytest -q \
+            tests/test_workbook_socket_browser.py \
+            tests/test_lead_selection_browser.py \
+            tests/test_workbook_clipboard_browser.py

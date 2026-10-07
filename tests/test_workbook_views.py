@@ -1399,6 +1399,117 @@ def test_saved_view_custom_sort_supports_stable_cursor_paging(client):
 
 # ── Views CRUD ────────────────────────────────────────────────────────────
 
+@pytest.mark.parametrize("note", ["Customer description " * 40, "客户说明" * 40], ids=["long-ascii", "unicode"])
+def test_saved_view_cursor_can_page_long_valid_cell_text(client, note):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [
+        {"id": "notes", "name": "Notes", "type": "input", "lead_field": "notes"},
+    ])
+    first_id = _mk_row(Session, wid, {"notes": note})
+    second_id = _mk_row(Session, wid, {"notes": note + " later"})
+    created = tc.post(f"/api/v2/workbooks/{wid}/views", json={
+        "name": "Notes ascending",
+        "config": {"sort": [{"column": "notes", "dir": "asc"}]},
+    })
+    assert created.status_code == 201, created.text
+    params = {"cursor_mode": True, "page_size": 1, "view_id": created.json()["id"]}
+    first = tc.get(f"/api/workbooks/{wid}", params=params)
+    assert first.status_code == 200, first.text
+    assert [row["row_id"] for row in first.json()["rows"]] == [first_id]
+    cursor = first.json()["next_cursor"]
+    assert cursor
+    second = tc.get(f"/api/workbooks/{wid}", params={**params, "cursor": cursor})
+    assert second.status_code == 200, second.text
+    assert [row["row_id"] for row in second.json()["rows"]] == [second_id]
+    assert second.json()["has_more"] is False
+
+
+@pytest.mark.parametrize("change", ["delete", "value", "sort", "filter", "search", "workbook", "row-id"])
+def test_long_saved_view_cursor_rejects_changed_anchor_or_query(client, change):
+    import base64
+    import json
+
+    tc, Session, _ = client
+    columns = [{"id": "notes", "name": "Notes", "type": "input", "lead_field": "notes"}]
+    wid = _mk_workbook(Session, columns)
+    note = "Customer description " * 40
+    row_id = _mk_row(Session, wid, {"notes": note})
+    _mk_row(Session, wid, {"notes": note + " later"})
+    config = {"sort": [{"column": "notes", "dir": "asc"}]}
+    view_id = tc.post(f"/api/v2/workbooks/{wid}/views", json={"name": "Notes", "config": config}).json()["id"]
+    params = {"cursor_mode": True, "page_size": 1, "view_id": view_id}
+    cursor = tc.get(f"/api/workbooks/{wid}", params=params).json()["next_cursor"]
+    assert len(cursor) <= 512
+    params["cursor"] = cursor
+    if change in ("delete", "value"):
+        with Session() as db:
+            row = db.get(WorkbookRow, row_id)
+            if change == "delete":
+                db.delete(row)
+            else:
+                row.data = {"notes": note + " changed"}
+            db.commit()
+    elif change in ("sort", "filter"):
+        if change == "sort":
+            config["sort"][0]["dir"] = "desc"
+        else:
+            config["filters"] = [{"column": "notes", "op": "contains", "value": "description"}]
+        assert tc.put(f"/api/v2/workbooks/{wid}/views/{view_id}", json={"config": config}).status_code == 200
+    elif change == "search":
+        params["search"] = "description"
+    elif change == "workbook":
+        wid = _mk_workbook(Session, columns)
+        _mk_row(Session, wid, {"notes": note})
+        params["view_id"] = tc.post(f"/api/v2/workbooks/{wid}/views", json={"name": "Notes", "config": config}).json()["id"]
+    else:
+        other_wid = _mk_workbook(Session, columns)
+        other_row = _mk_row(Session, other_wid, {"notes": note})
+        payload = json.loads(base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4)))
+        payload["row"] = other_row
+        params["cursor"] = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+    response = tc.get(f"/api/workbooks/{wid}", params=params)
+    assert response.status_code == 400, response.text
+
+
+def test_short_saved_view_cursor_survives_deleted_anchor(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": "notes", "name": "Notes", "type": "input"}])
+    row_id = _mk_row(Session, wid, {"notes": "A"})
+    second_id = _mk_row(Session, wid, {"notes": "B"})
+    view_id = tc.post(f"/api/v2/workbooks/{wid}/views", json={
+        "name": "Notes", "config": {"sort": [{"column": "notes", "dir": "asc"}]},
+    }).json()["id"]
+    params = {"cursor_mode": True, "page_size": 1, "view_id": view_id}
+    cursor = tc.get(f"/api/workbooks/{wid}", params=params).json()["next_cursor"]
+    with Session() as db:
+        db.delete(db.get(WorkbookRow, row_id))
+        db.commit()
+    response = tc.get(f"/api/workbooks/{wid}", params={**params, "cursor": cursor})
+    assert response.status_code == 200, response.text
+    assert [row["row_id"] for row in response.json()["rows"]] == [second_id]
+
+
+def test_long_multicolumn_saved_view_cursor_pages_ties(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": name, "name": name, "type": "input"} for name in ("notes", "rank")])
+    note = "Long description " * 40
+    expected = [_mk_row(Session, wid, {"notes": note, "rank": rank}) for rank in ("C", "B", "B", "A")]
+    view_id = tc.post(f"/api/v2/workbooks/{wid}/views", json={"name": "Notes", "config": {"sort": [
+        {"column": "notes", "dir": "asc"}, {"column": "rank", "dir": "desc"},
+    ]}}).json()["id"]
+    params = {"cursor_mode": True, "page_size": 1, "view_id": view_id}
+    seen = []
+    for _ in range(4):
+        response = tc.get(f"/api/workbooks/{wid}", params=params)
+        assert response.status_code == 200, response.text
+        seen.extend(row["row_id"] for row in response.json()["rows"])
+        cursor = response.json()["next_cursor"]
+        if not cursor:
+            break
+        assert len(cursor) <= 512
+        params["cursor"] = cursor
+    assert seen == expected
+
 def test_views_crud(client):
     tc, Session, _ = client
     wid = _mk_workbook(Session, [{"id": "company", "name": "Company", "type": "lead_field"}])
@@ -2462,3 +2573,169 @@ def test_budget_update_rejects_foreign_workbook(client):
     finally:
         app.dependency_overrides[current_workspace] = lambda: _ctx(WS1)
         app.dependency_overrides[require_editor] = lambda: _ctx(WS1)
+
+
+
+
+
+
+
+
+@pytest.mark.parametrize("positions", [[], [7], [0, 1]])
+def test_add_rows_reports_stored_count_instead_of_position(client, positions):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": "company", "name": "Company", "type": "lead_field"}])
+    with Session() as session:
+        for position in positions:
+            session.add(WorkbookRow(workbook_id=wid, workspace_id=WS1, position=position,
+                                    data={"company": f"Existing {position}"}, enrichments={}))
+        session.commit()
+    response = tc.post(f"/api/workbooks/{wid}/rows", json={"rows": [{"company": "New"}]})
+    assert response.status_code == 200, response.text
+    with Session() as session:
+        actual_count = session.query(WorkbookRow).filter(WorkbookRow.workbook_id == wid).count()
+    assert response.json()["added"] == 1
+    assert response.json()["total_rows"] == actual_count == len(positions) + 1
+
+
+def test_add_rows_dedupe_reports_count_when_no_row_is_inserted(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": "company", "name": "Company", "type": "lead_field"}])
+    rid = _mk_row(Session, wid, {"company": "Existing"})
+    with Session() as session:
+        session.get(WorkbookRow, rid).position = 9
+        session.commit()
+    response = tc.post(f"/api/workbooks/{wid}/rows", json={
+        "rows": [{"company": "Existing"}], "dedupe": True,
+    })
+    assert response.status_code == 200, response.text
+    assert response.json() == {"added": 0, "skipped_duplicates": 1, "total_rows": 1}
+
+
+def test_add_rows_count_excludes_other_workbooks(client):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [])
+    other = _mk_workbook(Session, [])
+    _mk_row(Session, other, {"company": "Other"})
+    response = tc.post(f"/api/workbooks/{wid}/rows", json={"rows": [{"company": "New"}]})
+    assert response.status_code == 200, response.text
+    assert response.json()["total_rows"] == 1
+@pytest.mark.parametrize("literal", ["{copy}", "Literal {producer}"])
+def test_literal_formula_braces_do_not_create_execution_dependencies(client, literal):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [])
+    row_id = _mk_row(Session, wid, {})
+    response = tc.post(f"/api/workbooks/{wid}/columns", json={"column": {
+        "id": "producer", "name": "Producer", "type": "formula", "formula": "'ready'",
+    }})
+    assert response.status_code == 200, response.text
+    response = tc.post(f"/api/workbooks/{wid}/columns", json={"column": {
+        "id": "copy", "name": "Copy", "type": "formula", "formula": repr(literal),
+    }})
+    assert response.status_code == 200, response.text
+    response = tc.post(f"/api/workbooks/{wid}/rows/{row_id}/cells/copy/run", json={"force": True})
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "complete", response.json()
+    assert response.json()["value"] == literal
+
+
+@pytest.mark.parametrize("formula,data,error", [
+    ('int({revenue}) / int({employees})', {"revenue": "100", "employees": "0"}, "division by zero"),
+    ('int({revenue}) / int({employees})', {"revenue": "not reported", "employees": "2"}, "not reported"),
+])
+def test_formula_cell_run_reports_bad_row_data_as_persisted_error(client, formula, data, error):
+    tc, Session, _ = client
+    columns = [{"id": key, "name": key, "type": "input"} for key in ("revenue", "employees")]
+    columns.append({"id": "per_employee", "name": "Revenue per employee", "type": "formula", "formula": formula})
+    wid = _mk_workbook(Session, columns)
+    row_id = _mk_row(Session, wid, data, enrichments={"per_employee": {"value": "old value", "status": "complete"}})
+    endpoint = f"/api/workbooks/{wid}/rows/{row_id}/cells/per_employee/run"
+    response = tc.post(endpoint, json={"force": True})
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "error"
+    assert error in response.json()["error"]
+    with Session() as db:
+        row = db.get(WorkbookRow, row_id)
+        assert row.enrichments["per_employee"]["status"] == "error"
+        assert row.enrichments["per_employee"]["value"] is None
+        row.data = {"revenue": "100", "employees": "2"}
+        db.commit()
+    response = tc.post(endpoint, json={"force": True})
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "complete"
+    assert float(response.json()["value"]) == 50
+
+
+
+
+@pytest.mark.parametrize("reference,condition", [("headcount", None), ("Team size", None), ("headcount", "{Team size} > 10")])
+def test_formula_run_resolves_mapped_input_column_by_id_and_name(client, reference, condition):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [])
+    row_id = _mk_row(Session, wid, {"company_size": "500"})
+    added = tc.post(f"/api/workbooks/{wid}/columns", json={"column": {
+        "id": "headcount", "name": "Team size", "type": "lead_field", "lead_field": "company_size",
+    }})
+    assert added.status_code == 200, added.text
+    formula = {"id": "doubled", "name": "Double size", "type": "formula", "formula": "int({" + reference + "}) * 2"}
+    if condition:
+        formula["condition"] = condition
+    added = tc.post(f"/api/workbooks/{wid}/columns", json={"column": formula})
+    assert added.status_code == 200, added.text
+    response = tc.post(f"/api/workbooks/{wid}/rows/{row_id}/cells/doubled/run", json={"force": True})
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "complete", response.json()
+    assert response.json()["value"] == 1000
+    with Session() as db:
+        assert db.get(WorkbookRow, row_id).enrichments["doubled"]["value"] == 1000
+
+
+
+
+@pytest.mark.parametrize("operation, positions", [
+    ("equals", [0]), ("not_equals", [1, 2]),
+    ("contains", [0]), ("not_contains", [1, 2]),
+])
+@pytest.mark.parametrize("comparison, stored", [(0, 0), (False, "false"), ("0", 0), ("FALSE", "false")])
+def test_saved_view_preserves_falsey_comparison_values_for_rows_and_export(client, comparison, stored, operation, positions):
+    import csv
+    import io
+
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": "result", "name": "Result", "type": "formula"}])
+    row_ids = [
+        _mk_row(Session, wid, {}, enrichments={"result": {"value": stored}}),
+        _mk_row(Session, wid, {}, enrichments={"result": {"value": "other"}}),
+        _mk_row(Session, wid, {}),
+    ]
+    created = tc.post(f"/api/v2/workbooks/{wid}/views", json={"name": "Unqualified", "config": {
+        "filters": [{"column": "result", "op": operation, "value": comparison}],
+    }})
+    assert created.status_code == 201, created.text
+    view_id = created.json()["id"]
+    persisted = created.json()["config"]["filters"][0]["value"]
+    assert persisted == comparison and type(persisted) is type(comparison)
+    rows = tc.get(f"/api/workbooks/{wid}", params={"view_id": view_id})
+    assert rows.status_code == 200, rows.text
+    assert rows.json()["query_total_rows"] == len(positions)
+    assert [row["row_id"] for row in rows.json()["rows"]] == [row_ids[index] for index in positions]
+    exported = tc.get(f"/api/workbooks/{wid}/export.csv", params={"view_id": view_id})
+    assert exported.status_code == 200, exported.text
+    records = list(csv.reader(io.StringIO(exported.content.decode("utf-8-sig"))))
+    values = [str(stored), "other", ""]
+    assert records == [["Result"], *[[values[index]] for index in positions]]
+
+
+@pytest.mark.parametrize("comparison", [None, ""])
+def test_saved_view_empty_comparison_still_matches_missing_values(client, comparison):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [{"id": "result", "type": "formula"}])
+    blank = _mk_row(Session, wid, {})
+    _mk_row(Session, wid, {}, enrichments={"result": {"value": 0}})
+    created = tc.post(f"/api/v2/workbooks/{wid}/views", json={"name": "Blank", "config": {
+        "filters": [{"column": "result", "op": "equals", "value": comparison}],
+    }})
+    assert created.status_code == 201, created.text
+    rows = tc.get(f"/api/workbooks/{wid}", params={"view_id": created.json()["id"]})
+    assert rows.status_code == 200, rows.text
+    assert [row["row_id"] for row in rows.json()["rows"]] == [blank]

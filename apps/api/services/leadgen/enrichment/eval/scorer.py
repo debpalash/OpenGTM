@@ -177,6 +177,8 @@ def score_outputs(
     today = today or date.today()
     scores: Dict[str, ProviderScore] = {}
     golden_by_id = {c["id"]: c for c in golden}
+    # Missing output cases are unanswered opportunities, not a smaller dataset.
+    golden_slots = sum(len(case.get("expected", {})) for case in golden_by_id.values())
 
     for case_id, by_provider in outputs.items():
         case = golden_by_id.get(case_id)
@@ -184,12 +186,11 @@ def score_outputs(
             continue
         expected = case.get("expected", {})
         for provider, payload in by_provider.items():
-            ps = scores.setdefault(provider, ProviderScore(provider=provider))
+            ps = scores.setdefault(provider, ProviderScore(provider=provider, golden_slots=golden_slots))
             fields = (payload or {}).get("fields", {}) or {}
             asof = (payload or {}).get("asof")
             fresh = _freshness(asof, today)
             for fname, exp_val in expected.items():
-                ps.golden_slots += 1
                 if fname not in fields or fields.get(fname) in (None, "", []):
                     continue
                 got = fields[fname]

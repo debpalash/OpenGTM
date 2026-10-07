@@ -447,3 +447,22 @@ def test_webhook_marks_send_and_idempotent(SL, monkeypatch):
 async def _handle():
     from apps.api.services.outreach.inbound import handle_inbound_poll
     await handle_inbound_poll(1, {"workspace_id": WS})
+
+@pytest.mark.parametrize("deadline", ["due", "future", "unset"])
+def test_inbound_bootstrap_reads_persisted_sqlite_deadlines(SL, monkeypatch, deadline):
+    from datetime import datetime, timedelta, timezone
+    from apps.api.services.outreach.store import PgOutreachStore
+    from apps.api.services.outreach import inbound, sender
+
+    monkeypatch.setattr(sender, "is_imap_configured", lambda workspace_id: True)
+    now = datetime.now(timezone.utc)
+    next_at = None if deadline == "unset" else now + timedelta(days=1 if deadline == "future" else -1)
+    PgOutreachStore(WS).upsert_inbound_schedule(next_poll_at=next_at, enabled=True)
+    with SL() as db:
+        persisted = db.get(OutreachInboundSchedule, WS)
+        if next_at is not None:
+            assert persisted.next_poll_at.tzinfo is None
+    assert inbound.bootstrap_inbound_schedules() == (0 if deadline == "future" else 1)
+    with SL() as db:
+        jobs = db.query(Job).filter(Job.type == "outreach_inbound_poll").all()
+        assert len(jobs) == (0 if deadline == "future" else 1)

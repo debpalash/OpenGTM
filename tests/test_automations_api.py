@@ -190,6 +190,62 @@ def test_pause_resume(client):
     assert tc.post(f"/api/automations/triggers/{tid}/resume").json()["enabled"] is True
 
 
+@pytest.mark.parametrize("snapshot, overlay", [
+    (10, {"score": {"value": 85, "status": "complete"}}),
+    (10, {"score": 85}),
+    (85, {}),
+])
+def test_trigger_action_uses_enriched_values_that_matched_condition(client, monkeypatch, snapshot, overlay):
+    import asyncio
+    from apps.api.services.automations import actions, engine
+
+    tc, Session = client
+    columns = [{"id": "score", "name": "score", "type": "lead_field", "lead_field": "score"}]
+    workbook_id = _mk_workbook(Session, columns)
+    with Session() as db:
+        native_overlay = isinstance(overlay.get("score"), dict)
+        row = WorkbookRow(workbook_id=workbook_id, workspace_id=WS, position=0,
+                          data={"score": snapshot}, enrichments={} if native_overlay else overlay)
+        db.add(row)
+        db.commit()
+        row_id = row.id
+        if native_overlay:
+            from apps.api.core.tenancy import workspace_scope
+            from apps.api.services.workbook.models import WorkbookEnrichment
+            from apps.api.services.workbook.enrichment import _set_enrichment
+
+            WorkbookEnrichment.__table__.create(bind=db.get_bind(), checkfirst=True)
+            with workspace_scope(WS):
+                _set_enrichment(db, workbook_id, row_id, "score", 85, "complete", row_id=row_id)
+                db.commit()
+            assert row.enrichments["score"]["value"] == 85
+    response = tc.post("/api/automations/triggers", json={
+        "name": "Send current score", "trigger_type": "on_row_added",
+        "scope_workbook_ids": [workbook_id], "condition": "{score} > 70",
+        "actions": [{"type": "webhook", "config": {
+            "url": "https://hooks.example.com/score", "body": {"score": "{score}"},
+        }}],
+    })
+    assert response.status_code == 200, response.text
+    captured = []
+
+    async def capture_send(url, method, headers, kwargs):
+        captured.append(kwargs["json"])
+        return {"success": True, "value": "POST 200", "error": None}
+
+    monkeypatch.setattr(engine, "SessionLocal", Session)
+    monkeypatch.setattr(actions, "_validate_and_pin", lambda url: ("93.184.216.34", "hooks.example.com", 443, True))
+    monkeypatch.setattr(actions, "_send_webhook_pinned", capture_send)
+    asyncio.run(engine.handle_trigger_eval(1, {
+        "workspace_id": WS, "trigger_id": response.json()["id"], "fire_source": "manual",
+        "targets": [{"workbook_id": workbook_id, "row_id": str(row_id)}],
+    }))
+    assert captured == [{"score": "85"}]
+    with Session() as db:
+        run = db.query(TriggerRun).one()
+        assert run.matched_rows == 1 and run.actions_succeeded == 1
+
+
 def test_preview_no_writes(client):
     """AC-11: preview returns matched + projected cost, writes nothing."""
     tc, Session = client
@@ -225,3 +281,26 @@ def test_router_404_when_disabled(client, monkeypatch):
     monkeypatch.setattr(settings, "AUTOMATIONS_ENABLED", False, raising=False)
     r = tc.get("/api/automations/triggers")
     assert r.status_code == 404
+
+@pytest.mark.parametrize("deadline", ["due", "future"])
+def test_schedule_bootstrap_reads_persisted_sqlite_deadlines(client, monkeypatch, deadline):
+    from datetime import datetime, timedelta, timezone
+    from apps.api.models import Job
+    from apps.api.services.automations import engine
+
+    tc, Session = client
+    Base.metadata.create_all(Session.kw["bind"], tables=[Job.__table__])
+    monkeypatch.setattr(engine, "SessionLocal", Session)
+    created = tc.post("/api/automations/triggers", json={
+        "name": f"Scheduled {deadline}", "trigger_type": "on_schedule",
+        "trigger_config": {"interval": "hourly"}, "actions": [],
+    })
+    assert created.status_code == 200, created.text
+    with Session() as db:
+        mirror = db.get(ScheduledTrigger, created.json()["id"])
+        assert mirror is not None and mirror.next_run_at.tzinfo is None
+        if deadline == "due":
+            mirror.next_run_at = datetime.now(timezone.utc) - timedelta(minutes=1)
+            db.query(Job).delete()
+            db.commit()
+    assert engine.bootstrap_schedules() == (1 if deadline == "due" else 0)

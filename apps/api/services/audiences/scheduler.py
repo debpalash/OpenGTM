@@ -171,6 +171,7 @@ def bootstrap_audience_schedules() -> int:
         with SessionLocal() as db:
             due_query = db.query(
                 AudienceSchedule.audience_id, AudienceSchedule.workspace_id,
+                AudienceSchedule.next_refresh_at,
             ).filter(
                 AudienceSchedule.enabled.is_(True),
                 or_(
@@ -185,7 +186,7 @@ def bootstrap_audience_schedules() -> int:
             ).all()
         if not identities:
             break
-        for audience_id, workspace_id in identities:
+        for audience_id, workspace_id, due_at in identities:
             with workspace_scope(workspace_id):
                 with SessionLocal() as db:
                     audience = db.query(Audience).filter(
@@ -195,8 +196,25 @@ def bootstrap_audience_schedules() -> int:
                         remove_schedule(db, audience_id)
                         db.commit()
                         continue
-                    schedule_next(db, audience, now=now)
-                    enqueued += 1
+                    active = db.query(Job).filter(
+                        Job.type == "audience_refresh",
+                        Job.status.in_(("pending", "processing")),
+                        Job.fire_key.like(f"audience_refresh:{audience_id}:%"),
+                    ).first()
+                    if active is not None:
+                        continue
+                    from apps.api.services.job_scheduling import enqueue_job_once
+
+                    occurrence = _as_utc(due_at).isoformat() if due_at else "bootstrap"
+                    job = enqueue_job_once(
+                        db, job_type="audience_refresh",
+                        payload={"workspace_id": workspace_id, "audience_id": audience_id},
+                        fire_key=f"audience_refresh:{audience_id}:{occurrence}",
+                        next_run_at=now,
+                    )
+                    db.commit()
+                    if job is not None:
+                        enqueued += 1
         last_audience_id = identities[-1][0]
     logger.info("bootstrap_audience_schedules enqueued %d refresh(es)", enqueued)
     return enqueued

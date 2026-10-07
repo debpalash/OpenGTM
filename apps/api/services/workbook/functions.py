@@ -118,9 +118,14 @@ def apply_function(func_id: str, workbook_id: str, db_session) -> Dict[str, Any]
     if not workbook:
         return {"error": "Workbook not found"}
 
-    # Merge columns (avoid duplicates by key)
-    existing_keys = {c.get("key") for c in (workbook.columns_config or [])}
-    new_columns = [c for c in func["columns_chain"] if c.get("key") not in existing_keys]
+    # Workbook definitions use id; retain key as the legacy-chain fallback.
+    existing_keys = {c.get("id") or c.get("key") for c in (workbook.columns_config or [])}
+    new_columns = []
+    for column in func["columns_chain"]:
+        identity = column.get("id") or column.get("key")
+        if identity not in existing_keys:
+            new_columns.append(column)
+            existing_keys.add(identity)
 
     updated_config = list(workbook.columns_config or []) + new_columns
     workbook.columns_config = updated_config

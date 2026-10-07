@@ -93,13 +93,7 @@ def resolve_candidate_rows(db, trigger, payload) -> list:
 
 def _lead_data_for_action(row, columns_config) -> dict:
     """Build the lead_data dict execute_output_column / templates expect."""
-    data = dict(row.data or {})
-    # merge enrichment overlay (column_id -> value) so {col} placeholders resolve
-    for cid, cell in (row.enrichments or {}).items():
-        if isinstance(cell, dict) and "value" in cell:
-            data.setdefault(cid, cell.get("value"))
-        else:
-            data.setdefault(cid, cell)
+    data = _row_cells(row)
     data.setdefault("id", row.lead_id or row.id)
     if row.lead_id:
         data.setdefault("lead_id", row.lead_id)
@@ -493,6 +487,7 @@ def bootstrap_schedules():
         return 0
     from apps.api.core.tenancy import workspace_scope
     from apps.api.services.automations.models import ScheduledTrigger, Trigger
+    from sqlalchemy import or_
 
     now = datetime.now(timezone.utc)
     enqueued = 0
@@ -500,11 +495,13 @@ def bootstrap_schedules():
     with SessionLocal() as db:
         due = (
             db.query(ScheduledTrigger)
-            .filter(ScheduledTrigger.enabled.is_(True))
+            .filter(
+                ScheduledTrigger.enabled.is_(True),
+                or_(ScheduledTrigger.next_run_at.is_(None), ScheduledTrigger.next_run_at <= now),
+            )
             .all()
         )
-        due_ids = [(r.trigger_id, r.workspace_id) for r in due
-                   if r.next_run_at is None or r.next_run_at <= now]
+        due_ids = [(r.trigger_id, r.workspace_id) for r in due]
     for trigger_id, workspace_id in due_ids:
         with workspace_scope(workspace_id):
             with SessionLocal() as db:

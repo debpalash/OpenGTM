@@ -8,7 +8,7 @@ structured data — company name, address, phone, email, founding date, logo, an
 social `sameAs` links — with zero LLM cost and no brittle HTML parsing.
 
 Inspired by scrapinghub/extruct (cloned in research/enrichment-waterfall/extruct).
-Kept dependency-free (stdlib json + regex) so it adds no install footprint.
+Kept dependency-free (stdlib JSON + HTML parsing) so it adds no install footprint.
 
 Capabilities: company, address, phone, email, founded_year, linkedin_url,
 twitter_url, facebook_url, description.
@@ -19,7 +19,9 @@ import json
 import logging
 import re
 import time
+from html.parser import HTMLParser
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlsplit
 
 from apps.api.services.leadgen.enrichment.provider import EnrichmentProvider, EnrichmentResult
 from apps.api.services.leadgen.models import Lead
@@ -39,20 +41,39 @@ _SOCIAL_MAP = {
     "facebook.com": "facebook_url",
 }
 
-_JSONLD_RE = re.compile(
-    r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
-    re.I | re.S,
-)
-_OG_RE = re.compile(
-    r'<meta\s+[^>]*(?:property|name)=["\']og:([\w:]+)["\'][^>]*content=["\']([^"\']*)["\']',
-    re.I,
-)
+class _MetadataHTMLParser(HTMLParser):
+    """Read metadata attributes using HTML syntax, independent of their order."""
+
+    def __init__(self):
+        super().__init__()
+        self.jsonld: List[str] = []
+        self.og: Dict[str, str] = {}
+        self._script_parts: Optional[List[str]] = None
+
+    def handle_starttag(self, tag, attributes):
+        attrs = dict(attributes)
+        if tag == "script" and (attrs.get("type") or "").strip().lower() == "application/ld+json":
+            self._script_parts = []
+        elif tag == "meta":
+            key = attrs.get("property") or attrs.get("name") or ""
+            if key.lower().startswith("og:") and attrs.get("content") is not None:
+                # HTMLParser has already decoded attribute character references.
+                self.og[key[3:].lower()] = attrs["content"]
+
+    def handle_data(self, data):
+        if self._script_parts is not None:
+            self._script_parts.append(data)
+
+    def handle_endtag(self, tag):
+        if tag == "script" and self._script_parts is not None:
+            self.jsonld.append("".join(self._script_parts))
+            self._script_parts = None
 
 
-def _iter_jsonld(html_text: str):
+def _iter_jsonld(blocks: List[str]):
     """Yield every JSON object found in ld+json blocks (handles @graph + arrays)."""
-    for m in _JSONLD_RE.finditer(html_text or ""):
-        raw = m.group(1).strip()
+    for block in blocks:
+        raw = block.strip()
         if not raw:
             continue
         try:
@@ -112,10 +133,13 @@ def extract_firmographics(html_text: str) -> Dict[str, str]:
     """Pull company fields from JSON-LD (preferred) + OpenGraph (fallback)."""
     fields: Dict[str, str] = {}
     socials: Dict[str, str] = {}
+    metadata = _MetadataHTMLParser()
+    metadata.feed(html_text or "")
+    metadata.close()
 
     # 1) JSON-LD organization nodes (highest quality).
     org = None
-    for node in _iter_jsonld(html_text):
+    for node in _iter_jsonld(metadata.jsonld):
         if _ORG_TYPES & set(_types_of(node)):
             org = node
             break
@@ -137,7 +161,7 @@ def extract_firmographics(html_text: str) -> Dict[str, str]:
 
         email = org.get("email")
         if isinstance(email, str) and "@" in email:
-            fields["email"] = email.strip().lstrip("mailto:")
+            fields["email"] = re.sub(r"^mailto:", "", email.strip(), flags=re.I)
 
         addr_str = _flatten_address(org.get("address"))
         if addr_str:
@@ -163,12 +187,16 @@ def extract_firmographics(html_text: str) -> Dict[str, str]:
             for url in same:
                 if not isinstance(url, str):
                     continue
+                try:
+                    host = (urlsplit(url.strip()).hostname or "").rstrip(".")
+                except ValueError:
+                    continue
                 for dom, key in _SOCIAL_MAP.items():
-                    if dom in url and key not in socials:
+                    if (host == dom or host.endswith("." + dom)) and key not in socials:
                         socials[key] = url.strip()
 
     # 2) OpenGraph fallback for anything still missing.
-    og = {k.lower(): _html.unescape(v) for k, v in _OG_RE.findall(html_text or "")}
+    og = metadata.og
     if "company" not in fields and og.get("site_name"):
         fields["company"] = og["site_name"].strip()
     if "description" not in fields and og.get("description"):

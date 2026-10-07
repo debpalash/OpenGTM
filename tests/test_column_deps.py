@@ -145,3 +145,24 @@ def test_ineligible_dependency_stops_reactive_propagation():
     ]
     eligible = lambda column: column.get("reactive", True)
     assert downstream_columns(cols, {"company"}, eligible=eligible) == []
+
+
+def test_formula_dependencies_ignore_literals_but_keep_real_references():
+    from apps.api.services.workbook.column_deps import cycle_blocked_columns, unavailable_computed_dependencies
+
+    columns = [
+        {"id": "copy", "type": "formula", "formula": 'concat("{copy}", {producer}) # {unused}'},
+        {"id": "producer", "type": "formula", "formula": "'ready'"},
+    ]
+    assert _refs_in(columns[0]) == {"producer"}
+    assert [col["id"] for col in topo_sort_columns(columns)] == ["producer", "copy"]
+    assert cycle_blocked_columns(columns) == set()
+    assert unavailable_computed_dependencies(columns[0], columns, {}) == ["producer"]
+    assert unavailable_computed_dependencies(columns[0], columns, {"producer": "ready"}) == []
+    assert _refs_in({"prompt": '"{producer}"', "formula": '"{copy}"'}) == {"producer"}
+
+
+def test_formula_dependencies_share_escaped_and_triple_quote_rules():
+    formula = 'concat("escaped \\"{literal}\\"", """{multiline}\ntext""", { Owner\'s Name })'
+    assert _refs_in({"formula": formula}) == {"Owner's Name"}
+    assert _refs_in({"formula": "{self}"}) == {"self"}

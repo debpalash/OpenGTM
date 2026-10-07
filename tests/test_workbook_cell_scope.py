@@ -246,3 +246,20 @@ def test_real_formula_execution_persists_only_selected_cells(tmp_path, monkeypat
         assert cell["value"] is None
         assert cell["error"] == "upstream_dependency_failed"
     connection.dispose()
+
+
+@pytest.mark.parametrize("value", [0, False, "", None, "500"])
+def test_mapped_input_projection_preserves_values_and_execution_identity(value):
+    from types import SimpleNamespace
+    from apps.api.services.workbook.cell_scope import row_execution_data
+    row = SimpleNamespace(id=7, lead_id=99, data={"company_size": value}, enrichments={})
+    columns = [
+        {"id": "headcount", "name": "Team size", "type": "lead_field", "lead_field": "company_size"},
+        {"id": "other_size", "name": "Other size", "type": "input", "lead_field": "company_size"},
+    ]
+    result = row_execution_data(row, columns)
+    for key in ("company_size", "headcount", "Team size", "other_size", "Other size"):
+        assert result[key] == value
+        assert type(result[key]) is type(value)
+    assert result["id"] == 99 and result["__row_id"] == 7 and result["__lead_id"] == 99
+    assert row.data == {"company_size": value}

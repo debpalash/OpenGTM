@@ -153,3 +153,43 @@ def test_retention_minimums_are_enforced():
         normalized_days({"audit": 30})
     with pytest.raises(ValueError, match="unsupported retention"):
         normalized_days({"leads": 30})
+
+
+@pytest.mark.parametrize("queue_state", ["pending", "processing", "missing", "future"])
+def test_retention_bootstrap_preserves_due_occurrence(monkeypatch, queue_state):
+    from apps.api.core.tenancy import workspace_scope
+    from apps.api.routers.governance import RetentionUpdate, update_retention
+    from apps.api.services.governance import retention
+    from apps.api.services.queue_service import QueueService
+
+    Session = _session()
+    ctx = type("Ctx", (), {"workspace_id": "ws", "user": type("User", (), {"id": 1})()})()
+    with workspace_scope("ws"), Session() as db:
+        update_retention(RetentionUpdate(enabled=True), db=db, ctx=ctx)
+        job = db.query(Job).one()
+        original_job_id = job.id
+        if queue_state != "future":
+            due_at = datetime.now(timezone.utc) - timedelta(hours=1)
+            db.get(RetentionSchedule, "ws").next_run_at = due_at
+            db.get(RetentionPolicy, "ws").next_run_at = due_at
+            job.next_run_at = due_at
+            job.fire_key = f"retention:ws:{due_at.date().isoformat()}"
+            if queue_state == "missing":
+                db.delete(job)
+            else:
+                job.status = queue_state
+            db.commit()
+    monkeypatch.setattr(retention, "SessionLocal", Session)
+    assert retention.bootstrap_retention_schedules() == (1 if queue_state == "missing" else 0)
+    assert retention.bootstrap_retention_schedules() == 0
+    with Session() as db:
+        active = db.query(Job).filter(Job.status.in_(("pending", "processing"))).all()
+        assert len(active) == 1
+        if queue_state != "missing":
+            assert active[0].id == original_job_id
+        if queue_state != "future":
+            assert db.get(RetentionSchedule, "ws").next_run_at == due_at.replace(tzinfo=None)
+            assert db.get(RetentionPolicy, "ws").next_run_at == due_at.replace(tzinfo=None)
+        if queue_state in {"pending", "missing"}:
+            claimed = QueueService().claim_next_job(db)
+            assert claimed is not None and claimed["type"] == "retention_enforce"

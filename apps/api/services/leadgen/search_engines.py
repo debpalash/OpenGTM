@@ -19,7 +19,7 @@ Design contract:
   * Network access is wrapped in a tiny helper so tests can mock one place.
 
 Engine order (first configured one is tried first) is controlled by
-SEARCH_FALLBACK_ORDER, default "serpapi,bing,google_cse,brave,serpingapi".
+SEARCH_FALLBACK_ORDER, default "serpapi,bing,google_cse,brave,serpingapi,serply".
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ logger = logging.getLogger("leadgen.search_engines")
 _ENGINE_TIMEOUT = float(os.getenv("SEARCH_ENGINE_TIMEOUT", "10"))
 
 # Default attempt order for keyed fallback engines.
-_DEFAULT_ORDER = "serpapi,bing,google_cse,brave,serpingapi"
+_DEFAULT_ORDER = "serpapi,bing,google_cse,brave,serpingapi,serply"
 
 
 # ── Config (all optional) ────────────────────────────────────────────────
@@ -59,6 +59,10 @@ def _brave_key() -> str:
 
 def _serpingapi_key() -> str:
     return _key("SERPINGAPI_API_KEY")
+
+
+def _serply_key() -> str:
+    return _key("SERPLY_API_KEY")
 
 
 # ── HTTP helper (single mockable seam) ───────────────────────────────────
@@ -213,6 +217,33 @@ def _serpingapi(query: str, max_results: int) -> List[Dict]:
     return out
 
 
+def _serply(query: str, max_results: int) -> List[Dict]:
+    key = _serply_key()
+    if not key:
+        return []
+    data = _http_get_json(
+        "https://api.serply.io/v1/search",
+        # Serply returns one Google results page (max 10) per request.
+        {"q": query, "num": min(max_results, 10)},
+        headers={"X-Api-Key": key, "User-Agent": "OpenGTM"},
+    )
+    if not data:
+        return []
+    out: List[Dict] = []
+    for r in data.get("results", []) or []:
+        href = r.get("link") or ""
+        if not href.startswith(("http://", "https://")):
+            continue
+        out.append({
+            "title": r.get("title", "") or "",
+            "href": href,
+            "body": r.get("description", "") or "",
+        })
+        if len(out) >= max_results:
+            break
+    return out
+
+
 # name → (adapter, is_configured) registry
 _ADAPTERS: Dict[str, tuple[Callable[[str, int], List[Dict]], Callable[[], bool]]] = {
     "serpapi": (_serpapi, lambda: bool(_serpapi_key())),
@@ -220,6 +251,7 @@ _ADAPTERS: Dict[str, tuple[Callable[[str, int], List[Dict]], Callable[[], bool]]
     "google_cse": (_google_cse_search, lambda: all(_google_cse())),
     "brave": (_brave, lambda: bool(_brave_key())),
     "serpingapi": (_serpingapi, lambda: bool(_serpingapi_key())),
+    "serply": (_serply, lambda: bool(_serply_key())),
 }
 
 

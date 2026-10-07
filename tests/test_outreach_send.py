@@ -367,3 +367,177 @@ async def _handle(ws, payload):
     with workspace_scope(ws):
         store = PgOutreachStore(ws)
         await _do_send(store, ws, payload["idempotency_key"], payload)
+
+
+
+
+
+@pytest.mark.parametrize("variables, expected", [
+    ({"name": "Jane {{company}}", "company": "Acme"}, "Hi Jane {{company}}"),
+    ({"name": "Jane {{unknown}}"}, "Hi Jane {{unknown}}"),
+    ({"name": 0}, "Hi 0"),
+    ({"name": False}, "Hi False"),
+    ({"name": "Jane"}, "Hi Jane"),
+    ({}, "Hi"),
+])
+def test_sequence_templates_keep_literal_variable_values(SL, env, monkeypatch, variables, expected):
+    from apps.api.services.outreach.store import PgOutreachStore
+    from apps.api.services.outreach import sender, sending
+
+    captured = []
+
+    async def capture_send(**kwargs):
+        captured.append(kwargs)
+        return sender.SendResult(success=True, message_id="<literal-test@example.com>")
+
+    monkeypatch.setattr(sender, "send_email", capture_send)
+    monkeypatch.setattr(settings, "OUTREACH_SEND_COST_USD", 0)
+    store = PgOutreachStore(WS)
+    seq = store.create_sequence(
+        "Literal values", steps=[{"step_number": 0, "subject": "Hi {{name}}",
+                                 "body_html": "<p>Hi {{name}}</p>", "delay_hours": 0}],
+        send_window_start=0, send_window_end=24, consent_basis="legit",
+    )
+    store.set_sequence_status(seq["id"], "active")
+    enrollment_id = store.enroll(seq["id"], 71, "reader@example.com")
+    idem = sending.sequence_step_idem(WS, seq["id"], enrollment_id, 0)
+    _run(sending.handle_send(1, {
+        "workspace_id": WS, "sequence_id": seq["id"], "enrollment_id": enrollment_id,
+        "lead_id": 71, "step_number": 0, "to_email": "reader@example.com",
+        "idempotency_key": idem, "variables": variables,
+    }))
+    assert len(captured) == 1
+    assert captured[0]["subject"] == expected
+    expected_html = "<p>Hi </p>" if expected == "Hi" else f"<p>{expected}</p>"
+    assert expected_html in captured[0]["body_html"]
+    assert store.get_send_by_idem(idem).subject == expected
+
+
+
+@pytest.mark.parametrize("sequence", [True, False])
+@pytest.mark.parametrize("body_html, expected", [
+    ("<p>R&amp;D</p>", "R&D"),
+    ("<p>Caf&#233;</p>", "Café"),
+    ("<p>&lt;strong&gt;literal&lt;/strong&gt;</p>", "<strong>literal</strong>"),
+    ("<p>Ordinary text</p>", "Ordinary text"),
+])
+def test_plaintext_mime_decodes_html_entities(SL, monkeypatch, sequence, body_html, expected):
+    import smtplib
+    from apps.api.services.outreach import sender, sending
+    from apps.api.services.outreach.store import PgOutreachStore
+
+    captured = []
+
+    class CaptureSMTP:
+        def __init__(self, host, port):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def starttls(self):
+            pass
+
+        def login(self, user, password):
+            pass
+
+        def send_message(self, message):
+            captured.append(message)
+
+    monkeypatch.setattr(smtplib, "SMTP", CaptureSMTP)
+    cfg = sender.SMTPConfig(host="smtp.example.com", port=587, email="me@example.com", password="test")
+    monkeypatch.setattr(sender, "get_smtp_config", lambda ws=None: cfg)
+    monkeypatch.setattr(sending, "_footer", lambda ws: "Acme, 1 Main St, NY")
+    monkeypatch.setattr(settings, "OUTREACH_SEND_COST_USD", 0)
+    if sequence:
+        store = PgOutreachStore(WS)
+        seq = store.create_sequence(
+            "HTML", steps=[{"step_number": 0, "subject": "Hi", "body_html": body_html, "delay_hours": 0}],
+            send_window_start=0, send_window_end=24, consent_basis="legit",
+        )
+        store.set_sequence_status(seq["id"], "active")
+        enrollment_id = store.enroll(seq["id"], 71, "reader@example.com")
+        idem = sending.sequence_step_idem(WS, seq["id"], enrollment_id, 0)
+        _run(sending.handle_send(1, {
+            "workspace_id": WS, "sequence_id": seq["id"], "enrollment_id": enrollment_id,
+            "lead_id": 71, "step_number": 0, "to_email": "reader@example.com", "idempotency_key": idem,
+        }))
+        assert store.get_send_by_idem(idem).status == "sent"
+    else:
+        result = _run(sender.send_email(to_email="reader@example.com", subject="Hi", body_html=body_html, config=cfg))
+        assert result.success
+    assert len(captured) == 1
+    parts = {part.get_content_type(): part.get_payload(decode=True).decode(part.get_content_charset())
+             for part in captured[0].get_payload()}
+    assert parts["text/plain"].split("\n\n--\n", 1)[0] == expected
+    assert body_html in parts["text/html"]
+    if sequence:
+        assert "Acme, 1 Main St, NY" in parts["text/plain"]
+        assert "Unsubscribe:" in parts["text/plain"]
+
+
+
+
+@pytest.mark.parametrize("historical_pending", [False, True])
+def test_failed_send_does_not_starve_later_due_enrollment(SL, env, monkeypatch, historical_pending):
+    from apps.api.services.outreach import sender, sending
+    from apps.api.services.outreach.store import PgOutreachStore
+
+    calls = []
+
+    async def fail_send(**kwargs):
+        calls.append(kwargs["to_email"])
+        return sender.SendResult(success=False, error="Connection refused")
+
+    monkeypatch.setattr(sender, "send_email", fail_send)
+    monkeypatch.setattr(settings, "OUTREACH_SEND_COST_USD", 0)
+    monkeypatch.setattr(settings, "OUTREACH_TICK_MAX_ENQUEUE", 1)
+    store = PgOutreachStore(WS)
+    seq = _mk_active_seq(store)
+    first_id = store.enroll(seq["id"], 1, "first@example.com")
+    first_idem = sending.sequence_step_idem(WS, seq["id"], first_id, 0)
+    payload = {"workspace_id": WS, "sequence_id": seq["id"], "enrollment_id": first_id,
+               "lead_id": 1, "step_number": 0, "to_email": "first@example.com",
+               "idempotency_key": first_idem}
+    with pytest.raises(RuntimeError, match="transient failure"):
+        _run(sending.handle_send(1, payload))
+    assert store.get_send_by_idem(first_idem).status == "failed"
+    _run(sending.handle_send(1, payload))
+    assert calls == ["first@example.com"]
+    if historical_pending:
+        # Existing deployments persisted failed sends with pending enrollments.
+        store.advance_enrollment(first_id, status="pending")
+    second_id = store.enroll(seq["id"], 2, "second@example.com")
+    assert sending.tick_sequence(WS, seq["id"]) == 1
+    with SL() as db:
+        sends = db.query(Job).filter(Job.type == "send", Job.status == "pending").all()
+        assert len(sends) == 1
+        assert sends[0].payload["enrollment_id"] == second_id
+    if not historical_pending:
+        assert store.get_enrollment(first_id).status == "failed"
+        assert store.get_enrollment(first_id).error == "Connection refused"
+
+
+def test_sent_previous_step_does_not_hide_next_due_step(SL, env, monkeypatch):
+    from apps.api.services.outreach import sending
+    from apps.api.services.outreach.store import PgOutreachStore
+
+    monkeypatch.setattr(settings, "OUTREACH_SEND_COST_USD", 0)
+    store = PgOutreachStore(WS)
+    seq = _mk_active_seq(store)
+    seq["steps"][1]["delay_hours"] = 0
+    store.update_sequence(seq["id"], {"steps": seq["steps"]})
+    enrollment_id = store.enroll(seq["id"], 1, "reader@example.com")
+    idem = sending.sequence_step_idem(WS, seq["id"], enrollment_id, 0)
+    _run(sending.handle_send(1, {
+        "workspace_id": WS, "sequence_id": seq["id"], "enrollment_id": enrollment_id,
+        "lead_id": 1, "step_number": 0, "to_email": "reader@example.com", "idempotency_key": idem,
+    }))
+    assert store.get_send_by_idem(idem).status == "sent"
+    assert sending.tick_sequence(WS, seq["id"]) == 1
+    with SL() as db:
+        job = db.query(Job).filter(Job.type == "send", Job.status == "pending").one()
+        assert job.payload["enrollment_id"] == enrollment_id and job.payload["step_number"] == 1

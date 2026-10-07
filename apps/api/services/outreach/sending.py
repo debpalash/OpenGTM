@@ -60,6 +60,7 @@ def build_message(
     # conspicuous link survives — send_email no longer strips it, §6.5).
     import re
     text_body = re.sub(r"<[^>]+>", "", body_html)
+    text_body = _html.unescape(text_body)
     text_body = re.sub(r"\s+\n", "\n", text_body)
     text_body = re.sub(r"[ \t]+", " ", text_body).strip()
 
@@ -307,6 +308,8 @@ async def _do_send(store: PgOutreachStore, ws_id: str, idem: str, payload: dict)
     # records the failure + schedules a retry.
     _settle_reservation(store, ws_id, reservation, ok=False)
     _finalize_send(store, idem, status="failed", error=err)
+    if enrollment_id is not None:
+        store.advance_enrollment(enrollment_id, status="failed", error=err)
     raise RuntimeError(f"outreach send transient failure: {err[:160]}")
 
 
@@ -498,19 +501,22 @@ def bootstrap_outreach_schedules() -> int:
     if not getattr(settings, "AUTOMATIONS_ENABLED", False):
         return 0
     from apps.api.services.outreach.orm_models import OutreachSchedule
+    from sqlalchemy import or_
 
     now = _utcnow()
     enqueued = 0
     with SessionLocal() as db:
         due = (
             db.query(OutreachSchedule)
-            .filter(OutreachSchedule.enabled.is_(True))
+            .filter(
+                OutreachSchedule.enabled.is_(True),
+                or_(OutreachSchedule.next_tick_at.is_(None), OutreachSchedule.next_tick_at <= now),
+            )
             .all()
         )
         due_ids = [
             (r.sequence_id, r.workspace_id)
             for r in due
-            if r.next_tick_at is None or r.next_tick_at <= now
         ]
     for seq_id, ws_id in due_ids:
         try:

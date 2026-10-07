@@ -252,6 +252,12 @@ class PgOutreachStore:
                     OutreachEnrollment.sequence_id == seq_id,
                     OutreachEnrollment.status.in_(("pending", "scheduled")),
                     OutreachEnrollment.next_send_at <= now,
+                    ~s.query(OutreachSend.id).filter(
+                        OutreachSend.workspace_id == self.workspace_id,
+                        OutreachSend.sequence_id == seq_id,
+                        OutreachSend.enrollment_id == OutreachEnrollment.id,
+                        OutreachSend.step_number == OutreachEnrollment.current_step,
+                    ).exists(),
                 )
                 .order_by(OutreachEnrollment.next_send_at.asc())
                 .limit(limit)
