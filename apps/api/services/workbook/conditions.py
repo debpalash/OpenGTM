@@ -24,7 +24,7 @@ Column config example:
 
 import logging
 import re
-from typing import Any, Dict, Optional
+from typing import Dict
 
 logger = logging.getLogger("workbook.conditions")
 
@@ -59,19 +59,49 @@ def evaluate_condition(
     # Build values dict
     values = _get_values(row_cells, columns_config)
 
-    # Resolve {column} placeholders to actual values
-    resolved = _resolve_placeholders(condition, values)
+    # Parse syntax before resolving cells so their contents remain operand data.
+    parts = _split_unquoted(condition, r" AND ")
+    if len(parts) > 1:
+        return all(_eval_single(p.strip(), values) for p in parts)
 
-    # Handle AND / OR compound conditions
-    if " AND " in resolved:
-        parts = resolved.split(" AND ")
-        return all(_eval_single(p.strip()) for p in parts)
+    parts = _split_unquoted(condition, r" OR ")
+    if len(parts) > 1:
+        return any(_eval_single(p.strip(), values) for p in parts)
 
-    if " OR " in resolved:
-        parts = resolved.split(" OR ")
-        return any(_eval_single(p.strip()) for p in parts)
+    return _eval_single(condition, values)
 
-    return _eval_single(resolved)
+
+def _split_unquoted(expr: str, pattern: str, maxsplit: int = 0, flags: int = 0) -> list[str]:
+    """Split operators outside quoted literals and {column} references."""
+    separator = re.compile(pattern, flags)
+    parts = []
+    start = i = 0
+    quote = None
+    while i < len(expr):
+        char = expr[i]
+        if quote:
+            if char == "\\":
+                i += 2
+                continue
+            if char == quote:
+                quote = None
+        elif char in ('"', "'") and (
+            i == 0 or expr[i - 1].isspace() or expr[i - 1] in "(=<>!"
+        ):
+            quote = char
+        elif char == "{" and (end := expr.find("}", i + 1)) != -1:
+            i = end + 1
+            continue
+        else:
+            match = separator.match(expr, i)
+            if match:
+                parts.append(expr[start:i])
+                start = i = match.end()
+                if maxsplit and len(parts) == maxsplit:
+                    break
+                continue
+        i += 1
+    return parts + [expr[start:]]
 
 
 def _get_values(row_cells: dict, columns_config: list) -> Dict[str, str]:
@@ -106,7 +136,7 @@ def _resolve_placeholders(condition: str, values: Dict[str, str]) -> str:
     return re.sub(r'\{([^}]+)\}', replacer, condition)
 
 
-def _eval_single(expr: str) -> bool:
+def _eval_single(expr: str, values: Dict[str, str]) -> bool:
     """Evaluate a single comparison expression.
 
     Supported: ==, !=, >, <, >=, <=, contains, not_empty, is_empty
@@ -115,29 +145,27 @@ def _eval_single(expr: str) -> bool:
 
     # Special functions
     if expr.lower().startswith("not_empty("):
-        val = _extract_paren(expr)
+        val = _extract_paren(_resolve_placeholders(expr, values))
         return val not in ("", '""', "None", "null", "N/A")
 
     if expr.lower().startswith("is_empty("):
-        val = _extract_paren(expr)
+        val = _extract_paren(_resolve_placeholders(expr, values))
         return val in ("", '""', "None", "null", "N/A")
 
     # Comparison operators (order matters — check >= before >)
     for op in ["!=", ">=", "<=", "==", ">", "<"]:
-        if op in expr:
-            parts = expr.split(op, 1)
-            if len(parts) == 2:
-                left = _clean_value(parts[0].strip())
-                right = _clean_value(parts[1].strip())
-                return _compare(left, right, op)
+        parts = _split_unquoted(expr, re.escape(op), maxsplit=1)
+        if len(parts) == 2:
+            left = _clean_value(_resolve_placeholders(parts[0], values))
+            right = _clean_value(_resolve_placeholders(parts[1], values))
+            return _compare(left, right, op)
 
     # "contains" keyword
-    if " contains " in expr.lower():
-        parts = re.split(r'\s+contains\s+', expr, flags=re.IGNORECASE)
-        if len(parts) == 2:
-            left = _clean_value(parts[0].strip())
-            right = _clean_value(parts[1].strip())
-            return right.lower() in left.lower()
+    parts = _split_unquoted(expr, r'\s+contains\s+', flags=re.IGNORECASE)
+    if len(parts) == 2:
+        left = _clean_value(_resolve_placeholders(parts[0], values))
+        right = _clean_value(_resolve_placeholders(parts[1], values))
+        return right.lower() in left.lower()
 
     # Fail CLOSED: an unparseable condition must NOT run the column. The whole
     # point of "only run if" is to save spend; defaulting to run means a typo in
