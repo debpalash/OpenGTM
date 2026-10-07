@@ -9,7 +9,7 @@ import re
 import time
 from typing import List
 
-from apps.api.services.leadgen.enrichment.web_search import DDGS  # routed via SearXNG poolfrom apps.api.services.leadgen.proxy_client import get_ddgs
+from apps.api.services.leadgen.enrichment.web_search import DDGS
 from apps.api.services.leadgen.models import Lead
 
 
@@ -58,7 +58,7 @@ def enrich_via_search(
     ]
     print(f"  🔍 Search-enriching {len(needs_enrichment)} leads...")
 
-    with get_ddgs() as ddgs:
+    with DDGS() as ddgs:
         for lead in needs_enrichment:
             parts = [lead.company]
             if lead.city:
