@@ -2577,6 +2577,8 @@ def test_budget_update_rejects_foreign_workbook(client):
 
 
 
+
+
 @pytest.mark.parametrize("positions", [[], [7], [0, 1]])
 def test_add_rows_reports_stored_count_instead_of_position(client, positions):
     tc, Session, _ = client
@@ -2660,5 +2662,29 @@ def test_formula_cell_run_reports_bad_row_data_as_persisted_error(client, formul
     assert response.status_code == 200, response.text
     assert response.json()["status"] == "complete"
     assert float(response.json()["value"]) == 50
+
+
+
+
+@pytest.mark.parametrize("reference,condition", [("headcount", None), ("Team size", None), ("headcount", "{Team size} > 10")])
+def test_formula_run_resolves_mapped_input_column_by_id_and_name(client, reference, condition):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [])
+    row_id = _mk_row(Session, wid, {"company_size": "500"})
+    added = tc.post(f"/api/workbooks/{wid}/columns", json={"column": {
+        "id": "headcount", "name": "Team size", "type": "lead_field", "lead_field": "company_size",
+    }})
+    assert added.status_code == 200, added.text
+    formula = {"id": "doubled", "name": "Double size", "type": "formula", "formula": "int({" + reference + "}) * 2"}
+    if condition:
+        formula["condition"] = condition
+    added = tc.post(f"/api/workbooks/{wid}/columns", json={"column": formula})
+    assert added.status_code == 200, added.text
+    response = tc.post(f"/api/workbooks/{wid}/rows/{row_id}/cells/doubled/run", json={"force": True})
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "complete", response.json()
+    assert response.json()["value"] == 1000
+    with Session() as db:
+        assert db.get(WorkbookRow, row_id).enrichments["doubled"]["value"] == 1000
 
 
