@@ -261,8 +261,9 @@ class PgLeadStore:
         limit: int = 500,
         offset: int = 0,
         order_by: str = "score DESC",
+        exclude_dead: bool = False,
     ) -> List[Lead]:
-        from sqlalchemy import text
+        from sqlalchemy import or_, text
 
         with self._session() as s:
             q = s.query(LeadRow).filter(LeadRow.workspace_id == self.workspace_id)
@@ -274,6 +275,8 @@ class PgLeadStore:
                 q = q.filter(LeadRow.phone.isnot(None), LeadRow.phone != "")
             elif has_phone is False:
                 q = q.filter((LeadRow.phone.is_(None)) | (LeadRow.phone == ""))
+            if exclude_dead:
+                q = q.filter(or_(LeadRow.status.is_(None), LeadRow.status != "dead"))
             if status:
                 q = q.filter(LeadRow.status == status)
             if city:
