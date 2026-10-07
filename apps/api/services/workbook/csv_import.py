@@ -121,6 +121,7 @@ def prepare_csv_import(
 
     # Match imports to existing columns by display name, id, or backing field.
     existing_by_name: dict[str, dict] = {}
+    existing_by_exact_name: dict[str, dict] = {}
     used_ids: set[str] = set()
     used_fields: set[str] = set()
     for col in columns:
@@ -139,8 +140,10 @@ def prepare_csv_import(
                 existing_by_name.setdefault(normalize_header(field), col)
             if col.get("name"):
                 existing_by_name.setdefault(normalize_header(col["name"]), col)
+                existing_by_exact_name.setdefault(str(col["name"]).strip().casefold(), col)
 
     resolved: dict[str, Optional[str]] = {}
+    assigned_targets: dict[str, str] = {}
     for header in _headers(rows):
         explicit = header in mapping
         requested = mapping.get(header) if explicit else None
@@ -149,14 +152,33 @@ def prepare_csv_import(
             continue
 
         requested_text = str(requested).strip() if explicit else ""
-        existing = existing_by_name.get(normalize_header(requested_text or header))
+        target_name = requested_text or header
+        target = infer_target(target_name)
+        # A mapping back to an unknown source header means "keep as custom".
+        # Punctuation/non-ASCII normalization must not merge those columns.
+        keep_custom = explicit and requested_text == header and target not in LEAD_FIELD_MAP
+        if not keep_custom and target_name.casefold() in assigned_targets:
+            resolved[header] = assigned_targets[target_name.casefold()]
+            continue
+        existing = existing_by_exact_name.get(target_name.casefold())
+        if existing is None and not keep_custom:
+            existing = existing_by_name.get(normalize_header(target_name))
         if existing:
             resolved[header] = str(existing.get("lead_field") or existing["id"])
             continue
 
-        target = infer_target(requested_text or header)
+        if target not in LEAD_FIELD_MAP and not (
+            explicit and requested_text == target and not keep_custom
+        ):
+            base_target = target
+            suffix = 2
+            while target in used_fields:
+                target = f"{base_target}_{suffix}"
+                suffix += 1
         resolved[header] = target
+        assigned_targets[target_name.casefold()] = target
         if not create_columns or target in used_fields:
+            used_fields.add(target)
             continue
 
         col_id = target
@@ -179,7 +201,7 @@ def prepare_csv_import(
         added_columns.append(new_col)
         used_ids.add(col_id)
         used_fields.add(target)
-        existing_by_name[normalize_header(header)] = new_col
+        existing_by_exact_name[display_name.casefold()] = new_col
 
     normalized_rows: list[dict] = []
     for source_row in rows:
