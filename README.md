@@ -4,6 +4,7 @@
 <p align="center">
   <a href="https://opengtm.palash.dev">Docs</a> ·
   <a href="#run-it">Install</a> ·
+  <a href="#co-maintainer-wanted">Co-maintainer wanted</a> ·
   <a href="https://github.com/debpalash/OpenGTM/releases">Releases</a> ·
   <a href="LICENSE">AGPL-3.0</a>
 </p>
@@ -15,6 +16,17 @@ enriches rows through cost-ordered provider waterfalls, researches hard question
 with cited agents, watches for buying intent, and sends qualified records to
 the tools your team already uses. Your data stays on your infrastructure;
 third-party calls use keys you choose. A zero-key demo is included.
+
+## Co-maintainer wanted
+
+We're looking for a co-maintainer to help shape OpenGTM, review pull requests,
+ship releases, and build a faster enrichment backend. Experience with **Go,
+Python, PostgreSQL, or provider integrations** is especially welcome as we
+prepare the backend migration below.
+
+Interested? [Join the rewrite issue](https://github.com/debpalash/OpenGTM/issues/33)
+with a short introduction and the areas you'd like to own. Focused contributions
+are welcome too; start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Run it
 
@@ -155,6 +167,30 @@ FastAPI ──► PostgreSQL + forced workspace RLS
 `apps/api` owns the backend, `apps/web` the React UI, `apps/mcp` the agent
 bridge, and `apps/docs` the documentation. Read the
 [architecture guide](docs/architecture.md) for tenancy and failure behavior.
+
+## Go backend migration
+
+An incremental migration to a **Go backend with Python specialist workers** is
+on the roadmap, with **optional Rust acceleration** where benchmarks justify it.
+The current backend is Python/FastAPI; the migration has not shipped yet.
+
+- **Go:** the primary backend language for APIs, enrichment orchestration,
+  durable job workers, and scheduling. Priorities include pooled HTTP clients,
+  bounded concurrency, provider rate limits, cancellation, and batched writes.
+- **Python:** AI research, browser automation, and specialized integrations.
+- **Rust, optional:** performance-critical parsing, normalization, and
+  deduplication where profiling and end-to-end benchmarks show a benefit.
+- **Supporting stack:** PostgreSQL for durable data and workspace isolation,
+  Redis for progress updates, and TypeScript/React for the UI.
+
+The goal is hundreds of completed enrichments per second, subject to provider
+limits and workload. We'll validate throughput, latency, memory use, and retry
+correctness with benchmarks before making performance claims. Small modules,
+generated API/database contracts, and existing behavior tests will support fast
+AI-assisted development while preserving tenant isolation and billing correctness.
+See the [backend rewrite proposal](docs/plans/go-python-backend-rewrite.md) and
+[tracking issue](https://github.com/debpalash/OpenGTM/issues/33) for milestones,
+correctness requirements, benchmark gates, and rollback.
 
 ## Scope and contribution
 
