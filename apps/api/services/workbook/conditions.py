@@ -108,14 +108,16 @@ def _get_values(row_cells: dict, columns_config: list) -> Dict[str, str]:
     """Extract flat {col_id: value, col_name: value} dict."""
     col_name_map = {c["id"]: c.get("name", c["id"]) for c in columns_config}
     values = {}
+    aliases = {}
 
     for col_id, cell in row_cells.items():
         val = cell.get("value", "") if isinstance(cell, dict) else cell
         val_str = str(val) if val is not None else ""
         values[col_id] = val_str
-        values[col_name_map.get(col_id, col_id)] = val_str
+        aliases[col_name_map.get(col_id, col_id)] = val_str
 
-    return values
+    # IDs remain authoritative when a display name collides with another ID.
+    return {**aliases, **values}
 
 
 def _resolve_placeholders(condition: str, values: Dict[str, str]) -> str:
