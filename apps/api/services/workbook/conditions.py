@@ -24,6 +24,7 @@ Column config example:
 
 import logging
 import re
+from decimal import Decimal, InvalidOperation
 from typing import Dict
 
 logger = logging.getLogger("workbook.conditions")
@@ -192,15 +193,20 @@ def _compare(left: str, right: str, op: str) -> bool:
     """Compare two values with the given operator."""
     # Try numeric comparison
     try:
-        left_num = float(left)
-        right_num = float(right)
+        left_num = Decimal(left)
+        right_num = Decimal(right)
+        # Finite decimal operands retain the digits supplied by the caller.
+        # Preserve the existing float semantics for NaN and infinities.
+        if not left_num.is_finite() or not right_num.is_finite():
+            left_num = float(left)
+            right_num = float(right)
         if op == "==": return left_num == right_num
         if op == "!=": return left_num != right_num
         if op == ">":  return left_num > right_num
         if op == "<":  return left_num < right_num
         if op == ">=": return left_num >= right_num
         if op == "<=": return left_num <= right_num
-    except (ValueError, TypeError):
+    except (InvalidOperation, ValueError, TypeError):
         pass
 
     # String comparison
