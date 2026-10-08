@@ -78,3 +78,6 @@ infra/searxng/settings.yml
 # Local data symlink + Go build artifacts
 apps/api/data
 apps/searxng-pool/searxng-pool
+
+# Rust build artifacts
+/crates/target/
