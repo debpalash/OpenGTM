@@ -2739,3 +2739,79 @@ def test_saved_view_empty_comparison_still_matches_missing_values(client, compar
     rows = tc.get(f"/api/workbooks/{wid}", params={"view_id": created.json()["id"]})
     assert rows.status_code == 200, rows.text
     assert [row["row_id"] for row in rows.json()["rows"]] == [blank]
+
+@pytest.mark.parametrize("computed_first", [True, False])
+@pytest.mark.parametrize("collision", [True, False])
+def test_failed_display_alias_preserves_public_input_id(client, computed_first, collision):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [])
+    source = {"id": "b", "name": "Input B", "type": "input"}
+    computed = {"id": "a", "name": "b" if collision else "Computed A",
+                "type": "formula", "formula": "'OTHER'"}
+    columns = [computed, source] if computed_first else [source, computed]
+    columns.append({"id": "result", "name": "Result", "type": "formula", "formula": "{b}"})
+    for column in columns:
+        added = tc.post(f"/api/workbooks/{wid}/columns", json={"column": column})
+        assert added.status_code == 200, added.text
+    original = {"b": "500", "a": "STALE"}
+    failed = {"status": "error", "value": None, "error": "fixture_failure"}
+    row_id = _mk_row(Session, wid, original, {"a": failed})
+    response = tc.post(f"/api/workbooks/{wid}/rows/{row_id}/cells/result/run",
+                       json={"force": True})
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "complete", response.json()
+    assert response.json()["value"] == "500", response.json()
+    with Session() as db:
+        row = db.get(WorkbookRow, row_id)
+        assert row.data == original
+        assert row.enrichments["a"] == failed
+        assert row.enrichments["result"]["value"] == "500"
+    if not collision:
+        alias_column = {"id": "alias_result", "name": "Alias result",
+                        "type": "formula", "formula": "{Input B}"}
+        added = tc.post(f"/api/workbooks/{wid}/columns", json={"column": alias_column})
+        assert added.status_code == 200, added.text
+        alias = tc.post(f"/api/workbooks/{wid}/rows/{row_id}/cells/alias_result/run",
+                        json={"force": True})
+        assert alias.status_code == 200, alias.text
+        assert alias.json()["status"] == "complete", alias.json()
+        assert alias.json()["value"] == "500", alias.json()
+
+
+@pytest.mark.parametrize("computed_first", [True, False])
+@pytest.mark.parametrize("collision", [True, False])
+def test_completed_display_alias_cannot_replace_public_condition_id(client, computed_first, collision):
+    tc, Session, _ = client
+    wid = _mk_workbook(Session, [])
+    source = {"id": "b", "name": "Input B", "type": "input"}
+    computed = {"id": "a", "name": "b" if collision else "Computed A",
+                "type": "formula", "formula": "'OTHER'"}
+    columns = [computed, source] if computed_first else [source, computed]
+    columns.append({"id": "result", "name": "Result", "type": "formula",
+                    "formula": "{b}", "condition": '{b} == "500"'})
+    for column in columns:
+        added = tc.post(f"/api/workbooks/{wid}/columns", json={"column": column})
+        assert added.status_code == 200, added.text
+    original = {"b": "500", "a": "STALE"}
+    completed = {"status": "complete", "value": "OTHER"}
+    row_id = _mk_row(Session, wid, original, {"a": completed})
+    response = tc.post(f"/api/workbooks/{wid}/rows/{row_id}/cells/result/run",
+                       json={"force": True})
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "complete", response.json()
+    assert response.json()["value"] == "500", response.json()
+    with Session() as db:
+        row = db.get(WorkbookRow, row_id)
+        assert row.data == original
+        assert row.enrichments["a"] == completed
+        assert row.enrichments["result"]["value"] == "500"
+    if not collision:
+        alias_column = {"id": "alias_result", "name": "Alias result",
+                        "type": "formula", "formula": "{Computed A}"}
+        added = tc.post(f"/api/workbooks/{wid}/columns", json={"column": alias_column})
+        assert added.status_code == 200, added.text
+        alias = tc.post(f"/api/workbooks/{wid}/rows/{row_id}/cells/alias_result/run",
+                        json={"force": True})
+        assert alias.status_code == 200, alias.text
+        assert alias.json()["status"] == "complete", alias.json()
+        assert alias.json()["value"] == "OTHER", alias.json()
