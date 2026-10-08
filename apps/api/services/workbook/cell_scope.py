@@ -40,6 +40,8 @@ def row_execution_data(row, columns: list[dict] | None = None) -> dict:
     """Hydrate saved dependencies, then assert database execution identities."""
     data = dict(row.data or {})
     values, aliases = {}, {}
+    # Read every input before failed computed cells invalidate materialized data.
+    # A display alias may be another input's ID or mapped source field.
     for column in columns or []:
         cid = column.get("id")
         if column.get("type") in ("lead_field", "input"):
@@ -48,7 +50,10 @@ def row_execution_data(row, columns: list[dict] | None = None) -> dict:
                 values[cid] = data[field]
                 if column.get("name"):
                     aliases[column["name"]] = data[field]
+    for column in columns or []:
+        if column.get("type") in ("lead_field", "input"):
             continue
+        cid = column.get("id")
         cell = (row.enrichments or {}).get(cid)
         if isinstance(cell, dict) and (cell.get("status") != "complete" or cell.get("value") is None):
             # Imported/previously materialized row data can also contain an old
