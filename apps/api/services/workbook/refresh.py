@@ -193,7 +193,16 @@ def set_refresh_policy(db, workbook_id: str, policy: dict) -> dict:
     if policy.get("enabled") and minutes:
         # Called from request/copilotkit paths with the workbook loaded; the
         # workbook's own workspace is the tenant for the recurring chain.
-        _enqueue_next(db, workbook_id, minutes, wb.workspace_id)
+        from apps.api.models import Job
+        active = db.query(Job.id).filter(
+            Job.type == "refresh_workbook",
+            Job.status.in_(("pending", "processing")),
+            Job.payload["workbook_id"].as_string() == workbook_id,
+        ).first()
+        # Pending and claimed refreshes already continue the enabled policy.
+        # Saving it again must not fork another self-reenqueuing chain.
+        if active is None:
+            _enqueue_next(db, workbook_id, minutes, wb.workspace_id)
     return {"refresh_policy": policy, "next_in_minutes": minutes if policy.get("enabled") else None}
 
 
