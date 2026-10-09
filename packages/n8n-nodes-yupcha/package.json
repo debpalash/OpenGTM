@@ -40,8 +40,8 @@
     "dist"
   ],
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^26.6.4",
     "n8n-workflow": "*",
-    "typescript": "^5.0.0"
+    "typescript": "^7.0.2"
   }
 }
