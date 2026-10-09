@@ -18,8 +18,8 @@
         "lint": "turbo run lint"
     },
     "devDependencies": {
-        "portless": "^0.15.5",
-        "turbo": "^2.9.16"
+        "portless": "^0.15.7",
+        "turbo": "^2.11.7"
     },
     "packageManager": "bun@1.1.0"
 }

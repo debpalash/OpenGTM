@@ -13,9 +13,9 @@
         "zip": "bun run build && cd dist && zip -r ../opengtm-chrome-extension.zip ."
     },
     "devDependencies": {
-        "@types/bun": "^1.1.0",
-        "@types/chrome": "^0.0.280",
-        "happy-dom": "^15.11.7",
-        "typescript": "^5.0.0"
+        "@types/bun": "^1.4.2",
+        "@types/chrome": "^0.3.4",
+        "happy-dom": "^20.14.5",
+        "typescript": "^7.0.2"
     }
 }
