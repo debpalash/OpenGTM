@@ -5,9 +5,9 @@ description = "OpenGTM — open-source GTM agents for the world"
 requires-python = ">=3.11"
 dependencies = [
     # FastAPI stack
-    "fastapi>=0.128.0",
+    "fastapi>=0.142.2",
     "uvicorn[standard]>=0.54.0",
-    "sqlalchemy>=2.1.1",
+    "sqlalchemy>=2.1.3",
     "alembic>=1.20.0",
     # Postgres driver (psycopg3). Required for the default Postgres DATABASE_URL
     # and the shared, RLS-protected multi-tenant leads/signals store. The URL
@@ -21,7 +21,7 @@ dependencies = [
     # Scraping & HTTP
     "beautifulsoup4>=4.12",
     "httpx>=0.28",
-    "aiohttp>=3.9",
+    "aiohttp>=3.14.4",
     "curl-cffi>=0.16.3",
     "lxml>=6.1.3",
     "markdownify>=1.2",
@@ -37,22 +37,22 @@ dependencies = [
     "python-jose[cryptography]>=3.5.0",
     "python-multipart>=0.0.21",
     # Envelope encryption for per-workspace integration secrets (spec WI-6)
-    "cryptography>=50.0.1",
+    "cryptography>=50.0.2",
     # Email validation
     "dnspython>=2.8.0",
     "email-validator>=2.3.0",
     # LLM SDKs
-    "anthropic>=1.9.0",
+    "anthropic>=1.11.0",
     # Utilities
-    "python-dotenv>=1.0",
+    "python-dotenv>=1.2.4",
     "logfire[fastapi]>=5.1.1",
     "aiofiles>=25.1.0",
     "duckduckgo-search>=8.1.1",
-    "redis>=6.4.0",
+    "redis>=8.1.0",
     "bullmq>=3.2.8",
-    "pebble>=5.2.2",
+    "pebble>=5.2.3",
     # Billing — Stripe credit top-ups (WI-9)
-    "stripe>=15.6.1",
+    "stripe>=16.0.0",
     "authlib>=1.6.5",
     "itsdangerous>=2.2.0",
 ]
