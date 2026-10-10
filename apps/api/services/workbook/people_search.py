@@ -194,6 +194,8 @@ def _resolve_data_key(columns_config: List[dict], from_column: str) -> str:
 
 
 def _companies_from_rows(db, workbook_id: str, columns_config: List[dict], from_column: str) -> List[str]:
+    from apps.api.services.workbook.cell_scope import row_execution_data
+
     key = _resolve_data_key(columns_config, from_column)
     rows = (
         db.query(WorkbookRow)
@@ -204,7 +206,7 @@ def _companies_from_rows(db, workbook_id: str, columns_config: List[dict], from_
     out: List[str] = []
     seen = set()
     for row in rows:
-        val = str((row.data or {}).get(key) or "").strip()
+        val = str(row_execution_data(row, columns_config).get(key) or "").strip()
         if val and val.lower() not in seen:
             seen.add(val.lower())
             out.append(val)
