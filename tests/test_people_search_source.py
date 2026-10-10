@@ -428,3 +428,42 @@ def test_from_column_reads_companies_off_rows(env, monkeypatch):
     assert result["added"] == 2
     people_rows = [r for r in _rows(env, wb_id) if (r.data or {}).get("source") == "people_search"]
     assert {r.data["contact_person"] for r in people_rows} == {"Jane Smith", "John Doe"}
+
+
+@pytest.mark.parametrize("column_type", ["ai_formula", "enrichment", "waterfall"])
+@pytest.mark.parametrize("reference", ["resolved_company", "Resolved Company"])
+def test_from_column_uses_current_computed_companies(env, monkeypatch, column_type, reference):
+    """The source sees saved completed cells, never stale/failed raw snapshots."""
+    spy = SearchSpy({
+        "Acme Corp": [_ddg_result("Jane Smith", "CTO", "Acme Corp", "jane-smith")],
+        "Beta LLC": [_ddg_result("John Doe", "CTO", "Beta LLC", "john-doe")],
+    })
+    monkeypatch.setattr(cl, "_ddg_linkedin_search", spy, raising=True)
+    company_col = {"id": "resolved_company", "name": "Resolved Company", "type": column_type}
+    wb_id = _mk_workbook(
+        env, W1, _ps_col(from_column=reference, titles=["CTO"]), extra_cols=[company_col],
+    )
+    snapshots = [
+        ({}, {"value": "Acme Corp", "status": "complete"}),
+        ({"resolved_company": "Old Corp"}, {"value": "Beta LLC", "status": "complete"}),
+        ({}, {"value": "acme corp", "status": "complete"}),  # case-insensitive dedup
+        ({"resolved_company": "Failed Corp"}, {"value": "Failed Corp", "status": "error"}),
+    ]
+    with env() as db:
+        for position, (data, cell) in enumerate(snapshots, 1):
+            db.add(WorkbookRow(
+                workbook_id=wb_id, workspace_id=W1, position=position,
+                data=data, enrichments={"resolved_company": cell},
+            ))
+        db.commit()
+
+    result = _run(wb_id, "src_ps1", W1)
+
+    assert spy.queries == [
+        'site:linkedin.com/in "Acme Corp" "CTO"',
+        'site:linkedin.com/in "Beta LLC" "CTO"',
+    ]
+    assert result["companies"] == 2 and result["added"] == 2
+    people = [r for r in _rows(env, wb_id) if (r.data or {}).get("source") == "people_search"]
+    assert {r.data["contact_person"] for r in people} == {"Jane Smith", "John Doe"}
+    assert {r.data["company"] for r in people} == {"Acme Corp", "Beta LLC"}
