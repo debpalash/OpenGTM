@@ -197,8 +197,8 @@ async def enrich_cell(
         validate_template_references(" ".join("{" + ref + "}" for ref in _refs_in(col_config)), columns_config)
     except ValueError:
         dependency_error = "ambiguous_column_reference"
+    from apps.api.services.workbook.batch_attempts import fence_workbook_run_state
     if dependency_error:
-        from apps.api.services.workbook.batch_attempts import fence_workbook_run_state
         fence_workbook_run_state(db, workbook_id)
         _set_enrichment(db, workbook_id, lead_id, col_id, None, "error",
                         error=dependency_error, row_id=row_id)
@@ -211,7 +211,9 @@ async def enrich_cell(
         cells = {k: {"value": v, "status": "complete"} for k, v in lead_data.items()}
         should_run = evaluate_condition(col_config["condition"], cells, columns_config)
         if not should_run:
+            fence_workbook_run_state(db, workbook_id)
             _set_enrichment(db, workbook_id, lead_id, col_id, None, "skipped", row_id=row_id)
+            db.commit()
             if redis_client:
                 await _broadcast(redis_client, workbook_id, {
                     "type": "cell_update", "leadId": lead_id, "rowId": row_id,
@@ -262,7 +264,9 @@ async def enrich_cell(
         # AI Column → LLM
         prompt = col_config.get("prompt", "")
         if not prompt:
+            fence_workbook_run_state(db, workbook_id)
             _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error="no_prompt", row_id=row_id)
+            db.commit()
             return {"success": False, "value": None, "error": "no_prompt"}
 
         # Build cells dict for AI template resolution
@@ -316,7 +320,9 @@ async def enrich_cell(
         from apps.api.services.workbook.research_column import execute_research_column
         prompt = col_config.get("prompt", "")
         if not prompt:
+            fence_workbook_run_state(db, workbook_id)
             _set_enrichment(db, workbook_id, lead_id, col_id, None, "error", error="no_prompt", row_id=row_id)
+            db.commit()
             return {"success": False, "value": None, "error": "no_prompt"}
         # Resolve the workbook's workspace so the native path is workspace-aware.
         research_ws = (
