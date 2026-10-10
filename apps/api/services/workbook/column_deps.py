@@ -50,6 +50,25 @@ def _refs_in(col: dict) -> set:
         if v is not None:
             for value in strings(v):
                 refs.update(m.strip() for m in _REF_RE.findall(value))
+    # Output adapters also read source columns from mapping keys and Sheets'
+    # ordered column list. These references need no {placeholder} wrapper.
+    if col.get("type") == "output":
+        destination = str(col.get("destination") or "").lower()
+        config = col.get("destination_config") or {}
+        if isinstance(config, dict):
+            sources = []
+            if destination in {"airtable", "crm", "instantly", "smartlead"}:
+                field_map = config.get("field_map")
+                if isinstance(field_map, dict):
+                    sources = field_map.keys()
+            elif destination == "sheets" and isinstance(config.get("columns"), list):
+                sources = config["columns"]
+            for source in sources:
+                if isinstance(source, str) and source.strip():
+                    if destination in {"instantly", "smartlead"} and "{" in source:
+                        refs.update(m.strip() for m in _REF_RE.findall(source))
+                    else:
+                        refs.add(source.strip())
     return refs
 
 
