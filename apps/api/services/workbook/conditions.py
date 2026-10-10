@@ -11,6 +11,7 @@ Condition syntax (simple expression language):
   - {status} == "active"    → only run if status matches
   - {email} == "" AND {website} != ""  → compound conditions
   - {email} == "" OR {phone} == ""     → OR conditions
+  - AND binds before OR in mixed conditions (parentheses are not supported)
   - true / false / always / never      → literals
 
 Column config example:
@@ -60,15 +61,12 @@ def evaluate_condition(
     values = _get_values(row_cells, columns_config)
 
     # Parse syntax before resolving cells so their contents remain operand data.
-    parts = _split_unquoted(condition, r" AND ")
-    if len(parts) > 1:
-        return all(_eval_single(p.strip(), values) for p in parts)
-
-    parts = _split_unquoted(condition, r" OR ")
-    if len(parts) > 1:
-        return any(_eval_single(p.strip(), values) for p in parts)
-
-    return _eval_single(condition, values)
+    # OR separates conjunctions: AND binds more tightly. Keep both passes on
+    # authored syntax so operators inside literals or cell data stay data.
+    return any(
+        all(_eval_single(part.strip(), values) for part in _split_unquoted(group, r" AND "))
+        for group in _split_unquoted(condition, r" OR ")
+    )
 
 
 def _split_unquoted(expr: str, pattern: str, maxsplit: int = 0, flags: int = 0) -> list[str]:
