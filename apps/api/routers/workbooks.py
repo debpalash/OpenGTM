@@ -2386,13 +2386,6 @@ async def migrate_workbook_to_v2(
         db.commit()
         return {"status": "already_migrated", "rows": existing}
 
-    # Snapshot leads — limited to 500 to avoid OOM
-    lead_db = ctx.lead_db()
-    try:
-        leads, total = _query_leads(lead_db, wb.filter_criteria or {}, page=1, page_size=500)
-    finally:
-        lead_db.close()
-
     # Trim lead data to only fields used by workbook columns
     col_fields = set()
     for c in (wb.columns_config or []):
@@ -2418,25 +2411,45 @@ async def migrate_workbook_to_v2(
             "provider": e.provider, "error": e.error,
         }
 
-    # Insert in batches with commits to reduce memory
-    for i, lead in enumerate(leads):
-        db.add(WorkbookRow(
-            workbook_id=workbook_id,
-            workspace_id=ctx.workspace_id,
-            position=i,
-            data=_trim(lead),
-            lead_id=lead.get("id"),
-            enrichments=enrich_map.get(lead.get("id"), {}),
-        ))
-        if (i + 1) % 50 == 0:
-            db.commit()
+    # Page the source instead of marking a first-page snapshot as migrated.
+    # Flush bounded row batches, but commit the complete snapshot and marker
+    # together so a later page failure cannot strand a partial migration.
+    lead_db = ctx.lead_db()
+    migrated = 0
+    page = 1
+    try:
+        while True:
+            leads, total = _query_leads(lead_db, wb.filter_criteria or {}, page=page, page_size=500)
+            if not leads:
+                if migrated < total:
+                    raise RuntimeError("Lead snapshot ended before all matching rows were read")
+                break
+            for lead in leads:
+                db.add(WorkbookRow(
+                    workbook_id=workbook_id,
+                    workspace_id=ctx.workspace_id,
+                    position=migrated,
+                    data=_trim(lead),
+                    lead_id=lead.get("id"),
+                    enrichments=enrich_map.get(lead.get("id"), {}),
+                ))
+                migrated += 1
+                if migrated % 50 == 0:
+                    db.flush()
+            if migrated >= total:
+                break
+            page += 1
 
-    # Update workbook metadata
-    wb.source_type = "leads_filter"
-    wb.source_config = {**(wb.filter_criteria or {}), "row_storage_version": 2}
-    db.commit()
+        wb.source_type = "leads_filter"
+        wb.source_config = {**(wb.filter_criteria or {}), "row_storage_version": 2}
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        lead_db.close()
 
-    return {"status": "migrated", "rows": len(leads), "enrichments_migrated": len(enrichments)}
+    return {"status": "migrated", "rows": migrated, "enrichments_migrated": len(enrichments)}
 
 
 # ── WebSocket ─────────────────────────────────────────────────────────────
