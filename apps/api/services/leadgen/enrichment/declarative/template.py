@@ -68,7 +68,8 @@ def render_template(value: Any, ctx: Dict[str, Any], env_resolver: Callable[[str
 def _walk_path(data: Any, path: str) -> Any:
     """Walk a JSONPath-lite path (no leading `$.`). Supports `[]` fan-out and `[i]`."""
     cur = data
-    for raw in path.split("."):
+    parts = path.split(".")
+    for position, raw in enumerate(parts):
         if cur is None:
             return None
         # token may be `key`, `key[]`, `key[2]`, or `[2]`
@@ -82,9 +83,14 @@ def _walk_path(data: Any, path: str) -> Any:
             if not isinstance(cur, list):
                 return None
             if idx == "" or idx is None:
-                # fan-out: return first non-empty element later; for scalar
-                # projection we take the first element
-                cur = cur[0] if cur else None
+                # Choose the first non-empty projected value, not merely
+                # the first array item (which may lack the remaining field).
+                remainder = ".".join(parts[position + 1:])
+                for item in cur:
+                    value = _walk_path(item, remainder) if remainder else item
+                    if value is not None and value != "":
+                        return value
+                return None
             else:
                 i = int(idx)
                 cur = cur[i] if 0 <= i < len(cur) else None
