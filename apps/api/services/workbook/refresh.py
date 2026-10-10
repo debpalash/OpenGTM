@@ -52,18 +52,18 @@ def _interval_minutes(policy: dict) -> Optional[int]:
     return INTERVAL_MINUTES.get(str(interval).lower())
 
 
-def _stale_row_ids(db, workbook_id: str, enrichment_cols: List[dict], ttl_map: dict) -> List[int]:
-    """Workbook row ids with an enrichment cell missing or older than its TTL."""
+def _stale_row_columns(db, workbook_id: str, enrichment_cols: List[dict], ttl_map: dict) -> dict[str, list[str]]:
+    """Exact enrichment cells missing, failed or older than their field's TTL."""
     rows = db.query(WorkbookRow).filter(WorkbookRow.workbook_id == workbook_id).all()
     if not rows:
-        return []
+        return {}
     # Legacy overlay keys follow the execution key (linked lead id or row id).
     overlays = db.query(WorkbookEnrichment).filter(
         WorkbookEnrichment.workbook_id == workbook_id
     ).all()
     seen = {(o.lead_id, o.column_id): o for o in overlays}
 
-    stale = set()
+    stale = {}
     now = _now()
     for row in rows:
         row_id = row.id
@@ -73,16 +73,17 @@ def _stale_row_ids(db, workbook_id: str, enrichment_cols: List[dict], ttl_map: d
             ttl_days = ttl_map.get(col.get("target_field") or cid, DEFAULT_STALENESS_DAYS)
             o = seen.get((lead_id, cid))
             if o is None or o.status != "complete":
-                stale.add(row_id)
-                break
+                stale.setdefault(str(row_id), []).append(cid)
+                continue
             upd = o.updated_at
             if upd is None:
-                stale.add(row_id); break
+                stale.setdefault(str(row_id), []).append(cid)
+                continue
             if upd.tzinfo is None:
                 upd = upd.replace(tzinfo=timezone.utc)
             if upd < now - timedelta(days=ttl_days):
-                stale.add(row_id); break
-    return list(stale)
+                stale.setdefault(str(row_id), []).append(cid)
+    return stale
 
 
 async def refresh_workbook(
@@ -124,9 +125,13 @@ async def _refresh_workbook_impl(workbook_id: str, reason: str, workspace_id: st
     # 2) Re-enrich stale rows only
     reenriched = 0
     with SessionLocal() as db:
-        stale = _stale_row_ids(db, workbook_id, enrichment_cols, ttl_map) if enrichment_cols else []
+        stale = _stale_row_columns(db, workbook_id, enrichment_cols, ttl_map) if enrichment_cols else {}
     if stale:
-        result = await run_workbook_enrichment(workbook_id, row_ids=stale, workspace_id=workspace_id)
+        result = await run_workbook_enrichment(
+            workbook_id, row_ids=[int(row_id) for row_id in stale],
+            column_ids=list(dict.fromkeys(cid for ids in stale.values() for cid in ids)),
+            row_columns=stale, workspace_id=workspace_id,
+        )
         reenriched = result.get("completed", 0)
 
     with SessionLocal() as db:
