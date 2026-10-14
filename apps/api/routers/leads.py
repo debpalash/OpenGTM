@@ -1217,8 +1217,21 @@ def merge_duplicates(body: dict, ctx: WorkspaceCtx = Depends(require_editor)):
         db.close()
         raise HTTPException(404, f"Master lead {master_id} not found")
 
-    duplicates = []
+    # The master is the record that survives. A caller that lists it among the
+    # duplicates (e.g. a whole cluster) must not delete it, and a lead listed
+    # twice is merged once.
+    seen = {str(master_id)}
+    unique_duplicate_ids = []
     for duplicate_id in duplicate_ids:
+        if str(duplicate_id) not in seen:
+            seen.add(str(duplicate_id))
+            unique_duplicate_ids.append(duplicate_id)
+    if not unique_duplicate_ids:
+        db.close()
+        raise HTTPException(400, "duplicate_ids must contain a lead other than master_id")
+
+    duplicates = []
+    for duplicate_id in unique_duplicate_ids:
         duplicate = db.get_lead(duplicate_id)
         if duplicate:
             duplicates.append(duplicate.to_dict())
