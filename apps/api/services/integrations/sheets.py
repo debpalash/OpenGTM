@@ -10,12 +10,32 @@ https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/a
 
 import logging
 import os
+import re
 from typing import Any, Dict, List, Optional
 from urllib.parse import quote
 
 import httpx
 
 logger = logging.getLogger("integrations.sheets")
+
+
+_PLAIN_NUMBER = re.compile(r"^[+-]?[0-9]+(\.[0-9]+)?$")
+
+
+def _cell(value: Any) -> str:
+    """Render one value for a USER_ENTERED write without letting it run.
+
+    Values are scraped or enriched from third-party pages, and USER_ENTERED
+    makes Sheets evaluate anything starting with ``=`` (``=IMPORTDATA(...)``
+    can send sheet data to another host). A leading apostrophe stores the text
+    verbatim, and Sheets does not show it. ``+``, ``-`` and ``@`` get the same
+    treatment, which also keeps phone numbers such as ``+1 555 0100`` as text;
+    plain numbers are left to be parsed as numbers.
+    """
+    text = "" if value is None else str(value)
+    if text.startswith(("=", "+", "-", "@", "\t", "\r")) and not _PLAIN_NUMBER.match(text):
+        return "'" + text
+    return text
 
 
 def _token(workspace_id: Optional[str] = None) -> str:
@@ -47,7 +67,7 @@ async def append_row(spreadsheet_id: str, values: List[Any],
     )
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     params = {"valueInputOption": "USER_ENTERED", "insertDataOption": "INSERT_ROWS"}
-    body = {"values": [[("" if v is None else str(v)) for v in values]]}
+    body = {"values": [[_cell(v) for v in values]]}
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.post(url, headers=headers, params=params, json=body)
@@ -81,7 +101,7 @@ async def upsert_row(
         return {"success": False, "error": "Google Sheets not connected"}
     if not spreadsheet_id or not idempotency_key:
         return {"success": False, "error": "spreadsheet_id and idempotency_key are required"}
-    row = [idempotency_key, *("" if value is None else str(value) for value in values)]
+    row = [idempotency_key, *(_cell(value) for value in values)]
     base = f"https://sheets.googleapis.com/v4/spreadsheets/{spreadsheet_id}/values"
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     try:
