@@ -1399,15 +1399,14 @@ async def tech_stack_endpoint(
 @router.post("/leads/domain-intel")
 async def domain_intelligence(body: dict, ctx: WorkspaceCtx = Depends(require_editor)):
     """Analyze a domain — RDAP registration, DNS, hosting, email provider, legitimacy score."""
-    domain = body.get("domain", "").strip()
-    if not domain:
-        raise HTTPException(400, "domain is required")
+    from apps.api.services.leadgen.enrichment.domain_intel import clean_domain
 
-    # Strip protocol/path if provided as URL
-    if "://" in domain:
-        from urllib.parse import urlparse
-        domain = urlparse(domain).hostname or domain
-    domain = domain.replace("www.", "").strip("/")
+    raw_domain = body.get("domain")
+    if not isinstance(raw_domain, str) or not raw_domain.strip():
+        raise HTTPException(400, "domain is required")
+    domain = clean_domain(raw_domain)
+    if not domain:
+        raise HTTPException(400, "domain must be a valid domain name or URL")
 
     from apps.api.services.leadgen.enrichment.domain_intel import analyze_domain
     result = await analyze_domain(domain)

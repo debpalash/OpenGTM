@@ -14,8 +14,10 @@ Provides:
 
 import asyncio
 import logging
+import re
 from typing import Dict, Optional
 from datetime import datetime
+from urllib.parse import urlparse
 
 logger = logging.getLogger("leadgen.domain_intel")
 
@@ -54,6 +56,36 @@ EMAIL_PROVIDERS = {
     "yahoodns": "Yahoo Mail",
     "privateemail": "Namecheap Email",
 }
+
+
+_HOSTNAME = re.compile(
+    r"^(?=.{1,253}$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"
+    r"(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$"
+)
+
+
+def clean_domain(value: object) -> str:
+    """The bare, lowercase hostname of a domain or URL, or "" when it is not one.
+
+    The result goes into RDAP and crt.sh request URLs and is compared with
+    lowercase certificate names, so it must not carry a scheme, path, query,
+    port, credentials, case, a trailing dot or a leading ``www.``. Only that
+    prefix is removed, never a ``www.`` elsewhere in the name.
+    """
+    if not isinstance(value, str):
+        return ""
+    text = value.strip()
+    if not text:
+        return ""
+    host = urlparse(text if "://" in text else "//" + text).hostname or ""
+    host = host.strip(".").lower()
+    if host.startswith("www."):
+        host = host[4:]
+    try:
+        host = host.encode("idna").decode("ascii")  # bücher.de -> xn--bcher-kva.de
+    except UnicodeError:
+        return ""
+    return host if _HOSTNAME.match(host) else ""
 
 
 async def get_rdap_info(domain: str) -> Dict:
