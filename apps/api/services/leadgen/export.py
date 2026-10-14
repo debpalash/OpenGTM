@@ -4,11 +4,35 @@ Export Module — Export leads to CSV, JSON, or print summary.
 
 import csv
 import json
+import re
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from apps.api.services.leadgen.models import Lead
 from apps.api.services.leadgen.db import LeadDB
+
+
+# A dialable number (digits plus + - ( ) . and spaces) holds no function name,
+# cell reference or operator a spreadsheet could run, so it needs no escaping.
+_PLAIN_NUMBER = re.compile(r"^[+-]?[0-9][0-9 ().-]*$")
+
+
+def csv_safe(value: Any) -> Any:
+    """Neutralize a cell a spreadsheet would run as a formula.
+
+    Lead fields are scraped from third-party pages, so text such as
+    ``=HYPERLINK(...)`` or ``+cmd|...`` must open as text, not execute. Text that
+    starts with ``=``, ``+``, ``-``, ``@``, a tab or a carriage return gets a
+    leading apostrophe (OWASP guidance, as in the workbook export); numbers and
+    phone-like strings are left alone.
+    """
+    if value is None:
+        return ""
+    if not isinstance(value, str):
+        return value
+    if value.startswith(("=", "+", "-", "@", "\t", "\r")) and not _PLAIN_NUMBER.match(value):
+        return "'" + value
+    return value
 
 
 def export_csv(
@@ -42,13 +66,13 @@ def export_csv(
         writer = csv.writer(f)
         writer.writerow(headers)
         for lead in leads:
-            writer.writerow([
+            writer.writerow([csv_safe(value) for value in (
                 lead.company, lead.website, lead.email, lead.phone,
                 lead.city, lead.specialization, lead.company_size,
                 lead.linkedin_url, lead.contact_person, lead.contact_title,
                 lead.score, lead.score_tier, lead.status, lead.source,
                 lead.notes, lead.yupcha_value_prop, lead.company_need,
-            ])
+            )])
 
     print(f"  📤 Exported {len(leads)} leads to {output_path}")
     return str(output_path)

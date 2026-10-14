@@ -671,8 +671,10 @@ def export_csv(
         "Glassdoor Rating", "Decision Makers",
         "Secondary Emails", "Secondary Phones", "Notes",
     ])
+    from apps.api.services.leadgen.export import csv_safe
+
     for l in leads:
-        writer.writerow([
+        writer.writerow([csv_safe(value) for value in (
             l.company, l.website, l.email, l.phone, l.city,
             l.state, l.address, l.specialization, l.description,
             l.industry_tags, l.score, l.score_tier, l.status,
@@ -684,7 +686,7 @@ def export_csv(
             getattr(l, 'secondary_emails', ''),
             getattr(l, 'secondary_phones', ''),
             l.notes,
-        ])
+        )])
 
     return Response(
         content=output.getvalue(),
