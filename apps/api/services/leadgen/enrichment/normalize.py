@@ -35,7 +35,8 @@ def normalize_phone(value: Any) -> Any:
         return value  # not phone-shaped; leave untouched
 
     if had_plus:
-        return f"+{digits[:_E164_MAX_DIGITS]}"
+        # An overlong number is invalid; truncating it invents another contact.
+        return f"+{digits}" if len(digits) <= _E164_MAX_DIGITS else value
     if digits.startswith("00") and len(digits) > 8:
         # "00" international dialing prefix -> "+"
         return f"+{digits[2:2 + _E164_MAX_DIGITS]}"
