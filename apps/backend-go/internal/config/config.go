@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+// RequiredGoSchemaRevision is the Alembic revision the Go worker requires.
+// It must equal REQUIRED_GO_SCHEMA_REVISION in the Python go_executor module.
+const RequiredGoSchemaRevision = "4a5162738495"
+
 const (
 	defaultWorkerConcurrency = 4
 	maxWorkerConcurrency     = 64

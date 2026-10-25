@@ -301,6 +301,8 @@ type Job struct {
 	LockedAt      pgtype.Timestamp
 	FireKey       pgtype.Text
 	WorkspaceID   pgtype.Text
+	Executor      string
+	LeaseToken    int64
 }
 
 type Lead struct {

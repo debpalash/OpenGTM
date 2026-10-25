@@ -626,7 +626,10 @@ CREATE TABLE public.jobs (
     next_run_at timestamp without time zone,
     locked_at timestamp without time zone,
     fire_key character varying,
-    workspace_id character varying
+    workspace_id character varying,
+    executor text DEFAULT 'python'::text NOT NULL,
+    lease_token bigint DEFAULT '0'::bigint NOT NULL,
+    CONSTRAINT ck_jobs_executor CHECK ((executor = ANY (ARRAY['python'::text, 'go'::text])))
 );
 
 --
@@ -3299,6 +3302,12 @@ CREATE INDEX ix_inbound_sched_due ON public.outreach_inbound_schedules USING btr
 --
 
 CREATE INDEX ix_inbound_ws_created ON public.outreach_inbound_messages USING btree (workspace_id, created_at);
+
+--
+-- Name: ix_jobs_claim; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_jobs_claim ON public.jobs USING btree (executor, status, priority DESC, next_run_at) WHERE ((status)::text = 'pending'::text);
 
 --
 -- Name: ix_jobs_id; Type: INDEX; Schema: public; Owner: -
