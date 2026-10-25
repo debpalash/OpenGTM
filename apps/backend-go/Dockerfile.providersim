@@ -1,0 +1,12 @@
+FROM golang:1.27.3 AS build
+WORKDIR /src
+COPY go.mod ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -trimpath -o /out/providersim ./cmd/providersim
+
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=build /out/providersim /providersim
+ENV SIM_ADDR=:8099
+EXPOSE 8099
+ENTRYPOINT ["/providersim"]

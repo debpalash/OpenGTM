@@ -299,6 +299,20 @@ services:
     networks:
       - lead_net
 
+  # ── Benchmark-only provider simulator (docker compose --profile bench) ──
+  providersim:
+    profiles: ["bench"]
+    build:
+      context: ./apps/backend-go
+      dockerfile: Dockerfile.providersim
+    environment:
+      - SIM_ADDR=:8099
+      - SIM_PROFILE=${SIM_PROFILE:-ok}
+      - SIM_SEED=${SIM_SEED:-1}
+    restart: "no"
+    networks:
+      - lead_net
+
 volumes:
   pgdata:
   redisdata:
