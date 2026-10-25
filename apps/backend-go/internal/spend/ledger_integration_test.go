@@ -483,3 +483,38 @@ func TestTransitionUnsupportedAction(t *testing.T) {
 		t.Fatal("unsupported action accepted")
 	}
 }
+
+func TestDispatchRejectsNonPositiveLeaseToken(t *testing.T) {
+	pool, _ := setup(t, nil, nil)
+	c, jobID := claimRunWorkbook(t, pool, "wb1")
+	r := res("k1", 10, 100)
+	r.RunID = fmt.Sprintf("job:%d", jobID)
+	id := ident(reserve(t, pool, r))
+	for _, tok := range []int64{0, -1} {
+		l := *fence(c)
+		l.LeaseToken = tok
+		id.Lease = &l
+		if transition(t, pool, id, "dispatch") {
+			t.Fatalf("lease token %d dispatched", tok)
+		}
+	}
+	id.Lease = fence(c)
+	if !transition(t, pool, id, "dispatch") {
+		t.Fatal("live lease must dispatch")
+	}
+}
+
+func TestSettleReplayWithAliasedResultConflicts(t *testing.T) {
+	pool, _ := setup(t, f(1), f(0))
+	id := ident(reserve(t, pool, res("k1", 100, 1000)))
+	transition(t, pool, id, "dispatch")
+	if s := settle(t, pool, id, 5, "catalog_estimate", map[string]any{"v": []any{"x", "y"}, "n": int64(1)}); !s.OK {
+		t.Fatal(s)
+	}
+	if s := settle(t, pool, id, 5, "catalog_estimate", map[string]any{"v": []any{"x s:y"}, "n": int64(1)}); s.OK || s.Reason != "settlement_conflict" {
+		t.Fatalf("aliased result: %+v", s)
+	}
+	if s := settle(t, pool, id, 5, "catalog_estimate", map[string]any{"n": 1.0, "v": []any{"x", "y"}}); !s.OK || !s.Reused {
+		t.Fatalf("1 == 1.0 and key order irrelevant: %+v", s)
+	}
+}

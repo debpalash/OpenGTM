@@ -1,6 +1,7 @@
 package spend
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/json"
@@ -8,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -216,7 +218,7 @@ func Transition(ctx context.Context, tx pgx.Tx, id Identity, action string) (boo
 // live, then require its payload to name this workbook.
 func holdsLease(ctx context.Context, q *gen.Queries, id Identity) (bool, error) {
 	l := id.Lease
-	if l.JobID <= 0 || l.JobID > math.MaxInt32 || l.WorkerID == "" || l.LockedAt.IsZero() {
+	if l.LeaseToken <= 0 || l.JobID <= 0 || l.JobID > math.MaxInt32 || l.WorkerID == "" || l.LockedAt.IsZero() {
 		return false, nil
 	}
 	payload, err := q.LockOwnedRunWorkbookJob(ctx, gen.LockOwnedRunWorkbookJobParams{ID: int32(l.JobID), WorkspaceID: id.WorkspaceID,
@@ -299,54 +301,87 @@ func Settle(ctx context.Context, tx pgx.Tx, id Identity, chargedMicroUSD int64, 
 	return SettleResult{OK: true}, nil
 }
 
-// jsonEqual compares two JSON documents with Python == semantics (numeric
-// equality across int/float, True == 1).
+// jsonEqual compares two JSON documents structurally with Python == semantics
+// (numeric equality across int/float, True == 1). Numbers that are absurdly
+// large are treated as unequal rather than expanded.
 func jsonEqual(a, b []byte) bool {
 	na, err1 := normalize(a)
 	nb, err2 := normalize(b)
-	return err1 == nil && err2 == nil && fmt.Sprint(na) == fmt.Sprint(nb)
+	return err1 == nil && err2 == nil && reflect.DeepEqual(na, nb)
 }
+
+// num is an exact canonical number (reduced rational) so it cannot alias a string.
+type num string
 
 func normalize(raw []byte) (any, error) {
 	if raw == nil {
 		return nil, errors.New("null")
 	}
 	var v any
-	dec := json.NewDecoder(strings.NewReader(string(raw)))
+	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.UseNumber()
 	if err := dec.Decode(&v); err != nil {
 		return nil, err
 	}
-	return norm(v), nil
+	return norm(v)
 }
 
-// norm yields a deterministic comparable form (fmt prints maps key-sorted).
-func norm(v any) any {
+const (
+	maxExponent = 400
+	maxMantissa = 1000
+)
+
+func normNumber(s string) (num, error) {
+	mant, exp, _ := strings.Cut(strings.ToLower(s), "e")
+	if exp != "" {
+		e, err := strconv.Atoi(exp)
+		if err != nil || e > maxExponent || e < -maxExponent {
+			return "", errors.New("number exponent out of range")
+		}
+	}
+	if len(mant) > maxMantissa+2 { // sign and decimal point
+		return "", errors.New("number mantissa too long")
+	}
+	r, ok := new(big.Rat).SetString(s)
+	if !ok {
+		return "", errors.New("bad number")
+	}
+	return num(r.RatString()), nil
+}
+
+// norm yields a comparable tree: numbers and bools become num, so
+// DeepEqual distinguishes strings, lists and maps structurally.
+func norm(v any) (any, error) {
 	switch x := v.(type) {
 	case json.Number:
-		r, _ := new(big.Rat).SetString(x.String())
-		return "n:" + r.RatString()
+		return normNumber(x.String())
 	case bool:
 		if x {
-			return "n:1"
+			return num("1"), nil
 		}
-		return "n:0"
-	case string:
-		return "s:" + x
+		return num("0"), nil
 	case []any:
 		out := make([]any, len(x))
 		for i, e := range x {
-			out[i] = norm(e)
+			n, err := norm(e)
+			if err != nil {
+				return nil, err
+			}
+			out[i] = n
 		}
-		return out
+		return out, nil
 	case map[string]any:
 		out := make(map[string]any, len(x))
 		for k, e := range x {
-			out[k] = norm(e)
+			n, err := norm(e)
+			if err != nil {
+				return nil, err
+			}
+			out[k] = n
 		}
-		return out
+		return out, nil
 	}
-	return v
+	return v, nil
 }
 
 // ---- provider accounting (provider_accounting.accounting_envelope) ----

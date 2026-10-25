@@ -185,6 +185,9 @@ func FloatRepr(f float64) (string, error) {
 // Decode parses JSON into the shapes Marshal accepts. Numbers with '.', 'e'
 // or 'E' are float64 (as in Python); the rest must fit int64.
 func Decode(raw []byte) (any, error) {
+	if err := checkStrings(raw); err != nil {
+		return nil, err
+	}
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.UseNumber()
 	v, err := convert(dec)
@@ -239,4 +242,50 @@ func convert(dec *json.Decoder) (any, error) {
 	default: // string, bool, nil
 		return tok, nil
 	}
+}
+
+// checkStrings rejects what encoding/json would silently turn into U+FFFD:
+// invalid UTF-8 and lone surrogate \u escapes.
+func checkStrings(raw []byte) error {
+	if !utf8.Valid(raw) {
+		return errors.New("canonjson: invalid UTF-8")
+	}
+	hex4 := func(i int) (rune, bool) {
+		if i+6 > len(raw) || raw[i] != '\\' || raw[i+1] != 'u' {
+			return 0, false
+		}
+		v, err := strconv.ParseUint(string(raw[i+2:i+6]), 16, 32)
+		return rune(v), err == nil
+	}
+	inStr := false
+	for i := 0; i < len(raw); i++ {
+		c := raw[i]
+		switch {
+		case !inStr:
+			inStr = c == '"'
+		case c == '"':
+			inStr = false
+		case c == '\\':
+			if i+1 < len(raw) && raw[i+1] == 'u' {
+				r, ok := hex4(i)
+				if !ok {
+					return errors.New("canonjson: bad \\u escape")
+				}
+				switch {
+				case r >= 0xdc00 && r <= 0xdfff:
+					return errors.New("canonjson: lone low surrogate")
+				case r >= 0xd800 && r <= 0xdbff:
+					lo, ok := hex4(i + 6)
+					if !ok || lo < 0xdc00 || lo > 0xdfff {
+						return errors.New("canonjson: lone high surrogate")
+					}
+					i += 6
+				}
+				i += 5
+			} else {
+				i++
+			}
+		}
+	}
+	return nil
 }

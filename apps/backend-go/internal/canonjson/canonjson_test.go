@@ -128,3 +128,16 @@ func mustMarshal(t *testing.T, v any) []byte {
 	}
 	return b
 }
+
+func TestDecodeRejectsLoneSurrogatesAndBadUTF8(t *testing.T) {
+	for _, bad := range []string{`"\ud800"`, `"\udc00"`, `"\ud800x"`, `"\ud800A"`, `["\udbff"]`, `{"\udc00":1}`, "\"\xff\"", `"\u12"`} {
+		if v, err := canonjson.Decode([]byte(bad)); err == nil {
+			t.Errorf("%q accepted: %#v", bad, v)
+		}
+	}
+	for _, good := range []string{`"😀"`, `"\\ud800"`, `"\\\\u"`, `"é"`} {
+		if _, err := canonjson.Decode([]byte(good)); err != nil {
+			t.Errorf("%q rejected: %v", good, err)
+		}
+	}
+}

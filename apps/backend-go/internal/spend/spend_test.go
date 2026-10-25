@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
@@ -146,5 +147,35 @@ func TestAccountingEnvelope(t *testing.T) {
 	}
 	if _, err := spend.AccountingEnvelope("p", ok, -1); err == nil || errors.Is(err, spend.ErrUncertainAccounting) {
 		t.Errorf("invalid catalog exposure must be a plain error, got %v", err)
+	}
+}
+
+func TestJSONEqualIsStructural(t *testing.T) {
+	cases := []struct {
+		a, b string
+		want bool
+	}{
+		{`["x","y"]`, `["x s:y"]`, false},
+		{`["a b"]`, `["a","b"]`, false},
+		{`{"k":"s:x"}`, `{"k":"x"}`, false},
+		{`["n:1"]`, `[1]`, false},
+		{`[["x"],"y"]`, `["x","y"]`, false},
+		{`{"a":[1,2]}`, `{"a":"[1 2]"}`, false},
+		{`{"a":1}`, `{"a":1.0}`, true},
+		{`{"a":1e0,"b":[2]}`, `{"b":[2.0],"a":1}`, true},
+		{`{"a":true}`, `{"a":1}`, true},
+		{`{"a":0.1}`, `{"a":0.10}`, true},
+		{`{"a":1}`, `{"a":2}`, false},
+		{`{"a":null}`, `{"a":"null"}`, false},
+		{`{"a":1e999999999}`, `{"a":1e999999999}`, false},
+		{`{"a":1e-999999999}`, `{"a":0}`, false},
+	}
+	for _, c := range cases {
+		if got := spend.JSONEqual([]byte(c.a), []byte(c.b)); got != c.want {
+			t.Errorf("%s vs %s: got %v want %v", c.a, c.b, got, c.want)
+		}
+	}
+	if spend.JSONEqual([]byte("1"+strings.Repeat("0", 1200)), []byte("1")) {
+		t.Error("oversized mantissa treated as equal")
 	}
 }
