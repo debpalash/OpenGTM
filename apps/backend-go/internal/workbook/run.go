@@ -5,6 +5,7 @@ package workbook
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -32,6 +33,42 @@ func (w workItem) rowID() int64 { return intOf(w.lead["__row_id"]) }
 // (the queue retries it); ErrLeaseLost and context cancellation mean this
 // executor must stop writing and leave the claim to its new owner.
 func Run(ctx context.Context, deps Deps, c *queue.Claim) (Result, error) {
+	var started bool
+	res, err := run(ctx, deps, c, &started)
+	if err != nil && !started && ctx.Err() == nil && !errors.Is(err, ErrLeaseLost) {
+		failWorkbook(ctx, deps, c)
+	}
+	return res, err
+}
+
+// failWorkbook covers refusals and load errors that happen before the run loop
+// (whose finalizer owns the status afterwards). /run already set the workbook
+// to `running`, and nothing else would clear it if the job then fails
+// terminally. Fenced, so only the live lease owner writes; a pause is kept.
+// Cancellation and shutdown deliberately never reach here.
+func failWorkbook(ctx context.Context, deps Deps, c *queue.Claim) {
+	var p struct {
+		WorkbookID string `json:"workbook_id"`
+	}
+	if json.Unmarshal(c.Payload, &p) != nil || p.WorkbookID == "" || c.WorkspaceID == "" {
+		return
+	}
+	err := tenancy.InWorkspace(ctx, deps.Pool, c.WorkspaceID, func(tx pgx.Tx) error {
+		if err := fence(ctx, tx, c, p.WorkbookID); err != nil {
+			return err
+		}
+		return gen.New(tx).FailWorkbook(ctx, gen.FailWorkbookParams{WorkbookID: p.WorkbookID, WorkspaceID: c.WorkspaceID})
+	})
+	if err != nil && !errors.Is(err, ErrLeaseLost) && deps.Log != nil {
+		deps.Log.Warn("could not mark workbook failed", "err", err)
+	}
+	if err == nil && deps.Progress != nil {
+		deps.Progress.Publish(ctx, p.WorkbookID, map[string]any{"type": "workbook_status", "status": "failed",
+			"completed": 0, "errors": 0, "total": 0})
+	}
+}
+
+func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result, error) {
 	log := deps.Log
 	if log == nil {
 		log = slog.Default()
@@ -107,6 +144,7 @@ func Run(ctx context.Context, deps Deps, c *queue.Claim) (Result, error) {
 		return Result{}, err
 	}
 
+	*started = true
 	res, runErr := rs.execute(ctx, enrichCols, leads)
 	res.Rows = len(leads)
 	rs.finalize(ctx, &res, runErr, len(leads))

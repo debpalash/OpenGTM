@@ -48,6 +48,11 @@ UPDATE workbooks SET
 WHERE id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
 RETURNING status;
 
+-- name: FailWorkbook :exec
+-- Terminal/refusal path: never overwrite a user's pause.
+UPDATE workbooks SET status = 'failed', updated_at = now()
+WHERE id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text AND status IS DISTINCT FROM 'paused';
+
 -- name: UpsertEnrichment :exec
 INSERT INTO workbook_enrichments
   (workbook_id, workspace_id, lead_id, column_id, value, status, provider, error, cell_metadata)

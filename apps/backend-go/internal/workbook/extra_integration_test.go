@@ -3,11 +3,14 @@
 package workbook_test
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
@@ -179,5 +182,67 @@ func TestRefusesNonV1Payload(t *testing.T) {
 	}
 	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments`); n != 0 {
 		t.Fatal("cells written")
+	}
+}
+
+func TestRefusalFailsWorkbookButKeepsPauseAndCancelLeavesRunning(t *testing.T) {
+	e := setup(t, wsA)
+	set := func(wb, status string) {
+		e.inWS(wsA, func(tx pgx.Tx) error {
+			_, err := tx.Exec(e.ctx, `UPDATE workbooks SET status=$2 WHERE id=$1`, wb, status)
+			return err
+		})
+	}
+	bad := func(wb string) []byte {
+		raw := payloadFor(wsA, wb, map[string]float64{"free1": 0}, nil)
+		var p map[string]any
+		_ = json.Unmarshal(raw, &p)
+		p["go"].(map[string]any)["version"] = 2
+		raw, _ = json.Marshal(p)
+		return raw
+	}
+	s := newSim(t, nil)
+
+	// Terminal refusal while /run left the workbook `running`: it must not stay so.
+	e.seed(wsA, "wb-rf1", "["+colJSON("c1", "free1")+"]", 1, 0)
+	set("wb-rf1", "running")
+	if _, err := workbook.Run(e.ctx, e.deps(s, nil), e.claim(wsA, bad("wb-rf1"))); err == nil {
+		t.Fatal("expected refusal")
+	}
+	if st := e.str(wsA, `SELECT status FROM workbooks WHERE id='wb-rf1'`); st != "failed" {
+		t.Fatalf("refused run left workbook %q", st)
+	}
+
+	// A user pause wins over the failure write.
+	e.seed(wsA, "wb-rf2", "["+colJSON("c1", "free1")+"]", 1, 0)
+	set("wb-rf2", "paused")
+	if _, err := e.pool.Exec(e.ctx, `DELETE FROM jobs`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := workbook.Run(e.ctx, e.deps(s, nil), e.claim(wsA, bad("wb-rf2"))); err == nil {
+		t.Fatal("expected refusal")
+	}
+	if st := e.str(wsA, `SELECT status FROM workbooks WHERE id='wb-rf2'`); st != "paused" {
+		t.Fatalf("pause overwritten: %q", st)
+	}
+
+	// Context cancellation (shutdown) never writes a status: the reclaimed run resumes.
+	e.seed(wsA, "wb-rf3", "["+colJSON("c1", "free1")+"]", 2, 0)
+	set("wb-rf3", "running")
+	if _, err := e.pool.Exec(e.ctx, `DELETE FROM jobs`); err != nil {
+		t.Fatal(err)
+	}
+	held := make(chan struct{})
+	s2 := newSim(t, func(_ string, _ int, w http.ResponseWriter, r *http.Request) {
+		close(held)
+		<-r.Context().Done()
+	})
+	ctx, cancel := context.WithCancel(e.ctx)
+	go func() { <-held; cancel() }()
+	if _, err := workbook.Run(ctx, e.deps(s2, nil), e.claim(wsA, payloadFor(wsA, "wb-rf3", map[string]float64{"free1": 0}, nil))); err == nil {
+		t.Fatal("expected cancellation error")
+	}
+	if st := e.str(wsA, `SELECT status FROM workbooks WHERE id='wb-rf3'`); st != "running" {
+		t.Fatalf("shutdown wrote status %q", st)
 	}
 }

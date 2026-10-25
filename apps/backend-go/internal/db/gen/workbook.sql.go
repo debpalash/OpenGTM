@@ -28,6 +28,22 @@ func (q *Queries) CountWorkbookRows(ctx context.Context, arg CountWorkbookRowsPa
 	return column_1, err
 }
 
+const failWorkbook = `-- name: FailWorkbook :exec
+UPDATE workbooks SET status = 'failed', updated_at = now()
+WHERE id = $1::text AND workspace_id = $2::text AND status IS DISTINCT FROM 'paused'
+`
+
+type FailWorkbookParams struct {
+	WorkbookID  string
+	WorkspaceID string
+}
+
+// Terminal/refusal path: never overwrite a user's pause.
+func (q *Queries) FailWorkbook(ctx context.Context, arg FailWorkbookParams) error {
+	_, err := q.db.Exec(ctx, failWorkbook, arg.WorkbookID, arg.WorkspaceID)
+	return err
+}
+
 const finalizeWorkbook = `-- name: FinalizeWorkbook :one
 UPDATE workbooks SET
   status = CASE WHEN status IS DISTINCT FROM 'paused' THEN $1::text ELSE status END,
