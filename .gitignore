@@ -84,3 +84,6 @@ apps/searxng-pool/searxng-pool
 
 # Turborepo writes agent rules at the repo root
 /AGENTS.md
+
+# ── Legacy Python backend (kept on disk, untracked; see legacy/python) ──
+/legacy/python/
