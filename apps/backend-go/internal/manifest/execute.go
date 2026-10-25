@@ -31,64 +31,19 @@ const maxBodyBytes = 1 << 20
 // result (for auth.env_var) or "" (in templates), and makes no network call
 // when the auth key is missing. A nil cred resolves everything to "".
 func Execute(ctx context.Context, client *http.Client, m Manifest, lead map[string]string, cred func(envVar string) (string, error)) Result {
+	return ExecuteChecked(ctx, client, m, lead, cred, nil)
+}
+
+// ExecuteChecked is Execute with an explicit URL guard (nil means
+// egress.CheckURL(url, true)); the worker passes an allowlist-aware guard.
+func ExecuteChecked(ctx context.Context, client *http.Client, m Manifest, lead map[string]string, cred func(envVar string) (string, error), check func(rawURL string) error) Result {
 	t0 := time.Now()
-	allowed := allowedEnvNames(m)
-	env := func(v string) string {
-		if cred == nil {
-			return ""
-		}
-		if _, ok := allowed[v]; !ok {
-			return ""
-		}
-		s, err := cred(v)
-		if err != nil {
-			return ""
-		}
-		return s
-	}
 	elapsed := func() float64 { return float64(time.Since(t0)) / float64(time.Millisecond) }
-
-	tctx := map[string]any{"input": InputContext(lead)}
-	req := m.Request
-	target := RenderString(req.URL, tctx, env)
-	headers := make(map[string]string, len(req.Headers)+1)
-	for k, v := range req.Headers {
-		headers[k] = RenderString(pyStr(v), tctx, env)
+	p, perr := Prepare(m, lead, cred, check)
+	if perr != "" {
+		return Result{Error: perr}
 	}
-	params := make(map[string]string, len(req.Query)+1)
-	for k, v := range req.Query {
-		params[k] = RenderString(pyStr(v), tctx, env)
-	}
-	var body any
-	if req.BodyTemplate != nil {
-		body = Render(req.BodyTemplate, tctx, env)
-	}
-
-	// Fail fast on a config error (missing key) before any network work.
-	if a := m.Auth; a.Type != "none" && a.Type != "" {
-		if a.EnvVar != "" && env(a.EnvVar) == "" {
-			return Result{Error: m.Name + ": missing " + a.EnvVar}
-		}
-		var value string
-		if a.Value != "" {
-			value = RenderString(a.Value, map[string]any{}, env)
-		} else {
-			value = env(a.EnvVar)
-		}
-		switch a.Type {
-		case "bearer":
-			headers["Authorization"] = "Bearer " + value
-		case "header":
-			headers[orDefault(a.Param, "Authorization")] = value
-		case "query":
-			params[orDefault(a.Param, "api_key")] = value
-		}
-	}
-
-	// SSRF guard on the templated URL; DNS vetting happens at dial time.
-	if err := egress.CheckURL(target, true); err != nil {
-		return Result{Error: "blocked_url: " + truncRunes(blockedReason(err), 60)}
-	}
+	target, headers, params, body, req := p.Target, p.Headers, p.Params, p.Body, p.Spec
 
 	rctx := ctx
 	if req.Timeout > 0 {
@@ -140,6 +95,113 @@ func Execute(ctx context.Context, client *http.Client, m Manifest, lead map[stri
 		res.Error = "no_data"
 	}
 	return res
+}
+
+// Prepared is a fully rendered, vetted request: every step that can fail
+// before any network I/O has already passed.
+type Prepared struct {
+	Target  string
+	Headers map[string]string
+	Params  map[string]string
+	Body    any
+	Spec    RequestSpec
+}
+
+// SecurityProblem returns a stable refusal reason ("templated_authority" or
+// "literal_auth_value") or "". Mirrors Python manifest_security_problem.
+func SecurityProblem(m Manifest) string {
+	a := m.Auth
+	secret := (a.Type != "none" && a.Type != "") || len(allowedEnvNames(m)) > 0
+	u := m.Request.URL
+	if secret && strings.Contains(u[:authorityEnd(u)], "{{") {
+		return "templated_authority"
+	}
+	if a.Type != "none" && a.Type != "" && a.Value != "" && !envRE.MatchString(a.Value) {
+		return "literal_auth_value"
+	}
+	return ""
+}
+
+// authorityEnd is the index where the path/query/fragment of u begins.
+func authorityEnd(u string) int {
+	start := 0
+	if i := strings.Index(u, "://"); i >= 0 {
+		start = i + 3
+	}
+	if j := strings.IndexAny(u[start:], "/?#"); j >= 0 {
+		return start + j
+	}
+	return len(u)
+}
+
+// Prepare renders the request and resolves the credential without any network
+// I/O (cred may call the internal credentials API). It returns the Python-
+// contract error string ("templated_authority", "<name>: missing ENV",
+// "blocked_url: ...") when the call must not be made; callers that pay per
+// call use this before reserving budget so only real network calls dispatch.
+func Prepare(m Manifest, lead map[string]string, cred func(envVar string) (string, error), check func(rawURL string) error) (*Prepared, string) {
+	if r := SecurityProblem(m); r != "" {
+		return nil, r
+	}
+	allowed := allowedEnvNames(m)
+	env := func(v string) string {
+		if cred == nil {
+			return ""
+		}
+		if _, ok := allowed[v]; !ok {
+			return ""
+		}
+		s, err := cred(v)
+		if err != nil {
+			return ""
+		}
+		return s
+	}
+	tctx := map[string]any{"input": InputContext(lead)}
+	req := m.Request
+	target := RenderString(req.URL, tctx, env)
+	headers := make(map[string]string, len(req.Headers)+1)
+	for k, v := range req.Headers {
+		headers[k] = RenderString(pyStr(v), tctx, env)
+	}
+	params := make(map[string]string, len(req.Query)+1)
+	for k, v := range req.Query {
+		params[k] = RenderString(pyStr(v), tctx, env)
+	}
+	var body any
+	if req.BodyTemplate != nil {
+		body = Render(req.BodyTemplate, tctx, env)
+	}
+
+	// Fail fast on a config error (missing key) before any network work.
+	if a := m.Auth; a.Type != "none" && a.Type != "" {
+		if a.EnvVar != "" && env(a.EnvVar) == "" {
+			return nil, m.Name + ": missing " + a.EnvVar
+		}
+		var value string
+		if a.Value != "" {
+			value = RenderString(a.Value, map[string]any{}, env)
+		} else {
+			value = env(a.EnvVar)
+		}
+		switch a.Type {
+		case "bearer":
+			headers["Authorization"] = "Bearer " + value
+		case "header":
+			headers[orDefault(a.Param, "Authorization")] = value
+		case "query":
+			params[orDefault(a.Param, "api_key")] = value
+		}
+	}
+
+	// SSRF guard on the templated URL; DNS vetting happens at dial time.
+	if check == nil {
+		check = func(raw string) error { return egress.CheckURL(raw, true) }
+	}
+	if err := check(target); err != nil {
+		return nil, "blocked_url: " + truncRunes(blockedReason(err), 60)
+	}
+	return &Prepared{Target: target, Headers: headers, Params: params, Body: body, Spec: req}, ""
 }
 
 func orDefault(s, d string) string {

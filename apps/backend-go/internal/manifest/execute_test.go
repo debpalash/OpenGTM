@@ -177,8 +177,15 @@ func TestExecuteBlockedURL(t *testing.T) {
 	if res.Success || !strings.HasPrefix(res.Error, "blocked_url: ") || len([]rune(res.Error)) > len("blocked_url: ")+60 || hits.Load() != 0 {
 		t.Fatalf("%+v hits=%d", res, hits.Load())
 	}
-	m.Request.URL = "http://{{input.domain}}/x" // lead-controlled host
+	// Lead-controlled host: refused outright for a secret-bearing manifest...
+	m.Request.URL = "http://{{input.domain}}/x"
 	res = manifest.Execute(context.Background(), clientTo(srv), m, map[string]string{"website": "127.0.0.1"}, creds(map[string]string{"VEND_KEY": "k"}))
+	if res.Error != "templated_authority" || hits.Load() != 0 {
+		t.Fatalf("%+v", res)
+	}
+	// ...and SSRF-guarded for a keyless one.
+	m.Auth = manifest.AuthSpec{Type: "none"}
+	res = manifest.Execute(context.Background(), clientTo(srv), m, map[string]string{"website": "127.0.0.1"}, nil)
 	if !strings.HasPrefix(res.Error, "blocked_url: ") || hits.Load() != 0 {
 		t.Fatalf("%+v", res)
 	}

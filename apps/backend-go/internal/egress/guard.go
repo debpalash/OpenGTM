@@ -150,6 +150,12 @@ func CheckURL(raw string, allowHTTP bool) error {
 	return checkURL(raw, allowHTTP, nil)
 }
 
+// CheckURLFor is CheckURL honouring the bench/test allowlist exactly as
+// NewClientForEnv does: allowHosts count only when appEnv is test or bench.
+func CheckURLFor(appEnv string, allowHosts []string, raw string, allowHTTP bool) error {
+	return checkURL(raw, allowHTTP, allowSet(appEnv, allowHosts))
+}
+
 func checkURL(raw string, allowHTTP bool, allow map[string]struct{}) error {
 	if raw == "" {
 		return blocked("empty url")

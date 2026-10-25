@@ -30,14 +30,7 @@ func NewClientForEnv(appEnv string, allowHosts []string) *http.Client {
 }
 
 func newClient(allowHosts []string, appEnv string, res resolver, dial dialFunc) *http.Client {
-	allow := map[string]struct{}{}
-	if env := strings.ToLower(strings.TrimSpace(appEnv)); env == "test" || env == "bench" {
-		for _, h := range allowHosts {
-			if h = strings.ToLower(strings.TrimSpace(h)); h != "" {
-				allow[h] = struct{}{}
-			}
-		}
-	}
+	allow := allowSet(appEnv, allowHosts)
 	tr := &http.Transport{
 		Proxy:               nil, // a proxy would bypass the dial-time vetting
 		DialContext:         guardedDial(allow, res, dial),
@@ -91,4 +84,17 @@ func guardedDial(allow map[string]struct{}, res resolver, dial dialFunc) dialFun
 		}
 		return nil, errors.Join(lastErr)
 	}
+}
+
+// allowSet is the lower-cased allowlist, empty unless appEnv is test or bench.
+func allowSet(appEnv string, allowHosts []string) map[string]struct{} {
+	allow := map[string]struct{}{}
+	if env := strings.ToLower(strings.TrimSpace(appEnv)); env == "test" || env == "bench" {
+		for _, h := range allowHosts {
+			if h = strings.ToLower(strings.TrimSpace(h)); h != "" {
+				allow[h] = struct{}{}
+			}
+		}
+	}
+	return allow
 }
