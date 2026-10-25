@@ -79,8 +79,17 @@ func (rs *runState) credFunc(ctx context.Context) func(string) (string, error) {
 func (rs *runState) invoke(ctx context.Context, m manifest.Manifest, lead map[string]any) (res manifest.Result, timedOut bool) {
 	pctx, cancel := context.WithTimeout(ctx, time.Duration(rs.p.ProviderTimeout*float64(time.Second)))
 	defer cancel()
-	res = manifest.Execute(pctx, rs.deps.Client, m, leadStrings(lead), rs.credFunc(pctx))
+	res = manifest.ExecuteChecked(pctx, rs.deps.Client, m, leadStrings(lead), rs.credFunc(pctx), rs.deps.URLCheck)
 	return res, ctx.Err() == nil && errors.Is(pctx.Err(), context.DeadlineExceeded)
+}
+
+// precheck runs manifest.Prepare (render, credential, URL guard; no network to
+// the provider) and returns its refusal text, or "".
+func (rs *runState) precheck(ctx context.Context, m manifest.Manifest, lead map[string]any) string {
+	pctx, cancel := context.WithTimeout(ctx, time.Duration(rs.p.ProviderTimeout*float64(time.Second)))
+	defer cancel()
+	_, perr := manifest.Prepare(m, leadStrings(lead), rs.credFunc(pctx), rs.deps.URLCheck)
+	return perr
 }
 
 // responseDict is the dict run_provider returns for a declarative provider.
@@ -414,7 +423,12 @@ loop:
 			if err != nil {
 				return cellOutcome{}, err
 			}
-			if call, err = rs.reservedCall(ctx, m, name, lead, col, rowIdentity, exposure, chainExposure); err != nil {
+			// Money moves only for calls that will really reach the network: a
+			// missing key or a blocked URL is known before Reserve, so it never
+			// creates an attempt or a budget hold (and never ends `uncertain`).
+			if perr := rs.precheck(ctx, m, lead); perr != "" {
+				call = providerCall{kind: callOK, resp: responseDict(name, manifest.Result{Error: perr})}
+			} else if call, err = rs.reservedCall(ctx, m, name, lead, col, rowIdentity, exposure, chainExposure); err != nil {
 				return cellOutcome{}, err
 			}
 		} else {

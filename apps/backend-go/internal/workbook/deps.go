@@ -30,7 +30,10 @@ type ManifestSource interface {
 type Deps struct {
 	Pool   *pgxpool.Pool
 	Client *http.Client // SSRF-guarded egress client (egress.NewClientForEnv)
-	Creds  CredentialSource
+	// URLCheck vets a rendered provider URL (egress.CheckURLFor bound to the
+	// app env and allowlist); nil means egress.CheckURL(url, true).
+	URLCheck func(rawURL string) error
+	Creds    CredentialSource
 	// Manifests is required: the payload's manifests are only claims, and the
 	// executor runs the fetched copy whose sha256 matches the payload's.
 	Manifests ManifestSource

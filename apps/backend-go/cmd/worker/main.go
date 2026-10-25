@@ -216,8 +216,11 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runner, func(), error) {
 	api := credentials.New(cfg.InternalAPIURL, cfg.InternalServiceToken, nil)
 	deps := workbook.Deps{
-		Pool:      pool,
-		Client:    egress.NewClientForEnv(cfg.AppEnv, cfg.EgressAllowHosts),
+		Pool:   pool,
+		Client: egress.NewClientForEnv(cfg.AppEnv, cfg.EgressAllowHosts),
+		URLCheck: func(raw string) error {
+			return egress.CheckURLFor(cfg.AppEnv, cfg.EgressAllowHosts, raw, true)
+		},
 		Creds:     api,
 		Manifests: api,
 		Log:       log,

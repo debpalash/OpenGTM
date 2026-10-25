@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -237,5 +238,45 @@ func TestPreWorkFailureFailsWorkbookButKeepsPauseAndCancelLeavesRunning(t *testi
 	}
 	if st := e.str(wsA, `SELECT status FROM workbooks WHERE id='wb-rf3'`); st != "running" {
 		t.Fatalf("shutdown wrote status %q", st)
+	}
+}
+
+type fakeCreds map[string]string
+
+func (f fakeCreds) Get(_ context.Context, _, envVar string) (string, error) { return f[envVar], nil }
+
+// C7: a paid provider that cannot reach the network (missing key, blocked URL)
+// is skipped before Reserve: no attempt row, no budget hold, nothing uncertain.
+func TestPaidPreNetworkFailuresReserveNothing(t *testing.T) {
+	keyed := strings.Replace(manifestJSON("p1"), `"auth":{"type":"none"}`, `"auth":{"type":"bearer","env_var":"P1_KEY"}`, 1)
+	blocked := strings.ReplaceAll(manifestJSON("p1"), "http://sim.provider.example/p1", "http://169.254.169.254/p1")
+	for name, tc := range map[string]struct {
+		body  string
+		creds fakeCreds
+	}{
+		"missing credential": {keyed, fakeCreds{}},
+		"blocked url":        {blocked, fakeCreds{}},
+	} {
+		t.Run(name, func(t *testing.T) {
+			e := setup(t, wsA)
+			e.seed(wsA, "wb-c7", "["+colJSON("c1", "p1")+"]", 1, 10)
+			s := newSim(t, nil)
+			d := e.deps(s, nil)
+			d.Creds = tc.creds
+			d.Manifests = manifestSrv{body: map[string]string{"p1": tc.body}}
+			res, err := workbook.Run(e.ctx, d, e.claim(wsA, payloadFor(wsA, "wb-c7", map[string]float64{"p1": 0.05}, nil)))
+			if err != nil || res.Errors != 1 || s.total() != 0 {
+				t.Fatalf("%+v err=%v calls=%d", res, err, s.total())
+			}
+			if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts`); n != 0 {
+				t.Fatalf("%d spend attempts created for a call that never left the process", n)
+			}
+			if got := e.spentUSD(wsA, "wb-c7"); got != 0 {
+				t.Fatalf("budget charged: %v", got)
+			}
+			if msg := e.str(wsA, `SELECT error FROM workbook_enrichments`); msg == "accounting_uncertain" {
+				t.Fatal("a pre-network failure must not end uncertain")
+			}
+		})
 	}
 }
