@@ -280,3 +280,33 @@ func TestPaidPreNetworkFailuresReserveNothing(t *testing.T) {
 		})
 	}
 }
+
+type panicTransport struct{}
+
+func (panicTransport) RoundTrip(*http.Request) (*http.Response, error) { panic("provider transport exploded") }
+
+// C2: a panic inside a provider call is cell-local: the process survives, a free
+// cell becomes an error cell, and a dispatched paid attempt is left uncertain.
+func TestProviderPanicIsCellLocal(t *testing.T) {
+	e := setup(t, wsA)
+	e.seed(wsA, "wb-pan", "["+colJSON("c1", "free1")+","+colJSON("c2", "paid1")+"]", 2, 10)
+	s := newSim(t, nil)
+	d := e.deps(s, nil)
+	d.Client = &http.Client{Transport: panicTransport{}}
+	res, err := workbook.Run(e.ctx, d, e.claim(wsA, payloadFor(wsA, "wb-pan", map[string]float64{"free1": 0, "paid1": 0.05}, map[string]any{"concurrency": 2})))
+	if err != nil {
+		t.Fatalf("a cell panic must not fail the run: %v", err)
+	}
+	if res.Errors != 4 {
+		t.Fatalf("errors %d, want all four cells failed: %+v", res.Errors, res)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments WHERE column_id='c1' AND error='cell_execution_failed'`); n != 2 {
+		t.Fatalf("free cells with cell_execution_failed: %d", n)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts WHERE status='uncertain'`); n != 2 {
+		t.Fatalf("uncertain paid attempts: %d", n)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments WHERE column_id='c2' AND error='accounting_uncertain'`); n != 2 {
+		t.Fatalf("paid cells accounting_uncertain: %d", n)
+	}
+}

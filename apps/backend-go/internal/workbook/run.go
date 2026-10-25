@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"runtime/debug"
 	"sort"
 	"sync"
 	"time"
@@ -295,6 +296,15 @@ func (rs *runState) runBatch(ctx context.Context, batch []workItem) ([]rowResult
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			defer func() {
+				// Backstop: nothing below should panic (cells recover on their
+				// own), but a goroutine panic would kill the whole process.
+				if r := recover(); r != nil {
+					rs.log.Error("row panicked", "row", batch[i].rowID(), "stack", string(debug.Stack()))
+					results[i] = rowResult{err: fmt.Errorf("panic: %v", truncRunes(fmt.Sprint(r), maxErrorRunes))}
+					cancel(results[i].err)
+				}
+			}()
 			results[i] = rs.runOneRow(gctx, batch[i])
 			if results[i].err != nil {
 				cancel(results[i].err)

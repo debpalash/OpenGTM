@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -131,7 +132,7 @@ func (rs *runState) markUncertain(ctx context.Context, id spend.Identity) {
 // after dispatch leaves the attempt `uncertain`. No network I/O happens inside
 // a transaction.
 func (rs *runState) reservedCall(ctx context.Context, m manifest.Manifest, name string, lead map[string]any,
-	col column, rowIdentity string, exposure, cellLimit int64) (providerCall, error) {
+	col column, rowIdentity string, exposure, cellLimit int64) (pcall providerCall, perr error) {
 	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID
 	resv := rs.buildReservation(name, lead, col, rowIdentity, exposure, cellLimit)
 	var adm spend.Admission
@@ -175,6 +176,15 @@ func (rs *runState) reservedCall(ctx context.Context, m manifest.Manifest, name 
 		return providerCall{kind: callReject, text: "attempt_not_dispatchable"}, nil
 	}
 
+	// From here the attempt is dispatched: a panic must leave it `uncertain`
+	// (it may have reached the provider) and fail only this cell.
+	defer func() {
+		if r := recover(); r != nil {
+			rs.log.Error("paid provider call panicked", "provider", name, "stack", string(debug.Stack()))
+			rs.markUncertain(ctx, id)
+			pcall, perr = providerCall{kind: callException, text: truncRunes(fmt.Sprintf("panic: %v", r), maxErrorRunes)}, nil
+		}
+	}()
 	res, timedOut := rs.invoke(ctx, m, lead)
 	if ctx.Err() != nil {
 		rs.markUncertain(ctx, id)
@@ -298,7 +308,7 @@ func (rs *runState) enrichCell(ctx context.Context, lead map[string]any, col col
 	rs.publish(ctx, map[string]any{"type": "cell_update", "leadId": leadID, "rowId": rowID,
 		"colId": col.ID, "status": "running", "value": nil})
 
-	out, err := rs.waterfall(ctx, lead, col, rowID, leadID)
+	out, err := rs.safeWaterfall(ctx, lead, col, rowID, leadID)
 	if err != nil {
 		if a := abortErr(ctx, err); a != nil {
 			return cellOutcome{}, a
@@ -308,6 +318,19 @@ func (rs *runState) enrichCell(ctx context.Context, lead map[string]any, col col
 		return cellOutcome{}, nil
 	}
 	return out, nil
+}
+
+// safeWaterfall runs the waterfall and turns a panic into an ordinary cell
+// error, so one bad cell cannot take the process (and every other tenant's
+// job) down. The stack is logged; payload values and secrets are not.
+func (rs *runState) safeWaterfall(ctx context.Context, lead map[string]any, col column, rowID, leadID int64) (out cellOutcome, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			rs.log.Error("cell panicked", "col", col.ID, "row", rowID, "stack", string(debug.Stack()))
+			out, err = cellOutcome{}, fmt.Errorf("panic: %v", r)
+		}
+	}()
+	return rs.waterfall(ctx, lead, col, rowID, leadID)
 }
 
 // persistCellFailure ports _run_one_cell's except path.
