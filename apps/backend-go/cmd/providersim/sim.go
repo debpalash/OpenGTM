@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"maps"
 	"math"
 	"math/rand"
 	"net/http"
@@ -101,8 +102,8 @@ func (s *Sim) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == http.MethodGet && r.URL.Path == "/stats":
 		s.mu.Lock()
-		out := map[string]any{"calls": s.calls, "by_status": s.byStatus,
-			"by_outcome": s.byOutcome, "profile": s.cfg.Profile}
+		out := map[string]any{"calls": s.calls, "by_status": maps.Clone(s.byStatus),
+			"by_outcome": maps.Clone(s.byOutcome), "profile": s.cfg.Profile}
 		s.mu.Unlock()
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(out)
