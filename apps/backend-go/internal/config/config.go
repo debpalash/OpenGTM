@@ -23,20 +23,26 @@ const (
 	defaultShutdownGrace     = 30 * time.Second
 	maxShutdownGrace         = 300 * time.Second
 	heartbeatInterval        = 30 * time.Second
+
+	// Shared with Python (settings.WORKER_MAX_ACTIVE_PER_WORKSPACE): default 2,
+	// clamped to [0, 64]; 0 disables the per-workspace cap.
+	defaultMaxActivePerWorkspace = 2
+	maxMaxActivePerWorkspace     = 64
 )
 
 type Config struct {
-	DatabaseURL          string
-	RedisURL             string
-	InternalAPIURL       string
-	InternalServiceToken string
-	WorkerConcurrency    int
-	DBMaxConns           int
-	ShutdownGrace        time.Duration
-	HeartbeatInterval    time.Duration
-	DebugAddr            string
-	AppEnv               string
-	EgressAllowHosts     []string
+	DatabaseURL           string
+	RedisURL              string
+	InternalAPIURL        string
+	InternalServiceToken  string
+	WorkerConcurrency     int
+	MaxActivePerWorkspace int
+	DBMaxConns            int
+	ShutdownGrace         time.Duration
+	HeartbeatInterval     time.Duration
+	DebugAddr             string
+	AppEnv                string
+	EgressAllowHosts      []string
 }
 
 // Load reads configuration from the environment and validates it.
@@ -56,6 +62,9 @@ func load(get func(string) string) (Config, error) {
 		return Config{}, err
 	}
 	if c.DBMaxConns, err = intVar(get, "GO_WORKER_DB_MAX_CONNS", defaultDBMaxConns, 1, 1000); err != nil {
+		return Config{}, err
+	}
+	if c.MaxActivePerWorkspace, err = clampVar(get, "WORKER_MAX_ACTIVE_PER_WORKSPACE", defaultMaxActivePerWorkspace, 0, maxMaxActivePerWorkspace); err != nil {
 		return Config{}, err
 	}
 	secs, err := intVar(get, "GO_WORKER_SHUTDOWN_GRACE_SECONDS", int(defaultShutdownGrace/time.Second), 1, int(maxShutdownGrace/time.Second))
@@ -85,6 +94,20 @@ func load(get func(string) string) (Config, error) {
 		return Config{}, fmt.Errorf("config: EGRESS_ALLOW_HOSTS is only allowed when APP_ENV is test or bench (got %q)", c.AppEnv)
 	}
 	return c, nil
+}
+
+// clampVar is like intVar but clamps out-of-range values (Python's
+// max(lo, min(hi, n))); a non-integer is still an error.
+func clampVar(get func(string) string, key string, def, lo, hi int) (int, error) {
+	s := get(key)
+	if s == "" {
+		return def, nil
+	}
+	n, err := strconv.Atoi(strings.TrimSpace(s))
+	if err != nil {
+		return 0, fmt.Errorf("config: %s: %w", key, err)
+	}
+	return max(lo, min(hi, n)), nil
 }
 
 func intVar(get func(string) string, key string, def, lo, hi int) (int, error) {
@@ -141,6 +164,7 @@ func (c Config) LogValue() slog.Value {
 		slog.String("internal_api_url", r.InternalAPIURL),
 		slog.String("internal_service_token", r.InternalServiceToken),
 		slog.Int("worker_concurrency", r.WorkerConcurrency),
+		slog.Int("max_active_per_workspace", r.MaxActivePerWorkspace),
 		slog.Int("db_max_conns", r.DBMaxConns),
 		slog.Duration("shutdown_grace", r.ShutdownGrace),
 		slog.Duration("heartbeat_interval", r.HeartbeatInterval),

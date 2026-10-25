@@ -62,7 +62,7 @@ func Finalize(ctx context.Context, pool *pgxpool.Pool, c *Claim, o Outcome) (per
 			// Python increments first, then backs off 2^(new-1) minutes,
 			// i.e. 2^(retry_count before increment).
 			n, err = q.FinalizeRetry(ctx, gen.FinalizeRetryParams{
-				NewRetryCount: int32(retries + 1), BackoffMinutes: int32(1) << uint(retries),
+				NewRetryCount: int32(retries + 1), BackoffMinutes: backoffMinutes(retries),
 				Error: fmt.Sprintf("Retry %d: %s", retries+1, o.Error),
 				ID:    id, WorkerID: wid, LockedAt: la, LeaseToken: tok,
 			})
@@ -89,4 +89,19 @@ func wrap(err error) error {
 		return fmt.Errorf("queue: finalize cancelled: %w", err)
 	}
 	return nil
+}
+
+// maxBackoffShift caps the exponent so a large retry_count cannot overflow
+// int32 (2^30 minutes is already ~2000 years).
+const maxBackoffShift = 30
+
+// backoffMinutes is 2^retries minutes (retries before increment), capped.
+func backoffMinutes(retries int) int32 {
+	if retries > maxBackoffShift {
+		retries = maxBackoffShift
+	}
+	if retries < 0 {
+		retries = 0
+	}
+	return int32(1) << uint(retries)
 }

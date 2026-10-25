@@ -75,3 +75,22 @@ func TestSecretsRedacted(t *testing.T) {
 		t.Errorf("redaction should keep host: %s", outs[0])
 	}
 }
+
+func TestMaxActivePerWorkspace(t *testing.T) {
+	get := func(v string) (int, error) {
+		m := map[string]string{"INTERNAL_SERVICE_TOKEN": "x"}
+		if v != "" {
+			m["WORKER_MAX_ACTIVE_PER_WORKSPACE"] = v
+		}
+		c, err := load(env(m))
+		return c.MaxActivePerWorkspace, err
+	}
+	for in, want := range map[string]int{"": 2, "0": 0, "5": 5, "64": 64, "100": 64, "-3": 0} {
+		if got, err := get(in); err != nil || got != want {
+			t.Errorf("%q: got %d err %v want %d", in, got, err, want)
+		}
+	}
+	if _, err := get("abc"); err == nil {
+		t.Error("expected error for non-integer")
+	}
+}

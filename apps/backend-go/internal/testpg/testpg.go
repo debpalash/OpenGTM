@@ -32,7 +32,21 @@ func NewAppPool(t testing.TB, maxConns int32) *pgxpool.Pool {
 	if err != nil {
 		t.Fatalf("owner pool: %v", err)
 	}
-	defer owner.Close()
+	// Test packages run in parallel against one database and share tables
+	// (jobs) and the login role: hold a session advisory lock for the whole
+	// test so integration tests serialize across packages.
+	lockConn, err := owner.Acquire(ctx)
+	if err != nil {
+		t.Fatalf("acquire lock conn: %v", err)
+	}
+	if _, err := lockConn.Exec(ctx, `SELECT pg_advisory_lock(7770001)`); err != nil {
+		t.Fatalf("advisory lock: %v", err)
+	}
+	t.Cleanup(func() {
+		_, _ = lockConn.Exec(context.Background(), `SELECT pg_advisory_unlock(7770001)`)
+		lockConn.Release()
+		owner.Close()
+	})
 	stmts := []string{
 		`DO $$ BEGIN
 		   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='yupcha_app') THEN CREATE ROLE yupcha_app NOLOGIN; END IF;

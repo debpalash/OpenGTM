@@ -149,7 +149,9 @@ func TestFinalizeAfterLeaseLossIsNoop(t *testing.T) {
 	id := insert(t, pool, "run_workbook", "go", "a", "pending", 0, 3)
 	c := mustClaim(t, pool, "w", 0)
 	// Reaped then reclaimed by someone else: token advances.
-	pool.Exec(ctx, `UPDATE jobs SET status='pending', worker_id=NULL, locked_at=NULL, next_run_at=NULL WHERE id=$1`, id)
+	if _, err := pool.Exec(ctx, `UPDATE jobs SET status='pending', worker_id=NULL, locked_at=NULL, next_run_at=NULL WHERE id=$1`, id); err != nil {
+		t.Fatal(err)
+	}
 	c2 := mustClaim(t, pool, "w2", 0)
 	if c2.LeaseToken != c.LeaseToken+1 {
 		t.Fatalf("token %d -> %d", c.LeaseToken, c2.LeaseToken)
@@ -172,7 +174,9 @@ func TestHeartbeatDetectsLeaseLoss(t *testing.T) {
 	if ok, err := queue.Heartbeat(ctx, pool, c); err != nil || !ok {
 		t.Fatalf("heartbeat %v %v", ok, err)
 	}
-	pool.Exec(ctx, `UPDATE jobs SET lease_token = lease_token + 1 WHERE id=$1`, id)
+	if _, err := pool.Exec(ctx, `UPDATE jobs SET lease_token = lease_token + 1 WHERE id=$1`, id); err != nil {
+		t.Fatal(err)
+	}
 	if ok, err := queue.Heartbeat(ctx, pool, c); err != nil || ok {
 		t.Fatalf("expected lease loss, got %v %v", ok, err)
 	}

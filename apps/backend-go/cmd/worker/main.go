@@ -25,8 +25,12 @@ import (
 const (
 	idleSleep      = time.Second
 	cancelInterval = 2 * time.Second
-	tenantCap      = 0 // Go has no per-tenant cap of its own yet; 0 disables.
 )
+
+// claimNext claims one job using the shared per-workspace cap from cfg.
+func claimNext(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, workerID string) (*queue.Claim, error) {
+	return queue.ClaimNext(ctx, pool, workerID, cfg.MaxActivePerWorkspace)
+}
 
 // runner executes a claimed job; a nil error means completed.
 type runner func(ctx context.Context, c *queue.Claim) error
@@ -111,7 +115,7 @@ func hostname() string {
 
 func slotLoop(claimCtx, jobCtx context.Context, pool *pgxpool.Pool, cfg config.Config, log *slog.Logger, workerID string, rn runner) {
 	for claimCtx.Err() == nil {
-		c, err := queue.ClaimNext(claimCtx, pool, workerID, tenantCap)
+		c, err := claimNext(claimCtx, pool, cfg, workerID)
 		if err != nil {
 			if claimCtx.Err() == nil {
 				log.Error("claim failed", "err", err)
