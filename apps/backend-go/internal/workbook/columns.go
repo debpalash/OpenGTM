@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
@@ -100,6 +101,9 @@ func validateGoColumn(c column) error {
 	if manifest.PyTruthy(c.cfg["condition"]) {
 		return fmt.Errorf("workbook: column %q has a condition", c.ID)
 	}
+	if refs := columnRefs(c); refs {
+		return fmt.Errorf("workbook: column %q references other columns, which the go executor does not order", c.ID)
+	}
 	t := c.target()
 	if structuredFields[t] {
 		return fmt.Errorf("workbook: column %q targets structured field %q", c.ID, t)
@@ -110,6 +114,27 @@ func validateGoColumn(c column) error {
 		}
 	}
 	return nil
+}
+
+var refRE = regexp.MustCompile(`\{([^}]+)\}`)
+
+// columnRefs reports whether the column declares {col} references or
+// input_columns (column_deps._refs_in): dependency ordering, upstream-failure
+// propagation and cycle detection are not ported, so such columns stay on Python.
+func columnRefs(c column) bool {
+	for _, f := range []string{"prompt", "formula", "http_url", "goal"} {
+		if s, ok := c.cfg[f].(string); ok && refRE.MatchString(s) {
+			return true
+		}
+	}
+	if list, ok := c.cfg["input_columns"].([]any); ok {
+		for _, e := range list {
+			if s, ok := e.(string); ok && manifest.PyStrip(s) != "" {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // rowData is one hydrated workbook row (row_execution_data).
