@@ -209,14 +209,20 @@ func (rs *runState) reservedCall(ctx context.Context, m manifest.Manifest, name 
 	return providerCall{kind: callOK, resp: env.Result}, nil
 }
 
-// providerInputs is the provider-visible part of the row, used as the spend
-// operation contract. DELIBERATE DEVIATION from Python, which hashes the whole
-// hydrated row: that row also contains this run's own previously written cell
-// values, so a reclaimed run would see a different contract for every cell it
-// already finished (contract_conflict) instead of replaying the settled
-// attempt. Narrowing to the fields manifests can read keeps conflict detection
-// for real input changes and makes crash-resume replay settled attempts.
+// providerInputs is the provider-visible part of the RAW stored row, used as
+// the spend operation contract (Python: declarative_operation_contract). It must
+// not come from the hydrated/threaded row: that also holds this run's own cell
+// values, and a column whose id or name equals a lead field (email, phone, ...)
+// would feed its output into later contracts, so a reclaimed run would see
+// contract_conflict on cells it already finished.
 func providerInputs(lead map[string]any) map[string]any {
+	if base, ok := lead[contractInputsKey].(map[string]any); ok {
+		out := make(map[string]any, len(base))
+		for k, v := range base {
+			out[k] = v
+		}
+		return out
+	}
 	in := leadStrings(lead)
 	out := make(map[string]any, len(in))
 	for k, v := range in {
@@ -488,7 +494,43 @@ loop:
 			resultError = truncRunes("providers_unavailable: "+strings.Join(parts, ", "), maxErrorRunes)
 		}
 	}
+	if resultValue == "" && resultError == "contract_conflict" {
+		// A paid cell this job already finished must never be overwritten by a
+		// contract conflict: keep the stored value and log it.
+		if v, ok, err := rs.completeCellValue(ctx, rowID, col.ID); err != nil {
+			return cellOutcome{}, err
+		} else if ok {
+			rs.log.Warn("contract conflict on an already complete cell; keeping the stored value", "col", col.ID, "row", rowID)
+			return cellOutcome{Success: true, Value: v}, nil
+		}
+	}
 	return rs.commitCell(ctx, col, rowID, leadID, resultValue, resultProvider, resultError, skipped, attempts)
+}
+
+// completeCellValue returns the stored value of a complete overlay cell.
+func (rs *runState) completeCellValue(ctx context.Context, rowID int64, colID string) (string, bool, error) {
+	var val string
+	var found bool
+	err := tenancy.InWorkspace(ctx, rs.deps.Pool, rs.p.WorkspaceID, func(tx pgx.Tx) error {
+		rows, err := gen.New(tx).ListRowEnrichments(ctx, gen.ListRowEnrichmentsParams{
+			WorkbookID: rs.p.WorkbookID, WorkspaceID: rs.p.WorkspaceID, RowIds: []int32{int32(rowID)}})
+		if err != nil {
+			return err
+		}
+		for _, r := range rows {
+			enr, err := jsonObject(r.Enrichments)
+			if err != nil {
+				return err
+			}
+			if cell, ok := enr[colID].(map[string]any); ok && cell["status"] == "complete" {
+				if s, ok := cell["value"].(string); ok && s != "" {
+					val, found = s, true
+				}
+			}
+		}
+		return nil
+	})
+	return val, found, err
 }
 
 func filterIn(list []string, allowed map[string]bool) []string {

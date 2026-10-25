@@ -152,11 +152,9 @@ func columnRefs(c column) bool {
 	return false
 }
 
-// rowData is one hydrated workbook row (row_execution_data).
-type rowData struct {
-	rowID int64
-	lead  map[string]any
-}
+// contractInputsKey carries the raw row's contract inputs inside the hydrated
+// row map (Python: enrichment.CONTRACT_INPUTS_KEY).
+const contractInputsKey = "__contract_inputs"
 
 func jsonObject(raw []byte) (map[string]any, error) {
 	if len(raw) == 0 || string(raw) == "null" {
@@ -182,6 +180,12 @@ func rowExecutionData(rowID int64, leadID *int64, dataRaw, enrRaw []byte, column
 	enr, err := jsonObject(enrRaw)
 	if err != nil {
 		return nil, fmt.Errorf("workbook: row %d enrichments: %w", rowID, err)
+	}
+	// The spend contract hashes only these raw stored fields: never anything an
+	// enrichment column of this job wrote (a column id/name may equal a lead field).
+	baseInputs := map[string]any{}
+	for k, v := range leadStrings(data) {
+		baseInputs[k] = v
 	}
 	input := make(map[string]any, len(data))
 	for k, v := range data {
@@ -228,6 +232,7 @@ func rowExecutionData(rowID int64, leadID *int64, dataRaw, enrRaw []byte, column
 		}
 	}
 	out["id"], out["__row_id"], out["__lead_id"] = id, rowID, lid
+	out[contractInputsKey] = baseInputs
 	return out, nil
 }
 

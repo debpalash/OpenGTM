@@ -412,3 +412,87 @@ func TestTenantIsolationTwoWorkspacesConcurrent(t *testing.T) {
 		}
 	}
 }
+
+// C1: columns whose ids equal lead fields (email, phone) must not leak their own
+// outputs into later spend contracts: a resumed run keeps the finished cell,
+// creates no new settled attempt and never writes contract_conflict.
+func TestResumeKeepsFinishedCellWhenColumnIDsEqualLeadFields(t *testing.T) {
+	e := setup(t, wsA)
+	e.seed(wsA, "wb-c1", "["+colJSON("email", "p1")+","+colJSON("phone", "p2")+"]", 1, 10)
+	held := make(chan struct{})
+	s := newSim(t, func(name string, _ int, w http.ResponseWriter, r *http.Request) {
+		if name == "p2" {
+			close(held)
+			select {
+			case <-r.Context().Done():
+			case <-time.After(5 * time.Second):
+			}
+			return
+		}
+		fmt.Fprint(w, `{"v":"7"}`)
+	})
+	pl := payloadFor(wsA, "wb-c1", map[string]float64{"p1": 0.05, "p2": 0.05}, nil)
+	c1 := e.claim(wsA, pl)
+	ctx, kill := context.WithCancel(e.ctx)
+	go func() { <-held; kill() }()
+	if _, err := workbook.Run(ctx, e.deps(s, nil), c1); err == nil {
+		t.Fatal("killed run should not succeed")
+	}
+	if tag, err := e.pool.Exec(e.ctx, `UPDATE jobs SET status='pending', worker_id=NULL, locked_at=NULL, retry_count=retry_count+1,
+	  started_at=NULL, next_run_at=NULL WHERE id=$1 AND status='processing' AND lease_token=$2`, c1.ID, c1.LeaseToken); err != nil || tag.RowsAffected() != 1 {
+		t.Fatalf("reap: %v %v", tag, err)
+	}
+	c2 := e.reclaim()
+	if _, err := workbook.Run(e.ctx, e.deps(s, nil), c2); err != nil {
+		t.Fatal(err)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments WHERE column_id='email' AND status='complete' AND value='7'`); n != 1 {
+		t.Fatalf("finished email cell was overwritten (complete cells: %d)", n)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts WHERE column_id='email'`); n != 1 {
+		t.Fatalf("email attempts %d: resume must replay the settled attempt, not create another", n)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_spend_attempts WHERE status='settled'`); n != 1 {
+		t.Fatalf("settled attempts %d", n)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments WHERE error='contract_conflict'`); n != 0 {
+		t.Fatalf("contract_conflict written %d times", n)
+	}
+	if s.count("p1") != 1 {
+		t.Fatalf("p1 called %d times", s.count("p1"))
+	}
+}
+
+// A real input change on resume yields contract_conflict from the ledger; the
+// finished paid cell is still kept as is (never overwritten by the conflict).
+func TestContractConflictNeverOverwritesCompleteCell(t *testing.T) {
+	e := setup(t, wsA)
+	e.seed(wsA, "wb-c1b", "["+colJSON("c1", "p1")+"]", 1, 10)
+	s := newSim(t, func(_ string, _ int, w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, `{"v":"7"}`) })
+	pl := payloadFor(wsA, "wb-c1b", map[string]float64{"p1": 0.05}, nil)
+	c1 := e.claim(wsA, pl)
+	if _, err := workbook.Run(e.ctx, e.deps(s, nil), c1); err != nil {
+		t.Fatal(err)
+	}
+	if tag, err := e.pool.Exec(e.ctx, `UPDATE jobs SET status='pending', worker_id=NULL, locked_at=NULL, completed_at=NULL,
+	  started_at=NULL, next_run_at=NULL WHERE id=$1`, c1.ID); err != nil || tag.RowsAffected() != 1 {
+		t.Fatalf("requeue: %v %v", tag, err)
+	}
+	e.inWS(wsA, func(tx pgx.Tx) error {
+		_, err := tx.Exec(e.ctx, `UPDATE workbook_rows SET data='{"company":"Changed Co","website":"x.example.com"}'::json`)
+		return err
+	})
+	c2 := e.reclaim()
+	if _, err := workbook.Run(e.ctx, e.deps(s, nil), c2); err != nil {
+		t.Fatal(err)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments WHERE status='complete' AND value='7'`); n != 1 {
+		t.Fatalf("complete cell was overwritten: %d", n)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments WHERE error='contract_conflict'`); n != 0 {
+		t.Fatal("contract_conflict written over a complete cell")
+	}
+	if s.total() != 1 {
+		t.Fatalf("provider calls %d", s.total())
+	}
+}
