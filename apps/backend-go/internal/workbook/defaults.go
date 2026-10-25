@@ -4,6 +4,9 @@ package workbook
 // COMPANY_SIZE_HEURISTIC_ENABLED append is not reproduced: that flag is off by
 // default and the heuristic provider is not declarative, so Python keeps such
 // runs). Used only for columns without an explicit waterfall/provider.
+//
+// Drift guard: legacy/python/tests/test_go_default_waterfalls.py parses this file
+// and fails if it differs from Python's DEFAULT_WATERFALLS / STRUCTURED_FIELDS.
 var defaultWaterfalls = map[string][]string{
 	"email": {
 		"deep_scraper", "jsonld_firmographics", "website_scraper", "email_harvester",
