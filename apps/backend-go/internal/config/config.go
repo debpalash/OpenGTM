@@ -16,7 +16,12 @@ import (
 // It must equal REQUIRED_GO_SCHEMA_REVISION in the Python go_executor module.
 const RequiredGoSchemaRevision = "4a5162738495"
 
-const minServiceTokenLen = 32
+const (
+	minServiceTokenLen       = 32
+	defaultJobTimeoutSeconds = 1800
+	minJobTimeoutSeconds     = 60
+	maxJobTimeoutSeconds     = 7200
+)
 
 const (
 	defaultWorkerConcurrency = 4
@@ -41,6 +46,7 @@ type Config struct {
 	MaxActivePerWorkspace int
 	DBMaxConns            int
 	ShutdownGrace         time.Duration
+	JobTimeout            time.Duration // wall-clock limit per job (Python JOB_TIMEOUTS["run_workbook"])
 	HeartbeatInterval     time.Duration
 	DebugAddr             string
 	AppEnv                string
@@ -74,6 +80,14 @@ func load(get func(string) string) (Config, error) {
 		return Config{}, err
 	}
 	c.ShutdownGrace = time.Duration(secs) * time.Second
+
+	// Python JOB_TIMEOUTS["run_workbook"] is 1800s; clamp so a typo cannot
+	// disable the watchdog or wedge a slot for days.
+	jt, err := clampVar(get, "GO_WORKER_JOB_TIMEOUT_SECONDS", defaultJobTimeoutSeconds, minJobTimeoutSeconds, maxJobTimeoutSeconds)
+	if err != nil {
+		return Config{}, err
+	}
+	c.JobTimeout = time.Duration(jt) * time.Second
 
 	hb, err := intVar(get, "GO_WORKER_HEARTBEAT_SECONDS", int(heartbeatInterval/time.Second), 1, 3600)
 	if err != nil {
@@ -141,6 +155,10 @@ func redactURL(raw string) string {
 	}
 	if _, has := u.User.Password(); has {
 		u.User = url.UserPassword(u.User.Username(), "xxxxx")
+	}
+	if q := u.Query(); q.Has("password") {
+		q.Set("password", "xxxxx")
+		u.RawQuery = q.Encode()
 	}
 	return u.String()
 }

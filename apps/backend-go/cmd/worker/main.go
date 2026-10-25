@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"strconv"
 	"sync"
 	"syscall"
@@ -57,11 +58,10 @@ func run() error {
 	rootCtx, stop := context.WithCancel(context.Background())
 	defer stop()
 
-	pcfg, err := pgxpool.ParseConfig(cfg.DatabaseURL)
+	pcfg, err := poolConfig(cfg)
 	if err != nil {
-		return fmt.Errorf("parse DATABASE_URL: %w", err)
+		return err
 	}
-	pcfg.MaxConns = int32(cfg.DBMaxConns)
 	pool, err := pgxpool.NewWithConfig(rootCtx, pcfg)
 	if err != nil {
 		return err
@@ -111,6 +111,65 @@ func run() error {
 		}
 	}
 	return nil
+}
+
+// Session limits on every pooled connection: a stuck lock or runaway statement
+// must fail the one query, not hold a slot (and its lease) forever.
+const (
+	dbLockTimeout      = "30s"
+	dbStatementTimeout = "60s"
+	finalizeTimeout    = 30 * time.Second
+	defaultJobTimeout  = 1800 * time.Second
+)
+
+// poolConfig is the pgx pool configuration for cfg.
+func poolConfig(cfg config.Config) (*pgxpool.Config, error) {
+	pcfg, err := pgxpool.ParseConfig(cfg.DatabaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("parse DATABASE_URL: %w", err)
+	}
+	pcfg.MaxConns = int32(cfg.DBMaxConns)
+	if pcfg.ConnConfig.RuntimeParams == nil {
+		pcfg.ConnConfig.RuntimeParams = map[string]string{}
+	}
+	pcfg.ConnConfig.RuntimeParams["lock_timeout"] = dbLockTimeout
+	pcfg.ConnConfig.RuntimeParams["statement_timeout"] = dbStatementTimeout
+	return pcfg, nil
+}
+
+// runWithDeadline runs rn under the per-job wall-clock limit (Python:
+// JOB_TIMEOUTS["run_workbook"]). When the limit, not a cancel from above, ends
+// the run, the error is "job timed out ...": a failed attempt through the
+// normal retry path, like a Python job timeout.
+func runWithDeadline(ctx context.Context, log *slog.Logger, rn runner, c *queue.Claim, limit time.Duration) error {
+	if limit <= 0 {
+		limit = defaultJobTimeout
+	}
+	tctx, cancel := context.WithTimeout(ctx, limit)
+	defer cancel()
+	err := guarded(tctx, log, rn, c)
+	if err != nil && tctx.Err() == context.DeadlineExceeded && ctx.Err() == nil {
+		return fmt.Errorf("job timed out after %s", limit)
+	}
+	return err
+}
+
+// guarded runs rn and converts a panic into a failed-job error. The stack is
+// logged (no payload or secrets in it); the error carries only the panic value,
+// truncated, so the process survives and the job fails through the normal
+// retry path.
+func guarded(ctx context.Context, log *slog.Logger, rn runner, c *queue.Claim) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Error("job panicked", "stack", string(debug.Stack()))
+			msg := "panic: " + fmt.Sprint(r)
+			if rs := []rune(msg); len(rs) > 200 {
+				msg = string(rs[:200])
+			}
+			err = errors.New(msg)
+		}
+	}()
+	return rn(ctx, c)
 }
 
 func hostname() string {
@@ -179,7 +238,7 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 		}
 	}()
 
-	runErr := rn(jctx, c)
+	runErr := runWithDeadline(jctx, log, rn, c, cfg.JobTimeout)
 	cancel(nil)
 	wg.Wait()
 
@@ -202,7 +261,9 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 	if runErr != nil {
 		out = queue.Outcome{Status: "failed", Error: runErr.Error()}
 	}
-	persisted, err := queue.Finalize(context.WithoutCancel(ctx), pool, c, out)
+	fctx, fcancel := context.WithTimeout(context.WithoutCancel(ctx), finalizeTimeout)
+	defer fcancel()
+	persisted, err := queue.Finalize(fctx, pool, c, out)
 	if err != nil {
 		log.Error("finalize failed", "err", err)
 		return

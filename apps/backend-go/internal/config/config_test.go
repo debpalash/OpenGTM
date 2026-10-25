@@ -112,3 +112,24 @@ func TestWeakServiceToken(t *testing.T) {
 		t.Errorf("32-char token rejected: %v", err)
 	}
 }
+
+func TestJobTimeoutDefaultAndClamp(t *testing.T) {
+	for in, want := range map[string]time.Duration{
+		"": 1800 * time.Second, "30": 60 * time.Second, "99999": 7200 * time.Second, "900": 900 * time.Second,
+	} {
+		c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "GO_WORKER_JOB_TIMEOUT_SECONDS": in}))
+		if err != nil || c.JobTimeout != want {
+			t.Errorf("%q: got %v, %v want %v", in, c.JobTimeout, err, want)
+		}
+	}
+	if _, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "GO_WORKER_JOB_TIMEOUT_SECONDS": "x"})); err == nil {
+		t.Error("non-integer accepted")
+	}
+}
+
+func TestRedactMasksPasswordQueryParam(t *testing.T) {
+	got := redactURL("postgres://u@h:5432/d?sslmode=disable&password=hunter2")
+	if strings.Contains(got, "hunter2") || !strings.Contains(got, "sslmode=disable") {
+		t.Fatalf("got %q", got)
+	}
+}
