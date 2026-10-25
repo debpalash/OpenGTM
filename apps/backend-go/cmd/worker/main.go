@@ -18,8 +18,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
 const (
@@ -78,7 +82,11 @@ func run() error {
 	defer cancelJobs()
 
 	workerID := fmt.Sprintf("go-%s-%d", hostname(), os.Getpid())
-	rn := placeholderRunner(cfg.AppEnv)
+	rn, closeDeps, err := buildRunner(cfg, pool, log)
+	if err != nil {
+		return err
+	}
+	defer closeDeps()
 	var wg sync.WaitGroup
 	for i := 0; i < cfg.WorkerConcurrency; i++ {
 		wg.Add(1)
@@ -196,16 +204,33 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 	log.Info("finalized", "status", out.Status, "persisted", persisted)
 }
 
-// placeholderRunner stands in for the real run_workbook executor (Task 12).
-// GO_WORKER_TEST_BLOCK_SECONDS blocks the job, honored only when APP_ENV=test.
-func placeholderRunner(appEnv string) runner {
+// buildRunner wires the run_workbook executor. GO_WORKER_TEST_BLOCK_SECONDS
+// blocks a job before it runs, honored only when APP_ENV=test (interop tests
+// SIGKILL the worker during the block).
+func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runner, func(), error) {
+	deps := workbook.Deps{
+		Pool:   pool,
+		Client: egress.NewClientForEnv(cfg.AppEnv, cfg.EgressAllowHosts),
+		Creds:  credentials.New(cfg.InternalAPIURL, cfg.InternalServiceToken, nil),
+		Log:    log,
+	}
+	closeFn := func() {}
+	if cfg.RedisURL != "" {
+		pub, err := progress.NewRedis(cfg.RedisURL, log)
+		if err != nil {
+			return nil, nil, err
+		}
+		deps.Progress = pub
+		closeFn = func() { _ = pub.Close() }
+	}
+	handle := workbook.Handler(deps)
 	block := time.Duration(0)
-	if appEnv == "test" {
+	if cfg.AppEnv == "test" {
 		if s, err := strconv.Atoi(os.Getenv("GO_WORKER_TEST_BLOCK_SECONDS")); err == nil && s > 0 {
 			block = time.Duration(s) * time.Second
 		}
 	}
-	return func(ctx context.Context, _ *queue.Claim) error {
+	return func(ctx context.Context, c *queue.Claim) error {
 		if block > 0 {
 			select {
 			case <-ctx.Done():
@@ -213,6 +238,6 @@ func placeholderRunner(appEnv string) runner {
 			case <-time.After(block):
 			}
 		}
-		return errors.New("run_workbook executor not implemented")
-	}
+		return handle(ctx, c)
+	}, closeFn, nil
 }
