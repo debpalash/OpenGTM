@@ -299,6 +299,43 @@ services:
     networks:
       - lead_net
 
+  # ── Go workbook executor (OPTIONAL: docker compose --profile go up -d worker-go) ──
+  # Claims only jobs with executor='go' (routed by the API per
+  # GO_EXECUTOR_ENABLED / GO_EXECUTOR_WORKSPACES). No published ports. See
+  # docs/go-executor.md for rollout and rollback.
+  worker-go:
+    profiles: ["go"]
+    build:
+      context: ./apps/backend-go
+      dockerfile: Dockerfile
+    image: opengtm-worker-go:local
+    environment:
+      # Go (pgx) takes a plain postgresql:// URL, not the SQLAlchemy +psycopg form.
+      # Must be the non-superuser runtime role so forced RLS applies.
+      - DATABASE_URL=${GO_WORKER_DATABASE_URL:-postgresql://yupcha_runtime:yupcha_runtime@postgres:5432/yupcha}
+      - REDIS_URL=redis://redis:6379
+      - INTERNAL_API_URL=http://api:8000
+      - INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN:-}
+      - APP_ENV=${APP_ENV:-dev}
+      - GO_WORKER_CONCURRENCY=${GO_WORKER_CONCURRENCY:-4}
+      - GO_WORKER_DB_MAX_CONNS=${GO_WORKER_DB_MAX_CONNS:-20}
+      - GO_WORKER_HEARTBEAT_SECONDS=${GO_WORKER_HEARTBEAT_SECONDS:-10}
+      - GO_WORKER_SHUTDOWN_GRACE_SECONDS=${GO_WORKER_SHUTDOWN_GRACE_SECONDS:-30}
+      - GO_WORKER_DEBUG_ADDR=${GO_WORKER_DEBUG_ADDR:-127.0.0.1:6060}
+      - WORKER_MAX_ACTIVE_PER_WORKSPACE=${WORKER_MAX_ACTIVE_PER_WORKSPACE:-2}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - lead_net
+
   # ── Benchmark-only provider simulator (docker compose --profile bench) ──
   providersim:
     profiles: ["bench"]
