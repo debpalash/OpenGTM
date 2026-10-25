@@ -288,3 +288,10 @@ Dockerfile.api
 - **Consistency:** `Signer`, `Principal`, `WorkspaceCtx`, `RequireRole`, `httpx.Detail` are defined in Tasks 2-5 and used by name afterwards.
 - **Decisions for the user:** (1) leave `/auth/sso/*` on FastAPI (a Go OIDC flow plus a Starlette-compatible session cookie is a separate plan); (2) Task 11 slug-collision 409 instead of Python's 500; (3) `Authenticate` requires `exp` (Python tolerates its absence; all minted tokens carry it); (4) nginx currently does not proxy `/admin/` or `/scim/`, confirm they should be exposed.
 - **Proportion:** interfaces and test names carry the decisions; handler bodies are left to the implementer.
+
+## User decisions (2026-10-26) — override task text where they conflict
+
+- Accepted defaults: `/auth/sso/*` stays on FastAPI; `/api/settings/sources*` stays on Python until leadgen is ported; workspace slug collision returns 409; Go auth requires token `exp`; `workbook_functions` and `chat_memories` stay global (no RLS).
+- LLM provider keys are **encrypted** with the same envelope encryption as workspace secrets. Python's `_db_get`/writer change in lockstep, with a one-time migration that encrypts existing plaintext rows. Plan 03 tasks must be revised for this before execution.
+- Stripe uses the official **stripe-go** SDK (pinned exact version) for webhook verification and Checkout. Do not hand-roll the signature code.
+- `/admin/` and `/scim/` stay **unexposed** in nginx, as today.

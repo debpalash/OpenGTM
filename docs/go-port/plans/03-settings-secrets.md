@@ -198,3 +198,10 @@ testdata/contract/settings/*.json, billing/*.json         # recorded FastAPI res
 - **Consistency:** `secrets.Resolver`, `Envelope`, `App`, `Registry`, `VerifyStripeSignature`, `Credit`, `DebitResult` are each defined once and referenced by name later.
 - **Decisions for the user:** (1) Provider API keys in `app_settings` are plaintext today; this plan preserves that for parity and for the Python worker. Encrypting them (`enc:v1:` in `app_settings`) is a one-line follow-up in `App.Set/Get` but needs the Python `_db_get` changed in lockstep: choose now or later. (2) The 5 `sources*` routes stay on Python until the leadgen registry is ported (plan 13). (3) Stripe is hand-rolled (signature check + one REST call) instead of `stripe-go`; confirm you accept pinning to the account's default API version.
 - **Proportion:** interfaces, vectors and test names are specified; bodies are left to the implementer.
+
+## User decisions (2026-10-26) — override task text where they conflict
+
+- Accepted defaults: `/auth/sso/*` stays on FastAPI; `/api/settings/sources*` stays on Python until leadgen is ported; workspace slug collision returns 409; Go auth requires token `exp`; `workbook_functions` and `chat_memories` stay global (no RLS).
+- LLM provider keys are **encrypted** with the same envelope encryption as workspace secrets. Python's `_db_get`/writer change in lockstep, with a one-time migration that encrypts existing plaintext rows. Plan 03 tasks must be revised for this before execution.
+- Stripe uses the official **stripe-go** SDK (pinned exact version) for webhook verification and Checkout. Do not hand-roll the signature code.
+- `/admin/` and `/scim/` stay **unexposed** in nginx, as today.
