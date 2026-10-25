@@ -73,7 +73,6 @@ type rawPayload struct {
 	Concurrency     *float64        `json:"concurrency"`
 	RetryPasses     *float64        `json:"retry_passes"`
 	FillMissing     bool            `json:"fill_missing"`
-	Force           bool            `json:"force"`
 	MaxProviders    *float64        `json:"max_providers"`
 	ProviderTimeout *float64        `json:"provider_timeout"`
 	Go              *goBlock        `json:"go"`
@@ -89,7 +88,7 @@ type runPayload struct {
 	hasRowColumns           bool
 	Concurrency             int
 	RetryPasses             int
-	FillMissing, Force      bool
+	FillMissing             bool
 	MaxProviders            int
 	ProviderTimeout         float64
 	Manifests               map[string]manifest.Manifest
@@ -117,8 +116,8 @@ func parsePayload(raw []byte) (*runPayload, error) {
 	}
 	p := &runPayload{
 		WorkspaceID: rp.WorkspaceID, WorkbookID: rp.WorkbookID,
-		FillMissing: rp.FillMissing, Force: rp.Force,
-		Costs: rp.Go.Costs, ManifestSHA256: rp.Go.ManifestSHA256, Manifests: make(map[string]manifest.Manifest, len(rp.Go.Manifests)),
+		FillMissing: rp.FillMissing,
+		Costs:       rp.Go.Costs, ManifestSHA256: rp.Go.ManifestSHA256, Manifests: make(map[string]manifest.Manifest, len(rp.Go.Manifests)),
 		Concurrency: rp.Go.DefaultConcurrency, RetryPasses: 1, ProviderTimeout: defaultProviderTimeout,
 	}
 	if p.Costs == nil {

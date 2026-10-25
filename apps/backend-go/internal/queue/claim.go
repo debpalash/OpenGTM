@@ -22,8 +22,6 @@ const (
 	// JobTypeRunWorkbook is the only job type the Go executor runs.
 	JobTypeRunWorkbook = "run_workbook"
 	maxCapRetries      = 100
-	// UnsupportedTypeError is stored on go rows of any other job type.
-	UnsupportedTypeError = "go executor: unsupported job type"
 )
 
 // Claim is a leased job.

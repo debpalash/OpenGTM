@@ -283,7 +283,9 @@ func TestPaidPreNetworkFailuresReserveNothing(t *testing.T) {
 
 type panicTransport struct{}
 
-func (panicTransport) RoundTrip(*http.Request) (*http.Response, error) { panic("provider transport exploded") }
+func (panicTransport) RoundTrip(*http.Request) (*http.Response, error) {
+	panic("provider transport exploded")
+}
 
 // C2: a panic inside a provider call is cell-local: the process survives, a free
 // cell becomes an error cell, and a dispatched paid attempt is left uncertain.

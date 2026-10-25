@@ -122,7 +122,6 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 	if err != nil {
 		return Result{}, err
 	}
-	rs.columns = columns
 	var enrichCols []column
 	for _, col := range columns {
 		if enrichmentColTypes[col.Type] && (p.ColumnIDs == nil || p.ColumnIDs[col.ID]) {

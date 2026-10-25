@@ -57,13 +57,12 @@ const defaultStopCheckInterval = 2 * time.Second
 
 // runState is the per-run context shared by every cell goroutine.
 type runState struct {
-	deps    Deps
-	claim   *queue.Claim
-	p       *runPayload
-	pl      planner
-	columns []column
-	log     *slog.Logger
-	stop    *stopProbe
+	deps  Deps
+	claim *queue.Claim
+	p     *runPayload
+	pl    planner
+	log   *slog.Logger
+	stop  *stopProbe
 	// rowsDone is the number of rows the first pass has finished (written by
 	// the single coordinating goroutine only).
 	rowsDone int
