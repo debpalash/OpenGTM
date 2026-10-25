@@ -14,6 +14,20 @@ const PayloadVersion = 1
 
 const defaultProviderTimeout = 10.0
 
+// Upper bounds applied to payload knobs.
+const (
+	MaxConcurrency     = 64
+	MaxRetryPasses     = 5
+	MaxProviderTimeout = 120.0 // seconds
+)
+
+func clampF(v, lo, hi float64) float64 {
+	if math.IsNaN(v) || v < lo {
+		return lo
+	}
+	return math.Min(v, hi)
+}
+
 // ErrUnsupportedPayload is returned for a go block the executor must refuse.
 var ErrUnsupportedPayload = errors.New("workbook: unsupported go payload")
 
@@ -32,11 +46,11 @@ type rawPayload struct {
 	RowIDs          *[]int32        `json:"row_ids"`
 	LeadIDs         *[]int32        `json:"lead_ids"`
 	RowColumns      json.RawMessage `json:"row_columns"`
-	Concurrency     *int            `json:"concurrency"`
-	RetryPasses     *int            `json:"retry_passes"`
+	Concurrency     *float64        `json:"concurrency"`
+	RetryPasses     *float64        `json:"retry_passes"`
 	FillMissing     bool            `json:"fill_missing"`
 	Force           bool            `json:"force"`
-	MaxProviders    int             `json:"max_providers"`
+	MaxProviders    *float64        `json:"max_providers"`
 	ProviderTimeout *float64        `json:"provider_timeout"`
 	Go              *goBlock        `json:"go"`
 }
@@ -78,7 +92,7 @@ func parsePayload(raw []byte) (*runPayload, error) {
 	}
 	p := &runPayload{
 		WorkspaceID: rp.WorkspaceID, WorkbookID: rp.WorkbookID,
-		FillMissing: rp.FillMissing, Force: rp.Force, MaxProviders: rp.MaxProviders,
+		FillMissing: rp.FillMissing, Force: rp.Force,
 		Costs: rp.Go.Costs, Manifests: make(map[string]manifest.Manifest, len(rp.Go.Manifests)),
 		Concurrency: rp.Go.DefaultConcurrency, RetryPasses: 1, ProviderTimeout: defaultProviderTimeout,
 	}
@@ -100,24 +114,29 @@ func parsePayload(raw []byte) (*runPayload, error) {
 			return nil, fmt.Errorf("%w: invalid cost for %q", ErrUnsupportedPayload, name)
 		}
 	}
+	// Knobs are untrusted payload JSON: clamp so a bad value cannot spawn
+	// unbounded goroutines, loop forever or overflow a Duration.
+	conc := float64(p.Concurrency)
 	if p.Concurrency < 1 {
-		p.Concurrency = 12 // WORKBOOK_RUN_CONCURRENCY default
+		conc = 12 // WORKBOOK_RUN_CONCURRENCY default
 	}
 	if rp.Concurrency != nil {
-		if *rp.Concurrency < 1 {
-			return nil, errors.New("workbook: concurrency must be >= 1")
-		}
-		p.Concurrency = *rp.Concurrency
+		conc = *rp.Concurrency
 	}
+	p.Concurrency = int(clampF(conc, 1, MaxConcurrency))
 	if rp.RetryPasses != nil {
-		p.RetryPasses = *rp.RetryPasses
+		p.RetryPasses = int(clampF(*rp.RetryPasses, 0, MaxRetryPasses))
+	}
+	if rp.MaxProviders != nil {
+		p.MaxProviders = int(clampF(*rp.MaxProviders, 0, 1<<20))
 	}
 	if rp.ProviderTimeout != nil {
 		p.ProviderTimeout = *rp.ProviderTimeout
 	}
-	if !(p.ProviderTimeout > 0) || math.IsInf(p.ProviderTimeout, 0) {
+	if !(p.ProviderTimeout > 0) {
 		return nil, errors.New("workbook: provider_timeout must be positive")
 	}
+	p.ProviderTimeout = math.Min(p.ProviderTimeout, MaxProviderTimeout)
 	if rp.ColumnIDs != nil {
 		p.ColumnIDs = make(map[string]bool, len(*rp.ColumnIDs))
 		for _, c := range *rp.ColumnIDs {

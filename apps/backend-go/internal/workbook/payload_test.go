@@ -57,7 +57,7 @@ func TestParsePayloadDefaultsAndScope(t *testing.T) {
 func TestParsePayloadRejectsBadScope(t *testing.T) {
 	for _, extra := range []string{
 		`,"row_columns":{"0":["a"]}`, `,"row_columns":{"01":["a"]}`, `,"row_columns":{"x":["a"]}`,
-		`,"row_columns":{"1":[""]}`, `,"row_columns":{"1":"a"}`, `,"concurrency":0`, `,"provider_timeout":0`,
+		`,"row_columns":{"1":[""]}`, `,"row_columns":{"1":"a"}`, `,"provider_timeout":0`, `,"provider_timeout":-3`,
 	} {
 		if _, err := parsePayload(payload(extra, goOK("1"))); err == nil {
 			t.Fatalf("accepted %s", extra)
@@ -114,5 +114,33 @@ func TestLooksRateLimited(t *testing.T) {
 		if looksRateLimited(s) != want {
 			t.Fatalf("%q", s)
 		}
+	}
+}
+
+func TestParsePayloadClampsKnobs(t *testing.T) {
+	cases := []struct {
+		extra                string
+		conc, retry, maxProv int
+		timeout              float64
+	}{
+		{`,"concurrency":1000000000000,"retry_passes":1e12,"max_providers":1e30,"provider_timeout":1e12`, 64, 5, 1 << 20, 120},
+		{`,"concurrency":-1,"retry_passes":-1,"max_providers":-5`, 1, 0, 0, 10},
+		{`,"concurrency":0`, 1, 1, 0, 10},
+		{`,"concurrency":2.9,"retry_passes":2.5,"provider_timeout":0.5`, 2, 2, 0, 0.5},
+		{``, 7, 1, 0, 10},
+	}
+	for _, c := range cases {
+		p, err := parsePayload(payload(c.extra, goOK("1")))
+		if err != nil {
+			t.Fatalf("%s: %v", c.extra, err)
+		}
+		if p.Concurrency != c.conc || p.RetryPasses != c.retry || p.MaxProviders != c.maxProv || p.ProviderTimeout != c.timeout {
+			t.Fatalf("%s: got %d %d %d %v", c.extra, p.Concurrency, p.RetryPasses, p.MaxProviders, p.ProviderTimeout)
+		}
+	}
+	// default_concurrency from the go block is clamped too
+	p, err := parsePayload(payload("", strings.Replace(goOK("1"), `"default_concurrency":7`, `"default_concurrency":9999`, 1)))
+	if err != nil || p.Concurrency != 64 {
+		t.Fatalf("go default: %v %v", p, err)
 	}
 }

@@ -11,22 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const chargeWorkbookBudget = `-- name: ChargeWorkbookBudget :exec
-UPDATE workbooks SET budget_spent_usd = COALESCE(budget_spent_usd, 0) + $1::float8
-WHERE id = $2::text AND workspace_id = $3::text
-`
-
-type ChargeWorkbookBudgetParams struct {
-	DeltaUsd    float64
-	WorkbookID  string
-	WorkspaceID string
-}
-
-func (q *Queries) ChargeWorkbookBudget(ctx context.Context, arg ChargeWorkbookBudgetParams) error {
-	_, err := q.db.Exec(ctx, chargeWorkbookBudget, arg.DeltaUsd, arg.WorkbookID, arg.WorkspaceID)
-	return err
-}
-
 const countWorkbookRows = `-- name: CountWorkbookRows :one
 SELECT COUNT(*)::bigint FROM workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text

@@ -107,10 +107,6 @@ ON CONFLICT (provider, field) DO UPDATE SET
        THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(cooldown_seconds)::int)
        ELSE provider_stats.cooldown_until END;
 
--- name: ChargeWorkbookBudget :exec
-UPDATE workbooks SET budget_spent_usd = COALESCE(budget_spent_usd, 0) + sqlc.arg(delta_usd)::float8
-WHERE id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
-
 -- name: LockLeaseForReceipt :one
 -- Port of persist_run_result's predicates (processing OR cancelled) with the
 -- row locked so the payload merge cannot interleave with an output claim.
