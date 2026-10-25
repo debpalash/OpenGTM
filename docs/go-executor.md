@@ -12,7 +12,7 @@ carry an `executor` column (`python` | `go`); each worker claims only its own.
   `config.RequiredGoSchemaRevision`). Run the `migrate` service first and make
   sure no old-image Python worker is still running, otherwise it may mis-handle
   lease-fenced `go` rows.
-- `INTERNAL_SERVICE_TOKEN` generated: `python -c "import secrets; print(secrets.token_urlsafe(48))"`.
+- `INTERNAL_SERVICE_TOKEN` generated (at least 32 characters, not starting with `change-me`: the Go worker refuses to start and the Python internal API answers 503 otherwise): `python -c "import secrets; print(secrets.token_urlsafe(48))"`.
 
 ## Enabling
 
@@ -20,7 +20,10 @@ carry an `executor` column (`python` | `go`); each worker claims only its own.
    and `GO_EXECUTOR_WORKSPACES=<ws1,ws2>` (the cohort; empty means nobody).
    Optional knobs: `GO_WORKER_CONCURRENCY`, `GO_WORKER_DB_MAX_CONNS`,
    `GO_WORKER_HEARTBEAT_SECONDS`, `GO_WORKER_SHUTDOWN_GRACE_SECONDS`,
-   `GO_WORKER_DEBUG_ADDR`, `WORKER_MAX_ACTIVE_PER_WORKSPACE`.
+   `GO_WORKER_DEBUG_ADDR`, `WORKER_MAX_ACTIVE_PER_WORKSPACE`, and
+   `GO_WORKER_JOB_TIMEOUT_SECONDS` (per-job wall clock, default 1800 = Python's
+   `JOB_TIMEOUTS["run_workbook"]`, clamped to 60..7200; on expiry the job fails
+   through the normal retry path).
 2. Recreate the API so it picks up the flag/token: `docker compose up -d api`.
    `GO_EXECUTOR_ENABLED`/`GO_EXECUTOR_WORKSPACES` are read only at enqueue time
    (`enqueue_run_workbook`, called from the API, `seed`, and the source engine
@@ -43,7 +46,33 @@ provider chain of declarative providers only, target-only mappings, and no
 extra manifest env vars. Provenance and automations must be off for the
 workspace. Anything else stays on Python; the decision reason is logged as
 `run_workbook executor=<x> reason=<r>` (e.g. `not_in_cohort`, `email_verify`,
-`column_refs`, `non_declarative_provider`).
+`column_refs`, `non_declarative_provider`, `templated_authority`,
+`literal_auth_value`).
+
+A manifest that carries credentials (any `auth.type` other than `none`, or any
+`${env:` reference) must not template the URL's scheme/host/port (`{{` before the
+first `/` after `://`): lead data could redirect the key to another host. Such a
+manifest is ineligible (`templated_authority`), the Python declarative compiler
+refuses it, and Go's `manifest.Execute` refuses it before any credential or
+network call. A literal `auth.value` (not a `${env:..}` reference) is likewise
+ineligible (`literal_auth_value`).
+
+## Manifest verification and hand-back
+
+The payload's `go.manifests` are claims, not trusted code. Before any work the
+worker fetches each named manifest from `GET /internal/v1/manifests/{name}`
+(same service-token auth as the credentials endpoint; the signature-verified
+manifest and its sha256, the same hash as `go.manifest_sha256`), requires the
+sha256 to equal the payload's, and executes the FETCHED manifest, never the
+payload copy. Responses are cached for 60s; redirects are never followed.
+
+Deterministic refusals before work begins (unsupported payload version, missing
+`go` block, unsupported or edited column, unknown provider, manifest
+verification failure `manifest_mismatch`) hand the job back to Python with a
+lease-fenced update: `executor='python'`, `status='pending'`, `retry_count`
+unchanged, `error='handed back to python: <reason>'`, and the workbook is not
+marked failed. Python then runs the job normally. Transient failures (for
+example the API being down) still fail the attempt and retry on Go.
 
 ## Observability
 
@@ -98,7 +127,7 @@ FROM workbooks w WHERE w.id = :wb;
 
 -- (c) must return 0 rows: every cell is terminal.
 SELECT status, count(*) FROM workbook_enrichments
-WHERE workbook_id = :wb AND status NOT IN ('complete','error','skipped')
+WHERE workbook_id = :wb AND (status IS NULL OR status NOT IN ('complete','error','skipped'))
 GROUP BY status;
 ```
 
@@ -110,7 +139,12 @@ taken when no other run was spending on that workbook.)
 - Eligible scope only (see above); everything else runs on Python.
 - No lead write-back from the Go path.
 - Email verification must be off for email targets.
-- The spend contract is narrowed for declarative providers.
+- The spend contract is narrowed for declarative providers: it hashes only the
+  seven manifest-readable lead fields of the RAW stored row, never values written
+  by this job's own enrichment columns.
+- Paid providers are vetted (credential present, URL allowed) before any budget
+  is reserved; Python still reserves first, so a paid provider with a missing key
+  ends `accounting_uncertain` on Python but is skipped without a hold on Go.
 - Rollback re-enqueuing the same job id can hit `contract_conflict` on attempts written before the contract alignment.
 
 ## Security notes
