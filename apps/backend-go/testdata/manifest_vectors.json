@@ -8533,113 +8533,6 @@
    "expected": "l:[1, 2]"
   },
   {
-   "name": "prefix_whole_doc_scalar",
-   "data": {
-    "data": {
-     "work_email": "a@b.co",
-     "empty": "",
-     "zero": 0,
-     "f": false,
-     "nul": null,
-     "n": 3,
-     "fl": 2.0,
-     "t": true,
-     "obj": {
-      "x": 1
-     },
-     "lst": [
-      1,
-      2
-     ],
-     "handle": "ada",
-     "phone": "+1 (415) 555-0132",
-     "mobile": "0044 20 7946 0958"
-    },
-    "results": [
-     {
-      "email": "",
-      "n": null
-     },
-     {
-      "email": null,
-      "k": 1
-     },
-     {
-      "email": "first@x.io",
-      "n": 5
-     },
-     {
-      "email": "later@x.io"
-     }
-    ],
-    "people": [
-     {
-      "emails": [
-       {
-        "v": ""
-       },
-       {
-        "v": "deep@x.io"
-       }
-      ]
-     },
-     {
-      "emails": []
-     }
-    ],
-    "only_empty": [
-     {
-      "a": ""
-     },
-     {
-      "a": null
-     }
-    ],
-    "scalars": [
-     1,
-     2,
-     3
-    ],
-    "scalars_z": [
-     0,
-     1
-    ],
-    "empty_list": [],
-    "name": "Ada",
-    "a": {
-     "b": [
-      {
-       "c": "x"
-      },
-      {
-       "c": "y"
-      }
-     ]
-    },
-    "matrix": [
-     [
-      1,
-      2
-     ],
-     [
-      3,
-      4
-     ]
-    ],
-    "uni": {
-     "\u540d": "\u5317\u4eac"
-    },
-    "k-dash": 1,
-    "arr": [
-     {
-      "id": 7
-     }
-    ]
-   },
-   "expr": "p:$.",
-   "expected": "p:{'data': {'work_email': 'a@b.co', 'empty': '', 'zero': 0, 'f': False, 'nul': None, 'n': 3, 'fl': 2.0, 't': True, 'obj': {'x': 1}, 'lst': [1, 2], 'handle': 'ada', 'phone': '+1 (415) 555-0132', 'mobile': '0044 20 7946 0958'}, 'results': [{'email': '', 'n': None}, {'email': None, 'k': 1}, {'email': 'first@x.io', 'n': 5}, {'email': 'later@x.io'}], 'people': [{'emails': [{'v': ''}, {'v': 'deep@x.io'}]}, {'emails': []}], 'only_empty': [{'a': ''}, {'a': None}], 'scalars': [1, 2, 3], 'scalars_z': [0, 1], 'empty_list': [], 'name': 'Ada', 'a': {'b': [{'c': 'x'}, {'c': 'y'}]}, 'matrix': [[1, 2], [3, 4]], 'uni': {'\u540d': '\u5317\u4eac'}, 'k-dash': 1, 'arr': [{'id': 7}]}"
-  },
-  {
    "name": "prefix_uni",
    "data": {
     "data": {
@@ -10275,6 +10168,12 @@
    ],
    "expr": "$.[].a",
    "expected": 2
+  },
+  {
+   "name": "prefix_whole_doc_scalar",
+   "data": 5,
+   "expr": "p:$.",
+   "expected": "p:5"
   },
   {
    "name": "null_data",
