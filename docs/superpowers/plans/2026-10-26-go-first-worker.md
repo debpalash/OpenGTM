@@ -6,7 +6,7 @@
 
 **Architecture:** The Go worker is a second executor on the existing PostgreSQL `jobs` queue. A new `jobs.executor` column routes each job to exactly one executor; a `jobs.lease_token` column fences heartbeats and commits. Python decides eligibility at enqueue time and embeds the already-verified manifests in the payload, so Go never loads YAML or verifies signatures. Go writes the same rows (cells, row overlay, spend attempts, receipts) and the same Redis events as Python. Python stays the only migration owner and the only stale-claim reaper.
 
-**Tech Stack:** Go 1.27 (pinned patch), pgx v5, sqlc, go-redis v9, `log/slog`, `net/http` with a guarded pooled transport; existing Python 3 / FastAPI / SQLAlchemy / Alembic / pytest / uv; PostgreSQL 18 in CI (Compose currently runs 16 — Go must work on both).
+**Tech Stack:** Go 1.27.3 (`go 1.27` + `toolchain go1.27.3`), pgx v5, sqlc, go-redis v9, `log/slog`, `net/http` with a guarded pooled transport; existing Python 3 / FastAPI / SQLAlchemy / Alembic / pytest / uv; PostgreSQL 18 in CI (Compose currently runs 16 — Go must work on both).
 
 **Spec:** GitHub issue #33 (“RFC: Go backend rewrite with Python specialist workers and optional Rust acceleration”), plus the 2026-10-13 status comment on that issue (deferred until baseline). Read both before starting.
 
@@ -14,7 +14,7 @@
 
 ## Global Constraints
 
-- Go `1.27.x` pinned in `go.mod` (`go 1.27` + `toolchain go1.27.N`); pin every module version; pin image digests in Compose at release.
+- Go pinned in `go.mod` as `go 1.27` + `toolchain go1.27.3`; pin every module version; pin image digests in Compose at release.
 - Database access only through pgx v5 + sqlc-generated queries; generated code is committed; CI fails on regeneration drift.
 - Runtime DB role stays non-superuser and `NOBYPASSRLS`. Every tenant query runs inside a transaction that first executes `SELECT set_config('app.workspace_id', $1, true)`. No tenant query outside such a transaction. Missing workspace ID fails closed.
 - One schema-migration owner: the existing Alembic `migrate` service. Go never runs DDL.
