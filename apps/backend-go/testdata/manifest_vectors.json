@@ -1,0 +1,12099 @@
+{
+ "env": {
+  "API_KEY": "sekret",
+  "EMPTY": "",
+  "UNI": "\u043a\u043b\u044e\u0447-\u5317\u4eac",
+  "TOKEN_2": "t2"
+ },
+ "render": [
+  {
+   "name": "plain",
+   "input": "hello",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "hello"
+  },
+  {
+   "name": "empty",
+   "input": "",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": ""
+  },
+  {
+   "name": "input_simple",
+   "input": "{{input.domain}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "acme.com"
+  },
+  {
+   "name": "input_spaces",
+   "input": "{{  input.domain  }}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "acme.com"
+  },
+  {
+   "name": "input_embedded",
+   "input": "https://api/{{input.domain}}/v1?c={{input.company}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "https://api/acme.com/v1?c=Acme Inc"
+  },
+  {
+   "name": "two_vars",
+   "input": "{{input.first_name}}-{{input.domain}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "Ada-acme.com"
+  },
+  {
+   "name": "default_used_missing",
+   "input": "{{input.missing | default: foo}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "foo"
+  },
+  {
+   "name": "default_used_empty",
+   "input": "{{input.empty|default:bar}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "bar"
+  },
+  {
+   "name": "default_unused",
+   "input": "{{input.domain | default: foo}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "acme.com"
+  },
+  {
+   "name": "default_dq",
+   "input": "{{input.missing | default: \"quoted val\"}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "quoted val"
+  },
+  {
+   "name": "default_sq",
+   "input": "{{input.missing | default: 'single'}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "single"
+  },
+  {
+   "name": "default_mixed_quotes",
+   "input": "{{input.missing | default: \"x'}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "x"
+  },
+  {
+   "name": "default_empty_literal",
+   "input": "{{input.missing | default: }}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": ""
+  },
+  {
+   "name": "default_none_value",
+   "input": "{{input.nul | default: dflt}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "dflt"
+  },
+  {
+   "name": "default_inner_spaces",
+   "input": "{{input.missing | default:   a b c   }}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "a b c"
+  },
+  {
+   "name": "default_uni",
+   "input": "{{input.missing | default: \u5317\u4eac}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "\u5317\u4eac"
+  },
+  {
+   "name": "missing_no_default",
+   "input": "[{{input.missing}}]",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "[]"
+  },
+  {
+   "name": "empty_no_default",
+   "input": "[{{input.empty}}]",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "[]"
+  },
+  {
+   "name": "missing_root",
+   "input": "[{{nope.x}}]",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "[]"
+  },
+  {
+   "name": "through_scalar",
+   "input": "[{{input.domain.x}}]",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "[]"
+  },
+  {
+   "name": "nested_lookup",
+   "input": "{{input.nested.deep.k}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "v"
+  },
+  {
+   "name": "nested_missing_mid",
+   "input": "[{{input.nested.zip.k}}]",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "[]"
+  },
+  {
+   "name": "bool_true",
+   "input": "{{input.t}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "True"
+  },
+  {
+   "name": "bool_false",
+   "input": "{{input.f}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "False"
+  },
+  {
+   "name": "none_val",
+   "input": "[{{input.nul}}]",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "[]"
+  },
+  {
+   "name": "int",
+   "input": "{{input.n_int}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "42"
+  },
+  {
+   "name": "int_zero",
+   "input": "{{input.n_zero}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "0"
+  },
+  {
+   "name": "float_1_0",
+   "input": "{{input.n_float}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "1.0"
+  },
+  {
+   "name": "float_1e16",
+   "input": "{{input.n_big}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "1e+16"
+  },
+  {
+   "name": "float_1e-05",
+   "input": "{{input.n_small}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "1e-05"
+  },
+  {
+   "name": "float_neg",
+   "input": "{{input.n_neg}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "-2.5"
+  },
+  {
+   "name": "list_repr",
+   "input": "{{input.lst}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "[1, 'a', None, True, 1.5]"
+  },
+  {
+   "name": "dict_repr",
+   "input": "{{input.dct}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "{'a': 1, 'b': [1, 2], 'c': {'d': \"x'y\"}, 'e': None}"
+  },
+  {
+   "name": "unicode_val",
+   "input": "{{input.uni}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "Jos\u00e9 \u5317\u4eac \ud83d\ude00"
+  },
+  {
+   "name": "quote_val",
+   "input": "{{input.quote}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "it's"
+  },
+  {
+   "name": "html_val",
+   "input": "{{input.html}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "<a&b>"
+  },
+  {
+   "name": "env_basic",
+   "input": "Bearer ${env:API_KEY}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "Bearer sekret"
+  },
+  {
+   "name": "env_empty",
+   "input": "[${env:EMPTY}]",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "[]"
+  },
+  {
+   "name": "env_unknown",
+   "input": "[${env:NOPE}]",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "[]"
+  },
+  {
+   "name": "env_unicode",
+   "input": "${env:UNI}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "\u043a\u043b\u044e\u0447-\u5317\u4eac"
+  },
+  {
+   "name": "env_digits_underscore",
+   "input": "${env:TOKEN_2}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "t2"
+  },
+  {
+   "name": "env_bad_name",
+   "input": "${env:BAD-NAME}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "${env:BAD-NAME}"
+  },
+  {
+   "name": "env_no_colon",
+   "input": "${API_KEY}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "${API_KEY}"
+  },
+  {
+   "name": "env_in_var_default",
+   "input": "{{input.missing | default: ${env:API_KEY}}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "sekret"
+  },
+  {
+   "name": "env_from_input_value",
+   "input": "{{input.env_ref}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": ""
+  },
+  {
+   "name": "unterminated",
+   "input": "{{input.domain",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "{{input.domain"
+  },
+  {
+   "name": "single_brace",
+   "input": "{input.domain}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "{input.domain}"
+  },
+  {
+   "name": "pipe_no_default",
+   "input": "{{input.domain | upper}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "{{input.domain | upper}}"
+  },
+  {
+   "name": "newline_in_var",
+   "input": "{{\ninput.domain\n}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "acme.com"
+  },
+  {
+   "name": "tab_in_var",
+   "input": "{{\tinput.domain\t}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "acme.com"
+  },
+  {
+   "name": "nbsp_around",
+   "input": "{{\u00a0input.domain\u00a0}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "acme.com"
+  },
+  {
+   "name": "empty_var",
+   "input": "{{}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "{{}}"
+  },
+  {
+   "name": "space_var",
+   "input": "{{ }}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": ""
+  },
+  {
+   "name": "adjacent",
+   "input": "{{input.domain}}{{input.domain}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "acme.comacme.com"
+  },
+  {
+   "name": "nested_braces",
+   "input": "{{{input.domain}}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "}"
+  },
+  {
+   "name": "default_with_brace_val",
+   "input": "{{input.missing | default: a{b}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "a{b"
+  },
+  {
+   "name": "ctl_val",
+   "input": "{{input.ctl}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "a\tb\n"
+  },
+  {
+   "name": "nbsp_val",
+   "input": "{{input.nbsp}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "a\u00a0b"
+  },
+  {
+   "name": "dict",
+   "input": {
+    "url": "https://{{input.domain}}",
+    "n": 5,
+    "f": 1.5,
+    "t": true,
+    "z": null,
+    "nested": {
+     "k": [
+      "{{input.company}}",
+      3,
+      {
+       "x": "${env:API_KEY}"
+      }
+     ]
+    }
+   },
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": {
+    "url": "https://acme.com",
+    "n": 5,
+    "f": 1.5,
+    "t": true,
+    "z": null,
+    "nested": {
+     "k": [
+      "Acme Inc",
+      3,
+      {
+       "x": "sekret"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "list",
+   "input": [
+    "{{input.domain}}",
+    1,
+    2.0,
+    false,
+    null,
+    [
+     "{{input.first_name}}"
+    ]
+   ],
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": [
+    "acme.com",
+    1,
+    2.0,
+    false,
+    null,
+    [
+     "Ada"
+    ]
+   ]
+  },
+  {
+   "name": "non_string_int",
+   "input": 7,
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": 7
+  },
+  {
+   "name": "non_string_float",
+   "input": 7.0,
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": 7.0
+  },
+  {
+   "name": "non_string_none",
+   "input": null,
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": null
+  },
+  {
+   "name": "non_string_bool",
+   "input": true,
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": true
+  },
+  {
+   "name": "key_not_rendered",
+   "input": {
+    "{{input.domain}}": "{{input.domain}}"
+   },
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": {
+    "{{input.domain}}": "acme.com"
+   }
+  },
+  {
+   "name": "empty_containers",
+   "input": {
+    "a": [],
+    "b": {}
+   },
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": {
+    "a": [],
+    "b": {}
+   }
+  },
+  {
+   "name": "env_in_substituted_value_is_expanded",
+   "input": "{{input.env_ref}}",
+   "ctx": {
+    "input": {
+     "env_ref": "${env:API_KEY}",
+     "tpl": "{{input.domain}}",
+     "domain": "d.com"
+    }
+   },
+   "expected": "sekret"
+  },
+  {
+   "name": "no_reexpand_tpl_in_value",
+   "input": "{{input.tpl}}",
+   "ctx": {
+    "input": {
+     "env_ref": "${env:API_KEY}",
+     "tpl": "{{input.domain}}",
+     "domain": "d.com"
+    }
+   },
+   "expected": "{{input.domain}}"
+  }
+ ],
+ "project_value": [
+  {
+   "name": "root_key",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.name",
+   "expected": "Ada"
+  },
+  {
+   "name": "dot_nested",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.work_email",
+   "expected": "a@b.co"
+  },
+  {
+   "name": "dot_missing",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.nope",
+   "expected": null
+  },
+  {
+   "name": "missing_root",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.nope",
+   "expected": null
+  },
+  {
+   "name": "through_scalar",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.name.x",
+   "expected": null
+  },
+  {
+   "name": "index0",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.results[0].email",
+   "expected": ""
+  },
+  {
+   "name": "index_none_val",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.results[1].email",
+   "expected": null
+  },
+  {
+   "name": "index2",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.results[2].email",
+   "expected": "first@x.io"
+  },
+  {
+   "name": "index_oob",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.results[9].email",
+   "expected": null
+  },
+  {
+   "name": "index_exact_len",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.results[4].email",
+   "expected": null
+  },
+  {
+   "name": "index_on_dict",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data[0]",
+   "expected": null
+  },
+  {
+   "name": "index_on_scalar",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.name[0]",
+   "expected": null
+  },
+  {
+   "name": "index_only_item",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.arr[0]",
+   "expected": {
+    "id": 7
+   }
+  },
+  {
+   "name": "index_then_key",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.a.b[1].c",
+   "expected": "y"
+  },
+  {
+   "name": "index_big",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.arr[99999999999999999999]",
+   "expected": null
+  },
+  {
+   "name": "fanout_first_nonempty",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.results[].email",
+   "expected": "first@x.io"
+  },
+  {
+   "name": "fanout_nested",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.people[].emails[].v",
+   "expected": "deep@x.io"
+  },
+  {
+   "name": "fanout_all_empty",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.only_empty[].a",
+   "expected": null
+  },
+  {
+   "name": "fanout_empty_list",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.empty_list[].x",
+   "expected": null
+  },
+  {
+   "name": "fanout_scalars",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.scalars[]",
+   "expected": 1
+  },
+  {
+   "name": "fanout_zero_first",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.scalars_z[]",
+   "expected": 0
+  },
+  {
+   "name": "fanout_no_remainder_dict",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.a.b[]",
+   "expected": {
+    "c": "x"
+   }
+  },
+  {
+   "name": "fanout_on_non_list",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data[].x",
+   "expected": null
+  },
+  {
+   "name": "fanout_on_string",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.name[]",
+   "expected": null
+  },
+  {
+   "name": "fanout_on_missing",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.nope[].x",
+   "expected": null
+  },
+  {
+   "name": "fanout_other_key",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.results[].k",
+   "expected": 1
+  },
+  {
+   "name": "matrix_idx",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.matrix[1]",
+   "expected": [
+    3,
+    4
+   ]
+  },
+  {
+   "name": "matrix_fanout",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.matrix[][]",
+   "expected": null
+  },
+  {
+   "name": "empty_str_val",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.empty",
+   "expected": ""
+  },
+  {
+   "name": "zero_val",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.zero",
+   "expected": 0
+  },
+  {
+   "name": "false_val",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.f",
+   "expected": false
+  },
+  {
+   "name": "null_val",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.nul",
+   "expected": null
+  },
+  {
+   "name": "int_val",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.n",
+   "expected": 3
+  },
+  {
+   "name": "float_val",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.fl",
+   "expected": 2.0
+  },
+  {
+   "name": "true_val",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.t",
+   "expected": true
+  },
+  {
+   "name": "obj_val",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.obj",
+   "expected": {
+    "x": 1
+   }
+  },
+  {
+   "name": "list_val",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.lst",
+   "expected": [
+    1,
+    2
+   ]
+  },
+  {
+   "name": "whole_doc_empty_path",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.",
+   "expected": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   }
+  },
+  {
+   "name": "prefix_https",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "https://$.data.handle",
+   "expected": "https://ada"
+  },
+  {
+   "name": "prefix_missing",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "https://$.data.nope",
+   "expected": null
+  },
+  {
+   "name": "prefix_int",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "id-$.data.n",
+   "expected": "id-3"
+  },
+  {
+   "name": "prefix_float",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "v$.data.fl",
+   "expected": "v2.0"
+  },
+  {
+   "name": "prefix_bool",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "b:$.data.t",
+   "expected": "b:True"
+  },
+  {
+   "name": "prefix_false",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "b:$.data.f",
+   "expected": "b:False"
+  },
+  {
+   "name": "prefix_empty_str",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "x:$.data.empty",
+   "expected": "x:"
+  },
+  {
+   "name": "prefix_obj",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "o:$.data.obj",
+   "expected": "o:{'x': 1}"
+  },
+  {
+   "name": "prefix_list",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "l:$.data.lst",
+   "expected": "l:[1, 2]"
+  },
+  {
+   "name": "prefix_whole_doc_scalar",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "p:$.",
+   "expected": "p:{'data': {'work_email': 'a@b.co', 'empty': '', 'zero': 0, 'f': False, 'nul': None, 'n': 3, 'fl': 2.0, 't': True, 'obj': {'x': 1}, 'lst': [1, 2], 'handle': 'ada', 'phone': '+1 (415) 555-0132', 'mobile': '0044 20 7946 0958'}, 'results': [{'email': '', 'n': None}, {'email': None, 'k': 1}, {'email': 'first@x.io', 'n': 5}, {'email': 'later@x.io'}], 'people': [{'emails': [{'v': ''}, {'v': 'deep@x.io'}]}, {'emails': []}], 'only_empty': [{'a': ''}, {'a': None}], 'scalars': [1, 2, 3], 'scalars_z': [0, 1], 'empty_list': [], 'name': 'Ada', 'a': {'b': [{'c': 'x'}, {'c': 'y'}]}, 'matrix': [[1, 2], [3, 4]], 'uni': {'\u540d': '\u5317\u4eac'}, 'k-dash': 1, 'arr': [{'id': 7}]}"
+  },
+  {
+   "name": "prefix_uni",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "\u5317\u4eac/$.uni.\u540d",
+   "expected": null
+  },
+  {
+   "name": "static_literal",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "static-value",
+   "expected": "static-value"
+  },
+  {
+   "name": "static_empty",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "",
+   "expected": ""
+  },
+  {
+   "name": "dollar_no_dot",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$name",
+   "expected": "$name"
+  },
+  {
+   "name": "dollar_mid_literal",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "price $5 then $.name",
+   "expected": "price $5 then Ada"
+  },
+  {
+   "name": "first_dollar_dot_wins",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "a$.name$.name",
+   "expected": null
+  },
+  {
+   "name": "key_with_dash",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.k-dash",
+   "expected": null
+  },
+  {
+   "name": "double_dot",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data..work_email",
+   "expected": "a@b.co"
+  },
+  {
+   "name": "trailing_dot",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.work_email.",
+   "expected": "a@b.co"
+  },
+  {
+   "name": "bad_token_space",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.data.work email",
+   "expected": null
+  },
+  {
+   "name": "bad_token_brackets",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.results[a].email",
+   "expected": null
+  },
+  {
+   "name": "bad_token_nested_idx",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.results[0][1]",
+   "expected": null
+  },
+  {
+   "name": "bare_index",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.[0]",
+   "expected": null
+  },
+  {
+   "name": "unicode_key",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.uni.\u540d",
+   "expected": null
+  },
+  {
+   "name": "trailing_newline_token",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "expr": "$.name\n",
+   "expected": "Ada"
+  },
+  {
+   "name": "whole_doc_scalar_data",
+   "data": "s",
+   "expr": "$.",
+   "expected": "s"
+  },
+  {
+   "name": "list_root_index",
+   "data": [
+    {
+     "a": 1
+    },
+    {
+     "a": 2
+    }
+   ],
+   "expr": "$.[1].a",
+   "expected": 2
+  },
+  {
+   "name": "list_root_fanout",
+   "data": [
+    {
+     "a": ""
+    },
+    {
+     "a": 2
+    }
+   ],
+   "expr": "$.[].a",
+   "expected": 2
+  },
+  {
+   "name": "null_data",
+   "data": null,
+   "expr": "$.a",
+   "expected": null
+  },
+  {
+   "name": "null_data_whole",
+   "data": null,
+   "expr": "x$.",
+   "expected": null
+  }
+ ],
+ "project_response": [
+  {
+   "name": "basic",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "mappings": {
+    "email": "$.data.work_email",
+    "phone": "$.data.phone",
+    "linkedin_url": "https://$.data.handle"
+   },
+   "expected": {
+    "email": "a@b.co",
+    "phone": "+1 (415) 555-0132",
+    "linkedin_url": "https://ada"
+   }
+  },
+  {
+   "name": "drops_empty_none_missing",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "mappings": {
+    "a": "$.data.empty",
+    "b": "$.data.nul",
+    "c": "$.data.nope",
+    "d": "$.data.work_email"
+   },
+   "expected": {
+    "d": "a@b.co"
+   }
+  },
+  {
+   "name": "keeps_falsy",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "mappings": {
+    "z": "$.data.zero",
+    "f": "$.data.f",
+    "e": "$.empty_list"
+   },
+   "expected": {
+    "z": 0,
+    "f": false,
+    "e": []
+   }
+  },
+  {
+   "name": "static_and_paths",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "mappings": {
+    "source": "vendorx",
+    "email": "$.results[].email",
+    "n": "$.data.n"
+   },
+   "expected": {
+    "source": "vendorx",
+    "email": "first@x.io",
+    "n": 3
+   }
+  },
+  {
+   "name": "normalizable",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "mappings": {
+    "phone": "$.data.phone",
+    "mobile_phone": "$.data.mobile",
+    "other": "$.data.handle"
+   },
+   "expected": {
+    "phone": "+1 (415) 555-0132",
+    "mobile_phone": "0044 20 7946 0958",
+    "other": "ada"
+   }
+  },
+  {
+   "name": "empty_mappings",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "mappings": {},
+   "expected": {}
+  },
+  {
+   "name": "types",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "mappings": {
+    "i": "$.data.n",
+    "f": "$.data.fl",
+    "t": "$.data.t",
+    "o": "$.data.obj",
+    "l": "$.data.lst"
+   },
+   "expected": {
+    "i": 3,
+    "f": 2.0,
+    "t": true,
+    "o": {
+     "x": 1
+    },
+    "l": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "name": "empty_static_dropped",
+   "data": {
+    "data": {
+     "work_email": "a@b.co",
+     "empty": "",
+     "zero": 0,
+     "f": false,
+     "nul": null,
+     "n": 3,
+     "fl": 2.0,
+     "t": true,
+     "obj": {
+      "x": 1
+     },
+     "lst": [
+      1,
+      2
+     ],
+     "handle": "ada",
+     "phone": "+1 (415) 555-0132",
+     "mobile": "0044 20 7946 0958"
+    },
+    "results": [
+     {
+      "email": "",
+      "n": null
+     },
+     {
+      "email": null,
+      "k": 1
+     },
+     {
+      "email": "first@x.io",
+      "n": 5
+     },
+     {
+      "email": "later@x.io"
+     }
+    ],
+    "people": [
+     {
+      "emails": [
+       {
+        "v": ""
+       },
+       {
+        "v": "deep@x.io"
+       }
+      ]
+     },
+     {
+      "emails": []
+     }
+    ],
+    "only_empty": [
+     {
+      "a": ""
+     },
+     {
+      "a": null
+     }
+    ],
+    "scalars": [
+     1,
+     2,
+     3
+    ],
+    "scalars_z": [
+     0,
+     1
+    ],
+    "empty_list": [],
+    "name": "Ada",
+    "a": {
+     "b": [
+      {
+       "c": "x"
+      },
+      {
+       "c": "y"
+      }
+     ]
+    },
+    "matrix": [
+     [
+      1,
+      2
+     ],
+     [
+      3,
+      4
+     ]
+    ],
+    "uni": {
+     "\u540d": "\u5317\u4eac"
+    },
+    "k-dash": 1,
+    "arr": [
+     {
+      "id": 7
+     }
+    ]
+   },
+   "mappings": {
+    "s": ""
+   },
+   "expected": {}
+  }
+ ],
+ "normalize": [
+  {
+   "name": "empty",
+   "fields": {},
+   "expected": {}
+  },
+  {
+   "name": "no_phone",
+   "fields": {
+    "email": "a@b.co"
+   },
+   "expected": {
+    "email": "a@b.co"
+   }
+  },
+  {
+   "name": "e164_plus",
+   "fields": {
+    "phone": "+1 (415) 555-0132"
+   },
+   "expected": {
+    "phone": "+14155550132"
+   }
+  },
+  {
+   "name": "plus_dots",
+   "fields": {
+    "phone": "+44.20.7946.0958"
+   },
+   "expected": {
+    "phone": "+442079460958"
+   }
+  },
+  {
+   "name": "double_zero",
+   "fields": {
+    "phone": "0044 20 7946 0958"
+   },
+   "expected": {
+    "phone": "+442079460958"
+   }
+  },
+  {
+   "name": "double_zero_short",
+   "fields": {
+    "phone": "0012345"
+   },
+   "expected": {
+    "phone": "0012345"
+   }
+  },
+  {
+   "name": "double_zero_exactly_8",
+   "fields": {
+    "phone": "00123456"
+   },
+   "expected": {
+    "phone": "00123456"
+   }
+  },
+  {
+   "name": "double_zero_9",
+   "fields": {
+    "phone": "001234567"
+   },
+   "expected": {
+    "phone": "+1234567"
+   }
+  },
+  {
+   "name": "double_zero_long",
+   "fields": {
+    "phone": "0011111111111111111111"
+   },
+   "expected": {
+    "phone": "0011111111111111111111"
+   }
+  },
+  {
+   "name": "double_zero_17",
+   "fields": {
+    "phone": "00111111111111111"
+   },
+   "expected": {
+    "phone": "+111111111111111"
+   }
+  },
+  {
+   "name": "local_dots",
+   "fields": {
+    "phone": "415.555.0132"
+   },
+   "expected": {
+    "phone": "4155550132"
+   }
+  },
+  {
+   "name": "local_dashes",
+   "fields": {
+    "phone": "(415) 555-0132"
+   },
+   "expected": {
+    "phone": "4155550132"
+   }
+  },
+  {
+   "name": "plus_too_long",
+   "fields": {
+    "phone": "+1111111111111111"
+   },
+   "expected": {
+    "phone": "+1111111111111111"
+   }
+  },
+  {
+   "name": "plus_15",
+   "fields": {
+    "phone": "+111111111111111"
+   },
+   "expected": {
+    "phone": "+111111111111111"
+   }
+  },
+  {
+   "name": "local_too_long",
+   "fields": {
+    "phone": "111111111111111111"
+   },
+   "expected": {
+    "phone": "111111111111111111"
+   }
+  },
+  {
+   "name": "local_17",
+   "fields": {
+    "phone": "11111111111111111"
+   },
+   "expected": {
+    "phone": "11111111111111111"
+   }
+  },
+  {
+   "name": "no_digits",
+   "fields": {
+    "phone": "call me"
+   },
+   "expected": {
+    "phone": "call me"
+   }
+  },
+  {
+   "name": "only_plus",
+   "fields": {
+    "phone": "+"
+   },
+   "expected": {
+    "phone": "+"
+   }
+  },
+  {
+   "name": "blank",
+   "fields": {
+    "phone": "   "
+   },
+   "expected": {
+    "phone": "   "
+   }
+  },
+  {
+   "name": "empty_str",
+   "fields": {
+    "phone": ""
+   },
+   "expected": {
+    "phone": ""
+   }
+  },
+  {
+   "name": "padded",
+   "fields": {
+    "phone": "  +1 415 555 0132  "
+   },
+   "expected": {
+    "phone": "+14155550132"
+   }
+  },
+  {
+   "name": "mixed_text",
+   "fields": {
+    "phone": "tel: +1 415-555-0132 ext 5"
+   },
+   "expected": {
+    "phone": "141555501325"
+   }
+  },
+  {
+   "name": "non_string_int",
+   "fields": {
+    "phone": 4155550132
+   },
+   "expected": {
+    "phone": 4155550132
+   }
+  },
+  {
+   "name": "non_string_none",
+   "fields": {
+    "phone": null
+   },
+   "expected": {
+    "phone": null
+   }
+  },
+  {
+   "name": "non_string_list",
+   "fields": {
+    "phone": [
+     "+1"
+    ]
+   },
+   "expected": {
+    "phone": [
+     "+1"
+    ]
+   }
+  },
+  {
+   "name": "bool",
+   "fields": {
+    "phone": true
+   },
+   "expected": {
+    "phone": true
+   }
+  },
+  {
+   "name": "mobile",
+   "fields": {
+    "mobile_phone": "+91 98765-43210",
+    "phone": "(020) 7946 0958"
+   },
+   "expected": {
+    "mobile_phone": "+919876543210",
+    "phone": "02079460958"
+   }
+  },
+  {
+   "name": "other_untouched",
+   "fields": {
+    "email": " A@B.co ",
+    "title": "VP",
+    "n": 3
+   },
+   "expected": {
+    "email": " A@B.co ",
+    "title": "VP",
+    "n": 3
+   }
+  },
+  {
+   "name": "unicode_digits",
+   "fields": {
+    "phone": "+\u0661\u0662\u0663 456"
+   },
+   "expected": {
+    "phone": "+\u0661\u0662\u0663456"
+   }
+  },
+  {
+   "name": "fullwidth",
+   "fields": {
+    "phone": "\uff0b1 415"
+   },
+   "expected": {
+    "phone": "1415"
+   }
+  },
+  {
+   "name": "nbsp_pad",
+   "fields": {
+    "phone": "\u00a0+1 415\u00a0"
+   },
+   "expected": {
+    "phone": "+1415"
+   }
+  },
+  {
+   "name": "fs_sep_pad",
+   "fields": {
+    "phone": "\u001c+1 415\u001d"
+   },
+   "expected": {
+    "phone": "+1415"
+   }
+  },
+  {
+   "name": "plus_inside",
+   "fields": {
+    "phone": "1+415"
+   },
+   "expected": {
+    "phone": "1415"
+   }
+  }
+ ],
+ "input_ctx": [
+  {
+   "name": "empty",
+   "lead": {},
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "full",
+   "lead": {
+    "company": "Acme Inc",
+    "website": "https://www.acme.com/path?q=1",
+    "email": "a@acme.com",
+    "linkedin_url": "https://linkedin.com/in/ada",
+    "city": "Berlin",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1 415"
+   },
+   "expected": {
+    "company": "Acme Inc",
+    "company_name": "Acme Inc",
+    "website": "https://www.acme.com/path?q=1",
+    "domain": "acme.com",
+    "email": "a@acme.com",
+    "linkedin_url": "https://linkedin.com/in/ada",
+    "city": "Berlin",
+    "contact_person": "Ada Lovelace",
+    "full_name": "Ada Lovelace",
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "phone": "+1 415"
+   }
+  },
+  {
+   "name": "domain_https_www_path_q",
+   "lead": {
+    "website": "https://www.x.com/path?q"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "https://www.x.com/path?q",
+    "domain": "x.com",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_query_only",
+   "lead": {
+    "website": "https://x.com?q=1"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "https://x.com?q=1",
+    "domain": "x.com",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_http",
+   "lead": {
+    "website": "http://x.com"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "http://x.com",
+    "domain": "x.com",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_www_only",
+   "lead": {
+    "website": "www.x.com"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "www.x.com",
+    "domain": "x.com",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_bare",
+   "lead": {
+    "website": "x.com"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "x.com",
+    "domain": "x.com",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_upper",
+   "lead": {
+    "website": "HTTPS://WWW.X.COM/A"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "HTTPS://WWW.X.COM/A",
+    "domain": "x.com",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_padded",
+   "lead": {
+    "website": "  https://x.com/  "
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "  https://x.com/  ",
+    "domain": "x.com",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_ws_only",
+   "lead": {
+    "website": "   "
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "   ",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_port",
+   "lead": {
+    "website": "https://x.com:8080/a"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "https://x.com:8080/a",
+    "domain": "x.com:8080",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_www_after_scheme_dup",
+   "lead": {
+    "website": "https://www.www.x.com"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "https://www.www.x.com",
+    "domain": "www.x.com",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_http_then_https",
+   "lead": {
+    "website": "http://https://x.com"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "http://https://x.com",
+    "domain": "https:",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_https_wrong_order",
+   "lead": {
+    "website": "www.https://x.com"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "www.https://x.com",
+    "domain": "https:",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_userinfo",
+   "lead": {
+    "website": "https://u:p@x.com/a"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "https://u:p@x.com/a",
+    "domain": "u:p@x.com",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_uni",
+   "lead": {
+    "website": "https://B\u00dcCHER.de/x"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "https://B\u00dcCHER.de/x",
+    "domain": "b\u00fccher.de",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "domain_fragment",
+   "lead": {
+    "website": "x.com#frag"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "x.com#frag",
+    "domain": "x.com#frag",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_single",
+   "lead": {
+    "contact_person": "Cher"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "Cher",
+    "full_name": "Cher",
+    "first_name": "Cher",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_two",
+   "lead": {
+    "contact_person": "Ada Lovelace"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "Ada Lovelace",
+    "full_name": "Ada Lovelace",
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_three",
+   "lead": {
+    "contact_person": "Ada King Lovelace"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "Ada King Lovelace",
+    "full_name": "Ada King Lovelace",
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_four",
+   "lead": {
+    "contact_person": "Mary Jane Van Dyke"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "Mary Jane Van Dyke",
+    "full_name": "Mary Jane Van Dyke",
+    "first_name": "Mary",
+    "last_name": "Dyke",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_empty",
+   "lead": {
+    "contact_person": ""
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "",
+    "full_name": "",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_ws_only",
+   "lead": {
+    "contact_person": "   \t "
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "   \t ",
+    "full_name": "   \t ",
+    "first_name": "",
+    "last_name": "",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_padded_multi_space",
+   "lead": {
+    "contact_person": "  Ada   Lovelace  "
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "  Ada   Lovelace  ",
+    "full_name": "  Ada   Lovelace  ",
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_tabs_newlines",
+   "lead": {
+    "contact_person": "Ada\tKing\nLovelace"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "Ada\tKing\nLovelace",
+    "full_name": "Ada\tKing\nLovelace",
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_nbsp",
+   "lead": {
+    "contact_person": "Ada\u00a0Lovelace"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "Ada\u00a0Lovelace",
+    "full_name": "Ada\u00a0Lovelace",
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_fs",
+   "lead": {
+    "contact_person": "Ada\u001cLovelace"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "Ada\u001cLovelace",
+    "full_name": "Ada\u001cLovelace",
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_uni",
+   "lead": {
+    "contact_person": "Jos\u00e9 \u5317\u4eac"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "Jos\u00e9 \u5317\u4eac",
+    "full_name": "Jos\u00e9 \u5317\u4eac",
+    "first_name": "Jos\u00e9",
+    "last_name": "\u5317\u4eac",
+    "phone": ""
+   }
+  },
+  {
+   "name": "name_ideographic_space",
+   "lead": {
+    "contact_person": "Ada\u3000Lovelace"
+   },
+   "expected": {
+    "company": "",
+    "company_name": "",
+    "website": "",
+    "domain": "",
+    "email": "",
+    "linkedin_url": "",
+    "city": "",
+    "contact_person": "Ada\u3000Lovelace",
+    "full_name": "Ada\u3000Lovelace",
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "phone": ""
+   }
+  }
+ ]
+}
