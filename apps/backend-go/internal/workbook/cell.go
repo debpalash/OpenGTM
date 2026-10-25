@@ -124,13 +124,7 @@ func (rs *runState) markUncertain(ctx context.Context, id spend.Identity) {
 func (rs *runState) reservedCall(ctx context.Context, m manifest.Manifest, name string, lead map[string]any,
 	col column, rowIdentity string, exposure, cellLimit int64) (providerCall, error) {
 	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID
-	key := spend.AttemptKey(ws, wb, rs.claim.ID, rowIdentity, col.ID, name)
-	resv := spend.Reservation{
-		WorkspaceID: ws, WorkbookID: wb, RunID: fmt.Sprintf("job:%d", rs.claim.ID), RowIdentity: rowIdentity,
-		ColumnID: col.ID, Provider: name, AttemptKey: key, ExposureMicroUSD: exposure, CellLimitMicroUSD: cellLimit,
-		CostBasis: map[string]any{"kind": "catalog_estimate", "provider": name},
-		Operation: map[string]any{"inputs": providerInputs(lead), "column": col.cfg},
-	}
+	resv := rs.buildReservation(name, lead, col, rowIdentity, exposure, cellLimit)
 	var adm spend.Admission
 	err := tenancy.InWorkspace(ctx, rs.deps.Pool, ws, func(tx pgx.Tx) error {
 		var e error
@@ -229,6 +223,20 @@ func providerInputs(lead map[string]any) map[string]any {
 		out[k] = v
 	}
 	return out
+}
+
+// buildReservation is the spend reservation (and therefore contract hash) for
+// one provider call. The Python executor builds the same operation contract
+// for declarative providers (enrichment.declarative_operation_contract).
+func (rs *runState) buildReservation(name string, lead map[string]any, col column, rowIdentity string, exposure, cellLimit int64) spend.Reservation {
+	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID
+	return spend.Reservation{
+		WorkspaceID: ws, WorkbookID: wb, RunID: fmt.Sprintf("job:%d", rs.claim.ID), RowIdentity: rowIdentity,
+		ColumnID: col.ID, Provider: name, AttemptKey: spend.AttemptKey(ws, wb, rs.claim.ID, rowIdentity, col.ID, name),
+		ExposureMicroUSD: exposure, CellLimitMicroUSD: cellLimit,
+		CostBasis: map[string]any{"kind": "catalog_estimate", "provider": name},
+		Operation: map[string]any{"inputs": providerInputs(lead), "column": col.cfg},
+	}
 }
 
 // replaySettled returns the stored provider response of an already settled
