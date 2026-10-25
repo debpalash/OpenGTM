@@ -9,10 +9,12 @@ import (
 	"time"
 )
 
+const goodTok = "0123456789abcdef0123456789abcdef"
+
 func env(m map[string]string) func(string) string { return func(k string) string { return m[k] } }
 
 func TestDefaults(t *testing.T) {
-	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": "x"}))
+	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok}))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -24,10 +26,10 @@ func TestDefaults(t *testing.T) {
 func TestRejects(t *testing.T) {
 	cases := map[string]map[string]string{
 		"empty token":        {},
-		"concurrency >64":    {"INTERNAL_SERVICE_TOKEN": "x", "GO_WORKER_CONCURRENCY": "65"},
-		"grace >300":         {"INTERNAL_SERVICE_TOKEN": "x", "GO_WORKER_SHUTDOWN_GRACE_SECONDS": "301"},
-		"egress in prod":     {"INTERNAL_SERVICE_TOKEN": "x", "APP_ENV": "production", "EGRESS_ALLOW_HOSTS": "a.test"},
-		"egress without env": {"INTERNAL_SERVICE_TOKEN": "x", "EGRESS_ALLOW_HOSTS": "a.test"},
+		"concurrency >64":    {"INTERNAL_SERVICE_TOKEN": goodTok, "GO_WORKER_CONCURRENCY": "65"},
+		"grace >300":         {"INTERNAL_SERVICE_TOKEN": goodTok, "GO_WORKER_SHUTDOWN_GRACE_SECONDS": "301"},
+		"egress in prod":     {"INTERNAL_SERVICE_TOKEN": goodTok, "APP_ENV": "production", "EGRESS_ALLOW_HOSTS": "a.test"},
+		"egress without env": {"INTERNAL_SERVICE_TOKEN": goodTok, "EGRESS_ALLOW_HOSTS": "a.test"},
 	}
 	for name, m := range cases {
 		if _, err := load(env(m)); err != nil {
@@ -38,14 +40,14 @@ func TestRejects(t *testing.T) {
 }
 
 func TestEgressAllowedInBench(t *testing.T) {
-	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": "x", "APP_ENV": "bench", "EGRESS_ALLOW_HOSTS": "a.test, b.test"}))
+	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "APP_ENV": "bench", "EGRESS_ALLOW_HOSTS": "a.test, b.test"}))
 	if err != nil || len(c.EgressAllowHosts) != 2 {
 		t.Fatalf("got %+v, %v", c, err)
 	}
 }
 
 func TestOverridesAndDebugDefault(t *testing.T) {
-	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": "x", "GO_WORKER_DB_MAX_CONNS": "7", "GO_WORKER_HEARTBEAT_SECONDS": "5"}))
+	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "GO_WORKER_DB_MAX_CONNS": "7", "GO_WORKER_HEARTBEAT_SECONDS": "5"}))
 	if err != nil || c.DBMaxConns != 7 || c.HeartbeatInterval != 5*time.Second || c.DebugAddr != "127.0.0.1:6060" {
 		t.Fatalf("got %+v, %v", c, err)
 	}
@@ -53,7 +55,7 @@ func TestOverridesAndDebugDefault(t *testing.T) {
 
 func TestSecretsRedacted(t *testing.T) {
 	c, err := load(env(map[string]string{
-		"INTERNAL_SERVICE_TOKEN": "tok-SECRET-123",
+		"INTERNAL_SERVICE_TOKEN": "tok-SECRET-123-0123456789abcdefghijklmnop",
 		"DATABASE_URL":           "postgres://u:dbPASS-9@h:5432/d",
 		"REDIS_URL":              "redis://:redisPASS-7@h:6379/0",
 	}))
@@ -78,7 +80,7 @@ func TestSecretsRedacted(t *testing.T) {
 
 func TestMaxActivePerWorkspace(t *testing.T) {
 	get := func(v string) (int, error) {
-		m := map[string]string{"INTERNAL_SERVICE_TOKEN": "x"}
+		m := map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok}
 		if v != "" {
 			m["WORKER_MAX_ACTIVE_PER_WORKSPACE"] = v
 		}
@@ -92,5 +94,21 @@ func TestMaxActivePerWorkspace(t *testing.T) {
 	}
 	if _, err := get("abc"); err == nil {
 		t.Error("expected error for non-integer")
+	}
+}
+
+func TestWeakServiceToken(t *testing.T) {
+	for name, tok := range map[string]string{
+		"short":       "short-token",
+		"31 chars":    strings.Repeat("a", 31),
+		"change-me":   "change-me-" + strings.Repeat("x", 40),
+		"change-me-2": "change-me",
+	} {
+		if _, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": tok})); err == nil {
+			t.Errorf("%s: weak token accepted", name)
+		}
+	}
+	if _, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": strings.Repeat("a", 32)})); err != nil {
+		t.Errorf("32-char token rejected: %v", err)
 	}
 }

@@ -16,6 +16,8 @@ import (
 // It must equal REQUIRED_GO_SCHEMA_REVISION in the Python go_executor module.
 const RequiredGoSchemaRevision = "4a5162738495"
 
+const minServiceTokenLen = 32
+
 const (
 	defaultWorkerConcurrency = 4
 	maxWorkerConcurrency     = 64
@@ -89,6 +91,9 @@ func load(get func(string) string) (Config, error) {
 	}
 	if c.InternalServiceToken == "" {
 		return Config{}, errors.New("config: INTERNAL_SERVICE_TOKEN is required")
+	}
+	if len(c.InternalServiceToken) < minServiceTokenLen || strings.HasPrefix(c.InternalServiceToken, "change-me") {
+		return Config{}, fmt.Errorf("config: INTERNAL_SERVICE_TOKEN must be at least %d characters and must not be a change-me placeholder", minServiceTokenLen)
 	}
 	if len(c.EgressAllowHosts) > 0 && c.AppEnv != "test" && c.AppEnv != "bench" {
 		return Config{}, fmt.Errorf("config: EGRESS_ALLOW_HOSTS is only allowed when APP_ENV is test or bench (got %q)", c.AppEnv)
