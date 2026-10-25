@@ -87,6 +87,37 @@ func (q *Queries) GetAnyProviderAccuracy(ctx context.Context, provider string) (
 	return accuracy_score, err
 }
 
+const getAttemptResult = `-- name: GetAttemptResult :one
+SELECT status, result FROM workbook_spend_attempts
+WHERE id = $1::text AND workspace_id = $2::text
+  AND workbook_id = $3::text AND contract_hash = $4::text
+`
+
+type GetAttemptResultParams struct {
+	ID           string
+	WorkspaceID  string
+	WorkbookID   string
+	ContractHash string
+}
+
+type GetAttemptResultRow struct {
+	Status string
+	Result []byte
+}
+
+// Reused settled attempts replay the stored provider response (no second call).
+func (q *Queries) GetAttemptResult(ctx context.Context, arg GetAttemptResultParams) (GetAttemptResultRow, error) {
+	row := q.db.QueryRow(ctx, getAttemptResult,
+		arg.ID,
+		arg.WorkspaceID,
+		arg.WorkbookID,
+		arg.ContractHash,
+	)
+	var i GetAttemptResultRow
+	err := row.Scan(&i.Status, &i.Result)
+	return i, err
+}
+
 const getProviderStat = `-- name: GetProviderStat :one
 SELECT attempts, hits, accuracy_score,
        (cooldown_until IS NOT NULL AND cooldown_until > (now() AT TIME ZONE 'UTC'))::bool AS in_cooldown

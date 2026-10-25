@@ -125,3 +125,9 @@ UPDATE jobs SET payload = sqlc.arg(payload)::json
 WHERE id = sqlc.arg(id)::int AND type = 'run_workbook' AND workspace_id = sqlc.arg(workspace_id)::text
   AND worker_id = sqlc.arg(worker_id)::text AND lease_token = sqlc.arg(lease_token)::bigint
   AND locked_at = sqlc.arg(locked_at) AND status IN ('processing', 'cancelled');
+
+-- name: GetAttemptResult :one
+-- Reused settled attempts replay the stored provider response (no second call).
+SELECT status, result FROM workbook_spend_attempts
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text
+  AND workbook_id = sqlc.arg(workbook_id)::text AND contract_hash = sqlc.arg(contract_hash)::text;

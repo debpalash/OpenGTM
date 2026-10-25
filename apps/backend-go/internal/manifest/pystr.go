@@ -162,3 +162,12 @@ func reprString(s string) string {
 	b.WriteRune(q)
 	return b.String()
 }
+
+// PyStr is str(v) for JSON-shaped values (exported for the workbook executor).
+func PyStr(v any) string { return pyStr(v) }
+
+// PyTruthy is bool(v) for JSON-shaped values (exported for the workbook executor).
+func PyTruthy(v any) bool { return pyTruthy(v) }
+
+// PyStrip is str.strip() with Python's whitespace set.
+func PyStrip(s string) string { return pyStrip(s) }
