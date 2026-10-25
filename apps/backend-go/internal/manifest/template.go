@@ -35,14 +35,25 @@ func lookup(path string, ctx map[string]any) any {
 	return cur
 }
 
+func expandEnv(text string, env func(string) string) string {
+	return envRE.ReplaceAllStringFunc(text, func(m string) string {
+		if env == nil {
+			return ""
+		}
+		return env(envRE.FindStringSubmatch(m)[1])
+	})
+}
+
 // RenderString renders {{input.x | default: y}} and ${env:VAR} in one string.
-// The env pass runs after the variable pass, as in Python, so substituted
-// values are env-expanded too.
+//
+// SECURITY: ${env:VAR} is expanded only in manifest-authored literal text.
+// Substituted values (lead data) and defaults are written verbatim, so a lead
+// field containing "${env:SECRET}" can never exfiltrate a secret.
 func RenderString(s string, ctx map[string]any, env func(string) string) string {
 	var b strings.Builder
 	last := 0
 	for _, m := range varRE.FindAllStringSubmatchIndex(s, -1) {
-		b.WriteString(s[last:m[0]])
+		b.WriteString(expandEnv(s[last:m[0]], env))
 		last = m[1]
 		val := lookup(s[m[2]:m[3]], ctx)
 		if str, ok := val.(string); val == nil || (ok && str == "") {
@@ -55,14 +66,8 @@ func RenderString(s string, ctx map[string]any, env func(string) string) string 
 			b.WriteString(pyStr(val))
 		}
 	}
-	b.WriteString(s[last:])
-	s = b.String()
-	return envRE.ReplaceAllStringFunc(s, func(m string) string {
-		if env == nil {
-			return ""
-		}
-		return env(envRE.FindStringSubmatch(m)[1])
-	})
+	b.WriteString(expandEnv(s[last:], env))
+	return b.String()
 }
 
 // Render recursively renders every string leaf of a nested map/list value;

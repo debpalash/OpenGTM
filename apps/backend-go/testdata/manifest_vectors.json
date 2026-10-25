@@ -49,6 +49,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -99,6 +100,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -149,6 +151,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -199,6 +202,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -249,6 +253,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -299,6 +304,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -349,6 +355,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -399,6 +406,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -449,6 +457,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -499,6 +508,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -549,6 +559,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -599,6 +610,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -649,6 +661,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -699,6 +712,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -749,6 +763,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -799,6 +814,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -849,6 +865,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -899,6 +916,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -949,6 +967,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -999,6 +1018,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1049,6 +1069,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1099,6 +1120,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1149,6 +1171,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1199,6 +1222,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1249,6 +1273,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1299,6 +1324,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1349,6 +1375,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1399,6 +1426,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1449,6 +1477,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1499,6 +1528,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1549,6 +1579,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1599,6 +1630,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1649,6 +1681,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1699,6 +1732,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1749,6 +1783,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1799,6 +1834,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1849,6 +1885,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1899,6 +1936,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1949,6 +1987,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -1999,6 +2038,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2049,6 +2089,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2099,6 +2140,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2149,6 +2191,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2199,12 +2242,13 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
     }
    },
-   "expected": "sekret"
+   "expected": "${env:API_KEY}"
   },
   {
    "name": "env_from_input_value",
@@ -2249,12 +2293,268 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
     }
    },
    "expected": ""
+  },
+  {
+   "name": "inject_value_env",
+   "input": "{{input.inj}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "inj": "${env:API_KEY}",
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "${env:API_KEY}"
+  },
+  {
+   "name": "inject_value_env_embedded",
+   "input": "k={{input.inj}}&t=${env:API_KEY}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "inj": "${env:API_KEY}",
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "k=${env:API_KEY}&t=sekret"
+  },
+  {
+   "name": "inject_default_env",
+   "input": "{{input.missing | default: ${env:API_KEY}}}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "inj": "${env:API_KEY}",
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "${env:API_KEY}"
+  },
+  {
+   "name": "inject_default_env_clean",
+   "input": "{{input.missing | default: ${env:API_KEY} }}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "inj": "${env:API_KEY}",
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "{{input.missing | default: sekret }}"
+  },
+  {
+   "name": "inject_literal_after_var",
+   "input": "{{input.inj}}${env:API_KEY}",
+   "ctx": {
+    "input": {
+     "domain": "acme.com",
+     "company": "Acme Inc",
+     "empty": "",
+     "first_name": "Ada",
+     "n_int": 42,
+     "n_zero": 0,
+     "n_float": 1.0,
+     "n_big": 1e+16,
+     "n_small": 1e-05,
+     "n_neg": -2.5,
+     "t": true,
+     "f": false,
+     "nul": null,
+     "uni": "Jos\u00e9 \u5317\u4eac \ud83d\ude00",
+     "quote": "it's",
+     "lst": [
+      1,
+      "a",
+      null,
+      true,
+      1.5
+     ],
+     "dct": {
+      "a": 1,
+      "b": [
+       1,
+       2
+      ],
+      "c": {
+       "d": "x'y"
+      },
+      "e": null
+     },
+     "nested": {
+      "deep": {
+       "k": "v"
+      }
+     },
+     "inj": "${env:API_KEY}",
+     "html": "<a&b>",
+     "nbsp": "a\u00a0b",
+     "ctl": "a\tb\n"
+    }
+   },
+   "expected": "${env:API_KEY}sekret"
   },
   {
    "name": "unterminated",
@@ -2299,6 +2599,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2349,6 +2650,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2399,6 +2701,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2449,6 +2752,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2499,6 +2803,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2549,6 +2854,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2599,6 +2905,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2649,6 +2956,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2699,6 +3007,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2749,6 +3058,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2799,6 +3109,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2849,6 +3160,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2899,6 +3211,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -2964,6 +3277,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -3038,6 +3352,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -3097,6 +3412,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -3147,6 +3463,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -3197,6 +3514,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -3247,6 +3565,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -3299,6 +3618,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -3354,6 +3674,7 @@
        "k": "v"
       }
      },
+     "inj": "${env:API_KEY}",
      "html": "<a&b>",
      "nbsp": "a\u00a0b",
      "ctl": "a\tb\n"
@@ -3365,7 +3686,7 @@
    }
   },
   {
-   "name": "env_in_substituted_value_is_expanded",
+   "name": "no_env_expand_in_substituted_value",
    "input": "{{input.env_ref}}",
    "ctx": {
     "input": {
@@ -3374,7 +3695,7 @@
      "domain": "d.com"
     }
    },
-   "expected": "sekret"
+   "expected": "${env:API_KEY}"
   },
   {
    "name": "no_reexpand_tpl_in_value",

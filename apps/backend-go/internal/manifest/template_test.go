@@ -1,6 +1,7 @@
 package manifest_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
@@ -27,5 +28,24 @@ func TestRenderVectors(t *testing.T) {
 func TestRenderNilEnv(t *testing.T) {
 	if got := manifest.RenderString("[${env:X}]", nil, nil); got != "[]" {
 		t.Fatalf("got %q", got)
+	}
+}
+
+func TestRenderDoesNotExpandEnvInValues(t *testing.T) {
+	env := func(k string) string { return map[string]string{"SECRET": "s3cret"}[k] }
+	ctx := map[string]any{"input": map[string]any{"company": "${env:SECRET}"}}
+	body := manifest.Render(map[string]any{
+		"c":    "{{input.company}}",
+		"d":    "{{input.nope | default: ${env:SECRET}}}",
+		"lit":  "${env:SECRET}",
+		"mix":  "{{input.company}}|${env:SECRET}",
+		"nest": []any{"x={{input.company}}"},
+	}, ctx, env).(map[string]any)
+	want := map[string]any{
+		"c": "${env:SECRET}", "d": "${env:SECRET}", "lit": "s3cret",
+		"mix": "${env:SECRET}|s3cret", "nest": []any{"x=${env:SECRET}"},
+	}
+	if !reflect.DeepEqual(body, want) {
+		t.Fatalf("got %#v\nwant %#v", body, want)
 	}
 }
