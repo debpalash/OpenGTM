@@ -309,6 +309,7 @@ services:
       - SIM_ADDR=:8099
       - SIM_PROFILE=${SIM_PROFILE:-ok}
       - SIM_SEED=${SIM_SEED:-1}
+      - SIM_NOMATCH_EVERY=${SIM_NOMATCH_EVERY:-0}
     restart: "no"
     networks:
       - lead_net

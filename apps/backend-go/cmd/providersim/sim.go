@@ -16,15 +16,18 @@ type Config struct {
 	Profile string        // ok | slow | ratelimit | timeout | malformed
 	Seed    int64         // seeds latency draws
 	Hang    time.Duration // hang duration for the timeout profile
+	// NoMatchEvery > 0 makes every Nth otherwise-healthy call return 200 {"email": null}.
+	NoMatchEvery int
 }
 
 // Sim is an http.Handler implementing the fake provider.
 type Sim struct {
-	cfg      Config
-	mu       sync.Mutex
-	rng      *rand.Rand
-	calls    int
-	byStatus map[string]int
+	cfg       Config
+	mu        sync.Mutex
+	rng       *rand.Rand
+	calls     int
+	byStatus  map[string]int
+	byOutcome map[string]int
 }
 
 // NewSim builds a simulator.
@@ -32,10 +35,27 @@ func NewSim(cfg Config) *Sim {
 	if cfg.Hang == 0 {
 		cfg.Hang = 30 * time.Second
 	}
-	return &Sim{cfg: cfg, rng: rand.New(rand.NewSource(cfg.Seed)), byStatus: map[string]int{}}
+	return &Sim{cfg: cfg, rng: rand.New(rand.NewSource(cfg.Seed)), byStatus: map[string]int{}, byOutcome: newOutcomes()}
+}
+
+// newOutcomes returns the fixed outcome category map (all zero).
+//
+// Categories: ok, no_match (200 with null email), ratelimited (429),
+// timeout (call planned to hang; counted when the hang starts), malformed
+// (truncated JSON body), cancelled (client went away mid-delay or mid-hang;
+// counted in addition to the call's own category).
+func newOutcomes() map[string]int {
+	return map[string]int{"ok": 0, "no_match": 0, "ratelimited": 0, "timeout": 0, "malformed": 0, "cancelled": 0}
+}
+
+func (s *Sim) outcome(name string) {
+	s.mu.Lock()
+	s.byOutcome[name]++
+	s.mu.Unlock()
 }
 
 type plan struct {
+	noMatch   bool
 	n         int
 	delay     time.Duration
 	status    int
@@ -65,6 +85,9 @@ func (s *Sim) plan() plan {
 	case "malformed":
 		p.malformed = n%15 == 0
 	}
+	if s.cfg.NoMatchEvery > 0 && n%s.cfg.NoMatchEvery == 0 {
+		p.noMatch = true
+	}
 	return p
 }
 
@@ -78,7 +101,8 @@ func (s *Sim) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == http.MethodGet && r.URL.Path == "/stats":
 		s.mu.Lock()
-		out := map[string]any{"calls": s.calls, "by_status": s.byStatus}
+		out := map[string]any{"calls": s.calls, "by_status": s.byStatus,
+			"by_outcome": s.byOutcome, "profile": s.cfg.Profile}
 		s.mu.Unlock()
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(out)
@@ -102,28 +126,43 @@ func (s *Sim) emailFinder(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-time.After(p.delay):
 		case <-r.Context().Done():
+			s.outcome("cancelled")
 			return
 		}
 	}
 	if p.hang {
+		s.outcome("timeout")
 		select {
 		case <-time.After(s.cfg.Hang):
 		case <-r.Context().Done():
 			s.record(499)
+			s.outcome("cancelled")
 			return
 		}
 	}
 	if p.malformed {
+		s.outcome("malformed")
 		s.record(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"email": `))
 		return
 	}
 	if p.status != http.StatusOK {
+		s.outcome("ratelimited")
 		s.record(p.status)
 		w.Header().Set("Retry-After", "1")
 		http.Error(w, `{"error":"rate limited"}`, p.status)
 		return
+	}
+	if p.noMatch {
+		s.outcome("no_match")
+		s.record(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"email": null}`))
+		return
+	}
+	if !p.hang {
+		s.outcome("ok")
 	}
 	email := strings.ToLower(in.First+"."+in.Last) + "@" + strings.ToLower(in.Domain)
 	s.record(http.StatusOK)

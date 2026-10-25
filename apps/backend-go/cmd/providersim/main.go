@@ -19,6 +19,9 @@ func main() {
 	if v, err := strconv.ParseInt(os.Getenv("SIM_SEED"), 10, 64); err == nil {
 		cfg.Seed = v
 	}
+	if v, err := strconv.Atoi(os.Getenv("SIM_NOMATCH_EVERY")); err == nil && v > 0 {
+		cfg.NoMatchEvery = v
+	}
 	if d, err := time.ParseDuration(os.Getenv("SIM_HANG")); err == nil {
 		cfg.Hang = d
 	}
