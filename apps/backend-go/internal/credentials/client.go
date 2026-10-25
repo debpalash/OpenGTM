@@ -37,9 +37,19 @@ type Client struct {
 	hc      *http.Client
 	now     func() time.Time
 
-	mu    sync.Mutex
-	cache map[cacheKey]cacheEntry
+	mu     sync.Mutex
+	cache  map[cacheKey]cacheEntry
+	mcache map[string]manifestEntry
 }
+
+type manifestEntry struct {
+	raw     json.RawMessage
+	sha256  string
+	expires time.Time
+}
+
+// ErrManifestNotFound is returned when the API serves no manifest by that name.
+var ErrManifestNotFound = errors.New("credentials: manifest not found")
 
 type cacheKey struct{ workspaceID, envVar string }
 
@@ -55,12 +65,17 @@ func New(baseURL, token string, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = &http.Client{Timeout: requestTimeout}
 	}
+	if httpClient.CheckRedirect == nil {
+		// The bearer token must never follow a redirect to another host.
+		httpClient.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
+	}
 	return &Client{
 		baseURL: strings.TrimRight(baseURL, "/"),
 		token:   token,
 		hc:      httpClient,
 		now:     time.Now,
 		cache:   make(map[cacheKey]cacheEntry),
+		mcache:  make(map[string]manifestEntry),
 	}
 }
 
@@ -137,4 +152,54 @@ func (c *Client) fetch(ctx context.Context, workspaceID, envVar string) (string,
 		return "", fmt.Errorf("credentials: malformed response fetching %s", envVar)
 	}
 	return body.Value, nil
+}
+
+// Manifest fetches the signature-verified manifest the API would execute
+// (GET /internal/v1/manifests/{name}): its JSON (Pydantic model_dump) and
+// sha256. Results are cached for TTL; failures are never cached.
+func (c *Client) Manifest(ctx context.Context, name string) (json.RawMessage, string, error) {
+	if name == "" {
+		return nil, "", errors.New("credentials: manifest name is required")
+	}
+	c.mu.Lock()
+	if e, ok := c.mcache[name]; ok && c.now().Before(e.expires) {
+		c.mu.Unlock()
+		return e.raw, e.sha256, nil
+	}
+	c.mu.Unlock()
+
+	u := c.baseURL + "/internal/v1/manifests/" + url.PathEscape(name)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return nil, "", errors.New("credentials: build request failed")
+	}
+	req.Header.Set("Authorization", "Bearer "+c.token)
+	req.Header.Set("Accept", "application/json")
+	resp, err := c.hc.Do(req)
+	if err != nil {
+		if ctx.Err() != nil {
+			return nil, "", fmt.Errorf("credentials: manifest request for %s aborted: %w", name, ctx.Err())
+		}
+		return nil, "", fmt.Errorf("credentials: transport error fetching manifest %s", name)
+	}
+	defer resp.Body.Close()
+	switch {
+	case resp.StatusCode == http.StatusOK:
+	case resp.StatusCode == http.StatusNotFound:
+		return nil, "", fmt.Errorf("%w: %s", ErrManifestNotFound, name)
+	default:
+		io.Copy(io.Discard, io.LimitReader(resp.Body, maxBody))
+		return nil, "", fmt.Errorf("credentials: unexpected status %d fetching manifest %s", resp.StatusCode, name)
+	}
+	var body struct {
+		Manifest json.RawMessage `json:"manifest"`
+		SHA256   string          `json:"sha256"`
+	}
+	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&body); err != nil || len(body.Manifest) == 0 || body.SHA256 == "" {
+		return nil, "", fmt.Errorf("credentials: malformed manifest response for %s", name)
+	}
+	c.mu.Lock()
+	c.mcache[name] = manifestEntry{raw: body.Manifest, sha256: body.SHA256, expires: c.now().Add(TTL)}
+	c.mu.Unlock()
+	return body.Manifest, body.SHA256, nil
 }

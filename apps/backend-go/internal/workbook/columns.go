@@ -96,21 +96,36 @@ var goColumnTypes = map[string]bool{"enrichment": true, "waterfall": true}
 // here (the workbook may have been edited after enqueue).
 func validateGoColumn(c column) error {
 	if !goColumnTypes[c.Type] {
-		return fmt.Errorf("workbook: column %q type %q is not supported by the go executor", c.ID, c.Type)
+		return refuse("column %q type %q is not supported by the go executor", c.ID, c.Type)
 	}
 	if manifest.PyTruthy(c.cfg["condition"]) {
-		return fmt.Errorf("workbook: column %q has a condition", c.ID)
+		return refuse("column %q has a condition", c.ID)
 	}
 	if refs := columnRefs(c); refs {
-		return fmt.Errorf("workbook: column %q references other columns, which the go executor does not order", c.ID)
+		return refuse("column %q references other columns, which the go executor does not order", c.ID)
 	}
 	t := c.target()
 	if structuredFields[t] {
-		return fmt.Errorf("workbook: column %q targets structured field %q", c.ID, t)
+		return refuse("column %q targets structured field %q", c.ID, t)
 	}
 	if t == "email" {
 		if v, ok := c.cfg["verify"]; !ok || manifest.PyTruthy(v) {
-			return fmt.Errorf("workbook: column %q needs email verification", c.ID)
+			return refuse("column %q needs email verification", c.ID)
+		}
+	}
+	return nil
+}
+
+// checkProviders refuses a column whose provider chain names a provider the
+// payload carries no manifest for (a stale or edited workbook).
+func checkProviders(c column, p *runPayload) error {
+	chain, explicit := c.explicitChain()
+	if !explicit {
+		chain = defaultWaterfalls[c.target()]
+	}
+	for _, name := range chain {
+		if _, ok := p.Manifests[name]; !ok {
+			return refuse("unknown_provider: column %q names %q, which the payload has no manifest for", c.ID, name)
 		}
 	}
 	return nil

@@ -31,6 +31,30 @@ func clampF(v, lo, hi float64) float64 {
 // ErrUnsupportedPayload is returned for a go block the executor must refuse.
 var ErrUnsupportedPayload = errors.New("workbook: unsupported go payload")
 
+// RefusalError is a deterministic refusal discovered before any work began:
+// retrying on Go cannot succeed, so the job is handed back to Python.
+type RefusalError struct{ Reason string }
+
+func (e *RefusalError) Error() string { return "workbook: refused: " + e.Reason }
+
+// ErrHandedBack is returned by Run after it handed the job back to Python;
+// the caller must not finalize (the lease no longer exists).
+var ErrHandedBack = errors.New("workbook: job handed back to python")
+
+func refuse(format string, a ...any) error { return &RefusalError{Reason: fmt.Sprintf(format, a...)} }
+
+// refusalReason classifies err as a deterministic refusal.
+func refusalReason(err error) (string, bool) {
+	var re *RefusalError
+	if errors.As(err, &re) {
+		return re.Reason, true
+	}
+	if errors.Is(err, ErrUnsupportedPayload) {
+		return err.Error(), true
+	}
+	return "", false
+}
+
 type goBlock struct {
 	Version            int                        `json:"version"`
 	Manifests          map[string]json.RawMessage `json:"manifests"`
@@ -69,6 +93,7 @@ type runPayload struct {
 	MaxProviders            int
 	ProviderTimeout         float64
 	Manifests               map[string]manifest.Manifest
+	ManifestSHA256          map[string]string // the payload's claimed hashes
 	Costs                   map[string]float64
 }
 
@@ -93,7 +118,7 @@ func parsePayload(raw []byte) (*runPayload, error) {
 	p := &runPayload{
 		WorkspaceID: rp.WorkspaceID, WorkbookID: rp.WorkbookID,
 		FillMissing: rp.FillMissing, Force: rp.Force,
-		Costs: rp.Go.Costs, Manifests: make(map[string]manifest.Manifest, len(rp.Go.Manifests)),
+		Costs: rp.Go.Costs, ManifestSHA256: rp.Go.ManifestSHA256, Manifests: make(map[string]manifest.Manifest, len(rp.Go.Manifests)),
 		Concurrency: rp.Go.DefaultConcurrency, RetryPasses: 1, ProviderTimeout: defaultProviderTimeout,
 	}
 	if p.Costs == nil {

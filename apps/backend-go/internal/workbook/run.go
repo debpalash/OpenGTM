@@ -36,6 +36,24 @@ func Run(ctx context.Context, deps Deps, c *queue.Claim) (Result, error) {
 	var started bool
 	res, err := run(ctx, deps, c, &started)
 	if err != nil && !started && ctx.Err() == nil && !errors.Is(err, ErrLeaseLost) {
+		if reason, ok := refusalReason(err); ok {
+			// Deterministic refusal: Python runs the job normally. No retry is
+			// spent and the workbook is not marked failed (nothing failed).
+			handed, herr := queue.HandBack(ctx, deps.Pool, c, reason)
+			switch {
+			case herr == nil && handed:
+				if deps.Log != nil {
+					deps.Log.Warn("handed job back to python", "reason", reason)
+				}
+				return res, fmt.Errorf("%w: %s", ErrHandedBack, reason)
+			case herr == nil:
+				return res, ErrLeaseLost
+			default:
+				if deps.Log != nil {
+					deps.Log.Error("hand back failed; failing the job instead", "err", herr)
+				}
+			}
+		}
 		failWorkbook(ctx, deps, c)
 	}
 	return res, err
@@ -80,6 +98,9 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 	if p.WorkspaceID != c.WorkspaceID {
 		return Result{}, errors.New("workbook: payload workspace does not match the claimed job")
 	}
+	if err := verifyManifests(ctx, deps.Manifests, p); err != nil {
+		return Result{}, err
+	}
 	interval := deps.StopCheckInterval
 	if interval <= 0 {
 		interval = defaultStopCheckInterval
@@ -105,6 +126,9 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 	for _, col := range columns {
 		if enrichmentColTypes[col.Type] && (p.ColumnIDs == nil || p.ColumnIDs[col.ID]) {
 			if err := validateGoColumn(col); err != nil {
+				return Result{}, err
+			}
+			if err := checkProviders(col, p); err != nil {
 				return Result{}, err
 			}
 			enrichCols = append(enrichCols, col)

@@ -5,6 +5,7 @@ package workbook_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -21,6 +22,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
@@ -196,11 +198,41 @@ func (e *env) reclaim() *queue.Claim {
 	return c
 }
 
+// manifestSrv serves manifestJSON(name) with the harness hash "deadbeef" (what
+// payloadFor claims), unless a test overrides a name's body or hash.
+type manifestSrv struct {
+	body    map[string]string // per-name body override
+	sha     map[string]string // per-name hash override
+	missing map[string]bool   // per-name 404
+	fail    bool              // transient API failure
+}
+
+func (m manifestSrv) Manifest(_ context.Context, name string) (json.RawMessage, string, error) {
+	if m.fail {
+		return nil, "", errors.New("api down")
+	}
+	if m.missing[name] {
+		return nil, "", credentials.ErrManifestNotFound
+	}
+	body, ok := m.body[name]
+	if !ok {
+		body = manifestJSON(name)
+	}
+	return json.RawMessage(body), orStr(m.sha[name], "deadbeef"), nil
+}
+
+func orStr(s, d string) string {
+	if s == "" {
+		return d
+	}
+	return s
+}
+
 func (e *env) deps(s *sim, pub progress.Publisher) workbook.Deps {
 	if pub == nil {
 		pub = progress.Nop{}
 	}
-	return workbook.Deps{Pool: e.pool, Client: s.client(), Progress: pub, Log: slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError})),
+	return workbook.Deps{Pool: e.pool, Client: s.client(), Progress: pub, Manifests: manifestSrv{}, Log: slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError})),
 		StopCheckInterval: 20 * time.Millisecond}
 }
 

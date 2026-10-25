@@ -42,13 +42,6 @@ WHERE id = sqlc.arg(id) AND worker_id = sqlc.arg(worker_id)::text
   AND locked_at = sqlc.arg(locked_at) AND lease_token = sqlc.arg(lease_token)
   AND status = 'processing';
 
--- name: LeaseIsProcessing :one
-SELECT EXISTS (
-  SELECT 1 FROM jobs
-  WHERE id = sqlc.arg(id) AND worker_id = sqlc.arg(worker_id)::text
-    AND locked_at = sqlc.arg(locked_at) AND lease_token = sqlc.arg(lease_token)
-    AND status = 'processing');
-
 -- name: LockLeaseForFinalize :one
 SELECT status, retry_count, max_retries, completed_at
 FROM jobs
@@ -93,3 +86,13 @@ SELECT EXISTS (
   WHERE id = sqlc.arg(id) AND worker_id = sqlc.arg(worker_id)::text
     AND locked_at = sqlc.arg(locked_at) AND lease_token = sqlc.arg(lease_token)
     AND status = 'cancelled');
+
+-- name: HandBackToPython :execrows
+-- Deterministic refusal before any work: give the job to the Python executor
+-- without spending a retry (retry_count is left alone) and without a failure.
+UPDATE jobs SET executor = 'python', status = 'pending', worker_id = NULL, locked_at = NULL,
+    started_at = NULL, last_heartbeat = NULL, next_run_at = (now() AT TIME ZONE 'UTC'),
+    error = sqlc.arg(error)::text
+WHERE id = sqlc.arg(id) AND worker_id = sqlc.arg(worker_id)::text
+  AND locked_at = sqlc.arg(locked_at) AND lease_token = sqlc.arg(lease_token)
+  AND status = 'processing';

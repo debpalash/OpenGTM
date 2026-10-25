@@ -172,6 +172,39 @@ func (q *Queries) FinalizeRetry(ctx context.Context, arg FinalizeRetryParams) (i
 	return result.RowsAffected(), nil
 }
 
+const handBackToPython = `-- name: HandBackToPython :execrows
+UPDATE jobs SET executor = 'python', status = 'pending', worker_id = NULL, locked_at = NULL,
+    started_at = NULL, last_heartbeat = NULL, next_run_at = (now() AT TIME ZONE 'UTC'),
+    error = $1::text
+WHERE id = $2 AND worker_id = $3::text
+  AND locked_at = $4 AND lease_token = $5
+  AND status = 'processing'
+`
+
+type HandBackToPythonParams struct {
+	Error      string
+	ID         int32
+	WorkerID   string
+	LockedAt   pgtype.Timestamp
+	LeaseToken int64
+}
+
+// Deterministic refusal before any work: give the job to the Python executor
+// without spending a retry (retry_count is left alone) and without a failure.
+func (q *Queries) HandBackToPython(ctx context.Context, arg HandBackToPythonParams) (int64, error) {
+	result, err := q.db.Exec(ctx, handBackToPython,
+		arg.Error,
+		arg.ID,
+		arg.WorkerID,
+		arg.LockedAt,
+		arg.LeaseToken,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const heartbeatLease = `-- name: HeartbeatLease :execrows
 UPDATE jobs SET last_heartbeat = (now() AT TIME ZONE 'UTC')
 WHERE id = $1 AND worker_id = $2::text
@@ -216,33 +249,6 @@ type LeaseIsCancelledParams struct {
 
 func (q *Queries) LeaseIsCancelled(ctx context.Context, arg LeaseIsCancelledParams) (bool, error) {
 	row := q.db.QueryRow(ctx, leaseIsCancelled,
-		arg.ID,
-		arg.WorkerID,
-		arg.LockedAt,
-		arg.LeaseToken,
-	)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
-}
-
-const leaseIsProcessing = `-- name: LeaseIsProcessing :one
-SELECT EXISTS (
-  SELECT 1 FROM jobs
-  WHERE id = $1 AND worker_id = $2::text
-    AND locked_at = $3 AND lease_token = $4
-    AND status = 'processing')
-`
-
-type LeaseIsProcessingParams struct {
-	ID         int32
-	WorkerID   string
-	LockedAt   pgtype.Timestamp
-	LeaseToken int64
-}
-
-func (q *Queries) LeaseIsProcessing(ctx context.Context, arg LeaseIsProcessingParams) (bool, error) {
-	row := q.db.QueryRow(ctx, leaseIsProcessing,
 		arg.ID,
 		arg.WorkerID,
 		arg.LockedAt,

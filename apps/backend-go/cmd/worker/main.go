@@ -183,6 +183,12 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 	cancel(nil)
 	wg.Wait()
 
+	if errors.Is(runErr, workbook.ErrHandedBack) {
+		// The executor already returned the job to Python with a fenced
+		// update; finalizing would fail a job that is now pending elsewhere.
+		log.Warn("job handed back to python", "reason", runErr.Error())
+		return
+	}
 	if ctx.Err() != nil {
 		log.Warn("shutdown: leaving claim for reaper")
 		return
@@ -208,11 +214,13 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 // blocks a job before it runs, honored only when APP_ENV=test (interop tests
 // SIGKILL the worker during the block).
 func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runner, func(), error) {
+	api := credentials.New(cfg.InternalAPIURL, cfg.InternalServiceToken, nil)
 	deps := workbook.Deps{
-		Pool:   pool,
-		Client: egress.NewClientForEnv(cfg.AppEnv, cfg.EgressAllowHosts),
-		Creds:  credentials.New(cfg.InternalAPIURL, cfg.InternalServiceToken, nil),
-		Log:    log,
+		Pool:      pool,
+		Client:    egress.NewClientForEnv(cfg.AppEnv, cfg.EgressAllowHosts),
+		Creds:     api,
+		Manifests: api,
+		Log:       log,
 	}
 	closeFn := func() {}
 	if cfg.RedisURL != "" {

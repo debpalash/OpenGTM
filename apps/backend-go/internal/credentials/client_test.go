@@ -2,6 +2,7 @@ package credentials
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -188,5 +189,55 @@ func TestRequiresIDs(t *testing.T) {
 func TestDefaultClientTimeout(t *testing.T) {
 	if New("http://x", tok, nil).hc.Timeout != 5*time.Second {
 		t.Fatal("default client must have a 5s timeout")
+	}
+}
+
+func TestManifestFetchCachesAndSendsBearer(t *testing.T) {
+	var hits int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&hits, 1)
+		if r.Header.Get("Authorization") != "Bearer "+tok {
+			w.WriteHeader(401)
+			return
+		}
+		if r.URL.Path != "/internal/v1/manifests/vend" {
+			w.WriteHeader(404)
+			return
+		}
+		w.Write([]byte(`{"manifest":{"name":"vend"},"sha256":"abc"}`))
+	}))
+	defer srv.Close()
+	c := New(srv.URL, tok, nil)
+	raw, sha, err := c.Manifest(context.Background(), "vend")
+	if err != nil || sha != "abc" || string(raw) != `{"name":"vend"}` {
+		t.Fatalf("%s %s %v", raw, sha, err)
+	}
+	if _, _, err := c.Manifest(context.Background(), "vend"); err != nil || atomic.LoadInt32(&hits) != 1 {
+		t.Fatalf("not cached: hits=%d err=%v", hits, err)
+	}
+	if _, _, err := c.Manifest(context.Background(), "nope"); !errors.Is(err, ErrManifestNotFound) {
+		t.Fatalf("got %v", err)
+	}
+}
+
+func TestDoesNotFollowRedirects(t *testing.T) {
+	var evil int32
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&evil, 1)
+	}))
+	defer target.Close()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, target.URL+"/steal", http.StatusFound)
+	}))
+	defer srv.Close()
+	c := New(srv.URL, tok, nil)
+	if _, err := c.Get(context.Background(), "ws", "VEND_KEY"); err == nil {
+		t.Fatal("redirect response must be an error")
+	}
+	if _, _, err := c.Manifest(context.Background(), "vend"); err == nil {
+		t.Fatal("redirect response must be an error")
+	}
+	if atomic.LoadInt32(&evil) != 0 {
+		t.Fatal("redirect was followed with the bearer token")
 	}
 }

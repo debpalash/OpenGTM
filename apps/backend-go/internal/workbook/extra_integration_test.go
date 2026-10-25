@@ -5,6 +5,7 @@ package workbook_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"testing"
@@ -86,9 +87,9 @@ func TestFreeTimeoutFallsThroughAndBenchesProvider(t *testing.T) {
 	}
 }
 
-func TestProviderPriceUnknownAndUnknownProvider(t *testing.T) {
+func TestProviderPriceUnknown(t *testing.T) {
 	e := setup(t, wsA)
-	e.seed(wsA, "wb-pu", "["+colJSON("c1", "nocost")+","+colJSON("c2", "ghost")+"]", 1, 0)
+	e.seed(wsA, "wb-pu", "["+colJSON("c1", "nocost")+"]", 1, 0)
 	raw := payloadFor(wsA, "wb-pu", map[string]float64{"nocost": 0}, nil)
 	var p map[string]any
 	_ = json.Unmarshal(raw, &p)
@@ -97,17 +98,11 @@ func TestProviderPriceUnknownAndUnknownProvider(t *testing.T) {
 	s := newSim(t, nil)
 	c := e.claim(wsA, raw)
 	res, err := workbook.Run(e.ctx, e.deps(s, nil), c)
-	if err != nil || res.Errors != 2 || s.total() != 0 {
+	if err != nil || res.Errors != 1 || s.total() != 0 {
 		t.Fatalf("%+v calls=%d err=%v", res, s.total(), err)
 	}
 	if msg := e.str(wsA, `SELECT error FROM workbook_enrichments WHERE column_id='c1'`); msg != "provider_price_unknown" {
 		t.Fatalf("c1: %q", msg)
-	}
-	if msg := e.str(wsA, `SELECT error FROM workbook_enrichments WHERE column_id='c2'`); msg != "providers_unavailable: ghost (unknown_provider)" {
-		t.Fatalf("c2: %q", msg)
-	}
-	if v := e.str(wsA, `SELECT enrichments::jsonb->'c2'->'skipped_providers'->0->>'reason' FROM workbook_rows`); v != "unknown_provider" {
-		t.Fatalf("overlay skipped_providers: %q", v)
 	}
 }
 
@@ -167,7 +162,7 @@ func TestHandlerPersistsReceiptForOwningLease(t *testing.T) {
 	}
 }
 
-func TestRefusesNonV1Payload(t *testing.T) {
+func TestRefusesNonV1PayloadAndHandsBack(t *testing.T) {
 	e := setup(t, wsA)
 	e.seed(wsA, "wb-v2", "["+colJSON("c1", "free1")+"]", 1, 0)
 	raw := payloadFor(wsA, "wb-v2", map[string]float64{"free1": 0}, nil)
@@ -177,15 +172,15 @@ func TestRefusesNonV1Payload(t *testing.T) {
 	raw, _ = json.Marshal(p)
 	s := newSim(t, nil)
 	_, err := workbook.Run(e.ctx, e.deps(s, nil), e.claim(wsA, raw))
-	if err == nil || s.total() != 0 {
-		t.Fatalf("v2 payload must fail the job before any work: %v", err)
+	if !errors.Is(err, workbook.ErrHandedBack) || s.total() != 0 {
+		t.Fatalf("v2 payload must be handed back before any work: %v", err)
 	}
 	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments`); n != 0 {
 		t.Fatal("cells written")
 	}
 }
 
-func TestRefusalFailsWorkbookButKeepsPauseAndCancelLeavesRunning(t *testing.T) {
+func TestPreWorkFailureFailsWorkbookButKeepsPauseAndCancelLeavesRunning(t *testing.T) {
 	e := setup(t, wsA)
 	set := func(wb, status string) {
 		e.inWS(wsA, func(tx pgx.Tx) error {
@@ -193,20 +188,18 @@ func TestRefusalFailsWorkbookButKeepsPauseAndCancelLeavesRunning(t *testing.T) {
 			return err
 		})
 	}
-	bad := func(wb string) []byte {
-		raw := payloadFor(wsA, wb, map[string]float64{"free1": 0}, nil)
-		var p map[string]any
-		_ = json.Unmarshal(raw, &p)
-		p["go"].(map[string]any)["version"] = 2
-		raw, _ = json.Marshal(p)
-		return raw
+	// A transient (non-refusal) failure before the run loop: the manifest API is down.
+	bad := func(wb string) []byte { return payloadFor(wsA, wb, map[string]float64{"free1": 0}, nil) }
+	down := func() workbook.Deps {
+		d := e.deps(newSim(t, nil), nil)
+		d.Manifests = manifestSrv{fail: true}
+		return d
 	}
-	s := newSim(t, nil)
 
-	// Terminal refusal while /run left the workbook `running`: it must not stay so.
+	// Pre-work failure while /run left the workbook `running`: it must not stay so.
 	e.seed(wsA, "wb-rf1", "["+colJSON("c1", "free1")+"]", 1, 0)
 	set("wb-rf1", "running")
-	if _, err := workbook.Run(e.ctx, e.deps(s, nil), e.claim(wsA, bad("wb-rf1"))); err == nil {
+	if _, err := workbook.Run(e.ctx, down(), e.claim(wsA, bad("wb-rf1"))); err == nil {
 		t.Fatal("expected refusal")
 	}
 	if st := e.str(wsA, `SELECT status FROM workbooks WHERE id='wb-rf1'`); st != "failed" {
@@ -219,7 +212,7 @@ func TestRefusalFailsWorkbookButKeepsPauseAndCancelLeavesRunning(t *testing.T) {
 	if _, err := e.pool.Exec(e.ctx, `DELETE FROM jobs`); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := workbook.Run(e.ctx, e.deps(s, nil), e.claim(wsA, bad("wb-rf2"))); err == nil {
+	if _, err := workbook.Run(e.ctx, down(), e.claim(wsA, bad("wb-rf2"))); err == nil {
 		t.Fatal("expected refusal")
 	}
 	if st := e.str(wsA, `SELECT status FROM workbooks WHERE id='wb-rf2'`); st != "paused" {

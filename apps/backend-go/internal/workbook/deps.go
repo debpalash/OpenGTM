@@ -2,6 +2,7 @@ package workbook
 
 import (
 	"context"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"sync"
@@ -18,13 +19,23 @@ type CredentialSource interface {
 	Get(ctx context.Context, workspaceID, envVar string) (string, error)
 }
 
+// ManifestSource serves the signature-verified manifest for a provider name
+// together with its sha256 (credentials.Client). credentials.ErrManifestNotFound
+// is a definitive "no such manifest"; any other error is transient.
+type ManifestSource interface {
+	Manifest(ctx context.Context, name string) (raw json.RawMessage, sha256 string, err error)
+}
+
 // Deps are the executor's collaborators.
 type Deps struct {
-	Pool     *pgxpool.Pool
-	Client   *http.Client // SSRF-guarded egress client (egress.NewClientForEnv)
-	Creds    CredentialSource
-	Progress progress.Publisher // nil = no broadcasts
-	Log      *slog.Logger
+	Pool   *pgxpool.Pool
+	Client *http.Client // SSRF-guarded egress client (egress.NewClientForEnv)
+	Creds  CredentialSource
+	// Manifests is required: the payload's manifests are only claims, and the
+	// executor runs the fetched copy whose sha256 matches the payload's.
+	Manifests ManifestSource
+	Progress  progress.Publisher // nil = no broadcasts
+	Log       *slog.Logger
 	// StopCheckInterval throttles the pause/cancel probe (Python: ~2s).
 	StopCheckInterval time.Duration
 }
