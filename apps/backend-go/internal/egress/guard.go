@@ -17,8 +17,16 @@ import (
 // ErrBlocked is wrapped by every rejection so callers can errors.Is it.
 var ErrBlocked = errors.New("egress: blocked")
 
+// BlockedError is the typed rejection. Reason is byte-identical to the
+// message of Python's BlockedUrlError (callers surface it verbatim, e.g.
+// "blocked_url: <Reason[:60]>"); Error() adds a prefix for logs only.
+type BlockedError struct{ Reason string }
+
+func (e *BlockedError) Error() string        { return ErrBlocked.Error() + ": " + e.Reason }
+func (e *BlockedError) Is(target error) bool { return target == ErrBlocked }
+
 func blocked(format string, a ...any) error {
-	return fmt.Errorf("%w: %s", ErrBlocked, fmt.Sprintf(format, a...))
+	return &BlockedError{Reason: fmt.Sprintf(format, a...)}
 }
 
 var blockedHostnames = map[string]struct{}{
@@ -153,7 +161,7 @@ func checkURL(raw string, allowHTTP bool, allow map[string]struct{}) error {
 	}
 	scheme := strings.ToLower(u.Scheme)
 	if scheme != "https" && !(allowHTTP && scheme == "http") {
-		return blocked("scheme %q not allowed", scheme)
+		return blocked("scheme '%s' not allowed", scheme)
 	}
 	host := strings.ToLower(u.Hostname())
 	if host == "" {
@@ -163,10 +171,10 @@ func checkURL(raw string, allowHTTP bool, allow map[string]struct{}) error {
 		return nil
 	}
 	if _, ok := blockedHostnames[host]; ok {
-		return blocked("host %q is blocked", host)
+		return blocked("host '%s' is blocked", host)
 	}
 	if ip, ok := parseIPAnyEncoding(host); ok && IsBlockedIP(ip) {
-		return blocked("ip %s is private/blocked", ip)
+		return blocked("ip '%s' is private/blocked", ip)
 	}
 	return nil
 }

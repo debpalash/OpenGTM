@@ -65,7 +65,7 @@ func guardedDial(allow map[string]struct{}, res resolver, dial dialFunc) dialFun
 			return dial(ctx, network, addr)
 		}
 		if _, ok := blockedHostnames[host]; ok {
-			return nil, blocked("host %q is blocked", host)
+			return nil, blocked("host '%s' is blocked", host)
 		}
 		var ips []netip.Addr
 		if ip, ok := parseIPAnyEncoding(host); ok {
@@ -78,7 +78,7 @@ func guardedDial(allow map[string]struct{}, res resolver, dial dialFunc) dialFun
 		}
 		for _, ip := range ips {
 			if IsBlockedIP(ip) {
-				return nil, blocked("host %q resolves to private ip %s", host, ip)
+				return nil, blocked("host resolves to private ip %s", ip)
 			}
 		}
 		var lastErr error

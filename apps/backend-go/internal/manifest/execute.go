@@ -23,6 +23,13 @@ const maxBodyBytes = 1 << 20
 // response onto flat enrichment fields. cred resolves ${env:VAR} references and
 // the auth key; an error or empty value counts as missing. Error strings match
 // the Python DeclarativeProvider.enrich contract.
+//
+// cred contract: the implementation (Task 11's credentials client) must resolve
+// settings-DB-first, then environment, like Python's _default_env_resolver, and
+// swallow lookup errors itself where Python would. Execute additionally maps
+// ANY error or empty value from cred to the Python "<name>: missing <ENV>"
+// result (for auth.env_var) or "" (in templates), and makes no network call
+// when the auth key is missing. A nil cred resolves everything to "".
 func Execute(ctx context.Context, client *http.Client, m Manifest, lead map[string]string, cred func(envVar string) (string, error)) Result {
 	t0 := time.Now()
 	allowed := allowedEnvNames(m)
@@ -80,7 +87,7 @@ func Execute(ctx context.Context, client *http.Client, m Manifest, lead map[stri
 
 	// SSRF guard on the templated URL; DNS vetting happens at dial time.
 	if err := egress.CheckURL(target, true); err != nil {
-		return Result{Error: "blocked_url: " + truncRunes(err.Error(), 60)}
+		return Result{Error: "blocked_url: " + truncRunes(blockedReason(err), 60)}
 	}
 
 	rctx := ctx
@@ -236,4 +243,14 @@ func allowedEnvNames(m Manifest) map[string]struct{} {
 	walk(m.Request.BodyTemplate)
 	walk(m.Auth.Value)
 	return names
+}
+
+// blockedReason returns the egress guard's reason text, which is byte-identical
+// to Python's BlockedUrlError message (no "egress: blocked: " log prefix).
+func blockedReason(err error) string {
+	var be *egress.BlockedError
+	if errors.As(err, &be) {
+		return be.Reason
+	}
+	return err.Error()
 }

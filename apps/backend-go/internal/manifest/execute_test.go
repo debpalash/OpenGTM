@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -259,5 +261,51 @@ func TestManifestDefaultsAndNumbers(t *testing.T) {
 	manifest.Execute(context.Background(), clientTo(srv), m, nil, nil)
 	if strings.Join(got, ",") != "1,1.0,True,None" {
 		t.Fatalf("%v", got)
+	}
+}
+
+type blockedVec struct {
+	Name      string `json:"name"`
+	URL       string `json:"url"`
+	AllowHTTP bool   `json:"allow_http"`
+	Reason    string `json:"reason"`
+	Error     string `json:"error"`
+}
+
+func TestBlockedURLVectors(t *testing.T) {
+	raw, err := os.ReadFile("../../testdata/manifest_vectors.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var f struct {
+		Blocked []blockedVec `json:"blocked_url"`
+	}
+	if err := json.Unmarshal(raw, &f); err != nil {
+		t.Fatal(err)
+	}
+	if len(f.Blocked) < 20 {
+		t.Fatalf("only %d vectors", len(f.Blocked))
+	}
+	var hits atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits.Add(1) }))
+	defer srv.Close()
+	for _, v := range f.Blocked {
+		// Guard level: Reason must equal Python's BlockedUrlError message.
+		var be *egress.BlockedError
+		if err := egress.CheckURL(v.URL, v.AllowHTTP); !errors.As(err, &be) || be.Reason != v.Reason || !errors.Is(err, egress.ErrBlocked) {
+			t.Errorf("%s: CheckURL err=%v want reason %q", v.Name, err, v.Reason)
+		}
+		if !v.AllowHTTP {
+			continue // Execute always passes allow_http=true
+		}
+		m := mk(t, `{"name":"v","capability":"c","request":{"url":"x"},"response":{"mappings":{"a":"$.a"}}}`)
+		m.Request.URL = v.URL
+		res := manifest.Execute(context.Background(), clientTo(srv), m, nil, nil)
+		if res.Success || res.Error != v.Error {
+			t.Errorf("%s: got %q want %q", v.Name, res.Error, v.Error)
+		}
+	}
+	if hits.Load() != 0 {
+		t.Fatalf("network hit %d times", hits.Load())
 	}
 }

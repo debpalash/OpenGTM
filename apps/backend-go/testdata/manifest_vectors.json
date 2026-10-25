@@ -12315,5 +12315,154 @@
     "phone": ""
    }
   }
+ ],
+ "blocked_url": [
+  {
+   "name": "ftp_scheme",
+   "url": "ftp://example.com/x",
+   "allow_http": true,
+   "reason": "scheme 'ftp' not allowed",
+   "error": "blocked_url: scheme 'ftp' not allowed"
+  },
+  {
+   "name": "file_scheme",
+   "url": "file:///etc/passwd",
+   "allow_http": true,
+   "reason": "scheme 'file' not allowed",
+   "error": "blocked_url: scheme 'file' not allowed"
+  },
+  {
+   "name": "no_scheme",
+   "url": "example.com/x",
+   "allow_http": true,
+   "reason": "scheme '' not allowed",
+   "error": "blocked_url: scheme '' not allowed"
+  },
+  {
+   "name": "http_when_disallowed",
+   "url": "http://example.com/x",
+   "allow_http": false,
+   "reason": "scheme 'http' not allowed",
+   "error": "blocked_url: scheme 'http' not allowed"
+  },
+  {
+   "name": "localhost",
+   "url": "http://localhost:8080/x",
+   "allow_http": true,
+   "reason": "host 'localhost' is blocked",
+   "error": "blocked_url: host 'localhost' is blocked"
+  },
+  {
+   "name": "localhost_upper",
+   "url": "http://LOCALHOST/x",
+   "allow_http": true,
+   "reason": "host 'localhost' is blocked",
+   "error": "blocked_url: host 'localhost' is blocked"
+  },
+  {
+   "name": "metadata_google",
+   "url": "https://metadata.google.internal/computeMetadata/v1/",
+   "allow_http": true,
+   "reason": "host 'metadata.google.internal' is blocked",
+   "error": "blocked_url: host 'metadata.google.internal' is blocked"
+  },
+  {
+   "name": "metadata_short",
+   "url": "http://metadata/x",
+   "allow_http": true,
+   "reason": "host 'metadata' is blocked",
+   "error": "blocked_url: host 'metadata' is blocked"
+  },
+  {
+   "name": "private_10",
+   "url": "http://10.0.0.1/",
+   "allow_http": true,
+   "reason": "ip '10.0.0.1' is private/blocked",
+   "error": "blocked_url: ip '10.0.0.1' is private/blocked"
+  },
+  {
+   "name": "private_192",
+   "url": "https://192.168.1.5/a",
+   "allow_http": true,
+   "reason": "ip '192.168.1.5' is private/blocked",
+   "error": "blocked_url: ip '192.168.1.5' is private/blocked"
+  },
+  {
+   "name": "loopback",
+   "url": "http://127.0.0.1:9000/",
+   "allow_http": true,
+   "reason": "ip '127.0.0.1' is private/blocked",
+   "error": "blocked_url: ip '127.0.0.1' is private/blocked"
+  },
+  {
+   "name": "metadata_ip",
+   "url": "http://169.254.169.254/latest/meta-data/",
+   "allow_http": true,
+   "reason": "ip '169.254.169.254' is private/blocked",
+   "error": "blocked_url: ip '169.254.169.254' is private/blocked"
+  },
+  {
+   "name": "ipv6_loopback",
+   "url": "http://[::1]/x",
+   "allow_http": true,
+   "reason": "ip '::1' is private/blocked",
+   "error": "blocked_url: ip '::1' is private/blocked"
+  },
+  {
+   "name": "ipv4_mapped",
+   "url": "http://[::ffff:10.0.0.1]/x",
+   "allow_http": true,
+   "reason": "ip '::ffff:10.0.0.1' is private/blocked",
+   "error": "blocked_url: ip '::ffff:10.0.0.1' is private/blocked"
+  },
+  {
+   "name": "decimal_ip",
+   "url": "http://2130706433/",
+   "allow_http": true,
+   "reason": "ip '127.0.0.1' is private/blocked",
+   "error": "blocked_url: ip '127.0.0.1' is private/blocked"
+  },
+  {
+   "name": "hex_ip",
+   "url": "http://0x7f000001/",
+   "allow_http": true,
+   "reason": "ip '127.0.0.1' is private/blocked",
+   "error": "blocked_url: ip '127.0.0.1' is private/blocked"
+  },
+  {
+   "name": "octal_dotted",
+   "url": "http://0177.0.0.1/",
+   "allow_http": true,
+   "reason": "ip '127.0.0.1' is private/blocked",
+   "error": "blocked_url: ip '127.0.0.1' is private/blocked"
+  },
+  {
+   "name": "unspecified",
+   "url": "http://0.0.0.0/",
+   "allow_http": true,
+   "reason": "ip '0.0.0.0' is private/blocked",
+   "error": "blocked_url: ip '0.0.0.0' is private/blocked"
+  },
+  {
+   "name": "no_host",
+   "url": "https:///path",
+   "allow_http": true,
+   "reason": "no host",
+   "error": "blocked_url: no host"
+  },
+  {
+   "name": "empty",
+   "url": "",
+   "allow_http": true,
+   "reason": "empty url",
+   "error": "blocked_url: empty url"
+  },
+  {
+   "name": "long_scheme_truncated",
+   "url": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx://a.com",
+   "allow_http": true,
+   "reason": "scheme 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' not allowed",
+   "error": "blocked_url: scheme 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  }
  ]
 }
