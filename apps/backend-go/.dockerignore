@@ -1,0 +1,7 @@
+.git
+*.test
+*.out
+coverage*
+*.coverprofile
+.env
+.env.*
