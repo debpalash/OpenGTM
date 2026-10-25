@@ -107,3 +107,43 @@ jobs:
             tests/test_workbook_socket_browser.py \
             tests/test_lead_selection_browser.py \
             tests/test_workbook_clipboard_browser.py
+
+  go:
+    name: Go backend (vet, sqlc, tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: opengtm_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d opengtm_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/opengtm_test
+    defaults:
+      run:
+        working-directory: apps/backend-go
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: apps/backend-go/go.mod
+          cache-dependency-path: apps/backend-go/go.sum
+      # Alembic lives in the Python backend, so CI checks the committed schema.sql
+      # (regenerated locally via scripts/go_schema_dump.sh) rather than regenerating it.
+      - name: Apply committed schema
+        run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q -f internal/db/schema.sql
+      - run: go tool sqlc diff
+      - run: go vet ./...
+      - run: go test -race ./...
+      - run: go test -race -tags integration ./...
