@@ -247,3 +247,40 @@ func TestListLeadsOrderByInjectionFallsBackToDefault(t *testing.T) {
 		t.Error("data changed by injection attempts")
 	}
 }
+
+// ownerExec runs SQL as the database owner (RLS bypass), for seeding foreign leftovers and sequence state.
+func ownerExec(t *testing.T, sql string, args ...any) {
+	t.Helper()
+	ctx := context.Background()
+	c, err := pgx.Connect(ctx, os.Getenv("TEST_DATABASE_URL"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close(ctx)
+	if _, err := c.Exec(ctx, sql, args...); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// leftoverLead simulates a row another test file left behind with an explicit id.
+func leftoverLead(t *testing.T, id int) {
+	t.Helper()
+	ownerExec(t, `INSERT INTO leads (id, workspace_id, company) VALUES ($1, 'ws-leftover-p05', 'leftover')`, id)
+	t.Cleanup(func() { ownerExec(t, `DELETE FROM leads WHERE workspace_id = 'ws-leftover-p05'`) })
+}
+
+// The leads id serial must never hand out an id that already exists (seedLeads inserts ids 1-18
+// explicitly and other test files leave rows with explicit ids), whatever order tests run in.
+func TestLeadsEnvSequenceClearsExistingIds(t *testing.T) {
+	ownerExec(t, `SELECT setval(pg_get_serial_sequence('leads','id'), 1, false)`)
+	leftoverLead(t, 1001)
+	leftoverLead2 := func() { ownerExec(t, `INSERT INTO leads (id, workspace_id, company) VALUES (5000, 'ws-leftover-p05', 'leftover2')`) }
+	leftoverLead2()
+	for name, mk := range map[string]func(*testing.T) leadsEnv{"newLeadsEnv": newLeadsEnv, "newWriteEnv": newWriteEnv} {
+		t.Run(name, func(t *testing.T) {
+			e := mk(t)
+			e.exec(t, "ws-alpha", `INSERT INTO leads (workspace_id, company, city, score, status, source)
+				SELECT 'ws-alpha', 'seqcheck ' || g, 'seqcity', 1, 'new', 'x' FROM generate_series(1, 6000) g`)
+		})
+	}
+}
