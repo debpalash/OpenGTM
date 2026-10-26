@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 	"unicode/utf8"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -23,7 +24,8 @@ func RegisterWorkbookDetail(r *httpx.Router, d Deps) {
 	if d.Pool == nil || !d.workbooksEnabled("workbook detail") {
 		return
 	}
-	h := wbCRUDRoutes{d: d, svc: &wbcrud.Service{Pool: d.Pool, Leads: wbcrud.PGLeads{}}}
+	h := wbCRUDRoutes{d: d, svc: &wbcrud.Service{Pool: d.Pool, Leads: wbcrud.PGLeads{}},
+		exports: newExportLimiter(d.Flags.ExportMaxConcurrent, d.Flags.ExportMaxPerWorkspace)}
 	authn := identity.Authenticate(d.Signer, d.Identity)
 	workspace := identity.Workspace(d.Identity)
 	r.Handle("GET /api/workbooks/{workbook_id}", http.HandlerFunc(h.detail), authn, workspace)
@@ -188,13 +190,23 @@ func (h wbCRUDRoutes) exportCSV(w http.ResponseWriter, r *http.Request) {
 	if v.fail(w) {
 		return
 	}
+	release, ok := h.exports.tryAcquire(h.wsID(r))
+	if !ok {
+		httpx.Detail(w, http.StatusTooManyRequests, "Too many exports in progress", httpx.Header{Key: "Retry-After", Value: "5"})
+		return
+	}
+	defer release()
+	timeout := defaultExportWriteTimeout
+	if s := h.d.Flags.ExportWriteTimeoutSeconds; s > 0 {
+		timeout = time.Duration(s) * time.Second
+	}
 	opened := false
 	err := h.svc.ExportCSV(r.Context(), h.wsID(r), r.PathValue("workbook_id"), p, func(filename string) io.Writer {
 		opened = true
 		w.Header().Set("Content-Type", "text/csv; charset=utf-8")
 		w.Header().Set("Content-Disposition", `attachment; filename="`+filename+`.csv"`)
 		w.WriteHeader(http.StatusOK)
-		return w
+		return newDeadlineWriter(w, timeout)
 	})
 	if err == nil {
 		return

@@ -40,8 +40,9 @@ func RegisterWorkbooks(r *httpx.Router, d Deps) {
 }
 
 type wbCRUDRoutes struct {
-	d   Deps
-	svc *wbcrud.Service
+	d       Deps
+	svc     *wbcrud.Service
+	exports *exportLimiter // set by RegisterWorkbookDetail
 }
 
 // wsID returns the caller's workspace id (set by identity.Workspace).

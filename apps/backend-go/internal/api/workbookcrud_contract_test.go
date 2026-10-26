@@ -167,6 +167,8 @@ var uncoveredGuardAllowlist = map[string]string{
 	"Invalid request body":         "shared decode fallback",
 	"Request body too large":       "Go-only hardening (README deviations)",
 	"Too many imports in progress": "Go-only import memory budget (README deviations)",
+	"Too many exports in progress": "Go-only export concurrency cap (README deviations)",
+	"Too many uploads in progress": "Go-only shared upload budget for add rows and workbook create/update (README deviations)",
 
 	"Cannot delete the data directory": "hardened files delete (README deviations)",
 	"Directory is not empty":           "hardened files delete (README deviations)",
