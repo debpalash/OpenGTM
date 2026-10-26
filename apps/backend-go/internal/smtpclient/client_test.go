@@ -275,3 +275,57 @@ func TestNilDialRefused(t *testing.T) {
 		t.Fatal("nil Dial must be refused, never fall back to an unguarded dialer")
 	}
 }
+
+func TestClientGeneratedErrorsNeverHardBounce(t *testing.T) {
+	var errs []error
+	send := func(c *Client, cfg Config, ctx context.Context) {
+		_, err := c.Send(ctx, cfg, "me@sender.example", "you@dest.example", testMsg)
+		if err == nil {
+			t.Fatal("want error")
+		}
+		errs = append(errs, err)
+	}
+	bare := testsmtp.New(t, testsmtp.Options{NoSTARTTLS: true})
+	send(newClient(bare.CertPool(), "localhost"), cfgFor(bare, 587, true), context.Background())
+	send(newClient(bare.CertPool()), cfgFor(bare, 25, false), context.Background())
+	send(newClient(bare.CertPool()), cfgFor(bare, 2525, true), context.Background())
+	nodial := cfgFor(bare, 587, true)
+	nodial.Dial = nil
+	send(newClient(nil), nodial, context.Background())
+	hang := testsmtp.New(t, testsmtp.Options{Hang: true})
+	c := newClient(hang.CertPool())
+	c.Timeout = 100 * time.Millisecond
+	send(c, cfgFor(hang, 587, true), context.Background())
+	send(c, cfgFor(hang, 465, true), context.Background())
+	cctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	send(newClient(hang.CertPool()), cfgFor(hang, 587, true), cctx)
+	for _, err := range errs {
+		if IsHardBounce(err.Error()) {
+			t.Errorf("client-generated error classifies as hard bounce: %q", err)
+		}
+	}
+	if !strings.Contains(errs[0].Error(), "STARTTLS extension not supported by server.") {
+		t.Errorf("587 message = %q", errs[0])
+	}
+}
+
+func TestShortPasswordDoesNotMangleErrors(t *testing.T) {
+	err := redact(errors.New("535 5.7.8 authentication failed for abc"), "a")
+	if got := err.Error(); got != "535 5.7.8 authentication failed for abc" {
+		t.Fatalf("short password mangled text: %q", got)
+	}
+	if got := redact(errors.New("bad pw1234 here"), "pw1234").Error(); got != "bad [redacted] here" {
+		t.Fatalf("got %q", got)
+	}
+}
+
+func TestEHLOUsesLocalFQDN(t *testing.T) {
+	want, _ := os.Hostname()
+	if want == "" {
+		want = "localhost"
+	}
+	if got := ehloName(); got != want {
+		t.Fatalf("ehloName = %q, want %q", got, want)
+	}
+}
