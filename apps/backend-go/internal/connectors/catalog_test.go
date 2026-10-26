@@ -365,7 +365,12 @@ func TestCompatibilityMatchesFixture(t *testing.T) {
 			rep := Compatibility(ValidateDirectory("testdata/manifests", f.policy, manifest.LoadTrustStore("testdata/trusted-publishers.json")))
 			b, _ := json.Marshal(rep)
 			fx := contract.Load(t, "connectors/"+f.fixture)
-			want := strings.ReplaceAll(string(fx.Response.Body), prefix, "")
+			// Python reports str(path); Go reports paths relative to the manifest dir (no
+			// server directory layout leaks), so strip the served directory from the fixture.
+			want := strings.ReplaceAll(string(fx.Response.Body), prefix+"testdata/manifests/", "")
+			if strings.Contains(string(b), "testdata/") || strings.Contains(string(b), "\"path\":\"/") {
+				t.Fatalf("compatibility report leaks a server path: %s", b)
+			}
 			contract.AssertEqual(t, contract.Resp{Status: 200, Headers: fx.Response.Headers, Body: b},
 				contract.Resp{Status: 200, Headers: fx.Response.Headers, Body: json.RawMessage(want)},
 				contract.IgnoreShapeOf())

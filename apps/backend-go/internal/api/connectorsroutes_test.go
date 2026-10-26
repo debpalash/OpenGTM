@@ -205,7 +205,7 @@ func TestCompatibilityMatchesFixture(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	servedPrefix := abs + "/"
+	servedPrefix := abs + "/testdata/manifests/"
 	norm := func(r contract.Resp, prefix string) contract.Resp {
 		r.Body = json.RawMessage(strings.ReplaceAll(string(r.Body), prefix, ""))
 		return r
@@ -221,7 +221,10 @@ func TestCompatibilityMatchesFixture(t *testing.T) {
 		fx := contract.Load(t, "connectors/"+c.fixture)
 		_, got := e.do("GET", "/api/connectors/compatibility", "", "", auth)
 		t.Run(c.fixture, func(t *testing.T) {
-			contract.AssertEqual(t, norm(got, servedPrefix), norm(fx.Response, fixturePrefix))
+			if strings.Contains(string(got.Body), abs) {
+				t.Fatalf("compatibility leaks the absolute manifest path: %s", got.Body)
+			}
+			contract.AssertEqual(t, norm(got, servedPrefix), norm(fx.Response, fixturePrefix+"testdata/manifests/"))
 		})
 	}
 	e.serve(t, abs+"/testdata/manifests", "optional")
