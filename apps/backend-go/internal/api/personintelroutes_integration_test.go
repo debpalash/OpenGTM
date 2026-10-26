@@ -71,6 +71,9 @@ func personJSON(v any, def string) string {
 	if v == nil {
 		return def
 	}
+	if raw, ok := v.(json.RawMessage); ok {
+		return string(raw)
+	}
 	b, _ := json.Marshal(v)
 	return string(b)
 }
@@ -96,7 +99,7 @@ func (e *personEnv) seedContract(t *testing.T) {
 		articles:  []map[string]string{{"title": "Partnering at scale", "url": "https://example.com/a"}},
 		mentions:  []map[string]string{{"title": "Podcast", "url": "https://example.com/m"}},
 		companies: []string{"Stripe"}, edu: []string{"Stanford University"}, skills: []string{"Partnerships", "Payments"},
-		raw: []map[string]string{{"source": "ddg", "query": "jane-partner"}}, status: "completed"})
+		raw: json.RawMessage(`[{"source":"ddg","query":"jane-partner"}]`), status: "completed"})
 	e.insert(t, personSeedRow{url: "https://www.linkedin.com/in/raj-risky", user: "raj-risky", name: "Raj Risky", status: "partial"})
 	e.insert(t, personSeedRow{url: "https://www.linkedin.com/in/émilie-d", user: "émilie-d", name: "Émilie D.",
 		headline: "Directrice des partenariats", loc: "Paris", summary: "Résumé — café.",
@@ -170,7 +173,7 @@ func TestPersonResponseKeyOrderAndNoEscaping(t *testing.T) {
 	e := newPersonEnv(t, nil)
 	e.seedContract(t)
 	e.insert(t, personSeedRow{url: "https://www.linkedin.com/in/x", user: "x", name: "A <b> & c", headline: "h<i>", status: "completed",
-		articles: []map[string]string{{"url": "u", "title": "t&t"}}, social: map[string]string{"z": "1", "a": "2"}})
+		articles: json.RawMessage(`[{"url":"u","title":"t&t"}]`), social: json.RawMessage(`{"z":"1","a":"2"}`)})
 
 	d := e.call("alice", "GET", "/api/person/1", "").Body.String()
 	want := `{"id":1,"linkedin_url":"https://www.linkedin.com/in/jane-partner","username":"jane-partner","name":"Jane Partner",` +
@@ -188,7 +191,7 @@ func TestPersonResponseKeyOrderAndNoEscaping(t *testing.T) {
 			t.Errorf("detail 4 lacks %s in %s", w, d4)
 		}
 	}
-	if strings.Contains(d4, `\u003`) || strings.Contains(d4, `&`) {
+	if strings.Contains(d4, `\u003`) || strings.Contains(d4, "\\u0026") {
 		t.Errorf("detail is HTML-escaped: %s", d4)
 	}
 
@@ -196,7 +199,7 @@ func TestPersonResponseKeyOrderAndNoEscaping(t *testing.T) {
 	if !strings.HasPrefix(h, `[{"id":4,"linkedin_url":"https://www.linkedin.com/in/x","username":"x","name":"A <b> & c","headline":"h<i>","email_count":0,"status":"completed","created_at":"2026-08-28T12:00:00"},{"id":3,`) {
 		t.Errorf("history bytes %s", h)
 	}
-	if strings.Contains(h, `\u003`) || strings.Contains(h, `&`) {
+	if strings.Contains(h, `\u003`) || strings.Contains(h, "\\u0026") {
 		t.Errorf("history is HTML-escaped: %s", h)
 	}
 	if !strings.Contains(h, `"name":"Émilie D."`) || strings.Contains(h, `\u00`) {
