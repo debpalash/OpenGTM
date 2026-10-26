@@ -412,3 +412,13 @@ writes nothing. No fixture; tests named in parentheses.
 - A column config entry without an `id` makes Python raise KeyError while building the display-name map; Go skips that entry.
 - Python iterates row cells in `lead_data` insertion order, which decides which column wins a shared display name (last wins) or a case-only collision (first wins). Go iterates row keys in column config order first, then any remaining keys sorted; identical for realistic data, arbitrary only for keys absent from the column config.
 - Decimal comparison bounds (adjusted exponent <= 999999999999999999, exponent >= -1999999999999999997, 19-digit exponent cap) follow 64-bit CPython/libmpdec; 32-bit CPython differs.
+
+## Refresh (plan 06 Task 16): deviations
+
+- `Handle` does not source or enrich inline: it enqueues one `source_workbook` per source column and one `run_workbook` for the stale cells and their reactive dependants, both with the Python executor, fire-keyed on the claim id. Rows added by the sourcing job are therefore enriched one refresh cycle later (they have no overlay, so they are stale next time); Python enriched them in the same cycle. Task 22 restores same-cycle enrichment.
+- The activity message reads `<reason>: queued N source columns, re-enrich C stale cells in R rows` (counts of work queued, not done).
+- `IntervalMinutes`: NaN, infinity and values beyond int64 report "no interval" (Python raises); negative or over-10-year intervals are not chained (Python would hot-loop or overflow). `strings.ToLower` differs from Python `str.lower` for U+0130.
+- The next refresh is chained only when no other refresh_workbook is pending or running for the workbook (Python chains unconditionally and forks a chain per signal-triggered job). Retry idempotency of the next job and the activity row holds only while the first attempt's rows are active; a retry after the next job finished, or after commit but before completion, can duplicate them.
+- `SetPolicy` stores `json.Marshal(policy)` (sorted keys) and returns a map; the route must emit `refresh_policy` before `next_in_minutes`.
+- A payload `workspace_id` that differs from the claim's workspace is an error; neither present is an error (like `workspace_scope`).
+- The next refresh uses `Deps.NextExecutor` (default `go`); Python picks it per cohort. Task 22 wires it from the cohort resolver.
