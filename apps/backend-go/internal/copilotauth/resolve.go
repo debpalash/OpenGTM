@@ -40,8 +40,11 @@ type Resolved struct {
 	WorkspaceID string
 	Slug        string
 	UserID      *int32
-	SelfHost    bool
+	selfHost    bool // set only by Resolve (keyless branch)
 }
+
+// IsSelfHost reports a keyless (self-host) resolution; only Resolve can make one.
+func (r Resolved) IsSelfHost() bool { return r.selfHost }
 
 // ToolUserID is the user id every Python tool call must carry. The Python
 // /internal/copilot/tool endpoint skips the dangerous-tool role check for a
@@ -51,7 +54,7 @@ func (r Resolved) ToolUserID() (*int32, error) {
 	if r.UserID != nil {
 		return r.UserID, nil
 	}
-	if r.SelfHost && r.WorkspaceID != "" {
+	if r.selfHost && r.WorkspaceID != "" {
 		return nil, nil
 	}
 	return nil, errors.New("copilotauth: no authenticated user for tool call")
@@ -93,7 +96,7 @@ func Resolve(r *http.Request, d Deps) (Resolved, *Err) {
 		if slug == "" {
 			slug = "main"
 		}
-		return Resolved{WorkspaceID: ws, Slug: slug, SelfHost: true}, nil
+		return Resolved{WorkspaceID: ws, Slug: slug, selfHost: true}, nil
 	}
 
 	tok, ok := identity.BearerToken(r)
