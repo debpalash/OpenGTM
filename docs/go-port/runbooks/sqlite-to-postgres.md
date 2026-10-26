@@ -2,9 +2,26 @@
 
 Moves the identity-plane, settings, chat, function and memory SQLite stores into PostgreSQL so
 the Go API can serve them. Schema is owned by Alembic (head `e1f5a9b3d7c2`); Go never runs DDL.
-Run Python commands from the Python tree (`legacy/python/`, or `/app` inside the image) with
-`DATABASE_URL` set to the **owner** PostgreSQL URL (the backfill needs the table owner, not the
-runtime role). `data/` below is the mounted OpenGTM data directory.
+Run Python commands from `legacy/python/` (host, via `uv run`) with `DATABASE_URL` set to the
+**owner** PostgreSQL URL (the backfill needs the table owner, not the runtime role).
+
+## Variables used throughout
+
+```bash
+# The LIVE data dir: the repo-root ./data that docker-compose mounts at /app/data.
+# This is NOT legacy/python/data (a stale dev copy). Use an absolute path.
+export DATA_DIR=/abs/path/to/OpenGTM/data
+export DATABASE_URL=postgresql+psycopg://<owner>:<pw>@<host>:5432/<db>   # SQLAlchemy form, for Python
+export OWNER_PG_URL=postgresql://<owner>:<pw>@<host>:5432/<db>           # plain form, for psql
+```
+
+> **Prerequisite: rewire Docker/compose to `legacy/python` before cutover (known open item).**
+> The root `Dockerfile` still copies `apps/api/`, `migrations/` and `alembic.ini` from the repo root,
+> which now live under `legacy/python/`. Until the Dockerfile/compose build context is rewired, the
+> `migrate` image and the `api`/`worker`/`scheduler` images cannot be built from this tree, so
+> `docker compose run --rm migrate` and the in-image (`/app`) route do not work. Use the host-side
+> equivalents given in the steps (run from `legacy/python/`), and do not cut over until the images
+> build and contain the new head `e1f5a9b3d7c2`.
 
 SQLite files are never modified or deleted by any step of this runbook.
 
@@ -19,23 +36,24 @@ exists. During the cutover window everything is stopped, so this order is applie
 
 ```bash
 export SQLITE_STORES_BACKEND=sqlite          # must be sqlite until step 6
-export DATABASE_URL=postgresql+psycopg://<owner>:<pw>@<host>:5432/<db>
+cd legacy/python                             # Python/uv commands run from here; `docker compose` commands from the repo root
 
-# integrity-checked PostgreSQL + data/ backup (refuses to overwrite an existing archive)
-python -m apps.api.cli backup --output backups/pre-stores-cutover-$(date +%Y%m%d%H%M).tar.gz --data-dir data
-python -m apps.api.cli backup-verify backups/pre-stores-cutover-<stamp>.tar.gz   # same file as above
+# integrity-checked PostgreSQL + $DATA_DIR backup (refuses to overwrite an existing archive)
+BACKUP=backups/pre-stores-cutover-$(date +%Y%m%d%H%M).tar.gz
+python -m apps.api.cli backup --output "$BACKUP" --data-dir "$DATA_DIR"
+python -m apps.api.cli backup-verify "$BACKUP"
 
 # record source counts (compare with the verify output in step 5)
-sqlite3 data/workspaces.db 'select count(*) from workspaces'
-sqlite3 data/workspaces.db 'select count(*) from workspace_members'
-sqlite3 data/workspaces.db 'select count(*) from workspace_settings'
-sqlite3 data/workspaces.db 'select count(*) from user_active_workspace'
-sqlite3 data/data.db       'select count(*) from settings'
-sqlite3 data/chat_history.db 'select count(*) from conversations'
-sqlite3 data/chat_history.db 'select count(*) from messages'
+sqlite3 "$DATA_DIR"/workspaces.db 'select count(*) from workspaces'
+sqlite3 "$DATA_DIR"/workspaces.db 'select count(*) from workspace_members'
+sqlite3 "$DATA_DIR"/workspaces.db 'select count(*) from workspace_settings'
+sqlite3 "$DATA_DIR"/workspaces.db 'select count(*) from user_active_workspace'
+sqlite3 "$DATA_DIR"/data.db       'select count(*) from settings'
+sqlite3 "$DATA_DIR"/chat_history.db 'select count(*) from conversations'
+sqlite3 "$DATA_DIR"/chat_history.db 'select count(*) from messages'
 
 # optional: preview what backfill will copy, writes nothing
-python -m apps.api.scripts.sqlite_stores.cli backfill --data-dir data --dry-run
+python -m apps.api.scripts.sqlite_stores.cli backfill --data-dir "$DATA_DIR" --dry-run
 ```
 
 Do not proceed if the backup does not verify.
@@ -52,15 +70,17 @@ to the SQLite files or PostgreSQL from here until step 6.
 ## 3. Migrate PostgreSQL to the new head
 
 ```bash
-docker compose run --rm migrate
-# confirm
-docker compose run --rm migrate alembic current     # expect: e1f5a9b3d7c2 (head)
+docker compose run --rm migrate                 # requires the rewired image (see prerequisite)
+
+# host-side equivalent (from legacy/python/, DATABASE_URL = owner URL):
+YUPCHA_DB_INIT=alembic uv run alembic upgrade head
+uv run alembic current                          # expect: e1f5a9b3d7c2 (head)
 ```
 
 ## 4. Backfill
 
 ```bash
-python -m apps.api.scripts.sqlite_stores.cli backfill --data-dir data
+python -m apps.api.scripts.sqlite_stores.cli backfill --data-dir "$DATA_DIR"
 ```
 
 Idempotent (`INSERT ... ON CONFLICT DO UPDATE`); safe to re-run. It reads SQLite through the `sqlite3`
@@ -70,13 +90,15 @@ copies secret ciphertext (`enc:v1:` / `enc:v2:vault:`) verbatim; nothing is decr
 `users`) are reported, not fatal.
 
 Per-workspace leads/signals ledgers (`leads.db`, `signals.db`, `workspaces/<slug>/leads.db`) are copied
-by the existing `apps/api/scripts/migrate_sqlite_to_pg.py` (set `LEGACY_SQLITE` to the source; run it only
-if the ledgers have not already been migrated). The stores CLI only verifies them.
+by the existing `apps/api/scripts/migrate_sqlite_to_pg.py` (run it only if the ledgers have not already
+been migrated): `LEGACY_SQLITE="$DATA_DIR/data.db" uv run python -m apps.api.scripts.migrate_sqlite_to_pg`. It only
+looks at `data.db` via `LEGACY_SQLITE`; per-workspace ledger paths are resolved by the script itself, so
+check its output against the step 5 ledger counts. The stores CLI only verifies them.
 
 ## 5. Verify (gate)
 
 ```bash
-python -m apps.api.scripts.sqlite_stores.cli verify --data-dir data --pg-url "$DATABASE_URL"
+python -m apps.api.scripts.sqlite_stores.cli verify --data-dir "$DATA_DIR" --pg-url "$DATABASE_URL"
 echo $?     # must be 0
 ```
 
@@ -140,24 +162,27 @@ and the flag at `sqlite`, the API refuses to start by design.)
 ```bash
 docker compose stop api worker scheduler worker-go
 
-# rebuild SQLite files from PostgreSQL into a NEW directory (never writes data/, refuses --out == --data-dir)
-python -m apps.api.scripts.sqlite_stores.cli export-back --out data/rollback --data-dir data
+# rebuild SQLite files from PostgreSQL into a NEW directory (never writes into $DATA_DIR itself, refuses --out == --data-dir)
+python -m apps.api.scripts.sqlite_stores.cli export-back --out "$DATA_DIR/rollback" --data-dir "$DATA_DIR"
 
 # verify the export against PostgreSQL: must exit 0
-python -m apps.api.scripts.sqlite_stores.cli verify --data-dir data/rollback --pg-url "$DATABASE_URL"
+python -m apps.api.scripts.sqlite_stores.cli verify --data-dir "$DATA_DIR/rollback" --pg-url "$DATABASE_URL"
 ```
 
 `export-back` writes `workspaces.db`, `data.db`, `chat_history.db`, `functions.db`, `chat_memory.db`
-into `data/rollback/`. It snapshots the existing `data/data.db` read-only and replaces **only** the
+into `$DATA_DIR/rollback/`. It snapshots the existing `$DATA_DIR/data.db` read-only and replaces **only** the
 `settings` rows, so the exported `data.db` is already a full snapshot (all non-settings tables intact);
-copying the whole file over `data/data.db` is safe. Chat, functions and memory stores are repointed to
+copying the whole file over `$DATA_DIR/data.db` is safe. Chat, functions and memory stores are repointed to
 PostgreSQL by the same flag, so the same rollback covers them.
 
 Keep the originals before overwriting, then copy:
 
 ```bash
-mkdir -p data/pre-rollback && cp -p data/workspaces.db data/data.db data/chat_history.db data/pre-rollback/
-for f in workspaces.db data.db chat_history.db functions.db chat_memory.db; do cp -p data/rollback/$f data/$f; done
+mkdir -p "$DATA_DIR"/pre-rollback && cd "$DATA_DIR"
+cp -p workspaces.db data.db chat_history.db functions.db chat_memory.db pre-rollback/ 2>/dev/null || true
+cp -p data.db-wal data.db-shm pre-rollback/ 2>/dev/null || true   # sidecars, if present
+rm -f data.db-wal data.db-shm                    # stale sidecars must not be replayed onto the restored file
+for f in workspaces.db data.db chat_history.db functions.db chat_memory.db; do cp -p rollback/$f $f; done
 
 psql "$OWNER_PG_URL" -c "DELETE FROM app_settings WHERE key = '__stores_backend'"
 # .env: SQLITE_STORES_BACKEND=sqlite
@@ -173,8 +198,8 @@ rows from the now-restored SQLite files, which is correct after a 7b restore).
 
 ## 8. Retention
 
-Keep the SQLite files (`workspaces.db`, `data.db`, `chat_history.db`, plus `data/pre-rollback/` and
-`data/rollback/` if created) and the pre-flight backup for **30 days** after cutover, then move them
+Keep the SQLite files (`workspaces.db`, `data.db`, `chat_history.db`, plus `$DATA_DIR/pre-rollback/` and
+`$DATA_DIR/rollback/` if created) and the pre-flight backup for **30 days** after cutover, then move them
 to cold archive. Never auto-delete; deletion is a manual, deliberate operator action after the
 retention window and a clean `verify`.
 
