@@ -93,7 +93,7 @@ func seedSend(t *testing.T, pool *pgxpool.Pool, ws, to, mid string, lead int) se
 			t.Fatalf("enroll: %d %v", enr, err)
 		}
 		e32 := int32(enr)
-		idem := "idem-" + mid
+		idem := fmt.Sprintf("idem-%s-%d", mid, time.Now().UnixNano())
 		ok, err := outreachstore.InsertInFlight(ctx, tx, outreachstore.SendIn{WorkspaceID: ws, SequenceID: seq.ID, EnrollmentID: &e32,
 			StepNumber: 1, ToEmail: to, Subject: "hi", IdempotencyKey: idem})
 		if err != nil || !ok {
@@ -391,13 +391,34 @@ type corpusExpected struct {
 // included: Go records it so it is never retried forever).
 func TestProcessMatchesPythonCorpusOutcomes(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
-	ws := newWS(t, pool)
 	files, _ := filepath.Glob("../../testdata/dsn/*.eml")
 	if len(files) < 50 {
 		t.Fatalf("corpus: %d files", len(files))
 	}
+	var man struct {
+		Files []struct {
+			Name      string `json:"name"`
+			GoBounded bool   `json:"go_bounded"`
+		} `json:"files"`
+	}
+	mb, err := os.ReadFile("../dsnparse/testdata/manifest.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(mb, &man); err != nil {
+		t.Fatal(err)
+	}
+	bounded := map[string]bool{}
+	for _, f := range man.Files {
+		if f.GoBounded {
+			bounded[f.Name] = true // documented D6 divergence (parse bounds); covered in dsnparse
+		}
+	}
 	matched := 0
 	for i, f := range files {
+		if bounded[strings.TrimSuffix(filepath.Base(f), ".eml")] || bounded[filepath.Base(f)] {
+			continue
+		}
 		raw, err := os.ReadFile(f)
 		if err != nil {
 			t.Fatal(err)
@@ -411,6 +432,7 @@ func TestProcessMatchesPythonCorpusOutcomes(t *testing.T) {
 			t.Fatal(err)
 		}
 		name := filepath.Base(f)
+		ws := newWS(t, pool) // corpus files share source Message-IDs; the ledger key is per workspace
 		uid := strconv.Itoa(1000 + i)
 		var want ledgerRow
 		var wantSend *seeded
@@ -864,7 +886,9 @@ func TestMaxFetchCap(t *testing.T) {
 func TestOnePoisonMessageDoesNotStopBatch(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
 	ws := newWS(t, pool)
-	ok := func(u string) []byte { return []byte("Message-ID: <m" + u + "@x>\r\nContent-Type: text/plain\r\n\r\nhello\r\n") }
+	ok := func(u string) []byte {
+		return []byte("Message-ID: <m" + u + "@x>\r\nContent-Type: text/plain\r\n\r\nhello\r\n")
+	}
 	fc := &fakeClient{uids: []string{"1", "2", "3"}, msgs: map[string][]byte{"1": ok("1"), "3": ok("3")},
 		fetchErrs: map[string][]error{"2": {errors.New("fetch exploded")}}}
 	h, _ := newHandler(t, pool, ws, fc)

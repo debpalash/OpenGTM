@@ -1,0 +1,218 @@
+package outreachinbound
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"log/slog"
+	"net"
+	"os"
+	"strings"
+	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/imapclient"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachcfg"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachstore"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
+)
+
+// maxReconnects bounds reconnects within one tick so a hostile server cannot
+// keep a worker busy.
+const maxReconnects = 3
+
+// Handler is handle_inbound_poll.
+type Handler struct {
+	Pool        *pgxpool.Pool
+	Secrets     *secrets.Resolver
+	Automations bool // AUTOMATIONS_ENABLED
+	Outreach    config.OutreachSettings
+	Executor    config.ExecutorSettings
+	// Dial is the SSRF-guarded dialer (egress.NewDialContext) used by the
+	// production client. NewClient overrides client construction (tests).
+	Dial      egress.DialContext
+	NewClient func(outreachcfg.IMAP) imapclient.Client
+	Now       func() time.Time
+	Log       *slog.Logger
+}
+
+func (h *Handler) now() time.Time {
+	if h.Now != nil {
+		return h.Now().UTC()
+	}
+	return time.Now().UTC()
+}
+
+func (h *Handler) log() *slog.Logger {
+	if h.Log != nil {
+		return h.Log
+	}
+	return slog.Default()
+}
+
+func (h *Handler) client(cfg outreachcfg.IMAP) (imapclient.Client, error) {
+	if h.NewClient != nil {
+		return h.NewClient(cfg), nil
+	}
+	if h.Dial == nil {
+		return nil, errors.New("outreachinbound: no egress dialer configured")
+	}
+	return imapclient.New(cfg, h.Dial, 0), nil
+}
+
+func (h *Handler) enabled() bool { return h.Automations && h.Outreach.InboundPollEnabled }
+
+// Handle polls one workspace's mailbox. A failed poll is a failed tick (backoff,
+// auto-disable), never a failed job: it returns nil so one bad mailbox cannot
+// wedge the worker or other workspaces. Only infrastructure errors (the
+// reschedule itself) are returned.
+func (h *Handler) Handle(ctx context.Context, c *queue.Claim) error {
+	if !h.enabled() {
+		return nil
+	}
+	var p struct {
+		WorkspaceID string `json:"workspace_id"`
+	}
+	if err := json.Unmarshal(c.Payload, &p); err != nil || p.WorkspaceID == "" {
+		h.log().Warn("inbound poll missing workspace_id")
+		return nil
+	}
+	ws := p.WorkspaceID
+
+	cfg := outreachcfg.LoadIMAP(ctx, h.Secrets, ws)
+	if !cfg.Configured() {
+		// creds removed or never set: stop scheduling for this workspace
+		return outreachstore.DisableInboundSchedule(ctx, h.Pool, ws)
+	}
+
+	uidValidity, err := h.poll(ctx, ws, cfg)
+	failed := err != nil
+	var uv *string
+	if failed {
+		h.log().Warn("inbound poll failed", "workspace_id", ws, "error", scrub(err, cfg))
+	} else {
+		uv = &uidValidity
+	}
+	return Reschedule(ctx, h.Pool, ws, failed, uv, h.now(), ScheduleConfig{Outreach: h.Outreach, Executor: h.Executor})
+}
+
+// scrub removes the mailbox password from an error text before it is logged.
+func scrub(err error, cfg outreachcfg.IMAP) string {
+	s := err.Error()
+	if pw := string(cfg.Password); pw != "" {
+		s = strings.ReplaceAll(s, pw, "[redacted]")
+	}
+	return s
+}
+
+func isConnErr(err error) bool {
+	if errors.Is(err, imapclient.ErrBudgetExceeded) || errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) ||
+		errors.Is(err, net.ErrClosed) || errors.Is(err, os.ErrDeadlineExceeded) {
+		return true
+	}
+	var ne net.Error
+	if errors.As(err, &ne) {
+		return true
+	}
+	m := strings.ToLower(err.Error())
+	return strings.Contains(m, "not connected") || strings.Contains(m, "closed") || strings.Contains(m, "broken pipe") || strings.Contains(m, "connection reset")
+}
+
+// poll is _run_poll: connect, select, search, then fetch + process each message
+// in its own tenant transaction, best-effort MarkSeen after the ledger commit,
+// always logout. A message-level error does not stop the batch; the tick is
+// reported failed once the batch is done.
+func (h *Handler) poll(ctx context.Context, ws string, cfg outreachcfg.IMAP) (string, error) {
+	cl, err := h.client(cfg)
+	if err != nil {
+		return "", err
+	}
+	defer func() { cl.Logout() }()
+	open := func() (string, error) {
+		if err := cl.Connect(ctx); err != nil {
+			return "", err
+		}
+		return cl.Select(ctx, cfg.Folder)
+	}
+	uidValidity, err := open()
+	if err != nil {
+		return "", err
+	}
+	days := h.Outreach.InboundLookbackDays
+	if days < 1 {
+		days = 1
+	}
+	max := h.Outreach.InboundMaxFetch
+	since := h.now().Add(-time.Duration(days) * 24 * time.Hour)
+	uids, err := cl.SearchUnseen(ctx, since, max)
+	if err != nil {
+		return "", err
+	}
+	if max > 0 && len(uids) > max {
+		uids = uids[:max]
+	}
+	th := outreachstore.ThresholdsFrom(h.Outreach)
+	var firstErr error
+	note := func(err error) {
+		if firstErr == nil {
+			firstErr = err
+		}
+	}
+	reconnects := 0
+	markSeen := func(uid string) {
+		if err := cl.MarkSeen(ctx, uid); err != nil {
+			h.log().Warn("inbound mark_seen failed", "workspace_id", ws, "uid", uid, "error", scrub(err, cfg))
+		}
+	}
+	for _, uid := range uids {
+		raw, err := cl.Fetch(ctx, uid)
+		switch {
+		case errors.Is(err, imapclient.ErrOversized):
+			// Python's RFC822 fetch marked these seen; never refetch a huge message
+			markSeen(uid)
+			continue
+		case err != nil && isConnErr(err):
+			if reconnects >= maxReconnects {
+				return "", err
+			}
+			reconnects++
+			hostile := errors.Is(err, imapclient.ErrBudgetExceeded)
+			cl.Logout()
+			ncl, cerr := h.client(cfg)
+			if cerr != nil {
+				return "", cerr
+			}
+			cl = ncl
+			if _, rerr := open(); rerr != nil {
+				return "", rerr
+			}
+			if hostile {
+				markSeen(uid) // the message that blew the budget would do it again
+			}
+			continue
+		case err != nil:
+			note(fmt.Errorf("fetch uid %s: %w", uid, err))
+			continue
+		}
+		if len(raw) == 0 {
+			continue
+		}
+		perr := tenancy.InWorkspace(ctx, h.Pool, ws, func(tx pgx.Tx) error {
+			return Process(ctx, tx, ws, uidValidity, uid, raw, th)
+		})
+		if perr != nil {
+			note(fmt.Errorf("process uid %s: %w", uid, perr))
+			continue
+		}
+		markSeen(uid)
+	}
+	return uidValidity, firstErr
+}
