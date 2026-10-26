@@ -46,6 +46,19 @@ func setupAud(t *testing.T) *audEnv {
 	if _, err := pool.Exec(ctx, `DELETE FROM jobs`); err != nil {
 		t.Fatal(err)
 	}
+	// The fixture ids below are global primary keys: clear leftovers of a killed earlier run.
+	for _, q := range []string{
+		`DELETE FROM destination_deliveries WHERE run_id='run1'`,
+		`DELETE FROM destination_runs WHERE id='run1'`,
+		`DELETE FROM audience_destinations WHERE id='d1'`,
+		`DELETE FROM audience_members WHERE audience_id IN ('aud1','off','gone')`,
+		`DELETE FROM audience_schedules WHERE audience_id IN ('aud1','off','gone')`,
+		`DELETE FROM audiences WHERE id IN ('aud1','off','gone')`,
+	} {
+		if _, err := owner.Exec(ctx, q); err != nil {
+			t.Fatal(err)
+		}
+	}
 	ws := fmt.Sprintf("wsaud%d-%d", os.Getpid(), audCtr.Add(1))
 	if _, err := pool.Exec(ctx, `INSERT INTO workspaces (id,name,slug,description,icon,created_at,updated_at) VALUES ($1::text,$1::text,$1::text,'','',1,1)`, ws); err != nil {
 		t.Fatal(err)
@@ -132,7 +145,7 @@ func (g *audEnv) exec(t *testing.T, q string, args ...any) {
 
 func (g *audEnv) audience(t *testing.T, id string, enabled bool) {
 	t.Helper()
-	g.exec(t, `INSERT INTO audiences (id, workspace_id, name, filters, refresh_enabled, refresh_interval_minutes) VALUES ($1,$2,'a','{}'::json,$3,60)`, id, g.ws, enabled)
+	g.exec(t, `INSERT INTO audiences (id, workspace_id, name, filters, refresh_enabled, refresh_interval_minutes) VALUES ($1,$2,'a','{}'::json,$3,60) ON CONFLICT DO NOTHING`, id, g.ws, enabled)
 }
 
 func (g *audEnv) job(t *testing.T, typ string, payload map[string]any, executor string, maxRetries int) (id int64) {
@@ -345,7 +358,7 @@ func audienceHealth(t *testing.T, g *audEnv) string {
 	return h
 }
 
-// A panic in a refresh or a sync (no handler-side bookkeeping) is recovered by the slot and the
+// A panic in a refresh and an engine error in a sync (no handler-side bookkeeping) fail the attempt and the
 // failure hooks reconcile the audience and the run.
 func TestWorkerFailureHooksReconcile(t *testing.T) {
 	t.Run("audience_refresh", func(t *testing.T) {
@@ -370,11 +383,13 @@ func TestWorkerFailureHooksReconcile(t *testing.T) {
 			t.Fatalf("%d pending next jobs", n)
 		}
 	})
+	// An engine error (the lease check failing) fails the attempt; the hook marks the run failed.
 	t.Run("audience_destination_sync", func(t *testing.T) {
 		g := setupAud(t)
 		run, mk := g.destRun(t, "webhook", 1)
 		job := mk(0, "go")
-		g.runAud(t, audConfig(g.ws, "webhook"), &nopEmitter{}, audienceOpts{ports: destdeliver.Ports{Webhook: &fakeWebhook{panic: true}}})
+		g.runAud(t, audConfig(g.ws, "webhook"), &nopEmitter{}, audienceOpts{ports: destdeliver.Ports{Webhook: &fakeWebhook{}},
+			lease: func(context.Context, *queue.Claim) (bool, error) { return false, errors.New("lease check broke") }})
 		if st, _, _ := g.jobRow(t, job); st != "failed" {
 			t.Fatalf("job %s", st)
 		}
@@ -382,6 +397,40 @@ func TestWorkerFailureHooksReconcile(t *testing.T) {
 			t.Fatalf("run %s %q", s, e)
 		}
 	})
+	// A panic in the sync handler outside a delivery port (here the lease check) is recovered by the slot.
+	t.Run("audience_destination_sync_handler_panic", func(t *testing.T) {
+		g := setupAud(t)
+		run, mk := g.destRun(t, "webhook", 1)
+		job := mk(0, "go")
+		g.runAud(t, audConfig(g.ws, "webhook"), &nopEmitter{}, audienceOpts{ports: destdeliver.Ports{Webhook: &fakeWebhook{}},
+			lease: func(context.Context, *queue.Claim) (bool, error) { panic("boom") }})
+		if st, _, _ := g.jobRow(t, job); st != "failed" {
+			t.Fatalf("job %s", st)
+		}
+		if s, e := g.runState(t, run); s != "failed" || len(e) < 14 || e[:14] != "Final failure:" {
+			t.Fatalf("run %s %q", s, e)
+		}
+	})
+}
+
+// A panic inside a delivery port is recovered by the delivery engine (Python: except Exception in
+// the engine): the delivery fails, the run ends completed_with_errors and the job completes.
+func TestWorkerPortPanicIsFailedDelivery(t *testing.T) {
+	g := setupAud(t)
+	run, mk := g.destRun(t, "webhook", 1)
+	job := mk(0, "go")
+	g.runAud(t, audConfig(g.ws, "webhook"), &nopEmitter{}, audienceOpts{ports: destdeliver.Ports{Webhook: &fakeWebhook{panic: true}}})
+	if st, _, _ := g.jobRow(t, job); st != "completed" {
+		t.Fatalf("job %s", st)
+	}
+	if s, e := g.runState(t, run); s != "completed_with_errors" {
+		t.Fatalf("run %s %q", s, e)
+	}
+	var failed int
+	_ = g.owner.QueryRow(context.Background(), `SELECT count(*) FROM destination_deliveries WHERE run_id=$1 AND status='failed'`, run).Scan(&failed)
+	if failed != 1 {
+		t.Fatalf("%d failed deliveries, want 1", failed)
+	}
 }
 
 // The failure hooks validate the payload workspace against the job row before acting.
