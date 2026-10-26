@@ -304,6 +304,12 @@ type APIConfig struct {
 	// Leads, signals and events (plan 05).
 	RedisURL      string // REDIS_URL; empty means heartbeat-only SSE
 	SSEMaxStreams int    // SSE_MAX_STREAMS (default 1000, >= 1)
+	// Hardening beyond Python (no limits there): per-user and per-workspace stream caps
+	// (429 when exceeded) and a maximum stream lifetime after which the server closes the
+	// stream so EventSource reconnects and re-authenticates.
+	SSEMaxPerUser      int           // SSE_MAX_STREAMS_PER_USER (default 10)
+	SSEMaxPerWorkspace int           // SSE_MAX_STREAMS_PER_WORKSPACE (default 200)
+	SSEMaxLifetime     time.Duration // SSE_MAX_LIFETIME_SECONDS (default 1800, 30..86400)
 }
 
 // FilesAPIMode values: hardened (default) requires auth + global admin and a
@@ -318,7 +324,7 @@ type Flags struct {
 	// ImportMemoryBudgetMB is IMPORT_MEMORY_BUDGET_MB (default 512, 64..65536): upload
 	// bytes the workbook import/preview routes may hold in flight at once; a decoded
 	// import costs roughly ten times its body size.
-	ImportMemoryBudgetMB int
+	ImportMemoryBudgetMB           int
 	PGLeadStore                    bool // PG_LEAD_STORE (default true); Go supports only the Postgres lead store
 	AutomationsEnabled             bool // AUTOMATIONS_ENABLED
 	IntentPollerEnabled            bool // INTENT_POLLER_ENABLED
@@ -433,6 +439,17 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	if c.SSEMaxStreams, err = intVar(get, "SSE_MAX_STREAMS", 1000, 1, 1000000); err != nil {
 		return APIConfig{}, err
 	}
+	if c.SSEMaxPerUser, err = intVar(get, "SSE_MAX_STREAMS_PER_USER", 10, 1, 1000000); err != nil {
+		return APIConfig{}, err
+	}
+	if c.SSEMaxPerWorkspace, err = intVar(get, "SSE_MAX_STREAMS_PER_WORKSPACE", 200, 1, 1000000); err != nil {
+		return APIConfig{}, err
+	}
+	life, err := intVar(get, "SSE_MAX_LIFETIME_SECONDS", 1800, 30, 86400)
+	if err != nil {
+		return APIConfig{}, err
+	}
+	c.SSEMaxLifetime = time.Duration(life) * time.Second
 	return c, nil
 }
 
@@ -482,6 +499,9 @@ func (c APIConfig) LogValue() slog.Value {
 		slog.String("data_dir", r.DataDir),
 		slog.String("redis_url", r.RedisURL),
 		slog.Int("sse_max_streams", r.SSEMaxStreams),
+		slog.Int("sse_max_per_user", r.SSEMaxPerUser),
+		slog.Int("sse_max_per_workspace", r.SSEMaxPerWorkspace),
+		slog.Duration("sse_max_lifetime", r.SSEMaxLifetime),
 	)
 }
 
