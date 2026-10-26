@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -15,7 +16,6 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 )
 
 const (
@@ -23,8 +23,10 @@ const (
 	maxMessageBody = 4 << 20
 	// maxConcurrentRequests bounds in-flight requests; more get 503.
 	maxConcurrentRequests = 64
-	// authFailureSpec is the per-IP failed-authentication budget.
-	authFailureSpec = "30/minute"
+	// authFailureLimit failed authentications per authFailureWindow per client IP.
+	authFailureLimit  = 30
+	authFailureWindow = time.Minute
+	maxFailureKeys    = 100_000
 	// sseEndpointEvent is the byte-exact (Python json.dumps) endpoint event.
 	sseEndpointEvent = "data: {\"type\": \"endpoint\", \"url\": \"/message\"}\n\n"
 )
@@ -32,7 +34,63 @@ const (
 // resolveToken authenticates a bearer token; tests replace it.
 var resolveToken = Resolve
 
-type detailKey struct{}
+// failLimiter is a fixed-window per-IP failed-auth counter. Unlike
+// internal/ratelimit (which counts every request and keys on headers) it can
+// be peeked before authentication and keys on the socket peer only.
+type failLimiter struct {
+	mu   sync.Mutex
+	win  map[string]*failWindow
+	nowF func() time.Time
+}
+
+type failWindow struct {
+	n       int
+	expires time.Time
+}
+
+func newFailLimiter() *failLimiter {
+	return &failLimiter{win: map[string]*failWindow{}, nowF: time.Now}
+}
+
+// blocked reports whether ip has used up its failure budget (no counting).
+func (l *failLimiter) blocked(ip string) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	w := l.win[ip]
+	return w != nil && l.nowF().Before(w.expires) && w.n >= authFailureLimit
+}
+
+// record counts one failure for ip.
+func (l *failLimiter) record(ip string) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	now := l.nowF()
+	w := l.win[ip]
+	if w == nil || !now.Before(w.expires) {
+		if w == nil && len(l.win) >= maxFailureKeys {
+			for k, v := range l.win {
+				if !now.Before(v.expires) {
+					delete(l.win, k)
+				}
+			}
+			if len(l.win) >= maxFailureKeys {
+				return // full of live windows: drop the count, never grow
+			}
+		}
+		w = &failWindow{expires: now.Add(authFailureWindow)}
+		l.win[ip] = w
+	}
+	w.n++
+}
+
+// peerIP is the socket peer address only: forwarded headers are never trusted
+// on this loopback transport.
+func peerIP(r *http.Request) string {
+	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		return host
+	}
+	return r.RemoteAddr
+}
 
 // sseHandler is the loopback HTTP transport: GET /sse (the unauthenticated
 // endpoint announcement, then the stream ends, as Python) and POST /message
@@ -43,18 +101,39 @@ type sseHandler struct {
 	s    *Server
 	d    Deps
 	sem  chan struct{}
-	fail http.Handler // counts failed auths per IP; answers 429 past the limit
+	fail *failLimiter
 }
 
 // SSEHandler returns the HTTP handler for the MCP SSE transport.
 func SSEHandler(s *Server, d Deps) http.Handler {
-	h := &sseHandler{s: s, d: d, sem: make(chan struct{}, maxConcurrentRequests)}
-	h.fail = ratelimit.New(nil).Limit(authFailureSpec)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		detail, _ := r.Context().Value(detailKey{}).(string)
-		w.Header().Set("WWW-Authenticate", "Bearer")
-		httpx.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized", "detail": detail})
-	}))
-	return h
+	return &sseHandler{s: s, d: d, sem: make(chan struct{}, maxConcurrentRequests), fail: newFailLimiter()}
+}
+
+// hostnameOf strips the port and IPv6 brackets from a Host-style value.
+func hostnameOf(hostport string) string {
+	if h, _, err := net.SplitHostPort(hostport); err == nil {
+		return h
+	}
+	return strings.Trim(hostport, "[]")
+}
+
+// loopbackRequest rejects DNS-rebinding and cross-site browser requests: the
+// Host must name loopback and any Origin must be a loopback origin. Skipped
+// when the operator explicitly allowed a non-loopback bind.
+func loopbackRequest(r *http.Request) bool {
+	if allowNonLoopback() {
+		return true
+	}
+	if !loopbackAddr(hostnameOf(r.Host)) {
+		return false
+	}
+	if o := r.Header.Get("Origin"); o != "" {
+		u, err := url.Parse(o)
+		if err != nil || !loopbackAddr(u.Hostname()) {
+			return false
+		}
+	}
+	return true
 }
 
 func notFound(w http.ResponseWriter) {
@@ -80,6 +159,10 @@ func (h *sseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			httpx.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "internal error"})
 		}
 	}()
+	if !loopbackRequest(r) {
+		httpx.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "forbidden", "detail": "host not allowed"})
+		return
+	}
 	switch r.URL.Path {
 	case "/sse":
 		if r.Method != http.MethodGet {
@@ -101,6 +184,13 @@ func (h *sseHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *sseHandler) message(w http.ResponseWriter, r *http.Request) {
+	ip := peerIP(r)
+	if h.fail.blocked(ip) {
+		// Over the failed-auth budget: no token lookup at all.
+		w.Header().Set("Retry-After", "60")
+		httpx.WriteJSON(w, http.StatusTooManyRequests, map[string]string{"error": "Rate limit exceeded: 30 per 1 minute"})
+		return
+	}
 	// Authenticate before the body is touched.
 	tok, ok := BearerToken(r.Header.Get("Authorization"))
 	if !ok {
@@ -110,11 +200,9 @@ func (h *sseHandler) message(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var ae *AuthError
 		if errors.As(err, &ae) {
-			// Count the failure per client IP (never per token or workspace).
-			r2 := r.Clone(context.WithValue(r.Context(), detailKey{}, ae.Msg))
-			r2.Header.Del("Authorization")
-			r2.Header.Del("X-Workspace-Id")
-			h.fail.ServeHTTP(w, r2)
+			h.fail.record(ip)
+			w.Header().Set("WWW-Authenticate", "Bearer")
+			httpx.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized", "detail": ae.Msg})
 			return
 		}
 		if IsUnavailable(err) {
@@ -183,7 +271,11 @@ func ListenSSE(ctx context.Context, h http.Handler, host string, port int) error
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "OpenGTM MCP SSE server on http://%s:%d (loopback, bearer-auth)\n", host, port)
+	kind := "loopback"
+	if !loopbackAddr(host) {
+		kind = "NON-LOOPBACK override"
+	}
+	fmt.Fprintf(os.Stderr, "OpenGTM MCP SSE server on http://%s:%d (%s, bearer-auth)\n", host, port, kind)
 	return serveSSE(ctx, h, ln)
 }
 
@@ -193,6 +285,9 @@ func serveSSE(ctx context.Context, h http.Handler, ln net.Listener) error {
 		timeout = sh.s.timeout()
 	}
 	srv := newHTTPServer(h, timeout)
+	base, cancelBase := context.WithCancel(context.Background())
+	defer cancelBase()
+	srv.BaseContext = func(net.Listener) context.Context { return base }
 	var once sync.Once
 	done := make(chan struct{})
 	go func() {
@@ -205,6 +300,7 @@ func serveSSE(ctx context.Context, h http.Handler, ln net.Listener) error {
 			sctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
 			if srv.Shutdown(sctx) != nil {
+				cancelBase() // grace expired: cancel in-flight tool calls
 				_ = srv.Close()
 			}
 		})
