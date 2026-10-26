@@ -1,0 +1,2615 @@
+{
+  "dump_sql": "\nSELECT json_build_object(\n 'company_entities', (SELECT coalesce(json_agg(to_jsonb(t) - 'first_seen' - 'last_seen' ORDER BY id), '[]') FROM company_entities t WHERE workspace_id = 'ws-vec'),\n 'company_identifiers', (SELECT coalesce(json_agg(to_jsonb(t) - 'id' - 'created_at' ORDER BY kind, value), '[]') FROM company_identifiers t WHERE workspace_id = 'ws-vec'),\n 'entity_blocking_keys', (SELECT coalesce(json_agg(to_jsonb(t) - 'id' ORDER BY key, entity_id), '[]') FROM entity_blocking_keys t WHERE workspace_id = 'ws-vec'),\n 'workbook_rows', (SELECT coalesce(json_agg(json_build_object('id', id, 'canonical_entity_id', canonical_entity_id, 'data', data) ORDER BY id), '[]') FROM workbook_rows WHERE workspace_id = 'ws-vec'),\n 'watch_subscriptions', (SELECT coalesce(json_agg(json_build_object('id', id, 'config', config, 'cursor', cursor) ORDER BY id), '[]') FROM watch_subscriptions WHERE workspace_id = 'ws-vec'),\n 'person_entities', (SELECT coalesce(json_agg(json_build_object('id', id, 'company_entity_id', company_entity_id) ORDER BY id), '[]') FROM person_entities WHERE workspace_id = 'ws-vec'),\n 'person_employments', (SELECT coalesce(json_agg(json_build_object('id', id, 'company_entity_id', company_entity_id) ORDER BY id), '[]') FROM person_employments WHERE workspace_id = 'ws-vec'),\n 'entity_merge_log', (SELECT coalesce(json_agg(to_jsonb(t) - 'id' - 'created_at' ORDER BY id), '[]') FROM entity_merge_log t WHERE workspace_id = 'ws-vec')\n)::text\n",
+  "match": {
+    "companies": [
+      [
+        "Acme Corp",
+        "acme"
+      ],
+      [
+        "ACME Corporation Ltd",
+        "acme"
+      ],
+      [
+        "  Foo-Bar & Sons, Inc.  ",
+        "foo bar sons"
+      ],
+      [
+        "Tech Solutions Pvt. Ltd.",
+        ""
+      ],
+      [
+        "Global Co",
+        ""
+      ],
+      [
+        "co",
+        ""
+      ],
+      [
+        "Company",
+        ""
+      ],
+      [
+        "Corporation of India",
+        "of"
+      ],
+      [
+        "\u00dcn\u00efcode \u00dcnternehmen GmbH",
+        "\u00fcn\u00efcode \u00fcnternehmen gmbh"
+      ],
+      [
+        "Caf\u00e9 Co.",
+        "caf\u00e9"
+      ],
+      [
+        "\u00e9co group",
+        "\u00e9co"
+      ],
+      [
+        "a_b co",
+        "a_b"
+      ],
+      [
+        "x\u00a0y group",
+        "x y"
+      ],
+      [
+        "Intl. Consulting Services",
+        ""
+      ],
+      [
+        "(Acme)",
+        "acme"
+      ],
+      [
+        "Acme's \"Best\"",
+        "acme s best"
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "Corp.corp",
+        ""
+      ],
+      [
+        "co-op",
+        "op"
+      ],
+      [
+        "Group\tLtd",
+        ""
+      ],
+      [
+        "\u65e5\u672c \u682a\u5f0f\u4f1a\u793e Co",
+        "\u65e5\u672c \u682a\u5f0f\u4f1a\u793e"
+      ]
+    ],
+    "domains": [
+      [
+        "https://www.Acme.com/path?q=1",
+        "acme.com",
+        "acme.com"
+      ],
+      [
+        "acme.com",
+        "acme.com",
+        "acme.com"
+      ],
+      [
+        "HTTP://WWW.ACME.IO:8080/x",
+        "acme.io",
+        "acme.io"
+      ],
+      [
+        "user:pw@acme.com",
+        "acme.com",
+        "acme.com"
+      ],
+      [
+        "https://[::1]:80/",
+        "::1",
+        ""
+      ],
+      [
+        "https://[bad",
+        "https://[bad",
+        ""
+      ],
+      [
+        "acme.com/foo#frag",
+        "acme.com",
+        "acme.com"
+      ],
+      [
+        "www.facebook.com/acme",
+        "facebook.com",
+        ""
+      ],
+      [
+        "https://sub.linkedin.com/in/x",
+        "sub.linkedin.com",
+        ""
+      ],
+      [
+        "localhost",
+        "localhost",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "  Acme.COM  ",
+        "acme.com",
+        "acme.com"
+      ],
+      [
+        "ftp://acme.com",
+        "ftp",
+        ""
+      ],
+      [
+        "https://acme.com:abc/",
+        "acme.com",
+        "acme.com"
+      ],
+      [
+        "//acme.com",
+        "",
+        ""
+      ],
+      [
+        "acme.com?x=1",
+        "acme.com",
+        "acme.com"
+      ],
+      [
+        "https://m\u00fcnchen.de/",
+        "m\u00fcnchen.de",
+        "m\u00fcnchen.de"
+      ],
+      [
+        "http://a@b@c.com/",
+        "c.com",
+        "c.com"
+      ]
+    ],
+    "leads": [
+      {
+        "city": "Austin",
+        "company": "Acme Corp",
+        "email": "a@acme.com",
+        "phone": "555-123-4567",
+        "website": "acme.com"
+      },
+      {
+        "city": "austin",
+        "company": "ACME Corporation Ltd",
+        "email": "x@acme.com",
+        "phone": "",
+        "website": "https://www.acme.com"
+      },
+      {
+        "city": "Dallas",
+        "company": "Acme Corporation",
+        "email": "x@acme.io",
+        "phone": "(555) 123-4567",
+        "website": "acme.io"
+      },
+      {
+        "city": null,
+        "company": null,
+        "email": null,
+        "phone": null,
+        "website": null
+      },
+      {
+        "city": "Berlin",
+        "company": "Globex",
+        "email": "",
+        "phone": "999 888 7777",
+        "website": "globex.com"
+      },
+      {
+        "city": "Berl\u00edn",
+        "company": "Globex Inc",
+        "email": "a@b@globex.com",
+        "phone": "9998887777",
+        "website": ""
+      },
+      {
+        "city": " Pune ",
+        "company": "Zeta",
+        "email": "no-at",
+        "phone": "1",
+        "website": "zeta.com"
+      },
+      {
+        "city": "pune",
+        "company": "Zeta Co",
+        "email": "no-at",
+        "phone": "1",
+        "website": "zeta.com"
+      }
+    ],
+    "pairs": [
+      [
+        0,
+        0,
+        1.0
+      ],
+      [
+        0,
+        1,
+        0.9
+      ],
+      [
+        0,
+        2,
+        0.92
+      ],
+      [
+        0,
+        3,
+        0.0
+      ],
+      [
+        0,
+        4,
+        0.3933
+      ],
+      [
+        0,
+        5,
+        0.2097
+      ],
+      [
+        0,
+        6,
+        0.2806
+      ],
+      [
+        0,
+        7,
+        0.2806
+      ],
+      [
+        1,
+        0,
+        0.9
+      ],
+      [
+        1,
+        1,
+        0.9
+      ],
+      [
+        1,
+        2,
+        0.6709
+      ],
+      [
+        1,
+        3,
+        0.0
+      ],
+      [
+        1,
+        4,
+        0.3933
+      ],
+      [
+        1,
+        5,
+        0.2097
+      ],
+      [
+        1,
+        6,
+        0.2806
+      ],
+      [
+        1,
+        7,
+        0.2806
+      ],
+      [
+        2,
+        0,
+        0.92
+      ],
+      [
+        2,
+        1,
+        0.6709
+      ],
+      [
+        2,
+        2,
+        1.0
+      ],
+      [
+        2,
+        3,
+        0.0
+      ],
+      [
+        2,
+        4,
+        0.3326
+      ],
+      [
+        2,
+        5,
+        0.2097
+      ],
+      [
+        2,
+        6,
+        0.1821
+      ],
+      [
+        2,
+        7,
+        0.1821
+      ],
+      [
+        3,
+        0,
+        0.0
+      ],
+      [
+        3,
+        1,
+        0.0
+      ],
+      [
+        3,
+        2,
+        0.0
+      ],
+      [
+        3,
+        3,
+        0.0
+      ],
+      [
+        3,
+        4,
+        0.0
+      ],
+      [
+        3,
+        5,
+        0.0
+      ],
+      [
+        3,
+        6,
+        0.0
+      ],
+      [
+        3,
+        7,
+        0.0
+      ],
+      [
+        4,
+        0,
+        0.3933
+      ],
+      [
+        4,
+        1,
+        0.3933
+      ],
+      [
+        4,
+        2,
+        0.3326
+      ],
+      [
+        4,
+        3,
+        0.0
+      ],
+      [
+        4,
+        4,
+        0.92
+      ],
+      [
+        4,
+        5,
+        0.92
+      ],
+      [
+        4,
+        6,
+        0.2197
+      ],
+      [
+        4,
+        7,
+        0.2197
+      ],
+      [
+        5,
+        0,
+        0.2097
+      ],
+      [
+        5,
+        1,
+        0.2097
+      ],
+      [
+        5,
+        2,
+        0.2097
+      ],
+      [
+        5,
+        3,
+        0.0
+      ],
+      [
+        5,
+        4,
+        0.92
+      ],
+      [
+        5,
+        5,
+        0.92
+      ],
+      [
+        5,
+        6,
+        0.0472
+      ],
+      [
+        5,
+        7,
+        0.0472
+      ],
+      [
+        6,
+        0,
+        0.2806
+      ],
+      [
+        6,
+        1,
+        0.2806
+      ],
+      [
+        6,
+        2,
+        0.1821
+      ],
+      [
+        6,
+        3,
+        0.0
+      ],
+      [
+        6,
+        4,
+        0.2197
+      ],
+      [
+        6,
+        5,
+        0.0472
+      ],
+      [
+        6,
+        6,
+        0.9
+      ],
+      [
+        6,
+        7,
+        0.9
+      ],
+      [
+        7,
+        0,
+        0.2806
+      ],
+      [
+        7,
+        1,
+        0.2806
+      ],
+      [
+        7,
+        2,
+        0.1821
+      ],
+      [
+        7,
+        3,
+        0.0
+      ],
+      [
+        7,
+        4,
+        0.2197
+      ],
+      [
+        7,
+        5,
+        0.0472
+      ],
+      [
+        7,
+        6,
+        0.9
+      ],
+      [
+        7,
+        7,
+        0.9
+      ]
+    ],
+    "phones": [
+      [
+        "+1 (555) 123-4567",
+        "5551234567"
+      ],
+      [
+        "555-1234",
+        "5551234"
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "12345",
+        "12345"
+      ],
+      [
+        "\u0661\u0662\u0663\u0664\u0665\u0666\u0667",
+        "\u0661\u0662\u0663\u0664\u0665\u0666\u0667"
+      ],
+      [
+        "ext 5551234567890",
+        "1234567890"
+      ]
+    ]
+  },
+  "post_merge_sql": "UPDATE company_entities SET fields = jsonb_set(fields::jsonb, '{company}', (fields::jsonb->'company') || '[{\"value\":\"LateCo\",\"source\":\"src-d\",\"observed_at\":\"2026-09-01T00:00:00+00:00\"}]'::jsonb)::json, observation_count = observation_count + 1, sources = (sources::jsonb || '[\"src-d\"]'::jsonb)::json WHERE id = 'e-keep' AND workspace_id = 'ws-vec'",
+  "python": {
+    "after_late_observation": {
+      "company_entities": [
+        {
+          "canonical_name": "Acme Corp",
+          "corroboration_count": 3,
+          "fields": {
+            "city": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-a",
+                "value": "Austin"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "Austin"
+              }
+            ],
+            "company": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-a",
+                "value": "Acme Corp"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-b",
+                "value": "Acme Corp"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-b",
+                "value": "Acme Corp"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "ACME Corporation Ltd"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "ACME Corporation Ltd"
+              },
+              {
+                "observed_at": "2026-09-01T00:00:00+00:00",
+                "source": "src-d",
+                "value": "LateCo"
+              }
+            ],
+            "email": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "x@acme.io"
+              }
+            ],
+            "website": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-a",
+                "value": "https://acme.com"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "https://acme.io"
+              }
+            ]
+          },
+          "id": "e-keep",
+          "identity_keys": {
+            "domains": [
+              "acme.com"
+            ],
+            "emails": [
+              "a@acme.com"
+            ],
+            "name_variants": [
+              "Acme Corp"
+            ],
+            "phones": [
+              "5551234567"
+            ]
+          },
+          "observation_count": 10,
+          "primary_city": "Austin",
+          "primary_domain": "acme.com",
+          "primary_email": "x@acme.io",
+          "primary_phone": "5551234567",
+          "source_agreement": {
+            "city": 1.0,
+            "company": 0.6,
+            "email": 1.0,
+            "website": 0.5
+          },
+          "sources": [
+            "src-b",
+            "src-c",
+            "src-a",
+            "src-d"
+          ],
+          "workspace_id": "ws-vec"
+        },
+        {
+          "canonical_name": "Other Inc",
+          "corroboration_count": 0,
+          "fields": {},
+          "id": "e-other",
+          "identity_keys": {},
+          "observation_count": 1,
+          "primary_city": null,
+          "primary_domain": "other.com",
+          "primary_email": null,
+          "primary_phone": null,
+          "source_agreement": {},
+          "sources": [],
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "company_identifiers": [
+        {
+          "entity_id": "e-keep",
+          "kind": "domain",
+          "value": "acme.com",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "kind": "domain",
+          "value": "acme.io",
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "entity_blocking_keys": [
+        {
+          "entity_id": "e-keep",
+          "key": "city:austin:acme",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "key": "domain:acme.com",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "key": "domain:acme.io",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "key": "name:acm",
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "entity_merge_log": [
+        {
+          "kept_id": "e-keep",
+          "merged_id": "e-gone",
+          "reason": "manual",
+          "reverted": 0,
+          "score": 0.7264,
+          "snapshot": {
+            "blocking_keys": [
+              "name:acm",
+              "domain:acme.io",
+              "city:austin:acme"
+            ],
+            "entity": {
+              "canonical_name": "ACME Corporation Ltd",
+              "corroboration_count": 2,
+              "fields": {
+                "city": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "Austin"
+                  }
+                ],
+                "company": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-b",
+                    "value": "Acme Corp"
+                  },
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "ACME Corporation Ltd"
+                  },
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "ACME Corporation Ltd"
+                  }
+                ],
+                "email": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "x@acme.io"
+                  }
+                ],
+                "website": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "https://acme.io"
+                  }
+                ]
+              },
+              "id": "e-gone",
+              "identity_keys": {
+                "domains": [
+                  "acme.io"
+                ],
+                "emails": [
+                  "x@acme.io"
+                ],
+                "name_variants": [
+                  "ACME Corporation Ltd"
+                ],
+                "phones": []
+              },
+              "observation_count": 5,
+              "primary_city": "Austin",
+              "primary_domain": "acme.io",
+              "primary_email": "x@acme.io",
+              "primary_phone": "",
+              "source_agreement": {
+                "company": 0.667
+              },
+              "sources": [
+                "src-b",
+                "src-c"
+              ],
+              "workspace_id": "ws-vec"
+            },
+            "identifiers": [
+              [
+                "domain",
+                "acme.io"
+              ]
+            ],
+            "kept_entity": {
+              "canonical_name": "Acme Corp",
+              "corroboration_count": 2,
+              "fields": {
+                "city": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-a",
+                    "value": "Austin"
+                  }
+                ],
+                "company": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-a",
+                    "value": "Acme Corp"
+                  },
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-b",
+                    "value": "Acme Corp"
+                  }
+                ],
+                "website": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-a",
+                    "value": "https://acme.com"
+                  }
+                ]
+              },
+              "id": "e-keep",
+              "identity_keys": {
+                "domains": [
+                  "acme.com"
+                ],
+                "emails": [
+                  "a@acme.com"
+                ],
+                "name_variants": [
+                  "Acme Corp"
+                ],
+                "phones": [
+                  "5551234567"
+                ]
+              },
+              "observation_count": 4,
+              "primary_city": "Austin",
+              "primary_domain": "acme.com",
+              "primary_email": "a@acme.com",
+              "primary_phone": "5551234567",
+              "source_agreement": {
+                "company": 1.0
+              },
+              "sources": [
+                "src-a",
+                "src-b"
+              ],
+              "workspace_id": "ws-vec"
+            },
+            "person_references": {
+              "employments": [
+                9001
+              ],
+              "people": [
+                "p-1"
+              ]
+            },
+            "references": {
+              "account_rows": [
+                9001,
+                9003
+              ],
+              "watches": {
+                "w-both": {
+                  "accounts": [
+                    {
+                      "account_id": "e-keep"
+                    },
+                    {
+                      "account_id": "e-gone"
+                    }
+                  ],
+                  "group_entry": {
+                    "since": "g"
+                  },
+                  "health": {
+                    "e-gone:news": {
+                      "ok": true
+                    }
+                  },
+                  "moved_cursor": false,
+                  "scope_key": "old2"
+                },
+                "w-moved": {
+                  "accounts": [
+                    {
+                      "account_id": "e-gone",
+                      "name": "Acme Corporation"
+                    },
+                    {
+                      "account_id": "e-other"
+                    }
+                  ],
+                  "group_entry": {
+                    "since": "2026-01-01"
+                  },
+                  "health": {
+                    "e-gone:news": {
+                      "ok": true
+                    }
+                  },
+                  "moved_cursor": true,
+                  "scope_key": "old"
+                }
+              }
+            },
+            "row_ids": [
+              9001,
+              9002
+            ]
+          },
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "person_employments": [
+        {
+          "company_entity_id": "e-keep",
+          "id": 9001
+        },
+        {
+          "company_entity_id": "e-other",
+          "id": 9002
+        }
+      ],
+      "person_entities": [
+        {
+          "company_entity_id": "e-keep",
+          "id": "p-1"
+        },
+        {
+          "company_entity_id": "e-other",
+          "id": "p-2"
+        }
+      ],
+      "watch_subscriptions": [
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-keep"
+              }
+            ],
+            "scope_key": "accounts_4acbe2aba5095861263ca7bd"
+          },
+          "cursor": {
+            "account_group": {
+              "e-keep": {
+                "since": "k"
+              }
+            },
+            "collector_health": {
+              "e-keep:news": {
+                "ok": false
+              }
+            }
+          },
+          "id": "w-both"
+        },
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-gone"
+              }
+            ]
+          },
+          "cursor": null,
+          "id": "w-company"
+        },
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-keep",
+                "name": "Acme Corporation"
+              },
+              {
+                "account_id": "e-other"
+              }
+            ],
+            "cadence": "daily",
+            "scope_key": "accounts_97cfbd0d32aff1af80b931f4"
+          },
+          "cursor": {
+            "account_group": {
+              "e-keep": {
+                "since": "2026-01-01"
+              },
+              "e-other": {
+                "since": "x"
+              }
+            },
+            "collector_health": {
+              "e-keep:news": {
+                "ok": true
+              },
+              "e-other:news": {
+                "ok": false
+              }
+            },
+            "extra": 1
+          },
+          "id": "w-moved"
+        },
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-other"
+              }
+            ]
+          },
+          "cursor": {},
+          "id": "w-none"
+        }
+      ],
+      "workbook_rows": [
+        {
+          "canonical_entity_id": "e-keep",
+          "data": {
+            "account_id": "e-keep",
+            "company": "Acme",
+            "n": 1
+          },
+          "id": 9001
+        },
+        {
+          "canonical_entity_id": "e-keep",
+          "data": {
+            "account_id": "e-other",
+            "company": "Acme 2"
+          },
+          "id": 9002
+        },
+        {
+          "canonical_entity_id": null,
+          "data": {
+            "account_id": "e-keep",
+            "note": "mentions e-gone"
+          },
+          "id": 9003
+        },
+        {
+          "canonical_entity_id": "e-keep",
+          "data": {
+            "account_id": "e-keep"
+          },
+          "id": 9004
+        }
+      ]
+    },
+    "after_merge": {
+      "company_entities": [
+        {
+          "canonical_name": "Acme Corp",
+          "corroboration_count": 3,
+          "fields": {
+            "city": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-a",
+                "value": "Austin"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "Austin"
+              }
+            ],
+            "company": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-a",
+                "value": "Acme Corp"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-b",
+                "value": "Acme Corp"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-b",
+                "value": "Acme Corp"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "ACME Corporation Ltd"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "ACME Corporation Ltd"
+              }
+            ],
+            "email": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "x@acme.io"
+              }
+            ],
+            "website": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-a",
+                "value": "https://acme.com"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "https://acme.io"
+              }
+            ]
+          },
+          "id": "e-keep",
+          "identity_keys": {
+            "domains": [
+              "acme.com"
+            ],
+            "emails": [
+              "a@acme.com"
+            ],
+            "name_variants": [
+              "Acme Corp"
+            ],
+            "phones": [
+              "5551234567"
+            ]
+          },
+          "observation_count": 9,
+          "primary_city": "Austin",
+          "primary_domain": "acme.com",
+          "primary_email": "x@acme.io",
+          "primary_phone": "5551234567",
+          "source_agreement": {
+            "city": 1.0,
+            "company": 0.6,
+            "email": 1.0,
+            "website": 0.5
+          },
+          "sources": [
+            "src-b",
+            "src-c",
+            "src-a"
+          ],
+          "workspace_id": "ws-vec"
+        },
+        {
+          "canonical_name": "Other Inc",
+          "corroboration_count": 0,
+          "fields": {},
+          "id": "e-other",
+          "identity_keys": {},
+          "observation_count": 1,
+          "primary_city": null,
+          "primary_domain": "other.com",
+          "primary_email": null,
+          "primary_phone": null,
+          "source_agreement": {},
+          "sources": [],
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "company_identifiers": [
+        {
+          "entity_id": "e-keep",
+          "kind": "domain",
+          "value": "acme.com",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "kind": "domain",
+          "value": "acme.io",
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "entity_blocking_keys": [
+        {
+          "entity_id": "e-keep",
+          "key": "city:austin:acme",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "key": "domain:acme.com",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "key": "domain:acme.io",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "key": "name:acm",
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "entity_merge_log": [
+        {
+          "kept_id": "e-keep",
+          "merged_id": "e-gone",
+          "reason": "manual",
+          "reverted": 0,
+          "score": 0.7264,
+          "snapshot": {
+            "blocking_keys": [
+              "name:acm",
+              "domain:acme.io",
+              "city:austin:acme"
+            ],
+            "entity": {
+              "canonical_name": "ACME Corporation Ltd",
+              "corroboration_count": 2,
+              "fields": {
+                "city": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "Austin"
+                  }
+                ],
+                "company": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-b",
+                    "value": "Acme Corp"
+                  },
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "ACME Corporation Ltd"
+                  },
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "ACME Corporation Ltd"
+                  }
+                ],
+                "email": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "x@acme.io"
+                  }
+                ],
+                "website": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "https://acme.io"
+                  }
+                ]
+              },
+              "id": "e-gone",
+              "identity_keys": {
+                "domains": [
+                  "acme.io"
+                ],
+                "emails": [
+                  "x@acme.io"
+                ],
+                "name_variants": [
+                  "ACME Corporation Ltd"
+                ],
+                "phones": []
+              },
+              "observation_count": 5,
+              "primary_city": "Austin",
+              "primary_domain": "acme.io",
+              "primary_email": "x@acme.io",
+              "primary_phone": "",
+              "source_agreement": {
+                "company": 0.667
+              },
+              "sources": [
+                "src-b",
+                "src-c"
+              ],
+              "workspace_id": "ws-vec"
+            },
+            "identifiers": [
+              [
+                "domain",
+                "acme.io"
+              ]
+            ],
+            "kept_entity": {
+              "canonical_name": "Acme Corp",
+              "corroboration_count": 2,
+              "fields": {
+                "city": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-a",
+                    "value": "Austin"
+                  }
+                ],
+                "company": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-a",
+                    "value": "Acme Corp"
+                  },
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-b",
+                    "value": "Acme Corp"
+                  }
+                ],
+                "website": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-a",
+                    "value": "https://acme.com"
+                  }
+                ]
+              },
+              "id": "e-keep",
+              "identity_keys": {
+                "domains": [
+                  "acme.com"
+                ],
+                "emails": [
+                  "a@acme.com"
+                ],
+                "name_variants": [
+                  "Acme Corp"
+                ],
+                "phones": [
+                  "5551234567"
+                ]
+              },
+              "observation_count": 4,
+              "primary_city": "Austin",
+              "primary_domain": "acme.com",
+              "primary_email": "a@acme.com",
+              "primary_phone": "5551234567",
+              "source_agreement": {
+                "company": 1.0
+              },
+              "sources": [
+                "src-a",
+                "src-b"
+              ],
+              "workspace_id": "ws-vec"
+            },
+            "person_references": {
+              "employments": [
+                9001
+              ],
+              "people": [
+                "p-1"
+              ]
+            },
+            "references": {
+              "account_rows": [
+                9001,
+                9003
+              ],
+              "watches": {
+                "w-both": {
+                  "accounts": [
+                    {
+                      "account_id": "e-keep"
+                    },
+                    {
+                      "account_id": "e-gone"
+                    }
+                  ],
+                  "group_entry": {
+                    "since": "g"
+                  },
+                  "health": {
+                    "e-gone:news": {
+                      "ok": true
+                    }
+                  },
+                  "moved_cursor": false,
+                  "scope_key": "old2"
+                },
+                "w-moved": {
+                  "accounts": [
+                    {
+                      "account_id": "e-gone",
+                      "name": "Acme Corporation"
+                    },
+                    {
+                      "account_id": "e-other"
+                    }
+                  ],
+                  "group_entry": {
+                    "since": "2026-01-01"
+                  },
+                  "health": {
+                    "e-gone:news": {
+                      "ok": true
+                    }
+                  },
+                  "moved_cursor": true,
+                  "scope_key": "old"
+                }
+              }
+            },
+            "row_ids": [
+              9001,
+              9002
+            ]
+          },
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "person_employments": [
+        {
+          "company_entity_id": "e-keep",
+          "id": 9001
+        },
+        {
+          "company_entity_id": "e-other",
+          "id": 9002
+        }
+      ],
+      "person_entities": [
+        {
+          "company_entity_id": "e-keep",
+          "id": "p-1"
+        },
+        {
+          "company_entity_id": "e-other",
+          "id": "p-2"
+        }
+      ],
+      "watch_subscriptions": [
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-keep"
+              }
+            ],
+            "scope_key": "accounts_4acbe2aba5095861263ca7bd"
+          },
+          "cursor": {
+            "account_group": {
+              "e-keep": {
+                "since": "k"
+              }
+            },
+            "collector_health": {
+              "e-keep:news": {
+                "ok": false
+              }
+            }
+          },
+          "id": "w-both"
+        },
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-gone"
+              }
+            ]
+          },
+          "cursor": null,
+          "id": "w-company"
+        },
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-keep",
+                "name": "Acme Corporation"
+              },
+              {
+                "account_id": "e-other"
+              }
+            ],
+            "cadence": "daily",
+            "scope_key": "accounts_97cfbd0d32aff1af80b931f4"
+          },
+          "cursor": {
+            "account_group": {
+              "e-keep": {
+                "since": "2026-01-01"
+              },
+              "e-other": {
+                "since": "x"
+              }
+            },
+            "collector_health": {
+              "e-keep:news": {
+                "ok": true
+              },
+              "e-other:news": {
+                "ok": false
+              }
+            },
+            "extra": 1
+          },
+          "id": "w-moved"
+        },
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-other"
+              }
+            ]
+          },
+          "cursor": {},
+          "id": "w-none"
+        }
+      ],
+      "workbook_rows": [
+        {
+          "canonical_entity_id": "e-keep",
+          "data": {
+            "account_id": "e-keep",
+            "company": "Acme",
+            "n": 1
+          },
+          "id": 9001
+        },
+        {
+          "canonical_entity_id": "e-keep",
+          "data": {
+            "account_id": "e-other",
+            "company": "Acme 2"
+          },
+          "id": 9002
+        },
+        {
+          "canonical_entity_id": null,
+          "data": {
+            "account_id": "e-keep",
+            "note": "mentions e-gone"
+          },
+          "id": 9003
+        },
+        {
+          "canonical_entity_id": "e-keep",
+          "data": {
+            "account_id": "e-keep"
+          },
+          "id": 9004
+        }
+      ]
+    },
+    "after_split": {
+      "company_entities": [
+        {
+          "canonical_name": "ACME Corporation Ltd",
+          "corroboration_count": 2,
+          "fields": {
+            "city": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "Austin"
+              }
+            ],
+            "company": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-b",
+                "value": "Acme Corp"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "ACME Corporation Ltd"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "ACME Corporation Ltd"
+              }
+            ],
+            "email": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "x@acme.io"
+              }
+            ],
+            "website": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-c",
+                "value": "https://acme.io"
+              }
+            ]
+          },
+          "id": "e-gone",
+          "identity_keys": {
+            "domains": [
+              "acme.io"
+            ],
+            "emails": [
+              "x@acme.io"
+            ],
+            "name_variants": [
+              "ACME Corporation Ltd"
+            ],
+            "phones": []
+          },
+          "observation_count": 5,
+          "primary_city": "Austin",
+          "primary_domain": "acme.io",
+          "primary_email": "x@acme.io",
+          "primary_phone": "",
+          "source_agreement": {
+            "company": 0.667
+          },
+          "sources": [
+            "src-b",
+            "src-c"
+          ],
+          "workspace_id": "ws-vec"
+        },
+        {
+          "canonical_name": "Acme Corp",
+          "corroboration_count": 3,
+          "fields": {
+            "city": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-a",
+                "value": "Austin"
+              }
+            ],
+            "company": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-a",
+                "value": "Acme Corp"
+              },
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-b",
+                "value": "Acme Corp"
+              },
+              {
+                "observed_at": "2026-09-01T00:00:00+00:00",
+                "source": "src-d",
+                "value": "LateCo"
+              }
+            ],
+            "website": [
+              {
+                "observed_at": "2026-08-29T10:00:00+00:00",
+                "source": "src-a",
+                "value": "https://acme.com"
+              }
+            ]
+          },
+          "id": "e-keep",
+          "identity_keys": {
+            "domains": [
+              "acme.com"
+            ],
+            "emails": [
+              "a@acme.com"
+            ],
+            "name_variants": [
+              "Acme Corp",
+              "LateCo"
+            ],
+            "phones": [
+              "5551234567"
+            ]
+          },
+          "observation_count": 5,
+          "primary_city": "Austin",
+          "primary_domain": "acme.com",
+          "primary_email": "a@acme.com",
+          "primary_phone": "5551234567",
+          "source_agreement": {
+            "city": 1.0,
+            "company": 0.667,
+            "website": 1.0
+          },
+          "sources": [
+            "src-a",
+            "src-b",
+            "src-d"
+          ],
+          "workspace_id": "ws-vec"
+        },
+        {
+          "canonical_name": "Other Inc",
+          "corroboration_count": 0,
+          "fields": {},
+          "id": "e-other",
+          "identity_keys": {},
+          "observation_count": 1,
+          "primary_city": null,
+          "primary_domain": "other.com",
+          "primary_email": null,
+          "primary_phone": null,
+          "source_agreement": {},
+          "sources": [],
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "company_identifiers": [
+        {
+          "entity_id": "e-keep",
+          "kind": "domain",
+          "value": "acme.com",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-gone",
+          "kind": "domain",
+          "value": "acme.io",
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "entity_blocking_keys": [
+        {
+          "entity_id": "e-gone",
+          "key": "city:austin:acme",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "key": "city:austin:acme",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "key": "domain:acme.com",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-gone",
+          "key": "domain:acme.io",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "key": "domain:acme.io",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-gone",
+          "key": "name:acm",
+          "workspace_id": "ws-vec"
+        },
+        {
+          "entity_id": "e-keep",
+          "key": "name:acm",
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "entity_merge_log": [
+        {
+          "kept_id": "e-keep",
+          "merged_id": "e-gone",
+          "reason": "manual",
+          "reverted": 1,
+          "score": 0.7264,
+          "snapshot": {
+            "blocking_keys": [
+              "name:acm",
+              "domain:acme.io",
+              "city:austin:acme"
+            ],
+            "entity": {
+              "canonical_name": "ACME Corporation Ltd",
+              "corroboration_count": 2,
+              "fields": {
+                "city": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "Austin"
+                  }
+                ],
+                "company": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-b",
+                    "value": "Acme Corp"
+                  },
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "ACME Corporation Ltd"
+                  },
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "ACME Corporation Ltd"
+                  }
+                ],
+                "email": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "x@acme.io"
+                  }
+                ],
+                "website": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-c",
+                    "value": "https://acme.io"
+                  }
+                ]
+              },
+              "id": "e-gone",
+              "identity_keys": {
+                "domains": [
+                  "acme.io"
+                ],
+                "emails": [
+                  "x@acme.io"
+                ],
+                "name_variants": [
+                  "ACME Corporation Ltd"
+                ],
+                "phones": []
+              },
+              "observation_count": 5,
+              "primary_city": "Austin",
+              "primary_domain": "acme.io",
+              "primary_email": "x@acme.io",
+              "primary_phone": "",
+              "source_agreement": {
+                "company": 0.667
+              },
+              "sources": [
+                "src-b",
+                "src-c"
+              ],
+              "workspace_id": "ws-vec"
+            },
+            "identifiers": [
+              [
+                "domain",
+                "acme.io"
+              ]
+            ],
+            "kept_entity": {
+              "canonical_name": "Acme Corp",
+              "corroboration_count": 2,
+              "fields": {
+                "city": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-a",
+                    "value": "Austin"
+                  }
+                ],
+                "company": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-a",
+                    "value": "Acme Corp"
+                  },
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-b",
+                    "value": "Acme Corp"
+                  }
+                ],
+                "website": [
+                  {
+                    "observed_at": "2026-08-29T10:00:00+00:00",
+                    "source": "src-a",
+                    "value": "https://acme.com"
+                  }
+                ]
+              },
+              "id": "e-keep",
+              "identity_keys": {
+                "domains": [
+                  "acme.com"
+                ],
+                "emails": [
+                  "a@acme.com"
+                ],
+                "name_variants": [
+                  "Acme Corp"
+                ],
+                "phones": [
+                  "5551234567"
+                ]
+              },
+              "observation_count": 4,
+              "primary_city": "Austin",
+              "primary_domain": "acme.com",
+              "primary_email": "a@acme.com",
+              "primary_phone": "5551234567",
+              "source_agreement": {
+                "company": 1.0
+              },
+              "sources": [
+                "src-a",
+                "src-b"
+              ],
+              "workspace_id": "ws-vec"
+            },
+            "person_references": {
+              "employments": [
+                9001
+              ],
+              "people": [
+                "p-1"
+              ]
+            },
+            "references": {
+              "account_rows": [
+                9001,
+                9003
+              ],
+              "watches": {
+                "w-both": {
+                  "accounts": [
+                    {
+                      "account_id": "e-keep"
+                    },
+                    {
+                      "account_id": "e-gone"
+                    }
+                  ],
+                  "group_entry": {
+                    "since": "g"
+                  },
+                  "health": {
+                    "e-gone:news": {
+                      "ok": true
+                    }
+                  },
+                  "moved_cursor": false,
+                  "scope_key": "old2"
+                },
+                "w-moved": {
+                  "accounts": [
+                    {
+                      "account_id": "e-gone",
+                      "name": "Acme Corporation"
+                    },
+                    {
+                      "account_id": "e-other"
+                    }
+                  ],
+                  "group_entry": {
+                    "since": "2026-01-01"
+                  },
+                  "health": {
+                    "e-gone:news": {
+                      "ok": true
+                    }
+                  },
+                  "moved_cursor": true,
+                  "scope_key": "old"
+                }
+              }
+            },
+            "row_ids": [
+              9001,
+              9002
+            ]
+          },
+          "workspace_id": "ws-vec"
+        }
+      ],
+      "person_employments": [
+        {
+          "company_entity_id": "e-gone",
+          "id": 9001
+        },
+        {
+          "company_entity_id": "e-other",
+          "id": 9002
+        }
+      ],
+      "person_entities": [
+        {
+          "company_entity_id": "e-gone",
+          "id": "p-1"
+        },
+        {
+          "company_entity_id": "e-other",
+          "id": "p-2"
+        }
+      ],
+      "watch_subscriptions": [
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-keep"
+              },
+              {
+                "account_id": "e-gone"
+              }
+            ],
+            "scope_key": "old2"
+          },
+          "cursor": {
+            "account_group": {
+              "e-gone": {
+                "since": "g"
+              },
+              "e-keep": {
+                "since": "k"
+              }
+            },
+            "collector_health": {
+              "e-gone:news": {
+                "ok": true
+              },
+              "e-keep:news": {
+                "ok": false
+              }
+            }
+          },
+          "id": "w-both"
+        },
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-gone"
+              }
+            ]
+          },
+          "cursor": null,
+          "id": "w-company"
+        },
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-gone",
+                "name": "Acme Corporation"
+              },
+              {
+                "account_id": "e-other"
+              }
+            ],
+            "cadence": "daily",
+            "scope_key": "old"
+          },
+          "cursor": {
+            "account_group": {
+              "e-gone": {
+                "since": "2026-01-01"
+              },
+              "e-other": {
+                "since": "x"
+              }
+            },
+            "collector_health": {
+              "e-gone:news": {
+                "ok": true
+              },
+              "e-other:news": {
+                "ok": false
+              }
+            },
+            "extra": 1
+          },
+          "id": "w-moved"
+        },
+        {
+          "config": {
+            "accounts": [
+              {
+                "account_id": "e-other"
+              }
+            ]
+          },
+          "cursor": {},
+          "id": "w-none"
+        }
+      ],
+      "workbook_rows": [
+        {
+          "canonical_entity_id": "e-gone",
+          "data": {
+            "account_id": "e-gone",
+            "company": "Acme",
+            "n": 1
+          },
+          "id": 9001
+        },
+        {
+          "canonical_entity_id": "e-gone",
+          "data": {
+            "account_id": "e-other",
+            "company": "Acme 2"
+          },
+          "id": 9002
+        },
+        {
+          "canonical_entity_id": null,
+          "data": {
+            "account_id": "e-gone",
+            "note": "mentions e-gone"
+          },
+          "id": 9003
+        },
+        {
+          "canonical_entity_id": "e-keep",
+          "data": {
+            "account_id": "e-keep"
+          },
+          "id": 9004
+        }
+      ]
+    },
+    "errors": {
+      "missing": {
+        "error": "entity_not_found"
+      },
+      "same": {
+        "error": "same_entity"
+      },
+      "split_twice": {
+        "error": "merge_log_not_found_or_reverted"
+      },
+      "split_unknown": {
+        "error": "merge_log_not_found_or_reverted"
+      }
+    },
+    "merge": {
+      "corroboration_count": 3,
+      "kept_id": "e-keep",
+      "merged_id": "e-gone"
+    },
+    "split": {
+      "rebound_rows": 2,
+      "restored_id": "e-gone"
+    }
+  },
+  "seed": {
+    "company_entities": [
+      {
+        "canonical_name": "Acme Corp",
+        "corroboration_count": 2,
+        "fields": {
+          "city": [
+            {
+              "observed_at": "2026-08-29T10:00:00+00:00",
+              "source": "src-a",
+              "value": "Austin"
+            }
+          ],
+          "company": [
+            {
+              "observed_at": "2026-08-29T10:00:00+00:00",
+              "source": "src-a",
+              "value": "Acme Corp"
+            },
+            {
+              "observed_at": "2026-08-29T10:00:00+00:00",
+              "source": "src-b",
+              "value": "Acme Corp"
+            }
+          ],
+          "website": [
+            {
+              "observed_at": "2026-08-29T10:00:00+00:00",
+              "source": "src-a",
+              "value": "https://acme.com"
+            }
+          ]
+        },
+        "first_seen": "2026-08-29T10:00:00",
+        "id": "e-keep",
+        "identity_keys": {
+          "domains": [
+            "acme.com"
+          ],
+          "emails": [
+            "a@acme.com"
+          ],
+          "name_variants": [
+            "Acme Corp"
+          ],
+          "phones": [
+            "5551234567"
+          ]
+        },
+        "last_seen": "2026-08-29T10:00:00",
+        "observation_count": 4,
+        "primary_city": "Austin",
+        "primary_domain": "acme.com",
+        "primary_email": "a@acme.com",
+        "primary_phone": "5551234567",
+        "source_agreement": {
+          "company": 1.0
+        },
+        "sources": [
+          "src-a",
+          "src-b"
+        ],
+        "workspace_id": "ws-vec"
+      },
+      {
+        "canonical_name": "ACME Corporation Ltd",
+        "corroboration_count": 2,
+        "fields": {
+          "city": [
+            {
+              "observed_at": "2026-08-29T10:00:00+00:00",
+              "source": "src-c",
+              "value": "Austin"
+            }
+          ],
+          "company": [
+            {
+              "observed_at": "2026-08-29T10:00:00+00:00",
+              "source": "src-b",
+              "value": "Acme Corp"
+            },
+            {
+              "observed_at": "2026-08-29T10:00:00+00:00",
+              "source": "src-c",
+              "value": "ACME Corporation Ltd"
+            },
+            {
+              "observed_at": "2026-08-29T10:00:00+00:00",
+              "source": "src-c",
+              "value": "ACME Corporation Ltd"
+            }
+          ],
+          "email": [
+            {
+              "observed_at": "2026-08-29T10:00:00+00:00",
+              "source": "src-c",
+              "value": "x@acme.io"
+            }
+          ],
+          "website": [
+            {
+              "observed_at": "2026-08-29T10:00:00+00:00",
+              "source": "src-c",
+              "value": "https://acme.io"
+            }
+          ]
+        },
+        "first_seen": "2026-08-29T10:00:00",
+        "id": "e-gone",
+        "identity_keys": {
+          "domains": [
+            "acme.io"
+          ],
+          "emails": [
+            "x@acme.io"
+          ],
+          "name_variants": [
+            "ACME Corporation Ltd"
+          ],
+          "phones": []
+        },
+        "last_seen": "2026-08-29T10:00:00",
+        "observation_count": 5,
+        "primary_city": "Austin",
+        "primary_domain": "acme.io",
+        "primary_email": "x@acme.io",
+        "primary_phone": "",
+        "source_agreement": {
+          "company": 0.667
+        },
+        "sources": [
+          "src-b",
+          "src-c"
+        ],
+        "workspace_id": "ws-vec"
+      },
+      {
+        "canonical_name": "Other Inc",
+        "corroboration_count": 0,
+        "fields": {},
+        "first_seen": "2026-08-29T10:00:00",
+        "id": "e-other",
+        "identity_keys": {},
+        "last_seen": "2026-08-29T10:00:00",
+        "observation_count": 1,
+        "primary_domain": "other.com",
+        "source_agreement": {},
+        "sources": [],
+        "workspace_id": "ws-vec"
+      }
+    ],
+    "company_identifiers": [
+      {
+        "entity_id": "e-keep",
+        "id": 9001,
+        "kind": "domain",
+        "value": "acme.com",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "entity_id": "e-gone",
+        "id": 9002,
+        "kind": "domain",
+        "value": "acme.io",
+        "workspace_id": "ws-vec"
+      }
+    ],
+    "entity_blocking_keys": [
+      {
+        "entity_id": "e-keep",
+        "id": 9001,
+        "key": "name:acm",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "entity_id": "e-keep",
+        "id": 9002,
+        "key": "domain:acme.com",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "entity_id": "e-gone",
+        "id": 9003,
+        "key": "name:acm",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "entity_id": "e-gone",
+        "id": 9004,
+        "key": "domain:acme.io",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "entity_id": "e-gone",
+        "id": 9005,
+        "key": "city:austin:acme",
+        "workspace_id": "ws-vec"
+      }
+    ],
+    "person_employments": [
+      {
+        "company_entity_id": "e-gone",
+        "company_key": "acme",
+        "first_observed_at": "2026-08-29T10:00:00",
+        "id": 9001,
+        "is_current": 1,
+        "last_observed_at": "2026-08-29T10:00:00",
+        "person_id": "p-1",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "company_entity_id": "e-other",
+        "company_key": "other",
+        "first_observed_at": "2026-08-29T10:00:00",
+        "id": 9002,
+        "is_current": 1,
+        "last_observed_at": "2026-08-29T10:00:00",
+        "person_id": "p-2",
+        "workspace_id": "ws-vec"
+      }
+    ],
+    "person_entities": [
+      {
+        "company_entity_id": "e-gone",
+        "corroboration_count": 1,
+        "fields": {},
+        "first_seen": "2026-08-29T10:00:00",
+        "full_name": "Pat",
+        "id": "p-1",
+        "identity_keys": {},
+        "last_seen": "2026-08-29T10:00:00",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "company_entity_id": "e-other",
+        "corroboration_count": 1,
+        "fields": {},
+        "first_seen": "2026-08-29T10:00:00",
+        "full_name": "Quinn",
+        "id": "p-2",
+        "identity_keys": {},
+        "last_seen": "2026-08-29T10:00:00",
+        "workspace_id": "ws-vec"
+      }
+    ],
+    "watch_subscriptions": [
+      {
+        "config": {
+          "accounts": [
+            {
+              "account_id": "e-gone",
+              "name": "Acme Corporation"
+            },
+            {
+              "account_id": "e-other"
+            }
+          ],
+          "cadence": "daily",
+          "scope_key": "old"
+        },
+        "created_at": "2026-08-29T10:00:00+00:00",
+        "cursor": {
+          "account_group": {
+            "e-gone": {
+              "since": "2026-01-01"
+            },
+            "e-other": {
+              "since": "x"
+            }
+          },
+          "collector_health": {
+            "e-gone:news": {
+              "ok": true
+            },
+            "e-other:news": {
+              "ok": false
+            }
+          },
+          "extra": 1
+        },
+        "enabled": true,
+        "id": "w-moved",
+        "kind": "account_group",
+        "target": "t1",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "config": {
+          "accounts": [
+            {
+              "account_id": "e-keep"
+            },
+            {
+              "account_id": "e-gone"
+            }
+          ],
+          "scope_key": "old2"
+        },
+        "created_at": "2026-08-29T10:00:00+00:00",
+        "cursor": {
+          "account_group": {
+            "e-gone": {
+              "since": "g"
+            },
+            "e-keep": {
+              "since": "k"
+            }
+          },
+          "collector_health": {
+            "e-gone:news": {
+              "ok": true
+            },
+            "e-keep:news": {
+              "ok": false
+            }
+          }
+        },
+        "enabled": true,
+        "id": "w-both",
+        "kind": "account_group",
+        "target": "t2",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "config": {
+          "accounts": [
+            {
+              "account_id": "e-other"
+            }
+          ]
+        },
+        "created_at": "2026-08-29T10:00:00+00:00",
+        "cursor": {},
+        "enabled": true,
+        "id": "w-none",
+        "kind": "account_group",
+        "target": "t3",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "config": {
+          "accounts": [
+            {
+              "account_id": "e-gone"
+            }
+          ]
+        },
+        "created_at": "2026-08-29T10:00:00+00:00",
+        "cursor": null,
+        "enabled": true,
+        "id": "w-company",
+        "kind": "company",
+        "target": "t4",
+        "workspace_id": "ws-vec"
+      }
+    ],
+    "workbook_rows": [
+      {
+        "canonical_entity_id": "e-gone",
+        "data": {
+          "account_id": "e-gone",
+          "company": "Acme",
+          "n": 1
+        },
+        "id": 9001,
+        "position": 0,
+        "updated_at": "2026-08-29T10:00:00",
+        "workbook_id": "wb-vec",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "canonical_entity_id": "e-gone",
+        "data": {
+          "account_id": "e-other",
+          "company": "Acme 2"
+        },
+        "id": 9002,
+        "position": 1,
+        "updated_at": "2026-08-29T10:00:00",
+        "workbook_id": "wb-vec",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "canonical_entity_id": null,
+        "data": {
+          "account_id": "e-gone",
+          "note": "mentions e-gone"
+        },
+        "id": 9003,
+        "position": 2,
+        "updated_at": "2026-08-29T10:00:00",
+        "workbook_id": "wb-vec",
+        "workspace_id": "ws-vec"
+      },
+      {
+        "canonical_entity_id": "e-keep",
+        "data": {
+          "account_id": "e-keep"
+        },
+        "id": 9004,
+        "position": 3,
+        "updated_at": "2026-08-29T10:00:00",
+        "workbook_id": "wb-vec",
+        "workspace_id": "ws-vec"
+      }
+    ],
+    "workbooks": [
+      {
+        "id": "wb-vec",
+        "name": "Vec",
+        "workspace_id": "ws-vec"
+      }
+    ]
+  },
+  "seed_order": [
+    "workbooks",
+    "company_entities",
+    "company_identifiers",
+    "entity_blocking_keys",
+    "workbook_rows",
+    "watch_subscriptions",
+    "person_entities",
+    "person_employments"
+  ]
+}
