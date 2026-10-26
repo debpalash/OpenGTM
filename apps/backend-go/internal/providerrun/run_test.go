@@ -93,7 +93,12 @@ func newHarness(t *testing.T, mut func(*providerrun.Deps)) *harness {
 	pool := testpg.NewAppPool(t, 4)
 	cleanup := func() {
 		_, _ = pool.Exec(context.Background(), `DELETE FROM provider_stats WHERE provider LIKE 't18\_%' OR provider = 'reacher'`)
-		_, _ = pool.Exec(context.Background(), `DELETE FROM provider_stats WHERE provider = 'numverify'`)
+		// Cache tables are FORCE RLS: clean through the owner connection.
+		if owner, err := pgxpool.New(context.Background(), os.Getenv("TEST_DATABASE_URL")); err == nil {
+			_, _ = owner.Exec(context.Background(), `DELETE FROM email_verify_cache WHERE workspace_id = 'ws1'`)
+			_, _ = owner.Exec(context.Background(), `DELETE FROM enrichment_cache WHERE workspace_id = 'ws1'`)
+			owner.Close()
+		}
 	}
 	cleanup()
 	t.Cleanup(cleanup)
@@ -321,7 +326,10 @@ func TestRunCacheHitSkipsProvider(t *testing.T) {
 	h := newHarness(t, nil)
 	wsA, wsB := uniq("t18wsA"), uniq("t18wsB")
 	t.Cleanup(func() {
-		_, _ = h.pool.Exec(context.Background(), `DELETE FROM enrichment_cache WHERE workspace_id = ANY($1)`, []string{wsA, wsB})
+		if owner, err := pgxpool.New(context.Background(), os.Getenv("TEST_DATABASE_URL")); err == nil {
+			_, _ = owner.Exec(context.Background(), `DELETE FROM enrichment_cache WHERE workspace_id = ANY($1)`, []string{wsA, wsB})
+			owner.Close()
+		}
 	})
 	lead := map[string]any{"website": "https://www.acme.co/about", "company": "Acme"}
 	in := providers.Input{Lead: lead, Field: "description"}
