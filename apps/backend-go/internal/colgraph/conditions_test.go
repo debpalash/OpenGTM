@@ -173,3 +173,22 @@ func TestConditionBoundedInput(t *testing.T) {
 	// Must terminate quickly (no quadratic blowup).
 	_ = EvalCondition(string(long)+" == 1", map[string]any{})
 }
+
+func TestDuplicateDisplayNamesFollowColumnConfigOrder(t *testing.T) {
+	// Python iterates row cells in lead_data order, so the alias "Dup" ends up
+	// with the last column's value. Go follows column config order first.
+	cols := []Col{
+		MakeCol("id", "x2", "name", "Dup"),
+		MakeCol("id", "x1", "name", "Dup"),
+	}
+	row := map[string]any{"x1": "one", "x2": "two"}
+	if !EvalConditionCols(`{Dup} == "one"`, row, cols) {
+		t.Error("last column in config order should win the shared display name")
+	}
+	// Case-only collisions: lower-case lookup keeps the first key.
+	cols = []Col{MakeCol("id", "b", "name", "Name"), MakeCol("id", "a", "name", "NAME")}
+	row = map[string]any{"a": "A", "b": "B"}
+	if !EvalConditionCols(`{nAmE} == "B"`, row, cols) {
+		t.Error("first key in config order should win the case-insensitive match")
+	}
+}
