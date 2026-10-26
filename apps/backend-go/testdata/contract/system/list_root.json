@@ -1,0 +1,88 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/files/list"
+  },
+  "response": {
+    "body": [
+      {
+        "is_dir": false,
+        "modified": "2026-01-06T10:00:00",
+        "name": "tobedeleted.txt",
+        "path": "tobedeleted.txt",
+        "size": 4,
+        "type": "document"
+      },
+      {
+        "is_dir": false,
+        "modified": "2026-01-05T10:00:00",
+        "name": "weird.xyz",
+        "path": "weird.xyz",
+        "size": 3,
+        "type": "other"
+      },
+      {
+        "is_dir": false,
+        "modified": "2026-01-04T10:00:00",
+        "name": "notes.pdf",
+        "path": "notes.pdf",
+        "size": 3,
+        "type": "document"
+      },
+      {
+        "is_dir": false,
+        "modified": "2026-01-03T10:00:00",
+        "name": "gamma.PNG",
+        "path": "gamma.PNG",
+        "size": 3,
+        "type": "image"
+      },
+      {
+        "is_dir": false,
+        "modified": "2026-01-02T10:00:00",
+        "name": "beta.mp4",
+        "path": "beta.mp4",
+        "size": 4,
+        "type": "video"
+      },
+      {
+        "is_dir": false,
+        "modified": "2026-01-01T10:00:00",
+        "name": "alpha.txt",
+        "path": "alpha.txt",
+        "size": 6,
+        "type": "document"
+      },
+      {
+        "is_dir": true,
+        "modified": "2026-01-13T10:00:00",
+        "name": "delme",
+        "path": "delme",
+        "size": 0,
+        "type": "folder"
+      },
+      {
+        "is_dir": true,
+        "modified": "2026-01-11T10:00:00",
+        "name": "emptydir",
+        "path": "emptydir",
+        "size": 0,
+        "type": "folder"
+      },
+      {
+        "is_dir": true,
+        "modified": "2026-01-10T10:00:00",
+        "name": "sub",
+        "path": "sub",
+        "size": 0,
+        "type": "folder"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

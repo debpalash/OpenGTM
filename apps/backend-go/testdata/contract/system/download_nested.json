@@ -1,0 +1,15 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/files/download/sub/inner.md"
+  },
+  "response": {
+    "body": "# inner\n",
+    "headers": {
+      "content-type": "text/markdown; charset=utf-8"
+    },
+    "status": 200
+  }
+}
