@@ -341,7 +341,7 @@ writes nothing. No fixture; tests named in parentheses.
   saved view on write, and `WORKBOOK_MAX_COLUMNS` (500) columns per workbook (create, update, add column), else 422
   `too_long`. Views already stored over the cap still load (no read-side cap; deferred)
   (`TestViewConfigFilterAndSortCaps`, `TestColumnListCap`).
-- `POST /api/workbooks/templates/{id}/create`: `columns_config` is stored without HTML escaping like every other write path
+- `POST /api/templates/{template_id}/create`: `columns_config` is stored without HTML escaping like every other write path
   (Python text parity; decoded JSON was already identical) (`TestTemplateColumnsStoredWithoutHTMLEscaping`).
 
 ## Contract coverage (plan 04 Task 23)
