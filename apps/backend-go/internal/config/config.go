@@ -196,3 +196,117 @@ func (c Config) LogValue() slog.Value {
 		slog.Any("egress_allow_hosts", r.EgressAllowHosts),
 	)
 }
+
+// InsecureDefaultSecretKey is the never-safe-in-prod default signing key
+// (Python INSECURE_DEFAULT_SECRET_KEY).
+const InsecureDefaultSecretKey = "INSECURE_FALLBACK_KEY_FOR_DEVELOPMENT_ONLY"
+
+// devEnvs mirrors _DEV_ENVS in legacy/python/apps/api/core/config.py: the only
+// APP_ENV values where the insecure default SECRET_KEY is tolerated.
+var devEnvs = map[string]bool{"dev": true, "development": true, "test": true, "testing": true, "local": true}
+
+// APIConfig is the configuration of cmd/api. Names mirror the Python settings.
+type APIConfig struct {
+	DatabaseURL      string
+	Addr             string // API_ADDR
+	SecretKey        string
+	Algorithm        string // only HS256
+	AccessTTL        time.Duration
+	RefreshTTL       time.Duration
+	CORSOrigins      string
+	AppEnv           string
+	MCPTokenTTLDays  int
+	ScimTokenTTLDays int // OPENGTM_SCIM_TOKEN_TTL_DAYS, clamped 1..365
+	TrustProxy       bool
+	DBMaxConns       int
+}
+
+// LoadAPI reads the API configuration from the environment and validates it.
+func LoadAPI() (APIConfig, error) { return loadAPI(os.Getenv) }
+
+func loadAPI(get func(string) string) (APIConfig, error) {
+	c := APIConfig{
+		DatabaseURL: get("DATABASE_URL"),
+		Addr:        get("API_ADDR"),
+		SecretKey:   get("SECRET_KEY"),
+		Algorithm:   get("ALGORITHM"),
+		CORSOrigins: get("CORS_ORIGINS"),
+		AppEnv:      get("APP_ENV"),
+		TrustProxy:  strings.EqualFold(strings.TrimSpace(get("TRUST_PROXY")), "true"),
+	}
+	if c.Addr == "" {
+		c.Addr = ":8000"
+	}
+	if c.SecretKey == "" {
+		c.SecretKey = InsecureDefaultSecretKey
+	}
+	if c.Algorithm == "" {
+		c.Algorithm = "HS256"
+	}
+	if c.CORSOrigins == "" {
+		c.CORSOrigins = "*"
+	}
+	if c.AppEnv == "" {
+		c.AppEnv = "dev"
+	}
+	if c.DatabaseURL == "" {
+		return APIConfig{}, errors.New("config: DATABASE_URL is required")
+	}
+	if c.Algorithm != "HS256" {
+		return APIConfig{}, errors.New("config: ALGORITHM must be HS256")
+	}
+	if strings.Contains(c.SecretKey, InsecureDefaultSecretKey) && !devEnvs[strings.ToLower(strings.TrimSpace(c.AppEnv))] {
+		return APIConfig{}, fmt.Errorf("config: refusing to start: SECRET_KEY is the insecure default while APP_ENV=%q; set a strong SECRET_KEY or set APP_ENV to a development value", c.AppEnv)
+	}
+	const maxMinutes = 60 * 24 * 365 * 10
+	am, err := intVar(get, "ACCESS_TOKEN_EXPIRE_MINUTES", 30, 1, maxMinutes)
+	if err != nil {
+		return APIConfig{}, err
+	}
+	rm, err := intVar(get, "REFRESH_TOKEN_EXPIRE_MINUTES", 60*24*14, 1, maxMinutes)
+	if err != nil {
+		return APIConfig{}, err
+	}
+	c.AccessTTL, c.RefreshTTL = time.Duration(am)*time.Minute, time.Duration(rm)*time.Minute
+	if c.MCPTokenTTLDays, err = intVar(get, "MCP_TOKEN_TTL_DAYS", 90, 1, 36500); err != nil {
+		return APIConfig{}, err
+	}
+	if c.ScimTokenTTLDays, err = clampVar(get, "OPENGTM_SCIM_TOKEN_TTL_DAYS", 90, 1, 365); err != nil {
+		return APIConfig{}, err
+	}
+	if c.DBMaxConns, err = intVar(get, "API_DB_MAX_CONNS", defaultDBMaxConns, 1, 1000); err != nil {
+		return APIConfig{}, err
+	}
+	return c, nil
+}
+
+func (c APIConfig) redacted() APIConfig {
+	c.DatabaseURL = redactURL(c.DatabaseURL)
+	if c.SecretKey != "" {
+		c.SecretKey = "[redacted]"
+	}
+	return c
+}
+
+type plainAPI APIConfig
+
+// String implements fmt.Stringer with secrets redacted (covers %v and %+v).
+func (c APIConfig) String() string { return fmt.Sprintf("%+v", plainAPI(c.redacted())) }
+
+// LogValue implements slog.LogValuer with secrets redacted.
+func (c APIConfig) LogValue() slog.Value {
+	r := c.redacted()
+	return slog.GroupValue(
+		slog.String("database_url", r.DatabaseURL),
+		slog.String("addr", r.Addr),
+		slog.String("secret_key", r.SecretKey),
+		slog.String("algorithm", r.Algorithm),
+		slog.Duration("access_ttl", r.AccessTTL),
+		slog.Duration("refresh_ttl", r.RefreshTTL),
+		slog.String("cors_origins", r.CORSOrigins),
+		slog.String("app_env", r.AppEnv),
+		slog.Int("mcp_token_ttl_days", r.MCPTokenTTLDays),
+		slog.Int("scim_token_ttl_days", r.ScimTokenTTLDays),
+		slog.Bool("trust_proxy", r.TrustProxy),
+	)
+}
