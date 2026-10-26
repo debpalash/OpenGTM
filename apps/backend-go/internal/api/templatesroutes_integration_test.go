@@ -81,8 +81,8 @@ func tplActor(name string) (who, ws string) {
 		return "bob", "ws-alpha"
 	case "instantiate_beta_owner":
 		return "bob", "ws-beta"
-	case "instantiate_foreign_ws":
-		return "alice", "ws-beta"
+	case "instantiate_foreign_ws", "create_foreign_ws":
+		return "erin", "ws-beta"
 	case "instantiate_name", "create_hot_leads":
 		return "erin", "ws-alpha"
 	}
