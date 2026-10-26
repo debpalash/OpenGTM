@@ -464,14 +464,14 @@ func buildBody(raw any, lead map[string]any, cols []Column) ([]byte, string, err
 	const jsonCT = "application/json"
 	switch t := raw.(type) {
 	case nil:
-		b, err := rowtmpl.MarshalOrdered(lead)
+		b, err := rowtmpl.MarshalOrdered(rowtmpl.CanonNumbers(lead))
 		return b, jsonCT, err
 	case map[string]any, colgraph.Col, []any:
 		v, err := rowtmpl.ResolveDeep(t, lead, cols)
 		if err != nil {
 			return nil, "", err
 		}
-		b, err := rowtmpl.MarshalOrdered(v)
+		b, err := rowtmpl.MarshalOrdered(rowtmpl.CanonNumbers(v))
 		return b, jsonCT, err
 	}
 	resolved, err := rowtmpl.Resolve(str(raw), lead, cols)
@@ -482,7 +482,7 @@ func buildBody(raw any, lead map[string]any, cols []Column) ([]byte, string, err
 		if v == nil { // json=None: httpx sends no body
 			return nil, "", nil
 		}
-		b, err := rowtmpl.MarshalOrdered(v)
+		b, err := rowtmpl.MarshalOrdered(rowtmpl.CanonNumbers(v))
 		return b, jsonCT, err
 	}
 	return []byte(resolved), "text/plain", nil
