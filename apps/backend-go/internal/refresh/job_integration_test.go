@@ -291,3 +291,23 @@ func TestRefreshMissingWorkbookCompletesQuietly(t *testing.T) {
 		t.Error("missing workspace_id must error")
 	}
 }
+
+func TestRefreshSkipsChainWhenAnotherActiveRefreshExists(t *testing.T) {
+	pool, ctx := setupPool(t)
+	seedStaleWorkbook(t, ctx, pool, wsA, "w1", refreshCols, `{"enabled":true,"interval":"daily"}`)
+	// A signal-triggered refresh (no fire key) is already pending for the workbook.
+	err := tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, `INSERT INTO jobs (executor, type, payload, workspace_id, priority, status, next_run_at, max_retries, retry_count)
+			VALUES ('python','refresh_workbook', '{"workbook_id":"w1","workspace_id":"ws-p06t16-a","reason":"signal"}'::json, $1, 2, 'pending', now() at time zone 'utc', 3, 0)`, wsA)
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := refresh.Handle(ctx, deps(pool), claim(1000, wsA, map[string]any{"workbook_id": "w1", "workspace_id": wsA})); err != nil {
+		t.Fatal(err)
+	}
+	if n := len(ofType(jobs(t, ctx, pool, wsA), "refresh_workbook")); n != 1 {
+		t.Errorf("a second chain was started: %d refresh jobs", n)
+	}
+}
