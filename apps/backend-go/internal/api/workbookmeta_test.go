@@ -30,6 +30,7 @@ func newMetaEnvFlags(t *testing.T, fl config.Flags) metaEnv {
 	RegisterWorkbooks(r, d)
 	RegisterWorkbookDetail(r, d)
 	RegisterWorkbookMeta(r, d)
+	registerWorkbookEstimate(r, d) // GET meta/provider-stats (Task 23)
 	e := metaEnv{detailEnv{mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}}}
 	e.purge()
 	t.Cleanup(e.purge)
