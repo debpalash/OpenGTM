@@ -393,3 +393,16 @@ writes nothing. No fixture; tests named in parentheses.
 - A no-op debit (disabled, cost rounds to <= 0) reads the balance but never creates the zero `workspace_credits` row Python's `get_balance` creates; `NaN` cost is a no-op.
 - The debit runs in the caller's transaction (never commits), so Task 24 debits and enqueues atomically (decision D4).
 - `ProjectedPlatformCost` uses a default catalog where only `research` (0.05, `RESEARCH_VENDOR_COST`) is platform-billed, exactly Python's `byok=False` set; Task 19 wires `vendorcatalog` through `billing.SetCostCatalog`.
+
+## Manifest (plan 06 Task 8)
+
+`internal/manifest` (`CanonicalYAML`, `Verify`, `LoadIndex`) matches `signing.py` / `go_executor.load_manifest_index` on the Task 1 vectors. Go-only deviations:
+
+- Size caps: manifest, `.sig` envelope and trust store are each limited to 1 MiB (Python is unbounded); larger files are `invalid` / skipped.
+- YAML expansion caps: an alias-expanded document over 1,000,000 nodes or nested deeper than 512 (including recursive anchors) is rejected.
+- Symlinks are never followed: symlinked manifest files and directories are skipped by `LoadIndex`; a symlinked `.sig` makes `Verify` return `invalid`. A symlinked root `dir` yields an empty index.
+- A `..` element in the `dir` argument returns `ErrPathTraversal`.
+- Each manifest is read once; the verified bytes are the hashed and decoded bytes (no TOCTOU between verify and load).
+- A broken trust store is deferred and only turns a signed manifest `invalid` at Python's point (after envelope checks); a missing trust store file is empty (`untrusted`).
+- Not supported (Python accepts): `!!omap` / `!!pairs` tags, NaN mapping keys, non-string trust-store key ids (entries ignored), pydantic string-to-number coercion in manifest fields.
+- `CanonicalManifest(Manifest)` is not Python-identical (Python hashes the authored YAML); the Python-equal hash is `Entry.SHA256`.
