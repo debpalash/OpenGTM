@@ -588,3 +588,51 @@ func TestInactiveUserIs400(t *testing.T) {
 		t.Fatalf("%d", rec.Code)
 	}
 }
+
+// wsEntry returns the idx-th workspace entry of a list response body.
+func wsEntry(t *testing.T, body []byte, idx int) json.RawMessage {
+	t.Helper()
+	var b struct{ Workspaces []json.RawMessage }
+	if err := json.Unmarshal(body, &b); err != nil || idx >= len(b.Workspaces) {
+		t.Fatalf("workspace entry %d: %v: %s", idx, err, body)
+	}
+	return b.Workspaces[idx]
+}
+
+func TestListAliceBobMatchFixtures(t *testing.T) {
+	e := newWsEnv(t)
+	aid, ah := e.user(t, "t11-fx-alice")
+	bid, bh := e.user(t, "t11-fx-bob")
+	n := uniq(t)
+	e.mk(t, n+"-alpha", "Alpha", n+"-alpha", aid, 1788000000, map[int32]string{aid: "owner", bid: "member"})
+	e.mk(t, n+"-beta", "Beta", n+"-beta", bid, 1788000000, map[int32]string{bid: "owner", aid: "member"})
+	e.setActive(t, aid, n+"-alpha")
+	e.setActive(t, bid, n+"-beta")
+	ignore := contract.IgnorePaths("$.id", "$.slug", "$.owner_id")
+	for _, c := range []struct {
+		name string
+		hdr  map[string]string
+		want string
+	}{{"workspaces/list_alice", ah, n + "-alpha"}, {"workspaces/list_bob", bh, n + "-beta"}} {
+		fx := contract.Load(t, c.name)
+		rec, got := e.do("GET", "/api/workspaces", "", "", c.hdr)
+		if rec.Code != fx.Response.Status || decodeMap(t, rec.Body.Bytes())["active_id"] != c.want {
+			t.Fatalf("%s: %d active_id=%v", c.name, rec.Code, decodeMap(t, rec.Body.Bytes())["active_id"])
+		}
+		for i := 0; i < 2; i++ { // alpha, beta; fixture alice also lists the seeded main workspace
+			contract.AssertEqual(t,
+				contract.Resp{Status: 200, Headers: got.Headers, Body: wsEntry(t, rec.Body.Bytes(), i)},
+				contract.Resp{Status: 200, Headers: fx.Response.Headers, Body: wsEntry(t, fx.Response.Body, i)}, ignore)
+		}
+	}
+}
+
+func TestSwitchOKMatchesFixture(t *testing.T) {
+	e := newWsEnv(t)
+	uid, hdr := e.user(t, "t11-fx-sw")
+	n := uniq(t)
+	e.mk(t, n+"-alpha", "Alpha", n+"-alpha", uid, 1788000000, map[int32]string{uid: "owner"})
+	fx := contract.Load(t, "workspaces/switch_ok")
+	_, got := e.do("POST", "/api/workspaces/switch", "application/json", mustJSON(map[string]string{"workspace_id": n + "-alpha"}), hdr)
+	contract.AssertEqual(t, got, fx.Response, contract.IgnorePaths("$.id"))
+}

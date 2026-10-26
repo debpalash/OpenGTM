@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -372,4 +373,59 @@ func TestAuditRowWritten(t *testing.T) {
 	if strings.Contains(md, raw) || strings.Contains(md, hashMCPToken(raw)) {
 		t.Fatal("audit metadata contains token material")
 	}
+}
+
+func TestMCPNonAdminCreateMatchesFixture(t *testing.T) {
+	e := newMCPEnv(t)
+	_, _ = e.admin(t, "t12-fxws0", "t12-fxadm0")
+	e.seed(t, "t12-fxed0", pythonHash, true, "user", false)
+	ed := e.mustUserByName(t, "t12-fxed0")
+	e.member(t, "t12-fxws0", ed.ID, "editor")
+	h := bearer("t12-fxed0")
+	h["X-Workspace-Id"] = "t12-fxws0"
+	fx := contract.Load(t, "mcp_tokens/create_non_admin")
+	_, got := e.do("POST", "/api/mcp/tokens", "application/json", `{}`, h)
+	contract.AssertEqual(t, got, fx.Response)
+}
+
+func TestMCPRevokeAndListMatchFixtures(t *testing.T) {
+	e := newMCPEnv(t)
+	_, hdrA := e.admin(t, "t12-fxwsA", "t12-fxadmA")
+	_, hdrB := e.admin(t, "t12-fxwsB", "t12-fxadmB")
+	_, first := e.create(t, hdrA, `{"name":"ci-bot","capabilities":["leads:read","leads:write"],"ttl_days":7}`)
+	_, second := e.create(t, hdrA, `{"capabilities":["leads:read"]}`)
+	_, third := e.create(t, hdrA, `{"capabilities":["outreach:send"],"ttl_days":0}`)
+	id1, id2 := first["id"].(string), second["id"].(string)
+	_ = third
+
+	// another workspace cannot see or revoke it
+	fx := contract.Load(t, "mcp_tokens/list_other_workspace")
+	_, got := e.do("GET", "/api/mcp/tokens", "", "", hdrB)
+	contract.AssertEqual(t, got, fx.Response)
+	fx = contract.Load(t, "mcp_tokens/revoke_cross_workspace")
+	_, got = e.do("DELETE", "/api/mcp/tokens/"+id2, "", "", hdrB)
+	contract.AssertEqual(t, got, fx.Response)
+
+	// revoke twice (idempotent), both match the recorded body shape
+	for _, name := range []string{"mcp_tokens/revoke_ok", "mcp_tokens/revoke_again"} {
+		fx = contract.Load(t, name)
+		_, got = e.do("DELETE", "/api/mcp/tokens/"+id1, "", "", hdrA)
+		contract.AssertEqual(t, got, fx.Response, contract.IgnorePaths("$.id"))
+	}
+
+	fx = contract.Load(t, "mcp_tokens/list_after_revoke")
+	_, got = e.do("GET", "/api/mcp/tokens", "", "", hdrA)
+	var ids []string
+	for i := 0; i < 3; i++ {
+		ids = append(ids, fmt.Sprintf("$[%d]", i))
+	}
+	var opts []contract.Option
+	var shape []string
+	var ignore []string
+	for _, p := range ids {
+		ignore = append(ignore, p+".id", p+".prefix", p+".workspace_id")
+		shape = append(shape, p+".created_at", p+".expires_at", p+".revoked_at")
+	}
+	opts = append(opts, contract.IgnorePaths(ignore...), contract.IgnoreShapeOf(shape...))
+	contract.AssertEqual(t, got, fx.Response, opts...)
 }

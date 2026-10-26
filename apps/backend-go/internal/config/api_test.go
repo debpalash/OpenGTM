@@ -138,4 +138,3 @@ func TestRLSRequireSafeRoleDefaultsTrue(t *testing.T) {
 		t.Error("garbage must be refused")
 	}
 }
-
