@@ -394,3 +394,11 @@ Tasks in a wave touch disjoint files and may run concurrently. Each wave starts 
 - **Consistency:** `Column`, `ViewConfig`, `GuardError` (Task 3), `Service`, `Workbook`, `Owned`, `WithTx` (Task 7), `RowQuery`/cursor funcs (Task 8), `LeadReader` (Task 4 satisfies Task 7), `Hook` (Task 5), `Service.Create` (Task 9, used by Task 22) are each defined once and referenced by name later.
 - **Decisions (open, defaults chosen):** D1 file routes hardened (auth, traversal fix, non-recursive delete, no `str(e)` leak) instead of parity; D2 Go requires the PG lead store; D3 the 14 enrichment/LLM/Redis workbook routes and 2 ingest routes stay on Python until plans 05/06, so nginx splits per route; D4 `on_row_added` is ported as the enqueue half only and shares `AUTOMATIONS_ENABLED`; D5 analytics keeps the existing degraded PG shapes; D6 functions `apply` keeps Python's lack of cycle validation.
 - **Proportion:** interfaces, guard strings and test names carry the decisions; handler and SQL bodies are left to the implementer.
+
+## User decisions (2026-10-26) — override task text where they conflict
+
+- Files/system routes: **harden** (auth + global admin, safe path check, non-recursive delete, no error-text leak); `FILES_API_MODE=legacy` keeps an exact-parity escape hatch.
+- Lead store: **Postgres only** (`PG_LEAD_STORE=true`); per-workspace SQLite `leads.db` stays Python-only.
+- Automations: **port the enqueue half now** (`trigger_eval` jobs); `AUTOMATIONS_ENABLED` must match on both stacks.
+- Functions apply: **keep parity** (no cycle validation).
+- Defaults accepted for analytics (PG-store branch only) and the retained routes (14 workbook + 2 ingest routes stay on Python until plans 05/06).
