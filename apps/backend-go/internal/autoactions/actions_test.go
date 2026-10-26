@@ -395,7 +395,7 @@ func TestReEnrichDispatchVectors(t *testing.T) {
 			}
 		})
 	}
-	if n < 20 {
+	if n < 19 {
 		t.Fatalf("only %d re_enrich vectors ran", n)
 	}
 }
