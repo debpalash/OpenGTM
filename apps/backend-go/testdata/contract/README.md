@@ -1019,6 +1019,12 @@ Runbook: `docs/go-port/runbooks/governance-playbooks-cutover.md`. Fixtures not r
   policy (enabled) or playbook (enabled, schedule audience) is found by a lookup run inside the payload's tenant (a forged workspace sees nothing); otherwise a permanent failure. An empty-workspace
   `research_playbook_run` or a retention job carrying a `run_id` is always a permanent failure. A non-empty job workspace must equal the payload's. Go's retention scheduler now writes
   `jobs.workspace_id` (Python leaves it NULL; both are handled), the playbook scheduler already did.
+- **Scheduled-job retry and skip.** After a failed attempt reconcile links a scheduler run into the payload (`run_id`); on retry an empty-workspace job is admitted only when that run
+  exists in the payload's workspace, is scheduler-requested and unfinished (pending/running). A scheduled job whose policy is missing or disabled completes without a run (Python
+  would create a cancelled run); an inactive playbook's schedule job is handled by `HandleSchedule` (schedule removed); a deleted playbook / forged workspace is a permanent failure.
+  The playbook fire-key tail must be an ISO timestamp or `bootstrap`.
+- **Known gap (N2).** An admin can remove and re-add a member to wipe that member's overrides, including a deny (Python identical); the deny-lift hardening applies only to the
+  override route.
 - **Partial counts on failure.** A failed run stores the counts deleted so far; Python stores none.
 - **Strict snapshot read.** The run's `days` snapshot is read like Python's indexing (a missing category fails the run) plus a range check (30/90..3650); Python accepts any int
   (a corrupt snapshot could widen deletion).

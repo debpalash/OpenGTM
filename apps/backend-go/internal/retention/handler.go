@@ -35,16 +35,18 @@ func decodePayload(raw []byte) (ws, runID string, err error) {
 
 var scheduledFireKey = regexp.MustCompile(`^retention:(.+):[0-9]{4}-[0-9]{2}-[0-9]{2}$`)
 
+// errSkipScheduled marks a scheduled job with nothing to enforce (no enabled policy): the
+// job completes without a run.
+var errSkipScheduled = errors.New("retention: no enabled policy; scheduled job skipped")
+
 // verifyScheduled admits a job whose jobs.workspace_id is empty (the shape Python's
 // enqueue_job_once and SchedulePolicy write for the scheduled occurrence). Nothing in the
 // payload is trusted on its own: the job's own fire_key must be exactly
-// retention:<ws>:<date>, name the payload's workspace, the payload must carry no run_id
-// (a requested run always has a job workspace), and the workspace's own policy, read in
-// that tenant, must exist and be enabled.
+// retention:<ws>:<date> and name the payload's workspace. A run_id in the payload is the
+// reconcile step's link after a failed attempt: it must name an unfinished
+// (pending/running) scheduler-requested run in that workspace, read inside that tenant.
+// Without a run_id the workspace's policy must exist and be enabled, else errSkipScheduled.
 func verifyScheduled(ctx context.Context, d Deps, jobID int64, ws, runID string) error {
-	if runID != "" {
-		return fmt.Errorf("retention job %d has a run_id but no workspace", jobID)
-	}
 	var fk *string
 	if err := d.Pool.QueryRow(ctx, `SELECT fire_key FROM jobs WHERE id = $1 AND type = 'retention_enforce'`, jobID).Scan(&fk); err != nil {
 		return fmt.Errorf("retention job %d: read fire key: %w", jobID, err)
@@ -56,22 +58,34 @@ func verifyScheduled(ctx context.Context, d Deps, jobID int64, ws, runID string)
 	if m == nil || m[1] != ws {
 		return fmt.Errorf("retention job %d fire key does not name the payload workspace", jobID)
 	}
-	enabled := false
+	var verr error
 	err := tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
-		p, err := gen.New(tx).RetGetPolicy(ctx, ws)
-		if errors.Is(err, pgx.ErrNoRows) {
+		q := gen.New(tx)
+		if runID != "" {
+			run, err := q.RetRunGet(ctx, gen.RetRunGetParams{ID: runID, WorkspaceID: ws})
+			if errors.Is(err, pgx.ErrNoRows) {
+				verr = fmt.Errorf("retention job %d: run_id names no run in the workspace", jobID)
+				return nil
+			}
+			if err != nil {
+				return err
+			}
+			if run.RequestedBy.String != "scheduler" || (run.Status != "pending" && run.Status != "running") {
+				verr = fmt.Errorf("retention job %d: run_id is not an unfinished scheduler run", jobID)
+			}
 			return nil
 		}
-		enabled = err == nil && p.Enabled
+		p, err := q.RetGetPolicy(ctx, ws)
+		if errors.Is(err, pgx.ErrNoRows) || (err == nil && !p.Enabled) {
+			verr = errSkipScheduled
+			return nil
+		}
 		return err
 	})
 	if err != nil {
 		return err
 	}
-	if !enabled {
-		return fmt.Errorf("retention job %d: workspace has no enabled retention policy", jobID)
-	}
-	return nil
+	return verr
 }
 
 // Handler is the retention_enforce job handler. The worker's heartbeat and cancel
@@ -88,7 +102,9 @@ func Handler(d Deps) func(ctx context.Context, c *queue.Claim) error {
 			if ws != c.WorkspaceID {
 				return &queue.PermanentError{Err: fmt.Errorf("retention job %d payload workspace differs from the job's", c.ID)}
 			}
-		} else if err := verifyScheduled(ctx, d, c.ID, ws, runID); err != nil {
+		} else if err := verifyScheduled(ctx, d, c.ID, ws, runID); errors.Is(err, errSkipScheduled) {
+			return nil
+		} else if err != nil {
 			return &queue.PermanentError{Err: err}
 		}
 		return Enforce(ctx, d, ws, runID)
@@ -107,6 +123,9 @@ func FailureHook(d Deps) queue.FailureHook {
 			err = verifyScheduled(ctx, d, n.JobID, ws, runID)
 		} else if err == nil && ws != n.WorkspaceID {
 			err = errors.New("payload workspace differs from the job's")
+		}
+		if errors.Is(err, errSkipScheduled) {
+			return nil
 		}
 		if err != nil {
 			slog.Error("retention failure hook: payload does not match the job; ignored", "job_id", n.JobID)

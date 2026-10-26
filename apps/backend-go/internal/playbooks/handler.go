@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"regexp"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -82,33 +84,30 @@ func verifyScheduleJob(ctx context.Context, d Deps, jobID int64, ws, playbookID 
 		return fmt.Errorf("playbook schedule job %d: read fire key: %w", jobID, err)
 	}
 	prefix := schedulePrefix(playbookID)
-	if fk == nil || len(*fk) <= len(prefix) || (*fk)[:len(prefix)] != prefix {
+	if fk == nil || !strings.HasPrefix(*fk, prefix) || !scheduleTail.MatchString((*fk)[len(prefix):]) {
 		return fmt.Errorf("playbook schedule job %d fire key does not name the payload playbook", jobID)
 	}
-	active := false
+	found := false
 	err := tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
-		row, err := gen.New(tx).PbGetPlaybook(ctx, gen.PbGetPlaybookParams{WorkspaceID: ws, ID: playbookID})
+		_, err := gen.New(tx).PbGetPlaybook(ctx, gen.PbGetPlaybookParams{WorkspaceID: ws, ID: playbookID})
+		found = err == nil
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil
 		}
-		if err != nil {
-			return err
-		}
-		pb, err := playbookFrom(row)
-		if err != nil {
-			return err
-		}
-		active = pb.Enabled && pb.ScheduleAudienceID != nil && *pb.ScheduleAudienceID != ""
-		return nil
+		return err
 	})
 	if err != nil {
 		return err
 	}
-	if !active {
-		return fmt.Errorf("playbook schedule job %d: no active scheduled playbook in the payload workspace", jobID)
+	if !found {
+		// Forged workspace or a deleted playbook (its pending jobs are cancelled on delete).
+		return fmt.Errorf("playbook schedule job %d: playbook not found in the payload workspace", jobID)
 	}
+	// An inactive playbook is handled by HandleSchedule exactly as Python (schedule removed).
 	return nil
 }
+
+var scheduleTail = regexp.MustCompile(`^(bootstrap|[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]+)?([+-][0-9]{2}:[0-9]{2})?)$`)
 
 // ScheduleHandler is the research_playbook_schedule job handler.
 func ScheduleHandler(d Deps) func(ctx context.Context, c *queue.Claim) error {
