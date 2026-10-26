@@ -1431,3 +1431,142 @@ func TestMemberPagingStreamsAllMembers(t *testing.T) {
 		t.Fatalf("delivery order %v", leads)
 	}
 }
+
+// ---------------------------------------------------------------- review round 1: races
+
+// A cancel that lands between begin's read of a pending run and the start UPDATE must win:
+// the run is not restarted and nothing is delivered.
+func TestCancelBetweenReadAndStartIsNotOverwritten(t *testing.T) {
+	h := newHarness(t, nil, nil)
+	h.seedDest(wsVec, destSeed{})
+	h.seedMembers(wsVec, snaps(3)...)
+	h.seedRun(wsVec, "run-1", "pending", "")
+	h.eng.raceHook = func(point string) {
+		if point == "before_start" {
+			h.tx(wsVec, func(tx pgx.Tx) error { _, err := deststore.CancelPendingRun(h.ctx, tx, "run-1"); return err })
+		}
+	}
+	h.mustHandle(wsVec, "run-1")
+	if len(h.fake.calls) != 0 {
+		t.Fatalf("delivered %d members after the run was cancelled", len(h.fake.calls))
+	}
+	if r := h.run(wsVec, "run-1"); r.Status != "cancelled" || str(r.Error) != "Cancellation completed" {
+		t.Fatalf("run %+v", *r)
+	}
+
+	// a cancel request on a run that already moved to running between read and update
+	h.again(nil, nil)
+	h.seedDest(wsVec, destSeed{})
+	h.seedMembers(wsVec, snaps(3)...)
+	h.seedRun(wsVec, "run-1", "pending", "")
+	h.eng.raceHook = func(point string) {
+		if point == "before_start" {
+			h.setRunStatus(wsVec, "run-1", "cancelling", "Cancellation requested")
+		}
+	}
+	h.mustHandle(wsVec, "run-1")
+	if r := h.run(wsVec, "run-1"); r.Status != "cancelled" || len(h.fake.calls) != 0 {
+		t.Fatalf("cancelling run restarted: %+v calls=%d", *r, len(h.fake.calls))
+	}
+}
+
+// A cancel request (or a failure reconcile) that lands between the final check and the
+// completion UPDATE is not overwritten by `completed`.
+func TestCancelBetweenFinalCheckAndCompleteIsKept(t *testing.T) {
+	h := newHarness(t, nil, nil)
+	h.seedDest(wsVec, destSeed{})
+	h.seedMembers(wsVec, snaps(2)...)
+	h.seedRun(wsVec, "run-1", "pending", "")
+	h.eng.raceHook = func(point string) {
+		if point == "before_complete" {
+			h.setRunStatus(wsVec, "run-1", "cancelling", "Cancellation requested")
+		}
+	}
+	h.mustHandle(wsVec, "run-1")
+	r := h.run(wsVec, "run-1")
+	if r.Status != "cancelled" || r.Succeeded != 2 || str(r.Error) != "Cancellation completed" {
+		t.Fatalf("run %+v", *r)
+	}
+	if d := h.dest(wsVec); d.Health != "unverified" {
+		t.Fatalf("health written by a cancelled run: %+v", *d)
+	}
+
+	// a final failure written by the reconcile in the window stays
+	h.again(nil, nil)
+	h.seedDest(wsVec, destSeed{})
+	h.seedMembers(wsVec, snap(1))
+	h.seedRun(wsVec, "run-1", "pending", "")
+	h.eng.raceHook = func(point string) {
+		if point == "before_complete" {
+			h.setRunStatus(wsVec, "run-1", "failed", "Final failure: x")
+		}
+	}
+	h.mustHandle(wsVec, "run-1")
+	if r := h.run(wsVec, "run-1"); r.Status != "failed" {
+		t.Fatalf("failed run overwritten: %+v", *r)
+	}
+	if d := h.dest(wsVec); d.Health != "unverified" {
+		t.Fatalf("health written for a run that did not complete: %+v", *d)
+	}
+}
+
+// A provider call that succeeded is recorded even when the job context is cancelled right
+// after it returned (shutdown, claim deadline): otherwise the retry delivers it again.
+func TestSettleSurvivesCancelledContext(t *testing.T) {
+	cases := []struct {
+		typ, cfg, kind string
+	}{
+		{"webhook", ``, "deliver"},
+		{"meta_ads", adCfg(), "ad"},
+		{"warehouse_http", `{"url":"https://w.example.test/x","header_secret_ref":"R","dataset":"ds"}`, "warehouse"},
+	}
+	var h *harness
+	for _, c := range cases {
+		script := map[string][]entry{c.kind: {{Success: true, Summary: "ok"}}}
+		if h == nil {
+			h = newHarness(t, script, nil)
+		} else {
+			h.again(script, nil)
+		}
+		h.seedDest(wsVec, destSeed{Type: c.typ, Config: c.cfg})
+		h.seedMembers(wsVec, snaps(2)...)
+		h.seedRun(wsVec, "run-1", "pending", "")
+		cctx, cancel := context.WithCancel(h.ctx)
+		h.fake.after = func(int) { cancel() }
+		err := h.eng.Handle(cctx, claim(wsVec, "run-1"))
+		cancel()
+		if err == nil {
+			t.Errorf("%s: a cancelled job must return an error", c.typ)
+		}
+		got := 0
+		for _, d := range h.deliveries(wsVec) {
+			if d.Status == "success" && d.Delivered != nil {
+				got++
+			} else if d.Status == "in_flight" {
+				t.Errorf("%s: result of a completed provider call dropped: %+v", c.typ, d)
+			}
+		}
+		if got == 0 {
+			t.Errorf("%s: no success recorded", c.typ)
+		}
+	}
+}
+
+// A late single-delivery result does not overwrite a row the failure reconcile already closed.
+func TestLateSettleDoesNotOverwriteReconciledRow(t *testing.T) {
+	h := newHarness(t, nil, nil)
+	h.seedDest(wsVec, destSeed{})
+	h.seedMembers(wsVec, snap(1))
+	h.seedRun(wsVec, "run-1", "pending", "")
+	h.fake.after = func(int) {
+		h.exec(wsVec, `UPDATE destination_deliveries SET status='failed', error='Final failure: lease expired'`)
+	}
+	h.mustHandle(wsVec, "run-1")
+	ds := h.deliveries(wsVec)
+	if len(ds) != 1 || ds[0].Status != "failed" || !strings.HasPrefix(str(ds[0].Error), "Final failure") {
+		t.Fatalf("late result overwrote the reconcile: %+v", ds)
+	}
+	if r := h.run(wsVec, "run-1"); r.Succeeded != 0 {
+		t.Fatalf("late result counted: %+v", *r)
+	}
+}
