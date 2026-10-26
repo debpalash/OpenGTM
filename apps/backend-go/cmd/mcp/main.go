@@ -325,6 +325,10 @@ func run(args []string, get func(string) string, stdout, stderr io.Writer) int {
 			fmt.Fprintf(stderr, "mcp: refusing to bind SSE to non-loopback host %q; set OPENGTM_MCP_SSE_ALLOW_NONLOOPBACK=true to override\n", cfg.SSEHost)
 			return 1
 		}
+		if cfg.SSEAllowNonLoopback && !cfg.RequireAuth {
+			fmt.Fprintln(stderr, "mcp: refusing OPENGTM_MCP_SSE_ALLOW_NONLOOPBACK=true with MCP_REQUIRE_AUTH=false: a keyless server must stay on loopback")
+			return 1
+		}
 		err = startSSE(ctx, cfg, get, cfg.SSEHost, port, stderr)
 	} else {
 		err = startStdio(ctx, cfg, get, stdout, stderr)
