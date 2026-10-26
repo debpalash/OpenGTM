@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"slices"
@@ -93,6 +94,14 @@ func (h *eventsRoute) serve(w http.ResponseWriter, r *http.Request) {
 	default:
 		httpx.Detail(w, http.StatusServiceUnavailable, "Too many event streams")
 		return
+	}
+
+	if sd := h.d.ShutdownCtx; sd != nil {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithCancel(ctx)
+		defer cancel()
+		stop := context.AfterFunc(sd, cancel)
+		defer stop()
 	}
 
 	hd := w.Header()

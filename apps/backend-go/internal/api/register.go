@@ -2,6 +2,7 @@
 package api
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"os"
@@ -32,6 +33,9 @@ type Deps struct {
 	// Leads, signals and events (plan 05). Redis may be nil (heartbeat-only SSE).
 	Redis         *redis.Client
 	SSEMaxStreams int
+	// ShutdownCtx is cancelled when the server starts shutting down; SSE streams end then
+	// (nil = never) so http.Server.Shutdown does not wait out its grace on open streams.
+	ShutdownCtx context.Context
 
 	// Settings routes (plan 03). RegisterSettings is a no-op when any is nil.
 	Registry *settings.Registry
