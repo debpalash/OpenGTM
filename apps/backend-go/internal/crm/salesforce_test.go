@@ -16,6 +16,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
@@ -564,7 +565,10 @@ func TestInstanceURLRebindingBlockedAtDial(t *testing.T) {
 	defer dnsMu.Unlock()
 	old := net.DefaultResolver
 	net.DefaultResolver = fakeDNS(t)
-	defer func() { net.DefaultResolver = old }()
+	oldClient := defaultClient
+	// the shared egress client captures the resolver once: build a fresh one
+	defaultClient = sync.OnceValue(func() *http.Client { return egress.NewClient(nil) })
+	defer func() { net.DefaultResolver = old; defaultClient = oldClient }()
 
 	st := newStore()
 	res, env := newResolver(t, st, nil)
