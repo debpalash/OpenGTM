@@ -24,6 +24,7 @@ type CJCancelParams struct {
 	ID          string
 }
 
+// pgx.ErrNoRows = guard failed (not running/pending), missing, or other workspace.
 func (q *Queries) CJCancel(ctx context.Context, arg CJCancelParams) (string, error) {
 	row := q.db.QueryRow(ctx, cJCancel, arg.CompletedAt, arg.ID)
 	var id string
@@ -72,7 +73,8 @@ DELETE FROM collection_jobs
 WHERE id = $1::text AND workspace_id = current_setting('app.workspace_id', true)
 `
 
-// Stages go with the job (ON DELETE CASCADE).
+// Stages go with the job (ON DELETE CASCADE). The job's leads are removed by
+// CJDeleteLeads (unless keep_leads); CJDelete does not touch leads.
 func (q *Queries) CJDelete(ctx context.Context, id string) (int64, error) {
 	result, err := q.db.Exec(ctx, cJDelete, id)
 	if err != nil {
@@ -105,6 +107,7 @@ type CJGetRow struct {
 	WorkspaceID   string
 }
 
+// pgx.ErrNoRows = no such job in this workspace (other workspace looks the same: 404).
 func (q *Queries) CJGet(ctx context.Context, id string) (CJGetRow, error) {
 	row := q.db.QueryRow(ctx, cJGet, id)
 	var i CJGetRow
@@ -160,6 +163,8 @@ type CJListRow struct {
 	WorkspaceID   string
 }
 
+// status: the caller maps ” (Python `if status:`) to NULL = no filter, and applies
+// the allow-list (unknown value => empty result, no error).
 func (q *Queries) CJList(ctx context.Context, arg CJListParams) ([]CJListRow, error) {
 	rows, err := q.db.Query(ctx, cJList, arg.Status, arg.PageLimit)
 	if err != nil {
@@ -224,6 +229,7 @@ WHERE id = $1::text AND workspace_id = current_setting('app.workspace_id', true)
 RETURNING id
 `
 
+// pgx.ErrNoRows = guard failed (not failed/cancelled), missing, or other workspace.
 func (q *Queries) CJRetry(ctx context.Context, id string) (string, error) {
 	row := q.db.QueryRow(ctx, cJRetry, id)
 	err := row.Scan(&id)

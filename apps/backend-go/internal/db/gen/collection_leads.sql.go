@@ -11,9 +11,25 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const cJDeleteLeads = `-- name: CJDeleteLeads :execrows
+DELETE FROM leads
+WHERE workspace_id = current_setting('app.workspace_id', true)
+  AND (collection_job_id = $1::text OR source = 'job:' || $1::text)
+`
+
+// Delete handler (keep_leads = false): remove the job's leads before CJDelete,
+// like PgJobLedger.delete_job. Workspace-filtered; run inside tenancy.InWorkspace.
+func (q *Queries) CJDeleteLeads(ctx context.Context, jobID string) (int64, error) {
+	result, err := q.db.Exec(ctx, cJDeleteLeads, jobID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const leadsByCollectionJob = `-- name: LeadsByCollectionJob :many
 
-SELECT id, company, website, email, email_confidence, email_provider, phone, phone_provider, contact_person, contact_title, city, state, address, specialization, company_size, employee_count_exact, description, revenue_range, founded_year, industry_tags, technologies, technographics, funding_stage, company_size_basis, linkedin_url, twitter_url, facebook_url, secondary_emails, secondary_phones, decision_makers, glassdoor_rating, hiring_signals, enrichment_attempts, enrichment_waterfall, field_provenance, source, source_url, collection_job_id, workspace_id, score, score_tier, status, yupcha_value_prop, company_need, notes, created_at, updated_at, last_enriched_at
+SELECT id, company, website, email, phone, contact_person, contact_title, city, state, specialization, company_size, description, linkedin_url, twitter_url, source, source_url, collection_job_id, score, score_tier, status, yupcha_value_prop, company_need, notes, created_at, updated_at, last_enriched_at, workspace_id, address, employee_count_exact, revenue_range, founded_year, industry_tags, technologies, technographics, funding_stage, company_size_basis, secondary_emails, secondary_phones, decision_makers, glassdoor_rating, email_confidence, email_provider, phone_provider, facebook_url, hiring_signals, enrichment_attempts, enrichment_waterfall, field_provenance, founding_year, last_funding_amount, investors, recent_news, google_rating, revenue_estimate, email_verify, email_presence
 FROM leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND (collection_job_id = $1::text OR source = 'job:' || $1::text)
@@ -31,41 +47,19 @@ type LeadsByCollectionJobRow struct {
 	Company             string
 	Website             pgtype.Text
 	Email               pgtype.Text
-	EmailConfidence     pgtype.Text
-	EmailProvider       pgtype.Text
 	Phone               pgtype.Text
-	PhoneProvider       pgtype.Text
 	ContactPerson       pgtype.Text
 	ContactTitle        pgtype.Text
 	City                pgtype.Text
 	State               pgtype.Text
-	Address             pgtype.Text
 	Specialization      pgtype.Text
 	CompanySize         pgtype.Text
-	EmployeeCountExact  pgtype.Int4
 	Description         pgtype.Text
-	RevenueRange        pgtype.Text
-	FoundedYear         pgtype.Text
-	IndustryTags        pgtype.Text
-	Technologies        pgtype.Text
-	Technographics      pgtype.Text
-	FundingStage        pgtype.Text
-	CompanySizeBasis    pgtype.Text
 	LinkedinUrl         pgtype.Text
 	TwitterUrl          pgtype.Text
-	FacebookUrl         pgtype.Text
-	SecondaryEmails     pgtype.Text
-	SecondaryPhones     pgtype.Text
-	DecisionMakers      pgtype.Text
-	GlassdoorRating     pgtype.Text
-	HiringSignals       pgtype.Text
-	EnrichmentAttempts  pgtype.Int4
-	EnrichmentWaterfall pgtype.Text
-	FieldProvenance     pgtype.Text
 	Source              pgtype.Text
 	SourceUrl           pgtype.Text
 	CollectionJobID     pgtype.Text
-	WorkspaceID         string
 	Score               pgtype.Int4
 	ScoreTier           pgtype.Text
 	Status              pgtype.Text
@@ -75,6 +69,36 @@ type LeadsByCollectionJobRow struct {
 	CreatedAt           pgtype.Text
 	UpdatedAt           pgtype.Text
 	LastEnrichedAt      pgtype.Text
+	WorkspaceID         string
+	Address             pgtype.Text
+	EmployeeCountExact  pgtype.Int4
+	RevenueRange        pgtype.Text
+	FoundedYear         pgtype.Text
+	IndustryTags        pgtype.Text
+	Technologies        pgtype.Text
+	Technographics      pgtype.Text
+	FundingStage        pgtype.Text
+	CompanySizeBasis    pgtype.Text
+	SecondaryEmails     pgtype.Text
+	SecondaryPhones     pgtype.Text
+	DecisionMakers      pgtype.Text
+	GlassdoorRating     pgtype.Text
+	EmailConfidence     pgtype.Text
+	EmailProvider       pgtype.Text
+	PhoneProvider       pgtype.Text
+	FacebookUrl         pgtype.Text
+	HiringSignals       pgtype.Text
+	EnrichmentAttempts  pgtype.Int4
+	EnrichmentWaterfall pgtype.Text
+	FieldProvenance     pgtype.Text
+	FoundingYear        pgtype.Text
+	LastFundingAmount   pgtype.Text
+	Investors           pgtype.Text
+	RecentNews          pgtype.Text
+	GoogleRating        pgtype.Text
+	RevenueEstimate     pgtype.Text
+	EmailVerify         pgtype.Text
+	EmailPresence       pgtype.Text
 }
 
 // plan 14: leads of one collection job (port of PgJobLedger.get_job_leads).
@@ -94,41 +118,19 @@ func (q *Queries) LeadsByCollectionJob(ctx context.Context, arg LeadsByCollectio
 			&i.Company,
 			&i.Website,
 			&i.Email,
-			&i.EmailConfidence,
-			&i.EmailProvider,
 			&i.Phone,
-			&i.PhoneProvider,
 			&i.ContactPerson,
 			&i.ContactTitle,
 			&i.City,
 			&i.State,
-			&i.Address,
 			&i.Specialization,
 			&i.CompanySize,
-			&i.EmployeeCountExact,
 			&i.Description,
-			&i.RevenueRange,
-			&i.FoundedYear,
-			&i.IndustryTags,
-			&i.Technologies,
-			&i.Technographics,
-			&i.FundingStage,
-			&i.CompanySizeBasis,
 			&i.LinkedinUrl,
 			&i.TwitterUrl,
-			&i.FacebookUrl,
-			&i.SecondaryEmails,
-			&i.SecondaryPhones,
-			&i.DecisionMakers,
-			&i.GlassdoorRating,
-			&i.HiringSignals,
-			&i.EnrichmentAttempts,
-			&i.EnrichmentWaterfall,
-			&i.FieldProvenance,
 			&i.Source,
 			&i.SourceUrl,
 			&i.CollectionJobID,
-			&i.WorkspaceID,
 			&i.Score,
 			&i.ScoreTier,
 			&i.Status,
@@ -138,6 +140,36 @@ func (q *Queries) LeadsByCollectionJob(ctx context.Context, arg LeadsByCollectio
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.LastEnrichedAt,
+			&i.WorkspaceID,
+			&i.Address,
+			&i.EmployeeCountExact,
+			&i.RevenueRange,
+			&i.FoundedYear,
+			&i.IndustryTags,
+			&i.Technologies,
+			&i.Technographics,
+			&i.FundingStage,
+			&i.CompanySizeBasis,
+			&i.SecondaryEmails,
+			&i.SecondaryPhones,
+			&i.DecisionMakers,
+			&i.GlassdoorRating,
+			&i.EmailConfidence,
+			&i.EmailProvider,
+			&i.PhoneProvider,
+			&i.FacebookUrl,
+			&i.HiringSignals,
+			&i.EnrichmentAttempts,
+			&i.EnrichmentWaterfall,
+			&i.FieldProvenance,
+			&i.FoundingYear,
+			&i.LastFundingAmount,
+			&i.Investors,
+			&i.RecentNews,
+			&i.GoogleRating,
+			&i.RevenueEstimate,
+			&i.EmailVerify,
+			&i.EmailPresence,
 		); err != nil {
 			return nil, err
 		}

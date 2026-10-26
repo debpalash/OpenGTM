@@ -18,14 +18,6 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 
 --
--- Name: ai_test_fail_job(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.ai_test_fail_job() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN RAISE EXCEPTION 'job insert refused'; END $$;
-
---
 -- Name: leads_search_tsv_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -53,46 +45,6 @@ CREATE FUNCTION public.outreach_send_by_message_id(p_message_id text) RETURNS TA
             ORDER BY s.id DESC
             LIMIT 1
         $$;
-
---
--- Name: t11_fail_t11_249685518586(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.t11_fail_t11_249685518586() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN IF OLD.id = 't11-249685518586-w' THEN RAISE EXCEPTION 'boom'; END IF; RETURN OLD; END $$;
-
---
--- Name: t11_fail_t11_39732091033(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.t11_fail_t11_39732091033() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN IF OLD.id = 't11-39732091033-w' THEN RAISE EXCEPTION 'boom'; END IF; RETURN OLD; END $$;
-
---
--- Name: t11_fail_t11_401756288793(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.t11_fail_t11_401756288793() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN IF OLD.id = 't11-401756288793-w' THEN RAISE EXCEPTION 'boom'; END IF; RETURN OLD; END $$;
-
---
--- Name: t11_fail_t11_697751097622(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.t11_fail_t11_697751097622() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN IF OLD.id = 't11-697751097622-w' THEN RAISE EXCEPTION 'boom'; END IF; RETURN OLD; END $$;
-
---
--- Name: t11_fail_t11_893361673304(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.t11_fail_t11_893361673304() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$ BEGIN IF OLD.id = 't11-893361673304-w' THEN RAISE EXCEPTION 'boom'; END IF; RETURN OLD; END $$;
 
 SET default_tablespace = '';
 
@@ -4670,36 +4622,6 @@ CREATE UNIQUE INDEX uq_jobs_fire_key_active ON public.jobs USING btree (fire_key
 --
 
 CREATE TRIGGER leads_search_tsv_update BEFORE INSERT OR UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION public.leads_search_tsv_trigger();
-
---
--- Name: workspaces t11_fail_t11_249685518586; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER t11_fail_t11_249685518586 BEFORE DELETE ON public.workspaces FOR EACH ROW EXECUTE FUNCTION public.t11_fail_t11_249685518586();
-
---
--- Name: workspaces t11_fail_t11_39732091033; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER t11_fail_t11_39732091033 BEFORE DELETE ON public.workspaces FOR EACH ROW EXECUTE FUNCTION public.t11_fail_t11_39732091033();
-
---
--- Name: workspaces t11_fail_t11_401756288793; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER t11_fail_t11_401756288793 BEFORE DELETE ON public.workspaces FOR EACH ROW EXECUTE FUNCTION public.t11_fail_t11_401756288793();
-
---
--- Name: workspaces t11_fail_t11_697751097622; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER t11_fail_t11_697751097622 BEFORE DELETE ON public.workspaces FOR EACH ROW EXECUTE FUNCTION public.t11_fail_t11_697751097622();
-
---
--- Name: workspaces t11_fail_t11_893361673304; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER t11_fail_t11_893361673304 BEFORE DELETE ON public.workspaces FOR EACH ROW EXECUTE FUNCTION public.t11_fail_t11_893361673304();
 
 --
 -- Name: audience_destinations audience_destinations_audience_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -

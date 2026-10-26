@@ -16,6 +16,8 @@ UPDATE collection_jobs SET workspace_id = sqlc.arg(to_workspace_id)::text
 WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_id', true);
 
 -- name: CJList :many
+-- status: the caller maps '' (Python `if status:`) to NULL = no filter, and applies
+-- the allow-list (unknown value => empty result, no error).
 SELECT id, query, intent, intent_details, status, tier, attempts, max_attempts, leads_found, proxy_used, error, created_at, started_at, completed_at, workspace_id
 FROM collection_jobs
 WHERE workspace_id = current_setting('app.workspace_id', true)
@@ -24,6 +26,7 @@ ORDER BY created_at DESC
 LIMIT sqlc.arg(page_limit)::bigint;
 
 -- name: CJGet :one
+-- pgx.ErrNoRows = no such job in this workspace (other workspace looks the same: 404).
 SELECT id, query, intent, intent_details, status, tier, attempts, max_attempts, leads_found, proxy_used, error, created_at, started_at, completed_at, workspace_id
 FROM collection_jobs
 WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_id', true);
@@ -35,6 +38,7 @@ WHERE job_id = sqlc.arg(job_id)::text AND workspace_id = current_setting('app.wo
 ORDER BY id;
 
 -- name: CJCancel :one
+-- pgx.ErrNoRows = guard failed (not running/pending), missing, or other workspace.
 UPDATE collection_jobs
 SET status = 'cancelled', error = 'Cancelled by user', completed_at = sqlc.arg(completed_at)::text
 WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_id', true)
@@ -42,6 +46,7 @@ WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_
 RETURNING id;
 
 -- name: CJRetry :one
+-- pgx.ErrNoRows = guard failed (not failed/cancelled), missing, or other workspace.
 UPDATE collection_jobs
 SET status = 'pending', error = '', completed_at = '', attempts = 0
 WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_id', true)
@@ -49,7 +54,8 @@ WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_
 RETURNING id;
 
 -- name: CJDelete :execrows
--- Stages go with the job (ON DELETE CASCADE).
+-- Stages go with the job (ON DELETE CASCADE). The job's leads are removed by
+-- CJDeleteLeads (unless keep_leads); CJDelete does not touch leads.
 DELETE FROM collection_jobs
 WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_id', true);
 
