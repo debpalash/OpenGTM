@@ -30,7 +30,25 @@ func NewClientForEnv(appEnv string, allowHosts []string) *http.Client {
 }
 
 func newClient(allowHosts []string, appEnv string, res resolver, dial dialFunc) *http.Client {
-	allow := allowSet(appEnv, allowHosts)
+	return newClientSet(allowSet(appEnv, allowHosts), res, dial)
+}
+
+// NewOperatorClient is the provider egress client with the operator allow-list
+// (EGRESS_ALLOW_HOSTS): each exact "host" or "host:port" entry skips the
+// private-IP block in every APP_ENV, so a self-hosted private service such as
+// Reacher is reachable. It is deliberately NOT used for the http column, SMTP
+// probes or any user-supplied URL: only operator-configured provider targets.
+// Everything not listed is vetted exactly as NewClient does.
+func NewOperatorClient(allowHosts []string) *http.Client {
+	d := &net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}
+	return newOperatorClient(allowHosts, net.DefaultResolver, d.DialContext)
+}
+
+func newOperatorClient(allowHosts []string, res resolver, dial dialFunc) *http.Client {
+	return newClientSet(operatorAllowSet(allowHosts), res, dial)
+}
+
+func newClientSet(allow map[string]struct{}, res resolver, dial dialFunc) *http.Client {
 	tr := &http.Transport{
 		Proxy:               nil, // a proxy would bypass the dial-time vetting
 		DialContext:         guardedDial(allow, res, dial),
@@ -55,6 +73,9 @@ func guardedDial(allow map[string]struct{}, res resolver, dial dialFunc) dialFun
 		}
 		host = strings.ToLower(host)
 		if _, ok := allow[host]; ok {
+			return dial(ctx, network, addr)
+		}
+		if _, ok := allow[net.JoinHostPort(host, port)]; ok {
 			return dial(ctx, network, addr)
 		}
 		if _, ok := blockedHostnames[host]; ok {
@@ -94,6 +115,19 @@ func allowSet(appEnv string, allowHosts []string) map[string]struct{} {
 			if h = strings.ToLower(strings.TrimSpace(h)); h != "" {
 				allow[h] = struct{}{}
 			}
+		}
+	}
+	return allow
+}
+
+// operatorAllowSet is the lower-cased operator allow-list, honoured in every
+// environment. Entries are exact: "host" matches that host on any port,
+// "host:port" only that port. Blank entries are ignored.
+func operatorAllowSet(allowHosts []string) map[string]struct{} {
+	allow := map[string]struct{}{}
+	for _, h := range allowHosts {
+		if h = strings.ToLower(strings.TrimSpace(h)); h != "" {
+			allow[h] = struct{}{}
 		}
 	}
 	return allow

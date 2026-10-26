@@ -25,11 +25,9 @@ func TestDefaults(t *testing.T) {
 
 func TestRejects(t *testing.T) {
 	cases := map[string]map[string]string{
-		"empty token":        {},
-		"concurrency >64":    {"INTERNAL_SERVICE_TOKEN": goodTok, "GO_WORKER_CONCURRENCY": "65"},
-		"grace >300":         {"INTERNAL_SERVICE_TOKEN": goodTok, "GO_WORKER_SHUTDOWN_GRACE_SECONDS": "301"},
-		"egress in prod":     {"INTERNAL_SERVICE_TOKEN": goodTok, "APP_ENV": "production", "EGRESS_ALLOW_HOSTS": "a.test"},
-		"egress without env": {"INTERNAL_SERVICE_TOKEN": goodTok, "EGRESS_ALLOW_HOSTS": "a.test"},
+		"empty token":     {},
+		"concurrency >64": {"INTERNAL_SERVICE_TOKEN": goodTok, "GO_WORKER_CONCURRENCY": "65"},
+		"grace >300":      {"INTERNAL_SERVICE_TOKEN": goodTok, "GO_WORKER_SHUTDOWN_GRACE_SECONDS": "301"},
 	}
 	for name, m := range cases {
 		if _, err := load(env(m)); err != nil {
@@ -43,6 +41,13 @@ func TestEgressAllowedInBench(t *testing.T) {
 	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "APP_ENV": "bench", "EGRESS_ALLOW_HOSTS": "a.test, b.test"}))
 	if err != nil || len(c.EgressAllowHosts) != 2 {
 		t.Fatalf("got %+v, %v", c, err)
+	}
+}
+
+func TestEgressAllowHostsAcceptedInProduction(t *testing.T) {
+	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "APP_ENV": "production", "EGRESS_ALLOW_HOSTS": "reacher.internal:8080"}))
+	if err != nil || len(c.EgressAllowHosts) != 1 || c.EgressAllowHosts[0] != "reacher.internal:8080" {
+		t.Fatalf("got %+v, %v", c.EgressAllowHosts, err)
 	}
 }
 

@@ -135,9 +135,10 @@ func load(get func(string) string) (Config, error) {
 	if len(c.InternalServiceToken) < minServiceTokenLen || strings.HasPrefix(c.InternalServiceToken, "change-me") {
 		return Config{}, fmt.Errorf("config: INTERNAL_SERVICE_TOKEN must be at least %d characters and must not be a change-me placeholder", minServiceTokenLen)
 	}
-	if len(c.EgressAllowHosts) > 0 && c.AppEnv != "test" && c.AppEnv != "bench" {
-		return Config{}, fmt.Errorf("config: EGRESS_ALLOW_HOSTS is only allowed when APP_ENV is test or bench (got %q)", c.AppEnv)
-	}
+	// EGRESS_ALLOW_HOSTS is an operator allow-list (documented deviation in
+	// testdata/contract/README.md): the provider client honours it in every
+	// APP_ENV (internal/egress NewOperatorClient); the http column and SMTP
+	// probes still honour it only in test/bench.
 	if err := c.validateCredentialsSource(); err != nil {
 		return Config{}, err
 	}
