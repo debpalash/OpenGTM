@@ -1,0 +1,1 @@
+-- Queries for plan 07 (hubspot_leads). Filled by the owning task.

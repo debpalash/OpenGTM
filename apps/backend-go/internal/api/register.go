@@ -115,4 +115,8 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterWorkbookRuns(r, d)
 	RegisterIngest(r, d)
 	RegisterWorkbookWS(r, d)
+	RegisterConnectors(r, d)
+	RegisterHubspot(r, d)
+	RegisterDataCRM(r, d)
+	RegisterAmbitionBox(r, d)
 }

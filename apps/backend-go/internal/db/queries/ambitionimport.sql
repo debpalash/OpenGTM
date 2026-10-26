@@ -1,0 +1,1 @@
+-- Queries for plan 07 (ambitionimport). Filled by the owning task.

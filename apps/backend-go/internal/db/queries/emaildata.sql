@@ -1,0 +1,1 @@
+-- Queries for plan 07 (emaildata). Filled by the owning task.

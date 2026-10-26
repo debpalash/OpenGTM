@@ -331,19 +331,25 @@ type Flags struct {
 	// import costs roughly ten times its body size.
 	ImportMemoryBudgetMB int
 	// Hardening beyond Python (plan 04 final review); each zero value means the default.
-	ExportMaxConcurrent            int  // EXPORT_MAX_CONCURRENT (default 8): CSV exports streaming at once
-	ExportMaxPerWorkspace          int  // EXPORT_MAX_PER_WORKSPACE (default 2)
-	ExportWriteTimeoutSeconds      int  // EXPORT_WRITE_TIMEOUT_SECONDS (default 15): per-write deadline of a CSV export
-	WorkbookMaxAddRows             int  // WORKBOOK_MAX_ADD_ROWS (default 10000): rows per add-rows request
-	WorkbookMaxRowKeys             int  // WORKBOOK_MAX_ROW_KEYS (default 2000): keys in one added row
-	WorkbookMaxViewFilters         int  // WORKBOOK_MAX_VIEW_FILTERS (default 50)
-	WorkbookMaxViewSorts           int  // WORKBOOK_MAX_VIEW_SORTS (default 10)
-	WorkbookMaxColumns             int  // WORKBOOK_MAX_COLUMNS (default 500)
-	PGLeadStore                    bool // PG_LEAD_STORE (default true); Go supports only the Postgres lead store
-	GoRunRoutesEnabled             bool // GO_RUN_ROUTES_ENABLED (default false): enrichment run/ingest/ws routes
-	AutomationsEnabled             bool // AUTOMATIONS_ENABLED
-	IntentPollerEnabled            bool // INTENT_POLLER_ENABLED
-	AutomationsAllowLegacyOutreach bool // AUTOMATIONS_ALLOW_LEGACY_OUTREACH
+	ExportMaxConcurrent            int    // EXPORT_MAX_CONCURRENT (default 8): CSV exports streaming at once
+	ExportMaxPerWorkspace          int    // EXPORT_MAX_PER_WORKSPACE (default 2)
+	ExportWriteTimeoutSeconds      int    // EXPORT_WRITE_TIMEOUT_SECONDS (default 15): per-write deadline of a CSV export
+	WorkbookMaxAddRows             int    // WORKBOOK_MAX_ADD_ROWS (default 10000): rows per add-rows request
+	WorkbookMaxRowKeys             int    // WORKBOOK_MAX_ROW_KEYS (default 2000): keys in one added row
+	WorkbookMaxViewFilters         int    // WORKBOOK_MAX_VIEW_FILTERS (default 50)
+	WorkbookMaxViewSorts           int    // WORKBOOK_MAX_VIEW_SORTS (default 10)
+	WorkbookMaxColumns             int    // WORKBOOK_MAX_COLUMNS (default 500)
+	PGLeadStore                    bool   // PG_LEAD_STORE (default true); Go supports only the Postgres lead store
+	GoRunRoutesEnabled             bool   // GO_RUN_ROUTES_ENABLED (default false): enrichment run/ingest/ws routes
+	GoConnectorRoutesEnabled       bool   // GO_CONNECTOR_ROUTES_ENABLED (default false): connectors, hubspot, /api/data, ambitionbox routes
+	GoExecutorAmbitionBox          bool   // GO_EXECUTOR_AMBITIONBOX (default false): enqueue ambitionbox_import for the Go executor
+	CertificationPath              string // OPENGTM_INTEGRATION_CERTIFICATIONS
+	CertificationKey               string // OPENGTM_INTEGRATION_CERTIFICATION_KEY (secret; never logged)
+	BuildSHA                       string // OPENGTM_BUILD_SHA
+	CRMImportEnabled               bool   // CRM_IMPORT_ENABLED (read-only mirror; crm_import stays on Python)
+	AutomationsEnabled             bool   // AUTOMATIONS_ENABLED
+	IntentPollerEnabled            bool   // INTENT_POLLER_ENABLED
+	AutomationsAllowLegacyOutreach bool   // AUTOMATIONS_ALLOW_LEGACY_OUTREACH
 	FilesAPIMode                   string
 }
 
@@ -449,6 +455,18 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 			return APIConfig{}, err
 		}
 	}
+	if c.Flags.GoConnectorRoutesEnabled, err = boolVar(get, "GO_CONNECTOR_ROUTES_ENABLED", false); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.GoExecutorAmbitionBox, err = boolVar(get, "GO_EXECUTOR_AMBITIONBOX", false); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.CRMImportEnabled, err = boolVar(get, "CRM_IMPORT_ENABLED", false); err != nil {
+		return APIConfig{}, err
+	}
+	c.Flags.CertificationPath = strings.TrimSpace(get("OPENGTM_INTEGRATION_CERTIFICATIONS"))
+	c.Flags.CertificationKey = strings.TrimSpace(get("OPENGTM_INTEGRATION_CERTIFICATION_KEY"))
+	c.Flags.BuildSHA = strings.TrimSpace(get("OPENGTM_BUILD_SHA"))
 	if c.Flags.AutomationsEnabled, err = boolVar(get, "AUTOMATIONS_ENABLED", false); err != nil {
 		return APIConfig{}, err
 	}
@@ -509,6 +527,9 @@ func (c APIConfig) redacted() APIConfig {
 	}
 	if c.PyWorkerToken != "" {
 		c.PyWorkerToken = "[redacted]"
+	}
+	if c.Flags.CertificationKey != "" {
+		c.Flags.CertificationKey = "[redacted]"
 	}
 	return c
 }
