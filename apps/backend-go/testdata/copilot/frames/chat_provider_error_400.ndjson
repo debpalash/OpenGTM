@@ -1,0 +1,2 @@
+{"rpc":"preroute","request":{"workspace_id":"ws-alpha","user_id":4,"slug":"alpha","conversation_id":"conv-rec-chat_provider_error_400","last_user_message":"[sim:provider_error_400] hello","has_approved_calls":false},"status":200,"frames":[{"t":"none"}]}
+{"rpc":"llm","request":{"workspace_id":"ws-alpha","messages":[{"role":"system","content":"SYSTEM"},{"role":"user","content":"[sim:provider_error_400] hello"}],"tools_enabled":true,"provider_cursor":0,"round_budget_hit":false},"status":200,"frames":[{"t":"error","d":"Provider error 400: bad request: model not found"}]}

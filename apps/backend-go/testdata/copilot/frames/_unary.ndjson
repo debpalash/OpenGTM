@@ -1,0 +1,6 @@
+{"rpc":"tool","request":{"workspace_id":"ws-alpha","user_id":4,"slug":"alpha","name":"does_not_exist","args":{}},"status":404,"response":{"detail":"unknown tool"}}
+{"rpc":"tool","request":{"workspace_id":"ws-alpha","user_id":4,"slug":"alpha","name":"search_leads","args":{}},"status":404,"response":{"detail":"unknown tool"}}
+{"rpc":"tool","request":{"workspace_id":"ws-alpha","user_id":4,"slug":"alpha","name":"get_enrichment_gaps","args":{},"timeout_s":30},"status":200,"response":{"result":"{\"error\": \"Tool 'get_enrichment_gaps' failed: '<' not supported between instances of 'NoneType' and 'int'\"}"}}
+{"rpc":"tool","request":{"workspace_id":"ws-alpha","user_id":2,"slug":"alpha","name":"enrich_lead","args":{"lead_id":1},"timeout_s":30},"status":200,"response":{"result":"{\"error\": \"Insufficient workspace role\"}"}}
+{"rpc":"describe","request":{"name":"update_lead_status","args":{"lead_id":4,"status":"contacted"},"workspace_id":"ws-alpha"},"status":200,"response":{"description":"\ud83d\udcdd Update Lead Status\nChanges the pipeline status of a lead.\nLead #4 \u2192 contacted"}}
+{"rpc":"describe","request":{"name":"start_collection","args":{"query":"acme"},"workspace_id":"ws-alpha"},"status":200,"response":{"description":"\ud83d\ude80 Launch Lead Collection\nRuns 7 parallel scraping strategies using DDG, Maps, and external APIs.\nQuery: \"acme\""}}
