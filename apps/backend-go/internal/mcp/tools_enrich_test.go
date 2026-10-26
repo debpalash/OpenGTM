@@ -117,16 +117,16 @@ func TestVerifyEmailBadArgs(t *testing.T) {
 		"long":    {Args{"email": strings.Repeat("a", 321)}, "email must be at most 320 characters"},
 	}
 	for n, c := range cases {
-		_, err := r.call(t, "verify_email", c.args)
-		if err == nil || safeErrorText(err) != c.want {
-			t.Fatalf("%s: err=%v", n, err)
+		got, err := r.call(t, "verify_email", c.args)
+		if err != nil || got != `{"error": "`+c.want+`"}` {
+			t.Fatalf("%s: %q err=%v", n, got, err)
 		}
 	}
 	if len(r.enrich.Calls) != 0 || len(r.audits) != 0 {
 		t.Fatal("bad args must not spend or audit")
 	}
-	if _, err := r.call(t, "verify_email", Args{"email": strings.Repeat("a", 320)}); err != nil {
-		t.Fatalf("320 chars is allowed: %v", err)
+	if got, _ := r.call(t, "verify_email", Args{"email": strings.Repeat("a", 320)}); strings.Contains(got, "at most") {
+		t.Fatalf("320 chars is allowed: %q", got)
 	}
 }
 
@@ -179,8 +179,8 @@ func TestEnrichCompanyResultShape(t *testing.T) {
 		t.Fatalf("not_found: %q", got)
 	}
 	for _, a := range []Args{{}, {"lead_id": "x"}} {
-		if _, err := r.call(t, "enrich_company", a); err == nil {
-			t.Fatal("bad lead_id accepted")
+		if got, err := r.call(t, "enrich_company", a); err != nil || !strings.HasPrefix(got, `{"error": "lead_id `) {
+			t.Fatalf("bad lead_id accepted: %q", got)
 		}
 	}
 }
@@ -206,8 +206,8 @@ func TestHiringSignalsShape(t *testing.T) {
 	if got != `{"company": "Acme", "error": "enrichment failed"}` {
 		t.Fatalf("failure: %q", got)
 	}
-	if _, err := r.call(t, "get_hiring_signals", Args{}); err == nil {
-		t.Fatal("company required")
+	if got, _ := r.call(t, "get_hiring_signals", Args{}); got != `{"error": "company is required"}` {
+		t.Fatal(got)
 	}
 }
 
@@ -232,7 +232,7 @@ func TestScoreLeadShape(t *testing.T) {
 }
 
 func TestCostToolsAreAudited(t *testing.T) {
-	r := newEnrichRig(t, Config{})
+	r := newEnrichRig(t, Config{MaxEnrichPerDay: 9})
 	r.enrich.Verify = VerifyResult{Status: "valid", Deliverable: true}
 	r.pyOut("mcp.enrich_company", `{"enriched_fields":{},"provider":""}`)
 	r.pyOut("mcp.get_hiring_signals", `{"hiring":false,"data":{}}`)
@@ -250,12 +250,12 @@ func TestCostToolsAreAudited(t *testing.T) {
 	// failure is audited as error with a generic message
 	r.enrich.Err = errors.New("boom secret")
 	_, _ = r.call(t, "verify_email", Args{"email": "a@b.co"})
+	if r.released != 1 || r.settled != 3 {
+		t.Fatalf("settled=%d released=%d", r.settled, r.released)
+	}
 	last := r.audits[len(r.audits)-1]
 	if last.Status != "error" || strings.Contains(last.Error, "secret") {
 		t.Fatalf("%+v", last)
-	}
-	if r.released != 1 {
-		t.Fatalf("released=%d", r.released)
 	}
 }
 
@@ -285,7 +285,7 @@ func TestEnrichCapExceededIsAuditedCapped(t *testing.T) {
 		}
 	}
 	for _, rule := range r.reserved {
-		if rule != EnrichRule || rule != "__mcp_enrich__" {
+		if rule != "__mcp_enrich__" {
 			t.Fatal(rule)
 		}
 	}
