@@ -123,3 +123,15 @@ func TestSCIMDeprovisionRefusesWorkspaceOwner(t *testing.T) {
 		t.Errorf("erin still a member: %s", n)
 	}
 }
+
+func TestSCIMTokenAndSSOResponsesAreNoStore(t *testing.T) {
+	e := newSSOEnv(t)
+	for _, r := range []struct{ method, path string }{{"POST", "/api/governance/scim-token"}, {"GET", "/api/governance/sso"}, {"GET", "/api/governance/scim-token"}} {
+		hdr := bearer("alice")
+		hdr["X-Workspace-Id"] = "ws-alpha"
+		rec, _ := e.do(r.method, r.path, "", "", hdr)
+		if rec.Code/100 != 2 || rec.Header().Get("Cache-Control") != "no-store" {
+			t.Errorf("%s %s: %d Cache-Control %q", r.method, r.path, rec.Code, rec.Header().Get("Cache-Control"))
+		}
+	}
+}
