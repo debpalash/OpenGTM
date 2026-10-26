@@ -55,6 +55,7 @@ func newWatchPollEnv(t *testing.T, flags config.Flags) watchPollEnv {
 		GREATEST(1000, (SELECT COALESCE(max(id), 0) FROM leads), (SELECT last_value FROM leads_id_seq)))`)
 	e.seed(t, "erin", pythonHash, true, "user", false)
 	e.member(t, "ws-alpha", e.mustUserByName(t, "erin").ID, "editor")
+	seedActiveWorkspace(t, e.leadsEnv, "bob", "ws-beta")
 	e.seedWatches(t)
 	// registered last, so it runs before the workspace cleanups (FKs from the watch rows)
 	t.Cleanup(func() { e.purgeWatches(t) })
@@ -107,7 +108,7 @@ func watchActor(name string) (who, ws string) {
 	case "poll_no_auth", "signals_no_auth":
 		return "", ""
 	case "poll_daily_quota_exhausted", "signals_beta_own":
-		return "bob", "ws-beta" // bob's recorded active workspace; Go resolves the default workspace differently
+		return "bob", "" // bob's active workspace is seeded (ws-beta), as in the recorded database
 	case "poll_member_forbidden", "signals_member_read_ok", "off_watches_poll_member_403_first":
 		return "bob", "ws-alpha"
 	case "poll_editor_ok":

@@ -89,7 +89,7 @@ func wcrudActor(name string) (who, ws string) {
 		"patch_member_forbidden", "delete_member_forbidden", "off_watches_create_member_403_first", "nopg_member_403_first":
 		return "bob", "ws-alpha"
 	case "list_beta_bob", "get_beta_own", "create_beta_owner", "lim_watches_max_watches_beta":
-		return "bob", "ws-beta"
+		return "bob", "" // bob's active workspace is seeded (ws-beta), as in the recorded database
 	case "list_nonmember", "create_nonmember":
 		return "erin", "ws-beta"
 	case "create_editor_ok", "patch_editor_ok", "delete_editor_ok":
@@ -137,6 +137,7 @@ func newWcrudEnv(t *testing.T, profile string, mod ...func(*Deps)) wcrudEnv {
 	// FastAPI makes a global admin an owner of every workspace at login (the recorded token_alice call),
 	// which is why list_global_admin_other_workspace answers 200.
 	e.member(t, "ws-beta", e.mustUserByName(t, "alice").ID, "owner")
+	seedActiveWorkspace(t, e, "bob", "ws-beta")
 	purge := func() {
 		for _, q := range []string{`DELETE FROM watch_schedules`, `DELETE FROM watch_subscriptions`, `DELETE FROM poll_budget_ledger`,
 			`DELETE FROM jobs WHERE type = 'watch_poll'`, `DELETE FROM scheduled_triggers`,
@@ -185,6 +186,20 @@ func newWcrudEnv(t *testing.T, profile string, mod ...func(*Deps)) wcrudEnv {
 	registerWatchesCRUD(r, d) // not RegisterWatches: the nopg profile must still answer 409 per request
 	e.h = r.Handler()
 	return wcrudEnv{leadsEnv: e, deps: d}
+}
+
+// seedActiveWorkspace records the user's active workspace (user_active_workspace), which the recorded
+// database had for bob (ws-beta), so requests need no X-Workspace-Id workaround. The row is removed
+// before the workspace cleanups run (FK).
+func seedActiveWorkspace(t *testing.T, e leadsEnv, user, ws string) {
+	t.Helper()
+	ctx := context.Background()
+	uid := e.mustUserByName(t, user).ID
+	if _, err := e.pool.Exec(ctx, `INSERT INTO user_active_workspace (user_id, workspace_id) VALUES ($1,$2)
+		ON CONFLICT (user_id) DO UPDATE SET workspace_id = EXCLUDED.workspace_id`, uid, ws); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _, _ = e.pool.Exec(context.Background(), `DELETE FROM user_active_workspace WHERE user_id = $1`, uid) })
 }
 
 // wcrudOwnerExecQuiet runs best-effort cleanup SQL as the table owner (ignores errors).
