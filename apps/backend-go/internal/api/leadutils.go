@@ -35,6 +35,8 @@ var leadUtilsVerifyDeps func(d Deps) emailverify.Deps
 type leadUtils struct {
 	d     Deps
 	vOnce sync.Once
+	cOnce sync.Once
+	cl    *http.Client     // fallback egress client when Deps.Egress is nil
 	vd    emailverify.Deps // production cascade wiring, built on first use
 }
 

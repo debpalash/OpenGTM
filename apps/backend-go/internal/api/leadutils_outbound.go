@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -14,6 +15,12 @@ import (
 	_ "github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/firmo" // registers tech_stack
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
+)
+
+// Test seams. nil / zero means the production behaviour.
+var (
+	leadUtilsTechProvider func() providers.Provider // fake tech_stack provider
+	leadUtilsTechTimeout  time.Duration             // shorter fetch timeout
 )
 
 const (
@@ -143,7 +150,8 @@ func (h *leadUtils) techClient() *http.Client {
 	if h.d.Egress != nil {
 		return h.d.Egress
 	}
-	return egress.NewClientForEnv(h.d.Config.AppEnv, h.d.EgressAllowHosts)
+	h.cOnce.Do(func() { h.cl = egress.NewClientForEnv(h.d.Config.AppEnv, h.d.EgressAllowHosts) })
+	return h.cl
 }
 
 // techStack is POST /api/leads/tech-stack: the built-in tech_stack provider on the caller's domain. The fetch is
@@ -161,6 +169,9 @@ func (h *leadUtils) techStack(w http.ResponseWriter, r *http.Request, raw string
 		website = "https://" + domain
 	}
 	p, ok := providers.Get("tech_stack")
+	if leadUtilsTechProvider != nil {
+		p, ok = leadUtilsTechProvider(), true
+	}
 	if !ok {
 		h.d.logger().Error("leadutils: tech_stack provider is not registered")
 		serverError(w)
@@ -185,12 +196,20 @@ func (h *leadUtils) techStack(w http.ResponseWriter, r *http.Request, raw string
 		httpx.Detail(w, http.StatusServiceUnavailable, "Too many website fetches in progress; retry shortly")
 		return
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), techStackTimeout)
+	timeout := techStackTimeout
+	if leadUtilsTechTimeout > 0 {
+		timeout = leadUtilsTechTimeout
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), timeout)
 	defer cancel()
 	out, err := p.Enrich(ctx, h.techClient(), func() (string, error) { return "", nil }, providers.Input{
 		Lead:     map[string]any{"company": domain, "website": website, "id": 0},
 		Settings: settings,
 	})
+	if errors.Is(err, context.DeadlineExceeded) && r.Context().Err() == nil {
+		httpx.Detail(w, http.StatusGatewayTimeout, "Website fetch timed out")
+		return
+	}
 	if err != nil {
 		h.d.logger().Error("leadutils: tech-stack failed", "err_type", errTypeName(err))
 		serverError(w)
