@@ -136,6 +136,9 @@ type Deps struct {
 	// RunExecutor picks "go" or "python" for the research_playbook_run job
 	// (nil: python). The schedule job's executor is ScheduleExecutor.
 	RunExecutor func(workspaceID string) string
+	// Researcher runs a playbook step (HandleRun); nil means the Python worker
+	// is not configured and a claimed run is handed back.
+	Researcher Researcher
 }
 
 func (d Deps) now() time.Time {

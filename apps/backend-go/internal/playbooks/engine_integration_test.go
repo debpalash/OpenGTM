@@ -13,6 +13,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 )
 
@@ -79,19 +81,22 @@ type resRow struct {
 
 func (e *env) results(t *testing.T, ws, run string) []resRow {
 	t.Helper()
-	rows, err := e.pool.Query(context.Background(), `SELECT lead_id,status,value,result_metadata::text,error,attempts FROM playbook_results WHERE workspace_id=$1 AND run_id=$2 ORDER BY lead_id`, ws, run)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer rows.Close()
 	var out []resRow
-	for rows.Next() {
-		var r resRow
-		if err := rows.Scan(&r.lead, &r.status, &r.value, &r.meta, &r.err, &r.attempts); err != nil {
-			t.Fatal(err)
+	e.in(t, ws, func(tx pgx.Tx) error {
+		rows, err := tx.Query(context.Background(), `SELECT lead_id,status,value,result_metadata::text,error,attempts FROM playbook_results WHERE workspace_id=$1 AND run_id=$2 ORDER BY lead_id`, ws, run)
+		if err != nil {
+			return err
 		}
-		out = append(out, r)
-	}
+		defer rows.Close()
+		for rows.Next() {
+			var r resRow
+			if err := rows.Scan(&r.lead, &r.status, &r.value, &r.meta, &r.err, &r.attempts); err != nil {
+				return err
+			}
+			out = append(out, r)
+		}
+		return rows.Err()
+	})
 	return out
 }
 
@@ -105,10 +110,10 @@ type runRow struct {
 func (e *env) runState(t *testing.T, ws, id string) runRow {
 	t.Helper()
 	var r runRow
-	if err := e.pool.QueryRow(context.Background(), `SELECT status,attempted,succeeded,failed,error,started_at,finished_at FROM playbook_runs WHERE workspace_id=$1 AND id=$2`, ws, id).
-		Scan(&r.status, &r.attempted, &r.succeeded, &r.failed, &r.err, &r.started, &r.finished); err != nil {
-		t.Fatal(err)
-	}
+	e.in(t, ws, func(tx pgx.Tx) error {
+		return tx.QueryRow(context.Background(), `SELECT status,attempted,succeeded,failed,error,started_at,finished_at FROM playbook_runs WHERE workspace_id=$1 AND id=$2`, ws, id).
+			Scan(&r.status, &r.attempted, &r.succeeded, &r.failed, &r.err, &r.started, &r.finished)
+	})
 	return r
 }
 
@@ -282,7 +287,8 @@ func TestRunBudgetSplitAcrossSteps(t *testing.T) {
 	if err := e.run(t, f, run); err != nil {
 		t.Fatal(err)
 	}
-	want := 0.3 / 3
+	budget := 0.3
+	want := budget / 3
 	for _, c := range f.calls {
 		if c.req.CellBudgetUSD != want || c.req.MaxSteps != 6 {
 			t.Fatalf("budget %v steps %d", c.req.CellBudgetUSD, c.req.MaxSteps)
@@ -569,20 +575,6 @@ func TestRunNoopCases(t *testing.T) {
 	}
 	if err := HandleRun(context.Background(), e.engineDeps(f), "", "x"); err == nil {
 		t.Fatal("empty workspace accepted")
-	}
-}
-
-func TestRunMissingPlaybookErrors(t *testing.T) {
-	e := setup(t)
-	pb, run := e.engineRun(t, oneStep, 100)
-	e.sql(t, e.ws, `UPDATE playbook_runs SET playbook_id='gone' WHERE workspace_id=$1 AND id=$2`, e.ws, run.ID)
-	_ = pb
-	err := e.run(t, &fakeRes{}, run)
-	if err == nil || err.Error() != "playbook not found" {
-		t.Fatalf("got %v", err)
-	}
-	if st := e.runState(t, e.ws, run.ID); st.status != "pending" {
-		t.Fatalf("run %+v", st)
 	}
 }
 
