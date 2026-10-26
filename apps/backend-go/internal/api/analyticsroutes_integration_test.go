@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http/httptest"
+	"sort"
 	"strings"
 	"testing"
 
@@ -44,6 +45,47 @@ func analyticsActor(name string) (who, ws string) {
 	return "alice", ""
 }
 
+// sortUnorderedLists orders by_city by (count desc, city) and source_quality by source on both sides: Python's
+// GROUP BY has no ORDER BY for sources and leaves equal city counts in heap order, while Go orders sources by name and
+// breaks city ties by name (documented deviation).
+func sortUnorderedLists(t *testing.T, raw json.RawMessage) json.RawMessage {
+	t.Helper()
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &m); err != nil {
+		t.Fatal(err)
+	}
+	var rows []struct {
+		City     *string `json:"city"`
+		Count    int     `json:"count"`
+		AvgScore *int    `json:"avg_score"`
+	}
+	if err := json.Unmarshal(m["by_city"], &rows); err != nil {
+		t.Fatal(err)
+	}
+	sort.SliceStable(rows, func(i, j int) bool {
+		if rows[i].Count != rows[j].Count {
+			return rows[i].Count > rows[j].Count
+		}
+		a, b := "", ""
+		if rows[i].City != nil {
+			a = *rows[i].City
+		}
+		if rows[j].City != nil {
+			b = *rows[j].City
+		}
+		return a < b
+	})
+	m["by_city"], _ = json.Marshal(rows)
+	var src []map[string]any
+	if err := json.Unmarshal(m["source_quality"], &src); err != nil {
+		t.Fatal(err)
+	}
+	sort.SliceStable(src, func(i, j int) bool { return src[i]["source"].(string) < src[j]["source"].(string) })
+	m["source_quality"], _ = json.Marshal(src)
+	out, _ := json.Marshal(m)
+	return out
+}
+
 func TestAnalyticsFixturesMatchPython(t *testing.T) {
 	e := newAnalyticsEnv(t)
 	replayed := 0
@@ -59,6 +101,9 @@ func TestAnalyticsFixturesMatchPython(t *testing.T) {
 			}
 		}
 		replayed++
+		if strings.HasPrefix(name, "enrichment_") && rec.Code == 200 {
+			got.Body, fx.Response.Body = sortUnorderedLists(t, got.Body), sortUnorderedLists(t, fx.Response.Body)
+		}
 		t.Run(name, func(t *testing.T) { contract.AssertEqual(t, got, fx.Response) })
 	}
 	if replayed != 25 {

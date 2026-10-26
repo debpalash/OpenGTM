@@ -274,3 +274,18 @@ helper vectors (`telemetry_vectors.json`) come from the real Python (`scripts/du
   roughly ten times its body size. The 30 s server read timeout still bounds slow uploads.
 - JSON body edge cases differ from Python's `json.loads`: a UTF-8 BOM, UTF-16/32 bodies and `NaN`/`Infinity` (accepted by Python) are 422
   in Go; invalid UTF-8 is replaced by U+FFFD (Python: 422).
+
+## Analytics routes (Task 21): PG lead store only
+
+Fixtures `analytics/*` (cases `legacy/python/scripts/contract_cases/analytics.yaml`, FastAPI as a non-superuser role with
+`PG_LEAD_STORE=true`). Only the Postgres-store branch of `routers/analytics.py` is ported; nothing registers when
+`PG_LEAD_STORE` is false.
+- The jobs/llm trend sections are file-only in Python and degrade to empty on the PG store, so `leads_this_week`,
+  `leads_this_month`, `email_confidence`, `jobs`, `pipeline.status_tiers`, `collection`, `llm` and
+  `enrichment.score_distribution` are constant empty/zero shapes (deliberate; migrating the trends is Python follow-up).
+- `enrichment.by_city[].avg_score` and every `source_quality` aggregate other than `count` are `null` on the PG store.
+- `*_pct` is `round(n / total * 100, 1)` (half-even on the binary value, like CPython) or the int `0` when the workspace
+  has no leads (`TestPctBankersRounding`, `TestOverviewEmptyWorkspaceUsesIntZero`).
+- Row order: Python's `GROUP BY` for sources has no `ORDER BY` and equal city counts come back in heap order. Go orders
+  sources by name and city ties by name; the fixture test sorts both sides before comparing those two lists.
+- A NULL city is `"city": null`; a NULL or empty source is `"unknown"`.

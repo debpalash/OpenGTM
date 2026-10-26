@@ -15,8 +15,9 @@ import (
 // Count is one group-by bucket. A NULL group key is "null", which is what
 // Python's json.dumps writes for a None dict key.
 type Count struct {
-	Key string
-	N   int64
+	Key  string
+	N    int64
+	Null bool // the group key was SQL NULL (Python None); Key is then "null"
 }
 
 // Counts is an ordered bucket list that marshals as a JSON object (Python
@@ -108,28 +109,28 @@ func Stats(ctx context.Context, tx pgx.Tx) (StatsResult, error) {
 		return StatsResult{}, err
 	}
 	for _, r := range st {
-		res.ByStatus = append(res.ByStatus, Count{key(r.Key), r.N})
+		res.ByStatus = append(res.ByStatus, Count{key(r.Key), r.N, !r.Key.Valid})
 	}
 	ti, err := q.LeadCountsByTier(ctx)
 	if err != nil {
 		return StatsResult{}, err
 	}
 	for _, r := range ti {
-		res.ByTier = append(res.ByTier, Count{key(r.Key), r.N})
+		res.ByTier = append(res.ByTier, Count{key(r.Key), r.N, !r.Key.Valid})
 	}
 	ci, err := q.LeadCountsByCity(ctx)
 	if err != nil {
 		return StatsResult{}, err
 	}
 	for _, r := range ci {
-		res.ByCity = append(res.ByCity, Count{key(r.Key), r.N})
+		res.ByCity = append(res.ByCity, Count{key(r.Key), r.N, !r.Key.Valid})
 	}
 	so, err := q.LeadCountsBySource(ctx)
 	if err != nil {
 		return StatsResult{}, err
 	}
 	for _, r := range so {
-		res.BySource = append(res.BySource, Count{key(r.Key), r.N})
+		res.BySource = append(res.BySource, Count{key(r.Key), r.N, !r.Key.Valid})
 	}
 	return res, nil
 }
