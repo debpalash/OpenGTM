@@ -93,7 +93,7 @@ func (e *ingestEnv) cleanIngest() {
 }
 
 // seedEnrich mirrors the ENRICH part of contract_seed.py that ingest depends on: the six wb-enrich-1 rows
-// (example.com sites drive the registrable-domain collapse), wb-enrich-live, wb-enrich-big, the seed token.
+// (example.com sites drive the registrable-domain collapse), wb-ingest-empty, wb-enrich-big, the seed token.
 func (e *ingestEnv) seedEnrich(t *testing.T) {
 	t.Helper()
 	ownerExec(t, `DELETE FROM workbook_rows WHERE workbook_id = 'wb-enrich-1'`)
@@ -107,7 +107,13 @@ func (e *ingestEnv) seedEnrich(t *testing.T) {
 	ins := `INSERT INTO workbooks (id, name, description, status, workspace_id, source_type, source_config, filter_criteria,
 		columns_config, total_rows, completed_rows, sync_to_leads, budget_max_usd, budget_spent_usd, created_at, updated_at)
 		VALUES ($1,$1,'','idle','ws-alpha','manual','{}'::json,NULL,'[{"id":"company","name":"Company","type":"lead_field","lead_field":"company"}]'::json,0,0,false,0,0,$2::timestamp,$2::timestamp)`
+	ownerExec(t, ins, "wb-ingest-empty", staleStamp)
 	ownerExec(t, ins, "wb-enrich-live", staleStamp)
+	for k := 1; k <= 3; k++ {
+		ownerExec(t, `INSERT INTO workbook_rows (id, workbook_id, "position", data, enrichments, workspace_id) VALUES ($1,'wb-enrich-live',$2,$3::json,'{}'::json,'ws-alpha')`,
+			200+k, k-1, fmt.Sprintf(`{"company":"Living %d","website":"https://living%d.example.com"}`, k, k))
+	}
+	ownerExec(t, `UPDATE workbooks SET total_rows = 3 WHERE id = 'wb-enrich-live'`)
 	ownerExec(t, ins, "wb-enrich-big", staleStamp)
 	ownerExec(t, ins, "wb-alpha-2", staleStamp)
 	ownerExec(t, `UPDATE workbooks SET total_rows = 6 WHERE id = 'wb-enrich-1'`)
@@ -222,30 +228,26 @@ func TestIngestTokenMatchesFixtures(t *testing.T) {
 	for _, name := range ingestFixtureOrder {
 		t.Run(name, func(t *testing.T) { replayIngest(t, e, name) })
 	}
-	off, _ := newIngestEnv(t, false)
-	for _, name := range []string{"ingest_disabled", "ingest_token_disabled"} {
-		t.Run(name, func(t *testing.T) {
-			fx := contract.Load(t, "ingest/"+name)
-			_, got := off.do(fx.Request.Method, fx.Request.Path, "application/json", string(fx.Request.Body), ingestActor(name))
-			contract.AssertEqual(t, got, fx.Response)
-		})
-	}
 }
 
 func TestIngestTokenCreateResponseOnce(t *testing.T) {
 	e, _ := newIngestEnv(t, true)
-	code, body := e.post(ingestBase+"wb-enrich-live/ingest-token", "", e.session("alice", "ws-alpha"))
+	code, body := e.post(ingestBase+"wb-ingest-empty/ingest-token", "", e.session("alice", "ws-alpha"))
 	if code != 200 {
 		t.Fatalf("create: %d %s", code, body)
 	}
 	var r struct {
-		Token, ID, Prefix, WorkbookID, WorkspaceID string
-		CreatedAt                                  string `json:"created_at"`
-		Rotated                                    int
+		Token       string `json:"token"`
+		ID          string `json:"id"`
+		Prefix      string `json:"prefix"`
+		WorkbookID  string `json:"workbook_id"`
+		WorkspaceID string `json:"workspace_id"`
+		CreatedAt   string `json:"created_at"`
+		Rotated     int    `json:"rotated"`
 	}
 	_ = json.Unmarshal([]byte(body), &r)
 	if !strings.HasPrefix(r.Token, "wbi_") || len(r.Token) != 4+43 || r.Prefix != r.Token[:12] || r.Rotated != 0 ||
-		r.WorkbookID != "wb-enrich-live" || r.WorkspaceID != "ws-alpha" {
+		r.WorkbookID != "wb-ingest-empty" || r.WorkspaceID != "ws-alpha" {
 		t.Fatalf("bad create response shape: %+v", r)
 	}
 	// only the sha256 is stored; the plaintext appears nowhere in the table.
@@ -261,7 +263,7 @@ func TestIngestTokenCreateResponseOnce(t *testing.T) {
 func TestIngestTokenRotationRevokesPrevious(t *testing.T) {
 	e, _ := newIngestEnv(t, true)
 	mint := func() string {
-		code, body := e.post(ingestBase+"wb-enrich-live/ingest-token", "", e.session("alice", "ws-alpha"))
+		code, body := e.post(ingestBase+"wb-ingest-empty/ingest-token", "", e.session("alice", "ws-alpha"))
 		if code != 200 {
 			t.Fatalf("mint: %d", code)
 		}
@@ -271,22 +273,22 @@ func TestIngestTokenRotationRevokesPrevious(t *testing.T) {
 	}
 	a := mint()
 	row := `{"rows":[{"company":"Rot %s"}]}`
-	if code, body := e.post(ingestBase+"wb-enrich-live/rows/ingest", fmt.Sprintf(row, "A"), tokHdr(a)); code != 200 {
+	if code, body := e.post(ingestBase+"wb-ingest-empty/rows/ingest", fmt.Sprintf(row, "A"), tokHdr(a)); code != 200 {
 		t.Fatalf("token A: %d %s", code, body)
 	}
 	b := mint()
-	code, body := e.post(ingestBase+"wb-enrich-live/rows/ingest", fmt.Sprintf(row, "A2"), tokHdr(a))
+	code, body := e.post(ingestBase+"wb-ingest-empty/rows/ingest", fmt.Sprintf(row, "A2"), tokHdr(a))
 	if code != 401 || body != `{"detail":"ingest token revoked"}` {
 		t.Fatalf("revoked token A: %d %s", code, body)
 	}
-	if code, body := e.post(ingestBase+"wb-enrich-live/rows/ingest", fmt.Sprintf(row, "B"), tokHdr(b)); code != 200 {
+	if code, body := e.post(ingestBase+"wb-ingest-empty/rows/ingest", fmt.Sprintf(row, "B"), tokHdr(b)); code != 200 {
 		t.Fatalf("token B: %d %s", code, body)
 	}
-	if n := dbString(t, `SELECT count(*)::text FROM workbook_ingest_tokens WHERE workbook_id='wb-enrich-live' AND revoked_at IS NULL`); n != "1" {
+	if n := dbString(t, `SELECT count(*)::text FROM workbook_ingest_tokens WHERE workbook_id='wb-ingest-empty' AND revoked_at IS NULL`); n != "1" {
 		t.Errorf("active tokens = %s, want 1", n)
 	}
 	// the revoked token's second ingest wrote nothing.
-	if n := dbString(t, `SELECT count(*)::text FROM workbook_rows WHERE workbook_id='wb-enrich-live' AND data->>'company'='Rot A2'`); n != "0" {
+	if n := dbString(t, `SELECT count(*)::text FROM workbook_rows WHERE workbook_id='wb-ingest-empty' AND data->>'company'='Rot A2'`); n != "0" {
 		t.Error("revoked token wrote a row")
 	}
 }
@@ -294,18 +296,18 @@ func TestIngestTokenRotationRevokesPrevious(t *testing.T) {
 func TestIngestWithSessionNeedsTablesWrite(t *testing.T) {
 	e, _ := newIngestEnv(t, true)
 	body := `{"rows":[{"company":"Session Co"}]}`
-	code, resp := e.post(ingestBase+"wb-enrich-live/rows/ingest", body, e.session("bob", "ws-alpha"))
+	code, resp := e.post(ingestBase+"wb-ingest-empty/rows/ingest", body, e.session("bob", "ws-alpha"))
 	if code != 403 || resp != `{"detail":"Insufficient workspace role"}` {
 		t.Fatalf("viewer: %d %s", code, resp)
 	}
-	if n := e.count(t, "wb-enrich-live"); n != "0" {
+	if n := e.count(t, "wb-ingest-empty"); n != "0" {
 		t.Errorf("viewer wrote rows: %s", n)
 	}
-	if code, resp := e.post(ingestBase+"wb-enrich-live/rows/ingest", body, e.session("erin", "ws-alpha")); code != 200 {
+	if code, resp := e.post(ingestBase+"wb-ingest-empty/rows/ingest", body, e.session("erin", "ws-alpha")); code != 200 {
 		t.Fatalf("editor: %d %s", code, resp)
 	}
 	// a viewer cannot mint a token either (require_editor gate).
-	code, resp = e.post(ingestBase+"wb-enrich-live/ingest-token", "", e.session("bob", "ws-alpha"))
+	code, resp = e.post(ingestBase+"wb-ingest-empty/ingest-token", "", e.session("bob", "ws-alpha"))
 	if code != 403 || resp != `{"detail":"Workspace permission denied: tables.write"}` {
 		t.Fatalf("viewer mint: %d %s", code, resp)
 	}
@@ -313,11 +315,11 @@ func TestIngestWithSessionNeedsTablesWrite(t *testing.T) {
 
 func TestIngestWithTokenOtherWorkbookRejected(t *testing.T) {
 	e, hook := newIngestEnv(t, true)
-	code, body := e.post(ingestBase+"wb-enrich-live/rows/ingest", `{"rows":[{"company":"Other"}]}`, tokHdr(seedIngestToken))
+	code, body := e.post(ingestBase+"wb-ingest-empty/rows/ingest", `{"rows":[{"company":"Other"}]}`, tokHdr(seedIngestToken))
 	if code != 401 || body != `{"detail":"ingest token not valid for this workbook"}` {
 		t.Fatalf("%d %s", code, body)
 	}
-	if e.count(t, "wb-enrich-live") != "0" || len(hook.calls) != 0 {
+	if e.count(t, "wb-ingest-empty") != "0" || len(hook.calls) != 0 {
 		t.Error("rows written or hook fired for a mis-scoped token")
 	}
 }
@@ -330,7 +332,7 @@ func TestIngestMissingCredentials401(t *testing.T) {
 		"blank bearer": {"Authorization": "Bearer "},
 		"basic":        {"Authorization": "Basic abc"},
 	} {
-		code, resp := e.post(ingestBase+"wb-enrich-live/rows/ingest", body, hdr)
+		code, resp := e.post(ingestBase+"wb-ingest-empty/rows/ingest", body, hdr)
 		if code != 401 || resp != `{"detail":"Missing credentials"}` {
 			t.Errorf("%s: %d %s", name, code, resp)
 		}
@@ -361,24 +363,24 @@ func TestIngestTooManyRows413(t *testing.T) {
 		b.WriteString(`]}`)
 		return b.String()
 	}
-	code, resp := e.post(ingestBase+"wb-enrich-live/rows/ingest", mk(501), e.session("alice", "ws-alpha"))
+	code, resp := e.post(ingestBase+"wb-ingest-empty/rows/ingest", mk(501), e.session("alice", "ws-alpha"))
 	if code != 413 || resp != `{"detail":"too many rows: 501 > 500 per request"}` {
 		t.Fatalf("%d %s", code, resp)
 	}
-	if e.count(t, "wb-enrich-live") != "0" {
+	if e.count(t, "wb-ingest-empty") != "0" {
 		t.Error("rows inserted by a rejected request")
 	}
-	if code, resp := e.post(ingestBase+"wb-enrich-live/rows/ingest", mk(500), tokHdr(mustMint(t, e))); code != 200 {
+	if code, resp := e.post(ingestBase+"wb-ingest-empty/rows/ingest", mk(500), tokHdr(mustMint(t, e))); code != 200 {
 		t.Fatalf("500 rows: %d %.200s", code, resp)
 	}
-	if e.count(t, "wb-enrich-live") != "500" || len(hook.calls) != 1 || len(hook.calls[0].ids) != 500 {
-		t.Errorf("500 rows: count=%s hook=%+v", e.count(t, "wb-enrich-live"), len(hook.calls))
+	if e.count(t, "wb-ingest-empty") != "500" || len(hook.calls) != 1 || len(hook.calls[0].ids) != 500 {
+		t.Errorf("500 rows: count=%s hook=%+v", e.count(t, "wb-ingest-empty"), len(hook.calls))
 	}
 }
 
 func mustMint(t *testing.T, e *ingestEnv) string {
 	t.Helper()
-	code, body := e.post(ingestBase+"wb-enrich-live/ingest-token", "", e.session("alice", "ws-alpha"))
+	code, body := e.post(ingestBase+"wb-ingest-empty/ingest-token", "", e.session("alice", "ws-alpha"))
 	if code != 200 {
 		t.Fatalf("mint %d", code)
 	}
@@ -395,7 +397,7 @@ func TestIngestMapsAndDedupes(t *testing.T) {
 		{"company":"Acme Again","website":"http://acme.io"},
 		{"company":"Dup Name Inc"},{"company":"dup name llc"},
 		{"company":""},{"company":null},{}]}`
-	code, resp := e.post(ingestBase+"wb-enrich-live/rows/ingest", body, hdr)
+	code, resp := e.post(ingestBase+"wb-ingest-empty/rows/ingest", body, hdr)
 	if code != 200 {
 		t.Fatalf("%d %s", code, resp)
 	}
@@ -417,20 +419,20 @@ func TestIngestMapsAndDedupes(t *testing.T) {
 	if got := dbString(t, `SELECT data::text FROM workbook_rows WHERE id = $1`, r.RowIDs[0]); got != `{"company": "Acme", "website": "https://www.acme.io/x", "Zed": 1, "alpha key": 2}` {
 		t.Errorf("stored row = %s", got)
 	}
-	if dbString(t, `SELECT total_rows::text FROM workbooks WHERE id='wb-enrich-live'`) != "2" {
+	if dbString(t, `SELECT total_rows::text FROM workbooks WHERE id='wb-ingest-empty'`) != "2" {
 		t.Error("workbooks.total_rows not updated")
 	}
-	if len(hook.calls) != 1 || !hook.calls[0].inTx || hook.calls[0].ws != "ws-alpha" || hook.calls[0].wb != "wb-enrich-live" ||
+	if len(hook.calls) != 1 || !hook.calls[0].inTx || hook.calls[0].ws != "ws-alpha" || hook.calls[0].wb != "wb-ingest-empty" ||
 		fmt.Sprint(hook.calls[0].ids) != fmt.Sprint(r.RowIDs) {
 		t.Errorf("RowsAdded hook calls = %+v, row ids %v", hook.calls, r.RowIDs)
 	}
 	// dedupe=false keeps repeats; nothing added -> no hook call.
-	code, resp = e.post(ingestBase+"wb-enrich-live/rows/ingest", `{"rows":[{"company":"Acme"}],"dedupe":false}`, hdr)
+	code, resp = e.post(ingestBase+"wb-ingest-empty/rows/ingest", `{"rows":[{"company":"Acme"}],"dedupe":false}`, hdr)
 	if code != 200 || !strings.Contains(resp, `"added":1`) {
 		t.Errorf("dedupe=false: %d %s", code, resp)
 	}
 	n := len(hook.calls)
-	e.post(ingestBase+"wb-enrich-live/rows/ingest", `{"rows":[{"company":""}]}`, hdr)
+	e.post(ingestBase+"wb-ingest-empty/rows/ingest", `{"rows":[{"company":""}]}`, hdr)
 	if len(hook.calls) != n {
 		t.Error("hook fired for an ingest that added nothing")
 	}
@@ -440,8 +442,8 @@ func TestIngestIdempotencyReplayAndRace(t *testing.T) {
 	e, hook := newIngestEnv(t, true)
 	hdr := e.session("alice", "ws-alpha", "Idempotency-Key", "k-1")
 	body := `{"rows":[{"company":"Once Only"}]}`
-	_, first := e.post(ingestBase+"wb-enrich-live/rows/ingest", body, hdr)
-	rec, _ := e.do("POST", ingestBase+"wb-enrich-live/rows/ingest", "application/json", body, hdr)
+	_, first := e.post(ingestBase+"wb-ingest-empty/rows/ingest", body, hdr)
+	rec, _ := e.do("POST", ingestBase+"wb-ingest-empty/rows/ingest", "application/json", body, hdr)
 	if rec.Body.String() != first || rec.Header().Get("Idempotent-Replay") != "true" {
 		t.Errorf("replay = %q (%q), first %q", rec.Body.String(), rec.Header().Get("Idempotent-Replay"), first)
 	}
@@ -452,11 +454,11 @@ func TestIngestIdempotencyReplayAndRace(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			e.post(ingestBase+"wb-enrich-live/rows/ingest", `{"rows":[{"company":"Racer"}],"dedupe":false}`, race)
+			e.post(ingestBase+"wb-ingest-empty/rows/ingest", `{"rows":[{"company":"Racer"}],"dedupe":false}`, race)
 		}()
 	}
 	wg.Wait()
-	if n := dbString(t, `SELECT count(*)::text FROM workbook_rows WHERE workbook_id='wb-enrich-live' AND data->>'company'='Racer'`); n != "1" {
+	if n := dbString(t, `SELECT count(*)::text FROM workbook_rows WHERE workbook_id='wb-ingest-empty' AND data->>'company'='Racer'`); n != "1" {
 		t.Errorf("racing idempotent ingests inserted %s rows", n)
 	}
 	if len(hook.calls) != 2 {
@@ -466,6 +468,13 @@ func TestIngestIdempotencyReplayAndRace(t *testing.T) {
 
 func TestIngestDisabledFlagResponse(t *testing.T) {
 	e, hook := newIngestEnv(t, false)
+	for _, name := range []string{"ingest_disabled", "ingest_token_disabled"} {
+		t.Run(name, func(t *testing.T) {
+			fx := contract.Load(t, "ingest/"+name)
+			_, got := e.do(fx.Request.Method, fx.Request.Path, "application/json", string(fx.Request.Body), ingestActor(name))
+			contract.AssertEqual(t, got, fx.Response)
+		})
+	}
 	for _, hdr := range []map[string]string{e.session("alice", "ws-alpha"), tokHdr(seedIngestToken), {}} {
 		code, resp := e.post(ingestBase+"wb-enrich-1/rows/ingest", `{"rows":[{"company":"x"}]}`, hdr)
 		if hdr["Authorization"] == "" {
@@ -493,7 +502,7 @@ func TestIngestTenantIsolation(t *testing.T) {
 	// a ws-beta workbook with its own token.
 	e.insertToken(t, "beta-tok", "ws-beta", "wb-beta-1", "wbi_beta_tenant_token_0000000000001")
 	// beta's token cannot reach alpha's workbook, alpha's cannot reach beta's.
-	for _, c := range []struct{ tok, wb string }{{"wbi_beta_tenant_token_0000000000001", "wb-enrich-live"}, {seedIngestToken, "wb-beta-1"}} {
+	for _, c := range []struct{ tok, wb string }{{"wbi_beta_tenant_token_0000000000001", "wb-ingest-empty"}, {seedIngestToken, "wb-beta-1"}} {
 		code, resp := e.post(ingestBase+c.wb+"/rows/ingest", `{"rows":[{"company":"Leak"}]}`, tokHdr(c.tok))
 		if code != 401 || resp != `{"detail":"ingest token not valid for this workbook"}` {
 			t.Errorf("%s: %d %s", c.wb, code, resp)
