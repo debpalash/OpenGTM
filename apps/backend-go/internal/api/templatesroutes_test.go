@@ -155,7 +155,7 @@ func TestTemplateColumnsStoredWithoutHTMLEscaping(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(b), `"A<B & C>"`) || strings.Contains(string(b), `<`) || strings.Contains(string(b), `&`) {
+	if !strings.Contains(string(b), `"A<B & C>"`) || strings.Contains(string(b), `\u003c`) || strings.Contains(string(b), `\u0026`) {
 		t.Fatalf("columns_config escaped: %s", b)
 	}
 }
