@@ -1,6 +1,7 @@
 package httpx
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"sort"
@@ -47,8 +48,13 @@ func exactPattern(pattern string) string {
 
 func (r *Router) matches(method, path, host string) bool {
 	probe := &http.Request{Method: method, URL: &url.URL{Path: path}, Host: host, Header: http.Header{}}
-	_, pat := r.mux.Handler(probe)
-	return pat != "" && pat != "/"
+	h, pat := r.mux.Handler(probe)
+	if pat == "" || pat == "/" {
+		return false
+	}
+	// ServeMux answers "/p" with its own redirect when "/p/..." is registered;
+	// that is not a real route match.
+	return fmt.Sprintf("%T", h) != "*http.redirectHandler"
 }
 
 // Use adds global middleware (applied around the whole mux, including 404/405

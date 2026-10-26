@@ -230,6 +230,9 @@ func TestRedirectSlashesBothDirections(t *testing.T) {
 	if rec.Code != 307 || rec.Header().Get("Location") != "/with/?a=1&b=2" {
 		t.Fatalf("add slash: %d %q", rec.Code, rec.Header().Get("Location"))
 	}
+	if rec = do(h, "GET", "/with", nil); rec.Code != 307 || rec.Header().Get("Location") != "/with/" {
+		t.Fatalf("add slash no query: %d %q", rec.Code, rec.Header().Get("Location"))
+	}
 	rec = do(h, "GET", "/without/", nil)
 	if rec.Code != 307 || rec.Header().Get("Location") != "/without" {
 		t.Fatalf("strip slash: %d %q", rec.Code, rec.Header().Get("Location"))
