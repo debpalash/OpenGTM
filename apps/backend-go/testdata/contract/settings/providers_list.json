@@ -1,0 +1,203 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/settings/providers"
+  },
+  "response": {
+    "body": {
+      "default_provider": "openrouter",
+      "providers": [
+        {
+          "api_key_masked": "",
+          "base_url": "https://api.anthropic.com",
+          "configured": false,
+          "default_model": "claude-opus-4-8",
+          "docs_url": "https://console.anthropic.com/settings/keys",
+          "free_tier": "Paid (Opus 4.8: $5 / $25 per 1M tok)",
+          "icon": "\ud83e\ude84",
+          "id": "anthropic",
+          "is_default": false,
+          "model": "claude-opus-4-8",
+          "name": "Anthropic (Claude)",
+          "openai_compatible": false
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "https://openrouter.ai/api/v1",
+          "configured": false,
+          "default_model": "meta-llama/llama-3.3-70b-instruct:free",
+          "docs_url": "https://openrouter.ai/keys",
+          "free_tier": "20 RPM, 50 RPD (1K with $10 topup)",
+          "icon": "\ud83c\udf10",
+          "id": "openrouter",
+          "is_default": true,
+          "model": "meta-llama/llama-3.3-70b-instruct:free",
+          "name": "OpenRouter",
+          "openai_compatible": true
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+          "configured": false,
+          "default_model": "gemini-2.5-flash",
+          "docs_url": "https://aistudio.google.com/app/apikey",
+          "free_tier": "10 RPM, 1500 RPD",
+          "icon": "\ud83d\udd37",
+          "id": "google_ai",
+          "is_default": false,
+          "model": "gemini-2.5-flash",
+          "name": "Google AI Studio",
+          "openai_compatible": true
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "https://integrate.api.nvidia.com/v1",
+          "configured": false,
+          "default_model": "meta/llama-3.3-70b-instruct",
+          "docs_url": "https://build.nvidia.com/explore/discover",
+          "free_tier": "40 RPM (phone verification)",
+          "icon": "\ud83d\udc9a",
+          "id": "nvidia",
+          "is_default": false,
+          "model": "meta/llama-3.3-70b-instruct",
+          "name": "NVIDIA NIM",
+          "openai_compatible": true
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "https://api.groq.com/openai/v1",
+          "configured": false,
+          "default_model": "llama-3.3-70b-versatile",
+          "docs_url": "https://console.groq.com/keys",
+          "free_tier": "30 RPM, 1K RPD",
+          "icon": "\u26a1",
+          "id": "groq",
+          "is_default": false,
+          "model": "llama-3.3-70b-versatile",
+          "name": "Groq",
+          "openai_compatible": true
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "https://api.cerebras.ai/v1",
+          "configured": false,
+          "default_model": "llama-3.3-70b",
+          "docs_url": "https://cloud.cerebras.ai/",
+          "free_tier": "30 RPM, 14,400 RPD",
+          "icon": "\ud83e\udde0",
+          "id": "cerebras",
+          "is_default": false,
+          "model": "llama-3.3-70b",
+          "name": "Cerebras",
+          "openai_compatible": true
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "https://api.mistral.ai/v1",
+          "configured": false,
+          "default_model": "mistral-small-latest",
+          "docs_url": "https://console.mistral.ai/api-keys",
+          "free_tier": "1 req/s, 1B tok/month",
+          "icon": "\ud83d\udd2e",
+          "id": "mistral",
+          "is_default": false,
+          "model": "mistral-small-latest",
+          "name": "Mistral AI",
+          "openai_compatible": true
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "https://api.cohere.ai/v2",
+          "configured": false,
+          "default_model": "command-a-03-2025",
+          "docs_url": "https://dashboard.cohere.com/api-keys",
+          "free_tier": "20 RPM, 1K/month",
+          "icon": "\ud83d\udc1a",
+          "id": "cohere",
+          "is_default": false,
+          "model": "command-a-03-2025",
+          "name": "Cohere",
+          "openai_compatible": false
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "https://models.inference.ai.azure.com",
+          "configured": false,
+          "default_model": "gpt-4o",
+          "docs_url": "https://github.com/marketplace/models",
+          "free_tier": "10-15 RPM, 50-150 RPD",
+          "icon": "\ud83d\udc19",
+          "id": "github_models",
+          "is_default": false,
+          "model": "gpt-4o",
+          "name": "GitHub Models",
+          "openai_compatible": true
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "",
+          "configured": false,
+          "default_model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "docs_url": "https://dash.cloudflare.com/profile/api-tokens",
+          "free_tier": "10K neurons/day",
+          "icon": "\u2601\ufe0f",
+          "id": "cloudflare",
+          "is_default": false,
+          "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "name": "Cloudflare Workers AI",
+          "openai_compatible": true
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "https://api-inference.huggingface.co",
+          "configured": false,
+          "default_model": "meta-llama/Llama-3.3-70B-Instruct",
+          "docs_url": "https://huggingface.co/settings/tokens",
+          "free_tier": "$0.10/month credits",
+          "icon": "\ud83e\udd17",
+          "id": "huggingface",
+          "is_default": false,
+          "model": "meta-llama/Llama-3.3-70B-Instruct",
+          "name": "HuggingFace",
+          "openai_compatible": false
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "https://api.sambanova.ai/v1",
+          "configured": false,
+          "default_model": "Meta-Llama-3.3-70B-Instruct",
+          "docs_url": "https://sambanova.ai/",
+          "free_tier": "$5 trial credits",
+          "icon": "\ud83d\udd25",
+          "id": "sambanova",
+          "is_default": false,
+          "model": "Meta-Llama-3.3-70B-Instruct",
+          "name": "SambaNova Cloud",
+          "openai_compatible": true
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "https://api.siliconflow.cn/v1",
+          "configured": false,
+          "default_model": "Qwen/Qwen3-8B",
+          "docs_url": "https://cloud.siliconflow.cn/account/ak",
+          "free_tier": "1K RPM, 50K TPM",
+          "icon": "\ud83c\udf0a",
+          "id": "siliconflow",
+          "is_default": false,
+          "model": "Qwen/Qwen3-8B",
+          "name": "SiliconFlow",
+          "openai_compatible": true
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
