@@ -1,0 +1,7 @@
+# Governance and research-playbook routes that stay on FastAPI (plan 11, decision D1). One "METHOD /path/{param}" per line.
+# Both serve the signed certification catalog (integrations/certification.py: HMAC-verified evidence files and the
+# build SHA); they are ported with the integrations plan if wanted. nginx keeps them on api_backend at every percentage
+# (infra/nginx/go-routes.conf, section governance-playbooks). All other 26 routes (17 governance, 9 playbooks) are ported;
+# parity is pinned by internal/api/governance_coverage_test.go.
+GET /api/governance/capabilities
+GET /api/research-playbooks/capabilities
