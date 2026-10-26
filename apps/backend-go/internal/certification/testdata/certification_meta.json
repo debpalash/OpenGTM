@@ -1,0 +1,16 @@
+{
+  "build_sha": "contract-build-0001",
+  "certification_key": "ctk_integration_certification_key_0001",
+  "manifest_sha256": {
+    "Bad-Name": "68406090c005a6b652b1d14e7760d91380b85fd65877fd19641f4e94d96f608d",
+    "contract_forged": "1f5d7cce2141b679869eddf34b428230edea4b3a87de9a045aaf1446c8d5f306",
+    "contract_http": "f0066aa024422fd85e2548ae09cb1f79bd161bce9249c53d6b90cb74a520858d",
+    "contract_tampered": "dd5b16a7d892b9d762368f877ade169b78e2ac48326720379977a64b8036a076",
+    "contract_trusted": "92ee5da9b00fba1aa4bf44908d3dca02e7adafcdb5ca86597ef61359e95eed25",
+    "contract_unsigned": "b72883c92c71f4b612aa78388fdbc10b08867c013ce4c170425190128a84b73e",
+    "contract_untrusted": "6cf0d6bacc950b918da629c3ecd41684c5ef074bfc1e72f7e37340e0421e09d7"
+  },
+  "note": "TEST-ONLY values for the connector contract recordings (OPENGTM_INTEGRATION_CERTIFICATION_KEY is set only for the recorder)",
+  "pinned_now": "2026-09-01T12:00:00+00:00",
+  "trusted_key_id": "contract-key-1"
+}

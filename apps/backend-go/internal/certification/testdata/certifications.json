@@ -1,0 +1,122 @@
+[
+  {
+    "attestation": {
+      "algorithm": "hmac-sha256",
+      "key_id": "82b7305277c6242e",
+      "signature": "ba74e8f4655aee2c21afa485dc8409dde0514999902d2ca22ee7a4e0139d3d8e"
+    },
+    "build_sha": "contract-build-0001",
+    "checks": {
+      "authentication": {
+        "evidence": "authentication verified against the sandbox",
+        "passed": true
+      },
+      "external_read": {
+        "evidence": "external_read verified against the sandbox",
+        "passed": true
+      },
+      "failure_recovery": {
+        "evidence": "failure_recovery verified against the sandbox",
+        "passed": true
+      },
+      "normalization": {
+        "evidence": "normalization verified against the sandbox",
+        "passed": true
+      },
+      "tenant_isolation": {
+        "evidence": "tenant_isolation verified against the sandbox",
+        "passed": true
+      }
+    },
+    "evidence_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "evidence_url": "https://evidence.example.com/contract/run-contract-0001",
+    "expires_at": "2026-11-01T00:00:00Z",
+    "external_system_id_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "mode": "controlled_live",
+    "status": "supported",
+    "subject_build_sha256": "92ee5da9b00fba1aa4bf44908d3dca02e7adafcdb5ca86597ef61359e95eed25",
+    "subject_id": "connector:contract_trusted",
+    "validated_at": "2026-08-20T00:00:00Z",
+    "validation_run_id": "run-contract-0001"
+  },
+  {
+    "attestation": {
+      "algorithm": "hmac-sha256",
+      "key_id": "82b7305277c6242e",
+      "signature": "4aa0698c3d9089fe32b1c2a19fda15ce8747356c0273bda540dfd4c90b7b20fc"
+    },
+    "build_sha": "contract-build-0001",
+    "checks": {
+      "authentication": {
+        "evidence": "authentication verified against the sandbox",
+        "passed": true
+      },
+      "external_read": {
+        "evidence": "external_read verified against the sandbox",
+        "passed": true
+      },
+      "failure_recovery": {
+        "evidence": "failure_recovery verified against the sandbox",
+        "passed": true
+      },
+      "normalization": {
+        "evidence": "normalization verified against the sandbox",
+        "passed": true
+      },
+      "tenant_isolation": {
+        "evidence": "tenant_isolation verified against the sandbox",
+        "passed": true
+      }
+    },
+    "evidence_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "evidence_url": "https://evidence.example.com/contract/run-contract-0002",
+    "expires_at": "2026-06-30T00:00:00Z",
+    "external_system_id_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "mode": "controlled_live",
+    "status": "supported",
+    "subject_build_sha256": "b72883c92c71f4b612aa78388fdbc10b08867c013ce4c170425190128a84b73e",
+    "subject_id": "connector:contract_unsigned",
+    "validated_at": "2026-05-01T00:00:00Z",
+    "validation_run_id": "run-contract-0002"
+  },
+  {
+    "attestation": {
+      "algorithm": "hmac-sha256",
+      "key_id": "82b7305277c6242e",
+      "signature": "90fbb23c89672dcadf3d8e13f133049ac92c5aab33b6e0dcb7f4bc2a95645d42"
+    },
+    "build_sha": "contract-build-0001",
+    "checks": {
+      "authentication": {
+        "evidence": "authentication verified against the sandbox",
+        "passed": true
+      },
+      "external_read": {
+        "evidence": "external_read verified against the sandbox",
+        "passed": true
+      },
+      "failure_recovery": {
+        "evidence": "failure_recovery verified against the sandbox",
+        "passed": true
+      },
+      "normalization": {
+        "evidence": "normalization verified against the sandbox",
+        "passed": true
+      },
+      "tenant_isolation": {
+        "evidence": "tenant_isolation verified against the sandbox",
+        "passed": true
+      }
+    },
+    "evidence_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "evidence_url": "https://evidence.example.com/contract/edited-after-attestation",
+    "expires_at": "2026-11-01T00:00:00Z",
+    "external_system_id_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "mode": "controlled_live",
+    "status": "supported",
+    "subject_build_sha256": "1f5d7cce2141b679869eddf34b428230edea4b3a87de9a045aaf1446c8d5f306",
+    "subject_id": "connector:contract_forged",
+    "validated_at": "2026-08-20T00:00:00Z",
+    "validation_run_id": "run-contract-0003"
+  }
+]

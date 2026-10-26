@@ -1,0 +1,4384 @@
+{
+ "note": "files are keyed by path relative to the working directory the report ran in; directory = m, trust store = trust.json (absent when trust_store is null); error paths are str(path) of that relative directory",
+ "trusted_key_id": "contract-key-1",
+ "cases": [
+  {
+   "name": "empty_directory",
+   "note": "",
+   "files": {},
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": []
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "missing_directory_is_ok_and_empty",
+   "note": "",
+   "files": {
+    "__nodir__": ""
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": []
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": []
+   },
+   "directory_exists": false,
+   "error_is_portable": []
+  },
+  {
+   "name": "one_valid_unsigned",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_one\ndisplay_name: Vec One\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "5e8a619f0178ee27b4e155d15410e703c41b54052a4abc5f7a6697689630cac8",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_one",
+      "name": "Vec One",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_one"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "5e8a619f0178ee27b4e155d15410e703c41b54052a4abc5f7a6697689630cac8",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_one",
+      "name": "Vec One",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "valid_yml_extension_and_nesting",
+   "note": "",
+   "files": {
+    "m/a/b/c/vec_deep.yml": "manifest_version: \"1\"\nname: vec_deep\ndisplay_name: Vec Deep\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/vec_top.yaml": "manifest_version: \"1\"\nname: vec_top\ndisplay_name: Vec Top\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 2,
+    "connectors": [
+     {
+      "path": "a/b/c/vec_deep.yml",
+      "manifest_sha256": "a13ed9e31c0b25981be56066afe15aaf2c1ae573277f6584edbf8fe2ce849133",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_deep",
+      "name": "Vec Deep",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     },
+     {
+      "path": "vec_top.yaml",
+      "manifest_sha256": "c19ac2a7bae0e4bf556bdde1ddfcddcf9b8758bde4f8f3b582add43103f4500c",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_top",
+      "name": "Vec Top",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_deep",
+    "vec_top"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 2,
+    "connectors": [
+     {
+      "path": "a/b/c/vec_deep.yml",
+      "manifest_sha256": "a13ed9e31c0b25981be56066afe15aaf2c1ae573277f6584edbf8fe2ce849133",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_deep",
+      "name": "Vec Deep",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     },
+     {
+      "path": "vec_top.yaml",
+      "manifest_sha256": "c19ac2a7bae0e4bf556bdde1ddfcddcf9b8758bde4f8f3b582add43103f4500c",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_top",
+      "name": "Vec Top",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "auth_none_needs_no_env_var",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_open\ndisplay_name: Vec Open\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: none\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "19cd459d30c1ae7776bea28d6de80f0aad62353a8127d1b0e3ac9b4c008764f1",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_open",
+      "name": "Vec Open",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": null
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_open"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "19cd459d30c1ae7776bea28d6de80f0aad62353a8127d1b0e3ac9b4c008764f1",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_open",
+      "name": "Vec Open",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "header_and_query_auth",
+   "note": "",
+   "files": {
+    "m/a.yaml": "manifest_version: \"1\"\nname: vec_hdr\ndisplay_name: Vec Hdr\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: header\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/b.yaml": "manifest_version: \"1\"\nname: vec_qry\ndisplay_name: Vec Qry\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: query\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 2,
+    "connectors": [
+     {
+      "path": "a.yaml",
+      "manifest_sha256": "b684c57c1e029a02c5f1dbc2cffb0c3a903a38299a89a19a5d79687b2aaf3f63",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_hdr",
+      "name": "Vec Hdr",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     },
+     {
+      "path": "b.yaml",
+      "manifest_sha256": "237b2354fb623f62f4287d5989a345c83b2b11efd2c06d56ef7cff1ce06c0a9a",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_qry",
+      "name": "Vec Qry",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_hdr",
+    "vec_qry"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 2,
+    "connectors": [
+     {
+      "path": "a.yaml",
+      "manifest_sha256": "b684c57c1e029a02c5f1dbc2cffb0c3a903a38299a89a19a5d79687b2aaf3f63",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_hdr",
+      "name": "Vec Hdr",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     },
+     {
+      "path": "b.yaml",
+      "manifest_sha256": "237b2354fb623f62f4287d5989a345c83b2b11efd2c06d56ef7cff1ce06c0a9a",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_qry",
+      "name": "Vec Qry",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "not_a_mapping_list",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "- a\n- b\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "manifest m/email/x.yaml is not a mapping"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "manifest m/email/x.yaml is not a mapping"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "not_a_mapping_scalar",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "just text\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "manifest m/email/x.yaml is not a mapping"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "manifest m/email/x.yaml is not a mapping"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "empty_file",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": ""
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "manifest m/email/x.yaml is not a mapping"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "manifest m/email/x.yaml is not a mapping"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "yaml_syntax_error",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "name: [unterminated\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "while parsing a flow sequence\n  in \"m/email/x.yaml\", line 1, column 7\nexpected ',' or ']', but got '<stream end>'\n  in \"m/email/x.yaml\", line 2, column 1"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "while parsing a flow sequence\n  in \"m/email/x.yaml\", line 1, column 7\nexpected ',' or ']', but got '<stream end>'\n  in \"m/email/x.yaml\", line 2, column 1"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "pydantic_missing_request",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_nourl\ncapability: email\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "1 validation error for ProviderManifest\nrequest.url\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "1 validation error for ProviderManifest\nrequest.url\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "pydantic_missing_url",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "name: vec_nourl2\ncapability: email\nrequest:\n  method: GET\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "1 validation error for ProviderManifest\nrequest.url\n  Field required [type=missing, input_value={'method': 'GET'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "1 validation error for ProviderManifest\nrequest.url\n  Field required [type=missing, input_value={'method': 'GET'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "pydantic_bad_manifest_version",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"2\"\nname: vec_ver\ndisplay_name: Vec Ver\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "1 validation error for ProviderManifest\nmanifest_version\n  Input should be '1' [type=literal_error, input_value='2', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "1 validation error for ProviderManifest\nmanifest_version\n  Input should be '1' [type=literal_error, input_value='2', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "pydantic_bad_auth_type",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_authtype\ndisplay_name: Vec Authtype\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: digest\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "1 validation error for ProviderManifest\nauth.type\n  Input should be 'header', 'bearer', 'query' or 'none' [type=literal_error, input_value='digest', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "1 validation error for ProviderManifest\nauth.type\n  Input should be 'header', 'bearer', 'query' or 'none' [type=literal_error, input_value='digest', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "pydantic_confidence_not_number",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_conf\ndisplay_name: Vec Conf\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: high\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "1 validation error for ProviderManifest\ndefault_confidence\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='high', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/float_parsing"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "1 validation error for ProviderManifest\ndefault_confidence\n  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='high', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/float_parsing"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "name_uppercase",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: Vec_Upper\ndisplay_name: Vec Upper\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   },
+   "loaded": [
+    "Vec_Upper"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "name_dash",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec-dash\ndisplay_name: Vec-Dash\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   },
+   "loaded": [
+    "vec-dash"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "name_too_short",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: ab\ndisplay_name: Ab\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   },
+   "loaded": [
+    "ab"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "name_min_length_3_ok",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: abc\ndisplay_name: Abc\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "213f5fe32e8de68550231ab0a4270bfe6b46c938023893a648170805d89064c9",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "abc",
+      "name": "Abc",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "abc"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "213f5fe32e8de68550231ab0a4270bfe6b46c938023893a648170805d89064c9",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "abc",
+      "name": "Abc",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "name_64_chars_ok",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ndisplay_name: Abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "6aee98c1021283dbbd1555fcbb2e8b1c0cdba3d85bfbe88d1b8e6abcae7c139b",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "name": "Abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "6aee98c1021283dbbd1555fcbb2e8b1c0cdba3d85bfbe88d1b8e6abcae7c139b",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "name": "Abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "name_65_chars",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\ndisplay_name: Abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   },
+   "loaded": [
+    "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "name_leading_digit",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: 1vec\ndisplay_name: 1Vec\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   },
+   "loaded": [
+    "1vec"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "duplicate_name_across_files",
+   "note": "",
+   "files": {
+    "m/a/one.yaml": "manifest_version: \"1\"\nname: vec_dup\ndisplay_name: Vec Dup\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/b/two.yaml": "manifest_version: \"1\"\nname: vec_dup\ndisplay_name: Vec Dup\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: second\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "a/one.yaml",
+      "manifest_sha256": "136b913df8cb55f1b15784968b056c3f0e4c3df4248e743057c5175b033ac5a1",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_dup",
+      "name": "Vec Dup",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": [
+     {
+      "path": "m/b/two.yaml",
+      "error": "duplicate provider id 'vec_dup'"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_dup",
+    "vec_dup"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "a/one.yaml",
+      "manifest_sha256": "136b913df8cb55f1b15784968b056c3f0e4c3df4248e743057c5175b033ac5a1",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_dup",
+      "name": "Vec Dup",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": [
+     {
+      "path": "m/b/two.yaml",
+      "error": "duplicate provider id 'vec_dup'"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "duplicate_name_three_files",
+   "note": "",
+   "files": {
+    "m/a.yaml": "manifest_version: \"1\"\nname: vec_dup\ndisplay_name: Vec Dup\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/b.yaml": "manifest_version: \"1\"\nname: vec_dup\ndisplay_name: Vec Dup\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/c.yaml": "manifest_version: \"1\"\nname: vec_dup\ndisplay_name: Vec Dup\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "a.yaml",
+      "manifest_sha256": "136b913df8cb55f1b15784968b056c3f0e4c3df4248e743057c5175b033ac5a1",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_dup",
+      "name": "Vec Dup",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": [
+     {
+      "path": "m/b.yaml",
+      "error": "duplicate provider id 'vec_dup'"
+     },
+     {
+      "path": "m/c.yaml",
+      "error": "duplicate provider id 'vec_dup'"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_dup",
+    "vec_dup",
+    "vec_dup"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "a.yaml",
+      "manifest_sha256": "136b913df8cb55f1b15784968b056c3f0e4c3df4248e743057c5175b033ac5a1",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_dup",
+      "name": "Vec Dup",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": [
+     {
+      "path": "m/b.yaml",
+      "error": "duplicate provider id 'vec_dup'"
+     },
+     {
+      "path": "m/c.yaml",
+      "error": "duplicate provider id 'vec_dup'"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true,
+    true
+   ]
+  },
+  {
+   "name": "method_get_lowercase_ok",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_get\ndisplay_name: Vec Get\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: get\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "25991215a5bcf5054c1e07350e638881d4c88d019f9597fdf1a25022aab5d99c",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_get",
+      "name": "Vec Get",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_get"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "25991215a5bcf5054c1e07350e638881d4c88d019f9597fdf1a25022aab5d99c",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_get",
+      "name": "Vec Get",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "method_delete",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_del\ndisplay_name: Vec Del\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: DELETE\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "request.method must be GET, POST, PUT, or PATCH"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_del"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "request.method must be GET, POST, PUT, or PATCH"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "method_patch_ok",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_patch\ndisplay_name: Vec Patch\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: PATCH\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "c32f4b72da70008eb6f87210dc514085bf056e9fef2edb781720d6a10e51373a",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_patch",
+      "name": "Vec Patch",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_patch"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "c32f4b72da70008eb6f87210dc514085bf056e9fef2edb781720d6a10e51373a",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_patch",
+      "name": "Vec Patch",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "method_head",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_head\ndisplay_name: Vec Head\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: HEAD\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "request.method must be GET, POST, PUT, or PATCH"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_head"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "request.method must be GET, POST, PUT, or PATCH"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "url_http",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_http\ndisplay_name: Vec Http\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: http://api.example.com/x\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector request URL must use HTTPS"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_http"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector request URL must use HTTPS"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "url_ftp",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_ftp\ndisplay_name: Vec Ftp\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: ftp://api.example.com/x\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector request URL must use HTTPS"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_ftp"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector request URL must use HTTPS"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "url_scheme_uppercase",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_upper\ndisplay_name: Vec Upper\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: HTTPS://api.example.com/x\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector request URL must use HTTPS"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_upper"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector request URL must use HTTPS"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "url_template_https_ok",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_tpl\ndisplay_name: Vec Tpl\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/{{input.domain}}\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "12b6cf82b9539ad9329ff35a35eb10fc550fa258ef6afe5f14d24968377c26c8",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_tpl",
+      "name": "Vec Tpl",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_tpl"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "12b6cf82b9539ad9329ff35a35eb10fc550fa258ef6afe5f14d24968377c26c8",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_tpl",
+      "name": "Vec Tpl",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "empty_mappings",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_nomap\ndisplay_name: Vec Nomap\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings: {}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "response.mappings must not be empty"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_nomap"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "response.mappings must not be empty"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "no_response_section",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_noresp\ndisplay_name: Vec Noresp\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "response.mappings must not be empty"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_noresp"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "response.mappings must not be empty"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "confidence_above_one",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_hi\ndisplay_name: Vec Hi\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 1.5\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "confidence must be 0..1 and cost must be non-negative"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_hi"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "confidence must be 0..1 and cost must be non-negative"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "confidence_below_zero",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_lo\ndisplay_name: Vec Lo\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: -0.1\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "confidence must be 0..1 and cost must be non-negative"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_lo"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "confidence must be 0..1 and cost must be non-negative"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "confidence_bounds_ok",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_b0\ndisplay_name: Vec B0\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "31606d3840e0ddf345cdd4a7e3e83ca607a3a5f69f665a529a1c067beb87bea8",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_b0",
+      "name": "Vec B0",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.0,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_b0"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "31606d3840e0ddf345cdd4a7e3e83ca607a3a5f69f665a529a1c067beb87bea8",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_b0",
+      "name": "Vec B0",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.0
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "confidence_one_ok",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_b1\ndisplay_name: Vec B1\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 1\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "9936f7fbb0579089d426a895af35665e2f96f051a6309479660c46f862e0cbc9",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_b1",
+      "name": "Vec B1",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 1.0,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_b1"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "9936f7fbb0579089d426a895af35665e2f96f051a6309479660c46f862e0cbc9",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_b1",
+      "name": "Vec B1",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 1.0
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "cost_negative",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_cost\ndisplay_name: Vec Cost\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: -0.5\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "confidence must be 0..1 and cost must be non-negative"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_cost"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "confidence must be 0..1 and cost must be non-negative"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "timeout_zero",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_t0\ndisplay_name: Vec T0\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 0\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "request.timeout must be between 0 and 120 seconds"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_t0"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "request.timeout must be between 0 and 120 seconds"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "timeout_over_120",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_t121\ndisplay_name: Vec T121\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 120.5\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "request.timeout must be between 0 and 120 seconds"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_t121"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "request.timeout must be between 0 and 120 seconds"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "timeout_120_ok",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_t120\ndisplay_name: Vec T120\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 120\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "f029341230619d3fcdaf05f679dc4034786dfa8dcc5c312b07ad440b55a46728",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_t120",
+      "name": "Vec T120",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_t120"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "f029341230619d3fcdaf05f679dc4034786dfa8dcc5c312b07ad440b55a46728",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_t120",
+      "name": "Vec T120",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "timeout_negative",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_tneg\ndisplay_name: Vec Tneg\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: -1\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "request.timeout must be between 0 and 120 seconds"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_tneg"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "request.timeout must be between 0 and 120 seconds"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "bearer_without_env_var",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_noenv\ndisplay_name: Vec Noenv\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "authenticated connectors require auth.env_var"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_noenv"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "authenticated connectors require auth.env_var"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "empty_env_var",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_emptyenv\ndisplay_name: Vec Emptyenv\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: \"\"\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "authenticated connectors require auth.env_var"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_emptyenv"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "authenticated connectors require auth.env_var"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "capabilities_merge_with_mapping_keys",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_caps\ndisplay_name: Vec Caps\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: [phone, email, ]\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n    company_size: data.size\n    \"\": data.nothing\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "34523afb6d39b3d43328231ef4cce3536c2c7e4429866eff3ef02527d9b7e468",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_caps",
+      "name": "Vec Caps",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email",
+       "phone",
+       "company_size"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_caps"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "34523afb6d39b3d43328231ef4cce3536c2c7e4429866eff3ef02527d9b7e468",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_caps",
+      "name": "Vec Caps",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email",
+       "phone",
+       "company_size"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "body_alias_and_body_template",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_body\ndisplay_name: Vec Body\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "b2746098c00853dc62ca5ab1e8c22f36682590bb473fa27b21c47fbaa76e7142",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_body",
+      "name": "Vec Body",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_body"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "b2746098c00853dc62ca5ab1e8c22f36682590bb473fa27b21c47fbaa76e7142",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_body",
+      "name": "Vec Body",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "unicode_description_and_tags",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_unicode\ndisplay_name: Vec Unicode\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [é, 日本]\ncapability: email\ncapabilities: []\ndescription: Üñíçødé — 日本語\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "f27ac0d440b0a7474f9876ee81745afc642d2a011dad289ef289de76785b8596",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_unicode",
+      "name": "Vec Unicode",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Üñíçødé — 日本語",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "é",
+       "日本"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_unicode"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "f27ac0d440b0a7474f9876ee81745afc642d2a011dad289ef289de76785b8596",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_unicode",
+      "name": "Vec Unicode",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Üñíçødé — 日本語",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "é",
+       "日本"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "display_name_default_title_case",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_title_case\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "4ced1bb35d3ab59d299d9bcd8a867eb8083f1fa5fc7842b52385c7988adf9069",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_title_case",
+      "name": "Vec Title Case",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_title_case"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/x.yaml",
+      "manifest_sha256": "4ced1bb35d3ab59d299d9bcd8a867eb8083f1fa5fc7842b52385c7988adf9069",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_title_case",
+      "name": "Vec Title Case",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "non_yaml_files_ignored",
+   "note": "",
+   "files": {
+    "m/readme.txt": "x",
+    "m/vec_ok.yaml": "manifest_version: \"1\"\nname: vec_ok\ndisplay_name: Vec Ok\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/vec_ok.yaml.sig": "garbage"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/vec_ok.yaml",
+      "error": "connector signature is invalid: Expecting value: line 1 column 1 (char 0)"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/vec_ok.yaml",
+      "error": "connector signature is invalid: Expecting value: line 1 column 1 (char 0)"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "odd_extension_matches_glob",
+   "note": "",
+   "files": {
+    "m/notes.yaml.html": "<html>not yaml: [</html>",
+    "m/vec_ok.yaml": "manifest_version: \"1\"\nname: vec_ok\ndisplay_name: Vec Ok\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "vec_ok.yaml",
+      "manifest_sha256": "89344e4fce0177e6d257fb5c5b7b827c5e2f993d9eeaa47ba84555b7a9235eef",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_ok",
+      "name": "Vec Ok",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": [
+     {
+      "path": "m/notes.yaml.html",
+      "error": "while parsing a flow sequence\n  in \"m/notes.yaml.html\", line 1, column 17\nexpected ',' or ']', but got '<stream end>'\n  in \"m/notes.yaml.html\", line 1, column 25"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_ok"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "vec_ok.yaml",
+      "manifest_sha256": "89344e4fce0177e6d257fb5c5b7b827c5e2f993d9eeaa47ba84555b7a9235eef",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_ok",
+      "name": "Vec Ok",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": [
+     {
+      "path": "m/notes.yaml.html",
+      "error": "while parsing a flow sequence\n  in \"m/notes.yaml.html\", line 1, column 17\nexpected ',' or ']', but got '<stream end>'\n  in \"m/notes.yaml.html\", line 1, column 25"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "odd_extension_y1ml",
+   "note": "",
+   "files": {
+    "m/weird.y1ml": "manifest_version: \"1\"\nname: vec_weird\ndisplay_name: Vec Weird\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "weird.y1ml",
+      "manifest_sha256": "7fe7c8b6b97953b45b5a0a4b2ee40ca38d2a898526dbe36998bd7d8d53c7f834",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_weird",
+      "name": "Vec Weird",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_weird"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "weird.y1ml",
+      "manifest_sha256": "7fe7c8b6b97953b45b5a0a4b2ee40ca38d2a898526dbe36998bd7d8d53c7f834",
+      "signature": {
+       "status": "unsigned",
+       "key_id": null,
+       "publisher": null
+      },
+      "manifest_version": "1",
+      "id": "vec_weird",
+      "name": "Vec Weird",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "several_errors_in_path_order",
+   "note": "",
+   "files": {
+    "m/z_last.yaml": "manifest_version: \"1\"\nname: vec_z\ndisplay_name: Vec Z\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: http://z\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/a_first.yaml": "manifest_version: \"1\"\nname: Bad\ndisplay_name: Bad\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/m_mid.yaml": "- x"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/a_first.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     },
+     {
+      "path": "m/m_mid.yaml",
+      "error": "manifest m/m_mid.yaml is not a mapping"
+     },
+     {
+      "path": "m/z_last.yaml",
+      "error": "connector request URL must use HTTPS"
+     }
+    ]
+   },
+   "loaded": [
+    "Bad",
+    "vec_z"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/a_first.yaml",
+      "error": "name must match ^[a-z][a-z0-9_]{2,63}$"
+     },
+     {
+      "path": "m/m_mid.yaml",
+      "error": "manifest m/m_mid.yaml is not a mapping"
+     },
+     {
+      "path": "m/z_last.yaml",
+      "error": "connector request URL must use HTTPS"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true,
+    true,
+    true
+   ]
+  },
+  {
+   "name": "signed_trusted_policy_optional",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/vec_good.yaml",
+      "manifest_sha256": "da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a",
+      "signature": {
+       "status": "trusted",
+       "key_id": "contract-key-1",
+       "publisher": "OpenGTM Contract Fixtures"
+      },
+      "manifest_version": "1",
+      "id": "vec_good",
+      "name": "Vec Good",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_good"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/vec_good.yaml",
+      "manifest_sha256": "da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a",
+      "signature": {
+       "status": "trusted",
+       "key_id": "contract-key-1",
+       "publisher": "OpenGTM Contract Fixtures"
+      },
+      "manifest_version": "1",
+      "id": "vec_good",
+      "name": "Vec Good",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "signed_trusted_policy_required",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "required",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/vec_good.yaml",
+      "manifest_sha256": "da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a",
+      "signature": {
+       "status": "trusted",
+       "key_id": "contract-key-1",
+       "publisher": "OpenGTM Contract Fixtures"
+      },
+      "manifest_version": "1",
+      "id": "vec_good",
+      "name": "Vec Good",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_good"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/vec_good.yaml",
+      "manifest_sha256": "da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a",
+      "signature": {
+       "status": "trusted",
+       "key_id": "contract-key-1",
+       "publisher": "OpenGTM Contract Fixtures"
+      },
+      "manifest_version": "1",
+      "id": "vec_good",
+      "name": "Vec Good",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "unsigned_policy_required",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_unsigned\ndisplay_name: Vec Unsigned\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "required",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector signature is unsigned:"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector signature is unsigned:"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "unsigned_and_signed_policy_required",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n",
+    "m/email/vec_unsigned.yaml": "manifest_version: \"1\"\nname: vec_unsigned\ndisplay_name: Vec Unsigned\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "required",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/vec_good.yaml",
+      "manifest_sha256": "da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a",
+      "signature": {
+       "status": "trusted",
+       "key_id": "contract-key-1",
+       "publisher": "OpenGTM Contract Fixtures"
+      },
+      "manifest_version": "1",
+      "id": "vec_good",
+      "name": "Vec Good",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": [
+     {
+      "path": "m/email/vec_unsigned.yaml",
+      "error": "connector signature is unsigned:"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_good"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/vec_good.yaml",
+      "manifest_sha256": "da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a",
+      "signature": {
+       "status": "trusted",
+       "key_id": "contract-key-1",
+       "publisher": "OpenGTM Contract Fixtures"
+      },
+      "manifest_version": "1",
+      "id": "vec_good",
+      "name": "Vec Good",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": [
+     {
+      "path": "m/email/vec_unsigned.yaml",
+      "error": "connector signature is unsigned:"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "policy_invalid_string_means_required",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_unsigned\ndisplay_name: Vec Unsigned\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "weird",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector signature is unsigned:"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector signature is unsigned:"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "policy_uppercase_is_not_normalised_by_report",
+   "note": "",
+   "files": {
+    "m/email/x.yaml": "manifest_version: \"1\"\nname: vec_unsigned\ndisplay_name: Vec Unsigned\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n"
+   },
+   "policy": "OPTIONAL",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector signature is unsigned:"
+     }
+    ]
+   },
+   "loaded": [
+    "vec_unsigned"
+   ],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "required",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/x.yaml",
+      "error": "connector signature is unsigned:"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "tampered_manifest_digest_mismatch",
+   "note": "",
+   "files": {
+    "m/vec_tamper.yaml": "manifest_version: \"1\"\nname: vec_tamper\ndisplay_name: Vec Tamper\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Edited\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/vec_tamper.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"4eb436b44ff62dea81fb929a6070876308237529ffaba9bebd443bb55445f730\",\n  \"signature\": \"KFTls1h1bAY5eopJzlxEEniCzG8Xq1qvgmfR9JYspuEza7ty0HNN1AJslBC1vt6/OQRuuZ7qAxcFDa65q+G5Cw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/vec_tamper.yaml",
+      "error": "connector signature is invalid: manifest digest mismatch"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/vec_tamper.yaml",
+      "error": "connector signature is invalid: manifest digest mismatch"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "untrusted_key",
+   "note": "",
+   "files": {
+    "m/vec_rogue.yaml": "manifest_version: \"1\"\nname: vec_rogue\ndisplay_name: Vec Rogue\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/vec_rogue.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"rogue-key-9\",\n  \"manifest_sha256\": \"60d187de4bdddf27c581e2fcd8c0efdc1fb7ba8c0b7c0700a988ff8e69bc03e5\",\n  \"signature\": \"tabvQA0bqd9s1fP5XB4QoUsxAOpp8SQ7V3F6nBoSIxievKftt8yzAe4Wj3xQQR8X66bacL+xkjebszLVwx/bAA==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/vec_rogue.yaml",
+      "error": "connector signature is untrusted:"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/vec_rogue.yaml",
+      "error": "connector signature is untrusted:"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "trust_store_missing_file_everything_untrusted",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": null,
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is untrusted:"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is untrusted:"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "trust_store_wrong_version",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\"version\": 2, \"keys\": []}",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: invalid connector trust store"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: invalid connector trust store"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "trust_store_keys_not_list",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\"version\": 1, \"keys\": {}}",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: invalid connector trust store"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: invalid connector trust store"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "trust_store_not_json",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{nope",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "trust_store_entry_without_key_id",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"publisher\": \"x\"}]}",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: 'key_id'"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: 'key_id'"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "trust_store_publisher_defaults_to_key_id",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\"version\": 1, \"keys\": [{\"key_id\": \"contract-key-1\", \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\"}]}",
+   "report": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/vec_good.yaml",
+      "manifest_sha256": "da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a",
+      "signature": {
+       "status": "trusted",
+       "key_id": "contract-key-1",
+       "publisher": "contract-key-1"
+      },
+      "manifest_version": "1",
+      "id": "vec_good",
+      "name": "Vec Good",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8,
+      "credential_key": "CONTRACT_TRUSTED_KEY"
+     }
+    ],
+    "errors": []
+   },
+   "loaded": [
+    "vec_good"
+   ],
+   "compatibility": {
+    "ok": true,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 1,
+    "connectors": [
+     {
+      "path": "email/vec_good.yaml",
+      "manifest_sha256": "da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a",
+      "signature": {
+       "status": "trusted",
+       "key_id": "contract-key-1",
+       "publisher": "contract-key-1"
+      },
+      "manifest_version": "1",
+      "id": "vec_good",
+      "name": "Vec Good",
+      "author": "opengtm-contract",
+      "homepage": "https://example.com/contract",
+      "license": "Apache-2.0",
+      "description": "Contract fixture connector",
+      "capabilities": [
+       "email"
+      ],
+      "tags": [
+       "contract"
+      ],
+      "cost_per_lookup": 0.01,
+      "default_confidence": 0.8
+     }
+    ],
+    "errors": []
+   },
+   "directory_exists": true,
+   "error_is_portable": []
+  },
+  {
+   "name": "sig_wrong_envelope_version",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"2\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: unsupported connector signature envelope"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: unsupported connector signature envelope"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "sig_wrong_algorithm",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"RSA\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: unsupported connector signature envelope"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: unsupported connector signature envelope"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "sig_wrong_digest",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: manifest digest mismatch"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: manifest digest mismatch"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "sig_right_digest_wrong_signature_empty_error_message",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"YlUtKhZnzslJTf37D3oU+gFYW7f47oUlOEzjyjcYmu0Ng2591xXWACFRZbCn5LMLrx5rIN9UvLxloGdRWZOPBw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid:"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid:"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "sig_not_base64",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"***not-base64***\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: Only base64 data is allowed"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: Only base64 data is allowed"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "sig_missing_signature_field",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"contract-key-1\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: 'signature'"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: 'signature'"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "sig_missing_key_id",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"manifest_sha256\": \"da9e837730ffc311b24d766d1676333d63893698b04b7973e54592bff327561a\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is untrusted:"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is untrusted:"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  },
+  {
+   "name": "sig_not_json",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "not json at all"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: Expecting value: line 1 column 1 (char 0)"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: Expecting value: line 1 column 1 (char 0)"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "sig_json_list",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "[1,2]"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: 'list' object has no attribute 'get'"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: 'list' object has no attribute 'get'"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "sig_empty_file",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": ""
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: Expecting value: line 1 column 1 (char 0)"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is invalid: Expecting value: line 1 column 1 (char 0)"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    false
+   ]
+  },
+  {
+   "name": "sig_unknown_key_id_is_untrusted_before_digest",
+   "note": "",
+   "files": {
+    "m/email/vec_good.yaml": "manifest_version: \"1\"\nname: vec_good\ndisplay_name: Vec Good\nauthor: opengtm-contract\nhomepage: https://example.com/contract\nlicense: Apache-2.0\ntags: [contract]\ncapability: email\ncapabilities: []\ndescription: Contract fixture connector\ndefault_confidence: 0.8\ncost_per_lookup: 0.01\nauth:\n  type: bearer\n  env_var: CONTRACT_TRUSTED_KEY\n  value: \"${env:CONTRACT_TRUSTED_KEY}\"\nrequest:\n  method: POST\n  url: https://api.example.com/v1/lookup\n  timeout: 10\n  body:\n    email: \"{{input.email}}\"\nresponse:\n  mappings:\n    email: data.value\n",
+    "m/email/vec_good.yaml.sig": "{\n  \"algorithm\": \"Ed25519\",\n  \"key_id\": \"nobody\",\n  \"manifest_sha256\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"signature\": \"XZnONiczpQY1oWHVRiyjBNJji+fH0MfkzS7uebjAvlULzm6XW7iz0pKoRwvn37YmE6jVZKTxm6rbeCQplOXbDw==\",\n  \"signature_version\": \"1\"\n}\n"
+   },
+   "policy": "optional",
+   "trust_store": "{\n  \"keys\": [\n    {\n      \"key_id\": \"contract-key-1\",\n      \"public_key\": \"U3hYySJHtn3pgAvC6ZdCppq/NwBhVW5e7OdzIQhzOr0=\",\n      \"publisher\": \"OpenGTM Contract Fixtures\"\n    }\n  ],\n  \"version\": 1\n}\n",
+   "report": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is untrusted:"
+     }
+    ]
+   },
+   "loaded": [],
+   "compatibility": {
+    "ok": false,
+    "manifest_version": "1",
+    "signature_policy": "optional",
+    "count": 0,
+    "connectors": [],
+    "errors": [
+     {
+      "path": "m/email/vec_good.yaml",
+      "error": "connector signature is untrusted:"
+     }
+    ]
+   },
+   "directory_exists": true,
+   "error_is_portable": [
+    true
+   ]
+  }
+ ],
+ "signature_policy_env": [
+  {
+   "env": null,
+   "policy": "optional"
+  },
+  {
+   "env": "",
+   "policy": "required"
+  },
+  {
+   "env": "optional",
+   "policy": "optional"
+  },
+  {
+   "env": "OPTIONAL",
+   "policy": "optional"
+  },
+  {
+   "env": " Required ",
+   "policy": "required"
+  },
+  {
+   "env": "required",
+   "policy": "required"
+  },
+  {
+   "env": "weird",
+   "policy": "required"
+  },
+  {
+   "env": "0",
+   "policy": "required"
+  },
+  {
+   "env": "off",
+   "policy": "required"
+  }
+ ]
+}

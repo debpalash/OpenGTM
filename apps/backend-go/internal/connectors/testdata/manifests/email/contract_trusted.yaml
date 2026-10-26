@@ -1,0 +1,25 @@
+manifest_version: "1"
+name: contract_trusted
+display_name: Contract Trusted
+author: opengtm-contract
+homepage: https://example.com/contract
+license: Apache-2.0
+tags: [contract]
+capability: email
+capabilities: []
+description: Contract fixture connector
+default_confidence: 0.8
+cost_per_lookup: 0.01
+auth:
+  type: bearer
+  env_var: CONTRACT_TRUSTED_KEY
+  value: "${env:CONTRACT_TRUSTED_KEY}"
+request:
+  method: POST
+  url: https://api.example.com/v1/lookup
+  timeout: 10
+  body:
+    email: "{{input.email}}"
+response:
+  mappings:
+    email: data.value

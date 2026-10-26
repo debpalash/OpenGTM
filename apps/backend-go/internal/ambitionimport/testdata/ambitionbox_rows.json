@@ -1,0 +1,1397 @@
+{
+ "AMBITIONBOX_COLUMNS": [
+  {
+   "id": "company",
+   "name": "Company",
+   "type": "lead_field",
+   "lead_field": "company",
+   "width": 220
+  },
+  {
+   "id": "industry",
+   "name": "Industry",
+   "type": "lead_field",
+   "lead_field": "industry",
+   "width": 180
+  },
+  {
+   "id": "ambitionbox_rating",
+   "name": "Rating",
+   "type": "lead_field",
+   "lead_field": "ambitionbox_rating",
+   "width": 90
+  },
+  {
+   "id": "review_count",
+   "name": "Reviews",
+   "type": "lead_field",
+   "lead_field": "review_count",
+   "width": 100
+  },
+  {
+   "id": "company_size",
+   "name": "Employees",
+   "type": "lead_field",
+   "lead_field": "company_size",
+   "width": 130
+  },
+  {
+   "id": "city",
+   "name": "Top location",
+   "type": "lead_field",
+   "lead_field": "city",
+   "width": 150
+  },
+  {
+   "id": "jobs_count",
+   "name": "Jobs",
+   "type": "lead_field",
+   "lead_field": "jobs_count",
+   "width": 80
+  },
+  {
+   "id": "company_type",
+   "name": "Company type",
+   "type": "lead_field",
+   "lead_field": "company_type",
+   "width": 150
+  },
+  {
+   "id": "is_verified",
+   "name": "Verified",
+   "type": "lead_field",
+   "lead_field": "is_verified",
+   "width": 90
+  },
+  {
+   "id": "ambitionbox_url",
+   "name": "AmbitionBox",
+   "type": "lead_field",
+   "lead_field": "ambitionbox_url",
+   "width": 260
+  }
+ ],
+ "company_to_row": [
+  {
+   "name": "full",
+   "company": {
+    "company_id": 1,
+    "name": "  Acme  ",
+    "industry": "IT",
+    "employee_count": "1L+",
+    "top_location": "Pune",
+    "rating": 3.5,
+    "review_count": 10,
+    "jobs_count": 3,
+    "salaries_count": 4,
+    "interviews_count": 5,
+    "total_locations": 6,
+    "company_type": "Public",
+    "is_verified": true,
+    "profile_url": "https://ab/acme",
+    "logo_url": "https://l/1",
+    "highly_rated_for": [
+     {
+      "name": "x",
+      "rating": 4
+     }
+    ],
+    "critically_rated_for": [
+     {
+      "name": "y",
+      "rating": 2
+     }
+    ]
+   },
+   "value": {
+    "company": "Acme",
+    "industry": "IT",
+    "specialization": "IT",
+    "industry_tags": "IT",
+    "company_size": "1L+",
+    "city": "Pune",
+    "source": "ambitionbox",
+    "ambitionbox_company_id": 1,
+    "ambitionbox_rating": 3.5,
+    "review_count": 10,
+    "jobs_count": 3,
+    "salaries_count": 4,
+    "interviews_count": 5,
+    "total_locations": 6,
+    "company_type": "Public",
+    "is_verified": true,
+    "ambitionbox_url": "https://ab/acme",
+    "logo_url": "https://l/1",
+    "highly_rated_for": [
+     {
+      "name": "x",
+      "rating": 4
+     }
+    ],
+    "critically_rated_for": [
+     {
+      "name": "y",
+      "rating": 2
+     }
+    ]
+   }
+  },
+  {
+   "name": "minimal",
+   "company": {
+    "name": "Bare"
+   },
+   "value": {
+    "company": "Bare",
+    "industry": "",
+    "specialization": "",
+    "industry_tags": "",
+    "company_size": "",
+    "city": "",
+    "source": "ambitionbox",
+    "ambitionbox_company_id": null,
+    "ambitionbox_rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "total_locations": 0,
+    "company_type": "",
+    "is_verified": false,
+    "ambitionbox_url": "",
+    "logo_url": "",
+    "highly_rated_for": [],
+    "critically_rated_for": []
+   }
+  },
+  {
+   "name": "empty",
+   "company": {},
+   "value": {
+    "company": "",
+    "industry": "",
+    "specialization": "",
+    "industry_tags": "",
+    "company_size": "",
+    "city": "",
+    "source": "ambitionbox",
+    "ambitionbox_company_id": null,
+    "ambitionbox_rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "total_locations": 0,
+    "company_type": "",
+    "is_verified": false,
+    "ambitionbox_url": "",
+    "logo_url": "",
+    "highly_rated_for": [],
+    "critically_rated_for": []
+   }
+  },
+  {
+   "name": "nulls",
+   "company": {
+    "name": "N",
+    "industry": null,
+    "employee_count": null,
+    "rating": null,
+    "review_count": null,
+    "jobs_count": null,
+    "is_verified": null,
+    "highly_rated_for": null,
+    "critically_rated_for": null
+   },
+   "value": {
+    "company": "N",
+    "industry": "",
+    "specialization": "",
+    "industry_tags": "",
+    "company_size": "",
+    "city": "",
+    "source": "ambitionbox",
+    "ambitionbox_company_id": null,
+    "ambitionbox_rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "total_locations": 0,
+    "company_type": "",
+    "is_verified": false,
+    "ambitionbox_url": "",
+    "logo_url": "",
+    "highly_rated_for": [],
+    "critically_rated_for": []
+   }
+  },
+  {
+   "name": "zero_counts",
+   "company": {
+    "name": "Z",
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "rating": 0,
+    "review_count": 0,
+    "is_verified": 0
+   },
+   "value": {
+    "company": "Z",
+    "industry": "",
+    "specialization": "",
+    "industry_tags": "",
+    "company_size": "",
+    "city": "",
+    "source": "ambitionbox",
+    "ambitionbox_company_id": null,
+    "ambitionbox_rating": 0,
+    "review_count": 0,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "total_locations": 0,
+    "company_type": "",
+    "is_verified": false,
+    "ambitionbox_url": "",
+    "logo_url": "",
+    "highly_rated_for": [],
+    "critically_rated_for": []
+   }
+  },
+  {
+   "name": "truthy_verified",
+   "company": {
+    "name": "T",
+    "is_verified": "yes"
+   },
+   "value": {
+    "company": "T",
+    "industry": "",
+    "specialization": "",
+    "industry_tags": "",
+    "company_size": "",
+    "city": "",
+    "source": "ambitionbox",
+    "ambitionbox_company_id": null,
+    "ambitionbox_rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "total_locations": 0,
+    "company_type": "",
+    "is_verified": true,
+    "ambitionbox_url": "",
+    "logo_url": "",
+    "highly_rated_for": [],
+    "critically_rated_for": []
+   }
+  },
+  {
+   "name": "numeric_name",
+   "company": {
+    "name": 12345
+   },
+   "value": {
+    "company": "12345",
+    "industry": "",
+    "specialization": "",
+    "industry_tags": "",
+    "company_size": "",
+    "city": "",
+    "source": "ambitionbox",
+    "ambitionbox_company_id": null,
+    "ambitionbox_rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "total_locations": 0,
+    "company_type": "",
+    "is_verified": false,
+    "ambitionbox_url": "",
+    "logo_url": "",
+    "highly_rated_for": [],
+    "critically_rated_for": []
+   }
+  },
+  {
+   "name": "none_name",
+   "company": {
+    "name": null,
+    "company_id": 3
+   },
+   "value": {
+    "company": "",
+    "industry": "",
+    "specialization": "",
+    "industry_tags": "",
+    "company_size": "",
+    "city": "",
+    "source": "ambitionbox",
+    "ambitionbox_company_id": 3,
+    "ambitionbox_rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "total_locations": 0,
+    "company_type": "",
+    "is_verified": false,
+    "ambitionbox_url": "",
+    "logo_url": "",
+    "highly_rated_for": [],
+    "critically_rated_for": []
+   }
+  },
+  {
+   "name": "unicode",
+   "company": {
+    "name": "Éco 東京"
+   },
+   "value": {
+    "company": "Éco 東京",
+    "industry": "",
+    "specialization": "",
+    "industry_tags": "",
+    "company_size": "",
+    "city": "",
+    "source": "ambitionbox",
+    "ambitionbox_company_id": null,
+    "ambitionbox_rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "total_locations": 0,
+    "company_type": "",
+    "is_verified": false,
+    "ambitionbox_url": "",
+    "logo_url": "",
+    "highly_rated_for": [],
+    "critically_rated_for": []
+   }
+  },
+  {
+   "name": "id_string",
+   "company": {
+    "name": "S",
+    "company_id": "77"
+   },
+   "value": {
+    "company": "S",
+    "industry": "",
+    "specialization": "",
+    "industry_tags": "",
+    "company_size": "",
+    "city": "",
+    "source": "ambitionbox",
+    "ambitionbox_company_id": "77",
+    "ambitionbox_rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "total_locations": 0,
+    "company_type": "",
+    "is_verified": false,
+    "ambitionbox_url": "",
+    "logo_url": "",
+    "highly_rated_for": [],
+    "critically_rated_for": []
+   }
+  }
+ ],
+ "dedupe_companies": [
+  {
+   "name": "empty",
+   "companies": [],
+   "value": []
+  },
+  {
+   "name": "by_id_first_wins",
+   "companies": [
+    {
+     "company_id": 1,
+     "name": "A"
+    },
+    {
+     "company_id": 1,
+     "name": "B"
+    },
+    {
+     "company_id": 2,
+     "name": "C"
+    }
+   ],
+   "value": [
+    {
+     "company_id": 1,
+     "name": "A"
+    },
+    {
+     "company_id": 2,
+     "name": "C"
+    }
+   ]
+  },
+  {
+   "name": "name_key_when_id_zero_none_or_empty",
+   "companies": [
+    {
+     "company_id": 0,
+     "name": "Same"
+    },
+    {
+     "company_id": null,
+     "name": "SAME"
+    },
+    {
+     "company_id": "",
+     "name": "same"
+    },
+    {
+     "name": " Same "
+    }
+   ],
+   "value": [
+    {
+     "company_id": 0,
+     "name": "Same"
+    }
+   ]
+  },
+  {
+   "name": "id_and_name_keys_do_not_collide",
+   "companies": [
+    {
+     "company_id": 5,
+     "name": "x"
+    },
+    {
+     "company_id": 0,
+     "name": "5"
+    }
+   ],
+   "value": [
+    {
+     "company_id": 5,
+     "name": "x"
+    },
+    {
+     "company_id": 0,
+     "name": "5"
+    }
+   ]
+  },
+  {
+   "name": "drops_blank_and_non_dict",
+   "companies": [
+    {
+     "name": ""
+    },
+    {
+     "name": "   "
+    },
+    null,
+    5,
+    "str",
+    [],
+    {
+     "name": null
+    },
+    {
+     "company_id": 1
+    },
+    {
+     "company_id": 2,
+     "name": "Kept"
+    }
+   ],
+   "value": [
+    {
+     "company_id": 2,
+     "name": "Kept"
+    }
+   ]
+  },
+  {
+   "name": "id_compared_as_string",
+   "companies": [
+    {
+     "company_id": 1,
+     "name": "A"
+    },
+    {
+     "company_id": "1",
+     "name": "B"
+    }
+   ],
+   "value": [
+    {
+     "company_id": 1,
+     "name": "A"
+    }
+   ]
+  },
+  {
+   "name": "casefold_unicode_names",
+   "companies": [
+    {
+     "name": "Straße"
+    },
+    {
+     "name": "STRASSE"
+    },
+    {
+     "name": "ÉCO"
+    },
+    {
+     "name": "éco"
+    }
+   ],
+   "value": [
+    {
+     "name": "Straße"
+    },
+    {
+     "name": "ÉCO"
+    }
+   ]
+  },
+  {
+   "name": "order_preserved",
+   "companies": [
+    {
+     "company_id": 3,
+     "name": "c"
+    },
+    {
+     "company_id": 1,
+     "name": "a"
+    },
+    {
+     "company_id": 2,
+     "name": "b"
+    }
+   ],
+   "value": [
+    {
+     "company_id": 3,
+     "name": "c"
+    },
+    {
+     "company_id": 1,
+     "name": "a"
+    },
+    {
+     "company_id": 2,
+     "name": "b"
+    }
+   ]
+  }
+ ],
+ "company_record": [
+  {
+   "name": "full@0",
+   "company": {
+    "company_id": 1,
+    "name": "  Acme  ",
+    "industry": "IT",
+    "employee_count": "1L+",
+    "top_location": "Pune",
+    "rating": 3.5,
+    "review_count": 10,
+    "jobs_count": 3,
+    "salaries_count": 4,
+    "interviews_count": 5,
+    "total_locations": 6,
+    "company_type": "Public",
+    "is_verified": true,
+    "profile_url": "https://ab/acme",
+    "logo_url": "https://l/1",
+    "highly_rated_for": [
+     {
+      "name": "x",
+      "rating": 4
+     }
+    ],
+    "critically_rated_for": [
+     {
+      "name": "y",
+      "rating": 2
+     }
+    ]
+   },
+   "rank": 0,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "1",
+    "data": {
+     "company": "Acme",
+     "industry": "IT",
+     "specialization": "IT",
+     "industry_tags": "IT",
+     "company_size": "1L+",
+     "city": "Pune",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": 1,
+     "ambitionbox_rating": 3.5,
+     "review_count": 10,
+     "jobs_count": 3,
+     "salaries_count": 4,
+     "interviews_count": 5,
+     "total_locations": 6,
+     "company_type": "Public",
+     "is_verified": true,
+     "ambitionbox_url": "https://ab/acme",
+     "logo_url": "https://l/1",
+     "highly_rated_for": [
+      {
+       "name": "x",
+       "rating": 4
+      }
+     ],
+     "critically_rated_for": [
+      {
+       "name": "y",
+       "rating": 2
+      }
+     ]
+    },
+    "rank": 0,
+    "source_url": "https://ab/acme"
+   }
+  },
+  {
+   "name": "full@19",
+   "company": {
+    "company_id": 1,
+    "name": "  Acme  ",
+    "industry": "IT",
+    "employee_count": "1L+",
+    "top_location": "Pune",
+    "rating": 3.5,
+    "review_count": 10,
+    "jobs_count": 3,
+    "salaries_count": 4,
+    "interviews_count": 5,
+    "total_locations": 6,
+    "company_type": "Public",
+    "is_verified": true,
+    "profile_url": "https://ab/acme",
+    "logo_url": "https://l/1",
+    "highly_rated_for": [
+     {
+      "name": "x",
+      "rating": 4
+     }
+    ],
+    "critically_rated_for": [
+     {
+      "name": "y",
+      "rating": 2
+     }
+    ]
+   },
+   "rank": 19,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "1",
+    "data": {
+     "company": "Acme",
+     "industry": "IT",
+     "specialization": "IT",
+     "industry_tags": "IT",
+     "company_size": "1L+",
+     "city": "Pune",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": 1,
+     "ambitionbox_rating": 3.5,
+     "review_count": 10,
+     "jobs_count": 3,
+     "salaries_count": 4,
+     "interviews_count": 5,
+     "total_locations": 6,
+     "company_type": "Public",
+     "is_verified": true,
+     "ambitionbox_url": "https://ab/acme",
+     "logo_url": "https://l/1",
+     "highly_rated_for": [
+      {
+       "name": "x",
+       "rating": 4
+      }
+     ],
+     "critically_rated_for": [
+      {
+       "name": "y",
+       "rating": 2
+      }
+     ]
+    },
+    "rank": 19,
+    "source_url": "https://ab/acme"
+   }
+  },
+  {
+   "name": "minimal@0",
+   "company": {
+    "name": "Bare"
+   },
+   "rank": 0,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:bare",
+    "data": {
+     "company": "Bare",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 0,
+    "source_url": null
+   }
+  },
+  {
+   "name": "minimal@19",
+   "company": {
+    "name": "Bare"
+   },
+   "rank": 19,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:bare",
+    "data": {
+     "company": "Bare",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 19,
+    "source_url": null
+   }
+  },
+  {
+   "name": "empty@0",
+   "company": {},
+   "rank": 0,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:",
+    "data": {
+     "company": "",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 0,
+    "source_url": null
+   }
+  },
+  {
+   "name": "empty@19",
+   "company": {},
+   "rank": 19,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:",
+    "data": {
+     "company": "",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 19,
+    "source_url": null
+   }
+  },
+  {
+   "name": "nulls@0",
+   "company": {
+    "name": "N",
+    "industry": null,
+    "employee_count": null,
+    "rating": null,
+    "review_count": null,
+    "jobs_count": null,
+    "is_verified": null,
+    "highly_rated_for": null,
+    "critically_rated_for": null
+   },
+   "rank": 0,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:n",
+    "data": {
+     "company": "N",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 0,
+    "source_url": null
+   }
+  },
+  {
+   "name": "nulls@19",
+   "company": {
+    "name": "N",
+    "industry": null,
+    "employee_count": null,
+    "rating": null,
+    "review_count": null,
+    "jobs_count": null,
+    "is_verified": null,
+    "highly_rated_for": null,
+    "critically_rated_for": null
+   },
+   "rank": 19,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:n",
+    "data": {
+     "company": "N",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 19,
+    "source_url": null
+   }
+  },
+  {
+   "name": "zero_counts@0",
+   "company": {
+    "name": "Z",
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "rating": 0,
+    "review_count": 0,
+    "is_verified": 0
+   },
+   "rank": 0,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:z",
+    "data": {
+     "company": "Z",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": 0,
+     "review_count": 0,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 0,
+    "source_url": null
+   }
+  },
+  {
+   "name": "zero_counts@19",
+   "company": {
+    "name": "Z",
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "rating": 0,
+    "review_count": 0,
+    "is_verified": 0
+   },
+   "rank": 19,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:z",
+    "data": {
+     "company": "Z",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": 0,
+     "review_count": 0,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 19,
+    "source_url": null
+   }
+  },
+  {
+   "name": "truthy_verified@0",
+   "company": {
+    "name": "T",
+    "is_verified": "yes"
+   },
+   "rank": 0,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:t",
+    "data": {
+     "company": "T",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": true,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 0,
+    "source_url": null
+   }
+  },
+  {
+   "name": "truthy_verified@19",
+   "company": {
+    "name": "T",
+    "is_verified": "yes"
+   },
+   "rank": 19,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:t",
+    "data": {
+     "company": "T",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": true,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 19,
+    "source_url": null
+   }
+  },
+  {
+   "name": "numeric_name@0",
+   "company": {
+    "name": 12345
+   },
+   "rank": 0,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:12345",
+    "data": {
+     "company": "12345",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 0,
+    "source_url": null
+   }
+  },
+  {
+   "name": "numeric_name@19",
+   "company": {
+    "name": 12345
+   },
+   "rank": 19,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:12345",
+    "data": {
+     "company": "12345",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 19,
+    "source_url": null
+   }
+  },
+  {
+   "name": "none_name@0",
+   "company": {
+    "name": null,
+    "company_id": 3
+   },
+   "rank": 0,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "3",
+    "data": {
+     "company": "",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": 3,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 0,
+    "source_url": null
+   }
+  },
+  {
+   "name": "none_name@19",
+   "company": {
+    "name": null,
+    "company_id": 3
+   },
+   "rank": 19,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "3",
+    "data": {
+     "company": "",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": 3,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 19,
+    "source_url": null
+   }
+  },
+  {
+   "name": "unicode@0",
+   "company": {
+    "name": "Éco 東京"
+   },
+   "rank": 0,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:éco 東京",
+    "data": {
+     "company": "Éco 東京",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 0,
+    "source_url": null
+   }
+  },
+  {
+   "name": "unicode@19",
+   "company": {
+    "name": "Éco 東京"
+   },
+   "rank": 19,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "name:éco 東京",
+    "data": {
+     "company": "Éco 東京",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": null,
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 19,
+    "source_url": null
+   }
+  },
+  {
+   "name": "id_string@0",
+   "company": {
+    "name": "S",
+    "company_id": "77"
+   },
+   "rank": 0,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "77",
+    "data": {
+     "company": "S",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": "77",
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 0,
+    "source_url": null
+   }
+  },
+  {
+   "name": "id_string@19",
+   "company": {
+    "name": "S",
+    "company_id": "77"
+   },
+   "rank": 19,
+   "value": {
+    "provider": "ambitionbox",
+    "record_id": "77",
+    "data": {
+     "company": "S",
+     "industry": "",
+     "specialization": "",
+     "industry_tags": "",
+     "company_size": "",
+     "city": "",
+     "source": "ambitionbox",
+     "ambitionbox_company_id": "77",
+     "ambitionbox_rating": null,
+     "review_count": null,
+     "jobs_count": 0,
+     "salaries_count": 0,
+     "interviews_count": 0,
+     "total_locations": 0,
+     "company_type": "",
+     "is_verified": false,
+     "ambitionbox_url": "",
+     "logo_url": "",
+     "highly_rated_for": [],
+     "critically_rated_for": []
+    },
+    "rank": 19,
+    "source_url": null
+   }
+  }
+ ]
+}

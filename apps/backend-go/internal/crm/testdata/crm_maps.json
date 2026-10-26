@@ -1,0 +1,1622 @@
+{
+ "hubspot": {
+  "DEFAULT_FIELD_MAP": {
+   "company": "company",
+   "email": "email",
+   "phone": "phone",
+   "website": "website",
+   "city": "city",
+   "contact_person": "firstname",
+   "contact_title": "jobtitle",
+   "linkedin_url": "hs_linkedinid",
+   "score": "hs_lead_status"
+  },
+  "IMPORT_DEFAULT_PROPERTIES": [
+   "email",
+   "firstname",
+   "lastname",
+   "company",
+   "phone",
+   "website",
+   "jobtitle"
+  ],
+  "BASE_URL": "https://api.hubapi.com"
+ },
+ "salesforce": {
+  "DEFAULT_FIELD_MAP": {
+   "company": "Company",
+   "email": "Email",
+   "phone": "Phone",
+   "website": "Website",
+   "city": "City",
+   "contact_title": "Title"
+  },
+  "IMPORT_DEFAULT_FIELDS": {
+   "Email": "email",
+   "Account.Name": "company",
+   "Phone": "phone",
+   "Title": "contact_title"
+  },
+  "CONTACT_UPDATE_FIELD_MAP": {
+   "email": "Email",
+   "phone": "Phone",
+   "contact_title": "Title"
+  },
+  "API_VERSION": "v59.0"
+ },
+ "hubspot_map_import_properties": [
+  {
+   "name": "default_full",
+   "props": {
+    "email": "a@x.com",
+    "company": "Acme",
+    "phone": "+1",
+    "website": "https://a.x",
+    "jobtitle": "CTO",
+    "firstname": "Ada",
+    "lastname": "Lovelace"
+   },
+   "field_map": null,
+   "value": {
+    "email": "a@x.com",
+    "company": "Acme",
+    "phone": "+1",
+    "website": "https://a.x",
+    "contact_title": "CTO",
+    "contact_person": "Ada Lovelace"
+   }
+  },
+  {
+   "name": "default_empty_props",
+   "props": {},
+   "field_map": null,
+   "value": {}
+  },
+  {
+   "name": "default_none_props",
+   "props": null,
+   "field_map": null,
+   "value": {}
+  },
+  {
+   "name": "default_first_only",
+   "props": {
+    "firstname": "Ada"
+   },
+   "field_map": null,
+   "value": {
+    "contact_person": "Ada"
+   }
+  },
+  {
+   "name": "default_last_only",
+   "props": {
+    "lastname": "Lovelace"
+   },
+   "field_map": null,
+   "value": {
+    "contact_person": "Lovelace"
+   }
+  },
+  {
+   "name": "default_names_none",
+   "props": {
+    "firstname": null,
+    "lastname": null,
+    "email": "a@x.com"
+   },
+   "field_map": null,
+   "value": {
+    "email": "a@x.com"
+   }
+  },
+  {
+   "name": "default_names_padded",
+   "props": {
+    "firstname": "  Ada ",
+    "lastname": " L  "
+   },
+   "field_map": null,
+   "value": {
+    "contact_person": "Ada L"
+   }
+  },
+  {
+   "name": "default_blank_names",
+   "props": {
+    "firstname": "  ",
+    "lastname": "\t"
+   },
+   "field_map": null,
+   "value": {}
+  },
+  {
+   "name": "default_empty_strings_dropped",
+   "props": {
+    "email": "",
+    "company": null,
+    "phone": "0"
+   },
+   "field_map": null,
+   "value": {
+    "phone": "0"
+   }
+  },
+  {
+   "name": "default_zero_numeric_kept",
+   "props": {
+    "phone": 0,
+    "company": 0.0,
+    "website": false
+   },
+   "field_map": null,
+   "value": {
+    "company": 0.0,
+    "phone": 0,
+    "website": false
+   }
+  },
+  {
+   "name": "default_numeric_names",
+   "props": {
+    "firstname": 5,
+    "lastname": 0
+   },
+   "field_map": null,
+   "value": {
+    "contact_person": "5"
+   }
+  },
+  {
+   "name": "default_extra_props_ignored",
+   "props": {
+    "email": "a@x.com",
+    "hs_lead_status": "NEW",
+    "lifecyclestage": "lead"
+   },
+   "field_map": null,
+   "value": {
+    "email": "a@x.com"
+   }
+  },
+  {
+   "name": "field_map_basic",
+   "props": {
+    "email": "a@x.com",
+    "company": "Acme",
+    "phone": "+1",
+    "website": "https://a.x",
+    "jobtitle": "CTO",
+    "firstname": "Ada",
+    "lastname": "Lovelace"
+   },
+   "field_map": {
+    "email": "email",
+    "company": "company",
+    "jobtitle": "contact_title"
+   },
+   "value": {
+    "email": "a@x.com",
+    "company": "Acme",
+    "contact_title": "CTO"
+   }
+  },
+  {
+   "name": "field_map_missing_prop_skipped",
+   "props": {
+    "email": "a@x.com",
+    "company": "Acme",
+    "phone": "+1",
+    "website": "https://a.x",
+    "jobtitle": "CTO",
+    "firstname": "Ada",
+    "lastname": "Lovelace"
+   },
+   "field_map": {
+    "nope": "x",
+    "email": "email"
+   },
+   "value": {
+    "email": "a@x.com"
+   }
+  },
+  {
+   "name": "field_map_empty_dict_means_default",
+   "props": {
+    "email": "a@x.com",
+    "company": "Acme",
+    "phone": "+1",
+    "website": "https://a.x",
+    "jobtitle": "CTO",
+    "firstname": "Ada",
+    "lastname": "Lovelace"
+   },
+   "field_map": {},
+   "value": {
+    "email": "a@x.com",
+    "company": "Acme",
+    "phone": "+1",
+    "website": "https://a.x",
+    "contact_title": "CTO",
+    "contact_person": "Ada Lovelace"
+   }
+  },
+  {
+   "name": "field_map_two_props_one_field_last_wins",
+   "props": {
+    "email": "a@x.com",
+    "company": "Acme",
+    "phone": "+1",
+    "website": "https://a.x",
+    "jobtitle": "CTO",
+    "firstname": "Ada",
+    "lastname": "Lovelace"
+   },
+   "field_map": {
+    "email": "contact",
+    "company": "contact"
+   },
+   "value": {
+    "contact": "Acme"
+   }
+  },
+  {
+   "name": "field_map_empty_value_skipped",
+   "props": {
+    "email": "",
+    "company": "Acme"
+   },
+   "field_map": {
+    "email": "email",
+    "company": "company"
+   },
+   "value": {
+    "company": "Acme"
+   }
+  },
+  {
+   "name": "field_map_zero_kept",
+   "props": {
+    "phone": 0
+   },
+   "field_map": {
+    "phone": "phone"
+   },
+   "value": {
+    "phone": 0
+   }
+  },
+  {
+   "name": "field_map_no_name_merge",
+   "props": {
+    "email": "a@x.com",
+    "company": "Acme",
+    "phone": "+1",
+    "website": "https://a.x",
+    "jobtitle": "CTO",
+    "firstname": "Ada",
+    "lastname": "Lovelace"
+   },
+   "field_map": {
+    "firstname": "first",
+    "lastname": "last"
+   },
+   "value": {
+    "first": "Ada",
+    "last": "Lovelace"
+   }
+  }
+ ],
+ "soql_escape": [
+  {
+   "input": "",
+   "input_repr": "''",
+   "value": ""
+  },
+  {
+   "input": "plain",
+   "input_repr": "'plain'",
+   "value": "plain"
+  },
+  {
+   "input": "x' OR Name != '",
+   "input_repr": "\"x' OR Name != '\"",
+   "value": "x\\' OR Name != \\'"
+  },
+  {
+   "input": "back\\slash",
+   "input_repr": "'back\\\\slash'",
+   "value": "back\\\\slash"
+  },
+  {
+   "input": "dq\"uote",
+   "input_repr": "'dq\"uote'",
+   "value": "dq\\\"uote"
+  },
+  {
+   "input": "line\nbreak",
+   "input_repr": "'line\\nbreak'",
+   "value": "linebreak"
+  },
+  {
+   "input": "tab\there",
+   "input_repr": "'tab\\there'",
+   "value": "tabhere"
+  },
+  {
+   "input": "cr\rhere",
+   "input_repr": "'cr\\rhere'",
+   "value": "crhere"
+  },
+  {
+   "input": "mixed \\' \" \n \t \r end",
+   "input_repr": "'mixed \\\\\\' \" \\n \\t \\r end'",
+   "value": "mixed \\\\\\' \\\"    end"
+  },
+  {
+   "input": "o'brien@x.com",
+   "input_repr": "\"o'brien@x.com\"",
+   "value": "o\\'brien@x.com"
+  },
+  {
+   "input": "ünïcode'é",
+   "input_repr": "\"ünïcode'é\"",
+   "value": "ünïcode\\'é"
+  },
+  {
+   "input": "\\\\",
+   "input_repr": "'\\\\\\\\'",
+   "value": "\\\\\\\\"
+  },
+  {
+   "input": "''",
+   "input_repr": "\"''\"",
+   "value": "\\'\\'"
+  },
+  {
+   "input": "%_",
+   "input_repr": "'%_'",
+   "value": "%_"
+  },
+  {
+   "input": "x y",
+   "input_repr": "'x\\u2028y'",
+   "value": "x y"
+  },
+  {
+   "input": "x\u0000y",
+   "input_repr": "'x\\x00y'",
+   "value": "x\u0000y"
+  },
+  {
+   "input": "x\u000by",
+   "input_repr": "'x\\x0by'",
+   "value": "x\u000by"
+  },
+  {
+   "input": "x y",
+   "input_repr": "'x\\xa0y'",
+   "value": "x y"
+  },
+  {
+   "input": "a\\'b",
+   "input_repr": "\"a\\\\'b\"",
+   "value": "a\\\\\\'b"
+  },
+  {
+   "input": 5,
+   "input_repr": "5",
+   "value": "5"
+  },
+  {
+   "input": 0,
+   "input_repr": "0",
+   "value": "0"
+  },
+  {
+   "input": null,
+   "input_repr": "None",
+   "value": "None"
+  },
+  {
+   "input": false,
+   "input_repr": "False",
+   "value": "False"
+  },
+  {
+   "input": 1.5,
+   "input_repr": "1.5",
+   "value": "1.5"
+  },
+  {
+   "input": [
+    "a'b"
+   ],
+   "input_repr": "[\"a'b\"]",
+   "value": "[\\\"a\\'b\\\"]"
+  }
+ ],
+ "record_value": [
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Email",
+   "value": "a@x.com"
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Account.Name",
+   "value": "Acme"
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Account.Owner.Name",
+   "value": "Boss"
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Account.Owner.Name.Deeper",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Account.Missing",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Missing.Thing",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Null",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Null.X",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Empty",
+   "value": ""
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Zero",
+   "value": 0
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Flag",
+   "value": false
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "List.0",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Name.sub",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": ".",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Account.",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": ".Account",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Nested.",
+   "value": 1
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Id",
+   "value": "003A"
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "email",
+   "value": null
+  },
+  {
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "Account": {
+     "Name": "Acme",
+     "Owner": {
+      "Name": "Boss"
+     }
+    },
+    "Empty": "",
+    "Zero": 0,
+    "Null": null,
+    "Name": "n",
+    "List": [
+     1
+    ],
+    "Flag": false,
+    "Nested": {
+     "": 1
+    }
+   },
+   "path": "Account.name",
+   "value": null
+  },
+  {
+   "record": {
+    "Account": null
+   },
+   "path": "Account.Name",
+   "value": null
+  },
+  {
+   "record": {},
+   "path": "A.B.C",
+   "value": null
+  }
+ ],
+ "map_import_record": [
+  {
+   "name": "full__default",
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "FirstName": "Ada",
+    "LastName": "Lovelace",
+    "Account": {
+     "Name": "AccA"
+    },
+    "Phone": "1",
+    "Title": "CTO"
+   },
+   "field_map": null,
+   "value": {
+    "email": "a@x.com",
+    "company": "AccA",
+    "phone": "1",
+    "contact_title": "CTO",
+    "contact_person": "Ada Lovelace"
+   }
+  },
+  {
+   "name": "full__empty_map_means_default",
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "FirstName": "Ada",
+    "LastName": "Lovelace",
+    "Account": {
+     "Name": "AccA"
+    },
+    "Phone": "1",
+    "Title": "CTO"
+   },
+   "field_map": {},
+   "value": {
+    "email": "a@x.com",
+    "company": "AccA",
+    "phone": "1",
+    "contact_title": "CTO",
+    "contact_person": "Ada Lovelace"
+   }
+  },
+  {
+   "name": "full__custom",
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "FirstName": "Ada",
+    "LastName": "Lovelace",
+    "Account": {
+     "Name": "AccA"
+    },
+    "Phone": "1",
+    "Title": "CTO"
+   },
+   "field_map": {
+    "Email": "email",
+    "Account.Name": "company",
+    "Dept": "department"
+   },
+   "value": {
+    "email": "a@x.com",
+    "company": "AccA"
+   }
+  },
+  {
+   "name": "full__custom_with_name_fields_no_merge",
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "FirstName": "Ada",
+    "LastName": "Lovelace",
+    "Account": {
+     "Name": "AccA"
+    },
+    "Phone": "1",
+    "Title": "CTO"
+   },
+   "field_map": {
+    "FirstName": "first",
+    "LastName": "last"
+   },
+   "value": {
+    "first": "Ada",
+    "last": "Lovelace"
+   }
+  },
+  {
+   "name": "full__id_mapped",
+   "record": {
+    "Id": "003A",
+    "Email": "a@x.com",
+    "FirstName": "Ada",
+    "LastName": "Lovelace",
+    "Account": {
+     "Name": "AccA"
+    },
+    "Phone": "1",
+    "Title": "CTO"
+   },
+   "field_map": {
+    "Id": "ext"
+   },
+   "value": {
+    "ext": "003A"
+   }
+  },
+  {
+   "name": "only_last__default",
+   "record": {
+    "Id": "003B",
+    "LastName": "Only"
+   },
+   "field_map": null,
+   "value": {
+    "contact_person": "Only"
+   }
+  },
+  {
+   "name": "only_last__empty_map_means_default",
+   "record": {
+    "Id": "003B",
+    "LastName": "Only"
+   },
+   "field_map": {},
+   "value": {
+    "contact_person": "Only"
+   }
+  },
+  {
+   "name": "only_last__custom",
+   "record": {
+    "Id": "003B",
+    "LastName": "Only"
+   },
+   "field_map": {
+    "Email": "email",
+    "Account.Name": "company",
+    "Dept": "department"
+   },
+   "value": {}
+  },
+  {
+   "name": "only_last__custom_with_name_fields_no_merge",
+   "record": {
+    "Id": "003B",
+    "LastName": "Only"
+   },
+   "field_map": {
+    "FirstName": "first",
+    "LastName": "last"
+   },
+   "value": {
+    "last": "Only"
+   }
+  },
+  {
+   "name": "only_last__id_mapped",
+   "record": {
+    "Id": "003B",
+    "LastName": "Only"
+   },
+   "field_map": {
+    "Id": "ext"
+   },
+   "value": {
+    "ext": "003B"
+   }
+  },
+  {
+   "name": "only_first__default",
+   "record": {
+    "FirstName": "Solo"
+   },
+   "field_map": null,
+   "value": {
+    "contact_person": "Solo"
+   }
+  },
+  {
+   "name": "only_first__empty_map_means_default",
+   "record": {
+    "FirstName": "Solo"
+   },
+   "field_map": {},
+   "value": {
+    "contact_person": "Solo"
+   }
+  },
+  {
+   "name": "only_first__custom",
+   "record": {
+    "FirstName": "Solo"
+   },
+   "field_map": {
+    "Email": "email",
+    "Account.Name": "company",
+    "Dept": "department"
+   },
+   "value": {}
+  },
+  {
+   "name": "only_first__custom_with_name_fields_no_merge",
+   "record": {
+    "FirstName": "Solo"
+   },
+   "field_map": {
+    "FirstName": "first",
+    "LastName": "last"
+   },
+   "value": {
+    "first": "Solo"
+   }
+  },
+  {
+   "name": "only_first__id_mapped",
+   "record": {
+    "FirstName": "Solo"
+   },
+   "field_map": {
+    "Id": "ext"
+   },
+   "value": {}
+  },
+  {
+   "name": "null_account__default",
+   "record": {
+    "Account": null,
+    "Email": "e@x.com"
+   },
+   "field_map": null,
+   "value": {
+    "email": "e@x.com"
+   }
+  },
+  {
+   "name": "null_account__empty_map_means_default",
+   "record": {
+    "Account": null,
+    "Email": "e@x.com"
+   },
+   "field_map": {},
+   "value": {
+    "email": "e@x.com"
+   }
+  },
+  {
+   "name": "null_account__custom",
+   "record": {
+    "Account": null,
+    "Email": "e@x.com"
+   },
+   "field_map": {
+    "Email": "email",
+    "Account.Name": "company",
+    "Dept": "department"
+   },
+   "value": {
+    "email": "e@x.com"
+   }
+  },
+  {
+   "name": "null_account__custom_with_name_fields_no_merge",
+   "record": {
+    "Account": null,
+    "Email": "e@x.com"
+   },
+   "field_map": {
+    "FirstName": "first",
+    "LastName": "last"
+   },
+   "value": {}
+  },
+  {
+   "name": "null_account__id_mapped",
+   "record": {
+    "Account": null,
+    "Email": "e@x.com"
+   },
+   "field_map": {
+    "Id": "ext"
+   },
+   "value": {}
+  },
+  {
+   "name": "empty_values__default",
+   "record": {
+    "Email": "",
+    "Phone": null,
+    "Title": "",
+    "Account": {
+     "Name": ""
+    }
+   },
+   "field_map": null,
+   "value": {}
+  },
+  {
+   "name": "empty_values__empty_map_means_default",
+   "record": {
+    "Email": "",
+    "Phone": null,
+    "Title": "",
+    "Account": {
+     "Name": ""
+    }
+   },
+   "field_map": {},
+   "value": {}
+  },
+  {
+   "name": "empty_values__custom",
+   "record": {
+    "Email": "",
+    "Phone": null,
+    "Title": "",
+    "Account": {
+     "Name": ""
+    }
+   },
+   "field_map": {
+    "Email": "email",
+    "Account.Name": "company",
+    "Dept": "department"
+   },
+   "value": {}
+  },
+  {
+   "name": "empty_values__custom_with_name_fields_no_merge",
+   "record": {
+    "Email": "",
+    "Phone": null,
+    "Title": "",
+    "Account": {
+     "Name": ""
+    }
+   },
+   "field_map": {
+    "FirstName": "first",
+    "LastName": "last"
+   },
+   "value": {}
+  },
+  {
+   "name": "empty_values__id_mapped",
+   "record": {
+    "Email": "",
+    "Phone": null,
+    "Title": "",
+    "Account": {
+     "Name": ""
+    }
+   },
+   "field_map": {
+    "Id": "ext"
+   },
+   "value": {}
+  },
+  {
+   "name": "zero_phone__default",
+   "record": {
+    "Phone": 0,
+    "Title": false
+   },
+   "field_map": null,
+   "value": {
+    "phone": 0,
+    "contact_title": false
+   }
+  },
+  {
+   "name": "zero_phone__empty_map_means_default",
+   "record": {
+    "Phone": 0,
+    "Title": false
+   },
+   "field_map": {},
+   "value": {
+    "phone": 0,
+    "contact_title": false
+   }
+  },
+  {
+   "name": "zero_phone__custom",
+   "record": {
+    "Phone": 0,
+    "Title": false
+   },
+   "field_map": {
+    "Email": "email",
+    "Account.Name": "company",
+    "Dept": "department"
+   },
+   "value": {}
+  },
+  {
+   "name": "zero_phone__custom_with_name_fields_no_merge",
+   "record": {
+    "Phone": 0,
+    "Title": false
+   },
+   "field_map": {
+    "FirstName": "first",
+    "LastName": "last"
+   },
+   "value": {}
+  },
+  {
+   "name": "zero_phone__id_mapped",
+   "record": {
+    "Phone": 0,
+    "Title": false
+   },
+   "field_map": {
+    "Id": "ext"
+   },
+   "value": {}
+  },
+  {
+   "name": "padded_names__default",
+   "record": {
+    "FirstName": " Ada ",
+    "LastName": "  "
+   },
+   "field_map": null,
+   "value": {
+    "contact_person": "Ada"
+   }
+  },
+  {
+   "name": "padded_names__empty_map_means_default",
+   "record": {
+    "FirstName": " Ada ",
+    "LastName": "  "
+   },
+   "field_map": {},
+   "value": {
+    "contact_person": "Ada"
+   }
+  },
+  {
+   "name": "padded_names__custom",
+   "record": {
+    "FirstName": " Ada ",
+    "LastName": "  "
+   },
+   "field_map": {
+    "Email": "email",
+    "Account.Name": "company",
+    "Dept": "department"
+   },
+   "value": {}
+  },
+  {
+   "name": "padded_names__custom_with_name_fields_no_merge",
+   "record": {
+    "FirstName": " Ada ",
+    "LastName": "  "
+   },
+   "field_map": {
+    "FirstName": "first",
+    "LastName": "last"
+   },
+   "value": {
+    "first": " Ada ",
+    "last": "  "
+   }
+  },
+  {
+   "name": "padded_names__id_mapped",
+   "record": {
+    "FirstName": " Ada ",
+    "LastName": "  "
+   },
+   "field_map": {
+    "Id": "ext"
+   },
+   "value": {}
+  },
+  {
+   "name": "numeric_names__default",
+   "record": {
+    "FirstName": 0,
+    "LastName": 7
+   },
+   "field_map": null,
+   "value": {
+    "contact_person": "7"
+   }
+  },
+  {
+   "name": "numeric_names__empty_map_means_default",
+   "record": {
+    "FirstName": 0,
+    "LastName": 7
+   },
+   "field_map": {},
+   "value": {
+    "contact_person": "7"
+   }
+  },
+  {
+   "name": "numeric_names__custom",
+   "record": {
+    "FirstName": 0,
+    "LastName": 7
+   },
+   "field_map": {
+    "Email": "email",
+    "Account.Name": "company",
+    "Dept": "department"
+   },
+   "value": {}
+  },
+  {
+   "name": "numeric_names__custom_with_name_fields_no_merge",
+   "record": {
+    "FirstName": 0,
+    "LastName": 7
+   },
+   "field_map": {
+    "FirstName": "first",
+    "LastName": "last"
+   },
+   "value": {
+    "first": 0,
+    "last": 7
+   }
+  },
+  {
+   "name": "numeric_names__id_mapped",
+   "record": {
+    "FirstName": 0,
+    "LastName": 7
+   },
+   "field_map": {
+    "Id": "ext"
+   },
+   "value": {}
+  },
+  {
+   "name": "extra_fields__default",
+   "record": {
+    "Email": "a@x",
+    "Dept": "Eng"
+   },
+   "field_map": null,
+   "value": {
+    "email": "a@x"
+   }
+  },
+  {
+   "name": "extra_fields__empty_map_means_default",
+   "record": {
+    "Email": "a@x",
+    "Dept": "Eng"
+   },
+   "field_map": {},
+   "value": {
+    "email": "a@x"
+   }
+  },
+  {
+   "name": "extra_fields__custom",
+   "record": {
+    "Email": "a@x",
+    "Dept": "Eng"
+   },
+   "field_map": {
+    "Email": "email",
+    "Account.Name": "company",
+    "Dept": "department"
+   },
+   "value": {
+    "email": "a@x",
+    "department": "Eng"
+   }
+  },
+  {
+   "name": "extra_fields__custom_with_name_fields_no_merge",
+   "record": {
+    "Email": "a@x",
+    "Dept": "Eng"
+   },
+   "field_map": {
+    "FirstName": "first",
+    "LastName": "last"
+   },
+   "value": {}
+  },
+  {
+   "name": "extra_fields__id_mapped",
+   "record": {
+    "Email": "a@x",
+    "Dept": "Eng"
+   },
+   "field_map": {
+    "Id": "ext"
+   },
+   "value": {}
+  },
+  {
+   "name": "empty_record__default",
+   "record": {},
+   "field_map": null,
+   "value": {}
+  },
+  {
+   "name": "empty_record__empty_map_means_default",
+   "record": {},
+   "field_map": {},
+   "value": {}
+  },
+  {
+   "name": "empty_record__custom",
+   "record": {},
+   "field_map": {
+    "Email": "email",
+    "Account.Name": "company",
+    "Dept": "department"
+   },
+   "value": {}
+  },
+  {
+   "name": "empty_record__custom_with_name_fields_no_merge",
+   "record": {},
+   "field_map": {
+    "FirstName": "first",
+    "LastName": "last"
+   },
+   "value": {}
+  },
+  {
+   "name": "empty_record__id_mapped",
+   "record": {},
+   "field_map": {
+    "Id": "ext"
+   },
+   "value": {}
+  }
+ ]
+}

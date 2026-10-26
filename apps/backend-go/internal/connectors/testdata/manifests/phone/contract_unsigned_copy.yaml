@@ -1,0 +1,23 @@
+manifest_version: "1"
+name: contract_unsigned
+display_name: Contract Unsigned
+author: opengtm-contract
+homepage: https://example.com/contract
+license: Apache-2.0
+tags: [contract]
+capability: phone
+capabilities: []
+description: Duplicate provider id
+default_confidence: 0.8
+cost_per_lookup: 0.01
+auth:
+  type: none
+request:
+  method: POST
+  url: https://api.example.com/v1/lookup
+  timeout: 10
+  body:
+    email: "{{input.email}}"
+response:
+  mappings:
+    phone: data.value
