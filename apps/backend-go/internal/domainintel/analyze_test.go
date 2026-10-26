@@ -200,7 +200,7 @@ func TestAnalyzeTranscripts(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			b, err := json.Marshal(res)
+			b, err := res.MarshalJSON()
 			if err != nil {
 				t.Fatal(err)
 			}
