@@ -426,3 +426,4 @@ writes nothing. No fixture; tests named in parentheses.
 ## MCP (plan 13)
 
 - `HTTPError.Detail` (internal/mcp, `AutomationPort.ValidateRule`): Python renders `str(he.detail)`; a non-string detail is a Python repr (dict/list text) that a Go adapter cannot reproduce byte for byte. Accepted deviation; string details match.
+- Token capabilities (internal/mcp `Resolve`): a malformed `mcp_tokens.capabilities` JSON fails closed to an empty capability set (the token authenticates but holds no capability); Python would raise. Accepted deviation.
