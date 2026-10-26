@@ -761,3 +761,16 @@ Replayed against `testdata/transcripts/webhook` (fake secret `ctk_transcript_hoo
 The `ipinfo` provider resolves the lead's domain with the system resolver (`lookupIPv4`, Python `socket.gethostbyname`). That is a DNS
 query outside the egress guard; the resolved address is sent to ipinfo.io as a path segment and never connected to, so it cannot be
 turned into an SSRF. A domain that resolves only to a private address still produces an ipinfo lookup for that IP (as Python).
+
+## Watch poll handler (plan 08 Task 15): deviations (`internal/poller/engine.go`)
+
+- Mirror delete is workspace-scoped. Python `mirror_delete(watch_id)` removes the (non-RLS) `watch_schedules` row of any watch id; Go deletes only
+  when the row belongs to the job's workspace, so a job naming another tenant's watch cannot drop that watch's schedule.
+- The cursor is re-marshalled from decoded JSON (sorted keys, normalised numbers, compact separators). It is semantically equal to Python's
+  `dict.update`, not byte equal: diffs on `watch_subscriptions.cursor` text are not regressions.
+- No transaction spans a fetch: tx A (billing gate, lead website, contacts) and tx B (re-read under lock, emit, cursor merge) are short. The debit
+  commits before the fetch (idempotent per `<fire_key>:<bucket>`) and stays committed when the fetch fails, as in Python.
+- Cancel or lease loss is checked before every source and stops the poll without finalising or rescheduling. The mirror's `next_poll_at` stays due,
+  so the next `bootstrap_watch_schedules` re-enqueues it: re-poll latency is up to one bootstrap interval. The worker must run a heartbeat goroutine
+  (a single long fetch otherwise outlives the lease).
+- `emitted`/`dupe` in the log line are real insert/conflict counts (Python's dupe is always 0).
