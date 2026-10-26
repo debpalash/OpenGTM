@@ -80,3 +80,37 @@ func TestSchemaHasOutreachMessageLookup(t *testing.T) {
 		t.Errorf("forced RLS on %d outreach tables, want %d", forced, len(rls))
 	}
 }
+
+func TestSchemaHasChatAndPersonTables(t *testing.T) {
+	s := schemaSQL(t)
+	for _, tbl := range []string{"chat_conversations", "chat_messages", "chat_tool_approvals", "chat_memories", "person_intel"} {
+		if !strings.Contains(s, "CREATE TABLE public."+tbl+" (") {
+			t.Errorf("%s: table missing", tbl)
+		}
+	}
+	// FK cascade: deleting a conversation removes its messages.
+	if !regexp.MustCompile(`ADD CONSTRAINT chat_messages_conversation_id_fkey FOREIGN KEY \(conversation_id\) REFERENCES public\.chat_conversations\(id\) ON DELETE CASCADE`).MatchString(s) {
+		t.Error("chat_messages -> chat_conversations ON DELETE CASCADE missing")
+	}
+	// Tenant tables: RLS enabled + forced + workspace_isolation policy.
+	for _, tbl := range []string{"chat_conversations", "chat_messages", "chat_tool_approvals"} {
+		for _, stmt := range []string{"ALTER TABLE public." + tbl + " ENABLE ROW LEVEL SECURITY;", "ALTER TABLE ONLY public." + tbl + " FORCE ROW LEVEL SECURITY;"} {
+			if !strings.Contains(s, stmt) {
+				t.Errorf("%s: missing %q", tbl, stmt)
+			}
+		}
+		if !strings.Contains(s, "CREATE POLICY workspace_isolation ON public."+tbl+" ") {
+			t.Errorf("%s: workspace_isolation policy missing", tbl)
+		}
+	}
+	// Global tables (as Python): no RLS, no workspace column.
+	for _, tbl := range []string{"chat_memories", "person_intel"} {
+		if strings.Contains(s, "ALTER TABLE public."+tbl+" ENABLE ROW LEVEL SECURITY") || strings.Contains(s, "ALTER TABLE ONLY public."+tbl+" FORCE ROW LEVEL SECURITY") {
+			t.Errorf("%s must not have RLS", tbl)
+		}
+		m := regexp.MustCompile(`(?s)CREATE TABLE public\.` + tbl + ` \((.*?)\n\);`).FindStringSubmatch(s)
+		if m == nil || strings.Contains(m[1], "workspace_id") {
+			t.Errorf("%s must exist without a workspace_id column", tbl)
+		}
+	}
+}
