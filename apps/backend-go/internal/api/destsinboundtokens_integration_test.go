@@ -155,6 +155,9 @@ func TestRotateReturnsPlaintextOnce(t *testing.T) {
 	if rec.Code != 200 {
 		t.Fatalf("rotate: %d %s", rec.Code, rec.Body)
 	}
+	if cc := rec.Header().Get("Cache-Control"); cc != "no-store" { // the one-time plaintext must not be cached
+		t.Fatalf("Cache-Control %q", cc)
+	}
 	raw := tokString(m, "token")
 	if !tokRawRe.MatchString(raw) || tokString(m, "prefix") != raw[:12] || tokString(m, "warning") != tokWarningTx {
 		t.Fatalf("shape: %v", m)

@@ -124,6 +124,7 @@ func (h destTokens) rotate(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, "rotate inbound token", err)
 		return
 	}
+	w.Header().Set("Cache-Control", "no-store") // the response carries the one-time plaintext token
 	httpx.WriteJSON(w, http.StatusOK, destTokRotated{Token: res.Token, Prefix: res.Prefix,
 		CreatedAt: naiveISO(res.CreatedAt), ExpiresAt: destTokTZ(res.ExpiresAt), Warning: destTokWarning})
 }
