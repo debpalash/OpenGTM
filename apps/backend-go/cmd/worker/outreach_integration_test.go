@@ -285,3 +285,31 @@ func TestWorkerCancelMidSend(t *testing.T) {
 		t.Fatal("send dialled after cancel")
 	}
 }
+
+// The production config path (config.Load from the environment, not a struct literal)
+// must yield settings under which the Go handler processes a go-executor send job
+// instead of handing it back to Python (plan 09 final review H1).
+func TestWorkerLoadedConfigProcessesGoSendJob(t *testing.T) {
+	for k, v := range map[string]string{
+		"INTERNAL_SERVICE_TOKEN": "0123456789abcdef0123456789abcdef", "GO_EXECUTOR_OUTREACH_SEND": "true",
+		"GO_EXECUTOR_OUTREACH_INBOUND": "true", "OUTREACH_PUBLIC_BASE_URL": "https://app.example.com",
+	} {
+		t.Setenv(k, v)
+	}
+	loaded, err := config.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := outCfg()
+	cfg.Flags.Outreach = loaded.Flags.Outreach
+	e := newOutEnv(t, cfg, false)
+	idem := e.seedSend(t)
+	e.enqueue(t, "send", sendPayload(idem), "go", 3)
+	e.claimRun(t)
+	if st, ex, _, _ := e.job(t, "send"); st != "completed" || ex != "go" {
+		t.Fatalf("job handed back or failed: %s/%s", st, ex)
+	}
+	if e.mail.count() != 1 || e.sendStatus(t, idem) != "sent" {
+		t.Fatalf("go handler did not send: mails %d row %q", e.mail.count(), e.sendStatus(t, idem))
+	}
+}

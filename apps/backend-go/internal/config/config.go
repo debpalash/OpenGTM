@@ -154,6 +154,9 @@ func load(get func(string) string) (Config, error) {
 	if c.Flags.AutomationsAllowLegacyOutreach, err = boolVar(get, "AUTOMATIONS_ALLOW_LEGACY_OUTREACH", false); err != nil {
 		return Config{}, err
 	}
+	if c.Flags.Outreach, err = loadOutreach(get); err != nil {
+		return Config{}, err
+	}
 	if c.BillingEnabled, err = boolVar(get, "BILLING_ENABLED", false); err != nil {
 		return Config{}, err
 	}

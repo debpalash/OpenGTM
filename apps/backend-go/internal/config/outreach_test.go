@@ -72,3 +72,23 @@ func TestAPIConfigCarriesOutreach(t *testing.T) {
 		t.Fatal("unreachable")
 	}
 }
+
+// The worker loader must carry the outreach settings, or every go send and
+// inbound poll job is handed back to Python (plan 09 final review H1).
+func TestWorkerLoadCarriesOutreach(t *testing.T) {
+	c, err := load(env(map[string]string{
+		"INTERNAL_SERVICE_TOKEN": goodTok, "GO_EXECUTOR_OUTREACH_SEND": "true", "GO_EXECUTOR_OUTREACH_INBOUND": "true",
+		"OUTREACH_INBOUND_POLL_ENABLED": "true", "OUTREACH_PUBLIC_BASE_URL": "https://x.example", "OUTREACH_UNSUB_TTL_DAYS": "30",
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	o := c.Flags.Outreach
+	if !o.GoExecutorSend || !o.GoExecutorInbound || !o.InboundPollEnabled || o.PublicBaseURL != "https://x.example" ||
+		o.UnsubTTLDays != 30 || o.CircuitMinSends != 20 || o.BouncePauseRate != 0.05 || o.ComplaintPauseRate != 0.003 {
+		t.Fatalf("worker config dropped outreach settings: %#v", o)
+	}
+	if _, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "OUTREACH_UNSUB_TTL_DAYS": "0"})); err == nil {
+		t.Fatal("bad OUTREACH_* value accepted by the worker loader")
+	}
+}
