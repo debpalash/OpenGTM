@@ -139,6 +139,19 @@ func CheckSetOverride(ctx context.Context, tx pgx.Tx, ws string, actor, target i
 	if !canManage(actorRole, targetRole) {
 		return ErrEscalation
 	}
+	// Go hardening: overrides record no provenance, so only an admin or owner may lift a deny
+	// (a delegated manager could otherwise undo an admin's deny on a peer).
+	if actorRole != "admin" && actorRole != "owner" && (effect == nil || *effect != "deny") {
+		var cur string
+		err := tx.QueryRow(ctx, `SELECT effect FROM workspace_member_permissions WHERE workspace_id = $1 AND user_id = $2 AND permission = $3`,
+			ws, target, permission).Scan(&cur)
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return err
+		}
+		if cur == "deny" {
+			return ErrEscalation
+		}
+	}
 	// Allowing grants the permission; clearing grants it back when the target's role carries it by default, which
 	// would lift a deny the actor could not have created. Both need the actor to hold it.
 	grants := effect != nil && *effect == "allow" || effect == nil && slices.Contains(RolesFor(permission), targetRole)

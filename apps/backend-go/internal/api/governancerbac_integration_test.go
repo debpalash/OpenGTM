@@ -539,11 +539,14 @@ func TestMemberRoutesBlockPrivilegeEscalation(t *testing.T) {
 		{"promote member to editor", "PATCH", fmt.Sprintf("/api/governance/members/%d", bob), `{"role":"editor"}`},
 		{"grant permission caller holds", "PUT", fmt.Sprintf("/api/governance/rbac/%d/campaigns.write", bob), `{"effect":"allow"}`},
 		{"deny is always allowed", "PUT", fmt.Sprintf("/api/governance/rbac/%d/outreach.write", bob), `{"effect":"deny"}`},
-		{"clear", "PUT", fmt.Sprintf("/api/governance/rbac/%d/outreach.write", bob), `{"effect":null}`},
 	} {
 		if rec, _ := e.call("erin", "ws-alpha", c.method, c.path, c.body); rec.Code >= 300 {
 			t.Errorf("%s: %d %s", c.name, rec.Code, rec.Body.String())
 		}
+	}
+	// A deny, once set, can only be lifted by an admin or owner (Go hardening, no provenance on overrides).
+	if rec, _ := e.call("erin", "ws-alpha", "PUT", fmt.Sprintf("/api/governance/rbac/%d/outreach.write", bob), `{"effect":null}`); rec.Code != 403 {
+		t.Errorf("delegated clear of a deny: %d", rec.Code)
 	}
 	// Owners and admins are unaffected: an admin may manage admins (Python parity).
 	if rec, _ := e.call("alice", "ws-alpha", "PATCH", fmt.Sprintf("/api/governance/members/%d", dave), `{"role":"admin"}`); rec.Code != 200 {
@@ -729,12 +732,17 @@ func TestRbacNullEffectDenyCannotBeLiftedByDelegatedEditor(t *testing.T) {
 			}
 		}
 	}
-	// Clearing an override that grants nothing back (outreach.write is admin-only) stays allowed, as does a deny.
+	// A delegated (non-admin) manager may set or keep a deny but never lift one, even one that grants
+	// nothing back (outreach.write is admin-only): overrides record no provenance, so an admin's deny
+	// on a peer could otherwise be undone.
 	e.override(t, "ws-alpha", "dave", "outreach.write", "deny")
-	for _, body := range []string{`{"effect":null}`, `{"effect":"deny"}`} {
-		if rec, _ := e.call("erin", "ws-alpha", "PUT", fmt.Sprintf("/api/governance/rbac/%d/outreach.write", e.ids["dave"]), body); rec.Code != 200 {
-			t.Errorf("%s: %d %s", body, rec.Code, rec.Body.String())
+	for _, body := range []string{`{"effect":null}`, `{}`, `{"effect":"allow"}`} {
+		if rec, _ := e.call("erin", "ws-alpha", "PUT", fmt.Sprintf("/api/governance/rbac/%d/outreach.write", e.ids["dave"]), body); rec.Code != 403 {
+			t.Errorf("lift %s: %d %s", body, rec.Code, rec.Body.String())
 		}
+	}
+	if rec, _ := e.call("erin", "ws-alpha", "PUT", fmt.Sprintf("/api/governance/rbac/%d/outreach.write", e.ids["dave"]), `{"effect":"deny"}`); rec.Code != 200 {
+		t.Errorf("deny: %d %s", rec.Code, rec.Body.String())
 	}
 	// Owners keep Python's behaviour: they may clear any deny.
 	if rec, _ := e.call("alice", "ws-alpha", "PUT", fmt.Sprintf("/api/governance/rbac/%d/tables.write", e.ids["dave"]), `{"effect":null}`); rec.Code != 200 {
