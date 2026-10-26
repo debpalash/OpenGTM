@@ -265,3 +265,14 @@ func TestRedirectSlashesRefusesUnsafePaths(t *testing.T) {
 		t.Fatalf("normal strip: %d %q", rec.Code, rec.Header().Get("Location"))
 	}
 }
+
+func TestRouterPatternsListsRegisteredRoutes(t *testing.T) {
+	r := NewRouter()
+	h := http.HandlerFunc(func(http.ResponseWriter, *http.Request) {})
+	r.Handle("PUT /b/{id}", h)
+	r.Handle("GET /a/", h)
+	got := strings.Join(r.Patterns(), ",")
+	if got != "GET /a/,PUT /b/{id}" {
+		t.Fatalf("patterns = %q", got)
+	}
+}

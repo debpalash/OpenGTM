@@ -17,6 +17,7 @@ type Router struct {
 	mux          *http.ServeMux
 	global       []Middleware
 	explicitHead bool
+	patterns     []string
 }
 
 var probeMethods = []string{"DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"}
@@ -35,7 +36,16 @@ func (r *Router) Handle(pattern string, h http.Handler, mws ...Middleware) {
 	if strings.HasPrefix(pattern, "HEAD ") {
 		r.explicitHead = true
 	}
+	r.patterns = append(r.patterns, pattern)
 	r.mux.Handle(exactPattern(pattern), chain(h, mws))
+}
+
+// Patterns returns every pattern passed to Handle, sorted ("METHOD /path/{param}").
+// Contract tests use it to compare the route table against recorded fixtures.
+func (r *Router) Patterns() []string {
+	out := append([]string(nil), r.patterns...)
+	sort.Strings(out)
+	return out
 }
 
 // exactPattern turns a trailing-slash pattern into an exact match. ServeMux
