@@ -150,3 +150,31 @@ func TestReadImportRequestNeverReadsUnboundedBody(t *testing.T) {
 		t.Errorf("over limit: %v", err)
 	}
 }
+
+func TestDeepNestingIsRejectedNotFatal(t *testing.T) {
+	deep := strings.Repeat("[", 1<<20)
+	bodies := []string{
+		deep,
+		`{"rows":` + deep,
+		`{"rows":[{"a":` + deep,
+		`{"mapping":` + deep,
+		`{"rows":[{"a":1}],"file_name":` + strings.Repeat(`{"k":`, 1<<18),
+	}
+	for i, b := range bodies {
+		_, errs, err := ReadImportRequest(strings.NewReader(b), 64<<20)
+		if err != nil || len(errs) != 1 || errs[0].Type != "json_invalid" {
+			t.Errorf("import body %d: err=%v errs=%v", i, err, errs)
+		}
+	}
+	// the shared decoder protects every other route that uses it
+	for _, b := range []string{deep, `{"rows":` + deep, `{"updates":[{"fields":` + strings.Repeat(`{"k":`, 1<<18)} {
+		if _, errs := DecodeBody([]byte(b)); len(errs) != 1 || errs[0].Type != "json_invalid" {
+			t.Errorf("DecodeBody: %v", errs)
+		}
+	}
+	// 100 levels is still fine
+	ok := `{"rows":[{"a":` + strings.Repeat("[", 100) + strings.Repeat("]", 100) + `}]}`
+	if _, errs, err := ReadImportRequest(strings.NewReader(ok), 1<<20); err != nil || errs != nil {
+		t.Errorf("100 levels refused: %v %v", err, errs)
+	}
+}

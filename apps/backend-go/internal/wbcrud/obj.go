@@ -220,12 +220,28 @@ func pyFloat(f float64) string {
 // With canon, fractional/exponent numbers are rewritten to Python's float repr
 // (what a parse + dump round trip produces).
 func decodeOrdered(dec *json.Decoder, canon bool) (any, error) {
+	return decodeOrderedAt(dec, canon, 0)
+}
+
+// maxJSONDepth bounds nesting: json.Decoder.Token has no limit and this reader
+// recurses, so a body of "[[[[..." would otherwise overflow the (fatal) Go
+// stack. Python's json fails with RecursionError at ~1000 levels (HTTP 500);
+// every caller maps a decode error to a 4xx.
+const maxJSONDepth = 200
+
+// errJSONTooDeep is returned for a document nested deeper than maxJSONDepth.
+var errJSONTooDeep = fmt.Errorf("json nesting deeper than %d levels", maxJSONDepth)
+
+func decodeOrderedAt(dec *json.Decoder, canon bool, depth int) (any, error) {
 	tok, err := dec.Token()
 	if err != nil {
 		return nil, err
 	}
 	switch t := tok.(type) {
 	case json.Delim:
+		if depth >= maxJSONDepth {
+			return nil, errJSONTooDeep
+		}
 		if t == '{' {
 			o := NewObj()
 			for dec.More() {
@@ -237,7 +253,7 @@ func decodeOrdered(dec *json.Decoder, canon bool) (any, error) {
 				if !ok {
 					return nil, fmt.Errorf("object key is not a string")
 				}
-				v, err := decodeOrdered(dec, canon)
+				v, err := decodeOrderedAt(dec, canon, depth+1)
 				if err != nil {
 					return nil, err
 				}
@@ -250,7 +266,7 @@ func decodeOrdered(dec *json.Decoder, canon bool) (any, error) {
 		}
 		arr := []any{}
 		for dec.More() {
-			v, err := decodeOrdered(dec, canon)
+			v, err := decodeOrderedAt(dec, canon, depth+1)
 			if err != nil {
 				return nil, err
 			}

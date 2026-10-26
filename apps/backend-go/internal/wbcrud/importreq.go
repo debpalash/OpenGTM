@@ -107,7 +107,7 @@ func ReadImportRequest(r io.Reader, limit int64) (ImportRequest, []httpx.FieldEr
 			return ImportRequest{}, nil, err
 		}
 		var syn *json.SyntaxError
-		if errors.As(err, &syn) || errors.Is(err, io.ErrUnexpectedEOF) || errors.Is(err, io.EOF) || errors.Is(err, errBadImportJSON) {
+		if errors.As(err, &syn) || errors.Is(err, io.ErrUnexpectedEOF) || errors.Is(err, io.EOF) || errors.Is(err, errBadImportJSON) || errors.Is(err, errJSONTooDeep) {
 			return ImportRequest{}, invalidJSON(), nil
 		}
 		return ImportRequest{}, nil, err
