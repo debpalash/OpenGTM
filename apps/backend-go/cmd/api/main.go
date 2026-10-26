@@ -175,6 +175,8 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool) (*h
 		},
 		Identity: st,
 		Config:   cfg,
+		Flags:    cfg.Flags,
+		DataDir:  cfg.DataDir,
 		Log:      log,
 	}
 	// Settings routes need the registry, the secrets envelope and the guarded

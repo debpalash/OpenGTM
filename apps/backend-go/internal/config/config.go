@@ -296,6 +296,26 @@ type APIConfig struct {
 	StripeSecretKey     string
 	StripeWebhookSecret string
 	StripeAPIBase       string // STRIPE_API_BASE; honoured only when APP_ENV is "test"
+
+	// Workbook CRUD (plan 04).
+	Flags   Flags
+	DataDir string // DATA_DIR; default <cwd>/data
+}
+
+// FilesAPIMode values: hardened (default) requires auth + global admin and a
+// safe path check on /api/files and /api/system; legacy keeps FastAPI parity.
+const (
+	FilesAPIModeHardened = "hardened"
+	FilesAPIModeLegacy   = "legacy"
+)
+
+// Flags are the feature flags shared with the Python settings.
+type Flags struct {
+	PGLeadStore                    bool // PG_LEAD_STORE (default true); Go supports only the Postgres lead store
+	AutomationsEnabled             bool // AUTOMATIONS_ENABLED
+	IntentPollerEnabled            bool // INTENT_POLLER_ENABLED
+	AutomationsAllowLegacyOutreach bool // AUTOMATIONS_ALLOW_LEGACY_OUTREACH
+	FilesAPIMode                   string
 }
 
 // DefaultStripeAPIBase is the production Stripe API origin.
@@ -375,6 +395,29 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 			c.StripeAPIBase = base
 		}
 	}
+	if c.Flags.PGLeadStore, err = boolVar(get, "PG_LEAD_STORE", true); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.AutomationsEnabled, err = boolVar(get, "AUTOMATIONS_ENABLED", false); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.IntentPollerEnabled, err = boolVar(get, "INTENT_POLLER_ENABLED", false); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.AutomationsAllowLegacyOutreach, err = boolVar(get, "AUTOMATIONS_ALLOW_LEGACY_OUTREACH", false); err != nil {
+		return APIConfig{}, err
+	}
+	c.Flags.FilesAPIMode = strings.ToLower(strings.TrimSpace(get("FILES_API_MODE")))
+	switch c.Flags.FilesAPIMode {
+	case "":
+		c.Flags.FilesAPIMode = FilesAPIModeHardened
+	case FilesAPIModeHardened, FilesAPIModeLegacy:
+	default:
+		return APIConfig{}, fmt.Errorf("config: FILES_API_MODE must be %q or %q", FilesAPIModeHardened, FilesAPIModeLegacy)
+	}
+	if c.DataDir = strings.TrimSpace(get("DATA_DIR")); c.DataDir == "" {
+		c.DataDir = "data"
+	}
 	return c, nil
 }
 
@@ -416,6 +459,11 @@ func (c APIConfig) LogValue() slog.Value {
 		slog.String("stripe_secret_key", r.StripeSecretKey),
 		slog.String("stripe_webhook_secret", r.StripeWebhookSecret),
 		slog.String("stripe_api_base", r.StripeAPIBase),
+		slog.Bool("pg_lead_store", r.Flags.PGLeadStore),
+		slog.Bool("automations_enabled", r.Flags.AutomationsEnabled),
+		slog.Bool("intent_poller_enabled", r.Flags.IntentPollerEnabled),
+		slog.String("files_api_mode", r.Flags.FilesAPIMode),
+		slog.String("data_dir", r.DataDir),
 	)
 }
 
