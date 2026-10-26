@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
@@ -167,6 +168,9 @@ func parseMergeID(v any) mergeID {
 	return mergeID{n: n, text: strings.TrimPrefix(num.String(), "+"), ok: true}
 }
 
+// errMergeConflict rolls the merge back when the merged company+city belongs to a lead outside it.
+var errMergeConflict = errors.New("merge: company and city already exist")
+
 func (h leadDedupRoutes) merge(w http.ResponseWriter, r *http.Request) {
 	body, errs, ok := readLeadBody(w, r)
 	if !ok {
@@ -260,21 +264,29 @@ func (h leadDedupRoutes) merge(w http.ResponseWriter, r *http.Request) {
 		case err != nil:
 			return err
 		}
-		// D4: master update and duplicate deletes share this transaction.
-		if _, err := leadswrite.UpdateFields(r.Context(), tx, m.ID, merged.Vals); err != nil {
-			return err
-		}
+		// D4: master update and duplicate deletes share this transaction. Duplicates go first:
+		// merging a duplicate's city into the master would otherwise collide with that very
+		// duplicate on uq_leads_ws_company_city (Python 500s there; hardening).
 		for _, id := range dupLeadIDs {
 			if _, err := leadswrite.Delete(r.Context(), tx, id); err != nil {
 				return err
 			}
 			deleted++
 		}
+		if _, err := leadswrite.UpdateFields(r.Context(), tx, m.ID, merged.Vals); err != nil {
+			var pe *pgconn.PgError
+			if errors.As(err, &pe) && pe.Code == "23505" {
+				return errMergeConflict // a lead outside the merge already owns the merged company+city
+			}
+			return err
+		}
 		status = http.StatusOK
 		return nil
 	})
 	var fe *leadswrite.FieldError
 	switch {
+	case errors.Is(err, errMergeConflict):
+		httpx.Detail(w, http.StatusConflict, "A lead already exists for the merged company and city")
 	case errors.As(err, &fe):
 		httpx.ValidationError(w, httpx.FieldError{Type: "value_error", Loc: []any{"body", fe.Field}, Msg: "Value error, " + fe.Reason})
 	case err != nil:
