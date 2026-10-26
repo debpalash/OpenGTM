@@ -7,10 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
@@ -210,5 +212,38 @@ func TestStatsMatchesPythonEmptyWorkspace(t *testing.T) {
 	want := `{"total":0,"by_status":{},"by_tier":{},"by_city":{},"by_source":{},"enrichment":{"total":0,"with_email":0,"with_phone":0,"with_website":0,"with_linkedin":0,"with_contact":0,"avg_score":0.0}}`
 	if rec.Code != 200 || rec.Body.String() != want {
 		t.Errorf("%d %s", rec.Code, rec.Body.String())
+	}
+}
+
+// order_by is allow-listed in leadsread.ListLeads: anything else silently falls back to "score DESC"
+// (Python parity), never reaching SQL.
+func TestListLeadsOrderByInjectionFallsBackToDefault(t *testing.T) {
+	e := newLeadsEnv(t)
+	want := e.get("alice", "ws-alpha", "/api/leads?limit=50")
+	if want.Code != 200 {
+		t.Fatalf("default: %d", want.Code)
+	}
+	for _, ob := range []string{
+		"score DESC; DROP TABLE leads--",
+		"(SELECT 1)",
+		"company ASC, (select pg_sleep(1))",
+		"score DESC, id",
+		"SCORE DESC",
+	} {
+		start := time.Now()
+		rec := e.get("alice", "ws-alpha", "/api/leads?limit=50&order_by="+url.QueryEscape(ob))
+		if rec.Code != 200 || rec.Body.String() != want.Body.String() {
+			t.Errorf("order_by %q: status %d, body differs from default order", ob, rec.Code)
+		}
+		if time.Since(start) > 900*time.Millisecond {
+			t.Errorf("order_by %q: slow, a statement may have run", ob)
+		}
+	}
+	var n int
+	if err := e.pool.QueryRow(context.Background(), `SELECT count(*) FROM pg_class WHERE relname='leads'`).Scan(&n); err != nil || n != 1 {
+		t.Fatalf("leads table missing after injection attempts: %v %d", err, n)
+	}
+	if rec := e.get("alice", "ws-alpha", "/api/leads?limit=50"); rec.Body.String() != want.Body.String() {
+		t.Error("data changed by injection attempts")
 	}
 }

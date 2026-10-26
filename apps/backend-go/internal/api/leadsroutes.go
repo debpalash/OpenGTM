@@ -369,4 +369,3 @@ func (h leadReadRoutes) similar(w http.ResponseWriter, r *http.Request) {
 		SimilarLeads []leadsread.Lead `json:"similar_leads"`
 	}{ref.Company, len(similar), similar})
 }
-
