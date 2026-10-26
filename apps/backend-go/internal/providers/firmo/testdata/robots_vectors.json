@@ -1,0 +1,170 @@
+[
+ {
+  "body": "",
+  "value": true
+ },
+ {
+  "body": "User-agent: *\nAllow: /\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: *\nDisallow: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow:\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: *\nDisallow: /private\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: yupcha\nDisallow: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: Yupcha-TechDetect\nDisallow: /\n\nUser-agent: *\nAllow: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: googlebot\nDisallow: /\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: *\nDisallow: /?\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow: /#x\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow: /;\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow: *\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: *\nAllow: /\nDisallow: /\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: *\nDisallow: /\nAllow: /\n",
+  "value": false
+ },
+ {
+  "body": "Disallow: /\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: *\r\nDisallow: /\r\n",
+  "value": false
+ },
+ {
+  "body": "user-AGENT: *\nDISALLOW: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *   # c\nDisallow: / # all\n",
+  "value": false
+ },
+ {
+  "body": "# only comments\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: *\nCrawl-delay: 5\nDisallow: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nRequest-rate: 1/5\nDisallow: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: a\nUser-agent: yupcha\nDisallow: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow: /\nUser-agent: yupcha\nAllow: /\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: yupcha\nAllow: /\nUser-agent: *\nDisallow: /\n",
+  "value": true
+ },
+ {
+  "body": "Sitemap: https://a.com/s.xml\nUser-agent: *\nDisallow: /\n",
+  "value": false
+ },
+ {
+  "body": "nf",
+  "value": true
+ },
+ {
+  "body": "<html><body>not found</body></html>",
+  "value": true
+ },
+ {
+  "body": "User-agent: *\nDisallow: /%2F\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow: %2F\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow: /\n\n\nUser-agent: x\nDisallow:\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\n\nDisallow: /\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: yupcha/2\nDisallow: /\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: techdetect\nDisallow: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: YUPCHA-TECHDETECT\nDisallow: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent:*\nDisallow:/\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow: / Allow: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\u000bDisallow: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow: /Allow: /\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow: / \n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow: //\n",
+  "value": false
+ },
+ {
+  "body": "User-agent: *\nDisallow: /a b\n",
+  "value": true
+ },
+ {
+  "body": "User-agent: *\nDisallow: é\n",
+  "value": true
+ }
+]

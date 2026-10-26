@@ -10,17 +10,10 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	_ "github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/contact"
+	_ "github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/firmo"
 )
 
 const legacyProviders = "../../../../legacy/python/apps/api/services/leadgen/enrichment/providers"
-
-// firmoPlanned are the Task 14 modules; they may be unregistered until that
-// task lands (it then registers them and this allowance becomes dead).
-var firmoPlanned = map[string]bool{
-	"ipinfo": true, "gleif": true, "companies_house": true, "mca_registry": true,
-	"wikidata_provider": true, "sec_edgar": true, "jsonld_firmographics": true,
-	"tech_stack_provider": true, "ats_hiring": true, "google_maps": true,
-}
 
 func listed(t *testing.T) map[string]string {
 	f, err := os.Open("python_providers.txt")
@@ -45,7 +38,7 @@ func listed(t *testing.T) map[string]string {
 }
 
 // Every Python provider module is ported (registered), listed as a Python
-// worker provider with a reason, or owned by the firmographic task.
+// worker provider with a reason.
 func TestEveryProviderPortedOrListed(t *testing.T) {
 	var inv struct {
 		Providers []struct {
@@ -90,7 +83,7 @@ func TestEveryProviderPortedOrListed(t *testing.T) {
 		switch {
 		case ported && isListed:
 			t.Errorf("%s is both ported and listed", mod)
-		case ported || isListed || firmoPlanned[mod]:
+		case ported || isListed:
 		default:
 			t.Errorf("%s is neither ported nor listed in python_providers.txt", mod)
 		}

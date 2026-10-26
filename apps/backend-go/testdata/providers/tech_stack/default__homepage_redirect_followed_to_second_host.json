@@ -94,7 +94,8 @@
    "response": {
     "status": 200,
     "headers": {
-     "content-type": "text/html"
+     "content-type": "text/html",
+     "server": "nginx"
     },
     "body": "<html><head><meta name=\"generator\" content=\"WordPress 6.4\"><link rel=\"stylesheet\" href=\"/wp-content/themes/x/style.css\"><script src=\"https://cdn.shopify.com/s/files/x.js\"></script></head><body><script src=\"https://www.googletagmanager.com/gtm.js?id=GTM-XXXX\"></script></body></html>"
    }

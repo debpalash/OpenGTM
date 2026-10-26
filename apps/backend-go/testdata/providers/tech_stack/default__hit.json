@@ -67,7 +67,9 @@
     "status": 200,
     "headers": {
      "content-type": "text/html",
-     "set-cookie": "wordpress_test_cookie=1; Path=/"
+     "server": "nginx",
+     "set-cookie": "wordpress_test_cookie=1; Path=/",
+     "x-powered-by": "PHP/8.2"
     },
     "body": "<html><head><meta name=\"generator\" content=\"WordPress 6.4\"><link rel=\"stylesheet\" href=\"/wp-content/themes/x/style.css\"><script src=\"https://cdn.shopify.com/s/files/x.js\"></script></head><body><script src=\"https://www.googletagmanager.com/gtm.js?id=GTM-XXXX\"></script></body></html>"
    }
