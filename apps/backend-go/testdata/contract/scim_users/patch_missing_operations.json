@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": {
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/scim/v2/alpha/Users/4"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "schemas": [
+              "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+            ]
+          },
+          "loc": [
+            "body",
+            "Operations"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

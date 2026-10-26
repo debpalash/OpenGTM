@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "Operations": [],
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/scim/v2/alpha/Users/99999"
+  },
+  "response": {
+    "body": {
+      "detail": "SCIM user not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

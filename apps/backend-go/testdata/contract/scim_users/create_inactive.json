@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "active": false,
+      "userName": "Erin"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/scim/v2/alpha/Users"
+  },
+  "response": {
+    "body": {
+      "active": false,
+      "displayName": "erin",
+      "externalId": "",
+      "id": "5",
+      "meta": {
+        "created": "2026-10-26T07:13:13.210096+00:00",
+        "lastModified": "2026-10-26T07:13:13.210096+00:00",
+        "location": "/scim/v2/alpha/Users/5",
+        "resourceType": "User"
+      },
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+      ],
+      "userName": "erin"
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 201
+  }
+}

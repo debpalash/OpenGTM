@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {
+      "Operations": [
+        {
+          "op": "remove",
+          "path": "active"
+        }
+      ],
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/scim/v2/alpha/Users/4"
+  },
+  "response": {
+    "body": {
+      "detail": "Only add and replace patch operations are supported"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "active": "maybe",
+      "userName": "gina"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/scim/v2/alpha/Users"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "maybe",
+          "loc": [
+            "body",
+            "active"
+          ],
+          "msg": "Input should be a valid boolean, unable to interpret input",
+          "type": "bool_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

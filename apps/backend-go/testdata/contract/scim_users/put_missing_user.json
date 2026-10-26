@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "userName": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/scim/v2/alpha/Users/99999"
+  },
+  "response": {
+    "body": {
+      "detail": "SCIM user not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}
