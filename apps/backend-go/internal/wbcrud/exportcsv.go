@@ -141,7 +141,7 @@ func pyText(v any) string {
 
 // ExportSafeValue is safe_value of export_workbook_csv: None is empty, dicts
 // and lists are compact JSON, everything else str(value), and a text starting
-// with = + - @ TAB or CR gets a leading apostrophe against formula injection.
+// with = + - @ TAB CR or LF (LF is hardening beyond Python) gets a leading apostrophe against formula injection.
 func ExportSafeValue(v any) string {
 	switch v.(type) {
 	case nil:
@@ -152,19 +152,22 @@ func ExportSafeValue(v any) string {
 	s := pyText(v)
 	if s != "" {
 		switch s[0] {
-		case '=', '+', '-', '@', '\t', '\r':
+		case '=', '+', '-', '@', '\t', '\r', '\n':
 			return "'" + s
 		}
 	}
 	return s
 }
 
-// exportHeaderCell is a header cell: the column name (or id when unnamed). Stub.
+// exportHeaderCell is a header cell: the column name (or id when unnamed) with
+// the same formula guard as values. Names are free text any editor can set, so a
+// raw header would execute in the spreadsheet of whoever opens the export
+// (hardening beyond Python).
 func exportHeaderCell(c Column) string {
 	if n := c.Get("name"); truthy(n) {
-		return pyText(n)
+		return ExportSafeValue(pyText(n))
 	}
-	return pyText(c.Get("id"))
+	return ExportSafeValue(pyText(c.Get("id")))
 }
 
 // writeCSVRow writes one csv.writer(lineterminator="\r\n") row: QUOTE_MINIMAL,
@@ -340,11 +343,7 @@ func (s *Service) ExportCSV(ctx context.Context, ws, workbookID string, p Export
 		}
 		cells := make([]string, len(cols))
 		for i, c := range cols {
-			if n := c.Get("name"); truthy(n) {
-				cells[i] = pyText(n)
-			} else {
-				cells[i] = pyText(c.Get("id"))
-			}
+			cells[i] = exportHeaderCell(c)
 		}
 		if len(cells) == 0 {
 			cells = nil
