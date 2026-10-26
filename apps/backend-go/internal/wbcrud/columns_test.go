@@ -14,7 +14,7 @@ func normalizeVector(t *testing.T, name string) (Column, []map[string]any, strin
 				if !sameJSON(t, errs, c.Errors) {
 					t.Errorf("%s errors = %s, want %v", name, compact(t, errs), c.Errors)
 				}
-				return nil, c.Errors, c.Column
+				return Column{}, c.Errors, c.Column
 			}
 			if len(errs) > 0 {
 				t.Fatalf("%s: unexpected errors %s", name, compact(t, errs))
@@ -23,7 +23,7 @@ func normalizeVector(t *testing.T, name string) (Column, []map[string]any, strin
 		}
 	}
 	t.Fatalf("no vector %q", name)
-	return nil, nil, ""
+	return Column{}, nil, ""
 }
 
 func TestNormalizeAllVectors(t *testing.T) {
@@ -48,10 +48,10 @@ func TestNormalizeAllVectors(t *testing.T) {
 
 func TestNormalizeDefaultsAndDropsUnknown(t *testing.T) {
 	col, _, want := normalizeVector(t, "defaults_and_unknown_dropped")
-	if col["type"] != "lead_field" || compact(t, col) != want {
+	if col.Get("type") != "lead_field" || compact(t, col) != want {
 		t.Errorf("got %s want %s", compact(t, col), want)
 	}
-	if _, ok := col["zzz"]; ok {
+	if _, ok := col.Lookup("zzz"); ok {
 		t.Error("unknown key kept")
 	}
 }
@@ -82,7 +82,7 @@ func TestUnknownColumnKeysPreservedOnRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := compact(t, cols)
-	want := `[{"id":"a","name":"A","width":200,"zzz":{"x":1.50,"big":12345678901234567890}}]`
+	want := `[{"id":"a","name":"A","zzz":{"x":1.50,"big":12345678901234567890},"width":200}]`
 	if got != want {
 		t.Errorf("got %s\nwant %s", got, want)
 	}
@@ -91,5 +91,67 @@ func TestUnknownColumnKeysPreservedOnRead(t *testing.T) {
 	}
 	if cols, err := ParseColumns(nil); err != nil || len(cols) != 0 {
 		t.Errorf("empty input: %v %v", cols, err)
+	}
+}
+
+func TestStoredColumnsRoundTripByteIdentical(t *testing.T) {
+	v := loadVectors(t)
+	if len(v.Stored) < 5 {
+		t.Fatal("missing stored vectors")
+	}
+	for _, c := range v.Stored {
+		t.Run(c.Name, func(t *testing.T) {
+			cols, err := ParseColumns([]byte(c.Stored))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := compact(t, cols); got != c.Expected {
+				t.Errorf("got  %s\nwant %s", got, c.Expected)
+			}
+		})
+	}
+}
+
+func TestMergeChangesPythonDictSemantics(t *testing.T) {
+	for _, c := range loadVectors(t).Patch {
+		t.Run(c.Name, func(t *testing.T) {
+			cols, err := ParseColumns([]byte("[" + c.Before + "]"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			ch, err := ParseObject([]byte(c.Changes))
+			if err != nil {
+				t.Fatal(err)
+			}
+			orig := compact(t, cols[0])
+			if got := compact(t, MergeChanges(cols[0], ch)); got != c.Merged {
+				t.Errorf("got  %s\nwant %s", got, c.Merged)
+			}
+			if compact(t, cols[0]) != orig {
+				t.Error("MergeChanges mutated its input")
+			}
+		})
+	}
+}
+
+func TestErrorLocPrefixesMatchPythonRoutes(t *testing.T) {
+	for _, c := range loadVectors(t).Locs {
+		t.Run(c.Name, func(t *testing.T) {
+			var got [][]any
+			if c.View {
+				_, errs := ParseViewConfig(json.RawMessage(c.Input), c.Prefix...)
+				for _, e := range errs {
+					got = append(got, e.Loc)
+				}
+			} else {
+				_, errs := NormalizeRequestColumn(json.RawMessage(c.Input), c.Prefix...)
+				for _, e := range errs {
+					got = append(got, e.Loc)
+				}
+			}
+			if !sameJSON(t, got, c.Locs) {
+				t.Errorf("locs = %v, want %v", got, c.Locs)
+			}
+		})
 	}
 }

@@ -34,25 +34,25 @@ const filterOpMsg = "Input should be 'equals', 'not_equals', 'contains', 'not_co
 var filterOps = map[string]bool{"equals": true, "not_equals": true, "contains": true, "not_contains": true, "empty": true, "not_empty": true}
 
 // ParseViewConfig validates like ViewConfig.model_validate (defaults applied,
-// unknown keys dropped). Error locs are relative to the config.
-func ParseViewConfig(raw json.RawMessage) (ViewConfig, []httpx.FieldError) {
+// unknown keys dropped). Error locs start with prefix (e.g. "body","config").
+func ParseViewConfig(raw json.RawMessage, prefix ...any) (ViewConfig, []httpx.FieldError) {
 	cfg := ViewConfig{Filters: []ViewFilter{}, Sort: []ViewSort{}, HiddenColumns: []string{}}
 	doc, err := decodeDocument(raw, false)
 	if err != nil {
-		return cfg, []httpx.FieldError{{Type: "json_invalid", Loc: []any{}, Msg: "JSON decode error"}}
+		return cfg, []httpx.FieldError{{Type: "json_invalid", Loc: append([]any{}, prefix...), Msg: "JSON decode error"}}
 	}
 	obj, ok := doc.(*Obj)
 	if !ok {
-		return cfg, []httpx.FieldError{{Type: "model_type", Loc: []any{}, Msg: "Input should be a valid dictionary or instance of ViewConfig", Input: doc}}
+		return cfg, []httpx.FieldError{{Type: "model_type", Loc: append([]any{}, prefix...), Msg: "Input should be a valid dictionary or instance of ViewConfig", Input: doc}}
 	}
 	var errs []httpx.FieldError
 	if v, ok := obj.Get("filters"); ok {
 		arr, isArr := v.([]any)
 		if !isArr {
-			errs = append(errs, fe("list_type", "Input should be a valid list", []any{"filters"}, v)...)
+			errs = append(errs, fe("list_type", "Input should be a valid list", pl(prefix, "filters"), v)...)
 		}
 		for i, e := range arr {
-			loc := []any{"filters", i}
+			loc := pl(prefix, "filters", i)
 			o, isObj := e.(*Obj)
 			if !isObj {
 				errs = append(errs, fe("model_type", "Input should be a valid dictionary or instance of ViewFilter", loc, e)...)
@@ -76,10 +76,10 @@ func ParseViewConfig(raw json.RawMessage) (ViewConfig, []httpx.FieldError) {
 	if v, ok := obj.Get("sort"); ok {
 		arr, isArr := v.([]any)
 		if !isArr {
-			errs = append(errs, fe("list_type", "Input should be a valid list", []any{"sort"}, v)...)
+			errs = append(errs, fe("list_type", "Input should be a valid list", pl(prefix, "sort"), v)...)
 		}
 		for i, e := range arr {
-			loc := []any{"sort", i}
+			loc := pl(prefix, "sort", i)
 			o, isObj := e.(*Obj)
 			if !isObj {
 				errs = append(errs, fe("model_type", "Input should be a valid dictionary or instance of ViewSort", loc, e)...)
@@ -102,13 +102,13 @@ func ParseViewConfig(raw json.RawMessage) (ViewConfig, []httpx.FieldError) {
 	if v, ok := obj.Get("hidden_columns"); ok {
 		arr, isArr := v.([]any)
 		if !isArr {
-			errs = append(errs, fe("list_type", "Input should be a valid list", []any{"hidden_columns"}, v)...)
+			errs = append(errs, fe("list_type", "Input should be a valid list", pl(prefix, "hidden_columns"), v)...)
 		}
 		for i, e := range arr {
 			if s, isStr := e.(string); isStr {
 				cfg.HiddenColumns = append(cfg.HiddenColumns, s)
 			} else {
-				errs = append(errs, fe("string_type", "Input should be a valid string", []any{"hidden_columns", i}, e)...)
+				errs = append(errs, fe("string_type", "Input should be a valid string", pl(prefix, "hidden_columns", i), e)...)
 			}
 		}
 	}
@@ -173,4 +173,8 @@ func ValidateViewColumns(cols []Column, v ViewConfig) *GuardError {
 		return nil
 	}
 	return &GuardError{Status: 422, Detail: fmt.Sprintf("View references missing columns: %s. Refresh the workbook and update the view.", strings.Join(missing, ", "))}
+}
+
+func pl(prefix []any, rest ...any) []any {
+	return append(append([]any{}, prefix...), rest...)
 }

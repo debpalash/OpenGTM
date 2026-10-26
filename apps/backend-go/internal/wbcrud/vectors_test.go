@@ -46,6 +46,24 @@ type vectors struct {
 		GuardUnknown *guardVec        `json:"guard_unknown"`
 	} `json:"views"`
 	ViewsKnown []string `json:"views_known"`
+	Stored     []struct {
+		Name     string `json:"name"`
+		Stored   string `json:"stored"`
+		Expected string `json:"expected"`
+	} `json:"stored"`
+	Patch []struct {
+		Name    string `json:"name"`
+		Before  string `json:"before"`
+		Changes string `json:"changes"`
+		Merged  string `json:"merged"`
+	} `json:"patch"`
+	Locs []struct {
+		Name   string  `json:"name"`
+		Input  string  `json:"input"`
+		Prefix []any   `json:"prefix"`
+		Locs   [][]any `json:"locs"`
+		View   bool    `json:"view"`
+	} `json:"locs"`
 }
 
 type guardVec struct {
@@ -82,7 +100,7 @@ func rawColumns(t *testing.T, raws []json.RawMessage) []Column {
 func colIDs(cols []Column) []any {
 	out := []any{}
 	for _, c := range cols {
-		out = append(out, c["id"])
+		out = append(out, c.Get("id"))
 	}
 	return out
 }

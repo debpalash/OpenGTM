@@ -1955,5 +1955,105 @@
   "a",
   "b",
   "c"
+ ],
+ "stored": [
+  {
+   "name": "csv_import",
+   "stored": "[{\"id\": \"company\", \"name\": \"Company\", \"type\": \"lead_field\", \"lead_field\": \"company\", \"width\": 200}, {\"id\": \"email\", \"name\": \"Work Email\", \"type\": \"lead_field\", \"lead_field\": \"email\", \"width\": 200}, {\"id\": \"website\", \"name\": \"Website\", \"type\": \"lead_field\", \"lead_field\": \"website\", \"width\": 200}, {\"id\": \"notes\", \"name\": \"Notes\", \"type\": \"lead_field\", \"lead_field\": \"notes\", \"width\": 200}]",
+   "expected": "[{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":200},{\"id\":\"email\",\"name\":\"Work Email\",\"type\":\"lead_field\",\"lead_field\":\"email\",\"width\":200},{\"id\":\"website\",\"name\":\"Website\",\"type\":\"lead_field\",\"lead_field\":\"website\",\"width\":200},{\"id\":\"notes\",\"name\":\"Notes\",\"type\":\"lead_field\",\"lead_field\":\"notes\",\"width\":200}]"
+  },
+  {
+   "name": "ambitionbox",
+   "stored": "[{\"id\": \"company\", \"name\": \"Company\", \"type\": \"lead_field\", \"lead_field\": \"company\", \"width\": 220}, {\"id\": \"industry\", \"name\": \"Industry\", \"type\": \"lead_field\", \"lead_field\": \"industry\", \"width\": 180}, {\"id\": \"ambitionbox_rating\", \"name\": \"Rating\", \"type\": \"lead_field\", \"lead_field\": \"ambitionbox_rating\", \"width\": 90}, {\"id\": \"review_count\", \"name\": \"Reviews\", \"type\": \"lead_field\", \"lead_field\": \"review_count\", \"width\": 100}, {\"id\": \"company_size\", \"name\": \"Employees\", \"type\": \"lead_field\", \"lead_field\": \"company_size\", \"width\": 130}, {\"id\": \"city\", \"name\": \"Top location\", \"type\": \"lead_field\", \"lead_field\": \"city\", \"width\": 150}, {\"id\": \"jobs_count\", \"name\": \"Jobs\", \"type\": \"lead_field\", \"lead_field\": \"jobs_count\", \"width\": 80}, {\"id\": \"company_type\", \"name\": \"Company type\", \"type\": \"lead_field\", \"lead_field\": \"company_type\", \"width\": 150}, {\"id\": \"is_verified\", \"name\": \"Verified\", \"type\": \"lead_field\", \"lead_field\": \"is_verified\", \"width\": 90}, {\"id\": \"ambitionbox_url\", \"name\": \"AmbitionBox\", \"type\": \"lead_field\", \"lead_field\": \"ambitionbox_url\", \"width\": 260}]",
+   "expected": "[{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":220},{\"id\":\"industry\",\"name\":\"Industry\",\"type\":\"lead_field\",\"lead_field\":\"industry\",\"width\":180},{\"id\":\"ambitionbox_rating\",\"name\":\"Rating\",\"type\":\"lead_field\",\"lead_field\":\"ambitionbox_rating\",\"width\":90},{\"id\":\"review_count\",\"name\":\"Reviews\",\"type\":\"lead_field\",\"lead_field\":\"review_count\",\"width\":100},{\"id\":\"company_size\",\"name\":\"Employees\",\"type\":\"lead_field\",\"lead_field\":\"company_size\",\"width\":130},{\"id\":\"city\",\"name\":\"Top location\",\"type\":\"lead_field\",\"lead_field\":\"city\",\"width\":150},{\"id\":\"jobs_count\",\"name\":\"Jobs\",\"type\":\"lead_field\",\"lead_field\":\"jobs_count\",\"width\":80},{\"id\":\"company_type\",\"name\":\"Company type\",\"type\":\"lead_field\",\"lead_field\":\"company_type\",\"width\":150},{\"id\":\"is_verified\",\"name\":\"Verified\",\"type\":\"lead_field\",\"lead_field\":\"is_verified\",\"width\":90},{\"id\":\"ambitionbox_url\",\"name\":\"AmbitionBox\",\"type\":\"lead_field\",\"lead_field\":\"ambitionbox_url\",\"width\":260}]"
+  },
+  {
+   "name": "apply_function_chain",
+   "stored": "[{\"id\": \"a\", \"name\": \"A\", \"type\": \"ai_formula\", \"prompt\": \"p\", \"extra_flag\": true}, {\"key\": \"company\", \"name\": \"Company\", \"type\": \"text\", \"zz\": {\"b\": 1, \"a\": 2}}, {\"name\": \"N\", \"id\": \"n\", \"key\": \"k\", \"type\": \"enrichment\", \"provider\": \"x\", \"width\": 150}]",
+   "expected": "[{\"id\":\"a\",\"name\":\"A\",\"type\":\"ai_formula\",\"prompt\":\"p\",\"extra_flag\":true},{\"key\":\"company\",\"name\":\"Company\",\"type\":\"text\",\"zz\":{\"b\":1,\"a\":2}},{\"name\":\"N\",\"id\":\"n\",\"key\":\"k\",\"type\":\"enrichment\",\"provider\":\"x\",\"width\":150}]"
+  },
+  {
+   "name": "interleaved_unknown_keys",
+   "stored": "[{\"id\": \"a\", \"zz\": 1, \"name\": \"A\", \"type\": \"x\", \"k\": {\"z\": 1, \"a\": [1.5, 100.0]}, \"width\": 3}]",
+   "expected": "[{\"id\":\"a\",\"zz\":1,\"name\":\"A\",\"type\":\"x\",\"k\":{\"z\":1,\"a\":[1.5,100.0]},\"width\":3}]"
+  },
+  {
+   "name": "unicode_and_html",
+   "stored": "[{\"name\": \"Caf\\u00e9 <b>&\", \"id\": \"u\"}]",
+   "expected": "[{\"name\":\"Café <b>&\",\"id\":\"u\"}]"
+  }
+ ],
+ "patch": [
+  {
+   "name": "patch_appends_in_request_order",
+   "before": "{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":220}",
+   "changes": "{\"prompt\": \"x {a}\", \"reactive\": false}",
+   "merged": "{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":220,\"prompt\":\"x {a}\",\"reactive\":false}"
+  },
+  {
+   "name": "patch_existing_keeps_position",
+   "before": "{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":220}",
+   "changes": "{\"width\": 99, \"name\": \"Renamed\", \"zzz\": [1]}",
+   "merged": "{\"id\":\"company\",\"name\":\"Renamed\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":99,\"zzz\":[1]}"
+  }
+ ],
+ "locs": [
+  {
+   "name": "create_columns_config",
+   "input": "{\"id\": \"a\"}",
+   "prefix": [
+    "body",
+    "columns_config",
+    2
+   ],
+   "locs": [
+    [
+     "body",
+     "columns_config",
+     2,
+     "name"
+    ]
+   ],
+   "view": false
+  },
+  {
+   "name": "add_column",
+   "input": "{\"id\": \"a\", \"width\": \"x\"}",
+   "prefix": [
+    "body",
+    "column"
+   ],
+   "locs": [
+    [
+     "body",
+     "column",
+     "name"
+    ],
+    [
+     "body",
+     "column",
+     "width"
+    ]
+   ],
+   "view": false
+  },
+  {
+   "name": "view_config",
+   "input": "{\"filters\": [{\"column\": \"\"}]}",
+   "prefix": [
+    "body",
+    "config"
+   ],
+   "locs": [
+    [
+     "body",
+     "config",
+     "filters",
+     0,
+     "column"
+    ]
+   ],
+   "view": true
+  }
  ]
 }

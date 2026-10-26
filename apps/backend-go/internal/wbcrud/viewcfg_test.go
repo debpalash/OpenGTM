@@ -13,7 +13,7 @@ func TestViewConfigVectors(t *testing.T) {
 	}
 	cols := []Column{}
 	for k := range known {
-		cols = append(cols, Column{"id": k})
+		cols = append(cols, MakeColumn("id", k))
 	}
 	for _, c := range v.Views {
 		t.Run(c.Name, func(t *testing.T) {
@@ -31,7 +31,7 @@ func TestViewConfigVectors(t *testing.T) {
 				t.Errorf("config = %s\nwant     %s", got, c.Config)
 			}
 			checkGuard(t, ValidateViewColumns(cols, cfg), c.Guard)
-			checkGuard(t, ValidateViewColumns([]Column{{"id": "zz"}}, cfg), c.GuardUnknown)
+			checkGuard(t, ValidateViewColumns([]Column{MakeColumn("id", "zz")}, cfg), c.GuardUnknown)
 		})
 	}
 }

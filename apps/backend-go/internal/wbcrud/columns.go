@@ -8,19 +8,97 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 )
 
-// Column is one stored column object. Unknown keys are preserved on read;
-// nested objects are *Obj (insertion ordered), numbers are json.Number.
-type Column map[string]any
+// Column is one stored column object. It preserves insertion order of every
+// key (Python returns the stored JSON dict untouched), unknown keys, and number
+// text. Nested objects are *Obj, numbers json.Number. Model-field order applies
+// only to NormalizeRequestColumn output.
+type Column struct{ o *Obj }
 
-// columnOrder is the ColumnConfig field order (schemas.py); extra stored keys
-// follow in sorted order.
+// MakeColumn builds a column from alternating key, value arguments.
+func MakeColumn(kv ...any) Column {
+	c := Column{o: NewObj()}
+	for i := 0; i+1 < len(kv); i += 2 {
+		c.o.Set(kv[i].(string), kv[i+1])
+	}
+	return c
+}
+
+// Get returns the value for k (nil when absent or null).
+func (c Column) Get(k string) any { v, _ := c.o.Get(k); return v }
+
+// Lookup returns the value and whether the key is present.
+func (c Column) Lookup(k string) (any, bool) { return c.o.Get(k) }
+
+// Keys returns keys in stored order.
+func (c Column) Keys() []string { return c.o.Keys() }
+
+// Set stores v under k; an existing key keeps its position.
+func (c *Column) Set(k string, v any) {
+	if c.o == nil {
+		c.o = NewObj()
+	}
+	c.o.Set(k, v)
+}
+
+// Clone returns a copy whose top-level key set can be changed independently.
+func (c Column) Clone() Column {
+	n := Column{o: NewObj()}
+	for _, k := range c.o.Keys() {
+		n.o.Set(k, c.o.vals[k])
+	}
+	return n
+}
+
+func (c Column) without(skip string) Column {
+	n := Column{o: NewObj()}
+	for _, k := range c.o.Keys() {
+		if k != skip {
+			n.o.Set(k, c.o.vals[k])
+		}
+	}
+	return n
+}
+
+// MergeChanges is Python's {**col, **changes}: existing keys keep their
+// position, new keys are appended in changes order.
+func MergeChanges(col Column, changes *Obj) Column {
+	n := col.Clone()
+	for _, k := range changes.Keys() {
+		v, _ := changes.Get(k)
+		n.Set(k, v)
+	}
+	return n
+}
+
+// ParseObject decodes a JSON object body preserving key order (for PATCH
+// changes). Numbers keep their text.
+func ParseObject(raw []byte) (*Obj, error) {
+	doc, err := decodeDocument(raw, false)
+	if err != nil {
+		return nil, err
+	}
+	o, ok := doc.(*Obj)
+	if !ok {
+		return nil, fmt.Errorf("not a JSON object")
+	}
+	return o, nil
+}
+
+// MarshalJSON writes keys in stored order.
+func (c Column) MarshalJSON() ([]byte, error) {
+	if c.o == nil {
+		return []byte("null"), nil
+	}
+	return c.o.MarshalJSON()
+}
+
+// columnOrder is the ColumnConfig field order (schemas.py).
 var columnOrder = []string{
 	"id", "name", "type", "width", "reactive", "lead_field", "provider", "waterfall", "target_field", "verify",
 	"icp", "channels", "target_rows", "prompt", "input_columns", "max_steps", "cell_budget_usd", "output_format",
@@ -28,32 +106,7 @@ var columnOrder = []string{
 	"http_url", "http_method", "http_headers", "http_body", "http_extract", "formula",
 }
 
-// MarshalJSON writes model fields in ColumnConfig order, then any extra keys.
-func (c Column) MarshalJSON() ([]byte, error) {
-	if c == nil {
-		return []byte("null"), nil
-	}
-	o := NewObj()
-	for _, k := range columnOrder {
-		if v, ok := c[k]; ok {
-			o.Set(k, v)
-		}
-	}
-	rest := make([]string, 0)
-	for k := range c {
-		if _, ok := o.vals[k]; !ok {
-			rest = append(rest, k)
-		}
-	}
-	sort.Strings(rest)
-	for _, k := range rest {
-		o.Set(k, c[k])
-	}
-	return o.MarshalJSON()
-}
-
-// ParseColumns decodes a stored columns_config JSON array without losing
-// unknown keys, key order within nested objects, or number text.
+// ParseColumns decodes a stored columns_config JSON array byte-faithfully.
 func ParseColumns(raw []byte) ([]Column, error) {
 	if len(bytes.TrimSpace(raw)) == 0 {
 		return []Column{}, nil
@@ -75,17 +128,9 @@ func ParseColumns(raw []byte) ([]Column, error) {
 		if !ok {
 			return nil, fmt.Errorf("columns_config[%d] is not an object", i)
 		}
-		out = append(out, objToColumn(o))
+		out = append(out, Column{o: o})
 	}
 	return out, nil
-}
-
-func objToColumn(o *Obj) Column {
-	c := Column{}
-	for _, k := range o.keys {
-		c[k] = o.vals[k]
-	}
-	return c
 }
 
 type kind int
@@ -156,23 +201,26 @@ var policyFields = []field{
 // NormalizeRequestColumn validates a request-body column exactly like
 // ColumnConfig.model_validate(...).model_dump(exclude_none=True): defaults
 // applied, unknown keys dropped, None dropped, model field order. Error locs
-// are relative to the column (the caller prefixes body/columns_config/<i>).
-func NormalizeRequestColumn(raw json.RawMessage) (Column, []httpx.FieldError) {
+// are prefixed with prefix, e.g. ("body","columns_config",i), ("body","column")
+// (Python locs); with no prefix they are relative to the column.
+func NormalizeRequestColumn(raw json.RawMessage, prefix ...any) (Column, []httpx.FieldError) {
 	doc, err := decodeDocument(raw, true)
 	if err != nil {
-		return nil, []httpx.FieldError{{Type: "json_invalid", Loc: []any{}, Msg: "JSON decode error", Input: nil}}
+		return Column{}, []httpx.FieldError{{Type: "json_invalid", Loc: append([]any{}, prefix...), Msg: "JSON decode error", Input: nil}}
 	}
 	obj, ok := doc.(*Obj)
 	if !ok {
-		return nil, []httpx.FieldError{{Type: "model_type", Loc: []any{}, Msg: "Input should be a valid dictionary or instance of ColumnConfig", Input: doc}}
+		return Column{}, []httpx.FieldError{{Type: "model_type", Loc: append([]any{}, prefix...), Msg: "Input should be a valid dictionary or instance of ColumnConfig", Input: doc}}
 	}
-	vals, errs := validateModel(obj, columnFields, nil, doc)
+	vals, errs := validateModel(obj, columnFields, prefix, doc)
 	if len(errs) > 0 {
-		return nil, errs
+		return Column{}, errs
 	}
-	col := Column{}
-	for k, v := range vals {
-		col[k] = v
+	col := Column{o: NewObj()}
+	for _, k := range columnOrder {
+		if v, ok := vals[k]; ok {
+			col.o.Set(k, v)
+		}
 	}
 	return col, nil
 }

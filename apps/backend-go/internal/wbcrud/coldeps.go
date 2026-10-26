@@ -83,9 +83,7 @@ func walkStrings(v any, fn func(string)) {
 			walkStrings(e, fn)
 		}
 	case Column:
-		for _, e := range t {
-			walkStrings(e, fn)
-		}
+		walkStrings(t.o, fn)
 	case []any:
 		for _, e := range t {
 			walkStrings(e, fn)
@@ -142,7 +140,7 @@ func normAlias(v any) string {
 func refsIn(col Column) map[string]struct{} {
 	refs := map[string]struct{}{}
 	for _, f := range templated {
-		s, ok := asString(col[f])
+		s, ok := asString(col.Get(f))
 		if !ok {
 			continue
 		}
@@ -156,7 +154,7 @@ func refsIn(col Column) map[string]struct{} {
 			}
 		}
 	}
-	if arr, ok := col["input_columns"].([]any); ok {
+	if arr, ok := col.Get("input_columns").([]any); ok {
 		for _, r := range arr {
 			if s, ok := asString(r); ok && strings.TrimSpace(s) != "" {
 				refs[strings.TrimSpace(s)] = struct{}{}
@@ -164,7 +162,7 @@ func refsIn(col Column) map[string]struct{} {
 		}
 	}
 	for _, f := range []string{"http_headers", "http_body", "destination_config"} {
-		if v := col[f]; v != nil {
+		if v := col.Get(f); v != nil {
 			walkStrings(v, func(s string) {
 				for _, r := range templateRefs(s) {
 					refs[r] = struct{}{}
@@ -172,14 +170,14 @@ func refsIn(col Column) map[string]struct{} {
 			})
 		}
 	}
-	if col["type"] == "output" {
+	if col.Get("type") == "output" {
 		destination := ""
-		if truthy(col["destination"]) {
-			destination = strings.ToLower(pyStr(col["destination"]))
+		if truthy(col.Get("destination")) {
+			destination = strings.ToLower(pyStr(col.Get("destination")))
 		}
 		var cfg *Obj
-		if truthy(col["destination_config"]) {
-			cfg, _ = col["destination_config"].(*Obj)
+		if truthy(col.Get("destination_config")) {
+			cfg, _ = col.Get("destination_config").(*Obj)
 		}
 		if cfg != nil {
 			var sources []any
@@ -224,7 +222,7 @@ func sameValue(a, b any) bool {
 func referenceIndexes(ref string, cols []Column) map[int]struct{} {
 	exact := map[int]struct{}{}
 	for i, c := range cols {
-		if s, ok := c["id"].(string); ok && s == ref {
+		if s, ok := c.Get("id").(string); ok && s == ref {
 			exact[i] = struct{}{}
 		}
 	}
@@ -240,7 +238,7 @@ func referenceIndexes(ref string, cols []Column) map[int]struct{} {
 		m := map[int]struct{}{}
 		for i, c := range cols {
 			for _, key := range []string{"id", "name"} {
-				if s, ok := c[key].(string); ok && n(s) == n(ref) {
+				if s, ok := c.Get(key).(string); ok && n(s) == n(ref) {
 					m[i] = struct{}{}
 					break
 				}
@@ -254,7 +252,7 @@ func referenceIndexes(ref string, cols []Column) map[int]struct{} {
 }
 
 func idString(c Column) (string, bool) {
-	v, ok := c["id"]
+	v, ok := c.Lookup("id")
 	if !ok || v == nil {
 		return "", false
 	}
@@ -265,25 +263,25 @@ func idString(c Column) (string, bool) {
 func ReferencingColumns(cols []Column, c Column) []Column {
 	aliases := map[string]struct{}{}
 	for _, key := range []string{"id", "name"} {
-		if truthy(c[key]) {
-			aliases[normAlias(c[key])] = struct{}{}
+		if truthy(c.Get(key)) {
+			aliases[normAlias(c.Get(key))] = struct{}{}
 		}
 	}
 	stable := map[string]struct{}{}
 	for _, cand := range cols {
-		if truthy(cand["id"]) {
-			stable[pyStr(cand["id"])] = struct{}{}
+		if truthy(cand.Get("id")) {
+			stable[pyStr(cand.Get("id"))] = struct{}{}
 		}
 	}
 	out := []Column{}
 	for _, cand := range cols {
-		if sameValue(cand["id"], c["id"]) {
+		if sameValue(cand.Get("id"), c.Get("id")) {
 			continue
 		}
 		for ref := range refsIn(cand) {
 			hit := false
 			if _, isStable := stable[ref]; isStable {
-				hit = sameValue(ref, c["id"])
+				hit = sameValue(ref, c.Get("id"))
 			} else {
 				_, hit = aliases[normAlias(ref)]
 			}
@@ -312,14 +310,14 @@ func BrokenRenameReferences(before, after []Column) []Column {
 			continue
 		}
 		old, found := oldByID[id]
-		if !found || !truthy(old["name"]) {
+		if !found || !truthy(old.Get("name")) {
 			continue
 		}
-		name := normAlias(old["name"])
+		name := normAlias(old.Get("name"))
 		aliases := map[string]struct{}{}
 		for _, key := range []string{"id", "name"} {
-			if truthy(c[key]) {
-				aliases[normAlias(c[key])] = struct{}{}
+			if truthy(c.Get(key)) {
+				aliases[normAlias(c.Get(key))] = struct{}{}
 			}
 		}
 		if _, ok := aliases[name]; !ok {
@@ -328,8 +326,8 @@ func BrokenRenameReferences(before, after []Column) []Column {
 	}
 	retained := map[string]struct{}{}
 	for _, c := range after {
-		if truthy(c["id"]) {
-			retained[pyStr(c["id"])] = struct{}{}
+		if truthy(c.Get("id")) {
+			retained[pyStr(c.Get("id"))] = struct{}{}
 		}
 	}
 	out := []Column{}
@@ -353,12 +351,7 @@ func CycleBlockedColumns(cols []Column) map[string]struct{} {
 	deps := make([]map[int]struct{}, len(cols))
 	for cur, col := range cols {
 		edges := map[int]struct{}{}
-		noCond := Column{}
-		for k, v := range col {
-			if k != "condition" {
-				noCond[k] = v
-			}
-		}
+		noCond := col.without("condition")
 		for ref := range refsIn(noCond) {
 			for i := range referenceIndexes(ref, cols) {
 				edges[i] = struct{}{}
@@ -375,7 +368,7 @@ func CycleBlockedColumns(cols []Column) map[string]struct{} {
 	}
 	remaining := map[int]struct{}{}
 	for i, c := range cols {
-		if s, ok := c["type"].(string); ok && executable[s] {
+		if s, ok := c.Get("type").(string); ok && executable[s] {
 			remaining[i] = struct{}{}
 		}
 	}
@@ -425,10 +418,10 @@ func ValidateRenames(before, after []Column) *GuardError {
 	}
 	names := make([]string, len(dep))
 	for i, c := range dep {
-		if truthy(c["name"]) {
-			names[i] = pyStr(c["name"])
+		if truthy(c.Get("name")) {
+			names[i] = pyStr(c.Get("name"))
 		} else {
-			names[i] = pyStr(c["id"])
+			names[i] = pyStr(c.Get("id"))
 		}
 	}
 	return &GuardError{Status: 409, Detail: "Rename breaks column-name references in: " + strings.Join(names, ", ") + ". Change those references to stable column IDs first."}
