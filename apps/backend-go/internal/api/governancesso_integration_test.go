@@ -159,7 +159,7 @@ var scimCases = []struct{ name, who, ws string }{
 	{"scim_delete_again_204", "alice", "ws-alpha"},
 }
 
-func replay(t *testing.T, e ssoEnv, cases []struct{ name, who, ws string }, opts ...contract.Option) {
+func ssoReplay(t *testing.T, e ssoEnv, cases []struct{ name, who, ws string }, opts ...contract.Option) {
 	for _, c := range cases {
 		fx := contract.Load(t, "sso/"+c.name)
 		body := ""
@@ -172,12 +172,12 @@ func replay(t *testing.T, e ssoEnv, cases []struct{ name, who, ws string }, opts
 }
 
 func TestSSORoutesMatchFixtures(t *testing.T) {
-	replay(t, newSSOEnv(t), ssoCases)
+	ssoReplay(t, newSSOEnv(t), ssoCases)
 }
 
 // Seeded ids differ per database, the plaintext token is recorded as <redacted> and the recorded prefix is a counter token.
 func TestSCIMTokenRoutesMatchFixturesIgnoringToken(t *testing.T) {
-	replay(t, newSSOEnv(t), scimCases,
+	ssoReplay(t, newSSOEnv(t), scimCases,
 		contract.IgnoreShapeOf("$.created_by", "$.token", "$.token_prefix", "$.created_at", "$.expires_at"))
 }
 

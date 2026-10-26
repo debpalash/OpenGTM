@@ -164,7 +164,8 @@ func pyJSONText(raw, empty string) json.RawMessage {
 	if err := pyJSONValue(dec, &buf); err != nil {
 		return json.RawMessage(raw)
 	}
-	if buf.String() == "null" {
+	switch buf.String() { // Python `x or empty`: every falsy value maps to the empty container
+	case "null", "[]", "{}", "0", "0.0", `""`, "false":
 		return json.RawMessage(empty)
 	}
 	return buf.Bytes()
@@ -222,9 +223,26 @@ func pyJSONString(buf *bytes.Buffer, s string) {
 	enc.SetEscapeHTML(false)
 	_ = enc.Encode(s)
 	out := bytes.TrimSuffix(b.Bytes(), []byte("\n"))
-	out = bytes.ReplaceAll(out, []byte(` `), []byte(" "))
-	out = bytes.ReplaceAll(out, []byte(` `), []byte(" "))
-	buf.Write(out)
+	// Go escapes U+2028/U+2029; Python (ensure_ascii off) emits them raw. Walk escape pairs so a literal
+	// backslash followed by "u2028" (encoded with a doubled backslash) is left alone.
+	for i := 0; i < len(out); i++ {
+		if out[i] != '\\' || i+1 >= len(out) {
+			buf.WriteByte(out[i])
+			continue
+		}
+		switch {
+		case bytes.HasPrefix(out[i:], []byte("\\u2028")):
+			buf.WriteRune(0x2028)
+			i += 5
+		case bytes.HasPrefix(out[i:], []byte("\\u2029")):
+			buf.WriteRune(0x2029)
+			i += 5
+		default:
+			buf.WriteByte(out[i])
+			buf.WriteByte(out[i+1])
+			i++
+		}
+	}
 }
 
 // pyNumber keeps integers verbatim and renders floats like Python repr (what json.dumps prints).
