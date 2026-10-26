@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"slices"
+	"sync"
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -14,6 +15,9 @@ import (
 
 const (
 	defaultSSEMaxStreams = 1000
+	defaultSSEPerUser    = 10
+	defaultSSEPerWS      = 200
+	defaultSSELifetime   = 30 * time.Minute
 	sseWriteTimeout      = 10 * time.Second // per frame; a stalled client is dropped
 	ssoRequiredDetail    = "This workspace requires SSO. Sign in with your organization identity."
 )
@@ -31,7 +35,9 @@ func registerEvents(r *httpx.Router, d Deps) {
 	if max <= 0 {
 		max = defaultSSEMaxStreams
 	}
-	h := &eventsRoute{d: d, sem: make(chan struct{}, max), relay: leadevents.NewRelay(d.Redis, sseHeartbeat)}
+	h := &eventsRoute{d: d, sem: make(chan struct{}, max), relay: leadevents.NewRelay(d.Redis, sseHeartbeat),
+		perUser: orDefault(d.SSEMaxPerUser, defaultSSEPerUser), perWS: orDefault(d.SSEMaxPerWorkspace, defaultSSEPerWS),
+		byUser: map[int32]int{}, byWS: map[string]int{}}
 	r.Handle("GET /api/events", http.HandlerFunc(h.serve))
 }
 
@@ -39,6 +45,43 @@ type eventsRoute struct {
 	d     Deps
 	sem   chan struct{} // process-wide stream slots
 	relay *leadevents.Relay
+
+	perUser, perWS int
+	mu             sync.Mutex
+	byUser         map[int32]int
+	byWS           map[string]int
+}
+
+func orDefault(v, def int) int {
+	if v <= 0 {
+		return def
+	}
+	return v
+}
+
+// acquire takes a per-user and a per-workspace slot (a user or workspace cannot starve the
+// process-wide pool). It returns a release func, or the 429 detail that explains the refusal.
+func (h *eventsRoute) acquire(uid int32, ws string) (release func(), refusal string) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	if h.byUser[uid] >= h.perUser {
+		return nil, "Too many event streams for this user"
+	}
+	if h.byWS[ws] >= h.perWS {
+		return nil, "Too many event streams for this workspace"
+	}
+	h.byUser[uid]++
+	h.byWS[ws]++
+	return func() {
+		h.mu.Lock()
+		defer h.mu.Unlock()
+		if h.byUser[uid]--; h.byUser[uid] <= 0 {
+			delete(h.byUser, uid)
+		}
+		if h.byWS[ws]--; h.byWS[ws] <= 0 {
+			delete(h.byWS, ws)
+		}
+	}, ""
 }
 
 func (h *eventsRoute) serve(w http.ResponseWriter, r *http.Request) {
@@ -88,6 +131,12 @@ func (h *eventsRoute) serve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	release, refusal := h.acquire(uid, ws)
+	if release == nil {
+		httpx.Detail(w, http.StatusTooManyRequests, refusal)
+		return
+	}
+	defer release()
 	select {
 	case h.sem <- struct{}{}:
 		defer func() { <-h.sem }()

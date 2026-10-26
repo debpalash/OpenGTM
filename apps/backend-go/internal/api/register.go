@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
@@ -33,6 +34,10 @@ type Deps struct {
 	// Leads, signals and events (plan 05). Redis may be nil (heartbeat-only SSE).
 	Redis         *redis.Client
 	SSEMaxStreams int
+	// Hardening beyond Python: per-user / per-workspace stream caps (429) and max stream
+	// lifetime (zero values use the defaults in eventsroutes.go).
+	SSEMaxPerUser, SSEMaxPerWorkspace int
+	SSEMaxLifetime                    time.Duration
 	// ShutdownCtx is cancelled when the server starts shutting down; SSE streams end then
 	// (nil = never) so http.Server.Shutdown does not wait out its grace on open streams.
 	ShutdownCtx context.Context
