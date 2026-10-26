@@ -162,6 +162,9 @@ func (s strictResolver) LookupNetIP(ctx context.Context, network, host string) (
 	}
 	ips, err := s.inner.LookupNetIP(ctx, network, host)
 	if err != nil {
+		if ctx.Err() != nil { // cancelled or timed out mid-lookup: not a blocked url
+			return nil, ctx.Err()
+		}
 		return nil, blockedErr("cannot resolve host: %v", err)
 	}
 	if len(ips) == 0 {
@@ -419,7 +422,7 @@ func Webhook(ctx context.Context, d WebhookDeps, ws string, cfg map[string]any, 
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return Result{Status: "success", Summary: summary}
 	}
-	text := truncRunes(strings.ToValidUTF8(string(raw), "�"), bodyPrefix)
+	text := truncRunes(strings.ToValidUTF8(string(raw), "\uFFFD"), bodyPrefix)
 	return Result{Status: "failed", Summary: summary, Error: "HTTP " + strconv.Itoa(resp.StatusCode) + ": " + text}
 }
 

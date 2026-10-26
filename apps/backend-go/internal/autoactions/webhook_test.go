@@ -976,3 +976,28 @@ func TestHeaderCountAndHostOverride(t *testing.T) {
 func newCaptureLogger(w io.Writer) *slog.Logger {
 	return slog.New(slog.NewTextHandler(w, &slog.HandlerOptions{Level: slog.LevelDebug}))
 }
+
+type blockingRes struct{}
+
+func (blockingRes) LookupNetIP(ctx context.Context, _, _ string) ([]netip.Addr, error) {
+	<-ctx.Done()
+	return nil, ctx.Err()
+}
+
+func TestContextDoneDuringResolutionIsNotBlockedURL(t *testing.T) {
+	h := newHarness(t, nil)
+	h.deps.Client = newWebhookClient("production", nil, blockingRes{}, func(context.Context, string, string) (net.Conn, error) {
+		return nil, errors.New("must not dial")
+	})
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() { time.Sleep(50 * time.Millisecond); cancel() }()
+	got := Webhook(ctx, h.deps, "ws-1", map[string]any{"url": "https://hooks.example.com/x"}, testLead, testCols)
+	if got.Status != "failed" || got.SkipReason != "" || strings.Contains(got.Error, "blocked url") || got.Error != "context canceled" {
+		t.Fatalf("%+v", got)
+	}
+	h.deps.Timeout = 50 * time.Millisecond
+	got = h.run(map[string]any{"url": "https://hooks.example.com/x"})
+	if got.SkipReason != "" || got.Error != "timed out" {
+		t.Fatalf("deadline: %+v", got)
+	}
+}
