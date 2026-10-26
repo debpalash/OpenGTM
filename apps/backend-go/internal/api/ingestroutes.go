@@ -38,7 +38,7 @@ const (
 
 // ingestHookFor builds the row-added hook (a seam for tests).
 var ingestHookFor = func(d Deps) automationhook.Hook {
-	return automationhook.New(d.Flags.AutomationsEnabled, d.Log)
+	return d.automationHook()
 }
 
 var errIngestIdemConflict = errors.New("ingest: idempotency key recorded concurrently")

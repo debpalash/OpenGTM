@@ -9,7 +9,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
@@ -37,7 +36,7 @@ func RegisterWorkbookImport(r *httpx.Router, d Deps) {
 		return
 	}
 	ir := importRoutes{d: d, budget: sharedBudget(d.Flags.ImportMemoryBudgetMB), wait: importBudgetWait}
-	ir.svc = &wbcrud.Service{Pool: d.Pool, Leads: wbcrud.PGLeads{}, Hook: automationhook.New(d.Flags.AutomationsEnabled, d.Log), Now: time.Now}
+	ir.svc = &wbcrud.Service{Pool: d.Pool, Leads: wbcrud.PGLeads{}, Hook: d.automationHook(), Now: time.Now}
 	mws := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity),
 		identity.RequireRole("tables.write", "editor", "admin")}
 	const base = "/api/workbooks/{workbook_id}/import"

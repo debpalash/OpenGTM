@@ -10,7 +10,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
@@ -51,7 +50,7 @@ func registerTemplates(r *httpx.Router, d Deps, reg *wbregistry.Registry) {
 	h.wb = wbCRUDRoutes{d: d, svc: &wbcrud.Service{
 		Pool:  d.Pool,
 		Leads: wbcrud.PGLeads{},
-		Hook:  automationhook.New(d.Flags.AutomationsEnabled, d.Log),
+		Hook:  d.automationHook(),
 	}}
 	authn := identity.Authenticate(d.Signer, d.Identity)
 	workspace := identity.Workspace(d.Identity)

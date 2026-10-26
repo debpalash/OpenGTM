@@ -13,7 +13,6 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runstart"
@@ -40,7 +39,7 @@ func RegisterWorkbookRows(r *httpx.Router, d Deps) {
 		return
 	}
 	rr := rowRoutes{d: d, rec: &wbcrud.Recomputer{BillingEnabled: d.Config.BillingEnabled}}
-	rr.svc = &wbcrud.Service{Pool: d.Pool, Leads: wbcrud.PGLeads{}, Hook: automationhook.New(d.Flags.AutomationsEnabled, d.Log), Now: time.Now}
+	rr.svc = &wbcrud.Service{Pool: d.Pool, Leads: wbcrud.PGLeads{}, Hook: d.automationHook(), Now: time.Now}
 	if d.Registry != nil && d.Envelope != nil {
 		app := &settings.App{Store: secrets.NewPgStore(d.Pool), Env: d.Envelope, Secret: d.Registry.SecretSet(), Getenv: d.getenv()}
 		perf := &settings.Perf{App: app, Reg: d.Registry}
