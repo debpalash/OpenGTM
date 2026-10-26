@@ -117,7 +117,7 @@ func TestStepSequenceMatchesRecordedRun(t *testing.T) {
 	}
 	// search_progress order inside the batches is concurrent (and Python's is
 	// completion order): compare those as a multiset, everything else exactly.
-	isProg := func(s string) bool { return strings.HasPrefix(s, `{"step":"search_progress"`) }
+	isProg := func(s string) bool { return strings.Contains(s[:min(len(s), 32)], "search_progress") }
 	var gotProg, wantProg []string
 	for i := range raw {
 		g, w := raw[i], rec.Messages[i]
