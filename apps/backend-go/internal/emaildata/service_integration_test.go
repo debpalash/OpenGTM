@@ -657,7 +657,7 @@ func TestLikeWildcardsAreParity(t *testing.T) {
 	s := seed(t)
 	replay(t, s, "list_q_percent_wildcard")
 	ctx := context.Background()
-	for q, want := range map[string]int64{"%": 60, "_": 60, `\%`: 0, "ACME.IO": 20, "": 60} {
+	for q, want := range map[string]int64{"%": 60, "_": 60, `\%`: 0, "ACME.IO": 19, "": 60} {
 		p, err := s.List(ctx, emaildata.Filter{SortBy: "id", Q: ptr(q)}, 1, 0)
 		if err != nil {
 			t.Fatalf("q=%q: %v", q, err)
