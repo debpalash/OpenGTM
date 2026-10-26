@@ -13,8 +13,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 	"testing"
+	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
@@ -57,6 +57,9 @@ func loadSFTranscripts(t *testing.T) []*transcript {
 			t.Fatalf("%s: %v", f, err)
 		}
 		tr.file = filepath.Base(f)
+		for i := range tr.Exchanges { // resolve {{secret:...}} in recorded URLs
+			tr.Exchanges[i].Request.URL = tr.fresh(tr.Exchanges[i].Request.URL)
+		}
 		out = append(out, &tr)
 	}
 	return out
@@ -135,9 +138,8 @@ type sfVectors struct {
 		APIVersion          string          `json:"API_VERSION"`
 	} `json:"salesforce"`
 	SOQLEscape []struct {
-		Input string          `json:"input"`
+		Input json.RawMessage `json:"input"`
 		Value string          `json:"value"`
-		Raw   json.RawMessage `json:"-"`
 	} `json:"soql_escape"`
 	RecordValue []struct {
 		Record json.RawMessage `json:"record"`
@@ -170,10 +172,23 @@ func TestSOQLEscapeVectors(t *testing.T) {
 	if len(v.SOQLEscape) < 10 {
 		t.Fatalf("only %d vectors", len(v.SOQLEscape))
 	}
+	checked := 0
 	for _, c := range v.SOQLEscape {
-		if got := SOQLEscape(c.Input); got != c.Value {
-			t.Errorf("SOQLEscape(%q) = %q want %q", c.Input, got, c.Value)
+		in, err := providers.ParseJSON(c.Input)
+		if err != nil {
+			t.Fatal(err)
 		}
+		switch in.(type) {
+		case []any, map[string]any:
+			continue // Python str(list) repr: the Go API takes strings, callers stringify
+		}
+		checked++
+		if got := SOQLEscape(providers.Str(in)); got != c.Value {
+			t.Errorf("SOQLEscape(%s) = %q want %q", c.Input, got, c.Value)
+		}
+	}
+	if checked < 20 {
+		t.Fatalf("only %d vectors checked", checked)
 	}
 }
 
