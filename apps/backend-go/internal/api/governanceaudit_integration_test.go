@@ -4,6 +4,7 @@ package api
 
 import (
 	"context"
+	"encoding/csv"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -60,6 +61,7 @@ func newGAEnv(t *testing.T, mw ...httpx.Middleware) gaEnv {
 	e.member(t, "ws-alpha", erin.ID, "editor")
 	e.member(t, "ws-beta", bob.ID, "owner")
 	e.insertFixtureEvents(t, "ws-alpha", "gov_audit_default")
+	e.restoreMetadataOrder(t, "ws-alpha", "gov_export_csv_default")
 	e.insertFixtureEvents(t, "ws-beta", "gov_audit_beta_workspace")
 	return e
 }
@@ -93,6 +95,33 @@ func (e gaEnv) insertFixtureEvents(t *testing.T, ws, fixture string) {
 			       resource_path text, response_status int, outcome text, request_id text, metadata json, created_at text)`,
 			ws, string(body.Events))
 		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+// restoreMetadataOrder rewrites metadata_json from the CSV fixture, which keeps Python's stored key order (the list
+// fixtures are recorded with sorted keys, so seeding from them alone can never reproduce the CSV bytes).
+func (e gaEnv) restoreMetadataOrder(t *testing.T, ws, fixture string) {
+	t.Helper()
+	fx := contract.Load(t, "governance/"+fixture)
+	var text string
+	if err := json.Unmarshal(fx.Response.Body, &text); err != nil {
+		t.Fatal(err)
+	}
+	rows, err := csv.NewReader(strings.NewReader(strings.TrimPrefix(text, "\ufeff"))).ReadAll()
+	if err != nil || len(rows) < 2 {
+		t.Fatalf("csv fixture: %v", err)
+	}
+	ctx := context.Background()
+	err = tenancy.InWorkspace(ctx, e.pool, ws, func(tx pgx.Tx) error {
+		for _, r := range rows[1:] {
+			if _, err := tx.Exec(ctx, `UPDATE governance_audit_events SET metadata_json = $2::json WHERE id = $1 AND workspace_id = $3`, r[0], r[10], ws); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 	if err != nil {
 		t.Fatal(err)
