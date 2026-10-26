@@ -480,6 +480,30 @@ func TestExportBytesMatchFixture(t *testing.T) {
 	}
 }
 
+const CSVHeaderForTest = "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n"
+
+func TestExportNeutralisesFormulaPrefixes(t *testing.T) {
+	for _, p := range []string{"=", "+", "-", "@", "\t", "\r", "\n"} {
+		v := p + "x"
+		var buf bytes.Buffer
+		if err := emaildata.WriteCSV(&buf, []emaildata.Row{{Name: &v, Email: &v, Tags: &v, Notes: &v}}); err != nil {
+			t.Fatal(err)
+		}
+		cell := "'" + p + "x"
+		notes := strings.ReplaceAll(cell, "\n", " ")
+		want := CSVHeaderForTest + `"` + cell + `","` + cell + `","` + cell + `","` + notes + `","","","No"` + "\n"
+		if buf.String() != want {
+			t.Errorf("prefix %q:\n got %q\nwant %q", p, buf.String(), want)
+		}
+	}
+	safe := " =x"
+	var buf bytes.Buffer
+	_ = emaildata.WriteCSV(&buf, []emaildata.Row{{Name: &safe}})
+	if !strings.Contains(buf.String(), `" =x"`) {
+		t.Errorf("mid/space prefix changed: %q", buf.String())
+	}
+}
+
 type vecRow struct {
 	Name         *string `json:"name"`
 	Email        *string `json:"email"`
@@ -565,6 +589,12 @@ func TestExportEscaping(t *testing.T) {
 			sum := sha256.Sum256(buf.Bytes())
 			if hex.EncodeToString(sum[:]) != c.Result.Sha256 || strings.Count(buf.String(), "\n") != c.Result.LineCount {
 				t.Errorf("%s: sha/lines mismatch", c.Name)
+			}
+		} else if c.Name == "formula_injection_not_escaped" {
+			// Python leaves these cells raw; Go neutralises them (plan 07 Task 14 deviation).
+			want := CSVHeaderForTest + "\"'=SUM(1,2)\",\"'+cmd@x.com\",\"'@x\",\"'-1\",\"\",\"\",\"No\"\n"
+			if buf.String() != want {
+				t.Errorf("%s:\n got %q\nwant %q", c.Name, buf.String(), want)
 			}
 		} else if buf.String() != c.Result.Body {
 			t.Errorf("%s:\n got %q\nwant %q", c.Name, buf.String(), c.Result.Body)
