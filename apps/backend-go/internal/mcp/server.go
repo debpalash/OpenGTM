@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/mcp/pyjson"
@@ -37,15 +38,24 @@ type ExecuteFunc func(ctx context.Context, c Ctx, name string, args Args) string
 type Server struct {
 	d     Deps
 	tools Registry
-	// Execute runs tools/call; nil selects the built-in minimal executor
-	// (unknown tool, capability and write-flag gates, read tools only).
+	// Execute runs tools/call; NewServer sets it to the execute flow (execute.go).
 	Execute ExecuteFunc
 	// Timeout bounds one tool call; zero means Cfg.ToolTimeoutSeconds (120).
 	Timeout time.Duration
+	// MaxInFlightWrites bounds concurrent write calls per workspace (including
+	// calls abandoned by a timeout that are still unwinding); zero means 8.
+	MaxInFlightWrites int
+
+	inflightMu sync.Mutex
+	inflight   map[string]int
 }
 
 // NewServer builds a Server over d and its tool registry.
-func NewServer(d Deps, tools Registry) *Server { return &Server{d: d, tools: tools} }
+func NewServer(d Deps, tools Registry) *Server {
+	s := &Server{d: d, tools: tools, inflight: map[string]int{}}
+	s.Execute = s.execute
+	return s
+}
 
 func (s *Server) timeout() time.Duration {
 	if s.Timeout > 0 {
@@ -130,7 +140,7 @@ func (s *Server) Handle(ctx context.Context, c Ctx, raw []byte) (resp []byte, re
 func (s *Server) callTool(ctx context.Context, c Ctx, name string, args Args) string {
 	exec := s.Execute
 	if exec == nil {
-		exec = s.defaultExecute
+		exec = s.execute
 	}
 	d := s.timeout()
 	cctx, cancel := context.WithTimeout(ctx, d)
@@ -162,44 +172,6 @@ func errorText(msg string) string {
 		return `{"error": "internal error"}`
 	}
 	return string(b)
-}
-
-// defaultExecute is the minimal executor used until the write pipeline is wired:
-// Python's unknown-tool, capability and write-flag answers, and read tools.
-func (s *Server) defaultExecute(ctx context.Context, c Ctx, name string, args Args) string {
-	var capability string
-	for _, t := range Specs {
-		if t.Name == name {
-			capability = t.Capability
-		}
-	}
-	if capability == "" {
-		return errorText("Unknown tool: " + name)
-	}
-	isWrite := WriteCaps[capability]
-	if !c.Has(capability) {
-		if isWrite {
-			Record(ctx, s.d, c, name, args, AuditOutcome{Status: "denied", Error: "capability not granted"})
-		}
-		b, _ := pyjson.Dumps(pyjson.NewObj("error", "capability not granted", "required", capability), 0)
-		return string(b)
-	}
-	if isWrite {
-		if !s.d.Cfg.WriteEnabled {
-			Record(ctx, s.d, c, name, args, AuditOutcome{Status: "denied", Error: "mcp writes disabled"})
-			return errorText("mcp writes disabled")
-		}
-		return errorText(ErrUnavailable.Error())
-	}
-	t, ok := s.tools.Reads[name]
-	if !ok || t.Handler == nil {
-		return errorText(ErrUnavailable.Error())
-	}
-	text, err := t.Handler(ctx, c, args)
-	if err != nil {
-		return errorText(safeErrorText(err))
-	}
-	return text
 }
 
 // safeErrorText renders only the error kinds the Tool contract allows to reach a
