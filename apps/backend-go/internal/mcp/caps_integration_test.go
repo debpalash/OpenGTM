@@ -70,15 +70,6 @@ func (e *capEnv) finish(t testing.TB, ws string, r Reservation, release bool) {
 	}
 }
 
-func (e *capEnv) state(t testing.TB, ws, key string) string {
-	t.Helper()
-	var s string
-	if err := e.pool.QueryRow(context.Background(), `SELECT set_config('app.workspace_id',$1,false)`, ws).Scan(&s); err != nil {
-		t.Fatal(err)
-	}
-	return s
-}
-
 func (e *capEnv) rowState(t testing.TB, ws, key string) (st, day string, n int) {
 	t.Helper()
 	_ = e.d.RunInWorkspace(context.Background(), ws, func(tx pgx.Tx) error {
