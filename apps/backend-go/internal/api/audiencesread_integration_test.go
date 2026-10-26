@@ -375,3 +375,25 @@ func TestAudienceReadRoutePrecedence(t *testing.T) {
 		}
 	}
 }
+
+// Python decodes the json column and FastAPI re-dumps it (compact, ensure_ascii off, float repr): stored escapes
+// (Go's & from the refresh, É from legacy Python rows) come out literal, key order and ints are kept.
+func TestAudienceSnapshotJSONMatchesPythonRedump(t *testing.T) {
+	e := newAudEnv(t)
+	ctx := context.Background()
+	c := audOwner(t)
+	const snap = `{"zeta": "AT&T <x>", "alpha": "Éco 😀", "score": 1.50, "n": 7, "e": 1e2, "nested": {"b": 1, "a": [1.0, " "]}}`
+	want := `{"zeta":"AT&T <x>","alpha":"Éco 😀","score":1.5,"n":7,"e":100.0,"nested":{"b":1,"a":[1.0,"` + " " + `"]}}`
+	if _, err := c.Exec(ctx, `UPDATE audience_members SET snapshot = $1::json WHERE audience_id = 'aud-act-2'`, snap); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := c.Exec(ctx, `UPDATE audience_membership_events SET snapshot = $1::json WHERE audience_id = 'aud-act-2'`, snap); err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range []string{"members", "events"} {
+		rec, _ := e.call("alice", "ws-alpha", "GET", "/api/audiences/aud-act-2/"+p+"?limit=1", "")
+		if !strings.Contains(rec.Body.String(), `"snapshot":`+want) {
+			t.Errorf("%s snapshot bytes: %s", p, rec.Body.String())
+		}
+	}
+}
