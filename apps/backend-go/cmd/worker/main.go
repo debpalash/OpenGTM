@@ -163,6 +163,9 @@ const (
 // (run_workbook 1800 configurable, ambitionbox_import 900, refresh_workbook 900,
 // signal_scan 300).
 func jobLimit(cfg config.Config, jobType string) time.Duration {
+	if d, ok := governanceLimit(jobType); ok {
+		return d
+	}
 	switch jobType {
 	case ambitionimport.JobType:
 		return ambitionimport.JobTimeout
@@ -429,6 +432,9 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		handlers[typ] = h
 	}
 	for typ, h := range buildOutreach(cfg, pool, log, localSecrets, outreachOpts{}) {
+		handlers[typ] = h
+	}
+	for typ, h := range governanceHandlers(cfg, pool, log, pyRPC, governanceOpts{}) {
 		handlers[typ] = h
 	}
 	route := dispatch(handlers)

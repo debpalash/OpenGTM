@@ -557,7 +557,7 @@ func TestLeaseLostStopsPurgeBeforeNextBatch(t *testing.T) {
 			return
 		}
 		if batches.Add(1) == 1 {
-			_, _ = g.owner.Exec(ctx, `UPDATE jobs SET worker_id='someone-else' WHERE id=$1`, job)
+			_, _ = g.owner.Exec(ctx, `UPDATE jobs SET worker_id='someone-else', status='completed' WHERE id=$1`, job)
 			time.Sleep(500 * time.Millisecond) // let a heartbeat notice
 		}
 	}})
