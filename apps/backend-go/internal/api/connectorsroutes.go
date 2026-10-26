@@ -5,9 +5,11 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/certification"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/connectors"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
@@ -29,8 +31,13 @@ const (
 // connectorsNow is the clock for certification expiry (tests pin it; nil = time.Now).
 var connectorsNow func() time.Time
 
+// connectorsLookupEnv reads the connector env settings with presence (a set-but-empty
+// CONNECTOR_SIGNATURE_POLICY is "required", as Python); tests replace it.
+var connectorsLookupEnv = os.LookupEnv
+
 type connectorRoutes struct {
 	deps      connectors.Deps
+	certKey   config.Secret // revealed per request, never held as plaintext
 	trustPath string
 	log       *slog.Logger
 }
@@ -39,6 +46,7 @@ type connectorRoutes struct {
 func (h connectorRoutes) current() connectors.Deps {
 	d := h.deps
 	d.Trust = manifest.LoadTrustStore(h.trustPath)
+	d.Cert.Key = h.certKey.Reveal()
 	return d
 }
 
@@ -49,27 +57,30 @@ func registerConnectors(r *httpx.Router, d Deps) {
 		return
 	}
 	getenv := d.getenv()
-	dir, trust := getenv(connectorManifestsEnv), getenv(connectorTrustStoreEnv)
+	dir, _ := connectorsLookupEnv(connectorManifestsEnv)
+	trust, _ := connectorsLookupEnv(connectorTrustStoreEnv)
 	if dir == "" {
 		dir = defaultConnectorManifests
 	}
 	if trust == "" {
 		trust = defaultConnectorTrust
 	}
-	raw := getenv(connectorPolicyEnv)
+	raw, policySet := connectorsLookupEnv(connectorPolicyEnv)
 	log := d.Log
 	if log == nil {
 		log = slog.Default()
 	}
-	h := connectorRoutes{log: log, trustPath: trust, deps: connectors.Deps{
+	h := connectorRoutes{log: log, trustPath: trust, certKey: d.Flags.CertificationKey, deps: connectors.Deps{
 		Dir:     dir,
-		Policy:  connectors.EffectivePolicy(raw, raw != ""),
+		Policy:  connectors.EffectivePolicy(raw, policySet),
 		Secrets: secrets.NewResolver(d.Envelope, secrets.NewPgStore(d.Pool), getenv),
 		Cert: certification.Options{
-			Path: d.Flags.CertificationPath, Key: d.Flags.CertificationKey.Reveal(),
+			Path:     d.Flags.CertificationPath,
 			BuildSHA: d.Flags.BuildSHA, Now: connectorsNow,
 		},
 	}}
+	// Paths only: a wrong cwd-relative default would otherwise yield a silently empty catalog.
+	log.Info("connector catalog sources", "manifests_dir", dir, "trust_store", trust, "signature_policy", h.deps.Policy)
 	authn := identity.Authenticate(d.Signer, d.Identity)
 	workspace := identity.Workspace(d.Identity)
 	r.Handle("GET /api/connectors/catalog", http.HandlerFunc(h.catalog), authn, workspace)
