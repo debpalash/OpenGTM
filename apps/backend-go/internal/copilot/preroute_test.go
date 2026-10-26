@@ -310,3 +310,13 @@ func TestSlowPreRouteNoneFallsThrough(t *testing.T) {
 		t.Fatalf("written %q", got)
 	}
 }
+
+// Python streams the pre-route response and ignores a late none: a persist frame already counts as the
+// branch having answered, so the LLM path must not also run.
+func TestPreRoutePersistThenNoneIsHandled(t *testing.T) {
+	f := newPreFake(t, `{"t":"persist","role":"assistant","content":"hi"}`, `{"t":"none"}`)
+	handled, out, err := runPre(t, preTurn(f), "m", false)
+	if err != nil || !handled || out != "" {
+		t.Fatalf("handled=%v out=%q err=%v", handled, out, err)
+	}
+}

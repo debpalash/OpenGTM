@@ -142,6 +142,7 @@ func (t *Turn) preFrame(ctx context.Context, w *ssestream.Writer, f pyworker.Fra
 		*wrote = true
 	case "persist":
 		t.persistFrame(ctx, f)
+		*wrote = true // the branch answered (rows written): a late none must not start the LLM path too
 	case "done":
 		if err := w.Done(); err != nil {
 			return false, false, err
