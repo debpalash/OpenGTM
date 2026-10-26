@@ -159,6 +159,14 @@ func ExportSafeValue(v any) string {
 	return s
 }
 
+// exportHeaderCell is a header cell: the column name (or id when unnamed). Stub.
+func exportHeaderCell(c Column) string {
+	if n := c.Get("name"); truthy(n) {
+		return pyText(n)
+	}
+	return pyText(c.Get("id"))
+}
+
 // writeCSVRow writes one csv.writer(lineterminator="\r\n") row: QUOTE_MINIMAL,
 // quotes doubled; a row of one empty field is written as "" so it is not a
 // blank line.
