@@ -61,8 +61,19 @@ func GetConfig(ctx context.Context, tx pgx.Tx, ws string) (OIDCConfig, error) {
 	if err != nil {
 		return cfg, err
 	}
-	if err := json.Unmarshal([]byte(raw), &cfg); err != nil {
+	var kv map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(raw), &kv); err != nil {
 		return defaultConfig(), errors.New("govidp: stored OIDC config is not valid JSON")
+	}
+	// Exact (case-sensitive) keys like json.loads; a wrongly typed value keeps the default.
+	for k, dst := range map[string]any{
+		"enabled": &cfg.Enabled, "enforce_sso": &cfg.EnforceSSO, "issuer": &cfg.Issuer,
+		"client_id": &cfg.ClientID, "allowed_domains": &cfg.AllowedDomains,
+		"auto_provision": &cfg.AutoProvision, "default_role": &cfg.DefaultRole,
+	} {
+		if v, ok := kv[k]; ok {
+			_ = json.Unmarshal(v, dst)
+		}
 	}
 	if cfg.AllowedDomains == nil {
 		cfg.AllowedDomains = []string{}

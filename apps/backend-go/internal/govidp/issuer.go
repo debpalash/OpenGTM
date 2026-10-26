@@ -35,7 +35,7 @@ func pyStrip(s string) string { return strings.TrimFunc(s, pyWhitespace) }
 func allowedIssuerHosts() map[string]bool {
 	out := map[string]bool{}
 	for _, h := range strings.Split(os.Getenv("SSO_ALLOWED_ISSUER_HOSTS"), ",") {
-		if h = strings.ToLower(pyStrip(h)); h != "" {
+		if h = asciiLower(pyStrip(h)); h != "" {
 			out[h] = true
 		}
 	}
@@ -112,7 +112,7 @@ func ValidateIssuer(issuer string) (string, error) {
 			return "", bad
 		}
 	}
-	host = strings.ToLower(host)
+	host = asciiLower(host)
 	if scheme != "https" || host == "" || username != "" || password != "" || query != "" || fragment != "" {
 		return "", bad
 	}
@@ -132,4 +132,17 @@ func validScheme(s string) bool {
 		}
 	}
 	return s != ""
+}
+
+// asciiLower lowers A-Z only. Python's str.lower also maps non-ASCII, but Go's
+// ToLower maps U+0130 to "i" where Python yields "i" + U+0307, which would make
+// a look-alike host match the allow-list; non-ASCII hosts stay unmatched.
+func asciiLower(s string) string {
+	b := []byte(s)
+	for i, c := range b {
+		if c >= 'A' && c <= 'Z' {
+			b[i] = c + 32
+		}
+	}
+	return string(b)
 }
