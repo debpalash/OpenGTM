@@ -406,3 +406,9 @@ writes nothing. No fixture; tests named in parentheses.
 - A broken trust store is deferred and only turns a signed manifest `invalid` at Python's point (after envelope checks); a missing trust store file is empty (`untrusted`).
 - Not supported (Python accepts): `!!omap` / `!!pairs` tags, NaN mapping keys, non-string trust-store key ids (entries ignored), pydantic string-to-number coercion in manifest fields.
 - `CanonicalManifest(Manifest)` is not Python-identical (Python hashes the authored YAML); the Python-equal hash is `Entry.SHA256`.
+
+## Column graph and conditions (plan 06 Task 9): deviations
+- A non-string, truthy `condition` makes Python raise (`condition.strip()` AttributeError, the cell errors). Go fails closed: the condition is false, so the column is skipped (condition not met) instead of erroring. `0`, `false`, empty and null non-strings still mean "no condition" like Python.
+- A column config entry without an `id` makes Python raise KeyError while building the display-name map; Go skips that entry.
+- Python iterates row cells in `lead_data` insertion order, which decides which column wins a shared display name (last wins) or a case-only collision (first wins). Go iterates row keys in column config order first, then any remaining keys sorted; identical for realistic data, arbitrary only for keys absent from the column config.
+- Decimal comparison bounds (adjusted exponent <= 999999999999999999, exponent >= -1999999999999999997, 19-digit exponent cap) follow 64-bit CPython/libmpdec; 32-bit CPython differs.
