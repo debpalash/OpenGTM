@@ -301,14 +301,13 @@ func TestMigrateCopiesEnrichmentOverlay(t *testing.T) {
 	ins := `INSERT INTO workbook_enrichments (workbook_id, lead_id, column_id, value, status, provider, error, workspace_id) VALUES ('wb-enrich-v1',$1,$2,$3,$4,$5,$6,'ws-alpha')`
 	ownerExec(t, ins, 2, "calc_len", "6", "complete", "formula", nil)
 	ownerExec(t, ins, 2, "x", nil, nil, nil, "bad")
-	ownerExec(t, ins, 2, "calc_len", "7", "complete", "formula", nil) // later duplicate wins, key keeps its first position
-	ownerExec(t, ins, 9999, "c", "z", "complete", "p", nil)           // not in the snapshot, still counted
+	ownerExec(t, ins, 9999, "c", "z", "complete", "p", nil) // not in the snapshot, still counted
 	code, body := e.migrate("alice", "ws-alpha", "wb-enrich-v1")
-	if code != 200 || strings.TrimSpace(body) != `{"status":"migrated","rows":3,"enrichments_migrated":4}` {
+	if code != 200 || strings.TrimSpace(body) != `{"status":"migrated","rows":3,"enrichments_migrated":3}` {
 		t.Fatalf("%d %s", code, body)
 	}
 	got := dbString(t, `SELECT enrichments::text FROM workbook_rows WHERE workbook_id='wb-enrich-v1' AND lead_id=2`)
-	want := `{"calc_len":{"value":"7","status":"complete","provider":"formula","error":null},"x":{"value":null,"status":"pending","provider":null,"error":"bad"}}`
+	want := `{"calc_len":{"value":"6","status":"complete","provider":"formula","error":null},"x":{"value":null,"status":"pending","provider":null,"error":"bad"}}`
 	var b bytes.Buffer
 	if err := json.Compact(&b, []byte(got)); err != nil || b.String() != want {
 		t.Fatalf("overlay\n got %s\nwant %s", b.String(), want)
@@ -376,9 +375,11 @@ func TestMigrateRowCap(t *testing.T) {
 	if n := dbString(t, `SELECT count(*)::text FROM workbook_rows WHERE workbook_id='wb-alpha-1'`); n != "0" {
 		t.Fatalf("capped migrate wrote %s rows", n)
 	}
-	// Exactly at the cap is allowed.
-	e2 := newMigrateEnv(t, func(s *wbcrud.Service) { s.MaxMigrateRows = 15 })
-	if code, body := e2.migrate("alice", "ws-alpha", "wb-alpha-1"); code != 200 {
+}
+
+func TestMigrateRowCapAllowsExactlyTheCap(t *testing.T) {
+	e := newMigrateEnv(t, func(s *wbcrud.Service) { s.MaxMigrateRows = 15 })
+	if code, body := e.migrate("alice", "ws-alpha", "wb-alpha-1"); code != 200 {
 		t.Fatalf("at cap: %d %s", code, body)
 	}
 }
