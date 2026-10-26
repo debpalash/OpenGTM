@@ -12,8 +12,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audiencerefresh"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/auth"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destdeliver"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
@@ -64,6 +66,11 @@ type Deps struct {
 	OutreachPublicBaseURL string
 	OutreachWebhookSecret config.Secret
 	EgressAllowHosts      []string
+
+	// Audiences and destinations (plan 10). AudienceEvents is required for the audience routes
+	// (nil: they do not register, D5); DestPorts are the provider delivery seams.
+	AudienceEvents audiencerefresh.Emitter
+	DestPorts      destdeliver.Ports
 }
 
 func (d Deps) getenv() func(string) string {
@@ -128,4 +135,6 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterAutomations(r, d)
 	RegisterWatches(r, d)
 	RegisterOutreach(r, d)
+	RegisterAudiences(r, d)
+	RegisterDestinations(r, d)
 }
