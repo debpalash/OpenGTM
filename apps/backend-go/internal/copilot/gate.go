@@ -14,6 +14,11 @@ import (
 // committed before any event names its id, so a fast resubmit finds it), one confirmation_required event, then
 // awaiting_confirmation and [DONE] end the turn. The client resubmits approved_tool_calls (Task 14).
 func (t *Turn) gate(ctx context.Context, w *ssestream.Writer, dangerous []parsedCall) error {
+	// Python has no cap; a steered model could otherwise flood describe RPCs and approval rows while holding
+	// the stream slot. Same ceiling as the approved-call list a client may resubmit.
+	if len(dangerous) > MaxApproved {
+		return &turnErr{errTextTooMany, errors.New("copilot: too many dangerous tool calls in one round")}
+	}
 	descs := make([]string, len(dangerous))
 	for i, c := range dangerous {
 		descs[i] = t.describe(ctx, c)

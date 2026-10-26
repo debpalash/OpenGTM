@@ -818,3 +818,42 @@ func replayScenarioNoDB(t *testing.T, name string) (string, string, bool) {
 	t.Helper()
 	return replayScenario(t, name, nil)
 }
+
+// An approved dangerous tool must never be re-sent after the request may have reached Python (the
+// worker's X-Call-Id dedupe is per process, so a retry on a fresh process would run it twice).
+func TestDangerousToolRPCIsNotRetried(t *testing.T) {
+	var n atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		n.Add(1)
+		hj, _ := w.(http.Hijacker)
+		conn, _, _ := hj.Hijack()
+		conn.Close() // connection drops after the request arrived
+	}))
+	defer srv.Close()
+	tn := newTurn(newFakePy(t), nil)
+	tn.PY = pyworker.New(srv.URL, "tok", nil)
+	res, err := tn.pythonTool(context.Background(), parsedCall{Name: "create_people_workbook", Args: map[string]any{}})
+	if err != nil || !strings.Contains(res, "worker error") {
+		t.Fatalf("res %q err %v", res, err)
+	}
+	if n.Load() != 1 {
+		t.Fatalf("dangerous tool RPC sent %d times", n.Load())
+	}
+}
+
+// A model-steered flood of dangerous calls in one frame ends the turn with a fixed error before any
+// describe RPC or approval row (Python has no cap; Go caps at MaxApproved per round).
+func TestTooManyDangerousCallsEndsTurn(t *testing.T) {
+	var cs []string
+	for i := 0; i <= MaxApproved; i++ {
+		cs = append(cs, fmt.Sprintf(`{"id":"d%d","type":"function","function":{"name":"create_people_workbook","arguments":"{}"}}`, i))
+	}
+	f := newFakePy(t, []string{`{"t":"tool_calls","d":[` + strings.Join(cs, ",") + `],"cursor":0}`})
+	body, err := runTurn(t, newTurn(f, nil), userMsgs())
+	if err == nil {
+		t.Fatal("want an error")
+	}
+	if !strings.Contains(body, `"error": "Too many tool calls requested"`) || !strings.HasSuffix(body, done) || strings.Contains(body, "confirmation_required") {
+		t.Fatalf("body %q", body)
+	}
+}

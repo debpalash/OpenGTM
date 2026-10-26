@@ -23,6 +23,7 @@ import (
 const (
 	errTextInterrupted = "AI provider stream interrupted"
 	errTextTimeout     = "Request timed out"
+	errTextTooMany     = "Too many tool calls requested"
 	errTextTools       = "Tool execution unavailable"
 	errTextApproval    = "Could not record approval request"
 )

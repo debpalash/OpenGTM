@@ -345,7 +345,11 @@ func (t *Turn) pythonTool(ctx context.Context, c parsedCall) (string, error) {
 	var out struct {
 		Result *string `json:"result"`
 	}
-	err = t.PY.Unary(ctx, "/internal/copilot/tool", body, &out, timeout+unarySlack)
+	call := t.PY.Unary
+	if IsDangerous(c.Name) {
+		call = t.PY.UnaryOnce // never re-send an approval-gated tool: a retry on a fresh worker could run it twice
+	}
+	err = call(ctx, "/internal/copilot/tool", body, &out, timeout+unarySlack)
 	switch {
 	case ctx.Err() != nil:
 		return "", ctx.Err()
