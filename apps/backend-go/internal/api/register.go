@@ -26,6 +26,6 @@ type Deps struct {
 func RegisterAll(r *httpx.Router, d Deps) {
 	_ = r
 	_ = d
-	// Task 9:  RegisterAuth(r, d)
+	RegisterAuth(r, d)
 	// Task 10+: ...
 }
