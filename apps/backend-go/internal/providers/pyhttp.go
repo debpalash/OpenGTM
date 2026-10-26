@@ -132,14 +132,52 @@ func unwrapURL(err error) error {
 	return err
 }
 
-// Scrub removes every secret value from s.
+// Scrub removes every secret value from s, in its raw form and in the encoded
+// forms an upstream may echo back: URL query/path escaped (upper and lower case
+// hex), JSON-escaped (with and without HTML escaping and "\/"). "Bearer <tok>"
+// is covered because it contains one of those forms.
 func Scrub(s string, secrets ...string) string {
 	for _, sec := range secrets {
-		if sec != "" {
-			s = strings.ReplaceAll(s, sec, "***")
+		if sec == "" {
+			continue
+		}
+		for _, f := range secretForms(sec) {
+			s = strings.ReplaceAll(s, f, "***")
 		}
 	}
 	return s
+}
+
+// secretForms lists the encodings of sec, most specific first, raw last.
+func secretForms(sec string) []string {
+	seen := map[string]bool{}
+	var out []string
+	add := func(f string) {
+		if f != "" && !seen[f] {
+			seen[f] = true
+			out = append(out, f)
+		}
+	}
+	for _, f := range []string{url.QueryEscape(sec), url.PathEscape(sec)} {
+		add(f)
+		add(strings.ToLower(f))
+	}
+	if b, err := json.Marshal(sec); err == nil {
+		j := string(b[1 : len(b)-1])
+		add(j)
+		add(strings.ReplaceAll(j, "/", `\/`))
+	}
+	var buf strings.Builder
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	if enc.Encode(sec) == nil {
+		j := strings.TrimSuffix(buf.String(), "\n")
+		j = j[1 : len(j)-1]
+		add(j)
+		add(strings.ReplaceAll(j, "/", `\/`))
+	}
+	add(sec)
+	return out
 }
 
 // ── Python value semantics ────────────────────────────────────────────────
