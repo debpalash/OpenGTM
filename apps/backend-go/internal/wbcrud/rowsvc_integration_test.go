@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"reflect"
 	"regexp"
 	"strings"
@@ -33,6 +34,10 @@ func (h *rowsHook) RowsAdded(_ context.Context, tx pgx.Tx, ws, wb string, ids []
 		h.probe(tx)
 	}
 	return len(ids), nil
+}
+
+func (h *rowsHook) SignalsInserted(context.Context, pgx.Tx, string, []automationhook.SignalRef) (int, error) {
+	return 0, nil
 }
 
 type rowsEnv struct {

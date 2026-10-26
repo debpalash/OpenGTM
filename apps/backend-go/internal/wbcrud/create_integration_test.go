@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"testing"
 	"time"
 
@@ -26,6 +27,10 @@ func (f *fakeHook) RowsAdded(_ context.Context, _ pgx.Tx, ws, wb string, ids []i
 	f.calls = append(f.calls, append([]int64(nil), ids...))
 	f.ws, f.wb = append(f.ws, ws), append(f.wb, wb)
 	return len(ids), f.err
+}
+
+func (f *fakeHook) SignalsInserted(context.Context, pgx.Tx, string, []automationhook.SignalRef) (int, error) {
+	return 0, nil
 }
 
 func mustBody(t *testing.T, raw string) wbcrud.CreateBody {

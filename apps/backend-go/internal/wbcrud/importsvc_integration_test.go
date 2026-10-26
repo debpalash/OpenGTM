@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"runtime"
 	"strings"
 	"testing"
@@ -21,6 +22,10 @@ import (
 type importHook struct {
 	calls [][]int64
 	probe func(tx pgx.Tx)
+}
+
+func (h *importHook) SignalsInserted(context.Context, pgx.Tx, string, []automationhook.SignalRef) (int, error) {
+	return 0, nil
 }
 
 func (h *importHook) RowsAdded(_ context.Context, tx pgx.Tx, _, _ string, ids []int64) (int, error) {

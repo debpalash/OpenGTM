@@ -25,6 +25,18 @@ type Hook interface {
 	// workspace-scoped transaction). Errors are logged and swallowed; the
 	// returned count is the number of jobs enqueued.
 	RowsAdded(ctx context.Context, tx pgx.Tx, workspaceID, workbookID string, rowIDs []int64) (enqueued int, err error)
+	// SignalsInserted is events.emit_signal_matches: for each freshly inserted signal it
+	// enqueues one trigger_eval per enabled on_signal rule (fire_key "signal:<pk>"). Same
+	// contract as RowsAdded: inside the caller's workspace-scoped tx, in a savepoint, errors
+	// logged and swallowed. Callers pass only rows they actually inserted.
+	SignalsInserted(ctx context.Context, tx pgx.Tx, workspaceID string, sigs []SignalRef) (enqueued int, err error)
+}
+
+// SignalRef is one inserted signal: {signal_pk, signal_type, lead_id} of emit_signal_matches.
+// A nil LeadID is skipped (the signal maps to no workbook row).
+type SignalRef struct {
+	PK, Type string
+	LeadID   *int64
 }
 
 // New returns a Hook. When enabled is false (AUTOMATIONS_ENABLED off) every
@@ -145,4 +157,106 @@ func covers(scopeJSON []byte, workbookID string) bool {
 		}
 	}
 	return false
+}
+
+func (h *hook) SignalsInserted(ctx context.Context, tx pgx.Tx, workspaceID string, sigs []SignalRef) (int, error) {
+	if !h.enabled || len(sigs) == 0 {
+		return 0, nil
+	}
+	n, err := h.signalsInSavepoint(ctx, tx, workspaceID, sigs)
+	if err != nil {
+		h.log.Warn("automation signal hook failed", "workspace_id", workspaceID, "error", err.Error())
+		return 0, nil
+	}
+	return n, nil
+}
+
+func (h *hook) signalsInSavepoint(ctx context.Context, tx pgx.Tx, workspaceID string, sigs []SignalRef) (int, error) {
+	sp, err := tx.Begin(ctx)
+	if err != nil {
+		return 0, err
+	}
+	n, err := h.signals(ctx, sp, workspaceID, sigs)
+	if err != nil {
+		_ = sp.Rollback(context.WithoutCancel(ctx))
+		return 0, err
+	}
+	if err := sp.Commit(ctx); err != nil {
+		return 0, err
+	}
+	return n, nil
+}
+
+func (h *hook) signals(ctx context.Context, tx pgx.Tx, workspaceID string, sigs []SignalRef) (int, error) {
+	q := gen.New(tx)
+	rules, err := q.ListEnabledSignalTriggers(ctx, workspaceID)
+	if err != nil {
+		return 0, err
+	}
+	if len(rules) == 0 {
+		return 0, nil
+	}
+	enqueued := 0
+	for _, sig := range sigs {
+		if sig.LeadID == nil {
+			continue
+		}
+		for _, rule := range rules {
+			if wanted := signalTypes(rule.TriggerConfig); len(wanted) > 0 && !wanted[sig.Type] {
+				continue
+			}
+			scope := scopeList(rule.ScopeWorkbookIds)
+			rows, err := q.SignalRowTargets(ctx, gen.SignalRowTargetsParams{
+				WorkspaceID: workspaceID, LeadID: int32(*sig.LeadID), Scope: scope,
+			})
+			if err != nil {
+				return 0, err
+			}
+			if len(rows) == 0 {
+				continue // signal lead in no scoped workbook: no firing
+			}
+			targets := make([]target, len(rows))
+			for i, r := range rows {
+				targets[i] = target{WorkbookID: r.WorkbookID, RowID: strconv.FormatInt(int64(r.RowID), 10)}
+			}
+			var buf bytes.Buffer
+			enc := json.NewEncoder(&buf)
+			enc.SetEscapeHTML(false)
+			if err := enc.Encode(payload{TriggerID: rule.ID, WorkspaceID: workspaceID, Targets: targets,
+				FireSource: "signal", FireKey: "signal:" + sig.PK}); err != nil {
+				return 0, err
+			}
+			if err := q.InsertTriggerEvalJob(ctx, gen.InsertTriggerEvalJobParams{
+				Payload: bytes.TrimSpace(buf.Bytes()), WorkspaceID: workspaceID,
+			}); err != nil {
+				return 0, err
+			}
+			enqueued++
+		}
+	}
+	return enqueued, nil
+}
+
+// signalTypes is set((rule.trigger_config or {}).get("signal_types") or []).
+func signalTypes(cfg []byte) map[string]bool {
+	var c struct {
+		SignalTypes []string `json:"signal_types"`
+	}
+	if len(cfg) == 0 || json.Unmarshal(cfg, &c) != nil {
+		return nil
+	}
+	m := make(map[string]bool, len(c.SignalTypes))
+	for _, s := range c.SignalTypes {
+		m[s] = true
+	}
+	return m
+}
+
+// scopeList is rule.scope_workbook_ids or []; non-list scopes count as empty.
+func scopeList(scopeJSON []byte) []string {
+	var scope []string
+	if len(scopeJSON) == 0 || json.Unmarshal(scopeJSON, &scope) != nil || scope == nil {
+		return []string{}
+	}
+	return scope
 }
