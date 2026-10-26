@@ -12,6 +12,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
@@ -20,6 +21,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
@@ -459,5 +461,93 @@ func TestUtilsRequireWorkspaceMember(t *testing.T) {
 	}
 	if e.verifyCalls.Load() != 0 || hits.Load() != 0 {
 		t.Fatalf("outbound work for a non-member: verify %d, fetch %d", e.verifyCalls.Load(), hits.Load())
+	}
+}
+
+// fakeTech is a tech_stack provider with a fixed result (or a blocking one).
+type fakeTech struct {
+	out   providers.Output
+	block chan struct{}
+	in    chan struct{} // receives once per call that entered
+}
+
+func (fakeTech) Name() string { return "tech_stack" }
+func (f fakeTech) Enrich(ctx context.Context, _ *http.Client, _ func() (string, error), _ providers.Input) (providers.Output, error) {
+	if f.in != nil {
+		f.in <- struct{}{}
+	}
+	if f.block != nil {
+		select {
+		case <-f.block:
+		case <-ctx.Done():
+			return providers.Output{}, ctx.Err()
+		}
+	}
+	return f.out, nil
+}
+
+func useFakeTech(t *testing.T, f fakeTech) {
+	leadUtilsTechProvider = func() providers.Provider { return f }
+	t.Cleanup(func() { leadUtilsTechProvider, leadUtilsTechTimeout = nil, 0 })
+}
+
+// Success shape: tech_stack_endpoint returns {"domain","success","technologies","fields","error"}; technologies is
+// fields.get("technologies"), fields is result.fields (insertion order technologies, technographics), error None.
+func TestTechStackSuccessShape(t *testing.T) {
+	f := providers.NewObj()
+	f.Set("technologies", "WordPress, Express")
+	f.Set("technographics", `[{"name":"WordPress","category":"CMS","source":"website","confidence":0.9}]`)
+	useFakeTech(t, fakeTech{out: providers.Output{Extra: f}})
+	e := newUtilsEnv(t)
+	rec := e.post("alice", "", "/api/leads/tech-stack", `{"domain":"  acme.com "}`)
+	want := `{"domain":"acme.com","success":true,"technologies":"WordPress, Express","fields":{"technologies":"WordPress, Express","technographics":"[{\"name\":\"WordPress\",\"category\":\"CMS\",\"source\":\"website\",\"confidence\":0.9}]"},"error":null}`
+	if rec.Code != 200 || rec.Body.String() != want {
+		t.Fatalf("%d %s", rec.Code, rec.Body.String())
+	}
+	// failure: success false, technologies null, fields {}, error carried (not a 409 unless disabled)
+	useFakeTech(t, fakeTech{out: providers.Output{Error: "No technologies detected"}})
+	rec = e.post("alice", "", "/api/leads/tech-stack", `{"domain":"acme.com"}`)
+	if rec.Code != 200 || rec.Body.String() != `{"domain":"acme.com","success":false,"technologies":null,"fields":{},"error":"No technologies detected"}` {
+		t.Fatalf("%d %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestTechStackConcurrencyCap503(t *testing.T) {
+	block := make(chan struct{})
+	in := make(chan struct{}, techStackMaxInFlight+1)
+	useFakeTech(t, fakeTech{block: block, in: in, out: providers.Output{Error: "No technologies detected"}})
+	e := newUtilsEnv(t, func(d *Deps) { d.Limiter = nil }) // the rate limit is not under test
+	var wg sync.WaitGroup
+	for i := 0; i < techStackMaxInFlight; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			e.post("alice", "", "/api/leads/tech-stack", `{"domain":"a.com"}`)
+		}()
+	}
+	for i := 0; i < techStackMaxInFlight; i++ {
+		<-in
+	}
+	rec := e.post("alice", "", "/api/leads/tech-stack", `{"domain":"a.com"}`)
+	if rec.Code != 503 {
+		t.Errorf("over the cap: %d %s", rec.Code, rec.Body.String())
+	}
+	close(block)
+	wg.Wait()
+	if rec := e.post("alice", "", "/api/leads/tech-stack", `{"domain":"a.com"}`); rec.Code != 200 {
+		t.Errorf("slots must be released: %d %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestTechStackTimeout504(t *testing.T) {
+	useFakeTech(t, fakeTech{block: make(chan struct{})})
+	leadUtilsTechTimeout = 50 * time.Millisecond
+	e := newUtilsEnv(t)
+	rec := e.post("alice", "", "/api/leads/tech-stack", `{"domain":"slow.example"}`)
+	if rec.Code != 504 || rec.Body.String() != `{"detail":"Website fetch timed out"}` {
+		t.Fatalf("%d %s", rec.Code, rec.Body.String())
+	}
+	if len(techStackSlots) != 0 {
+		t.Fatalf("slot leaked: %d", len(techStackSlots))
 	}
 }
