@@ -142,7 +142,8 @@ func TestHistoryShapeAndOrder(t *testing.T) {
 		if len(off) != 1 || off[0].ID != b {
 			t.Fatalf("offset %v", off)
 		}
-		raw, _ := json.Marshal(rows[0])
+		rj, _ := rows[0].JSON()
+		raw := rj
 		if !strings.HasPrefix(string(raw), `{"id":`) || !strings.Contains(string(raw), `"email_count":2,"status":"completed","created_at":"`) ||
 			!strings.Contains(string(raw), `"username":"h3","name":"Jane <Doe> & Co","headline":"VP","email_count"`) {
 			t.Fatalf("shape %s", raw)

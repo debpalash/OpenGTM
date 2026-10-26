@@ -309,8 +309,7 @@ func reencode(dec *json.Decoder, b *bytes.Buffer) error {
 	return nil
 }
 
-// MarshalJSON renders without HTML escaping (Python does not escape <, > or &).
-func (r HistoryRow) MarshalJSON() ([]byte, error) {
-	type plain HistoryRow
-	return encodeNoEscape(plain(r))
-}
+// JSON renders the row without HTML escaping (Python does not escape <, > or
+// &); json.Marshal would escape them, so routes use this (or a no-escape
+// encoder) rather than json.Marshal.
+func (r HistoryRow) JSON() ([]byte, error) { return encodeNoEscape(r) }
