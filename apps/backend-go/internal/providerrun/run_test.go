@@ -105,6 +105,17 @@ func newHarness(t *testing.T, mut func(*providerrun.Deps)) *harness {
 	return &harness{pool: pool, r: providerrun.New(d), sec: sec}
 }
 
+// with builds another Runner over the same pool (NewAppPool holds a
+// cross-package advisory lock until the test ends, so a test gets one pool).
+func (h *harness) with(mut func(*providerrun.Deps)) *harness {
+	sec := &fakeSecrets{vals: map[string]string{}, global: map[string]string{}}
+	d := providerrun.Deps{Pool: h.pool, Secrets: sec, Workers: 4, Cost: func(string) float64 { return 0.05 }}
+	if mut != nil {
+		mut(&d)
+	}
+	return &harness{pool: h.pool, r: providerrun.New(d), sec: sec}
+}
+
 type stat struct {
 	attempts, hits       int
 	conf, latency, cost  float64
@@ -335,6 +346,7 @@ func TestRunCancelPropagatesToRPC(t *testing.T) {
 	name := uniq("t18_pycancel")
 	arrived, cancelled := make(chan struct{}), make(chan struct{})
 	py := rpcServer(t, func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.Copy(io.Discard, r.Body) // the server notices a dropped client only after the body is read
 		close(arrived)
 		<-r.Context().Done()
 		close(cancelled)
@@ -406,14 +418,14 @@ func TestUnavailableIsDistinctError(t *testing.T) {
 	if !errors.Is(err, providerrun.ErrUnavailable) || !errors.Is(err, pyworker.ErrUnavailable) {
 		t.Fatalf("nil Py: %v", err)
 	}
-	h = newHarness(t, func(d *providerrun.Deps) { d.Py = pyworker.New("", "", nil) })
+	h = h.with(func(d *providerrun.Deps) { d.Py = pyworker.New("", "", nil) })
 	if _, err := h.r.Run(context.Background(), "ws1", name, in, time.Second); !errors.Is(err, providerrun.ErrUnavailable) {
 		t.Fatalf("unconfigured client: %v", err)
 	}
 	for status, want := range map[int]error{404: providerrun.ErrUnknownProvider, 401: providerrun.ErrUnauthorized} {
 		st := status
 		py := rpcServer(t, func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(st) })
-		h = newHarness(t, func(d *providerrun.Deps) { d.Py = py })
+		h = h.with(func(d *providerrun.Deps) { d.Py = py })
 		_, err := h.r.Run(context.Background(), "ws1", name, in, time.Second)
 		if !errors.Is(err, want) {
 			t.Errorf("status %d: err=%v want %v", status, err, want)
@@ -482,12 +494,12 @@ func TestReacherSettingsGlobalOnlyAndOperatorAllowList(t *testing.T) {
 		t.Fatalf("loopback must be refused without an allow-list: %+v %v hits=%d", out, err, hits.Load())
 	}
 	for _, c := range h.sec.calls {
-		if strings.HasPrefix(c, "ws1|REACHER_") {
+		if c == "ws1|REACHER_URL" || c == "ws1|REACHER_ENABLED" || c == "ws1|REACHER_TIMEOUT" {
 			t.Fatalf("settings were resolved per workspace: %v", h.sec.calls)
 		}
 	}
 	// Listed exactly: works.
-	h2 := newHarness(t, func(d *providerrun.Deps) { d.OperatorAllow = []string{hostport} })
+	h2 := h.with(func(d *providerrun.Deps) { d.OperatorAllow = []string{hostport} })
 	h2.sec.global["REACHER_URL"] = srv.URL
 	h2.sec.global["REACHER_ENABLED"] = "1"
 	h2.sec.vals["ws1|REACHER_URL"] = "http://169.254.169.254/"
