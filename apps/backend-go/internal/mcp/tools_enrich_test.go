@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"os"
 	"strings"
 	"sync"
@@ -491,5 +492,29 @@ func TestEnrichCompanyPythonMissReleasesSlotAndAuditsError(t *testing.T) {
 	}
 	if r.released != 1 || r.settled != 0 || len(r.audits) != 1 || r.audits[0].Status != "error" {
 		t.Fatalf("released=%d settled=%d audits=%+v", r.released, r.settled, r.audits)
+	}
+}
+
+func TestEnrichLogsNeverCarryProviderErrorText(t *testing.T) {
+	var buf strings.Builder
+	old := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&buf, nil)))
+	t.Cleanup(func() { slog.SetDefault(old) })
+	r := newEnrichRig(t, Config{})
+	r.enrich.Err = errors.New("GET https://api.example.com/v1?key=SECRETFRAGMENT failed")
+	for name, args := range map[string]Args{
+		"verify_email": {"email": "a@b.co"}, "enrich_company": {"lead_id": 1.0},
+		"get_hiring_signals": {"company": "A"}, "score_lead": {"lead_id": 1.0},
+	} {
+		if _, err := r.call(t, name, args); err != nil {
+			t.Fatal(err)
+		}
+	}
+	logs := buf.String()
+	if strings.Contains(logs, "SECRETFRAGMENT") || strings.Contains(logs, "api.example.com") {
+		t.Fatalf("provider error text logged: %s", logs)
+	}
+	if !strings.Contains(logs, "*errors.errorString") {
+		t.Fatalf("error kind not logged: %s", logs)
 	}
 }
