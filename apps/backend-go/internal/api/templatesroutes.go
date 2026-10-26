@@ -288,4 +288,6 @@ func (h templateRoutes) createFromTemplate(w http.ResponseWriter, r *http.Reques
 }
 
 // marshalTemplateColumns is the stored columns_config text, not HTML-escaped like the other write paths.
-func marshalTemplateColumns(cols []wbcrud.Column) ([]byte, error) { return wbcrud.MarshalNoEscape(cols) }
+func marshalTemplateColumns(cols []wbcrud.Column) ([]byte, error) {
+	return wbcrud.MarshalNoEscape(cols)
+}
