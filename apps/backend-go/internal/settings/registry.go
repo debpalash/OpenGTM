@@ -127,6 +127,14 @@ type DailyLimit struct {
 	Label string `json:"label"`
 }
 
+// ModelInfo is one entry of a static model list (routers/settings.py list_models).
+type ModelInfo struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Context int    `json:"context"`
+	Free    bool   `json:"free"`
+}
+
 // Registry is the decoded registry.json.
 type Registry struct {
 	Providers           *OrderedMap[Provider]           `json:"providers"`
@@ -136,6 +144,7 @@ type Registry struct {
 	VerifierGlobalOnly  []string                        `json:"verifier_global_only"`
 	DailyLimits         *OrderedMap[DailyLimit]         `json:"daily_limits"`
 	SecretAppKeys       []string                        `json:"secret_app_keys"`
+	Models              *OrderedMap[[]ModelInfo]        `json:"models"`
 }
 
 // Load decodes the embedded registry.

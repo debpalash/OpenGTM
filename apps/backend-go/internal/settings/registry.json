@@ -355,6 +355,282 @@
       "label": "150 RPD"
     }
   },
+  "models": {
+    "anthropic": [
+      {
+        "id": "claude-opus-4-8",
+        "name": "Claude Opus 4.8",
+        "context": 1000000,
+        "free": false
+      },
+      {
+        "id": "claude-sonnet-4-6",
+        "name": "Claude Sonnet 4.6",
+        "context": 1000000,
+        "free": false
+      },
+      {
+        "id": "claude-haiku-4-5",
+        "name": "Claude Haiku 4.5",
+        "context": 200000,
+        "free": false
+      }
+    ],
+    "google_ai": [
+      {
+        "id": "gemini-2.5-flash",
+        "name": "Gemini 2.5 Flash",
+        "context": 1048576,
+        "free": true
+      },
+      {
+        "id": "gemini-2.5-pro",
+        "name": "Gemini 2.5 Pro",
+        "context": 1048576,
+        "free": true
+      },
+      {
+        "id": "gemini-2.0-flash",
+        "name": "Gemini 2.0 Flash",
+        "context": 1048576,
+        "free": true
+      },
+      {
+        "id": "gemini-2.0-flash-lite",
+        "name": "Gemini 2.0 Flash Lite",
+        "context": 1048576,
+        "free": true
+      },
+      {
+        "id": "gemini-1.5-flash",
+        "name": "Gemini 1.5 Flash",
+        "context": 1048576,
+        "free": true
+      },
+      {
+        "id": "gemini-1.5-pro",
+        "name": "Gemini 1.5 Pro",
+        "context": 2097152,
+        "free": true
+      }
+    ],
+    "groq": [
+      {
+        "id": "llama-3.3-70b-versatile",
+        "name": "Llama 3.3 70B",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "llama-3.1-8b-instant",
+        "name": "Llama 3.1 8B",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "llama-4-scout-17b-16e-instruct",
+        "name": "Llama 4 Scout",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "gemma2-9b-it",
+        "name": "Gemma 2 9B",
+        "context": 8192,
+        "free": true
+      },
+      {
+        "id": "qwen-qwq-32b",
+        "name": "Qwen QwQ 32B",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "deepseek-r1-distill-llama-70b",
+        "name": "DeepSeek R1 70B",
+        "context": 131072,
+        "free": true
+      }
+    ],
+    "cerebras": [
+      {
+        "id": "llama-3.3-70b",
+        "name": "Llama 3.3 70B",
+        "context": 8192,
+        "free": true
+      },
+      {
+        "id": "llama3.1-8b",
+        "name": "Llama 3.1 8B",
+        "context": 8192,
+        "free": true
+      },
+      {
+        "id": "qwen-3-32b",
+        "name": "Qwen 3 32B",
+        "context": 8192,
+        "free": true
+      },
+      {
+        "id": "deepseek-r1-distill-llama-70b",
+        "name": "DeepSeek R1 70B",
+        "context": 8192,
+        "free": true
+      }
+    ],
+    "mistral": [
+      {
+        "id": "mistral-small-latest",
+        "name": "Mistral Small 3.1",
+        "context": 32768,
+        "free": true
+      },
+      {
+        "id": "mistral-large-latest",
+        "name": "Mistral Large",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "ministral-8b-latest",
+        "name": "Ministral 8B",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "codestral-latest",
+        "name": "Codestral",
+        "context": 32768,
+        "free": true
+      },
+      {
+        "id": "pixtral-12b-2409",
+        "name": "Pixtral 12B",
+        "context": 131072,
+        "free": true
+      }
+    ],
+    "cohere": [
+      {
+        "id": "command-a-03-2025",
+        "name": "Command A",
+        "context": 256000,
+        "free": true
+      },
+      {
+        "id": "command-r-plus-08-2024",
+        "name": "Command R+",
+        "context": 128000,
+        "free": true
+      },
+      {
+        "id": "command-r-08-2024",
+        "name": "Command R",
+        "context": 128000,
+        "free": true
+      },
+      {
+        "id": "c4ai-aya-expanse-32b",
+        "name": "Aya Expanse 32B",
+        "context": 128000,
+        "free": true
+      }
+    ],
+    "github_models": [
+      {
+        "id": "gpt-4o",
+        "name": "GPT-4o",
+        "context": 128000,
+        "free": true
+      },
+      {
+        "id": "gpt-4o-mini",
+        "name": "GPT-4o Mini",
+        "context": 128000,
+        "free": true
+      },
+      {
+        "id": "gpt-4.1",
+        "name": "GPT-4.1",
+        "context": 1047576,
+        "free": true
+      },
+      {
+        "id": "gpt-4.1-mini",
+        "name": "GPT-4.1 Mini",
+        "context": 1047576,
+        "free": true
+      },
+      {
+        "id": "gpt-4.1-nano",
+        "name": "GPT-4.1 Nano",
+        "context": 1047576,
+        "free": true
+      },
+      {
+        "id": "o4-mini",
+        "name": "o4-mini",
+        "context": 200000,
+        "free": true
+      },
+      {
+        "id": "o3-mini",
+        "name": "o3-mini",
+        "context": 200000,
+        "free": true
+      },
+      {
+        "id": "DeepSeek-R1",
+        "name": "DeepSeek R1",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "Llama-3.3-70B-Instruct",
+        "name": "Llama 3.3 70B",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "Mistral-Small-3.1",
+        "name": "Mistral Small 3.1",
+        "context": 131072,
+        "free": true
+      }
+    ],
+    "nvidia": [
+      {
+        "id": "meta/llama-3.3-70b-instruct",
+        "name": "Llama 3.3 70B",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "meta/llama-3.1-8b-instruct",
+        "name": "Llama 3.1 8B",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "mistralai/mistral-large-2-instruct",
+        "name": "Mistral Large 2",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "qwen/qwen3-235b-a22b",
+        "name": "Qwen3 235B",
+        "context": 131072,
+        "free": true
+      },
+      {
+        "id": "google/gemma-3-27b-it",
+        "name": "Gemma 3 27B",
+        "context": 131072,
+        "free": true
+      }
+    ]
+  },
   "secret_app_keys": [
     "ABSTRACT_API_KEY",
     "AIRTABLE_TOKEN",
