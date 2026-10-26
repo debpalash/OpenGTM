@@ -1,0 +1,97 @@
+[
+  {
+    "key": "tables.write",
+    "label": "Tables",
+    "description": "Create, edit and run workbooks",
+    "default_roles": [
+      "editor",
+      "admin"
+    ]
+  },
+  {
+    "key": "integrations.manage",
+    "label": "Integrations",
+    "description": "Configure enrichment and integration credentials",
+    "default_roles": [
+      "editor",
+      "admin"
+    ]
+  },
+  {
+    "key": "campaigns.write",
+    "label": "Campaigns",
+    "description": "Create and operate campaigns",
+    "default_roles": [
+      "editor",
+      "admin"
+    ]
+  },
+  {
+    "key": "audiences.write",
+    "label": "Audiences",
+    "description": "Create, refresh and schedule audiences",
+    "default_roles": [
+      "editor",
+      "admin"
+    ]
+  },
+  {
+    "key": "activation.write",
+    "label": "Activation",
+    "description": "Configure and run destinations",
+    "default_roles": [
+      "editor",
+      "admin"
+    ]
+  },
+  {
+    "key": "agents.write",
+    "label": "Agents",
+    "description": "Create and run research playbooks",
+    "default_roles": [
+      "editor",
+      "admin"
+    ]
+  },
+  {
+    "key": "signals.write",
+    "label": "Signals",
+    "description": "Scan and manage buying signals",
+    "default_roles": [
+      "editor",
+      "admin"
+    ]
+  },
+  {
+    "key": "outreach.write",
+    "label": "Outreach",
+    "description": "Configure and execute outreach",
+    "default_roles": [
+      "admin"
+    ]
+  },
+  {
+    "key": "automations.manage",
+    "label": "Automations",
+    "description": "Configure trigger automation",
+    "default_roles": [
+      "admin"
+    ]
+  },
+  {
+    "key": "secrets.manage",
+    "label": "Secrets",
+    "description": "Rotate machine credentials",
+    "default_roles": [
+      "admin"
+    ]
+  },
+  {
+    "key": "governance.manage",
+    "label": "Governance",
+    "description": "Audit, retention and access policy",
+    "default_roles": [
+      "admin"
+    ]
+  }
+]

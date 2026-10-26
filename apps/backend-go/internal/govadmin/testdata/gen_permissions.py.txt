@@ -1,0 +1,5 @@
+# Generator for internal/govadmin/testdata/permissions.json (run from legacy/python).
+import json, sys
+from apps.api.routers.governance import PERMISSIONS
+out = [{"key": k, "label": v[0], "description": v[1], "default_roles": v[2]} for k, v in PERMISSIONS.items()]
+json.dump(out, sys.stdout, indent=2); print()
