@@ -695,3 +695,23 @@ func TestReconcileRejectsBadPayloadAndForeignRun(t *testing.T) {
 		t.Fatalf("stripped ids: %+v", st)
 	}
 }
+
+// A cancel that interrupts an in-flight step (the worker's cancel watcher cancels ctx) must
+// not leave the member's result row `running`.
+func TestRunCancelDuringStepLeavesNoRunningResult(t *testing.T) {
+	e := setup(t)
+	e.members(t, 1)
+	_, run := e.engineRun(t, threeSteps, 100)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	f := &fakeRes{fn: func(n int, c call) (ResearchResult, error) {
+		e.sql(t, e.ws, `UPDATE playbook_runs SET status='cancelled', error='Cancelled by user', finished_at=(now() AT TIME ZONE 'UTC') WHERE workspace_id=$1 AND id=$2`, e.ws, run.ID)
+		cancel()
+		return ResearchResult{}, ctx.Err()
+	}}
+	_ = HandleRun(ctx, e.engineDeps(f), e.ws, run.ID)
+	rs := e.results(t, e.ws, run.ID)
+	if len(rs) != 1 || rs[0].status != "cancelled" {
+		t.Fatalf("results %+v", rs)
+	}
+}

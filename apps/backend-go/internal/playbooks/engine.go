@@ -574,6 +574,17 @@ func (g *engine) steps2(ctx context.Context, m gen.PbEngMembersRow, resID, attem
 				return stepsOutcome{unavailable: true}
 			}
 			if ctx.Err() != nil {
+				// A cancel interrupted the step: settle the open result as Python's next
+				// step boundary would, on a detached context.
+				dctx, dcancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
+				defer dcancel()
+				if c, cerr := g.cancelled(dctx); cerr == nil && c {
+					_ = g.write(dctx, func(q *gen.Queries) error {
+						_, err := q.PbEngCancelResult(dctx, gen.PbEngCancelResultParams{WorkspaceID: g.ws, ID: resID})
+						return err
+					})
+					return stepsOutcome{cancelled: true}
+				}
 				return stepsOutcome{err: ctx.Err()}
 			}
 			return fail(err.Error())
