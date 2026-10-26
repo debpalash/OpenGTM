@@ -63,7 +63,7 @@ func readLeadBody(w http.ResponseWriter, r *http.Request) (body any, errs []http
 	}
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.UseNumber()
-	if err := dec.Decode(&body); err != nil || dec.More() {
+	if err := dec.Decode(&body); err != nil || dec.Decode(&struct{}{}) != io.EOF {
 		return nil, []httpx.FieldError{{Type: "json_invalid", Loc: []any{"body", 0}, Msg: "JSON decode error", Input: map[string]any{}}}, true
 	}
 	return body, nil, true
@@ -108,11 +108,11 @@ func (h leadWriteRoutes) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// A NUL byte is valid for pydantic but rejected by Postgres (Python answers 500); D2 answers 422.
-	for name, s := range map[string]string{"company": n.Company, "city": n.City, "website": n.Website, "email": n.Email,
-		"phone": n.Phone, "specialization": n.Specialization, "contact_person": n.ContactPerson,
-		"linkedin_url": n.LinkedinURL, "notes": n.Notes, "source": n.Source} {
-		if strings.IndexByte(s, 0) >= 0 {
-			httpx.ValidationError(w, httpx.FieldError{Type: "value_error", Loc: []any{"body", name},
+	for _, f := range []struct{ name, val string }{{"company", n.Company}, {"city", n.City}, {"website", n.Website},
+		{"email", n.Email}, {"phone", n.Phone}, {"specialization", n.Specialization},
+		{"contact_person", n.ContactPerson}, {"linkedin_url", n.LinkedinURL}, {"notes", n.Notes}, {"source", n.Source}} {
+		if strings.IndexByte(f.val, 0) >= 0 {
+			httpx.ValidationError(w, httpx.FieldError{Type: "value_error", Loc: []any{"body", f.name},
 				Msg: "Value error, string cannot contain NUL characters", Input: nil})
 			return
 		}

@@ -327,3 +327,27 @@ get_foreign_after_put delete_ok delete_again delete_foreign delete_bad_id delete
 		t.Run(name, func(t *testing.T) { contract.AssertEqual(t, got, fx.Response, opts...) })
 	}
 }
+
+func TestAddLeadNULReportsFirstFieldInOrder(t *testing.T) {
+	e := newWriteEnv(t)
+	for i := 0; i < 10; i++ {
+		rec := e.send("alice", "ws-alpha", "POST", "/api/lead", `{"notes":"a\u0000","company":"a\u0000","city":"b\u0000"}`)
+		if rec.Code != 422 || !strings.Contains(rec.Body.String(), `"loc":["body","company"]`) {
+			t.Fatalf("%d %s", rec.Code, rec.Body.String())
+		}
+	}
+}
+
+func TestWriteBodyTrailingGarbage422(t *testing.T) {
+	e := newWriteEnv(t)
+	for _, c := range [][3]string{{"POST", "/api/lead", `{"company":"x"}}`}, {"PUT", "/api/lead/10", `{"notes":"x"}]`},
+		{"POST", "/api/lead/14/status", `{"status":"new"} {}`}} {
+		rec := e.send("alice", "ws-alpha", c[0], c[1], c[2])
+		if rec.Code != 422 || !strings.Contains(rec.Body.String(), "json_invalid") {
+			t.Errorf("%s %s: %d %s", c[0], c[1], rec.Code, rec.Body.String())
+		}
+	}
+	if got := leadRow(t, e, "ws-alpha", 10, ""); got["notes"] == "x" {
+		t.Error("write happened")
+	}
+}
