@@ -64,7 +64,7 @@ func TestRegistrySummaryMatchesPython(t *testing.T) {
 	if err := json.Compact(&want, d.RegistrySummary); err != nil {
 		t.Fatal(err)
 	}
-	b, err := json.Marshal(Registry())
+	b, err := Registry().MarshalJSON() // the route writes these bytes; json.Marshal would HTML-escape them
 	if err != nil {
 		t.Fatal(err)
 	}
