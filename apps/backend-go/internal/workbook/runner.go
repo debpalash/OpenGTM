@@ -18,6 +18,12 @@ type ProviderRunner interface {
 	Run(ctx context.Context, workspaceID, provider string, in providers.Input, timeout time.Duration) (providers.Output, error)
 }
 
+// configurer is implemented by runners that can tell, without any network
+// call, whether a provider's credentials exist (providerrun.Runner).
+type configurer interface {
+	Configured(ctx context.Context, workspaceID, provider string) (bool, error)
+}
+
 // manifestRunner is the runner used when Deps.Runner is nil: it executes the
 // signature-verified declarative manifests of the payload (the original
 // executor behaviour) and writes the ledger rows itself, in the same format.
@@ -82,6 +88,15 @@ func (r manifestRunner) precheck(ctx context.Context, name string, lead map[stri
 func (rs *runState) precheck(ctx context.Context, name string, lead map[string]any) string {
 	if pc, ok := rs.runner.(prechecker); ok {
 		return pc.precheck(ctx, name, lead)
+	}
+	if cr, ok := rs.runner.(configurer); ok {
+		okc, err := cr.Configured(ctx, rs.p.WorkspaceID, name)
+		if err != nil {
+			return "credential lookup failed" // fail closed: no hold, no call
+		}
+		if !okc {
+			return "not configured"
+		}
 	}
 	return ""
 }

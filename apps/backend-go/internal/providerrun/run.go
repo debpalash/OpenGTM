@@ -566,3 +566,29 @@ func (r *Runner) cachePut(ctx context.Context, ws, provider string, in providers
 		r.d.Log.Warn("provider cache write failed", "provider", provider, "err", err)
 	}
 }
+
+// Configured reports whether a Go-native keyed provider has every credential it
+// needs in this workspace, so a paid call can be refused before any spend hold
+// (Python never reserved for a missing key). Providers that are not Go-native
+// or need no key are always configured; a lookup failure is returned, never
+// downgraded to "configured".
+func (r *Runner) Configured(ctx context.Context, workspaceID, provider string) (bool, error) {
+	p, native := providers.Get(provider)
+	if !native {
+		return true, nil
+	}
+	k, ok := p.(providers.Keyed)
+	if !ok || r.d.Secrets == nil {
+		return true, nil
+	}
+	for _, e := range k.KeyEnv() {
+		v, _, err := r.d.Secrets.Get(ctx, workspaceID, e)
+		if err != nil {
+			return false, fmt.Errorf("providerrun: credential lookup failed: %w", err)
+		}
+		if v == "" {
+			return false, nil
+		}
+	}
+	return true, nil
+}
