@@ -93,7 +93,11 @@ func run() error {
 		log.Error("CRITICAL: database role is superuser/BYPASSRLS; Row-Level Security is inert (PG_RLS_REQUIRE_SAFE_ROLE=false)")
 	}
 
-	handler := buildRouter(cfg, log, pool).Handler()
+	router, err := buildRouter(cfg, log, pool)
+	if err != nil {
+		return err
+	}
+	handler := router.Handler()
 	srv := newServer(cfg.Addr, handler)
 	errc := make(chan error, 1)
 	go func() { errc <- srv.ListenAndServe() }()
@@ -147,7 +151,7 @@ func newServer(addr string, h http.Handler) *http.Server {
 
 // buildRouter assembles the global middleware chain and routes. pool may be nil
 // in tests that only exercise routes that do not touch the database.
-func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool) *httpx.Router {
+func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool) (*httpx.Router, error) {
 	r := httpx.NewRouter()
 	// Outermost first. audit.Middleware sits after RequestID (it needs the id)
 	// and inside CORS/Gzip; it owns the holder identity.Workspace fills.
@@ -174,24 +178,35 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool) *ht
 		Log:      log,
 	}
 	// Settings routes need the registry, the secrets envelope and the guarded
-	// egress client; without a pool they stay unregistered (route tests).
+	// egress client; without a pool they stay unregistered (route tests). With a
+	// pool, a bad config fails startup rather than silently 404ing the routes.
 	if pool != nil {
-		reg, err := settings.Load()
+		sd, err := newSettingsDeps(cfg, settings.Load)
 		if err != nil {
-			log.Error("settings registry unavailable", "error", err.Error())
-		} else if env, err := secrets.NewEnvelope(secrets.Config{
-			Provider: os.Getenv("SECRETS_PROVIDER"), MasterKey: os.Getenv("SECRETS_MASTER_KEY"),
-			SecretKey: cfg.SecretKey, AppEnv: cfg.AppEnv,
-			VaultAddr: os.Getenv("VAULT_ADDR"), VaultToken: os.Getenv("VAULT_TOKEN"),
-			VaultTokenFile: os.Getenv("VAULT_TOKEN_FILE"), VaultTransitKey: os.Getenv("VAULT_TRANSIT_KEY"),
-			VaultNamespace: os.Getenv("VAULT_NAMESPACE"), VaultCACert: os.Getenv("VAULT_CACERT"),
-		}, nil); err != nil {
-			log.Error("secrets envelope unavailable", "error", err.Error())
-		} else {
-			deps.Registry, deps.Envelope = reg, env
-			deps.Egress = egress.NewClientForEnv(cfg.AppEnv, nil)
+			return nil, err
 		}
+		deps.Registry, deps.Envelope, deps.Egress = sd.Registry, sd.Envelope, sd.Egress
 	}
 	api.RegisterAll(r, deps)
-	return r
+	return r, nil
+}
+
+// newSettingsDeps builds the settings registry, secrets envelope and egress
+// client. Errors never include secret values (NewEnvelope reports names only).
+func newSettingsDeps(cfg config.APIConfig, load func() (*settings.Registry, error)) (api.Deps, error) {
+	reg, err := load()
+	if err != nil {
+		return api.Deps{}, fmt.Errorf("settings registry: %w", err)
+	}
+	env, err := secrets.NewEnvelope(secrets.Config{
+		Provider: os.Getenv("SECRETS_PROVIDER"), MasterKey: os.Getenv("SECRETS_MASTER_KEY"),
+		SecretKey: cfg.SecretKey, AppEnv: cfg.AppEnv,
+		VaultAddr: os.Getenv("VAULT_ADDR"), VaultToken: os.Getenv("VAULT_TOKEN"),
+		VaultTokenFile: os.Getenv("VAULT_TOKEN_FILE"), VaultTransitKey: os.Getenv("VAULT_TRANSIT_KEY"),
+		VaultNamespace: os.Getenv("VAULT_NAMESPACE"), VaultCACert: os.Getenv("VAULT_CACERT"),
+	}, nil)
+	if err != nil {
+		return api.Deps{}, fmt.Errorf("secrets envelope: %w", err)
+	}
+	return api.Deps{Registry: reg, Envelope: env, Egress: egress.NewClientForEnv(cfg.AppEnv, nil)}, nil
 }
