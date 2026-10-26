@@ -3,6 +3,7 @@
 package audit
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/json"
@@ -38,6 +39,7 @@ type holder struct {
 	actorRole   string
 	workspaceID string
 	metadata    map[string]any
+	order       []string // key order of metadata (insertion order), when set
 }
 
 type holderKey struct{}
@@ -63,6 +65,64 @@ func SetMetadata(ctx context.Context, md map[string]any) {
 		h.metadata = md
 		h.mu.Unlock()
 	}
+}
+
+// KV is one ordered metadata entry.
+type KV struct {
+	Key   string
+	Value any
+}
+
+// SetMetadataOrdered is SetMetadata that stores the keys in the given order, as Python's
+// insertion-ordered dict does (SetMetadata's map is written with sorted keys).
+func SetMetadataOrdered(ctx context.Context, kvs []KV) {
+	md := make(map[string]any, len(kvs))
+	order := make([]string, 0, len(kvs))
+	for _, kv := range kvs {
+		if _, dup := md[kv.Key]; !dup {
+			order = append(order, kv.Key)
+		}
+		md[kv.Key] = kv.Value
+	}
+	if h := from(ctx); h != nil {
+		h.mu.Lock()
+		h.metadata, h.order = md, order
+		h.mu.Unlock()
+	}
+}
+
+// marshalMetadata writes the sanitised metadata, in the recorded order when there is one.
+func marshalMetadata(md map[string]any, order []string) ([]byte, error) {
+	safe, _ := SafeMetadata(md, 0).(map[string]any)
+	if len(order) == 0 || safe == nil {
+		return json.Marshal(safe)
+	}
+	var b bytes.Buffer
+	b.WriteByte('{')
+	first := true
+	for _, k := range order {
+		v, ok := safe[cut(k, 64)]
+		if !ok {
+			continue
+		}
+		kb, err := json.Marshal(cut(k, 64))
+		if err != nil {
+			return nil, err
+		}
+		vb, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		if !first {
+			b.WriteByte(',')
+		}
+		first = false
+		b.Write(kb)
+		b.WriteByte(':')
+		b.Write(vb)
+	}
+	b.WriteByte('}')
+	return b.Bytes(), nil
 }
 
 // SafeMetadata bounds endpoint-supplied context and drops secret-looking keys.
@@ -237,7 +297,7 @@ func record(pool *pgxpool.Pool, log *slog.Logger, r *http.Request, h *holder, st
 		return
 	}
 	h.mu.Lock()
-	ws, uid, role, md := h.workspaceID, h.actorUserID, h.actorRole, h.metadata
+	ws, uid, role, md, order := h.workspaceID, h.actorUserID, h.actorRole, h.metadata, h.order
 	h.mu.Unlock()
 	if ws == "" || pool == nil {
 		return
@@ -254,7 +314,7 @@ func record(pool *pgxpool.Pool, log *slog.Logger, r *http.Request, h *holder, st
 	if md == nil {
 		md = map[string]any{}
 	}
-	mdJSON, err := json.Marshal(SafeMetadata(md, 0))
+	mdJSON, err := marshalMetadata(md, order)
 	if err != nil {
 		mdJSON = []byte("{}")
 	}

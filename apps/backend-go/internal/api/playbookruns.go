@@ -195,8 +195,9 @@ func (h playbookRoutes) retryRun(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	audit.SetMetadata(r.Context(), map[string]any{
-		"action": "research_playbook.run.retry", "playbook_id": run.PlaybookID, "run_id": run.ID, "previous_failed": run.Failed,
+	audit.SetMetadataOrdered(r.Context(), []audit.KV{ // Python's insertion order
+		{Key: "action", Value: "research_playbook.run.retry"}, {Key: "playbook_id", Value: run.PlaybookID},
+		{Key: "run_id", Value: run.ID}, {Key: "previous_failed", Value: run.Failed},
 	})
 	httpx.WriteJSON(w, http.StatusAccepted, run)
 }
@@ -220,8 +221,8 @@ func (h playbookRoutes) cancelRun(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	audit.SetMetadata(r.Context(), map[string]any{
-		"action": "research_playbook.run.cancel", "playbook_id": run.PlaybookID, "run_id": run.ID,
+	audit.SetMetadataOrdered(r.Context(), []audit.KV{
+		{Key: "action", Value: "research_playbook.run.cancel"}, {Key: "playbook_id", Value: run.PlaybookID}, {Key: "run_id", Value: run.ID},
 	})
 	httpx.WriteJSON(w, http.StatusOK, run)
 }

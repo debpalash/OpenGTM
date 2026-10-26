@@ -245,3 +245,21 @@ func TestPanicRecords500(t *testing.T) {
 		t.Fatalf("%+v", got)
 	}
 }
+
+// Python stores metadata in insertion order; SetMetadataOrdered keeps it (SetMetadata sorts).
+func TestOrderedMetadataKeepsInsertionOrder(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ws := "ws-audit-ordered"
+	clean(t, pool, ws)
+	r := httpx.NewRouter()
+	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
+	r.Handle("POST /api/things", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		audit.SetMetadataOrdered(req.Context(), []audit.KV{{Key: "action", Value: "x.retry"}, {Key: "playbook_id", Value: "p"}, {Key: "run_id", Value: "r"}, {Key: "previous_failed", Value: 2}, {Key: "api_token", Value: "zzz"}})
+		w.WriteHeader(200)
+	}), setActor(ws))
+	do(r, "POST", "/api/things")
+	got := rows(t, pool, ws)
+	if len(got) != 1 || got[0].Meta != `{"action":"x.retry","playbook_id":"p","run_id":"r","previous_failed":2}` {
+		t.Fatalf("rows %+v", got)
+	}
+}
