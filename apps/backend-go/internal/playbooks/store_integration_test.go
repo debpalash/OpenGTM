@@ -183,7 +183,11 @@ func TestPatchVersionBumpOnlyOnPromptFields(t *testing.T) {
 	pb := e.mkPlaybook(t, e.ws, "v")
 	patch := func(in PatchInput) Playbook {
 		var out Playbook
-		if err := e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error { var err error; out, err = Patch(ctx, tx, e.ws, pb.ID, in); return err }); err != nil {
+		if err := e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error {
+			var err error
+			out, err = Patch(ctx, tx, e.ws, pb.ID, in)
+			return err
+		}); err != nil {
 			t.Fatal(err)
 		}
 		return out
@@ -209,7 +213,11 @@ func TestPatchVersionBumpOnlyOnPromptFields(t *testing.T) {
 	}
 	// returned row equals a fresh Get and carries the changes.
 	var got Playbook
-	e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error { var err error; got, err = Get(ctx, tx, e.ws, pb.ID); return err })
+	e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error {
+		var err error
+		got, err = Get(ctx, tx, e.ws, pb.ID)
+		return err
+	})
 	if got.Name != "v2" || got.Description != "d" || got.Enabled || got.OutputFormat != "json" || got.MaxSteps != 2 || got.CellBudgetUSD != 1.5 || len(got.Steps) != 0 {
 		t.Fatalf("persisted %+v", got)
 	}
@@ -309,7 +317,9 @@ func TestDeleteBlockedByActiveRun(t *testing.T) {
 	e := setup(t)
 	pb := e.mkPlaybook(t, e.ws, "del")
 	run := e.mkRun(t, e.ws, pb, e.aud)
-	del := func() error { return e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error { return Delete(ctx, tx, e.ws, pb.ID) }) }
+	del := func() error {
+		return e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error { return Delete(ctx, tx, e.ws, pb.ID) })
+	}
 	if err := del(); !errors.Is(err, ErrActiveRun) {
 		t.Fatalf("pending run: want ErrActiveRun, got %v", err)
 	}
@@ -481,7 +491,10 @@ func TestListRunsCursorAndOffset(t *testing.T) {
 	if !errors.As(err, &ce) || ce.Detail != "invalid playbook run cursor" {
 		t.Fatalf("want playbook run cursor error, got %v", err)
 	}
-	err = e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error { _, err := ListRuns(ctx, tx, e.ws, "nope", 10, 0, ""); return err })
+	err = e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error {
+		_, err := ListRuns(ctx, tx, e.ws, "nope", 10, 0, "")
+		return err
+	})
 	if !errors.Is(err, ErrNotFound) {
 		t.Fatalf("want ErrNotFound, got %v", err)
 	}
@@ -545,7 +558,10 @@ func TestListResultsCursorMalformed422(t *testing.T) {
 	if pg.Limit != 500 {
 		t.Fatalf("limit cap %d", pg.Limit)
 	}
-	err = e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error { _, err := ListResults(ctx, tx, e.ws, "nope", 10, 0, ""); return err })
+	err = e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error {
+		_, err := ListResults(ctx, tx, e.ws, "nope", 10, 0, "")
+		return err
+	})
 	if !errors.Is(err, ErrRunNotFound) {
 		t.Fatalf("want ErrRunNotFound, got %v", err)
 	}
@@ -556,7 +572,11 @@ func TestRetryOnlyTerminalFailed(t *testing.T) {
 	pb := e.mkPlaybook(t, e.ws, "retry")
 	retry := func(id string) (Run, error) {
 		var r Run
-		err := e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error { var err error; r, err = RetryRun(ctx, tx, e.ws, id); return err })
+		err := e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error {
+			var err error
+			r, err = RetryRun(ctx, tx, e.ws, id)
+			return err
+		})
 		return r, err
 	}
 	for _, st := range []string{"failed", "completed_with_errors", "cancelled"} {
@@ -584,7 +604,11 @@ func TestCancelOnlyActive(t *testing.T) {
 	pb := e.mkPlaybook(t, e.ws, "cancel")
 	cancel := func(id string) (Run, error) {
 		var r Run
-		err := e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error { var err error; r, err = CancelRun(ctx, tx, e.ws, id); return err })
+		err := e.do(t, e.ws, func(ctx context.Context, tx pgx.Tx) error {
+			var err error
+			r, err = CancelRun(ctx, tx, e.ws, id)
+			return err
+		})
 		return r, err
 	}
 	for _, st := range []string{"pending", "running"} {
@@ -660,10 +684,16 @@ func TestStoreTenantIsolation(t *testing.T) {
 	e.sql(t, e.ws, `UPDATE playbook_runs SET status='failed' WHERE id=$1`, run.ID)
 	other := e.mkPlaybook(t, e.ws2, "iso") // same name in the other workspace is fine
 	cases := map[string]func(ctx context.Context, tx pgx.Tx) error{
-		"get":    func(ctx context.Context, tx pgx.Tx) error { _, err := Get(ctx, tx, e.ws2, pb.ID); return err },
-		"patch":  func(ctx context.Context, tx pgx.Tx) error { _, err := Patch(ctx, tx, e.ws2, pb.ID, PatchInput{Name: sp("x")}); return err },
+		"get": func(ctx context.Context, tx pgx.Tx) error { _, err := Get(ctx, tx, e.ws2, pb.ID); return err },
+		"patch": func(ctx context.Context, tx pgx.Tx) error {
+			_, err := Patch(ctx, tx, e.ws2, pb.ID, PatchInput{Name: sp("x")})
+			return err
+		},
 		"delete": func(ctx context.Context, tx pgx.Tx) error { return Delete(ctx, tx, e.ws2, pb.ID) },
-		"runs":   func(ctx context.Context, tx pgx.Tx) error { _, err := ListRuns(ctx, tx, e.ws2, pb.ID, 10, 0, ""); return err },
+		"runs": func(ctx context.Context, tx pgx.Tx) error {
+			_, err := ListRuns(ctx, tx, e.ws2, pb.ID, 10, 0, "")
+			return err
+		},
 	}
 	for name, fn := range cases {
 		if err := e.do(t, e.ws2, fn); !errors.Is(err, ErrNotFound) {
@@ -671,9 +701,12 @@ func TestStoreTenantIsolation(t *testing.T) {
 		}
 	}
 	runCases := map[string]func(ctx context.Context, tx pgx.Tx) error{
-		"results": func(ctx context.Context, tx pgx.Tx) error { _, err := ListResults(ctx, tx, e.ws2, run.ID, 10, 0, ""); return err },
-		"retry":   func(ctx context.Context, tx pgx.Tx) error { _, err := RetryRun(ctx, tx, e.ws2, run.ID); return err },
-		"cancel":  func(ctx context.Context, tx pgx.Tx) error { _, err := CancelRun(ctx, tx, e.ws2, run.ID); return err },
+		"results": func(ctx context.Context, tx pgx.Tx) error {
+			_, err := ListResults(ctx, tx, e.ws2, run.ID, 10, 0, "")
+			return err
+		},
+		"retry":  func(ctx context.Context, tx pgx.Tx) error { _, err := RetryRun(ctx, tx, e.ws2, run.ID); return err },
+		"cancel": func(ctx context.Context, tx pgx.Tx) error { _, err := CancelRun(ctx, tx, e.ws2, run.ID); return err },
 	}
 	for name, fn := range runCases {
 		if err := e.do(t, e.ws2, fn); !errors.Is(err, ErrRunNotFound) {
@@ -681,7 +714,10 @@ func TestStoreTenantIsolation(t *testing.T) {
 		}
 	}
 	// start a run against ws's playbook value from ws2 must not create a row visible anywhere in ws.
-	err := e.do(t, e.ws2, func(ctx context.Context, tx pgx.Tx) error { _, err := StartRun(ctx, tx, e.ws2, pb, e.aud2, 1, "1"); return err })
+	err := e.do(t, e.ws2, func(ctx context.Context, tx pgx.Tx) error {
+		_, err := StartRun(ctx, tx, e.ws2, pb, e.aud2, 1, "1")
+		return err
+	})
 	if err == nil {
 		t.Error("StartRun with a foreign playbook value succeeded")
 	}

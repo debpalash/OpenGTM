@@ -35,7 +35,7 @@ func render(t *testing.T, v any) string {
 	return rec.Body.String()
 }
 
-func str(s string) *string { return &s }
+func str(s string) *string      { return &s }
 func tp(t time.Time) *time.Time { return &t }
 
 func TestModelJSONKeyOrderMatchesToAPI(t *testing.T) {
