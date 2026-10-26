@@ -3,6 +3,7 @@ package config
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestConfigWorkbookFlagsDefaults(t *testing.T) {
@@ -75,6 +76,26 @@ func TestConfigSSEAndRedis(t *testing.T) {
 	for _, bad := range []string{"0", "-1", "x"} {
 		if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "SSE_MAX_STREAMS": bad})); err == nil {
 			t.Errorf("SSE_MAX_STREAMS=%q accepted", bad)
+		}
+	}
+}
+
+func TestConfigSSELimits(t *testing.T) {
+	c, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.SSEMaxPerUser != 10 || c.SSEMaxPerWorkspace != 200 || c.SSEMaxLifetime != 30*time.Minute {
+		t.Errorf("defaults = %d %d %v", c.SSEMaxPerUser, c.SSEMaxPerWorkspace, c.SSEMaxLifetime)
+	}
+	c, err = loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "SSE_MAX_STREAMS_PER_USER": "2",
+		"SSE_MAX_STREAMS_PER_WORKSPACE": "7", "SSE_MAX_LIFETIME_SECONDS": "90"}))
+	if err != nil || c.SSEMaxPerUser != 2 || c.SSEMaxPerWorkspace != 7 || c.SSEMaxLifetime != 90*time.Second {
+		t.Fatalf("parsed = %v %+v", err, c)
+	}
+	for _, kv := range [][2]string{{"SSE_MAX_STREAMS_PER_USER", "0"}, {"SSE_MAX_LIFETIME_SECONDS", "5"}, {"SSE_MAX_STREAMS_PER_WORKSPACE", "x"}} {
+		if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", kv[0]: kv[1]})); err == nil {
+			t.Errorf("%s=%s accepted", kv[0], kv[1])
 		}
 	}
 }
