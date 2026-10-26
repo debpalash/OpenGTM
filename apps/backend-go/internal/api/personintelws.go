@@ -286,13 +286,9 @@ func (h *personWS) serve(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	deps := personintel.Deps{HTTP: h.egress}
-	// The deep scrape RPC needs the caller's workspace (person_intel itself is global): the admin's
-	// active workspace, like every other authenticated route. A lookup failure leaves it empty.
-	if ws, err := h.d.Identity.ActiveWorkspaceID(cctx, uid); err == nil {
-		deps.WorkspaceID = ws
-	} else {
-		h.log().Warn("person intel ws: workspace lookup failed", "err_type", errTypeName(err))
-	}
+	// The deep scrape RPC needs a workspace (person_intel itself is global): X-Workspace-Id when the admin
+	// belongs to it, else their active workspace, else the default.
+	deps.WorkspaceID = PersonIntelWorkspaceID(cctx, h.d, uid, r.Header.Get("X-Workspace-Id"))
 	if h.d.PyWorker != nil {
 		deps.PyWorker = h.d.PyWorker
 	}

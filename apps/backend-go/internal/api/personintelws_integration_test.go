@@ -196,7 +196,7 @@ func TestPersonWSRealPipelineStepOrder(t *testing.T) {
 		steps = append(steps, m.Step)
 	}
 	if len(steps) < 5 || steps[0] != "parsed" || steps[len(steps)-1] != "saved" || steps[len(steps)-2] != "completed" {
-		t.Errorf("steps = %v", steps)
+		t.Errorf("steps = %v\nlogs: %s\nlast: %s", steps, e.logs.String(), frames[len(frames)-1])
 	}
 }
 
@@ -366,6 +366,7 @@ func TestPersonWSDeadline(t *testing.T) {
 
 func TestPersonWSNoInternalErrorTextLeaked(t *testing.T) {
 	secret := "postgres://user:hunter2@10.0.0.5/db"
+	e := newPWSEnv(t, nil, nil)
 	for name, fn := range map[string]pwsEnrich{
 		"pipeline error step": func(ctx context.Context, d personintel.Deps, u string, deep bool, n func(string, map[string]any)) (personintel.Profile, error) {
 			n("error", map[string]any{"message": "dial " + secret})
@@ -380,7 +381,7 @@ func TestPersonWSNoInternalErrorTextLeaked(t *testing.T) {
 			panic("boom " + secret)
 		},
 	} {
-		e := newPWSEnv(t, fn, nil)
+		e.w.enrich = fn
 		c := e.mustDial(t, "admin")
 		sendText(t, c, pwsURL)
 		fr, _ := readAll(t, c, 3*time.Second)
@@ -455,5 +456,35 @@ func TestPersonWSDeepScrapePassesCallerWorkspace(t *testing.T) {
 	}
 	if gotWS != ws {
 		t.Errorf("pipeline workspace = %q, want %q", gotWS, ws)
+	}
+}
+
+func TestPersonWSWorkspaceHeaderAndForeignFallback(t *testing.T) {
+	var gotWS string
+	e := newPWSEnv(t, func(ctx context.Context, d personintel.Deps, u string, deep bool, n func(string, map[string]any)) (personintel.Profile, error) {
+		gotWS = d.WorkspaceID
+		return fakeProfile(u), nil
+	}, nil)
+	admin := e.mustUserByName(t, pwsTag+"admin").ID
+	other := e.mustUserByName(t, pwsTag+"admin2").ID
+	mine, foreign := pwsTag+"ws-mine", pwsTag+"ws-foreign"
+	e.workspace(t, mine, admin)
+	e.member(t, mine, admin, "owner")
+	e.workspace(t, foreign, other)
+	e.member(t, foreign, other, "owner")
+	for hdr, want := range map[string]string{mine: mine, foreign: mine} {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		c, _, err := websocket.Dial(ctx, "ws"+strings.TrimPrefix(e.srv.URL, "http")+"/ws/person/enrich?token="+e.token(t, "admin"),
+			&websocket.DialOptions{HTTPHeader: http.Header{"X-Workspace-Id": {hdr}}})
+		cancel()
+		if err != nil {
+			t.Fatal(err)
+		}
+		sendText(t, c, pwsURL)
+		readAll(t, c, 5*time.Second)
+		_ = c.CloseNow()
+		if gotWS != want {
+			t.Errorf("header %q: workspace %q, want %q", hdr, gotWS, want)
+		}
 	}
 }
