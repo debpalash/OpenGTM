@@ -664,3 +664,23 @@ Replayed against `testdata/transcripts/webhook` (fake secret `ctk_transcript_hoo
 - Methods outside GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS fail (`webhook method not allowed`). At most 64 headers, each value at most 8 KiB, request body at most 1 MiB, response read at most 1 MiB (only `body[:160]` is ever used; decompressed bytes are bounded too), 15 s timeout (`timed out`), `connection refused` mapped as Python. Redirects are never followed (`HTTP 302: ` as Python).
 - Errors: a template error (`Unknown column reference: nope ...`, Python raised out of the sender) becomes `failed` with `str(e)[:200]`. Transport errors are `str(e)[:200]` with the URL query string, every header value (4+ chars) and the secret replaced by `[redacted]`; DNS failure reads `blocked url: cannot resolve host: <Go error>` (Python's text is libc `[Errno -2]...`, the prefix is equal). Nothing but host, method and status is logged. A cancelled context answers `failed` / `context canceled`; the caller checks `ctx.Err()`.
 - JSON bodies are sent compact; a map (`lead_data`) is key-sorted (JSON object order is not significant), ordered config bodies keep their order. Not reproducible with `net/http`, so skipped vectors: `status_304` (body) and `status_199_is_failure` (1xx final status).
+
+## Workbook WebSocket (plan 06 task 29): hardening beyond Python
+
+`GET /api/workbooks/{id}/ws` (`internal/api/workbookws.go`, `github.com/coder/websocket` pinned at v1.8.14, D7). Replayed against `testdata/contract/ws/*.json`.
+- Authorisation runs before the upgrade (token, membership of the claimed workspace, SSO, workbook in that tenant). Python's pre-accept `close(4403)` is an HTTP 403 handshake on the wire (the recorded `handshake_status`); Go refuses the upgrade with the same 403 (`wsCloseForbidden = 4403` maps to it). Internal errors deny too. The query token is never logged.
+- Invalid JSON, non-object JSON and binary frames are ignored (Python drops the socket with 1006; in Redis mode its exception also stops the relay, so later publishes are lost; Go keeps relaying). Only `{"type":"ping"}` (any extra keys) answers `{"type":"pong"}`.
+- Hardening: frames over `WS_MAX_MESSAGE_BYTES` (64 KiB) close with 1009; the server pings every 30 s and drops a client that does not pong in 10 s; writes time out after 10 s; a socket ends after `SSE_MAX_LIFETIME_SECONDS` and at shutdown with 1001; per-user / per-workspace / process-wide caps reuse `SSE_MAX_STREAMS_PER_USER` / `_PER_WORKSPACE` / `SSE_MAX_STREAMS` (429 / 429 / 503 before the upgrade; a WebSocket has its own counters, they are not shared with `/api/events`).
+- Only `workbook:<id>` of the authorised workbook is subscribed, payloads are relayed byte-for-byte as text frames, and the subscription is made before the upgrade so a client that sees 101 never misses a publish. Redis unavailable at connect (or no `REDIS_URL`) means echo/pong mode.
+- Origin: the handshake must come from the request Host or a `CORS_ORIGINS` host (Python checks nothing); `CORS_ORIGINS=*` (or empty) keeps the Python behaviour.
+- `httpx.Gzip` no longer wraps requests with an `Upgrade` header (browsers send `Accept-Encoding` on the handshake and the buffered 101 would be written after the hijack).
+
+## Ingest routes (plan 06 Task 30): deviations
+
+`POST /api/v2/workbooks/{id}/ingest-token` and `.../rows/ingest` (`INGEST_API_ENABLED`, new Go flag, default off) match the recorded fixtures. Deviations from Python:
+
+- Token callers are authenticated (and a disabled flag answers 404) before the body is read; Python validates the body first, so a bad token with a malformed body is 401 here and 422 there. This keeps anonymous callers from making the server buffer request bodies.
+- The body goes through plan 04's upload byte budget (503 + `Retry-After` when full), the 32 MiB body cap (413 `Request body too large`) and the add-rows row/key caps (422 `too_long` beyond them); the 500-row request cap (413 `too many rows: N > 500 per request`) is unchanged.
+- The workbook row is locked `FOR UPDATE` for the whole ingest, so concurrent calls with one `Idempotency-Key` insert once (Python relies on the unique-key race). `on_row_added` automations are enqueued in the same transaction (Python emits after commit).
+- Token hashes are compared with `crypto/subtle`; plaintext appears only in the one-time creation response and is never logged. `internal/sourceingest` was not reused: it upserts by `(source_provider, source_record_id)`, while ingest dedupes on the add-rows identity (`wbcrud.RowIdentity`), which it does reuse.
+- Fixture comparison uses `IgnoreShapeOf` for `row_ids`, token `id`/`prefix`/`created_at`/`token`.
