@@ -30,6 +30,8 @@ const (
 type cellOutcome struct {
 	Success bool
 	Value   string
+	Raw     any // the Python value of a computed cell (HasRaw), threaded to later columns
+	HasRaw  bool
 }
 
 type callKind int
@@ -382,7 +384,7 @@ func (rs *runState) safeWaterfall(ctx context.Context, lead map[string]any, col 
 			out, err = cellOutcome{}, fmt.Errorf("panic: %v", r)
 		}
 	}()
-	return rs.waterfall(ctx, lead, col, rowID, leadID)
+	return rs.runCell(ctx, lead, col, rowID, leadID)
 }
 
 // persistCellFailure ports _run_one_cell's except path.
@@ -594,7 +596,8 @@ loop:
 			return cellOutcome{Success: true, Value: v}, nil
 		}
 	}
-	return rs.commitCell(ctx, col, rowID, leadID, resultValue, resultProvider, resultError, skipped)
+	return rs.commitCell(ctx, col, rowID, leadID, cellResult{Has: resultValue != "", Value: resultValue,
+		Provider: resultProvider, Err: resultError, Skipped: skipped})
 }
 
 // completeCellValue returns the stored value of a complete overlay cell.
@@ -679,26 +682,43 @@ func canonify(v any) any {
 	return v
 }
 
+// cellResult is what a cell produced, before it is persisted.
+type cellResult struct {
+	Has      bool   // a result value exists (otherwise an error cell)
+	Value    string // workbook_enrichments.value text
+	Raw      any    // overlay/broadcast value when HasRaw (a non-string Python value)
+	HasRaw   bool
+	Provider string
+	Err      string
+	Skipped  []skippedProvider
+	Meta     map[string]any // cell metadata (research)
+}
+
 // commitCell is the "Write results" tail of enrich_cell: one lease-fenced
-// transaction for the overlay row and the workbook row mirror, then the
-// separate telemetry transaction, then the result broadcast.
-func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID int64, value, provider, errText string,
-	skipped []skippedProvider) (cellOutcome, error) {
+// transaction for the overlay row and the workbook row mirror, then the result
+// broadcast. Provider telemetry is the provider runner's job.
+func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID int64, r cellResult) (cellOutcome, error) {
 	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID
-	hasResult := value != ""
 	w := cellWrite{WorkspaceID: ws, WorkbookID: wb, LeadID: int32(leadID), RowID: int32(rowID),
-		ColumnID: col.ID, Skipped: skipped}
+		ColumnID: col.ID, Skipped: r.Skipped, Meta: r.Meta}
 	var bErr any
-	if hasResult {
+	var bValue any
+	if r.Has {
+		value, provider := r.Value, r.Provider
 		w.Status, w.Value, w.Provider = "complete", &value, &provider
+		w.Raw, w.HasRaw = r.Raw, r.HasRaw
+		bValue = value
+		if r.HasRaw {
+			bValue = r.Raw
+		}
 	} else {
-		stored := errText
+		stored := r.Err
 		if stored == "" {
 			stored = "no_data"
 		}
 		w.Status, w.Error = "error", &stored
-		if errText != "" {
-			bErr = errText // Python broadcasts result_error, which may be None
+		if r.Err != "" {
+			bErr = r.Err // Python broadcasts result_error, which may be None
 		}
 	}
 	err := tenancy.InWorkspace(ctx, rs.deps.Pool, ws, func(tx pgx.Tx) error {
@@ -711,15 +731,23 @@ func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID in
 		return cellOutcome{}, err
 	}
 
-	var bValue, bProvider any
+	var bProvider any
 	status := "error"
-	if hasResult {
-		bValue, bProvider, status = value, provider, "complete"
+	if r.Has {
+		bProvider, status = r.Provider, "complete"
+	}
+	var research any
+	if m, ok := r.Meta["research"].(map[string]any); ok {
+		research = m
 	}
 	rs.publish(ctx, map[string]any{"type": "cell_update", "leadId": leadID, "rowId": rowID, "colId": col.ID,
 		"value": bValue, "status": status, "provider": bProvider, "error": bErr,
-		"research": nil, "provenance": nil, "verify_status": nil})
-	return cellOutcome{Success: hasResult, Value: value}, nil
+		"research": research, "provenance": nil, "verify_status": nil})
+	out := cellOutcome{Success: r.Has, Value: r.Value}
+	if r.HasRaw {
+		out.Raw, out.HasRaw = r.Raw, true
+	}
+	return out, nil
 }
 
 // upstreamFailed ports `any(referencing_columns([col], failed) ...)`.

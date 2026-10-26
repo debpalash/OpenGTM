@@ -131,6 +131,7 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 	for i, col := range columns {
 		rs.allCols[i] = col.g
 	}
+	rs.cols = columns
 	rs.cycleBlocked = colgraph.CycleBlocked(rs.allCols)
 	var enrichCols []column
 	for _, col := range columns {
@@ -286,9 +287,13 @@ func (rs *runState) runOneRow(ctx context.Context, w workItem) rowResult {
 		}
 		if out.Success {
 			r.completed++
-			row[col.ID] = out.Value
+			var threaded any = out.Value
+			if out.HasRaw {
+				threaded = out.Raw
+			}
+			row[col.ID] = threaded
 			if col.Name != "" {
-				row[col.Name] = out.Value
+				row[col.Name] = threaded
 			}
 			for k, v := range identities {
 				row[k] = v

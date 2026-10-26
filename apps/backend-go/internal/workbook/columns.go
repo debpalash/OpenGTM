@@ -15,7 +15,8 @@ import (
 // canonjson-decoded dict because Python hashes it into the spend contract.
 type column struct {
 	cfg  map[string]any
-	g    colgraph.Col // same config with key order, for the dependency graph
+	raw  map[string]json.RawMessage // top-level fields as raw JSON (key order of structured values)
+	g    colgraph.Col               // same config with key order, for the dependency graph
 	ID   string
 	Type string
 	Name string
@@ -37,13 +38,17 @@ func parseColumns(raw []byte) ([]column, error) {
 	if err != nil {
 		return nil, fmt.Errorf("workbook: columns_config: %w", err)
 	}
+	var rawList []json.RawMessage
+	if err := json.Unmarshal(raw, &rawList); err != nil || len(rawList) != len(list) {
+		return nil, errors.New("workbook: columns_config is not a list")
+	}
 	cols := make([]column, 0, len(list))
 	for i, e := range list {
 		m, ok := e.(map[string]any)
 		if !ok {
 			return nil, errors.New("workbook: columns_config entry is not an object")
 		}
-		c := column{cfg: m, g: graph[i]}
+		c := column{cfg: m, g: graph[i], raw: rawFields(rawList[i])}
 		c.ID, _ = m["id"].(string)
 		c.Type, _ = m["type"].(string)
 		c.Name, _ = m["name"].(string)
@@ -95,7 +100,7 @@ var enrichmentColTypes = map[string]bool{
 }
 
 // goColumnTypes are the only column types this executor runs.
-var goColumnTypes = map[string]bool{"enrichment": true, "waterfall": true}
+var goColumnTypes = map[string]bool{"enrichment": true, "waterfall": true, "formula": true, "http": true}
 
 // validateGoColumn refuses columns Python eligibility would never have routed
 // here (the workbook may have been edited after enqueue).
@@ -105,6 +110,9 @@ func validateGoColumn(c column) error {
 	}
 	if manifest.PyTruthy(c.cfg["condition"]) {
 		return refuse("column %q has a condition", c.ID)
+	}
+	if c.Type != "enrichment" && c.Type != "waterfall" {
+		return nil
 	}
 	t := c.target()
 	if structuredFields[t] {

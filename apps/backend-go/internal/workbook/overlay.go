@@ -22,6 +22,11 @@ type cellWrite struct {
 	Provider                *string
 	Error                   *string
 	Skipped                 []skippedProvider
+	// Raw is the non-string Python value kept in the row overlay (the table
+	// column holds its json.dumps text); Meta is cell_metadata (research).
+	Raw    any
+	HasRaw bool
+	Meta   map[string]any
 }
 
 func textOf(s *string) pgtype.Text {
@@ -53,6 +58,12 @@ func (w cellWrite) overlayCell() map[string]any {
 		"value": anyOf(w.Value), "status": w.Status,
 		"provider": anyOf(w.Provider), "error": anyOf(w.Error),
 	}
+	if w.HasRaw {
+		cell["value"] = w.Raw
+	}
+	if r, ok := w.Meta["research"].(map[string]any); ok {
+		cell["research"] = r
+	}
 	if len(w.Skipped) > 0 {
 		cell["skipped_providers"] = w.skippedJSON()
 	}
@@ -65,9 +76,16 @@ func (w cellWrite) overlayCell() map[string]any {
 func setEnrichment(ctx context.Context, tx pgx.Tx, w cellWrite) error {
 	q := gen.New(tx)
 	var meta []byte
-	if len(w.Skipped) > 0 {
+	if len(w.Skipped) > 0 || len(w.Meta) > 0 {
+		m := make(map[string]any, len(w.Meta)+1)
+		for k, v := range w.Meta {
+			m[k] = v
+		}
+		if len(w.Skipped) > 0 {
+			m["skipped_providers"] = w.skippedJSON()
+		}
 		var err error
-		if meta, err = json.Marshal(map[string]any{"skipped_providers": w.skippedJSON()}); err != nil {
+		if meta, err = json.Marshal(m); err != nil {
 			return err
 		}
 	}

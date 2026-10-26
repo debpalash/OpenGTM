@@ -92,7 +92,8 @@ type runState struct {
 	// every column, not just the ones this run executes); cycleBlocked caches
 	// colgraph.CycleBlocked over it.
 	runner       ProviderRunner
-	legacy       bool // no Deps.Runner: only the payload's manifests exist
+	cols         []column // every configured column (name aliases for {column} references)
+	legacy       bool     // no Deps.Runner: only the payload's manifests exist
 	allCols      []colgraph.Col
 	cycleBlocked map[string]bool
 }
