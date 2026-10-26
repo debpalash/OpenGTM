@@ -8,7 +8,6 @@ import (
 	"io"
 	"log/slog"
 	"net"
-	"os"
 	"strings"
 	"time"
 
@@ -113,17 +112,14 @@ func scrub(err error, cfg outreachcfg.IMAP) string {
 	return s
 }
 
+// isConnErr is true only for real transport failures; a server NO/BAD reply
+// (for example "mailbox closed" text) is not a reason to reconnect.
 func isConnErr(err error) bool {
-	if errors.Is(err, imapclient.ErrBudgetExceeded) || errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) ||
-		errors.Is(err, net.ErrClosed) || errors.Is(err, os.ErrDeadlineExceeded) {
+	if errors.Is(err, imapclient.ErrBudgetExceeded) || errors.Is(err, io.EOF) || errors.Is(err, net.ErrClosed) {
 		return true
 	}
-	var ne net.Error
-	if errors.As(err, &ne) {
-		return true
-	}
-	m := strings.ToLower(err.Error())
-	return strings.Contains(m, "not connected") || strings.Contains(m, "closed") || strings.Contains(m, "broken pipe") || strings.Contains(m, "connection reset")
+	var op *net.OpError
+	return errors.As(err, &op)
 }
 
 // poll is _run_poll: connect, select, search, then fetch + process each message
@@ -191,15 +187,18 @@ func (h *Handler) poll(ctx context.Context, ws string, cfg outreachcfg.IMAP) (st
 				return "", cerr
 			}
 			cl = ncl
-			if _, rerr := open(); rerr != nil {
+			nuv, rerr := open()
+			if rerr != nil {
 				return "", rerr
 			}
+			uidValidity = nuv
 			if hostile {
 				markSeen(uid) // the message that blew the budget would do it again
 			}
 			continue
 		case err != nil:
-			note(fmt.Errorf("fetch uid %s: %w", uid, err))
+			// Python's fetch() returns b"" for any non-OK reply: skip, never fail the tick
+			h.log().Warn("inbound fetch failed, skipping message", "workspace_id", ws, "uid", uid, "error_type", fmt.Sprintf("%T", err))
 			continue
 		}
 		if len(raw) == 0 {

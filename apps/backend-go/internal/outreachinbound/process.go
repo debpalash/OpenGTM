@@ -7,6 +7,7 @@ package outreachinbound
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -24,8 +25,12 @@ import (
 // or non-ASCII DSN, which Python could only raise on) with the recipient-only
 // send recorded for visibility but never acted on.
 func Process(ctx context.Context, tx pgx.Tx, wsID, uidValidity, uid string, raw []byte, th outreachstore.Thresholds) error {
-	srcMID := dsnparse.SourceMessageID(raw)
+	srcMID := stripNUL(dsnparse.SourceMessageID(raw))
 	records := dsnparse.Parse(raw)
+	for i := range records { // Postgres text rejects 0x00: it would poison every retry
+		r := &records[i]
+		r.Recipient, r.Diagnostic, r.OriginalMessageID = stripNUL(r.Recipient), stripNUL(r.Diagnostic), stripNUL(r.OriginalMessageID)
+	}
 
 	var chosen *dsnparse.Record
 	var matched *outreachstore.SendRef
@@ -88,3 +93,5 @@ func Process(ctx context.Context, tx pgx.Tx, wsID, uidValidity, uid string, raw 
 	}
 	return outreachstore.ApplyBounce(ctx, tx, a, th)
 }
+
+func stripNUL(s string) string { return strings.ReplaceAll(s, "\x00", "") }

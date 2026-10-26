@@ -230,15 +230,15 @@ hello
 // ------------------------------------------------------------ fake IMAP client
 
 type fakeClient struct {
-	mu          sync.Mutex
-	uids        []string
-	msgs        map[string][]byte
-	uidValidity string
+	mu           sync.Mutex
+	uids         []string
+	msgs         map[string][]byte
+	uidValidity  string
 	uidValidity2 string // returned by Select once reconnected
-	connectErr  error
-	selectErr   error
-	fetchErrs   map[string][]error // consumed one per Fetch call
-	markErr     error
+	connectErr   error
+	selectErr    error
+	fetchErrs    map[string][]error // consumed one per Fetch call
+	markErr      error
 
 	connects, logouts int
 	seen, fetched     []string
