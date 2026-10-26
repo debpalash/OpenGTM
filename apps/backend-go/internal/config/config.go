@@ -142,6 +142,9 @@ func load(get func(string) string) (Config, error) {
 	if c.Flags.Automations, err = loadAutomations(get); err != nil {
 		return Config{}, err
 	}
+	if c.Flags.Governance, err = loadGovernance(get); err != nil {
+		return Config{}, err
+	}
 	if c.Flags.IntentPollerEnabled, err = boolVar(get, "INTENT_POLLER_ENABLED", false); err != nil {
 		return Config{}, err
 	}
@@ -384,6 +387,7 @@ type Flags struct {
 	Automations                    AutomationsSettings // plan 08; see automations.go
 	Outreach                       OutreachSettings    // plan 09; see outreach.go
 	Audiences                      AudienceSettings    // plan 10; see audiences.go
+	Governance                     GovernanceSettings  // plan 11; see governance.go
 }
 
 // DefaultStripeAPIBase is the production Stripe API origin.
@@ -513,6 +517,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		return APIConfig{}, err
 	}
 	if c.Flags.Audiences, err = loadAudiences(get); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.Governance, err = loadGovernance(get); err != nil {
 		return APIConfig{}, err
 	}
 	if c.Flags.IntentPollerEnabled, err = boolVar(get, "INTENT_POLLER_ENABLED", false); err != nil {

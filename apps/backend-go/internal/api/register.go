@@ -137,4 +137,6 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterOutreach(r, d)
 	RegisterAudiences(r, d)
 	RegisterDestinations(r, d)
+	RegisterGovernance(r, d)
+	RegisterPlaybooks(r, d)
 }
