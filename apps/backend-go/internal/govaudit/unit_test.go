@@ -96,7 +96,7 @@ func TestCursorRoundTrip(t *testing.T) {
 func TestCSVSafeVectors(t *testing.T) {
 	for in, want := range map[string]string{
 		"": "", "plain": "plain", "=1": "'=1", "+1": "'+1", "-1": "'-1", "@x": "'@x",
-		"\tx": "'\tx", "\rx": "'\rx", " =1": " =1", "a=": "a=", "'=": "'=",
+		"\tx": "'\tx", "\rx": "'\rx", " =1": "' =1" /* Go hardening, Python leaves it */, "a=": "a=", "'=": "'=",
 	} {
 		if got := safe(in); got != want {
 			t.Errorf("safe(%q)=%q want %q", in, got, want)
@@ -230,5 +230,17 @@ func TestValidateListParams(t *testing.T) {
 	}
 	if _, errs := ValidateListParams("", "99999999999999999999", true); len(errs) != 1 || errs[0].Type != "less_than_equal" {
 		t.Errorf("big: %+v", errs)
+	}
+}
+
+// Go hardening over Python's safe(): a formula hidden behind leading whitespace, CR or LF is
+// neutralised too.
+func TestSafeCoversLeadingWhitespaceFormulas(t *testing.T) {
+	for in, want := range map[string]string{
+		" =1+1": "' =1+1", "\n=cmd": "'\n=cmd", "\r\n@x": "'\r\n@x", "  \t-2": "'  \t-2", " plain": " plain", "a=b": "a=b", "\nplain": "\nplain",
+	} {
+		if got := safe(in); got != want {
+			t.Errorf("safe(%q)=%q want %q", in, got, want)
+		}
 	}
 }

@@ -23,9 +23,13 @@ var batchHook func(n int)
 var csvHeader = []string{"id", "created_at", "actor_user_id", "actor_role", "method", "route", "resource_path", "response_status", "outcome", "request_id", "metadata_json"}
 
 // safe neutralises spreadsheet formulas: text starting with = + - @ TAB or CR
-// gets a leading apostrophe (Python safe()).
+// gets a leading apostrophe (Python safe()). Go hardening: the same when the formula
+// character follows leading spaces, tabs, CR or LF.
 func safe(s string) string {
 	if s != "" && strings.ContainsRune("=+-@\t\r", rune(s[0])) {
+		return "'" + s
+	}
+	if t := strings.TrimLeft(s, " \t\r\n"); t != s && t != "" && strings.ContainsRune("=+-@", rune(t[0])) {
 		return "'" + s
 	}
 	return s
