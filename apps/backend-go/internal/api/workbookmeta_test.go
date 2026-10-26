@@ -37,6 +37,17 @@ func newMetaEnvFlags(t *testing.T, fl config.Flags) metaEnv {
 	e.seedDetail(t)
 	e.seed(t, "erin", pythonHash, true, "user", false)
 	e.member(t, "ws-alpha", e.mustUserByName(t, "erin").ID, "editor")
+	// provider_stats is global; the fixtures were recorded against the contract seed's three rows.
+	ctx := context.Background()
+	_, _ = pool.Exec(ctx, `DELETE FROM provider_stats`)
+	t.Cleanup(func() { _, _ = pool.Exec(ctx, `DELETE FROM provider_stats`) })
+	if _, err := pool.Exec(ctx, `INSERT INTO provider_stats
+		(provider, field, attempts, hits, total_confidence, total_latency_ms, total_cost_usd, cooldown_until, accuracy_score, accuracy_samples)
+		VALUES ('hunter_io','email',40,28,22.4,18000.0,1.6,NULL,0.91,25),
+		       ('apollo_io','email',12,5,3.5,9600.0,0.36,'2026-08-29 12:00:00',NULL,0),
+		       ('ipinfo','company_size',7,0,0.0,700.0,0.0,NULL,NULL,0)`); err != nil {
+		t.Fatal(err)
+	}
 	return e
 }
 
