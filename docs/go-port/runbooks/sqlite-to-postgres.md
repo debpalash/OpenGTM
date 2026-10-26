@@ -22,13 +22,14 @@ export PGHOST=<host> PGPORT=5432 PGUSER=<owner> PGDATABASE=<db>
 # Never put it in a URL passed to psql, and never pass --pg-url: the stores CLI defaults to $DATABASE_URL.
 ```
 
-> **Prerequisite: rewire Docker/compose to `legacy/python` before cutover (known open item).**
-> The root `Dockerfile` still copies `apps/api/`, `migrations/` and `alembic.ini` from the repo root,
-> which now live under `legacy/python/`. Until the Dockerfile/compose build context is rewired, the
-> `migrate` image and the `api`/`worker`/`scheduler` images cannot be built from this tree, so
-> `docker compose run --rm migrate` and the in-image (`/app`) route do not work. Use the host-side
-> equivalents given in the steps (run from `legacy/python/`), and do not cut over until the images
-> build and contain the new head `e1f5a9b3d7c2`.
+> **Prerequisite: rewire Docker/compose to `legacy/python`: DONE.**
+> The root `Dockerfile` now copies `apps/api/`, `migrations/` and `alembic.ini` from `legacy/python/`
+> (build context stays the repo root). `docker compose build` for `migrate`/`api`/`worker`/`scheduler`/`seed`
+> succeeds, and `migrate` was verified against a throwaway Postgres: it reaches head `e1f5a9b3d7c2`, so
+> `docker compose run --rm migrate` and the in-image (`/app`) route work.
+> **Remaining CI caveat:** `legacy/python/` is gitignored (untracked by design), so these builds only work
+> from a working tree that contains it. CI or any remote build from a clean git checkout must provide
+> `legacy/python/` first, or the `COPY legacy/python/...` steps fail.
 
 SQLite files are never modified or deleted by any step of this runbook.
 
