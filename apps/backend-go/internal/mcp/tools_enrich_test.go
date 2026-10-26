@@ -481,3 +481,15 @@ func TestEnrichPanicReleasesHeldSlot(t *testing.T) {
 		t.Fatalf("released=%d settled=%d", r.released, r.settled)
 	}
 }
+
+func TestEnrichCompanyPythonMissReleasesSlotAndAuditsError(t *testing.T) {
+	r := newEnrichRig(t, Config{MaxEnrichPerDay: 2})
+	r.pyOut("mcp.enrich_company", `{"not_found":true}`)
+	got, _ := r.call(t, "enrich_company", Args{"lead_id": 1.0})
+	if got != `{"error": "Lead not found"}` {
+		t.Fatal(got)
+	}
+	if r.released != 1 || r.settled != 0 || len(r.audits) != 1 || r.audits[0].Status != "error" {
+		t.Fatalf("released=%d settled=%d audits=%+v", r.released, r.settled, r.audits)
+	}
+}

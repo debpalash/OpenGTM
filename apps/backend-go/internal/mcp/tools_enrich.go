@@ -20,6 +20,9 @@ var (
 	recordAudit = Record
 )
 
+// errLeadMiss is returned by a cost call whose Python side reported not_found.
+var errLeadMiss = errors.New("lead not found")
+
 const (
 	maxEmailLen   = 320
 	maxCompanyLen = 500
@@ -140,6 +143,13 @@ func runCost(ctx context.Context, d Deps, c Ctx, tool string, args Args, shape f
 	}()
 	text, err := do(ctx)
 	finished = true
+	if errors.Is(err, errLeadMiss) { // lead vanished after the check: nothing was spent
+		if reserved {
+			finishCap(ctx, d, c, res, releaseCap)
+		}
+		recordAudit(ctx, d, c, tool, args, AuditOutcome{Status: "error", Error: "lead not found"})
+		return shape(msgLeadNotFound)
+	}
 	if err != nil {
 		slog.Error("mcp enrich failed", "tool", tool, "err", err.Error())
 		if reserved {
@@ -239,7 +249,7 @@ func enrichCompanyTool(ctx context.Context, d Deps, c Ctx, a Args) (string, erro
 			return "", err
 		}
 		if isNotFound(f) {
-			return errorText(msgLeadNotFound), nil
+			return "", errLeadMiss
 		}
 		ef, prov := f.get("enriched_fields"), f.get("provider")
 		if len(ef) == 0 {
