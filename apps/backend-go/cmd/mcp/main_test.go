@@ -2,6 +2,9 @@ package main
 
 import (
 	"bytes"
+	"context"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -55,5 +58,40 @@ func TestLoopback(t *testing.T) {
 		if loopbackHost(h) != want {
 			t.Errorf("%q", h)
 		}
+	}
+}
+
+func TestLiveConfigWiresOperatorReacherAndEgress(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte("ok")) }))
+	defer srv.Close()
+	host := strings.TrimPrefix(srv.URL, "http://")
+	get := env(map[string]string{
+		"REACHER_URL": "https://reacher.internal", "REACHER_ENABLED": "true", "REACHER_TIMEOUT": "7",
+		"REACHER_API_KEY": "operator-key", "EGRESS_ALLOW_HOSTS": "other.internal, " + host,
+	})
+	cfg := liveConfig(nil, get, nil)
+	if cfg.HTTP == nil || cfg.ReacherSettings == nil || cfg.Keys == nil {
+		t.Fatalf("incomplete: %+v", cfg)
+	}
+	// Settings are global: the same for every workspace, never read per workspace.
+	for _, ws := range []string{"a", "b"} {
+		s := cfg.ReacherSettings(context.Background(), ws)
+		if s["REACHER_URL"] != "https://reacher.internal" || s["REACHER_ENABLED"] != "true" || s["REACHER_TIMEOUT"] != "7" {
+			t.Fatalf("%s: %v", ws, s)
+		}
+	}
+	if k, _ := cfg.Keys(context.Background(), "ws", "REACHER_API_KEY"); k != "operator-key" {
+		t.Fatalf("key %q", k)
+	}
+	// The operator allow-list opens exactly the listed private target.
+	resp, err := cfg.HTTP.Get(srv.URL)
+	if err != nil {
+		t.Fatalf("allow-listed host refused: %v", err)
+	}
+	resp.Body.Close()
+	unlisted := liveConfig(nil, env(nil), nil)
+	if r, err := unlisted.HTTP.Get(srv.URL); err == nil {
+		r.Body.Close()
+		t.Fatal("loopback target reachable without EGRESS_ALLOW_HOSTS")
 	}
 }
