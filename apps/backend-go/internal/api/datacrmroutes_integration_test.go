@@ -505,11 +505,20 @@ func TestDataExportClientDisconnectStops(t *testing.T) {
 		return nil
 	}
 	done := make(chan struct{})
-	go func() { defer close(done); e.h.ServeHTTP(cw, req) }()
+	var recovered any
+	go func() {
+		defer close(done)
+		defer func() { recovered = recover() }()
+		e.h.ServeHTTP(cw, req)
+	}()
 	select {
 	case <-done:
 	case <-time.After(10 * time.Second):
 		t.Fatal("handler still running after the client disconnected")
+	}
+	// A failed mid-stream export aborts the connection (net/http swallows ErrAbortHandler).
+	if recovered != http.ErrAbortHandler {
+		t.Errorf("mid-stream failure did not abort the handler: recovered %v", recovered)
 	}
 	if cw.bytes > 1_000_000 { // the full export is ~1.8 MB
 		t.Errorf("wrote %d bytes after disconnect", cw.bytes)
