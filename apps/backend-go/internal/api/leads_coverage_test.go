@@ -97,8 +97,23 @@ func pythonLeadSignalRoutes(t *testing.T) []string {
 func TestEveryPythonLeadSignalRouteIsPortedOrRetained(t *testing.T) {
 	routes := pythonLeadSignalRoutes(t)
 	ported, retained := leadsGoPatterns(t), readRetainedLeads(t)
-	if len(ported) != 20 || len(retained) != 21 {
-		t.Errorf("want 20 ported + 21 retained, got %d + %d", len(ported), len(retained))
+	if len(ported) != 20 || len(retained) != 7 {
+		t.Errorf("want 20 ported + 7 retained, got %d + %d", len(ported), len(retained))
+	}
+	// 14 routes of leads.py (collect, jobs*, system-stats, lead utilities) moved to Go in plan 14.
+	lg := map[string]bool{}
+	for p := range leadgenGoPatterns(t) {
+		lg[normRoute(p)] = true
+	}
+	ported14 := 0
+	for _, r := range routes {
+		if !ported[r] && !retained[r] && lg[normRoute(r)] {
+			ported[r] = true
+			ported14++
+		}
+	}
+	if ported14 != 14 {
+		t.Errorf("want 14 leads.py routes ported by plan 14, got %d", ported14)
 	}
 	if len(routes) != 41 {
 		t.Errorf("want 41 Python route decorators, parsed %d", len(routes))
