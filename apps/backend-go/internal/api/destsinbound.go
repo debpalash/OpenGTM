@@ -33,10 +33,13 @@ const (
 
 type inboundRoutes struct {
 	d     Deps
-	pub   *pubRoutes // clientIP: the trusted-proxy aware client address of the other public routes
-	ipMW  httpx.Middleware
+	pub   *pubRoutes       // clientIP: the trusted-proxy aware client address of the other public routes
+	ipMW  httpx.Middleware // separate limiters: new-address pressure must never touch a token's window
 	tokMW httpx.Middleware
 }
+
+// inboundLimiterCap overrides the live-window cap of the callback limiters (0: the package default); tests lower it.
+var inboundLimiterCap int
 
 // inboundPath is the route; the destination id is its last segment.
 const inboundPath = drPrefix + "/inbound/"
@@ -50,11 +53,15 @@ const inboundPath = drPrefix + "/inbound/"
 // by the innermost global middleware, which takes exactly POST <inboundPath><one segment> and hands everything else on. As in
 // Python (sync and inbound-token are declared first) the two overlapping literals still belong to those routes.
 func registerDestsInbound(r *httpx.Router, d Deps) {
-	lim := ratelimit.New(nil)
+	ipLim, tokLim := ratelimit.New(nil), ratelimit.New(nil)
+	if inboundLimiterCap > 0 {
+		ipLim.SetMaxKeys(inboundLimiterCap)
+		tokLim.SetMaxKeys(inboundLimiterCap)
+	}
 	h := &inboundRoutes{d: d,
 		pub:   &pubRoutes{d: d, proxies: parseTrustedProxies(d.getenv()("TRUST_PROXY_CIDRS"), d.logger())},
-		ipMW:  lim.Limit(inboundRateSpec), // each Limit call has its own budget
-		tokMW: lim.Limit(inboundRateSpec)}
+		ipMW:  ipLim.Limit(inboundRateSpec),
+		tokMW: tokLim.Limit(inboundRateSpec)}
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			if id, ok := inboundDestination(req); ok {
@@ -72,11 +79,13 @@ func inboundDestination(req *http.Request) (string, bool) {
 		return "", false
 	}
 	rest, ok := strings.CutPrefix(req.URL.EscapedPath(), inboundPath)
-	if !ok || rest == "" || strings.Contains(rest, "/") || rest == "sync" || rest == "inbound-token" {
+	if !ok || rest == "" || strings.Contains(rest, "/") {
 		return "", false
 	}
 	id, err := url.PathUnescape(rest)
-	if err != nil || id == "" {
+	// The reserved literals are compared decoded (ServeMux and Starlette route sy%6ec to {id}/sync) and a decoded
+	// slash is not an id (Python answers 404).
+	if err != nil || id == "" || id == "sync" || id == "inbound-token" || strings.Contains(id, "/") {
 		return "", false
 	}
 	return id, true
@@ -123,18 +132,30 @@ func (h *inboundRoutes) process(w http.ResponseWriter, r *http.Request, destID s
 		return
 	}
 	token := bearerToken(r)
-	ws, err := destinbound.Resolve(r.Context(), h.d.Pool, token, destID, time.Now())
+	ver, err := destinbound.Lookup(r.Context(), h.d.Pool, token, destID, time.Now())
 	if errors.Is(err, destinbound.ErrInvalidToken) {
 		httpx.Detail(w, http.StatusUnauthorized, err.Error(), httpx.Header{Key: "WWW-Authenticate", Value: "Bearer"})
 		return
 	}
 	if err != nil {
-		h.pub.fail(w, "inbound resolve", err)
+		h.fail(w, "inbound resolve", err)
 		return
 	}
 	// The token budget is spent only by a token that verified and is keyed by its digest: junk sharing a real token's prefix
 	// cannot exhaust that token's budget.
-	limited(h.tokMW, "tok:"+destinbound.HashToken(token), w, r, func() { h.reconcile(w, r, ws, destID, body) })
+	// The last_used_at stamp comes after the budget check, so an over-budget token costs no write.
+	limited(h.tokMW, "tok:"+destinbound.HashToken(token), w, r, func() {
+		ws, err := ver.Stamp(r.Context(), h.d.Pool)
+		if errors.Is(err, destinbound.ErrInvalidToken) {
+			httpx.Detail(w, http.StatusUnauthorized, err.Error(), httpx.Header{Key: "WWW-Authenticate", Value: "Bearer"})
+			return
+		}
+		if err != nil {
+			h.fail(w, "inbound stamp", err)
+			return
+		}
+		h.reconcile(w, r, ws, destID, body)
+	})
 }
 
 func (h *inboundRoutes) reconcile(w http.ResponseWriter, r *http.Request, ws, destID string, body destinbound.InboundBody) {
@@ -176,12 +197,12 @@ func (h *inboundRoutes) reconcile(w http.ResponseWriter, r *http.Request, ws, de
 		httpx.Detail(w, http.StatusUnprocessableEntity, "invalid callback body")
 		return
 	case err != nil:
-		h.pub.fail(w, "inbound reconcile", err)
+		h.fail(w, "inbound reconcile", err)
 		return
 	}
 	out, err := json.Marshal(receipt)
 	if err != nil {
-		h.pub.fail(w, "inbound marshal", err)
+		h.fail(w, "inbound marshal", err)
 		return
 	}
 	// {**receipt, "replay": replay}: replay is the last key.
@@ -303,4 +324,10 @@ func inboundFieldsCheck(f *wbcrud.Obj, at []any) *httpx.FieldError {
 		}
 	}
 	return nil
+}
+
+// fail logs under the destination inbound prefix (not outreach's) and answers the generic 500.
+func (h *inboundRoutes) fail(w http.ResponseWriter, what string, err error) {
+	h.d.logger().Error("destination inbound: request failed", "op", what, "err_type", errTypeName(err))
+	httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
 }

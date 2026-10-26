@@ -636,3 +636,113 @@ func TestInboundSyncLiteralGoesToSyncRoute(t *testing.T) {
 		t.Fatalf("%d %s", rec.Code, rec.Body)
 	}
 }
+
+// Plan 10 final security M2: a flood of new client addresses must not reset a token's budget (the IP and
+// token windows live in separate limiters) and must not stall callbacks.
+func TestInboundIPFloodDoesNotResetTokenBudget(t *testing.T) {
+	old := inboundLimiterCap
+	inboundLimiterCap = 200
+	t.Cleanup(func() { inboundLimiterCap = old })
+	v := newInbEnv(t)
+	ipOf := func(i int) func(*http.Request) {
+		return func(r *http.Request) { r.RemoteAddr = fmt.Sprintf("10.%d.%d.%d:1", i/65536, i/256%256, i%256) }
+	}
+	for i := 0; i < 120; i++ {
+		if rec := v.do("dst-act-hubspot", v.bearer("hub_active"), inbEvent("evt-fl"), ipOf(i)); rec.Code != 200 {
+			t.Fatalf("verified %d: %d %s", i, rec.Code, rec.Body)
+		}
+	}
+	start := time.Now()
+	for i := 1000; i < 3000; i++ { // 10x the cap in fresh addresses
+		if rec := v.do("dst-act-hubspot", "Bearer junk", inbEvent("x"), ipOf(i)); rec.Code != 401 {
+			t.Fatalf("flood %d: %d", i, rec.Code)
+		}
+	}
+	if d := time.Since(start); d > 30*time.Second {
+		t.Fatalf("flood took %s", d)
+	}
+	if rec := v.do("dst-act-hubspot", v.bearer("hub_active"), inbEvent("evt-fl"), ipOf(5000)); rec.Code != 429 {
+		t.Fatalf("token budget was reset by the flood: %d", rec.Code)
+	}
+}
+
+// Plan 10 final security L3: a token over its budget costs no last_used_at write.
+func TestInboundOverBudgetTokenIsNotStamped(t *testing.T) {
+	v := newInbEnv(t)
+	for i := 0; i < 120; i++ {
+		ip := fmt.Sprintf("10.9.%d.%d:1", i/200, i%200+1)
+		if rec := v.do("dst-act-hubspot", v.bearer("hub_active"), inbEvent("evt-st"), func(r *http.Request) { r.RemoteAddr = ip }); rec.Code != 200 {
+			t.Fatalf("verified %d: %d", i, rec.Code)
+		}
+	}
+	const q = `SELECT coalesce(extract(epoch FROM max(last_used_at))::text,'') FROM destination_inbound_tokens WHERE destination_id = 'dst-act-hubspot'`
+	read := func() string {
+		c := audOwner(t)
+		var s string
+		if err := c.QueryRow(context.Background(), q).Scan(&s); err != nil {
+			t.Fatal(err)
+		}
+		return s
+	}
+	before := read()
+	time.Sleep(20 * time.Millisecond)
+	if rec := v.do("dst-act-hubspot", v.bearer("hub_active"), inbEvent("evt-st"), func(r *http.Request) { r.RemoteAddr = "10.99.0.1:1" }); rec.Code != 429 {
+		t.Fatalf("121st: %d", rec.Code)
+	}
+	if after := read(); after != before {
+		t.Fatalf("last_used_at moved on a refused request: %s -> %s", before, after)
+	}
+}
+
+// Plan 10 final security L1/L2 (review-t21 L1/L2/L6): the reserved literals are compared decoded, a decoded
+// slash is not an id, and only POST <prefix><one segment> is taken.
+func TestInboundInterceptorRoutingEdges(t *testing.T) {
+	v := newInbEnv(t)
+	for _, lit := range []string{"sync", "inbound-token"} {
+		_, plain := v.e.call("alice", "ws-alpha", "POST", inbPrefix+lit, "")
+		enc := strings.Replace(lit, lit[:2], "%"+fmt.Sprintf("%02x", lit[0])+"%"+fmt.Sprintf("%02x", lit[1]), 1)
+		_, got := v.e.call("alice", "ws-alpha", "POST", inbPrefix+enc, "")
+		if got.Status != plain.Status || string(got.Body) != string(plain.Body) {
+			t.Errorf("%s: encoded %d %s, plain %d %s", lit, got.Status, got.Body, plain.Status, plain.Body)
+		}
+		if got.Status == 401 || got.Status == 422 {
+			t.Errorf("%s: taken by the inbound callback", enc)
+		}
+	}
+	if rec := v.do("a%2Fb", v.bearer("hub_active"), inbEvent("x")); rec.Code != 404 {
+		t.Errorf("decoded slash id: %d %s", rec.Code, rec.Body)
+	}
+	if rec := v.do("dst-act-hubspot/", v.bearer("hub_active"), inbEvent("x")); rec.Code != 404 {
+		t.Errorf("trailing slash: %d", rec.Code)
+	}
+	get := httptest.NewRequest("GET", inbPrefix+"dst-act-hubspot", nil)
+	get.RemoteAddr = inbPeer
+	rec := httptest.NewRecorder()
+	v.h.ServeHTTP(rec, get)
+	if rec.Code == 200 || rec.Code == 401 || rec.Code == 422 {
+		t.Errorf("GET taken by the callback: %d", rec.Code)
+	}
+}
+
+// review-t21 L6: after rotate/revoke/delete the 401 keeps the body and the challenge.
+func TestInboundRefusedAfterLifecycleKeepsBodyAndChallenge(t *testing.T) {
+	v := newInbEnv(t)
+	ctx := context.Background()
+	if err := tenancy.InWorkspace(ctx, v.pool, "ws-alpha", func(tx pgx.Tx) error {
+		_, err := destinbound.Rotate(ctx, tx, "ws-alpha", "dst-act-hubspot", 1, time.Now())
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	ownerExecT(t, `DELETE FROM destination_inbound_tokens WHERE destination_id = 'dst-act-salesforce'`)
+	ownerExecT(t, `DELETE FROM audience_destinations WHERE id = 'dst-act-salesforce'`)
+	for name, rec := range map[string]*httptest.ResponseRecorder{
+		"after rotate": v.do("dst-act-hubspot", v.bearer("hub_active"), inbEvent("evt-lc")),
+		"deleted dest": v.do("dst-act-salesforce", v.bearer("sf_expired"), inbEvent("evt-lc")),
+	} {
+		if rec.Code != 401 || rec.Header().Get("WWW-Authenticate") != "Bearer" ||
+			strings.TrimSpace(rec.Body.String()) != `{"detail":"invalid or revoked destination token"}` {
+			t.Errorf("%s: %d %q hdr=%q", name, rec.Code, rec.Body, rec.Header().Get("WWW-Authenticate"))
+		}
+	}
+}

@@ -251,29 +251,52 @@ func Revoke(ctx context.Context, tx pgx.Tx, wsID, destID string, now time.Time) 
 	return n, nil
 }
 
+// Verified is a bearer that passed every check of Lookup and has not been stamped yet.
+type Verified struct {
+	WorkspaceID string
+	tokenID     string
+	destID      string
+	now         time.Time
+}
+
 // Resolve authenticates a raw bearer for destID and returns its workspace. It
 // runs on the plain pool (the table is not RLS). Every authentication failure
 // is ErrInvalidToken; only infrastructure errors differ (fail closed).
 func Resolve(ctx context.Context, pool *pgxpool.Pool, raw, destID string, now time.Time) (string, error) {
+	v, err := Lookup(ctx, pool, raw, destID, now)
+	if err != nil {
+		return "", err
+	}
+	return v.Stamp(ctx, pool)
+}
+
+// Lookup is the read-only half of Resolve: it verifies the bearer without writing, so a caller can
+// apply its own budget before the last_used_at stamp (an over-budget token then costs no write).
+func Lookup(ctx context.Context, pool *pgxpool.Pool, raw, destID string, now time.Time) (*Verified, error) {
 	if raw == "" {
-		return "", ErrInvalidToken
+		return nil, ErrInvalidToken
 	}
 	digest := HashToken(raw)
-	q := gen.New(pool)
-	row, err := q.DestInboundTokenByHash(ctx, digest)
+	row, err := gen.New(pool).DestInboundTokenByHash(ctx, digest)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return "", ErrInvalidToken
+		return nil, ErrInvalidToken
 	}
 	if err != nil {
-		return "", fmt.Errorf("destinbound: resolve: %w", err)
+		return nil, fmt.Errorf("destinbound: resolve: %w", err)
 	}
 	okHash := subtle.ConstantTimeCompare([]byte(row.TokenHash), []byte(digest)) == 1
 	okDest := subtle.ConstantTimeCompare([]byte(row.DestinationID), []byte(destID)) == 1
 	if !okHash || !okDest || row.RevokedAt.Valid || !row.ExpiresAt.Valid || !row.ExpiresAt.Time.After(now) {
-		return "", ErrInvalidToken
+		return nil, ErrInvalidToken
 	}
-	ws, err := q.DestInboundTokenStamp(ctx, gen.DestInboundTokenStampParams{
-		Now: tstz(now), ID: row.ID, DestinationID: destID})
+	return &Verified{WorkspaceID: row.WorkspaceID, tokenID: row.ID, destID: destID, now: now}, nil
+}
+
+// Stamp records the use atomically (rechecking revoked, expiry and the destination binding) and
+// returns the token's workspace.
+func (v *Verified) Stamp(ctx context.Context, pool *pgxpool.Pool) (string, error) {
+	ws, err := gen.New(pool).DestInboundTokenStamp(ctx, gen.DestInboundTokenStampParams{
+		Now: tstz(v.now), ID: v.tokenID, DestinationID: v.destID})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", ErrInvalidToken
 	}
