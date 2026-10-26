@@ -15,6 +15,11 @@ type CapError struct {
 
 func (e *CapError) Error() string { return e.Detail }
 
+// AnonymousUser is the user id for self-host chat (CHAT_REQUIRE_AUTH off, no user). Python has
+// no per-user chat cap, so anonymous callers skip the per-user limit (the global pool still
+// bounds them) instead of sharing one capped bucket.
+const AnonymousUser int32 = 0
+
 // Caps limits concurrent chat streams per user and process-wide.
 type Caps struct {
 	sem     chan struct{}
@@ -47,13 +52,16 @@ func (c *Caps) Active() int {
 }
 
 // Acquire takes a per-user then a global slot. The workspace is accepted for symmetry with the
-// events route; chat is capped per user. release is idempotent.
+// events route; chat is capped per user. release is idempotent. Callers must
+// `rel, err := Acquire(...)` and, on success, `defer rel()` immediately so a panic or
+// cancelled request cannot leak the slot.
 func (c *Caps) Acquire(ctx context.Context, workspaceID string, userID int32) (func(), error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
+	anon := userID == AnonymousUser
 	c.mu.Lock()
-	if c.byUser[userID] >= c.perUser {
+	if !anon && c.byUser[userID] >= c.perUser {
 		c.mu.Unlock()
 		return nil, &CapError{http.StatusTooManyRequests, "Too many active chat streams"}
 	}
@@ -63,7 +71,7 @@ func (c *Caps) Acquire(ctx context.Context, workspaceID string, userID int32) (f
 		c.mu.Unlock()
 		return nil, &CapError{http.StatusServiceUnavailable, "Too many event streams"}
 	}
-	c.byUser[userID]++
+	c.byUser[userID]++ // anonymous slots are counted (Active) but never refused
 	c.mu.Unlock()
 	var once sync.Once
 	return func() {

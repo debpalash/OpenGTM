@@ -88,6 +88,20 @@ func (w *Writer) Event(v any) error {
 	return w.raw(b.Bytes())
 }
 
+// EventRaw relays one JSON value (for example a Python worker frame) as a data frame via
+// Reformat, preserving its key order. An invalid value writes nothing.
+func (w *Writer) EventRaw(raw []byte) error {
+	r, err := Reformat(raw)
+	if err != nil {
+		return err
+	}
+	b := make([]byte, 0, len(r)+8)
+	b = append(b, "data: "...)
+	b = append(b, r...)
+	b = append(b, '\n', '\n')
+	return w.raw(b)
+}
+
 // Done writes the terminal frame.
 func (w *Writer) Done() error { return w.raw([]byte("data: [DONE]\n\n")) }
 
