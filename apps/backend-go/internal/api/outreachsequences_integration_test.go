@@ -121,6 +121,9 @@ var (
 // oseqDeviations are the recorded cases where Go answers differently from FastAPI on purpose (D3).
 var oseqDeviations = map[string]int{"seq_put_status_active": 422}
 
+// oseqVolatile lists the top-level keys the recording marked volatile, per fixture.
+var oseqVolatile = map[string][]string{"seq_get_a01_paused": {"updated_at"}, "start_seq_get_active": {"updated_at"}}
+
 // normalize rewrites volatile values of got (generated ids, timestamps) to the recorded sample where the
 // fixture has one, keeping JSON types.
 func oseqNormalize(got, want any, ids map[string]string) any {
@@ -213,6 +216,14 @@ func (e oseqEnv) replay(t *testing.T, order []string, pick func(string) bool) {
 			}
 			if name == "seq_get_after_put" { // the recorded run activated the sequence through PUT; Go refused (D3)
 				wantBody.(map[string]any)["status"] = "paused"
+			}
+			if keys, ok := oseqVolatile[name]; ok { // recorded `volatile` paths: DB now() differs per run
+				g, _ := gotBody.(map[string]any)
+				for _, k := range keys {
+					if _, has := g[k]; has {
+						g[k] = wantBody.(map[string]any)[k]
+					}
+				}
 			}
 			gotBody = oseqNormalize(gotBody, wantBody, norm)
 			gb, _ := json.Marshal(gotBody)

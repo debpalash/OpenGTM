@@ -227,7 +227,7 @@ func TestActionFlowMatchesFixtures(t *testing.T) {
 	e.replay(t, strings.Fields(`start_smtp_not_configured_400 start_unknown_404 start_foreign_404 start_as_editor_403`), func(string) bool { return true })
 	e.configureSMTP(false)
 	e.replay(t, strings.Fields(`start_no_consent_400 start_no_footer_400 enroll_ok enroll_consent_source enroll_mixed_skips
-		seq_stats_a02_after_enroll seq_stats_a01_after_enroll execute_a01 execute_a01_again_dedups execute_a02 execute_unknown_404
+		enroll_duplicate_ids_in_body enroll_empty_list seq_stats_a02_after_enroll seq_stats_a01_after_enroll execute_a01 execute_a01_again_dedups execute_a02 execute_unknown_404
 		execute_foreign_404 execute_as_editor_403 pause_a01 pause_a01_again seq_get_a01_paused pause_unknown_404 pause_foreign_404
 		pause_as_editor_403`), func(string) bool { return true })
 }
