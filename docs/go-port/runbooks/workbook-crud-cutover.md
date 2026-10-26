@@ -36,7 +36,24 @@ them (`TestRetainedWorkbookRoutesNotRegistered`), so a mis-route is visible.
    authentication plus global admin, use a safe path check and never recurse on delete. `legacy` restores
    exact FastAPI behaviour, including the unauthenticated recursive delete: use it only as a temporary
    escape hatch for a client that depends on it, and never on an internet-facing deployment.
-6. The Go build deployed is the plan-04 build; `make vet test test-integration` and
+6. `DATA_DIR` and the data mount: `api-go` must see the same data directory as `api`. Set `DATA_DIR=/app/data`
+   and mount `./data:/app/data` (the same bind mount `api` uses). Go defaults `DATA_DIR` to `data`
+   relative to its working directory (`/data` in the distroless image) and `docker-compose.yml` ships no
+   `api-go` service, so without this `/api/files/*` and `/api/system/stats` would read an empty or missing
+   directory and disagree with Python (which serves `/app/data`).
+7. Do not set the provider certification/maturity env on either stack before cutover: Go serves
+   `GET /api/meta/providers` with static certification/maturity values, Python computes them from env, and
+   they are identical only while no certification env is set (`provider-stats` and `accuracy` stay on
+   Python, so `meta/providers` is the only exposure).
+8. With `BILLING_ENABLED=true`, keep the Go canary at 0% until plan 06 Task 31 lands. The canary bucket is
+   per client, not per workspace, so a billing deployment would see row-edit recompute answer
+   `unavailable` for the whole canary.
+9. Request-shape and export caps (Go hardening beyond Python, all env-configurable; see the README
+   deviations): `WORKBOOK_MAX_ADD_ROWS` (10000), `WORKBOOK_MAX_ROW_KEYS` (2000),
+   `WORKBOOK_MAX_VIEW_FILTERS` (50), `WORKBOOK_MAX_VIEW_SORTS` (10), `WORKBOOK_MAX_COLUMNS` (500),
+   `EXPORT_MAX_CONCURRENT` (8), `EXPORT_MAX_PER_WORKSPACE` (2), `EXPORT_WRITE_TIMEOUT_SECONDS` (15). Raise
+   them only if a client legitimately exceeds them (422 or 429 `Too many exports in progress`).
+10. The Go build deployed is the plan-04 build; `make vet test test-integration` and
    `scripts/nginx-routing-check.sh` pass on the release commit.
 
 ## Canary ramp
@@ -78,8 +95,8 @@ through Go (columns, enrichment cells and `updated_at` order in the list must ag
 ## Documented gaps and deliberate deviations
 
 - `BILLING_ENABLED=true`: row recompute (`PATCH rows` with `recompute`) answers
-  `{"status":"unavailable", ...}` from Go; run the affected columns manually or keep that workspace on
-  Python until plan 05.
+  `{"status":"unavailable", ...}` from Go; deployments with billing enabled keep the Go canary at 0% until
+  plan 06 Task 31 lands (prerequisite 8).
 - In-flight v2 row cursors issued by Python mid-pagination are decoded by Go; cursors that cannot be
   decoded restart the listing (400 with the exact FastAPI string), so a client paging during the flip may
   need to restart from page 1.
