@@ -177,3 +177,22 @@ Fixtures `views/*` (cases `legacy/python/scripts/contract_cases/views.yaml`, Fas
   row cannot take down the switcher. Views list `created_at, id` (as Task 11).
 - `X-Workspace-Id` of another workspace or another workspace's workbook/view ids answer 404 and write nothing.
 - Request bodies over 4 MiB answer 413 `Request body too large`.
+
+## Workbook detail, CSV export, connector runs (Task 10): deviations
+
+Fixtures `detail/*` (cases `legacy/python/scripts/contract_cases/detail.yaml`; seed `contract_seed.py` then
+`contract_seed_detail.py`, FastAPI as a non-superuser role with `PG_LEAD_STORE=true`). Go tests load the same data from
+`testdata/wbcrud/detail_seed.json` (`dump_contract_seed.py`). CSV bodies are recorded as a JSON string and compared byte
+for byte (BOM, `\r\n`, quoting); fixtures are key-sorted, so response key order is asserted by
+`TestDetailKeyOrderMatchesPydantic`.
+- `GET /{id}?page=<huge>`: FastAPI passes the offset to Postgres (an offset past bigint is a 500); Go answers an empty page
+  for any offset that overflows and 422 `less_than_equal` (`le` 9223372036854775807) for a `page` beyond int64.
+- An enrichment overlay whose fields have the wrong type (`status` not a string, `provenance`/`research` not matching their
+  models) makes FastAPI's response model fail (500); Go reads the bad field as `null` (`status` as `"pending"`).
+- A legacy `leads_filter` workbook whose `filter_criteria` does not decode as a lead filter reads as an unfiltered lead
+  query.
+- Export: a failure after the first byte (database error, vanished client) aborts the connection instead of ending the
+  chunked body, so a truncated file never looks complete. Ids in `row_ids` beyond int64 are accepted and match no row.
+- Ordered bodies are written without `encoding/json`, which would re-escape U+2028/U+2029; the workbook object inside the
+  detail response still goes through it (a workbook name containing U+2028 is escaped, Python's is not).
+- Long-value (v2) row cursors are not portable between the stacks (Task 8); `connector-runs` cursors are.

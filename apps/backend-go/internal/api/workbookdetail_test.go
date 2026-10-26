@@ -298,7 +298,75 @@ func TestExportHeadersAndStreamingResponse(t *testing.T) {
 	if cd := rec.Header().Get("Content-Disposition"); cd != `attachment; filename="Detail_Export.csv"` {
 		t.Errorf("content-disposition %q", cd)
 	}
-	if !strings.HasPrefix(rec.Body.String(), "﻿") || !strings.Contains(rec.Body.String(), "\r\n") {
+	if !strings.HasPrefix(rec.Body.String(), "\ufeff") || !strings.Contains(rec.Body.String(), "\r\n") {
 		t.Error("BOM or CRLF line endings missing")
 	}
+}
+
+// jsonKeys lists the keys of the JSON object at the start of raw, in document order.
+func jsonKeys(t *testing.T, raw string) []string {
+	t.Helper()
+	dec := json.NewDecoder(strings.NewReader(raw))
+	if tok, err := dec.Token(); err != nil || tok != json.Delim('{') {
+		t.Fatalf("not an object: %.80s", raw)
+	}
+	var keys []string
+	for dec.More() {
+		k, err := dec.Token()
+		if err != nil {
+			t.Fatal(err)
+		}
+		keys = append(keys, k.(string))
+		var skip json.RawMessage
+		if err := dec.Decode(&skip); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return keys
+}
+
+// Fixtures are key-sorted, so Python's response key order (pydantic field order, dict insertion order) is asserted here.
+func TestDetailKeyOrderMatchesPydantic(t *testing.T) {
+	e := newDetailEnv(t)
+	e.seedDetail(t)
+	var top struct {
+		Rows []json.RawMessage `json:"rows"`
+	}
+	body := e.get("alice", "ws-alpha", "/api/workbooks/wb-alpha-3?page_size=6&cursor_mode=true").Body.String()
+	if err := json.Unmarshal([]byte(body), &top); err != nil {
+		t.Fatal(err)
+	}
+	same := func(what string, got []string, want string) {
+		t.Helper()
+		if strings.Join(got, ",") != want {
+			t.Errorf("%s key order\n got %s\nwant %s", what, strings.Join(got, ","), want)
+		}
+	}
+	same("response", jsonKeys(t, body), "workbook,rows,total_rows,query_total_rows,page,page_size,next_cursor,has_more")
+	same("row", jsonKeys(t, string(top.Rows[0])), "lead_id,row_id,position,source_provider,source_record_id,source_rank,source_fetched_at,lead,data,enrichments,canonical_entity_id,corroboration_count")
+	var row struct {
+		Enrichments map[string]json.RawMessage `json:"enrichments"`
+		Data        json.RawMessage            `json:"data"`
+	}
+	if err := json.Unmarshal(top.Rows[5], &row); err != nil {
+		t.Fatal(err)
+	}
+	same("overlay", jsonKeys(t, string(row.Enrichments["ai"])), "value,status,provider,error,verify_status,provenance,research")
+	same("data", jsonKeys(t, string(row.Data)), "company,amount,tags,resume")
+	// A stored dict keeps its stored key order (json column), and U+2028 stays raw like Python's ensure_ascii=False.
+	if !strings.Contains(body, `"tags":{"k":"v","n":null,"f":1.5}`) {
+		t.Errorf("stored key order lost: %.400s", body)
+	}
+	if !strings.Contains(body, "\u2028") {
+		t.Errorf("U+2028 must not be escaped")
+	}
+	runs := e.get("alice", "ws-alpha", "/api/workbooks/wb-alpha-2/connector-runs?limit=1").Body.String()
+	same("runs response", jsonKeys(t, runs), "runs,limit,offset,has_more,next_cursor")
+	var rr struct {
+		Runs []json.RawMessage `json:"runs"`
+	}
+	if err := json.Unmarshal([]byte(runs), &rr); err != nil {
+		t.Fatal(err)
+	}
+	same("run", jsonKeys(t, string(rr.Runs[0])), "id,workspace_id,workbook_id,connector,status,query,cursor,requested_count,fetched_count,added_count,updated_count,skipped_count,pages_fetched,source_total,target_met,exhausted,error,started_at,completed_at,created_at,updated_at")
 }
