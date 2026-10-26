@@ -190,3 +190,13 @@ func TestConfigCredentialsSourceValidation(t *testing.T) {
 		}
 	}
 }
+
+func TestAutomationsEnabledStrictParse(t *testing.T) {
+	if _, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "AUTOMATIONS_ENABLED": "maybe"})); err == nil {
+		t.Fatal("invalid AUTOMATIONS_ENABLED must be rejected")
+	}
+	c, err := load(env(map[string]string{"INTERNAL_SERVICE_TOKEN": goodTok, "AUTOMATIONS_ENABLED": "true"}))
+	if err != nil || !c.Flags.AutomationsEnabled {
+		t.Fatalf("got %v, %v", c.Flags, err)
+	}
+}

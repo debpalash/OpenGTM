@@ -599,3 +599,59 @@ func TestRunStillHandsBackNonGoTypes(t *testing.T) {
 		t.Fatalf("non-go type must be handed back: %v", err)
 	}
 }
+
+// recPub records every published message.
+type recPub struct {
+	mu   sync.Mutex
+	msgs []map[string]any
+}
+
+func (r *recPub) Publish(_ context.Context, _ string, msg map[string]any) {
+	r.mu.Lock()
+	r.msgs = append(r.msgs, msg)
+	r.mu.Unlock()
+}
+
+// Python returns on a dependency error before the "running" broadcast.
+func TestCycleCellEmitsNoRunningEvent(t *testing.T) {
+	e := setup(t, wsA)
+	s := newSim(t, nil)
+	e.seed(wsA, "wb-cycev", "["+refCol("a", "b", "pa")+","+refCol("b", "a", "pb")+"]", 1, 10)
+	c := e.claim(wsA, payloadFor(wsA, "wb-cycev", map[string]float64{"pa": 0, "pb": 0}, nil))
+	pub := &recPub{}
+	if _, err := workbook.Run(e.ctx, e.deps(s, pub), c); err != nil {
+		t.Fatal(err)
+	}
+	for _, m := range pub.msgs {
+		if m["type"] == "cell_update" {
+			t.Fatalf("blocked cell emitted a cell_update: %v", m)
+		}
+	}
+}
+
+// One row's upstream failure must not affect another row.
+func TestUpstreamFailureIsolatedPerRow(t *testing.T) {
+	e := setup(t, wsA)
+	s := newSim(t, func(name string, n int, w http.ResponseWriter, _ *http.Request) {
+		if name == "pb" && n == 1 {
+			fmt.Fprint(w, `{}`) // first row's upstream finds nothing
+			return
+		}
+		fmt.Fprint(w, `{"v":"1999"}`)
+	})
+	ids := e.seed(wsA, "wb-iso", "["+colJSON("b", "pb")+","+refCol("a", "b", "pa")+"]", 2, 10)
+	c := e.claim(wsA, payloadFor(wsA, "wb-iso", map[string]float64{"pa": 0, "pb": 0}, nil))
+	res, err := workbook.Run(e.ctx, e.deps(s, nil), c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Completed != 2 || res.Errors != 2 {
+		t.Fatalf("result %+v", res)
+	}
+	q := func(id int32) string {
+		return e.str(wsA, fmt.Sprintf(`SELECT coalesce(enrichments::jsonb->'a'->>'error', enrichments::jsonb->'a'->>'status') FROM workbook_rows WHERE id=%d`, id))
+	}
+	if q(ids[0]) != "upstream_dependency_failed" || q(ids[1]) != "complete" {
+		t.Fatalf("rows not isolated: %q %q", q(ids[0]), q(ids[1]))
+	}
+}
