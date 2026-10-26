@@ -13,6 +13,10 @@ import (
 // githubAPI is a var so tests can point at a local stub.
 var githubAPI = "https://api.github.com"
 
+// githubLoginRe is what GitHub accepts as a login (no underscore, max 39); a
+// match from the URL that fails it is never put into the API path.
+var githubLoginRe = regexp.MustCompile(`^[A-Za-z0-9-]{1,39}$`)
+
 var githubUserRe = regexp.MustCompile(`github\.com/([a-zA-Z0-9_-]+)`)
 
 // EnrichFromGitHub reads the public GitHub profile and recent repos of
@@ -30,6 +34,9 @@ func EnrichFromGitHub(ctx context.Context, c *http.Client, p *Profile) error {
 		return nil
 	}
 	user := m[1]
+	if !githubLoginRe.MatchString(user) {
+		return nil
+	}
 	hdr := [][2]string{{"Accept", "application/vnd.github.v3+json"}, {"User-Agent", "OpenGTM"}}
 
 	res, err := providers.Do(ctx, c, providers.Req{Method: http.MethodGet, URL: githubAPI + "/users/" + user, Header: hdr})

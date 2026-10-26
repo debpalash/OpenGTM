@@ -507,8 +507,10 @@ func TestProfileJSONNoHTMLEscape(t *testing.T) {
 	p.SocialLinks.Set("blog", "https://x.io/?a=1&b=2")
 	p.Mentions = []Entry{{Title: "T&C <b>", URL: "u", Snippet: "s", Source: "web"}}
 	for name, f := range map[string]func() ([]byte, error){
-		"Marshal":    func() ([]byte, error) { return json.Marshal(p) },
-		"MarshalObj": func() ([]byte, error) { return json.Marshal(map[string]any{"p": p}) },
+		// json.Marshal always re-escapes Marshaler output; the supported
+		// paths are JSON() and an Encoder with SetEscapeHTML(false).
+		"Encoder":    func() ([]byte, error) { return encNoEscape(p) },
+		"EncoderObj": func() ([]byte, error) { return encNoEscape(map[string]any{"p": p}) },
 	} {
 		b, err := f()
 		if err != nil {
@@ -576,4 +578,12 @@ func TestGitHubUsernameInjection(t *testing.T) {
 	if len(paths) != 2 || !strings.HasPrefix(paths[0], "/users/"+strings.Repeat("a", 39)) {
 		t.Fatalf("paths %v", paths)
 	}
+}
+
+func encNoEscape(v any) ([]byte, error) {
+	var b strings.Builder
+	enc := json.NewEncoder(&b)
+	enc.SetEscapeHTML(false)
+	err := enc.Encode(v)
+	return []byte(b.String()), err
 }

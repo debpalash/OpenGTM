@@ -66,8 +66,8 @@ func (o *Obj) MarshalJSON() ([]byte, error) {
 			if i > 0 {
 				b.WriteByte(',')
 			}
-			kb, _ := json.Marshal(k)
-			vb, _ := json.Marshal(o.vals[k])
+			kb, _ := encodeNoEscape(k)
+			vb, _ := encodeNoEscape(o.vals[k])
 			b.Write(kb)
 			b.WriteByte(':')
 			b.Write(vb)
@@ -176,7 +176,21 @@ func (p Profile) MarshalJSON() ([]byte, error) {
 	if q.RawSources == nil {
 		q.RawSources = []Result{}
 	}
-	return json.Marshal(q)
+	return encodeNoEscape(q)
+}
+
+// JSON renders the profile without HTML escaping (Python json.dumps does not
+// escape <, > or &).
+func (p *Profile) JSON() ([]byte, error) { return encodeNoEscape(p) }
+
+func encodeNoEscape(v any) ([]byte, error) {
+	var b bytes.Buffer
+	enc := json.NewEncoder(&b)
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(v); err != nil {
+		return nil, err
+	}
+	return bytes.TrimRight(b.Bytes(), "\n"), nil
 }
 
 func (p *Profile) social() *Obj {

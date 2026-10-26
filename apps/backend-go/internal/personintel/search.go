@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 
 	"golang.org/x/net/html"
 
@@ -68,7 +69,6 @@ func parseDDGLite(body []byte, max int) []Result {
 	for _, a := range links {
 		title := textStrip(a)
 		href := attr(a, "href")
-		href = unwrapRedirect(href)
 		if !strings.HasPrefix(href, "http") && strings.HasPrefix(href, "//") {
 			href = "https:" + href
 		}
@@ -108,28 +108,6 @@ func parseDDGLite(body []byte, max int) []Result {
 		}
 	}
 	return results
-}
-
-// unwrapRedirect resolves DuckDuckGo's //duckduckgo.com/l/?uddg=<target>
-// wrapper to the target when it is an http(s) URL (Go-only: Python drops such
-// links as duckduckgo.com hosts).
-func unwrapRedirect(href string) string {
-	h := href
-	if strings.HasPrefix(h, "//") {
-		h = "https:" + h
-	}
-	if !strings.Contains(h, "uddg=") {
-		return href
-	}
-	u, err := url.Parse(h)
-	if err != nil || !(u.Host == "duckduckgo.com" || strings.HasSuffix(u.Host, ".duckduckgo.com")) || !(u.Path == "/l/" || u.Path == "/l") {
-		return href
-	}
-	t := u.Query().Get("uddg")
-	if strings.HasPrefix(t, "http://") || strings.HasPrefix(t, "https://") {
-		return t
-	}
-	return href
 }
 
 // netloc mimics urllib.parse.urlparse(u).netloc without validation.
@@ -235,37 +213,51 @@ type CategoryResults struct {
 	Results  []Result
 }
 
-// RunSearches runs every query with at most MaxParallelSearches in flight and
-// returns the categories in query order. A failed search yields an empty
-// category (as Python); a cancelled ctx stops starting new searches. progress
-// (optional) is called once per finished search, possibly concurrently.
+// batchSize and batchDelay mirror Python's staggering (batches of 3, 1 s
+// apart) to avoid DuckDuckGo rate limiting. batchDelay is a var for tests.
+const batchSize = 3
+
+var batchDelay = time.Second
+
+// RunSearches runs the queries in batches of batchSize (concurrent inside a
+// batch, batchDelay between batches, so never more than MaxParallelSearches in
+// flight) and returns the categories in query order. A failed search yields an
+// empty category (as Python); a cancelled ctx stops the remaining batches.
+// progress (optional) is called once per finished search, possibly
+// concurrently.
 func RunSearches(ctx context.Context, c *http.Client, queries *Obj, max int, progress func(category string, count int)) []CategoryResults {
 	keys := queries.Keys()
 	out := make([]CategoryResults, len(keys))
-	sem := make(chan struct{}, MaxParallelSearches)
-	var wg sync.WaitGroup
 	for i, k := range keys {
 		out[i] = CategoryResults{Category: k, Results: []Result{}}
-		qs, _ := queries.Get(k)
-		select {
-		case sem <- struct{}{}:
-		case <-ctx.Done():
-			continue
-		}
-		wg.Add(1)
-		go func(i int, k, q string) {
-			defer wg.Done()
-			defer func() { <-sem }()
-			r, err := SearchDDGLite(ctx, c, q, max)
-			if err != nil || r == nil {
-				r = []Result{}
-			}
-			out[i].Results = r
-			if progress != nil {
-				progress(k, len(r))
-			}
-		}(i, k, qs)
 	}
-	wg.Wait()
+	for start := 0; start < len(keys) && ctx.Err() == nil; start += batchSize {
+		end := min(start+batchSize, len(keys))
+		var wg sync.WaitGroup
+		for i := start; i < end; i++ {
+			qs, _ := queries.Get(keys[i])
+			wg.Add(1)
+			go func(i int, q string) {
+				defer wg.Done()
+				r, err := SearchDDGLite(ctx, c, q, max)
+				if err != nil || r == nil {
+					r = []Result{}
+				}
+				out[i].Results = r
+				if progress != nil {
+					progress(keys[i], len(r))
+				}
+			}(i, qs)
+		}
+		wg.Wait()
+		if end < len(keys) {
+			t := time.NewTimer(batchDelay)
+			select {
+			case <-t.C:
+			case <-ctx.Done():
+				t.Stop()
+			}
+		}
+	}
 	return out
 }
