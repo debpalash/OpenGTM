@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "filters": [
+          {
+            "column": "nope",
+            "op": "contains",
+            "value": "x"
+          }
+        ],
+        "hidden_columns": [
+          "aaa",
+          "city"
+        ],
+        "sort": [
+          {
+            "column": "zzz"
+          }
+        ]
+      },
+      "name": "Bad"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/v2/workbooks/wb-alpha-2/views"
+  },
+  "response": {
+    "body": {
+      "detail": "View references missing columns: aaa, nope, zzz. Refresh the workbook and update the view."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

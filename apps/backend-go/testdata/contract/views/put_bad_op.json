@@ -1,0 +1,45 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "filters": [
+          {
+            "column": "city",
+            "op": "x"
+          }
+        ]
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/v2/workbooks/wb-alpha-2/views/c543c7d2-4f27-4ab1-ba34-b00c104be7dd"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "expected": "'equals', 'not_equals', 'contains', 'not_contains', 'empty' or 'not_empty'"
+          },
+          "input": "x",
+          "loc": [
+            "body",
+            "config",
+            "filters",
+            0,
+            "op"
+          ],
+          "msg": "Input should be 'equals', 'not_equals', 'contains', 'not_contains', 'empty' or 'not_empty'",
+          "type": "literal_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

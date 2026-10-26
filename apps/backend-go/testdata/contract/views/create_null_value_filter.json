@@ -1,0 +1,55 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "filters": [
+          {
+            "column": "city",
+            "value": null
+          }
+        ],
+        "sort": [
+          {
+            "column": "city"
+          }
+        ]
+      },
+      "name": "Nullv"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/v2/workbooks/wb-alpha-2/views"
+  },
+  "response": {
+    "body": {
+      "config": {
+        "filters": [
+          {
+            "column": "city",
+            "op": "contains",
+            "value": null
+          }
+        ],
+        "hidden_columns": [],
+        "sort": [
+          {
+            "column": "city",
+            "dir": "asc"
+          }
+        ]
+      },
+      "created_at": "2026-10-26T10:45:11.906478",
+      "id": "9082c9a0-c530-4e29-bc83-dcbebe742ba0",
+      "name": "Nullv",
+      "updated_at": "2026-10-26T10:45:11.906478",
+      "workbook_id": "wb-alpha-2"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

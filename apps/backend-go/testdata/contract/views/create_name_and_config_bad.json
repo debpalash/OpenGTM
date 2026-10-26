@@ -1,0 +1,53 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "filters": [
+          1
+        ]
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/v2/workbooks/wb-alpha-2/views"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "config": {
+              "filters": [
+                1
+              ]
+            }
+          },
+          "loc": [
+            "body",
+            "name"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        },
+        {
+          "input": 1,
+          "loc": [
+            "body",
+            "config",
+            "filters",
+            0
+          ],
+          "msg": "Input should be a valid dictionary or object to extract fields from",
+          "type": "model_attributes_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}
