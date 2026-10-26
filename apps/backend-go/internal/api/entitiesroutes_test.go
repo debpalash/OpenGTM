@@ -31,13 +31,17 @@ func newEntEnv(t *testing.T) entEnv {
 
 // ent inserts an entity (and optionally nothing else) in ws and removes it with the test.
 func (e entEnv) ent(t *testing.T, ws, id, name string, corroboration int) {
+	e.entDomain(t, ws, id, name, id+".example.com", corroboration)
+}
+
+func (e entEnv) entDomain(t *testing.T, ws, id, name, domain string, corroboration int) {
 	t.Helper()
 	ctx := context.Background()
 	err := tenancy.InWorkspace(ctx, e.pool, ws, func(tx pgx.Tx) error {
 		_, err := tx.Exec(ctx, `INSERT INTO company_entities (id, workspace_id, canonical_name, primary_domain, identity_keys, fields,
 			sources, source_agreement, corroboration_count, observation_count, first_seen, last_seen)
 			VALUES ($1,$2,$3,$4,$5::json,$6::json,'["seed"]'::json,'{}'::json,$7,1,'2026-08-29T10:00:00','2026-08-29T10:00:00')`,
-			id, ws, name, id+".example.com", `{"domain": "`+id+`.example.com"}`, `{"name": "`+name+`"}`, corroboration)
+			id, ws, name, domain, `{"domain": "`+domain+`"}`, `{"name": "`+name+`"}`, corroboration)
 		return err
 	})
 	if err != nil {
@@ -77,8 +81,8 @@ func TestCompanyJSONMatchesToAPI(t *testing.T) {
 	e := newEntEnv(t)
 	_, alice := e.admin(t, "ws-alpha", "t16-alice")
 	_, bob := e.admin(t, "ws-beta", "t16-bob")
-	e.ent(t, "ws-alpha", "ent-alpha-1", "Acme Corporation", 1)
-	e.ent(t, "ws-alpha", "ent-alpha-2", "Acme Corp", 1)
+	e.entDomain(t, "ws-alpha", "ent-alpha-1", "Acme Corporation", "acme01.example.com", 1)
+	e.entDomain(t, "ws-alpha", "ent-alpha-2", "Acme Corp", "acme-corp.example.com", 1)
 	// The recorded review pair has id 1; pin it so the fixture compares byte for byte.
 	ctx := context.Background()
 	if err := tenancy.InWorkspace(ctx, e.pool, "ws-alpha", func(tx pgx.Tx) error {
