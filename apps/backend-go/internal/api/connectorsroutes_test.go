@@ -193,7 +193,11 @@ func TestCatalogMatchesFixture(t *testing.T) {
 func TestCompatibilityMatchesFixture(t *testing.T) {
 	e := newConnEnv(t)
 	const fixturePrefix = "../../apps/backend-go/internal/connectors/"
-	const servedPrefix = "../connectors/"
+	abs, err := filepath.Abs("../connectors") // the loader refuses ".." in the served directory
+	if err != nil {
+		t.Fatal(err)
+	}
+	servedPrefix := abs + "/"
 	norm := func(r contract.Resp, prefix string) contract.Resp {
 		r.Body = json.RawMessage(strings.ReplaceAll(string(r.Body), prefix, ""))
 		return r
@@ -201,7 +205,7 @@ func TestCompatibilityMatchesFixture(t *testing.T) {
 	for _, c := range []struct{ fixture, policy string }{
 		{"compat_alice_alpha", "optional"}, {"compat_bob_beta", "optional"}, {"compat_required_alice_alpha", "required"},
 	} {
-		e.serve(t, connManifests, c.policy)
+		e.serve(t, abs+"/testdata/manifests", c.policy)
 		auth := e.alice
 		if c.fixture == "compat_bob_beta" {
 			auth = e.bob
@@ -212,7 +216,7 @@ func TestCompatibilityMatchesFixture(t *testing.T) {
 			contract.AssertEqual(t, norm(got, servedPrefix), norm(fx.Response, fixturePrefix))
 		})
 	}
-	e.serve(t, connManifests, "optional")
+	e.serve(t, abs+"/testdata/manifests", "optional")
 	nf := contract.Load(t, "connectors/compat_no_auth")
 	_, got := e.do("GET", "/api/connectors/compatibility", "", "", nil)
 	contract.AssertEqual(t, got, nf.Response)
@@ -242,7 +246,7 @@ func TestCatalogRequiresWorkspace(t *testing.T) {
 
 func TestCompatibilityHasNoCredentialKey(t *testing.T) {
 	e := newConnEnv(t)
-	for _, dir := range []string{copyManifests(t, "contract_badname.yaml"), connManifests} {
+	for _, dir := range []string{copyManifests(t, "contract_badname.yaml"), copyManifests(t)} {
 		e.serve(t, dir, "optional")
 		for _, p := range []string{"/api/connectors/compatibility", "/api/connectors/catalog"} {
 			rec, _ := e.do("GET", p, "", "", e.alice)
