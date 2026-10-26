@@ -179,9 +179,11 @@ func SourceSet(kind string, signalTypes []string, webTech bool) []string {
 	return []string{}
 }
 
-// isoformat renders t like Python's datetime.isoformat() for an aware value:
-// its own UTC offset, microseconds only when non-zero.
-func isoformat(t time.Time) string {
+// isoformatIn renders t in loc like Python's isoformat() for an aware datetime
+// whose tzinfo is loc (psycopg reads timestamptz in the session TimeZone):
+// that zone's UTC offset, microseconds only when non-zero.
+func isoformatIn(t time.Time, loc *time.Location) string {
+	t = t.In(loc)
 	s := t.Format("2006-01-02T15:04:05")
 	if us := t.Nanosecond() / 1000; us != 0 {
 		s += fmt.Sprintf(".%06d", us)
@@ -189,9 +191,31 @@ func isoformat(t time.Time) string {
 	return s + t.Format("-07:00")
 }
 
-// ScheduledFireKey is scheduled_fire_key: watch:<id>:<next.isoformat()>.
+// ScheduledFireKey is scheduled_fire_key for an instant already carrying its
+// zone (a parsed time keeps its own offset): watch:<id>:<next.isoformat()>.
 func ScheduledFireKey(watchID string, next time.Time) string {
-	return "watch:" + watchID + ":" + isoformat(next)
+	return "watch:" + watchID + ":" + isoformatIn(next, next.Location())
+}
+
+// ScheduledFireKeyIn renders the key with the instant in loc, the Postgres
+// session TimeZone Python's driver reads timestamptz in.
+func ScheduledFireKeyIn(watchID string, next time.Time, loc *time.Location) string {
+	return "watch:" + watchID + ":" + isoformatIn(next, loc)
+}
+
+// SessionLocation runs SHOW TimeZone and loads it. A name Go cannot load (for
+// example an abbreviation) refuses to schedule rather than risk a key that
+// differs from Python's (duplicate watch_poll chains).
+func SessionLocation(ctx context.Context, tx pgx.Tx) (*time.Location, error) {
+	var name string
+	if err := tx.QueryRow(ctx, `SHOW TimeZone`).Scan(&name); err != nil {
+		return nil, fmt.Errorf("poller: session timezone: %w", err)
+	}
+	loc, err := time.LoadLocation(name)
+	if err != nil {
+		return nil, fmt.Errorf("poller: unsupported session TimeZone %q (refusing to schedule): %w", name, err)
+	}
+	return loc, nil
 }
 
 type pollPayload struct {
@@ -237,7 +261,7 @@ func EnqueuePollIfAbsent(ctx context.Context, tx pgx.Tx, fireKey, ws, watchID st
 	}
 	_, err := q.PollInsertWatchJob(ctx, gen.PollInsertWatchJobParams{
 		Executor: executor, Payload: bytes.TrimRight(buf.Bytes(), "\n"), WorkspaceID: ws, FireKey: fireKey,
-		NextRunAt: pgtype.Timestamp{Time: next.UTC(), Valid: true},
+		NextRunAt: pgtype.Timestamptz{Time: next.UTC(), Valid: true},
 	})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return false, nil // lost the unique-index race
@@ -316,7 +340,11 @@ func RescheduleWatch(ctx context.Context, tx pgx.Tx, w Watch, failed bool, now t
 	}
 	w.NextPollAt = &next
 	if w.Enabled {
-		if _, err := EnqueuePollIfAbsent(ctx, tx, ScheduledFireKey(w.ID, next), w.WorkspaceID, w.ID, next, false, executor); err != nil {
+		loc, err := SessionLocation(ctx, tx)
+		if err != nil {
+			return w, err
+		}
+		if _, err := EnqueuePollIfAbsent(ctx, tx, ScheduledFireKeyIn(w.ID, next, loc), w.WorkspaceID, w.ID, next, false, executor); err != nil {
 			return w, err
 		}
 		if err := MirrorSet(ctx, tx, w.ID, w.WorkspaceID, &next, true); err != nil {

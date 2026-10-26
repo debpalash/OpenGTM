@@ -82,7 +82,7 @@ INSERT INTO jobs (executor, type, payload, workspace_id, priority, fire_key, sta
                   created_at, next_run_at, max_retries, retry_count)
 VALUES ($1::text, 'watch_poll', $2::json,
         NULLIF($3::text, ''), 1, $4::text, 'pending',
-        (now() AT TIME ZONE 'UTC'), $5::timestamp, 3, 0)
+        (now() AT TIME ZONE 'UTC'), ($5::timestamptz)::timestamp, 3, 0)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id
 `
@@ -92,11 +92,12 @@ type PollInsertWatchJobParams struct {
 	Payload     []byte
 	WorkspaceID string
 	FireKey     string
-	NextRunAt   pgtype.Timestamp
+	NextRunAt   pgtype.Timestamptz
 }
 
 // Same row as engine._enqueue_poll_if_absent (priority 1, max_retries 3); the
-// payload is final at insert (poll_now included).
+// payload is final at insert (poll_now included). The timestamptz-to-naive cast
+// uses the session TimeZone exactly as Python's aware-datetime bind does.
 func (q *Queries) PollInsertWatchJob(ctx context.Context, arg PollInsertWatchJobParams) (int32, error) {
 	row := q.db.QueryRow(ctx, pollInsertWatchJob,
 		arg.Executor,
