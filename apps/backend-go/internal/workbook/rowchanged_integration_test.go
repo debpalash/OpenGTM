@@ -5,8 +5,11 @@ package workbook_test
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"net/http"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
@@ -75,5 +78,37 @@ func TestRunEndFlushesRowsChanged(t *testing.T) {
 	}
 	if big.CellVersion == "" {
 		t.Fatal("no cell_version")
+	}
+}
+
+// Python flushes in its `finally` also when the run is cancelled: cells committed before a
+// shutdown cancel (lease still held) still emit RowsChanged, and the status is left alone.
+func TestCancelledRunStillFlushesCommittedCells(t *testing.T) {
+	e := setup(t, wsA)
+	ids := e.seed(wsA, "wb-rowchg-cancel", "["+colJSON("c1", "p1")+"]", 2, 10)
+	held := make(chan struct{})
+	s := newSim(t, func(name string, n int, w http.ResponseWriter, r *http.Request) {
+		if n == 1 {
+			fmt.Fprint(w, `{"v":"1999"}`)
+			return
+		}
+		close(held)
+		select {
+		case <-r.Context().Done():
+		case <-time.After(5 * time.Second):
+		}
+	})
+	c := e.claim(wsA, payloadFor(wsA, "wb-rowchg-cancel", map[string]float64{"p1": 0.05}, map[string]any{"concurrency": 1}))
+	ctx, cancel := context.WithCancel(e.ctx)
+	go func() { <-held; cancel() }()
+	deps := e.deps(s, nil)
+	em := &fakeEmitter{}
+	deps.Emitter = em
+	_, _ = workbook.Run(ctx, deps, c)
+	if len(em.calls) != 1 || len(em.calls[0].changes) != 1 || em.calls[0].changes[0].RowID != int64(ids[0]) {
+		t.Fatalf("calls %+v", em.calls)
+	}
+	if st := e.str(wsA, `SELECT status FROM workbooks WHERE id='wb-rowchg-cancel'`); st != "running" {
+		t.Fatalf("cancelled run must not change status, got %s", st)
 	}
 }
