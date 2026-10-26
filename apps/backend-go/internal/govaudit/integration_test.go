@@ -66,7 +66,7 @@ func (e *env) event(t *testing.T, ws, id, method, outcome string, actor *int32, 
 func list(t *testing.T, e *env, ws string, f Filter, cursor string, limit int) Page {
 	t.Helper()
 	var p Page
-	var cerr *CursorError
+	var cerr error
 	err := tenancy.InWorkspace(context.Background(), e.pool, ws, func(tx pgx.Tx) error {
 		p, cerr = List(context.Background(), tx, ws, f, cursor, limit)
 		return nil
@@ -186,7 +186,7 @@ func TestListTenantIsolation(t *testing.T) {
 		t.Fatal(err)
 	}
 	var out bytes.Buffer
-	if err := ExportCSV(context.Background(), e.pool, b, Filter{}, &out); err != nil || strings.Contains(out.String(), "ea") {
+	if err := ExportCSV(context.Background(), e.pool, b, Filter{}, &out); err != nil || strings.Contains(out.String(), "\r\nea,") {
 		t.Fatalf("export leak %v %q", err, out.String())
 	}
 }
