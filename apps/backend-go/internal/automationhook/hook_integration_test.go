@@ -204,24 +204,62 @@ func TestErrorIsSwallowedAndLogged(t *testing.T) {
 	}
 }
 
-// An enqueue failure must not poison the caller's transaction.
+// A server-side failure inside the hook (a test-only trigger makes every
+// trigger_eval insert raise) must not abort the caller's transaction: the
+// caller's own row still commits and no job is left behind.
 func TestFailureKeepsCallerTxUsable(t *testing.T) {
 	pool, ctx := setup(t)
-	addTrigger(t, pool, ctx, ws, "t1", "on_row_added", true, "[]")
-	h := automationhook.New(true, slog.Default())
-	err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
-		// workspace_id longer than nothing wrong; force failure via ids that
-		// cannot be... use cancelled ctx for the hook only.
-		cctx, cancel := context.WithCancel(ctx)
-		cancel()
-		if _, err := h.RowsAdded(cctx, tx, ws, "wb-1", []int64{1}); err != nil {
+	owner, err := pgxpool.New(ctx, os.Getenv("TEST_DATABASE_URL"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(owner.Close)
+	for _, stmt := range []string{
+		`CREATE OR REPLACE FUNCTION t5_fail_job() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 't5 forced failure'; END $$`,
+		`CREATE TRIGGER t5_fail_job BEFORE INSERT ON jobs FOR EACH ROW WHEN (NEW.type = 'trigger_eval') EXECUTE FUNCTION t5_fail_job()`,
+	} {
+		if _, err := owner.Exec(ctx, stmt); err != nil {
 			t.Fatal(err)
 		}
-		var one int
-		return tx.QueryRow(ctx, `SELECT 1`).Scan(&one)
+	}
+	t.Cleanup(func() {
+		_, _ = owner.Exec(context.Background(), `DROP TRIGGER IF EXISTS t5_fail_job ON jobs`)
+		_, _ = owner.Exec(context.Background(), `DROP FUNCTION IF EXISTS t5_fail_job()`)
+		_ = tenancy.InWorkspace(context.Background(), pool, ws, func(tx pgx.Tx) error {
+			_, err := tx.Exec(context.Background(), `DELETE FROM workbooks WHERE id='wb-t5'`)
+			return err
+		})
 	})
+	addTrigger(t, pool, ctx, ws, "t1", "on_row_added", true, "[]")
+	addTrigger(t, pool, ctx, ws, "t2", "on_row_added", true, "[]")
+
+	var logs bytes.Buffer
+	h := automationhook.New(true, slog.New(slog.NewTextHandler(&logs, nil)))
+	err = tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
+		if _, err := tx.Exec(ctx, `INSERT INTO workbooks (id, name, workspace_id) VALUES ('wb-t5','wb',$1)`, ws); err != nil {
+			return err
+		}
+		n, err := h.RowsAdded(ctx, tx, ws, "wb-t5", []int64{1})
+		if err != nil || n != 0 {
+			t.Fatalf("n=%d err=%v", n, err)
+		}
+		var one int
+		return tx.QueryRow(ctx, `SELECT 1`).Scan(&one) // fails if tx is aborted
+	}) // commit happens inside InWorkspace
 	if err != nil {
 		t.Fatalf("caller tx poisoned: %v", err)
+	}
+	if !strings.Contains(logs.String(), "t5 forced failure") {
+		t.Fatalf("log=%q", logs.String())
+	}
+	var cnt int
+	if err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
+		return tx.QueryRow(ctx, `SELECT count(*) FROM workbooks WHERE id='wb-t5'`).Scan(&cnt)
+	}); err != nil || cnt != 1 {
+		t.Fatalf("caller row not committed: cnt=%d err=%v", cnt, err)
+	}
+	if got := jobs(t, pool, ctx); len(got) != 0 {
+		t.Fatalf("jobs left: %v", got)
 	}
 }
 

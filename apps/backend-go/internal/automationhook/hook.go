@@ -60,14 +60,34 @@ func (h *hook) RowsAdded(ctx context.Context, tx pgx.Tx, workspaceID, workbookID
 	if !h.enabled || len(rowIDs) == 0 {
 		return 0, nil
 	}
-	enqueued := 0
-	if err := h.run(ctx, tx, workspaceID, workbookID, rowIDs, &enqueued); err != nil {
+	n, err := h.runInSavepoint(ctx, tx, workspaceID, workbookID, rowIDs)
+	if err != nil {
 		h.log.Warn("automation row-added hook failed", "workspace_id", workspaceID, "workbook_id", workbookID, "error", err.Error())
+		return 0, nil
 	}
-	return enqueued, nil
+	return n, nil
 }
 
-func (h *hook) run(ctx context.Context, tx pgx.Tx, workspaceID, workbookID string, rowIDs []int64, enqueued *int) error {
+// runInSavepoint runs the whole hook (rule SELECT + job inserts) in one
+// savepoint so any server-side error rolls back to it and leaves the caller's
+// transaction usable. On failure nothing is enqueued.
+func (h *hook) runInSavepoint(ctx context.Context, tx pgx.Tx, workspaceID, workbookID string, rowIDs []int64) (int, error) {
+	sp, err := tx.Begin(ctx)
+	if err != nil {
+		return 0, err
+	}
+	n, err := h.run(ctx, sp, workspaceID, workbookID, rowIDs)
+	if err != nil {
+		_ = sp.Rollback(context.WithoutCancel(ctx))
+		return 0, err
+	}
+	if err := sp.Commit(ctx); err != nil {
+		return 0, err
+	}
+	return n, nil
+}
+
+func (h *hook) run(ctx context.Context, tx pgx.Tx, workspaceID, workbookID string, rowIDs []int64) (int, error) {
 	ids := make([]string, len(rowIDs))
 	targets := make([]target, len(rowIDs))
 	for i, r := range rowIDs {
@@ -89,8 +109,9 @@ func (h *hook) run(ctx context.Context, tx pgx.Tx, workspaceID, workbookID strin
 		WorkspaceID: workspaceID, TriggerType: "on_row_added",
 	})
 	if err != nil {
-		return err
+		return 0, err
 	}
+	enqueued := 0
 	for _, rule := range rules {
 		if !covers(rule.ScopeWorkbookIds, workbookID) {
 			continue
@@ -100,25 +121,16 @@ func (h *hook) run(ctx context.Context, tx pgx.Tx, workspaceID, workbookID strin
 		enc.SetEscapeHTML(false)
 		if err := enc.Encode(payload{TriggerID: rule.ID, WorkspaceID: workspaceID, Targets: targets,
 			FireSource: "row_added", FireKey: fireKey}); err != nil {
-			return err
+			return 0, err
 		}
-		// Savepoint: a failed insert must not abort the caller's transaction.
-		sp, err := tx.Begin(ctx)
-		if err != nil {
-			return err
-		}
-		if err := gen.New(sp).InsertTriggerEvalJob(ctx, gen.InsertTriggerEvalJobParams{
+		if err := q.InsertTriggerEvalJob(ctx, gen.InsertTriggerEvalJobParams{
 			Payload: bytes.TrimSpace(buf.Bytes()), WorkspaceID: workspaceID,
 		}); err != nil {
-			_ = sp.Rollback(context.WithoutCancel(ctx))
-			return err
+			return 0, err
 		}
-		if err := sp.Commit(ctx); err != nil {
-			return err
-		}
-		*enqueued++
+		enqueued++
 	}
-	return nil
+	return enqueued, nil
 }
 
 // covers mirrors _rule_covers_workbook: an empty/null scope covers everything.
