@@ -117,7 +117,12 @@ func (h refreshRoutes) policy(w http.ResponseWriter, r *http.Request) {
 	ws, id := wc.WorkspaceID, r.PathValue("workbook_id")
 	raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxRefreshPolicyBody))
 	if err != nil {
-		httpx.Detail(w, http.StatusRequestEntityTooLarge, "Request body too large")
+		var tooBig *http.MaxBytesError
+		if errors.As(err, &tooBig) {
+			httpx.Detail(w, http.StatusRequestEntityTooLarge, "Request body too large")
+		} else {
+			httpx.Detail(w, http.StatusBadRequest, "Request body could not be read")
+		}
 		return
 	}
 	pol, errs := parseRefreshPolicy(raw)

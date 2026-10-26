@@ -5,8 +5,12 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"io"
+	"net/http/httptest"
 	"strings"
 	"testing"
+	"testing/iotest"
 
 	"github.com/jackc/pgx/v5"
 
@@ -213,5 +217,24 @@ func TestRefreshForeignWorkbook404(t *testing.T) {
 	_ = e.pool.QueryRow(context.Background(), `SELECT count(*) FROM jobs WHERE type='refresh_workbook'`).Scan(&n)
 	if n != 0 {
 		t.Fatalf("%d jobs enqueued for a foreign workbook", n)
+	}
+}
+
+func TestRefreshPolicyBodyLimitAndReadError(t *testing.T) {
+	e := newRefreshEnv(t, nil)
+	big := `{"on_signal":["` + strings.Repeat("x", maxRefreshPolicyBody) + `"]}`
+	if r := e.call("alice", "ws-alpha", "PUT", "/api/workbooks/wb-enrich-1/refresh-policy", big); r.Status != 413 {
+		t.Fatalf("oversized: %d %s", r.Status, r.Body)
+	}
+	// A body that fails mid-read (client abort) is not "too large".
+	req := httptest.NewRequest("PUT", "/api/workbooks/wb-enrich-1/refresh-policy", io.NopCloser(iotest.ErrReader(errors.New("aborted"))))
+	for k, v := range bearer("alice") {
+		req.Header.Set(k, v)
+	}
+	req.Header.Set("X-Workspace-Id", "ws-alpha")
+	rec := httptest.NewRecorder()
+	e.h.ServeHTTP(rec, req)
+	if rec.Code != 400 {
+		t.Fatalf("read error: %d %s", rec.Code, rec.Body.String())
 	}
 }
