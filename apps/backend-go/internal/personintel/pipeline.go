@@ -141,6 +141,10 @@ func nilCaller(c Caller) bool {
 // Python a pipeline failure does not return an error: the profile comes back
 // with status "failed" and an "error" step is sent. Only a cancelled ctx is
 // returned as an error (no "error"/"completed" step is sent then).
+//
+// Enrich has no overall deadline of its own: searches (15 s each), GitHub and
+// the deep phase (60 s) are individually bounded, but the caller must bound the
+// total time with ctx (the WebSocket route's 120 s deadline).
 func Enrich(ctx context.Context, d Deps, linkedinURL string, deep bool, notify func(step string, data map[string]any)) (Profile, error) {
 	var mu sync.Mutex
 	emit := func(step string, data map[string]any) {
@@ -288,14 +292,17 @@ pick:
 		switch {
 		case ctx.Err() != nil:
 			return ctx.Err()
+		case err == nil && res.Status == "ok":
+			mergeScraped(p, &all[i], res.Output) // keep a page that answered as the budget expired
+			if dctx.Err() != nil {
+				return nil
+			}
 		case dctx.Err() != nil:
 			return nil // phase budget spent
 		case errors.Is(err, pyworker.ErrUnavailable), errors.Is(err, pyworker.ErrUnknownProvider), errors.Is(err, pyworker.ErrUnauthorized),
 			errors.Is(res.Err, pyworker.ErrUnavailable), errors.Is(res.Err, pyworker.ErrUnknownProvider), errors.Is(res.Err, pyworker.ErrUnauthorized):
 			unavailable()
 			return nil
-		case err == nil && res.Status == "ok":
-			mergeScraped(p, &all[i], res.Output)
 		}
 		if n < total-1 && deepDelay > 0 {
 			t := time.NewTimer(deepDelay)
