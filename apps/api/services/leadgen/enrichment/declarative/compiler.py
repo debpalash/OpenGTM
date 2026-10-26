@@ -118,7 +118,7 @@ class DeclarativeProvider(EnrichmentProvider):
         try:
             self._build_auth(headers, params)
         except MissingApiKeyError as e:
-            return EnrichmentResult(success=False, error=str(e))
+            return EnrichmentResult(provider=self.name, success=False, error=str(e))
 
         # SSRF guard: a manifest may template lead-controlled data (domain, etc.)
         # into the URL; never let that point us at a private/metadata host.
@@ -128,7 +128,7 @@ class DeclarativeProvider(EnrichmentProvider):
             from apps.api.core.url_guard import check_url
             check_url(url, allow_http=True, resolve=True)
         except Exception as e:
-            return EnrichmentResult(success=False, error=f"blocked_url: {str(e)[:60]}")
+            return EnrichmentResult(provider=self.name, success=False, error=f"blocked_url: {str(e)[:60]}")
 
         try:
             async with httpx.AsyncClient(timeout=req.timeout) as client:
@@ -138,17 +138,17 @@ class DeclarativeProvider(EnrichmentProvider):
                 )
             duration_ms = (time.monotonic() - t0) * 1000.0
             if resp.status_code >= 400:
-                return EnrichmentResult(success=False, error=f"http_{resp.status_code}", duration_ms=duration_ms)
+                return EnrichmentResult(provider=self.name, success=False, error=f"http_{resp.status_code}", duration_ms=duration_ms)
             try:
                 data = resp.json()
             except Exception:
-                return EnrichmentResult(success=False, error="non_json_response", duration_ms=duration_ms)
+                return EnrichmentResult(provider=self.name, success=False, error="non_json_response", duration_ms=duration_ms)
 
             # vendor error envelope (some APIs return {error:true} on a 200)
             rs = self.manifest.response
             if rs.error_path and project_value(data, f"$.{rs.error_path}"):
                 msg = project_value(data, f"$.{rs.error_message_path}") if rs.error_message_path else "provider_error"
-                return EnrichmentResult(success=False, error=str(msg)[:120], duration_ms=duration_ms)
+                return EnrichmentResult(provider=self.name, success=False, error=str(msg)[:120], duration_ms=duration_ms)
 
             fields = project_response(data, rs.mappings)
             # Light output normalization (e.g. phone/mobile_phone → E.164-ish).
@@ -158,6 +158,7 @@ class DeclarativeProvider(EnrichmentProvider):
             except Exception:  # normalization must never break enrichment
                 pass
             return EnrichmentResult(
+                provider=self.name,
                 success=bool(fields),
                 fields=fields,
                 confidence=self.default_confidence,
@@ -165,9 +166,9 @@ class DeclarativeProvider(EnrichmentProvider):
                 error=None if fields else "no_data",
             )
         except httpx.TimeoutException:
-            return EnrichmentResult(success=False, error="timeout")
+            return EnrichmentResult(provider=self.name, success=False, error="timeout")
         except Exception as e:
-            return EnrichmentResult(success=False, error=str(e)[:120])
+            return EnrichmentResult(provider=self.name, success=False, error=str(e)[:120])
 
 
 def compile_manifest(manifest: ProviderManifest, env_resolver: Callable[[str], str] = None) -> DeclarativeProvider:
