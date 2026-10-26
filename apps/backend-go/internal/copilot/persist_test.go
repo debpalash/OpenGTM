@@ -105,8 +105,8 @@ func TestPersistToolRowShape(t *testing.T) {
 		t.Fatalf("rows=%d: %+v", len(ms), ms)
 	}
 	if ms[0].Role != "tool" || ms[0].Content != "find_people_at_company result" || ms[0].ToolData == nil ||
-		*ms[0].ToolData != `{"name": "find_people_at_company", "result": {"z": 1, "a": [1.5, "—"], "n": null}}` {
-		t.Fatalf("tool row: %+v", ms[0])
+		*ms[0].ToolData != `{"name": "find_people_at_company", "result": {"z": 1, "a": [1.5, "\u2014"], "n": null}}` {
+		t.Fatalf("tool row: %+v td=%q", ms[0], *ms[0].ToolData)
 	}
 	if ms[1].Content != "bare result" || *ms[1].ToolData != `{"name": "bare", "result": {}}` {
 		t.Fatalf("bare row: %+v", ms[1])
