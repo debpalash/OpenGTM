@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"sort"
 	"strings"
 	"sync"
 	"testing"
@@ -21,6 +22,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/sourceingest"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
 const (
@@ -60,12 +62,45 @@ func setup(t *testing.T) (*pgxpool.Pool, context.Context) {
 func wbOf(ws string) string { return wb + "-" + ws[len(ws)-1:] }
 
 type vrec struct {
-	Provider  string         `json:"provider"`
-	RecordID  string         `json:"record_id"`
-	Rank      int            `json:"rank"`
-	SourceURL *string        `json:"source_url"`
-	FetchedAt string         `json:"fetched_at"`
-	Data      map[string]any `json:"data"`
+	Provider  string          `json:"provider"`
+	RecordID  string          `json:"record_id"`
+	Rank      int             `json:"rank"`
+	SourceURL *string         `json:"source_url"`
+	FetchedAt string          `json:"fetched_at"`
+	Data      json.RawMessage `json:"data"`
+}
+
+// obj decodes a JSON object keeping the top-level key order.
+func obj(t *testing.T, raw []byte) *wbcrud.Obj {
+	t.Helper()
+	o := wbcrud.NewObj()
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	if tok, err := dec.Token(); err != nil || tok != json.Delim('{') {
+		t.Fatalf("not an object: %s", raw)
+	}
+	for dec.More() {
+		kt, _ := dec.Token()
+		var v any
+		if err := dec.Decode(&v); err != nil {
+			t.Fatal(err)
+		}
+		o.Set(kt.(string), v)
+	}
+	return o
+}
+
+func mapObj(m map[string]any) *wbcrud.Obj {
+	o := wbcrud.NewObj()
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		o.Set(k, m[k])
+	}
+	return o
 }
 
 func (v vrec) rec(t *testing.T) sourceingest.Record {
@@ -73,7 +108,7 @@ func (v vrec) rec(t *testing.T) sourceingest.Record {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return sourceingest.Record{Provider: v.Provider, RecordID: v.RecordID, Data: v.Data, Rank: v.Rank, SourceURL: v.SourceURL, FetchedAt: ts}
+	return sourceingest.Record{Provider: v.Provider, RecordID: v.RecordID, Data: obj(t, v.Data), Rank: v.Rank, SourceURL: v.SourceURL, FetchedAt: ts}
 }
 
 type vrow struct {
@@ -232,7 +267,7 @@ func TestUpsertMatchesVectors(t *testing.T) {
 }
 
 func mkrec(id string, rank int, data map[string]any) sourceingest.Record {
-	return sourceingest.Record{Provider: "ambitionbox", RecordID: id, Data: data, Rank: rank,
+	return sourceingest.Record{Provider: "ambitionbox", RecordID: id, Data: mapObj(data), Rank: rank,
 		FetchedAt: time.Date(2026, 8, 29, 10, 0, 0, 0, time.UTC)}
 }
 
@@ -421,5 +456,25 @@ func TestBatchCapRejected(t *testing.T) {
 	})
 	if err == nil {
 		t.Fatal("expected cap error")
+	}
+}
+
+func TestRecordDataKeepsConnectorOrder(t *testing.T) {
+	pool, ctx := setup(t)
+	w := wbOf(wsA)
+	r := mkrec("1", 0, nil)
+	r.Data = obj(t, []byte(`{"zeta":1,"alpha":2,"_source":"x","mid":3}`))
+	upsert(t, ctx, pool, wsA, w, "ambitionbox", []sourceingest.Record{r}, false)
+	d := string(readRows(t, ctx, pool, wsA, w)[0].Data)
+	if !strings.HasPrefix(d, `{"zeta":1,"alpha":2,"_source":{"provider"`) || !strings.Contains(d, `"mid":3}`) {
+		t.Fatalf("Python key order not kept: %s", d)
+	}
+	// update: existing order kept, new keys appended in connector order
+	r2 := mkrec("1", 0, nil)
+	r2.Data = obj(t, []byte(`{"zz":1,"alpha":9,"aa":2}`))
+	upsert(t, ctx, pool, wsA, w, "ambitionbox", []sourceingest.Record{r2}, false)
+	d2 := string(readRows(t, ctx, pool, wsA, w)[0].Data)
+	if !strings.HasPrefix(d2, `{"zeta":1,"alpha":9,"_source":{`) || !strings.HasSuffix(d2, `"mid":3,"zz":1,"aa":2}`) {
+		t.Fatalf("merge order: %s", d2)
 	}
 }
