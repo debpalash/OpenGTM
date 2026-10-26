@@ -42,6 +42,10 @@ func bearerToken(r *http.Request) (string, bool) {
 	return param, true
 }
 
+// BearerToken is the exported bearer parser for resolvers that need their own
+// status codes (chat auth) but must agree with Authenticate on the header.
+func BearerToken(r *http.Request) (string, bool) { return bearerToken(r) }
+
 // Authenticate validates the bearer access token, loads the user and stores a
 // Principal in the request context.
 func Authenticate(signer auth.Signer, st *Store) httpx.Middleware {
