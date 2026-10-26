@@ -63,6 +63,25 @@ func tooShort(kind string, in any) []httpx.FieldError {
 		Ctx: map[string]any{"field_type": kind, "min_length": 1, "actual_length": 0}}}
 }
 
+// tooLong is the pydantic too_long error of a hardening cap (a deviation from
+// FastAPI, which has none).
+func tooLong(kind string, max, actual int, loc []any) []httpx.FieldError {
+	return []httpx.FieldError{{Type: "too_long", Loc: loc,
+		Msg: fmt.Sprintf("%s should have at most %d items after validation, not %d", kind, max, actual),
+		Ctx: map[string]any{"field_type": kind, "max_length": max, "actual_length": actual}}}
+}
+
+// rowKeyCount is the larger of the row's own keys and its data keys.
+func rowKeyCount(row *Obj) int {
+	n := row.Len()
+	if d, ok := row.Get("data"); ok {
+		if o, ok := d.(*Obj); ok && o.Len() > n {
+			n = o.Len()
+		}
+	}
+	return n
+}
+
 func ParseAddRows(doc any) (AddRowsRequest, []httpx.FieldError) {
 	o, errs := bodyModel(doc)
 	if errs != nil {
@@ -80,8 +99,15 @@ func ParseAddRows(doc any) (AddRowsRequest, []httpx.FieldError) {
 			break
 		}
 		n := len(errs)
+		lim := CurrentLimits()
+		if len(list) > lim.MaxAddRows {
+			return AddRowsRequest{}, tooLong("List", lim.MaxAddRows, len(list), []any{"body", "rows"})
+		}
 		for i, el := range list {
 			if row, ok := el.(*Obj); ok {
+				if rowKeyCount(row) > lim.MaxRowKeys {
+					return AddRowsRequest{}, tooLong("Row", lim.MaxRowKeys, rowKeyCount(row), []any{"body", "rows", i})
+				}
 				req.Rows = append(req.Rows, row)
 			} else {
 				errs = append(errs, fe("dict_type", "Input should be a valid dictionary", []any{"body", "rows", i}, el)...)
