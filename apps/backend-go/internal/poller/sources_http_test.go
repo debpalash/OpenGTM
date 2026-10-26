@@ -1137,3 +1137,43 @@ func TestFormatAmount(t *testing.T) {
 		}
 	}
 }
+
+func TestParseFeedEntityExpansionBounded(t *testing.T) {
+	probe := func(refs int) []byte {
+		ent := strings.Repeat("x", 4000)
+		return []byte(`<?xml version="1.0"?><!DOCTYPE r [<!ENTITY a "` + ent + `">]><rss><item><title>` +
+			strings.Repeat("&a;", refs) + `</title><guid>1</guid></item></rss>`)
+	}
+	start := time.Now()
+	for _, refs := range []int{20000, 340000} { // 80 MB and the 1.36 GB reference probe
+		got, err := ParseFeed(probe(refs), 10)
+		if err == nil || len(got) != 0 {
+			t.Fatalf("%d refs: want a malformed-feed error, got %d entries, err %v", refs, len(got), err)
+		}
+	}
+	if d := time.Since(start); d > 5*time.Second {
+		t.Errorf("rejection took %s", d)
+	}
+	// a small legitimate expansion still works
+	got, err := ParseFeed(probe(3), 10)
+	if err != nil || len(got) != 1 || len(got[0].Title) != 12000 {
+		t.Errorf("small expansion: %v %d", err, len(got))
+	}
+}
+
+func TestParseFeedTextAndDepthCaps(t *testing.T) {
+	// many CDATA tokens in one node: linear time, text capped per node
+	big := "<rss><item><title>" + strings.Repeat("<![CDATA[x]]>", 80000) + "</title><guid>1</guid></item></rss>"
+	start := time.Now()
+	got, err := ParseFeed([]byte(big), 10)
+	if err != nil || len(got) != 1 || len(got[0].Title) > maxNodeText {
+		t.Fatalf("cdata: %v %d", err, len(got))
+	}
+	if time.Since(start) > 3*time.Second {
+		t.Errorf("cdata parse took %s", time.Since(start))
+	}
+	deep := strings.Repeat("<a>", maxFeedDepth+5) + strings.Repeat("</a>", maxFeedDepth+5)
+	if _, err := ParseFeed([]byte(deep), 10); err == nil {
+		t.Error("over-deep document must be rejected")
+	}
+}

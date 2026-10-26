@@ -32,6 +32,12 @@ const (
 	// maxFeedNodes bounds the element tree built while parsing (a 1 MiB body of
 	// "<a/>" would otherwise build ~250k nodes).
 	maxFeedNodes = 100000
+	// maxFeedDepth bounds element nesting; maxNodeText the text kept per node
+	// (summary is cut to 2000 anyway); maxEntityExpansion the total bytes DTD
+	// entities may expand to in one feed.
+	maxFeedDepth       = 256
+	maxNodeText        = 64 << 10
+	maxEntityExpansion = 2 << 20
 )
 
 // FeedEntry is one parsed RSS item / Atom entry.
