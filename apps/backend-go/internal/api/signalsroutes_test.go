@@ -457,12 +457,6 @@ func TestSignalFixturesMatchPython(t *testing.T) {
 			// time dependent: trend dates, windows and counts move with now
 			opts = append(opts, contract.IgnoreShapeOf("$.summary", "$.trend", "$.by_type", "$.by_source", "$.top_accounts"))
 		}
-		if name == "cursor_nan" || name == "cursor_infinity" {
-			if got.Status >= 500 {
-				t.Errorf("%s: %d", name, got.Status)
-			}
-			continue
-		}
 		t.Run(name, func(t *testing.T) { contract.AssertEqual(t, got, fx.Response, opts...) })
 	}
 }
