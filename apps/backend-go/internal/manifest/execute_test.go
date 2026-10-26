@@ -316,3 +316,14 @@ func TestBlockedURLVectors(t *testing.T) {
 		t.Fatalf("network hit %d times", hits.Load())
 	}
 }
+
+func TestExecuteDeeplyNestedBody(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, strings.Repeat("[", 1<<20))
+	}))
+	defer srv.Close()
+	res := manifest.Execute(context.Background(), clientTo(srv), mk(t, base), nil, creds(map[string]string{"VEND_KEY": "k"}))
+	if res.Success || res.Error != "non_json_response" {
+		t.Fatalf("%+v", res)
+	}
+}
