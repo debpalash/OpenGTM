@@ -1,6 +1,7 @@
 package wbregistry
 
 import (
+	"bytes"
 	"encoding/json"
 	"reflect"
 	"sort"
@@ -78,16 +79,41 @@ func TestEveryRecipeColumnPassesNormalize(t *testing.T) {
 }
 
 func TestProviderCertificationFieldsPresent(t *testing.T) {
+	var doc struct {
+		Providers []map[string]json.RawMessage `json:"providers"`
+	}
+	if err := json.Unmarshal(registryJSON, &doc); err != nil {
+		t.Fatal(err)
+	}
+	if len(doc.Providers) == 0 {
+		t.Fatal("no providers")
+	}
+	for i, p := range doc.Providers {
+		for _, k := range []string{"name", "capabilities", "confidence", "required_checks", "maturity", "certification"} {
+			if _, ok := p[k]; !ok {
+				t.Errorf("provider %d: key %q missing", i, k)
+			}
+		}
+		cert := bytes.TrimSpace(p["certification"])
+		if string(cert) != "null" && !(len(cert) > 1 && cert[0] == '{') {
+			t.Errorf("provider %d: certification must be null or an object, got %s", i, cert)
+		}
+		var maturity string
+		if err := json.Unmarshal(p["maturity"], &maturity); err != nil || maturity == "" {
+			t.Errorf("provider %d: maturity must be a non-empty string", i)
+		}
+		var checks []string
+		if err := json.Unmarshal(p["required_checks"], &checks); err != nil || len(checks) == 0 {
+			t.Errorf("provider %d: required_checks must be a non-empty array", i)
+		}
+	}
 	r := mustLoad(t)
+	if len(r.Providers()) != len(doc.Providers) {
+		t.Errorf("typed providers = %d, raw = %d", len(r.Providers()), len(doc.Providers))
+	}
 	for _, p := range r.Providers() {
-		if p.Name == "" || p.Maturity == "" || len(p.RequiredChecks) == 0 {
-			t.Errorf("provider %+v lacks certification fields", p)
-		}
-		if p.Capabilities == nil {
-			t.Errorf("provider %s capabilities nil", p.Name)
-		}
-		if len(p.Certification) == 0 {
-			t.Errorf("provider %s certification missing", p.Name)
+		if p.Name == "" || p.Maturity == "" || p.Capabilities == nil || len(p.Certification) == 0 {
+			t.Errorf("typed provider %+v incomplete", p)
 		}
 	}
 }
