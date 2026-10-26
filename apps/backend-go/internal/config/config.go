@@ -286,6 +286,9 @@ type APIConfig struct {
 	ScimTokenTTLDays int // OPENGTM_SCIM_TOKEN_TTL_DAYS, clamped 1..365
 	TrustProxy       bool
 	DBMaxConns       int
+	// RLSRequireSafeRole is PG_RLS_REQUIRE_SAFE_ROLE (default true): refuse to
+	// start when the DB role is superuser/BYPASSRLS; false only logs CRITICAL.
+	RLSRequireSafeRole bool
 }
 
 // LoadAPI reads the API configuration from the environment and validates it.
@@ -345,6 +348,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	if c.ScimTokenTTLDays, err = clampVar(get, "OPENGTM_SCIM_TOKEN_TTL_DAYS", 90, 1, 365); err != nil {
 		return APIConfig{}, err
 	}
+	if c.RLSRequireSafeRole, err = boolVar(get, "PG_RLS_REQUIRE_SAFE_ROLE", true); err != nil {
+		return APIConfig{}, err
+	}
 	if c.DBMaxConns, err = intVar(get, "API_DB_MAX_CONNS", defaultDBMaxConns, 1, 1000); err != nil {
 		return APIConfig{}, err
 	}
@@ -380,4 +386,18 @@ func (c APIConfig) LogValue() slog.Value {
 		slog.Int("scim_token_ttl_days", r.ScimTokenTTLDays),
 		slog.Bool("trust_proxy", r.TrustProxy),
 	)
+}
+
+// boolVar parses a pydantic-style boolean (true/false/1/0/yes/no/on/off, any case).
+func boolVar(get func(string) string, key string, def bool) (bool, error) {
+	s := strings.ToLower(strings.TrimSpace(get(key)))
+	switch s {
+	case "":
+		return def, nil
+	case "true", "1", "yes", "on", "t", "y":
+		return true, nil
+	case "false", "0", "no", "off", "f", "n":
+		return false, nil
+	}
+	return false, fmt.Errorf("config: %s: not a boolean", key)
 }

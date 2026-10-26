@@ -72,6 +72,15 @@ func run() error {
 	if err := queue.CheckSchema(ctx, pool, config.RequiredGoSchemaRevision); err != nil {
 		return err
 	}
+	// RLS is silently inert for superuser/BYPASSRLS roles: refuse to start
+	// (Python assert_rls_role); PG_RLS_REQUIRE_SAFE_ROLE=false downgrades to CRITICAL.
+	safe, err := queue.AssertSafeRole(ctx, pool, cfg.RLSRequireSafeRole)
+	if err != nil {
+		return err
+	}
+	if !safe {
+		log.Error("CRITICAL: database role is superuser/BYPASSRLS; Row-Level Security is inert (PG_RLS_REQUIRE_SAFE_ROLE=false)")
+	}
 
 	handler := buildRouter(cfg, log, pool).Handler()
 	srv := &http.Server{Addr: cfg.Addr, Handler: handler, ReadHeaderTimeout: headerReadTime}
