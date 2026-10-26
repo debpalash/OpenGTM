@@ -196,3 +196,8 @@ for byte (BOM, `\r\n`, quoting); fixtures are key-sorted, so response key order 
 - Ordered bodies are written without `encoding/json`, which would re-escape U+2028/U+2029; the workbook object inside the
   detail response still goes through it (a workbook name containing U+2028 is escaped, Python's is not).
 - Long-value (v2) row cursors are not portable between the stacks (Task 8); `connector-runs` cursors are.
+
+## Lead timeline (plan 05 Task 8): deviations
+
+- `GET /api/lead/{id}/timeline`: an outreach send with NULL `step_number` answers description "Sequence step 1" and `metadata.step_number` null. Python raises `TypeError` (`None + 1`) and answers 500 (crash hardening).
+- Naive timestamp strings on a lead (`created_at`/`updated_at`/`last_enriched_at`) are read as UTC. Python's `fromisoformat(...).timestamp()` uses the process-local zone, so parity assumes `TZ=UTC` (containers set no TZ and default to UTC).
