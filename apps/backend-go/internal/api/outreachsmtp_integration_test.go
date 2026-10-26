@@ -112,7 +112,7 @@ func osmtpActor(name string) (who, ws string) {
 var osmtpOrder = []string{
 	"smtp_status_no_auth", "smtp_config_no_auth_401", "smtp_config_as_editor_403", "smtp_test_as_editor_403",
 	"smtp_status_unconfigured", "smtp_test_unconfigured_400", "smtp_config_none", "smtp_status_after_none",
-	"smtp_config_bad_type_422", "smtp_config_host", "smtp_status_partial", "smtp_config_email", "smtp_config_password",
+	"smtp_config_bad_type_422", "smtp_config_host", "smtp_config_email", "smtp_status_partial", "smtp_config_password",
 	"smtp_config_port", "smtp_config_use_tls_false", "smtp_config_max_per_hour", "smtp_config_from_name", "smtp_status_configured",
 	"smtp_test_bad_body_422", "smtp_test_invalid_recipient_400", "smtp_test_crlf_recipient_400", "smtp_test_ok",
 	"smtp_status_beta_bob", "smtp_status_beta_still_unconfigured",
