@@ -71,3 +71,42 @@ func TestPoolConfigCarriesSessionTimeouts(t *testing.T) {
 		t.Fatalf("%v max=%d", rp, pc.MaxConns)
 	}
 }
+
+func TestRunnerDispatchesByType(t *testing.T) {
+	var got []string
+	mk := func(name string) runner {
+		return func(context.Context, *queue.Claim) error { got = append(got, name); return nil }
+	}
+	rn := dispatch(map[string]runner{"run_workbook": mk("run"), "refresh_workbook": mk("refresh"), "signal_scan": mk("scan")})
+	for _, typ := range []string{"signal_scan", "run_workbook", "refresh_workbook"} {
+		if err := rn(context.Background(), &queue.Claim{Type: typ}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if strings.Join(got, ",") != "scan,run,refresh" {
+		t.Fatalf("got %v", got)
+	}
+	err := rn(context.Background(), &queue.Claim{Type: "mystery"})
+	if err == nil || !queue.IsPermanent(err) || !strings.Contains(err.Error(), "mystery") {
+		t.Fatalf("unknown type: %v", err)
+	}
+}
+
+func TestPerTypeTimeouts(t *testing.T) {
+	cfg := config.Config{JobTimeout: 1234 * time.Second}
+	for typ, want := range map[string]time.Duration{
+		"run_workbook": 1234 * time.Second, "refresh_workbook": 900 * time.Second, "signal_scan": 300 * time.Second,
+		"ambitionbox_import": 900 * time.Second,
+	} {
+		if got := jobLimit(cfg, typ); got != want {
+			t.Errorf("%s: %s want %s", typ, got, want)
+		}
+	}
+}
+
+func TestSignalCapsFromConfig(t *testing.T) {
+	c := signalCaps(config.ExecutorSettings{SignalHotLeads: 1, SignalWarmLeads: 2, SignalPerWorkspace: 3, SignalGlobal: 0})
+	if c.HotLeads != 1 || c.WarmLeads != 2 || c.PerWorkspace != 3 || c.Global != 0 {
+		t.Fatalf("%+v", c)
+	}
+}
