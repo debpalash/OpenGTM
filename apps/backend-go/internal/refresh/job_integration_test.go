@@ -397,3 +397,66 @@ func TestRefreshEnrichesNewlySourcedRowsSameCycle(t *testing.T) {
 		t.Error("source job duplicated")
 	}
 }
+
+// A handler error after sourcing (here: ctx cancelled mid-wait) must not lose
+// the rows the first attempt's sources added or source twice on the retry.
+func TestRefreshRetryAfterSourcingEnrichesRowsAndSourcesOnce(t *testing.T) {
+	pool, ctx := setupPool(t)
+	seedStaleWorkbook(t, ctx, pool, wsA, "w1", refreshCols, `{}`)
+	const jobID = 701
+	err := tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, `INSERT INTO jobs (id, type, payload, status, priority, created_at, next_run_at, retry_count, max_retries, workspace_id, executor)
+			VALUES ($1,'refresh_workbook',$2::json,'processing',0,now() AT TIME ZONE 'UTC',now() AT TIME ZONE 'UTC',0,3,$3,'go')`,
+			jobID, `{"workbook_id":"w1","workspace_id":"`+wsA+`"}`, wsA)
+		return err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	d := deps(pool)
+	d.SourceWait = 20 * time.Second
+	d.SourcePoll = time.Second
+	c1, cancel := context.WithCancel(ctx)
+	go func() { // Python source job finishes, then the worker attempt dies
+		for i := 0; i < 500; i++ {
+			time.Sleep(10 * time.Millisecond)
+			var n int
+			_ = tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+				return tx.QueryRow(ctx, `SELECT count(*) FROM jobs WHERE type='source_workbook'`).Scan(&n)
+			})
+			if n == 0 {
+				continue
+			}
+			_ = tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+				if _, err := tx.Exec(ctx, `INSERT INTO workbook_rows (id, workbook_id, workspace_id, data) VALUES (3,'w1',$1,'{}'::json),(4,'w1',$1,'{}'::json)`, wsA); err != nil {
+					return err
+				}
+				_, err := tx.Exec(ctx, `UPDATE jobs SET status='completed' WHERE type='source_workbook'`)
+				return err
+			})
+			cancel()
+			return
+		}
+	}()
+	cl := claim(jobID, wsA, map[string]any{"workbook_id": "w1", "workspace_id": wsA})
+	if err := refresh.Handle(c1, d, cl); err == nil {
+		t.Fatal("attempt 1 should fail")
+	}
+	// Retry: the claim carries the payload as persisted on the job row.
+	var stored string
+	_ = tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+		return tx.QueryRow(ctx, `SELECT payload::text FROM jobs WHERE id=$1`, jobID).Scan(&stored)
+	})
+	cl.Payload = []byte(stored)
+	if err := refresh.Handle(ctx, d, cl); err != nil {
+		t.Fatal(err)
+	}
+	js := jobs(t, ctx, pool, wsA)
+	if len(ofType(js, "source_workbook")) != 1 {
+		t.Errorf("source jobs: %d", len(ofType(js, "source_workbook")))
+	}
+	run := ofType(js, "run_workbook")
+	if len(run) != 1 || !jsonEq(run[0].Payload["row_ids"], []any{float64(2), float64(3), float64(4)}) {
+		t.Errorf("run: %+v", run)
+	}
+}
