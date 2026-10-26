@@ -11,11 +11,12 @@ import (
 )
 
 // CohortExecutor is go_executor.trigger_eval_executor: "go" only when GO_EXECUTOR_ENABLED,
-// GO_EXECUTOR_TRIGGER_EVAL and the workspace is in GO_EXECUTOR_WORKSPACES; otherwise "python".
+// the per-job-kind flag (kindEnabled: GO_EXECUTOR_TRIGGER_EVAL or GO_EXECUTOR_WATCH_POLL) and the workspace is in
+// GO_EXECUTOR_WORKSPACES (workspaces); otherwise "python".
 // Legacy-outreach / non-Go re-enrich hand-back is decided later by the Go worker.
-func CohortExecutor(enabled, triggerEval bool, cohort map[string]bool) func(ws string) string {
+func CohortExecutor(enabled, kindEnabled bool, workspaces map[string]bool) func(ws string) string {
 	return func(ws string) string {
-		if enabled && triggerEval && cohort[ws] {
+		if enabled && kindEnabled && workspaces[ws] {
 			return "go"
 		}
 		return "python"
