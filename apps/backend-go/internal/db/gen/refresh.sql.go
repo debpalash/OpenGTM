@@ -258,6 +258,29 @@ func (q *Queries) SetRefreshPolicy(ctx context.Context, arg SetRefreshPolicyPara
 	return result.RowsAffected(), nil
 }
 
+const storeRefreshSourcing = `-- name: StoreRefreshSourcing :execrows
+UPDATE jobs
+SET payload = (COALESCE(payload::jsonb, '{}'::jsonb)
+               || jsonb_build_object('pre_max_id', $1::int4, 'sources_enqueued', true))::json
+WHERE id = $2::int4 AND type = 'refresh_workbook'
+`
+
+type StoreRefreshSourcingParams struct {
+	PreMaxID int32
+	ID       int32
+}
+
+// Remembers on the claim's own row that this cycle's sources were enqueued and
+// the row-id high-water mark before them, so a retry does not source twice or
+// lose the rows the first attempt's sources added.
+func (q *Queries) StoreRefreshSourcing(ctx context.Context, arg StoreRefreshSourcingParams) (int64, error) {
+	result, err := q.db.Exec(ctx, storeRefreshSourcing, arg.PreMaxID, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const workbookRowsAfter = `-- name: WorkbookRowsAfter :many
 SELECT id FROM workbook_rows
 WHERE workbook_id = $1::text AND id > $2::int4

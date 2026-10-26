@@ -85,3 +85,12 @@ ORDER BY id;
 -- name: ActiveJobsByFireKeys :one
 SELECT count(*)::int8 AS n FROM jobs
 WHERE fire_key = ANY(sqlc.arg(fire_keys)::text[]) AND status IN ('pending', 'processing');
+
+-- name: StoreRefreshSourcing :execrows
+-- Remembers on the claim's own row that this cycle's sources were enqueued and
+-- the row-id high-water mark before them, so a retry does not source twice or
+-- lose the rows the first attempt's sources added.
+UPDATE jobs
+SET payload = (COALESCE(payload::jsonb, '{}'::jsonb)
+               || jsonb_build_object('pre_max_id', sqlc.arg(pre_max_id)::int4, 'sources_enqueued', true))::json
+WHERE id = sqlc.arg(id)::int4 AND type = 'refresh_workbook';

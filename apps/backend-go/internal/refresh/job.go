@@ -195,6 +195,9 @@ type payload struct {
 	WorkbookID  string `json:"workbook_id"`
 	WorkspaceID string `json:"workspace_id"`
 	Reason      string `json:"reason"`
+	// Written by sourceFirst on the claim's own row (retry state).
+	SourcesEnqueued bool  `json:"sources_enqueued"`
+	PreMaxID        int32 `json:"pre_max_id"`
 }
 
 // Handle mirrors handle_refresh_workbook. It reads the workbook inside the
@@ -227,7 +230,7 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 		reason = "scheduled"
 	}
 	now := d.now()
-	pre, err := d.sourceFirst(ctx, ws, p.WorkbookID, c.ID)
+	pre, err := d.sourceFirst(ctx, ws, p.WorkbookID, c.ID, p)
 	if err != nil {
 		return err
 	}
@@ -388,7 +391,7 @@ type preSource struct {
 // appeared. A timeout is not an error: rows added later are enriched as stale
 // by the next cycle. Rows written concurrently by other writers during the
 // wait are included (Python tracks exact ids from materialize_source).
-func (d Deps) sourceFirst(ctx context.Context, ws, wbID string, jobID int64) (preSource, error) {
+func (d Deps) sourceFirst(ctx context.Context, ws, wbID string, jobID int64, p payload) (preSource, error) {
 	if d.SourceWait <= 0 {
 		return preSource{}, nil
 	}
@@ -414,8 +417,17 @@ func (d Deps) sourceFirst(ctx context.Context, ws, wbID string, jobID int64) (pr
 		if len(keys) == 0 {
 			return nil
 		}
+		if p.SourcesEnqueued {
+			// Retry: the first attempt already enqueued the sources; keep its
+			// high-water mark and do not source again.
+			maxID = p.PreMaxID
+			return nil
+		}
 		if maxID, err = gen.New(tx).MaxWorkbookRowID(ctx, wbID); err != nil {
 			return fmt.Errorf("refresh: max row id: %w", err)
+		}
+		if _, err := gen.New(tx).StoreRefreshSourcing(ctx, gen.StoreRefreshSourcingParams{ID: int32(jobID), PreMaxID: maxID}); err != nil {
+			return fmt.Errorf("refresh: store sourcing state: %w", err)
 		}
 		for _, col := range cols {
 			if id := colID(col); colType(col) == "source" && id != "" {
