@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -418,8 +420,7 @@ func (s *Salesforce) FetchContacts(ctx context.Context, ws string, limit int, wh
 			break
 		}
 		nu, ok := next.(string)
-		if !ok || !strings.HasPrefix(nu, "/services/data/") || strings.Contains(nu, "//") ||
-			strings.ContainsAny(nu, "\\@ \t\r\n#") {
+		if !ok || !validNextRecordsURL(nu) {
 			return FetchResult{Error: "invalid nextRecordsUrl from Salesforce"}
 		}
 		if page+1 >= sfMaxPages {
@@ -431,6 +432,27 @@ func (s *Salesforce) FetchContacts(ctx context.Context, ws string, limit int, wh
 		contacts = contacts[:max(limit, 0)]
 	}
 	return FetchResult{Success: true, Contacts: contacts}
+}
+
+var sfQueryPath = regexp.MustCompile(`^/services/data/v[0-9]+\.[0-9]+/query/[A-Za-z0-9_-]+$`)
+
+// validNextRecordsURL accepts only a cursor path of the form
+// /services/data/v<ver>/query/<id>: no dot segments, no percent-encoding (so no
+// %2e, %2f, %5c), no query, fragment, backslash, userinfo or authority.
+func validNextRecordsURL(nu string) bool {
+	if strings.ContainsAny(nu, "%\\@ \t\r\n#?") || strings.Contains(nu, "//") {
+		return false
+	}
+	u, err := url.Parse(nu)
+	if err != nil || u.Scheme != "" || u.Host != "" || u.User != nil || u.RawQuery != "" {
+		return false
+	}
+	for _, seg := range strings.Split(u.Path, "/") {
+		if seg == "." || seg == ".." {
+			return false
+		}
+	}
+	return u.Path == nu && path.Clean(nu) == nu && sfQueryPath.MatchString(nu)
 }
 
 // ── update ───────────────────────────────────────────────────────────────
