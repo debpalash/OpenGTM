@@ -12,7 +12,9 @@ func envOf(m map[string]string) func(string) string { return func(k string) stri
 
 type panicProber struct{}
 
-func (panicProber) SourceList(context.Context) ([]string, error) { panic("probe must not run") }
+func (panicProber) SourceList(context.Context, time.Duration) ([]string, error) {
+	panic("probe must not run")
+}
 func (panicProber) SourceProbe(context.Context, []string, time.Duration) (map[string]*int, error) {
 	panic("probe must not run")
 }

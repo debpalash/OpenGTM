@@ -64,7 +64,7 @@ type fake struct {
 
 func ip(n int) *int { return &n }
 
-func (f *fake) SourceList(context.Context) ([]string, error) { return f.names, nil }
+func (f *fake) SourceList(context.Context, time.Duration) ([]string, error) { return f.names, nil }
 
 func (f *fake) SourceProbe(ctx context.Context, names []string, _ time.Duration) (map[string]*int, error) {
 	f.mu.Lock()
@@ -113,11 +113,11 @@ func (e *env) claim(t *testing.T, status string) *queue.Claim {
 }
 
 type health struct {
-	state            string
-	zero, nonzero    int
-	probes           int
-	hasOutage        bool
-	found            bool
+	state         string
+	zero, nonzero int
+	probes        int
+	hasOutage     bool
+	found         bool
 }
 
 func (e *env) health(t *testing.T, name string) health {
@@ -189,7 +189,7 @@ func TestOutageGuardSuppressesZeroTransitions(t *testing.T) {
 	// below the ratio the same zero advances the counter
 	e.clean()
 	e.seed(t, names[0], 2)
-	f2 := &fake{names: names, yields: map[string]*int{names[1]: ip(1), names[2]: ip(1), names[3]: ip(1), names[4]: ip(1)}}
+	f2 := &fake{names: names, yields: map[string]*int{names[0]: ip(0), names[1]: ip(1), names[2]: ip(1), names[3]: ip(1), names[4]: ip(1)}}
 	if err := HandleSourceHealthCheck(context.Background(), e.deps(f2, nil), e.claim(t, "processing")); err != nil {
 		t.Fatal(err)
 	}
