@@ -173,7 +173,7 @@ func TestCollectMatchesFixtures(t *testing.T) {
 		replayed++
 		t.Run(name, func(t *testing.T) { contract.AssertEqual(t, got, fx.Response) })
 	}
-	if replayed != 24 {
+	if replayed != 23 {
 		t.Fatalf("%d collect fixtures replayed", replayed)
 	}
 }

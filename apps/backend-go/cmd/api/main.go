@@ -201,6 +201,19 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 		}
 		deps.Registry, deps.Envelope, deps.Egress = sd.Registry, sd.Envelope, sd.Egress
 	}
+	// Leadgen routes (plan 14) register only when the ledger cutover marker is "postgres". Fail closed: a
+	// missing marker or a failed read leaves it empty, so the routes stay unregistered (requests fall through
+	// to Python). The marker is read once at startup: restart the API after the cutover.
+	if pool != nil && cfg.Flags.Leadgen.GoCollectionRoutesEnabled {
+		rctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		marker, err := api.LoadCollectionLedgerBackend(rctx, pool)
+		cancel()
+		if err != nil {
+			log.Error("collection ledger marker unreadable: leadgen routes stay off", "err_type", fmt.Sprintf("%T", err))
+			marker = ""
+		}
+		deps.CollectionLedgerBackend = marker
+	}
 	// Rate limits (slowapi parity); plan 06 routes (run 20/min ...) are unlimited without it.
 	deps.Limiter = ratelimit.New(nil)
 	// Vendor catalog, research flag and billing cost catalog for run planning: once, before serving.
