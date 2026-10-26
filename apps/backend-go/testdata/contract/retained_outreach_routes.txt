@@ -1,0 +1,6 @@
+# Outreach routes that stay on FastAPI (plan 09, decision D1). One "METHOD /path/{param}" per line.
+# POST /api/campaigns/generate calls the LLM (leadgen.llm.extract_json) once per lead; it moves with the copilot/LLM
+# plan, which can reuse pyworker. nginx keeps it on api_backend at every percentage (infra/nginx/go-routes.conf,
+# section outreach). All 22 routes of routers/outreach.py are ported; parity is pinned by
+# internal/api/outreach_coverage_test.go.
+POST /api/campaigns/generate

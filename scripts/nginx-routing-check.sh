@@ -397,6 +397,76 @@ check_governance_matrix() { # $1 = expected upstream for Go-eligible routes (py|
 }
 # ===== end plan 11 =====
 
+# ===== plan 09: outreach (22 /api/outreach routes ported, POST /api/campaigns/generate retained) =====
+check_outreach_matrix() { # $1 = expected upstream for Go-eligible routes (py|go|any: 50% bucket, only consistency is asserted)
+  local want="$1" r u s
+  echo "== outreach split ($1) =="
+  # The retained LLM route is always Python, at every percentage.
+  set -- POST /api/campaigns/generate
+  expect "retained $1 $2 X-Upstream" "$(hdr "$1" "$2" X-Upstream)" py
+  expect "retained $1 $2 X-Stub     " "$(hdr "$1" "$2" X-Stub)" py
+  for r in "GET /api/outreach/drafts" "GET /api/outreach/drafts?limit=5&offset=1" "GET /api/outreach/drafts/d-1" \
+           "GET /api/outreach/sequences" "POST /api/outreach/sequences" "GET /api/outreach/sequences/s-1" \
+           "PUT /api/outreach/sequences/s-1" "DELETE /api/outreach/sequences/s-1" "POST /api/outreach/sequences/s-1/start" \
+           "POST /api/outreach/sequences/s-1/pause" "POST /api/outreach/sequences/s-1/enroll" "POST /api/outreach/sequences/s-1/execute" \
+           "GET /api/outreach/sequences/s-1/stats" "GET /api/outreach/sequences/s-1/sends" \
+           "GET /api/outreach/smtp/status" "PUT /api/outreach/smtp/config" "POST /api/outreach/smtp/test" \
+           "GET /api/outreach/suppressions" "POST /api/outreach/suppressions" "DELETE /api/outreach/suppressions/a%40example.com" \
+           "GET /api/outreach/unsubscribe?token=abc.def" "POST /api/outreach/unsubscribe?token=abc.def" "POST /api/outreach/webhooks/bounce"; do
+    set -- $r
+    u="$(hdr "$1" "$2" X-Upstream)"; s="$(hdr "$1" "$2" X-Stub)"
+    if [ "$want" = any ]; then
+      case "$u" in py|go) expect "$r X-Stub == X-Upstream" "$s" "$u";; *) echo "  FAIL $r X-Upstream '$u' not py|go"; FAIL=1;; esac
+    else
+      expect "$r X-Upstream" "$u" "$want"
+      expect "$r X-Stub     " "$s" "$want"
+    fi
+    expect "$r X-Seen-Uri " "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+  done
+  # Lookalikes, unknown subpaths and trailing-slash variants stay on Python at every percentage.
+  for r in "GET /api/outreach" "GET /api/outreach/" "GET /api/outreach/other" "GET /api/outreachx/drafts" "GET /api/outreach/drafts/" \
+           "GET /api/outreach/drafts/d-1/x" "GET /api/outreach/sequences/" "GET /api/outreach/sequences/s-1/other" \
+           "GET /api/outreach/sequences/s-1/stats/" "GET /api/outreach/smtp" "GET /api/outreach/smtp/other" "GET /api/outreach/suppressions/" \
+           "GET /api/outreach/unsubscribe/" "GET /api/outreach/webhooks" "GET /api/outreach/webhooks/bounce/" "GET /api/outreach/webhooks/other" \
+           "GET /api/campaigns" "GET /api/campaigns/generate/x" "POST /api/campaignsx/generate"; do
+    set -- $r
+    expect "unmatched $r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
+    expect "unmatched $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
+  # Public routes are sticky per request source: ten requests from one address (no Authorization header, as in a mail
+  # client's one-click POST or a provider webhook) reach one stack, and unsubscribe and webhook agree.
+  local i seen="" w
+  for i in 1 2 3 4 5 6 7 8 9 10; do
+    seen="$seen $(hdr POST "/api/outreach/unsubscribe?token=t$i" X-Upstream) $(hdr POST /api/outreach/webhooks/bounce X-Upstream)"
+  done
+  w="$(printf '%s\n' $seen | sort -u | tr '\n' ' ')"; w="${w% }"
+  case "$w" in
+    py|go) if [ "$want" = any ]; then echo "  ok   public routes sticky upstream = $w"; else expect "public routes sticky upstream" "$w" "$want"; fi;;
+    *) echo "  FAIL public routes not sticky/consistent: '$w'"; FAIL=1;;
+  esac
+  # Landing/one-click links keep resolving: the GET landing and the POST land on the same stack.
+  expect "unsubscribe GET and POST share a stack" "$(hdr GET '/api/outreach/unsubscribe?token=z' X-Upstream)" "$(hdr POST '/api/outreach/unsubscribe?token=z' X-Upstream)"
+  # Location settings (not observable from a stub): compare blocks in `nginx -T`.
+  local T; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
+  blk() { printf '%s\n' "$T" | awk -v pat="$1" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f' | grep -E 'proxy_(read_timeout|send_timeout|buffering|http_version)' | sed 's/^[[:space:]]*//' | sort; }
+  local l
+  for l in '= /api/outreach/drafts' '~ ^/api/outreach/sequences/[^/]+/(start|pause|enroll|execute|stats|sends)$' '= /api/outreach/smtp/test' \
+           '~ ^/api/outreach/suppressions/[^/]+$' '= /api/outreach/unsubscribe' '= /api/outreach/webhooks/bounce' '= /api/campaigns/generate'; do
+    expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
+  done
+  # The public locations forward the client address so the limiter sees the client, not nginx.
+  for l in '= /api/outreach/unsubscribe' '= /api/outreach/webhooks/bounce'; do
+    local B; B="$(printf '%s\n' "$T" | awk -v pat="$l" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f')"
+    for d in 'proxy_set_header X-Real-IP $remote_addr;' 'proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' 'add_header X-Upstream $go_bucket always;'; do
+      case "$B" in *"$d"*) echo "  ok   '$l' has '$d'";; *) echo "  FAIL '$l' missing '$d'"; FAIL=1;; esac
+    done
+  done
+  # The retained route is pinned to api_backend regardless of the bucket.
+  local R; R="$(printf '%s\n' "$T" | awk 'index($0,"location = /api/campaigns/generate {"){f=1;next} f&&/^[[:space:]]*}/{exit} f')"
+  case "$R" in *"proxy_pass http://api_backend;"*) echo "  ok   campaigns/generate pinned to api_backend";; *) echo "  FAIL campaigns/generate not pinned to api_backend"; FAIL=1;; esac
+}
+# ===== end plan 09 =====
+
 echo "== nginx -t =="
 start_gateway 0
 if docker exec "$RUN-gw" nginx -t 2>&1; then echo "  ok   nginx -t"; else echo "  FAIL nginx -t"; FAIL=1; fi
@@ -407,6 +477,10 @@ check_connectors_matrix py
 check_automations_matrix py
 check_copilot_matrix py
 check_governance_matrix py
+check_outreach_matrix py
+start_gateway 50
+docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @50%"; FAIL=1; }
+check_outreach_matrix any
 start_gateway 100
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @100%"; FAIL=1; }
 check_matrix go 100%
@@ -416,5 +490,6 @@ check_connectors_matrix go
 check_automations_matrix go
 check_copilot_matrix go
 check_governance_matrix go
+check_outreach_matrix go
 
 [ "$FAIL" = 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
