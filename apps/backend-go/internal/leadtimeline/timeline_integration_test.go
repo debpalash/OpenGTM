@@ -103,8 +103,8 @@ func (e *env) seedHot(t *testing.T) leadsread.Lead {
 	if err := json.Unmarshal(fx.Response.Body, &body); err != nil {
 		t.Fatal(err)
 	}
-	id := e.lead(t, e.wsA, "Hot Pursuit Labs", "2026-08-23T02:30:00Z", "2026-08-26 02:30:00", "2026-08-25T02:30:00+00:00")
-	idB := e.lead(t, e.wsB, "Hot Pursuit Labs", "2026-08-23T02:30:00Z", "2026-08-26 02:30:00", nil)
+	id := e.lead(t, e.wsA, "Hot Pursuit Labs", "2026-08-23T08:00:00", "2026-08-26T08:00:00", "2026-08-25T08:00:00")
+	idB := e.lead(t, e.wsB, "Hot Pursuit Labs", "2026-08-23T08:00:00", "2026-08-26T08:00:00", nil)
 	for _, w := range []string{e.wsA, e.wsB} {
 		l := id
 		if w == e.wsB {
@@ -269,8 +269,8 @@ func TestTimelineKeyOrderAndFloats(t *testing.T) {
 	if !strings.HasPrefix(got, `{"items":[{"id":"signal:sig-a-08","kind":"signal","title":"news signal 8","description":"Seeded news event #8 for contract fixtures","status":"news","occurred_at":1788018000.5,"metadata":{"source":"crunchbase","source_url":"https://signals.example.com/a/8","weight":7}}],"next_before":1788018000.5,"next_before_id":"signal:sig-a-08"}`) {
 		t.Fatalf("bytes: %s", got)
 	}
-	p = e.build(t, e.wsA, lead, 100, f64(1787452201), "")
-	if g := string(e.json(t, p)); !strings.Contains(g, `"occurred_at":1787452200.0,"metadata":{}}],"next_before":null,"next_before_id":null}`) {
+	p = e.build(t, e.wsA, lead, 100, f64(1787472001), "")
+	if g := string(e.json(t, p)); !strings.Contains(g, `"occurred_at":1787472000.0,"metadata":{}}],"next_before":null,"next_before_id":null}`) {
 		t.Fatalf("tail: %s", g)
 	}
 }

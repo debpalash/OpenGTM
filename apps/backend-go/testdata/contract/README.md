@@ -201,6 +201,8 @@ for byte (BOM, `\r\n`, quoting); fixtures are key-sorted, so response key order 
 
 - `GET /api/lead/{id}/timeline`: an outreach send with NULL `step_number` answers description "Sequence step 1" and `metadata.step_number` null. Python raises `TypeError` (`None + 1`) and answers 500 (crash hardening).
 - Naive timestamp strings on a lead (`created_at`/`updated_at`/`last_enriched_at`) are read as UTC. Python's `fromisoformat(...).timestamp()` uses the process-local zone, so parity assumes `TZ=UTC` (containers set no TZ and default to UTC).
+- Timeline fixtures `timeline/*` (hot, lead6, empty_lead, beta_as_bob) were re-recorded with `TZ=UTC` (Task 11): the first recording ran on an IST machine and baked a +05:30 shift into the naive lead timestamps. Record any timestamp-dependent fixture with `TZ=UTC`.
+- `GET /api/lead/{id}/timeline` (Task 11): `before` accepts pydantic lax floats (whitespace, single underscores, `inf`/`nan`); `before=nan` filters every item out. Body is written with raw non-ASCII (U+2028/U+2029 included), like Starlette. No deviations from Python otherwise.
 
 ## CSV import preview and import (Task 13): deviations
 
