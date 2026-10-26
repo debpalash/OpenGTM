@@ -42,7 +42,11 @@ func registerAutomationsRun(r *httpx.Router, d Deps) {
 		Now: func() time.Time { return autoRunNow() }}}
 	authn := identity.Authenticate(d.Signer, d.Identity)
 	workspace := identity.Workspace(d.Identity)
+	manage := identity.RequireRole("automations.manage", "admin")
 	r.Handle("POST /api/automations/triggers/{trigger_id}/preview", http.HandlerFunc(h.preview), authn, workspace)
+	r.Handle("POST /api/automations/triggers/{trigger_id}/run", http.HandlerFunc(h.run), authn, workspace, manage)
+	r.Handle("GET /api/automations/triggers/{trigger_id}/runs", http.HandlerFunc(h.runs), authn, workspace)
+	r.Handle("GET /api/automations/runs/{run_id}", http.HandlerFunc(h.runDetail), authn, workspace)
 }
 
 type autoRunRoutes struct {
@@ -175,4 +179,66 @@ func (h autoRunRoutes) preview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// run is POST /triggers/{id}/run: enqueue one trigger_eval with the cohort executor.
+func (h autoRunRoutes) run(w http.ResponseWriter, r *http.Request) {
+	wc, _ := identity.WorkspaceFrom(r.Context())
+	ws, id := wc.WorkspaceID, r.PathValue("trigger_id")
+	body, ok := h.readBody(w, r, false)
+	if !ok || h.disabled(w) {
+		return
+	}
+	dry := manualDryRun(body.dryRun)
+	var jobID int64
+	var fireKey string
+	err := tenancy.InWorkspace(r.Context(), h.d.Pool, ws, func(tx pgx.Tx) error {
+		var err error
+		jobID, fireKey, err = h.svc.EnqueueManualRun(r.Context(), tx, ws, id, body.rowIDs, dry, autoRunNow())
+		return err
+	})
+	if err != nil {
+		h.fail(w, "manual run", err)
+		return
+	}
+	res := wbcrud.NewObj()
+	res.Set("job_id", jobID)
+	res.Set("fire_key", fireKey)
+	res.Set("dry_run", dry)
+	httpx.WriteJSON(w, http.StatusOK, res)
+}
+
+// runs is GET /triggers/{id}/runs?limit=50 (le 200).
+func (h autoRunRoutes) runs(w http.ResponseWriter, r *http.Request) {
+	wc, _ := identity.WorkspaceFrom(r.Context())
+	ws, id := wc.WorkspaceID, r.PathValue("trigger_id")
+	def, le := int64(50), int64(200)
+	limit, ferr := wbcrud.QueryInt(r.URL.Query(), "limit", &def, nil, &le)
+	if ferr != nil {
+		httpx.ValidationError(w, *ferr)
+		return
+	}
+	if h.disabled(w) {
+		return
+	}
+	runs, err := h.svc.Runs(r.Context(), ws, id, int(limit))
+	if err != nil {
+		h.fail(w, "run history", err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, runs)
+}
+
+// runDetail is GET /runs/{run_id}: the run and its action results by id.
+func (h autoRunRoutes) runDetail(w http.ResponseWriter, r *http.Request) {
+	wc, _ := identity.WorkspaceFrom(r.Context())
+	if h.disabled(w) {
+		return
+	}
+	detail, err := h.svc.RunWithResults(r.Context(), wc.WorkspaceID, r.PathValue("run_id"))
+	if err != nil {
+		h.fail(w, "run detail", err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, detail)
 }

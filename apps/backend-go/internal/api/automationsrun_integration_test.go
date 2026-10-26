@@ -153,6 +153,9 @@ func (e arunEnv) replay(t *testing.T, name string, opts ...contract.Option) {
 	if _, ok := fx.Request.Headers["X-Workspace-Id"]; ok {
 		ws = "ws-alpha"
 	}
+	if name == "run_detail_beta_own" {
+		ws = "ws-beta" // bob's stored active workspace in the recording; the seed here has none, so name it
+	}
 	body := ""
 	if fx.Request.Body != nil && strings.TrimSpace(string(fx.Request.Body)) != "null" {
 		body = string(fx.Request.Body)
@@ -522,12 +525,12 @@ func TestRunDetailMatchesFixture(t *testing.T) {
 func TestRunDetailForeign404(t *testing.T) {
 	e := newArunEnv(t, true, nil)
 	want := `{"detail":"run not found"}`
-	r := e.call("alice", "", "GET", "/api/automations/runs/run-b-01-01", "")
+	r := e.call("alice", "ws-alpha", "GET", "/api/automations/runs/run-b-01-01", "")
 	if r.Status != 404 || strings.TrimSpace(string(r.Body)) != want {
 		t.Fatalf("%d %s", r.Status, r.Body)
 	}
-	r = e.call("bob", "", "GET", "/api/automations/runs/run-a-01-01", "")
-	if r.Status != 404 && r.Status != 403 {
+	r = e.call("bob", "ws-beta", "GET", "/api/automations/runs/run-a-01-01", "")
+	if r.Status != 404 || strings.TrimSpace(string(r.Body)) != want {
 		t.Fatalf("%d %s", r.Status, r.Body)
 	}
 }
@@ -545,7 +548,7 @@ func TestDisabledFlag404(t *testing.T) {
 			t.Errorf("%s %s: %d %s", c.method, c.path, r.Status, r.Body)
 		}
 	}
-	for _, n := range arunNames(t, "off_automations_") {
+	for _, n := range []string{"off_automations_preview", "off_automations_run", "off_automations_runs", "off_automations_run_detail", "off_automations_run_member_403_first"} {
 		e.replay(t, n)
 	}
 }
