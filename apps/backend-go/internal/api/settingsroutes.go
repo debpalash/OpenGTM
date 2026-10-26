@@ -39,6 +39,9 @@ func RegisterSettings(r *httpx.Router, d Deps) {
 		getenv: d.getenv(),
 		log:    d.Log,
 	}
+	integ := integrationRoutes{settingsRoutes: s, st: d.Identity, integ: &settings.Integrations{
+		List: reg.Integrations, App: app, WS: secrets.NewResolver(d.Envelope, secrets.NewPgStore(d.Pool), d.getenv()),
+	}}
 	user := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity)}
 	admin := append(append([]httpx.Middleware{}, user...), identity.RequireGlobalAdmin())
 	r.Handle("GET /api/settings/providers", http.HandlerFunc(s.list), user...)
@@ -50,6 +53,10 @@ func RegisterSettings(r *httpx.Router, d Deps) {
 	r.Handle("GET /api/settings/models/{provider_id}", http.HandlerFunc(s.modelsList), user...)
 	r.Handle("GET /api/settings/enrichment-providers", http.HandlerFunc(s.enrichList), user...)
 	r.Handle("PUT /api/settings/enrichment-providers/{provider_id}", http.HandlerFunc(s.enrichUpdate), admin...)
+	r.Handle("GET /api/settings/integrations", http.HandlerFunc(integ.list), user...)
+	r.Handle("PUT /api/settings/integrations/{integration_id}", http.HandlerFunc(integ.update), admin...)
+	r.Handle("GET /api/settings/workspace-integrations", http.HandlerFunc(integ.wsList), user...)
+	r.Handle("PUT /api/settings/workspace-integrations/{integration_id}", http.HandlerFunc(integ.wsUpdate), user...)
 	ws := append(append([]httpx.Middleware{}, user...), identity.Workspace(d.Identity))
 	r.Handle("GET /api/settings/llm-usage", http.HandlerFunc(s.llmUsage), ws...)
 }
