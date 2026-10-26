@@ -1,0 +1,828 @@
+{
+ "cases": [
+  {
+   "name": "empty",
+   "input": {},
+   "error": "ValueError",
+   "message": "people_search requires 'companies' or 'from_column'"
+  },
+  {
+   "name": "none_cfg_like_empty",
+   "input": {
+    "companies": null,
+    "from_column": null
+   },
+   "error": "ValueError",
+   "message": "people_search requires 'companies' or 'from_column'"
+  },
+  {
+   "name": "companies_only",
+   "input": {
+    "companies": [
+     "Acme"
+    ]
+   },
+   "value": {
+    "companies": [
+     "Acme"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "from_column_only",
+   "input": {
+    "from_column": "company"
+   },
+   "value": {
+    "companies": [],
+    "from_column": "company",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "from_column_whitespace_only",
+   "input": {
+    "from_column": "   "
+   },
+   "error": "ValueError",
+   "message": "people_search requires 'companies' or 'from_column'"
+  },
+  {
+   "name": "companies_blank_entries",
+   "input": {
+    "companies": [
+     "",
+     "  ",
+     "Acme ",
+     null,
+     "stripe.com"
+    ]
+   },
+   "value": {
+    "companies": [
+     "Acme",
+     "stripe.com"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "companies_only_blank",
+   "input": {
+    "companies": [
+     "",
+     "   "
+    ]
+   },
+   "error": "ValueError",
+   "message": "people_search requires 'companies' or 'from_column'"
+  },
+  {
+   "name": "companies_numbers_and_bool",
+   "input": {
+    "companies": [
+     1,
+     2.5,
+     true,
+     false,
+     0,
+     "x"
+    ]
+   },
+   "value": {
+    "companies": [
+     "1",
+     "2.5",
+     "True",
+     "False",
+     "0",
+     "x"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "companies_string_iterates_chars",
+   "input": {
+    "companies": "Ab"
+   },
+   "value": {
+    "companies": [
+     "A",
+     "b"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "titles_trimmed",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "titles": [
+     " CTO ",
+     "",
+     "Founder",
+     null,
+     "  "
+    ]
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [
+     "CTO",
+     "Founder"
+    ],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "seniority_geo_trimmed",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "seniority": "  senior ",
+    "geo": " Berlin\t"
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "senior",
+    "geo": "Berlin",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "seniority_falsy_zero",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "seniority": 0,
+    "geo": false
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "seniority_number",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "seniority": 5,
+    "geo": 1.5
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "5",
+    "geo": "1.5",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "unicode_strip",
+   "input": {
+    "companies": [
+     " Acme "
+    ],
+    "from_column": "　col　"
+   },
+   "value": {
+    "companies": [
+     "Acme"
+    ],
+    "from_column": "col",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "both_companies_and_from_column",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "c"
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "c",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "default_ints",
+   "input": {
+    "companies": [
+     "A"
+    ]
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_5",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": 5
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 5,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_cap",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": 26
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 25,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_huge",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": 1000000000000000000000000000000
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 25,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_zero",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": 0
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 1,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_negative",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": -4
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 1,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_empty_string",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": ""
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_null",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": null
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_str_int",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": " 7 "
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 7,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_str_plus",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": "+8"
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 8,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_str_underscore",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": "1_2"
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 12,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_str_bad_underscore",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": "1__2"
+   },
+   "error": "ValueError",
+   "message": "max_per_company must be an integer"
+  },
+  {
+   "name": "max_per_company_str_float",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": "7.5"
+   },
+   "error": "ValueError",
+   "message": "max_per_company must be an integer"
+  },
+  {
+   "name": "max_per_company_str_word",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": "abc"
+   },
+   "error": "ValueError",
+   "message": "max_per_company must be an integer"
+  },
+  {
+   "name": "max_per_company_whitespace_str",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": "  "
+   },
+   "error": "ValueError",
+   "message": "max_per_company must be an integer"
+  },
+  {
+   "name": "max_per_company_float",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": 7.9
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 7,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_float_negative",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": -3.2
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 1,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_float_huge",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": 1e+30
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 25,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_true",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": true
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 1,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_false",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": false
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 1,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_per_company_list",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": [
+     3
+    ]
+   },
+   "error": "ValueError",
+   "message": "max_per_company must be an integer"
+  },
+  {
+   "name": "max_per_company_dict",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": {
+     "a": 1
+    }
+   },
+   "error": "ValueError",
+   "message": "max_per_company must be an integer"
+  },
+  {
+   "name": "max_searches_default",
+   "input": {
+    "companies": [
+     "A"
+    ]
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_searches_50",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_searches": 50
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 50
+   }
+  },
+  {
+   "name": "max_searches_cap",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_searches": 101
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "max_searches_zero",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_searches": 0
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 1
+   }
+  },
+  {
+   "name": "max_searches_bad",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_searches": "many"
+   },
+   "error": "ValueError",
+   "message": "max_searches must be an integer"
+  },
+  {
+   "name": "both_ints_bad_first_wins",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "max_per_company": "x",
+    "max_searches": "y"
+   },
+   "error": "ValueError",
+   "message": "max_per_company must be an integer"
+  },
+  {
+   "name": "missing_both_beats_bad_int",
+   "input": {
+    "max_per_company": "x"
+   },
+   "error": "ValueError",
+   "message": "people_search requires 'companies' or 'from_column'"
+  },
+  {
+   "name": "full",
+   "input": {
+    "companies": [
+     "Acme Corp",
+     "stripe.com"
+    ],
+    "from_column": "company",
+    "titles": [
+     "CTO",
+     "Founder"
+    ],
+    "seniority": "senior",
+    "geo": "Berlin",
+    "max_per_company": 10,
+    "max_searches": 100
+   },
+   "value": {
+    "companies": [
+     "Acme Corp",
+     "stripe.com"
+    ],
+    "from_column": "company",
+    "titles": [
+     "CTO",
+     "Founder"
+    ],
+    "seniority": "senior",
+    "geo": "Berlin",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  },
+  {
+   "name": "unknown_keys_ignored",
+   "input": {
+    "companies": [
+     "A"
+    ],
+    "extra": 1,
+    "kind": "people_search"
+   },
+   "value": {
+    "companies": [
+     "A"
+    ],
+    "from_column": "",
+    "titles": [],
+    "seniority": "",
+    "geo": "",
+    "max_per_company": 10,
+    "max_searches": 100
+   }
+  }
+ ]
+}
