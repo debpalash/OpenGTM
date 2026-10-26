@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/copilotkit/memories"
+  },
+  "response": {
+    "body": {
+      "available": true,
+      "memories": []
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

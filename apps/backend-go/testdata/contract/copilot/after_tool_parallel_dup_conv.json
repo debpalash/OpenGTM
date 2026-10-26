@@ -1,0 +1,66 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/000003fa-000"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "<volatile>",
+        "id": "000003fa-000",
+        "title": "[sim:tool_parallel_dup] stats and acme",
+        "updated_at": "<volatile>"
+      },
+      "messages": [
+        {
+          "content": "[sim:tool_parallel_dup] stats and acme",
+          "conversation_id": "000003fa-000",
+          "created_at": "<volatile>",
+          "id": "000003fb-000",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "get_lead_stats result",
+          "conversation_id": "000003fa-000",
+          "created_at": "<volatile>",
+          "id": "000003fc-000",
+          "role": "tool",
+          "tool_data": "{\"name\": \"get_lead_stats\", \"result\": {\"total\": 15, \"by_status\": {\"negotiating\": 1, \"dead\": 1, \"qualified\": 1, \"contacted\": 2, \"new\": 10}, \"by_tier\": {\"null\": 2, \"cold\": 5, \"warm\": 4, \"unqualified\": 1, \"hot\": 3}, \"by_city\": {\"Mumbai\": 4, \"Berlin\": 3, \"Austin\": 3, \"Delhi\": 1, \"\\u6771\\u4eac\": 1, \"Pune\": 1, \"\\u0130stanbul\": 1, \"\": 1}, \"by_source\": {\"scrape\": 3, \"import\": 5, \"contract\": 7}, \"enrichment\": {\"total\": 15, \"with_email\": 10, \"with_phone\": 6, \"with_website\": 13, \"with_linkedin\": 3, \"with_contact\": 4, \"avg_score\": 57.3}}}"
+        },
+        {
+          "content": "search_leads result",
+          "conversation_id": "000003fa-000",
+          "created_at": "<volatile>",
+          "id": "000003fd-000",
+          "role": "tool",
+          "tool_data": "{\"name\": \"search_leads\", \"result\": {\"leads\": [{\"id\": 1, \"company\": \"Acme 01\", \"city\": \"Austin\", \"email\": \"info@acme01.example.com\", \"phone\": null, \"score\": null, \"tier\": null, \"status\": \"new\", \"website\": \"https://acme01.example.com\", \"specialization\": null, \"company_size\": null, \"contact_person\": null, \"linkedin\": null, \"industry_tags\": null, \"founded_year\": null}], \"count\": 1}}"
+        },
+        {
+          "content": "get_lead_stats result",
+          "conversation_id": "000003fa-000",
+          "created_at": "<volatile>",
+          "id": "000003fe-000",
+          "role": "tool",
+          "tool_data": "{\"name\": \"get_lead_stats\", \"result\": {\"total\": 15, \"by_status\": {\"negotiating\": 1, \"dead\": 1, \"qualified\": 1, \"contacted\": 2, \"new\": 10}, \"by_tier\": {\"null\": 2, \"cold\": 5, \"warm\": 4, \"unqualified\": 1, \"hot\": 3}, \"by_city\": {\"Mumbai\": 4, \"Berlin\": 3, \"Austin\": 3, \"Delhi\": 1, \"\\u6771\\u4eac\": 1, \"Pune\": 1, \"\\u0130stanbul\": 1, \"\": 1}, \"by_source\": {\"scrape\": 3, \"import\": 5, \"contract\": 7}, \"enrichment\": {\"total\": 15, \"with_email\": 10, \"with_phone\": 6, \"with_website\": 13, \"with_linkedin\": 3, \"with_contact\": 4, \"avg_score\": 57.3}}}"
+        },
+        {
+          "content": "Both lookups done.",
+          "conversation_id": "000003fa-000",
+          "created_at": "<volatile>",
+          "id": "000003ff-000",
+          "role": "assistant",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/000003f2-000"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "<volatile>",
+        "id": "000003f2-000",
+        "title": "[sim:tool_one] Show me acme leads",
+        "updated_at": "<volatile>"
+      },
+      "messages": [
+        {
+          "content": "[sim:tool_one] Show me acme leads",
+          "conversation_id": "000003f2-000",
+          "created_at": "<volatile>",
+          "id": "000003f3-000",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "search_leads result",
+          "conversation_id": "000003f2-000",
+          "created_at": "<volatile>",
+          "id": "000003f4-000",
+          "role": "tool",
+          "tool_data": "{\"name\": \"search_leads\", \"result\": {\"leads\": [{\"id\": 1, \"company\": \"Acme 01\", \"city\": \"Austin\", \"email\": \"info@acme01.example.com\", \"phone\": null, \"score\": null, \"tier\": null, \"status\": \"new\", \"website\": \"https://acme01.example.com\", \"specialization\": null, \"company_size\": null, \"contact_person\": null, \"linkedin\": null, \"industry_tags\": null, \"founded_year\": null}], \"count\": 1}}"
+        },
+        {
+          "content": "Found the leads. Done.",
+          "conversation_id": "000003f2-000",
+          "created_at": "<volatile>",
+          "id": "000003f5-000",
+          "role": "assistant",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/0000045c-000"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "<volatile>",
+        "id": "0000045c-000",
+        "title": "Find named people currently working on Stripe's partnership...",
+        "updated_at": "<volatile>"
+      },
+      "messages": [
+        {
+          "content": "Find named people currently working on Stripe's partnership team. Require evidence for current employment and their partnership remit.",
+          "conversation_id": "0000045c-000",
+          "created_at": "<volatile>",
+          "id": "0000045d-000",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "find_people_at_company result",
+          "conversation_id": "0000045c-000",
+          "created_at": "<volatile>",
+          "id": "0000045e-000",
+          "role": "tool",
+          "tool_data": "{\"name\": \"find_people_at_company\", \"result\": {\"ok\": true, \"company\": \"Stripe\", \"function\": \"partnership\", \"people\": [{\"person_id\": \"person_stub_ada\", \"name\": \"Ada Alliance\", \"title\": \"Head of Partnership\", \"location\": \"Remote\", \"retrieved_at\": \"2026-08-29T10:00:00Z\", \"confidence\": 0.88, \"linkedin_url\": \"https://www.linkedin.com/in/ada-alliance\", \"evidence_url\": \"https://evidence.example/ada\"}], \"count\": 1, \"candidates_rejected\": {\"company_relationship_missing\": 2, \"function_evidence_missing\": 0}}}"
+        },
+        {
+          "content": "I found **1 evidence-matched candidate(s)** for **Stripe \u2014 partnership**.\n\n| Person | Public title | Location | Retrieved | Confidence |\n|---|---|---|---|---|\n| [Ada Alliance](https://www.linkedin.com/in/ada-alliance) | Head of Partnership | Remote | 2026-08-29T10:00:00Z | 88% |\n\nEvery row passed an exact target-company employment pattern and function-term check. Public profile snippets can still be stale, so re-check the linked profile before outreach. No email addresses were inferred.",
+          "conversation_id": "0000045c-000",
+          "created_at": "<volatile>",
+          "id": "0000045f-000",
+          "role": "assistant",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

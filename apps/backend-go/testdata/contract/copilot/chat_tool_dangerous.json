@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "messages": [
+        {
+          "content": "[sim:tool_dangerous] mark lead 4 contacted",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"00000404-000\"}\n\ndata: {\"confirmation_required\": {\"confirmation_id\": \"00000406000040008000000000000000\", \"tool_call\": {\"id\": \"00000406000040008000000000000000\", \"type\": \"function\", \"function\": {\"name\": \"update_lead_status\", \"arguments\": \"{\\\"lead_id\\\": 4, \\\"status\\\": \\\"contacted\\\", \\\"note\\\": \\\"from sim\\\"}\"}}, \"name\": \"update_lead_status\", \"args\": {\"lead_id\": 4, \"status\": \"contacted\", \"note\": \"from sim\"}, \"description\": \"\\ud83d\\udcdd Update Lead Status\\nChanges the pipeline status of a lead.\\nLead #4 \\u2192 contacted\", \"level\": \"medium\", \"label\": \"\\ud83d\\udcdd Update Lead Status\"}}\n\ndata: {\"awaiting_confirmation\": true}\n\ndata: [DONE]\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

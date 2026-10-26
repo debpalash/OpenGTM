@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/person/2"
+  },
+  "response": {
+    "body": {
+      "articles": [],
+      "companies": [],
+      "created_at": "2026-08-28T12:00:00",
+      "education": [],
+      "emails": [],
+      "headline": "",
+      "id": 2,
+      "linkedin_url": "https://www.linkedin.com/in/raj-risky",
+      "location": "",
+      "mentions": [],
+      "name": "Raj Risky",
+      "raw_sources": [],
+      "skills": [],
+      "social_links": {},
+      "status": "partial",
+      "summary": "",
+      "username": "raj-risky"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "messages": [
+        {
+          "content": "[sim:tool_one_split_name] stats please",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"000003f6-000\"}\n\ndata: {\"tool_call\": {\"name\": \"get_lead_stats\", \"args\": {}}}\n\ndata: {\"tool_result\": {\"name\": \"get_lead_stats\", \"result\": {\"total\": 15, \"by_status\": {\"negotiating\": 1, \"dead\": 1, \"qualified\": 1, \"contacted\": 2, \"new\": 10}, \"by_tier\": {\"null\": 2, \"cold\": 5, \"warm\": 4, \"unqualified\": 1, \"hot\": 3}, \"by_city\": {\"Mumbai\": 4, \"Berlin\": 3, \"Austin\": 3, \"Delhi\": 1, \"\\u6771\\u4eac\": 1, \"Pune\": 1, \"\\u0130stanbul\": 1, \"\": 1}, \"by_source\": {\"scrape\": 3, \"import\": 5, \"contract\": 7}, \"enrichment\": {\"total\": 15, \"with_email\": 10, \"with_phone\": 6, \"with_website\": 13, \"with_linkedin\": 3, \"with_contact\": 4, \"avg_score\": 57.3}}}}\n\ndata: {\"content\": \"Stats ready.\"}\n\ndata: [DONE]\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

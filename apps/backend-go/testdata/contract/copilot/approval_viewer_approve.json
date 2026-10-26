@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "approved_tool_calls": [
+        {
+          "decision": "approve",
+          "tool_call": {
+            "id": "000003ea000040008000000000000000"
+          }
+        }
+      ],
+      "messages": [
+        {
+          "content": "[sim:text_plain] go ahead",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"000003eb-000\"}\n\ndata: {\"tool_call\": {\"name\": \"update_lead_status\", \"args\": {\"lead_id\": 4, \"status\": \"contacted\", \"note\": \"from sim\"}}}\n\ndata: {\"tool_result\": {\"name\": \"update_lead_status\", \"result\": {\"error\": \"Insufficient workspace role\"}}}\n\ndata: {\"content\": \"Hello\"}\n\ndata: {\"content\": \" from the\"}\n\ndata: {\"content\": \" simulator \\u2014 caf\\u00e9 \\u2713\"}\n\ndata: {\"content\": \".\"}\n\ndata: [DONE]\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

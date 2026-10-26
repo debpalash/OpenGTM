@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "messages": [
+        {
+          "content": "[sim:rate_limit_all] hello",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"0000041d-000\"}\n\ndata: {\"warning\": \"\\u26a1 OpenRouter rate limited \\u2014 switching to Groq...\"}\n\ndata: {\"error\": \"Rate limited by Groq and no fallback providers available. Add more API keys in Settings, or wait and retry. (rate limit exceeded: no quota left)\"}\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

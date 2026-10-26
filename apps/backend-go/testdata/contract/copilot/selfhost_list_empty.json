@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/copilotkit/conversations"
+  },
+  "response": {
+    "body": {
+      "conversations": []
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

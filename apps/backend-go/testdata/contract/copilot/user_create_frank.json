@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {
+      "password": "frank-pass-5",
+      "username": "frank"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/admin/users"
+  },
+  "response": {
+    "body": {
+      "created_at": "<volatile>",
+      "id": 5,
+      "is_active": true,
+      "is_admin": false,
+      "last_login": null,
+      "profile_image": null,
+      "role": "user",
+      "username": "frank"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

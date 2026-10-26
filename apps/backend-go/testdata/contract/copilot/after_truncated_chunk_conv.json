@@ -1,0 +1,42 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/00000421-000"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "<volatile>",
+        "id": "00000421-000",
+        "title": "[sim:truncated_chunk] hello",
+        "updated_at": "<volatile>"
+      },
+      "messages": [
+        {
+          "content": "[sim:truncated_chunk] hello",
+          "conversation_id": "00000421-000",
+          "created_at": "<volatile>",
+          "id": "00000422-000",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "Before after",
+          "conversation_id": "00000421-000",
+          "created_at": "<volatile>",
+          "id": "00000423-000",
+          "role": "assistant",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

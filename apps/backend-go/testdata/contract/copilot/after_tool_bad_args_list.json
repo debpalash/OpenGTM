@@ -1,0 +1,68 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations"
+  },
+  "response": {
+    "body": {
+      "conversations": [
+        {
+          "created_at": "<volatile>",
+          "id": "00000400-000",
+          "title": "[sim:tool_bad_args] stats",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "000003fa-000",
+          "title": "[sim:tool_parallel_dup] stats and acme",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "000003f6-000",
+          "title": "[sim:tool_one_split_name] stats please",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "000003f2-000",
+          "title": "[sim:tool_one] Show me acme leads",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "000003ef-000",
+          "title": "[sim:text_plain] Say hello",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "2026-08-29 09:00:00",
+          "id": "conv-ed-1",
+          "title": "Stripe partnership people",
+          "updated_at": "2026-08-29 09:05:00"
+        },
+        {
+          "created_at": "2026-08-29 08:00:00",
+          "id": "conv-ed-2",
+          "title": "Saved contacts",
+          "updated_at": "2026-08-29 08:05:00"
+        },
+        {
+          "created_at": "2026-08-29 07:00:00",
+          "id": "conv-ed-3",
+          "title": "Pipeline questions",
+          "updated_at": "2026-08-29 07:05:00"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

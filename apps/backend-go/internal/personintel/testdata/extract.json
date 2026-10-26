@@ -1,0 +1,751 @@
+{
+ "note": "pure extractors of PersonIntelService. EMAIL order is set-iteration order in Python (unspecified): compare emails as sorted lists; preset emails stay first (start_prefix_kept)",
+ "linkedin": [
+  {
+   "name": "full_profile",
+   "start": {},
+   "results": [
+    {
+     "url": "https://www.linkedin.com/in/jane-doe",
+     "title": "Jane Doe - VP Partnerships - Acme | LinkedIn",
+     "snippet": "Jane Doe is based in Berlin, Germany. VP at Acme Corp - leads partnerships. Works at Beta Labs & Co"
+    },
+    {
+     "url": "https://www.linkedin.com/in/jane-doe",
+     "title": "Other Name - Other Headline - LinkedIn",
+     "snippet": "second snippet from Paris"
+    },
+    {
+     "url": "https://example.org/x",
+     "title": "Ignored - not linkedin",
+     "snippet": "based in Mars"
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "Jane Doe",
+    "headline": "VP Partnerships - Acme",
+    "location": "Berlin, Germany",
+    "summary": "Jane Doe is based in Berlin, Germany. VP at Acme Corp - leads partnerships. Works at Beta Labs & Co",
+    "emails": [],
+    "social_links": {},
+    "articles": [],
+    "mentions": [],
+    "companies": [
+     "Acme Corp",
+     "Beta Labs & Co"
+    ],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "name_only_title",
+   "start": {},
+   "results": [
+    {
+     "url": "https://www.linkedin.com/in/a",
+     "title": "Solo Name | LinkedIn",
+     "snippet": ""
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "Solo Name",
+    "headline": "",
+    "location": "",
+    "summary": "",
+    "emails": [],
+    "social_links": {},
+    "articles": [],
+    "mentions": [],
+    "companies": [],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "preset_fields_kept",
+   "start": {
+    "name": "Keep",
+    "headline": "Keep H",
+    "summary": "Keep S",
+    "location": "Keep L",
+    "companies": [
+     "Acme Corp"
+    ]
+   },
+   "results": [
+    {
+     "url": "https://www.linkedin.com/in/jane-doe",
+     "title": "Jane Doe - VP Partnerships - Acme | LinkedIn",
+     "snippet": "Jane Doe is based in Berlin, Germany. VP at Acme Corp - leads partnerships. Works at Beta Labs & Co"
+    },
+    {
+     "url": "https://www.linkedin.com/in/jane-doe",
+     "title": "Other Name - Other Headline - LinkedIn",
+     "snippet": "second snippet from Paris"
+    },
+    {
+     "url": "https://example.org/x",
+     "title": "Ignored - not linkedin",
+     "snippet": "based in Mars"
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "Keep",
+    "headline": "Keep H",
+    "location": "Keep L",
+    "summary": "Keep S",
+    "emails": [],
+    "social_links": {},
+    "articles": [],
+    "mentions": [],
+    "companies": [
+     "Acme Corp",
+     "Beta Labs & Co"
+    ],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "headline_with_dashes",
+   "start": {},
+   "results": [
+    {
+     "url": "https://www.linkedin.com/in/a",
+     "title": "A B - C - D - E - LinkedIn",
+     "snippet": "x"
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "A B",
+    "headline": "C - D - E",
+    "location": "",
+    "summary": "x",
+    "emails": [],
+    "social_links": {},
+    "articles": [],
+    "mentions": [],
+    "companies": [],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "empty_title_segments",
+   "start": {},
+   "results": [
+    {
+     "url": "https://www.linkedin.com/in/a",
+     "title": " -  - | LinkedIn",
+     "snippet": "from Oslo, Norway"
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "-",
+    "headline": "",
+    "location": "Oslo, Norway",
+    "summary": "from Oslo, Norway",
+    "emails": [],
+    "social_links": {},
+    "articles": [],
+    "mentions": [],
+    "companies": [],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "company_patterns",
+   "start": {},
+   "results": [
+    {
+     "url": "https://www.linkedin.com/in/a",
+     "title": "N",
+     "snippet": "CTO at Foo Bar - something. @Baz Qux | x. works for Quux Inc"
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "N",
+    "headline": "",
+    "location": "",
+    "summary": "CTO at Foo Bar - something. @Baz Qux | x. works for Quux Inc",
+    "emails": [],
+    "social_links": {},
+    "articles": [],
+    "mentions": [],
+    "companies": [
+     "Foo Bar",
+     "Quux Inc"
+    ],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "short_company_filtered",
+   "start": {},
+   "results": [
+    {
+     "url": "https://www.linkedin.com/in/a",
+     "title": "N",
+     "snippet": "at Ab - x"
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "N",
+    "headline": "",
+    "location": "",
+    "summary": "at Ab - x",
+    "emails": [],
+    "social_links": {},
+    "articles": [],
+    "mentions": [],
+    "companies": [],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "no_results",
+   "start": {},
+   "results": [],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "",
+    "summary": "",
+    "emails": [],
+    "social_links": {},
+    "articles": [],
+    "mentions": [],
+    "companies": [],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "missing_keys",
+   "start": {},
+   "results": [
+    {
+     "url": "https://www.linkedin.com/in/a"
+    },
+    {}
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "",
+    "summary": "",
+    "emails": [],
+    "social_links": {},
+    "articles": [],
+    "mentions": [],
+    "companies": [],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  }
+ ],
+ "social": [
+  {
+   "name": "all_platforms",
+   "start": {},
+   "social_results": {
+    "twitter": [
+     {
+      "url": "https://twitter.com/janedoe"
+     },
+     {
+      "url": "https://x.com/second"
+     },
+     {
+      "url": "https://example.org/none"
+     }
+    ],
+    "github": [
+     {
+      "url": "https://github.com/jane-doe/repo"
+     },
+     {
+      "url": "https://github.com/other"
+     }
+    ],
+    "blog": [
+     {
+      "url": "https://medium.com/@jane"
+     },
+     {
+      "url": "https://jane.substack.com/p/x"
+     }
+    ]
+   },
+   "social_links": {
+    "twitter": "https://twitter.com/janedoe",
+    "github": "https://github.com/jane-doe/repo",
+    "blog": "https://medium.com/@jane"
+   }
+  },
+  {
+   "name": "first_match_wins",
+   "start": {},
+   "social_results": {
+    "twitter": [
+     {
+      "url": "https://x.com/first"
+     },
+     {
+      "url": "https://twitter.com/second"
+     }
+    ]
+   },
+   "social_links": {
+    "twitter": "https://x.com/first"
+   }
+  },
+  {
+   "name": "substack_pattern",
+   "start": {},
+   "social_results": {
+    "blog": [
+     {
+      "url": "https://jane-d.substack.com/"
+     }
+    ]
+   },
+   "social_links": {
+    "blog": "https://jane-d.substack.com/"
+   }
+  },
+  {
+   "name": "preset_kept",
+   "start": {
+    "social_links": {
+     "twitter": "https://twitter.com/keep"
+    }
+   },
+   "social_results": {
+    "twitter": [
+     {
+      "url": "https://x.com/new"
+     }
+    ]
+   },
+   "social_links": {
+    "twitter": "https://twitter.com/keep"
+   }
+  },
+  {
+   "name": "unknown_platform_ignored",
+   "start": {},
+   "social_results": {
+    "mastodon": [
+     {
+      "url": "https://mastodon.social/@x"
+     }
+    ]
+   },
+   "social_links": {}
+  },
+  {
+   "name": "no_pattern_match",
+   "start": {},
+   "social_results": {
+    "github": [
+     {
+      "url": "https://example.org/github"
+     }
+    ],
+    "twitter": [
+     {
+      "url": "https://twitterx.com/a"
+     }
+    ]
+   },
+   "social_links": {
+    "twitter": "https://twitterx.com/a"
+   }
+  },
+  {
+   "name": "empty_url",
+   "start": {},
+   "social_results": {
+    "twitter": [
+     {}
+    ]
+   },
+   "social_links": {}
+  }
+ ],
+ "articles_mentions": [
+  {
+   "name": "mixed",
+   "username": "jane-doe",
+   "articles_in": [
+    {
+     "url": "https://a.example/1",
+     "title": "Talk by jane-doe",
+     "snippet": "conference",
+     "source": "duckduckgo"
+    },
+    {
+     "url": "https://a.example/1",
+     "title": "duplicate",
+     "snippet": "x"
+    },
+    {
+     "url": "https://a.example/2",
+     "title": "News",
+     "snippet": "Published in 2026"
+    },
+    {
+     "url": "https://a.example/3",
+     "title": "About her",
+     "snippet": "profile"
+    },
+    {
+     "url": "https://a.example/4",
+     "title": "The AUTHOR page",
+     "snippet": ""
+    },
+    {
+     "url": "https://a.example/5",
+     "title": "She wrote it",
+     "snippet": ""
+    },
+    {
+     "url": "https://a.example/6",
+     "title": "Presentation by x",
+     "snippet": ""
+    },
+    {
+     "url": "https://a.example/7",
+     "snippet": "no title key"
+    }
+   ],
+   "general_in": [
+    {
+     "url": "https://a.example/1",
+     "title": "seen in articles"
+    },
+    {
+     "url": "https://www.linkedin.com/in/x",
+     "title": "li"
+    },
+    {
+     "url": "https://g.example/1",
+     "title": "General",
+     "snippet": "s",
+     "source": "duckduckgo"
+    },
+    {
+     "url": "https://g.example/1",
+     "title": "dup"
+    },
+    {
+     "title": "no url"
+    },
+    {
+     "url": "https://g.example/2"
+    }
+   ],
+   "articles": [
+    {
+     "title": "Talk by jane-doe",
+     "url": "https://a.example/1",
+     "snippet": "conference",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "News",
+     "url": "https://a.example/2",
+     "snippet": "Published in 2026",
+     "source": "web"
+    },
+    {
+     "title": "The AUTHOR page",
+     "url": "https://a.example/4",
+     "snippet": "",
+     "source": "web"
+    },
+    {
+     "title": "She wrote it",
+     "url": "https://a.example/5",
+     "snippet": "",
+     "source": "web"
+    },
+    {
+     "title": "Presentation by x",
+     "url": "https://a.example/6",
+     "snippet": "",
+     "source": "web"
+    }
+   ],
+   "mentions": [
+    {
+     "title": "About her",
+     "url": "https://a.example/3",
+     "snippet": "profile",
+     "source": "web"
+    },
+    {
+     "title": "",
+     "url": "https://a.example/7",
+     "snippet": "no title key",
+     "source": "web"
+    },
+    {
+     "title": "General",
+     "url": "https://g.example/1",
+     "snippet": "s",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "no url",
+     "url": "",
+     "snippet": "",
+     "source": "web"
+    },
+    {
+     "title": "",
+     "url": "https://g.example/2",
+     "snippet": "",
+     "source": "web"
+    }
+   ]
+  },
+  {
+   "name": "uppercase_username",
+   "username": "JANE-DOE",
+   "articles_in": [
+    {
+     "url": "https://a.example/1",
+     "title": "Talk by jane-doe",
+     "snippet": "conference",
+     "source": "duckduckgo"
+    }
+   ],
+   "general_in": [],
+   "articles": [
+    {
+     "title": "Talk by jane-doe",
+     "url": "https://a.example/1",
+     "snippet": "conference",
+     "source": "duckduckgo"
+    }
+   ],
+   "mentions": []
+  },
+  {
+   "name": "empty",
+   "username": "x",
+   "articles_in": [],
+   "general_in": [],
+   "articles": [],
+   "mentions": []
+  },
+  {
+   "name": "general_only",
+   "username": "x",
+   "articles_in": [],
+   "general_in": [
+    {
+     "url": "https://a.example/1",
+     "title": "seen in articles"
+    },
+    {
+     "url": "https://www.linkedin.com/in/x",
+     "title": "li"
+    },
+    {
+     "url": "https://g.example/1",
+     "title": "General",
+     "snippet": "s",
+     "source": "duckduckgo"
+    },
+    {
+     "url": "https://g.example/1",
+     "title": "dup"
+    },
+    {
+     "title": "no url"
+    },
+    {
+     "url": "https://g.example/2"
+    }
+   ],
+   "articles": [],
+   "mentions": [
+    {
+     "title": "seen in articles",
+     "url": "https://a.example/1",
+     "snippet": "",
+     "source": "web"
+    },
+    {
+     "title": "General",
+     "url": "https://g.example/1",
+     "snippet": "s",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "no url",
+     "url": "",
+     "snippet": "",
+     "source": "web"
+    },
+    {
+     "title": "",
+     "url": "https://g.example/2",
+     "snippet": "",
+     "source": "web"
+    }
+   ]
+  }
+ ],
+ "emails": [
+  {
+   "name": "mixed",
+   "start_emails": [],
+   "results": [
+    {
+     "snippet": "contact jane@acme.io or Jane.Doe+x@Sub.Acme.CO.UK now",
+     "scraped_text": "also info@acme.io"
+    },
+    {
+     "snippet": "junk@example.com test@test.com you@domain.com yourname@x.io a@sentry.io b@wixpress.com e@email.com",
+     "scraped_text": ""
+    },
+    {
+     "snippet": "dup jane@acme.io jane@acme.io",
+     "scraped_text": "JANE@acme.io"
+    },
+    {
+     "snippet": "no emails here",
+     "scraped_text": "x@y"
+    },
+    {
+     "snippet": "trailing dot a@b.cc.",
+     "scraped_text": "(c@d.ef)"
+    },
+    {
+     "snippet": "UPPER@EXAMPLE.COM mixed@Example.com",
+     "scraped_text": ""
+    },
+    {}
+   ],
+   "emails_sorted": [
+    "JANE@acme.io",
+    "Jane.Doe+x@Sub.Acme.CO.UK",
+    "a@b.cc",
+    "c@d.ef",
+    "info@acme.io",
+    "jane@acme.io"
+   ],
+   "start_prefix_kept": true
+  },
+  {
+   "name": "preset_emails_kept",
+   "start_emails": [
+    "jane@acme.io",
+    "keep@x.io"
+   ],
+   "results": [
+    {
+     "snippet": "contact jane@acme.io or Jane.Doe+x@Sub.Acme.CO.UK now",
+     "scraped_text": "also info@acme.io"
+    }
+   ],
+   "emails_sorted": [
+    "Jane.Doe+x@Sub.Acme.CO.UK",
+    "info@acme.io",
+    "jane@acme.io",
+    "keep@x.io"
+   ],
+   "start_prefix_kept": true
+  },
+  {
+   "name": "none",
+   "start_emails": [],
+   "results": [
+    {
+     "snippet": "nothing"
+    }
+   ],
+   "emails_sorted": [],
+   "start_prefix_kept": true
+  },
+  {
+   "name": "single_survivor",
+   "start_emails": [],
+   "results": [
+    {
+     "snippet": "only one@solo.io here example.com@x"
+    }
+   ],
+   "emails_sorted": [
+    "one@solo.io"
+   ],
+   "start_prefix_kept": true
+  },
+  {
+   "name": "empty",
+   "start_emails": [],
+   "results": [],
+   "emails_sorted": [],
+   "start_prefix_kept": true
+  }
+ ],
+ "email_pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+ "skip_domains": [
+  "amazon.com",
+  "bing.com",
+  "duckduckgo.com",
+  "ebay.com",
+  "facebook.com",
+  "google.com",
+  "instagram.com",
+  "pinterest.com",
+  "tiktok.com",
+  "wikipedia.org",
+  "yahoo.com",
+  "youtube.com"
+ ]
+}

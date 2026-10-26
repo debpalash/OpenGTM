@@ -1,0 +1,333 @@
+{
+ "note": "_search_duckduckgo(client, 'q', max_results): POST https://lite.duckduckgo.com/lite/ form q, kl=wt-wt; non-200 -> []; every result has title[:200], url, snippet[:500], source 'duckduckgo'",
+ "cases": [
+  {
+   "name": "typical",
+   "html": "<html><head><title>x</title></head><body><form><table border=\"0\">\n<tr><td valign=\"top\">1.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://www.linkedin.com/in/jane-doe?trk=public_profile/\" class=\"result-url\">Jane Doe - VP - Acme | LinkedIn</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">Jane Doe is based in Berlin. VP at Acme Corp - leads partnerships.</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">2.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://github.com/jane-doe\" class=\"result-url\">jane-doe (Jane Doe)</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">Repositories</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">3.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://medium.com/@jane\" class=\"result-url\">Posts by Jane</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">4.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://twitter.com/janedoe\" class=\"result-url\">Jane (@janedoe) / X</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">Tweets &amp; replies</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n</table></form></body></html>",
+   "status": 200,
+   "max_results": 20,
+   "results": [
+    {
+     "title": "Jane Doe - VP - Acme | LinkedIn",
+     "url": "https://www.linkedin.com/in/jane-doe",
+     "snippet": "Jane Doe is based in Berlin. VP at Acme Corp - leads partnerships.",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "jane-doe (Jane Doe)",
+     "url": "https://github.com/jane-doe",
+     "snippet": "Repositories",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Posts by Jane",
+     "url": "https://medium.com/@jane",
+     "snippet": "",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Jane (@janedoe) / X",
+     "url": "https://twitter.com/janedoe",
+     "snippet": "Tweets & replies",
+     "source": "duckduckgo"
+    }
+   ]
+  },
+  {
+   "name": "skip_domains",
+   "html": "<html><head><title>x</title></head><body><form><table border=\"0\">\n<tr><td valign=\"top\">1.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://www.google.com/search?q=x\" class=\"result-url\">G</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">s</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">2.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://duckduckgo.com/y\" class=\"result-url\">D</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">s</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">3.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://www.youtube.com/watch?v=1\" class=\"result-url\">Y</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">s</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">4.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://en.wikipedia.org/wiki/X\" class=\"result-url\">W</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">s</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">5.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://example.org/ok\" class=\"result-url\">Kept</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">s</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">6.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://m.facebook.com/x\" class=\"result-url\">F2</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">s</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n</table></form></body></html>",
+   "status": 200,
+   "max_results": 20,
+   "results": [
+    {
+     "title": "W",
+     "url": "https://en.wikipedia.org/wiki/X",
+     "snippet": "s",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Kept",
+     "url": "https://example.org/ok",
+     "snippet": "s",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "F2",
+     "url": "https://m.facebook.com/x",
+     "snippet": "s",
+     "source": "duckduckgo"
+    }
+   ]
+  },
+  {
+   "name": "duplicates",
+   "html": "<html><head><title>x</title></head><body><form><table border=\"0\">\n<tr><td valign=\"top\">1.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://example.org/a\" class=\"result-url\">First</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">one</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">2.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://example.org/a\" class=\"result-url\">Second</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">two</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">3.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://www.linkedin.com/in/x/\" class=\"result-url\">LI1</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">a</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">4.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://www.linkedin.com/in/x?y=1\" class=\"result-url\">LI2</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">b</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n</table></form></body></html>",
+   "status": 200,
+   "max_results": 20,
+   "results": [
+    {
+     "title": "First",
+     "url": "https://example.org/a",
+     "snippet": "one",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "LI1",
+     "url": "https://www.linkedin.com/in/x",
+     "snippet": "a",
+     "source": "duckduckgo"
+    }
+   ]
+  },
+  {
+   "name": "protocol_relative_and_relative",
+   "html": "<html><head><title>x</title></head><body><form><table border=\"0\">\n<tr><td valign=\"top\">1.&nbsp;</td><td><a rel=\"nofollow\" href=\"//cdn.example.org/page\" class=\"result-url\">Proto</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">p</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">2.&nbsp;</td><td><a rel=\"nofollow\" href=\"/relative/path\" class=\"result-url\">Rel</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">r</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">3.&nbsp;</td><td><a rel=\"nofollow\" href=\"ftp://files.example.org/x\" class=\"result-url\">Ftp</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">f</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n</table></form></body></html>",
+   "status": 200,
+   "max_results": 20,
+   "results": [
+    {
+     "title": "Proto",
+     "url": "https://cdn.example.org/page",
+     "snippet": "p",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Rel",
+     "url": "/relative/path",
+     "snippet": "r",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Ftp",
+     "url": "ftp://files.example.org/x",
+     "snippet": "f",
+     "source": "duckduckgo"
+    }
+   ]
+  },
+  {
+   "name": "empty_title_or_href",
+   "html": "<html><head><title>x</title></head><body><form><table border=\"0\">\n<tr><td valign=\"top\">1.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://example.org/notitle\" class=\"result-url\"></a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">s</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">2.&nbsp;</td><td><a rel=\"nofollow\" href=\"\" class=\"result-url\">No href</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">s</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">3.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://example.org/ok2\" class=\"result-url\">  Spaced   title  </a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">  spaced   snippet </td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n</table></form></body></html>",
+   "status": 200,
+   "max_results": 20,
+   "results": [
+    {
+     "title": "Spaced   title",
+     "url": "https://example.org/ok2",
+     "snippet": "spaced   snippet",
+     "source": "duckduckgo"
+    }
+   ]
+  },
+  {
+   "name": "truncation",
+   "html": "<html><head><title>x</title></head><body><form><table border=\"0\">\n<tr><td valign=\"top\">1.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://example.org/long\" class=\"result-url\">TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n</table></form></body></html>",
+   "status": 200,
+   "max_results": 20,
+   "results": [
+    {
+     "title": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+     "url": "https://example.org/long",
+     "snippet": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+     "source": "duckduckgo"
+    }
+   ]
+  },
+  {
+   "name": "html_entities_and_unicode",
+   "html": "<html><head><title>x</title></head><body><form><table border=\"0\">\n<tr><td valign=\"top\">1.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://example.org/u\" class=\"result-url\">Café &amp; Crème — 日本語</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">Zoë &lt;b&gt; <b>bold</b> text</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n</table></form></body></html>",
+   "status": 200,
+   "max_results": 20,
+   "results": [
+    {
+     "title": "Café & Crème — 日本語",
+     "url": "https://example.org/u",
+     "snippet": "Zoë <b>boldtext",
+     "source": "duckduckgo"
+    }
+   ]
+  },
+  {
+   "name": "cap_20_results",
+   "html": "<html><head><title>x</title></head><body><form><table border=\"0\">\n<tr><td valign=\"top\">1.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site0.example.org/p\" class=\"result-url\">Result 0</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 0</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">2.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site1.example.org/p\" class=\"result-url\">Result 1</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 1</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">3.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site2.example.org/p\" class=\"result-url\">Result 2</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 2</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">4.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site3.example.org/p\" class=\"result-url\">Result 3</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 3</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">5.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site4.example.org/p\" class=\"result-url\">Result 4</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 4</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">6.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site5.example.org/p\" class=\"result-url\">Result 5</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 5</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">7.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site6.example.org/p\" class=\"result-url\">Result 6</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 6</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">8.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site7.example.org/p\" class=\"result-url\">Result 7</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 7</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">9.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site8.example.org/p\" class=\"result-url\">Result 8</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 8</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">10.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site9.example.org/p\" class=\"result-url\">Result 9</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 9</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">11.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site10.example.org/p\" class=\"result-url\">Result 10</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 10</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">12.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site11.example.org/p\" class=\"result-url\">Result 11</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 11</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">13.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site12.example.org/p\" class=\"result-url\">Result 12</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 12</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">14.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site13.example.org/p\" class=\"result-url\">Result 13</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 13</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">15.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site14.example.org/p\" class=\"result-url\">Result 14</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 14</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">16.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site15.example.org/p\" class=\"result-url\">Result 15</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 15</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">17.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site16.example.org/p\" class=\"result-url\">Result 16</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 16</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">18.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site17.example.org/p\" class=\"result-url\">Result 17</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 17</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">19.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site18.example.org/p\" class=\"result-url\">Result 18</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 18</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">20.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site19.example.org/p\" class=\"result-url\">Result 19</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 19</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">21.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site20.example.org/p\" class=\"result-url\">Result 20</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 20</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">22.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site21.example.org/p\" class=\"result-url\">Result 21</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 21</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">23.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site22.example.org/p\" class=\"result-url\">Result 22</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 22</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">24.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site23.example.org/p\" class=\"result-url\">Result 23</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 23</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">25.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site24.example.org/p\" class=\"result-url\">Result 24</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 24</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n</table></form></body></html>",
+   "status": 200,
+   "max_results": 20,
+   "results": [
+    {
+     "title": "Result 0",
+     "url": "https://site0.example.org/p",
+     "snippet": "snippet 0",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 1",
+     "url": "https://site1.example.org/p",
+     "snippet": "snippet 1",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 2",
+     "url": "https://site2.example.org/p",
+     "snippet": "snippet 2",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 3",
+     "url": "https://site3.example.org/p",
+     "snippet": "snippet 3",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 4",
+     "url": "https://site4.example.org/p",
+     "snippet": "snippet 4",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 5",
+     "url": "https://site5.example.org/p",
+     "snippet": "snippet 5",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 6",
+     "url": "https://site6.example.org/p",
+     "snippet": "snippet 6",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 7",
+     "url": "https://site7.example.org/p",
+     "snippet": "snippet 7",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 8",
+     "url": "https://site8.example.org/p",
+     "snippet": "snippet 8",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 9",
+     "url": "https://site9.example.org/p",
+     "snippet": "snippet 9",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 10",
+     "url": "https://site10.example.org/p",
+     "snippet": "snippet 10",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 11",
+     "url": "https://site11.example.org/p",
+     "snippet": "snippet 11",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 12",
+     "url": "https://site12.example.org/p",
+     "snippet": "snippet 12",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 13",
+     "url": "https://site13.example.org/p",
+     "snippet": "snippet 13",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 14",
+     "url": "https://site14.example.org/p",
+     "snippet": "snippet 14",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 15",
+     "url": "https://site15.example.org/p",
+     "snippet": "snippet 15",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 16",
+     "url": "https://site16.example.org/p",
+     "snippet": "snippet 16",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 17",
+     "url": "https://site17.example.org/p",
+     "snippet": "snippet 17",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 18",
+     "url": "https://site18.example.org/p",
+     "snippet": "snippet 18",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 19",
+     "url": "https://site19.example.org/p",
+     "snippet": "snippet 19",
+     "source": "duckduckgo"
+    }
+   ]
+  },
+  {
+   "name": "max_results_3",
+   "html": "<html><head><title>x</title></head><body><form><table border=\"0\">\n<tr><td valign=\"top\">1.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site0.example.org/p\" class=\"result-url\">Result 0</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 0</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">2.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site1.example.org/p\" class=\"result-url\">Result 1</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 1</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">3.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site2.example.org/p\" class=\"result-url\">Result 2</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 2</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">4.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site3.example.org/p\" class=\"result-url\">Result 3</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 3</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">5.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site4.example.org/p\" class=\"result-url\">Result 4</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 4</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">6.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site5.example.org/p\" class=\"result-url\">Result 5</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 5</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">7.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site6.example.org/p\" class=\"result-url\">Result 6</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 6</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">8.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site7.example.org/p\" class=\"result-url\">Result 7</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 7</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">9.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site8.example.org/p\" class=\"result-url\">Result 8</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 8</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">10.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site9.example.org/p\" class=\"result-url\">Result 9</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 9</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">11.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site10.example.org/p\" class=\"result-url\">Result 10</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 10</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">12.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site11.example.org/p\" class=\"result-url\">Result 11</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 11</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">13.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site12.example.org/p\" class=\"result-url\">Result 12</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 12</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">14.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site13.example.org/p\" class=\"result-url\">Result 13</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 13</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">15.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site14.example.org/p\" class=\"result-url\">Result 14</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 14</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">16.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site15.example.org/p\" class=\"result-url\">Result 15</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 15</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">17.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site16.example.org/p\" class=\"result-url\">Result 16</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 16</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">18.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site17.example.org/p\" class=\"result-url\">Result 17</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 17</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">19.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site18.example.org/p\" class=\"result-url\">Result 18</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 18</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">20.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site19.example.org/p\" class=\"result-url\">Result 19</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 19</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">21.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site20.example.org/p\" class=\"result-url\">Result 20</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 20</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">22.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site21.example.org/p\" class=\"result-url\">Result 21</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 21</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">23.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site22.example.org/p\" class=\"result-url\">Result 22</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 22</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">24.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site23.example.org/p\" class=\"result-url\">Result 23</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 23</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n<tr><td valign=\"top\">25.&nbsp;</td><td><a rel=\"nofollow\" href=\"https://site24.example.org/p\" class=\"result-url\">Result 24</a></td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td class=\"result-snippet\">snippet 24</td></tr>\n<tr><td>&nbsp;&nbsp;&nbsp;</td><td><span class=\"link-text\">link</span></td></tr><tr><td colspan=\"2\">&nbsp;</td></tr>\n</table></form></body></html>",
+   "status": 200,
+   "max_results": 3,
+   "results": [
+    {
+     "title": "Result 0",
+     "url": "https://site0.example.org/p",
+     "snippet": "snippet 0",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 1",
+     "url": "https://site1.example.org/p",
+     "snippet": "snippet 1",
+     "source": "duckduckgo"
+    },
+    {
+     "title": "Result 2",
+     "url": "https://site2.example.org/p",
+     "snippet": "snippet 2",
+     "source": "duckduckgo"
+    }
+   ]
+  },
+  {
+   "name": "no_results_markup",
+   "html": "<html><body><p>No results.</p></body></html>",
+   "status": 200,
+   "max_results": 20,
+   "results": []
+  },
+  {
+   "name": "empty_body",
+   "html": "",
+   "status": 200,
+   "max_results": 20,
+   "results": []
+  },
+  {
+   "name": "status_202_challenge",
+   "html": "<html>captcha</html>",
+   "status": 202,
+   "max_results": 20,
+   "results": []
+  },
+  {
+   "name": "status_429",
+   "html": "",
+   "status": 429,
+   "max_results": 20,
+   "results": []
+  }
+ ]
+}

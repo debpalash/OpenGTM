@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "linkedin_url": "https://www.linkedin.com/in/x"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/person/enrich"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

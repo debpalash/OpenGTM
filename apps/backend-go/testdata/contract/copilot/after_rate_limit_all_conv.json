@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/0000041d-000"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "<volatile>",
+        "id": "0000041d-000",
+        "title": "[sim:rate_limit_all] hello",
+        "updated_at": "<volatile>"
+      },
+      "messages": [
+        {
+          "content": "[sim:rate_limit_all] hello",
+          "conversation_id": "0000041d-000",
+          "created_at": "<volatile>",
+          "id": "0000041e-000",
+          "role": "user",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

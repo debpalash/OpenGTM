@@ -1,0 +1,42 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/00000414-000"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "<volatile>",
+        "id": "00000414-000",
+        "title": "[sim:rate_limit_fallback] hello",
+        "updated_at": "<volatile>"
+      },
+      "messages": [
+        {
+          "content": "[sim:rate_limit_fallback] hello",
+          "conversation_id": "00000414-000",
+          "created_at": "<volatile>",
+          "id": "00000415-000",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "Answered by the fallback provider.",
+          "conversation_id": "00000414-000",
+          "created_at": "<volatile>",
+          "id": "00000416-000",
+          "role": "assistant",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

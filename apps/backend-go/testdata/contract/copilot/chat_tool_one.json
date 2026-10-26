@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "messages": [
+        {
+          "content": "[sim:tool_one] Show me acme leads",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"000003f2-000\"}\n\ndata: {\"tool_call\": {\"name\": \"search_leads\", \"args\": {\"query\": \"acme\", \"limit\": 3}}}\n\ndata: {\"tool_result\": {\"name\": \"search_leads\", \"result\": {\"leads\": [{\"id\": 1, \"company\": \"Acme 01\", \"city\": \"Austin\", \"email\": \"info@acme01.example.com\", \"phone\": null, \"score\": null, \"tier\": null, \"status\": \"new\", \"website\": \"https://acme01.example.com\", \"specialization\": null, \"company_size\": null, \"contact_person\": null, \"linkedin\": null, \"industry_tags\": null, \"founded_year\": null}], \"count\": 1}}}\n\ndata: {\"content\": \"Found the leads.\"}\n\ndata: {\"content\": \" Done.\"}\n\ndata: [DONE]\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

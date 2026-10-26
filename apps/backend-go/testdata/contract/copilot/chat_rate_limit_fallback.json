@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "messages": [
+        {
+          "content": "[sim:rate_limit_fallback] hello",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"00000414-000\"}\n\ndata: {\"warning\": \"\\u26a1 OpenRouter rate limited \\u2014 switching to Groq...\"}\n\ndata: {\"content\": \"Answered by the fallback provider.\"}\n\ndata: [DONE]\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

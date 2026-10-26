@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "DELETE",
+    "path": "/api/copilotkit/conversations/conv-ed-1"
+  },
+  "response": {
+    "body": {
+      "detail": "Could not validate credentials"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}
