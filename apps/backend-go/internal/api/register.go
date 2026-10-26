@@ -58,6 +58,12 @@ type Deps struct {
 	Getenv   func(string) string
 	// OpenRouterModelsURL overrides the OpenRouter catalogue URL (tests only).
 	OpenRouterModelsURL string
+
+	// Outreach (plan 09). EgressAllowHosts are the operator-allowed internal SMTP/IMAP hosts
+	// (EGRESS_ALLOW_HOSTS); the secret is never logged.
+	OutreachPublicBaseURL string
+	OutreachWebhookSecret config.Secret
+	EgressAllowHosts      []string
 }
 
 func (d Deps) getenv() func(string) string {
@@ -121,4 +127,5 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterAmbitionBox(r, d)
 	RegisterAutomations(r, d)
 	RegisterWatches(r, d)
+	RegisterOutreach(r, d)
 }

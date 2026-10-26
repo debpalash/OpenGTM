@@ -364,6 +364,7 @@ type Flags struct {
 	AutomationsAllowLegacyOutreach bool   // AUTOMATIONS_ALLOW_LEGACY_OUTREACH
 	FilesAPIMode                   string
 	Automations                    AutomationsSettings // plan 08; see automations.go
+	Outreach                       OutreachSettings    // plan 09; see outreach.go
 }
 
 // DefaultStripeAPIBase is the production Stripe API origin.
@@ -487,6 +488,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		return APIConfig{}, err
 	}
 	if c.Flags.Automations, err = loadAutomations(get); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.Outreach, err = loadOutreach(get); err != nil {
 		return APIConfig{}, err
 	}
 	if c.Flags.IntentPollerEnabled, err = boolVar(get, "INTENT_POLLER_ENABLED", false); err != nil {
