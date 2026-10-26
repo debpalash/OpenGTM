@@ -744,3 +744,54 @@ func TestSyncDoesNotFollowRedirects(t *testing.T) {
 		t.Fatalf("%+v %v hits=%d", res, err, hits)
 	}
 }
+
+func TestErrorTextNeverLeaksSecret(t *testing.T) {
+	secret := "wh-SECRET-0123456789abcdefghij"
+	check := func(t *testing.T, name, got string) {
+		t.Helper()
+		for n := 8; n <= len(secret); n++ {
+			for i := 0; i+n <= len(secret); i++ {
+				if strings.Contains(got, secret[i:i+n]) {
+					t.Errorf("%s: error contains secret fragment %q: %.80q", name, secret[i:i+n], got)
+					return
+				}
+			}
+		}
+	}
+	bodies := map[string]string{
+		"echo":      "bad auth header: " + secret,
+		"straddle":  strings.Repeat("x", 300-10) + secret + " tail",
+		"straddle2": strings.Repeat("y", 300-len(secret)/2) + secret,
+		"ctl_split": secret[:12] + "\x00\n" + secret[12:],
+		"twice":     secret + secret,
+		"cap_cut":   strings.Repeat("z", maxBody-12) + secret,
+	}
+	for name, body := range bodies {
+		var s seen
+		srv := recorder(401, nil, body, &s)
+		b := NewBuffer("run-9", "ws-vec", DestRef{ID: "d"}, 0)
+		_ = b.Append(1, map[string]any{"a": 1})
+		dest := DestRef{ID: "d", Config: map[string]any{"url": srv.URL, "header_secret_ref": "K"}}
+		res, err := Sync(context.Background(), tlsClient(srv), "ws-vec", dest, b, getter(map[string]string{"K": secret}, nil))
+		b.Close()
+		srv.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if res.Success || !strings.HasPrefix(res.Error, "warehouse HTTP 401: ") {
+			t.Fatalf("%s: %+v", name, res)
+		}
+		check(t, name, res.Error)
+	}
+	// The secret echoed in a Location header is not surfaced as external_id either.
+	var s seen
+	srv := recorder(201, map[string]string{"Location": "https://x/" + secret}, "", &s)
+	defer srv.Close()
+	b := NewBuffer("run-9", "ws-vec", DestRef{ID: "d"}, 0)
+	defer b.Close()
+	res, err := Sync(context.Background(), tlsClient(srv), "ws-vec", DestRef{ID: "d", Config: map[string]any{"url": srv.URL, "header_secret_ref": "K"}}, b, getter(map[string]string{"K": secret}, nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	check(t, "external_id", res.ExternalID)
+}
