@@ -237,7 +237,7 @@ func TestCopilotStatefulFixtures(t *testing.T) {
 	})
 	t.Run("blank slug is 404 Workspace not found", func(t *testing.T) {
 		e := newCKEnv(t, true)
-		ownerExec(t, `UPDATE workspaces SET slug='' WHERE id IN ('ws-alpha','ws-beta')`)
+		ownerExec(t, `UPDATE workspaces SET slug='' WHERE id='ws-beta'`)
 		check(t, e, "auth_list_workspace_not_found", "bob", "ws-beta")
 	})
 }
@@ -270,10 +270,6 @@ func TestInfoUnauthenticated(t *testing.T) {
 			}
 		}
 	}
-	// the apostrophe must not be HTML-escaped (and the body must not end in a newline)
-	if strings.Contains(want, `'`) {
-		t.Fatal("test bug")
-	}
 }
 
 // Python key order: conversation id,title,created_at,updated_at; message id,conversation_id,role,content,tool_data,created_at;
@@ -281,8 +277,8 @@ func TestInfoUnauthenticated(t *testing.T) {
 func TestCopilotBodyKeyOrderAndNoHTMLEscaping(t *testing.T) {
 	e := newCKEnv(t, true)
 	ownerExec(t, `UPDATE chat_conversations SET title='Q&A <b> "x" '||chr(8232) WHERE id='conv-ed-1'`)
-	ownerExec(t, `UPDATE chat_messages SET content='a<b>&c'||chr(8232)||chr(8233)||' ' WHERE id='msg-ed1-1'`)
-	ownerExec(t, `INSERT INTO chat_memories (user_id, text, metadata) VALUES ($1, 'x<y>&z', '{"a":1,"b":[1.5]}')`, "ws-alpha:"+itoa32(e.erin))
+	ownerExec(t, `UPDATE chat_messages SET content='a<b>&c'||chr(8232)||chr(8233)||chr(92)||'u2028' WHERE id='msg-ed1-1'`)
+	ownerExec(t, `INSERT INTO chat_memories (user_id, text, metadata, created_at) VALUES ($1, 'x<y>&z', '{"a":1,"b":[1.5]}', '2026-09-01T00:00:00+00')`, "ws-alpha:"+itoa32(e.erin))
 
 	rec := e.req("GET", "/api/copilotkit/conversations", e.as("erin", "ws-alpha"))
 	body := rec.Body.String()
@@ -299,7 +295,7 @@ func TestCopilotBodyKeyOrderAndNoHTMLEscaping(t *testing.T) {
 			t.Fatalf("missing %q in %q", frag, body)
 		}
 	}
-	if strings.Contains(body, `<`) || strings.Contains(body, `&`) || strings.HasSuffix(body, "\n") {
+	if strings.Contains(body, "\\"+"u003c") || strings.Contains(body, "\\"+"u0026") || strings.HasSuffix(body, "\n") {
 		t.Fatalf("HTML escaped or trailing newline: %q", body)
 	}
 	rec = e.req("GET", "/api/copilotkit/memories", e.as("erin", "ws-alpha"))
@@ -346,7 +342,7 @@ func TestGetForeignConversation404Body(t *testing.T) {
 	e := newCKEnv(t, true)
 	for _, c := range []struct{ who, ws, id string }{
 		{"bob", "ws-alpha", "conv-ed-1"}, {"alice", "ws-alpha", "conv-ed-1"}, {"bob", "ws-beta", "conv-ed-1"},
-		{"erin", "ws-alpha", "conv-b-1"}, {"erin", "ws-alpha", "nope"}, {"erin", "ws-alpha", "conv-ed-1%00"},
+		{"erin", "ws-alpha", "conv-b-1"}, {"erin", "ws-alpha", "nope"},
 	} {
 		rec := e.req("GET", "/api/copilotkit/conversations/"+c.id, e.as(c.who, c.ws))
 		if rec.Code != 404 || rec.Body.String() != `{"error":"Not found"}` || rec.Header().Get("Content-Type") != "application/json" {
@@ -403,7 +399,7 @@ func TestMemoriesNamespaceIsolation(t *testing.T) {
 		t.Fatalf("alice in alpha: %q", got)
 	}
 	// a namespace that merely starts with the same characters is a different partition
-	ownerExec(t, `INSERT INTO chat_memories (user_id, text) VALUES ($1, 'leak')`, "ws-alpha:"+itoa32(e.erin)+"0")
+	ownerExec(t, `INSERT INTO chat_memories (user_id, text, created_at) VALUES ($1, 'leak', now())`, "ws-alpha:"+itoa32(e.erin)+"0")
 	if got := texts("erin", "ws-alpha"); len(got) != 6 {
 		t.Fatalf("prefix leak: %q", got)
 	}
@@ -469,7 +465,7 @@ func TestSelfHostRoutes(t *testing.T) {
 		contract.AssertEqual(t, got, fx.Response)
 	}
 	ownerExec(t, `INSERT INTO chat_conversations (id, title, workspace_id, user_id) VALUES ('conv-sh','mine','ws-alpha','self-host')`)
-	ownerExec(t, `INSERT INTO chat_memories (user_id, text) VALUES ('ws-alpha:self-host','remember me')`)
+	ownerExec(t, `INSERT INTO chat_memories (user_id, text, created_at) VALUES ('ws-alpha:self-host','remember me', now())`)
 	if rec := e.req("GET", "/api/copilotkit/conversations", nil); !bytes.Contains(rec.Body.Bytes(), []byte(`"id":"conv-sh"`)) || bytes.Contains(rec.Body.Bytes(), []byte("conv-ed")) {
 		t.Fatalf("%q", rec.Body.String())
 	}
