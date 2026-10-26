@@ -66,19 +66,15 @@ func TestSuppressionMatchesGmailVariants(t *testing.T) {
 		if added, err := outreachstore.AddSuppression(ctx, tx, ws, "  John.Doe+promo@Gmail.com ", "manual", "", false); err != nil || !added {
 			t.Fatalf("add: %v %v", added, err)
 		}
-		// stored canonical (lowercase) form
+		// stored in the collapsed gmail form (dots and +tag dropped), so both directions match
 		l, _ := outreachstore.ListSuppressions(ctx, tx, 10)
-		if len(l) != 1 || l[0].Email != "john.doe+promo@gmail.com" || l[0].Reason != "manual" || l[0].Locked {
+		if len(l) != 1 || l[0].Email != "johndoe@gmail.com" || l[0].Reason != "manual" || l[0].Locked {
 			t.Fatalf("list: %+v", l)
 		}
-		for _, q := range []string{"john.doe+promo@gmail.com", "JOHN.DOE+PROMO@GMAIL.COM"} {
+		for _, q := range []string{"john.doe+promo@gmail.com", "JOHN.DOE+PROMO@GMAIL.COM", "johndoe@gmail.com", "j.ohn.doe@gmail.com"} {
 			if ok, _ := outreachstore.IsSuppressed(ctx, tx, ws, q); !ok {
 				t.Errorf("exact %q not suppressed", q)
 			}
-		}
-		// the collapsed key of a variant matches only a stored collapsed row
-		if ok, _ := outreachstore.IsSuppressed(ctx, tx, ws, "johndoe@gmail.com"); ok {
-			t.Errorf("collapsed form must not match a plus-address row")
 		}
 		if added, _ := outreachstore.AddSuppression(ctx, tx, ws, "johndoe@googlemail.com", "bounce", "imap", false); !added {
 			t.Fatal("add collapsed")
@@ -88,8 +84,8 @@ func TestSuppressionMatchesGmailVariants(t *testing.T) {
 				t.Errorf("variant %q should match collapsed row", q)
 			}
 		}
-		if ok, _ := outreachstore.IsSuppressed(ctx, tx, ws, "johndoe@gmail.com"); ok {
-			t.Errorf("googlemail row must not match gmail.com")
+		if n, _ := outreachstore.ListSuppressions(ctx, tx, 10); len(n) != 2 {
+			t.Errorf("gmail.com and googlemail.com stay distinct keys: %+v", n)
 		}
 		// non-gmail domains never collapse
 		if ok, _ := outreachstore.IsSuppressed(ctx, tx, ws, "a.b@example.com"); ok {

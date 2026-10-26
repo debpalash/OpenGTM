@@ -3,15 +3,20 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/jackc/pgx/v5"
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachstore"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 )
 
 const suppBase = "/api/outreach/suppressions"
@@ -71,6 +76,10 @@ func suppRows(t *testing.T, raw []byte) []string {
 // suppDeviations: Go refuses what Python stored (an empty key); see the report.
 var suppDeviations = map[string]int{"suppress_add_empty_email": 422}
 
+// suppCollapsed: Go stores gmail addresses in the collapsed form, so the recorded dotted row is the seeded patlee@gmail.com
+// (added:false) and does not appear in the lists.
+const suppDottedRow = "p.a.t.lee+news@gmail.com|manual|manual|-"
+
 func TestSuppressionRoutesMatchFixtures(t *testing.T) {
 	e := newSuppEnv(t)
 	order := strings.Fields(`suppressions_list_seed suppress_add_new suppress_add_duplicate suppress_add_gmail_variant suppress_add_idn_domain
@@ -93,11 +102,22 @@ func TestSuppressionRoutesMatchFixtures(t *testing.T) {
 				}
 				return
 			}
+			if name == "suppress_add_gmail_variant" {
+				if rec.Code != 200 || strings.TrimSpace(rec.Body.String()) != `{"status":"ok","added":false}` {
+					t.Fatalf("%d %s", rec.Code, rec.Body.String())
+				}
+				return
+			}
 			if strings.HasPrefix(name, "suppressions_list") {
 				if rec.Code != 200 {
 					t.Fatalf("%d", rec.Code)
 				}
-				got, want := suppRows(t, rec.Body.Bytes()), suppRows(t, fx.Response.Body)
+				got, want := suppRows(t, rec.Body.Bytes()), []string{}
+				for _, row := range suppRows(t, fx.Response.Body) {
+					if row != suppDottedRow {
+						want = append(want, row)
+					}
+				}
 				if strings.Join(got, "\n") != strings.Join(want, "\n") {
 					t.Fatalf("got\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
 				}
@@ -148,18 +168,106 @@ func TestAddDuplicateReturnsAddedFalse(t *testing.T) {
 	}
 }
 
+func (e suppEnv) blocked(email string) bool {
+	e.tt.Helper()
+	var ok bool
+	err := tenancy.InWorkspace(context.Background(), e.pool, "ws-alpha", func(tx pgx.Tx) (err error) {
+		ok, err = outreachstore.IsSuppressed(context.Background(), tx, "ws-alpha", email)
+		return err
+	})
+	if err != nil {
+		e.tt.Fatal(err)
+	}
+	return ok
+}
+
+// TestAddGmailVariantsShareKey: a suppression is stored in the collapsed gmail form, so a send or enroll to any dotted or
+// plus variant is blocked in both directions; non-gmail addresses keep their exact key.
 func TestAddGmailVariantsShareKey(t *testing.T) {
 	e := newSuppEnv(t)
-	// Stored canonical forms differ (no collapsing on write), both are added; match keys collapse on read.
-	if c, m := e.add("P.a.t.Lee+news@Gmail.com"); c != 200 || m["added"] != true {
+	if c, m := e.add("A.b+news@Gmail.com"); c != 200 || m["added"] != true {
 		t.Fatalf("%d %v", c, m)
 	}
 	var email string
-	if err := wcrudOwnerQueryRow(t, `SELECT email FROM outreach_suppressions WHERE email LIKE 'p.a.t%'`).Scan(&email); err != nil || email != "p.a.t.lee+news@gmail.com" {
-		t.Fatalf("%q %v", email, err)
+	if err := wcrudOwnerQueryRow(t, `SELECT email FROM outreach_suppressions WHERE email LIKE 'ab@%'`).Scan(&email); err != nil || email != "ab@gmail.com" {
+		t.Fatalf("stored %q %v", email, err)
 	}
-	if c, m := e.add("p.a.t.lee+news@googlemail.com"); c != 200 || m["added"] != true {
-		t.Fatalf("googlemail is a distinct stored key: %d %v", c, m)
+	for _, q := range []string{"a.b@gmail.com", "ab@gmail.com", "AB+x@gmail.com", "a.b.@gmail.com"} {
+		if !e.blocked(q) {
+			t.Errorf("%s not blocked", q)
+		}
+	}
+	if c, m := e.add("a.b@gmail.com"); c != 200 || m["added"] != false {
+		t.Fatalf("a variant of a stored key is a duplicate: %d %v", c, m)
+	}
+	if c, m := e.add("c.d@googlemail.com"); c != 200 || m["added"] != true || !e.blocked("cd@googlemail.com") || e.blocked("cd@gmail.com") {
+		t.Fatalf("googlemail is its own domain: %d %v", c, m)
+	}
+	// non-gmail: exact key, no collapsing
+	if c, m := e.add("e.f+x@example.com"); c != 200 || m["added"] != true || !e.blocked("E.F+x@example.com") || e.blocked("ef@example.com") || e.blocked("e.f@example.com") {
+		t.Fatalf("non-gmail must stay exact: %d %v", c, m)
+	}
+}
+
+func TestSuppressDottedBlocksUndotted(t *testing.T) {
+	e := newSuppEnv(t)
+	e.add("a.b@gmail.com")
+	if !e.blocked("ab@gmail.com") {
+		t.Fatal("suppressed a.b@gmail.com must block ab@gmail.com")
+	}
+	// the other direction
+	e.add("xy@gmail.com")
+	if !e.blocked("x.y@gmail.com") {
+		t.Fatal("suppressed xy@gmail.com must block x.y@gmail.com")
+	}
+}
+
+// TestRemoveGmailEitherForm: delete normalizes like add, so either spelling removes the stored key; legacy rows stored
+// dotted by Python are removed too.
+func TestRemoveGmailEitherForm(t *testing.T) {
+	e := newSuppEnv(t)
+	e.add("a.b@gmail.com")
+	for _, p := range []string{"ab%40gmail.com", "A.B%2Bx%40gmail.com"} {
+		if c, _, raw := e.as("alice", "", "DELETE", suppBase+"/"+p, ""); c != 404 && c != 200 {
+			t.Fatalf("%s %d %s", p, c, raw)
+		}
+		e.add("a.b@gmail.com")
+		if c, _, raw := e.as("alice", "", "DELETE", suppBase+"/"+p, ""); c != 200 {
+			t.Fatalf("%s %d %s", p, c, raw)
+		}
+		if e.blocked("ab@gmail.com") || e.blocked("a.b@gmail.com") {
+			t.Fatalf("%s left a row", p)
+		}
+	}
+	ownerExec(t, `INSERT INTO outreach_suppressions (workspace_id, email, reason, source, locked) VALUES ('ws-alpha','l.e.g@gmail.com','manual','manual',false)`)
+	if c, _, raw := e.as("alice", "", "DELETE", suppBase+"/leg%40gmail.com", ""); c != 200 {
+		t.Fatalf("legacy dotted row: %d %s", c, raw)
+	}
+	if e.blocked("l.e.g@gmail.com") {
+		t.Fatal("legacy row survived")
+	}
+}
+
+// TestDeleteAuditDoesNotStoreAddress: the audit row of a suppression delete records the route pattern, not the address.
+func TestDeleteAuditDoesNotStoreAddress(t *testing.T) {
+	e := newSuppEnv(t)
+	e.add("audit.me@example.com")
+	if c, _, _ := e.as("alice", "", "DELETE", suppBase+"/audit.me%40example.com", ""); c != 200 {
+		t.Fatal(c)
+	}
+	deadline := time.Now().Add(3 * time.Second)
+	for {
+		n := e.rowCount(t, `SELECT count(*) FROM governance_audit_events WHERE method='DELETE' AND route LIKE '%suppressions%'`)
+		if n > 0 {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("no audit row written")
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	if n := e.rowCount(t, `SELECT count(*) FROM governance_audit_events WHERE resource_path LIKE '%@%' OR resource_path LIKE '%audit.me%'`); n != 0 {
+		t.Fatalf("%d audit rows carry the address", n)
 	}
 }
 
