@@ -54,3 +54,27 @@ func TestCopilotSettingsDefaultsAndParse(t *testing.T) {
 		}
 	}
 }
+
+// Fail closed: an explicit CHAT_REQUIRE_AUTH=false outside a dev APP_ENV needs COPILOT_ALLOW_ANONYMOUS_CHAT=true.
+func TestChatRequireAuthFalseRefusedOutsideDev(t *testing.T) {
+	base := func(m map[string]string) map[string]string {
+		m["SECRET_KEY"] = strings.Repeat("k", 40)
+		return m
+	}
+	if _, err := loadAPI(apiEnv(base(map[string]string{"APP_ENV": "production", "CHAT_REQUIRE_AUTH": "false"}))); err == nil {
+		t.Fatal("CHAT_REQUIRE_AUTH=false accepted in production")
+	}
+	if _, err := loadAPI(apiEnv(base(map[string]string{"APP_ENV": "", "CHAT_REQUIRE_AUTH": "false"}))); err == nil {
+		t.Fatal("CHAT_REQUIRE_AUTH=false accepted with unset APP_ENV")
+	}
+	for _, env := range []map[string]string{
+		{"APP_ENV": "dev", "CHAT_REQUIRE_AUTH": "false"},
+		{"APP_ENV": "production", "CHAT_REQUIRE_AUTH": "false", "COPILOT_ALLOW_ANONYMOUS_CHAT": "true"},
+		{"APP_ENV": "production", "CHAT_REQUIRE_AUTH": "true"},
+		{"APP_ENV": "production"},
+	} {
+		if _, err := loadAPI(apiEnv(base(env))); err != nil {
+			t.Errorf("%v refused: %v", env, err)
+		}
+	}
+}

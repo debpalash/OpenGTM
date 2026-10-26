@@ -1,5 +1,10 @@
 package config
 
+import (
+	"errors"
+	"strings"
+)
+
 // CopilotSettings are the plan 12 (copilot chat and person intel) settings. COPILOT_GO_ENABLED is a
 // Go-only rollout switch (default false). ChatRequireAuth keeps Python's CHAT_REQUIRE_AUTH
 // semantics: unset defaults to PG_LEAD_STORE. LLM provider keys live only on the Python worker.
@@ -20,6 +25,18 @@ func loadCopilot(get func(string) string, pgLeadStore bool) (CopilotSettings, er
 	}
 	if c.ChatRequireAuth, err = boolVar(get, "CHAT_REQUIRE_AUTH", pgLeadStore); err != nil {
 		return c, err
+	}
+	// Fail closed: anonymous chat (no user, dangerous tools approvable by anyone who reaches nginx) is
+	// only honoured outside dev when the operator explicitly opts in. The implicit default
+	// (PG_LEAD_STORE=false self-host) is unchanged.
+	if strings.TrimSpace(get("CHAT_REQUIRE_AUTH")) != "" && !c.ChatRequireAuth && !IsDevEnv(get("APP_ENV")) {
+		allow, aerr := boolVar(get, "COPILOT_ALLOW_ANONYMOUS_CHAT", false)
+		if aerr != nil {
+			return c, aerr
+		}
+		if !allow {
+			return c, errors.New("config: refusing to start: CHAT_REQUIRE_AUTH=false outside a dev APP_ENV requires COPILOT_ALLOW_ANONYMOUS_CHAT=true")
+		}
 	}
 	for _, v := range []struct {
 		dst      *int
