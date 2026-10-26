@@ -1,6 +1,7 @@
 package wbcrud
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/json"
@@ -97,7 +98,10 @@ func (w Workbook) MarshalJSON() ([]byte, error) {
 	if sc == nil {
 		sc = NewObj()
 	}
-	return json.Marshal(struct {
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false) // Starlette does not escape <, > and &
+	err := enc.Encode(struct {
 		ID             string   `json:"id"`
 		Name           string   `json:"name"`
 		Description    string   `json:"description"`
@@ -114,6 +118,7 @@ func (w Workbook) MarshalJSON() ([]byte, error) {
 		LastRunAt      *string  `json:"last_run_at"`
 	}{w.ID, w.Name, w.Description, w.Status, w.SourceType, sc, w.FilterCriteria, cols,
 		w.TotalRows, w.CompletedRows, w.SyncToLeads, naiveTime(w.CreatedAt), naiveTime(w.UpdatedAt), naiveTime(w.LastRunAt)})
+	return bytes.TrimRight(buf.Bytes(), "\n"), err
 }
 
 func ts(t pgtype.Timestamp) *time.Time {
