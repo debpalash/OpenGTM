@@ -52,8 +52,11 @@ type Config struct {
 	DebugAddr             string
 	AppEnv                string
 	EgressAllowHosts      []string
-	// Flags carries only AutomationsEnabled on the worker (strict-parsed).
+	// Flags carries, on the worker, AutomationsEnabled, IntentPollerEnabled, PGLeadStore,
+	// AutomationsAllowLegacyOutreach and Automations (all strict-parsed).
 	Flags Flags
+	// BillingEnabled is BILLING_ENABLED: the automation and poller debits are no-ops without it.
+	BillingEnabled bool
 	// Executor carries the go_executor cohort flags, scan caps and the Python worker RPC endpoint.
 	Executor ExecutorSettings
 
@@ -134,6 +137,21 @@ func load(get func(string) string) (Config, error) {
 		}
 	}
 	if c.Flags.AutomationsEnabled, err = boolVar(get, "AUTOMATIONS_ENABLED", false); err != nil {
+		return Config{}, err
+	}
+	if c.Flags.Automations, err = loadAutomations(get); err != nil {
+		return Config{}, err
+	}
+	if c.Flags.IntentPollerEnabled, err = boolVar(get, "INTENT_POLLER_ENABLED", false); err != nil {
+		return Config{}, err
+	}
+	if c.Flags.PGLeadStore, err = boolVar(get, "PG_LEAD_STORE", true); err != nil {
+		return Config{}, err
+	}
+	if c.Flags.AutomationsAllowLegacyOutreach, err = boolVar(get, "AUTOMATIONS_ALLOW_LEGACY_OUTREACH", false); err != nil {
+		return Config{}, err
+	}
+	if c.BillingEnabled, err = boolVar(get, "BILLING_ENABLED", false); err != nil {
 		return Config{}, err
 	}
 	if c.Executor, err = loadExecutor(get, c.InternalServiceToken); err != nil {
