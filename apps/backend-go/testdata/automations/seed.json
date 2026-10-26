@@ -1,0 +1,2746 @@
+{
+ "ws-alpha": {
+  "workbooks": {
+   "columns": [
+    "id",
+    "name",
+    "description",
+    "status",
+    "workspace_id",
+    "source_type",
+    "source_config",
+    "filter_criteria",
+    "columns_config",
+    "total_rows",
+    "completed_rows",
+    "sync_to_leads",
+    "budget_max_usd",
+    "budget_spent_usd",
+    "refresh_policy",
+    "created_at",
+    "updated_at",
+    "last_run_at",
+    "action_idempotency_key"
+   ],
+   "rows": [
+    {
+     "id": "wb-alpha-1",
+     "name": "Alpha Empty",
+     "description": "empty workbook",
+     "status": "idle",
+     "workspace_id": "ws-alpha",
+     "source_type": "manual",
+     "source_config": {},
+     "filter_criteria": {},
+     "columns_config": [],
+     "total_rows": 0,
+     "completed_rows": 0,
+     "sync_to_leads": false,
+     "budget_max_usd": null,
+     "budget_spent_usd": 0,
+     "refresh_policy": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "last_run_at": null,
+     "action_idempotency_key": null
+    },
+    {
+     "id": "wb-alpha-2",
+     "name": "Alpha Leads",
+     "description": "25 seeded rows",
+     "status": "idle",
+     "workspace_id": "ws-alpha",
+     "source_type": "manual",
+     "source_config": {},
+     "filter_criteria": {},
+     "columns_config": [
+      {
+       "id": "company",
+       "name": "Company",
+       "type": "lead_field",
+       "width": 200,
+       "lead_field": "company"
+      },
+      {
+       "id": "website",
+       "name": "Website",
+       "type": "lead_field",
+       "width": 200,
+       "lead_field": "website"
+      },
+      {
+       "id": "email",
+       "name": "Email",
+       "type": "lead_field",
+       "width": 220,
+       "lead_field": "email"
+      },
+      {
+       "id": "city",
+       "name": "City",
+       "type": "lead_field",
+       "width": 150,
+       "lead_field": "city"
+      },
+      {
+       "id": "phone",
+       "name": "Phone",
+       "type": "lead_field",
+       "width": 150,
+       "lead_field": "phone"
+      },
+      {
+       "id": "email_wf",
+       "name": "Email Finder",
+       "type": "waterfall",
+       "width": 220,
+       "waterfall": [
+        "hunter",
+        "apollo"
+       ],
+       "target_field": "email",
+       "verify": true
+      },
+      {
+       "id": "summary",
+       "name": "Summary",
+       "type": "ai_formula",
+       "width": 300,
+       "prompt": "Summarize {Company} in one sentence",
+       "input_columns": [
+        "company"
+       ]
+      }
+     ],
+     "total_rows": 25,
+     "completed_rows": 0,
+     "sync_to_leads": false,
+     "budget_max_usd": null,
+     "budget_spent_usd": 0,
+     "refresh_policy": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "last_run_at": null,
+     "action_idempotency_key": null
+    },
+    {
+     "id": "wb-auto-1",
+     "name": "Automation Matrix",
+     "description": "automation seed",
+     "status": "idle",
+     "workspace_id": "ws-alpha",
+     "source_type": "manual",
+     "source_config": {},
+     "filter_criteria": {},
+     "columns_config": [
+      {
+       "id": "company",
+       "name": "Company",
+       "type": "lead_field",
+       "width": 200,
+       "lead_field": "company"
+      },
+      {
+       "id": "website",
+       "name": "Website",
+       "type": "lead_field",
+       "width": 200,
+       "lead_field": "website"
+      },
+      {
+       "id": "email",
+       "name": "Email",
+       "type": "lead_field",
+       "width": 220,
+       "lead_field": "email"
+      },
+      {
+       "id": "enr_email",
+       "name": "Email Hunter",
+       "type": "enrichment",
+       "width": 200,
+       "provider": "hunter_io",
+       "target_field": "email"
+      },
+      {
+       "id": "wf_email",
+       "name": "Email Waterfall",
+       "type": "waterfall",
+       "width": 220,
+       "waterfall": [
+        "hunter_io",
+        "apollo_io"
+       ],
+       "target_field": "email",
+       "verify": true
+      },
+      {
+       "id": "plat_x",
+       "name": "Platform Chain",
+       "type": "waterfall",
+       "width": 220,
+       "waterfall": [
+        "research",
+        "hunter_io"
+       ],
+       "target_field": "description"
+      },
+      {
+       "id": "calc_len",
+       "name": "Name Length",
+       "type": "formula",
+       "width": 120,
+       "formula": "len({company})"
+      }
+     ],
+     "total_rows": 8,
+     "completed_rows": 0,
+     "sync_to_leads": false,
+     "budget_max_usd": null,
+     "budget_spent_usd": 0,
+     "refresh_policy": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "last_run_at": null,
+     "action_idempotency_key": null
+    },
+    {
+     "id": "wb-auto-2",
+     "name": "Automation Scope B",
+     "description": "automation seed",
+     "status": "idle",
+     "workspace_id": "ws-alpha",
+     "source_type": "manual",
+     "source_config": {},
+     "filter_criteria": {},
+     "columns_config": [
+      {
+       "id": "company",
+       "name": "Company",
+       "type": "lead_field",
+       "width": 200,
+       "lead_field": "company"
+      },
+      {
+       "id": "enr_title",
+       "name": "Contact Title",
+       "type": "enrichment",
+       "width": 200,
+       "provider": "apollo_io",
+       "target_field": "contact_person"
+      }
+     ],
+     "total_rows": 3,
+     "completed_rows": 0,
+     "sync_to_leads": false,
+     "budget_max_usd": null,
+     "budget_spent_usd": 0,
+     "refresh_policy": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "last_run_at": null,
+     "action_idempotency_key": null
+    }
+   ]
+  },
+  "workbook_rows": {
+   "columns": [
+    "id",
+    "workbook_id",
+    "position",
+    "data",
+    "enrichments",
+    "lead_id",
+    "canonical_entity_id",
+    "corroboration_count",
+    "created_at",
+    "updated_at",
+    "workspace_id",
+    "source_provider",
+    "source_record_id",
+    "source_rank",
+    "source_fetched_at"
+   ],
+   "rows": [
+    {
+     "id": 1,
+     "workbook_id": "wb-alpha-2",
+     "position": 0,
+     "data": {
+      "company": "Acme 01",
+      "website": "https://acme01.example.com",
+      "email": "info@acme01.example.com",
+      "city": "Austin",
+      "phone": "+1-555-0101"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found01@acme01.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 01 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 2,
+     "workbook_id": "wb-alpha-2",
+     "position": 1,
+     "data": {
+      "company": "Acme 02",
+      "website": "https://acme02.example.com",
+      "email": "info@acme02.example.com",
+      "city": "Pune",
+      "phone": "+1-555-0102"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found02@acme02.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 02 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3,
+     "workbook_id": "wb-alpha-2",
+     "position": 2,
+     "data": {
+      "company": "Acme 03",
+      "website": "https://acme03.example.com",
+      "email": "info@acme03.example.com",
+      "city": "Lyon",
+      "phone": "+1-555-0103"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found03@acme03.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": null,
+       "status": "pending",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 4,
+     "workbook_id": "wb-alpha-2",
+     "position": 3,
+     "data": {
+      "company": "Acme 04",
+      "website": "https://acme04.example.com",
+      "email": "info@acme04.example.com",
+      "city": "Oslo",
+      "phone": "+1-555-0104"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": null,
+       "status": "failed",
+       "provider": null,
+       "error": "no result"
+      },
+      "summary": {
+       "value": "Acme 04 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 5,
+     "workbook_id": "wb-alpha-2",
+     "position": 4,
+     "data": {
+      "company": "Acme 05",
+      "website": "https://acme05.example.com",
+      "email": "info@acme05.example.com",
+      "city": "Berlin",
+      "phone": "+1-555-0105"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found05@acme05.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 05 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 6,
+     "workbook_id": "wb-alpha-2",
+     "position": 5,
+     "data": {
+      "company": "Acme 06",
+      "website": "https://acme06.example.com",
+      "email": "info@acme06.example.com",
+      "city": "Austin",
+      "phone": "+1-555-0106"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found06@acme06.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": null,
+       "status": "pending",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 7,
+     "workbook_id": "wb-alpha-2",
+     "position": 6,
+     "data": {
+      "company": "Acme 07",
+      "website": "https://acme07.example.com",
+      "email": null,
+      "city": "Pune",
+      "phone": "+1-555-0107"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found07@acme07.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 07 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 8,
+     "workbook_id": "wb-alpha-2",
+     "position": 7,
+     "data": {
+      "company": "Acme 08",
+      "website": "https://acme08.example.com",
+      "email": "info@acme08.example.com",
+      "city": "Lyon",
+      "phone": "+1-555-0108"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": null,
+       "status": "failed",
+       "provider": null,
+       "error": "no result"
+      },
+      "summary": {
+       "value": "Acme 08 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 9,
+     "workbook_id": "wb-alpha-2",
+     "position": 8,
+     "data": {
+      "company": "Acme 09",
+      "website": "",
+      "email": "info@acme09.example.com",
+      "city": "Oslo",
+      "phone": "+1-555-0109"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found09@acme09.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": null,
+       "status": "pending",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 10,
+     "workbook_id": "wb-alpha-2",
+     "position": 9,
+     "data": {
+      "company": "Acme 10",
+      "website": "https://acme10.example.com",
+      "email": "info@acme10.example.com",
+      "city": "Berlin",
+      "phone": "+1-555-0110"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found10@acme10.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 10 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 11,
+     "workbook_id": "wb-alpha-2",
+     "position": 10,
+     "data": {
+      "company": "Acme 11",
+      "website": "https://acme11.example.com",
+      "email": "info@acme11.example.com",
+      "city": null,
+      "phone": "+1-555-0111"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found11@acme11.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 11 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 12,
+     "workbook_id": "wb-alpha-2",
+     "position": 11,
+     "data": {
+      "company": "Acme 12",
+      "website": "https://acme12.example.com",
+      "email": "info@acme12.example.com",
+      "city": "Pune",
+      "phone": "+1-555-0112"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": null,
+       "status": "failed",
+       "provider": null,
+       "error": "no result"
+      },
+      "summary": {
+       "value": null,
+       "status": "pending",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 13,
+     "workbook_id": "wb-alpha-2",
+     "position": 12,
+     "data": {
+      "company": "Acme 13",
+      "website": "https://acme13.example.com",
+      "email": "info@acme13.example.com",
+      "city": "Lyon",
+      "phone": "+1-555-0113"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found13@acme13.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 13 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 14,
+     "workbook_id": "wb-alpha-2",
+     "position": 13,
+     "data": {
+      "company": "Acme 14",
+      "website": "https://acme14.example.com",
+      "email": null,
+      "city": "Oslo",
+      "phone": "+1-555-0114"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found14@acme14.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 14 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 15,
+     "workbook_id": "wb-alpha-2",
+     "position": 14,
+     "data": {
+      "company": "Acme 15",
+      "website": "https://acme15.example.com",
+      "email": "info@acme15.example.com",
+      "city": "Berlin",
+      "phone": "+1-555-0115"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found15@acme15.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": null,
+       "status": "pending",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 16,
+     "workbook_id": "wb-alpha-2",
+     "position": 15,
+     "data": {
+      "company": "Acme 16",
+      "website": "https://acme16.example.com",
+      "email": "info@acme16.example.com",
+      "city": "Austin",
+      "phone": "+1-555-0116"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": null,
+       "status": "failed",
+       "provider": null,
+       "error": "no result"
+      },
+      "summary": {
+       "value": "Acme 16 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 17,
+     "workbook_id": "wb-alpha-2",
+     "position": 16,
+     "data": {
+      "company": "Acme 17",
+      "website": "https://acme17.example.com",
+      "email": "info@acme17.example.com",
+      "city": "Pune",
+      "phone": "+1-555-0117"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found17@acme17.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 17 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 18,
+     "workbook_id": "wb-alpha-2",
+     "position": 17,
+     "data": {
+      "company": "Acme 18",
+      "website": "",
+      "email": "info@acme18.example.com",
+      "city": "Lyon",
+      "phone": "+1-555-0118"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found18@acme18.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": null,
+       "status": "pending",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 19,
+     "workbook_id": "wb-alpha-2",
+     "position": 18,
+     "data": {
+      "company": "Acme 19",
+      "website": "https://acme19.example.com",
+      "email": "info@acme19.example.com",
+      "city": "Oslo",
+      "phone": "+1-555-0119"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found19@acme19.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 19 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 20,
+     "workbook_id": "wb-alpha-2",
+     "position": 19,
+     "data": {
+      "company": "Acme 20",
+      "website": "https://acme20.example.com",
+      "email": "info@acme20.example.com",
+      "city": "Berlin",
+      "phone": "+1-555-0120"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": null,
+       "status": "failed",
+       "provider": null,
+       "error": "no result"
+      },
+      "summary": {
+       "value": "Acme 20 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 21,
+     "workbook_id": "wb-alpha-2",
+     "position": 20,
+     "data": {
+      "company": "Acme 21",
+      "website": "https://acme21.example.com",
+      "email": null,
+      "city": "Austin",
+      "phone": "+1-555-0121"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found21@acme21.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": null,
+       "status": "pending",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 22,
+     "workbook_id": "wb-alpha-2",
+     "position": 21,
+     "data": {
+      "company": "Acme 22",
+      "website": "https://acme22.example.com",
+      "email": "info@acme22.example.com",
+      "city": null,
+      "phone": "+1-555-0122"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found22@acme22.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 22 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 23,
+     "workbook_id": "wb-alpha-2",
+     "position": 22,
+     "data": {
+      "company": "Acme 23",
+      "website": "https://acme23.example.com",
+      "email": "info@acme23.example.com",
+      "city": "Lyon",
+      "phone": "+1-555-0123"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found23@acme23.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 23 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 24,
+     "workbook_id": "wb-alpha-2",
+     "position": 23,
+     "data": {
+      "company": "Acme 24",
+      "website": "https://acme24.example.com",
+      "email": "info@acme24.example.com",
+      "city": "Oslo",
+      "phone": "+1-555-0124"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": null,
+       "status": "failed",
+       "provider": null,
+       "error": "no result"
+      },
+      "summary": {
+       "value": null,
+       "status": "pending",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 25,
+     "workbook_id": "wb-alpha-2",
+     "position": 24,
+     "data": {
+      "company": "Acme 25",
+      "website": "https://acme25.example.com",
+      "email": "info@acme25.example.com",
+      "city": "Berlin",
+      "phone": "+1-555-0125"
+     },
+     "enrichments": {
+      "email_wf": {
+       "value": "found25@acme25.example.com",
+       "status": "complete",
+       "provider": "hunter",
+       "error": null
+      },
+      "summary": {
+       "value": "Acme 25 sells widgets.",
+       "status": "complete",
+       "provider": "llm",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3001,
+     "workbook_id": "wb-auto-1",
+     "position": 0,
+     "data": {
+      "company": "Hot Pursuit Labs",
+      "website": "https://hotpursuit.example.com",
+      "email": "hi@auto0.example.com",
+      "last_contact": "2026-01-01T00:00:00Z",
+      "tier": "0"
+     },
+     "enrichments": {
+      "calc_len": {
+       "value": "16",
+       "status": "complete",
+       "provider": "formula",
+       "error": null
+      }
+     },
+     "lead_id": 14,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3002,
+     "workbook_id": "wb-auto-1",
+     "position": 1,
+     "data": {
+      "company": "Quantum Foods",
+      "website": "https://quantumfoods.example.com",
+      "email": "hi@auto1.example.com",
+      "last_contact": "1700000000",
+      "tier": "1"
+     },
+     "enrichments": {},
+     "lead_id": 11,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3003,
+     "workbook_id": "wb-auto-1",
+     "position": 2,
+     "data": {
+      "company": "Soylent",
+      "website": "",
+      "email": "",
+      "last_contact": "2026-08-28T00:00:00+00:00",
+      "tier": "2"
+     },
+     "enrichments": {
+      "calc_len": {
+       "value": "7",
+       "status": "complete",
+       "provider": "formula",
+       "error": null
+      }
+     },
+     "lead_id": 7,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3004,
+     "workbook_id": "wb-auto-1",
+     "position": 3,
+     "data": {
+      "company": "Zenith Robotics",
+      "website": "https://zenithrobotics.example.com",
+      "email": "hi@auto3.example.com",
+      "last_contact": "",
+      "tier": "3"
+     },
+     "enrichments": {},
+     "lead_id": 6,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3005,
+     "workbook_id": "wb-auto-1",
+     "position": 4,
+     "data": {
+      "company": "Berlin Bakery",
+      "website": "https://berlinbakery.example.com",
+      "email": "hi@auto4.example.com",
+      "last_contact": "bad",
+      "tier": "4"
+     },
+     "enrichments": {
+      "calc_len": {
+       "value": "13",
+       "status": "complete",
+       "provider": "formula",
+       "error": null
+      }
+     },
+     "lead_id": 12,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3006,
+     "workbook_id": "wb-auto-1",
+     "position": 5,
+     "data": {
+      "company": "Eco Solutions",
+      "website": "https://eco.example.com",
+      "email": "",
+      "last_contact": "1788000000000",
+      "tier": "5"
+     },
+     "enrichments": {},
+     "lead_id": 1,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3007,
+     "workbook_id": "wb-auto-1",
+     "position": 6,
+     "data": {
+      "company": "No Lead One",
+      "website": "https://nolead.example.com",
+      "email": "hi@auto6.example.com",
+      "last_contact": "2026-08-01",
+      "tier": "6"
+     },
+     "enrichments": {
+      "calc_len": {
+       "value": "11",
+       "status": "complete",
+       "provider": "formula",
+       "error": null
+      }
+     },
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3008,
+     "workbook_id": "wb-auto-1",
+     "position": 7,
+     "data": {
+      "company": "No Lead Two",
+      "website": "",
+      "email": "hi@auto7.example.com",
+      "last_contact": "2026-08-29T09:00:00Z",
+      "tier": "7"
+     },
+     "enrichments": {},
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3011,
+     "workbook_id": "wb-auto-2",
+     "position": 0,
+     "data": {
+      "company": "Hot Pursuit Labs"
+     },
+     "enrichments": {},
+     "lead_id": 14,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3012,
+     "workbook_id": "wb-auto-2",
+     "position": 1,
+     "data": {
+      "company": "Zenith Robotics"
+     },
+     "enrichments": {},
+     "lead_id": 6,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3013,
+     "workbook_id": "wb-auto-2",
+     "position": 2,
+     "data": {
+      "company": "Scope B Orphan"
+     },
+     "enrichments": {},
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-alpha",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    }
+   ]
+  },
+  "triggers": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "name",
+    "enabled",
+    "trigger_type",
+    "trigger_config",
+    "condition",
+    "actions",
+    "scope_workbook_ids",
+    "stop_on_error",
+    "max_spend_usd_per_day",
+    "max_actions_per_day",
+    "next_run_at",
+    "schedule_anchor",
+    "last_fired_at",
+    "created_by",
+    "created_at",
+    "updated_at"
+   ],
+   "rows": [
+    {
+     "id": "trg-a-07",
+     "workspace_id": "ws-alpha",
+     "name": "Audience entered",
+     "enabled": true,
+     "trigger_type": "on_audience_enter",
+     "trigger_config": {
+      "audience_ids": [
+       "aud-alpha-1"
+      ]
+     },
+     "condition": "",
+     "actions": [
+      {
+       "type": "push_crm",
+       "config": {
+        "type": "hubspot",
+        "field_map": {
+         "email": "email",
+         "company": "company"
+        }
+       }
+      }
+     ],
+     "scope_workbook_ids": [
+      "wb-auto-1"
+     ],
+     "stop_on_error": false,
+     "max_spend_usd_per_day": null,
+     "max_actions_per_day": null,
+     "next_run_at": null,
+     "schedule_anchor": null,
+     "last_fired_at": null,
+     "created_by": "1",
+     "created_at": "2026-08-29T08:07:00+00:00",
+     "updated_at": "2026-08-29T08:07:00+00:00"
+    },
+    {
+     "id": "trg-a-08",
+     "workspace_id": "ws-alpha",
+     "name": "Audience exited",
+     "enabled": true,
+     "trigger_type": "on_audience_exit",
+     "trigger_config": {},
+     "condition": "",
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/exit"
+       }
+      }
+     ],
+     "scope_workbook_ids": [],
+     "stop_on_error": false,
+     "max_spend_usd_per_day": null,
+     "max_actions_per_day": null,
+     "next_run_at": null,
+     "schedule_anchor": null,
+     "last_fired_at": null,
+     "created_by": "1",
+     "created_at": "2026-08-29T08:08:00+00:00",
+     "updated_at": "2026-08-29T08:08:00+00:00"
+    },
+    {
+     "id": "trg-a-01",
+     "workspace_id": "ws-alpha",
+     "name": "New row webhook",
+     "enabled": true,
+     "trigger_type": "on_row_added",
+     "trigger_config": {},
+     "condition": "{company} != \"\"",
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/auto/{company}",
+        "method": "POST",
+        "headers": {
+         "X-Source": "opengtm"
+        },
+        "body": {
+         "company": "{company}",
+         "site": "{website}"
+        },
+        "header_secret_ref": "AUTOMATION_HOOK_SECRET"
+       }
+      }
+     ],
+     "scope_workbook_ids": [
+      "wb-auto-1"
+     ],
+     "stop_on_error": false,
+     "max_spend_usd_per_day": null,
+     "max_actions_per_day": null,
+     "next_run_at": null,
+     "schedule_anchor": null,
+     "last_fired_at": "2026-08-29T12:30:00+00:00",
+     "created_by": "1",
+     "created_at": "2026-08-29T08:01:00+00:00",
+     "updated_at": "2026-08-29T08:01:00+00:00"
+    },
+    {
+     "id": "trg-a-09",
+     "workspace_id": "ws-alpha",
+     "name": "Capped paid re-enrich",
+     "enabled": true,
+     "trigger_type": "on_row_added",
+     "trigger_config": {},
+     "condition": "",
+     "actions": [
+      {
+       "type": "re_enrich",
+       "config": {
+        "column_ids": [
+         "plat_x"
+        ]
+       }
+      }
+     ],
+     "scope_workbook_ids": [
+      "wb-auto-1"
+     ],
+     "stop_on_error": false,
+     "max_spend_usd_per_day": 1.5,
+     "max_actions_per_day": 5,
+     "next_run_at": null,
+     "schedule_anchor": null,
+     "last_fired_at": null,
+     "created_by": "1",
+     "created_at": "2026-08-29T08:09:00+00:00",
+     "updated_at": "2026-08-29T08:09:00+00:00"
+    },
+    {
+     "id": "trg-a-02",
+     "workspace_id": "ws-alpha",
+     "name": "Email changed re-enrich",
+     "enabled": true,
+     "trigger_type": "on_row_changed",
+     "trigger_config": {
+      "watch_fields": [
+       "email",
+       "website"
+      ]
+     },
+     "condition": "{email} contains \"@\"",
+     "actions": [
+      {
+       "type": "re_enrich",
+       "config": {
+        "column_ids": [
+         "enr_email"
+        ]
+       }
+      }
+     ],
+     "scope_workbook_ids": [
+      "wb-auto-1"
+     ],
+     "stop_on_error": true,
+     "max_spend_usd_per_day": null,
+     "max_actions_per_day": null,
+     "next_run_at": null,
+     "schedule_anchor": null,
+     "last_fired_at": null,
+     "created_by": "1",
+     "created_at": "2026-08-29T08:02:00+00:00",
+     "updated_at": "2026-08-29T08:02:00+00:00"
+    },
+    {
+     "id": "trg-a-04",
+     "workspace_id": "ws-alpha",
+     "name": "Hourly sweep",
+     "enabled": true,
+     "trigger_type": "on_schedule",
+     "trigger_config": {
+      "interval": "hourly"
+     },
+     "condition": "not_empty({email})",
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/hourly",
+        "method": "POST"
+       }
+      }
+     ],
+     "scope_workbook_ids": [
+      "wb-auto-1"
+     ],
+     "stop_on_error": false,
+     "max_spend_usd_per_day": null,
+     "max_actions_per_day": null,
+     "next_run_at": "2026-08-29T11:00:00+00:00",
+     "schedule_anchor": "2026-08-29T08:04:00+00:00",
+     "last_fired_at": null,
+     "created_by": "1",
+     "created_at": "2026-08-29T08:04:00+00:00",
+     "updated_at": "2026-08-29T08:04:00+00:00"
+    },
+    {
+     "id": "trg-a-05",
+     "workspace_id": "ws-alpha",
+     "name": "Daily sweep",
+     "enabled": true,
+     "trigger_type": "on_schedule",
+     "trigger_config": {
+      "interval": "daily"
+     },
+     "condition": "",
+     "actions": [
+      {
+       "type": "re_enrich",
+       "config": {
+        "column_ids": [
+         "enr_email",
+         "wf_email"
+        ]
+       }
+      }
+     ],
+     "scope_workbook_ids": [
+      "wb-auto-1",
+      "wb-auto-2"
+     ],
+     "stop_on_error": false,
+     "max_spend_usd_per_day": 5,
+     "max_actions_per_day": 100,
+     "next_run_at": "2026-08-30T08:05:00+00:00",
+     "schedule_anchor": "2026-08-29T08:05:00+00:00",
+     "last_fired_at": "2026-08-29T08:05:00+00:00",
+     "created_by": "1",
+     "created_at": "2026-08-29T08:05:00+00:00",
+     "updated_at": "2026-08-29T08:05:00+00:00"
+    },
+    {
+     "id": "trg-a-06",
+     "workspace_id": "ws-alpha",
+     "name": "Weekly sweep paused",
+     "enabled": false,
+     "trigger_type": "on_schedule",
+     "trigger_config": {
+      "interval": "weekly"
+     },
+     "condition": "",
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/weekly"
+       }
+      }
+     ],
+     "scope_workbook_ids": [],
+     "stop_on_error": false,
+     "max_spend_usd_per_day": null,
+     "max_actions_per_day": null,
+     "next_run_at": null,
+     "schedule_anchor": "2026-08-29T08:06:00+00:00",
+     "last_fired_at": null,
+     "created_by": "1",
+     "created_at": "2026-08-29T08:06:00+00:00",
+     "updated_at": "2026-08-29T08:06:00+00:00"
+    },
+    {
+     "id": "trg-a-03",
+     "workspace_id": "ws-alpha",
+     "name": "Funding signal to CRM",
+     "enabled": true,
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "hiring",
+       "funding"
+      ]
+     },
+     "condition": "",
+     "actions": [
+      {
+       "type": "push_crm",
+       "config": {
+        "type": "hubspot",
+        "field_map": {
+         "email": "email",
+         "company": "company"
+        }
+       }
+      },
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/sig"
+       }
+      }
+     ],
+     "scope_workbook_ids": [],
+     "stop_on_error": false,
+     "max_spend_usd_per_day": null,
+     "max_actions_per_day": null,
+     "next_run_at": null,
+     "schedule_anchor": null,
+     "last_fired_at": null,
+     "created_by": "1",
+     "created_at": "2026-08-29T08:03:00+00:00",
+     "updated_at": "2026-08-29T08:03:00+00:00"
+    },
+    {
+     "id": "trg-a-10",
+     "workspace_id": "ws-alpha",
+     "name": "Disabled signal rule",
+     "enabled": false,
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "news"
+      ]
+     },
+     "condition": "false",
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/news"
+       }
+      }
+     ],
+     "scope_workbook_ids": [
+      "wb-auto-2"
+     ],
+     "stop_on_error": false,
+     "max_spend_usd_per_day": null,
+     "max_actions_per_day": null,
+     "next_run_at": null,
+     "schedule_anchor": null,
+     "last_fired_at": null,
+     "created_by": "2",
+     "created_at": "2026-08-29T08:10:00+00:00",
+     "updated_at": "2026-08-29T08:10:00+00:00"
+    }
+   ]
+  },
+  "trigger_runs": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "trigger_id",
+    "trigger_name_snapshot",
+    "job_id",
+    "status",
+    "fire_source",
+    "fire_key",
+    "sweep_cursor",
+    "matched_rows",
+    "actions_attempted",
+    "actions_succeeded",
+    "actions_skipped",
+    "actions_failed",
+    "total_charged_usd",
+    "error",
+    "started_at",
+    "finished_at"
+   ],
+   "rows": [
+    {
+     "id": "run-a-01-01",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 901,
+     "status": "completed",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3001",
+     "sweep_cursor": null,
+     "matched_rows": 1,
+     "actions_attempted": 1,
+     "actions_succeeded": 1,
+     "actions_skipped": 0,
+     "actions_failed": 0,
+     "total_charged_usd": 0.012345,
+     "error": null,
+     "started_at": "2026-08-29T12:01:00+00:00",
+     "finished_at": "2026-08-29T12:01:30+00:00"
+    },
+    {
+     "id": "run-a-01-02",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 902,
+     "status": "partial",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3002",
+     "sweep_cursor": null,
+     "matched_rows": 2,
+     "actions_attempted": 2,
+     "actions_succeeded": 1,
+     "actions_skipped": 1,
+     "actions_failed": 1,
+     "total_charged_usd": 0.02469,
+     "error": null,
+     "started_at": "2026-08-29T12:02:00+00:00",
+     "finished_at": "2026-08-29T12:02:30+00:00"
+    },
+    {
+     "id": "run-a-01-03",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 903,
+     "status": "failed",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3003",
+     "sweep_cursor": null,
+     "matched_rows": 3,
+     "actions_attempted": 0,
+     "actions_succeeded": 0,
+     "actions_skipped": 0,
+     "actions_failed": 1,
+     "total_charged_usd": 0.037035,
+     "error": "boom",
+     "started_at": "2026-08-29T12:03:00+00:00",
+     "finished_at": "2026-08-29T12:03:30+00:00"
+    },
+    {
+     "id": "run-a-01-04",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 904,
+     "status": "skipped",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3004",
+     "sweep_cursor": null,
+     "matched_rows": 0,
+     "actions_attempted": 1,
+     "actions_succeeded": 0,
+     "actions_skipped": 1,
+     "actions_failed": 0,
+     "total_charged_usd": 0.04938,
+     "error": null,
+     "started_at": "2026-08-29T12:04:00+00:00",
+     "finished_at": "2026-08-29T12:04:30+00:00"
+    },
+    {
+     "id": "run-a-01-05",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 905,
+     "status": "dry_run",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3005",
+     "sweep_cursor": null,
+     "matched_rows": 1,
+     "actions_attempted": 2,
+     "actions_succeeded": 0,
+     "actions_skipped": 0,
+     "actions_failed": 0,
+     "total_charged_usd": 0.061725,
+     "error": null,
+     "started_at": "2026-08-29T12:05:00+00:00",
+     "finished_at": "2026-08-29T12:05:30+00:00"
+    },
+    {
+     "id": "run-a-01-06",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 906,
+     "status": "running",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3006",
+     "sweep_cursor": null,
+     "matched_rows": 2,
+     "actions_attempted": 0,
+     "actions_succeeded": 0,
+     "actions_skipped": 0,
+     "actions_failed": 0,
+     "total_charged_usd": 0.07407,
+     "error": null,
+     "started_at": "2026-08-29T12:06:00+00:00",
+     "finished_at": null
+    },
+    {
+     "id": "run-a-01-07",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 907,
+     "status": "completed",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3007",
+     "sweep_cursor": null,
+     "matched_rows": 3,
+     "actions_attempted": 1,
+     "actions_succeeded": 1,
+     "actions_skipped": 0,
+     "actions_failed": 0,
+     "total_charged_usd": 0.086415,
+     "error": null,
+     "started_at": "2026-08-29T12:07:00+00:00",
+     "finished_at": "2026-08-29T12:07:30+00:00"
+    },
+    {
+     "id": "run-a-01-08",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 908,
+     "status": "completed",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3008",
+     "sweep_cursor": null,
+     "matched_rows": 0,
+     "actions_attempted": 2,
+     "actions_succeeded": 1,
+     "actions_skipped": 0,
+     "actions_failed": 0,
+     "total_charged_usd": 0.09876,
+     "error": null,
+     "started_at": "2026-08-29T12:08:00+00:00",
+     "finished_at": "2026-08-29T12:08:30+00:00"
+    },
+    {
+     "id": "run-a-01-09",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 909,
+     "status": "partial",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3009",
+     "sweep_cursor": null,
+     "matched_rows": 1,
+     "actions_attempted": 0,
+     "actions_succeeded": 1,
+     "actions_skipped": 1,
+     "actions_failed": 1,
+     "total_charged_usd": 0.111105,
+     "error": null,
+     "started_at": "2026-08-29T12:09:00+00:00",
+     "finished_at": "2026-08-29T12:09:30+00:00"
+    },
+    {
+     "id": "run-a-01-10",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 910,
+     "status": "failed",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3010",
+     "sweep_cursor": null,
+     "matched_rows": 2,
+     "actions_attempted": 1,
+     "actions_succeeded": 0,
+     "actions_skipped": 0,
+     "actions_failed": 1,
+     "total_charged_usd": 0.12345,
+     "error": "boom",
+     "started_at": "2026-08-29T12:10:00+00:00",
+     "finished_at": "2026-08-29T12:10:30+00:00"
+    },
+    {
+     "id": "run-a-01-11",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 911,
+     "status": "skipped",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3011",
+     "sweep_cursor": null,
+     "matched_rows": 3,
+     "actions_attempted": 2,
+     "actions_succeeded": 0,
+     "actions_skipped": 1,
+     "actions_failed": 0,
+     "total_charged_usd": 0.135795,
+     "error": null,
+     "started_at": "2026-08-29T12:11:00+00:00",
+     "finished_at": "2026-08-29T12:11:30+00:00"
+    },
+    {
+     "id": "run-a-01-12",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-01",
+     "trigger_name_snapshot": "New row webhook",
+     "job_id": 912,
+     "status": "completed",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-1:3012",
+     "sweep_cursor": null,
+     "matched_rows": 0,
+     "actions_attempted": 0,
+     "actions_succeeded": 1,
+     "actions_skipped": 0,
+     "actions_failed": 0,
+     "total_charged_usd": 0.14814,
+     "error": null,
+     "started_at": "2026-08-29T12:12:00+00:00",
+     "finished_at": "2026-08-29T12:12:30+00:00"
+    },
+    {
+     "id": "run-a-05-01",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-05",
+     "trigger_name_snapshot": "Daily sweep",
+     "job_id": 950,
+     "status": "completed",
+     "fire_source": "schedule",
+     "fire_key": "sched:trg-a-05:2026-08-29T08:05:00+00:00",
+     "sweep_cursor": null,
+     "matched_rows": 3,
+     "actions_attempted": 3,
+     "actions_succeeded": 3,
+     "actions_skipped": 0,
+     "actions_failed": 0,
+     "total_charged_usd": 0.15,
+     "error": null,
+     "started_at": "2026-08-29T08:05:00+00:00",
+     "finished_at": "2026-08-29T08:05:41+00:00"
+    },
+    {
+     "id": "run-a-05-02",
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-05",
+     "trigger_name_snapshot": "Daily sweep",
+     "job_id": 951,
+     "status": "partial",
+     "fire_source": "manual",
+     "fire_key": "manual:trg-a-05:2026-08-29T13:00:00+00:00",
+     "sweep_cursor": null,
+     "matched_rows": 3,
+     "actions_attempted": 3,
+     "actions_succeeded": 1,
+     "actions_skipped": 1,
+     "actions_failed": 1,
+     "total_charged_usd": 0.05,
+     "error": null,
+     "started_at": "2026-08-29T13:00:00+00:00",
+     "finished_at": "2026-08-29T13:00:09+00:00"
+    }
+   ]
+  },
+  "trigger_action_results": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "run_id",
+    "trigger_id",
+    "workbook_id",
+    "row_id",
+    "lead_id",
+    "action_index",
+    "action_type",
+    "idempotency_key",
+    "status",
+    "skip_reason",
+    "charged_usd",
+    "result_summary",
+    "error",
+    "created_at",
+    "updated_at"
+   ],
+   "rows": [
+    {
+     "id": 1,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-01-02",
+     "trigger_id": "trg-a-01",
+     "workbook_id": "wb-auto-1",
+     "row_id": "3001",
+     "lead_id": 14,
+     "action_index": 0,
+     "action_type": "webhook",
+     "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3001:0:rowadd:wb-auto-1:3002",
+     "status": "success",
+     "skip_reason": null,
+     "charged_usd": 0,
+     "result_summary": "POST 200",
+     "error": null,
+     "created_at": "2026-08-29T12:02:01+00:00",
+     "updated_at": "2026-08-29T12:02:01+00:00"
+    },
+    {
+     "id": 2,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-01-02",
+     "trigger_id": "trg-a-01",
+     "workbook_id": "wb-auto-1",
+     "row_id": "3002",
+     "lead_id": 11,
+     "action_index": 0,
+     "action_type": "webhook",
+     "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3002:0:rowadd:wb-auto-1:3002",
+     "status": "failed",
+     "skip_reason": null,
+     "charged_usd": 0,
+     "result_summary": "POST 500",
+     "error": "HTTP 500: upstream error",
+     "created_at": "2026-08-29T12:02:02+00:00",
+     "updated_at": "2026-08-29T12:02:02+00:00"
+    },
+    {
+     "id": 3,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-01-02",
+     "trigger_id": "trg-a-01",
+     "workbook_id": "wb-auto-1",
+     "row_id": "3003",
+     "lead_id": 7,
+     "action_index": 0,
+     "action_type": "webhook",
+     "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3003:0:rowadd:wb-auto-1:3002",
+     "status": "skipped",
+     "skip_reason": "blocked_url",
+     "charged_usd": 0,
+     "result_summary": null,
+     "error": "blocked url: host resolves to private ip 10.0.0.5",
+     "created_at": "2026-08-29T12:02:03+00:00",
+     "updated_at": "2026-08-29T12:02:03+00:00"
+    },
+    {
+     "id": 4,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-01-02",
+     "trigger_id": "trg-a-01",
+     "workbook_id": "wb-auto-1",
+     "row_id": "3004",
+     "lead_id": 6,
+     "action_index": 0,
+     "action_type": "webhook",
+     "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3004:0:rowadd:wb-auto-1:3002",
+     "status": "skipped",
+     "skip_reason": "replay",
+     "charged_usd": 0,
+     "result_summary": null,
+     "error": null,
+     "created_at": "2026-08-29T12:02:04+00:00",
+     "updated_at": "2026-08-29T12:02:04+00:00"
+    },
+    {
+     "id": 5,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-01-02",
+     "trigger_id": "trg-a-01",
+     "workbook_id": "wb-auto-1",
+     "row_id": "3005",
+     "lead_id": 12,
+     "action_index": 0,
+     "action_type": "webhook",
+     "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3005:0:rowadd:wb-auto-1:3002",
+     "status": "in_flight",
+     "skip_reason": null,
+     "charged_usd": 0,
+     "result_summary": null,
+     "error": null,
+     "created_at": "2026-08-29T12:02:05+00:00",
+     "updated_at": "2026-08-29T12:02:05+00:00"
+    },
+    {
+     "id": 6,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-01-02",
+     "trigger_id": "trg-a-01",
+     "workbook_id": "wb-auto-1",
+     "row_id": "3006",
+     "lead_id": 1,
+     "action_index": 0,
+     "action_type": "webhook",
+     "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3006:0:rowadd:wb-auto-1:3002",
+     "status": "charged_only",
+     "skip_reason": null,
+     "charged_usd": 0.1,
+     "result_summary": "charged, effect unknown",
+     "error": null,
+     "created_at": "2026-08-29T12:02:06+00:00",
+     "updated_at": "2026-08-29T12:02:06+00:00"
+    },
+    {
+     "id": 7,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-01-09",
+     "trigger_id": "trg-a-01",
+     "workbook_id": "wb-auto-1",
+     "row_id": "3001",
+     "lead_id": 14,
+     "action_index": 0,
+     "action_type": "re_enrich",
+     "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3001:0:rowadd:wb-auto-1:3009",
+     "status": "success",
+     "skip_reason": null,
+     "charged_usd": 0.05,
+     "result_summary": "re_enrich: 1 cells completed, 0 errors",
+     "error": null,
+     "created_at": "2026-08-29T12:09:01+00:00",
+     "updated_at": "2026-08-29T12:09:01+00:00"
+    },
+    {
+     "id": 8,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-01-09",
+     "trigger_id": "trg-a-01",
+     "workbook_id": "wb-auto-1",
+     "row_id": "3002",
+     "lead_id": 11,
+     "action_index": 1,
+     "action_type": "push_crm",
+     "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3002:1:rowadd:wb-auto-1:3009",
+     "status": "skipped",
+     "skip_reason": "not_connected",
+     "charged_usd": 0,
+     "result_summary": null,
+     "error": "hubspot not connected",
+     "created_at": "2026-08-29T12:09:02+00:00",
+     "updated_at": "2026-08-29T12:09:02+00:00"
+    },
+    {
+     "id": 9,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-01-09",
+     "trigger_id": "trg-a-01",
+     "workbook_id": "wb-auto-1",
+     "row_id": "3003",
+     "lead_id": 7,
+     "action_index": 0,
+     "action_type": "re_enrich",
+     "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3003:0:rowadd:wb-auto-1:3009",
+     "status": "skipped",
+     "skip_reason": "cap",
+     "charged_usd": 0,
+     "result_summary": "daily cap reached",
+     "error": null,
+     "created_at": "2026-08-29T12:09:03+00:00",
+     "updated_at": "2026-08-29T12:09:03+00:00"
+    },
+    {
+     "id": 10,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-01-09",
+     "trigger_id": "trg-a-01",
+     "workbook_id": "wb-auto-1",
+     "row_id": "3004",
+     "lead_id": 6,
+     "action_index": 0,
+     "action_type": "re_enrich",
+     "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3004:0:rowadd:wb-auto-1:3009",
+     "status": "skipped",
+     "skip_reason": "credits",
+     "charged_usd": 0,
+     "result_summary": "insufficient credits",
+     "error": null,
+     "created_at": "2026-08-29T12:09:04+00:00",
+     "updated_at": "2026-08-29T12:09:04+00:00"
+    },
+    {
+     "id": 11,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-01-09",
+     "trigger_id": "trg-a-01",
+     "workbook_id": "wb-auto-1",
+     "row_id": "3005",
+     "lead_id": 12,
+     "action_index": 0,
+     "action_type": "re_enrich",
+     "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3005:0:rowadd:wb-auto-1:3009",
+     "status": "skipped",
+     "skip_reason": "no_target",
+     "charged_usd": 0,
+     "result_summary": "none of the configured columns exist in this workbook",
+     "error": null,
+     "created_at": "2026-08-29T12:09:05+00:00",
+     "updated_at": "2026-08-29T12:09:05+00:00"
+    },
+    {
+     "id": 12,
+     "workspace_id": "ws-alpha",
+     "run_id": "run-a-05-02",
+     "trigger_id": "trg-a-05",
+     "workbook_id": "wb-auto-2",
+     "row_id": "3011",
+     "lead_id": 14,
+     "action_index": 0,
+     "action_type": "re_enrich",
+     "idempotency_key": "trig:ws-alpha:trg-a-05:wb-auto-2:3011:0:manual:trg-a-05:2026-08-29T13:00:00+00:00",
+     "status": "failed",
+     "skip_reason": null,
+     "charged_usd": 0.05,
+     "result_summary": null,
+     "error": "1 cell errors",
+     "created_at": "2026-08-29T13:00:03+00:00",
+     "updated_at": "2026-08-29T13:00:03+00:00"
+    }
+   ]
+  },
+  "trigger_cap_reservations": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "trigger_id",
+    "day_utc",
+    "reserved_usd",
+    "reserved_actions",
+    "idempotency_key",
+    "state",
+    "created_at"
+   ],
+   "rows": [
+    {
+     "id": 1,
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-09",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.05,
+     "reserved_actions": 1,
+     "idempotency_key": "trig:ws-alpha:trg-a-09:wb-auto-1:3001:0:rowadd:wb-auto-1:3001",
+     "state": "held",
+     "created_at": "2026-08-29T09:01:00+00:00"
+    },
+    {
+     "id": 4,
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-09",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.05,
+     "reserved_actions": 1,
+     "idempotency_key": "trig:ws-alpha:trg-a-09:wb-auto-1:3004:0:rowadd:wb-auto-1:3004",
+     "state": "released",
+     "created_at": "2026-08-29T09:04:00+00:00"
+    },
+    {
+     "id": 2,
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-09",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.05,
+     "reserved_actions": 1,
+     "idempotency_key": "trig:ws-alpha:trg-a-09:wb-auto-1:3002:0:rowadd:wb-auto-1:3002",
+     "state": "settled",
+     "created_at": "2026-08-29T09:02:00+00:00"
+    },
+    {
+     "id": 3,
+     "workspace_id": "ws-alpha",
+     "trigger_id": "trg-a-09",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.05,
+     "reserved_actions": 1,
+     "idempotency_key": "trig:ws-alpha:trg-a-09:wb-auto-1:3003:0:rowadd:wb-auto-1:3003",
+     "state": "settled",
+     "created_at": "2026-08-29T09:03:00+00:00"
+    }
+   ]
+  },
+  "scheduled_triggers": {
+   "columns": [
+    "trigger_id",
+    "workspace_id",
+    "next_run_at",
+    "enabled",
+    "updated_at"
+   ],
+   "rows": [
+    {
+     "trigger_id": "trg-a-04",
+     "workspace_id": "ws-alpha",
+     "next_run_at": "2026-08-29T11:00:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T08:04:00+00:00"
+    },
+    {
+     "trigger_id": "trg-a-05",
+     "workspace_id": "ws-alpha",
+     "next_run_at": "2026-08-30T08:05:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T08:05:00+00:00"
+    },
+    {
+     "trigger_id": "trg-a-06",
+     "workspace_id": "ws-alpha",
+     "next_run_at": null,
+     "enabled": false,
+     "updated_at": "2026-08-29T08:06:00+00:00"
+    }
+   ]
+  }
+ },
+ "ws-beta": {
+  "workbooks": {
+   "columns": [
+    "id",
+    "name",
+    "description",
+    "status",
+    "workspace_id",
+    "source_type",
+    "source_config",
+    "filter_criteria",
+    "columns_config",
+    "total_rows",
+    "completed_rows",
+    "sync_to_leads",
+    "budget_max_usd",
+    "budget_spent_usd",
+    "refresh_policy",
+    "created_at",
+    "updated_at",
+    "last_run_at",
+    "action_idempotency_key"
+   ],
+   "rows": [
+    {
+     "id": "wb-beta-1",
+     "name": "Beta Workbook",
+     "description": "beta tenant",
+     "status": "idle",
+     "workspace_id": "ws-beta",
+     "source_type": "manual",
+     "source_config": {},
+     "filter_criteria": {},
+     "columns_config": [],
+     "total_rows": 0,
+     "completed_rows": 0,
+     "sync_to_leads": false,
+     "budget_max_usd": null,
+     "budget_spent_usd": 0,
+     "refresh_policy": null,
+     "created_at": "2026-08-29T10:00:00",
+     "updated_at": "2026-08-29T10:00:00",
+     "last_run_at": null,
+     "action_idempotency_key": null
+    },
+    {
+     "id": "wb-auto-beta",
+     "name": "Automation Beta",
+     "description": "automation seed",
+     "status": "idle",
+     "workspace_id": "ws-beta",
+     "source_type": "manual",
+     "source_config": {},
+     "filter_criteria": {},
+     "columns_config": [
+      {
+       "id": "beta_col",
+       "name": "Beta Col",
+       "type": "lead_field",
+       "width": 100,
+       "lead_field": "company"
+      }
+     ],
+     "total_rows": 2,
+     "completed_rows": 0,
+     "sync_to_leads": false,
+     "budget_max_usd": null,
+     "budget_spent_usd": 0,
+     "refresh_policy": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "last_run_at": null,
+     "action_idempotency_key": null
+    }
+   ]
+  },
+  "workbook_rows": {
+   "columns": [
+    "id",
+    "workbook_id",
+    "position",
+    "data",
+    "enrichments",
+    "lead_id",
+    "canonical_entity_id",
+    "corroboration_count",
+    "created_at",
+    "updated_at",
+    "workspace_id",
+    "source_provider",
+    "source_record_id",
+    "source_rank",
+    "source_fetched_at"
+   ],
+   "rows": [
+    {
+     "id": 3101,
+     "workbook_id": "wb-auto-beta",
+     "position": 0,
+     "data": {
+      "company": "Zenith Robotics Pvt Ltd"
+     },
+     "enrichments": {},
+     "lead_id": 15,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-beta",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    },
+    {
+     "id": 3102,
+     "workbook_id": "wb-auto-beta",
+     "position": 1,
+     "data": {
+      "company": "Initech Two"
+     },
+     "enrichments": {},
+     "lead_id": null,
+     "canonical_entity_id": null,
+     "corroboration_count": null,
+     "created_at": "2026-08-29T11:00:00",
+     "updated_at": "2026-08-29T11:00:00",
+     "workspace_id": "ws-beta",
+     "source_provider": null,
+     "source_record_id": null,
+     "source_rank": null,
+     "source_fetched_at": null
+    }
+   ]
+  },
+  "triggers": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "name",
+    "enabled",
+    "trigger_type",
+    "trigger_config",
+    "condition",
+    "actions",
+    "scope_workbook_ids",
+    "stop_on_error",
+    "max_spend_usd_per_day",
+    "max_actions_per_day",
+    "next_run_at",
+    "schedule_anchor",
+    "last_fired_at",
+    "created_by",
+    "created_at",
+    "updated_at"
+   ],
+   "rows": [
+    {
+     "id": "trg-b-01",
+     "workspace_id": "ws-beta",
+     "name": "Beta row added",
+     "enabled": true,
+     "trigger_type": "on_row_added",
+     "trigger_config": {},
+     "condition": "",
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/beta"
+       }
+      }
+     ],
+     "scope_workbook_ids": [
+      "wb-auto-beta"
+     ],
+     "stop_on_error": false,
+     "max_spend_usd_per_day": null,
+     "max_actions_per_day": null,
+     "next_run_at": null,
+     "schedule_anchor": null,
+     "last_fired_at": null,
+     "created_by": "2",
+     "created_at": "2026-08-29T08:11:00+00:00",
+     "updated_at": "2026-08-29T08:11:00+00:00"
+    }
+   ]
+  },
+  "trigger_runs": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "trigger_id",
+    "trigger_name_snapshot",
+    "job_id",
+    "status",
+    "fire_source",
+    "fire_key",
+    "sweep_cursor",
+    "matched_rows",
+    "actions_attempted",
+    "actions_succeeded",
+    "actions_skipped",
+    "actions_failed",
+    "total_charged_usd",
+    "error",
+    "started_at",
+    "finished_at"
+   ],
+   "rows": [
+    {
+     "id": "run-b-01-01",
+     "workspace_id": "ws-beta",
+     "trigger_id": "trg-b-01",
+     "trigger_name_snapshot": "Beta row added",
+     "job_id": 960,
+     "status": "completed",
+     "fire_source": "row_added",
+     "fire_key": "rowadd:wb-auto-beta:3101",
+     "sweep_cursor": null,
+     "matched_rows": 1,
+     "actions_attempted": 1,
+     "actions_succeeded": 1,
+     "actions_skipped": 0,
+     "actions_failed": 0,
+     "total_charged_usd": 0,
+     "error": null,
+     "started_at": "2026-08-29T12:00:00+00:00",
+     "finished_at": "2026-08-29T12:00:02+00:00"
+    }
+   ]
+  },
+  "trigger_action_results": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "run_id",
+    "trigger_id",
+    "workbook_id",
+    "row_id",
+    "lead_id",
+    "action_index",
+    "action_type",
+    "idempotency_key",
+    "status",
+    "skip_reason",
+    "charged_usd",
+    "result_summary",
+    "error",
+    "created_at",
+    "updated_at"
+   ],
+   "rows": [
+    {
+     "id": 13,
+     "workspace_id": "ws-beta",
+     "run_id": "run-b-01-01",
+     "trigger_id": "trg-b-01",
+     "workbook_id": "wb-auto-beta",
+     "row_id": "3101",
+     "lead_id": 15,
+     "action_index": 0,
+     "action_type": "webhook",
+     "idempotency_key": "trig:ws-beta:trg-b-01:wb-auto-beta:3101:0:rowadd:wb-auto-beta:3101",
+     "status": "success",
+     "skip_reason": null,
+     "charged_usd": 0,
+     "result_summary": "POST 200",
+     "error": null,
+     "created_at": "2026-08-29T12:00:01+00:00",
+     "updated_at": "2026-08-29T12:00:01+00:00"
+    }
+   ]
+  },
+  "trigger_cap_reservations": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "trigger_id",
+    "day_utc",
+    "reserved_usd",
+    "reserved_actions",
+    "idempotency_key",
+    "state",
+    "created_at"
+   ],
+   "rows": []
+  },
+  "scheduled_triggers": {
+   "columns": [
+    "trigger_id",
+    "workspace_id",
+    "next_run_at",
+    "enabled",
+    "updated_at"
+   ],
+   "rows": []
+  }
+ }
+}
