@@ -196,3 +196,26 @@ func objKeys(t *testing.T, raw []byte) []string {
 		}
 	}
 }
+
+func TestReformatFrameCaps(t *testing.T) {
+	const cap = 8<<20 + 64<<10 // pyworker per-line cap
+	if MaxFrameBytes != cap {
+		t.Fatalf("MaxFrameBytes = %d, want %d", MaxFrameBytes, cap)
+	}
+	big := `{"d":"` + strings.Repeat("x", 8<<20) + `"}`
+	if out, err := Reformat([]byte(big)); err != nil || len(out) != len(big)+1 {
+		t.Fatalf("8 MiB frame: err=%v len=%d", err, len(out))
+	}
+	// ensure_ascii expands raw non-ASCII 2 bytes -> 6: output may exceed the input cap.
+	exp := `{"d":"` + strings.Repeat("é", 3<<20) + `"}`
+	out, err := Reformat([]byte(exp))
+	if err != nil {
+		t.Fatalf("expanding frame: %v", err)
+	}
+	if len(out) <= cap {
+		t.Fatalf("expected expansion beyond cap, got %d", len(out))
+	}
+	if _, err := Reformat([]byte(`"` + strings.Repeat("x", cap) + `"`)); err == nil {
+		t.Fatal("oversize input accepted")
+	}
+}
