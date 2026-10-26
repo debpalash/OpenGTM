@@ -782,3 +782,9 @@ turned into an SSRF. A domain that resolves only to a private address still prod
 - Lease heartbeat and cancel probe run between actions, not during one; a long `re_enrich` notices a cancel late (non-idempotent actions stay at-most-once through the marker).
 - A dry run executes the actions exactly like Python (nothing is persisted, reserved or charged, no `last_fired_at`); activity rows are still written.
 - On an idempotent re-attempt the result row keeps the first attempt's `charged_usd` (Python recorded 0), so the ledger and the row agree. Non-integer target row ids are dropped instead of crashing (D4).
+
+## Worker wiring (plan 08 Task 16): deviations (`cmd/worker`)
+
+- Container TZ must equal Python's: `safecond` (`older_than` and naive timestamps) reads in the process-local zone, as Python does. The worker logs the effective zone at startup (`process timezone`). Fire keys use the database session TimeZone instead.
+- `push_crm` on the Go worker needs `CREDENTIALS_SOURCE=local` (a secret resolver). Without it the action fails closed with `crm credentials unavailable on this worker (requires CREDENTIALS_SOURCE=local)` and the worker logs a warning at startup, rather than falling back to env-only CRM tokens.
+- The run-end `on_rows_changed` flush happens for runs and for runs cancelled while this worker still holds the lease (Python's `finally`); in-request single-cell runs do not flush (Python has one flush site, the run end).
