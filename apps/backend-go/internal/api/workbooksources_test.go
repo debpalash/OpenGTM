@@ -335,3 +335,19 @@ func TestPreviewNotRegisteredInGo(t *testing.T) {
 		t.Fatalf("preview answered 200 in Go")
 	}
 }
+
+// TestAddSourceCanonicalizesNumbers: nested numbers are stored and returned as Python would (1e2 -> 100.0, 1.50 -> 1.5).
+func TestAddSourceCanonicalizesNumbers(t *testing.T) {
+	e := newSrcEnv(t, nil)
+	code, resp := e.call("POST", "/api/workbooks/wb-enrich-big/sources", "alice", "ws-alpha", `{"icp":{"n":1e2,"m":1.50}}`)
+	if code != 200 || !strings.Contains(string(resp.Body), `"icp":{"n":100.0,"m":1.5}`) {
+		t.Fatalf("response %d %s", code, resp.Body)
+	}
+	var raw string
+	err := tenancy.InWorkspace(context.Background(), e.pool, "ws-alpha", func(tx pgx.Tx) error {
+		return tx.QueryRow(context.Background(), `SELECT columns_config::text FROM workbooks WHERE id='wb-enrich-big'`).Scan(&raw)
+	})
+	if err != nil || !strings.Contains(raw, `100.0`) || strings.Contains(raw, `1e2`) || strings.Contains(raw, `1.50`) {
+		t.Fatalf("stored %s (%v)", raw, err)
+	}
+}
