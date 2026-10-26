@@ -433,11 +433,15 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 }
 
 // apiSecrets serves providerrun credentials through the Python credentials
-// API; global settings (no workspace) are not served by it and read as unset.
+// API; global settings (no workspace) are not served by it, so they fall back
+// to the process environment (REACHER_URL, SEC_EDGAR_USER_AGENT, ...).
 type apiSecrets struct{ api *credentials.Client }
 
 func (a apiSecrets) Get(ctx context.Context, ws, key string) (string, string, error) {
 	if ws == "" {
+		if v := os.Getenv(key); v != "" {
+			return v, "env", nil
+		}
 		return "", "", nil
 	}
 	v, err := a.api.Get(ctx, ws, key)
