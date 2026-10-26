@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -33,9 +34,19 @@ const (
 	dbLockTimeout  = "30s"
 	dbStmtTimeout  = "60s"
 	headerReadTime = 10 * time.Second
+	readTimeout    = 30 * time.Second
+	idleTimeout    = 120 * time.Second
 )
 
 func main() {
+	// Distroless has no shell/wget: compose healthchecks run `/api -healthcheck`.
+	if len(os.Args) > 1 && (os.Args[1] == "-healthcheck" || os.Args[1] == "--healthcheck") {
+		if err := healthcheck(healthURL(os.Getenv("API_ADDR"))); err != nil {
+			fmt.Fprintln(os.Stderr, "healthcheck:", err)
+			os.Exit(1)
+		}
+		return
+	}
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, "api:", err)
 		os.Exit(1)
@@ -83,7 +94,7 @@ func run() error {
 	}
 
 	handler := buildRouter(cfg, log, pool).Handler()
-	srv := &http.Server{Addr: cfg.Addr, Handler: handler, ReadHeaderTimeout: headerReadTime}
+	srv := newServer(cfg.Addr, handler)
 	errc := make(chan error, 1)
 	go func() { errc <- srv.ListenAndServe() }()
 	log.Info("api listening", "addr", cfg.Addr)
@@ -100,6 +111,38 @@ func run() error {
 		return fmt.Errorf("shutdown: %w", err)
 	}
 	return nil
+}
+
+// healthURL targets the local /healthz on the port of API_ADDR (default 8000).
+func healthURL(addr string) string {
+	port := "8000"
+	if _, p, err := net.SplitHostPort(addr); err == nil && p != "" {
+		port = p
+	}
+	return "http://127.0.0.1:" + port + "/healthz"
+}
+
+// healthcheck GETs url and returns nil only on HTTP 200.
+func healthcheck(url string) error {
+	c := &http.Client{Timeout: 5 * time.Second}
+	resp, err := c.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("status %d", resp.StatusCode)
+	}
+	return nil
+}
+
+// newServer applies read/idle timeouts. There is deliberately no WriteTimeout
+// so long-lived responses (future SSE) are not cut off.
+func newServer(addr string, h http.Handler) *http.Server {
+	return &http.Server{
+		Addr: addr, Handler: h,
+		ReadHeaderTimeout: headerReadTime, ReadTimeout: readTimeout, IdleTimeout: idleTimeout,
+	}
 }
 
 // buildRouter assembles the global middleware chain and routes. pool may be nil
