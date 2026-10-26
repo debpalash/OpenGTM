@@ -56,6 +56,7 @@ type RowQuery struct {
 	where     []string
 	viewID    *string
 	baseArgs  int
+	whereArgs int // args referenced by the where conditions (sort terms add more after them)
 	baseWhere int
 	limit     string
 }
@@ -134,6 +135,7 @@ func BuildRowQuery(wb QueryWorkbook, view *QueryView, search string) (RowQuery, 
 		p := "lower(" + a.add(likeEscape(needle)) + "::text)"
 		q.where = append(q.where, "("+containsSQL("lower(data::text)", p)+" OR "+containsSQL("lower(enrichments::text)", p)+")")
 	}
+	q.whereArgs = len(a.args)
 	for _, rule := range cfg.Sort {
 		expr, ok := valueExpression(wb.Columns, rule.Column, a)
 		if !ok {
@@ -169,7 +171,7 @@ func (q *RowQuery) rebuild() {
 
 // CountSQL counts the rows the query matches (cursor and limit excluded).
 func (q RowQuery) CountSQL() (string, []any) {
-	return "SELECT count(id) FROM workbook_rows WHERE " + strings.Join(q.where[:q.whereBase()], " AND "), q.Args[:q.baseArgs]
+	return "SELECT count(id) FROM workbook_rows WHERE " + strings.Join(q.where[:q.whereBase()], " AND "), q.Args[:q.whereArgs]
 }
 
 // whereBase is the number of non-cursor conditions.
