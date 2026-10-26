@@ -10,7 +10,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"math"
+	"sort"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
@@ -335,4 +337,85 @@ func (s *Service) Delete(ctx context.Context, id int64) (bool, error) {
 	}
 	n, err := s.q.DeleteEmailData(ctx, v)
 	return n > 0, err
+}
+
+// Export streams the filtered rows as CSV in 1000-row batches. A write error
+// aborts the export.
+func (s *Service) Export(ctx context.Context, f Filter, w io.Writer) error {
+	n, err := normalize(f)
+	if err != nil {
+		return err
+	}
+	if _, err := io.WriteString(w, CSVHeader); err != nil {
+		return err
+	}
+	if n.none {
+		return nil
+	}
+	for offset := int64(0); ; offset += exportBatch {
+		rows, err := s.q.ExportEmailData(ctx, gen.ExportEmailDataParams{SourceLinkID: n.link, Q: n.q, StartDate: n.sd,
+			EndDate: n.ed, IsUsed: n.used, SortBy: n.sortBy, SortDesc: n.desc, RowOffset: offset, RowLimit: exportBatch})
+		if err != nil {
+			return err
+		}
+		if len(rows) == 0 {
+			return nil
+		}
+		batch := make([]Row, len(rows))
+		for i, r := range rows {
+			batch[i] = fromModel(r)
+		}
+		if err := writeCSVRows(w, batch); err != nil {
+			return err
+		}
+		if len(rows) < exportBatch {
+			return nil
+		}
+	}
+}
+
+// TimelineStats counts rows per created_at[:10], ascending by that string.
+func (s *Service) TimelineStats(ctx context.Context) ([]DayCount, error) {
+	rows, err := s.q.EmailDataTimeline(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]DayCount, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, DayCount{Date: r.Day, Count: r.N})
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Date < out[j].Date })
+	return out, nil
+}
+
+// DomainStats answers the top domains (lower-cased text after the last "@"):
+// count descending, ties in first-seen (id) order, like Counter.most_common.
+// A limit of 0 or less answers [].
+func (s *Service) DomainStats(ctx context.Context, limit int) ([]DomainCount, error) {
+	emails, err := s.q.EmailDataEmails(ctx)
+	if err != nil {
+		return nil, err
+	}
+	idx := map[string]int{}
+	var all []DomainCount
+	for _, e := range emails {
+		d := strings.ToLower(e[strings.LastIndexByte(e, '@')+1:])
+		if i, ok := idx[d]; ok {
+			all[i].Count++
+			continue
+		}
+		idx[d] = len(all)
+		all = append(all, DomainCount{Domain: d, Count: 1})
+	}
+	sort.SliceStable(all, func(i, j int) bool { return all[i].Count > all[j].Count })
+	if limit < 0 {
+		limit = 0
+	}
+	if limit < len(all) {
+		all = all[:limit]
+	}
+	if all == nil {
+		all = []DomainCount{}
+	}
+	return all, nil
 }
