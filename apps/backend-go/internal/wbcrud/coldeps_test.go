@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 )
 
 func TestColumnVectorsMatchPythonDeps(t *testing.T) {
@@ -15,12 +17,7 @@ func TestColumnVectorsMatchPythonDeps(t *testing.T) {
 		t.Run("deps/"+c.Name, func(t *testing.T) {
 			cols := rawColumns(t, c.Columns)
 			for i, col := range cols {
-				refs := refsIn(col)
-				got := make([]string, 0, len(refs))
-				for r := range refs {
-					got = append(got, r)
-				}
-				sort.Strings(got)
+				got := colgraph.Refs(graphCols([]Column{col})[0]) // sorted
 				if !reflect.DeepEqual(got, append([]string{}, c.Refs[i]...)) {
 					t.Errorf("refs[%d] = %v, want %v", i, got, c.Refs[i])
 				}
