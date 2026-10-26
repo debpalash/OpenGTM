@@ -64,9 +64,10 @@ func newPubEnv(t *testing.T, opt pubOpts) pubEnv {
 		{1, "ws-alpha", "seq-out-a-01", 1, 1, 0, "hot@alpha.example.com", "<hook-hard-a@contract.example.com>"},
 		{2, "ws-alpha", "seq-out-a-01", 1, 1, 1, "beta@zenithrobotics.example.com", "<hook-dup-b@contract.example.com>"},
 	} {
+		s = append(s, "idem:"+s[1].(string)+":"+strconv.Itoa(s[0].(int)))
 		ownerExec(t, `INSERT INTO outreach_sends (id, workspace_id, sequence_id, enrollment_id, lead_id, step_number, to_email, subject, status, message_id,
 			idempotency_key, charged_usd, migrated, error, sent_at, created_at, updated_at)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,'subject','sent',$8,'idem:'||$2||':'||$1,0,false,'','2026-08-29 08:45:00+00','2026-08-29 08:45:00+00','2026-08-29 08:45:00+00')`, s...)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,'subject','sent',$8,$9,0,false,'','2026-08-29 08:45:00+00','2026-08-29 08:45:00+00','2026-08-29 08:45:00+00')`, s...)
 	}
 	for _, r := range oactSuppress {
 		ownerExec(t, `INSERT INTO outreach_suppressions (workspace_id, email, reason, source, locked, created_at) VALUES ($1,$2,$3,$4,$5,$6::timestamptz)`, r...)
@@ -281,7 +282,7 @@ func TestWebhookKindsApplied(t *testing.T) {
 	}
 	if got := e.one(t, `SELECT string_agg(message_id||'='||status||'/'||error, ' ' ORDER BY id) FROM outreach_sends WHERE workspace_id='ws-beta'`); got !=
 		"<hook-hard-b@contract.example.com>=bounced/webhook <hook-soft-1-b@contract.example.com>=sent/ <hook-soft-2-b@contract.example.com>=sent/ "+
-			"<hook-soft-3-b@contract.example.com>=bounced/webhook <hook-complaint-b@contract.example.com>=bounced/complaint <hook-dup-b@contract.example.com>=sent/" {
+			"<hook-soft-3-b@contract.example.com>=bounced/webhook <hook-complaint-b@contract.example.com>=bounced/webhook <hook-dup-b@contract.example.com>=sent/" {
 		t.Fatalf("sends: %s", got)
 	}
 	if got := e.one(t, `SELECT string_agg(id||'='||status||'/'||soft_bounce_count, ' ' ORDER BY id) FROM outreach_enrollments WHERE workspace_id='ws-beta'`); got != "11=bounced/0 12=sent/3 13=bounced/0" {

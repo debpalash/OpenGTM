@@ -15,7 +15,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachtoken"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
 // pubMasterKey is the contract seed OUTREACH_MASTER_KEY (base64 of bytes 64..95, TEST-ONLY): the recorded unsubscribe
