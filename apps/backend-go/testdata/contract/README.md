@@ -870,3 +870,103 @@ records and stops it. Re-running is byte-identical.
 - Vectors from `legacy/python/scripts/gen_leadgen_vectors.py` (`internal/{leadscore,collectintent,sourcehealth,sourcecatalog,collectledger,domainintel,leadprogress}`; `icp.json` and `sources.json` are
   dumps of the Python config). Notable recorded behaviours: `recent()` falls back to the in-process deque when ANY Redis entry is invalid JSON (it does not skip it); a crt.sh row that is not an object
   makes `analyze_domain` raise; `get_source_enabled` is true only for the exact stored string `1`.
+
+## Plan 12 (copilot chat and person intel): recording, coverage and deviations
+
+Scope: 12 routes, all ported, none retained (`retained_copilot_routes.txt`): `GET|POST /api/copilotkit/info`, `POST /api/copilotkit`
+(chat SSE, approvals ride on it), `GET /api/copilotkit/conversations`, `GET|DELETE /api/copilotkit/conversations/{conv_id}`,
+`GET /api/copilotkit/memories`, `POST /api/person/enrich`, `GET /api/person/history`, `GET|DELETE /api/person/{record_id}`,
+`GET /ws/person/enrich`. Tools that execute on Python (collection, enrich, workbooks, plans, outreach drafting, AmbitionBox, people
+research) stay behind `POST /internal/copilot/tool` (`internal/copilot/catalog.json`, `"executor":"python"`).
+Coverage tests (`internal/api/copilot_coverage_test.go`): `TestEveryCopilotAndPersonRouteIsPorted` (7 + 5 Python decorators parsed),
+`TestEveryCopilotAndPersonRouteHasFixtureOrIsRetained`, `TestEveryCopilotCatalogToolHasExecutor`, `TestCopilotDeviationsDocumented`;
+chaos tests `internal/copilot/chaos_integration_test.go`. Fixtures: `copilot/` (chat, approvals, conversations, memories, pre-routes,
+self-host) and `person/` (REST). **No fixture exists for `GET /ws/person/enrich`**: the recorder only drives workbook sockets and the
+Python enrichment needs live network scraping; the route is pinned by `personintelws_integration_test.go` (the coverage test names the
+tests it relies on). Runbook: `docs/go-port/runbooks/copilot-cutover.md`.
+
+### Recording procedure (copilot and person fixtures)
+
+```sh
+# P=postgres://postgres:postgres@127.0.0.1:55480/postgres
+psql $P -c "CREATE DATABASE opengtm_contract_t12 TEMPLATE opengtm_py_test" \
+  -c "CREATE ROLE contract_app_t12 LOGIN PASSWORD '<x>' NOSUPERUSER NOBYPASSRLS" -c "GRANT yupcha_app TO contract_app_t12"
+cd legacy/python
+export SQLITE_STORES_BACKEND=postgres SECRET_KEY=<test-only> APP_ENV=test TZ=UTC PG_LEAD_STORE=true PYTHONPATH=. \
+       INTERNAL_SERVICE_TOKEN=<test-only>   # copilot_record.sh exports a test-only default when unset
+DATABASE_URL=<admin url> uv run alembic upgrade head
+export ADMIN_URL=postgresql+psycopg://postgres:...@127.0.0.1:55480/opengtm_contract_t12 APP_URL=<non-superuser url>
+for p in auth selfhost connect dead; do scripts/copilot_record.sh $p ../../apps/backend-go/testdata/contract; done
+uv run python scripts/gen_copilot_vectors.py; uv run python scripts/gen_copilot_catalog.py
+```
+
+Cases live in `legacy/python/scripts/contract_cases/copilot.yaml`; the LLM is the scripted simulator `scripts/llm_sim.py` (never a real
+provider). **Case order is part of the contract** (approvals are single-use, conversations get deleted); `copilot_record.sh` re-seeds
+before each profile. Always `TZ=UTC` and a non-superuser app role. `catalog.json` is generated from Python (`gen_copilot_catalog.py`,
+drift tests in `internal/copilot/catalog_test.go`; update `testdata/catalog.sha256` when it changes).
+
+### Go-only hardening (Python answers 500, hangs or has no bound)
+
+- **Chat body (D6):** non-JSON or non-object body, `messages` not a list, non-object message, non-string `content`/`context`/
+  `conversation_id`, more than 200 messages: 422 `Invalid request body`; body above `COPILOT_MAX_BODY_BYTES` (1 MiB): 413.
+  `approved_tool_calls` is capped at **20** (400 `Too many approved tool calls`; Python has no cap). Non-object approved items and
+  tool calls are read as empty (an invalid approval); a null/non-string `decision` is unusable; an absent `decision` means approve (Python).
+  Non-object tool arguments (Python `or "{}"` turns them into `{}` or crashes) and non-object tool results are treated as empty.
+- **Slots and deadlines:** per-user cap `COPILOT_MAX_STREAMS_PER_USER` (default 3, 429 `Too many active chat streams`) plus the shared
+  `SSE_MAX_STREAMS` pool (503; the same semaphore as `/api/events`, wired in `cmd/api`); the slot is taken before any side effect, so a
+  429 leaves no conversation; turn deadline `COPILOT_TURN_TIMEOUT_SECONDS` (900; error frame `Request timed out` + `[DONE]`); tool deadline
+  `COPILOT_TOOL_TIMEOUT_SECONDS` (120); tool results and `tool_data` capped at 1 MiB.
+- **Worker unavailable (503):** `AI worker unavailable` when the system prompt or the pre-route stream cannot be opened *before* headers
+  (Python: 500). After headers, a worker fault is one fixed SSE `error` frame + `[DONE]`, never a hang. A stream that ends without a
+  terminal frame is an error. Frames over 4 MiB are rejected. Secrets (worker bearer token, provider keys) never reach a frame, log line
+  or error string (a test greps all three).
+- **Persistence:** a persistence failure (messages, tool rows, memory) is logged (error type only) and never aborts the stream
+  (Python aborts the pre-route stream on a history-write failure). Non-string `content` frames from the worker are ignored (Python
+  crashes joining them after the stream). Nothing is stored after a client disconnect (Python parity); frames the worker had already
+  delivered may still be written to the dead connection before the turn notices.
+- **Approvals:** consumption is one atomic UPDATE committed before any tool runs; a turn cancelled mid-tool **leaves the approval
+  consumed** (a resubmit is denied: "invalid, expired, already consumed", tool never runs twice). Dangerous tools need `tables.write`
+  for `user_id != None`, re-asserted in Go whatever the worker answers; the Go side always sends the authenticated `user_id`.
+- **Auth/tenancy:** `/api/copilotkit/info` is unauthenticated (Python parity). Self-host (`CHAT_REQUIRE_AUTH` false) binds to the active
+  workspace and the `self-host` user partition; with no resolvable workspace it answers **403** (Python: empty id), fail closed. A
+  `Bearer  token` with a double space is accepted (same leniency as `internal/identity`). `COPILOT_GO_ENABLED` true with `PG_LEAD_STORE`
+  false registers **nothing** (Go answers 404, requests do not fall through): never raise the canary in that state.
+- **Pre-routes (D5):** the eight deterministic branches run on Python; a pre-route that answers `none` slowly falls through to the LLM
+  (Python pulls the first frame before any response exists); the handled path emits its own `conversation_id` frame (Python), the Go
+  LLM path emits it first. Keepalive `: keepalive` every 10 s during a tool or pre-route.
+- **Conversations/memories (Task 17):** Memory `metadata` is emitted in Postgres jsonb key order (raw jsonb text, compacted), like
+  Python. Messages sharing a `created_at` come back in undefined order (same join as Python, no tiebreak). A NUL byte in `{conv_id}` is
+  a 500 (Python: psycopg 500). DB failures answer a generic 500 (error type logged). `GET /conversations` has a fixed limit of 50 and
+  no pagination (Python parity). Memory is the builtin `chat_memories` store only: Go never reads `openmemory` (D3); keys are
+  `(workspace, user)` namespaced.
+- **`person_intel` is global and admin-gated (exact Python parity):** the table has no workspace column; REST uses
+  `get_current_admin_user`, the WebSocket `authenticate_query_token(require_admin=True)`. Any admin sees every saved profile; tenant
+  scoping would be a schema and product change. `GET /api/person/{id}` with a non-integer id answers 422 (FastAPI), ids outside int32
+  answer 404, negative `skip`/`limit` answer 422 (Python: Postgres error 500), `limit` has no upper bound (Python).
+- **Person REST (Task 19):** an unparseable `linkedin.com/in/` username returns 200 with a saved profile of status `failed` (Python
+  catches the ValueError in `enrich()`), not 400; an unexpected error answers 500 `Enrichment failed` (Python echoes `str(exc)`);
+  enrichment is bounded by 120 s (Python unbounded); body capped at 1 MiB (`json_invalid`). The deep scrape sends the caller's
+  workspace (`PersonIntelWorkspaceID`, `X-Workspace-Id` header or the default workspace) to `person_intel_deep`; without a reachable
+  worker it is skipped (`deep_unavailable`, D7). Profiles are emitted through `Profile.JSON()` (no HTML escaping, Python key order).
+  `search_progress` order is query order and emails/skills follow first occurrence (Python: completion/set order).
+- **Person WebSocket (Task 20):** pre-accept auth failure is an HTTP 403 handshake refusal (Starlette maps close 4403), as the workbook
+  socket; failures send the generic `Enrichment failed` (the username-parse message is kept), a timeout `Enrichment timed out`; one
+  enrichment per admin (`Enrichment already running`), per-user (429) and process (503) connection caps, an Origin check, 15 s to send
+  the request frame (else close 1008), 120 s enrichment deadline, read limit `WS_MAX_MESSAGE_BYTES` (1009), pings, 1001 on shutdown; the
+  profile save has **30 s** (including the wait for a pool connection; a deadline/finish race is reported as a timeout, low). A client
+  disconnect cancels the pipeline and **nothing is saved** (Python continues and saves). A malformed, non-object or binary first frame
+  gets the generic error frame.
+- **Boundary and catalog (Tasks 2-3, 6, 12):** the Python worker is called over NDJSON (`preroute`, `llm`) or unary JSON (`tool`,
+  `describe`, `system-prompt`); Go owns the round loop, dedup, budget and approval gate. Python quirks kept as recorded: a tool
+  returning non-JSON ends the turn on the provider's `[DONE]`; `get_enrichment_gaps {}` answers Python's real error text; dedupe of
+  in-flight tool calls is per worker process; a 408 from a tool is never blindly retried for dangerous tools. Python replicas must run
+  the Task 2 code so both stacks answer identically.
+
+### Python bugs found and not fixed (user rule)
+
+- Scraper (used by `person_intel_deep`): DNS rebinding gap in its SSRF guard and an uncapped fast-path response body. The deep person
+  scrape inherits that risk until the scraper is ported or fixed; logged on issue **#114**.
+- `/api/person/enrich` and the WebSocket echo `str(exc)`; the WebSocket has no bound on the first frame or the enrichment time; its
+  "completed" step precedes the final "saved" frame. Go hardens the first two (above) and keeps the frame order.
+- Chat: non-string `content` frames and non-object tool arguments/results crash the stream in places (500 or aborted stream); Go ignores
+  or treats them as empty.
