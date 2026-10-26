@@ -95,7 +95,10 @@ type vectors struct {
 			ResetRows bool   `json:"reset_rows"`
 			Records   []vrec `json:"records"`
 			Summary   struct {
-				Added, Updated, Skipped, AddedCount int
+				Added      int `json:"added"`
+				Updated    int `json:"updated"`
+				Skipped    int `json:"skipped"`
+				AddedCount int `json:"added_count"`
 			} `json:"summary"`
 			RowsAfter []vrow `json:"rows_after"`
 		} `json:"steps"`
