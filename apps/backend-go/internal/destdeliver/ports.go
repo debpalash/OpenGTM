@@ -15,6 +15,13 @@ type Result struct {
 	Success bool
 	Summary string
 	Error   string
+	// ExternalID is the provider-side id of the delivered record (campaign lead id, sheet
+	// range, Airtable record id); empty is Python's None.
+	ExternalID string
+	// Duplicate and Operation carry what Python's campaign and row adders returned beside
+	// success ("duplicate", "operation"); the delivery engine derives the summary text from them.
+	Duplicate bool
+	Operation string
 }
 
 // Request payloads. Every request names its workspace (secret resolution and tenant rows are

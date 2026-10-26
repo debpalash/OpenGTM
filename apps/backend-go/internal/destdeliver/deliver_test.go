@@ -1,6 +1,7 @@
 package destdeliver
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -198,12 +199,25 @@ func TestMapPayloadMatchesVectors(t *testing.T) {
 }
 
 func TestFingerprintMatchesPythonVectors(t *testing.T) {
-	cases := loadVec(t, "../destsync/testdata/fingerprint.json")["cases"].([]any)
-	for i, c := range cases {
-		c := asMap(c)
-		got := Fingerprint(asMap(c["payload"]))
-		if got != c["sha256"] {
-			t.Errorf("case %d: got %s want %v (canonical %v)", i, got, c["sha256"], c["canonical"])
+	raw, err := os.ReadFile("../destsync/testdata/fingerprint.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Cases []struct {
+			Payload map[string]any `json:"payload"`
+			SHA256  string         `json:"sha256"`
+		} `json:"cases"`
+	}
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber() // arbitrary-precision ints, as production rows decode
+	if err := dec.Decode(&doc); err != nil {
+		t.Fatal(err)
+	}
+	for i, c := range doc.Cases {
+		got := Fingerprint(c.Payload)
+		if got != c.SHA256 {
+			t.Errorf("case %d: got %s want %s", i, got, c.SHA256)
 		}
 	}
 }
@@ -402,7 +416,13 @@ func TestDeliverSlackTemplateAndTruncation(t *testing.T) {
 		d, rec := newRig(map[string]any{"secrets": map[string]any{"SLACK_WEBHOOK": "https://hooks.slack.test/services/T/B/placeholder"}})
 		dest := Destination{ID: "dest-1", WorkspaceID: vecWS, AudienceID: "aud-1", Type: "slack",
 			Config: map[string]any{"webhook_secret_ref": "SLACK_WEBHOOK", "message_template": tpl}}
-		res := d.Deliver(context.Background(), dest, 5, asMap(c["snapshot"]), "dest:dest-1:lead:5:abc")
+		wantHook := asMap(c["webhook"])
+		leadID, idem := 5, "dest:dest-1:lead:5:abc"
+		if wantHook != nil { // one vector uses another lead and key
+			leadID = int(asMap(asMap(asMap(wantHook["body"])["metadata"])["event_payload"])["lead_id"].(int64))
+			idem = asMap(wantHook["headers"])["Idempotency-Key"].(string)
+		}
+		res := d.Deliver(context.Background(), dest, leadID, asMap(c["snapshot"]), idem)
 		if destvalidate.CheckSlackTemplate(tpl) != nil {
 			// D6: syntax beyond {name} and brace escapes is refused, never evaluated.
 			if res.Success || res.Error != "invalid slack message_template" || len(rec.calls) != 0 {
