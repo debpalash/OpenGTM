@@ -23,9 +23,9 @@ const ws = "ws-ah"
 
 type job struct {
 	Type, Executor, Status, WorkspaceID string
-	Priority                           int
-	FireKey                            *string
-	Payload                            string
+	Priority                            int
+	FireKey                             *string
+	Payload                             string
 }
 
 func setup(t *testing.T) (*pgxpool.Pool, context.Context) {
@@ -103,9 +103,9 @@ func TestEnqueuesOneJobPerCoveringRule(t *testing.T) {
 	pool, ctx := setup(t)
 	addTrigger(t, pool, ctx, ws, "t1", "on_row_added", true, "[]")
 	addTrigger(t, pool, ctx, ws, "t2", "on_row_added", true, `["wb-1"]`)
-	addTrigger(t, pool, ctx, ws, "t3", "on_row_added", false, "[]")      // disabled
-	addTrigger(t, pool, ctx, ws, "t4", "on_row_changed", true, "[]")     // other type
-	addTrigger(t, pool, ctx, ws, "t5", "on_row_added", true, "null")     // null scope = all
+	addTrigger(t, pool, ctx, ws, "t3", "on_row_added", false, "[]")  // disabled
+	addTrigger(t, pool, ctx, ws, "t4", "on_row_changed", true, "[]") // other type
+	addTrigger(t, pool, ctx, ws, "t5", "on_row_added", true, "null") // null scope = all
 	if n := fire(t, pool, ctx, automationhook.New(true, slog.Default()), ws, "wb-1", []int64{1, 2}); n != 3 {
 		t.Fatalf("n=%d", n)
 	}
