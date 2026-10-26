@@ -1140,3 +1140,19 @@ func TestCancelBeforeFirstSource(t *testing.T) {
 		t.Errorf("sources called: %v", stub.called())
 	}
 }
+
+// Final review (security low): a job queued under workspace A whose payload names
+// workspace B must not run inside B's tenant (B's secrets, B's watch).
+func TestHandleRefusesPayloadWorkspaceMismatch(t *testing.T) {
+	pool, ctx := eSetup(t)
+	eWatch{Kind: "funding"}.insert(t, ctx, pool)
+	stub := &eStub{}
+	d := eDeps(pool, stub, nil)
+	run(t, ctx, d, eClaim(t, ctx, pool, "ws-other-than-payload", ePayload(eWS, eW)))
+	if len(stub.calls) != 0 {
+		t.Errorf("polled across workspaces: %v", stub.called())
+	}
+	if _, _, found := ledger(t, ctx, pool, eWS); found {
+		t.Errorf("budget spent by a mismatched job")
+	}
+}

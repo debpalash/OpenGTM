@@ -746,3 +746,20 @@ func TestSweepSkipsRowDeletedMidSweep(t *testing.T) {
 		t.Fatalf("deleted row still acted on: %v", rec.calls)
 	}
 }
+
+// Final review (security low): the payload's workspace must equal the job
+// row's, or a copied/crafted job would run inside another tenant.
+func TestPayloadWorkspaceMustMatchJobRow(t *testing.T) {
+	e := newEnv(t)
+	e.defaultSeed(trig{})
+	e.trigger(ws2, "trg-2", trig{})
+	rec := &recorder{}
+	e.d.Execute = rec.exec
+	c := e.claimRaw(map[string]any{"workspace_id": ws2, "trigger_id": "trg-2", "fire_source": "row_added", "fire_key": "fk-x"}) // job row is ws1
+	if err := Handle(e.ctx, e.d, c); err != nil {
+		t.Fatal(err)
+	}
+	if len(rec.calls) != 0 || len(e.runs(ws2)) != 0 || len(e.runs(ws1)) != 0 {
+		t.Fatalf("ran across workspaces: calls=%v ws2 runs=%d ws1 runs=%d", rec.calls, len(e.runs(ws2)), len(e.runs(ws1)))
+	}
+}
