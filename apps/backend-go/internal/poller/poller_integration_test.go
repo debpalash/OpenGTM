@@ -342,7 +342,9 @@ func TestDebitBudgetConcurrentIncrements(t *testing.T) {
 		t.Fatalf("got %d", len(seen))
 	}
 	var final int
-	_ = pool.QueryRow(ctx, `SELECT n FROM poll_budget_ledger WHERE workspace_id=$1`, wsA).Scan(&final)
+	inTx(t, ctx, pool, wsA, func(tx pgx.Tx) error {
+		return tx.QueryRow(ctx, `SELECT n FROM poll_budget_ledger WHERE workspace_id=$1`, wsA).Scan(&final)
+	})
 	if final != 32 {
 		t.Fatalf("final n = %d", final)
 	}
@@ -386,7 +388,7 @@ func TestPollNowCountsBothCounters(t *testing.T) {
 			steps++
 		}
 	}
-	if steps != 7 {
+	if steps != 8 {
 		t.Fatalf("steps = %d", steps)
 	}
 }
@@ -559,12 +561,13 @@ func TestRescheduleBackoffTable(t *testing.T) {
 			}
 			for k, raw := range e {
 				m := raw.(map[string]any)
-				if js[k].FireKey != m["fire_key"] || js[k].Executor != m["executor"] {
+				wantKey := strings.Replace(m["fire_key"].(string), "w-1", wID, 1)
+				if js[k].FireKey != wantKey || js[k].Executor != m["executor"] {
 					t.Errorf("%s: job %+v want %v", tag, js[k], m)
 				}
 				var p map[string]any
 				_ = json.Unmarshal([]byte(js[k].Payload), &p)
-				if p["workspace_id"] != m["workspace_id"] && p["workspace_id"] != wsA || p["fire_key"] != m["fire_key"] {
+				if p["workspace_id"] != wsA || p["watch_id"] != wID || p["fire_key"] != wantKey {
 					t.Errorf("%s: payload %s", tag, js[k].Payload)
 				}
 			}
