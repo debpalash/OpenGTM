@@ -1118,3 +1118,18 @@ func TestBounceForOtherRecipientNotCounted(t *testing.T) {
 		t.Fatalf("bounce_count %d, want 1", b)
 	}
 }
+
+// Plan 09 final security L5: like the send handler, a payload naming another workspace than the job's
+// own row is a permanent failure and polls nothing.
+func TestPollRejectsPayloadWorkspaceMismatch(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ws := newWS(t, pool)
+	fc := &fakeClient{}
+	h, _ := newHandler(t, pool, ws, fc)
+	c := &queue.Claim{WorkspaceID: "some-other-ws", Payload: json.RawMessage(`{"workspace_id":"` + ws + `"}`)}
+	err := h.Handle(context.Background(), c)
+	var perm *queue.PermanentError
+	if !errors.As(err, &perm) || fc.connects != 0 {
+		t.Fatalf("err=%v connects=%d", err, fc.connects)
+	}
+}
