@@ -103,7 +103,7 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
   done
   # /api/events: SSE settings and no `?token=` in this location's access log.
   local E; E="$(printf '%s\n' "$T" | awk 'index($0,"location = /api/events {"){f=1;next} f&&/^[[:space:]]*}/{exit} f')"
-  for d in "proxy_buffering off;" "proxy_read_timeout 1h;" "proxy_http_version 1.1;" "add_header X-Accel-Buffering no always;" "access_log /dev/stdout sse_noquery;"; do
+  for d in "proxy_buffering off;" "proxy_read_timeout 1h;" "proxy_http_version 1.1;" "add_header X-Accel-Buffering no always;" "access_log /dev/stdout sse_noquery;" "error_log /dev/stderr crit;" "limit_conn sse_per_ip 20;" "limit_conn_status 429;"; do
     case "$E" in *"$d"*) echo "  ok   /api/events has '$d'";; *) echo "  FAIL /api/events missing '$d'"; FAIL=1;; esac
   done
   expect "GET /api/events X-Accel-Buffering" "$(hdr GET '/api/events?token=SECRET' X-Accel-Buffering)" no
