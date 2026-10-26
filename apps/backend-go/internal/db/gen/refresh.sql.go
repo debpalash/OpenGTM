@@ -11,6 +11,18 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const activeJobsByFireKeys = `-- name: ActiveJobsByFireKeys :one
+SELECT count(*)::int8 AS n FROM jobs
+WHERE fire_key = ANY($1::text[]) AND status IN ('pending', 'processing')
+`
+
+func (q *Queries) ActiveJobsByFireKeys(ctx context.Context, fireKeys []string) (int64, error) {
+	row := q.db.QueryRow(ctx, activeJobsByFireKeys, fireKeys)
+	var n int64
+	err := row.Scan(&n)
+	return n, err
+}
+
 const activeRefreshJobForWorkbook = `-- name: ActiveRefreshJobForWorkbook :one
 SELECT id FROM jobs
 WHERE type = 'refresh_workbook' AND status IN ('pending', 'processing')
@@ -78,6 +90,17 @@ func (q *Queries) InsertRefreshJobAt(ctx context.Context, arg InsertRefreshJobAt
 	var id int32
 	err := row.Scan(&id)
 	return id, err
+}
+
+const maxWorkbookRowID = `-- name: MaxWorkbookRowID :one
+SELECT COALESCE(max(id), 0)::int4 AS max_id FROM workbook_rows WHERE workbook_id = $1::text
+`
+
+func (q *Queries) MaxWorkbookRowID(ctx context.Context, workbookID string) (int32, error) {
+	row := q.db.QueryRow(ctx, maxWorkbookRowID, workbookID)
+	var max_id int32
+	err := row.Scan(&max_id)
+	return max_id, err
 }
 
 const otherActiveRefreshJob = `-- name: OtherActiveRefreshJob :one
@@ -233,4 +256,35 @@ func (q *Queries) SetRefreshPolicy(ctx context.Context, arg SetRefreshPolicyPara
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const workbookRowsAfter = `-- name: WorkbookRowsAfter :many
+SELECT id FROM workbook_rows
+WHERE workbook_id = $1::text AND id > $2::int4
+ORDER BY id
+`
+
+type WorkbookRowsAfterParams struct {
+	WorkbookID string
+	AfterID    int32
+}
+
+func (q *Queries) WorkbookRowsAfter(ctx context.Context, arg WorkbookRowsAfterParams) ([]int32, error) {
+	rows, err := q.db.Query(ctx, workbookRowsAfter, arg.WorkbookID, arg.AfterID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var id int32
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

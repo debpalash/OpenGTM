@@ -73,3 +73,15 @@ WHERE type = 'refresh_workbook' AND status IN ('pending', 'processing')
   AND id <> sqlc.arg(self_id)::int4
   AND (status = 'pending' OR id < sqlc.arg(self_id)::int4)
 LIMIT 1;
+
+-- name: MaxWorkbookRowID :one
+SELECT COALESCE(max(id), 0)::int4 AS max_id FROM workbook_rows WHERE workbook_id = sqlc.arg(workbook_id)::text;
+
+-- name: WorkbookRowsAfter :many
+SELECT id FROM workbook_rows
+WHERE workbook_id = sqlc.arg(workbook_id)::text AND id > sqlc.arg(after_id)::int4
+ORDER BY id;
+
+-- name: ActiveJobsByFireKeys :one
+SELECT count(*)::int8 AS n FROM jobs
+WHERE fire_key = ANY(sqlc.arg(fire_keys)::text[]) AND status IN ('pending', 'processing');

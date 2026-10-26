@@ -30,6 +30,13 @@ type Deps struct {
 	Now func() time.Time
 	// NextExecutor is the executor of the next refresh_workbook; default "go".
 	NextExecutor string
+	// SourceWait makes one cycle wait for the source_workbook jobs it enqueued
+	// (up to this long) and enrich the rows they added in the same run job
+	// (Python refresh.py semantics). Zero: do not wait; new rows are then picked
+	// up as stale by the next cycle.
+	SourceWait time.Duration
+	// SourcePoll is the poll interval while waiting (default 2s).
+	SourcePoll time.Duration
 }
 
 func (d Deps) now() time.Time {
@@ -220,6 +227,10 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 		reason = "scheduled"
 	}
 	now := d.now()
+	pre, err := d.sourceFirst(ctx, ws, p.WorkbookID, c.ID)
+	if err != nil {
+		return err
+	}
 	return tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
 		wb, err := gen.New(tx).RefreshWorkbook(ctx, p.WorkbookID)
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -245,11 +256,11 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 					continue
 				}
 				sourceCols++
-				_, _, err := queue.EnqueueOnce(ctx, tx, "source_workbook", ws, map[string]any{
-					"workbook_id": p.WorkbookID, "column_id": id, "workspace_id": ws,
-				}, fmt.Sprintf("refresh_source:%s:%d:%s", p.WorkbookID, c.ID, id), "python")
-				if err != nil {
-					return fmt.Errorf("refresh: enqueue source: %w", err)
+				if pre.done { // enqueued, and waited for, before this transaction
+					continue
+				}
+				if err := enqueueSource(ctx, tx, ws, p.WorkbookID, id, c.ID); err != nil {
+					return err
 				}
 			case staleScanTypes[t]:
 				tf, _ := col.Get("target_field").(string)
@@ -262,6 +273,21 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 		if len(staleCols) > 0 {
 			if stale, err = StaleRowColumns(ctx, tx, p.WorkbookID, staleCols, ttlMap(policy), now); err != nil {
 				return err
+			}
+		}
+		// Same cycle: rows our own sourcing added get every runnable cell
+		// (sourcing initializes them; outputs are not dispatched).
+		if len(pre.addedRows) > 0 {
+			var newCols []string
+			for _, col := range cols {
+				if id := colID(col); id != "" && runnableTypes[colType(col)] && colType(col) != "output" {
+					newCols = append(newCols, id)
+				}
+			}
+			if len(newCols) > 0 {
+				for _, id := range pre.addedRows {
+					stale[id] = newCols
+				}
 			}
 		}
 		rowIDs := make([]int64, 0, len(stale))
@@ -335,4 +361,104 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 		}
 		return nil
 	})
+}
+
+func enqueueSource(ctx context.Context, tx pgx.Tx, ws, wb, colID string, jobID int64) error {
+	_, _, err := queue.EnqueueOnce(ctx, tx, "source_workbook", ws, map[string]any{
+		"workbook_id": wb, "column_id": colID, "workspace_id": ws,
+	}, sourceKey(wb, jobID, colID), "python")
+	if err != nil {
+		return fmt.Errorf("refresh: enqueue source: %w", err)
+	}
+	return nil
+}
+
+func sourceKey(wb string, jobID int64, colID string) string {
+	return fmt.Sprintf("refresh_source:%s:%d:%s", wb, jobID, colID)
+}
+
+type preSource struct {
+	done      bool    // sources were enqueued and awaited here
+	addedRows []int64 // rows created in the workbook while waiting
+}
+
+// sourceFirst is step 1 of a cycle when SourceWait is set: enqueue the source
+// jobs in their own transaction (so the Python executor can claim them), wait
+// for them to finish (bounded by SourceWait and ctx), and report the rows that
+// appeared. A timeout is not an error: rows added later are enriched as stale
+// by the next cycle. Rows written concurrently by other writers during the
+// wait are included (Python tracks exact ids from materialize_source).
+func (d Deps) sourceFirst(ctx context.Context, ws, wbID string, jobID int64) (preSource, error) {
+	if d.SourceWait <= 0 {
+		return preSource{}, nil
+	}
+	var keys []string
+	var maxID int32
+	err := tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
+		wb, err := gen.New(tx).RefreshWorkbook(ctx, wbID)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil
+		}
+		if err != nil {
+			return fmt.Errorf("refresh: load workbook: %w", err)
+		}
+		cols, err := wbcrud.ParseColumns(wb.ColumnsConfig)
+		if err != nil {
+			return fmt.Errorf("refresh: columns_config: %w", err)
+		}
+		for _, col := range cols {
+			if id := colID(col); colType(col) == "source" && id != "" {
+				keys = append(keys, sourceKey(wbID, jobID, id))
+			}
+		}
+		if len(keys) == 0 {
+			return nil
+		}
+		if maxID, err = gen.New(tx).MaxWorkbookRowID(ctx, wbID); err != nil {
+			return fmt.Errorf("refresh: max row id: %w", err)
+		}
+		for _, col := range cols {
+			if id := colID(col); colType(col) == "source" && id != "" {
+				if err := enqueueSource(ctx, tx, ws, wbID, id, jobID); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil || len(keys) == 0 {
+		return preSource{}, err
+	}
+	poll := d.SourcePoll
+	if poll <= 0 {
+		poll = 2 * time.Second
+	}
+	deadline := time.Now().Add(d.SourceWait)
+	for {
+		var n int64
+		err := tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) (e error) {
+			n, e = gen.New(tx).ActiveJobsByFireKeys(ctx, keys)
+			return e
+		})
+		if err != nil {
+			return preSource{}, fmt.Errorf("refresh: wait for sources: %w", err)
+		}
+		if n == 0 || !time.Now().Before(deadline) {
+			break
+		}
+		select {
+		case <-ctx.Done():
+			return preSource{}, ctx.Err()
+		case <-time.After(poll):
+		}
+	}
+	out := preSource{done: true}
+	err = tenancy.InWorkspace(ctx, d.Pool, ws, func(tx pgx.Tx) error {
+		ids, err := gen.New(tx).WorkbookRowsAfter(ctx, gen.WorkbookRowsAfterParams{WorkbookID: wbID, AfterID: maxID})
+		for _, id := range ids {
+			out.addedRows = append(out.addedRows, int64(id))
+		}
+		return err
+	})
+	return out, err
 }
