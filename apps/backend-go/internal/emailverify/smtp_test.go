@@ -28,13 +28,13 @@ type smtpServer struct {
 	accepted int
 }
 
-func newSMTPServer(t *testing.T, catchAll bool) *smtpServer {
+func newSMTPServer(t *testing.T, catchAll bool, hang ...bool) *smtpServer {
 	t.Helper()
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}
-	s := &smtpServer{ln: ln, catchAll: catchAll}
+	s := &smtpServer{ln: ln, catchAll: catchAll, hang: len(hang) > 0 && hang[0]}
 	t.Cleanup(func() { ln.Close() })
 	go s.serve()
 	return s
@@ -241,8 +241,7 @@ func TestSMTPProbeRefusesPrivateMX(t *testing.T) {
 }
 
 func TestSMTPProbeBudgetAndCancel(t *testing.T) {
-	srv := newSMTPServer(t, false)
-	srv.hang = true
+	srv := newSMTPServer(t, false, true)
 	d := liveDeps(t, "test", map[string]string{"slow.test": "127.0.0.1"}, srv.port())
 	d.SMTPBudget = 300 * time.Millisecond
 	start := time.Now()
