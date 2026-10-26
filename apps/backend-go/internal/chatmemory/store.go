@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -17,6 +19,17 @@ import (
 
 // SelfHostUser is Python's SELF_HOST_USER partition for user_id=None.
 const SelfHostUser = "self-host"
+
+// ErrEmptyNamespace: an empty workspace or unnamespaced key would share one
+// global partition, so every entry point refuses it.
+var ErrEmptyNamespace = errors.New("chatmemory: memory operations require a workspace")
+
+func checkNS(ns string) error {
+	if ns == "" || strings.HasPrefix(ns, ":") {
+		return ErrEmptyNamespace
+	}
+	return nil
+}
 
 // Memory is one recalled memory; JSON key order matches Python's dict.
 type Memory struct {
@@ -29,18 +42,24 @@ type Memory struct {
 func Available() bool { return true }
 
 // Namespace is Python _namespace: "{workspace}:{user}" with the self-host
-// sentinel for a nil user. Callers must pass a non-empty workspace.
-func Namespace(ws string, uid *int32) string {
+// sentinel for a nil user. An empty workspace is an error.
+func Namespace(ws string, uid *int32) (string, error) {
+	if ws == "" {
+		return "", ErrEmptyNamespace // Python raises ValueError
+	}
 	u := SelfHostUser
 	if uid != nil {
 		u = strconv.FormatInt(int64(*uid), 10)
 	}
-	return ws + ":" + u
+	return ws + ":" + u, nil
 }
 
 // Add stores a memory. Memory writes are best-effort: callers ignore the
 // error (as Python's callers swallow exceptions); it must never fail a chat.
 func Add(ctx context.Context, tx pgx.Tx, ns, text string, md map[string]any) error {
+	if err := checkNS(ns); err != nil {
+		return err
+	}
 	if md == nil {
 		md = map[string]any{}
 	}
@@ -60,6 +79,9 @@ func Add(ctx context.Context, tx pgx.Tx, ns, text string, md map[string]any) err
 // sharing at least one token with the query, stable-sorted by overlap
 // descending so recency breaks ties, capped to limit.
 func Search(ctx context.Context, tx pgx.Tx, ns, query string, limit int) ([]Memory, error) {
+	if err := checkNS(ns); err != nil {
+		return nil, err
+	}
 	q := Tokens(query)
 	if len(q) == 0 || limit <= 0 {
 		return []Memory{}, nil
@@ -102,6 +124,9 @@ func Search(ctx context.Context, tx pgx.Tx, ns, query string, limit int) ([]Memo
 
 // All returns every memory of the namespace, newest first.
 func All(ctx context.Context, tx pgx.Tx, ns string) ([]Memory, error) {
+	if err := checkNS(ns); err != nil {
+		return nil, err
+	}
 	rows, err := gen.New(tx).MemAll(ctx, ns)
 	if err != nil {
 		return nil, err
