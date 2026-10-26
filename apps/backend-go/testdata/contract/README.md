@@ -684,3 +684,8 @@ Replayed against `testdata/transcripts/webhook` (fake secret `ctk_transcript_hoo
 - The workbook row is locked `FOR UPDATE` for the whole ingest, so concurrent calls with one `Idempotency-Key` insert once (Python relies on the unique-key race). `on_row_added` automations are enqueued in the same transaction (Python emits after commit).
 - Token hashes are compared with `crypto/subtle`; plaintext appears only in the one-time creation response and is never logged. `internal/sourceingest` was not reused: it upserts by `(source_provider, source_record_id)`, while ingest dedupes on the add-rows identity (`wbcrud.RowIdentity`), which it does reuse.
 - Fixture comparison uses `IgnoreShapeOf` for `row_ids`, token `id`/`prefix`/`created_at`/`token`.
+
+## Refresh routes (plan 06 Task 27): deviations
+- `PUT /api/workbooks/{id}/refresh-policy` reads at most 1 MiB of body (413 `Request body too large`; a failed read is 400); Python has no limit.
+- The executor of every refresh job the API enqueues (the manual refresh and the chain job `SetPolicyExecutor` may start) is resolved per request with `config.ExecutorCohortFrom(Deps.Getenv)` and `RefreshExecutor(workspace)`, the same rule the worker applies when it chains the next refresh (Python `refresh_executor`). `refresh.SetPolicy` keeps `go` as its default for library callers.
+- `POST /{id}/refresh` inserts a `refresh_workbook` job unconditionally: no fire key and no dedupe, exactly like Python `add_job`, so a double click runs two refresh cycles. The worker's chain guard prevents duplicate recurring chains.
