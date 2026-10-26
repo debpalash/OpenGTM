@@ -136,15 +136,23 @@ func (e grEnv) seedWorld(t *testing.T) {
 			VALUES ($1,'ws-alpha',$8,$2,$3::json,$4::json,NULLIF($5,''),NULLIF($6,'')::timestamp,$7::timestamp,$9::timestamp)`,
 			r.id, r.by, days, r.counts, r.errText, r.started, r.finished, r.status, r.created)
 	}
+	for _, ws := range []string{"ws-alpha", "ws-beta"} {
+		e.seedExpired(t, ws)
+	}
+}
+
+// seedExpired adds one row older than every category's minimum (2020-01-01) to each retention target of ws.
+func (e grEnv) seedExpired(t *testing.T, ws string) {
+	t.Helper()
 	old := "2020-01-01 00:00:00"
-	e.exec(t, `INSERT INTO governance_audit_events (id,workspace_id,actor_role,method,route,resource_path,response_status,outcome,request_id,metadata_json,created_at) VALUES ('gr-old','ws-alpha','admin','POST','/r','/p',200,'success','rid','{}',$1::timestamp)`, old)
-	e.exec(t, `INSERT INTO llm_usage_daily (workspace_id,provider,date,updated_at) VALUES ('ws-alpha','p','2020-01-01','x')`)
-	e.exec(t, `INSERT INTO signals (id,workspace_id,created_at) VALUES ('gr-old-s','ws-alpha',1577836800)`)
-	e.exec(t, `INSERT INTO destination_deliveries (workspace_id,run_id,destination_id,lead_id,operation,idempotency_key,payload_fingerprint,status,attempts,created_at) VALUES ('ws-alpha','r','d',1,'upsert','k1','f','sent',0,$1::timestamp)`, old)
-	e.exec(t, `INSERT INTO destination_inbound_receipts (id,workspace_id,destination_id,provider,external_event_id,status,conflict_policy,applied_fields,ignored_fields,payload_fingerprint,created_at) VALUES ('gr-old-i','ws-alpha','d','p','e1','ok','x','{}','{}','f',$1::timestamp)`, old)
-	e.exec(t, `INSERT INTO audience_membership_events (workspace_id,audience_id,lead_id,event_type,snapshot,created_at) VALUES ('ws-alpha','a',1,'enter','{}',$1::timestamp)`, old)
-	e.exec(t, `INSERT INTO playbook_results (workspace_id,run_id,lead_id,status,value,result_metadata,attempts,created_at) VALUES ('ws-alpha','r',1,'ok','v','{}',0,$1::timestamp)`, old)
-	e.exec(t, `INSERT INTO outreach_sends (workspace_id,to_email,idempotency_key,created_at) VALUES ('ws-alpha','a@b.c','k1',$1::timestamptz)`, old)
+	e.exec(t, `INSERT INTO governance_audit_events (id,workspace_id,actor_role,method,route,resource_path,response_status,outcome,request_id,metadata_json,created_at) VALUES ('gr-old-'||$1::text,$1::text,'admin','POST','/r','/p',200,'success','rid','{}',$2::timestamp)`, ws, old)
+	e.exec(t, `INSERT INTO llm_usage_daily (workspace_id,provider,date,updated_at) VALUES ($1::text,'p','2020-01-01','x')`, ws)
+	e.exec(t, `INSERT INTO signals (id,workspace_id,created_at) VALUES ('gr-old-s-'||$1::text,$1::text,1577836800)`, ws)
+	e.exec(t, `INSERT INTO destination_deliveries (workspace_id,run_id,destination_id,lead_id,operation,idempotency_key,payload_fingerprint,status,attempts,created_at) VALUES ($1::text,'r','d',1,'upsert','k-'||$1::text,'f','sent',0,$2::timestamp)`, ws, old)
+	e.exec(t, `INSERT INTO destination_inbound_receipts (id,workspace_id,destination_id,provider,external_event_id,status,conflict_policy,applied_fields,ignored_fields,payload_fingerprint,created_at) VALUES ('gr-old-i-'||$1::text,$1::text,'d','p','e1','ok','x','{}','{}','f',$2::timestamp)`, ws, old)
+	e.exec(t, `INSERT INTO audience_membership_events (workspace_id,audience_id,lead_id,event_type,snapshot,created_at) VALUES ($1::text,'a',1,'enter','{}',$2::timestamp)`, ws, old)
+	e.exec(t, `INSERT INTO playbook_results (workspace_id,run_id,lead_id,status,value,result_metadata,attempts,created_at) VALUES ($1::text,'r',1,'ok','v','{}',0,$2::timestamp)`, ws, old)
+	e.exec(t, `INSERT INTO outreach_sends (workspace_id,to_email,idempotency_key,created_at) VALUES ($1::text,'a@b.c','k-'||$1::text,$2::timestamptz)`, ws, old)
 }
 
 func (e grEnv) req(who, ws, method, path, body string) (int, contract.Resp, string) {
