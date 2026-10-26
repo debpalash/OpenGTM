@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
@@ -306,5 +307,43 @@ func TestExecNativeNotNative(t *testing.T) {
 		if out, ok := e.exec(t, e.ws, n, map[string]any{}, i32(1)); ok {
 			t.Errorf("%s answered natively: %s", n, out)
 		}
+	}
+}
+
+// ExecNative's gate and identity.Store.HasPermission must agree for every role, with and without
+// explicit per-member overrides (one source of truth: identity.HasPermissionTx).
+func TestNativeRoleGateAgreesWithIdentity(t *testing.T) {
+	e := nativeSetup(t)
+	ctx := context.Background()
+	st := identity.NewStore(e.pool)
+	check := func(label string) {
+		for _, uid := range []int32{1, 2, 3, 4, 5, 99} {
+			want, err := st.HasPermission(ctx, e.ws, uid, "tables.write", "admin", "editor")
+			if err != nil {
+				t.Fatal(err)
+			}
+			out, _ := e.exec(t, e.ws, "update_lead_status", map[string]any{"lead_id": e.acme, "status": "new"}, i32(uid))
+			if got := out != `{"error": "Insufficient workspace role"}`; got != want {
+				t.Errorf("%s uid %d: ExecNative allows=%v identity allows=%v", label, uid, got, want)
+			}
+		}
+	}
+	check("roles")
+	e.owner.Exec(ctx, `INSERT INTO workspace_member_permissions (workspace_id,user_id,permission,effect,updated_at) VALUES ($1,2,'tables.write','deny',0),($1,3,'tables.write','allow',0)`, e.ws)
+	check("overrides")
+}
+
+func TestExecNativeRejectsWorkspaceMismatch(t *testing.T) {
+	e := nativeSetup(t)
+	err := tenancy.InWorkspace(context.Background(), e.pool, e.ws, func(tx pgx.Tx) error {
+		_, _, err := ExecNative(context.Background(), tx, "update_lead_status",
+			map[string]any{"lead_id": e.acme, "status": "dead"}, e.other, i32(1))
+		return err
+	})
+	if err == nil {
+		t.Fatal("ws argument differing from the transaction workspace must be an error")
+	}
+	if s := e.status(t, e.acme); s != "new" {
+		t.Fatalf("status mutated to %s", s)
 	}
 }
