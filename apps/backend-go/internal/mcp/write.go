@@ -9,6 +9,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/mcp/pyjson"
 )
@@ -148,7 +149,7 @@ func (s *Server) executeWrite(ctx context.Context, c Ctx, name string, args Args
 		}
 		msg := errCause(ctx, err)
 		if msg == errInternal.Error() {
-			slog.Error("mcp write failed", "tool", name, "err", err)
+			slog.Error("mcp write failed", "tool", name, "cause", errorKind(err))
 		}
 		Record(ctx, s.d, c, name, args, AuditOutcome{Status: "error", Error: msg})
 		return errorText(msg)
@@ -246,4 +247,14 @@ func (s *Server) postCommit(ctx context.Context, c Ctx, name, result string) {
 	if err := s.d.AutomationPort().BootstrapSchedule(context.WithoutCancel(ctx), c.WorkspaceID, r.AutomationID); err != nil {
 		slog.Warn("mcp create_automation schedule bootstrap failed", "err", err.Error())
 	}
+}
+
+// errorKind names a failure without its text: pgx errors can carry row values
+// (PgError.Detail), so only the SQLSTATE or the Go error type is logged.
+func errorKind(err error) string {
+	var pg *pgconn.PgError
+	if errors.As(err, &pg) {
+		return "sqlstate " + pg.Code
+	}
+	return fmt.Sprintf("%T", err)
 }
