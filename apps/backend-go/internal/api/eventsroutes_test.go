@@ -324,3 +324,89 @@ func TestEventsStreamEndsOnShutdown(t *testing.T) {
 		t.Fatal("stream still open after shutdown signal")
 	}
 }
+
+func TestEventsPerUserCap429(t *testing.T) {
+	setHeartbeat(t, time.Hour)
+	e := newEventsEnv(t, func(d *Deps) { d.SSEMaxPerUser = 1 })
+	ws := e.seedWS(t, "t16u")
+	tok := e.tokenQuery(t, "t16u-alice", []string{"pwd"})
+	path := "/api/events?token=" + tok + "&workspace_id=" + ws
+	r1, cancel1, srv := openStream(t, e, path, nil)
+	if r1.StatusCode != 200 {
+		t.Fatalf("first = %d", r1.StatusCode)
+	}
+	resp, err := http.Get(srv.URL + path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var b bytes.Buffer
+	b.ReadFrom(resp.Body)
+	resp.Body.Close()
+	if resp.StatusCode != 429 || strings.TrimSpace(b.String()) != `{"detail":"Too many event streams for this user"}` {
+		t.Fatalf("second = %d %s", resp.StatusCode, b.String())
+	}
+	cancel1()
+	r1.Body.Close()
+	waitStreamOpens(t, srv.URL+path)
+}
+
+func TestEventsPerWorkspaceCap429(t *testing.T) {
+	setHeartbeat(t, time.Hour)
+	e := newEventsEnv(t, func(d *Deps) { d.SSEMaxPerWorkspace = 1 })
+	ws := e.seedWS(t, "t16w")
+	tok := e.tokenQuery(t, "t16w-alice", []string{"pwd"})
+	path := "/api/events?token=" + tok + "&workspace_id=" + ws
+	r1, cancel1, srv := openStream(t, e, path, nil)
+	if r1.StatusCode != 200 {
+		t.Fatalf("first = %d", r1.StatusCode)
+	}
+	resp, err := http.Get(srv.URL + path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var b bytes.Buffer
+	b.ReadFrom(resp.Body)
+	resp.Body.Close()
+	if resp.StatusCode != 429 || strings.TrimSpace(b.String()) != `{"detail":"Too many event streams for this workspace"}` {
+		t.Fatalf("second = %d %s", resp.StatusCode, b.String())
+	}
+	cancel1()
+	r1.Body.Close()
+	waitStreamOpens(t, srv.URL+path)
+}
+
+// waitStreamOpens polls until a new stream is accepted (a slot was released).
+func waitStreamOpens(t *testing.T, url string) {
+	t.Helper()
+	deadline := time.Now().Add(3 * time.Second)
+	for {
+		resp, err := http.Get(url)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode == 200 {
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("slot not released")
+		}
+		time.Sleep(25 * time.Millisecond)
+	}
+}
+
+// A stream is closed after its maximum lifetime so the client reconnects and re-authenticates.
+func TestEventsMaxLifetimeClosesStream(t *testing.T) {
+	setHeartbeat(t, time.Hour)
+	e := newEventsEnv(t, func(d *Deps) { d.SSEMaxLifetime = 200 * time.Millisecond })
+	ws := e.seedWS(t, "t16lt")
+	tok := e.tokenQuery(t, "t16lt-alice", []string{"pwd"})
+	resp, _, _ := openStream(t, e, "/api/events?token="+tok+"&workspace_id="+ws, nil)
+	done := make(chan struct{})
+	go func() { _, _ = io.Copy(io.Discard, resp.Body); close(done) }()
+	select {
+	case <-done:
+	case <-time.After(3 * time.Second):
+		t.Fatal("stream outlived its max lifetime")
+	}
+}
