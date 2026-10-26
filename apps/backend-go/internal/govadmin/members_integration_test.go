@@ -360,3 +360,22 @@ func TestMembersTenantIsolation(t *testing.T) {
 		t.Fatalf("ws members %d", len(r.Members))
 	}
 }
+
+func TestOverviewNullUsernameFallback(t *testing.T) {
+	e := setup(t)
+	var id int32
+	if err := e.pool.QueryRow(context.Background(), `INSERT INTO users (username, is_active) VALUES (NULL, true) RETURNING id`).Scan(&id); err != nil {
+		t.Fatal(err)
+	}
+	exec(t, e.pool, `INSERT INTO workspace_members (workspace_id,user_id,role,created_at) VALUES ($1,$2,'viewer',9)`, e.ws, id)
+	t.Cleanup(func() {
+		_, _ = e.pool.Exec(context.Background(), `DELETE FROM workspace_members WHERE user_id=$1`, id)
+		_, _ = e.pool.Exec(context.Background(), `DELETE FROM users WHERE id=$1`, id)
+	})
+	var r RBAC
+	_ = e.in(t, e.ws, func(tx pgx.Tx) (err error) { r, err = Overview(context.Background(), tx, e.ws); return })
+	last := r.Members[len(r.Members)-1]
+	if last.UserID != id || last.Username != fmt.Sprintf("User %d", id) {
+		t.Fatalf("%+v", last)
+	}
+}
