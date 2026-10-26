@@ -263,3 +263,82 @@ func TestOutreachPortErrorIsReturnedForMasking(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestSendEmailRejectsLineBreaksInSubject(t *testing.T) {
+	o := &fakeOutreach{SendRes: SendResult{Status: "success", Summary: "send enqueued"}}
+	d := sendDeps(o)
+	for _, s := range []string{"a\r\nBcc: x@y.test", "a\nb", "a\rb", "a\x00b"} {
+		if got := runOutreach(t, d, "send_email", Args{"lead_id": 1.0, "subject": s}); got != `{"error": "subject must not contain line breaks"}` {
+			t.Fatalf("%q -> %s", s, got)
+		}
+	}
+	if len(o.Sent) != 0 {
+		t.Fatal("header-injection subject reached the port")
+	}
+}
+
+func TestSendEmailNormalizesLeadEmailAndRejectsBreaks(t *testing.T) {
+	o := &fakeOutreach{SendRes: SendResult{Status: "success", Summary: "send enqueued"}}
+	d := sendDeps(o)
+	runOutreach(t, d, "send_email", Args{"lead_id": 2.0}) // "Two@Beta.TEST "
+	if o.Sent[0].LeadData["email"] != "two@beta.test" {
+		t.Fatalf("%v", o.Sent[0].LeadData)
+	}
+	l := d.Leads.(*fakeLeads)
+	l.Rows[5] = &Lead{ID: 5, Email: osp("a@b.test\r\nBcc: x@y.test")}
+	l.Rows[6] = &Lead{ID: 6, Email: osp("   ")}
+	for _, id := range []float64{5, 6} {
+		if got := runOutreach(t, d, "send_email", Args{"lead_id": id}); got != fixtureText(t, "writes__send_email_no_email_skipped.json") {
+			t.Fatal(got)
+		}
+	}
+	if len(o.Sent) != 1 {
+		t.Fatal("unusable email reached the port")
+	}
+}
+
+func TestSendEmailOmitsEmptyCompany(t *testing.T) {
+	o := &fakeOutreach{SendRes: SendResult{Status: "success", Summary: "send enqueued"}}
+	d := sendDeps(o)
+	d.Leads.(*fakeLeads).Rows[8] = &Lead{ID: 8, Email: osp("x@y.test")}
+	runOutreach(t, d, "send_email", Args{"lead_id": 8.0})
+	if _, has := o.Sent[0].LeadData["company"]; has {
+		t.Fatalf("%v", o.Sent[0].LeadData)
+	}
+}
+
+func TestOutreachIDLengthCaps(t *testing.T) {
+	o := &fakeOutreach{Sequences: map[string]bool{"s": true}, SendRes: SendResult{Status: "success", Summary: "x"}}
+	d := sendDeps(o)
+	long := strings.Repeat("a", 256)
+	cases := []struct {
+		tool string
+		a    Args
+		want string
+	}{
+		{"send_email", Args{"lead_id": 1.0, "sequence_id": long}, `{"error": "sequence_id must be at most 255 characters"}`},
+		{"send_email", Args{"lead_id": 1.0, "idempotency_key": long}, `{"error": "idempotency_key must be at most 255 characters"}`},
+		{"enroll_leads", Args{"sequence_id": long, "lead_ids": []any{}}, `{"error": "sequence_id must be at most 255 characters"}`},
+	}
+	for _, c := range cases {
+		if got := runOutreach(t, d, c.tool, c.a); got != c.want {
+			t.Fatalf("%s: %s", c.tool, got)
+		}
+	}
+	if len(o.Sent) != 0 {
+		t.Fatal("overlong id reached the port")
+	}
+}
+
+func TestNormalizeEmailMatchesPythonIDNA2003(t *testing.T) {
+	for in, want := range map[string]string{
+		"A@Straße.DE":    "a@strasse.de",
+		" U@Example.COM": "u@example.com",
+		"no-at":          "no-at",
+		"":               "",
+	} {
+		if got := normalizeEmail(in); got != want {
+			t.Fatalf("%q -> %q, want %q", in, got, want)
+		}
+	}
+}
