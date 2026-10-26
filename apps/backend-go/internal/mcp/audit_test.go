@@ -159,3 +159,22 @@ func TestRedactWiderSecretKeys(t *testing.T) {
 		t.Fatalf("got %s", b)
 	}
 }
+
+func TestAuditArgsTotalSizeCapped(t *testing.T) {
+	var got []byte
+	big := make([]any, 200)
+	for i := range big {
+		big[i] = strings.Repeat("z", 400)
+	}
+	// 200 x 400 bytes of nested strings exceeds 16 KiB once marshalled.
+	if b, _ := json.Marshal(RedactArguments(Args{"l": big})); len(b) <= maxAuditArgsBytes {
+		t.Fatalf("fixture too small: %d", len(b))
+	}
+	got = auditArgsJSON(Args{"l": big})
+	if string(got) != `{"_truncated":true}` {
+		t.Fatalf("got %s", got[:40])
+	}
+	if s := string(auditArgsJSON(Args{"a": 1.0})); s != `{"a":1}` {
+		t.Fatalf("small args changed: %s", s)
+	}
+}

@@ -18,11 +18,13 @@ import (
 )
 
 const (
-	redacted        = "***redacted***"
-	maxAuditString  = 500
-	maxAuditDepth   = 4
-	maxAuditError   = 1000
-	truncatedMarker = "***truncated***"
+	redacted       = "***redacted***"
+	maxAuditString = 500
+	maxAuditDepth  = 4
+	maxAuditError  = 1000
+	// maxAuditArgsBytes caps the marshalled redacted arguments of one row.
+	maxAuditArgsBytes = 16 << 10
+	truncatedMarker   = "***truncated***"
 )
 
 // topLevelRedactKeys are the Python _REDACT_KEYS (compared lower-cased).
@@ -158,10 +160,7 @@ func Record(ctx context.Context, d Deps, c Ctx, tool string, args Args, o AuditO
 }
 
 func writeAudit(ctx context.Context, d Deps, c Ctx, tool string, args Args, o AuditOutcome) error {
-	raw, err := json.Marshal(RedactArguments(args))
-	if err != nil {
-		raw = []byte("{}")
-	}
+	raw := auditArgsJSON(args)
 	p := gen.McpAuditInsertParams{
 		ID:                newUUID(),
 		WorkspaceID:       c.WorkspaceID,
@@ -195,4 +194,17 @@ func newUUID() string {
 	b[8] = b[8]&0x3f | 0x80
 	h := hex.EncodeToString(b[:])
 	return h[0:8] + "-" + h[8:12] + "-" + h[12:16] + "-" + h[16:20] + "-" + h[20:]
+}
+
+// auditArgsJSON is the redacted arguments as stored; over maxAuditArgsBytes it
+// collapses to {"_truncated":true} so one call cannot bloat the audit table.
+func auditArgsJSON(args Args) []byte {
+	raw, err := json.Marshal(RedactArguments(args))
+	if err != nil {
+		return []byte("{}")
+	}
+	if len(raw) > maxAuditArgsBytes {
+		return []byte(`{"_truncated":true}`)
+	}
+	return raw
 }
