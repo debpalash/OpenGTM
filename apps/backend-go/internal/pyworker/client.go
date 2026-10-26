@@ -43,6 +43,9 @@ type Client struct {
 	hc      *http.Client
 	slack   time.Duration
 	backoff time.Duration
+	// stream caps; zero means the package default (tests lower them)
+	maxFrameBytes, maxFrames int
+	maxTotalBytes            int64
 }
 
 // New builds a client. hc may be nil; per-call deadlines come from the call's
