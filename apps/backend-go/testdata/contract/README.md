@@ -289,3 +289,11 @@ Fixtures `analytics/*` (cases `legacy/python/scripts/contract_cases/analytics.ya
 - Row order: Python's `GROUP BY` for sources has no `ORDER BY` and equal city counts come back in heap order. Go orders
   sources by name and city ties by name; the fixture test sorts both sides before comparing those two lists.
 - A NULL city is `"city": null`; a NULL or empty source is `"unknown"`.
+
+## Lead write routes (plan 05 Task 10): deviations
+- A NUL byte in any `POST /api/lead` string, or in a `PUT /api/lead/{id}` text value, answers 422 `value_error` (loc `body.<field>`, input
+  not echoed) with nothing written (D2; FastAPI answers 500 from Postgres). Create reports the first offending field in model order.
+- `PUT`/`POST`/`DELETE /api/lead/{id}` with an id above int4 (but within int64) or beyond int64 answers 404 `Lead not found` (FastAPI: likely 500).
+- Bodies are decoded by `encoding/json`: `NaN`/`Infinity` literals answer 422 `json_invalid` (Python's parser accepts them), and a lone
+  surrogate escape such as `\ud800` becomes U+FFFD instead of a Python 500 at encode time.
+- Trailing data after the JSON value (for example a stray `}`) answers 422 `json_invalid`, as in Python.
