@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailnorm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachstore"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
@@ -597,6 +598,11 @@ func supRunScenario(t *testing.T, pool *pgxpool.Pool, v supVec, sc supScenario) 
 			t.Errorf("%s step %d: result %v, want %v", sc.Name, i, result, st.Result)
 		}
 		got, want := r.state(), st.State
+		// Go stores suppressions under the collapsed gmail key (Python stored the dotted form): map the recorded rows.
+		for _, row := range want["suppressions"].([]any) {
+			m := row.(map[string]any)
+			m["email"] = emailnorm.StoreKey(m["email"].(string))
+		}
 		supSort(got)
 		supSort(want)
 		for _, k := range []string{"sequences", "enrollments", "sends", "suppressions", "ledger"} {

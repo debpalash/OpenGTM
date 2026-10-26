@@ -240,7 +240,7 @@ func TestRemoveGmailEitherForm(t *testing.T) {
 		}
 	}
 	ownerExec(t, `INSERT INTO outreach_suppressions (workspace_id, email, reason, source, locked) VALUES ('ws-alpha','l.e.g@gmail.com','manual','manual',false)`)
-	if c, _, raw := e.as("alice", "", "DELETE", suppBase+"/leg%40gmail.com", ""); c != 200 {
+	if c, _, raw := e.as("alice", "", "DELETE", suppBase+"/l.e.g%40gmail.com", ""); c != 200 {
 		t.Fatalf("legacy dotted row: %d %s", c, raw)
 	}
 	if e.blocked("l.e.g@gmail.com") {

@@ -264,7 +264,7 @@ func record(pool *pgxpool.Pool, log *slog.Logger, r *http.Request, h *holder, st
 		ActorRole:      role,
 		Method:         r.Method,
 		Route:          cut(route, 255),
-		ResourcePath:   cut(r.URL.Path, 500),
+		ResourcePath:   cut(resourcePath(r, route), 500),
 		ResponseStatus: int32(status),
 		Outcome:        outcome(status),
 		RequestID:      cut(reqID, 64),
@@ -292,4 +292,15 @@ func newUUID4() string {
 	b[6] = b[6]&0x0f | 0x40
 	b[8] = b[8]&0x3f | 0x80
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+}
+
+// addressPathRoutes carry a recipient address in the URL path. Python audits the raw path; Go records the route pattern
+// instead so audit rows (and their CSV export) do not hold suppressed addresses.
+var addressPathRoutes = map[string]bool{"/api/outreach/suppressions/{email}": true}
+
+func resourcePath(r *http.Request, route string) string {
+	if addressPathRoutes[route] {
+		return route
+	}
+	return r.URL.Path
 }

@@ -34,3 +34,14 @@ func MatchKeys(email string) []string {
 	}
 	return keys
 }
+
+// StoreKey is the key a suppression is stored under: the dot/plus-collapsed form for gmail.com / googlemail.com, the
+// canonical form otherwise. MatchKeys always contains it, so a lookup of any variant of the address matches in both
+// directions. "" when the address does not normalize.
+func StoreKey(email string) string {
+	keys := MatchKeys(email)
+	if len(keys) == 0 {
+		return ""
+	}
+	return keys[len(keys)-1]
+}

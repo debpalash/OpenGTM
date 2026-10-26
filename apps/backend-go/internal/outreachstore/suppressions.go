@@ -43,16 +43,20 @@ func IsSuppressed(ctx context.Context, tx pgx.Tx, wsID, email string) (bool, err
 	return ok, nil
 }
 
-// AddSuppression inserts the canonical email idempotently and reports whether a
-// row was added. An existing row is left untouched, so a locked suppression is
-// never downgraded; an email that does not normalize is not added.
+// AddSuppression inserts the email idempotently under its store key (the collapsed form for gmail addresses, so every
+// dotted or plus variant is blocked, whichever spelling was suppressed) and reports whether a row was added. If any
+// match key is already suppressed (including rows stored dotted before collapsing) nothing is written, so a locked
+// suppression is never downgraded; an email that does not normalize is not added.
 func AddSuppression(ctx context.Context, tx pgx.Tx, wsID, email, reason, source string, locked bool) (bool, error) {
-	canonical := emailnorm.Normalize(email)
-	if canonical == "" {
+	key := emailnorm.StoreKey(email)
+	if key == "" {
 		return false, nil
 	}
+	if dup, err := IsSuppressed(ctx, tx, wsID, email); err != nil || dup {
+		return false, err
+	}
 	added, err := gen.New(tx).OutreachSuppressionAdd(ctx, gen.OutreachSuppressionAddParams{
-		WorkspaceID: wsID, Email: canonical, Reason: reason, Source: source, Locked: locked,
+		WorkspaceID: wsID, Email: key, Reason: reason, Source: source, Locked: locked,
 	})
 	if err != nil {
 		return false, fmt.Errorf("outreachstore: add suppression: %w", err)
@@ -78,22 +82,36 @@ func ListSuppressions(ctx context.Context, tx pgx.Tx, limit int) ([]Suppression,
 	return out, nil
 }
 
-// RemoveSuppression deletes an unlocked suppression: ok, not_found or locked.
+// RemoveSuppression deletes an unlocked suppression: ok, not_found or locked. Every match key of the address is
+// looked up (the collapsed gmail row, and a row Python stored dotted), so either spelling removes it; a locked row
+// among them refuses the whole removal.
 func RemoveSuppression(ctx context.Context, tx pgx.Tx, wsID, email string) (Outcome, error) {
-	canonical := emailnorm.Normalize(email)
-	q := gen.New(tx)
-	row, err := q.OutreachSuppressionGet(ctx, gen.OutreachSuppressionGetParams{WorkspaceID: wsID, Email: canonical})
-	if err == pgx.ErrNoRows {
+	keys := emailnorm.MatchKeys(email)
+	if len(keys) == 0 { // Python looks up "" and finds nothing
 		return OutcomeNotFound, nil
 	}
-	if err != nil {
-		return "", fmt.Errorf("outreachstore: remove suppression: %w", err)
+	q := gen.New(tx)
+	var ids []int32
+	for _, k := range keys {
+		row, err := q.OutreachSuppressionGet(ctx, gen.OutreachSuppressionGetParams{WorkspaceID: wsID, Email: k})
+		if err == pgx.ErrNoRows {
+			continue
+		}
+		if err != nil {
+			return "", fmt.Errorf("outreachstore: remove suppression: %w", err)
+		}
+		if row.Locked.Bool {
+			return OutcomeLocked, nil
+		}
+		ids = append(ids, row.ID)
 	}
-	if row.Locked.Bool {
-		return OutcomeLocked, nil
+	if len(ids) == 0 {
+		return OutcomeNotFound, nil
 	}
-	if _, err := q.OutreachSuppressionDelete(ctx, gen.OutreachSuppressionDeleteParams{WorkspaceID: wsID, ID: row.ID}); err != nil {
-		return "", fmt.Errorf("outreachstore: remove suppression: %w", err)
+	for _, id := range ids {
+		if _, err := q.OutreachSuppressionDelete(ctx, gen.OutreachSuppressionDeleteParams{WorkspaceID: wsID, ID: id}); err != nil {
+			return "", fmt.Errorf("outreachstore: remove suppression: %w", err)
+		}
 	}
 	return OutcomeOK, nil
 }
