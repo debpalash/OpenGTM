@@ -53,3 +53,14 @@ SET state = 'healthy', consecutive_zero = 0, consecutive_nonzero = 0, disabled_a
     disabled_reason = NULL, manual_override = false, updated_at = now()
 WHERE name = sqlc.arg(name)::text
 RETURNING name, state, consecutive_zero, consecutive_nonzero, last_yield, ewma_yield, probes, last_probe_at, last_ok_at, last_outage_at, disabled_at, disabled_reason, manual_override, updated_at;
+
+-- name: SHGetForUpdate :one
+-- Row lock for the per-run read-modify-write (ApplyRun), so concurrent runs
+-- serialize on the row instead of losing updates.
+SELECT name, state, consecutive_zero, consecutive_nonzero, last_yield, ewma_yield, probes, last_probe_at, last_ok_at, last_outage_at, disabled_at, disabled_reason, manual_override, updated_at
+FROM source_health
+WHERE name = sqlc.arg(name)::text
+FOR UPDATE;
+
+-- name: SHDisabledNames :many
+SELECT name FROM source_health WHERE state = 'auto_disabled' ORDER BY name;

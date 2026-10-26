@@ -236,7 +236,10 @@ func TestDisabledNamesEmptyWhenEnforceOff(t *testing.T) {
 	if dis {
 		t.Fatal("IsDisabled must be false when enforce off")
 	}
-	inTx(t, ctx, pool, func(tx pgx.Tx) (err error) { dis, err = sourcehealth.IsDisabled(ctx, tx, true, prefix+"missing"); return })
+	inTx(t, ctx, pool, func(tx pgx.Tx) (err error) {
+		dis, err = sourcehealth.IsDisabled(ctx, tx, true, prefix+"missing")
+		return
+	})
 	if dis {
 		t.Fatal("missing row is fail-open")
 	}

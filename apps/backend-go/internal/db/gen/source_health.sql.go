@@ -67,6 +67,30 @@ func (q *Queries) SHCreateIfMissing(ctx context.Context, name string) error {
 	return err
 }
 
+const sHDisabledNames = `-- name: SHDisabledNames :many
+SELECT name FROM source_health WHERE state = 'auto_disabled' ORDER BY name
+`
+
+func (q *Queries) SHDisabledNames(ctx context.Context) ([]string, error) {
+	rows, err := q.db.Query(ctx, sHDisabledNames)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		items = append(items, name)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const sHGet = `-- name: SHGet :one
 SELECT name, state, consecutive_zero, consecutive_nonzero, last_yield, ewma_yield, probes, last_probe_at, last_ok_at, last_outage_at, disabled_at, disabled_reason, manual_override, updated_at
 FROM source_health
@@ -75,6 +99,37 @@ WHERE name = $1::text
 
 func (q *Queries) SHGet(ctx context.Context, name string) (SourceHealth, error) {
 	row := q.db.QueryRow(ctx, sHGet, name)
+	var i SourceHealth
+	err := row.Scan(
+		&i.Name,
+		&i.State,
+		&i.ConsecutiveZero,
+		&i.ConsecutiveNonzero,
+		&i.LastYield,
+		&i.EwmaYield,
+		&i.Probes,
+		&i.LastProbeAt,
+		&i.LastOkAt,
+		&i.LastOutageAt,
+		&i.DisabledAt,
+		&i.DisabledReason,
+		&i.ManualOverride,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const sHGetForUpdate = `-- name: SHGetForUpdate :one
+SELECT name, state, consecutive_zero, consecutive_nonzero, last_yield, ewma_yield, probes, last_probe_at, last_ok_at, last_outage_at, disabled_at, disabled_reason, manual_override, updated_at
+FROM source_health
+WHERE name = $1::text
+FOR UPDATE
+`
+
+// Row lock for the per-run read-modify-write (ApplyRun), so concurrent runs
+// serialize on the row instead of losing updates.
+func (q *Queries) SHGetForUpdate(ctx context.Context, name string) (SourceHealth, error) {
+	row := q.db.QueryRow(ctx, sHGetForUpdate, name)
 	var i SourceHealth
 	err := row.Scan(
 		&i.Name,
