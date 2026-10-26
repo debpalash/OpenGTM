@@ -1,0 +1,27 @@
+# Lead and signal routes that stay on FastAPI (plan 05, decision D1 + constraints.md). One "METHOD /path/{param}" per line.
+# Go must not register them; infra/nginx/go-routes.conf keeps them on api_backend at every canary percentage.
+# 21 routes: 6 are @limiter routes (enrich, collect, search/unified, scraper/scrape, verify-email, tech-stack),
+# 8 + system-stats read the per-workspace SQLite leads.db job ledger, 3 are the legacy workspace_router
+# (NOT mounted by main.py: the canonical /api/workspaces is ws_manager_router, served by plan 02),
+# the rest are Python-only enrichment helpers and the signal source registry.
+POST /api/lead/{lead_id}/enrich
+POST /api/collect
+GET /api/jobs
+GET /api/jobs/{job_id}
+GET /api/jobs/{job_id}/stages
+GET /api/jobs/{job_id}/leads
+GET /api/jobs/{job_id}/events
+POST /api/jobs/{job_id}/cancel
+DELETE /api/jobs/{job_id}
+POST /api/jobs/{job_id}/retry
+GET /api/system-stats
+GET /api/workspaces
+POST /api/workspaces
+DELETE /api/workspaces/{ws_id}
+GET /api/v2/search/unified
+POST /api/v2/scraper/scrape
+POST /api/leads/verify-email
+POST /api/leads/score
+POST /api/leads/tech-stack
+POST /api/leads/domain-intel
+GET /api/signals/sources
