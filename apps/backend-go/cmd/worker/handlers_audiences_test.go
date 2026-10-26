@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"io"
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destdeliver"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 )
 
@@ -38,3 +40,29 @@ func TestAudienceHandlersAlwaysRegistered(t *testing.T) {
 		}
 	}
 }
+
+// A resolver that cannot say where a secret came from (CREDENTIALS_SOURCE=http) cannot serve the
+// workspace-only types, so those rows go back to Python instead of failing every delivery.
+func TestProvenanceEligible(t *testing.T) {
+	cases := []struct {
+		sec  destdeliver.SecretResolver
+		typ  string
+		want bool
+	}{
+		{apiSecrets{}, "warehouse_http", false},
+		{apiSecrets{}, "slack", false},
+		{apiSecrets{}, "meta_ads", true},
+		{apiSecrets{}, "webhook", true},
+		{fakeResolver{}, "warehouse_http", true},
+		{nil, "warehouse_http", true},
+	}
+	for _, c := range cases {
+		if got := provenanceEligible(c.sec, c.typ); got != c.want {
+			t.Errorf("%T %s: got %v want %v", c.sec, c.typ, got, c.want)
+		}
+	}
+}
+
+type fakeResolver struct{}
+
+func (fakeResolver) Get(context.Context, string, string) (string, string, error) { return "", "", nil }

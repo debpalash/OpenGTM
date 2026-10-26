@@ -226,6 +226,9 @@ func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, se
 	}
 	types := goDestTypes(cfg)
 	for t := range types {
+		if !provenanceEligible(sec, t) {
+			log.Warn("GO_DEST_TYPES lists a type that needs CREDENTIALS_SOURCE=local; its jobs stay on Python", "type", t)
+		}
 		if !ports.Supports(t) {
 			log.Warn("GO_DEST_TYPES lists a destination type without a Go delivery port; its jobs stay on Python", "type", t)
 		}
@@ -262,8 +265,25 @@ func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, se
 		if found && !destsync.Eligible(destType, ports, types) {
 			return hand(ctx, c, "destination type "+destType+" is not served by the Go worker")
 		}
+		if found && !provenanceEligible(sec, destType) {
+			return hand(ctx, c, "destination type "+destType+" needs CREDENTIALS_SOURCE=local on the Go worker")
+		}
 		return eng.Handle(ctx, c)
 	}
+}
+
+// provenanceEligible is false for the types whose secret refs must resolve workspace-only
+// (warehouse_http, slack) when the worker's resolver is the credentials API (CREDENTIALS_SOURCE=http):
+// it cannot report a value's source, so every delivery would fail. Those rows stay on Python.
+func provenanceEligible(sec destdeliver.SecretResolver, destType string) bool {
+	if _, api := sec.(apiSecrets); !api {
+		return true
+	}
+	switch strings.ToLower(strings.TrimSpace(destType)) {
+	case "warehouse_http", "slack":
+		return false
+	}
+	return true
 }
 
 // destinationType reads the type of the run's destination inside the run's tenant; a missing run
