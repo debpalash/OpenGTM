@@ -18,12 +18,11 @@ import (
 )
 
 type env struct {
-	pool   *pgxpool.Pool
+	pool    *pgxpool.Pool
 	ws, ws2 string
-	owner  int32
-	admin  int32
-	editor int32
-
+	owner   int32
+	admin   int32
+	editor  int32
 }
 
 func exec(t *testing.T, p *pgxpool.Pool, sql string, args ...any) {
@@ -52,7 +51,7 @@ func setup(t *testing.T) *env {
 	e.admin = mkUser(t, p, tag+"-admin")
 	e.editor = mkUser(t, p, tag+"-editor")
 	for _, w := range []string{e.ws, e.ws2} {
-		exec(t, p, `INSERT INTO workspaces (id,name,slug,description,icon,owner_id,created_at,updated_at) VALUES ($1,$1,$1,'','',$2,1,1)`, w, e.owner)
+		exec(t, p, `INSERT INTO workspaces (id,name,slug,description,icon,owner_id,created_at,updated_at) VALUES ($1::text,$1::text,$1::text,'','',$2,1,1)`, w, e.owner)
 		exec(t, p, `INSERT INTO workspace_members (workspace_id,user_id,role,created_at) VALUES ($1,$2,'owner',1)`, w, e.owner)
 	}
 	exec(t, p, `INSERT INTO workspace_members (workspace_id,user_id,role,created_at) VALUES ($1,$2,'admin',2),($1,$3,'editor',3)`, e.ws, e.admin, e.editor)
@@ -130,7 +129,7 @@ func TestSetOverrideEffectiveComputation(t *testing.T) {
 	}{
 		{"tables.write", sp("allow"), true},
 		{"tables.write", sp("deny"), false},
-		{"tables.write", nil, true},  // editor in defaults
+		{"tables.write", nil, true},    // editor in defaults
 		{"outreach.write", nil, false}, // editor not in defaults
 		{"outreach.write", sp("allow"), true},
 	}
@@ -192,7 +191,10 @@ func addMember(t *testing.T, e *env, ws, name, role string) (MemberOut, error) {
 func TestAddMemberDuplicateAndUnknown(t *testing.T) {
 	e := setup(t)
 	nu := mkUser(t, e.pool, fmt.Sprintf("newbie%d", e.owner))
-	t.Cleanup(func() { _, _ = e.pool.Exec(context.Background(), `DELETE FROM workspace_members WHERE user_id=$1`, nu); _, _ = e.pool.Exec(context.Background(), `DELETE FROM users WHERE id=$1`, nu) })
+	t.Cleanup(func() {
+		_, _ = e.pool.Exec(context.Background(), `DELETE FROM workspace_members WHERE user_id=$1`, nu)
+		_, _ = e.pool.Exec(context.Background(), `DELETE FROM users WHERE id=$1`, nu)
+	})
 	if _, err := addMember(t, e, e.ws, "ghost-no-such", "viewer"); !errors.Is(err, ErrUserNotFound) {
 		t.Fatalf("unknown: %v", err)
 	}
@@ -244,7 +246,10 @@ func TestSetRoleKeepsOverrides(t *testing.T) {
 		t.Fatal(err)
 	}
 	var out MemberOut
-	err := e.in(t, e.ws, func(tx pgx.Tx) (err error) { out, err = SetRole(context.Background(), tx, e.ws, e.editor, "viewer"); return })
+	err := e.in(t, e.ws, func(tx pgx.Tx) (err error) {
+		out, err = SetRole(context.Background(), tx, e.ws, e.editor, "viewer")
+		return
+	})
 	if err != nil || out.Role != "viewer" || out.Overrides["outreach.write"] != "allow" {
 		t.Fatalf("%+v %v", out, err)
 	}
@@ -262,7 +267,10 @@ func TestSetRoleKeepsOverrides(t *testing.T) {
 			t.Fatalf("%d: %v", c.uid, err)
 		}
 	}
-	if err := e.in(t, e.ws, func(tx pgx.Tx) error { _, err := SetRole(context.Background(), tx, e.ws, e.admin, "viewer"); return err }); err != nil {
+	if err := e.in(t, e.ws, func(tx pgx.Tx) error {
+		_, err := SetRole(context.Background(), tx, e.ws, e.admin, "viewer")
+		return err
+	}); err != nil {
 		t.Fatalf("self-demote: %v", err)
 	}
 }
@@ -272,7 +280,13 @@ func TestRemoveCleansOIDCOverridesAndSCIMGroups(t *testing.T) {
 	if _, err := setOv(t, e, e.ws, e.editor, "outreach.write", sp("allow")); err != nil {
 		t.Fatal(err)
 	}
-	exec(t, e.pool, `INSERT INTO workspace_oidc_identities (workspace_id,user_id,subject,created_at) VALUES ($1,$2,'sub-1',1)`, e.ws, e.editor)
+	_ = e.in(t, e.ws, func(tx pgx.Tx) error {
+		_, err := tx.Exec(context.Background(), `INSERT INTO workspace_oidc_identities (workspace_id,issuer,subject,user_id,created_at) VALUES ($1,'iss','sub-1',$2,1)`, e.ws, e.editor)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return nil
+	})
 	for _, w := range []string{e.ws} {
 		_ = e.in(t, w, func(tx pgx.Tx) error {
 			_, err := tx.Exec(context.Background(), `INSERT INTO workspace_scim_groups (id,workspace_id,external_id,display_name,created_at,updated_at) VALUES ('g-`+e.ws+`',$1,'','G',1,1)`, w)
@@ -325,7 +339,10 @@ func TestMembersTenantIsolation(t *testing.T) {
 	if _, err := setOv(t, e, e.ws2, e.admin, "tables.write", sp("deny")); !errors.Is(err, ErrNotMember) {
 		t.Fatalf("override: %v", err)
 	}
-	err := e.in(t, e.ws2, func(tx pgx.Tx) error { _, err := SetRole(context.Background(), tx, e.ws2, e.admin, "viewer"); return err })
+	err := e.in(t, e.ws2, func(tx pgx.Tx) error {
+		_, err := SetRole(context.Background(), tx, e.ws2, e.admin, "viewer")
+		return err
+	})
 	if !errors.Is(err, ErrNotMember) {
 		t.Fatalf("role: %v", err)
 	}
