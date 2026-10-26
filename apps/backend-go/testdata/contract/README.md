@@ -709,6 +709,19 @@ Replayed against `testdata/transcripts/webhook` (fake secret `ctk_transcript_hoo
 - Job payload JSON is compact; Python stores `", "` separators. Key order is identical (`watch_id`, `workspace_id`, `fire_key`, then `poll_now` for manual polls, set in the same insert).
 - `LoadWatch` row-locks the watch (`FOR UPDATE`) so reconcile and a running poll serialise on `consecutive_failures`.
 
+## Watch poller collectors (plan 08 Task 12): deviations (`internal/poller`)
+
+- Pricing fetch redirects: followed hop by hop, at most 6, as Python `guarded_get`. Every hop re-runs `egress.CheckURLFor` and the numeric-host check before the request, and the egress client vets the dialled address; a hop to loopback, a private or metadata address, a non-http scheme or a short-form IPv4 host is `pricing_url_blocked`. More than 6 redirects is `pricing_url_blocked`. A 3xx without `Location` is `pricing_http_<code>`.
+- Pricing body: read up to 1 MiB and truncated (not failed); one 12 s deadline covers the whole request (Python: 12 s per phase). Charset: the Content-Type label via `x/net/charset`, latin-1 as byte identity, otherwise UTF-8 with replacement; the replacement granularity for truncated multibyte sequences can differ from Python (fingerprint-only effect).
+- A pricing host whose last label is numeric (`127.1`, `0x7f.1`) is refused before dialling: `egress.CheckURL` does not parse short forms and Python's guard blocks them.
+- Non-object `hiring_signals`, a non-integer or out-of-range `lead_id` in a roster entry, and non-string contact fields: Python raises (500); Go answers a failed collector (`hiring_payload_invalid` / source failure) or skips that roster entry.
+- `jobspy_signals` over the provider RPC honours `max_jobs` (INTENT_POLLER_JOBSPY_MAX_JOBS): the Python alias ignored it and was patched (legacy commit a3876af); clamped 1..20, default 5.
+- The `job_change` signal `description` is built by hand as Python `json.dumps` text (`", "` separators, `ensure_ascii`), not `encoding/json`.
+- Job-change batch stop: a pyworker timeout, outage (`ErrUnavailable`), auth rejection or unknown provider stops the batch after that contact (Python `continue`s per contact). A hung worker costs one deadline, not one per contact; un-attempted contacts keep their least-recently-checked position and are retried next poll. All attempted failing is a source failure (`ErrAllLookupsFailed`).
+- `PyDeps` and `PyWatch` wrap Task 11's `SourceDeps` and `WatchView` (which lack workspace id, config, signal types and fire key); the poll engine (Task 15) builds them. Cursors must be decoded with `providers.ParseJSON` types (int64/float64); `json.Number` is also accepted by the integer/float helpers.
+- `python_providers.txt` is unchanged: `jobspy_signals` is already listed and `ddgs_search` is not a module under `providers/` (the listing test would fail). The RPC provider names are documented in `rpc_providers.py`.
+- `pcCall` is only for free providers (`jobspy_signals`, `ddgs_search`): `pyworker.Client` retries a transport failure once with the same call id. A paid provider must not reuse this path (a retry would be billed or must use a fresh call id).
+
 ## Plan 06 coverage and rollout (Task 32)
 
 - `internal/api/enrichment_coverage_test.go`: `TestEveryEnrichmentRouteIsPortedOrRetained` (every route decorator of
