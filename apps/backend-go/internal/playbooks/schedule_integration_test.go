@@ -224,7 +224,7 @@ func (e *env) runs(t *testing.T, ws, pbID string) []Run {
 	var out []Run
 	e.in(t, ws, func(tx pgx.Tx) error {
 		page, err := ListRuns(context.Background(), tx, ws, pbID, 100, 0, "")
-		out = page.Items
+		out = page.Runs
 		return err
 	})
 	return out
