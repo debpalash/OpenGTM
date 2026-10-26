@@ -131,6 +131,38 @@ type ChatToolApproval struct {
 	CreatedAtEpoch int64
 }
 
+type CollectionJob struct {
+	ID            string
+	WorkspaceID   string
+	Query         string
+	Intent        string
+	IntentDetails string
+	Status        string
+	Tier          int32
+	Attempts      int32
+	MaxAttempts   int32
+	LeadsFound    int32
+	ProxyUsed     string
+	Error         string
+	CreatedAt     string
+	StartedAt     string
+	CompletedAt   string
+}
+
+type CollectionJobStage struct {
+	ID            int64
+	WorkspaceID   string
+	JobID         string
+	Stage         string
+	Status        string
+	InputCount    int32
+	OutputCount   int32
+	RejectedCount int32
+	Details       string
+	StartedAt     string
+	CompletedAt   string
+}
+
 type CompanyEntity struct {
 	ID                 string
 	WorkspaceID        string

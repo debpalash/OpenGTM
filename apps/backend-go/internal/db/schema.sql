@@ -18,6 +18,14 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 
 --
+-- Name: ai_test_fail_job(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.ai_test_fail_job() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN RAISE EXCEPTION 'job insert refused'; END $$;
+
+--
 -- Name: leads_search_tsv_trigger(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -45,6 +53,46 @@ CREATE FUNCTION public.outreach_send_by_message_id(p_message_id text) RETURNS TA
             ORDER BY s.id DESC
             LIMIT 1
         $$;
+
+--
+-- Name: t11_fail_t11_249685518586(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.t11_fail_t11_249685518586() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN IF OLD.id = 't11-249685518586-w' THEN RAISE EXCEPTION 'boom'; END IF; RETURN OLD; END $$;
+
+--
+-- Name: t11_fail_t11_39732091033(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.t11_fail_t11_39732091033() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN IF OLD.id = 't11-39732091033-w' THEN RAISE EXCEPTION 'boom'; END IF; RETURN OLD; END $$;
+
+--
+-- Name: t11_fail_t11_401756288793(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.t11_fail_t11_401756288793() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN IF OLD.id = 't11-401756288793-w' THEN RAISE EXCEPTION 'boom'; END IF; RETURN OLD; END $$;
+
+--
+-- Name: t11_fail_t11_697751097622(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.t11_fail_t11_697751097622() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN IF OLD.id = 't11-697751097622-w' THEN RAISE EXCEPTION 'boom'; END IF; RETURN OLD; END $$;
+
+--
+-- Name: t11_fail_t11_893361673304(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.t11_fail_t11_893361673304() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$ BEGIN IF OLD.id = 't11-893361673304-w' THEN RAISE EXCEPTION 'boom'; END IF; RETURN OLD; END $$;
 
 SET default_tablespace = '';
 
@@ -308,6 +356,67 @@ CREATE TABLE public.chat_tool_approvals (
 );
 
 ALTER TABLE ONLY public.chat_tool_approvals FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: collection_job_stages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.collection_job_stages (
+    id bigint NOT NULL,
+    workspace_id text NOT NULL,
+    job_id text NOT NULL,
+    stage text NOT NULL,
+    status text DEFAULT 'running'::text NOT NULL,
+    input_count integer DEFAULT 0 NOT NULL,
+    output_count integer DEFAULT 0 NOT NULL,
+    rejected_count integer DEFAULT 0 NOT NULL,
+    details text DEFAULT '{}'::text NOT NULL,
+    started_at text DEFAULT ''::text NOT NULL,
+    completed_at text DEFAULT ''::text NOT NULL
+);
+
+ALTER TABLE ONLY public.collection_job_stages FORCE ROW LEVEL SECURITY;
+
+--
+-- Name: collection_job_stages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.collection_job_stages_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: collection_job_stages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.collection_job_stages_id_seq OWNED BY public.collection_job_stages.id;
+
+--
+-- Name: collection_jobs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.collection_jobs (
+    id text NOT NULL,
+    workspace_id text NOT NULL,
+    query text NOT NULL,
+    intent text DEFAULT 'market_search'::text NOT NULL,
+    intent_details text DEFAULT '{}'::text NOT NULL,
+    status text DEFAULT 'pending'::text NOT NULL,
+    tier integer DEFAULT 1 NOT NULL,
+    attempts integer DEFAULT 0 NOT NULL,
+    max_attempts integer DEFAULT 3 NOT NULL,
+    leads_found integer DEFAULT 0 NOT NULL,
+    proxy_used text DEFAULT ''::text NOT NULL,
+    error text DEFAULT ''::text NOT NULL,
+    created_at text DEFAULT ''::text NOT NULL,
+    started_at text DEFAULT ''::text NOT NULL,
+    completed_at text DEFAULT ''::text NOT NULL
+);
+
+ALTER TABLE ONLY public.collection_jobs FORCE ROW LEVEL SECURITY;
 
 --
 -- Name: company_entities; Type: TABLE; Schema: public; Owner: -
@@ -2303,6 +2412,12 @@ ALTER TABLE ONLY public.cell_traces ALTER COLUMN id SET DEFAULT nextval('public.
 ALTER TABLE ONLY public.chat_memories ALTER COLUMN id SET DEFAULT nextval('public.chat_memories_id_seq'::regclass);
 
 --
+-- Name: collection_job_stages id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_job_stages ALTER COLUMN id SET DEFAULT nextval('public.collection_job_stages_id_seq'::regclass);
+
+--
 -- Name: company_identifiers id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2559,6 +2674,20 @@ ALTER TABLE ONLY public.chat_messages
 
 ALTER TABLE ONLY public.chat_tool_approvals
     ADD CONSTRAINT chat_tool_approvals_pkey PRIMARY KEY (id);
+
+--
+-- Name: collection_job_stages collection_job_stages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_job_stages
+    ADD CONSTRAINT collection_job_stages_pkey PRIMARY KEY (id);
+
+--
+-- Name: collection_jobs collection_jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_jobs
+    ADD CONSTRAINT collection_jobs_pkey PRIMARY KEY (id);
 
 --
 -- Name: company_entities company_entities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -3491,6 +3620,24 @@ CREATE INDEX ix_cell_traces_workspace_id ON public.cell_traces USING btree (work
 --
 
 CREATE INDEX ix_chat_memories_user ON public.chat_memories USING btree (user_id);
+
+--
+-- Name: ix_collection_job_stages_job; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_collection_job_stages_job ON public.collection_job_stages USING btree (job_id);
+
+--
+-- Name: ix_collection_jobs_ws_created; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_collection_jobs_ws_created ON public.collection_jobs USING btree (workspace_id, created_at DESC);
+
+--
+-- Name: ix_collection_jobs_ws_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_collection_jobs_ws_status ON public.collection_jobs USING btree (workspace_id, status);
 
 --
 -- Name: ix_company_entities_corroboration_count; Type: INDEX; Schema: public; Owner: -
@@ -4525,6 +4672,36 @@ CREATE UNIQUE INDEX uq_jobs_fire_key_active ON public.jobs USING btree (fire_key
 CREATE TRIGGER leads_search_tsv_update BEFORE INSERT OR UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION public.leads_search_tsv_trigger();
 
 --
+-- Name: workspaces t11_fail_t11_249685518586; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER t11_fail_t11_249685518586 BEFORE DELETE ON public.workspaces FOR EACH ROW EXECUTE FUNCTION public.t11_fail_t11_249685518586();
+
+--
+-- Name: workspaces t11_fail_t11_39732091033; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER t11_fail_t11_39732091033 BEFORE DELETE ON public.workspaces FOR EACH ROW EXECUTE FUNCTION public.t11_fail_t11_39732091033();
+
+--
+-- Name: workspaces t11_fail_t11_401756288793; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER t11_fail_t11_401756288793 BEFORE DELETE ON public.workspaces FOR EACH ROW EXECUTE FUNCTION public.t11_fail_t11_401756288793();
+
+--
+-- Name: workspaces t11_fail_t11_697751097622; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER t11_fail_t11_697751097622 BEFORE DELETE ON public.workspaces FOR EACH ROW EXECUTE FUNCTION public.t11_fail_t11_697751097622();
+
+--
+-- Name: workspaces t11_fail_t11_893361673304; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER t11_fail_t11_893361673304 BEFORE DELETE ON public.workspaces FOR EACH ROW EXECUTE FUNCTION public.t11_fail_t11_893361673304();
+
+--
 -- Name: audience_destinations audience_destinations_audience_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4551,6 +4728,13 @@ ALTER TABLE ONLY public.audience_membership_events
 
 ALTER TABLE ONLY public.chat_messages
     ADD CONSTRAINT chat_messages_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES public.chat_conversations(id) ON DELETE CASCADE;
+
+--
+-- Name: collection_job_stages collection_job_stages_job_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collection_job_stages
+    ADD CONSTRAINT collection_job_stages_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.collection_jobs(id) ON DELETE CASCADE;
 
 --
 -- Name: company_identifiers company_identifiers_entity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -4774,6 +4958,18 @@ ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.chat_tool_approvals ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: collection_job_stages; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.collection_job_stages ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: collection_jobs; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.collection_jobs ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: company_entities; Type: ROW SECURITY; Schema: public; Owner: -
@@ -5104,6 +5300,18 @@ CREATE POLICY workspace_isolation ON public.chat_messages USING (((workspace_id)
 --
 
 CREATE POLICY workspace_isolation ON public.chat_tool_approvals USING (((workspace_id)::text = current_setting('app.workspace_id'::text, true))) WITH CHECK (((workspace_id)::text = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: collection_job_stages workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.collection_job_stages USING ((workspace_id = current_setting('app.workspace_id'::text, true))) WITH CHECK ((workspace_id = current_setting('app.workspace_id'::text, true)));
+
+--
+-- Name: collection_jobs workspace_isolation; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY workspace_isolation ON public.collection_jobs USING ((workspace_id = current_setting('app.workspace_id'::text, true))) WITH CHECK ((workspace_id = current_setting('app.workspace_id'::text, true)));
 
 --
 -- Name: company_entities workspace_isolation; Type: POLICY; Schema: public; Owner: -
