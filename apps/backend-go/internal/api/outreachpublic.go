@@ -7,11 +7,13 @@ import (
 	"encoding/json"
 	"html"
 	"io"
+	"log/slog"
 	"net"
 	"net/http"
 	"net/netip"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -32,7 +34,6 @@ const (
 	unsubRateMax     = 20 // per 60 s, per client IP and per token prefix (Python _UNSUB_MAX / _UNSUB_WINDOW)
 	unsubRateWindow  = 60 * time.Second
 	unsubRateMaxKeys = 100_000
-	unsubTokenPrefix = 32
 	whMaxBodyBytes   = 64 << 10
 	whMessageIDMax   = 998 // RFC 5322 line limit
 	whEventMax       = 256
@@ -43,16 +44,19 @@ const (
 )
 
 type pubRoutes struct {
-	d      Deps
-	signer *outreachtoken.Signer // nil when the master key cannot be resolved (503)
-	lim    *unsubLimiter
+	d       Deps
+	signer  *outreachtoken.Signer // nil when the master key cannot be resolved (503)
+	lim     *unsubLimiter
+	proxies []netip.Prefix // peers whose X-Real-IP is believed
+	warned  atomic.Int64   // unix seconds of the last untrusted-proxy-header warning
 }
 
 // registerOutreachPublic registers the 3 public unsubscribe and bounce webhook routes (Task 25). No authentication
 // middleware and no CSRF check: RFC 8058 one-click must work from a mail client.
 func registerOutreachPublic(r *httpx.Router, d Deps) {
-	h := &pubRoutes{d: d, lim: newUnsubLimiter(unsubRateMax, unsubRateWindow, unsubRateMaxKeys, nil)}
 	get := d.getenv()
+	h := &pubRoutes{d: d, lim: newUnsubLimiter(unsubRateMax, unsubRateWindow, unsubRateMaxKeys, nil),
+		proxies: parseTrustedProxies(get("TRUST_PROXY_CIDRS"), d.logger())}
 	master, err := secrets.MasterKeyBytes(get("SECRETS_MASTER_KEY"), d.Config.SecretKey,
 		strings.Contains(d.Config.SecretKey, config.InsecureDefaultSecretKey), config.IsDevEnv(d.Config.AppEnv))
 	if err != nil {
@@ -116,12 +120,9 @@ func (h *pubRoutes) landing(w http.ResponseWriter, r *http.Request) {
 
 func (h *pubRoutes) unsubscribe(w http.ResponseWriter, r *http.Request) {
 	token := pubQueryLast(r, "token")
-	prefix := token
-	if rs := []rune(token); len(rs) > unsubTokenPrefix {
-		prefix = string(rs[:unsubTokenPrefix])
-	}
-	// IP first, then token, short-circuiting like Python (the token budget is not spent by a refused client).
-	if h.lim.limited("ip:"+publicClientIP(r, h.d.Config.TrustProxy)) || h.lim.limited("tok:"+prefix) {
+	// The IP budget is spent before verification (Python order). The token budget is spent only by a token that verifies and is
+	// keyed by its digest, so junk sharing a recipient's 32-character prefix cannot saturate that recipient's bucket.
+	if h.lim.limited("ip:" + h.clientIP(r)) {
 		httpx.Detail(w, http.StatusTooManyRequests, "rate limited")
 		return
 	}
@@ -132,6 +133,11 @@ func (h *pubRoutes) unsubscribe(w http.ResponseWriter, r *http.Request) {
 	p, ok := h.signer.Verify(token, false)
 	if !ok {
 		httpx.Detail(w, http.StatusBadRequest, "invalid or expired token")
+		return
+	}
+	sum := sha256.Sum256([]byte(token))
+	if h.lim.limited("tok:" + hex.EncodeToString(sum[:16])) {
+		httpx.Detail(w, http.StatusTooManyRequests, "rate limited")
 		return
 	}
 	source := p.Seq
@@ -316,23 +322,85 @@ func (h *pubRoutes) bounce(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
-// publicClientIP is the rate-limit identity. Behind nginx every request arrives from the proxy, and nginx overwrites
-// X-Real-IP with $remote_addr (infra/nginx/default.conf), so that header is the client when TRUST_PROXY is on. X-Forwarded-For
-// is never used (nginx appends to a client-supplied value), and without TRUST_PROXY the socket peer is the client, so a
-// header cannot be used to dodge the limit.
-func publicClientIP(r *http.Request, trustProxy bool) string {
-	if trustProxy {
-		if a, err := netip.ParseAddr(strings.TrimSpace(r.Header.Get("X-Real-IP"))); err == nil {
-			return a.Unmap().WithZone("").String()
+// defaultTrustedProxies: loopback and the ranges a docker bridge network draws from (docker-compose.yml's lead_net has no fixed
+// subnet). nginx reaches the API from one of these; any other peer is the client itself.
+const defaultTrustedProxies = "127.0.0.0/8,::1/128,172.16.0.0/12,192.168.0.0/16,fc00::/7"
+
+// parseTrustedProxies parses TRUST_PROXY_CIDRS (comma-separated CIDRs or bare addresses); unset or blank means the defaults.
+// Unparseable entries are skipped with a warning (never fail open to "trust everything").
+func parseTrustedProxies(raw string, log *slog.Logger) []netip.Prefix {
+	if strings.TrimSpace(raw) == "" {
+		raw = defaultTrustedProxies
+	}
+	var out []netip.Prefix
+	for _, f := range strings.Split(raw, ",") {
+		f = strings.TrimSpace(f)
+		if f == "" {
+			continue
+		}
+		if p, err := netip.ParsePrefix(f); err == nil {
+			out = append(out, p.Masked())
+		} else if a, err := netip.ParseAddr(f); err == nil {
+			out = append(out, netip.PrefixFrom(a.Unmap(), a.Unmap().BitLen()))
+		} else if log != nil {
+			log.Warn("outreach public: ignoring unparseable TRUST_PROXY_CIDRS entry")
 		}
 	}
-	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+	return out
+}
+
+func trustedPeer(nets []netip.Prefix, peer netip.Addr) bool {
+	for _, n := range nets {
+		if n.Contains(peer) {
+			return true
+		}
+	}
+	return false
+}
+
+// publicClientIP is the rate-limit identity. Behind nginx every request arrives from the proxy, and nginx overwrites X-Real-IP
+// with $remote_addr (infra/nginx/default.conf), so that header is the client when the socket peer is a trusted proxy.
+// X-Forwarded-For is never used (nginx appends to a client-supplied value), and an untrusted peer is always the client itself,
+// so a header cannot be used to dodge the limit. IPv6 clients are keyed by their /64.
+func publicClientIP(r *http.Request, trusted []netip.Prefix) string {
+	host := r.RemoteAddr
+	if h, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		host = h
+	}
+	peer, perr := netip.ParseAddr(host)
+	if perr != nil {
+		if host == "" {
+			return "?"
+		}
 		return host
 	}
-	if r.RemoteAddr != "" {
-		return r.RemoteAddr
+	peer = peer.Unmap().WithZone("")
+	client := peer
+	if trustedPeer(trusted, peer) {
+		if a, err := netip.ParseAddr(strings.TrimSpace(r.Header.Get("X-Real-IP"))); err == nil {
+			client = a.Unmap().WithZone("")
+		}
 	}
-	return "?"
+	if client.Is6() {
+		return netip.PrefixFrom(client, 64).Masked().String()
+	}
+	return client.String()
+}
+
+// clientIP wraps publicClientIP and logs (at most once a minute) when proxy headers arrive from a peer that is not a trusted
+// proxy: the usual sign of TRUST_PROXY_CIDRS missing the proxy's network, where every client then shares the proxy's budget.
+func (h *pubRoutes) clientIP(r *http.Request) string {
+	ip := publicClientIP(r, h.proxies)
+	if r.Header.Get("X-Real-IP") != "" || r.Header.Get("X-Forwarded-For") != "" {
+		host, _, _ := net.SplitHostPort(r.RemoteAddr)
+		if a, err := netip.ParseAddr(host); err == nil && !trustedPeer(h.proxies, a.Unmap()) {
+			now := time.Now().Unix()
+			if last := h.warned.Load(); now-last >= 60 && h.warned.CompareAndSwap(last, now) {
+				h.d.logger().Warn("outreach public: proxy headers from an untrusted peer ignored; set TRUST_PROXY_CIDRS if nginx connects from another network")
+			}
+		}
+	}
+	return ip
 }
 
 // unsubLimiter is Python's _rate_limited: a sliding window of timestamps per key, hardened with a bounded key set and
