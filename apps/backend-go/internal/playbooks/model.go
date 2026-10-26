@@ -16,7 +16,8 @@ type Step struct {
 	Key            string `json:"key"`
 	Name           string `json:"name"`
 	PromptTemplate string `json:"prompt_template"`
-	OutputFormat   string `json:"output_format"`
+	// OutputFormat is empty only for a step a PATCH stored without it (pydantic exclude_unset): it is then omitted.
+	OutputFormat string `json:"output_format,omitempty"`
 }
 
 // Playbook mirrors ResearchPlaybook.to_api (key order is the contract).
@@ -147,8 +148,10 @@ func (p Playbook) MarshalJSON() ([]byte, error) {
 		writeString(&o.b, s.Name)
 		o.b.WriteString(`,"prompt_template":`)
 		writeString(&o.b, s.PromptTemplate)
-		o.b.WriteString(`,"output_format":`)
-		writeString(&o.b, s.OutputFormat)
+		if s.OutputFormat != "" {
+			o.b.WriteString(`,"output_format":`)
+			writeString(&o.b, s.OutputFormat)
+		}
 		o.b.WriteByte('}')
 	}
 	o.b.WriteByte(']')

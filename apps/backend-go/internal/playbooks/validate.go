@@ -486,6 +486,18 @@ func ParsePatch(body []byte) (PatchInput, []httpx.FieldError) {
 	if len(errs) > 0 {
 		return PatchInput{}, errs
 	}
+	if in.Steps != nil {
+		// model_dump(exclude_unset=True) drops the step fields the request did not send: the default
+		// output_format is validated above but neither stored nor returned.
+		raw, _ := o.get("steps")
+		for i, item := range raw.([]any) {
+			if so := item.(*obj); so != nil {
+				if _, sent := so.get("output_format"); !sent {
+					(*in.Steps)[i].OutputFormat = ""
+				}
+			}
+		}
+	}
 	return in, nil
 }
 

@@ -206,15 +206,15 @@ var pbCases = []pbCase{
 	{"pb_patch_interval_10081_422", "alice", "ws-alpha", nil},
 	{"pb_patch_unknown_audience_404", "alice", "ws-alpha", nil},
 	{"pb_patch_foreign_audience_404", "alice", "ws-alpha", nil},
-	{"pb_patch_schedule_interval_30", "alice", "ws-alpha", nil},
-	{"pb_patch_interval_max", "alice", "ws-alpha", nil},
-	{"pb_patch_interval_min", "alice", "ws-alpha", nil},
 	{"pb_patch_name_only", "alice", "ws-alpha", nil},
 	{"pb_patch_empty_body", "alice", "ws-alpha", nil},
 	{"pb_patch_prompt_version_bump", "alice", "ws-alpha", nil},
 	{"pb_patch_budget_version_bump", "alice", "ws-alpha", nil},
 	{"pb_patch_steps_version_bump", "alice", "ws-alpha", nil},
 	{"pb_patch_description_no_bump", "alice", "ws-alpha", nil},
+	{"pb_patch_schedule_interval_30", "alice", "ws-alpha", nil},
+	{"pb_patch_interval_max", "alice", "ws-alpha", nil},
+	{"pb_patch_interval_min", "alice", "ws-alpha", nil},
 	{"pb_patch_schedule_audience_only", "alice", "ws-alpha", nil},
 	{"pb_patch_enable_off", "alice", "ws-alpha", nil},
 	{"pb_patch_disable_off", "alice", "ws-alpha", nil},
@@ -264,7 +264,9 @@ func TestPlaybookCrudMatchesFixtures(t *testing.T) {
 			c.before(t, e)
 		}
 		_, got, _ := e.req(c.who, c.ws, fx.Request.Method, fx.Request.Path, body)
-		t.Run(c.name, func(t *testing.T) { contract.AssertEqual(t, got, fx.Response, contract.IgnoreShapeOf(pbVolatile(fx)...)) })
+		t.Run(c.name, func(t *testing.T) {
+			contract.AssertEqual(t, got, fx.Response, contract.IgnoreShapeOf(pbVolatile(fx)...))
+		})
 	}
 }
 
