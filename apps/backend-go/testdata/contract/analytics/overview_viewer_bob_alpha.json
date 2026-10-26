@@ -1,0 +1,49 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/analytics/overview"
+  },
+  "response": {
+    "body": {
+      "avg_score": 57.3,
+      "email_confidence": {},
+      "enrichment": {
+        "contact_pct": 26.7,
+        "email_pct": 66.7,
+        "phone_pct": 40.0,
+        "total": 15,
+        "website_pct": 86.7,
+        "with_contact": 4,
+        "with_email": 10,
+        "with_linkedin": 3,
+        "with_phone": 6,
+        "with_website": 13
+      },
+      "jobs": {
+        "completed": 0,
+        "failed": 0,
+        "success_rate": 0,
+        "total": 0
+      },
+      "leads_this_month": 0,
+      "leads_this_week": 0,
+      "tiers": {
+        "cold": 5,
+        "hot": 3,
+        "null": 2,
+        "unqualified": 1,
+        "warm": 4
+      },
+      "total_leads": 15
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

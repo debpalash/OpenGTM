@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/analytics/pipeline"
+  },
+  "response": {
+    "body": {
+      "status_tiers": {},
+      "statuses": {
+        "contacted": 2,
+        "dead": 1,
+        "negotiating": 1,
+        "new": 10,
+        "qualified": 1
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

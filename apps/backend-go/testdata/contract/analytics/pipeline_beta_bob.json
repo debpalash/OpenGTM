@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/analytics/pipeline"
+  },
+  "response": {
+    "body": {
+      "status_tiers": {},
+      "statuses": {
+        "new": 3
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

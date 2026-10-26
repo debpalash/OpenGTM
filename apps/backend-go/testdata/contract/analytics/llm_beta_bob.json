@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/analytics/llm"
+  },
+  "response": {
+    "body": {
+      "by_day": [],
+      "by_provider": [],
+      "total_calls": 0,
+      "total_tokens": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
