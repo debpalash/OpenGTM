@@ -11,6 +11,8 @@ type FieldError struct {
 	Loc   []any  `json:"loc"`
 	Msg   string `json:"msg"`
 	Input any    `json:"input"`
+	// Ctx carries the constraint (e.g. {"ge": 1}); omitted when nil, as pydantic does.
+	Ctx map[string]any `json:"ctx,omitempty"`
 }
 
 // Detail writes FastAPI's HTTPException body {"detail": detail}.
