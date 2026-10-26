@@ -554,7 +554,7 @@ func TestSlackUnsupportedFieldSyntaxRejected(t *testing.T) {
 	const msg = "slack message_template uses unsupported fields"
 	for _, tpl := range []string{
 		"{company.__class__}", "{company[0]}", "{company!r}", "{company:>10}", "{company:}",
-		"{0}", "{}", "{12}", "{a", "}", "{", "x}", "{{{a}", "{a{b}}",
+		"{0}", "{}", "{12}", "{a", "}", "{", "x}", "{{{a", "{a{b}}",
 	} {
 		_, err := ValidateConfig("slack", map[string]any{"webhook_secret_ref": "R", "message_template": tpl})
 		if err == nil || err.Error() != msg {
