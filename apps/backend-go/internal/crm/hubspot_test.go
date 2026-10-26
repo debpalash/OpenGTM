@@ -16,6 +16,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadsread"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
@@ -66,6 +67,9 @@ func withWorkspaceToken(t *testing.T, e *secrets.Envelope, st *fakeStore, ws, to
 
 func newStore() *fakeStore { return &fakeStore{app: map[string]string{}, ws: map[string]string{}} }
 
+// leadsread.Lead is what the sync route passes.
+var _ Lead = leadsread.Lead{}
+
 type mapLead map[string]any
 
 func (m mapLead) Get(key string) (any, bool) { v, ok := m[key]; return v, ok }
@@ -114,8 +118,28 @@ func canon(t *testing.T, v any) string {
 	if err := dec.Decode(&x); err != nil {
 		t.Fatal(err)
 	}
-	out, _ := json.Marshal(x)
+	out, _ := json.Marshal(normNums(x))
 	return string(out)
+}
+
+// normNums folds 0.0 into 0: Go has no int/float distinction in JSON output.
+func normNums(v any) any {
+	switch t := v.(type) {
+	case json.Number:
+		if f, err := t.Float64(); err == nil && f == math.Trunc(f) && math.Abs(f) < 1e15 {
+			return int64(f)
+		}
+		return t
+	case []any:
+		for i := range t {
+			t[i] = normNums(t[i])
+		}
+	case map[string]any:
+		for k := range t {
+			t[k] = normNums(t[k])
+		}
+	}
+	return v
 }
 
 // ── transcript replay ────────────────────────────────────────────────────
@@ -255,7 +279,7 @@ func TestHubSpotTranscripts(t *testing.T) {
 				Leads      []map[string]any `json:"leads"`
 				FieldMap   json.RawMessage  `json:"field_map"`
 				ContactID  string           `json:"contact_id"`
-				Properties map[string]any   `json:"properties"`
+				Properties json.RawMessage  `json:"properties"`
 				Limit      *int             `json:"limit"`
 				ListID     string           `json:"list_id"`
 			}
@@ -289,11 +313,7 @@ func TestHubSpotTranscripts(t *testing.T) {
 				}
 				got = h.PushLeadsBatch(ctx, testWS, leads, fm)
 			case "update_contact_by_id":
-				props := map[string]string{}
-				for k, v := range args.Properties {
-					props[k] = v.(string)
-				}
-				got = h.UpdateContactByID(ctx, testWS, args.ContactID, props)
+				got = h.UpdateContactByID(ctx, testWS, args.ContactID, decodeFieldMap(t, args.Properties))
 			case "fetch_contacts":
 				limit := 500
 				if args.Limit != nil {
@@ -448,25 +468,24 @@ func TestGlobalFallbackMatchesGetSecret(t *testing.T) {
 	var seen []string
 	h := &HubSpot{HTTP: &http.Client{Transport: authHeaderRT(&seen, 200, `{}`)}, Secrets: res}
 
-	h.TestConnection(ctx, "ws-x") // env only
-	st.app["HUBSPOT_TOKEN"] = "global-token"
-	h.TestConnection(ctx, "ws-x") // global beats env
-	withWorkspaceToken(t, env, st, "ws-x", "ws-token")
-	h.TestConnection(ctx, "ws-x")     // workspace beats global
-	h.TestConnection(ctx, "ws-other") // other workspace still on global
-	for i, ws := range []string{"ws-x", "ws-x", "ws-x", "ws-other"} {
-		_ = i
-		want, _, err := res.Get(ctx, ws, "HUBSPOT_TOKEN")
+	step := func(ws, want string) {
+		t.Helper()
+		seen = nil
+		h.TestConnection(ctx, ws)
+		got, _, err := res.Get(ctx, ws, "HUBSPOT_TOKEN")
 		if err != nil {
 			t.Fatal(err)
 		}
-		if seen[i] != "Bearer "+want {
-			t.Errorf("call %d sent %q, GetSecret says %q", i, seen[i], want)
+		if len(seen) != 1 || seen[0] != "Bearer "+got || got != want {
+			t.Errorf("%s: sent %v, GetSecret says %q, want %q", ws, seen, got, want)
 		}
 	}
-	if seen[0] != "Bearer env-token" || seen[1] != "Bearer global-token" || seen[2] != "Bearer ws-token" || seen[3] != "Bearer global-token" {
-		t.Fatalf("order wrong: %v", seen)
-	}
+	step("ws-x", "env-token") // env only
+	st.app["HUBSPOT_TOKEN"] = "global-token"
+	step("ws-x", "global-token") // global beats env
+	withWorkspaceToken(t, env, st, "ws-x", "ws-token")
+	step("ws-x", "ws-token")         // workspace beats global
+	step("ws-other", "global-token") // other workspace still on global
 }
 
 func TestNoSecretInErrors(t *testing.T) {
@@ -483,7 +502,7 @@ func TestNoSecretInErrors(t *testing.T) {
 	all = append(all, canon(t, h.TestConnection(ctx, testWS)))
 	all = append(all, canon(t, h.PushLeadAsContact(ctx, testWS, mapLead{"id": int64(1), "email": "a@b.co"}, nil)))
 	all = append(all, canon(t, h.PushLeadsBatch(ctx, testWS, []Lead{mapLead{"id": int64(1), "email": "a@b.co"}}, nil)))
-	all = append(all, canon(t, h.UpdateContactByID(ctx, testWS, "5", map[string]string{"a": "b"})))
+	all = append(all, canon(t, h.UpdateContactByID(ctx, testWS, "5", FieldMap{{"a", "b"}})))
 	all = append(all, canon(t, h.FetchContacts(ctx, testWS, 5, "", nil)))
 	all = append(all, canon(t, h.FetchContacts(ctx, testWS, 5, "9", nil)))
 	for i, s := range all {
