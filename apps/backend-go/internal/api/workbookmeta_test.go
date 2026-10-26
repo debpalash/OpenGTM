@@ -218,12 +218,14 @@ func TestFlagsReflectConfig(t *testing.T) {
 		{config.Flags{PGLeadStore: true}, `{"automations_enabled":false,"intent_poller_enabled":false,"pg_lead_store":true,"allow_legacy_outreach":false}`},
 		{config.Flags{PGLeadStore: true, AutomationsEnabled: true, IntentPollerEnabled: true, AutomationsAllowLegacyOutreach: true}, `{"automations_enabled":true,"intent_poller_enabled":true,"pg_lead_store":true,"allow_legacy_outreach":true}`},
 	}
-	for _, c := range cases {
-		e := newMetaEnvFlags(t, c.fl)
-		rec := e.as("alice", "ws-alpha", "/api/flags")
-		if rec.Code != 200 || strings.TrimSpace(rec.Body.String()) != c.want {
-			t.Errorf("flags %+v: %d %s", c.fl, rec.Code, rec.Body.String())
-		}
+	for i, c := range cases {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			e := newMetaEnvFlags(t, c.fl)
+			rec := e.as("alice", "ws-alpha", "/api/flags")
+			if rec.Code != 200 || strings.TrimSpace(rec.Body.String()) != c.want {
+				t.Errorf("flags %+v: %d %s", c.fl, rec.Code, rec.Body.String())
+			}
+		})
 	}
 }
 
