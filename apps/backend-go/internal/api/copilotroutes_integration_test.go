@@ -476,3 +476,15 @@ func TestSelfHostRoutes(t *testing.T) {
 		t.Fatal("self-host deleted a user's conversation")
 	}
 }
+
+// Python reads a jsonb column, so metadata keys come out in jsonb order (shorter keys first, then bytewise),
+// nested objects included, emitted with compact separators.
+func TestMemoryMetadataKeepsJSONBKeyOrder(t *testing.T) {
+	e := newCKEnv(t, true)
+	ownerExec(t, `INSERT INTO chat_memories (user_id, text, metadata, created_at) VALUES ($1, 'ordered', '{"conversation_id":"c1","type":"episodic","a":{"zz":1,"b":[2,{"yy":1,"x":0}]}}', '2026-09-02T00:00:00+00')`, "ws-alpha:"+itoa32(e.erin))
+	body := e.req("GET", "/api/copilotkit/memories", e.as("erin", "ws-alpha")).Body.String()
+	want := `{"memories":[{"memory":"ordered","metadata":{"a":{"b":[2,{"x":0,"yy":1}],"zz":1},"type":"episodic","conversation_id":"c1"},"created_at":"2026-09-02T00:00:00+00:00"},`
+	if !strings.HasPrefix(body, want) {
+		t.Fatalf("got %q\nwant prefix %q", body, want)
+	}
+}
