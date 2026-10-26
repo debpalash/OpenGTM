@@ -12,6 +12,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/audit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/deststore"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destvalidate"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -40,6 +41,8 @@ func registerDestsRuns(r *httpx.Router, d Deps) {
 	read := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity)}
 	write := append(append([]httpx.Middleware{}, read...), identity.RequireRole("activation.write", "editor", "admin"))
 	r.Handle("GET "+drPrefix+"/runs/{run_id}/deliveries", http.HandlerFunc(h.deliveries), read...)
+	r.Handle("POST "+drPrefix+"/runs/{run_id}/retry", http.HandlerFunc(h.retry), write...)
+	r.Handle("POST "+drPrefix+"/runs/{run_id}/cancel", http.HandlerFunc(h.cancel), write...)
 	r.Handle("POST "+drPrefix+"/{destination_id}/sync", http.HandlerFunc(h.sync), write...)
 	r.Handle("GET "+drPrefix+"/{destination_id}/runs", http.HandlerFunc(h.runs), read...)
 	r.Handle("GET "+drPrefix+"/{destination_id}/health", http.HandlerFunc(h.health), read...)
@@ -358,3 +361,49 @@ type drBadQuery string
 
 func (e drBadQuery) Error() string { return string(e) }
 
+// retry sends a failed or completed_with_errors run back to pending and enqueues its job again on the same fire key; the
+// run's counters are kept so deliveries that already succeeded skip on their idempotency keys.
+func (h destRuns) retry(w http.ResponseWriter, r *http.Request) {
+	id, ok := h.pathID(w, r, "run_id", drRunNotFound)
+	if !ok {
+		return
+	}
+	wc := h.ws(r)
+	executorFor := h.destExecutor(wc.WorkspaceID)
+	var run deststore.Run
+	err := tenancy.InWorkspace(r.Context(), h.d.Pool, wc.WorkspaceID, func(tx pgx.Tx) (err error) {
+		run, err = deststore.RetryRun(r.Context(), tx, id, executorFor)
+		return err
+	})
+	if err != nil {
+		h.fail(w, "retry", err)
+		return
+	}
+	audit.SetMetadata(r.Context(), map[string]any{"action": "audience_destination.run.retry", "destination_id": run.DestinationID,
+		"run_id": run.ID, "previous_failed": run.Failed})
+	httpx.WriteJSON(w, http.StatusAccepted, drRunOf(run))
+}
+
+// cancel finishes a pending run at once and asks a running one to stop at the next delivery boundary. The state change is
+// conditional on the status read under the row lock, so a run the engine just finished is refused (409), and the engine's
+// own transitions are conditional in turn, so it observes the cancellation instead of overwriting it.
+func (h destRuns) cancel(w http.ResponseWriter, r *http.Request) {
+	id, ok := h.pathID(w, r, "run_id", drRunNotFound)
+	if !ok {
+		return
+	}
+	wc := h.ws(r)
+	var run deststore.Run
+	var previous string
+	err := tenancy.InWorkspace(r.Context(), h.d.Pool, wc.WorkspaceID, func(tx pgx.Tx) (err error) {
+		run, previous, err = deststore.CancelRun(r.Context(), tx, id)
+		return err
+	})
+	if err != nil {
+		h.fail(w, "cancel", err)
+		return
+	}
+	audit.SetMetadata(r.Context(), map[string]any{"action": "audience_destination.run.cancel", "destination_id": run.DestinationID,
+		"run_id": run.ID, "previous_status": previous})
+	httpx.WriteJSON(w, http.StatusAccepted, drRunOf(run))
+}

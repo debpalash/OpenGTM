@@ -153,7 +153,7 @@ func (e audEnv) drAudit(t *testing.T, path string) (status int, meta map[string]
 func TestRunsCursorAndOffsetMatchFixtures(t *testing.T) {
 	e := newDrEnv(t, nil)
 	for _, n := range drFixtureNames(t, "runs_") {
-		if n != "runs_after_changes" {
+		if n != "runs_after_changes" && n != "runs_beta_own" {
 			e.drReplay(t, n, nil)
 		}
 	}
@@ -162,6 +162,9 @@ func TestRunsCursorAndOffsetMatchFixtures(t *testing.T) {
 func TestHealthMatchesFixtures(t *testing.T) {
 	e := newDrEnv(t, nil)
 	for _, n := range drFixtureNames(t, "dest_health_") {
+		if n == "dest_health_beta_own" {
+			continue // recorded after sync_beta_own created a run (TestRunMutationsMatchFixtures)
+		}
 		e.drReplay(t, n, nil)
 	}
 }
@@ -180,7 +183,7 @@ func TestRunsBadCursor422(t *testing.T) {
 			t.Errorf("cursor %q detail %v", c, m["detail"])
 		}
 	}
-	// the cursor is decoded before the destination lookup? No: the destination is looked up first (404 wins).
+	// the destination is looked up before the cursor is decoded: 404 wins
 	if code, _, _ := e.drJSON(t, "alice", "ws-alpha", "GET", drBase+"/nope/runs?cursor=not-base64!!"); code != 404 {
 		t.Errorf("unknown destination + bad cursor: %d", code)
 	}
@@ -206,7 +209,7 @@ func TestRunsNextCursorRoundTrip(t *testing.T) {
 			}
 			break
 		}
-		if m["offset"] != nil {
+		if i > 0 && m["offset"] != nil {
 			t.Fatalf("offset with cursor: %s", raw)
 		}
 		path = drBase + "/dst-act-webhook/runs?limit=2&cursor=" + nc
@@ -240,7 +243,8 @@ func TestDeliveriesFiltersAndBounds(t *testing.T) {
 
 func TestSyncCreatesRunAndJob(t *testing.T) {
 	// cohort + GO_DEST_TYPES: webhook goes to Go, hubspot (not listed) and an out-of-cohort workspace stay on Python
-	e := newDrEnv(t, map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-alpha", "GO_DEST_TYPES": "webhook,airtable"})
+	vars := map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-alpha", "GO_DEST_TYPES": "webhook,airtable"}
+	e := newDrEnv(t, vars)
 	for _, c := range []struct{ dest, executor string }{{"dst-act-airtable", "go"}, {"dst-act-instantly", "python"}} {
 		code, m, raw := e.drJSON(t, "alice", "ws-alpha", "POST", drBase+"/"+c.dest+"/sync")
 		if code != 202 {
@@ -261,9 +265,9 @@ func TestSyncCreatesRunAndJob(t *testing.T) {
 			t.Errorf("payload %s", got)
 		}
 	}
-	// the webhook type with the cohort off stays on Python
-	off := newDrEnv(t, map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-other", "GO_DEST_TYPES": "airtable"})
-	_, m, _ := off.drJSON(t, "alice", "ws-alpha", "POST", drBase+"/dst-act-airtable/sync")
+	// the same type with the workspace out of the cohort stays on Python (Getenv reads the map per call)
+	vars["GO_EXECUTOR_WORKSPACES"] = "ws-other"
+	_, m, _ := e.drJSON(t, "alice", "ws-alpha", "POST", drBase+"/dst-act-webhook/sync")
 	if n, ex := drJobs(t, m["id"].(string)); n != 1 || ex != "python" {
 		t.Errorf("out of cohort: %d %q", n, ex)
 	}
@@ -380,7 +384,7 @@ func TestCancelPendingFinishesCancelled(t *testing.T) {
 	e := newDrEnv(t, nil)
 	if _, err := audOwner(t).Exec(context.Background(), `INSERT INTO jobs (type, payload, status, fire_key, workspace_id, executor, next_run_at)
 		VALUES ('audience_destination_sync', '{"workspace_id":"ws-alpha","run_id":"run-act-sf1"}', 'pending', 'destination_sync:run-act-sf1', 'ws-alpha', 'python', now())`); err != nil {
-		t.Skipf("jobs insert shape differs: %v", err)
+		t.Fatal(err)
 	}
 	code, m, raw := e.drJSON(t, "alice", "ws-alpha", "POST", drBase+"/runs/run-act-sf1/cancel")
 	if code != 202 || m["status"] != "cancelled" || m["finished_at"] == nil {
@@ -510,6 +514,9 @@ func TestRunMutationsMatchFixtures(t *testing.T) {
 		"retry_failed", "retry_pending_now_409", "retry_by_erin", "retry_failed_second_destination")
 	e.drReplay(t, "sync_by_erin", ids, fresh...)
 	e.drReplay(t, "sync_beta_own", ids, fresh...)
+	// recorded after it: the newest run of dst-beta-crm is the one the sync created
+	e.drReplay(t, "runs_beta_own", ids, contract.IgnorePaths("$.runs[0].id"), contract.IgnoreShapeOf("$.runs[0].created_at"))
+	e.drReplay(t, "dest_health_beta_own", ids, contract.IgnorePaths("$.latest_run.id"), contract.IgnoreShapeOf("$.latest_run.created_at"))
 	e.drReplay(t, "sync_after_terminal", ids, fresh...)
 	got := e.drReplay(t, "sync_new", ids, fresh...)
 	var m map[string]any
