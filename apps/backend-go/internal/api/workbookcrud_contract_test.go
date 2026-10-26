@@ -176,10 +176,18 @@ var uncoveredGuardAllowlist = map[string]string{
 	// Real FastAPI guards that only fire on corrupted stored state or a race, so the recorder
 	// cannot reach them through the API; each has a Go unit test asserting the exact string.
 	"Column identity is ambiguous": "duplicate stored column ids; workbookcolumns_test.go",
-	"Saved view references a missing filter column. Repair the view before continuing.":                           "stale saved view; wbcrud/rowquery_unit_test.go",
-	"Saved view references a missing sort column. Repair the view before continuing.":                             "stale saved view; wbcrud/rowquery_unit_test.go",
-	"Selected workbook rows changed. Refresh before running.":                                                     "concurrent row delete race inside recompute",
-	"Template column IDs must be unique":                                                                          "embedded template registry is valid; templatesroutes_test.go",
+	"Saved view references a missing filter column. Repair the view before continuing.": "stale saved view; wbcrud/rowquery_unit_test.go",
+	"Saved view references a missing sort column. Repair the view before continuing.":   "stale saved view; wbcrud/rowquery_unit_test.go",
+	"Selected workbook rows changed. Refresh before running.":                           "concurrent row delete race inside recompute",
+	// Cell run route (plan 06 Task 25). "Enrichment column not found" is recorded in the cellrun area
+	// (workbookcell_integration_test.go replays it); the others are Go-only answers or need state the
+	// recorder cannot seed (a v1 leads-filter lead row, a Python API outage, a client disconnect).
+	"Enrichment column not found":        "recorded in the cellrun fixtures (workbookcell_integration_test.go)",
+	"Row not found":                      "v1 leads-filter row; TestCellRunLegacyLeadRowResolution",
+	"Python API is not configured":       "Go-only proxy answer (README deviations); TestCellRunProxiesOutputColumnsToPython",
+	"Python API unavailable":             "Go-only proxy answer (README deviations); TestCellRunProxiesOutputColumnsToPython",
+	"Client Closed Request":              "client disconnect (499); TestCellRunCancelOnClientDisconnect",
+	"Template column IDs must be unique": "embedded template registry is valid; templatesroutes_test.go",
 	"Template enrichment column IDs must be explicit and unique. Repair the template before creating a workbook.": "templatesroutes_test.go",
 	"Template has circular column dependencies. Repair the template before creating a workbook.":                  "templatesroutes_test.go",
 }

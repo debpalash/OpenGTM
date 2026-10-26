@@ -278,10 +278,9 @@ func TestCellRunProxiesOutputColumnsToPython(t *testing.T) {
 	if a, _ := e.pyLastAuth.Load().(string); !strings.HasPrefix(a, "Bearer ") || !strings.HasSuffix(a, "|ws-alpha|/api/workbooks/wb-enrich-1/rows/101/cells/out_hook/run") {
 		t.Fatalf("python received %q", a)
 	}
-	// An unconfigured python api is a clean 502, never a hang or a panic.
-	e2 := newCellEnv(t)
-	e2.python.Close()
-	rec, _ := e2.post("alice", "ws-alpha", "/api/workbooks/wb-enrich-1/rows/101/cells/out_hook/run", `{}`)
+	// An unreachable python api is a clean 502, never a hang or a panic.
+	e.python.Close()
+	rec, _ := e.post("alice", "ws-alpha", "/api/workbooks/wb-enrich-1/rows/101/cells/out_hook/run", `{}`)
 	if rec.Code != 502 {
 		t.Fatalf("python down: %d %s", rec.Code, rec.Body.String())
 	}

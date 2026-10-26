@@ -104,21 +104,14 @@ func (r CellResult) MarshalJSON() ([]byte, error) {
 		kb, _ := json.Marshal(k)
 		buf.Write(kb)
 		buf.WriteByte(':')
-		var vb []byte
-		var err error
-		if s, ok := v.(*string); ok {
-			if s == nil {
-				vb = []byte("null")
-			} else {
-				vb, err = json.Marshal(*s)
-			}
-		} else {
-			vb, err = canonjson.Marshal(v, false)
-		}
-		if err != nil {
+		// Values are decoded stored JSON (json.Number keeps Python's number text).
+		var vb bytes.Buffer
+		enc := json.NewEncoder(&vb)
+		enc.SetEscapeHTML(false)
+		if err := enc.Encode(v); err != nil {
 			return fmt.Errorf("workbook: cell result %s: %w", k, err)
 		}
-		buf.Write(vb)
+		buf.Write(bytes.TrimSuffix(vb.Bytes(), []byte("\n")))
 		return nil
 	}
 	for i, kv := range []struct {
