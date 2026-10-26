@@ -62,6 +62,11 @@ func (h systemStatsRoute) get(w http.ResponseWriter, r *http.Request) {
 		pool, limiter = zeroProxyPool(), zeroRateLimiter()
 		w.Header().Set("X-Stats-Source", "degraded")
 	}
+	if !wc.User.IsGlobalAdmin() {
+		// the worker's limiter is process-global: its tripped domains were scraped for any tenant (Python leaks
+		// them to every member; deviation). The key stays so the shape is Python's.
+		limiter.Set("tripped_domains", []any{})
+	}
 	out.Set("proxy_pool", pool)
 	out.Set("rate_limiter", limiter)
 	out.Set("jobs", counts)
