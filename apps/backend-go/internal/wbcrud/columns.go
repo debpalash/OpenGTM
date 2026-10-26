@@ -208,11 +208,17 @@ func NormalizeRequestColumn(raw json.RawMessage, prefix ...any) (Column, []httpx
 	if err != nil {
 		return Column{}, []httpx.FieldError{{Type: "json_invalid", Loc: append([]any{}, prefix...), Msg: "JSON decode error", Input: nil}}
 	}
+	return normalizeColumnDoc(doc, prefix)
+}
+
+// normalizeColumnDoc is NormalizeRequestColumn over an already decoded value
+// (numbers canonical, see decodeDocument).
+func normalizeColumnDoc(doc any, prefix []any) (Column, []httpx.FieldError) {
 	obj, ok := doc.(*Obj)
 	if !ok {
 		return Column{}, []httpx.FieldError{{Type: "model_type", Loc: append([]any{}, prefix...), Msg: "Input should be a valid dictionary or instance of ColumnConfig", Input: doc}}
 	}
-	vals, errs := validateModel(obj, columnFields, prefix, doc)
+	vals, errs := validateModelMode(obj, columnFields, prefix, doc, false)
 	if len(errs) > 0 {
 		return Column{}, errs
 	}
@@ -225,7 +231,11 @@ func NormalizeRequestColumn(raw json.RawMessage, prefix ...any) (Column, []httpx
 	return col, nil
 }
 
-func validateModel(obj *Obj, fields []field, prefix []any, whole any) (map[string]any, []httpx.FieldError) {
+// validateModel is the lax (request body) validation; validateModelMode adds
+// the strict variant. strict mirrors pydantic's
+// strict=True with exclude_unset dumping: no lax coercion, defaults are not
+// materialised and explicit nulls on optional fields are kept.
+func validateModelMode(obj *Obj, fields []field, prefix []any, whole any, strict bool) (map[string]any, []httpx.FieldError) {
 	out := map[string]any{}
 	var errs []httpx.FieldError
 	for _, f := range fields {
@@ -234,20 +244,23 @@ func validateModel(obj *Obj, fields []field, prefix []any, whole any) (map[strin
 		if !present {
 			if f.required && f.def == nil {
 				errs = append(errs, httpx.FieldError{Type: "missing", Loc: loc, Msg: "Field required", Input: whole})
-			} else if f.def != nil {
+			} else if f.def != nil && !strict {
 				out[f.name] = f.def
 			}
 			continue
 		}
 		if v == nil && !f.required && f.def == nil {
+			if strict {
+				out[f.name] = nil // exclude_unset keeps an explicit None
+			}
 			continue // Optional field set to null: excluded by exclude_none
 		}
-		val, ferrs := validateField(f, v, loc)
+		val, ferrs := validateFieldMode(f, v, loc, strict)
 		if len(ferrs) > 0 {
 			errs = append(errs, ferrs...)
 			continue
 		}
-		if val != nil {
+		if val != nil || strict {
 			out[f.name] = val
 		}
 	}
@@ -258,7 +271,7 @@ func fe(typ, msg string, loc []any, in any) []httpx.FieldError {
 	return []httpx.FieldError{{Type: typ, Loc: loc, Msg: msg, Input: in}}
 }
 
-func validateField(f field, v any, loc []any) (any, []httpx.FieldError) {
+func validateFieldMode(f field, v any, loc []any, strict bool) (any, []httpx.FieldError) {
 	switch f.kind {
 	case kStr:
 		if s, ok := v.(string); ok {
@@ -266,7 +279,7 @@ func validateField(f field, v any, loc []any) (any, []httpx.FieldError) {
 		}
 		return nil, fe("string_type", "Input should be a valid string", loc, v)
 	case kInt, kStrictInt:
-		n, errs := parseInt(v, f.kind == kStrictInt, loc)
+		n, errs := parseInt(v, strict || f.kind == kStrictInt, loc)
 		if len(errs) > 0 {
 			return nil, errs
 		}
@@ -278,7 +291,7 @@ func validateField(f field, v any, loc []any) (any, []httpx.FieldError) {
 		}
 		return json.Number(strconv.FormatInt(n, 10)), nil
 	case kFloat:
-		x, errs := parseFloat(v, loc)
+		x, errs := parseFloatMode(v, strict, loc)
 		if len(errs) > 0 {
 			return nil, errs
 		}
@@ -287,7 +300,7 @@ func validateField(f field, v any, loc []any) (any, []httpx.FieldError) {
 		}
 		return json.Number(pyFloat(x)), nil
 	case kBool:
-		return parseBool(v, loc)
+		return parseBoolMode(v, strict, loc)
 	case kStrList:
 		arr, ok := v.([]any)
 		if !ok {
@@ -315,7 +328,7 @@ func validateField(f field, v any, loc []any) (any, []httpx.FieldError) {
 		if !ok {
 			return nil, fe("model_type", "Input should be a valid dictionary or instance of AgentColumnPolicy", loc, v)
 		}
-		vals, errs := validateModel(o, policyFields, loc, o)
+		vals, errs := validateModelMode(o, policyFields, loc, o, strict)
 		if len(errs) > 0 {
 			return nil, errs
 		}
@@ -379,8 +392,11 @@ func parseInt(v any, strict bool, loc []any) (int64, []httpx.FieldError) {
 	return 0, typeErr
 }
 
-func parseFloat(v any, loc []any) (float64, []httpx.FieldError) {
+func parseFloatMode(v any, strict bool, loc []any) (float64, []httpx.FieldError) {
 	var f float64
+	if _, isNum := v.(json.Number); strict && !isNum {
+		return 0, fe("float_type", "Input should be a valid number", loc, v)
+	}
 	switch t := v.(type) {
 	case json.Number:
 		x, err := strconv.ParseFloat(string(t), 64)
@@ -410,7 +426,10 @@ func parseFloat(v any, loc []any) (float64, []httpx.FieldError) {
 	return f, nil
 }
 
-func parseBool(v any, loc []any) (any, []httpx.FieldError) {
+func parseBoolMode(v any, strict bool, loc []any) (any, []httpx.FieldError) {
+	if _, isBool := v.(bool); strict && !isBool {
+		return nil, fe("bool_type", "Input should be a valid boolean", loc, v)
+	}
 	bad := fe("bool_parsing", "Input should be a valid boolean, unable to interpret input", loc, v)
 	switch t := v.(type) {
 	case bool:
@@ -434,3 +453,11 @@ func parseBool(v any, loc []any) (any, []httpx.FieldError) {
 	}
 	return nil, fe("bool_type", "Input should be a valid boolean", loc, v)
 }
+
+func validateModel(obj *Obj, fields []field, prefix []any, whole any) (map[string]any, []httpx.FieldError) {
+	return validateModelMode(obj, fields, prefix, whole, false)
+}
+
+func parseFloat(v any, loc []any) (float64, []httpx.FieldError) { return parseFloatMode(v, false, loc) }
+
+func parseBool(v any, loc []any) (any, []httpx.FieldError) { return parseBoolMode(v, false, loc) }
