@@ -113,6 +113,14 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 		rs.runner = manifestRunner{rs}
 	}
 	rs.stop = &stopProbe{interval: interval, check: func() bool { return rs.pausedOrCancelled(ctx) }}
+	return rs.runBody(ctx, started)
+}
+
+// runBody is everything after the payload is parsed and the runState built. rs.claim is nil
+// for an in-request run (RunRows): every fence is then a no-op.
+func (rs *runState) runBody(ctx context.Context, started *bool) (Result, error) {
+	deps, p := rs.deps, rs.p
+	log := rs.log
 
 	// ── Load config + rows ──
 	wb, rows, err := rs.load(ctx)
@@ -165,21 +173,21 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 	}
 
 	if len(enrichCols) == 0 || len(leads) == 0 {
-		err := tenancy.InWorkspace(ctx, deps.Pool, c.WorkspaceID, func(tx pgx.Tx) error {
-			if err := fence(ctx, tx, c, p.WorkbookID); err != nil {
+		err := tenancy.InWorkspace(ctx, deps.Pool, p.WorkspaceID, func(tx pgx.Tx) error {
+			if err := fence(ctx, tx, rs.claim, p.WorkbookID); err != nil {
 				return err
 			}
-			return gen.New(tx).MarkWorkbookComplete(ctx, gen.MarkWorkbookCompleteParams{WorkbookID: p.WorkbookID, WorkspaceID: c.WorkspaceID})
+			return gen.New(tx).MarkWorkbookComplete(ctx, gen.MarkWorkbookCompleteParams{WorkbookID: p.WorkbookID, WorkspaceID: p.WorkspaceID})
 		})
 		return Result{Rows: len(leads)}, err
 	}
 
 	// Only the active queue lease may assert running state.
-	if err := tenancy.InWorkspace(ctx, deps.Pool, c.WorkspaceID, func(tx pgx.Tx) error {
-		if err := fence(ctx, tx, c, p.WorkbookID); err != nil {
+	if err := tenancy.InWorkspace(ctx, deps.Pool, p.WorkspaceID, func(tx pgx.Tx) error {
+		if err := fence(ctx, tx, rs.claim, p.WorkbookID); err != nil {
 			return err
 		}
-		return gen.New(tx).MarkWorkbookRunning(ctx, gen.MarkWorkbookRunningParams{WorkbookID: p.WorkbookID, WorkspaceID: c.WorkspaceID})
+		return gen.New(tx).MarkWorkbookRunning(ctx, gen.MarkWorkbookRunningParams{WorkbookID: p.WorkbookID, WorkspaceID: p.WorkspaceID})
 	}); err != nil {
 		return Result{}, err
 	}
@@ -244,6 +252,9 @@ func (rs *runState) pausedOrCancelled(ctx context.Context) bool {
 	})
 	if err == nil && status == "paused" {
 		return true
+	}
+	if rs.claim == nil {
+		return false // in-request run: no job to cancel
 	}
 	if cancelled, cerr := queue.IsCancelled(ctx, rs.deps.Pool, rs.claim); cerr == nil && cancelled {
 		return true
