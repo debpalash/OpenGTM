@@ -3,6 +3,7 @@
 package signals_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -277,7 +278,7 @@ func TestSignalsTenantIsolation(t *testing.T) {
 		l, _ := signals.List(context.Background(), tx, "", nil, 10, 0)
 		p, _ := signals.Page(context.Background(), tx, nil, nil, 10, "")
 		c, _ := signals.Counts(context.Background(), tx)
-		a, _ := signals.Analytics(context.Background(), tx, 30, time.Unix(100*86400, 0))
+		a, _ := signals.Analytics(context.Background(), tx, 30, time.Unix(86400, 0))
 		if !reflect.DeepEqual(ids(l), []string{"a1"}) || !reflect.DeepEqual(ids(p.Signals), []string{"a1"}) || c.Total != 1 || a.Summary.Total != 1 {
 			t.Errorf("leak: %v %v %d %d", ids(l), ids(p.Signals), c.Total, a.Summary.Total)
 		}
@@ -288,7 +289,11 @@ func TestSignalsTenantIsolation(t *testing.T) {
 func TestSignalJSONKeyOrderAndFloats(t *testing.T) {
 	s := signals.Signal{ID: "i", WorkspaceID: "w", LeadID: i64(3), Company: "é<c>", SignalType: "hiring", Title: "t", Description: "d",
 		Source: "s", SourceURL: "u", Weight: nil, CreatedAt: 1788000000, Read: 1}
-	b, _ := json.Marshal(s)
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false) // what httpx.WriteJSON does
+	_ = enc.Encode(s)
+	b := bytes.TrimSpace(buf.Bytes())
 	want := `{"id":"i","workspace_id":"w","lead_id":3,"company":"é<c>","signal_type":"hiring","title":"t","description":"d","source":"s","source_url":"u","weight":null,"created_at":1788000000.0,"read":1}`
 	if string(b) != want {
 		t.Fatalf("got %s", b)
@@ -366,14 +371,24 @@ func TestAnalyticsMatchesPython(t *testing.T) {
 		}
 		return nil
 	})
-	// 90-day window sees the "old" row's neighbours differently; previous window empty -> null momentum
+	// 90-day window also sees p1/p2 (total 7, weight 22); "old" is the only previous-window row
 	e.in(t, e.wsA, func(tx pgx.Tx) error {
 		r, _ := signals.Analytics(context.Background(), tx, 90, now)
 		b, _ := json.Marshal(r)
 		var got map[string]any
 		_ = json.Unmarshal(b, &got)
-		if got["summary"].(map[string]any)["momentum_pct"] != nil || len(got["trend"].([]any)) != 90 {
+		sum := got["summary"].(map[string]any)
+		if sum["total"].(float64) != 7 || sum["weighted_score"].(float64) != 22 || sum["momentum_pct"].(float64) != 600 || len(got["trend"].([]any)) != 90 {
 			t.Errorf("90d: %s", b[:200])
+		}
+		return nil
+	})
+	// previous window empty -> null momentum
+	e.seed(t, sig{id: "solo", ws: e.wsB, lead: 1, typ: "x", at: float64(now.Unix()) - 3600})
+	e.in(t, e.wsB, func(tx pgx.Tx) error {
+		r, _ := signals.Analytics(context.Background(), tx, 7, now)
+		if r.Summary.MomentumPct != nil || r.Summary.Total < 1 {
+			t.Errorf("null momentum expected: %+v", r.Summary)
 		}
 		return nil
 	})
