@@ -133,7 +133,7 @@ func Sync(ctx context.Context, c Client, wsID string, dest DestRef, b *Buffer, g
 	if err != nil && len(body) == 0 && resp.StatusCode >= 200 && resp.StatusCode <= 299 {
 		body = nil // the upload was accepted; a broken body only costs the external id
 	}
-	res := classify(resp.StatusCode, resp.Header, body)
+	res := classify(resp.StatusCode, resp.Header, body, secret)
 	if res.Success {
 		m := b.Manifest()
 		res.Summary = fmt.Sprintf("exported %d rows; sha256=%s", b.RowCount(), m["records_sha256"].(string)[:12])
@@ -167,9 +167,9 @@ func sendError(err error, secret string) error {
 }
 
 // classify turns the response into the shared outcome (Summary is filled by Sync).
-func classify(status int, hdr http.Header, body []byte) Result {
+func classify(status int, hdr http.Header, body []byte, secrets ...string) Result {
 	if status < 200 || status > 299 {
-		return Result{Error: fmt.Sprintf("warehouse HTTP %d: %s", status, errText(body))}
+		return Result{Error: fmt.Sprintf("warehouse HTTP %d: %s", status, errText(body, secrets))}
 	}
 	id := hdr.Get("x-job-id")
 	if id == "" {
@@ -178,22 +178,42 @@ func classify(status int, hdr http.Header, body []byte) Result {
 	if id == "" {
 		id = bodyJobID(body)
 	}
-	return Result{Success: true, ExternalID: id}
+	return Result{Success: true, ExternalID: redact(id, secrets)}
 }
 
-// errText is text[:300] with control characters removed; the body is already size-capped.
-func errText(body []byte) string {
-	r := []rune(string(body)) // invalid UTF-8 becomes U+FFFD, as httpx's text decode does
-	if len(r) > errTextChars {
-		r = r[:errTextChars]
+// redact replaces every known secret value, and a trailing partial one left by the body cap.
+func redact(text string, secrets []string) string {
+	for _, sec := range secrets {
+		if sec == "" {
+			continue
+		}
+		text = strings.ReplaceAll(text, sec, "[redacted]")
+		for n := len(sec) - 1; n >= 8; n-- {
+			if strings.HasSuffix(text, sec[:n]) {
+				text = strings.TrimSuffix(text, sec[:n]) + "[redacted]"
+				break
+			}
+		}
 	}
+	return text
+}
+
+// errText is the body with secrets redacted and control characters removed, cut to 300
+// characters. Redaction runs before the cut (a cut can never leave a partial secret) and again
+// after stripping (control characters cannot be used to split a secret past the first pass).
+func errText(body []byte, secrets []string) string {
+	text := redact(strings.ToValidUTF8(string(body), "\uFFFD"), secrets) // httpx's text decode replaces bad bytes
 	var sb strings.Builder
-	for _, c := range r {
+	for _, c := range text {
 		if !unicode.IsControl(c) {
 			sb.WriteRune(c)
 		}
 	}
-	return sb.String()
+	r := []rune(redact(sb.String(), secrets))
+	if len(r) > errTextChars {
+		r = r[:errTextChars]
+	}
+	return string(r)
 }
 
 // bodyJobID is str(parsed.get("job_id") or parsed.get("id") or "") for a JSON object body;
