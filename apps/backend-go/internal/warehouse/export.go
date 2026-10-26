@@ -133,7 +133,7 @@ func Sync(ctx context.Context, c Client, wsID string, dest DestRef, b *Buffer, g
 	if err != nil && len(body) == 0 && resp.StatusCode >= 200 && resp.StatusCode <= 299 {
 		body = nil // the upload was accepted; a broken body only costs the external id
 	}
-	res := classify(resp.StatusCode, resp.Header, body, secret)
+	res := classify(resp.StatusCode, resp.Header, body, secretForms(secret)...)
 	if res.Success {
 		m := b.Manifest()
 		res.Summary = fmt.Sprintf("exported %d rows; sha256=%s", b.RowCount(), m["records_sha256"].(string)[:12])
@@ -179,6 +179,23 @@ func classify(status int, hdr http.Header, body []byte, secrets ...string) Resul
 		id = bodyJobID(body)
 	}
 	return Result{Success: true, ExternalID: redact(id, secrets)}
+}
+
+// secretForms is the secret plus the spellings a receiver may echo: the value after a leading auth scheme word
+// ("Bearer x" echoed as "x") and the JSON-escaped form.
+func secretForms(secret string) []string {
+	forms := []string{secret}
+	if _, rest, ok := strings.Cut(secret, " "); ok && len(rest) >= 8 {
+		forms = append(forms, rest)
+	}
+	for _, f := range append([]string(nil), forms...) {
+		if b, err := json.Marshal(f); err == nil {
+			if esc := string(b[1 : len(b)-1]); esc != f {
+				forms = append(forms, esc)
+			}
+		}
+	}
+	return forms
 }
 
 // redact replaces every known secret value, and a trailing partial one left by the body cap.

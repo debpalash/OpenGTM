@@ -795,3 +795,19 @@ func TestErrorTextNeverLeaksSecret(t *testing.T) {
 	}
 	check(t, "external_id", res.ExternalID)
 }
+
+// Plan 10 final security L1: a receiver that echoes only the credential part of "Bearer <token>", or its
+// JSON-escaped form, must not put the token into the stored error.
+func TestRedactsSchemeStrippedAndEscapedSecretForms(t *testing.T) {
+	secret := `Bearer sk_live_abcdef0123456789"x`
+	for name, body := range map[string]string{
+		"token only": `invalid token sk_live_abcdef0123456789"x`,
+		"json":       `{"error":"bad sk_live_abcdef0123456789\"x"}`,
+		"whole":      `bad ` + secret,
+	} {
+		r := classify(401, http.Header{}, []byte(body), secretForms(secret)...)
+		if strings.Contains(r.Error, "sk_live_abcdef0123456789") {
+			t.Errorf("%s: %q", name, r.Error)
+		}
+	}
+}
