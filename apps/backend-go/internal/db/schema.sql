@@ -30,6 +30,22 @@ CREATE FUNCTION public.leads_search_tsv_trigger() RETURNS trigger
         END
         $$;
 
+--
+-- Name: outreach_send_by_message_id(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.outreach_send_by_message_id(p_message_id text) RETURNS TABLE(workspace_id text, send_id integer, sequence_id text, enrollment_id integer, to_email text)
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path TO 'pg_catalog', 'public', 'pg_temp'
+    AS $$
+            SELECT s.workspace_id::text, s.id, s.sequence_id::text,
+                   s.enrollment_id, s.to_email::text
+            FROM public.outreach_sends s
+            WHERE s.message_id = p_message_id
+            ORDER BY s.id DESC
+            LIMIT 1
+        $$;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;

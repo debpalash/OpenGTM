@@ -15,7 +15,7 @@ import (
 
 // RequiredGoSchemaRevision is the Alembic revision the Go worker requires.
 // It must equal REQUIRED_GO_SCHEMA_REVISION in the Python go_executor module.
-const RequiredGoSchemaRevision = "f2a6b0c4d8e3"
+const RequiredGoSchemaRevision = "a7c1e9d3b5f2"
 
 const (
 	minServiceTokenLen       = 32
