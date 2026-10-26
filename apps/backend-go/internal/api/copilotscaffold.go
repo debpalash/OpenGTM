@@ -47,6 +47,5 @@ func RegisterPersonIntel(r *httpx.Router, d Deps) {
 	if !d.copilotRoutesEnabled("person-intel") {
 		return
 	}
-	registerPersonIntelRoutes(r, d)
-	registerPersonIntelWS(r, d)
+	registerPersonIntelShared(r, d)
 }

@@ -514,3 +514,40 @@ func TestPersonWorkspaceIDFallsBackToSentinel(t *testing.T) {
 		t.Errorf("no workspace: %q", got)
 	}
 }
+
+// REST enrichment is bounded: one run per admin at a time (shared with the WS) and a slot from the
+// shared stream pool.
+func TestPersonEnrichRESTIsBounded(t *testing.T) {
+	started, release := make(chan struct{}), make(chan struct{})
+	e := newPersonEnv(t, func(p *personRoutes) {
+		p.enrich = func(ctx context.Context, _ personintel.Deps, u string, _ bool) (personintel.Profile, error) {
+			close(started)
+			select {
+			case <-release:
+			case <-ctx.Done():
+			}
+			return personintel.Profile{LinkedInURL: u}, nil
+		}
+	})
+	body := `{"linkedin_url":"https://www.linkedin.com/in/jane-doe/"}`
+	first := make(chan *httptest.ResponseRecorder, 1)
+	go func() { first <- e.call("alice", "POST", "/api/person/enrich", body) }()
+	<-started
+	if rec := e.call("alice", "POST", "/api/person/enrich", body); rec.Code != http.StatusTooManyRequests {
+		t.Errorf("second concurrent run: %d %s", rec.Code, rec.Body.String())
+	}
+	close(release)
+	if rec := <-first; rec.Code != 200 {
+		t.Errorf("first: %d %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestPersonEnrichRESTUsesSharedStreamPool(t *testing.T) {
+	e := newPersonEnv(t, func(p *personRoutes) {
+		p.gate.sem = make(chan struct{}, 1)
+		p.gate.sem <- struct{}{}
+	})
+	if rec := e.call("alice", "POST", "/api/person/enrich", `{"linkedin_url":"https://www.linkedin.com/in/jane-doe/"}`); rec.Code != http.StatusServiceUnavailable {
+		t.Errorf("exhausted pool: %d %s", rec.Code, rec.Body.String())
+	}
+}

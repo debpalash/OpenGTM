@@ -68,12 +68,21 @@ func newPersonWS(d Deps) *personWS {
 		enrich: func(ctx context.Context, pd personintel.Deps, u string, deep bool, notify func(string, map[string]any)) (personintel.Profile, error) {
 			return personintel.Enrich(ctx, pd, u, deep, notify)
 		},
-		sem:     make(chan struct{}, orDefault(d.SSEMaxStreams, defaultSSEMaxStreams)),
+		sem:     personStreamPool(d),
 		maxMsg:  int64(orDefault(d.WSMaxMessageBytes, defaultWSMaxMessage)),
 		perUser: orDefault(d.SSEMaxPerUser, defaultSSEPerUser),
 		conns:   map[int32]int{}, working: map[int32]bool{}}
 	w.origins, w.anyOrigin = originPatterns(d.Config.CORSOrigins)
 	return w
+}
+
+// personStreamPool is the long-lived-stream pool person intel draws on: the process-wide semaphore shared
+// with /api/events and chat when cmd/api provides it, else a private one sized by SSE_MAX_STREAMS.
+func personStreamPool(d Deps) chan struct{} {
+	if d.SSEStreamSem != nil {
+		return d.SSEStreamSem
+	}
+	return make(chan struct{}, orDefault(d.SSEMaxStreams, defaultSSEMaxStreams))
 }
 
 // registerPersonIntelWS mounts GET /ws/person/enrich.
@@ -86,9 +95,7 @@ func newPersonWS(d Deps) *personWS {
 //     shutdown closes with 1001; Origin must match the Host or CORS_ORIGINS;
 //   - a client disconnect cancels the pipeline and nothing is saved (Python keeps running and saves);
 //   - a non-text first frame gets the generic error (Python raises KeyError into the same handler).
-func registerPersonIntelWS(r *httpx.Router, d Deps) {
-	r.Handle("GET /ws/person/enrich", http.HandlerFunc(newPersonWS(d).serve))
-}
+func registerPersonIntelWS(r *httpx.Router, d Deps) { newPersonWS(d).register(r) }
 
 func (h *personWS) register(r *httpx.Router) {
 	r.Handle("GET /ws/person/enrich", http.HandlerFunc(h.serve))

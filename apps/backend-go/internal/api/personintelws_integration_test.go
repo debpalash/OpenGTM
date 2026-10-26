@@ -488,3 +488,14 @@ func TestPersonWSWorkspaceHeaderAndForeignFallback(t *testing.T) {
 		}
 	}
 }
+
+// The WS draws its slot from the shared stream pool (d.SSEStreamSem), not a private one.
+func TestPersonWSUsesSharedStreamPool(t *testing.T) {
+	pool := make(chan struct{}, 1)
+	pool <- struct{}{} // the shared pool is exhausted
+	e := newPWSEnv(t, nil, func(d *Deps) { d.SSEStreamSem = pool })
+	_, resp, err := e.dial("token=" + e.token(t, "admin"))
+	if err == nil || handshakeStatus(resp) != http.StatusServiceUnavailable {
+		t.Fatalf("err=%v status=%d, want 503 from the shared pool", err, handshakeStatus(resp))
+	}
+}

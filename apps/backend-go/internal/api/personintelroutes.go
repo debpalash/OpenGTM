@@ -31,6 +31,9 @@ const (
 type personRoutes struct {
 	d      Deps
 	egress *http.Client
+	// gate is the WS handler: REST enrichment shares its stream pool and its one-run-per-admin map, so
+	// the two entry points cannot add up to unbounded concurrency.
+	gate *personWS
 	// enrich is a seam for tests; production runs personintel.Enrich.
 	enrich func(ctx context.Context, d personintel.Deps, linkedinURL string, deep bool) (personintel.Profile, error)
 }
@@ -40,7 +43,7 @@ func newPersonRoutes(d Deps) *personRoutes {
 	if cl == nil {
 		cl = egress.NewClientForEnv(d.Config.AppEnv, d.EgressAllowHosts)
 	}
-	return &personRoutes{d: d, egress: cl,
+	return &personRoutes{d: d, egress: cl, gate: newPersonWS(d),
 		enrich: func(ctx context.Context, pd personintel.Deps, u string, deep bool) (personintel.Profile, error) {
 			return personintel.Enrich(ctx, pd, u, deep, nil)
 		}}
@@ -50,6 +53,15 @@ func newPersonRoutes(d Deps) *personRoutes {
 // registered beside /api/person/{record_id}; ServeMux precedence makes the literal win like FastAPI's
 // declaration order.
 func registerPersonIntelRoutes(r *httpx.Router, d Deps) { newPersonRoutes(d).register(r) }
+
+// registerPersonIntelShared mounts the REST routes and the WS on one gate (one pool, one run per admin).
+func registerPersonIntelShared(r *httpx.Router, d Deps) {
+	ws := newPersonWS(d)
+	p := newPersonRoutes(d)
+	p.gate = ws
+	p.register(r)
+	ws.register(r)
+}
 
 func (p *personRoutes) register(r *httpx.Router) {
 	admin := []httpx.Middleware{identity.Authenticate(p.d.Signer, p.d.Identity), identity.RequireGlobalAdmin()}
@@ -151,10 +163,25 @@ func (p *personRoutes) enrichRoute(w http.ResponseWriter, r *http.Request) {
 		httpx.Detail(w, http.StatusBadRequest, personInvalidURL)
 		return
 	}
+	pr, hasPr := identity.PrincipalFrom(r.Context())
+	if hasPr { // Go-only bound (Python has none): one run per admin, shared with the WS, and a shared-pool slot
+		if !p.gate.startRun(pr.User.ID) {
+			httpx.Detail(w, http.StatusTooManyRequests, "Enrichment already running")
+			return
+		}
+		defer p.gate.endRun(pr.User.ID)
+	}
+	select {
+	case p.gate.sem <- struct{}{}:
+		defer func() { <-p.gate.sem }()
+	default:
+		httpx.Detail(w, http.StatusServiceUnavailable, "Too many concurrent streams")
+		return
+	}
 	ctx, cancel := context.WithTimeout(r.Context(), personEnrichTimeout)
 	defer cancel()
 	deps := personintel.Deps{HTTP: p.egress}
-	if pr, ok := identity.PrincipalFrom(r.Context()); ok {
+	if hasPr {
 		deps.WorkspaceID = PersonIntelWorkspaceID(ctx, p.d, pr.User.ID, r.Header.Get("X-Workspace-Id"))
 	}
 	if p.d.PyWorker != nil {
@@ -167,8 +194,12 @@ func (p *personRoutes) enrichRoute(w http.ResponseWriter, r *http.Request) {
 		p.enrichFailed(w, err)
 		return
 	}
+	// The save has its own budget (the WS gives it 30 s too): an enrichment that finishes near the 120 s
+	// deadline must not fail its save after the work is done.
+	sctx, scancel := context.WithTimeout(context.WithoutCancel(r.Context()), personWSSaveTimeout)
+	defer scancel()
 	var id int64
-	if err := p.inTx(ctx, func(tx pgx.Tx) (e error) { id, e = personintel.Save(ctx, tx, profile); return }); err != nil {
+	if err := p.inTx(sctx, func(tx pgx.Tx) (e error) { id, e = personintel.Save(sctx, tx, profile); return }); err != nil {
 		p.enrichFailed(w, err)
 		return
 	}
