@@ -1041,3 +1041,52 @@ func TestSendNeverUsesGlobalCredsWithWorkspaceHost(t *testing.T) {
 		t.Fatalf("calls=%d send=%+v", e.mail.n(), s)
 	}
 }
+
+// Plan 09 final security M3: scraped lead fields are escaped in the HTML part; the text part is
+// unchanged from the raw render.
+func TestLeadFieldsEscapedInHTMLPartOnly(t *testing.T) {
+	e := newEnv(t, uniqWS(t))
+	e.seedBasic(t)
+	evil := `<a href="https://evil.example">Reset your password</a>`
+	cl := e.payload(map[string]any{"variables": map[string]any{"name": "Ann", "company": evil, "email": "ann@example.com"}})
+	if err := e.h.Handle(context.Background(), cl); err != nil {
+		t.Fatal(err)
+	}
+	if e.mail.n() != 1 {
+		t.Fatalf("calls=%d", e.mail.n())
+	}
+	parts := mimeParts(t, e.mail.calls[0].msg)
+	htmlPart, textPart := parts["text/html"], parts["text/plain"]
+	if strings.Contains(htmlPart, evil) || !strings.Contains(htmlPart, "&lt;a href=&#34;https://evil.example&#34;&gt;Reset your password&lt;/a&gt;") {
+		t.Fatalf("lead markup not escaped in HTML part:\n%s", htmlPart)
+	}
+	// text part: derived from the raw render, so the tag is stripped exactly as in Python
+	if !strings.Contains(textPart, "Hello Ann at Reset your password") || strings.Contains(textPart, "&lt;") {
+		t.Fatalf("text part changed:\n%s", textPart)
+	}
+}
+
+// mimeParts decodes a multipart/alternative message into content type -> body text.
+func mimeParts(t *testing.T, raw []byte) map[string]string {
+	t.Helper()
+	m, err := mail.ReadMessage(bytes.NewReader(raw))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, params, err := mime.ParseMediaType(m.Header.Get("Content-Type"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	mr := multipart.NewReader(m.Body, params["boundary"])
+	out := map[string]string{}
+	for {
+		p, err := mr.NextPart()
+		if err != nil {
+			break
+		}
+		ct, _, _ := mime.ParseMediaType(p.Header.Get("Content-Type"))
+		b, _ := io.ReadAll(p) // multipart.Part decodes quoted-printable itself
+		out[ct] = string(b)
+	}
+	return out
+}

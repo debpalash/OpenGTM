@@ -305,6 +305,7 @@ func (h *Handler) run(ctx context.Context, ws string, j *job, cost float64, paid
 
 	// render the step (variables default to {"email": to}, a Python quirk kept).
 	subject, bodyHTML := j.Subject, j.BodyHTML
+	bodyRaw := bodyHTML // the text part is derived from the unescaped render (Python parity)
 	var steps []step
 	if seq != nil {
 		steps = parseSteps(seq.Steps)
@@ -314,7 +315,8 @@ func (h *Handler) run(ctx context.Context, ws string, j *job, cost float64, paid
 				vars = map[string]any{"email": to}
 			}
 			subject = smtpmail.Render(st.subject, vars)
-			bodyHTML = smtpmail.Render(st.body, vars)
+			bodyRaw = smtpmail.Render(st.body, vars)
+			bodyHTML = smtpmail.RenderHTML(st.body, vars) // lead fields escaped in the HTML part only
 		}
 	}
 
@@ -450,7 +452,10 @@ func (h *Handler) run(ctx context.Context, ws string, j *job, cost float64, paid
 	} else if unsub, err := h.Signer.URL(ws, to, seqID); err != nil {
 		buildErr = err
 	} else {
-		htmlBody, textBody, headers, buildErr = smtpmail.Build(footer, unsub, bodyHTML)
+		htmlBody, _, headers, buildErr = smtpmail.Build(footer, unsub, bodyHTML)
+		if buildErr == nil {
+			_, textBody, _, buildErr = smtpmail.Build(footer, unsub, bodyRaw)
+		}
 	}
 	if buildErr != nil {
 		release()

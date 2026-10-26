@@ -3,6 +3,7 @@ package smtpmail
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"math"
 	"regexp"
 	"sort"
@@ -19,6 +20,16 @@ var placeholderRe = regexp.MustCompile(`\{\{([^}]+)\}\}`)
 func Render(template string, vars map[string]any) string {
 	out := placeholderRe.ReplaceAllStringFunc(template, func(m string) string {
 		return pyStr(vars[m[2:len(m)-2]])
+	})
+	return pyStrip(out)
+}
+
+// RenderHTML is Render for the HTML part: each substituted value is HTML-escaped (the template itself
+// is trusted markup), so scraped lead fields cannot inject tags or attributes. Deliberate deviation:
+// Python substitutes raw (plan 09 final security M3). The text part is rendered with Render.
+func RenderHTML(template string, vars map[string]any) string {
+	out := placeholderRe.ReplaceAllStringFunc(template, func(m string) string {
+		return html.EscapeString(pyStr(vars[m[2:len(m)-2]]))
 	})
 	return pyStrip(out)
 }
