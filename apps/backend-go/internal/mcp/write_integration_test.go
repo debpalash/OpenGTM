@@ -39,9 +39,12 @@ func newWEnv(t *testing.T, role string) *wEnv {
 	e.cfg = Config{WriteEnabled: true}
 	t.Cleanup(func() {
 		c := context.Background()
-		_, _ = a.pool.Exec(c, `DELETE FROM mcp_audit_log WHERE workspace_id=$1`, e.ws)
-		_, _ = a.pool.Exec(c, `DELETE FROM trigger_cap_reservations WHERE workspace_id=$1`, e.ws)
-		_, _ = a.pool.Exec(c, `DELETE FROM workbooks WHERE workspace_id=$1`, e.ws)
+		_ = e.d.RunInWorkspace(c, e.ws, func(tx pgx.Tx) error {
+			for _, q := range []string{`DELETE FROM mcp_audit_log`, `DELETE FROM trigger_cap_reservations`, `DELETE FROM workbooks`} {
+				_, _ = tx.Exec(c, q+` WHERE workspace_id=$1`, e.ws)
+			}
+			return nil
+		})
 	})
 	return e
 }
@@ -58,7 +61,7 @@ func (e *wEnv) insertTool(name, capability string, roles []string, result string
 		Apply: func(ctx context.Context, tx pgx.Tx, c Ctx, args Args) (string, error) {
 			e.calls.Add(1)
 			wid, _, _ := args.String("wid")
-			if _, err := tx.Exec(ctx, `INSERT INTO workbooks (id, name, workspace_id) VALUES ($1,'n',$2)`, wid, c.WorkspaceID); err != nil {
+			if _, err := tx.Exec(ctx, `INSERT INTO workbooks (id, name, workspace_id) VALUES ($1,'n',$2)`, c.WorkspaceID+"/"+wid, c.WorkspaceID); err != nil {
 				return "", err
 			}
 			return result, nil
@@ -76,7 +79,9 @@ func (e *wEnv) call(s *Server, name string, args Args) string {
 func (e *wEnv) count(t *testing.T, q string, args ...any) int {
 	t.Helper()
 	var n int
-	if err := e.pool.QueryRow(context.Background(), q, args...).Scan(&n); err != nil {
+	if err := e.d.RunInWorkspace(context.Background(), e.ws, func(tx pgx.Tx) error {
+		return tx.QueryRow(context.Background(), q, args...).Scan(&n)
+	}); err != nil {
 		t.Fatal(err)
 	}
 	return n
@@ -88,19 +93,25 @@ func (e *wEnv) workbooks(t *testing.T) int {
 
 func (e *wEnv) audit(t *testing.T) []struct{ Tool, Status, Err, Key string } {
 	t.Helper()
-	rows, err := e.pool.Query(context.Background(),
-		`SELECT tool_name, result_status, coalesce(error,''), coalesce(idempotency_key,'') FROM mcp_audit_log WHERE workspace_id=$1 ORDER BY created_at, id`, e.ws)
+	var out []struct{ Tool, Status, Err, Key string }
+	err := e.d.RunInWorkspace(context.Background(), e.ws, func(tx pgx.Tx) error {
+		rows, err := tx.Query(context.Background(),
+			`SELECT tool_name, result_status, coalesce(error,''), coalesce(idempotency_key,'') FROM mcp_audit_log WHERE workspace_id=$1 ORDER BY created_at, id`, e.ws)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var r struct{ Tool, Status, Err, Key string }
+			if err := rows.Scan(&r.Tool, &r.Status, &r.Err, &r.Key); err != nil {
+				return err
+			}
+			out = append(out, r)
+		}
+		return rows.Err()
+	})
 	if err != nil {
 		t.Fatal(err)
-	}
-	defer rows.Close()
-	var out []struct{ Tool, Status, Err, Key string }
-	for rows.Next() {
-		var r struct{ Tool, Status, Err, Key string }
-		if err := rows.Scan(&r.Tool, &r.Status, &r.Err, &r.Key); err != nil {
-			t.Fatal(err)
-		}
-		out = append(out, r)
 	}
 	return out
 }
@@ -110,6 +121,9 @@ func (e *wEnv) wantAudit(t *testing.T, n int, status, errPart string) {
 	a := e.audit(t)
 	if len(a) != n {
 		t.Fatalf("audit rows = %d, want %d: %+v", len(a), n, a)
+	}
+	if len(a) == 0 {
+		t.Fatal("no audit rows")
 	}
 	last := a[len(a)-1]
 	if last.Status != status || !strings.Contains(last.Err, errPart) {
@@ -204,7 +218,7 @@ func TestReplayDoesNotReapply(t *testing.T) {
 		t.Fatal("reapplied")
 	}
 	e.wantAudit(t, 2, "ok", "idempotent_replay")
-	if a := e.audit(t); a[0].Status != "ok" || a[0].Key != "k1" {
+	if a := e.audit(t); a[0].Status != "ok" || a[0].Key != "k1" || a[1].Key != "" {
 		t.Fatalf("%+v", a)
 	}
 }
@@ -316,7 +330,7 @@ func TestApplyPanicRollsBackAndAudits(t *testing.T) {
 	e := newWEnv(t, "editor")
 	tool := e.leadTool(``)
 	tool.Apply = func(ctx context.Context, tx pgx.Tx, c Ctx, a Args) (string, error) {
-		_, _ = tx.Exec(ctx, `INSERT INTO workbooks (id, name, workspace_id) VALUES ('p','n',$1)`, c.WorkspaceID)
+		_, _ = tx.Exec(ctx, `INSERT INTO workbooks (id, name, workspace_id) VALUES ('p'||$1,'n',$1)`, c.WorkspaceID)
 		panic("secret token sk-123 boom")
 	}
 	s := e.server(tool)
@@ -375,7 +389,7 @@ func TestWorkspaceInArgumentsIgnored(t *testing.T) {
 	if e.workbooks(t) != 1 {
 		t.Fatal("not applied in token workspace")
 	}
-	if e.count(t, `SELECT count(*) FROM mcp_audit_log WHERE workspace_id='other-ws'`) != 0 {
+	if e.count(t, `SELECT count(*) FROM mcp_audit_log WHERE workspace_id<>$1`, e.ws) != 0 {
 		t.Fatal("audited elsewhere")
 	}
 }
@@ -409,7 +423,7 @@ func TestTimeoutDoesNotCommitAndReleases(t *testing.T) {
 	done := make(chan struct{})
 	tool.Apply = func(ctx context.Context, tx pgx.Tx, c Ctx, a Args) (string, error) {
 		defer close(done)
-		_, _ = tx.Exec(context.Background(), `INSERT INTO workbooks (id, name, workspace_id) VALUES ('late','n',$1)`, c.WorkspaceID)
+		_, _ = tx.Exec(context.Background(), `INSERT INTO workbooks (id, name, workspace_id) VALUES ('late'||$1,'n',$1)`, c.WorkspaceID)
 		time.Sleep(300 * time.Millisecond) // ignores ctx
 		return `{"status":"created"}`, nil
 	}
