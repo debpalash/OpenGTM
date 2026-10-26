@@ -914,7 +914,7 @@ drift tests in `internal/copilot/catalog_test.go`; update `testdata/catalog.sha2
   Non-object tool arguments (Python `or "{}"` turns them into `{}` or crashes) and non-object tool results are treated as empty.
 - **Slots and deadlines:** per-user cap `COPILOT_MAX_STREAMS_PER_USER` (default 3, 429 `Too many active chat streams`) plus the shared
   `SSE_MAX_STREAMS` pool (503; the same semaphore as `/api/events`, wired in `cmd/api`); the slot is taken before any side effect, so a
-  429 leaves no conversation; turn deadline `COPILOT_TURN_TIMEOUT_SECONDS` (900; error frame `Request timed out` + `[DONE]`); tool deadline
+  429 leaves no conversation; turn deadline `COPILOT_TURN_TIMEOUT_SECONDS` (900) covers the **whole turn** (pre-route, context assembly, approval resume and the tool loop): error frame `Request timed out` + `[DONE]` once the stream started, else 504 `Request timed out`, and the slot is released either way (keepalives do not extend it); tool deadline
   `COPILOT_TOOL_TIMEOUT_SECONDS` (120); tool results and `tool_data` capped at 1 MiB.
 - **Worker unavailable (503):** `AI worker unavailable` when the system prompt or the pre-route stream cannot be opened *before* headers
   (Python: 500). After headers, a worker fault is one fixed SSE `error` frame + `[DONE]`, never a hang. A stream that ends without a
@@ -956,9 +956,33 @@ drift tests in `internal/copilot/catalog_test.go`; update `testdata/catalog.sha2
   profile save has **30 s** (including the wait for a pool connection; a deadline/finish race is reported as a timeout, low). A client
   disconnect cancels the pipeline and **nothing is saved** (Python continues and saves). A malformed, non-object or binary first frame
   gets the generic error frame.
+- **Final fix wave (plan 12 final reviews):**
+  - `search_leads` `limit` is clamped to **100** (`MaxSearchLeadsLimit`; Python has no upper bound, so a steered model could load a whole workspace into
+    the shared process). A null, non-integer or negative limit still falls through to Python (its SQL behaves differently).
+  - Dangerous tool RPCs (`/internal/copilot/tool` for approval-gated tools) are sent **once** (`UnaryOnce`): the worker's X-Call-Id dedupe is in-memory per
+    process, so a retry after a dropped connection could run an approved tool twice. A dropped connection becomes `Tool '<name>' failed: worker error`.
+    Safe tools and `describe`/`system-prompt` keep the single retry.
+  - More than 20 dangerous calls in one model round end the turn with `{"error": "Too many tool calls requested"}` + `[DONE]` before any describe RPC
+    or approval row (Python has no cap).
+  - `CHAT_REQUIRE_AUTH=false` set **explicitly** with a non-dev `APP_ENV` (dev, development, test, testing, local) refuses to start unless
+    `COPILOT_ALLOW_ANONYMOUS_CHAT=true`. The implicit default (`PG_LEAD_STORE=false` self-host) is unchanged. Anonymous streams still have no per-user cap
+    (they share one `self-host` partition and the global pool); not fixed, documented.
+  - Integer env ranges fail startup: `COPILOT_MAX_BODY_BYTES` 1..64 MiB, `COPILOT_MAX_STREAMS_PER_USER` 1..1000, `COPILOT_TURN_TIMEOUT_SECONDS` and
+    `COPILOT_TOOL_TIMEOUT_SECONDS` 1..86400; a non-integer or out-of-range value is a startup error, not a default.
+  - Person intel concurrency: the WebSocket takes its slot from the process-wide `SSE_MAX_STREAMS` pool (shared with `/api/events` and chat) and
+    `POST /api/person/enrich` takes a slot from the same pool plus the one-enrichment-per-admin lock shared with the WebSocket (429 `Enrichment already
+    running`, 503 when the pool is full). The REST save has its own 30 s budget (Python has none).
+  - `/ws/person/enrich` is answered **404 at the gateway unless the request is routed to Go** (the Python handler has no deadline, no caps and echoes
+    `str(exc)`; no frontend code uses the path). A role that is not a string in a chat message is a 422 (Python passes it on and the provider errors).
+  - A pre-route `persist` frame followed by a late `none` counts as handled (Python streams the branch and ignores the late `none`).
+  - Not fixed, noted by the final reviews (info): tool results are labelled "Trusted structured tool results" in a system message (Python parity; web content
+    from `find_people_at_company`/`ambitionbox_*` reaches the model with system placement); chat accepts client messages of any role and a free-form
+    `context` in a system message (Python parity, own turn only); the deep-scrape URLs from search results get no Go-side egress check (Python `url_guard`,
+    issue #114); `update_lead_status` accepts any status string (approval and role gated, Python parity); gosec is unavailable and govulncheck must be rebuilt
+    with go1.27 and run before cutover.
 - **Boundary and catalog (Tasks 2-3, 6, 12):** the Python worker is called over NDJSON (`preroute`, `llm`) or unary JSON (`tool`,
   `describe`, `system-prompt`); Go owns the round loop, dedup, budget and approval gate. Python quirks kept as recorded: a tool
-  returning non-JSON ends the turn on the provider's `[DONE]`; `get_enrichment_gaps {}` answers Python's real error text; dedupe of
+  returning non-JSON is wrapped as `tool_result {"raw": ...}` and the loop **continues** (Python ends the turn on `[DONE]` with no `tool_result`; deviation); `get_enrichment_gaps {}` answers Python's real error text; dedupe of
   in-flight tool calls is per worker process; a 408 from a tool is never blindly retried for dangerous tools. Python replicas must run
   the Task 2 code so both stacks answer identically.
 
