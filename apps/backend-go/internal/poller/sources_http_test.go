@@ -1177,3 +1177,36 @@ func TestParseFeedTextAndDepthCaps(t *testing.T) {
 		t.Error("over-deep document must be rejected")
 	}
 }
+
+func TestParseFeedMultiDirectiveExpansionBounded(t *testing.T) {
+	ent := strings.Repeat("x", 4000)
+	var sb strings.Builder
+	sb.WriteString(`<?xml version="1.0"?>`)
+	for i := 0; i < 400; i++ {
+		fmt.Fprintf(&sb, `<!DOCTYPE r [<!ENTITY a%d "%s">]>`, i, ent)
+	}
+	sb.WriteString("<rss><item><title>")
+	for i := 0; i < 400; i++ {
+		sb.WriteString(strings.Repeat(fmt.Sprintf("&a%d;", i), 100))
+	}
+	sb.WriteString("</title><guid>1</guid></item></rss>")
+	start := time.Now()
+	got, err := ParseFeed([]byte(sb.String()), 10)
+	if err == nil || len(got) != 0 || time.Since(start) > 3*time.Second {
+		t.Fatalf("multi-directive probe: %d entries, err %v, %s", len(got), err, time.Since(start))
+	}
+	// one DOCTYPE only; more than 64 declarations in total is refused
+	two := `<!DOCTYPE r [<!ENTITY a "1">]><!DOCTYPE r [<!ENTITY b "2">]><rss><item><guid>1</guid></item></rss>`
+	if _, err := ParseFeed([]byte(two), 10); err == nil {
+		t.Error("second DOCTYPE must be rejected")
+	}
+	var decls strings.Builder
+	decls.WriteString("<!DOCTYPE r [")
+	for i := 0; i < 65; i++ {
+		fmt.Fprintf(&decls, `<!ENTITY e%d "v">`, i)
+	}
+	decls.WriteString("]><rss><item><guid>1</guid></item></rss>")
+	if _, err := ParseFeed([]byte(decls.String()), 10); err == nil {
+		t.Error("65 entity declarations must be rejected")
+	}
+}
