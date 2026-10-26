@@ -78,15 +78,6 @@ func frames(body string) []string {
 	return out
 }
 
-func mustJSON(t *testing.T, v any) string {
-	t.Helper()
-	b, err := canonjson.Marshal(v, false)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return string(b)
-}
-
 const invalidReason = "Approval is invalid, expired, already consumed, or belongs to another workspace."
 
 func TestApproveExecutesOnceUnderConcurrentResubmit(t *testing.T) {
@@ -142,9 +133,10 @@ func TestDenyNeverExecutes(t *testing.T) {
 	if err := e.owner.QueryRow(context.Background(), `SELECT status FROM leads WHERE id=$1`, e.acme).Scan(&st); err != nil || st != "new" {
 		t.Fatalf("lead status %q %v", st, err)
 	}
-	want := `{"role": "tool", "tool_call_id": "` + id + `", "name": "update_lead_status", "content": "{\"denied\": true, \"reason\": \"User declined this action.\"}"}`
-	if got := mustJSON(t, msgs[1]); got != want {
-		t.Fatalf("tool msg %s\nwant %s", got, want)
+	m := msgs[1]
+	if m["role"] != "tool" || m["tool_call_id"] != id || m["name"] != "update_lead_status" ||
+		m["content"] != `{"denied": true, "reason": "User declined this action."}` {
+		t.Fatalf("tool msg %v", m)
 	}
 	// denial burned the approval: a later approve cannot run it
 	body, _ = resolve(t, e.turn(1), &msgs, []Approved{approve(id)})
@@ -243,9 +235,13 @@ func TestFollowUpContentPerTool(t *testing.T) {
 		want         func(m map[string]any) string
 	}{
 		{"create_people_workbook", `{"workbook_id": "w1", "name": "Q3 People", "total_rows": 12, "url": "/wb/w1"}`,
-			func(map[string]any) string { return "Created **Q3 People** with **12 people**. [Open workbook](/wb/w1)" }},
+			func(map[string]any) string {
+				return "Created **Q3 People** with **12 people**. [Open workbook](/wb/w1)"
+			}},
 		{"create_people_workbook", `{"workbook_id": "w1", "url": "/wb/w1"}`,
-			func(map[string]any) string { return "Created **People workbook** with **0 people**. [Open workbook](/wb/w1)" }},
+			func(map[string]any) string {
+				return "Created **People workbook** with **0 people**. [Open workbook](/wb/w1)"
+			}},
 		{"enrich_people_contacts", `{"ok": true, "summary": {}}`, func(m map[string]any) string { return FormatPeopleContacts(m) }},
 		{"create_source_workbook", `{"workbook_id": "w2", "name": "Src", "source_job_id": "j9", "url": "/wb/w2"}`,
 			func(map[string]any) string { return "Created **Src**. The source job is j9. [Open workbook](/wb/w2)" }},
@@ -258,49 +254,48 @@ func TestFollowUpContentPerTool(t *testing.T) {
 		{"draft_grounded_outreach", `{"ok": true, "person_name": "Ann", "company": "Acme", "url": "/d/1"}`,
 			func(m map[string]any) string { return FormatGroundedDraft(m) }},
 	}
-	for _, c := range cases {
-		e := resumeSetup(t)
-		res := c.result
-		e.py.toolFn = func(toolReq) (int, any) { return 200, map[string]any{"result": res} }
-		id := e.propose(t, e.ws, 1, c.tool, `{"a": 1}`)
-		msgs := []map[string]any{}
-		body, err := resolve(t, e.turn(1), &msgs, []Approved{approve(id)})
-		if err != nil {
-			t.Fatal(err)
-		}
-		v, _ := canonjson.Decode([]byte(res))
-		fs := frames(body)
-		if len(fs) != 3 {
-			t.Fatalf("%s: frames %q", c.tool, fs)
-		}
-		if fs[0] != `{"tool_call": {"name": "`+c.tool+`", "args": {"a": 1}}}` {
-			t.Fatalf("%s: tool_call %s", c.tool, fs[0])
-		}
-		var reRes any
-		_ = json.Unmarshal([]byte(res), &reRes)
-		if !strings.HasPrefix(fs[1], `{"tool_result": {"name": "`+c.tool+`", "result": {`) {
-			t.Fatalf("%s: tool_result %s", c.tool, fs[1])
-		}
-		wantC, _ := json.Marshal(map[string]string{"content": c.want(v.(map[string]any))})
-		var wantFrame strings.Builder
-		wantFrame.WriteString(`{"content": `)
-		var s string
-		_ = json.Unmarshal(wantC, &struct{ C *string }{&s})
-		enc := json.NewEncoder(&wantFrame)
-		enc.SetEscapeHTML(false)
-		_ = enc.Encode(c.want(v.(map[string]any)))
-		got := fs[2]
-		exp := strings.TrimSuffix(wantFrame.String(), "\n") + "}"
-		// Python's json.dumps escapes non-ASCII; the formatters emit an em dash in places, so compare decoded text
-		var gotObj, expObj map[string]string
-		if json.Unmarshal([]byte(got), &gotObj) != nil || json.Unmarshal([]byte(exp), &expObj) != nil || gotObj["content"] != expObj["content"] {
-			t.Fatalf("%s: content frame %s\nwant %s", c.tool, got, exp)
-		}
-		if msgs[1]["content"] != res {
-			t.Fatalf("%s: tool message content %v", c.tool, msgs[1]["content"])
-		}
+	for i, c := range cases {
+		t.Run(fmt.Sprintf("%d_%s", i, c.tool), func(t *testing.T) {
+			e := resumeSetup(t)
+			res := c.result
+			e.py.toolFn = func(toolReq) (int, any) { return 200, map[string]any{"result": res} }
+			id := e.propose(t, e.ws, 1, c.tool, `{"a": 1}`)
+			msgs := []map[string]any{}
+			body, err := resolve(t, e.turn(1), &msgs, []Approved{approve(id)})
+			if err != nil {
+				t.Fatal(err)
+			}
+			v, _ := canonjson.Decode([]byte(res))
+			fs := frames(body)
+			if len(fs) != 3 {
+				t.Fatalf("%s: frames %q", c.tool, fs)
+			}
+			if fs[0] != `{"tool_call": {"name": "`+c.tool+`", "args": {"a": 1}}}` {
+				t.Fatalf("%s: tool_call %s", c.tool, fs[0])
+			}
+			if !strings.HasPrefix(fs[1], `{"tool_result": {"name": "`+c.tool+`", "result": {`) {
+				t.Fatalf("%s: tool_result %s", c.tool, fs[1])
+			}
+			var wantFrame strings.Builder
+			wantFrame.WriteString(`{"content": `)
+			enc := json.NewEncoder(&wantFrame)
+			enc.SetEscapeHTML(false)
+			_ = enc.Encode(c.want(v.(map[string]any)))
+			got := fs[2]
+			exp := strings.TrimSuffix(wantFrame.String(), "\n") + "}"
+			// Python's json.dumps escapes non-ASCII; the formatters emit an em dash in places, so compare decoded text
+			var gotObj, expObj map[string]string
+			if json.Unmarshal([]byte(got), &gotObj) != nil || json.Unmarshal([]byte(exp), &expObj) != nil || gotObj["content"] != expObj["content"] {
+				t.Fatalf("%s: content frame %s\nwant %s", c.tool, got, exp)
+			}
+			if msgs[1]["content"] != res {
+				t.Fatalf("%s: tool message content %v", c.tool, msgs[1]["content"])
+			}
+		})
 	}
-	// no follow-up for a failed enrich or a workbook without an id
+}
+
+func TestNoFollowUpWithoutSuccess(t *testing.T) {
 	e := resumeSetup(t)
 	e.py.toolFn = func(toolReq) (int, any) { return 200, map[string]any{"result": `{"error": "nope"}`} }
 	id := e.propose(t, e.ws, 1, "create_people_workbook", `{}`)
@@ -346,7 +341,7 @@ func TestMessageOrderMatchesLegacy(t *testing.T) {
 		t.Fatal(err)
 	}
 	wantFrames := []string{
-		`{"tool_call": {"name": "create_people_workbook", "args": {"k": "é"}}}`,
+		`{"tool_call": {"name": "create_people_workbook", "args": {"k": "\u00e9"}}}`,
 		`{"tool_result": {"name": "create_people_workbook", "result": {"workbook_id": "w", "url": "/u"}}}`,
 		`{"content": "Created **People workbook** with **0 people**. [Open workbook](/u)"}`,
 		`{"tool_denied": {"name": "invalid_approval"}}`,
