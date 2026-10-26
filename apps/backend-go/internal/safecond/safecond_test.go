@@ -64,16 +64,6 @@ func (v *evalVec) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// overBudget reports a condition Python accepts but the Go bounds refuse (D4).
-func overBudget(c string) bool {
-	_, err := tokenizeLimit(c, 1<<20)
-	if err != nil {
-		return false
-	}
-	_, err = tokenize(c)
-	return err != nil
-}
-
 type validateVec struct {
 	Condition *string `json:"condition"`
 	OK        bool    `json:"ok"`
@@ -131,12 +121,6 @@ func TestConditionVectors(t *testing.T) {
 	}
 	for i, v := range f.Vectors {
 		got := EvaluateOrdered(cond(v.Condition), v.Keys, v.Cells, v.Columns, at(f.Now))
-		if overBudget(cond(v.Condition)) { // documented deviation D4: Python is unbounded
-			if got.Passed || !strings.HasPrefix(got.Reason, "condition too complex") {
-				t.Errorf("vector %d over budget: got %+v", i, got)
-			}
-			continue
-		}
 		wantReason := ""
 		if v.Error != nil {
 			wantReason = *v.Error
@@ -151,12 +135,6 @@ func TestValidateReasonsMatchVector(t *testing.T) {
 	f := loadVec[validateVec](t, "validate_vectors.json")
 	for i, v := range f.Vectors {
 		err := Validate(cond(v.Condition))
-		if overBudget(cond(v.Condition)) {
-			if err == nil || !strings.HasPrefix(err.Error(), "condition too complex") {
-				t.Errorf("vector %d over budget: %v", i, err)
-			}
-			continue
-		}
 		if v.OK != (err == nil) {
 			t.Errorf("vector %d %q: err=%v want ok=%v", i, cond(v.Condition), err, v.OK)
 			continue
@@ -313,37 +291,51 @@ func TestPythonFloatAcceptance(t *testing.T) {
 }
 
 func TestTokenBudgetRejected(t *testing.T) {
-	long := strings.Repeat("{score} > 1 AND ", 5) + "{score} > 1" // 5*4+... small
-	if r := eval(long); !r.Passed {
-		t.Errorf("small expression rejected: %+v", r)
+	ok := strings.Repeat("1 == 1 AND ", 200) + "1 == 1" // 800+ tokens, accepted
+	if r := eval(ok); !r.Passed {
+		t.Errorf("large expression rejected: %+v", r)
 	}
-	many := strings.Repeat("1 == 1 AND ", 30) + "1 == 1" // 30*4+3 = 123 tokens
+	many := strings.Repeat("1 == 1 AND ", 400) + "1 == 1" // 1603 tokens, 4.4 KB
 	r := eval(many)
-	if r.Passed || r.Reason != "condition too complex (more than 64 tokens)" {
+	if r.Passed || r.Reason != "condition too complex (more than 1024 tokens)" {
 		t.Errorf("tokens: %+v", r)
 	}
-	if err := Validate(many); err == nil || err.Error() != "condition too complex (more than 64 tokens)" {
+	if err := Validate(many); err == nil || err.Error() != "condition too complex (more than 1024 tokens)" {
 		t.Errorf("validate tokens: %v", err)
 	}
-	big := `{score} == "` + strings.Repeat("a", 4096) + `"`
-	if r := eval(big); r.Passed || r.Reason != "condition too long (more than 4096 bytes)" {
+	big := `{score} == "` + strings.Repeat("a", 16384) + `"`
+	if r := eval(big); r.Passed || r.Reason != "condition too long (more than 16384 bytes)" {
 		t.Errorf("size: %+v", r)
 	}
 	if err := Validate(big); err == nil {
 		t.Error("validate accepted oversize condition")
 	}
-	// exactly 64 tokens is fine: 16 comparisons of 3 tokens joined by 15 ANDs = 63.
-	ok := strings.Repeat("1 == 1 AND ", 15) + "1 == 1"
-	if r := eval(ok); !r.Passed {
-		t.Errorf("63 tokens: %+v", r)
-	}
-	// operand bound
 	cells := map[string]any{"v": strings.Repeat("x", maxOperandLen+1), "w": strings.Repeat("x", maxOperandLen)}
-	if r := Evaluate(`{v} contains "x"`, cells, nil); r.Passed || r.Reason != "operand too long (more than 65536 bytes)" {
+	if r := Evaluate(`{v} contains "x"`, cells, nil); r.Passed || r.Reason != "operand too long (more than 1048576 bytes)" {
 		t.Errorf("operand: %+v", r)
 	}
 	if r := Evaluate(`{w} contains "x"`, cells, nil); !r.Passed {
 		t.Errorf("operand at limit: %+v", r)
+	}
+	// cumulative budget: 9 x 1 MiB operands exceed the 8 MiB per-evaluation total.
+	c := strings.Repeat(`{w} contains "x" AND `, 8) + `{w} contains "x"`
+	if r := Evaluate(c, cells, nil); r.Passed || r.Reason != "operands too large (more than 8388608 bytes resolved)" {
+		t.Errorf("cumulative: %+v", r)
+	}
+	c = strings.Repeat(`{w} contains "x" AND `, 7) + `{w} contains "x"` // exactly 8 MiB
+	if r := Evaluate(c, cells, nil); !r.Passed {
+		t.Errorf("8 operands: %+v", r)
+	}
+}
+
+func TestCaseInsensitiveLookupManyKeys(t *testing.T) {
+	cells := map[string]any{}
+	for i := 0; i < 2000; i++ {
+		cells[fmt.Sprintf("Key%d", i)] = "1"
+	}
+	c := strings.Repeat("{key7} == 1 AND ", 300) + "{KEY1999} == 1"
+	if r := Evaluate(c, cells, nil); !r.Passed {
+		t.Errorf("%+v", r)
 	}
 }
 
