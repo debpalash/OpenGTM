@@ -126,3 +126,16 @@ func TestAPIConfigRedacted(t *testing.T) {
 		}
 	}
 }
+func TestRLSRequireSafeRoleDefaultsTrue(t *testing.T) {
+	cases := map[string]bool{"": true, "true": true, "1": true, "false": false, "FALSE": false, "0": false, "no": false, "off": false, "yes": true}
+	for in, want := range cases {
+		c, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "dev", "PG_RLS_REQUIRE_SAFE_ROLE": in}))
+		if err != nil || c.RLSRequireSafeRole != want {
+			t.Errorf("%q: got %v, %v want %v", in, c.RLSRequireSafeRole, err, want)
+		}
+	}
+	if _, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "dev", "PG_RLS_REQUIRE_SAFE_ROLE": "maybe"})); err == nil {
+		t.Error("garbage must be refused")
+	}
+}
+
