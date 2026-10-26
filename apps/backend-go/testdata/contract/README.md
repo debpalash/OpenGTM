@@ -303,3 +303,15 @@ Fixtures `analytics/*` (cases `legacy/python/scripts/contract_cases/analytics.ya
 - A merge whose leads hold a NULL/non-numeric `score` or a non-string `source` answers 422 (`value_error`, loc `body.duplicate_ids`) before any write (D2; Python raises TypeError, 500).
 - The master update and all deletes run in one transaction (D4); Python wrote and deleted in separate statements, so a failure left a half-merged state.
 - Dedup run fixtures are compared order-insensitively (cluster id sets, unordered pair digests): Python's tie ordering depends on `PYTHONHASHSEED`.
+
+## Contract coverage (plan 04 Task 23)
+
+- `internal/api/workbookcrud_contract_test.go`: `TestEveryMigratedWorkbookRouteHasAFixture` (every plan 04
+  route has a fixture), `TestRetainedWorkbookRoutesNotRegistered` (the 14
+  retained workbook routes + 2 ingest routes in `retained_workbook_routes.txt` are not registered in Go)
+  and `TestFixturesCoverEveryGuardString`. Fixture replay itself stays in the per-area tests.
+- Guard strings with no fixture, by design: hardened files/system answers, Go-only memory/body limits, and
+  real FastAPI guards that need corrupted stored state or a race (`Column identity is ambiguous`, stale
+  saved-view column, `Selected workbook rows changed`, template registry errors). Each is asserted by a Go
+  unit test; the list is `uncoveredGuardAllowlist` in the test.
+- nginx: retained workbook routes always reach Python; asserted by `scripts/nginx-routing-check.sh`.
