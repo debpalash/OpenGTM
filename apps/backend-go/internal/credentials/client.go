@@ -139,7 +139,7 @@ func (c *Client) fetch(ctx context.Context, workspaceID, envVar string) (string,
 	switch {
 	case resp.StatusCode == http.StatusOK:
 	case resp.StatusCode == http.StatusNotFound:
-		return "", fmt.Errorf("credentials: %s is not a servable credential (404)", envVar)
+		return "", fmt.Errorf("%w: %s is not a servable credential (404)", ErrUnknownCredential, envVar)
 	default:
 		io.Copy(io.Discard, io.LimitReader(resp.Body, maxBody))
 		return "", fmt.Errorf("credentials: unexpected status %d fetching %s", resp.StatusCode, envVar)
