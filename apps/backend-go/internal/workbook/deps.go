@@ -91,7 +91,9 @@ type runState struct {
 	// allCols is the whole columns_config as a graph (dependency checks look at
 	// every column, not just the ones this run executes); cycleBlocked caches
 	// colgraph.CycleBlocked over it.
-	runner       ProviderRunner
+	runner ProviderRunner
+	// cell identifies the spend run of an in-request cell run (claim == nil).
+	cell         *cellIdentity
 	noRetryMu    sync.Mutex
 	noRetry      map[cellKey]bool // cells whose RPC timed out: no automatic retry
 	cols         []column         // every configured column (name aliases for {column} references)

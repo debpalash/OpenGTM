@@ -23,7 +23,13 @@ var ErrLeaseLost = errors.New("workbook: queue lease is no longer active")
 // status processing) all still hold and its payload names this workbook. It
 // must be the first statement of every transaction that writes run state, so
 // the lock is held until commit.
+//
+// A nil claim is an in-request cell run (EnrichCell): Python's batch_owner is None
+// there, so fence_workbook_run_state is a no-op ("legacy direct callers have no queue lease").
 func fence(ctx context.Context, tx pgx.Tx, c *queue.Claim, workbookID string) error {
+	if c == nil {
+		return nil
+	}
 	payload, err := gen.New(tx).LockOwnedRunWorkbookJob(ctx, gen.LockOwnedRunWorkbookJobParams{
 		ID: int32(c.ID), WorkspaceID: c.WorkspaceID, WorkerID: c.WorkerID,
 		LockedAt: pgtype.Timestamp{Time: c.LockedAt, Valid: true}, LeaseToken: c.LeaseToken,
@@ -49,6 +55,9 @@ func fence(ctx context.Context, tx pgx.Tx, c *queue.Claim, workbookID string) er
 // checkOwner is check_workbook_run_owner: a preflight in its own short
 // transaction so no lock is held across the provider call that follows.
 func checkOwner(ctx context.Context, pool *pgxpool.Pool, c *queue.Claim, workbookID string) error {
+	if c == nil {
+		return nil // in-request cell run: no lease to check
+	}
 	return tenancy.InWorkspace(ctx, pool, c.WorkspaceID, func(tx pgx.Tx) error {
 		return fence(ctx, tx, c, workbookID)
 	})

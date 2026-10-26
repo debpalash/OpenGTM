@@ -51,7 +51,10 @@ func writeText(v any) string {
 // or a cancelled job aborts the run.
 func (rs *runState) writeBackFields(ctx context.Context, lead map[string]any, fields map[string]any, target, provider string) error {
 	lv, present := lead["__lead_id"]
-	if !present || lv == nil {
+	if !present {
+		lv = lead["id"] // v1 lead-store row (in-request cell run): the row IS the lead
+	}
+	if lv == nil {
 		return nil // v2 row without a lead: nothing to write back to
 	}
 	leadID := intOf(lv)

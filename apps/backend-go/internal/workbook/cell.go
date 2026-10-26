@@ -32,6 +32,12 @@ type cellOutcome struct {
 	Value   string
 	Raw     any // the Python value of a computed cell (HasRaw), threaded to later columns
 	HasRaw  bool
+	// The rest is what enrich_cell's return dict adds for the in-request cell run:
+	// the provider that produced (or, for computed columns, attempted) the cell, the
+	// error text of a failed cell (empty = None) and the research metadata.
+	Provider string
+	Err      string
+	Research any
 }
 
 type callKind int
@@ -177,8 +183,7 @@ func (rs *runState) reservedCall(ctx context.Context, name string, lead map[stri
 	if !adm.OK {
 		return providerCall{kind: callReject, text: adm.Reason}, nil
 	}
-	id := spend.Identity{WorkspaceID: ws, WorkbookID: wb, AttemptID: adm.ID, ContractHash: adm.ContractHash,
-		Lease: &spend.LeaseFence{JobID: rs.claim.ID, WorkerID: rs.claim.WorkerID, LockedAt: rs.claim.LockedAt, LeaseToken: rs.claim.LeaseToken}}
+	id := spend.Identity{WorkspaceID: ws, WorkbookID: wb, AttemptID: adm.ID, ContractHash: adm.ContractHash, Lease: rs.leaseFence()}
 
 	if adm.Status == "settled" {
 		return rs.replaySettled(ctx, id)
@@ -318,8 +323,8 @@ func (rs *runState) operationInputs(name string, lead map[string]any) map[string
 func (rs *runState) buildReservation(name string, lead map[string]any, col column, rowIdentity string, exposure, cellLimit int64) spend.Reservation {
 	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID
 	return spend.Reservation{
-		WorkspaceID: ws, WorkbookID: wb, RunID: fmt.Sprintf("job:%d", rs.claim.ID), RowIdentity: rowIdentity,
-		ColumnID: col.ID, Provider: name, AttemptKey: spend.AttemptKey(ws, wb, rs.claim.ID, rowIdentity, col.ID, name),
+		WorkspaceID: ws, WorkbookID: wb, RunID: rs.spendRunID(), RowIdentity: rowIdentity,
+		ColumnID: col.ID, Provider: name, AttemptKey: spend.AttemptKey(ws, wb, rs.spendJobID(), rowIdentity, col.ID, name),
 		ExposureMicroUSD: exposure, CellLimitMicroUSD: cellLimit,
 		CostBasis: map[string]any{"kind": "catalog_estimate", "provider": name},
 		Operation: map[string]any{"inputs": rs.operationInputs(name, lead), "column": col.cfg},
@@ -380,7 +385,7 @@ func (rs *runState) enrichCell(ctx context.Context, lead map[string]any, col col
 		}
 		rs.log.Error("cell crashed", "col", col.ID, "row", rowID, "err", err)
 		rs.persistCellFailure(ctx, col, rowID, leadID)
-		return cellOutcome{}, nil
+		return cellOutcome{Err: "cell_execution_failed"}, nil
 	}
 	return out, nil
 }
@@ -423,6 +428,9 @@ func (rs *runState) waterfall(ctx context.Context, lead map[string]any, col colu
 	}
 	authorized := append([]string(nil), chain...)
 	rowIdentity := fmt.Sprintf("row:%d", rowID)
+	if rowID == 0 {
+		rowIdentity = fmt.Sprintf("lead:%d", leadID) // legacy lead-store row: Python's `lead:<id>`
+	}
 
 	var resultValue, resultProvider, resultError string
 
@@ -463,7 +471,7 @@ func (rs *runState) waterfall(ctx context.Context, lead map[string]any, col colu
 	if err := tenancy.InWorkspace(ctx, rs.deps.Pool, ws, func(tx pgx.Tx) error {
 		var e error
 		prior, e = gen.New(tx).ListPriorAttemptProviders(ctx, gen.ListPriorAttemptProvidersParams{
-			WorkspaceID: ws, WorkbookID: wb, RunID: fmt.Sprintf("job:%d", rs.claim.ID), RowIdentity: rowIdentity, ColumnID: col.ID})
+			WorkspaceID: ws, WorkbookID: wb, RunID: rs.spendRunID(), RowIdentity: rowIdentity, ColumnID: col.ID})
 		return e
 	}); err != nil {
 		return cellOutcome{}, err
@@ -757,7 +765,7 @@ func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID in
 	rs.publish(ctx, map[string]any{"type": "cell_update", "leadId": leadID, "rowId": rowID, "colId": col.ID,
 		"value": bValue, "status": status, "provider": bProvider, "error": bErr,
 		"research": research, "provenance": nil, "verify_status": nil})
-	out := cellOutcome{Success: r.Has, Value: r.Value}
+	out := cellOutcome{Success: r.Has, Value: r.Value, Provider: r.Provider, Err: r.Err, Research: research}
 	if r.HasRaw {
 		out.Raw, out.HasRaw = r.Raw, true
 	}
@@ -809,5 +817,5 @@ func (rs *runState) failDependent(ctx context.Context, lead map[string]any, col 
 		}
 		return cellOutcome{}, err
 	}
-	return cellOutcome{}, nil
+	return cellOutcome{Err: msg}, nil
 }
