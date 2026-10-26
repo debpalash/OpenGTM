@@ -3,6 +3,7 @@
 package enrichcache_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -218,3 +219,218 @@ func TestEmailCacheRoundTripAndExpiry(t *testing.T) {
 		return nil
 	})
 }
+
+type seqOp map[string]json.RawMessage
+
+func (o seqOp) str(k string) string {
+	var s string
+	_ = json.Unmarshal(o[k], &s)
+	return s
+}
+
+func (o seqOp) num(k string) (float64, bool) {
+	var f *float64
+	if err := json.Unmarshal(o[k], &f); err != nil || f == nil {
+		return 0, false
+	}
+	return *f, true
+}
+
+// pyText mirrors Python str() for the scalar values the vectors use; ok=false
+// for empty values (not stored) and non-scalars (caller concern, skipped).
+func pyText(raw json.RawMessage) (s string, stored, scalar bool) {
+	var v any
+	dec := json.NewDecoder(bytesReader(raw))
+	dec.UseNumber()
+	_ = dec.Decode(&v)
+	switch x := v.(type) {
+	case nil:
+		return "", false, true
+	case string:
+		return x, x != "", true
+	case json.Number:
+		return x.String(), true, true
+	case bool:
+		if x {
+			return "True", true, true
+		}
+		return "False", true, true
+	case []any:
+		return "", len(x) > 0, len(x) == 0
+	}
+	return "", true, false
+}
+
+func TestCacheSequencesMatchPythonVectors(t *testing.T) {
+	raw, err := os.ReadFile("testdata/key_vectors.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var v struct {
+		Seqs []struct {
+			Name  string `json:"name"`
+			Steps []struct {
+				Op     seqOp           `json:"op"`
+				Result json.RawMessage `json:"result"`
+			} `json:"steps"`
+			RowsLeft int `json:"rows_left"`
+		} `json:"cache_sequences"`
+		ESeqs []struct {
+			Name  string `json:"name"`
+			Steps []struct {
+				Op     seqOp           `json:"op"`
+				Result json.RawMessage `json:"result"`
+			} `json:"steps"`
+			RowsLeft int `json:"rows_left"`
+		} `json:"email_cache_sequences"`
+	}
+	if err := json.Unmarshal(raw, &v); err != nil {
+		t.Fatal(err)
+	}
+	ws := fmt.Sprintf("t11seq_%d", os.Getpid())
+	pool := newPool(t, ws)
+	ctx := context.Background()
+	// The recorder's clock is sticky: an "at" on any op moves it for that op and
+	// every later one (sets use the current clock too).
+	var clock time.Time
+	at := func(o seqOp) time.Time {
+		if s, ok := o.num("at"); ok {
+			clock = base.Add(time.Duration(s * float64(time.Second)))
+		}
+		return clock
+	}
+	for _, s := range v.Seqs {
+		t.Run(s.Name, func(t *testing.T) {
+			clock = base
+			in(t, pool, ws, func(tx pgx.Tx) error {
+				if _, err := tx.Exec(ctx, `DELETE FROM enrichment_cache`); err != nil {
+					return err
+				}
+				skipped := map[string]bool{}
+				for i, st := range s.Steps {
+					o := st.Op
+					key, field := o.str("key"), o.str("field")
+					switch o.str("op") {
+					case "set":
+						text, stored, scalar := pyText(o["value"])
+						if !scalar {
+							skipped[key+"/"+field] = true
+							continue
+						}
+						if !stored {
+							text = ""
+						}
+						ttl := enrichcache.TTLFor(field)
+						if d, ok := o.num("ttl_days"); ok {
+							ttl = time.Duration(d) * 24 * time.Hour
+						}
+						conf, _ := o.num("confidence")
+						if err := enrichcache.PutAt(ctx, tx, ws, key, field, enrichcache.Hit{Value: text, Confidence: conf, Provider: o.str("provider")}, ttl, at(o)); err != nil {
+							return err
+						}
+					case "get":
+						if skipped[key+"/"+field] {
+							continue
+						}
+						h, ok, err := enrichcache.Get(ctx, tx, ws, key, field, at(o))
+						if err != nil {
+							return err
+						}
+						var want *struct {
+							Value      string  `json:"value"`
+							Confidence float64 `json:"confidence"`
+							Provider   string  `json:"provider"`
+						}
+						_ = json.Unmarshal(st.Result, &want)
+						if (want != nil) != ok || (ok && (h.Value != want.Value || h.Confidence != want.Confidence || h.Provider != want.Provider)) {
+							t.Errorf("step %d get %s/%s: got %+v ok=%v want %s", i, key, field, h, ok, st.Result)
+						}
+					case "purge":
+						n, err := enrichcache.Purge(ctx, tx, ws, at(o))
+						var want int64
+						_ = json.Unmarshal(st.Result, &want)
+						if err != nil || n != want {
+							t.Errorf("step %d purge: %d err=%v want %d", i, n, err, want)
+						}
+					}
+				}
+				if len(skipped) == 0 {
+					var n int
+					if err := tx.QueryRow(ctx, `SELECT count(*) FROM enrichment_cache`).Scan(&n); err != nil || n != s.RowsLeft {
+						t.Errorf("rows_left=%d want %d err=%v", n, s.RowsLeft, err)
+					}
+				}
+				return nil
+			})
+		})
+	}
+	for _, s := range v.ESeqs {
+		t.Run("email_"+s.Name, func(t *testing.T) {
+			clock = base
+			in(t, pool, ws, func(tx pgx.Tx) error {
+				if _, err := tx.Exec(ctx, `DELETE FROM email_verify_cache`); err != nil {
+					return err
+				}
+				for i, st := range s.Steps {
+					o := st.Op
+					email, verifier := o.str("email"), o.str("verifier")
+					key := enrichcache.EmailKey(email, verifier)
+					valid := email != "" && verifier != ""
+					switch o.str("op") {
+					case "set":
+						status := o.str("status")
+						if !valid || status == "" {
+							continue
+						}
+						ttl := enrichcache.EmailTTL(status)
+						if d, ok := o.num("ttl_days"); ok {
+							ttl = time.Duration(d) * 24 * time.Hour
+						}
+						conf, _ := o.num("confidence")
+						res, _ := json.Marshal(map[string]any{"status": status, "source": o.str("source"), "detail": o.str("detail"), "confidence": conf})
+						if err := enrichcache.PutEmailKeyAt(ctx, tx, ws, key, res, ttl, at(o)); err != nil {
+							return err
+						}
+					case "get":
+						var got json.RawMessage
+						var ok bool
+						var err error
+						if valid {
+							got, ok, err = enrichcache.GetEmailKey(ctx, tx, ws, key, at(o))
+						}
+						if err != nil {
+							return err
+						}
+						var want map[string]any
+						_ = json.Unmarshal(st.Result, &want)
+						if (want != nil) != ok {
+							t.Errorf("step %d: ok=%v want %s", i, ok, st.Result)
+							continue
+						}
+						if ok {
+							var g map[string]any
+							_ = json.Unmarshal(got, &g)
+							if g["status"] != want["status"] || g["source"] != want["source"] || g["detail"] != want["detail"] || g["confidence"] != want["confidence"] {
+								t.Errorf("step %d: got %s want %s", i, got, st.Result)
+							}
+						}
+					case "purge":
+						n, err := enrichcache.PurgeEmail(ctx, tx, ws, at(o))
+						var want int64
+						_ = json.Unmarshal(st.Result, &want)
+						if err != nil || n != want {
+							t.Errorf("step %d purge: %d err=%v want %d", i, n, err, want)
+						}
+					}
+				}
+				var n int
+				if err := tx.QueryRow(ctx, `SELECT count(*) FROM email_verify_cache`).Scan(&n); err != nil || n != s.RowsLeft {
+					t.Errorf("rows_left=%d want %d err=%v", n, s.RowsLeft, err)
+				}
+				return nil
+			})
+		})
+	}
+}
+
+func bytesReader(b []byte) *bytes.Reader { return bytes.NewReader(b) }
