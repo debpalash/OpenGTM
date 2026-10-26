@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 
@@ -33,19 +35,32 @@ func (h *hook) executor(ws string) string {
 // guarded runs fn in a savepoint of the caller's transaction. A failure rolls the savepoint back
 // (the caller's tx stays usable), is logged without secrets, swallowed, and yields 0.
 func (h *hook) guarded(ctx context.Context, tx pgx.Tx, label, ws string, fn func(sp pgx.Tx) (int, error)) int {
-	n, err := func() (int, error) {
+	n, err := func() (n int, err error) {
 		sp, err := tx.Begin(ctx)
 		if err != nil {
 			return 0, err
 		}
-		n, err := fn(sp)
+		done := false
+		defer func() {
+			if r := recover(); r != nil {
+				// The value may carry row data: log only its type.
+				n, err = 0, fmt.Errorf("panic in rule evaluation (%T)", r)
+			}
+			if done {
+				return
+			}
+			if rbErr := sp.Rollback(context.WithoutCancel(ctx)); rbErr != nil && !errors.Is(rbErr, pgx.ErrTxClosed) {
+				h.log.Warn("automation "+label+" hook savepoint rollback failed", "workspace_id", ws, "error", rbErr.Error())
+			}
+		}()
+		n, err = fn(sp)
 		if err != nil {
-			_ = sp.Rollback(context.WithoutCancel(ctx))
 			return 0, err
 		}
 		if err := sp.Commit(ctx); err != nil {
 			return 0, err
 		}
+		done = true
 		return n, nil
 	}()
 	if err != nil {
