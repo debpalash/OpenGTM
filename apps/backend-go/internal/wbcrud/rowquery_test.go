@@ -343,16 +343,57 @@ func TestViewOfOtherWorkbook404(t *testing.T) {
 		t.Fatal(err)
 	}
 	e.run(t, func(tx pgx.Tx) {
-		v, g := wbcrud.LoadView(context.Background(), tx, e.wb, "rq_view_"+e.other)
+		v, g, err := wbcrud.LoadView(context.Background(), tx, e.wb, "rq_view_"+e.other)
+		if err != nil {
+			t.Fatal(err)
+		}
 		if v != nil || g == nil || g.Status != 404 || g.Detail != "Workbook view not found" {
 			t.Fatalf("other workbook's view: %v %v", v, g)
 		}
-		if v, g := wbcrud.LoadView(context.Background(), tx, e.wb, "nope"); v != nil || g == nil || g.Status != 404 {
+		if v, g, err := wbcrud.LoadView(context.Background(), tx, e.wb, "nope"); err != nil || v != nil || g == nil || g.Status != 404 {
 			t.Fatalf("missing view: %v %v", v, g)
 		}
-		v, g = wbcrud.LoadView(context.Background(), tx, e.other, "rq_view_"+e.other)
-		if g != nil || v == nil || len(v.Config.Sort) != 1 {
+		v, g, err = wbcrud.LoadView(context.Background(), tx, e.other, "rq_view_"+e.other)
+		if err != nil || g != nil || v == nil || len(v.Config.Sort) != 1 {
 			t.Fatalf("own view: %v %v", v, g)
 		}
 	})
+}
+
+func TestLoadViewDBErrorIsNotA404(t *testing.T) {
+	e := rqSetup(t)
+	e.run(t, func(tx pgx.Tx) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		v, g, err := wbcrud.LoadView(ctx, tx, e.wb, "anything")
+		if err == nil || g != nil || v != nil {
+			t.Fatalf("cancelled ctx must surface as error, got view=%v guard=%v err=%v", v, g, err)
+		}
+	})
+}
+
+// Rows with NULL position (legacy data) sort as position 0 and are neither
+// skipped nor duplicated across pages (Python drops them after page 1).
+func TestNullPositionRowsPageWithoutSkips(t *testing.T) {
+	e := rqSetup(t)
+	for i := 0; i < 25; i++ {
+		pos := any(i)
+		if i%3 == 0 {
+			pos = nil
+		}
+		if _, err := e.owner.Exec(context.Background(),
+			`INSERT INTO workbook_rows (workbook_id, position, data, workspace_id) VALUES ($1,$2,$3::json,$4)`,
+			e.wb, pos, fmt.Sprintf(`{"name":"n%d"}`, i%2), e.ws); err != nil {
+			t.Fatal(err)
+		}
+	}
+	plain, _ := wbcrud.BuildRowQuery(e.wbq(), nil, "")
+	sorted, _ := wbcrud.BuildRowQuery(e.wbq(), &wbcrud.QueryView{ID: "v", Config: wbcrud.ViewConfig{Sort: []wbcrud.ViewSort{{Column: "name", Dir: "asc"}}}}, "")
+	for name, base := range map[string]wbcrud.RowQuery{"row-cursor": plain, "query-cursor": sorted} {
+		want := e.ids(t, base)
+		got := e.page(t, base, 4)
+		if len(want) != 25 || !reflect.DeepEqual(got, want) {
+			t.Fatalf("%s: paged %v != full %v", name, got, want)
+		}
+	}
 }

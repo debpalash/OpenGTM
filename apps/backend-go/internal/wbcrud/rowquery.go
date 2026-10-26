@@ -3,6 +3,7 @@ package wbcrud
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"strconv"
@@ -338,23 +339,27 @@ func (q RowQuery) ResolveCursor(ctx context.Context, db DB, cursor string) ([]an
 }
 
 // LoadView reads a saved view of workbookID (404 "Workbook view not found"
-// when absent or owned by another workbook). A stored config that no longer
+// when absent or owned by another workbook; any other failure is returned as
+// the error, never reported as a missing view). A stored config that no longer
 // parses is reported as the missing-filter-column 409 so it is repaired.
-func LoadView(ctx context.Context, db DB, workbookID, viewID string) (*QueryView, *GuardError) {
+func LoadView(ctx context.Context, db DB, workbookID, viewID string) (*QueryView, *GuardError, error) {
 	var raw []byte
 	err := db.QueryRow(ctx, `SELECT config FROM workbook_views WHERE id = $1 AND workbook_id = $2`, viewID, workbookID).Scan(&raw)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, &GuardError{Status: 404, Detail: "Workbook view not found"}, nil
+	}
 	if err != nil {
-		return nil, &GuardError{Status: 404, Detail: "Workbook view not found"}
+		return nil, nil, err
 	}
 	cfg := ViewConfig{}
 	if len(raw) > 0 && string(raw) != "null" {
 		var perr []httpx.FieldError
 		cfg, perr = ParseViewConfig(raw)
 		if perr != nil {
-			return nil, &GuardError{Status: 409, Detail: "Saved view references a missing filter column. Repair the view before continuing."}
+			return nil, &GuardError{Status: 409, Detail: "Saved view references a missing filter column. Repair the view before continuing."}, nil
 		}
 	}
-	return &QueryView{ID: viewID, Config: cfg}, nil
+	return &QueryView{ID: viewID, Config: cfg}, nil, nil
 }
 
 // filterString is str("" if value is None else value) for a JSON value.
