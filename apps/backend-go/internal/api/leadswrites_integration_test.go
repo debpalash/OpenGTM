@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"sync"
 	"testing"
@@ -20,9 +21,14 @@ import (
 func newWriteEnv(t *testing.T) leadsEnv {
 	t.Helper()
 	e := newLeadsEnv(t)
-	if _, err := e.pool.Exec(context.Background(), `SELECT setval(pg_get_serial_sequence('leads','id'), 1000)`); err != nil {
-		// Owner-only on some roles; ignore when the sequence is already advanced by the app role.
-		t.Logf("setval: %v", err)
+	ctx := context.Background()
+	owner, err := pgx.Connect(ctx, os.Getenv("TEST_DATABASE_URL"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer owner.Close(ctx)
+	if _, err := owner.Exec(ctx, `SELECT setval(pg_get_serial_sequence('leads','id'), 1000)`); err != nil {
+		t.Fatal(err)
 	}
 	return e
 }
