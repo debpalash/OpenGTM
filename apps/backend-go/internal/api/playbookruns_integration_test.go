@@ -22,7 +22,14 @@ import (
 // (taken from the fixtures themselves). getenv drives the executor cohort (nil: nothing set).
 func newPBRunEnv(t *testing.T, getenv func(string) string) pbEnv {
 	t.Helper()
-	e := newPBEnv(t)
+	e := newPBEnv(t).withRunRoutes(getenv)
+	e.seedRuns(t)
+	return e
+}
+
+// withRunRoutes serves the CRUD and run routes with the audit middleware over the same pool; getenv drives the
+// executor cohort (nil: nothing set).
+func (e pbEnv) withRunRoutes(getenv func(string) string) pbEnv {
 	if getenv == nil {
 		getenv = func(string) string { return "" }
 	}
@@ -33,7 +40,6 @@ func newPBRunEnv(t *testing.T, getenv func(string) string) pbEnv {
 	registerPlaybooksRoutes(r, d)
 	registerPlaybookRuns(r, d)
 	e.h = r.Handler()
-	e.seedRuns(t)
 	return e
 }
 
@@ -124,6 +130,8 @@ func (e pbEnv) seedRuns(t *testing.T) {
 				r.ID, ws, r.RunID, r.LeadID, r.Status, r.Value, string(r.Metadata), r.Error, r.Attempts, r.CreatedAt, r.UpdatedAt)
 		}
 	}
+	// the explicit ids above must not collide with what the engine inserts later
+	e.exec(t, `SELECT setval(pg_get_serial_sequence('playbook_results','id'), 1000)`)
 }
 
 type runCase struct{ name, who, ws string }
@@ -171,10 +179,10 @@ var runCases = []runCase{
 	{"pb_results_cursor_abc_422", "alice", "ws-alpha"},
 	{"pb_results_cursor_negative_422", "alice", "ws-alpha"},
 	{"pb_results_cursor_too_long_422", "alice", "ws-alpha"},
+	{"pb_runs_bob_viewer_alpha", "bob", "ws-alpha"},
 	{"pb_run_start_202", "alice", "ws-alpha"},
 	{"pb_run_start_default_members_202", "alice", "ws-alpha"},
 	{"pb_runs_after_start", "alice", "ws-alpha"},
-	{"pb_runs_bob_viewer_alpha", "bob", "ws-alpha"},
 	{"pb_retry_bob_403", "bob", "ws-alpha"},
 	{"pb_retry_unknown_404", "alice", "ws-alpha"},
 	{"pb_retry_foreign_404", "alice", "ws-alpha"},
@@ -200,8 +208,6 @@ func runVolatile(name string) []string {
 		return []string{"$.id", "$.created_at"}
 	case name == "pb_runs_after_start":
 		return []string{"$.runs[0].id", "$.runs[0].created_at", "$.runs[1].id", "$.runs[1].created_at"}
-	case name == "pb_runs_bob_viewer_alpha":
-		return []string{"$.runs[0].id", "$.runs[0].created_at"}
 	case strings.HasPrefix(name, "pb_cancel_") && strings.HasSuffix(name, "_200"):
 		return []string{"$.finished_at"}
 	}
@@ -321,7 +327,7 @@ func TestStartRunCreatesRunAndJobAtomically(t *testing.T) {
 	}
 
 	// The cohort picks the executor (GO_EXECUTOR_ENABLED, GO_EXECUTOR_PLAYBOOKS, GO_EXECUTOR_WORKSPACES).
-	goEnv := newPBRunEnv(t, func(k string) string {
+	goEnv := e.withRunRoutes(func(k string) string {
 		return map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-alpha"}[k]
 	})
 	_, resp, raw = goEnv.req("alice", "ws-alpha", "POST", pbBase+"/pb-gov-multi/runs", `{"audience_id":"aud-gov-1"}`)
