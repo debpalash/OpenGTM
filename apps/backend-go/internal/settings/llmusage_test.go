@@ -14,9 +14,9 @@ func row(provider string, calls, tokens, limit, remaining int32, reset string) g
 func TestLLMUsageLimitFallbackAndLive(t *testing.T) {
 	reg := mustLoad(t)
 	v := BuildLLMUsage(reg, []gen.ListLLMUsageForDateRow{
-		row("groq", 250, 1000, 0, 0, ""),            // fallback 1000 RPD
-		row("cerebras", 80, 5, 0, 0, ""),            // over the fallback: remaining clamps to 0, pct to 100
-		row("mystery", 7, 3, 0, 0, ""),              // unknown provider: limit 0, label Unknown
+		row("groq", 250, 1000, 0, 0, ""),           // fallback 1000 RPD
+		row("cerebras", 80, 5, 0, 0, ""),           // over the fallback: remaining clamps to 0, pct to 100
+		row("mystery", 7, 3, 0, 0, ""),             // unknown provider: limit 0, label Unknown
 		row("openrouter", 10, 20, 200, 150, "10s"), // live header limit wins; remaining is the header's
 	}, gen.LLMUsageTotalsRow{TotalCalls: 999, TotalTokens: 8888})
 
