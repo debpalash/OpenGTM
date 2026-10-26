@@ -100,19 +100,12 @@ func isASCII(s string) bool {
 	return true
 }
 
-// encodeValue RFC 2047-encodes values that are non-ASCII or contain a token
-// too long to fold; other values pass through for foldHeader.
+// encodeValue RFC 2047-encodes non-ASCII values; ASCII values (including
+// structured headers such as List-Unsubscribe) pass through unchanged for
+// foldHeader.
 func encodeValue(v string) string {
 	if isASCII(v) {
-		long := false
-		for _, w := range strings.Split(v, " ") {
-			if len(w) > 900 {
-				long = true
-			}
-		}
-		if !long {
-			return v
-		}
+		return v
 	}
 	return mime.QEncoding.Encode("utf-8", v)
 }
@@ -122,7 +115,7 @@ func fromHeader(name, email string) string {
 		q := strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(name)
 		return `"` + q + `" <` + email + `>`
 	}
-	return mime.QEncoding.Encode("utf-8", name) + " <" + email + ">"
+	return mime.BEncoding.Encode("utf-8", name) + " <" + email + ">"
 }
 
 // foldHeader writes "Name: value\r\n", folding at spaces past 78 columns.
