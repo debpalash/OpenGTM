@@ -2,6 +2,8 @@ package settings
 
 import (
 	"context"
+	"io"
+	"log/slog"
 	"strings"
 	"testing"
 )
@@ -9,7 +11,7 @@ import (
 func newEnrichment(t *testing.T, st *fakeStore) *EnrichmentProviders {
 	t.Helper()
 	app, _ := testApp(t, st, nil)
-	return &EnrichmentProviders{Reg: mustLoad(t), App: app}
+	return &EnrichmentProviders{Reg: mustLoad(t), App: app, Log: slog.New(slog.NewTextHandler(io.Discard, nil))}
 }
 
 func TestEnrichmentProviderMaskAndUpdate(t *testing.T) {
