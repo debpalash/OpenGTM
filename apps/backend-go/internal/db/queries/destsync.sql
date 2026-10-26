@@ -10,10 +10,12 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text AND audience_id = sqlc.arg(aud
 ORDER BY id
 LIMIT sqlc.arg(page_limit)::int;
 
+-- Guarded: a cancel (or reconcile) that landed after the caller's read leaves no row here.
 -- name: DSRunStart :one
 UPDATE destination_runs
 SET status = 'running', started_at = coalesce(started_at, (now() AT TIME ZONE 'UTC')), error = NULL
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::text
+  AND status IN ('pending', 'running')
 RETURNING *;
 
 -- name: DSRunCancelUnusable :exec
@@ -27,7 +29,7 @@ UPDATE destination_runs
 SET status = sqlc.arg(status)::text, finished_at = (now() AT TIME ZONE 'UTC'),
     attempted = sqlc.arg(attempted)::int, succeeded = sqlc.arg(succeeded)::int,
     failed = sqlc.arg(failed)::int, skipped = sqlc.arg(skipped)::int
-WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::text
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::text AND status = 'running'
 RETURNING finished_at;
 
 -- name: DSDestSetHealth :exec
@@ -90,3 +92,14 @@ LIMIT sqlc.arg(page_limit)::int;
 -- name: DSDeliveryRequeue :exec
 UPDATE destination_deliveries SET status = 'pending', error = NULL, updated_at = now()
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::int;
+
+-- One delivery's result, only while the row is still ours: in flight and in this run (a
+-- reconcile may have closed it, or a later run re-homed it, while the request was out).
+-- name: DSDeliverySettleOne :execrows
+UPDATE destination_deliveries
+SET status = sqlc.arg(status)::text, summary = sqlc.narg(summary)::text, error = sqlc.narg(error)::text,
+    external_id = sqlc.narg(external_id)::text,
+    delivered_at = CASE WHEN sqlc.arg(delivered)::boolean THEN (now() AT TIME ZONE 'UTC') ELSE delivered_at END,
+    updated_at = now()
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::int
+  AND run_id = sqlc.arg(run_id)::text AND status = 'in_flight';

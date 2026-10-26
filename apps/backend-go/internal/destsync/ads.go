@@ -50,12 +50,12 @@ func (e *Engine) flushAds(ctx context.Context, rs *runState, op string, cands []
 	rs.st.attempted += len(cands)
 
 	res := e.callAds(ctx, rs, op, snaps)
-	if err := ctx.Err(); err != nil {
-		return true, err
-	}
 
-	err = e.inTx(ctx, rs, func(tx pgx.Tx) error {
-		_, err := gen.New(tx).DSDeliveriesSettle(ctx, settleParams(rs.ws, ids, res.Success, res.Summary, res.Error, res.ExternalID))
+	// Detached from the job context: a finished platform call is always recorded.
+	sctx, cancel := settleContext(ctx)
+	defer cancel()
+	err = e.inTx(sctx, rs, func(tx pgx.Tx) error {
+		_, err := gen.New(tx).DSDeliveriesSettle(sctx, settleParams(rs.ws, ids, res.Success, res.Summary, res.Error, res.ExternalID))
 		return err
 	})
 	if err != nil {
@@ -66,7 +66,7 @@ func (e *Engine) flushAds(ctx context.Context, rs *runState, op string, cands []
 	} else {
 		rs.st.failed += len(cands)
 	}
-	return false, nil
+	return false, ctx.Err()
 }
 
 func settleParams(ws string, ids []int32, ok bool, summary, errText, external string) gen.DSDeliveriesSettleParams {

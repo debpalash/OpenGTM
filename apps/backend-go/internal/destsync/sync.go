@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/adsdrv"
@@ -110,7 +111,10 @@ type Engine struct {
 	// test seams: checkHook runs before the n-th (0-based) cancellation check of a run;
 	// checks is the number of checks the most recent Handle made.
 	checkHook func(n int)
-	checks    atomic.Int64
+	// raceHook runs inside a transaction between a read and the guarded UPDATE that follows it
+	// ("before_start", "before_complete"); tests use it to land a competing write there.
+	raceHook func(point string)
+	checks   atomic.Int64
 }
 
 // New builds an Engine.
@@ -289,7 +293,11 @@ func (e *Engine) begin(ctx context.Context, rs *runState) (proceed bool, err err
 		if rs.fieldMap, err = decodeObj(dest.FieldMap); err != nil {
 			return fmt.Errorf("destsync: destination field map: %w", err)
 		}
-		if _, err := q.DSRunStart(ctx, gen.DSRunStartParams{WorkspaceID: rs.ws, ID: rs.runID}); err != nil {
+		e.race("before_start")
+		if _, err := q.DSRunStart(ctx, gen.DSRunStartParams{WorkspaceID: rs.ws, ID: rs.runID}); errors.Is(err, pgx.ErrNoRows) {
+			// the run left pending/running after the read above: a cancel (or a reconcile) won
+			return e.yieldToNewState(ctx, tx, rs, destPtr)
+		} else if err != nil {
 			return fmt.Errorf("destsync: start run: %w", err)
 		}
 		rs.dest = dest
@@ -480,12 +488,31 @@ func (e *Engine) settleOne(ctx context.Context, rs *runState, id int, res destde
 		ext := res.ExternalID
 		in.ExternalID = &ext
 	}
-	err := e.inTx(ctx, rs, func(tx pgx.Tx) error {
-		_, err := deststore.SettleDelivery(ctx, tx, id, in)
+	// Detached: the provider call is done, so its result is recorded even when the job context
+	// was cancelled right after it (otherwise the retry would deliver the member again).
+	sctx, cancel := settleContext(ctx)
+	defer cancel()
+	p := gen.DSDeliverySettleOneParams{
+		WorkspaceID: rs.ws, ID: int32(id), RunID: rs.runID, Status: status,
+		Summary: pgtype.Text{String: res.Summary, Valid: true}, Delivered: res.Success,
+	}
+	if in.Error != "" {
+		p.Error = pgtype.Text{String: in.Error, Valid: true}
+	}
+	if in.ExternalID != nil {
+		p.ExternalID = pgtype.Text{String: *in.ExternalID, Valid: true}
+	}
+	var n int64
+	err := e.inTx(sctx, rs, func(tx pgx.Tx) error {
+		var err error
+		n, err = gen.New(tx).DSDeliverySettleOne(sctx, p)
 		return err
 	})
 	if err != nil {
 		return err
+	}
+	if n == 0 { // the row was closed or re-homed while the request was out: not ours to count
+		return nil
 	}
 	if res.Success {
 		rs.st.succeeded++
@@ -513,10 +540,15 @@ func (e *Engine) finish(ctx context.Context, rs *runState, memberCount int) erro
 			lastErr = &msg
 		}
 		q := gen.New(tx)
+		e.race("before_complete")
 		finished, err := q.DSRunComplete(ctx, gen.DSRunCompleteParams{
 			WorkspaceID: rs.ws, ID: rs.runID, Status: status,
 			Attempted: int32(st.attempted), Succeeded: int32(st.succeeded), Failed: int32(st.failed), Skipped: int32(st.skipped),
 		})
+		if errors.Is(err, pgx.ErrNoRows) {
+			// no longer running: a cancel request arrived (finish it) or the run was closed elsewhere (leave it)
+			return e.yieldToNewState(ctx, tx, rs, &rs.dest)
+		}
 		if err != nil {
 			return fmt.Errorf("destsync: complete run: %w", err)
 		}
@@ -612,4 +644,36 @@ func truncRunes(s string, n int) string {
 		return string(r[:n])
 	}
 	return s
+}
+
+func (e *Engine) race(point string) {
+	if e.raceHook != nil {
+		e.raceHook(point)
+	}
+}
+
+// settleTimeout bounds the write that records a finished provider call.
+const settleTimeout = 10 * time.Second
+
+// settleContext is detached from the job context's cancellation (values are kept) with its own deadline.
+func settleContext(ctx context.Context) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.WithoutCancel(ctx), settleTimeout)
+}
+
+// yieldToNewState handles a guarded run UPDATE that matched no row: the run changed after it
+// was read. A run asked to stop is finished cancelled (completed results kept); any other
+// state was written by someone with the right to, and is left alone.
+func (e *Engine) yieldToNewState(ctx context.Context, tx pgx.Tx, rs *runState, dest *deststore.Destination) error {
+	run, err := deststore.GetRun(ctx, tx, rs.runID)
+	if errors.Is(err, deststore.ErrRunNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if run.Status == "cancelling" || run.Status == "cancelled" {
+		_, err = deststore.FinishCancelled(ctx, tx, run, dest)
+		return err
+	}
+	return nil
 }

@@ -40,9 +40,6 @@ func (e *Engine) flushWarehouse(ctx context.Context, rs *runState, buf *warehous
 	rs.st.attempted += int(attempted)
 
 	res := e.callWarehouse(ctx, rs, buf)
-	if err := ctx.Err(); err != nil {
-		return true, err
-	}
 
 	p := gen.DSWarehouseSettleParams{
 		WorkspaceID: rs.ws, RunID: rs.runID, DestinationID: rs.dest.ID, Status: "failed",
@@ -57,10 +54,13 @@ func (e *Engine) flushWarehouse(ctx context.Context, rs *runState, buf *warehous
 	if res.ExternalID != "" {
 		p.ExternalID = pgtype.Text{String: res.ExternalID, Valid: true}
 	}
+	// Detached from the job context: a finished export is always recorded.
+	sctx, cancel := settleContext(ctx)
+	defer cancel()
 	var affected int64
-	err = e.inTx(ctx, rs, func(tx pgx.Tx) error {
+	err = e.inTx(sctx, rs, func(tx pgx.Tx) error {
 		var err error
-		affected, err = gen.New(tx).DSWarehouseSettle(ctx, p)
+		affected, err = gen.New(tx).DSWarehouseSettle(sctx, p)
 		return err
 	})
 	if err != nil {
@@ -71,7 +71,7 @@ func (e *Engine) flushWarehouse(ctx context.Context, rs *runState, buf *warehous
 	} else {
 		rs.st.failed += int(affected)
 	}
-	return false, nil
+	return false, ctx.Err()
 }
 
 func (e *Engine) callWarehouse(ctx context.Context, rs *runState, buf *warehouse.Buffer) (res warehouse.Result) {

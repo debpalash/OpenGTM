@@ -81,6 +81,46 @@ func (q *Queries) DSDeliveryRequeue(ctx context.Context, arg DSDeliveryRequeuePa
 	return err
 }
 
+const dSDeliverySettleOne = `-- name: DSDeliverySettleOne :execrows
+UPDATE destination_deliveries
+SET status = $1::text, summary = $2::text, error = $3::text,
+    external_id = $4::text,
+    delivered_at = CASE WHEN $5::boolean THEN (now() AT TIME ZONE 'UTC') ELSE delivered_at END,
+    updated_at = now()
+WHERE workspace_id = $6::text AND id = $7::int
+  AND run_id = $8::text AND status = 'in_flight'
+`
+
+type DSDeliverySettleOneParams struct {
+	Status      string
+	Summary     pgtype.Text
+	Error       pgtype.Text
+	ExternalID  pgtype.Text
+	Delivered   bool
+	WorkspaceID string
+	ID          int32
+	RunID       string
+}
+
+// One delivery's result, only while the row is still ours: in flight and in this run (a
+// reconcile may have closed it, or a later run re-homed it, while the request was out).
+func (q *Queries) DSDeliverySettleOne(ctx context.Context, arg DSDeliverySettleOneParams) (int64, error) {
+	result, err := q.db.Exec(ctx, dSDeliverySettleOne,
+		arg.Status,
+		arg.Summary,
+		arg.Error,
+		arg.ExternalID,
+		arg.Delivered,
+		arg.WorkspaceID,
+		arg.ID,
+		arg.RunID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const dSDestSetHealth = `-- name: DSDestSetHealth :exec
 UPDATE audience_destinations
 SET health_status = $1::text, last_error = $2::text,
@@ -241,7 +281,7 @@ UPDATE destination_runs
 SET status = $1::text, finished_at = (now() AT TIME ZONE 'UTC'),
     attempted = $2::int, succeeded = $3::int,
     failed = $4::int, skipped = $5::int
-WHERE workspace_id = $6::text AND id = $7::text
+WHERE workspace_id = $6::text AND id = $7::text AND status = 'running'
 RETURNING finished_at
 `
 
@@ -275,6 +315,7 @@ const dSRunStart = `-- name: DSRunStart :one
 UPDATE destination_runs
 SET status = 'running', started_at = coalesce(started_at, (now() AT TIME ZONE 'UTC')), error = NULL
 WHERE workspace_id = $1::text AND id = $2::text
+  AND status IN ('pending', 'running')
 RETURNING id, workspace_id, destination_id, status, requested_by, attempted, succeeded, failed, skipped, error, started_at, finished_at, created_at
 `
 
@@ -283,6 +324,7 @@ type DSRunStartParams struct {
 	ID          string
 }
 
+// Guarded: a cancel (or reconcile) that landed after the caller's read leaves no row here.
 func (q *Queries) DSRunStart(ctx context.Context, arg DSRunStartParams) (DestinationRun, error) {
 	row := q.db.QueryRow(ctx, dSRunStart, arg.WorkspaceID, arg.ID)
 	var i DestinationRun
