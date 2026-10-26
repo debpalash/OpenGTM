@@ -28,6 +28,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 )
 
@@ -230,6 +231,18 @@ func buildRouter(cfg config.APIConfig, log *slog.Logger, pool *pgxpool.Pool, str
 func applySSE(d *api.Deps, cfg config.APIConfig, streamCtx context.Context) error {
 	d.SSEMaxStreams, d.SSEMaxPerUser, d.SSEMaxPerWorkspace = cfg.SSEMaxStreams, cfg.SSEMaxPerUser, cfg.SSEMaxPerWorkspace
 	d.SSEMaxLifetime, d.ShutdownCtx = cfg.SSEMaxLifetime, streamCtx
+	// One SSE_MAX_STREAMS pool for /api/events and copilot chat (plan 12): chat draws on the same semaphore,
+	// with its own per-user limit (COPILOT_MAX_STREAMS_PER_USER).
+	max := cfg.SSEMaxStreams
+	if max <= 0 {
+		max = 1000 // api.defaultSSEMaxStreams
+	}
+	d.SSEStreamSem = make(chan struct{}, max)
+	perUser := cfg.Flags.Copilot.MaxStreamsPerUser
+	if perUser <= 0 {
+		perUser = 3 // COPILOT_MAX_STREAMS_PER_USER default
+	}
+	d.ChatStreams = ssestream.NewCapsShared(d.SSEStreamSem, perUser)
 	d.WSMaxMessageBytes = cfg.WSMaxMessageBytes // workbook WebSocket read limit (plan 06 task 29)
 	if cfg.RedisURL == "" {
 		return nil

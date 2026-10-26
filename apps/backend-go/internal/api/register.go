@@ -73,8 +73,13 @@ type Deps struct {
 	AudienceEvents audiencerefresh.Emitter
 	DestPorts      destdeliver.Ports
 
-	// ChatStreams caps concurrent copilot chat streams (plan 12). Nil: chat routes are not mounted.
+	// ChatStreams caps concurrent copilot chat streams (plan 12). cmd/api builds it with NewCapsShared over
+	// the same SSE_MAX_STREAMS semaphore as GET /api/events (SSEStreamSem), so the two draw on one pool.
+	// Nil: the chat route builds its own SSE_MAX_STREAMS-sized pool (tests, embedders).
 	ChatStreams *ssestream.Caps
+	// SSEStreamSem, when set, is the process-wide stream semaphore GET /api/events uses (cmd/api shares it
+	// with ChatStreams). Nil: the events route makes its own, sized by SSEMaxStreams.
+	SSEStreamSem chan struct{}
 
 	// CollectionLedgerBackend is the app_settings marker __collection_ledger_backend (plan 14),
 	// read by cmd/api at startup via LoadCollectionLedgerBackend. Leadgen routes register only

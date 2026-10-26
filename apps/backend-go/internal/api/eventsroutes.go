@@ -35,7 +35,11 @@ func registerEvents(r *httpx.Router, d Deps) {
 	if max <= 0 {
 		max = defaultSSEMaxStreams
 	}
-	h := &eventsRoute{d: d, sem: make(chan struct{}, max), relay: leadevents.NewRelay(d.Redis, sseHeartbeat),
+	sem := d.SSEStreamSem
+	if sem == nil {
+		sem = make(chan struct{}, max)
+	}
+	h := &eventsRoute{d: d, sem: sem, relay: leadevents.NewRelay(d.Redis, sseHeartbeat),
 		perUser: orDefault(d.SSEMaxPerUser, defaultSSEPerUser), perWS: orDefault(d.SSEMaxPerWorkspace, defaultSSEPerWS),
 		byUser: map[int32]int{}, byWS: map[string]int{}}
 	r.Handle("GET /api/events", http.HandlerFunc(h.serve))

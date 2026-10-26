@@ -23,6 +23,9 @@ var (
 	personWSFirstFrameTimeout = 15 * time.Second
 	// personWSDeadline bounds the whole enrichment (Python has no bound).
 	personWSDeadline = 120 * time.Second
+	// personWSSaveTimeout bounds saving the profile, including the wait for a pool connection under load
+	// (was 10 s).
+	personWSSaveTimeout = 30 * time.Second
 )
 
 const (
@@ -306,7 +309,7 @@ func (h *personWS) serve(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Python saves (also a failed profile) and then sends the saved frame.
-	sctx, sc := context.WithTimeout(cctx, 10*time.Second)
+	sctx, sc := context.WithTimeout(cctx, personWSSaveTimeout)
 	defer sc()
 	var id int64
 	tx, err := h.d.Pool.Begin(sctx)
