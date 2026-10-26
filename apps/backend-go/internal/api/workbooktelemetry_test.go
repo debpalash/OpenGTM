@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -22,7 +23,10 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
-type telEnv struct{ colEnv }
+type telEnv struct {
+	colEnv
+	actIDs map[int]int // activity id in this database -> id FastAPI assigned (insertion order 1..6)
+}
 
 func newTelEnv(t *testing.T) telEnv {
 	t.Helper()
@@ -33,12 +37,49 @@ func newTelEnv(t *testing.T) telEnv {
 	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{}, Flags: config.Flags{PGLeadStore: true}}
 	RegisterWorkbooks(r, d)
 	RegisterWorkbookTelemetry(r, d)
-	e := telEnv{colEnv{mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}}}
+	e := telEnv{colEnv: colEnv{mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}}}
 	e.purgeTel()
 	t.Cleanup(e.purgeTel)
 	e.seedSeed(t)
 	e.seedTelemetry(t)
+	e.actIDs = e.activityIDs(t)
 	return e
+}
+
+// activityIDs maps the serial ids of this (shared) database to the 1..6 FastAPI's fresh database assigned.
+func (e telEnv) activityIDs(t *testing.T) map[int]int {
+	t.Helper()
+	ctx := context.Background()
+	m := map[int]int{}
+	if err := tenancy.InWorkspace(ctx, e.pool, "ws-alpha", func(tx pgx.Tx) error {
+		rows, err := tx.Query(ctx, `SELECT id FROM workbook_activity ORDER BY id`)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for n := 1; rows.Next(); n++ {
+			var id int
+			if err := rows.Scan(&id); err != nil {
+				return err
+			}
+			m[id] = n
+		}
+		return rows.Err()
+	}); err != nil {
+		t.Fatal(err)
+	}
+	return m
+}
+
+var activityIDRE = regexp.MustCompile(`\{"id":(\d+),"kind"`)
+
+// normActivity rewrites activity ids in an /activity body to FastAPI's.
+func (e telEnv) normActivity(body []byte) []byte {
+	return activityIDRE.ReplaceAllFunc(body, func(m []byte) []byte {
+		sub := activityIDRE.FindSubmatch(m)
+		n, _ := strconv.Atoi(string(sub[1]))
+		return []byte(`{"id":` + strconv.Itoa(e.actIDs[n]) + `,"kind"`)
+	})
 }
 
 func (e telEnv) purgeTel() {
@@ -120,6 +161,9 @@ func TestTelemetryMatchesFixtures(t *testing.T) {
 			hdr = e.hdr(c.who, c.ws)
 		}
 		_, got := e.do(fx.Request.Method, fx.Request.Path, "application/json", fixtureBody(fx), hdr)
+		if strings.HasPrefix(c.name, "activity_") {
+			got.Body = e.normActivity(got.Body)
+		}
 		t.Run(c.name, func(t *testing.T) { contract.AssertEqual(t, got, fx.Response) })
 	}
 	for _, n := range contractFixtureNames(t, "telemetry") {
@@ -286,6 +330,7 @@ func TestActivityLimitBound(t *testing.T) {
 	}
 	// Newest first, NULL created_at first (Postgres DESC), key order id, kind, message, created_at.
 	_, body = e.get("alice", "ws-alpha", telBase+"/activity?limit=2")
+	body = string(e.normActivity([]byte(body)))
 	wantTop := `{"activity":[{"id":6,"kind":null,"message":null,"created_at":null},{"id":5,"kind":"signal","message":"Signal with <html> & \"quotes\" é","created_at":"2026-08-29T10:05:00"}]}`
 	if body != wantTop {
 		t.Errorf("\n got %s\nwant %s", body, wantTop)
