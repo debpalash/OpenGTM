@@ -107,16 +107,14 @@ func sortPyPaths(paths []string) {
 }
 
 func loadEntry(p, policy string, trust TrustStore) (Entry, error) {
-	if st, err := os.Lstat(p + ".sig"); err == nil && st.Mode()&fs.ModeSymlink != 0 {
-		return Entry{}, errors.New("connector signature is a symlink")
-	}
-	res := VerifyDetail(p, trust)
-	if res.Status == SigInvalid || res.Status == SigUntrusted || (policy == "required" && res.Status != SigTrusted) {
-		return Entry{}, fmt.Errorf("connector signature is %s", res.Status)
-	}
-	data, err := readLimited(p)
+	// One read: the bytes that are verified are the bytes that are hashed and decoded.
+	data, err := readManifest(p)
 	if err != nil {
 		return Entry{}, err
+	}
+	res := VerifyData(data, p+".sig", trust)
+	if res.Status == SigInvalid || res.Status == SigUntrusted || (policy == "required" && res.Status != SigTrusted) {
+		return Entry{}, fmt.Errorf("connector signature is %s", res.Status)
 	}
 	m, canonical, err := decodeManifest(data)
 	if err != nil {

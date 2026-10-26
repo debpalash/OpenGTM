@@ -163,12 +163,26 @@ func Verify(path string, trust TrustStore) (SigStatus, error) {
 
 // VerifyDetail is Verify with the key id and publisher.
 func VerifyDetail(path string, trust TrustStore) VerifyResult {
-	sigPath := path + ".sig"
-	if _, err := os.Stat(sigPath); err != nil {
+	return verifyCore(path+".sig", trust, func() ([]byte, error) { return readManifest(path) })
+}
+
+// VerifyData verifies already read manifest bytes against the detached
+// signature at sigPath, so callers can verify, hash and decode one read.
+func VerifyData(data []byte, sigPath string, trust TrustStore) VerifyResult {
+	return verifyCore(sigPath, trust, func() ([]byte, error) { return data, nil })
+}
+
+// readManifest is the single manifest read (a var so tests can count reads).
+var readManifest = readLimited
+
+func verifyCore(sigPath string, trust TrustStore, getData func() ([]byte, error)) VerifyResult {
+	if st, err := os.Lstat(sigPath); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return VerifyResult{Status: SigUnsigned}
 		}
 		return VerifyResult{Status: SigInvalid, Err: err}
+	} else if st.Mode()&os.ModeSymlink != 0 {
+		return VerifyResult{Status: SigInvalid, Err: errors.New("connector signature is a symlink")}
 	}
 	invalid := func(keyID any, err error) VerifyResult {
 		return VerifyResult{Status: SigInvalid, KeyID: keyID, Err: err}
@@ -206,7 +220,7 @@ func VerifyDetail(path string, trust TrustStore) VerifyResult {
 	if !found {
 		return VerifyResult{Status: SigUntrusted, KeyID: keyID}
 	}
-	data, err := readLimited(path)
+	data, err := getData()
 	if err != nil {
 		return invalid(keyID, err)
 	}
