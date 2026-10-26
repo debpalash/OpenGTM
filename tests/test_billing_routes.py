@@ -191,3 +191,17 @@ def test_real_stripe_client_construct_event_returns_plain_dict():
     assert type(obj["metadata"]) is dict
     assert obj["id"] == "sess_real_sdk"
     assert obj["metadata"]["credit_usd"] == "12.5"
+
+
+def test_blank_webhook_secret_fails_closed(client):
+    """A blank STRIPE_WEBHOOK_SECRET must not verify forgeable signatures: 503."""
+    pytest.importorskip("stripe")
+    tc, _, _ = client
+    stripe_client.set_stripe_client(stripe_client.RealStripeClient("sk_test_dummy", ""))
+    event = {"type": "checkout.session.completed", "data": {"object": {
+        "id": "sess_forged", "payment_status": "paid",
+        "metadata": {"workspace_id": WS, "credit_usd": "99"}}}}
+    r = tc.post("/api/billing/webhook", json=event, headers={"stripe-signature": "t=1,v1=00"})
+    assert r.status_code == 503
+    assert "Stripe is not configured" in r.json()["detail"]
+    assert tc.get("/api/billing/balance").json()["balance_usd"] == 0.0

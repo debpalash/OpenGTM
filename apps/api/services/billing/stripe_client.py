@@ -61,6 +61,11 @@ class RealStripeClient:
         return {"id": session.id, "url": session.url}
 
     def construct_event(self, payload: bytes, sig_header: Optional[str]) -> dict:
+        if not (self._webhook_secret or "").strip():
+            # Fail closed: never verify against a blank secret (router maps to 503).
+            raise RuntimeError(
+                "Stripe is not configured: set STRIPE_WEBHOOK_SECRET in the environment."
+            )
         event = self._stripe.Webhook.construct_event(
             payload, sig_header, self._webhook_secret
         )
