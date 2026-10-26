@@ -41,7 +41,7 @@ func parseSourceColumnBody(raw []byte) (sourceColumnBody, []httpx.FieldError) {
 	if len(bytes.TrimSpace(raw)) == 0 {
 		return sourceColumnBody{}, []httpx.FieldError{srcErr("missing", "Field required", srcLoc(), nil)}
 	}
-	o, err := wbcrud.ParseObject(raw)
+	o, err := wbcrud.ParseObjectCanon(raw)
 	if err != nil {
 		var any0 any
 		if json.Unmarshal(raw, &any0) != nil {

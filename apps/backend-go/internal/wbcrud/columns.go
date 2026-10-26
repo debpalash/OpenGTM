@@ -90,6 +90,20 @@ func ParseObject(raw []byte) (*Obj, error) {
 	return o, nil
 }
 
+// ParseObjectCanon is ParseObject with numbers canonicalised like Python's
+// json.loads then json.dumps (1e2 -> 100.0, 1.50 -> 1.5).
+func ParseObjectCanon(raw []byte) (*Obj, error) {
+	doc, err := decodeDocument(raw, true)
+	if err != nil {
+		return nil, err
+	}
+	o, ok := doc.(*Obj)
+	if !ok {
+		return nil, fmt.Errorf("not a JSON object")
+	}
+	return o, nil
+}
+
 // MarshalJSON writes keys in stored order.
 func (c Column) MarshalJSON() ([]byte, error) {
 	if c.o == nil {
