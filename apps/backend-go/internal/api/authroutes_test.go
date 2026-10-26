@@ -229,3 +229,40 @@ func TestMeMatchesFixture(t *testing.T) {
 	_, got = e.do("GET", "/auth/me", "", "", nil)
 	contract.AssertEqual(t, got, fx.Response)
 }
+
+func TestTokenAndRefreshAreNotCacheable(t *testing.T) {
+	e := newEnv(t)
+	e.seedPW(t, "alice", "alice-pass-1", true)
+	rec, _ := e.do("POST", "/auth/token", formCT, form("username", "alice", "password", "alice-pass-1"), nil)
+	var m map[string]string
+	_ = json.Unmarshal(rec.Body.Bytes(), &m)
+	for name, r := range map[string]*httptest.ResponseRecorder{"token": rec} {
+		if r.Header().Get("Cache-Control") != "no-store" || r.Header().Get("Pragma") != "no-cache" {
+			t.Errorf("%s: Cache-Control=%q Pragma=%q", name, r.Header().Get("Cache-Control"), r.Header().Get("Pragma"))
+		}
+	}
+	rec, _ = e.do("POST", "/auth/refresh", "application/json", mustJSON(map[string]string{"refresh_token": m["refresh_token"]}), nil)
+	if rec.Code != 200 || rec.Header().Get("Cache-Control") != "no-store" || rec.Header().Get("Pragma") != "no-cache" {
+		t.Errorf("refresh: %d Cache-Control=%q Pragma=%q", rec.Code, rec.Header().Get("Cache-Control"), rec.Header().Get("Pragma"))
+	}
+}
+
+func TestTokenEmptyHashRunsDummyVerify(t *testing.T) {
+	e := newEnv(t)
+	e.seed(t, "nohash", "", true, "user", false)
+	calls := 0
+	old := dummyVerify
+	dummyVerify = func() { calls++ }
+	defer func() { dummyVerify = old }()
+	fx := contract.Load(t, "auth/token_bad_password")
+	_, got := e.do("POST", "/auth/token", formCT, form("username", "nohash", "password", "whatever-1"), nil)
+	contract.AssertEqual(t, got, fx.Response)
+	if calls != 1 {
+		t.Fatalf("DummyVerify calls for empty-hash user = %d, want 1", calls)
+	}
+	// unknown user also still burns one verify
+	e.do("POST", "/auth/token", formCT, form("username", "ghost-user", "password", "x"), nil)
+	if calls != 2 {
+		t.Fatalf("DummyVerify calls after unknown user = %d, want 2", calls)
+	}
+}
