@@ -25,6 +25,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachinbound"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachsend"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
@@ -170,6 +172,10 @@ func jobLimit(cfg config.Config, jobType string) time.Duration {
 		return 300 * time.Second
 	case jobTriggerEval, jobWatchPoll:
 		return automationTimeout
+	case jobSend:
+		return outreachsend.DefaultJobTimeout // Python JOB_TIMEOUTS["send"]
+	case outreachinbound.JobType:
+		return outreachInboundTimeout
 	}
 	return cfg.JobTimeout
 }
@@ -420,6 +426,9 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		sec = localSecrets
 	}
 	for typ, h := range buildAutomations(cfg, pool, log, deps, sec, localSecrets, pyRPC, emitter) {
+		handlers[typ] = h
+	}
+	for typ, h := range buildOutreach(cfg, pool, log, localSecrets, outreachOpts{}) {
 		handlers[typ] = h
 	}
 	route := dispatch(handlers)

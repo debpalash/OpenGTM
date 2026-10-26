@@ -304,6 +304,9 @@ const minSecretKeyBytes = 32
 // APP_ENV values where the insecure default SECRET_KEY is tolerated.
 var devEnvs = map[string]bool{"dev": true, "development": true, "test": true, "testing": true, "local": true}
 
+// IsDevEnv reports whether appEnv is one of Python's _DEV_ENVS (case and edge whitespace ignored).
+func IsDevEnv(appEnv string) bool { return devEnvs[strings.ToLower(strings.TrimSpace(appEnv))] }
+
 // APIConfig is the configuration of cmd/api. Names mirror the Python settings.
 type APIConfig struct {
 	DatabaseURL      string
