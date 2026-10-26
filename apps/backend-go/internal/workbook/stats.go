@@ -12,6 +12,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
 )
 
 // Planner constants from planner.py.
@@ -28,14 +29,25 @@ type skippedProvider struct{ Provider, Reason string }
 // payload (paid <=> cost > 0), not a vendor catalog.
 type planner struct {
 	costs map[string]float64
+	// catalog falls back to the vendor catalog for providers the payload carries
+	// no cost for (non-declarative providers behind the provider runner).
+	catalog bool
 }
 
-func (p planner) cost(name string) float64 { return p.costs[name] }
-func (p planner) paid(name string) bool    { return p.costs[name] > 0 }
+func (p planner) cost(name string) float64 {
+	if c, ok := p.costs[name]; ok || !p.catalog {
+		return c
+	}
+	return vendorcatalog.BaseCost(name)
+}
+func (p planner) paid(name string) bool { return p.cost(name) > 0 }
 
 // knownCost ports vendor_catalog.has_known_cost: the generator emits a cost
 // for every manifest it routes here, so presence is the signal.
-func (p planner) knownCost(name string) bool { _, ok := p.costs[name]; return ok }
+func (p planner) knownCost(name string) bool {
+	_, ok := p.costs[name]
+	return ok || (p.catalog && vendorcatalog.HasKnownCost(name))
+}
 
 func (p planner) stat(ctx context.Context, q *gen.Queries, provider, field string) (*gen.GetProviderStatRow, error) {
 	st, err := q.GetProviderStat(ctx, gen.GetProviderStatParams{Provider: provider, Field: field})

@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -25,6 +26,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
@@ -295,6 +298,7 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		Manifests: api,
 		Log:       log,
 	}
+	var localSecrets *secrets.Resolver
 	if cfg.CredentialsSource == config.CredentialsSourceLocal {
 		env, err := secrets.NewEnvelope(secrets.Config{
 			Provider: cfg.SecretsProvider, MasterKey: cfg.SecretsMasterKey, SecretKey: cfg.SecretKey, AppEnv: cfg.AppEnv,
@@ -308,8 +312,11 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		// allow-list for in-process resolution.
 		allow := credentials.NewManifestAllow(api)
 		deps.Manifests = allow
-		deps.Creds = credentials.NewLocal(secrets.NewResolver(env, secrets.NewPgStore(pool), os.Getenv), allow.Allowed, nil)
+		localSecrets = secrets.NewResolver(env, secrets.NewPgStore(pool), os.Getenv)
+		deps.Creds = credentials.NewLocal(localSecrets, allow.Allowed, nil)
 	}
+	deps.Runner, deps.Py = buildProviderRunner(cfg, pool, log, api, localSecrets)
+	deps.AIBatch = workbook.BatchConfig{Enabled: envBool("GO_AI_BATCH_ENABLED"), MinRows: envInt("WORKBOOK_BATCH_MIN_ROWS", 20)}
 	closeFn := func() {}
 	var prog progress.Publisher
 	if cfg.RedisURL != "" {
@@ -347,4 +354,55 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		}
 		return handle(ctx, c)
 	}, closeFn, nil
+}
+
+// apiSecrets serves providerrun credentials through the Python credentials
+// API; global settings (no workspace) are not served by it and read as unset.
+type apiSecrets struct{ api *credentials.Client }
+
+func (a apiSecrets) Get(ctx context.Context, ws, key string) (string, string, error) {
+	if ws == "" {
+		return "", "", nil
+	}
+	v, err := a.api.Get(ctx, ws, key)
+	return v, "api", err
+}
+
+// buildProviderRunner wires providerrun.Runner (Go providers in process, the
+// rest through the Python worker) and the Python RPC client. The Python client
+// is returned as an interface only when PY_WORKER_URL is configured, so a nil
+// client can never hide behind a non-nil interface: columns that need Python
+// are then handed back.
+func buildProviderRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, api *credentials.Client, local *secrets.Resolver) (workbook.ProviderRunner, workbook.PyCaller) {
+	var sec providerrun.Secrets = apiSecrets{api}
+	if local != nil {
+		sec = local
+	}
+	var py workbook.PyCaller
+	var pyRun providerrun.PyCaller
+	if url := strings.TrimSpace(os.Getenv("PY_WORKER_URL")); url != "" {
+		token := strings.TrimSpace(os.Getenv("PY_WORKER_TOKEN"))
+		if token == "" { // the Python endpoint authenticates with INTERNAL_SERVICE_TOKEN
+			token = cfg.InternalServiceToken
+		}
+		c := pyworker.New(url, token, nil)
+		py, pyRun = c, c
+	}
+	return providerrun.New(providerrun.Deps{Pool: pool, Secrets: sec, Py: pyRun,
+		OperatorAllow: cfg.EgressAllowHosts, Log: log}), py
+}
+
+func envBool(key string) bool {
+	switch strings.ToLower(strings.TrimSpace(os.Getenv(key))) {
+	case "1", "true", "yes", "on":
+		return true
+	}
+	return false
+}
+
+func envInt(key string, def int) int {
+	if n, err := strconv.Atoi(strings.TrimSpace(os.Getenv(key))); err == nil && n > 0 {
+		return n
+	}
+	return def
 }

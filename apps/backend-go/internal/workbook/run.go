@@ -107,7 +107,7 @@ func run(ctx context.Context, deps Deps, c *queue.Claim, started *bool) (Result,
 	if interval <= 0 {
 		interval = defaultStopCheckInterval
 	}
-	rs := &runState{deps: deps, claim: c, p: p, pl: planner{costs: p.Costs}, log: log}
+	rs := &runState{deps: deps, claim: c, p: p, pl: planner{costs: p.Costs, catalog: deps.Runner != nil}, log: log}
 	rs.runner, rs.legacy = deps.Runner, deps.Runner == nil
 	if rs.legacy {
 		rs.runner = manifestRunner{rs}
