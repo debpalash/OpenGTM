@@ -11,8 +11,13 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 )
 
-// MaxFrameBytes caps one relayed frame (the pyworker stream frame cap, 4 MiB).
-var MaxFrameBytes = 4 << 20
+// MaxFrameBytes caps one relayed input frame: the pyworker per-line cap (8 MiB + 64 KiB;
+// keep in step with internal/pyworker/stream.go maxFrameBytes).
+var MaxFrameBytes = 8<<20 + 64<<10
+
+// outputFactor bounds the output: ensure_ascii turns a 2-4 byte rune into up to 12 bytes
+// (surrogate pair) or 6 bytes (BMP), so output is capped at a multiple of the input cap.
+const outputFactor = 6
 
 // MaxDepth is the deepest container nesting Reformat accepts.
 const MaxDepth = 64
@@ -107,7 +112,7 @@ func Reformat(raw []byte) ([]byte, error) {
 	if _, err := dec.Token(); err != io.EOF {
 		return nil, errors.New("ssestream: trailing data")
 	}
-	if out.Len() > MaxFrameBytes {
+	if out.Len() > MaxFrameBytes*outputFactor {
 		return nil, errors.New("ssestream: frame too large")
 	}
 	return out.Bytes(), nil
