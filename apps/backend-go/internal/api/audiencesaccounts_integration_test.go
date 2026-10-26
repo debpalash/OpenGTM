@@ -284,7 +284,7 @@ func TestAccountsTenantIsolation(t *testing.T) {
 		t.Fatalf("viewer: %d %s", code, raw)
 	}
 	// A non-member of the requested workspace is refused before the lookup.
-	if code, _, _ := e.accounts(t, "erin", "ws-beta", "/api/audiences/aud-beta-act/accounts"); code != 403 && code != 404 {
-		t.Fatalf("non-member: %d", code)
+	if code, _, raw := e.accounts(t, "erin", "ws-beta", "/api/audiences/aud-beta-act/accounts"); code != 403 || !strings.Contains(raw, `"detail":"Workspace access denied"`) {
+		t.Fatalf("non-member: %d %s", code, raw)
 	}
 }
