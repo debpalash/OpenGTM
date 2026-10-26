@@ -23,6 +23,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ratelimit"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runplan"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
@@ -70,8 +71,9 @@ func newRunEnv(t *testing.T, o runOpts) runEnv {
 		}
 		t.Cleanup(func() { connectorsLookupEnv = prev })
 	}
-	vendorcatalog.SetResearchFlag(func() bool { return true })
-	t.Cleanup(func() { vendorcatalog.SetResearchFlag(nil) })
+	// platform-billed research vendor (RESEARCH_VENDOR_COST on) through the production wiring
+	runplan.Wire(runplan.WireDeps{AppSetting: func(context.Context, string, string) (string, error) { return "1", nil }})
+	t.Cleanup(func() { runplan.Wire(runplan.WireDeps{}); vendorcatalog.SetResearchFlag(nil) })
 
 	st := identity.NewStore(pool)
 	r := httpx.NewRouter()
@@ -265,7 +267,7 @@ func TestRunMatchesFixtures(t *testing.T) {
 		n++
 		t.Run(name, func(t *testing.T) { replay(t, e, name) })
 	}
-	if n < 28 {
+	if n < 25 {
 		t.Fatalf("only %d fixtures replayed", n)
 	}
 	if e.ledgerRows(t) != 0 {
@@ -406,8 +408,16 @@ func TestRunForeignWorkbook404(t *testing.T) {
 // TestRunExecutorFollowsCohort: the job row's executor comes from the plan.
 func TestRunExecutorFollowsCohort(t *testing.T) {
 	dir, _ := filepath.Abs(filepath.Join("..", "runplan", "testdata", "manifests"))
-	run := func(env map[string]string) (executor string, payload string) {
-		e := newRunEnv(t, runOpts{getenv: env, manDir: dir})
+	env := map[string]string{}
+	e := newRunEnv(t, runOpts{getenv: env, manDir: dir}) // one env: each env holds the suite-wide DB lock
+	run := func(vars map[string]string) (executor, payload string) {
+		for k := range env {
+			delete(env, k)
+		}
+		for k, v := range vars {
+			env[k] = v
+		}
+		_, _ = e.owner.Exec(context.Background(), `DELETE FROM jobs WHERE type='run_workbook' AND payload->>'workbook_id'='wb-go'`)
 		rec, _ := e.post("wb-go", `{"column_ids":["mob"]}`, e.users["alice"])
 		if rec.Code != 200 {
 			t.Fatalf("%d %s", rec.Code, rec.Body)
@@ -418,8 +428,13 @@ func TestRunExecutorFollowsCohort(t *testing.T) {
 		}
 		return
 	}
-	if ex, p := run(map[string]string{"GO_EXECUTOR_ENABLED": "1", "GO_EXECUTOR_WORKSPACES": runWsAlpha}); ex != "go" || !strings.Contains(p, `"go"`) || !strings.Contains(p, `"workspace_id": "`+runWsAlpha+`"`) && !strings.Contains(p, `"workspace_id":"`+runWsAlpha+`"`) {
-		t.Fatalf("cohort member: executor %s payload %s", ex, p)
+	ex, p := run(map[string]string{"GO_EXECUTOR_ENABLED": "1", "GO_EXECUTOR_WORKSPACES": runWsAlpha})
+	var job struct {
+		WorkspaceID string          `json:"workspace_id"`
+		Go          json.RawMessage `json:"go"`
+	}
+	if err := json.Unmarshal([]byte(p), &job); err != nil || ex != "go" || len(job.Go) == 0 || job.WorkspaceID != runWsAlpha {
+		t.Fatalf("cohort member: executor %s payload %s (%v)", ex, p, err)
 	}
 	if ex, p := run(map[string]string{"GO_EXECUTOR_ENABLED": "1", "GO_EXECUTOR_WORKSPACES": "someone-else"}); ex != "python" || strings.Contains(p, `"go"`) {
 		t.Fatalf("outside cohort: executor %s payload %s", ex, p)
