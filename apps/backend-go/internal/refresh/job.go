@@ -150,6 +150,17 @@ func enqueueNext(ctx context.Context, tx pgx.Tx, wbID, ws, executor, fireKey str
 // tenancy.InWorkspace. The stored JSON is the compact encoding of policy (map
 // keys sorted; Python keeps insertion order).
 func SetPolicy(ctx context.Context, tx pgx.Tx, wbID string, policy map[string]any) (map[string]any, error) {
+	return SetPolicyExecutor(ctx, tx, wbID, policy, DefaultExecutor)
+}
+
+// SetPolicyExecutor is SetPolicy with the executor of the chain job it may
+// start: Python uses refresh_executor(workspace_id), so the API passes the
+// cohort resolution (config.ExecutorSettings.RefreshExecutor). An empty
+// executor is DefaultExecutor.
+func SetPolicyExecutor(ctx context.Context, tx pgx.Tx, wbID string, policy map[string]any, executor string) (map[string]any, error) {
+	if executor == "" {
+		executor = DefaultExecutor
+	}
 	q := gen.New(tx)
 	wb, err := q.RefreshWorkbook(ctx, wbID)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -177,7 +188,7 @@ func SetPolicy(ctx context.Context, tx pgx.Tx, wbID string, policy map[string]an
 		if errors.Is(err, pgx.ErrNoRows) {
 			now := Clock().UTC()
 			key := fmt.Sprintf("refresh_workbook:%s:policy:%d", wbID, now.Unix())
-			if _, err := enqueueNext(ctx, tx, wbID, wb.WorkspaceID, DefaultExecutor, key, minutes, now); err != nil {
+			if _, err := enqueueNext(ctx, tx, wbID, wb.WorkspaceID, executor, key, minutes, now); err != nil {
 				return nil, err
 			}
 		} else if err != nil {

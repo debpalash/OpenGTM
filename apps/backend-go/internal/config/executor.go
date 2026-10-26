@@ -27,7 +27,10 @@ func pyBool(s string) bool {
 	return false
 }
 
-func loadExecutor(get func(string) string, serviceToken string) (ExecutorSettings, error) {
+// ExecutorCohortFrom reads only the routing flags (GO_EXECUTOR_ENABLED,
+// GO_EXECUTOR_WORKSPACES, GO_EXECUTOR_SIGNAL_SCAN); it cannot fail, so request
+// handlers can resolve a job's executor from the environment per call.
+func ExecutorCohortFrom(get func(string) string) ExecutorSettings {
 	e := ExecutorSettings{
 		Enabled:    pyBool(get("GO_EXECUTOR_ENABLED")),
 		SignalScan: pyBool(get("GO_EXECUTOR_SIGNAL_SCAN")),
@@ -38,6 +41,11 @@ func loadExecutor(get func(string) string, serviceToken string) (ExecutorSetting
 			e.Workspaces[w] = true
 		}
 	}
+	return e
+}
+
+func loadExecutor(get func(string) string, serviceToken string) (ExecutorSettings, error) {
+	e := ExecutorCohortFrom(get)
 	var err error
 	for _, n := range []struct {
 		dst *int
