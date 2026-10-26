@@ -21,7 +21,10 @@ func TestDialRejectsPrivateLoopbackLinkLocalMapped(t *testing.T) {
 	for _, h := range blockedHosts {
 		called := false
 		dial := guardedDial(map[string]struct{}{}, &fakeResolver{seq: [][]netip.Addr{addrs("127.0.0.1")}},
-			func(context.Context, string, string) (net.Conn, error) { called = true; return nil, errors.New("must not dial") })
+			func(context.Context, string, string) (net.Conn, error) {
+				called = true
+				return nil, errors.New("must not dial")
+			})
 		_, err := dial(context.Background(), "tcp", net.JoinHostPort(h, "587"))
 		if !errors.Is(err, ErrBlocked) {
 			t.Errorf("%s: err = %v, want ErrBlocked", h, err)

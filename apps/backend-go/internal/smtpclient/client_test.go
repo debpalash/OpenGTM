@@ -149,8 +149,9 @@ func TestAuthFailureError(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "535 5.7.8 authentication failed") {
 		t.Fatalf("err = %v, want verbatim server reply", err)
 	}
-	if IsHardBounce(err.Error()) {
-		t.Fatal("535 auth failure must not classify as a hard bounce")
+	// Parity quirk: Python's _is_hard_bounce treats any 5xx token (535 too) as hard.
+	if !IsHardBounce(err.Error()) {
+		t.Fatal("535 must classify like Python (5xx token)")
 	}
 }
 
@@ -246,7 +247,9 @@ func TestErrorNeverContainsPassword(t *testing.T) {
 		t.Fatalf("echoed reply leaked: %v", err)
 	}
 	cfg := cfgFor(srv, 587, true)
-	cfg.Dial = func(context.Context, string, string) (net.Conn, error) { return nil, errors.New("dial failed for " + testPassword) }
+	cfg.Dial = func(context.Context, string, string) (net.Conn, error) {
+		return nil, errors.New("dial failed for " + testPassword)
+	}
 	_, err = newClient(srv.CertPool()).Send(context.Background(), cfg, "me@sender.example", "you@dest.example", testMsg)
 	if err == nil || strings.Contains(err.Error(), testPassword) {
 		t.Fatalf("dial error leaked: %v", err)
