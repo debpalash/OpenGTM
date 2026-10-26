@@ -87,3 +87,125 @@ VALUES (sqlc.arg(executor)::text, 'retention_enforce', sqlc.arg(payload)::json, 
         (now() AT TIME ZONE 'UTC'), (sqlc.arg(next_run_at)::timestamptz)::timestamp, 3, 0)
 ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id;
+
+-- ---- enforcement and failure reconcile (enforce.go, reconcile.go) ----
+-- retention_runs is FORCE RLS; jobs is not. Naive timestamps are written from a
+-- timestamptz so Postgres stores them in the session TimeZone (what psycopg does for
+-- Python's aware datetimes) and read back as timestamptz for the same reason.
+
+-- name: RetRunGet :one
+SELECT id, workspace_id, status, requested_by, policy_snapshot, deleted_counts, error,
+       (started_at::timestamptz) AS started_at
+FROM retention_runs
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
+
+-- Locks the run row so a concurrent cancel waits for the batch in flight.
+-- name: RetRunLock :one
+SELECT status, (started_at::timestamptz) AS started_at
+FROM retention_runs
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text
+FOR UPDATE;
+
+-- name: RetPolicyLockShared :one
+SELECT workspace_id, enabled, legal_hold, retention_days, next_run_at, updated_by, created_at, updated_at
+FROM retention_policies WHERE workspace_id = sqlc.arg(workspace_id)::text
+FOR SHARE;
+
+-- name: RetRunCreate :one
+INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts)
+VALUES (gen_random_uuid()::text, sqlc.arg(workspace_id)::text, 'pending', 'scheduler', sqlc.arg(policy_snapshot)::json, '{}'::json)
+RETURNING id;
+
+-- name: RetRunCancel :exec
+UPDATE retention_runs
+SET status = 'cancelled', error = sqlc.arg(error)::text, finished_at = (sqlc.arg(finished_at)::timestamptz)::timestamp
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
+
+-- name: RetRunStart :exec
+UPDATE retention_runs
+SET status = 'running', started_at = (sqlc.arg(started_at)::timestamptz)::timestamp
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
+
+-- name: RetRunFinish :exec
+UPDATE retention_runs
+SET status = sqlc.arg(status)::text, deleted_counts = sqlc.arg(deleted_counts)::json,
+    error = sqlc.narg(error)::text, finished_at = (sqlc.arg(finished_at)::timestamptz)::timestamp
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
+
+-- Counts so far for a run another actor already cancelled (status and error stay).
+-- name: RetRunSetCounts :exec
+UPDATE retention_runs SET deleted_counts = sqlc.arg(deleted_counts)::json
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
+
+-- Reconcile transitions.
+-- name: RetRunRetry :exec
+UPDATE retention_runs SET status = 'pending', error = sqlc.arg(error)::text, finished_at = NULL
+WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
+
+-- name: RetJobGet :one
+SELECT status, payload FROM jobs WHERE id = sqlc.arg(id)::int;
+
+-- name: RetJobSetPayload :exec
+UPDATE jobs SET payload = sqlc.arg(payload)::json WHERE id = sqlc.arg(id)::int;
+
+-- name: RetJobCancelPending :exec
+UPDATE jobs SET status = 'cancelled', error = sqlc.arg(error)::text, completed_at = (sqlc.arg(completed_at)::timestamptz)::timestamp
+WHERE id = sqlc.arg(id)::int AND status = 'pending';
+
+-- Batched deletes: the explicit workspace predicate is in both the inner select and the
+-- outer delete (RLS is the second fence, not the only one).
+-- name: RetDeleteAudit :execrows
+DELETE FROM governance_audit_events
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
+  SELECT ctid FROM governance_audit_events
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
+  LIMIT sqlc.arg(batch)::int);
+
+-- name: RetDeleteLLMUsage :execrows
+DELETE FROM llm_usage_daily
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
+  SELECT ctid FROM llm_usage_daily
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND date < sqlc.arg(cutoff)::text
+  LIMIT sqlc.arg(batch)::int);
+
+-- name: RetDeleteSignals :execrows
+DELETE FROM signals
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
+  SELECT ctid FROM signals
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::float8
+  LIMIT sqlc.arg(batch)::int);
+
+-- name: RetDeleteDeliveries :execrows
+DELETE FROM destination_deliveries
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
+  SELECT ctid FROM destination_deliveries
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
+  LIMIT sqlc.arg(batch)::int);
+
+-- name: RetDeleteInboundReceipts :execrows
+DELETE FROM destination_inbound_receipts
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
+  SELECT ctid FROM destination_inbound_receipts
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
+  LIMIT sqlc.arg(batch)::int);
+
+-- name: RetDeleteMembershipEvents :execrows
+DELETE FROM audience_membership_events
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
+  SELECT ctid FROM audience_membership_events
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
+  LIMIT sqlc.arg(batch)::int);
+
+-- name: RetDeletePlaybookResults :execrows
+DELETE FROM playbook_results
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
+  SELECT ctid FROM playbook_results
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
+  LIMIT sqlc.arg(batch)::int);
+
+-- name: RetDeleteOutreachSends :execrows
+DELETE FROM outreach_sends
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND ctid IN (
+  SELECT ctid FROM outreach_sends
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND created_at < sqlc.arg(cutoff)::timestamptz
+  LIMIT sqlc.arg(batch)::int);

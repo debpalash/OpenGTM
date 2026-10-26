@@ -176,6 +176,184 @@ func (q *Queries) RetCountSignals(ctx context.Context, arg RetCountSignalsParams
 	return column_1, err
 }
 
+const retDeleteAudit = `-- name: RetDeleteAudit :execrows
+DELETE FROM governance_audit_events
+WHERE workspace_id = $1::text AND ctid IN (
+  SELECT ctid FROM governance_audit_events
+  WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+  LIMIT $3::int)
+`
+
+type RetDeleteAuditParams struct {
+	WorkspaceID string
+	Cutoff      pgtype.Timestamptz
+	Batch       int32
+}
+
+// Batched deletes: the explicit workspace predicate is in both the inner select and the
+// outer delete (RLS is the second fence, not the only one).
+func (q *Queries) RetDeleteAudit(ctx context.Context, arg RetDeleteAuditParams) (int64, error) {
+	result, err := q.db.Exec(ctx, retDeleteAudit, arg.WorkspaceID, arg.Cutoff, arg.Batch)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const retDeleteDeliveries = `-- name: RetDeleteDeliveries :execrows
+DELETE FROM destination_deliveries
+WHERE workspace_id = $1::text AND ctid IN (
+  SELECT ctid FROM destination_deliveries
+  WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+  LIMIT $3::int)
+`
+
+type RetDeleteDeliveriesParams struct {
+	WorkspaceID string
+	Cutoff      pgtype.Timestamptz
+	Batch       int32
+}
+
+func (q *Queries) RetDeleteDeliveries(ctx context.Context, arg RetDeleteDeliveriesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, retDeleteDeliveries, arg.WorkspaceID, arg.Cutoff, arg.Batch)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const retDeleteInboundReceipts = `-- name: RetDeleteInboundReceipts :execrows
+DELETE FROM destination_inbound_receipts
+WHERE workspace_id = $1::text AND ctid IN (
+  SELECT ctid FROM destination_inbound_receipts
+  WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+  LIMIT $3::int)
+`
+
+type RetDeleteInboundReceiptsParams struct {
+	WorkspaceID string
+	Cutoff      pgtype.Timestamptz
+	Batch       int32
+}
+
+func (q *Queries) RetDeleteInboundReceipts(ctx context.Context, arg RetDeleteInboundReceiptsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, retDeleteInboundReceipts, arg.WorkspaceID, arg.Cutoff, arg.Batch)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const retDeleteLLMUsage = `-- name: RetDeleteLLMUsage :execrows
+DELETE FROM llm_usage_daily
+WHERE workspace_id = $1::text AND ctid IN (
+  SELECT ctid FROM llm_usage_daily
+  WHERE workspace_id = $1::text AND date < $2::text
+  LIMIT $3::int)
+`
+
+type RetDeleteLLMUsageParams struct {
+	WorkspaceID string
+	Cutoff      string
+	Batch       int32
+}
+
+func (q *Queries) RetDeleteLLMUsage(ctx context.Context, arg RetDeleteLLMUsageParams) (int64, error) {
+	result, err := q.db.Exec(ctx, retDeleteLLMUsage, arg.WorkspaceID, arg.Cutoff, arg.Batch)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const retDeleteMembershipEvents = `-- name: RetDeleteMembershipEvents :execrows
+DELETE FROM audience_membership_events
+WHERE workspace_id = $1::text AND ctid IN (
+  SELECT ctid FROM audience_membership_events
+  WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+  LIMIT $3::int)
+`
+
+type RetDeleteMembershipEventsParams struct {
+	WorkspaceID string
+	Cutoff      pgtype.Timestamptz
+	Batch       int32
+}
+
+func (q *Queries) RetDeleteMembershipEvents(ctx context.Context, arg RetDeleteMembershipEventsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, retDeleteMembershipEvents, arg.WorkspaceID, arg.Cutoff, arg.Batch)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const retDeleteOutreachSends = `-- name: RetDeleteOutreachSends :execrows
+DELETE FROM outreach_sends
+WHERE workspace_id = $1::text AND ctid IN (
+  SELECT ctid FROM outreach_sends
+  WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+  LIMIT $3::int)
+`
+
+type RetDeleteOutreachSendsParams struct {
+	WorkspaceID string
+	Cutoff      pgtype.Timestamptz
+	Batch       int32
+}
+
+func (q *Queries) RetDeleteOutreachSends(ctx context.Context, arg RetDeleteOutreachSendsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, retDeleteOutreachSends, arg.WorkspaceID, arg.Cutoff, arg.Batch)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const retDeletePlaybookResults = `-- name: RetDeletePlaybookResults :execrows
+DELETE FROM playbook_results
+WHERE workspace_id = $1::text AND ctid IN (
+  SELECT ctid FROM playbook_results
+  WHERE workspace_id = $1::text AND created_at < $2::timestamptz
+  LIMIT $3::int)
+`
+
+type RetDeletePlaybookResultsParams struct {
+	WorkspaceID string
+	Cutoff      pgtype.Timestamptz
+	Batch       int32
+}
+
+func (q *Queries) RetDeletePlaybookResults(ctx context.Context, arg RetDeletePlaybookResultsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, retDeletePlaybookResults, arg.WorkspaceID, arg.Cutoff, arg.Batch)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const retDeleteSignals = `-- name: RetDeleteSignals :execrows
+DELETE FROM signals
+WHERE workspace_id = $1::text AND ctid IN (
+  SELECT ctid FROM signals
+  WHERE workspace_id = $1::text AND created_at < $2::float8
+  LIMIT $3::int)
+`
+
+type RetDeleteSignalsParams struct {
+	WorkspaceID string
+	Cutoff      float64
+	Batch       int32
+}
+
+func (q *Queries) RetDeleteSignals(ctx context.Context, arg RetDeleteSignalsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, retDeleteSignals, arg.WorkspaceID, arg.Cutoff, arg.Batch)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const retGetPolicy = `-- name: RetGetPolicy :one
 SELECT workspace_id, enabled, legal_hold, retention_days, next_run_at, updated_by, created_at, updated_at
 FROM retention_policies WHERE workspace_id = $1::text
@@ -224,6 +402,263 @@ func (q *Queries) RetInsertScheduledJob(ctx context.Context, arg RetInsertSchedu
 	var id int32
 	err := row.Scan(&id)
 	return id, err
+}
+
+const retJobCancelPending = `-- name: RetJobCancelPending :exec
+UPDATE jobs SET status = 'cancelled', error = $1::text, completed_at = ($2::timestamptz)::timestamp
+WHERE id = $3::int AND status = 'pending'
+`
+
+type RetJobCancelPendingParams struct {
+	Error       string
+	CompletedAt pgtype.Timestamptz
+	ID          int32
+}
+
+func (q *Queries) RetJobCancelPending(ctx context.Context, arg RetJobCancelPendingParams) error {
+	_, err := q.db.Exec(ctx, retJobCancelPending, arg.Error, arg.CompletedAt, arg.ID)
+	return err
+}
+
+const retJobGet = `-- name: RetJobGet :one
+SELECT status, payload FROM jobs WHERE id = $1::int
+`
+
+type RetJobGetRow struct {
+	Status  pgtype.Text
+	Payload []byte
+}
+
+func (q *Queries) RetJobGet(ctx context.Context, id int32) (RetJobGetRow, error) {
+	row := q.db.QueryRow(ctx, retJobGet, id)
+	var i RetJobGetRow
+	err := row.Scan(&i.Status, &i.Payload)
+	return i, err
+}
+
+const retJobSetPayload = `-- name: RetJobSetPayload :exec
+UPDATE jobs SET payload = $1::json WHERE id = $2::int
+`
+
+type RetJobSetPayloadParams struct {
+	Payload []byte
+	ID      int32
+}
+
+func (q *Queries) RetJobSetPayload(ctx context.Context, arg RetJobSetPayloadParams) error {
+	_, err := q.db.Exec(ctx, retJobSetPayload, arg.Payload, arg.ID)
+	return err
+}
+
+const retPolicyLockShared = `-- name: RetPolicyLockShared :one
+SELECT workspace_id, enabled, legal_hold, retention_days, next_run_at, updated_by, created_at, updated_at
+FROM retention_policies WHERE workspace_id = $1::text
+FOR SHARE
+`
+
+func (q *Queries) RetPolicyLockShared(ctx context.Context, workspaceID string) (RetentionPolicy, error) {
+	row := q.db.QueryRow(ctx, retPolicyLockShared, workspaceID)
+	var i RetentionPolicy
+	err := row.Scan(
+		&i.WorkspaceID,
+		&i.Enabled,
+		&i.LegalHold,
+		&i.RetentionDays,
+		&i.NextRunAt,
+		&i.UpdatedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const retRunCancel = `-- name: RetRunCancel :exec
+UPDATE retention_runs
+SET status = 'cancelled', error = $1::text, finished_at = ($2::timestamptz)::timestamp
+WHERE id = $3::text AND workspace_id = $4::text
+`
+
+type RetRunCancelParams struct {
+	Error       string
+	FinishedAt  pgtype.Timestamptz
+	ID          string
+	WorkspaceID string
+}
+
+func (q *Queries) RetRunCancel(ctx context.Context, arg RetRunCancelParams) error {
+	_, err := q.db.Exec(ctx, retRunCancel,
+		arg.Error,
+		arg.FinishedAt,
+		arg.ID,
+		arg.WorkspaceID,
+	)
+	return err
+}
+
+const retRunCreate = `-- name: RetRunCreate :one
+INSERT INTO retention_runs (id, workspace_id, status, requested_by, policy_snapshot, deleted_counts)
+VALUES (gen_random_uuid()::text, $1::text, 'pending', 'scheduler', $2::json, '{}'::json)
+RETURNING id
+`
+
+type RetRunCreateParams struct {
+	WorkspaceID    string
+	PolicySnapshot []byte
+}
+
+func (q *Queries) RetRunCreate(ctx context.Context, arg RetRunCreateParams) (string, error) {
+	row := q.db.QueryRow(ctx, retRunCreate, arg.WorkspaceID, arg.PolicySnapshot)
+	var id string
+	err := row.Scan(&id)
+	return id, err
+}
+
+const retRunFinish = `-- name: RetRunFinish :exec
+UPDATE retention_runs
+SET status = $1::text, deleted_counts = $2::json,
+    error = $3::text, finished_at = ($4::timestamptz)::timestamp
+WHERE id = $5::text AND workspace_id = $6::text
+`
+
+type RetRunFinishParams struct {
+	Status        string
+	DeletedCounts []byte
+	Error         pgtype.Text
+	FinishedAt    pgtype.Timestamptz
+	ID            string
+	WorkspaceID   string
+}
+
+func (q *Queries) RetRunFinish(ctx context.Context, arg RetRunFinishParams) error {
+	_, err := q.db.Exec(ctx, retRunFinish,
+		arg.Status,
+		arg.DeletedCounts,
+		arg.Error,
+		arg.FinishedAt,
+		arg.ID,
+		arg.WorkspaceID,
+	)
+	return err
+}
+
+const retRunGet = `-- name: RetRunGet :one
+
+SELECT id, workspace_id, status, requested_by, policy_snapshot, deleted_counts, error,
+       (started_at::timestamptz) AS started_at
+FROM retention_runs
+WHERE id = $1::text AND workspace_id = $2::text
+`
+
+type RetRunGetParams struct {
+	ID          string
+	WorkspaceID string
+}
+
+type RetRunGetRow struct {
+	ID             string
+	WorkspaceID    string
+	Status         string
+	RequestedBy    pgtype.Text
+	PolicySnapshot []byte
+	DeletedCounts  []byte
+	Error          pgtype.Text
+	StartedAt      pgtype.Timestamptz
+}
+
+// ---- enforcement and failure reconcile (enforce.go, reconcile.go) ----
+// retention_runs is FORCE RLS; jobs is not. Naive timestamps are written from a
+// timestamptz so Postgres stores them in the session TimeZone (what psycopg does for
+// Python's aware datetimes) and read back as timestamptz for the same reason.
+func (q *Queries) RetRunGet(ctx context.Context, arg RetRunGetParams) (RetRunGetRow, error) {
+	row := q.db.QueryRow(ctx, retRunGet, arg.ID, arg.WorkspaceID)
+	var i RetRunGetRow
+	err := row.Scan(
+		&i.ID,
+		&i.WorkspaceID,
+		&i.Status,
+		&i.RequestedBy,
+		&i.PolicySnapshot,
+		&i.DeletedCounts,
+		&i.Error,
+		&i.StartedAt,
+	)
+	return i, err
+}
+
+const retRunLock = `-- name: RetRunLock :one
+SELECT status, (started_at::timestamptz) AS started_at
+FROM retention_runs
+WHERE id = $1::text AND workspace_id = $2::text
+FOR UPDATE
+`
+
+type RetRunLockParams struct {
+	ID          string
+	WorkspaceID string
+}
+
+type RetRunLockRow struct {
+	Status    string
+	StartedAt pgtype.Timestamptz
+}
+
+// Locks the run row so a concurrent cancel waits for the batch in flight.
+func (q *Queries) RetRunLock(ctx context.Context, arg RetRunLockParams) (RetRunLockRow, error) {
+	row := q.db.QueryRow(ctx, retRunLock, arg.ID, arg.WorkspaceID)
+	var i RetRunLockRow
+	err := row.Scan(&i.Status, &i.StartedAt)
+	return i, err
+}
+
+const retRunRetry = `-- name: RetRunRetry :exec
+UPDATE retention_runs SET status = 'pending', error = $1::text, finished_at = NULL
+WHERE id = $2::text AND workspace_id = $3::text
+`
+
+type RetRunRetryParams struct {
+	Error       string
+	ID          string
+	WorkspaceID string
+}
+
+// Reconcile transitions.
+func (q *Queries) RetRunRetry(ctx context.Context, arg RetRunRetryParams) error {
+	_, err := q.db.Exec(ctx, retRunRetry, arg.Error, arg.ID, arg.WorkspaceID)
+	return err
+}
+
+const retRunSetCounts = `-- name: RetRunSetCounts :exec
+UPDATE retention_runs SET deleted_counts = $1::json
+WHERE id = $2::text AND workspace_id = $3::text
+`
+
+type RetRunSetCountsParams struct {
+	DeletedCounts []byte
+	ID            string
+	WorkspaceID   string
+}
+
+// Counts so far for a run another actor already cancelled (status and error stay).
+func (q *Queries) RetRunSetCounts(ctx context.Context, arg RetRunSetCountsParams) error {
+	_, err := q.db.Exec(ctx, retRunSetCounts, arg.DeletedCounts, arg.ID, arg.WorkspaceID)
+	return err
+}
+
+const retRunStart = `-- name: RetRunStart :exec
+UPDATE retention_runs
+SET status = 'running', started_at = ($1::timestamptz)::timestamp
+WHERE id = $2::text AND workspace_id = $3::text
+`
+
+type RetRunStartParams struct {
+	StartedAt   pgtype.Timestamptz
+	ID          string
+	WorkspaceID string
+}
+
+func (q *Queries) RetRunStart(ctx context.Context, arg RetRunStartParams) error {
+	_, err := q.db.Exec(ctx, retRunStart, arg.StartedAt, arg.ID, arg.WorkspaceID)
+	return err
 }
 
 const retSetPolicyNextRun = `-- name: RetSetPolicyNextRun :one

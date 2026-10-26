@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
 
 var minimumDays = map[string]int{"audit": 90, "llm_usage": 30, "signals": 30, "activation": 30, "audience_history": 30, "agent_results": 30, "outreach_history": 30}
@@ -400,7 +400,7 @@ func TestEnforceReschedulesNextDay(t *testing.T) {
 		`SELECT fire_key, next_run_at FROM jobs WHERE type='retention_enforce' AND status='pending' AND fire_key LIKE $1`, "retention:"+a+":%").Scan(&key, &due); err != nil {
 		t.Fatalf("no rescheduled job: %v", err)
 	}
-	next := time.Now().UTC().Add(24 * time.Hour)
+	next := vecNow.Add(24 * time.Hour)
 	if !strings.HasPrefix(key, "retention:"+a+":") || due.Before(next.Add(-time.Hour)) || due.After(next.Add(time.Hour)) {
 		t.Fatalf("job %s due %v (want ~%v)", key, due, next)
 	}
@@ -417,7 +417,15 @@ func TestEnforceNeverDeletesWithoutWorkspaceScope(t *testing.T) {
 	a, b := e.prefix+"wsA", e.prefix+"wsB"
 	e.putPolicy(t, a, true, false, minimumDays)
 	e.putPolicy(t, b, true, false, minimumDays)
-	pool := testpg.NewAppPool(t, 1) // one connection: a leaked GUC would show up on the next use
+	// One connection: a leaked GUC would show up on the next use. (A second NewAppPool would
+	// wait forever on the advisory lock setup already holds.)
+	cfg := e.pool.Config().Copy()
+	cfg.MaxConns = 1
+	pool, err := pgxpool.NewWithConfig(context.Background(), cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(pool.Close)
 	d := Deps{Pool: pool, Now: func() time.Time { return vecNow }, BatchRows: 3}
 	beforeB := e.totals(t, b)
 	run := e.putRun(t, a, "pending", "manual", minimumDays)
@@ -447,7 +455,7 @@ func (e *env) putJob(t *testing.T, ws, status string) int64 {
 	t.Helper()
 	var id int64
 	if err := e.owner.QueryRow(context.Background(),
-		`INSERT INTO jobs (type,status,payload,executor,fire_key) VALUES ('retention_enforce',$1,$2::json,'python','retention:'||$3||':2020-01-01') RETURNING id`,
+		`INSERT INTO jobs (type,status,payload,executor,fire_key) VALUES ('retention_enforce',$1,$2::json,'python','retention:'||$3||':2020-01-01#'||(random()*1e9)::int) RETURNING id`,
 		status, `{"workspace_id": "`+ws+`"}`, ws).Scan(&id); err != nil {
 		t.Fatal(err)
 	}
