@@ -29,3 +29,44 @@ DELETE FROM users WHERE id = sqlc.arg(id)::int;
 
 -- name: TouchLastLogin :exec
 UPDATE users SET last_login = now() at time zone 'utc' WHERE id = sqlc.arg(id)::int;
+
+-- Workspace resolution. workspaces, workspace_members and user_active_workspace
+-- are identity-plane (plain pool, no GUC). workspace_member_permissions and
+-- workspace_settings are FORCE RLS: run those inside tenancy.InWorkspace.
+
+-- name: WorkspaceByID :one
+SELECT * FROM workspaces WHERE id = sqlc.arg(id)::text;
+
+-- name: WorkspaceBySlug :one
+SELECT * FROM workspaces WHERE slug = sqlc.arg(slug)::text;
+
+-- name: MemberRole :one
+SELECT role FROM workspace_members
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND user_id = sqlc.arg(user_id)::int;
+
+-- name: IsMember :one
+SELECT EXISTS (
+  SELECT 1 FROM workspace_members
+  WHERE workspace_id = sqlc.arg(workspace_id)::text AND user_id = sqlc.arg(user_id)::int
+  UNION
+  SELECT 1 FROM workspaces
+  WHERE id = sqlc.arg(workspace_id)::text AND owner_id = sqlc.arg(user_id)::int
+)::bool AS is_member;
+
+-- name: ActiveWorkspace :one
+SELECT workspace_id FROM user_active_workspace WHERE user_id = sqlc.arg(user_id)::int;
+
+-- name: FirstAccessibleWorkspace :one
+SELECT id::text AS id FROM (
+  SELECT workspace_id AS id FROM workspace_members WHERE user_id = sqlc.arg(user_id)::int
+  UNION
+  SELECT id FROM workspaces WHERE owner_id = sqlc.arg(user_id)::int
+) a ORDER BY id LIMIT 1;
+
+-- name: MemberPermissions :many
+SELECT permission, effect FROM workspace_member_permissions
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND user_id = sqlc.arg(user_id)::int;
+
+-- name: OIDCConfig :one
+SELECT value FROM workspace_settings
+WHERE workspace_id = sqlc.arg(workspace_id)::text AND key = 'OIDC_CONFIG';

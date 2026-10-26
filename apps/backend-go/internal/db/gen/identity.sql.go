@@ -11,6 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const activeWorkspace = `-- name: ActiveWorkspace :one
+SELECT workspace_id FROM user_active_workspace WHERE user_id = $1::int
+`
+
+func (q *Queries) ActiveWorkspace(ctx context.Context, userID int32) (string, error) {
+	row := q.db.QueryRow(ctx, activeWorkspace, userID)
+	var workspace_id string
+	err := row.Scan(&workspace_id)
+	return workspace_id, err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users WHERE id = $1::int
 `
@@ -18,6 +29,21 @@ DELETE FROM users WHERE id = $1::int
 func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
+}
+
+const firstAccessibleWorkspace = `-- name: FirstAccessibleWorkspace :one
+SELECT id::text AS id FROM (
+  SELECT workspace_id AS id FROM workspace_members WHERE user_id = $1::int
+  UNION
+  SELECT id FROM workspaces WHERE owner_id = $1::int
+) a ORDER BY id LIMIT 1
+`
+
+func (q *Queries) FirstAccessibleWorkspace(ctx context.Context, userID int32) (string, error) {
+	row := q.db.QueryRow(ctx, firstAccessibleWorkspace, userID)
+	var id string
+	err := row.Scan(&id)
+	return id, err
 }
 
 const insertUser = `-- name: InsertUser :one
@@ -63,6 +89,28 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 	return i, err
 }
 
+const isMember = `-- name: IsMember :one
+SELECT EXISTS (
+  SELECT 1 FROM workspace_members
+  WHERE workspace_id = $1::text AND user_id = $2::int
+  UNION
+  SELECT 1 FROM workspaces
+  WHERE id = $1::text AND owner_id = $2::int
+)::bool AS is_member
+`
+
+type IsMemberParams struct {
+	WorkspaceID string
+	UserID      int32
+}
+
+func (q *Queries) IsMember(ctx context.Context, arg IsMemberParams) (bool, error) {
+	row := q.db.QueryRow(ctx, isMember, arg.WorkspaceID, arg.UserID)
+	var is_member bool
+	err := row.Scan(&is_member)
+	return is_member, err
+}
+
 const listUsers = `-- name: ListUsers :many
 SELECT id, username, hashed_password, is_active, is_admin, role, profile_image, last_login, created_at FROM users ORDER BY id
 `
@@ -95,6 +143,70 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const memberPermissions = `-- name: MemberPermissions :many
+SELECT permission, effect FROM workspace_member_permissions
+WHERE workspace_id = $1::text AND user_id = $2::int
+`
+
+type MemberPermissionsParams struct {
+	WorkspaceID string
+	UserID      int32
+}
+
+type MemberPermissionsRow struct {
+	Permission string
+	Effect     string
+}
+
+func (q *Queries) MemberPermissions(ctx context.Context, arg MemberPermissionsParams) ([]MemberPermissionsRow, error) {
+	rows, err := q.db.Query(ctx, memberPermissions, arg.WorkspaceID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MemberPermissionsRow
+	for rows.Next() {
+		var i MemberPermissionsRow
+		if err := rows.Scan(&i.Permission, &i.Effect); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const memberRole = `-- name: MemberRole :one
+SELECT role FROM workspace_members
+WHERE workspace_id = $1::text AND user_id = $2::int
+`
+
+type MemberRoleParams struct {
+	WorkspaceID string
+	UserID      int32
+}
+
+func (q *Queries) MemberRole(ctx context.Context, arg MemberRoleParams) (string, error) {
+	row := q.db.QueryRow(ctx, memberRole, arg.WorkspaceID, arg.UserID)
+	var role string
+	err := row.Scan(&role)
+	return role, err
+}
+
+const oIDCConfig = `-- name: OIDCConfig :one
+SELECT value FROM workspace_settings
+WHERE workspace_id = $1::text AND key = 'OIDC_CONFIG'
+`
+
+func (q *Queries) OIDCConfig(ctx context.Context, workspaceID string) (string, error) {
+	row := q.db.QueryRow(ctx, oIDCConfig, workspaceID)
+	var value string
+	err := row.Scan(&value)
+	return value, err
 }
 
 const touchLastLogin = `-- name: TouchLastLogin :exec
@@ -175,6 +287,50 @@ func (q *Queries) UserByUsername(ctx context.Context, username string) (User, er
 		&i.ProfileImage,
 		&i.LastLogin,
 		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const workspaceByID = `-- name: WorkspaceByID :one
+
+SELECT id, name, slug, description, icon, owner_id, created_at, updated_at FROM workspaces WHERE id = $1::text
+`
+
+// Workspace resolution. workspaces, workspace_members and user_active_workspace
+// are identity-plane (plain pool, no GUC). workspace_member_permissions and
+// workspace_settings are FORCE RLS: run those inside tenancy.InWorkspace.
+func (q *Queries) WorkspaceByID(ctx context.Context, id string) (Workspace, error) {
+	row := q.db.QueryRow(ctx, workspaceByID, id)
+	var i Workspace
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.Description,
+		&i.Icon,
+		&i.OwnerID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const workspaceBySlug = `-- name: WorkspaceBySlug :one
+SELECT id, name, slug, description, icon, owner_id, created_at, updated_at FROM workspaces WHERE slug = $1::text
+`
+
+func (q *Queries) WorkspaceBySlug(ctx context.Context, slug string) (Workspace, error) {
+	row := q.db.QueryRow(ctx, workspaceBySlug, slug)
+	var i Workspace
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.Description,
+		&i.Icon,
+		&i.OwnerID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

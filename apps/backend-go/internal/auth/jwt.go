@@ -83,6 +83,9 @@ func (s Signer) ParseAny(tok string) (Claims, error) {
 			}
 		}
 	}
+	if one, ok := mc["amr"].(string); ok {
+		c.AMR = []string{one} // tenancy.py wraps a string amr into a list
+	}
 	if exp, err := mc.GetExpirationTime(); err == nil && exp != nil {
 		c.ExpiresAt = exp.Time
 	}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 )
@@ -83,10 +84,17 @@ func fromRow(r gen.User) User {
 }
 
 // Store reads and writes users on the plain (identity-plane) pool.
-type Store struct{ q *gen.Queries }
+type Store struct {
+	q    *gen.Queries
+	pool *pgxpool.Pool // set when built from a pool; needed by Workspace
+}
 
 // NewStore wraps a plain pool or connection.
-func NewStore(db gen.DBTX) *Store { return &Store{q: gen.New(db)} }
+func NewStore(db gen.DBTX) *Store {
+	s := &Store{q: gen.New(db)}
+	s.pool, _ = db.(*pgxpool.Pool)
+	return s
+}
 
 func wrap(r gen.User, err error) (User, error) {
 	if errors.Is(err, pgx.ErrNoRows) {
