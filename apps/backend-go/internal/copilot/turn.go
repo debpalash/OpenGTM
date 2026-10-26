@@ -178,8 +178,8 @@ func (t *Turn) Run(ctx context.Context, w *ssestream.Writer, messages []map[stri
 		t.logger().Warn("copilot turn ended with an error frame", "conversation", t.ConvID, "reason", te.err.Error())
 		_ = t.emitKey(w, "error", []byte(jstr(te.text)))
 		_ = w.Done()
-	case outer.Err() != nil:
-		return outer.Err()
+	case outer.Err() != nil && !errors.Is(outer.Err(), context.DeadlineExceeded):
+		return outer.Err() // the client went away (a caller-owned deadline falls through to the timeout frame)
 	case ctx.Err() != nil && errors.Is(ctx.Err(), context.DeadlineExceeded):
 		_ = t.emitKey(w, "error", []byte(jstr(errTextTimeout)))
 		_ = w.Done()

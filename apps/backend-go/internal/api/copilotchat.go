@@ -67,7 +67,8 @@ func newChatHandler(d Deps) *chatHandler {
 		h.toolTimeout = chatDefaultTool
 	}
 	if h.caps == nil {
-		// cmd/api does not share the /api/events pool yet: chat gets its own SSE_MAX_STREAMS-sized pool.
+		// Standalone (tests, no shared pool): chat gets its own SSE_MAX_STREAMS-sized pool. cmd/api passes the
+		// pool it shares with /api/events.
 		perUser := cs.MaxStreamsPerUser
 		if perUser <= 0 {
 			perUser = chatDefaultPerUser
@@ -358,7 +359,11 @@ func (h *chatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer release()
 
-	ctx := r.Context()
+	// One hard deadline for the whole turn (pre-route, context assembly, approval resume and the tool loop);
+	// without it a hung worker branch keeps the slot as long as the keepalives keep the browser connected.
+	clientCtx := r.Context()
+	ctx, cancelTurn := context.WithTimeout(clientCtx, h.turnTimeout)
+	defer cancelTurn()
 	convID, err := h.openConversation(ctx, res, req)
 	if err != nil {
 		h.fail(ctx, w, nil, "conversation setup failed", err, http.StatusInternalServerError, "Internal Server Error")
@@ -381,8 +386,22 @@ func (h *chatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.configure(tn)
 	}
 
+	// timedOut: the turn deadline (not the client leaving) ended the request.
+	timedOut := func() bool { return clientCtx.Err() == nil && errors.Is(ctx.Err(), context.DeadlineExceeded) }
+	timeoutEnd := func() {
+		if lazy.Started() {
+			_ = sw.Event(ssestream.Obj{{Key: "error", Val: "Request timed out"}})
+			_ = sw.Done()
+			return
+		}
+		httpx.Detail(w, http.StatusGatewayTimeout, "Request timed out")
+	}
+
 	handled, err := tn.PreRoute(ctx, sw, req.LastUser, len(req.Approved) > 0)
 	switch {
+	case timedOut():
+		timeoutEnd()
+		return
 	case errors.Is(err, copilot.ErrPreRouteOpen):
 		httpx.Detail(w, http.StatusServiceUnavailable, chatWorkerDown)
 		return
@@ -394,6 +413,10 @@ func (h *chatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	messages, err := h.assemble(ctx, tn, res, convID, req)
 	if err != nil {
+		if timedOut() {
+			timeoutEnd()
+			return
+		}
 		if ctx.Err() == nil {
 			status, detail := http.StatusInternalServerError, "Internal Server Error"
 			if errors.Is(err, errWorkerUnavailable) {
@@ -408,9 +431,15 @@ func (h *chatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := sw.Event(ssestream.Obj{{Key: "conversation_id", Val: convID}}); err != nil {
 		return // the client went away
 	}
-	_ = tn.CaptureAndStore(ctx, req.LastUser, func(ctx context.Context) error {
+	// Storing is keyed on the client (a turn that timed out stores what streamed, like any error frame); the
+	// stream itself runs under the turn deadline.
+	_ = tn.CaptureAndStore(clientCtx, req.LastUser, func(context.Context) error {
 		if err := tn.ResolveApproved(ctx, sw, &messages, req.Approved); err != nil {
-			tn.FinishFault(ctx, sw, err)
+			if timedOut() {
+				timeoutEnd()
+			} else {
+				tn.FinishFault(ctx, sw, err)
+			}
 			return err
 		}
 		return tn.Run(ctx, sw, messages)

@@ -74,6 +74,7 @@ type chatFake struct {
 	preStatus int // 0: scripted
 	llmStatus int // 0: scripted
 	llmHold   chan struct{}
+	preHold   chan struct{} // preroute stalls (until released or the request ends)
 	llmStart  chan struct{}
 	llmDone   chan struct{}
 	sysCalls  int
@@ -109,7 +110,16 @@ func newChatFake(t *testing.T) *chatFake {
 			lines = []json.RawMessage{json.RawMessage(`{"t":"none"}`)}
 		}
 		st := f.preStatus
+		hold := f.preHold
 		f.mu.Unlock()
+		if hold != nil {
+			nd(w, []json.RawMessage{json.RawMessage(`{"t":"keepalive"}`)}) // headers out, then the branch hangs
+			select {
+			case <-hold:
+			case <-r.Context().Done():
+				return
+			}
+		}
 		if st != 0 {
 			http.Error(w, "boom "+chatWorkerToken, st)
 			return
@@ -971,4 +981,40 @@ func chatCount(t *testing.T, q string, args ...any) int {
 		t.Fatal(err)
 	}
 	return n
+}
+
+// The turn deadline covers the whole turn: a hung pre-route must end by the deadline and free the slot.
+func TestChatTurnDeadlineCoversHungPreRoute(t *testing.T) {
+	for _, started := range []bool{false, true} {
+		started := started
+		t.Run(fmt.Sprint("started=", started), func(t *testing.T) {
+			e := newChatEnv(t, chatOpts{configure: func(tn *copilot.Turn) {
+				tn.NewTicker = func(time.Duration) (<-chan time.Time, func()) { // fast keepalives start the response
+					tk := time.NewTicker(20 * time.Millisecond)
+					return tk.C, tk.Stop
+				}
+			}})
+			if !started {
+				e.hnd.configure = nil // default 10 s keepalive: the deadline fires before any byte
+			}
+			e.hnd.turnTimeout = 600 * time.Millisecond
+			e.fake.preHold = make(chan struct{})
+			defer close(e.fake.preHold)
+			res := make(chan *httptest.ResponseRecorder, 1)
+			go func() { res <- e.post("alice", "ws-alpha", `{"messages":[{"role":"user","content":"hi"}]}`) }()
+			select {
+			case rec := <-res:
+				if started {
+					if rec.Code != 200 || !strings.Contains(rec.Body.String(), `{"error": "Request timed out"}`) || !strings.HasSuffix(rec.Body.String(), "data: [DONE]\n\n") {
+						t.Fatalf("started: %d %q", rec.Code, rec.Body.String())
+					}
+				} else if rec.Code != http.StatusGatewayTimeout {
+					t.Fatalf("not started: %d %q", rec.Code, rec.Body.String())
+				}
+			case <-time.After(5 * time.Second):
+				t.Fatalf("started=%v: a hung pre-route outlived the turn deadline", started)
+			}
+			chatWaitActive(t, e.caps, 0)
+		})
+	}
 }
