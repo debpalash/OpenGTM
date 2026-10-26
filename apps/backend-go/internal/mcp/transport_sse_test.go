@@ -38,7 +38,7 @@ func sseServer(t *testing.T) (*sseHandler, *Server) {
 }
 
 func post(h http.Handler, auth, body string) *httptest.ResponseRecorder {
-	r := httptest.NewRequest("POST", "/message", strings.NewReader(body))
+	r := httptest.NewRequest("POST", "http://127.0.0.1:3100/message", strings.NewReader(body))
 	if auth != "" {
 		r.Header.Set("Authorization", auth)
 	}
@@ -50,7 +50,7 @@ func post(h http.Handler, auth, body string) *httptest.ResponseRecorder {
 func TestSSEEndpointEventBytesMatchFixture(t *testing.T) {
 	h, _ := sseServer(t)
 	w := httptest.NewRecorder()
-	h.ServeHTTP(w, httptest.NewRequest("GET", "/sse", nil))
+	h.ServeHTTP(w, httptest.NewRequest("GET", "http://127.0.0.1:3100/sse", nil))
 	if w.Code != 200 || w.Header().Get("Content-Type") != "text/event-stream; charset=utf-8" {
 		t.Fatalf("%d %v", w.Code, w.Header())
 	}
@@ -59,7 +59,7 @@ func TestSSEEndpointEventBytesMatchFixture(t *testing.T) {
 	}
 	// Only /sse is unauthenticated and nothing else is routed.
 	w = httptest.NewRecorder()
-	h.ServeHTTP(w, httptest.NewRequest("POST", "/other", strings.NewReader("{}")))
+	h.ServeHTTP(w, httptest.NewRequest("POST", "http://127.0.0.1:3100/other", strings.NewReader("{}")))
 	if w.Code != 404 || strings.TrimSpace(w.Body.String()) != `{"detail":"Not Found"}` {
 		t.Fatalf("%d %q", w.Code, w.Body.String())
 	}
@@ -99,7 +99,7 @@ func (c *countingBody) Read(p []byte) (int, error) {
 func TestMessageAuthBeforeBodyRead(t *testing.T) {
 	h, _ := sseServer(t)
 	body := &countingBody{}
-	r := httptest.NewRequest("POST", "/message", io.NopCloser(body))
+	r := httptest.NewRequest("POST", "http://127.0.0.1:3100/message", io.NopCloser(body))
 	r.Header.Set("Authorization", "Bearer bad")
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
@@ -231,7 +231,7 @@ func TestServerLimitsMatchSpec(t *testing.T) {
 func TestFailedAuthRateLimit429(t *testing.T) {
 	h, _ := sseServer(t)
 	send := func(tok string) int {
-		r := httptest.NewRequest("POST", "/message", strings.NewReader("{}"))
+		r := httptest.NewRequest("POST", "http://127.0.0.1:3100/message", strings.NewReader("{}"))
 		r.RemoteAddr = "127.0.0.1:5000"
 		r.Header.Set("Authorization", "Bearer "+tok)
 		w := httptest.NewRecorder()
@@ -247,9 +247,87 @@ func TestFailedAuthRateLimit429(t *testing.T) {
 	if c := send("bad-more"); c != 429 {
 		t.Fatalf("31st failure: %d", c)
 	}
-	// A valid token is not penalised by failures.
-	if c := send("good-a"); c != 200 {
-		t.Fatalf("valid: %d", c)
+}
+
+func TestOverLimitIPSkipsTokenLookup(t *testing.T) {
+	t.Setenv("TRUST_PROXY", "true")
+	h, _ := sseServer(t)
+	var lookups atomic.Int64
+	resolveToken = func(ctx context.Context, d Deps, raw string) (Ctx, error) {
+		lookups.Add(1)
+		return fakeResolve(ctx, d, raw)
+	}
+	send := func(tok, xff string) int {
+		r := httptest.NewRequest("POST", "http://127.0.0.1:3100/message", strings.NewReader("{}"))
+		r.RemoteAddr = "127.0.0.1:5000"
+		if xff != "" {
+			r.Header.Set("X-Forwarded-For", xff)
+		}
+		r.Header.Set("Authorization", "Bearer "+tok)
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w.Code
+	}
+	for i := 0; i < 30; i++ {
+		// A spoofed X-Forwarded-For must not rotate the key, even with TRUST_PROXY.
+		send("bad", "203.0.113."+string(rune('1'+i%9)))
+	}
+	before := lookups.Load()
+	if c := send("good-a", "198.51.100.9"); c != 429 {
+		t.Fatalf("over-limit valid token: %d", c)
+	}
+	if lookups.Load() != before {
+		t.Fatal("over-limit request reached the token lookup")
+	}
+	// Another peer is unaffected.
+	r := httptest.NewRequest("POST", "http://127.0.0.1:3100/message", strings.NewReader(`{"jsonrpc":"2.0","id":1,"method":"ping"}`))
+	r.RemoteAddr = "127.0.0.2:5000"
+	r.Header.Set("Authorization", "Bearer good-a")
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, r)
+	if w.Code != 200 {
+		t.Fatalf("other peer: %d", w.Code)
+	}
+}
+
+func TestHostAndOriginMustBeLoopback(t *testing.T) {
+	t.Setenv("OPENGTM_MCP_SSE_ALLOW_NONLOOPBACK", "")
+	h, _ := sseServer(t)
+	do := func(method, target, host, origin string) int {
+		r := httptest.NewRequest(method, "http://127.0.0.1:3100"+target, strings.NewReader(`{"jsonrpc":"2.0","id":1,"method":"ping"}`))
+		if host != "" {
+			r.Host = host
+		}
+		if origin != "" {
+			r.Header.Set("Origin", origin)
+		}
+		r.Header.Set("Authorization", "Bearer good-a")
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w.Code
+	}
+	for _, c := range []struct {
+		method, target, host, origin string
+		want                         int
+	}{
+		{"GET", "/sse", "evil.example.com", "", 403},
+		{"POST", "/message", "evil.example.com:3100", "", 403},
+		{"POST", "/message", "attacker.test", "", 403},
+		{"POST", "/message", "127.0.0.1:3100", "https://evil.example.com", 403},
+		{"POST", "/message", "localhost:3100", "http://evil.example.com:3100", 403},
+		{"POST", "/message", "127.0.0.1:3100", "null", 403},
+		{"GET", "/sse", "127.0.0.1:3100", "", 200},
+		{"GET", "/sse", "localhost:3100", "", 200},
+		{"GET", "/sse", "[::1]:3100", "", 200},
+		{"POST", "/message", "localhost", "http://localhost:3000", 200},
+	} {
+		if got := do(c.method, c.target, c.host, c.origin); got != c.want {
+			t.Errorf("%s %s host=%q origin=%q: %d want %d", c.method, c.target, c.host, c.origin, got, c.want)
+		}
+	}
+	t.Setenv("OPENGTM_MCP_SSE_ALLOW_NONLOOPBACK", "true")
+	if got := do("GET", "/sse", "gtm.internal:3100", ""); got != 200 {
+		t.Errorf("override: %d", got)
 	}
 }
 
