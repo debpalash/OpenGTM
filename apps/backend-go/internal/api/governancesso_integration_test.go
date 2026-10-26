@@ -78,6 +78,7 @@ func newSSOEnv(t *testing.T) ssoEnv {
 	e.member(t, "ws-alpha", e.ids["bob"], "member")
 	e.member(t, "ws-alpha", e.ids["erin"], "editor")
 	e.member(t, "ws-beta", e.ids["bob"], "owner")
+	t.Cleanup(e.purge) // runs before the workspace rows are deleted (FKs)
 	e.exec(t, `UPDATE workspaces SET slug='alpha' WHERE id='ws-alpha'`)
 	e.exec(t, `UPDATE workspaces SET slug='beta' WHERE id='ws-beta'`)
 	e.exec(t, `INSERT INTO workspace_scim_tokens (workspace_id, token_hash, token_prefix, created_at, expires_at, created_by) VALUES ('ws-alpha','seed-hash-alpha','og_scim_contract',1788000000,4102444800,$1)`, e.ids["alice"])
@@ -215,9 +216,9 @@ func TestSSOPutBodyShapes422(t *testing.T) {
 		{"client_secret null", `{"client_secret":null}`, `{"detail":[{"type":"string_type","loc":["body","client_secret"],"msg":"Input should be a valid string","input":null}]}`},
 		{"domain item int", `{"allowed_domains":["a.com",3]}`, `{"detail":[{"type":"string_type","loc":["body","allowed_domains",1],"msg":"Input should be a valid string","input":3}]}`},
 		{"role int", `{"default_role":1}`, `{"detail":[{"type":"literal_error","loc":["body","default_role"],"msg":"Input should be 'viewer', 'member' or 'editor'","input":1,"ctx":{"expected":"'viewer', 'member' or 'editor'"}}]}`},
-		{"two errors in field order", `{"enabled":"x","auto_provision":"y"}`,
+		{"two errors in field order", `{"enabled":"x","auto_provision":"z"}`,
 			`{"detail":[{"type":"bool_parsing","loc":["body","enabled"],"msg":"Input should be a valid boolean, unable to interpret input","input":"x"},` +
-				`{"type":"bool_parsing","loc":["body","auto_provision"],"msg":"Input should be a valid boolean, unable to interpret input","input":"y"}]}`},
+				`{"type":"bool_parsing","loc":["body","auto_provision"],"msg":"Input should be a valid boolean, unable to interpret input","input":"z"}]}`},
 	} {
 		code, _, raw := e.req("alice", "ws-alpha", "PUT", "/api/governance/sso", c.body)
 		if code != 422 || !jsonEqual(raw, c.want) {
