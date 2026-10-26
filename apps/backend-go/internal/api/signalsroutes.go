@@ -107,7 +107,6 @@ type listWithCursor struct {
 	SignalTypes orderedLabels        `json:"signal_types"`
 }
 
-
 func (h signalsRoutes) list(w http.ResponseWriter, r *http.Request) {
 	v := &queryValidator{q: r.URL.Query()}
 	signalType := v.str("signal_type")
