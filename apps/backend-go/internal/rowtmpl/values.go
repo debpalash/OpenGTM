@@ -9,6 +9,7 @@ import (
 	"errors"
 	"io"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 )
 
@@ -69,7 +70,7 @@ func idText(v any) string {
 func DecodeOrdered(raw []byte) (any, error) {
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.UseNumber()
-	v, err := decodeValue(dec)
+	v, err := decodeValue(dec, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +80,12 @@ func DecodeOrdered(raw []byte) (any, error) {
 	return v, nil
 }
 
-func decodeValue(dec *json.Decoder) (any, error) {
+// maxDepth bounds container nesting (same as canonjson.MaxDepth).
+const maxDepth = canonjson.MaxDepth
+
+var errTooDeep = errors.New("rowtmpl: json nesting too deep")
+
+func decodeValue(dec *json.Decoder, depth int) (any, error) {
 	tok, err := dec.Token()
 	if err != nil {
 		return nil, err
@@ -87,6 +93,9 @@ func decodeValue(dec *json.Decoder) (any, error) {
 	d, ok := tok.(json.Delim)
 	if !ok {
 		return tok, nil
+	}
+	if depth > maxDepth {
+		return nil, errTooDeep
 	}
 	switch d {
 	case '{':
@@ -96,7 +105,7 @@ func decodeValue(dec *json.Decoder) (any, error) {
 			if err != nil {
 				return nil, err
 			}
-			v, err := decodeValue(dec)
+			v, err := decodeValue(dec, depth+1)
 			if err != nil {
 				return nil, err
 			}
@@ -107,7 +116,7 @@ func decodeValue(dec *json.Decoder) (any, error) {
 	case '[':
 		arr := []any{}
 		for dec.More() {
-			v, err := decodeValue(dec)
+			v, err := decodeValue(dec, depth+1)
 			if err != nil {
 				return nil, err
 			}
@@ -123,13 +132,19 @@ func decodeValue(dec *json.Decoder) (any, error) {
 // colgraph.Col key order.
 func MarshalOrdered(v any) ([]byte, error) {
 	var b bytes.Buffer
-	if err := writeOrdered(&b, v); err != nil {
+	if err := writeOrdered(&b, v, 1); err != nil {
 		return nil, err
 	}
 	return b.Bytes(), nil
 }
 
-func writeOrdered(b *bytes.Buffer, v any) error {
+func writeOrdered(b *bytes.Buffer, v any, depth int) error {
+	switch v.(type) {
+	case colgraph.Col, []any:
+		if depth > maxDepth {
+			return errTooDeep
+		}
+	}
 	switch t := v.(type) {
 	case colgraph.Col:
 		b.WriteByte('{')
@@ -140,7 +155,7 @@ func writeOrdered(b *bytes.Buffer, v any) error {
 			kb, _ := json.Marshal(k)
 			b.Write(kb)
 			b.WriteByte(':')
-			if err := writeOrdered(b, t.Vals[k]); err != nil {
+			if err := writeOrdered(b, t.Vals[k], depth+1); err != nil {
 				return err
 			}
 		}
@@ -151,7 +166,7 @@ func writeOrdered(b *bytes.Buffer, v any) error {
 			if i > 0 {
 				b.WriteByte(',')
 			}
-			if err := writeOrdered(b, e); err != nil {
+			if err := writeOrdered(b, e, depth+1); err != nil {
 				return err
 			}
 		}
