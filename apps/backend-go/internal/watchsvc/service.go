@@ -118,7 +118,7 @@ func (s *Service) maybeWebhookRule(ctx context.Context, ws string, in CreateInpu
 	if creds {
 		return nil, herr(422, "webhook_url: credentials not allowed")
 	}
-	if len(s.Cfg.WebhookAllowlist) > 0 && !hostAllowed(host, s.Cfg.WebhookAllowlist) {
+	if len(s.Cfg.WebhookAllowlist) > 0 && !autosvc.AllowlistMatch(host, s.Cfg.WebhookAllowlist) {
 		return nil, herr(422, "webhook_url: host '%s' not in webhook domain allowlist", host)
 	}
 	cfg := wbcrud.NewObj()
@@ -213,25 +213,6 @@ func urlParts(raw string) (scheme string, creds bool, host string) {
 	return scheme, creds, strings.ToLower(hostinfo)
 }
 
-func hostAllowed(host string, allow []string) bool {
-	for _, e := range allow {
-		e = strings.ToLower(strings.TrimSpace(e))
-		if e == "" || strings.ContainsAny(e, "*?[]") {
-			continue
-		}
-		if strings.HasPrefix(e, ".") {
-			if len(e) > 1 && strings.HasSuffix(host, e) && len(host) > len(e) {
-				return true
-			}
-			continue
-		}
-		if host == strings.TrimSuffix(e, ".") {
-			return true
-		}
-	}
-	return false
-}
-
 func isUnique(err error) bool {
 	var pe *pgconn.PgError
 	return errors.As(err, &pe) && pe.Code == "23505"
@@ -247,6 +228,16 @@ func (s *Service) Create(ctx context.Context, ws string, in CreateInput) (Create
 		return Created{}, err
 	}
 	max := s.Cfg.MaxWatchesPerWS
+	dupCheck := func(tx pgx.Tx) error {
+		dup, err := gen.New(tx).WatchSvcExists(ctx, gen.WatchSvcExistsParams{WorkspaceID: ws, Kind: v.Kind, Target: v.Target})
+		if err != nil {
+			return err
+		}
+		if dup {
+			return herr(409, "watch already exists for this kind and target")
+		}
+		return nil
+	}
 	checkCount := func(tx pgx.Tx) error {
 		n, err := gen.New(tx).WatchSvcCount(ctx, ws)
 		if err != nil {
@@ -257,7 +248,14 @@ func (s *Service) Create(ctx context.Context, ws string, in CreateInput) (Create
 		}
 		return nil
 	}
-	if err := tenancy.InWorkspace(ctx, s.Pool, ws, checkCount); err != nil {
+	// Cap and duplicate checks come before the webhook rule so a refused
+	// create leaves no orphan rule behind.
+	if err := tenancy.InWorkspace(ctx, s.Pool, ws, func(tx pgx.Tx) error {
+		if err := checkCount(tx); err != nil {
+			return err
+		}
+		return dupCheck(tx)
+	}); err != nil {
 		return Created{}, err
 	}
 	ruleID, err := s.maybeWebhookRule(ctx, ws, in, v.SignalTypes)

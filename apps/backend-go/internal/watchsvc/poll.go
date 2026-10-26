@@ -61,11 +61,21 @@ func (s *Service) PollNow(ctx context.Context, ws, id string) (PollResult, error
 			}
 		}
 		if quota := s.Cfg.PollNowDailyQuota; quota > 0 {
+			day := now.Format("2006-01-02")
+			// Serialise check + enqueue per (workspace, UTC day): the debit
+			// happens at execution, so queued manual polls count too.
+			if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtext('pollnow:' || $1::text || ':' || $2::text))`, ws, day); err != nil {
+				return err
+			}
 			used, err := poller.PollNowQuotaUsed(ctx, tx, ws, now)
 			if err != nil {
 				return err
 			}
-			if used >= quota {
+			pending, err := q.WatchSvcPendingPollNow(ctx, gen.WatchSvcPendingPollNowParams{WorkspaceID: ws, Day: day})
+			if err != nil {
+				return err
+			}
+			if used+int(pending) >= quota {
 				return herr(429, "poll-now daily quota exhausted")
 			}
 		}

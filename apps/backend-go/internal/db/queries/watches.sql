@@ -75,3 +75,15 @@ INSERT INTO triggers (id, workspace_id, name, enabled, trigger_type, trigger_con
 VALUES (sqlc.arg(id)::text, sqlc.arg(workspace_id)::text, sqlc.arg(name)::text, true, 'on_signal',
         sqlc.arg(trigger_config)::json, '', sqlc.arg(actions)::json, '[]'::json)
 RETURNING id;
+
+-- name: WatchSvcExists :one
+SELECT EXISTS (SELECT 1 FROM watch_subscriptions
+               WHERE workspace_id = sqlc.arg(workspace_id)::text AND kind = sqlc.arg(kind)::text AND target = sqlc.arg(target)::text) AS found;
+
+-- name: WatchSvcPendingPollNow :one
+-- Manual polls of this workspace enqueued for the UTC day and not yet finished
+-- (their quota debit happens at execution).
+SELECT count(*)::int AS n FROM jobs
+WHERE type = 'watch_poll' AND workspace_id = sqlc.arg(workspace_id)::text
+  AND fire_key LIKE 'watch:%:pollnow:' || sqlc.arg(day)::text
+  AND status IN ('pending', 'processing');

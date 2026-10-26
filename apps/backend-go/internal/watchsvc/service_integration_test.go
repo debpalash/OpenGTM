@@ -165,16 +165,21 @@ func TestCreateWithWebhookRule(t *testing.T) {
 	if v := getKey(t, c, "webhook_rule_id"); v != *c.WebhookRuleID {
 		t.Fatalf("response webhook_rule_id %v", v)
 	}
-	// the rule is created before the watch insert and survives its failure (Python parity)
+	// a duplicate (kind, target) is refused BEFORE the rule is created: no orphan
 	_, err = e.svc.Create(e.ctx, wsA, watchsvc.CreateInput{Kind: "feed", Target: long, CreateWebhookRule: true, WebhookURL: &url})
 	httpErr(t, err, 409, "watch already exists for this kind and target")
 	var n int
 	inWS(t, e, wsA, func(tx pgx.Tx) error {
 		return tx.QueryRow(e.ctx, `SELECT count(*) FROM triggers`).Scan(&n)
 	})
-	if n != 2 {
-		t.Fatalf("rules %d, want 2 (orphan kept as in Python)", n)
+	if n != 1 {
+		t.Fatalf("rules %d, want 1 (no orphan after a refused duplicate)", n)
 	}
+	// allow-list applies to the watch webhook url too
+	e.svc.Cfg.WebhookAllowlist = []string{".example.com"}
+	bad := "https://evil.net/x"
+	_, err = e.svc.Create(e.ctx, wsA, watchsvc.CreateInput{Kind: "feed", Target: "other", CreateWebhookRule: true, WebhookURL: &bad})
+	httpErr(t, err, 422, "webhook_url: host 'evil.net' not in webhook domain allowlist")
 }
 
 func TestPatchEnableResetsFailuresAndBootstraps(t *testing.T) {
@@ -291,7 +296,7 @@ func TestPollNowRateAndQuotaAndSingleFlight(t *testing.T) {
 	e.svc.Cfg.PollNowDailyQuota = 5
 	_, err = e.svc.PollNow(e.ctx, wsA, "w-3")
 	httpErr(t, err, 429, "poll-now daily quota exhausted")
-	e.svc.Cfg.PollNowDailyQuota = 6
+	e.svc.Cfg.PollNowDailyQuota = 7 // ledger 5 + the queued manual poll of w-1
 	if r, err := e.svc.PollNow(e.ctx, wsA, "w-3"); err != nil || r.Status != "queued" {
 		t.Fatalf("%+v %v", r, err)
 	}
@@ -448,3 +453,31 @@ func TestListPagingCursorAndOffset(t *testing.T) {
 }
 
 var _ = autosvc.Iso
+
+func TestPollNowQuotaSerialisedAcrossWatches(t *testing.T) {
+	e := setup(t)
+	old := fixedNow.Add(-time.Hour)
+	for i := 0; i < 6; i++ {
+		insertWatch(t, e, wsA, "w-q"+itoa(i), "funding", "Q"+itoa(i), true, 0, nil, &old)
+	}
+	e.svc.Cfg.PollNowDailyQuota = 2
+	res := make(chan error, 6)
+	for i := 0; i < 6; i++ {
+		go func(i int) { _, err := e.svc.PollNow(e.ctx, wsA, "w-q"+itoa(i)); res <- err }(i)
+	}
+	ok, limited := 0, 0
+	for i := 0; i < 6; i++ {
+		var he *watchsvc.HTTPError
+		switch err := <-res; {
+		case err == nil:
+			ok++
+		case errors.As(err, &he) && he.Status == 429:
+			limited++
+		default:
+			t.Fatal(err)
+		}
+	}
+	if ok != 2 || limited != 4 {
+		t.Fatalf("queued %d limited %d, want 2 and 4", ok, limited)
+	}
+}

@@ -297,7 +297,10 @@ func validateWebhookAction(ctx context.Context, ws string, i int, c *wbcrud.Obj,
 		if p.username != "" || p.password != "" {
 			return herr(422, "webhook action %d: credentials in url not allowed", i)
 		}
-		if len(cfg.WebhookAllowlist) > 0 && !allowlistMatch(p.hostname, cfg.WebhookAllowlist) {
+	}
+	if len(cfg.WebhookAllowlist) > 0 {
+		// A templated path or query does not exempt a literal host.
+		if p, ok := urlparse(url); ok && p.hostname != "" && !strings.Contains(p.hostname, "{") && !AllowlistMatch(p.hostname, cfg.WebhookAllowlist) {
 			return herr(422, "webhook action %d: host '%s' not in webhook domain allowlist", i, p.hostname)
 		}
 	}
@@ -317,9 +320,9 @@ func validateWebhookAction(ctx context.Context, ws string, i int, c *wbcrud.Obj,
 	return nil
 }
 
-// allowlistMatch mirrors the webhook sender's rule: exact host or ".suffix",
+// AllowlistMatch mirrors the webhook sender's rule: exact host or ".suffix",
 // no globs.
-func allowlistMatch(host string, allow []string) bool {
+func AllowlistMatch(host string, allow []string) bool {
 	host = strings.ToLower(host)
 	for _, e := range allow {
 		e = strings.ToLower(strings.TrimSpace(e))

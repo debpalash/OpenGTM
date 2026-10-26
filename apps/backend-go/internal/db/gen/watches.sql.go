@@ -75,6 +75,24 @@ func (q *Queries) WatchSvcDelete(ctx context.Context, arg WatchSvcDeleteParams) 
 	return result.RowsAffected(), nil
 }
 
+const watchSvcExists = `-- name: WatchSvcExists :one
+SELECT EXISTS (SELECT 1 FROM watch_subscriptions
+               WHERE workspace_id = $1::text AND kind = $2::text AND target = $3::text) AS found
+`
+
+type WatchSvcExistsParams struct {
+	WorkspaceID string
+	Kind        string
+	Target      string
+}
+
+func (q *Queries) WatchSvcExists(ctx context.Context, arg WatchSvcExistsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, watchSvcExists, arg.WorkspaceID, arg.Kind, arg.Target)
+	var found bool
+	err := row.Scan(&found)
+	return found, err
+}
+
 const watchSvcGet = `-- name: WatchSvcGet :one
 SELECT id, workspace_id, kind, target, resolved_cik, lead_id, signal_types, interval, schedule_anchor, enabled, next_poll_at, cursor, last_polled_at, last_error, consecutive_failures, created_at, updated_at, config FROM watch_subscriptions WHERE id = $1::text AND workspace_id = $2::text
 `
@@ -312,6 +330,27 @@ func (q *Queries) WatchSvcLock(ctx context.Context, arg WatchSvcLockParams) (Wat
 		&i.Config,
 	)
 	return i, err
+}
+
+const watchSvcPendingPollNow = `-- name: WatchSvcPendingPollNow :one
+SELECT count(*)::int AS n FROM jobs
+WHERE type = 'watch_poll' AND workspace_id = $1::text
+  AND fire_key LIKE 'watch:%:pollnow:' || $2::text
+  AND status IN ('pending', 'processing')
+`
+
+type WatchSvcPendingPollNowParams struct {
+	WorkspaceID string
+	Day         string
+}
+
+// Manual polls of this workspace enqueued for the UTC day and not yet finished
+// (their quota debit happens at execution).
+func (q *Queries) WatchSvcPendingPollNow(ctx context.Context, arg WatchSvcPendingPollNowParams) (int32, error) {
+	row := q.db.QueryRow(ctx, watchSvcPendingPollNow, arg.WorkspaceID, arg.Day)
+	var n int32
+	err := row.Scan(&n)
+	return n, err
 }
 
 const watchSvcSave = `-- name: WatchSvcSave :one

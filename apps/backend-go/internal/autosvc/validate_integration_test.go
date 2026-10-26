@@ -173,12 +173,12 @@ func TestValidateWebhookAllowlist(t *testing.T) {
 		})
 		return verr
 	}
-	for _, ok := range []string{"https://hooks.example.com/x", "https://HOOKS.example.com:8443/x", "https://a.corp.example.org/x", "https://{host}/x"} {
+	for _, ok := range []string{"https://hooks.example.com/x", "https://HOOKS.example.com:8443/x", "https://a.corp.example.org/x", "https://{host}/x", "https://hooks.example.com/{x}"} {
 		if err := check(ok); err != nil {
 			t.Errorf("%s: %v", ok, err)
 		}
 	}
-	for _, bad := range []string{"https://example.com/x", "https://corp.example.org/x", "https://a.evil.com/x", "https://hooks.example.com.evil.net/x"} {
+	for _, bad := range []string{"https://example.com/x", "https://corp.example.org/x", "https://a.evil.com/x", "https://hooks.example.com.evil.net/x", "https://evil.com/{x}"} {
 		err := check(bad)
 		if err == nil || !strings.Contains(err.Error(), "not in webhook domain allowlist") {
 			t.Errorf("%s: want allow-list refusal, got %v", bad, err)
