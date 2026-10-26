@@ -84,6 +84,8 @@ func parseTree(src []byte) (*xnode, error) {
 	var stack []*xnode
 	var root *xnode
 	nodes := 0
+	var budget int64 // cumulative over the whole document
+	doctypes, decls := 0, 0
 	for {
 		tok, err := dec.Token()
 		if err == io.EOF {
@@ -94,8 +96,15 @@ func parseTree(src []byte) (*xnode, error) {
 		}
 		switch t := tok.(type) {
 		case xml.Directive:
-			var budget int64
-			for _, m := range entityDeclRE.FindAllSubmatch(t, 64) {
+			if bytes.HasPrefix(t, []byte("DOCTYPE")) {
+				if doctypes++; doctypes > 1 {
+					return nil, errors.New("multiple DOCTYPE declarations")
+				}
+			}
+			for _, m := range entityDeclRE.FindAllSubmatch(t, 65) {
+				if decls++; decls > 64 {
+					return nil, errors.New("too many entity declarations")
+				}
 				val := string(m[2])
 				if len(m[3]) > 0 {
 					val = string(m[3])
