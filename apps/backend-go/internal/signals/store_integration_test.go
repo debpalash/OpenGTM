@@ -138,7 +138,7 @@ func TestPageKeysetAcrossTies(t *testing.T) {
 			}
 			cursor = *p.NextCursor
 			last := p.Signals[len(p.Signals)-1]
-			if cursor != signals.EncodeCursor(last.CreatedAt, last.ID) {
+			if cursor != signals.EncodeCursor(*last.CreatedAt, last.ID) {
 				t.Errorf("cursor is not the last row's")
 			}
 		}
@@ -286,18 +286,60 @@ func TestSignalsTenantIsolation(t *testing.T) {
 	})
 }
 
+func sp(s string) *string { return &s }
+
 func TestSignalJSONKeyOrderAndFloats(t *testing.T) {
-	s := signals.Signal{ID: "i", WorkspaceID: "w", LeadID: i64(3), Company: "é<c>", SignalType: "hiring", Title: "t", Description: "d",
-		Source: "s", SourceURL: "u", Weight: nil, CreatedAt: 1788000000, Read: 1}
+	ca := 1788000000.0
+	s := signals.Signal{ID: "i", WorkspaceID: "w", LeadID: i64(3), Company: sp("é<c>"), SignalType: sp("hiring"), Title: sp("t"), Description: sp("d"),
+		Source: sp("s"), SourceURL: sp("u"), Weight: nil, CreatedAt: &ca, Read: 1}
+	want := `{"id":"i","workspace_id":"w","lead_id":3,"company":"é<c>","signal_type":"hiring","title":"t","description":"d","source":"s","source_url":"u","weight":null,"created_at":1788000000.0,"read":1}`
+	if got := encode(s); got != want {
+		t.Fatalf("got %s", got)
+	}
+}
+
+func encode(v any) string {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false) // what httpx.WriteJSON does
-	_ = enc.Encode(s)
-	b := bytes.TrimSpace(buf.Bytes())
-	want := `{"id":"i","workspace_id":"w","lead_id":3,"company":"é<c>","signal_type":"hiring","title":"t","description":"d","source":"s","source_url":"u","weight":null,"created_at":1788000000.0,"read":1}`
-	if string(b) != want {
-		t.Fatalf("got %s", b)
+	_ = enc.Encode(v)
+	return string(bytes.TrimSpace(buf.Bytes()))
+}
+
+func TestNullColumnsRenderNullAndReadSemantics(t *testing.T) {
+	e := setup(t)
+	_, err := e.owner.Exec(context.Background(), `INSERT INTO signals (id, workspace_id) VALUES ('nul1', $1)`, e.wsA)
+	if err != nil {
+		t.Fatal(err)
 	}
+	e.seed(t, sig{id: "z-read", ws: e.wsA, typ: "x", at: 1, read: true})
+	e.in(t, e.wsA, func(tx pgx.Tx) error {
+		l, err := signals.List(context.Background(), tx, "", nil, 10, 0)
+		if err != nil || len(l) != 2 {
+			t.Fatalf("%v %d", err, len(l))
+		}
+		want := `{"id":"nul1","workspace_id":"` + e.wsA + `","lead_id":null,"company":null,"signal_type":null,"title":null,"description":null,"source":null,"source_url":null,"weight":null,"created_at":null,"read":0}`
+		if got := encode(l[0]); got != want { // NULL created_at sorts first (DESC)
+			t.Errorf("got %s", got)
+		}
+		// Python read.is_(False) excludes NULL: unread counts only explicit false
+		c, _ := signals.Counts(context.Background(), tx)
+		if c.Total != 2 || c.Unread != 0 {
+			t.Errorf("total=%d unread=%d", c.Total, c.Unread)
+		}
+		p, err := signals.Page(context.Background(), tx, nil, nil, 1, "")
+		if err != nil || !p.HasMore || p.NextCursor == nil {
+			t.Fatalf("%v %+v", err, p)
+		}
+		// Python encodes [None, id], which then fails to decode
+		if _, _, err := signals.DecodeCursor(*p.NextCursor); err != signals.ErrBadCursor {
+			t.Errorf("null-ts cursor decode err = %v", err)
+		}
+		if _, err := signals.Page(context.Background(), tx, nil, nil, 0, ""); err != signals.ErrBadLimit {
+			t.Errorf("limit 0 err = %v", err)
+		}
+		return nil
+	})
 }
 
 // Analytics seed, now = 2026-08-29 06:00 UTC (D = that UTC day, 30-day window).

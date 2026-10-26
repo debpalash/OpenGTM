@@ -14,14 +14,14 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 )
 
-// Signal mirrors SignalStore._signal_to_dict; Read is 1/0 like Python.
-// NULL text columns read as "" (the Python scanner always writes them).
+// Signal mirrors SignalStore._signal_to_dict: every nullable column is a
+// pointer and renders null when NULL; Read is 1/0 like Python (NULL -> 0).
 type Signal struct {
 	ID, WorkspaceID                                            string
 	LeadID                                                     *int64
-	Company, SignalType, Title, Description, Source, SourceURL string
+	Company, SignalType, Title, Description, Source, SourceURL *string
 	Weight                                                     *int64
-	CreatedAt                                                  float64
+	CreatedAt                                                  *float64
 	Read                                                       int
 }
 
@@ -52,7 +52,11 @@ func (s Signal) MarshalJSON() ([]byte, error) {
 	put("source", s.Source)
 	put("source_url", s.SourceURL)
 	put("weight", s.Weight)
-	b.WriteString(`,"created_at":` + pyFloatJSON(s.CreatedAt))
+	if s.CreatedAt == nil {
+		b.WriteString(`,"created_at":null`)
+	} else {
+		b.WriteString(`,"created_at":` + pyFloatJSON(*s.CreatedAt))
+	}
 	put("read", s.Read)
 	b.WriteByte('}')
 	return b.Bytes(), nil
@@ -105,6 +109,24 @@ func clamp32(n int) int32 {
 	return int32(n)
 }
 
+func txt(t pgtype.Text) *string {
+	if !t.Valid {
+		return nil
+	}
+	return &t.String
+}
+
+func toSignal(r gen.Signal) Signal {
+	s := Signal{ID: r.ID, WorkspaceID: r.WorkspaceID, LeadID: i64p(r.LeadID), Company: txt(r.Company),
+		SignalType: txt(r.SignalType), Title: txt(r.Title), Description: txt(r.Description), Source: txt(r.Source),
+		SourceURL: txt(r.SourceUrl), Weight: i64p(r.Weight), Read: readInt(r.Read.Valid && r.Read.Bool)}
+	if r.CreatedAt.Valid {
+		f := r.CreatedAt.Float64
+		s.CreatedAt = &f
+	}
+	return s
+}
+
 func readInt(b bool) int {
 	if b {
 		return 1
@@ -112,7 +134,9 @@ func readInt(b bool) int {
 	return 0
 }
 
-// List ports SignalStore.get_signals: newest first, id descending on ties.
+// List ports SignalStore.get_signals: newest first, id descending on ties. It
+// returns at most `limit` rows exactly as asked: like Python's route the caller
+// requests limit+1, slices, and builds has_more/next_cursor itself.
 // signalType "" is unset. Run inside tenancy.InWorkspace.
 func List(ctx context.Context, tx pgx.Tx, signalType string, leadID *int64, limit, offset int) ([]Signal, error) {
 	st := pgtype.Text{}
@@ -127,17 +151,18 @@ func List(ctx context.Context, tx pgx.Tx, signalType string, leadID *int64, limi
 	}
 	out := make([]Signal, 0, len(rows))
 	for _, r := range rows {
-		out = append(out, Signal{ID: r.ID, WorkspaceID: r.WorkspaceID, LeadID: i64p(r.LeadID), Company: r.Company,
-			SignalType: r.SignalType, Title: r.Title, Description: r.Description, Source: r.Source, SourceURL: r.SourceUrl,
-			Weight: i64p(r.Weight), CreatedAt: r.CreatedAt, Read: readInt(r.Read)})
+		out = append(out, toSignal(r))
 	}
 	return out, nil
 }
 
 // Page ports SignalStore.get_signals_page (limit+1 probe). cursor "" is unset;
 // an undecodable cursor is ErrBadCursor. An empty signalTypes slice is unset.
-// limit must be >= 1.
+// limit < 1 is ErrBadLimit (Python raises ValueError).
 func Page(ctx context.Context, tx pgx.Tx, signalTypes []string, leadID *int64, limit int, cursor string) (PageResult, error) {
+	if limit < 1 {
+		return PageResult{}, ErrBadLimit
+	}
 	p := gen.PageSignalsParams{LeadID: lead4(leadID), PageLimit: clamp32(limit) + 1}
 	if len(signalTypes) > 0 {
 		p.SignalTypes = signalTypes
@@ -160,14 +185,17 @@ func Page(ctx context.Context, tx pgx.Tx, signalTypes []string, leadID *int64, l
 	}
 	out := make([]Signal, 0, len(rows))
 	for _, r := range rows {
-		out = append(out, Signal{ID: r.ID, WorkspaceID: r.WorkspaceID, LeadID: i64p(r.LeadID), Company: r.Company,
-			SignalType: r.SignalType, Title: r.Title, Description: r.Description, Source: r.Source, SourceURL: r.SourceUrl,
-			Weight: i64p(r.Weight), CreatedAt: r.CreatedAt, Read: readInt(r.Read)})
+		out = append(out, toSignal(r))
 	}
 	pg := PageResult{Signals: out, HasMore: hasMore}
 	if hasMore {
 		last := out[len(out)-1]
-		c := EncodeCursor(last.CreatedAt, last.ID)
+		var c string
+		if last.CreatedAt == nil { // Python json.dumps([None, id]); it fails on the next decode
+			c = encodeCursor("null", last.ID)
+		} else {
+			c = EncodeCursor(*last.CreatedAt, last.ID)
+		}
 		pg.NextCursor = &c
 	}
 	return pg, nil

@@ -13,11 +13,8 @@ import (
 
 const listSignals = `-- name: ListSignals :many
 
-SELECT id, workspace_id, lead_id, COALESCE(company, '')::text AS company,
-       COALESCE(signal_type, '')::text AS signal_type, COALESCE(title, '')::text AS title,
-       COALESCE(description, '')::text AS description, COALESCE(source, '')::text AS source,
-       COALESCE(source_url, '')::text AS source_url, weight,
-       COALESCE(created_at, 0)::float8 AS created_at, COALESCE(read, false)::bool AS read
+SELECT id, workspace_id, lead_id, company, signal_type, title, description, source, source_url,
+       weight, created_at, read
 FROM signals
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND ($1::text IS NULL OR signal_type = $1::text)
@@ -33,27 +30,11 @@ type ListSignalsParams struct {
 	PageLimit  int32
 }
 
-type ListSignalsRow struct {
-	ID          string
-	WorkspaceID string
-	LeadID      pgtype.Int4
-	Company     string
-	SignalType  string
-	Title       string
-	Description string
-	Source      string
-	SourceUrl   string
-	Weight      pgtype.Int4
-	CreatedAt   float64
-	Read        bool
-}
-
 // Signals store reads and mark-read (port of services/signals/store.py and the
 // analytics route in routers/signals.py). `signals` is FORCE RLS: run inside
 // tenancy.InWorkspace. Go never inserts signals (the Python scanner owns that).
-// Nullable columns are COALESCEd so the Go Signal struct stays plain-typed;
-// the Python scanner always writes them.
-func (q *Queries) ListSignals(ctx context.Context, arg ListSignalsParams) ([]ListSignalsRow, error) {
+// Raw columns: NULLs reach Go as nil so JSON emits null like store.py.
+func (q *Queries) ListSignals(ctx context.Context, arg ListSignalsParams) ([]Signal, error) {
 	rows, err := q.db.Query(ctx, listSignals,
 		arg.SignalType,
 		arg.LeadID,
@@ -64,9 +45,9 @@ func (q *Queries) ListSignals(ctx context.Context, arg ListSignalsParams) ([]Lis
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListSignalsRow
+	var items []Signal
 	for rows.Next() {
-		var i ListSignalsRow
+		var i Signal
 		if err := rows.Scan(
 			&i.ID,
 			&i.WorkspaceID,
@@ -103,11 +84,8 @@ func (q *Queries) MarkSignalsRead(ctx context.Context, ids []string) error {
 }
 
 const pageSignals = `-- name: PageSignals :many
-SELECT id, workspace_id, lead_id, COALESCE(company, '')::text AS company,
-       COALESCE(signal_type, '')::text AS signal_type, COALESCE(title, '')::text AS title,
-       COALESCE(description, '')::text AS description, COALESCE(source, '')::text AS source,
-       COALESCE(source_url, '')::text AS source_url, weight,
-       COALESCE(created_at, 0)::float8 AS created_at, COALESCE(read, false)::bool AS read
+SELECT id, workspace_id, lead_id, company, signal_type, title, description, source, source_url,
+       weight, created_at, read
 FROM signals
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND ($1::text[] IS NULL OR signal_type = ANY($1::text[]))
@@ -127,22 +105,7 @@ type PageSignalsParams struct {
 	PageLimit   int32
 }
 
-type PageSignalsRow struct {
-	ID          string
-	WorkspaceID string
-	LeadID      pgtype.Int4
-	Company     string
-	SignalType  string
-	Title       string
-	Description string
-	Source      string
-	SourceUrl   string
-	Weight      pgtype.Int4
-	CreatedAt   float64
-	Read        bool
-}
-
-func (q *Queries) PageSignals(ctx context.Context, arg PageSignalsParams) ([]PageSignalsRow, error) {
+func (q *Queries) PageSignals(ctx context.Context, arg PageSignalsParams) ([]Signal, error) {
 	rows, err := q.db.Query(ctx, pageSignals,
 		arg.SignalTypes,
 		arg.LeadID,
@@ -154,9 +117,9 @@ func (q *Queries) PageSignals(ctx context.Context, arg PageSignalsParams) ([]Pag
 		return nil, err
 	}
 	defer rows.Close()
-	var items []PageSignalsRow
+	var items []Signal
 	for rows.Next() {
-		var i PageSignalsRow
+		var i Signal
 		if err := rows.Scan(
 			&i.ID,
 			&i.WorkspaceID,
@@ -373,7 +336,7 @@ func (q *Queries) SignalAnalyticsTopAccounts(ctx context.Context, cutoff float64
 
 const signalTotals = `-- name: SignalTotals :one
 SELECT count(*)::bigint AS total,
-       (count(*) FILTER (WHERE read IS NOT TRUE))::bigint AS unread
+       (count(*) FILTER (WHERE read IS FALSE))::bigint AS unread
 FROM signals
 WHERE workspace_id = current_setting('app.workspace_id', true)
 `
