@@ -82,7 +82,7 @@ func claim(id int64, ws string, payload map[string]any) *queue.Claim {
 	return &queue.Claim{ID: id, Type: "refresh_workbook", WorkspaceID: ws, Payload: b}
 }
 
-const refreshCols = `[{"id":"src","type":"source"},{"id":"email","type":"enrichment"},{"id":"note","type":"formula","formula":"{{email}}"}]`
+const refreshCols = `[{"id":"src","type":"source"},{"id":"email","type":"enrichment"},{"id":"note","type":"formula","formula":"1","input_columns":["email"]}]`
 
 func seedStaleWorkbook(t *testing.T, ctx context.Context, pool *pgxpool.Pool, ws, wb, cols, policy string) {
 	t.Helper()
@@ -183,7 +183,8 @@ func TestRefreshEnqueuesRunForStaleOnly(t *testing.T) {
 
 	// All cells fresh and no source column: no run job at all.
 	_ = tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
-		_, _ = tx.Exec(ctx, `DELETE FROM workbooks; DELETE FROM jobs WHERE workspace_id=$1`, wsA)
+		_, _ = tx.Exec(ctx, `DELETE FROM workbooks`)
+		_, _ = tx.Exec(ctx, `DELETE FROM jobs WHERE workspace_id=$1`, wsA)
 		return nil
 	})
 	err := tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
@@ -262,7 +263,7 @@ func TestRefreshTenantIsolation(t *testing.T) {
 		if res["error"] != "workbook_not_found" {
 			t.Errorf("SetPolicy leaked: %v", res)
 		}
-		got, err := refresh.StaleRowColumns(ctx, tx, "w1", []refresh.Col{{ID: "email"}}, nil)
+		got, err := refresh.StaleRowColumns(ctx, tx, "w1", []refresh.Col{{ID: "email"}}, nil, fixedNow)
 		if err != nil || len(got) != 0 {
 			t.Errorf("stale leaked: %v %v", got, err)
 		}
