@@ -59,12 +59,12 @@ func (e sigEnv) purge() {
 	_, _ = e.pool.Exec(ctx, `DELETE FROM jobs WHERE type='signal_scan'`)
 }
 
-func (e sigEnv) insertSignal(t *testing.T, ws, id string, lead int, company, typ, title string, weight int, at float64, read bool) {
+func (e sigEnv) insertSignal(t *testing.T, ws, id string, lead int, company, typ, title, desc, src, url string, weight int, at float64, read bool) {
 	t.Helper()
 	ctx := context.Background()
 	err := tenancy.InWorkspace(ctx, e.pool, ws, func(tx pgx.Tx) error {
 		_, err := tx.Exec(ctx, `INSERT INTO signals (id, workspace_id, lead_id, company, signal_type, title, description, source, source_url, weight, created_at, read)
-			VALUES ($1,$2,$3,$4,$5,$6,'d','jobspy','https://x.example.com',$7,$8,$9)`, id, ws, lead, company, typ, title, weight, at, read)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`, id, ws, lead, company, typ, title, desc, src, url, weight, at, read)
 		return err
 	})
 	if err != nil {
@@ -100,7 +100,9 @@ func (e sigEnv) seedSignals(t *testing.T) {
 		if k%7 == 0 {
 			title = ""
 		}
-		e.insertSignal(t, "ws-alpha", fmt.Sprintf("sig-a-%02d", k), leads[k-1], companies[leads[k-1]], ty, title, tw[ty]+k%3, sigFixedTS+sigOffsets[k-1], k%3 == 0)
+		e.insertSignal(t, "ws-alpha", fmt.Sprintf("sig-a-%02d", k), leads[k-1], companies[leads[k-1]], ty, title,
+			fmt.Sprintf("Seeded %s event #%d for contract fixtures", ty, k), []string{"jobspy", "newsapi", "crunchbase"}[k%3],
+			fmt.Sprintf("https://signals.example.com/a/%d", k), tw[ty]+k%3, sigFixedTS+sigOffsets[k-1], k%3 == 0)
 	}
 	for k := 1; k <= 6; k++ {
 		ty := types[k%5]
@@ -108,7 +110,8 @@ func (e sigEnv) seedSignals(t *testing.T) {
 		if k%2 == 1 {
 			lead = 17
 		}
-		e.insertSignal(t, "ws-beta", fmt.Sprintf("sig-b-%02d", k), lead, "Beta Co", ty, "beta "+ty, tw[ty], sigFixedTS-float64(k)*1800, false)
+		e.insertSignal(t, "ws-beta", fmt.Sprintf("sig-b-%02d", k), lead, map[bool]string{true: "Zenith Robotics Pvt Ltd", false: "Initech Two"}[k%2 == 1], ty,
+			fmt.Sprintf("beta %s %d", ty, k), "beta tenant signal", "jobspy", fmt.Sprintf("https://signals.example.com/b/%d", k), tw[ty], sigFixedTS-float64(k)*1800, false)
 	}
 }
 
@@ -287,7 +290,7 @@ func TestMarkReadForeignIdsUntouched(t *testing.T) {
 	if after := e.readCount(t, "ws-beta"); after != before {
 		t.Errorf("beta read %d -> %d", before, after)
 	}
-	if e.readCount(t, "ws-alpha") != 21 { // 10 seeded read + sig-a-01
+	if e.readCount(t, "ws-alpha") != 11 { // 10 seeded read + sig-a-01
 		t.Errorf("alpha read %d", e.readCount(t, "ws-alpha"))
 	}
 }
@@ -296,10 +299,10 @@ func TestAnalyticsContract(t *testing.T) {
 	e := newSigEnv(t)
 	e.purge()
 	now := float64(time.Now().Unix())
-	e.insertSignal(t, "ws-alpha", "an-1", 14, "Acme", "hiring", "t", 8, now-3600, false)
-	e.insertSignal(t, "ws-alpha", "an-2", 14, "Acme", "funding", "t", 10, now-7200, false)
-	e.insertSignal(t, "ws-alpha", "an-3", 6, "", "hiring", "t", 8, now-3*86400, false)
-	e.insertSignal(t, "ws-alpha", "an-old", 6, "", "hiring", "t", 8, now-8*86400-5, false) // previous window of days=7
+	e.insertSignal(t, "ws-alpha", "an-1", 14, "Acme", "hiring", "t", "d", "s", "u", 8, now-3600, false)
+	e.insertSignal(t, "ws-alpha", "an-2", 14, "Acme", "funding", "t", "d", "s", "u", 10, now-7200, false)
+	e.insertSignal(t, "ws-alpha", "an-3", 6, "", "hiring", "t", "d", "s", "u", 8, now-3*86400, false)
+	e.insertSignal(t, "ws-alpha", "an-old", 6, "", "hiring", "t", "d", "s", "u", 8, now-8*86400-5, false) // previous window of days=7
 	rec := e.get("alice", "", "/api/signals/analytics?days=7")
 	if rec.Code != 200 {
 		t.Fatalf("%d %s", rec.Code, rec.Body.String())
