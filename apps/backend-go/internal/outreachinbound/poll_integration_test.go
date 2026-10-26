@@ -234,6 +234,7 @@ type fakeClient struct {
 	uids        []string
 	msgs        map[string][]byte
 	uidValidity string
+	uidValidity2 string // returned by Select once reconnected
 	connectErr  error
 	selectErr   error
 	fetchErrs   map[string][]error // consumed one per Fetch call
@@ -254,6 +255,9 @@ func (f *fakeClient) Connect(context.Context) error {
 func (f *fakeClient) Select(context.Context, string) (string, error) {
 	if f.selectErr != nil {
 		return "", f.selectErr
+	}
+	if f.uidValidity2 != "" && f.connects >= 2 {
+		return f.uidValidity2, nil
 	}
 	if f.uidValidity == "" {
 		return "777", nil
@@ -897,8 +901,8 @@ func TestOnePoisonMessageDoesNotStopBatch(t *testing.T) {
 	if len(rows) != 2 || rows[0].UID != "1" || rows[1].UID != "3" {
 		t.Fatalf("ledger %+v", rows)
 	}
-	if s := sched(t, pool, ws); s.ConsecutiveFailures != 1 {
-		t.Fatalf("tick with a poison message must count as failed: %+v", s)
+	if s := sched(t, pool, ws); s.ConsecutiveFailures != 0 {
+		t.Fatalf("a poison message (Python: empty fetch) must not fail the tick: %+v", s)
 	}
 	if fmt.Sprint(fc.seen) != "[1 3]" {
 		t.Fatalf("seen %v", fc.seen)
@@ -938,7 +942,7 @@ func TestReconnectAfterBudgetExceeded(t *testing.T) {
 	pool := testpg.NewAppPool(t, 4)
 	ws := newWS(t, pool)
 	ok := []byte("Message-ID: <r2@x>\r\nContent-Type: text/plain\r\n\r\nhello\r\n")
-	fc := &fakeClient{uids: []string{"1", "2"}, msgs: map[string][]byte{"2": ok},
+	fc := &fakeClient{uids: []string{"1", "2"}, msgs: map[string][]byte{"2": ok}, uidValidity2: "888",
 		fetchErrs: map[string][]error{"1": {imapclient.ErrBudgetExceeded}}}
 	h, _ := newHandler(t, pool, ws, fc)
 	tick(t, h, ws)
@@ -950,6 +954,9 @@ func TestReconnectAfterBudgetExceeded(t *testing.T) {
 	}
 	if s := sched(t, pool, ws); s.ConsecutiveFailures != 0 {
 		t.Fatalf("%+v", s)
+	}
+	if sc := sched(t, pool, ws); sc.UIDValidity != "888" {
+		t.Fatalf("uidvalidity after reconnect not kept: %q", sc.UIDValidity)
 	}
 	if fc.logouts < 2 {
 		t.Fatalf("logouts %d: the dropped connection must be logged out", fc.logouts)
@@ -1039,3 +1046,26 @@ type lit struct {
 }
 
 func (l *lit) Size() int64 { return l.n }
+
+func TestNULBytesStrippedBeforeLedgerInsert(t *testing.T) {
+	pool := testpg.NewAppPool(t, 4)
+	ws := newWS(t, pool)
+	s := seedSend(t, pool, ws, "nul@example.com", "<ours-8@sender.example>", 1)
+	raw := dsn("<d\x008@mx.example>", "<ours-8@sender.example>", "nul@example.com", "5.1.1", "550 user\x00 unknown")
+	raw = bytes.Replace(raw, []byte("Subject: Undelivered"), []byte("Subject: Unde\x00livered"), 1)
+	process(t, pool, ws, "1", raw)
+	// unmatched path too (recipient + diagnostic carry NUL)
+	process(t, pool, ws, "2", dsn("<d9@mx.example>", "<nope@x>", "nu\x00l2@example.com", "5.1.1", "550 a\x00b"))
+	rows := ledger(t, pool, ws)
+	if len(rows) != 2 {
+		t.Fatalf("ledger %+v", rows)
+	}
+	for _, r := range rows {
+		if strings.ContainsRune(r.Diagnostic+r.Recipient+r.SourceMID, 0) {
+			t.Errorf("NUL stored: %+v", r)
+		}
+	}
+	if sendStatus(t, pool, ws, s.sendID) != "bounced" {
+		t.Errorf("matched NUL message not applied")
+	}
+}

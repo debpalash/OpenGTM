@@ -3,9 +3,15 @@ package outreachinbound
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/emersion/go-imap/v2"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/imapclient"
@@ -80,6 +86,24 @@ func TestMissingWorkspaceIDReturnsWithoutEffect(t *testing.T) {
 	for _, p := range []string{`{}`, `{"workspace_id":""}`, `not json`} {
 		if err := h.Handle(context.Background(), &queue.Claim{Payload: json.RawMessage(p)}); err != nil {
 			t.Fatalf("%s: %v", p, err)
+		}
+	}
+}
+
+func TestIsConnErrOnlyTransportErrors(t *testing.T) {
+	yes := []error{io.EOF, fmt.Errorf("wrapped: %w", io.EOF), net.ErrClosed, &net.OpError{Op: "read", Err: errors.New("reset")}, imapclient.ErrBudgetExceeded,
+		fmt.Errorf("fetch: %w", imapclient.ErrBudgetExceeded)}
+	for _, e := range yes {
+		if !isConnErr(e) {
+			t.Errorf("%v should be a connection error", e)
+		}
+	}
+	no := []error{errors.New("mailbox closed"), errors.New("connection reset by peer text"), errors.New("not connected"),
+		&imap.Error{Type: imap.StatusResponseTypeNo, Text: "mailbox closed"}, &imap.Error{Type: imap.StatusResponseTypeBad, Text: "broken pipe"},
+		imapclient.ErrOversized}
+	for _, e := range no {
+		if isConnErr(e) {
+			t.Errorf("%v must not be a connection error", e)
 		}
 	}
 }
