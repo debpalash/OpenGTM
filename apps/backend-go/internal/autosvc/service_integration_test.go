@@ -474,3 +474,41 @@ func TestTenantIsolationTriggersAndRuns(t *testing.T) {
 		t.Fatal("mirror of the foreign rule disappeared")
 	}
 }
+
+// Final review M5: the header_secret_ref lookup must reuse the validation
+// transaction. With a one-connection pool, a second InWorkspace acquire inside
+// the open transaction can never be served and the request hangs.
+func TestValidateSecretLookupReusesTransaction(t *testing.T) {
+	pool := testpg.NewAppPool(t, 1)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if _, err := pool.Exec(ctx, `INSERT INTO workspaces (id, name, slug) VALUES ($1::varchar,$1::text,$1::text) ON CONFLICT DO NOTHING`, wsA); err != nil {
+		t.Fatal(err)
+	}
+	if err := tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, `INSERT INTO workspace_settings (workspace_id, key, value) VALUES ($1,'P08_M5_KEY','v') ON CONFLICT (workspace_id, key) DO UPDATE SET value='v'`, wsA)
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		_ = tenancy.InWorkspace(context.Background(), pool, wsA, func(tx pgx.Tx) error {
+			_, err := tx.Exec(context.Background(), `DELETE FROM workspace_settings WHERE key='P08_M5_KEY'`)
+			return err
+		})
+	})
+	svc := &autosvc.Service{Pool: pool, Now: func() time.Time { return fixedNow },
+		Cfg: autosvc.Config{MaxRulesPerWS: 50, MaxActionsPerRule: 10,
+			Secrets: secrets.NewResolver(nil, secrets.NewPgStore(pool), os.Getenv)}}
+	tt := "on_row_added"
+	in := autosvc.RuleInput{Name: "r", TriggerType: &tt, Enabled: true}
+	a, err := autosvc.ParseJSON([]byte(`[{"type":"webhook","config":{"url":"https://hooks.example.com/x","header_secret_ref":"P08_M5_KEY"}}]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	in.Actions = a.([]any)
+	err = tenancy.InWorkspace(ctx, pool, wsA, func(tx pgx.Tx) error { return svc.Validate(ctx, tx, wsA, in) })
+	if err != nil {
+		t.Fatalf("validate with a known secret ref on a 1-connection pool: %v", err)
+	}
+}
