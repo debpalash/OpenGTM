@@ -9,6 +9,7 @@ import (
 	"errors"
 	"math"
 	"sort"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -298,4 +299,4 @@ func Build(ctx context.Context, tx pgx.Tx, workspaceID string, lead leadsread.Le
 	return page, nil
 }
 
-func itoa(n int32) string { return string(enc(int64(n))) }
+func itoa(n int32) string { return strconv.Itoa(int(n)) }

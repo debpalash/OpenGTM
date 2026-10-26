@@ -11,9 +11,8 @@ import (
 // (Python 3.11+ grammar, "Z" rewritten to "+00:00") with naive values read as UTC;
 // anything unparseable is 0.0.
 //
-// Documented deviations: ISO week dates ("2026-W34-1") answer 0.0 here, and
-// naive strings are UTC (Python's str path uses the server's local zone, which is
-// UTC in every deployment).
+// Documented deviation: naive strings are read as UTC; Python's str path uses the
+// process-local zone, so parity assumes TZ=UTC (containers set no TZ).
 func ParseTimestamp(s string) float64 {
 	if s == "" {
 		return 0
@@ -53,7 +52,38 @@ func parseISO(s string) (int64, bool) {
 	var y, mo, d int
 	var ok bool
 	var rest string
+	var weekDate *time.Time
 	switch {
+	case len(s) >= 8 && s[4] == '-' && s[5] == 'W', len(s) >= 7 && s[4] == 'W':
+		ext := s[4] == '-'
+		off := 4
+		if ext {
+			off = 5
+		}
+		var w, wd int
+		if y, ok = digits(s, 4); !ok {
+			return 0, false
+		}
+		if w, ok = digits(s[off+1:], 2); !ok {
+			return 0, false
+		}
+		wd, rest = 1, s[off+3:]
+		if ext && len(rest) >= 2 && rest[0] == '-' && rest[1] >= '0' && rest[1] <= '9' {
+			wd, rest = int(rest[1]-'0'), rest[2:]
+		} else if !ext && len(rest) >= 1 && rest[0] >= '0' && rest[0] <= '9' {
+			wd, rest = int(rest[0]-'0'), rest[1:]
+		}
+		if y < 1 || w < 1 || wd < 1 || wd > 7 {
+			return 0, false
+		}
+		if _, maxW := time.Date(y, 12, 28, 0, 0, 0, 0, time.UTC).ISOWeek(); w > maxW {
+			return 0, false
+		}
+		jan4 := time.Date(y, 1, 4, 0, 0, 0, 0, time.UTC)
+		mon1 := jan4.AddDate(0, 0, -((int(jan4.Weekday()) + 6) % 7))
+		wdt := mon1.AddDate(0, 0, (w-1)*7+wd-1)
+		weekDate = &wdt
+		y, mo, d = wdt.Year(), int(wdt.Month()), wdt.Day()
 	case len(s) >= 10 && s[4] == '-':
 		if s[7] != '-' {
 			return 0, false
@@ -86,7 +116,9 @@ func parseISO(s string) (int64, bool) {
 		return 0, false
 	}
 	t := time.Date(y, time.Month(mo), d, 0, 0, 0, 0, time.UTC)
-	if t.Day() != d {
+	if weekDate != nil {
+		t = *weekDate
+	} else if t.Day() != d {
 		return 0, false
 	}
 	var hh, mm, ss, us int
