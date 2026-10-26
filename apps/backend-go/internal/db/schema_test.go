@@ -114,3 +114,40 @@ func TestSchemaHasChatAndPersonTables(t *testing.T) {
 		}
 	}
 }
+
+func TestSchemaHasCollectionLedger(t *testing.T) {
+	s := schemaSQL(t)
+	cases := []struct{ table, pk string }{
+		{"collection_jobs", "PRIMARY KEY (id)"},
+		{"collection_job_stages", "PRIMARY KEY (id)"},
+	}
+	for _, c := range cases {
+		if !strings.Contains(s, "CREATE TABLE public."+c.table+" (") {
+			t.Errorf("%s: table missing", c.table)
+			continue
+		}
+		if !regexp.MustCompile(`ADD CONSTRAINT \w+ ` + regexp.QuoteMeta(c.pk)).MatchString(s) {
+			t.Errorf("%s: primary key %q missing", c.table, c.pk)
+		}
+		for _, stmt := range []string{
+			"ALTER TABLE public." + c.table + " ENABLE ROW LEVEL SECURITY;",
+			"ALTER TABLE ONLY public." + c.table + " FORCE ROW LEVEL SECURITY;",
+		} {
+			if !strings.Contains(s, stmt) {
+				t.Errorf("%s: missing %q", c.table, stmt)
+			}
+		}
+		if !strings.Contains(s, "CREATE POLICY workspace_isolation ON public."+c.table+" ") {
+			t.Errorf("%s: workspace_isolation policy missing", c.table)
+		}
+	}
+	if !regexp.MustCompile(`(?s)collection_job_stages\s+ADD CONSTRAINT \w+ FOREIGN KEY \(job_id\) REFERENCES public\.collection_jobs\(id\) ON DELETE CASCADE`).MatchString(s) {
+		t.Error("collection_job_stages.job_id FK ON DELETE CASCADE missing")
+	}
+	// source_health / source_stats are global: never RLS.
+	for _, tbl := range []string{"source_health", "source_stats"} {
+		if strings.Contains(s, "ALTER TABLE public."+tbl+" ENABLE ROW LEVEL SECURITY;") {
+			t.Errorf("%s: unexpected RLS", tbl)
+		}
+	}
+}
