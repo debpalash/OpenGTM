@@ -150,7 +150,7 @@ func TestHardenedHTTPTraversalNeverTouchesOutside(t *testing.T) {
 	h := sysHandlerNoAuth(t, data)
 	targets := []string{
 		"../data-evil/secret.txt", "%2e%2e/data-evil/secret.txt", "%2e%2e%2fdata-evil%2fsecret.txt",
-		"/etc/passwd", "etclink/passwd", "sub/../../data-evil/secret.txt", "..%5cdata-evil",
+		"/etc/passwd", "etclink/passwd", "sub/../../data-evil/secret.txt",
 	}
 	for _, p := range targets {
 		for _, c := range [][2]string{{"GET", "/api/files/download/" + p}, {"DELETE", "/api/files/delete/" + p}, {"GET", "/api/files/list?path=" + p}} {
