@@ -285,7 +285,7 @@ func TestWebhookKindsApplied(t *testing.T) {
 			"<hook-soft-3-b@contract.example.com>=bounced/webhook <hook-complaint-b@contract.example.com>=bounced/webhook <hook-dup-b@contract.example.com>=sent/" {
 		t.Fatalf("sends: %s", got)
 	}
-	if got := e.one(t, `SELECT string_agg(id||'='||status||'/'||soft_bounce_count, ' ' ORDER BY id) FROM outreach_enrollments WHERE workspace_id='ws-beta'`); got != "11=bounced/0 12=sent/3 13=bounced/0" {
+	if got := e.one(t, `SELECT string_agg(id||'='||status||'/'||soft_bounce_count, ' ' ORDER BY id) FROM outreach_enrollments WHERE workspace_id='ws-beta'`); got != "11=bounced/0 12=bounced/3 13=bounced/0" {
 		t.Fatalf("enrollments: %s", got)
 	}
 	if got := e.one(t, `SELECT string_agg(source_message_id||'='||kind||'/'||imap_uid||'/'||uidvalidity||'/'||diagnostic, ' ' ORDER BY id) FROM outreach_inbound_messages WHERE workspace_id='ws-beta'`); !strings.Contains(got,
@@ -428,5 +428,82 @@ func TestWebhookKindMapping(t *testing.T) {
 		if got := e.one(t, `SELECT kind FROM outreach_inbound_messages WHERE source_message_id=$1`, c.id); got != c.kind {
 			t.Fatalf("%s: kind %s, want %s", c.extra, got, c.kind)
 		}
+	}
+}
+
+// TestUnsubscribeRateLimitPerToken: a valid token is limited to 20 uses per minute across any number of client IPs, keyed by
+// the whole token; another token is unaffected.
+func TestUnsubscribeRateLimitPerToken(t *testing.T) {
+	e := newPubEnv(t, pubOpts{})
+	path := e.unsubToken(t, "ws-alpha", "burst@example.com", "seq-out-a-01")
+	for i := 1; i <= 20; i++ {
+		if rec := e.post(path, "198.51.100."+strconv.Itoa(i)+":1"); rec.Code != 200 {
+			t.Fatalf("use %d: %d", i, rec.Code)
+		}
+	}
+	if rec := e.post(path, "198.51.100.200:1"); rec.Code != 429 || strings.TrimSpace(rec.Body.String()) != `{"detail":"rate limited"}` {
+		t.Fatalf("21st use: %d %s", rec.Code, rec.Body.String())
+	}
+	if rec := e.post(e.unsubToken(t, "ws-alpha", "burst2@example.com", ""), "198.51.100.201:1"); rec.Code != 200 {
+		t.Fatalf("another token: %d", rec.Code)
+	}
+}
+
+func (e pubEnv) seedSupp(t *testing.T, ws, email, reason, source string, locked bool) {
+	ownerExec(t, `INSERT INTO outreach_suppressions (workspace_id, email, reason, source, locked) VALUES ($1,$2,$3,$4,$5)`, ws, email, reason, source, locked)
+}
+
+// TestUnsubscribeUpgradesUnlockedSuppression: an unsubscribe over an existing manual or bounce row locks it, so the admin
+// route can no longer delete it; a row already locked keeps its reason.
+func TestUnsubscribeUpgradesUnlockedSuppression(t *testing.T) {
+	e := newPubEnv(t, pubOpts{})
+	e.seedSupp(t, "ws-alpha", "was-manual@example.com", "manual", "manual", false)
+	e.seedSupp(t, "ws-alpha", "was-bounce@example.com", "bounce", "seq-out-a-01", false)
+	e.seedSupp(t, "ws-alpha", "abc@gmail.com", "manual", "manual", false)
+	e.seedSupp(t, "ws-alpha", "a.b.c@gmail.com", "manual", "legacy-dotted", false)
+	for i, em := range []string{"Was-Manual@Example.com", "was-bounce@example.com", "a.b+z@gmail.com"} {
+		if rec := e.post(e.unsubToken(t, "ws-alpha", em, "seq-out-a-01"), "192.0.2."+strconv.Itoa(40+i)+":1"); rec.Code != 200 {
+			t.Fatalf("%s: %d", em, rec.Code)
+		}
+	}
+	got := e.supp(t, "ws-alpha")
+	for _, w := range []string{"was-manual@example.com|unsubscribe|seq-out-a-01|L", "was-bounce@example.com|unsubscribe|seq-out-a-01|L",
+		"locked-unsub@example.com|unsubscribe|seq-out-a-01|L"} {
+		if !strings.Contains(got, w) {
+			t.Errorf("missing %q in\n%s", w, got)
+		}
+	}
+	for _, em := range []string{"was-manual%40example.com", "was-bounce%40example.com"} {
+		c, m, raw := e.as("alice", "", "DELETE", "/api/outreach/suppressions/"+em, "")
+		if c != 403 || m["detail"] != "Cannot remove an unsubscribe/complaint suppression" {
+			t.Fatalf("%s: %d %s", em, c, raw)
+		}
+	}
+	// a manual add after the lock never downgrades it
+	if c, m, _ := e.as("alice", "", "POST", "/api/outreach/suppressions", `{"email":"was-manual@example.com"}`); c != 200 || m["added"] != false {
+		t.Fatalf("%d %v", c, m)
+	}
+	if !strings.Contains(e.supp(t, "ws-alpha"), "was-manual@example.com|unsubscribe|seq-out-a-01|L") {
+		t.Fatal("manual add changed the locked row")
+	}
+	// the other tenant's rows are untouched
+	if !strings.Contains(e.supp(t, "ws-beta"), "beta-suppressed@example.com|manual|manual|-") {
+		t.Fatal("beta row changed")
+	}
+}
+
+// TestWebhookComplaintLocksExistingBounceRow: a complaint over an existing unlocked bounce row locks it as a complaint.
+func TestWebhookComplaintLocksExistingBounceRow(t *testing.T) {
+	e := newPubEnv(t, pubOpts{webhookToken: pubWebhookSecret})
+	e.seedSupp(t, "ws-beta", "complaint-target@contract.example.com", "bounce", "seq-out-b-01", false)
+	if rec := e.hook(whBody("<hook-complaint-b@contract.example.com>", `,"event":"complaint"`), pubWebhookSecret); rec.Code != 200 {
+		t.Fatalf("%d %s", rec.Code, rec.Body.String())
+	}
+	if got := e.supp(t, "ws-beta"); !strings.Contains(got, "complaint-target@contract.example.com|complaint|webhook|L") {
+		t.Fatalf("rows:\n%s", got)
+	}
+	c, m, raw := e.as("bob", "ws-beta", "DELETE", "/api/outreach/suppressions/complaint-target%40contract.example.com", "")
+	if c != 403 {
+		t.Fatalf("%d %v %s", c, m, raw)
 	}
 }

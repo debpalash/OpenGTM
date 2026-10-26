@@ -28,7 +28,6 @@ type pubOpts struct {
 	getenv       map[string]string
 	secretKey    string
 	appEnv       string
-	trustProxy   bool
 	webhookToken string
 }
 
@@ -45,7 +44,7 @@ func pubDeps(o pubOpts) Deps {
 	return Deps{
 		Log:    slog.New(slog.NewTextHandler(io.Discard, nil)),
 		Getenv: func(k string) string { return o.getenv[k] },
-		Config: config.APIConfig{SecretKey: o.secretKey, AppEnv: o.appEnv, TrustProxy: o.trustProxy},
+		Config: config.APIConfig{SecretKey: o.secretKey, AppEnv: o.appEnv},
 		Flags: config.Flags{PGLeadStore: true, Outreach: config.OutreachSettings{
 			GoRoutesEnabled: true, BounceWebhookSecret: config.Secret(o.webhookToken), UnsubTTLDays: 90, SoftBounceMax: 3,
 			CircuitMinSends: 20, BouncePauseRate: 0.05, ComplaintPauseRate: 0.003}},
@@ -245,23 +244,13 @@ func TestUnsubscribeRateLimitPerIPAndToken(t *testing.T) {
 	if c := bad("203.0.113.2", "other-ip-fine"); c != 400 {
 		t.Fatalf("a different client is not limited: %d", c)
 	}
-	// per token prefix (32 chars): 20 different IPs share one token; characters after the 32nd do not matter.
+	// forged tokens never spend a token budget (it is charged after verification, keyed by the full token), so an attacker who
+	// knows a recipient's address cannot saturate that recipient's bucket with junk that shares its 32-character prefix.
 	prefix := strings.Repeat("p", 32)
-	for i := 1; i <= 20; i++ {
+	for i := 1; i <= 25; i++ {
 		if c := bad("198.51.100."+strconv.Itoa(i), prefix+strconv.Itoa(i)); c != 400 {
-			t.Fatalf("token request %d: %d", i, c)
+			t.Fatalf("forged request %d: %d", i, c)
 		}
-	}
-	if c := bad("198.51.100.200", prefix+"zzz"); c != 429 {
-		t.Fatalf("21st use of the token prefix: %d", c)
-	}
-	if c := bad("198.51.100.201", strings.Repeat("q", 32)); c != 400 {
-		t.Fatalf("another token: %d", c)
-	}
-	// the limited token does not consume the IP budget of the client that was refused (Python's short circuit order is
-	// IP first, token second): the refused client keeps 429 only for the token it used.
-	if c := bad("198.51.100.200", "unrelated-token"); c != 400 {
-		t.Fatalf("refused on the token, the IP is still within budget: %d", c)
 	}
 }
 
@@ -304,40 +293,66 @@ func TestRateLimiterBoundedMemory(t *testing.T) {
 }
 
 // TestUnsubscribeUsesRealClientIP: behind nginx every request arrives from the proxy address; the client is X-Real-IP
-// (set by nginx, never forwarded from the client). Without TRUST_PROXY the header is ignored so it cannot be used to
-// dodge the limit.
+// (set by nginx, never forwarded from the client), honoured only when the socket peer is a trusted proxy (TRUST_PROXY_CIDRS;
+// default loopback and the docker bridge ranges). An untrusted peer's headers are ignored, so they cannot dodge the limit.
 func TestUnsubscribeUsesRealClientIP(t *testing.T) {
-	run := func(trust bool, hdr func(i int) map[string]string) (limitedAt int) {
-		h := pubHandler(pubDeps(pubOpts{trustProxy: trust}))
+	run := func(env map[string]string, peer string, hdr func(i int) map[string]string) (limitedAt int) {
+		env["SECRETS_MASTER_KEY"] = pubMasterKey
+		h := pubHandler(pubDeps(pubOpts{getenv: env}))
 		for i := 1; i <= 25; i++ {
-			rec := pubReq{method: "POST", path: "/api/outreach/unsubscribe?token=t" + strconv.Itoa(i), addr: "10.0.0.2:5555", hdr: hdr(i)}.do(h)
+			rec := pubReq{method: "POST", path: "/api/outreach/unsubscribe?token=t" + strconv.Itoa(i), addr: peer, hdr: hdr(i)}.do(h)
 			if rec.Code == 429 {
 				return i
 			}
 		}
 		return 0
 	}
-	// trusted: distinct real client IPs behind the same proxy address are not lumped together
-	if at := run(true, func(i int) map[string]string { return map[string]string{"X-Real-IP": "198.51.100." + strconv.Itoa(i)} }); at != 0 {
-		t.Fatalf("distinct real clients were limited at request %d", at)
-	}
-	// trusted: one real client is limited on its 21st request, a spoofed X-Forwarded-For does not help it
-	if at := run(true, func(i int) map[string]string {
+	real := func(i int) map[string]string { return map[string]string{"X-Real-IP": "198.51.100." + strconv.Itoa(i)} }
+	same := func(i int) map[string]string {
 		return map[string]string{"X-Real-IP": "198.51.100.77", "X-Forwarded-For": "1.1.1." + strconv.Itoa(i) + ", 198.51.100.77"}
-	}); at != 21 {
+	}
+	// default trust: the docker bridge and loopback. Distinct real clients behind the proxy are not lumped together...
+	for _, peer := range []string{"172.18.0.5:5555", "127.0.0.1:5555", "192.168.16.2:1", "[::1]:5555"} {
+		if at := run(map[string]string{}, peer, real); at != 0 {
+			t.Fatalf("%s: distinct real clients were limited at request %d", peer, at)
+		}
+	}
+	// ...one real client is limited on its 21st request and a spoofed X-Forwarded-For does not help it
+	if at := run(map[string]string{}, "172.18.0.5:5555", same); at != 21 {
 		t.Fatalf("one real client limited at %d, want 21", at)
 	}
-	// not trusted: the proxy-controlled header is ignored, the socket peer is the client
-	if at := run(false, func(i int) map[string]string {
-		return map[string]string{"X-Real-IP": "198.51.100." + strconv.Itoa(i), "X-Forwarded-For": "9.9.9." + strconv.Itoa(i)}
-	}); at != 21 {
-		t.Fatalf("without TRUST_PROXY the header must be ignored: limited at %d", at)
+	// an untrusted peer (any public or unlisted address) is the client itself: its headers are ignored
+	for _, peer := range []string{"203.0.113.9:1", "10.0.0.2:5555"} {
+		if at := run(map[string]string{}, peer, real); at != 21 {
+			t.Fatalf("%s untrusted: header must be ignored, limited at %d", peer, at)
+		}
 	}
-	// a malformed header value falls back to the socket peer instead of becoming a key
+	// TRUST_PROXY_CIDRS replaces the default: the bridge is no longer trusted, the listed range is; junk entries are skipped
+	env := map[string]string{"TRUST_PROXY_CIDRS": "bogus, 203.0.113.0/24 ,10.1.1.1"}
+	if at := run(env, "203.0.113.9:1", real); at != 0 {
+		t.Fatalf("configured proxy range: limited at %d", at)
+	}
+	if at := run(env, "10.1.1.1:1", real); at != 0 {
+		t.Fatalf("a bare address is a /32: limited at %d", at)
+	}
+	if at := run(env, "172.18.0.5:5555", real); at != 21 {
+		t.Fatalf("default ranges must not apply once configured: %d", at)
+	}
+	// malformed or empty X-Real-IP from a trusted peer falls back to the peer
+	nets := parseTrustedProxies("", nil)
+	for _, v := range []string{"not an ip\r\nx", "", "999.1.1.1"} {
+		r := httptest.NewRequest("POST", "/", nil)
+		r.RemoteAddr = "172.18.0.5:5555"
+		r.Header.Set("X-Real-IP", v)
+		if got := publicClientIP(r, nets); got != "172.18.0.5" {
+			t.Fatalf("%q: got %q", v, got)
+		}
+	}
+	// IPv6 clients are keyed by their /64
 	r := httptest.NewRequest("POST", "/", nil)
-	r.RemoteAddr = "10.0.0.2:5555"
-	r.Header.Set("X-Real-IP", "not an ip\r\nx")
-	if got := publicClientIP(r, true); got != "10.0.0.2" {
+	r.RemoteAddr = "172.18.0.5:5555"
+	r.Header.Set("X-Real-IP", "2001:db8:1:2:aaaa:bbbb:cccc:dddd")
+	if got := publicClientIP(r, nets); got != "2001:db8:1:2::/64" {
 		t.Fatalf("got %q", got)
 	}
 }
