@@ -515,8 +515,13 @@ Fixtures `connectors/*` (profiles `default`, `catalog_ok` = default minus `contr
   from `OPENGTM_CONNECTOR_TRUST_STORE` (default `docs/connectors/trusted-publishers.json`); set both in deployments. The resolved
   paths and policy are logged at startup. `CONNECTOR_SIGNATURE_POLICY` set but empty is `required`, as Python. The trust store is
   re-read per request; the certification key is revealed per request and never logged.
-- `/compatibility` error `path` is `str(path)` of the served directory. Fixtures carry `../../apps/backend-go/internal/connectors/`
-  in front of `testdata/manifests/...`; tests strip that prefix before comparing.
+- D4: `/compatibility` error `path` is relative to the served manifest directory (`email/x.yaml`; `.` for the `..` directory error).
+  Python reports `str(path)`, an absolute or cwd-relative server path that leaks the directory layout to any workspace member. Fixtures
+  carry `../../apps/backend-go/internal/connectors/testdata/manifests/` in front of the path; tests strip that prefix before comparing.
+- `/catalog` `configured`: `auth.type == "none"` or the manifest's `auth.env_var` resolves to a non-empty secret through the same
+  resolver as Python (`get_secret`: workspace secret, global setting, then the operator process env). Parity kept: Python also reads
+  the process env, so a signature-gated manifest naming an arbitrary env var (for example `DATABASE_URL`) reveals only a boolean to
+  workspace members. Manifest directories are operator-controlled and signed under the required policy; keep untrusted manifests out.
 - A duplicated manifest name is listed twice in `/catalog` and reported once as `duplicate provider id` by `/compatibility` (Python
   behaviour, kept). `package_sha256` is `manifest.Entry.SHA256` of the reviewed manifest and feeds the certification build map;
   an unreviewed (rejected by the report) manifest renders `signature: {"status":"unknown"}` and `package_sha256: null`.

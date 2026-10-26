@@ -182,7 +182,7 @@ func scanDirectory(dir, policy string, trust manifest.TrustStore) scanResult {
 	fail := func(p, msg string) { res.report.Errors = append(res.report.Errors, ReportError{Path: p, Error: msg}) }
 	for _, part := range strings.Split(filepath.ToSlash(dir), "/") {
 		if part == ".." {
-			fail(dir, "manifest directory must not contain '..'")
+			fail(".", "manifest directory must not contain '..'")
 			return finish(res)
 		}
 	}
@@ -211,12 +211,12 @@ func scanDirectory(dir, policy string, trust manifest.TrustStore) scanResult {
 	names := map[string]bool{}
 	for _, c := range cands {
 		if c.symlink {
-			fail(c.full, "symlinks are not followed in the connector manifest directory")
+			fail(c.rel, "symlinks are not followed in the connector manifest directory")
 			continue
 		}
 		data, err := readManifestFile(c.full)
 		if err != nil {
-			fail(c.full, err.Error())
+			fail(c.rel, err.Error())
 			continue
 		}
 		sig := manifest.VerifyData(data, c.full+".sig", trust)
@@ -227,15 +227,15 @@ func scanDirectory(dir, policy string, trust manifest.TrustStore) scanResult {
 			res.loaded = append(res.loaded, loadedManifest{Path: c.full, Entry: entry, Sig: sig})
 		}
 		if derr != nil {
-			fail(c.full, derr.Error())
+			fail(c.rel, derr.Error())
 			continue
 		}
 		if msg := checkManifest(entry.Manifest, names); msg != "" {
-			fail(c.full, msg)
+			fail(c.rel, msg)
 			continue
 		}
 		if sigRejected {
-			fail(c.full, strings.TrimRightFunc(fmt.Sprintf("connector signature is %s: %s", sig.Status, errText(sig.Err)), unicode.IsSpace))
+			fail(c.rel, strings.TrimRightFunc(fmt.Sprintf("connector signature is %s: %s", sig.Status, errText(sig.Err)), unicode.IsSpace))
 			continue
 		}
 		res.report.Connectors = append(res.report.Connectors, newEntry(filepath.ToSlash(c.rel), entry, sig))

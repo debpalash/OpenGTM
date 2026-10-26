@@ -107,8 +107,14 @@ func sameReport(t *testing.T, name string, got, want any, portable []bool) {
 	}
 	for i := range we {
 		gm, wm := ge[i].(map[string]any), we[i].(map[string]any)
-		if gm["path"] != wm["path"] {
-			t.Errorf("%s: error %d path %v, want %v", name, i, gm["path"], wm["path"])
+		// Python reports str(path) under the served dir ("m/..." in the vectors); Go reports the
+		// path relative to the manifest dir so the server layout never leaks.
+		wantPath := wm["path"]
+		if ws, ok := wantPath.(string); ok {
+			wantPath = strings.TrimPrefix(ws, "m/")
+		}
+		if gm["path"] != wantPath {
+			t.Errorf("%s: error %d path %v, want %v", name, i, gm["path"], wantPath)
 		}
 		if i < len(portable) && portable[i] && gm["error"] != wm["error"] {
 			t.Errorf("%s: error %d = %q, want %q", name, i, gm["error"], wm["error"])
