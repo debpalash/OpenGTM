@@ -361,15 +361,21 @@ func TestSecretRefMissing422(t *testing.T) {
 			t.Errorf("%s %s: %d %q", c.typ, c.cfg, code, d)
 		}
 	}
-	// A global (app-level) value satisfies the lookup, as Python's get_secret falls back to it.
-	if _, err := audOwner(t).Exec(context.Background(), `INSERT INTO app_settings (key, value) VALUES ('T18_GLOBAL_HOOK', 'https://hooks.example.test/g')`); err != nil {
+	// A global (app-level) value or an env value does not satisfy the lookup: references resolve to workspace secrets only.
+	if _, err := audOwner(t).Exec(context.Background(), `INSERT INTO app_settings (key, value) VALUES ('T18_GLOBAL_HOOK', 'https://hooks.example.test/g') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`); err != nil {
 		t.Fatal(err)
 	}
-	if code, d := post("slack", `{"webhook_secret_ref":"T18_GLOBAL_HOOK"}`); code != 201 {
+	if code, d := post("slack", `{"webhook_secret_ref":"T18_GLOBAL_HOOK"}`); code != 422 || d != "slack webhook_secret_ref was not found" {
 		t.Errorf("global secret: %d %q", code, d)
 	}
+	if code, d := post("warehouse_http", `{"url":"https://w.example.test","header_secret_ref":"T18_GLOBAL_HOOK"}`); code != 422 || d != "warehouse_http header_secret_ref was not found" {
+		t.Errorf("global warehouse secret: %d %q", code, d)
+	}
+	if code, d, _ := e.patchDest("alice", "ws-alpha", "dst-act-slack", `{"config":{"webhook_secret_ref":"T18_GLOBAL_HOOK"}}`); code != 422 || destDetail(d) != "slack webhook_secret_ref was not found" {
+		t.Errorf("global secret patch: %d %v", code, d)
+	}
 	// An empty workspace value counts as unset.
-	if _, err := audOwner(t).Exec(context.Background(), `INSERT INTO workspace_settings (workspace_id, key, value) VALUES ('ws-alpha', 'T18_EMPTY', '')`); err != nil {
+	if _, err := audOwner(t).Exec(context.Background(), `INSERT INTO workspace_settings (workspace_id, key, value) VALUES ('ws-alpha', 'T18_EMPTY', '') ON CONFLICT (workspace_id, key) DO UPDATE SET value = ''`); err != nil {
 		t.Fatal(err)
 	}
 	if code, d := post("slack", `{"webhook_secret_ref":"T18_EMPTY"}`); code != 422 {
