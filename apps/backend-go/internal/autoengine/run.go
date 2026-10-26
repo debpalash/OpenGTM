@@ -123,6 +123,11 @@ func (e *engine) handle(ctx context.Context, c *queue.Claim) error {
 		d.log().Warn("trigger_eval missing workspace_id/trigger_id")
 		return nil
 	}
+	if c != nil && c.WorkspaceID != "" && c.WorkspaceID != ws {
+		// A job queued under one workspace must not run inside another tenant.
+		d.log().Error("trigger_eval payload workspace does not match the job's workspace; refusing", "job_id", c.ID)
+		return nil
+	}
 	dry := pyBool(pl["dry_run"])
 	fireSource := "manual"
 	if v, ok := pl["fire_source"]; ok {

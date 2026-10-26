@@ -280,6 +280,11 @@ func Handle(ctx context.Context, d HandlerDeps, c *queue.Claim) error {
 		log.Warn("watch_poll missing workspace_id/watch_id", "job_id", jobID)
 		return nil
 	}
+	if c != nil && c.WorkspaceID != "" && c.WorkspaceID != ws {
+		// A job queued under one workspace must not run inside another tenant.
+		log.Error("watch_poll payload workspace does not match the job's workspace; refusing", "job_id", jobID)
+		return nil
+	}
 	if !d.PGStore {
 		log.Error("watch_poll requires the PG lead store (on_signal is PG-only); skipping", "job_id", jobID)
 		return nil
