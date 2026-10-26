@@ -1,0 +1,108 @@
+{
+  "request": {
+    "body": {
+      "name": null
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/templates/gallery/crm-record-enrichment/instantiate"
+  },
+  "response": {
+    "body": {
+      "columns_config": [
+        {
+          "id": "company",
+          "lead_field": "company",
+          "name": "Company",
+          "type": "lead_field",
+          "width": 200
+        },
+        {
+          "id": "website",
+          "lead_field": "website",
+          "name": "Website",
+          "type": "lead_field",
+          "width": 200
+        },
+        {
+          "id": "headcount",
+          "name": "Headcount",
+          "target_field": "company_size",
+          "type": "waterfall",
+          "waterfall": [
+            "deep_scraper",
+            "website_scraper",
+            "company_intel",
+            "wikidata"
+          ],
+          "width": 140
+        },
+        {
+          "id": "industry",
+          "name": "Industry tags",
+          "target_field": "industry_tags",
+          "type": "waterfall",
+          "waterfall": [
+            "deep_scraper",
+            "website_scraper",
+            "local_business",
+            "company_intel",
+            "mca_registry",
+            "wikidata"
+          ],
+          "width": 200
+        },
+        {
+          "id": "founded",
+          "name": "Founded",
+          "target_field": "founding_year",
+          "type": "waterfall",
+          "waterfall": [
+            "jsonld_firmographics",
+            "deep_scraper",
+            "company_intel",
+            "mca_registry",
+            "wikidata"
+          ],
+          "width": 120
+        },
+        {
+          "id": "address",
+          "name": "Registered address",
+          "target_field": "address",
+          "type": "waterfall",
+          "waterfall": [
+            "jsonld_firmographics",
+            "deep_scraper",
+            "local_business",
+            "mca_registry",
+            "wikidata"
+          ],
+          "width": 260
+        }
+      ],
+      "completed_rows": 0,
+      "created_at": "2026-10-26T11:09:59.788559",
+      "description": "Import your accounts and run \u2014 wikidata and the MCA registry answer from the company NAME even when the website is dead, so old records still enrich.",
+      "filter_criteria": {},
+      "id": "53a78afa-dd3f-4593-8d07-dba46bfb5d22",
+      "last_run_at": null,
+      "name": "CRM record refresh (firmographics)",
+      "source_config": {
+        "row_storage_version": 2
+      },
+      "source_type": "empty",
+      "status": "draft",
+      "sync_to_leads": true,
+      "total_rows": 0,
+      "updated_at": "2026-10-26T11:09:59.788559"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

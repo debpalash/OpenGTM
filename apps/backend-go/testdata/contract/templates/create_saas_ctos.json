@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/templates/saas-ctos/create"
+  },
+  "response": {
+    "body": {
+      "columns_count": 12,
+      "enrichment_columns_count": 4,
+      "id": "aca6d800-5678-4bb1-aa10-7c82b2e6d36e",
+      "name": "SaaS CTOs & Tech Leaders",
+      "template": "saas-ctos"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

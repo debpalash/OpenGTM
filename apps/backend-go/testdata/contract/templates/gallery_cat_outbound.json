@@ -1,0 +1,101 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/templates/gallery?category=outbound"
+  },
+  "response": {
+    "body": {
+      "categories": {
+        "crm-hygiene": {
+          "color": "text-emerald-400",
+          "icon": "sparkles",
+          "label": "CRM Hygiene"
+        },
+        "list-building": {
+          "color": "text-blue-400",
+          "icon": "radar",
+          "label": "List Building"
+        },
+        "outbound": {
+          "color": "text-violet-400",
+          "icon": "send",
+          "label": "Outbound"
+        },
+        "research": {
+          "color": "text-amber-400",
+          "icon": "search",
+          "label": "Research"
+        },
+        "signals": {
+          "color": "text-rose-400",
+          "icon": "activity",
+          "label": "Signals"
+        }
+      },
+      "recipes": [
+        {
+          "category": "outbound",
+          "column_types": {
+            "ai_formula": 2,
+            "lead_field": 2,
+            "output": 1,
+            "waterfall": 1
+          },
+          "columns_count": 6,
+          "description": "Turn a raw list into sequence-ready rows: a verified email, two likely pain points, and a personalized opening line for every company.",
+          "icon": "pen-line",
+          "name": "Cold email personalization at scale",
+          "slug": "cold-email-personalization"
+        },
+        {
+          "category": "outbound",
+          "column_types": {
+            "lead_field": 2,
+            "output": 1,
+            "waterfall": 4
+          },
+          "columns_count": 7,
+          "description": "Complete each row (email, phone, LinkedIn, headcount) with zero-key waterfalls, then push finished contacts into HubSpot as CRM records.",
+          "icon": "upload-cloud",
+          "name": "Enrich & sync to HubSpot",
+          "slug": "enrich-and-sync-hubspot"
+        },
+        {
+          "category": "outbound",
+          "column_types": {
+            "ai_formula": 2,
+            "lead_field": 2,
+            "output": 1,
+            "waterfall": 3
+          },
+          "columns_count": 8,
+          "description": "Find the founder or key decision maker at each company, get a verified email, and draft a personalized opener \u2014 ready to enroll in a sequence.",
+          "icon": "crown",
+          "name": "Founder & decision-maker outreach",
+          "slug": "founder-outreach"
+        },
+        {
+          "category": "outbound",
+          "column_types": {
+            "formula": 1,
+            "lead_field": 2,
+            "output": 1,
+            "waterfall": 2
+          },
+          "columns_count": 6,
+          "description": "Enrich each row with a verified email and firmographics, then POST the finished row to any endpoint you own \u2014 Zapier, n8n, your own API.",
+          "icon": "webhook",
+          "name": "Enrich & push via webhook",
+          "slug": "webhook-export-pipeline"
+        }
+      ],
+      "total": 4
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

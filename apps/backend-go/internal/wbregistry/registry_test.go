@@ -74,10 +74,6 @@ func TestRecipeOrderPreserved(t *testing.T) {
 	}
 }
 
-func TestEveryRecipeColumnPassesNormalize(t *testing.T) {
-	t.Skip("consumes Task 3 column normalizer; Task 22 removes this skip")
-}
-
 func TestProviderCertificationFieldsPresent(t *testing.T) {
 	var doc struct {
 		Providers []map[string]json.RawMessage `json:"providers"`
