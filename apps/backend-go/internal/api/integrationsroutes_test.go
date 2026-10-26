@@ -361,7 +361,12 @@ func TestWorkspaceIntegrationPermissionDenyOverrideHTTP(t *testing.T) {
 // FastAPI sequence (testdata/contract/integrations). alice is a global admin and
 // owner of the workspace, bob a plain "member" of it.
 func TestIntegrationRoutesMatchFixtures(t *testing.T) {
-	e := newSettingsEnv(t)
+	replayIntegrationFixtures(t, newSettingsEnv(t))
+}
+
+// replayIntegrationFixtures runs that sequence on e and returns the fixture
+// names it replayed ("integrations/<name>"); the contract suite reuses it.
+func replayIntegrationFixtures(t *testing.T, e settingsEnv) []string {
 	e.cleanIntegrations(t)
 	w := e.wsEnv()
 	aid, ah := w.user(t, "t7-fx-alice")
@@ -398,11 +403,14 @@ func TestIntegrationRoutesMatchFixtures(t *testing.T) {
 		{"ws_put_other_workspace", "PUT", "/api/settings/workspace-integrations/hubspot?workspace_id=ws-missing", `{"values":{"HUBSPOT_TOKEN":"nope-token-0000"}}`, bh},
 		{"ws_list_no_auth", "GET", "/api/settings/workspace-integrations", "", nil},
 	}
+	var names []string
 	for _, s := range steps {
 		fx := contract.Load(t, "integrations/"+s.name)
+		names = append(names, "integrations/"+s.name)
 		_, got := e.do(s.method, s.path, "application/json", s.body, s.hdr)
 		t.Run(s.name, func(t *testing.T) {
 			contract.AssertEqual(t, got, fx.Response, contract.IgnorePaths("$.workspace_id"))
 		})
 	}
+	return names
 }
