@@ -1,0 +1,281 @@
+{
+ "encode": [
+  {
+   "iso": "2026-03-01T12:00:00.123456",
+   "id": "abc",
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwLjEyMzQ1NiIsImFiYyJd"
+  },
+  {
+   "iso": "2026-03-01T12:00:00",
+   "id": "id-é",
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIiwiaWQtXHUwMGU5Il0"
+  },
+  {
+   "iso": "2026-03-01T12:00:00+00:00",
+   "id": "x",
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwKzAwOjAwIiwieCJd"
+  },
+  {
+   "iso": "2026-03-01T12:00:00+05:30",
+   "id": "x",
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwKzA1OjMwIiwieCJd"
+  }
+ ],
+ "decode": [
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwLjUwMDAwMCIsImEiXQ",
+   "ok": true,
+   "time": "2026-03-01T12:00:00.500000+00:00",
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwKzA1OjMwIiwiYSJd",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+05:30",
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxIiwiYSJd",
+   "ok": true,
+   "time": "2026-03-01T00:00:00+00:00",
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwWiIsImEiXQ",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+00:00",
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2MDMwMVQxMjAwMDAiLCJhIl0",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+00:00",
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxIDEyOjAwOjAwIiwiYSJd",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+00:00",
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwLjEyMzQ1NjciLCJhIl0",
+   "ok": true,
+   "time": "2026-03-01T12:00:00.123456+00:00",
+   "id": "a"
+  },
+  {
+   "cursor": "!!!",
+   "ok": false,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "",
+   "ok": false,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "AAAA",
+   "ok": false,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIiwxXQ",
+   "ok": false,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIl0",
+   "ok": false,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "eyJhIjoxfQ",
+   "ok": false,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "Ingi",
+   "ok": false,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WyJub3BlIiwiYSJd",
+   "ok": false,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WzEsImEiXQ",
+   "ok": false,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIiwiYSIsImIiXQ",
+   "ok": false,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "__4=",
+   "ok": false,
+   "detail": "invalid audit event cursor"
+  }
+ ],
+ "time": [
+  {
+   "in": "2026-03-01",
+   "ok": true,
+   "iso": "2026-03-01T00:00:00"
+  },
+  {
+   "in": "2026-03-01T12:00:00",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00"
+  },
+  {
+   "in": "2026-03-01T12:00",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00"
+  },
+  {
+   "in": "2026-03-01T12:00:00Z",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00+00:00"
+  },
+  {
+   "in": "2026-03-01T12:00:00z",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00+00:00"
+  },
+  {
+   "in": "2026-03-01 12:00:00",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00"
+  },
+  {
+   "in": "2026-03-01t12:00:00",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00"
+  },
+  {
+   "in": "2026-03-01_12:00:00",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00"
+  },
+  {
+   "in": "2026-03-01T12:00:00.5",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00.500000"
+  },
+  {
+   "in": "2026-03-01T12:00:00.123456789",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00.123456"
+  },
+  {
+   "in": "2026-03-01T12:00:00.1234567891",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00.123456"
+  },
+  {
+   "in": "2026-03-01T12:00:00+05:30",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00+05:30"
+  },
+  {
+   "in": "2026-03-01T12:00:00+0530",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00+05:30"
+  },
+  {
+   "in": "2026-03-01T12:00:00-05",
+   "ok": false,
+   "type": "datetime_from_date_parsing",
+   "msg": "Input should be a valid datetime or date, unexpected extra characters at the end of the input"
+  },
+  {
+   "in": "2026-03-01T24:00:00",
+   "ok": false,
+   "type": "datetime_from_date_parsing",
+   "msg": "Input should be a valid datetime or date, unexpected extra characters at the end of the input"
+  },
+  {
+   "in": "2026-02-30",
+   "ok": false,
+   "type": "datetime_from_date_parsing",
+   "msg": "Input should be a valid datetime or date, day value is outside expected range"
+  },
+  {
+   "in": "2026-03-01T12:60:00",
+   "ok": false,
+   "type": "datetime_from_date_parsing",
+   "msg": "Input should be a valid datetime or date, unexpected extra characters at the end of the input"
+  },
+  {
+   "in": "2026-03-01T12:00:60",
+   "ok": false,
+   "type": "datetime_from_date_parsing",
+   "msg": "Input should be a valid datetime or date, unexpected extra characters at the end of the input"
+  },
+  {
+   "in": "1700000000",
+   "ok": true,
+   "iso": "2023-11-14T22:13:20+00:00"
+  },
+  {
+   "in": "1700000000.5",
+   "ok": true,
+   "iso": "2023-11-14T22:13:20.500000+00:00"
+  },
+  {
+   "in": "1700000000000",
+   "ok": true,
+   "iso": "2023-11-14T22:13:20+00:00"
+  },
+  {
+   "in": "  2026-03-01  ",
+   "ok": false,
+   "type": "datetime_from_date_parsing",
+   "msg": "Input should be a valid datetime or date, invalid character in year"
+  },
+  {
+   "in": "",
+   "ok": false,
+   "type": "datetime_from_date_parsing",
+   "msg": "Input should be a valid datetime or date, input is too short"
+  },
+  {
+   "in": "garbage",
+   "ok": false,
+   "type": "datetime_from_date_parsing",
+   "msg": "Input should be a valid datetime or date, input is too short"
+  },
+  {
+   "in": "2026-3-1",
+   "ok": false,
+   "type": "datetime_from_date_parsing",
+   "msg": "Input should be a valid datetime or date, input is too short"
+  },
+  {
+   "in": "20260301",
+   "ok": true,
+   "iso": "1970-08-23T11:51:41+00:00"
+  },
+  {
+   "in": "2026-03-01T12",
+   "ok": false,
+   "type": "datetime_from_date_parsing",
+   "msg": "Input should be a valid datetime or date, unexpected extra characters at the end of the input"
+  },
+  {
+   "in": "2026-03-01T12:00:00+24:00",
+   "ok": false,
+   "type": "datetime_from_date_parsing",
+   "msg": "Input should be a valid datetime or date, unexpected extra characters at the end of the input"
+  },
+  {
+   "in": "2026-03-01T12:00:00+23:59",
+   "ok": true,
+   "iso": "2026-03-01T12:00:00+23:59"
+  }
+ ]
+}

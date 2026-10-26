@@ -1,0 +1,4 @@
+﻿id,created_at,actor_user_id,actor_role,method,route,resource_path,response_status,outcome,request_id,metadata_json
+00000000-0000-0000-0000-000000000003,2026-03-01T12:00:00.123456,7,admin,POST,/api/x,"/api/x?a=1,2",200,success,r1,"{""b"":1,""a"":{""z"":""café"",""y"":[1,2.5,true,null]},""q"":""say \""hi\""\nnew""}"
+00000000-0000-0000-0000-000000000002,2026-03-01T12:00:00,,,DELETE,'=cmd,'+1,403,denied,'-x,{}
+00000000-0000-0000-0000-000000000001,2026-02-28T00:00:00.500000,1,'@r,PUT,'	t,"ab",500,error,,"{""e"":1000.0,""u"":"" <>&\u0001"",""big"":12345678901234567890,""dup"":2}"
