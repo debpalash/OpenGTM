@@ -327,3 +327,16 @@ func TestExecuteDeeplyNestedBody(t *testing.T) {
 		t.Fatalf("%+v", res)
 	}
 }
+
+// A vendor error body that echoes the API key must not reach the cell error.
+func TestExecuteScrubsEchoedCredential(t *testing.T) {
+	const key = "sk_live_abc123XYZ"
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, `{"error":true,"message":"Invalid key `+key+` for account"}`)
+	}))
+	defer srv.Close()
+	res := manifest.Execute(context.Background(), clientTo(srv), mk(t, base), nil, creds(map[string]string{"VEND_KEY": key}))
+	if strings.Contains(res.Error, key) || !strings.Contains(res.Error, "Invalid key ***") {
+		t.Fatalf("error %q", res.Error)
+	}
+}

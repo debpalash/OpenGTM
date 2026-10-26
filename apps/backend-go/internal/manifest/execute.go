@@ -14,6 +14,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 )
 
 const maxBodyBytes = 1 << 20
@@ -54,11 +55,11 @@ func ExecuteChecked(ctx context.Context, client *http.Client, m Manifest, lead m
 
 	httpReq, err := buildRequest(rctx, req.Method, target, headers, params, body)
 	if err != nil {
-		return Result{Error: failure(err)}
+		return Result{Error: scrubbed(failure(err), p.Secrets)}
 	}
 	resp, err := client.Do(httpReq)
 	if err != nil {
-		return Result{Error: failure(err)}
+		return Result{Error: scrubbed(failure(err), p.Secrets)}
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 400 {
@@ -66,7 +67,7 @@ func ExecuteChecked(ctx context.Context, client *http.Client, m Manifest, lead m
 	}
 	raw, err := io.ReadAll(io.LimitReader(resp.Body, maxBodyBytes+1))
 	if err != nil {
-		return Result{Error: failure(err), HTTPStatus: resp.StatusCode}
+		return Result{Error: scrubbed(failure(err), p.Secrets), HTTPStatus: resp.StatusCode}
 	}
 	dur := elapsed()
 	var data any
@@ -83,7 +84,7 @@ func ExecuteChecked(ctx context.Context, client *http.Client, m Manifest, lead m
 		if rs.ErrorMessagePath != "" {
 			msg = pyStr(ProjectValue(data, "$."+rs.ErrorMessagePath))
 		}
-		return Result{Error: truncRunes(msg, 120), HTTPStatus: resp.StatusCode, DurationMS: dur}
+		return Result{Error: truncRunes(providers.Scrub(msg, p.Secrets...), 120), HTTPStatus: resp.StatusCode, DurationMS: dur}
 	}
 
 	fields := Normalize(Project(data, rs.Mappings))
@@ -105,6 +106,9 @@ type Prepared struct {
 	Params  map[string]string
 	Body    any
 	Spec    RequestSpec
+	// Secrets are the non-empty credential values resolved for this request; error text that
+	// leaves the package is scrubbed of them.
+	Secrets []string
 }
 
 // SecurityProblem returns a stable refusal reason ("templated_authority" or
@@ -144,6 +148,7 @@ func Prepare(m Manifest, lead map[string]string, cred func(envVar string) (strin
 		return nil, r
 	}
 	allowed := allowedEnvNames(m)
+	var secretVals []string
 	env := func(v string) string {
 		if cred == nil {
 			return ""
@@ -154,6 +159,9 @@ func Prepare(m Manifest, lead map[string]string, cred func(envVar string) (strin
 		s, err := cred(v)
 		if err != nil {
 			return ""
+		}
+		if s != "" {
+			secretVals = append(secretVals, s)
 		}
 		return s
 	}
@@ -201,7 +209,7 @@ func Prepare(m Manifest, lead map[string]string, cred func(envVar string) (strin
 	if err := check(target); err != nil {
 		return nil, "blocked_url: " + truncRunes(blockedReason(err), 60)
 	}
-	return &Prepared{Target: target, Headers: headers, Params: params, Body: body, Spec: req}, ""
+	return &Prepared{Target: target, Headers: headers, Params: params, Body: body, Spec: req, Secrets: secretVals}, ""
 }
 
 func orDefault(s, d string) string {
@@ -258,6 +266,9 @@ func buildRequest(ctx context.Context, method, target string, headers, params ma
 	}
 	return r, nil
 }
+
+// scrubbed removes credential values from error text (the vendor or transport may echo them).
+func scrubbed(s string, secrets []string) string { return providers.Scrub(s, secrets...) }
 
 // failure maps a transport error to the Python error string: "timeout" for
 // deadline/net timeouts, else str(e)[:120]. The *url.Error wrapper is dropped
