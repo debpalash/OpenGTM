@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "expected_column": {
+        "id": "company",
+        "lead_field": "company",
+        "name": "Company",
+        "type": "lead_field",
+        "width": 250
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/workbooks/wb-alpha-2/columns/company"
+  },
+  "response": {
+    "body": {
+      "detail": "Column is referenced by saved views: Sorted by company. Update those views before deleting."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

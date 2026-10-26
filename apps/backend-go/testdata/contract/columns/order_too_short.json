@@ -1,0 +1,38 @@
+{
+  "request": {
+    "body": {
+      "column_ids": [
+        "company",
+        "website",
+        "email",
+        "city",
+        "phone",
+        "email_wf"
+      ],
+      "expected_column_ids": [
+        "company",
+        "website",
+        "email",
+        "city",
+        "phone",
+        "email_wf",
+        "summary"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/columns/order"
+  },
+  "response": {
+    "body": {
+      "detail": "Column order must contain each current column exactly once"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

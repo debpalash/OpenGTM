@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "changes": {
+        "name": "X"
+      },
+      "expected": {
+        "name": "Company"
+      }
+    },
+    "headers": {},
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/columns/company/settings"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

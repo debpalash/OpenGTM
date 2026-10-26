@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "column": {
+        "id": "company",
+        "name": "Dup"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/columns"
+  },
+  "response": {
+    "body": {
+      "detail": "Column identity already exists. Refresh before adding another column."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

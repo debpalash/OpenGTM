@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "changes": {},
+      "expected": {}
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/columns/company/settings"
+  },
+  "response": {
+    "body": {
+      "detail": "Provide supported changes and matching expected fields"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

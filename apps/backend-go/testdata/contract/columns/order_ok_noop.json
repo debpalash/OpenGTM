@@ -1,0 +1,47 @@
+{
+  "request": {
+    "body": {
+      "column_ids": [
+        "summary",
+        "email_wf",
+        "phone",
+        "city",
+        "email",
+        "website",
+        "company"
+      ],
+      "expected_column_ids": [
+        "summary",
+        "email_wf",
+        "phone",
+        "city",
+        "email",
+        "website",
+        "company"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/columns/order"
+  },
+  "response": {
+    "body": {
+      "column_ids": [
+        "summary",
+        "email_wf",
+        "phone",
+        "city",
+        "email",
+        "website",
+        "company"
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "column": {
+        "id": "selfcol",
+        "input_columns": [
+          "selfcol"
+        ],
+        "name": "Selfcol",
+        "prompt": "{selfcol}",
+        "type": "ai_formula"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/columns"
+  },
+  "response": {
+    "body": {
+      "detail": "Column changes introduce circular dependencies affecting: selfcol. Break the circular references before saving."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

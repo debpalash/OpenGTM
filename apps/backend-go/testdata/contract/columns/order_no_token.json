@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": {
+      "column_ids": [
+        "company",
+        "website",
+        "email",
+        "city",
+        "phone",
+        "email_wf",
+        "summary"
+      ],
+      "expected_column_ids": [
+        "company",
+        "website",
+        "email",
+        "city",
+        "phone",
+        "email_wf",
+        "summary"
+      ]
+    },
+    "headers": {},
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/columns/order"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

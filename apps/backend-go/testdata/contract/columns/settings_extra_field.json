@@ -1,0 +1,38 @@
+{
+  "request": {
+    "body": {
+      "changes": {
+        "name": "X"
+      },
+      "expected": {
+        "name": "Company"
+      },
+      "more": 1
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/columns/company/settings"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 1,
+          "loc": [
+            "body",
+            "more"
+          ],
+          "msg": "Extra inputs are not permitted",
+          "type": "extra_forbidden"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

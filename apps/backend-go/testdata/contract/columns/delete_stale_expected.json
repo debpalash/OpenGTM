@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "expected_column": {
+        "id": "n1",
+        "name": "Wrong"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/workbooks/wb-alpha-2/columns/n1"
+  },
+  "response": {
+    "body": {
+      "detail": "Column changed since confirmation. Refresh and review before deleting."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "changes": {
+        "name": "   "
+      },
+      "expected": {
+        "name": "Company"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/columns/company/settings"
+  },
+  "response": {
+    "body": {
+      "detail": "Column name must not be empty"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

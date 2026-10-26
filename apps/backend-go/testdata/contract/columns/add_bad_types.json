@@ -1,0 +1,99 @@
+{
+  "request": {
+    "body": {
+      "column": {
+        "cell_budget_usd": -1,
+        "id": 1,
+        "max_tokens": 0,
+        "name": null,
+        "waterfall": [
+          1
+        ],
+        "width": "x"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/columns"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 1,
+          "loc": [
+            "body",
+            "column",
+            "id"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "input": null,
+          "loc": [
+            "body",
+            "column",
+            "name"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "input": "x",
+          "loc": [
+            "body",
+            "column",
+            "width"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        },
+        {
+          "input": 1,
+          "loc": [
+            "body",
+            "column",
+            "waterfall",
+            0
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "ctx": {
+            "ge": 0.0
+          },
+          "input": -1,
+          "loc": [
+            "body",
+            "column",
+            "cell_budget_usd"
+          ],
+          "msg": "Input should be greater than or equal to 0",
+          "type": "greater_than_equal"
+        },
+        {
+          "ctx": {
+            "gt": 0
+          },
+          "input": 0,
+          "loc": [
+            "body",
+            "column",
+            "max_tokens"
+          ],
+          "msg": "Input should be greater than 0",
+          "type": "greater_than"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

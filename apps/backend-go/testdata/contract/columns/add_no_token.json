@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "column": {
+        "id": "n1",
+        "name": "N1"
+      }
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/columns"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}
