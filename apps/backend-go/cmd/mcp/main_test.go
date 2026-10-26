@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 )
 
 func env(m map[string]string) func(string) string { return func(k string) string { return m[k] } }
@@ -130,5 +133,28 @@ func TestLiveConfigResolvesPerWorkspaceThroughSecrets(t *testing.T) {
 	if r, err := liveConfig(nil, env(nil), nil, sec).HTTP.Get(srv.URL); err == nil {
 		r.Body.Close()
 		t.Fatal("loopback target reachable without EGRESS_ALLOW_HOSTS")
+	}
+}
+
+func TestMainRefusesNonLoopbackWithoutAuth(t *testing.T) {
+	var out, errb bytes.Buffer
+	called := false
+	old := startSSE
+	startSSE = func(context.Context, config.MCP, func(string) string, string, int, io.Writer) error {
+		called = true
+		return nil
+	}
+	t.Cleanup(func() { startSSE = old })
+	code := run([]string{"--sse", "3100"}, env(map[string]string{
+		"OPENGTM_MCP_SSE_HOST": "0.0.0.0", "OPENGTM_MCP_SSE_ALLOW_NONLOOPBACK": "true", "MCP_REQUIRE_AUTH": "false",
+	}), &out, &errb)
+	if code != 1 || called || !strings.Contains(errb.String(), "MCP_REQUIRE_AUTH") || out.Len() != 0 {
+		t.Fatalf("code=%d called=%v err=%q", code, called, errb.String())
+	}
+	// keyless on loopback stays allowed
+	errb.Reset()
+	code = run([]string{"--sse", "3100"}, env(map[string]string{"MCP_REQUIRE_AUTH": "false"}), &out, &errb)
+	if code != 0 || !called {
+		t.Fatalf("loopback keyless: code=%d called=%v err=%q", code, called, errb.String())
 	}
 }
