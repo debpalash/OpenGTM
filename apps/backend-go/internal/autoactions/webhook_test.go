@@ -1023,13 +1023,13 @@ func TestContextDoneDuringResolutionIsNotBlockedURL(t *testing.T) {
 // parsed value (1.50 -> 1.5, 1e2 -> 100.0, -0 -> 0, big ints kept), in the lead body, an ordered
 // config body and a JSON-string body.
 func TestSentBodyCanonicalisesNumbers(t *testing.T) {
-	lead := map[string]any{"a": json.Number("1.50"), "b": json.Number("1e2"), "c": json.Number("-0"), "d": json.Number("12345678901234567890")}
+	lead := map[string]any{"a": json.Number("1.50"), "b": json.Number("1e2"), "c": json.Number("-0"), "d": json.Number("12345678901234567890"), "company": "Hot Pursuit Labs"}
 	cases := []struct {
 		name string
 		cfg  map[string]any
 		want string
 	}{
-		{"lead", map[string]any{}, `{"a":1.5,"b":100.0,"c":0,"d":12345678901234567890}`},
+		{"lead", map[string]any{}, `{"a":1.5,"b":100.0,"c":0,"company":"Hot Pursuit Labs","d":12345678901234567890}`},
 		{"string body", map[string]any{"body": `[1.50, [2.0, 1E2], "{company}"]`}, `[1.5,[2.0,100.0],"Hot Pursuit Labs"]`},
 		{"dict body", map[string]any{"body": map[string]any{"x": json.Number("0.10"), "y": []any{json.Number("3e0")}}}, `{"x":0.1,"y":[3.0]}`},
 	}
