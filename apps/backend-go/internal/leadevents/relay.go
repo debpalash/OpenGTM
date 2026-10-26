@@ -2,6 +2,7 @@ package leadevents
 
 import (
 	"context"
+	"errors"
 	"io"
 	"time"
 
@@ -31,15 +32,25 @@ func NewRelay(c *redis.Client, heartbeat time.Duration) *Relay {
 // ctx is done (then returns nil) or a write fails. Malformed payloads are
 // skipped. A heartbeat is sent after `heartbeat` of silence, including while
 // Redis is unavailable; reconnects back off from 1 s to 5 s. The subscription
-// is always closed on return.
+// is always closed on return. Events dropped by go-redis under load are not
+// reported (parity with a best-effort pub/sub). The caller (the SSE handler)
+// owns per-frame write deadlines for stalled clients, e.g. via
+// http.NewResponseController(w).SetWriteDeadline inside w.
 func (r *Relay) Stream(ctx context.Context, workspaceID string, w io.Writer, flush func()) error {
+	if workspaceID == "" {
+		return errors.New("leadevents: empty workspace id")
+	}
 	var (
 		ps      *redis.PubSub
 		msgs    <-chan *redis.Message
 		retry   <-chan time.Time
+		retryT  *time.Timer
 		backoff = r.minBack
 	)
 	defer func() {
+		if retryT != nil {
+			retryT.Stop()
+		}
 		if ps != nil {
 			_ = ps.Close()
 		}
@@ -58,8 +69,8 @@ func (r *Relay) Stream(ctx context.Context, workspaceID string, w io.Writer, flu
 			_ = ps.Close()
 			ps, msgs = nil, nil
 		}
-		t := time.After(backoff)
-		retry = t
+		retryT = time.NewTimer(backoff)
+		retry = retryT.C
 		if backoff *= 2; backoff > r.maxBack {
 			backoff = r.maxBack
 		}
@@ -107,7 +118,7 @@ func (r *Relay) Stream(ctx context.Context, workspaceID string, w io.Writer, flu
 		case <-retry:
 			connect()
 		case m, ok := <-msgs:
-			if !ok {
+			if !ok { // defensive: go-redis closes the channel only on Close
 				if ctx.Err() != nil {
 					return nil
 				}

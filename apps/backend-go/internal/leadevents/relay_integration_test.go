@@ -5,8 +5,11 @@ package leadevents
 import (
 	"context"
 	"fmt"
+	"io"
+	"net"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -105,18 +108,39 @@ func TestStreamSkipsMalformedPayload(t *testing.T) {
 	}
 }
 
-// Killing the subscriber's connection (what a Redis restart does) must not end
-// the stream; events published afterwards still arrive.
+// Kills only this test's pub/sub connection (by client ID), never the shared
+// Redis' other connections.
 func TestStreamSurvivesRedisRestart(t *testing.T) {
 	c := redisClient(t)
 	ws := uniq(t, "w")
-	r := NewRelay(c, 50*time.Millisecond)
-	r.minBack, r.maxBack = 20*time.Millisecond, 50*time.Millisecond
-	buf, cancel, done := start(t, r, ws)
+	name := uniq(t, "client")
+	opt := c.Options()
+	cp := *opt
+	cp.ClientName = name
+	rc := redis.NewClient(&cp)
+	defer rc.Close()
+	buf, cancel, done := start(t, NewRelay(rc, 50*time.Millisecond), ws)
 	defer func() { cancel(); <-done }()
 	waitFor(t, "subscribe", func() bool { return numsub(t, c, Channel(ws)) == 1 })
 	ctx := context.Background()
-	if err := c.Do(ctx, "CLIENT", "KILL", "TYPE", "pubsub").Err(); err != nil {
+	list, err := c.Do(ctx, "CLIENT", "LIST", "TYPE", "pubsub").Text()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var id string
+	for _, line := range strings.Split(list, "\n") {
+		if strings.Contains(line, "name="+name+" ") {
+			for _, f := range strings.Fields(line) {
+				if strings.HasPrefix(f, "id=") {
+					id = strings.TrimPrefix(f, "id=")
+				}
+			}
+		}
+	}
+	if id == "" {
+		t.Fatalf("pubsub client %q not found", name)
+	}
+	if err := c.Do(ctx, "CLIENT", "KILL", "ID", id).Err(); err != nil {
 		t.Fatal(err)
 	}
 	waitFor(t, "resubscribe", func() bool { return numsub(t, c, Channel(ws)) == 1 })
@@ -126,5 +150,93 @@ func TestStreamSurvivesRedisRestart(t *testing.T) {
 	case err := <-done:
 		t.Fatalf("stream ended: %v", err)
 	default:
+	}
+}
+
+// proxy forwards to target until closed; restart() reopens on the same address.
+type proxy struct {
+	addr, target string
+	mu           sync.Mutex
+	ln           net.Listener
+	conns        []net.Conn
+}
+
+func (p *proxy) open(t *testing.T) {
+	ln, err := net.Listen("tcp", p.addr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p.mu.Lock()
+	p.ln, p.addr = ln, ln.Addr().String()
+	p.mu.Unlock()
+	go func() {
+		for {
+			c, err := ln.Accept()
+			if err != nil {
+				return
+			}
+			u, err := net.Dial("tcp", p.target)
+			if err != nil {
+				c.Close()
+				continue
+			}
+			p.mu.Lock()
+			p.conns = append(p.conns, c, u)
+			p.mu.Unlock()
+			go func() { io.Copy(u, c); u.Close(); c.Close() }()
+			go func() { io.Copy(c, u); u.Close(); c.Close() }()
+		}
+	}()
+}
+
+func (p *proxy) stop() {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.ln.Close()
+	for _, c := range p.conns {
+		c.Close()
+	}
+	p.conns = nil
+}
+
+// Redis unreachable at start and later again: heartbeats keep flowing through
+// the outage and events arrive after recovery (custom backoff reconnect path).
+func TestStreamReconnectsAfterOutage(t *testing.T) {
+	c := redisClient(t)
+	opt := c.Options()
+	p := &proxy{addr: "127.0.0.1:0", target: opt.Addr}
+	p.open(t)
+	addr := p.addr
+	p.stop() // outage before the first subscribe
+	cp := *opt
+	cp.Addr = addr
+	cp.MaxRetries = -1
+	rc := redis.NewClient(&cp)
+	defer rc.Close()
+	r := NewRelay(rc, 30*time.Millisecond)
+	r.minBack, r.maxBack = 40*time.Millisecond, 80*time.Millisecond
+	ws := uniq(t, "w")
+	buf, cancel, done := start(t, r, ws)
+	defer func() { cancel(); <-done; p.stop() }()
+	hbs := func() int { return strings.Count(buf.String(), string(HeartbeatFrame())) }
+	waitFor(t, "heartbeats during outage", func() bool { return hbs() >= 3 })
+	p.addr = addr
+	p.open(t) // Redis recovers
+	waitFor(t, "subscribe after recovery", func() bool { return numsub(t, c, Channel(ws)) == 1 })
+	c.Publish(context.Background(), Channel(ws), `{"type":"back"}`)
+	waitFor(t, "event after recovery", func() bool { return strings.Contains(buf.String(), `"back"`) })
+	// second outage: kill the proxy, heartbeats continue, then recover again
+	p.stop()
+	before := hbs()
+	waitFor(t, "heartbeats in second outage", func() bool { return hbs() >= before+2 })
+	p.open(t)
+	waitFor(t, "resubscribe", func() bool { return numsub(t, c, Channel(ws)) == 1 })
+	c.Publish(context.Background(), Channel(ws), `{"type":"again"}`)
+	waitFor(t, "event after 2nd recovery", func() bool { return strings.Contains(buf.String(), `"again"`) })
+}
+
+func TestStreamRejectsEmptyWorkspace(t *testing.T) {
+	if err := NewRelay(nil, time.Hour).Stream(context.Background(), "", io.Discard, nil); err == nil {
+		t.Fatal("expected error")
 	}
 }
