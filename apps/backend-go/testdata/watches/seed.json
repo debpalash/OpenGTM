@@ -1,0 +1,1498 @@
+{
+ "ws-alpha": {
+  "watch_subscriptions": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "kind",
+    "target",
+    "resolved_cik",
+    "lead_id",
+    "signal_types",
+    "interval",
+    "schedule_anchor",
+    "enabled",
+    "next_poll_at",
+    "cursor",
+    "last_polled_at",
+    "last_error",
+    "consecutive_failures",
+    "created_at",
+    "updated_at",
+    "config"
+   ],
+   "rows": [
+    {
+     "id": "watch-a-01",
+     "workspace_id": "ws-alpha",
+     "kind": "funding",
+     "target": "Stripe Milton LLC",
+     "resolved_cik": "0002000934",
+     "lead_id": 14,
+     "signal_types": [
+      "company_funded",
+      "executive_hired"
+     ],
+     "interval": "daily",
+     "schedule_anchor": "2026-08-29T09:01:00+00:00",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T09:01:00+00:00",
+     "cursor": {
+      "bootstrapped": true,
+      "sec_last_accession": "0002000934-24-000005",
+      "sec_known_execs": [
+       "0002000934:grace hopper:c_level"
+      ]
+     },
+     "last_polled_at": "2026-08-29T09:01:30+00:00",
+     "last_error": null,
+     "consecutive_failures": 0,
+     "created_at": "2026-08-29T09:01:00+00:00",
+     "updated_at": "2026-08-29T09:01:00+00:00",
+     "config": null
+    },
+    {
+     "id": "watch-a-02",
+     "workspace_id": "ws-alpha",
+     "kind": "hiring",
+     "target": "Hot Pursuit Labs",
+     "resolved_cik": null,
+     "lead_id": 14,
+     "signal_types": [
+      "hiring_surge",
+      "new_tech_adopted"
+     ],
+     "interval": "hourly",
+     "schedule_anchor": "2026-08-29T09:02:00+00:00",
+     "enabled": true,
+     "next_poll_at": "2026-08-29T10:02:00+00:00",
+     "cursor": {
+      "bootstrapped": true,
+      "hiring_band": "growing",
+      "hiring_band_week": "2026-W35",
+      "known_tech": {
+       "snowflake": "uses"
+      }
+     },
+     "last_polled_at": "2026-08-29T09:02:30+00:00",
+     "last_error": null,
+     "consecutive_failures": 0,
+     "created_at": "2026-08-29T09:02:00+00:00",
+     "updated_at": "2026-08-29T09:02:00+00:00",
+     "config": null
+    },
+    {
+     "id": "watch-a-03",
+     "workspace_id": "ws-alpha",
+     "kind": "feed",
+     "target": "https://feeds.example.com/news.xml",
+     "resolved_cik": null,
+     "lead_id": 10,
+     "signal_types": [
+      "news"
+     ],
+     "interval": "weekly",
+     "schedule_anchor": "2026-08-29T09:03:00+00:00",
+     "enabled": true,
+     "next_poll_at": "2026-09-05T09:03:00+00:00",
+     "cursor": {
+      "bootstrapped": true,
+      "feed_etag": "\"etag-1\"",
+      "feed_last_modified": "Sat, 29 Aug 2026 09:00:00 GMT",
+      "feed_seen_guids": [
+       "g-1",
+       "g-2"
+      ],
+      "feed_max_published": 1788000000.0
+     },
+     "last_polled_at": "2026-08-29T09:03:30+00:00",
+     "last_error": null,
+     "consecutive_failures": 0,
+     "created_at": "2026-08-29T09:03:00+00:00",
+     "updated_at": "2026-08-29T09:03:00+00:00",
+     "config": null
+    },
+    {
+     "id": "watch-a-04",
+     "workspace_id": "ws-alpha",
+     "kind": "company",
+     "target": "Zenith Robotics Pvt Ltd",
+     "resolved_cik": null,
+     "lead_id": 6,
+     "signal_types": [
+      "company_funded",
+      "executive_hired",
+      "hiring_surge",
+      "new_tech_adopted"
+     ],
+     "interval": "daily",
+     "schedule_anchor": "2026-08-29T09:04:00+00:00",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T09:04:00+00:00",
+     "cursor": {
+      "bootstrapped": false
+     },
+     "last_polled_at": null,
+     "last_error": null,
+     "consecutive_failures": 0,
+     "created_at": "2026-08-29T09:04:00+00:00",
+     "updated_at": "2026-08-29T09:04:00+00:00",
+     "config": null
+    },
+    {
+     "id": "watch-a-05",
+     "workspace_id": "ws-alpha",
+     "kind": "job_change",
+     "target": "Sales roster",
+     "resolved_cik": null,
+     "lead_id": null,
+     "signal_types": [
+      "job_change"
+     ],
+     "interval": "weekly",
+     "schedule_anchor": "2026-08-29T09:05:00+00:00",
+     "enabled": true,
+     "next_poll_at": "2026-09-05T09:05:00+00:00",
+     "cursor": {
+      "bootstrapped": true,
+      "job_change_contacts": {
+       "lead:14": {
+        "last_known_company": "Hot Pursuit Labs",
+        "last_checked_at": 1788000000.0
+       }
+      }
+     },
+     "last_polled_at": "2026-08-29T09:05:30+00:00",
+     "last_error": null,
+     "consecutive_failures": 0,
+     "created_at": "2026-08-29T09:05:00+00:00",
+     "updated_at": "2026-08-29T09:05:00+00:00",
+     "config": {
+      "contacts": [
+       {
+        "lead_id": 14,
+        "name": "Sam Lee",
+        "company": "Hot Pursuit Labs",
+        "linkedin_url": ""
+       },
+       {
+        "name": "Ada Lovelace",
+        "company": "Analytical Engines",
+        "linkedin_url": "https://www.linkedin.com/in/ada-l"
+       }
+      ],
+      "max_contacts_per_poll": 5
+     }
+    },
+    {
+     "id": "watch-a-06",
+     "workspace_id": "ws-alpha",
+     "kind": "account_group",
+     "target": "Automation Matrix accounts",
+     "resolved_cik": null,
+     "lead_id": null,
+     "signal_types": [
+      "partnership_hiring",
+      "leadership_change",
+      "funding",
+      "pricing_page_change"
+     ],
+     "interval": "daily",
+     "schedule_anchor": "2026-08-29T09:06:00+00:00",
+     "enabled": true,
+     "next_poll_at": "2026-08-29T21:06:00+00:00",
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 3,
+      "collector_health": {
+       "acc-1:partnership_hiring": {
+        "state": "failed",
+        "attempt_count": 3,
+        "last_error_class": "hiring_provider_error"
+       }
+      }
+     },
+     "last_polled_at": "2026-08-29T09:06:30+00:00",
+     "last_error": "hiring_provider_error",
+     "consecutive_failures": 1,
+     "created_at": "2026-08-29T09:06:00+00:00",
+     "updated_at": "2026-08-29T09:06:00+00:00",
+     "config": {
+      "workbook_id": "wb-auto-1",
+      "workbook_name": "Automation Matrix",
+      "scope_key": "scope-abc",
+      "accounts": [
+       {
+        "account_id": "acc-1",
+        "lead_id": 14,
+        "company": "Hot Pursuit Labs",
+        "website": "https://hotpursuit.example.com"
+       },
+       {
+        "account_id": "acc-2",
+        "lead_id": 6,
+        "company": "Zenith Robotics Pvt Ltd",
+        "website": "https://zenithrobotics.example.com"
+       },
+       {
+        "account_id": "acc-3",
+        "company": "Unlinked Co",
+        "website": "https://unlinked.example.com"
+       }
+      ]
+     }
+    },
+    {
+     "id": "watch-a-07",
+     "workspace_id": "ws-alpha",
+     "kind": "funding",
+     "target": "Quantum Foods",
+     "resolved_cik": null,
+     "lead_id": 10,
+     "signal_types": [
+      "company_funded"
+     ],
+     "interval": "daily",
+     "schedule_anchor": "2026-08-29T09:07:00+00:00",
+     "enabled": false,
+     "next_poll_at": null,
+     "cursor": {
+      "bootstrapped": true
+     },
+     "last_polled_at": "2026-08-29T09:07:30+00:00",
+     "last_error": null,
+     "consecutive_failures": 0,
+     "created_at": "2026-08-29T09:07:00+00:00",
+     "updated_at": "2026-08-29T09:07:00+00:00",
+     "config": null
+    },
+    {
+     "id": "watch-a-08",
+     "workspace_id": "ws-alpha",
+     "kind": "feed",
+     "target": "https://feeds.example.com/failing.xml",
+     "resolved_cik": null,
+     "lead_id": null,
+     "signal_types": [
+      "news"
+     ],
+     "interval": "daily",
+     "schedule_anchor": "2026-08-29T09:08:00+00:00",
+     "enabled": true,
+     "next_poll_at": "2026-08-29T17:08:00+00:00",
+     "cursor": {
+      "bootstrapped": true
+     },
+     "last_polled_at": "2026-08-29T09:08:30+00:00",
+     "last_error": "http_500",
+     "consecutive_failures": 3,
+     "created_at": "2026-08-29T09:08:00+00:00",
+     "updated_at": "2026-08-29T09:08:00+00:00",
+     "config": null
+    },
+    {
+     "id": "watch-a-09",
+     "workspace_id": "ws-alpha",
+     "kind": "hiring",
+     "target": "Auto Disabled Inc",
+     "resolved_cik": null,
+     "lead_id": null,
+     "signal_types": [
+      "hiring_surge"
+     ],
+     "interval": "hourly",
+     "schedule_anchor": "2026-08-29T09:09:00+00:00",
+     "enabled": false,
+     "next_poll_at": null,
+     "cursor": {
+      "bootstrapped": true
+     },
+     "last_polled_at": "2026-08-29T09:09:30+00:00",
+     "last_error": "auto_disabled",
+     "consecutive_failures": 12,
+     "created_at": "2026-08-29T09:09:00+00:00",
+     "updated_at": "2026-08-29T09:09:00+00:00",
+     "config": null
+    },
+    {
+     "id": "watch-a-10",
+     "workspace_id": "ws-alpha",
+     "kind": "account_group",
+     "target": "Paused group",
+     "resolved_cik": null,
+     "lead_id": null,
+     "signal_types": [
+      "funding"
+     ],
+     "interval": "weekly",
+     "schedule_anchor": "2026-08-29T09:10:00+00:00",
+     "enabled": false,
+     "next_poll_at": null,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "last_polled_at": null,
+     "last_error": null,
+     "consecutive_failures": 0,
+     "created_at": "2026-08-29T09:10:00+00:00",
+     "updated_at": "2026-08-29T09:10:00+00:00",
+     "config": {
+      "workbook_id": "wb-auto-1",
+      "workbook_name": "Paused Matrix",
+      "scope_key": "scope-paused",
+      "accounts": [
+       {
+        "account_id": "acc-1",
+        "lead_id": 14,
+        "company": "Hot Pursuit Labs",
+        "website": "https://hotpursuit.example.com"
+       }
+      ]
+     }
+    },
+    {
+     "id": "watch-a-11",
+     "workspace_id": "ws-alpha",
+     "kind": "account_group",
+     "target": "Healthy group",
+     "resolved_cik": null,
+     "lead_id": null,
+     "signal_types": [
+      "pricing_page_change",
+      "funding"
+     ],
+     "interval": "daily",
+     "schedule_anchor": "2026-08-29T09:11:00+00:00",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T09:11:00+00:00",
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 2,
+      "collector_health": {
+       "acc-2:funding": {
+        "state": "healthy",
+        "attempt_count": 2,
+        "last_error_class": null
+       }
+      }
+     },
+     "last_polled_at": "2026-08-29T09:11:30+00:00",
+     "last_error": null,
+     "consecutive_failures": 0,
+     "created_at": "2026-08-29T09:11:00+00:00",
+     "updated_at": "2026-08-29T09:11:00+00:00",
+     "config": {
+      "workbook_id": "wb-auto-1",
+      "workbook_name": "Healthy Matrix",
+      "scope_key": "scope-healthy",
+      "accounts": [
+       {
+        "account_id": "acc-2",
+        "lead_id": 6,
+        "company": "Zenith Robotics Pvt Ltd",
+        "website": "https://zenithrobotics.example.com"
+       },
+       {
+        "account_id": "acc-3",
+        "company": "Unlinked Co",
+        "website": "https://unlinked.example.com"
+       }
+      ]
+     }
+    },
+    {
+     "id": "watch-a-12",
+     "workspace_id": "ws-alpha",
+     "kind": "company",
+     "target": "Rate Limited Co",
+     "resolved_cik": null,
+     "lead_id": 4,
+     "signal_types": [
+      "hiring_surge"
+     ],
+     "interval": "daily",
+     "schedule_anchor": "2026-08-29T09:12:00+00:00",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T09:12:00+00:00",
+     "cursor": {
+      "bootstrapped": true
+     },
+     "last_polled_at": "2100-01-01T00:00:00+00:00",
+     "last_error": null,
+     "consecutive_failures": 0,
+     "created_at": "2026-08-29T09:12:00+00:00",
+     "updated_at": "2026-08-29T09:12:00+00:00",
+     "config": null
+    }
+   ]
+  },
+  "watch_schedules": {
+   "columns": [
+    "watch_id",
+    "workspace_id",
+    "next_poll_at",
+    "enabled",
+    "updated_at"
+   ],
+   "rows": [
+    {
+     "watch_id": "watch-a-01",
+     "workspace_id": "ws-alpha",
+     "next_poll_at": "2026-08-30T09:01:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T09:01:00+00:00"
+    },
+    {
+     "watch_id": "watch-a-02",
+     "workspace_id": "ws-alpha",
+     "next_poll_at": "2026-08-29T10:02:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T09:02:00+00:00"
+    },
+    {
+     "watch_id": "watch-a-03",
+     "workspace_id": "ws-alpha",
+     "next_poll_at": "2026-09-05T09:03:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T09:03:00+00:00"
+    },
+    {
+     "watch_id": "watch-a-04",
+     "workspace_id": "ws-alpha",
+     "next_poll_at": "2026-08-30T09:04:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T09:04:00+00:00"
+    },
+    {
+     "watch_id": "watch-a-05",
+     "workspace_id": "ws-alpha",
+     "next_poll_at": "2026-09-05T09:05:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T09:05:00+00:00"
+    },
+    {
+     "watch_id": "watch-a-06",
+     "workspace_id": "ws-alpha",
+     "next_poll_at": "2026-08-29T21:06:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T09:06:00+00:00"
+    },
+    {
+     "watch_id": "watch-a-08",
+     "workspace_id": "ws-alpha",
+     "next_poll_at": "2026-08-29T17:08:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T09:08:00+00:00"
+    },
+    {
+     "watch_id": "watch-a-11",
+     "workspace_id": "ws-alpha",
+     "next_poll_at": "2026-08-30T09:11:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T09:11:00+00:00"
+    },
+    {
+     "watch_id": "watch-a-12",
+     "workspace_id": "ws-alpha",
+     "next_poll_at": "2026-08-30T09:12:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T09:12:00+00:00"
+    }
+   ]
+  },
+  "poll_budget_ledger": {
+   "columns": [
+    "workspace_id",
+    "day",
+    "n",
+    "n_poll_now"
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-alpha",
+     "day": "2026-08-29",
+     "n": 7,
+     "n_poll_now": 2
+    }
+   ]
+  },
+  "signals": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "lead_id",
+    "company",
+    "signal_type",
+    "title",
+    "description",
+    "source",
+    "source_url",
+    "weight",
+    "created_at",
+    "read"
+   ],
+   "rows": [
+    {
+     "id": "sig-a-01",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "funding",
+     "title": "funding signal 1",
+     "description": "Seeded funding event #1 for contract fixtures",
+     "source": "newsapi",
+     "source_url": "https://signals.example.com/a/1",
+     "weight": 11,
+     "created_at": 1788000000,
+     "read": false
+    },
+    {
+     "id": "sig-a-02",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "tech_change",
+     "title": "tech_change signal 2",
+     "description": "Seeded tech_change event #2 for contract fixtures",
+     "source": "crunchbase",
+     "source_url": "https://signals.example.com/a/2",
+     "weight": 8,
+     "created_at": 1788000000,
+     "read": false
+    },
+    {
+     "id": "sig-a-03",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "news",
+     "title": "news signal 3",
+     "description": "Seeded news event #3 for contract fixtures",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/a/3",
+     "weight": 5,
+     "created_at": 1788000000,
+     "read": true
+    },
+    {
+     "id": "sig-a-04",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "growth",
+     "title": "growth signal 4",
+     "description": "Seeded growth event #4 for contract fixtures",
+     "source": "newsapi",
+     "source_url": "https://signals.example.com/a/4",
+     "weight": 8,
+     "created_at": 1787996400,
+     "read": false
+    },
+    {
+     "id": "sig-a-05",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "hiring",
+     "title": "hiring signal 5",
+     "description": "Seeded hiring event #5 for contract fixtures",
+     "source": "crunchbase",
+     "source_url": "https://signals.example.com/a/5",
+     "weight": 10,
+     "created_at": 1787996400,
+     "read": false
+    },
+    {
+     "id": "sig-a-06",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "funding",
+     "title": "funding signal 6",
+     "description": "Seeded funding event #6 for contract fixtures",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/a/6",
+     "weight": 10,
+     "created_at": 1788010800,
+     "read": true
+    },
+    {
+     "id": "sig-a-07",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "tech_change",
+     "title": "",
+     "description": "Seeded tech_change event #7 for contract fixtures",
+     "source": "newsapi",
+     "source_url": "https://signals.example.com/a/7",
+     "weight": 7,
+     "created_at": 1788010800,
+     "read": false
+    },
+    {
+     "id": "sig-a-08",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "news",
+     "title": "news signal 8",
+     "description": "Seeded news event #8 for contract fixtures",
+     "source": "crunchbase",
+     "source_url": "https://signals.example.com/a/8",
+     "weight": 7,
+     "created_at": 1788018000.5,
+     "read": false
+    },
+    {
+     "id": "sig-a-09",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "growth",
+     "title": "growth signal 9",
+     "description": "Seeded growth event #9 for contract fixtures",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/a/9",
+     "weight": 7,
+     "created_at": 1787992800,
+     "read": true
+    },
+    {
+     "id": "sig-a-10",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "hiring",
+     "title": "hiring signal 10",
+     "description": "Seeded hiring event #10 for contract fixtures",
+     "source": "newsapi",
+     "source_url": "https://signals.example.com/a/10",
+     "weight": 9,
+     "created_at": 1787992800,
+     "read": false
+    },
+    {
+     "id": "sig-a-11",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "funding",
+     "title": "funding signal 11",
+     "description": "Seeded funding event #11 for contract fixtures",
+     "source": "crunchbase",
+     "source_url": "https://signals.example.com/a/11",
+     "weight": 12,
+     "created_at": 1787992800,
+     "read": false
+    },
+    {
+     "id": "sig-a-12",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "tech_change",
+     "title": "tech_change signal 12",
+     "description": "Seeded tech_change event #12 for contract fixtures",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/a/12",
+     "weight": 6,
+     "created_at": 1787913600,
+     "read": true
+    },
+    {
+     "id": "sig-a-13",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "news",
+     "title": "news signal 13",
+     "description": "Seeded news event #13 for contract fixtures",
+     "source": "newsapi",
+     "source_url": "https://signals.example.com/a/13",
+     "weight": 6,
+     "created_at": 1787913600,
+     "read": false
+    },
+    {
+     "id": "sig-a-14",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "growth",
+     "title": "",
+     "description": "Seeded growth event #14 for contract fixtures",
+     "source": "crunchbase",
+     "source_url": "https://signals.example.com/a/14",
+     "weight": 9,
+     "created_at": 1787909999.876544,
+     "read": false
+    },
+    {
+     "id": "sig-a-15",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "hiring",
+     "title": "hiring signal 15",
+     "description": "Seeded hiring event #15 for contract fixtures",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/a/15",
+     "weight": 8,
+     "created_at": 1787827200,
+     "read": true
+    },
+    {
+     "id": "sig-a-16",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "funding",
+     "title": "funding signal 16",
+     "description": "Seeded funding event #16 for contract fixtures",
+     "source": "newsapi",
+     "source_url": "https://signals.example.com/a/16",
+     "weight": 11,
+     "created_at": 1787827200,
+     "read": false
+    },
+    {
+     "id": "sig-a-17",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "tech_change",
+     "title": "tech_change signal 17",
+     "description": "Seeded tech_change event #17 for contract fixtures",
+     "source": "crunchbase",
+     "source_url": "https://signals.example.com/a/17",
+     "weight": 8,
+     "created_at": 1787827200,
+     "read": false
+    },
+    {
+     "id": "sig-a-18",
+     "workspace_id": "ws-alpha",
+     "lead_id": 10,
+     "company": "Quantum Foods",
+     "signal_type": "news",
+     "title": "news signal 18",
+     "description": "Seeded news event #18 for contract fixtures",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/a/18",
+     "weight": 5,
+     "created_at": 1787827200,
+     "read": true
+    },
+    {
+     "id": "sig-a-19",
+     "workspace_id": "ws-alpha",
+     "lead_id": 10,
+     "company": "Quantum Foods",
+     "signal_type": "growth",
+     "title": "growth signal 19",
+     "description": "Seeded growth event #19 for contract fixtures",
+     "source": "newsapi",
+     "source_url": "https://signals.example.com/a/19",
+     "weight": 8,
+     "created_at": 1787740800,
+     "read": false
+    },
+    {
+     "id": "sig-a-20",
+     "workspace_id": "ws-alpha",
+     "lead_id": 10,
+     "company": "Quantum Foods",
+     "signal_type": "hiring",
+     "title": "hiring signal 20",
+     "description": "Seeded hiring event #20 for contract fixtures",
+     "source": "crunchbase",
+     "source_url": "https://signals.example.com/a/20",
+     "weight": 10,
+     "created_at": 1788043200,
+     "read": false
+    },
+    {
+     "id": "sig-a-21",
+     "workspace_id": "ws-alpha",
+     "lead_id": 10,
+     "company": "Quantum Foods",
+     "signal_type": "funding",
+     "title": "",
+     "description": "Seeded funding event #21 for contract fixtures",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/a/21",
+     "weight": 10,
+     "created_at": 1788043200,
+     "read": true
+    },
+    {
+     "id": "sig-a-22",
+     "workspace_id": "ws-alpha",
+     "lead_id": 10,
+     "company": "Quantum Foods",
+     "signal_type": "tech_change",
+     "title": "tech_change signal 22",
+     "description": "Seeded tech_change event #22 for contract fixtures",
+     "source": "newsapi",
+     "source_url": "https://signals.example.com/a/22",
+     "weight": 7,
+     "created_at": 1787654400,
+     "read": false
+    },
+    {
+     "id": "sig-a-23",
+     "workspace_id": "ws-alpha",
+     "lead_id": 4,
+     "company": "\u00c9co Solutions Pvt Ltd",
+     "signal_type": "news",
+     "title": "news signal 23",
+     "description": "Seeded news event #23 for contract fixtures",
+     "source": "crunchbase",
+     "source_url": "https://signals.example.com/a/23",
+     "weight": 7,
+     "created_at": 1787568000,
+     "read": false
+    },
+    {
+     "id": "sig-a-24",
+     "workspace_id": "ws-alpha",
+     "lead_id": 4,
+     "company": "\u00c9co Solutions Pvt Ltd",
+     "signal_type": "growth",
+     "title": "growth signal 24",
+     "description": "Seeded growth event #24 for contract fixtures",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/a/24",
+     "weight": 7,
+     "created_at": 1787568000,
+     "read": true
+    },
+    {
+     "id": "sig-a-25",
+     "workspace_id": "ws-alpha",
+     "lead_id": 4,
+     "company": "\u00c9co Solutions Pvt Ltd",
+     "signal_type": "hiring",
+     "title": "hiring signal 25",
+     "description": "Seeded hiring event #25 for contract fixtures",
+     "source": "newsapi",
+     "source_url": "https://signals.example.com/a/25",
+     "weight": 9,
+     "created_at": 1787481600,
+     "read": false
+    },
+    {
+     "id": "sig-a-26",
+     "workspace_id": "ws-alpha",
+     "lead_id": 4,
+     "company": "\u00c9co Solutions Pvt Ltd",
+     "signal_type": "funding",
+     "title": "funding signal 26",
+     "description": "Seeded funding event #26 for contract fixtures",
+     "source": "crunchbase",
+     "source_url": "https://signals.example.com/a/26",
+     "weight": 12,
+     "created_at": 1788000003.5,
+     "read": false
+    },
+    {
+     "id": "sig-a-27",
+     "workspace_id": "ws-alpha",
+     "lead_id": 0,
+     "company": "",
+     "signal_type": "tech_change",
+     "title": "tech_change signal 27",
+     "description": "Seeded tech_change event #27 for contract fixtures",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/a/27",
+     "weight": 6,
+     "created_at": 1788000007.25,
+     "read": true
+    },
+    {
+     "id": "sig-a-28",
+     "workspace_id": "ws-alpha",
+     "lead_id": 0,
+     "company": "",
+     "signal_type": "news",
+     "title": "",
+     "description": "Seeded news event #28 for contract fixtures",
+     "source": "newsapi",
+     "source_url": "https://signals.example.com/a/28",
+     "weight": 6,
+     "created_at": 1787395200,
+     "read": false
+    },
+    {
+     "id": "sig-a-29",
+     "workspace_id": "ws-alpha",
+     "lead_id": 0,
+     "company": "",
+     "signal_type": "growth",
+     "title": "growth signal 29",
+     "description": "Seeded growth event #29 for contract fixtures",
+     "source": "crunchbase",
+     "source_url": "https://signals.example.com/a/29",
+     "weight": 9,
+     "created_at": 1787395200,
+     "read": false
+    },
+    {
+     "id": "sig-a-30",
+     "workspace_id": "ws-alpha",
+     "lead_id": 0,
+     "company": "",
+     "signal_type": "hiring",
+     "title": "hiring signal 30",
+     "description": "Seeded hiring event #30 for contract fixtures",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/a/30",
+     "weight": 8,
+     "created_at": 1786790400,
+     "read": true
+    },
+    {
+     "id": "sig-p-01",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "company_funded",
+     "title": "company_funded 1",
+     "description": "Poller company_funded event #1",
+     "source": "sec_edgar",
+     "source_url": "https://signals.example.com/p/1",
+     "weight": 10,
+     "created_at": 1788000000,
+     "read": false
+    },
+    {
+     "id": "sig-p-02",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "executive_hired",
+     "title": "executive_hired 2",
+     "description": "Poller executive_hired event #2",
+     "source": "sec_edgar",
+     "source_url": "https://signals.example.com/p/2",
+     "weight": 8,
+     "created_at": 1787999940,
+     "read": false
+    },
+    {
+     "id": "sig-p-03",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "hiring_surge",
+     "title": "hiring_surge 3",
+     "description": "Poller hiring_surge event #3",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/p/3",
+     "weight": 7,
+     "created_at": 1787999940,
+     "read": false
+    },
+    {
+     "id": "sig-p-04",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "new_tech_adopted",
+     "title": "new_tech_adopted 4",
+     "description": "Poller new_tech_adopted event #4",
+     "source": "website",
+     "source_url": "https://signals.example.com/p/4",
+     "weight": 6,
+     "created_at": 1787999880,
+     "read": true
+    },
+    {
+     "id": "sig-p-05",
+     "workspace_id": "ws-alpha",
+     "lead_id": 10,
+     "company": "Quantum Foods",
+     "signal_type": "news",
+     "title": "news 5",
+     "description": "Poller news event #5",
+     "source": "rss",
+     "source_url": "https://signals.example.com/p/5",
+     "weight": 5,
+     "created_at": 1787999880,
+     "read": false
+    },
+    {
+     "id": "sig-p-06",
+     "workspace_id": "ws-alpha",
+     "lead_id": 10,
+     "company": "Quantum Foods",
+     "signal_type": "news",
+     "title": "news 6",
+     "description": "Poller news event #6",
+     "source": "rss",
+     "source_url": "https://signals.example.com/p/6",
+     "weight": 5,
+     "created_at": 1787999820,
+     "read": false
+    },
+    {
+     "id": "sig-p-07",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "company_funded",
+     "title": "company_funded 7",
+     "description": "Poller company_funded event #7",
+     "source": "sec_edgar",
+     "source_url": "https://signals.example.com/p/7",
+     "weight": 10,
+     "created_at": 1787999760,
+     "read": false
+    },
+    {
+     "id": "sig-p-08",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "hiring_surge",
+     "title": "hiring_surge 8",
+     "description": "Poller hiring_surge event #8",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/p/8",
+     "weight": 7,
+     "created_at": 1787999700,
+     "read": true
+    },
+    {
+     "id": "sig-p-09",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "job_change",
+     "title": "job_change 9",
+     "description": "Poller job_change event #9",
+     "source": "ddg_linkedin",
+     "source_url": "https://signals.example.com/p/9",
+     "weight": 9,
+     "created_at": 1787999640,
+     "read": false
+    },
+    {
+     "id": "sig-p-10",
+     "workspace_id": "ws-alpha",
+     "lead_id": 0,
+     "company": "Analytical Engines",
+     "signal_type": "job_change",
+     "title": "job_change 10",
+     "description": "Poller job_change event #10",
+     "source": "ddg_linkedin",
+     "source_url": "https://signals.example.com/p/10",
+     "weight": 9,
+     "created_at": 1787999580,
+     "read": false
+    },
+    {
+     "id": "sig-p-11",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "partnership_hiring",
+     "title": "partnership_hiring 11",
+     "description": "Poller partnership_hiring event #11",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/p/11",
+     "weight": 8,
+     "created_at": 1787999520,
+     "read": false
+    },
+    {
+     "id": "sig-p-12",
+     "workspace_id": "ws-alpha",
+     "lead_id": 0,
+     "company": "Unlinked Co",
+     "signal_type": "partnership_hiring",
+     "title": "partnership_hiring 12",
+     "description": "Poller partnership_hiring event #12",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/p/12",
+     "weight": 8,
+     "created_at": 1787999460,
+     "read": true
+    },
+    {
+     "id": "sig-p-13",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "leadership_change",
+     "title": "leadership_change 13",
+     "description": "Poller leadership_change event #13",
+     "source": "sec_edgar",
+     "source_url": "https://signals.example.com/p/13",
+     "weight": 8,
+     "created_at": 1787999400,
+     "read": false
+    },
+    {
+     "id": "sig-p-14",
+     "workspace_id": "ws-alpha",
+     "lead_id": 0,
+     "company": "UNLINKED CO",
+     "signal_type": "leadership_change",
+     "title": "leadership_change 14",
+     "description": "Poller leadership_change event #14",
+     "source": "sec_edgar",
+     "source_url": "https://signals.example.com/p/14",
+     "weight": 8,
+     "created_at": 1787999340,
+     "read": false
+    },
+    {
+     "id": "sig-p-15",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "funding",
+     "title": "funding 15",
+     "description": "Poller funding event #15",
+     "source": "sec_edgar",
+     "source_url": "https://signals.example.com/p/15",
+     "weight": 10,
+     "created_at": 1787999280,
+     "read": false
+    },
+    {
+     "id": "sig-p-16",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "funding",
+     "title": "funding 16",
+     "description": "Poller funding event #16",
+     "source": "sec_edgar",
+     "source_url": "https://signals.example.com/p/16",
+     "weight": 10,
+     "created_at": 1787999220,
+     "read": true
+    },
+    {
+     "id": "sig-p-17",
+     "workspace_id": "ws-alpha",
+     "lead_id": 0,
+     "company": "unlinked co",
+     "signal_type": "pricing_page_change",
+     "title": "pricing_page_change 17",
+     "description": "Poller pricing_page_change event #17",
+     "source": "company_website",
+     "source_url": "https://signals.example.com/p/17",
+     "weight": 8,
+     "created_at": 1787999160,
+     "read": false
+    },
+    {
+     "id": "sig-p-18",
+     "workspace_id": "ws-alpha",
+     "lead_id": 6,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "pricing_page_change",
+     "title": "pricing_page_change 18",
+     "description": "Poller pricing_page_change event #18",
+     "source": "company_website",
+     "source_url": "https://signals.example.com/p/18",
+     "weight": 8,
+     "created_at": 1787999100,
+     "read": false
+    },
+    {
+     "id": "sig-p-19",
+     "workspace_id": "ws-alpha",
+     "lead_id": 14,
+     "company": "Hot Pursuit Labs",
+     "signal_type": "news",
+     "title": "news 19",
+     "description": "Poller news event #19",
+     "source": "rss",
+     "source_url": "https://signals.example.com/p/19",
+     "weight": 5,
+     "created_at": 1787999040,
+     "read": false
+    },
+    {
+     "id": "sig-p-20",
+     "workspace_id": "ws-alpha",
+     "lead_id": 4,
+     "company": "Eco Solutions Pvt Ltd",
+     "signal_type": "company_funded",
+     "title": "company_funded 20",
+     "description": "Poller company_funded event #20",
+     "source": "sec_edgar",
+     "source_url": "https://signals.example.com/p/20",
+     "weight": 10,
+     "created_at": 1787998980,
+     "read": true
+    },
+    {
+     "id": "sig-p-21",
+     "workspace_id": "ws-alpha",
+     "lead_id": 4,
+     "company": "Eco Solutions Pvt Ltd",
+     "signal_type": "hiring_surge",
+     "title": "hiring_surge 21",
+     "description": "Poller hiring_surge event #21",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/p/21",
+     "weight": 7,
+     "created_at": 1787998920,
+     "read": false
+    },
+    {
+     "id": "sig-p-22",
+     "workspace_id": "ws-alpha",
+     "lead_id": 0,
+     "company": "",
+     "signal_type": "news",
+     "title": "news 22",
+     "description": "Poller news event #22",
+     "source": "rss",
+     "source_url": "https://signals.example.com/p/22",
+     "weight": 5,
+     "created_at": 1787998860,
+     "read": false
+    }
+   ]
+  }
+ },
+ "ws-beta": {
+  "watch_subscriptions": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "kind",
+    "target",
+    "resolved_cik",
+    "lead_id",
+    "signal_types",
+    "interval",
+    "schedule_anchor",
+    "enabled",
+    "next_poll_at",
+    "cursor",
+    "last_polled_at",
+    "last_error",
+    "consecutive_failures",
+    "created_at",
+    "updated_at",
+    "config"
+   ],
+   "rows": [
+    {
+     "id": "watch-b-01",
+     "workspace_id": "ws-beta",
+     "kind": "funding",
+     "target": "Initech Two",
+     "resolved_cik": null,
+     "lead_id": 16,
+     "signal_types": [
+      "company_funded"
+     ],
+     "interval": "daily",
+     "schedule_anchor": "2026-08-29T09:20:00+00:00",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T09:20:00+00:00",
+     "cursor": {
+      "bootstrapped": true
+     },
+     "last_polled_at": null,
+     "last_error": null,
+     "consecutive_failures": 0,
+     "created_at": "2026-08-29T09:20:00+00:00",
+     "updated_at": "2026-08-29T09:20:00+00:00",
+     "config": null
+    },
+    {
+     "id": "watch-b-02",
+     "workspace_id": "ws-beta",
+     "kind": "feed",
+     "target": "https://feeds.example.com/beta.xml",
+     "resolved_cik": null,
+     "lead_id": null,
+     "signal_types": [
+      "news"
+     ],
+     "interval": "daily",
+     "schedule_anchor": "2026-08-29T09:21:00+00:00",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T09:21:00+00:00",
+     "cursor": {
+      "bootstrapped": true
+     },
+     "last_polled_at": null,
+     "last_error": null,
+     "consecutive_failures": 0,
+     "created_at": "2026-08-29T09:21:00+00:00",
+     "updated_at": "2026-08-29T09:21:00+00:00",
+     "config": null
+    }
+   ]
+  },
+  "watch_schedules": {
+   "columns": [
+    "watch_id",
+    "workspace_id",
+    "next_poll_at",
+    "enabled",
+    "updated_at"
+   ],
+   "rows": [
+    {
+     "watch_id": "watch-b-01",
+     "workspace_id": "ws-beta",
+     "next_poll_at": "2026-08-30T09:20:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T09:20:00+00:00"
+    },
+    {
+     "watch_id": "watch-b-02",
+     "workspace_id": "ws-beta",
+     "next_poll_at": "2026-08-30T09:21:00+00:00",
+     "enabled": true,
+     "updated_at": "2026-08-29T09:21:00+00:00"
+    }
+   ]
+  },
+  "poll_budget_ledger": {
+   "columns": [
+    "workspace_id",
+    "day",
+    "n",
+    "n_poll_now"
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-beta",
+     "day": "2026-10-26",
+     "n": 60,
+     "n_poll_now": 50
+    }
+   ]
+  },
+  "signals": {
+   "columns": [
+    "id",
+    "workspace_id",
+    "lead_id",
+    "company",
+    "signal_type",
+    "title",
+    "description",
+    "source",
+    "source_url",
+    "weight",
+    "created_at",
+    "read"
+   ],
+   "rows": [
+    {
+     "id": "sig-b-01",
+     "workspace_id": "ws-beta",
+     "lead_id": 17,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "funding",
+     "title": "beta funding 1",
+     "description": "beta tenant signal",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/b/1",
+     "weight": 10,
+     "created_at": 1787998200,
+     "read": false
+    },
+    {
+     "id": "sig-b-02",
+     "workspace_id": "ws-beta",
+     "lead_id": 18,
+     "company": "Initech Two",
+     "signal_type": "tech_change",
+     "title": "beta tech_change 2",
+     "description": "beta tenant signal",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/b/2",
+     "weight": 6,
+     "created_at": 1787996400,
+     "read": false
+    },
+    {
+     "id": "sig-b-03",
+     "workspace_id": "ws-beta",
+     "lead_id": 17,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "news",
+     "title": "beta news 3",
+     "description": "beta tenant signal",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/b/3",
+     "weight": 5,
+     "created_at": 1787994600,
+     "read": false
+    },
+    {
+     "id": "sig-b-04",
+     "workspace_id": "ws-beta",
+     "lead_id": 18,
+     "company": "Initech Two",
+     "signal_type": "growth",
+     "title": "beta growth 4",
+     "description": "beta tenant signal",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/b/4",
+     "weight": 7,
+     "created_at": 1787992800,
+     "read": false
+    },
+    {
+     "id": "sig-b-05",
+     "workspace_id": "ws-beta",
+     "lead_id": 17,
+     "company": "Zenith Robotics Pvt Ltd",
+     "signal_type": "hiring",
+     "title": "beta hiring 5",
+     "description": "beta tenant signal",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/b/5",
+     "weight": 8,
+     "created_at": 1787991000,
+     "read": false
+    },
+    {
+     "id": "sig-b-06",
+     "workspace_id": "ws-beta",
+     "lead_id": 18,
+     "company": "Initech Two",
+     "signal_type": "funding",
+     "title": "beta funding 6",
+     "description": "beta tenant signal",
+     "source": "jobspy",
+     "source_url": "https://signals.example.com/b/6",
+     "weight": 10,
+     "created_at": 1787989200,
+     "read": false
+    },
+    {
+     "id": "sig-p-b-01",
+     "workspace_id": "ws-beta",
+     "lead_id": 16,
+     "company": "Initech Two",
+     "signal_type": "company_funded",
+     "title": "beta funding",
+     "description": "beta",
+     "source": "sec_edgar",
+     "source_url": "https://signals.example.com/p/b1",
+     "weight": 10,
+     "created_at": 1788000000,
+     "read": false
+    }
+   ]
+  }
+ }
+}
