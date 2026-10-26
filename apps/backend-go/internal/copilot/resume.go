@@ -20,6 +20,27 @@ const (
 	approvalTTL = time.Hour
 )
 
+// MaxApproved is the largest approved_tool_calls list ResolveApproved accepts; callers check it before
+// the response starts so an oversized list can be answered with a status.
+const MaxApproved = maxApproved
+
+// FinishFault ends a turn whose ResolveApproved failed: a *turnErr becomes its fixed error frame and [DONE],
+// any other failure the generic interrupted frame; a cancelled context writes nothing (the client is gone).
+func (t *Turn) FinishFault(ctx context.Context, w *ssestream.Writer, err error) {
+	if err == nil || ctx.Err() != nil {
+		return
+	}
+	text := errTextInterrupted
+	var te *turnErr
+	if errors.As(err, &te) {
+		text = te.text
+	}
+	t.logger().Warn("copilot approval resume ended with an error frame", "conversation", t.ConvID, "reason", err.Error())
+	if t.emitKey(w, "error", []byte(jstr(text))) == nil {
+		_ = w.Done()
+	}
+}
+
 // ErrTooManyApprovals is returned, before anything is consumed, when approved_tool_calls has more than 20 items.
 var ErrTooManyApprovals = errors.New("copilot: too many approved tool calls")
 

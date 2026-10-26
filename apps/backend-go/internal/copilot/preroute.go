@@ -12,6 +12,11 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ssestream"
 )
 
+// ErrPreRouteOpen is returned by PreRoute, with nothing written, when Turn.OpenFault reports that the HTTP
+// response has not started and the pre-route failed before producing any frame. Python pulls the first
+// frame before building the response, so there such a fault fails the request; the caller answers 5xx.
+var ErrPreRouteOpen = errors.New("copilot: pre-route unavailable")
+
 // errWorkerError marks a terminal error frame from the worker. Its message is never forwarded or logged.
 var errWorkerError = errors.New("copilot: preroute worker reported an error")
 
@@ -34,6 +39,14 @@ func (t *Turn) PreRoute(ctx context.Context, w *ssestream.Writer, lastUserMsg st
 	if err != nil {
 		return true, t.preFail(w, &turnErr{errTextTools, err})
 	}
+	seen := false // a frame reached us: the stream is no longer a clean open failure
+	fail := func(te *turnErr) error {
+		if !seen && t.OpenFault != nil && t.OpenFault() {
+			t.logger().Warn("copilot preroute failed before any frame", "conversation", t.ConvID, "reason", te.err.Error())
+			return fmt.Errorf("%w: %v", ErrPreRouteOpen, te.err)
+		}
+		return t.preFail(w, te)
+	}
 	body := map[string]any{
 		"workspace_id": t.WS, "slug": t.Slug, "conversation_id": t.ConvID,
 		"last_user_message": lastUserMsg, "has_approved_calls": hasApproved,
@@ -48,7 +61,7 @@ func (t *Turn) PreRoute(ctx context.Context, w *ssestream.Writer, lastUserMsg st
 		if ctx.Err() != nil {
 			return false, ctx.Err()
 		}
-		return true, t.preFail(w, &turnErr{errTextInterrupted, err})
+		return true, fail(&turnErr{errTextInterrupted, err})
 	}
 	defer st.Close()
 
@@ -92,7 +105,10 @@ func (t *Turn) PreRoute(ctx context.Context, w *ssestream.Writer, lastUserMsg st
 				if ctx.Err() != nil {
 					return wrote, ctx.Err()
 				}
-				return true, t.preFail(w, &turnErr{errTextInterrupted, it.err})
+				return true, fail(&turnErr{errTextInterrupted, it.err})
+			}
+			if it.f.T == "sse" || it.f.T == "persist" {
+				seen = true
 			}
 			done, handled, err := t.preFrame(ctx, w, it.f, &wrote)
 			if err != nil {
@@ -101,7 +117,7 @@ func (t *Turn) PreRoute(ctx context.Context, w *ssestream.Writer, lastUserMsg st
 				}
 				var te *turnErr
 				if errors.As(err, &te) {
-					return true, t.preFail(w, te)
+					return true, fail(te)
 				}
 				return true, err // the client's connection is gone
 			}

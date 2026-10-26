@@ -72,6 +72,9 @@ type Turn struct {
 	Auth copilotauth.Resolved
 	// Seen is the per-turn dedup cache (name|sorted-args -> result). Created on first use.
 	Seen map[string]string
+	// OpenFault, when set, reports that the HTTP response has not started. PreRoute then returns
+	// ErrPreRouteOpen, writing nothing, for a fault before its first frame, so the caller can answer 5xx.
+	OpenFault func() bool
 	// OnEvent, when set, receives the exact JSON of every data frame just before it is written (persistence).
 	OnEvent func(raw []byte)
 }
