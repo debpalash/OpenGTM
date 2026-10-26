@@ -52,6 +52,8 @@ type Config struct {
 	DebugAddr             string
 	AppEnv                string
 	EgressAllowHosts      []string
+	// Flags carries only AutomationsEnabled on the worker (strict-parsed).
+	Flags Flags
 
 	// CredentialsSource is "http" (Python internal endpoint, default) or
 	// "local" (resolve in-process from PostgreSQL via internal/secrets).
@@ -128,6 +130,9 @@ func load(get func(string) string) (Config, error) {
 		if h = strings.TrimSpace(h); h != "" {
 			c.EgressAllowHosts = append(c.EgressAllowHosts, h)
 		}
+	}
+	if c.Flags.AutomationsEnabled, err = boolVar(get, "AUTOMATIONS_ENABLED", false); err != nil {
+		return Config{}, err
 	}
 	if c.InternalServiceToken == "" {
 		return Config{}, errors.New("config: INTERNAL_SERVICE_TOKEN is required")

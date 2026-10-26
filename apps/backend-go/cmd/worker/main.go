@@ -10,7 +10,6 @@ import (
 	"os/signal"
 	"runtime/debug"
 	"strconv"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -177,16 +176,6 @@ func guarded(ctx context.Context, log *slog.Logger, rn runner, c *queue.Claim) (
 	return rn(ctx, c)
 }
 
-// envBool reads a Python-style boolean flag (default false); the worker's
-// config does not carry AUTOMATIONS_ENABLED.
-func envBool(name string) bool {
-	switch strings.ToLower(strings.TrimSpace(os.Getenv(name))) {
-	case "1", "true", "yes", "on", "t", "y":
-		return true
-	}
-	return false
-}
-
 func hostname() string {
 	h, err := os.Hostname()
 	if err != nil || h == "" {
@@ -336,7 +325,7 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 	// ambitionbox_import: the client is built on the SSRF-guarded egress client;
 	// the failure hook reconciles run and workbook after a persisted failure.
 	abDeps := ambitionimport.Deps{Pool: pool, Fetcher: ambitionbox.NewEgress(cfg.AppEnv, cfg.EgressAllowHosts),
-		Hook: automationhook.New(envBool("AUTOMATIONS_ENABLED"), log), Progress: prog, Log: log}
+		Hook: automationhook.New(cfg.Flags.AutomationsEnabled, log), Progress: prog, Log: log}
 	queue.AllowJobType(ambitionimport.JobType)
 	ambitionimport.RegisterFailureHook(abDeps)
 	block := time.Duration(0)
