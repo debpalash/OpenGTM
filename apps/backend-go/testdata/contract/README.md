@@ -86,3 +86,13 @@ Review `git diff` of the fixtures after re-recording: a changed fixture is a cha
   100,000 entries / 5 s; when capped the body gains `project_size_partial: true` (key absent otherwise). Result cached 30 s.
   A client-cancelled request is not logged.
 - Listing order keeps the Python quirk: files before folders, each group by `modified` descending.
+
+## Workbook row cursors (Task 8): deviations
+- Row ordering uses `coalesce(position, 0)`. FastAPI orders raw `position` (NULLs last in offset mode) and its cursor
+  predicate `position > cursor` silently drops NULL-position rows after page 1; Go pages them without skips or
+  duplicates. Only legacy rows with a NULL `position` are affected.
+- Cursor compatibility during an nginx canary: row cursors and short query cursors (v1) issued by either stack decode on
+  the other. Long-value cursors (v2, issued when a sort value makes the v1 cursor exceed 512 characters, roughly 380+
+  bytes) are bound to a scope hash of the issuing stack's SQL, so an in-flight v2 cursor answers 400
+  `Invalid workbook row cursor; restart pagination` on the other stack. Clients restart pagination.
+- Connector-run cursors keep `created_at.isoformat()` of the timezone-aware column (`+00:00`, microseconds only when non-zero).
