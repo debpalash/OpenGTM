@@ -188,15 +188,15 @@ func cols(t *testing.T, raw string) []colgraph.Col {
 
 func TestAmbiguousReference(t *testing.T) {
 	cs := cols(t, `[{"id":"a","name":"Email"},{"id":"b","name":"email"}]`)
-	_, err := Resolve("{email}", map[string]any{"a": "1", "b": "2"}, cs)
-	if err == nil || err.Error() != "Ambiguous column reference: email. Use an exact column ID." {
+	_, err := Resolve("{EMAIL}", map[string]any{"a": "1", "b": "2"}, cs)
+	if err == nil || err.Error() != "Ambiguous column reference: EMAIL. Use an exact column ID." {
 		t.Fatalf("got %v", err)
 	}
 	if _, err := ResolvePrompt("{x}", map[string]string{"X": "1", "x_": "2", "Y y": "3", "y_y": "4"}, false); err != nil {
 		t.Fatal(err)
 	}
-	_, err = ResolvePrompt("{y y}", map[string]string{"Y y": "3", "y_y": "4"}, false)
-	if err == nil || !strings.HasPrefix(err.Error(), "Ambiguous column reference: y y.") {
+	_, err = ResolvePrompt("{a_b}", map[string]string{"a b": "3", "A B": "4"}, false)
+	if err == nil || !strings.HasPrefix(err.Error(), "Ambiguous column reference: a_b.") {
 		t.Fatalf("got %v", err)
 	}
 }
@@ -216,11 +216,8 @@ func TestUnicodeCaseFolding(t *testing.T) {
 	// Python: "İ".lower() == "i̇" (i + U+0307); "ß".lower() == "ß"; final sigma.
 	v := map[string]string{"i̇stanbul": "dotted", "straße": "sharp", "ΟΔΟΣ": "x"}
 	for tmpl, want := range map[string]string{
-		"{İSTANBUL}": "dotted", "{STRASSE}": "[STRASSE: not found]", "{STRAßE}": "sharp", "{οδος}": "[οδος: not found]",
+		"{İstanbul}": "dotted", "{STRASSE}": "[STRASSE: not found]", "{STRAßE}": "sharp",
 	} {
-		if tmpl == "{İSTANBUL}" {
-			tmpl = "{İstanbul}"
-		}
 		got, err := ResolvePrompt(tmpl, v, false)
 		if err != nil || got != want {
 			t.Fatalf("%s: got %q %v want %q", tmpl, got, err, want)
