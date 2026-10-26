@@ -54,36 +54,47 @@ func ambiguous(key string) error {
 	return errors.New("Ambiguous column reference: " + key + ". Use an exact column ID.")
 }
 
-// ResolvePrompt is _resolve_prompt: exact key, then case-insensitive, then
-// case-insensitive with underscores as spaces; several distinct candidate
-// texts are ambiguous.
-func ResolvePrompt(tmpl string, values map[string]string, strict bool) (string, error) {
+// resolver holds the lowered/normalized lookup maps for one values map so a
+// ResolveDeep call builds them once.
+type resolver struct {
+	values              map[string]string
+	built               bool
+	lowered, normalized map[string]string
+	loweredAmb, normAmb map[string]bool
+}
+
+func (r *resolver) build() {
+	if r.built {
+		return
+	}
+	r.built = true
+	r.lowered, r.normalized = map[string]string{}, map[string]string{}
+	r.loweredAmb, r.normAmb = map[string]bool{}, map[string]bool{}
+	add := func(m map[string]string, amb map[string]bool, k, v string) {
+		if old, ok := m[k]; ok && old != v {
+			amb[k] = true
+		}
+		m[k] = v
+	}
+	for k, v := range r.values {
+		l := pyLower(k)
+		add(r.lowered, r.loweredAmb, l, v)
+		add(r.normalized, r.normAmb, strings.ReplaceAll(l, "_", " "), v)
+	}
+}
+
+// resolve substitutes placeholders; budget (remaining output bytes, shared
+// across calls) is decremented and exceeding it is ErrTooLarge.
+func (r *resolver) resolve(tmpl string, strict bool, budget *int) (string, error) {
 	ms, err := checkTemplate(tmpl)
 	if err != nil {
 		return "", err
 	}
 	if len(ms) == 0 {
+		if *budget -= len(tmpl); *budget < 0 {
+			return "", ErrTooLarge
+		}
 		return tmpl, nil
-	}
-	var lowered, normalized map[string]string
-	var loweredAmb, normAmb map[string]bool
-	build := func() {
-		if lowered != nil {
-			return
-		}
-		lowered, normalized = map[string]string{}, map[string]string{}
-		loweredAmb, normAmb = map[string]bool{}, map[string]bool{}
-		add := func(m map[string]string, amb map[string]bool, k, v string) {
-			if old, ok := m[k]; ok && old != v {
-				amb[k] = true
-			}
-			m[k] = v
-		}
-		for k, v := range values {
-			l := pyLower(k)
-			add(lowered, loweredAmb, l, v)
-			add(normalized, normAmb, strings.ReplaceAll(l, "_", " "), v)
-		}
 	}
 	var out strings.Builder
 	last := 0
@@ -92,22 +103,22 @@ func ResolvePrompt(tmpl string, values map[string]string, strict bool) (string, 
 		last = m[1]
 		key := pyStrip(tmpl[m[2]:m[3]])
 		var rep string
-		if v, ok := values[key]; ok {
+		if v, ok := r.values[key]; ok {
 			rep = v
 		} else {
-			build()
+			r.build()
 			kl := pyLower(key)
-			if loweredAmb[kl] {
+			if r.loweredAmb[kl] {
 				return "", ambiguous(key)
 			}
-			if v, ok := lowered[kl]; ok {
+			if v, ok := r.lowered[kl]; ok {
 				rep = v
 			} else {
 				kn := strings.ReplaceAll(kl, "_", " ")
-				if normAmb[kn] {
+				if r.normAmb[kn] {
 					return "", ambiguous(key)
 				}
-				if v, ok := normalized[kn]; ok {
+				if v, ok := r.normalized[kn]; ok {
 					rep = v
 				} else if strict {
 					return "", errors.New("Unknown column reference: " + key + ". Fix the template before sending.")
@@ -117,7 +128,7 @@ func ResolvePrompt(tmpl string, values map[string]string, strict bool) (string, 
 			}
 		}
 		out.WriteString(rep)
-		if out.Len() > MaxOutputBytes {
+		if out.Len() > MaxOutputBytes || out.Len() > *budget {
 			return "", ErrTooLarge
 		}
 	}
@@ -125,7 +136,18 @@ func ResolvePrompt(tmpl string, values map[string]string, strict bool) (string, 
 	if out.Len() > MaxOutputBytes {
 		return "", ErrTooLarge
 	}
+	if *budget -= out.Len(); *budget < 0 {
+		return "", ErrTooLarge
+	}
 	return out.String(), nil
+}
+
+// ResolvePrompt is _resolve_prompt: exact key, then case-insensitive, then
+// case-insensitive with underscores as spaces; several distinct candidate
+// texts are ambiguous.
+func ResolvePrompt(tmpl string, values map[string]string, strict bool) (string, error) {
+	budget := MaxOutputBytes
+	return (&resolver{values: values}).resolve(tmpl, strict, &budget)
 }
 
 // Resolve is output._resolve: validate references, build lead values, resolve
@@ -134,20 +156,45 @@ func Resolve(tmpl string, leadData map[string]any, cols []colgraph.Col) (string,
 	if err := ValidateTemplateReferences(tmpl, cols); err != nil {
 		return "", err
 	}
-	return ResolvePrompt(tmpl, LeadValues(leadData, cols), true)
+	budget := MaxOutputBytes
+	return (&resolver{values: LeadValues(leadData, cols)}).resolve(tmpl, true, &budget)
 }
+
+// MaxDeepNodes bounds the values visited by one ResolveDeep call; the total
+// resolved string output is bounded by MaxOutputBytes (D4).
+const MaxDeepNodes = 10000
 
 // ResolveDeep is output._resolve_deep: resolves placeholders in the string
 // values of a dict/list/str (keys untouched). colgraph.Col dicts keep key order
-// and stay Col; map[string]any stays a map; other values pass through.
+// and stay Col; map[string]any stays a map; other values pass through. Lead
+// values and lookup maps are built once per call.
 func ResolveDeep(v any, leadData map[string]any, cols []colgraph.Col) (any, error) {
+	d := &deep{cols: cols, budget: MaxOutputBytes, nodes: MaxDeepNodes}
+	d.r = &resolver{values: LeadValues(leadData, cols)}
+	return d.walk(v)
+}
+
+type deep struct {
+	cols   []colgraph.Col
+	r      *resolver
+	budget int
+	nodes  int
+}
+
+func (d *deep) walk(v any) (any, error) {
+	if d.nodes--; d.nodes < 0 {
+		return nil, ErrTooLarge
+	}
 	switch t := v.(type) {
 	case string:
-		return Resolve(t, leadData, cols)
+		if err := ValidateTemplateReferences(t, d.cols); err != nil {
+			return nil, err
+		}
+		return d.r.resolve(t, true, &d.budget)
 	case colgraph.Col:
 		out := colgraph.Col{Keys: append([]string(nil), t.Keys...), Vals: make(map[string]any, len(t.Vals))}
 		for _, k := range t.Keys {
-			r, err := ResolveDeep(t.Vals[k], leadData, cols)
+			r, err := d.walk(t.Vals[k])
 			if err != nil {
 				return nil, err
 			}
@@ -157,7 +204,7 @@ func ResolveDeep(v any, leadData map[string]any, cols []colgraph.Col) (any, erro
 	case map[string]any:
 		out := make(map[string]any, len(t))
 		for k, e := range t {
-			r, err := ResolveDeep(e, leadData, cols)
+			r, err := d.walk(e)
 			if err != nil {
 				return nil, err
 			}
@@ -167,7 +214,7 @@ func ResolveDeep(v any, leadData map[string]any, cols []colgraph.Col) (any, erro
 	case []any:
 		out := make([]any, len(t))
 		for i, e := range t {
-			r, err := ResolveDeep(e, leadData, cols)
+			r, err := d.walk(e)
 			if err != nil {
 				return nil, err
 			}
