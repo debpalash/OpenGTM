@@ -34,7 +34,7 @@
           "status": "idle",
           "sync_to_leads": false,
           "total_rows": 0,
-          "updated_at": "2026-10-26T10:28:59.532444"
+          "updated_at": "2026-10-26T10:35:55.044041"
         },
         {
           "columns_config": [
@@ -170,7 +170,7 @@
           "status": "idle",
           "sync_to_leads": false,
           "total_rows": 25,
-          "updated_at": "2026-10-26T10:28:59.507374"
+          "updated_at": "2026-10-26T10:35:55.018205"
         }
       ]
     },
