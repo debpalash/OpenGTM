@@ -30,6 +30,9 @@ const CallTimeout = 15 * time.Second
 type Response struct {
 	Status int
 	Body   []byte
+	// Header is the response header (set by Do; providers that need cookies or
+	// Location read it).
+	Header http.Header
 }
 
 // Req is one outbound request. Query keeps insertion order (httpx does not
@@ -87,7 +90,7 @@ func Do(ctx context.Context, c *http.Client, r Req, secrets ...string) (Response
 	if len(b) > MaxBody {
 		return Response{}, &Failure{msg: fmt.Sprintf("response body exceeds %d bytes", MaxBody)}
 	}
-	return Response{Status: resp.StatusCode, Body: b}, nil
+	return Response{Status: resp.StatusCode, Body: b, Header: resp.Header}, nil
 }
 
 // Failure is a scrubbed transport-level failure.
