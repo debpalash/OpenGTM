@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -95,46 +96,32 @@ func TestListSortingAndHiddenFiles(t *testing.T) {
 	time.Local = time.UTC
 	t.Cleanup(func() { time.Local = old })
 
-	for _, legacy := range []bool{false, true} {
+	names := func(legacy bool) []string {
 		l, err := New(data, legacy).List("")
 		if err != nil {
 			t.Fatal(err)
 		}
-		var names []string
-		for _, e := range l {
-			names = append(names, e.Name)
-		}
-		// Python quirk kept for parity: reverse=True on (not is_dir, modified) puts FILES first.
-		// "escape" (symlink to a dir outside) is skipped in hardened mode only.
-		want := []string{"f.zzz", "e.pdf", "d.wav", "c.PNG", "b.mp4", "a.txt", "escapefile", "emptydir", "sub"}
-		if legacy {
-			want = nil
-		}
-		if !legacy {
-			for i, w := range want {
-				if i >= len(names) || names[i] != w {
-					// escapefile is a symlink to an outside file: hidden in hardened mode.
-					want = append(want[:6], want[7:]...)
-					break
-				}
-			}
-			if len(names) != len(want) {
-				t.Fatalf("hardened names = %v", names)
-			}
-			for i := range want {
-				if names[i] != want[i] {
-					t.Fatalf("hardened names = %v, want %v", names, want)
-				}
-			}
-		}
+		var out []string
 		for _, e := range l {
 			if e.Name == ".hidden" {
 				t.Errorf("hidden file listed (legacy=%v)", legacy)
 			}
+			out = append(out, e.Name)
 		}
-		if l[0].Modified != "2026-01-06T10:00:00" || l[0].Type != "other" || l[0].Size != 2 || l[0].Path != "f.zzz" {
-			t.Errorf("entry = %+v", l[0])
-		}
+		return out
+	}
+	// Python quirk kept for parity: reverse=True on (not is_dir, modified) puts FILES first.
+	// Hardened mode hides symlinks that point outside the data dir ("escape", "escapefile").
+	got := strings.Join(names(false), ",")
+	if want := "f.zzz,e.pdf,d.wav,c.PNG,b.mp4,a.txt,emptydir,sub"; got != want {
+		t.Fatalf("hardened order = %s, want %s", got, want)
+	}
+	if lg := names(true); len(lg) != 10 {
+		t.Errorf("legacy lists symlinks too, got %v", lg)
+	}
+	first, _ := New(data, false).List("")
+	if e := first[0]; e.Modified != "2026-01-06T10:00:00" || e.Type != "other" || e.Size != 2 || e.Path != "f.zzz" {
+		t.Errorf("entry = %+v", e)
 	}
 	l, _ := New(data, false).List("")
 	types := map[string]string{}
