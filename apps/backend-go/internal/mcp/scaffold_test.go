@@ -6,6 +6,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 )
@@ -132,5 +134,25 @@ func TestNilPortReturnsUnavailable(t *testing.T) {
 	if readTools(d) != nil || enrichTools(d) != nil || leadWriteTools(d) != nil ||
 		workbookWriteTools(d) != nil || outreachWriteTools(d) != nil || automationWriteTools(d) != nil {
 		t.Fatal("constructors must return nil in the scaffold")
+	}
+}
+
+func TestRunInWorkspace(t *testing.T) {
+	if err := (Deps{}).RunInWorkspace(context.Background(), "w", nil); !errors.Is(err, ErrUnavailable) {
+		t.Fatal(err)
+	}
+	called := ""
+	d := Deps{InWorkspace: func(ctx context.Context, ws string, fn func(pgx.Tx) error) error { called = ws; return fn(nil) }}
+	if err := d.RunInWorkspace(context.Background(), "w1", func(pgx.Tx) error { return nil }); err != nil || called != "w1" {
+		t.Fatal(err, called)
+	}
+	d = Deps{InWorkspace: nilTxRunner}
+	if err := d.RunInWorkspace(context.Background(), "w", func(tx pgx.Tx) error {
+		if tx != nil {
+			t.Fatal("want nil tx")
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
 	}
 }

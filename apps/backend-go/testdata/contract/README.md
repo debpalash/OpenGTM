@@ -422,3 +422,7 @@ writes nothing. No fixture; tests named in parentheses.
 - `SetPolicy` stores `json.Marshal(policy)` (sorted keys) and returns a map; the route must emit `refresh_policy` before `next_in_minutes`.
 - A payload `workspace_id` that differs from the claim's workspace is an error; neither present is an error (like `workspace_scope`).
 - The next refresh uses `Deps.NextExecutor` (default `go`); Python picks it per cohort. Task 22 wires it from the cohort resolver.
+
+## MCP (plan 13)
+
+- `HTTPError.Detail` (internal/mcp, `AutomationPort.ValidateRule`): Python renders `str(he.detail)`; a non-string detail is a Python repr (dict/list text) that a Go adapter cannot reproduce byte for byte. Accepted deviation; string details match.

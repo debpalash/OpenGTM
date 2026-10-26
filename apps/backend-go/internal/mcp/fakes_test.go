@@ -169,7 +169,7 @@ func (f *fakeAutomation) CreateTrigger(context.Context, pgx.Tx, string, RuleInpu
 	f.Rules++
 	return f.Stored, f.Err
 }
-func (f *fakeAutomation) BootstrapSchedule(_ context.Context, _ pgx.Tx, _, id string) error {
+func (f *fakeAutomation) BootstrapSchedule(_ context.Context, _, id string) error {
 	f.Bootstrap = append(f.Bootstrap, id)
 	return f.Err
 }
@@ -181,3 +181,6 @@ var (
 	_ OutreachPort   = (*fakeOutreach)(nil)
 	_ AutomationPort = (*fakeAutomation)(nil)
 )
+
+// nilTxRunner is a Deps.InWorkspace for tests: fn runs with a nil tx.
+func nilTxRunner(_ context.Context, _ string, fn func(pgx.Tx) error) error { return fn(nil) }

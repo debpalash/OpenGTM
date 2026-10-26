@@ -35,7 +35,11 @@ type Ctx struct {
 // Has reports whether the token holds capability cap.
 func (c Ctx) Has(cap string) bool { return c.Capabilities[cap] }
 
-// Tool is a read tool. Handler returns the text payload of the tool result.
+// Tool is a read tool. Handler returns the text payload of the tool result and
+// opens its own transaction with Deps.RunInWorkspace. Error contract: only
+// *ArgError, ErrUnavailable (see IsUnavailable) and *HTTPError carry text that is
+// safe to show a client (check with errors.As/Is); the pipeline must mask every
+// other error (pgx and driver text) as "internal error".
 type Tool struct {
 	Name, Capability string
 	Handler          func(ctx context.Context, c Ctx, args Args) (string, error)
@@ -45,6 +49,13 @@ type Tool struct {
 // reservation, idempotency, audit). Roles is the live role floor; Gate returns
 // a refusal reason ("" = allowed) evaluated before any reservation; Apply runs
 // inside the pipeline's workspace transaction and returns the text payload.
+//
+// Apply contract: a returned error rolls the transaction back and frees the cap
+// slot; so does a result whose JSON object has an "error" key (the Python rule).
+// Results without an "error" key commit and settle the cap, including
+// {"status":"not_found"} and the idempotent "duplicate" replies (as Python does).
+// Error text follows the Tool.Handler safe-error contract. Best-effort steps
+// that must not abort the transaction run post-commit, never inside Apply.
 type WriteTool struct {
 	Name, Capability string
 	Roles            []string
@@ -61,6 +72,8 @@ func IsUnavailable(err error) bool {
 }
 
 // HTTPError is a REST-style rejection surfaced by AutomationPort.ValidateRule.
+// Detail is the REST detail text; a non-string Python detail (a repr) is an
+// accepted deviation (testdata/contract/README.md, MCP section).
 type HTTPError struct {
 	Status int
 	Detail string
@@ -186,6 +199,15 @@ func (a Args) IntList(key string) ([]int64, bool, error) {
 	return out, true, nil
 }
 
+// RunInWorkspace runs fn through d.InWorkspace, or returns ErrUnavailable when
+// no runner is wired.
+func (d Deps) RunInWorkspace(ctx context.Context, ws string, fn func(pgx.Tx) error) error {
+	if d.InWorkspace == nil {
+		return ErrUnavailable
+	}
+	return d.InWorkspace(ctx, ws, fn)
+}
+
 // Lead, ListParams and StatsResult are the plan 05 read models; Stats is the
 // ordered get_stats result (key order is wire parity).
 type (
@@ -196,8 +218,9 @@ type (
 	Column = wbcrud.Column
 )
 
-// LeadFields is an allowlisted, non-null lead write payload keyed by column
-// name (the _LEAD_WRITE_FIELDS set); values are strings.
+// LeadFields is a lead write payload keyed by column name with untyped JSON
+// values. The _LEAD_WRITE_FIELDS allowlist (19 names, null values dropped) is
+// enforced by the tool before it calls the port, not by the port.
 type LeadFields map[string]any
 
 // LeadPort is the workspace-scoped lead store. Every method runs inside the
@@ -231,6 +254,8 @@ type EnrichPort interface {
 }
 
 // WorkbookPort creates and deletes workbooks inside the pipeline transaction.
+// For every port method taking ws and a tx, ws must equal Ctx.WorkspaceID (the
+// workspace the tx is bound to); tools pass c.WorkspaceID and nothing else.
 type WorkbookPort interface {
 	Create(ctx context.Context, tx pgx.Tx, ws, name, description string, columns []Column) (id string, err error)
 	Delete(ctx context.Context, tx pgx.Tx, ws, id string) (found bool, err error)
@@ -264,7 +289,7 @@ type OutreachPort interface {
 // RuleInput is a create_automation request after argument validation.
 type RuleInput struct {
 	Name              string
-	TriggerType       string
+	TriggerType       *string // nil = missing (Python passes None through to _validate_rule)
 	TriggerConfig     json.RawMessage
 	Condition         string
 	Actions           json.RawMessage
@@ -278,17 +303,26 @@ type RuleInput struct {
 
 // AutomationPort is the plan 07 trigger store (D9). ValidateRule returns
 // *HTTPError for a REST-style rejection; CreateTrigger returns the stored rule
-// as an ordered JSON object (Trigger.to_api).
+// as an ordered JSON object (Trigger.to_api). BootstrapSchedule is a best-effort
+// post-commit hook (Python runs it after the commit and swallows errors): the
+// pipeline calls it only after the write transaction committed, outside any tx,
+// and logs (never returns) its error; the adapter opens its own transaction.
 type AutomationPort interface {
 	CountRules(ctx context.Context, tx pgx.Tx, ws string) (int, error)
 	ValidateRule(ctx context.Context, tx pgx.Tx, ws string, r RuleInput) *HTTPError
 	CreateTrigger(ctx context.Context, tx pgx.Tx, ws string, r RuleInput) (json.RawMessage, error)
-	BootstrapSchedule(ctx context.Context, tx pgx.Tx, ws string, id string) error
+	BootstrapSchedule(ctx context.Context, ws, id string) error
 }
 
 // Deps wires the ports. A nil port is allowed: the accessors return a port whose
 // every method answers ErrUnavailable.
 type Deps struct {
+	// InWorkspace runs fn in a transaction bound to workspace ws (production:
+	// tenancy.InWorkspace with the pool closed over). Reads, audit and cap
+	// reservation all go through it. Nil means no database: RunInWorkspace
+	// answers ErrUnavailable. Tests use nilTxRunner (fn gets a nil tx).
+	InWorkspace func(ctx context.Context, ws string, fn func(pgx.Tx) error) error
+
 	Cfg        Config
 	Leads      LeadPort
 	Enrich     EnrichPort
@@ -395,6 +429,6 @@ func (noAutomation) ValidateRule(context.Context, pgx.Tx, string, RuleInput) *HT
 func (noAutomation) CreateTrigger(context.Context, pgx.Tx, string, RuleInput) (json.RawMessage, error) {
 	return nil, ErrUnavailable
 }
-func (noAutomation) BootstrapSchedule(context.Context, pgx.Tx, string, string) error {
+func (noAutomation) BootstrapSchedule(context.Context, string, string) error {
 	return ErrUnavailable
 }
