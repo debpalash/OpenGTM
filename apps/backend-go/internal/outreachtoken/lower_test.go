@@ -9,21 +9,21 @@ import (
 // Expected values recorded from Python str.strip().lower().
 func TestPyLowerStripSigmaMatchesPython(t *testing.T) {
 	cases := map[string]string{
-		"aΣ.b":      "aσ.b",
-		"aΣ":        "aς",
-		"Σ":         "σ",
-		"aΣb":       "aσb",
-		"a.Σ":       "a.ς",
-		"aΣ.":       "aς.",
-		"aΣ'b":      "aσ'b",
+		"aΣ.b": "aσ.b",
+		"aΣ":   "aς",
+		"Σ":    "σ",
+		"aΣb":  "aσb",
+		"a.Σ":  "a.ς",
+		"aΣ.":  "aς.",
+		"aΣ'b": "aσ'b",
 		"世Σ":   "σ",
 		"aΣ́":  "aς́",
 		"aΣ́b": "aσ́b",
 		"ΑΣ":   "ας",
-		"a Σ":       "a σ",
-		"a1Σ":       "a1σ",
+		"a Σ":  "a σ",
+		"a1Σ":  "a1σ",
 		"aΣ·b": "aσ·b",
-		"aΣ:b":      "aσ:b",
+		"aΣ:b": "aσ:b",
 	}
 	cases["世Σ"] = "世σ"
 	for in, want := range cases {

@@ -12,6 +12,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -137,6 +138,12 @@ func pyInt(raw json.RawMessage) (int64, bool) {
 	}
 	var f float64
 	if json.Unmarshal(raw, &f) == nil {
+		switch {
+		case f >= math.MaxInt64:
+			return math.MaxInt64, true // Python big int: never expired
+		case f <= math.MinInt64:
+			return math.MinInt64, true
+		}
 		return int64(f), true
 	}
 	var str string
@@ -200,8 +207,8 @@ func pyLowerStrip(s string) string {
 		case r == 0x130:
 			out.WriteString("i̇")
 		case r == 'Σ':
-			before := i > 0 && unicode.IsLetter(rs[i-1])
-			after := i+1 < len(rs) && unicode.IsLetter(rs[i+1])
+			before := casedBefore(rs, i)
+			after := casedAfter(rs, i)
 			if before && !after {
 				out.WriteRune('ς')
 			} else {
@@ -212,4 +219,41 @@ func pyLowerStrip(s string) string {
 		}
 	}
 	return out.String()
+}
+
+// isCased is Unicode Cased: Lu, Ll, Lt plus Other_Lowercase/Other_Uppercase.
+func isCased(r rune) bool {
+	return unicode.IsUpper(r) || unicode.IsLower(r) || unicode.IsTitle(r) ||
+		unicode.Is(unicode.Other_Lowercase, r) || unicode.Is(unicode.Other_Uppercase, r)
+}
+
+// isCaseIgnorable is Unicode Case_Ignorable: Mn, Me, Cf, Lm, Sk plus the
+// Word_Break MidLetter/MidNumLet/Single_Quote characters.
+func isCaseIgnorable(r rune) bool {
+	switch r {
+	case '\'', '.', ':', '^', '`', 0xa8, 0xad, 0xaf, 0xb4, 0xb7, 0xb8, 0x2018, 0x2019, 0x2024, 0x2027,
+		0xfe13, 0xfe52, 0xfe55, 0xff07, 0xff0e, 0xff1a, 0x387, 0x55f, 0x5f4:
+		return true
+	}
+	return unicode.In(r, unicode.Mn, unicode.Me, unicode.Cf, unicode.Lm, unicode.Sk)
+}
+
+func casedBefore(rs []rune, i int) bool {
+	for j := i - 1; j >= 0; j-- {
+		if isCaseIgnorable(rs[j]) {
+			continue
+		}
+		return isCased(rs[j])
+	}
+	return false
+}
+
+func casedAfter(rs []rune, i int) bool {
+	for j := i + 1; j < len(rs); j++ {
+		if isCaseIgnorable(rs[j]) {
+			continue
+		}
+		return isCased(rs[j])
+	}
+	return false
 }
