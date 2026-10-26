@@ -843,9 +843,9 @@ func orEmptyGet(v any, key string) (any, error) {
 }
 
 // GetContacts fetches recent contacts. As Python, any HTTP or decoding failure
-// (and a missing token) yields an empty list; only a cancelled ctx is an error.
-func (h *HubSpot) GetContacts(ctx context.Context, ws string, limit int) ([]map[string]any, error) {
-	empty := []map[string]any{}
+// (and a missing token) yields an empty list; results are raw JSON elements; only a cancelled ctx is an error.
+func (h *HubSpot) GetContacts(ctx context.Context, ws string, limit int) ([]json.RawMessage, error) {
+	empty := []json.RawMessage{}
 	tok := h.token(ctx, ws)
 	if tok == "" {
 		return empty, nil
@@ -869,14 +869,17 @@ func (h *HubSpot) GetContacts(ctx context.Context, ws string, limit int) ([]map[
 	if err != nil {
 		return empty, nil
 	}
-	list, _ := results.([]any)
-	out := make([]map[string]any, 0, len(list))
-	for _, o := range list {
-		if m, ok := o.(map[string]any); ok {
-			out = append(out, m)
-		}
+	if _, isList := results.([]any); !isList {
+		return empty, nil
 	}
-	return out, nil
+	// Results are passed through as HubSpot sent them (key order, non-object elements).
+	var raw struct {
+		Results []json.RawMessage `json:"results"`
+	}
+	if err := json.Unmarshal(r.body, &raw); err != nil || raw.Results == nil {
+		return empty, nil
+	}
+	return raw.Results, nil
 }
 
 func jsonMarshalNoEscape(v any) ([]byte, error) {
