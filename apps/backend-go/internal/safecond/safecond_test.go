@@ -333,7 +333,7 @@ func TestCaseInsensitiveLookupManyKeys(t *testing.T) {
 	for i := 0; i < 2000; i++ {
 		cells[fmt.Sprintf("Key%d", i)] = "1"
 	}
-	c := strings.Repeat("{key7} == 1 AND ", 200) + "{KEY1999} == 1"
+	c := strings.Repeat("{key7} == 1 AND ", 300) + "{KEY1999} == 1"
 	if r := Evaluate(c, cells, nil); !r.Passed {
 		t.Errorf("%+v", r)
 	}

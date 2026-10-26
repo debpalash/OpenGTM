@@ -1,0 +1,29 @@
+{
+ "description": "DDG transport failure -> success false, error = exception class",
+ "http_status": 200,
+ "request": {
+  "call_id": "watch:w-1:fk-1:ddgs_transport_error:0",
+  "input": {
+   "max_results": 8,
+   "query": "\"Ada Lovelace\" site:linkedin.com/in"
+  },
+  "provider": "ddgs_search",
+  "timeout_s": 10,
+  "workspace_id": "ws-1"
+ },
+ "response": {
+  "cost_usd": 0.0,
+  "error": "RuntimeError",
+  "output": {
+   "billing_evidence": null,
+   "confidence": 0.0,
+   "error": "RuntimeError",
+   "fields": {},
+   "license": "unknown",
+   "provider": "ddgs_search",
+   "success": false
+  },
+  "status": "error"
+ },
+ "scenario": "ddgs_transport_error"
+}

@@ -1,0 +1,553 @@
+{
+ "lower": [
+  {
+   "in": "",
+   "out": ""
+  },
+  {
+   "in": "ABC",
+   "out": "abc"
+  },
+  {
+   "in": "İSTANBUL",
+   "out": "i̇stanbul"
+  },
+  {
+   "in": "İ",
+   "out": "i̇"
+  },
+  {
+   "in": "ΣΑΣ",
+   "out": "σας"
+  },
+  {
+   "in": "ΑΣ",
+   "out": "ας"
+  },
+  {
+   "in": "Σ",
+   "out": "σ"
+  },
+  {
+   "in": "ΑΣ.",
+   "out": "ας."
+  },
+  {
+   "in": "ΑΣ ΑΣ",
+   "out": "ας ας"
+  },
+  {
+   "in": "Ὀδυσσεύς",
+   "out": "ὀδυσσεύς"
+  },
+  {
+   "in": "ΑΣΑ",
+   "out": "ασα"
+  },
+  {
+   "in": "AΣ́",
+   "out": "aς́"
+  },
+  {
+   "in": "ǅ",
+   "out": "ǆ"
+  },
+  {
+   "in": "K",
+   "out": "k"
+  },
+  {
+   "in": "K",
+   "out": "k"
+  },
+  {
+   "in": "ΑΣ’Α",
+   "out": "ασ’α"
+  },
+  {
+   "in": "ΑΣ·",
+   "out": "ας·"
+  },
+  {
+   "in": "ΆΣ",
+   "out": "άς"
+  },
+  {
+   "in": "ΣΣ",
+   "out": "σς"
+  }
+ ],
+ "normalize_company": [
+  {
+   "in": "İstanbul Holdings",
+   "out": "i stanbul"
+  },
+  {
+   "in": "Σίσυφος Group",
+   "out": ""
+  },
+  {
+   "in": "Ünal Co",
+   "out": "nal"
+  },
+  {
+   "in": "ÀB Corp the",
+   "out": "b"
+  },
+  {
+   "in": "K Inc",
+   "out": "k"
+  },
+  {
+   "in": "ſ co",
+   "out": ""
+  },
+  {
+   "in": "Acme Inc",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Group　Ltd",
+   "out": "acme"
+  },
+  {
+   "in": "ＡＣＭＥ Inc",
+   "out": ""
+  },
+  {
+   "in": "Café Ltd.",
+   "out": "caf"
+  },
+  {
+   "in": "xİ Corp",
+   "out": "xi"
+  },
+  {
+   "in": "ACME KK",
+   "out": "acme"
+  },
+  {
+   "in": "the the",
+   "out": ""
+  },
+  {
+   "in": "Naïve GmbH",
+   "out": "na ve"
+  }
+ ],
+ "linkedin_handle": [
+  {
+   "in": "https://linkedin.com/in/İsmail",
+   "out": "i̇smail"
+  },
+  {
+   "in": "https://LINKEDIN.com/in/Ada/",
+   "out": "ada"
+  },
+  {
+   "in": "https://linkedın.com/in/ada",
+   "out": "ada"
+  },
+  {
+   "in": "https://linkedin.com/ın/ada",
+   "out": "ada"
+  },
+  {
+   "in": "https://linkedin.com/İn/ada",
+   "out": "ada"
+  },
+  {
+   "in": "linkedin.com/in/ſam",
+   "out": "ſam"
+  },
+  {
+   "in": "https://linkedin.com/in/Kim",
+   "out": "kim"
+  },
+  {
+   "in": "https://www.linKedin.com/in/ada-k",
+   "out": "ada-k"
+  },
+  {
+   "in": "  https://linkedin.com/in/ada  ",
+   "out": "ada"
+  },
+  {
+   "in": " https://linkedin.com/in/ada　",
+   "out": "ada"
+  },
+  {
+   "in": "https://linkedin.com/in/ada?x=1",
+   "out": "ada"
+  },
+  {
+   "in": "https://linkedin.com/in/a.b_c%20d-e/",
+   "out": "a.b_c%20d-e"
+  },
+  {
+   "in": "https://linkedin.com/in/é",
+   "out": ""
+  },
+  {
+   "in": "https://linkedin.com/in/ǆ",
+   "out": ""
+  },
+  {
+   "in": "https://linkedin.com/in/Σ",
+   "out": ""
+  }
+ ],
+ "company_from_result": [
+  {
+   "title": "Ada Lovelace - CEO - Acme | LİNKEDİN",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - Acme | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - Acme – LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - Acme | LinKedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - Acme",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | CEO | Acme Inc",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme Inc",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO at Acme",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO AT Acme",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO @ Acme",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO at\nAcme",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO a\nt Acme",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | LinkedIn",
+   "snippet": "Experience: Acme · Education",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | LinkedIn",
+   "snippet": "éexperience: Acme · x",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | LinkedIn",
+   "snippet": "xexperience: A experience: Acme · x",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | LinkedIn",
+   "snippet": "EXPERİENCE: Acme · x",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | LinkedIn",
+   "snippet": "Experience:  · x",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | LinkedIn",
+   "snippet": "Experience:\n  Acme | x",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | LinkedIn",
+   "snippet": "_experience: Acme",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | LinkedIn",
+   "snippet": "5experience: Acme",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | LinkedIn",
+   "snippet": "Experience: •• Acme •",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace, MBA - CEO - Acme",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "ADA LOVELACE - CEO - Acme",
+   "snippet": "",
+   "name": "ada lovelace",
+   "result": [
+    "Acme",
+    true
+   ]
+  },
+  {
+   "title": "İda - CEO - Acme",
+   "snippet": "",
+   "name": "ida",
+   "result": [
+    "Acme",
+    false
+   ]
+  },
+  {
+   "title": "Ada - CEO - A",
+   "snippet": "",
+   "name": "Ada",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada - CEO - xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "snippet": "",
+   "name": "Ada",
+   "result": [
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    true
+   ]
+  },
+  {
+   "title": "Ada - CEO - xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "snippet": "",
+   "name": "Ada",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada - CEO - Σίσυφος",
+   "snippet": "",
+   "name": "Ada",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada - CEO - Self-Employed",
+   "snippet": "",
+   "name": "Ada",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada - CEO - Ada",
+   "snippet": "",
+   "name": "Ada",
+   "result": [
+    null,
+    true
+   ]
+  }
+ ],
+ "fingerprint_html": [
+  {
+   "html": "<scrİpt>x</scrİpt>hello",
+   "fingerprint": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+  },
+  {
+   "html": "<scrıpt>x</scrıpt>hello",
+   "fingerprint": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+  },
+  {
+   "html": "<SCRIPT>x</SCRIPT>hello",
+   "fingerprint": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+  },
+  {
+   "html": "<scriptx>a</scriptx> b",
+   "fingerprint": "c8687a08aa5d6ed2044328fa6a697ab8e96dc34291e8c2034ae8c38e6fcc6d65"
+  },
+  {
+   "html": "<scripté>a</script> b",
+   "fingerprint": "c8687a08aa5d6ed2044328fa6a697ab8e96dc34291e8c2034ae8c38e6fcc6d65"
+  },
+  {
+   "html": "<scripté>a</scripté> b",
+   "fingerprint": "c8687a08aa5d6ed2044328fa6a697ab8e96dc34291e8c2034ae8c38e6fcc6d65"
+  },
+  {
+   "html": "<script>a",
+   "fingerprint": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+  },
+  {
+   "html": "<script type=x>a\n</script>b",
+   "fingerprint": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d"
+  },
+  {
+   "html": "<script\n>a</script>b",
+   "fingerprint": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d"
+  },
+  {
+   "html": "<script/>a</script>b",
+   "fingerprint": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d"
+  },
+  {
+   "html": "<scripſ>a</scripſ> b",
+   "fingerprint": "c8687a08aa5d6ed2044328fa6a697ab8e96dc34291e8c2034ae8c38e6fcc6d65"
+  },
+  {
+   "html": "<style>a</style>b",
+   "fingerprint": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d"
+  },
+  {
+   "html": "<STYLE type=x>a</STYLE>b",
+   "fingerprint": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d"
+  },
+  {
+   "html": "<styleé>a</style> b",
+   "fingerprint": "c8687a08aa5d6ed2044328fa6a697ab8e96dc34291e8c2034ae8c38e6fcc6d65"
+  },
+  {
+   "html": "<style x>a</style>b",
+   "fingerprint": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d"
+  },
+  {
+   "html": "ΣΑΣ ΣΑΣ.",
+   "fingerprint": "13ad0a0f9a6a89834c98309606860e64bcf7159a4b5e97810db2386a1c993319"
+  },
+  {
+   "html": "İSTANBUL <b>PRICING</b>",
+   "fingerprint": "c09e8979ff02199c9d3771df7a12931b1166a2a6caf0ec2216a856abb59e3d30"
+  },
+  {
+   "html": "A B C　D\u001cEF",
+   "fingerprint": "2278f6cde63745760a3899421d0522e392a58136735ee20dda5eecb69b8645ec"
+  },
+  {
+   "html": "<p>Pro €49</p><!-- c --><p>x</p>",
+   "fingerprint": "bbcddc22bcabed049017f11a816b4d30103c5bcfc4edcc522d13f106cbb40317"
+  },
+  {
+   "html": "<a href='>'>t</a>",
+   "fingerprint": "5ef85f6b3f10e243e6bb5e31277bbe0ec0a812bba03d26919ea26e8f1d8c4ab6"
+  },
+  {
+   "html": "﻿Hello",
+   "fingerprint": "7489ebbcc2a00056ddaaaac190bce473e5c03696ea1bd8ed83cf59a174283862"
+  },
+  {
+   "html": "xxx",
+   "fingerprint": "cd2eb0837c9b4c962c22d2ff8b5441b7b45805887f051d39bf133b583baf6860"
+  }
+ ]
+}

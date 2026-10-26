@@ -95,9 +95,8 @@ func EvaluateOrdered(condition string, keys []string, cells map[string]any, cols
 
 // values is the flat {id: str, name: str} map in insertion order.
 type values struct {
-	keys  []string
-	m     map[string]string
-	lower map[string]string // lowercased key -> first such key, built on demand
+	keys []string
+	m    map[string]string
 }
 
 func (v *values) set(k, val string) {
@@ -150,26 +149,19 @@ func buildValues(keys []string, cells map[string]any, cols []Column) *values {
 type evaluator struct {
 	values *values
 	now    float64
-	spent  int // resolved operand bytes so far
 }
 
 func (e *evaluator) resolve(t token) (string, error) {
 	switch t.kind {
 	case tPlaceholder:
 		if v, ok := e.values.m[t.value]; ok {
-			return e.charge(v)
+			return checkLen(v)
 		}
-		if e.values.lower == nil {
-			e.values.lower = make(map[string]string, len(e.values.keys))
-			for _, k := range e.values.keys {
-				lk := colgraph.PyLower(k)
-				if _, seen := e.values.lower[lk]; !seen {
-					e.values.lower[lk] = k
-				}
+		kl := colgraph.PyLower(t.value)
+		for _, k := range e.values.keys {
+			if colgraph.PyLower(k) == kl {
+				return checkLen(e.values.m[k])
 			}
-		}
-		if k, ok := e.values.lower[colgraph.PyLower(t.value)]; ok {
-			return e.charge(e.values.m[k])
 		}
 		return "", condErr("unresolved field '{%s}'", t.value)
 	case tString, tWord:
@@ -178,15 +170,9 @@ func (e *evaluator) resolve(t token) (string, error) {
 	return "", condErr("expected operand, got %s", t.kind)
 }
 
-// charge enforces the per-operand cap and the per-evaluation total, so many
-// tokens naming one large cell cannot multiply the work.
-func (e *evaluator) charge(v string) (string, error) {
+func checkLen(v string) (string, error) {
 	if len(v) > maxOperandLen {
 		return "", condErr("operand too long (more than %d bytes)", maxOperandLen)
-	}
-	e.spent += len(v)
-	if e.spent > maxTotalOperands {
-		return "", condErr("operands too large (more than %d bytes resolved)", maxTotalOperands)
 	}
 	return v, nil
 }

@@ -1,0 +1,32 @@
+{
+ "description": "max_jobs 1 -> 2 roles -> growing (the max_jobs input is honoured)",
+ "http_status": 200,
+ "request": {
+  "call_id": "watch:w-1:fk-1:hiring_growing:0",
+  "input": {
+   "company": "Acme",
+   "max_jobs": 1
+  },
+  "provider": "jobspy_signals",
+  "timeout_s": 10,
+  "workspace_id": "ws-1"
+ },
+ "response": {
+  "cost_usd": 0.0,
+  "error": null,
+  "output": {
+   "billing_evidence": null,
+   "confidence": 0.7,
+   "error": "",
+   "fields": {
+    "hiring_signals": "{\"total_jobs\": 2, \"growth_signal\": \"growing\", \"gtm_expansion\": false, \"tech_hiring\": true, \"roles\": [\"Senior Python Engineer\", \"DevOps Engineer\"], \"score_boost\": 15, \"technologies\": [\"HubSpot\", \"Python\", \"Snowflake\", \"dbt\"], \"tech_adoption_signal\": [{\"tech\": \"HubSpot\", \"category\": \"CRM\", \"intent\": \"expanding\"}, {\"tech\": \"Python\", \"category\": \"Languages\", \"intent\": \"using\"}, {\"tech\": \"Snowflake\", \"category\": \"Data & Warehouse\", \"intent\": \"expanding\"}, {\"tech\": \"dbt\", \"category\": \"Data & Warehouse\", \"intent\": \"expanding\"}], \"hiring_velocity\": {\"open_roles\": 2, \"recent_roles\": 0, \"recency_days\": null, \"level\": \"moderate\"}}",
+    "technologies": "HubSpot, Python, Snowflake, dbt"
+   },
+   "license": "unknown",
+   "provider": "jobspy_signals",
+   "success": true
+  },
+  "status": "ok"
+ },
+ "scenario": "hiring_growing"
+}

@@ -1,0 +1,29 @@
+{
+ "description": "no SERP rows -> success false, error no_jobs_found (a valid no-op)",
+ "http_status": 200,
+ "request": {
+  "call_id": "watch:w-1:fk-1:hiring_no_jobs:0",
+  "input": {
+   "company": "Acme",
+   "max_jobs": 5
+  },
+  "provider": "jobspy_signals",
+  "timeout_s": 10,
+  "workspace_id": "ws-1"
+ },
+ "response": {
+  "cost_usd": 0.0,
+  "error": "no_jobs_found",
+  "output": {
+   "billing_evidence": null,
+   "confidence": 0.0,
+   "error": "no_jobs_found",
+   "fields": {},
+   "license": "unknown",
+   "provider": "jobspy_signals",
+   "success": false
+  },
+  "status": "error"
+ },
+ "scenario": "hiring_no_jobs"
+}

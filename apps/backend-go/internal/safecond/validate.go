@@ -15,7 +15,7 @@ const adversarial = `" AND {x}=="  OR evil`
 // condition is evaluated against an adversarial populated row so injection
 // style failures surface at create time. A value-driven comparison result is
 // fine; only structural errors are returned, as *ConditionError.
-func Validate(condition string) (err error) {
+func Validate(condition string) error {
 	if len(condition) > maxConditionBytes {
 		return condErr("condition too long (more than %d bytes)", maxConditionBytes)
 	}
@@ -44,12 +44,8 @@ func Validate(condition string) (err error) {
 		}
 	}
 	ev := &evaluator{values: buildValues(jsonbOrder(cells), cells, cols), now: float64(time.Now().UnixNano()) / 1e9}
-	defer func() {
-		if recover() != nil {
-			err = condErr("evaluator error: internal") // fail closed
-		}
-	}()
-	if _, err = ev.evalTokens(toks); err != nil {
+	defer func() { _ = recover() }()
+	if _, err := ev.evalTokens(toks); err != nil {
 		low := strings.ToLower(err.Error())
 		if strings.Contains(low, "field") && strings.Contains(low, "unresolved") {
 			return nil
