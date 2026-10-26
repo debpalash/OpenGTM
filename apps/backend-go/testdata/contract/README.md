@@ -302,6 +302,7 @@ Fixtures `analytics/*` (cases `legacy/python/scripts/contract_cases/analytics.ya
 - `POST /api/leads/dedup/merge`: non-integer `master_id` or `duplicate_ids` (strings, floats, booleans, nulls, a non-list) answer 400 `master_id and duplicate_ids required` (D2; Python looked them up in SQLite-style coercion or crashed with 500).
 - A merge whose leads hold a NULL/non-numeric `score` or a non-string `source` answers 422 (`value_error`, loc `body.duplicate_ids`) before any write (D2; Python raises TypeError, 500).
 - The master update and all deletes run in one transaction (D4); Python wrote and deleted in separate statements, so a failure left a half-merged state.
+- Final-review hardening: the duplicates are deleted before the master is updated (same transaction). A master with an empty city merged with a same-company duplicate that has a city collides with that duplicate on `uq_leads_ws_company_city` when the master is updated first, so Python answers 500 (IntegrityError) for the most common duplicate shape; Go answers 200. If the merged company+city belongs to a lead outside the merge, Go answers 409 `A lead already exists for the merged company and city` and rolls everything back (Python: 500).
 - Dedup run fixtures are compared order-insensitively (cluster id sets, unordered pair digests): Python's tie ordering depends on `PYTHONHASHSEED`.
 
 ## Bulk enrich (plan 05 Task 14 and final fix): deviations
