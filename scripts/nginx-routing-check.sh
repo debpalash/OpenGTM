@@ -506,6 +506,96 @@ check_outreach_matrix() { # $1 = expected upstream for Go-eligible routes (py|go
 }
 # ===== end plan 09 =====
 
+# ===== plan 10: audiences and destinations (23 routes ported, 2 catalog routes retained) =====
+check_audiences_matrix() { # $1 = expected upstream for ported routes (py|go|any: 50% bucket, only consistency is asserted)
+  local want="$1" r u s
+  echo "== audiences/destinations split ($1) =="
+  # The retained certification catalogs are always Python, at every percentage.
+  for r in "GET /api/audiences/capabilities" "GET /api/audience-destinations/types"; do
+    set -- $r
+    expect "retained $r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" py
+    expect "retained $r X-Stub     " "$(hdr "$1" "$2" X-Stub)" py
+  done
+  for r in "GET /api/audiences" "GET /api/audiences?limit=5" "POST /api/audiences" "PATCH /api/audiences/a-1" "DELETE /api/audiences/a-1" \
+           "POST /api/audiences/a-1/refresh" "GET /api/audiences/a-1/members?limit=5" "GET /api/audiences/a-1/accounts" "GET /api/audiences/a-1/events" \
+           "GET /api/audience-destinations" "POST /api/audience-destinations" "PATCH /api/audience-destinations/d-1" "DELETE /api/audience-destinations/d-1" \
+           "POST /api/audience-destinations/d-1/sync" "GET /api/audience-destinations/d-1/runs" "GET /api/audience-destinations/d-1/health" \
+           "GET /api/audience-destinations/runs/r-1/deliveries" "POST /api/audience-destinations/runs/r-1/retry" "POST /api/audience-destinations/runs/r-1/cancel" \
+           "POST /api/audience-destinations/d-1/inbound-token" "GET /api/audience-destinations/d-1/inbound-token" "DELETE /api/audience-destinations/d-1/inbound-token" \
+           "GET /api/audience-destinations/d-1/inbound-receipts" "POST /api/audience-destinations/inbound/d-1" "POST /api/audience-destinations/inbound/sync"; do
+    set -- $r
+    u="$(hdr "$1" "$2" X-Upstream)"; s="$(hdr "$1" "$2" X-Stub)"
+    if [ "$want" = any ]; then
+      case "$u" in py|go) expect "$r X-Stub == X-Upstream" "$s" "$u";; *) echo "  FAIL $r X-Upstream '$u' not py|go"; FAIL=1;; esac
+    else
+      expect "$r X-Upstream" "$u" "$want"
+      expect "$r X-Stub     " "$s" "$want"
+    fi
+    expect "$r X-Seen-Uri " "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+  done
+  # Lookalikes, unknown subpaths and trailing-slash variants stay on Python at every percentage (and are not newly exposed).
+  for r in "GET /api/audiences/" "GET /api/audiences/a-1/other" "GET /api/audiences/a-1/members/" "GET /api/audiencesx" "GET /api/audiences/a-1/refresh/extra" \
+           "GET /api/audience-destinations/" "GET /api/audience-destinations/d-1/other" "GET /api/audience-destinations/runs/r-1/other" \
+           "POST /api/audience-destinations/d-1/inbound/x" "POST /api/audience-destinations/inbound/d-1/" "GET /api/audience-destination"; do
+    set -- $r
+    expect "unmatched $r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
+    expect "unmatched $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
+  # The public callback is sticky per request source and agrees with the other client-bucket routes of that source.
+  local i seen="" w
+  for i in 1 2 3 4 5 6 7 8 9 10; do seen="$seen $(hdr POST /api/audience-destinations/inbound/d-$i X-Upstream)"; done
+  w="$(printf '%s\n' $seen | sort -u | tr '\n' ' ')"; w="${w% }"
+  case "$w" in
+    py|go) if [ "$want" = any ]; then echo "  ok   public callback sticky upstream = $w"; else expect "public callback sticky upstream" "$w" "$want"; fi;;
+    *) echo "  FAIL public callback not sticky/consistent: '$w'"; FAIL=1;;
+  esac
+  # Location settings (not observable from a stub): compare blocks in `nginx -T`.
+  local T; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
+  blk() { printf '%s\n' "$T" | awk -v pat="$1" 'index($0,"location " pat " {"){f=1;next} f&&match($0,/^ *}/)&&RLENGTH<=5{exit} f' | grep -E 'proxy_(read_timeout|send_timeout|buffering|http_version)' | sed 's/^[[:space:]]*//' | sort; }
+  local l
+  for l in '= /api/audiences' '~ ^/api/audiences/[^/]+/refresh$' '~ ^/api/audience-destinations/[^/]+/(sync|runs|health|inbound-token|inbound-receipts)$' \
+           '~ ^/api/audience-destinations/inbound/[^/]+$' '= /api/audiences/capabilities'; do
+    expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
+  done
+  # The public callback forwards the client address so the limiter sees the client, not nginx.
+  local B; B="$(printf '%s\n' "$T" | awk 'index($0,"location ~ ^/api/audience-destinations/inbound/[^/]+$ {"){f=1;next} f&&/^[[:space:]]*}/{exit} f')"
+  for d in 'proxy_set_header X-Real-IP $remote_addr;' 'proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' 'add_header X-Upstream $go_bucket always;'; do
+    case "$B" in *"$d"*) echo "  ok   inbound callback has '$d'";; *) echo "  FAIL inbound callback missing '$d'"; FAIL=1;; esac
+  done
+  # The retained routes are pinned to api_backend regardless of the bucket.
+  for l in '= /api/audiences/capabilities' '= /api/audience-destinations/types'; do
+    local R; R="$(printf '%s\n' "$T" | awk -v pat="$l" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f')"
+    case "$R" in *"proxy_pass http://api_backend;"*) echo "  ok   '$l' pinned to api_backend";; *) echo "  FAIL '$l' not pinned to api_backend"; FAIL=1;; esac
+  done
+}
+
+# Plan 10 at an intermediate percentage: create, patch and refresh are keyed per workspace (one workspace, one stack, for
+# every route and every client), the reads follow the client bucket.
+check_audiences_split50() {
+  echo "== audiences/destinations split (50%) =="
+  local w a b c seen="" stick=1 go=0 py=0
+  up() { curl -s -D- -o /dev/null -X "$1" -H "X-Workspace-Id: $2" -H "Authorization: Bearer $3" "http://127.0.0.1:$PORT$4" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}'; }
+  for w in ws-1 ws-2 ws-3 ws-4 ws-5 ws-6 ws-7 ws-8 ws-9 ws-10 ws-11 ws-12; do
+    a="$(up POST "$w" one /api/audiences)"
+    b="$(up POST "$w" two /api/audiences/a-1/refresh)"
+    c="$(up PATCH "$w" three /api/audiences/a-2)"
+    if [ -z "$a" ] || [ "$a" != "$b" ] || [ "$a" != "$c" ]; then stick=0; echo "  FAIL $w not sticky: create=$a refresh=$b patch=$c"; fi
+    seen="$seen $a"
+  done
+  [ "$stick" = 1 ] && echo "  ok   create, refresh and patch agree per workspace"
+  case "$seen" in *go*) go=1;; esac
+  case "$seen" in *py*) py=1;; esac
+  if [ "$go" = 1 ] && [ "$py" = 1 ]; then echo "  ok   both upstreams appear across workspaces"; else echo "  FAIL workspaces all landed on one upstream:$seen"; FAIL=1; fi
+  [ "$stick" = 1 ] || FAIL=1
+  # A GET (and the sticky routes' other methods) of the same path follows the client bucket, not the workspace.
+  local i x y
+  for i in 1 2 3 4 5 6; do
+    x="$(up GET ws-1 "c$i" /api/audiences)"; y="$(up GET ws-2 "c$i" /api/audiences)"
+    expect "GET /api/audiences client c$i ignores the workspace" "$x" "$y"
+  done
+}
+# ===== end plan 10 =====
+
 echo "== nginx -t =="
 start_gateway 0
 if docker exec "$RUN-gw" nginx -t 2>&1; then echo "  ok   nginx -t"; else echo "  FAIL nginx -t"; FAIL=1; fi
@@ -517,9 +607,12 @@ check_automations_matrix py
 check_copilot_matrix py
 check_governance_matrix py
 check_outreach_matrix py
+check_audiences_matrix py
 start_gateway 50
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @50%"; FAIL=1; }
 check_outreach_matrix any
+check_audiences_matrix any
+check_audiences_split50
 check_copilot_split50
 start_gateway 100
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @100%"; FAIL=1; }
@@ -531,5 +624,6 @@ check_automations_matrix go
 check_copilot_matrix go
 check_governance_matrix go
 check_outreach_matrix go
+check_audiences_matrix go
 
 [ "$FAIL" = 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }

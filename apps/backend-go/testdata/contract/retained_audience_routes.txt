@@ -1,0 +1,8 @@
+# Audience and destination routes that stay on FastAPI (plan 10, decision D1). One "METHOD /path/{param}" per line.
+# Both return the signed-certification maturity catalogs (audience_capability_catalog, integration_catalog) that the
+# integrations and governance routes share; they move with whichever plan ports `certification`. nginx keeps them on
+# api_backend at every percentage (infra/nginx/go-routes.conf, section audiences-destinations). The other 23 routes of
+# routers/audiences.py and routers/destinations.py are ported (22 mux patterns plus the public inbound callback, which is
+# served by a pre-mux hook, not a pattern); parity is pinned by internal/api/audience_coverage_test.go.
+GET /api/audiences/capabilities
+GET /api/audience-destinations/types
