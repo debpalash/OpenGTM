@@ -35,6 +35,9 @@ func oseqActor(name string) (who, ws string) {
 	case "seq_create_as_editor_403", "seq_put_as_editor_403", "seq_delete_as_editor_403":
 		return "erin", ""
 	}
+	if strings.HasSuffix(name, "as_editor_403") { // the action fixtures (Task 21)
+		return "erin", ""
+	}
 	if strings.HasSuffix(name, "no_auth") || strings.HasSuffix(name, "no_auth_401") {
 		return "", ""
 	}
