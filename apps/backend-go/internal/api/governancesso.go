@@ -23,7 +23,7 @@ const ssoSecretsOff = "Secrets are not configured"
 // (admin), as Python's require_admin. Audit events come from the global audit middleware.
 func registerGovernanceSSO(r *httpx.Router, d Deps) {
 	h := ssoRoutes{d: d}
-	mw := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity), govadmin.Gate("governance.manage")}
+	mw := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity), govadmin.GateAdmin("governance.manage")}
 	r.Handle("GET /api/governance/sso", http.HandlerFunc(h.getSSO), mw...)
 	r.Handle("PUT /api/governance/sso", http.HandlerFunc(h.putSSO), mw...)
 	r.Handle("GET /api/governance/scim-token", http.HandlerFunc(h.getToken), mw...)

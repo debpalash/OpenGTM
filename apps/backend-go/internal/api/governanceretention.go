@@ -33,10 +33,12 @@ const retentionConfirmation = "PURGE EXPIRED DATA"
 func registerGovernanceRetention(r *httpx.Router, d Deps) {
 	h := retentionRoutes{d: d}
 	mw := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity), govadmin.Gate("governance.manage")}
+	// Go hardening: legal-hold set/clear (PUT) and enforce need role >= admin even with an allow override.
+	admin := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity), govadmin.GateAdmin("governance.manage")}
 	r.Handle("GET /api/governance/retention", http.HandlerFunc(h.get), mw...)
-	r.Handle("PUT /api/governance/retention", http.HandlerFunc(h.put), mw...)
+	r.Handle("PUT /api/governance/retention", http.HandlerFunc(h.put), admin...)
 	r.Handle("POST /api/governance/retention/preview", http.HandlerFunc(h.preview), mw...)
-	r.Handle("POST /api/governance/retention/enforce", http.HandlerFunc(h.enforce), mw...)
+	r.Handle("POST /api/governance/retention/enforce", http.HandlerFunc(h.enforce), admin...)
 	r.Handle("GET /api/governance/retention/runs", http.HandlerFunc(h.runs), mw...)
 }
 

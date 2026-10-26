@@ -6,6 +6,7 @@ package govadmin
 
 import (
 	"errors"
+	"net/http"
 	"slices"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -86,4 +87,26 @@ func RolesFor(permission string) []string {
 // pinned to the catalog by TestAPIGatesMatchCatalog.
 func Gate(permission string) httpx.Middleware {
 	return identity.RequireRole(permission, RolesFor(permission)...)
+}
+
+// GateAdmin is Gate plus a role floor: the caller must also be an admin or owner, even
+// when a governance.manage (or similar) allow override would pass Gate. It is a Go
+// hardening over Python (which honours the override) for routes that can lock the
+// workspace out or destroy data: SSO config, SCIM tokens, legal hold, retention enforce.
+func GateAdmin(permission string) httpx.Middleware {
+	gate := Gate(permission)
+	return func(next http.Handler) http.Handler {
+		return gate(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			c, ok := identity.WorkspaceFrom(r.Context())
+			if !ok {
+				httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
+				return
+			}
+			if c.Role != "owner" && c.Role != "admin" {
+				httpx.Detail(w, http.StatusForbidden, "Insufficient workspace role")
+				return
+			}
+			next.ServeHTTP(w, r)
+		}))
+	}
 }
