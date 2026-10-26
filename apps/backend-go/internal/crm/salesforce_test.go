@@ -591,3 +591,82 @@ func TestInstanceURLRebindingBlockedAtDial(t *testing.T) {
 		}
 	}
 }
+
+// A secret lookup error is not "not found": no fallback to the process environment
+// (fail closed), so no request is sent and the workspace reads as not connected.
+func TestSalesforceSecretLookupErrorFailsClosed(t *testing.T) {
+	t.Setenv("SALESFORCE_ACCESS_TOKEN", "env-token-must-not-be-used")
+	t.Setenv("SALESFORCE_INSTANCE_URL", sfInst)
+	st := &failingStore{fakeStore{app: map[string]string{}, ws: map[string]string{}}}
+	e, err := secrets.NewEnvelope(secrets.Config{MasterKey: "crm-test-master-key", AppEnv: "dev"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := secrets.NewResolver(e, st, os.Getenv)
+	hits := 0
+	rt := rtFunc(func(r *http.Request) (*http.Response, error) {
+		hits++
+		return &http.Response{StatusCode: 200, Header: http.Header{}, Request: r, Body: io.NopCloser(strings.NewReader(`{}`))}, nil
+	})
+	s := &Salesforce{HTTP: &http.Client{Transport: rt}, Secrets: res}
+	ctx := context.Background()
+	if s.IsConnected(ctx, "ws-a") {
+		t.Error("IsConnected true on a secret lookup error")
+	}
+	if r := s.FetchContacts(ctx, "ws-a", 5, "", nil); r.Success {
+		t.Errorf("fetch succeeded: %+v", r)
+	}
+	if r := s.UpdateRecord(ctx, "ws-a", "Contact", "1", FieldMap{{"Phone", "1"}}); r.Success {
+		t.Errorf("update succeeded: %+v", r)
+	}
+	if hits != 0 {
+		t.Fatalf("%d requests sent with fallback credentials", hits)
+	}
+}
+
+func TestNextRecordsURLRejectsTraversal(t *testing.T) {
+	st := newStore()
+	res, env := newResolver(t, st, nil)
+	withSFSecrets(t, env, st, testWS, sfInst, sfToken)
+	bad := []string{
+		"/services/data/../../services/apexrest/x",
+		"/services/data/v59.0/query/../../sobjects",
+		"/services/data/./v59.0/query/01g",
+		"/services/data/%2e%2e/%2e%2e/x",
+		"/services/data/v59.0/query/%2E%2E/x",
+		"/services/data/v59.0/query/a%2Fb",
+		"/services/data/v59.0/query/a%2fb",
+		"/services/data/v59.0/query/a%5Cb",
+		"/services/data/v59.0/sobjects/Contact",
+		"/services/data/query/01g",
+		"/services/data/v59.0/query/01g?x=1/../..",
+		"/services/data/v59.0/query/",
+	}
+	for _, next := range bad {
+		hits := 0
+		rt := rtFunc(func(r *http.Request) (*http.Response, error) {
+			hits++
+			return &http.Response{StatusCode: 200, Header: http.Header{}, Request: r,
+				Body: io.NopCloser(strings.NewReader(`{"done":false,"records":[],"nextRecordsUrl":"` + next + `"}`))}, nil
+		})
+		s := &Salesforce{HTTP: &http.Client{Transport: rt}, Secrets: res}
+		r := s.FetchContacts(context.Background(), testWS, 5, "", nil)
+		if r.Success || hits != 1 {
+			t.Errorf("next %q: result %+v requests %d", next, r, hits)
+		}
+	}
+	// A normal cursor still pages.
+	hits := 0
+	rt := rtFunc(func(r *http.Request) (*http.Response, error) {
+		hits++
+		body := `{"done":false,"records":[],"nextRecordsUrl":"/services/data/v59.0/query/01gABC-2000"}`
+		if hits == 2 {
+			body = `{"done":true,"records":[]}`
+		}
+		return &http.Response{StatusCode: 200, Header: http.Header{}, Request: r, Body: io.NopCloser(strings.NewReader(body))}, nil
+	})
+	s := &Salesforce{HTTP: &http.Client{Transport: rt}, Secrets: res}
+	if r := s.FetchContacts(context.Background(), testWS, 5, "", nil); !r.Success || hits != 2 {
+		t.Errorf("valid cursor: %+v hits %d", r, hits)
+	}
+}
