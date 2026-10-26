@@ -27,5 +27,6 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	_ = r
 	_ = d
 	RegisterAuth(r, d)
-	// Task 10+: ...
+	RegisterUsers(r, d)
+	// Task 11+: ...
 }

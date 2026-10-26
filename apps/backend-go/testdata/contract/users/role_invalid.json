@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "role": "bogus"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/admin/users/2/role"
+  },
+  "response": {
+    "body": {
+      "detail": "Invalid role"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}
