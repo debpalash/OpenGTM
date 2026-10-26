@@ -81,35 +81,15 @@ func Purge(ctx context.Context, tx pgx.Tx, workspaceID string, now time.Time) (i
 	return gen.New(tx).EnrichCachePurge(ctx, gen.EnrichCachePurgeParams{WorkspaceID: workspaceID, ExpiresAt: naive(now)})
 }
 
-// GetEmail returns the cached verification result for an address (hash of the
-// stripped, lower-cased email). Only fresh rows are returned.
-func GetEmail(ctx context.Context, tx pgx.Tx, workspaceID, email string, now time.Time) (json.RawMessage, bool, error) {
-	if email == "" {
-		return nil, false, nil
-	}
-	return GetEmailKey(ctx, tx, workspaceID, EmailHash(email), now)
-}
-
-// PutEmail stores or overwrites the verification result for an address.
-func PutEmail(ctx context.Context, tx pgx.Tx, workspaceID, email string, result json.RawMessage, ttl time.Duration) error {
-	return PutEmailAt(ctx, tx, workspaceID, email, result, ttl, time.Now())
-}
-
-// PutEmailAt is PutEmail with an explicit clock.
-func PutEmailAt(ctx context.Context, tx pgx.Tx, workspaceID, email string, result json.RawMessage, ttl time.Duration, now time.Time) error {
-	if email == "" {
-		return nil
-	}
-	return PutEmailKeyAt(ctx, tx, workspaceID, EmailHash(email), result, ttl, now)
-}
-
-// GetEmailKey reads by a full cache key, e.g. EmailKey(email, verifier).
-func GetEmailKey(ctx context.Context, tx pgx.Tx, workspaceID, key string, now time.Time) (json.RawMessage, bool, error) {
-	if key == "" {
+// GetEmail returns the cached verification result for (email, verifier); the
+// row key is EmailKey(email, verifier) like Python's email_key. An empty email
+// or verifier is a miss. Only fresh rows are returned.
+func GetEmail(ctx context.Context, tx pgx.Tx, workspaceID, email, verifier string, now time.Time) (json.RawMessage, bool, error) {
+	if email == "" || verifier == "" {
 		return nil, false, nil
 	}
 	res, err := gen.New(tx).EmailVerifyCacheGet(ctx, gen.EmailVerifyCacheGetParams{
-		WorkspaceID: workspaceID, EmailHash: key, ExpiresAt: naive(now),
+		WorkspaceID: workspaceID, EmailHash: EmailKey(email, verifier), ExpiresAt: naive(now),
 	})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, false, nil
@@ -120,18 +100,19 @@ func GetEmailKey(ctx context.Context, tx pgx.Tx, workspaceID, key string, now ti
 	return json.RawMessage(res), true, nil
 }
 
-// PutEmailKey writes by a full cache key.
-func PutEmailKey(ctx context.Context, tx pgx.Tx, workspaceID, key string, result json.RawMessage, ttl time.Duration) error {
-	return PutEmailKeyAt(ctx, tx, workspaceID, key, result, ttl, time.Now())
+// PutEmail stores or overwrites the verification result for (email, verifier).
+func PutEmail(ctx context.Context, tx pgx.Tx, workspaceID, email, verifier string, result json.RawMessage, ttl time.Duration) error {
+	return PutEmailAt(ctx, tx, workspaceID, email, verifier, result, ttl, time.Now())
 }
 
-// PutEmailKeyAt is PutEmailKey with an explicit clock. result must be valid JSON.
-func PutEmailKeyAt(ctx context.Context, tx pgx.Tx, workspaceID, key string, result json.RawMessage, ttl time.Duration, now time.Time) error {
-	if key == "" || len(result) == 0 {
+// PutEmailAt is PutEmail with an explicit clock. result must be valid JSON; an
+// empty email, verifier or result is a no-op, like Python.
+func PutEmailAt(ctx context.Context, tx pgx.Tx, workspaceID, email, verifier string, result json.RawMessage, ttl time.Duration, now time.Time) error {
+	if email == "" || verifier == "" || len(result) == 0 {
 		return nil
 	}
 	return gen.New(tx).EmailVerifyCachePut(ctx, gen.EmailVerifyCachePutParams{
-		WorkspaceID: workspaceID, EmailHash: key, Result: result,
+		WorkspaceID: workspaceID, EmailHash: EmailKey(email, verifier), Result: result,
 		CachedAt: naive(now), ExpiresAt: naive(now.Add(ttl)),
 	})
 }

@@ -3,6 +3,16 @@
 // email_verify_cache.py byte for byte (pinned by testdata/key_vectors.json);
 // storage is Postgres under FORCE RLS (decision D5), so one tenant's entries
 // never serve another.
+//
+// Storage contract (Go-defined; the Python port of these tables must match):
+//   - enrichment_cache.value is a jsonb STRING holding str(value), so any JSON
+//     text inside keeps its exact bytes and key order (a jsonb object would be
+//     reordered). provider defaults to "cache" on read, confidence to 0.
+//   - email_verify_cache.email_hash holds EmailKey(email, verifier) =
+//     sha256(lower(strip(email))) + ":" + verifier, as Python's email_key.
+//   - email_verify_cache.result is a jsonb OBJECT {status, source, detail,
+//     confidence}; jsonb normalises key order, so decode it into a struct.
+//   - Timestamps are naive UTC; a row is fresh while expires_at >= now.
 package enrichcache
 
 import (
