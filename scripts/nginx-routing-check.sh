@@ -341,6 +341,62 @@ check_copilot_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
 }
 # ===== end plan 12 =====
 
+# ===== plan 11: governance and playbooks (26 ported, 2 capabilities routes retained) =====
+check_governance_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
+  local want="$1" r
+  echo "== governance/playbooks split ($1) =="
+  # The two retained /capabilities routes are always Python, at every percentage.
+  for r in "GET /api/governance/capabilities" "GET /api/research-playbooks/capabilities" "PATCH /api/research-playbooks/capabilities"; do
+    set -- $r
+    expect "retained $r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" py
+    expect "retained $r X-Stub     " "$(hdr "$1" "$2" X-Stub)" py
+  done
+  for r in "GET /api/governance/audit-events" "GET /api/governance/audit-events?limit=5&actor_user_id=2" "GET /api/governance/audit-events/export.csv" \
+           "GET /api/governance/retention" "PUT /api/governance/retention" "POST /api/governance/retention/preview" \
+           "POST /api/governance/retention/enforce" "GET /api/governance/retention/runs?limit=5" \
+           "GET /api/governance/rbac" "PUT /api/governance/rbac/2/activation.write" "POST /api/governance/members" \
+           "PATCH /api/governance/members/2" "DELETE /api/governance/members/2" "GET /api/governance/sso" "PUT /api/governance/sso" \
+           "GET /api/governance/scim-token" "POST /api/governance/scim-token" "DELETE /api/governance/scim-token" \
+           "GET /api/research-playbooks" "POST /api/research-playbooks" "PATCH /api/research-playbooks/pb-1" "DELETE /api/research-playbooks/pb-1" \
+           "POST /api/research-playbooks/pb-1/runs" "GET /api/research-playbooks/pb-1/runs?limit=5" \
+           "GET /api/research-playbooks/runs/r-1/results" "POST /api/research-playbooks/runs/r-1/retry" "POST /api/research-playbooks/runs/r-1/cancel"; do
+    set -- $r
+    expect "$r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" "$want"
+    expect "$r X-Stub     " "$(hdr "$1" "$2" X-Stub)" "$want"
+    expect "$r X-Seen-Uri " "$(hdr "$1" "$2" X-Seen-Uri)" "$2"
+  done
+  # Lookalikes, unknown subpaths and trailing-slash variants stay on Python at every percentage.
+  for r in "GET /api/governance" "GET /api/governance/" "GET /api/governance/other" "GET /api/governancex/sso" "GET /api/governance/sso/" \
+           "GET /api/governance/retention/other" "GET /api/governance/retention/enforce/x" "GET /api/governance/rbac/2" \
+           "GET /api/governance/members/2/x" "GET /api/governance/audit-events/other" "GET /api/governance/capabilities/x" \
+           "GET /api/research-playbooks/" "GET /api/research-playbooks/pb-1/other" "GET /api/research-playbooks/pb-1/runs/" \
+           "GET /api/research-playbooks/runs/r-1" "GET /api/research-playbooks/runs/r-1/other" "GET /api/research-playbooksx"; do
+    set -- $r
+    expect "unmatched $r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
+    expect "unmatched $r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
+  # Enforce and run start are keyed per workspace: same X-Workspace-Id -> same bucket whatever the client.
+  local a b c
+  a="$(curl -s -D- -o /dev/null -X POST -H 'X-Workspace-Id: ws-1' -H 'Authorization: Bearer one' "http://127.0.0.1:$PORT/api/governance/retention/enforce" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
+  b="$(curl -s -D- -o /dev/null -X POST -H 'X-Workspace-Id: ws-1' -H 'Authorization: Bearer two' "http://127.0.0.1:$PORT/api/research-playbooks/pb-1/runs" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
+  c="$(curl -s -D- -o /dev/null -X POST -H 'X-Workspace-Id: ws-1' -H 'Authorization: Bearer three' "http://127.0.0.1:$PORT/api/research-playbooks/pb-2/runs" | tr -d '\r' | awk -F': ' 'tolower($1)=="x-upstream"{print $2}')"
+  expect "enforce X-Upstream (workspace header)" "$a" "$want"
+  expect "run start X-Upstream (workspace header, other client)" "$b" "$want"
+  expect "run start X-Upstream (workspace header, other playbook)" "$c" "$want"
+  # Location settings (not observable from a stub): compare blocks in `nginx -T`.
+  local T; T="$(docker exec "$RUN-gw" nginx -T 2>/dev/null)"
+  blk() { printf '%s\n' "$T" | awk -v pat="$1" 'index($0,"location " pat " {"){f=1;next} f&&/^[[:space:]]*}/{exit} f' | grep -E 'proxy_(read_timeout|send_timeout|buffering|http_version)' | sed 's/^[[:space:]]*//' | sort; }
+  local l
+  for l in '= /api/governance/audit-events' '= /api/governance/retention/enforce' '~ ^/api/research-playbooks/[^/]+/runs$' '= /api/governance/sso'; do
+    expect "timeouts/buffering of '$l' == '/api/'" "$(blk "$l")" "$(blk "/api/")"
+  done
+  local E; E="$(blk '= /api/governance/audit-events/export.csv')"
+  for d in "proxy_buffering off;" "proxy_read_timeout 300s;"; do
+    case "$E" in *"$d"*) echo "  ok   export.csv has '$d'";; *) echo "  FAIL export.csv missing '$d'"; FAIL=1;; esac
+  done
+}
+# ===== end plan 11 =====
+
 echo "== nginx -t =="
 start_gateway 0
 if docker exec "$RUN-gw" nginx -t 2>&1; then echo "  ok   nginx -t"; else echo "  FAIL nginx -t"; FAIL=1; fi
@@ -350,6 +406,7 @@ check_enrichment_matrix py
 check_connectors_matrix py
 check_automations_matrix py
 check_copilot_matrix py
+check_governance_matrix py
 start_gateway 100
 docker exec "$RUN-gw" nginx -t >/dev/null 2>&1 || { echo "  FAIL nginx -t @100%"; FAIL=1; }
 check_matrix go 100%
@@ -358,5 +415,6 @@ check_enrichment_matrix go
 check_connectors_matrix go
 check_automations_matrix go
 check_copilot_matrix go
+check_governance_matrix go
 
 [ "$FAIL" = 0 ] && echo "ALL PASS" || { echo "FAILED"; exit 1; }
