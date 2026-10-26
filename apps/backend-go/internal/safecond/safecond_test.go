@@ -2,6 +2,7 @@ package safecond
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -23,9 +24,54 @@ type vecFile[T any] struct {
 type evalVec struct {
 	Condition *string        `json:"condition"`
 	Cells     map[string]any `json:"cells"`
+	Keys      []string       `json:"-"` // cell keys in JSON (Python dict) order
 	Columns   []Column       `json:"columns"`
 	Passed    bool           `json:"passed"`
 	Error     *string        `json:"error"`
+}
+
+func (v *evalVec) UnmarshalJSON(b []byte) error {
+	type plain evalVec
+	var p plain
+	d := json.NewDecoder(strings.NewReader(string(b)))
+	d.UseNumber()
+	if err := d.Decode(&p); err != nil {
+		return err
+	}
+	var raw struct {
+		Cells json.RawMessage `json:"cells"`
+	}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	kd := json.NewDecoder(strings.NewReader(string(raw.Cells)))
+	kd.UseNumber()
+	if _, err := kd.Token(); err != nil {
+		return err
+	}
+	for kd.More() {
+		k, err := kd.Token()
+		if err != nil {
+			return err
+		}
+		p.Keys = append(p.Keys, k.(string))
+		var skip json.RawMessage
+		if err := kd.Decode(&skip); err != nil {
+			return err
+		}
+	}
+	*v = evalVec(p)
+	return nil
+}
+
+// overBudget reports a condition Python accepts but the Go bounds refuse (D4).
+func overBudget(c string) bool {
+	_, err := tokenizeLimit(c, 1<<20)
+	if err != nil {
+		return false
+	}
+	_, err = tokenize(c)
+	return err != nil
 }
 
 type validateVec struct {
@@ -84,7 +130,13 @@ func TestConditionVectors(t *testing.T) {
 		t.Fatalf("only %d vectors", len(f.Vectors))
 	}
 	for i, v := range f.Vectors {
-		got := EvaluateAt(cond(v.Condition), v.Cells, v.Columns, at(f.Now))
+		got := EvaluateOrdered(cond(v.Condition), v.Keys, v.Cells, v.Columns, at(f.Now))
+		if overBudget(cond(v.Condition)) { // documented deviation D4: Python is unbounded
+			if got.Passed || !strings.HasPrefix(got.Reason, "condition too complex") {
+				t.Errorf("vector %d over budget: got %+v", i, got)
+			}
+			continue
+		}
 		wantReason := ""
 		if v.Error != nil {
 			wantReason = *v.Error
@@ -99,6 +151,12 @@ func TestValidateReasonsMatchVector(t *testing.T) {
 	f := loadVec[validateVec](t, "validate_vectors.json")
 	for i, v := range f.Vectors {
 		err := Validate(cond(v.Condition))
+		if overBudget(cond(v.Condition)) {
+			if err == nil || !strings.HasPrefix(err.Error(), "condition too complex") {
+				t.Errorf("vector %d over budget: %v", i, err)
+			}
+			continue
+		}
 		if v.OK != (err == nil) {
 			t.Errorf("vector %d %q: err=%v want ok=%v", i, cond(v.Condition), err, v.OK)
 			continue
@@ -197,10 +255,10 @@ func TestOlderThanDurations(t *testing.T) {
 }
 
 func TestOlderThanTimestampFormats(t *testing.T) {
-	now := at(1788000000) // 2026-08-30T10:40:00Z
+	now := at(1788000000) // 2026-08-29T10:40:00Z
 	for v, wantOld := range map[string]bool{
-		"1788000000": false, "1787990000": true, "1787999999999": true, "1e9": true,
-		"2026-01-01": true, "2026-01-01T00:00:00Z": true, "2026-08-29T10:39:59Z": true, "2026-08-30T10:39:59Z": true,
+		"1788000000": false, "1787990000": true, "1787999999999": false, "1787900000000": true, "1e9": true,
+		"2026-01-01": true, "2026-01-01T00:00:00Z": true, "2026-08-29T10:39:58Z": true, "2026-08-29T10:39:59.5Z": false, "2026-08-30T10:39:59Z": false,
 		"2026-08-29T10:00:00+05:30": true, "20260801": true, "2026-W35-1": true, "2026-08-01T00:00:00.123456Z": true,
 		"2099-01-01": false, "-5": true,
 	} {
@@ -246,7 +304,7 @@ func TestPythonFloatAcceptance(t *testing.T) {
 	cells := map[string]any{"x": "1e3", "u": "1_000", "i": "inf", "n": "nan", "w": " 7 ", "bad": "1__0", "ar": "٣"}
 	for c, want := range map[string]bool{
 		`{x} == 1000`: true, `{u} == 1000`: true, `{i} > 1e308`: true, `{n} == {n}`: false, `{n} != {n}`: true,
-		`{w} == 7`: true, `{bad} == "1__0"`: true, `{bad} < 5`: false, `{ar} == 3`: true, `{i} == "-inf"`: false,
+		`{w} == 7`: true, `{bad} == "1__0"`: true, `{bad} < 5`: true, `{ar} == 3`: true, `{i} == "-inf"`: false,
 	} {
 		if r := Evaluate(c, cells, nil); r.Passed != want || r.Reason != "" {
 			t.Errorf("%q: %+v want %v", c, r, want)
@@ -315,4 +373,51 @@ func FuzzEvaluateNeverPanics(f *testing.F) {
 	})
 }
 
+func asCondErr(err error, target **ConditionError) bool { return errors.As(err, target) }
+
 var _ = fmt.Sprint
+
+// TestISOTimestampParity pins Python 3.13 datetime.fromisoformat (TZ=UTC)
+// quirks: week dates, one arbitrary byte before a timezone, sub-second offsets.
+func TestISOTimestampParity(t *testing.T) {
+	for _, c := range []struct {
+		in string
+		ok bool
+		ts float64
+	}{
+		{"2026-08-01", true, 1785542400.0},
+		{"20260801", true, 1785542400.0},
+		{"2026-W35-1", true, 1787529600.0},
+		{"2026-W35", true, 1787529600.0},
+		{"2026W351", true, 1787529600.0},
+		{"2026W35123+0530", true, 1787592600.0},
+		{"2026W351210", true, 1787565600.0},
+		{"2026W351234", false, 0},
+		{"2026-W35-11", true, 1787569200.0},
+		{"10:30", false, 0},
+		{"2026-08-01T10:30:15 +05:30", true, 1785560415.0},
+		{"2026-08-01T10:30:15X+05:30", true, 1785560415.0},
+		{"2026-08-01T10:30:15  +05:30", false, 0},
+		{"2026-08-01T10:30:15.5+05:30", true, 1785560415.5},
+		{"2026-08-01T10:30:15,25", true, 1785580215.25},
+		{"2026-08-01T10:30:15.1234567", true, 1785580215.123456},
+		{"2026-08-01T10:30:15+00:00,5", true, 1785580215.0},
+		{"2026-08-01T10:30:15-05:30:30.5", true, 1785600045.5},
+		{"2026-08-01T24:00", false, 0},
+		{"2026-08-01T10:30:15+24:00", false, 0},
+		{"2026-08-01T10:30:15z", false, 0},
+		{"0001-01-01", false, 0},
+		{"0001-01-01T10:00:00+00:00", true, -62135560800.0},
+		{"2026-W53-1", true, 1798416000.0},
+		{"2020-W53-7", true, 1609632000.0},
+		{"2026-08-01T", false, 0},
+		{"2026-08-01T1030", true, 1785580200.0},
+		{"2026-08-01T10:3015", false, 0},
+		{"2026-02-29", false, 0},
+	} {
+		got, ok := parseISO(strings.ReplaceAll(c.in, "Z", "+00:00"))
+		if ok != c.ok || (ok && got != c.ts) {
+			t.Errorf("%q: got %v/%v want %v/%v", c.in, got, ok, c.ts, c.ok)
+		}
+	}
+}
