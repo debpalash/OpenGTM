@@ -16,10 +16,18 @@ in the repository; this page summarises it.
    `Signed-off-by` line certifies you have the right to submit the work under
    the project licence, per the
    [Developer Certificate of Origin](https://github.com/debpalash/opengtm/blob/main/DCO).
-2. **Be excellent to each other.** The project follows the
+2. **Sign the Contributor License Agreement.** Sign the
+   [Individual CLA](https://github.com/debpalash/opengtm/blob/main/CLA.md)
+   once, before your first pull request is merged; the CLA check on the pull
+   request links to the signing page. If you contribute as part of your job,
+   your employer also signs the
+   [Corporate CLA](https://github.com/debpalash/opengtm/blob/main/CLA-CORPORATE.md).
+   You keep your copyright; the CLA lets Yupcha distribute your contribution
+   under the AGPL and under commercial licences.
+3. **Be excellent to each other.** The project follows the
    [Contributor Covenant](/community/code-of-conduct/).
-3. **Licence.** OpenGTM is AGPLv3. By contributing you agree your contribution
-   is licensed under the same terms.
+4. **Licence.** OpenGTM is AGPLv3. Your contribution is distributed under the
+   AGPL, and under the additional rights you grant in the CLA.
 
 ## Before you open a pull request
 

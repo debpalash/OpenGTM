@@ -15,6 +15,7 @@
 ## Checklist
 
 - [ ] Commits are **signed off** (`git commit -s`) per the [DCO](../DCO)
+- [ ] I have signed the [CLA](../CLA.md) (and my employer the [Corporate CLA](../CLA-CORPORATE.md), if this is work for them)
 - [ ] Backend tests pass (`uv run pytest`)
 - [ ] Monorepo lint and build pass (`bun run lint && bun run build`)
 - [ ] I did not add scraping of paywalled / pirated / login-gated content

@@ -18,10 +18,23 @@ a bug report, or a whole feature.
    your agreement to the [Developer Certificate of Origin](./DCO). PRs whose
    commits are not signed off will be asked to amend.
 
-2. **Be excellent to each other.** See [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md).
+2. **Sign the Contributor License Agreement (CLA).** Before your first pull
+   request is merged, sign the [Individual CLA](./CLA.md) once. The CLA check
+   on your pull request links to the signing page. If you contribute as part
+   of your job, your employer must also sign the
+   [Corporate CLA](./CLA-CORPORATE.md).
 
-3. **License.** OpenGTM is [AGPLv3](./LICENSE). By contributing you agree your
-   contribution is licensed under the same terms.
+   You keep the copyright in your work. The CLA gives Yupcha Softwares Private
+   Limited the right to distribute your contribution under the AGPL and under
+   other licences, including commercial ones. Yupcha commits that whatever it
+   includes in the public source release stays available under the AGPL or
+   another OSI-approved licence.
+
+3. **Be excellent to each other.** See [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md).
+
+4. **License.** OpenGTM is [AGPLv3](./LICENSE). Your contribution is
+   distributed under the AGPL, and under the additional rights you grant in
+   the CLA. See [`NOTICE`](./NOTICE).
 
 ## Development setup
 

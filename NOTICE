@@ -1,0 +1,22 @@
+OpenGTM
+Copyright (C) 2026 Yupcha Softwares Private Limited and the OpenGTM contributors.
+
+OpenGTM is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the
+Free Software Foundation, version 3 of the License. See the LICENSE file
+for the full text.
+
+OpenGTM is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+more details.
+
+Commercial licences, for use outside the terms of the AGPL, are available
+from Yupcha Softwares Private Limited. Contact legal@yupcha.com.
+
+Contributions are accepted under the OpenGTM Contributor License Agreement
+(CLA.md, CLA-CORPORATE.md) and must be signed off under the Developer
+Certificate of Origin (DCO).
+
+Third-party components keep their own licences. See
+apps/docs/src/content/docs/community/license.md.
