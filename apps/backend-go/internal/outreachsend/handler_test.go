@@ -53,6 +53,9 @@ func vecSeq(m map[string]any) (outreachstore.Seq, bool) {
 		if !isNum {
 			return nil, false
 		}
+		if f != float64(int(f)) {
+			return nil, false // Python float hour: not representable
+		}
 		i := int(f)
 		return &i, true
 	}
