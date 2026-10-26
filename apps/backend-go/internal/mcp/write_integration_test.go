@@ -471,6 +471,35 @@ func TestInFlightCapPerWorkspace(t *testing.T) {
 	}
 }
 
+func TestDeniedCallsDoNotConsumeInFlightSlot(t *testing.T) {
+	// workspace is at its in-flight cap: gate/role denials must still answer
+	// their own reason, and must not take (or leak) a slot.
+	for name, tc := range map[string]struct {
+		role  string
+		setup func(e *wEnv, tool *WriteTool)
+		want  string
+	}{
+		"writes disabled": {"editor", func(e *wEnv, _ *WriteTool) { e.cfg.WriteEnabled = false }, `{"error": "mcp writes disabled"}`},
+		"gate":            {"editor", func(_ *wEnv, tool *WriteTool) { tool.Gate = func(Config) string { return "automations disabled" } }, `{"error": "automations disabled"}`},
+		"role":            {"viewer", func(*wEnv, *WriteTool) {}, `{"error": "insufficient workspace role"}`},
+	} {
+		t.Run(name, func(t *testing.T) {
+			e := newWEnv(t, tc.role)
+			tool := e.leadTool(`{"status":"created"}`)
+			tc.setup(e, &tool)
+			s := e.server(tool)
+			s.MaxInFlightWrites = 1
+			s.inflight = map[string]int{e.ctx.WorkspaceID: 1}
+			if got := e.call(s, "create_lead", Args{}); got != tc.want {
+				t.Fatalf("got %s want %s", got, tc.want)
+			}
+			if n := s.inflight[e.ctx.WorkspaceID]; n != 1 {
+				t.Fatalf("slot count %d", n)
+			}
+		})
+	}
+}
+
 type bootPort struct {
 	noAutomation
 	mu    sync.Mutex
