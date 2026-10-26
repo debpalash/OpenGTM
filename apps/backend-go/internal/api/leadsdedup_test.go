@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"reflect"
 	"sort"
 	"strings"
 	"testing"
@@ -15,7 +16,16 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 )
 
-// dedupActor says who sent a recorded dedup request. "erin" (editor) is played by alice, who holds admin.
+// newDedupEnv is the lead write env plus erin, an editor member of ws-alpha (the recorded merge persona).
+func newDedupEnv(t *testing.T) leadsEnv {
+	t.Helper()
+	e := newWriteEnv(t)
+	e.seed(t, "erin", pythonHash, true, "user", false)
+	e.member(t, "ws-alpha", e.mustUserByName(t, "erin").ID, "editor")
+	return e
+}
+
+// dedupActor says who sent a recorded dedup request; merge fixtures were recorded as erin (editor).
 func dedupActor(name string) (who, ws string) {
 	switch {
 	case strings.HasSuffix(name, "_no_auth"):
@@ -24,6 +34,8 @@ func dedupActor(name string) (who, ws string) {
 		return "bob", "ws-alpha"
 	case name == "dedup_beta", name == "get_foreign_after_merge":
 		return "bob", "ws-beta"
+	case strings.HasPrefix(name, "merge_"):
+		return "erin", "ws-alpha"
 	}
 	return "alice", ""
 }
@@ -112,14 +124,14 @@ dedup_city_mumbai dedup_search_zenith dedup_empty_scope dedup_single_lead dedup_
 dedup_threshold_low dedup_threshold_high dedup_threshold_bad dedup_limit_zero dedup_limit_5001 dedup_no_auth`)
 
 func TestDedupRunMatchesPython(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	for _, n := range dedupRunFixtures {
 		e.replayDedup(t, n)
 	}
 }
 
 func TestDedupBounds422(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	for _, q := range []string{"threshold=0.49", "threshold=1.01", "threshold=nan", "threshold=inf", "threshold=x", "limit=0", "limit=5001", "limit=-1", "limit=x"} {
 		if rec := e.send("alice", "ws-alpha", "POST", "/api/leads/dedup?"+q, ""); rec.Code != 422 {
 			t.Errorf("%s: %d %s", q, rec.Code, rec.Body.String())
@@ -133,7 +145,7 @@ func TestDedupBounds422(t *testing.T) {
 }
 
 func TestDedupEmptyShape(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	rec := e.send("alice", "ws-alpha", "POST", "/api/leads/dedup?city=Nowhere", "")
 	want := `{"stats":{"total_leads":0,"duplicates_found":0},"pairs":[],"clusters":{},"scanned":0}`
 	if rec.Code != 200 || rec.Body.String() != want {
@@ -142,7 +154,7 @@ func TestDedupEmptyShape(t *testing.T) {
 }
 
 func TestDedupFiltersScopeScanned(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	// "__all__" is unset like "" (_clean); limit bounds scanned; scanned is the trailing key.
 	rec := e.send("alice", "ws-alpha", "POST", "/api/leads/dedup?city=__all__&limit=2", "")
 	if rec.Code != 200 || !strings.HasSuffix(rec.Body.String(), `,"scanned":2}`) {
@@ -164,7 +176,7 @@ func TestDedupFiltersScopeScanned(t *testing.T) {
 }
 
 func TestMergeSuccessMatchesPython(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	for _, n := range []string{"merge_ok", "get_merged_master", "get_merged_duplicate", "get_foreign_after_merge", "merge_again"} {
 		e.replayDedup(t, n)
 	}
@@ -175,7 +187,7 @@ func TestMergeSuccessMatchesPython(t *testing.T) {
 }
 
 func TestMergeErrorsInPythonOrder(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	for _, n := range strings.Fields(`merge_missing_both merge_missing_duplicates merge_empty_duplicates merge_master_zero
 merge_master_not_found merge_master_foreign merge_duplicate_is_master merge_duplicates_none_valid merge_duplicate_foreign_only`) {
 		e.replayDedup(t, n)
@@ -188,7 +200,7 @@ merge_master_not_found merge_master_foreign merge_duplicate_is_master merge_dupl
 }
 
 func TestMergeIgnoresDuplicateIdsRepeatedAndMaster(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	rec := e.send("alice", "ws-alpha", "POST", "/api/leads/dedup/merge", `{"master_id":6,"duplicate_ids":[6,7,7,6,7]}`)
 	if rec.Code != 200 || !strings.Contains(rec.Body.String(), `"duplicates_deleted":1,`) {
 		t.Fatalf("%d %s", rec.Code, rec.Body.String())
@@ -199,7 +211,7 @@ func TestMergeIgnoresDuplicateIdsRepeatedAndMaster(t *testing.T) {
 }
 
 func TestMergeNonIntegerIds400(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	for _, b := range []string{
 		`{"master_id":"6","duplicate_ids":[7]}`, `{"master_id":6.5,"duplicate_ids":[7]}`, `{"master_id":true,"duplicate_ids":[7]}`,
 		`{"master_id":[6],"duplicate_ids":[7]}`, `{"master_id":6,"duplicate_ids":[7,"8"]}`, `{"master_id":6,"duplicate_ids":7}`,
@@ -221,7 +233,7 @@ func TestMergeNonIntegerIds400(t *testing.T) {
 }
 
 func TestMergeNonNumericScoreOrSource422NoWrite(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	ctx := context.Background()
 	owner, err := pgx.Connect(ctx, os.Getenv("TEST_DATABASE_URL"))
 	if err != nil {
@@ -232,7 +244,7 @@ func TestMergeNonNumericScoreOrSource422NoWrite(t *testing.T) {
 		if _, err := owner.Exec(ctx, "UPDATE leads SET "+set+" WHERE id = 7"); err != nil {
 			t.Fatal(err)
 		}
-		before := leadRow(t, e, "ws-alpha", 6, "")
+		before := leadRow(t, e, "ws-alpha", 7, "")
 		rec := e.send("alice", "ws-alpha", "POST", "/api/leads/dedup/merge", `{"master_id":7,"duplicate_ids":[6,8]}`)
 		if rec.Code != 422 {
 			t.Errorf("%s: %d %s", set, rec.Code, rec.Body.String())
@@ -240,12 +252,14 @@ func TestMergeNonNumericScoreOrSource422NoWrite(t *testing.T) {
 		if leadRow(t, e, "ws-alpha", 6, "") == nil || leadRow(t, e, "ws-alpha", 8, "") == nil {
 			t.Errorf("%s: 422 still deleted a duplicate", set)
 		}
-		_ = before
+		if a, b := leadRow(t, e, "ws-alpha", 7, ""), before; !reflect.DeepEqual(a, b) {
+			t.Errorf("%s: 422 changed the master", set)
+		}
 	}
 }
 
 func TestMergeIsAtomic(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	ctx := context.Background()
 	owner, err := pgx.Connect(ctx, os.Getenv("TEST_DATABASE_URL"))
 	if err != nil {
@@ -283,24 +297,27 @@ func TestMergeIsAtomic(t *testing.T) {
 }
 
 func TestMergeCrossWorkspaceIds404(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	for _, b := range []string{`{"master_id":17,"duplicate_ids":[7]}`, `{"master_id":6,"duplicate_ids":[17]}`} {
 		if rec := e.send("alice", "ws-alpha", "POST", "/api/leads/dedup/merge", b); rec.Code != 404 {
 			t.Errorf("%s: %d %s", b, rec.Code, rec.Body.String())
 		}
 	}
-	if leadRow(t, e, "ws-beta", 17, "") == nil {
-		t.Error("foreign lead was touched")
+	if leadRow(t, e, "ws-beta", 17, "") == nil || leadRow(t, e, "ws-alpha", 6, "") == nil || leadRow(t, e, "ws-alpha", 7, "") == nil {
+		t.Error("a lead was touched")
 	}
 }
 
 func TestMergeRequiresEditor(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	for _, c := range []struct {
 		who, ws string
 		code    int
 	}{{"bob", "ws-alpha", 403}, {"", "", 401}} {
 		rec := e.send(c.who, c.ws, "POST", "/api/leads/dedup/merge", `{"master_id":6,"duplicate_ids":[7]}`)
+		if c.code == 403 && !strings.Contains(rec.Body.String(), "Workspace permission denied: tables.write") {
+			t.Errorf("403 body: %s", rec.Body.String())
+		}
 		if rec.Code != c.code {
 			t.Errorf("%s: %d %s", c.who, rec.Code, rec.Body.String())
 		}
@@ -310,8 +327,16 @@ func TestMergeRequiresEditor(t *testing.T) {
 	}
 }
 
+func TestMergeAllowsEditor(t *testing.T) {
+	e := newDedupEnv(t)
+	rec := e.send("erin", "ws-alpha", "POST", "/api/leads/dedup/merge", `{"master_id":6,"duplicate_ids":[7]}`)
+	if rec.Code != 200 || leadRow(t, e, "ws-alpha", 7, "") != nil {
+		t.Fatalf("%d %s", rec.Code, rec.Body.String())
+	}
+}
+
 func TestDedupRunAllowsViewer(t *testing.T) {
-	e := newWriteEnv(t)
+	e := newDedupEnv(t)
 	if rec := e.send("bob", "ws-alpha", "POST", "/api/leads/dedup", ""); rec.Code != 200 {
 		t.Fatalf("%d %s", rec.Code, rec.Body.String())
 	}
