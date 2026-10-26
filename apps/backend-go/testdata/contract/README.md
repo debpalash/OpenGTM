@@ -697,3 +697,14 @@ Replayed against `testdata/transcripts/webhook` (fake secret `ctk_transcript_hoo
 - Bootstrap isolates errors per rule (joined and returned) where Python aborts the loop.
 - A non-string `trigger_config.interval` schedules as `daily` (Python: `daily` for int/None, TypeError for list/object); a D4 deviation.
 - `queue.EnqueueOnce` is not used: it stamps `next_run_at = now`, while the Python schedule job carries the scheduled instant.
+
+## Watch poller (plan 08 Task 9): deviations (`internal/poller`)
+
+- Per-source debit (`POLLER_FUNDING_COST_USD`, `POLLER_HIRING_COST_USD`, `POLLER_FEED_COST_USD` greater than 0): the Python gate crashes, so its paid path never ran. Go implements the intended gate with `billing.CheckAndDebit`, run id `<fire_key>:<bucket>` and reason `poller_fetch`; a retry of the same poll replays instead of charging twice. At the default cost 0 the ledger is never touched.
+- `BILLING_ENABLED=false` with a cost above 0 debits nothing (billing no-op), matching the intended gating.
+- Insufficient credits is a source failure (`proceed=false`, `last_error="insufficient_credits"` set by the poll handler), never a healthy poll.
+- Billing buckets as Python: `funding`/`exec`/`funding_exec` bill `funding`; `feed` bills `feed`; `job_change` and `account_group` are free; every other source (jobspy `tech`, `web_tech`, `hiring`) bills `hiring`. Sources of one bucket share one run id per poll, so they charge once.
+- Failure reconcile is workspace-scoped: the watch and the failed job are matched by the payload workspace (a job row with a NULL `workspace_id`, as Python writes them, matches by its payload workspace). A foreign watch with the same id is never touched. A non-string `workspace_id`/`watch_id` in the payload is rejected with the Python error text (Python would `str()` it).
+- Session TimeZone: fire keys are rendered in the Postgres session TimeZone (`SHOW TimeZone`, as Python's driver reads timestamptz), and the naive `jobs.next_run_at` is the session-local wall time. An unloadable TimeZone name refuses to schedule.
+- Job payload JSON is compact; Python stores `", "` separators. Key order is identical (`watch_id`, `workspace_id`, `fire_key`, then `poll_now` for manual polls, set in the same insert).
+- `LoadWatch` row-locks the watch (`FOR UPDATE`) so reconcile and a running poll serialise on `consecutive_failures`.
