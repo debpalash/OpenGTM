@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -61,27 +62,64 @@ func TestLoopback(t *testing.T) {
 	}
 }
 
-func TestLiveConfigWiresOperatorReacherAndEgress(t *testing.T) {
+type fakeSecrets struct {
+	vals  map[string]string // "ws/key"
+	fail  map[string]bool   // key -> lookup/decrypt failure
+	calls []string
+}
+
+func (f *fakeSecrets) Get(_ context.Context, ws, key string) (string, string, error) {
+	f.calls = append(f.calls, ws+"/"+key)
+	if f.fail[key] {
+		return "", "", errors.New("decrypt failed")
+	}
+	if v, ok := f.vals[ws+"/"+key]; ok {
+		return v, "workspace", nil
+	}
+	return f.vals["/"+key], "global", nil
+}
+
+func TestLiveConfigResolvesPerWorkspaceThroughSecrets(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte("ok")) }))
 	defer srv.Close()
 	host := strings.TrimPrefix(srv.URL, "http://")
-	get := env(map[string]string{
-		"REACHER_URL": "https://reacher.internal", "REACHER_ENABLED": "true", "REACHER_TIMEOUT": "7",
-		"REACHER_API_KEY": "operator-key", "EGRESS_ALLOW_HOSTS": "other.internal, " + host,
-	})
-	cfg := liveConfig(nil, get, nil)
+	sec := &fakeSecrets{vals: map[string]string{
+		"/REACHER_URL": "https://reacher.internal", "wsA/REACHER_URL": "http://169.254.169.254", // workspace URL must never be asked
+		"wsA/REACHER_API_KEY": "key-A", "wsB/REACHER_API_KEY": "key-B", "/REACHER_TIMEOUT": "7",
+		"wsA/REACHER_ENABLED": "true", "wsB/REACHER_ENABLED": "false",
+	}, fail: map[string]bool{}}
+	cfg := liveConfig(nil, env(map[string]string{"EGRESS_ALLOW_HOSTS": "other.internal, " + host}), nil, sec)
 	if cfg.HTTP == nil || cfg.ReacherSettings == nil || cfg.Keys == nil {
 		t.Fatalf("incomplete: %+v", cfg)
 	}
-	// Settings are global: the same for every workspace, never read per workspace.
-	for _, ws := range []string{"a", "b"} {
-		s := cfg.ReacherSettings(context.Background(), ws)
-		if s["REACHER_URL"] != "https://reacher.internal" || s["REACHER_ENABLED"] != "true" || s["REACHER_TIMEOUT"] != "7" {
-			t.Fatalf("%s: %v", ws, s)
+	ctx := context.Background()
+	ka, _ := cfg.Keys(ctx, "wsA", "REACHER_API_KEY")
+	kb, _ := cfg.Keys(ctx, "wsB", "REACHER_API_KEY")
+	if ka != "key-A" || kb != "key-B" {
+		t.Fatalf("keys not per workspace: %q %q", ka, kb)
+	}
+	a, b := cfg.ReacherSettings(ctx, "wsA"), cfg.ReacherSettings(ctx, "wsB")
+	if a["REACHER_ENABLED"] != "true" || b["REACHER_ENABLED"] != "false" {
+		t.Fatalf("enabled per workspace: %v %v", a, b)
+	}
+	for _, m := range []map[string]any{a, b} {
+		if m["REACHER_URL"] != "https://reacher.internal" || m["REACHER_TIMEOUT"] != "7" {
+			t.Fatalf("url/timeout must be global: %v", m)
 		}
 	}
-	if k, _ := cfg.Keys(context.Background(), "ws", "REACHER_API_KEY"); k != "operator-key" {
-		t.Fatalf("key %q", k)
+	for _, c := range sec.calls {
+		if c == "wsA/REACHER_URL" || c == "wsB/REACHER_URL" {
+			t.Fatalf("REACHER_URL looked up per workspace: %v", sec.calls)
+		}
+	}
+	// Fail closed: a lookup/decrypt failure is an error from Keys (no env
+	// fallback) and leaves Reacher disabled for the workspace.
+	sec.fail["REACHER_API_KEY"], sec.fail["REACHER_ENABLED"] = true, true
+	if k, err := cfg.Keys(ctx, "wsA", "REACHER_API_KEY"); err == nil || k != "" {
+		t.Fatalf("decrypt failure must error: %q %v", k, err)
+	}
+	if m := cfg.ReacherSettings(ctx, "wsA"); m["REACHER_ENABLED"] != nil {
+		t.Fatalf("failed enabled lookup must not enable Reacher: %v", m)
 	}
 	// The operator allow-list opens exactly the listed private target.
 	resp, err := cfg.HTTP.Get(srv.URL)
@@ -89,8 +127,7 @@ func TestLiveConfigWiresOperatorReacherAndEgress(t *testing.T) {
 		t.Fatalf("allow-listed host refused: %v", err)
 	}
 	resp.Body.Close()
-	unlisted := liveConfig(nil, env(nil), nil)
-	if r, err := unlisted.HTTP.Get(srv.URL); err == nil {
+	if r, err := liveConfig(nil, env(nil), nil, sec).HTTP.Get(srv.URL); err == nil {
 		r.Body.Close()
 		t.Fatal("loopback target reachable without EGRESS_ALLOW_HOSTS")
 	}
