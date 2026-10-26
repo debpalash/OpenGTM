@@ -2,6 +2,7 @@ package pyworker
 
 import (
 	"context"
+	"fmt"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -179,5 +180,90 @@ func TestUnavailableWhenNoURL(t *testing.T) {
 	var nilc *Client
 	if _, err := nilc.Call(context.Background(), ProviderCall{}); !errors.Is(err, ErrUnavailable) {
 		t.Fatalf("nil client: %v", err)
+	}
+}
+
+func TestEmptyTokenIsUnavailableWithoutRequest(t *testing.T) {
+	var n int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { atomic.AddInt32(&n, 1) }))
+	defer srv.Close()
+	_, err := New(srv.URL, "", nil).Call(context.Background(), ProviderCall{CallID: "c", Provider: "p", WorkspaceID: "w"})
+	if !errors.Is(err, ErrUnavailable) || n != 0 {
+		t.Fatalf("err=%v requests=%d", err, n)
+	}
+}
+
+func statusServer(code int, n *int32) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(n, 1)
+		http.Error(w, "x", code)
+	}))
+}
+
+func TestStatusSentinelsAndNoRetryOn503(t *testing.T) {
+	cases := []struct {
+		code int
+		want error
+	}{{404, ErrUnknownProvider}, {401, ErrUnauthorized}, {503, ErrUnauthorized}}
+	for _, tc := range cases {
+		var n int32
+		srv := statusServer(tc.code, &n)
+		res, err := New(srv.URL, testToken, nil).Call(context.Background(), ProviderCall{CallID: "c", Provider: "p", WorkspaceID: "w"})
+		srv.Close()
+		if err != nil || res.Status != "error" || n != 1 {
+			t.Fatalf("%d: res=%+v err=%v n=%d", tc.code, res, err, n)
+		}
+		if !errors.Is(res.Err, tc.want) || res.HTTPStatus != tc.code {
+			t.Fatalf("%d: Err=%v HTTPStatus=%d", tc.code, res.Err, res.HTTPStatus)
+		}
+	}
+	var n int32
+	srv := statusServer(500, &n)
+	defer srv.Close()
+	res, _ := New(srv.URL, testToken, nil).Call(context.Background(), ProviderCall{CallID: "c", Provider: "p", WorkspaceID: "w"})
+	if res.HTTPStatus != 500 || n != 2 {
+		t.Fatalf("500: %+v n=%d", res, n)
+	}
+}
+
+func TestRetryBackoffHonoursContext(t *testing.T) {
+	var n int32
+	srv := statusServer(500, &n)
+	defer srv.Close()
+	c := New(srv.URL, testToken, nil)
+	c.backoff = time.Hour
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() { time.Sleep(50 * time.Millisecond); cancel() }()
+	start := time.Now()
+	_, err := c.Call(ctx, ProviderCall{CallID: "c", Provider: "p", WorkspaceID: "w"})
+	if !errors.Is(err, context.Canceled) || n != 1 || time.Since(start) > 2*time.Second {
+		t.Fatalf("err=%v n=%d", err, n)
+	}
+}
+
+func TestUnknownStatusCoercedToError(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"status":"weird","output":null,"cost_usd":1.5}`))
+	}))
+	defer srv.Close()
+	res, _ := New(srv.URL, testToken, nil).Call(context.Background(), ProviderCall{CallID: "c", Provider: "p", WorkspaceID: "w"})
+	if res.Status != "error" || res.CostUSD != 0 {
+		t.Fatalf("%+v", res)
+	}
+}
+
+func TestCallerClientTimeoutIgnoredAndTokenRedacted(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(150 * time.Millisecond)
+		_, _ = w.Write([]byte(`{"status":"ok","output":{},"cost_usd":0}`))
+	}))
+	defer srv.Close()
+	c := New(srv.URL, testToken, &http.Client{Timeout: 20 * time.Millisecond})
+	res, err := c.Call(context.Background(), ProviderCall{CallID: "c", Provider: "p", WorkspaceID: "w", Timeout: 5 * time.Second})
+	if err != nil || res.Status != "ok" {
+		t.Fatalf("hc.Timeout cut the call: %+v %v", res, err)
+	}
+	if strings.Contains(fmt.Sprintf("%v %+v %#v", c, *c, *c), testToken) {
+		t.Fatal("token printed")
 	}
 }

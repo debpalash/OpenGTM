@@ -30,3 +30,20 @@ func TestConfigEnrichmentFlags(t *testing.T) {
 		}
 	}
 }
+
+func TestPyWorkerTokenFallsBackToInternalServiceToken(t *testing.T) {
+	c, err := loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "INTERNAL_SERVICE_TOKEN": "internal-token-0123456789"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.PyWorkerToken != "internal-token-0123456789" {
+		t.Fatal("PY_WORKER_TOKEN must default to INTERNAL_SERVICE_TOKEN")
+	}
+	if strings.Contains(c.String(), "internal-token-0123456789") {
+		t.Fatal("fallback token leaked in String()")
+	}
+	c, _ = loadAPI(apiEnv(map[string]string{"APP_ENV": "test", "INTERNAL_SERVICE_TOKEN": "internal-token-0123456789", "PY_WORKER_TOKEN": "explicit"}))
+	if c.PyWorkerToken != "explicit" {
+		t.Fatal("explicit PY_WORKER_TOKEN must win")
+	}
+}
