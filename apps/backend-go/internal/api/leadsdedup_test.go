@@ -341,3 +341,35 @@ func TestDedupRunAllowsViewer(t *testing.T) {
 		t.Fatalf("%d %s", rec.Code, rec.Body.String())
 	}
 }
+
+// A master with an empty city merged with a same-company duplicate that has a city would collide
+// with that duplicate on uq_leads_ws_company_city when the master is updated first (Python 500s).
+func TestMergeCompanyCityCollisionWithDuplicate(t *testing.T) {
+	e := newDedupEnv(t)
+	e.exec(t, "ws-alpha", `INSERT INTO leads (id, workspace_id, company, city, score, status, source) VALUES
+		(9101, 'ws-alpha', 'Acme Collide', '', 1, 'new', 'x'), (9102, 'ws-alpha', 'Acme Collide', 'Pune', 2, 'new', 'x')`)
+	rec := e.send("alice", "ws-alpha", "POST", "/api/leads/dedup/merge", `{"master_id":9101,"duplicate_ids":[9102]}`)
+	if rec.Code != 200 || !strings.Contains(rec.Body.String(), `"duplicates_deleted":1,`) {
+		t.Fatalf("%d %s", rec.Code, rec.Body.String())
+	}
+	m := leadRow(t, e, "ws-alpha", 9101, "")
+	if m == nil || m["city"] != "Pune" || leadRow(t, e, "ws-alpha", 9102, "") != nil {
+		t.Errorf("master %v, duplicate must be gone", m)
+	}
+}
+
+// A unique collision with a third lead that is not part of the merge is a 409, not a 500, and
+// nothing is written (the transaction rolls back, the duplicate survives).
+func TestMergeCollisionWithThirdLead409(t *testing.T) {
+	e := newDedupEnv(t)
+	e.exec(t, "ws-alpha", `INSERT INTO leads (id, workspace_id, company, city, score, status, source) VALUES
+		(9111, 'ws-alpha', 'Beta Collide', '', 1, 'new', 'x'), (9112, 'ws-alpha', 'Other Collide', 'Pune', 2, 'new', 'x'),
+		(9113, 'ws-alpha', 'Beta Collide', 'Pune', 3, 'new', 'x')`)
+	rec := e.send("alice", "ws-alpha", "POST", "/api/leads/dedup/merge", `{"master_id":9111,"duplicate_ids":[9112]}`)
+	if rec.Code != 409 || !strings.Contains(rec.Body.String(), "already exists") {
+		t.Fatalf("%d %s", rec.Code, rec.Body.String())
+	}
+	if m := leadRow(t, e, "ws-alpha", 9111, ""); m == nil || m["city"] != "" || leadRow(t, e, "ws-alpha", 9113, "") == nil || leadRow(t, e, "ws-alpha", 9112, "") == nil {
+		t.Errorf("nothing may be written: %v", m)
+	}
+}
