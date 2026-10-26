@@ -87,3 +87,6 @@ apps/searxng-pool/searxng-pool
 
 # ── Legacy Python backend (kept on disk, untracked; see legacy/python) ──
 /legacy/python/
+
+# MCP server build output (make build-mcp)
+apps/backend-go/bin/
