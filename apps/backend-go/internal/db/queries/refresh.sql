@@ -65,9 +65,11 @@ ON CONFLICT (fire_key) WHERE status IN ('pending', 'processing') DO NOTHING
 RETURNING id;
 
 -- name: OtherActiveRefreshJob :one
--- Another pending/processing refresh_workbook for the workbook (not this job).
+-- Another refresh_workbook that will chain instead of this job: any pending one,
+-- or a processing one with a lower id (the lowest id always chains).
 SELECT id FROM jobs
 WHERE type = 'refresh_workbook' AND status IN ('pending', 'processing')
   AND payload->>'workbook_id' = sqlc.arg(workbook_id)::text
   AND id <> sqlc.arg(self_id)::int4
+  AND (status = 'pending' OR id < sqlc.arg(self_id)::int4)
 LIMIT 1;

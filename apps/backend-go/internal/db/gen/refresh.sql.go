@@ -85,6 +85,7 @@ SELECT id FROM jobs
 WHERE type = 'refresh_workbook' AND status IN ('pending', 'processing')
   AND payload->>'workbook_id' = $1::text
   AND id <> $2::int4
+  AND (status = 'pending' OR id < $2::int4)
 LIMIT 1
 `
 
@@ -93,7 +94,8 @@ type OtherActiveRefreshJobParams struct {
 	SelfID     int32
 }
 
-// Another pending/processing refresh_workbook for the workbook (not this job).
+// Another refresh_workbook that will chain instead of this job: any pending one,
+// or a processing one with a lower id (the lowest id always chains).
 func (q *Queries) OtherActiveRefreshJob(ctx context.Context, arg OtherActiveRefreshJobParams) (int32, error) {
 	row := q.db.QueryRow(ctx, otherActiveRefreshJob, arg.WorkbookID, arg.SelfID)
 	var id int32

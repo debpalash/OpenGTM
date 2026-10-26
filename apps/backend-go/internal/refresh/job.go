@@ -319,7 +319,8 @@ func Handle(ctx context.Context, d Deps, c *queue.Claim) error {
 		if pyTruthy(policy["enabled"]) && schedulable(minutes, ok) {
 			// Deviation: Python chains unconditionally, so every extra refresh
 			// job (signal-triggered, retried) starts a permanent extra chain.
-			// Go chains only when no other refresh is pending or running.
+			// Go chains unless another refresh is pending or a lower-id one is processing
+			// (the lowest id always chains, so concurrent jobs never all skip).
 			_, err := gen.New(tx).OtherActiveRefreshJob(ctx, gen.OtherActiveRefreshJobParams{
 				WorkbookID: p.WorkbookID, SelfID: int32(c.ID),
 			})
