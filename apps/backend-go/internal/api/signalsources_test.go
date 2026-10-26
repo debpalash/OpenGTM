@@ -29,11 +29,11 @@ func newSourcesEnv(t *testing.T) sigEnv {
 }
 
 // TestSignalSourcesMatchesFixture compares GET /api/signals/sources with the FastAPI recordings
-// (testdata/contract/signals/sources_*.json). No certification evidence is configured, so every
+// (testdata/contract/signal_sources/sources_*.json). No certification evidence is configured, so every
 // source is "beta" with certification null, as in the recording.
 func TestSignalSourcesMatchesFixture(t *testing.T) {
 	e := newSourcesEnv(t)
-	for _, c := range []struct{ name, who string }{{"signals/sources_catalog", "alice"}, {"signals/sources_no_auth", ""}} {
+	for _, c := range []struct{ name, who string }{{"signal_sources/sources_catalog", "alice"}, {"signal_sources/sources_no_auth", ""}} {
 		fx := contract.Load(t, c.name)
 		_, got := e.req("GET", "/api/signals/sources", c.who, "", "")
 		contract.AssertEqual(t, got, fx.Response)
