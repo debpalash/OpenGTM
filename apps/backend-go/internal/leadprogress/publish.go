@@ -32,6 +32,7 @@ type Bus struct {
 
 	mu         sync.Mutex
 	local      []map[string]any // Python's deque(maxlen=500)
+	localEnc   []string         // dumps(ev) of each local entry, same index (stored key order)
 	retryAfter time.Time
 }
 
@@ -89,9 +90,18 @@ func (b *Bus) EmitOrdered(ctx context.Context, workspaceID, eventType string, da
 	m := ev.toMap()
 
 	b.mu.Lock()
+	aligned := len(b.localEnc) == len(b.local)
 	b.local = append(b.local, m)
+	b.localEnc = append(b.localEnc, string(dumps(ev)))
 	if len(b.local) > recentCap {
 		b.local = append(b.local[:0:0], b.local[len(b.local)-recentCap:]...)
+	}
+	if !aligned || len(b.localEnc) > recentCap {
+		if aligned {
+			b.localEnc = append(b.localEnc[:0:0], b.localEnc[len(b.localEnc)-recentCap:]...)
+		} else {
+			b.localEnc = nil // desynced by a direct b.local write (tests): recent() re-encodes
+		}
 	}
 	b.mu.Unlock()
 

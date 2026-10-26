@@ -18,6 +18,38 @@ import (
 // that are not objects are dropped from the typed result (Emit never writes
 // them).
 func (b *Bus) Recent(ctx context.Context, workspaceID string, limit int) ([]map[string]any, error) {
+	entries := b.recent(ctx, workspaceID, limit)
+	rows := make([]map[string]any, len(entries))
+	for i, e := range entries {
+		rows[i] = e.m
+	}
+	return rows, nil
+}
+
+// RecentEvent is one recent event twice: decoded (for filtering) and as the JSON text that was stored
+// (Redis: the exact LPUSHed string, Python's or Go's; in-process deque: the text Emit would publish).
+// Callers that must keep the stored key order, which a decoded map loses, use Raw.
+type RecentEvent struct {
+	Raw   string
+	Event map[string]any
+}
+
+// RecentEvents is Recent with the stored text kept. Oldest first.
+func (b *Bus) RecentEvents(ctx context.Context, workspaceID string, limit int) []RecentEvent {
+	entries := b.recent(ctx, workspaceID, limit)
+	out := make([]RecentEvent, len(entries))
+	for i, e := range entries {
+		out[i] = RecentEvent{Raw: e.raw, Event: e.m}
+	}
+	return out
+}
+
+type recentEntry struct {
+	raw string
+	m   map[string]any
+}
+
+func (b *Bus) recent(ctx context.Context, workspaceID string, limit int) []recentEntry {
 	if limit < 0 {
 		limit = 0
 	}
@@ -25,14 +57,14 @@ func (b *Bus) Recent(ctx context.Context, workspaceID string, limit int) ([]map[
 		limit = recentCap
 	}
 	if limit == 0 || workspaceID == "" {
-		return []map[string]any{}, nil
+		return []recentEntry{}
 	}
 	if b.redisUsable() {
 		raw, err := b.rdb.LRange(ctx, RecentKey(workspaceID), 0, int64(limit-1)).Result()
 		if err != nil {
 			b.forgetRedis()
 		} else if len(raw) > 0 {
-			rows := make([]map[string]any, 0, len(raw))
+			rows := make([]recentEntry, 0, len(raw))
 			ok := true
 			for _, item := range raw {
 				v, derr := decode(item)
@@ -41,35 +73,42 @@ func (b *Bus) Recent(ctx context.Context, workspaceID string, limit int) ([]map[
 					break
 				}
 				if m, isObj := v.(map[string]any); isObj {
-					rows = append(rows, m)
+					rows = append(rows, recentEntry{raw: item, m: m})
 				}
 			}
 			if ok {
 				for i, j := 0, len(rows)-1; i < j; i, j = i+1, j-1 {
 					rows[i], rows[j] = rows[j], rows[i]
 				}
-				return rows, nil
+				return rows
 			}
 			b.forgetRedis()
 		}
 	}
-	return b.localRecent(workspaceID, limit), nil
+	return b.localRecent(workspaceID, limit)
 }
 
-func (b *Bus) localRecent(workspaceID string, limit int) []map[string]any {
+func (b *Bus) localRecent(workspaceID string, limit int) []recentEntry {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	var out []map[string]any
-	for _, ev := range b.local {
+	aligned := len(b.localEnc) == len(b.local) // tests may append to b.local directly
+	var out []recentEntry
+	for i, ev := range b.local {
 		if ws, _ := ev["workspace_id"].(string); ws == workspaceID {
-			out = append(out, ev)
+			e := recentEntry{m: ev}
+			if aligned {
+				e.raw = b.localEnc[i]
+			} else {
+				e.raw = string(dumps(ev))
+			}
+			out = append(out, e)
 		}
 	}
 	if len(out) > limit {
 		out = out[len(out)-limit:]
 	}
 	if out == nil {
-		out = []map[string]any{}
+		out = []recentEntry{}
 	}
 	return out
 }

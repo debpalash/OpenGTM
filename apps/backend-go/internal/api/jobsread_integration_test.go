@@ -639,3 +639,17 @@ func TestJobsReadRequiresWorkspaceMembership(t *testing.T) {
 		}
 	}
 }
+
+// Events are the stored text compacted Python-style: keys keep their stored order (type, ts, ... as
+// Python inserted them), not sorted, and non-ASCII is raw like FastAPI's ensure_ascii=False dump.
+func TestJobEventsKeepStoredKeyOrder(t *testing.T) {
+	e := newJobsEnv(t, testRedisClient(t))
+	e.seedProgress(t)
+	e.rdb.LPush(context.Background(), "leadgen:progress:ws-alpha:recent",
+		`{"type": "zz_order", "ts": 1788000099.0, "message": "café", "job_id": "`+jA2+`", "b": 1, "a": {"y": 1, "x": 2}, "workspace_id": "ws-alpha"}`)
+	rec := e.getAlice("/api/jobs/" + jA2 + "/events?limit=1")
+	want := `{"events":[{"type":"zz_order","ts":1788000099.0,"message":"café","job_id":"` + jA2 + `","b":1,"a":{"y":1,"x":2},"workspace_id":"ws-alpha"}]}`
+	if rec.Code != 200 || strings.TrimSpace(rec.Body.String()) != want {
+		t.Fatalf("%d %s\nwant %s", rec.Code, rec.Body, want)
+	}
+}

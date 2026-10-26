@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"math/big"
@@ -158,17 +159,27 @@ func (h jobsReadRoutes) events(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	wc, _ := identity.WorkspaceFrom(r.Context())
-	recent, _ := progressBus(h.d).Recent(r.Context(), wc.WorkspaceID, jobEventsHistory) // Redis trouble falls back to the local deque, never an error
-	events := make([]map[string]any, 0, len(recent))
+	recent := progressBus(h.d).RecentEvents(r.Context(), wc.WorkspaceID, jobEventsHistory) // Redis trouble falls back to the local deque, never an error
+	events := make([][]byte, 0, len(recent))
 	for _, e := range recent {
-		if jid, _ := e["job_id"].(string); jid == id && eventTruthy(e["message"]) {
-			events = append(events, e)
+		if jid, _ := e.Event["job_id"].(string); jid != id || !eventTruthy(e.Event["message"]) {
+			continue
 		}
+		// The stored text, compacted Python-style: keys keep the stored (Python insertion) order.
+		enc, ok := compactStoredEvent(e.Raw)
+		if !ok {
+			enc, _ = json.Marshal(e.Event)
+		}
+		events = append(events, enc)
 	}
 	if len(events) > limit {
 		events = events[len(events)-limit:]
 	}
-	writePy(w, map[string]any{"events": events})
+	body := append([]byte(`{"events":[`), bytes.Join(events, []byte(","))...)
+	body = append(body, ']', '}')
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(body)
 }
 
 // eventTruthy is Python's bool(x) for a decoded JSON value (json.Number from Redis, native types from the
