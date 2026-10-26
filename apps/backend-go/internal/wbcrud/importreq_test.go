@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 	"testing"
+	"time"
 )
 
 func impJSON(t *testing.T, v any) string {
@@ -121,7 +122,19 @@ func (e *endless) Read(p []byte) (int, error) {
 func TestReadImportRequestNeverReadsUnboundedBody(t *testing.T) {
 	src := &endless{}
 	const limit = 1 << 20
-	_, _, err := ReadImportRequest(src, limit)
+	type result struct{ err error }
+	done := make(chan result, 1)
+	go func() {
+		_, _, err := ReadImportRequest(src, limit)
+		done <- result{err}
+	}()
+	var err error
+	select {
+	case r := <-done:
+		err = r.err
+	case <-time.After(10 * time.Second):
+		t.Fatal("ReadImportRequest did not stop on an endless body")
+	}
 	if !errors.Is(err, ErrImportBodyTooLarge) {
 		t.Fatalf("want ErrImportBodyTooLarge, got %v", err)
 	}
