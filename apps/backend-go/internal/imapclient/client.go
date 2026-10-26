@@ -17,9 +17,11 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachcfg"
@@ -30,6 +32,49 @@ import (
 // MaxFetchBytes caps one fetched message; larger answers as an empty fetch.
 const MaxFetchBytes = 5 << 20
 
+// MaxSearchUIDs is the hard cap on UIDs SearchUnseen returns.
+const MaxSearchUIDs = 100000
+
+const (
+	// fetchBudget bounds the bytes read from the server during one body fetch
+	// (cap plus literal framing and TLS slack); other calls get opBudget.
+	fetchBudget = MaxFetchBytes + 1<<20
+	opBudget    = 8 << 20
+)
+
+// ErrOversized: the message exceeds MaxFetchBytes (distinct from a missing uid).
+var ErrOversized = errors.New("imap: message exceeds fetch size cap")
+
+// ErrBudgetExceeded: the server sent more than the per-operation byte budget
+// (hostile or broken server); the connection is closed.
+var ErrBudgetExceeded = errors.New("imap: server response exceeded byte budget")
+
+// budgetConn closes the connection once more than the current budget has been
+// read since the last reset, so go-imap's unbounded io.ReadAll of a literal
+// cannot exhaust memory.
+type budgetConn struct {
+	net.Conn
+	left atomic.Int64
+	hit  atomic.Bool
+}
+
+func (b *budgetConn) reset(n int64) { b.left.Store(n) }
+
+func (b *budgetConn) Read(p []byte) (int, error) {
+	l := b.left.Load()
+	if l <= 0 {
+		b.hit.Store(true)
+		b.Conn.Close()
+		return 0, ErrBudgetExceeded
+	}
+	if int64(len(p)) > l {
+		p = p[:l]
+	}
+	n, err := b.Conn.Read(p)
+	b.left.Add(-int64(n))
+	return n, err
+}
+
 // DefaultTimeout bounds each call when no timeout is given.
 const DefaultTimeout = 60 * time.Second
 
@@ -37,7 +82,10 @@ const DefaultTimeout = 60 * time.Second
 type Client interface {
 	Connect(ctx context.Context) error
 	Select(ctx context.Context, folder string) (uidValidity string, err error)
-	SearchUnseen(ctx context.Context, since time.Time) ([]string, error)
+	SearchUnseen(ctx context.Context, since time.Time, max int) ([]string, error)
+	// Fetch: (nil, nil) when the uid is missing; ErrOversized when it exceeds
+	// MaxFetchBytes (the poller should MarkSeen it, as Python's RFC822 fetch
+	// implicitly did).
 	Fetch(ctx context.Context, uid string) ([]byte, error)
 	MarkSeen(ctx context.Context, uid string) error
 	Logout()
@@ -59,6 +107,7 @@ type client struct {
 	mu   sync.Mutex
 	c    *imapclient.Client
 	conn net.Conn
+	bc   *budgetConn
 }
 
 // New builds the production client (no test hatches).
@@ -155,7 +204,11 @@ func (c *client) Connect(ctx context.Context) error {
 			return fmt.Errorf("imap: dial: %w", err)
 		}
 		raw = nc
+		bc := &budgetConn{Conn: nc}
+		bc.reset(opBudget)
+		nc = bc
 		c.mu.Lock()
+		c.bc = bc
 		c.conn = nc
 		c.mu.Unlock()
 		return c.handshake(ctx, nc)
@@ -176,6 +229,9 @@ func (c *client) tlsConfig() *tls.Config {
 
 func (c *client) handshake(ctx context.Context, nc net.Conn) error {
 	var ic *imapclient.Client
+	// NOTE (go-imap v2.0.0-beta.8): NewStartTLS has already consumed the
+	// greeting, and WaitGreeting is idempotent, so calling it on every path is
+	// safe today. Re-check both on any library bump.
 	switch {
 	case c.cfg.UseSSL:
 		tc := tls.Client(nc, c.tlsConfig())
@@ -222,17 +278,28 @@ func (c *client) live() (*imapclient.Client, error) {
 	return c.c, nil
 }
 
-func (c *client) call(ctx context.Context, fn func(ic *imapclient.Client) error) error {
+func (c *client) call(ctx context.Context, budget int64, fn func(ic *imapclient.Client) error) error {
 	ic, err := c.live()
 	if err != nil {
 		return err
 	}
-	return c.redact(c.run(ctx, func() net.Conn { c.mu.Lock(); defer c.mu.Unlock(); return c.conn }, func() error { return fn(ic) }))
+	c.mu.Lock()
+	bc := c.bc
+	if bc != nil {
+		bc.hit.Store(false)
+		bc.reset(budget)
+	}
+	c.mu.Unlock()
+	err = c.run(ctx, func() net.Conn { c.mu.Lock(); defer c.mu.Unlock(); return c.conn }, func() error { return fn(ic) })
+	if err != nil && bc != nil && bc.hit.Load() {
+		err = ErrBudgetExceeded
+	}
+	return c.redact(err)
 }
 
 func (c *client) Select(ctx context.Context, folder string) (string, error) {
 	var v string
-	err := c.call(ctx, func(ic *imapclient.Client) error {
+	err := c.call(ctx, opBudget, func(ic *imapclient.Client) error {
 		d, err := ic.Select(folder, &imap.SelectOptions{ReadOnly: false}).Wait()
 		if err != nil {
 			return fmt.Errorf("imap: select: %w", err)
@@ -243,14 +310,49 @@ func (c *client) Select(ctx context.Context, folder string) (string, error) {
 	return v, err
 }
 
-func (c *client) SearchUnseen(ctx context.Context, since time.Time) ([]string, error) {
+// SearchUnseen returns the lowest max UIDs (ascending, as Python's truncation)
+// of unseen messages since the date. max <= 0 or above MaxSearchUIDs means
+// MaxSearchUIDs. The UID set is walked by range and stops early, so a huge
+// mailbox is never fully materialised.
+func (c *client) SearchUnseen(ctx context.Context, since time.Time, max int) ([]string, error) {
+	if max <= 0 || max > MaxSearchUIDs {
+		max = MaxSearchUIDs
+	}
 	var out []string
-	err := c.call(ctx, func(ic *imapclient.Client) error {
+	err := c.call(ctx, opBudget, func(ic *imapclient.Client) error {
 		d, err := ic.UIDSearch(&imap.SearchCriteria{NotFlag: []imap.Flag{imap.FlagSeen}, Since: since}, nil).Wait()
 		if err != nil {
 			return fmt.Errorf("imap: search: %w", err)
 		}
-		for _, u := range d.AllUIDs() {
+		set, ok := d.All.(imap.UIDSet)
+		if !ok {
+			return nil
+		}
+		limit := 4*max + 16 // ranges may be unsorted: gather a margin, then sort
+		var uids []uint32
+	ranges:
+		for _, r := range set {
+			start, stop := uint32(r.Start), uint32(r.Stop)
+			if stop == 0 {
+				stop = start
+			} else if stop < start {
+				start, stop = stop, start
+			}
+			for u := start; ; u++ {
+				uids = append(uids, u)
+				if len(uids) >= limit {
+					break ranges
+				}
+				if u == stop {
+					break
+				}
+			}
+		}
+		sort.Slice(uids, func(i, j int) bool { return uids[i] < uids[j] })
+		if len(uids) > max {
+			uids = uids[:max]
+		}
+		for _, u := range uids {
 			out = append(out, strconv.FormatUint(uint64(u), 10))
 		}
 		return nil
@@ -266,31 +368,48 @@ func parseUID(uid string) (imap.UID, error) {
 	return imap.UID(n), nil
 }
 
-// Fetch returns the raw message, or nil when it is missing or larger than
-// MaxFetchBytes. It peeks (BODY.PEEK[]) so a failed processing pass leaves the
-// message unseen for the next poll; MarkSeen is the only thing that sets \Seen.
+// Fetch returns the raw message: (nil, nil) when the uid is missing,
+// ErrOversized when it is larger than MaxFetchBytes (RFC822.SIZE is asked first
+// and the body is not transferred in that case), ErrBudgetExceeded when the
+// server streams more than the byte budget. It peeks (BODY.PEEK[]) so a failed
+// processing pass leaves the message unseen; MarkSeen is the only thing that
+// sets \Seen.
 func (c *client) Fetch(ctx context.Context, uid string) ([]byte, error) {
 	u, err := parseUID(uid)
 	if err != nil {
 		return nil, err
 	}
 	var out []byte
-	err = c.call(ctx, func(ic *imapclient.Client) error {
+	err = c.call(ctx, opBudget, func(ic *imapclient.Client) error {
+		sz, err := ic.Fetch(imap.UIDSetNum(u), &imap.FetchOptions{UID: true, RFC822Size: true}).Collect()
+		if err != nil {
+			return fmt.Errorf("imap: fetch size: %w", err)
+		}
+		if len(sz) == 0 {
+			return nil
+		}
+		if sz[0].RFC822Size > MaxFetchBytes {
+			return ErrOversized
+		}
+		return nil
+	})
+	if err != nil || ctx.Err() != nil {
+		return nil, err
+	}
+	// Reached only for existing, in-cap messages; a missing uid left no result
+	// above, and the body fetch below then finds nothing too.
+	err = c.call(ctx, fetchBudget, func(ic *imapclient.Client) error {
 		sec := &imap.FetchItemBodySection{Peek: true, Partial: &imap.SectionPartial{Offset: 0, Size: MaxFetchBytes + 1}}
-		msgs, err := ic.Fetch(imap.UIDSetNum(u), &imap.FetchOptions{UID: true, RFC822Size: true, BodySection: []*imap.FetchItemBodySection{sec}}).Collect()
+		msgs, err := ic.Fetch(imap.UIDSetNum(u), &imap.FetchOptions{UID: true, BodySection: []*imap.FetchItemBodySection{sec}}).Collect()
 		if err != nil {
 			return fmt.Errorf("imap: fetch: %w", err)
 		}
 		if len(msgs) == 0 {
 			return nil
 		}
-		m := msgs[0]
-		if m.RFC822Size > MaxFetchBytes {
-			return nil
-		}
-		b := m.FindBodySection(sec)
+		b := msgs[0].FindBodySection(sec)
 		if len(b) > MaxFetchBytes {
-			return nil
+			return ErrOversized
 		}
 		out = b
 		return nil
@@ -303,7 +422,7 @@ func (c *client) MarkSeen(ctx context.Context, uid string) error {
 	if err != nil {
 		return err
 	}
-	return c.call(ctx, func(ic *imapclient.Client) error {
+	return c.call(ctx, opBudget, func(ic *imapclient.Client) error {
 		if err := ic.Store(imap.UIDSetNum(u), &imap.StoreFlags{Op: imap.StoreFlagsAdd, Silent: true, Flags: []imap.Flag{imap.FlagSeen}}, nil).Close(); err != nil {
 			return fmt.Errorf("imap: store: %w", err)
 		}
