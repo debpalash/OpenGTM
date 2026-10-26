@@ -18,7 +18,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
-// registerAutomationsCRUD registers the rule routes of routers/automations.py: create, list and get. Mutations are admin routes (automations.manage), reads need only workspace
+// registerAutomationsCRUD registers the seven rule routes of routers/automations.py: create, list, get, patch,
+// delete, pause and resume. Mutations are admin routes (automations.manage), reads need only workspace
 // membership. Like FastAPI the order is authentication, workspace, role (403), request validation (422), and only
 // then the AUTOMATIONS_ENABLED check (404 "automations disabled").
 func registerAutomationsCRUD(r *httpx.Router, d Deps) {
@@ -29,6 +30,10 @@ func registerAutomationsCRUD(r *httpx.Router, d Deps) {
 	r.Handle("POST /api/automations/triggers", http.HandlerFunc(h.create), authn, workspace, admin)
 	r.Handle("GET /api/automations/triggers", http.HandlerFunc(h.list), authn, workspace)
 	r.Handle("GET /api/automations/triggers/{trigger_id}", http.HandlerFunc(h.get), authn, workspace)
+	r.Handle("PATCH /api/automations/triggers/{trigger_id}", http.HandlerFunc(h.patch), authn, workspace, admin)
+	r.Handle("DELETE /api/automations/triggers/{trigger_id}", http.HandlerFunc(h.remove), authn, workspace, admin)
+	r.Handle("POST /api/automations/triggers/{trigger_id}/pause", http.HandlerFunc(h.pause), authn, workspace, admin)
+	r.Handle("POST /api/automations/triggers/{trigger_id}/resume", http.HandlerFunc(h.resume), authn, workspace, admin)
 }
 
 type autoCRUD struct {
@@ -169,6 +174,85 @@ func (h autoCRUD) get(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, out)
 }
 
+func (h autoCRUD) patch(w http.ResponseWriter, r *http.Request) {
+	raw, ok := h.body(w, r)
+	if !ok {
+		return
+	}
+	in, errs := crudParsePatch(raw)
+	if errs != nil {
+		httpx.ValidationError(w, errs...)
+		return
+	}
+	if !h.enabled(w) {
+		return
+	}
+	id, ok := h.ruleID(w, r)
+	if !ok {
+		return
+	}
+	t, err := h.svc.Patch(r.Context(), h.ws(r).WorkspaceID, id, in)
+	if err != nil {
+		h.fail(w, "patch", err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, t)
+}
+
+func (h autoCRUD) remove(w http.ResponseWriter, r *http.Request) {
+	if !h.enabled(w) {
+		return
+	}
+	id, ok := h.ruleID(w, r)
+	if !ok {
+		return
+	}
+	if err := h.svc.Delete(r.Context(), h.ws(r).WorkspaceID, id); err != nil {
+		h.fail(w, "delete", err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"deleted": true})
+}
+
+func (h autoCRUD) pause(w http.ResponseWriter, r *http.Request) {
+	if !h.enabled(w) {
+		return
+	}
+	id, ok := h.ruleID(w, r)
+	if !ok {
+		return
+	}
+	if err := h.svc.Pause(r.Context(), h.ws(r).WorkspaceID, id); err != nil {
+		h.fail(w, "pause", err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"enabled": false})
+}
+
+func (h autoCRUD) resume(w http.ResponseWriter, r *http.Request) {
+	if !h.enabled(w) {
+		return
+	}
+	id, ok := h.ruleID(w, r)
+	if !ok {
+		return
+	}
+	next, err := h.svc.Resume(r.Context(), h.ws(r).WorkspaceID, id)
+	if err != nil {
+		h.fail(w, "resume", err)
+		return
+	}
+	var nextRun *string
+	if next != nil {
+		s := autosvc.Iso(*next)
+		nextRun = &s
+	}
+	httpx.WriteJSON(w, http.StatusOK, struct {
+		Enabled   bool    `json:"enabled"`
+		NextRunAt *string `json:"next_run_at"`
+	}{true, nextRun})
+}
+
 // ---- request models (TriggerCreate, TriggerPatch) ---------------------------------------------------------------
 
 const crudMaxInt32 = 1<<31 - 1
@@ -265,6 +349,88 @@ func crudParseCreate(raw []byte) (autosvc.RuleInput, []httpx.FieldError) {
 	}
 	if len(errs) > 0 {
 		return autosvc.RuleInput{}, errs
+	}
+	return in, nil
+}
+
+// crudParsePatch validates a TriggerPatch body: every field is optional and null means unchanged.
+func crudParsePatch(raw []byte) (autosvc.PatchInput, []httpx.FieldError) {
+	obj, errs := wbcrud.DecodeBodyObject(raw)
+	if errs != nil {
+		return autosvc.PatchInput{}, errs
+	}
+	var in autosvc.PatchInput
+	add := func(e ...httpx.FieldError) { errs = append(errs, e...) }
+	present := func(k string) (any, bool) {
+		v, ok := obj.Get(k)
+		return v, ok && v != nil
+	}
+
+	if v, ok := present("name"); ok {
+		if s, e := crudStr(v, crudLoc("name")); e != nil {
+			add(*e)
+		} else {
+			in.Name = &s
+		}
+	}
+	if v, ok := present("trigger_config"); ok {
+		if o, isObj := v.(*wbcrud.Obj); isObj {
+			in.TriggerConfig = o
+		} else {
+			add(crudErr("dict_type", "Input should be a valid dictionary", crudLoc("trigger_config"), v, nil))
+		}
+	}
+	if v, ok := present("condition"); ok {
+		if s, e := crudStr(v, crudLoc("condition")); e != nil {
+			add(*e)
+		} else {
+			in.Condition = &s
+		}
+	}
+	if v, ok := present("actions"); ok {
+		if a, e := crudActions(v); e != nil {
+			add(e...)
+		} else {
+			in.Actions = &a
+		}
+	}
+	if v, ok := present("scope_workbook_ids"); ok {
+		if a, e := crudStrList(v, "scope_workbook_ids"); e != nil {
+			add(e...)
+		} else {
+			in.ScopeWorkbookIDs = &a
+		}
+	}
+	if v, ok := present("stop_on_error"); ok {
+		if b, e := crudBool(v, crudLoc("stop_on_error")); e != nil {
+			add(*e)
+		} else {
+			in.StopOnError = &b
+		}
+	}
+	if v, ok := present("max_spend_usd_per_day"); ok {
+		if f, e := crudCapFloat(v, crudLoc("max_spend_usd_per_day")); e != nil {
+			add(*e)
+		} else {
+			in.MaxSpendUSDPerDay = &f
+		}
+	}
+	if v, ok := present("max_actions_per_day"); ok {
+		if n, e := crudCapInt(v, crudLoc("max_actions_per_day")); e != nil {
+			add(*e)
+		} else {
+			in.MaxActionsPerDay = &n
+		}
+	}
+	if v, ok := present("enabled"); ok {
+		if b, e := crudBool(v, crudLoc("enabled")); e != nil {
+			add(*e)
+		} else {
+			in.Enabled = &b
+		}
+	}
+	if len(errs) > 0 {
+		return autosvc.PatchInput{}, errs
 	}
 	return in, nil
 }
