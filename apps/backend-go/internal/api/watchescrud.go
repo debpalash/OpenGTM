@@ -10,6 +10,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
@@ -105,6 +107,33 @@ func (h watchCRUDRoutes) ws(w http.ResponseWriter, r *http.Request) (string, boo
 		return "", false
 	}
 	return c.WorkspaceID, true
+}
+
+// requireAutomationsManage gates the rule a watch create can attach: the
+// automation routes need automations.manage (admin), so an editor must not get
+// the same rule through the watches API (Go hardening; Python lets it through).
+func (h watchCRUDRoutes) requireAutomationsManage(w http.ResponseWriter, r *http.Request) bool {
+	c, ok := identity.WorkspaceFrom(r.Context())
+	if !ok {
+		httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
+		return false
+	}
+	var allowed bool
+	err := c.Tx(r.Context(), func(tx pgx.Tx) error {
+		var err error
+		allowed, err = identity.HasPermissionTx(r.Context(), tx, c.WorkspaceID, c.User.ID, "automations.manage", "admin")
+		return err
+	})
+	if err != nil {
+		h.d.logger().Error("watches: permission check failed", "err_type", errTypeName(err))
+		httpx.Detail(w, http.StatusInternalServerError, "Internal Server Error")
+		return false
+	}
+	if !allowed {
+		httpx.Detail(w, http.StatusForbidden, "Workspace permission denied: automations.manage")
+		return false
+	}
+	return true
 }
 
 // readObject reads and decodes a pydantic-model body (ordered, exact numbers).
@@ -385,6 +414,9 @@ func (h watchCRUDRoutes) create(w http.ResponseWriter, r *http.Request) {
 	}
 	if leadErr != nil {
 		h.fail(w, leadErr)
+		return
+	}
+	if in.CreateWebhookRule && !h.requireAutomationsManage(w, r) {
 		return
 	}
 	out, err := h.svc.Create(r.Context(), ws, in)

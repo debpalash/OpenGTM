@@ -169,6 +169,22 @@ func (s *Service) maybeWebhookRule(ctx context.Context, ws string, in CreateInpu
 	return &id, nil
 }
 
+// dropRule best-effort deletes the rule maybeWebhookRule created when the
+// watch insert that followed it failed, so no unreachable live rule remains.
+func (s *Service) dropRule(ctx context.Context, ws string, id *string) {
+	if id == nil {
+		return
+	}
+	cctx := context.WithoutCancel(ctx)
+	err := tenancy.InWorkspace(cctx, s.Pool, ws, func(tx pgx.Tx) error {
+		_, err := gen.New(tx).AutoSvcDeleteTrigger(cctx, gen.AutoSvcDeleteTriggerParams{ID: *id, WorkspaceID: ws})
+		return err
+	})
+	if err != nil && s.Log != nil {
+		s.Log.Warn("watches: drop orphan webhook rule failed", "err_type", fmt.Sprintf("%T", err))
+	}
+}
+
 // urlParts returns scheme, whether credentials are present and the hostname
 // (urllib.parse.urlparse semantics, via a tiny local parse).
 func urlParts(raw string) (scheme string, creds bool, host string) {
@@ -258,6 +274,11 @@ func (s *Service) Create(ctx context.Context, ws string, in CreateInput) (Create
 		if err := checkCount(tx); err != nil {
 			return err
 		}
+		if in.LeadID != nil { // before the rule: a refused pin must not leave one behind
+			if err := leadInWorkspace(ctx, tx, ws, *in.LeadID); err != nil {
+				return err
+			}
+		}
 		return dupCheck(tx)
 	}); err != nil {
 		return Created{}, err
@@ -303,6 +324,7 @@ func (s *Service) Create(ctx context.Context, ws string, in CreateInput) (Create
 		return err
 	})
 	if err != nil {
+		s.dropRule(ctx, ws, ruleID) // the watch insert lost a race: do not leave the rule live
 		return Created{}, err
 	}
 	return Created{Watch: out, WebhookRuleID: ruleID}, nil
