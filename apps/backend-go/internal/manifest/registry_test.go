@@ -70,7 +70,7 @@ func keyATrust(t *testing.T, dir string) manifest.TrustStore {
 	body, _ := json.Marshal(map[string]any{"version": 1, "keys": []any{
 		map[string]any{"key_id": "key-a", "public_key": f.TestKeys["key-a"], "publisher": "Contract Publisher"},
 	}})
-	p := filepath.Join(dir, "..trust-store.json")
+	p := filepath.Join(dir, "trust-store.json")
 	if err := os.WriteFile(p, body, 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -334,7 +334,7 @@ func TestManifestPathTraversalRejected(t *testing.T) {
 		t.Fatal("symlinked signature accepted")
 	}
 	// '..' in the directory argument is refused outright
-	if _, err := manifest.LoadIndex(filepath.Join(inside, "..", "outside"), "optional", manifest.TrustStore{}); err != manifest.ErrPathTraversal {
+	if _, err := manifest.LoadIndex(inside+"/../outside", "optional", manifest.TrustStore{}); err != manifest.ErrPathTraversal {
 		t.Fatalf("err %v, want ErrPathTraversal", err)
 	}
 }

@@ -260,3 +260,24 @@ func TestCanonicalYAMLBounds(t *testing.T) {
 		t.Fatal("recursive anchor accepted")
 	}
 }
+
+func TestCanonicalYAMLMergeSequenceFirstWins(t *testing.T) {
+	got, err := manifest.CanonicalYAML([]byte("a: &a {x: 1, y: 1}\nb: &b {x: 2, z: 2}\nc:\n  <<: [*a, *b]\n  w: 0\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `{"a":{"x":1,"y":1},"b":{"x":2,"z":2},"c":{"w":0,"x":1,"y":1,"z":2}}`
+	if string(got) != want {
+		t.Fatalf("got %s want %s (PyYAML output)", got, want)
+	}
+}
+
+func TestCanonicalYAMLNumericKeyOrder(t *testing.T) {
+	got, err := manifest.CanonicalYAML([]byte("10: a\n2: b\n1.5: c\ntrue: d\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := `{"true":"d","1.5":"c","2":"b","10":"a"}`; string(got) != want {
+		t.Fatalf("got %s want %s (PyYAML output)", got, want)
+	}
+}
