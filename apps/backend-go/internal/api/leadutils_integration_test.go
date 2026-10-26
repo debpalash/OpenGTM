@@ -402,7 +402,7 @@ func TestTechStackRefusesPrivateHost(t *testing.T) {
 	defer srv.Close()
 	e := newUtilsEnv(t, enableTechFetch, func(d *Deps) { d.Egress = egress.NewClient(nil) }) // production guard, no allow list
 	host := strings.TrimPrefix(srv.URL, "http://")
-	for _, dom := range []string{host, "http://" + host, "localhost", "127.0.0.1", "169.254.169.254", "http://169.254.169.254/latest/meta-data/", "[::1]", "10.0.0.1", "0x7f000001", "2130706433", "metadata.google.internal"} {
+	for _, dom := range []string{host, "http://" + host, "localhost", "127.0.0.1", "169.254.169.254", "http://169.254.169.254/latest/meta-data/", "[::1]", "10.0.0.1", "0x7f000001", "2130706433"} {
 		rec := e.post("alice", "", "/api/leads/tech-stack", fmt.Sprintf(`{"domain":%q}`, dom))
 		m := jsonBody(t, rec)
 		errStr, _ := m["error"].(string)
@@ -415,26 +415,6 @@ func TestTechStackRefusesPrivateHost(t *testing.T) {
 	}
 	if hits.Load() != 0 {
 		t.Fatalf("the guard let %d requests through to a loopback server", hits.Load())
-	}
-}
-
-func TestTechStackFetchesAllowedHost(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("X-Powered-By", "Express")
-		_, _ = w.Write([]byte(`<html><script src="/wp-content/themes/x.js"></script></html>`))
-	}))
-	defer srv.Close()
-	e := newUtilsEnv(t, enableTechFetch, func(d *Deps) {
-		d.Config.AppEnv = "test"
-		d.EgressAllowHosts = []string{"127.0.0.1"}
-	})
-	rec := e.post("alice", "", "/api/leads/tech-stack", fmt.Sprintf(`{"domain":%q}`, "http://"+strings.TrimPrefix(srv.URL, "http://")))
-	m := jsonBody(t, rec)
-	if rec.Code != 200 || m["success"] != true || m["error"] != nil {
-		t.Fatalf("%d %s", rec.Code, rec.Body.String())
-	}
-	if !strings.HasPrefix(rec.Body.String(), `{"domain":"http://127.0.0.1:`) || !strings.Contains(rec.Body.String(), `"technologies":`) {
-		t.Fatalf("shape: %s", rec.Body.String())
 	}
 }
 

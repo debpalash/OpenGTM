@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/jackc/pgx/v5"
 
@@ -30,7 +32,11 @@ const (
 // Test seam: nil means the production verifier wiring.
 var leadUtilsVerifyDeps func(d Deps) emailverify.Deps
 
-type leadUtils struct{ d Deps }
+type leadUtils struct {
+	d     Deps
+	vOnce sync.Once
+	vd    emailverify.Deps // production cascade wiring, built on first use
+}
 
 // registerLeadUtils mounts POST /api/leads/{score,verify-email,tech-stack} (routers/leads.py single-lead utilities).
 // All three sit behind current_workspace only: any member, viewers included, may call them.
@@ -38,8 +44,34 @@ func registerLeadUtils(r *httpx.Router, d Deps) {
 	h := &leadUtils{d: d}
 	mw := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity)}
 	r.Handle("POST /api/leads/score", http.HandlerFunc(h.score), mw...)
-	r.Handle("POST /api/leads/verify-email", notImplemented("POST /api/leads/verify-email"))
-	r.Handle("POST /api/leads/tech-stack", notImplemented("POST /api/leads/tech-stack"))
+	r.Handle("POST /api/leads/verify-email", h.limited("60/minute", maxUtilBody, "email", h.verifyEmail), mw...)
+	r.Handle("POST /api/leads/tech-stack", h.limited("30/minute", maxUtilBody, "domain", h.techStack), mw...)
+}
+
+// utilCtxKey carries the validated string field from the validating handler to the limited one.
+type utilCtxKey struct{}
+
+// limited is FastAPI + slowapi order: current_workspace (the middleware chain), then body validation (a 422 is
+// answered before the limiter, so it never counts), then the rate limit, then the route body (a 400 counts).
+func (h *leadUtils) limited(spec string, max int64, field string, fn func(http.ResponseWriter, *http.Request, string)) http.Handler {
+	var inner http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fn(w, r, r.Context().Value(utilCtxKey{}).(string))
+	})
+	if h.d.Limiter != nil {
+		inner = h.d.Limiter.Limit(spec)(inner)
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw, ok := readUtilBody(w, r, max)
+		if !ok {
+			return
+		}
+		v, errs := parseStringField(raw, field)
+		if errs != nil {
+			httpx.ValidationError(w, errs...)
+			return
+		}
+		inner.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), utilCtxKey{}, v)))
+	})
 }
 
 // readUtilBody reads the request body up to max; an oversized one is answered 413.
