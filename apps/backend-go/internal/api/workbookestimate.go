@@ -17,8 +17,8 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
 
-// registerWorkbookEstimate registers GET .../run/estimate (current_workspace)
-// and GET /api/workbooks/meta/provider-stats
+// registerWorkbookEstimate registers GET .../run/estimate (current_workspace),
+// POST .../stop (require_editor) and GET /api/workbooks/meta/provider-stats
 // (no per-route dependency: it reads the global provider_stats table, and the
 // global auth middleware of the process is the only gate, as in Python).
 // provider-stats is a more specific literal than GET /api/workbooks/{id}.
@@ -29,11 +29,13 @@ func registerWorkbookEstimate(r *httpx.Router, d Deps) {
 	h := estimateRoutes{d: d, svc: &wbcrud.Service{Pool: d.Pool, Leads: wbcrud.PGLeads{}}}
 	authn := identity.Authenticate(d.Signer, d.Identity)
 	workspace := identity.Workspace(d.Identity)
+	editor := identity.RequireRole("tables.write", "editor", "admin")
 	r.Handle("GET /api/workbooks/meta/provider-stats", http.HandlerFunc(h.providerStats))
 	if !d.workbooksEnabled("workbook estimate") {
 		return
 	}
 	r.Handle("GET /api/workbooks/{workbook_id}/run/estimate", http.HandlerFunc(h.estimate), authn, workspace)
+	r.Handle("POST /api/workbooks/{workbook_id}/stop", http.HandlerFunc(h.stop), authn, workspace, editor)
 }
 
 type estimateRoutes struct {
