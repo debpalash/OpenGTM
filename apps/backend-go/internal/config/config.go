@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"net/url"
 	"os"
 	"strconv"
@@ -264,6 +265,9 @@ func (c Config) LogValue() slog.Value {
 // (Python INSECURE_DEFAULT_SECRET_KEY).
 const InsecureDefaultSecretKey = "INSECURE_FALLBACK_KEY_FOR_DEVELOPMENT_ONLY"
 
+// minSecretKeyBytes is the minimum HS256 signing-key length outside explicit dev.
+const minSecretKeyBytes = 32
+
 // devEnvs mirrors _DEV_ENVS in legacy/python/apps/api/core/config.py: the only
 // APP_ENV values where the insecure default SECRET_KEY is tolerated.
 var devEnvs = map[string]bool{"dev": true, "development": true, "test": true, "testing": true, "local": true}
@@ -309,6 +313,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	if c.CORSOrigins == "" {
 		c.CORSOrigins = "*"
 	}
+	// Fail closed: an unset APP_ENV is NOT a dev environment for the API's
+	// signing-key check (Python defaults it to dev, Go does not trust that).
+	explicitDev := devEnvs[strings.ToLower(strings.TrimSpace(c.AppEnv))]
 	if c.AppEnv == "" {
 		c.AppEnv = "dev"
 	}
@@ -318,8 +325,8 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 	if c.Algorithm != "HS256" {
 		return APIConfig{}, errors.New("config: ALGORITHM must be HS256")
 	}
-	if strings.Contains(c.SecretKey, InsecureDefaultSecretKey) && !devEnvs[strings.ToLower(strings.TrimSpace(c.AppEnv))] {
-		return APIConfig{}, fmt.Errorf("config: refusing to start: SECRET_KEY is the insecure default while APP_ENV=%q; set a strong SECRET_KEY or set APP_ENV to a development value", c.AppEnv)
+	if !explicitDev && (strings.Contains(c.SecretKey, InsecureDefaultSecretKey) || len(c.SecretKey) < minSecretKeyBytes) {
+		return APIConfig{}, fmt.Errorf("config: refusing to start: SECRET_KEY must be set, not the insecure default, and at least %d bytes unless APP_ENV is explicitly a development value (dev, development, test, testing, local); APP_ENV=%q", minSecretKeyBytes, get("APP_ENV"))
 	}
 	const maxMinutes = 60 * 24 * 365 * 10
 	am, err := intVar(get, "ACCESS_TOKEN_EXPIRE_MINUTES", 30, 1, maxMinutes)
@@ -331,7 +338,8 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		return APIConfig{}, err
 	}
 	c.AccessTTL, c.RefreshTTL = time.Duration(am)*time.Minute, time.Duration(rm)*time.Minute
-	if c.MCPTokenTTLDays, err = intVar(get, "MCP_TOKEN_TTL_DAYS", 90, 1, 36500); err != nil {
+	// Python parses any int: <= 0 means tokens never expire (handler checks ttl > 0).
+	if c.MCPTokenTTLDays, err = intVar(get, "MCP_TOKEN_TTL_DAYS", 90, math.MinInt32, math.MaxInt32); err != nil {
 		return APIConfig{}, err
 	}
 	if c.ScimTokenTTLDays, err = clampVar(get, "OPENGTM_SCIM_TOKEN_TTL_DAYS", 90, 1, 365); err != nil {
