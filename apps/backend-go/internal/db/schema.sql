@@ -598,7 +598,7 @@ CREATE TABLE public.destination_runs (
     id character varying NOT NULL,
     workspace_id character varying NOT NULL,
     destination_id character varying NOT NULL,
-    status character varying(20) DEFAULT 'pending'::character varying NOT NULL,
+    status character varying(32) DEFAULT 'pending'::character varying NOT NULL,
     requested_by character varying,
     attempted integer DEFAULT 0 NOT NULL,
     succeeded integer DEFAULT 0 NOT NULL,
