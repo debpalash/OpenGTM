@@ -31,6 +31,10 @@ var workbookCrudAreas = []string{
 	"telemetry", "meta", "templates", "functions", "entities", "entities_write", "analytics", "system",
 }
 
+// enrichmentContractAreas are the fixture directories owned by plan 06 (enrichment_coverage_test.go
+// checks that each of its Go routes has one).
+var enrichmentContractAreas = []string{"estimate", "run", "cellrun", "sources", "refresh", "migrate", "meta", "ingest", "ws"}
+
 // workbookCrudPrefixes selects the plan 04 routes out of the whole route table.
 var workbookCrudPrefixes = []string{
 	"/api/workbooks", "/api/v2/workbooks", "/api/templates", "/api/functions", "/api/entities",
@@ -182,11 +186,15 @@ var uncoveredGuardAllowlist = map[string]string{
 	// Cell run route (plan 06 Task 25). "Enrichment column not found" is recorded in the cellrun area
 	// (workbookcell_integration_test.go replays it); the others are Go-only answers or need state the
 	// recorder cannot seed (a v1 leads-filter lead row, a Python API outage, a client disconnect).
-	"Enrichment column not found":        "recorded in the cellrun fixtures (workbookcell_integration_test.go)",
-	"Row not found":                      "v1 leads-filter row; TestCellRunLegacyLeadRowResolution",
-	"Python API is not configured":       "Go-only proxy answer (README deviations); TestCellRunProxiesOutputColumnsToPython",
-	"Python API unavailable":             "Go-only proxy answer (README deviations); TestCellRunProxiesOutputColumnsToPython",
-	"Client Closed Request":              "client disconnect (499); TestCellRunCancelOnClientDisconnect",
+	"Enrichment column not found":  "recorded in the cellrun fixtures (workbookcell_integration_test.go)",
+	"Row not found":                "v1 leads-filter row; TestCellRunLegacyLeadRowResolution",
+	"Python API is not configured": "Go-only proxy answer (README deviations); TestCellRunProxiesOutputColumnsToPython",
+	"Python API unavailable":       "Go-only proxy answer (README deviations); TestCellRunProxiesOutputColumnsToPython",
+	"Client Closed Request":        "client disconnect (499); TestCellRunCancelOnClientDisconnect",
+	// Plan 06 Go-only hardening (README: Workbook WebSocket, Refresh routes): FastAPI has no connection
+	// cap and reads the body through the framework, so neither string is reachable on the reference.
+	"Too many websocket connections":     "Go-only WS concurrency cap (503 before upgrade; README deviations), no reference equivalent",
+	"Request body could not be read":     "Go-only body-read failure on refresh-policy (README deviations)",
 	"Template column IDs must be unique": "embedded template registry is valid; templatesroutes_test.go",
 	"Template enrichment column IDs must be explicit and unique. Repair the template before creating a workbook.": "templatesroutes_test.go",
 	"Template has circular column dependencies. Repair the template before creating a workbook.":                  "templatesroutes_test.go",
@@ -194,7 +202,8 @@ var uncoveredGuardAllowlist = map[string]string{
 
 func TestFixturesCoverEveryGuardString(t *testing.T) {
 	var corpus strings.Builder
-	for _, area := range workbookCrudAreas {
+	// plan 06 areas count too: the enrichment route files (workbook*.go) are scanned below.
+	for _, area := range append(append([]string{}, workbookCrudAreas...), enrichmentContractAreas...) {
 		for _, name := range contractFixtureNames(t, area) {
 			fx := contract.Load(t, name)
 			corpus.Write(fx.Response.Body)

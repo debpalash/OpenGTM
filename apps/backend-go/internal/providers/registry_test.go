@@ -2,9 +2,9 @@ package providers_test
 
 import (
 	"bufio"
-	"encoding/json"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -37,32 +37,14 @@ func listed(t *testing.T) map[string]string {
 	return out
 }
 
-// Every Python provider module is ported (registered), listed as a Python
-// worker provider with a reason.
+// pyProviderName matches a provider class attribute (`    name = "hunter_io"`) in a Python module.
+var pyProviderName = regexp.MustCompile(`(?m)^    name\s*=\s*"([^"]+)"`)
+
+// Every Python provider module is ported (registered in Go) or listed in python_providers.txt with a
+// reason. The check derives from the directory glob, the module source and python_providers.txt only:
+// testdata/python_provider_inventory.json is informational (its static analysis misses lazy imports)
+// and must not decide coverage.
 func TestEveryProviderPortedOrListed(t *testing.T) {
-	var inv struct {
-		Providers []struct {
-			Module  string `json:"module"`
-			Classes []struct {
-				Name *string `json:"name"`
-			} `json:"classes"`
-		} `json:"providers"`
-	}
-	raw, err := os.ReadFile("testdata/python_provider_inventory.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := json.Unmarshal(raw, &inv); err != nil {
-		t.Fatal(err)
-	}
-	names := map[string][]string{}
-	for _, p := range inv.Providers {
-		for _, c := range p.Classes {
-			if c.Name != nil {
-				names[p.Module] = append(names[p.Module], *c.Name)
-			}
-		}
-	}
 	py := listed(t)
 	files, err := filepath.Glob(filepath.Join(legacyProviders, "*.py"))
 	if err != nil || len(files) < 30 {
@@ -73,9 +55,13 @@ func TestEveryProviderPortedOrListed(t *testing.T) {
 		if mod == "__init__" {
 			continue
 		}
+		src, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatal(err)
+		}
 		ported := false
-		for _, n := range names[mod] {
-			if _, ok := providers.Get(n); ok {
+		for _, m := range pyProviderName.FindAllStringSubmatch(string(src), -1) {
+			if _, ok := providers.Get(m[1]); ok {
 				ported = true
 			}
 		}

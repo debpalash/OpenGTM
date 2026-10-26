@@ -1,12 +1,15 @@
 package api
 
 import (
+	"context"
 	"io"
 	"log/slog"
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // enrichPatterns are exactly the routes Tasks 23-30 plus GET /api/signals/sources
@@ -63,13 +66,32 @@ func TestEnrichRoutesNotRegisteredWithoutFlags(t *testing.T) {
 	}
 }
 
+// enrichDepsWithPool carries the minimum every register function needs (a lazy pool and an identity
+// store); without them each one returns before registering anything.
+func enrichDepsWithPool(t *testing.T) Deps {
+	t.Helper()
+	pool, err := pgxpool.New(context.Background(), "postgres://nobody@127.0.0.1:1/none")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(pool.Close)
+	d := enrichDeps(true, true)
+	d.Pool, d.Identity = pool, identity.NewStore(pool)
+	d.Flags.IngestAPIEnabled = true
+	return d
+}
+
+// TestEnrichRoutePatterns: the registered set EQUALS the table (a missing route fails as loudly as an
+// unexpected one) and no retained route is registered.
 func TestEnrichRoutePatterns(t *testing.T) {
 	if len(enrichPatterns) != 14 {
 		t.Fatalf("pattern table has %d entries, want 14", len(enrichPatterns))
 	}
 	r := httpx.NewRouter()
-	registerEnrich(r, enrichDeps(true, true))
+	registerEnrich(r, enrichDepsWithPool(t))
+	got := map[string]bool{}
 	for _, p := range r.Patterns() {
+		got[p] = true
 		if !enrichPatterns[p] {
 			t.Errorf("unexpected pattern %s", p)
 		}
@@ -77,6 +99,11 @@ func TestEnrichRoutePatterns(t *testing.T) {
 			if p == ret {
 				t.Errorf("retained route registered: %s", p)
 			}
+		}
+	}
+	for p := range enrichPatterns {
+		if !got[p] {
+			t.Errorf("pattern %s is in the table but not registered", p)
 		}
 	}
 }
