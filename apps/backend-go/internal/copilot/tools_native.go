@@ -127,6 +127,12 @@ type searchRow struct {
 	FoundedYear    *string `json:"founded_year"`
 }
 
+// MaxSearchLeadsLimit caps the model-supplied search_leads limit. Python is uncapped; the Go API is a
+// shared multi-tenant process, so a steered model must not be able to load a whole workspace into memory.
+const MaxSearchLeadsLimit = 100
+
+func clampSearchLimit(n int64) int { return int(min(n, MaxSearchLeadsLimit)) }
+
 func searchLeads(ctx context.Context, tx pgx.Tx, args map[string]any) (string, bool, error) {
 	p := leadsread.ListParams{Limit: 10}
 	var ok bool
@@ -147,7 +153,7 @@ func searchLeads(ctx context.Context, tx pgx.Tx, args map[string]any) (string, b
 		if !ok || n < 0 {
 			return "", false, nil // null/odd/negative limits behave differently in Python's SQL: let it answer
 		}
-		p.Limit = int(min(n, math.MaxInt32))
+		p.Limit = clampSearchLimit(n)
 	}
 	leads, err := leadsread.ListLeads(ctx, tx, p)
 	if err != nil {
