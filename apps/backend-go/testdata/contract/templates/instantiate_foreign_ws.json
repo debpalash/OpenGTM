@@ -10,108 +10,11 @@
   },
   "response": {
     "body": {
-      "columns_config": [
-        {
-          "id": "company",
-          "lead_field": "company",
-          "name": "Company",
-          "type": "lead_field",
-          "width": 200
-        },
-        {
-          "id": "website",
-          "lead_field": "website",
-          "name": "Website",
-          "type": "lead_field",
-          "width": 200
-        },
-        {
-          "condition": "{contact_person} == \"\"",
-          "id": "contact",
-          "name": "Decision maker",
-          "target_field": "contact_person",
-          "type": "waterfall",
-          "waterfall": [
-            "deep_scraper",
-            "crosslinked",
-            "decision_maker",
-            "staffspy"
-          ],
-          "width": 200
-        },
-        {
-          "id": "title",
-          "name": "Title",
-          "target_field": "contact_title",
-          "type": "waterfall",
-          "waterfall": [
-            "deep_scraper",
-            "crosslinked",
-            "decision_maker",
-            "staffspy"
-          ],
-          "width": 160
-        },
-        {
-          "condition": "{email} == \"\"",
-          "id": "email",
-          "name": "Email (verified)",
-          "target_field": "email",
-          "type": "waterfall",
-          "verify": true,
-          "waterfall": [
-            "deep_scraper",
-            "jsonld_firmographics",
-            "website_scraper",
-            "email_harvester",
-            "ddg_email",
-            "hunter_io"
-          ],
-          "width": 220
-        },
-        {
-          "id": "seniority",
-          "name": "Seniority tier",
-          "output_format": "text",
-          "prompt": "ROLE: You classify job titles for sales routing.\nCONTEXT: Contact: {contact_person}, title: {contact_title}, at {company}.\nTASK: Classify the contact's seniority as exactly one of: C-LEVEL, VP, DIRECTOR, MANAGER, IC.\nFORMAT: Output ONLY the tier word.\nFALLBACK: If the title is missing or ambiguous, output INSUFFICIENT_DATA.",
-          "type": "ai_formula",
-          "width": 140
-        },
-        {
-          "id": "opener",
-          "name": "Opening line",
-          "output_format": "text",
-          "prompt": "ROLE: You are an expert cold-email copywriter.\nCONTEXT: Contact: {contact_person} ({contact_title}) at {company}. About the company: {description}.\nTASK: Write ONE personalized opening line addressed to this person's role and company. No flattery, no 'I came across your company'.\nFORMAT: One sentence, max 20 words, plain text.\nFALLBACK: If you cannot reference anything specific, output INSUFFICIENT_DATA.",
-          "type": "ai_formula",
-          "width": 300
-        },
-        {
-          "destination": "sequencer",
-          "id": "enroll",
-          "name": "Enroll in sequence",
-          "type": "output",
-          "width": 160
-        }
-      ],
-      "completed_rows": 0,
-      "created_at": "2026-10-26T11:09:59.996795",
-      "description": "The contact waterfalls chain zero-key people-finders (site scrape, CrossLinked, StaffSpy roster). The output column enrolls finished rows in your sequencer once configured in Settings.",
-      "filter_criteria": {},
-      "id": "6660e7b5-af0b-4fe3-a713-17ca43d3ccd1",
-      "last_run_at": null,
-      "name": "Founder & decision-maker outreach",
-      "source_config": {
-        "row_storage_version": 2
-      },
-      "source_type": "empty",
-      "status": "draft",
-      "sync_to_leads": true,
-      "total_rows": 0,
-      "updated_at": "2026-10-26T11:09:59.996795"
+      "detail": "Workspace access denied"
     },
     "headers": {
       "content-type": "application/json"
     },
-    "status": 201
+    "status": 403
   }
 }

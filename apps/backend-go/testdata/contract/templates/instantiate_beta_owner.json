@@ -94,10 +94,10 @@
         }
       ],
       "completed_rows": 0,
-      "created_at": "2026-10-26T11:09:59.950314",
+      "created_at": "2026-10-26T11:12:48.369469",
       "description": "The contact waterfalls chain zero-key people-finders (site scrape, CrossLinked, StaffSpy roster). The output column enrolls finished rows in your sequencer once configured in Settings.",
       "filter_criteria": {},
-      "id": "ac493f7b-e12e-4b2b-9381-3ef24597d476",
+      "id": "e4dc3be8-26a8-4e36-aecf-cf730206b23a",
       "last_run_at": null,
       "name": "Founder & decision-maker outreach",
       "source_config": {
@@ -107,7 +107,7 @@
       "status": "draft",
       "sync_to_leads": true,
       "total_rows": 0,
-      "updated_at": "2026-10-26T11:09:59.950314"
+      "updated_at": "2026-10-26T11:12:48.369469"
     },
     "headers": {
       "content-type": "application/json"

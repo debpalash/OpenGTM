@@ -55,10 +55,10 @@
         }
       ],
       "completed_rows": 0,
-      "created_at": "2026-10-26T11:09:59.729523",
+      "created_at": "2026-10-26T11:12:48.138035",
       "description": "ats_hiring reads public ATS boards (zero-key); jobspy aggregates job portals as fallback. The AI column converts raw postings into an angle you can open with, and the webhook column notifies your own systems.",
       "filter_criteria": {},
-      "id": "fef19582-2cf6-425c-bb01-5996b57abb85",
+      "id": "3abf0b96-9181-4d47-ab74-45a2ffab66e5",
       "last_run_at": null,
       "name": "My Radar",
       "source_config": {
@@ -68,7 +68,7 @@
       "status": "draft",
       "sync_to_leads": true,
       "total_rows": 0,
-      "updated_at": "2026-10-26T11:09:59.729523"
+      "updated_at": "2026-10-26T11:12:48.138035"
     },
     "headers": {
       "content-type": "application/json"

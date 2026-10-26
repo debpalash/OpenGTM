@@ -71,10 +71,10 @@
         }
       ],
       "completed_rows": 0,
-      "created_at": "2026-10-26T11:09:59.760971",
+      "created_at": "2026-10-26T11:12:48.171148",
       "description": "The webhook output column sends each completed row to a URL you configure (destination_config is left empty on purpose \u2014 set your endpoint after import). Great for wiring Yupcha into an existing stack.",
       "filter_criteria": {},
-      "id": "050203b6-8d84-440c-b514-a03cd6f5a9a0",
+      "id": "17289c89-8f27-44b6-9a0b-bc82b8138dba",
       "last_run_at": null,
       "name": "Enrich & push via webhook",
       "source_config": {
@@ -84,7 +84,7 @@
       "status": "draft",
       "sync_to_leads": true,
       "total_rows": 0,
-      "updated_at": "2026-10-26T11:09:59.760971"
+      "updated_at": "2026-10-26T11:12:48.171148"
     },
     "headers": {
       "content-type": "application/json"
