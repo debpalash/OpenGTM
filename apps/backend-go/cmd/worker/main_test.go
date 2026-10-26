@@ -110,3 +110,11 @@ func TestSignalCapsFromConfig(t *testing.T) {
 		t.Fatalf("%+v", c)
 	}
 }
+
+func TestPanicInHandlerFailsJobNotProcess(t *testing.T) {
+	rn := dispatch(map[string]runner{"refresh_workbook": func(context.Context, *queue.Claim) error { panic("kaboom") }})
+	err := runWithDeadline(context.Background(), telemetry.NewLogger(io.Discard), rn, &queue.Claim{Type: "refresh_workbook"}, time.Minute)
+	if err == nil || !strings.HasPrefix(err.Error(), "panic: kaboom") {
+		t.Fatalf("got %v", err)
+	}
+}

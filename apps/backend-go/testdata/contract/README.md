@@ -415,13 +415,13 @@ writes nothing. No fixture; tests named in parentheses.
 
 ## Refresh (plan 06 Task 16): deviations
 
-- `Handle` does not source or enrich inline: it enqueues one `source_workbook` per source column and one `run_workbook` for the stale cells and their reactive dependants, both with the Python executor, fire-keyed on the claim id. Rows added by the sourcing job are therefore enriched one refresh cycle later (they have no overlay, so they are stale next time); Python enriched them in the same cycle. Task 22 restores same-cycle enrichment.
+- `Handle` does not source or enrich inline: it enqueues one `source_workbook` per source column and one `run_workbook` for the stale cells and their reactive dependants, both with the Python executor, fire-keyed on the claim id. Same-cycle enrichment of newly sourced rows (Python `refresh.py`) is kept: the cmd/worker wiring sets `Deps.SourceWait` (600s), so the handler enqueues the source jobs in their own transaction, waits for them to finish and puts every row created in the workbook meanwhile (id above the pre-enqueue maximum) into the same run job with all runnable non-output columns. Differences: rows written concurrently by other writers during the wait are included (Python tracks the exact ids from `materialize_source`); if the wait times out the rest are enriched as stale next cycle; with `SourceWait` zero (library default) new rows wait one cycle.
 - The activity message reads `<reason>: queued N source columns, re-enrich C stale cells in R rows` (counts of work queued, not done).
 - `IntervalMinutes`: NaN, infinity and values beyond int64 report "no interval" (Python raises); negative or over-10-year intervals are not chained (Python would hot-loop or overflow). `strings.ToLower` differs from Python `str.lower` for U+0130.
 - The next refresh is chained unless another refresh_workbook is pending or a lower-id one is processing for the workbook (the lowest id always chains) (Python chains unconditionally and forks a chain per signal-triggered job). Retry idempotency of the next job and the activity row holds only while the first attempt's rows are active; a retry after the next job finished, or after commit but before completion, can duplicate them.
 - `SetPolicy` stores `json.Marshal(policy)` (sorted keys) and returns a map; the route must emit `refresh_policy` before `next_in_minutes`.
 - A payload `workspace_id` that differs from the claim's workspace is an error; neither present is an error (like `workspace_scope`).
-- The next refresh uses `Deps.NextExecutor` (default `go`); Python picks it per cohort. Task 22 wires it from the cohort resolver.
+- The next refresh uses `Deps.NextExecutor` (default `go`); Python picks it per cohort. cmd/worker wires it from the go_executor cohort flags (`config.ExecutorSettings.RefreshExecutor`).
 
 ## MCP (plan 13)
 

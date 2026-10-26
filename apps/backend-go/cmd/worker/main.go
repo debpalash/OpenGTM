@@ -29,7 +29,9 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pyworker"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/refresh"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/signalscan"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
 )
@@ -144,8 +146,52 @@ func poolConfig(cfg config.Config) (*pgxpool.Config, error) {
 	return pcfg, nil
 }
 
+// Job types this worker executes besides run_workbook and ambitionbox_import.
+const (
+	jobRefreshWorkbook = "refresh_workbook"
+	jobSignalScan      = "signal_scan"
+	// sourceWait bounds how long one refresh cycle waits for its Python
+	// source_workbook jobs before enriching the rows found so far (the
+	// refresh_workbook limit is 900s).
+	sourceWait = 600 * time.Second
+)
+
+// jobLimit is the wall-clock limit per job type: Python JOB_TIMEOUTS
+// (run_workbook 1800 configurable, ambitionbox_import 900, refresh_workbook 900,
+// signal_scan 300).
+func jobLimit(cfg config.Config, jobType string) time.Duration {
+	switch jobType {
+	case ambitionimport.JobType:
+		return ambitionimport.JobTimeout
+	case jobRefreshWorkbook:
+		return 900 * time.Second
+	case jobSignalScan:
+		return 300 * time.Second
+	}
+	return cfg.JobTimeout
+}
+
+// dispatch routes a claim to the handler of its type. A type without a handler
+// fails permanently (ClaimNext only claims registered types, so this is a
+// backstop).
+func dispatch(handlers map[string]runner) runner {
+	return func(ctx context.Context, c *queue.Claim) error {
+		h, ok := handlers[c.Type]
+		if !ok {
+			return &queue.PermanentError{Err: fmt.Errorf("worker: no handler for job type %q", c.Type)}
+		}
+		return h(ctx, c)
+	}
+}
+
+// signalCaps maps the SIGNAL_SCAN_* settings to the scan caps.
+func signalCaps(e config.ExecutorSettings) signalscan.Caps {
+	return signalscan.Caps{HotLeads: e.SignalHotLeads, WarmLeads: e.SignalWarmLeads,
+		PerWorkspace: e.SignalPerWorkspace, Global: e.SignalGlobal}
+}
+
 // runWithDeadline runs rn under the per-job wall-clock limit (Python:
-// JOB_TIMEOUTS["run_workbook"]). When the limit, not a cancel from above, ends
+// JOB_TIMEOUTS[type]). When the limit, not a cancel from above, ends
 // the run, the error is "job timed out ...": a failed attempt through the
 // normal retry path, like a Python job timeout.
 func runWithDeadline(ctx context.Context, log *slog.Logger, rn runner, c *queue.Claim, limit time.Duration) error {
@@ -245,11 +291,7 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 		}
 	}()
 
-	limit := cfg.JobTimeout
-	if c.Type == ambitionimport.JobType {
-		limit = ambitionimport.JobTimeout // JOB_TIMEOUTS["ambitionbox_import"]
-	}
-	runErr := runWithDeadline(jctx, log, rn, c, limit)
+	runErr := runWithDeadline(jctx, log, rn, c, jobLimit(cfg, c.Type))
 	cancel(nil)
 	wg.Wait()
 
@@ -315,7 +357,8 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 		localSecrets = secrets.NewResolver(env, secrets.NewPgStore(pool), os.Getenv)
 		deps.Creds = credentials.NewLocal(localSecrets, allow.Allowed, nil)
 	}
-	deps.Runner, deps.Py = buildProviderRunner(cfg, pool, log, api, localSecrets)
+	var pyRPC *pyworker.Client
+	deps.Runner, deps.Py, pyRPC = buildProviderRunner(cfg, pool, log, api, localSecrets)
 	deps.AIBatch = workbook.BatchConfig{Enabled: envBool("GO_AI_BATCH_ENABLED"), MinRows: envInt("WORKBOOK_BATCH_MIN_ROWS", 20)}
 	closeFn := func() {}
 	var prog progress.Publisher
@@ -341,6 +384,28 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 			block = time.Duration(s) * time.Second
 		}
 	}
+	// refresh_workbook / signal_scan: the next occurrence's executor follows the
+	// go_executor cohort flags (a Go worker handled this job, but the flags may
+	// have changed since it was enqueued).
+	rfDeps := refresh.Deps{Pool: pool, SourceWait: sourceWait, NextExecutor: ""}
+	ssDeps := signalscan.Deps{Pool: pool, Hook: abDeps.Hook, Log: log, Caps: ptr(signalCaps(cfg.Executor)),
+		RefreshExecutor: cfg.Executor.RefreshExecutor, ScanExecutor: cfg.Executor.SignalScanExecutor}
+	if pyRPC != nil {
+		ssDeps.Py = pyRPC
+	}
+	queue.AllowJobType(jobRefreshWorkbook)
+	queue.AllowJobType(jobSignalScan)
+	handlers := map[string]runner{
+		queue.JobTypeRunWorkbook: handle,
+		ambitionimport.JobType:   func(ctx context.Context, c *queue.Claim) error { return ambitionimport.Handle(ctx, abDeps, c) },
+		jobRefreshWorkbook: func(ctx context.Context, c *queue.Claim) error {
+			d := rfDeps
+			d.NextExecutor = cfg.Executor.RefreshExecutor(c.WorkspaceID)
+			return refresh.Handle(ctx, d, c)
+		},
+		jobSignalScan: func(ctx context.Context, c *queue.Claim) error { return signalscan.HandleScan(ctx, ssDeps, c) },
+	}
+	route := dispatch(handlers)
 	return func(ctx context.Context, c *queue.Claim) error {
 		if block > 0 {
 			select {
@@ -349,10 +414,7 @@ func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runne
 			case <-time.After(block):
 			}
 		}
-		if c.Type == ambitionimport.JobType {
-			return ambitionimport.Handle(ctx, abDeps, c)
-		}
-		return handle(ctx, c)
+		return route(ctx, c)
 	}, closeFn, nil
 }
 
@@ -373,24 +435,23 @@ func (a apiSecrets) Get(ctx context.Context, ws, key string) (string, string, er
 // is returned as an interface only when PY_WORKER_URL is configured, so a nil
 // client can never hide behind a non-nil interface: columns that need Python
 // are then handed back.
-func buildProviderRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, api *credentials.Client, local *secrets.Resolver) (workbook.ProviderRunner, workbook.PyCaller) {
+func buildProviderRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, api *credentials.Client, local *secrets.Resolver) (workbook.ProviderRunner, workbook.PyCaller, *pyworker.Client) {
 	var sec providerrun.Secrets = apiSecrets{api}
 	if local != nil {
 		sec = local
 	}
 	var py workbook.PyCaller
 	var pyRun providerrun.PyCaller
-	if url := strings.TrimSpace(os.Getenv("PY_WORKER_URL")); url != "" {
-		token := strings.TrimSpace(os.Getenv("PY_WORKER_TOKEN"))
-		if token == "" { // the Python endpoint authenticates with INTERNAL_SERVICE_TOKEN
-			token = cfg.InternalServiceToken
-		}
-		c := pyworker.New(url, token, nil)
-		py, pyRun = c, c
+	var client *pyworker.Client
+	if cfg.Executor.PyWorkerURL != "" {
+		client = pyworker.New(cfg.Executor.PyWorkerURL, cfg.Executor.PyWorkerToken, nil)
+		py, pyRun = client, client
 	}
 	return providerrun.New(providerrun.Deps{Pool: pool, Secrets: sec, Py: pyRun,
-		OperatorAllow: cfg.EgressAllowHosts, Log: log}), py
+		OperatorAllow: cfg.EgressAllowHosts, Log: log}), py, client
 }
+
+func ptr[T any](v T) *T { return &v }
 
 func envBool(key string) bool {
 	switch strings.ToLower(strings.TrimSpace(os.Getenv(key))) {
