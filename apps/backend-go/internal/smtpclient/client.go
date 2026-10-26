@@ -17,6 +17,7 @@ import (
 	"net"
 	"net/smtp"
 	"net/textproto"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -128,7 +129,7 @@ func (c *Client) send(ctx context.Context, cfg Config, from, to string, msg []by
 }
 
 func (c *Client) session(ctx context.Context, cl *smtp.Client, cfg Config, tlsCfg *tls.Config, from, to string, msg []byte) error {
-	if err := cl.Hello("localhost"); err != nil {
+	if err := cl.Hello(ehloName()); err != nil {
 		return err
 	}
 	secure := cfg.UseTLS && cfg.Port == 465
@@ -139,7 +140,7 @@ func (c *Client) session(ctx context.Context, cl *smtp.Client, cfg Config, tlsCf
 			}
 			secure = true
 		} else if cfg.Port == 587 {
-			return errors.New("smtp: server does not offer STARTTLS on port 587")
+			return errors.New("STARTTLS extension not supported by server.")
 		}
 	}
 	if !secure && !c.plainAllowed(cfg.Host) {
@@ -176,6 +177,14 @@ func (c *Client) session(ctx context.Context, cl *smtp.Client, cfg Config, tlsCf
 	}
 	_ = cl.Quit() // the message is accepted; a QUIT failure changes nothing
 	return nil
+}
+
+// ehloName is the local FQDN like smtplib's, falling back to "localhost".
+func ehloName() string {
+	if h, err := os.Hostname(); err == nil && h != "" {
+		return h
+	}
+	return "localhost"
 }
 
 func hasMech(list, want string) bool {
@@ -252,7 +261,7 @@ func wrapCtx(ctx context.Context, err error) error {
 		err = &wrapped{msg: fmt.Sprintf("%d %s", te.Code, te.Msg), err: err}
 	}
 	if ce := ctx.Err(); ce != nil && !errors.Is(err, ce) {
-		return &wrapped{msg: fmt.Sprintf("smtp: %s: %v", ce, err), err: ce}
+		return &wrapped{msg: fmt.Sprintf("smtp: %s", ce), err: ce}
 	}
 	return err
 }
@@ -275,8 +284,11 @@ type redactedError struct {
 func (r *redactedError) Error() string { return r.msg }
 func (r *redactedError) Unwrap() error { return r.err }
 
+// minRedactLen: shorter passwords would corrupt unrelated error text.
+const minRedactLen = 4
+
 func redact(err error, password string) error {
-	if password == "" {
+	if len(password) < minRedactLen { // too short to match safely without mangling text
 		return err
 	}
 	msg := err.Error()
