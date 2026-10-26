@@ -99,9 +99,12 @@ func (s *Salesforce) secret(ctx context.Context, ws, key string) string {
 	if s.Secrets == nil {
 		return os.Getenv(key)
 	}
+	// The resolver itself walks workspace -> global -> operator env and reports
+	// not-found as ("", false, nil). Any error (DB outage, decrypt failure) fails
+	// closed: no process-env fallback, so no cross-tenant credential use.
 	v, _, err := s.Secrets.Get(ctx, ws, key)
 	if err != nil {
-		return os.Getenv(key)
+		return ""
 	}
 	return v
 }
