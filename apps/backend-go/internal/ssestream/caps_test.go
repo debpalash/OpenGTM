@@ -92,3 +92,55 @@ func TestSharedGlobalSemaphore(t *testing.T) {
 		t.Fatal("shared sem not released")
 	}
 }
+
+// Contract for callers (Tasks 13/17): the slot is held until release runs, so the handler
+// must `rel, err := Acquire(...)`; on success `defer rel()` immediately. This documents and
+// checks that a panicking handler that defers release does not leak.
+func TestAcquireThenDeferReleasesOnPanic(t *testing.T) {
+	c := NewCaps(2, 1)
+	func() {
+		defer func() { _ = recover() }()
+		rel, err := c.Acquire(context.Background(), "ws", 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer rel()
+		panic("boom")
+	}()
+	if c.Active() != 0 {
+		t.Fatalf("leak after panic: %d", c.Active())
+	}
+}
+
+// Self-host (CHAT_REQUIRE_AUTH off) has no user id. Python has no per-user chat cap at all, so
+// anonymous callers must not share one capped bucket: AnonymousUser bypasses the per-user
+// limit and is bounded only by the global pool.
+func TestAnonymousBypassesPerUserCap(t *testing.T) {
+	c := NewCaps(10, 1)
+	var rels []func()
+	for i := 0; i < 5; i++ {
+		r, err := c.Acquire(context.Background(), "ws", AnonymousUser)
+		if err != nil {
+			t.Fatalf("anon %d: %v", i, err)
+		}
+		rels = append(rels, r)
+	}
+	if c.Active() != 5 {
+		t.Fatalf("active %d", c.Active())
+	}
+	for _, r := range rels {
+		r()
+		r()
+	}
+	if c.Active() != 0 {
+		t.Fatalf("leak %d", c.Active())
+	}
+	small := NewCaps(2, 1)
+	r1, _ := small.Acquire(context.Background(), "ws", AnonymousUser)
+	r2, _ := small.Acquire(context.Background(), "ws", AnonymousUser)
+	if _, err := small.Acquire(context.Background(), "ws", AnonymousUser); err == nil {
+		t.Fatal("global cap must still bound anonymous")
+	}
+	r1()
+	r2()
+}
