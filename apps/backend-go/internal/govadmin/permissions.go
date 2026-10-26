@@ -4,7 +4,13 @@
 // identity.HasPermission takes default roles from its callers' route gates.
 package govadmin
 
-import "errors"
+import (
+	"errors"
+	"slices"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+)
 
 // Permission is one catalog entry, in Python PERMISSIONS order.
 type Permission struct {
@@ -63,4 +69,21 @@ func validRole(role string) bool {
 		}
 	}
 	return false
+}
+
+// RolesFor returns a copy of the catalog default roles for a permission, or nil
+// when the permission is not in the catalog.
+func RolesFor(permission string) []string {
+	p, ok := lookup(permission)
+	if !ok {
+		return nil
+	}
+	return slices.Clone(p.DefaultRoles)
+}
+
+// Gate is identity.RequireRole(permission, <catalog roles>...): new route gates
+// should use it so they cannot drift from the catalog. Existing call sites are
+// pinned to the catalog by TestAPIGatesMatchCatalog.
+func Gate(permission string) httpx.Middleware {
+	return identity.RequireRole(permission, RolesFor(permission)...)
 }

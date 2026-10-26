@@ -72,7 +72,9 @@ func Overview(ctx context.Context, tx pgx.Tx, ws string) (RBAC, error) {
 			return RBAC{}, err
 		}
 		for _, u := range us {
-			names[u.ID] = u.Username.String
+			if u.Username.Valid {
+				names[u.ID] = u.Username.String
+			}
 		}
 	}
 	ovs, err := q.GovListOverrides(ctx, ws)
@@ -215,7 +217,6 @@ func Remove(ctx context.Context, tx pgx.Tx, ws string, uid int32) error {
 	if role == "owner" {
 		return ErrOwnerRemove
 	}
-	p := func(f func() error) error { return f() }
 	steps := []func() error{
 		func() error {
 			return q.GovDeleteMemberOIDC(ctx, gen.GovDeleteMemberOIDCParams{WorkspaceID: ws, UserID: uid})
@@ -229,7 +230,7 @@ func Remove(ctx context.Context, tx pgx.Tx, ws string, uid int32) error {
 		func() error { return q.GovDeleteMember(ctx, gen.GovDeleteMemberParams{WorkspaceID: ws, UserID: uid}) },
 	}
 	for _, s := range steps {
-		if err := p(s); err != nil {
+		if err := s(); err != nil {
 			return err
 		}
 	}
