@@ -17,6 +17,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
 const (
@@ -53,7 +54,11 @@ func connectorGoPatterns(t *testing.T) map[string]bool {
 		t.Fatal(err)
 	}
 	t.Cleanup(pool.Close)
-	d := Deps{Log: slog.New(slog.NewTextHandler(io.Discard, nil)), Pool: pool,
+	env, err := secrets.NewEnvelope(secrets.Config{MasterKey: "coverage-test-key", AppEnv: "test"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d := Deps{Log: slog.New(slog.NewTextHandler(io.Discard, nil)), Pool: pool, Envelope: env,
 		Flags: config.Flags{PGLeadStore: true, GoConnectorRoutesEnabled: true}}
 	r := httpx.NewRouter()
 	RegisterConnectors(r, d)
