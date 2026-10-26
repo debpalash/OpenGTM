@@ -1,6 +1,6 @@
 //go:build integration
 
-package govidp
+package govidp_test
 
 import (
 	"context"
@@ -16,6 +16,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/api"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/govidp"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 )
@@ -25,18 +26,18 @@ func (e *env) rotate(t *testing.T, ws string, now time.Time) string {
 	var tok string
 	e.in(t, ws, func(tx pgx.Tx) error {
 		var err error
-		tok, err = Rotate(context.Background(), tx, ws, e.owner, now)
+		tok, err = govidp.Rotate(context.Background(), tx, ws, e.owner, now)
 		return err
 	})
 	return tok
 }
 
-func (e *env) status(t *testing.T, ws string, now time.Time) *TokenStatus {
+func (e *env) status(t *testing.T, ws string, now time.Time) *govidp.TokenStatus {
 	t.Helper()
-	var st *TokenStatus
+	var st *govidp.TokenStatus
 	e.in(t, ws, func(tx pgx.Tx) error {
 		var err error
-		st, err = Status(context.Background(), tx, ws, now)
+		st, err = govidp.Status(context.Background(), tx, ws, now)
 		return err
 	})
 	return st
@@ -147,14 +148,14 @@ func TestRevoke(t *testing.T) {
 	e := setup(t)
 	now := time.Now()
 	tok := e.rotate(t, e.ws, now)
-	e.in(t, e.ws, func(tx pgx.Tx) error { return Revoke(context.Background(), tx, e.ws) })
+	e.in(t, e.ws, func(tx pgx.Tx) error { return govidp.Revoke(context.Background(), tx, e.ws) })
 	if e.status(t, e.ws, now) != nil {
 		t.Fatal("status after revoke")
 	}
 	if c := scimStatus(t, e, e.ws, tok); c != http.StatusUnauthorized {
 		t.Fatalf("revoked token authenticates: %d", c)
 	}
-	e.in(t, e.ws, func(tx pgx.Tx) error { return Revoke(context.Background(), tx, e.ws) }) // idempotent
+	e.in(t, e.ws, func(tx pgx.Tx) error { return govidp.Revoke(context.Background(), tx, e.ws) }) // idempotent
 }
 
 func TestTenantIsolationSCIM(t *testing.T) {
@@ -164,7 +165,7 @@ func TestTenantIsolationSCIM(t *testing.T) {
 	if e.status(t, e.ws2, now) != nil {
 		t.Fatal("status leaked across workspaces")
 	}
-	e.in(t, e.ws2, func(tx pgx.Tx) error { return Revoke(context.Background(), tx, e.ws2) })
+	e.in(t, e.ws2, func(tx pgx.Tx) error { return govidp.Revoke(context.Background(), tx, e.ws2) })
 	if e.status(t, e.ws, now) == nil {
 		t.Fatal("revoke in B removed A's token")
 	}
@@ -181,17 +182,17 @@ func TestTokenNeverLogged(t *testing.T) {
 	e.status(t, e.ws, now)
 	const sec = "client-secret-placeholder-q1"
 	e.in(t, e.ws, func(tx pgx.Tx) error {
-		_, err := SaveConfig(context.Background(), tx, e.res, e.ws, OIDCInput{Enabled: true, Issuer: "https://login.example.com", ClientID: "c", ClientSecret: sec, DefaultRole: "viewer"})
+		_, err := govidp.SaveConfig(context.Background(), tx, e.res, e.ws, govidp.OIDCInput{Enabled: true, Issuer: "https://login.example.com", ClientID: "c", ClientSecret: sec, DefaultRole: "viewer"})
 		return err
 	})
 	_ = e.try(e.ws, func(tx pgx.Tx) error { // failing path: error text must not carry secrets
-		_, err := SaveConfig(context.Background(), tx, e.res, e.ws, OIDCInput{Issuer: "http://x", ClientSecret: sec})
+		_, err := govidp.SaveConfig(context.Background(), tx, e.res, e.ws, govidp.OIDCInput{Issuer: "http://x", ClientSecret: sec})
 		if err != nil && strings.Contains(err.Error(), sec) {
 			t.Error("error leaks client secret")
 		}
 		return err
 	})
-	e.in(t, e.ws, func(tx pgx.Tx) error { return Revoke(context.Background(), tx, e.ws) })
+	e.in(t, e.ws, func(tx pgx.Tx) error { return govidp.Revoke(context.Background(), tx, e.ws) })
 	if strings.Contains(buf.String(), tok) || strings.Contains(buf.String(), tok[8:]) || strings.Contains(buf.String(), sec) {
 		t.Fatal("secret material reached the log")
 	}
