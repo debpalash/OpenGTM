@@ -131,13 +131,13 @@ func TestPyDumpsDefaultSeparators(t *testing.T) {
 
 func TestObjStringsUsePythonEscaping(t *testing.T) {
 	o := NewObj()
-	o.Set("k", "a b c\x7f<>&\"\\\n\x01\b\f\té")
+	o.Set("k", "a\u2028b\u2029c\x7f<>&\"\\\n\x01\b\f\té")
 	b, _ := o.MarshalJSON()
-	want := "{\"k\":\"a b c\x7f<>&\\\"\\\\\\n\\u0001\\b\\f\\té\"}"
+	want := "{\"k\":\"a\u2028b\u2029c\x7f<>&\\\"\\\\\\n\\u0001\\b\\f\\té\"}"
 	if string(b) != want {
 		t.Errorf("got %s want %s", b, want)
 	}
-	if !strings.Contains(string(b), " ") {
+	if !strings.Contains(string(b), "\u2028") {
 		t.Error("U+2028 must stay raw like Python's ensure_ascii=False")
 	}
 }

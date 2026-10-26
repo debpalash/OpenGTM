@@ -18,7 +18,7 @@ var leadsSignalsPatterns = map[string]bool{
 	"PUT /api/lead/{lead_id}": true, "DELETE /api/lead/{lead_id}": true, "POST /api/lead": true,
 	"GET /api/export/csv": true, "POST /api/leads/dedup": true, "POST /api/leads/dedup/merge": true,
 	"POST /api/leads/bulk-enrich": true,
-	"GET /api/signals": true, "GET /api/signals/analytics": true, "GET /api/signals/counts": true,
+	"GET /api/signals":            true, "GET /api/signals/analytics": true, "GET /api/signals/counts": true,
 	"POST /api/signals/scan": true, "POST /api/signals/mark-read": true,
 	"GET /api/events": true,
 }

@@ -240,7 +240,7 @@ func TestExportGuardsAndFilename(t *testing.T) {
 	if err := s.ExportCSV(ctx, wsA, wb, wbcrud.ExportParams{ColumnIDs: []string{"company"}, RowIDs: []int64{0}}, open); err != nil {
 		t.Fatal(err)
 	}
-	if name != "Walk" || out.String() != "﻿Company\r\n" {
+	if name != "Walk" || out.String() != "\ufeffCompany\r\n" {
 		t.Fatalf("name %q body %q", name, out.String())
 	}
 }
