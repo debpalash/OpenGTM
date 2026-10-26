@@ -82,11 +82,10 @@ func inboundDestination(req *http.Request) (string, bool) {
 	return id, true
 }
 
-// limited runs next unless key is over the budget of mw (429, the shared limiter's body). The limiter keys on request
-// headers, so it is handed a clone whose key header is ours; the client's own headers never choose a bucket.
+// limited runs next unless key is over the budget of mw (429, the shared limiter's body). The limiter is handed our key through the
+// request context; the client's own headers never choose a bucket.
 func limited(mw httpx.Middleware, key string, w http.ResponseWriter, r *http.Request, next func()) {
-	r2 := r.Clone(r.Context())
-	r2.Header.Set("X-Workspace-Id", key)
+	r2 := r.WithContext(ratelimit.WithKey(r.Context(), key))
 	mw(http.HandlerFunc(func(http.ResponseWriter, *http.Request) { next() })).ServeHTTP(w, r2)
 }
 

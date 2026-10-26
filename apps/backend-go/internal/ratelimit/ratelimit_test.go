@@ -1,12 +1,15 @@
 package ratelimit
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 )
 
 func req(hdr map[string]string, remote string) *http.Request {
@@ -18,24 +21,49 @@ func req(hdr map[string]string, remote string) *http.Request {
 	return r
 }
 
-func TestKeyPrecedenceWorkspaceThenTokenThenIP(t *testing.T) {
-	t.Setenv("TRUST_PROXY", "")
-	tok := strings.Repeat("a", 40)
-	if got := Key(req(map[string]string{"X-Workspace-Id": "7", "Authorization": "Bearer " + tok}, "1.2.3.4:5")); got != "ws:7" {
-		t.Fatal(got)
+// Plan 09 final security M2: buckets come from server-side state, never from request headers.
+func TestKeyUsesAuthenticatedIdentityNotHeaders(t *testing.T) {
+	l := New(nil)
+	jwtHead := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." // identical for every HS256 token
+	r1 := req(map[string]string{"Authorization": "Bearer " + jwtHead + "payloadA", "X-Workspace-Id": "victim"}, "1.2.3.4:5")
+	r2 := req(map[string]string{"Authorization": "Bearer " + jwtHead + "payloadB", "X-Workspace-Id": "victim"}, "1.2.3.4:5")
+	if l.key(r1) != l.key(r2) {
+		t.Fatal("same client IP, no identity: both fall to the IP bucket, never the header or token prefix")
 	}
-	if got := Key(req(map[string]string{"Authorization": "bearer  " + tok + " "}, "1.2.3.4:5")); got != "tok:"+tok[:32] {
-		t.Fatal(got)
+	if k := l.key(r1); k != "ip:1.2.3.4" {
+		t.Fatal(k)
 	}
-	if got := Key(req(map[string]string{"Authorization": "Bearer   "}, "1.2.3.4:5")); got != "ip:1.2.3.4" {
-		t.Fatal(got)
+	// authenticated users get one bucket each, whatever their bearer prefix or X-Workspace-Id header
+	u1 := r1.WithContext(identity.WithPrincipal(r1.Context(), identity.Principal{User: identity.User{ID: 1}}))
+	u2 := r2.WithContext(identity.WithPrincipal(r2.Context(), identity.Principal{User: identity.User{ID: 2}}))
+	if l.key(u1) != "user:1" || l.key(u2) != "user:2" {
+		t.Fatal(l.key(u1), l.key(u2))
 	}
-	if got := Key(req(map[string]string{"X-Forwarded-For": "9.9.9.9"}, "1.2.3.4:5")); got != "ip:1.2.3.4" {
-		t.Fatal("XFF trusted:", got)
+	if k := l.key(req(nil, "1.2.3.4:5").WithContext(WithKey(context.Background(), "ws:7"))); k != "ws:7" {
+		t.Fatal(k)
 	}
-	t.Setenv("TRUST_PROXY", "true")
-	if got := Key(req(map[string]string{"X-Forwarded-For": "9.9.9.9, 8.8.8.8"}, "1.2.3.4:5")); got != "ip:9.9.9.9" {
-		t.Fatal(got)
+}
+
+func TestKeyIPIgnoresForwardedFor(t *testing.T) {
+	t.Setenv("TRUST_PROXY", "true") // the old XFF switch must be inert
+	l := New(nil)
+	if k := l.key(req(map[string]string{"X-Forwarded-For": "9.9.9.9, 8.8.8.8"}, "8.8.4.4:5")); k != "ip:8.8.4.4" {
+		t.Fatal("XFF trusted:", k)
+	}
+	// behind a trusted proxy (loopback / docker bridge) the client is X-Real-IP; XFF is still ignored
+	if k := l.key(req(map[string]string{"X-Real-IP": "203.0.113.7", "X-Forwarded-For": "9.9.9.9"}, "172.18.0.5:5")); k != "ip:203.0.113.7" {
+		t.Fatal(k)
+	}
+	// an untrusted peer cannot choose its bucket with X-Real-IP
+	if k := l.key(req(map[string]string{"X-Real-IP": "203.0.113.7"}, "8.8.4.4:5")); k != "ip:8.8.4.4" {
+		t.Fatal(k)
+	}
+	l.SetTrustedProxies(ParseTrustedProxies("10.0.0.0/8", nil))
+	if k := l.key(req(map[string]string{"X-Real-IP": "203.0.113.7"}, "10.1.2.3:5")); k != "ip:203.0.113.7" {
+		t.Fatal(k)
+	}
+	if k := l.key(req(map[string]string{"X-Real-IP": "203.0.113.7"}, "172.18.0.5:5")); k != "ip:172.18.0.5" {
+		t.Fatal("explicit CIDRs replace the defaults:", k)
 	}
 }
 
@@ -45,7 +73,7 @@ func (c *clock) now() time.Time { return c.t }
 
 func do(h http.Handler, ws string) *httptest.ResponseRecorder {
 	w := httptest.NewRecorder()
-	h.ServeHTTP(w, req(map[string]string{"X-Workspace-Id": ws}, "1.1.1.1:1"))
+	h.ServeHTTP(w, req(nil, "1.1.1.1:1").WithContext(WithKey(context.Background(), "ws:"+ws)))
 	return w
 }
 

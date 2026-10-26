@@ -2,9 +2,10 @@
 package ratelimit
 
 import (
+	"context"
 	"fmt"
-	"net"
 	"net/http"
+	"net/netip"
 	"os"
 	"strconv"
 	"strings"
@@ -12,43 +13,38 @@ import (
 	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
 )
 
 const maxKeys = 100_000
 
-// Key mirrors core/ratelimit.py workspace_key: workspace, then bearer token
-// fingerprint, then client IP.
-func Key(r *http.Request) string {
-	if ws := r.Header.Get("X-Workspace-Id"); ws != "" {
-		return "ws:" + ws
-	}
-	if auth := r.Header.Get("Authorization"); len(auth) >= 7 && strings.EqualFold(auth[:7], "bearer ") {
-		if tok := strings.TrimSpace(auth[7:]); tok != "" {
-			if len(tok) > 32 {
-				tok = tok[:32]
-			}
-			return "tok:" + tok
-		}
-	}
-	return "ip:" + remoteHost(r)
+type keyOverride struct{}
+
+// WithKey makes the limiter use key for requests carrying the returned context. Public (unauthenticated)
+// routes use it to bucket by a value they derived themselves (a verified token, their own client-IP logic);
+// no request header ever chooses a bucket.
+func WithKey(ctx context.Context, key string) context.Context {
+	return context.WithValue(ctx, keyOverride{}, key)
 }
 
-func remoteHost(r *http.Request) string {
-	if strings.EqualFold(os.Getenv("TRUST_PROXY"), "true") {
-		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-			first, _, _ := strings.Cut(xff, ",")
-			if first = strings.TrimSpace(first); first != "" {
-				return first
-			}
-		}
+// key is the bucket for r, from server-side state only (plan 09 final security M2; slowapi's
+// workspace_key read the raw X-Workspace-Id and a bearer prefix, both client-chosen):
+//   - an explicit WithKey,
+//   - the authenticated workspace (identity.Workspace has already checked membership),
+//   - the authenticated user,
+//   - else the client IP: X-Real-IP only from a trusted proxy peer, never X-Forwarded-For.
+func (l *Limiter) key(r *http.Request) string {
+	ctx := r.Context()
+	if k, ok := ctx.Value(keyOverride{}).(string); ok && k != "" {
+		return k
 	}
-	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
-		return host
+	if wc, ok := identity.WorkspaceFrom(ctx); ok && wc.WorkspaceID != "" {
+		return "ws:" + wc.WorkspaceID
 	}
-	if r.RemoteAddr != "" {
-		return r.RemoteAddr
+	if p, ok := identity.PrincipalFrom(ctx); ok && p.User.ID != 0 {
+		return "user:" + strconv.Itoa(int(p.User.ID))
 	}
-	return "127.0.0.1"
+	return "ip:" + ClientIP(r, l.trusted)
 }
 
 type window struct {
@@ -63,13 +59,18 @@ type Limiter struct {
 	mu   sync.Mutex
 	hits map[string]*window
 	seq  int
+	// trusted are the proxy networks whose X-Real-IP is believed (TRUST_PROXY_CIDRS, default: loopback and private ranges).
+	trusted []netip.Prefix
 }
+
+// SetTrustedProxies replaces the trusted proxy networks (see ParseTrustedProxies).
+func (l *Limiter) SetTrustedProxies(p []netip.Prefix) { l.trusted = p }
 
 func New(now func() time.Time) *Limiter {
 	if now == nil {
 		now = time.Now
 	}
-	return &Limiter{now: now, hits: map[string]*window{}}
+	return &Limiter{now: now, hits: map[string]*window{}, trusted: ParseTrustedProxies(os.Getenv("TRUST_PROXY_CIDRS"), nil)}
 }
 
 var units = map[string]struct {
@@ -110,7 +111,7 @@ func (l *Limiter) Limit(spec string) httpx.Middleware {
 	body := map[string]string{"error": fmt.Sprintf("Rate limit exceeded: %d per 1 %s", n, unit)}
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if !l.hit(ns+Key(r), n, period) {
+			if !l.hit(ns+l.key(r), n, period) {
 				httpx.WriteJSON(w, http.StatusTooManyRequests, body)
 				return
 			}

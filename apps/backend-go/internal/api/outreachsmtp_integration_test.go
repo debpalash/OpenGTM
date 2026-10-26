@@ -453,3 +453,19 @@ func TestSMTPTestNeverSendsGlobalPasswordToWorkspaceHost(t *testing.T) {
 		t.Fatalf("own creds: %d %s", code, body)
 	}
 }
+
+// Plan 09 final security M2: the bucket is the authenticated workspace, not whatever X-Workspace-Id says. A caller who
+// omits the header (active workspace) shares the budget of the same workspace, and a spoofed header is refused, not a fresh bucket.
+func TestSMTPTestLimiterKeysOnAuthenticatedWorkspace(t *testing.T) {
+	srv := testsmtp.New(t, testsmtp.Options{})
+	e := newOsmtpEnv(t, srv, ratelimit.New(nil))
+	for i := 0; i < 10; i++ {
+		e.as("alice", "ws-alpha", "POST", "/api/outreach/smtp/test", `{"to_email":"nope"}`)
+	}
+	if code, _, body := e.as("alice", "", "POST", "/api/outreach/smtp/test", `{"to_email":"nope"}`); code != 429 {
+		t.Fatalf("header-less request escaped the workspace bucket: %d %s", code, body)
+	}
+	if code, _, body := e.as("alice", "ws-beta", "POST", "/api/outreach/smtp/test", `{"to_email":"nope"}`); code != 403 {
+		t.Fatalf("spoofed workspace header: %d %s", code, body)
+	}
+}
