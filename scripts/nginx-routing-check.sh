@@ -60,7 +60,12 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
            "PUT /api/settings/enrichment-providers/hunter_io" "GET /api/settings/llm-usage" \
            "GET /api/settings/integrations" "PUT /api/settings/integrations/salesforce" \
            "GET /api/settings/workspace-integrations" "PUT /api/settings/workspace-integrations/hubspot" \
-           "GET /api/billing/balance" "POST /api/billing/checkout" "POST /api/billing/webhook"; do
+           "GET /api/billing/balance" "POST /api/billing/checkout" "POST /api/billing/webhook" \
+           "GET /api/leads" "GET /api/leads?limit=5" "GET /api/leads/" "GET /api/stats" "GET /api/filters" "POST /api/lead" \
+           "GET /api/lead/7" "PUT /api/lead/7" "DELETE /api/lead/7" "GET /api/lead/7/timeline" "GET /api/lead/7/similar" \
+           "POST /api/lead/7/status" "GET /api/export/csv" "POST /api/leads/dedup" "POST /api/leads/dedup/merge" \
+           "POST /api/leads/bulk-enrich" "GET /api/signals" "GET /api/signals/analytics" "GET /api/signals/counts" \
+           "POST /api/signals/scan" "POST /api/signals/mark-read" "GET /api/events?token=SECRET"; do
     set -- $r
     expect "$r X-Upstream" "$(hdr "$1" "$2" X-Upstream)" "$want"
     expect "$r X-Stub     " "$(hdr "$1" "$2" X-Stub)" "$want"
@@ -86,7 +91,24 @@ check_matrix() { # $1 = expected upstream for Go-eligible routes (py|go)
   # Always Python, at any percentage
   expect "GET /auth/sso/x X-Stub" "$(hdr GET /auth/sso/x X-Stub)" py
   expect "GET /auth/sso/x X-Upstream (unset)" "$(hdr GET /auth/sso/x X-Upstream)" ""
-  expect "GET /api/leads X-Stub" "$(hdr GET /api/leads X-Stub)" py
+  # Retained lead/signal routes (testdata/contract/retained_leads_routes.txt): always Python at any percentage.
+  for r in "POST /api/lead/7/enrich" "POST /api/collect" "GET /api/jobs" "GET /api/jobs/x" "GET /api/jobs/x/stages" \
+           "GET /api/jobs/x/leads" "GET /api/jobs/x/events" "POST /api/jobs/x/cancel" "DELETE /api/jobs/x" \
+           "POST /api/jobs/x/retry" "GET /api/system-stats" "GET /api/v2/search/unified" "POST /api/v2/scraper/scrape" \
+           "POST /api/leads/verify-email" "POST /api/leads/score" "POST /api/leads/tech-stack" \
+           "POST /api/leads/domain-intel" "GET /api/signals/sources"; do
+    set -- $r
+    expect "$r X-Stub" "$(hdr "$1" "$2" X-Stub)" py
+    expect "$r X-Upstream (unset)" "$(hdr "$1" "$2" X-Upstream)" ""
+  done
+  # /api/events: SSE settings and no `?token=` in this location's access log.
+  local E; E="$(printf '%s\n' "$T" | awk 'index($0,"location = /api/events {"){f=1;next} f&&/^[[:space:]]*}/{exit} f')"
+  for d in "proxy_buffering off;" "proxy_read_timeout 1h;" "proxy_http_version 1.1;" "add_header X-Accel-Buffering no always;" "access_log /dev/stdout sse_noquery;"; do
+    case "$E" in *"$d"*) echo "  ok   /api/events has '$d'";; *) echo "  FAIL /api/events missing '$d'"; FAIL=1;; esac
+  done
+  expect "GET /api/events X-Accel-Buffering" "$(hdr GET '/api/events?token=SECRET' X-Accel-Buffering)" no
+  curl -s -o /dev/null "http://127.0.0.1:$PORT/api/events?token=SECRETVALUE123"; sleep 0.3
+  if docker logs "$RUN-gw" 2>&1 | grep -q SECRETVALUE123; then echo "  FAIL token leaked into gateway log"; FAIL=1; else echo "  ok   token absent from gateway log"; fi
   # The 5 retained sources* routes (Python leadgen registry) never go to Go, even at 100%.
   for r in "GET /api/settings/sources" "GET /api/settings/sources/health" "PUT /api/settings/sources/x" \
            "POST /api/settings/sources/x/health/reset" "GET /api/settings/sources/registry"; do
