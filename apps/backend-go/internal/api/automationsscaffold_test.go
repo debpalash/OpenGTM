@@ -51,8 +51,12 @@ func TestAutomationRoutesNotRegisteredWithoutFlags(t *testing.T) {
 	for _, c := range []struct{ pg, on bool }{{false, false}, {true, false}, {false, true}} {
 		r := httpx.NewRouter()
 		registerAutomationGroups(r, autoDeps(c.pg, c.on, false))
-		if n := len(r.Patterns()); n != 0 {
-			t.Errorf("pg=%v on=%v: %d routes registered: %v", c.pg, c.on, n, r.Patterns())
+		for _, p := range r.Patterns() {
+			// The rule routes need only GO_AUTOMATION_ROUTES_ENABLED (Python gates them on AUTOMATIONS_ENABLED
+			// alone); the watch routes also need PG_LEAD_STORE.
+			if !c.on || watchPatterns[p] {
+				t.Errorf("pg=%v on=%v: route %s registered", c.pg, c.on, p)
+			}
 		}
 	}
 	if autoDeps(true, false, false).automationRoutesEnabled("x") || !autoDeps(true, true, false).automationRoutesEnabled("x") {

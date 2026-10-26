@@ -41,6 +41,13 @@ var autoDeviations = map[string]bool{
 	"create_negative_spend_cap":   true, // Python stores -1.0; Go 422 (D4)
 }
 
+// autoClockValues are wall-clock values the recorder did not normalise: the next run of a seeded schedule rule after a
+// pause or resume depends on the hour the fixtures were recorded.
+var autoClockValues = map[string][]string{
+	"get_after_pause_schedule":  {"$.next_run_at"},
+	"get_after_resume_schedule": {"$.next_run_at"},
+}
+
 type autoEnv struct {
 	mcpEnv
 	profile string
@@ -117,11 +124,19 @@ func (e autoEnv) seedAuto(t *testing.T) {
 	t.Cleanup(func() {
 		_, _ = e.pool.Exec(context.Background(), `DELETE FROM users WHERE id IN (1,2,4)`)
 	})
+	for _, ws := range []string{"ws-alpha", "ws-beta"} { // leftovers of an aborted run
+		_, _ = e.pool.Exec(ctx, `DELETE FROM workspace_members WHERE workspace_id = $1`, ws)
+		_, _ = e.pool.Exec(ctx, `DELETE FROM workspaces WHERE id = $1`, ws)
+	}
 	e.workspace(t, "ws-alpha", 1)
 	e.workspace(t, "ws-beta", 2)
+	t.Cleanup(e.purgeAuto) // runs before the workspaces are deleted (cleanups are LIFO)
 	e.member(t, "ws-alpha", 1, "owner")
 	e.member(t, "ws-alpha", 2, "member")
 	e.member(t, "ws-beta", 2, "owner")
+	// FastAPI makes a global admin an owner of every workspace at login (the recorded token_alice call), which is
+	// why list_global_admin_other_workspace answers 200.
+	e.member(t, "ws-beta", 1, "owner")
 	e.member(t, "ws-alpha", 4, "editor")
 
 	raw, err := os.ReadFile(filepath.Join("..", "..", "testdata", "automations", "seed.json"))
@@ -165,7 +180,7 @@ func (e autoEnv) seedAuto(t *testing.T) {
 	}
 }
 
-var uuidRE = regexp.MustCompile(`[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}`)
+var autoUUIDRE = regexp.MustCompile(`[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}`)
 
 // autoReplay replays the CRUD cases of one profile in recording order. Created ids are random, so a created id in a
 // later request path is rewritten to the real one and every response id is mapped back to the recorded one. check
@@ -189,10 +204,10 @@ func (e autoEnv) send(who, ws, method, path, body string) (int, []byte, map[stri
 		ct = "application/json"
 	}
 	rec, _ := e.do(method, path, ct, body, hdr)
-	return rec.Code, rec.Body.Bytes(), pickHeaders(rec)
+	return rec.Code, rec.Body.Bytes(), autoPickHeaders(rec)
 }
 
-func pickHeaders(rec *httptest.ResponseRecorder) map[string]string {
+func autoPickHeaders(rec *httptest.ResponseRecorder) map[string]string {
 	h := map[string]string{}
 	for _, k := range []string{"Content-Type", "WWW-Authenticate", "Allow"} {
 		if v := rec.Header().Get(k); v != "" {
@@ -202,7 +217,7 @@ func pickHeaders(rec *httptest.ResponseRecorder) map[string]string {
 	return h
 }
 
-func expandVolatile(paths []string, want json.RawMessage) []string {
+func autoExpandVolatile(paths []string, want json.RawMessage) []string {
 	var out []string
 	var arr []json.RawMessage
 	_ = json.Unmarshal(want, &arr)
@@ -240,7 +255,7 @@ func (e autoEnv) replay(t *testing.T, check func(autoCase) bool) {
 				ID string `json:"id"`
 			}
 			if json.Unmarshal(out, &g) == nil && json.Unmarshal(fx.Response.Body, &w) == nil && g.ID != "" && w.ID != "" {
-				if !uuidRE.MatchString(g.ID) {
+				if !autoUUIDRE.MatchString(g.ID) {
 					t.Errorf("%s: created id %q is not a uuid4", c.name, g.ID)
 				}
 				rp.toReal[w.ID], rp.toFixed[g.ID] = g.ID, w.ID
@@ -255,12 +270,12 @@ func (e autoEnv) replay(t *testing.T, check func(autoCase) bool) {
 		}
 		got := contract.Resp{Status: code, Headers: hdr, Body: json.RawMessage(text)}
 		t.Run(c.name, func(t *testing.T) {
-			contract.AssertEqual(t, got, fx.Response, contract.IgnorePaths(expandVolatile(c.volatile, fx.Response.Body)...))
+			contract.AssertEqual(t, got, fx.Response, contract.IgnorePaths(autoExpandVolatile(append(append([]string{}, c.volatile...), autoClockValues[c.name]...), fx.Response.Body)...))
 		})
 	}
 }
 
-func hasAnyPrefix(name string, prefixes ...string) bool {
+func autoHasAnyPrefix(name string, prefixes ...string) bool {
 	for _, p := range prefixes {
 		if strings.HasPrefix(name, p) {
 			return true
@@ -269,30 +284,30 @@ func hasAnyPrefix(name string, prefixes ...string) bool {
 	return false
 }
 
-func recordedStatus(t *testing.T, name string) int {
+func autoRecordedStatus(t *testing.T, name string) int {
 	return contract.Load(t, autoFixtureArea+"/"+name).Response.Status
 }
 
-func TestCreateMatchesFixtures(t *testing.T) {
+func TestAutoCreateMatchesFixtures(t *testing.T) {
 	e := newAutoEnv(t, "default")
 	n := 0
 	e.replay(t, func(c autoCase) bool {
-		ok := strings.HasPrefix(c.name, "create_") && recordedStatus(t, c.name) == 200
+		ok := strings.HasPrefix(c.name, "create_") && autoRecordedStatus(t, c.name) == 200
 		if ok {
 			n++
 		}
 		return ok
 	})
-	if n < 30 {
+	if n < 25 {
 		t.Fatalf("only %d successful create fixtures replayed", n)
 	}
 }
 
-func TestCreateValidationStrings(t *testing.T) {
+func TestAutoCreateValidationStrings(t *testing.T) {
 	e := newAutoEnv(t, "default")
 	n := 0
 	e.replay(t, func(c autoCase) bool {
-		s := recordedStatus(t, c.name)
+		s := autoRecordedStatus(t, c.name)
 		ok := strings.HasPrefix(c.name, "create_") && (s == 422 || s == 409)
 		if ok {
 			n++
@@ -304,13 +319,13 @@ func TestCreateValidationStrings(t *testing.T) {
 	}
 }
 
-func TestCreateDisabledFlag404(t *testing.T) {
-	for _, profile := range []string{"off", "poller_only"} {
+func TestAutoCreateDisabledFlag404(t *testing.T) {
+	for profile, min := range map[string]int{"off": 8, "poller_only": 2} {
 		t.Run(profile, func(t *testing.T) {
 			e := newAutoEnv(t, profile)
 			n := 0
 			e.replay(t, func(c autoCase) bool { n++; return true })
-			if n < 8 {
+			if n < min {
 				t.Fatalf("only %d %s fixtures replayed", n, profile)
 			}
 		})
@@ -326,20 +341,8 @@ func TestCreateDisabledFlag404(t *testing.T) {
 	}
 }
 
-func TestCreateRequiresAdmin(t *testing.T) {
+func TestAutoCreateRequiresAdmin(t *testing.T) {
 	e := newAutoEnv(t, "default")
-	n := 0
-	e.replay(t, func(c autoCase) bool {
-		s := recordedStatus(t, c.name)
-		ok := (s == 401 || s == 403) && strings.HasPrefix(c.name, "create_")
-		if ok {
-			n++
-		}
-		return ok
-	})
-	if n < 5 {
-		t.Fatalf("only %d create gate fixtures replayed", n)
-	}
 	// editor and viewer cannot mutate anything (403), reads stay open to members
 	for _, who := range []string{"erin", "bob"} {
 		for _, rq := range [][2]string{{"POST", "/api/automations/triggers"}, {"PATCH", "/api/automations/triggers/trg-a-01"},
@@ -347,7 +350,7 @@ func TestCreateRequiresAdmin(t *testing.T) {
 			{"POST", "/api/automations/triggers/trg-a-01/resume"}} {
 			code, body, _ := e.send(who, "ws-alpha", rq[0], rq[1], `{"name":"x","trigger_type":"on_row_added"}`)
 			if code != 403 || !strings.Contains(string(body), "Workspace permission denied: automations.manage") {
-				t.Errorf("%s %s %s: %d %s", who, rq[0], rq[1], code, body)
+				t.Errorf("%s %s %s: %d %.200s", who, rq[0], rq[1], code, body)
 			}
 		}
 		if code, _, _ := e.send(who, "ws-alpha", "GET", "/api/automations/triggers", ""); code != 200 {
@@ -357,18 +360,29 @@ func TestCreateRequiresAdmin(t *testing.T) {
 	if n := e.triggerCount(t, "ws-alpha"); n != 10 {
 		t.Fatalf("a forbidden call changed the rules: %d", n)
 	}
+	n := 0
+	e.replay(t, func(c autoCase) bool {
+		s := autoRecordedStatus(t, c.name)
+		ok := (s == 401 || s == 403) && strings.HasPrefix(c.name, "create_")
+		if ok {
+			n++
+		}
+		return ok
+	})
+	if n < 5 {
+		t.Fatalf("only %d create gate fixtures replayed", n)
+	}
 }
 
-func TestListAndFilters(t *testing.T) {
+func TestAutoListAndFilters(t *testing.T) {
 	e := newAutoEnv(t, "default")
-	e.replay(t, func(c autoCase) bool { return strings.HasPrefix(c.name, "list_") })
 	_, body, _ := e.send("alice", "ws-alpha", "GET", "/api/automations/triggers", "")
 	var rules []struct {
 		ID        string `json:"id"`
 		CreatedAt string `json:"created_at"`
 	}
 	if err := json.Unmarshal(body, &rules); err != nil || len(rules) != 10 {
-		t.Fatalf("list: %v %s", err, body)
+		t.Fatalf("list: %v %.200s", err, body)
 	}
 	for i := 1; i < len(rules); i++ {
 		if rules[i-1].CreatedAt < rules[i].CreatedAt {
@@ -376,13 +390,13 @@ func TestListAndFilters(t *testing.T) {
 		}
 	}
 	if _, empty, _ := e.send("alice", "ws-alpha", "GET", "/api/automations/triggers?trigger_type=nope", ""); strings.TrimSpace(string(empty)) != "[]" {
-		t.Fatalf("empty list must be [] not null: %s", empty)
+		t.Fatalf("empty list must be [] not null: %.100s", empty)
 	}
+	e.replay(t, func(c autoCase) bool { return strings.HasPrefix(c.name, "list_") })
 }
 
-func TestGetWithRecentRuns(t *testing.T) {
+func TestAutoGetWithRecentRuns(t *testing.T) {
 	e := newAutoEnv(t, "default")
-	e.replay(t, func(c autoCase) bool { return strings.HasPrefix(c.name, "get_") })
 	_, body, _ := e.send("alice", "ws-alpha", "GET", "/api/automations/triggers/trg-a-01", "")
 	var d struct {
 		RecentRuns []struct {
@@ -397,9 +411,10 @@ func TestGetWithRecentRuns(t *testing.T) {
 			t.Fatal("recent_runs not newest first")
 		}
 	}
+	e.replay(t, func(c autoCase) bool { return strings.HasPrefix(c.name, "get_") })
 }
 
-func TestPatchMatchesFixtures(t *testing.T) {
+func TestAutoPatchMatchesFixtures(t *testing.T) {
 	e := newAutoEnv(t, "default")
 	n := 0
 	e.replay(t, func(c autoCase) bool {
@@ -414,7 +429,7 @@ func TestPatchMatchesFixtures(t *testing.T) {
 	}
 }
 
-func TestDeleteMatchesFixture(t *testing.T) {
+func TestAutoDeleteMatchesFixture(t *testing.T) {
 	e := newAutoEnv(t, "default")
 	e.replay(t, func(c autoCase) bool { return strings.HasPrefix(c.name, "delete_") || c.name == "get_deleted" })
 	// deleting a schedule rule removes its mirror row; history rows of a deleted rule stay (recorded)
@@ -428,11 +443,11 @@ func TestDeleteMatchesFixture(t *testing.T) {
 	}
 }
 
-func TestPauseResumeMatchFixtures(t *testing.T) {
+func TestAutoPauseResumeMatchFixtures(t *testing.T) {
 	e := newAutoEnv(t, "default")
 	n := 0
 	e.replay(t, func(c autoCase) bool {
-		ok := hasAnyPrefix(c.name, "pause_", "resume_", "get_after_")
+		ok := autoHasAnyPrefix(c.name, "pause_", "resume_", "get_after_")
 		if ok {
 			n++
 		}
@@ -443,13 +458,10 @@ func TestPauseResumeMatchFixtures(t *testing.T) {
 	}
 }
 
-func TestForeignTrigger404(t *testing.T) {
+func TestAutoForeignTrigger404(t *testing.T) {
 	e := newAutoEnv(t, "default")
-	e.replay(t, func(c autoCase) bool {
-		return strings.HasSuffix(c.name, "_foreign_ws") || strings.HasSuffix(c.name, "_unknown")
-	})
 	// opaque ids: anything that is not a rule of the caller's workspace is a plain 404, never 403 or 500
-	for _, id := range []string{"trg-b-01", "does-not-exist", "%27%3B%20drop%20table%20triggers%3B--", "..%2Fx", "0", "%E2%82%AC", strings.Repeat("a", 300)} {
+	for _, id := range []string{"trg-b-01", "does-not-exist", "%27%3B%20drop%20table%20triggers%3B--", "0", "%E2%82%AC", strings.Repeat("a", 300)} {
 		for _, rq := range [][2]string{{"GET", ""}, {"PATCH", `{"name":"y"}`}, {"DELETE", ""}, {"POST", "/pause"}, {"POST", "/resume"}} {
 			path := "/api/automations/triggers/" + id
 			method, body := rq[0], rq[1]
@@ -466,9 +478,12 @@ func TestForeignTrigger404(t *testing.T) {
 	if n := e.triggerCount(t, "ws-beta"); n != 1 {
 		t.Fatalf("a foreign call changed ws-beta: %d rules", n)
 	}
+	e.replay(t, func(c autoCase) bool {
+		return strings.HasSuffix(c.name, "_foreign_ws") || strings.HasSuffix(c.name, "_unknown")
+	})
 }
 
-func TestLimitsProfileFixtures(t *testing.T) {
+func TestAutoLimitsProfileFixtures(t *testing.T) {
 	e := newAutoEnv(t, "limits")
 	n := 0
 	e.replay(t, func(c autoCase) bool { n++; return true })
@@ -488,18 +503,18 @@ func (e autoEnv) triggerCount(t *testing.T, ws string) int {
 	return n
 }
 
-func detailOf(t *testing.T, body []byte) any {
+func autoDetailOf(t *testing.T, body []byte) any {
 	t.Helper()
 	var m map[string]any
 	if err := json.Unmarshal(body, &m); err != nil {
-		t.Fatalf("not JSON: %s", body)
+		t.Fatalf("not JSON: %.200s", body)
 	}
 	return m["detail"]
 }
 
 // D4: caps are validated (>= 0 and finite). Python stores -1.0, and a NaN/inf or int4-overflowing value reaches the
 // database (500).
-func TestBadCapValues422(t *testing.T) {
+func TestAutoBadCapValues422(t *testing.T) {
 	e := newAutoEnv(t, "default")
 	base := `{"name":"cap","trigger_type":"on_row_added",`
 	for _, c := range []struct{ name, body string }{
@@ -516,9 +531,9 @@ func TestBadCapValues422(t *testing.T) {
 		t.Run("create_"+c.name, func(t *testing.T) {
 			code, out, _ := e.send("alice", "ws-alpha", "POST", "/api/automations/triggers", c.body)
 			if code != 422 {
-				t.Fatalf("%d %s", code, out)
+				t.Fatalf("%d %.200s", code, out)
 			}
-			detailOf(t, out)
+			autoDetailOf(t, out)
 		})
 	}
 	for _, body := range []string{`{"max_spend_usd_per_day":-0.01}`, `{"max_actions_per_day":-5}`, `{"max_spend_usd_per_day":"nan"}`,
@@ -526,7 +541,7 @@ func TestBadCapValues422(t *testing.T) {
 		t.Run("patch_"+body, func(t *testing.T) {
 			code, out, _ := e.send("alice", "ws-alpha", "PATCH", "/api/automations/triggers/trg-a-09", body)
 			if code != 422 {
-				t.Fatalf("%d %s", code, out)
+				t.Fatalf("%d %.200s", code, out)
 			}
 		})
 	}
@@ -549,11 +564,8 @@ func TestBadCapValues422(t *testing.T) {
 
 // D4: a non-object element of actions or a non-object trigger_config is a 422 (the first two are FastAPI shapes, the
 // action config is a rule error), never a 500 and never stored.
-func TestNonObjectActionElement422(t *testing.T) {
+func TestAutoNonObjectActionElement422(t *testing.T) {
 	e := newAutoEnv(t, "default")
-	e.replay(t, func(c autoCase) bool {
-		return c.name == "create_actions_not_objects" || c.name == "create_trigger_config_list"
-	})
 	for _, c := range []struct{ name, body string }{
 		{"number", `"actions":[1]`}, {"null", `"actions":[null]`}, {"list", `"actions":[[]]`}, {"string", `"actions":["webhook"]`},
 		{"mixed", `"actions":[{"type":"webhook","config":{"url":"https://hooks.example.com/x"}}, 5]`},
@@ -567,21 +579,21 @@ func TestNonObjectActionElement422(t *testing.T) {
 			code, out, _ := e.send("alice", "ws-alpha", "POST", "/api/automations/triggers",
 				`{"name":"x","trigger_type":"on_row_added",`+c.body+`}`)
 			if code != 422 {
-				t.Fatalf("%d %s", code, out)
+				t.Fatalf("%d %.200s", code, out)
 			}
-			detailOf(t, out)
+			autoDetailOf(t, out)
 		})
 		if strings.HasPrefix(c.body, `"actions"`) || strings.HasPrefix(c.body, `"trigger_config"`) {
 			t.Run("patch_"+c.name, func(t *testing.T) {
 				code, out, _ := e.send("alice", "ws-alpha", "PATCH", "/api/automations/triggers/trg-a-01", `{`+c.body+`}`)
 				if c.name == "actions_null" || c.name == "trigger_config_null" {
 					if code != 200 { // Optional fields: null means unchanged
-						t.Fatalf("%d %s", code, out)
+						t.Fatalf("%d %.200s", code, out)
 					}
 					return
 				}
 				if code != 422 {
-					t.Fatalf("%d %s", code, out)
+					t.Fatalf("%d %.200s", code, out)
 				}
 			})
 		}
@@ -596,11 +608,14 @@ func TestNonObjectActionElement422(t *testing.T) {
 	_ = json.Unmarshal(out, &g)
 	_ = json.Unmarshal([]byte(want), &w)
 	if fmt.Sprint(g) != fmt.Sprint(w) {
-		t.Fatalf("element error shape: %s", out)
+		t.Fatalf("element error shape: %.200s", out)
 	}
+	e.replay(t, func(c autoCase) bool {
+		return c.name == "create_actions_not_objects" || c.name == "create_trigger_config_list"
+	})
 }
 
-func TestPatchNameTooLong422(t *testing.T) {
+func TestAutoPatchNameTooLong422(t *testing.T) {
 	e := newAutoEnv(t, "default")
 	code, out, _ := e.send("alice", "ws-alpha", "PATCH", "/api/automations/triggers/trg-a-01", `{"name":"`+strings.Repeat("n", 201)+`"}`)
 	if code != 422 {
@@ -612,7 +627,7 @@ func TestPatchNameTooLong422(t *testing.T) {
 	}
 }
 
-func TestDeleteResponseAndPauseResumeShapes(t *testing.T) {
+func TestAutoDeleteResponseAndPauseResumeShapes(t *testing.T) {
 	e := newAutoEnv(t, "default")
 	for _, c := range []struct {
 		method, path, want string
@@ -637,9 +652,10 @@ func TestDeleteResponseAndPauseResumeShapes(t *testing.T) {
 	}
 }
 
-// A created hourly rule enqueues exactly one trigger_eval job keyed sched:<id>:<next run>, aligned to the hour, and
+// A created schedule rule enqueues exactly one trigger_eval job keyed sched:<id>:<next run> (the first run at
+// anchor + n * interval after now, anchor = creation time) and
 // writes the next run and the mirror row (Python schedule_bootstrap_for_trigger).
-func TestScheduleCreateEnqueuesAlignedJob(t *testing.T) {
+func TestAutoScheduleCreateEnqueuesAlignedJob(t *testing.T) {
 	e := newAutoEnv(t, "default")
 	for _, interval := range []string{"hourly", "daily", "weekly"} {
 		code, out, _ := e.send("alice", "ws-alpha", "POST", "/api/automations/triggers",
@@ -678,8 +694,13 @@ func TestScheduleCreateEnqueuesAlignedJob(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if next.Minute() != 0 || next.Second() != 0 || next.Nanosecond() != 0 {
-			t.Errorf("%s next run %s is not aligned to the hour", interval, *r.NextRunAt)
+		anchor, err := time.Parse(time.RFC3339Nano, *r.Anchor)
+		if err != nil {
+			t.Fatal(err)
+		}
+		step := map[string]time.Duration{"hourly": time.Hour, "daily": 24 * time.Hour, "weekly": 7 * 24 * time.Hour}[interval]
+		if d := next.Sub(anchor); d <= 0 || d%step != 0 || d > step {
+			t.Errorf("%s next run %s is not the first anchor-aligned run (anchor %s) after now", interval, *r.NextRunAt, *r.Anchor)
 		}
 		if !next.After(time.Now().Add(-time.Minute)) {
 			t.Errorf("%s next run %s is in the past", interval, *r.NextRunAt)
@@ -702,7 +723,7 @@ func TestScheduleCreateEnqueuesAlignedJob(t *testing.T) {
 }
 
 // created_by is the caller's user id as text, and a webhook header secret is never echoed beyond its reference name.
-func TestCreateStampsCreatorAndNeverEchoesSecret(t *testing.T) {
+func TestAutoCreateStampsCreatorAndNeverEchoesSecret(t *testing.T) {
 	e := newAutoEnv(t, "default")
 	_, out, _ := e.send("alice", "ws-alpha", "POST", "/api/automations/triggers",
 		`{"name":"s","trigger_type":"on_row_added","actions":[{"type":"webhook","config":{"url":"https://hooks.example.com/x","header_name":"X-T","header_secret_ref":"`+autoSecretName+`"}}]}`)

@@ -8,7 +8,7 @@ import (
 
 // The seven CRUD routes of Task 17 register behind GO_AUTOMATION_ROUTES_ENABLED
 // with exactly the Python paths and methods.
-func TestCRUDRoutesRegistered(t *testing.T) {
+func TestAutoCRUDRoutesRegistered(t *testing.T) {
 	want := []string{
 		"POST /api/automations/triggers",
 		"GET /api/automations/triggers",
