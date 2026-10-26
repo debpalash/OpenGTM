@@ -153,15 +153,13 @@ func audReadISO(t pgtype.Timestamp) string {
 	return ""
 }
 
-// audSnapshot is `snapshot or {}`: SQL NULL, JSON null and falsy JSON values become {}. Other stored text is
-// emitted as-is (compacted by the encoder); number spelling and \u escapes are not re-normalized (README deviation).
+// audSnapshot is `snapshot or {}` after Python's decode and FastAPI re-dump (pyJSONText: key order kept, no HTML or
+// non-ASCII escaping, float repr; every falsy value becomes {}).
 func audSnapshot(raw []byte) json.RawMessage {
-	t := bytes.TrimSpace(raw)
-	switch string(t) {
-	case "", "null", "{}", "[]", `""`, "0", "false":
+	if len(bytes.TrimSpace(raw)) == 0 {
 		return json.RawMessage(`{}`)
 	}
-	return json.RawMessage(t)
+	return pyJSONText(string(raw), `{}`)
 }
 
 type audMemberOut struct {
@@ -215,7 +213,7 @@ func (h audRead) list(w http.ResponseWriter, r *http.Request, withOffset bool, d
 		h.internal(w, "read", err)
 		return
 	}
-	httpx.WriteJSON(w, http.StatusOK, out)
+	writePy(w, out) // raw U+2028/2029 like Python's json.dumps(ensure_ascii=False)
 }
 
 func (h audRead) members(w http.ResponseWriter, r *http.Request) {
