@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func TestConfigDefaultsMatchPython(t *testing.T) {
+func TestAudienceConfigDefaultsMatchPython(t *testing.T) {
 	a, err := loadAudiences(func(string) string { return "" })
 	if err != nil {
 		t.Fatal(err)

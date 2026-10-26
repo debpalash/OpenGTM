@@ -383,6 +383,7 @@ type Flags struct {
 	FilesAPIMode                   string
 	Automations                    AutomationsSettings // plan 08; see automations.go
 	Outreach                       OutreachSettings    // plan 09; see outreach.go
+	Audiences                      AudienceSettings    // plan 10; see audiences.go
 }
 
 // DefaultStripeAPIBase is the production Stripe API origin.
@@ -509,6 +510,9 @@ func loadAPI(get func(string) string) (APIConfig, error) {
 		return APIConfig{}, err
 	}
 	if c.Flags.Outreach, err = loadOutreach(get); err != nil {
+		return APIConfig{}, err
+	}
+	if c.Flags.Audiences, err = loadAudiences(get); err != nil {
 		return APIConfig{}, err
 	}
 	if c.Flags.IntentPollerEnabled, err = boolVar(get, "INTENT_POLLER_ENABLED", false); err != nil {
