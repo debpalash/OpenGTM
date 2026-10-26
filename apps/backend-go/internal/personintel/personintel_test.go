@@ -121,11 +121,10 @@ func TestDDGLiteParseVectors(t *testing.T) {
 }
 
 func TestDDGLiteMalformedAndRedirectLinks(t *testing.T) {
-	// Go-only: real DDG hrefs wrap targets as //duckduckgo.com/l/?uddg=<url>;
-	// they are unwrapped (the Python code would drop them as duckduckgo.com).
-	html := `<table><tr><td><a class="result-url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fexample.org%2Fpost%3Fa%3D1&amp;rut=abc">Wrapped</a></td></tr>
+	// Python parity: //duckduckgo.com/l/?uddg= wrappers and ads are dropped by
+	// the duckduckgo.com domain filter; malformed markup still parses.
+	html := `<table><tr><td><a class="result-url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fexample.org%2Fpost">Wrapped</a></td></tr>
 <tr><td class="result-snippet">snip</td></tr>
-<tr><td><a class="result-url" href="//duckduckgo.com/l/?uddg=javascript%3Aalert(1)">Bad</a></td></tr>
 <tr><td><a class="result-url" href="https://ads.duckduckgo.com/y.js?ad=1">Ad</a></td></tr>
 <tr><td><a class="result-url" href="https://example.net/ok">Unclosed <b>tag
 <tr><td class="result-snippet">after <i>malformed`
@@ -135,16 +134,8 @@ func TestDDGLiteMalformedAndRedirectLinks(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(got) < 2 || got[0].URL != "https://example.org/post?a=1" || got[0].Title != "Wrapped" || got[0].Snippet != "snip" {
+	if len(got) != 1 || got[0].URL != "https://example.net/ok" {
 		t.Fatalf("got %+v", got)
-	}
-	for _, r := range got {
-		if strings.HasPrefix(r.URL, "javascript:") || strings.Contains(r.URL, "duckduckgo.com") {
-			t.Errorf("leaked %q", r.URL)
-		}
-	}
-	if got[len(got)-1].URL != "https://example.net/ok" {
-		t.Errorf("malformed tail: %+v", got)
 	}
 }
 
@@ -436,6 +427,9 @@ func TestBodyCap(t *testing.T) {
 }
 
 func TestRunSearchesBoundedParallelism(t *testing.T) {
+	old := batchDelay
+	batchDelay = 40 * time.Millisecond
+	defer func() { batchDelay = old }()
 	var cur, peak atomic.Int32
 	cl, done := withDDG(t, func(w http.ResponseWriter, r *http.Request) {
 		n := cur.Add(1)
@@ -458,7 +452,7 @@ func TestRunSearchesBoundedParallelism(t *testing.T) {
 	if len(res) != 20 || res[0].Category != "a" || res[19].Category != "t" || len(res[3].Results) != 1 {
 		t.Fatalf("res order/shape: %d", len(res))
 	}
-	if peak.Load() > 8 || peak.Load() < 2 {
+	if peak.Load() > 3 || peak.Load() < 2 {
 		t.Fatalf("peak parallelism %d", peak.Load())
 	}
 }
@@ -472,5 +466,114 @@ func TestRunSearchesCancel(t *testing.T) {
 	res := RunSearches(ctx, cl, BuildQueries("jane"), 20, nil)
 	if time.Since(start) > time.Second || len(res) != 7 {
 		t.Fatalf("not cancelled: %v %d", time.Since(start), len(res))
+	}
+}
+
+func TestRunSearchesStaggersBatches(t *testing.T) {
+	old := batchDelay
+	batchDelay = 100 * time.Millisecond
+	defer func() { batchDelay = old }()
+	var mu sync.Mutex
+	var times []time.Time
+	cl, done := withDDG(t, func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		times = append(times, time.Now())
+		mu.Unlock()
+	})
+	defer done()
+	start := time.Now()
+	RunSearches(context.Background(), cl, BuildQueries("jane"), 20, nil) // 7 queries = 3 batches
+	if el := time.Since(start); el < 200*time.Millisecond {
+		t.Fatalf("2 inter-batch sleeps expected, took %v", el)
+	}
+	// the 4th request must start >= one delay after the 1st
+	if d := times[3].Sub(times[0]); d < 90*time.Millisecond {
+		t.Fatalf("batch 2 started %v after batch 1", d)
+	}
+	// ctx-aware sleep
+	batchDelay = 5 * time.Second
+	ctx, cancel := context.WithTimeout(context.Background(), 150*time.Millisecond)
+	defer cancel()
+	start = time.Now()
+	res := RunSearches(ctx, cl, BuildQueries("jane"), 20, nil)
+	if time.Since(start) > 2*time.Second || len(res) != 7 {
+		t.Fatalf("sleep not cancelled: %v", time.Since(start))
+	}
+}
+
+func TestProfileJSONNoHTMLEscape(t *testing.T) {
+	p := NewProfile("")
+	p.Name = "A & B <x>"
+	p.SocialLinks.Set("blog", "https://x.io/?a=1&b=2")
+	p.Mentions = []Entry{{Title: "T&C <b>", URL: "u", Snippet: "s", Source: "web"}}
+	for name, f := range map[string]func() ([]byte, error){
+		"Marshal":    func() ([]byte, error) { return json.Marshal(p) },
+		"MarshalObj": func() ([]byte, error) { return json.Marshal(map[string]any{"p": p}) },
+	} {
+		b, err := f()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(string(b), `\u0026`) || strings.Contains(string(b), `\u003c`) || !strings.Contains(string(b), "A & B <x>") {
+			t.Errorf("%s escaped: %s", name, b)
+		}
+	}
+	b, err := p.JSON()
+	if err != nil || strings.Contains(string(b), `\u0026`) || strings.HasSuffix(string(b), "\n") {
+		t.Fatalf("JSON(): %s %v", b, err)
+	}
+}
+
+func TestExtractUnicodeWhitespace(t *testing.T) {
+	// expectations verified with legacy/python re (Unicode \s)
+	cases := []struct {
+		snippet, loc string
+		companies    []string
+	}{
+		{"based in\u00a0Berlin, Germany. x", "Berlin, Germany", nil},
+		{"based in Berlin\u2028Germany. x", "Berlin\u2028Germany", nil},
+		{"from\u2028Paris", "Paris", nil},
+		{"VP at\u00a0Acme Corp - y", "", []string{"Acme Corp"}},
+	}
+	for _, c := range cases {
+		p := NewProfile("")
+		ExtractLinkedIn(p, []Result{{URL: "https://www.linkedin.com/in/x", Title: "N", Snippet: c.snippet}})
+		if p.Location != c.loc || !eqStrings(p.Companies, c.companies) {
+			t.Errorf("%q: loc %q companies %v", c.snippet, p.Location, p.Companies)
+		}
+	}
+}
+
+func TestGitHubUsernameInjection(t *testing.T) {
+	var mu sync.Mutex
+	var paths []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		paths = append(paths, r.URL.RequestURI())
+		mu.Unlock()
+		io.WriteString(w, `{}`)
+	}))
+	defer srv.Close()
+	old := githubAPI
+	githubAPI = srv.URL
+	defer func() { githubAPI = old }()
+	for _, link := range []string{
+		"https://github.com/jane_doe",                   // underscore is not a GitHub login char
+		"https://github.com/" + strings.Repeat("a", 40), // over 39
+		"https://github.com/..%2f..%2fadmin",
+		"https://github.com/%2e%2e/x",
+		"https://github.com/",
+	} {
+		p := NewProfile("")
+		p.SocialLinks.Set("github", link)
+		_ = EnrichFromGitHub(context.Background(), stubClient(t, srv), p)
+	}
+	p := NewProfile("")
+	p.SocialLinks.Set("github", "https://github.com/"+strings.Repeat("a", 39)+"/x?y=1")
+	_ = EnrichFromGitHub(context.Background(), stubClient(t, srv), p)
+	mu.Lock()
+	defer mu.Unlock()
+	if len(paths) != 2 || !strings.HasPrefix(paths[0], "/users/"+strings.Repeat("a", 39)) {
+		t.Fatalf("paths %v", paths)
 	}
 }
