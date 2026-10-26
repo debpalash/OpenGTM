@@ -396,3 +396,6 @@ func marshalNoEscape(v any) ([]byte, error) {
 	}
 	return bytes.TrimRight(buf.Bytes(), "\n"), nil
 }
+
+// MarshalNoEscape is marshalNoEscape for callers outside the package.
+func MarshalNoEscape(v any) ([]byte, error) { return marshalNoEscape(v) }

@@ -287,5 +287,5 @@ func (h templateRoutes) createFromTemplate(w http.ResponseWriter, r *http.Reques
 	}{wbID, t.Name, id, len(cols), enrichment})
 }
 
-// marshalTemplateColumns is the stored columns_config text (stub).
-func marshalTemplateColumns(cols []wbcrud.Column) ([]byte, error) { return json.Marshal(cols) }
+// marshalTemplateColumns is the stored columns_config text, not HTML-escaped like the other write paths.
+func marshalTemplateColumns(cols []wbcrud.Column) ([]byte, error) { return wbcrud.MarshalNoEscape(cols) }
