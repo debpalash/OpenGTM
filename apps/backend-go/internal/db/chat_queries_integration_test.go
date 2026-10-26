@@ -61,8 +61,12 @@ func TestChatConversationQueries(t *testing.T) {
 				return err
 			}
 		}
+		return nil
+	})
+	// now() is the transaction start, so the bump must happen in a later one.
+	time.Sleep(20 * time.Millisecond)
+	inWS(t, pool, wsA, func(q *gen.Queries) error {
 		// Add a message to c1: it bumps c1 above c2 in the list.
-		time.Sleep(20 * time.Millisecond)
 		if _, err := q.ChatAddMessage(ctx, gen.ChatAddMessageParams{ID: "m1", ConversationID: "c1", WorkspaceID: wsA, UserID: "u1", Role: "user", Content: "hi"}); err != nil {
 			return err
 		}
@@ -165,7 +169,7 @@ func TestMemoryAndPersonQueries(t *testing.T) {
 	u := fmt.Sprintf("t4mem_%d", os.Getpid())
 	q := gen.New(pool)
 	for i := 0; i < 3; i++ {
-		if err := q.MemAdd(ctx, gen.MemAddParams{UserID: u, Text: fmt.Sprintf("m%d", i), Metadata: []byte(`{"k":1}`), CreatedAt: time.Now().UTC()}); err != nil {
+		if err := q.MemAdd(ctx, gen.MemAddParams{UserID: u, Text: fmt.Sprintf("m%d", i), Metadata: []byte(`{"k":1}`), CreatedAt: pgtype.Timestamptz{Time: time.Now().UTC(), Valid: true}}); err != nil {
 			t.Fatal(err)
 		}
 	}
