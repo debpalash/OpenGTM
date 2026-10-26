@@ -22,7 +22,8 @@ import (
 // default client is the SSRF-guarded egress client with Python's timeouts.
 var newHubSpotClient = func(r *secrets.Resolver) *crm.HubSpot { return &crm.HubSpot{Secrets: r} }
 
-// Bounds Python does not have (plan 07 D4): the limit and the id list are capped.
+// Bounds Python does not have (plan 07 D4): the limit and the id list are capped above; a
+// negative sync limit (Python 500) is a 422. Contacts keep Python's lower side (HubSpot answers 400 -> []).
 const (
 	hubspotMaxLimit   = 1000
 	hubspotMaxLeadIDs = 1000
@@ -98,18 +99,19 @@ type syncRequest struct {
 
 // parseSync validates the SyncRequest model: lead_ids Optional[List[int]], tier Optional[str],
 // limit int (1..1000 here).
-func parseSync(obj map[string]any) (syncRequest, []httpx.FieldError) {
+func parseSync(obj map[string]any) (syncRequest, []any) {
 	req := syncRequest{limit: 50}
-	var errs []httpx.FieldError
+	var errs []any
 	if v, present := obj["lead_ids"]; present && v != nil {
 		list, isList := v.([]any)
 		switch {
 		case !isList:
 			errs = append(errs, httpx.FieldError{Type: "list_type", Loc: []any{"body", "lead_ids"}, Msg: "Input should be a valid list", Input: v})
 		case len(list) > hubspotMaxLeadIDs:
-			errs = append(errs, httpx.FieldError{Type: "too_long", Loc: []any{"body", "lead_ids"},
-				Msg: "List should have at most 1000 items after validation, not " + strconv.Itoa(len(list)), Input: v,
-				Ctx: map[string]any{"field_type": "List", "max_length": hubspotMaxLeadIDs, "actual_length": len(list)}})
+			// pydantic's ctx key order: field_type, max_length, actual_length
+			errs = append(errs, orderedPairs{{"type", "too_long"}, {"loc", []any{"body", "lead_ids"}},
+				{"msg", "List should have at most 1000 items after validation, not " + strconv.Itoa(len(list))}, {"input", v},
+				{"ctx", orderedPairs{{"field_type", "List"}, {"max_length", hubspotMaxLeadIDs}, {"actual_length", len(list)}}}})
 		default:
 			for i, el := range list {
 				loc := []any{"body", "lead_ids", i}
@@ -156,8 +158,8 @@ func parseSync(obj map[string]any) (syncRequest, []httpx.FieldError) {
 			errs = append(errs, httpx.FieldError{Type: fe.Type, Loc: fe.Loc, Msg: fe.Msg, Input: fe.Input, Ctx: fe.Ctx})
 		case n.huge || n.v > hubspotMaxLimit:
 			errs = append(errs, httpx.FieldError{Type: "less_than_equal", Loc: loc, Msg: "Input should be less than or equal to 1000", Input: v, Ctx: map[string]any{"le": hubspotMaxLimit}})
-		case n.v < 1:
-			errs = append(errs, httpx.FieldError{Type: "greater_than_equal", Loc: loc, Msg: "Input should be greater than or equal to 1", Input: v, Ctx: map[string]any{"ge": 1}})
+		case n.v < 0: // Python's LIMIT -1 is a 500; limit 0 stays the "no leads" answer
+			errs = append(errs, httpx.FieldError{Type: "greater_than_equal", Loc: loc, Msg: "Input should be greater than or equal to 0", Input: v, Ctx: map[string]any{"ge": 0}})
 		default:
 			req.limit = int(n.v)
 		}
@@ -214,7 +216,7 @@ func (h hubspotRoutes) sync(w http.ResponseWriter, r *http.Request) {
 	}
 	req, errs := parseSync(obj)
 	if len(errs) > 0 {
-		httpx.ValidationError(w, errs...)
+		httpx.WriteJSON(w, http.StatusUnprocessableEntity, orderedPairs{{"detail", errs}})
 		return
 	}
 	if !h.hs.IsConnected(r.Context(), wc.WorkspaceID) {
@@ -250,7 +252,7 @@ func (h hubspotRoutes) sync(w http.ResponseWriter, r *http.Request) {
 
 func (h hubspotRoutes) contacts(w http.ResponseWriter, r *http.Request) {
 	wc, _ := identity.WorkspaceFrom(r.Context())
-	limit, ok := queryInt(w, r, "limit", 20, intp(1), intp(hubspotMaxLimit))
+	limit, ok := queryInt(w, r, "limit", 20, nil, intp(hubspotMaxLimit))
 	if !ok {
 		return
 	}

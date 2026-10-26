@@ -245,10 +245,10 @@ func hubspotActor(name string) (who, ws string) {
 	return "alice", "ws-alpha"
 }
 
-// Fixtures whose recorded 200 or 500 the Go port deliberately answers as 422 (D4: limit 1..1000).
+// Fixtures whose recorded 200 or 500 the Go port deliberately answers as 422 (D4: sync limit
+// 0..1000, contacts limit <= 1000; limit 0 and negative contacts limits stay Python parity).
 var hubspotLimitDeviations = map[string]string{
-	"sync_limit_0": "body", "sync_limit_100000": "body", "sync_limit_negative": "body",
-	"contacts_limit_0": "query", "contacts_limit_100000": "query", "contacts_limit_negative": "query",
+	"sync_limit_100000": "body", "sync_limit_negative": "body", "contacts_limit_100000": "query",
 }
 
 func (e hubspotEnv) replay(t *testing.T, name string) {
@@ -366,7 +366,7 @@ func TestSyncLimitBounds422(t *testing.T) {
 	e := newHubspotEnv(t)
 	e.alpha(t)
 	for _, c := range []struct{ body, typ string }{
-		{`{"limit":0}`, "greater_than_equal"}, {`{"limit":-1}`, "greater_than_equal"}, {`{"limit":1001}`, "less_than_equal"},
+		{`{"limit":-1}`, "greater_than_equal"}, {`{"limit":1001}`, "less_than_equal"},
 	} {
 		rec, _ := e.call("alice", "ws-alpha", "POST", "/api/crm/hubspot/sync", c.body)
 		if rec.Code != 422 || !strings.Contains(rec.Body.String(), c.typ) || !strings.Contains(rec.Body.String(), `"limit"`) {
@@ -378,12 +378,25 @@ func TestSyncLimitBounds422(t *testing.T) {
 		ids[i] = "1"
 	}
 	rec, _ := e.call("alice", "ws-alpha", "POST", "/api/crm/hubspot/sync", `{"lead_ids":[`+strings.Join(ids, ",")+`]}`)
-	if rec.Code != 422 || !strings.Contains(rec.Body.String(), "too_long") {
+	if rec.Code != 422 || !strings.Contains(rec.Body.String(), `"ctx":{"field_type":"List","max_length":1000,"actual_length":1001}`) {
 		t.Errorf("1001 lead_ids: %d %.200s", rec.Code, rec.Body.String())
 	}
-	for _, q := range []string{"0", "-1", "1001", "100000"} {
+	// limit 0 is Python's 200 "No leads" answer
+	if rec, _ := e.call("alice", "ws-alpha", "POST", "/api/crm/hubspot/sync", `{"limit":0}`); rec.Code != 200 || !strings.Contains(rec.Body.String(), "No leads with emails to sync") {
+		t.Errorf("limit 0: %d %s", rec.Code, rec.Body.String())
+	}
+	if rec, _ := e.call("alice", "ws-alpha", "POST", "/api/crm/hubspot/sync", `{"limit":1001}`); !strings.Contains(rec.Body.String(), "Input should be less than or equal to 1000") {
+		t.Errorf("limit 1001: %s", rec.Body.String())
+	}
+	for _, q := range []string{"1001", "100000"} {
 		rec, _ := e.call("alice", "ws-alpha", "GET", "/api/crm/hubspot/contacts?limit="+q, "")
 		if rec.Code != 422 || !strings.Contains(rec.Body.String(), `"query"`) {
+			t.Errorf("contacts limit=%s: %d %s", q, rec.Code, rec.Body.String())
+		}
+	}
+	// contacts below 1 reach HubSpot (which answers 400 -> empty list), as Python
+	for _, q := range []string{"0", "-1"} {
+		if rec, _ := e.call("alice", "ws-alpha", "GET", "/api/crm/hubspot/contacts?limit="+q, ""); rec.Code != 200 || !strings.Contains(rec.Body.String(), `"count":0`) {
 			t.Errorf("contacts limit=%s: %d %s", q, rec.Code, rec.Body.String())
 		}
 	}
