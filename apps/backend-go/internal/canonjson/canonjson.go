@@ -190,7 +190,7 @@ func Decode(raw []byte) (any, error) {
 	}
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.UseNumber()
-	v, err := convert(dec)
+	v, err := convert(dec, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -200,17 +200,26 @@ func Decode(raw []byte) (any, error) {
 	return v, nil
 }
 
-func convert(dec *json.Decoder) (any, error) {
+// MaxDepth bounds container nesting (matches wbcrud's maxJSONDepth). Go's
+// decoder only stops at 10000 levels; untrusted provider bodies get far less.
+const MaxDepth = 200
+
+var errTooDeep = fmt.Errorf("canonjson: json nesting deeper than %d levels", MaxDepth)
+
+func convert(dec *json.Decoder, depth int) (any, error) {
 	tok, err := dec.Token()
 	if err != nil {
 		return nil, err
 	}
 	switch t := tok.(type) {
 	case json.Delim:
+		if depth >= MaxDepth {
+			return nil, errTooDeep
+		}
 		if t == '[' {
 			out := []any{}
 			for dec.More() {
-				e, err := convert(dec)
+				e, err := convert(dec, depth+1)
 				if err != nil {
 					return nil, err
 				}
@@ -225,7 +234,7 @@ func convert(dec *json.Decoder) (any, error) {
 			if err != nil {
 				return nil, err
 			}
-			e, err := convert(dec)
+			e, err := convert(dec, depth+1)
 			if err != nil {
 				return nil, err
 			}

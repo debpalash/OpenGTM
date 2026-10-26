@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"strconv"
@@ -78,7 +79,7 @@ func (m *OMap) Clone() *OMap {
 func ParseJSON(raw []byte) (any, error) {
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.UseNumber()
-	v, err := parseValue(dec)
+	v, err := parseValue(dec, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +89,12 @@ func ParseJSON(raw []byte) (any, error) {
 	return v, nil
 }
 
-func parseValue(dec *json.Decoder) (any, error) {
+// maxJSONDepth bounds container nesting (matches wbcrud's maxJSONDepth).
+const maxJSONDepth = 200
+
+var errJSONTooDeep = fmt.Errorf("entities: json nesting deeper than %d levels", maxJSONDepth)
+
+func parseValue(dec *json.Decoder, depth int) (any, error) {
 	tok, err := dec.Token()
 	if err != nil {
 		return nil, err
@@ -97,6 +103,9 @@ func parseValue(dec *json.Decoder) (any, error) {
 	if !ok {
 		return tok, nil // string, json.Number, bool, nil
 	}
+	if depth >= maxJSONDepth {
+		return nil, errJSONTooDeep
+	}
 	if d == '{' {
 		m := NewOMap()
 		for dec.More() {
@@ -104,7 +113,7 @@ func parseValue(dec *json.Decoder) (any, error) {
 			if err != nil {
 				return nil, err
 			}
-			v, err := parseValue(dec)
+			v, err := parseValue(dec, depth+1)
 			if err != nil {
 				return nil, err
 			}
@@ -115,7 +124,7 @@ func parseValue(dec *json.Decoder) (any, error) {
 	}
 	arr := []any{}
 	for dec.More() {
-		v, err := parseValue(dec)
+		v, err := parseValue(dec, depth+1)
 		if err != nil {
 			return nil, err
 		}
