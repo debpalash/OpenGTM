@@ -722,6 +722,20 @@ Replayed against `testdata/transcripts/webhook` (fake secret `ctk_transcript_hoo
 - `python_providers.txt` is unchanged: `jobspy_signals` is already listed and `ddgs_search` is not a module under `providers/` (the listing test would fail). The RPC provider names are documented in `rpc_providers.py`.
 - `pcCall` is only for free providers (`jobspy_signals`, `ddgs_search`): `pyworker.Client` retries a transport failure once with the same call id. A paid provider must not reuse this path (a retry would be billed or must use a fresh call id).
 
+## Automation and watch services (plan 08 Task 13): deviations (`internal/autosvc`, `internal/watchsvc`)
+
+- The 7 recorded Python 500s now answer 4xx: non-object action, `config` or `trigger_config`, non-iterable or unhashable `re_enrich.column_ids`, non-string webhook `url` (all 422); non-string job_change `name`/`company`/`linkedin_url` and non-object job_change `config` (422); duplicate watch `(kind, target)` (409 `watch already exists for this kind and target`).
+- Other D4 changes: negative, NaN or infinite `max_spend_usd_per_day` and negative `max_actions_per_day` are 422 (Python accepted `-1.0`; fixture `create_negative_spend_cap` is 200 there); name over 200 characters on create/patch is 422 (Python DB error); negative `runs?limit` is 422; a `lead_id` pinned on a watch (create/patch) that is not in the caller's workspace is 422 `lead_id N not found in this workspace`; actions and `trigger_config` are capped at 256 KiB each.
+- Webhook create-time allow-list (`AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST`, exact host or `.suffix`, no globs) is Go-only hardening, checked whenever the host part has no `{` (a templated path does not exempt a literal host) and also for a watch's `webhook_url`; an empty list keeps Python behaviour.
+- Legacy outreach actions: with `AUTOMATIONS_ALLOW_LEGACY_OUTREACH` on, a `sequencer` without `sequence_id` is 422 as in Python, any otherwise valid legacy action is 409 `legacy_outreach_unavailable` (D2).
+- Bug fix: resume/enable of an `on_schedule` rule re-enables its `scheduled_triggers` mirror row. Python leaves it disabled after pause then resume while the aligned job is still pending (single flight writes nothing); the rule still fired from the pending job, so users saw no difference.
+- Patch and resume run the schedule bootstrap in the same transaction as the rule update (Python commits first), so a bootstrap failure rolls the change back instead of leaving an updated rule without a job. Create bootstraps after the commit and only logs a failure, as Python.
+- Max rules / max watches are checked then inserted without a lock (Python parity): concurrent creates can overshoot the cap by the number of racing requests.
+- A refused watch create (cap or duplicate) happens before the optional webhook rule is created, so no orphan rule; a later insert failure still leaves the rule (separate transaction, as Python).
+- Poll-now daily quota is checked under `pg_advisory_xact_lock` per (workspace, UTC day) and counts queued manual polls as well as the ledger, because the ledger is debited at execution.
+- Watch cursors: `datetime.fromisoformat` is ported for calendar dates, any one-character separator and compact/offset forms; ISO week dates (`2026-W35-6`) are rejected as invalid cursors (Python accepts). The server only emits `+00:00` isoformat cursors.
+- JSON columns are written compact (Python's SQLAlchemy writes `", "`/`": "` spacing); API output is unaffected.
+
 ## Plan 06 coverage and rollout (Task 32)
 
 - `internal/api/enrichment_coverage_test.go`: `TestEveryEnrichmentRouteIsPortedOrRetained` (every route decorator of
