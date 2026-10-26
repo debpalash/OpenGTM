@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/api"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
@@ -100,5 +102,28 @@ func TestServerTimeouts(t *testing.T) {
 	s := newServer(":0", http.NotFoundHandler())
 	if s.ReadTimeout != 30*time.Second || s.IdleTimeout != 120*time.Second || s.WriteTimeout != 0 || s.ReadHeaderTimeout != 10*time.Second {
 		t.Fatalf("timeouts: %v %v %v %v", s.ReadTimeout, s.IdleTimeout, s.WriteTimeout, s.ReadHeaderTimeout)
+	}
+}
+
+func TestApplySSEWiresConfigRedisAndShutdown(t *testing.T) {
+	ctx := context.Background()
+	cfg := config.APIConfig{SSEMaxStreams: 7, SSEMaxPerUser: 2, SSEMaxPerWorkspace: 3, SSEMaxLifetime: time.Minute,
+		RedisURL: "redis://:pw-secret@127.0.0.1:1/0"}
+	var d api.Deps
+	if err := applySSE(&d, cfg, ctx); err != nil {
+		t.Fatal(err)
+	}
+	if d.Redis == nil || d.SSEMaxStreams != 7 || d.SSEMaxPerUser != 2 || d.SSEMaxPerWorkspace != 3 || d.SSEMaxLifetime != time.Minute || d.ShutdownCtx != ctx {
+		t.Fatalf("deps = %+v", d)
+	}
+	_ = d.Redis.Close()
+	var empty api.Deps
+	if err := applySSE(&empty, config.APIConfig{}, ctx); err != nil || empty.Redis != nil {
+		t.Fatalf("no REDIS_URL must leave Redis nil: %v", err)
+	}
+	cfg.RedisURL = "://pw-secret"
+	err := applySSE(&api.Deps{}, cfg, ctx)
+	if err == nil || strings.Contains(err.Error(), "pw-secret") {
+		t.Fatalf("bad REDIS_URL must fail without leaking: %v", err)
 	}
 }
