@@ -264,7 +264,7 @@ func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log 
 	}
 	fctx, fcancel := context.WithTimeout(context.WithoutCancel(ctx), finalizeTimeout)
 	defer fcancel()
-	persisted, err := queue.Finalize(fctx, pool, c, out)
+	persisted, err := queue.FinalizeAndNotify(fctx, pool, log, c, out)
 	if err != nil {
 		log.Error("finalize failed", "err", err)
 		return
