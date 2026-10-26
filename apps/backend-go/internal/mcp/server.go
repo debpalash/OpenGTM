@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -28,6 +29,72 @@ func NewRegistry(reads []Tool, writes []WriteTool) Registry {
 		r.Writes[t.Name] = t
 	}
 	return r
+}
+
+// BuildRegistry concatenates the six tool constructors and refuses to start
+// (panics, recovered by cmd/mcp into exit 1) unless the registered names and
+// capabilities equal the 15-tool catalog.
+func BuildRegistry(d Deps) Registry {
+	reads := append(readTools(d), enrichTools(d)...)
+	var writes []WriteTool
+	for _, ws := range [][]WriteTool{leadWriteTools(d), workbookWriteTools(d), outreachWriteTools(d), automationWriteTools(d)} {
+		writes = append(writes, ws...)
+	}
+	r := NewRegistry(reads, writes)
+	if err := CheckRegistry(r); err != nil {
+		panic("mcp: " + err.Error())
+	}
+	return r
+}
+
+// CheckRegistry verifies r holds exactly the catalog tools, each with the
+// catalog capability and on the matching side (read vs write capability).
+func CheckRegistry(r Registry) error {
+	var problems []string
+	seen := map[string]bool{}
+	for _, s := range Specs {
+		seen[s.Name] = true
+		var capability string
+		_, isRead := r.Reads[s.Name]
+		_, isWrite := r.Writes[s.Name]
+		switch {
+		case isRead && isWrite:
+			problems = append(problems, s.Name+" registered as read and write")
+			continue
+		case isRead:
+			capability = r.Reads[s.Name].Capability
+		case isWrite:
+			capability = r.Writes[s.Name].Capability
+		default:
+			problems = append(problems, "missing tool "+s.Name)
+			continue
+		}
+		if capability != s.Capability {
+			problems = append(problems, fmt.Sprintf("%s has capability %q, catalog says %q", s.Name, capability, s.Capability))
+		}
+		if isWrite != WriteCaps[s.Capability] {
+			problems = append(problems, s.Name+" is on the wrong side (read/write) for its capability")
+		}
+	}
+	var extra []string
+	for n := range r.Reads {
+		if !seen[n] {
+			extra = append(extra, n)
+		}
+	}
+	for n := range r.Writes {
+		if !seen[n] {
+			extra = append(extra, n)
+		}
+	}
+	sort.Strings(extra)
+	for _, n := range extra {
+		problems = append(problems, "unexpected tool "+n)
+	}
+	if len(problems) > 0 {
+		return fmt.Errorf("tool registry does not match the catalog: %s", strings.Join(problems, "; "))
+	}
+	return nil
 }
 
 // ExecuteFunc runs one tools/call and returns its text payload. The write

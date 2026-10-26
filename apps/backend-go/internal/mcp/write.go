@@ -147,6 +147,9 @@ func (s *Server) executeWrite(ctx context.Context, c Ctx, name string, args Args
 			return es.text
 		}
 		msg := errCause(ctx, err)
+		if msg == errInternal.Error() {
+			slog.Error("mcp write failed", "tool", name, "err", err)
+		}
 		Record(ctx, s.d, c, name, args, AuditOutcome{Status: "error", Error: msg})
 		return errorText(msg)
 	}
