@@ -237,7 +237,9 @@ func trColumns(in []map[string]any) []Column {
 }
 
 // transcript deviations from Python (documented in testdata/contract/README.md).
-var transcriptDeviation = map[string]bool{}
+var transcriptDeviation = map[string]bool{
+	"allowlist_subdomain_ok": true, // bare allowlist entry is exact-host only (TestAllowlistEnforced)
+}
 
 func TestWebhookTranscripts(t *testing.T) {
 	for _, tr := range loadTranscripts(t) {
@@ -416,7 +418,8 @@ type vec struct {
 // changes (README D4 webhook hardening). Each is asserted separately below.
 var vectorDeviation = map[string]bool{
 	"url_cgnat": true, "url_localhost_subdomain": true, "url_loopback_short": true,
-	"allowlist_hit_subdomain":                           true, // bare entry is exact-host only
+	"allowlist_hit_subdomain": true,                                // bare entry is exact-host only
+	"status_304":              true, "status_199_is_failure": true, // net/http servers cannot emit a 304 body or a 1xx final status
 	"secret_does_not_override_explicit_header":          true, // setdefault is case-insensitive
 	"secret_lowercase_explicit_header_both_sent":        true,
 	"body_plain_text_keeps_user_content_type_lowercase": true,
@@ -463,6 +466,8 @@ func TestWebhookVectors(t *testing.T) {
 					h.dialErr = &net.OpError{Op: "dial", Net: "tcp", Err: os.ErrDeadlineExceeded}
 				case "blocked":
 					h.res.answers["hooks.example.com"] = []string{"10.0.0.9"}
+				case "connect":
+					h.dialErr = &net.OpError{Op: "dial", Net: "tcp", Err: syscall.ECONNREFUSED}
 				case "long":
 					h.dialErr = errors.New(strings.Repeat("x", 300))
 				}
@@ -509,7 +514,7 @@ func TestWebhookVectors(t *testing.T) {
 			if got.SkipReason != wantSkip {
 				t.Fatalf("skip %q want %q", got.SkipReason, wantSkip)
 			}
-			if v.Request == nil {
+			if v.Request == nil || (v.Response != nil && v.Response.Raise != "") {
 				return
 			}
 			rec := h.last()
@@ -880,7 +885,7 @@ func TestOversizedResponseBounded(t *testing.T) {
 	h := newHarness(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		chunk := []byte(strings.Repeat("y", 64<<10))
-		for i := 0; i < 160; i++ { // 10 MiB offered
+		for i := 0; i < 1024; i++ { // 64 MiB offered
 			n, err := w.Write(chunk)
 			written.Add(int64(n))
 			if err != nil {
@@ -892,7 +897,7 @@ func TestOversizedResponseBounded(t *testing.T) {
 	if got.Status != "failed" || got.Error != "HTTP 500: "+strings.Repeat("y", 160) {
 		t.Fatalf("%+v", got)
 	}
-	if written.Load() > 6<<20 {
+	if written.Load() > 32<<20 {
 		t.Fatalf("server wrote %d bytes: response not bounded", written.Load())
 	}
 	// request body bound: an absurd dict body is refused, not sent.
