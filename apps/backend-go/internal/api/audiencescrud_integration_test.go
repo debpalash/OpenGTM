@@ -103,15 +103,22 @@ func audLoadSeed(t *testing.T) {
 	}
 }
 
-func newAudEnv(t *testing.T) audEnv {
+func newAudEnv(t *testing.T, vars ...map[string]string) audEnv {
 	t.Helper()
+	envVars := map[string]string{}
+	for _, m := range vars {
+		for k, v := range m {
+			envVars[k] = v
+		}
+	}
 	pool := testpg.NewAppPool(t, 8)
 	st := identity.NewStore(pool)
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))
 	d := Deps{Pool: pool, Signer: testSigner, Identity: st, Config: config.APIConfig{},
-		Getenv:         func(string) string { return "" },
-		Flags:          config.Flags{PGLeadStore: true, Audiences: config.AudienceSettings{GoAudienceRoutesEnabled: true, RefreshPageSize: 500}},
+		Getenv: func(k string) string { return envVars[k] },
+		Flags: config.Flags{PGLeadStore: true, Audiences: config.AudienceSettings{GoAudienceRoutesEnabled: true, RefreshPageSize: 500,
+			GoExecutorAudienceRefresh: envVars["GO_EXECUTOR_AUDIENCE_REFRESH"] == "true"}},
 		AudienceEvents: nopEmitter{}}
 	RegisterAudiences(r, d)
 	e := audEnv{mcpEnv: mcpEnv{env: env{h: r.Handler(), st: st}, pool: pool}, r: r}
@@ -299,8 +306,10 @@ func TestAudienceCRUDMatchesFixtures(t *testing.T) {
 	e.replay(t, "aud_patch_seeded_name_after", ids, opts...)
 
 	// Phase 4: deletes (the seeded audience with destinations goes last).
+	e.replay(t, "aud_delete_created", ids)
+	e.replay(t, "aud_delete_again_404", ids)
 	for _, n := range audFixtureNames(t, "aud_delete_") {
-		if n != "aud_delete_with_destinations" {
+		if n != "aud_delete_with_destinations" && n != "aud_delete_created" && n != "aud_delete_again_404" {
 			e.replay(t, n, ids)
 		}
 	}
@@ -608,7 +617,7 @@ func TestValidation422Shapes(t *testing.T) {
 	for _, c := range []struct{ name, body, typ, loc, msg string }{
 		{"empty body", ``, "missing", "", "Field required"},
 		{"array", `[]`, "model_attributes_type", "", "Input should be a valid dictionary or object to extract fields from"},
-		{"bad json", `{"name":`, "json_invalid", "0", "JSON decode error"},
+		{"bad json", `{"name":`, "json_invalid", "8", "JSON decode error"},
 		{"min_score float", `{"name":"x","filters":{"min_score":5.0}}`, "value_error", "filters", "Value error, min_score must be an integer"},
 		{"interval text", `{"name":"x","refresh_interval_minutes":"abc"}`, "int_parsing", "refresh_interval_minutes", "Input should be a valid integer, unable to parse string as an integer"},
 		{"interval float", `{"name":"x","refresh_interval_minutes":30.5}`, "int_from_float", "refresh_interval_minutes", "Input should be a valid integer, got a number with a fractional part"},
@@ -682,7 +691,7 @@ func TestValidation422Shapes(t *testing.T) {
 	if rec, _ := e.patch("alice", "ws-alpha", "nope", `{"name":""}`); rec.Code != 422 {
 		t.Errorf("validation precedes lookup: %d", rec.Code)
 	}
-	if rec, _ := e.patch("alice", "ws-alpha", "nope\x00", `{"name":"x"}`); rec.Code != 404 {
+	if rec, _ := e.patch("alice", "ws-alpha", "nope%00", `{"name":"x"}`); rec.Code != 404 {
 		t.Errorf("NUL id: %d", rec.Code)
 	}
 }
@@ -786,5 +795,28 @@ func TestListOrderTiebreakAndCap(t *testing.T) {
 	_ = json.Unmarshal(rec.Body.Bytes(), &list)
 	if len(list) != 2 {
 		t.Errorf("cap: %d rows", len(list))
+	}
+}
+
+// The refresh job's executor follows go_executor.audience_refresh_executor: enabled + cohort workspace + flag.
+func TestCreateExecutorCohort(t *testing.T) {
+	cases := []struct {
+		name string
+		vars map[string]string
+		want string
+	}{
+		{"all on", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-beta, ws-alpha", "GO_EXECUTOR_AUDIENCE_REFRESH": "true"}, "go"},
+		{"not in cohort", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-beta", "GO_EXECUTOR_AUDIENCE_REFRESH": "true"}, "python"},
+		{"kind flag off", map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-alpha"}, "python"},
+		{"executor off", map[string]string{"GO_EXECUTOR_WORKSPACES": "ws-alpha", "GO_EXECUTOR_AUDIENCE_REFRESH": "true"}, "python"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			e := newAudEnv(t, c.vars)
+			a := e.mustCreate(t, `{"name":"Cohort"}`)
+			if n, exec, _ := e.pendingJobs(t, a["id"].(string)); n != 1 || exec != c.want {
+				t.Errorf("jobs %d executor %q, want %q", n, exec, c.want)
+			}
+		})
 	}
 }
