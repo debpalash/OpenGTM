@@ -49,7 +49,7 @@ func RunHandler(d Deps, r Researcher) func(ctx context.Context, c *queue.Claim) 
 		if f[0] == "" || f[1] == "" {
 			return errors.New(errRunPayload)
 		}
-		if f[0] != c.WorkspaceID {
+		if c.WorkspaceID != "" && f[0] != c.WorkspaceID {
 			return foreign(c)
 		}
 		err := HandleRun(ctx, d, f[0], f[1])
@@ -74,7 +74,7 @@ func ScheduleHandler(d Deps) func(ctx context.Context, c *queue.Claim) error {
 		if f[0] == "" || f[1] == "" {
 			return errors.New("playbook schedule requires workspace_id and playbook_id")
 		}
-		if f[0] != c.WorkspaceID {
+		if c.WorkspaceID != "" && f[0] != c.WorkspaceID {
 			return foreign(c)
 		}
 		return HandleSchedule(ctx, d, f[0], f[1])
@@ -87,7 +87,7 @@ func ScheduleHandler(d Deps) func(ctx context.Context, c *queue.Claim) error {
 func FailureHook(d Deps) queue.FailureHook {
 	return func(ctx context.Context, n queue.FailureNotice) error {
 		f := payloadFields(n.Payload, "workspace_id", "run_id")
-		if f[0] == "" || f[1] == "" || f[0] != n.WorkspaceID {
+		if f[0] == "" || f[1] == "" || (n.WorkspaceID != "" && f[0] != n.WorkspaceID) {
 			slog.Error("playbook failure hook: payload does not match the job; ignored", "job_id", n.JobID)
 			return nil
 		}

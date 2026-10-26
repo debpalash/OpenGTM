@@ -42,7 +42,6 @@ func TestFailureHookIgnoresMismatchedPayload(t *testing.T) {
 	hook := FailureHook(Deps{})
 	for name, n := range map[string]queue.FailureNotice{
 		"foreign":   {JobID: 1, WorkspaceID: "ws-a", Payload: []byte(`{"workspace_id":"ws-b","run_id":"r"}`)},
-		"no job ws": {JobID: 1, WorkspaceID: "", Payload: []byte(`{"workspace_id":"ws-b","run_id":"r"}`)},
 		"malformed": {JobID: 1, WorkspaceID: "ws-a", Payload: []byte(`nope`)},
 		"no run":    {JobID: 1, WorkspaceID: "ws-a", Payload: []byte(`{"workspace_id":"ws-a"}`)},
 	} {

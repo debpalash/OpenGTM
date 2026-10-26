@@ -38,7 +38,10 @@ func Handler(d Deps) func(ctx context.Context, c *queue.Claim) error {
 		if err != nil {
 			return err
 		}
-		if ws != c.WorkspaceID {
+		// A NULL jobs.workspace_id is the scheduler shape (Python enqueue_job_once and
+		// SchedulePolicy never set it): the payload names the tenant and every statement below
+		// is scoped to it. A non-empty job workspace must agree.
+		if c.WorkspaceID != "" && ws != c.WorkspaceID {
 			return &queue.PermanentError{Err: fmt.Errorf("retention job %d payload workspace differs from the job's", c.ID)}
 		}
 		return Enforce(ctx, d, ws, runID)
@@ -47,12 +50,13 @@ func Handler(d Deps) func(ctx context.Context, c *queue.Claim) error {
 
 // FailureHook is reconcile_retention_job_failure for the queue: after a failed attempt was
 // persisted it settles the run, with willRetry from the job row (retry_count < max_retries).
-// The payload workspace must equal the job row's workspace; otherwise (or for a malformed
+// The payload workspace must equal the job row's workspace when the row has one (scheduler
+// jobs have none and the payload names the tenant); otherwise (or for a malformed
 // payload) nothing is touched.
 func FailureHook(d Deps) queue.FailureHook {
 	return func(ctx context.Context, n queue.FailureNotice) error {
 		ws, _, err := decodePayload(n.Payload)
-		if err != nil || ws != n.WorkspaceID {
+		if err != nil || (n.WorkspaceID != "" && ws != n.WorkspaceID) {
 			slog.Error("retention failure hook: payload does not match the job; ignored", "job_id", n.JobID)
 			return nil
 		}
