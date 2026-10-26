@@ -1,0 +1,106 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals/sources"
+  },
+  "response": {
+    "body": {
+      "sources": [
+        {
+          "certification": null,
+          "id": "jobspy",
+          "maturity": "beta",
+          "required_checks": [
+            "deduplication",
+            "employment_signal_normalization",
+            "external_read",
+            "failure_recovery",
+            "provenance",
+            "tenant_isolation"
+          ],
+          "signal_types": [
+            "hiring",
+            "partnership_hiring"
+          ]
+        },
+        {
+          "certification": null,
+          "id": "sec_edgar",
+          "maturity": "beta",
+          "required_checks": [
+            "cik_resolution",
+            "deduplication",
+            "external_read",
+            "failure_recovery",
+            "filing_cursor",
+            "provenance",
+            "tenant_isolation"
+          ],
+          "signal_types": [
+            "funding",
+            "leadership_change"
+          ]
+        },
+        {
+          "certification": null,
+          "id": "website_monitor",
+          "maturity": "beta",
+          "required_checks": [
+            "content_change_detection",
+            "deduplication",
+            "external_read",
+            "failure_recovery",
+            "provenance",
+            "tenant_isolation"
+          ],
+          "signal_types": [
+            "website_change",
+            "pricing_page_change"
+          ]
+        },
+        {
+          "certification": null,
+          "id": "tech_stack",
+          "maturity": "beta",
+          "required_checks": [
+            "deduplication",
+            "external_read",
+            "failure_recovery",
+            "provenance",
+            "technology_fingerprint",
+            "tenant_isolation"
+          ],
+          "signal_types": [
+            "tech_change",
+            "new_tech_adopted"
+          ]
+        },
+        {
+          "certification": null,
+          "id": "news_search",
+          "maturity": "beta",
+          "required_checks": [
+            "deduplication",
+            "external_read",
+            "failure_recovery",
+            "provenance",
+            "source_attribution",
+            "tenant_isolation"
+          ],
+          "signal_types": [
+            "news",
+            "funding"
+          ]
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}
