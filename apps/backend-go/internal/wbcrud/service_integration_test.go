@@ -128,7 +128,8 @@ func TestOwnedForUpdateLocks(t *testing.T) {
 	}
 }
 
-func hydrated(t *testing.T, s *wbcrud.Service, ctx context.Context, ws, id string, pre func(tx pgx.Tx)) int {
+func hydrated(t *testing.T, s *wbcrud.Service, ctx context.Context, ws, id string, pre func(tx pgx.Tx), withLeads ...bool) int {
+	wl := len(withLeads) == 0 || withLeads[0]
 	t.Helper()
 	var n int
 	err := s.WithTx(ctx, ws, func(tx pgx.Tx) error {
@@ -139,7 +140,7 @@ func hydrated(t *testing.T, s *wbcrud.Service, ctx context.Context, ws, id strin
 		if pre != nil {
 			pre(tx)
 		}
-		s.Hydrate(ctx, tx, ws, &w)
+		s.Hydrate(ctx, tx, ws, &w, wl)
 		n = w.TotalRows
 		return nil
 	})
@@ -185,6 +186,9 @@ func TestTotalRowsRules(t *testing.T) {
 	legacy := insert(t, s, ctx, wsA, "legacy", "leads_filter", `{}`, `{"city":"Paris"}`)
 	if got := hydrated(t, s, ctx, wsA, legacy, nil); got != 3 {
 		t.Errorf("legacy filter: got %d want 3", got)
+	}
+	if got := hydrated(t, s, ctx, wsA, legacy, nil, false); got != 0 {
+		t.Errorf("legacy filter without lead_db (get/add/remove column/create): got %d want 0", got)
 	}
 	v2 := insert(t, s, ctx, wsA, "v2", "leads_filter", `{"row_storage_version":2}`, `{}`)
 	if got := hydrated(t, s, ctx, wsA, v2, nil); got != 0 {
@@ -268,7 +272,7 @@ func TestUpdatedAtAdvancesOnUpdate(t *testing.T) {
 		}
 		prev = cur
 	}
-	// meta with every field NULL keeps values but still stamps.
+	// meta with every field NULL keeps the stored values.
 	w := func() wbcrud.Workbook {
 		var w wbcrud.Workbook
 		_ = s.WithTx(ctx, wsA, func(tx pgx.Tx) (err error) { w, err = s.Owned(ctx, tx, wsA, id, false); return })

@@ -170,8 +170,10 @@ func (w Workbook) UsesLegacyLeads() bool {
 	}
 	if o, ok := w.SourceConfig.(*Obj); ok {
 		if v, ok := o.Get("row_storage_version"); ok {
-			if n, ok := v.(json.Number); ok && (n.String() == "2" || n.String() == "2.0") {
-				return false
+			if n, ok := v.(json.Number); ok {
+				if f, err := n.Float64(); err == nil && f == 2 {
+					return false
+				}
 			}
 		}
 	}
@@ -227,7 +229,7 @@ func (s *Service) List(ctx context.Context, tx pgx.Tx, ws string) ([]Workbook, e
 		if err != nil {
 			return nil, err
 		}
-		s.Hydrate(ctx, tx, ws, &w)
+		s.Hydrate(ctx, tx, ws, &w, true)
 		out = append(out, w)
 	}
 	return out, nil
@@ -237,7 +239,13 @@ func (s *Service) List(ctx context.Context, tx pgx.Tx, ws string) ([]Workbook, e
 // > 0, else for legacy leads_filter workbooks the lead query total, else 0; a
 // row-count error falls back to the stored total. Each probe runs in a
 // savepoint so a failing statement cannot poison the caller's transaction.
-func (s *Service) Hydrate(ctx context.Context, tx pgx.Tx, ws string, w *Workbook) {
+//
+// withLeads mirrors whether Python's _workbook_response received a lead_db:
+// true for list_workbooks, from-jobs merge and update_workbook (workbooks.py
+// lines 338, 568, 998); false for create_workbook, get_workbook, add_column and
+// remove_column (450, 672, 720, 1225, 1304), where a legacy leads_filter
+// workbook with no rows reports 0.
+func (s *Service) Hydrate(ctx context.Context, tx pgx.Tx, ws string, w *Workbook, withLeads bool) {
 	stored := w.TotalRows
 	w.TotalRows = 0
 
@@ -253,13 +261,13 @@ func (s *Service) Hydrate(ctx context.Context, tx pgx.Tx, ws string, w *Workbook
 		w.TotalRows = int(count)
 		return
 	}
-	if s.Leads == nil || !w.UsesLegacyLeads() {
+	if !withLeads || s.Leads == nil || !w.UsesLegacyLeads() {
 		return
 	}
 	var f leadsread.Filter
 	if raw, err := json.Marshal(w.FilterCriteria); err == nil && w.FilterCriteria != nil {
 		if json.Unmarshal(raw, &f) != nil {
-			f = leadsread.Filter{}
+			return // Python raises inside its try: total stays 0
 		}
 	}
 	var total int
